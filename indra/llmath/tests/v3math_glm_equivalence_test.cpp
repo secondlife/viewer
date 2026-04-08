@@ -24,6 +24,7 @@
 #include "../v3math.h"
 #include "../v4math.h"
 #include "../m3math.h"
+#include "../llsdutil_math.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -363,5 +364,134 @@ namespace tut
                && std::fabs(cross_ll.mV[1]) < 1e-5f
                && std::fabs(cross_ll.mV[2]) < 1e-5f);
         ensure("parallel cross matches glm", vec_near(cross_ll, cross_gm));
+    }
+
+    // ---------- glm::vec3 free function helper overloads ----------
+
+    template<> template<>
+    void v3math_glm_equiv_object::test<22>()
+    {
+        // angle_between glm::vec3 overload matches LLVector3 version
+        LLVector3 a_ll(1.0f, 2.0f, 3.0f);
+        LLVector3 b_ll(4.0f, 5.0f, 6.0f);
+        F32 ll_angle = angle_between(a_ll, b_ll);
+
+        glm::vec3 a_gm(1.0f, 2.0f, 3.0f);
+        glm::vec3 b_gm(4.0f, 5.0f, 6.0f);
+        F32 gm_angle = angle_between(a_gm, b_gm);
+
+        ensure_approximately_equals("angle_between glm matches LL", ll_angle, gm_angle, 16);
+    }
+
+    template<> template<>
+    void v3math_glm_equiv_object::test<23>()
+    {
+        // are_parallel glm::vec3 overload matches LLVector3 version
+        LLVector3 a_ll(1.0f, 2.0f, 3.0f);
+        LLVector3 b_ll(2.0f, 4.0f, 6.0f);  // 2*a, parallel
+        LLVector3 c_ll(1.0f, 0.0f, 0.0f);  // not parallel
+
+        glm::vec3 a_gm(1.0f, 2.0f, 3.0f);
+        glm::vec3 b_gm(2.0f, 4.0f, 6.0f);
+        glm::vec3 c_gm(1.0f, 0.0f, 0.0f);
+
+        ensure_equals("are_parallel parallel case matches",
+                      are_parallel(a_ll, b_ll), are_parallel(a_gm, b_gm));
+        ensure_equals("are_parallel non-parallel case matches",
+                      are_parallel(a_ll, c_ll), are_parallel(a_gm, c_gm));
+    }
+
+    template<> template<>
+    void v3math_glm_equiv_object::test<24>()
+    {
+        // dist_vec glm::vec3 overload matches LLVector3 version
+        LLVector3 a_ll(1.0f, 2.0f, 3.0f);
+        LLVector3 b_ll(4.0f, 6.0f, 3.0f);  // distance 5
+        F32 ll_d = dist_vec(a_ll, b_ll);
+
+        glm::vec3 a_gm(1.0f, 2.0f, 3.0f);
+        glm::vec3 b_gm(4.0f, 6.0f, 3.0f);
+        F32 gm_d = dist_vec(a_gm, b_gm);
+
+        ensure_approximately_equals("dist_vec glm matches LL", ll_d, gm_d, 16);
+    }
+
+    template<> template<>
+    void v3math_glm_equiv_object::test<25>()
+    {
+        // dist_vec_squared glm::vec3 overload matches LLVector3 version
+        LLVector3 a_ll(1.0f, 2.0f, 3.0f);
+        LLVector3 b_ll(4.0f, 6.0f, 3.0f);
+        F32 ll_d2 = dist_vec_squared(a_ll, b_ll);
+
+        glm::vec3 a_gm(1.0f, 2.0f, 3.0f);
+        glm::vec3 b_gm(4.0f, 6.0f, 3.0f);
+        F32 gm_d2 = dist_vec_squared(a_gm, b_gm);
+
+        ensure_approximately_equals("dist_vec_squared glm matches LL", ll_d2, gm_d2, 16);
+    }
+
+    template<> template<>
+    void v3math_glm_equiv_object::test<26>()
+    {
+        // dist_vec_squared2D ignores Z component in both versions
+        LLVector3 a_ll(1.0f, 2.0f, 100.0f);
+        LLVector3 b_ll(4.0f, 6.0f, -50.0f);  // wildly different Z
+        F32 ll_d2 = dist_vec_squared2D(a_ll, b_ll);
+
+        glm::vec3 a_gm(1.0f, 2.0f, 100.0f);
+        glm::vec3 b_gm(4.0f, 6.0f, -50.0f);
+        F32 gm_d2 = dist_vec_squared2D(a_gm, b_gm);
+
+        ensure_approximately_equals("dist_vec_squared2D glm matches LL", ll_d2, gm_d2, 16);
+        // sanity: should equal 9 + 16 = 25, ignoring z difference
+        ensure_approximately_equals("dist_vec_squared2D ignores z", gm_d2, 25.0f, 16);
+    }
+
+    template<> template<>
+    void v3math_glm_equiv_object::test<27>()
+    {
+        // lerp glm::vec3 overload matches LLVector3 version
+        LLVector3 a_ll(1.0f, 2.0f, 3.0f);
+        LLVector3 b_ll(11.0f, 22.0f, 33.0f);
+        LLVector3 ll_mid = lerp(a_ll, b_ll, 0.25f);
+
+        glm::vec3 a_gm(1.0f, 2.0f, 3.0f);
+        glm::vec3 b_gm(11.0f, 22.0f, 33.0f);
+        glm::vec3 gm_mid = lerp(a_gm, b_gm, 0.25f);
+
+        ensure("lerp glm matches LL", vec_near(ll_mid, gm_mid));
+    }
+
+    template<> template<>
+    void v3math_glm_equiv_object::test<28>()
+    {
+        // ll_sd_from_vec3 produces same LLSD as ll_sd_from_vector3 for the
+        // same vector value
+        LLVector3 v_ll(1.5f, -2.5f, 3.5f);
+        glm::vec3 v_gm(1.5f, -2.5f, 3.5f);
+
+        LLSD sd_ll = ll_sd_from_vector3(v_ll);
+        LLSD sd_gm = ll_sd_from_vec3(v_gm);
+
+        ensure_approximately_equals("LLSD x matches",
+            static_cast<F32>(sd_ll[0].asReal()), static_cast<F32>(sd_gm[0].asReal()), 16);
+        ensure_approximately_equals("LLSD y matches",
+            static_cast<F32>(sd_ll[1].asReal()), static_cast<F32>(sd_gm[1].asReal()), 16);
+        ensure_approximately_equals("LLSD z matches",
+            static_cast<F32>(sd_ll[2].asReal()), static_cast<F32>(sd_gm[2].asReal()), 16);
+    }
+
+    template<> template<>
+    void v3math_glm_equiv_object::test<29>()
+    {
+        // ll_vec3_from_sd round-trips correctly
+        glm::vec3 original(7.25f, -1.125f, 0.5f);
+        LLSD sd = ll_sd_from_vec3(original);
+        glm::vec3 round = ll_vec3_from_sd(sd);
+
+        ensure_approximately_equals("round-trip x", round.x, original.x, 16);
+        ensure_approximately_equals("round-trip y", round.y, original.y, 16);
+        ensure_approximately_equals("round-trip z", round.z, original.z, 16);
     }
 }

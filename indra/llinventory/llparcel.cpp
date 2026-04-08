@@ -157,7 +157,7 @@ void LLParcel::init(const LLUUID &owner_id,
     mDiscountRate       = 1.0f;
     mDrawDistance       = 512.f;
 
-    mUserLookAt.set(0.0f, 0.f, 0.f);
+    mUserLookAt = glm::vec3(0.f, 0.f, 0.f);
     // Default to using the parcel's landing point, if any.
     mLandingType = L_LANDING_POINT;
 
@@ -204,8 +204,8 @@ void LLParcel::init(const LLUUID &owner_id,
     mPassPrice = PARCEL_PASS_PRICE_DEFAULT;
     mPassHours = PARCEL_PASS_HOURS_DEFAULT;
 
-    mAABBMin.set(SOME_BIG_NUMBER, SOME_BIG_NUMBER, SOME_BIG_NUMBER);
-    mAABBMax.set(SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER);
+    mAABBMin = glm::vec3(SOME_BIG_NUMBER, SOME_BIG_NUMBER, SOME_BIG_NUMBER);
+    mAABBMax = glm::vec3(SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER);
 
     mLocalID = INVALID_PARCEL_ID;
 
@@ -756,32 +756,30 @@ F32 LLParcel::getAdjustedRentPerMeter() const
     return (static_cast<F32>(mRentPricePerMeter) * (1.0f - mDiscountRate));
 }
 
-LLVector3 LLParcel::getCenterpoint() const
+glm::vec3 LLParcel::getCenterpoint() const
 {
-    LLVector3 rv((getAABBMin().mV[VX] + getAABBMax().mV[VX]) * 0.5f,
-                 (getAABBMin().mV[VY] + getAABBMax().mV[VY]) * 0.5f,
-                 0.0f);
-    return rv;
+    return glm::vec3((getAABBMin().x + getAABBMax().x) * 0.5f,
+                     (getAABBMin().y + getAABBMax().y) * 0.5f,
+                     0.0f);
 }
 
-void LLParcel::extendAABB(const LLVector3& box_min, const LLVector3& box_max)
+void LLParcel::extendAABB(const glm::vec3& box_min, const glm::vec3& box_max)
 {
     // Patch up min corner of AABB
-    S32 i;
-    for (i=0; i<3; i++)
+    for (int i = 0; i < 3; i++)
     {
-        if (box_min.mV[i] < mAABBMin.mV[i])
+        if (box_min[i] < mAABBMin[i])
         {
-            mAABBMin.mV[i] = box_min.mV[i];
+            mAABBMin[i] = box_min[i];
         }
     }
 
     // Patch up max corner of AABB
-    for (i=0; i<3; i++)
+    for (int i = 0; i < 3; i++)
     {
-        if (box_max.mV[i] > mAABBMax.mV[i])
+        if (box_max[i] > mAABBMax[i])
         {
-            mAABBMax.mV[i] = box_max.mV[i];
+            mAABBMax[i] = box_max[i];
         }
     }
 }

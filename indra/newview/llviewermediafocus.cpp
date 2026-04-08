@@ -66,7 +66,7 @@ LLViewerMediaFocus::~LLViewerMediaFocus()
     gFocusMgr.removeKeyboardFocusWithoutCallback(this);
 }
 
-void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal)
+void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, glm::vec3 pick_normal)
 {
     LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 
@@ -173,7 +173,7 @@ void LLViewerMediaFocus::clearFocus()
     setFocusFace(NULL, 0, NULL);
 }
 
-void LLViewerMediaFocus::setHoverFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal)
+void LLViewerMediaFocus::setHoverFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, glm::vec3 pick_normal)
 {
     if (media_impl.notNull())
     {
@@ -206,7 +206,7 @@ bool LLViewerMediaFocus::getFocus()
 }
 
 // This function selects an ideal viewing distance based on the focused object, pick normal, and padding value
-LLVector3d LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor, bool zoom_in_only)
+LLVector3d LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, glm::vec3 normal, F32 padding_factor, bool zoom_in_only)
 {
     LLVector3d camera_pos;
     if (object)
@@ -225,7 +225,7 @@ LLVector3d LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 n
         F32 aspect_ratio = getBBoxAspectRatio(bbox, normal, &height, &width, &depth);
         F32 camera_aspect = LLViewerCamera::getInstance()->getAspect();
 
-        LL_DEBUGS() << "normal = " << normal << ", aspect_ratio = " << aspect_ratio << ", camera_aspect = " << camera_aspect << LL_ENDL;
+        LL_DEBUGS() << "normal = " << LLVector3(normal) << ", aspect_ratio = " << aspect_ratio << ", camera_aspect = " << camera_aspect << LL_ENDL;
 
         // We will normally use the side of the volume aligned with the short side of the screen (i.e. the height for
         // a screen in a landscape aspect ratio), however there is an edge case where the aspect ratio of the object is
@@ -576,7 +576,7 @@ void LLViewerMediaFocus::focusZoomOnMedia(LLUUID media_id)
             {
                 // If that didn't work, use the inverse of the camera "look at" axis, which should keep the camera pointed in the same direction.
 //              LL_INFOS() << "approximate face normal invalid, using camera direction." << LL_ENDL;
-                normal = LLViewerCamera::getInstance()->getAtAxis();
+                normal = LLVector3(LLViewerCamera::getInstance()->getAtAxis());
                 normal *= static_cast<F32>(-1.0f);
             }
 

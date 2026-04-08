@@ -94,10 +94,10 @@ void LLSprite::updateFace(LLFace &face)
 
     if (mFollow)
     {
-        sCameraUp = camera.getUpAxis();
-        sCameraRight = -camera.getLeftAxis();
-        sCameraPosition = camera.getOrigin();
-        sNormal = -camera.getAtAxis();
+        sCameraUp = LLVector3(camera.getUpAxis());
+        sCameraRight = -LLVector3(camera.getLeftAxis());
+        sCameraPosition = LLVector3(camera.getOrigin());
+        sNormal = -LLVector3(camera.getAtAxis());
         if (mUseCameraUp)
         {
             // these need to live here because the height/width may change between render calls

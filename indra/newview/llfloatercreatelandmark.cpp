@@ -162,13 +162,13 @@ void LLFloaterCreateLandmark::setLandmarkInfo(const LLUUID &folder_id)
     LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
     LLParcel* parcel = parcel_mgr->getAgentParcel();
     std::string name = parcel->getName();
-    LLVector3 agent_pos = gAgent.getPositionAgent();
+    const glm::vec3 agent_pos = gAgent.getPositionAgent();
 
     if (name.empty())
     {
-        S32 region_x = ll_round(agent_pos.mV[VX]);
-        S32 region_y = ll_round(agent_pos.mV[VY]);
-        S32 region_z = ll_round(agent_pos.mV[VZ]);
+        S32 region_x = ll_round(agent_pos.x);
+        S32 region_y = ll_round(agent_pos.y);
+        S32 region_z = ll_round(agent_pos.z);
 
         std::string region_name;
         LLViewerRegion* region = parcel_mgr->getSelectionRegion();

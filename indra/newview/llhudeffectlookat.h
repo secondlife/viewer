@@ -28,6 +28,8 @@
 
 #include "llhudeffect.h"
 
+#include "glm/vec3.hpp"
+
 class LLViewerObject;
 class LLVOAvatar;
 class LLAttentionSet;
@@ -84,7 +86,7 @@ public:
 private:
     ELookAtType                 mTargetType;
     LLVector3d                  mTargetOffsetGlobal;
-    LLVector3                   mLastSentOffsetGlobal;
+    glm::vec3                   mLastSentOffsetGlobal;
     F32                         mKillTime;
     LLFrameTimer                mTimer;
     LLVector3                   mTargetPos;

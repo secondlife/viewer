@@ -228,7 +228,7 @@ void LLFloaterPathfindingLinksets::buildObjectsScrollList(const LLPathfindingObj
     bool isFilteringDescription = !descriptionFilter.empty();
     bool isFilteringLinksetUse = (linksetUseFilter != LLPathfindingLinkset::kUnknown);
 
-    const LLVector3& avatarPosition = gAgent.getPositionAgent();
+    const glm::vec3 avatarPosition = gAgent.getPositionAgent();
 
     if (isFilteringName || isFilteringDescription || isFilteringLinksetUse)
     {
@@ -400,7 +400,7 @@ void LLFloaterPathfindingLinksets::updateEditFieldValues()
     }
 }
 
-LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const
+LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const glm::vec3 &pAvatarPosition) const
 {
     llassert(pLinksetPtr != NULL);
     LLSD columns = LLSD::emptyArray();

@@ -27,6 +27,9 @@
 #pragma once
 
 #include "llstring.h"
+#include "v3math.h"
+#include "v3dmath.h"
+#include <glm/vec3.hpp>
 
 
 // represents a location in a grid
@@ -66,8 +69,8 @@ public:
     LLSLURL(): mType(INVALID)  { }
     explicit LLSLURL(const std::string& slurl);
     LLSLURL(const std::string& grid, const std::string& region);
-    LLSLURL(const std::string& region, const LLVector3& position);
-    LLSLURL(const std::string& grid, const std::string& region, const LLVector3& position);
+    LLSLURL(const std::string& region, const glm::vec3& position);
+    LLSLURL(const std::string& grid, const std::string& region, const glm::vec3& position);
     LLSLURL(const std::string& grid, const std::string& region, const LLVector3d& global_position);
     LLSLURL(const std::string& region, const LLVector3d& global_position);
     LLSLURL(const std::string& command, const LLUUID&id, const std::string& verb);
@@ -79,7 +82,7 @@ public:
     std::string getLocationString() const;
     std::string getGrid() const { return mGrid; }
     std::string getRegion() const { return mRegion; }
-    LLVector3   getPosition() const { return mPosition; }
+    glm::vec3   getPosition() const { return mPosition; }
     std::string getAppCmd() const { return mAppCmd; }
     std::string getAppQuery() const { return mAppQuery; }
     LLSD        getAppQueryMap() const { return mAppQueryMap; }
@@ -108,6 +111,6 @@ protected:
 
     std::string mGrid;  // reference to grid manager grid
     std::string mRegion;
-    LLVector3  mPosition;
+    glm::vec3  mPosition{0.f, 0.f, 0.f};
 };
 

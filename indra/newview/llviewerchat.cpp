@@ -94,9 +94,9 @@ void LLViewerChat::getChatColor(const LLChat& chat, LLUIColor& r_color, F32& r_c
                 r_color = LLUIColorTable::instance().getColor("White");
         }
 
-        if (!chat.mPosAgent.isExactlyZero())
+        if (chat.mPosAgent != glm::vec3(0.f))
         {
-            LLVector3 pos_agent = gAgent.getPositionAgent();
+            const glm::vec3 pos_agent = gAgent.getPositionAgent();
             F32 distance_squared = dist_vec_squared(pos_agent, chat.mPosAgent);
             F32 dist_near_chat = gAgent.getNearChatRadius();
             if (distance_squared > dist_near_chat * dist_near_chat)
@@ -168,9 +168,9 @@ void LLViewerChat::getChatColor(const LLChat& chat, std::string& r_color_name, F
                 r_color_name = "White";
         }
 
-        if (!chat.mPosAgent.isExactlyZero())
+        if (chat.mPosAgent != glm::vec3(0.f))
         {
-            LLVector3 pos_agent = gAgent.getPositionAgent();
+            const glm::vec3 pos_agent = gAgent.getPositionAgent();
             F32 distance_squared = dist_vec_squared(pos_agent, chat.mPosAgent);
             F32 dist_near_chat = gAgent.getNearChatRadius();
             if (distance_squared > dist_near_chat * dist_near_chat)

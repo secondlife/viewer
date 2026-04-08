@@ -28,6 +28,7 @@
 
 #include "indra_constants.h"
 #include "llvolume.h"
+#include <glm/vec3.hpp>
 
 #define USE_SHAPE_QUANTIZATION 0
 
@@ -120,8 +121,8 @@ public:
         bool isMesh() { return (mType == USER_MESH) || (mType == PRIM_MESH); }
 
         ShapeType getType() { return mType; }
-        const LLVector3& getScale() { return mScale; }
-        const LLVector3& getCenter() { return mCenter; }
+        const glm::vec3& getScale() { return mScale; }
+        const glm::vec3& getCenter() { return mCenter; }
 
     private:
         friend class LLPhysicsShapeBuilderUtil;
@@ -129,12 +130,12 @@ public:
         ShapeType   mType;
 
         // Dimensions of an AABB around the shape
-        LLVector3   mScale;
+        glm::vec3   mScale;
 
         // Offset of shape from origin of primitive's reference frame
-        LLVector3   mCenter;
+        glm::vec3   mCenter;
     };
 
-    static void determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut, bool has_decomposition = false );
+    static void determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const glm::vec3& scale, PhysicsShapeSpecification& specOut, bool has_decomposition = false );
 };
 

@@ -37,6 +37,7 @@
 #include "llsd.h"
 #include "lluuid.h"
 #include "v3math.h"
+#include "llsdutil_math.h"
 #include <functional>
 
 using namespace std::placeholders;
@@ -60,7 +61,6 @@ LLPathfindingObject::LLPathfindingObject()
     mOwnerName(),
     mAvatarNameCacheConnection(),
     mIsGroupOwned(false),
-    mLocation(),
     mOwnerNameSignal()
 {
 }
@@ -74,7 +74,6 @@ LLPathfindingObject::LLPathfindingObject(const std::string &pUUID, const LLSD &p
     mOwnerName(),
     mAvatarNameCacheConnection(),
     mIsGroupOwned(false),
-    mLocation(),
     mOwnerNameSignal()
 {
     parseObjectData(pObjectData);
@@ -165,7 +164,7 @@ void LLPathfindingObject::parseObjectData(const LLSD &pObjectData)
 
     llassert(pObjectData.has(PATHFINDING_OBJECT_POSITION_FIELD));
     llassert(pObjectData.get(PATHFINDING_OBJECT_POSITION_FIELD).isArray());
-    mLocation.setValue(pObjectData.get(PATHFINDING_OBJECT_POSITION_FIELD));
+    mLocation = ll_vec3_from_sd(pObjectData.get(PATHFINDING_OBJECT_POSITION_FIELD));
 }
 
 void LLPathfindingObject::fetchOwnerName()

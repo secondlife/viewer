@@ -153,7 +153,7 @@ public:
     /*virtual*/ S32             setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.
     /*virtual*/ void            onShift(const LLVector4a& shift_vector);
     /*virtual*/ U32             getPartitionType() const;
-    /*virtual*/ const           LLVector3 getRenderPosition() const;
+    /*virtual*/                 glm::vec3 getRenderPosition() const;
     /*virtual*/ void            updateDrawable(bool force_damped);
     /*virtual*/ LLDrawable*     createDrawable(LLPipeline *pipeline);
     /*virtual*/ bool            updateGeometry(LLDrawable *drawable);

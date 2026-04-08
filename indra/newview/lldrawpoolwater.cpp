@@ -94,7 +94,7 @@ void LLDrawPoolWater::prerender()
 
 S32 LLDrawPoolWater::getNumPostDeferredPasses()
 {
-    if (LLViewerCamera::getInstance()->getOrigin().mV[2] < 1024.f)
+    if (LLViewerCamera::getInstance()->getOrigin().z < 1024.f)
     {
         return 1;
     }
@@ -234,10 +234,10 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     }
 
     F32 water_height = environment.getWaterHeight();
-    F32 camera_height = LLViewerCamera::getInstance()->getOrigin().mV[2];
+    F32 camera_height = LLViewerCamera::getInstance()->getOrigin().z;
     shader->uniform1f(LLShaderMgr::WATER_WATERHEIGHT, camera_height - water_height);
     shader->uniform1f(LLShaderMgr::WATER_TIME, phase_time);
-    shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, std::span<const GLfloat>(LLViewerCamera::getInstance()->getOrigin().mV, 3));
+    shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, std::span<const GLfloat>(&LLViewerCamera::getInstance()->getOrigin().x, 3));
 
     shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, std::span<const GLfloat>(light_diffuse.mV, 3));
 
@@ -278,7 +278,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     LLVector4 rotated_light_direction = LLEnvironment::instance().getClampedLightNorm();
     shader->uniform3fv(LLViewerShaderMgr::LIGHTNORM, std::span<const GLfloat>(rotated_light_direction.mV, 3));
 
-    shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, std::span<const GLfloat>(LLViewerCamera::getInstance()->getOrigin().mV, 3));
+    shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, std::span<const GLfloat>(&LLViewerCamera::getInstance()->getOrigin().x, 3));
 
     if (LLViewerCamera::getInstance()->cameraUnderWater())
     {

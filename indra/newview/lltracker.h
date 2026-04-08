@@ -106,7 +106,7 @@ protected:
     LLTracker();
     ~LLTracker();
 
-    static void drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 fogged_color, F32 dist);
+    static void drawBeacon(glm::vec3 pos_agent, std::string direction, LLColor4 fogged_color, F32 dist);
     static void renderBeacon( LLVector3d pos_global,
                              const LLColor4& color,
                              const LLColor4& color_under,

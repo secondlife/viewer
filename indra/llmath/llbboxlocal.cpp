@@ -29,27 +29,28 @@
 #include "llbboxlocal.h"
 #include "m4math.h"
 
-void LLBBoxLocal::addPoint(const LLVector3& p)
+void LLBBoxLocal::addPoint(const glm::vec3& p)
 {
-    mMin.mV[VX] = llmin( p.mV[VX], mMin.mV[VX] );
-    mMin.mV[VY] = llmin( p.mV[VY], mMin.mV[VY] );
-    mMin.mV[VZ] = llmin( p.mV[VZ], mMin.mV[VZ] );
-    mMax.mV[VX] = llmax( p.mV[VX], mMax.mV[VX] );
-    mMax.mV[VY] = llmax( p.mV[VY], mMax.mV[VY] );
-    mMax.mV[VZ] = llmax( p.mV[VZ], mMax.mV[VZ] );
+    mMin.x = llmin( p.x, mMin.x );
+    mMin.y = llmin( p.y, mMin.y );
+    mMin.z = llmin( p.z, mMin.z );
+    mMax.x = llmax( p.x, mMax.x );
+    mMax.y = llmax( p.y, mMax.y );
+    mMax.z = llmax( p.z, mMax.z );
 }
 
 void LLBBoxLocal::expand( F32 delta )
 {
-    mMin.mV[VX] -= delta;
-    mMin.mV[VY] -= delta;
-    mMin.mV[VZ] -= delta;
-    mMax.mV[VX] += delta;
-    mMax.mV[VY] += delta;
-    mMax.mV[VZ] += delta;
+    mMin.x -= delta;
+    mMin.y -= delta;
+    mMin.z -= delta;
+    mMax.x += delta;
+    mMax.y += delta;
+    mMax.z += delta;
 }
 
 LLBBoxLocal operator*(const LLBBoxLocal &a, const LLMatrix4 &b)
 {
-    return LLBBoxLocal( a.mMin * b, a.mMax * b );
+    // LLMatrix4 operator* is defined for LLVector3, so bridge at the call site
+    return LLBBoxLocal( LLVector3(a.mMin) * b, LLVector3(a.mMax) * b );
 }

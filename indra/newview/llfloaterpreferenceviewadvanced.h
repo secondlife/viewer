@@ -28,6 +28,7 @@
 
 #include "llcontrol.h"
 #include "llfloater.h"
+#include <glm/vec3.hpp>
 
 class LLFloaterPreferenceViewAdvanced
 :   public LLFloater
@@ -39,7 +40,7 @@ public:
     virtual void draw();
 
     void onCommitSettings();
-    void updateCameraControl(const LLVector3& vector);
+    void updateCameraControl(const glm::vec3& vector);
     void updateFocusControl(const LLVector3d& vector3d);
 
 private:

@@ -334,7 +334,7 @@ namespace tut
         ensure_equals("location string", slurl.getLocationString(), "my region/1/2/3");
         ensure_equals("grid", slurl.getGrid(), "my.grid.com");
         ensure_equals("region", slurl.getRegion(), "my region");
-        ensure_equals("position", slurl.getPosition(), LLVector3(1, 2, 3));
+        ensure_equals("position", slurl.getPosition(), glm::vec3(1, 2, 3));
 
     }
 }

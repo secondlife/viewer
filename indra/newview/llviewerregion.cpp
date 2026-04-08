@@ -878,7 +878,7 @@ const LLVector3d & LLViewerRegion::getOriginGlobal() const
     return mImpl->mOriginGlobal;
 }
 
-LLVector3 LLViewerRegion::getOriginAgent() const
+glm::vec3 LLViewerRegion::getOriginAgent() const
 {
     return gAgent.getPosAgentFromGlobal(mImpl->mOriginGlobal);
 }
@@ -888,7 +888,7 @@ const LLVector3d & LLViewerRegion::getCenterGlobal() const
     return mImpl->mCenterGlobal;
 }
 
-LLVector3 LLViewerRegion::getCenterAgent() const
+glm::vec3 LLViewerRegion::getCenterAgent() const
 {
     return gAgent.getPosAgentFromGlobal(mImpl->mCenterGlobal);
 }
@@ -1395,7 +1395,7 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
     }
 
     const F32 LARGE_SCENE_CONTRIBUTION = 1000.f; //a large number to force to load the object.
-    const LLVector3 camera_origin = LLViewerCamera::getInstance()->getOrigin();
+    const LLVector3 camera_origin(LLViewerCamera::getInstance()->getOrigin());
     const U32 cur_frame = LLViewerOctreeEntryData::getCurrentFrame();
     bool needs_update = ((cur_frame - mImpl->mLastCameraUpdate) > 5) && ((camera_origin - mImpl->mLastCameraOrigin).lengthSquared() > 10.f);
     U32 last_update = mImpl->mLastCameraUpdate;
@@ -1729,9 +1729,9 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
 
     LLTimer update_timer;
     LLVector4a camera_origin;
-    camera_origin.load3(LLViewerCamera::getInstance()->getOrigin().mV);
+    camera_origin.load3(&LLViewerCamera::getInstance()->getOrigin().x);
     LLVector4a local_origin;
-    local_origin.load3((LLViewerCamera::getInstance()->getOrigin() - getOriginAgent()).mV);
+    local_origin.load3((LLVector3(LLViewerCamera::getInstance()->getOrigin()) - getOriginAgent()).mV);
     F32 back_threshold = LLVOCacheEntry::sRearFarRadius;
 
     size_t max_update = 64;
@@ -2143,33 +2143,33 @@ bool LLViewerRegion::pointInRegionGlobal(const LLVector3d &point_global) const
     return true;
 }
 
-LLVector3 LLViewerRegion::getPosRegionFromGlobal(const LLVector3d &point_global) const
+glm::vec3 LLViewerRegion::getPosRegionFromGlobal(const LLVector3d &point_global) const
 {
-    LLVector3 pos_region(point_global - mImpl->mOriginGlobal);
-    return pos_region;
+    const LLVector3d d = point_global - mImpl->mOriginGlobal;
+    return glm::vec3(static_cast<F32>(d.mdV[VX]), static_cast<F32>(d.mdV[VY]), static_cast<F32>(d.mdV[VZ]));
 }
 
-LLVector3d LLViewerRegion::getPosGlobalFromRegion(const LLVector3 &pos_region) const
+LLVector3d LLViewerRegion::getPosGlobalFromRegion(const glm::vec3 &pos_region) const
 {
-    LLVector3d pos_region_d(pos_region);
+    LLVector3d pos_region_d(pos_region.x, pos_region.y, pos_region.z);
     return pos_region_d + mImpl->mOriginGlobal;
 }
 
-LLVector3 LLViewerRegion::getPosAgentFromRegion(const LLVector3 &pos_region) const
+glm::vec3 LLViewerRegion::getPosAgentFromRegion(const glm::vec3 &pos_region) const
 {
     LLVector3d pos_global = getPosGlobalFromRegion(pos_region);
 
     return gAgent.getPosAgentFromGlobal(pos_global);
 }
 
-LLVector3 LLViewerRegion::getPosRegionFromAgent(const LLVector3 &pos_agent) const
+glm::vec3 LLViewerRegion::getPosRegionFromAgent(const glm::vec3 &pos_agent) const
 {
     return pos_agent - getOriginAgent();
 }
 
-F32 LLViewerRegion::getLandHeightRegion(const LLVector3& region_pos)
+F32 LLViewerRegion::getLandHeightRegion(const glm::vec3& region_pos)
 {
-    return mImpl->mLandp->resolveHeightRegion( region_pos );
+    return mImpl->mLandp->resolveHeightRegion(LLVector3(region_pos.x, region_pos.y, region_pos.z));
 }
 
 bool LLViewerRegion::isAlive()
@@ -2177,22 +2177,22 @@ bool LLViewerRegion::isAlive()
     return mAlive;
 }
 
-bool LLViewerRegion::isOwnedSelf(const LLVector3& pos)
+bool LLViewerRegion::isOwnedSelf(const glm::vec3& pos)
 {
     if (mParcelOverlay)
     {
-        return mParcelOverlay->isOwnedSelf(pos);
+        return mParcelOverlay->isOwnedSelf(LLVector3(pos.x, pos.y, pos.z));
     } else {
         return false;
     }
 }
 
 // Owned by a group you belong to?  (officer or member)
-bool LLViewerRegion::isOwnedGroup(const LLVector3& pos)
+bool LLViewerRegion::isOwnedGroup(const glm::vec3& pos)
 {
     if (mParcelOverlay)
     {
-        return mParcelOverlay->isOwnedGroup(pos);
+        return mParcelOverlay->isOwnedGroup(LLVector3(pos.x, pos.y, pos.z));
     } else {
         return false;
     }
@@ -3626,11 +3626,12 @@ LLVOCachePartition* LLViewerRegion::getVOCachePartition()
 const U64 ALLOW_RETURN_ENCROACHING_OBJECT = REGION_FLAGS_ALLOW_RETURN_ENCROACHING_OBJECT
                                             | REGION_FLAGS_ALLOW_RETURN_ENCROACHING_ESTATE_OBJECT;
 
-bool LLViewerRegion::objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const
+bool LLViewerRegion::objectIsReturnable(const glm::vec3& pos, const std::vector<LLBBox>& boxes) const
 {
+    const LLVector3 ll_pos(pos.x, pos.y, pos.z);
     return (mParcelOverlay != NULL)
-        && (mParcelOverlay->isOwnedSelf(pos)
-            || mParcelOverlay->isOwnedGroup(pos)
+        && (mParcelOverlay->isOwnedSelf(ll_pos)
+            || mParcelOverlay->isOwnedGroup(ll_pos)
             || (getRegionFlag(ALLOW_RETURN_ENCROACHING_OBJECT)
                 && mParcelOverlay->encroachesOwned(boxes)) );
 }

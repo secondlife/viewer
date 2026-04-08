@@ -32,6 +32,7 @@
 #include "v2math.h"
 #include "v4color.h"
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 
 class LLMessageSystem;
 class LLDataPacker;
@@ -167,7 +168,7 @@ public:
     glm::vec2           mStartScale;                // Start scale
     glm::vec2           mEndScale;                  // End scale
 
-    LLVector3           mPosOffset;                 // Offset from source if using FOLLOW_SOURCE
+    glm::vec3           mPosOffset{0.f, 0.f, 0.f};  // Offset from source if using FOLLOW_SOURCE (unused in production, tested as zero-init)
     F32                 mParameter;                 // A single floating point parameter
 
     F32                 mStartGlow;

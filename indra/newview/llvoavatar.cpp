@@ -1303,7 +1303,7 @@ LLTexLayerSet* LLVOAvatar::createTexLayerSet()
     return new LLViewerTexLayerSet(this);
 }
 
-const LLVector3 LLVOAvatar::getRenderPosition() const
+glm::vec3 LLVOAvatar::getRenderPosition() const
 {
 
     if (mDrawable.isNull() || mDrawable->getGeneration() < 0)
@@ -1316,8 +1316,8 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
         if ( hasPelvisFixup( fixup) )
         {
             //Apply a pelvis fixup (as defined by the avs skin)
-            LLVector3 pos = mDrawable->getPositionAgent();
-            pos[VZ] += fixup;
+            glm::vec3 pos = mDrawable->getPositionAgent();
+            pos.z += fixup;
             return pos;
         }
         else
@@ -1327,7 +1327,7 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
     }
     else
     {
-        return getPosition() * mDrawable->getParent()->getRenderMatrix();
+        return glm::vec3(LLVector3(getPosition()) * mDrawable->getParent()->getRenderMatrix());
     }
 }
 
@@ -1413,16 +1413,18 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     // known starting point, but in general there isn't. Ideally the
     // box update logic should be modified to handle the no-point-yet
     // case. For most models, starting with the pelvis is safe though.
-    LLVector3 zero_pos;
+    glm::vec3 zero_pos(0.f);
     LLVector4a pos;
-    if (dist_vec(zero_pos, mPelvisp->getWorldPosition())<0.001)
+    if (glm::length(zero_pos - mPelvisp->getWorldPosition()) < 0.001f)
     {
         // Don't use pelvis until av initialized
-        pos.load3(getRenderPosition().mV);
+        const glm::vec3 rp = getRenderPosition();
+        pos.load3(glm::value_ptr(rp));
     }
     else
     {
-        pos.load3(mPelvisp->getWorldPosition().mV);
+        const glm::vec3 wp = mPelvisp->getWorldPosition();
+        pos.load3(glm::value_ptr(wp));
     }
     newMin = pos;
     newMax = pos;
@@ -1704,7 +1706,7 @@ void LLVOAvatar::renderBones(const std::string &selected_joint)
 
         LLVector3 occ_color, visible_color;
 
-        LLVector3 pos;
+        glm::vec3 pos;
         LLUUID mesh_id;
         F32 sphere_scale = SPHERE_SCALEF;
 
@@ -3757,13 +3759,15 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
 {
     LLQuaternion root_rot = mRoot->getWorldRotation();
     LLQuaternion inv_root_rot = ~root_rot;
-    LLVector3 pixel_right_vec;
-    LLVector3 pixel_up_vec;
-    LLViewerCamera::getInstance()->getPixelVectors(root_pos_last, pixel_up_vec, pixel_right_vec);
-    LLVector3 camera_to_av = root_pos_last - LLViewerCamera::getInstance()->getOrigin();
+    // Bridge: getPixelVectors now takes/returns glm::vec3.
+    glm::vec3 pixel_right_glm, pixel_up_glm;
+    LLViewerCamera::getInstance()->getPixelVectors(static_cast<glm::vec3>(root_pos_last), pixel_up_glm, pixel_right_glm);
+    LLVector3 pixel_right_vec(pixel_right_glm.x, pixel_right_glm.y, pixel_right_glm.z);
+    LLVector3 pixel_up_vec(pixel_up_glm.x, pixel_up_glm.y, pixel_up_glm.z);
+    LLVector3 camera_to_av = root_pos_last - LLVector3(LLViewerCamera::getInstance()->getOrigin());
     camera_to_av.normalize();
     LLVector3 local_camera_at = camera_to_av * inv_root_rot;
-    LLVector3 local_camera_up = cross(camera_to_av, LLViewerCamera::getInstance()->getLeftAxis());
+    LLVector3 local_camera_up = cross(camera_to_av, LLVector3(LLViewerCamera::getInstance()->getLeftAxis()));
     local_camera_up.normalize();
     local_camera_up = local_camera_up * inv_root_rot;
 
@@ -4399,11 +4403,11 @@ void LLVOAvatar::updateOrientation(LLAgent& agent, F32 speed, F32 delta_time)
                 // make sure fwdDir stays in same general direction as primdir
                 if (gAgent.getFlying())
                 {
-                    fwdDir = LLViewerCamera::getInstance()->getAtAxis();
+                    fwdDir = LLVector3(LLViewerCamera::getInstance()->getAtAxis());
                 }
                 else
                 {
-                    LLVector3 at_axis = LLViewerCamera::getInstance()->getAtAxis();
+                    LLVector3 at_axis(LLViewerCamera::getInstance()->getAtAxis());
                     LLVector3 up_vector = gAgent.getReferenceUpVector();
                     at_axis -= up_vector * (at_axis * up_vector);
                     at_axis.normalize();
@@ -4906,7 +4910,7 @@ void LLVOAvatar::updateHeadOffset()
 {
     // since we only care about Z, just grab one of the eyes
     LLVector3 midEyePt = mEyeLeftp->getWorldPosition();
-    midEyePt -= mDrawable.notNull() ? mDrawable->getWorldPosition() : mRoot->getWorldPosition();
+    midEyePt -= mDrawable.notNull() ? LLVector3(mDrawable->getWorldPosition()) : LLVector3(mRoot->getWorldPosition());
     midEyePt.mV[VZ] = llmax(-mPelvisToFoot + LLViewerCamera::getInstance()->getNear(), midEyePt.mV[VZ]);
 
     if (mDrawable.notNull())
@@ -5427,9 +5431,9 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
     }
 
     LLVector3 pos(getRenderPosition()+mImpostorOffset);
-    LLVector3 at = (pos - LLViewerCamera::getInstance()->getOrigin());
+    LLVector3 at = (pos - LLVector3(LLViewerCamera::getInstance()->getOrigin()));
     at.normalize();
-    LLVector3 left = cross(LLViewerCamera::getInstance()->getUpAxis(), at);
+    LLVector3 left = cross(LLVector3(LLViewerCamera::getInstance()->getUpAxis()), at);
     LLVector3 up = cross(at, left);
 
     left *= mImpostorDim.x;
@@ -6809,8 +6813,8 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
 //-----------------------------------------------------------------------------
 void LLVOAvatar::getAttachmentOverrideNames(std::set<std::string>& pos_names, std::set<std::string>& scale_names) const
 {
-    LLVector3 pos;
-    LLVector3 scale;
+    glm::vec3 pos;
+    glm::vec3 scale;
     LLUUID mesh_id;
 
     // Bones
@@ -6876,7 +6880,7 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
         return;
     }
 
-    LLVector3 pos, scale;
+    glm::vec3 pos, scale;
     LLUUID mesh_id;
     S32 count = 0;
 
@@ -10467,7 +10471,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
         {
             LLJoint *pJoint = getJoint(*name_iter);
 
-            LLVector3 pos;
+            glm::vec3 pos;
             LLUUID mesh_id;
 
             if (pJoint && pJoint->hasAttachmentPosOverride(pos,mesh_id))
@@ -10486,7 +10490,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
         {
             LLJoint *pJoint = getJoint(*name_iter);
 
-            LLVector3 scale;
+            glm::vec3 scale;
             LLUUID mesh_id;
 
             if (pJoint && pJoint->hasAttachmentScaleOverride(scale,mesh_id))
@@ -10959,9 +10963,9 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
     extents[0] = ext[0];
     extents[1] = ext[1];
 
-    LLVector3 at = LLViewerCamera::getInstance()->getOrigin()-(getRenderPosition()+mImpostorOffset);
+    LLVector3 at = LLVector3(LLViewerCamera::getInstance()->getOrigin())-(getRenderPosition()+mImpostorOffset);
     distance = at.normalize();
-    F32 da = 1.f - (at*LLViewerCamera::getInstance()->getAtAxis());
+    F32 da = 1.f - (at*LLVector3(LLViewerCamera::getInstance()->getAtAxis()));
     angle.mV[0] = LLViewerCamera::getInstance()->getYaw()*da;
     angle.mV[1] = LLViewerCamera::getInstance()->getPitch()*da;
     angle.mV[2] = da;

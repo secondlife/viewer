@@ -44,11 +44,11 @@ LLFloaterPreferenceViewAdvanced::LLFloaterPreferenceViewAdvanced(const LLSD& key
 LLFloaterPreferenceViewAdvanced::~LLFloaterPreferenceViewAdvanced()
 {}
 
-void LLFloaterPreferenceViewAdvanced::updateCameraControl(const LLVector3& vector)
+void LLFloaterPreferenceViewAdvanced::updateCameraControl(const glm::vec3& vector)
 {
-    getChild<LLSpinCtrl>("camera_x")->setValue(vector[VX]);
-    getChild<LLSpinCtrl>("camera_y")->setValue(vector[VY]);
-    getChild<LLSpinCtrl>("camera_z")->setValue(vector[VZ]);
+    getChild<LLSpinCtrl>("camera_x")->setValue(vector.x);
+    getChild<LLSpinCtrl>("camera_y")->setValue(vector.y);
+    getChild<LLSpinCtrl>("camera_z")->setValue(vector.z);
 }
 
 void LLFloaterPreferenceViewAdvanced::updateFocusControl(const LLVector3d& vector3d)

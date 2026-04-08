@@ -4430,7 +4430,7 @@ LLHUDIcon* LLViewerWindow::cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 dep
     // world coordinates of mouse
     // VECTORIZE THIS
     LLVector3 mouse_direction_global = mouseDirectionGlobal(x,y);
-    LLVector3 mouse_point_global = LLViewerCamera::getInstance()->getOrigin();
+    LLVector3 mouse_point_global(LLViewerCamera::getInstance()->getOrigin());
     LLVector3 mouse_world_start = mouse_point_global;
     LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
 
@@ -4474,10 +4474,10 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 
     // world coordinates of mouse
     LLVector3 mouse_direction_global = mouseDirectionGlobal(x,y);
-    LLVector3 mouse_point_global = LLViewerCamera::getInstance()->getOrigin();
+    LLVector3 mouse_point_global(LLViewerCamera::getInstance()->getOrigin());
 
     //get near clip plane
-    LLVector3 n = LLViewerCamera::getInstance()->getAtAxis();
+    LLVector3 n(LLViewerCamera::getInstance()->getAtAxis());
     LLVector3 p = mouse_point_global + n * LLViewerCamera::getInstance()->getNear();
 
     //project mouse point onto plane
@@ -4574,9 +4574,9 @@ LLVector3 LLViewerWindow::mouseDirectionGlobal(const S32 x, const S32 y) const
     F32         click_y = y - center_y;
 
     // compute mouse vector
-    LLVector3   mouse_vector =  distance * LLViewerCamera::getInstance()->getAtAxis()
-                                - click_x * LLViewerCamera::getInstance()->getLeftAxis()
-                                + click_y * LLViewerCamera::getInstance()->getUpAxis();
+    LLVector3   mouse_vector =  distance * LLVector3(LLViewerCamera::getInstance()->getAtAxis())
+                                - click_x * LLVector3(LLViewerCamera::getInstance()->getLeftAxis())
+                                + click_y * LLVector3(LLViewerCamera::getInstance()->getUpAxis());
 
     mouse_vector.normalize();
 
@@ -5481,7 +5481,7 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     camera->setAspect(1.0); // must set aspect ratio first to avoid undesirable clamping of vertical FoV
     camera->setViewNoBroadcast(F_PI_BY_TWO);
     camera->yaw(0.0);
-    camera->setOrigin(origin);
+    camera->setOrigin(static_cast<glm::vec3>(origin));
     camera->setNear(near_clip);
 
     LLPlane previousClipPlane;
@@ -5556,7 +5556,7 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     int i = face;
     {
         // set up camera to look in each direction
-        camera->lookDir(look_dirs[i], look_upvecs[i]);
+        camera->lookDir(static_cast<glm::vec3>(look_dirs[i]), static_cast<glm::vec3>(look_upvecs[i]));
 
         // turning this flag off here prohibits the screen swap
         // to present the new page to the viewer - this stops
@@ -6187,7 +6187,7 @@ void LLPickInfo::fetchResults()
     LLHUDIcon* hit_icon = gViewerWindow->cursorIntersectIcon(mMousePt.mX, mMousePt.mY, 512.f, &intersection);
 
     LLVector4a origin;
-    origin.load3(LLViewerCamera::getInstance()->getOrigin().mV);
+    origin.load3(&LLViewerCamera::getInstance()->getOrigin().x);
     F32 icon_dist = 0.f;
     LLVector4a start;
     LLVector4a end;
@@ -6269,7 +6269,7 @@ void LLPickInfo::fetchResults()
 
             LLVector3 v_intersection(intersection.getF32ptr());
 
-            mObjectOffset = gAgentCamera.calcFocusOffset(objectp, v_intersection, mPickPt.mX, mPickPt.mY);
+            mObjectOffset = static_cast<glm::vec3>(gAgentCamera.calcFocusOffset(objectp, v_intersection, mPickPt.mX, mPickPt.mY));
             mObjectID = objectp->mID;
             mObjectFace = (te_offset == NO_FACE) ? -1 : static_cast<S32>(te_offset);
             mPickHUD = objectp->isHUDAttachment();
@@ -6328,9 +6328,9 @@ void LLPickInfo::getSurfaceInfo()
     mUVCoords     = glm::vec2(-1, -1);
     mSTCoords     = glm::vec2(-1, -1);
     mXYCoords     = LLCoordScreen(-1, -1);
-    mIntersection = LLVector3(0,0,0);
-    mNormal       = LLVector3(0,0,0);
-    mBinormal     = LLVector3(0,0,0);
+    mIntersection = glm::vec3(0,0,0);
+    mNormal       = glm::vec3(0,0,0);
+    mBinormal     = glm::vec3(0,0,0);
     mTangent      = LLVector4(0,0,0,0);
 
     LLVector4a tangent;
@@ -6366,8 +6366,10 @@ void LLPickInfo::getSurfaceInfo()
             }
             }
 
-            mIntersection.set(intersection.getF32ptr());
-            mNormal.set(normal.getF32ptr());
+            const F32* ip = intersection.getF32ptr();
+            const F32* np = normal.getF32ptr();
+            mIntersection = glm::vec3(ip[0], ip[1], ip[2]);
+            mNormal       = glm::vec3(np[0], np[1], np[2]);
             mTangent.set(tangent.getF32ptr());
 
             //extrapoloate binormal from normal and tangent
@@ -6376,10 +6378,11 @@ void LLPickInfo::getSurfaceInfo()
             binormal.setCross3(normal, tangent);
             binormal.mul(tangent.getF32ptr()[3]);
 
-            mBinormal.set(binormal.getF32ptr());
+            const F32* bp = binormal.getF32ptr();
+            mBinormal = glm::vec3(bp[0], bp[1], bp[2]);
 
-            mBinormal.normalize();
-            mNormal.normalize();
+            mBinormal = glm::normalize(mBinormal);
+            mNormal   = glm::normalize(mNormal);
             mTangent.normalize();
 
             // and XY coords:

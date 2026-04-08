@@ -71,9 +71,10 @@ class LLVector3
 
         // GLM interop
         explicit LLVector3(const glm::vec2& vec);   // Initializes LLVector3 to (vec[0]. vec[1], 0)
-        explicit LLVector3(const glm::vec3& vec);   // Initializes LLVector3 to (vec[0]. vec[1], vec[2])
+        // Transitional: implicit during glm::vec3 migration (cluster #6). Make explicit again once callers migrate.
+        LLVector3(const glm::vec3& vec);            // Initializes LLVector3 to (vec[0]. vec[1], vec[2])
         explicit LLVector3(const glm::vec4& vec);   // Initializes LLVector3 to (vec[0]. vec[1], vec[2])
-        explicit inline operator glm::vec3() const; // Initializes glm::vec3 to (vec[0]. vec[1], vec[2])
+        inline operator glm::vec3() const;          // Initializes glm::vec3 to (vec[0]. vec[1], vec[2])
         explicit inline operator glm::vec4() const; // Initializes glm::vec4 to (vec[0]. vec[1], vec[2], 1)
 
         LLSD getValue() const;
@@ -185,6 +186,50 @@ LLVector3 orthogonal_component(const LLVector3 &a, const LLVector3 &b); // Retur
 LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u); // Returns a vector that is a linear interpolation between a and b
 LLVector3 point_to_box_offset(LLVector3& pos, const LLVector3* box); // Displacement from query point to nearest point on bounding box.
 bool box_valid_and_non_zero(const LLVector3* box);
+
+// glm::vec3 overloads — transitional helpers for the LLVector3 -> glm::vec3
+// migration. Mirror the LLVector3 helpers above but operate on glm::vec3
+// directly. Will be retained or removed depending on whether they have
+// callers after the migration completes (compare LLVector2 migration:
+// the glm::vec2 helpers were retained because they had production callers).
+F32 angle_between(const glm::vec3& a, const glm::vec3& b);
+bool are_parallel(const glm::vec3& a, const glm::vec3& b, F32 epsilon = F_APPROXIMATELY_ZERO);
+F32 dist_vec(const glm::vec3& a, const glm::vec3& b);
+F32 dist_vec_squared(const glm::vec3& a, const glm::vec3& b);
+F32 dist_vec_squared2D(const glm::vec3& a, const glm::vec3& b);
+glm::vec3 lerp(const glm::vec3& a, const glm::vec3& b, F32 u);
+
+// =============================================================================
+// LAYOUT WARNING — LLVector3 and glm::vec3 are NOT binary-compatible
+// =============================================================================
+// With GLM_FORCE_DEFAULT_ALIGNED_GENTYPES (set in indra/cmake/00-Common.cmake),
+// glm::vec3 is padded to vec4 alignment for SIMD: 16 bytes, 16-byte aligned.
+// LLVector3 is the natural 12 bytes, 4-byte aligned.
+//
+// Consequences:
+//   - sizeof(LLVector3) != sizeof(glm::vec3)  -> NO reinterpret_cast between them
+//   - alignof differs                          -> NO LLStrider<glm::vec3> over
+//                                                 a 12-byte-stride buffer
+//   - The vertex pipeline (LLVertexBuffer, LLStrider, mesh upload paths) cannot
+//     be mechanically converted to glm::vec3. Those paths need an alignment-aware
+//     redesign — e.g. a packed vec3 type, or per-file boundary conversion.
+//
+// Non-vertex code (member variables, struct fields, locals, function params)
+// remains safe to convert one-for-one because copies/conversions go through
+// the explicit ctor/operator overloads above.
+//
+// Contrast with LLVector2: that one was fixable with a 1-line alignas(8) on
+// LLVector2 because glm::vec2 is tightly packed (8 bytes). vec3 cannot be
+// fixed that way — its size literally differs.
+//
+// These static_asserts pin the layout. If either type's size or alignment
+// changes, this will fail loudly so the migration assumptions are revisited.
+static_assert(sizeof(LLVector3) == 12,  "LLVector3 must be 12 bytes (natural F32[3] layout)");
+static_assert(alignof(LLVector3) == 4,  "LLVector3 must be 4-byte aligned (natural F32 alignment)");
+static_assert(sizeof(glm::vec3) == 16,  "glm::vec3 expected to be 16 bytes (GLM_FORCE_DEFAULT_ALIGNED_GENTYPES). "
+                                        "If this fails, GLM alignment policy changed — re-audit reinterpret_cast/LLStrider sites.");
+static_assert(alignof(glm::vec3) == 16, "glm::vec3 expected to be 16-byte aligned (GLM_FORCE_DEFAULT_ALIGNED_GENTYPES). "
+                                        "If this fails, GLM alignment policy changed — re-audit reinterpret_cast/LLStrider sites.");
 
 inline LLVector3::LLVector3()
 {

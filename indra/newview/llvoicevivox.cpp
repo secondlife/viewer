@@ -5379,8 +5379,8 @@ void LLVivoxVoiceClient::updatePosition()
         // They're currently always set to zero.
 
         // Send the current camera position to the voice code
-        rot.setRows(LLViewerCamera::getInstance()->getAtAxis(), LLViewerCamera::getInstance()->getLeftAxis (),  LLViewerCamera::getInstance()->getUpAxis());
-        pos = gAgent.getRegion()->getPosGlobalFromRegion(LLViewerCamera::getInstance()->getOrigin());
+        rot.setRows(LLVector3(LLViewerCamera::getInstance()->getAtAxis()), LLVector3(LLViewerCamera::getInstance()->getLeftAxis ()),  LLVector3(LLViewerCamera::getInstance()->getUpAxis()));
+        pos = gAgent.getRegion()->getPosGlobalFromRegion(LLVector3(LLViewerCamera::getInstance()->getOrigin()));
 
         LLVivoxVoiceClient::getInstance()->setCameraPosition(
                                                              pos,               // position

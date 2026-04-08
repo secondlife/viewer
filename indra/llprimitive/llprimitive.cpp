@@ -199,14 +199,14 @@ LLPrimitive::LLPrimitive()
 
     mChanged  = UNCHANGED;
 
-    mPosition.set(0.f,0.f,0.f);
-    mVelocity.set(0.f,0.f,0.f);
-    mAcceleration.set(0.f,0.f,0.f);
+    mPosition = glm::vec3(0.f);
+    mVelocity = glm::vec3(0.f);
+    mAcceleration = glm::vec3(0.f);
 
     mRotation.loadIdentity();
-    mAngularVelocity.set(0.f,0.f,0.f);
+    mAngularVelocity = glm::vec3(0.f);
 
-    mScale.set(1.f,1.f,1.f);
+    mScale = glm::vec3(1.f);
 }
 
 //===============================================================

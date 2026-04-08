@@ -85,7 +85,7 @@ static U16 sOcclusionIndices[] =
 U32 get_box_fan_indices(LLCamera* camera, const LLVector4a& center)
 {
     LLVector4a origin;
-    origin.load3(camera->getOrigin().mV);
+    origin.load3(&camera->getOrigin().x);
 
     S32 cypher = center.greaterThan(origin).getGatheredBits() & 0x7;
 
@@ -95,7 +95,7 @@ U32 get_box_fan_indices(LLCamera* camera, const LLVector4a& center)
 U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center)
 {
     LLVector4a origin;
-    origin.load3(camera->getOrigin().mV);
+    origin.load3(&camera->getOrigin().x);
 
     S32 cypher = center.greaterThan(origin).getGatheredBits() & 0x7;
 
@@ -1053,7 +1053,7 @@ void LLOcclusionCullingGroup::clearOcclusionState(U32 state, S32 mode /* = STATE
 bool LLOcclusionCullingGroup::earlyFail(LLCamera* camera, const LLVector4a* bounds)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_OCTREE;
-    if (camera->getOrigin().isExactlyZero())
+    if (camera->getOrigin() == glm::vec3(0.f))
     {
         return false;
     }
@@ -1072,7 +1072,7 @@ bool LLOcclusionCullingGroup::earlyFail(LLCamera* camera, const LLVector4a* boun
     }*/
 
     LLVector4a e;
-    e.load3(camera->getOrigin().mV);
+    e.load3(&camera->getOrigin().x);
 
     LLVector4a min;
     min.setSub(c,r);
@@ -1247,7 +1247,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
                             LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("doOcclusion - draw water");
 
                             LLGLSquashToFarClip squash;
-                            if (camera->getOrigin().isExactlyZero())
+                            if (camera->getOrigin() == glm::vec3(0.f))
                             { //origin is invalid, draw entire box
                                 gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
                                 gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);
@@ -1260,7 +1260,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
                         else
                         {
                             LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("doOcclusion - draw");
-                            if (camera->getOrigin().isExactlyZero())
+                            if (camera->getOrigin() == glm::vec3(0.f))
                             { //origin is invalid, draw entire box
                                 gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
                                 gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, b111*8);
@@ -1371,7 +1371,7 @@ S32 LLViewerOctreeCull::AABBInFrustumNoFarClipGroupBounds(const LLViewerOctreeGr
 
 S32 LLViewerOctreeCull::AABBSphereIntersectGroupExtents(const LLViewerOctreeGroup* group)
 {
-    return AABBSphereIntersect(group->mExtents[0], group->mExtents[1], mCamera->getOrigin(), mCamera->mFrustumCornerDist);
+    return AABBSphereIntersect(group->mExtents[0], group->mExtents[1], LLVector3(mCamera->getOrigin()), mCamera->mFrustumCornerDist);
 }
 
 S32 LLViewerOctreeCull::AABBInFrustumGroupBounds(const LLViewerOctreeGroup* group)
@@ -1389,7 +1389,7 @@ S32 LLViewerOctreeCull::AABBInFrustumNoFarClipObjectBounds(const LLViewerOctreeG
 
 S32 LLViewerOctreeCull::AABBSphereIntersectObjectExtents(const LLViewerOctreeGroup* group)
 {
-    return AABBSphereIntersect(group->mObjectExtents[0], group->mObjectExtents[1], mCamera->getOrigin(), mCamera->mFrustumCornerDist);
+    return AABBSphereIntersect(group->mObjectExtents[0], group->mObjectExtents[1], LLVector3(mCamera->getOrigin()), mCamera->mFrustumCornerDist);
 }
 
 S32 LLViewerOctreeCull::AABBInFrustumObjectBounds(const LLViewerOctreeGroup* group)
@@ -1412,7 +1412,7 @@ S32 LLViewerOctreeCull::AABBInRegionFrustumGroupBounds(const LLViewerOctreeGroup
 
 S32 LLViewerOctreeCull::AABBRegionSphereIntersectGroupExtents(const LLViewerOctreeGroup* group, const LLVector3& shift)
 {
-    return AABBSphereIntersect(group->mExtents[0], group->mExtents[1], mCamera->getOrigin() - shift, mCamera->mFrustumCornerDist);
+    return AABBSphereIntersect(group->mExtents[0], group->mExtents[1], LLVector3(mCamera->getOrigin()) - shift, mCamera->mFrustumCornerDist);
 }
 //------------------------------------------
 
@@ -1430,14 +1430,14 @@ S32 LLViewerOctreeCull::AABBInRegionFrustumNoFarClipObjectBounds(const LLViewerO
 
 S32 LLViewerOctreeCull::AABBRegionSphereIntersectObjectExtents(const LLViewerOctreeGroup* group, const LLVector3& shift)
 {
-    return AABBSphereIntersect(group->mObjectExtents[0], group->mObjectExtents[1], mCamera->getOrigin() - shift, mCamera->mFrustumCornerDist);
+    return AABBSphereIntersect(group->mObjectExtents[0], group->mObjectExtents[1], LLVector3(mCamera->getOrigin()) - shift, mCamera->mFrustumCornerDist);
 }
 //------------------------------------------
 //check if the objects projection large enough
 
 bool LLViewerOctreeCull::checkProjectionArea(const LLVector4a& center, const LLVector4a& size, const LLVector3& shift, F32 pixel_threshold, F32 near_radius)
 {
-    LLVector3 local_orig = mCamera->getOrigin() - shift;
+    LLVector3 local_orig = LLVector3(mCamera->getOrigin()) - shift;
     LLVector4a origin;
     origin.load3(local_orig.mV);
 

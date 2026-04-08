@@ -3489,9 +3489,9 @@ bool LLModelPreview::render()
     LLQuaternion av_rot = camera_rot;
     F32 camera_distance = show_skin_weight ? SKIN_WEIGHT_CAMERA_DISTANCE : mCameraDistance;
     LLViewerCamera::getInstance()->setOriginAndLookAt(
-        target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot),        // camera
-        LLVector3::z_axis,                                                                  // up
-        target_pos);                                            // point of interest
+        static_cast<glm::vec3>(target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot)),        // camera
+        static_cast<glm::vec3>(LLVector3::z_axis),                                                              // up
+        static_cast<glm::vec3>(target_pos));                                                                    // point of interest
 
 
     z_near = llclamp(z_far * 0.001f, 0.001f, 0.1f);
@@ -3828,9 +3828,9 @@ bool LLModelPreview::render()
             bool pelvis_recalc = false;
 
             LLViewerCamera::getInstance()->setOriginAndLookAt(
-                target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot),        // camera
-                LLVector3::z_axis,                                                                  // up
-                target_pos);                                            // point of interest
+                static_cast<glm::vec3>(target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot)),  // camera
+                static_cast<glm::vec3>(LLVector3::z_axis),                                                        // up
+                static_cast<glm::vec3>(target_pos));                                                              // point of interest
 
             for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
             {

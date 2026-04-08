@@ -68,7 +68,7 @@ U32 LLViewerPart::sNextPartID = 1;
 
 F32 calc_desired_size(LLViewerCamera* camera, LLVector3 pos, glm::vec2 scale)
 {
-    F32 desired_size = (pos - camera->getOrigin()).length();
+    F32 desired_size = (pos - LLVector3(camera->getOrigin())).length();
     desired_size /= 4;
     return llclamp(desired_size, glm::length(scale)*0.5f, PART_SIM_BOX_SIDE*2);
 }
@@ -297,7 +297,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         if (part->mFlags & LLPartData::LL_PART_FOLLOW_SRC_MASK)
         {
             part->mPosAgent = part->mPartSourcep->mPosAgent;
-            part->mPosAgent += part->mPosOffset;
+            part->mPosAgent += LLVector3(part->mPosOffset);
         }
 
         // Do a custom callback if we have one...
@@ -361,8 +361,8 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         // Reset the offset from the source position
         if (part->mFlags & LLPartData::LL_PART_FOLLOW_SRC_MASK)
         {
-            part->mPosOffset = part->mPosAgent;
-            part->mPosOffset -= part->mPartSourcep->mPosAgent;
+            part->mPosOffset = glm::vec3(part->mPosAgent);
+            part->mPosOffset -= glm::vec3(part->mPartSourcep->mPosAgent);
         }
 
         // Do color interpolation

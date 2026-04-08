@@ -53,6 +53,8 @@
 #include "lltreeiterators.h"
 #include "llmetricperformancetester.h"
 #include "llviewerstats.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include <functional>
 
 //////////////////////////////////////////////////////////////////////////////
@@ -602,50 +604,50 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
         max_execution = llmax(base_execution.empty() ? 0.0 : *base_execution.rbegin(), cur_execution.empty() ? 0.0 : *cur_execution.rbegin());
 
 
-        LLVector3 last_p;
+        glm::vec3 last_p(0.0f);
 
         //====================================
         // basic
         //====================================
         buffer.clear();
 
-        last_p.clear();
+        last_p = glm::vec3(0.0f);
 
         LLGLDisable cull(GL_CULL_FACE);
 
-        LLVector3 base_col(0, 0.7f, 0.f);
-        LLVector3 cur_col(1.f, 0.f, 0.f);
+        glm::vec3 base_col(0, 0.7f, 0.f);
+        glm::vec3 cur_col(1.f, 0.f, 0.f);
 
         gGL.setSceneBlendType(LLRender::BT_ADD);
 
-        gGL.color3fv(base_col.mV);
+        gGL.color3fv(glm::value_ptr(base_col));
         for (U32 i = 0; i < base_times.size(); ++i)
         {
             gGL.begin(LLRender::TRIANGLE_STRIP);
-            gGL.vertex3fv(last_p.mV);
-            gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
-            last_p.set(static_cast<F32>(i)/static_cast<F32>(base_times.size()), static_cast<F32>(base_times[i]/max_time), 0.f);
-            gGL.vertex3fv(last_p.mV);
-            gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
+            gGL.vertex3fv(glm::value_ptr(last_p));
+            gGL.vertex3f(last_p.x, 0.f, 0.f);
+            last_p = glm::vec3(static_cast<F32>(i)/static_cast<F32>(base_times.size()), static_cast<F32>(base_times[i]/max_time), 0.f);
+            gGL.vertex3fv(glm::value_ptr(last_p));
+            gGL.vertex3f(last_p.x, 0.f, 0.f);
             gGL.end();
         }
 
         gGL.flush();
 
 
-        last_p.clear();
+        last_p = glm::vec3(0.0f);
         {
             LLGLEnable blend(GL_BLEND);
 
-            gGL.color3fv(cur_col.mV);
+            gGL.color3fv(glm::value_ptr(cur_col));
             for (U32 i = 0; i < cur_times.size(); ++i)
             {
                 gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
-                gGL.vertex3fv(last_p.mV);
-                last_p.set(static_cast<F32>(i) / static_cast<F32>(cur_times.size()), static_cast<F32>(cur_times[i]/max_time), 0.f);
-                gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
-                gGL.vertex3fv(last_p.mV);
+                gGL.vertex3f(last_p.x, 0.f, 0.f);
+                gGL.vertex3fv(glm::value_ptr(last_p));
+                last_p = glm::vec3(static_cast<F32>(i) / static_cast<F32>(cur_times.size()), static_cast<F32>(cur_times[i]/max_time), 0.f);
+                gGL.vertex3f(last_p.x, 0.f, 0.f);
+                gGL.vertex3fv(glm::value_ptr(last_p));
                 gGL.end();
             }
 
@@ -659,17 +661,17 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
         //======================================
         buffer.clear();
 
-        last_p.clear();
+        last_p = glm::vec3(0.0f);
 
-        gGL.color3fv(base_col.mV);
+        gGL.color3fv(glm::value_ptr(base_col));
         for (U32 i = 0; i < base_calls.size(); ++i)
         {
             gGL.begin(LLRender::TRIANGLE_STRIP);
-            gGL.vertex3fv(last_p.mV);
-            gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
-            last_p.set(static_cast<F32>(i) / static_cast<F32>(base_calls.size()), static_cast<F32>(base_calls[i])/max_calls, 0.f);
-            gGL.vertex3fv(last_p.mV);
-            gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
+            gGL.vertex3fv(glm::value_ptr(last_p));
+            gGL.vertex3f(last_p.x, 0.f, 0.f);
+            last_p = glm::vec3(static_cast<F32>(i) / static_cast<F32>(base_calls.size()), static_cast<F32>(base_calls[i])/max_calls, 0.f);
+            gGL.vertex3fv(glm::value_ptr(last_p));
+            gGL.vertex3f(last_p.x, 0.f, 0.f);
             gGL.end();
         }
 
@@ -677,17 +679,17 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 
         {
             LLGLEnable blend(GL_BLEND);
-            gGL.color3fv(cur_col.mV);
-            last_p.clear();
+            gGL.color3fv(glm::value_ptr(cur_col));
+            last_p = glm::vec3(0.0f);
 
             for (U32 i = 0; i < cur_calls.size(); ++i)
             {
                 gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
-                gGL.vertex3fv(last_p.mV);
-                last_p.set(static_cast<F32>(i) / static_cast<F32>(cur_calls.size()), static_cast<F32>(cur_calls[i])/max_calls, 0.f);
-                gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
-                gGL.vertex3fv(last_p.mV);
+                gGL.vertex3f(last_p.x, 0.f, 0.f);
+                gGL.vertex3fv(glm::value_ptr(last_p));
+                last_p = glm::vec3(static_cast<F32>(i) / static_cast<F32>(cur_calls.size()), static_cast<F32>(cur_calls[i])/max_calls, 0.f);
+                gGL.vertex3f(last_p.x, 0.f, 0.f);
+                gGL.vertex3fv(glm::value_ptr(last_p));
                 gGL.end();
 
             }
@@ -702,40 +704,40 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
         //======================================
         buffer.clear();
 
-        gGL.color3fv(base_col.mV);
+        gGL.color3fv(glm::value_ptr(base_col));
         U32 count = 0;
         U32 total_count = static_cast<U32>(base_execution.size());
 
-        last_p.clear();
+        last_p = glm::vec3(0.0f);
 
         for (std::vector<LLSD::Real>::iterator iter = base_execution.begin(); iter != base_execution.end(); ++iter)
         {
             gGL.begin(LLRender::TRIANGLE_STRIP);
-            gGL.vertex3fv(last_p.mV);
-            gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
-            last_p.set(static_cast<F32>(count)/static_cast<F32>(total_count), static_cast<F32>(*iter/max_execution), 0.f);
-            gGL.vertex3fv(last_p.mV);
-            gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
+            gGL.vertex3fv(glm::value_ptr(last_p));
+            gGL.vertex3f(last_p.x, 0.f, 0.f);
+            last_p = glm::vec3(static_cast<F32>(count)/static_cast<F32>(total_count), static_cast<F32>(*iter/max_execution), 0.f);
+            gGL.vertex3fv(glm::value_ptr(last_p));
+            gGL.vertex3f(last_p.x, 0.f, 0.f);
             gGL.end();
             count++;
         }
 
-        last_p.clear();
+        last_p = glm::vec3(0.0f);
 
         {
             LLGLEnable blend(GL_BLEND);
-            gGL.color3fv(cur_col.mV);
+            gGL.color3fv(glm::value_ptr(cur_col));
             count = 0;
             total_count = static_cast<U32>(cur_execution.size());
 
             for (std::vector<LLSD::Real>::iterator iter = cur_execution.begin(); iter != cur_execution.end(); ++iter)
             {
                 gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
-                gGL.vertex3fv(last_p.mV);
-                last_p.set(static_cast<F32>(count)/static_cast<F32>(total_count), static_cast<F32>(*iter/max_execution), 0.f);
-                gGL.vertex3f(last_p.mV[0], 0.f, 0.f);
-                gGL.vertex3fv(last_p.mV);
+                gGL.vertex3f(last_p.x, 0.f, 0.f);
+                gGL.vertex3fv(glm::value_ptr(last_p));
+                last_p = glm::vec3(static_cast<F32>(count)/static_cast<F32>(total_count), static_cast<F32>(*iter/max_execution), 0.f);
+                gGL.vertex3f(last_p.x, 0.f, 0.f);
+                gGL.vertex3fv(glm::value_ptr(last_p));
                 gGL.end();
                 count++;
             }

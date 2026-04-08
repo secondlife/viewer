@@ -34,6 +34,7 @@
 #include "lltimer.h"
 #include "v3math.h"
 #include "llsettingsdaycycle.h"
+#include <glm/vec3.hpp>
 
 // Grid out of which parcels taken is stepped every 4 meters.
 constexpr F32 PARCEL_GRID_STEP_METERS   = 4.f;
@@ -275,8 +276,8 @@ public:
     //void overrideBuyerID(const LLUUID& id) { mBuyerID = id; }
     void setCategory(ECategory category) { mCategory = category; }
     void setSnapshotID(const LLUUID& id) { mSnapshotID = id; }
-    void setUserLocation(const LLVector3& pos)  { mUserLocation = pos; }
-    void setUserLookAt(const LLVector3& rot)    { mUserLookAt = rot; }
+    void setUserLocation(const glm::vec3& pos)  { mUserLocation = pos; }
+    void setUserLookAt(const glm::vec3& rot)    { mUserLookAt = rot; }
     void setLandingType(const ELandingType type) { mLandingType = type; }
     void setSeeAVs(bool see_avs)    { mSeeAVs = see_avs;    }
     void setHaveNewParcelLimitData(bool have_new_parcel_data)       { mHaveNewParcelLimitData = have_new_parcel_data;       }       // Remove this once hidden AV feature is fully available grid-wide
@@ -332,11 +333,11 @@ public:
     void    unpackExperienceEntries(LLMessageSystem* msg, U32 type);
 
 
-    void    setAABBMin(const LLVector3& min)    { mAABBMin = min; }
-    void    setAABBMax(const LLVector3& max)    { mAABBMax = max; }
+    void    setAABBMin(const glm::vec3& min)    { mAABBMin = min; }
+    void    setAABBMax(const glm::vec3& max)    { mAABBMax = max; }
 
     // Extend AABB to include rectangle from min to max.
-    void extendAABB(const LLVector3& box_min, const LLVector3& box_max);
+    void extendAABB(const glm::vec3& box_min, const glm::vec3& box_max);
 
     void dump();
 
@@ -381,8 +382,8 @@ public:
     bool isPublic() const;
 
     // Region-local user-specified position
-    const LLVector3& getUserLocation() const    { return mUserLocation; }
-    const LLVector3& getUserLookAt() const  { return mUserLookAt; }
+    const glm::vec3& getUserLocation() const    { return mUserLocation; }
+    const glm::vec3& getUserLookAt() const  { return mUserLookAt; }
     ELandingType getLandingType() const { return mLandingType; }
     bool getSeeAVs() const          { return mSeeAVs;       }
     bool getHaveNewParcelLimitData() const      { return mHaveNewParcelLimitData;   }
@@ -517,9 +518,9 @@ public:
     S32     getTotalRent() const;
     F32     getAdjustedRentPerMeter() const;
 
-    const LLVector3&    getAABBMin() const      { return mAABBMin; }
-    const LLVector3&    getAABBMax() const      { return mAABBMax; }
-    LLVector3 getCenterpoint() const;
+    const glm::vec3&    getAABBMin() const      { return mAABBMin; }
+    const glm::vec3&    getAABBMax() const      { return mAABBMax; }
+    glm::vec3 getCenterpoint() const;
 
     // simwide
     S32     getSimWideMaxPrimCapacity() const { return mSimWideMaxPrimCapacity; }
@@ -580,8 +581,8 @@ protected:
     ECategory mCategory;
     LLUUID mAuthBuyerID;
     LLUUID mSnapshotID;
-    LLVector3 mUserLocation;
-    LLVector3 mUserLookAt;
+    glm::vec3 mUserLocation{0.f, 0.f, 0.f};
+    glm::vec3 mUserLookAt{0.f, 0.f, 0.f};
     ELandingType mLandingType;
     bool mSeeAVs;                           // Avatars on this parcel are visible from outside it
     bool mHaveNewParcelLimitData;           // Remove once hidden AV feature is grid-wide
@@ -622,8 +623,8 @@ protected:
     F32                 mMediaURLTimeout;
     S32                 mPassPrice;
     F32                 mPassHours;
-    LLVector3           mAABBMin;
-    LLVector3           mAABBMax;
+    glm::vec3           mAABBMin{0.f, 0.f, 0.f};
+    glm::vec3           mAABBMax{0.f, 0.f, 0.f};
     S32                 mMaxPrimCapacity;       // Prims allowed on parcel, does not include prim bonus
     S32                 mSimWidePrimCount;
     S32                 mSimWideMaxPrimCapacity;

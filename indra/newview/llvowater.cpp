@@ -28,6 +28,7 @@
 
 #include "llvowater.h"
 
+#include "glm/gtc/type_ptr.hpp"
 
 #include "lldrawable.h"
 #include "lldrawpoolwater.h"
@@ -171,8 +172,8 @@ bool LLVOWater::updateGeometry(LLDrawable *drawable)
     face->mCenterLocal = position_agent;
 
     S32 x, y;
-    F32 step_x = getScale().mV[0] / size_x;
-    F32 step_y = getScale().mV[1] / size_y;
+    F32 step_x = getScale().x / size_x;
+    F32 step_y = getScale().y / size_y;
 
     const LLVector3 up(0.f, step_y * 0.5f, 0.f);
     const LLVector3 right(step_x * 0.5f, 0.f, 0.f);
@@ -248,9 +249,9 @@ void LLVOWater::setIsEdgePatch(const bool edge_patch)
 void LLVOWater::updateSpatialExtents(LLVector4a &newMin, LLVector4a& newMax)
 {
     LLVector4a pos;
-    pos.load3(getPositionAgent().mV);
+    pos.load3(glm::value_ptr(getPositionAgent()));
     LLVector4a scale;
-    scale.load3(getScale().mV);
+    scale.load3(glm::value_ptr(getScale()));
     scale.mul(0.5f);
 
     newMin.setSub(pos, scale);

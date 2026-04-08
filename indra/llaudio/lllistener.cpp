@@ -45,57 +45,57 @@ LLListener::~LLListener() = default;
 //-----------------------------------------------------------------------
 void LLListener::init()
 {
-    mPosition.setZero();
-    mListenAt.set(DEFAULT_AT);
-    mListenUp.set(DEFAULT_UP);
-    mVelocity.setZero();
+    mPosition = glm::vec3(0.f);
+    mListenAt = glm::vec3(DEFAULT_AT);
+    mListenUp = glm::vec3(DEFAULT_UP);
+    mVelocity = glm::vec3(0.f);
 }
 
 //-----------------------------------------------------------------------
-void LLListener::translate(LLVector3 offset)
+void LLListener::translate(glm::vec3 offset)
 {
     mPosition += offset;
 }
 
 //-----------------------------------------------------------------------
-void LLListener::setPosition(LLVector3 pos)
+void LLListener::setPosition(glm::vec3 pos)
 {
     mPosition = pos;
 }
 
 //-----------------------------------------------------------------------
-LLVector3 LLListener::getPosition()
+glm::vec3 LLListener::getPosition()
 {
     return(mPosition);
 }
 
 //-----------------------------------------------------------------------
-LLVector3 LLListener::getAt()
+glm::vec3 LLListener::getAt()
 {
     return(mListenAt);
 }
 
 //-----------------------------------------------------------------------
-LLVector3 LLListener::getUp()
+glm::vec3 LLListener::getUp()
 {
     return(mListenUp);
 }
 
 //-----------------------------------------------------------------------
-void LLListener::setVelocity(LLVector3 vel)
+void LLListener::setVelocity(glm::vec3 vel)
 {
     mVelocity = vel;
 }
 
 //-----------------------------------------------------------------------
-void LLListener::orient(LLVector3 up, LLVector3 at)
+void LLListener::orient(glm::vec3 up, glm::vec3 at)
 {
     mListenUp = up;
     mListenAt = at;
 }
 
 //-----------------------------------------------------------------------
-void LLListener::set(LLVector3 pos, LLVector3 vel, LLVector3 up, LLVector3 at)
+void LLListener::set(glm::vec3 pos, glm::vec3 vel, glm::vec3 up, glm::vec3 at)
 {
     mPosition = pos;
     mVelocity = vel;

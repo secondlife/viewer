@@ -29,6 +29,8 @@
 // file include
 #include "llpanelface.h"
 
+#include "glm/gtc/type_ptr.hpp"
+
 // library includes
 #include "llcalc.h"
 #include "llerror.h"
@@ -183,7 +185,7 @@ void LLPanelFace::updateSelectedGLTFMaterialsWithScale(std::function<void(LLGLTF
             U32 s_axis = VX;
             U32 t_axis = VY;
             LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
-            mFunc(&new_override, object->getScale().mV[s_axis], object->getScale().mV[t_axis]);
+            mFunc(&new_override, glm::value_ptr(object->getScale())[s_axis], glm::value_ptr(object->getScale())[t_axis]);
             LLGLTFMaterialList::queueModify(object, face, &new_override);
 
             return true;
@@ -235,8 +237,8 @@ void getSelectedGLTFMaterialMaxRepeats(LLGLTFMaterial::TextureInfo channel, F32&
             U32 s_axis = VX;
             U32 t_axis = VY;
             LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
-            F32 repeats_u = render_material->mTextureTransform[mChannel].mScale.x / object->getScale().mV[s_axis];
-            F32 repeats_v = render_material->mTextureTransform[mChannel].mScale.y / object->getScale().mV[t_axis];
+            F32 repeats_u = render_material->mTextureTransform[mChannel].mScale.x / glm::value_ptr(object->getScale())[s_axis];
+            F32 repeats_v = render_material->mTextureTransform[mChannel].mScale.y / glm::value_ptr(object->getScale())[t_axis];
             return llmax(repeats_u, repeats_v);
         }
 
@@ -5479,8 +5481,8 @@ void LLPanelFace::LLSelectedTEMaterial::getMaxSpecularRepeats(F32& repeats, bool
             if (mat)
             {
                 mat->getSpecularRepeat(repeats_s, repeats_t);
-                repeats_s /= object->getScale().mV[s_axis];
-                repeats_t /= object->getScale().mV[t_axis];
+                repeats_s /= glm::value_ptr(object->getScale())[s_axis];
+                repeats_t /= glm::value_ptr(object->getScale())[t_axis];
             }
             return llmax(repeats_s, repeats_t);
         }
@@ -5504,8 +5506,8 @@ void LLPanelFace::LLSelectedTEMaterial::getMaxNormalRepeats(F32& repeats, bool& 
             if (mat)
             {
                 mat->getNormalRepeat(repeats_s, repeats_t);
-                repeats_s /= object->getScale().mV[s_axis];
-                repeats_t /= object->getScale().mV[t_axis];
+                repeats_s /= glm::value_ptr(object->getScale())[s_axis];
+                repeats_t /= glm::value_ptr(object->getScale())[t_axis];
             }
             return llmax(repeats_s, repeats_t);
         }
@@ -5567,8 +5569,8 @@ void LLPanelFace::LLSelectedTEMaterial::selectionNormalScaleAutofit(LLPanelFace*
                 if (!LLPrimitive::getTESTAxes(te, &s_axis, &t_axis))
                     return true;
 
-                F32 new_s = object->getScale().mV[s_axis] * mRepeatsPerMeter;
-                F32 new_t = object->getScale().mV[t_axis] * mRepeatsPerMeter;
+                F32 new_s = glm::value_ptr(object->getScale())[s_axis] * mRepeatsPerMeter;
+                F32 new_t = glm::value_ptr(object->getScale())[t_axis] * mRepeatsPerMeter;
 
                 setNormalRepeatX(mFacePanel, new_s, te);
                 setNormalRepeatY(mFacePanel, new_t, te);
@@ -5595,8 +5597,8 @@ void LLPanelFace::LLSelectedTEMaterial::selectionSpecularScaleAutofit(LLPanelFac
                 if (!LLPrimitive::getTESTAxes(te, &s_axis, &t_axis))
                     return true;
 
-                F32 new_s = object->getScale().mV[s_axis] * mRepeatsPerMeter;
-                F32 new_t = object->getScale().mV[t_axis] * mRepeatsPerMeter;
+                F32 new_s = glm::value_ptr(object->getScale())[s_axis] * mRepeatsPerMeter;
+                F32 new_t = glm::value_ptr(object->getScale())[t_axis] * mRepeatsPerMeter;
 
                 setSpecularRepeatX(mFacePanel, new_s, te);
                 setSpecularRepeatY(mFacePanel, new_t, te);
@@ -5616,7 +5618,7 @@ void LLPanelFace::LLSelectedTE::getObjectScaleS(F32& scale_s, bool& identical)
             U32 s_axis = VX;
             U32 t_axis = VY;
             LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
-            return object->getScale().mV[s_axis];
+            return glm::value_ptr(object->getScale())[s_axis];
         }
 
     } scale_s_func;
@@ -5632,7 +5634,7 @@ void LLPanelFace::LLSelectedTE::getObjectScaleT(F32& scale_t, bool& identical)
             U32 s_axis = VX;
             U32 t_axis = VY;
             LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
-            return object->getScale().mV[t_axis];
+            return glm::value_ptr(object->getScale())[t_axis];
         }
 
     } scale_t_func;
@@ -5648,8 +5650,8 @@ void LLPanelFace::LLSelectedTE::getMaxDiffuseRepeats(F32& repeats, bool& identic
             U32 s_axis = VX;
             U32 t_axis = VY;
             LLPrimitive::getTESTAxes(face, &s_axis, &t_axis);
-            F32 repeats_s = object->getTE(face)->mScaleS / object->getScale().mV[s_axis];
-            F32 repeats_t = object->getTE(face)->mScaleT / object->getScale().mV[t_axis];
+            F32 repeats_s = object->getTE(face)->mScaleS / glm::value_ptr(object->getScale())[s_axis];
+            F32 repeats_t = object->getTE(face)->mScaleT / glm::value_ptr(object->getScale())[t_axis];
             return llmax(repeats_s, repeats_t);
         }
 

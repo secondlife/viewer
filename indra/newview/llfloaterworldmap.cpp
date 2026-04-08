@@ -1014,8 +1014,7 @@ void LLFloaterWorldMap::trackURL(const std::string& region_name, S32 x_coord, S3
 
         // Save local coords to highlight position after region global
         // position is returned.
-        mCompletingRegionPos.set(
-                                                   static_cast<F32>(x_coord), static_cast<F32>(y_coord), static_cast<F32>(z_coord));
+        mCompletingRegionPos = glm::vec3(static_cast<F32>(x_coord), static_cast<F32>(y_coord), static_cast<F32>(z_coord));
 
         // pass sim name to combo box
         mCompletingRegionName = region_name;
@@ -1801,17 +1800,17 @@ void LLFloaterWorldMap::onCommitSearchResult(bool from_search)
             LLVector3d pos_global = info->getGlobalOrigin();
 
             constexpr F64 SIM_COORD_DEFAULT = 128.0;
-            LLVector3 pos_local(SIM_COORD_DEFAULT, SIM_COORD_DEFAULT, 0.0f);
+            glm::vec3 pos_local(SIM_COORD_DEFAULT, SIM_COORD_DEFAULT, 0.0f);
 
             // Did this value come from a trackURL() request?
-            if (!mCompletingRegionPos.isExactlyZero())
+            if (mCompletingRegionPos != glm::vec3(0.f))
             {
                 pos_local = mCompletingRegionPos;
-                mCompletingRegionPos.clear();
+                mCompletingRegionPos = glm::vec3(0.f);
             }
-            pos_global.mdV[VX] += static_cast<F64>(pos_local.mV[VX]);
-            pos_global.mdV[VY] += static_cast<F64>(pos_local.mV[VY]);
-            pos_global.mdV[VZ] = static_cast<F64>(pos_local.mV[VZ]);
+            pos_global.mdV[VX] += static_cast<F64>(pos_local.x);
+            pos_global.mdV[VY] += static_cast<F64>(pos_local.y);
+            pos_global.mdV[VZ] = static_cast<F64>(pos_local.z);
 
             // Commiting search string automatically selects first item in the search list,
             // in such case onCommitSearchResult shouldn't modify search string

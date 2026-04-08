@@ -40,7 +40,7 @@ class LLScrollListItem;
 class LLSD;
 class LLTextBase;
 class LLUICtrl;
-class LLVector3;
+#include <glm/vec3.hpp>
 class LLSearchEditor;
 
 class LLFloaterPathfindingLinksets : public LLFloaterPathfindingObjects
@@ -80,7 +80,7 @@ private:
     void clearFilters();
 
     void updateEditFieldValues();
-    LLSD buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const;
+    LLSD buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const glm::vec3 &pAvatarPosition) const;
     LLSD buildLinksetUseScrollListData(const std::string &pLabel, S32 pValue) const;
 
     bool isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;

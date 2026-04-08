@@ -136,9 +136,9 @@ namespace tut
         ensure_approximately_equals("mPartData.mEndScale.x different after unpacking", data.mEndScale.x, 0.f, 8);
         ensure_approximately_equals("mPartData.mEndScale.y different after unpacking", data.mEndScale.y, 0.f, 8);
         //mPosOffset    <0,0,0>
-        ensure_approximately_equals("mPartData.mPosOffset.mV[0] different after unpacking", data.mPosOffset.mV[0], 0.f, 8);
-        ensure_approximately_equals("mPartData.mPosOffset.mV[1] different after unpacking", data.mPosOffset.mV[1], 0.f, 8);
-        ensure_approximately_equals("mPartData.mPosOffset.mV[2] different after unpacking", data.mPosOffset.mV[2], 0.f, 8);
+        ensure_approximately_equals("mPartData.mPosOffset.x different after unpacking", data.mPosOffset.x, 0.f, 8);
+        ensure_approximately_equals("mPartData.mPosOffset.y different after unpacking", data.mPosOffset.y, 0.f, 8);
+        ensure_approximately_equals("mPartData.mPosOffset.z different after unpacking", data.mPosOffset.z, 0.f, 8);
         //mParameter    0.00000000  float
         ensure_approximately_equals("mPartData.mParameter different after unpacking", data.mParameter, 0.f, 8);
 

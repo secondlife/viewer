@@ -256,12 +256,12 @@ bool LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
     bool targetTypeChanged = (target_type != mTargetType) ||
         (object != mTargetObject);
 
-    bool targetPosChanged = (dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) &&
+    bool targetPosChanged = (dist_vec_squared(glm::vec3(position), mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) &&
         ((current_time - mLastSendTime) > (1.f / MAX_SENDS_PER_SEC));
 
     if (targetTypeChanged || targetPosChanged)
     {
-        mLastSentOffsetGlobal = position;
+        mLastSentOffsetGlobal = glm::vec3(position);
         setDuration(POINTAT_TIMEOUTS[target_type]);
         setNeedsSendToSim(true);
 //      LL_INFOS() << "Sending pointat data" << LL_ENDL;
@@ -281,7 +281,7 @@ bool LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
         }
         else
         {
-            mTargetOffsetGlobal = gAgent.getPosGlobalFromAgent(position);
+            mTargetOffsetGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(position.mV[VX], position.mV[VY], position.mV[VZ]));
         }
 
         mKillTime = mTimer.getElapsedTimeF32() + mDuration;
@@ -413,7 +413,10 @@ bool LLHUDEffectPointAt::calcTargetPosition()
     }
     else
     {
-        local_offset = gAgent.getPosAgentFromGlobal(mTargetOffsetGlobal);
+        {
+            const glm::vec3 g = gAgent.getPosAgentFromGlobal(mTargetOffsetGlobal);
+            local_offset = LLVector3(g.x, g.y, g.z);
+        }
     }
 
     if (targetObject && targetObject->mDrawable.notNull())

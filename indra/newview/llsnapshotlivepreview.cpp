@@ -699,7 +699,7 @@ bool LLSnapshotLivePreview::onIdle( void* snapshot_preview )
     static LLCachedControl<bool> render_no_post(gSavedSettings, "RenderSnapshotNoPost", false);
 
     // If we're in freeze-frame and/or auto update mode and camera has moved, update snapshot.
-    LLVector3 new_camera_pos = LLViewerCamera::getInstance()->getOrigin();
+    glm::vec3 new_camera_pos = LLViewerCamera::getInstance()->getOrigin();
     LLQuaternion new_camera_rot = LLViewerCamera::getInstance()->getQuaternion();
     if (previewp->mForceUpdateSnapshot ||
         (((auto_snapshot && LLView::isAvailable(previewp->mViewContainer)) ||

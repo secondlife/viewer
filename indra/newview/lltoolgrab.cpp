@@ -568,7 +568,7 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
             LLQuaternion rotation_around_vertical( dx*RADIANS_PER_PIXEL_X, up );
 
             // y motion maps to rotation around left axis
-            const LLVector3 &agent_left = LLViewerCamera::getInstance()->getLeftAxis();
+            const LLVector3 agent_left(LLViewerCamera::getInstance()->getLeftAxis());
             LLQuaternion rotation_around_left( dy*RADIANS_PER_PIXEL_Y, agent_left );
 
             // compose with current rotation
@@ -592,14 +592,14 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
             // Handle grabbing
             //------------------------------------------------------
 
-            LLVector3d x_part(LLViewerCamera::getInstance()->getLeftAxis());
+            LLVector3d x_part(LLVector3(LLViewerCamera::getInstance()->getLeftAxis()));
             x_part.mdV[VZ] = 0.0;
             x_part.normalize();
 
             LLVector3d y_part;
             if( mVerticalDragging )
             {
-                y_part.set(LLViewerCamera::getInstance()->getUpAxis());
+                y_part.set(LLVector3(LLViewerCamera::getInstance()->getUpAxis()));
                 // y_part.set(0.f, 0.f, 1.f);
             }
             else
@@ -662,7 +662,7 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
             LLVector3 grab_pos_agent = gAgent.getPosAgentFromGlobal( grab_point_global );
 
             LLCoordGL grab_center_gl( gViewerWindow->getWorldViewWidthScaled() / 2, gViewerWindow->getWorldViewHeightScaled() / 2);
-            LLViewerCamera::getInstance()->projectPosAgentToScreen(grab_pos_agent, grab_center_gl);
+            LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(grab_pos_agent), grab_center_gl);
 
             const S32 ROTATE_H_MARGIN = gViewerWindow->getWorldViewWidthScaled() / 20;
             const F32 ROTATE_ANGLE_PER_SECOND = 30.f * DEG_TO_RAD;
@@ -818,14 +818,14 @@ void LLToolGrabBase::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
             // Handle grabbing
             //------------------------------------------------------
 
-            LLVector3d x_part(LLViewerCamera::getInstance()->getLeftAxis());
+            LLVector3d x_part(LLVector3(LLViewerCamera::getInstance()->getLeftAxis()));
             x_part.mdV[VZ] = 0.0;
             x_part.normalize();
 
             LLVector3d y_part;
             if( mVerticalDragging )
             {
-                y_part.set(LLViewerCamera::getInstance()->getUpAxis());
+                y_part.set(LLVector3(LLViewerCamera::getInstance()->getUpAxis()));
                 // y_part.set(0.f, 0.f, 1.f);
             }
             else
@@ -898,7 +898,7 @@ void LLToolGrabBase::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
     // update point-at / look-at
     if (pick.mObjectFace != -1) // if the intersection was on the surface of the obejct
     {
-        LLVector3 local_edit_point = pick.mIntersection;
+        LLVector3 local_edit_point(pick.mIntersection);
         local_edit_point -= objectp->getPositionAgent();
         local_edit_point = local_edit_point * ~objectp->getRenderRotation();
         gAgentCamera.setPointAt(POINTAT_TARGET_GRAB, objectp, local_edit_point );
@@ -1034,7 +1034,7 @@ void LLToolGrabBase::onMouseCaptureLost()
             LLVector3 grab_point_agent = objectp->getRenderPosition();
 
             LLCoordGL gl_point;
-            if (LLViewerCamera::getInstance()->projectPosAgentToScreen(grab_point_agent, gl_point))
+            if (LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(grab_point_agent), gl_point))
             {
                 LLUI::getInstance()->setMousePositionScreen(gl_point.mX, gl_point.mY);
             }

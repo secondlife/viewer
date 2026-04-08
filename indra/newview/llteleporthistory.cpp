@@ -184,7 +184,7 @@ void LLTeleportHistory::updateCurrentLocation(const LLVector3d& new_pos)
             llassert(!"Invalid current teleport history item");
             return;
         }
-        LLVector3 new_pos_local = gAgent.getPosAgentFromGlobal(new_pos);
+        glm::vec3 new_pos_local = gAgent.getPosAgentFromGlobal(new_pos);
         mItems[mCurrentItem].mFullTitle = getCurrentLocationTitle(true, new_pos_local);
         mItems[mCurrentItem].mTitle = getCurrentLocationTitle(false, new_pos_local);
         mItems[mCurrentItem].mGlobalPos = new_pos;
@@ -243,7 +243,7 @@ void LLTeleportHistory::purgeItems()
 }
 
 // static
-std::string LLTeleportHistory::getCurrentLocationTitle(bool full, const LLVector3& local_pos_override)
+std::string LLTeleportHistory::getCurrentLocationTitle(bool full, const glm::vec3& local_pos_override)
 {
     std::string location_name;
     LLAgentUI::ELocationFormat fmt = full ? LLAgentUI::LOCATION_FORMAT_NO_MATURITY : LLAgentUI::LOCATION_FORMAT_NORMAL;

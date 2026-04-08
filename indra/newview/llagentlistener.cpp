@@ -239,7 +239,7 @@ void LLAgentListener::requestSit(LLSD const & event_data) const
     }
     else if (event_data.has("position"))
     {
-        LLVector3 target_position = ll_vector3_from_sd(event_data["position"]);
+        glm::vec3 target_position = ll_vector3_from_sd(event_data["position"]);
         object = findObjectClosestTo(target_position, true);
     }
     else
@@ -273,7 +273,7 @@ void LLAgentListener::requestStand(LLSD const & event_data) const
 }
 
 
-LLViewerObject * LLAgentListener::findObjectClosestTo(const LLVector3 & position, bool sit_target) const
+LLViewerObject * LLAgentListener::findObjectClosestTo(const glm::vec3 & position, bool sit_target) const
 {
     LLViewerObject *object = NULL;
 
@@ -291,8 +291,8 @@ LLViewerObject * LLAgentListener::findObjectClosestTo(const LLVector3 & position
                 continue;
             }
             // Calculate distance from the target position
-            LLVector3 target_diff = cur_object->getPositionRegion() - position;
-            F32 distance_to_target = target_diff.length();
+            glm::vec3 target_diff = glm::vec3(cur_object->getPositionRegion()) - position;
+            F32 distance_to_target = glm::length(target_diff);
             if (distance_to_target < min_distance)
             {   // Found an object closer
                 min_distance = distance_to_target;
@@ -315,7 +315,7 @@ void LLAgentListener::requestTouch(LLSD const & event_data) const
     }
     else if (event_data.has("position"))
     {
-        LLVector3 target_position = ll_vector3_from_sd(event_data["position"]);
+        glm::vec3 target_position = ll_vector3_from_sd(event_data["position"]);
         object = findObjectClosestTo(target_position);
     }
 
@@ -360,7 +360,10 @@ void LLAgentListener::resetAxes(const LLSD& event_data) const
 {
     if (event_data.has("lookat"))
     {
-        mAgent.resetAxes(ll_vector3_from_sd(event_data["lookat"]));
+        {
+            const LLVector3 look_at = ll_vector3_from_sd(event_data["lookat"]);
+            mAgent.resetAxes(glm::vec3(look_at.mV[VX], look_at.mV[VY], look_at.mV[VZ]));
+        }
     }
     else
     {
@@ -381,7 +384,10 @@ void LLAgentListener::getPosition(const LLSD& event_data) const
     reply["euler"]["roll"] = roll;
     reply["euler"]["pitch"] = pitch;
     reply["euler"]["yaw"] = yaw;
-    reply["region"] = ll_sd_from_vector3(mAgent.getPositionAgent());
+    {
+        const glm::vec3 pa = mAgent.getPositionAgent();
+        reply["region"] = ll_sd_from_vector3(LLVector3(pa.x, pa.y, pa.z));
+    }
     reply["global"] = ll_sd_from_vector3d(mAgent.getPositionGlobal());
 
     sendReply(reply, event_data);
@@ -459,14 +465,18 @@ void LLAgentListener::getAutoPilot(const LLSD& event_data) const
         LLViewerObject * target = gObjectList.findObject(mFollowTarget);
         if (target)
         {   // Found the target AV, return the actual distance to them as well as their ID
-            LLVector3 difference = target->getPositionRegion() - mAgent.getPositionAgent();
+            const glm::vec3 pa = mAgent.getPositionAgent();
+            LLVector3 difference = target->getPositionRegion() - LLVector3(pa.x, pa.y, pa.z);
             reply["target_distance"] = difference.length();
             reply["leader_id"] = mFollowTarget;
         }
     }
 
     reply["use_rotation"] = (LLSD::Boolean) mAgent.getAutoPilotUseRotation();
-    reply["target_facing"] = ll_sd_from_vector3(mAgent.getAutoPilotTargetFacing());
+    {
+        const glm::vec3 tf = mAgent.getAutoPilotTargetFacing();
+        reply["target_facing"] = ll_sd_from_vector3(LLVector3(tf.x, tf.y, tf.z));
+    }
     reply["rotation_threshold"] = mAgent.getAutoPilotRotationThreshold();
     reply["behavior_name"] = mAgent.getAutoPilotBehaviorName();
     reply["fly"] = (LLSD::Boolean) mAgent.getFlying();
@@ -559,7 +569,7 @@ void LLAgentListener::lookAt(LLSD const & event_data) const
     }
     else if (event_data.has("position"))
     {
-        LLVector3 target_position = ll_vector3_from_sd(event_data["position"]);
+        glm::vec3 target_position = ll_vector3_from_sd(event_data["position"]);
         object = findObjectClosestTo(target_position);
     }
 
@@ -794,7 +804,7 @@ void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
         render_pos = gAgentAvatarp->getRenderPosition();
     }
     LLCoordGL screen_pos;
-    response["onscreen"] = LLViewerCamera::getInstance()->projectPosAgentToScreen(render_pos, screen_pos, false);
+    response["onscreen"] = LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(render_pos), screen_pos, false);
     response["x"] = screen_pos.mX;
     response["y"] = screen_pos.mY;
 }

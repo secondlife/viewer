@@ -146,9 +146,9 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
         }
         floater_label = llformat("%s(%.0f, %.0f, %.0f)",
                         user_name.c_str(),
-                        objectp->getPositionRegion().mV[VX],
-                        objectp->getPositionRegion().mV[VY],
-                        objectp->getPositionRegion().mV[VZ]);
+                        objectp->getPositionRegion().x,
+                        objectp->getPositionRegion().y,
+                        objectp->getPositionRegion().z);
     }
     else
     {

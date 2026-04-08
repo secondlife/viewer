@@ -435,7 +435,7 @@ LLAgent::LLAgent() :
     mAutoPilotTargetGlobal(),
     mAutoPilotStopDistance(1.f),
     mAutoPilotUseRotation(false),
-    mAutoPilotTargetFacing(LLVector3::zero),
+    mAutoPilotTargetFacing(0.0f),
     mAutoPilotTargetDist(0.f),
     mAutoPilotNoProgressFrameCount(0),
     mAutoPilotRotationThreshold(0.f),
@@ -1023,10 +1023,10 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 
             LLVector3 delta(regionp->getOriginGlobal() - mRegionp->getOriginGlobal());
 
-            setPositionAgent(getPositionAgent() - delta);
+            setPositionAgent(getPositionAgent() - glm::vec3(delta.mV[VX], delta.mV[VY], delta.mV[VZ]));
 
-            LLVector3 camera_position_agent = LLViewerCamera::getInstance()->getOrigin();
-            LLViewerCamera::getInstance()->setOrigin(camera_position_agent - delta);
+            LLVector3 camera_position_agent(LLViewerCamera::getInstance()->getOrigin());
+            LLViewerCamera::getInstance()->setOrigin(static_cast<glm::vec3>(camera_position_agent - delta));
 
             // Update all of the regions.
             LLWorld::getInstance()->updateAgentOffset(agent_offset_global);
@@ -1056,9 +1056,9 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 
             LLVector3 delta(regionp->getOriginGlobal());
 
-            setPositionAgent(getPositionAgent() - delta);
-            LLVector3 camera_position_agent = LLViewerCamera::getInstance()->getOrigin();
-            LLViewerCamera::getInstance()->setOrigin(camera_position_agent - delta);
+            setPositionAgent(getPositionAgent() - glm::vec3(delta.mV[VX], delta.mV[VY], delta.mV[VZ]));
+            LLVector3 camera_position_agent(LLViewerCamera::getInstance()->getOrigin());
+            LLViewerCamera::getInstance()->setOrigin(static_cast<glm::vec3>(camera_position_agent - delta));
 
             // Update all of the regions.
             LLWorld::getInstance()->updateAgentOffset(mAgentOriginGlobal);
@@ -1197,24 +1197,24 @@ void LLAgent::sendReliableMessage()
 //-----------------------------------------------------------------------------
 // getVelocity()
 //-----------------------------------------------------------------------------
-LLVector3 LLAgent::getVelocity() const
+glm::vec3 LLAgent::getVelocity() const
 {
     if (isAgentAvatarValid())
     {
-        return gAgentAvatarp->getVelocity();
+        return static_cast<glm::vec3>(gAgentAvatarp->getVelocity());
     }
     else
     {
-        return LLVector3::zero;
+        return glm::vec3(0.0f);
     }
 }
 
 //-----------------------------------------------------------------------------
 // setPositionAgent()
 //-----------------------------------------------------------------------------
-void LLAgent::setPositionAgent(const LLVector3 &pos_agent)
+void LLAgent::setPositionAgent(const glm::vec3 &pos_agent)
 {
-    if (!pos_agent.isFinite())
+    if (!std::isfinite(pos_agent.x) || !std::isfinite(pos_agent.y) || !std::isfinite(pos_agent.z))
     {
         LL_ERRS() << "setPositionAgent is not a number" << LL_ENDL;
     }
@@ -1228,14 +1228,14 @@ void LLAgent::setPositionAgent(const LLVector3 &pos_agent)
         pos_agent_sitting = gAgentAvatarp->getPosition() * parent->getRotation() + parent->getPositionAgent();
         pos_agent_d.set(pos_agent_sitting);
 
-        mFrameAgent.setOrigin(pos_agent_sitting);
+        mFrameAgent.setOrigin(static_cast<glm::vec3>(pos_agent_sitting));
         mPositionGlobal = pos_agent_d + mAgentOriginGlobal;
     }
     else
     {
         mFrameAgent.setOrigin(pos_agent);
 
-        LLVector3d pos_agent_d(pos_agent);
+        LLVector3d pos_agent_d(LLVector3(pos_agent.x, pos_agent.y, pos_agent.z));
         mPositionGlobal = pos_agent_d + mAgentOriginGlobal;
     }
 
@@ -1243,7 +1243,8 @@ void LLAgent::setPositionAgent(const LLVector3 &pos_agent)
     {   // If the position has changed my more than 1 meter since the last time we triggered.
         // filters out some noise.
         mLastTestGlobal = mPositionGlobal;
-        mOnPositionChanged(mFrameAgent.getOrigin(), mPositionGlobal);
+        const glm::vec3& o = mFrameAgent.getOrigin();
+        mOnPositionChanged(LLVector3(o.x, o.y, o.z), mPositionGlobal);
     }
 }
 
@@ -1254,7 +1255,8 @@ const LLVector3d &LLAgent::getPositionGlobal() const
 {
     if (isAgentAvatarValid() && !gAgentAvatarp->mDrawable.isNull())
     {
-        mPositionGlobal = getPosGlobalFromAgent(gAgentAvatarp->getRenderPosition());
+        const LLVector3& rp = gAgentAvatarp->getRenderPosition();
+        mPositionGlobal = getPosGlobalFromAgent(glm::vec3(rp.mV[VX], rp.mV[VY], rp.mV[VZ]));
     }
     else
     {
@@ -1267,18 +1269,18 @@ const LLVector3d &LLAgent::getPositionGlobal() const
 //-----------------------------------------------------------------------------
 // getPositionAgent()
 //-----------------------------------------------------------------------------
-const LLVector3 &LLAgent::getPositionAgent()
+glm::vec3 LLAgent::getPositionAgent()
 {
     if (isAgentAvatarValid())
     {
         if(gAgentAvatarp->mDrawable.isNull())
         {
-            mFrameAgent.setOrigin(gAgentAvatarp->getPositionAgent());
+            mFrameAgent.setOrigin(static_cast<glm::vec3>(gAgentAvatarp->getPositionAgent()));
         }
         else
-    {
-        mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());
-    }
+        {
+            mFrameAgent.setOrigin(static_cast<glm::vec3>(gAgentAvatarp->getRenderPosition()));
+        }
     }
 
     return mFrameAgent.getOrigin();
@@ -1308,18 +1310,18 @@ F64 LLAgent::getDistanceTraveled() const
 //-----------------------------------------------------------------------------
 // getPosAgentFromGlobal()
 //-----------------------------------------------------------------------------
-LLVector3 LLAgent::getPosAgentFromGlobal(const LLVector3d &pos_global) const
+glm::vec3 LLAgent::getPosAgentFromGlobal(const LLVector3d &pos_global) const
 {
     LLVector3 pos_agent(pos_global - mAgentOriginGlobal);
-    return pos_agent;
+    return glm::vec3(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ]);
 }
 
 //-----------------------------------------------------------------------------
 // getPosGlobalFromAgent()
 //-----------------------------------------------------------------------------
-LLVector3d LLAgent::getPosGlobalFromAgent(const LLVector3 &pos_agent) const
+LLVector3d LLAgent::getPosGlobalFromAgent(const glm::vec3 &pos_agent) const
 {
-    LLVector3d pos_agent_d(pos_agent);
+    LLVector3d pos_agent_d(pos_agent.x, pos_agent.y, pos_agent.z);
     return pos_agent_d + mAgentOriginGlobal;
 }
 
@@ -1341,16 +1343,16 @@ void LLAgent::resetAxes()
 //-----------------------------------------------------------------------------
 // resetAxes()
 //-----------------------------------------------------------------------------
-void LLAgent::resetAxes(const LLVector3 &look_at)
+void LLAgent::resetAxes(const glm::vec3 &look_at)
 {
-    LLVector3   skyward = getReferenceUpVector();
+    glm::vec3 skyward = getReferenceUpVector();
 
     // if look_at has zero length, fail
     // if look_at and skyward are parallel, fail
     //
     // Test both of these conditions with a cross product.
-    LLVector3 look_skyward_cross(cross(look_at, skyward));
-    if (look_skyward_cross.isNull())
+    glm::vec3 look_skyward_cross = glm::cross(look_at, skyward);
+    if (glm::dot(look_skyward_cross, look_skyward_cross) < F_APPROXIMATELY_ZERO * F_APPROXIMATELY_ZERO)
     {
         LL_INFOS() << "LLAgent::resetAxes cross-product is zero" << LL_ENDL;
         return;
@@ -1358,8 +1360,8 @@ void LLAgent::resetAxes(const LLVector3 &look_at)
 
     // Make sure look_at and skyward are not parallel
     // and neither are zero length
-    LLVector3 left(cross(skyward, look_at));
-    LLVector3 up(cross(look_at, left));
+    glm::vec3 left = glm::cross(skyward, look_at);
+    glm::vec3 up   = glm::cross(look_at, left);
 
     mFrameAgent.setAxes(look_at, left, up);
 }
@@ -1367,7 +1369,7 @@ void LLAgent::resetAxes(const LLVector3 &look_at)
 //-----------------------------------------------------------------------------
 // rotate()
 //-----------------------------------------------------------------------------
-void LLAgent::rotate(F32 angle, const LLVector3 &axis)
+void LLAgent::rotate(F32 angle, const glm::vec3 &axis)
 {
     mFrameAgent.rotate(angle, axis);
 }
@@ -1399,7 +1401,7 @@ void LLAgent::rotate(const LLQuaternion &quaternion)
 //-----------------------------------------------------------------------------
 // getReferenceUpVector()
 //-----------------------------------------------------------------------------
-LLVector3 LLAgent::getReferenceUpVector()
+glm::vec3 LLAgent::getReferenceUpVector()
 {
     // this vector is in the coordinate frame of the avatar's parent object, or the world if none
     LLVector3 up_vector = LLVector3::z_axis;
@@ -1421,7 +1423,7 @@ LLVector3 LLAgent::getReferenceUpVector()
         }
     }
 
-    return up_vector;
+    return glm::vec3(up_vector.mV[VX], up_vector.mV[VY], up_vector.mV[VZ]);
 }
 
 // Radians, positive is forward into ground
@@ -1436,13 +1438,13 @@ void LLAgent::pitch(F32 angle)
     // so... cos(angle between A and B) = A dot B / mag(A) / mag(B)
     //                                  = A dot B for unit vectors
 
-    LLVector3 skyward = getReferenceUpVector();
+    glm::vec3 skyward = getReferenceUpVector();
 
     // clamp pitch to limits
     if (angle >= 0.f)
     {
         const F32 look_down_limit = 179.f * DEG_TO_RAD;
-        F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
+        F32 angle_from_skyward = acos(glm::dot(mFrameAgent.getAtAxis(), skyward));
         if (angle_from_skyward + angle > look_down_limit)
         {
             angle = look_down_limit - angle_from_skyward;
@@ -1451,10 +1453,10 @@ void LLAgent::pitch(F32 angle)
     else if (angle < 0.f)
     {
         const F32 look_up_limit = 5.f * DEG_TO_RAD;
-        const LLVector3& viewer_camera_pos = LLViewerCamera::getInstance()->getOrigin();
-        LLVector3 agent_focus_pos = getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal());
-        LLVector3 look_dir = agent_focus_pos - viewer_camera_pos;
-        F32 angle_from_skyward = angle_between(look_dir, skyward);
+        const LLVector3 viewer_camera_pos(LLViewerCamera::getInstance()->getOrigin());
+        glm::vec3 agent_focus_pos = getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal());
+        LLVector3 look_dir = LLVector3(agent_focus_pos.x, agent_focus_pos.y, agent_focus_pos.z) - viewer_camera_pos;
+        F32 angle_from_skyward = angle_between(look_dir, LLVector3(skyward.x, skyward.y, skyward.z));
         if (angle_from_skyward + angle < look_up_limit)
         {
             angle = look_up_limit - angle_from_skyward;
@@ -1691,9 +1693,10 @@ void LLAgent::startAutoPilotGlobal(
     if (target_rotation)
     {
         mAutoPilotUseRotation = true;
-        mAutoPilotTargetFacing = LLVector3::x_axis * *target_rotation;
-        mAutoPilotTargetFacing.mV[VZ] = 0.f;
-        mAutoPilotTargetFacing.normalize();
+        LLVector3 facing = LLVector3::x_axis * *target_rotation;
+        facing.mV[VZ] = 0.f;
+        facing.normalize();
+        mAutoPilotTargetFacing = glm::vec3(facing.mV[VX], facing.mV[VY], facing.mV[VZ]);
     }
     else
     {
@@ -1824,8 +1827,10 @@ void LLAgent::autoPilot(F32 *delta_yaw)
         }
 
         LLVector3 at(mFrameAgent.getAtAxis());
-        LLVector3 target_agent = getPosAgentFromGlobal(mAutoPilotTargetGlobal);
-        LLVector3 direction = target_agent - getPositionAgent();
+        glm::vec3 target_agent_g = getPosAgentFromGlobal(mAutoPilotTargetGlobal);
+        LLVector3 target_agent(target_agent_g.x, target_agent_g.y, target_agent_g.z);
+        glm::vec3 pos_g = getPositionAgent();
+        LLVector3 direction = target_agent - LLVector3(pos_g.x, pos_g.y, pos_g.z);
 
         F32 target_dist = direction.length();
 
@@ -1858,15 +1863,16 @@ void LLAgent::autoPilot(F32 *delta_yaw)
         F32 xy_distance = direction.normalize();
 
         F32 yaw = 0.f;
+        const LLVector3 target_facing_ll(mAutoPilotTargetFacing.x, mAutoPilotTargetFacing.y, mAutoPilotTargetFacing.z);
         if (mAutoPilotTargetDist > mAutoPilotStopDistance)
         {
-            yaw = angle_between(mFrameAgent.getAtAxis(), direction);
+            yaw = angle_between(LLVector3(mFrameAgent.getAtAxis()), direction);
         }
         else if (mAutoPilotUseRotation)
         {
             // we're close now just aim at target facing
-            yaw = angle_between(at, mAutoPilotTargetFacing);
-            direction = mAutoPilotTargetFacing;
+            yaw = angle_between(at, target_facing_ll);
+            direction = target_facing_ll;
         }
 
         yaw = 4.f * yaw / gFPSClamped;
@@ -1925,7 +1931,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
         }
 
         //  calculate delta rotation to target heading
-        F32 delta_target_heading = angle_between(mFrameAgent.getAtAxis(), mAutoPilotTargetFacing);
+        F32 delta_target_heading = angle_between(LLVector3(mFrameAgent.getAtAxis()), target_facing_ll);
 
         if (xy_distance > slow_distance && yaw < (F_PI / 10.f))
         {
@@ -2023,12 +2029,12 @@ void LLAgent::propagate(const F32 dt)
     if (isAgentAvatarValid())
     {
         bool in_air = gAgentAvatarp->mInAir;
-        LLVector3 land_vel = getVelocity();
-        land_vel.mV[VZ] = 0.f;
+        glm::vec3 land_vel = getVelocity();
+        land_vel.z = 0.f;
 
         if (!in_air
             && gAgentCamera.getUpKey() < 0
-            && land_vel.lengthSquared() < MAX_VELOCITY_AUTO_LAND_SQUARED
+            && glm::dot(land_vel, land_vel) < MAX_VELOCITY_AUTO_LAND_SQUARED
             && gSavedSettings.getBOOL("AutomaticFly"))
         {
             // land automatically
@@ -2079,7 +2085,8 @@ void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32
             // If the position has changed by more than 1 meter since the last time we triggered.
             // filters out some noise.
             mLastTestGlobal = new_position;
-            mOnPositionChanged(mFrameAgent.getOrigin(), new_position);
+            const glm::vec3& o2 = mFrameAgent.getOrigin();
+            mOnPositionChanged(LLVector3(o2.x, o2.y, o2.z), new_position);
         }
     }
 }
@@ -2420,15 +2427,16 @@ void LLAgent::endAnimationUpdateUI()
             }
             if (gAgentAvatarp->getParent())
             {
-                LLVector3 at_axis = LLViewerCamera::getInstance()->getAtAxis();
+                LLVector3 at_axis(LLViewerCamera::getInstance()->getAtAxis());
                 LLViewerObject* root_object = static_cast<LLViewerObject*>(gAgentAvatarp->getRoot());
                 if (root_object->flagCameraDecoupled())
                 {
-                    resetAxes(at_axis);
+                    resetAxes(glm::vec3(at_axis.mV[VX], at_axis.mV[VY], at_axis.mV[VZ]));
                 }
                 else
                 {
-                    resetAxes(at_axis * ~(static_cast<LLViewerObject*>(gAgentAvatarp->getParent()))->getRenderRotation());
+                    LLVector3 rotated = at_axis * ~(static_cast<LLViewerObject*>(gAgentAvatarp->getParent()))->getRenderRotation();
+                    resetAxes(glm::vec3(rotated.mV[VX], rotated.mV[VY], rotated.mV[VZ]));
                 }
             }
         }
@@ -2539,7 +2547,7 @@ void LLAgent::setStartPosition( U32 location_id )
     const F32 INSET = 0.5f; //meters
     const F32 REGION_WIDTH = LLWorld::getInstance()->getRegionWidthInMeters();
 
-    LLVector3 agent_pos = getPositionAgent();
+    LLVector3 agent_pos(getPositionAgent());
 
     if (isAgentAvatarValid())
     {
@@ -2561,7 +2569,7 @@ void LLAgent::setStartPosition( U32 location_id )
 
     homeLocation["LocationId"] = LLSD::Integer(location_id);
     homeLocation["LocationPos"] = ll_sdmap_from_vector3(agent_pos);
-    homeLocation["LocationLookAt"] = ll_sdmap_from_vector3(mFrameAgent.getAtAxis());
+    homeLocation["LocationLookAt"] = ll_sdmap_from_vector3(LLVector3(getAtAxis()));
 
     body["HomeLocation"] = homeLocation;
 
@@ -2612,7 +2620,7 @@ void LLAgent::setStartPositionSuccess(const LLSD &result)
         LL_INFOS() << "setting home position" << LL_ENDL;
 
         LLViewerRegion *viewer_region = gAgent.getRegion();
-        setHomePosRegion(viewer_region->getHandle(), agent_pos);
+        setHomePosRegion(viewer_region->getHandle(), glm::vec3(agent_pos.mV[VX], agent_pos.mV[VY], agent_pos.mV[VZ]));
     }
 }
 
@@ -3222,7 +3230,7 @@ LLQuaternion LLAgent::getHeadRotation()
 
     // We must be in mouselook
     LLVector3 look_dir( LLViewerCamera::getInstance()->getAtAxis() );
-    LLVector3 up = cross(look_dir, mFrameAgent.getLeftAxis());
+    LLVector3 up = cross(look_dir, LLVector3(mFrameAgent.getLeftAxis()));
     LLVector3 left = cross(up, look_dir);
 
     LLQuaternion rot(look_dir, left, up);
@@ -3906,7 +3914,7 @@ void LLAgent::forceReleaseControls()
     sendReliableMessage();
 }
 
-void LLAgent::setHomePosRegion( const U64& region_handle, const LLVector3& pos_region)
+void LLAgent::setHomePosRegion( const U64& region_handle, const glm::vec3& pos_region)
 {
     mHaveHomePosition = true;
     mHomeRegionHandle = region_handle;
@@ -3922,7 +3930,7 @@ bool LLAgent::getHomePosGlobal( LLVector3d* pos_global )
     F32 x = 0;
     F32 y = 0;
     from_region_handle( mHomeRegionHandle, &x, &y);
-    pos_global->set( x + mHomePosRegion.mV[VX], y + mHomePosRegion.mV[VY], mHomePosRegion.mV[VZ] );
+    pos_global->set( x + mHomePosRegion.x, y + mHomePosRegion.y, mHomePosRegion.z );
     return true;
 }
 
@@ -4226,14 +4234,15 @@ void LLAgent::onCapabilitiesReceivedAfterTeleport()
 
 void LLAgent::teleportRequest(
     const U64& region_handle,
-    const LLVector3& pos_local,
+    const glm::vec3& pos_local,
     bool look_at_from_camera)
 {
     LLViewerRegion* regionp = getRegion();
     if (regionp && teleportCore(region_handle == regionp->getHandle()))
     {
+        const LLVector3 pos_local_ll(pos_local.x, pos_local.y, pos_local.z);
         LL_INFOS("Teleport") << "Sending TeleportLocationRequest: '" << region_handle << "':"
-                             << pos_local << LL_ENDL;
+                             << pos_local_ll << LL_ENDL;
         LLMessageSystem* msg = gMessageSystem;
         msg->newMessage("TeleportLocationRequest");
         msg->nextBlockFast(_PREHASH_AgentData);
@@ -4241,11 +4250,11 @@ void LLAgent::teleportRequest(
         msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
         msg->nextBlockFast(_PREHASH_Info);
         msg->addU64("RegionHandle", region_handle);
-        msg->addVector3("Position", pos_local);
+        msg->addVector3("Position", pos_local_ll);
         LLVector3 look_at(0,1,0);
         if (look_at_from_camera)
         {
-            look_at = LLViewerCamera::getInstance()->getAtAxis();
+            look_at = LLVector3(LLViewerCamera::getInstance()->getAtAxis());
         }
         msg->addVector3("LookAt", look_at);
         sendReliableMessage();
@@ -4394,7 +4403,7 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
     if(regionp && info)
     {
         LLVector3d region_origin = info->getGlobalOrigin();
-        LLVector3 pos_local(
+        glm::vec3 pos_local(
             static_cast<F32>(pos_global.mdV[VX] - region_origin.mdV[VX]),
             static_cast<F32>(pos_global.mdV[VY] - region_origin.mdV[VY]),
             static_cast<F32>(pos_global.mdV[VZ]));
@@ -4451,8 +4460,8 @@ void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global)
     }
 
     U64 region_handle = to_region_handle(pos_global);
-    LLVector3 pos_local = static_cast<LLVector3>(pos_global - from_region_handle(region_handle));
-    teleportRequest(region_handle, pos_local, getTeleportKeepsLookAt());
+    LLVector3 pos_local_ll = static_cast<LLVector3>(pos_global - from_region_handle(region_handle));
+    teleportRequest(region_handle, glm::vec3(pos_local_ll.mV[VX], pos_local_ll.mV[VY], pos_local_ll.mV[VZ]), getTeleportKeepsLookAt());
 }
 
 LLAgent::ETeleportState LLAgent::getTeleportState() const

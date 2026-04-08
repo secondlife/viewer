@@ -30,6 +30,8 @@
 #include "llline.h"
 #include "llrand.h"
 
+#include <glm/geometric.hpp>
+
 const F32 SOME_VERY_SMALL_NUMBER = 1.0e-8f;
 
 LLLine::LLLine()
@@ -37,35 +39,34 @@ LLLine::LLLine()
     mDirection(1.f, 0.f, 0.f)
 { }
 
-LLLine::LLLine( const LLVector3& first_point, const LLVector3& second_point )
+LLLine::LLLine( const glm::vec3& first_point, const glm::vec3& second_point )
 {
     setPoints(first_point, second_point);
 }
 
-void LLLine::setPoints( const LLVector3& first_point, const LLVector3& second_point )
+void LLLine::setPoints( const glm::vec3& first_point, const glm::vec3& second_point )
 {
     mPoint = first_point;
-    mDirection = second_point - first_point;
-    mDirection.normalize();
+    mDirection = glm::normalize(second_point - first_point);
 }
 
-void LLLine::setPointDirection( const LLVector3& first_point, const LLVector3& second_point )
+void LLLine::setPointDirection( const glm::vec3& first_point, const glm::vec3& second_point )
 {
     setPoints(first_point, first_point + second_point);
 }
 
-bool LLLine::intersects( const LLVector3& point, F32 radius ) const
+bool LLLine::intersects( const glm::vec3& point, F32 radius ) const
 {
-    LLVector3 other_direction = point - mPoint;
-    LLVector3 nearest_point = mPoint + mDirection * dot(other_direction, mDirection);
-    F32 nearest_approach = (nearest_point - point).length();
+    glm::vec3 other_direction = point - mPoint;
+    glm::vec3 nearest_point = mPoint + mDirection * glm::dot(other_direction, mDirection);
+    F32 nearest_approach = glm::length(nearest_point - point);
     return (nearest_approach <= radius);
 }
 
 // returns the point on this line that is closest to some_point
-LLVector3 LLLine::nearestApproach( const LLVector3& some_point ) const
+glm::vec3 LLLine::nearestApproach( const glm::vec3& some_point ) const
 {
-    return (mPoint + mDirection * dot(some_point - mPoint, mDirection));
+    return (mPoint + mDirection * glm::dot(some_point - mPoint, mDirection));
 }
 
 // the accuracy of this method sucks when you give it two nearly
@@ -73,18 +74,18 @@ LLVector3 LLLine::nearestApproach( const LLVector3& some_point ) const
 // before you call this
 //
 // returns the point on this line that is closest to other_line
-LLVector3 LLLine::nearestApproach( const LLLine& other_line ) const
+glm::vec3 LLLine::nearestApproach( const LLLine& other_line ) const
 {
-    LLVector3 between_points = other_line.mPoint - mPoint;
-    F32 dir_dot_dir = dot(mDirection, other_line.mDirection);
+    glm::vec3 between_points = other_line.mPoint - mPoint;
+    F32 dir_dot_dir = glm::dot(mDirection, other_line.mDirection);
     F32 one_minus_dir_dot_dir = 1.0f - fabs(dir_dot_dir);
     if ( one_minus_dir_dot_dir < SOME_VERY_SMALL_NUMBER )
     {
 #ifdef LL_DEBUG
         LL_WARNS() << "LLLine::nearestApproach() was given two very "
-            << "nearly parallel lines dir1 = " << mDirection
-            << " dir2 = " << other_line.mDirection << " with 1-dot_product = "
-            << one_minus_dir_dot_dir << LL_ENDL;
+            << "nearly parallel lines dir1 = (" << mDirection.x << "," << mDirection.y << "," << mDirection.z << ")"
+            << " dir2 = (" << other_line.mDirection.x << "," << other_line.mDirection.y << "," << other_line.mDirection.z << ")"
+            << " with 1-dot_product = " << one_minus_dir_dot_dir << LL_ENDL;
 #endif
         // the lines are approximately parallel
         // We shouldn't fall in here because this check should have been made
@@ -94,14 +95,14 @@ LLVector3 LLLine::nearestApproach( const LLLine& other_line ) const
         return 0.5f * (mPoint + other_line.mPoint);
     }
 
-    F32 odir_dot_bp = dot(other_line.mDirection, between_points);
+    F32 odir_dot_bp = glm::dot(other_line.mDirection, between_points);
 
     F32 numerator = 0;
     F32 denominator = 0;
     for (S32 i=0; i<3; i++)
     {
-        F32 factor = dir_dot_dir * other_line.mDirection.mV[i] - mDirection.mV[i];
-        numerator += ( between_points.mV[i] - odir_dot_bp * other_line.mDirection.mV[i] ) * factor;
+        F32 factor = dir_dot_dir * other_line.mDirection[i] - mDirection[i];
+        numerator += ( between_points[i] - odir_dot_bp * other_line.mDirection[i] ) * factor;
         denominator -= factor * factor;
     }
 
@@ -112,7 +113,8 @@ LLVector3 LLLine::nearestApproach( const LLLine& other_line ) const
 
 std::ostream& operator<<( std::ostream& output_stream, const LLLine& line )
 {
-    output_stream << "{point=" << line.mPoint << "," << "dir=" << line.mDirection << "}";
+    output_stream << "{point=(" << line.mPoint.x << "," << line.mPoint.y << "," << line.mPoint.z << "),"
+                  << "dir=(" << line.mDirection.x << "," << line.mDirection.y << "," << line.mDirection.z << ")}";
     return output_stream;
 }
 
@@ -122,7 +124,7 @@ F32 TOO_SMALL_FOR_DIVISION = 0.0001f;
 
 // returns 'true' if this line intersects the plane
 // on success stores the intersection point in 'result'
-bool LLLine::intersectsPlane( LLVector3& result, const LLLine& plane ) const
+bool LLLine::intersectsPlane( glm::vec3& result, const LLLine& plane ) const
 {
     // p = P + l * d     equation for a line
     //
@@ -134,14 +136,14 @@ bool LLLine::intersectsPlane( LLVector3& result, const LLLine& plane ) const
     // l =  ( D - N*P ) / ( N*d )
     //
 
-    F32 plane_dir_dot = dot(plane.mDirection, mDirection);
+    F32 plane_dir_dot = glm::dot(plane.mDirection, mDirection);
     if (fabs(plane_dir_dot) < TOO_SMALL_FOR_DIVISION)
     {
         return false;
     }
 
-    F32 plane_dot = dot(plane.mDirection, plane.mPoint);
-    F32 length = ( plane_dot - dot(plane.mDirection, mPoint) ) / plane_dir_dot;
+    F32 plane_dot = glm::dot(plane.mDirection, plane.mPoint);
+    F32 length = ( plane_dot - glm::dot(plane.mDirection, mPoint) ) / plane_dir_dot;
     result = mPoint + length * mDirection;
     return true;
 }
@@ -158,33 +160,21 @@ bool LLLine::getIntersectionBetweenTwoPlanes( LLLine& result, const LLLine& firs
     // then we should just use that, since this problem is really just
     // linear algebra.
 
-    F32 dir_dot = fabs(dot(first_plane.mDirection, second_plane.mDirection));
+    F32 dir_dot = fabs(glm::dot(first_plane.mDirection, second_plane.mDirection));
     if (dir_dot > ALMOST_PARALLEL)
     {
         // the planes are nearly parallel
         return false;
     }
 
-    LLVector3 direction = cross(first_plane.mDirection, second_plane.mDirection);
-    direction.normalize();
+    glm::vec3 direction = glm::normalize(glm::cross(first_plane.mDirection, second_plane.mDirection));
 
-    LLVector3 first_intersection;
+    glm::vec3 first_intersection;
     {
         LLLine intersection_line(first_plane);
-        intersection_line.mDirection = cross(direction, first_plane.mDirection);
-        intersection_line.mDirection.normalize();
+        intersection_line.mDirection = glm::normalize(glm::cross(direction, first_plane.mDirection));
         intersection_line.intersectsPlane(first_intersection, second_plane);
     }
-
-    /*
-    LLVector3 second_intersection;
-    {
-        LLLine intersection_line(second_plane);
-        intersection_line.mDirection = direction % second_plane.mDirection;
-        intersection_line.mDirection.normalize();
-        intersection_line.intersectsPlane(second_intersection, first_plane);
-    }
-    */
 
     result.mPoint = first_intersection;
     result.mDirection = direction;

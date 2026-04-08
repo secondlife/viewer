@@ -805,7 +805,7 @@ void LLPanelScriptLimitsRegionMemory::showBeacon()
     if (matched != 3) return;
 
     LLVector3 pos_agent(x, y, z);
-    LLVector3d pos_global = gAgent.getPosGlobalFromAgent(pos_agent);
+    LLVector3d pos_global = gAgent.getPosGlobalFromAgent(glm::vec3(x, y, z));
 
     std::string tooltip("");
     LLTracker::trackLocation(pos_global, name, tooltip, LLTracker::LOCATION_ITEM);

@@ -64,7 +64,7 @@ void pack_instant_message(
     const LLUUID& id,
     U32 parent_estate_id,
     const LLUUID& region_id,
-    const LLVector3& position,
+    const glm::vec3& position,
     U32 timestamp,
     const U8* binary_bucket,
     S32 binary_bucket_size)
@@ -103,7 +103,7 @@ void pack_instant_message_block(
     const LLUUID& id,
     U32 parent_estate_id,
     const LLUUID& region_id,
-    const LLVector3& position,
+    const glm::vec3& position,
     U32 timestamp,
     const U8* binary_bucket,
     S32 binary_bucket_size)

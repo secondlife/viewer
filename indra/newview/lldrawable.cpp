@@ -101,7 +101,7 @@ void LLDrawable::init(bool new_entry)
     // mXform
     mParent = NULL;
     mRenderType = 0;
-    mCurrentScale = LLVector3(1,1,1);
+    mCurrentScale = glm::vec3(1,1,1);
     mDistanceWRTCamera = 0.0f;
     mState     = 0;
 
@@ -607,8 +607,8 @@ F32 LLDrawable::updateXform(bool undamped)
     bool damped = !undamped;
 
     // Position
-    const LLVector3 old_pos(mXform.getPosition());
-    LLVector3 target_pos;
+    const glm::vec3 old_pos(mXform.getPosition());
+    glm::vec3 target_pos;
     if (mXform.isRoot())
     {
         // get root position in your agent's region
@@ -624,8 +624,8 @@ F32 LLDrawable::updateXform(bool undamped)
     const LLQuaternion old_rot(mXform.getRotation());
     LLQuaternion target_rot = mVObjp->getRotation();
     //scaling
-    LLVector3 target_scale = mVObjp->getScale();
-    LLVector3 old_scale = mCurrentScale;
+    glm::vec3 target_scale = mVObjp->getScale();
+    glm::vec3 old_scale = mCurrentScale;
 
     // Damping
     F32 dist_squared = 0.f;
@@ -634,15 +634,21 @@ F32 LLDrawable::updateXform(bool undamped)
     if (damped && isVisible())
     {
         F32 lerp_amt = llclamp(LLSmoothInterpolation::getInterpolant(OBJECT_DAMPING_TIME_CONSTANT), 0.f, 1.f);
-        LLVector3 new_pos = lerp(old_pos, target_pos, lerp_amt);
-        dist_squared = dist_vec_squared(new_pos, target_pos);
+        glm::vec3 new_pos = glm::mix(old_pos, target_pos, lerp_amt);
+        {
+            const glm::vec3 d = new_pos - target_pos;
+            dist_squared = glm::dot(d, d);
+        }
 
         LLQuaternion new_rot = nlerp(lerp_amt, old_rot, target_rot);
         // FIXME: This can be negative! It is be possible for some rots to 'cancel out' pos or size changes.
         dist_squared += (1.f - dot(new_rot, target_rot)) * 10.f;
 
-        LLVector3 new_scale = lerp(old_scale, target_scale, lerp_amt);
-        dist_squared += dist_vec_squared(new_scale, target_scale);
+        glm::vec3 new_scale = glm::mix(old_scale, target_scale, lerp_amt);
+        {
+            const glm::vec3 d = new_scale - target_scale;
+            dist_squared += glm::dot(d, d);
+        }
 
         if ((dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED * camdist2) &&
             (dist_squared <= MAX_INTERPOLATE_DISTANCE_SQUARED))
@@ -652,7 +658,7 @@ F32 LLDrawable::updateXform(bool undamped)
             target_rot = new_rot;
             target_scale = new_scale;
         }
-        else if (mVObjp->getAngularVelocity().isExactlyZero())
+        else if ((mVObjp->getAngularVelocity() == glm::vec3(0.f)))
         {
             // snap to final position (only if no target omega is applied)
             dist_squared = 0.0f;
@@ -675,7 +681,7 @@ F32 LLDrawable::updateXform(bool undamped)
         //dist_squared += dist_vec_squared(old_scale, target_scale);
     }
 
-    const LLVector3 vec = mCurrentScale-target_scale;
+    const glm::vec3 vec = mCurrentScale-target_scale;
 
     //It's a very important on each cycle on Drawable::update form(), when object remained in move
     //, list update the CurrentScale member, because if do not do that, it remained in this list forever
@@ -683,12 +689,12 @@ F32 LLDrawable::updateXform(bool undamped)
     //for overcome the MIN_INTERPOLATE_DISTANCE_SQUARED.
     mCurrentScale = target_scale;
 
-    if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
+    if (glm::dot(vec, vec) > MIN_INTERPOLATE_DISTANCE_SQUARED)
     { //scale change requires immediate rebuild
         gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
     }
     else if (!isRoot() &&
-         (!mVObjp->getAngularVelocity().isExactlyZero() ||
+         (!(mVObjp->getAngularVelocity() == glm::vec3(0.f)) ||
             dist_squared > 0.f))
     { //child prim moving relative to parent, tag as needing to be rendered atomically and rebuild
         dist_squared = 1.f; //keep this object on the move list
@@ -700,7 +706,7 @@ F32 LLDrawable::updateXform(bool undamped)
         }
     }
     else if (!isRoot() &&
-            ((dist_vec_squared(old_pos, target_pos) > 0.f)
+            ((glm::dot(old_pos - target_pos, old_pos - target_pos) > 0.f)
             || (1.f - dot(old_rot, target_rot)) > 0.f))
     { //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
         mVObjp->shrinkWrap();
@@ -714,7 +720,7 @@ F32 LLDrawable::updateXform(bool undamped)
     // Update
     mXform.setPosition(target_pos);
     mXform.setRotation(target_rot);
-    mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
+    mXform.setScale(glm::vec3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
     mXform.updateMatrix();
     if (isRoot() && mVObjp->isAnimatedObject())
     {
@@ -901,13 +907,13 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
                         LLVector4a box;
                         box.setSub(facep->mExtents[1], facep->mExtents[0]);
                         box.mul(0.25f);
-                        LLVector3 v = (facep->mCenterLocal-camera.getOrigin());
-                        const LLVector3& at = camera.getAtAxis();
+                        LLVector3 v = (facep->mCenterLocal - LLVector3(camera.getOrigin()));
+                        const LLVector3 at(camera.getAtAxis());
                         for (U32 j = 0; j < 3; j++)
                         {
                             v.mV[j] -= box[j] * at.mV[j];
                         }
-                        facep->mDistance = v * camera.getAtAxis();
+                        facep->mDistance = v * at;
                     }
                 }
             }
@@ -918,7 +924,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
             if (volume->getAvatar())
             {
                 const LLVector3* av_box = volume->getAvatar()->getLastAnimExtents();
-                LLVector3 cam_pos_from_agent = LLViewerCamera::getInstance()->getOrigin();
+                LLVector3 cam_pos_from_agent(LLViewerCamera::getInstance()->getOrigin());
                 LLVector3 cam_to_box_offset = point_to_box_offset(cam_pos_from_agent, av_box);
                 mDistanceWRTCamera = llmax(0.01f, ll_round(cam_to_box_offset.length(), 0.01f));
                 if (mVObjp)
@@ -933,7 +939,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
             pos = LLVector3(getPositionGroup().getF32ptr());
         }
 
-        pos -= camera.getOrigin();
+        pos -= LLVector3(camera.getOrigin());
         mDistanceWRTCamera = ll_round(pos.length(), 0.01f);
         if (mVObjp)
         {
@@ -1038,9 +1044,9 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
     mVObjp->onShift(shift_vector);
 }
 
-const LLVector3& LLDrawable::getBounds(LLVector3& min, LLVector3& max) const
+glm::vec3 LLDrawable::getBounds(glm::vec3& min, glm::vec3& max) const
 {
-    mXform.getMinMax(min,max);
+    mXform.getMinMax(min, max);
     return mXform.getPositionW();
 }
 
@@ -1397,13 +1403,13 @@ LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
     LLXformMatrix* mat = mDrawable->getXform();
     LLVector3 center = LLVector3(0,0,0) * mat->getWorldMatrix();
 
-    LLVector3 delta = ret.getOrigin() - center;
+    LLVector3 delta = LLVector3(ret.getOrigin()) - center;
     LLQuaternion rot = ~mat->getRotation();
 
     delta *= rot;
-    LLVector3 lookAt = ret.getAtAxis();
-    LLVector3 up_axis = ret.getUpAxis();
-    LLVector3 left_axis = ret.getLeftAxis();
+    LLVector3 lookAt(ret.getAtAxis());
+    LLVector3 up_axis(ret.getUpAxis());
+    LLVector3 left_axis(ret.getLeftAxis());
 
     lookAt *= rot;
     up_axis *= rot;
@@ -1414,8 +1420,8 @@ LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
         delta.clear();
     }
 
-    ret.setOrigin(delta);
-    ret.setAxes(lookAt, left_axis, up_axis);
+    ret.setOrigin(static_cast<glm::vec3>(delta));
+    ret.setAxes(static_cast<glm::vec3>(lookAt), static_cast<glm::vec3>(left_axis), static_cast<glm::vec3>(up_axis));
 
     return ret;
 }
@@ -1518,7 +1524,7 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
     if ((LLPipeline::sShadowRender && camera_in.AABBInFrustum(center, size)) ||
         LLPipeline::sImpostorRender ||
         (camera_in.AABBInFrustumNoFarClip(center, size) &&
-        AABBSphereIntersect(exts[0], exts[1], camera_in.getOrigin(), camera_in.mFrustumCornerDist)))
+        AABBSphereIntersect(exts[0], exts[1], LLVector3(camera_in.getOrigin()), camera_in.mFrustumCornerDist)))
     {
         if (!LLPipeline::sImpostorRender &&
             !LLPipeline::sShadowRender &&
@@ -1659,7 +1665,7 @@ void LLSpatialBridge::cleanupReferences()
     }
 }
 
-const LLVector3 LLDrawable::getPositionAgent() const
+glm::vec3 LLDrawable::getPositionAgent() const
 {
     if (getVOVolume())
     {
@@ -1668,9 +1674,9 @@ const LLVector3 LLDrawable::getPositionAgent() const
             LLVector3 pos(0,0,0);
             if (!isRoot())
             {
-                pos = mVObjp->getPosition();
+                pos = LLVector3(mVObjp->getPosition());
             }
-            return pos * getRenderMatrix();
+            return glm::vec3(pos * getRenderMatrix());
         }
         else
         {
@@ -1704,7 +1710,7 @@ bool LLDrawable::isAnimating() const
         return true;
     }
 
-    /*if (!isRoot() && !mVObjp->getAngularVelocity().isExactlyZero())
+    /*if (!isRoot() && !(mVObjp->getAngularVelocity() == glm::vec3(0.f)))
     { //target omega
         return true;
     }*/

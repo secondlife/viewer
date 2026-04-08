@@ -65,6 +65,9 @@
 #include "llspatialpartition.h"
 #include "llviewershadermgr.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 #include <vector>
 
 // Height of the yellow selection highlight posts for land
@@ -73,7 +76,8 @@ constexpr F32 PARCEL_POST_HEIGHT = 0.666f;
 // Returns true if you got at least one object
 void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 {
-    LLVector3 av_pos = gAgent.getPositionAgent();
+    const glm::vec3 av_pos_g = gAgent.getPositionAgent();
+    LLVector3 av_pos(av_pos_g.x, av_pos_g.y, av_pos_g.z);
     F32 select_dist_squared = gSavedSettings.getF32("MaxSelectDistance");
     select_dist_squared = select_dist_squared * select_dist_squared;
 
@@ -127,10 +131,10 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
     {
         // ...select distance from control
         LLVector3 relative_av_pos = av_pos;
-        relative_av_pos -= LLViewerCamera::getInstance()->getOrigin();
+        relative_av_pos -= LLVector3(LLViewerCamera::getInstance()->getOrigin());
 
-        F32 new_far = relative_av_pos * LLViewerCamera::getInstance()->getAtAxis() + gSavedSettings.getF32("MaxSelectDistance");
-        F32 new_near = relative_av_pos * LLViewerCamera::getInstance()->getAtAxis() - gSavedSettings.getF32("MaxSelectDistance");
+        F32 new_far = relative_av_pos * LLVector3(LLViewerCamera::getInstance()->getAtAxis()) + gSavedSettings.getF32("MaxSelectDistance");
+        F32 new_near = relative_av_pos * LLVector3(LLViewerCamera::getInstance()->getAtAxis()) - gSavedSettings.getF32("MaxSelectDistance");
 
         new_near = llmax(new_near, 0.1f);
 
@@ -152,7 +156,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
                 {
                     return true;
                 }
-                S32 result = LLViewerCamera::getInstance()->sphereInFrustum(drawable->getPositionAgent(), drawable->getRadius());
+                S32 result = LLViewerCamera::getInstance()->sphereInFrustum(static_cast<glm::vec3>(drawable->getPositionAgent()), drawable->getRadius());
                 switch (result)
                 {
                   case 0:
@@ -206,12 +210,12 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
                 continue;
             }
 
-            if (limit_select_distance && dist_vec_squared(drawable->getWorldPosition(), av_pos) > select_dist_squared)
+            if (limit_select_distance && dist_vec_squared(LLVector3(drawable->getWorldPosition()), av_pos) > select_dist_squared)
             {
                 continue;
             }
 
-            S32 result = LLViewerCamera::getInstance()->sphereInFrustum(drawable->getPositionAgent(), drawable->getRadius());
+            S32 result = LLViewerCamera::getInstance()->sphereInFrustum(static_cast<glm::vec3>(drawable->getPositionAgent()), drawable->getRadius());
             if (result)
             {
                 switch (result)
@@ -256,9 +260,8 @@ void LLWind::renderVectors()
 
     gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     gGL.pushMatrix();
-    LLVector3 origin_agent;
-    origin_agent = gAgent.getPosAgentFromGlobal(mOriginGlobal);
-    gGL.translatef(origin_agent.mV[VX], origin_agent.mV[VY], gAgent.getPositionAgent().mV[VZ] + WIND_RELATIVE_ALTITUDE);
+    const glm::vec3 origin_agent = gAgent.getPosAgentFromGlobal(mOriginGlobal);
+    gGL.translatef(origin_agent.x, origin_agent.y, gAgent.getPositionAgent().z + WIND_RELATIVE_ALTITUDE);
     for (j = 0; j < mSize; j++)
     {
         for (i = 0; i < mSize; i++)
@@ -293,15 +296,15 @@ void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
     gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     LLGLDepthTest gls_depth(GL_TRUE);
 
-    LLVector3 west_south_bottom_agent = gAgent.getPosAgentFromGlobal(west_south_bottom_global);
-    F32 west    = west_south_bottom_agent.mV[VX];
-    F32 south   = west_south_bottom_agent.mV[VY];
-//  F32 bottom  = west_south_bottom_agent.mV[VZ] - 1.f;
+    const glm::vec3 west_south_bottom_agent = gAgent.getPosAgentFromGlobal(west_south_bottom_global);
+    F32 west    = west_south_bottom_agent.x;
+    F32 south   = west_south_bottom_agent.y;
+//  F32 bottom  = west_south_bottom_agent.z - 1.f;
 
-    LLVector3 east_north_top_agent = gAgent.getPosAgentFromGlobal(east_north_top_global);
-    F32 east    = east_north_top_agent.mV[VX];
-    F32 north   = east_north_top_agent.mV[VY];
-//  F32 top     = east_north_top_agent.mV[VZ] + 1.f;
+    const glm::vec3 east_north_top_agent = gAgent.getPosAgentFromGlobal(east_north_top_global);
+    F32 east    = east_north_top_agent.x;
+    F32 north   = east_north_top_agent.y;
+//  F32 top     = east_north_top_agent.z + 1.f;
 
     // HACK: At edge of last region of world, we need to make sure the region
     // resolves correctly so we can get a height value.
@@ -383,11 +386,12 @@ void LLViewerParcelMgr::renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 hei
     z2 = regionp->getLand().resolveHeightRegion( LLVector3( clamped_x2, clamped_y2, 0.f ) );
 
     // Convert x1 and x2 from region-local to agent coords.
-    LLVector3 origin = regionp->getOriginAgent();
-    x1 += origin.mV[VX];
-    x2 += origin.mV[VX];
-    y1 += origin.mV[VY];
-    y2 += origin.mV[VY];
+    LLVector3 origin_ll = regionp->getOriginAgent();
+    glm::vec3 origin(origin_ll.mV[VX], origin_ll.mV[VY], origin_ll.mV[VZ]);
+    x1 += origin.x;
+    x2 += origin.x;
+    y1 += origin.y;
+    y2 += origin.y;
 
     if (height < 1.f)
     {
@@ -533,10 +537,10 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, bool use_pass, LLV
 
     const S32 STRIDE = (mParcelsPerEdge+1);
 
-    LLVector3 pos = gAgent.getPositionAgent();
+    const glm::vec3 pos = gAgent.getPositionAgent();
 
-    F32 pos_x = pos.mV[VX];
-    F32 pos_y = pos.mV[VY];
+    F32 pos_x = pos.x;
+    F32 pos_y = pos.y;
 
     LLGLSUIDefault gls_ui;
     LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);

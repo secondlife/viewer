@@ -742,8 +742,8 @@ void LLAvatarAppearance::clearSkeleton()
 //------------------------------------------------------------------------
 void LLAvatarAppearance::addPelvisFixup( F32 fixup, const LLUUID& mesh_id )
 {
-    LLVector3 pos(0.0,0.0,fixup);
-    mPelvisFixups.add(mesh_id,pos);
+    glm::vec3 pos(0.0f, 0.0f, fixup);
+    mPelvisFixups.add(mesh_id, pos);
 }
 
 //------------------------------------------------------------------------
@@ -759,10 +759,10 @@ void LLAvatarAppearance::removePelvisFixup( const LLUUID& mesh_id )
 //------------------------------------------------------------------------
 bool LLAvatarAppearance::hasPelvisFixup( F32& fixup, LLUUID& mesh_id ) const
 {
-    LLVector3 pos;
+    glm::vec3 pos;
     if (mPelvisFixups.findActiveOverride(mesh_id,pos))
     {
-        fixup = pos[2];
+        fixup = pos.z;
         return true;
     }
     return false;

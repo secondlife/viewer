@@ -31,6 +31,7 @@
 #include <iostream>
 #include "stdtypes.h"
 #include "v3math.h"
+#include <glm/vec3.hpp>
 
 constexpr F32 DEFAULT_INTERSECTION_ERROR = 0.000001f;
 
@@ -38,25 +39,25 @@ class LLLine
 {
 public:
     LLLine();
-    LLLine( const LLVector3& first_point, const LLVector3& second_point );
+    LLLine( const glm::vec3& first_point, const glm::vec3& second_point );
     ~LLLine() = default;
 
-    void setPointDirection( const LLVector3& first_point, const LLVector3& second_point );
-    void setPoints( const LLVector3& first_point, const LLVector3& second_point );
+    void setPointDirection( const glm::vec3& first_point, const glm::vec3& second_point );
+    void setPoints( const glm::vec3& first_point, const glm::vec3& second_point );
 
-    bool intersects( const LLVector3& point, F32 radius = DEFAULT_INTERSECTION_ERROR ) const;
+    bool intersects( const glm::vec3& point, F32 radius = DEFAULT_INTERSECTION_ERROR ) const;
 
     // returns the point on this line that is closest to some_point
-    LLVector3 nearestApproach( const LLVector3& some_point ) const;
+    glm::vec3 nearestApproach( const glm::vec3& some_point ) const;
 
     // returns the point on this line that is closest to other_line
-    LLVector3 nearestApproach( const LLLine& other_line ) const;
+    glm::vec3 nearestApproach( const LLLine& other_line ) const;
 
     friend std::ostream& operator<<( std::ostream& output_stream, const LLLine& line );
 
     // returns 'true' if this line intersects the plane
     // on success stores the intersection point in 'result'
-    bool intersectsPlane( LLVector3& result, const LLLine& plane ) const;
+    bool intersectsPlane( glm::vec3& result, const LLLine& plane ) const;
 
     // returns 'true' if planes intersect, and stores the result
     // the second and third arguments are treated as planes
@@ -65,14 +66,14 @@ public:
     // to first_plane.mPoint
     static bool getIntersectionBetweenTwoPlanes( LLLine& result, const LLLine& first_plane, const LLLine& second_plane );
 
-    const LLVector3& getPoint() const { return mPoint; }
-    const LLVector3& getDirection() const { return mDirection; }
+    const glm::vec3& getPoint() const { return mPoint; }
+    const glm::vec3& getDirection() const { return mDirection; }
 
 protected:
     // these are protected because some code assumes that the normal is
     // always correct and properly normalized.
-    LLVector3 mPoint;
-    LLVector3 mDirection;
+    glm::vec3 mPoint;
+    glm::vec3 mDirection;
 };
 
 static_assert(std::is_trivially_copyable<LLLine>::value, "LLLine must be trivial copy");

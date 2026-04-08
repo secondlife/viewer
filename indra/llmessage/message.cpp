@@ -3593,6 +3593,16 @@ void LLMessageSystem::addVector3(const char *varname, const LLVector3& v)
     mMessageBuilder->addVector3(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
+void LLMessageSystem::addVector3Fast(const char *varname, const glm::vec3& v)
+{
+    addVector3Fast(varname, LLVector3(v.x, v.y, v.z));
+}
+
+void LLMessageSystem::addVector3(const char *varname, const glm::vec3& v)
+{
+    addVector3(varname, LLVector3(v.x, v.y, v.z));
+}
+
 void LLMessageSystem::addVector4Fast(const char *varname, const LLVector4& v)
 {
     mMessageBuilder->addVector4(varname, v);
@@ -3798,6 +3808,21 @@ void LLMessageSystem::getVector3Fast(const char *block, const char *var,
 
 void LLMessageSystem::getVector3(const char *block, const char *var,
                                  LLVector3 &v, S32 blocknum )
+{
+    getVector3Fast(LLMessageStringTable::getInstance()->getString(block),
+                   LLMessageStringTable::getInstance()->getString(var), v, blocknum);
+}
+
+void LLMessageSystem::getVector3Fast(const char *block, const char *var,
+                                     glm::vec3 &v, S32 blocknum )
+{
+    LLVector3 temp;
+    mMessageReader->getVector3(block, var, temp, blocknum);
+    v = glm::vec3(temp.mV[VX], temp.mV[VY], temp.mV[VZ]);
+}
+
+void LLMessageSystem::getVector3(const char *block, const char *var,
+                                 glm::vec3 &v, S32 blocknum )
 {
     getVector3Fast(LLMessageStringTable::getInstance()->getString(block),
                    LLMessageStringTable::getInstance()->getString(var), v, blocknum);

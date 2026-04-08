@@ -32,6 +32,7 @@
 #include "llrefcount.h"
 #include "llpointer.h"
 #include "v3math.h"
+#include <glm/vec3.hpp>
 
 class LLMessageSystem;
 
@@ -189,7 +190,7 @@ void pack_instant_message(
     const LLUUID& id = LLUUID::null,
     U32 parent_estate_id = 0,
     const LLUUID& region_id = LLUUID::null,
-    const LLVector3& position = LLVector3::zero,
+    const glm::vec3& position = glm::vec3(0.f),
     U32 timestamp = NO_TIMESTAMP,
     const U8* binary_bucket = reinterpret_cast<const U8*>(EMPTY_BINARY_BUCKET),
     S32 binary_bucket_size = EMPTY_BINARY_BUCKET_SIZE);
@@ -207,7 +208,7 @@ void pack_instant_message_block(
     const LLUUID& id = LLUUID::null,
     U32 parent_estate_id = 0,
     const LLUUID& region_id = LLUUID::null,
-    const LLVector3& position = LLVector3::zero,
+    const glm::vec3& position = glm::vec3(0.f),
     U32 timestamp = NO_TIMESTAMP,
     const U8* binary_bucket = reinterpret_cast<const U8*>(EMPTY_BINARY_BUCKET),
     S32 binary_bucket_size = EMPTY_BINARY_BUCKET_SIZE);

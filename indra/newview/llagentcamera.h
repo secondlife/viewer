@@ -113,11 +113,11 @@ public:
     void switchCameraPreset(ECameraPreset preset);
     ECameraPreset getCameraPreset() const { return mCameraPreset; }
     /** Determines default camera offset depending on the current camera preset */
-    LLVector3 getCameraOffsetInitial();
+    glm::vec3 getCameraOffsetInitial();
     /** Determines default focus offset depending on the current camera preset */
     LLVector3d getFocusOffsetInitial();
 
-    LLVector3 getCurrentCameraOffset();
+    glm::vec3 getCurrentCameraOffset();
     LLVector3d getCurrentFocusOffset();
     LLQuaternion getCurrentAvatarRotation();
     bool isJoystickCameraUsed();
@@ -138,16 +138,16 @@ private:
     //--------------------------------------------------------------------
 public:
     LLVector3d      getCameraPositionGlobal() const;
-    const LLVector3& getCameraPositionAgent() const;
+    glm::vec3       getCameraPositionAgent() const;
     LLVector3d      calcCameraPositionTargetGlobal(bool *hit_limit = NULL); // Calculate the camera position target
     F32             getCameraMinOffGround();        // Minimum height off ground for this mode, meters
     void            setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
     bool            calcCameraMinDistance(F32 &obj_min_distance);
     F32             getCurrentCameraBuildOffset() const { return static_cast<F32>(mCameraFocusOffset.length()); }
-    void            clearCameraLag() { mCameraLag.clear(); }
-    const LLVector3& getCameraUpVector() const { return mCameraUpVector; }
+    void            clearCameraLag() { mCameraLag = glm::vec3(0.0f); }
+    const glm::vec3& getCameraUpVector() const { return mCameraUpVector; }
 private:
-    LLVector3       getAvatarRootPosition();
+    glm::vec3       getAvatarRootPosition();
 
     F32             mCurrentCameraDistance;         // Current camera offset from avatar
     F32             mTargetCameraDistance;          // Target camera offset from avatar
@@ -155,12 +155,12 @@ private:
     F32             mCameraCurrentFOVZoomFactor;    // Interpolated fov zoom
     LLVector4       mCameraCollidePlane;            // Colliding plane for camera
     F32             mCameraZoomFraction;            // Mousewheel driven fraction of zoom
-    LLVector3       mCameraVirtualPositionAgent;    // Camera virtual position (target) before performing FOV zoom
+    glm::vec3       mCameraVirtualPositionAgent;    // Camera virtual position (target) before performing FOV zoom
     LLVector3d      mCameraSmoothingLastPositionGlobal;
     LLVector3d      mCameraSmoothingLastPositionAgent;
     bool            mCameraSmoothingStop;
-    LLVector3       mCameraLag;                     // Third person camera lag
-    LLVector3       mCameraUpVector;                // Camera's up direction in world coordinates (determines the 'roll' of the view)
+    glm::vec3       mCameraLag;                     // Third person camera lag
+    glm::vec3       mCameraUpVector;                // Camera's up direction in world coordinates (determines the 'roll' of the view)
 
     //--------------------------------------------------------------------
     // Follow

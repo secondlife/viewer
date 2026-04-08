@@ -53,7 +53,7 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
 
         /*virtual*/ bool initWind();
         /*virtual*/ void cleanupWind();
-        /*virtual*/ void updateWind(LLVector3 direction, F32 camera_altitude);
+        /*virtual*/ void updateWind(glm::vec3 direction, F32 camera_altitude);
 
     private:
         using WIND_SAMPLE_T = F32;

@@ -788,7 +788,10 @@ bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
         if (!mDrawablep->isActive())
         {   // Shift position for region
             LLVector4a offset;
-            offset.load3(mDrawablep->getRegion()->getOriginAgent().mV);
+            {
+                const glm::vec3 oa = mDrawablep->getRegion()->getOriginAgent();
+                offset.load3(glm::value_ptr(oa));
+            }
             mExtents[0].add(offset);
             mExtents[1].add(offset);
         }
@@ -840,7 +843,7 @@ glm::vec2 LLFace::surfaceToTexture(glm::vec2 surface_coord, const LLVector4a& po
         if (!mDrawablep->getVOVolume()->isVolumeGlobal())
         {
             LLVector4a scale;
-            scale.load3(mVObjp->getScale().mV);
+            scale.load3(glm::value_ptr(mVObjp->getScale()));
             volume_position.mul(scale);
         }
 
@@ -2312,7 +2315,7 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
     F32 size_squared = size.dot3(size).getF32();
     LLVector4a lookAt;
     LLVector4a t;
-    t.load3(camera->getOrigin().mV);
+    t.load3(&camera->getOrigin().x);
     lookAt.setSub(center, t);
 
     F32 dist = lookAt.getLength3().getF32();
@@ -2329,7 +2332,7 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
     mLastPixelAreaUpdate = gFrameTimeSeconds + ll_frand() * PIXEL_AREA_UPDATE_PERIOD * 0.1f;
 
     LLVector4a x_axis;
-    x_axis.load3(camera->getXAxis().mV);
+    x_axis.load3(&camera->getXAxis().x);
     cos_angle_to_view_dir = lookAt.dot3(x_axis).getF32();
 
     //if has media, check if the face is out of the view frustum.

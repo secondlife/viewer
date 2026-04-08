@@ -2481,10 +2481,10 @@ void LLViewerMediaImpl::updateJavascriptObject()
         if ( logged_in )
         {
             // current location within a region
-            LLVector3 agent_pos = gAgent.getPositionAgent();
-            double x = agent_pos.mV[ VX ];
-            double y = agent_pos.mV[ VY ];
-            double z = agent_pos.mV[ VZ ];
+            glm::vec3 agent_pos = gAgent.getPositionAgent();
+            double x = agent_pos.x;
+            double y = agent_pos.y;
+            double z = agent_pos.z;
             mMediaSource->jsAgentLocationEvent( x, y, z );
 
             // current location within the grid
@@ -2495,7 +2495,7 @@ void LLViewerMediaImpl::updateJavascriptObject()
             mMediaSource->jsAgentGlobalLocationEvent( global_x, global_y, global_z );
 
             // current agent orientation
-            double rotation = atan2( gAgent.getAtAxis().mV[VX], gAgent.getAtAxis().mV[VY] );
+            double rotation = atan2( gAgent.getAtAxis().x, gAgent.getAtAxis().y );
             double angle = rotation * RAD_TO_DEG;
             if ( angle < 0.0f ) angle = 360.0f + angle; // TODO: has to be a better way to get orientation!
             mMediaSource->jsAgentOrientationEvent( angle );

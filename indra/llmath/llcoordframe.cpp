@@ -26,6 +26,8 @@
 
 #include "linden_common.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "v3math.h"
 #include "m3math.h"
 #include "v4math.h"
@@ -33,8 +35,16 @@
 #include "llquaternion.h"
 #include "llcoordframe.h"
 
+namespace
+{
+inline bool glm_is_finite(const glm::vec3& v)
+{
+    return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
+}
+}
+
 #define CHECK_FINITE(var)                                            \
-    if (!var.isFinite())                                             \
+    if (!glm_is_finite(var))                                         \
     {                                                                \
         LL_WARNS() << "Non Finite " << std::string(#var) << LL_ENDL; \
         reset();                                                     \
@@ -63,7 +73,7 @@ LLCoordFrame::LLCoordFrame() :
 {
 }
 
-LLCoordFrame::LLCoordFrame(const LLVector3 &origin) :
+LLCoordFrame::LLCoordFrame(const glm::vec3 &origin) :
     mOrigin(origin),
     mXAxis(X_AXIS),
     mYAxis(Y_AXIS),
@@ -72,7 +82,7 @@ LLCoordFrame::LLCoordFrame(const LLVector3 &origin) :
     CHECK_FINITE(mOrigin);
 }
 
-LLCoordFrame::LLCoordFrame(const LLVector3 &origin, const LLVector3 &direction) :
+LLCoordFrame::LLCoordFrame(const glm::vec3 &origin, const glm::vec3 &direction) :
     mOrigin(origin)
 {
     lookDir(direction);
@@ -80,9 +90,9 @@ LLCoordFrame::LLCoordFrame(const LLVector3 &origin, const LLVector3 &direction) 
     CHECK_FINITE_OBJ();
 }
 
-LLCoordFrame::LLCoordFrame(const LLVector3 &x_axis,
-                           const LLVector3 &y_axis,
-                           const LLVector3 &z_axis) :
+LLCoordFrame::LLCoordFrame(const glm::vec3 &x_axis,
+                           const glm::vec3 &y_axis,
+                           const glm::vec3 &z_axis) :
     mOrigin(0.f, 0.f, 0.f),
     mXAxis(x_axis),
     mYAxis(y_axis),
@@ -91,10 +101,10 @@ LLCoordFrame::LLCoordFrame(const LLVector3 &x_axis,
     CHECK_FINITE_OBJ();
 }
 
-LLCoordFrame::LLCoordFrame(const LLVector3 &origin,
-                           const LLVector3 &x_axis,
-                           const LLVector3 &y_axis,
-                           const LLVector3 &z_axis) :
+LLCoordFrame::LLCoordFrame(const glm::vec3 &origin,
+                           const glm::vec3 &x_axis,
+                           const glm::vec3 &y_axis,
+                           const glm::vec3 &z_axis) :
     mOrigin(origin),
     mXAxis(x_axis),
     mYAxis(y_axis),
@@ -104,12 +114,12 @@ LLCoordFrame::LLCoordFrame(const LLVector3 &origin,
 }
 
 
-LLCoordFrame::LLCoordFrame(const LLVector3 &origin,
+LLCoordFrame::LLCoordFrame(const glm::vec3 &origin,
                            const LLMatrix3 &rotation) :
     mOrigin(origin),
-    mXAxis(rotation.mMatrix[VX]),
-    mYAxis(rotation.mMatrix[VY]),
-    mZAxis(rotation.mMatrix[VZ])
+    mXAxis(rotation.mMatrix[VX][0], rotation.mMatrix[VX][1], rotation.mMatrix[VX][2]),
+    mYAxis(rotation.mMatrix[VY][0], rotation.mMatrix[VY][1], rotation.mMatrix[VY][2]),
+    mZAxis(rotation.mMatrix[VZ][0], rotation.mMatrix[VZ][1], rotation.mMatrix[VZ][2])
 {
     CHECK_FINITE_OBJ();
 }
@@ -118,29 +128,29 @@ LLCoordFrame::LLCoordFrame(const LLQuaternion &q) :
     mOrigin(0.f, 0.f, 0.f)
 {
     LLMatrix3 rotation_matrix(q);
-    mXAxis.set(rotation_matrix.mMatrix[VX]);
-    mYAxis.set(rotation_matrix.mMatrix[VY]);
-    mZAxis.set(rotation_matrix.mMatrix[VZ]);
+    mXAxis = glm::vec3(rotation_matrix.mMatrix[VX][0], rotation_matrix.mMatrix[VX][1], rotation_matrix.mMatrix[VX][2]);
+    mYAxis = glm::vec3(rotation_matrix.mMatrix[VY][0], rotation_matrix.mMatrix[VY][1], rotation_matrix.mMatrix[VY][2]);
+    mZAxis = glm::vec3(rotation_matrix.mMatrix[VZ][0], rotation_matrix.mMatrix[VZ][1], rotation_matrix.mMatrix[VZ][2]);
 
     CHECK_FINITE_OBJ();
 }
 
-LLCoordFrame::LLCoordFrame(const LLVector3 &origin, const LLQuaternion &q) :
+LLCoordFrame::LLCoordFrame(const glm::vec3 &origin, const LLQuaternion &q) :
     mOrigin(origin)
 {
     LLMatrix3 rotation_matrix(q);
-    mXAxis.set(rotation_matrix.mMatrix[VX]);
-    mYAxis.set(rotation_matrix.mMatrix[VY]);
-    mZAxis.set(rotation_matrix.mMatrix[VZ]);
+    mXAxis = glm::vec3(rotation_matrix.mMatrix[VX][0], rotation_matrix.mMatrix[VX][1], rotation_matrix.mMatrix[VX][2]);
+    mYAxis = glm::vec3(rotation_matrix.mMatrix[VY][0], rotation_matrix.mMatrix[VY][1], rotation_matrix.mMatrix[VY][2]);
+    mZAxis = glm::vec3(rotation_matrix.mMatrix[VZ][0], rotation_matrix.mMatrix[VZ][1], rotation_matrix.mMatrix[VZ][2]);
 
     CHECK_FINITE_OBJ();
 }
 
 LLCoordFrame::LLCoordFrame(const LLMatrix4 &mat) :
-    mOrigin(mat.mMatrix[VW]),
-    mXAxis(mat.mMatrix[VX]),
-    mYAxis(mat.mMatrix[VY]),
-    mZAxis(mat.mMatrix[VZ])
+    mOrigin(mat.mMatrix[VW][0], mat.mMatrix[VW][1], mat.mMatrix[VW][2]),
+    mXAxis(mat.mMatrix[VX][0], mat.mMatrix[VX][1], mat.mMatrix[VX][2]),
+    mYAxis(mat.mMatrix[VY][0], mat.mMatrix[VY][1], mat.mMatrix[VY][2]),
+    mZAxis(mat.mMatrix[VZ][0], mat.mMatrix[VZ][1], mat.mMatrix[VZ][2])
 {
     CHECK_FINITE_OBJ();
 }
@@ -172,28 +182,28 @@ LLCoordFrame::LLCoordFrame(const F32 *origin_and_rotation) :
 
 void LLCoordFrame::reset()
 {
-    mOrigin.set(0.0f, 0.0f, 0.0f);
+    mOrigin = glm::vec3(0.0f, 0.0f, 0.0f);
     resetAxes();
 }
 
 
 void LLCoordFrame::resetAxes()
 {
-    mXAxis.set(1.0f, 0.0f, 0.0f);
-    mYAxis.set(0.0f, 1.0f, 0.0f);
-    mZAxis.set(0.0f, 0.0f, 1.0f);
+    mXAxis = glm::vec3(1.0f, 0.0f, 0.0f);
+    mYAxis = glm::vec3(0.0f, 1.0f, 0.0f);
+    mZAxis = glm::vec3(0.0f, 0.0f, 1.0f);
 }
 
 // setOrigin() member functions set mOrigin
 
 void LLCoordFrame::setOrigin(F32 x, F32 y, F32 z)
 {
-    mOrigin.set(x, y, z);
+    mOrigin = glm::vec3(x, y, z);
 
     CHECK_FINITE(mOrigin);
 }
 
-void LLCoordFrame::setOrigin(const LLVector3 &new_origin)
+void LLCoordFrame::setOrigin(const glm::vec3 &new_origin)
 {
     mOrigin = new_origin;
     CHECK_FINITE(mOrigin);
@@ -201,9 +211,9 @@ void LLCoordFrame::setOrigin(const LLVector3 &new_origin)
 
 void LLCoordFrame::setOrigin(const F32 *origin)
 {
-    mOrigin.mV[VX] = *(origin + VX);
-    mOrigin.mV[VY] = *(origin + VY);
-    mOrigin.mV[VZ] = *(origin + VZ);
+    mOrigin.x = *(origin + VX);
+    mOrigin.y = *(origin + VY);
+    mOrigin.z = *(origin + VZ);
     CHECK_FINITE(mOrigin);
 }
 
@@ -216,9 +226,9 @@ void LLCoordFrame::setOrigin(const LLCoordFrame &frame)
 // setAxes()  member functions set the axes, and assume that
 // the arguments are orthogonal and normalized.
 
-void LLCoordFrame::setAxes(const LLVector3 &x_axis,
-                          const LLVector3 &y_axis,
-                          const LLVector3 &z_axis)
+void LLCoordFrame::setAxes(const glm::vec3 &x_axis,
+                          const glm::vec3 &y_axis,
+                          const glm::vec3 &z_axis)
 {
     mXAxis = x_axis;
     mYAxis = y_axis;
@@ -229,9 +239,9 @@ void LLCoordFrame::setAxes(const LLVector3 &x_axis,
 
 void LLCoordFrame::setAxes(const LLMatrix3 &rotation_matrix)
 {
-    mXAxis.set(rotation_matrix.mMatrix[VX]);
-    mYAxis.set(rotation_matrix.mMatrix[VY]);
-    mZAxis.set(rotation_matrix.mMatrix[VZ]);
+    mXAxis = glm::vec3(rotation_matrix.mMatrix[VX][0], rotation_matrix.mMatrix[VX][1], rotation_matrix.mMatrix[VX][2]);
+    mYAxis = glm::vec3(rotation_matrix.mMatrix[VY][0], rotation_matrix.mMatrix[VY][1], rotation_matrix.mMatrix[VY][2]);
+    mZAxis = glm::vec3(rotation_matrix.mMatrix[VZ][0], rotation_matrix.mMatrix[VZ][1], rotation_matrix.mMatrix[VZ][2]);
     CHECK_FINITE_OBJ();
 }
 
@@ -246,15 +256,15 @@ void LLCoordFrame::setAxes(const LLQuaternion &q )
 
 void LLCoordFrame::setAxes(  const F32 *rotation_matrix )
 {
-    mXAxis.mV[VX] = *(rotation_matrix + 3*VX + VX);
-    mXAxis.mV[VY] = *(rotation_matrix + 3*VX + VY);
-    mXAxis.mV[VZ] = *(rotation_matrix + 3*VX + VZ);
-    mYAxis.mV[VX] = *(rotation_matrix + 3*VY + VX);
-    mYAxis.mV[VY] = *(rotation_matrix + 3*VY + VY);
-    mYAxis.mV[VZ] = *(rotation_matrix + 3*VY + VZ);
-    mZAxis.mV[VX] = *(rotation_matrix + 3*VZ + VX);
-    mZAxis.mV[VY] = *(rotation_matrix + 3*VZ + VY);
-    mZAxis.mV[VZ] = *(rotation_matrix + 3*VZ + VZ);
+    mXAxis.x = *(rotation_matrix + 3*VX + VX);
+    mXAxis.y = *(rotation_matrix + 3*VX + VY);
+    mXAxis.z = *(rotation_matrix + 3*VX + VZ);
+    mYAxis.x = *(rotation_matrix + 3*VY + VX);
+    mYAxis.y = *(rotation_matrix + 3*VY + VY);
+    mYAxis.z = *(rotation_matrix + 3*VY + VZ);
+    mZAxis.x = *(rotation_matrix + 3*VZ + VX);
+    mZAxis.y = *(rotation_matrix + 3*VZ + VY);
+    mZAxis.z = *(rotation_matrix + 3*VZ + VZ);
 
     CHECK_FINITE_OBJ();
 }
@@ -271,13 +281,13 @@ void LLCoordFrame::setAxes(const LLCoordFrame &frame)
 // translate() member functions move mOrigin to a relative position
 void LLCoordFrame::translate(F32 x, F32 y, F32 z)
 {
-    mOrigin.mV[VX] += x;
-    mOrigin.mV[VY] += y;
-    mOrigin.mV[VZ] += z;
+    mOrigin.x += x;
+    mOrigin.y += y;
+    mOrigin.z += z;
     CHECK_FINITE(mOrigin);
 }
 
-void LLCoordFrame::translate(const LLVector3 &v)
+void LLCoordFrame::translate(const glm::vec3 &v)
 {
     mOrigin += v;
     CHECK_FINITE(mOrigin);
@@ -286,9 +296,9 @@ void LLCoordFrame::translate(const LLVector3 &v)
 
 void LLCoordFrame::translate(const F32 *origin)
 {
-    mOrigin.mV[VX] += *(origin + VX);
-    mOrigin.mV[VY] += *(origin + VY);
-    mOrigin.mV[VZ] += *(origin + VZ);
+    mOrigin.x += *(origin + VX);
+    mOrigin.y += *(origin + VY);
+    mOrigin.z += *(origin + VZ);
     CHECK_FINITE(mOrigin);
 }
 
@@ -303,9 +313,9 @@ void LLCoordFrame::rotate(F32 angle, F32 x, F32 y, F32 z)
 }
 
 
-void LLCoordFrame::rotate(F32 angle, const LLVector3 &rotation_axis)
+void LLCoordFrame::rotate(F32 angle, const glm::vec3 &rotation_axis)
 {
-    LLQuaternion q(angle, rotation_axis);
+    LLQuaternion q(angle, LLVector3(rotation_axis.x, rotation_axis.y, rotation_axis.z));
     rotate(q);
     CHECK_FINITE_OBJ();
 }
@@ -321,22 +331,26 @@ void LLCoordFrame::rotate(const LLQuaternion &q)
 
 void LLCoordFrame::rotate(const LLMatrix3 &rotation_matrix)
 {
-    mXAxis.rotVec(rotation_matrix);
-    mYAxis.rotVec(rotation_matrix);
+    LLVector3 ll_x(mXAxis.x, mXAxis.y, mXAxis.z);
+    LLVector3 ll_y(mYAxis.x, mYAxis.y, mYAxis.z);
+    ll_x.rotVec(rotation_matrix);
+    ll_y.rotVec(rotation_matrix);
+    mXAxis = glm::vec3(ll_x.mV[VX], ll_x.mV[VY], ll_x.mV[VZ]);
+    mYAxis = glm::vec3(ll_y.mV[VX], ll_y.mV[VY], ll_y.mV[VZ]);
     orthonormalize();
     CHECK_FINITE_OBJ();
 }
 
 
 // Rotate 2 normalized orthogonal vectors in direction from `source` to `target`
-static void rotate2(LLVector3& source, LLVector3& target, F32 angle)
+static void rotate2(glm::vec3& source, glm::vec3& target, F32 angle)
 {
-    F32 sx = source[VX], sy = source[VY], sz = source[VZ];
-    F32 tx = target[VX], ty = target[VY], tz = target[VZ];
+    F32 sx = source.x, sy = source.y, sz = source.z;
+    F32 tx = target.x, ty = target.y, tz = target.z;
     F32 c = cosf(angle), s = sinf(angle);
 
-    source.set(sx * c + tx * s, sy * c + ty * s, sz * c + tz * s);
-    target.set(tx * c - sx * s, ty * c - sy * s, tz * c - sz * s);
+    source = glm::vec3(sx * c + tx * s, sy * c + ty * s, sz * c + tz * s);
+    target = glm::vec3(tx * c - sx * s, ty * c - sy * s, tz * c - sz * s);
 }
 
 void LLCoordFrame::roll(F32 angle)
@@ -359,53 +373,64 @@ void LLCoordFrame::yaw(F32 angle)
 
 LLQuaternion LLCoordFrame::getQuaternion() const
 {
-    LLQuaternion quat(mXAxis, mYAxis, mZAxis);
+    LLQuaternion quat(LLVector3(mXAxis.x, mXAxis.y, mXAxis.z),
+                      LLVector3(mYAxis.x, mYAxis.y, mYAxis.z),
+                      LLVector3(mZAxis.x, mZAxis.y, mZAxis.z));
     return quat;
 }
 
 
 void LLCoordFrame::getMatrixToLocal(LLMatrix4& mat) const
 {
-    mat.setFwdCol(mXAxis);
-    mat.setLeftCol(mYAxis);
-    mat.setUpCol(mZAxis);
+    LLVector3 ll_x(mXAxis.x, mXAxis.y, mXAxis.z);
+    LLVector3 ll_y(mYAxis.x, mYAxis.y, mYAxis.z);
+    LLVector3 ll_z(mZAxis.x, mZAxis.y, mZAxis.z);
+    mat.setFwdCol(ll_x);
+    mat.setLeftCol(ll_y);
+    mat.setUpCol(ll_z);
 
-    mat.mMatrix[3][0] = -(mOrigin * LLVector3(mat.mMatrix[0][0], mat.mMatrix[1][0], mat.mMatrix[2][0]));
-    mat.mMatrix[3][1] = -(mOrigin * LLVector3(mat.mMatrix[0][1], mat.mMatrix[1][1], mat.mMatrix[2][1]));
-    mat.mMatrix[3][2] = -(mOrigin * LLVector3(mat.mMatrix[0][2], mat.mMatrix[1][2], mat.mMatrix[2][2]));
+    glm::vec3 c0(mat.mMatrix[0][0], mat.mMatrix[1][0], mat.mMatrix[2][0]);
+    glm::vec3 c1(mat.mMatrix[0][1], mat.mMatrix[1][1], mat.mMatrix[2][1]);
+    glm::vec3 c2(mat.mMatrix[0][2], mat.mMatrix[1][2], mat.mMatrix[2][2]);
+    mat.mMatrix[3][0] = -glm::dot(mOrigin, c0);
+    mat.mMatrix[3][1] = -glm::dot(mOrigin, c1);
+    mat.mMatrix[3][2] = -glm::dot(mOrigin, c2);
 }
 
 
 void LLCoordFrame::getRotMatrixToParent(LLMatrix4& mat) const
 {
     // Note: moves into CFR
-    mat.setFwdRow(  -mYAxis );
-    mat.setLeftRow(  mZAxis );
-    mat.setUpRow(   -mXAxis );
+    LLVector3 ll_x(mXAxis.x, mXAxis.y, mXAxis.z);
+    LLVector3 ll_y(mYAxis.x, mYAxis.y, mYAxis.z);
+    LLVector3 ll_z(mZAxis.x, mZAxis.y, mZAxis.z);
+    mat.setFwdRow(  -ll_y );
+    mat.setLeftRow(  ll_z );
+    mat.setUpRow(   -ll_x );
 }
 
 size_t LLCoordFrame::writeOrientation(char *buffer) const
 {
-    memcpy(buffer, mOrigin.mV, 3*sizeof(F32)); /*Flawfinder: ignore */
+    memcpy(buffer, glm::value_ptr(mOrigin), 3*sizeof(F32)); /*Flawfinder: ignore */
     buffer += 3*sizeof(F32);
-    memcpy(buffer, mXAxis.mV, 3*sizeof(F32)); /*Flawfinder: ignore */
+    memcpy(buffer, glm::value_ptr(mXAxis), 3*sizeof(F32)); /*Flawfinder: ignore */
     buffer += 3*sizeof(F32);
-    memcpy(buffer, mYAxis.mV, 3*sizeof(F32));/*Flawfinder: ignore */
+    memcpy(buffer, glm::value_ptr(mYAxis), 3*sizeof(F32));/*Flawfinder: ignore */
     buffer += 3*sizeof(F32);
-    memcpy(buffer, mZAxis.mV, 3*sizeof(F32));   /*Flawfinder: ignore */
+    memcpy(buffer, glm::value_ptr(mZAxis), 3*sizeof(F32));   /*Flawfinder: ignore */
     return 12*sizeof(F32);
 }
 
 
 size_t LLCoordFrame::readOrientation(const char *buffer)
 {
-    memcpy(mOrigin.mV, buffer, 3*sizeof(F32));  /*Flawfinder: ignore */
+    memcpy(glm::value_ptr(mOrigin), buffer, 3*sizeof(F32));  /*Flawfinder: ignore */
     buffer += 3*sizeof(F32);
-    memcpy(mXAxis.mV, buffer, 3*sizeof(F32));   /*Flawfinder: ignore */
+    memcpy(glm::value_ptr(mXAxis), buffer, 3*sizeof(F32));   /*Flawfinder: ignore */
     buffer += 3*sizeof(F32);
-    memcpy(mYAxis.mV, buffer, 3*sizeof(F32));   /*Flawfinder: ignore */
+    memcpy(glm::value_ptr(mYAxis), buffer, 3*sizeof(F32));   /*Flawfinder: ignore */
     buffer += 3*sizeof(F32);
-    memcpy(mZAxis.mV, buffer, 3*sizeof(F32));   /*Flawfinder: ignore */
+    memcpy(glm::value_ptr(mZAxis), buffer, 3*sizeof(F32));   /*Flawfinder: ignore */
 
     if( !isFinite() )
     {
@@ -419,57 +444,55 @@ size_t LLCoordFrame::readOrientation(const char *buffer)
 
 // rotation and transform vectors between reference frames
 
-LLVector3 LLCoordFrame::rotateToLocal(const LLVector3 &absolute_vector) const
+glm::vec3 LLCoordFrame::rotateToLocal(const glm::vec3 &absolute_vector) const
 {
-    LLVector3 local_vector(dot(mXAxis, absolute_vector),
-                           dot(mYAxis, absolute_vector),
-                           dot(mZAxis, absolute_vector));
-    return local_vector;
+    return glm::vec3(glm::dot(mXAxis, absolute_vector),
+                     glm::dot(mYAxis, absolute_vector),
+                     glm::dot(mZAxis, absolute_vector));
 }
 
 
 LLVector4 LLCoordFrame::rotateToLocal(const LLVector4 &absolute_vector) const
 {
-    LLVector4 local_vector(mXAxis.mV[VX] * absolute_vector.mV[VX] +
-                               mXAxis.mV[VY] * absolute_vector.mV[VY] +
-                               mXAxis.mV[VZ] * absolute_vector.mV[VZ],
-                           mYAxis.mV[VX] * absolute_vector.mV[VX] +
-                               mYAxis.mV[VY] * absolute_vector.mV[VY] +
-                               mYAxis.mV[VZ] * absolute_vector.mV[VZ],
-                           mZAxis.mV[VX] * absolute_vector.mV[VX] +
-                               mZAxis.mV[VY] * absolute_vector.mV[VY] +
-                               mZAxis.mV[VZ] * absolute_vector.mV[VZ],
+    LLVector4 local_vector(mXAxis.x * absolute_vector.mV[VX] +
+                               mXAxis.y * absolute_vector.mV[VY] +
+                               mXAxis.z * absolute_vector.mV[VZ],
+                           mYAxis.x * absolute_vector.mV[VX] +
+                               mYAxis.y * absolute_vector.mV[VY] +
+                               mYAxis.z * absolute_vector.mV[VZ],
+                           mZAxis.x * absolute_vector.mV[VX] +
+                               mZAxis.y * absolute_vector.mV[VY] +
+                               mZAxis.z * absolute_vector.mV[VZ],
                            absolute_vector.mV[VW]);
     return local_vector;
 }
 
 
-LLVector3 LLCoordFrame::rotateToAbsolute(const LLVector3 &local_vector) const
+glm::vec3 LLCoordFrame::rotateToAbsolute(const glm::vec3 &local_vector) const
 {
-    LLVector3 absolute_vector(mXAxis.mV[VX] * local_vector.mV[VX] +
-                                  mYAxis.mV[VX] * local_vector.mV[VY] +
-                                  mZAxis.mV[VX] * local_vector.mV[VZ],
-                              mXAxis.mV[VY] * local_vector.mV[VX] +
-                                  mYAxis.mV[VY] * local_vector.mV[VY] +
-                                  mZAxis.mV[VY] * local_vector.mV[VZ],
-                              mXAxis.mV[VZ] * local_vector.mV[VX] +
-                                  mYAxis.mV[VZ] * local_vector.mV[VY] +
-                                  mZAxis.mV[VZ] * local_vector.mV[VZ]);
-    return absolute_vector;
+    return glm::vec3(mXAxis.x * local_vector.x +
+                         mYAxis.x * local_vector.y +
+                         mZAxis.x * local_vector.z,
+                     mXAxis.y * local_vector.x +
+                         mYAxis.y * local_vector.y +
+                         mZAxis.y * local_vector.z,
+                     mXAxis.z * local_vector.x +
+                         mYAxis.z * local_vector.y +
+                         mZAxis.z * local_vector.z);
 }
 
 
 LLVector4 LLCoordFrame::rotateToAbsolute(const LLVector4 &local_vector) const
 {
-    LLVector4 absolute_vector(mXAxis.mV[VX] * local_vector.mV[VX] +
-                                  mYAxis.mV[VX] * local_vector.mV[VY] +
-                                  mZAxis.mV[VX] * local_vector.mV[VZ],
-                              mXAxis.mV[VY] * local_vector.mV[VX] +
-                                  mYAxis.mV[VY] * local_vector.mV[VY] +
-                                  mZAxis.mV[VY] * local_vector.mV[VZ],
-                              mXAxis.mV[VZ] * local_vector.mV[VX] +
-                                  mYAxis.mV[VZ] * local_vector.mV[VY] +
-                                  mZAxis.mV[VZ] * local_vector.mV[VZ],
+    LLVector4 absolute_vector(mXAxis.x * local_vector.mV[VX] +
+                                  mYAxis.x * local_vector.mV[VY] +
+                                  mZAxis.x * local_vector.mV[VZ],
+                              mXAxis.y * local_vector.mV[VX] +
+                                  mYAxis.y * local_vector.mV[VY] +
+                                  mZAxis.y * local_vector.mV[VZ],
+                              mXAxis.z * local_vector.mV[VX] +
+                                  mYAxis.z * local_vector.mV[VY] +
+                                  mZAxis.z * local_vector.mV[VZ],
                               local_vector[VW]);
     return absolute_vector;
 }
@@ -478,14 +501,14 @@ LLVector4 LLCoordFrame::rotateToAbsolute(const LLVector4 &local_vector) const
 void LLCoordFrame::orthonormalize()
 // Makes sure the axes are orthogonal and normalized.
 {
-    mXAxis.normalize();                       // X is renormalized
-    mYAxis -= mXAxis * dot(mXAxis, mYAxis); // Y remains in X-Y plane
-    mYAxis.normalize();                       // Y is normalized
-    mZAxis = cross(mXAxis, mYAxis);         // Z = X cross Y
+    mXAxis = glm::normalize(mXAxis);                          // X is renormalized
+    mYAxis -= mXAxis * glm::dot(mXAxis, mYAxis);              // Y remains in X-Y plane
+    mYAxis = glm::normalize(mYAxis);                          // Y is normalized
+    mZAxis = glm::cross(mXAxis, mYAxis);                      // Z = X cross Y
 }
 
 
-LLVector3 LLCoordFrame::transformToLocal(const LLVector3 &absolute_vector) const
+glm::vec3 LLCoordFrame::transformToLocal(const glm::vec3 &absolute_vector) const
 {
     return rotateToLocal(absolute_vector - mOrigin);
 }
@@ -494,14 +517,14 @@ LLVector3 LLCoordFrame::transformToLocal(const LLVector3 &absolute_vector) const
 LLVector4 LLCoordFrame::transformToLocal(const LLVector4 &absolute_vector) const
 {
     LLVector4 local_vector(absolute_vector);
-    local_vector.mV[VX] -= mOrigin.mV[VX];
-    local_vector.mV[VY] -= mOrigin.mV[VY];
-    local_vector.mV[VZ] -= mOrigin.mV[VZ];
+    local_vector.mV[VX] -= mOrigin.x;
+    local_vector.mV[VY] -= mOrigin.y;
+    local_vector.mV[VZ] -= mOrigin.z;
     return rotateToLocal(local_vector);
 }
 
 
-LLVector3 LLCoordFrame::transformToAbsolute(const LLVector3 &local_vector) const
+glm::vec3 LLCoordFrame::transformToAbsolute(const glm::vec3 &local_vector) const
 {
     return (rotateToAbsolute(local_vector) + mOrigin);
 }
@@ -511,9 +534,9 @@ LLVector4 LLCoordFrame::transformToAbsolute(const LLVector4 &local_vector) const
 {
     LLVector4 absolute_vector;
     absolute_vector = rotateToAbsolute(local_vector);
-    absolute_vector.mV[VX] += mOrigin.mV[VX];
-    absolute_vector.mV[VY] += mOrigin.mV[VY];
-    absolute_vector.mV[VZ] += mOrigin.mV[VZ];
+    absolute_vector.mV[VX] += mOrigin.x;
+    absolute_vector.mV[VY] += mOrigin.y;
+    absolute_vector.mV[VZ] += mOrigin.z;
     return absolute_vector;
 }
 
@@ -551,26 +574,26 @@ void LLCoordFrame::getOpenGLTranslation(F32 *ogl_matrix) const
     *(ogl_matrix + 10) = 1.0f;
     *(ogl_matrix + 11) = 0.0f;
 
-    *(ogl_matrix + 12) = -mOrigin.mV[VX];
-    *(ogl_matrix + 13) = -mOrigin.mV[VY];
-    *(ogl_matrix + 14) = -mOrigin.mV[VZ];
+    *(ogl_matrix + 12) = -mOrigin.x;
+    *(ogl_matrix + 13) = -mOrigin.y;
+    *(ogl_matrix + 14) = -mOrigin.z;
     *(ogl_matrix + 15) = 1.0f;
 }
 
 
 void LLCoordFrame::getOpenGLRotation(F32 *ogl_matrix) const
 {
-    *(ogl_matrix + 0)  = mXAxis.mV[VX];
-    *(ogl_matrix + 4)  = mXAxis.mV[VY];
-    *(ogl_matrix + 8)  = mXAxis.mV[VZ];
+    *(ogl_matrix + 0)  = mXAxis.x;
+    *(ogl_matrix + 4)  = mXAxis.y;
+    *(ogl_matrix + 8)  = mXAxis.z;
 
-    *(ogl_matrix + 1)  = mYAxis.mV[VX];
-    *(ogl_matrix + 5)  = mYAxis.mV[VY];
-    *(ogl_matrix + 9)  = mYAxis.mV[VZ];
+    *(ogl_matrix + 1)  = mYAxis.x;
+    *(ogl_matrix + 5)  = mYAxis.y;
+    *(ogl_matrix + 9)  = mYAxis.z;
 
-    *(ogl_matrix + 2)  = mZAxis.mV[VX];
-    *(ogl_matrix + 6)  = mZAxis.mV[VY];
-    *(ogl_matrix + 10) = mZAxis.mV[VZ];
+    *(ogl_matrix + 2)  = mZAxis.x;
+    *(ogl_matrix + 6)  = mZAxis.y;
+    *(ogl_matrix + 10) = mZAxis.z;
 
     *(ogl_matrix + 3)  = 0.0f;
     *(ogl_matrix + 7)  = 0.0f;
@@ -585,20 +608,20 @@ void LLCoordFrame::getOpenGLRotation(F32 *ogl_matrix) const
 
 void LLCoordFrame::getOpenGLTransform(F32 *ogl_matrix) const
 {
-    *(ogl_matrix + 0)  = mXAxis.mV[VX];
-    *(ogl_matrix + 4)  = mXAxis.mV[VY];
-    *(ogl_matrix + 8)  = mXAxis.mV[VZ];
-    *(ogl_matrix + 12) = -dot(mOrigin, mXAxis);
+    *(ogl_matrix + 0)  = mXAxis.x;
+    *(ogl_matrix + 4)  = mXAxis.y;
+    *(ogl_matrix + 8)  = mXAxis.z;
+    *(ogl_matrix + 12) = -glm::dot(mOrigin, mXAxis);
 
-    *(ogl_matrix + 1)  = mYAxis.mV[VX];
-    *(ogl_matrix + 5)  = mYAxis.mV[VY];
-    *(ogl_matrix + 9)  = mYAxis.mV[VZ];
-    *(ogl_matrix + 13) = -dot(mOrigin, mYAxis);
+    *(ogl_matrix + 1)  = mYAxis.x;
+    *(ogl_matrix + 5)  = mYAxis.y;
+    *(ogl_matrix + 9)  = mYAxis.z;
+    *(ogl_matrix + 13) = -glm::dot(mOrigin, mYAxis);
 
-    *(ogl_matrix + 2)  = mZAxis.mV[VX];
-    *(ogl_matrix + 6)  = mZAxis.mV[VY];
-    *(ogl_matrix + 10) = mZAxis.mV[VZ];
-    *(ogl_matrix + 14) = -dot(mOrigin, mZAxis);
+    *(ogl_matrix + 2)  = mZAxis.x;
+    *(ogl_matrix + 6)  = mZAxis.y;
+    *(ogl_matrix + 10) = mZAxis.z;
+    *(ogl_matrix + 14) = -glm::dot(mOrigin, mZAxis);
 
     *(ogl_matrix + 3)  = 0.0f;
     *(ogl_matrix + 7)  = 0.0f;
@@ -608,49 +631,47 @@ void LLCoordFrame::getOpenGLTransform(F32 *ogl_matrix) const
 
 
 // at and up_direction are presumed to be normalized
-void LLCoordFrame::lookDir(const LLVector3 &at, const LLVector3 &up_direction)
+void LLCoordFrame::lookDir(const glm::vec3 &at, const glm::vec3 &up_direction)
 {
     // Make sure 'at' and 'up_direction' are not parallel
     // and that neither are zero-length vectors
-    LLVector3 left(cross(up_direction, at));
-    if (left.isNull())
+    glm::vec3 left(glm::cross(up_direction, at));
+    if (glm::dot(left, left) < F_APPROXIMATELY_ZERO)
     {
         //tweak lookat pos so we don't get a degenerate matrix
-        LLVector3 tempat(at[VX] + 0.01f, at[VY], at[VZ]);
-        tempat.normalize();
-        left = cross(up_direction, tempat);
+        glm::vec3 tempat(at.x + 0.01f, at.y, at.z);
+        tempat = glm::normalize(tempat);
+        left = glm::cross(up_direction, tempat);
     }
-    left.normalize();
+    left = glm::normalize(left);
 
-    LLVector3 up = cross(at, left);
+    glm::vec3 up = glm::cross(at, left);
 
-    if (at.isFinite() && left.isFinite() && up.isFinite())
+    if (glm_is_finite(at) && glm_is_finite(left) && glm_is_finite(up))
     {
         setAxes(at, left, up);
     }
 }
 
-void LLCoordFrame::lookDir(const LLVector3 &xuv)
+void LLCoordFrame::lookDir(const glm::vec3 &xuv)
 {
-    static LLVector3 up_direction(0.0f, 0.0f, 1.0f);
+    static const glm::vec3 up_direction(0.0f, 0.0f, 1.0f);
     lookDir(xuv, up_direction);
 }
 
-void LLCoordFrame::lookAt(const LLVector3 &origin, const LLVector3 &point_of_interest, const LLVector3 &up_direction)
+void LLCoordFrame::lookAt(const glm::vec3 &origin, const glm::vec3 &point_of_interest, const glm::vec3 &up_direction)
 {
     setOrigin(origin);
-    LLVector3 at(point_of_interest - origin);
-    at.normalize();
+    glm::vec3 at(glm::normalize(point_of_interest - origin));
     lookDir(at, up_direction);
 }
 
-void LLCoordFrame::lookAt(const LLVector3 &origin, const LLVector3 &point_of_interest)
+void LLCoordFrame::lookAt(const glm::vec3 &origin, const glm::vec3 &point_of_interest)
 {
-    static LLVector3 up_direction(0.0f, 0.0f, 1.0f);
+    static const glm::vec3 up_direction(0.0f, 0.0f, 1.0f);
 
     setOrigin(origin);
-    LLVector3 at(point_of_interest - origin);
-    at.normalize();
+    glm::vec3 at(glm::normalize(point_of_interest - origin));
     lookDir(at, up_direction);
 }
 
@@ -660,10 +681,10 @@ void LLCoordFrame::lookAt(const LLVector3 &origin, const LLVector3 &point_of_int
 std::ostream& operator<<(std::ostream &s, const LLCoordFrame &C)
 {
     s << "{ "
-      << " origin = " << C.mOrigin
-      << " x_axis = " << C.mXAxis
-      << " y_axis = " << C.mYAxis
-      << " z_axis = " << C.mZAxis
+      << " origin = { " << C.mOrigin.x << ", " << C.mOrigin.y << ", " << C.mOrigin.z << " }"
+      << " x_axis = { " << C.mXAxis.x << ", " << C.mXAxis.y << ", " << C.mXAxis.z << " }"
+      << " y_axis = { " << C.mYAxis.x << ", " << C.mYAxis.y << ", " << C.mYAxis.z << " }"
+      << " z_axis = { " << C.mZAxis.x << ", " << C.mZAxis.y << ", " << C.mZAxis.z << " }"
     << " }";
     return s;
 }

@@ -280,13 +280,18 @@ public:
         static constexpr U32 HPADDING = 10;
         static constexpr U32 VPADDING = 5;
         LLVector3 focus = mGetFocus();
-        LLVector3 sight = focus - mCamera.mOrigin;
+        LLVector3 sight = focus - LLVector3(mCamera.mOrigin);
+        // Bridge: LLCoordFrame members are glm::vec3; convert for display to LLVector3.
+        const LLVector3 cam_origin(mCamera.mOrigin);
+        const LLVector3 cam_x(mCamera.mXAxis);
+        const LLVector3 cam_y(mCamera.mYAxis);
+        const LLVector3 cam_z(mCamera.mZAxis);
         std::pair<const char*, const LLVector3&> const data[] =
         {
-            { "Origin:", mCamera.mOrigin },
-            { "X Axis:", mCamera.mXAxis },
-            { "Y Axis:", mCamera.mYAxis },
-            { "Z Axis:", mCamera.mZAxis },
+            { "Origin:", cam_origin },
+            { "X Axis:", cam_x },
+            { "Y Axis:", cam_y },
+            { "Z Axis:", cam_z },
             { "Focus:", focus },
             { "Sight:", sight }
         };
@@ -368,9 +373,10 @@ void LLFloaterCamera::showDebugInfo(bool show)
     if (show && mViewerCameraInfo->getChildCount() < 2)
     {
         mViewerCameraInfo->addChild(new LLCameraInfoPanel(mViewerCameraInfo, "Viewer Camera", *LLViewerCamera::getInstance(),
-            []() { return LLViewerCamera::getInstance()->getPointOfInterest(); }));
+            // Bridge: getPointOfInterest() now returns glm::vec3; get_vector_t is std::function<LLVector3()>.
+            []() { return LLVector3(LLViewerCamera::getInstance()->getPointOfInterest()); }));
         mAgentCameraInfo->addChild(new LLCameraInfoPanel(mAgentCameraInfo, "Agent Camera", gAgent.getFrameAgent(),
-            []() { return gAgent.getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal()); }));
+            []() { const glm::vec3 p = gAgent.getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal()); return LLVector3(p.x, p.y, p.z); }));
     }
 
     mAgentCameraInfo->setVisible(show);

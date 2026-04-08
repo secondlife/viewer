@@ -29,6 +29,7 @@
 #include "llpanel.h"
 
 #include "v3dmath.h"
+#include <glm/vec3.hpp>
 #include "lluuid.h"
 
 #include "llremoteparcelrequest.h"
@@ -105,7 +106,7 @@ protected:
      */
     LLUUID                  mParcelID;
     LLUUID                  mRequestedID;
-    LLVector3               mPosRegion;
+    glm::vec3               mPosRegion;
     std::string             mParcelTitle; // used for pick title without coordinates
     std::string             mRegionTitle;
     std::string             mCurrentTitle;

@@ -472,7 +472,7 @@ void draw_shockwave(F32 center_z, F32 t, S32 steps, LLColor4 color)
     gGL.end();
 }
 
-void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 fogged_color, F32 dist)
+void LLTracker::drawBeacon(glm::vec3 pos_agent, std::string direction, LLColor4 fogged_color, F32 dist)
 {
     const F32 MAX_HEIGHT = 5020.f;
     const U32 BEACON_ROWS = 256;
@@ -488,14 +488,14 @@ void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 
 
     if ("DOWN" == direction)
     {
-        gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
+        gGL.translatef(pos_agent.x, pos_agent.y, pos_agent.z);
         draw_shockwave(1024.f, gRenderStartTime.getElapsedTimeF32(), 32, fogged_color);
-        height = MAX_HEIGHT - pos_agent.mV[2];
+        height = MAX_HEIGHT - pos_agent.z;
     }
     else
     {
-        gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], 0);
-        height = pos_agent.mV[2];
+        gGL.translatef(pos_agent.x, pos_agent.y, 0);
+        height = pos_agent.z;
     }
 
     nRows = static_cast<U32>(ceil((BEACON_ROWS * height) / MAX_HEIGHT));
@@ -504,7 +504,7 @@ void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 
 
     gGL.color4fv(fogged_color.mV);
 
-    LLVector3 x_axis = LLViewerCamera::getInstance()->getLeftAxis();
+    LLVector3 x_axis(LLViewerCamera::getInstance()->getLeftAxis());
     F32 t = gRenderStartTime.getElapsedTimeF32();
 
     F32 x = x_axis.mV[0];
@@ -712,8 +712,8 @@ void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
     S32 y = 0;
     const bool CLAMP = true;
 
-    if (LLViewerCamera::getInstance()->projectPosAgentToScreen(pos_local, screen, CLAMP)
-        || LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(pos_local, screen) )
+    if (LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(pos_local), screen, CLAMP)
+        || LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(static_cast<glm::vec3>(pos_local), screen) )
     {
         gHUDView->screenPointToLocal(screen.mX, screen.mY, &x, &y);
 

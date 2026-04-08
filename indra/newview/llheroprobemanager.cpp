@@ -27,6 +27,9 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llheroprobemanager.h"
+
+#include "glm/gtc/type_ptr.hpp"
+
 #include "llreflectionmapmanager.h"
 #include "llviewercamera.h"
 #include "llspatialpartition.h"
@@ -53,7 +56,7 @@ static void touch_default_probe(LLReflectionMap* probe)
 {
     if (LLViewerCamera::getInstance())
     {
-        LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
+        LLVector3 origin(LLViewerCamera::getInstance()->getOrigin());
         origin.mV[2] += 64.f;
 
         probe->mOrigin.load3(origin.mV);
@@ -125,7 +128,7 @@ void LLHeroProbeManager::update()
     llassert(mProbes[0] == mDefaultProbe);
 
     LLVector4a probe_pos;
-    LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
+    LLVector3 camera_pos(LLViewerCamera::instance().mOrigin);
     bool       probe_present = false;
     LLQuaternion cameraOrientation = LLViewerCamera::instance().getQuaternion();
     LLVector3    cameraDirection   = LLVector3::z_axis * cameraOrientation;
@@ -140,17 +143,17 @@ void LLHeroProbeManager::update()
         {
             if (vo && !vo->isDead() && vo->mDrawable.notNull() && vo->isReflectionProbe() && vo->getReflectionProbeIsBox())
             {
-                float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).length();
+                float distance = (LLVector3(LLViewerCamera::instance().getOrigin()) - vo->getPositionAgent()).length();
                 float center_distance = cameraDirection * (vo->getPositionAgent() - camera_pos);
 
                 if (distance > LLViewerCamera::instance().getFar())
                     continue;
 
                 LLVector4a center;
-                center.load3(vo->getPositionAgent().mV);
+                center.load3(glm::value_ptr(vo->getPositionAgent()));
                 LLVector4a size;
 
-                size.load3(vo->getScale().mV);
+                size.load3(glm::value_ptr(vo->getScale()));
 
                 bool visible = LLViewerCamera::instance().AABBInFrustum(center, size);
 
@@ -204,7 +207,7 @@ void LLHeroProbeManager::update()
             };
 
             mProbes[0]->mOrigin = probe_pos;
-            mProbes[0]->mRadius = mNearestHero->getScale().length() * 0.5f;
+            mProbes[0]->mRadius = glm::length(mNearestHero->getScale()) * 0.5f;
         }
         else
         {
@@ -456,7 +459,7 @@ void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
                 for (int cf = 0; cf < 6; ++cf)
                 {  // for each cube face
                     LLCoordFrame frame;
-                    frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
+                    frame.lookAt(glm::vec3(0, 0, 0), static_cast<glm::vec3>(LLCubeMapArray::sClipToCubeLookVecs[cf]), static_cast<glm::vec3>(LLCubeMapArray::sClipToCubeUpVecs[cf]));
 
                     F32 mat[16];
                     frame.getOpenGLRotation(mat);
@@ -501,12 +504,12 @@ void LLHeroProbeManager::updateUniforms()
     {
         if (mNearestHero->getReflectionProbeIsBox())
         {
-            LLVector3 s = mNearestHero->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-            mProbes[0]->mRadius = s.length();
+            glm::vec3 s = mNearestHero->getScale() * 0.5f;
+            mProbes[0]->mRadius = glm::length(s);
         }
         else
         {
-            mProbes[0]->mRadius = mNearestHero->getScale().mV[0] * 0.5f;
+            mProbes[0]->mRadius = mNearestHero->getScale().x * 0.5f;
         }
 
         modelview.affineTransform(mProbes[0]->mOrigin, oa);
@@ -620,7 +623,7 @@ void LLHeroProbeManager::cleanup()
 void LLHeroProbeManager::doOcclusion()
 {
     LLVector4a eye;
-    eye.load3(LLViewerCamera::instance().getOrigin().mV);
+    eye.load3(&LLViewerCamera::instance().getOrigin().x);
 
     for (auto& probe : mProbes)
     {

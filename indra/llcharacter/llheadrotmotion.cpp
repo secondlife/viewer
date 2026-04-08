@@ -396,7 +396,7 @@ void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_s
         target_eye_rot.constrain(EYE_ROT_LIMIT_ANGLE);
 
         // calculate vergence
-        F32 interocular_dist = (left_eye_state.getJoint()->getWorldPosition() - right_eye_state.getJoint()->getWorldPosition()).length();
+        F32 interocular_dist = glm::length(left_eye_state.getJoint()->getWorldPosition() - right_eye_state.getJoint()->getWorldPosition());
         vergence = -atan2((interocular_dist / 2.f), lookAtDistance);
         llclamp(vergence, -F_PI_BY_TWO, 0.f);
     }

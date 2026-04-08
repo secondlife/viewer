@@ -29,6 +29,7 @@
 #include <span>
 
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 
 class LLColor4;
 class LLColor4U;
@@ -97,6 +98,9 @@ public:
 
     virtual bool        packVector3(const LLVector3 &value, const char *name) = 0;
     virtual bool        unpackVector3(LLVector3 &value, const char *name) = 0;
+
+    virtual bool        packVector3(const glm::vec3 &value, const char *name) = 0;
+    virtual bool        unpackVector3(glm::vec3 &value, const char *name) = 0;
 
     virtual bool        packVector4(const LLVector4 &value, const char *name) = 0;
     virtual bool        unpackVector4(LLVector4 &value, const char *name) = 0;
@@ -172,6 +176,9 @@ public:
 
     /*virtual*/ bool        packVector3(const LLVector3 &value, const char *name);
     /*virtual*/ bool        unpackVector3(LLVector3 &value, const char *name);
+
+    /*virtual*/ bool        packVector3(const glm::vec3 &value, const char *name);
+    /*virtual*/ bool        unpackVector3(glm::vec3 &value, const char *name);
 
     /*virtual*/ bool        packVector4(const LLVector4 &value, const char *name);
     /*virtual*/ bool        unpackVector4(LLVector4 &value, const char *name);
@@ -283,6 +290,9 @@ public:
 
     /*virtual*/ bool        packVector3(const LLVector3 &value, const char *name);
     /*virtual*/ bool        unpackVector3(LLVector3 &value, const char *name);
+
+    /*virtual*/ bool        packVector3(const glm::vec3 &value, const char *name);
+    /*virtual*/ bool        unpackVector3(glm::vec3 &value, const char *name);
 
     /*virtual*/ bool        packVector4(const LLVector4 &value, const char *name);
     /*virtual*/ bool        unpackVector4(LLVector4 &value, const char *name);
@@ -414,6 +424,9 @@ public:
 
     /*virtual*/ bool        packVector3(const LLVector3 &value, const char *name);
     /*virtual*/ bool        unpackVector3(LLVector3 &value, const char *name);
+
+    /*virtual*/ bool        packVector3(const glm::vec3 &value, const char *name);
+    /*virtual*/ bool        unpackVector3(glm::vec3 &value, const char *name);
 
     /*virtual*/ bool        packVector4(const LLVector4 &value, const char *name);
     /*virtual*/ bool        unpackVector4(LLVector4 &value, const char *name);

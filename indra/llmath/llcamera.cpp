@@ -29,6 +29,8 @@
 #include "llmath.h"
 #include "llcamera.h"
 
+#include "glm/glm.hpp"
+
 // ---------------- Constructors and destructors ----------------
 
 LLCamera::LLCamera() :
@@ -296,10 +298,10 @@ S32 LLCamera::AABBInRegionFrustumNoFarClip(const LLVector4a& center, const LLVec
     return AABBInFrustumNoFarClip(center, radius, mRegionPlanes);
 }
 
-int LLCamera::sphereInFrustumQuick(const LLVector3 &sphere_center, const F32 radius)
+int LLCamera::sphereInFrustumQuick(const glm::vec3& sphere_center, const F32 radius)
 {
-    LLVector3 dist = sphere_center-mFrustCenter;
-    float dsq = dist * dist;
+    glm::vec3 dist = sphere_center - mFrustCenter;
+    float dsq = glm::dot(dist, dist);
     float rsq = mFarPlane*0.5f + radius;
     rsq *= rsq;
 
@@ -313,15 +315,17 @@ int LLCamera::sphereInFrustumQuick(const LLVector3 &sphere_center, const F32 rad
 
 // Return 1 if sphere is in frustum, 2 if fully in frustum, otherwise 0.
 // NOTE: 'center' is in absolute frame.
-int LLCamera::sphereInFrustum(const LLVector3 &sphere_center, const F32 radius) const
+int LLCamera::sphereInFrustum(const glm::vec3& sphere_center, const F32 radius) const
 {
     // Returns 1 if sphere is in frustum, 0 if not.
+    // Bridge: LLPlane::dist takes LLVector3 (LLCoordFrame-land).
+    const LLVector3 ll_center(sphere_center.x, sphere_center.y, sphere_center.z);
     bool res = false;
     for (int i = 0; i < 6; i++)
     {
         if (mPlaneMask[i] != PLANE_MASK_NONE)
         {
-            float d = mAgentPlanes[i].dist(sphere_center);
+            float d = mAgentPlanes[i].dist(ll_center);
 
             if (d > radius)
             {
@@ -336,18 +340,18 @@ int LLCamera::sphereInFrustum(const LLVector3 &sphere_center, const F32 radius) 
 
 
 // return height of a sphere of given radius, located at center, in pixels
-F32 LLCamera::heightInPixels(const LLVector3 &center, F32 radius ) const
+F32 LLCamera::heightInPixels(const glm::vec3& center, F32 radius) const
 {
     if (radius == 0.f) return 0.f;
 
     // If height initialized
     if (mViewHeightInPixels > -1)
     {
-        // Convert sphere to coord system with 0,0,0 at camera
-        LLVector3 vec = center - mOrigin;
+        // Convert sphere to coord system with 0,0,0 at camera.
+        glm::vec3 vec = center - mOrigin;
 
         // Compute distance to sphere
-        F32 dist = vec.length();
+        F32 dist = glm::length(vec);
 
         // Calculate angle of whole object
         F32 angle = 2.0f * static_cast<F32>(atan2(radius, dist));
@@ -371,10 +375,15 @@ F32 LLCamera::heightInPixels(const LLVector3 &center, F32 radius ) const
 std::ostream& operator<<(std::ostream &s, const LLCamera &C)
 {
     s << "{ \n";
-    s << "  Center = " << C.getOrigin() << "\n";
-    s << "  AtAxis = " << C.getXAxis() << "\n";
-    s << "  LeftAxis = " << C.getYAxis() << "\n";
-    s << "  UpAxis = " << C.getZAxis() << "\n";
+    auto fmt = [](const glm::vec3& v) {
+        std::ostringstream o;
+        o << "{ " << v.x << ", " << v.y << ", " << v.z << " }";
+        return o.str();
+    };
+    s << "  Center = " << fmt(C.getOrigin()) << "\n";
+    s << "  AtAxis = " << fmt(C.getXAxis()) << "\n";
+    s << "  LeftAxis = " << fmt(C.getYAxis()) << "\n";
+    s << "  UpAxis = " << fmt(C.getZAxis()) << "\n";
     s << "  View = " << C.getView() << "\n";
     s << "  Aspect = " << C.getAspect() << "\n";
     s << "  NearPlane   = " << C.mNearPlane << "\n";
@@ -404,12 +413,13 @@ void LLCamera::calculateFrustumPlanes()
     calculateFrustumPlanes(left, right, top, bottom);
 }
 
-LLPlane planeFromPoints(LLVector3 p1, LLVector3 p2, LLVector3 p3)
+LLPlane planeFromPoints(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3)
 {
-    LLVector3 n = ((p2-p1)%(p3-p1));
-    n.normalize();
+    glm::vec3 n = glm::cross(p2 - p1, p3 - p1);
+    n = glm::normalize(n);
 
-    return LLPlane(p1, n);
+    // Bridge: LLPlane ctor takes LLVector3.
+    return LLPlane(LLVector3(p1.x, p1.y, p1.z), LLVector3(n.x, n.y, n.z));
 }
 
 
@@ -424,7 +434,7 @@ void LLCamera::ignoreAgentFrustumPlane(S32 idx)
     mAgentPlanes[idx].clear();
 }
 
-void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
+void LLCamera::calcAgentFrustumPlanes(glm::vec3* frust)
 {
 
     for (int i = 0; i < AGENT_FRUSTRUM_NUM; i++)
@@ -432,7 +442,7 @@ void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
         mAgentFrustum[i] = frust[i];
     }
 
-    mFrustumCornerDist = (frust[5] - getOrigin()).length();
+    mFrustumCornerDist = glm::length(frust[5] - getOrigin());
 
     //frust contains the 8 points of the frustum, calculate 6 planes
 
@@ -465,13 +475,13 @@ void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
 
 //calculate regional planes from mAgentPlanes.
 //vector "shift" is the vector of the region origin in the agent space.
-void LLCamera::calcRegionFrustumPlanes(const LLVector3& shift, F32 far_clip_distance)
+void LLCamera::calcRegionFrustumPlanes(const glm::vec3& shift, F32 far_clip_distance)
 {
     F32 far_w;
     {
-        LLVector3 p = getOrigin();
-        LLVector3 n(mAgentPlanes[5][0], mAgentPlanes[5][1], mAgentPlanes[5][2]);
-        F32 dd = n * p;
+        const glm::vec3& p = getOrigin();
+        glm::vec3 n(mAgentPlanes[5][0], mAgentPlanes[5][1], mAgentPlanes[5][2]);
+        F32 dd = glm::dot(n, p);
         if(dd + mAgentPlanes[5][3] < 0) //signed distance
         {
             far_w = -far_clip_distance - dd;
@@ -480,26 +490,27 @@ void LLCamera::calcRegionFrustumPlanes(const LLVector3& shift, F32 far_clip_dist
         {
             far_w = far_clip_distance - dd;
         }
-        far_w += n * shift;
+        far_w += glm::dot(n, shift);
     }
 
     F32 d;
-    LLVector3 n;
+    glm::vec3 n;
     for(S32 i = 0 ; i < 7; i++)
     {
         if (mPlaneMask[i] != 0xff)
         {
-            n.set(mAgentPlanes[i][0], mAgentPlanes[i][1], mAgentPlanes[i][2]);
+            n = glm::vec3(mAgentPlanes[i][0], mAgentPlanes[i][1], mAgentPlanes[i][2]);
 
             if(i != 5)
             {
-                d = mAgentPlanes[i][3] + n * shift;
+                d = mAgentPlanes[i][3] + glm::dot(n, shift);
             }
             else
             {
                 d = far_w;
             }
-            mRegionPlanes[i].set(n, d);
+            // Bridge: LLPlane::set takes LLVector3.
+            mRegionPlanes[i].set(LLVector3(n.x, n.y, n.z), d);
         }
     }
 }
@@ -507,9 +518,8 @@ void LLCamera::calcRegionFrustumPlanes(const LLVector3& shift, F32 far_clip_dist
 void LLCamera::calculateFrustumPlanes(F32 left, F32 right, F32 top, F32 bottom)
 {
     //calculate center and radius squared of frustum in world absolute coordinates
-    static LLVector3 const X_AXIS(1.f, 0.f, 0.f);
-    mFrustCenter = X_AXIS*mFarPlane*0.5f;
-    mFrustCenter = transformToAbsolute(mFrustCenter);
+    static const glm::vec3 X_AXIS(1.f, 0.f, 0.f);
+    mFrustCenter = transformToAbsolute(X_AXIS * mFarPlane * 0.5f);
     mFrustRadiusSquared = mFarPlane*0.5f;
     mFrustRadiusSquared *= mFrustRadiusSquared * 1.05f; //pad radius squared by 5%
 }

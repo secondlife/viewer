@@ -1120,9 +1120,9 @@ bool    LLPreviewAnimation::render()
 
     LLQuaternion av_rot = avatarp->mRoot->getWorldRotation() * camera_rot;
     camera->setOriginAndLookAt(
-        target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot),     // camera
-        LLVector3::z_axis,                                                                  // up
-        target_pos + (mCameraOffset  * av_rot) );                                           // point of interest
+        static_cast<glm::vec3>(target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot)),  // camera
+        static_cast<glm::vec3>(LLVector3::z_axis),                                                               // up
+        static_cast<glm::vec3>(target_pos + (mCameraOffset  * av_rot)) );                                        // point of interest
 
     camera->setViewNoBroadcast(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
     camera->setAspect(static_cast<F32>(mFullWidth) / static_cast<F32>(mFullHeight));

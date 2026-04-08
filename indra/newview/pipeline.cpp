@@ -28,6 +28,9 @@
 
 #include "pipeline.h"
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
+#include "glm/geometric.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 // library includes
 #include "llimagepng.h"
@@ -2123,7 +2126,7 @@ void LLPipeline::updateMove()
 F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera)
 {
     llassert(!gCubeSnapshot); // shouldn't be doing ANY of this during cube snap shots
-    LLVector3 lookAt = center - camera.getOrigin();
+    LLVector3 lookAt = center - LLVector3(camera.getOrigin());
     F32 dist = lookAt.length();
 
     //ramp down distance for nearby objects
@@ -2145,7 +2148,7 @@ F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera
 F32 LLPipeline::calcPixelArea(const LLVector4a& center, const LLVector4a& size, LLCamera &camera)
 {
     LLVector4a origin;
-    origin.load3(camera.getOrigin().mV);
+    origin.load3(&camera.getOrigin().x);
 
     LLVector4a lookAt;
     lookAt.setSub(center, origin);
@@ -4754,7 +4757,7 @@ void LLPipeline::renderDebug()
 
         for (U32 i = 0; i < 8; i++)
         {
-            LLVector3* frust = mShadowCamera[i].mAgentFrustum;
+            glm::vec3* frust = mShadowCamera[i].mAgentFrustum;
 
             if (i > 3)
             { //render shadow frusta as volumes
@@ -4766,25 +4769,25 @@ void LLPipeline::renderDebug()
                 gGL.color4fv(col+(i-4)*4);
 
                 gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[4].mV);
-                gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[5].mV);
-                gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[6].mV);
-                gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[7].mV);
-                gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[4].mV);
+                gGL.vertex3fv(glm::value_ptr(frust[0])); gGL.vertex3fv(glm::value_ptr(frust[4]));
+                gGL.vertex3fv(glm::value_ptr(frust[1])); gGL.vertex3fv(glm::value_ptr(frust[5]));
+                gGL.vertex3fv(glm::value_ptr(frust[2])); gGL.vertex3fv(glm::value_ptr(frust[6]));
+                gGL.vertex3fv(glm::value_ptr(frust[3])); gGL.vertex3fv(glm::value_ptr(frust[7]));
+                gGL.vertex3fv(glm::value_ptr(frust[0])); gGL.vertex3fv(glm::value_ptr(frust[4]));
                 gGL.end();
 
                 gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.vertex3fv(frust[0].mV);
-                gGL.vertex3fv(frust[1].mV);
-                gGL.vertex3fv(frust[3].mV);
-                gGL.vertex3fv(frust[2].mV);
+                gGL.vertex3fv(glm::value_ptr(frust[0]));
+                gGL.vertex3fv(glm::value_ptr(frust[1]));
+                gGL.vertex3fv(glm::value_ptr(frust[3]));
+                gGL.vertex3fv(glm::value_ptr(frust[2]));
                 gGL.end();
 
                 gGL.begin(LLRender::TRIANGLE_STRIP);
-                gGL.vertex3fv(frust[4].mV);
-                gGL.vertex3fv(frust[5].mV);
-                gGL.vertex3fv(frust[7].mV);
-                gGL.vertex3fv(frust[6].mV);
+                gGL.vertex3fv(glm::value_ptr(frust[4]));
+                gGL.vertex3fv(glm::value_ptr(frust[5]));
+                gGL.vertex3fv(glm::value_ptr(frust[7]));
+                gGL.vertex3fv(glm::value_ptr(frust[6]));
                 gGL.end();
             }
 
@@ -4818,18 +4821,18 @@ void LLPipeline::renderDebug()
 
                     //render camera frustum splits as outlines
                     gGL.begin(LLRender::LINES);
-                    gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[1].mV);
-                    gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[2].mV);
-                    gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[3].mV);
-                    gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[0].mV);
-                    gGL.vertex3fv(frust[4].mV); gGL.vertex3fv(frust[5].mV);
-                    gGL.vertex3fv(frust[5].mV); gGL.vertex3fv(frust[6].mV);
-                    gGL.vertex3fv(frust[6].mV); gGL.vertex3fv(frust[7].mV);
-                    gGL.vertex3fv(frust[7].mV); gGL.vertex3fv(frust[4].mV);
-                    gGL.vertex3fv(frust[0].mV); gGL.vertex3fv(frust[4].mV);
-                    gGL.vertex3fv(frust[1].mV); gGL.vertex3fv(frust[5].mV);
-                    gGL.vertex3fv(frust[2].mV); gGL.vertex3fv(frust[6].mV);
-                    gGL.vertex3fv(frust[3].mV); gGL.vertex3fv(frust[7].mV);
+                    gGL.vertex3fv(glm::value_ptr(frust[0])); gGL.vertex3fv(glm::value_ptr(frust[1]));
+                    gGL.vertex3fv(glm::value_ptr(frust[1])); gGL.vertex3fv(glm::value_ptr(frust[2]));
+                    gGL.vertex3fv(glm::value_ptr(frust[2])); gGL.vertex3fv(glm::value_ptr(frust[3]));
+                    gGL.vertex3fv(glm::value_ptr(frust[3])); gGL.vertex3fv(glm::value_ptr(frust[0]));
+                    gGL.vertex3fv(glm::value_ptr(frust[4])); gGL.vertex3fv(glm::value_ptr(frust[5]));
+                    gGL.vertex3fv(glm::value_ptr(frust[5])); gGL.vertex3fv(glm::value_ptr(frust[6]));
+                    gGL.vertex3fv(glm::value_ptr(frust[6])); gGL.vertex3fv(glm::value_ptr(frust[7]));
+                    gGL.vertex3fv(glm::value_ptr(frust[7])); gGL.vertex3fv(glm::value_ptr(frust[4]));
+                    gGL.vertex3fv(glm::value_ptr(frust[0])); gGL.vertex3fv(glm::value_ptr(frust[4]));
+                    gGL.vertex3fv(glm::value_ptr(frust[1])); gGL.vertex3fv(glm::value_ptr(frust[5]));
+                    gGL.vertex3fv(glm::value_ptr(frust[2])); gGL.vertex3fv(glm::value_ptr(frust[6]));
+                    gGL.vertex3fv(glm::value_ptr(frust[3])); gGL.vertex3fv(glm::value_ptr(frust[7]));
                     gGL.end();
                 }
             }
@@ -5396,7 +5399,7 @@ static F32 calc_light_dist(LLVOVolume* light, const LLVector3& cam_pos, F32 max_
         return 0.f; // selected lights get highest priority
     }
     F32 radius = light->getLightRadius();
-    F32 dist = dist_vec(light->getRenderPosition(), cam_pos);
+    F32 dist = dist_vec(LLVector3(light->getRenderPosition()), cam_pos);
     dist = llmax(dist - radius, 0.f);
     if (light->mDrawable.notNull() && light->mDrawable->isState(LLDrawable::ACTIVE))
     {
@@ -5423,7 +5426,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
         // mNearbyLight (and all light_set_t's) are sorted such that
         // begin() == the closest light and rbegin() == the farthest light
         const S32 MAX_LOCAL_LIGHTS = 6;
-        LLVector3 cam_pos = camera.getOrigin();
+        LLVector3 cam_pos(camera.getOrigin());
 
         F32 max_dist = RenderFarClip;
 
@@ -7676,11 +7679,11 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
                 }
             }
 
-            LLVector3 eye = LLViewerCamera::getInstance()->getOrigin();
+            LLVector3 eye(LLViewerCamera::getInstance()->getOrigin());
             F32 target_distance = 16.f;
             if (!focus_point.isExactlyZero())
             {
-                target_distance = LLViewerCamera::getInstance()->getAtAxis() * (focus_point - eye);
+                target_distance = LLVector3(LLViewerCamera::getInstance()->getAtAxis()) * (focus_point - eye);
             }
 
             if (transition_time >= 1.f && fabsf(current_distance - target_distance) / current_distance > 0.01f)
@@ -8194,7 +8197,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_SSAO_EFFECT_MAT, GL_FALSE, std::span<const GLfloat>(ssao_effect_mat, 9));
 
     //F32 shadow_offset_error = 1.f + RenderShadowOffsetError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
-    F32 shadow_bias_error = RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2])/3000.f;
+    F32 shadow_bias_error = RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().z)/3000.f;
     F32 shadow_bias       = RenderShadowBias + shadow_bias_error;
 
     shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, static_cast<GLfloat>(deferred_target->getWidth()), static_cast<GLfloat>(deferred_target->getHeight()));
@@ -8499,7 +8502,10 @@ void LLPipeline::renderDeferredLighting()
                     }
 
                     LLVector4a center;
-                    center.load3(drawablep->getPositionAgent().mV);
+                    {
+                        const glm::vec3 pa = drawablep->getPositionAgent();
+                        center.load3(glm::value_ptr(pa));
+                    }
                     const F32 *c = center.getF32ptr();
                     F32        s = volume->getLightRadius() * 1.5f;
 
@@ -8525,9 +8531,9 @@ void LLPipeline::renderDeferredLighting()
 
                     sVisibleLightCount++;
 
-                    if (camera->getOrigin().mV[0] > c[0] + s + 0.2f || camera->getOrigin().mV[0] < c[0] - s - 0.2f ||
-                        camera->getOrigin().mV[1] > c[1] + s + 0.2f || camera->getOrigin().mV[1] < c[1] - s - 0.2f ||
-                        camera->getOrigin().mV[2] > c[2] + s + 0.2f || camera->getOrigin().mV[2] < c[2] - s - 0.2f)
+                    if (camera->getOrigin().x > c[0] + s + 0.2f || camera->getOrigin().x < c[0] - s - 0.2f ||
+                        camera->getOrigin().y > c[1] + s + 0.2f || camera->getOrigin().y < c[1] - s - 0.2f ||
+                        camera->getOrigin().z > c[2] + s + 0.2f || camera->getOrigin().z < c[2] - s - 0.2f)
                     {  // draw box if camera is outside box
                         if (volume->isLightSpotlight())
                         {
@@ -8587,7 +8593,10 @@ void LLPipeline::renderDeferredLighting()
                     LLVOVolume *volume = drawablep->getVOVolume();
 
                     LLVector4a center;
-                    center.load3(drawablep->getPositionAgent().mV);
+                    {
+                        const glm::vec3 pa = drawablep->getPositionAgent();
+                        center.load3(glm::value_ptr(pa));
+                    }
                     const F32* c = center.getF32ptr();
                     F32        s = volume->getLightRadius() * 1.5f;
 
@@ -9490,9 +9499,10 @@ bool LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
     pp.push_back(LLVector3(max.mV[0], max.mV[1], max.mV[2]));
 
     //add corners of camera frustum
+    // Bridge: mAgentFrustum is now glm::vec3[]; pp is std::vector<LLVector3>.
     for (U32 i = 0; i < LLCamera::AGENT_FRUSTRUM_NUM; i++)
     {
-        pp.push_back(camera.mAgentFrustum[i]);
+        pp.push_back(LLVector3(camera.mAgentFrustum[i]));
     }
 
     //bounding box line segments
@@ -9799,7 +9809,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     //put together a universal "near clip" plane for shadow frusta
     LLPlane shadow_near_clip;
     {
-        LLVector3 p = camera.getOrigin(); // gAgent.getPositionAgent();
+        LLVector3 p(camera.getOrigin()); // gAgent.getPositionAgent();
         p += caster_dir * RenderFarClip*2.f;
         shadow_near_clip.set(p, caster_dir);
     }
@@ -9810,11 +9820,11 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     //create light space camera matrix
     LLVector3 at = lightDir;
 
-    LLVector3 up = camera.getAtAxis();
+    LLVector3 up(camera.getAtAxis());
 
     if (fabsf(up*lightDir) > 0.75f)
     {
-        up = camera.getUpAxis();
+        up = LLVector3(camera.getUpAxis());
     }
 
     up.normalize();
@@ -9882,7 +9892,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
         LLVector3 split_exp = RenderShadowSplitExponent;
 
-        F32 da = 1.f-llmax( fabsf(lightDir*up), fabsf(lightDir*camera.getLeftAxis()) );
+        F32 da = 1.f-llmax( fabsf(lightDir*up), fabsf(lightDir*LLVector3(camera.getLeftAxis())) );
 
         da = powf(da, split_exp.mV[2]);
 
@@ -9927,7 +9937,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
             set_current_modelview(saved_view);
             set_current_projection(saved_proj);
 
-            LLVector3 eye = camera.getOrigin();
+            LLVector3 eye(camera.getOrigin());
             llassert(eye.isFinite());
 
             //camera used for shadow cull/render
@@ -9939,21 +9949,22 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
             LLViewerCamera::updateFrustumPlanes(shadow_cam, false, false, true);
 
-            LLVector3* frust = shadow_cam.mAgentFrustum;
+            glm::vec3* frust = shadow_cam.mAgentFrustum;
 
-            LLVector3 pn = shadow_cam.getAtAxis();
+            const glm::vec3& pn = shadow_cam.getAtAxis();
+            const glm::vec3 eye_glm(eye.mV[VX], eye.mV[VY], eye.mV[VZ]);
 
             LLVector3 min, max;
 
             //construct 8 corners of split frustum section
             for (U32 i = 0; i < 4; i++)
             {
-                LLVector3 delta = frust[i+4]-eye;
-                delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
-                delta.normalize();
-                F32 dp = delta*pn;
-                frust[i] = eye + (delta*dist[j]*0.75f)/dp;
-                frust[i+4] = eye + (delta*dist[j+1]*1.25f)/dp;
+                glm::vec3 delta = frust[i+4] - eye_glm;
+                delta += (frust[i+4] - frust[(i+2)%4+4]) * 0.05f;
+                delta = glm::normalize(delta);
+                F32 dp = glm::dot(delta, pn);
+                frust[i]   = eye_glm + (delta * dist[j]   * 0.75f) / dp;
+                frust[i+4] = eye_glm + (delta * dist[j+1] * 1.25f) / dp;
             }
 
             shadow_cam.calcAgentFrustumPlanes(frust);
@@ -10001,7 +10012,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
             LLVector3 origin;
 
             //get a temporary view projection
-            view[j] = look(camera.getOrigin(), lightDir, -up);
+            view[j] = look(LLVector3(camera.getOrigin()), lightDir, -up);
 
             std::vector<LLVector3> wpf;
 
@@ -10234,7 +10245,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
             }
 
             //shadow_cam.setFar(128.f);
-            shadow_cam.setOriginAndLookAt(eye, up, center);
+            shadow_cam.setOriginAndLookAt(static_cast<glm::vec3>(eye), static_cast<glm::vec3>(up), static_cast<glm::vec3>(center));
 
             shadow_cam.setOrigin(0,0,0);
 
@@ -10407,7 +10418,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
             {
                 LLCamera shadow_cam = camera;
                 shadow_cam.setFar(far_clip);
-                shadow_cam.setOrigin(origin);
+                shadow_cam.setOrigin(static_cast<glm::vec3>(origin));
 
                 LLViewerCamera::updateFrustumPlanes(shadow_cam, false, false, true);
 
@@ -10721,20 +10732,20 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
         const LLVector4a* ext = avatar->mDrawable->getSpatialExtents();
         LLVector3 pos(avatar->getRenderPosition()+avatar->getImpostorOffset());
 
-        camera.lookAt(viewer_camera->getOrigin(), pos, viewer_camera->getUpAxis());
+        camera.lookAt(viewer_camera->getOrigin(), static_cast<glm::vec3>(pos), viewer_camera->getUpAxis());
 
         LLVector4a half_height;
         half_height.setSub(ext[1], ext[0]);
         half_height.mul(0.5f);
 
         LLVector4a left;
-        left.load3(camera.getLeftAxis().mV);
+        left.load3(glm::value_ptr(camera.getLeftAxis()));
         left.mul(left);
         llassert(left.dot3(left).getF32() > F_APPROXIMATELY_ZERO);
         left.normalize3fast();
 
         LLVector4a up;
-        up.load3(camera.getUpAxis().mV);
+        up.load3(glm::value_ptr(camera.getUpAxis()));
         up.mul(up);
         llassert(up.dot3(up).getF32() > F_APPROXIMATELY_ZERO);
         up.normalize3fast();
@@ -10745,7 +10756,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
         gGL.matrixMode(LLRender::MM_PROJECTION);
         gGL.pushMatrix();
 
-        F32 distance = (pos-camera.getOrigin()).length();
+        F32 distance = (pos - LLVector3(camera.getOrigin())).length();
         F32 fov = atanf(tdim.y/distance)*2.f*RAD_TO_DEG;
         F32 aspect = tdim.x/tdim.y;
         glm::mat4 persp = glm::perspective(glm::radians(fov), aspect, 1.f, 256.f);

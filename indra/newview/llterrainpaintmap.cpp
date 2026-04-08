@@ -91,7 +91,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
     LLViewerCamera camera;
     const LLVector3 region_center = LLVector3(region_half_width, region_half_width, 0.0) + region.getOriginAgent();
     const LLVector3 camera_origin = LLVector3(0.0f, 0.0f, region_camera_height) + region_center;
-    camera.lookAt(camera_origin, region_center, LLVector3::y_axis);
+    camera.lookAt(static_cast<glm::vec3>(camera_origin), static_cast<glm::vec3>(region_center), static_cast<glm::vec3>(LLVector3::y_axis));
     camera.setAspect(F32(scratch_target.getWidth()) / F32(scratch_target.getHeight()));
     const LLRect texture_rect(0, scratch_target.getHeight(), scratch_target.getWidth(), 0);
     glViewport(texture_rect.mLeft, texture_rect.mBottom, texture_rect.getWidth(), texture_rect.getHeight());

@@ -46,7 +46,7 @@ public:
     virtual const LLVOAvatar *getAttachedAvatar() const;
     virtual LLVOAvatar *getAttachedAvatar();
 
-    void getNewConstraintFixups(LLVector3& new_pos_constraint, F32& new_scale_constraint) const;
+    void getNewConstraintFixups(glm::vec3& new_pos_constraint, F32& new_scale_constraint) const;
     void matchVolumeTransform();
     void updateVolumeGeom();
 
@@ -95,7 +95,7 @@ public:
 
     bool mMarkedForDeath;
 
-    LLVector3 mPositionConstraintFixup;
+    glm::vec3 mPositionConstraintFixup{0.f};
     F32 mScaleConstraintFixup;
 
     static const F32 MAX_LEGAL_OFFSET;

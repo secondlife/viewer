@@ -189,7 +189,8 @@ void LLHUDEffectBeam::setSourceObject(LLViewerObject *objp)
             {
                 LLViewerObject *objp = mSourceObject;
                 LLVOAvatar *avatarp = (LLVOAvatar *)objp;
-                LLVector3d hand_pos_global = gAgent.getPosGlobalFromAgent(avatarp->mWristLeftp->getWorldPosition());
+                const LLVector3& wp = avatarp->mWristLeftp->getWorldPosition();
+                LLVector3d hand_pos_global = gAgent.getPosGlobalFromAgent(glm::vec3(wp.mV[VX], wp.mV[VY], wp.mV[VZ]));
                 mInterp[i].setStartVal(hand_pos_global);
                 mInterp[i].start();
             }
@@ -258,7 +259,10 @@ void LLHUDEffectBeam::render()
         // otherwise use drawable
         else
         {
-            mTargetPos = gAgent.getPosGlobalFromAgent(mTargetObject->mDrawable->getPositionAgent());
+            {
+                const LLVector3& dp = mTargetObject->mDrawable->getPositionAgent();
+                mTargetPos = gAgent.getPosGlobalFromAgent(glm::vec3(dp.mV[VX], dp.mV[VY], dp.mV[VZ]));
+            }
         }
     }
 
@@ -287,7 +291,8 @@ void LLHUDEffectBeam::render()
         F32 scale = 0.025f + fabs(0.05f*sin(2.f*F_PI*(frac - time)));
         scale *= mInterpFade[i].getCurVal();
 
-        LLVector3 pos_agent = gAgent.getPosAgentFromGlobal(mInterp[i].getCurVal());
+        const glm::vec3 pa_g = gAgent.getPosAgentFromGlobal(mInterp[i].getCurVal());
+        LLVector3 pos_agent(pa_g.x, pa_g.y, pa_g.z);
 
         F32 alpha = mFadeInterp.getCurVal()*mColor.mV[3];
         alpha *= mInterpFade[i].getCurVal();
@@ -314,7 +319,10 @@ void LLHUDEffectBeam::setupParticle(const S32 i)
     {
         LLViewerObject *objp = mSourceObject;
         LLVOAvatar *avatarp = (LLVOAvatar *)objp;
-        start_pos_global = gAgent.getPosGlobalFromAgent(avatarp->mWristLeftp->getWorldPosition());
+        {
+            const LLVector3& wp = avatarp->mWristLeftp->getWorldPosition();
+            start_pos_global = gAgent.getPosGlobalFromAgent(glm::vec3(wp.mV[VX], wp.mV[VY], wp.mV[VZ]));
+        }
     }
     else
     {

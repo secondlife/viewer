@@ -30,6 +30,7 @@
 #define LLSELECTMGR_CPP
 #include "llselectmgr.h"
 #include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "llmaterialmgr.h"
 
 // library includes
@@ -3095,8 +3096,8 @@ void LLSelectMgr::selectionTexScaleAutofit(F32 repeats_per_meter)
                     return true;
                 }
 
-                F32 new_s = object->getScale().mV[s_axis] * mRepeatsPerMeter;
-                F32 new_t = object->getScale().mV[t_axis] * mRepeatsPerMeter;
+                F32 new_s = glm::value_ptr(object->getScale())[s_axis] * mRepeatsPerMeter;
+                F32 new_t = glm::value_ptr(object->getScale())[t_axis] * mRepeatsPerMeter;
 
                 object->setTEScale(te, new_s, new_t);
             }
@@ -4740,7 +4741,7 @@ void LLSelectMgr::packMultipleUpdate(LLSelectNode* node, void *user_data)
 
     if (type & UPD_POSITION)
     {
-        htolememcpy(&data[offset], &(object->getPosition().mV), MVT_LLVector3, 12);
+        htolememcpy(&data[offset], glm::value_ptr(object->getPosition()), MVT_LLVector3, 12);
         offset += 12;
     }
     if (type & UPD_ROTATION)
@@ -4753,7 +4754,7 @@ void LLSelectMgr::packMultipleUpdate(LLSelectNode* node, void *user_data)
     if (type & UPD_SCALE)
     {
         //LL_INFOS() << "Sending object scale " << object->getScale() << LL_ENDL;
-        htolememcpy(&data[offset], &(object->getScale().mV), MVT_LLVector3, 12);
+        htolememcpy(&data[offset], glm::value_ptr(object->getScale()), MVT_LLVector3, 12);
         offset += 12;
     }
     gMessageSystem->addBinaryDataFast(_PREHASH_Data, data, offset);
@@ -5384,7 +5385,11 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
             if (selectNode->mSelectedGLTFNode != -1)
             {
                 // save GLTF node state
-                object->getGLTFNodeTransformAgent(selectNode->mSelectedGLTFNode, &selectNode->mSavedPositionLocal, &selectNode->mSavedRotation, &selectNode->mSavedScale);
+                glm::vec3 saved_pos_local(0.0f);
+                glm::vec3 saved_scale(0.0f);
+                object->getGLTFNodeTransformAgent(selectNode->mSelectedGLTFNode, &saved_pos_local, &selectNode->mSavedRotation, &saved_scale);
+                selectNode->mSavedPositionLocal = saved_pos_local;
+                selectNode->mSavedScale = saved_scale;
                 selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent(selectNode->mSavedPositionLocal);
                 selectNode->mLastMoveLocal.setZero();
             }
@@ -6425,7 +6430,7 @@ void LLSelectMgr::updateSilhouettes()
                 {
                     if (num_sils_genned++ < MAX_SILS_PER_FRAME)
                     {
-                        generateSilhouette(node, LLViewerCamera::getInstance()->getOrigin());
+                        generateSilhouette(node, LLVector3(LLViewerCamera::getInstance()->getOrigin()));
                         changed_objects.push_back(objectp);
                     }
                     else if (objectp->isAttachment() && objectp->getRootEdit()->mDrawable.notNull())
@@ -6495,7 +6500,7 @@ void LLSelectMgr::updateSelectionSilhouette(LLObjectSelectionHandle object_handl
                 {
                     if (num_sils_genned++ < MAX_SILS_PER_FRAME)// && objectp->mDrawable->isVisible())
                     {
-                        generateSilhouette(node, LLViewerCamera::getInstance()->getOrigin());
+                        generateSilhouette(node, LLVector3(LLViewerCamera::getInstance()->getOrigin()));
                         changed_objects.push_back(objectp);
                     }
                     else if (objectp->isAttachment())
@@ -7262,7 +7267,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
         }
         else
         {
-            LLVector3 view_vector = LLViewerCamera::getInstance()->getOrigin() - objectp->getRenderPosition();
+            LLVector3 view_vector = LLVector3(LLViewerCamera::getInstance()->getOrigin()) - objectp->getRenderPosition();
             silhouette_thickness = view_vector.length() * LLSelectMgr::sHighlightThickness * (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV());
         }
         F32 animationTime = static_cast<F32>(LLFrameTimer::getElapsedSeconds());
@@ -8661,7 +8666,7 @@ bool LLSelectMgr::selectionMove(const LLVector3& displ,
         {
             obj_pos = (*it)->getObject()->getPositionEdit();
 
-            F32 obj_dist_squared = dist_vec_squared(obj_pos, LLViewerCamera::getInstance()->getOrigin());
+            F32 obj_dist_squared = dist_vec_squared(obj_pos, LLVector3(LLViewerCamera::getInstance()->getOrigin()));
             if (obj_dist_squared < min_dist_squared)
             {
                 min_dist_squared = obj_dist_squared;
@@ -8676,16 +8681,16 @@ bool LLSelectMgr::selectionMove(const LLVector3& displ,
                             displ.mV[2] * min_dist);
 
         // equates to: Displ_global = Displ * M_cam_axes_in_global_frame
-        displ_global = LLViewerCamera::getInstance()->rotateToAbsolute(displ_global);
+        displ_global = LLVector3(LLViewerCamera::getInstance()->rotateToAbsolute(static_cast<glm::vec3>(displ_global)));
     }
 
     LLQuaternion new_rot;
     if (update_rotation)
     {
         // let's calculate the rotation around each camera axes
-        LLQuaternion qx(roll, LLViewerCamera::getInstance()->getAtAxis());
-        LLQuaternion qy(pitch, LLViewerCamera::getInstance()->getLeftAxis());
-        LLQuaternion qz(yaw, LLViewerCamera::getInstance()->getUpAxis());
+        LLQuaternion qx(roll, LLVector3(LLViewerCamera::getInstance()->getAtAxis()));
+        LLQuaternion qy(pitch, LLVector3(LLViewerCamera::getInstance()->getLeftAxis()));
+        LLQuaternion qz(yaw, LLVector3(LLViewerCamera::getInstance()->getUpAxis()));
         new_rot.set(qx * qy * qz);
     }
 

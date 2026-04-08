@@ -1766,7 +1766,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         {
             mTrackAltitudes = envinfo->mAltitudes;
             // update track selection based on new altitudes
-            mCurrentTrack = calculateSkyTrackForAltitude(gAgent.getPositionAgent().mV[VZ]);
+            mCurrentTrack = calculateSkyTrackForAltitude(gAgent.getPositionAgent().z);
 
             setEnvironment(ENV_REGION, envinfo->mDayCycle, envinfo->mDayLength, envinfo->mDayOffset, envinfo->mEnvVersion);
         }

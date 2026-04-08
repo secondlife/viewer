@@ -1159,7 +1159,7 @@ void LLManipRotate::renderSnapGuides()
         {
             LLVector3 selection_center_start = LLSelectMgr::getInstance()->getSavedBBoxOfSelection().getCenterAgent();
 
-            LLVector3 offset_dir = LLViewerCamera::getInstance()->getUpAxis();
+            LLVector3 offset_dir(LLViewerCamera::getInstance()->getUpAxis());
 
             F32 line_alpha = gSavedSettings.getF32("GridOpacity");
 
@@ -1219,13 +1219,13 @@ bool LLManipRotate::updateVisiblity()
     }
     else
     {
-        visible = LLViewerCamera::getInstance()->projectPosAgentToScreen(center, mCenterScreen );
+        visible = LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(center), mCenterScreen);
         if( visible )
         {
             mCenterToCam = gAgentCamera.getCameraPositionAgent() - center;
             mCenterToCamNorm = mCenterToCam;
             mCenterToCamMag = mCenterToCamNorm.normalize();
-            LLVector3 cameraAtAxis = LLViewerCamera::getInstance()->getAtAxis();
+            LLVector3 cameraAtAxis(LLViewerCamera::getInstance()->getAtAxis());
             cameraAtAxis.normalize();
 
             F32 z_dist = -1.f * (mCenterToCam * cameraAtAxis);
@@ -1234,7 +1234,7 @@ bool LLManipRotate::updateVisiblity()
             if (gSavedSettings.getBOOL("LimitSelectDistance"))
             {
                 F32 max_select_distance = gSavedSettings.getF32("MaxSelectDistance");
-                if (dist_vec_squared(gAgent.getPositionAgent(), center) > (max_select_distance * max_select_distance))
+                if (dist_vec_squared(LLVector3(gAgent.getPositionAgent()), center) > (max_select_distance * max_select_distance))
                 {
                     visible = false;
                 }

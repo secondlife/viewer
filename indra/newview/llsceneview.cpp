@@ -34,6 +34,7 @@
 #include "llagent.h"
 #include "llvolumemgr.h"
 #include "llmeshrepository.h"
+#include "glm/glm.hpp"
 
 LLSceneView* gSceneView = NULL;
 
@@ -114,7 +115,7 @@ void LLSceneView::draw()
 
                 LLVolume* volume = object->getVolume();
 
-                F32 radius = object->getScale().length();
+                F32 radius = glm::length(object->getScale());
                 size[idx].push_back(radius);
 
                 S32 visible = volume->getNumTriangles();

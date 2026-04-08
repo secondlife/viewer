@@ -153,8 +153,8 @@ bool LLHUDNameTag::lineSegmentIntersect(const LLVector4a& start, const LLVector4
         //using this position keeps the camera from focusing on some seemingly random
         //point several meters in front of the nametag
         const LLVector3& p = mSourceObject->getPositionAgent();
-        const LLVector3& n = LLViewerCamera::getInstance()->getAtAxis();
-        const LLVector3& eye = LLViewerCamera::getInstance()->getOrigin();
+        const LLVector3 n(LLViewerCamera::getInstance()->getAtAxis());
+        const LLVector3 eye(LLViewerCamera::getInstance()->getOrigin());
 
         LLVector3 ray = position-eye;
         ray.normalize();
@@ -167,16 +167,17 @@ bool LLHUDNameTag::lineSegmentIntersect(const LLVector4a& start, const LLVector4
 
     // scale screen size of borders down
 
-    LLVector3 x_pixel_vec;
-    LLVector3 y_pixel_vec;
-
-    LLViewerCamera::getInstance()->getPixelVectors(position, y_pixel_vec, x_pixel_vec);
+    // Bridge: getPixelVectors / projectPosAgentToScreen now take/return glm::vec3.
+    glm::vec3 x_pixel_glm, y_pixel_glm;
+    LLViewerCamera::getInstance()->getPixelVectors(static_cast<glm::vec3>(position), y_pixel_glm, x_pixel_glm);
+    LLVector3 x_pixel_vec(x_pixel_glm.x, x_pixel_glm.y, x_pixel_glm.z);
+    LLVector3 y_pixel_vec(y_pixel_glm.x, y_pixel_glm.y, y_pixel_glm.z);
 
     LLVector3 width_vec = mWidth * x_pixel_vec;
     LLVector3 height_vec = mHeight * y_pixel_vec;
 
     LLCoordGL screen_pos;
-    LLViewerCamera::getInstance()->projectPosAgentToScreen(position, screen_pos, false);
+    LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(position), screen_pos, false);
 
     glm::vec2 screen_offset;
     screen_offset = updateScreenPos(mPositionOffset);
@@ -272,10 +273,11 @@ void LLHUDNameTag::renderText()
     // scale screen size of borders down
     //RN: for now, text on hud objects is never occluded
 
-    LLVector3 x_pixel_vec;
-    LLVector3 y_pixel_vec;
-
-    LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+    // Bridge: getPixelVectors / projectPosAgentToScreen now take/return glm::vec3.
+    glm::vec3 x_pixel_glm, y_pixel_glm;
+    LLViewerCamera::getInstance()->getPixelVectors(static_cast<glm::vec3>(mPositionAgent), y_pixel_glm, x_pixel_glm);
+    LLVector3 x_pixel_vec(x_pixel_glm.x, x_pixel_glm.y, x_pixel_glm.z);
+    LLVector3 y_pixel_vec(y_pixel_glm.x, y_pixel_glm.y, y_pixel_glm.z);
 
     LLVector3 width_vec = mWidth * x_pixel_vec;
     LLVector3 height_vec = mHeight * y_pixel_vec;
@@ -283,7 +285,7 @@ void LLHUDNameTag::renderText()
     mRadius = (width_vec + height_vec).length() * 0.5f;
 
     LLCoordGL screen_pos;
-    LLViewerCamera::getInstance()->projectPosAgentToScreen(mPositionAgent, screen_pos, false);
+    LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(mPositionAgent), screen_pos, false);
 
     glm::vec2 screen_offset = updateScreenPos(mPositionOffset);
 
@@ -548,7 +550,10 @@ void LLHUDNameTag::updateVisibility()
         mSourceObject->updateText();
     }
 
-    mPositionAgent = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+    {
+        const glm::vec3 g = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+        mPositionAgent = LLVector3(g.x, g.y, g.z);
+    }
 
     if (!mSourceObject)
     {
@@ -566,26 +571,28 @@ void LLHUDNameTag::updateVisibility()
     }
 
     // push text towards camera by radius of object, but not past camera
-    LLVector3 vec_from_camera = mPositionAgent - LLViewerCamera::getInstance()->getOrigin();
+    const LLVector3 cam_origin_ll(LLViewerCamera::getInstance()->getOrigin());
+    const LLVector3 cam_at_ll(LLViewerCamera::getInstance()->getAtAxis());
+    LLVector3 vec_from_camera = mPositionAgent - cam_origin_ll;
     LLVector3 dir_from_camera = vec_from_camera;
     dir_from_camera.normalize();
 
-    if (dir_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= 0.f)
+    if (dir_from_camera * cam_at_ll <= 0.f)
     { //text is behind camera, don't render
         mVisible = false;
         return;
     }
 
-    if (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= LLViewerCamera::getInstance()->getNear() + 0.1f + mSourceObject->getVObjRadius())
+    if (vec_from_camera * cam_at_ll <= LLViewerCamera::getInstance()->getNear() + 0.1f + mSourceObject->getVObjRadius())
     {
-        mPositionAgent = LLViewerCamera::getInstance()->getOrigin() + vec_from_camera * ((LLViewerCamera::getInstance()->getNear() + 0.1f) / (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis()));
+        mPositionAgent = cam_origin_ll + vec_from_camera * ((LLViewerCamera::getInstance()->getNear() + 0.1f) / (vec_from_camera * cam_at_ll));
     }
     else
     {
         mPositionAgent -= dir_from_camera * mSourceObject->getVObjRadius();
     }
 
-    mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).length();
+    mLastDistance = (mPositionAgent - cam_origin_ll).length();
 
     if (mLOD >= 3 || !mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)))
     {
@@ -593,17 +600,18 @@ void LLHUDNameTag::updateVisibility()
         return;
     }
 
-    LLVector3 x_pixel_vec;
-    LLVector3 y_pixel_vec;
-
-    LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+    // Bridge: getPixelVectors / sphereInFrustum now take/return glm::vec3.
+    glm::vec3 x_pixel_glm, y_pixel_glm;
+    LLViewerCamera::getInstance()->getPixelVectors(static_cast<glm::vec3>(mPositionAgent), y_pixel_glm, x_pixel_glm);
+    LLVector3 x_pixel_vec(x_pixel_glm.x, x_pixel_glm.y, x_pixel_glm.z);
+    LLVector3 y_pixel_vec(y_pixel_glm.x, y_pixel_glm.y, y_pixel_glm.z);
 
     LLVector3 render_position = mPositionAgent +
             (x_pixel_vec * mPositionOffset.x) +
             (y_pixel_vec * mPositionOffset.y);
 
     mOffscreen = false;
-    if (!LLViewerCamera::getInstance()->sphereInFrustum(render_position, mRadius))
+    if (!LLViewerCamera::getInstance()->sphereInFrustum(static_cast<glm::vec3>(render_position), mRadius))
     {
         if (!mVisibleOffScreen)
         {
@@ -624,14 +632,16 @@ glm::vec2 LLHUDNameTag::updateScreenPos(glm::vec2 &offset)
 {
     LLCoordGL screen_pos;
     glm::vec2 screen_pos_vec;
-    LLVector3 x_pixel_vec;
-    LLVector3 y_pixel_vec;
-    LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+    // Bridge: getPixelVectors / projectPosAgentTo* now take/return glm::vec3.
+    glm::vec3 x_pixel_glm, y_pixel_glm;
+    LLViewerCamera::getInstance()->getPixelVectors(static_cast<glm::vec3>(mPositionAgent), y_pixel_glm, x_pixel_glm);
+    LLVector3 x_pixel_vec(x_pixel_glm.x, x_pixel_glm.y, x_pixel_glm.z);
+    LLVector3 y_pixel_vec(y_pixel_glm.x, y_pixel_glm.y, y_pixel_glm.z);
     LLVector3 world_pos = mPositionAgent + (offset.x * x_pixel_vec) + (offset.y * y_pixel_vec);
-    if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(world_pos, screen_pos, false) && mVisibleOffScreen)
+    if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(static_cast<glm::vec3>(world_pos), screen_pos, false) && mVisibleOffScreen)
     {
         // bubble off-screen, so find a spot for it along screen edge
-        LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(world_pos, screen_pos);
+        LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(static_cast<glm::vec3>(world_pos), screen_pos);
     }
 
     screen_pos_vec = glm::vec2(static_cast<F32>(screen_pos.mX), static_cast<F32>(screen_pos.mY));
@@ -804,7 +814,6 @@ void LLHUDNameTag::updateAll()
                     glm::vec2 src_force = -1.f * force;
                     glm::vec2 dst_force = force;
 
-                    glm::vec2 force_strength;
                     F32 src_mult = dst_textp->mMass / (dst_textp->mMass + src_textp->mMass);
                     F32 dst_mult = 1.f - src_mult;
                     F32 src_aspect_ratio = src_textp->mSoftScreenRect.getWidth() / src_textp->mSoftScreenRect.getHeight();

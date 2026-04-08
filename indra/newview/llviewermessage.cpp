@@ -3019,7 +3019,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
         {
             // *NOTE: the LookAt data we get from the sim here doesn't
             // seem to be useful, so get it from the camera instead
-            look_at = LLViewerCamera::getInstance()->getAtAxis();
+            look_at = LLVector3(LLViewerCamera::getInstance()->getAtAxis());
         }
         // Force the camera back onto the agent, don't animate.
         gAgentCamera.setFocusOnAvatar(true, false);
@@ -3052,7 +3052,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
             look_at_point = agent_pos + look_at_point.rotVec(gAgent.getQuat());
 
             static LLVector3 up_direction(0.0f, 0.0f, 1.0f);
-            LLViewerCamera::getInstance()->lookAt(agent_pos, look_at_point, up_direction);
+            LLViewerCamera::getInstance()->lookAt(static_cast<glm::vec3>(agent_pos), static_cast<glm::vec3>(look_at_point), static_cast<glm::vec3>(up_direction));
         }
     }
 
@@ -3237,7 +3237,7 @@ void send_agent_update(bool force_send, bool send_reliable)
     bool send_update = force_send || sec_since_last_send > MAX_AGENT_UPDATE_PERIOD;
 
     LLVector3 camera_pos_agent = gAgentCamera.getCameraPositionAgent(); // local to avatar's region
-    LLVector3 camera_at = LLViewerCamera::getInstance()->getAtAxis();
+    LLVector3 camera_at(LLViewerCamera::getInstance()->getAtAxis());
     LLQuaternion body_rotation = gAgent.getFrameAgent().getQuaternion();
     LLQuaternion head_rotation = gAgent.getHeadRotation();
     U8 render_state = gAgent.getRenderState();

@@ -976,8 +976,8 @@ void LLWorldMapView::drawFrustum()
         gGL.begin( LLRender::TRIANGLES  );
         {
             // get camera look at and left axes
-            LLVector3 at_axis = LLViewerCamera::instance().getAtAxis();
-            LLVector3 left_axis = LLViewerCamera::instance().getLeftAxis();
+            LLVector3 at_axis(LLViewerCamera::instance().getAtAxis());
+            LLVector3 left_axis(LLViewerCamera::instance().getLeftAxis());
 
             // grab components along XY plane
             glm::vec2 cam_lookat(at_axis.mV[VX], at_axis.mV[VY]);
@@ -1112,7 +1112,7 @@ LLVector3d LLWorldMapView::viewPosToGlobal( S32 x, S32 y )
     }
     else
     {
-        pos_global.mdV[VZ] = gAgent.getPositionAgent().mV[VZ]; // Want agent's height, not camera's
+        pos_global.mdV[VZ] = gAgent.getPositionAgent().z; // Want agent's height, not camera's
     }
 
     return pos_global;

@@ -39,10 +39,10 @@ class LLListener_OpenAL  : public LLListener
     LLListener_OpenAL();
     virtual ~LLListener_OpenAL();
 
-    virtual void translate(LLVector3 offset);
-    virtual void setPosition(LLVector3 pos);
-    virtual void setVelocity(LLVector3 vel);
-    virtual void orient(LLVector3 up, LLVector3 at);
+    virtual void translate(glm::vec3 offset);
+    virtual void setPosition(glm::vec3 pos);
+    virtual void setVelocity(glm::vec3 vel);
+    virtual void orient(glm::vec3 up, glm::vec3 at);
     virtual void commitDeferredChanges();
 
     virtual void setDopplerFactor(F32 factor);

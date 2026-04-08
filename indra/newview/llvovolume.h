@@ -141,7 +141,7 @@ public:
                 S32     getLOD() const override             { return mLOD; }
                 void    setNoLOD()                          { mLOD = NO_LOD; mLODChanged = true; }
                 bool    isNoLOD() const                     { return NO_LOD == mLOD; }
-    const LLVector3     getPivotPositionAgent() const override;
+                glm::vec3 getPivotPositionAgent() const override;
     const LLMatrix4&    getRelativeXform() const                { return mRelativeXform; }
     const LLMatrix3&    getRelativeXformInvTrans() const        { return mRelativeXformInvTrans; }
     /*virtual*/ const LLMatrix4 getRenderMatrix() const override;
@@ -197,7 +197,7 @@ public:
     /*virtual*/ void    setSelected(bool sel) override;
     /*virtual*/ bool    setDrawableParent(LLDrawable* parentp) override;
 
-    /*virtual*/ void    setScale(const LLVector3 &scale, bool damped) override;
+    /*virtual*/ void    setScale(const glm::vec3 &scale, bool damped) override;
 
     /*virtual*/ void    changeTEImage(S32 index, LLViewerTexture* new_image) override;
     /*virtual*/ void    setNumTEs(const U8 num_tes) override;

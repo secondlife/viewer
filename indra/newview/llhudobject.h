@@ -55,7 +55,7 @@ public:
     virtual LLViewerObject* getTargetObject() { return mTargetObject; }
 
     void setPositionGlobal(const LLVector3d &position_global);
-    void setPositionAgent(const LLVector3 &position_agent);
+    void setPositionAgent(const glm::vec3 &position_agent);
 
     bool isVisible() const { return mVisible; }
 

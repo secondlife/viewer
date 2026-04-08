@@ -47,6 +47,7 @@
 #include "llreflectionmap.h"
 
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 
 namespace LL
 {
@@ -330,24 +331,24 @@ public:
     virtual bool lineSegmentBoundingBox(const LLVector4a& start, const LLVector4a& end);
 
     virtual const LLVector3d getPositionGlobal() const;
-    virtual const LLVector3 &getPositionRegion() const;
-    virtual const LLVector3 getPositionEdit() const;
-    virtual const LLVector3 &getPositionAgent() const;
-    virtual const LLVector3 getRenderPosition() const;
+    virtual const glm::vec3 &getPositionRegion() const;
+    virtual const glm::vec3 getPositionEdit() const;
+    virtual const glm::vec3 &getPositionAgent() const;
+    virtual glm::vec3 getRenderPosition() const;
 
     LLMatrix4a getAgentToGLTFAssetTransform() const;
     LLMatrix4a getGLTFAssetToAgentTransform() const;
-    LLVector3 getGLTFNodePositionAgent(S32 node_index) const;
+    glm::vec3 getGLTFNodePositionAgent(S32 node_index) const;
     LLMatrix4a getGLTFNodeTransformAgent(S32 node_index) const;
-    void getGLTFNodeTransformAgent(S32 node_index, LLVector3* position, LLQuaternion* rotation, LLVector3* scale) const;
+    void getGLTFNodeTransformAgent(S32 node_index, glm::vec3* position, LLQuaternion* rotation, glm::vec3* scale) const;
 
     // move the node at the given index by the given offset in agent space
-    void moveGLTFNode(S32 node_index, const LLVector3& offset);
+    void moveGLTFNode(S32 node_index, const glm::vec3& offset);
 
     // set the rotation in agent space of the given node
     void setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion& rotation);
 
-    virtual const LLVector3 getPivotPositionAgent() const; // Usually = to getPositionAgent, unless like flex objects it's not
+    virtual glm::vec3 getPivotPositionAgent() const; // Usually = to getPositionAgent, unless like flex objects it's not
 
     LLViewerObject* getRootEdit() const;
 
@@ -356,12 +357,12 @@ public:
     const LLQuaternion getRenderRotation() const;
     virtual const LLMatrix4 getRenderMatrix() const;
 
-    void setPosition(const LLVector3 &pos, bool damped = false);
+    void setPosition(const glm::vec3 &pos, bool damped = false);
     void setPositionGlobal(const LLVector3d &position, bool damped = false);
-    void setPositionRegion(const LLVector3 &position, bool damped = false);
-    void setPositionEdit(const LLVector3 &position, bool damped = false);
-    void setPositionAgent(const LLVector3 &pos_agent, bool damped = false);
-    void setPositionParent(const LLVector3 &pos_parent, bool damped = false);
+    void setPositionRegion(const glm::vec3 &position, bool damped = false);
+    void setPositionEdit(const glm::vec3 &position, bool damped = false);
+    void setPositionAgent(const glm::vec3 &pos_agent, bool damped = false);
+    void setPositionParent(const glm::vec3 &pos_parent, bool damped = false);
     void setPositionAbsoluteGlobal( const LLVector3d &pos_global, bool damped = false );
 
     virtual const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const     { return xform->getWorldMatrix(); }
@@ -420,7 +421,7 @@ public:
     void fitFaceTexture(const U8 face);
     void sendTEUpdate() const;          // Sends packed representation of all texture entry information
 
-    virtual void setScale(const LLVector3 &scale, bool damped = false);
+    virtual void setScale(const glm::vec3 &scale, bool damped = false);
 
     S32 getAnimatedObjectMaxTris() const;
     F32 recursiveGetEstTrianglesMax() const;
@@ -995,8 +996,8 @@ protected:
 
 
     // These two caches are only correct for non-parented objects right now!
-    mutable LLVector3       mPositionRegion;
-    mutable LLVector3       mPositionAgent;
+    mutable glm::vec3       mPositionRegion;
+    mutable glm::vec3       mPositionAgent;
 
     static void setPhaseOutUpdateInterpolationTime(F32 value)   { sPhaseOutUpdateInterpolationTime = (F64Seconds) value;    }
     static void setMaxUpdateInterpolationTime(F32 value)        { sMaxUpdateInterpolationTime = (F64Seconds) value; }

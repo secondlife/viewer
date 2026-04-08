@@ -226,7 +226,7 @@ bool LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 //  LL_INFOS() << "Point At: " << mTarget.getPosition() << LL_ENDL;
 
     // update the ikSolver
-    if (!mTarget.getPosition().isExactlyZero())
+    if (mTarget.getPosition() != glm::vec3(0.f))
     {
         LLQuaternion shoulderRot = mShoulderJoint.getRotation();
         LLQuaternion elbowRot = mElbowJoint.getRotation();

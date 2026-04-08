@@ -62,9 +62,9 @@ LLAvatarJoint *getBaseSkeletonAncestor(LLAvatarJoint* joint)
 //-----------------------------------------------------------------------------
 // totalSkinOffset()
 //-----------------------------------------------------------------------------
-LLVector3 totalSkinOffset(LLAvatarJoint *joint)
+glm::vec3 totalSkinOffset(LLAvatarJoint *joint)
 {
-    LLVector3 totalOffset;
+    glm::vec3 totalOffset(0.f);
     while (joint)
     {
         if (joint->getSupport() == LLJoint::SUPPORT_BASE)

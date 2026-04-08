@@ -32,6 +32,7 @@
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
 #include "llselectmgr.h"
+#include <glm/vec3.hpp>
 
 class LLViewerMediaImpl;
 class LLPanelPrimMediaControls;
@@ -45,12 +46,12 @@ class LLViewerMediaFocus :
 
 public:
     // Set/clear the face that has media focus (takes keyboard input and has the full set of controls)
-    void setFocusFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal = LLVector3::zero);
+    void setFocusFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, glm::vec3 pick_normal = glm::vec3(0.f));
     void clearFocus();
 
     // Set/clear the face that has "media hover" (has the mimimal set of controls to zoom in or pop out into a media browser).
     // If a media face has focus, the media hover will be ignored.
-    void setHoverFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal = LLVector3::zero);
+    void setHoverFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, glm::vec3 pick_normal = glm::vec3(0.f));
     void clearHover();
 
     bool    getFocus();
@@ -62,7 +63,7 @@ public:
 
     void update();
 
-    static LLVector3d setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor, bool zoom_in_only = false);
+    static LLVector3d setCameraZoom(LLViewerObject* object, glm::vec3 normal, F32 padding_factor, bool zoom_in_only = false);
     static F32 getBBoxAspectRatio(const LLBBox& bbox, const LLVector3& normal, F32* height, F32* width, F32* depth);
 
     bool isFocusedOnFace(LLPointer<LLViewerObject> objectp, S32 face);
@@ -107,12 +108,12 @@ private:
     S32 mFocusedObjectFace;
     LLUUID mFocusedImplID;
     LLUUID mPrevFocusedImplID;
-    LLVector3 mFocusedObjectNormal;
+    glm::vec3 mFocusedObjectNormal{0.f};
 
     LLUUID mHoverObjectID;
     S32 mHoverObjectFace;
     LLUUID mHoverImplID;
-    LLVector3 mHoverObjectNormal;
+    glm::vec3 mHoverObjectNormal{0.f};
 };
 
 

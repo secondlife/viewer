@@ -118,7 +118,7 @@ void LLManip::getManipNormal(LLViewerObject* object, EManipPart manip, LLVector3
         LLVector3 arrow_axis;
         getManipAxis(object, manip, arrow_axis);
 
-        LLVector3 arrow_cross = cross(arrow_axis, LLViewerCamera::getInstance()->getAtAxis());
+        LLVector3 arrow_cross = cross(arrow_axis, LLVector3(LLViewerCamera::getInstance()->getAtAxis()));
         normal = cross(arrow_cross, arrow_axis);
         normal.normalize();
     }
@@ -186,7 +186,7 @@ F32 LLManip::getSubdivisionLevel(const LLVector3 &reference_point, const LLVecto
     }
     else
     {
-        cam_to_reference = reference_point - LLViewerCamera::getInstance()->getOrigin();
+        cam_to_reference = reference_point - LLVector3(LLViewerCamera::getInstance()->getOrigin());
     }
     F32 current_range = cam_to_reference.normalize();
 
@@ -256,10 +256,11 @@ void LLManip::updateGridSettings()
 
 bool LLManip::getMousePointOnPlaneAgent(LLVector3& point, S32 x, S32 y, LLVector3 origin, LLVector3 normal)
 {
-    LLVector3d origin_double = gAgent.getPosGlobalFromAgent(origin);
+    LLVector3d origin_double = gAgent.getPosGlobalFromAgent(glm::vec3(origin.mV[VX], origin.mV[VY], origin.mV[VZ]));
     LLVector3d global_point;
     bool result = getMousePointOnPlaneGlobal(global_point, x, y, origin_double, normal);
-    point = gAgent.getPosAgentFromGlobal(global_point);
+    const glm::vec3 g = gAgent.getPosAgentFromGlobal(global_point);
+    point = LLVector3(g.x, g.y, g.z);
     return result;
 }
 
@@ -271,7 +272,8 @@ bool LLManip::getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVect
         F32 mouse_x = (static_cast<F32>(x) / gViewerWindow->getWorldViewWidthScaled() - 0.5f) * LLViewerCamera::getInstance()->getAspect() / gAgentCamera.mHUDCurZoom;
         F32 mouse_y = (static_cast<F32>(y) / gViewerWindow->getWorldViewHeightScaled() - 0.5f) / gAgentCamera.mHUDCurZoom;
 
-        LLVector3 origin_agent = gAgent.getPosAgentFromGlobal(origin);
+        const glm::vec3 oa_g = gAgent.getPosAgentFromGlobal(origin);
+        LLVector3 origin_agent(oa_g.x, oa_g.y, oa_g.z);
         LLVector3 mouse_pos = LLVector3(0.f, -mouse_x, mouse_y);
         if (llabs(normal.mV[VX]) < 0.001f)
         {
@@ -285,7 +287,7 @@ bool LLManip::getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVect
             result = true;
         }
 
-        point = gAgent.getPosGlobalFromAgent(mouse_pos);
+        point = gAgent.getPosGlobalFromAgent(glm::vec3(mouse_pos.mV[VX], mouse_pos.mV[VY], mouse_pos.mV[VZ]));
         return result;
     }
     else
@@ -314,8 +316,11 @@ bool LLManip::nearestPointOnLineFromMouse( S32 x, S32 y, const LLVector3& b1, co
     }
     else
     {
-        a1 = gAgentCamera.getCameraPositionAgent();
-        a2 = gAgentCamera.getCameraPositionAgent() + LLVector3(gViewerWindow->mouseDirectionGlobal(x, y));
+        {
+            const glm::vec3 cam_g = gAgentCamera.getCameraPositionAgent();
+            a1 = LLVector3(cam_g.x, cam_g.y, cam_g.z);
+            a2 = a1 + LLVector3(gViewerWindow->mouseDirectionGlobal(x, y));
+        }
     }
 
     bool parallel = true;

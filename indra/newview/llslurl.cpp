@@ -31,6 +31,7 @@
 
 #include "llpanellogin.h"
 #include "llviewernetwork.h"
+#include "llsdutil_math.h"
 
 #include "curl/curl.h"
 
@@ -300,7 +301,7 @@ LLSLURL::LLSLURL(const std::string& slurl)
             // parse the x, y, and optionally z
             if (path_array.size() >= 2)
             {
-                mPosition = LLVector3(path_array); // this construction handles LLSD without all components (values default to 0.f)
+                mPosition = ll_vec3_from_sd(path_array); // handles LLSD without all components (values default to 0.f)
                 if ((F32(mPosition[VX]) < 0.f) || (mPosition[VX] > REGION_WIDTH_METERS) ||
                     (F32(mPosition[VY]) < 0.f) || (mPosition[VY] > REGION_WIDTH_METERS) ||
                     (F32(mPosition[VZ]) < 0.f) || (mPosition[VZ] > REGION_HEIGHT_METERS))
@@ -314,7 +315,7 @@ LLSLURL::LLSLURL(const std::string& slurl)
                 // if x, y and z were not fully passed in, go to the middle of the region.
                 // teleport will adjust the actual location to make sure you're on the ground
                 // and such
-                mPosition = LLVector3(REGION_WIDTH_METERS / 2, REGION_WIDTH_METERS / 2, 0);
+                mPosition = glm::vec3(REGION_WIDTH_METERS / 2.f, REGION_WIDTH_METERS / 2.f, 0.f);
             }
         }
     }
@@ -326,27 +327,27 @@ LLSLURL::LLSLURL(const std::string& grid, const std::string& region)
     mGrid = grid;
     mRegion = region;
     mType = LOCATION;
-    mPosition = LLVector3(static_cast<F64>(REGION_WIDTH_METERS) / 2, static_cast<F64>(REGION_WIDTH_METERS) / 2, 0);
+    mPosition = glm::vec3(static_cast<F32>(REGION_WIDTH_METERS) / 2.f, static_cast<F32>(REGION_WIDTH_METERS) / 2.f, 0.f);
 }
 
 // create a slurl given the position.  The position will be modded with the region
 // width handling global positions as well
 LLSLURL::LLSLURL(const std::string& grid,
         const std::string& region,
-        const LLVector3& position)
+        const glm::vec3& position)
 {
     mGrid = grid;
     mRegion = region;
-    S32 x = ll_round(static_cast<F32>(fmod(position[VX], static_cast<F32>(REGION_WIDTH_METERS))));
-    S32 y = ll_round(static_cast<F32>(fmod(position[VY], static_cast<F32>(REGION_WIDTH_METERS))));
-    S32 z = ll_round(static_cast<F32>(position[VZ]));
+    S32 x = ll_round(fmodf(position.x, static_cast<F32>(REGION_WIDTH_METERS)));
+    S32 y = ll_round(fmodf(position.y, static_cast<F32>(REGION_WIDTH_METERS)));
+    S32 z = ll_round(position.z);
     mType = LOCATION;
-    mPosition = LLVector3(static_cast<F32>(x), static_cast<F32>(y), static_cast<F32>(z));
+    mPosition = glm::vec3(static_cast<F32>(x), static_cast<F32>(y), static_cast<F32>(z));
 }
 
 // create a simstring
 LLSLURL::LLSLURL(const std::string& region,
-        const LLVector3& position)
+        const glm::vec3& position)
 {
     *this = LLSLURL(LLGridManager::getInstance()->getGridId(), region, position);
 }
@@ -357,7 +358,7 @@ LLSLURL::LLSLURL(const std::string& grid,
          const LLVector3d& global_position)
 {
     *this = LLSLURL(LLGridManager::getInstance()->getGridId(grid), region,
-        LLVector3(static_cast<F32>(global_position.mdV[VX]), static_cast<F32>(global_position.mdV[VY]), static_cast<F32>(global_position.mdV[VZ])));
+        glm::vec3(static_cast<F32>(global_position.mdV[VX]), static_cast<F32>(global_position.mdV[VY]), static_cast<F32>(global_position.mdV[VZ])));
 }
 
 // create a slurl from a global position
@@ -512,7 +513,7 @@ std::string LLSLURL::asString() const
         << "   mType: " << LLSLURL::getTypeString(mType)
         << "   mGrid: " + getGrid()
         << "   mRegion: " + getRegion()
-        << "   mPosition: " << mPosition
+        << "   mPosition: (" << mPosition.x << ", " << mPosition.y << ", " << mPosition.z << ")"
         << "   mAppCmd:"  << getAppCmd()
         << "   mAppPath:" + getAppPath().asString()
         << "   mAppQueryMap:" + getAppQueryMap().asString()

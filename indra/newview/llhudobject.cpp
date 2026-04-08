@@ -107,7 +107,7 @@ void LLHUDObject::setPositionGlobal(const LLVector3d &position_global)
     mPositionGlobal = position_global;
 }
 
-void LLHUDObject::setPositionAgent(const LLVector3 &position_agent)
+void LLHUDObject::setPositionAgent(const glm::vec3 &position_agent)
 {
     mPositionGlobal = gAgent.getPosGlobalFromAgent(position_agent);
 }

@@ -249,9 +249,9 @@ U32 LLVOGrass::processUpdateMessage(LLMessageSystem *mesgsys,
 
     updateSpecies();
 
-    if (  (getVelocity().lengthSquared() > 0.f)
-        ||(getAcceleration().lengthSquared() > 0.f)
-        ||(getAngularVelocity().lengthSquared() > 0.f))
+    if (  (glm::dot(getVelocity(), getVelocity()) > 0.f)
+        ||(glm::dot(getAcceleration(), getAcceleration()) > 0.f)
+        ||(glm::dot(getAngularVelocity(), getAngularVelocity()) > 0.f))
     {
         LL_INFOS() << "ACK! Moving grass!" << LL_ENDL;
         setVelocity(LLVector3::zero);
@@ -357,7 +357,7 @@ bool LLVOGrass::updateLOD()
     F32 tan_angle = 0.f;
     S32 num_blades = 0;
 
-    tan_angle = (mScale.mV[0]*mScale.mV[1])/mDrawable->mDistanceWRTCamera;
+    tan_angle = (mScale.x*mScale.y)/mDrawable->mDistanceWRTCamera;
     num_blades = llmin(GRASS_MAX_BLADES, lltrunc(tan_angle * 5));
     num_blades = llmax(1, num_blades);
     if (num_blades >= (mNumBlades << 1))
@@ -453,7 +453,7 @@ void LLVOGrass::plantBlades()
         face->mExtents[1] = ext[1];
     }
 
-    mDepth = (face->mCenterLocal - LLViewerCamera::getInstance()->getOrigin())*LLViewerCamera::getInstance()->getAtAxis();
+    mDepth = (face->mCenterLocal - LLVector3(LLViewerCamera::getInstance()->getOrigin()))*LLVector3(LLViewerCamera::getInstance()->getAtAxis());
     mDrawable->setPosition(face->mCenterLocal);
     mDrawable->movePartition();
     LLPipeline::sCompiles++;
@@ -493,8 +493,8 @@ void LLVOGrass::getGeometry(S32 idx,
 
     for (S32 i = 0;  i < mNumBlades; i++)
     {
-        x   = exp_x[i] * mScale.mV[VX];
-        y   = exp_y[i] * mScale.mV[VY];
+        x   = exp_x[i] * mScale.x;
+        y   = exp_y[i] * mScale.y;
         xf  = rot_x[i] * GRASS_BLADE_BASE * width * w_mod[i];
         yf  = rot_y[i] * GRASS_BLADE_BASE * width * w_mod[i];
         dzx = dz_x [i];
@@ -512,8 +512,8 @@ void LLVOGrass::getGeometry(S32 idx,
         *texcoordsp++   = glm::vec2(1, 0.98f);
         *texcoordsp++   = glm::vec2(1, 0.98f);
 
-        position.mV[0]  = mPosition.mV[VX] + x + xf;
-        position.mV[1]  = mPosition.mV[VY] + y + yf;
+        position.mV[0]  = mPosition.x + x + xf;
+        position.mV[1]  = mPosition.y + y + yf;
         position.mV[2]  = mRegionp->getLand().resolveHeightRegion(position);
         v1 = position + mRegionp->getOriginAgent();
         (*verticesp++).load3(v1.mV);
@@ -527,8 +527,8 @@ void LLVOGrass::getGeometry(S32 idx,
         (*verticesp++).load3(v2.mV);
         (*verticesp++).load3(v2.mV);
 
-        position.mV[0]  = mPosition.mV[VX] + x - xf;
-        position.mV[1]  = mPosition.mV[VY] + y - xf;
+        position.mV[0]  = mPosition.x + x - xf;
+        position.mV[1]  = mPosition.y + y - xf;
         position.mV[2]  = mRegionp->getLand().resolveHeightRegion(position);
         v3 = position + mRegionp->getOriginAgent();
         (*verticesp++).load3(v3.mV);
@@ -634,7 +634,7 @@ void LLGrassPartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_count
             if ((facep->getGeomCount() + vertex_count) <= 65536)
             {
                 count++;
-                facep->mDistance = (facep->mCenterLocal - camera->getOrigin()) * camera->getAtAxis();
+                facep->mDistance = (facep->mCenterLocal - LLVector3(camera->getOrigin())) * LLVector3(camera->getAtAxis());
                 obj->mDepth += facep->mDistance;
 
                 mFaceList.push_back(facep);
@@ -776,8 +776,8 @@ bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
 
     for (S32 i = 0;  i < mNumBlades; i++)
     {
-        x   = exp_x[i] * mScale.mV[VX];
-        y   = exp_y[i] * mScale.mV[VY];
+        x   = exp_x[i] * mScale.x;
+        y   = exp_y[i] * mScale.y;
         xf  = rot_x[i] * GRASS_BLADE_BASE * width * w_mod[i];
         yf  = rot_y[i] * GRASS_BLADE_BASE * width * w_mod[i];
         dzx = dz_x [i];
@@ -791,8 +791,8 @@ bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
         tc[2]   = glm::vec2(1, 0);
         tc[3]   = glm::vec2(1, 0.98f);
 
-        position.mV[0]  = mPosition.mV[VX] + x + xf;
-        position.mV[1]  = mPosition.mV[VY] + y + yf;
+        position.mV[0]  = mPosition.x + x + xf;
+        position.mV[1]  = mPosition.y + y + yf;
         position.mV[2]  = mRegionp->getLand().resolveHeightRegion(position);
         v[0]    = v1 = position + mRegionp->getOriginAgent();
 
@@ -803,8 +803,8 @@ bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
         position.mV[2] += blade_height;
         v[1]    = v2 = position + mRegionp->getOriginAgent();
 
-        position.mV[0]  = mPosition.mV[VX] + x - xf;
-        position.mV[1]  = mPosition.mV[VY] + y - xf;
+        position.mV[0]  = mPosition.x + x - xf;
+        position.mV[1]  = mPosition.y + y - xf;
         position.mV[2]  = mRegionp->getLand().resolveHeightRegion(position);
         v[2]    = v3 = position + mRegionp->getOriginAgent();
 

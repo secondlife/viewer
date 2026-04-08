@@ -60,6 +60,8 @@
 #include "llcoros.h"
 #include LLCOROS_MUTEX_HEADER
 
+#include "glm/vec3.hpp"
+
 const U32 MESSAGE_MAX_STRINGS_LENGTH = 64;
 const U32 MESSAGE_NUMBER_OF_HASH_BUCKETS = 8192;
 
@@ -507,6 +509,8 @@ public:
     void    addF64( const char *varname, F64 d);                        // typed, checks storage space
     void    addVector3Fast( const char *varname, const LLVector3& vec);     // typed, checks storage space
     void    addVector3( const char *varname, const LLVector3& vec);     // typed, checks storage space
+    void    addVector3Fast( const char *varname, const glm::vec3& vec); // glm overload — bridges through LLVector3
+    void    addVector3( const char *varname, const glm::vec3& vec);     // glm overload — bridges through LLVector3
     void    addVector4Fast( const char *varname, const LLVector4& vec);     // typed, checks storage space
     void    addVector4( const char *varname, const LLVector4& vec);     // typed, checks storage space
     void    addVector3dFast( const char *varname, const LLVector3d& vec);   // typed, checks storage space
@@ -623,6 +627,8 @@ public:
     void    getF64(     const char *block, const char *var, F64 &data, S32 blocknum = 0);
     void    getVector3Fast( const char *block, const char *var, LLVector3 &vec, S32 blocknum = 0);
     void    getVector3( const char *block, const char *var, LLVector3 &vec, S32 blocknum = 0);
+    void    getVector3Fast( const char *block, const char *var, glm::vec3 &vec, S32 blocknum = 0);
+    void    getVector3( const char *block, const char *var, glm::vec3 &vec, S32 blocknum = 0);
     void    getVector4Fast( const char *block, const char *var, LLVector4 &vec, S32 blocknum = 0);
     void    getVector4( const char *block, const char *var, LLVector4 &vec, S32 blocknum = 0);
     void    getVector3dFast(const char *block, const char *var, LLVector3d &vec, S32 blocknum = 0);

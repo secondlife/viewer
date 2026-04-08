@@ -30,6 +30,7 @@
 
 #include "stdtypes.h"
 #include "v3math.h"
+#include <glm/vec3.hpp>
 #include <iostream>
 #include <vector>
 
@@ -37,13 +38,13 @@ class LLSphere
 {
 public:
     LLSphere();
-    LLSphere( const LLVector3& center, F32 radius );
+    LLSphere( const glm::vec3& center, F32 radius );
 
-    void set( const LLVector3& center, F32 radius );
-    void setCenter( const LLVector3& center );
+    void set( const glm::vec3& center, F32 radius );
+    void setCenter( const glm::vec3& center );
     void setRadius( F32 radius );
 
-    const LLVector3& getCenter() const;
+    const glm::vec3& getCenter() const;
     F32 getRadius() const;
 
     // returns true if this sphere completely contains other_sphere
@@ -68,7 +69,7 @@ public:
     friend std::ostream& operator<<( std::ostream& output_stream, const LLSphere& line );
 
 protected:
-    LLVector3 mCenter;
+    glm::vec3 mCenter;
     F32 mRadius;
 };
 

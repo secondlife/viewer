@@ -33,6 +33,7 @@
 #include <string>
 #include <boost/signals2.hpp>
 #include "llteleporthistorystorage.h"
+#include <glm/vec3.hpp>
 
 
 /**
@@ -177,7 +178,7 @@ private:
      * @param local_pos_override hack: see description of updateCurrentLocation()
      * @return
      */
-    static std::string      getCurrentLocationTitle(bool full, const LLVector3& local_pos_override);
+    static std::string      getCurrentLocationTitle(bool full, const glm::vec3& local_pos_override);
 
     /**
      * Actually, the teleport history.

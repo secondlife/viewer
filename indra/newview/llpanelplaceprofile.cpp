@@ -395,7 +395,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
     parcel_data.name = parcel->getName();
     parcel_data.sim_name = region->getName();
     parcel_data.snapshot_id = parcel->getSnapshotID();
-    mPosRegion.set(static_cast<F32>(fmod(pos_global.mdV[VX], static_cast<F64>(REGION_WIDTH_METERS))),
+    mPosRegion = glm::vec3(static_cast<F32>(fmod(pos_global.mdV[VX], static_cast<F64>(REGION_WIDTH_METERS))),
                       static_cast<F32>(fmod(pos_global.mdV[VY], static_cast<F64>(REGION_WIDTH_METERS))),
                       static_cast<F32>(pos_global.mdV[VZ]));
     parcel_data.global_x = static_cast<F32>(pos_global.mdV[VX]);

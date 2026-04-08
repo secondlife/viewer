@@ -3310,7 +3310,10 @@ LLSD LLAppViewer::getViewerInfo() const
     {
         LLVector3d pos = gAgent.getPositionGlobal();
         info["POSITION"] = ll_sd_from_vector3d(pos);
-        info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
+        {
+            const glm::vec3 pa = gAgent.getPosAgentFromGlobal(pos);
+            info["POSITION_LOCAL"] = ll_sd_from_vector3(LLVector3(pa.x, pa.y, pa.z));
+        }
         info["REGION"] = region->getName();
 
         boost::regex regex("\\.(secondlife|lindenlab)\\..*");

@@ -836,9 +836,9 @@ void LLKeyframeMotion::initializeConstraint(JointConstraint* constraint)
         return;
     }
 
-    F32 source_pos_offset = dist_vec(source_pos, cur_joint->getWorldPosition());
+    F32 source_pos_offset = dist_vec(source_pos, LLVector3(cur_joint->getWorldPosition()));
 
-    constraint->mTotalLength = constraint->mJointLengths[0] = dist_vec(cur_joint->getParent()->getWorldPosition(), source_pos);
+    constraint->mTotalLength = constraint->mJointLengths[0] = dist_vec(LLVector3(cur_joint->getParent()->getWorldPosition()), source_pos);
 
     // grab joint lengths
     for (joint_num = 1; joint_num < shared_data->mChainLength; joint_num++)

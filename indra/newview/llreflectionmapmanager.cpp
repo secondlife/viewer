@@ -28,6 +28,8 @@
 
 #include "llreflectionmapmanager.h"
 
+#include "glm/gtc/type_ptr.hpp"
+
 #include <vector>
 
 #include "llviewercamera.h"
@@ -135,10 +137,10 @@ static void touch_default_probe(LLReflectionMap* probe)
 {
     if (LLViewerCamera::getInstance())
     {
-        LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
-        origin.mV[2] += 64.f;
+        glm::vec3 origin = LLViewerCamera::getInstance()->getOrigin();
+        origin.z += 64.f;
 
-        probe->mOrigin.load3(origin.mV);
+        probe->mOrigin.load3(glm::value_ptr(origin));
     }
 }
 
@@ -295,7 +297,7 @@ void LLReflectionMapManager::update()
     llassert(mProbes[0] == mDefaultProbe);
 
     LLVector4a camera_pos;
-    camera_pos.load3(LLViewerCamera::instance().getOrigin().mV);
+    camera_pos.load3(&LLViewerCamera::instance().getOrigin().x);
 
     // process kill list
     for (auto& probe : mKillList)
@@ -403,7 +405,7 @@ void LLReflectionMapManager::update()
         {
             if (probe->mViewerObject) //make sure probes track the viewer objects they are attached to
             {
-                probe->mOrigin.load3(probe->mViewerObject->getPositionAgent().mV);
+                probe->mOrigin.load3(glm::value_ptr(probe->mViewerObject->getPositionAgent()));
             }
             d.setSub(camera_pos, probe->mOrigin);
             probe->mDistance = d.getLength3().getF32() - probe->mRadius;
@@ -661,7 +663,7 @@ LLReflectionMap* LLReflectionMapManager::registerViewerObject(LLViewerObject* vo
 
     LLReflectionMap* probe = new LLReflectionMap();
     probe->mViewerObject = vobj;
-    probe->mOrigin.load3(vobj->getPositionAgent().mV);
+    probe->mOrigin.load3(glm::value_ptr(vobj->getPositionAgent()));
 
     if (gCubeSnapshot)
     { //snapshot is in progress, mProbes is being iterated over, defer insertion until next update
@@ -931,7 +933,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
                 for (int cf = 0; cf < 6; ++cf)
                 { // for each cube face
                     LLCoordFrame frame;
-                    frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
+                    frame.lookAt(glm::vec3(0, 0, 0), static_cast<glm::vec3>(LLCubeMapArray::sClipToCubeLookVecs[cf]), static_cast<glm::vec3>(LLCubeMapArray::sClipToCubeUpVecs[cf]));
 
                     F32 mat[16];
                     frame.getOpenGLRotation(mat);
@@ -980,7 +982,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
                 for (int cf = 0; cf < 6; ++cf)
                 { // for each cube face
                     LLCoordFrame frame;
-                    frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
+                    frame.lookAt(glm::vec3(0, 0, 0), static_cast<glm::vec3>(LLCubeMapArray::sClipToCubeLookVecs[cf]), static_cast<glm::vec3>(LLCubeMapArray::sClipToCubeUpVecs[cf]));
 
                     F32 mat[16];
                     frame.getOpenGLRotation(mat);
@@ -1151,16 +1153,16 @@ void LLReflectionMapManager::updateUniforms()
             { // have active manual probes live-track the object they're associated with
                 LLVOVolume* vobj = static_cast<LLVOVolume*>(refmap->mViewerObject.get());
 
-                refmap->mOrigin.load3(vobj->getPositionAgent().mV);
+                refmap->mOrigin.load3(glm::value_ptr(vobj->getPositionAgent()));
 
                 if (vobj->getReflectionProbeIsBox())
                 {
-                    LLVector3 s = vobj->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-                    refmap->mRadius = s.length();
+                    glm::vec3 s = vobj->getScale() * 0.5f;
+                    refmap->mRadius = glm::length(s);
                 }
                 else
                 {
-                    refmap->mRadius = refmap->mViewerObject->getScale().mV[0] * 0.5f;
+                    refmap->mRadius = refmap->mViewerObject->getScale().x * 0.5f;
                 }
             }
             modelview.affineTransform(refmap->mOrigin, oa);
@@ -1465,7 +1467,7 @@ void LLReflectionMapManager::cleanup()
 void LLReflectionMapManager::doOcclusion()
 {
     LLVector4a eye;
-    eye.load3(LLViewerCamera::instance().getOrigin().mV);
+    eye.load3(&LLViewerCamera::instance().getOrigin().x);
 
     for (auto& probe : mProbes)
     {

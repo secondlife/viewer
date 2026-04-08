@@ -131,9 +131,9 @@ private:
     S32             mLastFace;
     glm::vec2       mLastUVCoords;
     glm::vec2       mLastSTCoords;
-    LLVector3       mLastIntersection;
-    LLVector3       mLastNormal;
-    LLVector3       mLastBinormal;
+    glm::vec3       mLastIntersection;
+    glm::vec3       mLastNormal;
+    glm::vec3       mLastBinormal;
     LLVector3       mLastGrabPos;
 
 

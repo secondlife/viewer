@@ -27,6 +27,7 @@
 #pragma once
 
 #include "v3math.h"
+#include <glm/vec3.hpp>
 
 class LLMatrix4;
 
@@ -34,19 +35,19 @@ class LLBBoxLocal
 {
 public:
     LLBBoxLocal() = default;
-    LLBBoxLocal( const LLVector3& min, const LLVector3& max ) : mMin( min ), mMax( max ) {}
+    LLBBoxLocal( const glm::vec3& min, const glm::vec3& max ) : mMin( min ), mMax( max ) {}
     // Default copy constructor is OK.
 
-    const LLVector3&    getMin() const                  { return mMin; }
-    void                setMin( const LLVector3& min )  { mMin = min; }
+    const glm::vec3&    getMin() const                  { return mMin; }
+    void                setMin( const glm::vec3& min )  { mMin = min; }
 
-    const LLVector3&    getMax() const                  { return mMax; }
-    void                setMax( const LLVector3& max )  { mMax = max; }
+    const glm::vec3&    getMax() const                  { return mMax; }
+    void                setMax( const glm::vec3& max )  { mMax = max; }
 
-    LLVector3           getCenter() const               { return (mMax - mMin) * 0.5f + mMin; }
-    LLVector3           getExtent() const               { return mMax - mMin; }
+    glm::vec3           getCenter() const               { return (mMax - mMin) * 0.5f + mMin; }
+    glm::vec3           getExtent() const               { return mMax - mMin; }
 
-    void                addPoint(const LLVector3& p);
+    void                addPoint(const glm::vec3& p);
     void                addBBox(const LLBBoxLocal& b) { addPoint( b.mMin ); addPoint( b.mMax ); }
 
     void                expand( F32 delta );
@@ -54,8 +55,8 @@ public:
     friend LLBBoxLocal operator*(const LLBBoxLocal& a, const LLMatrix4& b);
 
 private:
-    LLVector3 mMin;
-    LLVector3 mMax;
+    glm::vec3 mMin{0.f, 0.f, 0.f};
+    glm::vec3 mMax{0.f, 0.f, 0.f};
 };
 
 LLBBoxLocal operator*(const LLBBoxLocal &a, const LLMatrix4 &b);

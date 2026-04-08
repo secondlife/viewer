@@ -27,15 +27,16 @@
 #pragma once
 
 #include "v3math.h"
+#include "glm/vec3.hpp"
 
 class LLListener
 {
  private:
  protected:
-    LLVector3 mPosition;
-    LLVector3 mVelocity;
-    LLVector3 mListenAt;
-    LLVector3 mListenUp;
+    glm::vec3 mPosition;
+    glm::vec3 mVelocity;
+    glm::vec3 mListenAt;
+    glm::vec3 mListenUp;
 
  public:
 
@@ -46,20 +47,20 @@ class LLListener
     virtual ~LLListener();
     virtual void init();
 
-    virtual void set(LLVector3 pos, LLVector3 vel, LLVector3 up, LLVector3 at);
+    virtual void set(glm::vec3 pos, glm::vec3 vel, glm::vec3 up, glm::vec3 at);
 
-    virtual void setPosition(LLVector3 pos);
-    virtual void setVelocity(LLVector3 vel);
+    virtual void setPosition(glm::vec3 pos);
+    virtual void setVelocity(glm::vec3 vel);
 
-    virtual void orient(LLVector3 up, LLVector3 at);
-    virtual void translate(LLVector3 offset);
+    virtual void orient(glm::vec3 up, glm::vec3 at);
+    virtual void translate(glm::vec3 offset);
 
     virtual void setDopplerFactor(F32 factor);
     virtual void setRolloffFactor(F32 factor);
 
-    virtual LLVector3 getPosition();
-    virtual LLVector3 getAt();
-    virtual LLVector3 getUp();
+    virtual glm::vec3 getPosition();
+    virtual glm::vec3 getAt();
+    virtual glm::vec3 getUp();
 
     virtual F32 getDopplerFactor();
     virtual F32 getRolloffFactor();

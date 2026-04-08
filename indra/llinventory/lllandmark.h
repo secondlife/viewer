@@ -31,7 +31,9 @@
 #include <map>
 #include "llframetimer.h"
 #include "lluuid.h"
+#include "v3math.h"
 #include "v3dmath.h"
+#include <glm/vec3.hpp>
 
 class LLMessageSystem;
 class LLHost;
@@ -55,7 +57,7 @@ public:
     bool getRegionID(LLUUID& region_id);
 
     // return the local coordinates if known
-    LLVector3 getRegionPos() const;
+    glm::vec3 getRegionPos() const;
 
     // constructs a new LLLandmark from a string
     // return NULL if there's an error
@@ -87,7 +89,7 @@ private:
 
 private:
     LLUUID mRegionID;
-    LLVector3 mRegionPos;
+    glm::vec3 mRegionPos{0.f, 0.f, 0.f};
     bool mGlobalPositionKnown;
     LLVector3d mGlobalPos;
 

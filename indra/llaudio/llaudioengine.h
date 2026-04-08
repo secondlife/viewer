@@ -95,8 +95,8 @@ public:
 
     // Used by the mechanics of the engine
     //virtual void processQueue(const LLUUID &sound_guid);
-    virtual void setListener(LLVector3 pos,LLVector3 vel,LLVector3 up,LLVector3 at);
-    virtual void updateWind(LLVector3 direction, F32 camera_height_above_water) = 0;
+    virtual void setListener(glm::vec3 pos, glm::vec3 vel, glm::vec3 up, glm::vec3 at);
+    virtual void updateWind(glm::vec3 direction, F32 camera_height_above_water) = 0;
     virtual void idle();
     virtual void updateChannels();
 
@@ -158,7 +158,7 @@ public:
     std::string getInternetStreamURL();
 
     // For debugging usage
-    virtual LLVector3 getListenerPos();
+    virtual glm::vec3 getListenerPos();
 
     LLAudioBuffer *getFreeBuffer(); // Get a free buffer, or flush an existing one if you have to.
     LLAudioChannel *getFreeChannel(const F32 priority); // Get a free channel or flush an existing one if your priority is higher
@@ -192,15 +192,15 @@ protected:
 
 
     // listener methods
-    virtual void setListenerPos(LLVector3 vec);
-    virtual void setListenerVelocity(LLVector3 vec);
-    virtual void orientListener(LLVector3 up, LLVector3 at);
-    virtual void translateListener(LLVector3 vec);
+    virtual void setListenerPos(glm::vec3 vec);
+    virtual void setListenerVelocity(glm::vec3 vec);
+    virtual void orientListener(glm::vec3 up, glm::vec3 at);
+    virtual void translateListener(glm::vec3 vec);
 
 
-    F64 mapWindVecToGain(LLVector3 wind_vec);
-    F64 mapWindVecToPitch(LLVector3 wind_vec);
-    F64 mapWindVecToPan(LLVector3 wind_vec);
+    F64 mapWindVecToGain(glm::vec3 wind_vec);
+    F64 mapWindVecToPitch(glm::vec3 wind_vec);
+    F64 mapWindVecToPan(glm::vec3 wind_vec);
 
 protected:
     LLListener *mListenerp;
@@ -288,7 +288,7 @@ public:
 
     void setPositionGlobal(const LLVector3d &position_global)       { mPositionGlobal = position_global; }
     LLVector3d getPositionGlobal() const                            { return mPositionGlobal; }
-    LLVector3 getVelocity() const                                   { return mVelocity; }
+    glm::vec3 getVelocity() const                                   { return mVelocity; }
     F32 getPriority() const                                         { return mPriority; }
 
     // Gain should always be clamped between 0 and 1.
@@ -335,7 +335,7 @@ protected:
     bool            mCorrupted;
     S32             mType;
     LLVector3d      mPositionGlobal;
-    LLVector3       mVelocity;
+    glm::vec3       mVelocity{0.f};
 
     //LLAudioSource *mSyncMasterp;  // If we're a slave, the source that we're synced to.
     LLAudioChannel  *mChannelp;     // If we're currently playing back, this is the channel that we're assigned to.

@@ -648,6 +648,38 @@ bool LLDataPackerBinaryBuffer::unpackVector3(LLVector3 &value, const char *name)
     return true;
 }
 
+bool LLDataPackerBinaryBuffer::packVector3(const glm::vec3 &value, const char *name)
+{
+    if (!verifyLength(12, name))
+    {
+        return false;
+    }
+
+    if (mWriteEnabled)
+    {
+        htolememcpy(mCurBufferp,    &value.x, MVT_F32, 4);
+        htolememcpy(mCurBufferp+4,  &value.y, MVT_F32, 4);
+        htolememcpy(mCurBufferp+8,  &value.z, MVT_F32, 4);
+    }
+    mCurBufferp += 12;
+    return true;
+}
+
+
+bool LLDataPackerBinaryBuffer::unpackVector3(glm::vec3 &value, const char *name)
+{
+    if (!verifyLength(12, name))
+    {
+        return false;
+    }
+
+    htolememcpy(&value.x, mCurBufferp,    MVT_F32, 4);
+    htolememcpy(&value.y, mCurBufferp+4,  MVT_F32, 4);
+    htolememcpy(&value.z, mCurBufferp+8,  MVT_F32, 4);
+    mCurBufferp += 12;
+    return true;
+}
+
 bool LLDataPackerBinaryBuffer::packVector4(const LLVector4 &value, const char *name)
 {
     if (!verifyLength(16, name))
@@ -1413,6 +1445,50 @@ bool LLDataPackerAsciiBuffer::unpackVector3(LLVector3 &value, const char *name)
     return success;
 }
 
+
+bool LLDataPackerAsciiBuffer::packVector3(const glm::vec3 &value, const char *name)
+{
+    bool success = true;
+    writeIndentedName(name);
+    int numCopied = 0;
+    if (mWriteEnabled)
+    {
+            numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%f %f %f\n", value.x, value.y, value.z); /* Flawfinder: ignore */
+    }
+    else
+    {
+        numCopied = snprintf(DUMMY_BUFFER,sizeof(DUMMY_BUFFER),"%f %f %f\n", value.x, value.y, value.z);    /* Flawfinder: ignore */
+    }
+    // snprintf returns number of bytes that would have been written
+    // had the output not being truncated. In that case, it will
+    // return either -1 or value >= passed in size value . So a check needs to be added
+    // to detect truncation, and if there is any, only account for the
+    // actual number of bytes written..and not what could have been
+    // written.
+    if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
+    {
+        numCopied = getBufferSize()-getCurrentSize();
+        LL_WARNS() << "LLDataPackerAsciiBuffer::packVector3: truncated: " << LL_ENDL;
+    }
+
+    mCurBufferp += numCopied;
+    return success;
+}
+
+
+bool LLDataPackerAsciiBuffer::unpackVector3(glm::vec3 &value, const char *name)
+{
+    bool success = true;
+    char valuestr[DP_BUFSIZE];  /* Flawfinder: ignore */
+    if (!getValueStr(name, valuestr, DP_BUFSIZE))
+    {
+        return false;
+    }
+
+    sscanf(valuestr,"%f %f %f", &value.x, &value.y, &value.z);
+    return success;
+}
+
 bool LLDataPackerAsciiBuffer::packVector4(const LLVector4 &value, const char *name)
 {
     bool success = true;
@@ -2057,6 +2133,36 @@ bool LLDataPackerAsciiFile::unpackVector3(LLVector3 &value, const char *name)
     }
 
     sscanf(valuestr,"%f %f %f", &value.mV[0], &value.mV[1], &value.mV[2]);
+    return success;
+}
+
+
+bool LLDataPackerAsciiFile::packVector3(const glm::vec3 &value, const char *name)
+{
+    bool success = true;
+    writeIndentedName(name);
+    if (mFP)
+    {
+        fprintf(mFP,"%f %f %f\n", value.x, value.y, value.z);
+    }
+    else if (mOutputStream)
+    {
+        *mOutputStream << convertF32ToString(value.x) << " " << convertF32ToString(value.y) << " " << convertF32ToString(value.z) << "\n";
+    }
+    return success;
+}
+
+
+bool LLDataPackerAsciiFile::unpackVector3(glm::vec3 &value, const char *name)
+{
+    bool success = true;
+    char valuestr[DP_BUFSIZE]; /*Flawfinder: ignore */
+    if (!getValueStr(name, valuestr, DP_BUFSIZE))
+    {
+        return false;
+    }
+
+    sscanf(valuestr,"%f %f %f", &value.x, &value.y, &value.z);
     return success;
 }
 

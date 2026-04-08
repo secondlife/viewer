@@ -168,7 +168,7 @@ private:
     LLSnapshotModel::ESnapshotFormat    mSnapshotFormat;
     bool                        mSnapshotUpToDate;
     LLFrameTimer                mFallAnimTimer;
-    LLVector3                   mCameraPos;
+    glm::vec3                   mCameraPos;
     LLQuaternion                mCameraRot;
     bool                        mSnapshotActive;
     LLSnapshotModel::ESnapshotLayerType mSnapshotBufferType;

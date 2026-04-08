@@ -34,6 +34,7 @@
 class LLAvatarJointCollisionVolume;
 class LLPolyMeshSharedData;
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 class LLAvatarJointCollisionVolume;
 class LLWearable;
 
@@ -99,22 +100,22 @@ protected:
 //-----------------------------------------------------------------------------
 struct LLPolyVolumeMorphInfo
 {
-    LLPolyVolumeMorphInfo(std::string &name, LLVector3 &scale, LLVector3 &pos)
+    LLPolyVolumeMorphInfo(std::string &name, const glm::vec3 &scale, const glm::vec3 &pos)
         : mName(name), mScale(scale), mPos(pos) {};
 
     std::string                     mName;
-    LLVector3                       mScale;
-    LLVector3                       mPos;
+    glm::vec3                       mScale;
+    glm::vec3                       mPos;
 };
 
 struct LLPolyVolumeMorph
 {
-    LLPolyVolumeMorph(LLAvatarJointCollisionVolume* volume, LLVector3 scale, LLVector3 pos)
+    LLPolyVolumeMorph(LLAvatarJointCollisionVolume* volume, const glm::vec3& scale, const glm::vec3& pos)
         : mVolume(volume), mScale(scale), mPos(pos) {};
 
     LLAvatarJointCollisionVolume*   mVolume;
-    LLVector3                       mScale;
-    LLVector3                       mPos;
+    glm::vec3                       mScale;
+    glm::vec3                       mPos;
 };
 
 //-----------------------------------------------------------------------------

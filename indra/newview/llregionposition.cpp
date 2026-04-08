@@ -37,7 +37,7 @@ LLRegionPosition::LLRegionPosition()
     mRegionp = NULL;
 }
 
-LLRegionPosition::LLRegionPosition(LLViewerRegion *regionp, const LLVector3 &position)
+LLRegionPosition::LLRegionPosition(LLViewerRegion *regionp, const glm::vec3 &position)
 {
     mRegionp = regionp;
     mPositionRegion = position;
@@ -53,12 +53,12 @@ LLViewerRegion *LLRegionPosition::getRegion() const
     return mRegionp;
 }
 
-const LLVector3 &LLRegionPosition::getPositionRegion() const
+const glm::vec3 &LLRegionPosition::getPositionRegion() const
 {
     return mPositionRegion;
 }
 
-const LLVector3 LLRegionPosition::getPositionAgent() const
+glm::vec3 LLRegionPosition::getPositionAgent() const
 {
     return mRegionp->getPosAgentFromRegion( mPositionRegion );
 }
@@ -71,7 +71,7 @@ LLVector3d LLRegionPosition::getPositionGlobal() const
     }
     else
     {
-        LLVector3d pos_global(mPositionRegion);
+        LLVector3d pos_global{LLVector3(mPositionRegion)};
         return pos_global;
     }
 }

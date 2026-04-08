@@ -1280,7 +1280,7 @@ void render_hud_attachments()
         LLPipeline::sRenderingHUDs = true;
         LLCamera hud_cam = *LLViewerCamera::getInstance();
         hud_cam.setOrigin(-1.f, 0.f, 0.f);
-        hud_cam.setAxes(LLVector3(1.f, 0.f, 0.f), LLVector3(0.f, 1.f, 0.f), LLVector3(0.f, 0.f, 1.f));
+        hud_cam.setAxes(glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
         LLViewerCamera::updateFrustumPlanes(hud_cam, true);
 
         static LLCachedControl<bool> render_hud_particles(gSavedSettings, "RenderHUDParticles", false);
@@ -1613,7 +1613,7 @@ void draw_axes()
     LLGLSUIDefault gls_ui;
     gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     // A vertical white line at origin
-    LLVector3 v = gAgent.getPositionAgent();
+    const glm::vec3 v = gAgent.getPositionAgent();
     gGL.begin(LLRender::LINES);
         gGL.color3f(1.0f, 1.0f, 1.0f);
         gGL.vertex3f(0.0f, 0.0f, 0.0f);
@@ -1621,7 +1621,7 @@ void draw_axes()
     gGL.end();
     // Some coordinate axes
     gGL.pushMatrix();
-        gGL.translatef( v.mV[VX], v.mV[VY], v.mV[VZ] );
+        gGL.translatef( v.x, v.y, v.z );
         renderCoordinateAxes();
     gGL.popMatrix();
 }

@@ -452,12 +452,12 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
     bool lookAtChanged = (target_type != mTargetType) || (object != mTargetObject);
 
     // lookat position has moved a certain amount and we haven't just sent an update
-    lookAtChanged = lookAtChanged || ((dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) &&
+    lookAtChanged = lookAtChanged || ((dist_vec_squared(glm::vec3(position), mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) &&
         ((current_time - mLastSendTime) > (1.f / MAX_SENDS_PER_SEC)));
 
     if (lookAtChanged)
     {
-        mLastSentOffsetGlobal = position;
+        mLastSentOffsetGlobal = glm::vec3(position);
         F32 timeout = (*mAttentions)[target_type].mTimeout;
         setDuration(timeout);
         setNeedsSendToSim(true);
@@ -477,7 +477,7 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
         }
         else
         {
-            mTargetOffsetGlobal = gAgent.getPosGlobalFromAgent(position);
+            mTargetOffsetGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(position.mV[VX], position.mV[VY], position.mV[VZ]));
         }
         mKillTime = mTimer.getElapsedTimeF32() + mDuration;
 
@@ -642,7 +642,10 @@ bool LLHUDEffectLookAt::calcTargetPosition()
     }
     else
     {
-        local_offset = gAgent.getPosAgentFromGlobal(mTargetOffsetGlobal);
+        {
+            const glm::vec3 g = gAgent.getPosAgentFromGlobal(mTargetOffsetGlobal);
+            local_offset = LLVector3(g.x, g.y, g.z);
+        }
     }
 
     LLVOAvatar* source_avatar = static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject));

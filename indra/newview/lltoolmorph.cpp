@@ -240,9 +240,9 @@ bool LLVisualParamHint::render()
 
     LLViewerCamera::getInstance()->setAspect(static_cast<F32>(mFullWidth) / static_cast<F32>(mFullHeight));
     LLViewerCamera::getInstance()->setOriginAndLookAt(
-        camera_pos,         // camera
-        LLVector3::z_axis,  // up
-        target_pos );       // point of interest
+        static_cast<glm::vec3>(camera_pos),         // camera
+        static_cast<glm::vec3>(LLVector3::z_axis),  // up
+        static_cast<glm::vec3>(target_pos) );       // point of interest
 
     LLViewerCamera::getInstance()->setPerspective(false, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, false);
 

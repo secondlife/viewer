@@ -36,6 +36,8 @@
 #include "llquantize.h"
 #include "v3dmath.h"
 
+#include <glm/glm.hpp>
+
 // LLVector3
 // WARNING: Don't use these for global const definitions!
 // For example:
@@ -379,4 +381,48 @@ bool box_valid_and_non_zero(const LLVector3* box)
     }
     LLVector3 zero_vec;
     return (box[0] != zero_vec) || (box[1] != zero_vec);
+}
+
+// glm::vec3 overloads — transitional helpers for the LLVector3 -> glm::vec3
+// migration. Mirror the LLVector3 implementations above.
+
+F32 angle_between(const glm::vec3& a, const glm::vec3& b)
+{
+    const glm::vec3 an = glm::normalize(a);
+    const glm::vec3 bn = glm::normalize(b);
+    const F32 cosine = glm::dot(an, bn);
+    return (cosine >= 1.0f) ? 0.0f
+         : (cosine <= -1.0f) ? F_PI
+         : std::acos(cosine);
+}
+
+bool are_parallel(const glm::vec3& a, const glm::vec3& b, F32 epsilon)
+{
+    const glm::vec3 an = glm::normalize(a);
+    const glm::vec3 bn = glm::normalize(b);
+    const F32 d = glm::dot(an, bn);
+    return (1.0f - std::fabs(d)) < epsilon;
+}
+
+F32 dist_vec(const glm::vec3& a, const glm::vec3& b)
+{
+    return glm::distance(a, b);
+}
+
+F32 dist_vec_squared(const glm::vec3& a, const glm::vec3& b)
+{
+    const glm::vec3 d = a - b;
+    return glm::dot(d, d);
+}
+
+F32 dist_vec_squared2D(const glm::vec3& a, const glm::vec3& b)
+{
+    const F32 dx = a.x - b.x;
+    const F32 dy = a.y - b.y;
+    return dx * dx + dy * dy;
+}
+
+glm::vec3 lerp(const glm::vec3& a, const glm::vec3& b, F32 u)
+{
+    return glm::mix(a, b, u);
 }
