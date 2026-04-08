@@ -1046,13 +1046,13 @@ void LLWebRTCVoiceClient::updatePosition()
                 earRot      = LLViewerCamera::getInstance()->getQuaternion();
                 break;
         }
-        setListenerPosition(earPosition,      // position
-                            LLVector3::zero,  // velocity
-                            earRot);          // rotation matrix
+        setListenerPosition(earPosition,        // position
+                            glm::vec3(0.f),     // velocity
+                            earRot);            // rotation matrix
 
-        setAvatarPosition(avatar_pos,       // position
-                          LLVector3::zero,  // velocity
-                          avatar_qrot);     // rotation matrix
+        setAvatarPosition(avatar_pos,         // position
+                          glm::vec3(0.f),     // velocity
+                          avatar_qrot);       // rotation matrix
 
         enforceTether();
 
@@ -1069,7 +1069,7 @@ void LLWebRTCVoiceClient::updatePosition()
     }
 }
 
-void LLWebRTCVoiceClient::setListenerPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot)
+void LLWebRTCVoiceClient::setListenerPosition(const LLVector3d &position, const glm::vec3 &velocity, const LLQuaternion &rot)
 {
     mListenerRequestedPosition = position;
 
@@ -1086,7 +1086,7 @@ void LLWebRTCVoiceClient::setListenerPosition(const LLVector3d &position, const 
     }
 }
 
-void LLWebRTCVoiceClient::setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot)
+void LLWebRTCVoiceClient::setAvatarPosition(const LLVector3d &position, const glm::vec3 &velocity, const LLQuaternion &rot)
 {
     if (dist_vec_squared(mAvatarPosition, position) > 0.01)
     {

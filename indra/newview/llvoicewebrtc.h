@@ -410,8 +410,8 @@ public:
 
     /////////////////////////////
     // Sending updates of current state
-    void setListenerPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
-    void setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
+    void setListenerPosition(const LLVector3d &position, const glm::vec3 &velocity, const LLQuaternion &rot);
+    void setAvatarPosition(const LLVector3d &position, const glm::vec3 &velocity, const LLQuaternion &rot);
 
     LLVector3d getListenerPosition() { return mListenerPosition; }
     LLVector3d getSpeakerPosition() { return mAvatarPosition; }
@@ -493,11 +493,11 @@ private:
 
     LLVector3d   mListenerPosition;
     LLVector3d   mListenerRequestedPosition;
-    LLVector3    mListenerVelocity;
+    glm::vec3    mListenerVelocity;
     LLQuaternion mListenerRot;
 
     LLVector3d   mAvatarPosition;
-    LLVector3    mAvatarVelocity;
+    glm::vec3    mAvatarVelocity;
     LLQuaternion mAvatarRot;
 
     std::set<LLUUID> mNeighboringRegions; // includes current region
