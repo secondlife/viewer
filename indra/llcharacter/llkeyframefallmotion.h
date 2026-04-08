@@ -70,7 +70,10 @@ protected:
     LLCharacter*    mCharacter;
     F32             mVelocityZ;
     LLPointer<LLJointState> mPelvisState;
-    LLQuaternion    mRotationToGroundNormal;
+    // glm-quat migration cluster #5: stored as glm::quat; surrounding math
+    // uses LLQuaternion and crosses the boundary via the implicit bridge
+    // ctor/conversion operator declared in llquaternion.h.
+    glm::quat       mRotationToGroundNormal{1.f, 0.f, 0.f, 0.f};
 };
 
 
