@@ -65,7 +65,14 @@ namespace tut
         ensure_equals("Default bbox min", bbox1.getMinLocal(), LLVector3(0.0f, 0.0f, 0.0f));
         ensure_equals("Default bbox max", bbox1.getMaxLocal(), LLVector3(0.0f, 0.0f, 0.0f));
         ensure_equals("Default bbox pos agent", bbox1.getPositionAgent(), LLVector3(0.0f, 0.0f, 0.0f));
-        ensure_equals("Default bbox rotation", bbox1.getRotation(), LLQuaternion(0.0f, 0.0f, 0.0f, 1.0f));
+        // getRotation() returns glm::quat (LLBBox phase 2 quat migration).
+        // glm::quat ctor is (w, x, y, z), so identity is (1, 0, 0, 0).
+        const glm::quat ident(1.0f, 0.0f, 0.0f, 0.0f);
+        const glm::quat rot = bbox1.getRotation();
+        ensure_approximately_equals("Default bbox rotation x", rot.x, ident.x, 16);
+        ensure_approximately_equals("Default bbox rotation y", rot.y, ident.y, 16);
+        ensure_approximately_equals("Default bbox rotation z", rot.z, ident.z, 16);
+        ensure_approximately_equals("Default bbox rotation w", rot.w, ident.w, 16);
     }
 
     template<> template<>
@@ -81,7 +88,13 @@ namespace tut
         ensure_equals("Custom bbox min", bbox2.getMinLocal(), LLVector3(2.0f, 3.0f, 4.0f));
         ensure_equals("Custom bbox max", bbox2.getMaxLocal(), LLVector3(4.0f, 5.0f, 6.0f));
         ensure_equals("Custom bbox pos agent", bbox2.getPositionAgent(), LLVector3(1.0f, 2.0f, 3.0f));
-        ensure_equals("Custom bbox rotation", bbox2.getRotation(), LLQuaternion(0.0f, 0.0f, 0.0f, 1.0f));
+        // getRotation() returns glm::quat (LLBBox phase 2 quat migration).
+        const glm::quat ident(1.0f, 0.0f, 0.0f, 0.0f);
+        const glm::quat rot = bbox2.getRotation();
+        ensure_approximately_equals("Custom bbox rotation x", rot.x, ident.x, 16);
+        ensure_approximately_equals("Custom bbox rotation y", rot.y, ident.y, 16);
+        ensure_approximately_equals("Custom bbox rotation z", rot.z, ident.z, 16);
+        ensure_approximately_equals("Custom bbox rotation w", rot.w, ident.w, 16);
     }
 
     template<> template<>

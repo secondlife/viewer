@@ -1310,6 +1310,13 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
     LLQuaternion grid_rotation;
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
+    // Capture bbox rotation as LLQuaternion once. LLBBox::getRotation()
+    // returns glm::quat (phase 2 quat migration), but this function uses
+    // LL operator semantics throughout (vec * quat rotation, ~q conjugate).
+    // Pulling it through the implicit bridge ctor here keeps the rest of
+    // the function's expressions unchanged.
+    const LLQuaternion bbox_rot = bbox.getRotation();
+
     bool uniform = LLManipScale::getUniform();
 
     LLVector3 box_corner_agent = bbox.localToAgent(unitVectorToLocalBBoxExtent( partToUnitVector( mManipPart ), bbox ));
@@ -1347,19 +1354,19 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
 
     if( (LL_FACE_MIN <= static_cast<S32>(mManipPart)) && (static_cast<S32>(mManipPart) <= LL_FACE_MAX) )
     {
-        LLVector3 bbox_relative_cam_dir = off_axis_dir * ~bbox.getRotation();
+        LLVector3 bbox_relative_cam_dir = off_axis_dir * ~bbox_rot;
         bbox_relative_cam_dir.abs();
         if (bbox_relative_cam_dir.mV[VX] > bbox_relative_cam_dir.mV[VY] && bbox_relative_cam_dir.mV[VX] > bbox_relative_cam_dir.mV[VZ])
         {
-            mSnapGuideDir1 = LLVector3::x_axis * bbox.getRotation();
+            mSnapGuideDir1 = LLVector3::x_axis * bbox_rot;
         }
         else if (bbox_relative_cam_dir.mV[VY] > bbox_relative_cam_dir.mV[VZ])
         {
-            mSnapGuideDir1 = LLVector3::y_axis * bbox.getRotation();
+            mSnapGuideDir1 = LLVector3::y_axis * bbox_rot;
         }
         else
         {
-            mSnapGuideDir1 = LLVector3::z_axis * bbox.getRotation();
+            mSnapGuideDir1 = LLVector3::z_axis * bbox_rot;
         }
 
         LLVector3 scale_snap = grid_scale;
@@ -1375,11 +1382,11 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
         LLVector3 local_camera_dir;
         if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
         {
-            local_camera_dir = LLVector3(-1.f, 0.f, 0.f) * ~bbox.getRotation();
+            local_camera_dir = LLVector3(-1.f, 0.f, 0.f) * ~bbox_rot;
         }
         else
         {
-            local_camera_dir = (LLVector3(LLViewerCamera::getInstance()->getOrigin()) - box_corner_agent) * ~bbox.getRotation();
+            local_camera_dir = (LLVector3(LLViewerCamera::getInstance()->getOrigin()) - box_corner_agent) * ~bbox_rot;
             local_camera_dir.normalize();
         }
 
@@ -1506,8 +1513,8 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
             break;
         }
 
-        mSnapGuideDir1.rotVec(bbox.getRotation());
-        mSnapGuideDir2.rotVec(bbox.getRotation());
+        mSnapGuideDir1.rotVec(bbox_rot);
+        mSnapGuideDir2.rotVec(bbox_rot);
         mSnapDir1 = -1.f * mSnapGuideDir2;
         mSnapDir2 = -1.f * mSnapGuideDir1;
     }
