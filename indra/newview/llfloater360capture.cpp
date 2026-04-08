@@ -430,8 +430,8 @@ void LLFloater360Capture::capture360Images()
 
     // these are the 6 directions we will point the camera - essentially,
     // North, South, East, West, Up, Down
-    LLVector3 look_dirs[6] = { LLVector3(1, 0, 0), LLVector3(0, 1, 0), LLVector3(0, 0, 1), LLVector3(-1, 0, 0), LLVector3(0, -1, 0), LLVector3(0, 0, -1) };
-    LLVector3 look_upvecs[6] = { LLVector3(0, 0, 1), LLVector3(0, 0, 1), LLVector3(0, -1, 0), LLVector3(0, 0, 1), LLVector3(0, 0, 1), LLVector3(0, 1, 0) };
+    glm::vec3 look_dirs[6] = { glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1), glm::vec3(-1, 0, 0), glm::vec3(0, -1, 0), glm::vec3(0, 0, -1) };
+    glm::vec3 look_upvecs[6] = { glm::vec3(0, 0, 1), glm::vec3(0, 0, 1), glm::vec3(0, -1, 0), glm::vec3(0, 0, 1), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0) };
 
     // save current view/camera settings so we can restore them afterwards
     S32 old_occlusion = LLPipeline::sUseOcclusion;
@@ -523,7 +523,7 @@ void LLFloater360Capture::capture360Images()
         }
 
         // set up camera to look in each direction
-        camera->lookDir(static_cast<glm::vec3>(look_dirs[i]), static_cast<glm::vec3>(look_upvecs[i]));
+        camera->lookDir(look_dirs[i], look_upvecs[i]);
 
         // record if camera changed to try to understand the "all shots are the same issue"
         if (camera->isChanged())

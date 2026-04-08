@@ -52,8 +52,8 @@ void LLFloaterHoverHeight::syncFromPreferenceSetting(void *user_data, bool updat
 
     if (isAgentAvatarValid() && update_offset)
     {
-        LLVector3 offset(0.0, 0.0, llclamp(value,MIN_HOVER_Z,MAX_HOVER_Z));
-        LL_INFOS("Avatar") << "setting hover from preference setting " << offset[2] << LL_ENDL;
+        glm::vec3 offset(0.f, 0.f, llclamp(value, MIN_HOVER_Z, MAX_HOVER_Z));
+        LL_INFOS("Avatar") << "setting hover from preference setting " << offset.z << LL_ENDL;
         gAgentAvatarp->setHoverOffset(offset);
         //gAgentAvatarp->sendHoverHeight();
     }
@@ -107,8 +107,8 @@ void LLFloaterHoverHeight::onSliderMoved(LLUICtrl* ctrl, void* userData)
     {
         LLSliderCtrl* sldrCtrl = static_cast<LLSliderCtrl*>(ctrl);
         F32 value = sldrCtrl->getValueF32();
-        LLVector3 offset(0.0, 0.0, llclamp(value, MIN_HOVER_Z, MAX_HOVER_Z));
-        LL_INFOS("Avatar") << "setting hover from slider moved" << offset[2] << LL_ENDL;
+        glm::vec3 offset(0.f, 0.f, llclamp(value, MIN_HOVER_Z, MAX_HOVER_Z));
+        LL_INFOS("Avatar") << "setting hover from slider moved" << offset.z << LL_ENDL;
         gAgentAvatarp->setHoverOffset(offset, false);
     }
 }
