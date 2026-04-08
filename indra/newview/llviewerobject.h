@@ -334,7 +334,7 @@ public:
     virtual const glm::vec3 &getPositionRegion() const;
     virtual const glm::vec3 getPositionEdit() const;
     virtual const glm::vec3 &getPositionAgent() const;
-    virtual const LLVector3 getRenderPosition() const;
+    virtual glm::vec3 getRenderPosition() const;
 
     LLMatrix4a getAgentToGLTFAssetTransform() const;
     LLMatrix4a getGLTFAssetToAgentTransform() const;
@@ -348,7 +348,7 @@ public:
     // set the rotation in agent space of the given node
     void setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion& rotation);
 
-    virtual const LLVector3 getPivotPositionAgent() const; // Usually = to getPositionAgent, unless like flex objects it's not
+    virtual glm::vec3 getPivotPositionAgent() const; // Usually = to getPositionAgent, unless like flex objects it's not
 
     LLViewerObject* getRootEdit() const;
 
@@ -421,7 +421,7 @@ public:
     void fitFaceTexture(const U8 face);
     void sendTEUpdate() const;          // Sends packed representation of all texture entry information
 
-    virtual void setScale(const LLVector3 &scale, bool damped = false);
+    virtual void setScale(const glm::vec3 &scale, bool damped = false);
 
     S32 getAnimatedObjectMaxTris() const;
     F32 recursiveGetEstTrianglesMax() const;

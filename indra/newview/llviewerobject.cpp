@@ -3840,20 +3840,21 @@ LLDrawable* LLViewerObject::createDrawable(LLPipeline *pipeline)
     return NULL;
 }
 
-void LLViewerObject::setScale(const LLVector3 &scale, bool damped)
+void LLViewerObject::setScale(const glm::vec3 &scale, bool damped)
 {
     LLPrimitive::setScale(scale);
     if (mDrawable.notNull())
     {
         //encompass completely sheared objects by taking
         //the most extreme point possible (<1,1,0.5>)
-        mDrawable->setRadius(LLVector3(1,1,0.5f).scaleVec(scale).length());
+        const glm::vec3 extreme(1.f * scale.x, 1.f * scale.y, 0.5f * scale.z);
+        mDrawable->setRadius(glm::length(extreme));
         updateDrawable(damped);
     }
 
     if( (LL_PCODE_VOLUME == getPCode()) && !isDead() )
     {
-        if (permYouOwner() || (scale.lengthSquared() > (7.5f * 7.5f)) )
+        if (permYouOwner() || (glm::dot(scale, scale) > (7.5f * 7.5f)) )
         {
             if (!mOnMap)
             {
@@ -4097,7 +4098,10 @@ F32 LLViewerObject::recursiveGetScaledSurfaceArea() const
 void LLViewerObject::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
     LLVector4a center;
-    center.load3(getRenderPosition().mV);
+    {
+        const glm::vec3 rp = getRenderPosition();
+        center.load3(glm::value_ptr(rp));
+    }
     LLVector4a size;
     size.load3(glm::value_ptr(getScale()));
     newMin.setSub(center, size);
@@ -4602,7 +4606,7 @@ const glm::vec3 LLViewerObject::getPositionEdit() const
     }
 }
 
-const LLVector3 LLViewerObject::getRenderPosition() const
+glm::vec3 LLViewerObject::getRenderPosition() const
 {
     if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED))
     {
@@ -4613,8 +4617,8 @@ const LLVector3 LLViewerObject::getRenderPosition() const
             if ( cav->hasPelvisFixup( fixup) )
             {
                 //Apply a pelvis fixup (as defined by the avs skin)
-                LLVector3 pos = mDrawable->getPositionAgent();
-                pos[VZ] += fixup;
+                glm::vec3 pos = mDrawable->getPositionAgent();
+                pos.z += fixup;
                 return pos;
             }
         }
@@ -4635,7 +4639,7 @@ const LLVector3 LLViewerObject::getRenderPosition() const
     }
 }
 
-const LLVector3 LLViewerObject::getPivotPositionAgent() const
+glm::vec3 LLViewerObject::getPivotPositionAgent() const
 {
     return getRenderPosition();
 }

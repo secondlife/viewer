@@ -975,7 +975,7 @@ void LLVOVolume::setTexture(const S32 face)
     gGL.getTexUnit(0)->bind(getTEImage(face));
 }
 
-void LLVOVolume::setScale(const LLVector3 &scale, bool damped)
+void LLVOVolume::setScale(const glm::vec3 &scale, bool damped)
 {
     if (scale != getScale())
     {
@@ -984,7 +984,7 @@ void LLVOVolume::setScale(const LLVector3 &scale, bool damped)
 
         if (mVolumeImpl)
         {
-            mVolumeImpl->onSetScale(scale, damped);
+            mVolumeImpl->onSetScale(LLVector3(scale), damped);
         }
 
         updateRadius();
@@ -4613,11 +4613,11 @@ F32 LLVOVolume::getBinRadius()
     return llclamp(radius, 0.5f, 256.f);
 }
 
-const LLVector3 LLVOVolume::getPivotPositionAgent() const
+glm::vec3 LLVOVolume::getPivotPositionAgent() const
 {
     if (mVolumeImpl)
     {
-        return mVolumeImpl->getPivotPosition();
+        return glm::vec3(mVolumeImpl->getPivotPosition());
     }
     return LLViewerObject::getPivotPositionAgent();
 }

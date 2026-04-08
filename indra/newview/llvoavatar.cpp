@@ -1303,7 +1303,7 @@ LLTexLayerSet* LLVOAvatar::createTexLayerSet()
     return new LLViewerTexLayerSet(this);
 }
 
-const LLVector3 LLVOAvatar::getRenderPosition() const
+glm::vec3 LLVOAvatar::getRenderPosition() const
 {
 
     if (mDrawable.isNull() || mDrawable->getGeneration() < 0)
@@ -1316,8 +1316,8 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
         if ( hasPelvisFixup( fixup) )
         {
             //Apply a pelvis fixup (as defined by the avs skin)
-            LLVector3 pos = mDrawable->getPositionAgent();
-            pos[VZ] += fixup;
+            glm::vec3 pos = mDrawable->getPositionAgent();
+            pos.z += fixup;
             return pos;
         }
         else
@@ -1327,7 +1327,7 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
     }
     else
     {
-        return getPosition() * mDrawable->getParent()->getRenderMatrix();
+        return glm::vec3(LLVector3(getPosition()) * mDrawable->getParent()->getRenderMatrix());
     }
 }
 
@@ -1418,7 +1418,8 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     if (dist_vec(zero_pos, mPelvisp->getWorldPosition())<0.001)
     {
         // Don't use pelvis until av initialized
-        pos.load3(getRenderPosition().mV);
+        const glm::vec3 rp = getRenderPosition();
+        pos.load3(glm::value_ptr(rp));
     }
     else
     {

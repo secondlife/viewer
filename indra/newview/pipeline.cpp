@@ -5399,7 +5399,7 @@ static F32 calc_light_dist(LLVOVolume* light, const LLVector3& cam_pos, F32 max_
         return 0.f; // selected lights get highest priority
     }
     F32 radius = light->getLightRadius();
-    F32 dist = dist_vec(light->getRenderPosition(), cam_pos);
+    F32 dist = dist_vec(LLVector3(light->getRenderPosition()), cam_pos);
     dist = llmax(dist - radius, 0.f);
     if (light->mDrawable.notNull() && light->mDrawable->isState(LLDrawable::ACTIVE))
     {
