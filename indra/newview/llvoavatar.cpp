@@ -4385,7 +4385,9 @@ void LLVOAvatar::updateOrientation(LLAgent& agent, F32 speed, F32 delta_time)
             }
             else
             {
-                primDir = getRotation().getMatrix3().getFwdRow();
+                // getRotation() returns const glm::quat& post-LLXform-quat-migration.
+                // getMatrix3 is LLQuaternion-only; bridge through LLQuaternion(...).
+                primDir = LLQuaternion(getRotation()).getMatrix3().getFwdRow();
             }
             LLVector3 velDir = getVelocity();
             velDir.normalize();
@@ -4704,7 +4706,10 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
     {
         // Sitting on an object - mRoot is slaved to mDrawable orientation.
         LLVector3 pos = mDrawable->getPosition();
-        pos += getHoverOffset() * mDrawable->getRotation();
+        // mDrawable->getRotation() returns const glm::quat& post-LLXform-quat-migration.
+        // The LLVector3 * glm::quat overload is ambiguous; force LL semantics
+        // via the bridge ctor.
+        pos += getHoverOffset() * LLQuaternion(mDrawable->getRotation());
         // SL-315
         mRoot->setPosition(pos);
         mRoot->setRotation(mDrawable->getRotation());

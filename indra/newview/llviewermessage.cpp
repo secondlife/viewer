@@ -4207,7 +4207,9 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
     LLViewerObject* object = gObjectList.findObject(sitObjectID);
     if (object)
     {
-        LLVector3 sit_spot = object->getPositionAgent() + (sitPosition * object->getRotation());
+        // object->getRotation() returns const glm::quat& post-LLXform-quat-migration;
+        // bridge to LLQuaternion for the LLVector3 * quat overload.
+        LLVector3 sit_spot = object->getPositionAgent() + (sitPosition * LLQuaternion(object->getRotation()));
         if (!use_autopilot || (isAgentAvatarValid() && gAgentAvatarp->isSitting() && gAgentAvatarp->getRoot() == object->getRoot()))
         {
             //we're already sitting on this object, so don't autopilot

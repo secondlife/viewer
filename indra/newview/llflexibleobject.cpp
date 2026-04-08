@@ -911,8 +911,11 @@ void LLVolumeImplFlexible::updateRelativeXform(bool force_identity)
 
     bool use_identity = vo->mDrawable->isSpatialRoot() || force_identity;
 
-    //matrix from local space to parent relative/global space
-    delta_rot = use_identity ? LLQuaternion() : vo->mDrawable->getRotation();
+    //matrix from local space to parent relative/global space.
+    // vo->mDrawable->getRotation() returns const glm::quat& post-LLXform-quat-migration.
+    // The ternary needs both branches to have the same type — wrap the glm::quat
+    // branch in LLQuaternion() to match the LLQuaternion() identity on the other side.
+    delta_rot = use_identity ? LLQuaternion() : LLQuaternion(vo->mDrawable->getRotation());
     delta_pos = use_identity ? LLVector3(0,0,0) : LLVector3(vo->mDrawable->getPosition());
     delta_scale = LLVector3(1,1,1);
 

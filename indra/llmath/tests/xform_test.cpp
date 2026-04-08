@@ -48,12 +48,15 @@ namespace tut
         LLVector3 emptyVec(0.f,0.f,0.f);
         LLVector3 initialScaleVec(1.f,1.f,1.f);
 
+        // isIdentity is an LLQuaternion method; wrap getRotation() /
+        // getWorldRotation() (which return glm::quat post-migration)
+        // via the LLQuaternion bridge ctor.
         ensure("LLXform empty constructor failed: ", !xform_obj.getParent() && !xform_obj.isChanged() &&
             xform_obj.getPosition() == emptyVec &&
-            (xform_obj.getRotation()).isIdentity() &&
+            LLQuaternion(xform_obj.getRotation()).isIdentity() &&
             xform_obj.getScale() == initialScaleVec &&
             xform_obj.getPositionW() == emptyVec &&
-            (xform_obj.getWorldRotation()).isIdentity() &&
+            LLQuaternion(xform_obj.getWorldRotation()).isIdentity() &&
             !xform_obj.getScaleChildOffset());
     }
 
@@ -105,14 +108,15 @@ namespace tut
 
         LLQuaternion quat(x, y, z, w);
         xform_obj.setRotation(quat);
-        ensure("setRotation quat failed: ", xform_obj.getRotation() == quat);
+        // Bridge-friendly comparisons via LLQuaternion(...) wrap.
+        ensure("setRotation quat failed: ", LLQuaternion(xform_obj.getRotation()) == quat);
 
         xform_obj.setRotation(x, y, z, w);
-        ensure("getRotation 2 failed: ", xform_obj.getRotation() == quat);
+        ensure("getRotation 2 failed: ", LLQuaternion(xform_obj.getRotation()) == quat);
 
         xform_obj.setRotation(x, y, z);
         quat.setEulerAngles(x, y, z);
-        ensure("setRotation xyz failed: ", xform_obj.getRotation() == quat);
+        ensure("setRotation xyz failed: ", LLQuaternion(xform_obj.getRotation()) == quat);
 
         // LLXform::setRotation(const F32 x, const F32 y, const F32 z)
         //      Does normalization
@@ -236,11 +240,14 @@ namespace tut
 
         LLQuaternion worldRot = quat * quatparent;
 
+        // Bridge-friendly comparison: wrap getWorldRotation() in
+        // LLQuaternion(...) so the == operator works whether the return
+        // type is LLQuaternion (pre-migration) or glm::quat (post-migration).
         ensure("getWorldPosition failed: ", formMatrix_obj.getWorldPosition() == worldPos);
-        ensure("getWorldRotation failed: ", formMatrix_obj.getWorldRotation() == worldRot);
+        ensure("getWorldRotation failed: ", LLQuaternion(formMatrix_obj.getWorldRotation()) == worldRot);
 
         ensure("getWorldPosition for parent failed: ", parent.getWorldPosition() == llvecpospar);
-        ensure("getWorldRotation for parent failed: ", parent.getWorldRotation() == quatparent);
+        ensure("getWorldRotation for parent failed: ", LLQuaternion(parent.getWorldRotation()) == quatparent);
     }
 
     // ---------------------------------------------------------------------
@@ -374,10 +381,11 @@ namespace tut
         const LLQuaternion expected_middle_world = middle_rot * root_rot;
         const LLQuaternion expected_leaf_world   = leaf_rot * expected_middle_world;
 
+        // Bridge-friendly via LLQuaternion(...) wrap on the LHS.
         ensure("three-level: middle.world matches",
-               middle.getWorldRotation() == expected_middle_world);
+               LLQuaternion(middle.getWorldRotation()) == expected_middle_world);
         ensure("three-level: leaf.world matches",
-               leaf.getWorldRotation() == expected_leaf_world);
+               LLQuaternion(leaf.getWorldRotation()) == expected_leaf_world);
     }
 
     template<> template<>
