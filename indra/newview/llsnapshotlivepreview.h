@@ -27,6 +27,7 @@
 #pragma once
 
 #include <array>
+#include <glm/gtc/quaternion.hpp>
 #include "llsnapshotmodel.h"
 #include "llviewertexture.h"
 #include "llviewerwindow.h"
@@ -169,7 +170,7 @@ private:
     bool                        mSnapshotUpToDate;
     LLFrameTimer                mFallAnimTimer;
     glm::vec3                   mCameraPos;
-    LLQuaternion                mCameraRot;
+    glm::quat                   mCameraRot;
     bool                        mSnapshotActive;
     LLSnapshotModel::ESnapshotLayerType mSnapshotBufferType;
     std::string                 mFilterName;
