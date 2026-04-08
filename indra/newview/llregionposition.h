@@ -33,6 +33,7 @@
 
 #include "v3math.h"
 #include "v3dmath.h"
+#include <glm/vec3.hpp>
 
 class LLViewerRegion;
 
@@ -41,19 +42,19 @@ class LLRegionPosition
 private:
     LLViewerRegion *mRegionp;
 public:
-    LLVector3       mPositionRegion;
+    glm::vec3       mPositionRegion{0.f, 0.f, 0.f};
     LLRegionPosition();
-    LLRegionPosition(LLViewerRegion *regionp, const LLVector3 &position_local);
+    LLRegionPosition(LLViewerRegion *regionp, const glm::vec3 &position_local);
     LLRegionPosition(const LLVector3d &global_position); // From global coords ONLY!
 
     LLViewerRegion*     getRegion() const;
     void                setPositionGlobal(const LLVector3d& global_pos);
     LLVector3d          getPositionGlobal() const;
-    const LLVector3&    getPositionRegion() const;
-    const LLVector3     getPositionAgent() const;
+    const glm::vec3&    getPositionRegion() const;
+    glm::vec3           getPositionAgent() const;
 
 
-    void clear() { mRegionp = NULL; mPositionRegion.clear(); }
+    void clear() { mRegionp = NULL; mPositionRegion = glm::vec3(0.f, 0.f, 0.f); }
 //  LLRegionPosition operator+(const LLRegionPosition &pos) const;
 };
 
