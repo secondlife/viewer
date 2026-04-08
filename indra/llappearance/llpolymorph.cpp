@@ -627,8 +627,8 @@ void LLPolyMorphTarget::apply( ESex avatar_sex )
         // now apply volume changes
         for(LLPolyVolumeMorph& volume_morph : mVolumeMorphs)
         {
-            LLVector3 scale_delta = volume_morph.mScale * delta_weight;
-            LLVector3 pos_delta = volume_morph.mPos * delta_weight;
+            glm::vec3 scale_delta = volume_morph.mScale * delta_weight;
+            glm::vec3 pos_delta = volume_morph.mPos * delta_weight;
 
             volume_morph.mVolume->setScale(volume_morph.mVolume->getScale() + scale_delta);
             // SL-315
