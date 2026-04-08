@@ -31,6 +31,7 @@
 #include "llface.h"
 #include "llflexibleobject.h"
 #include "llglheaders.h"
+#include "glm/glm.hpp"
 #include "llrendersphere.h"
 #include "llviewerobject.h"
 #include "llagent.h"
@@ -201,7 +202,7 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
             for (S32 step=1; step<num_steps; ++step)
             {
                 dest[section+step].mScale =
-                    lerp(last_source_section->mScale, source_section->mScale, t);
+                    glm::mix(last_source_section->mScale, source_section->mScale, t);
                 dest[section+step].mAxisRotation =
                     slerp(t, last_source_section->mAxisRotation, source_section->mAxisRotation);
 

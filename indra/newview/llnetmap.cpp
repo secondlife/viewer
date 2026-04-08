@@ -32,6 +32,7 @@
 // Library includes (should move below)
 #include "indra_constants.h"
 #include "v2math.h"
+#include "glm/glm.hpp"
 #include "llavatarnamecache.h"
 #include "llmath.h"
 #include "llfloaterreg.h"
@@ -205,7 +206,7 @@ void LLNetMap::draw()
 
     if (auto_centering || mCentering)
     {
-        mCurPan = lerp(mCurPan, glm::vec2(0.0f, 0.0f) , LLSmoothInterpolation::getInterpolant(0.1f));
+        mCurPan = glm::mix(mCurPan, glm::vec2(0.0f, 0.0f), LLSmoothInterpolation::getInterpolant(0.1f));
     }
     bool centered = abs(mCurPan.x) < 0.5f && abs(mCurPan.y) < 0.5f;
     if (centered)
@@ -474,8 +475,9 @@ void LLNetMap::draw()
                 }
             }
 
-            F32 dist_to_cursor_squared = dist_vec_squared(glm::vec2(pos_map.mV[VX], pos_map.mV[VY]),
-                                          glm::vec2(static_cast<F32>(local_mouse_x), static_cast<F32>(local_mouse_y)));
+            const glm::vec2 cursor_diff = glm::vec2(pos_map.mV[VX], pos_map.mV[VY])
+                                        - glm::vec2(static_cast<F32>(local_mouse_x), static_cast<F32>(local_mouse_y));
+            F32 dist_to_cursor_squared = glm::dot(cursor_diff, cursor_diff);
             if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
             {
                 closest_dist_squared = dist_to_cursor_squared;
@@ -514,8 +516,9 @@ void LLNetMap::draw()
                       dot_width,
                       dot_width);
 
-            F32 dist_to_cursor_squared = dist_vec_squared(glm::vec2(pos_map.mV[VX], pos_map.mV[VY]),
-                                          glm::vec2(static_cast<F32>(local_mouse_x), static_cast<F32>(local_mouse_y)));
+            const glm::vec2 cursor_diff = glm::vec2(pos_map.mV[VX], pos_map.mV[VY])
+                                        - glm::vec2(static_cast<F32>(local_mouse_x), static_cast<F32>(local_mouse_y));
+            F32 dist_to_cursor_squared = glm::dot(cursor_diff, cursor_diff);
             if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
             {
                 mClosestAgentToCursor = gAgent.getID();

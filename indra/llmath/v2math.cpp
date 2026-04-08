@@ -62,18 +62,3 @@ bool are_parallel(const glm::vec2& a, const glm::vec2& b, F32 epsilon)
     return (1.0f - std::fabs(d)) < epsilon;
 }
 
-F32 dist_vec(const glm::vec2& a, const glm::vec2& b)
-{
-    return glm::distance(a, b);
-}
-
-F32 dist_vec_squared(const glm::vec2& a, const glm::vec2& b)
-{
-    const glm::vec2 d = a - b;
-    return glm::dot(d, d);
-}
-
-glm::vec2 lerp(const glm::vec2& a, const glm::vec2& b, F32 u)
-{
-    return glm::mix(a, b, u);
-}

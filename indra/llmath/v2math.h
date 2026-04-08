@@ -4,16 +4,15 @@
  *
  * This file used to define the LLVector2 class. After the LLVector2 →
  * glm::vec2 migration completed, the LLVector2 class was deleted entirely
- * and the file was repurposed to hold the small set of free function
- * helpers (`angle_between`, `signed_angle_between`, `are_parallel`,
- * `dist_vec`, `dist_vec_squared`, `lerp`) that operate on glm::vec2.
+ * and the file was repurposed to hold a small set of free function
+ * helpers (`angle_between`, `signed_angle_between`, `are_parallel`) that
+ * operate on glm::vec2 and don't have a single-call glm equivalent.
  *
- * These mirror the equivalent helpers that exist in `v3math.h` for
- * LLVector3 and `v4math.h` for LLVector4. They are not strictly required —
- * `glm::distance`, `glm::dot`, `glm::mix` etc. cover most of the same
- * functionality directly — but they preserve the existing call-site idioms
- * and allow code that was written against the original `v2math.h` to keep
- * working without inline rewrites at every call site.
+ * The thin wrappers `dist_vec`, `dist_vec_squared`, and `lerp` were
+ * removed in 2026-04 — every caller now uses `glm::distance`,
+ * `glm::dot(d, d)`, or `glm::mix` directly. The remaining helpers
+ * here are composite operations (normalize + dot + cross + epsilon test)
+ * with no direct one-call glm primitive.
  *
  * The file name and the include path remained `v2math.h` to minimise churn
  * in dependent code. A future cleanup pass could rename this to something
@@ -47,13 +46,10 @@
 
 #include "glm/vec2.hpp"
 
-// Free function helpers for glm::vec2. Implementations are in v2math.cpp
-// and use glm primitives directly (glm::normalize, glm::dot, glm::distance,
-// glm::mix).
+// Free function helpers for glm::vec2 that have no single-call glm
+// equivalent. Implementations are in v2math.cpp and use glm primitives
+// directly (glm::normalize, glm::dot).
 
 F32 angle_between(const glm::vec2& a, const glm::vec2& b);
 F32 signed_angle_between(const glm::vec2& a, const glm::vec2& b);
 bool are_parallel(const glm::vec2& a, const glm::vec2& b, F32 epsilon = F_APPROXIMATELY_ZERO);
-F32 dist_vec(const glm::vec2& a, const glm::vec2& b);
-F32 dist_vec_squared(const glm::vec2& a, const glm::vec2& b);
-glm::vec2 lerp(const glm::vec2& a, const glm::vec2& b, F32 u);
