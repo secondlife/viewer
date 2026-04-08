@@ -28,6 +28,7 @@
 
 #include "llvowater.h"
 
+#include "glm/gtc/type_ptr.hpp"
 
 #include "lldrawable.h"
 #include "lldrawpoolwater.h"
@@ -248,7 +249,7 @@ void LLVOWater::setIsEdgePatch(const bool edge_patch)
 void LLVOWater::updateSpatialExtents(LLVector4a &newMin, LLVector4a& newMax)
 {
     LLVector4a pos;
-    pos.load3(getPositionAgent().mV);
+    pos.load3(glm::value_ptr(getPositionAgent()));
     LLVector4a scale;
     scale.load3(getScale().mV);
     scale.mul(0.5f);

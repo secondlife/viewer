@@ -27,6 +27,9 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llreflectionmap.h"
+
+#include "glm/gtc/type_ptr.hpp"
+
 #include "pipeline.h"
 #include "llviewerwindow.h"
 #include "llviewerregion.h"
@@ -174,7 +177,7 @@ void LLReflectionMap::autoAdjustOrigin()
     else if (mViewerObject && !mViewerObject->isDead())
     {
         mPriority = 1;
-        mOrigin.load3(mViewerObject->getPositionAgent().mV);
+        mOrigin.load3(glm::value_ptr(mViewerObject->getPositionAgent()));
 
         if (mViewerObject->getVolume() && ((LLVOVolume*)mViewerObject.get())->getReflectionProbeIsBox())
         {

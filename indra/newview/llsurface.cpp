@@ -1164,7 +1164,7 @@ F32 LLSurface::getWaterHeight() const
     if (!mWaterObjp.isNull())
     {
         // we have a water object, the usual case
-        return mWaterObjp->getPositionRegion().mV[VZ];
+        return mWaterObjp->getPositionRegion().z;
     }
     else
     {

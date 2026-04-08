@@ -28,6 +28,8 @@
 
 #include "llreflectionmapmanager.h"
 
+#include "glm/gtc/type_ptr.hpp"
+
 #include <vector>
 
 #include "llviewercamera.h"
@@ -403,7 +405,7 @@ void LLReflectionMapManager::update()
         {
             if (probe->mViewerObject) //make sure probes track the viewer objects they are attached to
             {
-                probe->mOrigin.load3(probe->mViewerObject->getPositionAgent().mV);
+                probe->mOrigin.load3(glm::value_ptr(probe->mViewerObject->getPositionAgent()));
             }
             d.setSub(camera_pos, probe->mOrigin);
             probe->mDistance = d.getLength3().getF32() - probe->mRadius;
@@ -661,7 +663,7 @@ LLReflectionMap* LLReflectionMapManager::registerViewerObject(LLViewerObject* vo
 
     LLReflectionMap* probe = new LLReflectionMap();
     probe->mViewerObject = vobj;
-    probe->mOrigin.load3(vobj->getPositionAgent().mV);
+    probe->mOrigin.load3(glm::value_ptr(vobj->getPositionAgent()));
 
     if (gCubeSnapshot)
     { //snapshot is in progress, mProbes is being iterated over, defer insertion until next update
@@ -1151,7 +1153,7 @@ void LLReflectionMapManager::updateUniforms()
             { // have active manual probes live-track the object they're associated with
                 LLVOVolume* vobj = static_cast<LLVOVolume*>(refmap->mViewerObject.get());
 
-                refmap->mOrigin.load3(vobj->getPositionAgent().mV);
+                refmap->mOrigin.load3(glm::value_ptr(vobj->getPositionAgent()));
 
                 if (vobj->getReflectionProbeIsBox())
                 {

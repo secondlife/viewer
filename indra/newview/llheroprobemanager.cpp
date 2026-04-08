@@ -27,6 +27,9 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llheroprobemanager.h"
+
+#include "glm/gtc/type_ptr.hpp"
+
 #include "llreflectionmapmanager.h"
 #include "llviewercamera.h"
 #include "llspatialpartition.h"
@@ -147,7 +150,7 @@ void LLHeroProbeManager::update()
                     continue;
 
                 LLVector4a center;
-                center.load3(vo->getPositionAgent().mV);
+                center.load3(glm::value_ptr(vo->getPositionAgent()));
                 LLVector4a size;
 
                 size.load3(vo->getScale().mV);

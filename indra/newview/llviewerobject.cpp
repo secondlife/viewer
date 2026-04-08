@@ -28,6 +28,9 @@
 
 #include "llviewerobject.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 #include "llaudioengine.h"
 #include "indra_constants.h"
 #include "llmath.h"
@@ -327,7 +330,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
     // CP: added 12/2/2005 - this was being initialised to 0, not the current frame time
     mLastInterpUpdateSecs = LLFrameTimer::getElapsedSeconds();
 
-    mPositionRegion = LLVector3(0.f, 0.f, 0.f);
+    mPositionRegion = glm::vec3(0.0f);
 
     if (!is_global && mRegionp)
     {
@@ -4339,7 +4342,7 @@ void LLViewerObject::updatePositionCaches() const
     {
         if (!isRoot())
         {
-            mPositionRegion = static_cast<LLViewerObject*>(getParent())->getPositionRegion() + getPosition() * getParent()->getRotation();
+            mPositionRegion = LLVector3(static_cast<LLViewerObject*>(getParent())->getPositionRegion()) + getPosition() * getParent()->getRotation();
             mPositionAgent = mRegionp->getPosAgentFromRegion(mPositionRegion);
         }
         else
@@ -4370,7 +4373,7 @@ const LLVector3d LLViewerObject::getPositionGlobal() const
     }
 }
 
-const LLVector3 &LLViewerObject::getPositionAgent() const
+const glm::vec3 &LLViewerObject::getPositionAgent() const
 {
     // If region is removed from the list it is also deleted.
     if(mRegionp && LLWorld::instance().isRegionListed(mRegionp))
@@ -4403,9 +4406,9 @@ LLMatrix4a LLViewerObject::getGLTFAssetToAgentTransform() const
     return mat;
 }
 
-LLVector3 LLViewerObject::getGLTFNodePositionAgent(S32 node_index) const
+glm::vec3 LLViewerObject::getGLTFNodePositionAgent(S32 node_index) const
 {
-    LLVector3 ret;
+    glm::vec3 ret(0.0f);
     getGLTFNodeTransformAgent(node_index, &ret, nullptr, nullptr);
     return ret;
 
@@ -4456,14 +4459,15 @@ LLMatrix4a LLViewerObject::getGLTFNodeTransformAgent(S32 node_index) const
     return mat;
 }
 
-void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, LLVector3* position, LLQuaternion* rotation, LLVector3* scale) const
+void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, glm::vec3* position, LLQuaternion* rotation, glm::vec3* scale) const
 {
     LLMatrix4a node_to_agent = getGLTFNodeTransformAgent(node_index);
 
     if (position)
     {
         LLVector4a p = node_to_agent.getTranslation();
-        position->set(p.getF32ptr());
+        const F32* pf = p.getF32ptr();
+        *position = glm::vec3(pf[0], pf[1], pf[2]);
     }
 
     if (rotation)
@@ -4473,9 +4477,9 @@ void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, LLVector3* positi
 
     if (scale)
     {
-        scale->mV[0] = node_to_agent.mMatrix[0].getLength3().getF32();
-        scale->mV[1] = node_to_agent.mMatrix[1].getLength3().getF32();
-        scale->mV[2] = node_to_agent.mMatrix[2].getLength3().getF32();
+        scale->x = node_to_agent.mMatrix[0].getLength3().getF32();
+        scale->y = node_to_agent.mMatrix[1].getLength3().getF32();
+        scale->z = node_to_agent.mMatrix[2].getLength3().getF32();
     }
 }
 
@@ -4529,7 +4533,7 @@ void LLViewerObject::setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion
     }
 }
 
-void LLViewerObject::moveGLTFNode(S32 node_index, const LLVector3& offset)
+void LLViewerObject::moveGLTFNode(S32 node_index, const glm::vec3& offset)
 {
     if (mGLTFAsset && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
     {
@@ -4543,7 +4547,7 @@ void LLViewerObject::moveGLTFNode(S32 node_index, const LLVector3& offset)
 
         LLVector4a origin = LLVector4a::getZero();
         LLVector4a offset_v;
-        offset_v.load3(offset.mV);
+        offset_v.load3(glm::value_ptr(offset));
 
 
         agent_to_node.affineTransform(offset_v, offset_v);
@@ -4569,12 +4573,12 @@ void LLViewerObject::moveGLTFNode(S32 node_index, const LLVector3& offset)
     }
 }
 
-const LLVector3 &LLViewerObject::getPositionRegion() const
+const glm::vec3 &LLViewerObject::getPositionRegion() const
 {
     if (!isRoot())
     {
         LLViewerObject *parent = static_cast<LLViewerObject*>(getParent());
-        mPositionRegion = parent->getPositionRegion() + (getPosition() * parent->getRotation());
+        mPositionRegion = static_cast<LLVector3>(parent->getPositionRegion()) + (getPosition() * parent->getRotation());
     }
     else
     {
@@ -4584,7 +4588,7 @@ const LLVector3 &LLViewerObject::getPositionRegion() const
     return mPositionRegion;
 }
 
-const LLVector3 LLViewerObject::getPositionEdit() const
+const glm::vec3 LLViewerObject::getPositionEdit() const
 {
     if (isRootEdit())
     {
@@ -4593,7 +4597,7 @@ const LLVector3 LLViewerObject::getPositionEdit() const
     else
     {
         LLViewerObject *parent = static_cast<LLViewerObject*>(getParent());
-        LLVector3 position_edit = parent->getPositionEdit() + getPosition() * parent->getRotationEdit();
+        LLVector3 position_edit = LLVector3(parent->getPositionEdit()) + getPosition() * parent->getRotationEdit();
         return position_edit;
     }
 }
@@ -4738,14 +4742,15 @@ void LLViewerObject::setPositionAbsoluteGlobal( const LLVector3d &pos_global, bo
     gPipeline.updateMoveNormalAsync(mDrawable);
 }
 
-void LLViewerObject::setPosition(const LLVector3 &pos, bool damped)
+void LLViewerObject::setPosition(const glm::vec3 &pos, bool damped)
 {
-    if (getPosition() != pos)
+    const LLVector3 pos_ll(pos);
+    if (getPosition() != pos_ll)
     {
         setChanged(TRANSLATED | SILHOUETTE);
     }
 
-    LLXform::setPosition(pos);
+    LLXform::setPosition(pos_ll);
     updateDrawable(damped);
     if (isRoot())
     {
@@ -4813,7 +4818,7 @@ void LLViewerObject::setPositionGlobal(const LLVector3d &pos_global, bool damped
 }
 
 
-void LLViewerObject::setPositionParent(const LLVector3 &pos_parent, bool damped)
+void LLViewerObject::setPositionParent(const glm::vec3 &pos_parent, bool damped)
 {
     // Set position relative to parent, if no parent, relative to region
     if (!isRoot())
@@ -4839,12 +4844,12 @@ void LLViewerObject::setPositionParent(const LLVector3 &pos_parent, bool damped)
     }
 }
 
-void LLViewerObject::setPositionRegion(const LLVector3 &pos_region, bool damped)
+void LLViewerObject::setPositionRegion(const glm::vec3 &pos_region, bool damped)
 {
     if (!isRootEdit())
     {
         LLViewerObject* parent = static_cast<LLViewerObject*>(getParent());
-        LLViewerObject::setPosition((pos_region-parent->getPositionRegion())*~parent->getRotationRegion());
+        LLViewerObject::setPosition((LLVector3(pos_region) - LLVector3(parent->getPositionRegion())) * ~parent->getRotationRegion());
     }
     else
     {
@@ -4854,7 +4859,7 @@ void LLViewerObject::setPositionRegion(const LLVector3 &pos_region, bool damped)
     }
 }
 
-void LLViewerObject::setPositionAgent(const LLVector3 &pos_agent, bool damped)
+void LLViewerObject::setPositionAgent(const glm::vec3 &pos_agent, bool damped)
 {
     LLVector3 pos_region = getRegion()->getPosRegionFromAgent(pos_agent);
     setPositionRegion(pos_region, damped);
@@ -4864,14 +4869,14 @@ void LLViewerObject::setPositionAgent(const LLVector3 &pos_agent, bool damped)
 // and doesn't also move the joint-parent
 // TODO -- implement similar intelligence for joint-parents toward
 // their joint-children
-void LLViewerObject::setPositionEdit(const LLVector3 &pos_edit, bool damped)
+void LLViewerObject::setPositionEdit(const glm::vec3 &pos_edit, bool damped)
 {
     if (!isRootEdit())
     {
         // the relative position with the parent is constant, but the parent's position needs to be changed
         LLVector3 position_offset = getPosition() * getParent()->getRotation();
 
-        static_cast<LLViewerObject*>(getParent())->setPositionEdit(pos_edit - position_offset);
+        static_cast<LLViewerObject*>(getParent())->setPositionEdit(LLVector3(pos_edit) - position_offset);
         updateDrawable(damped);
     }
     else
