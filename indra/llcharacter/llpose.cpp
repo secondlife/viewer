@@ -417,7 +417,12 @@ void LLJointStateBlender::interpolate(F32 u)
     // SL-315
     target_joint->setPosition(lerp(target_joint->getPosition(), mJointCache.getPosition(), u));
     target_joint->setScale(lerp(target_joint->getScale(), mJointCache.getScale(), u));
-    target_joint->setRotation(nlerp(u, target_joint->getRotation(), mJointCache.getRotation()));
+    // target_joint->getRotation() and mJointCache.getRotation() return
+    // const glm::quat& post-LLJoint cluster #18. ADL on glm::quat doesn't
+    // find the LL global nlerp, so bridge both args to LLQuaternion
+    // explicitly. setRotation takes glm::quat and bridges back via the
+    // implicit operator.
+    target_joint->setRotation(nlerp(u, LLQuaternion(target_joint->getRotation()), LLQuaternion(mJointCache.getRotation())));
 }
 
 //-----------------------------------------------------------------------------

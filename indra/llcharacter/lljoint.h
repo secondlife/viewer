@@ -248,17 +248,24 @@ public:
     void setWorldPosition( const glm::vec3& pos );
 
     // get/set local rotation
-    // NOTE (glm-quat migration): set* takes glm::quat to migrate the input direction
-    // first; get* still returns LLQuaternion so existing `vec * getRotation()` callers
-    // (LL operand convention) keep compiling via the LLQuaternion overloads. The
-    // get* return types will flip in a later cluster, after the call sites are
-    // converted to glm::quat * vec form.
-    const LLQuaternion& getRotation();
+    // glm-quat migration: getRotation() returns const glm::quat& after the
+    // LLXform field migration (cluster #17). Forwards directly to
+    // mXform.getRotation() with no temporary materialization. Caller drift
+    // for `vec * getRotation()` sites is fixed by bridging through
+    // LLQuaternion(...) at the call site (same pattern as the LLBBox
+    // cluster #12 caller fixes).
+    const glm::quat& getRotation();
     void setRotation( const glm::quat& rot );
 
     // get/set world rotation
+    // glm-quat migration: getLastWorldRotation() returns glm::quat by value
+    // (cluster #19). It has zero production callers — only test code uses
+    // it — so this migration is safe to do in isolation. getWorldRotation()
+    // is intentionally deferred because its 20+ callers in motion files
+    // use ~q, vec*q, and quat-quat compose patterns that need a per-site
+    // audit (Tier 2/3 work, not loose ends).
     LLQuaternion getWorldRotation();
-    LLQuaternion getLastWorldRotation();
+    glm::quat getLastWorldRotation();
     void setWorldRotation( const glm::quat& rot );
 
     // get/set local scale

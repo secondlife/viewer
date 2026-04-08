@@ -74,4 +74,9 @@ if (LL_TESTS)
   set(test_libs llcharacter llmath llcommon llxml llmessage llfilesystem)
   LL_ADD_INTEGRATION_TEST(lljointsolverrp3 lljointsolverrp3.cpp "${test_libs}")
   target_link_libraries(INTEGRATION_TEST_lljointsolverrp3 ll::glm)
+  # Reactivated 2026-04-09 (cluster #18). Was orphaned (file existed in
+  # tests/ but no LL_ADD_INTEGRATION_TEST registration). Same pattern
+  # as the xform_test reactivation in cluster #17.
+  LL_ADD_INTEGRATION_TEST(lljoint lljoint.cpp "${test_libs}")
+  target_link_libraries(INTEGRATION_TEST_lljoint ll::glm)
 endif (LL_TESTS)
