@@ -989,10 +989,10 @@ void LLDrawPoolTerrain::renderSimple()
     gGL.getTexUnit(0)->enable(LLTexUnit::eTextureType::TT_TEXTURE);
     gGL.getTexUnit(0)->bind(mTexturep);
 
-    LLVector3 origin_agent = mDrawFace[0]->getDrawable()->getVObj()->getRegion()->getOriginAgent();
+    glm::vec3 origin_agent = mDrawFace[0]->getDrawable()->getVObj()->getRegion()->getOriginAgent();
     F32 tscale = 1.f/256.f;
-    tp0.set(tscale, 0.f, 0.0f, -1.f*(origin_agent.mV[0]/256.f));
-    tp1.set(0.f, tscale, 0.0f, -1.f*(origin_agent.mV[1]/256.f));
+    tp0.set(tscale, 0.f, 0.0f, -1.f*(origin_agent.x/256.f));
+    tp1.set(0.f, tscale, 0.0f, -1.f*(origin_agent.y/256.f));
 
     sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, std::span<const GLfloat>(tp0.mV, 4));
     sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, std::span<const GLfloat>(tp1.mV, 4));
