@@ -35,6 +35,7 @@
 #include "llavatarnamecache.h"
 #include "lluuid.h"
 #include "v3math.h"
+#include <glm/vec3.hpp>
 
 class LLPathfindingObject;
 class LLSD;
@@ -58,7 +59,7 @@ public:
     inline bool               hasOwnerName() const   {return mHasOwnerName;};
     std::string               getOwnerName() const;
     inline bool               isGroupOwned() const   {return mIsGroupOwned;};
-    inline const LLVector3&   getLocation() const    {return mLocation;};
+    inline const glm::vec3&   getLocation() const    {return mLocation;};
 
     using name_callback_t = std::function<void(const LLPathfindingObject*)>;
     using name_signal_t = boost::signals2::signal<void (const LLPathfindingObject *)>;
@@ -83,7 +84,7 @@ private:
     LLAvatarName                             mOwnerName;
     LLAvatarNameCache::callback_connection_t mAvatarNameCacheConnection;
     bool                                     mIsGroupOwned;
-    LLVector3                                mLocation;
+    glm::vec3                                mLocation{0.f, 0.f, 0.f};
     name_signal_t                            mOwnerNameSignal;
 };
 

@@ -448,7 +448,7 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfi
         columns[4]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
 
         columns[5]["column"] = "dist_from_you";
-        columns[5]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
+        columns[5]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, LLVector3(pLinksetPtr->getLocation())));
     }
 
     columns[6]["column"] = "linkset_use";

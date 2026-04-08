@@ -542,8 +542,8 @@ void LLFloaterPathfindingObjects::teleportToSelectedObject()
             // If we cannot find the object in the viewer list, teleport to the last reported position
             const LLPathfindingObjectPtr objectPtr = mObjectList->find(selectedItem->getUUID().asString());
             {
-                const LLVector3& loc = objectPtr->getLocation();
-                teleportLocation = gAgent.getPosGlobalFromAgent(glm::vec3(loc.mV[VX], loc.mV[VY], loc.mV[VZ]));
+                const glm::vec3& loc = objectPtr->getLocation();
+                teleportLocation = gAgent.getPosGlobalFromAgent(loc);
             }
         }
         else
