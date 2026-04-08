@@ -48,6 +48,7 @@
 #include "llstartup.h"
 #include "lltextbox.h"
 #include "llui.h"
+#include "llframetimer.h"
 #include "lluiconstants.h"
 #include "llslurl.h"
 #include "llversioninfo.h"
@@ -314,8 +315,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
 
     // get the web browser control
-    LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
-    web_browser->addObserver(this);
+    mWebBrowser = getChild<LLMediaCtrl>("login_html");
+    mWebBrowser->addObserver(this);
 
     loadLoginPage();
 
@@ -850,11 +851,9 @@ void LLPanelLogin::setAlwaysRefresh(bool refresh)
 {
     if (sInstance && LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
     {
-        LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-
-        if (web_browser)
+        if (sInstance->mWebBrowser)
         {
-            web_browser->setAlwaysRefresh(refresh);
+            sInstance->mWebBrowser->setAlwaysRefresh(refresh);
         }
     }
 }
@@ -911,16 +910,28 @@ void LLPanelLogin::loadLoginPage()
 
     gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
 
-    LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-    if (web_browser->getCurrentNavUrl() != login_uri.asString())
+    if (sInstance->mWebBrowser->getCurrentNavUrl() != login_uri.asString())
     {
         LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
-        web_browser->navigateTo( login_uri.asString(), "text/html" );
+        sInstance->mWebBrowser->navigateTo(login_uri.asString(), "text/html");
     }
 }
 
-void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent event)
+void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 {
+    constexpr F32 REFRESH_DELAY = 2.f;
+    switch (event)
+    {
+        case MEDIA_EVENT_SIZE_CHANGED:
+        {
+            mForceRefreshTimer.reset();
+            mForceRefreshTimer.setTimerExpirySec(REFRESH_DELAY);
+            mForceRefresh = true;
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -1382,4 +1393,20 @@ void LLPanelLogin::collapseGridPanel(bool collapse)
     }
     mLoginStack->collapsePanel(mGridPanel, collapse);
     mLoginStack->updateLayout();
+}
+
+void LLPanelLogin::draw()
+{
+    LLPanel::draw();
+
+    // Workaround for the black screen issue (see #5607)
+    // Should be removed after the proper fix for resizing is implemented
+    if (mForceRefresh && mForceRefreshTimer.hasExpired())
+    {
+        if (mWebBrowser->getMediaPlugin())
+        {
+            mWebBrowser->getMediaPlugin()->forceRenderRefresh();
+        }
+        mForceRefresh = false;
+    }
 }

@@ -350,6 +350,8 @@ public:
 
     std::shared_ptr<LLPluginClassMedia> getSharedPtr() { return std::dynamic_pointer_cast<LLPluginClassMedia>(shared_from_this()); } // due to enable_shared_from_this
 
+    void forceRenderRefresh();
+
 protected:
 
     LLPluginClassMediaOwner *mOwner;

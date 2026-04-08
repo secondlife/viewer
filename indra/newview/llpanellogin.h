@@ -48,6 +48,8 @@ public:
                 void *callback_data);
     ~LLPanelLogin();
 
+    void draw();
+
     virtual void setFocus( bool b );
 
     static void show(const LLRect &rect,
@@ -131,10 +133,15 @@ private:
     unsigned int mPasswordLength;
     unsigned int mLocationLength;
 
+    LLTimer mForceRefreshTimer;
+    bool mForceRefresh {false};
+
     bool mAlertNotif;
     LLButton* mLoginBtn;
     LLLayoutPanel* mGridPanel;
     LLLayoutStack* mLoginStack;
+
+    LLMediaCtrl* mWebBrowser;
 };
 
 #endif
