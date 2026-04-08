@@ -1032,7 +1032,7 @@ void LLWebRTCVoiceClient::updatePosition()
         {
             case earLocCamera:
             default:
-                earPosition = region->getPosGlobalFromRegion(LLVector3(LLViewerCamera::getInstance()->getOrigin()));
+                earPosition = region->getPosGlobalFromRegion(LLViewerCamera::getInstance()->getOrigin());
                 earRot      = LLViewerCamera::getInstance()->getQuaternion();
                 break;
 
