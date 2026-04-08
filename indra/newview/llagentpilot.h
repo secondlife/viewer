@@ -29,6 +29,7 @@
 #include "stdtypes.h"
 #include "lltimer.h"
 #include "v3dmath.h"
+#include <glm/vec3.hpp>
 
 // Class that drives the agent around according to a "script".
 
@@ -105,10 +106,10 @@ private:
         LLVector3d      mTarget;
         F64             mTime;
         F32             mCameraView;
-        LLVector3       mCameraOrigin;
-        LLVector3       mCameraXAxis;
-        LLVector3       mCameraYAxis;
-        LLVector3       mCameraZAxis;
+        glm::vec3       mCameraOrigin{0.f};
+        glm::vec3       mCameraXAxis{0.f};
+        glm::vec3       mCameraYAxis{0.f};
+        glm::vec3       mCameraZAxis{0.f};
     };
 
     std::vector<Action> mActions;

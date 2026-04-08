@@ -145,10 +145,10 @@ void LLAgentPilot::loadXML(const std::string& filename)
         action.mType = (EActionType)record["type"].asInteger();
         action.mCameraView = static_cast<F32>(record["camera_view"].asReal());
         action.mTarget = ll_vector3d_from_sd(record["target"]);
-        action.mCameraOrigin = ll_vector3_from_sd(record["camera_origin"]);
-        action.mCameraXAxis = ll_vector3_from_sd(record["camera_xaxis"]);
-        action.mCameraYAxis = ll_vector3_from_sd(record["camera_yaxis"]);
-        action.mCameraZAxis = ll_vector3_from_sd(record["camera_zaxis"]);
+        action.mCameraOrigin = ll_vec3_from_sd(record["camera_origin"]);
+        action.mCameraXAxis = ll_vec3_from_sd(record["camera_xaxis"]);
+        action.mCameraYAxis = ll_vec3_from_sd(record["camera_yaxis"]);
+        action.mCameraZAxis = ll_vec3_from_sd(record["camera_zaxis"]);
         mActions.push_back(action);
     }
     mOverrideCamera = true;
@@ -205,10 +205,10 @@ void LLAgentPilot::saveXML(const std::string& filename)
         record["type"] = (LLSD::Integer)action.mType;
         record["camera_view"] = (LLSD::Real)action.mCameraView;
         record["target"] = ll_sd_from_vector3d(action.mTarget);
-        record["camera_origin"] = ll_sd_from_vector3(action.mCameraOrigin);
-        record["camera_xaxis"] = ll_sd_from_vector3(action.mCameraXAxis);
-        record["camera_yaxis"] = ll_sd_from_vector3(action.mCameraYAxis);
-        record["camera_zaxis"] = ll_sd_from_vector3(action.mCameraZAxis);
+        record["camera_origin"] = ll_sd_from_vec3(action.mCameraOrigin);
+        record["camera_xaxis"] = ll_sd_from_vec3(action.mCameraXAxis);
+        record["camera_yaxis"] = ll_sd_from_vec3(action.mCameraYAxis);
+        record["camera_zaxis"] = ll_sd_from_vec3(action.mCameraZAxis);
         LLSDSerialize::toXML(record, file);
     }
     file.close();
@@ -238,10 +238,10 @@ void LLAgentPilot::addAction(enum EActionType action_type)
     action.mTime = mTimer.getElapsedTimeF32();
     LLViewerCamera *cam = LLViewerCamera::getInstance();
     action.mCameraView = cam->getView();
-    action.mCameraOrigin = LLVector3(cam->getOrigin());
-    action.mCameraXAxis = LLVector3(cam->getXAxis());
-    action.mCameraYAxis = LLVector3(cam->getYAxis());
-    action.mCameraZAxis = LLVector3(cam->getZAxis());
+    action.mCameraOrigin = cam->getOrigin();
+    action.mCameraXAxis = cam->getXAxis();
+    action.mCameraYAxis = cam->getYAxis();
+    action.mCameraZAxis = cam->getZAxis();
     mLastRecordTime = static_cast<F32>(action.mTime);
     mActions.push_back(action);
 }
@@ -312,14 +312,14 @@ void LLAgentPilot::moveCamera()
         Action& end = mActions[end_index];
 
         F32 view = lerp(start.mCameraView, end.mCameraView, t);
-        LLVector3 origin = lerp(start.mCameraOrigin, end.mCameraOrigin, t);
+        glm::vec3 origin = lerp(start.mCameraOrigin, end.mCameraOrigin, t);
         LLQuaternion start_quat(start.mCameraXAxis, start.mCameraYAxis, start.mCameraZAxis);
         LLQuaternion end_quat(end.mCameraXAxis, end.mCameraYAxis, end.mCameraZAxis);
         LLQuaternion quat = nlerp(t, start_quat, end_quat);
         LLMatrix3 mat(quat);
 
         LLViewerCamera::getInstance()->setView(view);
-        LLViewerCamera::getInstance()->setOrigin(static_cast<glm::vec3>(origin));
+        LLViewerCamera::getInstance()->setOrigin(origin);
         LLViewerCamera::getInstance()->setAxes(mat);
     }
 }
