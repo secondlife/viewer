@@ -32,6 +32,7 @@
 #include "llinitdestroyclass.h"
 
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 
 class LLLocationInputCtrl;
 class LLMenuGL;
@@ -131,7 +132,7 @@ private:
     void onRegionNameResponse(
             std::string typed_location,
             std::string region_name,
-            LLVector3 local_coords,
+            glm::vec3 local_coords,
             U64 region_handle, const std::string& url,
             const LLUUID& snapshot_id, bool teleport);
 

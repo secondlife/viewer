@@ -490,7 +490,7 @@ void LLNavigationBar::onLocationSelection()
     //Let's parse slurl or region name
 
     std::string region_name;
-    LLVector3 local_coords(128, 128, 0);
+    glm::vec3 local_coords(128, 128, 0);
     // Is the typed location a SLURL?
     LLSLURL slurl = LLSLURL(typed_location);
     if (slurl.getType() == LLSLURL::LOCATION)
@@ -625,7 +625,7 @@ void LLNavigationBar::rebuildTeleportHistoryMenu()
 void LLNavigationBar::onRegionNameResponse(
         std::string typed_location,
         std::string region_name,
-        LLVector3 local_coords,
+        glm::vec3 local_coords,
         U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)
 {
     // Invalid location?
@@ -633,7 +633,7 @@ void LLNavigationBar::onRegionNameResponse(
     {
         // Teleport to the location.
         LLVector3d region_pos = from_region_handle(region_handle);
-        LLVector3d global_pos = region_pos + (LLVector3d) local_coords;
+        LLVector3d global_pos = region_pos + LLVector3d(LLVector3(local_coords));
 
         LL_INFOS() << "Teleporting to: " << LLSLURL(region_name,    global_pos).getSLURLString()  << LL_ENDL;
         gAgent.teleportViaLocation(global_pos);
