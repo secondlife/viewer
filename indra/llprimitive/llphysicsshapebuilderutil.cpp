@@ -29,7 +29,7 @@
 #include "llphysicsshapebuilderutil.h"
 
 /* static */
-void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut, bool has_decomposition)
+void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const glm::vec3& scale, PhysicsShapeSpecification& specOut, bool has_decomposition)
 {
     const LLProfileParams& profile_params = volume_params.getProfileParams();
     const LLPathParams& path_params = volume_params.getPathParams();
@@ -88,7 +88,7 @@ void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumePara
                 specOut.mScale[VY] = llmax( scale[VY], SHAPE_BUILDER_MIN_GEOMETRY_SIZE );
                 specOut.mScale[VZ] = llmax( scale[VZ] * (path_params.getEnd() - path_params.getBegin()), SHAPE_BUILDER_MIN_GEOMETRY_SIZE );
 
-                specOut.mCenter.set( 0.f, 0.f, 0.5f * scale[VZ] * ( path_params.getEnd() + path_params.getBegin() - 1.0f ) );
+                specOut.mCenter = glm::vec3( 0.f, 0.f, 0.5f * scale[VZ] * ( path_params.getEnd() + path_params.getBegin() - 1.0f ) );
                 return;
             }
         }
@@ -156,7 +156,7 @@ void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumePara
                 specOut.mScale[VY] = specOut.mScale[VX];
                 specOut.mScale[VZ] = length;
                 // The minus one below fixes the fact that begin and end range from 0 to 1 not -1 to 1.
-                specOut.mCenter.set( 0.f, 0.f, 0.5f * (volume_params.getPathParams().getBegin() + volume_params.getPathParams().getEnd() - 1.f) * scale[VZ] );
+                specOut.mCenter = glm::vec3( 0.f, 0.f, 0.5f * (volume_params.getPathParams().getBegin() + volume_params.getPathParams().getEnd() - 1.f) * scale[VZ] );
             }
 
             return;
@@ -203,9 +203,9 @@ void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumePara
     else if (volume_params.isMeshSculpt())
     {
         // Check overall dimensions, not individual triangles.
-        if (scale.mV[0] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
-            || scale.mV[1] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
-            || scale.mV[2] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
+        if (scale[0] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
+            || scale[1] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
+            || scale[2] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
             )
         {
             if (has_decomposition)
