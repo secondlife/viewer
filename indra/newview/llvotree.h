@@ -177,7 +177,9 @@ protected:
     // cache last position+rotation so we can detect the need for a
     // complete rebuild when not animating
     LLVector3 mLastPosition;
-    LLQuaternion mLastRotation;
+    // glm-quat migration cluster #8: stored as glm::quat; comparison and
+    // assignment use the implicit bridge ctor/conversion operator.
+    glm::quat mLastRotation{1.f, 0.f, 0.f, 0.f};
 
     U32 mFrameCount;
 
