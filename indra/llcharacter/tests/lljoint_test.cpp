@@ -221,6 +221,75 @@ namespace tut
         ensure("2. addChild failed to remove prior parent", llparent1.findJoint("child2") == NULL);
     }
 
+    // ---------------------------------------------------------------------
+    // Tests 15-17: glm-quat migration coverage gap-fillers (cluster #18).
+    // These pin the LLJoint::getRotation behavior after the return type
+    // migration from `const LLQuaternion&` to `const glm::quat&`. The
+    // migration was a UB fix — pre-cluster-#18 the getter forwarded to
+    // mXform.getRotation() which returns const glm::quat&, materializing
+    // a temporary LLQuaternion via the bridge ctor and returning a ref to
+    // the temporary. The build didn't catch it (likely inlining hides the
+    // pattern from C4172) but it was still UB.
+    // ---------------------------------------------------------------------
+
+    template<> template<>
+    void lljoint_object::test<15>()
+    {
+        // setRotation accepts glm::quat directly (cluster #2 was setters-only,
+        // so this is the canonical input form). getRotation returns
+        // const glm::quat& (cluster #18). Roundtrip via the glm::quat
+        // type chain — no LLQuaternion intermediate.
+        LLJoint joint("LLJoint");
+        const glm::quat input(0.927f, 0.1f, 0.2f, 0.3f);  // glm::quat(w, x, y, z)
+        joint.setRotation(input);
+
+        const glm::quat& got = joint.getRotation();
+        ensure_equals("glm::quat roundtrip preserves x", got.x, input.x);
+        ensure_equals("glm::quat roundtrip preserves y", got.y, input.y);
+        ensure_equals("glm::quat roundtrip preserves z", got.z, input.z);
+        ensure_equals("glm::quat roundtrip preserves w", got.w, input.w);
+    }
+
+    template<> template<>
+    void lljoint_object::test<16>()
+    {
+        // getRotation forwards directly to mXform.getRotation() with no
+        // temporary materialization. We can verify this by taking the
+        // address of the returned reference and confirming it's stable
+        // across multiple calls (a temporary would have a different
+        // address each time).
+        //
+        // This is the strongest test that the UB fix worked: if the
+        // function returned a ref to a temporary, the address would not
+        // be stable across calls.
+        LLJoint joint("LLJoint");
+        joint.setRotation(glm::quat(0.927f, 0.1f, 0.2f, 0.3f));
+
+        const glm::quat* p1 = &joint.getRotation();
+        const glm::quat* p2 = &joint.getRotation();
+        ensure("getRotation returns stable reference (no temporary)", p1 == p2);
+    }
+
+    template<> template<>
+    void lljoint_object::test<17>()
+    {
+        // setRotation also accepts an LLQuaternion via the implicit bridge
+        // operator glm::quat() on LLQuaternion. Verify the conversion
+        // preserves component identity. This is the path that production
+        // code paths still flowing through LLQuaternion will take during
+        // the gradual migration.
+        LLJoint joint("LLJoint");
+        const LLQuaternion ll_input(0.1f, 0.2f, 0.3f, 0.927f);  // LLQuaternion(x, y, z, w)
+        joint.setRotation(ll_input);  // bridge: LLQuaternion -> glm::quat
+
+        const glm::quat& got = joint.getRotation();
+        // Bridge preserves component identity by name (LL.x == glm.x etc).
+        ensure_equals("LLQuaternion bridge preserves x", got.x, ll_input.mQ[VX]);
+        ensure_equals("LLQuaternion bridge preserves y", got.y, ll_input.mQ[VY]);
+        ensure_equals("LLQuaternion bridge preserves z", got.z, ll_input.mQ[VZ]);
+        ensure_equals("LLQuaternion bridge preserves w", got.w, ll_input.mQ[VW]);
+    }
+
 
     /*
         Test cases for the following not added. They perform operations

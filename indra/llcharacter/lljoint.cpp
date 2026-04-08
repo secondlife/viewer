@@ -781,7 +781,7 @@ void LLJoint::setWorldPosition( const glm::vec3& pos )
 //--------------------------------------------------------------------
 // getRotation()
 //--------------------------------------------------------------------
-const LLQuaternion& LLJoint::getRotation()
+const glm::quat& LLJoint::getRotation()
 {
     return mXform.getRotation();
 }

@@ -162,8 +162,8 @@ void LLJointSolverRP3::solve()
     LL_DEBUGS("JointSolver") << "LLJointSolverRP3::solve()" << LL_NEWLINE
                             << "bPosLocal = " << LLVector3(mJointB->getPosition()) << LL_NEWLINE
                             << "cPosLocal = " << LLVector3(mJointC->getPosition()) << LL_NEWLINE
-                            << "bRotLocal = " << mJointB->getRotation() << LL_NEWLINE
-                            << "cRotLocal = " << mJointC->getRotation() << LL_NEWLINE
+                            << "bRotLocal = " << LLQuaternion(mJointB->getRotation()) << LL_NEWLINE
+                            << "cRotLocal = " << LLQuaternion(mJointC->getRotation()) << LL_NEWLINE
                             << "aPos : " << aPos << LL_NEWLINE
                             << "bPos : " << bPos << LL_NEWLINE
                             << "cPos : " << cPos << LL_NEWLINE
