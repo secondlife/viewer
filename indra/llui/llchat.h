@@ -29,6 +29,7 @@
 
 #include "lluuid.h"
 #include "v3math.h"
+#include <glm/vec3.hpp>
 
 // enumerations used by the chat system
 enum class EChatSourceType
@@ -85,7 +86,7 @@ public:
         mMuted(false),
         mTime(0.0),
         mTimeStr(),
-        mPosAgent(),
+        mPosAgent(0.f),
         mURL(),
         mChatStyle(EChatStyle::CHAT_STYLE_NORMAL),
         mSessionID()
@@ -102,7 +103,7 @@ public:
     bool            mMuted;     // pass muted chat to maintain list of chatters
     F64             mTime;      // viewer only, seconds from viewer start
     std::string     mTimeStr;
-    LLVector3       mPosAgent;
+    glm::vec3       mPosAgent;
     std::string     mURL;
     EChatStyle      mChatStyle;
     LLUUID          mSessionID;
