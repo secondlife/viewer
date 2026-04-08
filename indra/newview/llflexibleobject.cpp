@@ -912,7 +912,7 @@ void LLVolumeImplFlexible::updateRelativeXform(bool force_identity)
 
     //matrix from local space to parent relative/global space
     delta_rot = use_identity ? LLQuaternion() : vo->mDrawable->getRotation();
-    delta_pos = use_identity ? LLVector3(0,0,0) : vo->mDrawable->getPosition();
+    delta_pos = use_identity ? LLVector3(0,0,0) : LLVector3(vo->mDrawable->getPosition());
     delta_scale = LLVector3(1,1,1);
 
     // Vertex transform (4x4)

@@ -101,7 +101,7 @@ void LLDrawable::init(bool new_entry)
     // mXform
     mParent = NULL;
     mRenderType = 0;
-    mCurrentScale = LLVector3(1,1,1);
+    mCurrentScale = glm::vec3(1,1,1);
     mDistanceWRTCamera = 0.0f;
     mState     = 0;
 
@@ -607,8 +607,8 @@ F32 LLDrawable::updateXform(bool undamped)
     bool damped = !undamped;
 
     // Position
-    const LLVector3 old_pos(mXform.getPosition());
-    LLVector3 target_pos;
+    const glm::vec3 old_pos(mXform.getPosition());
+    glm::vec3 target_pos;
     if (mXform.isRoot())
     {
         // get root position in your agent's region
@@ -624,8 +624,8 @@ F32 LLDrawable::updateXform(bool undamped)
     const LLQuaternion old_rot(mXform.getRotation());
     LLQuaternion target_rot = mVObjp->getRotation();
     //scaling
-    LLVector3 target_scale = mVObjp->getScale();
-    LLVector3 old_scale = mCurrentScale;
+    glm::vec3 target_scale = mVObjp->getScale();
+    glm::vec3 old_scale = mCurrentScale;
 
     // Damping
     F32 dist_squared = 0.f;
@@ -634,15 +634,21 @@ F32 LLDrawable::updateXform(bool undamped)
     if (damped && isVisible())
     {
         F32 lerp_amt = llclamp(LLSmoothInterpolation::getInterpolant(OBJECT_DAMPING_TIME_CONSTANT), 0.f, 1.f);
-        LLVector3 new_pos = lerp(old_pos, target_pos, lerp_amt);
-        dist_squared = dist_vec_squared(new_pos, target_pos);
+        glm::vec3 new_pos = glm::mix(old_pos, target_pos, lerp_amt);
+        {
+            const glm::vec3 d = new_pos - target_pos;
+            dist_squared = glm::dot(d, d);
+        }
 
         LLQuaternion new_rot = nlerp(lerp_amt, old_rot, target_rot);
         // FIXME: This can be negative! It is be possible for some rots to 'cancel out' pos or size changes.
         dist_squared += (1.f - dot(new_rot, target_rot)) * 10.f;
 
-        LLVector3 new_scale = lerp(old_scale, target_scale, lerp_amt);
-        dist_squared += dist_vec_squared(new_scale, target_scale);
+        glm::vec3 new_scale = glm::mix(old_scale, target_scale, lerp_amt);
+        {
+            const glm::vec3 d = new_scale - target_scale;
+            dist_squared += glm::dot(d, d);
+        }
 
         if ((dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED * camdist2) &&
             (dist_squared <= MAX_INTERPOLATE_DISTANCE_SQUARED))
@@ -675,7 +681,7 @@ F32 LLDrawable::updateXform(bool undamped)
         //dist_squared += dist_vec_squared(old_scale, target_scale);
     }
 
-    const LLVector3 vec = mCurrentScale-target_scale;
+    const glm::vec3 vec = mCurrentScale-target_scale;
 
     //It's a very important on each cycle on Drawable::update form(), when object remained in move
     //, list update the CurrentScale member, because if do not do that, it remained in this list forever
@@ -683,7 +689,7 @@ F32 LLDrawable::updateXform(bool undamped)
     //for overcome the MIN_INTERPOLATE_DISTANCE_SQUARED.
     mCurrentScale = target_scale;
 
-    if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
+    if (glm::dot(vec, vec) > MIN_INTERPOLATE_DISTANCE_SQUARED)
     { //scale change requires immediate rebuild
         gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
     }
@@ -700,7 +706,7 @@ F32 LLDrawable::updateXform(bool undamped)
         }
     }
     else if (!isRoot() &&
-            ((dist_vec_squared(old_pos, target_pos) > 0.f)
+            ((glm::dot(old_pos - target_pos, old_pos - target_pos) > 0.f)
             || (1.f - dot(old_rot, target_rot)) > 0.f))
     { //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
         mVObjp->shrinkWrap();
@@ -714,7 +720,7 @@ F32 LLDrawable::updateXform(bool undamped)
     // Update
     mXform.setPosition(target_pos);
     mXform.setRotation(target_rot);
-    mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
+    mXform.setScale(glm::vec3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
     mXform.updateMatrix();
     if (isRoot() && mVObjp->isAnimatedObject())
     {
@@ -1038,13 +1044,10 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
     mVObjp->onShift(shift_vector);
 }
 
-LLVector3 LLDrawable::getBounds(LLVector3& min, LLVector3& max) const
+glm::vec3 LLDrawable::getBounds(glm::vec3& min, glm::vec3& max) const
 {
-    glm::vec3 gmin, gmax;
-    mXform.getMinMax(gmin, gmax);
-    min = gmin;
-    max = gmax;
-    return LLVector3(mXform.getPositionW());
+    mXform.getMinMax(min, max);
+    return mXform.getPositionW();
 }
 
 void LLDrawable::updateSpatialExtents()
@@ -1662,7 +1665,7 @@ void LLSpatialBridge::cleanupReferences()
     }
 }
 
-const LLVector3 LLDrawable::getPositionAgent() const
+glm::vec3 LLDrawable::getPositionAgent() const
 {
     if (getVOVolume())
     {
@@ -1671,9 +1674,9 @@ const LLVector3 LLDrawable::getPositionAgent() const
             LLVector3 pos(0,0,0);
             if (!isRoot())
             {
-                pos = mVObjp->getPosition();
+                pos = LLVector3(mVObjp->getPosition());
             }
-            return pos * getRenderMatrix();
+            return glm::vec3(pos * getRenderMatrix());
         }
         else
         {

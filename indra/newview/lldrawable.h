@@ -91,23 +91,20 @@ public:
 
     const LLMatrix4&      getWorldMatrix() const        { return mXform.getWorldMatrix(); }
     const LLMatrix4&      getRenderMatrix() const;
-    void                  setPosition(LLVector3 v) const { }
-    LLVector3             getPosition() const           { return LLVector3(mXform.getPosition()); }
-    LLVector3             getWorldPosition() const      { return LLVector3(mXform.getPositionW()); }
-    const LLVector3       getPositionAgent() const;
-    const LLVector3&      getScale() const              { return mCurrentScale; }
-    void                  setScale(const LLVector3& scale) { mCurrentScale = scale; }
+    void                  setPosition(glm::vec3 v) const { }
+    glm::vec3             getPosition() const           { return mXform.getPosition(); }
+    glm::vec3             getWorldPosition() const      { return mXform.getPositionW(); }
+    glm::vec3             getPositionAgent() const;
+    const glm::vec3&      getScale() const              { return mCurrentScale; }
+    void                  setScale(const glm::vec3& scale) { mCurrentScale = scale; }
     const LLQuaternion&   getWorldRotation() const      { return mXform.getWorldRotation(); }
     const LLQuaternion&   getRotation() const           { return mXform.getRotation(); }
     F32                   getIntensity() const          { return llmin(mXform.getScale().x, 4.f); }
     S32                   getLOD() const                { return mVObjp ? mVObjp->getLOD() : 1; }
 
-    void  getMinMax(LLVector3& min, LLVector3& max) const
+    void  getMinMax(glm::vec3& min, glm::vec3& max) const
     {
-        glm::vec3 gmin, gmax;
-        mXform.getMinMax(gmin, gmax);
-        min = gmin;
-        max = gmax;
+        mXform.getMinMax(min, max);
     }
     LLXformMatrix*      getXform() { return &mXform; }
 
@@ -186,7 +183,7 @@ public:
 
     void updateUVMinMax();  // Updates the cache of sun space bounding box.
 
-    LLVector3 getBounds(LLVector3& min, LLVector3& max) const;
+    glm::vec3 getBounds(glm::vec3& min, glm::vec3& max) const;
     virtual void updateSpatialExtents();
     virtual void updateBinRadius();
 
@@ -306,7 +303,7 @@ private:
     F32             mRadius;
     S32             mGeneration;
 
-    LLVector3       mCurrentScale;
+    glm::vec3       mCurrentScale;
 
     static U32 sNumZombieDrawables;
     static std::vector<LLPointer<LLDrawable> > sDeadList;

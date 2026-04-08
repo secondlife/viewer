@@ -4908,7 +4908,7 @@ void LLVOAvatar::updateHeadOffset()
 {
     // since we only care about Z, just grab one of the eyes
     LLVector3 midEyePt = mEyeLeftp->getWorldPosition();
-    midEyePt -= mDrawable.notNull() ? mDrawable->getWorldPosition() : mRoot->getWorldPosition();
+    midEyePt -= mDrawable.notNull() ? LLVector3(mDrawable->getWorldPosition()) : mRoot->getWorldPosition();
     midEyePt.mV[VZ] = llmax(-mPelvisToFoot + LLViewerCamera::getInstance()->getNear(), midEyePt.mV[VZ]);
 
     if (mDrawable.notNull())

@@ -8502,7 +8502,10 @@ void LLPipeline::renderDeferredLighting()
                     }
 
                     LLVector4a center;
-                    center.load3(drawablep->getPositionAgent().mV);
+                    {
+                        const glm::vec3 pa = drawablep->getPositionAgent();
+                        center.load3(glm::value_ptr(pa));
+                    }
                     const F32 *c = center.getF32ptr();
                     F32        s = volume->getLightRadius() * 1.5f;
 
@@ -8590,7 +8593,10 @@ void LLPipeline::renderDeferredLighting()
                     LLVOVolume *volume = drawablep->getVOVolume();
 
                     LLVector4a center;
-                    center.load3(drawablep->getPositionAgent().mV);
+                    {
+                        const glm::vec3 pa = drawablep->getPositionAgent();
+                        center.load3(glm::value_ptr(pa));
+                    }
                     const F32* c = center.getF32ptr();
                     F32        s = volume->getLightRadius() * 1.5f;
 

@@ -210,7 +210,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
                 continue;
             }
 
-            if (limit_select_distance && dist_vec_squared(drawable->getWorldPosition(), av_pos) > select_dist_squared)
+            if (limit_select_distance && dist_vec_squared(LLVector3(drawable->getWorldPosition()), av_pos) > select_dist_squared)
             {
                 continue;
             }

@@ -1975,8 +1975,8 @@ void LLVOVolume::updateRelativeXform(bool force_identity)
         //matrix from local space to parent relative/global space
         bool use_identity = force_identity || drawable->isSpatialRoot();
         delta_rot = use_identity ? LLQuaternion() : mDrawable->getRotation();
-        delta_pos = use_identity ? LLVector3(0,0,0) : mDrawable->getPosition();
-        delta_scale = mDrawable->getScale();
+        delta_pos = use_identity ? LLVector3(0,0,0) : LLVector3(mDrawable->getPosition());
+        delta_scale = LLVector3(mDrawable->getScale());
 
         // Vertex transform (4x4)
         LLVector3 x_axis = LLVector3(delta_scale.mV[VX], 0.f, 0.f) * delta_rot;
