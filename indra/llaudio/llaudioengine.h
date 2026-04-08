@@ -288,7 +288,7 @@ public:
 
     void setPositionGlobal(const LLVector3d &position_global)       { mPositionGlobal = position_global; }
     LLVector3d getPositionGlobal() const                            { return mPositionGlobal; }
-    LLVector3 getVelocity() const                                   { return mVelocity; }
+    glm::vec3 getVelocity() const                                   { return mVelocity; }
     F32 getPriority() const                                         { return mPriority; }
 
     // Gain should always be clamped between 0 and 1.
@@ -335,7 +335,7 @@ protected:
     bool            mCorrupted;
     S32             mType;
     LLVector3d      mPositionGlobal;
-    LLVector3       mVelocity;
+    glm::vec3       mVelocity{0.f};
 
     //LLAudioSource *mSyncMasterp;  // If we're a slave, the source that we're synced to.
     LLAudioChannel  *mChannelp;     // If we're currently playing back, this is the channel that we're assigned to.
