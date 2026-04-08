@@ -33,6 +33,8 @@
 
 #include "llmath.h"
 
+#include <glm/gtc/quaternion.hpp>
+
 #define F_EPSILON 0.00001f
 
 #if LL_RELEASE
@@ -276,7 +278,11 @@ void LLJointSolverRP3::solve()
 
     F32 theta = acos(cosTheta);
 
-    LLQuaternion bRot(theta - abbcAng, abbcOrthoVec);
+    // bRot: glm::quat (phase 2 quat migration cluster #14).
+    // glm::angleAxis takes (angle, normalized_axis). abbcOrthoVec is
+    // already normalized at line 266 above. The implicit
+    // LLVector3 -> glm::vec3 conversion handles the axis param type.
+    glm::quat bRot = glm::angleAxis(theta - abbcAng, glm::vec3(abbcOrthoVec));
 
 #if DEBUG_JOINT_SOLVER
     LL_DEBUGS("JointSolver") << "abbcAng      : " << abbcAng << LL_NEWLINE
@@ -284,7 +290,7 @@ void LLJointSolverRP3::solve()
                             << "agLenSq      : " << agLenSq << LL_NEWLINE
                             << "cosTheta     : " << cosTheta << LL_NEWLINE
                             << "theta        : " << theta << LL_NEWLINE
-                            << "bRot         : " << bRot << LL_NEWLINE
+                            << "bRot         : " << LLQuaternion(bRot) << LL_NEWLINE
                             << "theta abbcAng theta-abbcAng: "
                                 << theta*180.0/F_PI << " "
                                 << abbcAng*180.0f/F_PI << " "
@@ -295,8 +301,10 @@ void LLJointSolverRP3::solve()
     //-------------------------------------------------------------------------
     // compute rotation that rotates new A->C to A->G
     //-------------------------------------------------------------------------
-    // rotate B->C by bRot
-    bcVec = bcVec * bRot;
+    // rotate B->C by bRot. Disambiguate the LLVector3 * quat overload by
+    // forcing bRot back to LLQuaternion at the call site (cluster #14
+    // bridge — bRot is glm::quat now but the surrounding vec math is LL).
+    bcVec = bcVec * LLQuaternion(bRot);
 
     // update A->C
     acVec = abVec + bcVec;
@@ -387,7 +395,10 @@ void LLJointSolverRP3::solve()
     //-------------------------------------------------------------------------
     // apply the rotations
     //-------------------------------------------------------------------------
-    mJointB->setWorldRotation( mJointB->getWorldRotation() * bRot );
+    // bRot is glm::quat (cluster #14). Bridge to LLQuaternion at the
+    // boundary so the LL composition with getWorldRotation() works under
+    // LL operand semantics ("apply old worldrot, then apply bRot").
+    mJointB->setWorldRotation( mJointB->getWorldRotation() * LLQuaternion(bRot) );
     mJointA->setWorldRotation( mJointA->getWorldRotation() * aRot );
 }
 
