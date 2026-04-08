@@ -715,11 +715,11 @@ void LLAudioEngine::setMaxWindGain(F32 gain)
 }
 
 
-F64 LLAudioEngine::mapWindVecToGain(LLVector3 wind_vec)
+F64 LLAudioEngine::mapWindVecToGain(glm::vec3 wind_vec)
 {
     F64 gain = 0.0;
 
-    gain = wind_vec.length();
+    gain = glm::length(wind_vec);
 
     if (gain)
     {
@@ -734,18 +734,16 @@ F64 LLAudioEngine::mapWindVecToGain(LLVector3 wind_vec)
 }
 
 
-F64 LLAudioEngine::mapWindVecToPitch(LLVector3 wind_vec)
+F64 LLAudioEngine::mapWindVecToPitch(glm::vec3 wind_vec)
 {
-    LLVector3 listen_right;
     F64 theta;
 
     // Wind frame is in listener-relative coordinates
-    LLVector3 norm_wind = wind_vec;
-    norm_wind.normalize();
-    listen_right.set(1.0,0.0,0.0);
+    glm::vec3 norm_wind = glm::normalize(wind_vec);
+    const glm::vec3 listen_right(1.0f, 0.0f, 0.0f);
 
     // measure angle between wind vec and listener right axis (on 0,PI)
-    theta = acos(norm_wind * listen_right);
+    theta = acos(glm::dot(norm_wind, listen_right));
 
     // put it on 0, 1
     theta /= F_PI;
@@ -758,19 +756,17 @@ F64 LLAudioEngine::mapWindVecToPitch(LLVector3 wind_vec)
 }
 
 
-F64 LLAudioEngine::mapWindVecToPan(LLVector3 wind_vec)
+F64 LLAudioEngine::mapWindVecToPan(glm::vec3 wind_vec)
 {
-    LLVector3 listen_right;
     F64 theta;
 
     // Wind frame is in listener-relative coordinates
-    listen_right.set(1.0,0.0,0.0);
+    const glm::vec3 listen_right(1.0f, 0.0f, 0.0f);
 
-    LLVector3 norm_wind = wind_vec;
-    norm_wind.normalize();
+    glm::vec3 norm_wind = glm::normalize(wind_vec);
 
     // measure angle between wind vec and listener right axis (on 0,PI)
-    theta = acos(norm_wind * listen_right);
+    theta = acos(glm::dot(norm_wind, listen_right));
 
     // put it on 0, 1
     theta /= F_PI;
@@ -813,13 +809,13 @@ void LLAudioEngine::triggerSound(SoundData& soundData)
     triggerSound(soundData.audio_uuid, soundData.owner_id, soundData.gain, soundData.type, soundData.pos_global);
 }
 
-void LLAudioEngine::setListenerPos(LLVector3 aVec)
+void LLAudioEngine::setListenerPos(glm::vec3 aVec)
 {
     mListenerp->setPosition(aVec);
 }
 
 
-LLVector3 LLAudioEngine::getListenerPos()
+glm::vec3 LLAudioEngine::getListenerPos()
 {
     if (mListenerp)
     {
@@ -827,30 +823,30 @@ LLVector3 LLAudioEngine::getListenerPos()
     }
     else
     {
-        return(LLVector3::zero);
+        return glm::vec3(0.f);
     }
 }
 
 
-void LLAudioEngine::setListenerVelocity(LLVector3 aVec)
+void LLAudioEngine::setListenerVelocity(glm::vec3 aVec)
 {
     mListenerp->setVelocity(aVec);
 }
 
 
-void LLAudioEngine::translateListener(LLVector3 aVec)
+void LLAudioEngine::translateListener(glm::vec3 aVec)
 {
     mListenerp->translate(aVec);
 }
 
 
-void LLAudioEngine::orientListener(LLVector3 up, LLVector3 at)
+void LLAudioEngine::orientListener(glm::vec3 up, glm::vec3 at)
 {
     mListenerp->orient(up, at);
 }
 
 
-void LLAudioEngine::setListener(LLVector3 pos, LLVector3 vel, LLVector3 up, LLVector3 at)
+void LLAudioEngine::setListener(glm::vec3 pos, glm::vec3 vel, glm::vec3 up, glm::vec3 at)
 {
     mListenerp->set(pos,vel,up,at);
 }
@@ -1322,7 +1318,7 @@ void LLAudioSource::updatePriority()
 
         if (gAudiop)
         {
-            dist_vec -= gAudiop->getListenerPos();
+            dist_vec -= LLVector3(gAudiop->getListenerPos());
         }
 
         F32 dist_squared = llmax(1.f, dist_vec.lengthSquared());

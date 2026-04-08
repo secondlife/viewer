@@ -446,9 +446,8 @@ void LLAudioEngine_OpenAL::cleanupWind()
     mWindGen = NULL;
 }
 
-void LLAudioEngine_OpenAL::updateWind(LLVector3 wind_vec, F32 camera_altitude)
+void LLAudioEngine_OpenAL::updateWind(glm::vec3 wind_vec, F32 camera_altitude)
 {
-    LLVector3 wind_pos;
     F64 pitch;
     F64 center_freq;
     ALenum error;
@@ -466,7 +465,7 @@ void LLAudioEngine_OpenAL::updateWind(LLVector3 wind_vec, F32 camera_altitude)
         // need to convert this to the conventional orientation DS3D and OpenAL use
         // where +X = right, +Y = up, +Z = backwards
 
-        wind_vec.set(-wind_vec.mV[1], wind_vec.mV[2], -wind_vec.mV[0]);
+        wind_vec = glm::vec3(-wind_vec.y, wind_vec.z, -wind_vec.x);
 
         pitch = 1.0 + mapWindVecToPitch(wind_vec);
         center_freq = 80.0 * pow(pitch,2.5*(mapWindVecToGain(wind_vec)+1.0));
