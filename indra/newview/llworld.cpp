@@ -316,7 +316,7 @@ LLViewerRegion* LLWorld::getRegion(const LLHost &host)
     return NULL;
 }
 
-LLViewerRegion* LLWorld::getRegionFromPosAgent(const LLVector3 &pos)
+LLViewerRegion* LLWorld::getRegionFromPosAgent(const glm::vec3 &pos)
 {
     return getRegionFromPosGlobal(gAgent.getPosGlobalFromAgent(pos));
 }

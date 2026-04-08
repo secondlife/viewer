@@ -96,7 +96,7 @@ bool LLViewerCamera::updateCameraLocation(const glm::vec3& center, const glm::ve
 
     mLastPointOfInterest = point_of_interest;
 
-    LLViewerRegion* regp = LLWorld::instance().getRegionFromPosAgent(LLVector3(getOrigin().x, getOrigin().y, getOrigin().z));
+    LLViewerRegion* regp = LLWorld::instance().getRegionFromPosAgent(getOrigin());
     if (!regp)
     {
         regp = gAgent.getRegion();
@@ -704,7 +704,7 @@ glm::vec3 LLViewerCamera::roundToPixel(const glm::vec3& pos_agent)
 bool LLViewerCamera::cameraUnderWater() const
 {
     const glm::vec3& cam_orig = getOrigin();
-    LLViewerRegion* regionp = LLWorld::instance().getRegionFromPosAgent(LLVector3(cam_orig.x, cam_orig.y, cam_orig.z));
+    LLViewerRegion* regionp = LLWorld::instance().getRegionFromPosAgent(cam_orig);
 
     if (gPipeline.mHeroProbeManager.isMirrorPass())
     {

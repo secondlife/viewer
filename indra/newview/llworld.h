@@ -36,6 +36,7 @@
 
 #include "llmath.h"
 #include "v3math.h"
+#include <glm/vec3.hpp>
 #include "llsingleton.h"
 #include "llstring.h"
 #include "llviewerpartsim.h"
@@ -78,7 +79,7 @@ public:
 
     LLViewerRegion*         getRegion(const LLHost &host);
     LLViewerRegion*         getRegionFromPosGlobal(const LLVector3d &pos);
-    LLViewerRegion*         getRegionFromPosAgent(const LLVector3 &pos);
+    LLViewerRegion*         getRegionFromPosAgent(const glm::vec3 &pos);
     LLViewerRegion*         getRegionFromHandle(const U64 &handle);
     LLViewerRegion*         getRegionFromID(const LLUUID& region_id);
     bool                    positionRegionValidGlobal(const LLVector3d& pos);           // true if position is in valid region

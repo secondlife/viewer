@@ -1075,7 +1075,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         if (LLViewerCamera::instance().cameraUnderWater())
         { // when the camera is under water, use the water height at the camera position
-            LLViewerRegion* region = LLWorld::instance().getRegionFromPosAgent(LLVector3(LLViewerCamera::instance().getOrigin()));
+            LLViewerRegion* region = LLWorld::instance().getRegionFromPosAgent(LLViewerCamera::instance().getOrigin());
             if (region)
             {
                 water_height = region->getWaterHeight();
