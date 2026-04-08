@@ -28,6 +28,7 @@
 #pragma once
 
 #include "llfloater.h"
+#include "llquaternion.h"
 
 class LLMessageSystem;
 class LLObjectSelection;
@@ -63,7 +64,10 @@ private:
     LLUUID mTelehubObjectID;    // null if no telehub
     std::string mTelehubObjectName;
     LLVector3 mTelehubPos;  // region local, fallback if viewer can't see the object
-    LLQuaternion mTelehubRot;
+    // glm-quat migration cluster #7: stored as glm::quat; interop with
+    // LLQuaternion math and message deserialization uses the implicit
+    // bridge ctor/conversion operator declared in llquaternion.h.
+    glm::quat mTelehubRot{1.f, 0.f, 0.f, 0.f};
 
     S32 mNumSpawn;
     LLVector3 mSpawnPointPos[MAX_SPAWNPOINTS_PER_TELEHUB];

@@ -700,11 +700,11 @@ bool LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 
     // If we're in freeze-frame and/or auto update mode and camera has moved, update snapshot.
     glm::vec3 new_camera_pos = LLViewerCamera::getInstance()->getOrigin();
-    LLQuaternion new_camera_rot = LLViewerCamera::getInstance()->getQuaternion();
+    glm::quat new_camera_rot = LLViewerCamera::getInstance()->getQuaternion();
     if (previewp->mForceUpdateSnapshot ||
         (((auto_snapshot && LLView::isAvailable(previewp->mViewContainer)) ||
         (freeze_time && previewp->mAllowFullScreenPreview)) &&
-        (new_camera_pos != previewp->mCameraPos || dot(new_camera_rot, previewp->mCameraRot) < 0.995f)))
+        (new_camera_pos != previewp->mCameraPos || glm::dot(new_camera_rot, previewp->mCameraRot) < 0.995f)))
     {
         previewp->mCameraPos = new_camera_pos;
         previewp->mCameraRot = new_camera_rot;

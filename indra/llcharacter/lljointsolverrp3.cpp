@@ -45,6 +45,8 @@
 // Constructor
 //-----------------------------------------------------------------------------
 LLJointSolverRP3::LLJointSolverRP3()
+    : mJointABaseRotation(1.f, 0.f, 0.f, 0.f),
+      mJointBBaseRotation(1.f, 0.f, 0.f, 0.f)
 {
     mJointA = NULL;
     mJointB = NULL;

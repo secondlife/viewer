@@ -137,7 +137,7 @@ bool LLKeyframeStandMotion::onActivate()
     mIKLeft.setBAxis( LLVector3(0.05f, 1.0f, 0.0f));
     mIKRight.setBAxis( LLVector3(-0.05f, 1.0f, 0.0f));
 
-    mLastGoodPelvisRotation.loadIdentity();
+    mLastGoodPelvisRotation = glm::quat(1.f, 0.f, 0.f, 0.f);
     mLastGoodPosition.clear();
 
     mFrameNum = 0;
@@ -179,10 +179,9 @@ bool LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
     // Stop tracking (start locking) ankles once ease in is done.
     // Setting this here ensures we track until we get valid foot position.
     //-------------------------------------------------------------------------
-    if (dot(mPelvisState->getJoint()->getWorldRotation(), mLastGoodPelvisRotation) < ROTATION_THRESHOLD)
+    if (dot(mPelvisState->getJoint()->getWorldRotation(), LLQuaternion(mLastGoodPelvisRotation)) < ROTATION_THRESHOLD)
     {
-        mLastGoodPelvisRotation = mPelvisState->getJoint()->getWorldRotation();
-        mLastGoodPelvisRotation.normalize();
+        mLastGoodPelvisRotation = glm::normalize(glm::quat(mPelvisState->getJoint()->getWorldRotation()));
         mTrackAnkles = true;
     }
     else if ((mCharacter->getCharacterPosition() - mLastGoodPosition).lengthSquared() > POSITION_THRESHOLD)

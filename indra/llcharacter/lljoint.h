@@ -39,6 +39,7 @@
 #include "xform.h"
 #include "llmatrix4a.h"
 #include "glm/vec3.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 constexpr S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;
 // Need to set this to count of animate-able joints,
@@ -247,13 +248,18 @@ public:
     void setWorldPosition( const glm::vec3& pos );
 
     // get/set local rotation
+    // NOTE (glm-quat migration): set* takes glm::quat to migrate the input direction
+    // first; get* still returns LLQuaternion so existing `vec * getRotation()` callers
+    // (LL operand convention) keep compiling via the LLQuaternion overloads. The
+    // get* return types will flip in a later cluster, after the call sites are
+    // converted to glm::quat * vec form.
     const LLQuaternion& getRotation();
-    void setRotation( const LLQuaternion& rot );
+    void setRotation( const glm::quat& rot );
 
     // get/set world rotation
     LLQuaternion getWorldRotation();
     LLQuaternion getLastWorldRotation();
-    void setWorldRotation( const LLQuaternion& rot );
+    void setWorldRotation( const glm::quat& rot );
 
     // get/set local scale
     glm::vec3 getScale();
@@ -278,7 +284,7 @@ public:
 
     LLXformMatrix   *getXform() { return &mXform; }
 
-    void clampRotation(LLQuaternion old_rot, LLQuaternion new_rot);
+    void clampRotation(glm::quat old_rot, glm::quat new_rot);
 
     virtual bool isAnimatable() const { return true; }
 

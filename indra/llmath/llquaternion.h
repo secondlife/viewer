@@ -29,6 +29,8 @@
 #include <iostream>
 #include "llsd.h"
 
+#include <glm/gtc/quaternion.hpp>
+
 #ifndef LLMATH_H //enforce specific include order to avoid tangling inline dependencies
 #error "Please include llmath.h first."
 #endif
@@ -64,6 +66,13 @@ public:
                  const LLVector3 &y_axis,
                  const LLVector3 &z_axis);          // Initializes Quaternion from Matrix3 = [x_axis ; y_axis ; z_axis]
     explicit LLQuaternion(const LLSD &sd);          // Initializes Quaternion from LLSD array.
+
+    // GLM bridge ctors — non-explicit to allow seamless conversion across
+    // the LLQuaternion -> glm::quat migration boundary, mirroring the
+    // pattern used for LLVector3 <-> glm::vec3. Note the W-position swap:
+    // LLQuaternion stores xyzw, glm::quat stores wxyz.
+    LLQuaternion(const glm::quat& q);                       // NOLINT(google-explicit-constructor)
+    operator glm::quat() const;                             // NOLINT(google-explicit-constructor)
 
     LLSD getValue() const;
     void setValue(const LLSD& sd);

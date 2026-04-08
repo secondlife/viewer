@@ -108,6 +108,23 @@ LLQuaternion::LLQuaternion(const LLSD &sd)
     setValue(sd);
 }
 
+// GLM bridge ctors. NOTE the W-position swap: LLQuaternion stores
+// mQ[VX, VY, VZ, VW] (xyzw), glm::quat constructor takes (w, x, y, z).
+// The bridge does NOT normalize — the LL constructors don't always
+// normalize either, and we want behavioral parity.
+LLQuaternion::LLQuaternion(const glm::quat& q)
+{
+    mQ[VX] = q.x;
+    mQ[VY] = q.y;
+    mQ[VZ] = q.z;
+    mQ[VW] = q.w;
+}
+
+LLQuaternion::operator glm::quat() const
+{
+    return glm::quat(mQ[VW], mQ[VX], mQ[VY], mQ[VZ]);
+}
+
 // Quatizations
 void    LLQuaternion::quantize16(F32 lower, F32 upper)
 {

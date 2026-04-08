@@ -131,7 +131,11 @@ private:
     /** Camera preset in Third Person Mode */
     ECameraPreset mCameraPreset;
 
-    LLQuaternion mInitSitRot;
+    // glm-quat migration cluster #8: stored as glm::quat; setter still
+    // takes LLQuaternion and assigns via operator glm::quat(); sole reader
+    // in llagentcamera.cpp passes it to LLAgent::rotate(const LLQuaternion&)
+    // via the implicit bridge ctor.
+    glm::quat mInitSitRot{1.f, 0.f, 0.f, 0.f};
 
     //--------------------------------------------------------------------
     // Position

@@ -62,6 +62,7 @@ LLPolyMesh::LLPolyMeshSharedDataTable LLPolyMesh::sGlobalSharedMeshList;
 // LLPolyMeshSharedData()
 //-----------------------------------------------------------------------------
 LLPolyMeshSharedData::LLPolyMeshSharedData()
+    : mRotation(1.f, 0.f, 0.f, 0.f)
 {
         mNumVertices = 0;
         mBaseCoords = NULL;

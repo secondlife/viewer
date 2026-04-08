@@ -49,7 +49,7 @@ LLFloaterTelehub::LLFloaterTelehub(const LLSD& key)
     mTelehubObjectID(),
     mTelehubObjectName(),
     mTelehubPos(),
-    mTelehubRot(),
+    // mTelehubRot default-initialized to identity via NSDMI (glm-quat cluster #7)
     mNumSpawn(0)
 {
 }
@@ -237,7 +237,13 @@ void LLFloaterTelehub::unpackTelehubInfo(LLMessageSystem* msg)
     msg->getUUID("TelehubBlock", "ObjectID", mTelehubObjectID);
     msg->getString("TelehubBlock", "ObjectName", mTelehubObjectName);
     msg->getVector3("TelehubBlock", "TelehubPos", mTelehubPos);
-    msg->getQuat("TelehubBlock", "TelehubRot", mTelehubRot);
+    {
+        // getQuat takes LLQuaternion&; round-trip through a temporary so
+        // the stored glm::quat picks up the result via the bridge ctor.
+        LLQuaternion tmp;
+        msg->getQuat("TelehubBlock", "TelehubRot", tmp);
+        mTelehubRot = tmp;
+    }
 
     mNumSpawn = msg->getNumberOfBlocks("SpawnPointBlock");
     for (S32 i = 0; i < mNumSpawn; i++)
