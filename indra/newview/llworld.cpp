@@ -470,7 +470,7 @@ LLViewerRegion* LLWorld::resolveRegionGlobal(LLVector3 &pos_region, const LLVect
     return NULL;
 }
 
-LLViewerRegion* LLWorld::resolveRegionAgent(LLVector3 &pos_region, const LLVector3 &pos_agent)
+LLViewerRegion* LLWorld::resolveRegionAgent(glm::vec3 &pos_region, const glm::vec3 &pos_agent)
 {
     LLVector3d pos_global = gAgent.getPosGlobalFromAgent(pos_agent);
     LLViewerRegion *regionp = getRegionFromPosGlobal(pos_global);
@@ -484,7 +484,7 @@ LLViewerRegion* LLWorld::resolveRegionAgent(LLVector3 &pos_region, const LLVecto
     return NULL;
 }
 
-F32 LLWorld::resolveLandHeightAgent(const LLVector3 &pos_agent)
+F32 LLWorld::resolveLandHeightAgent(const glm::vec3 &pos_agent)
 {
     LLVector3d pos_global = gAgent.getPosGlobalFromAgent(pos_agent);
     return resolveLandHeightGlobal(pos_global);
@@ -582,12 +582,12 @@ LLSurfacePatch * LLWorld::resolveLandPatchGlobal(const LLVector3d &pos_global)
     return regionp->getLand().resolvePatchGlobal(pos_global);
 }
 
-LLVector3 LLWorld::resolveLandNormalGlobal(const LLVector3d &pos_global)
+glm::vec3 LLWorld::resolveLandNormalGlobal(const LLVector3d &pos_global)
 {
     LLViewerRegion *regionp = getRegionFromPosGlobal(pos_global);
     if (!regionp)
     {
-        return LLVector3::z_axis;
+        return glm::vec3(0.f, 0.f, 1.f);
     }
 
     return regionp->getLand().resolveNormalGlobal(pos_global);
@@ -1011,7 +1011,7 @@ void LLWorld::updateWaterObjects()
     }
 }
 
-void LLWorld::shiftRegions(const LLVector3& offset)
+void LLWorld::shiftRegions(const glm::vec3& offset)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     for (region_list_t::const_iterator i = getRegionList().begin(); i != getRegionList().end(); ++i)

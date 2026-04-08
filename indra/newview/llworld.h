@@ -89,9 +89,9 @@ public:
 
     // All of these should be in the agent coordinate frame
     LLViewerRegion*         resolveRegionGlobal(LLVector3 &localpos, const LLVector3d &position);
-    LLViewerRegion*         resolveRegionAgent(LLVector3 &localpos, const LLVector3 &position);
+    LLViewerRegion*         resolveRegionAgent(glm::vec3 &localpos, const glm::vec3 &position);
     F32                     resolveLandHeightGlobal(const LLVector3d &position);
-    F32                     resolveLandHeightAgent(const LLVector3 &position);
+    F32                     resolveLandHeightAgent(const glm::vec3 &position);
 
     // Return the lowest allowed Z point to prevent objects from being moved
     // underground.
@@ -111,7 +111,7 @@ public:
                             LLViewerObject** viewerObjectPtr=NULL);
 
     LLSurfacePatch *        resolveLandPatchGlobal(const LLVector3d &position);
-    LLVector3               resolveLandNormalGlobal(const LLVector3d &position);        // absolute frame
+    glm::vec3               resolveLandNormalGlobal(const LLVector3d &position);        // absolute frame
 
     U32                     getRegionWidthInPoints() const  { return mWidth; }
     F32                     getRegionScale() const          { return mScale; }
@@ -142,7 +142,7 @@ public:
     void updateWaterObjects();
 
     void waterHeightRegionInfo(std::string const& sim_name, F32 water_height);
-    void shiftRegions(const LLVector3& offset);
+    void shiftRegions(const glm::vec3& offset);
 
     void setSpaceTimeUSec(const U64MicrosecondsImplicit space_time_usec);
     U64MicrosecondsImplicit getSpaceTimeUSec() const;
