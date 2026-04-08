@@ -630,15 +630,15 @@ std::string construct_start_string()
         case LLSLURL::LOCATION:
         {
             // a startup URL was specified
-            LLVector3 position = start_slurl.getPosition();
+            glm::vec3 position = start_slurl.getPosition();
             // NOTE - do not xml escape here, will get escaped properly later by LLSD::asXMLRPCValue()
             // see secondlife/viewer#2395
             start =
             STRINGIZE(  "uri:"
                       << start_slurl.getRegion() << "&"
-                        << position[VX] << "&"
-                        << position[VY] << "&"
-                        << position[VZ]);
+                        << position.x << "&"
+                        << position.y << "&"
+                        << position.z);
             break;
         }
         case LLSLURL::HOME_LOCATION:

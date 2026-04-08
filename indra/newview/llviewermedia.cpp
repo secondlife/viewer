@@ -2481,10 +2481,10 @@ void LLViewerMediaImpl::updateJavascriptObject()
         if ( logged_in )
         {
             // current location within a region
-            LLVector3 agent_pos = gAgent.getPositionAgent();
-            double x = agent_pos.mV[ VX ];
-            double y = agent_pos.mV[ VY ];
-            double z = agent_pos.mV[ VZ ];
+            glm::vec3 agent_pos = gAgent.getPositionAgent();
+            double x = agent_pos.x;
+            double y = agent_pos.y;
+            double z = agent_pos.z;
             mMediaSource->jsAgentLocationEvent( x, y, z );
 
             // current location within the grid
