@@ -633,7 +633,7 @@ void LLNavigationBar::onRegionNameResponse(
     {
         // Teleport to the location.
         LLVector3d region_pos = from_region_handle(region_handle);
-        LLVector3d global_pos = region_pos + LLVector3d(LLVector3(local_coords));
+        LLVector3d global_pos = region_pos + LLVector3d(local_coords);
 
         LL_INFOS() << "Teleporting to: " << LLSLURL(region_name,    global_pos).getSLURLString()  << LL_ENDL;
         gAgent.teleportViaLocation(global_pos);

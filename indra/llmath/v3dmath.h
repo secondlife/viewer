@@ -46,6 +46,7 @@ public:
     inline LLVector3d(const F64 x, const F64 y, const F64 z);           // Initializes LLVector3d to (x. y, z)
     inline explicit LLVector3d(const F64 *vec);             // Initializes LLVector3d to (vec[0]. vec[1], vec[2])
     inline explicit LLVector3d(const LLVector3 &vec);
+    inline explicit LLVector3d(const glm::vec3 &vec);
     explicit LLVector3d(const LLSD& sd)
     {
         setValue(sd);
@@ -173,6 +174,13 @@ inline LLVector3d::LLVector3d(const LLVector3 &vec)
     mdV[VX] = vec.mV[VX];
     mdV[VY] = vec.mV[VY];
     mdV[VZ] = vec.mV[VZ];
+}
+
+inline LLVector3d::LLVector3d(const glm::vec3 &vec)
+{
+    mdV[VX] = vec.x;
+    mdV[VY] = vec.y;
+    mdV[VZ] = vec.z;
 }
 
 /*
