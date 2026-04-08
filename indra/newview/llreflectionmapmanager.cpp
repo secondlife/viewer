@@ -137,10 +137,10 @@ static void touch_default_probe(LLReflectionMap* probe)
 {
     if (LLViewerCamera::getInstance())
     {
-        LLVector3 origin(LLViewerCamera::getInstance()->getOrigin());
-        origin.mV[2] += 64.f;
+        glm::vec3 origin = LLViewerCamera::getInstance()->getOrigin();
+        origin.z += 64.f;
 
-        probe->mOrigin.load3(origin.mV);
+        probe->mOrigin.load3(glm::value_ptr(origin));
     }
 }
 
