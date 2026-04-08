@@ -818,7 +818,7 @@ LLQuaternion LLJoint::getWorldRotation()
 //-----------------------------------------------------------------------------
 // getLastWorldRotation()
 //-----------------------------------------------------------------------------
-LLQuaternion LLJoint::getLastWorldRotation()
+glm::quat LLJoint::getLastWorldRotation()
 {
     return mXform.getWorldRotation();
 }

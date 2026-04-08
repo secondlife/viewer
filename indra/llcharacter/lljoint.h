@@ -258,8 +258,14 @@ public:
     void setRotation( const glm::quat& rot );
 
     // get/set world rotation
+    // glm-quat migration: getLastWorldRotation() returns glm::quat by value
+    // (cluster #19). It has zero production callers — only test code uses
+    // it — so this migration is safe to do in isolation. getWorldRotation()
+    // is intentionally deferred because its 20+ callers in motion files
+    // use ~q, vec*q, and quat-quat compose patterns that need a per-site
+    // audit (Tier 2/3 work, not loose ends).
     LLQuaternion getWorldRotation();
-    LLQuaternion getLastWorldRotation();
+    glm::quat getLastWorldRotation();
     void setWorldRotation( const glm::quat& rot );
 
     // get/set local scale
