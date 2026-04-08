@@ -225,6 +225,7 @@ F32 LLHeavenBody::sInterpVal = 0;
 LLHeavenBody::LLHeavenBody(const F32 rad)
 : mDirectionCached(LLVector3(0,0,0)),
   mDirection(LLVector3(0,0,0)),
+  mRotation(1.f, 0.f, 0.f, 0.f),
   mIntensity(0.f),
   mDiskRadius(rad),
   mDraw(false),
@@ -236,9 +237,9 @@ LLHeavenBody::LLHeavenBody(const F32 rad)
     mColorCached.setToBlack();
 }
 
-const LLQuaternion& LLHeavenBody::getRotation() const
+LLQuaternion LLHeavenBody::getRotation() const
 {
-    return mRotation;
+    return LLQuaternion(mRotation);
 }
 
 void LLHeavenBody::setRotation(const LLQuaternion& rot)

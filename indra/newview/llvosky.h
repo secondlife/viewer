@@ -134,7 +134,7 @@ protected:
     LLColor3        mColorCached;
     F32             mIntensity;
     LLVector3       mDirection;             // direction of the local heavenly body
-    LLQuaternion    mRotation;
+    glm::quat       mRotation;
     LLVector3       mAngularVelocity;       // velocity of the local heavenly body
 
     F32             mDiskRadius;
@@ -150,7 +150,7 @@ public:
     explicit LLHeavenBody(const F32 rad);
     ~LLHeavenBody() = default;
 
-    const LLQuaternion& getRotation() const;
+    LLQuaternion        getRotation() const;
     void                setRotation(const LLQuaternion& rot);
 
     const LLVector3& getDirection() const;
