@@ -61,11 +61,12 @@ void LLHUDEffectBlob::render()
         return;
     }
 
-    LLVector3 pos_agent = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+    const glm::vec3 pos_agent_g = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+    LLVector3 pos_agent(pos_agent_g.x, pos_agent_g.y, pos_agent_g.z);
 
     // Bridge: getPixelVectors now takes/returns glm::vec3.
     glm::vec3 pixel_up_glm, pixel_right_glm;
-    LLViewerCamera::instance().getPixelVectors(static_cast<glm::vec3>(pos_agent), pixel_up_glm, pixel_right_glm);
+    LLViewerCamera::instance().getPixelVectors(pos_agent_g, pixel_up_glm, pixel_right_glm);
     LLVector3 pixel_up(pixel_up_glm.x, pixel_up_glm.y, pixel_up_glm.z);
     LLVector3 pixel_right(pixel_right_glm.x, pixel_right_glm.y, pixel_right_glm.z);
 

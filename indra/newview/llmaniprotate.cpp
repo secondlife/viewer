@@ -1234,7 +1234,7 @@ bool LLManipRotate::updateVisiblity()
             if (gSavedSettings.getBOOL("LimitSelectDistance"))
             {
                 F32 max_select_distance = gSavedSettings.getF32("MaxSelectDistance");
-                if (dist_vec_squared(gAgent.getPositionAgent(), center) > (max_select_distance * max_select_distance))
+                if (dist_vec_squared(LLVector3(gAgent.getPositionAgent()), center) > (max_select_distance * max_select_distance))
                 {
                     visible = false;
                 }

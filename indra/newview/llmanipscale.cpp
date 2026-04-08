@@ -248,8 +248,10 @@ void LLManipScale::render()
             for (S32 i = 0; i < NUM_MANIPULATORS; i++)
             {
                 LLVector3 manipulator_pos = bbox.localToAgent(unitVectorToLocalBBoxExtent(partToUnitVector(MANIPULATOR_IDS[i]), bbox));
-                F32 range_squared = dist_vec_squared(gAgentCamera.getCameraPositionAgent(), manipulator_pos);
-                F32 range_from_agent_squared = dist_vec_squared(gAgent.getPositionAgent(), manipulator_pos);
+                const glm::vec3 cam_g = gAgentCamera.getCameraPositionAgent();
+                const glm::vec3 agt_g = gAgent.getPositionAgent();
+                F32 range_squared = dist_vec_squared(LLVector3(cam_g.x, cam_g.y, cam_g.z), manipulator_pos);
+                F32 range_from_agent_squared = dist_vec_squared(LLVector3(agt_g.x, agt_g.y, agt_g.z), manipulator_pos);
 
                 // Don't draw manip if object too far away
                 if (gSavedSettings.getBOOL("LimitSelectDistance"))
@@ -640,7 +642,8 @@ void LLManipScale::renderFaces( const LLBBox& bbox )
     }
 
     // Find nearest vertex
-    LLVector3 orientWRTHead = bbox.agentToLocalBasis( bbox.getCenterAgent() - gAgentCamera.getCameraPositionAgent() );
+    const glm::vec3 cpa_g = gAgentCamera.getCameraPositionAgent();
+    LLVector3 orientWRTHead = bbox.agentToLocalBasis( bbox.getCenterAgent() - LLVector3(cpa_g.x, cpa_g.y, cpa_g.z) );
     U32 nearest =
         (orientWRTHead.mV[0] < 0.0f ? 1 : 0) +
         (orientWRTHead.mV[1] < 0.0f ? 2 : 0) +

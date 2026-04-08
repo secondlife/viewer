@@ -290,12 +290,14 @@ void LLFollowCam::update()
     //####################################################################################
     LLVector3 offsetSubjectPosition = mSubjectPosition + (mFocusOffset * mSubjectRotation);
 
-    LLVector3 simulated_pos_agent = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
+    const glm::vec3 simulated_pos_agent_g = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
+    LLVector3 simulated_pos_agent(simulated_pos_agent_g.x, simulated_pos_agent_g.y, simulated_pos_agent_g.z);
     LLVector3 vectorFromCameraToSubject = offsetSubjectPosition - simulated_pos_agent;
     F32 distanceFromCameraToSubject = vectorFromCameraToSubject.length();
 
     LLVector3 whereFocusWantsToBe = mFocus;
-    LLVector3 focus_pt_agent = gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal);
+    const glm::vec3 focus_pt_agent_g = gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal);
+    LLVector3 focus_pt_agent(focus_pt_agent_g.x, focus_pt_agent_g.y, focus_pt_agent_g.z);
     if ( mFocusLocked ) // if focus is locked, only relative focus needs to be updated
     {
         mRelativeFocus = (focus_pt_agent - mSubjectPosition) * ~mSubjectRotation;
@@ -322,13 +324,14 @@ void LLFollowCam::update()
 
             F32 focusLagLerp = LLSmoothInterpolation::getInterpolant( mFocusLag );
             focus_pt_agent = lerp( focus_pt_agent, whereFocusWantsToBe, focusLagLerp );
-            mSimulatedFocusGlobal = gAgent.getPosGlobalFromAgent(focus_pt_agent);
+            mSimulatedFocusGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(focus_pt_agent.mV[VX], focus_pt_agent.mV[VY], focus_pt_agent.mV[VZ]));
         }
         mRelativeFocus = lerp(mRelativeFocus, (focus_pt_agent - mSubjectPosition) * ~mSubjectRotation, LLSmoothInterpolation::getInterpolant(0.05f));
     }// if focus is not locked ---------------------------------------------
 
 
-    LLVector3 whereCameraPositionWantsToBe = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
+    const glm::vec3 whereCameraPositionWantsToBe_g = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
+    LLVector3 whereCameraPositionWantsToBe(whereCameraPositionWantsToBe_g.x, whereCameraPositionWantsToBe_g.y, whereCameraPositionWantsToBe_g.z);
     if (  mPositionLocked )
     {
         mRelativePos = (whereCameraPositionWantsToBe - mSubjectPosition) * ~mSubjectRotation;
@@ -421,8 +424,11 @@ void LLFollowCam::update()
         //// The following method takes mSimulatedPositionGlobal and resets it so that it stays "behind" the subject,
         //// using behindness angle and behindness force as parameters affecting the exact behavior
         ////-------------------------------------------------------------------------------------------------
-        updateBehindnessConstraint(gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal), simulated_pos_agent);
-        mSimulatedPositionGlobal = gAgent.getPosGlobalFromAgent(simulated_pos_agent);
+        {
+            const glm::vec3 sfg = gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal);
+            updateBehindnessConstraint(LLVector3(sfg.x, sfg.y, sfg.z), simulated_pos_agent);
+        }
+        mSimulatedPositionGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(simulated_pos_agent.mV[VX], simulated_pos_agent.mV[VY], simulated_pos_agent.mV[VZ]));
 
         mRelativePos = lerp(mRelativePos, (simulated_pos_agent - mSubjectPosition) * ~mSubjectRotation, LLSmoothInterpolation::getInterpolant(0.05f));
     } // if position is not locked -----------------------------------------------------------
@@ -586,7 +592,7 @@ void LLFollowCam::setPosition( const LLVector3& p )
     if (p != mPosition)
     {
         LLFollowCamParams::setPosition(p);
-        mSimulatedPositionGlobal = gAgent.getPosGlobalFromAgent(mPosition);
+        mSimulatedPositionGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(mPosition.mV[VX], mPosition.mV[VY], mPosition.mV[VZ]));
         if (mPositionLocked)
         {
             mRelativePos = (mPosition - mSubjectPosition) * ~mSubjectRotation;
@@ -599,7 +605,7 @@ void LLFollowCam::setFocus( const LLVector3& f )
     if (f != mFocus)
     {
         LLFollowCamParams::setFocus(f);
-        mSimulatedFocusGlobal = gAgent.getPosGlobalFromAgent(f);
+        mSimulatedFocusGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(f.mV[VX], f.mV[VY], f.mV[VZ]));
         if (mFocusLocked)
         {
             mRelativeFocus = (mFocus - mSubjectPosition) * ~mSubjectRotation;
@@ -613,7 +619,10 @@ void LLFollowCam::setPositionLocked( bool locked )
     if (locked)
     {
         // propagate set position to relative position
-        mRelativePos = (gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal) - mSubjectPosition) * ~mSubjectRotation;
+        {
+            const glm::vec3 p = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
+            mRelativePos = (LLVector3(p.x, p.y, p.z) - mSubjectPosition) * ~mSubjectRotation;
+        }
     }
 }
 
@@ -623,7 +632,10 @@ void LLFollowCam::setFocusLocked( bool locked )
     if (locked)
     {
         // propagate set position to relative position
-        mRelativeFocus = (gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal) - mSubjectPosition) * ~mSubjectRotation;
+        {
+            const glm::vec3 p = gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal);
+            mRelativeFocus = (LLVector3(p.x, p.y, p.z) - mSubjectPosition) * ~mSubjectRotation;
+        }
     }
 }
 

@@ -330,7 +330,10 @@ void LLHUDText::updateVisibility()
         mSourceObject->updateText();
     }
 
-    mPositionAgent = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+    {
+        const glm::vec3 g = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+        mPositionAgent = LLVector3(g.x, g.y, g.z);
+    }
 
     if (!mSourceObject)
     {
@@ -393,7 +396,8 @@ void LLHUDText::updateVisibility()
         return;
     }
 
-    LLVector3 pos_agent_center = gAgent.getPosAgentFromGlobal(mPositionGlobal) - dir_from_camera;
+    const glm::vec3 pos_agent_center_g = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+    LLVector3 pos_agent_center = LLVector3(pos_agent_center_g.x, pos_agent_center_g.y, pos_agent_center_g.z) - dir_from_camera;
     F32 last_distance_center = (pos_agent_center - cam_origin_ll).length();
     static LLCachedControl<F32> prim_text_max_dist(gSavedSettings, "PrimTextMaxDrawDistance");
     F32 max_draw_distance = prim_text_max_dist;

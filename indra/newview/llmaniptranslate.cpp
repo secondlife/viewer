@@ -1240,7 +1240,7 @@ void LLManipTranslate::renderSnapGuides()
             F32 fraction_of_fov = mAxisArrowLength / static_cast<F32>(LLViewerCamera::getInstance()->getViewHeightInPixels());
             F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
             F32 offset_at_camera = tan(apparent_angle) * 1.5f;
-            F32 range = dist_vec(gAgent.getPosAgentFromGlobal(first_node->mSavedPositionGlobal), LLVector3(LLViewerCamera::getInstance()->getOrigin()));
+            F32 range = dist_vec(LLVector3(gAgent.getPosAgentFromGlobal(first_node->mSavedPositionGlobal)), LLVector3(LLViewerCamera::getInstance()->getOrigin()));
             mSnapOffsetMeters = range * offset_at_camera;
         }
 
@@ -1713,7 +1713,7 @@ void LLManipTranslate::renderTranslationHandles()
     {
         LLVector3 camera_pos_agent = gAgentCamera.getCameraPositionAgent();
         F32 range = dist_vec(camera_pos_agent, selection_center);
-        F32 range_from_agent = dist_vec(gAgent.getPositionAgent(), selection_center);
+        F32 range_from_agent = dist_vec(LLVector3(gAgent.getPositionAgent()), selection_center);
 
         // Don't draw handles if you're too far away
         if (gSavedSettings.getBOOL("LimitSelectDistance"))

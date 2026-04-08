@@ -69,8 +69,9 @@ void LLAgentUI::buildSLURL(LLSLURL& slurl, const bool escaped /*= true*/)
 //static
 bool LLAgentUI::checkAgentDistance(const LLVector3& pole, F32 radius)
 {
-    F32 delta_x = gAgent.getPositionAgent().mV[VX] - pole.mV[VX];
-    F32 delta_y = gAgent.getPositionAgent().mV[VY] - pole.mV[VY];
+    const glm::vec3 agent_pos = gAgent.getPositionAgent();
+    F32 delta_x = agent_pos.x - pole.mV[VX];
+    F32 delta_y = agent_pos.y - pole.mV[VY];
 
     return  sqrt( delta_x* delta_x + delta_y* delta_y ) < radius;
 }
@@ -86,7 +87,8 @@ bool LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt,const 
     S32 pos_z = S32(agent_pos_region.mV[VZ] + 0.5f);
 
     // Round the numbers based on the velocity
-    F32 velocity_mag_sq = gAgent.getVelocity().lengthSquared();
+    const glm::vec3 vel_g = gAgent.getVelocity();
+    F32 velocity_mag_sq = glm::dot(vel_g, vel_g);
 
     const F32 FLY_CUTOFF = 6.f;     // meters/sec
     const F32 FLY_CUTOFF_SQ = FLY_CUTOFF * FLY_CUTOFF;
@@ -189,5 +191,6 @@ bool LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt,const 
 }
 bool LLAgentUI::buildLocationString(std::string& str, ELocationFormat fmt)
 {
-    return buildLocationString(str,fmt, gAgent.getPositionAgent());
+    const glm::vec3 pa = gAgent.getPositionAgent();
+    return buildLocationString(str,fmt, LLVector3(pa.x, pa.y, pa.z));
 }

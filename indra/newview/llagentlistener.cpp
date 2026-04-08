@@ -360,7 +360,10 @@ void LLAgentListener::resetAxes(const LLSD& event_data) const
 {
     if (event_data.has("lookat"))
     {
-        mAgent.resetAxes(ll_vector3_from_sd(event_data["lookat"]));
+        {
+            const LLVector3 look_at = ll_vector3_from_sd(event_data["lookat"]);
+            mAgent.resetAxes(glm::vec3(look_at.mV[VX], look_at.mV[VY], look_at.mV[VZ]));
+        }
     }
     else
     {
@@ -381,7 +384,10 @@ void LLAgentListener::getPosition(const LLSD& event_data) const
     reply["euler"]["roll"] = roll;
     reply["euler"]["pitch"] = pitch;
     reply["euler"]["yaw"] = yaw;
-    reply["region"] = ll_sd_from_vector3(mAgent.getPositionAgent());
+    {
+        const glm::vec3 pa = mAgent.getPositionAgent();
+        reply["region"] = ll_sd_from_vector3(LLVector3(pa.x, pa.y, pa.z));
+    }
     reply["global"] = ll_sd_from_vector3d(mAgent.getPositionGlobal());
 
     sendReply(reply, event_data);
@@ -459,14 +465,18 @@ void LLAgentListener::getAutoPilot(const LLSD& event_data) const
         LLViewerObject * target = gObjectList.findObject(mFollowTarget);
         if (target)
         {   // Found the target AV, return the actual distance to them as well as their ID
-            LLVector3 difference = target->getPositionRegion() - mAgent.getPositionAgent();
+            const glm::vec3 pa = mAgent.getPositionAgent();
+            LLVector3 difference = target->getPositionRegion() - LLVector3(pa.x, pa.y, pa.z);
             reply["target_distance"] = difference.length();
             reply["leader_id"] = mFollowTarget;
         }
     }
 
     reply["use_rotation"] = (LLSD::Boolean) mAgent.getAutoPilotUseRotation();
-    reply["target_facing"] = ll_sd_from_vector3(mAgent.getAutoPilotTargetFacing());
+    {
+        const glm::vec3 tf = mAgent.getAutoPilotTargetFacing();
+        reply["target_facing"] = ll_sd_from_vector3(LLVector3(tf.x, tf.y, tf.z));
+    }
     reply["rotation_threshold"] = mAgent.getAutoPilotRotationThreshold();
     reply["behavior_name"] = mAgent.getAutoPilotBehaviorName();
     reply["fly"] = (LLSD::Boolean) mAgent.getFlying();

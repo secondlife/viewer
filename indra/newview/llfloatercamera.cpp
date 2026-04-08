@@ -376,7 +376,7 @@ void LLFloaterCamera::showDebugInfo(bool show)
             // Bridge: getPointOfInterest() now returns glm::vec3; get_vector_t is std::function<LLVector3()>.
             []() { return LLVector3(LLViewerCamera::getInstance()->getPointOfInterest()); }));
         mAgentCameraInfo->addChild(new LLCameraInfoPanel(mAgentCameraInfo, "Agent Camera", gAgent.getFrameAgent(),
-            []() { return gAgent.getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal()); }));
+            []() { const glm::vec3 p = gAgent.getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal()); return LLVector3(p.x, p.y, p.z); }));
     }
 
     mAgentCameraInfo->setVisible(show);

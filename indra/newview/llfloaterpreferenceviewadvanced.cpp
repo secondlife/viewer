@@ -60,7 +60,10 @@ void LLFloaterPreferenceViewAdvanced::updateFocusControl(const LLVector3d& vecto
 
  void LLFloaterPreferenceViewAdvanced::draw()
 {
-    updateCameraControl(gAgentCamera.getCameraOffsetInitial());
+    {
+        const glm::vec3 co = gAgentCamera.getCameraOffsetInitial();
+        updateCameraControl(LLVector3(co.x, co.y, co.z));
+    }
     updateFocusControl(gAgentCamera.getFocusOffsetInitial());
 
     LLFloater::draw();

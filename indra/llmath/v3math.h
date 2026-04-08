@@ -71,9 +71,10 @@ class LLVector3
 
         // GLM interop
         explicit LLVector3(const glm::vec2& vec);   // Initializes LLVector3 to (vec[0]. vec[1], 0)
-        explicit LLVector3(const glm::vec3& vec);   // Initializes LLVector3 to (vec[0]. vec[1], vec[2])
+        // Transitional: implicit during glm::vec3 migration (cluster #6). Make explicit again once callers migrate.
+        LLVector3(const glm::vec3& vec);            // Initializes LLVector3 to (vec[0]. vec[1], vec[2])
         explicit LLVector3(const glm::vec4& vec);   // Initializes LLVector3 to (vec[0]. vec[1], vec[2])
-        explicit inline operator glm::vec3() const; // Initializes glm::vec3 to (vec[0]. vec[1], vec[2])
+        inline operator glm::vec3() const;          // Initializes glm::vec3 to (vec[0]. vec[1], vec[2])
         explicit inline operator glm::vec4() const; // Initializes glm::vec4 to (vec[0]. vec[1], vec[2], 1)
 
         LLSD getValue() const;

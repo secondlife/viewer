@@ -76,7 +76,8 @@ constexpr F32 PARCEL_POST_HEIGHT = 0.666f;
 // Returns true if you got at least one object
 void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 {
-    LLVector3 av_pos = gAgent.getPositionAgent();
+    const glm::vec3 av_pos_g = gAgent.getPositionAgent();
+    LLVector3 av_pos(av_pos_g.x, av_pos_g.y, av_pos_g.z);
     F32 select_dist_squared = gSavedSettings.getF32("MaxSelectDistance");
     select_dist_squared = select_dist_squared * select_dist_squared;
 
@@ -259,9 +260,8 @@ void LLWind::renderVectors()
 
     gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     gGL.pushMatrix();
-    LLVector3 origin_agent_ll = gAgent.getPosAgentFromGlobal(mOriginGlobal);
-    glm::vec3 origin_agent(origin_agent_ll.mV[VX], origin_agent_ll.mV[VY], origin_agent_ll.mV[VZ]);
-    gGL.translatef(origin_agent.x, origin_agent.y, gAgent.getPositionAgent().mV[VZ] + WIND_RELATIVE_ALTITUDE);
+    const glm::vec3 origin_agent = gAgent.getPosAgentFromGlobal(mOriginGlobal);
+    gGL.translatef(origin_agent.x, origin_agent.y, gAgent.getPositionAgent().z + WIND_RELATIVE_ALTITUDE);
     for (j = 0; j < mSize; j++)
     {
         for (i = 0; i < mSize; i++)
@@ -296,14 +296,12 @@ void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
     gGL.getTexUnit(0)->unbind(LLTexUnit::eTextureType::TT_TEXTURE);
     LLGLDepthTest gls_depth(GL_TRUE);
 
-    LLVector3 west_south_bottom_agent_ll = gAgent.getPosAgentFromGlobal(west_south_bottom_global);
-    glm::vec3 west_south_bottom_agent(west_south_bottom_agent_ll.mV[VX], west_south_bottom_agent_ll.mV[VY], west_south_bottom_agent_ll.mV[VZ]);
+    const glm::vec3 west_south_bottom_agent = gAgent.getPosAgentFromGlobal(west_south_bottom_global);
     F32 west    = west_south_bottom_agent.x;
     F32 south   = west_south_bottom_agent.y;
 //  F32 bottom  = west_south_bottom_agent.z - 1.f;
 
-    LLVector3 east_north_top_agent_ll = gAgent.getPosAgentFromGlobal(east_north_top_global);
-    glm::vec3 east_north_top_agent(east_north_top_agent_ll.mV[VX], east_north_top_agent_ll.mV[VY], east_north_top_agent_ll.mV[VZ]);
+    const glm::vec3 east_north_top_agent = gAgent.getPosAgentFromGlobal(east_north_top_global);
     F32 east    = east_north_top_agent.x;
     F32 north   = east_north_top_agent.y;
 //  F32 top     = east_north_top_agent.z + 1.f;
@@ -539,8 +537,7 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, bool use_pass, LLV
 
     const S32 STRIDE = (mParcelsPerEdge+1);
 
-    LLVector3 pos_ll = gAgent.getPositionAgent();
-    glm::vec3 pos(pos_ll.mV[VX], pos_ll.mV[VY], pos_ll.mV[VZ]);
+    const glm::vec3 pos = gAgent.getPositionAgent();
 
     F32 pos_x = pos.x;
     F32 pos_y = pos.y;

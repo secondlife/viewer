@@ -162,7 +162,8 @@ void LLFloaterCreateLandmark::setLandmarkInfo(const LLUUID &folder_id)
     LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
     LLParcel* parcel = parcel_mgr->getAgentParcel();
     std::string name = parcel->getName();
-    LLVector3 agent_pos = gAgent.getPositionAgent();
+    const glm::vec3 pa = gAgent.getPositionAgent();
+    LLVector3 agent_pos(pa.x, pa.y, pa.z);
 
     if (name.empty())
     {

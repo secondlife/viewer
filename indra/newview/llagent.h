@@ -189,13 +189,29 @@ private:
 public:
     using position_signal_t = boost::signals2::signal<void(const LLVector3 &position_local, const LLVector3d &position_global)>;
 
-    LLVector3       getPosAgentFromGlobal(const LLVector3d &pos_global) const;
-    LLVector3d      getPosGlobalFromAgent(const LLVector3 &pos_agent) const;
+    glm::vec3       getPosAgentFromGlobal(const LLVector3d &pos_global) const;
+    LLVector3d      getPosGlobalFromAgent(const glm::vec3 &pos_agent) const;
+    // Transitional bridges: forward to glm::vec3 overload. Remove once all callers migrate.
+    inline LLVector3d getPosGlobalFromAgent(const LLVector3 &pos_agent) const
+    {
+        return getPosGlobalFromAgent(glm::vec3(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ]));
+    }
+    // Returns position as LLVector3 (transitional)
+    inline LLVector3 getPosAgentFromGlobalLL(const LLVector3d &pos_global) const
+    {
+        const glm::vec3 g = getPosAgentFromGlobal(pos_global);
+        return LLVector3(g.x, g.y, g.z);
+    }
     const LLVector3d &getPositionGlobal() const;
-    LLVector3 getPositionAgent();
+    glm::vec3       getPositionAgent();
     // Call once per frame to update position, angles (radians).
     void            updateAgentPosition(const F32 dt, const F32 yaw, const S32 mouse_x, const S32 mouse_y);
-    void            setPositionAgent(const LLVector3 &center);
+    void            setPositionAgent(const glm::vec3 &center);
+    // Transitional bridge
+    inline void setPositionAgent(const LLVector3 &center)
+    {
+        setPositionAgent(glm::vec3(center.mV[VX], center.mV[VY], center.mV[VZ]));
+    }
 
     boost::signals2::connection whenPositionChanged(position_signal_t::slot_type fn);
 
@@ -211,8 +227,8 @@ private:
     // Velocity
     //--------------------------------------------------------------------
 public:
-    LLVector3       getVelocity() const;
-    F32             getVelocityZ() const    { return getVelocity().mV[VZ]; } // ! HACK !
+    glm::vec3       getVelocity() const;
+    F32             getVelocityZ() const    { return getVelocity().z; } // ! HACK !
 
     //--------------------------------------------------------------------
     // Coordinate System
@@ -221,12 +237,16 @@ public:
     const LLCoordFrame& getFrameAgent() const   { return mFrameAgent; }
     void            initOriginGlobal(const LLVector3d &origin_global); // Only to be used in ONE place
     void            resetAxes();
-    void            resetAxes(const LLVector3 &look_at); // Makes reasonable left and up
+    void            resetAxes(const glm::vec3 &look_at); // Makes reasonable left and up
+    // Transitional bridge
+    inline void resetAxes(const LLVector3 &look_at)
+    {
+        resetAxes(glm::vec3(look_at.mV[VX], look_at.mV[VY], look_at.mV[VZ]));
+    }
     // The following three get*Axis functions return direction avatar is looking, not camera.
-    // Bridge: LLCoordFrame now returns glm::vec3; LLAgent API still LLVector3 (separate cluster).
-    LLVector3 getAtAxis() const      { const glm::vec3& v = mFrameAgent.getAtAxis();   return LLVector3(v.x, v.y, v.z); }
-    LLVector3 getUpAxis() const      { const glm::vec3& v = mFrameAgent.getUpAxis();   return LLVector3(v.x, v.y, v.z); }
-    LLVector3 getLeftAxis() const    { const glm::vec3& v = mFrameAgent.getLeftAxis(); return LLVector3(v.x, v.y, v.z); }
+    const glm::vec3& getAtAxis() const   { return mFrameAgent.getAtAxis();   }
+    const glm::vec3& getUpAxis() const   { return mFrameAgent.getUpAxis();   }
+    const glm::vec3& getLeftAxis() const { return mFrameAgent.getLeftAxis(); }
     LLQuaternion    getQuat() const;        // Returns the quat that represents the rotation of the agent in the absolute frame
 private:
     LLVector3d      mAgentOriginGlobal;     // Origin of agent coords from global coords
@@ -238,7 +258,12 @@ private:
     //--------------------------------------------------------------------
 public:
     void            setStartPosition(U32 location_id); // Marks current location as start, sends information to servers
-    void            setHomePosRegion(const U64& region_handle, const LLVector3& pos_region);
+    void            setHomePosRegion(const U64& region_handle, const glm::vec3& pos_region);
+    // Transitional bridge
+    inline void setHomePosRegion(const U64& region_handle, const LLVector3& pos_region)
+    {
+        setHomePosRegion(region_handle, glm::vec3(pos_region.mV[VX], pos_region.mV[VY], pos_region.mV[VZ]));
+    }
     bool            getHomePosGlobal(LLVector3d* pos_global);
     bool            isInHomeRegion();
 
@@ -247,7 +272,7 @@ private:
 
     bool            mHaveHomePosition;
     U64             mHomeRegionHandle;
-    LLVector3       mHomePosRegion;
+    glm::vec3       mHomePosRegion;
 
     //--------------------------------------------------------------------
     // Parcel
@@ -549,14 +574,14 @@ public:
     // Move the avatar's frame
     //--------------------------------------------------------------------
 public:
-    void            rotate(F32 angle, const LLVector3 &axis);
+    void            rotate(F32 angle, const glm::vec3 &axis);
     void            rotate(F32 angle, F32 x, F32 y, F32 z);
     void            rotate(const LLMatrix3 &matrix);
     void            rotate(const LLQuaternion &quaternion);
     void            pitch(F32 angle);
     void            roll(F32 angle);
     void            yaw(F32 angle);
-    LLVector3       getReferenceUpVector();
+    glm::vec3       getReferenceUpVector();
 
     //--------------------------------------------------------------------
     // Autopilot
@@ -568,7 +593,7 @@ public:
     F32             getAutoPilotStopDistance() const    { return mAutoPilotStopDistance; }
     F32             getAutoPilotTargetDist() const      { return mAutoPilotTargetDist; }
     bool            getAutoPilotUseRotation() const     { return mAutoPilotUseRotation; }
-    LLVector3       getAutoPilotTargetFacing() const    { return mAutoPilotTargetFacing; }
+    glm::vec3       getAutoPilotTargetFacing() const    { return mAutoPilotTargetFacing; }
     F32             getAutoPilotRotationThreshold() const   { return mAutoPilotRotationThreshold; }
     std::string     getAutoPilotBehaviorName() const    { return mAutoPilotBehaviorName; }
 
@@ -590,7 +615,7 @@ private:
     LLVector3d      mAutoPilotTargetGlobal;
     F32             mAutoPilotStopDistance;
     bool            mAutoPilotUseRotation;
-    LLVector3       mAutoPilotTargetFacing;
+    glm::vec3       mAutoPilotTargetFacing;
     F32             mAutoPilotTargetDist;
     S32             mAutoPilotNoProgressFrameCount;
     F32             mAutoPilotRotationThreshold;
@@ -685,7 +710,7 @@ private:
     void            startTeleportRequest();
 
     void            teleportRequest(const U64& region_handle,
-                                    const LLVector3& pos_local,             // Go to a named location home
+                                    const glm::vec3& pos_local,             // Go to a named location home
                                     bool look_at_from_camera = false);
     void            doTeleportViaLandmark(const LLUUID& landmark_id);           // Teleport to a landmark
     void            doTeleportViaLure(const LLUUID& lure_id, bool godlike); // To an invited location

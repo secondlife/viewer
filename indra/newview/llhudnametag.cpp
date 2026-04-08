@@ -550,7 +550,10 @@ void LLHUDNameTag::updateVisibility()
         mSourceObject->updateText();
     }
 
-    mPositionAgent = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+    {
+        const glm::vec3 g = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+        mPositionAgent = LLVector3(g.x, g.y, g.z);
+    }
 
     if (!mSourceObject)
     {

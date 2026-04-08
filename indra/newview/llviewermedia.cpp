@@ -2495,7 +2495,7 @@ void LLViewerMediaImpl::updateJavascriptObject()
             mMediaSource->jsAgentGlobalLocationEvent( global_x, global_y, global_z );
 
             // current agent orientation
-            double rotation = atan2( gAgent.getAtAxis().mV[VX], gAgent.getAtAxis().mV[VY] );
+            double rotation = atan2( gAgent.getAtAxis().x, gAgent.getAtAxis().y );
             double angle = rotation * RAD_TO_DEG;
             if ( angle < 0.0f ) angle = 360.0f + angle; // TODO: has to be a better way to get orientation!
             mMediaSource->jsAgentOrientationEvent( angle );

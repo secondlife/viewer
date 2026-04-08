@@ -281,7 +281,7 @@ bool LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
         }
         else
         {
-            mTargetOffsetGlobal = gAgent.getPosGlobalFromAgent(position);
+            mTargetOffsetGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(position.mV[VX], position.mV[VY], position.mV[VZ]));
         }
 
         mKillTime = mTimer.getElapsedTimeF32() + mDuration;
@@ -413,7 +413,10 @@ bool LLHUDEffectPointAt::calcTargetPosition()
     }
     else
     {
-        local_offset = gAgent.getPosAgentFromGlobal(mTargetOffsetGlobal);
+        {
+            const glm::vec3 g = gAgent.getPosAgentFromGlobal(mTargetOffsetGlobal);
+            local_offset = LLVector3(g.x, g.y, g.z);
+        }
     }
 
     if (targetObject && targetObject->mDrawable.notNull())

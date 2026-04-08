@@ -1112,7 +1112,7 @@ LLVector3d LLWorldMapView::viewPosToGlobal( S32 x, S32 y )
     }
     else
     {
-        pos_global.mdV[VZ] = gAgent.getPositionAgent().mV[VZ]; // Want agent's height, not camera's
+        pos_global.mdV[VZ] = gAgent.getPositionAgent().z; // Want agent's height, not camera's
     }
 
     return pos_global;

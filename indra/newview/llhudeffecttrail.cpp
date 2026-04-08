@@ -209,7 +209,10 @@ void LLHUDEffectSpiral::triggerLocal()
                 }
                 else
                 {
-                    pos = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+                    {
+                        const glm::vec3 g = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+                        pos = LLVector3(g.x, g.y, g.z);
+                    }
                 }
                 LLPointer<LLViewerPartSourceSpiral> pss = new LLViewerPartSourceSpiral(pos);
                 if (!mSourceObject.isNull())

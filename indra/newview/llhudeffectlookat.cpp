@@ -477,7 +477,7 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
         }
         else
         {
-            mTargetOffsetGlobal = gAgent.getPosGlobalFromAgent(position);
+            mTargetOffsetGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(position.mV[VX], position.mV[VY], position.mV[VZ]));
         }
         mKillTime = mTimer.getElapsedTimeF32() + mDuration;
 
@@ -642,7 +642,10 @@ bool LLHUDEffectLookAt::calcTargetPosition()
     }
     else
     {
-        local_offset = gAgent.getPosAgentFromGlobal(mTargetOffsetGlobal);
+        {
+            const glm::vec3 g = gAgent.getPosAgentFromGlobal(mTargetOffsetGlobal);
+            local_offset = LLVector3(g.x, g.y, g.z);
+        }
     }
 
     LLVOAvatar* source_avatar = static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject));

@@ -228,7 +228,8 @@ void LLFloaterPathfindingLinksets::buildObjectsScrollList(const LLPathfindingObj
     bool isFilteringDescription = !descriptionFilter.empty();
     bool isFilteringLinksetUse = (linksetUseFilter != LLPathfindingLinkset::kUnknown);
 
-    const LLVector3& avatarPosition = gAgent.getPositionAgent();
+    const glm::vec3 apos = gAgent.getPositionAgent();
+    const LLVector3 avatarPosition(apos.x, apos.y, apos.z);
 
     if (isFilteringName || isFilteringDescription || isFilteringLinksetUse)
     {

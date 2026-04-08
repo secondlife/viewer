@@ -111,7 +111,10 @@ void LLFloaterSaveCameraPreset::onBtnSave()
         }
         if (gAgentCamera.isJoystickCameraUsed())
         {
-            gSavedSettings.setVector3("CameraOffsetRearView", gAgentCamera.getCurrentCameraOffset());
+            {
+                const glm::vec3 co = gAgentCamera.getCurrentCameraOffset();
+                gSavedSettings.setVector3("CameraOffsetRearView", LLVector3(co.x, co.y, co.z));
+            }
             gSavedSettings.setVector3d("FocusOffsetRearView", gAgentCamera.getCurrentFocusOffset());
             gAgentCamera.resetCameraZoomFraction();
             gAgentCamera.setFocusOnAvatar(true, true, false);
