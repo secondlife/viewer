@@ -236,9 +236,9 @@ LLVector3 LLAvatarJointCollisionVolume::getVolumePos(LLVector3 &offset)
     mUpdateXform = true;
 
     LLVector3 result = offset;
-    result.scaleVec(getScale());
+    result.scaleVec(LLVector3(getScale()));
     result.rotVec(getWorldRotation());
-    result += getWorldPosition();
+    result += LLVector3(getWorldPosition());
 
     return result;
 }

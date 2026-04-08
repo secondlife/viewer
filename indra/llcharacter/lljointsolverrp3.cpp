@@ -78,8 +78,8 @@ void LLJointSolverRP3::setupJoints( LLJoint* jointA,
     mJointC = jointC;
     mJointGoal = jointGoal;
 
-    mLengthAB = mJointB->getPosition().length();
-    mLengthBC = mJointC->getPosition().length();
+    mLengthAB = glm::length(mJointB->getPosition());
+    mLengthBC = glm::length(mJointC->getPosition());
 
     mJointABaseRotation = jointA->getRotation();
     mJointBBaseRotation = jointB->getRotation();
@@ -155,8 +155,8 @@ void LLJointSolverRP3::solve()
 
 #if DEBUG_JOINT_SOLVER
     LL_DEBUGS("JointSolver") << "LLJointSolverRP3::solve()" << LL_NEWLINE
-                            << "bPosLocal = " << mJointB->getPosition() << LL_NEWLINE
-                            << "cPosLocal = " << mJointC->getPosition() << LL_NEWLINE
+                            << "bPosLocal = " << LLVector3(mJointB->getPosition()) << LL_NEWLINE
+                            << "cPosLocal = " << LLVector3(mJointC->getPosition()) << LL_NEWLINE
                             << "bRotLocal = " << mJointB->getRotation() << LL_NEWLINE
                             << "cRotLocal = " << mJointC->getRotation() << LL_NEWLINE
                             << "aPos : " << aPos << LL_NEWLINE

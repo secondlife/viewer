@@ -38,6 +38,7 @@
 #include "llquaternion.h"
 #include "xform.h"
 #include "llmatrix4a.h"
+#include "glm/vec3.hpp"
 
 constexpr S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;
 // Need to set this to count of animate-able joints,
@@ -59,14 +60,14 @@ class LLVector3OverrideMap
 {
 public:
     LLVector3OverrideMap() = default;
-    bool findActiveOverride(LLUUID& mesh_id, LLVector3& pos) const;
+    bool findActiveOverride(LLUUID& mesh_id, glm::vec3& pos) const;
     void showJointVector3Overrides(std::ostringstream& os) const;
     U32 count() const;
-    void add(const LLUUID& mesh_id, const LLVector3& pos);
+    void add(const LLUUID& mesh_id, const glm::vec3& pos);
     bool remove(const LLUUID& mesh_id);
     void clear();
 
-    using map_type = std::map<LLUUID,LLVector3>;
+    using map_type = std::map<LLUUID, glm::vec3>;
     const map_type& getMap() const { return m_map; }
 private:
     map_type m_map;
@@ -127,19 +128,19 @@ protected:
     // parent joint
     LLJoint *mParent;
 
-    LLVector3       mDefaultPosition;
-    LLVector3       mDefaultScale;
+    glm::vec3       mDefaultPosition;
+    glm::vec3       mDefaultScale;
 
 public:
     U32             mDirtyFlags;
     bool            mUpdateXform;
 
     // describes the skin binding pose
-    LLVector3       mSkinOffset;
+    glm::vec3       mSkinOffset;
 
     // Endpoint of the bone, if applicable. This is only relevant for
     // external programs like Blender, and for diagnostic display.
-    LLVector3       mEnd;
+    glm::vec3       mEnd;
 
     S32             mJointNum;
 
@@ -157,11 +158,11 @@ public:
 
     // Position overrides
     LLVector3OverrideMap m_attachmentPosOverrides;
-    LLVector3 m_posBeforeOverrides;
+    glm::vec3 m_posBeforeOverrides;
 
     // Scale overrides
     LLVector3OverrideMap m_attachmentScaleOverrides;
-    LLVector3 m_scaleBeforeOverrides;
+    glm::vec3 m_scaleBeforeOverrides;
 
     void updatePos(const std::string& av_info);
     void updateScale(const std::string& av_info);
@@ -211,8 +212,8 @@ public:
     void setSupport( const std::string& support_string);
 
     // get/set end point
-    void setEnd( const LLVector3& end) { mEnd = end; }
-    const LLVector3& getEnd() const { return mEnd; }
+    void setEnd( const glm::vec3& end) { mEnd = end; }
+    const glm::vec3& getEnd() const { return mEnd; }
 
     // getParent
     LLJoint *getParent() { return mParent; }
@@ -229,21 +230,21 @@ public:
     void removeAllChildren();
 
     // get/set local position
-    LLVector3 getPosition();
-    void setPosition( const LLVector3& pos, bool apply_attachment_overrides = false );
+    glm::vec3 getPosition();
+    void setPosition( const glm::vec3& pos, bool apply_attachment_overrides = false );
 
     // Tracks the default position defined by the skeleton
-    void setDefaultPosition( const LLVector3& pos );
-    const LLVector3& getDefaultPosition() const;
+    void setDefaultPosition( const glm::vec3& pos );
+    const glm::vec3& getDefaultPosition() const;
 
     // Tracks the default scale defined by the skeleton
-    void setDefaultScale( const LLVector3& scale );
-    const LLVector3& getDefaultScale() const;
+    void setDefaultScale( const glm::vec3& scale );
+    const glm::vec3& getDefaultScale() const;
 
     // get/set world position
-    LLVector3 getWorldPosition();
-    LLVector3 getLastWorldPosition();
-    void setWorldPosition( const LLVector3& pos );
+    glm::vec3 getWorldPosition();
+    glm::vec3 getLastWorldPosition();
+    void setWorldPosition( const glm::vec3& pos );
 
     // get/set local rotation
     const LLQuaternion& getRotation();
@@ -255,8 +256,8 @@ public:
     void setWorldRotation( const LLQuaternion& rot );
 
     // get/set local scale
-    LLVector3 getScale();
-    void setScale( const LLVector3& scale, bool apply_attachment_overrides = false );
+    glm::vec3 getScale();
+    void setScale( const glm::vec3& scale, bool apply_attachment_overrides = false );
 
     // get/set world matrix
     const LLMatrix4 &getWorldMatrix();
@@ -272,8 +273,8 @@ public:
     void updateWorldMatrix();
 
     // get/set skin offset
-    const LLVector3 &getSkinOffset() const;
-    void setSkinOffset( const LLVector3 &offset);
+    const glm::vec3& getSkinOffset() const;
+    void setSkinOffset( const glm::vec3& offset);
 
     LLXformMatrix   *getXform() { return &mXform; }
 
@@ -281,25 +282,27 @@ public:
 
     virtual bool isAnimatable() const { return true; }
 
-    void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
+    void addAttachmentPosOverride( const glm::vec3& pos, const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
     void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
-    bool hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const;
+    bool hasAttachmentPosOverride( glm::vec3& pos, LLUUID& mesh_id ) const;
     void clearAttachmentPosOverrides();
     void showAttachmentPosOverrides(const std::string& av_info) const;
 
-    void addAttachmentScaleOverride( const LLVector3& scale, const LLUUID& mesh_id, const std::string& av_info );
+    void addAttachmentScaleOverride( const glm::vec3& scale, const LLUUID& mesh_id, const std::string& av_info );
     void removeAttachmentScaleOverride( const LLUUID& mesh_id, const std::string& av_info );
-    bool hasAttachmentScaleOverride( LLVector3& scale, LLUUID& mesh_id ) const;
+    bool hasAttachmentScaleOverride( glm::vec3& scale, LLUUID& mesh_id ) const;
     void clearAttachmentScaleOverrides();
     void showAttachmentScaleOverrides(const std::string& av_info) const;
 
+    // Note: set signatures kept as std::set<LLVector3> because glm::vec3 has no
+    // operator<. Internal map storage is glm::vec3; implicit conversion bridges.
     void getAllAttachmentPosOverrides(S32& num_pos_overrides,
                                       std::set<LLVector3>& distinct_pos_overrides) const;
     void getAllAttachmentScaleOverrides(S32& num_scale_overrides,
                                         std::set<LLVector3>& distinct_scale_overrides) const;
 
     // These are used in checks of whether a pos/scale override is considered significant.
-    bool aboveJointPosThreshold(const LLVector3& pos) const;
-    bool aboveJointScaleThreshold(const LLVector3& scale) const;
+    bool aboveJointPosThreshold(const glm::vec3& pos) const;
+    bool aboveJointScaleThreshold(const glm::vec3& scale) const;
 } LL_ALIGN_POSTFIX(16);
 

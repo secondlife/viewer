@@ -1527,13 +1527,13 @@ void LLAgentCamera::updateCamera()
         // shorten avatar skeleton to avoid foot interpenetration
         if (!gAgentAvatarp->mInAir)
         {
-            LLVector3 chest_offset = LLVector3(0.f, 0.f, chest_joint->getPosition().mV[VZ]) * torso_joint->getWorldRotation();
+            LLVector3 chest_offset = LLVector3(0.f, 0.f, chest_joint->getPosition().z) * torso_joint->getWorldRotation();
             F32 z_compensate = llclamp(-diff.mV[VZ], -0.2f, 1.f);
             F32 scale_factor = llclamp(1.f - ((z_compensate * 0.5f) / chest_offset.mV[VZ]), 0.5f, 1.2f);
             torso_joint->setScale(LLVector3(1.f, 1.f, scale_factor));
 
             LLJoint* neck_joint = gAgentAvatarp->mNeckp;
-            LLVector3 neck_offset = LLVector3(0.f, 0.f, neck_joint->getPosition().mV[VZ]) * chest_joint->getWorldRotation();
+            LLVector3 neck_offset = LLVector3(0.f, 0.f, neck_joint->getPosition().z) * chest_joint->getWorldRotation();
             scale_factor = llclamp(1.f - ((z_compensate * 0.5f) / neck_offset.mV[VZ]), 0.5f, 1.2f);
             chest_joint->setScale(LLVector3(1.f, 1.f, scale_factor));
             diff.mV[VZ] = 0.f;
@@ -2115,7 +2115,7 @@ F32 LLAgentCamera::getCameraMaxZoomDistance()
 glm::vec3 LLAgentCamera::getAvatarRootPosition()
 {
     static LLCachedControl<bool> use_hover_height(gSavedSettings, "HoverHeightAffectsCamera");
-    LLVector3 p = use_hover_height ? gAgentAvatarp->mRoot->getWorldPosition() : gAgentAvatarp->mRoot->getWorldPosition() - gAgentAvatarp->getHoverOffset();
+    LLVector3 p = use_hover_height ? LLVector3(gAgentAvatarp->mRoot->getWorldPosition()) : LLVector3(gAgentAvatarp->mRoot->getWorldPosition()) - gAgentAvatarp->getHoverOffset();
     return glm::vec3(p.mV[VX], p.mV[VY], p.mV[VZ]);
 }
 //-----------------------------------------------------------------------------

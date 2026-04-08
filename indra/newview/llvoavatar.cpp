@@ -1413,9 +1413,9 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     // known starting point, but in general there isn't. Ideally the
     // box update logic should be modified to handle the no-point-yet
     // case. For most models, starting with the pelvis is safe though.
-    LLVector3 zero_pos;
+    glm::vec3 zero_pos(0.f);
     LLVector4a pos;
-    if (dist_vec(zero_pos, mPelvisp->getWorldPosition())<0.001)
+    if (glm::length(zero_pos - mPelvisp->getWorldPosition()) < 0.001f)
     {
         // Don't use pelvis until av initialized
         const glm::vec3 rp = getRenderPosition();
@@ -1423,7 +1423,8 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     }
     else
     {
-        pos.load3(mPelvisp->getWorldPosition().mV);
+        const glm::vec3 wp = mPelvisp->getWorldPosition();
+        pos.load3(glm::value_ptr(wp));
     }
     newMin = pos;
     newMax = pos;
@@ -1705,7 +1706,7 @@ void LLVOAvatar::renderBones(const std::string &selected_joint)
 
         LLVector3 occ_color, visible_color;
 
-        LLVector3 pos;
+        glm::vec3 pos;
         LLUUID mesh_id;
         F32 sphere_scale = SPHERE_SCALEF;
 
@@ -4909,7 +4910,7 @@ void LLVOAvatar::updateHeadOffset()
 {
     // since we only care about Z, just grab one of the eyes
     LLVector3 midEyePt = mEyeLeftp->getWorldPosition();
-    midEyePt -= mDrawable.notNull() ? LLVector3(mDrawable->getWorldPosition()) : mRoot->getWorldPosition();
+    midEyePt -= mDrawable.notNull() ? LLVector3(mDrawable->getWorldPosition()) : LLVector3(mRoot->getWorldPosition());
     midEyePt.mV[VZ] = llmax(-mPelvisToFoot + LLViewerCamera::getInstance()->getNear(), midEyePt.mV[VZ]);
 
     if (mDrawable.notNull())
@@ -6812,8 +6813,8 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
 //-----------------------------------------------------------------------------
 void LLVOAvatar::getAttachmentOverrideNames(std::set<std::string>& pos_names, std::set<std::string>& scale_names) const
 {
-    LLVector3 pos;
-    LLVector3 scale;
+    glm::vec3 pos;
+    glm::vec3 scale;
     LLUUID mesh_id;
 
     // Bones
@@ -6879,7 +6880,7 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
         return;
     }
 
-    LLVector3 pos, scale;
+    glm::vec3 pos, scale;
     LLUUID mesh_id;
     S32 count = 0;
 
@@ -10470,7 +10471,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
         {
             LLJoint *pJoint = getJoint(*name_iter);
 
-            LLVector3 pos;
+            glm::vec3 pos;
             LLUUID mesh_id;
 
             if (pJoint && pJoint->hasAttachmentPosOverride(pos,mesh_id))
@@ -10489,7 +10490,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
         {
             LLJoint *pJoint = getJoint(*name_iter);
 
-            LLVector3 scale;
+            glm::vec3 scale;
             LLUUID mesh_id;
 
             if (pJoint && pJoint->hasAttachmentScaleOverride(scale,mesh_id))
