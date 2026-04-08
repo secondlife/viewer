@@ -33,6 +33,9 @@
 
 #include "llmath.h"
 
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 #define F_EPSILON 0.00001f
 
 #if LL_RELEASE
@@ -276,7 +279,11 @@ void LLJointSolverRP3::solve()
 
     F32 theta = acos(cosTheta);
 
-    LLQuaternion bRot(theta - abbcAng, abbcOrthoVec);
+    // bRot: glm::quat (phase 2 quat migration cluster #14).
+    // glm::angleAxis takes (angle, normalized_axis). abbcOrthoVec is
+    // already normalized at line 266 above. The implicit
+    // LLVector3 -> glm::vec3 conversion handles the axis param type.
+    glm::quat bRot = glm::angleAxis(theta - abbcAng, glm::vec3(abbcOrthoVec));
 
 #if DEBUG_JOINT_SOLVER
     LL_DEBUGS("JointSolver") << "abbcAng      : " << abbcAng << LL_NEWLINE
@@ -284,7 +291,7 @@ void LLJointSolverRP3::solve()
                             << "agLenSq      : " << agLenSq << LL_NEWLINE
                             << "cosTheta     : " << cosTheta << LL_NEWLINE
                             << "theta        : " << theta << LL_NEWLINE
-                            << "bRot         : " << bRot << LL_NEWLINE
+                            << "bRot         : " << LLQuaternion(bRot) << LL_NEWLINE
                             << "theta abbcAng theta-abbcAng: "
                                 << theta*180.0/F_PI << " "
                                 << abbcAng*180.0f/F_PI << " "
@@ -295,25 +302,37 @@ void LLJointSolverRP3::solve()
     //-------------------------------------------------------------------------
     // compute rotation that rotates new A->C to A->G
     //-------------------------------------------------------------------------
-    // rotate B->C by bRot
-    bcVec = bcVec * bRot;
+    // rotate B->C by bRot. Disambiguate the LLVector3 * quat overload by
+    // forcing bRot back to LLQuaternion at the call site (cluster #14
+    // bridge — bRot is glm::quat now but the surrounding vec math is LL).
+    bcVec = bcVec * LLQuaternion(bRot);
 
     // update A->C
     acVec = abVec + bcVec;
 
-    LLQuaternion cgRot;
-    cgRot.shortestArc( acVec, agVec );
+    // cgRot: glm::quat (phase 2 quat migration cluster #15).
+    // glm::rotation(from, to) requires both vectors to be NORMALIZED
+    // (it computes cos(theta) = dot(from, to) directly). LLQuaternion::shortestArc
+    // handles non-unit input internally; we replicate that by normalizing
+    // here. Behaviorally identical because the produced rotation is unit-length.
+    glm::quat cgRot = glm::rotation(glm::normalize(glm::vec3(acVec)),
+                                    glm::normalize(glm::vec3(agVec)));
 
 #if DEBUG_JOINT_SOLVER
     LL_DEBUGS("JointSolver") << "bcVec : " << bcVec << LL_NEWLINE
                             << "acVec : " << acVec << LL_NEWLINE
-                            << "cgRot : " << cgRot << LL_ENDL;
+                            << "cgRot : " << LLQuaternion(cgRot) << LL_ENDL;
 #endif
 
-    // update A->B and B->C with rotation from C to G
-    abVec = abVec * cgRot;
-    bcVec = bcVec * cgRot;
-    abcNorm = abcNorm * cgRot;
+    // update A->B and B->C with rotation from C to G. Disambiguate the
+    // LLVector3 * quat overload by forcing cgRot back to LLQuaternion at
+    // each call site (cluster #15 bridge — cgRot is glm::quat now but
+    // the surrounding vec math + the triple compose at the end of solve()
+    // are still LL).
+    const LLQuaternion cgRot_ll(cgRot);
+    abVec = abVec * cgRot_ll;
+    bcVec = bcVec * cgRot_ll;
+    abcNorm = abcNorm * cgRot_ll;
     acVec = abVec + bcVec;
 
     //-------------------------------------------------------------------------
@@ -348,47 +367,70 @@ void LLJointSolverRP3::solve()
     //-------------------------------------------------------------------------
     // calcuate plane rotation
     //-------------------------------------------------------------------------
-    LLQuaternion pRot;
+    // pRot: glm::quat (phase 2 quat migration cluster #16). Default
+    // identity is glm::quat(1, 0, 0, 0) (w, x, y, z).
+    glm::quat pRot(1.f, 0.f, 0.f, 0.f);
     if ( are_parallel( abcNorm, apgNorm, 0.001f) )
     {
         if (dot(abcNorm, apgNorm) < 0.0f)
         {
             // we must be PI radians off ==> rotate by PI around agVec
-            pRot.setAngleAxis(F_PI, agVec);
+            pRot = glm::angleAxis(F_PI, glm::normalize(glm::vec3(agVec)));
         }
         else
         {
-            // we're done
+            // we're done — pRot stays at identity
         }
     }
     else
     {
-        pRot.shortestArc( abcNorm, apgNorm );
+        // shortestArc -> glm::rotation. Both inputs must be normalized
+        // (see cgRot construction in cluster #15 for the same pattern).
+        pRot = glm::rotation(glm::normalize(glm::vec3(abcNorm)),
+                             glm::normalize(glm::vec3(apgNorm)));
     }
 
     //-------------------------------------------------------------------------
     // compute twist rotation
     //-------------------------------------------------------------------------
-    LLQuaternion twistRot( mTwist, agVec );
+    // twistRot: glm::quat (cluster #16). Axis-angle ctor replaced with
+    // glm::angleAxis. agVec is normalized at line 197 (agLen = agVec.length(),
+    // but we still need to normalize for glm::angleAxis since LL's
+    // axis-angle ctor normalizes internally).
+    glm::quat twistRot = glm::angleAxis(mTwist, glm::normalize(glm::vec3(agVec)));
 
 #if DEBUG_JOINT_SOLVER
     LL_DEBUGS("JointSolver") << "abcNorm = " << abcNorm << LL_NEWLINE
                             << "apgNorm = " << apgNorm << LL_NEWLINE
-                            << "pRot = " << pRot << LL_NEWLINE
+                            << "pRot = " << LLQuaternion(pRot) << LL_NEWLINE
                             << "twist    : " << mTwist*180.0/F_PI << LL_NEWLINE
-                            << "twistRot : " << twistRot << LL_ENDL;
+                            << "twistRot : " << LLQuaternion(twistRot) << LL_ENDL;
 #endif
 
     //-------------------------------------------------------------------------
     // compute rotation of A
     //-------------------------------------------------------------------------
-    LLQuaternion aRot = cgRot * pRot * twistRot;
+    // CRITICAL OPERAND-ORDER FLIP (cluster #16):
+    //   LL form: aRot = cgRot * pRot * twistRot
+    //     LL semantics = "apply cgRot first, then pRot, then twistRot"
+    //   glm equivalent (same semantic, REVERSED operand order):
+    //     aRot = twistRot * pRot * cgRot
+    //     glm semantics: rightmost is applied first
+    // Both expressions produce a quaternion that represents the same
+    // total rotation. Test net pins this via bone-length preservation
+    // and goal convergence.
+    glm::quat aRot = twistRot * pRot * cgRot;
 
     //-------------------------------------------------------------------------
     // apply the rotations
     //-------------------------------------------------------------------------
-    mJointB->setWorldRotation( mJointB->getWorldRotation() * bRot );
-    mJointA->setWorldRotation( mJointA->getWorldRotation() * aRot );
+    // Final composes: getWorldRotation() returns LLQuaternion (cluster #2
+    // was setters-only). Bridge it to glm::quat at the call site so the
+    // composition uses glm operand semantics. Original LL meaning was
+    // "apply old worldrot, then apply (bRot|aRot)" — in glm operand order
+    // that becomes "(bRot|aRot) * worldrot".
+    mJointB->setWorldRotation( bRot * glm::quat(mJointB->getWorldRotation()) );
+    mJointA->setWorldRotation( aRot * glm::quat(mJointA->getWorldRotation()) );
 }
 
 
