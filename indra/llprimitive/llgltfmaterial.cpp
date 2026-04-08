@@ -273,12 +273,12 @@ glm::vec2 LLGLTFMaterial::vec2FromJson(const tinygltf::Value::Object& object, co
         return default_value;
     }
     const tinygltf::Value& vec2_json = std::get<1>(*it);
-    if (!vec2_json.IsArray() || vec2_json.ArrayLen() < LENGTHOFVECTOR2)
+    if (!vec2_json.IsArray() || vec2_json.ArrayLen() < 2u)
     {
         return default_value;
     }
     glm::vec2 value(0.f);
-    for (U32 i = 0; i < LENGTHOFVECTOR2; ++i)
+    for (U32 i = 0; i < 2u; ++i)
     {
         const tinygltf::Value& real_json = vec2_json.Get(i);
         if (!real_json.IsReal())

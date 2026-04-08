@@ -229,7 +229,7 @@ public:
     void removeAllChildren();
 
     // get/set local position
-    const LLVector3& getPosition();
+    LLVector3 getPosition();
     void setPosition( const LLVector3& pos, bool apply_attachment_overrides = false );
 
     // Tracks the default position defined by the skeleton
@@ -255,7 +255,7 @@ public:
     void setWorldRotation( const LLQuaternion& rot );
 
     // get/set local scale
-    const LLVector3& getScale();
+    LLVector3 getScale();
     void setScale( const LLVector3& scale, bool apply_attachment_overrides = false );
 
     // get/set world matrix

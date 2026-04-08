@@ -313,9 +313,9 @@ void LLJoint::removeAllChildren()
 //--------------------------------------------------------------------
 // getPosition()
 //--------------------------------------------------------------------
-const LLVector3& LLJoint::getPosition()
+LLVector3 LLJoint::getPosition()
 {
-    return mXform.getPosition();
+    return LLVector3(mXform.getPosition());
 }
 
 bool do_debug_joint(const std::string& name)
@@ -850,9 +850,9 @@ void LLJoint::setWorldRotation( const LLQuaternion& rot )
 //--------------------------------------------------------------------
 // getScale()
 //--------------------------------------------------------------------
-const LLVector3& LLJoint::getScale()
+LLVector3 LLJoint::getScale()
 {
-    return mXform.getScale();
+    return LLVector3(mXform.getScale());
 }
 
 //--------------------------------------------------------------------
