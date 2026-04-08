@@ -68,7 +68,7 @@ class LLPolyMeshSharedData
 private:
     // transform data
     LLVector3               mPosition;
-    LLQuaternion            mRotation;
+    glm::quat               mRotation;
     LLVector3               mScale;
 
     // vertex data
@@ -184,9 +184,9 @@ public:
     }
 
     // Get rotation
-    const LLQuaternion &getRotation() {
+    LLQuaternion getRotation() {
         llassert (mSharedData);
-        return mSharedData->mRotation;
+        return LLQuaternion(mSharedData->mRotation);
     }
 
     // Get scale
