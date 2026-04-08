@@ -53,8 +53,8 @@ public:
     bool setupSkinJoint( LLAvatarJoint *joint);
 
     LLAvatarJoint   *mJoint;
-    LLVector3       mRootToJointSkinOffset;
-    LLVector3       mRootToParentJointSkinOffset;
+    glm::vec3       mRootToJointSkinOffset;
+    glm::vec3       mRootToParentJointSkinOffset;
 };
 
 //-----------------------------------------------------------------------------
