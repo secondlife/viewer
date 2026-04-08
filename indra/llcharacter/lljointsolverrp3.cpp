@@ -34,6 +34,7 @@
 #include "llmath.h"
 
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #define F_EPSILON 0.00001f
 
@@ -309,19 +310,29 @@ void LLJointSolverRP3::solve()
     // update A->C
     acVec = abVec + bcVec;
 
-    LLQuaternion cgRot;
-    cgRot.shortestArc( acVec, agVec );
+    // cgRot: glm::quat (phase 2 quat migration cluster #15).
+    // glm::rotation(from, to) requires both vectors to be NORMALIZED
+    // (it computes cos(theta) = dot(from, to) directly). LLQuaternion::shortestArc
+    // handles non-unit input internally; we replicate that by normalizing
+    // here. Behaviorally identical because the produced rotation is unit-length.
+    glm::quat cgRot = glm::rotation(glm::normalize(glm::vec3(acVec)),
+                                    glm::normalize(glm::vec3(agVec)));
 
 #if DEBUG_JOINT_SOLVER
     LL_DEBUGS("JointSolver") << "bcVec : " << bcVec << LL_NEWLINE
                             << "acVec : " << acVec << LL_NEWLINE
-                            << "cgRot : " << cgRot << LL_ENDL;
+                            << "cgRot : " << LLQuaternion(cgRot) << LL_ENDL;
 #endif
 
-    // update A->B and B->C with rotation from C to G
-    abVec = abVec * cgRot;
-    bcVec = bcVec * cgRot;
-    abcNorm = abcNorm * cgRot;
+    // update A->B and B->C with rotation from C to G. Disambiguate the
+    // LLVector3 * quat overload by forcing cgRot back to LLQuaternion at
+    // each call site (cluster #15 bridge — cgRot is glm::quat now but
+    // the surrounding vec math + the triple compose at the end of solve()
+    // are still LL).
+    const LLQuaternion cgRot_ll(cgRot);
+    abVec = abVec * cgRot_ll;
+    bcVec = bcVec * cgRot_ll;
+    abcNorm = abcNorm * cgRot_ll;
     acVec = abVec + bcVec;
 
     //-------------------------------------------------------------------------
@@ -390,7 +401,13 @@ void LLJointSolverRP3::solve()
     //-------------------------------------------------------------------------
     // compute rotation of A
     //-------------------------------------------------------------------------
-    LLQuaternion aRot = cgRot * pRot * twistRot;
+    // cgRot is glm::quat (cluster #15). pRot and twistRot are still
+    // LLQuaternion (deferred to cluster #16). Bridge cgRot back to
+    // LLQuaternion so the triple compose stays in LL operand semantics
+    // ("apply cgRot, then pRot, then twistRot"). The migration to glm
+    // operand order will happen atomically when all three operands move
+    // together.
+    LLQuaternion aRot = LLQuaternion(cgRot) * pRot * twistRot;
 
     //-------------------------------------------------------------------------
     // apply the rotations
