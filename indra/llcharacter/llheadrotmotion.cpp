@@ -151,7 +151,7 @@ LLMotion::LLMotionInitStatus LLHeadRotMotion::onInitialize(LLCharacter *characte
     addJointState( mNeckState );
     addJointState( mHeadState );
 
-    mLastHeadRot.loadIdentity();
+    mLastHeadRot = glm::quat(1.f, 0.f, 0.f, 0.f);
 
     return LLMotionInitStatus::STATUS_SUCCESS;
 }

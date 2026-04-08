@@ -115,7 +115,10 @@ public:
     LLPointer<LLJointState> mNeckState;
     LLPointer<LLJointState> mHeadState;
 
-    LLQuaternion        mLastHeadRot;
+    // glm-quat migration cluster #4: mLastHeadRot stored as glm::quat.
+    // Interop with surrounding LLQuaternion math goes through the implicit
+    // bridge ctor / conversion operator declared in llquaternion.h.
+    glm::quat           mLastHeadRot{1.f, 0.f, 0.f, 0.f};
 };
 
 //-----------------------------------------------------------------------------
