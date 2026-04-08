@@ -71,9 +71,9 @@ bool LLLandmark::getGlobalPos(LLVector3d& pos)
         }
         if((g_x > 0.f) && (g_y > 0.f))
         {
-            pos.mdV[0] = g_x + mRegionPos.mV[0];
-            pos.mdV[1] = g_y + mRegionPos.mV[1];
-            pos.mdV[2] = mRegionPos.mV[2];
+            pos.mdV[0] = g_x + mRegionPos.x;
+            pos.mdV[1] = g_y + mRegionPos.y;
+            pos.mdV[2] = mRegionPos.z;
             setGlobalPos(pos);
         }
     }
@@ -96,7 +96,7 @@ bool LLLandmark::getRegionID(LLUUID& region_id)
     return false;
 }
 
-LLVector3 LLLandmark::getRegionPos() const
+glm::vec3 LLLandmark::getRegionPos() const
 {
     return mRegionPos;
 }
@@ -148,7 +148,7 @@ LLLandmark* LLLandmark::constructFromString(const char *buffer, const S32 buffer
                 // *NOTE: Changing the buffer size will require changing the
                 // scanf call below.
                 char region_id_str[MAX_STRING];
-                LLVector3 pos;
+                glm::vec3 pos(0.f, 0.f, 0.f);
                 LLUUID region_id;
                 count = sscanf( buffer + chars_read_total,
                                 "region_id %254s\n%n",
@@ -174,7 +174,7 @@ LLLandmark* LLLandmark::constructFromString(const char *buffer, const S32 buffer
 
                 if (!bad_block)
                 {
-                    count = sscanf(buffer + chars_read_total, "local_pos %f %f %f\n%n", pos.mV + VX, pos.mV + VY, pos.mV + VZ, &chars_read);
+                    count = sscanf(buffer + chars_read_total, "local_pos %f %f %f\n%n", &pos.x, &pos.y, &pos.z, &chars_read);
                     if (count != 3)
                     {
                         bad_block = true;
