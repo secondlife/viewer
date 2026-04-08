@@ -702,6 +702,63 @@ namespace tut
 
     // ---------- Composition with vector rotation ----------
 
+    // ---------- Implicit bridge ctors (LLQuaternion <-> glm::quat) ----------
+
+    template<> template<>
+    void llquat_glm_equiv_object::test<30>()
+    {
+        // The implicit bridge ctor LLQuaternion(const glm::quat&) must
+        // preserve all four components with the W-position swap correct.
+        glm::quat gm(0.927f, 0.1f, 0.2f, 0.3f);  // (w, x, y, z)
+        LLQuaternion ll(gm);  // bridge
+
+        ensure_approximately_equals("bridge: x", ll.mQ[VX], gm.x, 16);
+        ensure_approximately_equals("bridge: y", ll.mQ[VY], gm.y, 16);
+        ensure_approximately_equals("bridge: z", ll.mQ[VZ], gm.z, 16);
+        ensure_approximately_equals("bridge: w", ll.mQ[VW], gm.w, 16);
+    }
+
+    template<> template<>
+    void llquat_glm_equiv_object::test<31>()
+    {
+        // The implicit conversion operator glm::quat() must preserve
+        // all four components with the W-position swap correct.
+        LLQuaternion ll(0.1f, 0.2f, 0.3f, 0.927f);
+        glm::quat gm = ll;  // implicit conversion
+
+        ensure_approximately_equals("op glm::quat: x", gm.x, ll.mQ[VX], 16);
+        ensure_approximately_equals("op glm::quat: y", gm.y, ll.mQ[VY], 16);
+        ensure_approximately_equals("op glm::quat: z", gm.z, ll.mQ[VZ], 16);
+        ensure_approximately_equals("op glm::quat: w", gm.w, ll.mQ[VW], 16);
+    }
+
+    template<> template<>
+    void llquat_glm_equiv_object::test<32>()
+    {
+        // Round-trip ll -> glm -> ll via the bridge ctors (not via the
+        // to_glm/to_ll helpers) preserves the value bit-for-bit.
+        LLQuaternion original(0.1f, 0.2f, 0.3f, 0.927f);
+        glm::quat   gm = original;        // implicit op
+        LLQuaternion round(gm);           // implicit ctor
+
+        ensure("bridge round-trip preserves value", ll_quats_near(round, original));
+    }
+
+    template<> template<>
+    void llquat_glm_equiv_object::test<33>()
+    {
+        // Round-trip glm -> ll -> glm via the bridge ctors preserves
+        // the value bit-for-bit.
+        glm::quat original(0.927f, 0.1f, 0.2f, 0.3f);
+        LLQuaternion ll(original);       // implicit ctor
+        glm::quat round = ll;            // implicit op
+
+        ensure_approximately_equals("bridge glm round-trip x", round.x, original.x, 16);
+        ensure_approximately_equals("bridge glm round-trip y", round.y, original.y, 16);
+        ensure_approximately_equals("bridge glm round-trip z", round.z, original.z, 16);
+        ensure_approximately_equals("bridge glm round-trip w", round.w, original.w, 16);
+    }
+
     template<> template<>
     void llquat_glm_equiv_object::test<29>()
     {
