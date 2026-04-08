@@ -347,7 +347,7 @@ void LLViewerJointAttachment::setAttachmentVisibility(bool visible)
 //-----------------------------------------------------------------------------
 // setOriginalPosition()
 //-----------------------------------------------------------------------------
-void LLViewerJointAttachment::setOriginalPosition(LLVector3& position)
+void LLViewerJointAttachment::setOriginalPosition(const glm::vec3& position)
 {
     mOriginalPos = position;
     // SL-315

@@ -64,7 +64,7 @@ public:
     void setVisibleInFirstPerson(bool visibility) { mVisibleInFirst = visibility; }
     bool getVisibleInFirstPerson() const { return mVisibleInFirst; }
     void setGroup(S32 group) { mGroup = group; }
-    void setOriginalPosition(LLVector3 &position);
+    void setOriginalPosition(const glm::vec3& position);
     void setAttachmentVisibility(bool visible);
     void setIsHUDAttachment(bool is_hud) { mIsHUDAttachment = is_hud; }
     bool getIsHUDAttachment() const { return mIsHUDAttachment; }
@@ -101,7 +101,7 @@ protected:
 
 private:
     bool            mVisibleInFirst;
-    LLVector3       mOriginalPos;
+    glm::vec3       mOriginalPos;
     S32             mGroup;
     bool            mIsHUDAttachment;
     S32             mPieSlice;
