@@ -788,7 +788,10 @@ bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
         if (!mDrawablep->isActive())
         {   // Shift position for region
             LLVector4a offset;
-            offset.load3(mDrawablep->getRegion()->getOriginAgent().mV);
+            {
+                const glm::vec3 oa = mDrawablep->getRegion()->getOriginAgent();
+                offset.load3(glm::value_ptr(oa));
+            }
             mExtents[0].add(offset);
             mExtents[1].add(offset);
         }

@@ -44,6 +44,8 @@
 #include "llreflectionmap.h"
 #include "llpointer.h"
 
+#include "glm/vec3.hpp"
+
 // Surface id's
 #define LAND  1
 #define WATER 2
@@ -190,11 +192,11 @@ public:
 
     // Origin height is at zero.
     const LLVector3d &getOriginGlobal() const;
-    LLVector3 getOriginAgent() const;
+    glm::vec3 getOriginAgent() const;
 
     // Center is at the height of the water table.
     const LLVector3d &getCenterGlobal() const;
-    LLVector3 getCenterAgent() const;
+    glm::vec3 getCenterAgent() const;
 
     void setRegionNameAndZone(const std::string& name_and_zone);
     const std::string& getName() const              { return mName; }
@@ -310,23 +312,23 @@ public:
     void setRegionID(const LLUUID& region_id);
 
     bool pointInRegionGlobal(const LLVector3d &point_global) const;
-    LLVector3   getPosRegionFromGlobal(const LLVector3d &point_global) const;
-    LLVector3   getPosRegionFromAgent(const LLVector3 &agent_pos) const;
-    LLVector3   getPosAgentFromRegion(const LLVector3 &region_pos) const;
-    LLVector3d  getPosGlobalFromRegion(const LLVector3 &offset) const;
+    glm::vec3   getPosRegionFromGlobal(const LLVector3d &point_global) const;
+    glm::vec3   getPosRegionFromAgent(const glm::vec3 &agent_pos) const;
+    glm::vec3   getPosAgentFromRegion(const glm::vec3 &region_pos) const;
+    LLVector3d  getPosGlobalFromRegion(const glm::vec3 &offset) const;
 
     LLVLComposition *getComposition() const;
     F32 getCompositionXY(const S32 x, const S32 y) const;
 
-    bool isOwnedSelf(const LLVector3& pos);
+    bool isOwnedSelf(const glm::vec3& pos);
 
     // Owned by a group you belong to?  (officer OR member)
-    bool isOwnedGroup(const LLVector3& pos);
+    bool isOwnedGroup(const glm::vec3& pos);
 
     // deal with map object updates in the world.
     void updateCoarseLocations(LLMessageSystem* msg);
 
-    F32 getLandHeightRegion(const LLVector3& region_pos);
+    F32 getLandHeightRegion(const glm::vec3& region_pos);
 
     U8 getCentralBakeVersion() { return mCentralBakeVersion; }
 
@@ -400,7 +402,7 @@ public:
     LLSpatialPartition* getSpatialPartition(U32 type);
     LLVOCachePartition* getVOCachePartition();
 
-    bool objectIsReturnable(const LLVector3& pos, const std::vector<LLBBox>& boxes) const;
+    bool objectIsReturnable(const glm::vec3& pos, const std::vector<LLBBox>& boxes) const;
     bool childrenObjectReturnable( const std::vector<LLBBox>& boxes ) const;
     bool objectsCrossParcel(const std::vector<LLBBox>& boxes) const;
 
