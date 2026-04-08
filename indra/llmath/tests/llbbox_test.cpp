@@ -65,7 +65,14 @@ namespace tut
         ensure_equals("Default bbox min", bbox1.getMinLocal(), LLVector3(0.0f, 0.0f, 0.0f));
         ensure_equals("Default bbox max", bbox1.getMaxLocal(), LLVector3(0.0f, 0.0f, 0.0f));
         ensure_equals("Default bbox pos agent", bbox1.getPositionAgent(), LLVector3(0.0f, 0.0f, 0.0f));
-        ensure_equals("Default bbox rotation", bbox1.getRotation(), LLQuaternion(0.0f, 0.0f, 0.0f, 1.0f));
+        // getRotation() returns glm::quat (LLBBox phase 2 quat migration).
+        // glm::quat ctor is (w, x, y, z), so identity is (1, 0, 0, 0).
+        const glm::quat ident(1.0f, 0.0f, 0.0f, 0.0f);
+        const glm::quat rot = bbox1.getRotation();
+        ensure_approximately_equals("Default bbox rotation x", rot.x, ident.x, 16);
+        ensure_approximately_equals("Default bbox rotation y", rot.y, ident.y, 16);
+        ensure_approximately_equals("Default bbox rotation z", rot.z, ident.z, 16);
+        ensure_approximately_equals("Default bbox rotation w", rot.w, ident.w, 16);
     }
 
     template<> template<>
@@ -81,7 +88,13 @@ namespace tut
         ensure_equals("Custom bbox min", bbox2.getMinLocal(), LLVector3(2.0f, 3.0f, 4.0f));
         ensure_equals("Custom bbox max", bbox2.getMaxLocal(), LLVector3(4.0f, 5.0f, 6.0f));
         ensure_equals("Custom bbox pos agent", bbox2.getPositionAgent(), LLVector3(1.0f, 2.0f, 3.0f));
-        ensure_equals("Custom bbox rotation", bbox2.getRotation(), LLQuaternion(0.0f, 0.0f, 0.0f, 1.0f));
+        // getRotation() returns glm::quat (LLBBox phase 2 quat migration).
+        const glm::quat ident(1.0f, 0.0f, 0.0f, 0.0f);
+        const glm::quat rot = bbox2.getRotation();
+        ensure_approximately_equals("Custom bbox rotation x", rot.x, ident.x, 16);
+        ensure_approximately_equals("Custom bbox rotation y", rot.y, ident.y, 16);
+        ensure_approximately_equals("Custom bbox rotation z", rot.z, ident.z, 16);
+        ensure_approximately_equals("Custom bbox rotation w", rot.w, ident.w, 16);
     }
 
     template<> template<>
@@ -362,6 +375,192 @@ namespace tut
         ensure("containsPointAgent(2,2.999,4)", bbox1.containsPointAgent(LLVector3(2.0f, 2.999f, 4.0f)) == false);
         ensure("containsPointAgent(4,5,6)", bbox1.containsPointAgent(LLVector3(4.0f, 5.0f, 6.0f)) == true);
         ensure("containsPointAgent(4,5.001,6)", bbox1.containsPointAgent(LLVector3(4.0f, 5.001f, 6.0f)) == false);
+    }
+
+    // ---------------------------------------------------------------------
+    // Tests 17-21: rotation-path coverage gaps relative to the 1-16 set.
+    //
+    // These tests pin LLBBox behavior at the sites that the LLQuaternion ->
+    // glm::quat migration touches but the existing 1-16 set doesn't exercise:
+    //   - localToAgentBasis / agentToLocalBasis (the basis-only rotation
+    //     paths at llbbox.cpp:131-141 with the LLMatrix4(mRotation) and
+    //     LLMatrix4(~mRotation) ctor sites)
+    //   - getMinAgent / getMaxAgent (forward through localToAgent with
+    //     non-identity rotation)
+    //   - Multi-axis rotation (all existing rotation tests are axis-aligned;
+    //     a non-axis-aligned rotation surfaces compose/sign bugs that
+    //     axis-aligned cases happen to mask)
+    //   - Round-trip identity through both basis and full transforms with
+    //     a multi-axis rotation
+    //
+    // These are NOT cross-library equivalence tests — LLBBox is not being
+    // replaced. They are LLBBox-against-itself behavior pins so the migration
+    // of the internal LLQuaternion mRotation field surfaces any deviation
+    // immediately.
+    // ---------------------------------------------------------------------
+
+    template<> template<>
+    void object::test<17>()
+    {
+        // localToAgentBasis / agentToLocalBasis round-trip identity. These
+        // methods rotate without translating (used for normals, axes,
+        // direction vectors). The basis paths are at llbbox.cpp:131-141 and
+        // touch the LLMatrix4(mRotation) and LLMatrix4(~mRotation) ctors
+        // directly without going through translate().
+        LLBBox bbox(LLVector3(5.0f, -2.0f, 7.0f),
+                    LLQuaternion(ANGLE, LLVector3(1.0f, 0.0f, 0.0f)),
+                    LLVector3(1.0f, 1.0f, 1.0f), LLVector3(3.0f, 3.0f, 3.0f));
+
+        const LLVector3 v(1.0f, 2.0f, 3.0f);
+        const LLVector3 v_to_agent_basis = bbox.localToAgentBasis(v);
+        const LLVector3 v_back = bbox.agentToLocalBasis(v_to_agent_basis);
+
+        ensure("localToAgentBasis(agentToLocalBasis(v)) == v",
+               APPROX_EQUAL(v_back, v));
+
+        // Sanity: basis transform of zero is zero (no translation in basis path)
+        ensure_equals("agentToLocalBasis(0)",
+                      bbox.agentToLocalBasis(LLVector3(0.0f, 0.0f, 0.0f)),
+                      LLVector3(0.0f, 0.0f, 0.0f));
+        ensure_equals("localToAgentBasis(0)",
+                      bbox.localToAgentBasis(LLVector3(0.0f, 0.0f, 0.0f)),
+                      LLVector3(0.0f, 0.0f, 0.0f));
+    }
+
+    template<> template<>
+    void object::test<18>()
+    {
+        // Multi-axis rotation: round-trip identity through localToAgent /
+        // agentToLocal. The axis (1, 1, 0).normalize() avoids the
+        // axis-aligned shortcuts that single-axis rotations happen to hit
+        // in the math. Any compose-direction or sign bug in the rotation
+        // path surfaces here.
+        LLVector3 axis(1.0f, 1.0f, 0.0f);
+        axis.normalize();
+        const LLQuaternion q(0.7f, axis);  // 0.7 rad, non-axis-aligned
+
+        LLBBox bbox(LLVector3(2.0f, 3.0f, 4.0f), q,
+                    LLVector3(-1.0f, -1.0f, -1.0f), LLVector3(1.0f, 1.0f, 1.0f));
+
+        const LLVector3 v(2.5f, -1.5f, 0.75f);
+        const LLVector3 round = bbox.agentToLocal(bbox.localToAgent(v));
+        ensure("multi-axis localToAgent->agentToLocal == identity",
+               APPROX_EQUAL(round, v));
+
+        // And reverse: agentToLocal first, then localToAgent
+        const LLVector3 round_rev = bbox.localToAgent(bbox.agentToLocal(v));
+        ensure("multi-axis agentToLocal->localToAgent == identity",
+               APPROX_EQUAL(round_rev, v));
+    }
+
+    template<> template<>
+    void object::test<19>()
+    {
+        // 180-degree rotation: the conjugate boundary. For unit quats
+        // ~q == q^-1, but a 180-degree rotation lives at the edge of the
+        // normalization paths. Z-axis 180 takes (1, 0, 0) -> (-1, 0, 0)
+        // in the local frame.
+        LLBBox bbox(LLVector3(0.0f, 0.0f, 0.0f),
+                    LLQuaternion(F_PI, LLVector3(0.0f, 0.0f, 1.0f)),
+                    LLVector3(-1.0f, -1.0f, -1.0f), LLVector3(1.0f, 1.0f, 1.0f));
+
+        // localToAgent of (1, 0, 0) should be (-1, 0, 0): the 180 around Z
+        // flips X and Y.
+        const LLVector3 rotated = bbox.localToAgent(LLVector3(1.0f, 0.0f, 0.0f));
+        ensure("180Z localToAgent(1,0,0) == (-1, 0, 0)",
+               APPROX_EQUAL(rotated, LLVector3(-1.0f, 0.0f, 0.0f)));
+
+        // Round-trip identity must still hold at the conjugate boundary.
+        const LLVector3 v(0.3f, -0.7f, 0.5f);
+        const LLVector3 round = bbox.agentToLocal(bbox.localToAgent(v));
+        ensure("180Z round-trip identity",
+               APPROX_EQUAL(round, v));
+    }
+
+    template<> template<>
+    void object::test<20>()
+    {
+        // getMinAgent / getMaxAgent: these forward through localToAgent
+        // with non-identity rotation, so they exercise the
+        // LLMatrix4(mRotation) ctor at llbbox.cpp:118 with specific
+        // assertable outputs. Use a 90-degree Z-axis rotation so the
+        // expected values are easy to hand-compute.
+        //
+        // bbox sits at the origin, rotated 90 around Z, with local extents
+        // [(1,0,0), (3,0,0)]. After 90 around Z:
+        //   local (1, 0, 0) -> agent (0,  1, 0)
+        //   local (3, 0, 0) -> agent (0,  3, 0)
+        // (LL math: rotating local +X by 90 around Z lands on local +Y)
+        LLBBox bbox(LLVector3(0.0f, 0.0f, 0.0f),
+                    LLQuaternion(F_PI_BY_TWO, LLVector3(0.0f, 0.0f, 1.0f)),
+                    LLVector3(1.0f, 0.0f, 0.0f), LLVector3(3.0f, 0.0f, 0.0f));
+
+        ensure("getMinAgent rotated",
+               APPROX_EQUAL(bbox.getMinAgent(), LLVector3(0.0f, 1.0f, 0.0f)));
+        ensure("getMaxAgent rotated",
+               APPROX_EQUAL(bbox.getMaxAgent(), LLVector3(0.0f, 3.0f, 0.0f)));
+    }
+
+    template<> template<>
+    void object::test<21>()
+    {
+        // addBBoxAgent with two distinct non-trivial rotations exercises
+        // the rotation composition inside llbbox.cpp:81-89. The existing
+        // test 11 only does this with one non-unit quat and one identity;
+        // this one uses two real rotations to stress the path harder.
+        LLBBox accumulator(LLVector3(0.0f, 0.0f, 0.0f),
+                           LLQuaternion(ANGLE, LLVector3(0.0f, 0.0f, 1.0f)),
+                           LLVector3(0.0f, 0.0f, 0.0f), LLVector3(0.0f, 0.0f, 0.0f));
+
+        const LLBBox other(LLVector3(2.0f, 0.0f, 0.0f),
+                           LLQuaternion(ANGLE, LLVector3(1.0f, 0.0f, 0.0f)),
+                           LLVector3(-0.5f, -0.5f, -0.5f),
+                           LLVector3(0.5f, 0.5f, 0.5f));
+
+        // Capture the corners of `other` in agent space BEFORE the merge.
+        // After addBBoxAgent, those corners must all be inside `accumulator`
+        // (in agent space). This is a behavioral pin: regardless of the
+        // numeric values of accumulator's local extents after the merge,
+        // the geometric semantic must hold.
+        const LLVector3 other_corners[8] = {
+            other.localToAgent(LLVector3(-0.5f, -0.5f, -0.5f)),
+            other.localToAgent(LLVector3(-0.5f, -0.5f,  0.5f)),
+            other.localToAgent(LLVector3(-0.5f,  0.5f, -0.5f)),
+            other.localToAgent(LLVector3(-0.5f,  0.5f,  0.5f)),
+            other.localToAgent(LLVector3( 0.5f, -0.5f, -0.5f)),
+            other.localToAgent(LLVector3( 0.5f, -0.5f,  0.5f)),
+            other.localToAgent(LLVector3( 0.5f,  0.5f, -0.5f)),
+            other.localToAgent(LLVector3( 0.5f,  0.5f,  0.5f))
+        };
+
+        accumulator.addBBoxAgent(other);
+
+        // Every corner of `other` (in agent space) must now be contained
+        // in `accumulator`. Use a small tolerance because addBBoxAgent
+        // works in accumulator's local frame, so corners on the boundary
+        // can drift slightly under the rotation+translation+counter-rotation
+        // chain.
+        for (int i = 0; i < 8; ++i)
+        {
+            // Convert each agent-space corner into accumulator's local frame
+            // and verify it falls within the local extents.
+            const LLVector3 in_local = accumulator.agentToLocal(other_corners[i]);
+            const LLVector3 mn = accumulator.getMinLocal();
+            const LLVector3 mx = accumulator.getMaxLocal();
+            const F32 eps = 1e-4f;
+            ensure("addBBoxAgent corner X >= min",
+                   in_local.mV[VX] >= mn.mV[VX] - eps);
+            ensure("addBBoxAgent corner X <= max",
+                   in_local.mV[VX] <= mx.mV[VX] + eps);
+            ensure("addBBoxAgent corner Y >= min",
+                   in_local.mV[VY] >= mn.mV[VY] - eps);
+            ensure("addBBoxAgent corner Y <= max",
+                   in_local.mV[VY] <= mx.mV[VY] + eps);
+            ensure("addBBoxAgent corner Z >= min",
+                   in_local.mV[VZ] >= mn.mV[VZ] - eps);
+            ensure("addBBoxAgent corner Z <= max",
+                   in_local.mV[VZ] <= mx.mV[VZ] + eps);
+        }
     }
 }
 

@@ -29,6 +29,8 @@
 #include "v3math.h"
 #include "llquaternion.h"
 
+#include <glm/gtc/quaternion.hpp>
+
 // Note: "local space" for an LLBBox is defined relative to agent space in terms of
 // a translation followed by a rotation.  There is no scale term since the LLBBox's min and
 // max are not necessarily symetrical and define their own extents.
@@ -38,7 +40,7 @@ class LLBBox
 public:
     LLBBox() {mEmpty = true;}
     LLBBox( const LLVector3& pos_agent,
-        const LLQuaternion& rot,
+        const glm::quat& rot,
         const LLVector3& min_local,
         const LLVector3& max_local )
         :
@@ -48,7 +50,7 @@ public:
     // Default copy constructor is OK.
 
     const LLVector3&    getPositionAgent() const            { return mPosAgent; }
-    const LLQuaternion& getRotation() const                 { return mRotation; }
+    const glm::quat&    getRotation() const                 { return mRotation; }
 
     LLVector3           getMinAgent() const;
     const LLVector3&    getMinLocal() const                 { return mMinLocal; }
@@ -90,7 +92,7 @@ private:
     LLVector3           mMinLocal;
     LLVector3           mMaxLocal;
     LLVector3           mPosAgent;  // Position relative to Agent's Region
-    LLQuaternion        mRotation;
+    glm::quat           mRotation{1.f, 0.f, 0.f, 0.f};   // identity (w, x, y, z)
     bool                mEmpty;     // Nothing has been added to this bbox yet
 };
 

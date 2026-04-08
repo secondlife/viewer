@@ -32,6 +32,8 @@
 // library includes
 #include "m4math.h"
 
+#include <glm/gtc/quaternion.hpp>
+
 void LLBBox::addPointLocal(const LLVector3& p)
 {
     if (mEmpty)
@@ -54,7 +56,7 @@ void LLBBox::addPointLocal(const LLVector3& p)
 void LLBBox::addPointAgent( LLVector3 p)
 {
     p -= mPosAgent;
-    p.rotVec( ~mRotation );
+    p.rotVec( glm::conjugate(mRotation) );
     addPointLocal( p );
 }
 
@@ -81,7 +83,7 @@ void LLBBox::addBBoxAgent(const LLBBox& b)
     LLMatrix4 m( b.mRotation );
     m.translate( b.mPosAgent );
     m.translate( -mPosAgent );
-    m.rotate( ~mRotation );
+    m.rotate( glm::conjugate(mRotation) );
 
     for(auto i : vertex)
     {
@@ -124,7 +126,7 @@ LLVector3 LLBBox::agentToLocal(const LLVector3& v) const
 {
     LLMatrix4 m;
     m.translate( -mPosAgent );
-    m.rotate( ~mRotation );  // inverse rotation
+    m.rotate( glm::conjugate(mRotation) );  // inverse rotation
     return v * m;
 }
 
@@ -136,7 +138,7 @@ LLVector3 LLBBox::localToAgentBasis(const LLVector3& v) const
 
 LLVector3 LLBBox::agentToLocalBasis(const LLVector3& v) const
 {
-    LLMatrix4 m( ~mRotation );  // inverse rotation
+    LLMatrix4 m( glm::conjugate(mRotation) );  // inverse rotation
     return v * m;
 }
 
