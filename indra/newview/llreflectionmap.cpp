@@ -181,12 +181,12 @@ void LLReflectionMap::autoAdjustOrigin()
 
         if (mViewerObject->getVolume() && ((LLVOVolume*)mViewerObject.get())->getReflectionProbeIsBox())
         {
-            LLVector3 s = mViewerObject->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-            mRadius = s.length();
+            glm::vec3 s = mViewerObject->getScale() * 0.5f;
+            mRadius = glm::length(s);
         }
         else
         {
-            mRadius = mViewerObject->getScale().mV[0] * 0.5f;
+            mRadius = mViewerObject->getScale().x * 0.5f;
         }
     }
 }
@@ -262,9 +262,9 @@ bool LLReflectionMap::getBox(LLMatrix4& box)
         if (volume && mViewerObject->getReflectionProbeIsBox())
         {
             glm::mat4 mv(get_current_modelview());
-            LLVector3 s = mViewerObject->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-            mRadius = s.length();
-            glm::mat4 scale = glm::scale(glm::vec3(s));
+            glm::vec3 s = mViewerObject->getScale() * 0.5f;
+            mRadius = glm::length(s);
+            glm::mat4 scale = glm::scale(s);
             if (mViewerObject->mDrawable != nullptr)
             {
                 // object to agent space (no scale)

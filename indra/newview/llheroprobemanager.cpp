@@ -153,7 +153,7 @@ void LLHeroProbeManager::update()
                 center.load3(glm::value_ptr(vo->getPositionAgent()));
                 LLVector4a size;
 
-                size.load3(vo->getScale().mV);
+                size.load3(glm::value_ptr(vo->getScale()));
 
                 bool visible = LLViewerCamera::instance().AABBInFrustum(center, size);
 
@@ -207,7 +207,7 @@ void LLHeroProbeManager::update()
             };
 
             mProbes[0]->mOrigin = probe_pos;
-            mProbes[0]->mRadius = mNearestHero->getScale().length() * 0.5f;
+            mProbes[0]->mRadius = glm::length(mNearestHero->getScale()) * 0.5f;
         }
         else
         {
@@ -504,12 +504,12 @@ void LLHeroProbeManager::updateUniforms()
     {
         if (mNearestHero->getReflectionProbeIsBox())
         {
-            LLVector3 s = mNearestHero->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-            mProbes[0]->mRadius = s.length();
+            glm::vec3 s = mNearestHero->getScale() * 0.5f;
+            mProbes[0]->mRadius = glm::length(s);
         }
         else
         {
-            mProbes[0]->mRadius = mNearestHero->getScale().mV[0] * 0.5f;
+            mProbes[0]->mRadius = mNearestHero->getScale().x * 0.5f;
         }
 
         modelview.affineTransform(mProbes[0]->mOrigin, oa);

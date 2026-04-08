@@ -840,7 +840,7 @@ glm::vec2 LLFace::surfaceToTexture(glm::vec2 surface_coord, const LLVector4a& po
         if (!mDrawablep->getVOVolume()->isVolumeGlobal())
         {
             LLVector4a scale;
-            scale.load3(mVObjp->getScale().mV);
+            scale.load3(glm::value_ptr(mVObjp->getScale()));
             volume_position.mul(scale);
         }
 

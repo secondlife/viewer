@@ -69,9 +69,15 @@ void LLXformMatrix::update()
         mWorldPosition = mPosition;
         if (mParent->getScaleChildOffset())
         {
-            mWorldPosition.scaleVec(mParent->getScale());
+            mWorldPosition *= mParent->getScale();
         }
-        mWorldPosition *= mParent->getWorldRotation();
+        // Rotate by parent's world rotation: bridge through LLVector3 for the
+        // LLVector3 *= LLQuaternion operator, then assign back.
+        {
+            LLVector3 tmp(mWorldPosition);
+            tmp *= mParent->getWorldRotation();
+            mWorldPosition = glm::vec3(tmp.mV[VX], tmp.mV[VY], tmp.mV[VZ]);
+        }
         mWorldPosition += mParent->getWorldPosition();
         mWorldRotation = mRotation * mParent->getWorldRotation();
     }
@@ -90,25 +96,25 @@ void LLXformMatrix::updateMatrix(bool update_bounds)
 
     if (update_bounds && (mChanged & MOVED))
     {
-        mMin.mV[0] = mMax.mV[0] = mWorldMatrix.mMatrix[3][0];
-        mMin.mV[1] = mMax.mV[1] = mWorldMatrix.mMatrix[3][1];
-        mMin.mV[2] = mMax.mV[2] = mWorldMatrix.mMatrix[3][2];
+        mMin.x = mMax.x = mWorldMatrix.mMatrix[3][0];
+        mMin.y = mMax.y = mWorldMatrix.mMatrix[3][1];
+        mMin.z = mMax.z = mWorldMatrix.mMatrix[3][2];
 
         F32 f0 = (fabs(mWorldMatrix.mMatrix[0][0])+fabs(mWorldMatrix.mMatrix[1][0])+fabs(mWorldMatrix.mMatrix[2][0])) * 0.5f;
         F32 f1 = (fabs(mWorldMatrix.mMatrix[0][1])+fabs(mWorldMatrix.mMatrix[1][1])+fabs(mWorldMatrix.mMatrix[2][1])) * 0.5f;
         F32 f2 = (fabs(mWorldMatrix.mMatrix[0][2])+fabs(mWorldMatrix.mMatrix[1][2])+fabs(mWorldMatrix.mMatrix[2][2])) * 0.5f;
 
-        mMin.mV[0] -= f0;
-        mMin.mV[1] -= f1;
-        mMin.mV[2] -= f2;
+        mMin.x -= f0;
+        mMin.y -= f1;
+        mMin.z -= f2;
 
-        mMax.mV[0] += f0;
-        mMax.mV[1] += f1;
-        mMax.mV[2] += f2;
+        mMax.x += f0;
+        mMax.y += f1;
+        mMax.z += f2;
     }
 }
 
-void LLXformMatrix::getMinMax(LLVector3& min, LLVector3& max) const
+void LLXformMatrix::getMinMax(glm::vec3& min, glm::vec3& max) const
 {
     min = mMin;
     max = mMax;

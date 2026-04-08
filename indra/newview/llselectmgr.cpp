@@ -30,6 +30,7 @@
 #define LLSELECTMGR_CPP
 #include "llselectmgr.h"
 #include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "llmaterialmgr.h"
 
 // library includes
@@ -3095,8 +3096,8 @@ void LLSelectMgr::selectionTexScaleAutofit(F32 repeats_per_meter)
                     return true;
                 }
 
-                F32 new_s = object->getScale().mV[s_axis] * mRepeatsPerMeter;
-                F32 new_t = object->getScale().mV[t_axis] * mRepeatsPerMeter;
+                F32 new_s = glm::value_ptr(object->getScale())[s_axis] * mRepeatsPerMeter;
+                F32 new_t = glm::value_ptr(object->getScale())[t_axis] * mRepeatsPerMeter;
 
                 object->setTEScale(te, new_s, new_t);
             }
@@ -4740,7 +4741,7 @@ void LLSelectMgr::packMultipleUpdate(LLSelectNode* node, void *user_data)
 
     if (type & UPD_POSITION)
     {
-        htolememcpy(&data[offset], &(object->getPosition().mV), MVT_LLVector3, 12);
+        htolememcpy(&data[offset], glm::value_ptr(object->getPosition()), MVT_LLVector3, 12);
         offset += 12;
     }
     if (type & UPD_ROTATION)
@@ -4753,7 +4754,7 @@ void LLSelectMgr::packMultipleUpdate(LLSelectNode* node, void *user_data)
     if (type & UPD_SCALE)
     {
         //LL_INFOS() << "Sending object scale " << object->getScale() << LL_ENDL;
-        htolememcpy(&data[offset], &(object->getScale().mV), MVT_LLVector3, 12);
+        htolememcpy(&data[offset], glm::value_ptr(object->getScale()), MVT_LLVector3, 12);
         offset += 12;
     }
     gMessageSystem->addBinaryDataFast(_PREHASH_Data, data, offset);

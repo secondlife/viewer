@@ -29,6 +29,7 @@
 #include "lluuid.h"
 #include "v3math.h"
 #include "xform.h"
+#include "glm/vec3.hpp"
 #include "message.h"
 #include "llpointer.h"
 #include "llvolume.h"
@@ -504,19 +505,19 @@ public:
     S32 applyParsedTEMessage(LLTEContents& tec);
 
 #ifdef CHECK_FOR_FINITE
-    inline void setPosition(const LLVector3& pos);
+    inline void setPosition(const glm::vec3& pos);
     inline void setPosition(const F32 x, const F32 y, const F32 z);
-    inline void addPosition(const LLVector3& pos);
+    inline void addPosition(const glm::vec3& pos);
 
-    inline void setAngularVelocity(const LLVector3& avel);
+    inline void setAngularVelocity(const glm::vec3& avel);
     inline void setAngularVelocity(const F32 x, const F32 y, const F32 z);
-    inline void setVelocity(const LLVector3& vel);
+    inline void setVelocity(const glm::vec3& vel);
     inline void setVelocity(const F32 x, const F32 y, const F32 z);
     inline void setVelocityX(const F32 x);
     inline void setVelocityY(const F32 y);
     inline void setVelocityZ(const F32 z);
-    inline void addVelocity(const LLVector3& vel);
-    inline void setAcceleration(const LLVector3& accel);
+    inline void addVelocity(const glm::vec3& vel);
+    inline void setAcceleration(const glm::vec3& accel);
     inline void setAcceleration(const F32 x, const F32 y, const F32 z);
 #else
     // Don't override the base LLXForm operators.
@@ -524,23 +525,23 @@ public:
     // void     setPosition(F32 x, F32 y, F32 z)
     // void     setPosition(LLVector3)
 
-    void        setAngularVelocity(const LLVector3& avel)   { mAngularVelocity = avel; }
-    void        setAngularVelocity(const F32 x, const F32 y, const F32 z)   { mAngularVelocity.set(x,y,z); }
-    void        setVelocity(const LLVector3& vel)           { mVelocity = vel; }
-    void        setVelocity(const F32 x, const F32 y, const F32 z)          { mVelocity.set(x,y,z); }
-    void        setVelocityX(const F32 x)                   { mVelocity.mV[VX] = x; }
-    void        setVelocityY(const F32 y)                   { mVelocity.mV[VY] = y; }
-    void        setVelocityZ(const F32 z)                   { mVelocity.mV[VZ] = z; }
-    void        addVelocity(const LLVector3& vel)           { mVelocity += vel; }
-    void        setAcceleration(const LLVector3& accel)     { mAcceleration = accel; }
-    void        setAcceleration(const F32 x, const F32 y, const F32 z)      { mAcceleration.set(x,y,z); }
+    void        setAngularVelocity(const glm::vec3& avel)   { mAngularVelocity = avel; }
+    void        setAngularVelocity(const F32 x, const F32 y, const F32 z)   { mAngularVelocity = glm::vec3(x, y, z); }
+    void        setVelocity(const glm::vec3& vel)           { mVelocity = vel; }
+    void        setVelocity(const F32 x, const F32 y, const F32 z)          { mVelocity = glm::vec3(x, y, z); }
+    void        setVelocityX(const F32 x)                   { mVelocity.x = x; }
+    void        setVelocityY(const F32 y)                   { mVelocity.y = y; }
+    void        setVelocityZ(const F32 z)                   { mVelocity.z = z; }
+    void        addVelocity(const glm::vec3& vel)           { mVelocity += vel; }
+    void        setAcceleration(const glm::vec3& accel)     { mAcceleration = accel; }
+    void        setAcceleration(const F32 x, const F32 y, const F32 z)      { mAcceleration = glm::vec3(x, y, z); }
 #endif
 
     LLPCode             getPCode() const            { return mPrimitiveCode; }
     std::string         getPCodeString() const      { return pCodeToString(mPrimitiveCode); }
-    const LLVector3&    getAngularVelocity() const  { return mAngularVelocity; }
-    const LLVector3&    getVelocity() const         { return mVelocity; }
-    const LLVector3&    getAcceleration() const     { return mAcceleration; }
+    const glm::vec3&    getAngularVelocity() const  { return mAngularVelocity; }
+    const glm::vec3&    getVelocity() const         { return mVelocity; }
+    const glm::vec3&    getAcceleration() const     { return mAcceleration; }
     U8                  getNumTEs() const           { return mTextureList.size(); }
     U8                  getExpectedNumTEs() const;
 
@@ -583,9 +584,9 @@ private:
 
 protected:
     LLPCode             mPrimitiveCode;     // Primitive code
-    LLVector3           mVelocity;          // how fast are we moving?
-    LLVector3           mAcceleration;      // are we under constant acceleration?
-    LLVector3           mAngularVelocity;   // angular velocity
+    glm::vec3           mVelocity;          // how fast are we moving?
+    glm::vec3           mAcceleration;      // are we under constant acceleration?
+    glm::vec3           mAngularVelocity;   // angular velocity
     LLPointer<LLVolume> mVolumep;
     LLPrimTextureList   mTextureList;       // list of texture GUIDs, scales, offsets
     U8                  mMaterial;          // Material code
@@ -655,21 +656,21 @@ void LLPrimitive::setPosition(const F32 x, const F32 y, const F32 z)
 }
 
 // Special case for setPosition.  If not check-for-finite, fall through to LLXform method.
-void LLPrimitive::setPosition(const LLVector3& pos)
+void LLPrimitive::setPosition(const glm::vec3& pos)
 {
-    if (pos.isFinite())
+    if (llfinite(pos.x) && llfinite(pos.y) && llfinite(pos.z))
     {
         LLXform::setPosition(pos);
     }
     else
     {
-        LL_ERRS() << "Non Finite in LLPrimitive::setPosition(LLVector3) for " << pCodeToString(mPrimitiveCode) << LL_ENDL;
+        LL_ERRS() << "Non Finite in LLPrimitive::setPosition(glm::vec3) for " << pCodeToString(mPrimitiveCode) << LL_ENDL;
     }
 }
 
-void LLPrimitive::setAngularVelocity(const LLVector3& avel)
+void LLPrimitive::setAngularVelocity(const glm::vec3& avel)
 {
-    if (avel.isFinite())
+    if (llfinite(avel.x) && llfinite(avel.y) && llfinite(avel.z))
     {
         mAngularVelocity = avel;
     }
@@ -683,7 +684,7 @@ void LLPrimitive::setAngularVelocity(const F32 x, const F32 y, const F32 z)
 {
     if (llfinite(x) && llfinite(y) && llfinite(z))
     {
-        mAngularVelocity.set(x,y,z);
+        mAngularVelocity = glm::vec3(x, y, z);
     }
     else
     {
@@ -691,15 +692,15 @@ void LLPrimitive::setAngularVelocity(const F32 x, const F32 y, const F32 z)
     }
 }
 
-void LLPrimitive::setVelocity(const LLVector3& vel)
+void LLPrimitive::setVelocity(const glm::vec3& vel)
 {
-    if (vel.isFinite())
+    if (llfinite(vel.x) && llfinite(vel.y) && llfinite(vel.z))
     {
         mVelocity = vel;
     }
     else
     {
-        LL_ERRS() << "Non Finite in LLPrimitive::setVelocity(LLVector3) for " << pCodeToString(mPrimitiveCode) << LL_ENDL;
+        LL_ERRS() << "Non Finite in LLPrimitive::setVelocity(glm::vec3) for " << pCodeToString(mPrimitiveCode) << LL_ENDL;
     }
 }
 
@@ -707,7 +708,7 @@ void LLPrimitive::setVelocity(const F32 x, const F32 y, const F32 z)
 {
     if (llfinite(x) && llfinite(y) && llfinite(z))
     {
-        mVelocity.set(x,y,z);
+        mVelocity = glm::vec3(x, y, z);
     }
     else
     {
@@ -719,7 +720,7 @@ void LLPrimitive::setVelocityX(const F32 x)
 {
     if (llfinite(x))
     {
-        mVelocity.mV[VX] = x;
+        mVelocity.x = x;
     }
     else
     {
@@ -731,7 +732,7 @@ void LLPrimitive::setVelocityY(const F32 y)
 {
     if (llfinite(y))
     {
-        mVelocity.mV[VY] = y;
+        mVelocity.y = y;
     }
     else
     {
@@ -743,7 +744,7 @@ void LLPrimitive::setVelocityZ(const F32 z)
 {
     if (llfinite(z))
     {
-        mVelocity.mV[VZ] = z;
+        mVelocity.z = z;
     }
     else
     {
@@ -751,9 +752,9 @@ void LLPrimitive::setVelocityZ(const F32 z)
     }
 }
 
-void LLPrimitive::addVelocity(const LLVector3& vel)
+void LLPrimitive::addVelocity(const glm::vec3& vel)
 {
-    if (vel.isFinite())
+    if (llfinite(vel.x) && llfinite(vel.y) && llfinite(vel.z))
     {
         mVelocity += vel;
     }
@@ -763,15 +764,15 @@ void LLPrimitive::addVelocity(const LLVector3& vel)
     }
 }
 
-void LLPrimitive::setAcceleration(const LLVector3& accel)
+void LLPrimitive::setAcceleration(const glm::vec3& accel)
 {
-    if (accel.isFinite())
+    if (llfinite(accel.x) && llfinite(accel.y) && llfinite(accel.z))
     {
         mAcceleration = accel;
     }
     else
     {
-        LL_ERRS() << "Non Finite in LLPrimitive::setAcceleration(LLVector3) for " << pCodeToString(mPrimitiveCode) << LL_ENDL;
+        LL_ERRS() << "Non Finite in LLPrimitive::setAcceleration(glm::vec3) for " << pCodeToString(mPrimitiveCode) << LL_ENDL;
     }
 }
 
@@ -779,7 +780,7 @@ void LLPrimitive::setAcceleration(const F32 x, const F32 y, const F32 z)
 {
     if (llfinite(x) && llfinite(y) && llfinite(z))
     {
-        mAcceleration.set(x,y,z);
+        mAcceleration = glm::vec3(x, y, z);
     }
     else
     {

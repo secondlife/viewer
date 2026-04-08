@@ -1157,12 +1157,12 @@ void LLReflectionMapManager::updateUniforms()
 
                 if (vobj->getReflectionProbeIsBox())
                 {
-                    LLVector3 s = vobj->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-                    refmap->mRadius = s.length();
+                    glm::vec3 s = vobj->getScale() * 0.5f;
+                    refmap->mRadius = glm::length(s);
                 }
                 else
                 {
-                    refmap->mRadius = refmap->mViewerObject->getScale().mV[0] * 0.5f;
+                    refmap->mRadius = refmap->mViewerObject->getScale().x * 0.5f;
                 }
             }
             modelview.affineTransform(refmap->mOrigin, oa);

@@ -92,17 +92,23 @@ public:
     const LLMatrix4&      getWorldMatrix() const        { return mXform.getWorldMatrix(); }
     const LLMatrix4&      getRenderMatrix() const;
     void                  setPosition(LLVector3 v) const { }
-    const LLVector3&      getPosition() const           { return mXform.getPosition(); }
-    const LLVector3&      getWorldPosition() const      { return mXform.getPositionW(); }
+    LLVector3             getPosition() const           { return LLVector3(mXform.getPosition()); }
+    LLVector3             getWorldPosition() const      { return LLVector3(mXform.getPositionW()); }
     const LLVector3       getPositionAgent() const;
     const LLVector3&      getScale() const              { return mCurrentScale; }
     void                  setScale(const LLVector3& scale) { mCurrentScale = scale; }
     const LLQuaternion&   getWorldRotation() const      { return mXform.getWorldRotation(); }
     const LLQuaternion&   getRotation() const           { return mXform.getRotation(); }
-    F32                   getIntensity() const          { return llmin(mXform.getScale().mV[0], 4.f); }
+    F32                   getIntensity() const          { return llmin(mXform.getScale().x, 4.f); }
     S32                   getLOD() const                { return mVObjp ? mVObjp->getLOD() : 1; }
 
-    void  getMinMax(LLVector3& min,LLVector3& max) const { mXform.getMinMax(min,max); }
+    void  getMinMax(LLVector3& min, LLVector3& max) const
+    {
+        glm::vec3 gmin, gmax;
+        mXform.getMinMax(gmin, gmax);
+        min = gmin;
+        max = gmax;
+    }
     LLXformMatrix*      getXform() { return &mXform; }
 
     U32                 getState()           const { return mState; }
@@ -180,7 +186,7 @@ public:
 
     void updateUVMinMax();  // Updates the cache of sun space bounding box.
 
-    const LLVector3& getBounds(LLVector3& min, LLVector3& max) const;
+    LLVector3 getBounds(LLVector3& min, LLVector3& max) const;
     virtual void updateSpatialExtents();
     virtual void updateBinRadius();
 

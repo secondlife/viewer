@@ -30,6 +30,8 @@
 
 #include "llvovolume.h"
 
+#include "glm/glm.hpp"
+
 #include <sstream>
 
 #include "llviewercontrol.h"
@@ -1558,7 +1560,7 @@ bool LLVOVolume::calcLOD()
     else
     {
         distance = mDrawable->mDistanceWRTCamera;
-        radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
+        radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(LLVector3(getScale())).length() : glm::length(getScale());
         if (distance <= 0.f || radius <= 0.f)
         {
             return false;
@@ -4001,7 +4003,7 @@ void LLVOVolume::updateRadius()
         return;
     }
 
-    mVObjRadius = getScale().length();
+    mVObjRadius = glm::length(getScale());
     mDrawable->setRadius(mVObjRadius);
 }
 
@@ -4129,7 +4131,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
         }
         else
         {
-            F32 radius = getScale().length()*0.5f;
+            F32 radius = glm::length(getScale())*0.5f;
             num_triangles = static_cast<U32>(costs.getRadiusWeightedTris(radius));
         }
     }
@@ -4348,7 +4350,7 @@ F32 LLVOVolume::getEstTrianglesStreamingCost() const
 
 F32 LLVOVolume::getStreamingCost() const
 {
-    F32 radius = getScale().length()*0.5f;
+    F32 radius = glm::length(getScale())*0.5f;
     F32 linkset_base_cost = 0.f;
 
     LLMeshCostData costs;
@@ -4668,7 +4670,7 @@ LLVector3 LLVOVolume::agentDirectionToVolume(const LLVector3& dir) const
 {
     LLVector3 ret = dir * ~getRenderRotation();
 
-    LLVector3 objScale = isVolumeGlobal() ? LLVector3(1,1,1) : getScale();
+    LLVector3 objScale = isVolumeGlobal() ? LLVector3(1,1,1) : LLVector3(getScale());
     ret.scaleVec(objScale);
 
     return ret;
@@ -4692,7 +4694,7 @@ LLVector3 LLVOVolume::volumePositionToAgent(const LLVector3& dir) const
 LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
 {
     LLVector3 ret = dir;
-    LLVector3 objScale = isVolumeGlobal() ? LLVector3(1,1,1) : getScale();
+    LLVector3 objScale = isVolumeGlobal() ? LLVector3(1,1,1) : LLVector3(getScale());
     LLVector3 invObjScale(1.f / objScale.mV[VX], 1.f / objScale.mV[VY], 1.f / objScale.mV[VZ]);
     ret.scaleVec(invObjScale);
     ret = ret * getRenderRotation();

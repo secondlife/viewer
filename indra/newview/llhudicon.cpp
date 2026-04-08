@@ -98,9 +98,9 @@ void LLHUDIcon::render()
     LLVector3 icon_relative_pos = (LLVector3(camera->getUpAxis()) * ~mSourceObject->getRenderRotation());
     icon_relative_pos.abs();
 
-    F32 distance_scale = llmin(mSourceObject->getScale().mV[VX] / icon_relative_pos.mV[VX],
-        mSourceObject->getScale().mV[VY] / icon_relative_pos.mV[VY],
-        mSourceObject->getScale().mV[VZ] / icon_relative_pos.mV[VZ]);
+    F32 distance_scale = llmin(mSourceObject->getScale().x / icon_relative_pos.mV[VX],
+        mSourceObject->getScale().y / icon_relative_pos.mV[VY],
+        mSourceObject->getScale().z / icon_relative_pos.mV[VZ]);
     F32 up_distance = 0.5f * distance_scale;
     LLVector3 icon_position = obj_position + (up_distance * LLVector3(camera->getUpAxis())) * 1.2f;
 
@@ -211,9 +211,9 @@ bool LLHUDIcon::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
     LLVector3 icon_relative_pos = (LLVector3(camera->getUpAxis()) * ~mSourceObject->getRenderRotation());
     icon_relative_pos.abs();
 
-    F32 distance_scale = llmin(mSourceObject->getScale().mV[VX] / icon_relative_pos.mV[VX],
-        mSourceObject->getScale().mV[VY] / icon_relative_pos.mV[VY],
-        mSourceObject->getScale().mV[VZ] / icon_relative_pos.mV[VZ]);
+    F32 distance_scale = llmin(mSourceObject->getScale().x / icon_relative_pos.mV[VX],
+        mSourceObject->getScale().y / icon_relative_pos.mV[VY],
+        mSourceObject->getScale().z / icon_relative_pos.mV[VZ]);
     F32 up_distance = 0.5f * distance_scale;
     LLVector3 icon_position = obj_position + (up_distance * LLVector3(camera->getUpAxis())) * 1.2f;
 

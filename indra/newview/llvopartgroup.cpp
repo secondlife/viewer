@@ -107,7 +107,7 @@ void LLVOPartGroup::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 
     p.load3(pos_agent.mV);
 
-    scale.splat(mScale.mV[0]+mViewerPartGroupp->getBoxSide()*0.5f);
+    scale.splat(mScale.x+mViewerPartGroupp->getBoxSide()*0.5f);
 
     newMin.setSub(p, scale);
     newMax.setAdd(p,scale);
@@ -378,7 +378,7 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 
     //record max scale (used to stretch bounding box for visibility culling)
 
-    mScale.set(max_scale, max_scale, max_scale);
+    mScale = glm::vec3(max_scale, max_scale, max_scale);
 
     mDrawable->movePartition();
     LLPipeline::sCompiles++;

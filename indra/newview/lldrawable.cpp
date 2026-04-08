@@ -652,7 +652,7 @@ F32 LLDrawable::updateXform(bool undamped)
             target_rot = new_rot;
             target_scale = new_scale;
         }
-        else if (mVObjp->getAngularVelocity().isExactlyZero())
+        else if ((mVObjp->getAngularVelocity() == glm::vec3(0.f)))
         {
             // snap to final position (only if no target omega is applied)
             dist_squared = 0.0f;
@@ -688,7 +688,7 @@ F32 LLDrawable::updateXform(bool undamped)
         gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
     }
     else if (!isRoot() &&
-         (!mVObjp->getAngularVelocity().isExactlyZero() ||
+         (!(mVObjp->getAngularVelocity() == glm::vec3(0.f)) ||
             dist_squared > 0.f))
     { //child prim moving relative to parent, tag as needing to be rendered atomically and rebuild
         dist_squared = 1.f; //keep this object on the move list
@@ -1038,10 +1038,13 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
     mVObjp->onShift(shift_vector);
 }
 
-const LLVector3& LLDrawable::getBounds(LLVector3& min, LLVector3& max) const
+LLVector3 LLDrawable::getBounds(LLVector3& min, LLVector3& max) const
 {
-    mXform.getMinMax(min,max);
-    return mXform.getPositionW();
+    glm::vec3 gmin, gmax;
+    mXform.getMinMax(gmin, gmax);
+    min = gmin;
+    max = gmax;
+    return LLVector3(mXform.getPositionW());
 }
 
 void LLDrawable::updateSpatialExtents()
@@ -1704,7 +1707,7 @@ bool LLDrawable::isAnimating() const
         return true;
     }
 
-    /*if (!isRoot() && !mVObjp->getAngularVelocity().isExactlyZero())
+    /*if (!isRoot() && !(mVObjp->getAngularVelocity() == glm::vec3(0.f)))
     { //target omega
         return true;
     }*/

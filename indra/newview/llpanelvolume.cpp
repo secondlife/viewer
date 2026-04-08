@@ -1476,7 +1476,7 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
             profile = LL_PCODE_PROFILE_CIRCLE_HALF;
             path = LL_PCODE_PATH_CIRCLE;
 
-            F32 scale = volobjp->getScale().mV[0];
+            F32 scale = volobjp->getScale().x;
             volobjp->setScale(LLVector3(scale, scale, scale), false);
             LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_ROTATION | UPD_POSITION | UPD_SCALE);
         }

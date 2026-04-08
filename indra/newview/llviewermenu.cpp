@@ -8161,7 +8161,7 @@ void handle_dump_attachments()
                     << (attached_object ? " present " : " absent ")
                     << (visible ? "visible " : "invisible ")
                     <<  " at " << pos
-                    << " and " << (visible ? attached_object->getPosition() : LLVector3::zero)
+                    << " and " << (visible ? LLVector3(attached_object->getPosition()) : LLVector3::zero)
                     << LL_ENDL;
         }
     }

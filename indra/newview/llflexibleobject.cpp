@@ -299,7 +299,7 @@ void LLVolumeImplFlexible::updateRenderRes()
     S32 new_res = mAttributes->getSimulateLOD();
 
 #if 1 //optimal approximation of previous behavior that doesn't rely on atan2
-    F32 app_angle = mVO->getScale().mV[2]/drawablep->mDistanceWRTCamera;
+    F32 app_angle = mVO->getScale().z/drawablep->mDistanceWRTCamera;
 
     // Rendering sections increases with visible angle on the screen
     mRenderRes = static_cast<S32>((12.f*app_angle));

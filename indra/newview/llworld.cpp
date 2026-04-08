@@ -29,6 +29,8 @@
 #include "llworld.h"
 #include "llrender.h"
 
+#include "glm/glm.hpp"
+
 #include "indra_constants.h"
 #include "llstl.h"
 
@@ -451,7 +453,7 @@ bool LLWorld::positionRegionValidGlobal(const LLVector3d &pos_global)
 F32 LLWorld::getMinAllowedZ(LLViewerObject* object, const LLVector3d &global_pos)
 {
     F32 land_height = resolveLandHeightGlobal(global_pos);
-    F32 radius = 0.5f * object->getScale().length();
+    F32 radius = 0.5f * glm::length(object->getScale());
     return land_height - radius;
 }
 

@@ -28,6 +28,7 @@
 #include "v3math.h"
 #include "m4math.h"
 #include "llquaternion.h"
+#include "glm/vec3.hpp"
 
 constexpr F32 MAX_OBJECT_Z      = 4096.f; // should match REGION_HEIGHT_METERS, Pre-havok4: 768.f
 constexpr F32 MIN_OBJECT_Z      = -256.f;
@@ -39,13 +40,13 @@ constexpr F32 MAX_PRIM_SCALE = 65536.f; // something very high but not near FLT_
 class LLXform
 {
 protected:
-    LLVector3     mPosition;
+    glm::vec3     mPosition;
     LLQuaternion  mRotation;
-    LLVector3     mScale;
+    glm::vec3     mScale;
 
     //RN: TODO: move these world transform members to LLXformMatrix
     // as they are *never* updated or accessed in the base class
-    LLVector3     mWorldPosition;
+    glm::vec3     mWorldPosition;
     LLQuaternion  mWorldRotation;
 
     LLXform*      mParent;
@@ -72,10 +73,10 @@ public:
     {
         mParent  = NULL;
         mChanged = UNCHANGED;
-        mPosition.set(0,0,0);
+        mPosition = glm::vec3(0.f);
         mRotation.loadIdentity();
-        mScale.   set(1,1,1);
-        mWorldPosition.clear();
+        mScale = glm::vec3(1.f);
+        mWorldPosition = glm::vec3(0.f);
         mWorldRotation.loadIdentity();
         mScaleChildOffset = false;
     }
@@ -87,15 +88,15 @@ public:
 
     inline bool setParent(LLXform *parent);
 
-    inline void setPosition(const LLVector3& pos);
+    inline void setPosition(const glm::vec3& pos);
     inline void setPosition(const F32 x, const F32 y, const F32 z);
     inline void setPositionX(const F32 x);
     inline void setPositionY(const F32 y);
     inline void setPositionZ(const F32 z);
-    inline void addPosition(const LLVector3& pos);
+    inline void addPosition(const glm::vec3& pos);
 
 
-    inline void setScale(const LLVector3& scale);
+    inline void setScale(const glm::vec3& scale);
     inline void setScale(const F32 x, const F32 y, const F32 z);
     inline void setRotation(const LLQuaternion& rot);
     inline void setRotation(const F32 x, const F32 y, const F32 z);
@@ -121,12 +122,12 @@ public:
     virtual bool isRoot() const;
     virtual bool isRootEdit() const;
 
-    const LLVector3&    getPosition()  const        { return mPosition; }
-    const LLVector3&    getScale() const            { return mScale; }
+    const glm::vec3&    getPosition()  const        { return mPosition; }
+    const glm::vec3&    getScale() const            { return mScale; }
     const LLQuaternion& getRotation() const         { return mRotation; }
-    const LLVector3&    getPositionW() const        { return mWorldPosition; }
+    const glm::vec3&    getPositionW() const        { return mWorldPosition; }
     const LLQuaternion& getWorldRotation() const    { return mWorldRotation; }
-    const LLVector3&    getWorldPosition() const    { return mWorldPosition; }
+    const glm::vec3&    getWorldPosition() const    { return mWorldPosition; }
 };
 
 class LLXformMatrix : public LLXform
@@ -141,20 +142,20 @@ public:
     void init()
     {
         mWorldMatrix.setIdentity();
-        mMin.clear();
-        mMax.clear();
+        mMin = glm::vec3(0.f);
+        mMax = glm::vec3(0.f);
 
         LLXform::init();
     }
 
     void update();
     void updateMatrix(bool update_bounds = true);
-    void getMinMax(LLVector3& min,LLVector3& max) const;
+    void getMinMax(glm::vec3& min, glm::vec3& max) const;
 
 protected:
     LLMatrix4   mWorldMatrix;
-    LLVector3   mMin;
-    LLVector3   mMax;
+    glm::vec3   mMin;
+    glm::vec3   mMax;
 
 };
 
@@ -182,15 +183,15 @@ bool LLXform::setParent(LLXform* parent)
     return true;
 }
 
-void LLXform::setPosition(const LLVector3& pos)
+void LLXform::setPosition(const glm::vec3& pos)
 {
     setChanged(TRANSLATED);
-    if (pos.isFinite())
+    if (llfinite(pos.x) && llfinite(pos.y) && llfinite(pos.z))
         mPosition = pos;
     else
     {
-        mPosition.clear();
-        warn("Non Finite in LLXform::setPosition(LLVector3)");
+        mPosition = glm::vec3(0.f);
+        warn("Non Finite in LLXform::setPosition(glm::vec3)");
     }
 }
 
@@ -198,10 +199,10 @@ void LLXform::setPosition(const F32 x, const F32 y, const F32 z)
 {
     setChanged(TRANSLATED);
     if (llfinite(x) && llfinite(y) && llfinite(z))
-        mPosition.set(x,y,z);
+        mPosition = glm::vec3(x, y, z);
     else
     {
-        mPosition.clear();
+        mPosition = glm::vec3(0.f);
         warn("Non Finite in LLXform::setPosition(F32,F32,F32)");
     }
 }
@@ -210,10 +211,10 @@ void LLXform::setPositionX(const F32 x)
 {
     setChanged(TRANSLATED);
     if (llfinite(x))
-        mPosition.mV[VX] = x;
+        mPosition.x = x;
     else
     {
-        mPosition.mV[VX] = 0.f;
+        mPosition.x = 0.f;
         warn("Non Finite in LLXform::setPositionX");
     }
 }
@@ -222,10 +223,10 @@ void LLXform::setPositionY(const F32 y)
 {
     setChanged(TRANSLATED);
     if (llfinite(y))
-        mPosition.mV[VY] = y;
+        mPosition.y = y;
     else
     {
-        mPosition.mV[VY] = 0.f;
+        mPosition.y = 0.f;
         warn("Non Finite in LLXform::setPositionY");
     }
 }
@@ -234,31 +235,31 @@ void LLXform::setPositionZ(const F32 z)
 {
     setChanged(TRANSLATED);
     if (llfinite(z))
-        mPosition.mV[VZ] = z;
+        mPosition.z = z;
     else
     {
-        mPosition.mV[VZ] = 0.f;
+        mPosition.z = 0.f;
         warn("Non Finite in LLXform::setPositionZ");
     }
 }
 
-void LLXform::addPosition(const LLVector3& pos)
+void LLXform::addPosition(const glm::vec3& pos)
 {
     setChanged(TRANSLATED);
-    if (pos.isFinite())
+    if (llfinite(pos.x) && llfinite(pos.y) && llfinite(pos.z))
         mPosition += pos;
     else
         warn("Non Finite in LLXform::addPosition");
 }
 
-void LLXform::setScale(const LLVector3& scale)
+void LLXform::setScale(const glm::vec3& scale)
 {
     setChanged(SCALED);
-    if (scale.isFinite())
+    if (llfinite(scale.x) && llfinite(scale.y) && llfinite(scale.z))
         mScale = scale;
     else
     {
-        mScale.set(1.f, 1.f, 1.f);
+        mScale = glm::vec3(1.f);
         warn("Non Finite in LLXform::setScale");
     }
 }
@@ -266,10 +267,10 @@ void LLXform::setScale(const F32 x, const F32 y, const F32 z)
 {
     setChanged(SCALED);
     if (llfinite(x) && llfinite(y) && llfinite(z))
-        mScale.set(x,y,z);
+        mScale = glm::vec3(x, y, z);
     else
     {
-        mScale.set(1.f, 1.f, 1.f);
+        mScale = glm::vec3(1.f);
         warn("Non Finite in LLXform::setScale");
     }
 }

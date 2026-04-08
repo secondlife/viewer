@@ -30,6 +30,8 @@
 
 #include "lldrawpooltree.h"
 
+#include "glm/glm.hpp"
+
 #include "lldir.h"
 #include "llprimitive.h"
 #include "lltree_common.h"
@@ -280,9 +282,9 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
     // Do base class updates...
     U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
 
-    if (  (getVelocity().lengthSquared() > 0.f)
-        ||(getAcceleration().lengthSquared() > 0.f)
-        ||(getAngularVelocity().lengthSquared() > 0.f))
+    if (  (glm::dot(getVelocity(), getVelocity()) > 0.f)
+        ||(glm::dot(getAcceleration(), getAcceleration()) > 0.f)
+        ||(glm::dot(getAngularVelocity(), getAngularVelocity()) > 0.f))
     {
         LL_INFOS() << "ACK! Moving tree!" << LL_ENDL;
         setVelocity(LLVector3::zero);
@@ -350,7 +352,7 @@ void LLVOTree::idleUpdate(LLAgent &agent, const F64 &time)
     S32 trunk_LOD = sMAX_NUM_TREE_LOD_LEVELS ; // disabled
     F32 app_angle = getAppAngle()*LLVOTree::sTreeFactor;
     F32 distance = mDrawable->mDistanceWRTCamera * LLVOVolume::sDistanceFactor * (F_PI / 3.f);
-    F32 diameter = getScale().length(); // trees have very broken scale, but length rougtly outlines proper diameter
+    F32 diameter = glm::length(getScale()); // trees have very broken scale, but length rougtly outlines proper diameter
     F32 sz = mBillboardScale * mBillboardRatio * diameter;
 
     for (S32 j = 0; j < sMAX_NUM_TREE_LOD_LEVELS; j++)
@@ -417,7 +419,7 @@ void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
     LLVector3 lookAt = center - viewer_pos_agent;
     F32 dist = lookAt.normalize() ;
     F32 cos_angle_to_view_dir = lookAt * LLVector3(LLViewerCamera::getInstance()->getXAxis()) ;
-    F32 radius = getScale().length()*0.5f;
+    F32 radius = glm::length(getScale())*0.5f;
     F32 range = dist - radius;
 
     if (range < F_ALMOST_ZERO || isHUDAttachment())     // range == zero
@@ -880,7 +882,7 @@ void LLVOTree::updateMesh()
     LLMatrix4 rot_mat(rot);
     rot_mat *= trans_mat;
 
-    F32 radius = getScale().length()*0.05f;
+    F32 radius = glm::length(getScale())*0.05f;
     LLMatrix4 scale_mat;
     scale_mat.initScale(LLVector3(radius, radius, radius));
 
@@ -1128,7 +1130,7 @@ void LLVOTree::updateRadius()
 
 void LLVOTree::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {
-    F32 radius = getScale().length()*0.05f;
+    F32 radius = glm::length(getScale())*0.05f;
     LLVector3 center = getRenderPosition();
 
     F32 sz = mBillboardScale*mBillboardRatio*radius*0.5f;

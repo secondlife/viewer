@@ -1352,10 +1352,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     htolememcpy(new_pos_parent.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
                     count += sizeof(LLVector3);
                     // vel
-                    htolememcpy(const_cast<F32*>(getVelocity().mV), &data[count], MVT_LLVector3, sizeof(LLVector3));
+                    htolememcpy(glm::value_ptr(const_cast<glm::vec3&>(getVelocity())), &data[count], MVT_LLVector3, sizeof(LLVector3));
                     count += sizeof(LLVector3);
                     // acc
-                    htolememcpy(const_cast<F32*>(getAcceleration().mV), &data[count], MVT_LLVector3, sizeof(LLVector3));
+                    htolememcpy(glm::value_ptr(const_cast<glm::vec3&>(getAcceleration())), &data[count], MVT_LLVector3, sizeof(LLVector3));
                     count += sizeof(LLVector3);
                     // theta
                     {
@@ -2260,8 +2260,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
     //static S32 counter = 0;
 
-    F32 vel_mag_sq = getVelocity().lengthSquared();
-    F32 accel_mag_sq = getAcceleration().lengthSquared();
+    F32 vel_mag_sq = glm::dot(getVelocity(), getVelocity());
+    F32 accel_mag_sq = glm::dot(getAcceleration(), getAcceleration());
 
     if (  ((b_changed_status)||(test_pos_parent != new_pos_parent))
         ||(  (!isSelected())
@@ -2351,11 +2351,11 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
     llassert(vel_mag_sq >= 0.f);
     llassert(accel_mag_sq >= 0.f);
-    llassert(getAngularVelocity().lengthSquared() >= 0.f);
+    llassert(glm::dot(getAngularVelocity(), getAngularVelocity()) >= 0.f);
 
     if ((MAG_CUTOFF >= vel_mag_sq) &&
         (MAG_CUTOFF >= accel_mag_sq) &&
-        (MAG_CUTOFF >= getAngularVelocity().lengthSquared()))
+        (MAG_CUTOFF >= glm::dot(getAngularVelocity(), getAngularVelocity())))
     {
         mStatic = true; // This object doesn't move!
     }
@@ -2581,7 +2581,7 @@ void LLViewerObject::interpolateLinearMotion(const F64SecondsImplicit& frame_tim
         if (isAvatar())
         {   // Make a better guess about AVs not going underground
             min_height = LLWorld::getInstance()->resolveLandHeightGlobal(new_pos_global);
-            min_height += (0.5f * getScale().mV[VZ]);
+            min_height += (0.5f * getScale().z);
         }
         else
         {   // This will put the object underground, but we can't tell if it will stop
@@ -4099,7 +4099,7 @@ void LLViewerObject::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax
     LLVector4a center;
     center.load3(getRenderPosition().mV);
     LLVector4a size;
-    size.load3(getScale().mV);
+    size.load3(glm::value_ptr(getScale()));
     newMin.setSub(center, size);
     newMax.setAdd(center, size);
 
@@ -4116,47 +4116,47 @@ F32 LLViewerObject::getBinRadius()
         return diff.getLength3().getF32();
     }
 
-    return getScale().length();
+    return glm::length(getScale());
 }
 
 F32 LLViewerObject::getMaxScale() const
 {
-    return llmax(getScale().mV[VX],getScale().mV[VY], getScale().mV[VZ]);
+    return llmax(getScale().x, getScale().y, getScale().z);
 }
 
 F32 LLViewerObject::getMinScale() const
 {
-    return llmin(getScale().mV[0],getScale().mV[1],getScale().mV[2]);
+    return llmin(getScale().x, getScale().y, getScale().z);
 }
 
 F32 LLViewerObject::getMidScale() const
 {
-    if (getScale().mV[VX] < getScale().mV[VY])
+    if (getScale().x < getScale().y)
     {
-        if (getScale().mV[VY] < getScale().mV[VZ])
+        if (getScale().y < getScale().z)
         {
-            return getScale().mV[VY];
+            return getScale().y;
         }
-        else if (getScale().mV[VX] < getScale().mV[VZ])
+        else if (getScale().x < getScale().z)
         {
-            return getScale().mV[VZ];
+            return getScale().z;
         }
         else
         {
-            return getScale().mV[VX];
+            return getScale().x;
         }
     }
-    else if (getScale().mV[VX] < getScale().mV[VZ])
+    else if (getScale().x < getScale().z)
     {
-        return getScale().mV[VX];
+        return getScale().x;
     }
-    else if (getScale().mV[VY] < getScale().mV[VZ])
+    else if (getScale().y < getScale().z)
     {
-        return getScale().mV[VZ];
+        return getScale().z;
     }
     else
     {
-        return getScale().mV[VY];
+        return getScale().y;
     }
 }
 
@@ -6136,7 +6136,7 @@ void LLViewerObject::updateText()
             }
 
             LLVector3 up_offset(0,0,0);
-            up_offset.mV[2] = getScale().mV[VZ]*0.6f;
+            up_offset.mV[2] = getScale().z*0.6f;
 
             if (mDrawable.notNull())
             {
@@ -6361,7 +6361,7 @@ void LLViewerObject::updateDrawable(bool force_damped)
                         (getParent() && !static_cast<LLViewerObject*>(getParent())->isSelected())// ... parent is not selected and ...
                     ) &&
                     getPCode() == LL_PCODE_VOLUME &&                    // ...is a volume object and...
-                    getVelocity().isExactlyZero() &&                    // ...is not moving physically and...
+                    (getVelocity() == glm::vec3(0.f)) &&                    // ...is not moving physically and...
                     mDrawable->getGeneration() != -1                    // ...was not created this frame.
                 )
             );
@@ -7711,8 +7711,8 @@ void LLViewerObject::clearTEWaterExclusion(const U8 te)
                 return;
             }
             F32 DEFAULT_REPEATS = 2.f;
-            F32 new_s = getScale().mV[s_axis] * DEFAULT_REPEATS;
-            F32 new_t = getScale().mV[t_axis] * DEFAULT_REPEATS;
+            F32 new_s = glm::value_ptr(getScale())[s_axis] * DEFAULT_REPEATS;
+            F32 new_t = glm::value_ptr(getScale())[t_axis] * DEFAULT_REPEATS;
 
             setTEScale(te, new_s, new_t);
             sendTEUpdate();
