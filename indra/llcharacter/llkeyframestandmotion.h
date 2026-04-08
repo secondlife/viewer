@@ -103,10 +103,12 @@ public:
     LLVector3           mPositionRight;
     LLVector3           mNormalLeft;
     LLVector3           mNormalRight;
-    LLQuaternion        mRotationLeft;
-    LLQuaternion        mRotationRight;
+    // glm-quat migration cluster #6: stored as glm::quat; interop with
+    // LLQuaternion uses the implicit bridge ctor/conversion operator.
+    glm::quat           mRotationLeft{1.f, 0.f, 0.f, 0.f};
+    glm::quat           mRotationRight{1.f, 0.f, 0.f, 0.f};
 
-    LLQuaternion        mLastGoodPelvisRotation;
+    glm::quat           mLastGoodPelvisRotation{1.f, 0.f, 0.f, 0.f};
     LLVector3           mLastGoodPosition;
     bool                mTrackAnkles;
 
