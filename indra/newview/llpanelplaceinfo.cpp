@@ -100,7 +100,7 @@ void LLPanelPlaceInfo::resetLocation()
 {
     mParcelID.setNull();
     mRequestedID.setNull();
-    mPosRegion.clear();
+    mPosRegion = glm::vec3(0.f);
     mRegionTitle.clear();
 
     std::string loading = LLTrans::getString("LoadingData");
@@ -148,7 +148,7 @@ void LLPanelPlaceInfo::displayParcelInfo(const LLUUID& region_id,
     if (!region)
         return;
 
-    mPosRegion.set(static_cast<F32>(fmod(pos_global.mdV[VX], static_cast<F64>(REGION_WIDTH_METERS))),
+    mPosRegion = glm::vec3(static_cast<F32>(fmod(pos_global.mdV[VX], static_cast<F64>(REGION_WIDTH_METERS))),
                       static_cast<F32>(fmod(pos_global.mdV[VY], static_cast<F64>(REGION_WIDTH_METERS))),
                       static_cast<F32>(pos_global.mdV[VZ]));
 
@@ -210,7 +210,7 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
     S32 region_z;
 
     // If the region position is zero, grab position from the global
-    if (mPosRegion.isExactlyZero())
+    if (mPosRegion == glm::vec3(0.f))
     {
         region_x = ll_round(parcel_data.global_x) % REGION_WIDTH_UNITS;
         region_y = ll_round(parcel_data.global_y) % REGION_WIDTH_UNITS;
@@ -218,9 +218,9 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
     }
     else
     {
-        region_x = ll_round(mPosRegion.mV[VX]);
-        region_y = ll_round(mPosRegion.mV[VY]);
-        region_z = ll_round(mPosRegion.mV[VZ]);
+        region_x = ll_round(mPosRegion.x);
+        region_y = ll_round(mPosRegion.y);
+        region_z = ll_round(mPosRegion.z);
     }
 
     if (!parcel_data.sim_name.empty())
