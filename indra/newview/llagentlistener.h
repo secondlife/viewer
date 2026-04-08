@@ -31,6 +31,8 @@
 
 #include "lleventapi.h"
 
+#include <glm/vec3.hpp>
+
 class LLAgent;
 class LLSD;
 class LLViewerObject;
@@ -69,7 +71,7 @@ private:
     void getNearbyObjectsList(LLSD const& event_data);
     void getAgentScreenPos(LLSD const& event_data);
 
-    LLViewerObject * findObjectClosestTo( const LLVector3 & position, bool sit_target = false ) const;
+    LLViewerObject * findObjectClosestTo( const glm::vec3 & position, bool sit_target = false ) const;
 
 private:
     LLAgent &   mAgent;

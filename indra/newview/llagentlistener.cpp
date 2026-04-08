@@ -239,7 +239,7 @@ void LLAgentListener::requestSit(LLSD const & event_data) const
     }
     else if (event_data.has("position"))
     {
-        LLVector3 target_position = ll_vector3_from_sd(event_data["position"]);
+        glm::vec3 target_position = ll_vector3_from_sd(event_data["position"]);
         object = findObjectClosestTo(target_position, true);
     }
     else
@@ -273,7 +273,7 @@ void LLAgentListener::requestStand(LLSD const & event_data) const
 }
 
 
-LLViewerObject * LLAgentListener::findObjectClosestTo(const LLVector3 & position, bool sit_target) const
+LLViewerObject * LLAgentListener::findObjectClosestTo(const glm::vec3 & position, bool sit_target) const
 {
     LLViewerObject *object = NULL;
 
@@ -291,8 +291,8 @@ LLViewerObject * LLAgentListener::findObjectClosestTo(const LLVector3 & position
                 continue;
             }
             // Calculate distance from the target position
-            LLVector3 target_diff = cur_object->getPositionRegion() - position;
-            F32 distance_to_target = target_diff.length();
+            glm::vec3 target_diff = glm::vec3(cur_object->getPositionRegion()) - position;
+            F32 distance_to_target = glm::length(target_diff);
             if (distance_to_target < min_distance)
             {   // Found an object closer
                 min_distance = distance_to_target;
@@ -315,7 +315,7 @@ void LLAgentListener::requestTouch(LLSD const & event_data) const
     }
     else if (event_data.has("position"))
     {
-        LLVector3 target_position = ll_vector3_from_sd(event_data["position"]);
+        glm::vec3 target_position = ll_vector3_from_sd(event_data["position"]);
         object = findObjectClosestTo(target_position);
     }
 
@@ -569,7 +569,7 @@ void LLAgentListener::lookAt(LLSD const & event_data) const
     }
     else if (event_data.has("position"))
     {
-        LLVector3 target_position = ll_vector3_from_sd(event_data["position"]);
+        glm::vec3 target_position = ll_vector3_from_sd(event_data["position"]);
         object = findObjectClosestTo(target_position);
     }
 
