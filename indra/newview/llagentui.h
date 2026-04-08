@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include <glm/vec3.hpp>
+
 class LLSLURL;
 
 class LLAgentUI
@@ -47,11 +49,11 @@ public:
     //build location string using the current position of gAgent.
     static bool buildLocationString(std::string& str, ELocationFormat fmt = LOCATION_FORMAT_LANDMARK);
     //build location string using a region position of the avatar.
-    static bool buildLocationString(std::string& str, ELocationFormat fmt,const LLVector3& agent_pos_region);
+    static bool buildLocationString(std::string& str, ELocationFormat fmt, const glm::vec3& agent_pos_region);
     /**
      * @brief Check whether  the agent is in neighborhood of the pole  Within same region
      * @return true if the agent is in neighborhood.
      */
-    static bool checkAgentDistance(const LLVector3& local_pole, F32 radius);
+    static bool checkAgentDistance(const glm::vec3& local_pole, F32 radius);
 };
 
