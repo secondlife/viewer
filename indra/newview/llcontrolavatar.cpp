@@ -97,7 +97,7 @@ LLVOAvatar *LLControlAvatar::getAttachedAvatar()
     return NULL;
 }
 
-void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_scale_fixup) const
+void LLControlAvatar::getNewConstraintFixups(glm::vec3& new_pos_fixup, F32& new_scale_fixup) const
 {
     static LLCachedControl<F32> anim_max_legal_offset(gSavedSettings, "AnimatedObjectsMaxLegalOffset", MAX_LEGAL_OFFSET);
     F32 max_legal_offset = llmax(anim_max_legal_offset(), 0.f);
@@ -105,7 +105,7 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
     static LLCachedControl<F32> anim_max_legal_size(gSavedSettings, "AnimatedObjectsMaxLegalSize", MAX_LEGAL_SIZE);
     F32 max_legal_size = llmax(anim_max_legal_size(), 1.f);
 
-    new_pos_fixup = LLVector3();
+    new_pos_fixup = glm::vec3(0.f);
     new_scale_fixup = 1.0f;
     LLVector3 vol_pos = mRootVolp->getRenderPosition();
 
@@ -137,7 +137,7 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
             if (new_pos_fixup != mPositionConstraintFixup)
             {
                 LL_DEBUGS("ConstraintFix") << getDebugName() << " pos fix, offset_dist " << offset_dist << " pos fixup "
-                                           << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
+                                           << LLVector3(new_pos_fixup) << " was " << LLVector3(mPositionConstraintFixup) << LL_ENDL;
                 LL_DEBUGS("ConstraintFix") << "vol_pos " << vol_pos << LL_ENDL;
                 LL_DEBUGS("ConstraintFix") << "extents " << extents[0] << " " << extents[1] << LL_ENDL;
                 LL_DEBUGS("ConstraintFix") << "unshift_extents " << unshift_extents[0] << " " << unshift_extents[1] << LL_ENDL;
@@ -158,7 +158,7 @@ void LLControlAvatar::matchVolumeTransform()
 {
     if (mRootVolp)
     {
-        LLVector3 new_pos_fixup;
+        glm::vec3 new_pos_fixup{0.f};
         F32 new_scale_fixup;
         if (mRegionChanged)
         {
@@ -202,7 +202,7 @@ void LLControlAvatar::matchVolumeTransform()
         }
         else
         {
-            LLVector3 vol_pos = mRootVolp->getRenderPosition();
+            glm::vec3 vol_pos = mRootVolp->getRenderPosition();
 
             // FIXME: Currently if you're doing something like playing an
             // animation that moves the pelvis (on an avatar or
@@ -502,7 +502,7 @@ void LLControlAvatar::updateDebugText()
         addDebugText(llformat("tris %d (est %.1f, streaming %.1f), verts %d", total_tris, est_tris, est_streaming_tris, total_verts));
         addDebugText(llformat("pxarea %s rank %d", LLStringOps::getReadableNumber(getPixelArea()).c_str(), getVisibilityRank()));
         addDebugText(llformat("lod_radius %s dists %s", LLStringOps::getReadableNumber(lod_radius).c_str(),cam_dist_string.c_str()));
-        if (mPositionConstraintFixup.length() > 0.0f || mScaleConstraintFixup != 1.0f)
+        if (glm::length(mPositionConstraintFixup) > 0.0f || mScaleConstraintFixup != 1.0f)
         {
             addDebugText(llformat("pos fix (%.1f %.1f %.1f) scale %f",
                                   mPositionConstraintFixup[0],

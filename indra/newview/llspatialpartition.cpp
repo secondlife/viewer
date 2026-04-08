@@ -1860,7 +1860,7 @@ void renderBoundingBox(LLDrawable* drawable, bool set_color = true)
                         LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(drawable->getVObj()->asAvatar());
                         if (cav)
                         {
-                            bool has_pos_constraint = (cav->mPositionConstraintFixup != LLVector3());
+                            bool has_pos_constraint = (cav->mPositionConstraintFixup != glm::vec3(0.f));
                             bool has_scale_constraint = (cav->mScaleConstraintFixup != 1.0f);
                             if (has_pos_constraint || has_scale_constraint)
                             {
