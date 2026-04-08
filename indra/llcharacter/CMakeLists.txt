@@ -66,3 +66,12 @@ target_link_libraries(
         llfilesystem
         llxml
     )
+
+# Add tests
+if (LL_TESTS)
+  include(LLAddBuildTest)
+  include(GLM)
+  set(test_libs llcharacter llmath llcommon llxml llmessage llfilesystem)
+  LL_ADD_INTEGRATION_TEST(lljointsolverrp3 lljointsolverrp3.cpp "${test_libs}")
+  target_link_libraries(INTEGRATION_TEST_lljointsolverrp3 ll::glm)
+endif (LL_TESTS)
