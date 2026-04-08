@@ -790,13 +790,15 @@ const LLQuaternion& LLJoint::getRotation()
 //--------------------------------------------------------------------
 // setRotation()
 //--------------------------------------------------------------------
-void LLJoint::setRotation( const LLQuaternion& rot )
+void LLJoint::setRotation( const glm::quat& rot )
 {
-    if (rot.isFinite())
+    // Bridge to LLQuaternion to preserve isFinite()/setRotation semantics exactly.
+    const LLQuaternion ll_rot(rot);
+    if (ll_rot.isFinite())
     {
-    //  if (mXform.getRotation() != rot)
+    //  if (mXform.getRotation() != ll_rot)
         {
-            mXform.setRotation(rot);
+            mXform.setRotation(ll_rot);
             touch(MATRIX_DIRTY | ROTATION_DIRTY);
         }
     }
@@ -824,7 +826,7 @@ LLQuaternion LLJoint::getLastWorldRotation()
 //--------------------------------------------------------------------
 // setWorldRotation()
 //--------------------------------------------------------------------
-void LLJoint::setWorldRotation( const LLQuaternion& rot )
+void LLJoint::setWorldRotation( const glm::quat& rot )
 {
     if (mParent == NULL)
     {
@@ -832,7 +834,9 @@ void LLJoint::setWorldRotation( const LLQuaternion& rot )
         return;
     }
 
-    LLMatrix4 temp_mat(rot);
+    // LLMatrix4 ctor from LLQuaternion is explicit, so we cannot chain
+    // glm::quat -> LLQuaternion -> LLMatrix4 implicitly. Bridge explicitly.
+    LLMatrix4 temp_mat{LLQuaternion(rot)};
 
     LLMatrix4 parentWorldMatrix = mParent->getWorldMatrix();
     parentWorldMatrix.mMatrix[VW][VX] = 0;
@@ -1005,7 +1009,7 @@ void LLJoint::setSkinOffset( const glm::vec3& offset )
 //-----------------------------------------------------------------------------
 // clampRotation()
 //-----------------------------------------------------------------------------
-void LLJoint::clampRotation(LLQuaternion old_rot, LLQuaternion new_rot)
+void LLJoint::clampRotation(glm::quat old_rot, glm::quat new_rot)
 {
     glm::vec3 main_axis(1.f, 0.f, 0.f);
 
