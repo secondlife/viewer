@@ -34,6 +34,7 @@
 #include "llagentcamera.h"
 #include "llsdserialize.h"
 #include "llworld.h" // For LLWorld::getInstance()
+#include <glm/gtc/type_ptr.hpp>
 //static variables
 U32 LLVOCacheEntry::sMinFrameRange = 0;
 F32 LLVOCacheEntry::sNearRadius = 1.0f;
@@ -582,12 +583,12 @@ void LLVOCacheEntry::saveBoundingSphere()
     mBSphereRadius = getBinRadius();
 }
 
-void LLVOCacheEntry::setBoundingInfo(const LLVector3& pos, const LLVector3& scale)
+void LLVOCacheEntry::setBoundingInfo(const glm::vec3& pos, const glm::vec3& scale)
 {
     LLVector4a center, newMin, newMax;
-    center.load3(pos.mV);
+    center.load3(glm::value_ptr(pos));
     LLVector4a size;
-    size.load3(scale.mV);
+    size.load3(glm::value_ptr(scale));
     newMin.setSub(center, size);
     newMax.setAdd(center, size);
 
