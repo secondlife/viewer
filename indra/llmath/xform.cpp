@@ -71,15 +71,44 @@ void LLXformMatrix::update()
         {
             mWorldPosition *= mParent->getScale();
         }
-        // Rotate by parent's world rotation: bridge through LLVector3 for the
-        // LLVector3 *= LLQuaternion operator, then assign back.
+        // Rotate mWorldPosition by parent's world rotation. We bridge
+        // through LLVector3 *= LLQuaternion deliberately, NOT
+        // glm::quat * glm::vec3 directly. Reason:
+        //
+        // LL's `vec *= quat` uses the full `q * v * conj(q)` formula,
+        // which scales the result by |q|^2 for non-unit input quats.
+        // glm's `quat * vec3` uses the optimized formula that assumes
+        // unit-length quat and produces a different result for non-unit
+        // input.
+        //
+        // Production avatar code uses unit quats, so the two paths agree
+        // in practice. But the unit test xform_test #7 (the LLXform
+        // unit-test net's compose test, lines 207-243) uses non-unit
+        // quats LLQuaternion(1,2,3,4) and LLQuaternion(5,6,7,8) and
+        // pins LL's lenient behavior bit-for-bit. Switching to the glm
+        // form would break that test.
+        //
+        // Per the bug-preservation doctrine in the quat migration cheat
+        // sheet, this is preserved-as-is. Track in
+        // sl_dev/docs/quaternion_migration_bugs.md as BUG-Q-002 (LL
+        // lenient vec*quat for non-unit input — likely a design choice,
+        // not a bug, but worth documenting). Revisit if production code
+        // is ever found that depends on the |q|^2 scaling.
         {
             LLVector3 tmp(mWorldPosition);
-            tmp *= mParent->getWorldRotation();
+            tmp *= LLQuaternion(mParent->getWorldRotation());
             mWorldPosition = glm::vec3(tmp.mV[VX], tmp.mV[VY], tmp.mV[VZ]);
         }
         mWorldPosition += mParent->getWorldPosition();
-        mWorldRotation = mRotation * mParent->getWorldRotation();
+        // CRITICAL OPERAND-ORDER FLIP (cluster #17):
+        //   LL form:  mWorldRotation = mRotation * mParent->getWorldRotation()
+        //     LL semantics: 'apply mRotation first, then parent's world rotation'
+        //   glm form: mWorldRotation = mParent->getWorldRotation() * mRotation
+        //     glm semantics: rightmost is applied first (= apply mRotation,
+        //     then parent's world rotation) -- same total rotation, REVERSED
+        //     operand order. The unit test net (test 7 + test 12) pins this
+        //     via direct quaternion comparison so any miss surfaces immediately.
+        mWorldRotation = mParent->getWorldRotation() * mRotation;
     }
     else
     {

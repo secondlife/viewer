@@ -1418,8 +1418,10 @@ glm::vec3 LLAgent::getReferenceUpVector()
         }
         else if (camera_mode == CAMERA_MODE_MOUSELOOK)
         {
-            // make the up vector point to the avatar's +z axis
-            up_vector = up_vector * gAgentAvatarp->mDrawable->getRotation();
+            // make the up vector point to the avatar's +z axis.
+            // mDrawable->getRotation() returns const glm::quat& post-LLXform-quat-migration;
+            // bridge to LLQuaternion to disambiguate the LLVector3 * quat overload.
+            up_vector = up_vector * LLQuaternion(gAgentAvatarp->mDrawable->getRotation());
         }
     }
 

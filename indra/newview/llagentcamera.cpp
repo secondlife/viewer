@@ -1827,8 +1827,10 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
             head_offset.mdV[VY] += gAgentAvatarp->mHeadOffset.mV[VY];
             head_offset.mdV[VZ] += gAgentAvatarp->mHeadOffset.mV[VZ];
             const LLMatrix4& mat = (static_cast<LLViewerObject*>(gAgentAvatarp->getParent()))->getRenderMatrix();
+            // gAgentAvatarp->getRotation() returns const glm::quat& post-LLXform-quat-migration;
+            // bridge to LLQuaternion to disambiguate the LLVector3 * quat overload.
             LLVector3 pos_ll = (gAgentAvatarp->getPosition()+
-                                 LLVector3(head_offset)*gAgentAvatarp->getRotation()) * mat;
+                                 LLVector3(head_offset)*LLQuaternion(gAgentAvatarp->getRotation())) * mat;
             camera_position_global = gAgent.getPosGlobalFromAgent(glm::vec3(pos_ll.mV[VX], pos_ll.mV[VY], pos_ll.mV[VZ]));
         }
         else

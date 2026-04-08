@@ -29,6 +29,7 @@
 #include "m4math.h"
 #include "llquaternion.h"
 #include "glm/vec3.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 constexpr F32 MAX_OBJECT_Z      = 4096.f; // should match REGION_HEIGHT_METERS, Pre-havok4: 768.f
 constexpr F32 MIN_OBJECT_Z      = -256.f;
@@ -41,13 +42,13 @@ class LLXform
 {
 protected:
     glm::vec3     mPosition;
-    LLQuaternion  mRotation;
+    glm::quat     mRotation{1.f, 0.f, 0.f, 0.f};   // identity (w, x, y, z)
     glm::vec3     mScale;
 
     //RN: TODO: move these world transform members to LLXformMatrix
     // as they are *never* updated or accessed in the base class
     glm::vec3     mWorldPosition;
-    LLQuaternion  mWorldRotation;
+    glm::quat     mWorldRotation{1.f, 0.f, 0.f, 0.f};   // identity (w, x, y, z)
 
     LLXform*      mParent;
     U32           mChanged;
@@ -74,10 +75,10 @@ public:
         mParent  = NULL;
         mChanged = UNCHANGED;
         mPosition = glm::vec3(0.f);
-        mRotation.loadIdentity();
+        mRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
         mScale = glm::vec3(1.f);
         mWorldPosition = glm::vec3(0.f);
-        mWorldRotation.loadIdentity();
+        mWorldRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
         mScaleChildOffset = false;
     }
 
@@ -124,9 +125,9 @@ public:
 
     const glm::vec3&    getPosition()  const        { return mPosition; }
     const glm::vec3&    getScale() const            { return mScale; }
-    const LLQuaternion& getRotation() const         { return mRotation; }
+    const glm::quat&    getRotation() const         { return mRotation; }
     const glm::vec3&    getPositionW() const        { return mWorldPosition; }
-    const LLQuaternion& getWorldRotation() const    { return mWorldRotation; }
+    const glm::quat&    getWorldRotation() const    { return mWorldRotation; }
     const glm::vec3&    getWorldPosition() const    { return mWorldPosition; }
 };
 
@@ -278,10 +279,10 @@ void LLXform::setRotation(const LLQuaternion& rot)
 {
     setChanged(ROTATED);
     if (rot.isFinite())
-        mRotation = rot;
+        mRotation = rot;   // implicit operator glm::quat() on LLQuaternion
     else
     {
-        mRotation.loadIdentity();
+        mRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
         warn("Non Finite in LLXform::setRotation");
     }
 }
@@ -290,11 +291,18 @@ void LLXform::setRotation(const F32 x, const F32 y, const F32 z)
     setChanged(ROTATED);
     if (llfinite(x) && llfinite(y) && llfinite(z))
     {
-        mRotation.setEulerAngles(x,y,z);
+        // setEulerAngles is LLQuaternion-only and uses LL's specific
+        // Euler convention (XYZ via LLMatrix3). Bridge through a
+        // temporary LLQuaternion to preserve the exact convention,
+        // then assign back to mRotation via the implicit operator
+        // glm::quat() on LLQuaternion.
+        LLQuaternion tmp;
+        tmp.setEulerAngles(x, y, z);
+        mRotation = tmp;
     }
     else
     {
-        mRotation.loadIdentity();
+        mRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
         warn("Non Finite in LLXform::setRotation");
     }
 }
@@ -303,11 +311,15 @@ void LLXform::setRotation(const F32 x, const F32 y, const F32 z, const F32 s)
     setChanged(ROTATED);
     if (llfinite(x) && llfinite(y) && llfinite(z) && llfinite(s))
     {
-        mRotation.mQ[VX] = x; mRotation.mQ[VY] = y; mRotation.mQ[VZ] = z; mRotation.mQ[VS] = s;
+        // Direct field set: glm::quat exposes .x/.y/.z/.w members.
+        // Note: glm::quat stores wxyz internally but member access is
+        // .x/.y/.z/.w, so component identity matches LL's mQ[VX..VS]
+        // bit-for-bit when we set them by name.
+        mRotation.x = x; mRotation.y = y; mRotation.z = z; mRotation.w = s;
     }
     else
     {
-        mRotation.loadIdentity();
+        mRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
         warn("Non Finite in LLXform::setRotation");
     }
 }

@@ -1136,7 +1136,10 @@ void LLVOTree::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     F32 sz = mBillboardScale*mBillboardRatio*radius*0.5f;
     LLVector3 size(sz,sz,sz);
 
-    center += LLVector3(0, 0, size.mV[2]) * getRotation();
+    // getRotation() returns const glm::quat& post-LLXform-quat-migration.
+    // The LLVector3 * glm::quat overload is ambiguous; force LLQuaternion
+    // semantics via the bridge ctor on the rhs.
+    center += LLVector3(0, 0, size.mV[2]) * LLQuaternion(getRotation());
 
     newMin.load3((center-size).mV);
     newMax.load3((center+size).mV);

@@ -97,8 +97,8 @@ public:
     glm::vec3             getPositionAgent() const;
     const glm::vec3&      getScale() const              { return mCurrentScale; }
     void                  setScale(const glm::vec3& scale) { mCurrentScale = scale; }
-    const LLQuaternion&   getWorldRotation() const      { return mXform.getWorldRotation(); }
-    const LLQuaternion&   getRotation() const           { return mXform.getRotation(); }
+    const glm::quat&      getWorldRotation() const      { return mXform.getWorldRotation(); }
+    const glm::quat&      getRotation() const           { return mXform.getRotation(); }
     F32                   getIntensity() const          { return llmin(mXform.getScale().x, 4.f); }
     S32                   getLOD() const                { return mVObjp ? mVObjp->getLOD() : 1; }
 

@@ -675,10 +675,13 @@ void LLManipRotate::drag( S32 x, S32 y )
                     if (object->isAttachment() && object->mDrawable.notNull())
                     {
                         // need to work in drawable space to handle selected items from multiple attachments
-                        // (which have no shared frame of reference other than their render positions)
+                        // (which have no shared frame of reference other than their render positions).
+                        // parent_xform->getWorldRotation() returns const glm::quat& post-LLXform-quat-migration;
+                        // capture once via bridge to LLQuaternion to keep both vec*quat sites unambiguous.
                         LLXform* parent_xform = object->mDrawable->getXform()->getParent();
-                        new_position = (selectNode->mSavedPositionLocal * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
-                        old_position = (object->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();//object->getRenderPosition();
+                        const LLQuaternion parent_world_rot(parent_xform->getWorldRotation());
+                        new_position = (selectNode->mSavedPositionLocal * parent_world_rot) + parent_xform->getWorldPosition();
+                        old_position = (object->getPosition() * parent_world_rot) + parent_xform->getWorldPosition();//object->getRenderPosition();
                     }
                     else
                     {

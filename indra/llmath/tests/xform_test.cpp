@@ -48,12 +48,15 @@ namespace tut
         LLVector3 emptyVec(0.f,0.f,0.f);
         LLVector3 initialScaleVec(1.f,1.f,1.f);
 
+        // isIdentity is an LLQuaternion method; wrap getRotation() /
+        // getWorldRotation() (which return glm::quat post-migration)
+        // via the LLQuaternion bridge ctor.
         ensure("LLXform empty constructor failed: ", !xform_obj.getParent() && !xform_obj.isChanged() &&
             xform_obj.getPosition() == emptyVec &&
-            (xform_obj.getRotation()).isIdentity() &&
+            LLQuaternion(xform_obj.getRotation()).isIdentity() &&
             xform_obj.getScale() == initialScaleVec &&
             xform_obj.getPositionW() == emptyVec &&
-            (xform_obj.getWorldRotation()).isIdentity() &&
+            LLQuaternion(xform_obj.getWorldRotation()).isIdentity() &&
             !xform_obj.getScaleChildOffset());
     }
 
@@ -105,14 +108,15 @@ namespace tut
 
         LLQuaternion quat(x, y, z, w);
         xform_obj.setRotation(quat);
-        ensure("setRotation quat failed: ", xform_obj.getRotation() == quat);
+        // Bridge-friendly comparisons via LLQuaternion(...) wrap.
+        ensure("setRotation quat failed: ", LLQuaternion(xform_obj.getRotation()) == quat);
 
         xform_obj.setRotation(x, y, z, w);
-        ensure("getRotation 2 failed: ", xform_obj.getRotation() == quat);
+        ensure("getRotation 2 failed: ", LLQuaternion(xform_obj.getRotation()) == quat);
 
         xform_obj.setRotation(x, y, z);
         quat.setEulerAngles(x, y, z);
-        ensure("setRotation xyz failed: ", xform_obj.getRotation() == quat);
+        ensure("setRotation xyz failed: ", LLQuaternion(xform_obj.getRotation()) == quat);
 
         // LLXform::setRotation(const F32 x, const F32 y, const F32 z)
         //      Does normalization
@@ -192,15 +196,16 @@ namespace tut
     {
         LLXformMatrix formMatrix_obj;
         formMatrix_obj.init();
-        LLVector3 llmin_vec3;
-        LLVector3 llmax_vec3;
-        formMatrix_obj.getMinMax(llmin_vec3, llmax_vec3);
-        ensure("1. The value is not NULL", 0.f == llmin_vec3.mV[0]);
-        ensure("2. The value is not NULL", 0.f == llmin_vec3.mV[1]);
-        ensure("3. The value is not NULL", 0.f == llmin_vec3.mV[2]);
-        ensure("4. The value is not NULL", 0.f == llmin_vec3.mV[0]);
-        ensure("5. The value is not NULL", 0.f == llmin_vec3.mV[1]);
-        ensure("6. The value is not NULL", 0.f == llmin_vec3.mV[2]);
+        // getMinMax takes glm::vec3& out params (post-vec3-migration).
+        glm::vec3 min_vec3(0.f);
+        glm::vec3 max_vec3(0.f);
+        formMatrix_obj.getMinMax(min_vec3, max_vec3);
+        ensure_equals("min.x is zero", min_vec3.x, 0.f);
+        ensure_equals("min.y is zero", min_vec3.y, 0.f);
+        ensure_equals("min.z is zero", min_vec3.z, 0.f);
+        ensure_equals("max.x is zero", max_vec3.x, 0.f);
+        ensure_equals("max.y is zero", max_vec3.y, 0.f);
+        ensure_equals("max.z is zero", max_vec3.z, 0.f);
     }
 
     //test case of update() fn.
@@ -235,11 +240,222 @@ namespace tut
 
         LLQuaternion worldRot = quat * quatparent;
 
+        // Bridge-friendly comparison: wrap getWorldRotation() in
+        // LLQuaternion(...) so the == operator works whether the return
+        // type is LLQuaternion (pre-migration) or glm::quat (post-migration).
         ensure("getWorldPosition failed: ", formMatrix_obj.getWorldPosition() == worldPos);
-        ensure("getWorldRotation failed: ", formMatrix_obj.getWorldRotation() == worldRot);
+        ensure("getWorldRotation failed: ", LLQuaternion(formMatrix_obj.getWorldRotation()) == worldRot);
 
         ensure("getWorldPosition for parent failed: ", parent.getWorldPosition() == llvecpospar);
-        ensure("getWorldRotation for parent failed: ", parent.getWorldRotation() == quatparent);
+        ensure("getWorldRotation for parent failed: ", LLQuaternion(parent.getWorldRotation()) == quatparent);
+    }
+
+    // ---------------------------------------------------------------------
+    // Tests 8-14: rotation-path coverage gap-fillers for the LLXform
+    // phase 2 quat migration. These pin the behavior of rotation-affecting
+    // code paths so the LLQuaternion -> glm::quat conversion of mRotation
+    // and mWorldRotation can be verified bit-for-bit.
+    //
+    // The existing tests 1-7 cover the API surface and the basic
+    // parent->child world rotation composition (test 7). These additions
+    // close gaps:
+    //   - Three-level deep rotation chain (root -> middle -> child)
+    //   - Round-trip identity through setRotation/getRotation
+    //   - Identity rotation invariance (parent identity == no contribution)
+    //   - World rotation under non-trivial axis-angle (not just direct
+    //     ctor xyzw values)
+    //   - LLXformMatrix world matrix vs world rotation consistency
+    // ---------------------------------------------------------------------
+
+    template<> template<>
+    void xform_test_object_t::test<8>()
+    {
+        // Round-trip: setRotation(LLQuaternion) followed by getRotation()
+        // should return exactly what was set. Tests the field assignment
+        // path for the LLQuaternion overload of setRotation.
+        //
+        // Bridge-friendly comparison: wrap getRotation() in LLQuaternion(...)
+        // so the assertion works whether getRotation returns LLQuaternion
+        // (current) or glm::quat (post-migration). LLQuaternion has both
+        // a copy ctor (current path) and a non-explicit ctor from glm::quat
+        // (the bridge from glm-quat cluster #1).
+        LLXform xform;
+        LLQuaternion q(0.1f, 0.2f, 0.3f, 0.927f);
+        xform.setRotation(q);
+        const LLQuaternion got(xform.getRotation());
+        ensure("LLQuaternion roundtrip preserves x", got.mQ[VX] == q.mQ[VX]);
+        ensure("LLQuaternion roundtrip preserves y", got.mQ[VY] == q.mQ[VY]);
+        ensure("LLQuaternion roundtrip preserves z", got.mQ[VZ] == q.mQ[VZ]);
+        ensure("LLQuaternion roundtrip preserves w", got.mQ[VW] == q.mQ[VW]);
+    }
+
+    template<> template<>
+    void xform_test_object_t::test<9>()
+    {
+        // setRotation(x, y, z, w) 4-arg form: direct field set, no
+        // normalization (per the test 2 comment). Roundtrip the exact
+        // values. Bridge-friendly comparison via LLQuaternion(...).
+        LLXform xform;
+        xform.setRotation(0.5f, 0.6f, 0.7f, 0.8f);
+        const LLQuaternion got(xform.getRotation());
+        ensure("4-arg setRotation preserves x", got.mQ[VX] == 0.5f);
+        ensure("4-arg setRotation preserves y", got.mQ[VY] == 0.6f);
+        ensure("4-arg setRotation preserves z", got.mQ[VZ] == 0.7f);
+        ensure("4-arg setRotation preserves w (s)", got.mQ[VS] == 0.8f);
+    }
+
+    template<> template<>
+    void xform_test_object_t::test<10>()
+    {
+        // Identity rotation invariance: with parent at identity and
+        // child at identity, the world rotation must be identity.
+        // Bridge-friendly via LLQuaternion(...).isIdentity().
+        LLXformMatrix child;
+        LLXformMatrix parent;
+        child.setParent(&parent);
+
+        parent.update();
+        child.update();
+
+        const LLQuaternion world(child.getWorldRotation());
+        ensure("identity child of identity parent is identity world",
+               world.isIdentity());
+    }
+
+    template<> template<>
+    void xform_test_object_t::test<11>()
+    {
+        // Identity parent invariance: a child with non-trivial rotation
+        // and identity parent must have world rotation == local rotation.
+        // Bridge-friendly via LLQuaternion(...) wrap.
+        LLXformMatrix child;
+        LLXformMatrix parent;
+        LLQuaternion child_rot(0.1f, 0.2f, 0.3f, 0.927f);
+        child.setRotation(child_rot);
+        child.setParent(&parent);
+
+        parent.update();
+        child.update();
+
+        const LLQuaternion world(child.getWorldRotation());
+        ensure("identity parent: world == local x", world.mQ[VX] == child_rot.mQ[VX]);
+        ensure("identity parent: world == local y", world.mQ[VY] == child_rot.mQ[VY]);
+        ensure("identity parent: world == local z", world.mQ[VZ] == child_rot.mQ[VZ]);
+        ensure("identity parent: world == local w", world.mQ[VS] == child_rot.mQ[VS]);
+    }
+
+    template<> template<>
+    void xform_test_object_t::test<12>()
+    {
+        // Three-level chain: root -> middle -> leaf. Each level has a
+        // distinct non-trivial rotation. The leaf's world rotation must
+        // equal the LL composition leaf_local * middle_local * root_local
+        // (LL semantics: leftmost applied first). This is the same
+        // compose direction as test 7 but stresses depth.
+        LLXformMatrix root;
+        LLXformMatrix middle;
+        LLXformMatrix leaf;
+
+        LLQuaternion root_rot(F_PI_BY_TWO, LLVector3(0.f, 0.f, 1.f));   // 90 around Z
+        LLQuaternion middle_rot(F_PI_BY_TWO, LLVector3(1.f, 0.f, 0.f)); // 90 around X
+        LLQuaternion leaf_rot(F_PI_BY_TWO, LLVector3(0.f, 1.f, 0.f));   // 90 around Y
+
+        root.setRotation(root_rot);
+        middle.setRotation(middle_rot);
+        leaf.setRotation(leaf_rot);
+
+        middle.setParent(&root);
+        leaf.setParent(&middle);
+
+        root.update();
+        middle.update();
+        leaf.update();
+
+        // LLXform's compose order at xform.cpp:82 is:
+        //   mWorldRotation = mRotation * mParent->getWorldRotation()
+        // So for three levels:
+        //   middle.world = middle.local * root.world (since root.world = root.local)
+        //                = middle_rot * root_rot
+        //   leaf.world   = leaf.local * middle.world
+        //                = leaf_rot * (middle_rot * root_rot)
+        const LLQuaternion expected_middle_world = middle_rot * root_rot;
+        const LLQuaternion expected_leaf_world   = leaf_rot * expected_middle_world;
+
+        // Bridge-friendly via LLQuaternion(...) wrap on the LHS.
+        ensure("three-level: middle.world matches",
+               LLQuaternion(middle.getWorldRotation()) == expected_middle_world);
+        ensure("three-level: leaf.world matches",
+               LLQuaternion(leaf.getWorldRotation()) == expected_leaf_world);
+    }
+
+    template<> template<>
+    void xform_test_object_t::test<13>()
+    {
+        // setRotation via Euler angles: setEulerAngles is called
+        // internally on LLQuaternion. Pin the behavior so the migration
+        // (which will keep using LLQuaternion::setEulerAngles internally
+        // OR replace it with a glm equivalent) preserves the result.
+        LLXform xform;
+        xform.setRotation(0.3f, 0.5f, 0.7f);  // Euler form
+
+        // Reproduce what setRotation(F32,F32,F32) does internally:
+        LLQuaternion expected;
+        expected.setEulerAngles(0.3f, 0.5f, 0.7f);
+
+        // Bridge-friendly via LLQuaternion(...) wrap.
+        const LLQuaternion got(xform.getRotation());
+        ensure("Euler setRotation x matches", got.mQ[VX] == expected.mQ[VX]);
+        ensure("Euler setRotation y matches", got.mQ[VY] == expected.mQ[VY]);
+        ensure("Euler setRotation z matches", got.mQ[VZ] == expected.mQ[VZ]);
+        ensure("Euler setRotation w matches", got.mQ[VS] == expected.mQ[VS]);
+    }
+
+    template<> template<>
+    void xform_test_object_t::test<14>()
+    {
+        // LLXformMatrix world matrix consistency: after update(), the
+        // world matrix must encode the same rotation as mWorldRotation.
+        // We verify by extracting the rotation from the world matrix
+        // and comparing to getWorldRotation().
+        //
+        // This is the strongest test that the
+        //   mWorldMatrix.initAll(mScale, mWorldRotation, mWorldPosition)
+        // call at xform.cpp:95 still produces a consistent matrix after
+        // the migration. Any compose-order or W-position bug in
+        // mWorldRotation surfaces here as a matrix that disagrees with
+        // the rotation field.
+        LLXformMatrix obj;
+        LLXformMatrix par;
+
+        LLQuaternion par_rot(F_PI_BY_TWO, LLVector3(0.f, 0.f, 1.f));
+        LLQuaternion obj_rot(F_PI_BY_TWO * 0.5f, LLVector3(1.f, 0.f, 0.f));
+        par.setRotation(par_rot);
+        obj.setRotation(obj_rot);
+        obj.setParent(&par);
+
+        par.updateMatrix();
+        obj.updateMatrix();
+
+        // Extract the rotation from the world matrix and compare to
+        // the world rotation field.
+        const LLMatrix4& world_mat = obj.getWorldMatrix();
+        LLQuaternion mat_rot = world_mat.quaternion();
+        const LLQuaternion& field_rot = obj.getWorldRotation();
+
+        // Apply both rotations to a known vector and compare. Direct
+        // quat-equality can fail due to sign ambiguity (q and -q
+        // represent the same rotation), so we use behavioral comparison.
+        const LLVector3 test_vec(1.f, 2.f, 3.f);
+        const LLVector3 rotated_by_field = test_vec * field_rot;
+        const LLVector3 rotated_by_mat   = test_vec * mat_rot;
+
+        const F32 eps = 1e-4f;
+        ensure("world matrix rotation matches world rotation field x",
+               std::fabs(rotated_by_field.mV[VX] - rotated_by_mat.mV[VX]) < eps);
+        ensure("world matrix rotation matches world rotation field y",
+               std::fabs(rotated_by_field.mV[VY] - rotated_by_mat.mV[VY]) < eps);
+        ensure("world matrix rotation matches world rotation field z",
+               std::fabs(rotated_by_field.mV[VZ] - rotated_by_mat.mV[VZ]) < eps);
     }
 }
 

@@ -1972,9 +1972,11 @@ void LLVOVolume::updateRelativeXform(bool force_identity)
         LLQuaternion delta_rot;
         LLVector3 delta_pos, delta_scale;
 
-        //matrix from local space to parent relative/global space
+        //matrix from local space to parent relative/global space.
+        // mDrawable->getRotation() returns const glm::quat& post-LLXform-quat-migration.
+        // Wrap in LLQuaternion to match the identity branch type.
         bool use_identity = force_identity || drawable->isSpatialRoot();
-        delta_rot = use_identity ? LLQuaternion() : mDrawable->getRotation();
+        delta_rot = use_identity ? LLQuaternion() : LLQuaternion(mDrawable->getRotation());
         delta_pos = use_identity ? LLVector3(0,0,0) : LLVector3(mDrawable->getPosition());
         delta_scale = LLVector3(mDrawable->getScale());
 
