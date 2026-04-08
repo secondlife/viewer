@@ -104,8 +104,8 @@ protected:
     LLMatrix4   mSavedJointAMat;
     LLMatrix4   mSavedInvPlaneMat;
 
-    LLQuaternion    mJointABaseRotation;
-    LLQuaternion    mJointBBaseRotation;
+    glm::quat       mJointABaseRotation;
+    glm::quat       mJointBBaseRotation;
 
 public:
     //-------------------------------------------------------------------------
