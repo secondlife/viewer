@@ -33,6 +33,7 @@
 
 #include "llfloater.h"
 #include "llmapimagetype.h"
+#include <glm/vec3.hpp>
 #include "llremoteparcelrequest.h"
 #include "llslurl.h"
 #include "lltracker.h"
@@ -205,7 +206,7 @@ private:
     std::string             mCompletingRegionName;
     // Local position from trackURL() request, used to select final
     // position once region lookup complete.
-    LLVector3               mCompletingRegionPos;
+    glm::vec3               mCompletingRegionPos;
 
     std::string             mLastRegionName;
     bool                    mWaitingForTracker;
