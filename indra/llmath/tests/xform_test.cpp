@@ -411,6 +411,47 @@ namespace tut
     }
 
     template<> template<>
+    void xform_test_object_t::test<15>()
+    {
+        // setRotation(const glm::quat&) overload (cluster #20). Native
+        // glm::quat input bypasses the LLQuaternion bridge ctor that the
+        // LLQuaternion setRotation overload uses for the field assignment.
+        // Roundtrip the components to verify the overload is wired up
+        // correctly and the non-finite check works.
+        LLXform xform;
+        const glm::quat input(0.927f, 0.1f, 0.2f, 0.3f);   // (w, x, y, z)
+        xform.setRotation(input);
+
+        const glm::quat& got = xform.getRotation();
+        ensure_equals("glm::quat overload preserves x", got.x, input.x);
+        ensure_equals("glm::quat overload preserves y", got.y, input.y);
+        ensure_equals("glm::quat overload preserves z", got.z, input.z);
+        ensure_equals("glm::quat overload preserves w", got.w, input.w);
+        ensure("glm::quat overload sets ROTATED flag", xform.isChanged(LLXform::ROTATED));
+    }
+
+    template<> template<>
+    void xform_test_object_t::test<16>()
+    {
+        // setRotation(const glm::quat&) non-finite handling: input with a
+        // NaN/Inf component should reset rotation to identity and emit a
+        // warning (warn() output not asserted, but the field state is).
+        LLXform xform;
+        // Set a known non-identity rotation first.
+        xform.setRotation(glm::quat(0.5f, 0.5f, 0.5f, 0.5f));
+        // Now feed in a non-finite quat — the overload should reset to identity.
+        const glm::quat bad(std::numeric_limits<F32>::quiet_NaN(), 0.f, 0.f, 0.f);
+        xform.setRotation(bad);
+
+        const glm::quat& got = xform.getRotation();
+        // Identity in glm::quat ctor order is (1, 0, 0, 0).
+        ensure_equals("non-finite glm::quat overload resets to identity w", got.w, 1.0f);
+        ensure_equals("non-finite glm::quat overload resets to identity x", got.x, 0.0f);
+        ensure_equals("non-finite glm::quat overload resets to identity y", got.y, 0.0f);
+        ensure_equals("non-finite glm::quat overload resets to identity z", got.z, 0.0f);
+    }
+
+    template<> template<>
     void xform_test_object_t::test<14>()
     {
         // LLXformMatrix world matrix consistency: after update(), the
