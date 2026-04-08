@@ -228,8 +228,7 @@ void LLFloaterPathfindingLinksets::buildObjectsScrollList(const LLPathfindingObj
     bool isFilteringDescription = !descriptionFilter.empty();
     bool isFilteringLinksetUse = (linksetUseFilter != LLPathfindingLinkset::kUnknown);
 
-    const glm::vec3 apos = gAgent.getPositionAgent();
-    const LLVector3 avatarPosition(apos.x, apos.y, apos.z);
+    const glm::vec3 avatarPosition = gAgent.getPositionAgent();
 
     if (isFilteringName || isFilteringDescription || isFilteringLinksetUse)
     {
@@ -401,7 +400,7 @@ void LLFloaterPathfindingLinksets::updateEditFieldValues()
     }
 }
 
-LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const LLVector3 &pAvatarPosition) const
+LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfindingLinkset *pLinksetPtr, const glm::vec3 &pAvatarPosition) const
 {
     llassert(pLinksetPtr != NULL);
     LLSD columns = LLSD::emptyArray();
@@ -448,7 +447,7 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListItemData(const LLPathfi
         columns[4]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
 
         columns[5]["column"] = "dist_from_you";
-        columns[5]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, LLVector3(pLinksetPtr->getLocation())));
+        columns[5]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
     }
 
     columns[6]["column"] = "linkset_use";
