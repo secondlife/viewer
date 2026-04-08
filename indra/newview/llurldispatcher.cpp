@@ -252,7 +252,7 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const LLSLURL&
     }
 
     LLVector3d global_pos = from_region_handle(region_handle);
-    global_pos += LLVector3d(slurl.getPosition());
+    global_pos += LLVector3d(LLVector3(slurl.getPosition()));
 
     if (teleport)
     {
