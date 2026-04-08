@@ -266,10 +266,16 @@ namespace tut
         // Round-trip: setRotation(LLQuaternion) followed by getRotation()
         // should return exactly what was set. Tests the field assignment
         // path for the LLQuaternion overload of setRotation.
+        //
+        // Bridge-friendly comparison: wrap getRotation() in LLQuaternion(...)
+        // so the assertion works whether getRotation returns LLQuaternion
+        // (current) or glm::quat (post-migration). LLQuaternion has both
+        // a copy ctor (current path) and a non-explicit ctor from glm::quat
+        // (the bridge from glm-quat cluster #1).
         LLXform xform;
         LLQuaternion q(0.1f, 0.2f, 0.3f, 0.927f);
         xform.setRotation(q);
-        const LLQuaternion& got = xform.getRotation();
+        const LLQuaternion got(xform.getRotation());
         ensure("LLQuaternion roundtrip preserves x", got.mQ[VX] == q.mQ[VX]);
         ensure("LLQuaternion roundtrip preserves y", got.mQ[VY] == q.mQ[VY]);
         ensure("LLQuaternion roundtrip preserves z", got.mQ[VZ] == q.mQ[VZ]);
@@ -281,10 +287,10 @@ namespace tut
     {
         // setRotation(x, y, z, w) 4-arg form: direct field set, no
         // normalization (per the test 2 comment). Roundtrip the exact
-        // values.
+        // values. Bridge-friendly comparison via LLQuaternion(...).
         LLXform xform;
         xform.setRotation(0.5f, 0.6f, 0.7f, 0.8f);
-        const LLQuaternion& got = xform.getRotation();
+        const LLQuaternion got(xform.getRotation());
         ensure("4-arg setRotation preserves x", got.mQ[VX] == 0.5f);
         ensure("4-arg setRotation preserves y", got.mQ[VY] == 0.6f);
         ensure("4-arg setRotation preserves z", got.mQ[VZ] == 0.7f);
@@ -296,6 +302,7 @@ namespace tut
     {
         // Identity rotation invariance: with parent at identity and
         // child at identity, the world rotation must be identity.
+        // Bridge-friendly via LLQuaternion(...).isIdentity().
         LLXformMatrix child;
         LLXformMatrix parent;
         child.setParent(&parent);
@@ -303,7 +310,7 @@ namespace tut
         parent.update();
         child.update();
 
-        const LLQuaternion& world = child.getWorldRotation();
+        const LLQuaternion world(child.getWorldRotation());
         ensure("identity child of identity parent is identity world",
                world.isIdentity());
     }
@@ -313,6 +320,7 @@ namespace tut
     {
         // Identity parent invariance: a child with non-trivial rotation
         // and identity parent must have world rotation == local rotation.
+        // Bridge-friendly via LLQuaternion(...) wrap.
         LLXformMatrix child;
         LLXformMatrix parent;
         LLQuaternion child_rot(0.1f, 0.2f, 0.3f, 0.927f);
@@ -322,7 +330,7 @@ namespace tut
         parent.update();
         child.update();
 
-        const LLQuaternion& world = child.getWorldRotation();
+        const LLQuaternion world(child.getWorldRotation());
         ensure("identity parent: world == local x", world.mQ[VX] == child_rot.mQ[VX]);
         ensure("identity parent: world == local y", world.mQ[VY] == child_rot.mQ[VY]);
         ensure("identity parent: world == local z", world.mQ[VZ] == child_rot.mQ[VZ]);
@@ -386,7 +394,8 @@ namespace tut
         LLQuaternion expected;
         expected.setEulerAngles(0.3f, 0.5f, 0.7f);
 
-        const LLQuaternion& got = xform.getRotation();
+        // Bridge-friendly via LLQuaternion(...) wrap.
+        const LLQuaternion got(xform.getRotation());
         ensure("Euler setRotation x matches", got.mQ[VX] == expected.mQ[VX]);
         ensure("Euler setRotation y matches", got.mQ[VY] == expected.mQ[VY]);
         ensure("Euler setRotation z matches", got.mQ[VZ] == expected.mQ[VZ]);
