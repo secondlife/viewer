@@ -39,6 +39,7 @@
 #include "v3math.h"
 #include "llquaternion.h"
 #include "llsphere.h"
+#include <glm/geometric.hpp>
 
 
 const F32 MAX_OBJECT_SPAN = 54.f;       // max distance from outside edge of an object to the farthest edge
@@ -166,7 +167,7 @@ F32 LLPrimLinkInfo< DATA_TYPE >::get_max_linkable_span(const LLSphere& first, co
 template < typename DATA_TYPE >
 F32 LLPrimLinkInfo< DATA_TYPE >::get_span(const LLSphere& first, const LLSphere& second)
 {
-    F32 span = (first.getCenter() - second.getCenter()).length()
+    F32 span = glm::length(first.getCenter() - second.getCenter())
                 + first.getRadius() + second.getRadius();
     return span;
 }
@@ -257,9 +258,9 @@ void LLPrimLinkInfo< DATA_TYPE >::transform(const LLVector3& position, const LLQ
     typename std::map< DATA_TYPE, LLSphere >::iterator map_itr;
     for (map_itr = mDataMap.begin(); map_itr != mDataMap.end(); ++map_itr)
     {
-        (*map_itr).second.setCenter((*map_itr).second.getCenter() * rotation + position);
+        (*map_itr).second.setCenter(LLVector3((*map_itr).second.getCenter()) * rotation + position);
     }
-    mBoundingSphere.setCenter(mBoundingSphere.getCenter() * rotation + position);
+    mBoundingSphere.setCenter(LLVector3(mBoundingSphere.getCenter()) * rotation + position);
 }
 
 // private
