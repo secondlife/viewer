@@ -40,7 +40,7 @@ class LLBBox
 public:
     LLBBox() {mEmpty = true;}
     LLBBox( const LLVector3& pos_agent,
-        const LLQuaternion& rot,
+        const glm::quat& rot,
         const LLVector3& min_local,
         const LLVector3& max_local )
         :
