@@ -139,7 +139,10 @@ void LLMorphView::updateCamera()
         return;
     }
 
-    const LLQuaternion& avatar_rot = root_joint->getWorldRotation();
+    // Pre-emptive bridge: post-migration this binds to a temporary
+    // materialized by the LLQuaternion bridge ctor. Lifetime extension
+    // works but is brittle; convert to a value local for explicitness.
+    const LLQuaternion avatar_rot(root_joint->getWorldRotation());
 
     LLVector3d joint_pos = gAgent.getPosGlobalFromAgent(mCameraTargetJoint->getWorldPosition());
     LLVector3d target_pos = joint_pos + mCameraTargetOffset * avatar_rot;

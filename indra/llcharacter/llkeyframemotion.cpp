@@ -890,7 +890,12 @@ void LLKeyframeMotion::activateConstraint(JointConstraint* constraint)
         {
             return;
         }
-        constraint->mPositions[joint_num] = (cur_joint->getWorldPosition() - mPelvisp->getWorldPosition()) * ~mPelvisp->getWorldRotation();
+        // Capture pelvis world rotation into a local LLQuaternion before
+        // applying the conjugate operator. Pre-emptive bridge for the
+        // upcoming LLJoint::getWorldRotation() return type migration —
+        // glm::quat has no operator~ so the inline ~q form would break.
+        const LLQuaternion pelvis_world_rot(mPelvisp->getWorldRotation());
+        constraint->mPositions[joint_num] = (cur_joint->getWorldPosition() - mPelvisp->getWorldPosition()) * ~pelvis_world_rot;
     }
 
     constraint->mWeight = 1.f;
@@ -1023,7 +1028,9 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
                 norm = -1.f * shared_data->mSourceConstraintOffset;
                 if (source_jointp)
                 {
-                    norm = norm * source_jointp->getWorldRotation();
+                    // Pre-emptive bridge: vec * LLJoint::getWorldRotation() will
+                    // become ambiguous when the return type migrates to glm::quat.
+                    norm = norm * LLQuaternion(source_jointp->getWorldRotation());
                 }
             }
             norm.normalize();
@@ -1087,8 +1094,11 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
             LLVector3 kinematic_position = cur_joint->getWorldPosition() +
                 (source_to_target * constraint->mJointLengthFractions[joint_num]);
 
-            // convert intermediate joint positions to world coordinates
-            positions[joint_num] = ( constraint->mPositions[joint_num] * mPelvisp->getWorldRotation()) + mPelvisp->getWorldPosition();
+            // convert intermediate joint positions to world coordinates.
+            // Pre-emptive bridge for the LLJoint::getWorldRotation() return
+            // type migration — vec * glm::quat would be ambiguous.
+            const LLQuaternion pelvis_world_rot(mPelvisp->getWorldRotation());
+            positions[joint_num] = ( constraint->mPositions[joint_num] * pelvis_world_rot) + mPelvisp->getWorldPosition();
             F32 time_constant = 1.f / clamp_rescale(constraint->mFixupDistanceRMS, 0.f, 0.5f, 0.2f, 8.f);
 //          LL_INFOS() << "Interpolant " << LLSmoothInterpolation::getInterpolant(time_constant, false) << " and fixup distance " << constraint->mFixupDistanceRMS << " on " << mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << LL_ENDL;
             positions[joint_num] = lerp(positions[joint_num], kinematic_position,
@@ -1174,7 +1184,10 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
             cur_joint->setRotation(target_rot);
         }
 
-        LLQuaternion end_local_rot = end_rot * ~end_joint->getParent()->getWorldRotation();
+        // Pre-emptive bridge: ~LLJoint::getWorldRotation() will break when
+        // the return type migrates to glm::quat (no operator~).
+        const LLQuaternion end_parent_world_rot(end_joint->getParent()->getWorldRotation());
+        LLQuaternion end_local_rot = end_rot * ~end_parent_world_rot;
 
         if (weight == 1.f)
         {
@@ -1186,12 +1199,14 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
             getJointState(shared_data->mJointStateIndices[0])->setRotation(nlerp(weight, cur_rot, end_local_rot));
         }
 
-        // save simulated positions in pelvis-space and calculate total fixup distance
+        // save simulated positions in pelvis-space and calculate total fixup distance.
+        // Pre-emptive bridge — ~LLJoint::getWorldRotation() breaks post-migration.
+        const LLQuaternion pelvis_world_rot_inv_src(mPelvisp->getWorldRotation());
         constraint->mFixupDistanceRMS = 0.f;
         F32 delta_time = llmax(0.02f, llabs(time - mLastUpdateTime));
         for (joint_num = 1; joint_num < shared_data->mChainLength; joint_num++)
         {
-            LLVector3 new_pos = (positions[joint_num] - mPelvisp->getWorldPosition()) * ~mPelvisp->getWorldRotation();
+            LLVector3 new_pos = (positions[joint_num] - mPelvisp->getWorldPosition()) * ~pelvis_world_rot_inv_src;
             constraint->mFixupDistanceRMS += dist_vec_squared(new_pos, constraint->mPositions[joint_num]) / delta_time;
             constraint->mPositions[joint_num] = new_pos;
         }

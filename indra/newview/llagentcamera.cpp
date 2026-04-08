@@ -1142,8 +1142,12 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 
     if (!isAgentAvatarValid()) return;
 
-    LLQuaternion av_inv_rot = ~gAgentAvatarp->mRoot->getWorldRotation();
-    LLVector3 root_at = LLVector3::x_axis * gAgentAvatarp->mRoot->getWorldRotation();
+    // Pre-emptive bridge: post-migration mRoot->getWorldRotation() returns
+    // glm::quat. ~q breaks (no operator~) and vec*q is ambiguous. Capture
+    // once into an LLQuaternion local and use the local in both sites.
+    const LLQuaternion root_world_rot(gAgentAvatarp->mRoot->getWorldRotation());
+    LLQuaternion av_inv_rot = ~root_world_rot;
+    LLVector3 root_at = LLVector3::x_axis * root_world_rot;
 
     if  (LLTrace::get_frame_recording().getLastRecording().getLastValue(*gViewerWindow->getMouseVelocityStat()) < 0.01f
         && (root_at * last_at_axis > 0.95f))
@@ -1513,11 +1517,17 @@ void LLAgentCamera::updateCamera()
 
     if (LLVOAvatar::sVisibleInFirstPerson && isAgentAvatarValid() && !gAgentAvatarp->isSitting() && cameraMouselook())
     {
+        // Pre-emptive bridges: vec * LLJoint::getWorldRotation() and ~q both
+        // break post-migration. Capture each joint world rotation once into
+        // an LLQuaternion local and use the local everywhere.
+        const LLQuaternion head_world_rot(gAgentAvatarp->mHeadp->getWorldRotation());
+        const LLQuaternion pelvis_world_rot(gAgentAvatarp->mPelvisp->getWorldRotation());
+        const LLQuaternion mouselook_root_world_rot(gAgentAvatarp->mRoot->getWorldRotation());
         LLVector3 head_pos = gAgentAvatarp->mHeadp->getWorldPosition() +
-            LLVector3(0.08f, 0.f, 0.05f) * gAgentAvatarp->mHeadp->getWorldRotation() +
-            LLVector3(0.1f, 0.f, 0.f) * gAgentAvatarp->mPelvisp->getWorldRotation();
+            LLVector3(0.08f, 0.f, 0.05f) * head_world_rot +
+            LLVector3(0.1f, 0.f, 0.f) * pelvis_world_rot;
         LLVector3 diff = position_agent - head_pos;
-        diff *= ~gAgentAvatarp->mRoot->getWorldRotation();
+        diff *= ~mouselook_root_world_rot;
 
         LLJoint* torso_joint = gAgentAvatarp->mTorsop;
         LLJoint* chest_joint = gAgentAvatarp->mChestp;
@@ -1527,13 +1537,15 @@ void LLAgentCamera::updateCamera()
         // shorten avatar skeleton to avoid foot interpenetration
         if (!gAgentAvatarp->mInAir)
         {
-            LLVector3 chest_offset = LLVector3(0.f, 0.f, chest_joint->getPosition().z) * torso_joint->getWorldRotation();
+            const LLQuaternion torso_world_rot(torso_joint->getWorldRotation());
+            const LLQuaternion chest_world_rot(chest_joint->getWorldRotation());
+            LLVector3 chest_offset = LLVector3(0.f, 0.f, chest_joint->getPosition().z) * torso_world_rot;
             F32 z_compensate = llclamp(-diff.mV[VZ], -0.2f, 1.f);
             F32 scale_factor = llclamp(1.f - ((z_compensate * 0.5f) / chest_offset.mV[VZ]), 0.5f, 1.2f);
             torso_joint->setScale(LLVector3(1.f, 1.f, scale_factor));
 
             LLJoint* neck_joint = gAgentAvatarp->mNeckp;
-            LLVector3 neck_offset = LLVector3(0.f, 0.f, neck_joint->getPosition().z) * chest_joint->getWorldRotation();
+            LLVector3 neck_offset = LLVector3(0.f, 0.f, neck_joint->getPosition().z) * chest_world_rot;
             scale_factor = llclamp(1.f - ((z_compensate * 0.5f) / neck_offset.mV[VZ]), 0.5f, 1.2f);
             chest_joint->setScale(LLVector3(1.f, 1.f, scale_factor));
             diff.mV[VZ] = 0.f;

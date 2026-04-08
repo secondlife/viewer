@@ -179,7 +179,10 @@ bool LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
     // Stop tracking (start locking) ankles once ease in is done.
     // Setting this here ensures we track until we get valid foot position.
     //-------------------------------------------------------------------------
-    if (dot(mPelvisState->getJoint()->getWorldRotation(), LLQuaternion(mLastGoodPelvisRotation)) < ROTATION_THRESHOLD)
+    // Pre-emptive bridge: post-migration getWorldRotation returns glm::quat,
+    // and the resulting dot(glm::quat, LLQuaternion) is ambiguous between
+    // LL's free dot and glm::dot. Force the LL path by wrapping.
+    if (dot(LLQuaternion(mPelvisState->getJoint()->getWorldRotation()), LLQuaternion(mLastGoodPelvisRotation)) < ROTATION_THRESHOLD)
     {
         mLastGoodPelvisRotation = glm::normalize(glm::quat(mPelvisState->getJoint()->getWorldRotation()));
         mTrackAnkles = true;
