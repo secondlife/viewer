@@ -367,56 +367,70 @@ void LLJointSolverRP3::solve()
     //-------------------------------------------------------------------------
     // calcuate plane rotation
     //-------------------------------------------------------------------------
-    LLQuaternion pRot;
+    // pRot: glm::quat (phase 2 quat migration cluster #16). Default
+    // identity is glm::quat(1, 0, 0, 0) (w, x, y, z).
+    glm::quat pRot(1.f, 0.f, 0.f, 0.f);
     if ( are_parallel( abcNorm, apgNorm, 0.001f) )
     {
         if (dot(abcNorm, apgNorm) < 0.0f)
         {
             // we must be PI radians off ==> rotate by PI around agVec
-            pRot.setAngleAxis(F_PI, agVec);
+            pRot = glm::angleAxis(F_PI, glm::normalize(glm::vec3(agVec)));
         }
         else
         {
-            // we're done
+            // we're done — pRot stays at identity
         }
     }
     else
     {
-        pRot.shortestArc( abcNorm, apgNorm );
+        // shortestArc -> glm::rotation. Both inputs must be normalized
+        // (see cgRot construction in cluster #15 for the same pattern).
+        pRot = glm::rotation(glm::normalize(glm::vec3(abcNorm)),
+                             glm::normalize(glm::vec3(apgNorm)));
     }
 
     //-------------------------------------------------------------------------
     // compute twist rotation
     //-------------------------------------------------------------------------
-    LLQuaternion twistRot( mTwist, agVec );
+    // twistRot: glm::quat (cluster #16). Axis-angle ctor replaced with
+    // glm::angleAxis. agVec is normalized at line 197 (agLen = agVec.length(),
+    // but we still need to normalize for glm::angleAxis since LL's
+    // axis-angle ctor normalizes internally).
+    glm::quat twistRot = glm::angleAxis(mTwist, glm::normalize(glm::vec3(agVec)));
 
 #if DEBUG_JOINT_SOLVER
     LL_DEBUGS("JointSolver") << "abcNorm = " << abcNorm << LL_NEWLINE
                             << "apgNorm = " << apgNorm << LL_NEWLINE
-                            << "pRot = " << pRot << LL_NEWLINE
+                            << "pRot = " << LLQuaternion(pRot) << LL_NEWLINE
                             << "twist    : " << mTwist*180.0/F_PI << LL_NEWLINE
-                            << "twistRot : " << twistRot << LL_ENDL;
+                            << "twistRot : " << LLQuaternion(twistRot) << LL_ENDL;
 #endif
 
     //-------------------------------------------------------------------------
     // compute rotation of A
     //-------------------------------------------------------------------------
-    // cgRot is glm::quat (cluster #15). pRot and twistRot are still
-    // LLQuaternion (deferred to cluster #16). Bridge cgRot back to
-    // LLQuaternion so the triple compose stays in LL operand semantics
-    // ("apply cgRot, then pRot, then twistRot"). The migration to glm
-    // operand order will happen atomically when all three operands move
-    // together.
-    LLQuaternion aRot = LLQuaternion(cgRot) * pRot * twistRot;
+    // CRITICAL OPERAND-ORDER FLIP (cluster #16):
+    //   LL form: aRot = cgRot * pRot * twistRot
+    //     LL semantics = "apply cgRot first, then pRot, then twistRot"
+    //   glm equivalent (same semantic, REVERSED operand order):
+    //     aRot = twistRot * pRot * cgRot
+    //     glm semantics: rightmost is applied first
+    // Both expressions produce a quaternion that represents the same
+    // total rotation. Test net pins this via bone-length preservation
+    // and goal convergence.
+    glm::quat aRot = twistRot * pRot * cgRot;
 
     //-------------------------------------------------------------------------
     // apply the rotations
     //-------------------------------------------------------------------------
-    // bRot is glm::quat (cluster #14). Bridge to LLQuaternion at the
-    // boundary so the LL composition with getWorldRotation() works under
-    // LL operand semantics ("apply old worldrot, then apply bRot").
-    mJointB->setWorldRotation( mJointB->getWorldRotation() * LLQuaternion(bRot) );
-    mJointA->setWorldRotation( mJointA->getWorldRotation() * aRot );
+    // Final composes: getWorldRotation() returns LLQuaternion (cluster #2
+    // was setters-only). Bridge it to glm::quat at the call site so the
+    // composition uses glm operand semantics. Original LL meaning was
+    // "apply old worldrot, then apply (bRot|aRot)" — in glm operand order
+    // that becomes "(bRot|aRot) * worldrot".
+    mJointB->setWorldRotation( bRot * glm::quat(mJointB->getWorldRotation()) );
+    mJointA->setWorldRotation( aRot * glm::quat(mJointA->getWorldRotation()) );
 }
 
 
