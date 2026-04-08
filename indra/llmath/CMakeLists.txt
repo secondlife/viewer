@@ -119,7 +119,7 @@ if (LL_TESTS)
   # Note: v2math is no longer in the unit test source list because the
   # LLVector2 class was deleted. v2math.cpp now contains only glm::vec2
   # free function helpers, which are exercised by the
-  # v2math_glm_equivalence integration test.
+  # v2math_helpers integration test.
 
   LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
 
@@ -149,8 +149,8 @@ if (LL_TESTS)
   target_link_libraries(INTEGRATION_TEST_llquaternion_glm_equivalence ll::glm)
   LL_ADD_INTEGRATION_TEST(m3math_glm_equivalence "" "${test_libs}")
   target_link_libraries(INTEGRATION_TEST_m3math_glm_equivalence ll::glm)
-  LL_ADD_INTEGRATION_TEST(v2math_glm_equivalence "" "${test_libs}")
-  target_link_libraries(INTEGRATION_TEST_v2math_glm_equivalence ll::glm)
+  LL_ADD_INTEGRATION_TEST(v2math_helpers "" "${test_libs}")
+  target_link_libraries(INTEGRATION_TEST_v2math_helpers ll::glm)
   LL_ADD_INTEGRATION_TEST(v3color_glm_equivalence "" "${test_libs}")
   target_link_libraries(INTEGRATION_TEST_v3color_glm_equivalence ll::glm)
   LL_ADD_INTEGRATION_TEST(v4color_glm_equivalence "" "${test_libs}")
