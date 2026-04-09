@@ -109,7 +109,7 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
     mMinGesticulationAmplitude      = DEFAULT_MINIMUM_GESTICULATION_AMPLITUDE;
     mMaxGesticulationAmplitude      = DEFAULT_MAXIMUM_GESTICULATION_AMPLITUDE;
     mSoundSymbol.mActive            = true;
-    mSoundSymbol.mPosition          = LLVector3( 0.0f, 0.0f, 0.0f );
+    mSoundSymbol.mPosition          = glm::vec3(0.0f);
 
     mTimer.reset();
 
@@ -371,10 +371,10 @@ void LLVoiceVisualizer::render()
         LLVector3 l = LLVector3(camera->getLeftAxis()) * DOT_SIZE;
         LLVector3 u = LLVector3(camera->getUpAxis())   * DOT_SIZE;
 
-        LLVector3 bottomLeft    = mSoundSymbol.mPosition + l - u;
-        LLVector3 bottomRight   = mSoundSymbol.mPosition - l - u;
-        LLVector3 topLeft       = mSoundSymbol.mPosition + l + u;
-        LLVector3 topRight      = mSoundSymbol.mPosition - l + u;
+        LLVector3 bottomLeft    = LLVector3(mSoundSymbol.mPosition) + l - u;
+        LLVector3 bottomRight   = LLVector3(mSoundSymbol.mPosition) - l - u;
+        LLVector3 topLeft       = LLVector3(mSoundSymbol.mPosition) + l + u;
+        LLVector3 topRight      = LLVector3(mSoundSymbol.mPosition) - l + u;
 
         //-----------------------------
         // bind texture 0 (the dot)
@@ -498,10 +498,10 @@ void LLVoiceVisualizer::render()
                 LLVector3 l = LLVector3(camera->getLeftAxis()) * width;
                 LLVector3 u = LLVector3(camera->getUpAxis())    * height;
 
-                LLVector3 bottomLeft    = mSoundSymbol.mPosition + l - u;
-                LLVector3 bottomRight   = mSoundSymbol.mPosition - l - u;
-                LLVector3 topLeft       = mSoundSymbol.mPosition + l + u;
-                LLVector3 topRight      = mSoundSymbol.mPosition - l + u;
+                LLVector3 bottomLeft    = LLVector3(mSoundSymbol.mPosition) + l - u;
+                LLVector3 bottomRight   = LLVector3(mSoundSymbol.mPosition) - l - u;
+                LLVector3 topLeft       = LLVector3(mSoundSymbol.mPosition) + l + u;
+                LLVector3 topRight      = LLVector3(mSoundSymbol.mPosition) - l + u;
 
                 gGL.color4fv( LLColor4( red, green, blue, mSoundSymbol.mWaveOpacity[i] ).mV );
                 gGL.getTexUnit(0)->bind(mSoundSymbol.mTexture[i]);
