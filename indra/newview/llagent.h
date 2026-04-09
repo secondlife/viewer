@@ -849,7 +849,7 @@ private:
  **/
 
 public:
-    LLQuaternion    getHeadRotation();
+    glm::quat       getHeadRotation();
     bool            needsRenderAvatar(); // true when camera mode is such that your own avatar should draw
     bool            needsRenderHead();
     void            setShowAvatar(bool show) { mShowAvatar = show; }
