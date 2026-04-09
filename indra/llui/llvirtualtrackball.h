@@ -34,6 +34,8 @@
 #include "lltextbox.h"
 #include "llbutton.h"
 
+#include "glm/gtc/quaternion.hpp"
+
 class LLVirtualTrackball
     : public LLUICtrl
 {
@@ -149,7 +151,7 @@ private:
     LLUIImage*     mImgBtnRotBottom;
     LLUIImage*     mImgSphere;
 
-    LLQuaternion   mValue;
+    glm::quat      mValue{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     ThumbMode      mThumbMode;
     DragMode       mDragMode;
 

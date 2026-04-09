@@ -29,6 +29,7 @@
 
 #include "linden_common.h"
 #include "llvirtualtrackball.h"
+#include "llquaternion.h"
 #include "llstring.h"
 #include "llrect.h"
 #include "lluictrlfactory.h"
@@ -212,7 +213,7 @@ bool LLVirtualTrackball::pointInTouchCircle(S32 x, S32 y) const
 
 void LLVirtualTrackball::draw()
 {
-    LLVector3 draw_point = VectorZero * mValue;
+    LLVector3 draw_point = VectorZero * LLQuaternion(mValue);
 
     S32 halfwidth = mTouchArea->getRect().getWidth() / 2;
     S32 halfheight = mTouchArea->getRect().getHeight() / 2;
@@ -247,7 +248,8 @@ void LLVirtualTrackball::onRotateTopClick()
     {
         LLQuaternion delta;
         delta.setAngleAxis(mIncrementBtn, 1, 0, 0);
-        mValue *= delta;
+        // Preserve LL compose semantics (glm::quat::operator*= would reverse compose order).
+        mValue = LLQuaternion(mValue) * delta;
         setValueAndCommit(mValue);
 
         make_ui_sound("UISndClick");
@@ -260,7 +262,7 @@ void LLVirtualTrackball::onRotateBottomClick()
     {
         LLQuaternion delta;
         delta.setAngleAxis(mIncrementBtn, -1, 0, 0);
-        mValue *= delta;
+        mValue = LLQuaternion(mValue) * delta;
         setValueAndCommit(mValue);
 
         make_ui_sound("UISndClick");
@@ -273,7 +275,7 @@ void LLVirtualTrackball::onRotateLeftClick()
     {
         LLQuaternion delta;
         delta.setAngleAxis(mIncrementBtn, 0, 1, 0);
-        mValue *= delta;
+        mValue = LLQuaternion(mValue) * delta;
         setValueAndCommit(mValue);
 
         make_ui_sound("UISndClick");
@@ -286,7 +288,7 @@ void LLVirtualTrackball::onRotateRightClick()
     {
         LLQuaternion delta;
         delta.setAngleAxis(mIncrementBtn, 0, -1, 0);
-        mValue *= delta;
+        mValue = LLQuaternion(mValue) * delta;
         setValueAndCommit(mValue);
 
         make_ui_sound("UISndClick");
@@ -317,7 +319,10 @@ void LLVirtualTrackball::setValue(const LLSD& value)
 {
     if (value.isArray() && value.size() == 4)
     {
-        mValue.setValue(value);
+        // glm::quat has no LLSD setValue; route through an LLQuaternion temp.
+        LLQuaternion tmp;
+        tmp.setValue(value);
+        mValue = tmp;
     }
 }
 
@@ -328,7 +333,8 @@ void LLVirtualTrackball::setRotation(const LLQuaternion &value)
 
 void LLVirtualTrackball::setValue(F32 x, F32 y, F32 z, F32 w)
 {
-    mValue.set(x, y, z, w);
+    // glm::quat constructor argument order is (w, x, y, z).
+    mValue = glm::quat(w, x, y, z);
 }
 
 void LLVirtualTrackball::setValueAndCommit(const LLQuaternion &value)
@@ -339,7 +345,7 @@ void LLVirtualTrackball::setValueAndCommit(const LLQuaternion &value)
 
 LLSD LLVirtualTrackball::getValue() const
 {
-    return mValue.getValue();
+    return LLQuaternion(mValue).getValue();
 }
 
 LLQuaternion LLVirtualTrackball::getRotation() const
@@ -398,14 +404,14 @@ bool LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
             {
                 F32 direction = (rotX < 0) ? -1.f : 1.f;
                 delta.setAngleAxis(mIncrementMouse * abs(rotX), 0.f, direction, 0.f);  // changing X - rotate around Y axis
-                mValue *= delta;
+                mValue = LLQuaternion(mValue) * delta;
             }
 
             if (abs(rotY) > 1)
             {
                 F32 direction = (rotY < 0) ? 1.f : -1.f; // reverse for Y (value increases from bottom to top)
                 delta.setAngleAxis(mIncrementMouse * abs(rotY), direction, 0.f, 0.f);  // changing Y - rotate around X axis
-                mValue *= delta;
+                mValue = LLQuaternion(mValue) * delta;
             }
         }
         else
@@ -428,7 +434,7 @@ bool LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
                 azimuth = F_TWO_PI - azimuth;
             }
 
-            LLVector3 draw_point = VectorZero * mValue;
+            LLVector3 draw_point = VectorZero * LLQuaternion(mValue);
             if (draw_point.mV[VZ] >= 0.f)
             {
                 if (is_approx_zero(altitude)) // don't change the hemisphere
@@ -438,15 +444,18 @@ bool LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
                 altitude *= -1;
             }
 
-            mValue.setAngleAxis(altitude, 0, 1, 0);
+            // setAngleAxis on a temporary so we can flow back through the bridge ctor.
+            LLQuaternion tmp;
+            tmp.setAngleAxis(altitude, 0, 1, 0);
+            mValue = tmp;
             LLQuaternion az_quat;
             az_quat.setAngleAxis(azimuth, 0, 0, 1);
-            mValue *= az_quat;
+            mValue = LLQuaternion(mValue) * az_quat;
         }
 
         // we are doing a lot of F32 mathematical operations with loss of precision,
         // re-normalize to compensate
-        mValue.normalize();
+        mValue = glm::normalize(mValue);
 
         mPrevX = x;
         mPrevY = y;
