@@ -7232,7 +7232,7 @@ void LLStaticViewerObject::updateDrawable(bool force_damped)
     clearChanged(SHIFTED);
 }
 
-void LLViewerObject::saveUnselectedChildrenPosition(std::vector<LLVector3>& positions)
+void LLViewerObject::saveUnselectedChildrenPosition(std::vector<glm::vec3>& positions)
 {
     if(mChildList.empty() || !positions.empty())
     {
@@ -7274,7 +7274,7 @@ void LLViewerObject::saveUnselectedChildrenRotation(std::vector<glm::quat>& rota
 
 //counter-rotation
 void LLViewerObject::resetChildrenRotationAndPosition(const std::vector<glm::quat>& rotations,
-                                            const std::vector<LLVector3>& positions)
+                                            const std::vector<glm::vec3>& positions)
 {
     if(mChildList.empty())
     {
@@ -7283,22 +7283,25 @@ void LLViewerObject::resetChildrenRotationAndPosition(const std::vector<glm::qua
 
     S32 index = 0 ;
     LLQuaternion inv_rotation = ~LLQuaternion(getRotationEdit()) ;
-    LLVector3 offset = getPositionEdit() ;
+    glm::vec3 offset = getPositionEdit() ;
     for (LLViewerObject::child_list_t::const_iterator iter = mChildList.begin();
             iter != mChildList.end(); iter++)
     {
         LLViewerObject* childp = *iter;
         if (!childp->isSelected() && childp->mDrawable.notNull())
         {
+            // (positions[index] - offset) is glm::vec3 - glm::vec3 = glm::vec3.
+            // Bridge through LLVector3 for the LL `vec * quat` rotate operator.
+            const LLVector3 child_offset(positions[index] - offset);
             if (childp->getPCode() != LL_PCODE_LEGACY_AVATAR)
             {
                 childp->setRotation(LLQuaternion(rotations[index]) * inv_rotation);
-                childp->setPosition((positions[index] - offset) * inv_rotation);
+                childp->setPosition(child_offset * inv_rotation);
                 LLManip::rebuild(childp);
             }
             else //avatar
             {
-                LLVector3 reset_pos = (positions[index] - offset) * inv_rotation ;
+                LLVector3 reset_pos = child_offset * inv_rotation ;
                 LLQuaternion reset_rot = LLQuaternion(rotations[index]) * inv_rotation ;
 
                 static_cast<LLVOAvatar*>(childp)->mDrawable->mXform.setPosition(reset_pos);

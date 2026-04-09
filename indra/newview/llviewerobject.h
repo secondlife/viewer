@@ -682,10 +682,10 @@ public:
     void resetChildrenPosition(const LLVector3& offset, bool simplified = false,  bool skip_avatar_child = false) ;
     //counter-rotation
     void resetChildrenRotationAndPosition(const std::vector<glm::quat>& rotations,
-                                            const std::vector<LLVector3>& positions) ;
+                                            const std::vector<glm::vec3>& positions) ;
     void saveUnselectedChildrenRotation(std::vector<glm::quat>& rotations) ;
-    void saveUnselectedChildrenPosition(std::vector<LLVector3>& positions) ;
-    std::vector<LLVector3> mUnselectedChildrenPositions ;
+    void saveUnselectedChildrenPosition(std::vector<glm::vec3>& positions) ;
+    std::vector<glm::vec3> mUnselectedChildrenPositions ;
 
 private:
     void setObjectCostStale();
