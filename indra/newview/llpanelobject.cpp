@@ -2168,9 +2168,9 @@ bool LLPanelObject::menuEnableItem(const LLSD& userdata)
 
 void LLPanelObject::onCopyPos()
 {
-    mClipboardPos = LLVector3(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
+    mClipboardPos = glm::vec3(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
 
-    std::string stringVec = llformat("<%g, %g, %g>", mClipboardPos.mV[VX], mClipboardPos.mV[VY], mClipboardPos.mV[VZ]);
+    std::string stringVec = llformat("<%g, %g, %g>", mClipboardPos.x, mClipboardPos.y, mClipboardPos.z);
     LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(stringVec));
 
     mHasClipboardPos = true;
@@ -2209,18 +2209,23 @@ void LLPanelObject::onPastePos()
     if (!mObject->isAttachment())
     {
         F32 max_width = regionp->getWidth(); // meters
-        mClipboardPos.mV[VX] = llclamp(mClipboardPos.mV[VX], 0.f, max_width);
-        mClipboardPos.mV[VY] = llclamp(mClipboardPos.mV[VY], 0.f, max_width);
+        mClipboardPos.x = llclamp(mClipboardPos.x, 0.f, max_width);
+        mClipboardPos.y = llclamp(mClipboardPos.y, 0.f, max_width);
         //height will get properly clamped by sendPosition
     }
     else
     {
-        mClipboardPos.clampLength(MAX_ATTACHMENT_DIST);
+        // Bridge LL .clampLength() through an LLVector3 temp to preserve
+        // exact normalize/scale semantics including the negative-limit
+        // edge case in the LL implementation.
+        LLVector3 tmp(mClipboardPos);
+        tmp.clampLength(MAX_ATTACHMENT_DIST);
+        mClipboardPos = tmp;
     }
 
-    mCtrlPosX->set( mClipboardPos.mV[VX] );
-    mCtrlPosY->set( mClipboardPos.mV[VY] );
-    mCtrlPosZ->set( mClipboardPos.mV[VZ] );
+    mCtrlPosX->set( mClipboardPos.x );
+    mCtrlPosY->set( mClipboardPos.y );
+    mCtrlPosZ->set( mClipboardPos.z );
 
     sendPosition(false);
 }

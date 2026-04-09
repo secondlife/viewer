@@ -183,7 +183,7 @@ protected:
     LLUUID          mSculptTextureRevert;   // so we can revert the sculpt texture on cancel
     U8              mSculptTypeRevert;      // so we can revert the sculpt type on cancel
 
-    LLVector3       mClipboardPos;
+    glm::vec3       mClipboardPos{0.f};
     glm::vec3       mClipboardSize{0.f};
     glm::vec3       mClipboardRot{0.f};
     LLSD            mClipboardParams;
