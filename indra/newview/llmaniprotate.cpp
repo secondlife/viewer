@@ -86,7 +86,6 @@ LLManipRotate::LLManipRotate( LLToolComposite* composite )
 :   LLManip( std::string("Rotate"), composite ),
     mRotationCenter(),
     mCenterScreen(),
-    mRotation(),
     mMouseDown(),
     mMouseCur(),
     mRadiusMeters(0.f),
@@ -573,7 +572,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 
             if (selectNode->mSelectedGLTFNode != -1)
             {
-                LLQuaternion new_rot = selectNode->mSavedRotation * mRotation;
+                LLQuaternion new_rot = selectNode->mSavedRotation * LLQuaternion(mRotation);
 
                 object->setGLTFNodeRotationAgent(selectNode->mSelectedGLTFNode, new_rot);
 
@@ -592,7 +591,7 @@ void LLManipRotate::drag( S32 x, S32 y )
                     }
                 }
 
-                LLQuaternion new_rot = selectNode->mSavedRotation * mRotation;
+                LLQuaternion new_rot = selectNode->mSavedRotation * LLQuaternion(mRotation);
                 std::vector<LLVector3>& child_positions = object->mUnselectedChildrenPositions;
                 std::vector<LLQuaternion> child_rotations;
                 if (object->isRootEdit() && selectNode->mIndividualSelection)
@@ -627,7 +626,7 @@ void LLManipRotate::drag( S32 x, S32 y )
                         }
 
                         LLVector3 at_axis = mAgentSelfAtAxis;
-                        at_axis *= mRotation;
+                        at_axis *= LLQuaternion(mRotation);
                         at_axis.mV[VZ] = 0.f;
                         at_axis.normalize();
                         gAgent.resetAxes(at_axis);
@@ -689,7 +688,7 @@ void LLManipRotate::drag( S32 x, S32 y )
                         old_position = object->getPositionAgent();
                     }
 
-                    new_position = (new_position - center) * mRotation;     // new relative rotated position
+                    new_position = (new_position - center) * LLQuaternion(mRotation);     // new relative rotated position
                     new_position += center;
 
                     if (object->isRootEdit() && !object->isAttachment())
