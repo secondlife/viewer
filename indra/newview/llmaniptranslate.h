@@ -96,7 +96,7 @@ private:
     F32         mArrowLengthMeters;     // meters
     F32         mGridSizeMeters;
     F32         mPlaneManipOffsetMeters;
-    LLVector3   mManipNormal;
+    glm::vec3   mManipNormal{0.f};
     LLVector3d  mDragCursorStartGlobal;
     LLVector3d  mDragSelectionStartGlobal;
     LLTimer     mUpdateTimer;
