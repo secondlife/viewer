@@ -1158,7 +1158,7 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
         else
         {
             // *FIX: rotate mframeagent by sit object's rotation?
-            LLQuaternion look_rotation = gAgentAvatarp->isSitting() ? LLQuaternion(gAgentAvatarp->getRenderRotation()) : gAgent.getFrameAgent().getQuaternion(); // use camera's current rotation
+            LLQuaternion look_rotation = gAgentAvatarp->isSitting() ? LLQuaternion(gAgentAvatarp->getRenderRotation()) : LLQuaternion(gAgent.getFrameAgent().getQuaternion()); // use camera's current rotation
             LLVector3 look_offset = LLVector3(2.f, 0.f, 0.f) * look_rotation * av_inv_rot;
             setLookAt(LOOKAT_TARGET_IDLE, gAgentAvatarp, look_offset);
         }
@@ -1340,7 +1340,7 @@ void LLAgentCamera::updateCamera()
             // (2) focus, and (3) upvector. They can then be queried elsewhere in llAgent.
             //--------------------------------------------------------------------------------
             // *TODO: use combined rotation of frameagent and sit object
-            LLQuaternion avatarRotationForFollowCam = gAgentAvatarp->isSitting() ? LLQuaternion(gAgentAvatarp->getRenderRotation()) : gAgent.getFrameAgent().getQuaternion();
+            LLQuaternion avatarRotationForFollowCam = gAgentAvatarp->isSitting() ? LLQuaternion(gAgentAvatarp->getRenderRotation()) : LLQuaternion(gAgent.getFrameAgent().getQuaternion());
 
             LLFollowCamParams* current_cam = LLFollowCamMgr::getInstance()->getActiveFollowCamParams();
             if (current_cam)
@@ -1899,7 +1899,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
                 LLVector3 rotated = at_axis * ~parent_rot;
                 gAgent.resetAxes(glm::vec3(rotated.mV[VX], rotated.mV[VY], rotated.mV[VZ]));
 
-                local_camera_offset = local_camera_offset * gAgent.getFrameAgent().getQuaternion() * parent_rot;
+                local_camera_offset = local_camera_offset * LLQuaternion(gAgent.getFrameAgent().getQuaternion()) * parent_rot;
             }
             else
             {

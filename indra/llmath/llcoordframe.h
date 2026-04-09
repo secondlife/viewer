@@ -119,7 +119,7 @@ public:
     // it its absolute frame.  That is, these rotations acting on the X-axis {1,0,0}
     // will produce the mXAxis.
     //      LLMatrix3 getMatrix3() const;               // Returns axes in 3x3 matrix
-    LLQuaternion getQuaternion() const;         // Returns axes in quaternion form
+    glm::quat getQuaternion() const;            // Returns axes in quaternion form
 
     // Same as above, except it also includes the translation of the LLFrame
     //      LLMatrix4 getMatrix4() const;               // Returns position and axes in 4x4 matrix

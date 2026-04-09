@@ -373,12 +373,12 @@ void LLCoordFrame::yaw(F32 angle)
 // get*() routines
 
 
-LLQuaternion LLCoordFrame::getQuaternion() const
+glm::quat LLCoordFrame::getQuaternion() const
 {
     LLQuaternion quat(LLVector3(mXAxis.x, mXAxis.y, mXAxis.z),
                       LLVector3(mYAxis.x, mYAxis.y, mYAxis.z),
                       LLVector3(mZAxis.x, mZAxis.y, mZAxis.z));
-    return quat;
+    return quat;   // implicit op glm::quat()
 }
 
 
