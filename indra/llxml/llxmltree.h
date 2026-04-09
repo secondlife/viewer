@@ -29,6 +29,7 @@
 
 #include <map>
 #include <list>
+#include <glm/gtc/quaternion.hpp>
 #include "llstring.h"
 #include "llxmlparser.h"
 #include "llstringtable.h"
@@ -118,7 +119,7 @@ public:
     bool            getFastAttributeColor4U(    LLStdStringHandle cannonical_name, LLColor4U& value );
     bool            getFastAttributeVector3(    LLStdStringHandle cannonical_name, LLVector3& value );
     bool            getFastAttributeVector3d(   LLStdStringHandle cannonical_name, LLVector3d& value );
-    bool            getFastAttributeQuat(       LLStdStringHandle cannonical_name, LLQuaternion& value );
+    bool            getFastAttributeQuat(       LLStdStringHandle cannonical_name, glm::quat& value );
     bool            getFastAttributeUUID(       LLStdStringHandle cannonical_name, LLUUID& value );
     bool            getFastAttributeString(     LLStdStringHandle cannonical_name, std::string& value );
 
@@ -137,7 +138,7 @@ public:
     virtual bool        getAttributeColor4U(    const std::string& name, LLColor4U& value );
     virtual bool        getAttributeVector3(    const std::string& name, LLVector3& value );
     virtual bool        getAttributeVector3d(   const std::string& name, LLVector3d& value );
-    virtual bool        getAttributeQuat(       const std::string& name, LLQuaternion& value );
+    virtual bool        getAttributeQuat(       const std::string& name, glm::quat& value );
     virtual bool        getAttributeUUID(       const std::string& name, LLUUID& value );
     virtual bool        getAttributeString(     const std::string& name, std::string& value );
 

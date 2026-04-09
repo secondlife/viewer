@@ -897,11 +897,11 @@ U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, bool require
             break;
         case TYPE_QUAT:
             {
-                LLQuaternion quat;
+                glm::quat quat(1.f, 0.f, 0.f, 0.f);
 
                 child_nodep->getAttributeQuat("value", quat);
 
-                control->set(quat.getValue());
+                control->set(LLQuaternion(quat).getValue());
                 validitems++;
             }
             break;

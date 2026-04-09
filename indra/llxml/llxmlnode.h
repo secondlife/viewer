@@ -36,6 +36,8 @@
 #endif
 #include <map>
 
+#include <glm/gtc/quaternion.hpp>
+
 #include "indra_constants.h"
 #include "llrefcount.h"
 #include "llpointer.h"
@@ -197,7 +199,7 @@ public:
     bool getAttributeColor4U(const char* name, LLColor4U& value );
     bool getAttributeVector3(const char* name, LLVector3& value );
     bool getAttributeVector3d(const char* name, LLVector3d& value );
-    bool getAttributeQuat(const char* name, LLQuaternion& value );
+    bool getAttributeQuat(const char* name, glm::quat& value );
     bool getAttributeUUID(const char* name, LLUUID& value );
     bool getAttributeString(const char* name, std::string& value );
 
