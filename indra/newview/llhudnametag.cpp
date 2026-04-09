@@ -589,7 +589,10 @@ void LLHUDNameTag::updateVisibility()
     }
     else
     {
-        mPositionAgent -= dir_from_camera * mSourceObject->getVObjRadius();
+        {
+            const LLVector3 sub = dir_from_camera * mSourceObject->getVObjRadius();
+            mPositionAgent -= glm::vec3(sub.mV[VX], sub.mV[VY], sub.mV[VZ]);
+        }
     }
 
     mLastDistance = (mPositionAgent - cam_origin_ll).length();
@@ -886,7 +889,7 @@ void LLHUDNameTag::shiftAll(const LLVector3& offset)
 
 void LLHUDNameTag::shift(const LLVector3& offset)
 {
-    mPositionAgent += offset;
+    mPositionAgent += glm::vec3(offset.mV[VX], offset.mV[VY], offset.mV[VZ]);
 }
 
 F32 LLHUDNameTag::getWorldHeight() const
