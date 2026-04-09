@@ -262,7 +262,6 @@ public:
     void setWind ( const LLVector3& wind )              { mWind = wind.length(); }
 
     const LLVector3 &getCameraPosAgent() const          { return mCameraPosAgent; }
-    LLVector3 getEarthCenter() const                    { return mEarthCenter; }
 
     LLCubeMap *getCubeMap() const                       { return mCubeMap; }
     S32 getDrawRefl() const                             { return mDrawRefl; }
@@ -325,7 +324,6 @@ protected:
     LLHeavenBody        mSun;
     LLHeavenBody        mMoon;
     F32                 mAtmHeight;
-    LLVector3           mEarthCenter;
     LLVector3           mCameraPosAgent;
     F32                 mBrightnessScale;
     LLColor3            mBrightestPoint;

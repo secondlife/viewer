@@ -424,7 +424,6 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 
     mCameraPosAgent = gAgentCamera.getCameraPositionAgent();
     mAtmHeight = ATM_HEIGHT;
-    mEarthCenter = LLVector3(mCameraPosAgent.mV[0], mCameraPosAgent.mV[1], -EARTH_RADIUS);
 
     mSun.setIntensity(SUN_INTENSITY);
     mMoon.setIntensity(0.1f * SUN_INTENSITY);
@@ -975,9 +974,6 @@ bool LLVOSky::updateGeometry(LLDrawable *drawable)
     }
 
     mCameraPosAgent = drawable->getPositionAgent();
-
-    mEarthCenter.mV[0] = mCameraPosAgent.mV[0];
-    mEarthCenter.mV[1] = mCameraPosAgent.mV[1];
 
     LLVector3 v_agent[8];
     for (S32 i = 0; i < 8; ++i)
