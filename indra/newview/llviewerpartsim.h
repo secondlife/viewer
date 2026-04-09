@@ -30,6 +30,7 @@
 #include "llpointer.h"
 #include "llpartdata.h"
 #include "llviewerpartsource.h"
+#include <glm/vec3.hpp>
 
 class LLViewerTexture;
 class LLViewerPart;
@@ -108,7 +109,7 @@ public:
     using part_list_t = std::vector<LLViewerPart*>;
     part_list_t mParticles;
 
-    const LLVector3 &getCenterAgent() const     { return mCenterAgent; }
+    LLVector3 getCenterAgent() const            { return LLVector3(mCenterAgent); }
     S32 getCount() const                    { return static_cast<S32>(mParticles.size()); }
     LLViewerRegion *getRegion() const       { return mRegionp; }
 
@@ -123,11 +124,11 @@ public:
     bool mHud;
 
 protected:
-    LLVector3 mCenterAgent;
+    glm::vec3 mCenterAgent{0.f};
     F32 mBoxRadius;
     F32 mBoxSide;
-    LLVector3 mMinObjPos;
-    LLVector3 mMaxObjPos;
+    glm::vec3 mMinObjPos{0.f};
+    glm::vec3 mMaxObjPos{0.f};
 
     LLViewerRegion *mRegionp;
 };

@@ -221,16 +221,16 @@ void LLViewerPartGroup::cleanup()
 
 bool LLViewerPartGroup::posInGroup(const LLVector3 &pos, const F32 desired_size)
 {
-    if ((pos.mV[VX] < mMinObjPos.mV[VX])
-        || (pos.mV[VY] < mMinObjPos.mV[VY])
-        || (pos.mV[VZ] < mMinObjPos.mV[VZ]))
+    if ((pos.mV[VX] < mMinObjPos.x)
+        || (pos.mV[VY] < mMinObjPos.y)
+        || (pos.mV[VZ] < mMinObjPos.z))
     {
         return false;
     }
 
-    if ((pos.mV[VX] > mMaxObjPos.mV[VX])
-        || (pos.mV[VY] > mMaxObjPos.mV[VY])
-        || (pos.mV[VZ] > mMaxObjPos.mV[VZ]))
+    if ((pos.mV[VX] > mMaxObjPos.x)
+        || (pos.mV[VY] > mMaxObjPos.y)
+        || (pos.mV[VZ] > mMaxObjPos.z))
     {
         return false;
     }
@@ -437,9 +437,12 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 
 void LLViewerPartGroup::shift(const LLVector3 &offset)
 {
-    mCenterAgent += offset;
-    mMinObjPos += offset;
-    mMaxObjPos += offset;
+    // glm::vec3 += LLVector3 hits the operator+=<U> template trap;
+    // build a glm::vec3 from the F32 components instead.
+    const glm::vec3 offset_gm(offset.mV[VX], offset.mV[VY], offset.mV[VZ]);
+    mCenterAgent += offset_gm;
+    mMinObjPos += offset_gm;
+    mMaxObjPos += offset_gm;
 
     for (S32 i = 0 ; i < static_cast<S32>(mParticles.size()); i++)
     {
