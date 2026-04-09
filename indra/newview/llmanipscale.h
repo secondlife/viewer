@@ -162,8 +162,8 @@ private:
     glm::vec3       mScalePlaneNormal2{0.f}; //!< Normal of plane in which scale occurs that most faces camera.
     LLVector3       mSnapGuideDir1; //!< The direction in which the upper snap guide tick marks face.
     LLVector3       mSnapGuideDir2; //!< The direction in which the lower snap guide tick marks face.
-    LLVector3       mSnapDir1; //!< The direction in which the upper snap guides face.
-    LLVector3       mSnapDir2; //!< The direction in which the lower snap guides face.
+    glm::vec3       mSnapDir1{0.f}; //!< The direction in which the upper snap guides face.
+    glm::vec3       mSnapDir2{0.f}; //!< The direction in which the lower snap guides face.
     F32             mSnapRegimeOffset; //!< How far off the scale axis centerline the mouse can be before it exits/enters the snap regime.
     F32             mTickPixelSpacing1; //!< The pixel spacing between snap guide tick marks for the upper scale.
     F32             mTickPixelSpacing2; //!< The pixel spacing between snap guide tick marks for the lower scale.
