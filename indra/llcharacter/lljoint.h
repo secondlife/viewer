@@ -258,13 +258,14 @@ public:
     void setRotation( const glm::quat& rot );
 
     // get/set world rotation
-    // glm-quat migration: getLastWorldRotation() returns glm::quat by value
-    // (cluster #19). It has zero production callers — only test code uses
-    // it — so this migration is safe to do in isolation. getWorldRotation()
-    // is intentionally deferred because its 20+ callers in motion files
-    // use ~q, vec*q, and quat-quat compose patterns that need a per-site
-    // audit (Tier 2/3 work, not loose ends).
-    LLQuaternion getWorldRotation();
+    // glm-quat migration: getWorldRotation() and getLastWorldRotation()
+    // both return glm::quat by value (cluster #19 + cluster #23). The
+    // 18 hairy caller sites that use ~q, vec*q, quat*quat compose, or
+    // dot ambiguity patterns were pre-emptively bridged in cluster #21
+    // by capturing the result into a const LLQuaternion local before
+    // the operation. The remaining sites work via the implicit
+    // LLQuaternion(const glm::quat&) bridge ctor at the copy site.
+    glm::quat getWorldRotation();
     glm::quat getLastWorldRotation();
     void setWorldRotation( const glm::quat& rot );
 
