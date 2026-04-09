@@ -401,8 +401,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
     mForceUpdate(false),
     mNeedUpdate(true),
     mCubeMapUpdateStage(-1),
-    mWorldScale(1.f),
-    mBumpSunDir(0.f, 0.f, 1.f)
+    mWorldScale(1.f)
 {
     /// WL PARAMS
 
@@ -1549,7 +1548,7 @@ void LLVOSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir_cfr, const LLV
     // Blend between normal sun dir and adjusted sun dir based on how close we are
     // to having the sun overhead.
     mBumpSunDir = adjustedDir * sunDot + sun_dir_cfr * (1.0f - sunDot);
-    mBumpSunDir.normalize();
+    mBumpSunDir = glm::normalize(mBumpSunDir);
 
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
     updateDirections(psky);
@@ -1571,7 +1570,7 @@ void LLVOSky::setSunDirectionCFR(const LLVector3 &sun_dir_cfr)
     // Blend between normal sun dir and adjusted sun dir based on how close we are
     // to having the sun overhead.
     mBumpSunDir = adjustedDir * sunDot + sun_dir_cfr * (1.0f - sunDot);
-    mBumpSunDir.normalize();
+    mBumpSunDir = glm::normalize(mBumpSunDir);
 
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
     updateDirections(psky);

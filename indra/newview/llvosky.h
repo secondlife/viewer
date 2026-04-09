@@ -38,6 +38,7 @@
 #include "v3colorutil.h"
 #include "llsettingssky.h"
 #include "lllegacyatmospherics.h"
+#include <glm/vec3.hpp>
 
 const F32 SKY_BOX_MULT          = 16.0f;
 const F32 HEAVENLY_BODY_DIST    = HORIZON_DIST - 20.f;
@@ -294,7 +295,7 @@ public:
 
 public:
     std::array<LLFace*, FACE_COUNT> mFace;
-    LLVector3   mBumpSunDir;
+    glm::vec3   mBumpSunDir{0.f, 0.f, 1.f};
 
     F32 getInterpVal() const { return mInterpVal; }
 
