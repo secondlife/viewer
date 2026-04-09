@@ -4216,7 +4216,8 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
         }
         else
         {
-            gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(sit_spot), "Sit", &sitRotation, near_sit_object, NULL, 0.5f);
+            glm::quat sit_rot_g = sitRotation;   // implicit op glm::quat()
+            gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(sit_spot), "Sit", &sit_rot_g, near_sit_object, NULL, 0.5f);
         }
     }
     else
