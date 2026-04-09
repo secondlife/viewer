@@ -72,7 +72,7 @@ public:
     LLVector3       mPosAgent;
     LLVector3       mVelocity;
     glm::vec3       mAccel{0.f};
-    LLVector3       mAxis;
+    glm::vec3       mAxis{0.f};
     LLColor4        mColor;
     glm::vec2       mScale;
     F32             mStartGlow;
