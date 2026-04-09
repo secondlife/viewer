@@ -27,6 +27,7 @@
 #pragma once
 
 #include "v3math.h"
+#include <glm/vec3.hpp>
 #include "llpanel.h"
 #include "llpointer.h"
 #include "llvolume.h"
@@ -173,7 +174,7 @@ protected:
     LLCheckBoxCtrl  *mCtrlSculptMirror;
     LLCheckBoxCtrl  *mCtrlSculptInvert;
 
-    LLVector3       mCurEulerDegrees;       // to avoid sending rotation when not changed
+    glm::vec3       mCurEulerDegrees{0.f};  // to avoid sending rotation when not changed
     bool            mIsPhysical;            // to avoid sending "physical" when not changed
     bool            mIsTemporary;           // to avoid sending "temporary" when not changed
     bool            mIsPhantom;             // to avoid sending "phantom" when not changed

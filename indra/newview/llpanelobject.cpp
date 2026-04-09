@@ -420,20 +420,20 @@ void LLPanelObject::getState( )
     mCtrlScaleZ->setEnabled( enable_scale );
 
     LLQuaternion object_rot = objectp->getRotationEdit();
-    object_rot.getEulerAngles(&(mCurEulerDegrees.mV[VX]), &(mCurEulerDegrees.mV[VY]), &(mCurEulerDegrees.mV[VZ]));
+    object_rot.getEulerAngles(&mCurEulerDegrees.x, &mCurEulerDegrees.y, &mCurEulerDegrees.z);
     mCurEulerDegrees *= RAD_TO_DEG;
-    mCurEulerDegrees.mV[VX] = fmod(ll_round(mCurEulerDegrees.mV[VX], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
-    mCurEulerDegrees.mV[VY] = fmod(ll_round(mCurEulerDegrees.mV[VY], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
-    mCurEulerDegrees.mV[VZ] = fmod(ll_round(mCurEulerDegrees.mV[VZ], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+    mCurEulerDegrees.x = fmod(ll_round(mCurEulerDegrees.x, OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+    mCurEulerDegrees.y = fmod(ll_round(mCurEulerDegrees.y, OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+    mCurEulerDegrees.z = fmod(ll_round(mCurEulerDegrees.z, OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
 
     if (enable_rotate)
     {
-        mCtrlRotX->set( mCurEulerDegrees.mV[VX] );
-        mCtrlRotY->set( mCurEulerDegrees.mV[VY] );
-        mCtrlRotZ->set( mCurEulerDegrees.mV[VZ] );
-        calcp->setVar(LLCalc::X_ROT, mCurEulerDegrees.mV[VX]);
-        calcp->setVar(LLCalc::Y_ROT, mCurEulerDegrees.mV[VY]);
-        calcp->setVar(LLCalc::Z_ROT, mCurEulerDegrees.mV[VZ]);
+        mCtrlRotX->set( mCurEulerDegrees.x );
+        mCtrlRotY->set( mCurEulerDegrees.y );
+        mCtrlRotZ->set( mCurEulerDegrees.z );
+        calcp->setVar(LLCalc::X_ROT, mCurEulerDegrees.x);
+        calcp->setVar(LLCalc::Y_ROT, mCurEulerDegrees.y);
+        calcp->setVar(LLCalc::Z_ROT, mCurEulerDegrees.z);
     }
     else
     {
@@ -1572,7 +1572,7 @@ void LLPanelObject::sendRotation(bool btn_down)
     new_rot.mV[VZ] = ll_round(new_rot.mV[VZ], OBJECT_ROTATION_PRECISION);
 
     // Note: must compare before conversion to radians
-    LLVector3 delta = new_rot - mCurEulerDegrees;
+    LLVector3 delta = new_rot - LLVector3(mCurEulerDegrees);
 
     if (delta.length() >= 0.0005f)
     {
