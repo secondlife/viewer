@@ -249,9 +249,9 @@ public:
         setValue(name, value.getValue());
     }
 
-    inline void setValue(const std::string &name, const LLQuaternion &value)
+    inline void setValue(const std::string &name, const glm::quat &value)
     {
-        setValue(name, value.getValue());
+        setValue(name, LLQuaternion(value).getValue());
     }
 
     inline void setValue(const std::string &name, const LLColor3 &value)
