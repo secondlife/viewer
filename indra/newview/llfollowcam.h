@@ -134,7 +134,7 @@ public:
     // may still be needed after the subject matter has stopped moving because the
     // camera may still need to animate itself catching up to its ideal resting place.
     //---------------------------------------------------------------------------------------
-    void setSubjectPositionAndRotation  ( const LLVector3 p, const LLQuaternion r );
+    void setSubjectPositionAndRotation  ( const LLVector3 p, const glm::quat r );
     void update();
 
     // initialize from another instance of llfollowcamparams
