@@ -32,6 +32,7 @@
 #include "llmotion.h"
 #include "lljointsolverrp3.h"
 #include "v3dmath.h"
+#include <glm/vec3.hpp>
 
 #define EDITING_EASEIN_DURATION 0.0f
 #define EDITING_EASEOUT_DURATION 0.5f
@@ -117,7 +118,7 @@ public:
     LLJointSolverRP3    mIKSolver;
 
     LLCharacter         *mCharacter;
-    LLVector3           mWristOffset;
+    glm::vec3           mWristOffset{0.f};
 
     LLPointer<LLJointState> mParentState;
     LLPointer<LLJointState> mShoulderState;
@@ -127,7 +128,7 @@ public:
 
     static S32          sHandPose;
     static S32          sHandPosePriority;
-    LLVector3           mLastSelectPt;
+    glm::vec3           mLastSelectPt{0.f};
 } LL_ALIGN_POSTFIX(16);
 
 

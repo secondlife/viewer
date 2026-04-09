@@ -102,7 +102,7 @@ LLMotion::LLMotionInitStatus LLEditingMotion::onInitialize(LLCharacter *characte
         return LLMotionInitStatus::STATUS_FAILURE;
     }
 
-    mWristOffset = LLVector3(0.0f, 0.2f, 0.0f);
+    mWristOffset = glm::vec3(0.0f, 0.2f, 0.0f);
 
     // add joint states to the pose
     mShoulderState->setUsage(LLJointState::ROT);
