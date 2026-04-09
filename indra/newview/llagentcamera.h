@@ -29,6 +29,7 @@
 #include "llfollowcam.h"            // Ventrella
 #include "llhudeffectlookat.h"      // EPointAtType
 #include "llhudeffectpointat.h"     // ELookAtType
+#include <glm/vec3.hpp>
 
 class LLPickInfo;
 class LLVOAvatarSelf;
@@ -185,8 +186,8 @@ public:
 private:
     LLPointer<LLViewerObject> mSitCameraReferenceObject; // Object to which camera is related when sitting
     bool            mSitCameraEnabled;      // Use provided camera information when sitting?
-    LLVector3       mSitCameraPos;          // Root relative camera pos when sitting
-    LLVector3       mSitCameraFocus;        // Root relative camera target when sitting
+    glm::vec3       mSitCameraPos{0.f};     // Root relative camera pos when sitting
+    glm::vec3       mSitCameraFocus{0.f};   // Root relative camera target when sitting
 
     //--------------------------------------------------------------------
     // Animation

@@ -1706,7 +1706,7 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
         LLVector3 object_pos = mSitCameraReferenceObject->getRenderPosition();
         LLQuaternion object_rot = mSitCameraReferenceObject->getRenderRotation();
 
-        LLVector3 target_pos = object_pos + (mSitCameraFocus * object_rot);
+        LLVector3 target_pos = object_pos + (LLVector3(mSitCameraFocus) * object_rot);
         return gAgent.getPosGlobalFromAgent(glm::vec3(target_pos.mV[VX], target_pos.mV[VY], target_pos.mV[VZ]));
     }
     else
@@ -1870,7 +1870,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
             LLVector3 object_pos = mSitCameraReferenceObject->getRenderPosition();
             LLQuaternion object_rot = mSitCameraReferenceObject->getRenderRotation();
 
-            LLVector3 target_pos = object_pos + (mSitCameraPos * object_rot);
+            LLVector3 target_pos = object_pos + (LLVector3(mSitCameraPos) * object_rot);
 
             camera_position_global = gAgent.getPosGlobalFromAgent(glm::vec3(target_pos.mV[VX], target_pos.mV[VY], target_pos.mV[VZ]));
         }
@@ -2770,8 +2770,8 @@ void LLAgentCamera::setSitCamera(const LLUUID &object_id, const LLVector3 &camer
     }
     else
     {
-        mSitCameraPos.clear();
-        mSitCameraFocus.clear();
+        mSitCameraPos = glm::vec3(0.f);
+        mSitCameraFocus = glm::vec3(0.f);
         mSitCameraReferenceObject = NULL;
         mSitCameraEnabled = false;
     }
