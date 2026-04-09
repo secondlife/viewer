@@ -47,6 +47,7 @@
 #include "llcriticaldamp.h"
 
 #include "glm/gtc/quaternion.hpp"
+#include <glm/vec3.hpp>
 #include <map>
 #include <vector>
 
@@ -178,7 +179,7 @@ protected:
     LLFrameTimer    mTimer;
     LLVector3       mSubjectPosition;   // this is the position of what I'm looking at
     glm::quat       mSubjectRotation{1.f, 0.f, 0.f, 0.f}; // this is the rotation of what I'm looking at (identity w,x,y,z)
-    LLVector3       mUpVector;          // the camera's up vector in world-space (determines roll)
+    glm::vec3       mUpVector{0.f};     // the camera's up vector in world-space (determines roll)
     LLVector3       mRelativeFocus;
     LLVector3       mRelativePos;
 
