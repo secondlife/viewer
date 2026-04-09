@@ -301,8 +301,6 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
     mSeatCount(0),
     mNumFaces(0),
     mRotTime(0.f),
-    mAngularVelocityRot(),
-    mPreviousRotation(),
     mAttachmentState(0),
     mMedia(NULL),
     mClickAction(0),
@@ -2302,7 +2300,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
     if ((new_rot.isNotEqualEps(getRotation(), F_ALMOST_ZERO))
         || (new_angv != old_angv))
     {
-        if (new_rot != mPreviousRotation)
+        // Comparison via LLQuaternion to disambiguate operator!= overload
+        // (both LL and glm forms would otherwise need a single user-defined conversion).
+        if (new_rot != LLQuaternion(mPreviousRotation))
         {
             resetRot();
         }
@@ -2322,7 +2322,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
         mPreviousRotation = new_rot;
 
         // Set the rotation of the object followed by adjusting for the accumulated angular velocity (llSetTargetOmega)
-        setRotation(new_rot * mAngularVelocityRot);
+        // Force LL compose semantics: convert mAngularVelocityRot back to LLQuaternion so LL operator* is selected.
+        // glm::quat * has reversed compose order vs LLQuaternion (see quaternion_cheat_sheet.md).
+        setRotation(new_rot * LLQuaternion(mAngularVelocityRot));
         if ((mFlags & FLAGS_SERVER_AUTOPILOT) && asAvatar() && asAvatar()->isSelf())
         {
             gAgent.resetAxes();
@@ -7154,8 +7156,10 @@ void LLViewerObject::applyAngularVelocity(F32 dt)
         // calculate the delta increment based on the object's angular velocity
         dQ.setAngleAxis(angle, ang_vel);
 
-        // accumulate the angular velocity rotations to re-apply in the case of an object update
-        mAngularVelocityRot *= dQ;
+        // accumulate the angular velocity rotations to re-apply in the case of an object update.
+        // Preserve LL compose semantics by routing through LLQuaternion rather than letting
+        // glm::quat::operator*= apply the reversed compose order.
+        mAngularVelocityRot = LLQuaternion(mAngularVelocityRot) * dQ;
 
         // Just apply the delta increment to the current rotation
         setRotation(getRotation()*dQ);
@@ -7173,7 +7177,7 @@ void LLViewerObject::resetRot()
     resetRotTime();
 
     // Reset the accumulated angular velocity rotation
-    mAngularVelocityRot.loadIdentity();
+    mAngularVelocityRot = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
 }
 
 U32 LLViewerObject::getPartitionType() const
