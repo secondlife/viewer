@@ -53,9 +53,6 @@ public:
                  const LLMatrix3 &rotation);                // Sets axes to 3x3 matrix
     LLCoordFrame(const glm::vec3 &origin,
                  const glm::vec3 &direction);               // Sets origin and calls lookDir(direction)
-    explicit LLCoordFrame(const LLQuaternion &q);           // Sets axes using q and inits mOrigin to zero
-    LLCoordFrame(const glm::vec3 &origin,
-                 const LLQuaternion &q);                    // Uses quaternion to init axes
     explicit LLCoordFrame(const LLMatrix4 &mat);            // Extracts frame from a 4x4 matrix
     // The folowing two constructors are dangerous due to implicit casting and have been disabled - SJB
     //LLCoordFrame(const F32 *origin, const F32 *rotation); // Assumes "origin" is 1x3 and "rotation" is 1x9 array

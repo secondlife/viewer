@@ -124,28 +124,6 @@ LLCoordFrame::LLCoordFrame(const glm::vec3 &origin,
     CHECK_FINITE_OBJ();
 }
 
-LLCoordFrame::LLCoordFrame(const LLQuaternion &q) :
-    mOrigin(0.f, 0.f, 0.f)
-{
-    LLMatrix3 rotation_matrix(q);
-    mXAxis = glm::vec3(rotation_matrix.mMatrix[VX][0], rotation_matrix.mMatrix[VX][1], rotation_matrix.mMatrix[VX][2]);
-    mYAxis = glm::vec3(rotation_matrix.mMatrix[VY][0], rotation_matrix.mMatrix[VY][1], rotation_matrix.mMatrix[VY][2]);
-    mZAxis = glm::vec3(rotation_matrix.mMatrix[VZ][0], rotation_matrix.mMatrix[VZ][1], rotation_matrix.mMatrix[VZ][2]);
-
-    CHECK_FINITE_OBJ();
-}
-
-LLCoordFrame::LLCoordFrame(const glm::vec3 &origin, const LLQuaternion &q) :
-    mOrigin(origin)
-{
-    LLMatrix3 rotation_matrix(q);
-    mXAxis = glm::vec3(rotation_matrix.mMatrix[VX][0], rotation_matrix.mMatrix[VX][1], rotation_matrix.mMatrix[VX][2]);
-    mYAxis = glm::vec3(rotation_matrix.mMatrix[VY][0], rotation_matrix.mMatrix[VY][1], rotation_matrix.mMatrix[VY][2]);
-    mZAxis = glm::vec3(rotation_matrix.mMatrix[VZ][0], rotation_matrix.mMatrix[VZ][1], rotation_matrix.mMatrix[VZ][2]);
-
-    CHECK_FINITE_OBJ();
-}
-
 LLCoordFrame::LLCoordFrame(const LLMatrix4 &mat) :
     mOrigin(mat.mMatrix[VW][0], mat.mMatrix[VW][1], mat.mMatrix[VW][2]),
     mXAxis(mat.mMatrix[VX][0], mat.mMatrix[VX][1], mat.mMatrix[VX][2]),
