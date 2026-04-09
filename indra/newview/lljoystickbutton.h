@@ -30,6 +30,7 @@
 #include "llcoord.h"
 #include "llviewertexture.h"
 #include "llquaternion.h"
+#include <glm/gtc/quaternion.hpp>
 
 enum e_joystick_quadrant
 {
@@ -224,7 +225,7 @@ protected:
     S32             mZAxisIndex;
 
     LLVector3       mVectorZero;
-    LLQuaternion    mRotation;
+    glm::quat       mRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     LLVector3       mUpDnAxis;
     LLVector3       mLfRtAxis;
 };
