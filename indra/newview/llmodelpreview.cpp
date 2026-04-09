@@ -3463,7 +3463,7 @@ bool LLModelPreview::render()
     LLViewerCamera::getInstance()->setViewNoBroadcast(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
 
     LLVector3 offset = mCameraOffset;
-    LLVector3 target_pos = mPreviewTarget + offset;
+    LLVector3 target_pos = LLVector3(mPreviewTarget) + offset;
 
     F32 z_near = 0.001f;
     F32 z_far = mCameraDistance*10.0f + mPreviewScale.length() + mCameraOffset.length();
