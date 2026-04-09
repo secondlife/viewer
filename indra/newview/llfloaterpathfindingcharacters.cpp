@@ -78,7 +78,7 @@ void LLFloaterPathfindingCharacters::setShowPhysicsCapsule(bool pIsShowPhysicsCa
     mShowPhysicsCapsuleCheckBox->set(pIsShowPhysicsCapsule && (LLPathingLib::getInstance() != NULL));
 }
 
-bool LLFloaterPathfindingCharacters::isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos, LLQuaternion& rot) const
+bool LLFloaterPathfindingCharacters::isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos, glm::quat& rot) const
 {
     id = mSelectedCharacterId;
     // Physics capsule is enable if the checkbox is enabled and if we can get the required render
@@ -305,7 +305,7 @@ void LLFloaterPathfindingCharacters::hideCapsule() const
     }
 }
 
-bool LLFloaterPathfindingCharacters::getCapsuleRenderData(LLVector3& pPosition, LLQuaternion& rot) const
+bool LLFloaterPathfindingCharacters::getCapsuleRenderData(LLVector3& pPosition, glm::quat& rot) const
 {
     bool result = false;
 
@@ -317,7 +317,7 @@ bool LLFloaterPathfindingCharacters::getCapsuleRenderData(LLVector3& pPosition, 
         LLViewerObject *viewerObject = gObjectList.findObject(mSelectedCharacterId);
         if ( viewerObject != NULL )
         {
-            rot         = viewerObject->getRotation() ;
+            rot         = viewerObject->getRotation();   // glm::quat = glm::quat
             pPosition   = viewerObject->getRenderPosition();
             result      = true;
         }
