@@ -879,7 +879,7 @@ glm::vec2 LLFace::surfaceToTexture(glm::vec2 surface_coord, const LLVector4a& po
 
 // Returns scale compared to default texgen, and face orientation as calculated
 // by planarProjection(). This is needed to match planar texgen parameters.
-void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_pos, F32* scale) const
+void LLFace::getPlanarProjectedParams(glm::quat* face_rot, LLVector3* face_pos, F32* scale) const
 {
     const LLMatrix4& vol_mat = getWorldMatrix();
     const LLVolumeFace& vf = getViewerObject()->getVolume()->getVolumeFace(mTEOffset);
@@ -982,10 +982,12 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  glm::vec2* res_st_offs
     }
 
     LLVector3 orig_pos, this_pos;
-    LLQuaternion orig_face_rot, this_face_rot;
+    glm::quat orig_face_rot_g(1.f, 0.f, 0.f, 0.f), this_face_rot_g(1.f, 0.f, 0.f, 0.f);
     F32 orig_proj_scale, this_proj_scale;
-    align_to->getPlanarProjectedParams(&orig_face_rot, &orig_pos, &orig_proj_scale);
-    getPlanarProjectedParams(&this_face_rot, &this_pos, &this_proj_scale);
+    align_to->getPlanarProjectedParams(&orig_face_rot_g, &orig_pos, &orig_proj_scale);
+    getPlanarProjectedParams(&this_face_rot_g, &this_pos, &this_proj_scale);
+    LLQuaternion orig_face_rot(orig_face_rot_g);
+    LLQuaternion this_face_rot(this_face_rot_g);
 
     // The rotation of "this face's" texture:
     LLQuaternion orig_st_rot = LLQuaternion(map_rot, LLVector3::z_axis) * orig_face_rot;
@@ -1061,10 +1063,12 @@ bool LLFace::calcAlignedPlanarGLTF(
 
     // Calculate aligments
     LLVector3 orig_pos, this_pos;
-    LLQuaternion orig_face_rot, this_face_rot;
+    glm::quat orig_face_rot_g(1.f, 0.f, 0.f, 0.f), this_face_rot_g(1.f, 0.f, 0.f, 0.f);
     F32 orig_proj_scale, this_proj_scale;
-    align_to->getPlanarProjectedParams(&orig_face_rot, &orig_pos, &orig_proj_scale);
-    getPlanarProjectedParams(&this_face_rot, &this_pos, &this_proj_scale);
+    align_to->getPlanarProjectedParams(&orig_face_rot_g, &orig_pos, &orig_proj_scale);
+    getPlanarProjectedParams(&this_face_rot_g, &this_pos, &this_proj_scale);
+    LLQuaternion orig_face_rot(orig_face_rot_g);
+    LLQuaternion this_face_rot(this_face_rot_g);
 
     // The rotation of "this face's" texture:
     LLQuaternion orig_st_rot = LLQuaternion(map_rot, LLVector3::z_axis) * orig_face_rot;
