@@ -660,7 +660,10 @@ namespace tut
 
             ensure("plane intersection should succeed", success);
 
-            F32 dot = fabs(known_intersection.getDirection() * measured_intersection.getDirection());
+            // LLLine::getDirection() returns const glm::vec3& post-migration.
+            // vec * vec in glm is component-wise multiplication, not dot
+            // product (LL semantics). Use glm::dot explicitly.
+            F32 dot = std::fabs(glm::dot(known_intersection.getDirection(), measured_intersection.getDirection()));
             ensure("measured intersection should be parallel to known intersection",
                     dot > ALMOST_PARALLEL);
 

@@ -96,7 +96,10 @@ public:
                              const LLEventPump::NameList& after=LLEventPump::empty,
                              const LLEventPump::NameList& before=LLEventPump::empty)
     {
-        return pump.listen(getName(), boost::bind(method, this, _1), after, before);
+        // Convert from boost::bind+_1 to a lambda that forwards the event.
+        // The bare _1 placeholder requires a `using namespace boost::placeholders`
+        // that's no longer pulled in by default.
+        return pump.listen(getName(), [this, method](const LLSD& event) { return (this->*method)(event); }, after, before);
     }
     /// Both call() and callstop() set mLastEvent. Retrieve it.
     LLSD getLastEvent() const

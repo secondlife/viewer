@@ -28,6 +28,8 @@
 
 #include "linden_common.h"
 
+#include <span>
+
 #if LL_WINDOWS
 #include <winsock2.h>
 typedef U32 uint32_t;
@@ -2081,7 +2083,7 @@ namespace tut
         // the original istr with a max_bytes constraint.
         std::vector<U8> buffer(length);
         istr.read(reinterpret_cast<char*>(buffer.data()), length);
-        LLMemoryStream stream(buffer.data(), length);
+        LLMemoryStream stream(std::span<const U8>(buffer.data(), length));
         return parse(stream, item, length);
     }
 

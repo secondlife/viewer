@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <iosfwd>
 #include <string>
 #include "llsd.h"
 
@@ -52,3 +53,9 @@ public:
     static bool isCapBanned(const std::string& cap_name);
     static LLSD getConfigForMessage(const std::string& msg_name);
 };
+
+// Stream operators for the scoped enums so TUT's ensure_equals can format
+// failure messages. Without these the test framework's tut_assert.hpp:80
+// fails to instantiate operator<< for these enum types.
+std::ostream& operator<<(std::ostream& os, LLMessageConfig::Flavor f);
+std::ostream& operator<<(std::ostream& os, LLMessageConfig::SenderTrust t);
