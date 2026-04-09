@@ -569,16 +569,16 @@ F32 calculate_score(LLVOVolume* object)
             F32 radius;
             if (avatar->isControlAvatar())
             {
-                const LLVector3* box = avatar->getLastAnimExtents();
-                LLVector3 diag = box[1] - box[0];
-                radius = diag.length() * 0.5f;
+                const glm::vec3* box = avatar->getLastAnimExtents();
+                glm::vec3 diag = box[1] - box[0];
+                radius = glm::length(diag) * 0.5f;
             }
             else
             {
                 // Volume in a rigged mesh attached to a regular avatar.
-                const LLVector3* box = avatar->getLastAnimExtents();
-                LLVector3 diag = box[1] - box[0];
-                radius = diag.length();
+                const glm::vec3* box = avatar->getLastAnimExtents();
+                glm::vec3 diag = box[1] - box[0];
+                radius = glm::length(diag);
 
                 if (!avatar->isSelf() && !avatar->hasFirstFullAttachmentData())
                 {

@@ -924,9 +924,10 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
             //if (volume->getAvatar() && volume->getAvatar()->isControlAvatar())
             if (volume->getAvatar())
             {
-                const LLVector3* av_box = volume->getAvatar()->getLastAnimExtents();
+                const glm::vec3* av_box = volume->getAvatar()->getLastAnimExtents();
+                LLVector3 av_box_v3[2] = { LLVector3(av_box[0]), LLVector3(av_box[1]) };
                 LLVector3 cam_pos_from_agent(LLViewerCamera::getInstance()->getOrigin());
-                LLVector3 cam_to_box_offset = point_to_box_offset(cam_pos_from_agent, av_box);
+                LLVector3 cam_to_box_offset = point_to_box_offset(cam_pos_from_agent, av_box_v3);
                 mDistanceWRTCamera = llmax(0.01f, ll_round(cam_to_box_offset.length(), 0.01f));
                 if (mVObjp)
                 {
