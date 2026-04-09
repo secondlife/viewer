@@ -536,7 +536,7 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
         {
             ManipulatorHandle* manipulator = *iter;
             {
-                manip2d = glm::vec2(manipulator->mPosition.mV[VX] * half_width, manipulator->mPosition.mV[VY] * half_height);
+                manip2d = glm::vec2(manipulator->mPosition.x * half_width, manipulator->mPosition.y * half_height);
 
                 delta = manip2d - mousePos;
                 if (glm::dot(delta, delta) < MAX_MANIP_SELECT_DISTANCE_SQUARED)

@@ -38,6 +38,7 @@
 #include "llmanip.h"
 #include "llviewerobject.h"
 #include "llbbox.h"
+#include <glm/vec3.hpp>
 
 
 F32 get_default_max_prim_scale(bool is_flora = false);
@@ -67,7 +68,7 @@ public:
     class ManipulatorHandle
     {
     public:
-        LLVector3   mPosition;
+        glm::vec3   mPosition{0.f};
         EManipPart  mManipID;
         EScaleManipulatorType           mType;
 
@@ -135,8 +136,8 @@ private:
         {
             if (a->mType != b->mType)
                 return a->mType < b->mType;
-            else if (a->mPosition.mV[VZ] != b->mPosition.mV[VZ])
-                return a->mPosition.mV[VZ] < b->mPosition.mV[VZ];
+            else if (a->mPosition.z != b->mPosition.z)
+                return a->mPosition.z < b->mPosition.z;
             else
                 return a->mManipID < b->mManipID;
         }
