@@ -285,7 +285,7 @@ public:
 
     const LLUUID&  getLightTextureID() const;
     bool isLightSpotlight() const;
-    const LLVector3& getSpotLightParams() const;
+    LLVector3 getSpotLightParams() const;
     void    updateSpotLightPriority();
     F32     getSpotLightPriority() const;
 

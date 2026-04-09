@@ -2185,13 +2185,16 @@ void LLSculptParams::setSculptTexture(const LLUUID& texture_id, U8 sculpt_type)
 LLLightImageParams::LLLightImageParams()
 {
     mType = PARAMS_LIGHT_IMAGE;
-    mParams.set(F_PI*0.5f, 0.f, 0.f);
+    mParams = glm::vec3(F_PI*0.5f, 0.f, 0.f);
 }
 
 bool LLLightImageParams::pack(LLDataPacker &dp) const
 {
     dp.packUUID(mLightTexture, "texture");
-    dp.packVector3(mParams, "params");
+    {
+        LLVector3 tmp(mParams);
+        dp.packVector3(tmp, "params");
+    }
 
     return true;
 }
@@ -2199,7 +2202,11 @@ bool LLLightImageParams::pack(LLDataPacker &dp) const
 bool LLLightImageParams::unpack(LLDataPacker &dp)
 {
     dp.unpackUUID(mLightTexture, "texture");
-    dp.unpackVector3(mParams, "params");
+    {
+        LLVector3 tmp;
+        dp.unpackVector3(tmp, "params");
+        mParams = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
+    }
 
     return true;
 }
@@ -2239,7 +2246,7 @@ LLSD LLLightImageParams::asLLSD() const
     LLSD sd;
 
     sd["texture"] = mLightTexture;
-    sd["params"] = mParams.getValue();
+    sd["params"] = LLVector3(mParams).getValue();
 
     return sd;
 }

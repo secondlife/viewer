@@ -328,7 +328,7 @@ class LLLightImageParams : public LLNetworkData
 {
 protected:
     LLUUID mLightTexture;
-    LLVector3 mParams;
+    glm::vec3 mParams{0.f};
 
 public:
     LLLightImageParams();
@@ -343,8 +343,8 @@ public:
     void setLightTexture(const LLUUID& id) { mLightTexture = id; }
     const LLUUID& getLightTexture() const         { return mLightTexture; }
     bool isLightSpotlight() const         { return mLightTexture.notNull(); }
-    void setParams(const LLVector3& params) { mParams = params; }
-    const LLVector3& getParams() const            { return mParams; }
+    void setParams(const LLVector3& params) { mParams = glm::vec3(params.mV[0], params.mV[1], params.mV[2]); }
+    LLVector3 getParams() const            { return LLVector3(mParams); }
 
 };
 

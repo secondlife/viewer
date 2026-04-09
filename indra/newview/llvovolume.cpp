@@ -3297,7 +3297,7 @@ const LLUUID& LLVOVolume::getLightTextureID() const
     return LLUUID::null;
 }
 
-const LLVector3& LLVOVolume::getSpotLightParams() const
+LLVector3 LLVOVolume::getSpotLightParams() const
 {
     const LLLightImageParams *param_block = getLightImageParams();
     if (param_block)
