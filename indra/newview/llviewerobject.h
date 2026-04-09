@@ -48,6 +48,7 @@
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 namespace LL
 {
@@ -967,8 +968,8 @@ protected:
     S32             mNumFaces;
 
     F32             mRotTime;                   // Amount (in seconds) that object has rotated according to angular velocity (llSetTargetOmega)
-    LLQuaternion    mAngularVelocityRot;        // accumulated rotation from the angular velocity computations
-    LLQuaternion    mPreviousRotation;
+    glm::quat       mAngularVelocityRot{1.f, 0.f, 0.f, 0.f};   // accumulated rotation from the angular velocity computations (identity w,x,y,z)
+    glm::quat       mPreviousRotation{1.f, 0.f, 0.f, 0.f};     // identity (w,x,y,z)
 
     U8              mAttachmentState;   // this encodes the attachment id in a somewhat complex way. 0 if not an attachment.
     LLViewerObjectMedia* mMedia;    // NULL if no media associated

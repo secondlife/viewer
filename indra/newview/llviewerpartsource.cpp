@@ -225,12 +225,15 @@ void LLViewerPartSourceScript::update(const F32 dt)
         {
             F32 av_angle = dt * angular_velocity_mag;
             LLQuaternion dquat(av_angle, mPartSysData.mAngularVelocity);
-            mRotation *= dquat;
+            // Preserve LL compose semantics (glm::quat::operator*= would apply
+            // glm's reversed compose order).
+            mRotation = LLQuaternion(mRotation) * dquat;
         }
         else
         {
             // No angular velocity.  Reset our rotation.
-            mRotation.setEulerAngles(0, 0, 0);
+            // glm::quat has no setEulerAngles; identity at (0,0,0) is just identity.
+            mRotation = glm::quat(1.f, 0.f, 0.f, 0.f);
         }
 
         if (LLViewerPartSim::getInstance()->aboveParticleLimit())
@@ -410,7 +413,10 @@ void LLViewerPartSourceScript::update(const F32 dt)
                     part_dir_vector = part_dir_vector * mSourceObjectp->getRenderRotation();
                 }
 
-                part_dir_vector = part_dir_vector * mRotation;
+                // LLVector3 * LLQuaternion form preserves LL rotation semantic.
+                // glm form would be quat*vec with operand order reversed; routing
+                // through the bridge ctor keeps the original behaviour.
+                part_dir_vector = part_dir_vector * LLQuaternion(mRotation);
 
                 part->mPosAgent += mPartSysData.mBurstRadius*part_dir_vector;
 
