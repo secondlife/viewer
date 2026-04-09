@@ -103,7 +103,6 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
     mCurrentTime                    = mTimer.getTotalSeconds();
     mPreviousTime                   = mCurrentTime;
     mStartTime                      = mCurrentTime;
-    mVoiceSourceWorldPosition       = LLVector3( 0.0f, 0.0f, 0.0f );
     mSpeakingAmplitude              = 0.0f;
     mCurrentlySpeaking              = false;
     mVoiceEnabled                   = false;
@@ -528,13 +527,6 @@ void LLVoiceVisualizer::render()
         }// for loop
 
     }//if ( mSoundSymbol.mActive )
-
-}//---------------------------------------------------
-
-//---------------------------------------------------
-void LLVoiceVisualizer::setVoiceSourceWorldPosition( const LLVector3 &p )
-{
-    mVoiceSourceWorldPosition   = p;
 
 }//---------------------------------------------------
 
