@@ -30,6 +30,7 @@
 #include "llviewermedia.h"
 #include "llnotificationptr.h"
 #include "llcoord.h"
+#include <glm/vec3.hpp>
 
 class LLButton;
 class LLIconCtrl;
@@ -218,7 +219,7 @@ private:
     LLUUID mTargetObjectID;
     S32 mTargetObjectFace;
     LLUUID mTargetImplID;
-    LLVector3 mTargetObjectNormal;
+    glm::vec3 mTargetObjectNormal{0.f};
 
     LLUUID mZoomObjectID;
     S32 mZoomObjectFace;

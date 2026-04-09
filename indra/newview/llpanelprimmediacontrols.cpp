@@ -94,7 +94,6 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
     mTargetObjectID(LLUUID::null),
     mTargetObjectFace(0),
     mTargetImplID(LLUUID::null),
-    mTargetObjectNormal(LLVector3::zero),
     mZoomObjectID(LLUUID::null),
     mZoomObjectFace(0),
     mVolumeSliderVisible(0),
