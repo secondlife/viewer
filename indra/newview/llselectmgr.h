@@ -225,8 +225,8 @@ public:
     std::string     mDescription;
     LLCategory      mCategory;
     S16             mInventorySerial;
-    LLVector3       mSavedPositionLocal;    // for interactively modifying object position
-    LLVector3       mLastPositionLocal;
+    glm::vec3       mSavedPositionLocal{0.f}; // for interactively modifying object position
+    glm::vec3       mLastPositionLocal{0.f};
     glm::vec3       mLastMoveLocal{0.f};
     LLVector3d      mSavedPositionGlobal;   // for interactively modifying object position
     glm::vec3       mSavedScale{0.f};       // for interactively modifying object scale
@@ -513,13 +513,13 @@ public:
     struct AvatarPositionOverride
     {
         AvatarPositionOverride();
-        AvatarPositionOverride(LLVector3 &vec, const glm::quat &quat, LLViewerObject *obj) :
+        AvatarPositionOverride(const glm::vec3 &vec, const glm::quat &quat, LLViewerObject *obj) :
             mLastPositionLocal(vec),
             mLastRotation(quat),
             mObject(obj)
         {
         }
-        LLVector3 mLastPositionLocal;
+        glm::vec3 mLastPositionLocal{0.f};
         glm::quat mLastRotation{1.f, 0.f, 0.f, 0.f};
         LLPointer<LLViewerObject> mObject;
     };

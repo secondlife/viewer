@@ -326,7 +326,7 @@ void LLSelectMgr::resetObjectOverrides(LLObjectSelectionHandle selected_handle)
                     }
                 }
             }
-            node->mLastPositionLocal.set(0, 0, 0);
+            node->mLastPositionLocal = glm::vec3(0.f);
             node->mLastRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
             node->mLastScale = glm::vec3(0.f);
             return true;
@@ -346,7 +346,7 @@ void LLSelectMgr::overrideObjectUpdates()
             LLViewerObject* object = selectNode->getObject();
             if (object && object->permMove() && !object->isPermanentEnforced())
             {
-                if (!selectNode->mLastPositionLocal.isExactlyZero())
+                if (selectNode->mLastPositionLocal != glm::vec3(0.f))
                 {
                     object->setPosition(selectNode->mLastPositionLocal);
                 }
@@ -414,7 +414,7 @@ void LLSelectMgr::overrideAvatarUpdates()
                     uuid_av_override_map_t::iterator iter = mManager->mAvatarOverridesMap.find(avatar->getID());
                     if (iter != mManager->mAvatarOverridesMap.end())
                     {
-                        if (selectNode->mLastPositionLocal.isExactlyZero())
+                        if (selectNode->mLastPositionLocal == glm::vec3(0.f))
                         {
                             selectNode->mLastPositionLocal = iter->second.mLastPositionLocal;
                         }
@@ -441,7 +441,7 @@ void LLSelectMgr::overrideAvatarUpdates()
         }
         else
         {
-            if (!it->second.mLastPositionLocal.isExactlyZero())
+            if (it->second.mLastPositionLocal != glm::vec3(0.f))
             {
                 it->second.mObject->setPosition(it->second.mLastPositionLocal);
             }
@@ -6860,7 +6860,7 @@ LLSelectNode::~LLSelectNode()
 {
     LLSelectMgr *manager = LLSelectMgr::getInstance();
     if (manager->mAllowSelectAvatar
-        && (!mLastPositionLocal.isExactlyZero()
+        && (mLastPositionLocal != glm::vec3(0.f)
             || LLQuaternion(mLastRotation) != LLQuaternion()))
     {
         LLViewerObject* object = getObject(); //isDead() check
