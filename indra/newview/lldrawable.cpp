@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldrawable.h"
+#include <glm/vec3.hpp>
 
 // library includes
 #include "material_codes.h"
@@ -1019,7 +1020,10 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
             LLFace *facep = getFace(i);
             if (facep)
             {
-                facep->mCenterAgent += LLVector3(shift_vector.getF32ptr());
+                {
+                    const F32* p = shift_vector.getF32ptr();
+                    facep->mCenterAgent += glm::vec3(p[0], p[1], p[2]);
+                }
                 facep->mExtents[0].add(shift_vector);
                 facep->mExtents[1].add(shift_vector);
 

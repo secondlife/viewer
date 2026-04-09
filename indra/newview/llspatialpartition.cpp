@@ -2578,7 +2578,7 @@ void renderPoints(LLDrawable* drawablep)
             LLFace * face = drawablep->getFace(i);
             if (face)
             {
-                gGL.vertex3fv(face->mCenterLocal.mV);
+                gGL.vertex3fv(&face->mCenterLocal.x);
             }
         }
         gGL.end();
