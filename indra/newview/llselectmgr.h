@@ -931,8 +931,8 @@ private:
 
     LLObjectSelection       mGridObjects;
     glm::quat               mGridRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
-    LLVector3               mGridOrigin;
-    LLVector3               mGridScale;
+    glm::vec3               mGridOrigin{0.f};
+    glm::vec3               mGridScale{0.f};
     EGridMode               mGridMode;
 
     bool                    mTEMode;            // render te
