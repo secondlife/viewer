@@ -108,9 +108,9 @@ namespace tut
         //mStartAge 0.00000000  float
         ensure_approximately_equals("mStartAge different after unpacking", llpsysdata.mStartAge, 0.f, 8);
         //mPartAccel    <0,0,0>
-        ensure_approximately_equals("mPartAccel.mV[0] different after unpacking", llpsysdata.mPartAccel.mV[0], 0.f, 7);
-        ensure_approximately_equals("mPartAccel.mV[1] different after unpacking", llpsysdata.mPartAccel.mV[1], 0.f, 7);
-        ensure_approximately_equals("mPartAccel.mV[2] different after unpacking", llpsysdata.mPartAccel.mV[2], 0.f, 7);
+        ensure_approximately_equals("mPartAccel.x different after unpacking", llpsysdata.mPartAccel.x, 0.f, 7);
+        ensure_approximately_equals("mPartAccel.y different after unpacking", llpsysdata.mPartAccel.y, 0.f, 7);
+        ensure_approximately_equals("mPartAccel.z different after unpacking", llpsysdata.mPartAccel.z, 0.f, 7);
 
         //mPartData
         LLPartData& data = llpsysdata.mPartData;

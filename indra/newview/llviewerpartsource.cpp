@@ -220,11 +220,11 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
         // Update the rotation of the particle source by the angular velocity
         // First check to see if there is still an angular velocity.
-        F32 angular_velocity_mag = mPartSysData.mAngularVelocity.length();
+        F32 angular_velocity_mag = glm::length(mPartSysData.mAngularVelocity);
         if (angular_velocity_mag != 0.0f)
         {
             F32 av_angle = dt * angular_velocity_mag;
-            LLQuaternion dquat(av_angle, mPartSysData.mAngularVelocity);
+            LLQuaternion dquat(av_angle, LLVector3(mPartSysData.mAngularVelocity));
             // Preserve LL compose semantics (glm::quat::operator*= would apply
             // glm's reversed compose order).
             mRotation = LLQuaternion(mRotation) * dquat;

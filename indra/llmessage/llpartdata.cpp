@@ -252,13 +252,13 @@ bool LLPartSysData::unpackSystem(LLDataPacker &dp)
     dp.unpackFixed(mBurstSpeedMax, "psburstspeedmax", false, 8, 8);
     dp.unpackU8(mBurstPartCount, "psburstpartcount");
 
-    dp.unpackFixed(mAngularVelocity.mV[0], "psangvelx", true, 8, 7);
-    dp.unpackFixed(mAngularVelocity.mV[1], "psangvely", true, 8, 7);
-    dp.unpackFixed(mAngularVelocity.mV[2], "psangvelz", true, 8, 7);
+    dp.unpackFixed(mAngularVelocity.x, "psangvelx", true, 8, 7);
+    dp.unpackFixed(mAngularVelocity.y, "psangvely", true, 8, 7);
+    dp.unpackFixed(mAngularVelocity.z, "psangvelz", true, 8, 7);
 
-    dp.unpackFixed(mPartAccel.mV[0], "psaccelx", true, 8, 7);
-    dp.unpackFixed(mPartAccel.mV[1], "psaccely", true, 8, 7);
-    dp.unpackFixed(mPartAccel.mV[2], "psaccelz", true, 8, 7);
+    dp.unpackFixed(mPartAccel.x, "psaccelx", true, 8, 7);
+    dp.unpackFixed(mPartAccel.y, "psaccely", true, 8, 7);
+    dp.unpackFixed(mPartAccel.z, "psaccelz", true, 8, 7);
 
     dp.unpackUUID(mPartImageID, "psuuid");
     dp.unpackUUID(mTargetUUID, "pstargetuuid");
@@ -315,8 +315,8 @@ std::ostream& operator<<(std::ostream& s, const LLPartSysData &data)
     s << "Burst Radius: " << data.mBurstRadius << "\n";
     s << "Burst Speed: [" << data.mBurstSpeedMin << ", " << data.mBurstSpeedMax << "]\n";
     s << "Burst Part Count: " << std::hex << static_cast<U32>(data.mBurstPartCount) << "\n";
-    s << "Angular Velocity: " << data.mAngularVelocity << "\n";
-    s << "Accel: " << data.mPartAccel;
+    s << "Angular Velocity: " << LLVector3(data.mAngularVelocity) << "\n";
+    s << "Accel: " << LLVector3(data.mPartAccel);
     return s;
 }
 
@@ -405,7 +405,7 @@ void LLPartSysData::clampSourceParticleRate()
 
 void LLPartSysData::setPartAccel(const LLVector3 &accel)
 {
-    mPartAccel.mV[VX] = llclamp(accel.mV[VX], -100.f, 100.f);
-    mPartAccel.mV[VY] = llclamp(accel.mV[VY], -100.f, 100.f);
-    mPartAccel.mV[VZ] = llclamp(accel.mV[VZ], -100.f, 100.f);
+    mPartAccel.x = llclamp(accel.mV[VX], -100.f, 100.f);
+    mPartAccel.y = llclamp(accel.mV[VY], -100.f, 100.f);
+    mPartAccel.z = llclamp(accel.mV[VZ], -100.f, 100.f);
 }
