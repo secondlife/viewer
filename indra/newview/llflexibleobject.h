@@ -104,7 +104,6 @@ private:
         void preRebuild();
 
         //void              setAttributes( LLFlexibleObjectData );
-        void                setParentPositionAndRotationDirectly( LLVector3 p, LLQuaternion r );
         void                setUsingCollisionSphere( bool u );
         void                setCollisionSphere( LLVector3 position, F32 radius );
         void                setRenderingCollisionSphere( bool r);
@@ -122,8 +121,6 @@ private:
         LLViewerObject*             mVO;
         LLTimer                     mTimer;
         LLVector3                   mAnchorPosition;
-        LLVector3                   mParentPosition;
-        LLQuaternion                mParentRotation;
         LLQuaternion                mLastFrameRotation;
         LLQuaternion                mLastSegmentRotation;
         bool                        mInitialized;

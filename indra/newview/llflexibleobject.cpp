@@ -138,14 +138,6 @@ void LLVolumeImplFlexible::onShift(const LLVector4a &shift_vector)
     }
 }
 
-//-----------------------------------------------------------------------------------------------
-void LLVolumeImplFlexible::setParentPositionAndRotationDirectly( LLVector3 p, LLQuaternion r )
-{
-    mParentPosition = p;
-    mParentRotation = r;
-
-}//-----------------------------------------------------------------------------------------------------
-
 void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 source_sections,
                                          LLFlexibleObjectSection *dest, S32 dest_sections)
 {
