@@ -418,8 +418,8 @@ protected:
                   mIsHUDAttachment(false), mHasPosition(false), mHasRotation(false) {}
             std::string mName;
             std::string mJointName;
-            LLVector3 mPosition;
-            LLVector3 mRotationEuler;
+            glm::vec3 mPosition{0.f};
+            glm::vec3 mRotationEuler{0.f};
             S32 mGroup;
             S32 mAttachmentID;
             S32 mPieMenuSlice;

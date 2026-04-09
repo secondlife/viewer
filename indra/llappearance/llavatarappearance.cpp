@@ -1845,15 +1845,23 @@ bool LLAvatarAppearance::LLAvatarXmlInfo::parseXmlSkeletonNode(LLXmlTreeNode* ro
         }
 
         static LLStdStringHandle position_string = LLXmlTree::addAttributeString("position");
-        if (child->getFastAttributeVector3(position_string, info->mPosition))
         {
-            info->mHasPosition = true;
+            LLVector3 tmp;
+            if (child->getFastAttributeVector3(position_string, tmp))
+            {
+                info->mPosition = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
+                info->mHasPosition = true;
+            }
         }
 
         static LLStdStringHandle rotation_string = LLXmlTree::addAttributeString("rotation");
-        if (child->getFastAttributeVector3(rotation_string, info->mRotationEuler))
         {
-            info->mHasRotation = true;
+            LLVector3 tmp;
+            if (child->getFastAttributeVector3(rotation_string, tmp))
+            {
+                info->mRotationEuler = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
+                info->mHasRotation = true;
+            }
         }
          static LLStdStringHandle group_string = LLXmlTree::addAttributeString("group");
         if (child->getFastAttributeS32(group_string, info->mGroup))

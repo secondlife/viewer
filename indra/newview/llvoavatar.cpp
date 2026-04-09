@@ -7162,9 +7162,9 @@ void LLVOAvatar::initAttachmentPoints(bool ignore_hud_joints)
         if (info->mHasRotation)
         {
             LLQuaternion rotation;
-            rotation.setEulerAngles(info->mRotationEuler.mV[VX] * DEG_TO_RAD,
-                             info->mRotationEuler.mV[VY] * DEG_TO_RAD,
-                             info->mRotationEuler.mV[VZ] * DEG_TO_RAD);
+            rotation.setEulerAngles(info->mRotationEuler.x * DEG_TO_RAD,
+                             info->mRotationEuler.y * DEG_TO_RAD,
+                             info->mRotationEuler.z * DEG_TO_RAD);
             attachment->setRotation(rotation);
         }
 
