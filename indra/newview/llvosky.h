@@ -142,7 +142,6 @@ protected:
     bool            mVisible;
     static F32      sInterpVal;
     LLVector3       mQuadCorner[4];
-    LLVector3       mO;
 
 public:
     explicit LLHeavenBody(const F32 rad);
