@@ -740,7 +740,7 @@ public:
 
     void decomposeMeshMatrix(LLMatrix4& transformation,
                              LLVector3& result_pos,
-                             LLQuaternion& result_rot,
+                             glm::quat& result_rot,
                              LLVector3& result_scale);
 
     void setFeeObserverHandle(LLHandle<LLWholeModelFeeObserver> observer_handle) { mFeeObserverHandle = observer_handle; }

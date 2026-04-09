@@ -2783,11 +2783,11 @@ void LLMeshUploadThread::packModelIntance(
         }
 
         LLVector3 pos, scale;
-        LLQuaternion rot;
+        glm::quat rot(1.f, 0.f, 0.f, 0.f);
         LLMatrix4 transformation = instance.mTransform;
         decomposeMeshMatrix(transformation, pos, rot, scale);
         instance_entry["position"] = ll_sd_from_vector3(pos);
-        instance_entry["rotation"] = ll_sd_from_quaternion(rot);
+        instance_entry["rotation"] = ll_sd_from_quaternion(LLQuaternion(rot));
         instance_entry["scale"] = ll_sd_from_vector3(scale);
 
         instance_entry["material"] = LL_MCODE_WOOD;
@@ -5075,7 +5075,7 @@ S32 LLMeshRepository::getMeshSize(const LLUUID& mesh_id, S32 lod) const
 
 void LLMeshUploadThread::decomposeMeshMatrix(LLMatrix4& transformation,
                                              LLVector3& result_pos,
-                                             LLQuaternion& result_rot,
+                                             glm::quat& result_rot,
                                              LLVector3& result_scale)
 {
     // check for reflection
