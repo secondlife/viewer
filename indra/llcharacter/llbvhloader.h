@@ -132,9 +132,9 @@ struct Constraint
     char            mSourceJointName[16];       /* Flawfinder: ignore */
     char            mTargetJointName[16];       /* Flawfinder: ignore */
     S32             mChainLength;
-    LLVector3       mSourceOffset;
-    LLVector3       mTargetOffset;
-    LLVector3       mTargetDir;
+    glm::vec3       mSourceOffset{0.f};
+    glm::vec3       mTargetOffset{0.f};
+    glm::vec3       mTargetDir{0.f};
     F32             mEaseInStart;
     F32             mEaseInStop;
     F32             mEaseOutStart;
