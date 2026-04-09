@@ -5910,8 +5910,8 @@ void LLPhysicsDecomp::Request::assignData(LLModel* mdl)
 
     mPositions.clear();
     mIndices.clear();
-    mBBox[1] = LLVector3(F32_MIN, F32_MIN, F32_MIN);
-    mBBox[0] = LLVector3(F32_MAX, F32_MAX, F32_MAX);
+    mBBox[1] = glm::vec3(F32_MIN, F32_MIN, F32_MIN);
+    mBBox[0] = glm::vec3(F32_MAX, F32_MAX, F32_MAX);
 
     //queue up vertex positions and indices
     for (S32 i = 0; i < mdl->getNumVolumeFaces(); ++i)
@@ -5927,8 +5927,8 @@ void LLPhysicsDecomp::Request::assignData(LLModel* mdl)
             mPositions.push_back(LLVector3(face.mPositions[j].getF32ptr()));
             for (U32 k = 0 ; k < 3 ; k++)
             {
-                mBBox[0].mV[k] = llmin(mBBox[0].mV[k], mPositions[j].mV[k]);
-                mBBox[1].mV[k] = llmax(mBBox[1].mV[k], mPositions[j].mV[k]);
+                mBBox[0][k] = llmin(mBBox[0][k], mPositions[j].mV[k]);
+                mBBox[1][k] = llmax(mBBox[1][k], mPositions[j].mV[k]);
             }
         }
 
@@ -5954,9 +5954,9 @@ void LLPhysicsDecomp::Request::assignData(LLModel* mdl)
 
 void LLPhysicsDecomp::Request::updateTriangleAreaThreshold()
 {
-    F32 range = mBBox[1].mV[0] - mBBox[0].mV[0] ;
-    range = llmin(range, mBBox[1].mV[1] - mBBox[0].mV[1]) ;
-    range = llmin(range, mBBox[1].mV[2] - mBBox[0].mV[2]) ;
+    F32 range = mBBox[1].x - mBBox[0].x ;
+    range = llmin(range, mBBox[1].y - mBBox[0].y) ;
+    range = llmin(range, mBBox[1].z - mBBox[0].z) ;
 
     mTriangleAreaThreshold = llmin(0.0002f, range * 0.000002f) ;
 }
