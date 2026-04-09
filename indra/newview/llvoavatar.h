@@ -719,7 +719,7 @@ public:
     virtual bool isImpostor();
     bool        shouldImpostor(const F32 rank_factor = 1.0);
     bool        needsImpostorUpdate() const;
-    const LLVector3& getImpostorOffset() const;
+    LLVector3 getImpostorOffset() const;
     const glm::vec2& getImpostorDim() const;
     void        getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& distance) const;
     void        cacheImpostorValues();
@@ -734,13 +734,13 @@ public:
     void        setNeedsExtentUpdate(bool val) { mNeedsExtentUpdate = val; }
 
 private:
-    LLVector3   mImpostorOffset;
+    glm::vec3   mImpostorOffset{0.f};
     glm::vec2   mImpostorDim;
     // This becomes true in the constructor and false after the first
     // idleUpdateMisc(). Not clear it serves any purpose.
     bool        mNeedsAnimUpdate;
     bool        mNeedsExtentUpdate;
-    LLVector3   mImpostorAngle;
+    glm::vec3   mImpostorAngle{0.f};
     F32         mImpostorDistance;
     F32         mImpostorPixelArea;
     LLVector3   mLastAnimExtents[2];

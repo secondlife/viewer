@@ -3092,7 +3092,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
         for (U32 i = 0; i < 3 && !mNeedsImpostorUpdate; i++)
         {
             F32 cur_angle = angle.mV[i];
-            F32 old_angle = mImpostorAngle.mV[i];
+            F32 old_angle = mImpostorAngle[i];
             F32 angle_diff = fabsf(cur_angle-old_angle);
 
             if (angle_diff > F_PI/512.f*distance*mUpdatePeriod)
@@ -10943,9 +10943,9 @@ bool LLVOAvatar::needsImpostorUpdate() const
     return mNeedsImpostorUpdate;
 }
 
-const LLVector3& LLVOAvatar::getImpostorOffset() const
+LLVector3 LLVOAvatar::getImpostorOffset() const
 {
-    return mImpostorOffset;
+    return LLVector3(mImpostorOffset);
 }
 
 const glm::vec2& LLVOAvatar::getImpostorDim() const
@@ -10960,7 +10960,9 @@ void LLVOAvatar::setImpostorDim(const glm::vec2& dim)
 
 void LLVOAvatar::cacheImpostorValues()
 {
-    getImpostorValues(mImpostorExtents, mImpostorAngle, mImpostorDistance);
+    LLVector3 angle_tmp;
+    getImpostorValues(mImpostorExtents, angle_tmp, mImpostorDistance);
+    mImpostorAngle = angle_tmp;
 }
 
 void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& distance) const
