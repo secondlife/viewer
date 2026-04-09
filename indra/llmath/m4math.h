@@ -153,7 +153,7 @@ public:
     const LLMatrix4& initScale(const LLVector3 &scale);
 
     // Set all
-    const LLMatrix4& initAll(const LLVector3 &scale, const LLQuaternion &q, const LLVector3 &pos);
+    const LLMatrix4& initAll(const LLVector3 &scale, const glm::quat &q, const LLVector3 &pos);
 
 
     ///////////////////////////
