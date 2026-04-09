@@ -3241,17 +3241,17 @@ void LLSelectMgr::adjustTexturesByScale(bool send_to_sim, bool stretch)
                     {
                         for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
                         {
-                            LLVector3 scale_ratio = selectNode->mGLTFScaleRatios[te_num][i];
+                            const glm::vec3& scale_ratio = selectNode->mGLTFScaleRatios[te_num][i];
 
                             if (planar)
                             {
-                                scale_x = scale_ratio.mV[s_axis] / object_scale.mV[s_axis];
-                                scale_y = scale_ratio.mV[t_axis] / object_scale.mV[t_axis];
+                                scale_x = scale_ratio[s_axis] / object_scale.mV[s_axis];
+                                scale_y = scale_ratio[t_axis] / object_scale.mV[t_axis];
                             }
                             else
                             {
-                                scale_x = scale_ratio.mV[s_axis] * object_scale.mV[s_axis];
-                                scale_y = scale_ratio.mV[t_axis] * object_scale.mV[t_axis];
+                                scale_x = scale_ratio[s_axis] * object_scale.mV[s_axis];
+                                scale_y = scale_ratio[t_axis] * object_scale.mV[t_axis];
                             }
                             material->mTextureTransform[i].mScale = glm::vec2(scale_x, scale_y);
 
@@ -7067,10 +7067,10 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
             }
 
             LLGLTFMaterial* material = tep->getGLTFMaterialOverride();
-            LLVector3 material_v;
+            glm::vec3 material_v(0.f);
             F32 scale_x = 1;
             F32 scale_y = 1;
-            std::vector<LLVector3> material_v_vec;
+            std::vector<glm::vec3> material_v_vec;
             std::vector<glm::vec2> material_scales_vec;
             std::vector<glm::vec2> material_offset_vec;
             for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
@@ -7094,13 +7094,13 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 
                 if (tep->getTexGen() == LLTextureEntry::TEX_GEN_PLANAR)
                 {
-                    material_v.mV[s_axis] = scale_x * scale.mV[s_axis];
-                    material_v.mV[t_axis] = scale_y * scale.mV[t_axis];
+                    material_v[s_axis] = scale_x * scale.mV[s_axis];
+                    material_v[t_axis] = scale_y * scale.mV[t_axis];
                 }
                 else
                 {
-                    material_v.mV[s_axis] = scale_x / scale.mV[s_axis];
-                    material_v.mV[t_axis] = scale_y / scale.mV[t_axis];
+                    material_v[s_axis] = scale_x / scale.mV[s_axis];
+                    material_v[t_axis] = scale_y / scale.mV[t_axis];
                 }
                 material_v_vec.push_back(material_v);
             }
