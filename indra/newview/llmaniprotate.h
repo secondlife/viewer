@@ -95,8 +95,8 @@ private:
 //  S32                 mLastHoverMouseY;
     glm::quat           mRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
 
-    LLVector3           mMouseDown;
-    LLVector3           mMouseCur;
+    glm::vec3           mMouseDown{0.f};
+    glm::vec3           mMouseCur{0.f};
     glm::vec3           mAgentSelfAtAxis{0.f}; // Own agent uses separate rotation method
     F32                 mRadiusMeters;
 
