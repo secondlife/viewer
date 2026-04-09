@@ -1140,7 +1140,7 @@ protected:
 private:
     bool        mStepOnLand;
     U8          mStepMaterial;
-    LLVector3   mStepObjectVelocity;
+    glm::vec3   mStepObjectVelocity{0.f};
 
 /**                    Physics
  **                                                                            **

@@ -5954,7 +5954,7 @@ void LLVOAvatar::resolveHeightGlobal(const LLVector3d &inPos, LLVector3d &outPos
     {
         mStepOnLand = true;
         mStepMaterial = 0;
-        mStepObjectVelocity.set(0.0f, 0.0f, 0.0f);
+        mStepObjectVelocity = glm::vec3(0.0f);
     }
     else
     {
