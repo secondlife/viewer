@@ -125,8 +125,6 @@ LLManipTranslate::LLManipTranslate( LLToolComposite* composite )
     mSnapOffsetMeters(0.f),
     mSubdivisions(10.f),
     mInSnapRegime(false),
-    mArrowScales(1.f, 1.f, 1.f),
-    mPlaneScales(1.f, 1.f, 1.f),
     mPlaneManipPositions(1.f, 1.f, 1.f, 1.f)
 {
     if (sGridTex.isNull())
@@ -1787,18 +1785,18 @@ void LLManipTranslate::renderTranslationHandles()
             {
                 if (index == mManipPart - LL_X_ARROW || index == mHighlightedPart - LL_X_ARROW)
                 {
-                    mArrowScales.mV[index] = lerp(mArrowScales.mV[index], SELECTED_ARROW_SCALE, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
-                    mPlaneScales.mV[index] = lerp(mPlaneScales.mV[index], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
+                    mArrowScales[index] = lerp(mArrowScales[index], SELECTED_ARROW_SCALE, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
+                    mPlaneScales[index] = lerp(mPlaneScales[index], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
                 }
                 else if (index == mManipPart - LL_YZ_PLANE || index == mHighlightedPart - LL_YZ_PLANE)
                 {
-                    mArrowScales.mV[index] = lerp(mArrowScales.mV[index], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
-                    mPlaneScales.mV[index] = lerp(mPlaneScales.mV[index], SELECTED_ARROW_SCALE, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
+                    mArrowScales[index] = lerp(mArrowScales[index], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
+                    mPlaneScales[index] = lerp(mPlaneScales[index], SELECTED_ARROW_SCALE, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
                 }
                 else
                 {
-                    mArrowScales.mV[index] = lerp(mArrowScales.mV[index], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
-                    mPlaneScales.mV[index] = lerp(mPlaneScales.mV[index], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
+                    mArrowScales[index] = lerp(mArrowScales[index], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
+                    mPlaneScales[index] = lerp(mPlaneScales[index], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE ));
                 }
             }
 
@@ -1808,7 +1806,7 @@ void LLManipTranslate::renderTranslationHandles()
                 gGL.pushMatrix();
                 gGL.scalef(mPlaneManipPositions.mV[VX], mPlaneManipPositions.mV[VY], mPlaneManipPositions.mV[VZ]);
                 gGL.translatef(0.f, mPlaneManipOffsetMeters, mPlaneManipOffsetMeters);
-                gGL.scalef(mPlaneScales.mV[VX], mPlaneScales.mV[VX], mPlaneScales.mV[VX]);
+                gGL.scalef(mPlaneScales.x, mPlaneScales.x, mPlaneScales.x);
                 if (mHighlightedPart == LL_YZ_PLANE)
                 {
                     color1.set(0.f, 1.f, 0.f, 1.f);
@@ -1862,7 +1860,7 @@ void LLManipTranslate::renderTranslationHandles()
                 gGL.pushMatrix();
                 gGL.scalef(mPlaneManipPositions.mV[VX], mPlaneManipPositions.mV[VY], mPlaneManipPositions.mV[VZ]);
                 gGL.translatef(mPlaneManipOffsetMeters, 0.f, mPlaneManipOffsetMeters);
-                gGL.scalef(mPlaneScales.mV[VY], mPlaneScales.mV[VY], mPlaneScales.mV[VY]);
+                gGL.scalef(mPlaneScales.y, mPlaneScales.y, mPlaneScales.y);
                 if (mHighlightedPart == LL_XZ_PLANE)
                 {
                     color1.set(0.f, 0.f, 1.f, 1.f);
@@ -1932,7 +1930,7 @@ void LLManipTranslate::renderTranslationHandles()
                     v1 = LLVector3(mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.25f), mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.75f), 0.f);
                     v2 = LLVector3(mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.25f), mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.25f), 0.f);
                     v3 = LLVector3(mPlaneManipOffsetMeters * (-PLANE_TICK_SIZE * 0.75f), mPlaneManipOffsetMeters * ( PLANE_TICK_SIZE * 0.25f), 0.f);
-                    gGL.scalef(mPlaneScales.mV[VZ], mPlaneScales.mV[VZ], mPlaneScales.mV[VZ]);
+                    gGL.scalef(mPlaneScales.z, mPlaneScales.z, mPlaneScales.z);
                     if (mHighlightedPart == LL_XY_PLANE)
                     {
                         color1.set(1.f, 0.f, 0.f, 1.f);
@@ -2128,7 +2126,7 @@ void LLManipTranslate::renderArrow(S32 which_arrow, S32 selected_arrow, F32 box_
 
         gGL.diffuseColor4fv(color.mV);
         gGL.rotatef(rot, axis.mV[0], axis.mV[1], axis.mV[2]);
-        gGL.scalef(mArrowScales.mV[index], mArrowScales.mV[index], mArrowScales.mV[index] * 1.5f);
+        gGL.scalef(mArrowScales[index], mArrowScales[index], mArrowScales[index] * 1.5f);
 
         gCone.render();
 
