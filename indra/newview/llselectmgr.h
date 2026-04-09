@@ -36,6 +36,7 @@
 #include "llcategory.h"
 #include "v3dmath.h"
 #include "llquaternion.h"
+#include <glm/vec3.hpp>
 #include "llcoord.h"
 #include "llframetimer.h"
 #include "llbbox.h"
@@ -226,7 +227,7 @@ public:
     S16             mInventorySerial;
     LLVector3       mSavedPositionLocal;    // for interactively modifying object position
     LLVector3       mLastPositionLocal;
-    LLVector3       mLastMoveLocal;
+    glm::vec3       mLastMoveLocal{0.f};
     LLVector3d      mSavedPositionGlobal;   // for interactively modifying object position
     LLVector3       mSavedScale;            // for interactively modifying object scale
     LLVector3       mLastScale;

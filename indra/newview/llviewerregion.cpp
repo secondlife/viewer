@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llviewerregion.h"
+#include <glm/vec3.hpp>
 
 // linden libraries
 #include "indra_constants.h"
@@ -181,7 +182,6 @@ public:
         mSeedCapAttempts(0),
         mHttpResponderID(0),
         mLastCameraUpdate(0),
-        mLastCameraOrigin(),
         mVOCachePartition(NULL),
         mLandp(NULL)
     {}
@@ -238,7 +238,7 @@ public:
     //spatial partitions for objects in this region
     std::vector<LLViewerOctreePartition*> mObjectPartition;
 
-    LLVector3   mLastCameraOrigin;
+    glm::vec3   mLastCameraOrigin{0.f};
     U32         mLastCameraUpdate;
 
     static void        requestBaseCapabilitiesCoro(U64 regionHandle);
@@ -1397,7 +1397,7 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
     const F32 LARGE_SCENE_CONTRIBUTION = 1000.f; //a large number to force to load the object.
     const LLVector3 camera_origin(LLViewerCamera::getInstance()->getOrigin());
     const U32 cur_frame = LLViewerOctreeEntryData::getCurrentFrame();
-    bool needs_update = ((cur_frame - mImpl->mLastCameraUpdate) > 5) && ((camera_origin - mImpl->mLastCameraOrigin).lengthSquared() > 10.f);
+    bool needs_update = ((cur_frame - mImpl->mLastCameraUpdate) > 5) && ((camera_origin - LLVector3(mImpl->mLastCameraOrigin)).lengthSquared() > 10.f);
     U32 last_update = mImpl->mLastCameraUpdate;
     LLVector4a local_origin;
     local_origin.load3((camera_origin - getOriginAgent()).mV);

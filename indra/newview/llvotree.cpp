@@ -388,7 +388,7 @@ void LLVOTree::idleUpdate(LLAgent &agent, const F64 &time)
         // that they don't get REBUILD_POSITION automatically
         // at a higher level.
         const LLVector3 &this_position = getPositionRegion();
-        if (this_position != mLastPosition)
+        if (this_position != LLVector3(mLastPosition))
         {
             gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_POSITION);
             mLastPosition = this_position;
@@ -875,7 +875,7 @@ void LLVOTree::updateMesh()
     const F32 TRUNK_STIFF = 22.f;
 
     LLQuaternion rot =
-        LLQuaternion(mTrunkBend.length()*TRUNK_STIFF*DEG_TO_RAD, LLVector4(mTrunkBend.mV[VX], mTrunkBend.mV[VY], 0)) *
+        LLQuaternion(glm::length(mTrunkBend)*TRUNK_STIFF*DEG_TO_RAD, LLVector4(mTrunkBend.x, mTrunkBend.y, 0)) *
         LLQuaternion(90.f*DEG_TO_RAD, LLVector4(0,0,1)) *
         getRotation();
 
@@ -891,7 +891,7 @@ void LLVOTree::updateMesh()
 //  const F32 THRESH_ANGLE_FOR_BILLBOARD = 15.f;
 //  const F32 BLEND_RANGE_FOR_BILLBOARD = 3.f;
 
-    F32 droop = mDroop + 25.f*(1.f - mTrunkBend.length());
+    F32 droop = mDroop + 25.f*(1.f - glm::length(mTrunkBend));
 
     S32 stop_depth = 0;
     F32 alpha = 1.0;

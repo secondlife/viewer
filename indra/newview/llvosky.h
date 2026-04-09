@@ -38,6 +38,7 @@
 #include "v3colorutil.h"
 #include "llsettingssky.h"
 #include "lllegacyatmospherics.h"
+#include <glm/vec3.hpp>
 
 const F32 SKY_BOX_MULT          = 16.0f;
 const F32 HEAVENLY_BODY_DIST    = HORIZON_DIST - 20.f;
@@ -261,7 +262,6 @@ public:
     void setWind ( const LLVector3& wind )              { mWind = wind.length(); }
 
     const LLVector3 &getCameraPosAgent() const          { return mCameraPosAgent; }
-    LLVector3 getEarthCenter() const                    { return mEarthCenter; }
 
     LLCubeMap *getCubeMap() const                       { return mCubeMap; }
     S32 getDrawRefl() const                             { return mDrawRefl; }
@@ -294,7 +294,7 @@ public:
 
 public:
     std::array<LLFace*, FACE_COUNT> mFace;
-    LLVector3   mBumpSunDir;
+    glm::vec3   mBumpSunDir{0.f, 0.f, 1.f};
 
     F32 getInterpVal() const { return mInterpVal; }
 
@@ -323,10 +323,7 @@ protected:
     LLSkyTex            mShinyTex[6];
     LLHeavenBody        mSun;
     LLHeavenBody        mMoon;
-    LLVector3           mSunDefaultPosition;
-    LLVector3           mSunAngVel;
     F32                 mAtmHeight;
-    LLVector3           mEarthCenter;
     LLVector3           mCameraPosAgent;
     F32                 mBrightnessScale;
     LLColor3            mBrightestPoint;

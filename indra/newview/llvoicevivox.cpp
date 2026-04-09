@@ -5406,7 +5406,7 @@ void LLVivoxVoiceClient::setCameraPosition(const LLVector3d &position, const LLV
 {
     mCameraRequestedPosition = position;
 
-    if(mCameraVelocity != velocity)
+    if(LLVector3(mCameraVelocity) != velocity)
     {
         mCameraVelocity = velocity;
         mSpatialCoordsDirty = true;
@@ -5427,7 +5427,7 @@ void LLVivoxVoiceClient::setAvatarPosition(const LLVector3d &position, const LLV
         mSpatialCoordsDirty = true;
     }
 
-    if(mAvatarVelocity != velocity)
+    if(LLVector3(mAvatarVelocity) != velocity)
     {
         mAvatarVelocity = velocity;
         mSpatialCoordsDirty = true;

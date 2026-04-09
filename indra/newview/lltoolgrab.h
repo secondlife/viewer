@@ -31,6 +31,7 @@
 #include "llquaternion.h"
 
 #include "glm/gtc/quaternion.hpp"
+#include <glm/vec3.hpp>
 #include "llsingleton.h"
 #include "lluuid.h"
 #include "llviewerwindow.h" // for LLPickInfo
@@ -113,7 +114,7 @@ private:
 
     LLTimer         mGrabTimer;                     // send simulator time between hover movements
 
-    LLVector3       mGrabOffsetFromCenterInitial;   // meters from CG of object
+    glm::vec3       mGrabOffsetFromCenterInitial{0.f}; // meters from CG of object
     LLVector3d      mGrabHiddenOffsetFromCamera;    // in cursor hidden drag, how far is grab offset from camera
 
     LLVector3d      mDragStartPointGlobal;              // projected into world
@@ -136,7 +137,7 @@ private:
     glm::vec3       mLastIntersection;
     glm::vec3       mLastNormal;
     glm::vec3       mLastBinormal;
-    LLVector3       mLastGrabPos;
+    glm::vec3       mLastGrabPos{-1.f};
 
 
     bool            mSpinGrabbing;

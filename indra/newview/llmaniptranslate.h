@@ -32,6 +32,7 @@
 #include "llquaternion.h"
 
 #include "glm/gtc/quaternion.hpp"
+#include <glm/vec3.hpp>
 
 class LLManipTranslate : public LLManip
 {
@@ -107,8 +108,8 @@ private:
     LLVector3   mGridScale;
     F32         mSubdivisions;
     bool        mInSnapRegime;
-    LLVector3   mArrowScales;
-    LLVector3   mPlaneScales;
+    glm::vec3   mArrowScales{1.f};
+    glm::vec3   mPlaneScales{1.f};
     LLVector4   mPlaneManipPositions;
 };
 

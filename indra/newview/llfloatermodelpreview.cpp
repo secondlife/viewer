@@ -414,7 +414,7 @@ void LLFloaterModelPreview::onShowSkinWeightChecked(LLUICtrl* ctrl)
 {
     if (mModelPreview)
     {
-        mModelPreview->mCameraOffset.clear();
+        mModelPreview->mCameraOffset = glm::vec3(0.f);
         onViewOptionChecked(ctrl);
     }
 }
@@ -509,7 +509,8 @@ void LLFloaterModelPreview::onClickCalculateBtn()
     lod_sources_map_t lod_sources;
     fillLODSourceStatistics(lod_sources);
 
-    gMeshRepo.uploadModel(mModelPreview->mUploadData, lod_sources, mModelPreview->mPreviewScale,
+    LLVector3 scale_tmp(mModelPreview->mPreviewScale);
+    gMeshRepo.uploadModel(mModelPreview->mUploadData, lod_sources, scale_tmp,
                           childGetValue("upload_textures").asBoolean(),
                           upload_skinweights, upload_joint_positions, lock_scale_if_joint_position,
                           mUploadModelUrl, mDestinationFolderId, false,
@@ -1752,7 +1753,8 @@ void LLFloaterModelPreview::onUpload(void* user_data)
     lod_sources_map_t lod_sources;
     mp->fillLODSourceStatistics(lod_sources);
 
-    gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, lod_sources, mp->mModelPreview->mPreviewScale,
+    LLVector3 scale_tmp(mp->mModelPreview->mPreviewScale);
+    gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, lod_sources, scale_tmp,
                           mp->childGetValue("upload_textures").asBoolean(),
                           upload_skinweights, upload_joint_positions, lock_scale_if_joint_position,
                           mp->mUploadModelUrl, mp->mDestinationFolderId,

@@ -29,6 +29,7 @@
 #include "llfollowcam.h"            // Ventrella
 #include "llhudeffectlookat.h"      // EPointAtType
 #include "llhudeffectpointat.h"     // ELookAtType
+#include <glm/vec3.hpp>
 
 class LLPickInfo;
 class LLVOAvatarSelf;
@@ -185,8 +186,8 @@ public:
 private:
     LLPointer<LLViewerObject> mSitCameraReferenceObject; // Object to which camera is related when sitting
     bool            mSitCameraEnabled;      // Use provided camera information when sitting?
-    LLVector3       mSitCameraPos;          // Root relative camera pos when sitting
-    LLVector3       mSitCameraFocus;        // Root relative camera target when sitting
+    glm::vec3       mSitCameraPos{0.f};     // Root relative camera pos when sitting
+    glm::vec3       mSitCameraFocus{0.f};   // Root relative camera target when sitting
 
     //--------------------------------------------------------------------
     // Animation
@@ -234,7 +235,7 @@ private:
     LLVector3d      mFocusTargetGlobal;
     LLPointer<LLViewerObject> mFocusObject;
     F32             mFocusObjectDist;
-    LLVector3       mFocusObjectOffset;
+    glm::vec3       mFocusObjectOffset{0.f};
     bool            mTrackFocusObject;
 
     //--------------------------------------------------------------------
@@ -259,7 +260,7 @@ public:
     LLVector3d      calcThirdPersonFocusOffset();
     void            setThirdPersonHeadOffset(LLVector3 offset)  { mThirdPersonHeadOffset = offset; }
 private:
-    LLVector3       mThirdPersonHeadOffset;                     // Head offset for third person camera position
+    glm::vec3       mThirdPersonHeadOffset{0.f, 0.f, 1.f};      // Head offset for third person camera position
 
     //--------------------------------------------------------------------
     // Orbit

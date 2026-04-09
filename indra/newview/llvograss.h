@@ -106,9 +106,6 @@ public:
 
     U64 mLastPatchUpdateTime;
 
-    LLVector3                 mGrassBend;       // Accumulated wind (used for blowing trees)
-    LLVector3                 mGrassVel;
-    LLVector3                 mWind;
     F32                       mBladeWindAngle;
     F32                       mBWAOverlap;
 

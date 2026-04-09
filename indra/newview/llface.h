@@ -39,6 +39,7 @@
 #include "llvertexbuffer.h"
 #include "llviewertexture.h"
 #include "lldrawable.h"
+#include <glm/vec3.hpp>
 
 #include "glm/vec2.hpp"
 
@@ -248,8 +249,8 @@ public:
 
 public:
 
-    LLVector3       mCenterLocal;
-    LLVector3       mCenterAgent;
+    glm::vec3       mCenterLocal{0.f};
+    glm::vec3       mCenterAgent{0.f};
 
     glm::vec2       mTexExtents[2];
     F32             mDistance;

@@ -73,7 +73,6 @@ class LLVoiceVisualizer : public LLHUDEffect
         LLVoiceVisualizer( const U8 type ); //constructor
         ~LLVoiceVisualizer();                   //destructor
 
-        void                    setVoiceSourceWorldPosition( const LLVector3 &p );      // this should be the position of the speaking avatar's head
         void                    setMinGesticulationAmplitude( F32 );                    // the lower range of meaningful amplitude for setting gesticulation level
         void                    setMaxGesticulationAmplitude( F32 );                    // the upper range of meaningful amplitude for setting gesticulation level
         void                    setStartSpeaking();                                     // tell me when the av starts speaking
@@ -127,7 +126,6 @@ class LLVoiceVisualizer : public LLHUDEffect
         SoundSymbol             mSoundSymbol;                   // the sound symbol that appears over the avatar's head
         bool                    mVoiceEnabled;                  // if off, no rendering should happen
         bool                    mCurrentlySpeaking;             // is the user currently speaking?
-        LLVector3               mVoiceSourceWorldPosition;      // give this to me every step - I need it to update the sound symbol
         F32                     mSpeakingAmplitude;             // this should be set as often as possible when the user is speaking
         F32                     mMaxGesticulationAmplitude;     // this is the upper-limit of the envelope of detectable gesticulation leves
         F32                     mMinGesticulationAmplitude;     // this is the lower-limit of the envelope of detectable gesticulation leves

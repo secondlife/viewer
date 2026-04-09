@@ -145,7 +145,6 @@ LLAgentCamera::LLAgentCamera() :
     mCurrentCameraDistance(2.f),        // meters, set in init()
     mTargetCameraDistance(2.f),
     mCameraZoomFraction(1.f),           // deprecated
-    mThirdPersonHeadOffset(0.f, 0.f, 1.f),
     mSitCameraEnabled(false),
     mCameraSmoothingLastPositionGlobal(),
     mCameraSmoothingLastPositionAgent(),
@@ -159,7 +158,6 @@ LLAgentCamera::LLAgentCamera() :
     mFocusTargetGlobal(),
     mFocusObject(NULL),
     mFocusObjectDist(0.f),
-    mFocusObjectOffset(),
     mTrackFocusObject(true),
 
     mAtKey(0), // Either 1, 0, or -1... indicates that movement-key is pressed
@@ -1593,7 +1591,14 @@ void LLAgentCamera::updateFocusOffset()
     {
         const LLVector3& rp = mFocusObject->getRenderPosition();
         LLVector3d obj_pos = gAgent.getPosGlobalFromAgent(glm::vec3(rp.mV[VX], rp.mV[VY], rp.mV[VZ]));
-        mFocusObjectOffset.set(mFocusTargetGlobal - obj_pos);
+        {
+            // .set(LLVector3d) truncates double-to-float; bridge through
+            // an LLVector3 temp so the migrated glm::vec3 field still
+            // gets the same scalar narrowing.
+            LLVector3 tmp;
+            tmp.set(mFocusTargetGlobal - obj_pos);
+            mFocusObjectOffset = tmp;
+        }
     }
 }
 
@@ -1602,7 +1607,7 @@ void LLAgentCamera::validateFocusObject()
     if (mFocusObject.notNull() &&
         mFocusObject->isDead())
     {
-        mFocusObjectOffset.clear();
+        mFocusObjectOffset = glm::vec3(0.f);
         clearFocusObject();
         mCameraFOVZoomFactor = 0.f;
     }
@@ -1695,7 +1700,7 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
             {
                 updateFocusOffset();
             }
-            LLVector3 focus_agent = mFocusObject->getRenderPosition() + mFocusObjectOffset;
+            LLVector3 focus_agent = mFocusObject->getRenderPosition() + LLVector3(mFocusObjectOffset);
             mFocusTargetGlobal.set(gAgent.getPosGlobalFromAgent(glm::vec3(focus_agent.mV[VX], focus_agent.mV[VY], focus_agent.mV[VZ])));
         }
         return mFocusTargetGlobal;
@@ -1706,7 +1711,7 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
         LLVector3 object_pos = mSitCameraReferenceObject->getRenderPosition();
         LLQuaternion object_rot = mSitCameraReferenceObject->getRenderRotation();
 
-        LLVector3 target_pos = object_pos + (mSitCameraFocus * object_rot);
+        LLVector3 target_pos = object_pos + (LLVector3(mSitCameraFocus) * object_rot);
         return gAgent.getPosGlobalFromAgent(glm::vec3(target_pos.mV[VX], target_pos.mV[VY], target_pos.mV[VZ]));
     }
     else
@@ -1870,7 +1875,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
             LLVector3 object_pos = mSitCameraReferenceObject->getRenderPosition();
             LLQuaternion object_rot = mSitCameraReferenceObject->getRenderRotation();
 
-            LLVector3 target_pos = object_pos + (mSitCameraPos * object_rot);
+            LLVector3 target_pos = object_pos + (LLVector3(mSitCameraPos) * object_rot);
 
             camera_position_global = gAgent.getPosGlobalFromAgent(glm::vec3(target_pos.mV[VX], target_pos.mV[VY], target_pos.mV[VZ]));
         }
@@ -2071,9 +2076,9 @@ glm::vec3 LLAgentCamera::getCurrentCameraOffset()
 {
     const glm::vec3 cam_o = LLViewerCamera::getInstance()->getOrigin();
     const glm::vec3 root = getAvatarRootPosition();
-    LLVector3 diff(cam_o.x - root.x - mThirdPersonHeadOffset.mV[VX],
-                   cam_o.y - root.y - mThirdPersonHeadOffset.mV[VY],
-                   cam_o.z - root.z - mThirdPersonHeadOffset.mV[VZ]);
+    LLVector3 diff(cam_o.x - root.x - mThirdPersonHeadOffset.x,
+                   cam_o.y - root.y - mThirdPersonHeadOffset.y,
+                   cam_o.z - root.z - mThirdPersonHeadOffset.z);
     LLVector3 result = diff * ~getCurrentAvatarRotation();
     return glm::vec3(result.mV[VX], result.mV[VY], result.mV[VZ]);
 }
@@ -2568,7 +2573,7 @@ void LLAgentCamera::clearFocusObject()
         startCameraAnimation();
 
         setFocusObject(NULL);
-        mFocusObjectOffset.clear();
+        mFocusObjectOffset = glm::vec3(0.f);
     }
 }
 
@@ -2770,8 +2775,8 @@ void LLAgentCamera::setSitCamera(const LLUUID &object_id, const LLVector3 &camer
     }
     else
     {
-        mSitCameraPos.clear();
-        mSitCameraFocus.clear();
+        mSitCameraPos = glm::vec3(0.f);
+        mSitCameraFocus = glm::vec3(0.f);
         mSitCameraReferenceObject = NULL;
         mSitCameraEnabled = false;
     }

@@ -401,8 +401,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
     mForceUpdate(false),
     mNeedUpdate(true),
     mCubeMapUpdateStage(-1),
-    mWorldScale(1.f),
-    mBumpSunDir(0.f, 0.f, 1.f)
+    mWorldScale(1.f)
 {
     /// WL PARAMS
 
@@ -425,7 +424,6 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 
     mCameraPosAgent = gAgentCamera.getCameraPositionAgent();
     mAtmHeight = ATM_HEIGHT;
-    mEarthCenter = LLVector3(mCameraPosAgent.mV[0], mCameraPosAgent.mV[1], -EARTH_RADIUS);
 
     mSun.setIntensity(SUN_INTENSITY);
     mMoon.setIntensity(0.1f * SUN_INTENSITY);
@@ -976,9 +974,6 @@ bool LLVOSky::updateGeometry(LLDrawable *drawable)
     }
 
     mCameraPosAgent = drawable->getPositionAgent();
-
-    mEarthCenter.mV[0] = mCameraPosAgent.mV[0];
-    mEarthCenter.mV[1] = mCameraPosAgent.mV[1];
 
     LLVector3 v_agent[8];
     for (S32 i = 0; i < 8; ++i)
@@ -1549,7 +1544,7 @@ void LLVOSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir_cfr, const LLV
     // Blend between normal sun dir and adjusted sun dir based on how close we are
     // to having the sun overhead.
     mBumpSunDir = adjustedDir * sunDot + sun_dir_cfr * (1.0f - sunDot);
-    mBumpSunDir.normalize();
+    mBumpSunDir = glm::normalize(mBumpSunDir);
 
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
     updateDirections(psky);
@@ -1571,7 +1566,7 @@ void LLVOSky::setSunDirectionCFR(const LLVector3 &sun_dir_cfr)
     // Blend between normal sun dir and adjusted sun dir based on how close we are
     // to having the sun overhead.
     mBumpSunDir = adjustedDir * sunDot + sun_dir_cfr * (1.0f - sunDot);
-    mBumpSunDir.normalize();
+    mBumpSunDir = glm::normalize(mBumpSunDir);
 
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
     updateDirections(psky);

@@ -27,6 +27,7 @@
 #pragma once
 
 #include "v3math.h"
+#include <glm/vec3.hpp>
 #include "llpanel.h"
 #include "llpointer.h"
 #include "llvolume.h"
@@ -173,7 +174,7 @@ protected:
     LLCheckBoxCtrl  *mCtrlSculptMirror;
     LLCheckBoxCtrl  *mCtrlSculptInvert;
 
-    LLVector3       mCurEulerDegrees;       // to avoid sending rotation when not changed
+    glm::vec3       mCurEulerDegrees{0.f};  // to avoid sending rotation when not changed
     bool            mIsPhysical;            // to avoid sending "physical" when not changed
     bool            mIsTemporary;           // to avoid sending "temporary" when not changed
     bool            mIsPhantom;             // to avoid sending "phantom" when not changed
@@ -182,9 +183,9 @@ protected:
     LLUUID          mSculptTextureRevert;   // so we can revert the sculpt texture on cancel
     U8              mSculptTypeRevert;      // so we can revert the sculpt type on cancel
 
-    LLVector3       mClipboardPos;
-    LLVector3       mClipboardSize;
-    LLVector3       mClipboardRot;
+    glm::vec3       mClipboardPos{0.f};
+    glm::vec3       mClipboardSize{0.f};
+    glm::vec3       mClipboardRot{0.f};
     LLSD            mClipboardParams;
 
     bool            mHasClipboardPos;

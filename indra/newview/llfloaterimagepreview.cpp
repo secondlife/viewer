@@ -758,7 +758,7 @@ void LLImagePreviewAvatar::setPreviewTarget(const std::string& joint_name, const
     mCameraZoom = 1.f;
     mCameraPitch = 0.f;
     mCameraYaw = 0.f;
-    mCameraOffset.clear();
+    mCameraOffset = glm::vec3(0.f);
 }
 
 //-----------------------------------------------------------------------------
@@ -820,9 +820,9 @@ bool LLImagePreviewAvatar::render()
     // Pre-emptive bridge: glm::quat * LLQuaternion is ambiguous post-migration.
     LLQuaternion av_rot = LLQuaternion(avatarp->mPelvisp->getWorldRotation()) * camera_rot;
     LLViewerCamera::getInstance()->setOriginAndLookAt(
-        static_cast<glm::vec3>(target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot)),  // camera
+        static_cast<glm::vec3>(target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + LLVector3(mCameraOffset)) * av_rot)),  // camera
         static_cast<glm::vec3>(LLVector3::z_axis),                                                               // up
-        static_cast<glm::vec3>(target_pos + (mCameraOffset  * av_rot)) );                                        // point of interest
+        static_cast<glm::vec3>(target_pos + (LLVector3(mCameraOffset)  * av_rot)) );                                        // point of interest
 
     stop_glerror();
 
@@ -881,8 +881,8 @@ void LLImagePreviewAvatar::zoom(F32 zoom_amt)
 
 void LLImagePreviewAvatar::pan(F32 right, F32 up)
 {
-    mCameraOffset.mV[VY] = llclamp(mCameraOffset.mV[VY] + right * mCameraDistance / mCameraZoom, -1.f, 1.f);
-    mCameraOffset.mV[VZ] = llclamp(mCameraOffset.mV[VZ] + up * mCameraDistance / mCameraZoom, -1.f, 1.f);
+    mCameraOffset.y = llclamp(mCameraOffset.y + right * mCameraDistance / mCameraZoom, -1.f, 1.f);
+    mCameraOffset.z = llclamp(mCameraOffset.z + up * mCameraDistance / mCameraZoom, -1.f, 1.f);
 }
 
 
@@ -922,7 +922,7 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
     mCameraZoom = 1.f;
     mCameraPitch = 0.f;
     mCameraYaw = 0.f;
-    mCameraOffset.clear();
+    mCameraOffset = glm::vec3(0.f);
 
     if (imagep)
     {
@@ -1021,9 +1021,9 @@ bool LLImagePreviewSculpted::render()
 
     LLQuaternion av_rot = camera_rot;
     LLViewerCamera::getInstance()->setOriginAndLookAt(
-        static_cast<glm::vec3>(target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot)),  // camera
+        static_cast<glm::vec3>(target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + LLVector3(mCameraOffset)) * av_rot)),  // camera
         static_cast<glm::vec3>(LLVector3::z_axis),                                                               // up
-        static_cast<glm::vec3>(target_pos + (mCameraOffset  * av_rot)) );                                        // point of interest
+        static_cast<glm::vec3>(target_pos + (LLVector3(mCameraOffset)  * av_rot)) );                                        // point of interest
 
     stop_glerror();
 
@@ -1083,6 +1083,6 @@ void LLImagePreviewSculpted::zoom(F32 zoom_amt)
 
 void LLImagePreviewSculpted::pan(F32 right, F32 up)
 {
-    mCameraOffset.mV[VY] = llclamp(mCameraOffset.mV[VY] + right * mCameraDistance / mCameraZoom, -1.f, 1.f);
-    mCameraOffset.mV[VZ] = llclamp(mCameraOffset.mV[VZ] + up * mCameraDistance / mCameraZoom, -1.f, 1.f);
+    mCameraOffset.y = llclamp(mCameraOffset.y + right * mCameraDistance / mCameraZoom, -1.f, 1.f);
+    mCameraOffset.z = llclamp(mCameraOffset.z + up * mCameraDistance / mCameraZoom, -1.f, 1.f);
 }

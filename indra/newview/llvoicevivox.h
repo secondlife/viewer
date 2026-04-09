@@ -752,11 +752,11 @@ private:
 
     LLVector3d  mCameraPosition;
     LLVector3d  mCameraRequestedPosition;
-    LLVector3   mCameraVelocity;
+    glm::vec3   mCameraVelocity{0.f};
     LLMatrix3   mCameraRot;
 
     LLVector3d  mAvatarPosition;
-    LLVector3   mAvatarVelocity;
+    glm::vec3   mAvatarVelocity{0.f};
     glm::quat   mAvatarRot{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
 
     bool        mMuteMic;

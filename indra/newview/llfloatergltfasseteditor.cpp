@@ -473,15 +473,15 @@ void LLFloaterGLTFAssetEditor::loadNodeTransforms(S32 node_id)
     mCtrlScaleZ->set(node.mScale[2]);
 
     LLQuaternion object_rot = LLQuaternion(node.mRotation[0], node.mRotation[1], node.mRotation[2], node.mRotation[3]);
-    object_rot.getEulerAngles(&(mLastEulerDegrees.mV[VX]), &(mLastEulerDegrees.mV[VY]), &(mLastEulerDegrees.mV[VZ]));
+    object_rot.getEulerAngles(&mLastEulerDegrees.x, &mLastEulerDegrees.y, &mLastEulerDegrees.z);
     mLastEulerDegrees *= RAD_TO_DEG;
-    mLastEulerDegrees.mV[VX] = fmod(ll_round(mLastEulerDegrees.mV[VX], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
-    mLastEulerDegrees.mV[VY] = fmod(ll_round(mLastEulerDegrees.mV[VY], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
-    mLastEulerDegrees.mV[VZ] = fmod(ll_round(mLastEulerDegrees.mV[VZ], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+    mLastEulerDegrees.x = fmod(ll_round(mLastEulerDegrees.x, OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+    mLastEulerDegrees.y = fmod(ll_round(mLastEulerDegrees.y, OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+    mLastEulerDegrees.z = fmod(ll_round(mLastEulerDegrees.z, OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
 
-    mCtrlRotX->set(mLastEulerDegrees.mV[VX]);
-    mCtrlRotY->set(mLastEulerDegrees.mV[VY]);
-    mCtrlRotZ->set(mLastEulerDegrees.mV[VZ]);
+    mCtrlRotX->set(mLastEulerDegrees.x);
+    mCtrlRotY->set(mLastEulerDegrees.y);
+    mCtrlRotZ->set(mLastEulerDegrees.z);
 }
 
 void LLFloaterGLTFAssetEditor::onCommitTransform()
@@ -521,7 +521,7 @@ void LLFloaterGLTFAssetEditor::onCommitTransform()
     new_rot.mV[VZ] = ll_round(new_rot.mV[VZ], OBJECT_ROTATION_PRECISION);
 
     // Note: must compare before conversion to radians, some value can go 'around' 360
-    LLVector3 delta = new_rot - mLastEulerDegrees;
+    LLVector3 delta = new_rot - LLVector3(mLastEulerDegrees);
 
     if (delta.length() >= 0.0005f)
     {

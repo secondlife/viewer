@@ -485,7 +485,7 @@ void LLFace::updateCenterAgent()
 {
     if (mDrawablep->isActive())
     {
-        mCenterAgent = mCenterLocal * getRenderMatrix();
+        mCenterAgent = LLVector3(mCenterLocal) * getRenderMatrix();
     }
     else
     {
@@ -800,7 +800,10 @@ bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
         t.setAdd(mExtents[0],mExtents[1]);
         t.mul(0.5f);
 
-        mCenterLocal.set(t.getF32ptr());
+        {
+            const F32* p = t.getF32ptr();
+            mCenterLocal = glm::vec3(p[0], p[1], p[2]);
+        }
 
         t.setSub(mExtents[1],mExtents[0]);
         mBoundingSphereRadius = t.getLength3().getF32()*0.5f;
@@ -2547,7 +2550,7 @@ LLVector3 LLFace::getPositionAgent() const
     }
     else
     {
-        return mCenterLocal * getRenderMatrix();
+        return LLVector3(mCenterLocal) * getRenderMatrix();
     }
 }
 

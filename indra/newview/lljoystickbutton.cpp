@@ -728,17 +728,14 @@ LLJoystickQuaternion::LLJoystickQuaternion(const LLJoystickQuaternion::Params &p
     mInTop(false),
     mInRight(false),
     mInBottom(false),
-    mVectorZero(0.0f, 0.0f, 1.0f),
-    mUpDnAxis(1.0f, 0.0f, 0.0f),
-    mLfRtAxis(0.0f, 0.0f, 1.0f),
     mXAxisIndex(2), // left & right across the control
     mYAxisIndex(0), // up & down across the  control
     mZAxisIndex(1)  // tested for above and below
 {
     for (int i = 0; i < 3; ++i)
     {
-        mLfRtAxis.mV[i] = (mXAxisIndex == i) ? 1.0f : 0.0f;
-        mUpDnAxis.mV[i] = (mYAxisIndex == i) ? 1.0f : 0.0f;
+        mLfRtAxis[i] = (mXAxisIndex == i) ? 1.0f : 0.0f;
+        mUpDnAxis[i] = (mYAxisIndex == i) ? 1.0f : 0.0f;
     }
 }
 
@@ -875,7 +872,7 @@ void LLJoystickQuaternion::draw()
     // off the unit sphere over many holds. glm `quat * vec` assumes
     // unit length and would diverge. See BUG-Q-002 in
     // sl_dev/docs/quaternion_migration_bugs.md.
-    LLVector3 draw_point = mVectorZero * LLQuaternion(mRotation);
+    LLVector3 draw_point = LLVector3(mVectorZero) * LLQuaternion(mRotation);
     S32 halfwidth = getRect().getWidth() / 2;
     S32 halfheight = getRect().getHeight() / 2;
     draw_point.mV[mXAxisIndex] = (draw_point.mV[mXAxisIndex] + 1.0f) * halfwidth;

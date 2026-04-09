@@ -430,7 +430,7 @@ void LLToolGrabBase::startGrab()
     mLastIntersection = mGrabPick.mIntersection;
     mLastNormal = mGrabPick.mNormal;
     mLastBinormal = mGrabPick.mBinormal;
-    mLastGrabPos = LLVector3(-1.f, -1.f, -1.f);
+    mLastGrabPos = glm::vec3(-1.f);
 }
 
 
@@ -861,7 +861,7 @@ void LLToolGrabBase::handleHoverNonPhysical(S32 x, S32 y, MASK mask)
         (pick.mIntersection != mLastIntersection) ||
         (pick.mNormal != mLastNormal) ||
         (pick.mBinormal != mLastBinormal) ||
-        (grab_pos_region != mLastGrabPos))
+        (grab_pos_region != LLVector3(mLastGrabPos)))
     {
         changed_since_last_update = true;
     }

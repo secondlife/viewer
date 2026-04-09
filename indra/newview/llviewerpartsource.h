@@ -33,6 +33,7 @@
 #include "v3math.h"
 
 #include "glm/gtc/quaternion.hpp"
+#include <glm/vec3.hpp>
 
 ////////////////////
 //
@@ -75,7 +76,7 @@ public:
 
     LLVector3   mPosAgent; // Location of the particle source
     LLVector3   mTargetPosAgent; // Location of the target position
-    LLVector3   mLastUpdatePosAgent;
+    glm::vec3   mLastUpdatePosAgent{0.f};
     LLPointer<LLViewerObject>   mSourceObjectp;
     U32 mID;
     LLViewerPart* mLastPart; //last particle emitted (for making particle ribbons)

@@ -2602,7 +2602,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list_t& data
 
     mWholeModelFeeCapability = gAgent.getRegionCapability("NewFileAgentInventory");
 
-    mOrigin += gAgent.getAtAxis() * scale.length();
+    mOrigin += glm::vec3(gAgent.getAtAxis() * scale.length());
 
     mMeshUploadTimeOut = gSavedSettings.getS32("MeshUploadTimeOut");
 
@@ -5108,7 +5108,7 @@ void LLMeshUploadThread::decomposeMeshMatrix(LLMatrix4& transformation,
     LLVector3 euler_rotation;
     quat_rotation.getEulerAngles(&euler_rotation.mV[VX], &euler_rotation.mV[VY], &euler_rotation.mV[VZ]);
 
-    result_pos = position + mOrigin;
+    result_pos = position + LLVector3(mOrigin);
     result_scale = scale;
     result_rot = quat_rotation;
 }

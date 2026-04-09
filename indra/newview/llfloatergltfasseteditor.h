@@ -30,6 +30,7 @@
 #include "llfloater.h"
 
 #include "llgltffoldermodel.h"
+#include <glm/vec3.hpp>
 
 namespace LL
 {
@@ -88,7 +89,7 @@ private:
     std::map<S32, LLFolderViewItem*> mNodeToItemMap;
 
     // Transforms panel
-    LLVector3       mLastEulerDegrees;
+    glm::vec3       mLastEulerDegrees{0.f};
 
     LLPanel* mTransformsPanel = nullptr;
     LLMenuButton* mMenuClipboardPos = nullptr;

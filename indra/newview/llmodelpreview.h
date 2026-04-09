@@ -32,6 +32,7 @@
 #include "llmeshrepository.h"
 #include "llmodelloader.h" //NUM_LOD
 #include "llmodel.h"
+#include <glm/vec3.hpp>
 
 class LLJoint;
 class LLVOAvatar;
@@ -225,7 +226,7 @@ private:
     LLVOAvatar* getPreviewAvatar() { return mPreviewAvatar; }
     // Count amount of original models, excluding sub-models
     static U32 countRootModels(LLModelLoader::model_list models);
-    LLVector3   mGroundPlane[4];
+    glm::vec3   mGroundPlane[4]{};
     void        renderGroundPlane(float z_offset = 0.0f);
     /// Indicates whether we should warn of high-lod meshes that do not have a corresponding physics mesh.
     /// Reset when resetting the modelpreview (i.e., when the uploader dialog is created or reset), and when
@@ -278,9 +279,9 @@ protected:
     F32         mCameraYaw;
     F32         mCameraPitch;
     F32         mCameraZoom;
-    LLVector3   mCameraOffset;
-    LLVector3   mPreviewTarget;
-    LLVector3   mPreviewScale;
+    glm::vec3   mCameraOffset{0.f};
+    glm::vec3   mPreviewTarget{0.f};
+    glm::vec3   mPreviewScale{0.f};
     S32         mPreviewLOD;
     S32         mPhysicsSearchLOD;
     std::string mLODFile[LLModel::NUM_LODS];
@@ -329,7 +330,7 @@ protected:
     model_loaded_signal_t mModelLoadedSignal;
     model_updated_signal_t mModelUpdatedSignal;
 
-    LLVector3   mModelPivot;
+    glm::vec3   mModelPivot{0.f};
     bool        mHasPivot;
 
     float       mPelvisZOffset;

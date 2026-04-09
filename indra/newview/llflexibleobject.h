@@ -104,9 +104,6 @@ private:
         void preRebuild();
 
         //void              setAttributes( LLFlexibleObjectData );
-        void                setUsingCollisionSphere( bool u );
-        void                setCollisionSphere( LLVector3 position, F32 radius );
-        void                setRenderingCollisionSphere( bool r);
 
         LLVector3           getEndPosition();
         LLQuaternion        getEndRotation();
@@ -120,7 +117,6 @@ private:
         // Backlink only; don't make this an LLPointer.
         LLViewerObject*             mVO;
         LLTimer                     mTimer;
-        LLVector3                   mAnchorPosition;
         glm::quat                   mLastFrameRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
         glm::quat                   mLastSegmentRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
         bool                        mInitialized;
@@ -132,8 +128,6 @@ private:
         S32                         mRenderRes;
         U64                         mLastFrameNum;
         U32                         mLastUpdatePeriod;
-        LLVector3                   mCollisionSpherePosition;
-        F32                         mCollisionSphereRadius;
         U32                         mID;
 
         //--------------------------------------

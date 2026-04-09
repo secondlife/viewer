@@ -267,8 +267,6 @@ protected:
     F32                 mCloudDensity;
     F32                 mWind;
     bool                mInitialized;
-    LLVector3           mLastLightingDirection;
-    LLColor3            mLastTotalAmbient;
     F32                 mAmbientScale;
     LLColor3            mNightColorShift;
     F32                 mInterpVal;

@@ -64,7 +64,6 @@ LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectD
     mUpdated = false;
     mInitializedRes = -1;
     mSimulateRes = 0;
-    mCollisionSphereRadius = 0.f;
     mRenderRes = -1;
 
     if(mVO->mDrawable.notNull())
@@ -835,26 +834,6 @@ bool LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 
     return true;
 }
-
-//----------------------------------------------------------------------------------
-void LLVolumeImplFlexible::setCollisionSphere( LLVector3 p, F32 r )
-{
-    mCollisionSpherePosition = p;
-    mCollisionSphereRadius   = r;
-
-}//------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------------
-void LLVolumeImplFlexible::setUsingCollisionSphere( bool u )
-{
-}//------------------------------------------------------------------
-
-
-//----------------------------------------------------------------------------------
-void LLVolumeImplFlexible::setRenderingCollisionSphere( bool r )
-{
-}//------------------------------------------------------------------
 
 //------------------------------------------------------------------
 LLVector3 LLVolumeImplFlexible::getEndPosition()

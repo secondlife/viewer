@@ -420,20 +420,20 @@ void LLPanelObject::getState( )
     mCtrlScaleZ->setEnabled( enable_scale );
 
     LLQuaternion object_rot = objectp->getRotationEdit();
-    object_rot.getEulerAngles(&(mCurEulerDegrees.mV[VX]), &(mCurEulerDegrees.mV[VY]), &(mCurEulerDegrees.mV[VZ]));
+    object_rot.getEulerAngles(&mCurEulerDegrees.x, &mCurEulerDegrees.y, &mCurEulerDegrees.z);
     mCurEulerDegrees *= RAD_TO_DEG;
-    mCurEulerDegrees.mV[VX] = fmod(ll_round(mCurEulerDegrees.mV[VX], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
-    mCurEulerDegrees.mV[VY] = fmod(ll_round(mCurEulerDegrees.mV[VY], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
-    mCurEulerDegrees.mV[VZ] = fmod(ll_round(mCurEulerDegrees.mV[VZ], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+    mCurEulerDegrees.x = fmod(ll_round(mCurEulerDegrees.x, OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+    mCurEulerDegrees.y = fmod(ll_round(mCurEulerDegrees.y, OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+    mCurEulerDegrees.z = fmod(ll_round(mCurEulerDegrees.z, OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
 
     if (enable_rotate)
     {
-        mCtrlRotX->set( mCurEulerDegrees.mV[VX] );
-        mCtrlRotY->set( mCurEulerDegrees.mV[VY] );
-        mCtrlRotZ->set( mCurEulerDegrees.mV[VZ] );
-        calcp->setVar(LLCalc::X_ROT, mCurEulerDegrees.mV[VX]);
-        calcp->setVar(LLCalc::Y_ROT, mCurEulerDegrees.mV[VY]);
-        calcp->setVar(LLCalc::Z_ROT, mCurEulerDegrees.mV[VZ]);
+        mCtrlRotX->set( mCurEulerDegrees.x );
+        mCtrlRotY->set( mCurEulerDegrees.y );
+        mCtrlRotZ->set( mCurEulerDegrees.z );
+        calcp->setVar(LLCalc::X_ROT, mCurEulerDegrees.x);
+        calcp->setVar(LLCalc::Y_ROT, mCurEulerDegrees.y);
+        calcp->setVar(LLCalc::Z_ROT, mCurEulerDegrees.z);
     }
     else
     {
@@ -1572,7 +1572,7 @@ void LLPanelObject::sendRotation(bool btn_down)
     new_rot.mV[VZ] = ll_round(new_rot.mV[VZ], OBJECT_ROTATION_PRECISION);
 
     // Note: must compare before conversion to radians
-    LLVector3 delta = new_rot - mCurEulerDegrees;
+    LLVector3 delta = new_rot - LLVector3(mCurEulerDegrees);
 
     if (delta.length() >= 0.0005f)
     {
@@ -2168,9 +2168,9 @@ bool LLPanelObject::menuEnableItem(const LLSD& userdata)
 
 void LLPanelObject::onCopyPos()
 {
-    mClipboardPos = LLVector3(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
+    mClipboardPos = glm::vec3(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
 
-    std::string stringVec = llformat("<%g, %g, %g>", mClipboardPos.mV[VX], mClipboardPos.mV[VY], mClipboardPos.mV[VZ]);
+    std::string stringVec = llformat("<%g, %g, %g>", mClipboardPos.x, mClipboardPos.y, mClipboardPos.z);
     LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(stringVec));
 
     mHasClipboardPos = true;
@@ -2178,9 +2178,9 @@ void LLPanelObject::onCopyPos()
 
 void LLPanelObject::onCopySize()
 {
-    mClipboardSize = LLVector3(mCtrlScaleX->get(), mCtrlScaleY->get(), mCtrlScaleZ->get());
+    mClipboardSize = glm::vec3(mCtrlScaleX->get(), mCtrlScaleY->get(), mCtrlScaleZ->get());
 
-    std::string stringVec = llformat("<%g, %g, %g>", mClipboardSize.mV[VX], mClipboardSize.mV[VY], mClipboardSize.mV[VZ]);
+    std::string stringVec = llformat("<%g, %g, %g>", mClipboardSize.x, mClipboardSize.y, mClipboardSize.z);
     LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(stringVec));
 
     mHasClipboardSize = true;
@@ -2188,9 +2188,9 @@ void LLPanelObject::onCopySize()
 
 void LLPanelObject::onCopyRot()
 {
-    mClipboardRot = LLVector3(mCtrlRotX->get(), mCtrlRotY->get(), mCtrlRotZ->get());
+    mClipboardRot = glm::vec3(mCtrlRotX->get(), mCtrlRotY->get(), mCtrlRotZ->get());
 
-    std::string stringVec = llformat("<%g, %g, %g>", mClipboardRot.mV[VX], mClipboardRot.mV[VY], mClipboardRot.mV[VZ]);
+    std::string stringVec = llformat("<%g, %g, %g>", mClipboardRot.x, mClipboardRot.y, mClipboardRot.z);
     LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(stringVec));
 
     mHasClipboardRot = true;
@@ -2209,18 +2209,23 @@ void LLPanelObject::onPastePos()
     if (!mObject->isAttachment())
     {
         F32 max_width = regionp->getWidth(); // meters
-        mClipboardPos.mV[VX] = llclamp(mClipboardPos.mV[VX], 0.f, max_width);
-        mClipboardPos.mV[VY] = llclamp(mClipboardPos.mV[VY], 0.f, max_width);
+        mClipboardPos.x = llclamp(mClipboardPos.x, 0.f, max_width);
+        mClipboardPos.y = llclamp(mClipboardPos.y, 0.f, max_width);
         //height will get properly clamped by sendPosition
     }
     else
     {
-        mClipboardPos.clampLength(MAX_ATTACHMENT_DIST);
+        // Bridge LL .clampLength() through an LLVector3 temp to preserve
+        // exact normalize/scale semantics including the negative-limit
+        // edge case in the LL implementation.
+        LLVector3 tmp(mClipboardPos);
+        tmp.clampLength(MAX_ATTACHMENT_DIST);
+        mClipboardPos = tmp;
     }
 
-    mCtrlPosX->set( mClipboardPos.mV[VX] );
-    mCtrlPosY->set( mClipboardPos.mV[VY] );
-    mCtrlPosZ->set( mClipboardPos.mV[VZ] );
+    mCtrlPosX->set( mClipboardPos.x );
+    mCtrlPosY->set( mClipboardPos.y );
+    mCtrlPosZ->set( mClipboardPos.z );
 
     sendPosition(false);
 }
@@ -2229,13 +2234,13 @@ void LLPanelObject::onPasteSize()
 {
     if (!mHasClipboardSize) return;
 
-    mClipboardSize.mV[VX] = llclamp(mClipboardSize.mV[VX], MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
-    mClipboardSize.mV[VY] = llclamp(mClipboardSize.mV[VY], MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
-    mClipboardSize.mV[VZ] = llclamp(mClipboardSize.mV[VZ], MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
+    mClipboardSize.x = llclamp(mClipboardSize.x, MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
+    mClipboardSize.y = llclamp(mClipboardSize.y, MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
+    mClipboardSize.z = llclamp(mClipboardSize.z, MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
 
-    mCtrlScaleX->set(mClipboardSize.mV[VX]);
-    mCtrlScaleY->set(mClipboardSize.mV[VY]);
-    mCtrlScaleZ->set(mClipboardSize.mV[VZ]);
+    mCtrlScaleX->set(mClipboardSize.x);
+    mCtrlScaleY->set(mClipboardSize.y);
+    mCtrlScaleZ->set(mClipboardSize.z);
 
     sendScale(false);
 }
@@ -2244,9 +2249,9 @@ void LLPanelObject::onPasteRot()
 {
     if (!mHasClipboardRot) return;
 
-    mCtrlRotX->set(mClipboardRot.mV[VX]);
-    mCtrlRotY->set(mClipboardRot.mV[VY]);
-    mCtrlRotZ->set(mClipboardRot.mV[VZ]);
+    mCtrlRotX->set(mClipboardRot.x);
+    mCtrlRotY->set(mClipboardRot.y);
+    mCtrlRotZ->set(mClipboardRot.z);
 
     sendRotation(false);
 }

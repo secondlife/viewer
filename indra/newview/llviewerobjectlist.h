@@ -38,6 +38,7 @@
 #include "llviewerobject.h"
 #include "lleventcoro.h"
 #include "llcoros.h"
+#include <glm/vec3.hpp>
 
 class LLCamera;
 class LLNetMap;
@@ -240,7 +241,7 @@ class LLDebugBeacon
 public:
     ~LLDebugBeacon();
 
-    LLVector3 mPositionAgent;
+    glm::vec3 mPositionAgent{0.f};
     std::string mString;
     LLColor4 mColor;
     LLColor4 mTextColor;

@@ -201,7 +201,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     mFMP = fmp;
 
     mHasPivot = false;
-    mModelPivot = LLVector3(0.0f, 0.0f, 0.0f);
+    mModelPivot = glm::vec3(0.0f);
 
     createPreviewAvatar();
 }
@@ -617,8 +617,8 @@ void LLModelPreview::rebuildUploadData()
 
     F32 max_import_scale = (DEFAULT_MAX_PRIM_SCALE - 0.1f) / max_scale;
 
-    F32 max_axis = llmax(mPreviewScale.mV[0], mPreviewScale.mV[1]);
-    max_axis = llmax(max_axis, mPreviewScale.mV[2]);
+    F32 max_axis = llmax(mPreviewScale.x, mPreviewScale.y);
+    max_axis = llmax(max_axis, mPreviewScale.z);
     max_axis *= 2.f;
 
     //clamp scale so that total imported model bounding box is smaller than 240m on a side
@@ -1289,7 +1289,7 @@ void LLModelPreview::resetPreviewTarget()
         mPreviewScale = (mModelLoader->mExtents[1] - mModelLoader->mExtents[0]) * 0.5f;
     }
 
-    setPreviewTarget(mPreviewScale.length()*10.f);
+    setPreviewTarget(glm::length(mPreviewScale)*10.f);
 }
 
 void LLModelPreview::generateNormals()
@@ -2840,7 +2840,7 @@ void LLModelPreview::setPreviewTarget(F32 distance)
     mCameraZoom = 1.f;
     mCameraPitch = 0.f;
     mCameraYaw = 0.f;
-    mCameraOffset.clear();
+    mCameraOffset = glm::vec3(0.f);
 }
 
 void LLModelPreview::clearBuffers()
@@ -3463,10 +3463,10 @@ bool LLModelPreview::render()
     LLViewerCamera::getInstance()->setViewNoBroadcast(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
 
     LLVector3 offset = mCameraOffset;
-    LLVector3 target_pos = mPreviewTarget + offset;
+    LLVector3 target_pos = LLVector3(mPreviewTarget) + offset;
 
     F32 z_near = 0.001f;
-    F32 z_far = mCameraDistance*10.0f + mPreviewScale.length() + mCameraOffset.length();
+    F32 z_far = mCameraDistance*10.0f + glm::length(mPreviewScale) + glm::length(mCameraOffset);
 
     if (show_skin_weight)
     {
@@ -3987,17 +3987,17 @@ void LLModelPreview::renderGroundPlane(float z_offset)
     gGL.diffuseColor3f( 1.0f, 0.0f, 1.0f );
 
     gGL.begin(LLRender::LINES);
-    gGL.vertex3fv(mGroundPlane[0].mV);
-    gGL.vertex3fv(mGroundPlane[1].mV);
+    gGL.vertex3fv(&mGroundPlane[0].x);
+    gGL.vertex3fv(&mGroundPlane[1].x);
 
-    gGL.vertex3fv(mGroundPlane[1].mV);
-    gGL.vertex3fv(mGroundPlane[2].mV);
+    gGL.vertex3fv(&mGroundPlane[1].x);
+    gGL.vertex3fv(&mGroundPlane[2].x);
 
-    gGL.vertex3fv(mGroundPlane[2].mV);
-    gGL.vertex3fv(mGroundPlane[3].mV);
+    gGL.vertex3fv(&mGroundPlane[2].x);
+    gGL.vertex3fv(&mGroundPlane[3].x);
 
-    gGL.vertex3fv(mGroundPlane[3].mV);
-    gGL.vertex3fv(mGroundPlane[0].mV);
+    gGL.vertex3fv(&mGroundPlane[3].x);
+    gGL.vertex3fv(&mGroundPlane[0].x);
 
     gGL.end();
 }
@@ -4035,8 +4035,8 @@ void LLModelPreview::pan(F32 right, F32 up)
 {
     bool skin_weight = mViewOption["show_skin_weight"];
     F32 camera_distance = skin_weight ? SKIN_WEIGHT_CAMERA_DISTANCE : mCameraDistance;
-    mCameraOffset.mV[VY] = llclamp(mCameraOffset.mV[VY] + right * camera_distance / mCameraZoom, -1.f, 1.f);
-    mCameraOffset.mV[VZ] = llclamp(mCameraOffset.mV[VZ] + up * camera_distance / mCameraZoom, -1.f, 1.f);
+    mCameraOffset.y = llclamp(mCameraOffset.y + right * camera_distance / mCameraZoom, -1.f, 1.f);
+    mCameraOffset.z = llclamp(mCameraOffset.z + up * camera_distance / mCameraZoom, -1.f, 1.f);
 }
 
 void LLModelPreview::setPreviewLOD(S32 lod)
