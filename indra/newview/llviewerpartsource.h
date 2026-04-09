@@ -75,7 +75,6 @@ public:
 
     LLVector3   mPosAgent; // Location of the particle source
     LLVector3   mTargetPosAgent; // Location of the target position
-    LLVector3   mLastUpdatePosAgent;
     LLPointer<LLViewerObject>   mSourceObjectp;
     U32 mID;
     LLViewerPart* mLastPart; //last particle emitted (for making particle ribbons)
