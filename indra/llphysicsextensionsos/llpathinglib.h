@@ -173,7 +173,7 @@ public:
     //Removes any cached physics capsule using a list of cached uuids
     virtual void cleanupPhysicsCapsuleRepResiduals() = 0;
     //Renders a selected uuids physics rep
-    virtual void renderSimpleShapeCapsuleID( LLRender& gl, const LLUUID& id, const LLVector3& pos, const LLQuaternion& rot  ) = 0;
+    virtual void renderSimpleShapeCapsuleID( LLRender& gl, const LLUUID& id, const LLVector3& pos, const glm::quat& rot  ) = 0;
 
     //Method to delete any vbo's that are currently being managed by the pathing library
     virtual void cleanupVBOManager( ) = 0;
