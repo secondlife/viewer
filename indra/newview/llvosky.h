@@ -324,8 +324,6 @@ protected:
     LLSkyTex            mShinyTex[6];
     LLHeavenBody        mSun;
     LLHeavenBody        mMoon;
-    LLVector3           mSunDefaultPosition;
-    LLVector3           mSunAngVel;
     F32                 mAtmHeight;
     LLVector3           mEarthCenter;
     LLVector3           mCameraPosAgent;
