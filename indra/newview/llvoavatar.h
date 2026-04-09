@@ -1168,7 +1168,7 @@ private:
     // set this property only with LLVOAvatar::sitDown method
     bool            mIsSitting;
     // position backup in case of missing data
-    LLVector3       mLastRootPos;
+    glm::vec3       mLastRootPos{0.f};
 
 /**                    Hierarchy
  **                                                                            **

@@ -8027,9 +8027,9 @@ void LLVOAvatar::getOffObject()
     LLVector3 cur_position_world = mDrawable->getWorldPosition();
     LLQuaternion cur_rotation_world = mDrawable->getWorldRotation();
 
-    if (mLastRootPos.length() >= MAX_STANDOFF_FROM_ORIGIN
+    if (glm::length(mLastRootPos) >= MAX_STANDOFF_FROM_ORIGIN
         && (cur_position_world.length() < MAX_STANDOFF_FROM_ORIGIN
-            || dist_vec(cur_position_world, mLastRootPos) > MAX_STANDOFF_DISTANCE_CHANGE))
+            || dist_vec(cur_position_world, LLVector3(mLastRootPos)) > MAX_STANDOFF_DISTANCE_CHANGE))
     {
         // Most likely drawable got updated too early or some updates were missed - we got relative position to non-existing parent
         // restore coordinates from cache
