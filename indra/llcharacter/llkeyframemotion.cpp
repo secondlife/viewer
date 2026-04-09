@@ -881,7 +881,9 @@ void LLKeyframeMotion::activateConstraint(JointConstraint* constraint)
     {
         LLVector3 source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolume, shared_data->mSourceConstraintOffset);
         LLVector3 ground_pos_agent;
-        mCharacter->getGround(source_pos, ground_pos_agent, constraint->mGroundNorm);
+        LLVector3 ground_norm_tmp;
+        mCharacter->getGround(source_pos, ground_pos_agent, ground_norm_tmp);
+        constraint->mGroundNorm = glm::vec3(ground_norm_tmp.mV[0], ground_norm_tmp.mV[1], ground_norm_tmp.mV[2]);
         constraint->mGroundPos = mCharacter->getPosGlobalFromAgent(ground_pos_agent + LLVector3(shared_data->mTargetConstraintOffset));
     }
 
@@ -1013,7 +1015,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
         switch(shared_data->mConstraintTargetType)
         {
         case EConstraintTargetType::CONSTRAINT_TARGET_TYPE_GROUND:
-            norm = constraint->mGroundNorm;
+            norm = LLVector3(constraint->mGroundNorm);
             break;
         case EConstraintTargetType::CONSTRAINT_TARGET_TYPE_BODY:
             target_jointp = mCharacter->findCollisionVolume(shared_data->mTargetConstraintVolume);

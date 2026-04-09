@@ -256,7 +256,7 @@ protected:
         std::array<F32, MAX_CHAIN_LENGTH>         mJointLengthFractions;
         bool                        mActive;
         LLVector3d                  mGroundPos;
-        LLVector3                   mGroundNorm;
+        glm::vec3                   mGroundNorm{0.f};
         LLJoint*                    mSourceVolume;
         LLJoint*                    mTargetVolume;
         F32                         mFixupDistanceRMS;
