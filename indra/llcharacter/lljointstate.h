@@ -33,6 +33,7 @@
 #include "llrefcount.h"
 
 #include "glm/gtc/quaternion.hpp"
+#include <glm/vec3.hpp>
 
 //-----------------------------------------------------------------------------
 // class LLJointState
@@ -58,9 +59,9 @@ protected:
     F32     mWeight;
 
     // transformation members
-    LLVector3       mPosition;  // position relative to parent joint
+    glm::vec3       mPosition{0.f};  // position relative to parent joint
     glm::quat       mRotation{1.f, 0.f, 0.f, 0.f}; // joint rotation relative to parent joint (identity w,x,y,z)
-    LLVector3       mScale;     // scale relative to rotated frame
+    glm::vec3       mScale{0.f};     // scale relative to rotated frame
     LLJoint::JointPriority  mPriority;  // how important this joint state is relative to others
 public:
     // Constructor
@@ -98,7 +99,7 @@ public:
     void setWeight( F32 weight )    { mWeight = weight; }
 
     // get/set position
-    const LLVector3& getPosition() const        { return mPosition; }
+    LLVector3 getPosition() const                { return LLVector3(mPosition); }
     void setPosition( const LLVector3& pos )    { llassert(mUsage & POS); mPosition = pos; }
 
     // get/set rotation
@@ -111,7 +112,7 @@ public:
     void setRotation( const glm::quat& rot )     { llassert(mUsage & ROT); mRotation = rot; }
 
     // get/set scale
-    const LLVector3& getScale() const           { return mScale; }
+    LLVector3 getScale() const                  { return LLVector3(mScale); }
     void setScale( const LLVector3& scale )     { llassert(mUsage & SCALE); mScale = scale; }
 
     // get/set priority
