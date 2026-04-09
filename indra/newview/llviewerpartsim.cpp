@@ -322,7 +322,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
             step *= 5.f;
             // we want a velocity that will result in reaching the target in the
             // Interpolate towards the target.
-            LLVector3 delta_pos = part->mPartSourcep->mTargetPosAgent - part->mPosAgent;
+            LLVector3 delta_pos = LLVector3(part->mPartSourcep->mTargetPosAgent) - part->mPosAgent;
 
             delta_pos /= remaining;
 
@@ -332,7 +332,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 
         if (part->mFlags & LLPartData::LL_PART_TARGET_LINEAR_MASK)
         {
-            LLVector3 delta_pos = part->mPartSourcep->mTargetPosAgent - part->mPartSourcep->mPosAgent;
+            LLVector3 delta_pos = LLVector3(part->mPartSourcep->mTargetPosAgent) - part->mPartSourcep->mPosAgent;
             part->mPosAgent = part->mPartSourcep->mPosAgent;
             part->mPosAgent += frac*delta_pos;
             part->mVelocity = delta_pos;
@@ -634,9 +634,10 @@ void LLViewerPartSim::shift(const LLVector3 &offset)
     count = static_cast<S32>(mViewerPartSources.size());
     for (i = 0; i < count; i++)
     {
+        const glm::vec3 offset_gm(offset.mV[VX], offset.mV[VY], offset.mV[VZ]);
         mViewerPartSources[i]->mPosAgent += offset;
-        mViewerPartSources[i]->mTargetPosAgent += offset;
-        mViewerPartSources[i]->mLastUpdatePosAgent += glm::vec3(offset.mV[VX], offset.mV[VY], offset.mV[VZ]);
+        mViewerPartSources[i]->mTargetPosAgent += offset_gm;
+        mViewerPartSources[i]->mLastUpdatePosAgent += offset_gm;
     }
 
     count = static_cast<S32>(mViewerPartGroups.size());
