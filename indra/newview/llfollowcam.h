@@ -101,7 +101,7 @@ protected:
     F32     mPositionThreshold;
     F32     mDistance;
     F32     mPitch;
-    LLVector3   mFocusOffset;
+    glm::vec3   mFocusOffset{0.f};
     F32     mBehindnessMaxAngle;
     F32     mBehindnessLag;
     F32     mMaxCameraDistantFromSubject;

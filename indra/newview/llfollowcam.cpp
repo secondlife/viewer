@@ -207,7 +207,7 @@ void LLFollowCamParams::setFocusLocked( bool l )
 void LLFollowCamParams::setFocusOffset( const LLVector3& v )
 {
     mFocusOffset = v;
-    mFocusOffset.clamp(FOLLOW_CAM_MIN_FOCUS_OFFSET, FOLLOW_CAM_MAX_FOCUS_OFFSET);
+    mFocusOffset = glm::clamp(mFocusOffset, FOLLOW_CAM_MIN_FOCUS_OFFSET, FOLLOW_CAM_MAX_FOCUS_OFFSET);
 }
 
 //---------------------------------------------------------
@@ -288,7 +288,7 @@ void LLFollowCam::update()
     //####################################################################################
     // update Focus
     //####################################################################################
-    LLVector3 offsetSubjectPosition = mSubjectPosition + (mFocusOffset * LLQuaternion(mSubjectRotation));
+    LLVector3 offsetSubjectPosition = LLVector3(mSubjectPosition) + (LLVector3(mFocusOffset) * LLQuaternion(mSubjectRotation));
 
     const glm::vec3 simulated_pos_agent_g = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
     LLVector3 simulated_pos_agent(simulated_pos_agent_g.x, simulated_pos_agent_g.y, simulated_pos_agent_g.z);
