@@ -350,11 +350,9 @@ void LLSelectMgr::overrideObjectUpdates()
                 {
                     object->setPosition(selectNode->mLastPositionLocal);
                 }
-                // Wrap in LLQuaternion to disambiguate operator!= overload set
-                // (both LL and glm forms would otherwise need a single user-defined conversion).
-                if (LLQuaternion(selectNode->mLastRotation) != LLQuaternion())
+                if (selectNode->mLastRotation != glm::quat(1.f, 0.f, 0.f, 0.f))
                 {
-                    object->setRotation(LLQuaternion(selectNode->mLastRotation));
+                    object->setRotation(selectNode->mLastRotation);
                 }
                 if (selectNode->mLastScale != glm::vec3(0.f))
                 {
@@ -418,7 +416,7 @@ void LLSelectMgr::overrideAvatarUpdates()
                         {
                             selectNode->mLastPositionLocal = iter->second.mLastPositionLocal;
                         }
-                        if (LLQuaternion(selectNode->mLastRotation) == LLQuaternion())
+                        if (selectNode->mLastRotation == glm::quat(1.f, 0.f, 0.f, 0.f))
                         {
                             selectNode->mLastRotation = iter->second.mLastRotation;
                         }
@@ -445,9 +443,9 @@ void LLSelectMgr::overrideAvatarUpdates()
             {
                 it->second.mObject->setPosition(it->second.mLastPositionLocal);
             }
-            if (LLQuaternion(it->second.mLastRotation) != LLQuaternion())
+            if (it->second.mLastRotation != glm::quat(1.f, 0.f, 0.f, 0.f))
             {
-                it->second.mObject->setRotation(LLQuaternion(it->second.mLastRotation));
+                it->second.mObject->setRotation(it->second.mLastRotation);
             }
             it++;
         }
@@ -6865,7 +6863,7 @@ LLSelectNode::~LLSelectNode()
     LLSelectMgr *manager = LLSelectMgr::getInstance();
     if (manager->mAllowSelectAvatar
         && (mLastPositionLocal != glm::vec3(0.f)
-            || LLQuaternion(mLastRotation) != LLQuaternion()))
+            || mLastRotation != glm::quat(1.f, 0.f, 0.f, 0.f)))
     {
         LLViewerObject* object = getObject(); //isDead() check
         if (object && !object->getParent())
