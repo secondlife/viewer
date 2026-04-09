@@ -138,7 +138,11 @@ namespace tut
             S32 start = static_cast<U32>(result[0].first - text);
             S32 end = static_cast<U32>(result[0].second - text);
             std::string url = std::string(text+start, end-start);
-            label = entry.getLabel(url, boost::bind(dummyCallback, _1, _2, _3));
+            // Replace boost::bind+placeholders with a lambda. The bare _1/_2/_3
+            // placeholders require boost::placeholders namespace pulled in.
+            label = entry.getLabel(url, [](const std::string& u, const std::string& l, const std::string& i) {
+                dummyCallback(u, l, i);
+            });
         }
         ensure_equals(testname, label, expected);
     }

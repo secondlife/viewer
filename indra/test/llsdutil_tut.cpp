@@ -30,7 +30,6 @@
 #include "lltut.h"
 #include "m4math.h"
 #include "v2math.h"
-#include "v2math.h"
 #include "v3color.h"
 #include "v3math.h"
 #include "v3dmath.h"
@@ -125,7 +124,8 @@ namespace tut
         ensure_equals("vector3 -> sd -> vector3: 2", vec1, vec3);
 
         sd.clear();
-        vec1.setVec(0., 0., 0.);
+        // setVec was removed; use set() (the modernized API).
+        vec1.set(0., 0., 0.);
         sd = ll_sd_from_vector3(vec1);
         vec2 = ll_vector3_from_sd(sd);
         ensure_equals("vector3 -> sd -> vector3: 3", vec1, vec2);
@@ -148,14 +148,18 @@ namespace tut
     template<> template<>
     void llsdutil_object::test<6>()
     {
+        // LLVector2 was deleted in the LLVector2 -> glm::vec2 migration.
+        // ll_sd_from_vector2 / ll_vector2_from_sd were replaced with
+        // ll_sd_from_vec2 / ll_vec2_from_sd that take/return glm::vec2.
         LLSD sd;
-        LLVector2 vec((F32) -3., (F32) 4.2);
-        sd = ll_sd_from_vector2(vec);
-        LLVector2 vec1 = ll_vector2_from_sd(sd);
-        ensure_equals("vector2 -> sd -> vector2", vec, vec1);
+        glm::vec2 vec((F32) -3., (F32) 4.2);
+        sd = ll_sd_from_vec2(vec);
+        glm::vec2 vec1 = ll_vec2_from_sd(sd);
+        ensure_equals("vec2 -> sd -> vec2 x", vec1.x, vec.x);
+        ensure_equals("vec2 -> sd -> vec2 y", vec1.y, vec.y);
 
-        LLSD sd2 = ll_sd_from_vector2(vec1);
-        ensure_equals("sd -> vector2 -> sd: 2", sd, sd2);
+        LLSD sd2 = ll_sd_from_vec2(vec1);
+        ensure_equals("sd -> vec2 -> sd: 2", sd, sd2);
     }
 
     template<> template<>

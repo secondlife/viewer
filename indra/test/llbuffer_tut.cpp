@@ -33,6 +33,8 @@
 #include "llbuffer.h"
 #include "llerror.h"
 
+#include <span>
+
 
 namespace tut
 {
@@ -107,7 +109,8 @@ namespace tut
         requestSize = 16384 + 1;
         ensure("4. LLHeapBuffer createSegment failed", (true == buf1.createSegment(channel, requestSize, segment)) && segment.size() == requestSize);
 
-        LLHeapBuffer buf2((U8*) str, smallSize);
+        // LLHeapBuffer((U8*, S32)) was replaced with LLHeapBuffer(std::span<const U8>).
+        LLHeapBuffer buf2(std::span<const U8>(reinterpret_cast<const U8*>(str), smallSize));
         requestSize = smallSize;
         ensure("5. LLHeapBuffer createSegment failed", (true == buf2.createSegment(channel, requestSize, segment)) && segment.size() == requestSize && memcmp(segment.data(), (U8*) str, requestSize) == 0);
         requestSize = smallSize+1;

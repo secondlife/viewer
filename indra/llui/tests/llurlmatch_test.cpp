@@ -41,7 +41,7 @@ LLStyle::Params::Params()
 {
 }
 
-LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
+LLUIImage::LLUIImage(std::string name, LLPointer<LLTexture> image)
 {
 }
 

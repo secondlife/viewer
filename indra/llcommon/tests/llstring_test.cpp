@@ -28,6 +28,8 @@
 
 #include "linden_common.h"
 
+#include <algorithm>
+
 #include "../llstring.h"
 #include "StringVec.h"                  // must come BEFORE lltut.h
 #include "../test/lltut.h"
@@ -150,10 +152,10 @@ namespace tut
     void string_index_object_t::test<10>()
     {
         std::string str_val("Second");
-        ensure("1. isHead failed", LLStringUtil::isHead(str_val, "SecondLife Source") == true);
-        ensure("2. isHead failed", LLStringUtil::isHead(str_val, " SecondLife Source") == false);
+        ensure("1. startsWith failed", LLStringUtil::startsWith(std::string("SecondLife Source"), str_val) == true);
+        ensure("2. startsWith failed", LLStringUtil::startsWith(std::string(" SecondLife Source"), str_val) == false);
         std::string str_val2("");
-        ensure("3. isHead failed", LLStringUtil::isHead(str_val2, "") == false);
+        ensure("3. startsWith failed", LLStringUtil::startsWith(std::string(""), str_val2) == false);
     }
 
     template<> template<>
@@ -194,7 +196,7 @@ namespace tut
     void string_index_object_t::test<14>()
     {
         std::string str_val("Hello.\n\t\r\nABCDEFGHIABABAB");
-        LLStringUtil::replaceChar(str_val, 'A', 'X');
+        std::replace(str_val.begin(), str_val.end(), 'A', 'X');
         ensure_equals("1: replaceChar failed", str_val, "Hello.\n\t\r\nXBCDEFGHIXBXBXB");
         std::string str_val1("Hello.\n\t\r\nABCDEFGHIABABAB");
     }
