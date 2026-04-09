@@ -226,8 +226,8 @@ public:
 
     void setMaxY(F32 val);
 
-    LLQuaternion getMoonRotation() const;
-    void setMoonRotation(const LLQuaternion &val);
+    glm::quat getMoonRotation() const;
+    void setMoonRotation(const glm::quat &val);
 
     F32 getMoonScale() const;
     void setMoonScale(F32 val);
@@ -244,8 +244,8 @@ public:
     LLColor3 getSunlightColor() const;
     void setSunlightColor(const LLColor3 &val);
 
-    LLQuaternion getSunRotation() const;
-    void setSunRotation(const LLQuaternion &val) ;
+    glm::quat getSunRotation() const;
+    void setSunRotation(const glm::quat &val) ;
 
     F32 getSunScale() const;
     void setSunScale(F32 val);
