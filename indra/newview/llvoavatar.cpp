@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llvoavatar.h"
+#include <glm/vec3.hpp>
 
 #include <stdio.h>
 #include <ctype.h>
@@ -262,7 +263,7 @@ struct LLAppearanceMessageContents: public LLRefCount
     //U32 appearance_flags = 0;
     std::vector<F32> mParamWeights;
     std::vector<LLVisualParam*> mParams;
-    LLVector3 mHoverOffset;
+    glm::vec3 mHoverOffset{0.f};
     bool mHoverOffsetWasSet;
 };
 
