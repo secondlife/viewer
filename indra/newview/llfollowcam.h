@@ -110,8 +110,8 @@ protected:
     bool            mFocusLocked;
     bool            mUsePosition; // specific camera point specified by script
     bool            mUseFocus; // specific focus point specified by script
-    LLVector3       mPosition;          // where the camera is (in world-space)
-    LLVector3       mFocus;             // what the camera is aimed at (in world-space)
+    glm::vec3       mPosition{0.f};     // where the camera is (in world-space)
+    glm::vec3       mFocus{0.f};        // what the camera is aimed at (in world-space)
 };
 
 class LLFollowCam : public LLFollowCamParams
@@ -180,8 +180,8 @@ protected:
     glm::vec3       mSubjectPosition{0.f}; // this is the position of what I'm looking at
     glm::quat       mSubjectRotation{1.f, 0.f, 0.f, 0.f}; // this is the rotation of what I'm looking at (identity w,x,y,z)
     glm::vec3       mUpVector{0.f};     // the camera's up vector in world-space (determines roll)
-    LLVector3       mRelativeFocus;
-    LLVector3       mRelativePos;
+    glm::vec3       mRelativeFocus{0.f};
+    glm::vec3       mRelativePos{0.f};
 
     bool mPitchSineAndCosineNeedToBeUpdated;
 
