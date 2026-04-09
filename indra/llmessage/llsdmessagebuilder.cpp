@@ -204,7 +204,7 @@ void LLSDMessageBuilder::addVector3d(const char* varname, const LLVector3d& v)
 
 void LLSDMessageBuilder::addQuat(const char* varname, const LLQuaternion& v)
 {
-    (*mCurrentBlock)[varname] = ll_sd_from_quaternion(v);
+    (*mCurrentBlock)[varname] = ll_sd_from_quat(v);   // implicit op glm::quat()
 }
 
 void LLSDMessageBuilder::addUUID(const char* varname, const LLUUID& v)
