@@ -759,7 +759,7 @@ public:
     //list of currently bound reflection maps
     std::vector<LLReflectionMap*> mReflectionMaps;
 
-    std::array<std::vector<LLVector3>, 4> mShadowFrustPoints;
+    std::array<std::vector<glm::vec3>, 4> mShadowFrustPoints;
     LLVector4               mShadowError;
     LLVector4               mShadowFOV;
     std::array<LLVector3, 4> mShadowFrustOrigin;

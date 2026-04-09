@@ -4806,7 +4806,7 @@ void LLPipeline::renderDebug()
 
                     for (U32 j = 0; j < mShadowFrustPoints[i].size(); ++j)
                         {
-                            gGL.vertex3fv(mShadowFrustPoints[i][j].mV);
+                            gGL.vertex3fv(&mShadowFrustPoints[i][j].x);
 
                         }
                     gGL.end();
@@ -10005,7 +10005,10 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
             {
                 mShadowExtents[j][0] = min;
                 mShadowExtents[j][1] = max;
-                mShadowFrustPoints[j] = fp;
+                // fp is std::vector<LLVector3>; mShadowFrustPoints is
+                // std::vector<glm::vec3>. assign() bridges via the
+                // implicit LLVector3 -> glm::vec3 conversion operator.
+                mShadowFrustPoints[j].assign(fp.begin(), fp.end());
             }
 
             //find a good origin for shadow projection
