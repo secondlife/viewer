@@ -182,12 +182,12 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
 
             // Cubic interpolation of position
             // At^3 + Bt^2 + Ct + D = f(t)
-            LLVector3 D = last_source_section->mPosition;
-            LLVector3 C = last_source_section->mdPosition * source_section_length;
-            LLVector3 Y = source_section->mdPosition * source_section_length - C; // Helper var
-            LLVector3 X = (source_section->mPosition - D - C); // Helper var
-            LLVector3 A = Y - 2*X;
-            LLVector3 B = X - A;
+            glm::vec3 D = last_source_section->mPosition;
+            glm::vec3 C = last_source_section->mdPosition * source_section_length;
+            glm::vec3 Y = source_section->mdPosition * source_section_length - C; // Helper var
+            glm::vec3 X = (source_section->mPosition - D - C); // Helper var
+            glm::vec3 A = Y - 2.f*X;
+            glm::vec3 B = X - A;
 
             F32 t_inc = 1.f/F32(num_steps);
             F32 t = t_inc;
