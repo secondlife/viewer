@@ -69,8 +69,8 @@ public:
 
     // Current particle state (possibly used for rendering)
     LLPointer<LLViewerTexture>  mImagep;
-    LLVector3       mPosAgent;
-    LLVector3       mVelocity;
+    glm::vec3       mPosAgent{0.f};
+    glm::vec3       mVelocity{0.f};
     glm::vec3       mAccel{0.f};
     glm::vec3       mAxis{0.f};
     LLColor4        mColor;

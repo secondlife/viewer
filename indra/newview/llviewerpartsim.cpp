@@ -297,7 +297,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         if (part->mFlags & LLPartData::LL_PART_FOLLOW_SRC_MASK)
         {
             part->mPosAgent = part->mPartSourcep->mPosAgent;
-            part->mPosAgent += LLVector3(part->mPosOffset);
+            part->mPosAgent += part->mPosOffset;
         }
 
         // Do a custom callback if we have one...
@@ -309,7 +309,10 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         if (part->mFlags & LLPartData::LL_PART_WIND_MASK)
         {
             part->mVelocity *= 1.f - 0.1f*dt;
-            part->mVelocity += 0.1f*dt*regionp->mWind.getVelocity(regionp->getPosRegionFromAgent(part->mPosAgent));
+            {
+                const LLVector3 wind_v = regionp->mWind.getVelocity(regionp->getPosRegionFromAgent(part->mPosAgent));
+                part->mVelocity += 0.1f*dt*glm::vec3(wind_v.mV[VX], wind_v.mV[VY], wind_v.mV[VZ]);
+            }
         }
 
         // Now do interpolation towards a target
@@ -322,7 +325,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
             step *= 5.f;
             // we want a velocity that will result in reaching the target in the
             // Interpolate towards the target.
-            LLVector3 delta_pos = LLVector3(part->mPartSourcep->mTargetPosAgent) - part->mPosAgent;
+            glm::vec3 delta_pos = part->mPartSourcep->mTargetPosAgent - part->mPosAgent;
 
             delta_pos /= remaining;
 
@@ -332,7 +335,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 
         if (part->mFlags & LLPartData::LL_PART_TARGET_LINEAR_MASK)
         {
-            LLVector3 delta_pos = LLVector3(part->mPartSourcep->mTargetPosAgent) - part->mPartSourcep->mPosAgent;
+            glm::vec3 delta_pos = part->mPartSourcep->mTargetPosAgent - part->mPartSourcep->mPosAgent;
             part->mPosAgent = part->mPartSourcep->mPosAgent;
             part->mPosAgent += frac*delta_pos;
             part->mVelocity = delta_pos;
@@ -341,8 +344,8 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         {
             // Do velocity interpolation
             part->mPosAgent += dt*part->mVelocity;
-            part->mPosAgent += 0.5f*dt*dt*LLVector3(part->mAccel);
-            part->mVelocity += LLVector3(part->mAccel)*dt;
+            part->mPosAgent += 0.5f*dt*dt*part->mAccel;
+            part->mVelocity += part->mAccel*dt;
         }
 
         // Do a bounce test
@@ -350,19 +353,19 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         {
             // Need to do point vs. plane check...
             // For now, just check relative to object height...
-            F32 dz = part->mPosAgent.mV[VZ] - part->mPartSourcep->mPosAgent.z;
+            F32 dz = part->mPosAgent.z - part->mPartSourcep->mPosAgent.z;
             if (dz < 0)
             {
-                part->mPosAgent.mV[VZ] += -2.f*dz;
-                part->mVelocity.mV[VZ] *= -0.75f;
+                part->mPosAgent.z += -2.f*dz;
+                part->mVelocity.z *= -0.75f;
             }
         }
 
         // Reset the offset from the source position
         if (part->mFlags & LLPartData::LL_PART_FOLLOW_SRC_MASK)
         {
-            part->mPosOffset = glm::vec3(part->mPosAgent);
-            part->mPosOffset -= glm::vec3(part->mPartSourcep->mPosAgent);
+            part->mPosOffset = part->mPosAgent;
+            part->mPosOffset -= part->mPartSourcep->mPosAgent;
         }
 
         // Do color interpolation
@@ -446,7 +449,7 @@ void LLViewerPartGroup::shift(const LLVector3 &offset)
 
     for (S32 i = 0 ; i < static_cast<S32>(mParticles.size()); i++)
     {
-        mParticles[i]->mPosAgent += offset;
+        mParticles[i]->mPosAgent += offset_gm;
     }
 }
 
@@ -568,7 +571,8 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 {
     const F32 MAX_MAG = 1000000.f*1000000.f; // 1 million
     LLViewerPartGroup *return_group = NULL ;
-    if (part->mPosAgent.lengthSquared() > MAX_MAG || !part->mPosAgent.isFinite())
+    if (glm::dot(part->mPosAgent, part->mPosAgent) > MAX_MAG ||
+        !(std::isfinite(part->mPosAgent.x) && std::isfinite(part->mPosAgent.y) && std::isfinite(part->mPosAgent.z)))
     {
     }
     else
@@ -591,7 +595,7 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
         // Create a new one...
         if(!return_group)
         {
-            llassert_always(part->mPosAgent.isFinite());
+            llassert_always(std::isfinite(part->mPosAgent.x) && std::isfinite(part->mPosAgent.y) && std::isfinite(part->mPosAgent.z));
             LLViewerPartGroup *groupp = createViewerPartGroup(part->mPosAgent, desired_size, part->mFlags & LLPartData::LL_PART_HUD);
             groupp->mUniformParticles = (part->mScale.x == part->mScale.y &&
                                     !(part->mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK));

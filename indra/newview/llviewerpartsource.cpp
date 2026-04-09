@@ -352,7 +352,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
             if (mPartSysData.mPattern & LLPartSysData::LL_PART_SRC_PATTERN_DROP)
             {
                 part->mPosAgent = mPosAgent;
-                part->mVelocity.set(0.f, 0.f, 0.f);
+                part->mVelocity = glm::vec3(0.f);
             }
             else if (mPartSysData.mPattern & LLPartSysData::LL_PART_SRC_PATTERN_EXPLODE)
             {
@@ -370,7 +370,10 @@ void LLViewerPartSourceScript::update(const F32 dt)
                 while ((mvs > 1.f) || (mvs < 0.01f));
 
                 part_dir_vector.normalize();
-                part->mPosAgent += mPartSysData.mBurstRadius*part_dir_vector;
+                {
+                    const LLVector3 add = mPartSysData.mBurstRadius*part_dir_vector;
+                    part->mPosAgent += glm::vec3(add.mV[VX], add.mV[VY], add.mV[VZ]);
+                }
                 part->mVelocity = part_dir_vector;
                 F32 speed = mPartSysData.mBurstSpeedMin + ll_frand(mPartSysData.mBurstSpeedMax - mPartSysData.mBurstSpeedMin);
                 part->mVelocity *= speed;
@@ -422,7 +425,10 @@ void LLViewerPartSourceScript::update(const F32 dt)
                 // through the bridge ctor keeps the original behaviour.
                 part_dir_vector = part_dir_vector * LLQuaternion(mRotation);
 
-                part->mPosAgent += mPartSysData.mBurstRadius*part_dir_vector;
+                {
+                    const LLVector3 add = mPartSysData.mBurstRadius*part_dir_vector;
+                    part->mPosAgent += glm::vec3(add.mV[VX], add.mV[VY], add.mV[VZ]);
+                }
 
                 part->mVelocity = part_dir_vector;
 
@@ -432,7 +438,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
             else
             {
                 part->mPosAgent = mPosAgent;
-                part->mVelocity.set(0.f, 0.f, 0.f);
+                part->mVelocity = glm::vec3(0.f);
                 //LL_WARNS() << "Unknown source pattern " << (S32)mPartSysData.mPattern << LL_ENDL;
             }
 
@@ -618,9 +624,9 @@ void LLViewerPartSourceSpiral::updatePart(LLViewerPart &part, const F32 dt)
     F32 x = sin(F_TWO_PI*frac + part.mParameter);
     F32 y = cos(F_TWO_PI*frac + part.mParameter);
 
-    part.mPosAgent.mV[VX] += x;
-    part.mPosAgent.mV[VY] += y;
-    part.mPosAgent.mV[VZ] += -0.5f + frac;
+    part.mPosAgent.x += x;
+    part.mPosAgent.y += y;
+    part.mPosAgent.z += -0.5f + frac;
 }
 
 
@@ -720,8 +726,8 @@ void LLViewerPartSourceBeam::updatePart(LLViewerPart &part, const F32 dt)
         return;
     }
 
-    LLVector3 source_pos_agent;
-    LLVector3 target_pos_agent;
+    glm::vec3 source_pos_agent(0.f);
+    glm::vec3 target_pos_agent(0.f);
     if (!psb->mSourceObjectp.isNull() && !psb->mSourceObjectp->mDrawable.isNull())
     {
         if (psb->mSourceObjectp->isAvatar())
@@ -873,9 +879,9 @@ void LLViewerPartSourceChat::updatePart(LLViewerPart &part, const F32 dt)
     F32 x = sin(F_TWO_PI*frac + part.mParameter);
     F32 y = cos(F_TWO_PI*frac + part.mParameter);
 
-    part.mPosAgent.mV[VX] += x;
-    part.mPosAgent.mV[VY] += y;
-    part.mPosAgent.mV[VZ] += -0.5f + frac;
+    part.mPosAgent.x += x;
+    part.mPosAgent.y += y;
+    part.mPosAgent.z += -0.5f + frac;
 }
 
 

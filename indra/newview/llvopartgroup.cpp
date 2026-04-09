@@ -455,13 +455,13 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
         LLVector4a axis, pos, paxis, ppos;
         F32 scale, pscale;
 
-        pos.load3(part.mPosAgent.mV);
+        pos.load3(&part.mPosAgent.x);
         axis.load3(&part.mAxis.x);
         scale = part.mScale.x;
 
         if (part.mParent)
         {
-            ppos.load3(part.mParent->mPosAgent.mV);
+            ppos.load3(&part.mParent->mPosAgent.x);
             paxis.load3(&part.mParent->mAxis.x);
             pscale = part.mParent->mScale.x;
         }
@@ -505,7 +505,7 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
     else
     {
         LLVector4a part_pos_agent;
-        part_pos_agent.load3(part.mPosAgent.mV);
+        part_pos_agent.load3(&part.mPosAgent.x);
         LLVector4a camera_agent;
         camera_agent.load3(getCameraPosition().mV);
         LLVector4a at;
@@ -519,10 +519,10 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
         up.setCross3(right, at);
         up.normalize3fast();
 
-        if (part.mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK && !part.mVelocity.isExactlyZero())
+        if (part.mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK && part.mVelocity != glm::vec3(0.f))
         {
             LLVector4a normvel;
-            normvel.load3(part.mVelocity.mV);
+            normvel.load3(&part.mVelocity.x);
             normvel.normalize3fast();
             glm::vec2 up_fracs;
             up_fracs.x = normvel.dot3(right).getF32();
