@@ -1007,7 +1007,7 @@ public:
     // if this is a mesh asset, scale and translation that were applied
     // when encoding the source mesh into a unit cube
     // used for regenerating tangents
-    LLVector3 mNormalizedScale = LLVector3(1,1,1);
+    glm::vec3 mNormalizedScale{1.f, 1.f, 1.f};
 
 private:
     LLVolumeOctree* mOctree;

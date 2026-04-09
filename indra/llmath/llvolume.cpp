@@ -2373,11 +2373,13 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
             //unpack normalized scale/translation
             if (mdl[i].has("NormalizedScale"))
             {
-                face.mNormalizedScale.setValue(mdl[i]["NormalizedScale"]);
+                LLVector3 tmp;
+                tmp.setValue(mdl[i]["NormalizedScale"]);
+                face.mNormalizedScale = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
             }
             else
             {
-                face.mNormalizedScale.set(1, 1, 1);
+                face.mNormalizedScale = glm::vec3(1.f, 1.f, 1.f);
             }
 
             LLVector4a pos_range;
@@ -5509,14 +5511,14 @@ struct MikktData
             LL_ERRS("LLCoros") << "Bad memory allocation in MikktData, elements count: " << count << LL_ENDL;
         }
 
-        LLVector3 inv_scale(1.f / face->mNormalizedScale.mV[0], 1.f / face->mNormalizedScale.mV[1], 1.f / face->mNormalizedScale.mV[2]);
+        LLVector3 inv_scale(1.f / face->mNormalizedScale.x, 1.f / face->mNormalizedScale.y, 1.f / face->mNormalizedScale.z);
 
         for (S32 i = 0; i < face->mNumIndices; ++i)
         {
             U32 idx = face->mIndices[i];
 
             p[i].set(face->mPositions[idx].getF32ptr());
-            p[i].scaleVec(face->mNormalizedScale); //put mesh in original coordinate frame when reconstructing tangents
+            p[i].scaleVec(LLVector3(face->mNormalizedScale)); //put mesh in original coordinate frame when reconstructing tangents
             n[i].set(face->mNormals[idx].getF32ptr());
             n[i].scaleVec(inv_scale);
             n[i].normalize();
@@ -5688,9 +5690,9 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             }
 
             // put back in normalized coordinate frame
-            LLVector4a inv_scale(1.f/mNormalizedScale.mV[0], 1.f / mNormalizedScale.mV[1], 1.f / mNormalizedScale.mV[2]);
+            LLVector4a inv_scale(1.f/mNormalizedScale.x, 1.f / mNormalizedScale.y, 1.f / mNormalizedScale.z);
             LLVector4a scale;
-            scale.load3(mNormalizedScale.mV);
+            scale.load3(&mNormalizedScale.x);
             scale.getF32ptr()[3] = 1.f;
 
             for (S32 i = 0; i < mNumVertices; ++i)
