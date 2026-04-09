@@ -201,7 +201,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     mFMP = fmp;
 
     mHasPivot = false;
-    mModelPivot = LLVector3(0.0f, 0.0f, 0.0f);
+    mModelPivot = glm::vec3(0.0f);
 
     createPreviewAvatar();
 }

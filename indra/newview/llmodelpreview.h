@@ -32,6 +32,7 @@
 #include "llmeshrepository.h"
 #include "llmodelloader.h" //NUM_LOD
 #include "llmodel.h"
+#include <glm/vec3.hpp>
 
 class LLJoint;
 class LLVOAvatar;
@@ -329,7 +330,7 @@ protected:
     model_loaded_signal_t mModelLoadedSignal;
     model_updated_signal_t mModelUpdatedSignal;
 
-    LLVector3   mModelPivot;
+    glm::vec3   mModelPivot{0.f};
     bool        mHasPivot;
 
     float       mPelvisZOffset;
