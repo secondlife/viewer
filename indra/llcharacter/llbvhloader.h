@@ -107,7 +107,7 @@ struct Joint
     // Include aligned members first
     LLMatrix3       mFrameMatrix;
     LLMatrix3       mOffsetMatrix;
-    LLVector3       mRelativePosition;
+    glm::vec3       mRelativePosition{0.f};
     //
     std::string     mName;
     bool            mIgnore;
@@ -174,7 +174,7 @@ public:
     bool        mRelativeRotationKey;
     LLMatrix3   mFrameMatrix;
     LLMatrix3   mOffsetMatrix;
-    LLVector3   mRelativePosition;
+    glm::vec3   mRelativePosition{0.f};
     std::string mMergeParentName;
     std::string mMergeChildName;
     S32         mPriorityModifier;

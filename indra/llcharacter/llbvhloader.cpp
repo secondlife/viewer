@@ -1002,7 +1002,7 @@ void LLBVHLoader::applyTranslations()
             joint->mRelativeRotationKey = true;
         }
 
-        if ( trans.mRelativePosition.length() > 0.0f )
+        if ( glm::length(trans.mRelativePosition) > 0.0f )
         {
             joint->mRelativePosition = trans.mRelativePosition;
 //          LL_INFOS() << "NOTE: Removing " <<
