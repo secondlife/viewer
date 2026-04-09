@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llvocache.h"
+#include <glm/vec3.hpp>
 #include "llregionhandle.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
@@ -837,7 +838,7 @@ public:
 private:
     LLVOCachePartition* mPartition;
     LLViewerRegion*     mRegionp;
-    LLVector3           mLocalShift; //shift vector from agent space to local region space.
+    glm::vec3           mLocalShift{0.f}; //shift vector from agent space to local region space.
     F32                 mPixelThreshold;
     F32                 mNearRadius;
     bool                mUseObjectCacheOcclusion;
@@ -898,13 +899,13 @@ private:
     //a sphere around the camera origin, including objects behind camera.
     S32 backSphereCheck(const LLVector4a& min, const LLVector4a& max)
     {
-        return AABBSphereIntersect(min, max, LLVector3(mCamera->getOrigin()) - mLocalShift, mSphereRadius);
+        return AABBSphereIntersect(min, max, LLVector3(mCamera->getOrigin()) - LLVector3(mLocalShift), mSphereRadius);
     }
 
 private:
     F32              mSphereRadius;
     LLViewerRegion*  mRegionp;
-    LLVector3        mLocalShift; //shift vector from agent space to local region space.
+    glm::vec3        mLocalShift{0.f}; //shift vector from agent space to local region space.
     F32              mPixelThreshold;
     bool             mUseObjectCacheOcclusion;
 };
