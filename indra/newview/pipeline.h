@@ -640,9 +640,6 @@ public:
 
     void updateCamera(bool reset = false);
 
-    LLVector3               mFlyCamPosition;
-    LLQuaternion            mFlyCamRotation;
-
     bool                     mBackfaceCull;
     S32                      mMatrixOpCount;
     S32                      mTextureMatrixOps;

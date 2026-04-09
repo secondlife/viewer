@@ -54,7 +54,7 @@ struct LLFlexibleObjectSection
 {
     // Input parameters
     glm::vec2       mScale;
-    LLQuaternion    mAxisRotation;
+    glm::quat       mAxisRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     // Simulated state
     LLVector3       mPosition;
     LLVector3       mVelocity;
@@ -104,7 +104,6 @@ private:
         void preRebuild();
 
         //void              setAttributes( LLFlexibleObjectData );
-        void                setParentPositionAndRotationDirectly( LLVector3 p, LLQuaternion r );
         void                setUsingCollisionSphere( bool u );
         void                setCollisionSphere( LLVector3 position, F32 radius );
         void                setRenderingCollisionSphere( bool r);
@@ -122,10 +121,8 @@ private:
         LLViewerObject*             mVO;
         LLTimer                     mTimer;
         LLVector3                   mAnchorPosition;
-        LLVector3                   mParentPosition;
-        LLQuaternion                mParentRotation;
-        LLQuaternion                mLastFrameRotation;
-        LLQuaternion                mLastSegmentRotation;
+        glm::quat                   mLastFrameRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
+        glm::quat                   mLastSegmentRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
         bool                        mInitialized;
         bool                        mUpdated;
         LLFlexibleObjectData*       mAttributes;

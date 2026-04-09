@@ -138,14 +138,6 @@ void LLVolumeImplFlexible::onShift(const LLVector4a &shift_vector)
     }
 }
 
-//-----------------------------------------------------------------------------------------------
-void LLVolumeImplFlexible::setParentPositionAndRotationDirectly( LLVector3 p, LLQuaternion r )
-{
-    mParentPosition = p;
-    mParentRotation = r;
-
-}//-----------------------------------------------------------------------------------------------------
-
 void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 source_sections,
                                          LLFlexibleObjectSection *dest, S32 dest_sections)
 {
@@ -203,8 +195,11 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
             {
                 dest[section+step].mScale =
                     glm::mix(last_source_section->mScale, source_section->mScale, t);
+                // LL slerp is a hidden friend of LLQuaternion (ADL only); wrap glm::quat
+                // args explicitly so name lookup finds it. Mirrors the cluster #35 wrap
+                // for LLFlexibleObjectSection::mRotation just below.
                 dest[section+step].mAxisRotation =
-                    slerp(t, last_source_section->mAxisRotation, source_section->mAxisRotation);
+                    slerp(t, LLQuaternion(last_source_section->mAxisRotation), LLQuaternion(source_section->mAxisRotation));
 
                 // Evaluate output interpolated values
                 F32 t_sq = t*t;
@@ -268,7 +263,9 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
     mSection[0].mdPosition = mSection[0].mDirection;
     mSection[0].mScale = glm::vec2(scale.mV[VX]*bottom_scale.x, scale.mV[VY]*bottom_scale.y);
     mSection[0].mVelocity.set(0,0,0);
-    mSection[0].mAxisRotation.setAngleAxis(begin_rot,0,0,1);
+    // glm::angleAxis(angle, axis) ≡ LLQuaternion::setAngleAxis(angle, axis)
+    // for already-unit axes; (0,0,1) is unit so no normalization mismatch.
+    mSection[0].mAxisRotation = glm::angleAxis(begin_rot, glm::vec3(0.f, 0.f, 1.f));
 
     remapSections(mSection, mInitializedRes, mSection, mSimulateRes);
     mInitializedRes = mSimulateRes;
@@ -278,7 +275,7 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
 
     for ( int i=1; i<= num_sections; i++)
     {
-        mSection[i].mAxisRotation.setAngleAxis(lerp(begin_rot,end_rot,t),0,0,1);
+        mSection[i].mAxisRotation = glm::angleAxis(lerp(begin_rot, end_rot, t), glm::vec3(0.f, 0.f, 1.f));
         mSection[i].mScale = glm::vec2(
             scale.mV[VX] * lerp(bottom_scale.x, top_scale.x, t),
             scale.mV[VY] * lerp(bottom_scale.y, top_scale.y, t));
@@ -705,9 +702,10 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
     {
         new_point = &path->mPath[i];
         LLVector3 pos = newSection[i].mPosition * rel_xform;
-        // newSection[i].mRotation is glm::quat post-cluster #32; wrap to keep
-        // the entire chain in LL compose semantics.
-        LLQuaternion rot = mSection[i].mAxisRotation * LLQuaternion(newSection[i].mRotation) * delta_rot;
+        // mAxisRotation (cluster #37) and newSection[i].mRotation (cluster #32)
+        // are both glm::quat; wrap each in LLQuaternion to keep the entire chain
+        // in LL compose semantics through delta_rot.
+        LLQuaternion rot = LLQuaternion(mSection[i].mAxisRotation) * LLQuaternion(newSection[i].mRotation) * delta_rot;
 
         LLVector3 np(new_point->mPos.getF32ptr());
 
@@ -800,7 +798,7 @@ bool LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
     // Object may have been rotated, which means it needs a rebuild.  See SL-47220
     bool    rotated = false;
     LLQuaternion cur_rotation = getFrameRotation();
-    if ( cur_rotation != mLastFrameRotation )
+    if ( cur_rotation != LLQuaternion(mLastFrameRotation) )
     {
         mLastFrameRotation = cur_rotation;
         rotated = true;

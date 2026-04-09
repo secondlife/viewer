@@ -38,6 +38,7 @@ class LLVivoxProtocolParser;
 #include "llcallingcard.h"   // for LLFriendObserver
 #include "lleventcoro.h"
 #include "llcoros.h"
+#include <glm/gtc/quaternion.hpp>
 #include <queue>
 
 #ifdef LL_USESYSTEMLIBS
@@ -756,7 +757,7 @@ private:
 
     LLVector3d  mAvatarPosition;
     LLVector3   mAvatarVelocity;
-    LLQuaternion mAvatarRot;
+    glm::quat   mAvatarRot{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
 
     bool        mMuteMic;
     bool        mMuteMicDirty;

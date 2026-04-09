@@ -729,7 +729,6 @@ LLJoystickQuaternion::LLJoystickQuaternion(const LLJoystickQuaternion::Params &p
     mInRight(false),
     mInBottom(false),
     mVectorZero(0.0f, 0.0f, 1.0f),
-    mRotation(),
     mUpDnAxis(1.0f, 0.0f, 0.0f),
     mLfRtAxis(0.0f, 0.0f, 1.0f),
     mXAxisIndex(2), // left & right across the control
@@ -835,8 +834,11 @@ void LLJoystickQuaternion::onHeldDown()
     LLQuaternion delta;
     delta.setAngleAxis(0.0523599f, axis);   // about 3deg
 
-    mRotation *= delta;
-    setValue(mRotation.getValue());
+    // LL `mRotation *= delta` ≡ glm `delta * mRotation` (LL/glm
+    // composition convention is reversed — see quaternion_cheat_sheet
+    // hazard 3 / cluster #16 compose-order flip).
+    mRotation = static_cast<glm::quat>(delta) * mRotation;
+    setValue(LLQuaternion(mRotation).getValue());
     onCommit();
 }
 
@@ -867,7 +869,13 @@ void LLJoystickQuaternion::draw()
         drawRotatedImage(getImageSelected(), 3);
     }
 
-    LLVector3 draw_point = mVectorZero * mRotation;
+    // PRESERVE: bridge through LLQuaternion to keep LL's lenient
+    // |q|^2 scaling on non-unit quats. mRotation accumulates `*=` in
+    // onHeldDown() without normalizing between drags, so it can drift
+    // off the unit sphere over many holds. glm `quat * vec` assumes
+    // unit length and would diverge. See BUG-Q-002 in
+    // sl_dev/docs/quaternion_migration_bugs.md.
+    LLVector3 draw_point = mVectorZero * LLQuaternion(mRotation);
     S32 halfwidth = getRect().getWidth() / 2;
     S32 halfheight = getRect().getHeight() / 2;
     draw_point.mV[mXAxisIndex] = (draw_point.mV[mXAxisIndex] + 1.0f) * halfwidth;
@@ -940,17 +948,16 @@ void LLJoystickQuaternion::drawRotatedImage(LLPointer<LLUIImage> image, S32 rota
 
 void LLJoystickQuaternion::setRotation(const LLQuaternion &value)
 {
-    if (value != mRotation)
+    if (value != LLQuaternion(mRotation))
     {
-        mRotation = value;
-        mRotation.normalize();
-        LLJoystick::setValue(mRotation.getValue());
+        mRotation = glm::normalize(static_cast<glm::quat>(value));
+        LLJoystick::setValue(LLQuaternion(mRotation).getValue());
     }
 }
 
 LLQuaternion LLJoystickQuaternion::getRotation() const
 {
-    return mRotation;
+    return LLQuaternion(mRotation);
 }
 
 

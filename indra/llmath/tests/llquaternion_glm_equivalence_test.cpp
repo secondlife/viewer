@@ -8,8 +8,12 @@
  * Conventions worked out and pinned by these tests:
  *
  *   - LLQuaternion stores mQ[VX, VY, VZ, VW] (xyzw, w is the scalar).
- *   - glm::quat constructor is glm::quat(w, x, y, z) (w first!).
- *     glm::quat stores internally as wxyz too.
+ *   - glm::quat constructor is glm::quat(w, x, y, z) (w first!), but
+ *     this glm build stores xyzw in memory (no GLM_FORCE_QUAT_DATA_WXYZ
+ *     defined — see glm/detail/type_quat.hpp:48). This means
+ *     glm::quat::operator[] indexes the same component as
+ *     LLQuaternion::operator[]: 0=x, 1=y, 2=z, 3=w. Tests 34-36 pin
+ *     this convention so a future glm bump can't silently flip it.
  *
  *   - LLQuaternion `operator*(a, b)` composes "apply a, then b". This
  *     is REVERSED from the standard Hamilton product convention. Doing
@@ -793,5 +797,86 @@ namespace tut
         ensure_approximately_equals("LL vs glm composed x", composed.mV[0], composed_gm.x, 16);
         ensure_approximately_equals("LL vs glm composed y", composed.mV[1], composed_gm.y, 16);
         ensure_approximately_equals("LL vs glm composed z", composed.mV[2], composed_gm.z, 16);
+    }
+
+    // ---------- Indexed access (operator[]) ----------
+    //
+    // Pins the convention that LLQuaternion::operator[] and
+    // glm::quat::operator[] index the same components in the same
+    // order: [0]=x, [1]=y, [2]=z, [3]=w.
+    //
+    // This is true *only* because the bundled glm in this project does
+    // NOT define GLM_FORCE_QUAT_DATA_WXYZ — its memory layout is xyzw
+    // (see glm/detail/type_quat.hpp). If a future glm bump flips that
+    // default, these tests will fail loudly and any code that does
+    // `quat[i]` indexed access (notably the LLVoiceWebRTC wire-format
+    // serialization at llvoicewebrtc.cpp lines 1163-1179) needs to
+    // remap before the storage change lands.
+    //
+    // NOTE: LLQuaternion::operator[] is read-only and returns by-value
+    // as F64 (see llquaternion.h:127). There's no mutable LL `q[i] = x`
+    // path to test, so this section pins read-side equivalence only.
+
+    template<> template<>
+    void llquat_glm_equiv_object::test<34>()
+    {
+        // const operator[] returns the same value at the same index
+        // for both libs. LL returns F64; cast for the F32 helper.
+        const LLQuaternion ll(0.1f, 0.2f, 0.3f, 0.927f);
+        const glm::quat   gm = to_glm(ll);
+
+        ensure_approximately_equals("[0] is x", static_cast<F32>(ll[0]), gm[0], 16);
+        ensure_approximately_equals("[1] is y", static_cast<F32>(ll[1]), gm[1], 16);
+        ensure_approximately_equals("[2] is z", static_cast<F32>(ll[2]), gm[2], 16);
+        ensure_approximately_equals("[3] is w", static_cast<F32>(ll[3]), gm[3], 16);
+
+        // And cross-check against the named accessors so a layout flip
+        // gets caught even if the operator[] mapping is overridden.
+        ensure_approximately_equals("[0] equals .x", gm[0], gm.x, 16);
+        ensure_approximately_equals("[1] equals .y", gm[1], gm.y, 16);
+        ensure_approximately_equals("[2] equals .z", gm[2], gm.z, 16);
+        ensure_approximately_equals("[3] equals .w", gm[3], gm.w, 16);
+
+        // Sanity: confirm the LL indices map to the LL named members,
+        // so a future LL operator[] reorder also fires this test.
+        ensure_approximately_equals("ll[0] == mQ[VX]", static_cast<F32>(ll[0]), ll.mQ[VX], 16);
+        ensure_approximately_equals("ll[3] == mQ[VW]", static_cast<F32>(ll[3]), ll.mQ[VW], 16);
+    }
+
+    template<> template<>
+    void llquat_glm_equiv_object::test<35>()
+    {
+        // Wire-format invariant: the LLVoiceWebRTC serialization at
+        // llvoicewebrtc.cpp:1163-1179 builds an LLSD/JSON map with
+        // explicit "x"/"y"/"z"/"w" keys keyed to mAvatarRot[0..3].
+        // This test asserts that mapping holds for both libs so the
+        // tier 5 voice migration can leave the wire site textually
+        // identical.
+        LLQuaternion ll(F_PI_BY_TWO, LLVector3(0.0f, 0.0f, 1.0f));  // 90deg Z
+        glm::quat    gm = to_glm(ll);
+
+        // Construct the wire payload from each lib using the indexed
+        // access form the production code uses.
+        const int ll_x = static_cast<int>(ll[0] * 100);
+        const int ll_y = static_cast<int>(ll[1] * 100);
+        const int ll_z = static_cast<int>(ll[2] * 100);
+        const int ll_w = static_cast<int>(ll[3] * 100);
+
+        const int gm_x = static_cast<int>(gm[0] * 100);
+        const int gm_y = static_cast<int>(gm[1] * 100);
+        const int gm_z = static_cast<int>(gm[2] * 100);
+        const int gm_w = static_cast<int>(gm[3] * 100);
+
+        ensure_equals("wire x matches", ll_x, gm_x);
+        ensure_equals("wire y matches", ll_y, gm_y);
+        ensure_equals("wire z matches", ll_z, gm_z);
+        ensure_equals("wire w matches", ll_w, gm_w);
+
+        // And the absolute values are what we expect for a 90deg-Z rot:
+        // (x,y,z,w) = (0, 0, sin(45deg), cos(45deg)) = (0, 0, ~0.707, ~0.707).
+        ensure_equals("90deg Z rot wire x is 0", gm_x, 0);
+        ensure_equals("90deg Z rot wire y is 0", gm_y, 0);
+        ensure_equals("90deg Z rot wire z is ~70", gm_z, 70);
+        ensure_equals("90deg Z rot wire w is ~70", gm_w, 70);
     }
 }
