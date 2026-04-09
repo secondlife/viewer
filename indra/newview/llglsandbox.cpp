@@ -737,7 +737,7 @@ void LLViewerObjectList::renderObjectBeacons()
                 last_line_width = line_width;
             }
 
-            const LLVector3 &thisline = debug_beacon.mPositionAgent;
+            const LLVector3 thisline(debug_beacon.mPositionAgent);
 
             gGL.begin(LLRender::LINES);
             gGL.color4fv(linearColor4(color).mV);
@@ -767,7 +767,7 @@ void LLViewerObjectList::renderObjectBeacons()
                 last_line_width = line_width;
             }
 
-            const LLVector3 &thisline = debug_beacon.mPositionAgent;
+            const LLVector3 thisline(debug_beacon.mPositionAgent);
             gGL.begin(LLRender::LINES);
             gGL.color4fv(linearColor4(debug_beacon.mColor).mV);
             draw_cross_lines(thisline, 0.5f, 0.5f, 0.5f);
