@@ -37,6 +37,7 @@
 #include "llstringtable.h"
 #include "llpointer.h"
 #include "llrefcount.h"
+#include <glm/vec3.hpp>
 
 class LLPolyMesh;
 
@@ -278,7 +279,7 @@ public:
     static bool sAllowInstancesChange ; //debug use
 
     virtual void    setHoverOffset(const LLVector3& hover_offset, bool send_update=true) { mHoverOffset = hover_offset; }
-    const LLVector3& getHoverOffset() const { return mHoverOffset; }
+    LLVector3       getHoverOffset() const { return LLVector3(mHoverOffset); }
 
 protected:
     LLMotionController  mMotionController;
@@ -303,7 +304,7 @@ private:
 
     static LLStringTable sVisualParamNames;
 
-    LLVector3 mHoverOffset;
+    glm::vec3 mHoverOffset{0.f};
 };
 
 
