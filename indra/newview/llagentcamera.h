@@ -235,7 +235,7 @@ private:
     LLVector3d      mFocusTargetGlobal;
     LLPointer<LLViewerObject> mFocusObject;
     F32             mFocusObjectDist;
-    LLVector3       mFocusObjectOffset;
+    glm::vec3       mFocusObjectOffset{0.f};
     bool            mTrackFocusObject;
 
     //--------------------------------------------------------------------

@@ -159,7 +159,6 @@ LLAgentCamera::LLAgentCamera() :
     mFocusTargetGlobal(),
     mFocusObject(NULL),
     mFocusObjectDist(0.f),
-    mFocusObjectOffset(),
     mTrackFocusObject(true),
 
     mAtKey(0), // Either 1, 0, or -1... indicates that movement-key is pressed
@@ -1593,7 +1592,14 @@ void LLAgentCamera::updateFocusOffset()
     {
         const LLVector3& rp = mFocusObject->getRenderPosition();
         LLVector3d obj_pos = gAgent.getPosGlobalFromAgent(glm::vec3(rp.mV[VX], rp.mV[VY], rp.mV[VZ]));
-        mFocusObjectOffset.set(mFocusTargetGlobal - obj_pos);
+        {
+            // .set(LLVector3d) truncates double-to-float; bridge through
+            // an LLVector3 temp so the migrated glm::vec3 field still
+            // gets the same scalar narrowing.
+            LLVector3 tmp;
+            tmp.set(mFocusTargetGlobal - obj_pos);
+            mFocusObjectOffset = tmp;
+        }
     }
 }
 
@@ -1602,7 +1608,7 @@ void LLAgentCamera::validateFocusObject()
     if (mFocusObject.notNull() &&
         mFocusObject->isDead())
     {
-        mFocusObjectOffset.clear();
+        mFocusObjectOffset = glm::vec3(0.f);
         clearFocusObject();
         mCameraFOVZoomFactor = 0.f;
     }
@@ -1695,7 +1701,7 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
             {
                 updateFocusOffset();
             }
-            LLVector3 focus_agent = mFocusObject->getRenderPosition() + mFocusObjectOffset;
+            LLVector3 focus_agent = mFocusObject->getRenderPosition() + LLVector3(mFocusObjectOffset);
             mFocusTargetGlobal.set(gAgent.getPosGlobalFromAgent(glm::vec3(focus_agent.mV[VX], focus_agent.mV[VY], focus_agent.mV[VZ])));
         }
         return mFocusTargetGlobal;
@@ -2568,7 +2574,7 @@ void LLAgentCamera::clearFocusObject()
         startCameraAnimation();
 
         setFocusObject(NULL);
-        mFocusObjectOffset.clear();
+        mFocusObjectOffset = glm::vec3(0.f);
     }
 }
 
