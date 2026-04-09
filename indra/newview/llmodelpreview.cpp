@@ -617,8 +617,8 @@ void LLModelPreview::rebuildUploadData()
 
     F32 max_import_scale = (DEFAULT_MAX_PRIM_SCALE - 0.1f) / max_scale;
 
-    F32 max_axis = llmax(mPreviewScale.mV[0], mPreviewScale.mV[1]);
-    max_axis = llmax(max_axis, mPreviewScale.mV[2]);
+    F32 max_axis = llmax(mPreviewScale.x, mPreviewScale.y);
+    max_axis = llmax(max_axis, mPreviewScale.z);
     max_axis *= 2.f;
 
     //clamp scale so that total imported model bounding box is smaller than 240m on a side
@@ -1289,7 +1289,7 @@ void LLModelPreview::resetPreviewTarget()
         mPreviewScale = (mModelLoader->mExtents[1] - mModelLoader->mExtents[0]) * 0.5f;
     }
 
-    setPreviewTarget(mPreviewScale.length()*10.f);
+    setPreviewTarget(glm::length(mPreviewScale)*10.f);
 }
 
 void LLModelPreview::generateNormals()
@@ -3466,7 +3466,7 @@ bool LLModelPreview::render()
     LLVector3 target_pos = LLVector3(mPreviewTarget) + offset;
 
     F32 z_near = 0.001f;
-    F32 z_far = mCameraDistance*10.0f + mPreviewScale.length() + mCameraOffset.length();
+    F32 z_far = mCameraDistance*10.0f + glm::length(mPreviewScale) + mCameraOffset.length();
 
     if (show_skin_weight)
     {

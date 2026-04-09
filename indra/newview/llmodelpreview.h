@@ -281,7 +281,7 @@ protected:
     F32         mCameraZoom;
     LLVector3   mCameraOffset;
     glm::vec3   mPreviewTarget{0.f};
-    LLVector3   mPreviewScale;
+    glm::vec3   mPreviewScale{0.f};
     S32         mPreviewLOD;
     S32         mPhysicsSearchLOD;
     std::string mLODFile[LLModel::NUM_LODS];
