@@ -216,12 +216,15 @@ namespace tut
         LLQuaternion res_lerp, res_slerp, res_nlerp;
 
         //test case for lerp(F32 t, const LLQuaternion &q) fn.
+        // BUG-Q-001 fixed 2026-04-09: lerp(t, q) W component now uses VW instead
+        // of VZ; for t=15, q=(1,2,4,1) the expected output is the normalized
+        // (15, 30, 60, 1) instead of the buggy (15, 30, 60, 46).
         res_lerp = lerp(value1, quat1);
         ensure("1. LLQuaternion lerp(F32 t, const LLQuaternion &q) failed",
-                                        is_approx_equal_fraction(0.181355f, res_lerp.mQ[0], 16) &&
-                                        is_approx_equal_fraction(0.362711f, res_lerp.mQ[1], 16) &&
-                                        is_approx_equal_fraction(0.725423f, res_lerp.mQ[2], 16) &&
-                                        is_approx_equal_fraction(0.556158f, res_lerp.mQ[3], 16));
+                                        is_approx_equal_fraction(0.218201f, res_lerp.mQ[0], 16) &&
+                                        is_approx_equal_fraction(0.436403f, res_lerp.mQ[1], 16) &&
+                                        is_approx_equal_fraction(0.872806f, res_lerp.mQ[2], 16) &&
+                                        is_approx_equal_fraction(0.014547f, res_lerp.mQ[3], 16));
 
         //test case for lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q) fn.
         res_lerp = lerp(value1, quat1, quat2);
@@ -258,19 +261,26 @@ namespace tut
         LLQuaternion quat3(2.0f, 1.0f, 5.5f, 10.5f);
         LLQuaternion res_nlerp1;
         value1 = 100.0f;
+        // BUG-Q-001 fixed 2026-04-09: nlerp(t, q) dispatches to lerp(t, q) when
+        // q.w >= 0; for t=100, q=(2,1,5.5,10.5) the expected output is the
+        // normalized (200, 100, 550, 951) instead of the buggy (200, 100, 550, 451).
         res_nlerp1 = nlerp(value1, quat3);
         ensure("6. LLQuaternion nlerp(F32 t, const LLQuaternion &q)  failed",
-                                        is_approx_equal_fraction(0.268245f, res_nlerp1.mQ[0], 16) &&                                        is_approx_equal_fraction(0.134122f, res_nlerp1.mQ[1], 2) &&
-                                        is_approx_equal_fraction(0.737673f, res_nlerp1.mQ[2], 16) &&
-                                        is_approx_equal_fraction(0.604892f, res_nlerp1.mQ[3], 16));
+                                        is_approx_equal_fraction(0.178394f, res_nlerp1.mQ[0], 16) &&
+                                        is_approx_equal_fraction(0.089197f, res_nlerp1.mQ[1], 2) &&
+                                        is_approx_equal_fraction(0.490585f, res_nlerp1.mQ[2], 16) &&
+                                        is_approx_equal_fraction(0.848254f, res_nlerp1.mQ[3], 16));
 
         //test case for lerp(F32 t, const LLQuaternion &q) fn.
+        // BUG-Q-001 fixed 2026-04-09: for t=100, q=(4,3,6.5,9.7) the expected
+        // output is the normalized (400, 300, 650, 871) instead of the buggy
+        // (400, 300, 650, 551).
         res_lerp = lerp(value1, quat2);
         ensure("7. LLQuaternion lerp(F32 t, const LLQuaternion &q) failed",
-                                        is_approx_equal_fraction(0.404867f, res_lerp.mQ[0], 16) &&
-                                        is_approx_equal_fraction(0.303650f, res_lerp.mQ[1], 16) &&
-                                        is_approx_equal_fraction(0.657909f, res_lerp.mQ[2], 16) &&
-                                        is_approx_equal_fraction(0.557704f, res_lerp.mQ[3], 16));
+                                        is_approx_equal_fraction(0.334362f, res_lerp.mQ[0], 16) &&
+                                        is_approx_equal_fraction(0.250772f, res_lerp.mQ[1], 16) &&
+                                        is_approx_equal_fraction(0.543340f, res_lerp.mQ[2], 16) &&
+                                        is_approx_equal_fraction(0.728083f, res_lerp.mQ[3], 16));
 
     }
 

@@ -472,16 +472,15 @@ F32 dot(const LLQuaternion &a, const LLQuaternion &b)
            a.mQ[VW] * b.mQ[VW];
 }
 
-// DEMO HACK: This lerp is probably inocrrect now due intermediate normalization
-// it should look more like the lerp below
-
 // lerp from identity to q
+// r = (1-t)*identity + t*q where identity = (0,0,0,1)
+//   => r.w = (1-t)*1 + t*q.w = t*(q.w - 1) + 1
 LLQuaternion lerp(F32 t, const LLQuaternion &q)
 {
     LLQuaternion r(t * q.mQ[VX],
                    t * q.mQ[VY],
                    t * q.mQ[VZ],
-                   t * (q.mQ[VZ] - 1.f) + 1.f);
+                   t * (q.mQ[VW] - 1.f) + 1.f); // BUG-Q-001 fix: was VZ
     r.normalize();
     return r;
 }
