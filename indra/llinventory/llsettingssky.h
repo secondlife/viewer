@@ -29,6 +29,7 @@
 
 #include "llsettingsbase.h"
 #include "v4coloru.h"
+#include <glm/vec3.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 const F32 EARTH_RADIUS  =      6.370e6f;
@@ -435,9 +436,9 @@ private:
     void        calculateLightSettings() const;
     static void clampColor(LLColor3& color, F32 gamma, const F32 scale = 1.0f);
 
-    mutable LLVector3   mSunDirection;
-    mutable LLVector3   mMoonDirection;
-    mutable LLVector3   mLightDirection;
+    mutable glm::vec3   mSunDirection{0.f};
+    mutable glm::vec3   mMoonDirection{0.f};
+    mutable glm::vec3   mLightDirection{0.f};
 
     static const F32 DOME_RADIUS;
     static const F32 DOME_OFFSET;

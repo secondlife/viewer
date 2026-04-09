@@ -1353,15 +1353,20 @@ void LLSettingsSky::calculateHeavenlyBodyPositions()  const
     LLQuaternion sunq  = getSunRotation();
     LLQuaternion moonq = getMoonRotation();
 
-    mSunDirection  = LLVector3::x_axis * sunq;
-    mMoonDirection = LLVector3::x_axis * moonq;
+    // LL `vec * quat` form preserves LL semantics including the lenient
+    // |q|^2 scaling on non-unit quats (BUG-Q-002). Sun/moon rotations
+    // are unit so it doesn't matter, but the bridge-through-LL keeps
+    // the cluster bisect-friendly. The subsequent glm::normalize
+    // collapses any drift.
+    mSunDirection  = LLVector3(LLVector3::x_axis * sunq);
+    mMoonDirection = LLVector3(LLVector3::x_axis * moonq);
 
-    mSunDirection.normalize();
-    mMoonDirection.normalize();
+    mSunDirection  = glm::normalize(mSunDirection);
+    mMoonDirection = glm::normalize(mMoonDirection);
 
-    if (mSunDirection.lengthSquared() < 0.01f)
+    if (glm::dot(mSunDirection, mSunDirection) < 0.01f)
         LL_WARNS("SETTINGS") << "Zero length sun direction. Wailing and gnashing of teeth may follow... or not." << LL_ENDL;
-    if (mMoonDirection.lengthSquared() < 0.01f)
+    if (glm::dot(mMoonDirection, mMoonDirection) < 0.01f)
         LL_WARNS("SETTINGS") << "Zero length moon direction. Wailing and gnashing of teeth may follow... or not." << LL_ENDL;
 }
 
