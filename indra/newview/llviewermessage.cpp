@@ -4180,7 +4180,7 @@ void near_sit_object(bool success, void *data)
 void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 {
     LLVector3 sitPosition;
-    LLQuaternion sitRotation;
+    glm::quat sitRotation(1.f, 0.f, 0.f, 0.f);
     LLUUID sitObjectID;
     bool use_autopilot;
     mesgsys->getUUIDFast(_PREHASH_SitObject, _PREHASH_ID, sitObjectID);
@@ -4216,8 +4216,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
         }
         else
         {
-            glm::quat sit_rot_g = sitRotation;   // implicit op glm::quat()
-            gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(sit_spot), "Sit", &sit_rot_g, near_sit_object, NULL, 0.5f);
+            gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(sit_spot), "Sit", &sitRotation, near_sit_object, NULL, 0.5f);
         }
     }
     else

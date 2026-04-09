@@ -3855,13 +3855,13 @@ void LLMessageSystem::getVector3d(const char *block, const char *var,
 }
 
 void LLMessageSystem::getQuatFast(const char *block, const char *var,
-                                  LLQuaternion &q, S32 blocknum )
+                                  glm::quat &q, S32 blocknum )
 {
     mMessageReader->getQuat(block, var, q, blocknum);
 }
 
 void LLMessageSystem::getQuat(const char *block, const char *var,
-                              LLQuaternion &q, S32 blocknum)
+                              glm::quat &q, S32 blocknum)
 {
     getQuatFast(LLMessageStringTable::getInstance()->getString(block),
             LLMessageStringTable::getInstance()->getString(var), q, blocknum);

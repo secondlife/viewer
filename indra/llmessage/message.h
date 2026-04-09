@@ -31,6 +31,8 @@
 #include <functional>
 #include <set>
 
+#include <glm/gtc/quaternion.hpp>
+
 #if LL_LINUX
 #include <endian.h>
 #include <netinet/in.h>
@@ -633,8 +635,8 @@ public:
     void    getVector4( const char *block, const char *var, LLVector4 &vec, S32 blocknum = 0);
     void    getVector3dFast(const char *block, const char *var, LLVector3d &vec, S32 blocknum = 0);
     void    getVector3d(const char *block, const char *var, LLVector3d &vec, S32 blocknum = 0);
-    void    getQuatFast(    const char *block, const char *var, LLQuaternion &q, S32 blocknum = 0);
-    void    getQuat(    const char *block, const char *var, LLQuaternion &q, S32 blocknum = 0);
+    void    getQuatFast(    const char *block, const char *var, glm::quat &q, S32 blocknum = 0);
+    void    getQuat(    const char *block, const char *var, glm::quat &q, S32 blocknum = 0);
     void getUUIDFast(   const char *block, const char *var, LLUUID &uuid, S32 blocknum = 0);
     void    getUUID(    const char *block, const char *var, LLUUID &uuid, S32 blocknum = 0);
     void getIPAddrFast( const char *block, const char *var, U32 &ip, S32 blocknum = 0);

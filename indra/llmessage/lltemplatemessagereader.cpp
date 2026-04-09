@@ -388,19 +388,21 @@ void LLTemplateMessageReader::getVector3d(const char *block, const char *var,
 }
 
 void LLTemplateMessageReader::getQuat(const char *block, const char *var,
-                                      LLQuaternion &q, S32 blocknum)
+                                      glm::quat &q, S32 blocknum)
 {
     LLVector3 vec;
     getData(block, var, &vec.mV[0], sizeof(vec.mV), blocknum);
     if( vec.isFinite() )
     {
-        q.unpackFromVector3( vec );
+        LLQuaternion tmp;
+        tmp.unpackFromVector3( vec );
+        q = tmp;   // implicit op glm::quat()
     }
     else
     {
         LL_WARNS() << "non-finite in getQuatFast " << block << " " << var
                 << LL_ENDL;
-        q.loadIdentity();
+        q = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
     }
 }
 
