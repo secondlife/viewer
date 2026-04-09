@@ -1321,8 +1321,8 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
 
     LLVector3 box_corner_agent = bbox.localToAgent(unitVectorToLocalBBoxExtent( partToUnitVector( mManipPart ), bbox ));
     mScaleCenter = uniform ? bbox.getCenterAgent() : bbox.localToAgent(unitVectorToLocalBBoxExtent( -1.f * partToUnitVector( mManipPart ), bbox ));
-    mScaleDir = box_corner_agent - mScaleCenter;
-    mScaleDir.normalize();
+    mScaleDir = box_corner_agent - LLVector3(mScaleCenter);
+    mScaleDir = glm::normalize(mScaleDir);
 
     if(mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
     {
@@ -1530,10 +1530,10 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
         mSnapDir2 = -1.f * mSnapGuideDir1;
     }
 
-    mScalePlaneNormal1 = mSnapGuideDir1 % mScaleDir;
+    mScalePlaneNormal1 = glm::cross(mSnapGuideDir1, mScaleDir);
     mScalePlaneNormal1 = glm::normalize(mScalePlaneNormal1);
 
-    mScalePlaneNormal2 = mSnapGuideDir2 % mScaleDir;
+    mScalePlaneNormal2 = glm::cross(mSnapGuideDir2, mScaleDir);
     mScalePlaneNormal2 = glm::normalize(mScalePlaneNormal2);
 
     mScaleSnapUnit1 = mScaleSnapUnit1 / dot(mSnapDir1, mScaleDir);
