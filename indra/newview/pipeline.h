@@ -462,7 +462,7 @@ public:
     static void updateRenderTransparentWater();
     static void refreshCachedSettings();
 
-    void addDebugBlip(const LLVector3& position, const LLColor4& color);
+    void addDebugBlip(const glm::vec3& position, const LLColor4& color);
 
     void hidePermanentObjects( std::vector<U32>& restoreList );
     void restorePermanentObjects( const std::vector<U32>& restoreList );
@@ -968,10 +968,10 @@ protected:
     {
     public:
         LLColor4 mColor;
-        LLVector3 mPosition;
+        glm::vec3 mPosition{0.f};
         F32 mAge;
 
-        DebugBlip(const LLVector3& position, const LLColor4& color)
+        DebugBlip(const glm::vec3& position, const LLColor4& color)
             : mColor(color), mPosition(position), mAge(0.f)
         { }
     };
