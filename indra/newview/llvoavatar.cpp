@@ -3772,9 +3772,9 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
     local_camera_up = local_camera_up * inv_root_rot;
 
     // position is based on head position, does not require mAvatarOffset here. - Nyx
-    LLVector3 avatar_ellipsoid(mBodySize.mV[VX] * 0.4f,
-                                mBodySize.mV[VY] * 0.4f,
-                                mBodySize.mV[VZ] * NAMETAG_VERT_OFFSET_WEIGHT);
+    LLVector3 avatar_ellipsoid(mBodySize.x * 0.4f,
+                                mBodySize.y * 0.4f,
+                                mBodySize.z * NAMETAG_VERT_OFFSET_WEIGHT);
 
     local_camera_up.scaleVec(avatar_ellipsoid);
     local_camera_at.scaleVec(avatar_ellipsoid);
@@ -4635,13 +4635,13 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 
         // correct for the fact that the pelvis is not necessarily the center
         // of the agent's physical representation
-        root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+        root_pos.mdV[VZ] -= (0.5f * mBodySize.z) - mPelvisToFoot;
         if (!isSitting() && !was_sit_ground_constrained)
         {
             root_pos += LLVector3d(getHoverOffset());
             if (getOverallAppearance() == AOA_JELLYDOLL)
             {
-                F32 offz = -0.5f * (getScale()[VZ] - mBodySize.mV[VZ]);
+                F32 offz = -0.5f * (getScale()[VZ] - mBodySize.z);
                 root_pos[2] += offz;
                 // if (!isSelf() && !isControlAvatar())
                 // {

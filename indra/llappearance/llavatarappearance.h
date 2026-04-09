@@ -183,8 +183,8 @@ public:
     bool                hasPelvisFixup( F32& fixup, LLUUID& mesh_id ) const;
     bool                hasPelvisFixup( F32& fixup ) const;
 
-    LLVector3           mBodySize;
-    LLVector3           mAvatarOffset;
+    glm::vec3           mBodySize{0.f};
+    glm::vec3           mAvatarOffset{0.f};
 protected:
     F32                 mPelvisToFoot{ 0.f };
 
