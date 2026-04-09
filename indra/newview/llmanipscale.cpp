@@ -1520,10 +1520,10 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
     }
 
     mScalePlaneNormal1 = mSnapGuideDir1 % mScaleDir;
-    mScalePlaneNormal1.normalize();
+    mScalePlaneNormal1 = glm::normalize(mScalePlaneNormal1);
 
     mScalePlaneNormal2 = mSnapGuideDir2 % mScaleDir;
-    mScalePlaneNormal2.normalize();
+    mScalePlaneNormal2 = glm::normalize(mScalePlaneNormal2);
 
     mScaleSnapUnit1 = mScaleSnapUnit1 / dot(mSnapDir1, mScaleDir);
     mScaleSnapUnit2 = mScaleSnapUnit2 / dot(mSnapDir2, mScaleDir);

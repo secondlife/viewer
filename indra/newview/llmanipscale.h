@@ -158,8 +158,8 @@ private:
     LLVector4       mManipulatorVertices[14];
     F32             mScaleSnapUnit1; //!< Size of snap multiples for the upper scale.
     F32             mScaleSnapUnit2; //!< Size of snap multiples for the lower scale.
-    LLVector3       mScalePlaneNormal1; //!< Normal of plane in which scale occurs that most faces camera.
-    LLVector3       mScalePlaneNormal2; //!< Normal of plane in which scale occurs that most faces camera.
+    glm::vec3       mScalePlaneNormal1{0.f}; //!< Normal of plane in which scale occurs that most faces camera.
+    glm::vec3       mScalePlaneNormal2{0.f}; //!< Normal of plane in which scale occurs that most faces camera.
     LLVector3       mSnapGuideDir1; //!< The direction in which the upper snap guide tick marks face.
     LLVector3       mSnapGuideDir2; //!< The direction in which the lower snap guide tick marks face.
     LLVector3       mSnapDir1; //!< The direction in which the upper snap guides face.
