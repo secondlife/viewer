@@ -394,13 +394,6 @@ const LLMatrix3&    LLMatrix3::rotate(const F32 roll, const F32 pitch, const F32
 }
 
 
-const LLMatrix3&    LLMatrix3::rotate(const LLQuaternion &q)
-{
-    LLMatrix3   mat(q);
-    *this *= mat;
-    return *this;
-}
-
 void LLMatrix3::add(const LLMatrix3& other_matrix)
 {
     for (S32 i = 0; i < 3; ++i)
