@@ -3782,14 +3782,14 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
 
     LLVector3 head_offset = (mHeadp->getLastWorldPosition() - mRoot->getLastWorldPosition()) * inv_root_rot;
 
-    if (dist_vec(head_offset, mTargetRootToHeadOffset) > NAMETAG_UPDATE_THRESHOLD)
+    if (dist_vec(head_offset, LLVector3(mTargetRootToHeadOffset)) > NAMETAG_UPDATE_THRESHOLD)
     {
         mTargetRootToHeadOffset = head_offset;
     }
 
-    mCurRootToHeadOffset = lerp(mCurRootToHeadOffset, mTargetRootToHeadOffset, LLSmoothInterpolation::getInterpolant(0.2f));
+    mCurRootToHeadOffset = lerp(LLVector3(mCurRootToHeadOffset), LLVector3(mTargetRootToHeadOffset), LLSmoothInterpolation::getInterpolant(0.2f));
 
-    LLVector3 name_position = mRoot->getLastWorldPosition() + (mCurRootToHeadOffset * root_rot);
+    LLVector3 name_position = mRoot->getLastWorldPosition() + (LLVector3(mCurRootToHeadOffset) * root_rot);
     name_position += (local_camera_up * root_rot) - (projected_vec(local_camera_at * root_rot, camera_to_av));
     name_position += pixel_up_vec * NAMETAG_VERTICAL_SCREEN_OFFSET;
 

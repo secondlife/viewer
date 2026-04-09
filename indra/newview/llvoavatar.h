@@ -482,8 +482,8 @@ public:
     void                applyDefaultParams();
     void                resetSkeleton(bool reset_animations);
 
-    LLVector3           mCurRootToHeadOffset;
-    LLVector3           mTargetRootToHeadOffset;
+    glm::vec3           mCurRootToHeadOffset{0.f};
+    glm::vec3           mTargetRootToHeadOffset{0.f};
 
     S32                 mLastSkeletonSerialNum;
 
