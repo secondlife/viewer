@@ -179,7 +179,7 @@ public:
         INVALID_UPDATE = 0x80000000
     };
 
-    static  U32     extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, LLQuaternion& rot);
+    static  U32     extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, glm::quat& rot);
     virtual U32     processUpdateMessage(LLMessageSystem *mesgsys,
                                         void **user_data,
                                         U32 block_num,

@@ -2572,7 +2572,7 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 
     LLVector3 pos;
     LLVector3 scale;
-    LLQuaternion rot;
+    glm::quat rot;
 
     //decode spatial info and parent info
     U32 parent_id = entry->getDP() ? LLViewerObject::extractSpatialExtents(entry->getDP(), pos, scale, rot) : entry->getParentID();

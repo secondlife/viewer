@@ -1134,7 +1134,7 @@ U32 LLViewerObject::checkMediaURL(const std::string &media_url)
 //extract spatial information from object update message
 //return parent_id
 //static
-U32 LLViewerObject::extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, LLQuaternion& rot)
+U32 LLViewerObject::extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, glm::quat& rot)
 {
     U32 parent_id = 0;
     LLViewerObject::unpackParentID(dp, parent_id);
@@ -1144,7 +1144,9 @@ U32 LLViewerObject::extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector
 
     LLVector3 vec;
     LLViewerObject::unpackVector3(dp, vec, "Rot");
-    rot.unpackFromVector3(vec);
+    LLQuaternion tmp_rot;
+    tmp_rot.unpackFromVector3(vec);
+    rot = tmp_rot;   // implicit operator glm::quat()
 
     return parent_id;
 }
