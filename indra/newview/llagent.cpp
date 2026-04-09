@@ -1393,9 +1393,9 @@ void LLAgent::rotate(const LLMatrix3 &matrix)
 //-----------------------------------------------------------------------------
 // rotate()
 //-----------------------------------------------------------------------------
-void LLAgent::rotate(const LLQuaternion &quaternion)
+void LLAgent::rotate(const glm::quat &quaternion)
 {
-    mFrameAgent.rotate(quaternion);
+    mFrameAgent.rotate(LLQuaternion(quaternion));
 }
 
 //-----------------------------------------------------------------------------
