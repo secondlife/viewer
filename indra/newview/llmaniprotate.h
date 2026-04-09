@@ -33,6 +33,7 @@
 #include "llregionposition.h"
 
 #include "glm/gtc/quaternion.hpp"
+#include <glm/vec3.hpp>
 #include "llmanip.h"
 #include "llviewerobject.h"
 
@@ -96,7 +97,7 @@ private:
 
     LLVector3           mMouseDown;
     LLVector3           mMouseCur;
-    LLVector3           mAgentSelfAtAxis; // Own agent uses separate rotation method
+    glm::vec3           mAgentSelfAtAxis{0.f}; // Own agent uses separate rotation method
     F32                 mRadiusMeters;
 
     LLVector3           mCenterToCam;
