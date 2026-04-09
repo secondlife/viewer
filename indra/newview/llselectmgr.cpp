@@ -4631,8 +4631,8 @@ void LLSelectMgr::packDuplicate( LLSelectNode* node, void *duplicate_data )
 // ray.
 struct LLDuplicateOnRayData
 {
-    LLVector3   mRayStartRegion;
-    LLVector3   mRayEndRegion;
+    glm::vec3   mRayStartRegion{0.f};
+    glm::vec3   mRayEndRegion{0.f};
     bool        mBypassRaycast;
     bool        mRayEndIsIntersection;
     LLUUID      mRayTargetID;
