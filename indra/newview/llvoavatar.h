@@ -36,6 +36,7 @@
 
 #include "llavatarappearance.h"
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 #include "llchat.h"
 #include "lldrawpoolalpha.h"
 #include "llviewerobject.h"
@@ -758,8 +759,8 @@ private:
     F32         mWindFreq;
     LLFrameTimer mRippleTimer;
     F32         mRippleTimeLast;
-    LLVector3   mRippleAccel;
-    LLVector3   mLastVel;
+    glm::vec3   mRippleAccel{0.f};
+    glm::vec3   mLastVel{0.f};
 
     //--------------------------------------------------------------------
     // Culling

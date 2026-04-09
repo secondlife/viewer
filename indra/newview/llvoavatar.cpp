@@ -3317,7 +3317,7 @@ void LLVOAvatar::idleUpdateWindEffect()
         LLVector3 velocity = getVelocity();
         F32 speed = velocity.length();
         //RN: velocity varies too much frame to frame for this to work
-        mRippleAccel.clear();//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLSmoothInterpolation::getInterpolant(0.02f));
+        mRippleAccel = glm::vec3(0.f);//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLSmoothInterpolation::getInterpolant(0.02f));
         mLastVel = velocity;
         LLVector4 wind(getRegion()->mWind.getVelocityNoisy(getPositionAgent(), 4.f) - velocity);
 
