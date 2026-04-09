@@ -177,7 +177,7 @@ protected:
     //---------------------
     bool            mZoomedToMinimumDistance;
     LLFrameTimer    mTimer;
-    LLVector3       mSubjectPosition;   // this is the position of what I'm looking at
+    glm::vec3       mSubjectPosition{0.f}; // this is the position of what I'm looking at
     glm::quat       mSubjectRotation{1.f, 0.f, 0.f, 0.f}; // this is the rotation of what I'm looking at (identity w,x,y,z)
     glm::vec3       mUpVector{0.f};     // the camera's up vector in world-space (determines roll)
     LLVector3       mRelativeFocus;
