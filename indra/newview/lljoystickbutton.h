@@ -208,8 +208,8 @@ public:
     virtual void    onHeldDown();
     virtual void    draw();
 
-    void            setRotation(const LLQuaternion &value);
-    LLQuaternion    getRotation() const;
+    void            setRotation(const glm::quat &value);
+    glm::quat       getRotation() const;
 
 protected:
     F32             getOrbitRate();

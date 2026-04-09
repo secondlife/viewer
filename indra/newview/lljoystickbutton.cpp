@@ -943,18 +943,18 @@ void LLJoystickQuaternion::drawRotatedImage(LLPointer<LLUIImage> image, S32 rota
     gGL.end();
 }
 
-void LLJoystickQuaternion::setRotation(const LLQuaternion &value)
+void LLJoystickQuaternion::setRotation(const glm::quat &value)
 {
-    if (value != LLQuaternion(mRotation))
+    if (value != mRotation)
     {
-        mRotation = glm::normalize(static_cast<glm::quat>(value));
+        mRotation = glm::normalize(value);
         LLJoystick::setValue(LLQuaternion(mRotation).getValue());
     }
 }
 
-LLQuaternion LLJoystickQuaternion::getRotation() const
+glm::quat LLJoystickQuaternion::getRotation() const
 {
-    return LLQuaternion(mRotation);
+    return mRotation;
 }
 
 
