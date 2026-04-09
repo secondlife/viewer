@@ -1031,7 +1031,7 @@ bool LLVOSky::updateGeometry(LLDrawable *drawable)
 
     const F32 water_height = gAgent.getRegion()->getWaterHeight() + 0.01f;
         // LLWorld::getInstance()->getWaterHeight() + 0.01f;
-    const F32 camera_height = mCameraPosAgent.mV[2];
+    const F32 camera_height = mCameraPosAgent.z;
     const F32 height_above_water = camera_height - water_height;
 
     bool sun_flag = false;

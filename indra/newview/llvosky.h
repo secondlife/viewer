@@ -252,7 +252,7 @@ public:
     void setCloudDensity(F32 cloud_density)             { mCloudDensity = cloud_density; }
     void setWind ( const LLVector3& wind )              { mWind = wind.length(); }
 
-    const LLVector3 &getCameraPosAgent() const          { return mCameraPosAgent; }
+    LLVector3 getCameraPosAgent() const                 { return LLVector3(mCameraPosAgent); }
 
     LLCubeMap *getCubeMap() const                       { return mCubeMap; }
     S32 getDrawRefl() const                             { return mDrawRefl; }
@@ -315,7 +315,7 @@ protected:
     LLHeavenBody        mSun;
     LLHeavenBody        mMoon;
     F32                 mAtmHeight;
-    LLVector3           mCameraPosAgent;
+    glm::vec3           mCameraPosAgent{0.f};
     F32                 mBrightnessScale;
     LLColor3            mBrightestPoint;
     F32                 mBrightnessScaleNew;
