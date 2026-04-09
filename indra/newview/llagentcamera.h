@@ -260,7 +260,7 @@ public:
     LLVector3d      calcThirdPersonFocusOffset();
     void            setThirdPersonHeadOffset(LLVector3 offset)  { mThirdPersonHeadOffset = offset; }
 private:
-    LLVector3       mThirdPersonHeadOffset;                     // Head offset for third person camera position
+    glm::vec3       mThirdPersonHeadOffset{0.f, 0.f, 1.f};      // Head offset for third person camera position
 
     //--------------------------------------------------------------------
     // Orbit

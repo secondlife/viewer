@@ -145,7 +145,6 @@ LLAgentCamera::LLAgentCamera() :
     mCurrentCameraDistance(2.f),        // meters, set in init()
     mTargetCameraDistance(2.f),
     mCameraZoomFraction(1.f),           // deprecated
-    mThirdPersonHeadOffset(0.f, 0.f, 1.f),
     mSitCameraEnabled(false),
     mCameraSmoothingLastPositionGlobal(),
     mCameraSmoothingLastPositionAgent(),
@@ -2077,9 +2076,9 @@ glm::vec3 LLAgentCamera::getCurrentCameraOffset()
 {
     const glm::vec3 cam_o = LLViewerCamera::getInstance()->getOrigin();
     const glm::vec3 root = getAvatarRootPosition();
-    LLVector3 diff(cam_o.x - root.x - mThirdPersonHeadOffset.mV[VX],
-                   cam_o.y - root.y - mThirdPersonHeadOffset.mV[VY],
-                   cam_o.z - root.z - mThirdPersonHeadOffset.mV[VZ]);
+    LLVector3 diff(cam_o.x - root.x - mThirdPersonHeadOffset.x,
+                   cam_o.y - root.y - mThirdPersonHeadOffset.y,
+                   cam_o.z - root.z - mThirdPersonHeadOffset.z);
     LLVector3 result = diff * ~getCurrentAvatarRotation();
     return glm::vec3(result.mV[VX], result.mV[VY], result.mV[VZ]);
 }
