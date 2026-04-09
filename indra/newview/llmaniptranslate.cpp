@@ -664,9 +664,10 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
         if (selectNode->mSelectedGLTFNode != -1)
         {
             // manipulating a GLTF node
-            clamped_relative_move_f -= selectNode->mLastMoveLocal;
+            clamped_relative_move_f -= LLVector3(selectNode->mLastMoveLocal);
             object->moveGLTFNode(selectNode->mSelectedGLTFNode, clamped_relative_move_f);
-            selectNode->mLastMoveLocal += clamped_relative_move_f;
+            // glm::vec3 += LLVector3 trap; explicit build from F32 components.
+            selectNode->mLastMoveLocal += glm::vec3(clamped_relative_move_f.mV[VX], clamped_relative_move_f.mV[VY], clamped_relative_move_f.mV[VZ]);
         }
         else
         {

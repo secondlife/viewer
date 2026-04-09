@@ -5398,7 +5398,7 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
                 selectNode->mSavedPositionLocal = saved_pos_local;
                 selectNode->mSavedScale = saved_scale;
                 selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent(selectNode->mSavedPositionLocal);
-                selectNode->mLastMoveLocal.setZero();
+                selectNode->mLastMoveLocal = glm::vec3(0.f);
             }
             else
             {
