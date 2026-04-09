@@ -7300,10 +7300,10 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
                 {
                     u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
                     gGL.texCoord2f( u_coord, v_coord );
-                    gGL.vertex3fv( mSilhouetteVertices[i].mV);
+                    gGL.vertex3fv( &mSilhouetteVertices[i].x );
                     u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
                     gGL.texCoord2f( u_coord, v_coord );
-                    gGL.vertex3fv(mSilhouetteVertices[i+1].mV);
+                    gGL.vertex3fv( &mSilhouetteVertices[i+1].x );
                 }
             }
             gGL.end();
@@ -7316,13 +7316,13 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
         {
             for(S32 i = 0; i < mSilhouetteVertices.size(); i+=2)
             {
-                if (!mSilhouetteNormals[i].isFinite() ||
-                    !mSilhouetteNormals[i+1].isFinite())
+                if (!glm::all(glm::isfinite(mSilhouetteNormals[i])) ||
+                    !glm::all(glm::isfinite(mSilhouetteNormals[i+1])))
                 { //skip skewed segments
                     continue;
                 }
 
-                LLVector3 v[4];
+                glm::vec3 v[4];
                 glm::vec2 tc[4];
                 v[0] = mSilhouetteVertices[i] + (mSilhouetteNormals[i] * silhouette_thickness);
                 tc[0] = glm::vec2(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
@@ -7340,24 +7340,24 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 
                 gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
                 gGL.texCoord2fv(&tc[0].x);
-                gGL.vertex3fv( v[0].mV );
+                gGL.vertex3fv( &v[0].x );
 
                 gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha);
                 gGL.texCoord2fv( &tc[1].x );
-                gGL.vertex3fv( v[1].mV );
+                gGL.vertex3fv( &v[1].x );
 
                 gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
                 gGL.texCoord2fv( &tc[2].x );
-                gGL.vertex3fv( v[2].mV );
+                gGL.vertex3fv( &v[2].x );
 
-                gGL.vertex3fv( v[2].mV );
+                gGL.vertex3fv( &v[2].x );
 
                 gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha);
                 gGL.texCoord2fv( &tc[1].x );
-                gGL.vertex3fv( v[1].mV );
+                gGL.vertex3fv( &v[1].x );
 
                 gGL.texCoord2fv( &tc[3].x );
-                gGL.vertex3fv( v[3].mV );
+                gGL.vertex3fv( &v[3].x );
             }
         }
         gGL.end();

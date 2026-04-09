@@ -251,8 +251,8 @@ public:
     std::vector< std::vector<glm::vec3> >  mGLTFScaleRatios;
     std::vector< std::vector<glm::vec2> >  mGLTFScales;
     std::vector< std::vector<glm::vec2> >  mGLTFOffsets;
-    std::vector<LLVector3>  mSilhouetteVertices;    // array of vertices to render silhouette of object
-    std::vector<LLVector3>  mSilhouetteNormals; // array of normals to render silhouette of object
+    std::vector<glm::vec3>  mSilhouetteVertices;    // array of vertices to render silhouette of object
+    std::vector<glm::vec3>  mSilhouetteNormals; // array of normals to render silhouette of object
     bool                    mSilhouetteExists;  // need to generate silhouette?
     S32             mSelectedGLTFNode = -1;
     S32             mSelectedGLTFPrimitive = -1;
