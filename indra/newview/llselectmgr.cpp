@@ -1386,7 +1386,7 @@ void LLSelectMgr::setGridMode(EGridMode mode)
     updateSelectionCenter();
 }
 
-void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &scale, bool for_snap_guides)
+void LLSelectMgr::getGrid(LLVector3& origin, glm::quat &rotation, LLVector3 &scale, bool for_snap_guides)
 {
     mGridObjects.cleanupNodes();
 

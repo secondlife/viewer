@@ -109,7 +109,7 @@ void LLManip::getManipNormal(LLViewerObject* object, EManipPart manip, LLVector3
 {
     LLVector3 grid_origin;
     LLVector3 grid_scale;
-    LLQuaternion grid_rotation;
+    glm::quat grid_rotation(1.f, 0.f, 0.f, 0.f);
 
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
@@ -138,7 +138,7 @@ void LLManip::getManipNormal(LLViewerObject* object, EManipPart manip, LLVector3
         default:
             break;
         }
-        normal.rotVec(grid_rotation);
+        normal.rotVec(LLQuaternion(grid_rotation));
     }
     else
     {
@@ -151,7 +151,7 @@ bool LLManip::getManipAxis(LLViewerObject* object, EManipPart manip, LLVector3 &
 {
     LLVector3 grid_origin;
     LLVector3 grid_scale;
-    LLQuaternion grid_rotation;
+    glm::quat grid_rotation(1.f, 0.f, 0.f, 0.f);
 
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
@@ -172,7 +172,7 @@ bool LLManip::getManipAxis(LLViewerObject* object, EManipPart manip, LLVector3 &
         return false;
     }
 
-    axis.rotVec( grid_rotation );
+    axis.rotVec( LLQuaternion(grid_rotation) );
     return true;
 }
 
@@ -377,7 +377,7 @@ LLVector3 LLManip::getPivotPoint()
 void LLManip::renderGuidelines(bool draw_x, bool draw_y, bool draw_z)
 {
     LLVector3 grid_origin;
-    LLQuaternion grid_rot;
+    glm::quat grid_rot(1.f, 0.f, 0.f, 0.f);
     LLVector3 grid_scale;
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rot, grid_scale);
 
@@ -397,7 +397,7 @@ void LLManip::renderGuidelines(bool draw_x, bool draw_y, bool draw_z)
 
         F32 angle_radians, x, y, z;
 
-        grid_rot.getAngleAxis(&angle_radians, &x, &y, &z);
+        LLQuaternion(grid_rot).getAngleAxis(&angle_radians, &x, &y, &z);
         gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
 
         F32 region_size = LLWorld::getInstance()->getRegionWidthInMeters();

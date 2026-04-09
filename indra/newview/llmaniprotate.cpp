@@ -213,11 +213,11 @@ void LLManipRotate::render()
 
         LLVector3 grid_origin;
         LLVector3 grid_scale;
-        LLQuaternion grid_rotation;
+        glm::quat grid_rotation(1.f, 0.f, 0.f, 0.f);
 
         LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
-        grid_rotation.getAngleAxis(&angle_radians, &x, &y, &z);
+        LLQuaternion(grid_rotation).getAngleAxis(&angle_radians, &x, &y, &z);
         gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
 
 
@@ -790,7 +790,7 @@ void LLManipRotate::renderSnapGuides()
 
     LLVector3 grid_origin;
     LLVector3 grid_scale;
-    LLQuaternion grid_rotation;
+    glm::quat grid_rotation(1.f, 0.f, 0.f, 0.f);
 
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale, true);
 
@@ -814,11 +814,11 @@ void LLManipRotate::renderSnapGuides()
     bool constrain_to_ref_object = false;
     if (mObjectSelection->getSelectType() == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid())
     {
-        test_axis = test_axis * ~grid_rotation;
+        test_axis = test_axis * ~LLQuaternion(grid_rotation);
     }
     else if (LLSelectMgr::getInstance()->getGridMode() == GRID_MODE_REF_OBJECT)
     {
-        test_axis = test_axis * ~grid_rotation;
+        test_axis = test_axis * ~LLQuaternion(grid_rotation);
         constrain_to_ref_object = true;
     }
 
@@ -841,11 +841,11 @@ void LLManipRotate::renderSnapGuides()
     LLVector3 projected_snap_axis = world_snap_axis;
     if (mObjectSelection->getSelectType() == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid())
     {
-        projected_snap_axis = projected_snap_axis * grid_rotation;
+        projected_snap_axis = projected_snap_axis * LLQuaternion(grid_rotation);
     }
     else if (constrain_to_ref_object)
     {
-        projected_snap_axis = projected_snap_axis * grid_rotation;
+        projected_snap_axis = projected_snap_axis * LLQuaternion(grid_rotation);
     }
 
     // project world snap axis onto constraint plane
@@ -1358,7 +1358,7 @@ LLVector3 LLManipRotate::getConstraintAxis()
 
         LLVector3 grid_origin;
         LLVector3 grid_scale;
-        LLQuaternion grid_rotation;
+        glm::quat grid_rotation(1.f, 0.f, 0.f, 0.f);
 
         LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
@@ -1367,7 +1367,7 @@ LLVector3 LLManipRotate::getConstraintAxis()
         {
             // *FIX: get agent local attachment grid working
             // Put rotation into frame of first selected root object
-            axis = axis * grid_rotation;
+            axis = axis * LLQuaternion(grid_rotation);
         }
     }
 
@@ -1385,7 +1385,7 @@ glm::quat LLManipRotate::dragConstrained( S32 x, S32 y )
     // build snap axes
     LLVector3 grid_origin;
     LLVector3 grid_scale;
-    LLQuaternion grid_rotation;
+    glm::quat grid_rotation(1.f, 0.f, 0.f, 0.f);
 
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
@@ -1395,11 +1395,11 @@ glm::quat LLManipRotate::dragConstrained( S32 x, S32 y )
     LLVector3 test_axis = constraint_axis;
     if (mObjectSelection->getSelectType() == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid())
     {
-        test_axis = test_axis * ~grid_rotation;
+        test_axis = test_axis * ~LLQuaternion(grid_rotation);
     }
     else if (LLSelectMgr::getInstance()->getGridMode() == GRID_MODE_REF_OBJECT)
     {
-        test_axis = test_axis * ~grid_rotation;
+        test_axis = test_axis * ~LLQuaternion(grid_rotation);
     }
     test_axis.abs();
 
@@ -1419,11 +1419,11 @@ glm::quat LLManipRotate::dragConstrained( S32 x, S32 y )
 
     if (mObjectSelection->getSelectType() == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid())
     {
-        axis1 = axis1 * grid_rotation;
+        axis1 = axis1 * LLQuaternion(grid_rotation);
     }
     else if (LLSelectMgr::getInstance()->getGridMode() == GRID_MODE_REF_OBJECT)
     {
-        axis1 = axis1 * grid_rotation;
+        axis1 = axis1 * LLQuaternion(grid_rotation);
     }
 
     //project axis onto constraint plane
@@ -1789,13 +1789,13 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
 
     LLVector3 grid_origin;
     LLVector3 grid_scale;
-    LLQuaternion grid_rotation;
+    glm::quat grid_rotation(1.f, 0.f, 0.f, 0.f);
 
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
-    LLVector3 rot_x_axis = LLVector3::x_axis * grid_rotation;
-    LLVector3 rot_y_axis = LLVector3::y_axis * grid_rotation;
-    LLVector3 rot_z_axis = LLVector3::z_axis * grid_rotation;
+    LLVector3 rot_x_axis = LLVector3::x_axis * LLQuaternion(grid_rotation);
+    LLVector3 rot_y_axis = LLVector3::y_axis * LLQuaternion(grid_rotation);
+    LLVector3 rot_z_axis = LLVector3::z_axis * LLQuaternion(grid_rotation);
 
     F32 proj_rot_x_axis = llabs(dot(rot_x_axis, mCenterToCamNorm));
     F32 proj_rot_y_axis = llabs(dot(rot_y_axis, mCenterToCamNorm));
