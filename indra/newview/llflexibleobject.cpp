@@ -209,8 +209,10 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
                 // Evaluate output interpolated values
                 F32 t_sq = t*t;
                 dest[section+step].mPosition = t_sq*(t*A + B) + t*C + D;
+                // LL slerp is a hidden friend of LLQuaternion (ADL only); wrap glm::quat
+                // args explicitly so name lookup finds it.
                 dest[section+step].mRotation =
-                    slerp(t, last_source_section->mRotation, source_section->mRotation);
+                    slerp(t, LLQuaternion(last_source_section->mRotation), LLQuaternion(source_section->mRotation));
                 dest[section+step].mVelocity = lerp(last_source_section->mVelocity, source_section->mVelocity, t);
                 dest[section+step].mDirection = lerp(last_source_section->mDirection, source_section->mDirection, t);
                 dest[section+step].mdPosition = lerp(last_source_section->mdPosition, source_section->mdPosition, t);
@@ -621,7 +623,9 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         {
             // Propogate half the rotation up to the parent
             LLQuaternion halfDeltaRotation(angle/2, axis);
-            mSection[i-1].mRotation = mSection[i-1].mRotation * halfDeltaRotation;
+            // Force LL compose order: glm::quat * LLQuaternion would be ambiguous,
+            // and glm's compose order is reversed. Wrap the LHS so LL operator* selects.
+            mSection[i-1].mRotation = LLQuaternion(mSection[i-1].mRotation) * halfDeltaRotation;
         }
 
         //------------------------------------------------------------------------------------------
@@ -701,7 +705,9 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
     {
         new_point = &path->mPath[i];
         LLVector3 pos = newSection[i].mPosition * rel_xform;
-        LLQuaternion rot = mSection[i].mAxisRotation * newSection[i].mRotation * delta_rot;
+        // newSection[i].mRotation is glm::quat post-cluster #32; wrap to keep
+        // the entire chain in LL compose semantics.
+        LLQuaternion rot = mSection[i].mAxisRotation * LLQuaternion(newSection[i].mRotation) * delta_rot;
 
         LLVector3 np(new_point->mPos.getF32ptr());
 

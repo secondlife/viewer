@@ -40,6 +40,7 @@
 #include "llvovolume.h"
 #include "llwind.h"
 #include "glm/vec2.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 // 10 ms for the whole thing!
 const F32   FLEXIBLE_OBJECT_TIMESLICE       = 0.003f;
@@ -58,7 +59,7 @@ struct LLFlexibleObjectSection
     LLVector3       mPosition;
     LLVector3       mVelocity;
     LLVector3       mDirection;
-    LLQuaternion    mRotation;
+    glm::quat       mRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     // Derivatives (Not all currently used, will come back with LLVolume changes to automagically generate normals)
     LLVector3       mdPosition;
     //LLMatrix4     mRotScale;
