@@ -28,6 +28,7 @@
 
 #include "llviewerobject.h"
 #include "xform.h"
+#include <glm/vec3.hpp>
 
 class LLFace;
 class LLDrawPool;
@@ -150,8 +151,8 @@ public:
 
     friend class LLDrawPoolTree;
 protected:
-    LLVector3       mTrunkBend;     // Accumulated wind (used for blowing trees)
-    LLVector3       mWind;
+    glm::vec3       mTrunkBend{0.f}; // Accumulated wind (used for blowing trees)
+    glm::vec3       mWind{0.f};
 
     LLPointer<LLVertexBuffer> mReferenceBuffer; //reference geometry for generating tree mesh
     LLPointer<LLViewerFetchedTexture> mTreeImagep;  // Pointer to proper tree image
@@ -176,7 +177,7 @@ protected:
 
     // cache last position+rotation so we can detect the need for a
     // complete rebuild when not animating
-    LLVector3 mLastPosition;
+    glm::vec3 mLastPosition{0.f};
     // glm-quat migration cluster #8: stored as glm::quat; comparison and
     // assignment use the implicit bridge ctor/conversion operator.
     glm::quat mLastRotation{1.f, 0.f, 0.f, 0.f};
