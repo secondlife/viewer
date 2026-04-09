@@ -744,7 +744,7 @@ private:
     F32         mImpostorDistance;
     F32         mImpostorPixelArea;
     LLVector3   mLastAnimExtents[2];
-    LLVector3   mLastAnimBasePos;
+    glm::vec3   mLastAnimBasePos{0.f};
 
     LLCachedControl<bool> mRenderUnloadedAvatar;
 
