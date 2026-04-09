@@ -572,7 +572,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 
             if (selectNode->mSelectedGLTFNode != -1)
             {
-                LLQuaternion new_rot = selectNode->mSavedRotation * LLQuaternion(mRotation);
+                LLQuaternion new_rot = LLQuaternion(selectNode->mSavedRotation) * LLQuaternion(mRotation);
 
                 object->setGLTFNodeRotationAgent(selectNode->mSelectedGLTFNode, new_rot);
 
@@ -591,7 +591,7 @@ void LLManipRotate::drag( S32 x, S32 y )
                     }
                 }
 
-                LLQuaternion new_rot = selectNode->mSavedRotation * LLQuaternion(mRotation);
+                LLQuaternion new_rot = LLQuaternion(selectNode->mSavedRotation) * LLQuaternion(mRotation);
                 std::vector<LLVector3>& child_positions = object->mUnselectedChildrenPositions;
                 std::vector<LLQuaternion> child_rotations;
                 if (object->isRootEdit() && selectNode->mIndividualSelection)
@@ -1571,7 +1571,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
                 getObjectAxisClosestToMouse(object_axis);
                 if (first_object_node)
                 {
-                    object_axis = object_axis * first_object_node->mSavedRotation;
+                    object_axis = object_axis * LLQuaternion(first_object_node->mSavedRotation);
                 }
 
                 // project onto constraint plane
@@ -1655,7 +1655,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 
             LLVector3 object_axis;
             getObjectAxisClosestToMouse(object_axis);
-            object_axis = object_axis * first_object_node->mSavedRotation;
+            object_axis = object_axis * LLQuaternion(first_object_node->mSavedRotation);
 
             // project onto constraint plane
             object_axis = object_axis - dot(object_axis, getConstraintAxis()) * getConstraintAxis();

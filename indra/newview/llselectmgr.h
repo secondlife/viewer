@@ -230,11 +230,11 @@ public:
     LLVector3d      mSavedPositionGlobal;   // for interactively modifying object position
     LLVector3       mSavedScale;            // for interactively modifying object scale
     LLVector3       mLastScale;
-    LLQuaternion    mSavedRotation;         // for interactively modifying object rotation
-    LLQuaternion    mLastRotation;
+    glm::quat       mSavedRotation{1.f, 0.f, 0.f, 0.f}; // for interactively modifying object rotation (identity w,x,y,z)
+    glm::quat       mLastRotation{1.f, 0.f, 0.f, 0.f};
     bool            mDuplicated;
     LLVector3d      mDuplicatePos;
-    LLQuaternion    mDuplicateRot;
+    glm::quat       mDuplicateRot{1.f, 0.f, 0.f, 0.f};
     LLUUID          mItemID;
     LLUUID          mFolderID;
     LLUUID          mFromTaskID;
@@ -512,14 +512,14 @@ public:
     struct AvatarPositionOverride
     {
         AvatarPositionOverride();
-        AvatarPositionOverride(LLVector3 &vec, LLQuaternion &quat, LLViewerObject *obj) :
+        AvatarPositionOverride(LLVector3 &vec, const glm::quat &quat, LLViewerObject *obj) :
             mLastPositionLocal(vec),
             mLastRotation(quat),
             mObject(obj)
         {
         }
         LLVector3 mLastPositionLocal;
-        LLQuaternion mLastRotation;
+        glm::quat mLastRotation{1.f, 0.f, 0.f, 0.f};
         LLPointer<LLViewerObject> mObject;
     };
 
