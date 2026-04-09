@@ -288,10 +288,10 @@ public:
     {
     public:
         ScaleKey() { mTime = 0.0f; }
-        ScaleKey(F32 time, const LLVector3 &scale) { mTime = time; mScale = scale; }
+        ScaleKey(F32 time, const LLVector3 &scale) { mTime = time; mScale = glm::vec3(scale.mV[0], scale.mV[1], scale.mV[2]); }
 
-        F32         mTime;
-        LLVector3   mScale;
+        F32         mTime{0.f};
+        glm::vec3   mScale{0.f};
     };
 
     //-------------------------------------------------------------------------

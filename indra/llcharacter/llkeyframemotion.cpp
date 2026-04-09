@@ -200,12 +200,12 @@ LLVector3 LLKeyframeMotion::ScaleCurve::interp(F32 u, ScaleKey& before, ScaleKey
     switch (mInterpolationType)
     {
     case IT_STEP:
-        return before.mScale;
+        return LLVector3(before.mScale);
 
     default:
     case IT_LINEAR:
     case IT_SPLINE:
-        return lerp(before.mScale, after.mScale, u);
+        return lerp(LLVector3(before.mScale), LLVector3(after.mScale), u);
     }
 }
 
