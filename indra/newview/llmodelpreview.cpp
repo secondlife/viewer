@@ -3987,17 +3987,17 @@ void LLModelPreview::renderGroundPlane(float z_offset)
     gGL.diffuseColor3f( 1.0f, 0.0f, 1.0f );
 
     gGL.begin(LLRender::LINES);
-    gGL.vertex3fv(mGroundPlane[0].mV);
-    gGL.vertex3fv(mGroundPlane[1].mV);
+    gGL.vertex3fv(&mGroundPlane[0].x);
+    gGL.vertex3fv(&mGroundPlane[1].x);
 
-    gGL.vertex3fv(mGroundPlane[1].mV);
-    gGL.vertex3fv(mGroundPlane[2].mV);
+    gGL.vertex3fv(&mGroundPlane[1].x);
+    gGL.vertex3fv(&mGroundPlane[2].x);
 
-    gGL.vertex3fv(mGroundPlane[2].mV);
-    gGL.vertex3fv(mGroundPlane[3].mV);
+    gGL.vertex3fv(&mGroundPlane[2].x);
+    gGL.vertex3fv(&mGroundPlane[3].x);
 
-    gGL.vertex3fv(mGroundPlane[3].mV);
-    gGL.vertex3fv(mGroundPlane[0].mV);
+    gGL.vertex3fv(&mGroundPlane[3].x);
+    gGL.vertex3fv(&mGroundPlane[0].x);
 
     gGL.end();
 }
