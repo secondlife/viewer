@@ -82,7 +82,7 @@ public:
     virtual LLVector3 getCharacterPosition() = 0;
 
     // get the rotation of the character
-    virtual LLQuaternion getCharacterRotation() = 0;
+    virtual glm::quat getCharacterRotation() = 0;
 
     // get the velocity of the character
     virtual LLVector3 getCharacterVelocity() = 0;

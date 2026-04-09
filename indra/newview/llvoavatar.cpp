@@ -7010,7 +7010,7 @@ LLVector3 LLVOAvatar::getCharacterPosition()
 //-----------------------------------------------------------------------------
 // LLVOAvatar::getCharacterRotation()
 //-----------------------------------------------------------------------------
-LLQuaternion LLVOAvatar::getCharacterRotation()
+glm::quat LLVOAvatar::getCharacterRotation()
 {
     return getRotation();
 }
