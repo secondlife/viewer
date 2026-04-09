@@ -32,6 +32,7 @@
 #include "llcharacter.h"
 #include "llquaternion.h"
 #include "llextendedstatus.h"
+#include <glm/vec3.hpp>
 
 class LLVOAvatar;
 class LLViewerJointMesh;
@@ -62,7 +63,7 @@ protected:
     F32                 mCameraYaw;
     F32                 mCameraPitch;
     F32                 mCameraZoom;
-    LLVector3           mCameraOffset;
+    glm::vec3           mCameraOffset{0.f};
     LLPointer<LLVOAvatar>           mDummyAvatar;
 };
 
