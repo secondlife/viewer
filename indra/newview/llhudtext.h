@@ -147,7 +147,6 @@ private:
 //  bool            mVisibleOffScreen;
     bool            mOffscreen;
     LLColor4        mColor;
-    LLVector3       mScale;
     F32             mWidth;
     F32             mHeight;
     LLColor4U       mPickColor;
