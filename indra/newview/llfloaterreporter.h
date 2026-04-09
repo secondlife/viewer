@@ -31,6 +31,7 @@
 #include "lluuid.h"
 #include "v3math.h"
 #include "llextendedstatus.h"
+#include <glm/vec3.hpp>
 
 class LLAvatarName;
 class LLMessageSystem;
@@ -138,7 +139,7 @@ private:
     std::string     mOwnerName;
     bool            mDeselectOnClose;
     bool            mPicking;
-    LLVector3       mPosition;
+    glm::vec3       mPosition{0.f};
     bool            mCopyrightWarningSeen;
     std::string     mDefaultSummary;
     LLResourceData* mResourceDatap;

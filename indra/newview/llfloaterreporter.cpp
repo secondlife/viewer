@@ -156,7 +156,6 @@ LLFloaterReporter::LLFloaterReporter(const LLSD& key)
     mOwnerName(),
     mDeselectOnClose( false ),
     mPicking( false),
-    mPosition(),
     mCopyrightWarningSeen( false ),
     mResourceDatap(new LLResourceData()),
     mAvatarNameCacheConnection()
@@ -196,7 +195,7 @@ bool LLFloaterReporter::postBuild()
     LLUICtrl* le = getChild<LLUICtrl>("abuser_name_edit");
     le->setEnabled( false );
 
-    setPosBox((LLVector3d)mPosition.getValue());
+    setPosBox((LLVector3d)LLVector3(mPosition).getValue());
     LLButton* pick_btn = getChild<LLButton>("pick_btn");
     pick_btn->setImages(std::string("tool_face.tga"),
                         std::string("tool_face_active.tga") );
@@ -252,7 +251,7 @@ LLFloaterReporter::~LLFloaterReporter()
         closePickTool(this);
     }
 
-    mPosition.set(0.0f, 0.0f, 0.0f);
+    mPosition = glm::vec3(0.0f);
 
     delete mResourceDatap;
 }
@@ -810,7 +809,7 @@ LLSD LLFloaterReporter::gatherReport()
     LLSD report = LLSD::emptyMap();
     report["report-type"] = static_cast<U8>(mReportType);
     report["category"] = getChild<LLUICtrl>("category_combo")->getValue();
-    report["position"] = mPosition.getValue();
+    report["position"] = LLVector3(mPosition).getValue();
     report["check-flags"] = static_cast<U8>(0); // this is not used
     report["screenshot-id"] = screenshot_id;
     report["object-id"] = mObjectID;
@@ -1032,11 +1031,16 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 
 void LLFloaterReporter::setPosBox(const LLVector3d &pos)
 {
-    mPosition.set(pos);
+    // .set(LLVector3d) truncates double-to-float; bridge through an
+    // LLVector3 temp so the migrated glm::vec3 field gets the same
+    // narrowing.
+    LLVector3 tmp;
+    tmp.set(pos);
+    mPosition = tmp;
     std::string pos_string = llformat("{%.1f, %.1f, %.1f}",
-        mPosition.mV[VX],
-        mPosition.mV[VY],
-        mPosition.mV[VZ]);
+        mPosition.x,
+        mPosition.y,
+        mPosition.z);
     getChild<LLUICtrl>("pos_field")->setValue(pos_string);
 }
 
