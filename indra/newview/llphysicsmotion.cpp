@@ -32,6 +32,7 @@
 
 #include "m3math.h"
 #include "v3dmath.h"
+#include <glm/vec3.hpp>
 
 #include "llphysicsmotion.h"
 #include "llagent.h"
@@ -187,7 +188,7 @@ private:
 
         F32 mVelocity_local; // How fast the param is moving
         F32 mPositionLastUpdate_local;
-        LLVector3 mPosition_world;
+        glm::vec3 mPosition_world{0.f};
 
         LLViewerVisualParam *mParamDriver;
         const controller_map_t mParamControllers;
@@ -656,7 +657,7 @@ bool LLPhysicsMotion::onUpdate(F32 time)
             mVelocityJoint_local = 0.f;
             mAccelerationJoint_local = 0.f;
             mPosition_local = 0.f;
-            mPosition_world = LLVector3(0.f,0.f,0.f);
+            mPosition_world = glm::vec3(0.f);
         }
 
         const F32 position_new_local_clamped = llclamp(position_new_local,
