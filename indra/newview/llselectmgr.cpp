@@ -5396,9 +5396,7 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
                 // save GLTF node state
                 glm::vec3 saved_pos_local(0.0f);
                 glm::vec3 saved_scale(0.0f);
-                // getGLTFNodeTransformAgent takes LLQuaternion*; route through a temp
-                // and assign back via the bridge ctor.
-                LLQuaternion saved_rot;
+                glm::quat saved_rot(1.f, 0.f, 0.f, 0.f);
                 object->getGLTFNodeTransformAgent(selectNode->mSelectedGLTFNode, &saved_pos_local, &saved_rot, &saved_scale);
                 selectNode->mSavedRotation = saved_rot;
                 selectNode->mSavedPositionLocal = saved_pos_local;

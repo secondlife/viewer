@@ -4467,7 +4467,7 @@ LLMatrix4a LLViewerObject::getGLTFNodeTransformAgent(S32 node_index) const
     return mat;
 }
 
-void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, glm::vec3* position, LLQuaternion* rotation, glm::vec3* scale) const
+void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, glm::vec3* position, glm::quat* rotation, glm::vec3* scale) const
 {
     LLMatrix4a node_to_agent = getGLTFNodeTransformAgent(node_index);
 
@@ -4480,7 +4480,9 @@ void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, glm::vec3* positi
 
     if (rotation)
     {
-        rotation->set(node_to_agent.asMatrix4());
+        LLQuaternion tmp_rot;
+        tmp_rot.set(node_to_agent.asMatrix4());
+        *rotation = tmp_rot;   // implicit operator glm::quat()
     }
 
     if (scale)
