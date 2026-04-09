@@ -36,6 +36,7 @@
 #include "llvolume.h"
 #include "lldeadmantimer.h"
 #include "httpcommon.h"
+#include <glm/vec3.hpp>
 #include "httprequest.h"
 #include "httpoptions.h"
 #include "httpheaders.h"
@@ -701,7 +702,7 @@ public:
 
     LLMutex*        mMutex;
     S32             mPendingUploads;
-    LLVector3       mOrigin;
+    glm::vec3       mOrigin{0.f};
     bool            mFinished;
     bool            mUploadTextures;
     bool            mUploadSkin;
