@@ -2188,9 +2188,9 @@ void LLPanelObject::onCopySize()
 
 void LLPanelObject::onCopyRot()
 {
-    mClipboardRot = LLVector3(mCtrlRotX->get(), mCtrlRotY->get(), mCtrlRotZ->get());
+    mClipboardRot = glm::vec3(mCtrlRotX->get(), mCtrlRotY->get(), mCtrlRotZ->get());
 
-    std::string stringVec = llformat("<%g, %g, %g>", mClipboardRot.mV[VX], mClipboardRot.mV[VY], mClipboardRot.mV[VZ]);
+    std::string stringVec = llformat("<%g, %g, %g>", mClipboardRot.x, mClipboardRot.y, mClipboardRot.z);
     LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(stringVec));
 
     mHasClipboardRot = true;
@@ -2244,9 +2244,9 @@ void LLPanelObject::onPasteRot()
 {
     if (!mHasClipboardRot) return;
 
-    mCtrlRotX->set(mClipboardRot.mV[VX]);
-    mCtrlRotY->set(mClipboardRot.mV[VY]);
-    mCtrlRotZ->set(mClipboardRot.mV[VZ]);
+    mCtrlRotX->set(mClipboardRot.x);
+    mCtrlRotY->set(mClipboardRot.y);
+    mCtrlRotZ->set(mClipboardRot.z);
 
     sendRotation(false);
 }

@@ -185,7 +185,7 @@ protected:
 
     LLVector3       mClipboardPos;
     LLVector3       mClipboardSize;
-    LLVector3       mClipboardRot;
+    glm::vec3       mClipboardRot{0.f};
     LLSD            mClipboardParams;
 
     bool            mHasClipboardPos;
