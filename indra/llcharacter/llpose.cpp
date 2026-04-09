@@ -302,7 +302,9 @@ void LLJointStateBlender::blendJointStates(bool apply_now)
                 F32 new_weight_sum = llmin(1.f, current_weight + sum_weights[ROT_WEIGHT]);
 
                 // add in rotation for this jointstate modulated by weight
-                added_rot = nlerp((new_weight_sum - sum_weights[ROT_WEIGHT]), added_rot, jsp->getRotation()) * added_rot;
+                // LLJointState::getRotation() returns const glm::quat& post-cluster #31.
+                // LL nlerp is a hidden-friend of LLQuaternion (ADL only), so wrap explicitly.
+                added_rot = nlerp((new_weight_sum - sum_weights[ROT_WEIGHT]), added_rot, LLQuaternion(jsp->getRotation())) * added_rot;
             }
         }
         else
@@ -355,7 +357,8 @@ void LLJointStateBlender::blendJointStates(bool apply_now)
                     F32 new_weight_sum = llmin(1.f, current_weight + sum_weights[ROT_WEIGHT]);
 
                     // blend rotations from both
-                    blended_rot = nlerp(sum_weights[ROT_WEIGHT] / new_weight_sum, jsp->getRotation(), blended_rot);
+                    // jsp->getRotation() returns const glm::quat&; bridge for LL nlerp ADL.
+                    blended_rot = nlerp(sum_weights[ROT_WEIGHT] / new_weight_sum, LLQuaternion(jsp->getRotation()), blended_rot);
                     sum_weights[ROT_WEIGHT] = new_weight_sum;
                 }
                 else
