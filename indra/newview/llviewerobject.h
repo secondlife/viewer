@@ -179,7 +179,7 @@ public:
         INVALID_UPDATE = 0x80000000
     };
 
-    static  U32     extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, LLQuaternion& rot);
+    static  U32     extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, glm::quat& rot);
     virtual U32     processUpdateMessage(LLMessageSystem *mesgsys,
                                         void **user_data,
                                         U32 block_num,
@@ -341,7 +341,7 @@ public:
     LLMatrix4a getGLTFAssetToAgentTransform() const;
     glm::vec3 getGLTFNodePositionAgent(S32 node_index) const;
     LLMatrix4a getGLTFNodeTransformAgent(S32 node_index) const;
-    void getGLTFNodeTransformAgent(S32 node_index, glm::vec3* position, LLQuaternion* rotation, glm::vec3* scale) const;
+    void getGLTFNodeTransformAgent(S32 node_index, glm::vec3* position, glm::quat* rotation, glm::vec3* scale) const;
 
     // move the node at the given index by the given offset in agent space
     void moveGLTFNode(S32 node_index, const glm::vec3& offset);

@@ -524,18 +524,6 @@ inline LLBool32 LLVector4a::isFinite4() const
     return !equalityCheck.areAnySet( LLVector4Logical::MASK_XYZW );
 }
 
-inline void LLVector4a::setRotatedInv( const LLRotation& rot, const LLVector4a& vec )
-{
-    LLRotation inv; inv.setTranspose( rot );
-    setRotated( inv, vec );
-}
-
-inline void LLVector4a::setRotatedInv( const LLQuaternion2& quat, const LLVector4a& vec )
-{
-    LLQuaternion2 invRot; invRot.setConjugate( quat );
-    setRotated(invRot, vec);
-}
-
 inline void LLVector4a::clamp( const LLVector4a& low, const LLVector4a& high )
 {
     const LLVector4Logical highMask = greaterThan( high );

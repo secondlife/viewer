@@ -319,13 +319,15 @@ namespace tut
     {
         LLMessageTemplate messageTemplate = defaultTemplate();
         messageTemplate.addBlock(defaultBlock(MVT_LLQuaternion, 12));
-        LLQuaternion outValue, inValue = LLQuaternion(0.0f, LLVector3(0.3713907f, 0.5570861f, 0.7427813f));
+        LLQuaternion inValue = LLQuaternion(0.0f, LLVector3(0.3713907f, 0.5570861f, 0.7427813f));
+        glm::quat inValue_g = inValue;
+        glm::quat outValue_g(1.f, 0.f, 0.f, 0.f);
 
         LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
-        builder->addQuat(_PREHASH_Test0, inValue);
+        builder->addQuat(_PREHASH_Test0, inValue_g);
         LLTemplateMessageReader* reader = setReader(messageTemplate, builder);
-        reader->getQuat(_PREHASH_Test0, _PREHASH_Test0, outValue);
-        ensure_equals("Ensure LLQuaternion", inValue, outValue);
+        reader->getQuat(_PREHASH_Test0, _PREHASH_Test0, outValue_g);
+        ensure_equals("Ensure LLQuaternion", inValue, LLQuaternion(outValue_g));
         delete reader;
     }
 
@@ -787,13 +789,15 @@ namespace tut
     {
         LLMessageTemplate messageTemplate = defaultTemplate();
         messageTemplate.addBlock(defaultBlock(MVT_LLQuaternion, 12));
-        LLQuaternion outValue, inValue = LLQuaternion(0.0f, LLVector3(0.3713907f, 0.5570861f, 0.7427813f));
+        LLQuaternion inValue = LLQuaternion(0.0f, LLVector3(0.3713907f, 0.5570861f, 0.7427813f));
+        glm::quat inValue_g = inValue;
+        glm::quat outValue_g(1.f, 0.f, 0.f, 0.f);
         LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
-        builder->addQuat(_PREHASH_Test0, inValue);
+        builder->addQuat(_PREHASH_Test0, inValue_g);
         LLTemplateMessageReader* reader = setReader(
             messageTemplate, builder, 12);
-        reader->getQuat(_PREHASH_Test0, _PREHASH_Test0, outValue);
-        ensure_equals("Ensure LLQuaternion", inValue, outValue);
+        reader->getQuat(_PREHASH_Test0, _PREHASH_Test0, outValue_g);
+        ensure_equals("Ensure LLQuaternion", inValue, LLQuaternion(outValue_g));
         delete reader;
     }
 

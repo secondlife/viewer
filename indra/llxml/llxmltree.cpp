@@ -285,10 +285,16 @@ bool LLXmlTreeNode::getFastAttributeVector3d(LLStdStringHandle canonical_name, L
     return s ? LLVector3d::parseVector3d(*s,  &value ) : false;
 }
 
-bool LLXmlTreeNode::getFastAttributeQuat(LLStdStringHandle canonical_name, LLQuaternion& value)
+bool LLXmlTreeNode::getFastAttributeQuat(LLStdStringHandle canonical_name, glm::quat& value)
 {
     const std::string *s = getAttribute( canonical_name );
-    return s ? LLQuaternion::parseQuat(*s, &value ) : false;
+    if (!s)
+        return false;
+    LLQuaternion tmp;
+    if (!LLQuaternion::parseQuat(*s, &tmp))
+        return false;
+    value = tmp;   // implicit op glm::quat()
+    return true;
 }
 
 bool LLXmlTreeNode::getFastAttributeUUID(LLStdStringHandle canonical_name, LLUUID& value)
@@ -396,7 +402,7 @@ bool LLXmlTreeNode::getAttributeVector3d(const std::string& name, LLVector3d& va
     return getFastAttributeVector3d(canonical_name, value);
 }
 
-bool LLXmlTreeNode::getAttributeQuat(const std::string& name, LLQuaternion& value)
+bool LLXmlTreeNode::getAttributeQuat(const std::string& name, glm::quat& value)
 {
     LLStdStringHandle canonical_name = LLXmlTree::sAttributeKeys.addString( name );
     return getFastAttributeQuat(canonical_name, value);

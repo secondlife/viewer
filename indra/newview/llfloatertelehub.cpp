@@ -237,13 +237,7 @@ void LLFloaterTelehub::unpackTelehubInfo(LLMessageSystem* msg)
     msg->getUUID("TelehubBlock", "ObjectID", mTelehubObjectID);
     msg->getString("TelehubBlock", "ObjectName", mTelehubObjectName);
     msg->getVector3("TelehubBlock", "TelehubPos", mTelehubPos);
-    {
-        // getQuat takes LLQuaternion&; round-trip through a temporary so
-        // the stored glm::quat picks up the result via the bridge ctor.
-        LLQuaternion tmp;
-        msg->getQuat("TelehubBlock", "TelehubRot", tmp);
-        mTelehubRot = tmp;
-    }
+    msg->getQuat("TelehubBlock", "TelehubRot", mTelehubRot);
 
     mNumSpawn = msg->getNumberOfBlocks("SpawnPointBlock");
     for (S32 i = 0; i < mNumSpawn; i++)

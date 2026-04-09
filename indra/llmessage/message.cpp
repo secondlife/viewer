@@ -3623,12 +3623,12 @@ void LLMessageSystem::addVector3d(const char *varname, const LLVector3d& v)
     mMessageBuilder->addVector3d(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
-void LLMessageSystem::addQuatFast(const char *varname, const LLQuaternion& v)
+void LLMessageSystem::addQuatFast(const char *varname, const glm::quat& v)
 {
     mMessageBuilder->addQuat(varname, v);
 }
 
-void LLMessageSystem::addQuat(const char *varname, const LLQuaternion& v)
+void LLMessageSystem::addQuat(const char *varname, const glm::quat& v)
 {
     mMessageBuilder->addQuat(LLMessageStringTable::getInstance()->getString(varname), v);
 }
@@ -3855,13 +3855,13 @@ void LLMessageSystem::getVector3d(const char *block, const char *var,
 }
 
 void LLMessageSystem::getQuatFast(const char *block, const char *var,
-                                  LLQuaternion &q, S32 blocknum )
+                                  glm::quat &q, S32 blocknum )
 {
     mMessageReader->getQuat(block, var, q, blocknum);
 }
 
 void LLMessageSystem::getQuat(const char *block, const char *var,
-                              LLQuaternion &q, S32 blocknum)
+                              glm::quat &q, S32 blocknum)
 {
     getQuatFast(LLMessageStringTable::getInstance()->getString(block),
             LLMessageStringTable::getInstance()->getString(var), q, blocknum);

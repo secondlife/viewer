@@ -204,9 +204,9 @@ void LLSDMessageReader::getVector3d(const char *block, const char *var,
 
 //virtual
 void LLSDMessageReader::getQuat(const char *block, const char *var,
-                                 LLQuaternion &q, S32 blocknum)
+                                 glm::quat &q, S32 blocknum)
 {
-    q = ll_quaternion_from_sd(getLLSD(mMessage, block, var, blocknum));
+    q = ll_quat_from_sd(getLLSD(mMessage, block, var, blocknum));
 }
 
 //virtual

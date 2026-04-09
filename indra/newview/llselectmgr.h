@@ -620,7 +620,7 @@ public:
     void            clearGridObjects();
     void            setGridMode(EGridMode mode);
     EGridMode       getGridMode() { return mGridMode; }
-    void            getGrid(LLVector3& origin, LLQuaternion& rotation, LLVector3 &scale, bool for_snap_guides = false);
+    void            getGrid(LLVector3& origin, glm::quat& rotation, LLVector3 &scale, bool for_snap_guides = false);
 
     bool getTEMode() const { return mTEMode; }
     void setTEMode(bool b) { mTEMode = b; }

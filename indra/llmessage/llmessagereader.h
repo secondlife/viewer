@@ -28,10 +28,11 @@
 
 #include "stdtypes.h"
 
+#include <glm/gtc/quaternion.hpp>
+
 class LLHost;
 class LLMessageBuilder;
 class LLMsgData;
-class LLQuaternion;
 class LLUUID;
 class LLVector3;
 class LLVector3d;
@@ -64,7 +65,7 @@ class LLMessageReader
     virtual void getVector3(const char *block, const char *var, LLVector3 &vec, S32 blocknum = 0) = 0;
     virtual void getVector4(const char *block, const char *var, LLVector4 &vec, S32 blocknum = 0) = 0;
     virtual void getVector3d(const char *block, const char *var, LLVector3d &vec, S32 blocknum = 0) = 0;
-    virtual void getQuat(const char *block, const char *var, LLQuaternion &q, S32 blocknum = 0) = 0;
+    virtual void getQuat(const char *block, const char *var, glm::quat &q, S32 blocknum = 0) = 0;
     virtual void getUUID(const char *block, const char *var, LLUUID &uuid, S32 blocknum = 0) = 0;
     virtual void getIPAddr(const char *block, const char *var, U32 &ip, S32 blocknum = 0) = 0;
     virtual void getIPPort(const char *block, const char *var, U16 &port, S32 blocknum = 0) = 0;

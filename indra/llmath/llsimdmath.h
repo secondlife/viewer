@@ -57,7 +57,6 @@
 #include "llsimdtypes.inl"
 
 class LLMatrix3a;
-class LLRotation;
 class LLMatrix3;
 
 #include "llquaternion.h"
@@ -65,9 +64,7 @@ class LLMatrix3;
 #include "llvector4logical.h"
 #include "llvector4a.h"
 #include "llmatrix3a.h"
-#include "llquaternion2.h"
 #include "llvector4a.inl"
 #include "llmatrix3a.inl"
-#include "llquaternion2.inl"
 
 

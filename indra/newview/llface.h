@@ -105,7 +105,7 @@ public:
     bool            hasGeometry()       const   { return mGeomCount > 0; }
     LLVector3       getPositionAgent()  const;
     glm::vec2       surfaceToTexture(glm::vec2 surface_coord, const LLVector4a& position, const LLVector4a& normal);
-    void            getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_pos, F32* scale) const;
+    void            getPlanarProjectedParams(glm::quat* face_rot, LLVector3* face_pos, F32* scale) const;
     bool            calcAlignedPlanarGLTF(const LLFace* align_to, glm::vec2* res_st_offset,
                                         glm::vec2* res_st_scale, F32* res_st_rot, S32 gltf_info_index = 0) const;
     bool            calcAlignedPlanarTE(const LLFace* align_to, glm::vec2* st_offset,

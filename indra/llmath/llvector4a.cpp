@@ -46,49 +46,6 @@ extern const LLVector4a LL_V4A_EPSILON = reinterpret_cast<const LLVector4a&> ( F
         ll_memcpy_nonaliased_aligned_16(reinterpret_cast<char*>(dst), reinterpret_cast<const char*>(src), bytes);
 }
 
-void LLVector4a::setRotated( const LLRotation& rot, const LLVector4a& vec )
-{
-    const LLVector4a col0 = rot.getColumn(0);
-    const LLVector4a col1 = rot.getColumn(1);
-    const LLVector4a col2 = rot.getColumn(2);
-
-    LLVector4a result = _mm_load_ss( vec.getF32ptr() );
-    result.splat<0>( result );
-    result.mul( col0 );
-
-    {
-        LLVector4a yyyy = _mm_load_ss( vec.getF32ptr() +  1 );
-        yyyy.splat<0>( yyyy );
-        yyyy.mul( col1 );
-        result.add( yyyy );
-    }
-
-    {
-        LLVector4a zzzz = _mm_load_ss( vec.getF32ptr() +  2 );
-        zzzz.splat<0>( zzzz );
-        zzzz.mul( col2 );
-        result.add( zzzz );
-    }
-
-    *this = result;
-}
-
-void LLVector4a::setRotated( const LLQuaternion2& quat, const LLVector4a& vec )
-{
-    const LLVector4a& quatVec = quat.getVector4a();
-    LLVector4a temp; temp.setCross3(quatVec, vec);
-    temp.add( temp );
-
-    const LLVector4a realPart( quatVec.getScalarAt<3>() );
-    LLVector4a tempTimesReal; tempTimesReal.setMul( temp, realPart );
-
-    mQ = vec;
-    add( tempTimesReal );
-
-    LLVector4a imagCrossTemp; imagCrossTemp.setCross3( quatVec, temp );
-    add(imagCrossTemp);
-}
-
 void LLVector4a::quantize8( const LLVector4a& low, const LLVector4a& high )
 {
     LLVector4a val(mQ);

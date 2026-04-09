@@ -4180,7 +4180,7 @@ void near_sit_object(bool success, void *data)
 void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 {
     LLVector3 sitPosition;
-    LLQuaternion sitRotation;
+    glm::quat sitRotation(1.f, 0.f, 0.f, 0.f);
     LLUUID sitObjectID;
     bool use_autopilot;
     mesgsys->getUUIDFast(_PREHASH_SitObject, _PREHASH_ID, sitObjectID);

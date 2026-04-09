@@ -396,10 +396,11 @@ void LLAgentListener::getPosition(const LLSD& event_data) const
 
 void LLAgentListener::startAutoPilot(LLSD const & event_data)
 {
-    LLQuaternion* target_rotation = NULL;
+    glm::quat* target_rotation = NULL;
+    glm::quat target_rotation_value(1.f, 0.f, 0.f, 0.f);
     if (event_data.has("target_rotation"))
     {
-        LLQuaternion target_rotation_value = ll_quaternion_from_sd(event_data["target_rotation"]);
+        target_rotation_value = ll_quat_from_sd(event_data["target_rotation"]);
         target_rotation = &target_rotation_value;
     }
 

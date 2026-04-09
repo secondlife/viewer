@@ -107,7 +107,7 @@ void LLFloaterSaveCameraPreset::onBtnSave()
     {
         if (isAgentAvatarValid() && gAgentAvatarp->getParent())
         {
-            gSavedSettings.setLLSD("AvatarSitRotation", gAgent.getFrameAgent().getQuaternion().getValue());
+            gSavedSettings.setLLSD("AvatarSitRotation", LLQuaternion(gAgent.getFrameAgent().getQuaternion()).getValue());
         }
         if (gAgentCamera.isJoystickCameraUsed())
         {

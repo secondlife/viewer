@@ -192,8 +192,9 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
             selection_dir.normalize();
             if (!object->isAvatar() && gAgent.getAtAxis() * selection_dir < 0.6f)
             {
-                LLQuaternion target_rot;
-                target_rot.shortestArc(LLVector3::x_axis, selection_dir);
+                LLQuaternion target_rot_ll;
+                target_rot_ll.shortestArc(LLVector3::x_axis, selection_dir);
+                glm::quat target_rot = target_rot_ll;   // implicit operator glm::quat()
                 gAgent.startAutoPilotGlobal(gAgent.getPositionGlobal(),
                                             "",
                                             &target_rot,

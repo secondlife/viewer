@@ -71,7 +71,7 @@ public:
                             LLVector4 &vec, S32 blocknum = 0);
     virtual void getVector3d(const char *block, const char *var,
                              LLVector3d &vec, S32 blocknum = 0);
-    virtual void getQuat(const char *block, const char *var, LLQuaternion &q,
+    virtual void getQuat(const char *block, const char *var, glm::quat &q,
                          S32 blocknum = 0);
     virtual void getUUID(const char *block, const char *var, LLUUID &uuid,
                          S32 blocknum = 0);

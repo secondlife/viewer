@@ -122,7 +122,6 @@ class LLMatrix3
         const LLMatrix3& rotate(const F32 angle, const F32 x, const F32 y, const F32 z);    // Rotate matrix by rotating angle radians about (x, y, z)
         const LLMatrix3& rotate(const F32 angle, const LLVector3 &vec);                     // Rotate matrix by rotating angle radians about vec
         const LLMatrix3& rotate(const F32 roll, const F32 pitch, const F32 yaw);            // Rotate matrix by roll (about x), pitch (about y), and yaw (about z)
-        const LLMatrix3& rotate(const LLQuaternion &q);         // Transform matrix by Euler angles and translating by pos
 
         void add(const LLMatrix3& other_matrix);    // add other_matrix to this one
 

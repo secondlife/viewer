@@ -31,6 +31,8 @@
 #include <functional>
 #include <set>
 
+#include <glm/gtc/quaternion.hpp>
+
 #if LL_LINUX
 #include <endian.h>
 #include <netinet/in.h>
@@ -158,7 +160,6 @@ const S32 MAX_MESSAGE_COUNT_NUM = 1024;
 class LLVector3;
 class LLVector4;
 class LLVector3d;
-class LLQuaternion;
 class LLSD;
 class LLUUID;
 class LLMessageSystem;
@@ -515,8 +516,8 @@ public:
     void    addVector4( const char *varname, const LLVector4& vec);     // typed, checks storage space
     void    addVector3dFast( const char *varname, const LLVector3d& vec);   // typed, checks storage space
     void    addVector3d( const char *varname, const LLVector3d& vec);   // typed, checks storage space
-    void    addQuatFast( const char *varname, const LLQuaternion& quat);    // typed, checks storage space
-    void    addQuat( const char *varname, const LLQuaternion& quat);    // typed, checks storage space
+    void    addQuatFast( const char *varname, const glm::quat& quat);    // typed, checks storage space
+    void    addQuat( const char *varname, const glm::quat& quat);    // typed, checks storage space
     void addUUIDFast( const char *varname, const LLUUID& uuid);         // typed, checks storage space
     void    addUUID( const char *varname, const LLUUID& uuid);          // typed, checks storage space
     void    addIPAddrFast( const char *varname, const U32 ip);          // typed, checks storage space
@@ -633,8 +634,8 @@ public:
     void    getVector4( const char *block, const char *var, LLVector4 &vec, S32 blocknum = 0);
     void    getVector3dFast(const char *block, const char *var, LLVector3d &vec, S32 blocknum = 0);
     void    getVector3d(const char *block, const char *var, LLVector3d &vec, S32 blocknum = 0);
-    void    getQuatFast(    const char *block, const char *var, LLQuaternion &q, S32 blocknum = 0);
-    void    getQuat(    const char *block, const char *var, LLQuaternion &q, S32 blocknum = 0);
+    void    getQuatFast(    const char *block, const char *var, glm::quat &q, S32 blocknum = 0);
+    void    getQuat(    const char *block, const char *var, glm::quat &q, S32 blocknum = 0);
     void getUUIDFast(   const char *block, const char *var, LLUUID &uuid, S32 blocknum = 0);
     void    getUUID(    const char *block, const char *var, LLUUID &uuid, S32 blocknum = 0);
     void getIPAddrFast( const char *block, const char *var, U32 &ip, S32 blocknum = 0);

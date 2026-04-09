@@ -67,8 +67,6 @@ set(llmath_HEADER_FILES
     llplane.h
     llquantize.h
     llquaternion.h
-    llquaternion2.h
-    llquaternion2.inl
     llrect.h
     llrigginginfo.h
     llsimdmath.h

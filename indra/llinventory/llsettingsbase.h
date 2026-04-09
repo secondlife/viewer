@@ -34,6 +34,7 @@
 
 #include "llsd.h"
 #include "llsdutil.h"
+#include "llsdutil_math.h"
 #include "v2math.h"
 #include "v3math.h"
 #include "v4math.h"
@@ -249,9 +250,9 @@ public:
         setValue(name, value.getValue());
     }
 
-    inline void setValue(const std::string &name, const LLQuaternion &value)
+    inline void setValue(const std::string &name, const glm::quat &value)
     {
-        setValue(name, value.getValue());
+        setValue(name, ll_sd_from_quat(value));
     }
 
     inline void setValue(const std::string &name, const LLColor3 &value)

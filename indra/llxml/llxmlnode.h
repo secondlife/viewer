@@ -36,6 +36,8 @@
 #endif
 #include <map>
 
+#include <glm/gtc/quaternion.hpp>
+
 #include "indra_constants.h"
 #include "llrefcount.h"
 #include "llpointer.h"
@@ -46,7 +48,6 @@
 
 class LLVector3;
 class LLVector3d;
-class LLQuaternion;
 class LLColor4;
 class LLColor4U;
 class LLSD;
@@ -76,7 +77,6 @@ using LLXMLAttribList = std::map<const LLStringTableEntry *, LLXMLNodePtr, Compa
 
 class LLColor4;
 class LLColor4U;
-class LLQuaternion;
 class LLVector3;
 class LLVector3d;
 class LLVector4;
@@ -197,7 +197,7 @@ public:
     bool getAttributeColor4U(const char* name, LLColor4U& value );
     bool getAttributeVector3(const char* name, LLVector3& value );
     bool getAttributeVector3d(const char* name, LLVector3d& value );
-    bool getAttributeQuat(const char* name, LLQuaternion& value );
+    bool getAttributeQuat(const char* name, glm::quat& value );
     bool getAttributeUUID(const char* name, LLUUID& value );
     bool getAttributeString(const char* name, std::string& value );
 

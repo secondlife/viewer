@@ -1359,10 +1359,14 @@ bool LLXMLNode::getAttributeVector3d(const char* name, LLVector3d& value )
     return (getAttribute(name, node) && node->getDoubleValue(3, value.mdV));
 }
 
-bool LLXMLNode::getAttributeQuat(const char* name, LLQuaternion& value )
+bool LLXMLNode::getAttributeQuat(const char* name, glm::quat& value )
 {
     LLXMLNodePtr node;
-    return (getAttribute(name, node) && node->getFloatValue(4, value.mQ));
+    if (!getAttribute(name, node))
+        return false;
+    // glm::quat memory layout is xyzw (locked by equivalence tests #34-#35),
+    // matching LLQuaternion::mQ. Read the 4 floats directly into &value.x.
+    return node->getFloatValue(4, &value.x);
 }
 
 bool LLXMLNode::getAttributeUUID(const char* name, LLUUID& value )

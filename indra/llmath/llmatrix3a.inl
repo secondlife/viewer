@@ -107,13 +107,3 @@ inline const LLMatrix3a& LLMatrix3a::getIdentity()
     return LL_M3A_IDENTITY;
 }
 
-inline bool LLRotation::isOkRotation() const
-{
-    LLMatrix3a transpose; transpose.setTranspose( *this );
-    LLMatrix3a product; product.setMul( *this, transpose );
-
-    LLSimdScalar detMinusOne = getDeterminant() - 1.f;
-
-    return product.isApproximatelyEqual( LLMatrix3a::getIdentity() ) && (detMinusOne.getAbs() < F_APPROXIMATELY_ZERO);
-}
-

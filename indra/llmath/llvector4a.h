@@ -27,8 +27,6 @@
 #pragma once
 
 
-class LLRotation;
-
 #include <assert.h>
 #include "llpreprocessor.h"
 #include "llmemory.h"
@@ -311,14 +309,6 @@ public:
     // Return true (nonzero) if x, y, z (and w for Finite4) are all finite floats
     inline LLBool32 isFinite3() const;
     inline LLBool32 isFinite4() const;
-
-    // Set this vector to 'vec' rotated by the LLRotation or LLQuaternion2 provided
-    void setRotated( const LLRotation& rot, const LLVector4a& vec );
-    void setRotated( const class LLQuaternion2& quat, const LLVector4a& vec );
-
-    // Set this vector to 'vec' rotated by the INVERSE of the LLRotation or LLQuaternion2 provided
-    inline void setRotatedInv( const LLRotation& rot, const LLVector4a& vec );
-    inline void setRotatedInv( const class LLQuaternion2& quat, const LLVector4a& vec );
 
     // Quantize this vector to 8 or 16 bit precision
     void quantize8( const LLVector4a& low, const LLVector4a& high );

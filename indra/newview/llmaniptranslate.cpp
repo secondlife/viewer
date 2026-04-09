@@ -327,18 +327,14 @@ bool LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
     mHelpTextTimer.reset();
     sNumTimesHelpTextShown++;
 
-    // getGrid takes LLQuaternion& by reference; route through a temp and
-    // convert to mGridRotation via the bridge ctor.
-    LLQuaternion grid_rot;
     {
         // getGrid takes LLVector3& out params; bridge through temps.
         LLVector3 origin_tmp;
         LLVector3 scale_tmp;
-        LLSelectMgr::getInstance()->getGrid(origin_tmp, grid_rot, scale_tmp);
+        LLSelectMgr::getInstance()->getGrid(origin_tmp, mGridRotation, scale_tmp);
         mGridOrigin = origin_tmp;
         mGridScale = scale_tmp;
     }
-    mGridRotation = grid_rot;
 
     LLSelectMgr::getInstance()->enableSilhouette(false);
 
@@ -815,7 +811,7 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 
     LLVector3 grid_origin;
     LLVector3 grid_scale;
-    LLQuaternion grid_rotation;
+    glm::quat grid_rotation(1.f, 0.f, 0.f, 0.f);
 
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
@@ -825,9 +821,9 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 
     if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
     {
-        relative_camera_dir = LLVector3(1.f, 0.f, 0.f) * ~grid_rotation;
+        relative_camera_dir = LLVector3(1.f, 0.f, 0.f) * ~LLQuaternion(grid_rotation);
         LLVector4 translation(object_position);
-        transform.initRotTrans(grid_rotation, translation);
+        transform.initRotTrans(LLQuaternion(grid_rotation), translation);
         LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
         transform *= cfr;
         LLMatrix4 window_scale;
@@ -839,10 +835,10 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
     }
     else
     {
-        relative_camera_dir = (object_position - LLVector3(LLViewerCamera::getInstance()->getOrigin())) * ~grid_rotation;
+        relative_camera_dir = (object_position - LLVector3(LLViewerCamera::getInstance()->getOrigin())) * ~LLQuaternion(grid_rotation);
         relative_camera_dir.normalize();
 
-        transform.initRotTrans(grid_rotation, LLVector4(object_position));
+        transform.initRotTrans(LLQuaternion(grid_rotation), LLVector4(object_position));
         transform *= modelView;
         transform *= projMatrix;
     }
@@ -1126,7 +1122,7 @@ void LLManipTranslate::renderSnapGuides()
     F32 smallest_grid_unit_scale = getMinGridScale() / max_subdivisions;
     LLVector3 grid_origin;
     LLVector3 grid_scale;
-    LLQuaternion grid_rotation;
+    glm::quat grid_rotation(1.f, 0.f, 0.f, 0.f);
 
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
     LLVector3 saved_selection_center = getSavedPivotPoint(); //LLSelectMgr::getInstance()->getSavedBBoxOfSelection().getCenterAgent();
@@ -1168,14 +1164,14 @@ void LLManipTranslate::renderSnapGuides()
         LLVector3 at_axis_abs;
         if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
         {
-            at_axis_abs = LLVector3::x_axis * ~grid_rotation;
+            at_axis_abs = LLVector3::x_axis * ~LLQuaternion(grid_rotation);
         }
         else
         {
             at_axis_abs = saved_selection_center - LLVector3(LLViewerCamera::getInstance()->getOrigin());
             at_axis_abs.normalize();
 
-            at_axis_abs = at_axis_abs * ~grid_rotation;
+            at_axis_abs = at_axis_abs * ~LLQuaternion(grid_rotation);
         }
         at_axis_abs.abs();
 
@@ -1237,7 +1233,7 @@ void LLManipTranslate::renderSnapGuides()
             }
         }
 
-        mSnapOffsetAxis = mSnapOffsetAxis * grid_rotation;
+        mSnapOffsetAxis = mSnapOffsetAxis * LLQuaternion(grid_rotation);
 
         F32 guide_size_meters;
 
@@ -1483,7 +1479,7 @@ void LLManipTranslate::renderSnapGuides()
         F32 usc = 1;
         F32 vsc = 1;
 
-        grid_center *= ~grid_rotation;
+        grid_center *= ~LLQuaternion(grid_rotation);
 
         switch (mManipPart)
         {
@@ -1521,7 +1517,7 @@ void LLManipTranslate::renderSnapGuides()
         gGL.pushMatrix();
 
         F32 x,y,z,angle_radians;
-        grid_rotation.getAngleAxis(&angle_radians, &x, &y, &z);
+        LLQuaternion(grid_rotation).getAngleAxis(&angle_radians, &x, &y, &z);
         gGL.translatef(selection_center.mV[VX], selection_center.mV[VY], selection_center.mV[VZ]);
         gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
 
@@ -1672,18 +1668,18 @@ void LLManipTranslate::renderTranslationHandles()
 {
     LLVector3 grid_origin;
     LLVector3 grid_scale;
-    LLQuaternion grid_rotation;
+    glm::quat grid_rotation(1.f, 0.f, 0.f, 0.f);
     LLGLDepthTest gls_depth(GL_FALSE);
 
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
     LLVector3 at_axis;
     if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
     {
-        at_axis = LLVector3::x_axis * ~grid_rotation;
+        at_axis = LLVector3::x_axis * ~LLQuaternion(grid_rotation);
     }
     else
     {
-        at_axis = LLVector3(LLViewerCamera::getInstance()->getAtAxis()) * ~grid_rotation;
+        at_axis = LLVector3(LLViewerCamera::getInstance()->getAtAxis()) * ~LLQuaternion(grid_rotation);
     }
 
     if (at_axis.mV[VX] > 0.f)
@@ -1766,11 +1762,11 @@ void LLManipTranslate::renderTranslationHandles()
         gGL.translatef(selection_center.mV[VX], selection_center.mV[VY], selection_center.mV[VZ]);
 
         F32 angle_radians, x, y, z;
-        grid_rotation.getAngleAxis(&angle_radians, &x, &y, &z);
+        LLQuaternion(grid_rotation).getAngleAxis(&angle_radians, &x, &y, &z);
 
         gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
 
-        LLQuaternion invRotation = grid_rotation;
+        LLQuaternion invRotation = LLQuaternion(grid_rotation);
         invRotation.conjugate();
 
         LLVector3 relative_camera_dir;

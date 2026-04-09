@@ -1494,9 +1494,9 @@ void LLAgent::yaw(F32 angle)
 //-----------------------------------------------------------------------------
 // getQuat()
 //-----------------------------------------------------------------------------
-LLQuaternion LLAgent::getQuat() const
+glm::quat LLAgent::getQuat() const
 {
-    return mFrameAgent.getQuaternion();
+    return mFrameAgent.getQuaternion();   // implicit op glm::quat()
 }
 
 //-----------------------------------------------------------------------------
@@ -1608,7 +1608,7 @@ bool LLAgent::isDoNotDisturb() const
 void LLAgent::startAutoPilotGlobal(
     const LLVector3d &target_global,
     const std::string& behavior_name,
-    const LLQuaternion *target_rotation,
+    const glm::quat *target_rotation,
     void (*finish_callback)(bool, void *),
     void *callback_data,
     F32 stop_distance,
@@ -1695,7 +1695,7 @@ void LLAgent::startAutoPilotGlobal(
     if (target_rotation)
     {
         mAutoPilotUseRotation = true;
-        LLVector3 facing = LLVector3::x_axis * *target_rotation;
+        LLVector3 facing = LLVector3::x_axis * LLQuaternion(*target_rotation);
         facing.mV[VZ] = 0.f;
         facing.normalize();
         mAutoPilotTargetFacing = glm::vec3(facing.mV[VX], facing.mV[VY], facing.mV[VZ]);

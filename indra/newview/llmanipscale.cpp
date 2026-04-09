@@ -1307,7 +1307,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
 {
     LLVector3 grid_origin;
     LLVector3 grid_scale;
-    LLQuaternion grid_rotation;
+    glm::quat grid_rotation(1.f, 0.f, 0.f, 0.f);
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
     // Capture bbox rotation as LLQuaternion once. LLBBox::getRotation()

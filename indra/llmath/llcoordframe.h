@@ -53,9 +53,6 @@ public:
                  const LLMatrix3 &rotation);                // Sets axes to 3x3 matrix
     LLCoordFrame(const glm::vec3 &origin,
                  const glm::vec3 &direction);               // Sets origin and calls lookDir(direction)
-    explicit LLCoordFrame(const LLQuaternion &q);           // Sets axes using q and inits mOrigin to zero
-    LLCoordFrame(const glm::vec3 &origin,
-                 const LLQuaternion &q);                    // Uses quaternion to init axes
     explicit LLCoordFrame(const LLMatrix4 &mat);            // Extracts frame from a 4x4 matrix
     // The folowing two constructors are dangerous due to implicit casting and have been disabled - SJB
     //LLCoordFrame(const F32 *origin, const F32 *rotation); // Assumes "origin" is 1x3 and "rotation" is 1x9 array
@@ -85,7 +82,7 @@ public:
                  const glm::vec3 &y_axis,
                  const glm::vec3 &z_axis);
     void setAxes(const LLMatrix3 &rotation_matrix);
-    void setAxes(const LLQuaternion &q);
+    void setAxes(const glm::quat &q);
     void setAxes(const F32 *rotation_matrix);
     void setAxes(const LLCoordFrame &frame);
 
@@ -95,7 +92,7 @@ public:
 
     void rotate(F32 angle, F32 x, F32 y, F32 z);            // Move axes
     void rotate(F32 angle, const glm::vec3 &rotation_axis);
-    void rotate(const LLQuaternion &q);
+    void rotate(const glm::quat &q);
     void rotate(const LLMatrix3 &m);
 
     void orthonormalize();  // Makes sure axes are unitary and orthogonal.
@@ -119,7 +116,7 @@ public:
     // it its absolute frame.  That is, these rotations acting on the X-axis {1,0,0}
     // will produce the mXAxis.
     //      LLMatrix3 getMatrix3() const;               // Returns axes in 3x3 matrix
-    LLQuaternion getQuaternion() const;         // Returns axes in quaternion form
+    glm::quat getQuaternion() const;            // Returns axes in quaternion form
 
     // Same as above, except it also includes the translation of the LLFrame
     //      LLMatrix4 getMatrix4() const;               // Returns position and axes in 4x4 matrix

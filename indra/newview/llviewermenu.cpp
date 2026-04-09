@@ -4691,14 +4691,14 @@ class LLLandSit : public view_listener_t
         }
         LLVector3d posGlobal = LLToolPie::getInstance()->getPick().mPosGlobal;
 
-        LLQuaternion target_rot;
+        glm::quat target_rot(1.f, 0.f, 0.f, 0.f);
         if (isAgentAvatarValid())
         {
             target_rot = gAgentAvatarp->getRotation();
         }
         else
         {
-            target_rot = gAgent.getFrameAgent().getQuaternion();
+            target_rot = gAgent.getFrameAgent().getQuaternion();   // implicit op glm::quat()
         }
         gAgent.startAutoPilotGlobal(posGlobal, "Sit", &target_rot, near_sit_down_point, NULL, 0.7f);
         return true;

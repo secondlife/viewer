@@ -4309,7 +4309,7 @@ void LLPipeline::renderDebug()
                     //Requried character physics capsule render parameters
                     LLUUID id;
                     LLVector3 pos;
-                    LLQuaternion rot;
+                    glm::quat rot(1.f, 0.f, 0.f, 0.f);
 
                     if ( pathfindingCharacter->isPhysicsCapsuleEnabled( id, pos, rot ) )
                     {

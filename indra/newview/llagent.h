@@ -247,7 +247,7 @@ public:
     const glm::vec3& getAtAxis() const   { return mFrameAgent.getAtAxis();   }
     const glm::vec3& getUpAxis() const   { return mFrameAgent.getUpAxis();   }
     const glm::vec3& getLeftAxis() const { return mFrameAgent.getLeftAxis(); }
-    LLQuaternion    getQuat() const;        // Returns the quat that represents the rotation of the agent in the absolute frame
+    glm::quat       getQuat() const;        // Returns the quat that represents the rotation of the agent in the absolute frame
 private:
     LLVector3d      mAgentOriginGlobal;     // Origin of agent coords from global coords
     LLCoordFrame    mFrameAgent;            // Agent position and view, agent-region coordinates
@@ -599,7 +599,7 @@ public:
 
     void            startAutoPilotGlobal(const LLVector3d &pos_global,
                                          const std::string& behavior_name = std::string(),
-                                         const LLQuaternion *target_rotation = NULL,
+                                         const glm::quat *target_rotation = NULL,
                                          void (*finish_callback)(bool, void *) = NULL, void *callback_data = NULL,
                                          F32 stop_distance = 0.f, F32 rotation_threshold = 0.03f,
                                          bool allow_flying = true);

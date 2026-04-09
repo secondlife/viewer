@@ -124,28 +124,6 @@ LLCoordFrame::LLCoordFrame(const glm::vec3 &origin,
     CHECK_FINITE_OBJ();
 }
 
-LLCoordFrame::LLCoordFrame(const LLQuaternion &q) :
-    mOrigin(0.f, 0.f, 0.f)
-{
-    LLMatrix3 rotation_matrix(q);
-    mXAxis = glm::vec3(rotation_matrix.mMatrix[VX][0], rotation_matrix.mMatrix[VX][1], rotation_matrix.mMatrix[VX][2]);
-    mYAxis = glm::vec3(rotation_matrix.mMatrix[VY][0], rotation_matrix.mMatrix[VY][1], rotation_matrix.mMatrix[VY][2]);
-    mZAxis = glm::vec3(rotation_matrix.mMatrix[VZ][0], rotation_matrix.mMatrix[VZ][1], rotation_matrix.mMatrix[VZ][2]);
-
-    CHECK_FINITE_OBJ();
-}
-
-LLCoordFrame::LLCoordFrame(const glm::vec3 &origin, const LLQuaternion &q) :
-    mOrigin(origin)
-{
-    LLMatrix3 rotation_matrix(q);
-    mXAxis = glm::vec3(rotation_matrix.mMatrix[VX][0], rotation_matrix.mMatrix[VX][1], rotation_matrix.mMatrix[VX][2]);
-    mYAxis = glm::vec3(rotation_matrix.mMatrix[VY][0], rotation_matrix.mMatrix[VY][1], rotation_matrix.mMatrix[VY][2]);
-    mZAxis = glm::vec3(rotation_matrix.mMatrix[VZ][0], rotation_matrix.mMatrix[VZ][1], rotation_matrix.mMatrix[VZ][2]);
-
-    CHECK_FINITE_OBJ();
-}
-
 LLCoordFrame::LLCoordFrame(const LLMatrix4 &mat) :
     mOrigin(mat.mMatrix[VW][0], mat.mMatrix[VW][1], mat.mMatrix[VW][2]),
     mXAxis(mat.mMatrix[VX][0], mat.mMatrix[VX][1], mat.mMatrix[VX][2]),
@@ -246,9 +224,10 @@ void LLCoordFrame::setAxes(const LLMatrix3 &rotation_matrix)
 }
 
 
-void LLCoordFrame::setAxes(const LLQuaternion &q )
+void LLCoordFrame::setAxes(const glm::quat &q )
 {
-    LLMatrix3 rotation_matrix(q);
+    const LLQuaternion ll_q(q);
+    LLMatrix3 rotation_matrix(ll_q);
     setAxes(rotation_matrix);
     CHECK_FINITE_OBJ();
 }
@@ -321,9 +300,10 @@ void LLCoordFrame::rotate(F32 angle, const glm::vec3 &rotation_axis)
 }
 
 
-void LLCoordFrame::rotate(const LLQuaternion &q)
+void LLCoordFrame::rotate(const glm::quat &q)
 {
-    LLMatrix3 rotation_matrix(q);
+    const LLQuaternion ll_q(q);
+    LLMatrix3 rotation_matrix(ll_q);
     rotate(rotation_matrix);
     CHECK_FINITE_OBJ();
 }
@@ -371,12 +351,12 @@ void LLCoordFrame::yaw(F32 angle)
 // get*() routines
 
 
-LLQuaternion LLCoordFrame::getQuaternion() const
+glm::quat LLCoordFrame::getQuaternion() const
 {
     LLQuaternion quat(LLVector3(mXAxis.x, mXAxis.y, mXAxis.z),
                       LLVector3(mYAxis.x, mYAxis.y, mYAxis.z),
                       LLVector3(mZAxis.x, mZAxis.y, mZAxis.z));
-    return quat;
+    return quat;   // implicit op glm::quat()
 }
 
 

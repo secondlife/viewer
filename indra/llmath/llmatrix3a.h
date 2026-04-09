@@ -116,15 +116,3 @@ protected:
 
 static_assert(std::is_trivial<LLMatrix3a>::value, "LLMatrix3a must be a trivial type");
 
-class LLRotation : public LLMatrix3a
-{
-public:
-
-    LLRotation() = default;
-
-    // Returns true if this rotation is orthonormal with det ~= 1
-    inline bool isOkRotation() const;
-};
-
-static_assert(std::is_trivial<LLRotation>::value, "LLRotation must be a trivial type");
-

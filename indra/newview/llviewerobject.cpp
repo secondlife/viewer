@@ -1134,7 +1134,7 @@ U32 LLViewerObject::checkMediaURL(const std::string &media_url)
 //extract spatial information from object update message
 //return parent_id
 //static
-U32 LLViewerObject::extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, LLQuaternion& rot)
+U32 LLViewerObject::extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, glm::quat& rot)
 {
     U32 parent_id = 0;
     LLViewerObject::unpackParentID(dp, parent_id);
@@ -1144,7 +1144,9 @@ U32 LLViewerObject::extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector
 
     LLVector3 vec;
     LLViewerObject::unpackVector3(dp, vec, "Rot");
-    rot.unpackFromVector3(vec);
+    LLQuaternion tmp_rot;
+    tmp_rot.unpackFromVector3(vec);
+    rot = tmp_rot;   // implicit operator glm::quat()
 
     return parent_id;
 }
@@ -4465,7 +4467,7 @@ LLMatrix4a LLViewerObject::getGLTFNodeTransformAgent(S32 node_index) const
     return mat;
 }
 
-void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, glm::vec3* position, LLQuaternion* rotation, glm::vec3* scale) const
+void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, glm::vec3* position, glm::quat* rotation, glm::vec3* scale) const
 {
     LLMatrix4a node_to_agent = getGLTFNodeTransformAgent(node_index);
 
@@ -4478,7 +4480,9 @@ void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, glm::vec3* positi
 
     if (rotation)
     {
-        rotation->set(node_to_agent.asMatrix4());
+        LLQuaternion tmp_rot;
+        tmp_rot.set(node_to_agent.asMatrix4());
+        *rotation = tmp_rot;   // implicit operator glm::quat()
     }
 
     if (scale)
