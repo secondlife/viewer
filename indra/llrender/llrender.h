@@ -43,6 +43,7 @@
 #include "llmatrix4a.h"
 #include "glm/mat4x4.hpp"
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 #include <boost/align/aligned_allocator.hpp>
 
 #include <array>
@@ -226,7 +227,7 @@ protected:
     LLColor4 mAmbient;
     LLColor4 mSpecular;
     LLVector4 mPosition;
-    LLVector3 mSpotDirection;
+    glm::vec3 mSpotDirection{0.f};
 
     F32 mConstantAtten;
     F32 mLinearAtten;
