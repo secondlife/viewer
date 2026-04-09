@@ -4282,13 +4282,13 @@ class LLVertexIndexPair
 public:
     LLVertexIndexPair(const LLVector3 &vertex, const S32 index);
 
-    LLVector3 mVertex;
+    glm::vec3 mVertex{0.f};
     S32 mIndex;
 };
 
 LLVertexIndexPair::LLVertexIndexPair(const LLVector3 &vertex, const S32 index)
 {
-    mVertex = vertex;
+    mVertex = glm::vec3(vertex.mV[0], vertex.mV[1], vertex.mV[2]);
     mIndex = index;
 }
 
@@ -4300,29 +4300,29 @@ struct lessVertex
     {
         const F32 slop = VERTEX_SLOP;
 
-        if (a->mVertex.mV[0] + slop < b->mVertex.mV[0])
+        if (a->mVertex.x + slop < b->mVertex.x)
         {
             return true;
         }
-        else if (a->mVertex.mV[0] - slop > b->mVertex.mV[0])
+        else if (a->mVertex.x - slop > b->mVertex.x)
         {
             return false;
         }
 
-        if (a->mVertex.mV[1] + slop < b->mVertex.mV[1])
+        if (a->mVertex.y + slop < b->mVertex.y)
         {
             return true;
         }
-        else if (a->mVertex.mV[1] - slop > b->mVertex.mV[1])
+        else if (a->mVertex.y - slop > b->mVertex.y)
         {
             return false;
         }
 
-        if (a->mVertex.mV[2] + slop < b->mVertex.mV[2])
+        if (a->mVertex.z + slop < b->mVertex.z)
         {
             return true;
         }
-        else if (a->mVertex.mV[2] - slop > b->mVertex.mV[2])
+        else if (a->mVertex.z - slop > b->mVertex.z)
         {
             return false;
         }
