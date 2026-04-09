@@ -229,8 +229,8 @@ public:
     LLVector3       mLastPositionLocal;
     glm::vec3       mLastMoveLocal{0.f};
     LLVector3d      mSavedPositionGlobal;   // for interactively modifying object position
-    LLVector3       mSavedScale;            // for interactively modifying object scale
-    LLVector3       mLastScale;
+    glm::vec3       mSavedScale{0.f};       // for interactively modifying object scale
+    glm::vec3       mLastScale{0.f};
     glm::quat       mSavedRotation{1.f, 0.f, 0.f, 0.f}; // for interactively modifying object rotation (identity w,x,y,z)
     glm::quat       mLastRotation{1.f, 0.f, 0.f, 0.f};
     bool            mDuplicated;

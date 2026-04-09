@@ -328,7 +328,7 @@ void LLSelectMgr::resetObjectOverrides(LLObjectSelectionHandle selected_handle)
             }
             node->mLastPositionLocal.set(0, 0, 0);
             node->mLastRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
-            node->mLastScale.set(0, 0, 0);
+            node->mLastScale = glm::vec3(0.f);
             return true;
         }
     } func(mAllowSelectAvatar, this);
@@ -356,7 +356,7 @@ void LLSelectMgr::overrideObjectUpdates()
                 {
                     object->setRotation(LLQuaternion(selectNode->mLastRotation));
                 }
-                if (!selectNode->mLastScale.isExactlyZero())
+                if (selectNode->mLastScale != glm::vec3(0.f))
                 {
                     object->setScale(selectNode->mLastScale);
                 }
