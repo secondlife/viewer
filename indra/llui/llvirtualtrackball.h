@@ -94,8 +94,8 @@ public:
     void    setValue(F32 x, F32 y, F32 z, F32 w);
     LLSD    getValue() const override;
 
-    void            setRotation(const LLQuaternion &value);
-    LLQuaternion    getRotation() const;
+    void            setRotation(const glm::quat &value);
+    glm::quat       getRotation() const;
 
     static void             getAzimuthAndElevation(const LLQuaternion &quat, F32 &azimuth, F32 &elevation);
     static void             getAzimuthAndElevationDeg(const LLQuaternion &quat, F32 &azimuth, F32 &elevation);
@@ -124,7 +124,7 @@ protected:
     LLViewBorder*       mBorder;
 
 private:
-    void setValueAndCommit(const LLQuaternion &value);
+    void setValueAndCommit(const glm::quat &value);
     void drawThumb(S32 x, S32 y, ThumbMode mode, bool upperHemi = true);
     bool pointInTouchCircle(S32 x, S32 y) const;
 

@@ -326,7 +326,7 @@ void LLVirtualTrackball::setValue(const LLSD& value)
     }
 }
 
-void LLVirtualTrackball::setRotation(const LLQuaternion &value)
+void LLVirtualTrackball::setRotation(const glm::quat &value)
 {
     mValue = value;
 }
@@ -337,7 +337,7 @@ void LLVirtualTrackball::setValue(F32 x, F32 y, F32 z, F32 w)
     mValue = glm::quat(w, x, y, z);
 }
 
-void LLVirtualTrackball::setValueAndCommit(const LLQuaternion &value)
+void LLVirtualTrackball::setValueAndCommit(const glm::quat &value)
 {
     mValue = value;
     onCommit();
@@ -348,7 +348,7 @@ LLSD LLVirtualTrackball::getValue() const
     return LLQuaternion(mValue).getValue();
 }
 
-LLQuaternion LLVirtualTrackball::getRotation() const
+glm::quat LLVirtualTrackball::getRotation() const
 {
     return mValue;
 }
