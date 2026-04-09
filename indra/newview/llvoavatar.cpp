@@ -77,7 +77,6 @@
 #include "llregionhandle.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
-#include "llsprite.h"
 #include "lltargetingmotion.h"
 #include "lltoolmgr.h"
 #include "lltoolmorph.h"
