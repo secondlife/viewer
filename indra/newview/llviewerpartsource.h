@@ -74,7 +74,7 @@ public:
     LLUUID getImageUUID() const;
     void  setStart() ;
 
-    LLVector3   mPosAgent; // Location of the particle source
+    glm::vec3   mPosAgent{0.f}; // Location of the particle source
     glm::vec3   mTargetPosAgent{0.f}; // Location of the target position
     glm::vec3   mLastUpdatePosAgent{0.f};
     LLPointer<LLViewerObject>   mSourceObjectp;

@@ -350,7 +350,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         {
             // Need to do point vs. plane check...
             // For now, just check relative to object height...
-            F32 dz = part->mPosAgent.mV[VZ] - part->mPartSourcep->mPosAgent.mV[VZ];
+            F32 dz = part->mPosAgent.mV[VZ] - part->mPartSourcep->mPosAgent.z;
             if (dz < 0)
             {
                 part->mPosAgent.mV[VZ] += -2.f*dz;
@@ -635,7 +635,7 @@ void LLViewerPartSim::shift(const LLVector3 &offset)
     for (i = 0; i < count; i++)
     {
         const glm::vec3 offset_gm(offset.mV[VX], offset.mV[VY], offset.mV[VZ]);
-        mViewerPartSources[i]->mPosAgent += offset;
+        mViewerPartSources[i]->mPosAgent += offset_gm;
         mViewerPartSources[i]->mTargetPosAgent += offset_gm;
         mViewerPartSources[i]->mLastUpdatePosAgent += offset_gm;
     }
