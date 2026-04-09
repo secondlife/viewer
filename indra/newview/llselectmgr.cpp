@@ -1458,7 +1458,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
         LLViewerObject* first_object = mSelectedObjects->getFirstRootObject(non_root_ok);
 
         mGridOrigin.clear();
-        mGridRotation.loadIdentity();
+        mGridRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
 
         mSelectedObjects->mSelectType = getSelectTypeForObject( first_object );
 

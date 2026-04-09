@@ -46,6 +46,7 @@
 #include "lluicolor.h"
 
 #include "glm/vec2.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 #include <deque>
 #include <boost/iterator/filter_iterator.hpp>
@@ -928,7 +929,7 @@ private:
     std::set<LLPointer<LLViewerObject> >    mRectSelectedObjects;
 
     LLObjectSelection       mGridObjects;
-    LLQuaternion            mGridRotation;
+    glm::quat               mGridRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     LLVector3               mGridOrigin;
     LLVector3               mGridScale;
     EGridMode               mGridMode;
