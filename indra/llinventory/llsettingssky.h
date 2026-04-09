@@ -29,6 +29,7 @@
 
 #include "llsettingsbase.h"
 #include "v4coloru.h"
+#include <glm/gtc/quaternion.hpp>
 
 const F32 EARTH_RADIUS  =      6.370e6f;
 const F32 SUN_RADIUS    =    695.508e6f;
@@ -372,8 +373,8 @@ protected:
     LLUUID      mNextHaloTextureId;
 
     bool mCanAutoAdjust;
-    LLQuaternion mSunRotation;
-    LLQuaternion mMoonRotation;
+    glm::quat mSunRotation{1.f, 0.f, 0.f, 0.f};  // identity (w,x,y,z)
+    glm::quat mMoonRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     LLColor3 mSunlightColor;
     LLColor3 mGlow;
     F32 mReflectionProbeAmbiance;
