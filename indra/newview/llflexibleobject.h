@@ -104,9 +104,6 @@ private:
         void preRebuild();
 
         //void              setAttributes( LLFlexibleObjectData );
-        void                setUsingCollisionSphere( bool u );
-        void                setCollisionSphere( LLVector3 position, F32 radius );
-        void                setRenderingCollisionSphere( bool r);
 
         LLVector3           getEndPosition();
         LLQuaternion        getEndRotation();
@@ -131,8 +128,6 @@ private:
         S32                         mRenderRes;
         U64                         mLastFrameNum;
         U32                         mLastUpdatePeriod;
-        LLVector3                   mCollisionSpherePosition;
-        F32                         mCollisionSphereRadius;
         U32                         mID;
 
         //--------------------------------------
