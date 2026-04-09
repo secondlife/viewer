@@ -34,6 +34,7 @@
 #include "llviewervisualparam.h"
 #include "llxmltree.h"
 #include "v4math.h"
+#include <glm/vec3.hpp>
 
 class LLTexLayerSet;
 class LLTexGlobalColor;
@@ -136,7 +137,7 @@ public:
     F32                 getPelvisToFoot() const { return mPelvisToFoot; }
     LLJoint*    getRootJoint() override { return mRoot; }
 
-    LLVector3           mHeadOffset{}; // current head position
+    glm::vec3           mHeadOffset{0.f}; // current head position
     LLAvatarJoint*      mRoot{ nullptr };
 
     using joint_map_t = std::map<std::string, LLJoint*, std::less<>>;
