@@ -31,6 +31,7 @@
 #include "llcubemaparray.h"
 #include "llcubemap.h"
 #include "lldrawable.h"
+#include <glm/vec3.hpp>
 
 class LLSpatialGroup;
 class LLViewerObject;
@@ -87,8 +88,8 @@ public:
 
     bool isMirrorPass() const { return mRenderingMirror; }
 
-    LLVector3 mMirrorPosition;
-    LLVector3     mMirrorNormal;
+    glm::vec3 mMirrorPosition{0.f};
+    glm::vec3 mMirrorNormal{0.f};
     HeroProbeData mHeroData;
 
 private:

@@ -1098,8 +1098,8 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         LLVector4 waterPlane(enorm.x, enorm.y, enorm.z, -glm::dot(ep, enorm));
 
-        norm = glm::vec3(gPipeline.mHeroProbeManager.mMirrorNormal);
-        p    = glm::vec3(gPipeline.mHeroProbeManager.mMirrorPosition);
+        norm = gPipeline.mHeroProbeManager.mMirrorNormal;
+        p    = gPipeline.mHeroProbeManager.mMirrorPosition;
         enorm = mul_mat4_vec3(invtrans, norm);
         enorm = glm::normalize(enorm);
         ep = mul_mat4_vec3(mat, p);
