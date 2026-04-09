@@ -369,7 +369,7 @@ public:
     virtual const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const     { return xform->getWorldMatrix(); }
 
     inline void setRotation(const F32 x, const F32 y, const F32 z, bool damped = false);
-    inline void setRotation(const LLQuaternion& quat, bool damped = false);
+    inline void setRotation(const glm::quat& quat, bool damped = false);
 
     /*virtual*/ void    setNumTEs(const U8 num_tes);
     /*virtual*/ void    setTE(const U8 te, const LLTextureEntry &texture_entry);
@@ -1058,9 +1058,9 @@ public:
 //
 //
 
-inline void LLViewerObject::setRotation(const LLQuaternion& quat, bool damped)
+inline void LLViewerObject::setRotation(const glm::quat& quat, bool damped)
 {
-    LLPrimitive::setRotation(quat);
+    LLPrimitive::setRotation(quat);   // resolves to LLXform::setRotation(glm::quat) overload
     setChanged(ROTATED | SILHOUETTE);
     updateDrawable(damped);
 }
