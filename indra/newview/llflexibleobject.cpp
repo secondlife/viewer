@@ -591,7 +591,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         // clamp length & rotation
         //------------------------------------------------------------------------------------------
         mSection[i].mDirection = mSection[i].mPosition - parentSectionPosition;
-        mSection[i].mDirection.normalize();
+        mSection[i].mDirection = glm::normalize(mSection[i].mDirection);
         deltaRotation.shortestArc( parentDirection, mSection[i].mDirection );
 
         F32 angle;
