@@ -159,8 +159,7 @@ bool LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
             LLAvatarJoint* child_joint = static_cast<LLAvatarJoint*>(joint);
             if (child_joint->inheritScale())
             {
-                LLVector3 childDeformation = LLVector3(child_joint->getScale());
-                childDeformation.scaleVec(bone_info.mScaleDeformation);
+                glm::vec3 childDeformation = child_joint->getScale() * bone_info.mScaleDeformation;
                 mJointScales[child_joint] = childDeformation;
             }
         }
@@ -192,9 +191,9 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
     for (joint_vec_map_t::value_type& scale_pair : mJointScales)
     {
         joint = scale_pair.first;
-        LLVector3 newScale = joint->getScale();
-        LLVector3 scaleDelta = scale_pair.second;
-        LLVector3 offset = (effective_weight - mLastWeight) * scaleDelta;
+        glm::vec3 newScale = joint->getScale();
+        glm::vec3 scaleDelta = scale_pair.second;
+        glm::vec3 offset = (effective_weight - mLastWeight) * scaleDelta;
         newScale = newScale + offset;
         //An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
         // needed?
@@ -206,8 +205,8 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
     for (joint_vec_map_t::value_type& offset_pair : mJointOffsets)
     {
         joint = offset_pair.first;
-        LLVector3 newPosition = joint->getPosition();
-        LLVector3 positionDelta = offset_pair.second;
+        glm::vec3 newPosition = joint->getPosition();
+        glm::vec3 positionDelta = offset_pair.second;
         newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);
         // SL-315
         bool allow_attachment_pos_overrides = true;
