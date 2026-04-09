@@ -32,6 +32,8 @@
 #include "lljoint.h"
 #include "llrefcount.h"
 
+#include "glm/gtc/quaternion.hpp"
+
 //-----------------------------------------------------------------------------
 // class LLJointState
 //-----------------------------------------------------------------------------
@@ -57,7 +59,7 @@ protected:
 
     // transformation members
     LLVector3       mPosition;  // position relative to parent joint
-    LLQuaternion    mRotation;  // joint rotation relative to parent joint
+    glm::quat       mRotation{1.f, 0.f, 0.f, 0.f}; // joint rotation relative to parent joint (identity w,x,y,z)
     LLVector3       mScale;     // scale relative to rotated frame
     LLJoint::JointPriority  mPriority;  // how important this joint state is relative to others
 public:
@@ -100,8 +102,13 @@ public:
     void setPosition( const LLVector3& pos )    { llassert(mUsage & POS); mPosition = pos; }
 
     // get/set rotation
-    const LLQuaternion& getRotation() const     { return mRotation; }
-    void setRotation( const LLQuaternion& rot ) { llassert(mUsage & ROT); mRotation = rot; }
+    // glm-quat migration (cluster #31): mirrors LLJoint::getRotation() —
+    // returns const glm::quat& so callers reference the field directly with
+    // no temporary materialization. Caller drift is absorbed by the
+    // LLQuaternion(const glm::quat&) bridge ctor and the implicit operator
+    // glm::quat() conversion.
+    const glm::quat& getRotation() const         { return mRotation; }
+    void setRotation( const glm::quat& rot )     { llassert(mUsage & ROT); mRotation = rot; }
 
     // get/set scale
     const LLVector3& getScale() const           { return mScale; }

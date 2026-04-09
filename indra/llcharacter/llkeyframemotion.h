@@ -40,6 +40,8 @@
 #include "lljointstate.h"
 #include "llmotion.h"
 #include "llquaternion.h"
+
+#include "glm/gtc/quaternion.hpp"
 #include "v3dmath.h"
 #include "v3math.h"
 #include "llbvhconsts.h"
@@ -298,11 +300,11 @@ public:
     class RotationKey
     {
     public:
-        RotationKey() { mTime = 0.0f; }
-        RotationKey(F32 time, const LLQuaternion &rotation) { mTime = time; mRotation = rotation; }
+        RotationKey() = default;
+        RotationKey(F32 time, const LLQuaternion &rotation) : mTime(time), mRotation(rotation) {}
 
-        F32             mTime;
-        LLQuaternion    mRotation;
+        F32             mTime{0.f};
+        glm::quat       mRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     };
 
     //-------------------------------------------------------------------------
