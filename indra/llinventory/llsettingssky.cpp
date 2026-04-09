@@ -605,8 +605,12 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
 
         mCanAutoAdjust = other->mCanAutoAdjust;
 
-        mSunRotation = slerp(static_cast<F32>(blendf), mSunRotation, other->mSunRotation);
-        mMoonRotation = slerp(static_cast<F32>(blendf), mMoonRotation, other->mMoonRotation);
+        // LL slerp is an ADL hidden friend of LLQuaternion; wrap glm::quat
+        // args explicitly so name lookup finds it. Same pattern as the
+        // cluster #35 (LLKeyframeMotion) and cluster #37 (LLFlexibleObject)
+        // wraps. The result bridges back to glm::quat on assign.
+        mSunRotation = slerp(static_cast<F32>(blendf), LLQuaternion(mSunRotation), LLQuaternion(other->mSunRotation));
+        mMoonRotation = slerp(static_cast<F32>(blendf), LLQuaternion(mMoonRotation), LLQuaternion(other->mMoonRotation));
         lerpColor(mSunlightColor, other->mSunlightColor, static_cast<F32>(blendf));
         lerpColor(mGlow, other->mGlow, static_cast<F32>(blendf));
         mReflectionProbeAmbiance = lerp(mReflectionProbeAmbiance, other->mReflectionProbeAmbiance, static_cast<F32>(blendf));
@@ -1206,12 +1210,12 @@ void LLSettingsSky::loadValuesFromLLSD()
     mBloomTextureId = settings[SETTING_BLOOM_TEXTUREID].asUUID();
 
     mSunScale = static_cast<F32>(settings[SETTING_SUN_SCALE].asReal());
-    mSunRotation = LLQuaternion(settings[SETTING_SUN_ROTATION]);
+    mSunRotation = ll_quat_from_sd(settings[SETTING_SUN_ROTATION]);
     mSunlightColor = LLColor3(settings[SETTING_SUNLIGHT_COLOR]);
     mStarBrightness = static_cast<F32>(settings[SETTING_STAR_BRIGHTNESS].asReal());
     mMoonBrightness = static_cast<F32>(settings[SETTING_MOON_BRIGHTNESS].asReal());
     mMoonScale = static_cast<F32>(settings[SETTING_MOON_SCALE].asReal());
-    mMoonRotation = LLQuaternion(settings[SETTING_MOON_ROTATION]);
+    mMoonRotation = ll_quat_from_sd(settings[SETTING_MOON_ROTATION]);
     mMaxY = static_cast<F32>(settings[SETTING_MAX_Y].asReal());
     mGlow = LLColor3(settings[SETTING_GLOW]);
     mGamma = static_cast<F32>(settings[SETTING_GAMMA].asReal());
@@ -1289,12 +1293,12 @@ void LLSettingsSky::saveValuesToLLSD()
     settings[SETTING_BLOOM_TEXTUREID] = mBloomTextureId;
 
     settings[SETTING_SUN_SCALE] = mSunScale;
-    settings[SETTING_SUN_ROTATION] = mSunRotation.getValue();
+    settings[SETTING_SUN_ROTATION] = ll_sd_from_quat(mSunRotation);
     settings[SETTING_SUNLIGHT_COLOR] = mSunlightColor.getValue();
     settings[SETTING_STAR_BRIGHTNESS] = mStarBrightness;
     settings[SETTING_MOON_BRIGHTNESS] = mMoonBrightness;
     settings[SETTING_MOON_SCALE] = mMoonScale;
-    settings[SETTING_MOON_ROTATION] = mMoonRotation.getValue();
+    settings[SETTING_MOON_ROTATION] = ll_sd_from_quat(mMoonRotation);
     settings[SETTING_MAX_Y] = mMaxY;
     settings[SETTING_GLOW] = mGlow.getValue();
     settings[SETTING_GAMMA] = mGamma;
