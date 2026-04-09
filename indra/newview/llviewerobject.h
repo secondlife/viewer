@@ -681,9 +681,9 @@ public:
     //counter-translation
     void resetChildrenPosition(const LLVector3& offset, bool simplified = false,  bool skip_avatar_child = false) ;
     //counter-rotation
-    void resetChildrenRotationAndPosition(const std::vector<LLQuaternion>& rotations,
+    void resetChildrenRotationAndPosition(const std::vector<glm::quat>& rotations,
                                             const std::vector<LLVector3>& positions) ;
-    void saveUnselectedChildrenRotation(std::vector<LLQuaternion>& rotations) ;
+    void saveUnselectedChildrenRotation(std::vector<glm::quat>& rotations) ;
     void saveUnselectedChildrenPosition(std::vector<LLVector3>& positions) ;
     std::vector<LLVector3> mUnselectedChildrenPositions ;
 

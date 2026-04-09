@@ -591,7 +591,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 
                 LLQuaternion new_rot = LLQuaternion(selectNode->mSavedRotation) * LLQuaternion(mRotation);
                 std::vector<LLVector3>& child_positions = object->mUnselectedChildrenPositions;
-                std::vector<LLQuaternion> child_rotations;
+                std::vector<glm::quat> child_rotations;
                 if (object->isRootEdit() && selectNode->mIndividualSelection)
                 {
                     object->saveUnselectedChildrenRotation(child_rotations);

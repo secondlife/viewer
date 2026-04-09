@@ -7248,7 +7248,7 @@ void LLViewerObject::saveUnselectedChildrenPosition(std::vector<LLVector3>& posi
     return ;
 }
 
-void LLViewerObject::saveUnselectedChildrenRotation(std::vector<LLQuaternion>& rotations)
+void LLViewerObject::saveUnselectedChildrenRotation(std::vector<glm::quat>& rotations)
 {
     if(mChildList.empty())
     {
@@ -7269,7 +7269,7 @@ void LLViewerObject::saveUnselectedChildrenRotation(std::vector<LLQuaternion>& r
 }
 
 //counter-rotation
-void LLViewerObject::resetChildrenRotationAndPosition(const std::vector<LLQuaternion>& rotations,
+void LLViewerObject::resetChildrenRotationAndPosition(const std::vector<glm::quat>& rotations,
                                             const std::vector<LLVector3>& positions)
 {
     if(mChildList.empty())
@@ -7278,7 +7278,7 @@ void LLViewerObject::resetChildrenRotationAndPosition(const std::vector<LLQuater
     }
 
     S32 index = 0 ;
-    LLQuaternion inv_rotation = ~getRotationEdit() ;
+    LLQuaternion inv_rotation = ~LLQuaternion(getRotationEdit()) ;
     LLVector3 offset = getPositionEdit() ;
     for (LLViewerObject::child_list_t::const_iterator iter = mChildList.begin();
             iter != mChildList.end(); iter++)
@@ -7288,14 +7288,14 @@ void LLViewerObject::resetChildrenRotationAndPosition(const std::vector<LLQuater
         {
             if (childp->getPCode() != LL_PCODE_LEGACY_AVATAR)
             {
-                childp->setRotation(rotations[index] * inv_rotation);
+                childp->setRotation(LLQuaternion(rotations[index]) * inv_rotation);
                 childp->setPosition((positions[index] - offset) * inv_rotation);
                 LLManip::rebuild(childp);
             }
             else //avatar
             {
                 LLVector3 reset_pos = (positions[index] - offset) * inv_rotation ;
-                LLQuaternion reset_rot = rotations[index] * inv_rotation ;
+                LLQuaternion reset_rot = LLQuaternion(rotations[index]) * inv_rotation ;
 
                 static_cast<LLVOAvatar*>(childp)->mDrawable->mXform.setPosition(reset_pos);
                 static_cast<LLVOAvatar*>(childp)->mDrawable->mXform.setRotation(reset_rot) ;
