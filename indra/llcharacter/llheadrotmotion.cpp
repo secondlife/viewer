@@ -179,11 +179,11 @@ bool LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
     F32 head_slerp_amt = LLSmoothInterpolation::getInterpolant(HEAD_LOOKAT_LAG_HALF_LIFE);
     F32 torso_slerp_amt = LLSmoothInterpolation::getInterpolant(TORSO_LOOKAT_LAG_HALF_LIFE);
 
-    const LLVector3* targetPos = static_cast<const LLVector3*>(mCharacter->getAnimationData("LookAtPoint"));
+    const glm::vec3* targetPos = static_cast<const glm::vec3*>(mCharacter->getAnimationData("LookAtPoint"));
 
     if (targetPos)
     {
-        LLVector3 headLookAt = *targetPos;
+        LLVector3 headLookAt = LLVector3(*targetPos);
 
 //      LL_INFOS() << "Look At: " << headLookAt + mHeadJoint->getWorldPosition() << LL_ENDL;
 
@@ -366,7 +366,7 @@ bool LLEyeMotion::onActivate()
 //-----------------------------------------------------------------------------
 // LLEyeMotion::adjustEyeTarget()
 //-----------------------------------------------------------------------------
-void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_state, LLJointState& right_eye_state) const
+void LLEyeMotion::adjustEyeTarget(glm::vec3* targetPos, LLJointState& left_eye_state, LLJointState& right_eye_state) const
 {
     // Compute eye rotation.
     bool has_eye_target = false;
@@ -380,7 +380,7 @@ void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_s
         LLVector3       left;
         LLVector3       up;
 
-        eye_look_at = *targetPos;
+        eye_look_at = LLVector3(*targetPos);
         has_eye_target = true;
         F32 lookAtDistance = eye_look_at.normalize();
 
@@ -530,7 +530,7 @@ bool LLEyeMotion::onUpdate(F32 time, U8* joint_mask)
         }
     }
 
-    LLVector3* targetPos = static_cast<LLVector3*>(mCharacter->getAnimationData("LookAtPoint"));
+    glm::vec3* targetPos = static_cast<glm::vec3*>(mCharacter->getAnimationData("LookAtPoint"));
 
     adjustEyeTarget(targetPos, *mLeftEyeState, *mRightEyeState);
     adjustEyeTarget(targetPos, *mAltLeftEyeState, *mAltRightEyeState);

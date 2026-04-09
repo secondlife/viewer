@@ -535,7 +535,7 @@ void LLHUDEffectLookAt::render()
 
         //LLGLDisable gls_stencil(GL_STENCIL_TEST);
 
-        LLVector3 target = mTargetPos + (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->mHeadp->getWorldPosition();
+        LLVector3 target = LLVector3(mTargetPos) + (static_cast<LLVOAvatar*>(static_cast<LLViewerObject*>(mSourceObject)))->mHeadp->getWorldPosition();
         gGL.matrixMode(LLRender::MM_MODELVIEW);
         gGL.pushMatrix();
         gGL.translatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
@@ -692,26 +692,31 @@ bool LLHUDEffectLookAt::calcTargetPosition()
         {
             if (target_obj->mDrawable->getGeneration() == -1)
             {
-                mTargetPos = target_obj->getPositionAgent();
+                LLVector3 tmp = target_obj->getPositionAgent();
+                mTargetPos = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
                 target_rot = target_obj->getWorldRotation();
             }
             else
             {
-                mTargetPos = target_obj->getRenderPosition();
+                LLVector3 tmp = target_obj->getRenderPosition();
+                mTargetPos = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
                 target_rot = target_obj->getRenderRotation();
             }
         }
 
-        mTargetPos += (local_offset * target_rot);
+        {
+            LLVector3 tmp = local_offset * target_rot;
+            mTargetPos += glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
+        }
     }
     else // no target obj or it's not drawable
     {
-        mTargetPos = local_offset;
+        mTargetPos = glm::vec3(local_offset.mV[0], local_offset.mV[1], local_offset.mV[2]);
     }
 
     mTargetPos -= source_avatar->mHeadp->getWorldPosition();
 
-    if (!mTargetPos.isFinite())
+    if (!LLVector3(mTargetPos).isFinite())
         return false;
 
     static LLCachedControl<bool> disable_look_at(gSavedSettings, "DisableLookAtAnimation", true);
