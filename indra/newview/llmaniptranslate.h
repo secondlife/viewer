@@ -96,16 +96,16 @@ private:
     F32         mArrowLengthMeters;     // meters
     F32         mGridSizeMeters;
     F32         mPlaneManipOffsetMeters;
-    LLVector3   mManipNormal;
+    glm::vec3   mManipNormal{0.f};
     LLVector3d  mDragCursorStartGlobal;
     LLVector3d  mDragSelectionStartGlobal;
     LLTimer     mUpdateTimer;
     LLVector4   mManipulatorVertices[18];
     F32         mSnapOffsetMeters;
-    LLVector3   mSnapOffsetAxis;
+    glm::vec3   mSnapOffsetAxis{0.f};
     glm::quat    mGridRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
-    LLVector3   mGridOrigin;
-    LLVector3   mGridScale;
+    glm::vec3   mGridOrigin{0.f};
+    glm::vec3   mGridScale{0.f};
     F32         mSubdivisions;
     bool        mInSnapRegime;
     glm::vec3   mArrowScales{1.f};

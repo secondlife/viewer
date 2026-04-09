@@ -225,12 +225,12 @@ public:
     std::string     mDescription;
     LLCategory      mCategory;
     S16             mInventorySerial;
-    LLVector3       mSavedPositionLocal;    // for interactively modifying object position
-    LLVector3       mLastPositionLocal;
+    glm::vec3       mSavedPositionLocal{0.f}; // for interactively modifying object position
+    glm::vec3       mLastPositionLocal{0.f};
     glm::vec3       mLastMoveLocal{0.f};
     LLVector3d      mSavedPositionGlobal;   // for interactively modifying object position
-    LLVector3       mSavedScale;            // for interactively modifying object scale
-    LLVector3       mLastScale;
+    glm::vec3       mSavedScale{0.f};       // for interactively modifying object scale
+    glm::vec3       mLastScale{0.f};
     glm::quat       mSavedRotation{1.f, 0.f, 0.f, 0.f}; // for interactively modifying object rotation (identity w,x,y,z)
     glm::quat       mLastRotation{1.f, 0.f, 0.f, 0.f};
     bool            mDuplicated;
@@ -247,7 +247,7 @@ public:
     uuid_vec_t      mSavedTextures;
     uuid_vec_t      mSavedGLTFMaterialIds;
     gltf_materials_vec_t mSavedGLTFOverrideMaterials;
-    std::vector<LLVector3>  mTextureScaleRatios;
+    std::vector<glm::vec3>  mTextureScaleRatios;
     std::vector< std::vector<LLVector3> >  mGLTFScaleRatios;
     std::vector< std::vector<glm::vec2> >  mGLTFScales;
     std::vector< std::vector<glm::vec2> >  mGLTFOffsets;
@@ -513,13 +513,13 @@ public:
     struct AvatarPositionOverride
     {
         AvatarPositionOverride();
-        AvatarPositionOverride(LLVector3 &vec, const glm::quat &quat, LLViewerObject *obj) :
+        AvatarPositionOverride(const glm::vec3 &vec, const glm::quat &quat, LLViewerObject *obj) :
             mLastPositionLocal(vec),
             mLastRotation(quat),
             mObject(obj)
         {
         }
-        LLVector3 mLastPositionLocal;
+        glm::vec3 mLastPositionLocal{0.f};
         glm::quat mLastRotation{1.f, 0.f, 0.f, 0.f};
         LLPointer<LLViewerObject> mObject;
     };
@@ -931,8 +931,8 @@ private:
 
     LLObjectSelection       mGridObjects;
     glm::quat               mGridRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
-    LLVector3               mGridOrigin;
-    LLVector3               mGridScale;
+    glm::vec3               mGridOrigin{0.f};
+    glm::vec3               mGridScale{0.f};
     EGridMode               mGridMode;
 
     bool                    mTEMode;            // render te

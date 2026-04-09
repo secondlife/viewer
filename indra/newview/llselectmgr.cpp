@@ -326,9 +326,9 @@ void LLSelectMgr::resetObjectOverrides(LLObjectSelectionHandle selected_handle)
                     }
                 }
             }
-            node->mLastPositionLocal.set(0, 0, 0);
+            node->mLastPositionLocal = glm::vec3(0.f);
             node->mLastRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
-            node->mLastScale.set(0, 0, 0);
+            node->mLastScale = glm::vec3(0.f);
             return true;
         }
     } func(mAllowSelectAvatar, this);
@@ -346,7 +346,7 @@ void LLSelectMgr::overrideObjectUpdates()
             LLViewerObject* object = selectNode->getObject();
             if (object && object->permMove() && !object->isPermanentEnforced())
             {
-                if (!selectNode->mLastPositionLocal.isExactlyZero())
+                if (selectNode->mLastPositionLocal != glm::vec3(0.f))
                 {
                     object->setPosition(selectNode->mLastPositionLocal);
                 }
@@ -356,7 +356,7 @@ void LLSelectMgr::overrideObjectUpdates()
                 {
                     object->setRotation(LLQuaternion(selectNode->mLastRotation));
                 }
-                if (!selectNode->mLastScale.isExactlyZero())
+                if (selectNode->mLastScale != glm::vec3(0.f))
                 {
                     object->setScale(selectNode->mLastScale);
                 }
@@ -414,7 +414,7 @@ void LLSelectMgr::overrideAvatarUpdates()
                     uuid_av_override_map_t::iterator iter = mManager->mAvatarOverridesMap.find(avatar->getID());
                     if (iter != mManager->mAvatarOverridesMap.end())
                     {
-                        if (selectNode->mLastPositionLocal.isExactlyZero())
+                        if (selectNode->mLastPositionLocal == glm::vec3(0.f))
                         {
                             selectNode->mLastPositionLocal = iter->second.mLastPositionLocal;
                         }
@@ -441,7 +441,7 @@ void LLSelectMgr::overrideAvatarUpdates()
         }
         else
         {
-            if (!it->second.mLastPositionLocal.isExactlyZero())
+            if (it->second.mLastPositionLocal != glm::vec3(0.f))
             {
                 it->second.mObject->setPosition(it->second.mLastPositionLocal);
             }
@@ -1445,13 +1445,19 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
             size.setSub(max_extents, min_extents);
             size.mul(0.5f);
 
-            mGridOrigin.set(center.getF32ptr());
+            {
+                const F32* p = center.getF32ptr();
+                mGridOrigin = glm::vec3(p[0], p[1], p[2]);
+            }
             LLDrawable* drawable = first_grid_object->mDrawable;
             if (drawable && drawable->isActive())
             {
-                mGridOrigin = mGridOrigin * first_grid_object->getRenderMatrix();
+                mGridOrigin = LLVector3(mGridOrigin) * first_grid_object->getRenderMatrix();
             }
-            mGridScale.set(size.getF32ptr());
+            {
+                const F32* p = size.getF32ptr();
+                mGridScale = glm::vec3(p[0], p[1], p[2]);
+            }
         }
     }
     else // GRID_MODE_WORLD or just plain default
@@ -1459,7 +1465,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
         const bool non_root_ok = true;
         LLViewerObject* first_object = mSelectedObjects->getFirstRootObject(non_root_ok);
 
-        mGridOrigin.clear();
+        mGridOrigin = glm::vec3(0.f);
         mGridRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
 
         mSelectedObjects->mSelectType = getSelectTypeForObject( first_object );
@@ -1473,18 +1479,18 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
                 LLXform* attachment_point_xform = first_object->getRootEdit()->mDrawable->mXform.getParent();
                 mGridOrigin = attachment_point_xform->getWorldPosition();
                 mGridRotation = attachment_point_xform->getWorldRotation();
-                mGridScale = LLVector3(1.f, 1.f, 1.f) * gSavedSettings.getF32("GridResolution");
+                mGridScale = glm::vec3(1.f) * gSavedSettings.getF32("GridResolution");
             }
             break;
         case SELECT_TYPE_HUD:
-            mGridScale = LLVector3(1.f, 1.f, 1.f) * llmin(gSavedSettings.getF32("GridResolution"), 0.5f);
+            mGridScale = glm::vec3(1.f) * llmin(gSavedSettings.getF32("GridResolution"), 0.5f);
             break;
         case SELECT_TYPE_WORLD:
             mGridScale = LLVector3(1.f, 1.f, 1.f) * gSavedSettings.getF32("GridResolution");
             break;
         }
     }
-    llassert(mGridOrigin.isFinite());
+    llassert(std::isfinite(mGridOrigin.x) && std::isfinite(mGridOrigin.y) && std::isfinite(mGridOrigin.z));
 
     origin = mGridOrigin;
     rotation = mGridRotation;
@@ -6860,7 +6866,7 @@ LLSelectNode::~LLSelectNode()
 {
     LLSelectMgr *manager = LLSelectMgr::getInstance();
     if (manager->mAllowSelectAvatar
-        && (!mLastPositionLocal.isExactlyZero()
+        && (mLastPositionLocal != glm::vec3(0.f)
             || LLQuaternion(mLastRotation) != LLQuaternion()))
     {
         LLViewerObject* object = getObject(); //isDead() check

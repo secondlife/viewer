@@ -159,13 +159,13 @@ LLColor4 LLPipeline::PreviewDiffuse1;
 LLColor4 LLPipeline::PreviewSpecular1;
 LLColor4 LLPipeline::PreviewDiffuse2;
 LLColor4 LLPipeline::PreviewSpecular2;
-LLVector3 LLPipeline::PreviewDirection0;
-LLVector3 LLPipeline::PreviewDirection1;
-LLVector3 LLPipeline::PreviewDirection2;
+glm::vec3 LLPipeline::PreviewDirection0;
+glm::vec3 LLPipeline::PreviewDirection1;
+glm::vec3 LLPipeline::PreviewDirection2;
 F32 LLPipeline::RenderGlowMaxExtractAlpha;
 F32 LLPipeline::RenderGlowWarmthAmount;
-LLVector3 LLPipeline::RenderGlowLumWeights;
-LLVector3 LLPipeline::RenderGlowWarmthWeights;
+glm::vec3 LLPipeline::RenderGlowLumWeights;
+glm::vec3 LLPipeline::RenderGlowWarmthWeights;
 S32 LLPipeline::RenderGlowResolutionPow;
 S32 LLPipeline::RenderGlowIterations;
 F32 LLPipeline::RenderGlowWidth;
@@ -4589,10 +4589,10 @@ void LLPipeline::renderDebug()
                 iter++;
             }
 
-            blip.mPosition.mV[2] += gFrameIntervalSeconds.value()*2.f;
+            blip.mPosition.z += gFrameIntervalSeconds.value()*2.f;
 
             gGL.color4fv(blip.mColor.mV);
-            gGL.vertex3fv(blip.mPosition.mV);
+            gGL.vertex3fv(&blip.mPosition.x);
         }
         gGL.end();
         gGL.flush();
@@ -11111,7 +11111,7 @@ void LLPipeline::clearAllRenderTypes()
     }
 }
 
-void LLPipeline::addDebugBlip(const LLVector3& position, const LLColor4& color)
+void LLPipeline::addDebugBlip(const glm::vec3& position, const LLColor4& color)
 {
     DebugBlip blip(position, color);
     mDebugBlips.push_back(blip);

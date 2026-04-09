@@ -56,8 +56,6 @@ LLSurfacePatch::LLSurfacePatch()
     mDataZ(NULL),
     mDataNorm(NULL),
     mVObjp(NULL),
-    mOriginRegion(0.f, 0.f, 0.f),
-    mCenterRegion(0.f, 0.f, 0.f),
     mMinZ(0.f),
     mMaxZ(0.f),
     mMeanZ(0.f),
@@ -226,7 +224,7 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
     tex0->x = tex_pos.mV[0];
     tex0->y = tex_pos.mV[1];
 
-    tex1->x = mSurfacep->getRegion()->getCompositionXY(llfloor(mOriginRegion.mV[0])+x, llfloor(mOriginRegion.mV[1])+y);
+    tex1->x = mSurfacep->getRegion()->getCompositionXY(llfloor(mOriginRegion.x)+x, llfloor(mOriginRegion.y)+y);
 
     const F32 xyScale = 4.9215f*7.f; //0.93284f;
     const F32 xyScaleInv = (1.f / xyScale)*(0.2222222222f);
@@ -532,7 +530,7 @@ void LLSurfacePatch::updateCameraDistanceRegion(const LLVector3 &pos_region)
         if (!gShiftFrame)
         {
             LLVector3 dv = pos_region;
-            dv -= mCenterRegion;
+            dv -= LLVector3(mCenterRegion);
             mVisInfo.mDistance = llmax(0.f, static_cast<F32>(dv.length() - mRadius))/
                 llmax(LLVOSurfacePatch::sLODFactor, 0.1f);
         }
@@ -594,7 +592,7 @@ void LLSurfacePatch::updateVerticalStats()
         }
     }
     mMeanZ = total / static_cast<F32>(k);
-    mCenterRegion.mV[VZ] = 0.5f * (mMinZ + mMaxZ);
+    mCenterRegion.z = 0.5f * (mMinZ + mMaxZ);
 
     LLVector3 diam_vec(meters_per_grid*grids_per_patch_edge,
                         meters_per_grid*grids_per_patch_edge,
@@ -963,8 +961,8 @@ void LLSurfacePatch::setOriginGlobal(const LLVector3d &origin_global)
     LLVector3 origin_region(mOriginGlobal - mSurfacep->getOriginGlobal());
 
     mOriginRegion = origin_region;
-    mCenterRegion.mV[VX] = origin_region.mV[VX] + 0.5f*mSurfacep->getGridsPerPatchEdge()*mSurfacep->getMetersPerGrid();
-    mCenterRegion.mV[VY] = origin_region.mV[VY] + 0.5f*mSurfacep->getGridsPerPatchEdge()*mSurfacep->getMetersPerGrid();
+    mCenterRegion.x = origin_region.mV[VX] + 0.5f*mSurfacep->getGridsPerPatchEdge()*mSurfacep->getMetersPerGrid();
+    mCenterRegion.y = origin_region.mV[VY] + 0.5f*mSurfacep->getGridsPerPatchEdge()*mSurfacep->getMetersPerGrid();
 
     mVisInfo.mbIsVisible = false;
     mVisInfo.mDistance = 512.0f;
@@ -1018,7 +1016,7 @@ void LLSurfacePatch::updateVisibility()
     U32 grids_per_patch_edge = mSurfacep->getGridsPerPatchEdge();
 
     LLVector4a center;
-    center.load3( (mCenterRegion + mSurfacep->getOriginAgent()).mV);
+    center.load3( (LLVector3(mCenterRegion) + mSurfacep->getOriginAgent()).mV);
     LLVector4a radius;
     radius.splat(mRadius);
 
@@ -1112,7 +1110,7 @@ bool LLSurfacePatch::getHasReceivedData() const
     return mHasReceivedData;
 }
 
-const LLVector3 &LLSurfacePatch::getCenterRegion() const
+LLVector3 LLSurfacePatch::getCenterRegion() const
 {
     return mCenterRegion;
 }

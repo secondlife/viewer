@@ -207,7 +207,7 @@ void LLFollowCamParams::setFocusLocked( bool l )
 void LLFollowCamParams::setFocusOffset( const LLVector3& v )
 {
     mFocusOffset = v;
-    mFocusOffset.clamp(FOLLOW_CAM_MIN_FOCUS_OFFSET, FOLLOW_CAM_MAX_FOCUS_OFFSET);
+    mFocusOffset = glm::clamp(mFocusOffset, FOLLOW_CAM_MIN_FOCUS_OFFSET, FOLLOW_CAM_MAX_FOCUS_OFFSET);
 }
 
 //---------------------------------------------------------
@@ -288,7 +288,7 @@ void LLFollowCam::update()
     //####################################################################################
     // update Focus
     //####################################################################################
-    LLVector3 offsetSubjectPosition = mSubjectPosition + (mFocusOffset * LLQuaternion(mSubjectRotation));
+    LLVector3 offsetSubjectPosition = LLVector3(mSubjectPosition) + (LLVector3(mFocusOffset) * LLQuaternion(mSubjectRotation));
 
     const glm::vec3 simulated_pos_agent_g = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
     LLVector3 simulated_pos_agent(simulated_pos_agent_g.x, simulated_pos_agent_g.y, simulated_pos_agent_g.z);
@@ -326,7 +326,7 @@ void LLFollowCam::update()
             focus_pt_agent = lerp( focus_pt_agent, whereFocusWantsToBe, focusLagLerp );
             mSimulatedFocusGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(focus_pt_agent.mV[VX], focus_pt_agent.mV[VY], focus_pt_agent.mV[VZ]));
         }
-        mRelativeFocus = lerp(mRelativeFocus, (focus_pt_agent - mSubjectPosition) * ~LLQuaternion(mSubjectRotation), LLSmoothInterpolation::getInterpolant(0.05f));
+        mRelativeFocus = lerp(LLVector3(mRelativeFocus), (focus_pt_agent - LLVector3(mSubjectPosition)) * ~LLQuaternion(mSubjectRotation), LLSmoothInterpolation::getInterpolant(0.05f));
     }// if focus is not locked ---------------------------------------------
 
 
@@ -430,7 +430,7 @@ void LLFollowCam::update()
         }
         mSimulatedPositionGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(simulated_pos_agent.mV[VX], simulated_pos_agent.mV[VY], simulated_pos_agent.mV[VZ]));
 
-        mRelativePos = lerp(mRelativePos, (simulated_pos_agent - mSubjectPosition) * ~LLQuaternion(mSubjectRotation), LLSmoothInterpolation::getInterpolant(0.05f));
+        mRelativePos = lerp(LLVector3(mRelativePos), (simulated_pos_agent - LLVector3(mSubjectPosition)) * ~LLQuaternion(mSubjectRotation), LLSmoothInterpolation::getInterpolant(0.05f));
     } // if position is not locked -----------------------------------------------------------
 
 
@@ -595,7 +595,7 @@ void LLFollowCam::setPosition( const LLVector3& p )
     if (p != mPosition)
     {
         LLFollowCamParams::setPosition(p);
-        mSimulatedPositionGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(mPosition.mV[VX], mPosition.mV[VY], mPosition.mV[VZ]));
+        mSimulatedPositionGlobal = gAgent.getPosGlobalFromAgent(mPosition);
         if (mPositionLocked)
         {
             mRelativePos = (mPosition - mSubjectPosition) * ~LLQuaternion(mSubjectRotation);

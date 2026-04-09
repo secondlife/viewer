@@ -316,12 +316,16 @@ void LLViewerPartSourceScript::update(const F32 dt)
             { //set previous particle's parent to this particle to chain ribbon together
                 mLastPart->mParent = part;
                 part->mChild = mLastPart;
-                part->mAxis = LLVector3(0,0,1);
+                part->mAxis = glm::vec3(0, 0, 1);
 
                 if (mSourceObjectp.notNull())
                 {
                     LLQuaternion rot = mSourceObjectp->getRenderRotation();
-                    part->mAxis *= rot;
+                    // glm::vec3 *= LLQuaternion has no operator;
+                    // bridge through LLVector3 to preserve LL vec*quat semantics.
+                    LLVector3 tmp(part->mAxis);
+                    tmp *= rot;
+                    part->mAxis = tmp;
                 }
             }
 

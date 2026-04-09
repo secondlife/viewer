@@ -38,6 +38,7 @@
 #include "llmanip.h"
 #include "llviewerobject.h"
 #include "llbbox.h"
+#include <glm/vec3.hpp>
 
 
 F32 get_default_max_prim_scale(bool is_flora = false);
@@ -67,7 +68,7 @@ public:
     class ManipulatorHandle
     {
     public:
-        LLVector3   mPosition;
+        glm::vec3   mPosition{0.f};
         EManipPart  mManipID;
         EScaleManipulatorType           mType;
 
@@ -135,8 +136,8 @@ private:
         {
             if (a->mType != b->mType)
                 return a->mType < b->mType;
-            else if (a->mPosition.mV[VZ] != b->mPosition.mV[VZ])
-                return a->mPosition.mV[VZ] < b->mPosition.mV[VZ];
+            else if (a->mPosition.z != b->mPosition.z)
+                return a->mPosition.z < b->mPosition.z;
             else
                 return a->mManipID < b->mManipID;
         }
@@ -157,12 +158,12 @@ private:
     LLVector4       mManipulatorVertices[14];
     F32             mScaleSnapUnit1; //!< Size of snap multiples for the upper scale.
     F32             mScaleSnapUnit2; //!< Size of snap multiples for the lower scale.
-    LLVector3       mScalePlaneNormal1; //!< Normal of plane in which scale occurs that most faces camera.
-    LLVector3       mScalePlaneNormal2; //!< Normal of plane in which scale occurs that most faces camera.
-    LLVector3       mSnapGuideDir1; //!< The direction in which the upper snap guide tick marks face.
-    LLVector3       mSnapGuideDir2; //!< The direction in which the lower snap guide tick marks face.
-    LLVector3       mSnapDir1; //!< The direction in which the upper snap guides face.
-    LLVector3       mSnapDir2; //!< The direction in which the lower snap guides face.
+    glm::vec3       mScalePlaneNormal1{0.f}; //!< Normal of plane in which scale occurs that most faces camera.
+    glm::vec3       mScalePlaneNormal2{0.f}; //!< Normal of plane in which scale occurs that most faces camera.
+    glm::vec3       mSnapGuideDir1{0.f}; //!< The direction in which the upper snap guide tick marks face.
+    glm::vec3       mSnapGuideDir2{0.f}; //!< The direction in which the lower snap guide tick marks face.
+    glm::vec3       mSnapDir1{0.f}; //!< The direction in which the upper snap guides face.
+    glm::vec3       mSnapDir2{0.f}; //!< The direction in which the lower snap guides face.
     F32             mSnapRegimeOffset; //!< How far off the scale axis centerline the mouse can be before it exits/enters the snap regime.
     F32             mTickPixelSpacing1; //!< The pixel spacing between snap guide tick marks for the upper scale.
     F32             mTickPixelSpacing2; //!< The pixel spacing between snap guide tick marks for the lower scale.

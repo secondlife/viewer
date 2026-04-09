@@ -86,13 +86,9 @@ LLManipRotate::LLManipRotate( LLToolComposite* composite )
 :   LLManip( std::string("Rotate"), composite ),
     mRotationCenter(),
     mCenterScreen(),
-    mMouseDown(),
-    mMouseCur(),
     mRadiusMeters(0.f),
-    mCenterToCam(),
     mCenterToCamNorm(),
     mCenterToCamMag(0.f),
-    mCenterToProfilePlane(),
     mCenterToProfilePlaneMag(0.f),
     mSendUpdateOnMouseUp( false ),
     mSmoothRotate( false ),
@@ -162,7 +158,7 @@ void LLManipRotate::render()
             gGL.pushMatrix();
             {
                 // Draw "sphere" (intersection of sphere with tangent cone that has apex at camera)
-                gGL.translatef( mCenterToProfilePlane.mV[VX], mCenterToProfilePlane.mV[VY], mCenterToProfilePlane.mV[VZ] );
+                gGL.translatef( mCenterToProfilePlane.x, mCenterToProfilePlane.y, mCenterToProfilePlane.z );
                 gGL.translatef( center.mV[VX], center.mV[VY], center.mV[VZ] );
 
                 // Inverse change of basis vectors
@@ -417,20 +413,23 @@ bool LLManipRotate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
             cur_intersection -= center;
             mMouseDown = projected_vec(cur_intersection, up_from_axis);
             F32 mouse_depth = SNAP_GUIDE_INNER_RADIUS * mRadiusMeters;
-            F32 mouse_dist_sqrd = mMouseDown.lengthSquared();
+            F32 mouse_dist_sqrd = glm::dot(mMouseDown, mMouseDown);
             if (mouse_dist_sqrd > 0.0001f)
             {
                 mouse_depth = sqrtf((SNAP_GUIDE_INNER_RADIUS * mRadiusMeters) * (SNAP_GUIDE_INNER_RADIUS * mRadiusMeters) -
                                     mouse_dist_sqrd);
             }
             LLVector3 projected_center_to_cam = mCenterToCamNorm - projected_vec(mCenterToCamNorm, axis);
-            mMouseDown += mouse_depth * projected_center_to_cam;
+            {
+                const LLVector3 add = mouse_depth * projected_center_to_cam;
+                mMouseDown += glm::vec3(add.mV[VX], add.mV[VY], add.mV[VZ]);
+            }
 
         }
         else
         {
             mMouseDown = findNearestPointOnRing( x, y, center, axis ) - center;
-            mMouseDown.normalize();
+            mMouseDown = glm::normalize(mMouseDown);
         }
     }
 
@@ -1615,14 +1614,17 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
             cur_intersection -= center;
             mMouseCur = projected_vec(cur_intersection, up_from_axis);
             F32 mouse_depth = SNAP_GUIDE_INNER_RADIUS * mRadiusMeters;
-            F32 mouse_dist_sqrd = mMouseCur.lengthSquared();
+            F32 mouse_dist_sqrd = glm::dot(mMouseCur, mMouseCur);
             if (mouse_dist_sqrd > 0.0001f)
             {
                 mouse_depth = sqrtf((SNAP_GUIDE_INNER_RADIUS * mRadiusMeters) * (SNAP_GUIDE_INNER_RADIUS * mRadiusMeters) -
                                     mouse_dist_sqrd);
             }
             LLVector3 projected_center_to_cam = mCenterToCamNorm - projected_vec(mCenterToCamNorm, constraint_axis);
-            mMouseCur += mouse_depth * projected_center_to_cam;
+            {
+                const LLVector3 add = mouse_depth * projected_center_to_cam;
+                mMouseCur += glm::vec3(add.mV[VX], add.mV[VY], add.mV[VZ]);
+            }
 
             F32 dist = dot(cur_intersection, up_from_axis) - dot(mMouseDown, up_from_axis);
             angle = dist / (SNAP_GUIDE_INNER_RADIUS * mRadiusMeters) * -F_PI_BY_TWO;
@@ -1634,7 +1636,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
         getMousePointOnPlaneAgent(projected_mouse, x, y, center, constraint_axis);
         projected_mouse -= center;
         mMouseCur = projected_mouse;
-        mMouseCur.normalize();
+        mMouseCur = glm::normalize(mMouseCur);
 
         if (!first_object_node)
         {

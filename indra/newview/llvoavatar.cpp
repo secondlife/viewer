@@ -77,7 +77,6 @@
 #include "llregionhandle.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
-#include "llsprite.h"
 #include "lltargetingmotion.h"
 #include "lltoolmgr.h"
 #include "lltoolmorph.h"
@@ -3092,7 +3091,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
         for (U32 i = 0; i < 3 && !mNeedsImpostorUpdate; i++)
         {
             F32 cur_angle = angle.mV[i];
-            F32 old_angle = mImpostorAngle.mV[i];
+            F32 old_angle = mImpostorAngle[i];
             F32 angle_diff = fabsf(cur_angle-old_angle);
 
             if (angle_diff > F_PI/512.f*distance*mUpdatePeriod)
@@ -3317,7 +3316,7 @@ void LLVOAvatar::idleUpdateWindEffect()
         LLVector3 velocity = getVelocity();
         F32 speed = velocity.length();
         //RN: velocity varies too much frame to frame for this to work
-        mRippleAccel.clear();//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLSmoothInterpolation::getInterpolant(0.02f));
+        mRippleAccel = glm::vec3(0.f);//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLSmoothInterpolation::getInterpolant(0.02f));
         mLastVel = velocity;
         LLVector4 wind(getRegion()->mWind.getVelocityNoisy(getPositionAgent(), 4.f) - velocity);
 
@@ -3782,14 +3781,14 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
 
     LLVector3 head_offset = (mHeadp->getLastWorldPosition() - mRoot->getLastWorldPosition()) * inv_root_rot;
 
-    if (dist_vec(head_offset, mTargetRootToHeadOffset) > NAMETAG_UPDATE_THRESHOLD)
+    if (dist_vec(head_offset, LLVector3(mTargetRootToHeadOffset)) > NAMETAG_UPDATE_THRESHOLD)
     {
         mTargetRootToHeadOffset = head_offset;
     }
 
-    mCurRootToHeadOffset = lerp(mCurRootToHeadOffset, mTargetRootToHeadOffset, LLSmoothInterpolation::getInterpolant(0.2f));
+    mCurRootToHeadOffset = lerp(LLVector3(mCurRootToHeadOffset), LLVector3(mTargetRootToHeadOffset), LLSmoothInterpolation::getInterpolant(0.2f));
 
-    LLVector3 name_position = mRoot->getLastWorldPosition() + (mCurRootToHeadOffset * root_rot);
+    LLVector3 name_position = mRoot->getLastWorldPosition() + (LLVector3(mCurRootToHeadOffset) * root_rot);
     name_position += (local_camera_up * root_rot) - (projected_vec(local_camera_at * root_rot, camera_to_av));
     name_position += pixel_up_vec * NAMETAG_VERTICAL_SCREEN_OFFSET;
 
@@ -5954,7 +5953,7 @@ void LLVOAvatar::resolveHeightGlobal(const LLVector3d &inPos, LLVector3d &outPos
     {
         mStepOnLand = true;
         mStepMaterial = 0;
-        mStepObjectVelocity.set(0.0f, 0.0f, 0.0f);
+        mStepObjectVelocity = glm::vec3(0.0f);
     }
     else
     {
@@ -8027,9 +8026,9 @@ void LLVOAvatar::getOffObject()
     LLVector3 cur_position_world = mDrawable->getWorldPosition();
     LLQuaternion cur_rotation_world = mDrawable->getWorldRotation();
 
-    if (mLastRootPos.length() >= MAX_STANDOFF_FROM_ORIGIN
+    if (glm::length(mLastRootPos) >= MAX_STANDOFF_FROM_ORIGIN
         && (cur_position_world.length() < MAX_STANDOFF_FROM_ORIGIN
-            || dist_vec(cur_position_world, mLastRootPos) > MAX_STANDOFF_DISTANCE_CHANGE))
+            || dist_vec(cur_position_world, LLVector3(mLastRootPos)) > MAX_STANDOFF_DISTANCE_CHANGE))
     {
         // Most likely drawable got updated too early or some updates were missed - we got relative position to non-existing parent
         // restore coordinates from cache
@@ -10943,9 +10942,9 @@ bool LLVOAvatar::needsImpostorUpdate() const
     return mNeedsImpostorUpdate;
 }
 
-const LLVector3& LLVOAvatar::getImpostorOffset() const
+LLVector3 LLVOAvatar::getImpostorOffset() const
 {
-    return mImpostorOffset;
+    return LLVector3(mImpostorOffset);
 }
 
 const glm::vec2& LLVOAvatar::getImpostorDim() const
@@ -10960,7 +10959,9 @@ void LLVOAvatar::setImpostorDim(const glm::vec2& dim)
 
 void LLVOAvatar::cacheImpostorValues()
 {
-    getImpostorValues(mImpostorExtents, mImpostorAngle, mImpostorDistance);
+    LLVector3 angle_tmp;
+    getImpostorValues(mImpostorExtents, angle_tmp, mImpostorDistance);
+    mImpostorAngle = angle_tmp;
 }
 
 void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& distance) const

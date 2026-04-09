@@ -536,7 +536,7 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
         {
             ManipulatorHandle* manipulator = *iter;
             {
-                manip2d = glm::vec2(manipulator->mPosition.mV[VX] * half_width, manipulator->mPosition.mV[VY] * half_height);
+                manip2d = glm::vec2(manipulator->mPosition.x * half_width, manipulator->mPosition.y * half_height);
 
                 delta = manip2d - mousePos;
                 if (glm::dot(delta, delta) < MAX_MANIP_SELECT_DISTANCE_SQUARED)
@@ -923,12 +923,12 @@ void LLManipScale::dragCorner( S32 x, S32 y )
             ((root_object == NULL) || !root_object->isPermanentEnforced()) &&
             !cur->isAvatar() )
         {
-            const LLVector3& scale = selectNode->mSavedScale;
+            const glm::vec3& scale = selectNode->mSavedScale;
 
-            F32 cur_max_scale_factor = llmin( get_default_max_prim_scale(LLPickInfo::isFlora(cur)) / scale.mV[VX], get_default_max_prim_scale(LLPickInfo::isFlora(cur)) / scale.mV[VY], get_default_max_prim_scale(LLPickInfo::isFlora(cur)) / scale.mV[VZ] );
+            F32 cur_max_scale_factor = llmin( get_default_max_prim_scale(LLPickInfo::isFlora(cur)) / scale.x, get_default_max_prim_scale(LLPickInfo::isFlora(cur)) / scale.y, get_default_max_prim_scale(LLPickInfo::isFlora(cur)) / scale.z );
             max_scale_factor = llmin( max_scale_factor, cur_max_scale_factor );
 
-            F32 cur_min_scale_factor = llmax( MIN_PRIM_SCALE / scale.mV[VX], MIN_PRIM_SCALE / scale.mV[VY], MIN_PRIM_SCALE / scale.mV[VZ] );
+            F32 cur_min_scale_factor = llmax( MIN_PRIM_SCALE / scale.x, MIN_PRIM_SCALE / scale.y, MIN_PRIM_SCALE / scale.z );
             min_scale_factor = llmax( min_scale_factor, cur_min_scale_factor );
         }
     }
@@ -948,7 +948,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
             ((root_object == NULL) || !root_object->isPermanentEnforced()) &&
             !cur->isAvatar() && cur->isRootEdit() )
         {
-            const LLVector3& scale = selectNode->mSavedScale;
+            const glm::vec3& scale = selectNode->mSavedScale;
             cur->setScale( scale_factor * scale );
 
             LLVector3 delta_pos;
@@ -999,7 +999,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
             ((root_object == NULL) || !root_object->isPermanentEnforced()) &&
             !cur->isAvatar() && !cur->isRootEdit() )
         {
-            const LLVector3& scale = selectNode->mSavedScale;
+            const glm::vec3& scale = selectNode->mSavedScale;
             cur->setScale( scale_factor * scale, false );
 
             if (!selectNode->mIndividualSelection)
@@ -1219,9 +1219,9 @@ void LLManipScale::stretchFace( const LLVector3& drag_start_agent, const LLVecto
 
             F32 denom = axis * dir_local;
             F32 desired_delta_size  = is_approx_zero(denom) ? 0.f : (delta_local_mag / denom);  // in meters
-            F32 desired_scale       = llclamp(selectNode->mSavedScale.mV[axis_index] + desired_delta_size, MIN_PRIM_SCALE, get_default_max_prim_scale(LLPickInfo::isFlora(cur)));
+            F32 desired_scale       = llclamp(selectNode->mSavedScale[axis_index] + desired_delta_size, MIN_PRIM_SCALE, get_default_max_prim_scale(LLPickInfo::isFlora(cur)));
             // propagate scale constraint back to position offset
-            desired_delta_size      = desired_scale - selectNode->mSavedScale.mV[axis_index]; // propagate constraint back to position
+            desired_delta_size      = desired_scale - selectNode->mSavedScale[axis_index]; // propagate constraint back to position
 
             LLVector3 scale         = cur->getScale();
             scale.mV[axis_index]    = desired_scale;
@@ -1505,25 +1505,36 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
             mScaleSnapUnit2 = grid_scale.mV[VX];
             break;
         default:
-            mSnapGuideDir1.setZero();
+            mSnapGuideDir1 = glm::vec3(0.f);
             mScaleSnapUnit1 = 0.f;
 
-            mSnapGuideDir2.setZero();
+            mSnapGuideDir2 = glm::vec3(0.f);
             mScaleSnapUnit2 = 0.f;
             break;
         }
 
-        mSnapGuideDir1.rotVec(bbox_rot);
-        mSnapGuideDir2.rotVec(bbox_rot);
+        // .rotVec(quat) is LL-only; bridge through LLVector3 temps to
+        // preserve LL vec*quat semantics including BUG-Q-002 lenient
+        // |q|^2 scaling.
+        {
+            LLVector3 t1(mSnapGuideDir1);
+            t1.rotVec(bbox_rot);
+            mSnapGuideDir1 = t1;
+        }
+        {
+            LLVector3 t2(mSnapGuideDir2);
+            t2.rotVec(bbox_rot);
+            mSnapGuideDir2 = t2;
+        }
         mSnapDir1 = -1.f * mSnapGuideDir2;
         mSnapDir2 = -1.f * mSnapGuideDir1;
     }
 
     mScalePlaneNormal1 = mSnapGuideDir1 % mScaleDir;
-    mScalePlaneNormal1.normalize();
+    mScalePlaneNormal1 = glm::normalize(mScalePlaneNormal1);
 
     mScalePlaneNormal2 = mSnapGuideDir2 % mScaleDir;
-    mScalePlaneNormal2.normalize();
+    mScalePlaneNormal2 = glm::normalize(mScalePlaneNormal2);
 
     mScaleSnapUnit1 = mScaleSnapUnit1 / dot(mSnapDir1, mScaleDir);
     mScaleSnapUnit2 = mScaleSnapUnit2 / dot(mSnapDir2, mScaleDir);

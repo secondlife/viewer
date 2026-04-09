@@ -33,6 +33,7 @@
 class LLSurface;
 class LLVOSurfacePatch;
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 class LLColor4U;
 class LLAgent;
 
@@ -96,7 +97,7 @@ public:
     F32 getMeanComposition() const;
     F32 getMinComposition() const;
     F32 getMaxComposition() const;
-    const LLVector3 &getCenterRegion() const;
+    LLVector3 getCenterRegion() const;
     const U64 &getLastUpdateTime() const;
     LLSurface *getSurface() const { return mSurfacep; }
     LLVector3 getPointAgent(const U32 x, const U32 y) const; // get the point at the offset.
@@ -173,11 +174,11 @@ protected:
 
     // pointers to beginnings of patch data fields
     LLVector3d mOriginGlobal;
-    LLVector3 mOriginRegion;
+    glm::vec3 mOriginRegion{0.f};
 
 
     // height field stats
-    LLVector3 mCenterRegion; // Center in region-local coords
+    glm::vec3 mCenterRegion{0.f}; // Center in region-local coords
     F32 mMinZ, mMaxZ, mMeanZ;
     F32 mRadius;
 

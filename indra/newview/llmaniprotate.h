@@ -33,6 +33,7 @@
 #include "llregionposition.h"
 
 #include "glm/gtc/quaternion.hpp"
+#include <glm/vec3.hpp>
 #include "llmanip.h"
 #include "llviewerobject.h"
 
@@ -42,16 +43,6 @@ class LLColor4;
 class LLManipRotate : public LLManip
 {
 public:
-    class ManipulatorHandle
-    {
-    public:
-        LLVector3   mAxisU;
-        LLVector3   mAxisV;
-        U32         mManipID;
-
-        ManipulatorHandle(LLVector3 axis_u, LLVector3 axis_v, U32 id) : mAxisU(axis_u), mAxisV(axis_v), mManipID(id){}
-    };
-
     LLManipRotate( LLToolComposite* composite );
 
     virtual bool    handleMouseDown( S32 x, S32 y, MASK mask );
@@ -94,15 +85,15 @@ private:
 //  S32                 mLastHoverMouseY;
     glm::quat           mRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
 
-    LLVector3           mMouseDown;
-    LLVector3           mMouseCur;
-    LLVector3           mAgentSelfAtAxis; // Own agent uses separate rotation method
+    glm::vec3           mMouseDown{0.f};
+    glm::vec3           mMouseCur{0.f};
+    glm::vec3           mAgentSelfAtAxis{0.f}; // Own agent uses separate rotation method
     F32                 mRadiusMeters;
 
-    LLVector3           mCenterToCam;
+    glm::vec3           mCenterToCam{0.f};
     LLVector3           mCenterToCamNorm;
     F32                 mCenterToCamMag;
-    LLVector3           mCenterToProfilePlane;
+    glm::vec3           mCenterToProfilePlane{0.f};
     F32                 mCenterToProfilePlaneMag;
 
     bool                mSendUpdateOnMouseUp;

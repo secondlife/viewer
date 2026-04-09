@@ -42,6 +42,7 @@
 #pragma once
 
 #include "llhudeffect.h"
+#include <glm/vec3.hpp>
 
 //-----------------------------------------------------------------------------------------------
 // The values of voice gesticulation represent energy levels for avatar animation, based on
@@ -116,7 +117,7 @@ class LLVoiceVisualizer : public LLHUDEffect
             F32                     mWaveOpacity            [ NUM_VOICE_SYMBOL_WAVES ];
             LLPointer<LLViewerFetchedTexture>   mTexture                [ NUM_VOICE_SYMBOL_WAVES ];
             bool                    mActive;
-            LLVector3               mPosition;
+            glm::vec3               mPosition{0.f};
         };
 
         LLFrameTimer            mTimer;                         // so I can ask the current time in seconds

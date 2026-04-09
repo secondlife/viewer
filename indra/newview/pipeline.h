@@ -36,6 +36,7 @@
 #include "lldrawpoolmaterials.h"
 #include "llgl.h"
 #include "lldrawable.h"
+#include <glm/vec3.hpp>
 #include "llrendertarget.h"
 #include "llreflectionmapmanager.h"
 #include "llheroprobemanager.h"
@@ -461,7 +462,7 @@ public:
     static void updateRenderTransparentWater();
     static void refreshCachedSettings();
 
-    void addDebugBlip(const LLVector3& position, const LLColor4& color);
+    void addDebugBlip(const glm::vec3& position, const LLColor4& color);
 
     void hidePermanentObjects( std::vector<U32>& restoreList );
     void restorePermanentObjects( const std::vector<U32>& restoreList );
@@ -967,10 +968,10 @@ protected:
     {
     public:
         LLColor4 mColor;
-        LLVector3 mPosition;
+        glm::vec3 mPosition{0.f};
         F32 mAge;
 
-        DebugBlip(const LLVector3& position, const LLColor4& color)
+        DebugBlip(const glm::vec3& position, const LLColor4& color)
             : mColor(color), mPosition(position), mAge(0.f)
         { }
     };
@@ -1022,14 +1023,14 @@ public:
     static LLColor4 PreviewSpecular1;
     static LLColor4 PreviewDiffuse2;
     static LLColor4 PreviewSpecular2;
-    static LLVector3 PreviewDirection0;
-    static LLVector3 PreviewDirection1;
-    static LLVector3 PreviewDirection2;
+    static glm::vec3 PreviewDirection0;
+    static glm::vec3 PreviewDirection1;
+    static glm::vec3 PreviewDirection2;
     static F32 RenderGlowMinLuminance;
     static F32 RenderGlowMaxExtractAlpha;
     static F32 RenderGlowWarmthAmount;
-    static LLVector3 RenderGlowLumWeights;
-    static LLVector3 RenderGlowWarmthWeights;
+    static glm::vec3 RenderGlowLumWeights;
+    static glm::vec3 RenderGlowWarmthWeights;
     static S32 RenderGlowResolutionPow;
     static S32 RenderGlowIterations;
     static F32 RenderGlowWidth;

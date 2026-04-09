@@ -450,13 +450,13 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
         F32 scale, pscale;
 
         pos.load3(part.mPosAgent.mV);
-        axis.load3(part.mAxis.mV);
+        axis.load3(&part.mAxis.x);
         scale = part.mScale.x;
 
         if (part.mParent)
         {
             ppos.load3(part.mParent->mPosAgent.mV);
-            paxis.load3(part.mParent->mAxis.mV);
+            paxis.load3(&part.mParent->mAxis.x);
             pscale = part.mParent->mScale.x;
         }
         else

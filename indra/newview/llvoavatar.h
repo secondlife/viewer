@@ -36,6 +36,7 @@
 
 #include "llavatarappearance.h"
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 #include "llchat.h"
 #include "lldrawpoolalpha.h"
 #include "llviewerobject.h"
@@ -481,8 +482,8 @@ public:
     void                applyDefaultParams();
     void                resetSkeleton(bool reset_animations);
 
-    LLVector3           mCurRootToHeadOffset;
-    LLVector3           mTargetRootToHeadOffset;
+    glm::vec3           mCurRootToHeadOffset{0.f};
+    glm::vec3           mTargetRootToHeadOffset{0.f};
 
     S32                 mLastSkeletonSerialNum;
 
@@ -718,7 +719,7 @@ public:
     virtual bool isImpostor();
     bool        shouldImpostor(const F32 rank_factor = 1.0);
     bool        needsImpostorUpdate() const;
-    const LLVector3& getImpostorOffset() const;
+    LLVector3 getImpostorOffset() const;
     const glm::vec2& getImpostorDim() const;
     void        getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& distance) const;
     void        cacheImpostorValues();
@@ -733,17 +734,17 @@ public:
     void        setNeedsExtentUpdate(bool val) { mNeedsExtentUpdate = val; }
 
 private:
-    LLVector3   mImpostorOffset;
+    glm::vec3   mImpostorOffset{0.f};
     glm::vec2   mImpostorDim;
     // This becomes true in the constructor and false after the first
     // idleUpdateMisc(). Not clear it serves any purpose.
     bool        mNeedsAnimUpdate;
     bool        mNeedsExtentUpdate;
-    LLVector3   mImpostorAngle;
+    glm::vec3   mImpostorAngle{0.f};
     F32         mImpostorDistance;
     F32         mImpostorPixelArea;
     LLVector3   mLastAnimExtents[2];
-    LLVector3   mLastAnimBasePos;
+    glm::vec3   mLastAnimBasePos{0.f};
 
     LLCachedControl<bool> mRenderUnloadedAvatar;
 
@@ -758,8 +759,8 @@ private:
     F32         mWindFreq;
     LLFrameTimer mRippleTimer;
     F32         mRippleTimeLast;
-    LLVector3   mRippleAccel;
-    LLVector3   mLastVel;
+    glm::vec3   mRippleAccel{0.f};
+    glm::vec3   mLastVel{0.f};
 
     //--------------------------------------------------------------------
     // Culling
@@ -1139,7 +1140,7 @@ protected:
 private:
     bool        mStepOnLand;
     U8          mStepMaterial;
-    LLVector3   mStepObjectVelocity;
+    glm::vec3   mStepObjectVelocity{0.f};
 
 /**                    Physics
  **                                                                            **
@@ -1167,7 +1168,7 @@ private:
     // set this property only with LLVOAvatar::sitDown method
     bool            mIsSitting;
     // position backup in case of missing data
-    LLVector3       mLastRootPos;
+    glm::vec3       mLastRootPos{0.f};
 
 /**                    Hierarchy
  **                                                                            **

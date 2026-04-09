@@ -48,7 +48,7 @@ LLFloaterTelehub::LLFloaterTelehub(const LLSD& key)
 :   LLFloater(key),
     mTelehubObjectID(),
     mTelehubObjectName(),
-    mTelehubPos(),
+    // mTelehubPos default-initialized via NSDMI (glm-vec3 cluster #93)
     // mTelehubRot default-initialized to identity via NSDMI (glm-quat cluster #7)
     mNumSpawn(0)
 {
@@ -139,7 +139,7 @@ void LLFloaterTelehub::addBeacons()
 
     // Find the telehub position, either our cached old position, or
     // an updated one based on the actual object position.
-    LLVector3 hub_pos_region = floater->mTelehubPos;
+    LLVector3 hub_pos_region = LLVector3(floater->mTelehubPos);
     LLQuaternion hub_rot = floater->mTelehubRot;
     LLViewerObject* obj = gObjectList.findObject(floater->mTelehubObjectID);
     if (obj)
@@ -156,7 +156,7 @@ void LLFloaterTelehub::addBeacons()
         S32 spawn_index = list->getFirstSelectedIndex();
         if (spawn_index >= 0)
         {
-            LLVector3 spawn_pos = hub_pos_region  + (floater->mSpawnPointPos[spawn_index] * hub_rot);
+            LLVector3 spawn_pos = hub_pos_region  + (LLVector3(floater->mSpawnPointPos[spawn_index]) * hub_rot);
             gObjectList.addDebugBeacon(spawn_pos, "", LLColor4::orange, LLColor4::white, 4);
         }
     }
@@ -276,9 +276,9 @@ void LLFloaterTelehub::unpackTelehubInfo(LLMessageSystem* msg)
         for (S32 i = 0; i < mNumSpawn; i++)
         {
             std::string pos = llformat("%.1f, %.1f, %.1f",
-                                    mSpawnPointPos[i].mV[VX],
-                                    mSpawnPointPos[i].mV[VY],
-                                    mSpawnPointPos[i].mV[VZ]);
+                                    mSpawnPointPos[i].x,
+                                    mSpawnPointPos[i].y,
+                                    mSpawnPointPos[i].z);
             list->addSimpleElement(pos);
         }
         list->selectNthItem(mNumSpawn - 1);

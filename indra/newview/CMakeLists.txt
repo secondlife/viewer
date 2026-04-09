@@ -584,7 +584,6 @@ set(viewer_SOURCE_FILES
     llspeakers.cpp
     llspeakingindicatormanager.cpp
     llsplitbutton.cpp
-    llsprite.cpp
     llstartup.cpp
     llstartuplistener.cpp
     llstatusbar.cpp
@@ -1253,7 +1252,6 @@ set(viewer_HEADER_FILES
     llspeakers.h
     llspeakingindicatormanager.h
     llsplitbutton.h
-    llsprite.h
     llstartup.h
     llstartuplistener.h
     llstatusbar.h
