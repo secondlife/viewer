@@ -241,7 +241,9 @@ bool LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
     // Set the head rotation.
     if(mNeckState->getJoint() && mNeckState->getJoint()->getParent())
     {
-        LLQuaternion torsoRotLocal =  mNeckState->getJoint()->getParent()->getWorldRotation() * currentInvRootRotWorld;
+        // Pre-emptive bridge: glm::quat * LLQuaternion is ambiguous post-migration.
+        const LLQuaternion neck_parent_world_rot(mNeckState->getJoint()->getParent()->getWorldRotation());
+        LLQuaternion torsoRotLocal =  neck_parent_world_rot * currentInvRootRotWorld;
         head_rot_local = head_rot_local * ~torsoRotLocal;
         mNeckState->setRotation( nlerp(NECK_LAG, LLQuaternion::DEFAULT, head_rot_local) );
         mHeadState->setRotation( nlerp(1.f - NECK_LAG, LLQuaternion::DEFAULT, head_rot_local));
@@ -386,8 +388,10 @@ void LLEyeMotion::adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_s
         up.set(cross(eye_look_at, left));
 
         target_eye_rot = LLQuaternion(eye_look_at, left, up);
-        // convert target rotation to head-local coordinates
-        target_eye_rot *= ~mHeadJoint->getWorldRotation();
+        // convert target rotation to head-local coordinates.
+        // Pre-emptive bridge: ~LLJoint::getWorldRotation() breaks post-migration.
+        const LLQuaternion head_world_rot(mHeadJoint->getWorldRotation());
+        target_eye_rot *= ~head_world_rot;
         // eliminate any Euler roll - we're lucky that roll is applied last.
         F32 roll, pitch, yaw;
         target_eye_rot.getEulerAngles(&roll, &pitch, &yaw);

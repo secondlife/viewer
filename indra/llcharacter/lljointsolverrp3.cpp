@@ -250,7 +250,9 @@ void LLJointSolverRP3::solve()
     }
     else
     {
-        abcNorm = mBAxis * mJointB->getWorldRotation();
+        // Pre-emptive bridge: vec * LLJoint::getWorldRotation() will be
+        // ambiguous when getWorldRotation() returns glm::quat.
+        abcNorm = mBAxis * LLQuaternion(mJointB->getWorldRotation());
     }
 
     //-------------------------------------------------------------------------

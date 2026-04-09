@@ -1118,7 +1118,8 @@ bool    LLPreviewAnimation::render()
 
     LLViewerCamera* camera = LLViewerCamera::getInstance();
 
-    LLQuaternion av_rot = avatarp->mRoot->getWorldRotation() * camera_rot;
+    // Pre-emptive bridge: glm::quat * LLQuaternion is ambiguous post-migration.
+    LLQuaternion av_rot = LLQuaternion(avatarp->mRoot->getWorldRotation()) * camera_rot;
     camera->setOriginAndLookAt(
         static_cast<glm::vec3>(target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot)),  // camera
         static_cast<glm::vec3>(LLVector3::z_axis),                                                               // up

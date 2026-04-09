@@ -808,7 +808,7 @@ void LLJoint::setRotation( const glm::quat& rot )
 //--------------------------------------------------------------------
 // getWorldRotation()
 //--------------------------------------------------------------------
-LLQuaternion LLJoint::getWorldRotation()
+glm::quat LLJoint::getWorldRotation()
 {
     updateWorldPRSParent();
 

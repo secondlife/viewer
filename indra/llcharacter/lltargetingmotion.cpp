@@ -131,7 +131,9 @@ bool LLTargetingMotion::onUpdate(F32 time, U8* joint_mask)
 
     LLQuaternion cur_torso_rot = mTorsoJoint->getWorldRotation();
 
-    LLVector3 right_hand_at = LLVector3(0.f, -1.f, 0.f) * mRightHandJoint->getWorldRotation();
+    // Pre-emptive bridge: vec * LLJoint::getWorldRotation() will be ambiguous
+    // when getWorldRotation() returns glm::quat.
+    LLVector3 right_hand_at = LLVector3(0.f, -1.f, 0.f) * LLQuaternion(mRightHandJoint->getWorldRotation());
     left.set(cross(skyward, right_hand_at));
     left.normalize();
     up.set(cross(right_hand_at, left));
