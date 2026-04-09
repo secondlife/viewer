@@ -506,7 +506,7 @@ void LLFollowCam::calculatePitchSineAndCosine()
 }
 
 //---------------------------------------------------------
-void LLFollowCam::setSubjectPositionAndRotation( const LLVector3 p, const LLQuaternion r )
+void LLFollowCam::setSubjectPositionAndRotation( const LLVector3 p, const glm::quat r )
 {
     mSubjectPosition = p;
     mSubjectRotation = r;

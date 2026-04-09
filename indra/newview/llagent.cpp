@@ -1393,9 +1393,9 @@ void LLAgent::rotate(const LLMatrix3 &matrix)
 //-----------------------------------------------------------------------------
 // rotate()
 //-----------------------------------------------------------------------------
-void LLAgent::rotate(const LLQuaternion &quaternion)
+void LLAgent::rotate(const glm::quat &quaternion)
 {
-    mFrameAgent.rotate(quaternion);
+    mFrameAgent.rotate(LLQuaternion(quaternion));
 }
 
 //-----------------------------------------------------------------------------
@@ -3218,11 +3218,11 @@ bool LLAgent::canJoinGroups() const
     return static_cast<S32>(mGroups.size()) < LLAgentBenefitsMgr::current().getGroupMembershipLimit();
 }
 
-LLQuaternion LLAgent::getHeadRotation()
+glm::quat LLAgent::getHeadRotation()
 {
     if (!isAgentAvatarValid() || !gAgentAvatarp->mPelvisp || !gAgentAvatarp->mHeadp)
     {
-        return LLQuaternion::DEFAULT;
+        return glm::quat(1.f, 0.f, 0.f, 0.f);  // identity (w,x,y,z)
     }
 
     if (!gAgentCamera.cameraMouselook())

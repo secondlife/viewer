@@ -1158,7 +1158,7 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
         else
         {
             // *FIX: rotate mframeagent by sit object's rotation?
-            LLQuaternion look_rotation = gAgentAvatarp->isSitting() ? gAgentAvatarp->getRenderRotation() : gAgent.getFrameAgent().getQuaternion(); // use camera's current rotation
+            LLQuaternion look_rotation = gAgentAvatarp->isSitting() ? LLQuaternion(gAgentAvatarp->getRenderRotation()) : gAgent.getFrameAgent().getQuaternion(); // use camera's current rotation
             LLVector3 look_offset = LLVector3(2.f, 0.f, 0.f) * look_rotation * av_inv_rot;
             setLookAt(LOOKAT_TARGET_IDLE, gAgentAvatarp, look_offset);
         }
@@ -1233,7 +1233,7 @@ void LLAgentCamera::updateCamera()
         //changed camera_skyward to the new global "mCameraUpVector"
         {
             LLVector3 up_ll(mCameraUpVector.x, mCameraUpVector.y, mCameraUpVector.z);
-            up_ll = up_ll * gAgentAvatarp->getRenderRotation();
+            up_ll = up_ll * LLQuaternion(gAgentAvatarp->getRenderRotation());
             mCameraUpVector = glm::vec3(up_ll.mV[VX], up_ll.mV[VY], up_ll.mV[VZ]);
         }
     }
@@ -1340,7 +1340,7 @@ void LLAgentCamera::updateCamera()
             // (2) focus, and (3) upvector. They can then be queried elsewhere in llAgent.
             //--------------------------------------------------------------------------------
             // *TODO: use combined rotation of frameagent and sit object
-            LLQuaternion avatarRotationForFollowCam = gAgentAvatarp->isSitting() ? gAgentAvatarp->getRenderRotation() : gAgent.getFrameAgent().getQuaternion();
+            LLQuaternion avatarRotationForFollowCam = gAgentAvatarp->isSitting() ? LLQuaternion(gAgentAvatarp->getRenderRotation()) : gAgent.getFrameAgent().getQuaternion();
 
             LLFollowCamParams* current_cam = LLFollowCamMgr::getInstance()->getActiveFollowCamParams();
             if (current_cam)
@@ -1857,7 +1857,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
                 const LLVector3& rp = gAgentAvatarp->getRenderPosition();
                 camera_position_global = gAgent.getPosGlobalFromAgent(glm::vec3(rp.mV[VX], rp.mV[VY], rp.mV[VZ]));//frame_center_global;
             }
-            head_offset = head_offset * gAgentAvatarp->getRenderRotation();
+            head_offset = head_offset * LLQuaternion(gAgentAvatarp->getRenderRotation());
             camera_position_global = camera_position_global + head_offset;
         }
     }
@@ -2079,22 +2079,22 @@ glm::vec3 LLAgentCamera::getCurrentCameraOffset()
     LLVector3 diff(cam_o.x - root.x - mThirdPersonHeadOffset.x,
                    cam_o.y - root.y - mThirdPersonHeadOffset.y,
                    cam_o.z - root.z - mThirdPersonHeadOffset.z);
-    LLVector3 result = diff * ~getCurrentAvatarRotation();
+    LLVector3 result = diff * ~LLQuaternion(getCurrentAvatarRotation());
     return glm::vec3(result.mV[VX], result.mV[VY], result.mV[VZ]);
 }
 
 LLVector3d LLAgentCamera::getCurrentFocusOffset()
 {
-    return (mFocusTargetGlobal - gAgent.getPositionGlobal()) * ~getCurrentAvatarRotation();
+    return (mFocusTargetGlobal - gAgent.getPositionGlobal()) * ~LLQuaternion(getCurrentAvatarRotation());
 }
 
-LLQuaternion LLAgentCamera::getCurrentAvatarRotation()
+glm::quat LLAgentCamera::getCurrentAvatarRotation()
 {
     LLViewerObject* sit_object = static_cast<LLViewerObject*>(gAgentAvatarp->getParent());
 
     LLQuaternion av_rot = gAgent.getFrameAgent().getQuaternion();
-    LLQuaternion obj_rot = sit_object ? sit_object->getRenderRotation() : LLQuaternion::DEFAULT;
-    return av_rot * obj_rot;
+    LLQuaternion obj_rot = sit_object ? LLQuaternion(sit_object->getRenderRotation()) : LLQuaternion::DEFAULT;
+    return av_rot * obj_rot;   // implicit LLQuaternion -> glm::quat
 }
 
 bool LLAgentCamera::isJoystickCameraUsed()

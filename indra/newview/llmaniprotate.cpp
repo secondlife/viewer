@@ -591,7 +591,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 
                 LLQuaternion new_rot = LLQuaternion(selectNode->mSavedRotation) * LLQuaternion(mRotation);
                 std::vector<LLVector3>& child_positions = object->mUnselectedChildrenPositions;
-                std::vector<LLQuaternion> child_rotations;
+                std::vector<glm::quat> child_rotations;
                 if (object->isRootEdit() && selectNode->mIndividualSelection)
                 {
                     object->saveUnselectedChildrenRotation(child_rotations);
@@ -1086,7 +1086,7 @@ void LLManipRotate::renderSnapGuides()
 
                 // project onto constraint plane
                 LLSelectNode* first_node = mObjectSelection->getFirstMoveableNode(true);
-                object_axis = object_axis * first_node->getObject()->getRenderRotation();
+                object_axis = object_axis * LLQuaternion(first_node->getObject()->getRenderRotation());
                 object_axis = object_axis - dot(object_axis, getConstraintAxis()) * getConstraintAxis();
                 object_axis.normalize();
                 object_axis = object_axis * SNAP_GUIDE_INNER_RADIUS * mRadiusMeters + center;
@@ -1275,7 +1275,7 @@ bool LLManipRotate::updateVisiblity()
     return visible;
 }
 
-LLQuaternion LLManipRotate::dragUnconstrained( S32 x, S32 y )
+glm::quat LLManipRotate::dragUnconstrained( S32 x, S32 y )
 {
     LLVector3 cam = gAgentCamera.getCameraPositionAgent();
     LLVector3 center =  gAgent.getPosAgentFromGlobal( mRotationCenter );
@@ -1374,7 +1374,7 @@ LLVector3 LLManipRotate::getConstraintAxis()
     return axis;
 }
 
-LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
+glm::quat LLManipRotate::dragConstrained( S32 x, S32 y )
 {
     LLSelectNode* first_object_node = mObjectSelection->getFirstMoveableNode(true);
     LLVector3 constraint_axis = getConstraintAxis();

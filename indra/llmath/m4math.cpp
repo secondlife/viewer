@@ -453,7 +453,7 @@ const LLMatrix4& LLMatrix4::initScale(const LLVector3 &scale)
     return (*this);
 }
 
-const LLMatrix4& LLMatrix4::initAll(const LLVector3 &scale, const LLQuaternion &q, const LLVector3 &pos)
+const LLMatrix4& LLMatrix4::initAll(const LLVector3 &scale, const glm::quat &q, const LLVector3 &pos)
 {
     F32     sx, sy, sz;
     F32     xx, xy, xz, xw, yy, yz, yw, zz, zw;
@@ -462,17 +462,17 @@ const LLMatrix4& LLMatrix4::initAll(const LLVector3 &scale, const LLQuaternion &
     sy      = scale.mV[1];
     sz      = scale.mV[2];
 
-    xx      = q.mQ[VX] * q.mQ[VX];
-    xy      = q.mQ[VX] * q.mQ[VY];
-    xz      = q.mQ[VX] * q.mQ[VZ];
-    xw      = q.mQ[VX] * q.mQ[VW];
+    xx      = q.x * q.x;
+    xy      = q.x * q.y;
+    xz      = q.x * q.z;
+    xw      = q.x * q.w;
 
-    yy      = q.mQ[VY] * q.mQ[VY];
-    yz      = q.mQ[VY] * q.mQ[VZ];
-    yw      = q.mQ[VY] * q.mQ[VW];
+    yy      = q.y * q.y;
+    yz      = q.y * q.z;
+    yw      = q.y * q.w;
 
-    zz      = q.mQ[VZ] * q.mQ[VZ];
-    zw      = q.mQ[VZ] * q.mQ[VW];
+    zz      = q.z * q.z;
+    zw      = q.z * q.w;
 
     mMatrix[0][0]  = (1.f - 2.f * ( yy + zz )) *sx;
     mMatrix[0][1]  = (      2.f * ( xy + zw )) *sx;

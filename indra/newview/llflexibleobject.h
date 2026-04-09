@@ -84,7 +84,7 @@ private:
         // Implements LLVolumeInterface
         U32 getID() const { return mID; }
         LLVector3 getFramePosition() const;
-        LLQuaternion getFrameRotation() const;
+        glm::quat getFrameRotation() const;
         LLVolumeInterfaceType getInterfaceType() const      { return INTERFACE_FLEXIBLE; }
         void updateRenderRes();
         void doIdleUpdate();
@@ -106,7 +106,7 @@ private:
         //void              setAttributes( LLFlexibleObjectData );
 
         LLVector3           getEndPosition();
-        LLQuaternion        getEndRotation();
+        glm::quat           getEndRotation();
         LLVector3           getNodePosition( int nodeIndex );
         LLVector3           getAnchorPosition() const;
 

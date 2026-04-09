@@ -1592,7 +1592,7 @@ void LLPanelObject::sendRotation(bool btn_down)
         // If true, not all children are selected - save positions
         bool individual_selection = gSavedSettings.getBOOL("EditLinkedParts");
         std::vector<LLVector3>& child_positions = mObject->mUnselectedChildrenPositions ;
-        std::vector<LLQuaternion> child_rotations;
+        std::vector<glm::quat> child_rotations;
         if (mObject->isRootEdit() && individual_selection)
         {
             mObject->saveUnselectedChildrenRotation(child_rotations) ;

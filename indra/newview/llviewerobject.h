@@ -347,15 +347,15 @@ public:
     void moveGLTFNode(S32 node_index, const glm::vec3& offset);
 
     // set the rotation in agent space of the given node
-    void setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion& rotation);
+    void setGLTFNodeRotationAgent(S32 node_index, const glm::quat& rotation);
 
     virtual glm::vec3 getPivotPositionAgent() const; // Usually = to getPositionAgent, unless like flex objects it's not
 
     LLViewerObject* getRootEdit() const;
 
-    const LLQuaternion getRotationRegion() const;
-    const LLQuaternion getRotationEdit() const;
-    const LLQuaternion getRenderRotation() const;
+    glm::quat getRotationRegion() const;
+    glm::quat getRotationEdit() const;
+    glm::quat getRenderRotation() const;
     virtual const LLMatrix4 getRenderMatrix() const;
 
     void setPosition(const glm::vec3 &pos, bool damped = false);
@@ -369,7 +369,7 @@ public:
     virtual const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const     { return xform->getWorldMatrix(); }
 
     inline void setRotation(const F32 x, const F32 y, const F32 z, bool damped = false);
-    inline void setRotation(const LLQuaternion& quat, bool damped = false);
+    inline void setRotation(const glm::quat& quat, bool damped = false);
 
     /*virtual*/ void    setNumTEs(const U8 num_tes);
     /*virtual*/ void    setTE(const U8 te, const LLTextureEntry &texture_entry);
@@ -681,9 +681,9 @@ public:
     //counter-translation
     void resetChildrenPosition(const LLVector3& offset, bool simplified = false,  bool skip_avatar_child = false) ;
     //counter-rotation
-    void resetChildrenRotationAndPosition(const std::vector<LLQuaternion>& rotations,
+    void resetChildrenRotationAndPosition(const std::vector<glm::quat>& rotations,
                                             const std::vector<LLVector3>& positions) ;
-    void saveUnselectedChildrenRotation(std::vector<LLQuaternion>& rotations) ;
+    void saveUnselectedChildrenRotation(std::vector<glm::quat>& rotations) ;
     void saveUnselectedChildrenPosition(std::vector<LLVector3>& positions) ;
     std::vector<LLVector3> mUnselectedChildrenPositions ;
 
@@ -1058,9 +1058,9 @@ public:
 //
 //
 
-inline void LLViewerObject::setRotation(const LLQuaternion& quat, bool damped)
+inline void LLViewerObject::setRotation(const glm::quat& quat, bool damped)
 {
-    LLPrimitive::setRotation(quat);
+    LLPrimitive::setRotation(quat);   // resolves to LLXform::setRotation(glm::quat) overload
     setChanged(ROTATED | SILHOUETTE);
     updateDrawable(damped);
 }

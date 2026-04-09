@@ -2128,12 +2128,12 @@ void LLSettingsSky::setMaxY(F32 val)
     setLLSDDirty();
 }
 
-LLQuaternion LLSettingsSky::getMoonRotation() const
+glm::quat LLSettingsSky::getMoonRotation() const
 {
     return mMoonRotation;
 }
 
-void LLSettingsSky::setMoonRotation(const LLQuaternion &val)
+void LLSettingsSky::setMoonRotation(const glm::quat &val)
 {
     mMoonRotation = val;
     setDirtyFlag(true);
@@ -2213,12 +2213,12 @@ void LLSettingsSky::setSunlightColor(const LLColor3 &val)
     setLLSDDirty();
 }
 
-LLQuaternion LLSettingsSky::getSunRotation() const
+glm::quat LLSettingsSky::getSunRotation() const
 {
     return mSunRotation;
 }
 
-void LLSettingsSky::setSunRotation(const LLQuaternion &val)
+void LLSettingsSky::setSunRotation(const glm::quat &val)
 {
     mSunRotation = val;
     setDirtyFlag(true);

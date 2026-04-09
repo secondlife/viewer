@@ -417,7 +417,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
                 if (mSourceObjectp)
                 {
-                    part_dir_vector = part_dir_vector * mSourceObjectp->getRenderRotation();
+                    part_dir_vector = part_dir_vector * LLQuaternion(mSourceObjectp->getRenderRotation());
                 }
 
                 // LLVector3 * LLQuaternion form preserves LL rotation semantic.

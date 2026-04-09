@@ -99,7 +99,6 @@ public:
 
     inline void setScale(const glm::vec3& scale);
     inline void setScale(const F32 x, const F32 y, const F32 z);
-    inline void setRotation(const LLQuaternion& rot);
     inline void setRotation(const glm::quat& rot);
     inline void setRotation(const F32 x, const F32 y, const F32 z);
     inline void setRotation(const F32 x, const F32 y, const F32 z, const F32 s);
@@ -276,29 +275,15 @@ void LLXform::setScale(const F32 x, const F32 y, const F32 z)
         warn("Non Finite in LLXform::setScale");
     }
 }
-void LLXform::setRotation(const LLQuaternion& rot)
-{
-    setChanged(ROTATED);
-    if (rot.isFinite())
-        mRotation = rot;   // implicit operator glm::quat() on LLQuaternion
-    else
-    {
-        mRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
-        warn("Non Finite in LLXform::setRotation");
-    }
-}
 void LLXform::setRotation(const glm::quat& rot)
 {
-    // Native glm::quat overload — bypass the LLQuaternion bridge that the
-    // LLQuaternion overload above performs. Same finite-check semantics
-    // (per-component std::isfinite, identity-on-failure, warn).
     setChanged(ROTATED);
     if (std::isfinite(rot.x) && std::isfinite(rot.y) && std::isfinite(rot.z) && std::isfinite(rot.w))
         mRotation = rot;
     else
     {
         mRotation = glm::quat(1.f, 0.f, 0.f, 0.f);   // identity
-        warn("Non Finite in LLXform::setRotation(glm::quat)");
+        warn("Non Finite in LLXform::setRotation");
     }
 }
 void LLXform::setRotation(const F32 x, const F32 y, const F32 z)

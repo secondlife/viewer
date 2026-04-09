@@ -1069,7 +1069,7 @@ void LLWebRTCVoiceClient::updatePosition()
     }
 }
 
-void LLWebRTCVoiceClient::setListenerPosition(const LLVector3d &position, const glm::vec3 &velocity, const LLQuaternion &rot)
+void LLWebRTCVoiceClient::setListenerPosition(const LLVector3d &position, const glm::vec3 &velocity, const glm::quat &rot)
 {
     mListenerRequestedPosition = position;
 
@@ -1079,14 +1079,14 @@ void LLWebRTCVoiceClient::setListenerPosition(const LLVector3d &position, const 
         mSpatialCoordsDirty = true;
     }
 
-    if (LLQuaternion(mListenerRot) != rot)
+    if (mListenerRot != rot)
     {
         mListenerRot        = rot;
         mSpatialCoordsDirty = true;
     }
 }
 
-void LLWebRTCVoiceClient::setAvatarPosition(const LLVector3d &position, const glm::vec3 &velocity, const LLQuaternion &rot)
+void LLWebRTCVoiceClient::setAvatarPosition(const LLVector3d &position, const glm::vec3 &velocity, const glm::quat &rot)
 {
     if (dist_vec_squared(mAvatarPosition, position) > 0.01)
     {
@@ -1101,14 +1101,10 @@ void LLWebRTCVoiceClient::setAvatarPosition(const LLVector3d &position, const gl
     }
 
     // If the two rotations are not exactly equal test their dot product
-    // to get the cos of the angle between them.
-    // If it is too small, don't update.
-    // dot is an LL ADL hidden friend of LLQuaternion; wrap the glm::quat
-    // side in LLQuaternion(...) so name lookup finds it. Component layout
-    // matches 1:1 in this glm build (locked by tests #34-35), so the
-    // numeric result is bit-identical to a glm::dot path.
-    F32 rot_cos_diff = llabs(dot(LLQuaternion(mAvatarRot), rot));
-    if ((LLQuaternion(mAvatarRot) != rot) && (rot_cos_diff < MINUSCULE_ANGLE_COS))
+    // to get the cos of the angle between them.  If it is too small,
+    // don't update.  Both sides are glm::quat now; use glm::dot directly.
+    F32 rot_cos_diff = llabs(glm::dot(mAvatarRot, rot));
+    if ((mAvatarRot != rot) && (rot_cos_diff < MINUSCULE_ANGLE_COS))
     {
         mAvatarRot          = rot;
         mSpatialCoordsDirty = true;

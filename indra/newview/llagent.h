@@ -577,7 +577,7 @@ public:
     void            rotate(F32 angle, const glm::vec3 &axis);
     void            rotate(F32 angle, F32 x, F32 y, F32 z);
     void            rotate(const LLMatrix3 &matrix);
-    void            rotate(const LLQuaternion &quaternion);
+    void            rotate(const glm::quat &quaternion);
     void            pitch(F32 angle);
     void            roll(F32 angle);
     void            yaw(F32 angle);
@@ -849,7 +849,7 @@ private:
  **/
 
 public:
-    LLQuaternion    getHeadRotation();
+    glm::quat       getHeadRotation();
     bool            needsRenderAvatar(); // true when camera mode is such that your own avatar should draw
     bool            needsRenderHead();
     void            setShowAvatar(bool show) { mShowAvatar = show; }

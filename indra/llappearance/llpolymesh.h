@@ -117,7 +117,7 @@ private:
     void freeMeshData();
 
     void setPosition( const LLVector3 &pos ) {  mPosition = pos; }
-    void setRotation( const LLQuaternion &rot ) { mRotation = rot; }
+    void setRotation( const glm::quat &rot ) { mRotation = rot; }
     void setScale( const LLVector3 &scale ) { mScale = scale; }
 
     bool allocateVertexData( U32 numVertices );
@@ -184,9 +184,9 @@ public:
     }
 
     // Get rotation
-    LLQuaternion getRotation() {
+    glm::quat getRotation() {
         llassert (mSharedData);
-        return LLQuaternion(mSharedData->mRotation);
+        return mSharedData->mRotation;
     }
 
     // Get scale

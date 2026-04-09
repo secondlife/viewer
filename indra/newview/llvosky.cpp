@@ -235,12 +235,12 @@ LLHeavenBody::LLHeavenBody(const F32 rad)
     mColorCached.setToBlack();
 }
 
-LLQuaternion LLHeavenBody::getRotation() const
+glm::quat LLHeavenBody::getRotation() const
 {
-    return LLQuaternion(mRotation);
+    return mRotation;
 }
 
-void LLHeavenBody::setRotation(const LLQuaternion& rot)
+void LLHeavenBody::setRotation(const glm::quat& rot)
 {
     mRotation = rot;
 }

@@ -189,7 +189,7 @@ public:
     //--------------------------------------------------------------------
 public:
     /*virtual*/ LLVector3       getCharacterPosition();
-    /*virtual*/ LLQuaternion    getCharacterRotation();
+    /*virtual*/ glm::quat       getCharacterRotation();
     /*virtual*/ LLVector3       getCharacterVelocity();
     /*virtual*/ LLVector3       getCharacterAngularVelocity();
 

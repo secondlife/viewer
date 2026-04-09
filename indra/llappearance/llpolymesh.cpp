@@ -364,10 +364,10 @@ bool LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 
                 rotationOrder = 0;
 
-                setRotation( mayaQ(     rotationAngles.mV[0],
-                                        rotationAngles.mV[1],
-                                        rotationAngles.mV[2],
-                                        static_cast<LLQuaternion::Order>(rotationOrder) ) );
+                setRotation( glm::quat(mayaQ(rotationAngles.mV[0],
+                                             rotationAngles.mV[1],
+                                             rotationAngles.mV[2],
+                                             static_cast<LLQuaternion::Order>(rotationOrder))) );
 
                 //----------------------------------------------------------------
                 // Scale

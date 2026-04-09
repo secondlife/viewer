@@ -120,9 +120,9 @@ public:
 
     glm::vec3 getCurrentCameraOffset();
     LLVector3d getCurrentFocusOffset();
-    LLQuaternion getCurrentAvatarRotation();
+    glm::quat getCurrentAvatarRotation();
     bool isJoystickCameraUsed();
-    void setInitSitRot(LLQuaternion sit_rot) { mInitSitRot = sit_rot; };
+    void setInitSitRot(const glm::quat& sit_rot) { mInitSitRot = sit_rot; };
     void rotateToInitSitRot();
 
 private:

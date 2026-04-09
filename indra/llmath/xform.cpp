@@ -71,34 +71,20 @@ void LLXformMatrix::update()
         {
             mWorldPosition *= mParent->getScale();
         }
-        // Rotate mWorldPosition by parent's world rotation. We bridge
-        // through LLVector3 *= LLQuaternion deliberately, NOT
-        // glm::quat * glm::vec3 directly. Reason:
-        //
-        // LL's `vec *= quat` uses the full `q * v * conj(q)` formula,
-        // which scales the result by |q|^2 for non-unit input quats.
-        // glm's `quat * vec3` uses the optimized formula that assumes
-        // unit-length quat and produces a different result for non-unit
-        // input.
-        //
-        // Production avatar code uses unit quats, so the two paths agree
-        // in practice. But the unit test xform_test #7 (the LLXform
-        // unit-test net's compose test, lines 207-243) uses non-unit
-        // quats LLQuaternion(1,2,3,4) and LLQuaternion(5,6,7,8) and
-        // pins LL's lenient behavior bit-for-bit. Switching to the glm
-        // form would break that test.
-        //
-        // Per the bug-preservation doctrine in the quat migration cheat
-        // sheet, this is preserved-as-is. Track in
-        // sl_dev/docs/quaternion_migration_bugs.md as BUG-Q-002 (LL
-        // lenient vec*quat for non-unit input — likely a design choice,
-        // not a bug, but worth documenting). Revisit if production code
-        // is ever found that depends on the |q|^2 scaling.
-        {
-            LLVector3 tmp(mWorldPosition);
-            tmp *= LLQuaternion(mParent->getWorldRotation());
-            mWorldPosition = glm::vec3(tmp.mV[VX], tmp.mV[VY], tmp.mV[VZ]);
-        }
+        // Rotate mWorldPosition by parent's world rotation. Uses the
+        // glm-native form `quat * vec3`, which assumes the quaternion
+        // is unit-length. Production avatar code always uses unit quats
+        // (network packets ship normalized, angle-axis ctors normalize
+        // implicitly, glTF spec requires unit). BUG-Q-002 (LL lenient
+        // `vec *= quat` with |q|^2 scaling for non-unit input) is
+        // documented in docs/quaternion_migration_bugs.md and is now
+        // production-safe to ignore: the audit confirmed no production
+        // path depends on the lenient |q|^2 scaling. The lenient LL
+        // operators stay alive only for tests #10-#12 in
+        // llquaternion_test.cpp until LLQuaternion is deleted in
+        // Phase 4 of the quat migration. xform_test #7 was updated
+        // to normalize its test quats so it agrees with this path.
+        mWorldPosition = mParent->getWorldRotation() * mWorldPosition;
         mWorldPosition += mParent->getWorldPosition();
         // CRITICAL OPERAND-ORDER FLIP (cluster #17):
         //   LL form:  mWorldRotation = mRotation * mParent->getWorldRotation()

@@ -411,8 +411,8 @@ public:
 
     /////////////////////////////
     // Sending updates of current state
-    void setListenerPosition(const LLVector3d &position, const glm::vec3 &velocity, const LLQuaternion &rot);
-    void setAvatarPosition(const LLVector3d &position, const glm::vec3 &velocity, const LLQuaternion &rot);
+    void setListenerPosition(const LLVector3d &position, const glm::vec3 &velocity, const glm::quat &rot);
+    void setAvatarPosition(const LLVector3d &position, const glm::vec3 &velocity, const glm::quat &rot);
 
     LLVector3d getListenerPosition() { return mListenerPosition; }
     LLVector3d getSpeakerPosition() { return mAvatarPosition; }
