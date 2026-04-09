@@ -104,7 +104,7 @@ struct ClosestToCamera
     bool operator()(const LLManipTranslate::ManipulatorHandle& a,
                     const LLManipTranslate::ManipulatorHandle& b) const
     {
-        return a.mEndPosition.mV[VZ] < b.mEndPosition.mV[VZ];
+        return a.mEndPosition.z < b.mEndPosition.z;
     }
 };
 
@@ -992,8 +992,8 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
     {
         ManipulatorHandle& manipulator = *it;
         {
-            manip_start_2d = glm::vec2(manipulator.mStartPosition.mV[VX] * half_width, manipulator.mStartPosition.mV[VY] * half_height);
-            manip_end_2d = glm::vec2(manipulator.mEndPosition.mV[VX] * half_width, manipulator.mEndPosition.mV[VY] * half_height);
+            manip_start_2d = glm::vec2(manipulator.mStartPosition.x * half_width, manipulator.mStartPosition.y * half_height);
+            manip_end_2d = glm::vec2(manipulator.mEndPosition.x * half_width, manipulator.mEndPosition.y * half_height);
             manip_dir = manip_end_2d - manip_start_2d;
 
             mouse_delta = mousePos - manip_start_2d;
