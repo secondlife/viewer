@@ -184,7 +184,7 @@ protected:
     U8              mSculptTypeRevert;      // so we can revert the sculpt type on cancel
 
     LLVector3       mClipboardPos;
-    LLVector3       mClipboardSize;
+    glm::vec3       mClipboardSize{0.f};
     glm::vec3       mClipboardRot{0.f};
     LLSD            mClipboardParams;
 

@@ -2178,9 +2178,9 @@ void LLPanelObject::onCopyPos()
 
 void LLPanelObject::onCopySize()
 {
-    mClipboardSize = LLVector3(mCtrlScaleX->get(), mCtrlScaleY->get(), mCtrlScaleZ->get());
+    mClipboardSize = glm::vec3(mCtrlScaleX->get(), mCtrlScaleY->get(), mCtrlScaleZ->get());
 
-    std::string stringVec = llformat("<%g, %g, %g>", mClipboardSize.mV[VX], mClipboardSize.mV[VY], mClipboardSize.mV[VZ]);
+    std::string stringVec = llformat("<%g, %g, %g>", mClipboardSize.x, mClipboardSize.y, mClipboardSize.z);
     LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(stringVec));
 
     mHasClipboardSize = true;
@@ -2229,13 +2229,13 @@ void LLPanelObject::onPasteSize()
 {
     if (!mHasClipboardSize) return;
 
-    mClipboardSize.mV[VX] = llclamp(mClipboardSize.mV[VX], MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
-    mClipboardSize.mV[VY] = llclamp(mClipboardSize.mV[VY], MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
-    mClipboardSize.mV[VZ] = llclamp(mClipboardSize.mV[VZ], MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
+    mClipboardSize.x = llclamp(mClipboardSize.x, MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
+    mClipboardSize.y = llclamp(mClipboardSize.y, MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
+    mClipboardSize.z = llclamp(mClipboardSize.z, MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
 
-    mCtrlScaleX->set(mClipboardSize.mV[VX]);
-    mCtrlScaleY->set(mClipboardSize.mV[VY]);
-    mCtrlScaleZ->set(mClipboardSize.mV[VZ]);
+    mCtrlScaleX->set(mClipboardSize.x);
+    mCtrlScaleY->set(mClipboardSize.y);
+    mCtrlScaleZ->set(mClipboardSize.z);
 
     sendScale(false);
 }
