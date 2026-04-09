@@ -32,6 +32,8 @@
 #include "llquaternion.h"
 #include "v3math.h"
 
+#include "glm/gtc/quaternion.hpp"
+
 ////////////////////
 //
 // A particle source - subclassed to generate particles with different behaviors
@@ -125,7 +127,7 @@ public:
     void setTargetObject(LLViewerObject *objp);
 
 protected:
-    LLQuaternion                mRotation;          // Current rotation for particle source
+    glm::quat                   mRotation{1.f, 0.f, 0.f, 0.f}; // Current rotation for particle source (identity w,x,y,z)
     LLPointer<LLViewerObject>   mTargetObjectp;     // Target object for the particle source
 };
 
