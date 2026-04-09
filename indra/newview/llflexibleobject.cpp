@@ -113,9 +113,9 @@ LLVector3 LLVolumeImplFlexible::getFramePosition() const
     return mVO->getRenderPosition();
 }
 
-LLQuaternion LLVolumeImplFlexible::getFrameRotation() const
+glm::quat LLVolumeImplFlexible::getFrameRotation() const
 {
-    return mVO->getRenderRotation();
+    return mVO->getRenderRotation();   // implicit LLQuaternion -> glm::quat
 }
 
 void LLVolumeImplFlexible::onParameterChanged(U16 param_type, LLNetworkData *data, bool in_use, bool local_origin)
@@ -259,7 +259,7 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
     }
 
     mSection[0].mPosition = getAnchorPosition();
-    mSection[0].mDirection = LLVector3::z_axis * getFrameRotation();
+    mSection[0].mDirection = LLVector3::z_axis * LLQuaternion(getFrameRotation());
     mSection[0].mdPosition = mSection[0].mDirection;
     mSection[0].mScale = glm::vec2(scale.mV[VX]*bottom_scale.x, scale.mV[VY]*bottom_scale.y);
     mSection[0].mVelocity = glm::vec3(0.f);
@@ -689,7 +689,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
     LLVector3 delta_pos;
     LLQuaternion delta_rot;
 
-    delta_rot = ~getFrameRotation();
+    delta_rot = ~LLQuaternion(getFrameRotation());
     delta_pos = -getFramePosition()*delta_rot;
 
     // Vertex transform (4x4)
@@ -886,7 +886,7 @@ LLVector3 LLVolumeImplFlexible::getAnchorPosition() const
 
 
 //------------------------------------------------------------------
-LLQuaternion LLVolumeImplFlexible::getEndRotation()
+glm::quat LLVolumeImplFlexible::getEndRotation()
 {
     return mLastSegmentRotation;
 
