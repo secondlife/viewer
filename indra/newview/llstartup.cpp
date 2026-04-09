@@ -2632,8 +2632,9 @@ void uninstall_nsis_if_required()
     S32 found_minor = 0;
     S32 found_patch = 0;
     U64 found_build = 0;
+    std::string nsis_path;
 
-    if (!get_nsis_version(found_major, found_minor, found_patch, found_build))
+    if (!get_nsis_version(found_major, found_minor, found_patch, found_build, nsis_path))
     {
         return;
     }
@@ -2665,7 +2666,7 @@ void uninstall_nsis_if_required()
     // so there is no point to check build.
     LL_INFOS() << "Found NSIS install " << found_major << "." << found_minor << "." << found_patch << "." << found_build << LL_ENDL;
 
-    clear_nsis_links();
+    clear_nsis_links(nsis_path);
 
     LLSD args;
     args["VERSION"] = llformat("%d.%d.%d", found_major, found_minor, found_patch);

@@ -330,14 +330,14 @@ static std::wstring get_desktop_path()
     return L"";
 }
 
-static bool create_shortcut(const std::wstring& shortcut_path,
+static HRESULT create_shortcut(const std::wstring& shortcut_path,
                             const std::wstring& target_path,
                             const std::wstring& arguments,
                             const std::wstring& description,
                             const std::wstring& icon_path)
 {
     HRESULT hr = CoInitialize(NULL);
-    if (FAILED(hr)) return false;
+    if (FAILED(hr)) return hr;
 
     IShellLinkW* shell_link = nullptr;
     hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
@@ -365,7 +365,7 @@ static bool create_shortcut(const std::wstring& shortcut_path,
     }
 
     CoUninitialize();
-    return SUCCEEDED(hr);
+    return hr;
 }
 
 static void register_protocol_handler(const std::wstring& protocol,
@@ -405,9 +405,105 @@ static void register_protocol_handler(const std::wstring& protocol,
     }
 }
 
-void clear_nsis_links()
+static bool get_shortcut_target(const std::wstring& lnk_path, std::wstring& target_path_str)
+{
+    // Resolve the shortcut to check its target
+    wchar_t target_path[MAX_PATH] = { 0 };
+    HRESULT hr = CoInitialize(NULL);
+    bool res = false;
+    if (SUCCEEDED(hr))
+    {
+        IShellLinkW* psl = nullptr;
+        hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (void**)&psl);
+        if (SUCCEEDED(hr))
+        {
+            IPersistFile* ppf = nullptr;
+            hr = psl->QueryInterface(IID_IPersistFile, (void**)&ppf);
+            if (SUCCEEDED(hr))
+            {
+                hr = ppf->Load(lnk_path.c_str(), STGM_READ);
+                if (SUCCEEDED(hr))
+                {
+                    // Resolve() in theory may retarget to a different executable,
+                    // but we should be fine as long as folder stays the same,
+                    // otherwise we shouldn't clear it.
+                    hr = psl->Resolve(NULL, SLR_NO_UI | SLR_NOUPDATE | SLR_ANY_MATCH);
+                    if (SUCCEEDED(hr))
+                    {
+                        hr = psl->GetPath(target_path, MAX_PATH, nullptr, 0);
+                        if (SUCCEEDED(hr))
+                        {
+                            target_path_str = std::wstring(target_path);
+                            res = true;
+                        }
+                    }
+                }
+                ppf->Release();
+            }
+            psl->Release();
+        }
+        CoUninitialize();
+    }
+    return res;
+}
+
+static bool paths_are_equal(const std::wstring& path1, const std::wstring& path2)
+{
+    try
+    {
+        std::error_code ec1, ec2;
+        std::filesystem::path p1(path1);
+        std::filesystem::path p2(path2);
+
+        // Get canonical (absolute, normalized) paths
+        auto canonical1 = std::filesystem::canonical(p1, ec1);
+        auto canonical2 = std::filesystem::canonical(p2, ec2);
+
+        // If either path doesn't exist, fall back to string comparison
+        if (ec1 || ec2)
+        {
+            // Normalize case for comparison
+            std::wstring lower1 = path1;
+            std::wstring lower2 = path2;
+            std::transform(lower1.begin(), lower1.end(), lower1.begin(), ::towlower);
+            std::transform(lower2.begin(), lower2.end(), lower2.begin(), ::towlower);
+            while (!lower1.empty() && (lower1.back() == L'\\' || lower1.back() == L'/'))
+            {
+                lower1.pop_back();
+            }
+            while (!lower2.empty() && (lower2.back() == L'\\' || lower2.back() == L'/'))
+            {
+                lower2.pop_back();
+            }
+            return lower1 == lower2;
+        }
+
+        // Use filesystem::equivalent which handles all path variations
+        return std::filesystem::equivalent(canonical1, canonical2, ec1);
+    }
+    catch (const std::filesystem::filesystem_error&)
+    {
+        // Fallback to case-insensitive string comparison
+        std::wstring lower1 = path1;
+        std::wstring lower2 = path2;
+        std::transform(lower1.begin(), lower1.end(), lower1.begin(), ::towlower);
+        std::transform(lower2.begin(), lower2.end(), lower2.begin(), ::towlower);
+        while (!lower1.empty() && (lower1.back() == L'\\' || lower1.back() == L'/'))
+        {
+            lower1.pop_back();
+        }
+        while (!lower2.empty() && (lower2.back() == L'\\' || lower2.back() == L'/'))
+        {
+            lower2.pop_back();
+        }
+        return lower1 == lower2;
+    }
+}
+
+void clear_nsis_links(const std::string& nsis_folder_path)
 {
     wchar_t path[MAX_PATH];
+    std::wstring app_name = get_app_name();
 
     // 1. The 'start' shortcuts set by nsis would be global, like app shortcut:
     // C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Second Life Viewer\Second Life Viewer.lnk
@@ -415,7 +511,7 @@ void clear_nsis_links()
     if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_COMMON_PROGRAMS, NULL, 0, path)))
     {
         std::wstring start_menu_path = path;
-        std::wstring folder_path   = start_menu_path + L"\\" + get_app_name();
+        std::wstring folder_path   = start_menu_path + L"\\" + app_name;
 
         std::error_code ec;
         std::filesystem::path dir(folder_path);
@@ -431,11 +527,11 @@ void clear_nsis_links()
     }
 
     // 2. Desktop link, also a global one.
-    // C:\Users\Public\Desktop
+    // C:\Users\Public\Desktop\Second Life Viewer.lnk
     if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL, 0, path)))
     {
         std::wstring desktop_path = path;
-        std::wstring shortcut_path = desktop_path + L"\\" + get_app_name() + L".lnk";
+        std::wstring shortcut_path = desktop_path + L"\\" + app_name + L".lnk";
         if (!DeleteFileW(shortcut_path.c_str()))
         {
             DWORD error = GetLastError();
@@ -446,6 +542,70 @@ void clear_nsis_links()
                     << " (error: " << error << ")" << LL_ENDL;
             }
         }
+    }
+
+    // 3. Taskbar link, which is user-specific and located at:
+    // %AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Second Life.lnk
+    // Note that it can be a link to velopack already, but since
+    // we aren't removing, but recreating, it shouldn't be an issue.
+    if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, path)))
+    {
+        std::wstring taskbar_path = path;
+        // Hardcoded, because this name is the default window name and isn't going to change in NSIS
+        taskbar_path += L"\\Microsoft\\Internet Explorer\\Quick Launch\\User Pinned\\TaskBar\\Second Life.lnk";
+
+        if (PathFileExistsW(taskbar_path.c_str()))
+        {
+            // First try to overwrite shortcut
+            std::wstring current_exe = ll_convert<std::wstring>(gDirUtilp->getExecutablePathAndName());
+
+            HRESULT hr = create_shortcut(taskbar_path, current_exe, L"", app_name, current_exe);
+            if (FAILED(hr))
+            {
+                LL_WARNS("Velopack") << "Failed to update taskbar shortcut, error " << std::hex << hr << LL_ENDL;
+                // Try deleting and if possible recreating separately. We should not leave hanging shortcuts behind.
+                // It is not warranted that the shortcut points to NSIS, so check the destination first.
+                std::wstring target_path;
+                if (get_shortcut_target(taskbar_path, target_path))
+                {
+                    // Strip the filename part to get just the folder path
+                    std::filesystem::path trim_path(target_path);
+                    if (trim_path.has_filename())
+                    {
+                        target_path = trim_path.parent_path().wstring();
+                    }
+                    std::wstring nsis_path_w = ll_convert<std::wstring>(nsis_folder_path);
+                    if (paths_are_equal(nsis_path_w, target_path))
+                    {
+                        if (!DeleteFileW(taskbar_path.c_str()))
+                        {
+                            DWORD error = GetLastError();
+                            if (error != ERROR_FILE_NOT_FOUND)
+                            {
+                                LL_WARNS("Velopack") << "Failed to delete NSIS taskbar shortcut: "
+                                    << ll_convert_wide_to_string(taskbar_path)
+                                    << " (error: " << error << ")" << LL_ENDL;
+                            }
+                        }
+                        else
+                        {
+                            // Deleted user created link, recreate it with new target if possible.
+                            LL_INFOS("Velopack") << "Updating taskbar shortcut to point to current exe" << LL_ENDL;
+                            HRESULT hr = create_shortcut(taskbar_path, current_exe, L"", app_name, current_exe);
+                            if (FAILED(hr))
+                            {
+                                LL_WARNS("Velopack") << "Failed to re-create taskbar shortcut, error: " << std::hex << hr << ", NSIS shortcut was removed" << LL_ENDL;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                LL_INFOS("Velopack") << "Successfully updated taskbar shortcut to point to current exe" << LL_ENDL;
+            }
+        }
+        // else user didn't create a taskbar shortcut.
     }
 }
 
@@ -462,7 +622,8 @@ bool get_nsis_version(
     int& nsis_major,
     int& nsis_minor,
     int& nsis_patch,
-    uint64_t& nsis_build)
+    uint64_t& nsis_build,
+    std::string& nsis_path)
 {
     // Test for presence of NSIS viewer registration, then
     // attempt to read uninstall info
@@ -515,12 +676,21 @@ bool get_nsis_version(
     }
     std::error_code ec;
     std::filesystem::path path(path_buffer);
+    // check if uninstaller exists
     if (!std::filesystem::exists(path, ec))
     {
         return false;
     }
 
-    // Todo: check codesigning?
+    // We found a valid NSIS installation, trim the path to get the folder
+    wchar_t* pos = wcsstr(path_buffer, L"uninst.exe");
+    if (pos)
+    {
+        // Trim uninst.exe from the path by setting null terminator before it
+        *pos = L'\0';
+    }
+    // Note that it has a trailing backslash.
+    nsis_path = ll_convert_wide_to_string(path_buffer);
 
     return true;
 }
