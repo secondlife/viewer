@@ -224,8 +224,16 @@ namespace tut
         parent.setScaleChildOffset(true);
         parent.setScale(llvecparentscale);
 
+        // BUG-Q-002 fix 2026-04-09: normalize the test quats before use.
+        // Production code always uses unit quats; xform.cpp::update() now
+        // uses the glm-native `quat * vec3` form which assumes unit. With
+        // normalized inputs, the local worldPos computation and the
+        // production path agree without depending on LL's lenient
+        // `vec *= quat` |q|^2 scaling.
         LLQuaternion quat(1, 2, 3, 4);
         LLQuaternion quatparent(5, 6, 7, 8);
+        quat.normalize();
+        quatparent.normalize();
         formMatrix_obj.setRotation(quat);
         parent.setRotation(quatparent);
         formMatrix_obj.setParent(&parent);
@@ -235,7 +243,7 @@ namespace tut
 
         LLVector3 worldPos = llvecpos;
         worldPos.scaleVec(llvecparentscale);
-        worldPos *= quatparent;
+        worldPos *= quatparent;   // unit input -> LL & glm forms agree
         worldPos += llvecpospar;
 
         LLQuaternion worldRot = quat * quatparent;
