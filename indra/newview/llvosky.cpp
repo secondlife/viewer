@@ -345,17 +345,17 @@ bool LLHeavenBody::getDraw() const
     return mDraw;
 }
 
-const LLVector3& LLHeavenBody::corner(const S32 n) const
+const glm::vec3& LLHeavenBody::corner(const S32 n) const
 {
     return mQuadCorner[n];
 }
 
-LLVector3& LLHeavenBody::corner(const S32 n)
+glm::vec3& LLHeavenBody::corner(const S32 n)
 {
     return mQuadCorner[n];
 }
 
-const LLVector3* LLHeavenBody::corners() const
+const glm::vec3* LLHeavenBody::corners() const
 {
     return mQuadCorner;
 }
@@ -1127,7 +1127,7 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const 
     for (S32 vtx = 0; vtx < 4; ++vtx)
     {
         hb.corner(vtx) = v_clipped[vtx];
-        *(verticesp++)  = hb.corner(vtx) + mCameraPosAgent;
+        *(verticesp++)  = LLVector3(hb.corner(vtx) + mCameraPosAgent);
     }
 
     *(texCoordsp++) = TEX01;

@@ -141,7 +141,7 @@ protected:
     F32             mVisibility;            // same but due to other objects being in throng.
     bool            mVisible;
     static F32      sInterpVal;
-    LLVector3       mQuadCorner[4];
+    glm::vec3       mQuadCorner[4]{};
 
 public:
     explicit LLHeavenBody(const F32 rad);
@@ -180,9 +180,9 @@ public:
     void setDraw(const bool draw);
     bool getDraw() const;
 
-    const LLVector3& corner(const S32 n) const;
-    LLVector3& corner(const S32 n);
-    const LLVector3* corners() const;
+    const glm::vec3& corner(const S32 n) const;
+    glm::vec3& corner(const S32 n);
+    const glm::vec3* corners() const;
 };
 
 class LLCubeMap;
