@@ -89,7 +89,6 @@ LLManipRotate::LLManipRotate( LLToolComposite* composite )
     mRadiusMeters(0.f),
     mCenterToCamNorm(),
     mCenterToCamMag(0.f),
-    mCenterToProfilePlane(),
     mCenterToProfilePlaneMag(0.f),
     mSendUpdateOnMouseUp( false ),
     mSmoothRotate( false ),
@@ -159,7 +158,7 @@ void LLManipRotate::render()
             gGL.pushMatrix();
             {
                 // Draw "sphere" (intersection of sphere with tangent cone that has apex at camera)
-                gGL.translatef( mCenterToProfilePlane.mV[VX], mCenterToProfilePlane.mV[VY], mCenterToProfilePlane.mV[VZ] );
+                gGL.translatef( mCenterToProfilePlane.x, mCenterToProfilePlane.y, mCenterToProfilePlane.z );
                 gGL.translatef( center.mV[VX], center.mV[VY], center.mV[VZ] );
 
                 // Inverse change of basis vectors

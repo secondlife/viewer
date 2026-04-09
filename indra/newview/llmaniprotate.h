@@ -93,7 +93,7 @@ private:
     glm::vec3           mCenterToCam{0.f};
     LLVector3           mCenterToCamNorm;
     F32                 mCenterToCamMag;
-    LLVector3           mCenterToProfilePlane;
+    glm::vec3           mCenterToProfilePlane{0.f};
     F32                 mCenterToProfilePlaneMag;
 
     bool                mSendUpdateOnMouseUp;
