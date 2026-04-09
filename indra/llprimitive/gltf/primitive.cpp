@@ -24,11 +24,11 @@
  * $/LicenseInfo$
  */
 
-#include "../llviewerprecompiledheaders.h"
+#include "linden_common.h"
 
 #include "asset.h"
 #include "buffer_util.h"
-#include "../llviewershadermgr.h"
+#include "llglslshader.h"
 
 #include "mikktspace/mikktspace.hh"
 
@@ -307,7 +307,7 @@ struct MikktMesh
     }
 };
 
-
+#if 0
 static void vertical_flip(std::vector<LLVector2>& texcoords)
 {
     for (auto& tc : texcoords)
@@ -315,6 +315,7 @@ static void vertical_flip(std::vector<LLVector2>& texcoords)
         tc[1] = 1.f - tc[1];
     }
 }
+#endif
 
 bool Primitive::prep(Asset& asset)
 {
@@ -532,6 +533,7 @@ bool Primitive::prep(Asset& asset)
 
 void Primitive::upload(LLVertexBuffer* buffer)
 {
+#if 0 // viewer-side rendering code — needs LLVertexBuffer
     mVertexBuffer = buffer;
     // we store these buffer sizes as S32 elsewhere
     llassert(mPositions.size() <= size_t(S32_MAX));
@@ -587,6 +589,7 @@ void Primitive::upload(LLVertexBuffer* buffer)
         }
         mVertexBuffer->setIndexData(index_array.data(), mIndexOffset, getIndexCount());
     }
+#endif
 }
 
 void initOctreeTriangle(LLVolumeTriangle* tri, F32 scaler, S32 i0, S32 i1, S32 i2, const LLVector4a& v0, const LLVector4a& v1, const LLVector4a& v2)

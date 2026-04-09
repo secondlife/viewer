@@ -188,6 +188,7 @@ private:
     bool                        isAddingFrameAllowed();
 
     void                        showHDRNotification(const LLSettingsDay::ptr_t &pday);
+    void                        onButtonUpgrade(LLUICtrl *ctrl);
 
     LLSettingsDay::ptr_t        mEditDay; // edited copy
     LLSettingsDay::Seconds      mDayLength;
@@ -210,6 +211,7 @@ private:
     LLView*                     mWaterTabLayoutContainer;
     LLTextBox*                  mCurrentTimeLabel;
     LLFlyoutComboBtnCtrl *      mFlyoutControl;
+    LLFlyoutComboBtnCtrl *      mUpgradeFlyoutControl;
 
     LLHandle<LLFloater>         mTrackFloater;
 

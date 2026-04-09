@@ -939,21 +939,7 @@ Function .onInstSuccess
 
         Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
         StrCmp $SKIP_AUTORUN "true" +2;
-        # Assumes SetOutPath $INSTDIR
-        # Run INSTEXE (our updater), passing VIEWER_EXE plus the command-line
-        # arguments built into our shortcuts. This gives the updater a chance
-        # to verify that the viewer we just installed is appropriate for the
-        # running system -- or, if not, to download and install a different
-        # viewer. For instance, if a user running 32-bit Windows installs a
-        # 64-bit viewer, it cannot run on this system. But since the updater
-        # is a 32-bit executable even in the 64-bit viewer package, the
-        # updater can detect the problem and adapt accordingly.
-        # Once everything is in order, the updater will run the specified
-        # viewer with the specified params.
-        # Quote the updater executable and the viewer executable because each
-        # must be a distinct command-line token, but DO NOT quote the language
-        # string because it must decompose into separate command-line tokens.
-        Exec '"$INSTDIR\$INSTEXE" precheck "$INSTDIR\$VIEWER_EXE" $SHORTCUT_LANG_PARAM'
+        Exec '"$INSTDIR\$VIEWER_EXE" $SHORTCUT_LANG_PARAM'
 # 
 FunctionEnd
 

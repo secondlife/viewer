@@ -156,6 +156,25 @@
                             tool_tip="Revert to last saved version"
                             width="147" />
                 </layout_panel>
+                <layout_panel
+                        follows="bottom|left|right"
+                        height="23"
+                        layout="bottomleft"
+                        left_pad="3"
+                        mouse_opaque="false"
+                        name="upgrade_btn_lp"
+                        auto_resize="false"
+                        width="105">
+                    <button
+                            follows="bottom|right"
+                            height="23"
+                            label="Upgrade"
+                            tool_tip="Upgrade this sky to enable post process settings"
+                            layout="topleft"
+                            name="btn_upgrade"
+                            top="0"
+                            width="100" />
+                </layout_panel>
             </layout_stack>
         </layout_panel>
     </layout_stack>

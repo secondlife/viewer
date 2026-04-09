@@ -24,10 +24,11 @@
  * $/LicenseInfo$
  */
 
-#include "../llviewerprecompiledheaders.h"
+#include "linden_common.h"
 
 #include "asset.h"
 #include "buffer_util.h"
+#include "lldir.h"
 #include "llfilesystem.h"
 
 using namespace LL::GLTF;

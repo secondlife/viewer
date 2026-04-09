@@ -1737,8 +1737,11 @@ void LLWorldMapView::updateVisibleBlocks()
     const F32 half_height = F32(height) / 2.0f;
 
     // Compute center into sim grid coordinates
-    S32 world_center_x = S32((-mPanX / mMapScale) + (camera_global.mdV[0] / REGION_WIDTH_METERS));
-    S32 world_center_y = S32((-mPanY / mMapScale) + (camera_global.mdV[1] / REGION_WIDTH_METERS));
+    // mPanX and mPanY values can be obsolete as they are used for
+    // animation and there is no point loading regions we will see
+    // so briefly, they won't have time to load. Use target directly.
+    S32 world_center_x = S32((-mTargetPanX / mMapScale) + (camera_global.mdV[0] / REGION_WIDTH_METERS));
+    S32 world_center_y = S32((-mTargetPanY / mMapScale) + (camera_global.mdV[1] / REGION_WIDTH_METERS));
 
     // Compute the boundaries into sim grid coordinates
     S32 world_left   = world_center_x - S32(half_width  / mMapScale) - 1;

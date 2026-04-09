@@ -30,6 +30,7 @@
 #include "llrendertarget.h"
 #include "llcubemaparray.h"
 #include "llcubemap.h"
+#include "llheroprobemanager.h"
 
 class LLSpatialGroup;
 class LLViewerObject;
@@ -68,7 +69,7 @@ public:
         // the box probe
         LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT];
 
-        LLMatrix4 heroBox;
+        LLMatrix4 heroBox[LL_MAX_HERO_PROBE_COUNT];
 
         // for sphere probes, origin (xyz) and radius (w) of refmaps in clip space
         LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT];
@@ -80,7 +81,7 @@ public:
         //  w - znear
         LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT];
 
-        LLVector4 heroSphere;
+        LLVector4 heroSphere[LL_MAX_HERO_PROBE_COUNT];
 
         // indices used by probe:
         //  [i][0] - cubemap array index for this probe
@@ -96,9 +97,15 @@ public:
         // numbrer of active refmaps
         GLint refmapCount;
 
-        GLint heroShape;
         GLint heroMipCount;
         GLint heroProbeCount;
+
+        // std140: arrays must start on 16-byte boundary.
+        // 3 ints above = 12 bytes; alignas(16) inserts 4 bytes so heroParams starts at offset 16.
+        // heroParams[i] = { shape, cubeIndex, 0, 0 }
+        alignas(16) GLint heroParams[LL_MAX_HERO_PROBE_COUNT][4];
+        LLMatrix4 heroPlaneMatrix[LL_MAX_HERO_PROBE_COUNT];
+        LLVector4 heroClipPlane[LL_MAX_HERO_PROBE_COUNT];
     };
 
     // allocate an environment map of the given resolution
@@ -106,6 +113,7 @@ public:
 
     // release any GL state
     void cleanup();
+    void cleanupQueryPool();
 
     // maintain reflection probes
     void update();
@@ -164,6 +172,10 @@ public:
     U32 probeCount();
     U32 probeMemory();
 
+    // glDeleteQueries is expensive, so we maintain a pool of queries
+    GLuint allocateQuery();
+    void recycleQuery(GLuint query);
+
 private:
     friend class LLPipeline;
     friend class LLHeroProbeManager;
@@ -189,6 +201,8 @@ private:
 
     // bind UBO used for rendering
     void setUniforms();
+
+    std::deque<GLuint>                                    mQueryPool;
 
     // render target for cube snapshots
     // used to generate mipmaps without doing a copy-to-texture

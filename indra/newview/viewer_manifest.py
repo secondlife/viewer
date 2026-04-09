@@ -540,18 +540,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                                 '*.bat',
                                                 '*.tar.xz')))
 
-            with self.prefix(src=os.path.join(pkgdir, "VMP")):
-                # include the compiled launcher scripts so that it gets included in the file_list
-                self.path('SLVersionChecker.exe')
-
-            with self.prefix(dst="vmp_icons"):
-                with self.prefix(src=self.icon_path()):
-                    self.path("secondlife.ico")
-                #VMP  Tkinter icons
-                with self.prefix(src="vmp_icons"):
-                    self.path("*.png")
-                    self.path("*.gif")
-
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
                                         'llplugin', 'slplugin', self.args['configuration']),
@@ -765,6 +753,126 @@ class Windows_x86_64_Manifest(ViewerManifest):
         return '\n'.join(result)
 
     def package_finish(self):
+        # Check if we should use Velopack instead of NSIS
+        # Note: as of 2026.01's release, we will be building with Velopack's one click install.
+        # We maintain the legacy NSIS packaging mainly for TPVs at this point.
+        if self.args.get('velopack', 'OFF') == 'ON':
+            self.velopack_package_finish()
+            return
+
+        # NSIS packaging (legacy)
+        self.nsis_package_finish()
+
+    def velopack_package_finish(self):
+        # packId determines install folder: %LocalAppData%\{packId}
+        # Uses same naming as NSIS INSTNAME for channel separation
+        pack_id = self.app_name_oneword()  # "SecondLife", "SecondLifeBeta", etc.
+        # Velopack requires SemVer2. Use major.minor.patch-buildnumber so that
+        # Velopack can distinguish builds and order them correctly.
+        pack_version = '.'.join(self.args['version'][:3])
+        if len(self.args['version']) > 3 and self.args['version'][3]:
+            pack_version += '-' + self.args['version'][3]
+        pack_title = self.app_name()  # Display name with spaces
+        pack_dir = self.get_dst_prefix()
+        main_exe = self.final_exe()
+        installer_base = self.installer_base_name()
+        exclude_pattern = r'.*\.pdb|.*\.map|.*\.bat|.*\.exp|.*\.lib|.*\.nsi|.*\.tar\.xz|secondlife-bin\..*|.*_Setup\.exe|.*-Setup\.exe'
+
+        # Channel-specific icon for the Velopack installer.
+        # CMake copies icons/{channel}/secondlife.ico to res/ll_icon.ico at configure time.
+        # Try the CMake-generated copy first, fall back to the source icon.
+        icon_path = os.path.join(self.get_src_prefix(), 'res', 'll_icon.ico')
+        if not os.path.exists(icon_path):
+            icon_path = os.path.join(self.get_src_prefix(), self.icon_path(), 'secondlife.ico')
+
+        # In CI, defer Velopack packaging to the sign step where Azure credentials
+        # are available. Emit metadata as GitHub outputs so the sign step can run
+        # vpk pack with --signTemplate, producing a package with signed executables.
+        if os.getenv('GITHUB_ACTIONS'):
+            # Copy the icon into pack_dir so it's included in the Windows-app artifact
+            icon_filename = ''
+            if os.path.exists(icon_path):
+                icon_filename = os.path.basename(icon_path)
+                icon_dest = os.path.join(pack_dir, icon_filename)
+                shutil.copy2(icon_path, icon_dest)
+                print("Copied icon %s to %s" % (icon_path, icon_dest))
+            else:
+                print("WARNING: Icon not found at %s" % icon_path)
+
+            # Emit metadata for the sign step
+            self.set_github_output('velopack_pack_id', pack_id)
+            self.set_github_output('velopack_pack_version', pack_version)
+            self.set_github_output('velopack_pack_title', pack_title)
+            self.set_github_output('velopack_main_exe', main_exe)
+            self.set_github_output('velopack_icon', icon_filename)
+            self.set_github_output('velopack_installer_base', installer_base)
+            self.set_github_output('velopack_exclude', exclude_pattern)
+            # Set package_file so llmanifest's touched.bat logic doesn't crash
+            self.package_file = installer_base + '_Setup.exe'
+            print("CI mode: Velopack packaging deferred to sign step")
+            return
+
+        # Local builds: run vpk pack directly (unsigned)
+        vpk_args = [
+            'vpk', 'pack',
+            '--packId', pack_id,
+            '--packVersion', pack_version,
+            '--packDir', pack_dir,
+            '--mainExe', main_exe,
+            '--packTitle', pack_title,
+            '--exclude', exclude_pattern,
+            # Suppress Velopack's built-in shortcut creation; we create our own
+            # shortcuts in llvelopack.cpp on_after_install hook instead.
+            '--shortcuts', '',
+        ]
+
+        # Add icon — CMake copies the channel-appropriate secondlife.ico to res/ll_icon.ico
+        if os.path.exists(icon_path):
+            print("Using icon: %s" % icon_path)
+            vpk_args.extend(['--icon', icon_path])
+        else:
+            print("WARNING: Icon not found at %s — Setup.exe will have no icon" % icon_path)
+
+        print("Running Velopack packaging: %s" % ' '.join(vpk_args))
+
+        # Run vpk command
+        import subprocess
+        result = subprocess.run(vpk_args, cwd=os.path.dirname(pack_dir), capture_output=True, text=True)
+        if result.stdout:
+            print("vpk stdout: %s" % result.stdout)
+        if result.stderr:
+            print("vpk stderr: %s" % result.stderr)
+        if result.returncode != 0:
+            raise ManifestError("Velopack packaging failed with code %d" % result.returncode)
+
+        # Velopack outputs to a Releases directory
+        releases_dir = os.path.join(os.path.dirname(pack_dir), 'Releases')
+
+        # Move the setup exe INTO pack_dir so it's included in the Windows-app artifact
+        # IMPORTANT: Use hyphen format (-Setup.exe) to avoid the *_Setup.exe exclusion pattern
+        # in viewer_app output (line ~538). The underscore pattern excludes NSIS installers
+        # which are rebuilt during signing, but Velopack installers are created here.
+        # Velopack creates: {packId}-win-Setup.exe
+        velopack_setup = os.path.join(releases_dir, '%s-win-Setup.exe' % pack_id)
+        self.package_file = installer_base + '_Setup.exe'
+        our_setup = os.path.join(pack_dir, self.package_file)
+        if os.path.exists(velopack_setup):
+            shutil.move(velopack_setup, our_setup)
+            print("Moved %s to %s" % (velopack_setup, our_setup))
+
+        # Rename the portable zip to include the version number
+        # Velopack creates: {packId}-win-Portable.zip
+        velopack_portable = os.path.join(releases_dir, '%s-win-Portable.zip' % pack_id)
+        if os.path.exists(velopack_portable):
+            our_portable = os.path.join(releases_dir, installer_base + '_Portable.zip')
+            shutil.move(velopack_portable, our_portable)
+            print("Moved %s to %s" % (velopack_portable, our_portable))
+
+        # Output the Releases directory path for artifact upload (contains nupkg, RELEASES for updates)
+        self.set_github_output('velopack_releases', releases_dir)
+
+    def nsis_package_finish(self):
+        """Package the viewer using NSIS installer (legacy)"""
         # a standard map of strings for replacing in the templates
         substitution_strings = {
             'version' : '.'.join(self.args['version']),
@@ -781,7 +889,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
         substitution_strings['installer_file'] = installer_file
 
         version_vars = """
-        !define INSTEXE "SLVersionChecker.exe"
+        !define INSTEXE "%(final_exe)s"
         !define VERSION "%(version_short)s"
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
@@ -967,15 +1075,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 with self.prefix(src=self.icon_path(), dst="") :
                     self.path("secondlife.icns")
 
-                # Copy in the updater script and helper modules
-                self.path(src=os.path.join(pkgdir, 'VMP'), dst="updater")
-
-                with self.prefix(src="", dst=os.path.join("updater", "icons")):
-                    self.path2basename(self.icon_path(), "secondlife.ico")
-                    with self.prefix(src="vmp_icons", dst=""):
-                        self.path("*.png")
-                        self.path("*.gif")
-
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")
 
@@ -1126,6 +1225,123 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 tarball.add(self.get_dst_prefix(),
                             arcname=self.app_name() + ".app")
             self.set_github_output_path('viewer_app', tarpath)
+
+        # Generate Velopack update packages if enabled
+        # This creates the nupkg and RELEASES files needed for auto-updates
+        # Distribution is still via DMG, but updates use Velopack
+        if self.args.get('velopack', 'OFF') == 'ON':
+            self.velopack_package_finish()
+
+    def velopack_package_finish(self):
+        """Generate Velopack update packages for macOS.
+
+        This creates the nupkg and releases.json files needed for auto-updates.
+        Distribution is still via DMG - Velopack only handles the update infrastructure.
+        """
+        # packId determines install identification - same as Windows for consistency
+        pack_id = self.app_name_oneword()  # "SecondLife", "SecondLifeBeta", etc.
+        # Velopack requires SemVer2. Use major.minor.patch-buildnumber so that
+        # Velopack can distinguish builds and order them correctly.
+        pack_version = '.'.join(self.args['version'][:3])
+        if len(self.args['version']) > 3 and self.args['version'][3]:
+            pack_version += '-' + self.args['version'][3]
+        pack_title = self.app_name()  # Display name with spaces
+
+        # The .app bundle path (e.g., "/path/to/Second Life Release.app")
+        app_bundle = self.get_dst_prefix()
+        # Bundle ID from args (e.g., "com.secondlife.viewer")
+        bundle_id = self.args.get('bundleid', 'com.secondlife.indra.viewer')
+
+        # Icon path for macOS
+        icon_path = os.path.join(self.get_src_prefix(), self.icon_path(), 'secondlife.icns')
+
+        # The main executable inside Contents/MacOS/ is named after the channel
+        main_exe = self.channel()
+
+        # In CI, defer Velopack packaging to the sign step where code signing
+        # credentials are available. Emit metadata as GitHub outputs so the
+        # sign step can run vpk pack after signing the app bundle.
+        if os.getenv('GITHUB_ACTIONS'):
+            self.set_github_output('velopack_mac_pack_id', pack_id)
+            self.set_github_output('velopack_mac_pack_version', pack_version)
+            self.set_github_output('velopack_mac_pack_title', pack_title)
+            self.set_github_output('velopack_mac_main_exe', main_exe)
+            self.set_github_output('velopack_mac_bundle_id', bundle_id)
+            print("CI mode: macOS Velopack packaging deferred to sign step")
+            return
+
+        # Local builds: run vpk pack directly (unsigned)
+
+        # Parent directory containing the .app bundle - this is where we run vpk from
+        # and where the Releases directory will be created
+        work_dir = os.path.dirname(app_bundle)
+
+        # Output directory for releases - clean it first to avoid version conflicts
+        releases_dir = os.path.join(work_dir, 'Releases')
+        if os.path.exists(releases_dir):
+            print("Cleaning existing Releases directory: %s" % releases_dir)
+            shutil.rmtree(releases_dir)
+
+        # Build vpk command for macOS
+        # See: https://docs.velopack.io/reference/cli/content/vpk-osx
+        vpk_args = [
+            'vpk', 'pack',
+            '--packId', pack_id,
+            '--packVersion', pack_version,
+            '--packDir', app_bundle,
+            '--packTitle', pack_title,
+            '--mainExe', main_exe,  # Executable name inside Contents/MacOS/
+            '--bundleId', bundle_id,
+            '--outputDir', releases_dir,
+            '--noInst',  # Don't generate .pkg installer - we use DMG for distribution
+            '--verbose',  # Show detailed output
+        ]
+
+        # Add icon if exists
+        if os.path.exists(icon_path):
+            vpk_args.extend(['--icon', icon_path])
+
+        print("Running Velopack packaging for macOS:")
+        print("  Command: %s" % ' '.join(vpk_args))
+        print("  Working directory: %s" % work_dir)
+        print("  App bundle: %s" % app_bundle)
+        print("  Main executable: %s" % main_exe)
+
+        # Run vpk command
+        result = subprocess.run(vpk_args, cwd=work_dir, capture_output=True, text=True)
+
+        # Always print output for debugging
+        if result.stdout:
+            print("vpk stdout:\n%s" % result.stdout)
+        if result.stderr:
+            print("vpk stderr:\n%s" % result.stderr)
+
+        if result.returncode != 0:
+            raise ManifestError("Velopack packaging failed with code %d" % result.returncode)
+
+        # Verify the Releases directory was created and contains expected files
+        if not os.path.exists(releases_dir):
+            raise ManifestError("Velopack releases directory not found: %s" % releases_dir)
+
+        # List what was created
+        releases_contents = os.listdir(releases_dir)
+        print("Velopack releases directory contents: %s" % releases_contents)
+
+        # Verify we have the expected files (nupkg and releases JSON)
+        nupkg_files = [f for f in releases_contents if f.endswith('.nupkg')]
+        json_files = [f for f in releases_contents if f.endswith('.json')]
+
+        if not nupkg_files:
+            raise ManifestError("No .nupkg files found in releases directory")
+        if not json_files:
+            raise ManifestError("No releases JSON files found in releases directory")
+
+        print("Generated %d nupkg file(s): %s" % (len(nupkg_files), nupkg_files))
+        print("Generated %d JSON file(s): %s" % (len(json_files), json_files))
+
+        # Output the Releases directory path for artifact upload
+        self.set_github_output('velopack_releases', releases_dir)
+        print("Velopack releases directory: %s" % releases_dir)
 
 
 class LinuxManifest(ViewerManifest):
@@ -1324,6 +1540,7 @@ if __name__ == "__main__":
         dict(name='discord', description="""Indication discord social sdk libraries are needed""", default='OFF'),
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
         dict(name='tracy', description="""Indication tracy profiler is enabled""", default='OFF'),
+        dict(name='velopack', description="""Use Velopack installer instead of NSIS""", default='OFF'),
         ]
     try:
         main(extra=extra_arguments)

@@ -80,6 +80,12 @@ private:
     void                    onDropletRadiusChanged();
     void                    onIceLevelChanged();
     void                    onReflectionProbeAmbianceChanged();
+    void                    onAmbientSkySaturationChanged();
+    void                    onTonemapperChanged();
+    void                    onTonemapMixChanged();
+    void                    onHDRMinChanged();
+    void                    onHDRMaxChanged();
+    void                    onHDROffsetChanged();
     void                    updateGammaLabel(bool auto_adjust = false);
 
 };
@@ -125,6 +131,7 @@ private:
     void                    onSunMoonColorChanged();
     void                    onGlowChanged();
     void                    onStarBrightnessChanged();
+    void                    onSunBrightnessChanged();
     void                    onSunRotationChanged();
     void                    onSunAzimElevChanged();
     void                    onSunScaleChanged();

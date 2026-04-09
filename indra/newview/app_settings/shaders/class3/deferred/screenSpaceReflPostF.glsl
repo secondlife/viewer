@@ -36,11 +36,9 @@ uniform float zFar;
 in vec2 vary_fragcoord;
 in vec3 camera_ray;
 
-uniform sampler2D specularRect;
-uniform sampler2D diffuseRect;
 uniform sampler2D diffuseMap;
 
-vec4 getNorm(vec2 screenpos);
+GBufferInfo getGBuffer(vec2 screenpos);
 float getDepth(vec2 pos_screen);
 float linearDepth(float d, float znear, float zfar);
 float linearDepth01(float d, float znear, float zfar);
@@ -56,32 +54,22 @@ void main()
 {
     vec2  tc = vary_fragcoord.xy;
     float depth = linearDepth01(getDepth(tc), zNear, zFar);
-    vec4 norm = getNorm(tc); // need `norm.w` for GET_GBUFFER_FLAG()
+    GBufferInfo gb = getGBuffer(tc);
     vec3 pos = getPositionWithDepth(tc, getDepth(tc)).xyz;
-    vec4 spec    = texture(specularRect, tc);
     vec2 hitpixel;
 
-    vec4 diffuse = texture(diffuseRect, tc);
-    vec3 specCol = spec.rgb;
+    vec3 specCol = gb.specular.rgb;
 
     vec4 fcol = texture(diffuseMap, tc);
 
-    if (GET_GBUFFER_FLAG(norm.w, GBUFFER_FLAG_HAS_PBR))
+    if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 orm = specCol.rgb;
-        float perceptualRoughness = orm.g;
-        float metallic = orm.b;
-        vec3 f0 = vec3(0.04);
-        vec3 baseColor = diffuse.rgb;
-
-        vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
-
-        specCol = mix(f0, baseColor.rgb, metallic);
+        specCol = gb.specular.rgb;  // Already F0
     }
 
     vec4 collectedColor = vec4(0);
 
-    float w = tapScreenSpaceReflection(4, tc, pos, norm.xyz, collectedColor, diffuseMap, 0.f);
+    float w = tapScreenSpaceReflection(4, tc, pos, gb.normal, collectedColor, diffuseMap, 0.f);
 
     collectedColor.rgb *= specCol.rgb;
 

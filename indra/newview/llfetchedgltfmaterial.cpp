@@ -57,6 +57,7 @@ LLFetchedGLTFMaterial& LLFetchedGLTFMaterial::operator=(const LLFetchedGLTFMater
     mNormalTexture = rhs.mNormalTexture;
     mMetallicRoughnessTexture = rhs.mMetallicRoughnessTexture;
     mEmissiveTexture = rhs.mEmissiveTexture;
+    mSpecularTexture = rhs.mSpecularTexture;
 
     return *this;
 }
@@ -129,6 +130,10 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mRoughnessFactor);
         shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
         shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
+        shader->uniform1f(LLShaderMgr::SPECULAR_FACTOR, mSpecularFactor);
+        shader->uniform3fv(LLShaderMgr::SPECULAR_COLOR_FACTOR, 1, mSpecularColorFactor.mV);
+        shader->uniform1f(LLShaderMgr::EMISSIVE_STRENGTH, mEmissiveStrength);
+        shader->uniform1f(LLShaderMgr::IOR, mIOR);
 
         F32 normal_packed[8];
         mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
@@ -182,6 +187,12 @@ bool LLFetchedGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const
         mEmissiveTexture = fetch_texture(new_id);
         res = true;
     }
+    if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR] == old_id)
+    {
+        mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR] = new_id;
+        mSpecularTexture = fetch_texture(new_id);
+        res = true;
+    }
 
     for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
     {
@@ -228,6 +239,7 @@ void LLFetchedGLTFMaterial::clearFetchedTextures()
     mNormalTexture = nullptr;
     mMetallicRoughnessTexture = nullptr;
     mEmissiveTexture = nullptr;
+    mSpecularTexture = nullptr;
 }
 
 void LLFetchedGLTFMaterial::materialBegin()

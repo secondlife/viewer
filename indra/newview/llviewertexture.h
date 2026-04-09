@@ -233,6 +233,8 @@ public:
 
     // estimated free memory for textures, by bias calculation
     static F32 sFreeVRAMMegabytes;
+    // (used - target) / target — positive means over budget
+    static F32 sOverBudgetPct;
 
     enum EDebugTexels
     {

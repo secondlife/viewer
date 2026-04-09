@@ -1912,6 +1912,11 @@ void LLItemBridge::doShowOnMap(LLLandmark* landmark)
 
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl)
 {
+    if (slurl.empty())
+    {
+        LLNotificationsUtil::add("LandmarkLocationUnknown");
+        return;
+    }
     gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(slurl));
     LLSD args;
     args["SLURL"] = slurl;

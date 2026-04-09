@@ -761,6 +761,7 @@ protected:
     bool                        mUseEmoji;
     bool                        mUseColor;
     bool                        mTrackEnd;          // if true, keeps scroll position at end of document during resize
+    bool                        mTrackValueChange;  // if true, send out onValueChange() from low level text modification methods
     bool                        mReadOnly;
     bool                        mBGVisible;         // render background?
     bool                        mClip;              // clip text to widget rect

@@ -202,6 +202,16 @@ No tutorial is currently available.
 
   <notification
    icon="alertmodal.tga"
+   name="FoundLegacyNsisInstallation"
+   type="alertmodal">
+      [APP_NAME] found an installation of an older version [VERSION]. To uninstall the older version, please follow [https://community.secondlife.com/knowledgebase/english/how-to-uninstall-and-reinstall-second-life-r524 this manual].
+      <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LoginFailedNoNetwork"
    type="alertmodal">
     <tag>fail</tag>
@@ -4419,6 +4429,14 @@ Click OK to download and install.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DownloadingUpdate"
+   type="alertmodal">
+Downloading update [VERSION]...
+The viewer will restart once the download is complete.
   </notification>
 
   <notification

@@ -72,6 +72,11 @@
 #include <fstream>
 #include <exception>
 
+// Velopack installer and update framework
+#if LL_VELOPACK
+#include "llvelopack.h"
+#endif
+
 // Bugsplat (http://bugsplat.com) crash reporting tool
 #ifdef LL_BUGSPLAT
 #include "BugSplat.h"
@@ -220,7 +225,6 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
     return 0;
 }
 
-const std::string LLAppViewerWin32::sWindowClass = "Second Life";
 
 /*
     This function is used to print to the command line a text message
@@ -424,6 +428,31 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
                      PWSTR     pCmdLine,
                      int       nCmdShow)
 {
+#if LL_VELOPACK
+    // Velopack MUST be initialized first - it may handle install/uninstall
+    // commands and exit the process before we do anything else.
+    if (!velopack_initialize())
+    {
+        // Velopack handled the invocation (install/uninstall hook)
+
+        // Drop install related settings
+        gDirUtilp->initAppDirs("SecondLife");
+
+        std::string user_settings_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml");
+        LLControlGroup settings("global");
+        if (settings.loadFromFile(user_settings_path))
+        {
+            // If user reinstalls or updates, we want to recheck for nsis leftovers.
+            if (settings.controlExists("PreviousInstallChecked"))
+            {
+                settings.setBOOL("PreviousInstallChecked", false);
+            }
+            settings.saveToFile(user_settings_path, true);
+        }
+        return 0;
+    }
+#endif
+
     // Call Tracy first thing to have it allocate memory
     // https://github.com/wolfpld/tracy/issues/196
     LL_PROFILER_FRAME_END;
@@ -933,7 +962,7 @@ bool LLAppViewerWin32::restoreErrorTrap()
 bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
 {
     wchar_t window_class[256]; /* Flawfinder: ignore */   // Assume max length < 255 chars.
-    mbstowcs(window_class, sWindowClass.c_str(), 255);
+    mbstowcs(window_class, sWindowClass, 255);
     window_class[255] = 0;
     // Use the class instead of the window name.
     HWND other_window = FindWindow(window_class, NULL);

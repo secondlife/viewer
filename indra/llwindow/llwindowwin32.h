@@ -148,6 +148,8 @@ protected:
     void    initCursors();
     HCURSOR loadColorCursor(LPCTSTR name);
     bool    isValid();
+    void    setThreadPriorityHigh();
+    void    setThreadPriorityNormal();
     void    moveWindow(const LLCoordScreen& position,const LLCoordScreen& size);
     virtual LLSD    getNativeKeyData();
 

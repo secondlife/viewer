@@ -395,11 +395,13 @@ struct AttachmentInfo
 
 - (void)sendEvent:(NSEvent *)event
 {
+    startWatchdog("sendEvent"); // events are outside pumpMainLoop
     [super sendEvent:event];
     if ([event type] == NSEventTypeKeyUp && ([event modifierFlags] & NSEventModifierFlagCommand))
     {
         [[self keyWindow] sendEvent:event];
     }
+    stopWatchdog(); // leaving scope
 }
 
 @end

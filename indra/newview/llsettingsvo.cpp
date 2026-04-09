@@ -685,35 +685,52 @@ void LLSettingsVOSky::updateSettings()
     gSky.setMoonScale(getMoonScale());
 }
 
-void draw_color(LLShaderUniforms* shader, const LLColor3& col, S32 shader_key)
+void draw_color(LLShaderUniforms* shader, const LLColor3& col, S32 shader_key,
+                F32 ambient_saturation, bool use_debug_desaturate)
 {
-    // always identify as a radiance pass if desaturating irradiance is disabled
-    static LLCachedControl<bool> desaturate_irradiance(gSavedSettings, "RenderDesaturateIrradiance", true);
-
     LLVector4 vect4(col.mV[0], col.mV[1], col.mV[2]);
 
-    if (desaturate_irradiance && gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
-    { // maximize and remove tinting if this is an irradiance map render pass and the parameter feeds into the sky background color
-        auto max_vec = [](LLVector4 col)
-        {
-            LLColor3 color(col);
-            F32 h, s, l;
-            color.calcHSL(&h, &s, &l);
-
-            col.mV[0] = col.mV[1] = col.mV[2] = l;
-            return col;
-        };
-
+    if (gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
+    { // irradiance map render pass — desaturate sky color contribution
         switch (shader_key)
         {
         case LLShaderMgr::BLUE_HORIZON:
         case LLShaderMgr::BLUE_DENSITY:
-            vect4 = max_vec(vect4);
+        {
+            bool should_desaturate = false;
+            F32 saturation = 1.0f;
+
+            if (use_debug_desaturate)
+            {
+                // V1 path: use debug setting for full on/off desaturation
+                static LLCachedControl<bool> desaturate_irradiance(gSavedSettings, "RenderDesaturateIrradiance", true);
+                if (desaturate_irradiance)
+                {
+                    should_desaturate = true;
+                    saturation = 0.0f;
+                }
+            }
+            else
+            {
+                // V2 path: use per-sky ambient_saturation slider
+                should_desaturate = true;
+                saturation = ambient_saturation;
+            }
+
+            if (should_desaturate)
+            {
+                LLColor3 color(vect4);
+                F32 h, s, l;
+                color.calcHSL(&h, &s, &l);
+
+                LLVector4 desat(l, l, l, vect4.mV[3]);
+                vect4 = lerp(desat, vect4, saturation);
+            }
             break;
+        }
         }
     }
 
-    //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
     shader->uniform3fv(shader_key, LLVector3(vect4.mV));
 }
 
@@ -726,18 +743,21 @@ void LLSettingsVOSky::applyToUniforms(void* ptarget)
 {
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_ANY];
 
-    draw_color(shader, getAmbientColor(), LLShaderMgr::AMBIENT);
-    draw_color(shader, getBlueDensity(), LLShaderMgr::BLUE_DENSITY);
-    draw_color(shader, getBlueHorizon(), LLShaderMgr::BLUE_HORIZON);
+    F32 ambient_saturation = getAmbientSkySaturation();
+    bool use_debug_desaturate = (getSkySettingVersion() < 2);
+
+    draw_color(shader, getAmbientColor(), LLShaderMgr::AMBIENT, ambient_saturation, use_debug_desaturate);
+    draw_color(shader, getBlueDensity(), LLShaderMgr::BLUE_DENSITY, ambient_saturation, use_debug_desaturate);
+    draw_color(shader, getBlueHorizon(), LLShaderMgr::BLUE_HORIZON, ambient_saturation, use_debug_desaturate);
     draw_real(shader, getHazeDensity(), LLShaderMgr::HAZE_DENSITY);
     draw_real(shader, getHazeHorizon(), LLShaderMgr::HAZE_HORIZON);
     draw_real(shader, getDensityMultiplier(), LLShaderMgr::DENSITY_MULTIPLIER);
     draw_real(shader, getDistanceMultiplier(), LLShaderMgr::DISTANCE_MULTIPLIER);
-    draw_color(shader, getCloudPosDensity2(), LLShaderMgr::CLOUD_POS_DENSITY2);
+    draw_color(shader, getCloudPosDensity2(), LLShaderMgr::CLOUD_POS_DENSITY2, ambient_saturation, use_debug_desaturate);
     draw_real(shader, getCloudScale(), LLShaderMgr::CLOUD_SCALE);
     draw_real(shader, getCloudShadow(), LLShaderMgr::CLOUD_SHADOW);
     draw_real(shader, getCloudVariance(), LLShaderMgr::CLOUD_VARIANCE);
-    draw_color(shader, getGlow(), LLShaderMgr::GLOW);
+    draw_color(shader, getGlow(), LLShaderMgr::GLOW, ambient_saturation, use_debug_desaturate);
     draw_real(shader, getMaxY(), LLShaderMgr::MAX_Y);
     draw_real(shader, getMoonBrightness(), LLShaderMgr::MOON_BRIGHTNESS);
     draw_real(shader, getSkyMoistureLevel(), LLShaderMgr::MOISTURE_LEVEL);
@@ -804,17 +824,14 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     static LLCachedControl<F32> sunlight_scale(gSavedSettings, "RenderSkySunlightScale", 1.5f);
     static LLCachedControl<F32> sunlight_hdr_scale(gSavedSettings, "RenderHDRSkySunlightScale", 1.5f);
     static LLCachedControl<F32> ambient_scale(gSavedSettings, "RenderSkyAmbientScale", 1.5f);
-    static LLCachedControl<F32> tonemap_mix_setting(gSavedSettings, "RenderTonemapMix", 1.f);
-
     // sky is a "classic" sky following pre SL 7.0 shading
     bool classic_mode = psky->canAutoAdjust() && !should_auto_adjust();
 
-    if (!classic_mode)
-    {
-        psky->setTonemapMix(tonemap_mix_setting);
-    }
-
-    shader->uniform1f(LLShaderMgr::SKY_SUNLIGHT_SCALE, hdr ? sunlight_hdr_scale : sunlight_scale);
+    // Shaders normalize sun_lux: intensity = sun_lux / 100000.0
+    // Reference: 100000 lux (bright sunlight) = 1.0 normalized intensity
+    // getSunBrightness() is version-aware and returns a PBR-compatible value for v1 skies.
+    F32 sun_lux = psky->getSunBrightness();
+    shader->uniform1f(LLShaderMgr::SUN_LUX, sun_lux);
     shader->uniform1f(LLShaderMgr::SKY_AMBIENT_SCALE, ambient_scale);
     shader->uniform1i(LLShaderMgr::CLASSIC_MODE, classic_mode);
 
@@ -1126,6 +1143,14 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - water_height;
         bool underwater = (eyedepth <= 0.0f);
+
+        // During water probe rendering, the reflected camera is below water but
+        // we're rendering the above-water scene. Force above-water fog.
+        if (underwater && gPipeline.mHeroProbeManager.isMirrorPass()
+            && gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx == 0)
+        {
+            underwater = false;
+        }
 
         F32 waterFogDensity = env.getCurrentWater()->getModifiedWaterFogDensity(underwater);
         shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, waterFogDensity);

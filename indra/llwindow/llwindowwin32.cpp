@@ -523,6 +523,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
         SetProcessAffinityMask(hProcess, mask);
     }
 
+    setThreadPriorityHigh();
+
 #if 0 // this is probably a bad idea, but keep it in your back pocket if you see what looks like
         // process deprioritization during profiles
     // force high thread priority
@@ -544,41 +546,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
         }
     }
 #endif
-
-#if 0  // this is also probably a bad idea, but keep it in your back pocket for getting main thread off of background thread cores (see also LLThread::threadRun)
-    HANDLE hThread = GetCurrentThread();
-
-    SYSTEM_INFO sysInfo;
-
-    GetSystemInfo(&sysInfo);
-    U32 core_count = sysInfo.dwNumberOfProcessors;
-
-    if (max_cores != 0)
-    {
-        core_count = llmin(core_count, max_cores);
-    }
-
-    if (hThread)
-    {
-        int priority = GetThreadPriority(hThread);
-
-        if (priority < THREAD_PRIORITY_TIME_CRITICAL)
-        {
-            if (SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL))
-            {
-                LL_INFOS() << "Set thread priority to THREAD_PRIORITY_TIME_CRITICAL" << LL_ENDL;
-            }
-            else
-            {
-                LL_INFOS() << "Failed to set thread priority: " << std::hex << GetLastError() << LL_ENDL;
-            }
-
-            // tell main thread to prefer core 0
-            SetThreadIdealProcessor(hThread, 0);
-        }
-    }
-#endif
-
 
     mFSAASamples = fsaa_samples;
     mIconResource = gIconResource;
@@ -1069,6 +1036,52 @@ void LLWindowWin32::close()
 bool LLWindowWin32::isValid()
 {
     return (mWindowHandle != NULL);
+}
+
+void LLWindowWin32::setThreadPriorityHigh()
+{
+    // Threads start at normal priority. But this is our main window/rendering thread,
+    // even if window handle belongs to another thread. So we can raise its priority
+    // to ensure better responsiveness and less blocking by lack of resources.
+    HANDLE hThread = GetCurrentThread();
+    if (hThread)
+    {
+        int priority = GetThreadPriority(hThread);
+
+        if (priority == THREAD_PRIORITY_ERROR_RETURN)
+        {
+            LL_WARNS_ONCE("Window") << "Failed to get thread priority: " << std::hex << GetLastError() << LL_ENDL;
+        }
+        else if (priority > THREAD_PRIORITY_HIGHEST)
+        {
+            // At the moment nothing should be setting 'critical' priority,
+            // but if that happens for some reason, we don't want to mess with it.
+            LL_WARNS("Window") << "setThreadPriorityHigh ignored, priority was " << (S32)priority << LL_ENDL;
+        }
+        else if (priority != THREAD_PRIORITY_HIGHEST)
+        {
+            if (SetThreadPriority(hThread, THREAD_PRIORITY_HIGHEST))
+            {
+                LL_DEBUGS("Window") << "Set thread priority to THREAD_PRIORITY_HIGHEST" << LL_ENDL;
+            }
+            else
+            {
+                LL_WARNS("Window") << "Failed to set thread priority: " << std::hex << GetLastError() << LL_ENDL;
+            }
+        }
+    }
+}
+
+void LLWindowWin32::setThreadPriorityNormal()
+{
+    HANDLE hThread = GetCurrentThread();
+    if (hThread)
+    {
+        if (!SetThreadPriority(hThread, THREAD_PRIORITY_NORMAL))
+        {
+            LL_WARNS_ONCE("Window") << "Failed to set thread priority: " << std::hex << GetLastError() << LL_ENDL;
+        }
+    }
 }
 
 bool LLWindowWin32::getVisible()
@@ -3041,19 +3054,31 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // means that the window was un-minimized.
             if (w_param == SIZE_RESTORED && window_imp->mLastSizeWParam != SIZE_RESTORED)
             {
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, true));
+                window_imp->post([=]()
+                {
+                    window_imp->setThreadPriorityHigh();
+                    window_imp->mCallbacks->handleActivate(window_imp, true);
+                });
             }
 
             // handle case of window being maximized from fully minimized state
             if (w_param == SIZE_MAXIMIZED && window_imp->mLastSizeWParam != SIZE_MAXIMIZED)
             {
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, true));
+                window_imp->post([=]()
+                {
+                    window_imp->setThreadPriorityHigh();
+                    window_imp->mCallbacks->handleActivate(window_imp, true);
+                });
             }
 
             // Also handle the minimization case
             if (w_param == SIZE_MINIMIZED && window_imp->mLastSizeWParam != SIZE_MINIMIZED)
             {
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, false));
+                window_imp->post([=]()
+                {
+                    window_imp->setThreadPriorityNormal();
+                    window_imp->mCallbacks->handleActivate(window_imp, false);
+                });
             }
 
             // Actually resize all of our views

@@ -830,6 +830,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderUIBuffer", handleWindowResized);
     setting_setup_signal_listener(gSavedSettings, "RenderDepthOfField", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderFSAAType", handleReleaseGLBufferChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderMotionBlur", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderSpecularResX", handleLUTBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderSpecularResY", handleLUTBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderSpecularExponent", handleLUTBufferChanged);
@@ -861,12 +862,14 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderResolutionDivisor", handleRenderResolutionDivisorChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderReflectionProbeLevel", handleReflectionProbeDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderReflectionProbeDetail", handleReflectionProbeDetailChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderReflectionProbeQuality", handleReflectionProbeDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderReflectionProbeCount", handleReflectionProbeCountChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderReflectionsEnabled", handleReflectionProbeDetailChanged);
 #if LL_DARWIN
     setting_setup_signal_listener(gSavedSettings, "RenderAppleUseMultGL", handleAppleUseMultGLChanged);
 #endif
     setting_setup_signal_listener(gSavedSettings, "RenderScreenSpaceReflections", handleReflectionProbeDetailChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderScreenSpaceReflectionsResolutionMultiplier", handleWindowResized);
     setting_setup_signal_listener(gSavedSettings, "RenderMirrors", handleReflectionProbeDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderHeroProbeResolution", handleHeroProbeResolutionChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderShadowDetail", handleSetShaderChanged);

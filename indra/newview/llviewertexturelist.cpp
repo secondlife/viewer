@@ -1014,6 +1014,38 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         }
 
         imagep->addTextureStats(max_vsize);
+
+        // Derive stream priority channel from face lists.
+        // Map render texture channels to priority channels:
+        //   0 = normal, 1 = diffuse, 2 = specular, 3 = emissive
+        {
+            static const S32 render_to_priority[] = {
+                1,  // DIFFUSE_MAP (0)
+                0,  // NORMAL_MAP / ALTERNATE_DIFFUSE_MAP (1)
+                2,  // SPECULAR_MAP (2)
+                1,  // BASECOLOR_MAP (3)
+                2,  // METALLIC_ROUGHNESS_MAP (4)
+                0,  // GLTF_NORMAL_MAP (5)
+                3,  // EMISSIVE_MAP (6)
+            };
+
+            S32 priority_channel = 1; // default to diffuse
+            for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
+            {
+                if (imagep->getNumFaces(i) > 0)
+                {
+                    priority_channel = llmin(priority_channel, render_to_priority[i]);
+                }
+            }
+
+            static LLCachedControl<LLVector4> channel_priority(gSavedSettings, "TextureChannelPriority",
+                LLVector4(10.0f, 20.0f, 40.0f, 20.0f));
+            F32 factor = llmax(channel_priority().mV[priority_channel], 0.1f);
+            if (factor != 1.0f)
+            {
+                imagep->mMaxVirtualSize /= factor;
+            }
+        }
     }
 
 #if 0
@@ -1096,7 +1128,17 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 
     while (!mCreateTextureList.empty())
     {
-        LLViewerFetchedTexture* imagep = mCreateTextureList.front();
+        // Hold a smart pointer to keep the texture alive throughout processing,
+        // even if side effects (e.g. pipeline rebuilds, GL operations) indirectly
+        // cause other references to be released. (see: #5426)
+        LLPointer<LLViewerFetchedTexture> imagep = mCreateTextureList.front();
+        mCreateTextureList.pop();
+
+        if (!imagep)
+        {
+            continue;
+        }
+
         llassert(imagep->mCreatePending);
 
         // desired discard may change while an image is being decoded. If the texture in VRAM is sufficient
@@ -1121,8 +1163,6 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
             LL_WARNS_ONCE("Texture") << "Texture will be downscaled immediately after loading." << LL_ENDL;
             imagep->scaleDown();
         }
-
-        mCreateTextureList.pop();
 
         if (create_timer.getElapsedTimeF32() > max_time)
         {
@@ -1192,8 +1232,18 @@ F32 LLViewerTextureList::updateImagesLoadingFastCache(F32 max_time)
     LLTimer timer;
     image_list_t::iterator enditer = mFastCacheList.begin();
     {
-        // prelock fast cache mutex to avoid waiting multiple times.
-        LLMutexLock cache_lock(LLAppViewer::getTextureCache()->getFastCacheMutex());
+        // Prelock fast cache mutex to avoid waiting multiple times.
+        LLMutexTrylock fast_cache_lock(LLAppViewer::getTextureCache()->getFastCacheMutex());
+        if (!fast_cache_lock.isLocked())
+        {
+            // Cache is busy, skip this update cycle to avoid blocking the main thread.
+            //
+            // Generally fast cache operations are brief and rare in comparison to writing
+            // main texture body, but if disk is busy, it can get stuck for multiple
+            // seconds, waiting for that long is not practical.
+            // But some variant of a timed try lock for 0.1ms or less might be optimal.
+            return 0.0f;
+        }
         for (image_list_t::iterator iter = mFastCacheList.begin();
             iter != mFastCacheList.end();)
         {

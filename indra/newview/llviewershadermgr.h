@@ -174,6 +174,7 @@ extern LLGLSLShader         gBenchmarkProgram;
 extern LLGLSLShader         gReflectionProbeDisplayProgram;
 extern LLGLSLShader         gCopyProgram;
 extern LLGLSLShader         gCopyDepthProgram;
+extern LLGLSLShader         gHiZReduceProgram;
 extern LLGLSLShader         gPBRTerrainBakeProgram;
 extern LLGLSLShader         gDrawColorProgram;
 
@@ -214,6 +215,12 @@ extern LLGLSLShader         gImpostorProgram;
 // Post Process Shaders
 extern LLGLSLShader         gPostScreenSpaceReflectionProgram;
 
+// SSR Trace
+extern LLGLSLShader         gScreenSpaceReflTraceProgram;
+extern LLGLSLShader         gSSRAlphaProgram;
+extern LLGLSLShader         gSkinnedSSRAlphaProgram;
+extern LLGLSLShader         gSSRWaterProgram;
+
 // Deferred rendering shaders
 extern LLGLSLShader         gDeferredImpostorProgram;
 extern LLGLSLShader         gDeferredDiffuseProgram;
@@ -234,8 +241,10 @@ extern LLGLSLShader         gDeferredSunProbeProgram;
 extern LLGLSLShader         gHazeProgram;
 extern LLGLSLShader         gHazeWaterProgram;
 extern LLGLSLShader         gDeferredBlurLightProgram;
+extern LLGLSLShader         gSSRFilterProgram;
 extern LLGLSLShader         gDeferredAvatarProgram;
 extern LLGLSLShader         gDeferredSoftenProgram;
+extern LLGLSLShader         gDeferredSoftenCubeProgram;
 extern LLGLSLShader         gDeferredShadowProgram;
 extern LLGLSLShader         gDeferredShadowCubeProgram;
 extern LLGLSLShader         gDeferredShadowAlphaMaskProgram;
@@ -249,10 +258,13 @@ extern LLGLSLShader         gFXAAProgram[4];
 extern LLGLSLShader         gSMAAEdgeDetectProgram[4];
 extern LLGLSLShader         gSMAABlendWeightsProgram[4];
 extern LLGLSLShader         gSMAANeighborhoodBlendProgram[4];
+extern LLGLSLShader         gSMAANeighborhoodBlendT2xProgram[4];
+extern LLGLSLShader         gSMAAResolveProgram[4];
 extern LLGLSLShader         gCASProgram;
 extern LLGLSLShader         gCASLegacyGammaProgram;
 extern LLGLSLShader         gDeferredPostNoDoFProgram;
 extern LLGLSLShader         gDeferredPostNoDoFNoiseProgram;
+extern LLGLSLShader         gDeferredMotionBlurProgram;
 extern LLGLSLShader         gDeferredPostGammaCorrectProgram;
 extern LLGLSLShader         gLegacyPostGammaCorrectProgram;
 extern LLGLSLShader         gDeferredPostTonemapProgram;
@@ -326,4 +338,10 @@ enum TerrainPaintType : U32
     TERRAIN_PAINT_TYPE_COUNT                = 2,
 };
 extern LLGLSLShader         gDeferredPBRTerrainProgram[TERRAIN_PAINT_TYPE_COUNT];
+
+extern LLGLSLShader         gVelocityProgram;
+extern LLGLSLShader         gVelocitySkinnedProgram;
+extern LLGLSLShader         gVelocityAlphaProgram;
+extern LLGLSLShader         gVelocityAlphaSkinnedProgram;
+extern LLGLSLShader         gAvatarVelocityProgram;
 #endif

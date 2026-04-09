@@ -209,13 +209,10 @@ F32 LLPipeline::CameraDoFResScale;
 F32 LLPipeline::RenderAutoHideSurfaceAreaLimit;
 bool LLPipeline::RenderScreenSpaceReflections;
 S32 LLPipeline::RenderScreenSpaceReflectionIterations;
-F32 LLPipeline::RenderScreenSpaceReflectionRayStep;
-F32 LLPipeline::RenderScreenSpaceReflectionDistanceBias;
-F32 LLPipeline::RenderScreenSpaceReflectionDepthRejectBias;
-F32 LLPipeline::RenderScreenSpaceReflectionAdaptiveStepMultiplier;
 S32 LLPipeline::RenderScreenSpaceReflectionGlossySamples;
 S32 LLPipeline::RenderBufferVisualization;
 bool LLPipeline::RenderMirrors;
+S32 LLPipeline::RenderMirrorCount;
 S32 LLPipeline::RenderHeroProbeUpdateRate;
 S32 LLPipeline::RenderHeroProbeConservativeUpdateMultiplier;
 bool LLPipeline::RenderAvatarCloth;
@@ -287,6 +284,8 @@ static LLStaticHashedString sKern("kern");
 static LLStaticHashedString sKernScale("kern_scale");
 static LLStaticHashedString sSmaaRTMetrics("SMAA_RT_METRICS");
 
+static LLStaticHashedString sSSRJitterOffset("ssrJitterOffset");
+
 //----------------------------------------
 
 void drawBox(const LLVector4a& c, const LLVector4a& r);
@@ -320,8 +319,10 @@ bool    LLPipeline::sBakeSunlight = false;
 bool    LLPipeline::sNoAlpha = false;
 bool    LLPipeline::sUseFarClip = true;
 bool    LLPipeline::sShadowRender = false;
+bool    LLPipeline::sVelocityRender = false;
 bool    LLPipeline::sRenderGlow = false;
 bool    LLPipeline::sReflectionRender = false;
+bool    LLPipeline::sDefaultProbeRender = false;
 bool    LLPipeline::sDistortionRender = false;
 bool    LLPipeline::sImpostorRender = false;
 bool    LLPipeline::sImpostorRenderAlphaDepthPass = false;
@@ -333,7 +334,9 @@ bool    LLPipeline::sRenderDeferred = false;
 bool    LLPipeline::sReflectionProbesEnabled = false;
 S32     LLPipeline::sVisibleLightCount = 0;
 bool    LLPipeline::sRenderingHUDs;
+bool    LLPipeline::sT2xJitterEnabled = false;
 F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0125f;
+bool    LLPipeline::RenderMotionBlur = false;
 
 // EventHost API LLPipeline listener.
 static LLPipelineListener sPipelineListener;
@@ -593,16 +596,14 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderAutoHideSurfaceAreaLimit");
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflections");
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionIterations");
-    connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionRayStep");
-    connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionDistanceBias");
-    connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionDepthRejectBias");
-    connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionGlossySamples");
     connectRefreshCachedSettingsSafe("RenderBufferVisualization");
     connectRefreshCachedSettingsSafe("RenderMirrors");
+    connectRefreshCachedSettingsSafe("RenderMirrorCount");
     connectRefreshCachedSettingsSafe("RenderHeroProbeUpdateRate");
     connectRefreshCachedSettingsSafe("RenderHeroProbeConservativeUpdateMultiplier");
     connectRefreshCachedSettingsSafe("RenderAvatarCloth");
+    connectRefreshCachedSettingsSafe("RenderMotionBlur");
 
     LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl("CollectFontVertexBuffers");
     if (cntrl_ptr.notNull())
@@ -888,15 +889,24 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
         if (RenderFSAAType > 0)
         {
             if (!mFXAAMap.allocate(resX, resY, GL_RGBA)) return false;
-            if (RenderFSAAType == 2)
+            if (RenderFSAAType == 2 || RenderFSAAType == 3)
             {
                 if (!mSMAABlendBuffer.allocate(resX, resY, GL_RGBA, false)) return false;
+            }
+            if (RenderFSAAType == 3)
+            {
+                if (!mSMAAHistory.allocate(resX, resY, GL_RGBA)) return false;
+            }
+            else
+            {
+                mSMAAHistory.release();
             }
         }
         else
         {
             mFXAAMap.release();
             mSMAABlendBuffer.release();
+            mSMAAHistory.release();
         }
 
         //water reflection texture (always needed as scratch space whether or not transparent water is enabled)
@@ -904,15 +914,55 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
 
         if(RenderScreenSpaceReflections)
         {
-            mSceneMap.allocate(resX, resY, screenFormat, true);
+            mSceneMap.allocate(resX, resY, screenFormat, true, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_AUTO);
+
+            static LLCachedControl<F32> ssrScale(gSavedSettings, "RenderScreenSpaceReflectionsResolutionMultiplier", 1.0f);
+            F32 scale = llclamp((F32)ssrScale, 0.25f, 1.0f);
+            U32 ssrW = (U32)(resX * scale);
+            U32 ssrH = (U32)(resY * scale);
+            bool fullRes = (ssrW == resX && ssrH == resY);
+            // At full res: no own depth, share from deferred (zero-copy).
+            // At reduced res: allocate own depth, blit from deferred before alpha/water passes.
+            mSSRBuffer.allocate(ssrW, ssrH, GL_RGBA16F, !fullRes, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_AUTO);
+
+            // Allocate per-mip temp targets for Gaussian ping-pong (one per mip level > 0)
+            U32 ssrMipLevels = mSSRBuffer.getMipLevels();
+            if (ssrMipLevels > 1 && mSSRMipTemp.empty())
+            {
+                mSSRMipTemp.resize(ssrMipLevels - 1);
+                for (U32 i = 0; i < mSSRMipTemp.size(); ++i)
+                {
+                    U32 mip = i + 1;
+                    U32 w = llmax(1U, ssrW >> mip);
+                    U32 h = llmax(1U, ssrH >> mip);
+                    mSSRMipTemp[i].allocate(w, h, GL_RGBA16F);
+                }
+            }
+
+            if (fullRes)
+            {
+                mRT->deferredScreen.shareDepthBuffer(mSSRBuffer);
+            }
         }
         else
         {
             mSceneMap.release();
+            mSSRBuffer.release();
+            mSSRMipTemp.clear();
         }
 
         mPostPingMap.allocate(resX, resY, GL_RGBA);
         mPostPongMap.allocate(resX, resY, GL_RGBA);
+
+        if (RenderMotionBlur || RenderFSAAType == 3)
+        {
+            mVelocityMap.allocate(resX, resY, GL_RG16F);
+            mRT->deferredScreen.shareDepthBuffer(mVelocityMap);
+        }
+        else
+        {
+            mVelocityMap.release();
+        }
 
         // The water exclusion mask needs its own depth buffer so we can take care of the problem of multiple water planes.
         // Should we ever make water not just a plane, it also aids with that as well as the water planes will be rendered into the mask.
@@ -1125,17 +1175,14 @@ void LLPipeline::refreshCachedSettings()
     CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
     RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");
     RenderScreenSpaceReflections = gSavedSettings.getBOOL("RenderScreenSpaceReflections");
-    RenderScreenSpaceReflectionIterations = gSavedSettings.getS32("RenderScreenSpaceReflectionIterations");
-    RenderScreenSpaceReflectionRayStep = gSavedSettings.getF32("RenderScreenSpaceReflectionRayStep");
-    RenderScreenSpaceReflectionDistanceBias = gSavedSettings.getF32("RenderScreenSpaceReflectionDistanceBias");
-    RenderScreenSpaceReflectionDepthRejectBias = gSavedSettings.getF32("RenderScreenSpaceReflectionDepthRejectBias");
-    RenderScreenSpaceReflectionAdaptiveStepMultiplier = gSavedSettings.getF32("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     RenderScreenSpaceReflectionGlossySamples = gSavedSettings.getS32("RenderScreenSpaceReflectionGlossySamples");
     RenderBufferVisualization = gSavedSettings.getS32("RenderBufferVisualization");
     RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
+    RenderMirrorCount = gSavedSettings.getS32("RenderMirrorCount");
     RenderHeroProbeUpdateRate = gSavedSettings.getS32("RenderHeroProbeUpdateRate");
     RenderHeroProbeConservativeUpdateMultiplier = gSavedSettings.getS32("RenderHeroProbeConservativeUpdateMultiplier");
     RenderAvatarCloth = gSavedSettings.getBOOL("RenderAvatarCloth");
+    RenderMotionBlur = gSavedSettings.getBOOL("RenderMotionBlur");
 
     sReflectionProbesEnabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionsEnabled") && gSavedSettings.getBOOL("RenderReflectionsEnabled");
     RenderSpotLight = nullptr;
@@ -1244,6 +1291,9 @@ void LLPipeline::releaseScreenBuffers()
     mHeroProbeRT.screen.release();
     mHeroProbeRT.deferredScreen.release();
     mHeroProbeRT.deferredLight.release();
+
+    mSSRBuffer.release();
+    mSSRMipTemp.clear();
 }
 
 void LLPipeline::releaseSunShadowTarget(U32 index)
@@ -4115,6 +4165,37 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 
 // Render all of our geometry that's required after our deferred pass.
 // This is gonna be stuff like alpha, water, etc.
+void LLPipeline::renderGeomVelocity()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LL_PROFILE_GPU_ZONE("renderGeomVelocity");
+
+    mVelocityMap.bindTarget();
+    mVelocityMap.clear(GL_COLOR_BUFFER_BIT);
+
+    gGL.setColorMask(true, true);
+    LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+
+    sVelocityRender = true;
+
+    // Each draw pool is responsible for producing its own velocity
+    for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
+    {
+        LLDrawPool* poolp = *iter;
+        S32 num_passes = poolp->getNumVelocityPasses();
+        for (S32 i = 0; i < num_passes; ++i)
+        {
+            poolp->beginVelocityPass(i);
+            poolp->renderVelocity(i);
+            poolp->endVelocityPass(i);
+        }
+    }
+
+    sVelocityRender = false;
+
+    mVelocityMap.flush();
+}
+
 void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
@@ -7161,7 +7242,7 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
 
         static LLCachedControl<bool> use_exposure_sky_settings(gSavedSettings, "RenderUseExposureSkySettings", false);
 
-        if (use_exposure_sky_settings)
+        if (use_exposure_sky_settings && sky->getSkySettingVersion() > 1)
         {
             if (dynamic_exposure_enabled)
             {
@@ -7254,18 +7335,36 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
         shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
 
         static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
-
-        F32 e = llclamp(exposure(), 0.5f, 4.f);
+        static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
+        static LLCachedControl<F32> tonemap_mix_setting(gSavedSettings, "RenderTonemapMix", 1.f);
+        static LLCachedControl<bool> use_env_hdr_settings(gSavedSettings, "RenderHDRUseEnvironmentSettings", false);
 
         static LLStaticHashedString s_exposure("exposure");
         static LLStaticHashedString tonemap_mix("tonemap_mix");
         static LLStaticHashedString tonemap_type("tonemap_type");
 
-        shader->uniform1f(s_exposure, e);
+        // When use_env_hdr_settings is enabled, use environment HDR settings
+        // Otherwise use user's debug settings
+        F32 e;
+        U32 tonemap_type_value;
+        F32 tonemap_mix_value;
 
-        static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
-        shader->uniform1i(tonemap_type, tonemap_type_setting);
-        shader->uniform1f(tonemap_mix, psky->getTonemapMix(should_auto_adjust()));
+        if (use_env_hdr_settings && psky->getSkySettingVersion() > 1)
+        {
+            e = llclamp(psky->getHDROffset(should_auto_adjust()), 0.5f, 4.f);
+            tonemap_type_value = psky->getTonemapper();
+            tonemap_mix_value = psky->getTonemapMix(should_auto_adjust());
+        }
+        else
+        {
+            e = llclamp(exposure(), 0.5f, 4.f);
+            tonemap_type_value = tonemap_type_setting();
+            tonemap_mix_value = tonemap_mix_setting();
+        }
+
+        shader->uniform1f(s_exposure, e);
+        shader->uniform1i(tonemap_type, tonemap_type_value);
+        shader->uniform1f(tonemap_mix, tonemap_mix_value);
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -7304,6 +7403,313 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst)
     dst->flush();
 }
 
+void LLPipeline::renderSSRTrace()
+{
+    if (!RenderScreenSpaceReflections || gCubeSnapshot) return;
+    if (!gScreenSpaceReflTraceProgram.isComplete()) return;
+    if (!mSSRBuffer.isComplete()) return;
+
+    LL_PROFILE_GPU_ZONE("SSR trace");
+
+    gGL.setColorMask(true, true);
+    mSSRBuffer.bindTarget();
+    mSSRBuffer.clear(GL_COLOR_BUFFER_BIT);
+
+    LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+    LLGLDisable blend(GL_BLEND);
+
+    bindDeferredShader(gScreenSpaceReflTraceProgram);
+
+    mScreenTriangleVB->setBuffer();
+    mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+    unbindDeferredShader(gScreenSpaceReflTraceProgram);
+    mSSRBuffer.flush();
+}
+
+void LLPipeline::renderSSRAlpha()
+{
+    if (!RenderScreenSpaceReflections || gCubeSnapshot) return;
+    if (!gSSRAlphaProgram.isComplete()) return;
+    if (!mSSRBuffer.isComplete()) return;
+
+    // If the SSR buffer owns its own depth (reduced resolution), blit the
+    // deferred depth down so alpha/water passes can depth-test correctly.
+    if (mSSRBuffer.getDepth() != 0
+        && mSSRBuffer.getDepth() != mRT->deferredScreen.getDepth())
+    {
+        mSSRBuffer.blitDepthFrom(mRT->deferredScreen);
+    }
+
+    LL_PROFILE_GPU_ZONE("SSR alpha");
+
+    gGL.setColorMask(true, true);
+    mSSRBuffer.bindTarget();
+
+    // Read-only depth test: discard alpha fragments behind opaque geometry
+    LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+    LLGLDisable blend(GL_BLEND);
+
+    // Identity texture transform for legacy materials
+    static const F32 sIdentityTransform[8] = { 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
+
+    const LLVOAvatar* lastAvatar = nullptr;
+    U64 lastMeshId = 0;
+    bool skipLastSkin = false;
+
+    for (int pass = 0; pass < 2; ++pass)
+    {
+        bool rigged = (pass == 1);
+
+        LLGLSLShader* shader = &gSSRAlphaProgram;
+        if (rigged && shader->mRiggedVariant)
+        {
+            shader = shader->mRiggedVariant;
+        }
+
+        // Bind shader once per pass, then use fast path for re-syncing
+        bindDeferredShader(*shader);
+        shader->mCanBindFast = true;
+
+        LLCullResult::sg_iterator begin;
+        LLCullResult::sg_iterator end;
+
+        if (rigged)
+        {
+            begin = beginRiggedAlphaGroups();
+            end = endRiggedAlphaGroups();
+        }
+        else
+        {
+            begin = beginAlphaGroups();
+            end = endAlphaGroups();
+        }
+
+        for (LLCullResult::sg_iterator i = begin; i != end; ++i)
+        {
+            LLSpatialGroup* group = *i;
+            if (!group || group->isDead()) continue;
+            if (!group->getSpatialPartition()->mRenderByGroup) continue;
+
+            U32 passType = rigged ? LLRenderPass::PASS_ALPHA_RIGGED : LLRenderPass::PASS_ALPHA;
+            LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[passType];
+
+            for (auto k = draw_info.begin(); k != draw_info.end(); ++k)
+            {
+                LLDrawInfo& params = **k;
+                if ((bool)params.mAvatar != rigged)
+                {
+                    continue;
+                }
+
+                LLRenderPass::applyModelMatrix(params);
+                bindDeferredShaderFast(*shader);
+
+                bool tex_setup = false;
+
+                if (params.mGLTFMaterial)
+                {
+                    // PBR: bind all material textures and uniforms
+                    // (diffuseMap, specularMap/ORM, bumpMap, emissiveMap,
+                    //  roughnessFactor, texture transforms, etc.)
+                    LLGLDisable cull_face(params.mGLTFMaterial->mDoubleSided ? GL_CULL_FACE : 0);
+                    params.mGLTFMaterial->bind(params.mTexture);
+
+                    // Handle texture animation (LSL texture anim on PBR objects)
+                    if (params.mTextureMatrix)
+                    {
+                        tex_setup = true;
+                        gGL.getTexUnit(0)->activate();
+                        gGL.matrixMode(LLRender::MM_TEXTURE);
+                        gGL.loadMatrix((GLfloat*)params.mTextureMatrix->mMatrix);
+                    }
+                }
+                else
+                {
+                    // Legacy: bind diffuse texture for alpha sampling
+                    if (params.mTexture.notNull())
+                    {
+                        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, params.mTexture);
+                    }
+                    else
+                    {
+                        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, LLViewerFetchedTexture::sWhiteImagep);
+                    }
+
+                    // Legacy: bind white for ORM so shader reads roughness=1.0 from green channel,
+                    // making final roughness = roughness_factor directly
+                    shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
+
+                    // Legacy glossiness from specular color alpha
+                    F32 roughness = 1.0f - params.mSpecColor.mV[3];
+                    shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, roughness);
+
+                    // Identity PBR texture transforms for legacy materials
+                    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, sIdentityTransform);
+                    shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, sIdentityTransform);
+                    shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, -1.0f);
+
+                    // Handle legacy texture matrix (texture animation)
+                    if (params.mTextureMatrix)
+                    {
+                        tex_setup = true;
+                        gGL.getTexUnit(0)->activate();
+                        gGL.matrixMode(LLRender::MM_TEXTURE);
+                        gGL.loadMatrix((GLfloat*)params.mTextureMatrix->mMatrix);
+                    }
+                }
+
+                if (rigged)
+                {
+                    LLRenderPass::uploadMatrixPalette(params.mAvatar, params.mSkinInfo,
+                        lastAvatar, lastMeshId, skipLastSkin);
+                }
+
+                params.mVertexBuffer->setBuffer();
+                params.mVertexBuffer->drawRange(LLRender::TRIANGLES,
+                    params.mStart, params.mEnd, params.mCount, params.mOffset);
+
+                if (tex_setup)
+                {
+                    gGL.getTexUnit(0)->activate();
+                    gGL.matrixMode(LLRender::MM_TEXTURE);
+                    gGL.loadIdentity();
+                    gGL.matrixMode(LLRender::MM_MODELVIEW);
+                }
+            }
+        }
+
+        unbindDeferredShader(*shader);
+    }
+
+    mSSRBuffer.flush();
+
+    // Reset modelview to camera-only — applyModelMatrix leaves a stale
+    // object transform that would corrupt light volume positions in
+    // renderDeferredLighting (the point light vertex shader multiplies by
+    // modelview_projection_matrix via syncMatrices).
+    gGLLastMatrix = NULL;
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.loadMatrix(gGLModelView);
+}
+
+void LLPipeline::renderSSRWater()
+{
+    if (!RenderScreenSpaceReflections || gCubeSnapshot) return;
+    if (!gSSRWaterProgram.isComplete()) return;
+    if (!mSSRBuffer.isComplete()) return;
+
+    LLDrawPool* pool = findPool(LLDrawPool::POOL_WATER);
+    if (!pool) return;
+
+    LL_PROFILE_GPU_ZONE("SSR water");
+
+    gGL.setColorMask(true, true);
+    mSSRBuffer.bindTarget();
+
+    // Read-only depth test: discard water fragments behind opaque geometry.
+    // Treat water as opaque in the SSR buffer.
+    LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+    LLGLDisable blend(GL_BLEND);
+
+    static_cast<LLDrawPoolWater*>(pool)->renderSSR();
+
+    mSSRBuffer.flush();
+
+    // Same matrix reset as renderSSRAlpha — water geometry may leave a stale
+    // modelview that would corrupt light volume positions in deferred lighting.
+    gGLLastMatrix = NULL;
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.loadMatrix(gGLModelView);
+}
+
+void LLPipeline::filterSSRBuffer()
+{
+    if (!RenderScreenSpaceReflections || gCubeSnapshot) return;
+    if (!mSSRBuffer.isComplete()) return;
+    if (!gGaussianProgram.isComplete()) return;
+
+    LL_PROFILE_GPU_ZONE("SSR mip chain");
+
+    U32 mipLevels = mSSRBuffer.getMipLevels();
+    if (mipLevels <= 1) return;
+    if (mSSRMipTemp.empty()) return;
+
+    LLGLDisable blend(GL_BLEND);
+    LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+
+    // Identity matrices for screen-space rendering (same as probe manager)
+    gGL.matrixMode(gGL.MM_MODELVIEW);
+    gGL.pushMatrix();
+    gGL.loadIdentity();
+
+    gGL.matrixMode(gGL.MM_PROJECTION);
+    gGL.pushMatrix();
+    gGL.loadIdentity();
+
+    gGL.flush();
+
+    static LLStaticHashedString resScale("resScale");
+    static LLStaticHashedString direction("direction");
+
+    static LLCachedControl<F32> ssrFilterScale(gSavedSettings, "RenderScreenSpaceReflectionsFilterScale", 2.0f);
+
+    gGaussianProgram.bind();
+    S32 diffuseChannel = gGaussianProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+
+    for (U32 m = 1; m < mipLevels && (m - 1) < mSSRMipTemp.size(); m++)
+    {
+        LL_PROFILE_GPU_ZONE("SSR mip blur");
+
+        LLRenderTarget& temp = mSSRMipTemp[m - 1];
+        S32 srcW = llmax(1, (S32)(mSSRBuffer.getWidth() >> (m - 1)));
+        S32 srcH = llmax(1, (S32)(mSSRBuffer.getHeight() >> (m - 1)));
+
+        // Horizontal pass: read SSR mip m-1, write to temp (at mip m resolution)
+        gGaussianProgram.uniform1f(resScale, (F32)ssrFilterScale / (F32)srcW);
+        gGaussianProgram.uniform2f(direction, 1.f, 0.f);
+
+        gGL.getTexUnit(diffuseChannel)->bind(&mSSRBuffer);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, m - 1);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, m - 1);
+
+        temp.bindTarget();
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+        temp.flush();
+
+        // Vertical pass: read temp, write to SSR mip m (same resolution as temp)
+        gGaussianProgram.uniform1f(resScale, (F32)ssrFilterScale / (F32)temp.getHeight());
+        gGaussianProgram.uniform2f(direction, 0.f, 1.f);
+
+        gGL.getTexUnit(diffuseChannel)->bind(&temp);
+
+        mSSRBuffer.bindColorMipLevel(m);
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+    }
+
+    // Restore SSR buffer state
+    gGL.getTexUnit(diffuseChannel)->bind(&mSSRBuffer);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipLevels - 1);
+    mSSRBuffer.resetColorMipLevel();
+
+    // bindColorMipLevel bypasses the RT stack (direct glBindFramebuffer),
+    // so we must manually unbind the FBO here to avoid corrupting GL state
+    // for renderDeferredLighting.
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    LLRenderTarget::sCurFBO = 0;
+
+    gGaussianProgram.unbind();
+
+    gGL.matrixMode(gGL.MM_PROJECTION);
+    gGL.popMatrix();
+
+    gGL.matrixMode(gGL.MM_MODELVIEW);
+    gGL.popMatrix();
+}
+
 void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst)
 {
 
@@ -7323,12 +7729,58 @@ void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget*
 
         gGL.getTexUnit(diff_map)->bind(src);
         gGL.getTexUnit(depth_map)->bind(&depth_src, true);
+        gGL.getTexUnit(depth_map)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
         dst->flush();
     }
+}
+
+void LLPipeline::buildHiZBuffer()
+{
+    if (!RenderScreenSpaceReflections || gCubeSnapshot) return;
+
+    LL_PROFILE_GPU_ZONE("build Hi-Z");
+
+    S32 mipLevels = mSceneMap.getMipLevels();
+    if (mipLevels <= 1) return;
+
+    LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
+
+    gHiZReduceProgram.bind();
+
+    static LLStaticHashedString sHiZSrcLevel("srcLevel");
+
+    // Bind mSceneMap's own depth as the read source
+    gHiZReduceProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mSceneMap, true, LLTexUnit::TFO_POINT);
+
+    for (S32 level = 1; level < mipLevels; level++)
+    {
+        // Restrict readable mip range to [0, level-1] to avoid feedback
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, level - 1);
+
+        gHiZReduceProgram.uniform1i(sHiZSrcLevel, level - 1);
+
+        mSceneMap.bindDepthMipLevel(level);
+
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+    }
+
+    // Restore full mip range and mip 0 binding
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipLevels - 1);
+    mSceneMap.resetDepthMipLevel();
+
+    // bindDepthMipLevel bypasses the RT stack (direct glBindFramebuffer),
+    // so we must manually unbind the FBO here.
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    LLRenderTarget::sCurFBO = 0;
+
+    gHiZReduceProgram.unbind();
 }
 
 void LLPipeline::generateGlow(LLRenderTarget* src)
@@ -7584,7 +8036,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
 {
     llassert(!gCubeSnapshot);
-    bool multisample = RenderFSAAType == 2 && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
+    bool multisample = (RenderFSAAType == 2 || RenderFSAAType == 3) && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
 
     // Present everything.
     if (multisample)
@@ -7658,6 +8110,21 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
             blend_weights_shader.bind();
             blend_weights_shader.uniform4fv(sSmaaRTMetrics, 1, rt_metrics);
 
+            // T2x subsample indices: alternates between (1,1,1,0) and (2,2,2,0) each frame
+            float subsample[4] = {0.f, 0.f, 0.f, 0.f};
+            if (RenderFSAAType == 3)
+            {
+                if (mSMAAFrameIndex & 1)
+                {
+                    subsample[0] = 2.f; subsample[1] = 2.f; subsample[2] = 2.f; subsample[3] = 0.f;
+                }
+                else
+                {
+                    subsample[0] = 1.f; subsample[1] = 1.f; subsample[2] = 1.f; subsample[3] = 0.f;
+                }
+            }
+            blend_weights_shader.uniform4fv(LLShaderMgr::SMAA_SUBSAMPLE_INDICES, 1, subsample);
+
             S32 edge_tex_channel = blend_weights_shader.enableTexture(LLShaderMgr::SMAA_EDGE_TEX, mFXAAMap.getUsage());
             if (edge_tex_channel > -1)
             {
@@ -7703,9 +8170,8 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
 {
     LL_PROFILE_GPU_ZONE("SMAA");
     llassert(!gCubeSnapshot);
-    bool multisample = RenderFSAAType == 2 && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
+    bool multisample = (RenderFSAAType == 2 || RenderFSAAType == 3) && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
 
-    // Present everything.
     if (multisample)
     {
         static LLCachedControl<U32> aa_quality(gSavedSettings, "RenderFSAASamples", 0U);
@@ -7718,15 +8184,11 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
 
         LLGLDepthTest    depth(GL_FALSE, GL_FALSE);
 
-        static LLCachedControl<bool> use_sample(gSavedSettings, "RenderSMAAUseSample", false);
-        //static LLCachedControl<bool> use_stencil(gSavedSettings, "RenderSMAAUseStencil", true);
-
         {
-            //LLGLDisable stencil(GL_STENCIL_TEST);
-
-            // Bind setup:
             LLRenderTarget* bound_target = dst;
-            LLGLSLShader& blend_shader = gSMAANeighborhoodBlendProgram[fsaa_quality];
+            LLGLSLShader& blend_shader = (RenderFSAAType == 3)
+                ? gSMAANeighborhoodBlendT2xProgram[fsaa_quality]
+                : gSMAANeighborhoodBlendProgram[fsaa_quality];
 
             bound_target->bindTarget();
             bound_target->clear(GL_COLOR_BUFFER_BIT);
@@ -7747,6 +8209,15 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
                 mSMAABlendBuffer.bindTexture(0, blend_channel, LLTexUnit::TFO_BILINEAR);
             }
 
+            if (RenderFSAAType == 3)
+            {
+                S32 vel_channel = blend_shader.enableTexture(LLShaderMgr::SMAA_VELOCITY_TEX);
+                if (vel_channel > -1)
+                {
+                    mVelocityMap.bindTexture(0, vel_channel, LLTexUnit::TFO_BILINEAR);
+                }
+            }
+
             mScreenTriangleVB->setBuffer();
             mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
@@ -7760,6 +8231,49 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
     {
         copyRenderTarget(src, dst);
     }
+}
+
+void LLPipeline::resolveSMAAT2x(LLRenderTarget* src, LLRenderTarget* dst)
+{
+    LL_PROFILE_GPU_ZONE("SMAA T2x Resolve");
+
+    static LLCachedControl<U32> aa_quality(gSavedSettings, "RenderFSAASamples", 0U);
+    U32 q = std::clamp(aa_quality(), 0U, 3U);
+
+    dst->bindTarget();
+
+    LLGLSLShader& shader = gSMAAResolveProgram[q];
+    shader.bind();
+
+    S32 cur_ch = shader.enableTexture(LLShaderMgr::SMAA_CURRENT_COLOR_TEX);
+    if (cur_ch > -1)
+    {
+        src->bindTexture(0, cur_ch, LLTexUnit::TFO_POINT);
+    }
+
+    S32 prev_ch = shader.enableTexture(LLShaderMgr::SMAA_PREVIOUS_COLOR_TEX);
+    if (prev_ch > -1)
+    {
+        mSMAAHistory.bindTexture(0, prev_ch, LLTexUnit::TFO_POINT);
+    }
+
+    S32 vel_ch = shader.enableTexture(LLShaderMgr::SMAA_VELOCITY_TEX);
+    if (vel_ch > -1)
+    {
+        mVelocityMap.bindTexture(0, vel_ch, LLTexUnit::TFO_BILINEAR);
+    }
+
+    mScreenTriangleVB->setBuffer();
+    mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+    shader.unbind();
+    dst->flush();
+
+    // Save the current SMAA'd frame (not the resolved output) to history.
+    // The resolve blends current and previous SMAA outputs — if we stored
+    // the resolved result, it would create exponential decay instead of a
+    // true 50/50 blend between the two jitter samples.
+    copyRenderTarget(src, &mSMAAHistory);
 }
 
 void LLPipeline::copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst)
@@ -7801,6 +8315,28 @@ void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
     }
 
+    dst->flush();
+}
+
+void LLPipeline::renderMotionBlurComposite(LLRenderTarget* src, LLRenderTarget* dst)
+{
+    LL_PROFILE_GPU_ZONE("motion blur");
+
+    dst->bindTarget();
+
+    gDeferredMotionBlurProgram.bind();
+    gDeferredMotionBlurProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src);
+    gDeferredMotionBlurProgram.bindTexture(LLShaderMgr::DEFERRED_VELOCITY, &mVelocityMap);
+    gDeferredMotionBlurProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES,
+        (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
+
+    static LLCachedControl<S32> blur_strength(gSavedSettings, "RenderMotionBlurStrength", 32);
+    gDeferredMotionBlurProgram.uniform1i(LLShaderMgr::MOTION_BLUR_STRENGTH, blur_strength);
+
+    mScreenTriangleVB->setBuffer();
+    mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+    gDeferredMotionBlurProgram.unbind();
     dst->flush();
 }
 
@@ -8023,8 +8559,6 @@ void LLPipeline::renderFinalize()
     bool hdr = gGLManager.mGLVersion > 4.05f && has_hdr();
     if (hdr)
     {
-        copyScreenSpaceReflections(&mRT->screen, &mSceneMap);
-
         generateLuminance(&mRT->screen, &mLuminanceMap);
 
         generateExposure(&mLuminanceMap, &mExposureMap);
@@ -8055,6 +8589,12 @@ void LLPipeline::renderFinalize()
     combineGlow(sourceBuffer, targetBuffer);
     std::swap(sourceBuffer, targetBuffer);
 
+    if (RenderMotionBlur && !gCubeSnapshot)
+    {
+        renderMotionBlurComposite(sourceBuffer, targetBuffer);
+        std::swap(sourceBuffer, targetBuffer);
+    }
+
     gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
     gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
     gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
@@ -8079,6 +8619,17 @@ void LLPipeline::renderFinalize()
         generateSMAABuffers(sourceBuffer);
         applySMAA(sourceBuffer, targetBuffer);
         std::swap(sourceBuffer, targetBuffer);
+    }
+    else if (RenderFSAAType == 3)
+    {
+        generateSMAABuffers(sourceBuffer);
+        applySMAA(sourceBuffer, targetBuffer);
+        std::swap(sourceBuffer, targetBuffer);
+
+        resolveSMAAT2x(sourceBuffer, targetBuffer);
+        std::swap(sourceBuffer, targetBuffer);
+
+        mSMAAFrameIndex ^= 1;
     }
 
     if (RenderBufferVisualization > -1)
@@ -8107,6 +8658,22 @@ void LLPipeline::renderFinalize()
             if (RenderFSAAType == 2)
             {
                 visualizeBuffers(&mSMAABlendBuffer, sourceBuffer, 0);
+            }
+            break;
+        }
+        case 7:
+        {
+            if (RenderMotionBlur)
+            {
+                visualizeBuffers(&mVelocityMap, sourceBuffer, 0);
+            }
+            break;
+        }
+        case 8:
+        {
+            if (mSSRBuffer.isComplete())
+            {
+                visualizeBuffers(&mSSRBuffer, sourceBuffer, 0);
             }
             break;
         }
@@ -8593,7 +9160,8 @@ void LLPipeline::renderDeferredLighting()
 
         if (RenderDeferredAtmospheric)
         {  // apply sunlight contribution
-            LLGLSLShader &soften_shader = gDeferredSoftenProgram;
+            // Use cube snapshot variant shader when rendering to reflection probes
+            LLGLSLShader &soften_shader = gCubeSnapshot ? gDeferredSoftenCubeProgram : gDeferredSoftenProgram;
 
             LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - atmospherics");
             LL_PROFILE_GPU_ZONE("atmospherics");
@@ -8613,6 +9181,12 @@ void LLPipeline::renderDeferredLighting()
             soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
 
             soften_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, LLDrawPoolAlpha::sWaterPlane.mV);
+
+            // Pass default_probe_render flag when rendering to reflection probes
+            if (gCubeSnapshot)
+            {
+                soften_shader.uniform1i(LLShaderMgr::DEFAULT_PROBE_RENDER, LLPipeline::sDefaultProbeRender ? 1 : 0);
+            }
 
             {
                 LLGLDepthTest depth(GL_FALSE);
@@ -8918,8 +9492,15 @@ void LLPipeline::renderDeferredLighting()
                           LLPipeline::RENDER_TYPE_WATEREXCLUSION,
                           END_RENDER_TYPES);
 
+        mInForwardAlphaPass = true;
         renderGeomPostDeferred(*LLViewerCamera::getInstance());
+        mInForwardAlphaPass = false;
         popRenderTypeMask();
+    }
+
+    if ((RenderMotionBlur || RenderFSAAType == 3) && !gCubeSnapshot)
+    {
+        renderGeomVelocity();
     }
 
     screen_target->flush();
@@ -9350,34 +9931,111 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
         setEnvMat(shader);
     }
 
-    // reflection probe shaders generally sample the scene map as well for SSR
-    channel = shader.enableTexture(LLShaderMgr::SCENE_MAP);
-    if (channel > -1)
+
+    if (RenderScreenSpaceReflections)
     {
-        gGL.getTexUnit(channel)->bind(&mSceneMap);
+        // Determine if this shader is performing the SSR trace (needs previous
+        // frame scene map + trace uniforms) or reading pre-computed SSR results
+        // from the SSR buffer.  Forward alpha shaders also need trace bindings
+        // so transparent surfaces can trace their own SSR inline rather than
+        // reading incorrect opaque-surface SSR from the pre-computed buffer.
+        bool inSSRTracePass = (&shader == &gScreenSpaceReflTraceProgram)
+                           || (&shader == &gSSRAlphaProgram)
+                           || (&shader == &gSkinnedSSRAlphaProgram)
+                           || (&shader == &gSSRWaterProgram)
+                           || (mInForwardAlphaPass && &shader != &gWaterProgram);
+
+        channel = shader.enableTexture(LLShaderMgr::SCENE_MAP);
+        if (channel > -1)
+        {
+            if (inSSRTracePass)
+            {
+                // Trace pass: bind previous frame's lit scene for ray marching
+                gGL.getTexUnit(channel)->bind(&mSceneMap);
+            }
+            else if (mSSRBuffer.isComplete() && !gCubeSnapshot)
+            {
+                // Lighting pass: bind pre-computed SSR buffer with trilinear for mip sampling
+                gGL.getTexUnit(channel)->bind(&mSSRBuffer);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+                // Pass mip scale for roughness -> mip level mapping
+                static LLStaticHashedString sSsrMipScale("ssrMipScale");
+                shader.uniform1f(sSsrMipScale, (float)(mSSRBuffer.getMipLevels() - 1));
+            }
+            else
+            {
+                // Fallback / cube snapshot: bind scene map (probes should not
+                // see the main camera's SSR buffer)
+                gGL.getTexUnit(channel)->bind(&mSceneMap);
+            }
+        }
+
+        if (inSSRTracePass)
+        {
+            // Set all SSR trace uniforms (only needed for trace shaders)
+            static LLCachedControl<S32> traceIterations(gSavedSettings, "RenderScreenSpaceReflectionIterations");
+            static LLCachedControl<F32> traceMaxThickness(gSavedSettings, "RenderScreenSpaceReflectionMaxThickness");
+            static LLCachedControl<F32> traceDepthBias(gSavedSettings, "RenderScreenSpaceReflectionDepthBias");
+            static LLCachedControl<F32> traceMaxDepth(gSavedSettings, "RenderScreenSpaceReflectionMaxDepth");
+            static LLCachedControl<F32> traceMaxRoughness(gSavedSettings, "RenderScreenSpaceReflectionMaxRoughness");
+
+            shader.uniform1i(LLShaderMgr::DEFERRED_SSR_ITR_COUNT, traceIterations);
+            shader.uniform1f(LLShaderMgr::DEFERRED_SSR_MAX_THICKNESS, traceMaxThickness);
+            shader.uniform1f(LLShaderMgr::DEFERRED_SSR_DEPTH_BIAS, traceDepthBias);
+            shader.uniform1f(LLShaderMgr::DEFERRED_SSR_GLOSSY_SAMPLES, (GLfloat)RenderScreenSpaceReflectionGlossySamples);
+
+            // Only advance the Poisson noise offset for the dedicated SSR trace
+            // programs — not for every forward alpha bind.  Otherwise the offset
+            // increments hundreds of times per frame (once per alpha draw call),
+            // with the count varying by what's visible, destabilizing the noise
+            // seed between frames and causing SSR to flicker.
+            bool isSSRTraceProgram = (&shader == &gScreenSpaceReflTraceProgram)
+                                  || (&shader == &gSSRAlphaProgram)
+                                  || (&shader == &gSkinnedSSRAlphaProgram)
+                                  || (&shader == &gSSRWaterProgram);
+            if (isSSRTraceProgram)
+            {
+                mPoissonOffset++;
+                if (mPoissonOffset > 128 - RenderScreenSpaceReflectionGlossySamples)
+                    mPoissonOffset = 0;
+            }
+
+            shader.uniform1f(LLShaderMgr::DEFERRED_SSR_NOISE_SINE, (GLfloat)mPoissonOffset);
+            shader.uniform1f(LLShaderMgr::DEFERRED_SSR_MAX_Z, traceMaxDepth());
+            shader.uniform1f(LLShaderMgr::DEFERRED_SSR_MAX_ROUGHNESS, traceMaxRoughness());
+
+            // Compute jitter compensation for SMAA T2x.
+            // mSceneMap was rendered with the previous frame's jittered projection.
+            // SSR projects positions using the current frame's projection.
+            // Correct the UV offset so mSceneMap lookups hit the right texels.
+            float jitterOffsetX = 0.f;
+            float jitterOffsetY = 0.f;
+            if (sT2xJitterEnabled)
+            {
+                static const float jitters[2][2] = {
+                    { 0.25f, -0.25f },
+                    {-0.25f,  0.25f },
+                };
+                U32 curIdx  = mSMAAFrameIndex & 1;
+                U32 prevIdx = curIdx ^ 1;
+                float width  = (float)gViewerWindow->getWorldViewWidthRaw();
+                float height = (float)gViewerWindow->getWorldViewHeightRaw();
+                jitterOffsetX = (jitters[curIdx][0] - jitters[prevIdx][0]) / width;
+                jitterOffsetY = (jitters[curIdx][1] - jitters[prevIdx][1]) / height;
+            }
+            shader.uniform2f(sSSRJitterOffset, jitterOffsetX, jitterOffsetY);
+
+            channel = shader.enableTexture(LLShaderMgr::SCENE_DEPTH);
+            if (channel > -1)
+            {
+                gGL.getTexUnit(channel)->bind(&mSceneMap, true);
+            }
+
+            static LLStaticHashedString sHiZMipCount("hizMipCount");
+            shader.uniform1i(sHiZMipCount, (GLint)mSceneMap.getMipLevels());
+        }
     }
-
-
-    shader.uniform1f(LLShaderMgr::DEFERRED_SSR_ITR_COUNT, (GLfloat)RenderScreenSpaceReflectionIterations);
-    shader.uniform1f(LLShaderMgr::DEFERRED_SSR_DIST_BIAS, RenderScreenSpaceReflectionDistanceBias);
-    shader.uniform1f(LLShaderMgr::DEFERRED_SSR_RAY_STEP, RenderScreenSpaceReflectionRayStep);
-    shader.uniform1f(LLShaderMgr::DEFERRED_SSR_GLOSSY_SAMPLES, (GLfloat)RenderScreenSpaceReflectionGlossySamples);
-    shader.uniform1f(LLShaderMgr::DEFERRED_SSR_REJECT_BIAS, RenderScreenSpaceReflectionDepthRejectBias);
-    mPoissonOffset++;
-
-    if (mPoissonOffset > 128 - RenderScreenSpaceReflectionGlossySamples)
-        mPoissonOffset = 0;
-
-    shader.uniform1f(LLShaderMgr::DEFERRED_SSR_NOISE_SINE, (GLfloat)mPoissonOffset);
-    shader.uniform1f(LLShaderMgr::DEFERRED_SSR_ADAPTIVE_STEP_MULT, RenderScreenSpaceReflectionAdaptiveStepMultiplier);
-
-    channel = shader.enableTexture(LLShaderMgr::SCENE_DEPTH);
-    if (channel > -1)
-    {
-        gGL.getTexUnit(channel)->bind(&mSceneMap, true);
-    }
-
-
 }
 
 void LLPipeline::unbindReflectionProbes(LLGLSLShader& shader)

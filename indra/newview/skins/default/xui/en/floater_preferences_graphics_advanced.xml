@@ -428,6 +428,10 @@
           label="SMAA"
           name="SMAA"
           value="2" />
+        <combo_box.item
+          label="SMAA T2x"
+          name="SMAA T2x"
+          value="3" />
     </combo_box>
   <text
     type="string"
@@ -768,19 +772,46 @@
        value="2"/>
   </combo_box>
 
-  <check_box
-    control_name="RenderScreenSpaceReflections"
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
     height="16"
-    initial_value="true"
-    label="Screen Space Reflections"
     layout="topleft"
     left="420"
-    name="ScreenSpaceReflections"
+    name="ReflectionsQualityText"
+    text_readonly_color="LabelDisabledColor"
     top_delta="24"
-    width="240">
-    <check_box.commit_callback
-      function="Pref.RenderOptionUpdate" />
-  </check_box>
+    width="128">
+    Reflections Quality:
+  </text>
+
+  <combo_box
+   height="18"
+   layout="topleft"
+   left_delta="130"
+   top_delta="0"
+   name="ReflectionsQuality"
+   width="150">
+    <combo_box.item
+      label="Low"
+      name="0"
+      value="0"/>
+    <combo_box.item
+      label="Medium"
+      name="1"
+      value="1"/>
+    <combo_box.item
+      label="High"
+      name="2"
+      value="2"/>
+    <combo_box.item
+      label="Ultra"
+      name="3"
+      value="3"/>
+    <combo_box.commit_callback
+      function="Pref.UpdateReflectionsQuality" />
+  </combo_box>
   
   <text
     type="string"
@@ -923,20 +954,6 @@
   </slider>
 
   <!-- Mirror settings. -->
-  <check_box
-    control_name="RenderMirrors"
-    height="16"
-    initial_value="false"
-    label="Mirrors"
-    layout="topleft"
-    left="420"
-    name="Mirrors"
-    top_delta="22"
-    width="240">
-    <check_box.commit_callback
-      function="Pref.RenderOptionUpdate" />
-  </check_box>
-
   <text
     type="string"
     length="1"
@@ -1038,6 +1055,17 @@
   </slider>
   <!-- End of Sharpening Settings-->
   <!-- Tone Mapping Settings -->
+  <check_box
+    control_name="RenderHDRUseEnvironmentSettings"
+    follows="left|top"
+    height="16"
+    label="Use Environment HDR Settings"
+    layout="topleft"
+    left="420"
+    name="UseEnvHDRSettings"
+    tool_tip="When available, use post process settings from the environment"
+    top_delta="25"
+    width="260"/>
   <text
     type="string"
     length="1"
@@ -1047,7 +1075,7 @@
     left="420"
     name="TonemapTypeText"
     text_readonly_color="LabelDisabledColor"
-    top_delta="25"
+    top_delta="20"
     width="128">
     Tone Mapper:
   </text>
@@ -1089,6 +1117,18 @@
   </slider>
   <!-- End of Tone Mapping Settings-->
   <!-- End of Advanced Settings block -->
+  
+  <check_box
+    control_name="RenderMotionBlur"
+    height="16"
+    initial_value="false"
+    label="Motionblur"
+    layout="topleft"
+    left="420"
+    name="Motionblur"
+    top_delta="22"
+    width="240">
+    </check_box>
 	<view_border
       bevel_style="in"
       height="0"

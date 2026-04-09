@@ -1253,7 +1253,35 @@ void LLVOVolume::updateSculptTexture()
 
 void LLVOVolume::updateVisualComplexity()
 {
-    LLVOAvatar* avatar = getAvatarAncestor();
+    LLVOAvatar* avatar = nullptr;
+    LLViewerObject* pobj = (LLViewerObject*)getParent();
+    LLViewerObject* lobj = this;
+    while (pobj)
+    {
+        avatar = pobj->asAvatar();
+        if (avatar)
+        {
+            break;
+        }
+        lobj = pobj;
+        pobj = (LLViewerObject*)pobj->getParent();
+    }
+
+    if (avatar)
+    {
+        // mark parent as dirty, complexity will be updated recursively.
+        avatar->markAttachmentComplexityDirty(lobj->getID());
+    }
+    LLVOAvatar* rigged_avatar = getAvatar();
+    if (rigged_avatar && (rigged_avatar != avatar))
+    {
+        // This might be wrong. Control avatars update each run,
+        // due to lack of dirty mechanics, and this might be
+        // where we should implement and call
+        // markControlAvatarComplexityDirty() if !isAttachment().
+        rigged_avatar->markAttachmentComplexityDirty(lobj->getID());
+    }
+    /*LLVOAvatar* avatar = getAvatarAncestor();
     if (avatar)
     {
         avatar->updateVisualComplexity();
@@ -1262,7 +1290,7 @@ void LLVOVolume::updateVisualComplexity()
     if(rigged_avatar && (rigged_avatar != avatar))
     {
         rigged_avatar->updateVisualComplexity();
-    }
+    }*/
 }
 
 void LLVOVolume::notifyMeshLoaded()
@@ -5496,6 +5524,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         draw_vec.push_back(draw_info);
         draw_info->mTextureMatrix = tex_mat;
         draw_info->mModelMatrix = model_mat;
+        draw_info->mLastModelMatrix = &drawable->mLastVelocityMatrix;
 
         draw_info->mBump  = bump;
         draw_info->mShiny = shiny;
@@ -5983,7 +6012,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                                     bool should_render = true;
                                     if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
                                     {
-                                        if (gltf_mat->mBaseColor.mV[3] == 0.0f)
+                                        if (gltf_mat->mBaseColor.mV[3] == 0.0f && !LLDrawPoolAlpha::sShowDebugAlpha)
                                         {
                                             should_render = false;
                                         }

@@ -35,6 +35,10 @@ uniform sampler2D specularMap; // PBR: Packed: Occlusion, Metal, Roughness
 uniform float metallicFactor;
 uniform float roughnessFactor;
 uniform vec3 emissiveColor;
+uniform float specularFactor;
+uniform vec3 specularColorFactor;
+uniform float emissiveStrength;
+uniform float ior;
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
 uniform sampler2D lightMap;
@@ -94,11 +98,11 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
 void mirrorClip(vec3 pos);
 void waterClip(vec3 pos);
 
-void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
+void calcDiffuseSpecular(vec3 baseColor, float metallic, float specularFactor, vec3 specularColorFactor, float ior, inout vec3 diffuseColor, inout vec3 specularColor, inout float specularWeight);
 
 vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
-                  float metallic,
+                  float specularWeight,
                   vec3 pos,
                   vec3 norm,
                   float perceptualRoughness,
@@ -114,7 +118,7 @@ vec3 pbrBaseLight(vec3 diffuseColor,
 
 vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
-                    float metallic,
+                    float specularWeight,
                     vec3 n, // normal
                     vec3 p, // pixel position
                     vec3 v, // view vector (negative normalized pixel position)
@@ -178,7 +182,7 @@ void main()
     float ao = orm.r;
 
     // emissiveColor is the emissive color factor from GLTF and is already in linear space
-    vec3 colorEmissive = emissiveColor;
+    vec3 colorEmissive = emissiveColor * emissiveStrength;
     // emissiveMap here is a vanilla RGB texture encoded as sRGB, manually convert to linear
     colorEmissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
 
@@ -186,20 +190,21 @@ void main()
     float gloss      = 1.0 - perceptualRoughness;
     vec3  irradiance = amblit;
     vec3  radiance  = vec3(0);
-    sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss, true, amblit);
+    sampleReflectionProbes(irradiance, radiance, frag, pos.xyz, norm.xyz, gloss, true, amblit);
 
     vec3 diffuseColor;
     vec3 specularColor;
-    calcDiffuseSpecular(col.rgb, metallic, diffuseColor, specularColor);
+    float specWeight = 1.0;
+    calcDiffuseSpecular(col.rgb, metallic, specularFactor, specularColorFactor, ior, diffuseColor, specularColor, specWeight);
 
     vec3 v = -normalize(pos.xyz);
 
-    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
+    color = pbrBaseLight(diffuseColor, specularColor, specWeight, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
 
     vec3 light = vec3(0);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
+#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, specWeight, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)

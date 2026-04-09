@@ -52,6 +52,7 @@ GBufferInfo getGBuffer(vec2 screenpos)
     ret.normal = decodeNormal(normInfo).xyz;
     ret.specular = specInfo;
     ret.envIntensity = normInfo.b;
+    ret.occlusion = normInfo.b;
     ret.gbufferFlag = normInfo.w;
     ret.emissive = emissInfo;
 

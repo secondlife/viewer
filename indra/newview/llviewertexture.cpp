@@ -103,6 +103,7 @@ F32 LLViewerTexture::sCurrentTime = 0.0f;
 constexpr F32 MEMORY_CHECK_WAIT_TIME = 1.0f;
 constexpr F32 MIN_VRAM_BUDGET = 768.f;
 F32 LLViewerTexture::sFreeVRAMMegabytes = MIN_VRAM_BUDGET;
+F32 LLViewerTexture::sOverBudgetPct = 0.f;
 
 LLViewerTexture::EDebugTexels LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_OFF;
 
@@ -522,6 +523,7 @@ void LLViewerTexture::updateClass()
     sFreeVRAMMegabytes = target - used;
 
     F32 over_pct = (used - target) / target;
+    sOverBudgetPct = over_pct;
 
     bool is_sys_low = isSystemMemoryLow();
     bool is_low = is_sys_low || over_pct > 0.f;
@@ -3100,6 +3102,14 @@ void LLViewerLODTexture::processTextureStats()
             discard_level = (F32)(log(mTexelsPerImage / mMaxVirtualSize) / log_4);
         }
 
+        // Apply memory pressure bias directly to the discard level.
+        // sDesiredDiscardBias has a floor of 1.0 in V7, so subtract 1 to
+        // get the effective bias (0 when no pressure, up to 3 at max).
+        if (mBoostLevel < LLGLTexture::BOOST_SCULPTED)
+        {
+            discard_level += sDesiredDiscardBias - 1.f;
+        }
+
         discard_level = floorf(discard_level);
 
         F32 min_discard = 0.f;
@@ -3120,10 +3130,17 @@ void LLViewerLODTexture::processTextureStats()
         //
 
         S32 current_discard = getDiscardLevel();
-        if (mBoostLevel < LLGLTexture::BOOST_AVATAR_BAKED)
+        if (mBoostLevel < LLGLTexture::BOOST_AVATAR_BAKED && current_discard >= 0)
         {
             if (current_discard < mDesiredDiscardLevel && !mForceToSaveRawImage)
-            { // should scale down
+            { // current quality exceeds what we need, scale down
+                scaleDown();
+            }
+            // Memory-threshold scaleDown: when VRAM usage exceeds 92.5% of
+            // budget (7.5% margin), force downscale.  Matches the legacy
+            // texmem_middle_bound_scale behaviour.
+            else if (sOverBudgetPct > -0.075f && sDesiredDiscardBias > 1.f)
+            {
                 scaleDown();
             }
         }

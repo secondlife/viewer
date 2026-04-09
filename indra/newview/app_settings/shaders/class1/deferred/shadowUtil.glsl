@@ -51,43 +51,138 @@ uniform mat4 inv_proj;
 uniform vec2 screen_res;
 uniform int sun_up_factor;
 
+// Helper function for optimized PCF sampling
+float sampleShadowMap(sampler2DShadow shadowMap, vec2 base_uv, float u, float v, vec2 shadowMapSizeInv, float lightDepth)
+{
+    vec2 uv = base_uv + vec2(u, v) * shadowMapSizeInv;
+    return texture(shadowMap, vec3(uv, lightDepth));
+}
+
+// Optimized 4x4 PCF sampling based on The Witness implementation
 float pcfShadow(sampler2DShadow shadowMap, vec3 norm, vec4 stc, float bias_mul, vec2 pos_screen, vec3 light_dir)
 {
 #if defined(SUN_SHADOW)
-    float offset = shadow_bias * bias_mul;
     stc.xyz /= stc.w;
-    stc.z += offset * 2.0;
-    stc.x = floor(stc.x*shadow_res.x + fract(pos_screen.y*shadow_res.y))/shadow_res.x; // add some chaotic jitter to X sample pos according to Y to disguise the snapping going on here
-    float cs = texture(shadowMap, stc.xyz);
-    float shadow = cs * 4.0;
-    shadow += texture(shadowMap, stc.xyz+vec3( 1.5/shadow_res.x,  0.5/shadow_res.y, 0.0));
-    shadow += texture(shadowMap, stc.xyz+vec3( 0.5/shadow_res.x, -1.5/shadow_res.y, 0.0));
-    shadow += texture(shadowMap, stc.xyz+vec3(-1.5/shadow_res.x, -0.5/shadow_res.y, 0.0));
-    shadow += texture(shadowMap, stc.xyz+vec3(-0.5/shadow_res.x,  1.5/shadow_res.y, 0.0));
-    return clamp(shadow * 0.125, 0.0, 1.0);
+
+    float lightDepth = stc.z;
+    float offset = shadow_bias * bias_mul;
+    lightDepth += offset * 2.0;
+
+    vec2 shadowMapSize = shadow_res;
+    vec2 shadowMapSizeInv = 1.0 / shadowMapSize;
+
+    vec2 uv = stc.xy * shadowMapSize; // 1 unit = 1 texel
+
+    vec2 base_uv;
+    base_uv.x = floor(uv.x + 0.5);
+    base_uv.y = floor(uv.y + 0.5);
+
+    float s = (uv.x + 0.5 - base_uv.x);
+    float t = (uv.y + 0.5 - base_uv.y);
+
+    base_uv -= vec2(0.5, 0.5);
+    base_uv *= shadowMapSizeInv;
+
+    // 4x4 PCF kernel (FilterSize 5 from The Witness)
+    float uw0 = (4.0 - 3.0 * s);
+    float uw1 = 7.0;
+    float uw2 = (1.0 + 3.0 * s);
+
+    float u0 = (3.0 - 2.0 * s) / uw0 - 2.0;
+    float u1 = (3.0 + s) / uw1;
+    float u2 = s / uw2 + 2.0;
+
+    float vw0 = (4.0 - 3.0 * t);
+    float vw1 = 7.0;
+    float vw2 = (1.0 + 3.0 * t);
+
+    float v0 = (3.0 - 2.0 * t) / vw0 - 2.0;
+    float v1 = (3.0 + t) / vw1;
+    float v2 = t / vw2 + 2.0;
+
+    float sum = 0.0;
+
+    sum += uw0 * vw0 * sampleShadowMap(shadowMap, base_uv, u0, v0, shadowMapSizeInv, lightDepth);
+    sum += uw1 * vw0 * sampleShadowMap(shadowMap, base_uv, u1, v0, shadowMapSizeInv, lightDepth);
+    sum += uw2 * vw0 * sampleShadowMap(shadowMap, base_uv, u2, v0, shadowMapSizeInv, lightDepth);
+
+    sum += uw0 * vw1 * sampleShadowMap(shadowMap, base_uv, u0, v1, shadowMapSizeInv, lightDepth);
+    sum += uw1 * vw1 * sampleShadowMap(shadowMap, base_uv, u1, v1, shadowMapSizeInv, lightDepth);
+    sum += uw2 * vw1 * sampleShadowMap(shadowMap, base_uv, u2, v1, shadowMapSizeInv, lightDepth);
+
+    sum += uw0 * vw2 * sampleShadowMap(shadowMap, base_uv, u0, v2, shadowMapSizeInv, lightDepth);
+    sum += uw1 * vw2 * sampleShadowMap(shadowMap, base_uv, u1, v2, shadowMapSizeInv, lightDepth);
+    sum += uw2 * vw2 * sampleShadowMap(shadowMap, base_uv, u2, v2, shadowMapSizeInv, lightDepth);
+
+    return sum / 144.0;
 #else
     return 1.0;
 #endif
 }
 
+// Helper function for spot shadow PCF sampling
+float sampleSpotShadowMap(sampler2DShadow shadowMap, vec2 base_uv, float u, float v, vec2 shadowMapSizeInv, float lightDepth)
+{
+    vec2 uv = base_uv + vec2(u, v) * shadowMapSizeInv;
+    return texture(shadowMap, vec3(uv, lightDepth));
+}
+
+// Optimized 4x4 PCF sampling for spot shadows
 float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float bias_scale, vec2 pos_screen)
 {
 #if defined(SPOT_SHADOW)
     stc.xyz /= stc.w;
-    stc.z += spot_shadow_bias * bias_scale;
-    stc.x = floor(proj_shadow_res.x * stc.x + fract(pos_screen.y*0.666666666)) / proj_shadow_res.x; // snap
 
-    float cs = texture(shadowMap, stc.xyz);
-    float shadow = cs;
+    float lightDepth = stc.z;
+    lightDepth += spot_shadow_bias * bias_scale;
 
-    vec2 off = 1.0/proj_shadow_res;
-    off.y *= 1.5;
+    vec2 shadowMapSize = proj_shadow_res;
+    vec2 shadowMapSizeInv = 1.0 / shadowMapSize;
 
-    shadow += texture(shadowMap, stc.xyz+vec3(off.x*2.0, off.y, 0.0));
-    shadow += texture(shadowMap, stc.xyz+vec3(off.x, -off.y, 0.0));
-    shadow += texture(shadowMap, stc.xyz+vec3(-off.x, off.y, 0.0));
-    shadow += texture(shadowMap, stc.xyz+vec3(-off.x*2.0, -off.y, 0.0));
-    return shadow*0.2;
+    vec2 uv = stc.xy * shadowMapSize; // 1 unit = 1 texel
+
+    vec2 base_uv;
+    base_uv.x = floor(uv.x + 0.5);
+    base_uv.y = floor(uv.y + 0.5);
+
+    float s = (uv.x + 0.5 - base_uv.x);
+    float t = (uv.y + 0.5 - base_uv.y);
+
+    base_uv -= vec2(0.5, 0.5);
+    base_uv *= shadowMapSizeInv;
+
+    // 4x4 PCF kernel (FilterSize 5 from The Witness)
+    float uw0 = (4.0 - 3.0 * s);
+    float uw1 = 7.0;
+    float uw2 = (1.0 + 3.0 * s);
+
+    float u0 = (3.0 - 2.0 * s) / uw0 - 2.0;
+    float u1 = (3.0 + s) / uw1;
+    float u2 = s / uw2 + 2.0;
+
+    float vw0 = (4.0 - 3.0 * t);
+    float vw1 = 7.0;
+    float vw2 = (1.0 + 3.0 * t);
+
+    float v0 = (3.0 - 2.0 * t) / vw0 - 2.0;
+    float v1 = (3.0 + t) / vw1;
+    float v2 = t / vw2 + 2.0;
+
+    float sum = 0.0;
+
+    sum += uw0 * vw0 * sampleSpotShadowMap(shadowMap, base_uv, u0, v0, shadowMapSizeInv, lightDepth);
+    sum += uw1 * vw0 * sampleSpotShadowMap(shadowMap, base_uv, u1, v0, shadowMapSizeInv, lightDepth);
+    sum += uw2 * vw0 * sampleSpotShadowMap(shadowMap, base_uv, u2, v0, shadowMapSizeInv, lightDepth);
+
+    sum += uw0 * vw1 * sampleSpotShadowMap(shadowMap, base_uv, u0, v1, shadowMapSizeInv, lightDepth);
+    sum += uw1 * vw1 * sampleSpotShadowMap(shadowMap, base_uv, u1, v1, shadowMapSizeInv, lightDepth);
+    sum += uw2 * vw1 * sampleSpotShadowMap(shadowMap, base_uv, u2, v1, shadowMapSizeInv, lightDepth);
+
+    sum += uw0 * vw2 * sampleSpotShadowMap(shadowMap, base_uv, u0, v2, shadowMapSizeInv, lightDepth);
+    sum += uw1 * vw2 * sampleSpotShadowMap(shadowMap, base_uv, u1, v2, shadowMapSizeInv, lightDepth);
+    sum += uw2 * vw2 * sampleSpotShadowMap(shadowMap, base_uv, u2, v2, shadowMapSizeInv, lightDepth);
+
+    return sum / 144.0;
 #else
     return 1.0;
 #endif

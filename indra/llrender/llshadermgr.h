@@ -119,11 +119,12 @@ public:
         CLOUD_NOISE_MAP_NEXT,               //  "cloud_noise_texture_next"
         LIGHTNORM,                          //  "lightnorm"
         SUNLIGHT_COLOR,                     //  "sunlight_color"
+        SUN_INTENSITY,                      //  "sun_intensity"
         AMBIENT,                            //  "ambient_color"
         SKY_HDR_SCALE,                      //  "sky_hdr_scale"
-        SKY_SUNLIGHT_SCALE,                 //  "sky_sunlight_scale"
         SKY_AMBIENT_SCALE,                  //  "sky_ambient_scale"
         CLASSIC_MODE,                       //  "classic_mode"
+        SUN_LUX,                            //  "sun_lux"
         BLUE_HORIZON,                       //  "blue_horizon"
         BLUE_DENSITY,                       //  "blue_density"
         HAZE_HORIZON,                       //  "haze_horizon"
@@ -183,16 +184,18 @@ public:
         DEFERRED_SHADOW_TARGET_WIDTH,       //  "shadow_target_width"
 
         DEFERRED_SSR_ITR_COUNT,             //  "iterationCount"
-        DEFERRED_SSR_RAY_STEP,              //  "rayStep"
-        DEFERRED_SSR_DIST_BIAS,             //  "distanceBias"
-        DEFERRED_SSR_REJECT_BIAS,           //  "depthRejectBias"
+        DEFERRED_SSR_MAX_THICKNESS,         //  "maxThickness"
+        DEFERRED_SSR_DEPTH_BIAS,            //  "depthBias"
         DEFERRED_SSR_GLOSSY_SAMPLES,        //  "glossySampleCount"
         DEFERRED_SSR_NOISE_SINE,            //  "noiseSine"
-        DEFERRED_SSR_ADAPTIVE_STEP_MULT,    //  "adaptiveStepMultiplier"
+        DEFERRED_SSR_MAX_Z,                 //  "maxZDepth"
+        DEFERRED_SSR_MAX_ROUGHNESS,         //  "maxRoughness"
 
         MODELVIEW_DELTA_MATRIX,             //  "modelview_delta"
         INVERSE_MODELVIEW_DELTA_MATRIX,     //  "inv_modelview_delta"
         CUBE_SNAPSHOT,                      //  "cube_snapshot"
+        DEFAULT_PROBE_RENDER,               //  "default_probe_render"
+        REFLECTION_PROBE_QUALITY,           //  "reflection_probe_quality"
 
         FXAA_TC_SCALE,                      //  "tc_scale"
         FXAA_RCP_SCREEN_RES,                //  "rcp_screen_res"
@@ -225,6 +228,7 @@ public:
         DEFERRED_LIGHTFUNC,                 //  "lightFunc"
         DEFERRED_LIGHT,                     //  "lightMap"
         DEFERRED_BLOOM,                     //  "bloomMap"
+        DEFERRED_VELOCITY,                  //  "velocityMap"
         DEFERRED_PROJECTION,                //  "projectionMap"
         DEFERRED_NORM_MATRIX,               //  "norm_mat"
         SPECULAR_COLOR,                     //  "specular_color"
@@ -340,6 +344,23 @@ public:
         SMAA_AREA_TEX,                      //  "areaTex"
         SMAA_SEARCH_TEX,                    //  "searchTex"
         SMAA_BLEND_TEX,                     //  "blendTex"
+        SMAA_SUBSAMPLE_INDICES,             //  "subsampleIndices"
+        SMAA_CURRENT_COLOR_TEX,             //  "currentColorTex"
+        SMAA_PREVIOUS_COLOR_TEX,            //  "previousColorTex"
+        SMAA_VELOCITY_TEX,                  //  "velocityTex"
+
+        CURRENT_MODELVIEW_MATRIX,           //  "current_modelview_matrix"
+        LAST_MODELVIEW_MATRIX,              //  "last_modelview_matrix"
+        LAST_MODELVIEW_MATRIX_INVERSE,      //  "last_modelview_matrix_inverse"
+        CURRENT_OBJECT_MATRIX,              //  "current_object_matrix"
+        LAST_OBJECT_MATRIX,                 //  "last_object_matrix"
+        AVATAR_LAST_MATRIX,                 //  "lastMatrixPalette"
+        MOTION_BLUR_STRENGTH,               //  "motion_blur_strength"
+
+        SPECULAR_FACTOR,                    //  "specularFactor" (KHR_materials_specular)
+        SPECULAR_COLOR_FACTOR,              //  "specularColorFactor" (KHR_materials_specular)
+        EMISSIVE_STRENGTH,                  //  "emissiveStrength" (KHR_materials_emissive_strength)
+        IOR,                                //  "ior" (KHR_materials_ior)
 
         END_RESERVED_UNIFORMS
     } eGLSLReservedUniforms;

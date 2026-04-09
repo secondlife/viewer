@@ -101,6 +101,22 @@ void LLFloaterMarketplace::openMarketplaceURL(const std::string& url)
 // static
 bool LLFloaterMarketplace::isMarketplaceURL(const std::string& url)
 {
+    auto trimURL = [](std::string_view url) -> std::string_view
+    {
+        if (url.starts_with("https://"))
+            url.remove_prefix(8);
+        else if (url.starts_with("http://"))
+            url.remove_prefix(7);
+
+        while (!url.empty() && url.back() == '/')
+            url.remove_suffix(1);
+
+        return url;
+    };
+
     static LLCachedControl<std::string> marketplace_url(gSavedSettings, "MarketplaceURL", "https://marketplace.secondlife.com/");
-    return url.starts_with(marketplace_url());
+    std::string_view marketplace_url_trimmed = trimURL(marketplace_url());
+    std::string_view url_trimmed = trimURL(url);
+
+    return !marketplace_url_trimmed.empty() && url_trimmed.starts_with(marketplace_url_trimmed);
 }

@@ -29,7 +29,6 @@
 #include "gltfscenemanager.h"
 #include "llviewermenufile.h"
 #include "llappviewer.h"
-#include "lltinygltfhelper.h"
 #include "llvertexbuffer.h"
 #include "llselectmgr.h"
 #include "llagent.h"
@@ -153,17 +152,20 @@ void GLTFSceneManager::uploadSelection()
                 }
                 else
                 {
-                    raw = image.mTexture->getRawImage();
+                    LLViewerFetchedTexture* fetched = static_cast<LLViewerFetchedTexture*>(image.mTexture.get());
+                    raw = fetched->getRawImage();
                 }
 
                 if (raw.isNull())
                 {
-                    raw = image.mTexture->getSavedRawImage();
+                    LLViewerFetchedTexture* fetched = static_cast<LLViewerFetchedTexture*>(image.mTexture.get());
+                    raw = fetched->getSavedRawImage();
                 }
 
                 if (raw.isNull())
                 {
-                    image.mTexture->readbackRawImage();
+                    LLViewerFetchedTexture* fetched = static_cast<LLViewerFetchedTexture*>(image.mTexture.get());
+                    fetched->readbackRawImage();
                 }
 
                 if (raw.notNull())
@@ -777,7 +779,7 @@ void GLTFSceneManager::bindTexture(Asset& asset, TextureType texture_type, Textu
         {
             Texture& texture = asset.mTextures[info.mIndex];
 
-            LLViewerTexture* tex = asset.mImages[texture.mSource].mTexture;
+            LLGLTexture* tex = asset.mImages[texture.mSource].mTexture;
             if (tex)
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gl bind texture");

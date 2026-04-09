@@ -34,6 +34,10 @@ vec3 emissiveColor = vec3(0,0,0);
 float metallicFactor = 1.0;
 float roughnessFactor = 1.0;
 float minimum_alpha = -1.0;
+float specularFactor = 1.0;
+vec3 specularColorFactor = vec3(1.0);
+float emissiveStrength = 1.0;
+float ior = 1.5;
 
 layout (std140) uniform GLTFMaterials
 {
@@ -130,11 +134,11 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
 
-void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
+void calcDiffuseSpecular(vec3 baseColor, float metallic, float specularFactor, vec3 specularColorFactor, float ior, inout vec3 diffuseColor, inout vec3 specularColor, inout float specularWeight);
 
 vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
-                  float metallic,
+                  float specularWeight,
                   vec3 pos,
                   vec3 norm,
                   float perceptualRoughness,
@@ -150,7 +154,7 @@ vec3 pbrBaseLight(vec3 diffuseColor,
 
 vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
-                    float metallic,
+                    float specularWeight,
                     vec3 n, // normal
                     vec3 p, // pixel position
                     vec3 v, // view vector (negative normalized pixel position)
@@ -238,16 +242,30 @@ void main()
 #ifndef ALPHA_BLEND
 #ifdef UNLIT
     vec4 color = basecolor;
-    color.rgb += emissive.rgb;
+    color.rgb += emissive.rgb * emissiveStrength;
     frag_color = color;
 #else
-    frag_data[0] = max(vec4(basecolor.rgb, 0.0), vec4(0));
-    frag_data[1] = max(vec4(orm.rgb,0.0), vec4(0));
-    frag_data[2] = encodeNormal(norm, 0, GBUFFER_FLAG_HAS_PBR);
+    float perceptualRoughness = orm.g;
+    float metallic = orm.b;
+    float ao = orm.r;
 
-//#if defined(HAS_EMISSIVE)
-    frag_data[3] = max(vec4(emissive,0), vec4(0));
-//#endif
+    // KHR_materials_ior + KHR_materials_specular
+    float ior_f0 = pow((ior - 1.0) / (ior + 1.0), 2.0);
+    vec3 dielectric_f0 = min(vec3(ior_f0) * specularColorFactor, vec3(1.0)) * specularFactor;
+    float dielectric_f90 = specularFactor;
+
+    vec3 f0 = mix(dielectric_f0, basecolor.rgb, metallic);
+    vec3 diffuseOut = mix(basecolor.rgb * (1.0 - max(dielectric_f0.r, max(dielectric_f0.g, dielectric_f0.b))), vec3(0.0), metallic);
+    float specWeight = mix(dielectric_f90, 1.0, metallic);
+
+    // KHR_materials_emissive_strength
+    vec3 emissiveOut = emissive * emissiveStrength;
+
+    frag_data[0] = max(vec4(diffuseOut, specWeight), vec4(0));
+    frag_data[1] = max(vec4(f0, perceptualRoughness), vec4(0));
+    frag_data[2] = encodeNormal(norm, ao, GBUFFER_FLAG_HAS_PBR);
+
+    frag_data[3] = max(vec4(emissiveOut, ior), vec4(0));
 #endif
 #endif
 
@@ -290,20 +308,22 @@ void main()
     float gloss      = 1.0 - perceptualRoughness;
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
-    sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss, true, amblit);
+    sampleReflectionProbes(irradiance, radiance, frag, pos.xyz, norm.xyz, gloss, true, amblit);
 
     vec3 diffuseColor;
     vec3 specularColor;
-    calcDiffuseSpecular(basecolor.rgb, metallic, diffuseColor, specularColor);
+    float specWeight = 1.0;
+    calcDiffuseSpecular(basecolor.rgb, metallic, specularFactor, specularColorFactor, ior, diffuseColor, specularColor, specWeight);
 
     vec3 v = -normalize(pos.xyz);
 
-    vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten);
+    vec3 emissiveOut = emissive * emissiveStrength;
+    vec3 color = pbrBaseLight(diffuseColor, specularColor, specWeight, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissiveOut, orm.r, additive, atten);
 
     vec3 light = vec3(0);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
+#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, specWeight, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)

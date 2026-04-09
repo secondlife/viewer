@@ -174,6 +174,14 @@ bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
         }
     }
 
+    if (features->hasMotionBlur)
+    {
+        if (!shader->attachVertexObject("deferred/velocityFuncV.glsl"))
+        {
+            return false;
+        }
+    }
+
     if (!shader->attachVertexObject("deferred/textureUtilV.glsl"))
     {
         return false;
@@ -743,7 +751,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     }
 
     // Master definition can be found in deferredUtil.glsl
-    extra_code_text[extra_code_count++] = strdup("struct GBufferInfo { vec4 albedo; vec4 specular; vec3 normal; vec4 emissive; float gbufferFlag; float envIntensity; };\n");
+    extra_code_text[extra_code_count++] = strdup("struct GBufferInfo { vec4 albedo; vec4 specular; vec3 normal; vec4 emissive; float gbufferFlag; float envIntensity; float occlusion; };\n");
 
     //copy file into memory
     enum {
@@ -1024,8 +1032,23 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
 
             llifstream instream(meta_out_path, std::ifstream::in | std::ifstream::binary);
             LLSD in_data;
-            // todo: this is likely very expensive to parse, should use binary
-            LLSDSerialize::fromBinary(in_data, instream, LLSDSerialize::SIZE_UNLIMITED);
+            try
+            {
+                LLSDSerialize::fromBinary(in_data, instream, LLSDSerialize::SIZE_UNLIMITED);
+            }
+            catch( std::bad_alloc& )
+            {
+                // Try to get a bit more memory back before we try to clear the cache.
+                in_data.clear();
+                // Just in case it was somehow the cause, clear cache.
+                clearShaderCache();
+                // If user run out of memory this early in init,
+                // we don't want to keep going just to crash again.
+                // Notify user and close.
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS("ShaderMgr") << "Failed to parse shader cache metadata, potentially due to size. Purged cache." << LL_ENDL;
+                return;
+            }
             instream.close();
 
             if (old_cache_version == current_cache_version
@@ -1305,11 +1328,12 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("cloud_noise_texture_next");
     mReservedUniforms.push_back("lightnorm");
     mReservedUniforms.push_back("sunlight_color");
+    mReservedUniforms.push_back("sun_intensity");
     mReservedUniforms.push_back("ambient_color");
     mReservedUniforms.push_back("sky_hdr_scale");
-    mReservedUniforms.push_back("sky_sunlight_scale");
     mReservedUniforms.push_back("sky_ambient_scale");
     mReservedUniforms.push_back("classic_mode");
+    mReservedUniforms.push_back("sun_lux");
     mReservedUniforms.push_back("blue_horizon");
     mReservedUniforms.push_back("blue_density");
     mReservedUniforms.push_back("haze_horizon");
@@ -1380,16 +1404,18 @@ void LLShaderMgr::initAttribsAndUniforms()
     llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH + 1);
 
     mReservedUniforms.push_back("iterationCount");
-    mReservedUniforms.push_back("rayStep");
-    mReservedUniforms.push_back("distanceBias");
-    mReservedUniforms.push_back("depthRejectBias");
+    mReservedUniforms.push_back("maxThickness");
+    mReservedUniforms.push_back("depthBias");
     mReservedUniforms.push_back("glossySampleCount");
     mReservedUniforms.push_back("noiseSine");
-    mReservedUniforms.push_back("adaptiveStepMultiplier");
+    mReservedUniforms.push_back("maxZDepth");
+    mReservedUniforms.push_back("maxRoughness");
 
     mReservedUniforms.push_back("modelview_delta");
     mReservedUniforms.push_back("inv_modelview_delta");
     mReservedUniforms.push_back("cube_snapshot");
+    mReservedUniforms.push_back("default_probe_render");
+    mReservedUniforms.push_back("reflection_probe_quality");
 
     mReservedUniforms.push_back("tc_scale");
     mReservedUniforms.push_back("rcp_screen_res");
@@ -1425,6 +1451,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("lightFunc");
     mReservedUniforms.push_back("lightMap");
     mReservedUniforms.push_back("bloomMap");
+    mReservedUniforms.push_back("velocityMap");
     mReservedUniforms.push_back("projectionMap");
     mReservedUniforms.push_back("norm_mat");
 
@@ -1537,6 +1564,23 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("areaTex");
     mReservedUniforms.push_back("searchTex");
     mReservedUniforms.push_back("blendTex");
+    mReservedUniforms.push_back("subsampleIndices");
+    mReservedUniforms.push_back("currentColorTex");
+    mReservedUniforms.push_back("previousColorTex");
+    mReservedUniforms.push_back("velocityTex");
+
+    mReservedUniforms.push_back("current_modelview_matrix");
+    mReservedUniforms.push_back("last_modelview_matrix");
+    mReservedUniforms.push_back("last_modelview_matrix_inverse");
+    mReservedUniforms.push_back("current_object_matrix");
+    mReservedUniforms.push_back("last_object_matrix");
+    mReservedUniforms.push_back("lastMatrixPalette");
+    mReservedUniforms.push_back("motion_blur_strength");
+
+    mReservedUniforms.push_back("specularFactor");
+    mReservedUniforms.push_back("specularColorFactor");
+    mReservedUniforms.push_back("emissiveStrength");
+    mReservedUniforms.push_back("ior");
 
     llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

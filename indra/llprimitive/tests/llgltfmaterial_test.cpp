@@ -31,26 +31,6 @@
 #include "../llgltfmaterial.h"
 #include "lluuid.cpp"
 
-// Import & define single-header gltf import/export lib
-#define TINYGLTF_IMPLEMENTATION
-#define TINYGLTF_USE_CPP14  // default is C++ 11
-
-// tinygltf by default loads image files using STB
-#define STB_IMAGE_IMPLEMENTATION
-// to use our own image loading:
-// 1. replace this definition with TINYGLTF_NO_STB_IMAGE
-// 2. provide image loader callback with TinyGLTF::SetImageLoader(LoadimageDataFunction LoadImageData, void *user_data)
-
-// tinygltf saves image files using STB
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-// similarly, can override with TINYGLTF_NO_STB_IMAGE_WRITE and TinyGLTF::SetImageWriter(fxn, data)
-
-// Disable reading external images to prevent warnings and speed up the tests.
-// We don't need this for the tests, but still need the filesystem
-// implementation to be defined in order for llprimitive to link correctly.
-#define TINYGLTF_NO_EXTERNAL_IMAGE 1
-
-#include "tinygltf/tiny_gltf.h"
 
 namespace tut
 {
@@ -72,6 +52,7 @@ namespace tut
         material.setNormalId(LLUUID::generateNewID());
         material.setOcclusionRoughnessMetallicId(LLUUID::generateNewID());
         material.setEmissiveId(LLUUID::generateNewID());
+        material.setSpecularId(LLUUID::generateNewID());
     }
 
     void apply_test_material_texture_transforms(LLGLTFMaterial& material)
@@ -96,6 +77,10 @@ namespace tut
         material.setEmissiveColorFactor(LLColor3(test_fraction_big, test_fraction_big, test_fraction_big));
         material.setMetallicFactor(test_fraction);
         material.setRoughnessFactor(test_fraction);
+        material.setEmissiveStrength(test_fraction);
+        material.setSpecularFactor(test_fraction);
+        material.setSpecularColorFactor(LLColor3(test_fraction_big, test_fraction_big, test_fraction_big));
+        material.setIOR(test_fraction);
     }
 
     LLGLTFMaterial create_test_material()
@@ -145,10 +130,10 @@ namespace tut
 #if LL_WINDOWS
         // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
         // This test result will vary between compilers, so only test a single platform
-        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 232);
+        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 296);
 #endif
 #endif
-        ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 4);
+        ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 5);
     }
 
     // Test that occlusion and metallicRoughness are the same (They are different for asset validation. See lluploadmaterial.cpp)
@@ -419,6 +404,10 @@ namespace tut
         source_mat.mTrackingIdToLocalTexture[LLUUID::generateNewID()] = LLUUID::generateNewID();
         source_mat.mLocalTexDataDigest = 1;
         source_mat.mAlphaMode = LLGLTFMaterial::ALPHA_MODE_MASK;
+        source_mat.mEmissiveStrength = test_fraction;
+        source_mat.mSpecularFactor = test_fraction;
+        source_mat.mSpecularColorFactor.set(test_fraction_big, test_fraction_big, test_fraction_big);
+        source_mat.mIOR = test_fraction;
         source_mat.mDoubleSided = true;
 
         LLGLTFMaterial hash_mat;
@@ -433,6 +422,10 @@ namespace tut
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mMetallicFactor);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mRoughnessFactor);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mAlphaCutoff);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mEmissiveStrength);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mSpecularFactor);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mSpecularColorFactor);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mIOR);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mAlphaMode);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mDoubleSided);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mOverrideDoubleSided);

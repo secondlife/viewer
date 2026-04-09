@@ -27,13 +27,94 @@
 #ifndef LL_LLGLTFLoader_H
 #define LL_LLGLTFLoader_H
 
-#include "tinygltf/tiny_gltf.h"
-
-#include "asset.h"
+#include "gltf/asset.h"
 
 #include "llglheaders.h"
 #include "lljointdata.h"
 #include "llmodelloader.h"
+
+// gltf_* structs are temporary, used to organize the subset of data that eventually goes into the material LLSD
+
+class gltf_sampler
+{
+public:
+    // Uses GL enums
+    S32 minFilter;      // GL_NEAREST, GL_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_LINEAR or GL_LINEAR_MIPMAP_LINEAR
+    S32 magFilter;      // GL_NEAREST or GL_LINEAR
+    S32 wrapS;          // GL_CLAMP_TO_EDGE, GL_MIRRORED_REPEAT or GL_REPEAT
+    S32 wrapT;          // GL_CLAMP_TO_EDGE, GL_MIRRORED_REPEAT or GL_REPEAT
+    std::string name;   // optional, currently unused
+};
+
+class gltf_image
+{
+public:// Note that glTF images are defined with row 0 at the top (opposite of OpenGL)
+    U8* data;               // ptr to decoded image data
+    U32 size;               // in bytes, regardless of channel width
+    U32 width;
+    U32 height;
+    U32 numChannels;        // range 1..4
+    U32 bytesPerChannel;    // converted from gltf "bits", expects only 8, 16 or 32 as input
+    U32 pixelType;          // one of (TINYGLTF_COMPONENT_TYPE)_UNSIGNED_BYTE, _UNSIGNED_SHORT, _UNSIGNED_INT, or _FLOAT
+};
+
+class gltf_texture
+{
+public:
+    U32 imageIdx;
+    U32 samplerIdx;
+    LLUUID imageUuid = LLUUID::null;
+};
+
+class gltf_render_material
+{
+public:
+    std::string name;
+
+    // scalar values
+    LLColor4    baseColor;      // linear encoding. Multiplied with vertex color, if present.
+    double      metalness;
+    double      roughness;
+    double      normalScale;    // scale applies only to X,Y components of normal
+    double      occlusionScale; // strength multiplier for occlusion
+    LLColor4    emissiveColor;  // emissive mulitiplier, assumed linear encoding (spec 2.0 is silent)
+    std::string alphaMode;      // "OPAQUE", "MASK" or "BLEND"
+    double      alphaMask;      // alpha cut-off
+
+    // KHR extension fields
+    F32         transmissionFactor = 0.f;
+    F32         iorFactor = 1.5f;
+    LLColor4    attenuationColor = LLColor4::white;
+    F32         attenuationDistance = std::numeric_limits<F32>::infinity();
+    F32         thicknessFactor = 0.f;
+    F32         dispersionFactor = 0.f;
+
+    // textures
+    U32 baseColorTexIdx;    // always sRGB encoded
+    U32 metalRoughTexIdx;   // always linear, roughness in G channel, metalness in B channel
+    U32 normalTexIdx;       // linear, valid range R[0-1], G[0-1], B[0.5-1]. Normal = texel * 2 - vec3(1.0)
+    U32 occlusionTexIdx;    // linear, occlusion in R channel, 0 meaning fully occluded, 1 meaning not occluded
+    U32 emissiveTexIdx;     // always stored as sRGB, in nits (candela / meter^2)
+
+    // texture coordinates
+    U32 baseColorTexCoords;
+    U32 metalRoughTexCoords;
+    U32 normalTexCoords;
+    U32 occlusionTexCoords;
+    U32 emissiveTexCoords;
+
+    bool        hasPBR;
+    bool        hasBaseTex, hasMRTex, hasNormalTex, hasOcclusionTex, hasEmissiveTex;
+
+    // This field is populated after upload
+    LLUUID      material_uuid = LLUUID::null;
+};
+
+class gltf_mesh
+{
+public:
+    std::string name;
+};
 
 class LLGLTFLoader : public LLModelLoader
 {
@@ -109,7 +190,6 @@ class LLGLTFLoader : public LLModelLoader
 
 protected:
     LL::GLTF::Asset mGLTFAsset;
-    tinygltf::Model mGltfModel;
     bool            mGltfLoaded = false;
     bool            mApplyXYRotation = false;
 
@@ -143,8 +223,18 @@ protected:
     typedef std::map<S32, LLGLTFImportMaterial> MaterialCache;
     MaterialCache mMaterialCache;
 
+    std::vector<gltf_mesh>            mGltfMeshes;
+    std::vector<gltf_render_material> mGltfMaterials;
+    std::vector<gltf_texture>         mGltfTextures;
+    std::vector<gltf_image>           mGltfImages;
+    std::vector<gltf_sampler>         mGltfSamplers;
+    bool mMaterialsLoaded = false;
+
 private:
     bool parseMeshes();
+    bool parseMaterials();
+    void uploadMaterials();
+    LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
     void computeCombinedNodeTransform(const LL::GLTF::Asset& asset, S32 node_index, glm::mat4& combined_transform) const;
     void processNodeHierarchy(S32 node_idx, std::map<std::string, S32>& mesh_name_counts, U32 submodel_limit, const LLVolumeParams& volume_params);
     bool addJointToModelSkin(LLMeshSkinInfo& skin_info, S32 gltf_skin_idx, size_t gltf_joint_idx);

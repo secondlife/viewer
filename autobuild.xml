@@ -2914,6 +2914,56 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>description</key>
         <string>Voxelized Hierarchical Approximate Convex Decomposition</string>
       </map>
+      <key>velopack</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>91abbc360640b5b2e0a4c001a36ad411a9a42602</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife-3p/3p-velopack/releases/assets/380583560</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>05563a79bdeb83d66a72ac1e97587dc2a8f64511</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife-3p/3p-velopack/releases/assets/380583554</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/velopack.txt</string>
+        <key>copyright</key>
+        <string>Velopack Ltd.</string>
+        <key>version</key>
+        <string>40232ef.23500976684</string>
+        <key>name</key>
+        <string>velopack</string>
+        <key>description</key>
+        <string>Velopack C/C++ Library</string>
+      </map>
     </map>
     <key>package_description</key>
     <map>

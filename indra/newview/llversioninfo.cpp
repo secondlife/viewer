@@ -54,7 +54,7 @@ LLVersionInfo::LLVersionInfo():
     mWorkingChannelName(LL_TO_STRING(LL_VIEWER_CHANNEL)),
     build_configuration(LLBUILD_CONFIG), // set in indra/cmake/BuildVersion.cmake
     // instantiate an LLEventMailDrop with canonical name to listen for news
-    // from SLVersionChecker
+    // from the Viewer Version Manager
     mPump{new LLEventMailDrop("relnotes")},
     // immediately listen on mPump, store arriving URL into mReleaseNotes
     mStore{new LLStoreListener<std::string>(*mPump, mReleaseNotes)}

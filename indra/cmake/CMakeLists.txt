@@ -56,12 +56,12 @@ set(cmake_SOURCE_FILES
         SSE2NEON.cmake
         TemplateCheck.cmake
         TinyEXR.cmake
-        TinyGLTF.cmake
         Tracy.cmake
         Tut.cmake
         UI.cmake
         UnixInstall.cmake
         Variables.cmake
+        Velopack.cmake
         VHACD.cmake
         ViewerMiscLibs.cmake
         VisualLeakDetector.cmake

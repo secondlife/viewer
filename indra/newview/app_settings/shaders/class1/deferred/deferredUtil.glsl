@@ -379,6 +379,7 @@ void pbrIbl(vec3 diffuseColor,
             float ao,       // ambient occlusion factor
             float nv,       // normal dot view vector
             float perceptualRough,
+            float specularWeight,
             out vec3 diffuseOut,
             out vec3 specularOut)
 {
@@ -388,7 +389,7 @@ void pbrIbl(vec3 diffuseColor,
     vec3 specularLight = radiance;
 
     vec3 diffuse = diffuseLight * diffuseColor;
-    vec3 specular = specularLight * (specularColor * brdf.x + brdf.y);
+    vec3 specular = specularLight * (specularColor * brdf.x + brdf.y * specularWeight);
 
     diffuseOut = diffuse * ao;
     specularOut = specular * ao;
@@ -406,7 +407,6 @@ struct PBRInfo
     float LdotH;                  // cos angle between light direction and half vector
     float VdotH;                  // cos angle between view direction and half vector
     float perceptualRoughness;    // roughness value, as authored by the model creator (input to shader)
-    float metalness;              // metallic value at the surface
     vec3 reflectance0;            // full reflectance color (normal incidence angle)
     vec3 reflectance90;           // reflectance color at grazing angle
     float alphaRoughness;         // roughness mapped to a more linear change in the roughness (proposed by [2])
@@ -456,7 +456,7 @@ float microfacetDistribution(PBRInfo pbrInputs)
 
 void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
-                    float metallic,
+                    float specularWeight,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
                     vec3 l,
@@ -474,7 +474,7 @@ void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 
     // For typical incident reflectance range (between 4% to 100%) set the grazing reflectance to 100% for typical fresnel effect.
     // For very low reflectance range on highly diffuse objects (below 4%), incrementally reduce grazing reflecance to 0%.
-    float reflectance90 = clamp(reflectance * 25.0, 0.0, 1.0);
+    float reflectance90 = clamp(reflectance * 25.0, 0.0, 1.0) * specularWeight;
     vec3 specularEnvironmentR0 = specularColor.rgb;
     vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;
 
@@ -495,7 +495,6 @@ void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
         LdotH,
         VdotH,
         perceptualRoughness,
-        metallic,
         specularEnvironmentR0,
         specularEnvironmentR90,
         alphaRoughness,
@@ -520,7 +519,7 @@ void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 
 vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
-                    float metallic,
+                    float specularWeight,
                     vec3 n, // normal
                     vec3 p, // pixel position
                     vec3 v, // view vector (negative normalized pixel position)
@@ -553,7 +552,7 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
         vec3 diffPunc = vec3(0);
         vec3 specPunc = vec3(0);
 
-        pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, nl, diffPunc, specPunc);
+        pbrPunctual(diffuseColor, specularColor, perceptualRoughness, specularWeight, n.xyz, v, lv, nl, diffPunc, specPunc);
         color = intensity * clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
     }
     float final_scale = 1.0;
@@ -562,22 +561,24 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
     return color * final_scale;
 }
 
-void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor)
+void calcDiffuseSpecular(vec3 baseColor, float metallic, float specularFactor, vec3 specularColorFactor, float ior, inout vec3 diffuseColor, inout vec3 specularColor, inout float specularWeight)
 {
-    vec3 f0 = vec3(0.04);
-    diffuseColor = baseColor*(vec3(1.0)-f0);
-    diffuseColor *= 1.0 - metallic;
-    specularColor = mix(f0, baseColor, metallic);
+    float ior_f0 = pow((ior - 1.0) / (ior + 1.0), 2.0);
+    vec3 dielectric_f0 = min(vec3(ior_f0) * specularColorFactor, vec3(1.0)) * specularFactor;
+    float dielectric_f90 = specularFactor;
+    specularColor = mix(dielectric_f0, baseColor, metallic);
+    diffuseColor = mix(baseColor * (1.0 - max(dielectric_f0.r, max(dielectric_f0.g, dielectric_f0.b))), vec3(0.0), metallic);
+    specularWeight = mix(dielectric_f90, 1.0, metallic);
 }
 
-vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v, vec3 norm, float perceptualRoughness, vec3 light_dir, vec3 sunlit, float scol, vec3 radiance, vec3 irradiance, vec3 colorEmissive, float ao, vec3 additive, vec3 atten)
+vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float specularWeight, vec3 v, vec3 norm, float perceptualRoughness, vec3 light_dir, vec3 sunlit, float scol, vec3 radiance, vec3 irradiance, vec3 colorEmissive, float ao, vec3 additive, vec3 atten)
 {
     vec3 color = vec3(0);
 
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
     vec3 iblDiff = vec3(0);
     vec3 iblSpec = vec3(0);
-    pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness, iblDiff, iblSpec);
+    pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness, specularWeight, iblDiff, iblSpec);
 
     color += iblDiff;
 
@@ -585,7 +586,7 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
     float nl = 0;
     vec3 diffPunc = vec3(0);
     vec3 specPunc = vec3(0);
-    pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir), nl, diffPunc, specPunc);
+    pbrPunctual(diffuseColor, specularColor, perceptualRoughness, specularWeight, norm, v, normalize(light_dir), nl, diffPunc, specPunc);
 
     // Depending on the sky, we combine these differently.
     if (classic_mode > 0)
@@ -612,7 +613,7 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
     }
     else
     {
-        color += clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit * 3.0 * scol;
+        color += clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit * scol;
     }
 
     color.rgb += iblSpec.rgb;

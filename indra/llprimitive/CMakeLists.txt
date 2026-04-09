@@ -8,10 +8,15 @@ include(LLCoreHttp)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
 include(GLM)
-include(TinyGLTF)
+include(Mikktspace)
 
 set(llprimitive_SOURCE_FILES
+    gltf/accessor.cpp
+    gltf/animation.cpp
+    gltf/asset.cpp
+    gltf/primitive.cpp
     lldaeloader.cpp
+    llgltfloader.cpp
     llgltfmaterial.cpp
     llmaterialid.cpp
     llmaterial.cpp
@@ -30,9 +35,15 @@ set(llprimitive_SOURCE_FILES
 
 set(llprimitive_HEADER_FILES
     CMakeLists.txt
+    gltf/accessor.h
+    gltf/animation.h
+    gltf/asset.h
+    gltf/buffer_util.h
+    gltf/common.h
+    gltf/primitive.h
     lldaeloader.h
+    llgltfloader.h
     llgltfmaterial.h
-    llgltfmaterial_templates.h
     legacy_object_types.h
     llmaterial.h
     llmaterialid.h
@@ -65,6 +76,8 @@ target_link_libraries(llprimitive
         llxml
         llcharacter
         llrender
+        llappearance
+        llmeshoptimizer
         ll::colladadom
         ll::glm
         )

@@ -83,12 +83,12 @@ private:
 };
 
 class LLWatchdogTimerThread; // Defined in the cpp
-class LLWatchdog : public LLSingleton<LLWatchdog>
+class LLWatchdog : public LLSimpleton<LLWatchdog>
 {
-    LLSINGLETON(LLWatchdog);
+public:
+    LLWatchdog();
     ~LLWatchdog();
 
-public:
     // Add an entry to the watchdog.
     void add(LLWatchdogEntry* e);
     void remove(LLWatchdogEntry* e);

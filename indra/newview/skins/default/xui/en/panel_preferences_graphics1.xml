@@ -360,9 +360,19 @@
       function="Pref.RenderExceptions"/>
   </button>
 
+  <check_box
+    control_name="RenderHDRUseEnvironmentSettings"
+    follows="left|top"
+    height="16"
+    label="Use Environment HDR Settings"
+    layout="topleft"
+    left="30"
+    name="UseEnvHDRSettings"
+    tool_tip="When available, use post process settings from the environment"
+    top_pad="14"
+    width="260"/>
   <slider
     control_name="RenderExposure"
-    enabled_control="RenderDisableVintageMode"
     decimal_digits="1"
     follows="left|top"
     height="16"
@@ -376,7 +386,7 @@
     max_val="4.0"
     name="RenderExposure"
     show_text="true"
-    top_pad="14"
+    top_pad="5"
     width="260">
   </slider>
 
