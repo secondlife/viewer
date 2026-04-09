@@ -290,6 +290,109 @@ namespace tut
         ensure_equals("LLQuaternion bridge preserves w", got.w, ll_input.mQ[VW]);
     }
 
+    // ---------------------------------------------------------------------
+    // Tests 18-20: getWorldRotation pinning for the cluster #23 migration.
+    // The existing test 8 already covers a basic getWorldRotation roundtrip
+    // on a parentless joint, but doesn't pin the COMPOSITION behavior under
+    // a parent. These tests pin the parent/child world rotation composition
+    // so the cluster #23 return type migration (LLQuaternion -> glm::quat)
+    // is verified to preserve LLXform's compose semantics through the
+    // LLJoint forwarder.
+    // ---------------------------------------------------------------------
+
+    template<> template<>
+    void lljoint_object::test<18>()
+    {
+        // Identity invariance: a child joint with identity local rotation
+        // and an identity parent must have identity world rotation.
+        LLJoint parent("parent");
+        LLJoint child;
+        child.setup("child", &parent);
+
+        // Both default to identity.
+        const LLQuaternion world(child.getWorldRotation());
+        ensure("identity child of identity parent has identity world",
+               world.isIdentity());
+    }
+
+    template<> template<>
+    void lljoint_object::test<19>()
+    {
+        // Parent rotation propagates to child world rotation. Set parent
+        // to a known rotation, child to identity, verify child's world
+        // rotation equals the parent's local rotation.
+        LLJoint parent("parent");
+        LLJoint child;
+        child.setup("child", &parent);
+
+        const glm::quat parent_rot = glm::angleAxis(F_PI_BY_TWO, glm::vec3(0.f, 0.f, 1.f));
+        parent.setRotation(parent_rot);
+        // child stays at identity local rotation.
+
+        // Apply rotations to a known basis vector and compare. Behavioral
+        // comparison handles the q vs -q sign ambiguity that direct
+        // element comparison would miss.
+        const LLVector3 test_vec(1.f, 0.f, 0.f);
+        const LLVector3 rotated_by_child_world =
+            test_vec * LLQuaternion(child.getWorldRotation());
+        const LLVector3 rotated_by_parent =
+            test_vec * LLQuaternion(parent.getRotation());
+
+        const F32 eps = 1e-4f;
+        ensure("identity child world == parent local: x",
+               std::fabs(rotated_by_child_world.mV[VX] - rotated_by_parent.mV[VX]) < eps);
+        ensure("identity child world == parent local: y",
+               std::fabs(rotated_by_child_world.mV[VY] - rotated_by_parent.mV[VY]) < eps);
+        ensure("identity child world == parent local: z",
+               std::fabs(rotated_by_child_world.mV[VZ] - rotated_by_parent.mV[VZ]) < eps);
+    }
+
+    template<> template<>
+    void lljoint_object::test<20>()
+    {
+        // Three-level chain composition: root -> middle -> leaf, each
+        // with a distinct non-trivial rotation. The leaf's world rotation
+        // must equal the LLXform composition (which uses LL operand
+        // semantics: child.world = child.local * parent.world).
+        //
+        // This is the strongest test that LLJoint::getWorldRotation
+        // forwards correctly through the LLXform chain. xform_test #12
+        // pins this for raw LLXformMatrix; this test pins it for the
+        // LLJoint wrapper.
+        LLJoint root("root");
+        LLJoint middle;
+        LLJoint leaf;
+        middle.setup("middle", &root);
+        leaf.setup("leaf", &middle);
+
+        const glm::quat root_rot   = glm::angleAxis(F_PI_BY_TWO, glm::vec3(0.f, 0.f, 1.f));
+        const glm::quat middle_rot = glm::angleAxis(F_PI_BY_TWO, glm::vec3(1.f, 0.f, 0.f));
+        const glm::quat leaf_rot   = glm::angleAxis(F_PI_BY_TWO, glm::vec3(0.f, 1.f, 0.f));
+
+        root.setRotation(root_rot);
+        middle.setRotation(middle_rot);
+        leaf.setRotation(leaf_rot);
+
+        // Apply leaf's world rotation to a basis vector and compare to
+        // applying the LL composition manually. LL operand order:
+        //   leaf.world = leaf.local * middle.local * root.local
+        const LLVector3 test_vec(1.f, 2.f, 3.f);
+        const LLVector3 rotated_by_world =
+            test_vec * LLQuaternion(leaf.getWorldRotation());
+
+        const LLQuaternion expected =
+            LLQuaternion(leaf_rot) * LLQuaternion(middle_rot) * LLQuaternion(root_rot);
+        const LLVector3 rotated_by_expected = test_vec * expected;
+
+        const F32 eps = 1e-4f;
+        ensure("three-level chain world: x",
+               std::fabs(rotated_by_world.mV[VX] - rotated_by_expected.mV[VX]) < eps);
+        ensure("three-level chain world: y",
+               std::fabs(rotated_by_world.mV[VY] - rotated_by_expected.mV[VY]) < eps);
+        ensure("three-level chain world: z",
+               std::fabs(rotated_by_world.mV[VZ] - rotated_by_expected.mV[VZ]) < eps);
+    }
+
 
     /*
         Test cases for the following not added. They perform operations
