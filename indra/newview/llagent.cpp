@@ -1494,9 +1494,9 @@ void LLAgent::yaw(F32 angle)
 //-----------------------------------------------------------------------------
 // getQuat()
 //-----------------------------------------------------------------------------
-LLQuaternion LLAgent::getQuat() const
+glm::quat LLAgent::getQuat() const
 {
-    return mFrameAgent.getQuaternion();
+    return mFrameAgent.getQuaternion();   // implicit op glm::quat()
 }
 
 //-----------------------------------------------------------------------------

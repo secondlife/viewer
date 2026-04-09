@@ -247,7 +247,7 @@ public:
     const glm::vec3& getAtAxis() const   { return mFrameAgent.getAtAxis();   }
     const glm::vec3& getUpAxis() const   { return mFrameAgent.getUpAxis();   }
     const glm::vec3& getLeftAxis() const { return mFrameAgent.getLeftAxis(); }
-    LLQuaternion    getQuat() const;        // Returns the quat that represents the rotation of the agent in the absolute frame
+    glm::quat       getQuat() const;        // Returns the quat that represents the rotation of the agent in the absolute frame
 private:
     LLVector3d      mAgentOriginGlobal;     // Origin of agent coords from global coords
     LLCoordFrame    mFrameAgent;            // Agent position and view, agent-region coordinates
