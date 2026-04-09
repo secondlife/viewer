@@ -57,7 +57,6 @@ LLJointSolverRP3::LLJointSolverRP3()
     mJointGoal = NULL;
     mLengthAB = 1.0f;
     mLengthBC = 1.0f;
-    mPoleVector.set( 1.0f, 0.0f, 0.0f );
     mbUseBAxis = false;
     mTwist = 0.0f;
     mFirstTime = true;
@@ -94,9 +93,9 @@ void LLJointSolverRP3::setupJoints( LLJoint* jointA,
 //-----------------------------------------------------------------------------
 // getPoleVector()
 //-----------------------------------------------------------------------------
-const LLVector3& LLJointSolverRP3::getPoleVector()
+LLVector3 LLJointSolverRP3::getPoleVector()
 {
-    return mPoleVector;
+    return LLVector3(mPoleVector);
 }
 
 
@@ -106,7 +105,7 @@ const LLVector3& LLJointSolverRP3::getPoleVector()
 void LLJointSolverRP3::setPoleVector( const LLVector3& poleVector )
 {
     mPoleVector = poleVector;
-    mPoleVector.normalize();
+    mPoleVector = glm::normalize(mPoleVector);
 }
 
 
@@ -116,7 +115,7 @@ void LLJointSolverRP3::setPoleVector( const LLVector3& poleVector )
 void LLJointSolverRP3::setBAxis( const LLVector3& bAxis )
 {
     mBAxis = bAxis;
-    mBAxis.normalize();
+    mBAxis = glm::normalize(mBAxis);
     mbUseBAxis = true;
 }
 
@@ -252,7 +251,7 @@ void LLJointSolverRP3::solve()
     {
         // Pre-emptive bridge: vec * LLJoint::getWorldRotation() will be
         // ambiguous when getWorldRotation() returns glm::quat.
-        abcNorm = mBAxis * LLQuaternion(mJointB->getWorldRotation());
+        abcNorm = LLVector3(mBAxis) * LLQuaternion(mJointB->getWorldRotation());
     }
 
     //-------------------------------------------------------------------------
