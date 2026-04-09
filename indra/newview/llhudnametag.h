@@ -170,7 +170,7 @@ private:
     const LLFontGL* mFontp;
     const LLFontGL* mBoldFontp;
     LLRectf         mSoftScreenRect;
-    LLVector3       mPositionAgent;
+    glm::vec3       mPositionAgent{0.f};
     glm::vec2       mPositionOffset;
     glm::vec2       mTargetPositionOffset;
     F32             mMass;

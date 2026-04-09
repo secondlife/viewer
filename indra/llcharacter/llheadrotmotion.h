@@ -178,7 +178,7 @@ public:
     // it will be deactivated
     bool onActivate() override;
 
-    void adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_state, LLJointState& right_eye_state) const;
+    void adjustEyeTarget(glm::vec3* targetPos, LLJointState& left_eye_state, LLJointState& right_eye_state) const;
 
     // called per time step
     // must return true while it is active, and

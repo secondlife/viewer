@@ -178,7 +178,7 @@ LLVector3d LLAvatarTracker::getGlobalPos()
         // HACK - for making the tracker point above the avatar's head
         // rather than its groin
         LLVOAvatar* av = static_cast<LLVOAvatar*>(object);
-        global_pos.mdV[VZ] += 0.7f * (av->mBodySize.mV[VZ] + av->mAvatarOffset.mV[VZ]);
+        global_pos.mdV[VZ] += 0.7f * (av->mBodySize.z + av->mAvatarOffset.z);
 
         mTrackingData->mGlobalPositionEstimate = global_pos;
     }

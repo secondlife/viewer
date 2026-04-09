@@ -330,7 +330,7 @@ public:
     /*virtual*/ void setHoverOffset(const LLVector3& hover_offset, bool send_update=true);
 
 private:
-    mutable LLVector3 mLastHoverOffsetSent;
+    mutable glm::vec3 mLastHoverOffsetSent{0.f, 0.f, -999.f};
 
 /**                    Appearance
  **                                                                            **

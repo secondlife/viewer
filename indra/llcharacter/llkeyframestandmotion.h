@@ -31,6 +31,7 @@
 //-----------------------------------------------------------------------------
 #include "llkeyframemotion.h"
 #include "lljointsolverrp3.h"
+#include <glm/vec3.hpp>
 
 
 //-----------------------------------------------------------------------------
@@ -99,17 +100,17 @@ public:
     LLJointSolverRP3    mIKLeft;
     LLJointSolverRP3    mIKRight;
 
-    LLVector3           mPositionLeft;
-    LLVector3           mPositionRight;
-    LLVector3           mNormalLeft;
-    LLVector3           mNormalRight;
+    glm::vec3           mPositionLeft{0.f};
+    glm::vec3           mPositionRight{0.f};
+    glm::vec3           mNormalLeft{0.f};
+    glm::vec3           mNormalRight{0.f};
     // glm-quat migration cluster #6: stored as glm::quat; interop with
     // LLQuaternion uses the implicit bridge ctor/conversion operator.
     glm::quat           mRotationLeft{1.f, 0.f, 0.f, 0.f};
     glm::quat           mRotationRight{1.f, 0.f, 0.f, 0.f};
 
     glm::quat           mLastGoodPelvisRotation{1.f, 0.f, 0.f, 0.f};
-    LLVector3           mLastGoodPosition;
+    glm::vec3           mLastGoodPosition{0.f};
     bool                mTrackAnkles;
 
     S32                 mFrameNum;

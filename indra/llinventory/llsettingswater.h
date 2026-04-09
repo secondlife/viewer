@@ -28,6 +28,7 @@
 #pragma once
 
 #include "llsettingsbase.h"
+#include <glm/vec3.hpp>
 
 class LLSettingsWater : public LLSettingsBase
 {
@@ -281,7 +282,7 @@ protected:
     F32 mFogMod;
     F32 mFresnelOffset;
     F32 mFresnelScale;
-    LLVector3 mNormalScale;
+    glm::vec3 mNormalScale{0.f};
     F32 mScaleAbove;
     F32 mScaleBelow;
     glm::vec2 mWave1Dir;

@@ -345,17 +345,17 @@ bool LLHeavenBody::getDraw() const
     return mDraw;
 }
 
-const LLVector3& LLHeavenBody::corner(const S32 n) const
+const glm::vec3& LLHeavenBody::corner(const S32 n) const
 {
     return mQuadCorner[n];
 }
 
-LLVector3& LLHeavenBody::corner(const S32 n)
+glm::vec3& LLHeavenBody::corner(const S32 n)
 {
     return mQuadCorner[n];
 }
 
-const LLVector3* LLHeavenBody::corners() const
+const glm::vec3* LLHeavenBody::corners() const
 {
     return mQuadCorner;
 }
@@ -1031,7 +1031,7 @@ bool LLVOSky::updateGeometry(LLDrawable *drawable)
 
     const F32 water_height = gAgent.getRegion()->getWaterHeight() + 0.01f;
         // LLWorld::getInstance()->getWaterHeight() + 0.01f;
-    const F32 camera_height = mCameraPosAgent.mV[2];
+    const F32 camera_height = mCameraPosAgent.z;
     const F32 height_above_water = camera_height - water_height;
 
     bool sun_flag = false;
@@ -1127,7 +1127,7 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const 
     for (S32 vtx = 0; vtx < 4; ++vtx)
     {
         hb.corner(vtx) = v_clipped[vtx];
-        *(verticesp++)  = hb.corner(vtx) + mCameraPosAgent;
+        *(verticesp++)  = LLVector3(hb.corner(vtx) + mCameraPosAgent);
     }
 
     *(texCoordsp++) = TEX01;

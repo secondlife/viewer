@@ -56,12 +56,12 @@ struct LLFlexibleObjectSection
     glm::vec2       mScale;
     glm::quat       mAxisRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     // Simulated state
-    LLVector3       mPosition;
-    LLVector3       mVelocity;
+    glm::vec3       mPosition{0.f};
+    glm::vec3       mVelocity{0.f};
     glm::vec3       mDirection{0.f};
     glm::quat       mRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     // Derivatives (Not all currently used, will come back with LLVolume changes to automagically generate normals)
-    LLVector3       mdPosition;
+    glm::vec3       mdPosition{0.f};
     //LLMatrix4     mRotScale;
     //LLMatrix4     mdRotScale;
 };

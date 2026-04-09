@@ -730,7 +730,7 @@ public:
     bool        mNeedsImpostorUpdate;
     S32         mLastImpostorUpdateReason;
     F32SecondsImplicit mLastImpostorUpdateFrameTime;
-    const LLVector3*  getLastAnimExtents() const { return mLastAnimExtents; }
+    const glm::vec3*  getLastAnimExtents() const { return mLastAnimExtents; }
     void        setNeedsExtentUpdate(bool val) { mNeedsExtentUpdate = val; }
 
 private:
@@ -743,7 +743,7 @@ private:
     glm::vec3   mImpostorAngle{0.f};
     F32         mImpostorDistance;
     F32         mImpostorPixelArea;
-    LLVector3   mLastAnimExtents[2];
+    glm::vec3   mLastAnimExtents[2]{};
     glm::vec3   mLastAnimBasePos{0.f};
 
     LLCachedControl<bool> mRenderUnloadedAvatar;

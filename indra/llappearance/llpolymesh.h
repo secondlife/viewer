@@ -67,9 +67,9 @@ class LLPolyMeshSharedData
     friend class LLPolyMesh;
 private:
     // transform data
-    LLVector3               mPosition;
+    glm::vec3               mPosition{0.f};
     glm::quat               mRotation;
-    LLVector3               mScale;
+    glm::vec3               mScale{1.f};
 
     // vertex data
     S32                     mNumVertices;
@@ -178,9 +178,9 @@ public:
     // Transform Data Access
     //--------------------------------------------------------------------
     // Get position
-    const LLVector3 &getPosition() {
+    LLVector3 getPosition() {
         llassert (mSharedData);
-        return mSharedData->mPosition;
+        return LLVector3(mSharedData->mPosition);
     }
 
     // Get rotation
@@ -190,9 +190,9 @@ public:
     }
 
     // Get scale
-    const LLVector3 &getScale() {
+    LLVector3 getScale() {
         llassert (mSharedData);
-        return mSharedData->mScale;
+        return LLVector3(mSharedData->mScale);
     }
 
     //--------------------------------------------------------------------

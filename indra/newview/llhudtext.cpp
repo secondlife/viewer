@@ -362,7 +362,7 @@ void LLHUDText::updateVisibility()
     {
         mVisible = true;
         sVisibleHUDTextObjects.push_back(LLPointer<LLHUDText> (this));
-        mLastDistance = mPositionAgent.mV[VX];
+        mLastDistance = mPositionAgent.x;
         return;
     }
 
@@ -385,7 +385,10 @@ void LLHUDText::updateVisibility()
     }
     else
     {
-        mPositionAgent -= dir_from_camera * mSourceObject->getVObjRadius();
+        {
+            const LLVector3 sub = dir_from_camera * mSourceObject->getVObjRadius();
+            mPositionAgent -= glm::vec3(sub.mV[VX], sub.mV[VY], sub.mV[VZ]);
+        }
     }
 
     mLastDistance = (mPositionAgent - cam_origin_ll).length();
@@ -612,7 +615,7 @@ void LLHUDText::shiftAll(const LLVector3& offset)
 
 void LLHUDText::shift(const LLVector3& offset)
 {
-    mPositionAgent += offset;
+    mPositionAgent += glm::vec3(offset.mV[VX], offset.mV[VY], offset.mV[VZ]);
 }
 
 //static

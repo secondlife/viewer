@@ -37,7 +37,7 @@ public:
     glm::mat4 mJointMatrix;
     glm::mat4 mRestMatrix;
     glm::vec3 mScale;
-    LLVector3 mRotation;
+    glm::vec3 mRotation{0.f};
 
     using bones_t = std::vector<LLJointData>;
     bones_t mChildren;

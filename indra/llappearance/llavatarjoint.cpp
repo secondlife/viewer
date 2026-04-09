@@ -231,7 +231,7 @@ U32 LLAvatarJointCollisionVolume::render( F32 pixelArea, bool first_pass, bool i
     return 0;
 }
 
-LLVector3 LLAvatarJointCollisionVolume::getVolumePos(LLVector3 &offset)
+LLVector3 LLAvatarJointCollisionVolume::getVolumePos(const LLVector3 &offset)
 {
     mUpdateXform = true;
 

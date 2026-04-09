@@ -89,7 +89,7 @@ private:
     glm::vec3                   mLastSentOffsetGlobal;
     F32                         mKillTime;
     LLFrameTimer                mTimer;
-    LLVector3                   mTargetPos;
+    glm::vec3                   mTargetPos{0.f};
     F32                         mLastSendTime;
     LLAttentionSet*             mAttentions;
 };

@@ -168,8 +168,8 @@ private:
     F32             mTickPixelSpacing1; //!< The pixel spacing between snap guide tick marks for the upper scale.
     F32             mTickPixelSpacing2; //!< The pixel spacing between snap guide tick marks for the lower scale.
     F32             mSnapGuideLength;
-    LLVector3       mScaleCenter; //!< The location of the origin of the scaling operation.
-    LLVector3       mScaleDir; //!< The direction of the scaling action.  In face-dragging this is aligned with one of the cardinal axis relative to the prim, but in corner-dragging this is along the diagonal.
+    glm::vec3       mScaleCenter{0.f}; //!< The location of the origin of the scaling operation.
+    glm::vec3       mScaleDir{0.f}; //!< The direction of the scaling action.  In face-dragging this is aligned with one of the cardinal axis relative to the prim, but in corner-dragging this is along the diagonal.
     F32             mScaleSnappedValue; //!< The distance of the current position nearest the mouse location, measured along mScaleDir.  Is measured either from the center or from the far face/corner depending upon whether uniform scaling is true or false respectively.
     ESnapRegimes    mSnapRegime; //<! Which, if any, snap regime the cursor is currently residing in.
     std::array<F32, NUM_MANIPULATORS> mManipulatorScales;

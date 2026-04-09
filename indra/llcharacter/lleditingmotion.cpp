@@ -102,7 +102,7 @@ LLMotion::LLMotionInitStatus LLEditingMotion::onInitialize(LLCharacter *characte
         return LLMotionInitStatus::STATUS_FAILURE;
     }
 
-    mWristOffset = LLVector3(0.0f, 0.2f, 0.0f);
+    mWristOffset = glm::vec3(0.0f, 0.2f, 0.0f);
 
     // add joint states to the pose
     mShoulderState->setUsage(LLJointState::ROT);
@@ -163,20 +163,20 @@ bool LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED;
     LLVector3 focus_pt;
-    const LLVector3* pointAtPt = static_cast<const LLVector3*>(mCharacter->getAnimationData("PointAtPoint"));
+    const glm::vec3* pointAtPt = static_cast<const glm::vec3*>(mCharacter->getAnimationData("PointAtPoint"));
 
 
     bool result = true;
 
     if (!pointAtPt)
     {
-        focus_pt = mLastSelectPt;
+        focus_pt = LLVector3(mLastSelectPt);
         result = false;
     }
     else
     {
-        focus_pt = *pointAtPt;
-        mLastSelectPt = focus_pt;
+        focus_pt = LLVector3(*pointAtPt);
+        mLastSelectPt = glm::vec3(focus_pt.mV[0], focus_pt.mV[1], focus_pt.mV[2]);
     }
 
     focus_pt += mCharacter->getCharacterPosition();

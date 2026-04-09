@@ -58,7 +58,7 @@ private:
     std::array<LLPointer<LLViewerTexture>, 2> mTexture;
     std::array<LLPointer<LLImageRaw>, 2> mImageRaw;
     std::vector<LLColor4>  mSkyData;
-    std::vector<LLVector3> mSkyDirs;    // Cache of sky direction vectors
+    std::vector<glm::vec3> mSkyDirs;    // Cache of sky direction vectors
     static S32      sCurrent;
 
 public:
@@ -86,13 +86,13 @@ protected:
     void setDir(const LLVector3 &dir, const S32 i, const S32 j)
     {
         S32 offset = static_cast<S32>((i * SKYTEX_RESOLUTION + j));
-        mSkyDirs[offset] = dir;
+        mSkyDirs[offset] = glm::vec3(dir.mV[0], dir.mV[1], dir.mV[2]);
     }
 
-    const LLVector3 &getDir(const S32 i, const S32 j) const
+    LLVector3 getDir(const S32 i, const S32 j) const
     {
         S32 offset = static_cast<S32>((i * SKYTEX_RESOLUTION + j));
-        return mSkyDirs[offset];
+        return LLVector3(mSkyDirs[offset]);
     }
 
     void setPixel(const LLColor4 &col, const S32 i, const S32 j)
@@ -141,7 +141,7 @@ protected:
     F32             mVisibility;            // same but due to other objects being in throng.
     bool            mVisible;
     static F32      sInterpVal;
-    LLVector3       mQuadCorner[4];
+    glm::vec3       mQuadCorner[4]{};
 
 public:
     explicit LLHeavenBody(const F32 rad);
@@ -180,9 +180,9 @@ public:
     void setDraw(const bool draw);
     bool getDraw() const;
 
-    const LLVector3& corner(const S32 n) const;
-    LLVector3& corner(const S32 n);
-    const LLVector3* corners() const;
+    const glm::vec3& corner(const S32 n) const;
+    glm::vec3& corner(const S32 n);
+    const glm::vec3* corners() const;
 };
 
 class LLCubeMap;
@@ -252,7 +252,7 @@ public:
     void setCloudDensity(F32 cloud_density)             { mCloudDensity = cloud_density; }
     void setWind ( const LLVector3& wind )              { mWind = wind.length(); }
 
-    const LLVector3 &getCameraPosAgent() const          { return mCameraPosAgent; }
+    LLVector3 getCameraPosAgent() const                 { return LLVector3(mCameraPosAgent); }
 
     LLCubeMap *getCubeMap() const                       { return mCubeMap; }
     S32 getDrawRefl() const                             { return mDrawRefl; }
@@ -315,7 +315,7 @@ protected:
     LLHeavenBody        mSun;
     LLHeavenBody        mMoon;
     F32                 mAtmHeight;
-    LLVector3           mCameraPosAgent;
+    glm::vec3           mCameraPosAgent{0.f};
     F32                 mBrightnessScale;
     LLColor3            mBrightestPoint;
     F32                 mBrightnessScaleNew;

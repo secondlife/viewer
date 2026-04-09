@@ -50,14 +50,14 @@ class LLAvatarAppearance;
 //-----------------------------------------------------------------------------
 struct LLPolySkeletalBoneInfo
 {
-    LLPolySkeletalBoneInfo(std::string &name, LLVector3 &scale, LLVector3 &pos, bool haspos)
+    LLPolySkeletalBoneInfo(std::string &name, const glm::vec3& scale, const glm::vec3& pos, bool haspos)
         : mBoneName(name),
           mScaleDeformation(scale),
           mPositionDeformation(pos),
           mHasPositionDeformation(haspos) {}
     std::string mBoneName;
-    LLVector3 mScaleDeformation;
-    LLVector3 mPositionDeformation;
+    glm::vec3 mScaleDeformation{0.f};
+    glm::vec3 mPositionDeformation{0.f};
     bool mHasPositionDeformation;
 };
 
@@ -111,7 +111,7 @@ protected:
     LLPolySkeletalDistortion(const LLPolySkeletalDistortion& pOther);
 
     LL_ALIGN_16(LLVector4a mDefaultVec);
-    using joint_vec_map_t = std::map<LLJoint*, LLVector3>;
+    using joint_vec_map_t = std::map<LLJoint*, glm::vec3>;
     joint_vec_map_t mJointScales;
     joint_vec_map_t mJointOffsets;
     // Backlink only; don't make this an LLPointer.

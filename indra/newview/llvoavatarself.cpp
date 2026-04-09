@@ -159,7 +159,6 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
     mRegionCrossingCount(0),
     // Value outside legal range, so will always be a mismatch the
     // first time through.
-    mLastHoverOffsetSent(LLVector3(0.0f, 0.0f, -999.0f)),
     mInitialMetric(true),
     mMetricSequence(0)
 {
@@ -2810,7 +2809,7 @@ void LLVOAvatarSelf::sendHoverHeight() const
         // (comment from removed Responder)
         LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, update,
             "Hover height sent to sim", "Hover height not sent to sim");
-        mLastHoverOffsetSent = hover_offset;
+        mLastHoverOffsetSent = glm::vec3(hover_offset.mV[0], hover_offset.mV[1], hover_offset.mV[2]);
     }
 }
 
@@ -2821,7 +2820,7 @@ void LLVOAvatarSelf::setHoverOffset(const LLVector3& hover_offset, bool send_upd
         LL_INFOS("Avatar") << avString() << " setting hover due to change " << hover_offset[2] << LL_ENDL;
         LLVOAvatar::setHoverOffset(hover_offset, send_update);
     }
-    if (send_update && (hover_offset != mLastHoverOffsetSent))
+    if (send_update && (hover_offset != LLVector3(mLastHoverOffsetSent)))
     {
         LL_INFOS("Avatar") << avString() << " sending hover due to change " << hover_offset[2] << LL_ENDL;
         sendHoverHeight();

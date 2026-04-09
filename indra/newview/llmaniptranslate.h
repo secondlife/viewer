@@ -40,12 +40,22 @@ public:
     class ManipulatorHandle
     {
     public:
-        LLVector3   mStartPosition;
-        LLVector3   mEndPosition;
+        // Use packed_highp to avoid the 16-byte alignment that
+        // GLM_FORCE_DEFAULT_ALIGNED_GENTYPES applies to glm::vec3, which
+        // would otherwise trigger MSVC's std::aligned_storage extended
+        // alignment static_assert when ManipulatorHandle is used inside
+        // std::vector + std::stable_sort (the temp buffer instantiates
+        // std::aligned_storage<sizeof(T), alignof(T)>).
+        using vec3p = glm::vec<3, F32, glm::packed_highp>;
+        vec3p       mStartPosition{0.f};
+        vec3p       mEndPosition{0.f};
         EManipPart  mManipID;
         F32         mHotSpotRadius;
 
-        ManipulatorHandle(LLVector3 start_pos, LLVector3 end_pos, EManipPart id, F32 radius):mStartPosition(start_pos), mEndPosition(end_pos), mManipID(id), mHotSpotRadius(radius){}
+        ManipulatorHandle(LLVector3 start_pos, LLVector3 end_pos, EManipPart id, F32 radius)
+        : mStartPosition(start_pos.mV[0], start_pos.mV[1], start_pos.mV[2]),
+          mEndPosition(end_pos.mV[0], end_pos.mV[1], end_pos.mV[2]),
+          mManipID(id), mHotSpotRadius(radius){}
     };
 
 

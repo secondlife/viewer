@@ -131,7 +131,7 @@ void LLSettingsWater::loadValuesFromLLSD()
     mFogMod = static_cast<F32>(settings[SETTING_FOG_MOD].asReal());
     mFresnelOffset = static_cast<F32>(settings[SETTING_FRESNEL_OFFSET].asReal());
     mFresnelScale = static_cast<F32>(settings[SETTING_FRESNEL_SCALE].asReal());
-    mNormalScale = LLVector3(settings[SETTING_NORMAL_SCALE]);
+    mNormalScale = ll_vec3_from_sd(settings[SETTING_NORMAL_SCALE]);
     mScaleAbove = static_cast<F32>(settings[SETTING_SCALE_ABOVE].asReal());
     mScaleBelow = static_cast<F32>(settings[SETTING_SCALE_BELOW].asReal());
     mWave1Dir = ll_vec2_from_sd(settings[SETTING_WAVE1_DIR]);
@@ -154,7 +154,7 @@ void LLSettingsWater::saveValuesToLLSD()
     settings[SETTING_FOG_MOD] = LLSD::Real(mFogMod);
     settings[SETTING_FRESNEL_OFFSET] = LLSD::Real(mFresnelOffset);
     settings[SETTING_FRESNEL_SCALE] = LLSD::Real(mFresnelScale);
-    settings[SETTING_NORMAL_SCALE] = mNormalScale.getValue();
+    settings[SETTING_NORMAL_SCALE] = ll_sd_from_vec3(mNormalScale);
     settings[SETTING_SCALE_ABOVE] = LLSD::Real(mScaleAbove);
     settings[SETTING_SCALE_BELOW] = LLSD::Real(mScaleBelow);
     settings[SETTING_WAVE1_DIR] = ll_sd_from_vec2(mWave1Dir);
@@ -249,7 +249,7 @@ void LLSettingsWater::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mFogMod = lerp(mFogMod, other->mFogMod, static_cast<F32>(blendf));
         mFresnelOffset = lerp(mFresnelOffset, other->mFresnelOffset, static_cast<F32>(blendf));
         mFresnelScale = lerp(mFresnelScale, other->mFresnelScale, static_cast<F32>(blendf));
-        lerpVector3(mNormalScale, other->mNormalScale, static_cast<F32>(blendf));
+        mNormalScale = glm::mix(mNormalScale, other->mNormalScale, static_cast<F32>(blendf));
         mScaleAbove = lerp(mScaleAbove, other->mScaleAbove, static_cast<F32>(blendf));
         mScaleBelow = lerp(mScaleBelow, other->mScaleBelow, static_cast<F32>(blendf));
         mWave1Dir = glm::mix(mWave1Dir, other->mWave1Dir, static_cast<F32>(blendf));

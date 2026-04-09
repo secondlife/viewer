@@ -200,12 +200,12 @@ LLVector3 LLKeyframeMotion::ScaleCurve::interp(F32 u, ScaleKey& before, ScaleKey
     switch (mInterpolationType)
     {
     case IT_STEP:
-        return before.mScale;
+        return LLVector3(before.mScale);
 
     default:
     case IT_LINEAR:
     case IT_SPLINE:
-        return lerp(before.mScale, after.mScale, u);
+        return lerp(LLVector3(before.mScale), LLVector3(after.mScale), u);
     }
 }
 
@@ -366,11 +366,11 @@ LLVector3 LLKeyframeMotion::PositionCurve::interp(F32 u, PositionKey& before, Po
     switch (mInterpolationType)
     {
     case IT_STEP:
-        return before.mPosition;
+        return LLVector3(before.mPosition);
     default:
     case IT_LINEAR:
     case IT_SPLINE:
-        return lerp(before.mPosition, after.mPosition, u);
+        return lerp(LLVector3(before.mPosition), LLVector3(after.mPosition), u);
     }
 }
 
@@ -881,8 +881,10 @@ void LLKeyframeMotion::activateConstraint(JointConstraint* constraint)
     {
         LLVector3 source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolume, shared_data->mSourceConstraintOffset);
         LLVector3 ground_pos_agent;
-        mCharacter->getGround(source_pos, ground_pos_agent, constraint->mGroundNorm);
-        constraint->mGroundPos = mCharacter->getPosGlobalFromAgent(ground_pos_agent + shared_data->mTargetConstraintOffset);
+        LLVector3 ground_norm_tmp;
+        mCharacter->getGround(source_pos, ground_pos_agent, ground_norm_tmp);
+        constraint->mGroundNorm = glm::vec3(ground_norm_tmp.mV[0], ground_norm_tmp.mV[1], ground_norm_tmp.mV[2]);
+        constraint->mGroundPos = mCharacter->getPosGlobalFromAgent(ground_pos_agent + LLVector3(shared_data->mTargetConstraintOffset));
     }
 
     for (joint_num = 1; joint_num < shared_data->mChainLength; joint_num++)
@@ -1013,7 +1015,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
         switch(shared_data->mConstraintTargetType)
         {
         case EConstraintTargetType::CONSTRAINT_TARGET_TYPE_GROUND:
-            norm = constraint->mGroundNorm;
+            norm = LLVector3(constraint->mGroundNorm);
             break;
         case EConstraintTargetType::CONSTRAINT_TARGET_TYPE_BODY:
             target_jointp = mCharacter->findCollisionVolume(shared_data->mTargetConstraintVolume);
@@ -1027,7 +1029,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
             if (norm.isExactlyZero())
             {
                 source_jointp = mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume);
-                norm = -1.f * shared_data->mSourceConstraintOffset;
+                norm = -1.f * LLVector3(shared_data->mSourceConstraintOffset);
                 if (source_jointp)
                 {
                     // Pre-emptive bridge: vec * LLJoint::getWorldRotation() will
@@ -1743,7 +1745,8 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 
             if (old_version)
             {
-                if (!dp.unpackVector3(pos_key.mPosition, "pos"))
+                LLVector3 tmp;
+                if (!dp.unpackVector3(tmp, "pos"))
                 {
                     LL_WARNS() << "can't read pos in position key (" << k << ")"
                                << " for animation " << asset() << LL_ENDL;
@@ -1751,10 +1754,10 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                 }
 
                 //MAINT-6162
-                pos_key.mPosition.mV[VX] = llclamp( pos_key.mPosition.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-                pos_key.mPosition.mV[VY] = llclamp( pos_key.mPosition.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-                pos_key.mPosition.mV[VZ] = llclamp( pos_key.mPosition.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-
+                tmp.mV[VX] = llclamp( tmp.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                tmp.mV[VY] = llclamp( tmp.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                tmp.mV[VZ] = llclamp( tmp.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                pos_key.mPosition = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
             }
             else
             {
@@ -1779,12 +1782,12 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                     return false;
                 }
 
-                pos_key.mPosition.mV[VX] = U16_to_F32(x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-                pos_key.mPosition.mV[VY] = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-                pos_key.mPosition.mV[VZ] = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                pos_key.mPosition.x = U16_to_F32(x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                pos_key.mPosition.y = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                pos_key.mPosition.z = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
             }
 
-            if (!pos_key.mPosition.isFinite())
+            if (!LLVector3(pos_key.mPosition).isFinite())
             {
                 LL_WARNS() << "non-finite position in key"
                            << " for animation " << asset() << LL_ENDL;
@@ -1899,14 +1902,18 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                 return false;
             }
 
-            if (!dp.unpackVector3(constraintp->mSourceConstraintOffset, "source_offset"))
             {
-                LL_WARNS() << "can't read constraint source offset"
-                           << " for animation " << asset() << LL_ENDL;
-                return false;
+                LLVector3 tmp;
+                if (!dp.unpackVector3(tmp, "source_offset"))
+                {
+                    LL_WARNS() << "can't read constraint source offset"
+                               << " for animation " << asset() << LL_ENDL;
+                    return false;
+                }
+                constraintp->mSourceConstraintOffset = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
             }
 
-            if( !(constraintp->mSourceConstraintOffset.isFinite()) )
+            if( !(LLVector3(constraintp->mSourceConstraintOffset).isFinite()) )
             {
                 LL_WARNS() << "non-finite constraint source offset"
                            << " for animation " << asset() << LL_ENDL;
@@ -1939,35 +1946,43 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                 }
             }
 
-            if (!dp.unpackVector3(constraintp->mTargetConstraintOffset, "target_offset"))
             {
-                LL_WARNS() << "can't read constraint target offset"
-                           << " for animation " << asset() << LL_ENDL;
-                return false;
+                LLVector3 tmp;
+                if (!dp.unpackVector3(tmp, "target_offset"))
+                {
+                    LL_WARNS() << "can't read constraint target offset"
+                               << " for animation " << asset() << LL_ENDL;
+                    return false;
+                }
+                constraintp->mTargetConstraintOffset = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
             }
 
-            if( !(constraintp->mTargetConstraintOffset.isFinite()) )
+            if( !(LLVector3(constraintp->mTargetConstraintOffset).isFinite()) )
             {
                 LL_WARNS() << "non-finite constraint target offset"
                            << " for animation " << asset() << LL_ENDL;
                 return false;
             }
 
-            if (!dp.unpackVector3(constraintp->mTargetConstraintDir, "target_dir"))
             {
-                LL_WARNS() << "can't read constraint target direction"
-                           << " for animation " << asset() << LL_ENDL;
-                return false;
+                LLVector3 tmp;
+                if (!dp.unpackVector3(tmp, "target_dir"))
+                {
+                    LL_WARNS() << "can't read constraint target direction"
+                               << " for animation " << asset() << LL_ENDL;
+                    return false;
+                }
+                constraintp->mTargetConstraintDir = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
             }
 
-            if( !(constraintp->mTargetConstraintDir.isFinite()) )
+            if( !(LLVector3(constraintp->mTargetConstraintDir).isFinite()) )
             {
                 LL_WARNS() << "non-finite constraint target direction"
                            << " for animation " << asset() << LL_ENDL;
                 return false;
             }
 
-            if (!constraintp->mTargetConstraintDir.isExactlyZero())
+            if (constraintp->mTargetConstraintDir != glm::vec3(0.f))
             {
                 constraintp->mUseTargetOffset = true;
     //          constraintp->mTargetConstraintDir *= constraintp->mSourceConstraintOffset.length();
@@ -2135,15 +2150,19 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
             success &= dp.packU16(time_short, "time");
 
             U16 x, y, z;
-            pos_key.mPosition.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-            x = F32_to_U16(pos_key.mPosition.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-            y = F32_to_U16(pos_key.mPosition.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-            z = F32_to_U16(pos_key.mPosition.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+            {
+                LLVector3 tmp(pos_key.mPosition);
+                tmp.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                pos_key.mPosition = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
+            }
+            x = F32_to_U16(pos_key.mPosition.x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+            y = F32_to_U16(pos_key.mPosition.y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+            z = F32_to_U16(pos_key.mPosition.z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
             success &= dp.packU16(x, "pos_x");
             success &= dp.packU16(y, "pos_y");
             success &= dp.packU16(z, "pos_z");
 
-            LL_DEBUGS("BVH") << "  pos: t " << pos_key.mTime << " pos " << pos_key.mPosition.mV[VX] <<","<< pos_key.mPosition.mV[VY] <<","<< pos_key.mPosition.mV[VZ] << LL_ENDL;
+            LL_DEBUGS("BVH") << "  pos: t " << pos_key.mTime << " pos " << pos_key.mPosition.x <<","<< pos_key.mPosition.y <<","<< pos_key.mPosition.z << LL_ENDL;
         }
     }
 
@@ -2158,7 +2177,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
                  mCharacter->findCollisionVolume(shared_constraintp->mSourceConstraintVolume)->getName().c_str());
 
         success &= dp.packBinaryDataFixed(reinterpret_cast<U8*>(source_volume), 16, "source_volume");
-        success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
+        { LLVector3 tmp(shared_constraintp->mSourceConstraintOffset); success &= dp.packVector3(tmp, "source_offset"); }
         char target_volume[16]; /* Flawfinder: ignore */
         if (shared_constraintp->mConstraintTargetType == EConstraintTargetType::CONSTRAINT_TARGET_TYPE_GROUND)
         {
@@ -2170,8 +2189,8 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
                      mCharacter->findCollisionVolume(shared_constraintp->mTargetConstraintVolume)->getName().c_str());
         }
         success &= dp.packBinaryDataFixed(reinterpret_cast<U8*>(target_volume), 16, "target_volume");
-        success &= dp.packVector3(shared_constraintp->mTargetConstraintOffset, "target_offset");
-        success &= dp.packVector3(shared_constraintp->mTargetConstraintDir, "target_dir");
+        { LLVector3 tmp(shared_constraintp->mTargetConstraintOffset); success &= dp.packVector3(tmp, "target_offset"); }
+        { LLVector3 tmp(shared_constraintp->mTargetConstraintDir); success &= dp.packVector3(tmp, "target_dir"); }
         success &= dp.packF32(shared_constraintp->mEaseInStartTime, "ease_in_start");
         success &= dp.packF32(shared_constraintp->mEaseInStopTime, "ease_in_stop");
         success &= dp.packF32(shared_constraintp->mEaseOutStartTime, "ease_out_start");
@@ -2180,10 +2199,10 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
         LL_DEBUGS("BVH") << "  chain_length " << shared_constraintp->mChainLength << LL_ENDL;
         LL_DEBUGS("BVH") << "  constraint_type " << static_cast<S32>(shared_constraintp->mConstraintType) << LL_ENDL;
         LL_DEBUGS("BVH") << "  source_volume " << source_volume << LL_ENDL;
-        LL_DEBUGS("BVH") << "  source_offset " << shared_constraintp->mSourceConstraintOffset << LL_ENDL;
+        LL_DEBUGS("BVH") << "  source_offset " << LLVector3(shared_constraintp->mSourceConstraintOffset) << LL_ENDL;
         LL_DEBUGS("BVH") << "  target_volume " << target_volume << LL_ENDL;
-        LL_DEBUGS("BVH") << "  target_offset " << shared_constraintp->mTargetConstraintOffset << LL_ENDL;
-        LL_DEBUGS("BVH") << "  target_dir " << shared_constraintp->mTargetConstraintDir << LL_ENDL;
+        LL_DEBUGS("BVH") << "  target_offset " << LLVector3(shared_constraintp->mTargetConstraintOffset) << LL_ENDL;
+        LL_DEBUGS("BVH") << "  target_dir " << LLVector3(shared_constraintp->mTargetConstraintDir) << LL_ENDL;
         LL_DEBUGS("BVH") << "  ease_in_start " << shared_constraintp->mEaseInStartTime << LL_ENDL;
         LL_DEBUGS("BVH") << "  ease_in_stop " << shared_constraintp->mEaseInStopTime << LL_ENDL;
         LL_DEBUGS("BVH") << "  ease_out_start " << shared_constraintp->mEaseOutStartTime << LL_ENDL;

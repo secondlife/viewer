@@ -138,7 +138,7 @@ bool LLKeyframeStandMotion::onActivate()
     mIKRight.setBAxis( LLVector3(-0.05f, 1.0f, 0.0f));
 
     mLastGoodPelvisRotation = glm::quat(1.f, 0.f, 0.f, 0.f);
-    mLastGoodPosition.clear();
+    mLastGoodPosition = glm::vec3(0.f);
 
     mFrameNum = 0;
 
@@ -187,7 +187,7 @@ bool LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
         mLastGoodPelvisRotation = glm::normalize(glm::quat(mPelvisState->getJoint()->getWorldRotation()));
         mTrackAnkles = true;
     }
-    else if ((mCharacter->getCharacterPosition() - mLastGoodPosition).lengthSquared() > POSITION_THRESHOLD)
+    else if ((mCharacter->getCharacterPosition() - LLVector3(mLastGoodPosition)).lengthSquared() > POSITION_THRESHOLD)
     {
         mLastGoodPosition = mCharacter->getCharacterPosition();
         mTrackAnkles = true;
@@ -265,8 +265,19 @@ bool LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
     //-------------------------------------------------------------------------
     if ( mTrackAnkles )
     {
-        mCharacter->getGround( mAnkleLeftJoint.getWorldPosition(), mPositionLeft, mNormalLeft);
-        mCharacter->getGround( mAnkleRightJoint.getWorldPosition(), mPositionRight, mNormalRight);
+        // getGround takes LLVector3& out params; bridge through temps.
+        {
+            LLVector3 pos_tmp, norm_tmp;
+            mCharacter->getGround( mAnkleLeftJoint.getWorldPosition(), pos_tmp, norm_tmp);
+            mPositionLeft = pos_tmp;
+            mNormalLeft = norm_tmp;
+        }
+        {
+            LLVector3 pos_tmp, norm_tmp;
+            mCharacter->getGround( mAnkleRightJoint.getWorldPosition(), pos_tmp, norm_tmp);
+            mPositionRight = pos_tmp;
+            mNormalRight = norm_tmp;
+        }
 
         // SL-315
         mTargetLeft.setPosition( mPositionLeft );

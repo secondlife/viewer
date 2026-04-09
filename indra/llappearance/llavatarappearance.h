@@ -34,6 +34,7 @@
 #include "llviewervisualparam.h"
 #include "llxmltree.h"
 #include "v4math.h"
+#include <glm/vec3.hpp>
 
 class LLTexLayerSet;
 class LLTexGlobalColor;
@@ -93,7 +94,7 @@ public:
     LLJoint*        getCharacterJoint(U32 num) override;
 
     const char*     getAnimationPrefix() override { return "avatar"; }
-    LLVector3       getVolumePos(S32 joint_index, LLVector3& volume_offset) override;
+    LLVector3       getVolumePos(S32 joint_index, const LLVector3& volume_offset) override;
     LLJoint*        findCollisionVolume(S32 volume_id) override;
     S32             getCollisionVolumeID(std::string &name) override;
     LLPolyMesh*     getHeadMesh() override;
@@ -136,7 +137,7 @@ public:
     F32                 getPelvisToFoot() const { return mPelvisToFoot; }
     LLJoint*    getRootJoint() override { return mRoot; }
 
-    LLVector3           mHeadOffset{}; // current head position
+    glm::vec3           mHeadOffset{0.f}; // current head position
     LLAvatarJoint*      mRoot{ nullptr };
 
     using joint_map_t = std::map<std::string, LLJoint*, std::less<>>;
@@ -182,8 +183,8 @@ public:
     bool                hasPelvisFixup( F32& fixup, LLUUID& mesh_id ) const;
     bool                hasPelvisFixup( F32& fixup ) const;
 
-    LLVector3           mBodySize;
-    LLVector3           mAvatarOffset;
+    glm::vec3           mBodySize{0.f};
+    glm::vec3           mAvatarOffset{0.f};
 protected:
     F32                 mPelvisToFoot{ 0.f };
 
@@ -417,8 +418,8 @@ protected:
                   mIsHUDAttachment(false), mHasPosition(false), mHasRotation(false) {}
             std::string mName;
             std::string mJointName;
-            LLVector3 mPosition;
-            LLVector3 mRotationEuler;
+            glm::vec3 mPosition{0.f};
+            glm::vec3 mRotationEuler{0.f};
             S32 mGroup;
             S32 mAttachmentID;
             S32 mPieMenuSlice;

@@ -383,6 +383,19 @@ bool box_valid_and_non_zero(const LLVector3* box)
     return (box[0] != zero_vec) || (box[1] != zero_vec);
 }
 
+bool box_valid_and_non_zero(const glm::vec3* box)
+{
+    auto is_finite = [](const glm::vec3& v) {
+        return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
+    };
+    if (!is_finite(box[0]) || !is_finite(box[1]))
+    {
+        return false;
+    }
+    const glm::vec3 zero_vec(0.f);
+    return (box[0] != zero_vec) || (box[1] != zero_vec);
+}
+
 // glm::vec3 overloads — transitional helpers for the LLVector3 -> glm::vec3
 // migration. Mirror the LLVector3 implementations above.
 

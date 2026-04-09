@@ -245,7 +245,7 @@ public:
     U8      mPattern;                       // Pattern for particle velocity/output
     F32     mInnerAngle;                    // Inner angle for PATTERN_ANGLE
     F32     mOuterAngle;                    // Outer angle for PATTERN_ANGLE
-    LLVector3 mAngularVelocity;             // Angular velocity for emission axis (for PATTERN_ANGLE)
+    glm::vec3 mAngularVelocity{0.f};        // Angular velocity for emission axis (for PATTERN_ANGLE)
 
     F32     mBurstRate;                     // How often to do a burst of particles
     U8      mBurstPartCount;                // How many particles in a burst
@@ -265,7 +265,7 @@ public:
     // These are actually particle properties, but can be mutated by the source,
     // so are stored here instead
     //
-    LLVector3   mPartAccel;
+    glm::vec3   mPartAccel{0.f};
     LLUUID      mPartImageID;
 
     //

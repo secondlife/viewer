@@ -1338,9 +1338,10 @@ void LLVOAvatar::updateDrawable(bool force_damped)
 
 void LLVOAvatar::onShift(const LLVector4a& shift_vector)
 {
-    const LLVector3& shift = reinterpret_cast<const LLVector3&>(shift_vector);
-    mLastAnimExtents[0] += shift;
-    mLastAnimExtents[1] += shift;
+    const F32* sp = shift_vector.getF32ptr();
+    const glm::vec3 shift_g(sp[0], sp[1], sp[2]);
+    mLastAnimExtents[0] += shift_g;
+    mLastAnimExtents[1] += shift_g;
 }
 
 void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
@@ -1353,15 +1354,19 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
     if (mNeedsExtentUpdate)
     {
         calculateSpatialExtents(newMin,newMax);
-        mLastAnimExtents[0].set(newMin.getF32ptr());
-        mLastAnimExtents[1].set(newMax.getF32ptr());
+        {
+            const F32* nminp = newMin.getF32ptr();
+            const F32* nmaxp = newMax.getF32ptr();
+            mLastAnimExtents[0] = glm::vec3(nminp[0], nminp[1], nminp[2]);
+            mLastAnimExtents[1] = glm::vec3(nmaxp[0], nmaxp[1], nmaxp[2]);
+        }
         mLastAnimBasePos = mPelvisp->getWorldPosition();
         mNeedsExtentUpdate = false;
     }
     else
     {
-        LLVector3 new_base_pos = mPelvisp->getWorldPosition();
-        LLVector3 shift = new_base_pos-mLastAnimBasePos;
+        glm::vec3 new_base_pos = mPelvisp->getWorldPosition();
+        glm::vec3 shift = new_base_pos - mLastAnimBasePos;
         mLastAnimExtents[0] += shift;
         mLastAnimExtents[1] += shift;
         mLastAnimBasePos = new_base_pos;
@@ -1373,13 +1378,16 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
         LLVector3 delta = getRenderPosition() -
             ((LLVector3(mDrawable->getPositionGroup().getF32ptr())-mImpostorOffset));
 
-        newMin.load3( (mLastAnimExtents[0] + delta).mV);
-        newMax.load3( (mLastAnimExtents[1] + delta).mV);
+        const glm::vec3 delta_g(delta.mV[0], delta.mV[1], delta.mV[2]);
+        const glm::vec3 ext0 = mLastAnimExtents[0] + delta_g;
+        const glm::vec3 ext1 = mLastAnimExtents[1] + delta_g;
+        newMin.load3(&ext0.x);
+        newMax.load3(&ext1.x);
     }
     else
     {
-        newMin.load3(mLastAnimExtents[0].mV);
-        newMax.load3(mLastAnimExtents[1].mV);
+        newMin.load3(&mLastAnimExtents[0].x);
+        newMax.load3(&mLastAnimExtents[1].x);
         LLVector4a pos_group;
         pos_group.setAdd(newMin,newMax);
         pos_group.mul(0.5f);
@@ -1484,9 +1492,9 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
                             if (cav)
                             {
                                 LLVector4a cav_min;
-                                cav_min.load3(cav->mLastAnimExtents[0].mV);
+                                cav_min.load3(&cav->mLastAnimExtents[0].x);
                                 LLVector4a cav_max;
-                                cav_max.load3(cav->mLastAnimExtents[1].mV);
+                                cav_max.load3(&cav->mLastAnimExtents[1].x);
                                 update_min_max(newMin,newMax,cav_min);
                                 update_min_max(newMin,newMax,cav_max);
                                 continue;
@@ -2751,8 +2759,8 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
         lastRecalibrationFrame = thisFrame;
     }
 
-    if ((mLastAnimExtents[0]==LLVector3())||
-        (mLastAnimExtents[1])==LLVector3())
+    if ((mLastAnimExtents[0]==glm::vec3(0.f))||
+        (mLastAnimExtents[1]==glm::vec3(0.f)))
     {
         mNeedsExtentUpdate = true;
     }
@@ -3113,8 +3121,8 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
             }
             else
             {
-                ext[0].load3(mLastAnimExtents[0].mV);
-                ext[1].load3(mLastAnimExtents[1].mV);
+                ext[0].load3(&mLastAnimExtents[0].x);
+                ext[1].load3(&mLastAnimExtents[1].x);
                 // Expensive. Just call this once per frame, in updateSpatialExtents();
                 //calculateSpatialExtents(ext[0], ext[1]);
                 LLVector4a diff;
@@ -3772,9 +3780,9 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
     local_camera_up = local_camera_up * inv_root_rot;
 
     // position is based on head position, does not require mAvatarOffset here. - Nyx
-    LLVector3 avatar_ellipsoid(mBodySize.mV[VX] * 0.4f,
-                                mBodySize.mV[VY] * 0.4f,
-                                mBodySize.mV[VZ] * NAMETAG_VERT_OFFSET_WEIGHT);
+    LLVector3 avatar_ellipsoid(mBodySize.x * 0.4f,
+                                mBodySize.y * 0.4f,
+                                mBodySize.z * NAMETAG_VERT_OFFSET_WEIGHT);
 
     local_camera_up.scaleVec(avatar_ellipsoid);
     local_camera_at.scaleVec(avatar_ellipsoid);
@@ -4635,13 +4643,13 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 
         // correct for the fact that the pelvis is not necessarily the center
         // of the agent's physical representation
-        root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+        root_pos.mdV[VZ] -= (0.5f * mBodySize.z) - mPelvisToFoot;
         if (!isSitting() && !was_sit_ground_constrained)
         {
             root_pos += LLVector3d(getHoverOffset());
             if (getOverallAppearance() == AOA_JELLYDOLL)
             {
-                F32 offz = -0.5f * (getScale()[VZ] - mBodySize.mV[VZ]);
+                F32 offz = -0.5f * (getScale()[VZ] - mBodySize.z);
                 root_pos[2] += offz;
                 // if (!isSelf() && !isControlAvatar())
                 // {
@@ -4929,7 +4937,7 @@ void LLVOAvatar::updateHeadOffset()
     else
     {
         F32 u = llmax(0.f, HEAD_MOVEMENT_AVG_TIME - (1.f / gFPSClamped));
-        mHeadOffset = lerp(midEyePt, mHeadOffset,  u);
+        mHeadOffset = lerp(midEyePt, LLVector3(mHeadOffset),  u);
     }
 }
 
@@ -7162,9 +7170,9 @@ void LLVOAvatar::initAttachmentPoints(bool ignore_hud_joints)
         if (info->mHasRotation)
         {
             LLQuaternion rotation;
-            rotation.setEulerAngles(info->mRotationEuler.mV[VX] * DEG_TO_RAD,
-                             info->mRotationEuler.mV[VY] * DEG_TO_RAD,
-                             info->mRotationEuler.mV[VZ] * DEG_TO_RAD);
+            rotation.setEulerAngles(info->mRotationEuler.x * DEG_TO_RAD,
+                             info->mRotationEuler.y * DEG_TO_RAD,
+                             info->mRotationEuler.z * DEG_TO_RAD);
             attachment->setRotation(rotation);
         }
 

@@ -55,8 +55,8 @@ std::array<std::string, MODEL_NAMES_LENGTH> model_names =
 
 LLModel::LLModel(const LLVolumeParams& params, F32 detail)
     : LLVolume(params, detail),
-      mNormalizedScale(1,1,1),
-      mNormalizedTranslation(0, 0, 0),
+      mNormalizedScale(1.f, 1.f, 1.f),
+      mNormalizedTranslation(0.f, 0.f, 0.f),
       mPelvisOffset( 0.0f ),
       mStatus(EModelStatus::NO_ERRORS),
       mSubmodelID(0)
@@ -330,9 +330,12 @@ void LLModel::normalizeVolumeFaces()
         LLVector4a normalized_scale;
         normalized_scale.splat(1.f);
         normalized_scale.div(scale);
-        mNormalizedScale.set(normalized_scale.getF32ptr());
-        mNormalizedTranslation.set(trans.getF32ptr());
-        mNormalizedTranslation *= -1.f;
+        {
+            const F32* nsp = normalized_scale.getF32ptr();
+            const F32* tp = trans.getF32ptr();
+            mNormalizedScale = glm::vec3(nsp[0], nsp[1], nsp[2]);
+            mNormalizedTranslation = glm::vec3(tp[0], tp[1], tp[2]) * -1.f;
+        }
 
         // remember normalized scale so original dimensions can be recovered for mesh processing (i.e. tangent generation)
         for (auto& face : mVolumeFaces)
@@ -486,9 +489,12 @@ void LLModel::normalizeVolumeFacesAndWeights()
         LLVector4a normalized_scale;
         normalized_scale.splat(1.f);
         normalized_scale.div(scale);
-        mNormalizedScale.set(normalized_scale.getF32ptr());
-        mNormalizedTranslation.set(trans.getF32ptr());
-        mNormalizedTranslation *= -1.f;
+        {
+            const F32* nsp = normalized_scale.getF32ptr();
+            const F32* tp = trans.getF32ptr();
+            mNormalizedScale = glm::vec3(nsp[0], nsp[1], nsp[2]);
+            mNormalizedTranslation = glm::vec3(tp[0], tp[1], tp[2]) * -1.f;
+        }
 
         // remember normalized scale so original dimensions can be recovered for mesh processing (i.e. tangent generation)
         for (auto& face : mVolumeFaces)
@@ -500,8 +506,8 @@ void LLModel::normalizeVolumeFacesAndWeights()
 
 void LLModel::getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out) const
 {
-    scale_out = mNormalizedScale;
-    translation_out = mNormalizedTranslation;
+    scale_out = LLVector3(mNormalizedScale);
+    translation_out = LLVector3(mNormalizedTranslation);
 }
 
 LLVector3 LLModel::getTransformedCenter(const LLMatrix4& mat)
@@ -1011,7 +1017,7 @@ LLSD LLModel::writeModel(
                 //write out face data
                 mdl[model_names[idx]][i]["PositionDomain"]["Min"] = min_pos.getValue();
                 mdl[model_names[idx]][i]["PositionDomain"]["Max"] = max_pos.getValue();
-                mdl[model_names[idx]][i]["NormalizedScale"] = face.mNormalizedScale.getValue();
+                mdl[model_names[idx]][i]["NormalizedScale"] = LLVector3(face.mNormalizedScale).getValue();
 
                 mdl[model_names[idx]][i]["Position"] = verts;
 
@@ -1319,7 +1325,7 @@ void LLModel::updateHullCenters()
 {
     mHullCenter.resize(mPhysics.mHull.size());
     mHullPoints = 0;
-    mCenterOfHullCenters.clear();
+    mCenterOfHullCenters = glm::vec3(0.f);
 
     for (U32 i = 0; i < mPhysics.mHull.size(); ++i)
     {
@@ -1329,7 +1335,7 @@ void LLModel::updateHullCenters()
         {
             cur_center += j;
         }
-        mCenterOfHullCenters += cur_center;
+        mCenterOfHullCenters += glm::vec3(cur_center.mV[0], cur_center.mV[1], cur_center.mV[2]);
         cur_center *= 1.f/mPhysics.mHull[i].size();
         mHullCenter[i] = cur_center;
         mHullPoints += static_cast<U32>(mPhysics.mHull[i].size());

@@ -147,14 +147,13 @@ private:
 //  bool            mVisibleOffScreen;
     bool            mOffscreen;
     LLColor4        mColor;
-    LLVector3       mScale;
     F32             mWidth;
     F32             mHeight;
     LLColor4U       mPickColor;
     const LLFontGL* mFontp;
     const LLFontGL* mBoldFontp;
     LLRectf         mSoftScreenRect;
-    LLVector3       mPositionAgent;
+    glm::vec3       mPositionAgent{0.f};
     glm::vec2       mPositionOffset{0.f, 0.f};
     glm::vec2       mTargetPositionOffset{0.f, 0.f};
     F32             mMass;

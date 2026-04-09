@@ -118,11 +118,11 @@ void LLControlAvatar::getNewConstraintFixups(glm::vec3& new_pos_fixup, F32& new_
         // do this by tracking the distance and applying a
         // correction to the control avatar position if
         // needed.
-        const LLVector3 *extents = getLastAnimExtents();
+        const glm::vec3 *extents = getLastAnimExtents();
         LLVector3 unshift_extents[2];
-        unshift_extents[0] = extents[0] - mPositionConstraintFixup;
-        unshift_extents[1] = extents[1] - mPositionConstraintFixup;
-        LLVector3 box_dims = extents[1]-extents[0];
+        unshift_extents[0] = LLVector3(extents[0]) - mPositionConstraintFixup;
+        unshift_extents[1] = LLVector3(extents[1]) - mPositionConstraintFixup;
+        LLVector3 box_dims = LLVector3(extents[1]) - LLVector3(extents[0]);
         F32 box_size = llmax(box_dims[0],box_dims[1],box_dims[2]);
 
         if (!mRootVolp->isAttachment())
@@ -139,7 +139,7 @@ void LLControlAvatar::getNewConstraintFixups(glm::vec3& new_pos_fixup, F32& new_
                 LL_DEBUGS("ConstraintFix") << getDebugName() << " pos fix, offset_dist " << offset_dist << " pos fixup "
                                            << LLVector3(new_pos_fixup) << " was " << LLVector3(mPositionConstraintFixup) << LL_ENDL;
                 LL_DEBUGS("ConstraintFix") << "vol_pos " << vol_pos << LL_ENDL;
-                LL_DEBUGS("ConstraintFix") << "extents " << extents[0] << " " << extents[1] << LL_ENDL;
+                LL_DEBUGS("ConstraintFix") << "extents " << LLVector3(extents[0]) << " " << LLVector3(extents[1]) << LL_ENDL;
                 LL_DEBUGS("ConstraintFix") << "unshift_extents " << unshift_extents[0] << " " << unshift_extents[1] << LL_ENDL;
 
             }

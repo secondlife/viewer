@@ -1371,7 +1371,7 @@ void LLPanelEditWearable::updateTypeSpecificControls(LLWearableType::EType type)
         if (type == LLWearableType::WT_SHAPE)
         {
                 // Update avatar height
-                F32 new_size = gAgentAvatarp->mBodySize.mV[VZ];
+                F32 new_size = gAgentAvatarp->mBodySize.z;
                 if (!gSavedSettings.getBOOL("HeightUnits"))
                 {
                         // convert meters to feet

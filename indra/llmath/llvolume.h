@@ -1007,7 +1007,7 @@ public:
     // if this is a mesh asset, scale and translation that were applied
     // when encoding the source mesh into a unit cube
     // used for regenerating tangents
-    LLVector3 mNormalizedScale = LLVector3(1,1,1);
+    glm::vec3 mNormalizedScale{1.f, 1.f, 1.f};
 
 private:
     LLVolumeOctree* mOctree;
@@ -1105,7 +1105,7 @@ public:
     face_list_t& getVolumeFaces() { return mVolumeFaces; }
 
     U32                 mFaceMask;          // bit array of which faces exist in this volume
-    LLVector3           mLODScaleBias;      // vector for biasing LOD based on scale
+    glm::vec3           mLODScaleBias{1.f}; // vector for biasing LOD based on scale
 
     void sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level, bool visible_placeholder);
     void copyVolumeFaces(const LLVolume* volume);

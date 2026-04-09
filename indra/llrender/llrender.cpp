@@ -572,7 +572,7 @@ LLLightState::LLLightState(S32 index)
 
     mAmbient.set(0,0,0,1);
     mPosition.set(0,0,1,0);
-    mSpotDirection.set(0,0,-1);
+    mSpotDirection = glm::vec3(0.f, 0.f, -1.f);
 }
 
 void LLLightState::enable()
@@ -714,7 +714,7 @@ void LLLightState::setSpotDirection(const LLVector3& direction)
     const glm::mat3 mat(gGL.getModelviewMatrix());
     dir = mat * dir;
 
-    mSpotDirection.set(glm::value_ptr(dir));
+    mSpotDirection = dir;
 }
 
 LLRender::LLRender()

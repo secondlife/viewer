@@ -278,19 +278,25 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 
         if (part->mFlags & LLPartData::LL_PART_RIBBON_MASK)
         { //include ribbon segment length in scale
-            const LLVector3* pos_agent = NULL;
+            // mParent->mPosAgent is LLVector3 (LLViewerPart) but
+            // mPartSourcep->mPosAgent is glm::vec3 — bridge through
+            // a value LLVector3 with a have-it flag instead of a pointer.
+            LLVector3 pos_agent;
+            bool have_pos_agent = false;
             if (part->mParent)
             {
-                pos_agent = &(part->mParent->mPosAgent);
+                pos_agent = part->mParent->mPosAgent;
+                have_pos_agent = true;
             }
             else if (part->mPartSourcep.notNull())
             {
-                pos_agent = &(part->mPartSourcep->mPosAgent);
+                pos_agent = LLVector3(part->mPartSourcep->mPosAgent);
+                have_pos_agent = true;
             }
 
-            if (pos_agent)
+            if (have_pos_agent)
             {
-                F32 dist = (*pos_agent-part->mPosAgent).length();
+                F32 dist = (pos_agent-part->mPosAgent).length();
 
                 max_scale = llmax(max_scale, dist);
             }
@@ -449,13 +455,13 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
         LLVector4a axis, pos, paxis, ppos;
         F32 scale, pscale;
 
-        pos.load3(part.mPosAgent.mV);
+        pos.load3(&part.mPosAgent.x);
         axis.load3(&part.mAxis.x);
         scale = part.mScale.x;
 
         if (part.mParent)
         {
-            ppos.load3(part.mParent->mPosAgent.mV);
+            ppos.load3(&part.mParent->mPosAgent.x);
             paxis.load3(&part.mParent->mAxis.x);
             pscale = part.mParent->mScale.x;
         }
@@ -467,7 +473,7 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
                 LLVector3 v = LLVector3(0,0,1);
                 v *= part.mPartSourcep->mSourceObjectp->getRenderRotation();
                 paxis.load3(v.mV);
-                ppos.load3(part.mPartSourcep->mPosAgent.mV);
+                ppos.load3(&part.mPartSourcep->mPosAgent.x);
                 pscale = part.mStartScale.x;
             }
             else
@@ -499,7 +505,7 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
     else
     {
         LLVector4a part_pos_agent;
-        part_pos_agent.load3(part.mPosAgent.mV);
+        part_pos_agent.load3(&part.mPosAgent.x);
         LLVector4a camera_agent;
         camera_agent.load3(getCameraPosition().mV);
         LLVector4a at;
@@ -513,10 +519,10 @@ void LLVOPartGroup::getGeometry(const LLViewerPart& part,
         up.setCross3(right, at);
         up.normalize3fast();
 
-        if (part.mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK && !part.mVelocity.isExactlyZero())
+        if (part.mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK && part.mVelocity != glm::vec3(0.f))
         {
             LLVector4a normvel;
-            normvel.load3(part.mVelocity.mV);
+            normvel.load3(&part.mVelocity.x);
             normvel.normalize3fast();
             glm::vec2 up_fracs;
             up_fracs.x = normvel.dot3(right).getF32();

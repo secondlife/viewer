@@ -87,7 +87,6 @@ LLManipRotate::LLManipRotate( LLToolComposite* composite )
     mRotationCenter(),
     mCenterScreen(),
     mRadiusMeters(0.f),
-    mCenterToCamNorm(),
     mCenterToCamMag(0.f),
     mCenterToProfilePlaneMag(0.f),
     mSendUpdateOnMouseUp( false ),
@@ -1201,8 +1200,13 @@ bool LLManipRotate::updateVisiblity()
     if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
     {
         mCenterToCam = LLVector3(-1.f / gAgentCamera.mHUDCurZoom, 0.f, 0.f);
-        mCenterToCamNorm = mCenterToCam;
-        mCenterToCamMag = mCenterToCamNorm.normalize();
+        // .normalize() returns the previous length; bridge through LLVector3
+        // temp to preserve that semantic.
+        {
+            LLVector3 norm_tmp(mCenterToCam);
+            mCenterToCamMag = norm_tmp.normalize();
+            mCenterToCamNorm = norm_tmp;
+        }
 
         mRadiusMeters = RADIUS_PIXELS / static_cast<F32>(LLViewerCamera::getInstance()->getViewHeightInPixels());
         mRadiusMeters /= gAgentCamera.mHUDCurZoom;
@@ -1224,8 +1228,11 @@ bool LLManipRotate::updateVisiblity()
         if( visible )
         {
             mCenterToCam = gAgentCamera.getCameraPositionAgent() - center;
-            mCenterToCamNorm = mCenterToCam;
-            mCenterToCamMag = mCenterToCamNorm.normalize();
+            {
+                LLVector3 norm_tmp(mCenterToCam);
+                mCenterToCamMag = norm_tmp.normalize();
+                mCenterToCamNorm = norm_tmp;
+            }
             LLVector3 cameraAtAxis(LLViewerCamera::getInstance()->getAtAxis());
             cameraAtAxis.normalize();
 

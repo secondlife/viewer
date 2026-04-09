@@ -186,6 +186,7 @@ LLVector3 orthogonal_component(const LLVector3 &a, const LLVector3 &b); // Retur
 LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u); // Returns a vector that is a linear interpolation between a and b
 LLVector3 point_to_box_offset(LLVector3& pos, const LLVector3* box); // Displacement from query point to nearest point on bounding box.
 bool box_valid_and_non_zero(const LLVector3* box);
+bool box_valid_and_non_zero(const glm::vec3* box);
 
 // glm::vec3 overloads — transitional helpers for the LLVector3 -> glm::vec3
 // migration. Mirror the LLVector3 helpers above but operate on glm::vec3

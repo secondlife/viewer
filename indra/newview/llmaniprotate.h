@@ -91,7 +91,7 @@ private:
     F32                 mRadiusMeters;
 
     glm::vec3           mCenterToCam{0.f};
-    LLVector3           mCenterToCamNorm;
+    glm::vec3           mCenterToCamNorm{0.f};
     F32                 mCenterToCamMag;
     glm::vec3           mCenterToProfilePlane{0.f};
     F32                 mCenterToProfilePlaneMag;

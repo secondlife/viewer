@@ -371,14 +371,14 @@ bool LLPathfindingPathTool::hasFinalA() const
     return mFinalPathData.mHasPointA;
 }
 
-const LLVector3 &LLPathfindingPathTool::getFinalAStart() const
+LLVector3 LLPathfindingPathTool::getFinalAStart() const
 {
-    return mFinalPathData.mStartPointA;
+    return LLVector3(mFinalPathData.mStartPointA);
 }
 
-const LLVector3 &LLPathfindingPathTool::getFinalAEnd() const
+LLVector3 LLPathfindingPathTool::getFinalAEnd() const
 {
-    return mFinalPathData.mEndPointA;
+    return LLVector3(mFinalPathData.mEndPointA);
 }
 
 void LLPathfindingPathTool::setTempA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
@@ -405,14 +405,14 @@ bool LLPathfindingPathTool::hasFinalB() const
     return mFinalPathData.mHasPointB;
 }
 
-const LLVector3 &LLPathfindingPathTool::getFinalBStart() const
+LLVector3 LLPathfindingPathTool::getFinalBStart() const
 {
-    return mFinalPathData.mStartPointB;
+    return LLVector3(mFinalPathData.mStartPointB);
 }
 
-const LLVector3 &LLPathfindingPathTool::getFinalBEnd() const
+LLVector3 LLPathfindingPathTool::getFinalBEnd() const
 {
-    return mFinalPathData.mEndPointB;
+    return LLVector3(mFinalPathData.mEndPointB);
 }
 
 void LLPathfindingPathTool::setTempB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)

@@ -30,6 +30,7 @@
 // Header Files
 //-----------------------------------------------------------------------------
 #include "lljoint.h"
+#include <glm/vec3.hpp>
 
 /* -some compilers don't like line continuation chars-
 //-----------------------------------------------------------------------------
@@ -94,8 +95,8 @@ protected:
     F32         mLengthAB;
     F32         mLengthBC;
 
-    LLVector3   mPoleVector;
-    LLVector3   mBAxis;
+    glm::vec3   mPoleVector{1.f, 0.f, 0.f};
+    glm::vec3   mBAxis{0.f};
     bool        mbUseBAxis;
 
     F32         mTwist;
@@ -130,7 +131,7 @@ public:
     // getPoleVector()
     // Returns the current pole vector.
     //-------------------------------------------------------------------------
-    const LLVector3& getPoleVector();
+    LLVector3 getPoleVector();
 
     //-------------------------------------------------------------------------
     // setPoleVector()

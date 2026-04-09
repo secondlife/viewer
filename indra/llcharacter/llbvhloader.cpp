@@ -370,16 +370,16 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
                 &constraint.mEaseOutStart,
                 &constraint.mEaseOutStop,
                 constraint.mSourceJointName,
-                &constraint.mSourceOffset.mV[VX],
-                &constraint.mSourceOffset.mV[VY],
-                &constraint.mSourceOffset.mV[VZ],
+                &constraint.mSourceOffset.x,
+                &constraint.mSourceOffset.y,
+                &constraint.mSourceOffset.z,
                 constraint.mTargetJointName,
-                &constraint.mTargetOffset.mV[VX],
-                &constraint.mTargetOffset.mV[VY],
-                &constraint.mTargetOffset.mV[VZ],
-                &constraint.mTargetDir.mV[VX],
-                &constraint.mTargetDir.mV[VY],
-                &constraint.mTargetDir.mV[VZ]) != 16)
+                &constraint.mTargetOffset.x,
+                &constraint.mTargetOffset.y,
+                &constraint.mTargetOffset.z,
+                &constraint.mTargetDir.x,
+                &constraint.mTargetDir.y,
+                &constraint.mTargetDir.z) != 16)
             {
                 if(sscanf( /* Flawfinder: ignore */
                     mLine,
@@ -390,13 +390,13 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
                     &constraint.mEaseOutStart,
                     &constraint.mEaseOutStop,
                     constraint.mSourceJointName,
-                    &constraint.mSourceOffset.mV[VX],
-                    &constraint.mSourceOffset.mV[VY],
-                    &constraint.mSourceOffset.mV[VZ],
+                    &constraint.mSourceOffset.x,
+                    &constraint.mSourceOffset.y,
+                    &constraint.mSourceOffset.z,
                     constraint.mTargetJointName,
-                    &constraint.mTargetOffset.mV[VX],
-                    &constraint.mTargetOffset.mV[VY],
-                    &constraint.mTargetOffset.mV[VZ]) != 13)
+                    &constraint.mTargetOffset.x,
+                    &constraint.mTargetOffset.y,
+                    &constraint.mTargetOffset.z) != 13)
                 {
                     return E_ST_NO_CONSTRAINT;
                 }
@@ -404,9 +404,9 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
             else
             {
                 // normalize direction
-                if (!constraint.mTargetDir.isExactlyZero())
+                if (constraint.mTargetDir != glm::vec3(0.f))
                 {
-                    constraint.mTargetDir.normalize();
+                    constraint.mTargetDir = glm::normalize(constraint.mTargetDir);
                 }
 
             }
@@ -430,16 +430,16 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
                 &constraint.mEaseOutStart,
                 &constraint.mEaseOutStop,
                 constraint.mSourceJointName,
-                &constraint.mSourceOffset.mV[VX],
-                &constraint.mSourceOffset.mV[VY],
-                &constraint.mSourceOffset.mV[VZ],
+                &constraint.mSourceOffset.x,
+                &constraint.mSourceOffset.y,
+                &constraint.mSourceOffset.z,
                 constraint.mTargetJointName,
-                &constraint.mTargetOffset.mV[VX],
-                &constraint.mTargetOffset.mV[VY],
-                &constraint.mTargetOffset.mV[VZ],
-                &constraint.mTargetDir.mV[VX],
-                &constraint.mTargetDir.mV[VY],
-                &constraint.mTargetDir.mV[VZ]) != 16)
+                &constraint.mTargetOffset.x,
+                &constraint.mTargetOffset.y,
+                &constraint.mTargetOffset.z,
+                &constraint.mTargetDir.x,
+                &constraint.mTargetDir.y,
+                &constraint.mTargetDir.z) != 16)
             {
                 if(sscanf( /* Flawfinder: ignore */
                     mLine,
@@ -450,13 +450,13 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
                     &constraint.mEaseOutStart,
                     &constraint.mEaseOutStop,
                     constraint.mSourceJointName,
-                    &constraint.mSourceOffset.mV[VX],
-                    &constraint.mSourceOffset.mV[VY],
-                    &constraint.mSourceOffset.mV[VZ],
+                    &constraint.mSourceOffset.x,
+                    &constraint.mSourceOffset.y,
+                    &constraint.mSourceOffset.z,
                     constraint.mTargetJointName,
-                    &constraint.mTargetOffset.mV[VX],
-                    &constraint.mTargetOffset.mV[VY],
-                    &constraint.mTargetOffset.mV[VZ]) != 13)
+                    &constraint.mTargetOffset.x,
+                    &constraint.mTargetOffset.y,
+                    &constraint.mTargetOffset.z) != 13)
                 {
                     return E_ST_NO_CONSTRAINT;
                 }
@@ -464,9 +464,9 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
             else
             {
                 // normalize direction
-                if (!constraint.mTargetDir.isExactlyZero())
+                if (constraint.mTargetDir != glm::vec3(0.f))
                 {
-                    constraint.mTargetDir.normalize();
+                    constraint.mTargetDir = glm::normalize(constraint.mTargetDir);
                 }
 
             }
@@ -1002,7 +1002,7 @@ void LLBVHLoader::applyTranslations()
             joint->mRelativeRotationKey = true;
         }
 
-        if ( trans.mRelativePosition.length() > 0.0f )
+        if ( glm::length(trans.mRelativePosition) > 0.0f )
         {
             joint->mRelativePosition = trans.mRelativePosition;
 //          LL_INFOS() << "NOTE: Removing " <<
@@ -1483,10 +1483,10 @@ bool LLBVHLoader::serialize(LLDataPacker& dp)
             byte = static_cast<U8>(constraint.mConstraintType);
             dp.packU8(byte, "constraint_type");
             dp.packBinaryDataFixed(reinterpret_cast<U8*>(constraint.mSourceJointName), 16, "source_volume");
-            dp.packVector3(constraint.mSourceOffset, "source_offset");
+            { LLVector3 tmp(constraint.mSourceOffset); dp.packVector3(tmp, "source_offset"); }
             dp.packBinaryDataFixed(reinterpret_cast<U8*>(constraint.mTargetJointName), 16, "target_volume");
-            dp.packVector3(constraint.mTargetOffset, "target_offset");
-            dp.packVector3(constraint.mTargetDir, "target_dir");
+            { LLVector3 tmp(constraint.mTargetOffset); dp.packVector3(tmp, "target_offset"); }
+            { LLVector3 tmp(constraint.mTargetDir); dp.packVector3(tmp, "target_dir"); }
             dp.packF32(constraint.mEaseInStart, "ease_in_start");
             dp.packF32(constraint.mEaseInStop,  "ease_in_stop");
             dp.packF32(constraint.mEaseOutStart,    "ease_out_start");

@@ -224,10 +224,10 @@ protected:
         ~JointConstraintSharedData() = default;
 
         S32                     mSourceConstraintVolume;
-        LLVector3               mSourceConstraintOffset;
+        glm::vec3               mSourceConstraintOffset{0.f};
         S32                     mTargetConstraintVolume;
-        LLVector3               mTargetConstraintOffset;
-        LLVector3               mTargetConstraintDir;
+        glm::vec3               mTargetConstraintOffset{0.f};
+        glm::vec3               mTargetConstraintDir{0.f};
         S32                     mChainLength;
         std::vector<S32>        mJointStateIndices;
         F32                     mEaseInStartTime;
@@ -256,7 +256,7 @@ protected:
         std::array<F32, MAX_CHAIN_LENGTH>         mJointLengthFractions;
         bool                        mActive;
         LLVector3d                  mGroundPos;
-        LLVector3                   mGroundNorm;
+        glm::vec3                   mGroundNorm{0.f};
         LLJoint*                    mSourceVolume;
         LLJoint*                    mTargetVolume;
         F32                         mFixupDistanceRMS;
@@ -288,10 +288,10 @@ public:
     {
     public:
         ScaleKey() { mTime = 0.0f; }
-        ScaleKey(F32 time, const LLVector3 &scale) { mTime = time; mScale = scale; }
+        ScaleKey(F32 time, const LLVector3 &scale) { mTime = time; mScale = glm::vec3(scale.mV[0], scale.mV[1], scale.mV[2]); }
 
-        F32         mTime;
-        LLVector3   mScale;
+        F32         mTime{0.f};
+        glm::vec3   mScale{0.f};
     };
 
     //-------------------------------------------------------------------------
@@ -314,10 +314,10 @@ public:
     {
     public:
         PositionKey() { mTime = 0.0f; }
-        PositionKey(F32 time, const LLVector3 &position) { mTime = time; mPosition = position; }
+        PositionKey(F32 time, const LLVector3 &position) { mTime = time; mPosition = glm::vec3(position.mV[0], position.mV[1], position.mV[2]); }
 
-        F32         mTime;
-        LLVector3   mPosition;
+        F32         mTime{0.f};
+        glm::vec3   mPosition{0.f};
     };
 
     //-------------------------------------------------------------------------

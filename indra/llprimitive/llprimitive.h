@@ -271,7 +271,7 @@ protected:
     F32         mAirFriction;       // higher is more stable, but too much looks like it's underwater
     F32         mWindSensitivity;   // interacts with tension, air friction, and gravity
     F32         mTension;           //interacts in complex ways with other parameters
-    LLVector3   mUserForce;         // custom user-defined force vector
+    glm::vec3   mUserForce{0.f};    // custom user-defined force vector
     //bool      mUsingCollisionSphere;
     //bool      mRenderingCollisionSphere;
 
@@ -281,14 +281,14 @@ public:
     void        setAirFriction(F32 friction)    { mAirFriction = llclamp(friction, FLEXIBLE_OBJECT_MIN_AIR_FRICTION, FLEXIBLE_OBJECT_MAX_AIR_FRICTION); }
     void        setWindSensitivity(F32 wind)    { mWindSensitivity = llclamp(wind, FLEXIBLE_OBJECT_MIN_WIND_SENSITIVITY, FLEXIBLE_OBJECT_MAX_WIND_SENSITIVITY); }
     void        setTension(F32 tension)         { mTension = llclamp(tension, FLEXIBLE_OBJECT_MIN_TENSION, FLEXIBLE_OBJECT_MAX_TENSION); }
-    void        setUserForce(LLVector3 &force)  { mUserForce = force; }
+    void        setUserForce(const LLVector3 &force)  { mUserForce = glm::vec3(force.mV[0], force.mV[1], force.mV[2]); }
 
     S32         getSimulateLOD() const          { return mSimulateLOD; }
     F32         getGravity() const              { return mGravity; }
     F32         getAirFriction() const          { return mAirFriction; }
     F32         getWindSensitivity() const      { return mWindSensitivity; }
     F32         getTension() const              { return mTension; }
-    LLVector3   getUserForce() const            { return mUserForce; }
+    LLVector3   getUserForce() const            { return LLVector3(mUserForce); }
 
     //------ the constructor for the structure ------------
     LLFlexibleObjectData();
@@ -328,7 +328,7 @@ class LLLightImageParams : public LLNetworkData
 {
 protected:
     LLUUID mLightTexture;
-    LLVector3 mParams;
+    glm::vec3 mParams{0.f};
 
 public:
     LLLightImageParams();
@@ -343,8 +343,8 @@ public:
     void setLightTexture(const LLUUID& id) { mLightTexture = id; }
     const LLUUID& getLightTexture() const         { return mLightTexture; }
     bool isLightSpotlight() const         { return mLightTexture.notNull(); }
-    void setParams(const LLVector3& params) { mParams = params; }
-    const LLVector3& getParams() const            { return mParams; }
+    void setParams(const LLVector3& params) { mParams = glm::vec3(params.mV[0], params.mV[1], params.mV[2]); }
+    LLVector3 getParams() const            { return LLVector3(mParams); }
 
 };
 

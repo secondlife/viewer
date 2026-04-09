@@ -149,7 +149,7 @@ public:
 
     protected:
         //internal use
-        LLVector3 mBBox[2] ;
+        glm::vec3 mBBox[2]{} ;
         F32 mTriangleAreaThreshold ;
 
         void assignData(LLModel* mdl) ;

@@ -1926,7 +1926,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const bool ge
     mSurfaceArea = 1.f; //only calculated for sculpts, defaults to 1 for all other prims
     mIsMeshAssetLoaded = false;
     mIsMeshAssetUnavaliable = false;
-    mLODScaleBias.set(1,1,1);
+    mLODScaleBias = glm::vec3(1.f, 1.f, 1.f);
     mHullPoints = nullptr;
     mHullIndices = nullptr;
     mNumHullPoints = 0;
@@ -2014,7 +2014,7 @@ bool LLVolume::generate()
         split = 0;
     }
 
-    mLODScaleBias.set(0.5f, 0.5f, 0.5f);
+    mLODScaleBias = glm::vec3(0.5f, 0.5f, 0.5f);
 
     F32 profile_detail = mDetail;
     F32 path_detail = mDetail;
@@ -2026,11 +2026,11 @@ bool LLVolume::generate()
         if (path_type == LL_PCODE_PATH_LINE && profile_type == LL_PCODE_PROFILE_CIRCLE)
         {
             //cylinders don't care about Z-Axis
-            mLODScaleBias.set(0.6f, 0.6f, 0.0f);
+            mLODScaleBias = glm::vec3(0.6f, 0.6f, 0.0f);
         }
         else if (path_type == LL_PCODE_PATH_CIRCLE)
         {
-            mLODScaleBias.set(0.6f, 0.6f, 0.6f);
+            mLODScaleBias = glm::vec3(0.6f, 0.6f, 0.6f);
         }
     }
 
@@ -2373,11 +2373,13 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
             //unpack normalized scale/translation
             if (mdl[i].has("NormalizedScale"))
             {
-                face.mNormalizedScale.setValue(mdl[i]["NormalizedScale"]);
+                LLVector3 tmp;
+                tmp.setValue(mdl[i]["NormalizedScale"]);
+                face.mNormalizedScale = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
             }
             else
             {
-                face.mNormalizedScale.set(1, 1, 1);
+                face.mNormalizedScale = glm::vec3(1.f, 1.f, 1.f);
             }
 
             LLVector4a pos_range;
@@ -4282,13 +4284,13 @@ class LLVertexIndexPair
 public:
     LLVertexIndexPair(const LLVector3 &vertex, const S32 index);
 
-    LLVector3 mVertex;
+    glm::vec3 mVertex{0.f};
     S32 mIndex;
 };
 
 LLVertexIndexPair::LLVertexIndexPair(const LLVector3 &vertex, const S32 index)
 {
-    mVertex = vertex;
+    mVertex = glm::vec3(vertex.mV[0], vertex.mV[1], vertex.mV[2]);
     mIndex = index;
 }
 
@@ -4300,29 +4302,29 @@ struct lessVertex
     {
         const F32 slop = VERTEX_SLOP;
 
-        if (a->mVertex.mV[0] + slop < b->mVertex.mV[0])
+        if (a->mVertex.x + slop < b->mVertex.x)
         {
             return true;
         }
-        else if (a->mVertex.mV[0] - slop > b->mVertex.mV[0])
+        else if (a->mVertex.x - slop > b->mVertex.x)
         {
             return false;
         }
 
-        if (a->mVertex.mV[1] + slop < b->mVertex.mV[1])
+        if (a->mVertex.y + slop < b->mVertex.y)
         {
             return true;
         }
-        else if (a->mVertex.mV[1] - slop > b->mVertex.mV[1])
+        else if (a->mVertex.y - slop > b->mVertex.y)
         {
             return false;
         }
 
-        if (a->mVertex.mV[2] + slop < b->mVertex.mV[2])
+        if (a->mVertex.z + slop < b->mVertex.z)
         {
             return true;
         }
-        else if (a->mVertex.mV[2] - slop > b->mVertex.mV[2])
+        else if (a->mVertex.z - slop > b->mVertex.z)
         {
             return false;
         }
@@ -5509,14 +5511,14 @@ struct MikktData
             LL_ERRS("LLCoros") << "Bad memory allocation in MikktData, elements count: " << count << LL_ENDL;
         }
 
-        LLVector3 inv_scale(1.f / face->mNormalizedScale.mV[0], 1.f / face->mNormalizedScale.mV[1], 1.f / face->mNormalizedScale.mV[2]);
+        LLVector3 inv_scale(1.f / face->mNormalizedScale.x, 1.f / face->mNormalizedScale.y, 1.f / face->mNormalizedScale.z);
 
         for (S32 i = 0; i < face->mNumIndices; ++i)
         {
             U32 idx = face->mIndices[i];
 
             p[i].set(face->mPositions[idx].getF32ptr());
-            p[i].scaleVec(face->mNormalizedScale); //put mesh in original coordinate frame when reconstructing tangents
+            p[i].scaleVec(LLVector3(face->mNormalizedScale)); //put mesh in original coordinate frame when reconstructing tangents
             n[i].set(face->mNormals[idx].getF32ptr());
             n[i].scaleVec(inv_scale);
             n[i].normalize();
@@ -5688,9 +5690,9 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             }
 
             // put back in normalized coordinate frame
-            LLVector4a inv_scale(1.f/mNormalizedScale.mV[0], 1.f / mNormalizedScale.mV[1], 1.f / mNormalizedScale.mV[2]);
+            LLVector4a inv_scale(1.f/mNormalizedScale.x, 1.f / mNormalizedScale.y, 1.f / mNormalizedScale.z);
             LLVector4a scale;
-            scale.load3(mNormalizedScale.mV);
+            scale.load3(&mNormalizedScale.x);
             scale.getF32ptr()[3] = 1.f;
 
             for (S32 i = 0; i < mNumVertices; ++i)

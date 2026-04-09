@@ -176,7 +176,7 @@ private:
     F32 *mSurfaceZ;
 
     // Array of grid normals, mGridsPerEdge * mGridsPerEdge
-    LLVector3 *mNorm;
+    glm::vec3 *mNorm;
 
     std::set<LLSurfacePatch *> mDirtyPatchList;
 

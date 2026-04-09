@@ -103,11 +103,11 @@ public:
     {
         PathingPacket() : mHasPointA(false), mHasPointB(false), mCharacterWidth(0.0f), mCharacterType(LLPL_CHARACTER_TYPE_NONE) {}
         bool              mHasPointA;
-        LLVector3         mStartPointA;
-        LLVector3         mEndPointA;
+        glm::vec3         mStartPointA{0.f};
+        glm::vec3         mEndPointA{0.f};
         bool              mHasPointB;
-        LLVector3         mStartPointB;
-        LLVector3         mEndPointB;
+        glm::vec3         mStartPointB{0.f};
+        glm::vec3         mEndPointB{0.f};
         F32               mCharacterWidth;
         LLPLCharacterType mCharacterType;
     };

@@ -1536,10 +1536,10 @@ bool LLVOVolume::calcLOD()
         if (avatar->isControlAvatar())
         {
             // MAINT-7926 Handle volumes in an animated object as a special case
-            const LLVector3* box = avatar->getLastAnimExtents();
-            LLVector3 diag = box[1] - box[0];
-            radius = diag.length() * 0.5f;
-            LL_DEBUGS("DynamicBox") << avatar->getDebugName() << " diag " << diag << " radius " << radius << LL_ENDL;
+            const glm::vec3* box = avatar->getLastAnimExtents();
+            glm::vec3 diag = box[1] - box[0];
+            radius = glm::length(diag) * 0.5f;
+            LL_DEBUGS("DynamicBox") << avatar->getDebugName() << " diag " << LLVector3(diag) << " radius " << radius << LL_ENDL;
         }
         else
         {
@@ -1547,10 +1547,10 @@ bool LLVOVolume::calcLOD()
             // Note this isn't really a radius, so distance calcs are off by factor of 2
             //radius = avatar->getBinRadius();
             // SL-937: add dynamic box handling for rigged mesh on regular avatars.
-            const LLVector3* box = avatar->getLastAnimExtents();
-            LLVector3 diag = box[1] - box[0];
-            radius = diag.length(); // preserve old BinRadius behavior - 2x off
-            LL_DEBUGS("DynamicBox") << avatar->getDebugName() << " diag " << diag << " radius " << radius << LL_ENDL;
+            const glm::vec3* box = avatar->getLastAnimExtents();
+            glm::vec3 diag = box[1] - box[0];
+            radius = glm::length(diag); // preserve old BinRadius behavior - 2x off
+            LL_DEBUGS("DynamicBox") << avatar->getDebugName() << " diag " << LLVector3(diag) << " radius " << radius << LL_ENDL;
         }
         if (distance <= 0.f || radius <= 0.f)
         {
@@ -1560,7 +1560,7 @@ bool LLVOVolume::calcLOD()
     else
     {
         distance = mDrawable->mDistanceWRTCamera;
-        radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(LLVector3(getScale())).length() : glm::length(getScale());
+        radius = getVolume() ? glm::length(getVolume()->mLODScaleBias * glm::vec3(getScale())) : glm::length(getScale());
         if (distance <= 0.f || radius <= 0.f)
         {
             return false;
@@ -3297,7 +3297,7 @@ const LLUUID& LLVOVolume::getLightTextureID() const
     return LLUUID::null;
 }
 
-const LLVector3& LLVOVolume::getSpotLightParams() const
+LLVector3 LLVOVolume::getSpotLightParams() const
 {
     const LLLightImageParams *param_block = getLightImageParams();
     if (param_block)

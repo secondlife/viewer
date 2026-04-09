@@ -110,7 +110,7 @@ public:
     // is a debug parameter for testing.
     template<bool PBR>
     void calcNormal(const U32 x, const U32 y, const U32 stride);
-    const LLVector3 &getNormal(const U32 x, const U32 y) const;
+    LLVector3 getNormal(const U32 x, const U32 y) const;
 
     // Per-triangle normals for flat edges
     void calcNormalFlat(LLVector3& normal_out, const U32 x, const U32 y, const U32 index /* 0 or 1 */);
@@ -140,7 +140,7 @@ public:
 
     void setSurface(LLSurface *surfacep);
     void setDataZ(F32 *data_z)                  { mDataZ = data_z; }
-    void setDataNorm(LLVector3 *data_norm)      { mDataNorm = data_norm; }
+    void setDataNorm(glm::vec3 *data_norm)      { mDataNorm = data_norm; }
     F32 *getDataZ() const                       { return mDataZ; }
 
     void dirty();           // Mark this surface patch as dirty...
@@ -164,7 +164,7 @@ protected:
 
     U32 mDataOffset;
     F32 *mDataZ;
-    LLVector3 *mDataNorm;
+    glm::vec3 *mDataNorm;
 
     // Pointer to the LLVOSurfacePatch object which is used in the new renderer.
     LLPointer<LLVOSurfacePatch> mVObjp;

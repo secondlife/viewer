@@ -104,7 +104,7 @@ public:
                         const controller_map_t &controllers) :
                 mParamDriverName(param_driver_name),
                 mJointName(joint_name),
-                mMotionDirectionVec(motion_direction_vec),
+                mMotionDirectionVec(motion_direction_vec.mV[0], motion_direction_vec.mV[1], motion_direction_vec.mV[2]),
                 mParamDriver(NULL),
                 mParamControllers(controllers),
                 mCharacter(character),
@@ -179,7 +179,7 @@ protected:
 private:
         const std::string mParamDriverName;
         const std::string mParamControllerName;
-        const LLVector3 mMotionDirectionVec;
+        const glm::vec3 mMotionDirectionVec;
         const std::string mJointName;
 
         F32 mPosition_local;
@@ -423,7 +423,7 @@ F32 LLPhysicsMotion::toLocal(const LLVector3 &world)
         LLJoint *joint = mJointState->getJoint();
         const LLQuaternion rotation_world = joint->getWorldRotation();
 
-        LLVector3 dir_world = mMotionDirectionVec * rotation_world;
+        LLVector3 dir_world = LLVector3(mMotionDirectionVec) * rotation_world;
         dir_world.normalize();
         return world * dir_world;
 }

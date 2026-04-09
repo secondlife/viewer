@@ -296,8 +296,8 @@ public:
     std::string mRequestedLabel; // name requested in UI, if any.
     std::string mLabel; // name computed from dae.
 
-    LLVector3 mNormalizedScale;
-    LLVector3 mNormalizedTranslation;
+    glm::vec3 mNormalizedScale{1.f};
+    glm::vec3 mNormalizedTranslation{0.f};
 
     float   mPelvisOffset;
     // convex hull decomposition
@@ -308,7 +308,7 @@ public:
         const std::vector<LLModel::PhysicsMesh>& decomp_mesh);
     void updateHullCenters();
 
-    LLVector3 mCenterOfHullCenters;
+    glm::vec3 mCenterOfHullCenters{0.f};
     std::vector<LLVector3> mHullCenter;
     U32 mHullPoints;
 

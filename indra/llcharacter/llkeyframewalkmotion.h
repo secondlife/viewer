@@ -32,6 +32,7 @@
 #include "llkeyframemotion.h"
 #include "llcharacter.h"
 #include "v3dmath.h"
+#include <glm/vec3.hpp>
 
 #define MIN_REQUIRED_PIXEL_AREA_WALK_ADJUST (20.f)
 #define MIN_REQUIRED_PIXEL_AREA_FLY_ADJUST (20.f)
@@ -125,7 +126,7 @@ public:
     F32             mAdjustedSpeed;
     F32             mAnimSpeed;
     F32             mRelativeDir;
-    LLVector3       mPelvisOffset;
+    glm::vec3       mPelvisOffset{0.f};
     F32             mAnkleOffset;
 };
 
