@@ -147,8 +147,8 @@ public:
     explicit LLHeavenBody(const F32 rad);
     ~LLHeavenBody() = default;
 
-    LLQuaternion        getRotation() const;
-    void                setRotation(const LLQuaternion& rot);
+    glm::quat           getRotation() const;
+    void                setRotation(const glm::quat& rot);
 
     LLVector3 getDirection() const;
     void setDirection(const LLVector3 &direction);
