@@ -120,7 +120,6 @@ private:
         // Backlink only; don't make this an LLPointer.
         LLViewerObject*             mVO;
         LLTimer                     mTimer;
-        LLVector3                   mAnchorPosition;
         glm::quat                   mLastFrameRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
         glm::quat                   mLastSegmentRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
         bool                        mInitialized;
