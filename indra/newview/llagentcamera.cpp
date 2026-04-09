@@ -2079,22 +2079,22 @@ glm::vec3 LLAgentCamera::getCurrentCameraOffset()
     LLVector3 diff(cam_o.x - root.x - mThirdPersonHeadOffset.x,
                    cam_o.y - root.y - mThirdPersonHeadOffset.y,
                    cam_o.z - root.z - mThirdPersonHeadOffset.z);
-    LLVector3 result = diff * ~getCurrentAvatarRotation();
+    LLVector3 result = diff * ~LLQuaternion(getCurrentAvatarRotation());
     return glm::vec3(result.mV[VX], result.mV[VY], result.mV[VZ]);
 }
 
 LLVector3d LLAgentCamera::getCurrentFocusOffset()
 {
-    return (mFocusTargetGlobal - gAgent.getPositionGlobal()) * ~getCurrentAvatarRotation();
+    return (mFocusTargetGlobal - gAgent.getPositionGlobal()) * ~LLQuaternion(getCurrentAvatarRotation());
 }
 
-LLQuaternion LLAgentCamera::getCurrentAvatarRotation()
+glm::quat LLAgentCamera::getCurrentAvatarRotation()
 {
     LLViewerObject* sit_object = static_cast<LLViewerObject*>(gAgentAvatarp->getParent());
 
     LLQuaternion av_rot = gAgent.getFrameAgent().getQuaternion();
     LLQuaternion obj_rot = sit_object ? LLQuaternion(sit_object->getRenderRotation()) : LLQuaternion::DEFAULT;
-    return av_rot * obj_rot;
+    return av_rot * obj_rot;   // implicit LLQuaternion -> glm::quat
 }
 
 bool LLAgentCamera::isJoystickCameraUsed()
