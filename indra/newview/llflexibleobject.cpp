@@ -130,10 +130,11 @@ void LLVolumeImplFlexible::onParameterChanged(U16 param_type, LLNetworkData *dat
 void LLVolumeImplFlexible::onShift(const LLVector4a &shift_vector)
 {
     //VECTORIZE THIS
-    LLVector3 shift(shift_vector.getF32ptr());
+    const F32* p = shift_vector.getF32ptr();
+    const glm::vec3 shift_gm(p[0], p[1], p[2]);
     for (int section = 0; section < (1<<FLEXIBLE_OBJECT_MAX_SECTIONS)+1; ++section)
     {
-        mSection[section].mPosition += shift;
+        mSection[section].mPosition += shift_gm;
     }
 }
 
@@ -152,7 +153,7 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
         {
             dest[section+1] = dest[section];
             dest[section+1].mPosition += dest[section].mDirection * section_length;
-            dest[section+1].mVelocity.set( LLVector3::zero );
+            dest[section+1].mVelocity = glm::vec3(0.f);
         }
     }
     else if (source_sections > dest_sections)
@@ -261,7 +262,7 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
     mSection[0].mDirection = LLVector3::z_axis * getFrameRotation();
     mSection[0].mdPosition = mSection[0].mDirection;
     mSection[0].mScale = glm::vec2(scale.mV[VX]*bottom_scale.x, scale.mV[VY]*bottom_scale.y);
-    mSection[0].mVelocity.set(0,0,0);
+    mSection[0].mVelocity = glm::vec3(0.f);
     // glm::angleAxis(angle, axis) ≡ LLQuaternion::setAngleAxis(angle, axis)
     // for already-unit axes; (0,0,1) is unit so no normalization mismatch.
     mSection[0].mAxisRotation = glm::angleAxis(begin_rot, glm::vec3(0.f, 0.f, 1.f));
@@ -518,20 +519,26 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         //------------------------------------------------------------------------------------------
         // gravity
         //------------------------------------------------------------------------------------------
-        mSection[i].mPosition.mV[2] -= mAttributes->getGravity() * force_factor;
+        mSection[i].mPosition.z -= mAttributes->getGravity() * force_factor;
 
         //------------------------------------------------------------------------------------------
         // wind force
         //------------------------------------------------------------------------------------------
         if (mAttributes->getWindSensitivity() > 0.001f)
         {
-            mSection[i].mPosition += gAgent.getRegion()->mWind.getVelocity( mSection[i].mPosition ) * wind_factor;
+            // getVelocity takes/returns LLVector3; bridge through F32 components
+            // to avoid the operator+=<U> template trap.
+            const LLVector3 wind_force = gAgent.getRegion()->mWind.getVelocity( mSection[i].mPosition ) * wind_factor;
+            mSection[i].mPosition += glm::vec3(wind_force.mV[VX], wind_force.mV[VY], wind_force.mV[VZ]);
         }
 
         //------------------------------------------------------------------------------------------
         // user-defined force
         //------------------------------------------------------------------------------------------
-        mSection[i].mPosition += mAttributes->getUserForce() * force_factor;
+        {
+            const LLVector3 user_force = mAttributes->getUserForce() * force_factor;
+            mSection[i].mPosition += glm::vec3(user_force.mV[VX], user_force.mV[VY], user_force.mV[VZ]);
+        }
 
         //---------------------------------------------------
         // tension (rigidity, stiffness)
@@ -553,7 +560,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         LLVector3 difference = (parentSectionVector*section_length) - currentVector;
         LLVector3 tensionForce = difference * t_factor;
 
-        mSection[i].mPosition += tensionForce;
+        mSection[i].mPosition += glm::vec3(tensionForce.mV[VX], tensionForce.mV[VY], tensionForce.mV[VZ]);
 
         //------------------------------------------------------------------------------------------
         // sphere collision, currently not used
@@ -628,9 +635,9 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         // calculate velocity
         //------------------------------------------------------------------------------------------
         mSection[i].mVelocity = mSection[i].mPosition - lastPosition;
-        if (mSection[i].mVelocity.lengthSquared() > 1.f)
+        if (glm::dot(mSection[i].mVelocity, mSection[i].mVelocity) > 1.f)
         {
-            mSection[i].mVelocity.normalize();
+            mSection[i].mVelocity = glm::normalize(mSection[i].mVelocity);
         }
     }
 
