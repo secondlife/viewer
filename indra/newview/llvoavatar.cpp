@@ -8065,7 +8065,7 @@ void LLVOAvatar::getOffObject()
     if (isSelf())
     {
         LLQuaternion av_rot = gAgent.getFrameAgent().getQuaternion();
-        LLQuaternion obj_rot = sit_object ? sit_object->getRenderRotation() : LLQuaternion::DEFAULT;
+        LLQuaternion obj_rot = sit_object ? LLQuaternion(sit_object->getRenderRotation()) : LLQuaternion::DEFAULT;
         av_rot = av_rot * obj_rot;
         LLVector3 at_axis = LLVector3::x_axis;
         at_axis = at_axis * av_rot;

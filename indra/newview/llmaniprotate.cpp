@@ -1086,7 +1086,7 @@ void LLManipRotate::renderSnapGuides()
 
                 // project onto constraint plane
                 LLSelectNode* first_node = mObjectSelection->getFirstMoveableNode(true);
-                object_axis = object_axis * first_node->getObject()->getRenderRotation();
+                object_axis = object_axis * LLQuaternion(first_node->getObject()->getRenderRotation());
                 object_axis = object_axis - dot(object_axis, getConstraintAxis()) * getConstraintAxis();
                 object_axis.normalize();
                 object_axis = object_axis * SNAP_GUIDE_INNER_RADIUS * mRadiusMeters + center;

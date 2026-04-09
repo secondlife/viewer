@@ -4646,7 +4646,7 @@ glm::vec3 LLViewerObject::getPivotPositionAgent() const
     return getRenderPosition();
 }
 
-const LLQuaternion LLViewerObject::getRenderRotation() const
+glm::quat LLViewerObject::getRenderRotation() const
 {
     LLQuaternion ret;
     if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED) && !isAnimatedObject())
@@ -4656,7 +4656,7 @@ const LLQuaternion LLViewerObject::getRenderRotation() const
 
     if (mDrawable.isNull() || mDrawable->isStatic())
     {
-        ret = getRotationEdit();
+        ret = LLQuaternion(getRotationEdit());
     }
     else
     {
@@ -4679,22 +4679,22 @@ const LLMatrix4 LLViewerObject::getRenderMatrix() const
     return mDrawable->getWorldMatrix();
 }
 
-const LLQuaternion LLViewerObject::getRotationRegion() const
+glm::quat LLViewerObject::getRotationRegion() const
 {
     LLQuaternion global_rotation = getRotation();
     if (!((LLXform *)this)->isRoot())
     {
-        global_rotation = global_rotation * getParent()->getRotation();
+        global_rotation = global_rotation * LLQuaternion(getParent()->getRotation());
     }
     return global_rotation;
 }
 
-const LLQuaternion LLViewerObject::getRotationEdit() const
+glm::quat LLViewerObject::getRotationEdit() const
 {
     LLQuaternion global_rotation = getRotation();
     if (!((LLXform *)this)->isRootEdit())
     {
-        global_rotation = global_rotation * getParent()->getRotation();
+        global_rotation = global_rotation * LLQuaternion(getParent()->getRotation());
     }
     return global_rotation;
 }

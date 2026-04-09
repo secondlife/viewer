@@ -4687,7 +4687,7 @@ LLVector3 LLVOVolume::volumePositionToAgent(const LLVector3& dir) const
         ret.scaleVec(objScale);
     }
 
-    ret = ret * getRenderRotation();
+    ret = ret * LLQuaternion(getRenderRotation());
     ret += getRenderPosition();
 
     return ret;
@@ -4699,7 +4699,7 @@ LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
     LLVector3 objScale = isVolumeGlobal() ? LLVector3(1,1,1) : LLVector3(getScale());
     LLVector3 invObjScale(1.f / objScale.mV[VX], 1.f / objScale.mV[VY], 1.f / objScale.mV[VZ]);
     ret.scaleVec(invObjScale);
-    ret = ret * getRenderRotation();
+    ret = ret * LLQuaternion(getRenderRotation());
 
     return ret;
 }

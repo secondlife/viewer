@@ -353,9 +353,9 @@ public:
 
     LLViewerObject* getRootEdit() const;
 
-    const LLQuaternion getRotationRegion() const;
-    const LLQuaternion getRotationEdit() const;
-    const LLQuaternion getRenderRotation() const;
+    glm::quat getRotationRegion() const;
+    glm::quat getRotationEdit() const;
+    glm::quat getRenderRotation() const;
     virtual const LLMatrix4 getRenderMatrix() const;
 
     void setPosition(const glm::vec3 &pos, bool damped = false);
