@@ -138,10 +138,7 @@ private:
 
 extern LLGLManager gGLManager;
 
-class LLQuaternion;
 class LLMatrix4;
-
-void rotate_quat(LLQuaternion& rotation);
 
 void flush_glerror(); // Flush GL errors when we know we're handling them correctly.
 
