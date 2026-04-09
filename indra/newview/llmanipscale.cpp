@@ -1505,16 +1505,27 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
             mScaleSnapUnit2 = grid_scale.mV[VX];
             break;
         default:
-            mSnapGuideDir1.setZero();
+            mSnapGuideDir1 = glm::vec3(0.f);
             mScaleSnapUnit1 = 0.f;
 
-            mSnapGuideDir2.setZero();
+            mSnapGuideDir2 = glm::vec3(0.f);
             mScaleSnapUnit2 = 0.f;
             break;
         }
 
-        mSnapGuideDir1.rotVec(bbox_rot);
-        mSnapGuideDir2.rotVec(bbox_rot);
+        // .rotVec(quat) is LL-only; bridge through LLVector3 temps to
+        // preserve LL vec*quat semantics including BUG-Q-002 lenient
+        // |q|^2 scaling.
+        {
+            LLVector3 t1(mSnapGuideDir1);
+            t1.rotVec(bbox_rot);
+            mSnapGuideDir1 = t1;
+        }
+        {
+            LLVector3 t2(mSnapGuideDir2);
+            t2.rotVec(bbox_rot);
+            mSnapGuideDir2 = t2;
+        }
         mSnapDir1 = -1.f * mSnapGuideDir2;
         mSnapDir2 = -1.f * mSnapGuideDir1;
     }
