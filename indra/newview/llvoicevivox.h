@@ -496,7 +496,7 @@ protected:
     // Sending updates of current state
     void updatePosition();
     void setCameraPosition(const LLVector3d &position, const LLVector3 &velocity, const LLMatrix3 &rot);
-    void setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
+    void setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const glm::quat &rot);
     bool channelFromRegion(LLViewerRegion *region, std::string &name);
 
     void setEarLocation(S32 loc);
