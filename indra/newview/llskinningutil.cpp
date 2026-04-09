@@ -378,7 +378,7 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
 
 // This is used for extracting rotation from a bind shape matrix that
 // already has scales baked in
-LLQuaternion LLSkinningUtil::getUnscaledQuaternion(const LLMatrix4& mat4)
+glm::quat LLSkinningUtil::getUnscaledQuaternion(const LLMatrix4& mat4)
 {
     LLMatrix3 bind_mat = mat4.getMat3();
     for (auto i = 0; i < 3; i++)
