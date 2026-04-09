@@ -68,8 +68,6 @@ public:
 
     void mergeLinkableSet( typename std::list< LLPrimLinkInfo < DATA_TYPE > >& unlinked );
 
-    void transform(const LLVector3& position, const LLQuaternion& rotation);
-
 private:
     // returns number of merges made
     S32 merge(LLPrimLinkInfo< DATA_TYPE >& other_info);
@@ -249,18 +247,6 @@ void LLPrimLinkInfo< DATA_TYPE >::mergeLinkableSet(std::list< LLPrimLinkInfo< DA
             }
         }
     }
-}
-
-// transforms all of the spheres into a new reference frame
-template < typename DATA_TYPE >
-void LLPrimLinkInfo< DATA_TYPE >::transform(const LLVector3& position, const LLQuaternion& rotation)
-{
-    typename std::map< DATA_TYPE, LLSphere >::iterator map_itr;
-    for (map_itr = mDataMap.begin(); map_itr != mDataMap.end(); ++map_itr)
-    {
-        (*map_itr).second.setCenter(LLVector3((*map_itr).second.getCenter()) * rotation + position);
-    }
-    mBoundingSphere.setCenter(LLVector3(mBoundingSphere.getCenter()) * rotation + position);
 }
 
 // private
