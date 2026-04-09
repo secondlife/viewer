@@ -3156,7 +3156,7 @@ void LLVivoxVoiceClient::sendPositionAndVolumeUpdate()
 
         stream << "<SpeakerPosition>";
 
-        LLMatrix3 avatarRot = mAvatarRot.getMatrix3();
+        LLMatrix3 avatarRot = LLQuaternion(mAvatarRot).getMatrix3();
 
 //      LL_DEBUGS("Voice") << "Sending speaker position " << mAvatarPosition << LL_ENDL;
         l = avatarRot.getLeftRow();
@@ -5436,8 +5436,12 @@ void LLVivoxVoiceClient::setAvatarPosition(const LLVector3d &position, const LLV
     // If the two rotations are not exactly equal test their dot product
     // to get the cos of the angle between them.
     // If it is too small, don't update.
-    F32 rot_cos_diff = llabs(dot(mAvatarRot, rot));
-    if ((mAvatarRot != rot) && (rot_cos_diff < MINUSCULE_ANGLE_COS))
+    // dot is an LL ADL hidden friend of LLQuaternion; wrap the glm::quat
+    // side in LLQuaternion(...) so name lookup finds it. Component layout
+    // matches 1:1 in this glm build (locked by tests #34-35), so the
+    // numeric result is bit-identical to a glm::dot path.
+    F32 rot_cos_diff = llabs(dot(LLQuaternion(mAvatarRot), rot));
+    if ((LLQuaternion(mAvatarRot) != rot) && (rot_cos_diff < MINUSCULE_ANGLE_COS))
     {
         mAvatarRot = rot;
         mSpatialCoordsDirty = true;

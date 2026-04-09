@@ -1079,7 +1079,7 @@ void LLWebRTCVoiceClient::setListenerPosition(const LLVector3d &position, const 
         mSpatialCoordsDirty = true;
     }
 
-    if (mListenerRot != rot)
+    if (LLQuaternion(mListenerRot) != rot)
     {
         mListenerRot        = rot;
         mSpatialCoordsDirty = true;
@@ -1103,8 +1103,12 @@ void LLWebRTCVoiceClient::setAvatarPosition(const LLVector3d &position, const gl
     // If the two rotations are not exactly equal test their dot product
     // to get the cos of the angle between them.
     // If it is too small, don't update.
-    F32 rot_cos_diff = llabs(dot(mAvatarRot, rot));
-    if ((mAvatarRot != rot) && (rot_cos_diff < MINUSCULE_ANGLE_COS))
+    // dot is an LL ADL hidden friend of LLQuaternion; wrap the glm::quat
+    // side in LLQuaternion(...) so name lookup finds it. Component layout
+    // matches 1:1 in this glm build (locked by tests #34-35), so the
+    // numeric result is bit-identical to a glm::dot path.
+    F32 rot_cos_diff = llabs(dot(LLQuaternion(mAvatarRot), rot));
+    if ((LLQuaternion(mAvatarRot) != rot) && (rot_cos_diff < MINUSCULE_ANGLE_COS))
     {
         mAvatarRot          = rot;
         mSpatialCoordsDirty = true;
@@ -1159,6 +1163,12 @@ void LLWebRTCVoiceClient::sendPositionUpdate(bool force)
             {"y", static_cast<int>(mAvatarPosition[1] * 100)},
             {"z", static_cast<int>(mAvatarPosition[2] * 100)}
         };
+        // Indexed access mAvatarRot[0..3] returns (x, y, z, w) for both
+        // LLQuaternion and this glm build (xyzw memory layout, no
+        // GLM_FORCE_QUAT_DATA_WXYZ — locked by equivalence tests #34-35).
+        // Migration leaves these sites textually unchanged. Type changes
+        // from F64 to F32 intermediate but the static_cast<int> truncation
+        // produces bit-identical wire bytes for unit-quat inputs.
         spatial["sh"]  = {
             {"x", static_cast<int>(mAvatarRot[0] * 100)},
             {"y", static_cast<int>(mAvatarRot[1] * 100)},

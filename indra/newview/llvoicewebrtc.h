@@ -39,6 +39,7 @@ class LLWebRTCProtocolParser;
 #include "llcoros.h"
 #include "llparcel.h"
 #include "llmutelist.h"
+#include <glm/gtc/quaternion.hpp>
 #include <queue>
 #include "boost/json.hpp"
 
@@ -494,11 +495,11 @@ private:
     LLVector3d   mListenerPosition;
     LLVector3d   mListenerRequestedPosition;
     glm::vec3    mListenerVelocity;
-    LLQuaternion mListenerRot;
+    glm::quat    mListenerRot{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
 
     LLVector3d   mAvatarPosition;
     glm::vec3    mAvatarVelocity;
-    LLQuaternion mAvatarRot;
+    glm::quat    mAvatarRot{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
 
     std::set<LLUUID> mNeighboringRegions; // includes current region
 
