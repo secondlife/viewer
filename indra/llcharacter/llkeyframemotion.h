@@ -347,8 +347,8 @@ public:
     public:
         RotationCurve();
         ~RotationCurve();
-        LLQuaternion getValue(F32 time, F32 duration);
-        LLQuaternion interp(F32 u, RotationKey& before, RotationKey& after) const;
+        glm::quat getValue(F32 time, F32 duration);
+        glm::quat interp(F32 u, RotationKey& before, RotationKey& after) const;
 
         InterpolationType   mInterpolationType;
         S32                 mNumKeys;

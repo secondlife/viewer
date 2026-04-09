@@ -230,13 +230,12 @@ LLKeyframeMotion::RotationCurve::~RotationCurve()
 //-----------------------------------------------------------------------------
 // RotationCurve::getValue()
 //-----------------------------------------------------------------------------
-LLQuaternion LLKeyframeMotion::RotationCurve::getValue(F32 time, F32 duration)
+glm::quat LLKeyframeMotion::RotationCurve::getValue(F32 time, F32 duration)
 {
-    LLQuaternion value;
+    glm::quat value(1.f, 0.f, 0.f, 0.f);   // identity (w,x,y,z)
 
     if (mKeys.empty())
     {
-        value = LLQuaternion::DEFAULT;
         return value;
     }
 
@@ -275,7 +274,7 @@ LLQuaternion LLKeyframeMotion::RotationCurve::getValue(F32 time, F32 duration)
 //-----------------------------------------------------------------------------
 // interp()
 //-----------------------------------------------------------------------------
-LLQuaternion LLKeyframeMotion::RotationCurve::interp(F32 u, RotationKey& before, RotationKey& after) const
+glm::quat LLKeyframeMotion::RotationCurve::interp(F32 u, RotationKey& before, RotationKey& after) const
 {
     switch (mInterpolationType)
     {
@@ -285,9 +284,11 @@ LLQuaternion LLKeyframeMotion::RotationCurve::interp(F32 u, RotationKey& before,
     default:
     case IT_LINEAR:
     case IT_SPLINE:
-        // RotationKey::mRotation is glm::quat post-cluster #35; LL nlerp is a hidden
-        // friend of LLQuaternion (ADL only), so wrap explicitly for normal name lookup.
-        return nlerp(u, LLQuaternion(before.mRotation), LLQuaternion(after.mRotation));
+        // RotationKey::mRotation is glm::quat. Wrap explicitly for LL ADL
+        // nlerp friend (LL nlerp is hidden friend of LLQuaternion), then
+        // convert the LLQuaternion result back to glm::quat via the
+        // implicit operator.
+        return glm::quat(nlerp(u, LLQuaternion(before.mRotation), LLQuaternion(after.mRotation)));
     }
 }
 
