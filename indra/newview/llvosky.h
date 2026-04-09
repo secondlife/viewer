@@ -58,7 +58,7 @@ private:
     std::array<LLPointer<LLViewerTexture>, 2> mTexture;
     std::array<LLPointer<LLImageRaw>, 2> mImageRaw;
     std::vector<LLColor4>  mSkyData;
-    std::vector<LLVector3> mSkyDirs;    // Cache of sky direction vectors
+    std::vector<glm::vec3> mSkyDirs;    // Cache of sky direction vectors
     static S32      sCurrent;
 
 public:
@@ -86,13 +86,13 @@ protected:
     void setDir(const LLVector3 &dir, const S32 i, const S32 j)
     {
         S32 offset = static_cast<S32>((i * SKYTEX_RESOLUTION + j));
-        mSkyDirs[offset] = dir;
+        mSkyDirs[offset] = glm::vec3(dir.mV[0], dir.mV[1], dir.mV[2]);
     }
 
-    const LLVector3 &getDir(const S32 i, const S32 j) const
+    LLVector3 getDir(const S32 i, const S32 j) const
     {
         S32 offset = static_cast<S32>((i * SKYTEX_RESOLUTION + j));
-        return mSkyDirs[offset];
+        return LLVector3(mSkyDirs[offset]);
     }
 
     void setPixel(const LLColor4 &col, const S32 i, const S32 j)
