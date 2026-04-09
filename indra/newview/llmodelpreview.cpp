@@ -2840,7 +2840,7 @@ void LLModelPreview::setPreviewTarget(F32 distance)
     mCameraZoom = 1.f;
     mCameraPitch = 0.f;
     mCameraYaw = 0.f;
-    mCameraOffset.clear();
+    mCameraOffset = glm::vec3(0.f);
 }
 
 void LLModelPreview::clearBuffers()
@@ -3466,7 +3466,7 @@ bool LLModelPreview::render()
     LLVector3 target_pos = LLVector3(mPreviewTarget) + offset;
 
     F32 z_near = 0.001f;
-    F32 z_far = mCameraDistance*10.0f + glm::length(mPreviewScale) + mCameraOffset.length();
+    F32 z_far = mCameraDistance*10.0f + glm::length(mPreviewScale) + glm::length(mCameraOffset);
 
     if (show_skin_weight)
     {
@@ -4035,8 +4035,8 @@ void LLModelPreview::pan(F32 right, F32 up)
 {
     bool skin_weight = mViewOption["show_skin_weight"];
     F32 camera_distance = skin_weight ? SKIN_WEIGHT_CAMERA_DISTANCE : mCameraDistance;
-    mCameraOffset.mV[VY] = llclamp(mCameraOffset.mV[VY] + right * camera_distance / mCameraZoom, -1.f, 1.f);
-    mCameraOffset.mV[VZ] = llclamp(mCameraOffset.mV[VZ] + up * camera_distance / mCameraZoom, -1.f, 1.f);
+    mCameraOffset.y = llclamp(mCameraOffset.y + right * camera_distance / mCameraZoom, -1.f, 1.f);
+    mCameraOffset.z = llclamp(mCameraOffset.z + up * camera_distance / mCameraZoom, -1.f, 1.f);
 }
 
 void LLModelPreview::setPreviewLOD(S32 lod)

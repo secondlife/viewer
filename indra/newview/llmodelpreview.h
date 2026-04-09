@@ -279,7 +279,7 @@ protected:
     F32         mCameraYaw;
     F32         mCameraPitch;
     F32         mCameraZoom;
-    LLVector3   mCameraOffset;
+    glm::vec3   mCameraOffset{0.f};
     glm::vec3   mPreviewTarget{0.f};
     glm::vec3   mPreviewScale{0.f};
     S32         mPreviewLOD;
