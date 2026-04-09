@@ -366,11 +366,11 @@ LLVector3 LLKeyframeMotion::PositionCurve::interp(F32 u, PositionKey& before, Po
     switch (mInterpolationType)
     {
     case IT_STEP:
-        return before.mPosition;
+        return LLVector3(before.mPosition);
     default:
     case IT_LINEAR:
     case IT_SPLINE:
-        return lerp(before.mPosition, after.mPosition, u);
+        return lerp(LLVector3(before.mPosition), LLVector3(after.mPosition), u);
     }
 }
 
@@ -1745,7 +1745,8 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 
             if (old_version)
             {
-                if (!dp.unpackVector3(pos_key.mPosition, "pos"))
+                LLVector3 tmp;
+                if (!dp.unpackVector3(tmp, "pos"))
                 {
                     LL_WARNS() << "can't read pos in position key (" << k << ")"
                                << " for animation " << asset() << LL_ENDL;
@@ -1753,10 +1754,10 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                 }
 
                 //MAINT-6162
-                pos_key.mPosition.mV[VX] = llclamp( pos_key.mPosition.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-                pos_key.mPosition.mV[VY] = llclamp( pos_key.mPosition.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-                pos_key.mPosition.mV[VZ] = llclamp( pos_key.mPosition.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-
+                tmp.mV[VX] = llclamp( tmp.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                tmp.mV[VY] = llclamp( tmp.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                tmp.mV[VZ] = llclamp( tmp.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                pos_key.mPosition = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
             }
             else
             {
@@ -1781,12 +1782,12 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                     return false;
                 }
 
-                pos_key.mPosition.mV[VX] = U16_to_F32(x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-                pos_key.mPosition.mV[VY] = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-                pos_key.mPosition.mV[VZ] = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                pos_key.mPosition.x = U16_to_F32(x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                pos_key.mPosition.y = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                pos_key.mPosition.z = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
             }
 
-            if (!pos_key.mPosition.isFinite())
+            if (!LLVector3(pos_key.mPosition).isFinite())
             {
                 LL_WARNS() << "non-finite position in key"
                            << " for animation " << asset() << LL_ENDL;
@@ -2149,15 +2150,19 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
             success &= dp.packU16(time_short, "time");
 
             U16 x, y, z;
-            pos_key.mPosition.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-            x = F32_to_U16(pos_key.mPosition.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-            y = F32_to_U16(pos_key.mPosition.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-            z = F32_to_U16(pos_key.mPosition.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+            {
+                LLVector3 tmp(pos_key.mPosition);
+                tmp.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+                pos_key.mPosition = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
+            }
+            x = F32_to_U16(pos_key.mPosition.x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+            y = F32_to_U16(pos_key.mPosition.y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+            z = F32_to_U16(pos_key.mPosition.z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
             success &= dp.packU16(x, "pos_x");
             success &= dp.packU16(y, "pos_y");
             success &= dp.packU16(z, "pos_z");
 
-            LL_DEBUGS("BVH") << "  pos: t " << pos_key.mTime << " pos " << pos_key.mPosition.mV[VX] <<","<< pos_key.mPosition.mV[VY] <<","<< pos_key.mPosition.mV[VZ] << LL_ENDL;
+            LL_DEBUGS("BVH") << "  pos: t " << pos_key.mTime << " pos " << pos_key.mPosition.x <<","<< pos_key.mPosition.y <<","<< pos_key.mPosition.z << LL_ENDL;
         }
     }
 

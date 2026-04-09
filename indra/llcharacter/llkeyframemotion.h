@@ -314,10 +314,10 @@ public:
     {
     public:
         PositionKey() { mTime = 0.0f; }
-        PositionKey(F32 time, const LLVector3 &position) { mTime = time; mPosition = position; }
+        PositionKey(F32 time, const LLVector3 &position) { mTime = time; mPosition = glm::vec3(position.mV[0], position.mV[1], position.mV[2]); }
 
-        F32         mTime;
-        LLVector3   mPosition;
+        F32         mTime{0.f};
+        glm::vec3   mPosition{0.f};
     };
 
     //-------------------------------------------------------------------------
