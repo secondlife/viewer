@@ -1023,9 +1023,9 @@ public:
     static LLColor4 PreviewSpecular1;
     static LLColor4 PreviewDiffuse2;
     static LLColor4 PreviewSpecular2;
-    static LLVector3 PreviewDirection0;
-    static LLVector3 PreviewDirection1;
-    static LLVector3 PreviewDirection2;
+    static glm::vec3 PreviewDirection0;
+    static glm::vec3 PreviewDirection1;
+    static glm::vec3 PreviewDirection2;
     static F32 RenderGlowMinLuminance;
     static F32 RenderGlowMaxExtractAlpha;
     static F32 RenderGlowWarmthAmount;
