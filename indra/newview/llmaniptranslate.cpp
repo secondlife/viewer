@@ -1645,7 +1645,7 @@ void LLManipTranslate::renderGrid(F32 x, F32 y, F32 size, F32 r, F32 g, F32 b, F
 
 void LLManipTranslate::highlightIntersection(LLVector3 normal,
                                              LLVector3 selection_center,
-                                             LLQuaternion grid_rotation,
+                                             glm::quat grid_rotation,
                                              LLColor4 inner_color)
 {
 }
