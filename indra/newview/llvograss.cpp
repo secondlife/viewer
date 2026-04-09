@@ -70,8 +70,6 @@ LLVOGrass::LLVOGrass(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regi
 {
     mPatch               = NULL;
     mLastPatchUpdateTime = 0;
-    mGrassVel.clear();
-    mGrassBend.clear();
     mbCanSelect          = true;
 
     mBladeWindAngle      = 35.f;
