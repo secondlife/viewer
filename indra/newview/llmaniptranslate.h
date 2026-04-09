@@ -102,7 +102,7 @@ private:
     LLTimer     mUpdateTimer;
     LLVector4   mManipulatorVertices[18];
     F32         mSnapOffsetMeters;
-    LLVector3   mSnapOffsetAxis;
+    glm::vec3   mSnapOffsetAxis{0.f};
     glm::quat    mGridRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     LLVector3   mGridOrigin;
     LLVector3   mGridScale;
