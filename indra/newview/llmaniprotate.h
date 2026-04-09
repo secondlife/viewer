@@ -43,16 +43,6 @@ class LLColor4;
 class LLManipRotate : public LLManip
 {
 public:
-    class ManipulatorHandle
-    {
-    public:
-        LLVector3   mAxisU;
-        LLVector3   mAxisV;
-        U32         mManipID;
-
-        ManipulatorHandle(LLVector3 axis_u, LLVector3 axis_v, U32 id) : mAxisU(axis_u), mAxisV(axis_v), mManipID(id){}
-    };
-
     LLManipRotate( LLToolComposite* composite );
 
     virtual bool    handleMouseDown( S32 x, S32 y, MASK mask );
