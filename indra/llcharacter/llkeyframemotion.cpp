@@ -285,7 +285,9 @@ LLQuaternion LLKeyframeMotion::RotationCurve::interp(F32 u, RotationKey& before,
     default:
     case IT_LINEAR:
     case IT_SPLINE:
-        return nlerp(u, before.mRotation, after.mRotation);
+        // RotationKey::mRotation is glm::quat post-cluster #35; LL nlerp is a hidden
+        // friend of LLQuaternion (ADL only), so wrap explicitly for normal name lookup.
+        return nlerp(u, LLQuaternion(before.mRotation), LLQuaternion(after.mRotation));
     }
 }
 
@@ -1666,10 +1668,14 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                         << " for animation " << asset() << LL_ENDL;
                     return false;
                 }
-                rot_key.mRotation.unpackFromVector3(rot_vec);
+                // unpackFromVector3/isFinite are LL methods; route through a temp
+                // and assign back via the bridge ctor.
+                LLQuaternion tmp;
+                tmp.unpackFromVector3(rot_vec);
+                rot_key.mRotation = tmp;
             }
 
-            if (!rot_key.mRotation.isFinite())
+            if (!LLQuaternion(rot_key.mRotation).isFinite())
             {
                 LL_WARNS() << "non-finite angle in rotation key (" << k << ")"
                            << " for animation " << asset() << LL_ENDL;
@@ -2107,7 +2113,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
             U16 time_short = F32_to_U16(rot_key.mTime, 0.f, mJointMotionList->mDuration);
             success &= dp.packU16(time_short, "time");
 
-            LLVector3 rot_angles = rot_key.mRotation.packToVector3();
+            LLVector3 rot_angles = LLQuaternion(rot_key.mRotation).packToVector3();
 
             U16 x, y, z;
             rot_angles.quantize16(-1.f, 1.f, -1.f, 1.f);
