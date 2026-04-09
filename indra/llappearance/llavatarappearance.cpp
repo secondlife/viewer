@@ -84,11 +84,11 @@ private:
     std::string mAliases;
     std::string mGroup;
     bool mIsJoint{false};
-    LLVector3 mPos;
-    LLVector3 mEnd;
-    LLVector3 mRot;
-    LLVector3 mScale;
-    LLVector3 mPivot;
+    glm::vec3 mPos{0.f};
+    glm::vec3 mEnd{0.f};
+    glm::vec3 mRot{0.f};
+    glm::vec3 mScale{0.f};
+    glm::vec3 mPivot{0.f};
     using bones_t = std::vector<LLAvatarBoneInfo*>;
     bones_t mChildren;
 };
@@ -642,8 +642,8 @@ bool LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
     // SL-315
     joint->setPosition(info->mPos);
     joint->setDefaultPosition(info->mPos);
-    joint->setRotation(mayaQ(info->mRot.mV[VX], info->mRot.mV[VY],
-                             info->mRot.mV[VZ], LLQuaternion::Order::XYZ));
+    joint->setRotation(mayaQ(info->mRot.x, info->mRot.y,
+                             info->mRot.z, LLQuaternion::Order::XYZ));
     joint->setScale(info->mScale);
     joint->setDefaultScale(info->mScale);
     joint->setSupport(info->mSupport);
@@ -1575,31 +1575,50 @@ bool LLAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
     }
 
     static LLStdStringHandle pos_string = LLXmlTree::addAttributeString("pos");
-    if (!node->getFastAttributeVector3(pos_string, mPos))
     {
-        LL_WARNS() << "Bone without position" << LL_ENDL;
-        return false;
+        LLVector3 tmp;
+        if (!node->getFastAttributeVector3(pos_string, tmp))
+        {
+            LL_WARNS() << "Bone without position" << LL_ENDL;
+            return false;
+        }
+        mPos = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
     }
 
     static LLStdStringHandle rot_string = LLXmlTree::addAttributeString("rot");
-    if (!node->getFastAttributeVector3(rot_string, mRot))
     {
-        LL_WARNS() << "Bone without rotation" << LL_ENDL;
-        return false;
+        LLVector3 tmp;
+        if (!node->getFastAttributeVector3(rot_string, tmp))
+        {
+            LL_WARNS() << "Bone without rotation" << LL_ENDL;
+            return false;
+        }
+        mRot = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
     }
 
     static LLStdStringHandle scale_string = LLXmlTree::addAttributeString("scale");
-    if (!node->getFastAttributeVector3(scale_string, mScale))
     {
-        LL_WARNS() << "Bone without scale" << LL_ENDL;
-        return false;
+        LLVector3 tmp;
+        if (!node->getFastAttributeVector3(scale_string, tmp))
+        {
+            LL_WARNS() << "Bone without scale" << LL_ENDL;
+            return false;
+        }
+        mScale = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
     }
 
     static LLStdStringHandle end_string = LLXmlTree::addAttributeString("end");
-    if (!node->getFastAttributeVector3(end_string, mEnd))
     {
-        LL_WARNS() << "Bone without end " << mName << LL_ENDL;
-        mEnd = LLVector3(0.0f, 0.0f, 0.0f);
+        LLVector3 tmp;
+        if (!node->getFastAttributeVector3(end_string, tmp))
+        {
+            LL_WARNS() << "Bone without end " << mName << LL_ENDL;
+            mEnd = glm::vec3(0.f);
+        }
+        else
+        {
+            mEnd = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
+        }
     }
 
     static LLStdStringHandle support_string = LLXmlTree::addAttributeString("support");
@@ -1621,10 +1640,14 @@ bool LLAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
     if (mIsJoint)
     {
         static LLStdStringHandle pivot_string = LLXmlTree::addAttributeString("pivot");
-        if (!node->getFastAttributeVector3(pivot_string, mPivot))
         {
-            LL_WARNS() << "Bone without pivot" << LL_ENDL;
-            return false;
+            LLVector3 tmp;
+            if (!node->getFastAttributeVector3(pivot_string, tmp))
+            {
+                LL_WARNS() << "Bone without pivot" << LL_ENDL;
+                return false;
+            }
+            mPivot = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
         }
     }
 
