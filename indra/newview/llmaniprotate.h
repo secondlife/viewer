@@ -31,6 +31,8 @@
 #include "v4math.h"
 #include "llquaternion.h"
 #include "llregionposition.h"
+
+#include "glm/gtc/quaternion.hpp"
 #include "llmanip.h"
 #include "llviewerobject.h"
 
@@ -90,7 +92,7 @@ private:
     LLCoordGL           mCenterScreen;
 //  S32                 mLastHoverMouseX;       // used to suppress hover if mouse doesn't move
 //  S32                 mLastHoverMouseY;
-    LLQuaternion        mRotation;
+    glm::quat           mRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
 
     LLVector3           mMouseDown;
     LLVector3           mMouseCur;

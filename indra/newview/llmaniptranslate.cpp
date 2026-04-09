@@ -329,7 +329,11 @@ bool LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
     mHelpTextTimer.reset();
     sNumTimesHelpTextShown++;
 
-    LLSelectMgr::getInstance()->getGrid(mGridOrigin, mGridRotation, mGridScale);
+    // getGrid takes LLQuaternion& by reference; route through a temp and
+    // convert to mGridRotation via the bridge ctor.
+    LLQuaternion grid_rot;
+    LLSelectMgr::getInstance()->getGrid(mGridOrigin, grid_rot, mGridScale);
+    mGridRotation = grid_rot;
 
     LLSelectMgr::getInstance()->enableSilhouette(false);
 
@@ -577,7 +581,7 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
             camera_plane_projection -= projected_vec(camera_plane_projection, mManipNormal);
             camera_plane_projection.normalize();
             LLVector3 camera_projected_dir = camera_plane_projection;
-            camera_plane_projection.rotVec(~mGridRotation);
+            camera_plane_projection.rotVec(~LLQuaternion(mGridRotation));
             camera_plane_projection.scaleVec(mGridScale);
             camera_plane_projection.abs();
             F32 max_grid_scale;
@@ -599,7 +603,7 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 
             F32 grid_scale_a;
             F32 grid_scale_b;
-            LLVector3 cursor_point_grid = (cursor_point_agent - mGridOrigin) * ~mGridRotation;
+            LLVector3 cursor_point_grid = (cursor_point_agent - mGridOrigin) * ~LLQuaternion(mGridRotation);
 
             switch (mManipPart)
             {
@@ -624,7 +628,7 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
             default:
                 break;
             }
-            cursor_point_agent = (cursor_point_grid * mGridRotation) + mGridOrigin;
+            cursor_point_agent = (cursor_point_grid * LLQuaternion(mGridRotation)) + mGridOrigin;
             relative_move.set(cursor_point_agent - gAgent.getPosAgentFromGlobal(mDragSelectionStartGlobal));
             mInSnapRegime = true;
         }
@@ -1406,7 +1410,7 @@ void LLManipTranslate::renderSnapGuides()
                         (translate_axis * ((smallest_grid_unit_scale * static_cast<F32>(i)) - offset_nearest_grid_unit)) +
                             (mSnapOffsetAxis * snap_offset_meters * (1.f + tick_scale));
 
-                LLVector3 tick_offset = (tick_pos - mGridOrigin) * ~mGridRotation;
+                LLVector3 tick_offset = (tick_pos - mGridOrigin) * ~LLQuaternion(mGridRotation);
                 F32 offset_val = 0.5f * tick_offset.mV[ARROW_TO_AXIS[mManipPart]] / getMinGridScale();
                 EGridMode grid_mode = LLSelectMgr::getInstance()->getGridMode();
                 F32 text_highlight = 0.8f;

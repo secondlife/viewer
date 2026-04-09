@@ -248,7 +248,7 @@ LLFollowCam::LLFollowCam() : LLFollowCamParams()
 {
     mUpVector                           = LLVector3::z_axis;
     mSubjectPosition                    = LLVector3::zero;
-    mSubjectRotation                    = LLQuaternion::DEFAULT;
+    // mSubjectRotation default-initializes to identity in the header.
 
     mZoomedToMinimumDistance            = false;
     mPitchCos = mPitchSin = 0.f;
@@ -288,7 +288,7 @@ void LLFollowCam::update()
     //####################################################################################
     // update Focus
     //####################################################################################
-    LLVector3 offsetSubjectPosition = mSubjectPosition + (mFocusOffset * mSubjectRotation);
+    LLVector3 offsetSubjectPosition = mSubjectPosition + (mFocusOffset * LLQuaternion(mSubjectRotation));
 
     const glm::vec3 simulated_pos_agent_g = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
     LLVector3 simulated_pos_agent(simulated_pos_agent_g.x, simulated_pos_agent_g.y, simulated_pos_agent_g.z);
@@ -300,7 +300,7 @@ void LLFollowCam::update()
     LLVector3 focus_pt_agent(focus_pt_agent_g.x, focus_pt_agent_g.y, focus_pt_agent_g.z);
     if ( mFocusLocked ) // if focus is locked, only relative focus needs to be updated
     {
-        mRelativeFocus = (focus_pt_agent - mSubjectPosition) * ~mSubjectRotation;
+        mRelativeFocus = (focus_pt_agent - mSubjectPosition) * ~LLQuaternion(mSubjectRotation);
     }
     else
     {
@@ -326,7 +326,7 @@ void LLFollowCam::update()
             focus_pt_agent = lerp( focus_pt_agent, whereFocusWantsToBe, focusLagLerp );
             mSimulatedFocusGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(focus_pt_agent.mV[VX], focus_pt_agent.mV[VY], focus_pt_agent.mV[VZ]));
         }
-        mRelativeFocus = lerp(mRelativeFocus, (focus_pt_agent - mSubjectPosition) * ~mSubjectRotation, LLSmoothInterpolation::getInterpolant(0.05f));
+        mRelativeFocus = lerp(mRelativeFocus, (focus_pt_agent - mSubjectPosition) * ~LLQuaternion(mSubjectRotation), LLSmoothInterpolation::getInterpolant(0.05f));
     }// if focus is not locked ---------------------------------------------
 
 
@@ -334,7 +334,7 @@ void LLFollowCam::update()
     LLVector3 whereCameraPositionWantsToBe(whereCameraPositionWantsToBe_g.x, whereCameraPositionWantsToBe_g.y, whereCameraPositionWantsToBe_g.z);
     if (  mPositionLocked )
     {
-        mRelativePos = (whereCameraPositionWantsToBe - mSubjectPosition) * ~mSubjectRotation;
+        mRelativePos = (whereCameraPositionWantsToBe - mSubjectPosition) * ~LLQuaternion(mSubjectRotation);
     }
     else
     {
@@ -430,7 +430,7 @@ void LLFollowCam::update()
         }
         mSimulatedPositionGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(simulated_pos_agent.mV[VX], simulated_pos_agent.mV[VY], simulated_pos_agent.mV[VZ]));
 
-        mRelativePos = lerp(mRelativePos, (simulated_pos_agent - mSubjectPosition) * ~mSubjectRotation, LLSmoothInterpolation::getInterpolant(0.05f));
+        mRelativePos = lerp(mRelativePos, (simulated_pos_agent - mSubjectPosition) * ~LLQuaternion(mSubjectRotation), LLSmoothInterpolation::getInterpolant(0.05f));
     } // if position is not locked -----------------------------------------------------------
 
 
@@ -467,7 +467,10 @@ bool LLFollowCam::updateBehindnessConstraint(LLVector3 focus, LLVector3& cam_pos
         // calculate horizontalized back vector of the subject and scale by horizontalDistance
         //--------------------------------------------------------------------------------------------------
         LLVector3 horizontalSubjectBack( -1.0f, 0.0f, 0.0f );
-        horizontalSubjectBack *= mSubjectRotation;
+        // Wrap in LLQuaternion to preserve LL `vec *= q` semantics. The LL form
+        // implements the full q*v*conj(q) without normalization (BUG-Q-002), but
+        // mSubjectRotation is unit-normal in production so the two paths agree.
+        horizontalSubjectBack *= LLQuaternion(mSubjectRotation);
         horizontalSubjectBack.mV[ VZ ] = 0.0f;
         horizontalSubjectBack.normalize(); // because horizontalizing might make it shorter than 1
         horizontalSubjectBack *= horizontalDistance;
@@ -595,7 +598,7 @@ void LLFollowCam::setPosition( const LLVector3& p )
         mSimulatedPositionGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(mPosition.mV[VX], mPosition.mV[VY], mPosition.mV[VZ]));
         if (mPositionLocked)
         {
-            mRelativePos = (mPosition - mSubjectPosition) * ~mSubjectRotation;
+            mRelativePos = (mPosition - mSubjectPosition) * ~LLQuaternion(mSubjectRotation);
         }
     }
 }
@@ -608,7 +611,7 @@ void LLFollowCam::setFocus( const LLVector3& f )
         mSimulatedFocusGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(f.mV[VX], f.mV[VY], f.mV[VZ]));
         if (mFocusLocked)
         {
-            mRelativeFocus = (mFocus - mSubjectPosition) * ~mSubjectRotation;
+            mRelativeFocus = (mFocus - mSubjectPosition) * ~LLQuaternion(mSubjectRotation);
         }
     }
 }
@@ -621,7 +624,7 @@ void LLFollowCam::setPositionLocked( bool locked )
         // propagate set position to relative position
         {
             const glm::vec3 p = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
-            mRelativePos = (LLVector3(p.x, p.y, p.z) - mSubjectPosition) * ~mSubjectRotation;
+            mRelativePos = (LLVector3(p.x, p.y, p.z) - mSubjectPosition) * ~LLQuaternion(mSubjectRotation);
         }
     }
 }
@@ -634,7 +637,7 @@ void LLFollowCam::setFocusLocked( bool locked )
         // propagate set position to relative position
         {
             const glm::vec3 p = gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal);
-            mRelativeFocus = (LLVector3(p.x, p.y, p.z) - mSubjectPosition) * ~mSubjectRotation;
+            mRelativeFocus = (LLVector3(p.x, p.y, p.z) - mSubjectPosition) * ~LLQuaternion(mSubjectRotation);
         }
     }
 }
@@ -643,13 +646,13 @@ void LLFollowCam::setFocusLocked( bool locked )
 LLVector3   LLFollowCam::getSimulatedPosition() const
 {
     // return simulated position
-    return mSubjectPosition + (mRelativePos * mSubjectRotation);
+    return mSubjectPosition + (mRelativePos * LLQuaternion(mSubjectRotation));
 }
 
 LLVector3   LLFollowCam::getSimulatedFocus() const
 {
     // return simulated focus point
-    return mSubjectPosition + (mRelativeFocus * mSubjectRotation);
+    return mSubjectPosition + (mRelativeFocus * LLQuaternion(mSubjectRotation));
 }
 
 LLVector3   LLFollowCam::getUpVector()

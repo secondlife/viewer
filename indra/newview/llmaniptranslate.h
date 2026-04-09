@@ -31,6 +31,8 @@
 #include "v4math.h"
 #include "llquaternion.h"
 
+#include "glm/gtc/quaternion.hpp"
+
 class LLManipTranslate : public LLManip
 {
 public:
@@ -100,7 +102,7 @@ private:
     LLVector4   mManipulatorVertices[18];
     F32         mSnapOffsetMeters;
     LLVector3   mSnapOffsetAxis;
-    LLQuaternion mGridRotation;
+    glm::quat    mGridRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     LLVector3   mGridOrigin;
     LLVector3   mGridScale;
     F32         mSubdivisions;
