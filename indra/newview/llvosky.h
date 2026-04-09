@@ -129,14 +129,11 @@ protected:
 class LLHeavenBody
 {
 protected:
-    LLVector3       mDirectionCached;       // hack for events that shouldn't happen every frame
-
     LLColor3        mColor;
     LLColor3        mColorCached;
     F32             mIntensity;
-    LLVector3       mDirection;             // direction of the local heavenly body
+    glm::vec3       mDirection{0.f};        // direction of the local heavenly body
     glm::quat       mRotation;
-    LLVector3       mAngularVelocity;       // velocity of the local heavenly body
 
     F32             mDiskRadius;
     bool            mDraw;                  // false - do not draw.
@@ -154,13 +151,8 @@ public:
     LLQuaternion        getRotation() const;
     void                setRotation(const LLQuaternion& rot);
 
-    const LLVector3& getDirection() const;
+    LLVector3 getDirection() const;
     void setDirection(const LLVector3 &direction);
-    void setAngularVelocity(const LLVector3 &ang_vel);
-    const LLVector3& getAngularVelocity() const;
-
-    const LLVector3& getDirectionCached() const;
-    void renewDirection();
 
     const LLColor3& getColorCached() const;
     void setColorCached(const LLColor3& c);

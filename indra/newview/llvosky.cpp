@@ -223,9 +223,7 @@ LLImageRaw* LLSkyTex::getImageRaw(bool curr)
 F32 LLHeavenBody::sInterpVal = 0;
 
 LLHeavenBody::LLHeavenBody(const F32 rad)
-: mDirectionCached(LLVector3(0,0,0)),
-  mDirection(LLVector3(0,0,0)),
-  mRotation(1.f, 0.f, 0.f, 0.f),
+: mRotation(1.f, 0.f, 0.f, 0.f),
   mIntensity(0.f),
   mDiskRadius(rad),
   mDraw(false),
@@ -247,34 +245,14 @@ void LLHeavenBody::setRotation(const LLQuaternion& rot)
     mRotation = rot;
 }
 
-const LLVector3& LLHeavenBody::getDirection() const
+LLVector3 LLHeavenBody::getDirection() const
 {
-    return mDirection;
+    return LLVector3(mDirection);
 }
 
 void LLHeavenBody::setDirection(const LLVector3 &direction)
 {
     mDirection = direction;
-}
-
-void LLHeavenBody::setAngularVelocity(const LLVector3 &ang_vel)
-{
-    mAngularVelocity = ang_vel;
-}
-
-const LLVector3& LLHeavenBody::getAngularVelocity() const
-{
-    return mAngularVelocity;
-}
-
-const LLVector3& LLHeavenBody::getDirectionCached() const
-{
-    return mDirectionCached;
-}
-
-void LLHeavenBody::renewDirection()
-{
-    mDirectionCached = mDirection;
 }
 
 const LLColor3& LLHeavenBody::getColorCached() const
@@ -511,9 +489,7 @@ void LLVOSky::calc()
     mSun.setColor(psky->getSunDiffuse());
     mMoon.setColor(LLColor3(1.0f, 1.0f, 1.0f));
 
-    mSun.renewDirection();
     mSun.renewColor();
-    mMoon.renewDirection();
     mMoon.renewColor();
 }
 
@@ -643,8 +619,6 @@ void LLVOSky::updateDirections(LLSettingsSky::ptr_t psky)
     mMoon.setDirection(psky->getMoonDirection());
     mSun.setRotation(psky->getSunRotation());
     mMoon.setRotation(psky->getMoonRotation());
-    mSun.renewDirection();
-    mMoon.renewDirection();
 }
 
 void LLVOSky::idleUpdate(LLAgent &agent, const F64 &time)
