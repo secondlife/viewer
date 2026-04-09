@@ -341,8 +341,8 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
         {
             // Do velocity interpolation
             part->mPosAgent += dt*part->mVelocity;
-            part->mPosAgent += 0.5f*dt*dt*part->mAccel;
-            part->mVelocity += part->mAccel*dt;
+            part->mPosAgent += 0.5f*dt*dt*LLVector3(part->mAccel);
+            part->mVelocity += LLVector3(part->mAccel)*dt;
         }
 
         // Do a bounce test

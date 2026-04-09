@@ -71,7 +71,7 @@ public:
     LLPointer<LLViewerTexture>  mImagep;
     LLVector3       mPosAgent;
     LLVector3       mVelocity;
-    LLVector3       mAccel;
+    glm::vec3       mAccel{0.f};
     LLVector3       mAxis;
     LLColor4        mColor;
     glm::vec2       mScale;
