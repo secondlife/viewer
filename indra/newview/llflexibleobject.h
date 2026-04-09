@@ -54,7 +54,7 @@ struct LLFlexibleObjectSection
 {
     // Input parameters
     glm::vec2       mScale;
-    LLQuaternion    mAxisRotation;
+    glm::quat       mAxisRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
     // Simulated state
     LLVector3       mPosition;
     LLVector3       mVelocity;
@@ -121,8 +121,8 @@ private:
         LLViewerObject*             mVO;
         LLTimer                     mTimer;
         LLVector3                   mAnchorPosition;
-        LLQuaternion                mLastFrameRotation;
-        LLQuaternion                mLastSegmentRotation;
+        glm::quat                   mLastFrameRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
+        glm::quat                   mLastSegmentRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
         bool                        mInitialized;
         bool                        mUpdated;
         LLFlexibleObjectData*       mAttributes;
