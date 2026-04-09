@@ -90,9 +90,9 @@ namespace tut
         //mOuterAngle   0.00000000  float
         ensure_approximately_equals("mOuterAngle different after unpacking", llpsysdata.mOuterAngle, 0.f, 8);
         //mAngularVelocity  0,0,0
-        ensure_approximately_equals("mAngularVelocity.mV[0] different after unpacking", llpsysdata.mAngularVelocity.mV[0], 0.f, 8);
-        ensure_approximately_equals("mAngularVelocity.mV[0] different after unpacking", llpsysdata.mAngularVelocity.mV[1], 0.f, 8);
-        ensure_approximately_equals("mAngularVelocity.mV[0] different after unpacking", llpsysdata.mAngularVelocity.mV[2], 0.f, 8);
+        ensure_approximately_equals("mAngularVelocity.x different after unpacking", llpsysdata.mAngularVelocity.x, 0.f, 8);
+        ensure_approximately_equals("mAngularVelocity.y different after unpacking", llpsysdata.mAngularVelocity.y, 0.f, 8);
+        ensure_approximately_equals("mAngularVelocity.z different after unpacking", llpsysdata.mAngularVelocity.z, 0.f, 8);
         //mBurstRate    0.097656250 float
         ensure_approximately_equals("mBurstRate different after unpacking", llpsysdata.mBurstRate, 0.097656250f, 8);
         //mBurstPartCount   1 ''   unsigned char
