@@ -1105,7 +1105,7 @@ public:
     face_list_t& getVolumeFaces() { return mVolumeFaces; }
 
     U32                 mFaceMask;          // bit array of which faces exist in this volume
-    LLVector3           mLODScaleBias;      // vector for biasing LOD based on scale
+    glm::vec3           mLODScaleBias{1.f}; // vector for biasing LOD based on scale
 
     void sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level, bool visible_placeholder);
     void copyVolumeFaces(const LLVolume* volume);

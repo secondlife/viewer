@@ -1926,7 +1926,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const bool ge
     mSurfaceArea = 1.f; //only calculated for sculpts, defaults to 1 for all other prims
     mIsMeshAssetLoaded = false;
     mIsMeshAssetUnavaliable = false;
-    mLODScaleBias.set(1,1,1);
+    mLODScaleBias = glm::vec3(1.f, 1.f, 1.f);
     mHullPoints = nullptr;
     mHullIndices = nullptr;
     mNumHullPoints = 0;
@@ -2014,7 +2014,7 @@ bool LLVolume::generate()
         split = 0;
     }
 
-    mLODScaleBias.set(0.5f, 0.5f, 0.5f);
+    mLODScaleBias = glm::vec3(0.5f, 0.5f, 0.5f);
 
     F32 profile_detail = mDetail;
     F32 path_detail = mDetail;
@@ -2026,11 +2026,11 @@ bool LLVolume::generate()
         if (path_type == LL_PCODE_PATH_LINE && profile_type == LL_PCODE_PROFILE_CIRCLE)
         {
             //cylinders don't care about Z-Axis
-            mLODScaleBias.set(0.6f, 0.6f, 0.0f);
+            mLODScaleBias = glm::vec3(0.6f, 0.6f, 0.0f);
         }
         else if (path_type == LL_PCODE_PATH_CIRCLE)
         {
-            mLODScaleBias.set(0.6f, 0.6f, 0.6f);
+            mLODScaleBias = glm::vec3(0.6f, 0.6f, 0.6f);
         }
     }
 

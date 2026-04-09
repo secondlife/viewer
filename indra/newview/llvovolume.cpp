@@ -1560,7 +1560,7 @@ bool LLVOVolume::calcLOD()
     else
     {
         distance = mDrawable->mDistanceWRTCamera;
-        radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(LLVector3(getScale())).length() : glm::length(getScale());
+        radius = getVolume() ? glm::length(getVolume()->mLODScaleBias * glm::vec3(getScale())) : glm::length(getScale());
         if (distance <= 0.f || radius <= 0.f)
         {
             return false;
