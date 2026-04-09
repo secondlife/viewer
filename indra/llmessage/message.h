@@ -517,8 +517,8 @@ public:
     void    addVector4( const char *varname, const LLVector4& vec);     // typed, checks storage space
     void    addVector3dFast( const char *varname, const LLVector3d& vec);   // typed, checks storage space
     void    addVector3d( const char *varname, const LLVector3d& vec);   // typed, checks storage space
-    void    addQuatFast( const char *varname, const LLQuaternion& quat);    // typed, checks storage space
-    void    addQuat( const char *varname, const LLQuaternion& quat);    // typed, checks storage space
+    void    addQuatFast( const char *varname, const glm::quat& quat);    // typed, checks storage space
+    void    addQuat( const char *varname, const glm::quat& quat);    // typed, checks storage space
     void addUUIDFast( const char *varname, const LLUUID& uuid);         // typed, checks storage space
     void    addUUID( const char *varname, const LLUUID& uuid);          // typed, checks storage space
     void    addIPAddrFast( const char *varname, const U32 ip);          // typed, checks storage space

@@ -3623,12 +3623,12 @@ void LLMessageSystem::addVector3d(const char *varname, const LLVector3d& v)
     mMessageBuilder->addVector3d(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
-void LLMessageSystem::addQuatFast(const char *varname, const LLQuaternion& v)
+void LLMessageSystem::addQuatFast(const char *varname, const glm::quat& v)
 {
     mMessageBuilder->addQuat(varname, v);
 }
 
-void LLMessageSystem::addQuat(const char *varname, const LLQuaternion& v)
+void LLMessageSystem::addQuat(const char *varname, const glm::quat& v)
 {
     mMessageBuilder->addQuat(LLMessageStringTable::getInstance()->getString(varname), v);
 }

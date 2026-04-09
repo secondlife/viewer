@@ -67,7 +67,7 @@ public:
     virtual void addVector3(const char* varname, const LLVector3& vec);
     virtual void addVector4(const char* varname, const LLVector4& vec);
     virtual void addVector3d(const char* varname, const LLVector3d& vec);
-    virtual void addQuat(const char* varname, const LLQuaternion& quat);
+    virtual void addQuat(const char* varname, const glm::quat& quat);
     virtual void addUUID(const char* varname, const LLUUID& uuid);
     virtual void addIPAddr(const char* varname, const U32 ip);
     virtual void addIPPort(const char* varname, const U16 port);

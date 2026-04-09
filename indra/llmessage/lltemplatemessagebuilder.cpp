@@ -477,9 +477,9 @@ void LLTemplateMessageBuilder::addVector3d(const char *varname, const LLVector3d
     addData(varname, vec.mdV, MVT_LLVector3d, sizeof(vec.mdV));
 }
 
-void LLTemplateMessageBuilder::addQuat(const char *varname, const LLQuaternion& quat)
+void LLTemplateMessageBuilder::addQuat(const char *varname, const glm::quat& quat)
 {
-    addData(varname, quat.packToVector3().mV, MVT_LLQuaternion, sizeof(LLVector3));
+    addData(varname, LLQuaternion(quat).packToVector3().mV, MVT_LLQuaternion, sizeof(LLVector3));
 }
 
 void LLTemplateMessageBuilder::addUUID(const char *varname, const LLUUID& uuid)

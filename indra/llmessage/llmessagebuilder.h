@@ -28,6 +28,8 @@
 
 #include <string>
 
+#include <glm/gtc/quaternion.hpp>
+
 #include "stdtypes.h"
 
 class LLMsgData;
@@ -68,7 +70,7 @@ public:
     virtual void addVector3(const char* varname, const LLVector3& vec) = 0;
     virtual void addVector4(const char* varname, const LLVector4& vec) = 0;
     virtual void addVector3d(const char* varname, const LLVector3d& vec) = 0;
-    virtual void addQuat(const char* varname, const LLQuaternion& quat) = 0;
+    virtual void addQuat(const char* varname, const glm::quat& quat) = 0;
     virtual void addUUID(const char* varname, const LLUUID& uuid) = 0;
     virtual void addIPAddr(const char* varname, const U32 ip) = 0;
     virtual void addIPPort(const char* varname, const U16 port) = 0;
