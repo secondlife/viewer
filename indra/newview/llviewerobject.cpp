@@ -4501,7 +4501,7 @@ void decomposeMatrix(const LLMatrix4a& mat, LLVector3& position, LLQuaternion& r
     scale.mV[2] = mat.mMatrix[2].getLength3().getF32();
 }
 
-void LLViewerObject::setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion& rotation)
+void LLViewerObject::setGLTFNodeRotationAgent(S32 node_index, const glm::quat& rotation)
 {
     if (mGLTFAsset && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
     {
@@ -4521,7 +4521,7 @@ void LLViewerObject::setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion
         LLQuaternion agent_to_node_rot(agent_to_node.asMatrix4());
         LLQuaternion new_rot;
 
-        new_rot = rotation * agent_to_node_rot;
+        new_rot = LLQuaternion(rotation) * agent_to_node_rot;
         new_rot.normalize();
 
         LLVector3 pos;

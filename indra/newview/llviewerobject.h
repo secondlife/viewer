@@ -347,7 +347,7 @@ public:
     void moveGLTFNode(S32 node_index, const glm::vec3& offset);
 
     // set the rotation in agent space of the given node
-    void setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion& rotation);
+    void setGLTFNodeRotationAgent(S32 node_index, const glm::quat& rotation);
 
     virtual glm::vec3 getPivotPositionAgent() const; // Usually = to getPositionAgent, unless like flex objects it's not
 
