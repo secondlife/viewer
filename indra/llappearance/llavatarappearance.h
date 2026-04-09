@@ -94,7 +94,7 @@ public:
     LLJoint*        getCharacterJoint(U32 num) override;
 
     const char*     getAnimationPrefix() override { return "avatar"; }
-    LLVector3       getVolumePos(S32 joint_index, LLVector3& volume_offset) override;
+    LLVector3       getVolumePos(S32 joint_index, const LLVector3& volume_offset) override;
     LLJoint*        findCollisionVolume(S32 volume_id) override;
     S32             getCollisionVolumeID(std::string &name) override;
     LLPolyMesh*     getHeadMesh() override;

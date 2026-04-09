@@ -224,10 +224,10 @@ protected:
         ~JointConstraintSharedData() = default;
 
         S32                     mSourceConstraintVolume;
-        LLVector3               mSourceConstraintOffset;
+        glm::vec3               mSourceConstraintOffset{0.f};
         S32                     mTargetConstraintVolume;
-        LLVector3               mTargetConstraintOffset;
-        LLVector3               mTargetConstraintDir;
+        glm::vec3               mTargetConstraintOffset{0.f};
+        glm::vec3               mTargetConstraintDir{0.f};
         S32                     mChainLength;
         std::vector<S32>        mJointStateIndices;
         F32                     mEaseInStartTime;

@@ -882,7 +882,7 @@ void LLKeyframeMotion::activateConstraint(JointConstraint* constraint)
         LLVector3 source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolume, shared_data->mSourceConstraintOffset);
         LLVector3 ground_pos_agent;
         mCharacter->getGround(source_pos, ground_pos_agent, constraint->mGroundNorm);
-        constraint->mGroundPos = mCharacter->getPosGlobalFromAgent(ground_pos_agent + shared_data->mTargetConstraintOffset);
+        constraint->mGroundPos = mCharacter->getPosGlobalFromAgent(ground_pos_agent + LLVector3(shared_data->mTargetConstraintOffset));
     }
 
     for (joint_num = 1; joint_num < shared_data->mChainLength; joint_num++)
@@ -1027,7 +1027,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
             if (norm.isExactlyZero())
             {
                 source_jointp = mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume);
-                norm = -1.f * shared_data->mSourceConstraintOffset;
+                norm = -1.f * LLVector3(shared_data->mSourceConstraintOffset);
                 if (source_jointp)
                 {
                     // Pre-emptive bridge: vec * LLJoint::getWorldRotation() will
@@ -1899,14 +1899,18 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                 return false;
             }
 
-            if (!dp.unpackVector3(constraintp->mSourceConstraintOffset, "source_offset"))
             {
-                LL_WARNS() << "can't read constraint source offset"
-                           << " for animation " << asset() << LL_ENDL;
-                return false;
+                LLVector3 tmp;
+                if (!dp.unpackVector3(tmp, "source_offset"))
+                {
+                    LL_WARNS() << "can't read constraint source offset"
+                               << " for animation " << asset() << LL_ENDL;
+                    return false;
+                }
+                constraintp->mSourceConstraintOffset = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
             }
 
-            if( !(constraintp->mSourceConstraintOffset.isFinite()) )
+            if( !(LLVector3(constraintp->mSourceConstraintOffset).isFinite()) )
             {
                 LL_WARNS() << "non-finite constraint source offset"
                            << " for animation " << asset() << LL_ENDL;
@@ -1939,35 +1943,43 @@ bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
                 }
             }
 
-            if (!dp.unpackVector3(constraintp->mTargetConstraintOffset, "target_offset"))
             {
-                LL_WARNS() << "can't read constraint target offset"
-                           << " for animation " << asset() << LL_ENDL;
-                return false;
+                LLVector3 tmp;
+                if (!dp.unpackVector3(tmp, "target_offset"))
+                {
+                    LL_WARNS() << "can't read constraint target offset"
+                               << " for animation " << asset() << LL_ENDL;
+                    return false;
+                }
+                constraintp->mTargetConstraintOffset = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
             }
 
-            if( !(constraintp->mTargetConstraintOffset.isFinite()) )
+            if( !(LLVector3(constraintp->mTargetConstraintOffset).isFinite()) )
             {
                 LL_WARNS() << "non-finite constraint target offset"
                            << " for animation " << asset() << LL_ENDL;
                 return false;
             }
 
-            if (!dp.unpackVector3(constraintp->mTargetConstraintDir, "target_dir"))
             {
-                LL_WARNS() << "can't read constraint target direction"
-                           << " for animation " << asset() << LL_ENDL;
-                return false;
+                LLVector3 tmp;
+                if (!dp.unpackVector3(tmp, "target_dir"))
+                {
+                    LL_WARNS() << "can't read constraint target direction"
+                               << " for animation " << asset() << LL_ENDL;
+                    return false;
+                }
+                constraintp->mTargetConstraintDir = glm::vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
             }
 
-            if( !(constraintp->mTargetConstraintDir.isFinite()) )
+            if( !(LLVector3(constraintp->mTargetConstraintDir).isFinite()) )
             {
                 LL_WARNS() << "non-finite constraint target direction"
                            << " for animation " << asset() << LL_ENDL;
                 return false;
             }
 
-            if (!constraintp->mTargetConstraintDir.isExactlyZero())
+            if (constraintp->mTargetConstraintDir != glm::vec3(0.f))
             {
                 constraintp->mUseTargetOffset = true;
     //          constraintp->mTargetConstraintDir *= constraintp->mSourceConstraintOffset.length();
@@ -2158,7 +2170,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
                  mCharacter->findCollisionVolume(shared_constraintp->mSourceConstraintVolume)->getName().c_str());
 
         success &= dp.packBinaryDataFixed(reinterpret_cast<U8*>(source_volume), 16, "source_volume");
-        success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
+        { LLVector3 tmp(shared_constraintp->mSourceConstraintOffset); success &= dp.packVector3(tmp, "source_offset"); }
         char target_volume[16]; /* Flawfinder: ignore */
         if (shared_constraintp->mConstraintTargetType == EConstraintTargetType::CONSTRAINT_TARGET_TYPE_GROUND)
         {
@@ -2170,8 +2182,8 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
                      mCharacter->findCollisionVolume(shared_constraintp->mTargetConstraintVolume)->getName().c_str());
         }
         success &= dp.packBinaryDataFixed(reinterpret_cast<U8*>(target_volume), 16, "target_volume");
-        success &= dp.packVector3(shared_constraintp->mTargetConstraintOffset, "target_offset");
-        success &= dp.packVector3(shared_constraintp->mTargetConstraintDir, "target_dir");
+        { LLVector3 tmp(shared_constraintp->mTargetConstraintOffset); success &= dp.packVector3(tmp, "target_offset"); }
+        { LLVector3 tmp(shared_constraintp->mTargetConstraintDir); success &= dp.packVector3(tmp, "target_dir"); }
         success &= dp.packF32(shared_constraintp->mEaseInStartTime, "ease_in_start");
         success &= dp.packF32(shared_constraintp->mEaseInStopTime, "ease_in_stop");
         success &= dp.packF32(shared_constraintp->mEaseOutStartTime, "ease_out_start");
@@ -2180,10 +2192,10 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
         LL_DEBUGS("BVH") << "  chain_length " << shared_constraintp->mChainLength << LL_ENDL;
         LL_DEBUGS("BVH") << "  constraint_type " << static_cast<S32>(shared_constraintp->mConstraintType) << LL_ENDL;
         LL_DEBUGS("BVH") << "  source_volume " << source_volume << LL_ENDL;
-        LL_DEBUGS("BVH") << "  source_offset " << shared_constraintp->mSourceConstraintOffset << LL_ENDL;
+        LL_DEBUGS("BVH") << "  source_offset " << LLVector3(shared_constraintp->mSourceConstraintOffset) << LL_ENDL;
         LL_DEBUGS("BVH") << "  target_volume " << target_volume << LL_ENDL;
-        LL_DEBUGS("BVH") << "  target_offset " << shared_constraintp->mTargetConstraintOffset << LL_ENDL;
-        LL_DEBUGS("BVH") << "  target_dir " << shared_constraintp->mTargetConstraintDir << LL_ENDL;
+        LL_DEBUGS("BVH") << "  target_offset " << LLVector3(shared_constraintp->mTargetConstraintOffset) << LL_ENDL;
+        LL_DEBUGS("BVH") << "  target_dir " << LLVector3(shared_constraintp->mTargetConstraintDir) << LL_ENDL;
         LL_DEBUGS("BVH") << "  ease_in_start " << shared_constraintp->mEaseInStartTime << LL_ENDL;
         LL_DEBUGS("BVH") << "  ease_in_stop " << shared_constraintp->mEaseInStopTime << LL_ENDL;
         LL_DEBUGS("BVH") << "  ease_out_start " << shared_constraintp->mEaseOutStartTime << LL_ENDL;

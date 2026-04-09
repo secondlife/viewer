@@ -1280,7 +1280,7 @@ LLJoint *LLAvatarAppearance::getCharacterJoint( U32 num )
 //-----------------------------------------------------------------------------
 // getVolumePos()
 //-----------------------------------------------------------------------------
-LLVector3 LLAvatarAppearance::getVolumePos(S32 joint_index, LLVector3& volume_offset)
+LLVector3 LLAvatarAppearance::getVolumePos(S32 joint_index, const LLVector3& volume_offset)
 {
     if (joint_index > mNumCollisionVolumes)
     {

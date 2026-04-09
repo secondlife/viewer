@@ -131,7 +131,7 @@ public:
 
     void renderCollision();
 
-    LLVector3 getVolumePos(LLVector3 &offset);
+    LLVector3 getVolumePos(const LLVector3 &offset);
 };
 
 
