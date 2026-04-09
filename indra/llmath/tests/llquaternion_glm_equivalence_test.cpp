@@ -47,7 +47,9 @@
 
 #include "../llmath.h"
 #include "../llquaternion.h"
+#include "../llsdutil_math.h"
 #include "../v3math.h"
+#include "llsd.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -878,5 +880,79 @@ namespace tut
         ensure_equals("90deg Z rot wire y is 0", gm_y, 0);
         ensure_equals("90deg Z rot wire z is ~70", gm_z, 70);
         ensure_equals("90deg Z rot wire w is ~70", gm_w, 70);
+    }
+
+    // ---------- LLSD serialization helpers (Tier 4 prep) ----------
+    //
+    // ll_sd_from_quat / ll_quat_from_sd are the glm-flavored versions
+    // of ll_sd_from_quaternion / ll_quaternion_from_sd. They MUST
+    // produce identical wire format to the LL versions so the
+    // upcoming LLSettingsSky cluster (Tier 4 / cluster #39) can swap
+    // call sites incrementally without breaking environment-preset
+    // round-trip with already-saved LL-format payloads.
+    //
+    // Wire format is xyzw — same as ll_sd_from_quaternion. The glm
+    // ctor is wxyz so ll_quat_from_sd shuffles the read order
+    // accordingly. These tests pin both directions.
+
+    template<> template<>
+    void llquat_glm_equiv_object::test<36>()
+    {
+        // ll_sd_from_quat produces the same LLSD payload as
+        // ll_sd_from_quaternion for the same rotation.
+        const LLQuaternion q_ll(0.1f, 0.2f, 0.3f, 0.927f);
+        const glm::quat    q_gm = to_glm(q_ll);
+
+        const LLSD sd_ll = ll_sd_from_quaternion(q_ll);
+        const LLSD sd_gm = ll_sd_from_quat(q_gm);
+
+        ensure_approximately_equals("LLSD x matches",
+            static_cast<F32>(sd_ll[0].asReal()), static_cast<F32>(sd_gm[0].asReal()), 16);
+        ensure_approximately_equals("LLSD y matches",
+            static_cast<F32>(sd_ll[1].asReal()), static_cast<F32>(sd_gm[1].asReal()), 16);
+        ensure_approximately_equals("LLSD z matches",
+            static_cast<F32>(sd_ll[2].asReal()), static_cast<F32>(sd_gm[2].asReal()), 16);
+        ensure_approximately_equals("LLSD w matches",
+            static_cast<F32>(sd_ll[3].asReal()), static_cast<F32>(sd_gm[3].asReal()), 16);
+
+        // And cross-check the glm payload's literal values against
+        // the named accessors so a wire-format reorder also fires.
+        ensure_approximately_equals("sd[0] is .x", static_cast<F32>(sd_gm[0].asReal()), q_gm.x, 16);
+        ensure_approximately_equals("sd[3] is .w", static_cast<F32>(sd_gm[3].asReal()), q_gm.w, 16);
+    }
+
+    template<> template<>
+    void llquat_glm_equiv_object::test<37>()
+    {
+        // ll_quat_from_sd round-trips the same way ll_quaternion_from_sd
+        // does — feed both the same LLSD payload and confirm both libs
+        // produce equivalent rotations.
+        LLSD sd;
+        sd.append(0.1);
+        sd.append(0.2);
+        sd.append(0.3);
+        sd.append(0.927);
+
+        const LLQuaternion q_ll = ll_quaternion_from_sd(sd);
+        const glm::quat    q_gm = ll_quat_from_sd(sd);
+
+        ensure("from_sd: ll == glm", quats_near(q_ll, q_gm));
+
+        // Round-trip glm → LLSD → glm preserves the value.
+        const glm::quat original(0.927f, 0.1f, 0.2f, 0.3f);  // glm::quat(w,x,y,z)
+        const LLSD     payload = ll_sd_from_quat(original);
+        const glm::quat round  = ll_quat_from_sd(payload);
+
+        ensure_approximately_equals("round-trip x", round.x, original.x, 16);
+        ensure_approximately_equals("round-trip y", round.y, original.y, 16);
+        ensure_approximately_equals("round-trip z", round.z, original.z, 16);
+        ensure_approximately_equals("round-trip w", round.w, original.w, 16);
+
+        // And the LL→glm cross-trip — feed an LL-built payload to the
+        // glm reader, confirm the rotation matches.
+        const LLQuaternion ll_orig(0.5f, -0.5f, 0.5f, 0.5f);
+        const LLSD     ll_payload = ll_sd_from_quaternion(ll_orig);
+        const glm::quat gm_read    = ll_quat_from_sd(ll_payload);
+        ensure("cross-trip ll-payload → glm", quats_near(ll_orig, gm_read));
     }
 }

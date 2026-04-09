@@ -158,6 +158,30 @@ LLQuaternion ll_quaternion_from_sd(const LLSD& sd)
     return quat;
 }
 
+// quat (glm). xyzw wire format — see header comment. Component access
+// uses the named glm accessors which match LL's mQ[VX..VW] one-to-one
+// in this glm build (xyzw memory layout, no GLM_FORCE_QUAT_DATA_WXYZ;
+// locked by equivalence tests #34-#35).
+LLSD ll_sd_from_quat(const glm::quat& quat)
+{
+    LLSD rv;
+    rv.append(static_cast<F64>(quat.x));
+    rv.append(static_cast<F64>(quat.y));
+    rv.append(static_cast<F64>(quat.z));
+    rv.append(static_cast<F64>(quat.w));
+    return rv;
+}
+
+glm::quat ll_quat_from_sd(const LLSD& sd)
+{
+    // glm::quat ctor is (w, x, y, z) — w first. The wire format is
+    // xyzw, so the constructor argument order is shuffled accordingly.
+    return glm::quat(static_cast<F32>(sd[3].asReal()),   // w
+                     static_cast<F32>(sd[0].asReal()),   // x
+                     static_cast<F32>(sd[1].asReal()),   // y
+                     static_cast<F32>(sd[2].asReal()));  // z
+}
+
 // color4
 LLSD ll_sd_from_color4(const LLColor4& c)
 {
