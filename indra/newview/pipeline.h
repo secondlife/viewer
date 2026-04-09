@@ -36,6 +36,7 @@
 #include "lldrawpoolmaterials.h"
 #include "llgl.h"
 #include "lldrawable.h"
+#include <glm/vec3.hpp>
 #include "llrendertarget.h"
 #include "llreflectionmapmanager.h"
 #include "llheroprobemanager.h"
@@ -1028,8 +1029,8 @@ public:
     static F32 RenderGlowMinLuminance;
     static F32 RenderGlowMaxExtractAlpha;
     static F32 RenderGlowWarmthAmount;
-    static LLVector3 RenderGlowLumWeights;
-    static LLVector3 RenderGlowWarmthWeights;
+    static glm::vec3 RenderGlowLumWeights;
+    static glm::vec3 RenderGlowWarmthWeights;
     static S32 RenderGlowResolutionPow;
     static S32 RenderGlowIterations;
     static F32 RenderGlowWidth;
