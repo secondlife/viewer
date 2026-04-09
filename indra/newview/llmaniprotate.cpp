@@ -87,7 +87,6 @@ LLManipRotate::LLManipRotate( LLToolComposite* composite )
     mRotationCenter(),
     mCenterScreen(),
     mRadiusMeters(0.f),
-    mCenterToCam(),
     mCenterToCamNorm(),
     mCenterToCamMag(0.f),
     mCenterToProfilePlane(),

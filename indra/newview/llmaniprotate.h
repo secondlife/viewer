@@ -100,7 +100,7 @@ private:
     glm::vec3           mAgentSelfAtAxis{0.f}; // Own agent uses separate rotation method
     F32                 mRadiusMeters;
 
-    LLVector3           mCenterToCam;
+    glm::vec3           mCenterToCam{0.f};
     LLVector3           mCenterToCamNorm;
     F32                 mCenterToCamMag;
     LLVector3           mCenterToProfilePlane;
