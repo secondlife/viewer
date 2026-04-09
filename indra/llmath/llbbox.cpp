@@ -38,24 +38,24 @@ void LLBBox::addPointLocal(const LLVector3& p)
 {
     if (mEmpty)
     {
-        mMinLocal = p;
-        mMaxLocal = p;
+        mMinLocal = glm::vec3(p.mV[0], p.mV[1], p.mV[2]);
+        mMaxLocal = glm::vec3(p.mV[0], p.mV[1], p.mV[2]);
         mEmpty = false;
     }
     else
     {
-        mMinLocal.mV[VX] = llmin( p.mV[VX], mMinLocal.mV[VX] );
-        mMinLocal.mV[VY] = llmin( p.mV[VY], mMinLocal.mV[VY] );
-        mMinLocal.mV[VZ] = llmin( p.mV[VZ], mMinLocal.mV[VZ] );
-        mMaxLocal.mV[VX] = llmax( p.mV[VX], mMaxLocal.mV[VX] );
-        mMaxLocal.mV[VY] = llmax( p.mV[VY], mMaxLocal.mV[VY] );
-        mMaxLocal.mV[VZ] = llmax( p.mV[VZ], mMaxLocal.mV[VZ] );
+        mMinLocal.x = llmin( p.mV[VX], mMinLocal.x );
+        mMinLocal.y = llmin( p.mV[VY], mMinLocal.y );
+        mMinLocal.z = llmin( p.mV[VZ], mMinLocal.z );
+        mMaxLocal.x = llmax( p.mV[VX], mMaxLocal.x );
+        mMaxLocal.y = llmax( p.mV[VY], mMaxLocal.y );
+        mMaxLocal.z = llmax( p.mV[VZ], mMaxLocal.z );
     }
 }
 
 void LLBBox::addPointAgent( LLVector3 p)
 {
-    p -= mPosAgent;
+    p -= LLVector3(mPosAgent);
     p.rotVec( glm::conjugate(mRotation) );
     addPointLocal( p );
 }
@@ -67,22 +67,22 @@ void LLBBox::addBBoxAgent(const LLBBox& b)
     {
         mPosAgent = b.mPosAgent;
         mRotation = b.mRotation;
-        mMinLocal.clear();
-        mMaxLocal.clear();
+        mMinLocal = glm::vec3(0.f);
+        mMaxLocal = glm::vec3(0.f);
     }
     LLVector3 vertex[8];
-    vertex[0].set( b.mMinLocal.mV[VX], b.mMinLocal.mV[VY], b.mMinLocal.mV[VZ] );
-    vertex[1].set( b.mMinLocal.mV[VX], b.mMinLocal.mV[VY], b.mMaxLocal.mV[VZ] );
-    vertex[2].set( b.mMinLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMinLocal.mV[VZ] );
-    vertex[3].set( b.mMinLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMaxLocal.mV[VZ] );
-    vertex[4].set( b.mMaxLocal.mV[VX], b.mMinLocal.mV[VY], b.mMinLocal.mV[VZ] );
-    vertex[5].set( b.mMaxLocal.mV[VX], b.mMinLocal.mV[VY], b.mMaxLocal.mV[VZ] );
-    vertex[6].set( b.mMaxLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMinLocal.mV[VZ] );
-    vertex[7].set( b.mMaxLocal.mV[VX], b.mMaxLocal.mV[VY], b.mMaxLocal.mV[VZ] );
+    vertex[0].set( b.mMinLocal.x, b.mMinLocal.y, b.mMinLocal.z );
+    vertex[1].set( b.mMinLocal.x, b.mMinLocal.y, b.mMaxLocal.z );
+    vertex[2].set( b.mMinLocal.x, b.mMaxLocal.y, b.mMinLocal.z );
+    vertex[3].set( b.mMinLocal.x, b.mMaxLocal.y, b.mMaxLocal.z );
+    vertex[4].set( b.mMaxLocal.x, b.mMinLocal.y, b.mMinLocal.z );
+    vertex[5].set( b.mMaxLocal.x, b.mMinLocal.y, b.mMaxLocal.z );
+    vertex[6].set( b.mMaxLocal.x, b.mMaxLocal.y, b.mMinLocal.z );
+    vertex[7].set( b.mMaxLocal.x, b.mMaxLocal.y, b.mMaxLocal.z );
 
     LLMatrix4 m( b.mRotation );
-    m.translate( b.mPosAgent );
-    m.translate( -mPosAgent );
+    m.translate( LLVector3(b.mPosAgent) );
+    m.translate( -LLVector3(mPosAgent) );
     m.rotate( glm::conjugate(mRotation) );
 
     for(auto i : vertex)
@@ -107,25 +107,25 @@ LLBBox LLBBox::getAxisAligned() const
 
 void LLBBox::expand( F32 delta )
 {
-    mMinLocal.mV[VX] -= delta;
-    mMinLocal.mV[VY] -= delta;
-    mMinLocal.mV[VZ] -= delta;
-    mMaxLocal.mV[VX] += delta;
-    mMaxLocal.mV[VY] += delta;
-    mMaxLocal.mV[VZ] += delta;
+    mMinLocal.x -= delta;
+    mMinLocal.y -= delta;
+    mMinLocal.z -= delta;
+    mMaxLocal.x += delta;
+    mMaxLocal.y += delta;
+    mMaxLocal.z += delta;
 }
 
 LLVector3 LLBBox::localToAgent(const LLVector3& v) const
 {
     LLMatrix4 m( mRotation );
-    m.translate( mPosAgent );
+    m.translate( LLVector3(mPosAgent) );
     return v * m;
 }
 
 LLVector3 LLBBox::agentToLocal(const LLVector3& v) const
 {
     LLMatrix4 m;
-    m.translate( -mPosAgent );
+    m.translate( -LLVector3(mPosAgent) );
     m.rotate( glm::conjugate(mRotation) );  // inverse rotation
     return v * m;
 }
@@ -144,12 +144,12 @@ LLVector3 LLBBox::agentToLocalBasis(const LLVector3& v) const
 
 bool LLBBox::containsPointLocal(const LLVector3& p) const
 {
-    return !((p.mV[VX] < mMinLocal.mV[VX])
-        ||(p.mV[VX] > mMaxLocal.mV[VX])
-        ||(p.mV[VY] < mMinLocal.mV[VY])
-        ||(p.mV[VY] > mMaxLocal.mV[VY])
-        ||(p.mV[VZ] < mMinLocal.mV[VZ])
-        ||(p.mV[VZ] > mMaxLocal.mV[VZ]));
+    return !((p.mV[VX] < mMinLocal.x)
+        ||(p.mV[VX] > mMaxLocal.x)
+        ||(p.mV[VY] < mMinLocal.y)
+        ||(p.mV[VY] > mMaxLocal.y)
+        ||(p.mV[VZ] < mMinLocal.z)
+        ||(p.mV[VZ] > mMaxLocal.z));
 }
 
 bool LLBBox::containsPointAgent(const LLVector3& p) const
@@ -160,12 +160,12 @@ bool LLBBox::containsPointAgent(const LLVector3& p) const
 
 LLVector3 LLBBox::getMinAgent() const
 {
-    return localToAgent(mMinLocal);
+    return localToAgent(LLVector3(mMinLocal));
 }
 
 LLVector3 LLBBox::getMaxAgent() const
 {
-    return localToAgent(mMaxLocal);
+    return localToAgent(LLVector3(mMaxLocal));
 }
 
 /*
