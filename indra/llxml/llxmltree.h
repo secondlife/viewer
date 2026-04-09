@@ -36,7 +36,6 @@
 
 class LLColor4;
 class LLColor4U;
-class LLQuaternion;
 class LLUUID;
 class LLVector3;
 class LLVector3d;

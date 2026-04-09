@@ -160,7 +160,6 @@ const S32 MAX_MESSAGE_COUNT_NUM = 1024;
 class LLVector3;
 class LLVector4;
 class LLVector3d;
-class LLQuaternion;
 class LLSD;
 class LLUUID;
 class LLMessageSystem;

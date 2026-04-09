@@ -48,7 +48,6 @@
 
 class LLVector3;
 class LLVector3d;
-class LLQuaternion;
 class LLColor4;
 class LLColor4U;
 class LLSD;
@@ -78,7 +77,6 @@ using LLXMLAttribList = std::map<const LLStringTableEntry *, LLXMLNodePtr, Compa
 
 class LLColor4;
 class LLColor4U;
-class LLQuaternion;
 class LLVector3;
 class LLVector3d;
 class LLVector4;

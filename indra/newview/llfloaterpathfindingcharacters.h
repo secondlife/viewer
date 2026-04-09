@@ -34,7 +34,6 @@
 
 class LLCheckBoxCtrl;
 class LLPathfindingCharacter;
-class LLQuaternion;
 class LLSD;
 class LLVector3;
 

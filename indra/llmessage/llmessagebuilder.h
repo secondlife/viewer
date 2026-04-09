@@ -33,7 +33,6 @@
 #include "stdtypes.h"
 
 class LLMsgData;
-class LLQuaternion;
 class LLSD;
 class LLUUID;
 class LLVector3;

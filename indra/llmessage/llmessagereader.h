@@ -33,7 +33,6 @@
 class LLHost;
 class LLMessageBuilder;
 class LLMsgData;
-class LLQuaternion;
 class LLUUID;
 class LLVector3;
 class LLVector3d;
