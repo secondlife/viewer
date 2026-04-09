@@ -633,7 +633,7 @@ void LLViewerPartSim::shift(const LLVector3 &offset)
     {
         mViewerPartSources[i]->mPosAgent += offset;
         mViewerPartSources[i]->mTargetPosAgent += offset;
-        mViewerPartSources[i]->mLastUpdatePosAgent += offset;
+        mViewerPartSources[i]->mLastUpdatePosAgent += glm::vec3(offset.mV[VX], offset.mV[VY], offset.mV[VZ]);
     }
 
     count = static_cast<S32>(mViewerPartGroups.size());
