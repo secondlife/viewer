@@ -85,7 +85,7 @@ public:
                  const glm::vec3 &y_axis,
                  const glm::vec3 &z_axis);
     void setAxes(const LLMatrix3 &rotation_matrix);
-    void setAxes(const LLQuaternion &q);
+    void setAxes(const glm::quat &q);
     void setAxes(const F32 *rotation_matrix);
     void setAxes(const LLCoordFrame &frame);
 
@@ -95,7 +95,7 @@ public:
 
     void rotate(F32 angle, F32 x, F32 y, F32 z);            // Move axes
     void rotate(F32 angle, const glm::vec3 &rotation_axis);
-    void rotate(const LLQuaternion &q);
+    void rotate(const glm::quat &q);
     void rotate(const LLMatrix3 &m);
 
     void orthonormalize();  // Makes sure axes are unitary and orthogonal.

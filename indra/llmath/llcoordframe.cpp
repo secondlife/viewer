@@ -246,9 +246,10 @@ void LLCoordFrame::setAxes(const LLMatrix3 &rotation_matrix)
 }
 
 
-void LLCoordFrame::setAxes(const LLQuaternion &q )
+void LLCoordFrame::setAxes(const glm::quat &q )
 {
-    LLMatrix3 rotation_matrix(q);
+    const LLQuaternion ll_q(q);
+    LLMatrix3 rotation_matrix(ll_q);
     setAxes(rotation_matrix);
     CHECK_FINITE_OBJ();
 }
@@ -321,9 +322,10 @@ void LLCoordFrame::rotate(F32 angle, const glm::vec3 &rotation_axis)
 }
 
 
-void LLCoordFrame::rotate(const LLQuaternion &q)
+void LLCoordFrame::rotate(const glm::quat &q)
 {
-    LLMatrix3 rotation_matrix(q);
+    const LLQuaternion ll_q(q);
+    LLMatrix3 rotation_matrix(ll_q);
     rotate(rotation_matrix);
     CHECK_FINITE_OBJ();
 }
