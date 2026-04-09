@@ -203,7 +203,10 @@ LLPrimitive::LLPrimitive()
     mVelocity = glm::vec3(0.f);
     mAcceleration = glm::vec3(0.f);
 
-    mRotation.loadIdentity();
+    // mRotation is glm::quat post-LLXform-cluster-#17. glm::quat has no
+    // loadIdentity() method; assign the identity quaternion directly
+    // (glm::quat ctor is wxyz so identity is (1, 0, 0, 0)).
+    mRotation = glm::quat(1.f, 0.f, 0.f, 0.f);
     mAngularVelocity = glm::vec3(0.f);
 
     mScale = glm::vec3(1.f);

@@ -34,6 +34,8 @@
 #include "llsdserialize.h"
 #include "message.h"
 
+#include <ostream>
+
 static const char messageConfigFileName[] = "message.xml";
 static constexpr F32 messageConfigRefreshRate = 5.0; // seconds
 
@@ -301,4 +303,30 @@ LLSD LLMessageConfig::getConfigForMessage(const std::string& msg_name)
     // LLSD for the CamelCase message name
     LLSD config = file.mMessages[msg_name];
     return config;
+}
+
+// Stream operators for the scoped enums (used by TUT's ensure_equals
+// failure-message formatter at tut_assert.hpp:80). Without these the
+// llmessageconfig_tut test target fails to compile because scoped enums
+// don't auto-convert to int for ostream operator<<.
+std::ostream& operator<<(std::ostream& os, LLMessageConfig::Flavor f)
+{
+    switch (f)
+    {
+        case LLMessageConfig::Flavor::NO_FLAVOR:        return os << "NO_FLAVOR";
+        case LLMessageConfig::Flavor::LLSD_FLAVOR:      return os << "LLSD_FLAVOR";
+        case LLMessageConfig::Flavor::TEMPLATE_FLAVOR:  return os << "TEMPLATE_FLAVOR";
+    }
+    return os << "Flavor(" << static_cast<int>(f) << ")";
+}
+
+std::ostream& operator<<(std::ostream& os, LLMessageConfig::SenderTrust t)
+{
+    switch (t)
+    {
+        case LLMessageConfig::SenderTrust::NOT_SET:    return os << "NOT_SET";
+        case LLMessageConfig::SenderTrust::UNTRUSTED:  return os << "UNTRUSTED";
+        case LLMessageConfig::SenderTrust::TRUSTED:    return os << "TRUSTED";
+    }
+    return os << "SenderTrust(" << static_cast<int>(t) << ")";
 }
