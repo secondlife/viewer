@@ -84,7 +84,6 @@ LLToolGrabBase::LLToolGrabBase( LLToolComposite* composite )
     mDeselectedThisClick(false),
     mLastFace(0),
     mSpinGrabbing( false ),
-    mSpinRotation(),
     mClickedInMouselook( false ),
     mHideBuildHighlight(false)
 { }
@@ -571,9 +570,12 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
             const LLVector3 agent_left(LLViewerCamera::getInstance()->getLeftAxis());
             LLQuaternion rotation_around_left( dy*RADIANS_PER_PIXEL_Y, agent_left );
 
-            // compose with current rotation
-            mSpinRotation = mSpinRotation * rotation_around_vertical;
-            mSpinRotation = mSpinRotation * rotation_around_left;
+            // compose with current rotation. Force LL compose semantics by
+            // wrapping mSpinRotation in LLQuaternion(...) — glm::quat * has
+            // reversed compose order, and the bare expression would be
+            // ambiguous between the two operator* overloads.
+            mSpinRotation = LLQuaternion(mSpinRotation) * rotation_around_vertical;
+            mSpinRotation = LLQuaternion(mSpinRotation) * rotation_around_left;
 
             // TODO: Throttle these
             LLMessageSystem *msg = gMessageSystem;

@@ -29,6 +29,8 @@
 #include "lltool.h"
 #include "v3math.h"
 #include "llquaternion.h"
+
+#include "glm/gtc/quaternion.hpp"
 #include "llsingleton.h"
 #include "lluuid.h"
 #include "llviewerwindow.h" // for LLPickInfo
@@ -138,7 +140,7 @@ private:
 
 
     bool            mSpinGrabbing;
-    LLQuaternion    mSpinRotation;
+    glm::quat       mSpinRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
 
     bool            mHideBuildHighlight;
 
