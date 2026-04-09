@@ -168,7 +168,7 @@ void LLSurface::create(const S32 grids_per_edge,
     // Initialize data arrays for surface
     ///
     mSurfaceZ = new F32[number_of_grids];
-    mNorm = new LLVector3[number_of_grids];
+    mNorm = new glm::vec3[number_of_grids];
 
     // Reset the surface to be a flat square grid
     for(S32 i=0; i < number_of_grids; i++)
@@ -176,7 +176,7 @@ void LLSurface::create(const S32 grids_per_edge,
         // Surface is flat and zero
         // Normals all point up
         mSurfaceZ[i] = 0.0f;
-        mNorm[i].set(0.f, 0.f, 1.f);
+        mNorm[i] = glm::vec3(0.f, 0.f, 1.f);
     }
 
 

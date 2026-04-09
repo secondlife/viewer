@@ -352,7 +352,7 @@ void LLSurfacePatch::calcNormal</*PBR=*/false>(const U32 x, const U32 y, const U
     normal.normalize();
 
     llassert(mDataNorm);
-    *(mDataNorm + surface_stride * y + x) = normal;
+    *(mDataNorm + surface_stride * y + x) = glm::vec3(normal.mV[0], normal.mV[1], normal.mV[2]);
 }
 
 template<>
@@ -362,8 +362,9 @@ void LLSurfacePatch::calcNormal</*PBR=*/true>(const U32 x, const U32 y, const U3
     constexpr U32 index = 0;
 
     const U32 surface_stride = mSurfacep->getGridsPerEdge();
-    LLVector3& normal_out = *(mDataNorm + surface_stride * y + x);
-    calcNormalFlat(normal_out, x, y, index);
+    LLVector3 normal_tmp;
+    calcNormalFlat(normal_tmp, x, y, index);
+    *(mDataNorm + surface_stride * y + x) = glm::vec3(normal_tmp.mV[0], normal_tmp.mV[1], normal_tmp.mV[2]);
 }
 
 // Calculate the flat normal of a triangle whose least coordinate is specified by the given x,y values.
@@ -515,11 +516,11 @@ void LLSurfacePatch::calcNormalFlat(LLVector3& normal_out, const U32 x, const U3
     normal_out = normal;
 }
 
-const LLVector3 &LLSurfacePatch::getNormal(const U32 x, const U32 y) const
+LLVector3 LLSurfacePatch::getNormal(const U32 x, const U32 y) const
 {
     U32 surface_stride = mSurfacep->getGridsPerEdge();
     llassert(mDataNorm);
-    return *(mDataNorm + surface_stride * y + x);
+    return LLVector3(*(mDataNorm + surface_stride * y + x));
 }
 
 
