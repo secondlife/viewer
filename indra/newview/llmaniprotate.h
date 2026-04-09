@@ -68,8 +68,8 @@ private:
     bool            updateVisiblity();
     LLVector3       findNearestPointOnRing( S32 x, S32 y, const LLVector3& center, const LLVector3& axis );
 
-    LLQuaternion    dragUnconstrained( S32 x, S32 y );
-    LLQuaternion    dragConstrained( S32 x, S32 y );
+    glm::quat       dragUnconstrained( S32 x, S32 y );
+    glm::quat       dragConstrained( S32 x, S32 y );
     LLVector3       getConstraintAxis();
     S32             getObjectAxisClosestToMouse(LLVector3& axis);
 

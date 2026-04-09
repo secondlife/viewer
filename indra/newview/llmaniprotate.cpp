@@ -1275,7 +1275,7 @@ bool LLManipRotate::updateVisiblity()
     return visible;
 }
 
-LLQuaternion LLManipRotate::dragUnconstrained( S32 x, S32 y )
+glm::quat LLManipRotate::dragUnconstrained( S32 x, S32 y )
 {
     LLVector3 cam = gAgentCamera.getCameraPositionAgent();
     LLVector3 center =  gAgent.getPosAgentFromGlobal( mRotationCenter );
@@ -1374,7 +1374,7 @@ LLVector3 LLManipRotate::getConstraintAxis()
     return axis;
 }
 
-LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
+glm::quat LLManipRotate::dragConstrained( S32 x, S32 y )
 {
     LLSelectNode* first_object_node = mObjectSelection->getFirstMoveableNode(true);
     LLVector3 constraint_axis = getConstraintAxis();
