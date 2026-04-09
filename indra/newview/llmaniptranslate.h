@@ -104,8 +104,8 @@ private:
     F32         mSnapOffsetMeters;
     glm::vec3   mSnapOffsetAxis{0.f};
     glm::quat    mGridRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
-    LLVector3   mGridOrigin;
-    LLVector3   mGridScale;
+    glm::vec3   mGridOrigin{0.f};
+    glm::vec3   mGridScale{0.f};
     F32         mSubdivisions;
     bool        mInSnapRegime;
     glm::vec3   mArrowScales{1.f};

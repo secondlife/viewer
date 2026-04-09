@@ -330,7 +330,14 @@ bool LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
     // getGrid takes LLQuaternion& by reference; route through a temp and
     // convert to mGridRotation via the bridge ctor.
     LLQuaternion grid_rot;
-    LLSelectMgr::getInstance()->getGrid(mGridOrigin, grid_rot, mGridScale);
+    {
+        // getGrid takes LLVector3& out params; bridge through temps.
+        LLVector3 origin_tmp;
+        LLVector3 scale_tmp;
+        LLSelectMgr::getInstance()->getGrid(origin_tmp, grid_rot, scale_tmp);
+        mGridOrigin = origin_tmp;
+        mGridScale = scale_tmp;
+    }
     mGridRotation = grid_rot;
 
     LLSelectMgr::getInstance()->enableSilhouette(false);
@@ -586,15 +593,15 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
             if (camera_plane_projection.mV[VX] > camera_plane_projection.mV[VY] &&
                 camera_plane_projection.mV[VX] > camera_plane_projection.mV[VZ])
             {
-                max_grid_scale = mGridScale.mV[VX];
+                max_grid_scale = mGridScale.x;
             }
             else if (camera_plane_projection.mV[VY] > camera_plane_projection.mV[VZ])
             {
-                max_grid_scale = mGridScale.mV[VY];
+                max_grid_scale = mGridScale.y;
             }
             else
             {
-                max_grid_scale = mGridScale.mV[VZ];
+                max_grid_scale = mGridScale.z;
             }
 
             F32 num_subdivisions = getSubdivisionLevel(getPivotPoint(), camera_projected_dir, max_grid_scale);
@@ -606,20 +613,20 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
             switch (mManipPart)
             {
             case LL_YZ_PLANE:
-                grid_scale_a = mGridScale.mV[VY] / num_subdivisions;
-                grid_scale_b = mGridScale.mV[VZ] / num_subdivisions;
+                grid_scale_a = mGridScale.y / num_subdivisions;
+                grid_scale_b = mGridScale.z / num_subdivisions;
                 cursor_point_grid.mV[VY] -= fmod(cursor_point_grid.mV[VY] + grid_scale_a * 0.5f, grid_scale_a) - grid_scale_a * 0.5f;
                 cursor_point_grid.mV[VZ] -= fmod(cursor_point_grid.mV[VZ] + grid_scale_b * 0.5f, grid_scale_b) - grid_scale_b * 0.5f;
                 break;
             case LL_XZ_PLANE:
-                grid_scale_a = mGridScale.mV[VX] / num_subdivisions;
-                grid_scale_b = mGridScale.mV[VZ] / num_subdivisions;
+                grid_scale_a = mGridScale.x / num_subdivisions;
+                grid_scale_b = mGridScale.z / num_subdivisions;
                 cursor_point_grid.mV[VX] -= fmod(cursor_point_grid.mV[VX] + grid_scale_a * 0.5f, grid_scale_a) - grid_scale_a * 0.5f;
                 cursor_point_grid.mV[VZ] -= fmod(cursor_point_grid.mV[VZ] + grid_scale_b * 0.5f, grid_scale_b) - grid_scale_b * 0.5f;
                 break;
             case LL_XY_PLANE:
-                grid_scale_a = mGridScale.mV[VX] / num_subdivisions;
-                grid_scale_b = mGridScale.mV[VY] / num_subdivisions;
+                grid_scale_a = mGridScale.x / num_subdivisions;
+                grid_scale_b = mGridScale.y / num_subdivisions;
                 cursor_point_grid.mV[VX] -= fmod(cursor_point_grid.mV[VX] + grid_scale_a * 0.5f, grid_scale_a) - grid_scale_a * 0.5f;
                 cursor_point_grid.mV[VY] -= fmod(cursor_point_grid.mV[VY] + grid_scale_b * 0.5f, grid_scale_b) - grid_scale_b * 0.5f;
                 break;
@@ -1016,22 +1023,22 @@ F32 LLManipTranslate::getMinGridScale()
         scale = 1.f;
         break;
     case LL_X_ARROW:
-        scale = mGridScale.mV[VX];
+        scale = mGridScale.x;
         break;
     case LL_Y_ARROW:
-        scale = mGridScale.mV[VY];
+        scale = mGridScale.y;
         break;
     case LL_Z_ARROW:
-        scale = mGridScale.mV[VZ];
+        scale = mGridScale.z;
         break;
     case LL_YZ_PLANE:
-        scale = llmin(mGridScale.mV[VY], mGridScale.mV[VZ]);
+        scale = llmin(mGridScale.y, mGridScale.z);
         break;
     case LL_XZ_PLANE:
-        scale = llmin(mGridScale.mV[VX], mGridScale.mV[VZ]);
+        scale = llmin(mGridScale.x, mGridScale.z);
         break;
     case LL_XY_PLANE:
-        scale = llmin(mGridScale.mV[VX], mGridScale.mV[VY]);
+        scale = llmin(mGridScale.x, mGridScale.y);
         break;
     }
 
