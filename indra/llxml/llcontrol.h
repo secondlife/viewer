@@ -198,7 +198,7 @@ public:
     LLControlVariable* declareString(const std::string& name, const std::string &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
     LLControlVariable* declareVec3(const std::string& name, const LLVector3 &initial_val,const std::string& comment,  LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
     LLControlVariable* declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
-    LLControlVariable* declareQuat(const std::string& name, const LLQuaternion &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
+    LLControlVariable* declareQuat(const std::string& name, const glm::quat &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
     LLControlVariable* declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
     LLControlVariable* declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
     LLControlVariable* declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::ePersist::PERSIST_NONDFT);
@@ -216,7 +216,7 @@ public:
     LLVector3d  getVector3d(std::string_view name);
     LLRect      getRect(std::string_view name);
     LLSD        getLLSD(std::string_view name);
-    LLQuaternion    getQuaternion(std::string_view name);
+    glm::quat       getQuaternion(std::string_view name);
 
     LLColor4    getColor(std::string_view name);
     LLColor4    getColor4(std::string_view name);
@@ -252,7 +252,7 @@ public:
     void    setString(std::string_view  name, const std::string& val);
     void    setVector3(std::string_view name, const LLVector3 &val);
     void    setVector3d(std::string_view name, const LLVector3d &val);
-    void    setQuaternion(std::string_view name, const LLQuaternion &val);
+    void    setQuaternion(std::string_view name, const glm::quat &val);
     void    setRect(std::string_view name, const LLRect &val);
     void    setColor4(std::string_view name, const LLColor4 &val);
     void    setLLSD(std::string_view name, const LLSD& val);

@@ -531,9 +531,9 @@ LLControlVariable* LLControlGroup::declareVec3d(const std::string& name, const L
     return declareControl(name, TYPE_VEC3D, initial_val.getValue(), comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareQuat(const std::string& name, const LLQuaternion &initial_val, const std::string& comment, LLControlVariable::ePersist persist)
+LLControlVariable* LLControlGroup::declareQuat(const std::string& name, const glm::quat &initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
-    return declareControl(name, TYPE_QUAT, initial_val.getValue(), comment, persist);
+    return declareControl(name, TYPE_QUAT, LLQuaternion(initial_val).getValue(), comment, persist);
 }
 
 LLControlVariable* LLControlGroup::declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, LLControlVariable::ePersist persist)
@@ -613,9 +613,9 @@ LLVector3d LLControlGroup::getVector3d(std::string_view name)
     return get<LLVector3d>(name);
 }
 
-LLQuaternion LLControlGroup::getQuaternion(std::string_view name)
+glm::quat LLControlGroup::getQuaternion(std::string_view name)
 {
-    return get<LLQuaternion>(name);
+    return get<LLQuaternion>(name);   // implicit op glm::quat()
 }
 
 LLRect LLControlGroup::getRect(std::string_view name)
@@ -710,9 +710,9 @@ void LLControlGroup::setVector3d(std::string_view name, const LLVector3d &val)
     set(name, val);
 }
 
-void LLControlGroup::setQuaternion(std::string_view name, const LLQuaternion &val)
+void LLControlGroup::setQuaternion(std::string_view name, const glm::quat &val)
 {
-    set(name, val);
+    set(name, LLQuaternion(val));   // type-specific dispatch needs LLQuaternion key
 }
 
 void LLControlGroup::setRect(std::string_view name, const LLRect &val)
