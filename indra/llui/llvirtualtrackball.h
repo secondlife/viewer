@@ -97,8 +97,8 @@ public:
     void            setRotation(const glm::quat &value);
     glm::quat       getRotation() const;
 
-    static void             getAzimuthAndElevation(const LLQuaternion &quat, F32 &azimuth, F32 &elevation);
-    static void             getAzimuthAndElevationDeg(const LLQuaternion &quat, F32 &azimuth, F32 &elevation);
+    static void             getAzimuthAndElevation(const glm::quat &quat, F32 &azimuth, F32 &elevation);
+    static void             getAzimuthAndElevationDeg(const glm::quat &quat, F32 &azimuth, F32 &elevation);
 
 protected:
     friend class LLUICtrlFactory;

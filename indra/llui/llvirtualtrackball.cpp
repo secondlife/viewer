@@ -354,10 +354,10 @@ glm::quat LLVirtualTrackball::getRotation() const
 }
 
 // static
-void LLVirtualTrackball::getAzimuthAndElevation(const LLQuaternion &quat, F32 &azimuth, F32 &elevation)
+void LLVirtualTrackball::getAzimuthAndElevation(const glm::quat &quat, F32 &azimuth, F32 &elevation)
 {
     // LLQuaternion has own function to get azimuth, but it doesn't appear to return correct values (meant for 2d?)
-    LLVector3 point = VectorZero * quat;
+    LLVector3 point = VectorZero * LLQuaternion(quat);
 
     if (!is_approx_zero(point.mV[VX]) || !is_approx_zero(point.mV[VY]))
     {
@@ -382,7 +382,7 @@ void LLVirtualTrackball::getAzimuthAndElevation(const LLQuaternion &quat, F32 &a
 }
 
 // static
-void LLVirtualTrackball::getAzimuthAndElevationDeg(const LLQuaternion &quat, F32 &azimuth, F32 &elevation)
+void LLVirtualTrackball::getAzimuthAndElevationDeg(const glm::quat &quat, F32 &azimuth, F32 &elevation)
 {
     getAzimuthAndElevation(quat, azimuth, elevation);
     azimuth *= RAD_TO_DEG;
