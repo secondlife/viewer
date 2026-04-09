@@ -30,6 +30,7 @@
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 class LL_COMMON_API LLSD;
 
@@ -60,6 +61,13 @@ glm::vec2 ll_vec2_from_sd(const LLSD& sd);
 class LLQuaternion;
 LLSD ll_sd_from_quaternion(const LLQuaternion& quat);
 LLQuaternion ll_quaternion_from_sd(const LLSD& sd);
+
+// quat (glm). Wire format is xyzw — the same four-element LLSD array
+// LL serializes (see ll_sd_from_quaternion) — so call sites can be
+// swapped one direction at a time without breaking environment preset
+// round-trip with already-saved LL-format payloads.
+LLSD ll_sd_from_quat(const glm::quat& quat);
+glm::quat ll_quat_from_sd(const LLSD& sd);
 
 // color4
 class LLColor4;
