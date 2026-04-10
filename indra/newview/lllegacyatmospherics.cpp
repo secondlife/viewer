@@ -250,7 +250,7 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
         return LLColor4(sky_color, 0.0f);
     }
 
-    LLColor3 sky_color = low_end ? LLColor3(vars.hazeColor * 2.0f) : psky->gammaCorrect(vars.hazeColor * 2.0f, vars.gamma);
+    LLColor3 sky_color = low_end ? LLColor3(vars.hazeColor * 2.0f) : LLColor3(psky->gammaCorrect(vars.hazeColor * 2.0f, vars.gamma));
 
     return LLColor4(sky_color, 0.0f);
 }

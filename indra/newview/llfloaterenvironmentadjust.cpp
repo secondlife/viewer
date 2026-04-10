@@ -164,16 +164,16 @@ void LLFloaterEnvironmentAdjust::refresh()
     setEnabled(true);
     setAllChildrenEnabled(true);
 
-    getChild<LLColorSwatchCtrl>(FIELD_SKY_AMBIENT_LIGHT)->set(mLiveSky->getAmbientColor() / SLIDER_SCALE_SUN_AMBIENT);
-    getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_HORIZON)->set(mLiveSky->getBlueHorizon() / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
-    getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_DENSITY)->set(mLiveSky->getBlueDensity() / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
+    getChild<LLColorSwatchCtrl>(FIELD_SKY_AMBIENT_LIGHT)->set(LLColor3(mLiveSky->getAmbientColor()) / SLIDER_SCALE_SUN_AMBIENT);
+    getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_HORIZON)->set(LLColor3(mLiveSky->getBlueHorizon()) / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
+    getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_DENSITY)->set(LLColor3(mLiveSky->getBlueDensity()) / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
     getChild<LLUICtrl>(FIELD_SKY_HAZE_HORIZON)->setValue(mLiveSky->getHazeHorizon());
     getChild<LLUICtrl>(FIELD_SKY_HAZE_DENSITY)->setValue(mLiveSky->getHazeDensity());
     getChild<LLUICtrl>(FIELD_SKY_SCENE_GAMMA)->setValue(mLiveSky->getGamma());
-    getChild<LLColorSwatchCtrl>(FIELD_SKY_CLOUD_COLOR)->set(mLiveSky->getCloudColor());
+    getChild<LLColorSwatchCtrl>(FIELD_SKY_CLOUD_COLOR)->set(LLColor3(mLiveSky->getCloudColor()));
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->setValue(mLiveSky->getCloudShadow());
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->setValue(mLiveSky->getCloudScale());
-    getChild<LLColorSwatchCtrl>(FIELD_SKY_SUN_COLOR)->set(mLiveSky->getSunlightColor() / SLIDER_SCALE_SUN_AMBIENT);
+    getChild<LLColorSwatchCtrl>(FIELD_SKY_SUN_COLOR)->set(LLColor3(mLiveSky->getSunlightColor()) / SLIDER_SCALE_SUN_AMBIENT);
 
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setValue(mLiveSky->getCloudNoiseTextureId());
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setValue(mLiveWater->getNormalMapID());

@@ -764,7 +764,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform3fv(LLViewerShaderMgr::LIGHTNORM, light_direction);
 
     // Legacy? SETTING_CLOUD_SCROLL_RATE("cloud_scroll_rate")
-    LLVector4 vect_c_p_d1(mCloudPosDensity1.mV[0], mCloudPosDensity1.mV[1], mCloudPosDensity1.mV[2]);
+    LLVector4 vect_c_p_d1(mCloudPosDensity1[0], mCloudPosDensity1[1], mCloudPosDensity1[2]);
     glm::vec2 cloud_scroll_delta = LLEnvironment::instance().getCloudScrollDelta();
     LLVector4 cloud_scroll(cloud_scroll_delta.x, cloud_scroll_delta.y, 0.0f, 0.0f);
 
@@ -779,14 +779,13 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-    // TODO -- make these getters return vec3s
-    LLVector3 sun_light_color = LLVector3(psky->getSunlightColor().mV);
-    LLVector3 moon_light_color = LLVector3(psky->getMoonlightColor().mV);
+    LLVector3 sun_light_color = LLVector3(psky->getSunlightColor());
+    LLVector3 moon_light_color = LLVector3(psky->getMoonlightColor());
 
     shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sun_light_color);
     shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, moon_light_color);
 
-    shader->uniform3fv(LLShaderMgr::CLOUD_COLOR, LLVector3(psky->getCloudColor().mV));
+    shader->uniform3fv(LLShaderMgr::CLOUD_COLOR, LLVector3(psky->getCloudColor()));
 
     shader = &((LLShaderUniforms*)ptarget)[static_cast<int>(LLGLSLShader::eGroup::SG_ANY)];
     shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mSceneLightStrength);
@@ -840,11 +839,11 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
         }
         else if (psky->canAutoAdjust() && should_auto_adjust)
         { // auto-adjust legacy sky to take advantage of probe ambiance
-            shader->uniform3fv(LLShaderMgr::AMBIENT, (ambient * auto_adjust_ambient_scale).mV);
+            shader->uniform3fv(LLShaderMgr::AMBIENT, (ambient * static_cast<F32>(auto_adjust_ambient_scale)).mV);
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, auto_adjust_hdr_scale);
-            LLColor3 blue_horizon = getBlueHorizon() * auto_adjust_blue_horizon_scale;
-            LLColor3 blue_density = getBlueDensity() * auto_adjust_blue_density_scale;
-            sun_light_color = sun_light_color * auto_adjust_sun_color_scale;
+            LLColor3 blue_horizon = LLColor3(getBlueHorizon()) * static_cast<F32>(auto_adjust_blue_horizon_scale);
+            LLColor3 blue_density = LLColor3(getBlueDensity()) * static_cast<F32>(auto_adjust_blue_density_scale);
+            sun_light_color = sun_light_color * static_cast<F32>(auto_adjust_sun_color_scale);
 
             shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sun_light_color.mV);
             shader->uniform3fv(LLShaderMgr::BLUE_DENSITY, blue_density.mV);

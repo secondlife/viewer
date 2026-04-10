@@ -176,20 +176,20 @@ public:
     void setReflectionProbeAmbiance(F32 ambiance);
 
     //---------------------------------------------------------------------
-    LLColor3 getAmbientColor() const;
-    void setAmbientColor(const LLColor3 &val);
+    glm::vec3 getAmbientColor() const;
+    void setAmbientColor(const glm::vec3 &val);
 
-    LLColor3 getCloudColor() const;
-    void setCloudColor(const LLColor3 &val);
+    glm::vec3 getCloudColor() const;
+    void setCloudColor(const glm::vec3 &val);
 
     LLUUID getCloudNoiseTextureId() const;
     void setCloudNoiseTextureId(const LLUUID &id);
 
-    LLColor3 getCloudPosDensity1() const;
-    void setCloudPosDensity1(const LLColor3 &val);
+    glm::vec3 getCloudPosDensity1() const;
+    void setCloudPosDensity1(const glm::vec3 &val);
 
-    LLColor3 getCloudPosDensity2() const;
-    void setCloudPosDensity2(const LLColor3 &val);
+    glm::vec3 getCloudPosDensity2() const;
+    void setCloudPosDensity2(const glm::vec3 &val);
 
     F32 getCloudScale() const;
     void setCloudScale(F32 val);
@@ -219,8 +219,8 @@ public:
 
     void setGamma(F32 val);
 
-    LLColor3 getGlow() const;
-    void setGlow(const LLColor3 &val);
+    glm::vec3 getGlow() const;
+    void setGlow(const glm::vec3 &val);
 
     F32 getMaxY() const;
 
@@ -241,8 +241,8 @@ public:
     F32 getStarBrightness() const;
     void setStarBrightness(F32 val);
 
-    LLColor3 getSunlightColor() const;
-    void setSunlightColor(const LLColor3 &val);
+    glm::vec3 getSunlightColor() const;
+    void setSunlightColor(const glm::vec3 &val);
 
     glm::quat getSunRotation() const;
     void setSunRotation(const glm::quat &val) ;
@@ -272,21 +272,21 @@ public:
 // LEGACY_ATMOSPHERICS
     static LLSD translateLegacyHazeSettings(const LLSD& legacy);
 
-    LLColor3 getLightAttenuation(F32 distance) const;
-    LLColor3 getLightTransmittance(F32 distance) const;
-    LLColor3 getLightTransmittanceFast(const LLColor3& total_density, const F32 density_multiplier, const F32 distance) const;
-    LLColor3 getTotalDensity() const;
-    LLColor3 gammaCorrect(const LLColor3& in,const F32 &gamma) const;
+    glm::vec3 getLightAttenuation(F32 distance) const;
+    glm::vec3 getLightTransmittance(F32 distance) const;
+    glm::vec3 getLightTransmittanceFast(const LLColor3& total_density, const F32 density_multiplier, const F32 distance) const;
+    glm::vec3 getTotalDensity() const;
+    glm::vec3 gammaCorrect(const glm::vec3& in,const F32 &gamma) const;
 
-    LLColor3 getBlueDensity() const;
-    LLColor3 getBlueHorizon() const;
+    glm::vec3 getBlueDensity() const;
+    glm::vec3 getBlueHorizon() const;
     F32 getHazeDensity() const;
     F32 getHazeHorizon() const;
     F32 getDensityMultiplier() const;
     F32 getDistanceMultiplier() const;
 
-    void setBlueDensity(const LLColor3 &val);
-    void setBlueHorizon(const LLColor3 &val);
+    void setBlueDensity(const glm::vec3 &val);
+    void setBlueHorizon(const glm::vec3 &val);
     void setDensityMultiplier(F32 val);
     void setDistanceMultiplier(F32 val);
     void setHazeDensity(F32 val);
@@ -300,18 +300,18 @@ public:
     F32 getSunMoonGlowFactor() const;
 
     LLVector3 getLightDirection() const;
-    LLColor3  getLightDiffuse() const;
+    glm::vec3  getLightDiffuse() const;
 
     LLVector3 getSunDirection() const;
     LLVector3 getMoonDirection() const;
 
     // color based on brightness
-    LLColor3  getMoonlightColor() const;
+    glm::vec3  getMoonlightColor() const;
 
     LLColor4  getMoonAmbient() const;
-    LLColor3  getMoonDiffuse() const;
+    glm::vec3  getMoonDiffuse() const;
     LLColor4  getSunAmbient() const;
-    LLColor3  getSunDiffuse() const;
+    glm::vec3  getSunDiffuse() const;
     LLColor4  getTotalAmbient() const;
     LLColor4  getHazeColor() const;
 
@@ -376,8 +376,8 @@ protected:
     bool mCanAutoAdjust;
     glm::quat mSunRotation{1.f, 0.f, 0.f, 0.f};  // identity (w,x,y,z)
     glm::quat mMoonRotation{1.f, 0.f, 0.f, 0.f}; // identity (w,x,y,z)
-    LLColor3 mSunlightColor;
-    LLColor3 mGlow;
+    glm::vec3 mSunlightColor{0.f};
+    glm::vec3 mGlow{0.f};
     F32 mReflectionProbeAmbiance;
     F32 mSunScale;
     F32 mStarBrightness;
@@ -393,9 +393,9 @@ protected:
     F32 mHDRMax;
     F32 mHDRMin;
     glm::vec2 mScrollRate;
-    LLColor3 mCloudPosDensity1;
-    LLColor3 mCloudPosDensity2;
-    LLColor3 mCloudColor;
+    glm::vec3 mCloudPosDensity1{0.f};
+    glm::vec3 mCloudPosDensity2{0.f};
+    glm::vec3 mCloudColor{0.f};
     LLSD mAbsorptionConfigs;
     LLSD mMieConfigs;
     LLSD mRayleighConfigs;
@@ -411,9 +411,9 @@ protected:
     F32 mHazeDensity;
     F32 mDistanceMultiplier;
     F32 mDensityMultiplier;
-    LLColor3 mBlueHorizon;
-    LLColor3 mBlueDensity;
-    LLColor3 mAmbientColor;
+    glm::vec3 mBlueHorizon{0.f};
+    glm::vec3 mBlueDensity{0.f};
+    glm::vec3 mAmbientColor{0.f};
 
     bool mHasLegacyHaze;
     bool mLegacyHazeHorizon;
@@ -429,12 +429,12 @@ private:
     static LLSD absorptionConfigDefault();
     static LLSD mieConfigDefault();
 
-    LLColor3 getColor(const std::string& key, const LLColor3& default_value);
+    glm::vec3 getColor(const std::string& key, const glm::vec3& default_value);
     F32      getFloat(const std::string& key, F32 default_value);
 
     void        calculateHeavenlyBodyPositions() const;
     void        calculateLightSettings() const;
-    static void clampColor(LLColor3& color, F32 gamma, const F32 scale = 1.0f);
+    static void clampColor(glm::vec3& color, F32 gamma, const F32 scale = 1.0f);
 
     mutable glm::vec3   mSunDirection{0.f};
     mutable glm::vec3   mMoonDirection{0.f};
@@ -444,9 +444,9 @@ private:
     static const F32 DOME_OFFSET;
 
     mutable LLColor4    mMoonAmbient;
-    mutable LLColor3    mMoonDiffuse;
+    mutable glm::vec3   mMoonDiffuse{0.f};
     mutable LLColor4    mSunAmbient;
-    mutable LLColor3    mSunDiffuse;
+    mutable glm::vec3   mSunDiffuse{0.f};
     mutable LLColor4    mTotalAmbient;
     mutable LLColor4    mHazeColor;
 

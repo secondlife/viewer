@@ -192,9 +192,9 @@ void LLPanelSettingsSkyAtmosTab::refresh()
     setEnabled(getCanChangeSettings());
     setAllChildrenEnabled(getCanChangeSettings());
 
-    getChild<LLColorSwatchCtrl>(FIELD_SKY_AMBIENT_LIGHT)->set(mSkySettings->getAmbientColor() / SLIDER_SCALE_SUN_AMBIENT);
-    getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_HORIZON)->set(mSkySettings->getBlueHorizon() / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
-    getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_DENSITY)->set(mSkySettings->getBlueDensity() / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
+    getChild<LLColorSwatchCtrl>(FIELD_SKY_AMBIENT_LIGHT)->set(LLColor3(mSkySettings->getAmbientColor()) / SLIDER_SCALE_SUN_AMBIENT);
+    getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_HORIZON)->set(LLColor3(mSkySettings->getBlueHorizon()) / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
+    getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_DENSITY)->set(LLColor3(mSkySettings->getBlueDensity()) / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
 
     getChild<LLUICtrl>(FIELD_SKY_HAZE_HORIZON)->setValue(mSkySettings->getHazeHorizon());
     getChild<LLUICtrl>(FIELD_SKY_HAZE_DENSITY)->setValue(mSkySettings->getHazeDensity());
@@ -413,7 +413,7 @@ void LLPanelSettingsSkyCloudTab::refresh()
     setEnabled(getCanChangeSettings());
     setAllChildrenEnabled(getCanChangeSettings());
 
-    getChild<LLColorSwatchCtrl>(FIELD_SKY_CLOUD_COLOR)->set(mSkySettings->getCloudColor());
+    getChild<LLColorSwatchCtrl>(FIELD_SKY_CLOUD_COLOR)->set(LLColor3(mSkySettings->getCloudColor()));
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->setValue(mSkySettings->getCloudShadow());
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->setValue(mSkySettings->getCloudScale());
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_VARIANCE)->setValue(mSkySettings->getCloudVariance());
@@ -423,12 +423,12 @@ void LLPanelSettingsSkyCloudTab::refresh()
 
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setValue(mSkySettings->getCloudNoiseTextureId());
 
-    LLVector3 cloudDensity(mSkySettings->getCloudPosDensity1().getValue());
+    glm::vec3 cloudDensity = mSkySettings->getCloudPosDensity1();
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_X)->setValue(cloudDensity[0]);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_Y)->setValue(cloudDensity[1]);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_D)->setValue(cloudDensity[2]);
 
-    LLVector3 cloudDetail(mSkySettings->getCloudPosDensity2().getValue());
+    glm::vec3 cloudDetail = mSkySettings->getCloudPosDensity2();
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_X)->setValue(cloudDetail[0]);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_Y)->setValue(cloudDetail[1]);
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DETAIL_D)->setValue(cloudDetail[2]);
@@ -576,7 +576,7 @@ void LLPanelSettingsSkySunMoonTab::refresh()
         setAllChildrenEnabled(true);
     }
 
-    getChild<LLColorSwatchCtrl>(FIELD_SKY_SUN_MOON_COLOR)->set(mSkySettings->getSunlightColor() / SLIDER_SCALE_SUN_AMBIENT);
+    getChild<LLColorSwatchCtrl>(FIELD_SKY_SUN_MOON_COLOR)->set(LLColor3(mSkySettings->getSunlightColor()) / SLIDER_SCALE_SUN_AMBIENT);
 
     LLColor3 glow(mSkySettings->getGlow());
 
