@@ -519,8 +519,8 @@ void LLHeroProbeManager::updateUniforms()
             mHeroData.heroShape = 1;
         }
 
-        mHeroData.heroSphere.set(oa.getF32ptr());
-        mHeroData.heroSphere.mV[3] = mProbes[0]->mRadius;
+        mHeroData.heroSphere = glm::make_vec4(oa.getF32ptr());
+        mHeroData.heroSphere.w = mProbes[0]->mRadius;
     }
 
     llassert(mMipChain.size() <= size_t(S32_MAX));

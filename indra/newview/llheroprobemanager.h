@@ -32,6 +32,7 @@
 #include "llcubemap.h"
 #include "lldrawable.h"
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 class LLSpatialGroup;
 class LLViewerObject;
@@ -42,7 +43,7 @@ class LLViewerObject;
 struct HeroProbeData
 {
     LLMatrix4 heroBox;
-    LLVector4 heroSphere;
+    glm::vec4 heroSphere;
     GLint     heroShape;
     GLint     heroMipCount;
     GLint     heroProbeCount;

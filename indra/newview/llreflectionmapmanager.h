@@ -30,6 +30,7 @@
 #include "llrendertarget.h"
 #include "llcubemaparray.h"
 #include "llcubemap.h"
+#include <glm/vec4.hpp>
 
 class LLSpatialGroup;
 class LLViewerObject;
@@ -71,16 +72,16 @@ public:
         LLMatrix4 heroBox;
 
         // for sphere probes, origin (xyz) and radius (w) of refmaps in clip space
-        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT];
+        glm::vec4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT];
 
         // extra parameters
         //  x - irradiance scale
         //  y - radiance scale
         //  z - fade in
         //  w - znear
-        LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT];
+        glm::vec4 refParams[LL_MAX_REFLECTION_PROBE_COUNT];
 
-        LLVector4 heroSphere;
+        glm::vec4 heroSphere;
 
         // indices used by probe:
         //  [i][0] - cubemap array index for this probe

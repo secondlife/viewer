@@ -5322,7 +5322,7 @@ void LLPipeline::setupAvatarLights(bool for_edit)
         light->setDiffuse(diffuse);
         light->setAmbient(LLColor4::black);
         light->setSpecular(LLColor4::black);
-        light->setPosition(light_pos);
+        light->setPosition(static_cast<glm::vec4>(light_pos));
         light->setConstantAttenuation(1.f);
         light->setLinearAttenuation(0.f);
         light->setQuadraticAttenuation(0.f);
@@ -5334,8 +5334,9 @@ void LLPipeline::setupAvatarLights(bool for_edit)
         LLVector3 light_dir = sun_up ? LLVector3(mSunDir) : LLVector3(mMoonDir); // bridge to LLVector3 for LL cross/lerp ops below
         LLVector3 opposite_pos = -light_dir;
         LLVector3 orthog_light_pos = cross(light_dir, LLVector3::z_axis);
-        LLVector4 backlight_pos = LLVector4(lerp(opposite_pos, orthog_light_pos, 0.3f), 0.0f);
-        backlight_pos.normalize();
+        LLVector3 backlight_dir = lerp(opposite_pos, orthog_light_pos, 0.3f);
+        backlight_dir.normalize();
+        glm::vec4 backlight_pos(backlight_dir.mV[0], backlight_dir.mV[1], backlight_dir.mV[2], 0.0f);
 
         LLColor4 light_diffuse = sun_up ? mSunDiffuse : mMoonDiffuse;
 
@@ -5609,7 +5610,8 @@ void LLPipeline::setupHWLights()
             mMoonDir = glm::vec3(0.f, 1.f, 0.f);
         }
 
-        LLVector4 light_dir(sun_up ? mSunDir : mMoonDir, 0.f);
+        const glm::vec3& sun_or_moon = sun_up ? mSunDir : mMoonDir;
+        glm::vec4 light_dir(sun_or_moon, 0.f);
 
         mHWLightColors[0] = sun_up ? mSunDiffuse : mMoonDiffuse;
 
@@ -5692,7 +5694,7 @@ void LLPipeline::setupHWLights()
             }
 
             LLVector3 light_pos(light->getRenderPosition());
-            LLVector4 light_pos_gl(light_pos, 1.0f);
+            glm::vec4 light_pos_gl(light_pos.mV[0], light_pos.mV[1], light_pos.mV[2], 1.0f);
 
             F32 adjusted_radius = light->getLightRadius() * 1.5f;
             if (adjusted_radius <= 0.001f)
@@ -5847,7 +5849,7 @@ void LLPipeline::enableLightsPreview()
     dir1.normalize();
     dir2.normalize();
 
-    LLVector4 light_pos(dir0, 0.0f);
+    glm::vec4 light_pos(dir0.mV[0], dir0.mV[1], dir0.mV[2], 0.0f);
 
     LLLightState* light = gGL.getLight(1);
 
@@ -5859,7 +5861,7 @@ void LLPipeline::enableLightsPreview()
     light->setSpotExponent(0.f);
     light->setSpotCutoff(180.f);
 
-    light_pos = LLVector4(dir1, 0.f);
+    light_pos = glm::vec4(dir1.mV[0], dir1.mV[1], dir1.mV[2], 0.f);
 
     light = gGL.getLight(2);
     light->enable();
@@ -5870,7 +5872,7 @@ void LLPipeline::enableLightsPreview()
     light->setSpotExponent(0.f);
     light->setSpotCutoff(180.f);
 
-    light_pos = LLVector4(dir2, 0.f);
+    light_pos = glm::vec4(dir2.mV[0], dir2.mV[1], dir2.mV[2], 0.f);
     light = gGL.getLight(3);
     light->enable();
     light->setPosition(light_pos);

@@ -438,7 +438,7 @@ bool LLGLTFPreviewTexture::render()
 
     LLVector3 light_dir3(1.0f, 1.0f, 1.0f);
     light_dir3.normalize();
-    const LLVector4 light_dir = LLVector4(light_dir3, 0);
+    const glm::vec4 light_dir(light_dir3.mV[0], light_dir3.mV[1], light_dir3.mV[2], 0.f);
     const S32 old_local_light_count = gSavedSettings.get<S32>("RenderLocalLightCount");
     gSavedSettings.set<S32>("RenderLocalLightCount", 0);
 
