@@ -197,7 +197,7 @@ public:
     F32       distance_multiplier{0.f};
     F32       max_y{0.f};
     F32       gamma{1.f};
-    LLVector4 sun_norm{0.f, 1.f, 0.f, 1.f};
+    glm::vec3 sun_norm{0.f, 1.f, 0.f};
     glm::vec3 sunlight{0.f};
     glm::vec3 ambient{0.f};
     glm::vec3 glow{0.f};

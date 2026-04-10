@@ -8415,7 +8415,8 @@ void LLPipeline::renderDeferredLighting()
             LLEnvironment &environment = LLEnvironment::instance();
 
             soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-            soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(environment.getClampedLightNorm().mV, 3));
+            glm::vec3 clamped_light = environment.getClampedLightNorm();
+            soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(&clamped_light.x, 3));
 
             soften_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
 
@@ -8797,7 +8798,8 @@ void LLPipeline::doAtmospherics()
 
         LLEnvironment& environment = LLEnvironment::instance();
         haze_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-        haze_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(environment.getClampedLightNorm().mV, 3));
+        glm::vec3 haze_light = environment.getClampedLightNorm();
+        haze_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(&haze_light.x, 3));
 
         haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
 

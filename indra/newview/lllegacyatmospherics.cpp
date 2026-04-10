@@ -268,7 +268,7 @@ void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVect
     const F32         density_multiplier = vars.density_multiplier;
 
     F32         max_y = vars.max_y;
-    LLVector4   sun_norm = vars.sun_norm;
+    glm::vec3   sun_norm = vars.sun_norm;
 
     // project the direction ray onto the sky dome.
     F32 phi = acos(Pn[1]);
@@ -318,7 +318,7 @@ void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVect
 
 
     // Compute sunlight from P & lightnorm (for long rays like sky)
-    temp2.mV[1] = llmax(F_APPROXIMATELY_ZERO, llmax(0.f, Pn[1]) * 1.0f + sun_norm.mV[1] );
+    temp2.mV[1] = llmax(F_APPROXIMATELY_ZERO, llmax(0.f, Pn[1]) * 1.0f + sun_norm.y );
 
     temp2.mV[1] = 1.f / temp2.mV[1];
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
@@ -677,12 +677,11 @@ bool approximatelyEqual(const LLColor3 &a, const  LLColor3 &b, const F32 &fracti
            && approximatelyEqual(a.mV[2], b.mV[2], fraction_treshold);
 }
 
-bool approximatelyEqual(const LLVector4 &a, const  LLVector4 &b, const F32 &fraction_treshold)
+bool approximatelyEqual(const glm::vec3 &a, const glm::vec3 &b, const F32 &fraction_treshold)
 {
-    return approximatelyEqual(a.mV[0], b.mV[0], fraction_treshold)
-        && approximatelyEqual(a.mV[1], b.mV[1], fraction_treshold)
-        && approximatelyEqual(a.mV[2], b.mV[2], fraction_treshold)
-        && approximatelyEqual(a.mV[3], b.mV[3], fraction_treshold);
+    return approximatelyEqual(a.x, b.x, fraction_treshold)
+        && approximatelyEqual(a.y, b.y, fraction_treshold)
+        && approximatelyEqual(a.z, b.z, fraction_treshold);
 }
 
 bool approximatelyEqual(const AtmosphericsVars& a, const AtmosphericsVars& b, const F32 fraction_treshold)
