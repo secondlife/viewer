@@ -43,7 +43,6 @@
 #include "llchicletbar.h"
 #include "llconsole.h"
 #include "lldonotdisturbnotificationstorage.h"
-#include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloaterimcontainer.h"
 #include "llfloaterperms.h"
@@ -334,8 +333,6 @@ bool LLAgent::isActionAllowed(const LLSD& sdname)
 // static
 void LLAgent::pressMicrophone(const LLSD& name)
 {
-    LLFirstUse::speak(false);
-
      LLVoiceClient::getInstance()->inputUserControlState(true);
 }
 
@@ -670,7 +667,6 @@ void LLAgent::moveAt(S32 direction, bool reset)
     LLUIUsage::instance().logCommand("Agent.MoveAt");
 
     mMoveTimer.reset();
-    LLFirstUse::notMoving(false);
 
     // age chat timer so it fades more quickly when you are intentionally moving
     ageChat();
@@ -698,7 +694,6 @@ void LLAgent::moveAt(S32 direction, bool reset)
 void LLAgent::moveAtNudge(S32 direction)
 {
     mMoveTimer.reset();
-    LLFirstUse::notMoving(false);
 
     // age chat timer so it fades more quickly when you are intentionally moving
     ageChat();
@@ -723,7 +718,6 @@ void LLAgent::moveAtNudge(S32 direction)
 void LLAgent::moveLeft(S32 direction)
 {
     mMoveTimer.reset();
-    LLFirstUse::notMoving(false);
 
     // age chat timer so it fades more quickly when you are intentionally moving
     ageChat();
@@ -748,7 +742,6 @@ void LLAgent::moveLeft(S32 direction)
 void LLAgent::moveLeftNudge(S32 direction)
 {
     mMoveTimer.reset();
-    LLFirstUse::notMoving(false);
 
     // age chat timer so it fades more quickly when you are intentionally moving
     ageChat();
@@ -773,7 +766,6 @@ void LLAgent::moveLeftNudge(S32 direction)
 void LLAgent::moveUp(S32 direction)
 {
     mMoveTimer.reset();
-    LLFirstUse::notMoving(false);
 
     // age chat timer so it fades more quickly when you are intentionally moving
     ageChat();
@@ -937,7 +929,6 @@ void LLAgent::toggleFlying()
     bool fly = !gAgent.getFlying();
 
     gAgent.mMoveTimer.reset();
-    LLFirstUse::notMoving(false);
 
     gAgent.setFlying( fly );
     gAgentCamera.resetView();
@@ -2052,12 +2043,6 @@ void LLAgent::propagate(const F32 dt)
 //-----------------------------------------------------------------------------
 void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32 mouse_x, const S32 mouse_y)
 {
-    static LLCachedControl<F32> hint_timeout(gSavedSettings, "NotMovingHintTimeout");
-    if (mMoveTimer.getStarted() && mMoveTimer.getElapsedTimeF32() > hint_timeout)
-    {
-        LLFirstUse::notMoving();
-    }
-
     propagate(dt);
 
     // static S32 cameraUpdateCount = 0;
@@ -3849,11 +3834,6 @@ void LLAgent::processControlTake(LLMessageSystem *msg, void **)
         }
     }
 
-    // Any control taken?  If so, might be first time.
-    if (total_count > 0)
-    {
-        LLFirstUse::useOverrideKeys();
-    }
 }
 
 // static
@@ -3983,9 +3963,6 @@ bool LLAgent::teleportCore(bool is_local)
         gAgentAvatarp->getOffObject();
     }
 
-    // Don't call LLFirstUse::useTeleport because we don't know
-    // yet if the teleport will succeed.  Look in
-    // process_teleport_location_reply
 
     // hide land floater too - it'll be out of date
     LLFloaterReg::hideInstance("about_land");

@@ -55,7 +55,6 @@
 #include "llbutton.h"
 #include "llconsole.h"
 #include "lldrawable.h"
-#include "llfirstuse.h"
 #include "llfloater.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterchat.h"

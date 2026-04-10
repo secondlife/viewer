@@ -137,13 +137,6 @@
           bottom="-1"
           height="11" />
   </panel>
-  <view top="0"
-        left="0"
-        width="1024"
-        height="768"
-        name="hint_holder"
-        mouse_opaque="false"
-        follows="all"/>
   <panel top="0"
          follows="all"
          height="768"

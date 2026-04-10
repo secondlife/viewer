@@ -41,8 +41,6 @@
 #include "lltoolmgr.h"
 #include "lltoolfocus.h"
 #include "llslider.h"
-#include "llfirstuse.h"
-#include "llhints.h"
 #include "lltabcontainer.h"
 #include "llviewercamera.h"
 #include "llvoavatarself.h"
@@ -215,14 +213,10 @@ void LLPanelCameraZoom::onZoomMinusHeldDown()
 
 void LLPanelCameraZoom::onCameraTrack()
 {
-    // EXP-202 when camera panning activated, remove the hint
-    LLFirstUse::viewPopup( false );
 }
 
 void LLPanelCameraZoom::onCameraRotate()
 {
-    // EXP-202 when camera rotation activated, remove the hint
-    LLFirstUse::viewPopup( false );
 }
 
 F32 LLPanelCameraZoom::getOrbitRate(F32 time)
@@ -423,8 +417,6 @@ LLFloaterCamera* LLFloaterCamera::findInstance()
 
 void LLFloaterCamera::onOpen(const LLSD& key)
 {
-    LLFirstUse::viewPopup();
-
     mZoom->onOpen(key);
 
     // Returns to previous mode, see EXT-2727(View tool should remember state).
@@ -468,7 +460,6 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
     mCurrMode(CAMERA_CTRL_MODE_PAN),
     mPrevMode(CAMERA_CTRL_MODE_PAN)
 {
-    LLHints::getInstance()->registerHintTarget("view_popup", getHandle());
     mCommitCallbackRegistrar.add("CameraPresets.ChangeView", std::bind(&LLFloaterCamera::onClickCameraItem, _2));
     mCommitCallbackRegistrar.add("CameraPresets.Save", std::bind(&LLFloaterCamera::onSavePreset, this));
     mCommitCallbackRegistrar.add("CameraPresets.ShowPresetsList", std::bind(&LLFloaterReg::showInstance, "camera_presets", LLSD(), false));

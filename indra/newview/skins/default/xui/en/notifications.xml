@@ -3835,21 +3835,6 @@ Your [https://community.secondlife.com/t5/English-Knowledge-Base/Avatar-Renderin
 
   <notification
    icon="alertmodal.tga"
-   name="FirstRun"
-   type="alertmodal">
-
-[APP_NAME] installation is complete.
-
-If this is your first time using [SECOND_LIFE], you will need to create an account before you can log in.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Continue"
-     yestext="Create Account..."/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="LoginCantRemoveUsername"
    type="alertmodal">
     <tag>fail</tag>
@@ -8654,27 +8639,6 @@ Do not allow access if you do not fully understand why it wants access to your a
     </form>
   </notification>
 
-<!--
-  <notification
-   icon="notify.tga"
-   name="FirstBalanceIncrease"
-   persist="true"
-   type="notify">
-   <tag>win</tag>
-You just received L$[AMOUNT].
-Your L$ balance is shown in the upper-right.
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FirstBalanceDecrease"
-   persist="true"
-   type="notify">
-You just paid L$[AMOUNT].
-Your L$ balance is shown in the upper-right.
-  </notification>
--->
-
   <notification
    icon="notify.tga"
    name="BuyLindenDollarSuccess"
@@ -8686,27 +8650,6 @@ Thank you for your payment!
 Your L$ balance will be updated when processing completes. If processing takes more than 20 mins, your transaction may be cancelled. In that case, the purchase amount will be credited to your US$ balance.
 
 The status of your payment can be checked on your Transaction History page on your [http://secondlife.com/account/ Dashboard]
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FirstOverrideKeys"
-   persist="true"
-   type="notify">
-Your movement keys are now being handled by an object.
-Try the arrow keys or AWSD to see what they do.
-Some objects (like guns) require you to go into mouselook  to use them.
-Press &apos;M&apos; to do this.
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FirstSandbox"
-   persist="true"
-   type="notify">
-This is a sandbox area, and is meant to help Residents learn how to build.
-
-Things you build here will be deleted after you leave, so don&apos;t forget to right-click and choose &apos;Take&apos; to move your creation to your Inventory.
   </notification>
 
   <notification
@@ -9728,106 +9671,6 @@ Mute everyone?
       <unique/>
     </usetemplate>
   </notification>
-  <notification
-  name="HintChat"
-  label="Chat"
-  type="hint">
-    <unique/>
-    To join the conversation, type into the chat field below.
-  </notification>
-
-  <notification
-  name="HintSit"
-  label="Stand"
-  type="hint">
-    <unique/>
-    To stand up and exit the sitting position, click the Stand button.
-  </notification>
-
-  <notification
-  name="HintSpeak"
-  label="Speak"
-  type="hint">
-    <unique/>    
-Click the Speak button to turn your microphone on and off.
-
-Click on the up arrow to see the voice control panel.
-
-Hiding the Speak button will disable the voice feature.
-  </notification>
-
-  <notification
-  name="HintDestinationGuide"
-  label="Explore the World"
-  type="hint">
-    <unique/>
-    The Destination Guide contains thousands of new places to discover. Select a location and choose Teleport to start exploring.
-  </notification>
-
-  <notification
-    name="HintSidePanel"
-    label="Side Panel"
-    type="hint">
-    <unique/>
-    Get quick access to your inventory, outfits, profiles and more in the side panel.
-  </notification>
-
-  <notification
-  name="HintMove"
-  label="Move"
-  type="hint">
-    <unique/>
-    To walk or run, open the Move Panel and use the directional arrows to navigate. You can also use the directional keys on your keyboard.
-  </notification>
-
-  <notification
-  name="HintMoveClick"
-  label=""
-  type="hint">
-    <unique/>    
-1. Click to Walk
-Click anywhere on the ground to walk to that spot.
-
-2. Click and Drag to Rotate View
-Click and drag anywhere on the world to rotate your view
-    <tag>custom_skin</tag>
-  </notification>
-
-  <notification
-  name="HintDisplayName"
-  label="Display Name"
-  type="hint">
-    <unique/>
-    Set your customizable display name here. This is in addition to your unique username, which can't be changed. You can change how you see other people's names in your preferences.
-  </notification>
-
-
-  <notification
-  name="HintView"
-  label="View"
-  type="hint">
-    <unique/>
-    To change your camera view, use the Orbit and Pan controls. Reset your view by pressing Escape or walking.
-    <tag>custom_skin</tag>
-  </notification>
-
-  <notification
-  name="HintInventory"
-  label="Inventory"
-  type="hint">
-    <unique/>
-    Check your inventory to find items. Newest items can be easily found in the Recent tab.
-  </notification>
-
-  <notification
-  name="HintLindenDollar"
-  label="You've got Linden Dollars!"
-  type="hint">
-    <unique/>
-    Here's your current balance of L$. Click Buy L$ to purchase more Linden Dollars.
-    <tag>funds</tag>
-  </notification>
-
    <notification
    icon="alertmodal.tga"
    name="LowMemory"

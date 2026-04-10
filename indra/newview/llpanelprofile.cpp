@@ -64,7 +64,6 @@
 #include "llfloaterreg.h"
 #include "llfloaterreporter.h"
 #include "llfilepicker.h"
-#include "llfirstuse.h"
 #include "llgroupactions.h"
 #include "lllogchat.h"
 #include "llmutelist.h"
@@ -1466,7 +1465,6 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
     else if (item_name == "edit_display_name")
     {
         mMenuNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), std::bind(&LLPanelProfileSecondLife::onAvatarNameCacheSetName, this, _1, _2));
-        LLFirstUse::setDisplayName(false);
     }
     else if (item_name == "edit_partner")
     {

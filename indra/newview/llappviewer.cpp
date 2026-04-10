@@ -2613,28 +2613,6 @@ bool LLAppViewer::initConfiguration()
     gSavedSettings.setS32("WatchdogEnabled", 0);
 #endif
 
-    // These are warnings that appear on the first experience of that condition.
-    // They are already set in the settings_default.xml file, but still need to be added to LLFirstUse
-    // for disable/reset ability
-//  LLFirstUse::addConfigVariable("FirstBalanceIncrease");
-//  LLFirstUse::addConfigVariable("FirstBalanceDecrease");
-//  LLFirstUse::addConfigVariable("FirstSit");
-//  LLFirstUse::addConfigVariable("FirstMap");
-//  LLFirstUse::addConfigVariable("FirstGoTo");
-//  LLFirstUse::addConfigVariable("FirstBuild");
-//  LLFirstUse::addConfigVariable("FirstLeftClickNoHit");
-//  LLFirstUse::addConfigVariable("FirstTeleport");
-//  LLFirstUse::addConfigVariable("FirstOverrideKeys");
-//  LLFirstUse::addConfigVariable("FirstAttach");
-//  LLFirstUse::addConfigVariable("FirstAppearance");
-//  LLFirstUse::addConfigVariable("FirstInventory");
-//  LLFirstUse::addConfigVariable("FirstSandbox");
-//  LLFirstUse::addConfigVariable("FirstFlexible");
-//  LLFirstUse::addConfigVariable("FirstDebugMenus");
-//  LLFirstUse::addConfigVariable("FirstSculptedPrim");
-//  LLFirstUse::addConfigVariable("FirstVoice");
-//  LLFirstUse::addConfigVariable("FirstMedia");
-
     // - read command line settings.
     LLControlGroupCLP clp;
     std::string cmd_line_config = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,

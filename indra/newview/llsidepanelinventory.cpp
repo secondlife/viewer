@@ -33,7 +33,6 @@
 #include "llavataractions.h"
 #include "llbutton.h"
 #include "lldate.h"
-#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfoldertype.h"
@@ -389,7 +388,6 @@ void LLSidepanelInventory::onToggleInboxBtn()
 
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {
-    LLFirstUse::newInventory(false);
     mPanelMainInventory->setFocusOnFilterEditor();
 #if AUTO_EXPAND_INBOX
     // Expand the inbox if we have fresh items

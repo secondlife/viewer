@@ -56,7 +56,6 @@
 #include "llimview.h" // for LLIMMgr
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
-#include "llfirstuse.h"
 #include "llspeakers.h"
 #include "lltrans.h"
 #include "llviewerwindow.h"
@@ -6320,7 +6319,6 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
 
         if (voice_status)
         {
-            LLAppViewer::instance()->postToMainCoro([=]() { LLFirstUse::speak(true); });
         }
     }
 }

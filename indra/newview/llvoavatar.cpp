@@ -7948,9 +7948,6 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
 {
     if (isSelf())
     {
-        // Might be first sit
-        //LLFirstUse::useSit();
-
         gAgent.setFlying(false);
         gAgentCamera.setThirdPersonHeadOffset(glm::vec3(0.f));
         //interpolate to new camera position

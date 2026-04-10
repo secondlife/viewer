@@ -57,7 +57,6 @@
 #include "llcallingcard.h"
 #include "llbuycurrencyhtml.h"
 #include "llcontrolavatar.h"
-#include "llfirstuse.h"
 #include "llfloaterbump.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterland.h"
@@ -1101,7 +1100,6 @@ class LLNewInventoryHintObserver : public LLInventoryAddedObserver
 protected:
     /*virtual*/ void done()
     {
-        LLFirstUse::newInventory();
     }
 };
 
@@ -2607,8 +2605,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 // then this info is news to us.
 void process_teleport_start(LLMessageSystem *msg, void**)
 {
-    // on teleport, don't tell them about destination guide anymore
-    LLFirstUse::notUsingDestinationGuide(false);
     U32 teleport_flags = 0x0;
     msg->getU32("Info", "TeleportFlags", teleport_flags);
 
@@ -2643,8 +2639,6 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 
         LL_INFOS("Messaging") << "Teleport initiated by remote TeleportStart message with TeleportFlags: " <<  teleport_flags << LL_ENDL;
 
-        // Don't call LLFirstUse::useTeleport here because this could be
-        // due to being killed, which would send you home, not to a Telehub
     }
 }
 

@@ -1865,11 +1865,6 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
     locateInventory(item, cat);
     if (!item || !item->isFinished()) return;
 
-    //if (regionp
-    //  && (regionp->getRegionFlag(REGION_FLAGS_SANDBOX)))
-    //{
-    //  LLFirstUse::useSandbox();
-    //}
     // check if it cannot be copied, and mark as remove if it is -
     // this will remove the object from inventory after rez. Only
     // bother with this check if we would not normally remove from

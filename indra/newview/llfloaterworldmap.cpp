@@ -44,7 +44,6 @@
 #include "llviewercontrol.h"
 #include "llcommandhandler.h"
 #include "lldraghandle.h"
-//#include "llfirstuse.h"
 #include "llfloaterreg.h"       // getTypedInstance()
 #include "llfocusmgr.h"
 #include "lliconctrl.h"
@@ -526,9 +525,6 @@ void LLFloaterWorldMap::onOpen(const LLSD& key)
         // We may already have a bounding box for the regions of the world,
         // so use that to adjust the view.
         adjustZoomSliderBounds();
-
-        // Could be first show
-        //LLFirstUse::useMap();
 
         // Start speculative download of landmarks
         const LLUUID landmark_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);

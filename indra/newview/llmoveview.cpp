@@ -38,9 +38,7 @@
 #include "llagentcamera.h"
 #include "llvoavatarself.h" // to check gAgentAvatarp->isSitting()
 #include "llbutton.h"
-#include "llfirstuse.h"
 #include "llfloaterreg.h"
-#include "llhints.h"
 #include "lljoystickbutton.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
@@ -158,7 +156,6 @@ void LLFloaterMove::setVisible(bool visible)
 
     if (visible)
     {
-        LLFirstUse::notMoving(false);
         // Attach the Stand/Stop Flying panel.
         LLPanelStandStopFlying* ssf_panel = LLPanelStandStopFlying::getInstance();
         ssf_panel->reparent(this);
@@ -535,8 +532,6 @@ void LLPanelStandStopFlying::setStandStopFlyingMode(EStandStopFlyingMode mode)
 
     if (mode == SSFM_STAND)
     {
-        LLFirstUse::sit();
-        LLFirstUse::notMoving(false);
     }
     panel->mStandButton->setVisible(SSFM_STAND == mode);
     panel->mStopFlyingButton->setVisible(SSFM_STOP_FLYING == mode);
@@ -568,7 +563,6 @@ bool LLPanelStandStopFlying::postBuild()
     mStandButton->setCommitCallback(std::bind(&LLPanelStandStopFlying::onStandButtonClick, this));
     mStandButton->setCommitCallback(std::bind(&LLFloaterMove::enableInstance));
     mStandButton->setVisible(false);
-    LLHints::getInstance()->registerHintTarget("stand_btn", mStandButton->getHandle());
 
     mStopFlyingButton = getChild<LLButton>("stop_fly_btn");
     //mStopFlyingButton->setCommitCallback(std::bind(&LLFloaterMove::setFlyingMode, false));
@@ -682,8 +676,6 @@ LLPanelStandStopFlying* LLPanelStandStopFlying::getStandStopFlyingPanel()
 
 void LLPanelStandStopFlying::onStandButtonClick()
 {
-    LLFirstUse::sit(false);
-
     LLSelectMgr::getInstance()->deselectAllForStandingUp();
     gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 

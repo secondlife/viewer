@@ -56,7 +56,6 @@
 #include "llappviewer.h"
 #include "llviewercontrol.h"
 #include "llweb.h"
-#include "llhints.h"
 
 #include "llfloatersidepanelcontainer.h"
 #include "llinventorymodel.h"
@@ -327,8 +326,6 @@ bool LLNavigationBar::postBuild()
     // we'll be notified on teleport history changes
     LLTeleportHistory::getInstance()->setHistoryChangedCallback(
             std::bind(&LLNavigationBar::onTeleportHistoryChanged, this));
-
-    LLHints::getInstance()->registerHintTarget("nav_bar", getHandle());
 
     mNavigationPanel = getChild<LLLayoutPanel>("navigation_layout_panel");
     mFavoritePanel = getChild<LLLayoutPanel>("favorites_layout_panel");

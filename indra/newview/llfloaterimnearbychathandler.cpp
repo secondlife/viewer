@@ -30,9 +30,7 @@
 #include "llfloaterimnearbychathandler.h"
 
 #include "llchatitemscontainerctrl.h"
-#include "llfirstuse.h"
 #include "llfloaterscriptdebug.h"
-#include "llhints.h"
 #include "llfloaterimnearbychat.h"
 #include "llrecentpeople.h"
 
@@ -553,8 +551,6 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
         && chat_msg.mFromID.notNull()
         && chat_msg.mFromID != gAgentID)
     {
-        LLFirstUse::otherAvatarChatFirst();
-
         // Add sender to the recent people list.
         LLRecentPeople::instance().add(chat_msg.mFromID);
 

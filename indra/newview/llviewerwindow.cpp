@@ -101,7 +101,6 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 #include "llfilepicker.h"
-#include "llfirstuse.h"
 #include "llfloater.h"
 #include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
@@ -2114,7 +2113,6 @@ void LLViewerWindow::initBase()
     // placeholder widget that controls where "world" is rendered
     mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
     mPopupView = main_view->getChild<LLPopupView>("popup_holder");
-    mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
     mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
     mStatusBarContainer = main_view->getChild<LLPanel>("status_bar_container");
     mNavBarContainer = mStatusBarContainer->getChild<LLView>("nav_bar_container");
@@ -3406,16 +3404,6 @@ void LLViewerWindow::updateUI()
 
     if (gLoggedInTime.getStarted())
     {
-        const F32 DESTINATION_GUIDE_HINT_TIMEOUT = 1200.f;
-        const F32 SIDE_PANEL_HINT_TIMEOUT = 300.f;
-        if (gLoggedInTime.getElapsedTimeF32() > DESTINATION_GUIDE_HINT_TIMEOUT)
-        {
-            LLFirstUse::notUsingDestinationGuide();
-        }
-        if (gLoggedInTime.getElapsedTimeF32() > SIDE_PANEL_HINT_TIMEOUT)
-        {
-            LLFirstUse::notUsingSidePanel();
-        }
     }
 
     {

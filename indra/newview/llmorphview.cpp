@@ -35,7 +35,6 @@
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
 #include "llface.h"
-//#include "llfirstuse.h"
 #include "llfloatertools.h"
 #include "llresmgr.h"
 #include "lltoolmgr.h"
@@ -114,8 +113,6 @@ void LLMorphView::setVisible(bool visible)
             // TODO: verify some user action has already opened outfit editor? - Nyx
             initialize();
 
-            // First run dialog
-            //LLFirstUse::useAppearance();
         }
         else
         {

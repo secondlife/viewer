@@ -31,7 +31,6 @@
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llavatarnamecache.h"
-#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloaterimnearbychat.h"
 #include "llimview.h"
@@ -330,7 +329,6 @@ void inventory_offer_handler(LLOfferInfo* info)
         }
     }
 
-    LLFirstUse::newInventory();
 }
 
 // Callback for name resolution of a god/estate message
