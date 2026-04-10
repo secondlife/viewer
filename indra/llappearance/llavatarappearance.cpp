@@ -1647,10 +1647,10 @@ glm::mat4 LLAvatarBoneInfo::getJointMatrix()
     glm::mat4 mat(1.0f);
     // 1. Scaling
     mat = glm::scale(mat, glm::vec3(mScale[0], mScale[1], mScale[2]));
-    // 2. Rotation (Euler angles rad)
-    mat = glm::rotate(mat, mRot[0], glm::vec3(1, 0, 0));
-    mat = glm::rotate(mat, mRot[1], glm::vec3(0, 1, 0));
-    mat = glm::rotate(mat, mRot[2], glm::vec3(0, 0, 1));
+    // 2. Rotation (avatar_skeleton.xml stores Euler angles in degrees)
+    mat = glm::rotate(mat, glm::radians(mRot[0]), glm::vec3(1, 0, 0));
+    mat = glm::rotate(mat, glm::radians(mRot[1]), glm::vec3(0, 1, 0));
+    mat = glm::rotate(mat, glm::radians(mRot[2]), glm::vec3(0, 0, 1));
     // 3. Position
     mat = glm::translate(mat, glm::vec3(mPos[0], mPos[1], mPos[2]));
     return mat;

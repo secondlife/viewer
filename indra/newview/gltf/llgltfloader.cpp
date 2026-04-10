@@ -1551,6 +1551,12 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
         glm::quat rotation;
         glm::decompose(translated_joint, scale, rotation, translation_override, skew, perspective);
 
+        glm::mat4 viewer_rotation_scale(1.0f);
+        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[0]), glm::vec3(1, 0, 0));
+        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[1]), glm::vec3(0, 1, 0));
+        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[2]), glm::vec3(0, 0, 1));
+        viewer_rotation_scale = glm::scale(viewer_rotation_scale, viewer_data.mScale);
+
         // Viewer allows overrides, which are base joint with applied translation override.
         // fortunately normal bones use only translation, without rotation or scale
         node.mOverrideMatrix = glm::recompose(glm::vec3(1, 1, 1), glm::identity<glm::quat>(), translation_override, glm::vec3(0, 0, 0), glm::vec4(0, 0, 0, 1));
@@ -1566,13 +1572,14 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
         }
         else
         {
-            // This is likely incomplete or even wrong.
-            // Viewer Collision bones specify rotation and scale.
-            // Importer should apply rotation and scale to this matrix and save as needed
-            // then subsctruct them from bind matrix
-            // Todo: get models that use collision bones, made by different programs
-
-            overriden_joint = glm::scale(overriden_joint, viewer_data.mScale);
+            // Collision volumes need the imported translation override, but
+            // their local rotation-scale basis must come from the raw viewer
+            // skeleton XML values. For non-uniform torso volumes, matching DAE
+            // requires viewer rotation followed by viewer scale.
+            overriden_joint = viewer_rotation_scale;
+            overriden_joint[3][0] = translation_override.x;
+            overriden_joint[3][1] = translation_override.y;
+            overriden_joint[3][2] = translation_override.z;
             node.mOverrideRestMatrix = parent_support_rest * overriden_joint;
         }
     }
