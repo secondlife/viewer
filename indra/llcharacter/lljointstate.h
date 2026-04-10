@@ -99,8 +99,11 @@ public:
     void setWeight( F32 weight )    { mWeight = weight; }
 
     // get/set position
-    LLVector3 getPosition() const                { return LLVector3(mPosition); }
-    void setPosition( const LLVector3& pos )    { llassert(mUsage & POS); mPosition = pos; }
+    // Mirrors getRotation(): returns const glm::vec3& so callers reference
+    // the field directly. Caller drift absorbed by the LLVector3 bridge ctor
+    // and the implicit operator glm::vec3() on the setter side.
+    const glm::vec3& getPosition() const         { return mPosition; }
+    void setPosition( const glm::vec3& pos )    { llassert(mUsage & POS); mPosition = pos; }
 
     // get/set rotation
     // glm-quat migration (cluster #31): mirrors LLJoint::getRotation() —
@@ -112,8 +115,8 @@ public:
     void setRotation( const glm::quat& rot )     { llassert(mUsage & ROT); mRotation = rot; }
 
     // get/set scale
-    LLVector3 getScale() const                  { return LLVector3(mScale); }
-    void setScale( const LLVector3& scale )     { llassert(mUsage & SCALE); mScale = scale; }
+    const glm::vec3& getScale() const            { return mScale; }
+    void setScale( const glm::vec3& scale )     { llassert(mUsage & SCALE); mScale = scale; }
 
     // get/set priority
     LLJoint::JointPriority getPriority() const  { return mPriority; }
