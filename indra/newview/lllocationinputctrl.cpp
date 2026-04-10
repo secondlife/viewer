@@ -198,7 +198,7 @@ LLLocationInputCtrl::Params::Params()
     damage_icon("damage_icon"),
     damage_text("damage_text"),
     see_avatars_icon("see_avatars_icon"),
-    maturity_help_topic("maturity_help_topic"),
+    maturity_help_topic("maturity_help_topic")
 {
 }
 

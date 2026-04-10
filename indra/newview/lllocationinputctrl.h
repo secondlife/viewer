@@ -78,7 +78,7 @@ public:
                                             build_icon,
                                             scripts_icon,
                                             damage_icon,
-                                            see_avatars_icon,
+                                            see_avatars_icon;
         Optional<LLTextBox::Params>         damage_text;
         Params();
     };
