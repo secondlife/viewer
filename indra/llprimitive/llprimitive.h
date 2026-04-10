@@ -469,7 +469,7 @@ public:
     virtual void setAllTETextures(const LLUUID &tex_id);
     virtual void setTE(const U8 index, const LLTextureEntry& te);
     virtual S32 setTEColor(const U8 te, const LLColor4 &color);
-    virtual S32 setTEColor(const U8 te, const LLColor3 &color);
+    virtual S32 setTEColor(const U8 te, const glm::vec3 &color);
     virtual S32 setTEAlpha(const U8 te, const F32 alpha);
     virtual S32 setTETexture(const U8 te, const LLUUID &tex_id);
     virtual S32 setTEScale (const U8 te, const F32 s, const F32 t);

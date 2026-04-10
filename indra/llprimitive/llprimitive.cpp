@@ -295,7 +295,7 @@ S32  LLPrimitive::setTEColor(const U8 index, const LLColor4 &color)
     return mTextureList.setColor(index, color);
 }
 
-S32  LLPrimitive::setTEColor(const U8 index, const LLColor3 &color)
+S32  LLPrimitive::setTEColor(const U8 index, const glm::vec3 &color)
 {
     return mTextureList.setColor(index, color);
 }

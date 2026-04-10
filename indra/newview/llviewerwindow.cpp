@@ -4202,7 +4202,7 @@ void LLViewerWindow::renderSelections( bool for_gl_pick, bool pick_parcel_walls,
                         F32 scale = vovolume->getLightRadius();
                         gGL.scalef(scale, scale, scale);
 
-                        LLColor4 color(vovolume->getLightSRGBColor(), .5f);
+                        LLColor4 color(LLColor3(vovolume->getLightSRGBColor()), .5f);
                         gGL.color4fv(color.mV);
 
                         //F32 pixel_area = 100000.f;

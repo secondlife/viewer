@@ -394,12 +394,13 @@ S32 LLTextureEntry::setColor(const LLColor4 &color)
     return TEM_CHANGE_NONE;
 }
 
-S32 LLTextureEntry::setColor(const LLColor3 &color)
+S32 LLTextureEntry::setColor(const glm::vec3 &color)
 {
-    if (mColor != color)
+    const LLColor3 c3(color);
+    if (mColor != c3)
     {
         // This preserves alpha.
-        mColor.set(color);
+        mColor.set(c3);
         return TEM_CHANGE_COLOR;
     }
     return TEM_CHANGE_NONE;

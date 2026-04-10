@@ -203,7 +203,7 @@ public:
     /*virtual*/ void    setNumTEs(const U8 num_tes) override;
     /*virtual*/ void    setTEImage(const U8 te, LLViewerTexture *imagep) override;
     /*virtual*/ S32     setTETexture(const U8 te, const LLUUID &uuid) override;
-    /*virtual*/ S32     setTEColor(const U8 te, const LLColor3 &color) override;
+    /*virtual*/ S32     setTEColor(const U8 te, const glm::vec3 &color) override;
     /*virtual*/ S32     setTEColor(const U8 te, const LLColor4 &color) override;
     /*virtual*/ S32     setTEBumpmap(const U8 te, const U8 bump) override;
     /*virtual*/ S32     setTEShiny(const U8 te, const U8 shiny) override;
@@ -255,9 +255,9 @@ public:
     // For Lights
     void setIsLight(bool is_light);
     //set the gamma-corrected (sRGB) color of this light
-    void setLightSRGBColor(const LLColor3& color);
+    void setLightSRGBColor(const glm::vec3& color);
     //set the linear color of this light
-    void setLightLinearColor(const LLColor3& color);
+    void setLightLinearColor(const glm::vec3& color);
 
     void setLightIntensity(F32 intensity);
     void setLightRadius(F32 radius);
@@ -271,17 +271,17 @@ public:
 
 
     // Get the light color in sRGB color space NOT scaled by intensity.
-    LLColor3 getLightSRGBBaseColor() const;
+    glm::vec3 getLightSRGBBaseColor() const;
 
     // Get the light color in linear color space NOT scaled by intensity.
-    LLColor3 getLightLinearBaseColor() const;
+    glm::vec3 getLightLinearBaseColor() const;
 
     // Get the light color in linear color space scaled by intensity
     //  this is the value that should be fed into shaders
-    LLColor3 getLightLinearColor() const;
+    glm::vec3 getLightLinearColor() const;
 
     // Get the light color in sRGB color space scaled by intensity.
-    LLColor3 getLightSRGBColor() const;
+    glm::vec3 getLightSRGBColor() const;
 
     const LLUUID&  getLightTextureID() const;
     bool isLightSpotlight() const;
