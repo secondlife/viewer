@@ -473,7 +473,7 @@ bool LLGLTFPreviewTexture::render()
     glm::mat4 mat = get_current_modelview();
     glm::vec4 transformed_light_dir(light_dir);
     transformed_light_dir = mat * transformed_light_dir;
-    SetTemporarily<LLVector4> force_sun_direction_high_graphics(&gPipeline.mTransformedSunDir, LLVector4(transformed_light_dir));
+    SetTemporarily<glm::vec3> force_sun_direction_high_graphics(&gPipeline.mTransformedSunDir, glm::vec3(transformed_light_dir));
     // Override lights to ensure the sun is always shining from a certain direction (low graphics)
     // See also force_sun_direction_high_graphics and fixup_shader_constants
     {

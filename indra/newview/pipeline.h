@@ -798,12 +798,12 @@ public:
 
     LLColor4            mSunDiffuse;
     LLColor4            mMoonDiffuse;
-    LLVector4           mSunDir;
-    LLVector4           mMoonDir;
+    glm::vec3           mSunDir{0.f, 1.f, 0.f};
+    glm::vec3           mMoonDir{0.f, 1.f, 0.f};
     bool                mNeedsShadowTargetClear;
 
-    LLVector4           mTransformedSunDir;
-    LLVector4           mTransformedMoonDir;
+    glm::vec3           mTransformedSunDir{0.f};
+    glm::vec3           mTransformedMoonDir{0.f};
 
     bool                    mInitialized;
     bool                    mShadersLoaded;

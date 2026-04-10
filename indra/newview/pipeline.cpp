@@ -5331,7 +5331,7 @@ void LLPipeline::setupAvatarLights(bool for_edit)
     }
     else if (gAvatarBacklight)
     {
-        LLVector3 light_dir = sun_up ? LLVector3(mSunDir) : LLVector3(mMoonDir);
+        LLVector3 light_dir = sun_up ? LLVector3(mSunDir) : LLVector3(mMoonDir); // bridge to LLVector3 for LL cross/lerp ops below
         LLVector3 opposite_pos = -light_dir;
         LLVector3 orthog_light_pos = cross(light_dir, LLVector3::z_axis);
         LLVector4 backlight_pos = LLVector4(lerp(opposite_pos, orthog_light_pos, 0.3f), 0.0f);
@@ -5580,11 +5580,8 @@ void LLPipeline::setupHWLights()
 
     // Light 0 = Sun or Moon (All objects)
     {
-        LLVector4 sun_dir(environment.getSunDirection(), 0.0f);
-        LLVector4 moon_dir(environment.getMoonDirection(), 0.0f);
-
-        mSunDir.set(sun_dir);
-        mMoonDir.set(moon_dir);
+        mSunDir = environment.getSunDirection();
+        mMoonDir = environment.getMoonDirection();
 
         mSunDiffuse.set(psky->getSunlightColor());
         mMoonDiffuse.set(psky->getMoonlightColor());
@@ -5608,11 +5605,11 @@ void LLPipeline::setupHWLights()
         {
             mSunDiffuse.set(LLColor4(0.0, 0.0, 0.0, 1.0));
             mMoonDiffuse.set(LLColor4(0.0, 0.0, 0.0, 1.0));
-            mSunDir.set(LLVector4(0.0, 1.0, 0.0, 0.0));
-            mMoonDir.set(LLVector4(0.0, 1.0, 0.0, 0.0));
+            mSunDir = glm::vec3(0.f, 1.f, 0.f);
+            mMoonDir = glm::vec3(0.f, 1.f, 0.f);
         }
 
-        LLVector4 light_dir = sun_up ? mSunDir : mMoonDir;
+        LLVector4 light_dir(sun_up ? mSunDir : mMoonDir, 0.f);
 
         mHWLightColors[0] = sun_up ? mSunDiffuse : mMoonDiffuse;
 
@@ -8207,8 +8204,8 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_OFFSET, RenderSpotShadowOffset);
     shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_BIAS, RenderSpotShadowBias);
 
-    shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, std::span<const GLfloat>(mTransformedSunDir.mV, 3));
-    shader.uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, std::span<const GLfloat>(mTransformedMoonDir.mV, 3));
+    shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, std::span<const GLfloat>(&mTransformedSunDir.x, 3));
+    shader.uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, std::span<const GLfloat>(&mTransformedMoonDir.x, 3));
     shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES, static_cast<GLfloat>(mRT->shadow[0].getWidth()), static_cast<GLfloat>(mRT->shadow[0].getHeight()));
     shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, static_cast<GLfloat>(mSpotShadow[0].getWidth()), static_cast<GLfloat>(mSpotShadow[0].getHeight()));
     shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
@@ -8299,13 +8296,9 @@ void LLPipeline::renderDeferredLighting()
 
         setupHWLights();  // to set mSun/MoonDir;
 
-        glm::vec4 tc(mSunDir);
-        tc = mat * tc;
-        mTransformedSunDir.set(tc);
-
-        glm::vec4 tc_moon(mMoonDir);
-        tc_moon = mat * tc_moon;
-        mTransformedMoonDir.set(tc_moon);
+        // Transform directions by modelview (W=0 means no translation).
+        mTransformedSunDir = glm::vec3(mat * glm::vec4(mSunDir, 0.f));
+        mTransformedMoonDir = glm::vec3(mat * glm::vec4(mMoonDir, 0.f));
 
         if ((RenderDeferredSSAO && !gCubeSnapshot) || RenderShadowDetail > 0)
         {
