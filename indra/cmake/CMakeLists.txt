@@ -10,15 +10,12 @@ set(cmake_SOURCE_FILES
         APR.cmake
         Audio.cmake
         Boost.cmake
-        bugsplat.cmake
         BuildVersion.cmake
-        CEFPlugin.cmake
         CEFPlugin.cmake
         CMakeCopyIfDifferent.cmake
         ConfigurePkgConfig.cmake
         CURL.cmake
         Copy3rdPartyLibs.cmake
-        DBusGlib.cmake
         DeploySharedLibs.cmake
         DragDrop.cmake
         EXPAT.cmake
@@ -27,7 +24,6 @@ set(cmake_SOURCE_FILES
         GLEXT.cmake
         GLH.cmake
         GLM.cmake
-        Havok.cmake
         Hunspell.cmake
         LLAddBuildTest.cmake
         LLAppearance.cmake
@@ -58,7 +54,6 @@ set(cmake_SOURCE_FILES
         Tracy.cmake
         Tut.cmake
         UI.cmake
-        UnixInstall.cmake
         Variables.cmake
         VHACD.cmake
         ViewerMiscLibs.cmake
