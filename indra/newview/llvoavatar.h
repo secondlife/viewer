@@ -752,7 +752,7 @@ private:
     // Wind rippling in clothes
     //--------------------------------------------------------------------
 public:
-    LLVector4   mWindVec;
+    glm::vec4   mWindVec{0.f};
     F32         mRipplePhase;
     bool        mBelowWater;
 private:

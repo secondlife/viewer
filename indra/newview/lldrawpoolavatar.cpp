@@ -801,12 +801,13 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
         LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
         rot_mat *= cfr;
 
-        LLVector4 wind(avatarp->mWindVec);
-        wind.mV[VW] = 0;
-        wind = wind * rot_mat;
-        wind.mV[VW] = avatarp->mWindVec.mV[VW];
+        // Transform wind direction (XYZ) by the rotation matrix, then
+        // restore the wind strength (W) which is not a spatial component.
+        LLVector4 wind_dir(avatarp->mWindVec.x, avatarp->mWindVec.y, avatarp->mWindVec.z, 0.f);
+        wind_dir = wind_dir * rot_mat;
+        glm::vec4 wind(wind_dir.mV[VX], wind_dir.mV[VY], wind_dir.mV[VZ], avatarp->mWindVec.w);
 
-        sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_WIND, std::span<const GLfloat>(wind.mV, 4));
+        sVertexProgram->uniform4fv(LLViewerShaderMgr::AVATAR_WIND, std::span<const GLfloat>(&wind.x, 4));
         F32 phase = -1.f * (avatarp->mRipplePhase);
 
         F32 freq = 7.f + (noise1(avatarp->mRipplePhase) * 2.f);

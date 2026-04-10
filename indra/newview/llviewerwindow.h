@@ -128,7 +128,7 @@ public:
     glm::vec2       mSTCoords;
     LLCoordScreen   mXYCoords;
     glm::vec3       mNormal;
-    LLVector4       mTangent;
+    glm::vec4       mTangent{0.f};
     glm::vec3       mBinormal;
     bool            mPickTransparent;
     bool            mPickRigged;
