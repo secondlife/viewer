@@ -246,7 +246,7 @@ public:
     bool            setLookAt(ELookAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
     ELookAtType     getLookAtType();
     void            lookAtLastChat();
-    void            slamLookAt(const LLVector3 &look_at); // Set the physics data
+    void            slamLookAt(const glm::vec3 &look_at); // Set the physics data
     bool            setPointAt(EPointAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
     EPointAtType    getPointAtType();
 public:
@@ -258,7 +258,7 @@ public:
     //--------------------------------------------------------------------
 public:
     LLVector3d      calcThirdPersonFocusOffset();
-    void            setThirdPersonHeadOffset(LLVector3 offset)  { mThirdPersonHeadOffset = offset; }
+    void            setThirdPersonHeadOffset(const glm::vec3& offset)  { mThirdPersonHeadOffset = offset; }
 private:
     glm::vec3       mThirdPersonHeadOffset{0.f, 0.f, 1.f};      // Head offset for third person camera position
 
