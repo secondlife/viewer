@@ -316,13 +316,6 @@ protected:
     LLHeavenBody        mMoon;
     F32                 mAtmHeight;
     glm::vec3           mCameraPosAgent{0.f};
-    F32                 mBrightnessScale;
-    LLColor3            mBrightestPoint;
-    F32                 mBrightnessScaleNew;
-    LLColor3            mBrightestPointNew;
-    F32                 mBrightnessScaleGuess;
-    LLColor3            mBrightestPointGuess;
-    bool                mWeatherChange;
     F32                 mCloudDensity;
     F32                 mWind;
 
@@ -332,7 +325,6 @@ protected:
     S32                 mCubeMapUpdateStage;        // state of cubemap uodate: -1 idle; 0-5 per-face updates; 6 finalizing
 
     F32                 mAmbientScale;
-    LLColor3            mNightColorShift;
     F32                 mInterpVal;
     F32                 mWorldScale;
 

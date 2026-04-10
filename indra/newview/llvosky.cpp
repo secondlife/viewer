@@ -370,10 +370,6 @@ const S32 SKYTEX_TILE_RES_Y = static_cast<S32>(SKYTEX_RESOLUTION) / NUM_TILES_Y;
 LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 :   LLStaticViewerObject(id, pcode, regionp, true),
     mSun(SUN_DISK_RADIUS), mMoon(MOON_DISK_RADIUS),
-    mBrightnessScale(1.f),
-    mBrightnessScaleNew(0.f),
-    mBrightnessScaleGuess(1.f),
-    mWeatherChange(false),
     mCloudDensity(0.2f),
     mWind(0.f),
     mForceUpdate(false),
