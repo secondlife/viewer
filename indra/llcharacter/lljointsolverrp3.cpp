@@ -93,29 +93,27 @@ void LLJointSolverRP3::setupJoints( LLJoint* jointA,
 //-----------------------------------------------------------------------------
 // getPoleVector()
 //-----------------------------------------------------------------------------
-LLVector3 LLJointSolverRP3::getPoleVector()
+const glm::vec3& LLJointSolverRP3::getPoleVector() const
 {
-    return LLVector3(mPoleVector);
+    return mPoleVector;
 }
 
 
 //-----------------------------------------------------------------------------
 // setPoleVector()
 //-----------------------------------------------------------------------------
-void LLJointSolverRP3::setPoleVector( const LLVector3& poleVector )
+void LLJointSolverRP3::setPoleVector( const glm::vec3& poleVector )
 {
-    mPoleVector = poleVector;
-    mPoleVector = glm::normalize(mPoleVector);
+    mPoleVector = glm::normalize(poleVector);
 }
 
 
 //-----------------------------------------------------------------------------
-// setPoleVector()
+// setBAxis()
 //-----------------------------------------------------------------------------
-void LLJointSolverRP3::setBAxis( const LLVector3& bAxis )
+void LLJointSolverRP3::setBAxis( const glm::vec3& bAxis )
 {
-    mBAxis = bAxis;
-    mBAxis = glm::normalize(mBAxis);
+    mBAxis = glm::normalize(bAxis);
     mbUseBAxis = true;
 }
 

@@ -131,7 +131,7 @@ public:
     // getPoleVector()
     // Returns the current pole vector.
     //-------------------------------------------------------------------------
-    LLVector3 getPoleVector();
+    const glm::vec3& getPoleVector() const;
 
     //-------------------------------------------------------------------------
     // setPoleVector()
@@ -141,14 +141,14 @@ public:
     // is never called.
     // This vector is normalized when set.
     //-------------------------------------------------------------------------
-    void setPoleVector( const LLVector3& poleVector );
+    void setPoleVector( const glm::vec3& poleVector );
 
     //-------------------------------------------------------------------------
     // setBAxis()
     // Sets the joint's axis in B's local frame, and enable "smarter" solve().
     // This allows for smarter IK when for twisted limbs.
     //-------------------------------------------------------------------------
-    void setBAxis( const LLVector3& bAxis );
+    void setBAxis( const glm::vec3& bAxis );
 
     //-------------------------------------------------------------------------
     // getTwist()
