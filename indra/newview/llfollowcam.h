@@ -66,11 +66,11 @@ public:
     virtual void setPositionThreshold   ( F32 );
     virtual void setDistance            ( F32 );
     virtual void setPitch               ( F32 );
-    virtual void setFocusOffset         ( const LLVector3& );
+    virtual void setFocusOffset         ( const glm::vec3& );
     virtual void setBehindnessAngle     ( F32 );
     virtual void setBehindnessLag       ( F32 );
-    virtual void setPosition            ( const LLVector3& );
-    virtual void setFocus               ( const LLVector3& );
+    virtual void setPosition            ( const glm::vec3& );
+    virtual void setFocus               ( const glm::vec3& );
     virtual void setPositionLocked      ( bool );
     virtual void setFocusLocked         ( bool );
 
@@ -84,11 +84,11 @@ public:
     virtual F32         getFocusThreshold() const;
     virtual F32         getDistance() const;
     virtual F32         getPitch() const;
-    virtual LLVector3   getFocusOffset() const;
+    virtual glm::vec3   getFocusOffset() const;
     virtual F32         getBehindnessAngle() const;
     virtual F32         getBehindnessLag() const;
-    virtual LLVector3   getPosition() const;
-    virtual LLVector3   getFocus() const;
+    virtual glm::vec3   getPosition() const;
+    virtual glm::vec3   getFocus() const;
     virtual bool        getFocusLocked() const;
     virtual bool        getPositionLocked() const;
     virtual bool        getUseFocus() const { return mUseFocus; }
@@ -154,8 +154,8 @@ public:
     // overrides for setters and getters
     virtual void setPitch( F32 );
     virtual void setDistance( F32 );
-    virtual void setPosition(const LLVector3& pos);
-    virtual void setFocus(const LLVector3& focus);
+    virtual void setPosition(const glm::vec3& pos);
+    virtual void setFocus(const glm::vec3& focus);
     virtual void setPositionLocked      ( bool );
     virtual void setFocusLocked         ( bool );
 
