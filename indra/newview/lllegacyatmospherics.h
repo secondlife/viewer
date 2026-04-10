@@ -56,15 +56,15 @@ const F64 Ndens2    = Ndens*Ndens;
 class LLFace;
 class LLHaze;
 
-LL_FORCE_INLINE LLColor3 refr_ind_calc(const LLColor3 &wave_length)
+LL_FORCE_INLINE glm::vec3 refr_ind_calc(const glm::vec3 &wave_length)
 {
-    LLColor3 refr_ind;
+    glm::vec3 refr_ind(0.f);
     for (S32 i = 0; i < 3; ++i)
     {
-        const F32 wl2 = wave_length.mV[i] * wave_length.mV[i] * 1e-6f;
-        refr_ind.mV[i] = 6.43e3f + ( 2.95e6f / ( 146.0f - 1.f/wl2 ) ) + ( 2.55e4f / ( 41.0f - 1.f/wl2 ) );
-        refr_ind.mV[i] *= 1.0e-8f;
-        refr_ind.mV[i] += 1.f;
+        const F32 wl2 = wave_length[i] * wave_length[i] * 1e-6f;
+        refr_ind[i] = 6.43e3f + ( 2.95e6f / ( 146.0f - 1.f/wl2 ) ) + ( 2.55e4f / ( 41.0f - 1.f/wl2 ) );
+        refr_ind[i] *= 1.0e-8f;
+        refr_ind[i] += 1.f;
     }
     return refr_ind;
 }
@@ -73,15 +73,15 @@ LL_FORCE_INLINE LLColor3 refr_ind_calc(const LLColor3 &wave_length)
 class LLHaze
 {
 public:
-    LLHaze() : mG(0), mFalloff(1), mAbsCoef(0.f) {mSigSca.setToBlack();}
-    LLHaze(const F32 g, const LLColor3& sca, const F32 fo = 2.f) :
+    LLHaze() : mG(0), mFalloff(1), mAbsCoef(0.f) {}
+    LLHaze(const F32 g, const glm::vec3& sca, const F32 fo = 2.f) :
             mG(g), mSigSca(0.25f/F_PI * sca), mFalloff(fo), mAbsCoef(0.f)
     {
-        mAbsCoef = color_intens(mSigSca) / sAirScaIntense;
+        mAbsCoef = (mSigSca.x + mSigSca.y + mSigSca.z) / sAirScaIntense;
     }
 
     LLHaze(const F32 g, const F32 sca, const F32 fo = 2.f) : mG(g),
-            mSigSca(0.25f/F_PI * LLColor3(sca, sca, sca)), mFalloff(fo)
+            mSigSca(0.25f/F_PI * glm::vec3(sca)), mFalloff(fo)
     {
         mAbsCoef = 0.01f * sca / sAirScaAvg;
     }
@@ -89,15 +89,14 @@ public:
 /* Proportion of light that is scattered into 'path' from 'in' over distance dt. */
 /* assumes that vectors 'path' and 'in' are normalized. Scattering coef / 2pi */
 
-    LL_FORCE_INLINE LLColor3 calcAirSca(const F32 h)
+    LL_FORCE_INLINE glm::vec3 calcAirSca(const F32 h)
     {
        return calcFalloff(h) * sAirScaSeaLevel;
     }
 
-    LL_FORCE_INLINE void calcAirSca(const F32 h, LLColor3 &result)
+    LL_FORCE_INLINE void calcAirSca(const F32 h, glm::vec3 &result)
     {
-        result = sAirScaSeaLevel;
-        result *= calcFalloff(h);
+        result = sAirScaSeaLevel * calcFalloff(h);
     }
 
     F32 getG() const                { return mG; }
@@ -107,15 +106,15 @@ public:
         mG = g;
     }
 
-    const LLColor3& getSigSca() const // sea level
+    const glm::vec3& getSigSca() const // sea level
     {
         return mSigSca;
     }
 
-    void setSigSca(const LLColor3& s)
+    void setSigSca(const glm::vec3& s)
     {
         mSigSca = s;
-        mAbsCoef = 0.01f * color_intens(mSigSca) / sAirScaIntense;
+        mAbsCoef = 0.01f * (mSigSca.x + mSigSca.y + mSigSca.z) / sAirScaIntense;
     }
 
     void setSigSca(const F32 s0, const F32 s1, const F32 s2)
@@ -144,18 +143,17 @@ public:
         return (h <= 0) ? 1.0f : static_cast<F32>(LL_FAST_EXP(-ATM_EXP_FALLOFF * h));
     }
 
-    inline LLColor3 calcSigSca(const F32 h) const
+    inline glm::vec3 calcSigSca(const F32 h) const
     {
         return calcFalloff(h * mFalloff) * mSigSca;
     }
 
-    inline void calcSigSca(const F32 h, LLColor3 &result) const
+    inline void calcSigSca(const F32 h, glm::vec3 &result) const
     {
-        result = mSigSca;
-        result *= calcFalloff(h * mFalloff);
+        result = mSigSca * calcFalloff(h * mFalloff);
     }
 
-    LLColor3 calcSigExt(const F32 h) const
+    glm::vec3 calcSigExt(const F32 h) const
     {
         return calcFalloff(h * mFalloff) * (1 + mAbsCoef) * mSigSca;
     }
@@ -163,13 +161,13 @@ public:
     F32 calcPhase(const F32 cos_theta) const;
 
 private:
-    static LLColor3 const sAirScaSeaLevel;
+    static const glm::vec3 sAirScaSeaLevel;
     static F32 const sAirScaIntense;
     static F32 const sAirScaAvg;
 
 protected:
     F32         mG;
-    LLColor3    mSigSca;
+    glm::vec3   mSigSca{0.f};
     F32         mFalloff;   // 1 - slow, >1 - faster
     F32         mAbsCoef;
 };
@@ -180,58 +178,35 @@ class LLCubeMap;
 class AtmosphericsVars
 {
 public:
-    AtmosphericsVars()
-    : hazeColor(0,0,0)
-    , hazeColorBelowCloud(0,0,0)
-    , cloudColorSun(0,0,0)
-    , cloudColorAmbient(0,0,0)
-    , cloudDensity(0.0f)
-    , blue_density()
-    , blue_horizon()
-    , haze_density(0.0f)
-    , haze_horizon(0.0f)
-    , density_multiplier(0.0f)
-    , max_y(0.0f)
-    , gamma(1.0f)
-    , sun_norm(0.0f, 1.0f, 0.0f, 1.0f)
-    , sunlight()
-    , ambient()
-    , glow()
-    , cloud_shadow(1.0f)
-    , dome_radius(1.0f)
-    , dome_offset(1.0f)
-    , light_atten()
-    , light_transmittance()
-    {
-    }
+    AtmosphericsVars() = default;
 
     friend bool operator==(const AtmosphericsVars& a, const AtmosphericsVars& b);
     // returns true if values are within treshold of each other.
     friend bool approximatelyEqual(const AtmosphericsVars& a, const AtmosphericsVars& b, const F32 fraction_treshold);
 
-    LLColor3  hazeColor;
-    LLColor3  hazeColorBelowCloud;
-    LLColor3  cloudColorSun;
-    LLColor3  cloudColorAmbient;
-    F32       cloudDensity;
-    LLColor3  blue_density;
-    LLColor3  blue_horizon;
-    F32       haze_density;
-    F32       haze_horizon;
-    F32       density_multiplier;
-    F32       distance_multiplier;
-    F32       max_y;
-    F32       gamma;
-    LLVector4 sun_norm;
-    LLColor3  sunlight;
-    LLColor3  ambient;
-    LLColor3  glow;
-    F32       cloud_shadow;
-    F32       dome_radius;
-    F32       dome_offset;
-    LLColor3 light_atten;
-    LLColor3 light_transmittance;
-    LLColor3 total_density;
+    glm::vec3 hazeColor{0.f};
+    glm::vec3 hazeColorBelowCloud{0.f};
+    glm::vec3 cloudColorSun{0.f};
+    glm::vec3 cloudColorAmbient{0.f};
+    F32       cloudDensity{0.f};
+    glm::vec3 blue_density{0.f};
+    glm::vec3 blue_horizon{0.f};
+    F32       haze_density{0.f};
+    F32       haze_horizon{0.f};
+    F32       density_multiplier{0.f};
+    F32       distance_multiplier{0.f};
+    F32       max_y{0.f};
+    F32       gamma{1.f};
+    LLVector4 sun_norm{0.f, 1.f, 0.f, 1.f};
+    glm::vec3 sunlight{0.f};
+    glm::vec3 ambient{0.f};
+    glm::vec3 glow{0.f};
+    F32       cloud_shadow{1.f};
+    F32       dome_radius{1.f};
+    F32       dome_offset{1.f};
+    glm::vec3 light_atten{0.f};
+    glm::vec3 light_transmittance{0.f};
+    glm::vec3 total_density{0.f};
 };
 
 class LLAtmospherics
@@ -268,7 +243,7 @@ protected:
     F32                 mWind;
     bool                mInitialized;
     F32                 mAmbientScale;
-    LLColor3            mNightColorShift;
+    glm::vec3           mNightColorShift{0.f};
     F32                 mInterpVal;
     LLColor4            mFogColor;
     LLColor4            mGLFogCol;

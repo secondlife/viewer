@@ -166,8 +166,8 @@ static LLColor3 calc_air_sca_sea_level()
 }
 
 // static constants.
-LLColor3 const LLHaze::sAirScaSeaLevel = calc_air_sca_sea_level();
-F32 const LLHaze::sAirScaIntense = color_intens(LLHaze::sAirScaSeaLevel);
+const glm::vec3 LLHaze::sAirScaSeaLevel = calc_air_sca_sea_level(); // LLColor3 -> glm::vec3 implicit
+F32 const LLHaze::sAirScaIntense = (sAirScaSeaLevel.x + sAirScaSeaLevel.y + sAirScaSeaLevel.z);
 F32 const LLHaze::sAirScaAvg = LLHaze::sAirScaIntense / 3.f;
 
 /***************************************
@@ -243,14 +243,14 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 
     if (isShiny)
     {
-        F32 brightness = vars.hazeColor.brightness();
+        F32 brightness = ll_color3::brightness(vars.hazeColor);
         F32 greyscale_sat = brightness * (1.0f - sky_saturation);
-        LLColor3 sky_color = vars.hazeColor * sky_saturation + smear(greyscale_sat);
+        LLColor3 sky_color = LLColor3(vars.hazeColor) * sky_saturation + smear(greyscale_sat);
         //sky_color *= (0.5f + 0.5f * brightness); // SL-12574 EEP sky is being attenuated too much
         return LLColor4(sky_color, 0.0f);
     }
 
-    LLColor3 sky_color = low_end ? vars.hazeColor * 2.0f : psky->gammaCorrect(vars.hazeColor * 2.0f, vars.gamma);
+    LLColor3 sky_color = low_end ? LLColor3(vars.hazeColor * 2.0f) : psky->gammaCorrect(vars.hazeColor * 2.0f, vars.gamma);
 
     return LLColor4(sky_color, 0.0f);
 }
@@ -361,7 +361,7 @@ void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVect
     vars.hazeColorBelowCloud = (blue_factor * (sunlight + tmpAmbient) + componentMult(haze_factor, sunlight * temp2.mV[0] + tmpAmbient));
 
     // Final atmosphere additive
-    componentMultBy(vars.hazeColor, LLColor3::white - temp1);
+    vars.hazeColor *= (glm::vec3(1.f) - glm::vec3(temp1.mV[0], temp1.mV[1], temp1.mV[2]));
 
 /*
     // SL-12574
