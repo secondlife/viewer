@@ -56,9 +56,9 @@ public:
         mColor = val;
     }
 
-    inline void setColor3(const LLColor3 & val)
+    inline void setColor3(const glm::vec3& val)
     {
-        mColor = val;
+        mColor.set(val[0], val[1], val[2], mColor[3]);
     }
 
     inline LLColor4 getColor4() const
@@ -66,9 +66,9 @@ public:
         return mColor;
     }
 
-    inline LLColor3 getColor3() const
+    inline glm::vec3 getColor3() const
     {
-        return vec4to3(mColor);
+        return glm::vec3(mColor[0], mColor[1], mColor[2]);
     }
 
     inline void update(const LLSettingsBase::ptr_t &psetting) const

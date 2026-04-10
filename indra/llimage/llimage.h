@@ -73,7 +73,8 @@ constexpr S32 HTTP_PACKET_SIZE = 1496;
 class LLImageFormatted;
 class LLImageRaw;
 class LLColor4U;
-class LLColor3;
+
+#include <glm/vec3.hpp>
 
 enum EImageCodec
 {
@@ -249,7 +250,7 @@ public:
     void fill( const LLColor4U& color );
 
     // Multiply this raw image by the given color
-    void tint( const LLColor3& color );
+    void tint( const glm::vec3& color );
 
     // Copy operations
 

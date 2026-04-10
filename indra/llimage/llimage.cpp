@@ -1366,7 +1366,7 @@ void LLImageRaw::fill( const LLColor4U& color )
     }
 }
 
-void LLImageRaw::tint( const LLColor3& color )
+void LLImageRaw::tint( const glm::vec3& color )
 {
     llassert( (3 == getComponents()) || (4 == getComponents()) );
     if (isBufferInvalid())
@@ -1380,9 +1380,9 @@ void LLImageRaw::tint( const LLColor3& color )
     U8* data = getData();
     for( S32 i = 0; i < pixels; i++ )
     {
-        const float c0 = data[0] * color.mV[0];
-        const float c1 = data[1] * color.mV[1];
-        const float c2 = data[2] * color.mV[2];
+        const float c0 = data[0] * color[0];
+        const float c1 = data[1] * color[1];
+        const float c2 = data[2] * color[2];
         data[0] = llclamp(static_cast<U8>(c0), 0, 255);
         data[1] = llclamp(static_cast<U8>(c1), 0, 255);
         data[2] = llclamp(static_cast<U8>(c2), 0, 255);
