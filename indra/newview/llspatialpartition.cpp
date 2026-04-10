@@ -3510,9 +3510,9 @@ bool LLSpatialPartition::isHUDPartition()
     return mPartitionType == LLViewerRegion::PARTITION_HUD ;
 }
 
-bool LLSpatialPartition::isVisible(const LLVector3& v)
+bool LLSpatialPartition::isVisible(const glm::vec3& v)
 {
-    if (!LLViewerCamera::getInstance()->sphereInFrustum(static_cast<glm::vec3>(v), 4.0f))
+    if (!LLViewerCamera::getInstance()->sphereInFrustum(v, 4.0f))
     {
         return false;
     }
