@@ -182,7 +182,7 @@ public:
     void            setupSitCamera();
     bool            sitCameraEnabled()      { return mSitCameraEnabled; }
     void            setSitCamera(const LLUUID &object_id,
-                                 const LLVector3 &camera_pos = LLVector3::zero, const LLVector3 &camera_focus = LLVector3::zero);
+                                 const glm::vec3 &camera_pos = glm::vec3(0.f), const glm::vec3 &camera_focus = glm::vec3(0.f));
 private:
     LLPointer<LLViewerObject> mSitCameraReferenceObject; // Object to which camera is related when sitting
     bool            mSitCameraEnabled;      // Use provided camera information when sitting?

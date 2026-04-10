@@ -2766,7 +2766,7 @@ void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, con
 //-----------------------------------------------------------------------------
 // setSitCamera()
 //-----------------------------------------------------------------------------
-void LLAgentCamera::setSitCamera(const LLUUID &object_id, const LLVector3 &camera_pos, const LLVector3 &camera_focus)
+void LLAgentCamera::setSitCamera(const LLUUID &object_id, const glm::vec3 &camera_pos, const glm::vec3 &camera_focus)
 {
     bool camera_enabled = !object_id.isNull();
 
