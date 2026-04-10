@@ -26,8 +26,4 @@ find_library(APRUTIL_LIBRARY
 
 target_link_libraries(ll::apr INTERFACE ${APR_LIBRARY} ${APRUTIL_LIBRARY})
 
-if(DARWIN)
-  target_link_libraries(ll::apr INTERFACE iconv)
-endif()
-
 target_include_directories(ll::apr SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/apr-1)

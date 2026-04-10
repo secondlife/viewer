@@ -8,7 +8,6 @@ include(LLImage)
 include(JPEG)
 include(ZLIBNG)
 include(LLAddBuildTest)
-include(bugsplat)
 include(Tut)
 
 set(llimage_SOURCE_FILES

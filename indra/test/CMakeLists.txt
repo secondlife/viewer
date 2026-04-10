@@ -8,7 +8,6 @@ include(LLCoreHttp)
 include(Linking)
 include(Tut)
 include(LLAddBuildTest)
-include(bugsplat)
 
 set(test_SOURCE_FILES
     io.cpp

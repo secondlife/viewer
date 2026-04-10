@@ -77,93 +77,24 @@ if (ADDRESS_SIZE EQUAL 32)
 elseif (ADDRESS_SIZE EQUAL 64)
   set(ARCH x86_64)
 else (ADDRESS_SIZE EQUAL 32)
-  # Note we cannot use if(DARWIN) here, this variable is set way lower
-  if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+  # Use Python's platform.machine() since uname -m isn't available everywhere.
+  execute_process(COMMAND
+          "${PYTHON_EXECUTABLE}" "-c"
+          "import platform; print( platform.machine() )"
+          OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
+  string( REGEX MATCH ".*(64)$" RE_MATCH "${ARCH}" )
+  if( RE_MATCH AND ${CMAKE_MATCH_1} STREQUAL "64" )
     set(ADDRESS_SIZE 64)
     set(ARCH x86_64)
   else()
-    # Use Python's platform.machine() since uname -m isn't available everywhere.
-    # Even if you can assume cygwin uname -m, the answer depends on whether
-    # you're running 32-bit cygwin or 64-bit cygwin! But even 32-bit Python will
-    # report a 64-bit processor.
-    execute_process(COMMAND
-            "${PYTHON_EXECUTABLE}" "-c"
-            "import platform; print( platform.machine() )"
-            OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-    string( REGEX MATCH ".*(64)$" RE_MATCH "${ARCH}" )
-    if( RE_MATCH AND ${CMAKE_MATCH_1} STREQUAL "64" )
-      set(ADDRESS_SIZE 64)
-      set(ARCH x86_64)
-    else()
-      set(ADDRESS_SIZE 32)
-      set(ARCH i686)
-    endif()
+    set(ADDRESS_SIZE 32)
+    set(ARCH i686)
   endif()
 endif (ADDRESS_SIZE EQUAL 32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(WINDOWS ON BOOL FORCE)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(LINUX ON BOOl FORCE)
-
-  if (ADDRESS_SIZE EQUAL 32)
-    set(DEB_ARCHITECTURE i386)
-    set(FIND_LIBRARY_USE_LIB64_PATHS OFF)
-    set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib32 ${CMAKE_SYSTEM_LIBRARY_PATH})
-  else (ADDRESS_SIZE EQUAL 32)
-    set(DEB_ARCHITECTURE amd64)
-    set(FIND_LIBRARY_USE_LIB64_PATHS ON)
-  endif (ADDRESS_SIZE EQUAL 32)
-
-  execute_process(COMMAND dpkg-architecture -a${DEB_ARCHITECTURE} -qDEB_HOST_MULTIARCH
-      RESULT_VARIABLE DPKG_RESULT
-      OUTPUT_VARIABLE DPKG_ARCH
-      OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-  #message (STATUS "DPKG_RESULT ${DPKG_RESULT}, DPKG_ARCH ${DPKG_ARCH}")
-  if (DPKG_RESULT EQUAL 0)
-    set(CMAKE_LIBRARY_ARCHITECTURE ${DPKG_ARCH})
-    set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib/${DPKG_ARCH} /usr/local/lib/${DPKG_ARCH} ${CMAKE_SYSTEM_LIBRARY_PATH})
-  endif (DPKG_RESULT EQUAL 0)
-
-  include(ConfigurePkgConfig)
-
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(DARWIN 1)
-
-  string(REGEX MATCH "-mmacosx-version-min=([^ ]+)" scratch "$ENV{LL_BUILD}")
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "${CMAKE_MATCH_1}" CACHE STRING "macOS Deploy Target" FORCE)
-  message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET = '${CMAKE_OSX_DEPLOYMENT_TARGET}'")
-
-  # Use dwarf symbols for most libraries for compilation speed
-  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf")
-
-  string(REGEX MATCH "-O([^ ]*)" scratch "$ENV{LL_BUILD}")
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL "${CMAKE_MATCH_1}")
-  message(STATUS "CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL = '${CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL}'")
-
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_STRICT_ALIASING NO)
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH NO)
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS sse4.2)
-  # we must hard code this to off for now.  xcode's built in signing does not
-  # handle embedded app bundles such as CEF and others. Any signing for local
-  # development must be done after the build as we do in viewer_manifest.py for
-  # released builds
-  # https://stackoverflow.com/a/54296008
-  # With Xcode 14.1, apparently you must take drastic steps to prevent
-  # implicit signing.
-  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED NO)
-  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO)
-  # "-" represents "Sign to Run Locally" and empty string represents "Do Not Sign"
-  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
-  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "")
-  set(CMAKE_XCODE_ATTRIBUTE_DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING YES)
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_WARN_64_TO_32_BIT_CONVERSION NO)
-  set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "macOS Build Arch" FORCE)
-endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Default deploy grid
 set(GRID agni CACHE STRING "Target Grid")

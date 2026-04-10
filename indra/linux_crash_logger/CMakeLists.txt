@@ -12,7 +12,6 @@ include(LLMessage)
 include(LLFileSystem)
 include(LLXML)
 include(Linking)
-include(UI)
 include(FreeType)
 include(Boost)
 
