@@ -571,7 +571,7 @@ LLLightState::LLLightState(S32 index)
     mSunIsPrimary = true;
 
     mAmbient.set(0,0,0,1);
-    mPosition.set(0,0,1,0);
+    mPosition = glm::vec4(0.f, 0.f, 1.f, 0.f);
     mSpotDirection = glm::vec3(0.f, 0.f, -1.f);
 }
 
@@ -648,15 +648,12 @@ void LLLightState::setSpecular(const LLColor4& specular)
     }
 }
 
-void LLLightState::setPosition(const LLVector4& position)
+void LLLightState::setPosition(const glm::vec4& position)
 {
     //always set position because modelview matrix may have changed
     ++gGL.mLightHash;
-    mPosition = position;
     //transform position by current modelview matrix
-    glm::vec4 pos(position);
-    pos = gGL.getModelviewMatrix() * pos;
-    mPosition.set(glm::value_ptr(pos));
+    mPosition = gGL.getModelviewMatrix() * position;
 }
 
 void LLLightState::setConstantAttenuation(const F32& atten)
@@ -861,7 +858,7 @@ void LLRender::syncLightState()
     {
         shader->mLightHash = mLightHash;
 
-        std::array<LLVector4, LL_NUM_LIGHT_UNITS> position;
+        std::array<glm::vec4, LL_NUM_LIGHT_UNITS> position;
         std::array<LLVector3, LL_NUM_LIGHT_UNITS> direction;
         std::array<LLVector4, LL_NUM_LIGHT_UNITS> attenuation;
         std::array<LLVector3, LL_NUM_LIGHT_UNITS> diffuse;
@@ -882,7 +879,7 @@ void LLRender::syncLightState()
             size[i] = glm::vec2(light->mSize, light->mFalloff);
         }
 
-        shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, std::span<const GLfloat>(position[0].mV, LL_NUM_LIGHT_UNITS * 4));
+        shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, std::span<const GLfloat>(glm::value_ptr(position[0]), LL_NUM_LIGHT_UNITS * 4));
         shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, std::span<const GLfloat>(direction[0].mV, LL_NUM_LIGHT_UNITS * 3));
         shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, std::span<const GLfloat>(attenuation[0].mV, LL_NUM_LIGHT_UNITS * 4));
         shader->uniform2fv(LLShaderMgr::LIGHT_DEFERRED_ATTENUATION, std::span<const GLfloat>(reinterpret_cast<const GLfloat*>(size.data()), LL_NUM_LIGHT_UNITS * 2));

@@ -3326,7 +3326,7 @@ void LLVOAvatar::idleUpdateWindEffect()
         //RN: velocity varies too much frame to frame for this to work
         mRippleAccel = glm::vec3(0.f);//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLSmoothInterpolation::getInterpolant(0.02f));
         mLastVel = velocity;
-        LLVector4 wind(getRegion()->mWind.getVelocityNoisy(getPositionAgent(), 4.f) - velocity);
+        LLVector3 wind_dir(getRegion()->mWind.getVelocityNoisy(getPositionAgent(), 4.f) - velocity);
 
         if (mInAir)
         {
@@ -3339,12 +3339,15 @@ void LLVOAvatar::idleUpdateWindEffect()
             hover_strength += UNDERWATER_EFFECT_STRENGTH;
         }
 
-        wind.mV[VZ] += hover_strength;
-        wind.normalize();
+        wind_dir.mV[VZ] += hover_strength;
+        wind_dir.normalize(); // 3D normalize, preserves the LL semantics
 
-        wind.mV[VW] = llmin(0.025f + (speed * 0.015f) + hover_strength, 0.5f);
+        // W = wind strength (independent from direction)
+        const F32 wind_strength = llmin(0.025f + (speed * 0.015f) + hover_strength, 0.5f);
+        glm::vec4 wind(wind_dir.mV[VX], wind_dir.mV[VY], wind_dir.mV[VZ], wind_strength);
+
         F32 interp;
-        if (wind.mV[VW] > mWindVec.mV[VW])
+        if (wind.w > mWindVec.w)
         {
             interp = LLSmoothInterpolation::getInterpolant(0.2f);
         }
@@ -3352,7 +3355,7 @@ void LLVOAvatar::idleUpdateWindEffect()
         {
             interp = LLSmoothInterpolation::getInterpolant(0.4f);
         }
-        mWindVec = lerp(mWindVec, wind, interp);
+        mWindVec = glm::mix(mWindVec, wind, interp);
 
         F32 wind_freq = hover_strength + llclamp(8.f + (speed * 0.7f) + (noise1(mRipplePhase) * 4.f), 8.f, 25.f);
         mWindFreq = lerp(mWindFreq, wind_freq, interp);

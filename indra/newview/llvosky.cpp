@@ -1492,7 +1492,7 @@ void LLVOSky::updateFog(const F32 distance)
     LLEnvironment& environment = LLEnvironment::instance();
     if (environment.getCurrentSky() != nullptr)
     {
-        LLVector3 light_dir = LLVector3(environment.getClampedLightNorm());
+        LLVector3 light_dir(environment.getClampedLightNorm());
         m_legacyAtmospherics.updateFog(distance, light_dir);
         }
     }

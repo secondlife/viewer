@@ -146,7 +146,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
     F32 lastIntensity = 0.f;
     F32 lastFullbright = 0.f;
     F32 lastMinimumAlpha = 0.f;
-    LLVector4 lastSpecular = LLVector4(0, 0, 0, 0);
+    glm::vec4 lastSpecular(0.f, 0.f, 0.f, 0.f);
 
     GLint intensity = mShader->getUniformLocation(LLShaderMgr::ENVIRONMENT_INTENSITY);
     GLint brightness = mShader->getUniformLocation(LLShaderMgr::EMISSIVE_BRIGHTNESS);
@@ -180,7 +180,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 
     if (specular > -1)
     {
-        glUniform4fv(specular, 1, lastSpecular.mV);
+        glUniform4fv(specular, 1, &lastSpecular.x);
     }
 
     const LLVOAvatar* lastAvatar = nullptr;
@@ -197,7 +197,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
         if (specular > -1 && params.mSpecColor != lastSpecular)
         {
             lastSpecular = params.mSpecColor;
-            glUniform4fv(specular, 1, lastSpecular.mV);
+            glUniform4fv(specular, 1, &lastSpecular.x);
         }
 
         if (intensity != -1 && lastIntensity != params.mEnvIntensity)

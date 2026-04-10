@@ -749,7 +749,7 @@ void LLSettingsVOSky::applyToUniforms(void* ptarget)
 void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-    LLVector3 light_direction = LLVector3(LLEnvironment::instance().getClampedLightNorm().mV);
+    LLVector3 light_direction = LLVector3(LLEnvironment::instance().getClampedLightNorm());
 
     bool irradiance_pass = gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass();
 
@@ -1095,7 +1095,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
         enorm = glm::normalize(enorm);
         ep = mul_mat4_vec3(mat, p);
 
-        LLVector4 waterPlane(enorm.x, enorm.y, enorm.z, -glm::dot(ep, enorm));
+        glm::vec4 waterPlane(enorm, -glm::dot(ep, enorm));
 
         norm = gPipeline.mHeroProbeManager.mMirrorNormal;
         p    = gPipeline.mHeroProbeManager.mMirrorPosition;
@@ -1107,9 +1107,9 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         LLDrawPoolAlpha::sWaterPlane = waterPlane;
 
-        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, waterPlane.mV);
+        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, glm::value_ptr(waterPlane));
         shader->uniform4fv(LLShaderMgr::CLIP_PLANE, glm::value_ptr(mirrorPlane));
-        LLVector4 light_direction = env.getClampedLightNorm();
+        glm::vec3 light_direction = env.getClampedLightNorm();
 
         if (gPipeline.mHeroProbeManager.isMirrorPass())
         {
@@ -1120,7 +1120,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
             shader->uniform1f(LLShaderMgr::MIRROR_FLAG, 0);
         }
 
-        F32 waterFogKS = 1.f / llmax(light_direction.mV[2], WATER_FOG_LIGHT_CLAMP);
+        F32 waterFogKS = 1.f / llmax(light_direction.z, WATER_FOG_LIGHT_CLAMP);
 
         shader->uniform1f(LLShaderMgr::WATER_FOGKS, waterFogKS);
 
@@ -1139,7 +1139,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
         shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
         // update to normal lightnorm, water shader itself will use rotated lightnorm as necessary
-        shader->uniform3fv(LLShaderMgr::LIGHTNORM, light_direction.mV);
+        shader->uniform3fv(LLShaderMgr::LIGHTNORM, &light_direction.x);
     }
 }
 

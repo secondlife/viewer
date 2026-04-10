@@ -37,6 +37,7 @@
 #include "llgl.h"
 #include "lldrawable.h"
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include "llrendertarget.h"
 #include "llreflectionmapmanager.h"
 #include "llheroprobemanager.h"
@@ -760,8 +761,8 @@ public:
     std::vector<LLReflectionMap*> mReflectionMaps;
 
     std::array<std::vector<glm::vec3>, 4> mShadowFrustPoints;
-    LLVector4               mShadowError;
-    LLVector4               mShadowFOV;
+    glm::vec4               mShadowError{0.f};
+    glm::vec4               mShadowFOV{0.f};
     std::array<LLVector3, 4> mShadowFrustOrigin;
     std::array<LLCamera, 8> mShadowCamera;
     std::array<std::array<LLVector3, 2>, 4> mShadowExtents;
@@ -775,8 +776,8 @@ public:
     std::array<F32, 2>      mSpotLightFade;
     std::array<LLPointer<LLDrawable>, 2> mTargetShadowSpotLight;
 
-    LLVector4               mSunClipPlanes;
-    LLVector4               mSunOrthoClipPlanes;
+    glm::vec4               mSunClipPlanes{0.f};
+    glm::vec4               mSunOrthoClipPlanes{0.f};
 
     //water distortion texture (refraction)
     LLRenderTarget              mWaterDis;
@@ -798,12 +799,12 @@ public:
 
     LLColor4            mSunDiffuse;
     LLColor4            mMoonDiffuse;
-    LLVector4           mSunDir;
-    LLVector4           mMoonDir;
+    glm::vec3           mSunDir{0.f, 1.f, 0.f};
+    glm::vec3           mMoonDir{0.f, 1.f, 0.f};
     bool                mNeedsShadowTargetClear;
 
-    LLVector4           mTransformedSunDir;
-    LLVector4           mTransformedMoonDir;
+    glm::vec3           mTransformedSunDir{0.f};
+    glm::vec3           mTransformedMoonDir{0.f};
 
     bool                    mInitialized;
     bool                    mShadersLoaded;

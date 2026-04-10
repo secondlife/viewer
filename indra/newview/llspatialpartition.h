@@ -42,6 +42,7 @@
 #include "llvoavatar.h"
 #include "llfetchedgltfmaterial.h"
 
+#include <glm/vec4.hpp>
 #include <queue>
 #include <span>
 #include <unordered_map>
@@ -111,7 +112,7 @@ public:
     // PBR material parameters
     LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
 
-    LLVector4 mSpecColor = LLVector4(1.f, 1.f, 1.f, 0.5f); // XYZ = Specular RGB, W = Specular Exponent
+    glm::vec4 mSpecColor{1.f, 1.f, 1.f, 0.5f}; // XYZ = Specular RGB, W = Specular Exponent
 
     std::vector<LLPointer<LLViewerTexture> > mTextureList;
 

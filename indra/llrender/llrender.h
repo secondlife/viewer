@@ -44,6 +44,7 @@
 #include "glm/mat4x4.hpp"
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
 #include <boost/align/aligned_allocator.hpp>
 
 #include <array>
@@ -205,7 +206,7 @@ public:
     void setDiffuseB(const LLColor4& diffuse);
     void setAmbient(const LLColor4& ambient);
     void setSpecular(const LLColor4& specular);
-    void setPosition(const LLVector4& position);
+    void setPosition(const glm::vec4& position);
     void setConstantAttenuation(const F32& atten);
     void setLinearAttenuation(const F32& atten);
     void setQuadraticAttenuation(const F32& atten);
@@ -226,7 +227,7 @@ protected:
     bool     mSunIsPrimary;
     LLColor4 mAmbient;
     LLColor4 mSpecular;
-    LLVector4 mPosition;
+    glm::vec4 mPosition{0.f, 0.f, 1.f, 0.f};
     glm::vec3 mSpotDirection{0.f};
 
     F32 mConstantAtten;

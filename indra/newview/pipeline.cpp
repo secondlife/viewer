@@ -5322,7 +5322,7 @@ void LLPipeline::setupAvatarLights(bool for_edit)
         light->setDiffuse(diffuse);
         light->setAmbient(LLColor4::black);
         light->setSpecular(LLColor4::black);
-        light->setPosition(light_pos);
+        light->setPosition(static_cast<glm::vec4>(light_pos));
         light->setConstantAttenuation(1.f);
         light->setLinearAttenuation(0.f);
         light->setQuadraticAttenuation(0.f);
@@ -5331,11 +5331,12 @@ void LLPipeline::setupAvatarLights(bool for_edit)
     }
     else if (gAvatarBacklight)
     {
-        LLVector3 light_dir = sun_up ? LLVector3(mSunDir) : LLVector3(mMoonDir);
+        LLVector3 light_dir = sun_up ? LLVector3(mSunDir) : LLVector3(mMoonDir); // bridge to LLVector3 for LL cross/lerp ops below
         LLVector3 opposite_pos = -light_dir;
         LLVector3 orthog_light_pos = cross(light_dir, LLVector3::z_axis);
-        LLVector4 backlight_pos = LLVector4(lerp(opposite_pos, orthog_light_pos, 0.3f), 0.0f);
-        backlight_pos.normalize();
+        LLVector3 backlight_dir = lerp(opposite_pos, orthog_light_pos, 0.3f);
+        backlight_dir.normalize();
+        glm::vec4 backlight_pos(backlight_dir.mV[0], backlight_dir.mV[1], backlight_dir.mV[2], 0.0f);
 
         LLColor4 light_diffuse = sun_up ? mSunDiffuse : mMoonDiffuse;
 
@@ -5580,11 +5581,8 @@ void LLPipeline::setupHWLights()
 
     // Light 0 = Sun or Moon (All objects)
     {
-        LLVector4 sun_dir(environment.getSunDirection(), 0.0f);
-        LLVector4 moon_dir(environment.getMoonDirection(), 0.0f);
-
-        mSunDir.set(sun_dir);
-        mMoonDir.set(moon_dir);
+        mSunDir = environment.getSunDirection();
+        mMoonDir = environment.getMoonDirection();
 
         mSunDiffuse.set(psky->getSunlightColor());
         mMoonDiffuse.set(psky->getMoonlightColor());
@@ -5608,11 +5606,12 @@ void LLPipeline::setupHWLights()
         {
             mSunDiffuse.set(LLColor4(0.0, 0.0, 0.0, 1.0));
             mMoonDiffuse.set(LLColor4(0.0, 0.0, 0.0, 1.0));
-            mSunDir.set(LLVector4(0.0, 1.0, 0.0, 0.0));
-            mMoonDir.set(LLVector4(0.0, 1.0, 0.0, 0.0));
+            mSunDir = glm::vec3(0.f, 1.f, 0.f);
+            mMoonDir = glm::vec3(0.f, 1.f, 0.f);
         }
 
-        LLVector4 light_dir = sun_up ? mSunDir : mMoonDir;
+        const glm::vec3& sun_or_moon = sun_up ? mSunDir : mMoonDir;
+        glm::vec4 light_dir(sun_or_moon, 0.f);
 
         mHWLightColors[0] = sun_up ? mSunDiffuse : mMoonDiffuse;
 
@@ -5695,7 +5694,7 @@ void LLPipeline::setupHWLights()
             }
 
             LLVector3 light_pos(light->getRenderPosition());
-            LLVector4 light_pos_gl(light_pos, 1.0f);
+            glm::vec4 light_pos_gl(light_pos.mV[0], light_pos.mV[1], light_pos.mV[2], 1.0f);
 
             F32 adjusted_radius = light->getLightRadius() * 1.5f;
             if (adjusted_radius <= 0.001f)
@@ -5850,7 +5849,7 @@ void LLPipeline::enableLightsPreview()
     dir1.normalize();
     dir2.normalize();
 
-    LLVector4 light_pos(dir0, 0.0f);
+    glm::vec4 light_pos(dir0.mV[0], dir0.mV[1], dir0.mV[2], 0.0f);
 
     LLLightState* light = gGL.getLight(1);
 
@@ -5862,7 +5861,7 @@ void LLPipeline::enableLightsPreview()
     light->setSpotExponent(0.f);
     light->setSpotCutoff(180.f);
 
-    light_pos = LLVector4(dir1, 0.f);
+    light_pos = glm::vec4(dir1.mV[0], dir1.mV[1], dir1.mV[2], 0.f);
 
     light = gGL.getLight(2);
     light->enable();
@@ -5873,7 +5872,7 @@ void LLPipeline::enableLightsPreview()
     light->setSpotExponent(0.f);
     light->setSpotCutoff(180.f);
 
-    light_pos = LLVector4(dir2, 0.f);
+    light_pos = glm::vec4(dir2.mV[0], dir2.mV[1], dir2.mV[2], 0.f);
     light = gGL.getLight(3);
     light->enable();
     light->setPosition(light_pos);
@@ -8173,7 +8172,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     }
     else*/
     {
-        shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_CLIP, std::span<const GLfloat>(mSunClipPlanes.mV, 4));
+        shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_CLIP, std::span<const GLfloat>(glm::value_ptr(mSunClipPlanes), 4));
     }
     shader.uniform1f(LLShaderMgr::DEFERRED_SUN_WASH, RenderDeferredSunWash);
     shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_NOISE, RenderShadowNoise);
@@ -8207,8 +8206,8 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_OFFSET, RenderSpotShadowOffset);
     shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_BIAS, RenderSpotShadowBias);
 
-    shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, std::span<const GLfloat>(mTransformedSunDir.mV, 3));
-    shader.uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, std::span<const GLfloat>(mTransformedMoonDir.mV, 3));
+    shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, std::span<const GLfloat>(&mTransformedSunDir.x, 3));
+    shader.uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, std::span<const GLfloat>(&mTransformedMoonDir.x, 3));
     shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES, static_cast<GLfloat>(mRT->shadow[0].getWidth()), static_cast<GLfloat>(mRT->shadow[0].getHeight()));
     shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, static_cast<GLfloat>(mSpotShadow[0].getWidth()), static_cast<GLfloat>(mSpotShadow[0].getHeight()));
     shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
@@ -8299,13 +8298,9 @@ void LLPipeline::renderDeferredLighting()
 
         setupHWLights();  // to set mSun/MoonDir;
 
-        glm::vec4 tc(mSunDir);
-        tc = mat * tc;
-        mTransformedSunDir.set(tc);
-
-        glm::vec4 tc_moon(mMoonDir);
-        tc_moon = mat * tc_moon;
-        mTransformedMoonDir.set(tc_moon);
+        // Transform directions by modelview (W=0 means no translation).
+        mTransformedSunDir = glm::vec3(mat * glm::vec4(mSunDir, 0.f));
+        mTransformedMoonDir = glm::vec3(mat * glm::vec4(mMoonDir, 0.f));
 
         if ((RenderDeferredSSAO && !gCubeSnapshot) || RenderShadowDetail > 0)
         {
@@ -8422,9 +8417,10 @@ void LLPipeline::renderDeferredLighting()
             LLEnvironment &environment = LLEnvironment::instance();
 
             soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-            soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(environment.getClampedLightNorm().mV, 3));
+            glm::vec3 clamped_light = environment.getClampedLightNorm();
+            soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(&clamped_light.x, 3));
 
-            soften_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
+            soften_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(&LLDrawPoolAlpha::sWaterPlane.x, 4));
 
             {
                 LLGLDepthTest depth(GL_FALSE);
@@ -8804,9 +8800,10 @@ void LLPipeline::doAtmospherics()
 
         LLEnvironment& environment = LLEnvironment::instance();
         haze_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-        haze_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(environment.getClampedLightNorm().mV, 3));
+        glm::vec3 haze_light = environment.getClampedLightNorm();
+        haze_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(&haze_light.x, 3));
 
-        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
+        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(&LLDrawPoolAlpha::sWaterPlane.x, 4));
 
         LLGLDepthTest depth(GL_FALSE);
 
@@ -8867,7 +8864,7 @@ void LLPipeline::doWaterHaze()
         LL_PROFILE_GPU_ZONE("haze");
         bindDeferredShader(haze_shader, nullptr, &mWaterDis);
 
-        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
+        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(&LLDrawPoolAlpha::sWaterPlane.x, 4));
 
         static LLStaticHashedString above_water_str("above_water");
         haze_shader.uniform1i(above_water_str, sUnderWaterRender ? -1 : 1);
@@ -9902,21 +9899,21 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
         {
             F32 x = static_cast<F32>(i+1)/4.f;
             x = powf(x, sxp);
-            mSunClipPlanes.mV[i] = near_clip+range*x;
+            mSunClipPlanes[i] = near_clip+range*x;
         }
 
-        mSunClipPlanes.mV[0] *= 1.25f; //bump back first split for transition padding
+        mSunClipPlanes[0] *= 1.25f; //bump back first split for transition padding
     }
 
     if (gCubeSnapshot)
     { // stretch clip planes for reflection probe renders to reduce number of shadow passes
-        mSunClipPlanes.mV[1] = mSunClipPlanes.mV[2];
-        mSunClipPlanes.mV[2] = mSunClipPlanes.mV[3];
-        mSunClipPlanes.mV[3] *= 1.5f;
+        mSunClipPlanes[1] = mSunClipPlanes[2];
+        mSunClipPlanes[2] = mSunClipPlanes[3];
+        mSunClipPlanes[3] *= 1.5f;
     }
 
     // convenience array of 4 near clip plane distances
-    F32 dist[] = { near_clip, mSunClipPlanes.mV[0], mSunClipPlanes.mV[1], mSunClipPlanes.mV[2], mSunClipPlanes.mV[3] };
+    F32 dist[] = { near_clip, mSunClipPlanes[0], mSunClipPlanes[1], mSunClipPlanes[2], mSunClipPlanes[3] };
 
     if (mSunDiffuse == LLColor4::black)
     { //sun diffuse is totally black shadows don't matter
@@ -9995,8 +9992,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                 }
                 mRT->shadow[j].flush();
 
-                mShadowError.mV[j] = 0.f;
-                mShadowFOV.mV[j] = 0.f;
+                mShadowError[j] = 0.f;
+                mShadowFOV[j] = 0.f;
 
                 continue;
             }
@@ -10107,20 +10104,20 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                 bfb = lp.mV[1]-bfm*lp.mV[0];
 
                 //calculate error
-                mShadowError.mV[j] = 0.f;
+                mShadowError[j] = 0.f;
 
                 for (U32 i = 0; i < wpf.size(); ++i)
                 {
                     F32 lx = (wpf[i].mV[1]-bfb)/bfm;
-                    mShadowError.mV[j] += fabsf(wpf[i].mV[0]-lx);
+                    mShadowError[j] += fabsf(wpf[i].mV[0]-lx);
                 }
 
-                mShadowError.mV[j] /= wpf.size();
-                mShadowError.mV[j] /= size.mV[0];
+                mShadowError[j] /= wpf.size();
+                mShadowError[j] /= size.mV[0];
 
-                if (mShadowError.mV[j] > RenderShadowErrorCutoff)
+                if (mShadowError[j] > RenderShadowErrorCutoff)
                 { //just use ortho projection
-                    mShadowFOV.mV[j] = -1.f;
+                    mShadowFOV[j] = -1.f;
                     origin.clear();
                     proj[j] = glm::ortho(min.mV[0], max.mV[0],
                                         min.mV[1], max.mV[1],
@@ -10163,7 +10160,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
                     F32 cutoff = llmin(static_cast<F32>(RenderShadowFOVCutoff), 1.4f);
 
-                    mShadowFOV.mV[j] = fovx;
+                    mShadowFOV[j] = fovx;
 
                     if (fovx < cutoff && fovz > cutoff)
                     {
@@ -10192,7 +10189,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                         fovx = acos(fovx);
                         fovz = acos(fovz);
 
-                        mShadowFOV.mV[j] = cutoff;
+                        mShadowFOV[j] = cutoff;
                     }
 
                     origin += center;
@@ -10211,7 +10208,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                     if (fovx > cutoff)
                     { //just use ortho projection
                         origin.clear();
-                        mShadowError.mV[j] = -1.f;
+                        mShadowError[j] = -1.f;
                         proj[j] = glm::ortho(min.mV[0], max.mV[0],
                                 min.mV[1], max.mV[1],
                                 -max.mV[2], -min.mV[2]);

@@ -57,7 +57,7 @@ bool LLDrawPoolAlpha::sShowDebugAlpha = false;
 
 #define current_shader (LLGLSLShader::sCurBoundShaderPtr)
 
-LLVector4 LLDrawPoolAlpha::sWaterPlane;
+glm::vec4 LLDrawPoolAlpha::sWaterPlane(0.f);
 
 // minimum alpha before discarding a fragment
 static constexpr F32 MINIMUM_ALPHA = 0.004f; // ~ 1/255
@@ -115,7 +115,7 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool deferredEnvironment,
     else
     {
         shader->uniform1f(waterSign, water_sign);
-        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
+        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(&LLDrawPoolAlpha::sWaterPlane.x, 4));
     }
 
     if (LLPipeline::sImpostorRender)
@@ -740,7 +740,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         }
                     }
 
-                    LLVector4 spec_color(1, 1, 1, 1);
+                    glm::vec4 spec_color(1.f, 1.f, 1.f, 1.f);
                     F32 env_intensity = 0.0f;
                     F32 brightness = 1.0f;
 
@@ -754,7 +754,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                     if (current_shader)
                     {
-                        current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, spec_color.mV[VRED], spec_color.mV[VGREEN], spec_color.mV[VBLUE], spec_color.mV[VALPHA]);
+                        current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, spec_color.x, spec_color.y, spec_color.z, spec_color.w);
                         current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env_intensity);
                         current_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, brightness);
                     }

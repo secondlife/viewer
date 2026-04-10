@@ -146,7 +146,7 @@ public:
     glm::vec3       getCameraPositionAgent() const;
     LLVector3d      calcCameraPositionTargetGlobal(bool *hit_limit = NULL); // Calculate the camera position target
     F32             getCameraMinOffGround();        // Minimum height off ground for this mode, meters
-    void            setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
+    void            setCameraCollidePlane(const glm::vec4 &plane) { mCameraCollidePlane = plane; }
     bool            calcCameraMinDistance(F32 &obj_min_distance);
     F32             getCurrentCameraBuildOffset() const { return static_cast<F32>(mCameraFocusOffset.length()); }
     void            clearCameraLag() { mCameraLag = glm::vec3(0.0f); }
@@ -158,7 +158,7 @@ private:
     F32             mTargetCameraDistance;          // Target camera offset from avatar
     F32             mCameraFOVZoomFactor;           // Amount of fov zoom applied to camera when zeroing in on an object
     F32             mCameraCurrentFOVZoomFactor;    // Interpolated fov zoom
-    LLVector4       mCameraCollidePlane;            // Colliding plane for camera
+    glm::vec4       mCameraCollidePlane{0.f, 0.f, 0.f, 1.f}; // Colliding plane for camera (ABCD: Ax+By+Cz+D=0)
     F32             mCameraZoomFraction;            // Mousewheel driven fraction of zoom
     glm::vec3       mCameraVirtualPositionAgent;    // Camera virtual position (target) before performing FOV zoom
     LLVector3d      mCameraSmoothingLastPositionGlobal;

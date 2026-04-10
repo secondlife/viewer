@@ -752,7 +752,7 @@ private:
     // Wind rippling in clothes
     //--------------------------------------------------------------------
 public:
-    LLVector4   mWindVec;
+    glm::vec4   mWindVec{0.f};
     F32         mRipplePhase;
     bool        mBelowWater;
 private:
@@ -1241,8 +1241,8 @@ private:
     // Foot step state (for generating sounds)
     //--------------------------------------------------------------------
 public:
-    void                setFootPlane(const LLVector4 &plane) { mFootPlane = plane; }
-    LLVector4           mFootPlane;
+    void                setFootPlane(const glm::vec4 &plane) { mFootPlane = plane; }
+    glm::vec4           mFootPlane{0.f};
 private:
     bool                mWasOnGroundLeft;
     bool                mWasOnGroundRight;

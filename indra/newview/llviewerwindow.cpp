@@ -183,6 +183,7 @@
 #include "llworldmapview.h"
 #include "pipeline.h"
 #include "glm/glm.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "llappviewer.h"
 #include "llviewerdisplay.h"
 #include "llspatialpartition.h"
@@ -6136,7 +6137,6 @@ LLPickInfo::LLPickInfo()
       mXYCoords(-1, -1),
       mIntersection(),
       mNormal(),
-      mTangent(),
       mBinormal(),
       mHUDIcon(nullptr),
       mPickTransparent(false),
@@ -6164,7 +6164,6 @@ LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos,
     mSTCoords(-1.f, -1.f),
     mXYCoords(-1, -1),
     mNormal(),
-    mTangent(),
     mBinormal(),
     mHUDIcon(NULL),
     mPickTransparent(pick_transparent),
@@ -6331,7 +6330,7 @@ void LLPickInfo::getSurfaceInfo()
     mIntersection = glm::vec3(0,0,0);
     mNormal       = glm::vec3(0,0,0);
     mBinormal     = glm::vec3(0,0,0);
-    mTangent      = LLVector4(0,0,0,0);
+    mTangent      = glm::vec4(0.f);
 
     LLVector4a tangent;
     LLVector4a intersection;
@@ -6370,7 +6369,7 @@ void LLPickInfo::getSurfaceInfo()
             const F32* np = normal.getF32ptr();
             mIntersection = glm::vec3(ip[0], ip[1], ip[2]);
             mNormal       = glm::vec3(np[0], np[1], np[2]);
-            mTangent.set(tangent.getF32ptr());
+            mTangent = glm::make_vec4(tangent.getF32ptr());
 
             //extrapoloate binormal from normal and tangent
 
@@ -6383,7 +6382,9 @@ void LLPickInfo::getSurfaceInfo()
 
             mBinormal = glm::normalize(mBinormal);
             mNormal   = glm::normalize(mNormal);
-            mTangent.normalize();
+            // Normalize XYZ (direction) only; W stores tangent-space
+            // handedness sign (+1/-1) and must be preserved.
+            mTangent = glm::vec4(glm::normalize(glm::vec3(mTangent)), mTangent.w);
 
             // and XY coords:
             updateXYCoords();

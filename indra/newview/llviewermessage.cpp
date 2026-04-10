@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llviewermessage.h"
+#include <glm/gtc/type_ptr.hpp>
 
 // Linden libraries
 #include "llanimationstates.h"
@@ -3109,7 +3110,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
     if (isAgentAvatarValid())
     {
-        gAgentAvatarp->mFootPlane.clear();
+        gAgentAvatarp->mFootPlane = glm::vec4(0.f, 0.f, 0.f, 1.f);
     }
 
     // send walk-vs-run status
@@ -4161,7 +4162,7 @@ void process_camera_constraint(LLMessageSystem *mesgsys, void **user_data)
     LLVector4 cameraCollidePlane;
     mesgsys->getVector4Fast(_PREHASH_CameraCollidePlane, _PREHASH_Plane, cameraCollidePlane);
 
-    gAgentCamera.setCameraCollidePlane(cameraCollidePlane);
+    gAgentCamera.setCameraCollidePlane(glm::make_vec4(cameraCollidePlane.mV));
 }
 
 void near_sit_object(bool success, void *data)

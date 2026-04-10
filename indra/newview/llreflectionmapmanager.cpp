@@ -1166,8 +1166,8 @@ void LLReflectionMapManager::updateUniforms()
                 }
             }
             modelview.affineTransform(refmap->mOrigin, oa);
-            mProbeData.refSphere[count].set(oa.getF32ptr());
-            mProbeData.refSphere[count].mV[3] = refmap->mRadius;
+            mProbeData.refSphere[count] = glm::make_vec4(oa.getF32ptr());
+            mProbeData.refSphere[count].w = refmap->mRadius;
         }
 
         mProbeData.refIndex[count][0] = refmap->mCubeIndex;
@@ -1182,7 +1182,7 @@ void LLReflectionMapManager::updateUniforms()
             mProbeData.refIndex[count][3] = -mProbeData.refIndex[count][3];
         }
 
-        mProbeData.refParams[count].set(
+        mProbeData.refParams[count] = glm::vec4(
             llmax(minimum_ambiance, refmap->getAmbiance())*ambscale, // ambiance scale
             radscale, // radiance scale
             refmap->mFadeIn, // fade in weight

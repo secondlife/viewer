@@ -190,19 +190,19 @@ public:
     LLVector3                   getMoonDirection() const;
 
     // Returns light direction converted to CFR coord system
-    LLVector4                   getLightDirectionCFR() const; // returns sun or moon depending on which is up
-    LLVector4                   getSunDirectionCFR() const;
-    LLVector4                   getMoonDirectionCFR() const;
+    glm::vec3                   getLightDirectionCFR() const; // returns sun or moon depending on which is up
+    glm::vec3                   getSunDirectionCFR() const;
+    glm::vec3                   getMoonDirectionCFR() const;
 
     // Returns light direction converted to OGL coord system
     // and clamped above -0.1f in Y to avoid render artifacts in sky shaders
-    LLVector4                   getClampedLightNorm() const; // returns sun or moon depending on which is up
-    LLVector4                   getClampedSunNorm() const;
-    LLVector4                   getClampedMoonNorm() const;
+    glm::vec3                   getClampedLightNorm() const; // returns sun or moon depending on which is up
+    glm::vec3                   getClampedSunNorm() const;
+    glm::vec3                   getClampedMoonNorm() const;
 
     // Returns light direction converted to OGL coord system
     // and rotated by last cam yaw needed by water rendering shaders
-    LLVector4                   getRotatedLightNorm() const;
+    glm::vec3                   getRotatedLightNorm() const;
 
     static LLSettingsWater::ptr_t createWaterFromLegacyPreset(const std::string filename, LLSD &messages);
     static LLSettingsSky::ptr_t createSkyFromLegacyPreset(const std::string filename, LLSD &messages);
@@ -344,8 +344,8 @@ protected:
 
 
 private:
-    LLVector4 toCFR(const LLVector3 vec) const;
-    LLVector4 toLightNorm(const LLVector3 vec) const;
+    glm::vec3 toCFR(const LLVector3 vec) const;
+    glm::vec3 toLightNorm(const LLVector3 vec) const;
 
     using InstanceArray_t = std::array<DayInstance::ptr_t, ENV_END>;
 

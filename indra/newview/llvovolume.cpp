@@ -5520,7 +5520,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
             0.75f
         };
         float spec = alpha[shiny & TEM_SHINY_MASK];
-        LLVector4 specColor(spec, spec, spec, spec);
+        glm::vec4 specColor(spec, spec, spec, spec);
         draw_info->mSpecColor = specColor;
         draw_info->mEnvIntensity = spec;
         draw_info->mSpecularMap = NULL;
@@ -5543,7 +5543,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
             if (!mat->getSpecularID().isNull())
             {
-                LLVector4 specColor(
+                glm::vec4 specColor(
                     mat->getSpecularLightColor().mV[0] * (1.f / 255.f),
                     mat->getSpecularLightColor().mV[1] * (1.f / 255.f),
                     mat->getSpecularLightColor().mV[2] * (1.f / 255.f),
