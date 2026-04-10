@@ -231,8 +231,8 @@ LLHeavenBody::LLHeavenBody(const F32 rad)
   mVisibility(1.f),
   mVisible(false)
 {
-    mColor.setToBlack();
-    mColorCached.setToBlack();
+    mColor = glm::vec3(0.f);
+    mColorCached = glm::vec3(0.f);
 }
 
 glm::quat LLHeavenBody::getRotation() const
@@ -255,22 +255,22 @@ void LLHeavenBody::setDirection(const LLVector3 &direction)
     mDirection = direction;
 }
 
-const LLColor3& LLHeavenBody::getColorCached() const
+const glm::vec3& LLHeavenBody::getColorCached() const
 {
     return mColorCached;
 }
 
-void LLHeavenBody::setColorCached(const LLColor3& c)
+void LLHeavenBody::setColorCached(const glm::vec3& c)
 {
     mColorCached = c;
 }
 
-const LLColor3& LLHeavenBody::getColor() const
+const glm::vec3& LLHeavenBody::getColor() const
 {
     return mColor;
 }
 
-void LLHeavenBody::setColor(const LLColor3& c)
+void LLHeavenBody::setColor(const glm::vec3& c)
 {
     mColor = c;
 }
@@ -290,9 +290,9 @@ void LLHeavenBody::setInterpVal(const F32 v)
     sInterpVal = v;
 }
 
-LLColor3 LLHeavenBody::getInterpColor() const
+glm::vec3 LLHeavenBody::getInterpColor() const
 {
-    return sInterpVal * mColor + (1 - sInterpVal) * mColorCached;
+    return sInterpVal * mColor + (1.f - sInterpVal) * mColorCached;
 }
 
 const F32& LLHeavenBody::getVisibility() const

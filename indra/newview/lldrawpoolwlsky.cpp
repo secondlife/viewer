@@ -450,7 +450,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
             F32 moon_brightness = static_cast<float>(psky->getMoonBrightness());
 
             moon_shader->uniform1f(LLShaderMgr::MOON_BRIGHTNESS, moon_brightness);
-            moon_shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, std::span<const GLfloat>(gSky.mVOSkyp->getMoon().getColor().mV, 3));
+            moon_shader->uniform3fv(LLShaderMgr::MOONLIGHT_COLOR, std::span<const GLfloat>(&gSky.mVOSkyp->getMoon().getColor().x, 3));
             moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(color.mV, 4));
             //moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
             moon_shader->uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, std::span<const GLfloat>(psky->getMoonDirection().mV, 3)); // shader: moon_dir
