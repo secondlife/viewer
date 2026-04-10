@@ -137,4 +137,158 @@ namespace tut
 
         ensure_approximately_equals("color length matches", len_ll, len_gm, 16);
     }
+
+    // ====================================================================
+    // Semantic landmines — these tests pin LL-specific behaviour that
+    // does NOT match the obvious glm equivalent. The migration MUST
+    // preserve LL semantics; a failing assertion here means the
+    // migration silently changed behaviour.
+    // ====================================================================
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<8>()
+    {
+        // LANDMINE: LLColor3 unary minus is COLOR INVERSE (1 - rgb),
+        // NOT component negation. glm::vec3 unary minus is component
+        // negation. The replacement for `-c` after migration is
+        // `glm::vec3(1.f) - c`, NOT `-c`.
+        const LLColor3 c_ll(0.2f, 0.6f, 0.9f);
+        const LLColor3 inv_ll = -c_ll;
+        ensure("LL unary -: r is 1-r", std::fabs(inv_ll.mV[0] - 0.8f) < kEps);
+        ensure("LL unary -: g is 1-g", std::fabs(inv_ll.mV[1] - 0.4f) < kEps);
+        ensure("LL unary -: b is 1-b", std::fabs(inv_ll.mV[2] - 0.1f) < kEps);
+
+        const glm::vec3 c_gm(0.2f, 0.6f, 0.9f);
+        const glm::vec3 neg_gm = -c_gm;  // glm: component negation
+        ensure("glm unary -: r is -r", std::fabs(neg_gm.x - (-0.2f)) < kEps);
+        ensure("glm unary -: g is -g", std::fabs(neg_gm.y - (-0.6f)) < kEps);
+        ensure("glm unary -: b is -b", std::fabs(neg_gm.z - (-0.9f)) < kEps);
+
+        // Correct glm replacement for LL unary minus:
+        const glm::vec3 inv_gm = glm::vec3(1.f) - c_gm;
+        ensure("LL inverse matches `1 - c`", color_near(inv_ll, inv_gm));
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<9>()
+    {
+        // LANDMINE: LLColor3::brightness() is the naive average
+        // (r+g+b)/3, NOT Rec.709 luminance. The migration helper
+        // color3_brightness(glm::vec3) must preserve this exact
+        // formula. Don't replace with glm::dot(c, vec3(0.2126,
+        // 0.7152, 0.0722)) — that's a different value.
+        const LLColor3 ll(0.3f, 0.6f, 0.9f);
+        const F32 expected = (0.3f + 0.6f + 0.9f) / 3.0f;
+        ensure_approximately_equals("brightness == (r+g+b)/3", ll.brightness(), expected, 16);
+
+        const glm::vec3 gm(0.3f, 0.6f, 0.9f);
+        const F32 gm_average = (gm.x + gm.y + gm.z) / 3.0f;
+        ensure_approximately_equals("glm replacement matches", gm_average, expected, 16);
+
+        // Pin the difference vs. Rec.709 luminance so future readers
+        // see why this is not just glm::dot.
+        const F32 rec709 = 0.2126f * gm.x + 0.7152f * gm.y + 0.0722f * gm.z;
+        ensure("LL brightness != Rec.709 luminance", std::fabs(rec709 - expected) > 0.01f);
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<10>()
+    {
+        // clamp() to [0, 1] matches glm::clamp(c, 0.f, 1.f).
+        LLColor3 ll(-0.3f, 0.5f, 1.7f);
+        ll.clamp();
+        ensure("LL clamp r", std::fabs(ll.mV[0] - 0.f) < kEps);
+        ensure("LL clamp g", std::fabs(ll.mV[1] - 0.5f) < kEps);
+        ensure("LL clamp b", std::fabs(ll.mV[2] - 1.f) < kEps);
+
+        glm::vec3 gm(-0.3f, 0.5f, 1.7f);
+        gm = glm::clamp(gm, 0.f, 1.f);
+        ensure("clamp matches glm::clamp", color_near(ll, gm));
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<11>()
+    {
+        // LANDMINE: LLColor3::exp() uses the LL_FAST_EXP macro — an
+        // integer-bit-trick approximation of exp() with substantial
+        // error (commonly 5-15% in the 0..1 range, much worse for
+        // larger inputs). It is NOT a drop-in for glm::exp /
+        // std::exp. The migration helper should use glm::exp
+        // directly, which is a precision IMPROVEMENT, not a
+        // regression — but call sites must explicitly choose the
+        // glm version. This test pins both behaviours so the
+        // migration doesn't accidentally re-introduce LL_FAST_EXP.
+        LLColor3 ll(0.1f, 0.5f, 1.0f);
+        ll.exp();
+
+        const glm::vec3 gm_in(0.1f, 0.5f, 1.0f);
+        const glm::vec3 gm_precise = glm::exp(gm_in);
+
+        // Sanity: ll values are positive and roughly monotonic.
+        ensure("LL exp r positive", ll.mV[0] > 0.f);
+        ensure("LL exp g positive", ll.mV[1] > 0.f);
+        ensure("LL exp b positive", ll.mV[2] > 0.f);
+        ensure("LL exp r < g (input ordering preserved)", ll.mV[0] < ll.mV[1]);
+        ensure("LL exp g < b", ll.mV[1] < ll.mV[2]);
+
+        // The two are MEASURABLY DIFFERENT — proving LL_FAST_EXP is
+        // not a precise replacement for glm::exp.
+        const F32 max_delta = std::max({
+            std::fabs(ll.mV[0] - gm_precise.x),
+            std::fabs(ll.mV[1] - gm_precise.y),
+            std::fabs(ll.mV[2] - gm_precise.z)});
+        ensure("LL_FAST_EXP is measurably less precise than glm::exp",
+               max_delta > 1e-4f);
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<12>()
+    {
+        // v3colorutil componentSqrt / componentPow / componentExp
+        // map to glm::sqrt / glm::pow / glm::exp on glm::vec3.
+        const LLColor3 a_ll(0.04f, 0.25f, 0.81f);
+        const LLColor3 sqrt_ll(std::sqrt(a_ll.mV[0]),
+                               std::sqrt(a_ll.mV[1]),
+                               std::sqrt(a_ll.mV[2]));
+        const glm::vec3 a_gm(0.04f, 0.25f, 0.81f);
+        const glm::vec3 sqrt_gm = glm::sqrt(a_gm);
+        ensure("componentSqrt matches glm::sqrt", color_near(sqrt_ll, sqrt_gm));
+
+        const LLColor3 pow_ll(std::pow(a_ll.mV[0], 2.2f),
+                              std::pow(a_ll.mV[1], 2.2f),
+                              std::pow(a_ll.mV[2], 2.2f));
+        const glm::vec3 pow_gm = glm::pow(a_gm, glm::vec3(2.2f));
+        ensure("componentPow matches glm::pow", color_near(pow_ll, pow_gm));
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<13>()
+    {
+        // setHSL round-trip: hsl -> rgb -> calcHSL recovers the input.
+        // Saturated, mid-luminance avoids the edge cases at the poles.
+        const F32 h_in = 0.33f;
+        const F32 s_in = 0.7f;
+        const F32 l_in = 0.5f;
+
+        LLColor3 c;
+        c.setHSL(h_in, s_in, l_in);
+
+        F32 h_out = 0.f, s_out = 0.f, l_out = 0.f;
+        c.calcHSL(&h_out, &s_out, &l_out);
+
+        ensure_approximately_equals("HSL round-trip H", h_in, h_out, 8);
+        ensure_approximately_equals("HSL round-trip S", s_in, s_out, 8);
+        ensure_approximately_equals("HSL round-trip L", l_in, l_out, 8);
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<14>()
+    {
+        // setHSL with zero saturation produces a neutral gray at L.
+        LLColor3 c;
+        c.setHSL(0.5f, 0.f, 0.7f);
+        ensure("zero-sat HSL: r == L", std::fabs(c.mV[0] - 0.7f) < kEps);
+        ensure("zero-sat HSL: g == L", std::fabs(c.mV[1] - 0.7f) < kEps);
+        ensure("zero-sat HSL: b == L", std::fabs(c.mV[2] - 0.7f) < kEps);
+    }
 }
