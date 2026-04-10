@@ -1698,6 +1698,7 @@ void LLAvatarSkeletonInfo::getJointMatricesAndHierarhy(
     data.mRestMatrix = parent_mat * data.mJointMatrix;
     data.mIsJoint = bone_info->mIsJoint;
     data.mGroup = bone_info->mGroup;
+    data.setSupport(bone_info->mSupport);
     for (LLAvatarBoneInfo* child_info : bone_info->mChildren)
     {
         LLJointData& child_data = data.mChildren.emplace_back();
