@@ -109,7 +109,6 @@ enum eShadowPass
     void endDeferredSkinned();
 
     /*virtual*/ LLViewerTexture *getDebugTexture();
-    /*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
     void renderAvatars(LLVOAvatar *single_avatar, S32 pass = -1); // renders only one avatar if single_avatar is not null.
 

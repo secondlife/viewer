@@ -331,7 +331,3 @@ LLViewerTexture *LLDrawPoolWater::getDebugTexture()
     return LLViewerTextureManager::getFetchedTexture(IMG_SMOKE);
 }
 
-LLColor3 LLDrawPoolWater::getDebugColor() const
-{
-    return LLColor3(0.f, 1.f, 1.f);
-}
