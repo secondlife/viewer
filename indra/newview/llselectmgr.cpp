@@ -7316,10 +7316,14 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
         {
             for(S32 i = 0; i < mSilhouetteVertices.size(); i+=2)
             {
-                if (!glm::all(glm::isfinite(mSilhouetteNormals[i])) ||
-                    !glm::all(glm::isfinite(mSilhouetteNormals[i+1])))
-                { //skip skewed segments
-                    continue;
+                {
+                    const glm::vec3& n0 = mSilhouetteNormals[i];
+                    const glm::vec3& n1 = mSilhouetteNormals[i+1];
+                    if (!std::isfinite(n0.x) || !std::isfinite(n0.y) || !std::isfinite(n0.z) ||
+                        !std::isfinite(n1.x) || !std::isfinite(n1.y) || !std::isfinite(n1.z))
+                    { //skip skewed segments
+                        continue;
+                    }
                 }
 
                 glm::vec3 v[4];
