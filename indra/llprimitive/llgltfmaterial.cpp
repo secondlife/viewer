@@ -240,7 +240,13 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
     mAlphaCutoff = llclamp(static_cast<F32>(material_in.alphaCutoff), 0.f, 1.f);
 
     mBaseColor.set(material_in.pbrMetallicRoughness.baseColorFactor);
-    mEmissiveColor.set(material_in.emissiveFactor);
+    {
+        const auto& ef = material_in.emissiveFactor;
+        if (ef.size() >= 3)
+        {
+            mEmissiveColor = packed_vec3(static_cast<F32>(ef[0]), static_cast<F32>(ef[1]), static_cast<F32>(ef[2]));
+        }
+    }
 
     mMetallicFactor = llclamp(static_cast<F32>(material_in.pbrMetallicRoughness.metallicFactor), 0.f, 1.f);
     mRoughnessFactor = llclamp(static_cast<F32>(material_in.pbrMetallicRoughness.roughnessFactor), 0.f, 1.f);
@@ -337,8 +343,7 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
 
     if (mEmissiveColor != LLGLTFMaterial::getDefaultEmissiveColor())
     {
-        material_out.emissiveFactor.resize(3);
-        mEmissiveColor.write(material_out.emissiveFactor);
+        material_out.emissiveFactor = { mEmissiveColor.x, mEmissiveColor.y, mEmissiveColor.z };
     }
 
     material_out.pbrMetallicRoughness.metallicFactor = mMetallicFactor;
@@ -460,16 +465,15 @@ void LLGLTFMaterial::setAlphaCutoff(F32 cutoff, bool for_override)
     }
 }
 
-void LLGLTFMaterial::setEmissiveColorFactor(const LLColor3& emissiveColor, bool for_override)
+void LLGLTFMaterial::setEmissiveColorFactor(const glm::vec3& emissiveColor, bool for_override)
 {
-    mEmissiveColor = emissiveColor;
-    mEmissiveColor.clamp();
+    mEmissiveColor = packed_vec3(glm::clamp(glm::vec3(emissiveColor), 0.f, 1.f));
 
     if (for_override)
     { // hack -- nudge off of default value
         if (mEmissiveColor == getDefaultEmissiveColor())
         {
-            mEmissiveColor.mV[0] += FLT_EPSILON;
+            mEmissiveColor.x += FLT_EPSILON;
         }
     }
 }
@@ -568,7 +572,7 @@ LLColor4 LLGLTFMaterial::getDefaultBaseColor()
     return sDefault.mBaseColor;
 }
 
-LLColor3 LLGLTFMaterial::getDefaultEmissiveColor()
+LLGLTFMaterial::packed_vec3 LLGLTFMaterial::getDefaultEmissiveColor()
 {
     return sDefault.mEmissiveColor;
 }
@@ -705,7 +709,7 @@ void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& d
 
     if (override_mat.mEmissiveColor != getDefaultEmissiveColor())
     {
-        data["ec"] = override_mat.mEmissiveColor.getValue();
+        data["ec"] = LLColor3(override_mat.mEmissiveColor).getValue();
     }
 
     if (override_mat.mMetallicFactor != getDefaultMetallicFactor())
@@ -779,11 +783,13 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     const LLSD& ec = data["ec"];
     if (ec.isDefined())
     {
-        mEmissiveColor.setValue(ec);
+        LLColor3 tmp;
+        tmp.setValue(ec);
+        mEmissiveColor = packed_vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
         if (mEmissiveColor == getDefaultEmissiveColor())
         {
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
-            mEmissiveColor.mV[0] += FLT_EPSILON;
+            mEmissiveColor.x += FLT_EPSILON;
         }
     }
 

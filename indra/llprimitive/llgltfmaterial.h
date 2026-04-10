@@ -35,6 +35,7 @@
 #include "hbxxh.h"
 
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 
 #include <array>
 #include <string>
@@ -55,6 +56,10 @@ public:
 
     // default material for reference
     static const LLGLTFMaterial sDefault;
+
+    // Packed vec3 avoids 16-byte alignment from GLM_FORCE_DEFAULT_ALIGNED_GENTYPES,
+    // keeping the same 12-byte footprint as the LLColor3 it replaces.
+    using packed_vec3 = glm::vec<3, F32, glm::packed_highp>;
 
     static const char* const ASSET_VERSION;
     static const char* const ASSET_TYPE;
@@ -132,7 +137,7 @@ public:
 
     void setBaseColorFactor(const LLColor4& baseColor, bool for_override = false);
     void setAlphaCutoff(F32 cutoff, bool for_override = false);
-    void setEmissiveColorFactor(const LLColor3& emissiveColor, bool for_override = false);
+    void setEmissiveColorFactor(const glm::vec3& emissiveColor, bool for_override = false);
     void setMetallicFactor(F32 metallic, bool for_override = false);
     void setRoughnessFactor(F32 roughness, bool for_override = false);
     void setAlphaMode(S32 mode, bool for_override = false);
@@ -150,7 +155,7 @@ public:
     static F32 getDefaultMetallicFactor();
     static F32 getDefaultRoughnessFactor();
     static LLColor4 getDefaultBaseColor();
-    static LLColor3 getDefaultEmissiveColor();
+    static packed_vec3 getDefaultEmissiveColor();
     static bool getDefaultDoubleSided();
     static glm::vec2 getDefaultTextureOffset();
     static glm::vec2 getDefaultTextureScale();
@@ -279,7 +284,7 @@ public:
     // NOTE: initialize values to defaults according to the GLTF spec
     // NOTE: these values should be in linear color space
     LLColor4 mBaseColor;
-    LLColor3 mEmissiveColor;
+    packed_vec3 mEmissiveColor{ 0.f };
 
     F32 mMetallicFactor;
     F32 mRoughnessFactor;
