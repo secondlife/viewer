@@ -139,7 +139,7 @@ void LLPanelSettingsWaterMainTab::refresh()
 
     setEnabled(getCanChangeSettings());
     setAllChildrenEnabled(getCanChangeSettings());
-    mClrFogColor->set(mWaterSettings->getWaterFogColor());
+    mClrFogColor->set(LLColor4(LLColor3(mWaterSettings->getWaterFogColor())));
     getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->setValue(mWaterSettings->getWaterFogDensity());
     getChild<LLUICtrl>(FIELD_WATER_UNDERWATER_MOD)->setValue(mWaterSettings->getFogMod());
     mTxtNormalMap->setValue(mWaterSettings->getNormalMapID());
