@@ -2346,7 +2346,7 @@ void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_materi
             me->setTransparency(base_color[VW]);
             me->setMetalnessFactor(render_material->mMetallicFactor);
             me->setRoughnessFactor(render_material->mRoughnessFactor);
-            me->setEmissiveColor(render_material->mEmissiveColor);
+            me->setEmissiveColor(LLColor4(LLColor3(render_material->mEmissiveColor)));
             me->setDoubleSided(render_material->mDoubleSided);
             me->setAlphaMode(render_material->getAlphaMode());
             me->setAlphaCutoff(render_material->mAlphaCutoff);
@@ -3246,7 +3246,7 @@ void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
     mat->mMetallicFactor = getMetalnessFactor();
     mat->mRoughnessFactor = getRoughnessFactor();
 
-    mat->mEmissiveColor = getEmissiveColor();
+    mat->mEmissiveColor = glm::vec3(LLColor3(getEmissiveColor()));
     mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] = getEmissiveId();
 
     mat->mDoubleSided = getDoubleSided();
@@ -3264,7 +3264,7 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
     setMetalnessFactor(mat->mMetallicFactor);
     setRoughnessFactor(mat->mRoughnessFactor);
 
-    setEmissiveColor(mat->mEmissiveColor);
+    setEmissiveColor(LLColor4(LLColor3(mat->mEmissiveColor)));
     setEmissiveId(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
 
     setDoubleSided(mat->mDoubleSided);

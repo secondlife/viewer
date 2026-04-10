@@ -41,7 +41,6 @@
 class LLMessageSystem;
 class LLVolumeParams;
 class LLColor4;
-class LLColor3;
 class LLMaterialID;
 class LLTextureEntry;
 class LLDataPacker;

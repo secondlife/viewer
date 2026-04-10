@@ -326,7 +326,7 @@ namespace tut
         F32 r = 23.f, g = 12.32f, b = -12.3f;
         LLColor3 color3(r,g,b);
         LLColor4U llcolor4u;
-        llcolor4u.setVecScaleClamp(color3);
+        llcolor4u.setVecScaleClamp(glm::vec3(color3));
         const S32 MAX_COLOR = 255;
         F32 color_scale_factor = MAX_COLOR/r;
         S32 r2 = ll_round(r * color_scale_factor);

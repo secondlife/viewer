@@ -519,7 +519,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
     LLColor4 base_color_factors[terrain_material_count];
     F32 metallic_factors[terrain_material_count];
     F32 roughness_factors[terrain_material_count];
-    LLColor3 emissive_colors[terrain_material_count];
+    LLGLTFMaterial::packed_vec3 emissive_colors[terrain_material_count];
     F32 minimum_alphas[terrain_material_count];
     for (U32 i = 0; i < terrain_material_count; ++i)
     {
@@ -550,7 +550,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
     }
     if (sPBRDetailMode >= TERRAIN_PBR_DETAIL_EMISSIVE)
     {
-        shader->uniform3fv(LLShaderMgr::TERRAIN_EMISSIVE_COLORS, std::span<const GLfloat>(reinterpret_cast<F32*>(emissive_colors), terrain_material_count * 3));
+        shader->uniform3fv(LLShaderMgr::TERRAIN_EMISSIVE_COLORS, std::span<const GLfloat>(&emissive_colors[0].x, terrain_material_count * 3));
     }
     shader->uniform4f(LLShaderMgr::TERRAIN_MINIMUM_ALPHAS, minimum_alphas[0], minimum_alphas[1], minimum_alphas[2], minimum_alphas[3]);
 

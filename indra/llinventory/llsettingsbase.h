@@ -255,9 +255,9 @@ public:
         setValue(name, ll_sd_from_quat(value));
     }
 
-    inline void setValue(const std::string &name, const LLColor3 &value)
+    inline void setValue(const std::string &name, const glm::vec3 &value)
     {
-        setValue(name, value.getValue());
+        setValue(name, LLColor3(value).getValue());
     }
 
     inline void setValue(const std::string &name, const LLColor4 &value)
@@ -346,7 +346,6 @@ public:
     LLSD         cloneSettings();
 
     static void lerpVector3(LLVector3& a, const LLVector3& b, F32 mix);
-    static void lerpColor(LLColor3& a, const LLColor3& b, F32 mix);
     static void lerpColor(glm::vec3& a, const glm::vec3& b, F32 mix);
 
 protected:

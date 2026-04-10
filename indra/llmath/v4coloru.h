@@ -96,7 +96,7 @@ public:
 
     LLColor4U multAll(const F32 k); // Multiply ALL channels by scalar k
 
-    inline void setVecScaleClamp(const LLColor3& color);
+    inline void setVecScaleClamp(const glm::vec3& color);
     inline void setVecScaleClamp(const LLColor4& color);
 
     static bool parseColor4U(const std::string& buf, LLColor4U* value);
@@ -369,17 +369,17 @@ void LLColor4U::setVecScaleClamp(const LLColor4& color)
     mV[VALPHA] = a;
 }
 
-void LLColor4U::setVecScaleClamp(const LLColor3& color)
+void LLColor4U::setVecScaleClamp(const glm::vec3& color)
 {
     F32 color_scale_factor = 255.f;
-    F32 max_color          = llmax(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE]);
+    F32 max_color          = llmax(color[0], color[1], color[2]);
     if (max_color > 1.f)
     {
         color_scale_factor /= max_color;
     }
 
     const S32 MAX_COLOR = 255;
-    S32       r         = ll_round(color.mV[VRED] * color_scale_factor);
+    S32       r         = ll_round(color[0] * color_scale_factor);
     if (r > MAX_COLOR)
     {
         r = MAX_COLOR;
@@ -390,7 +390,7 @@ void LLColor4U::setVecScaleClamp(const LLColor3& color)
     }
     mV[VRED] = r;
 
-    S32 g = ll_round(color.mV[VGREEN] * color_scale_factor);
+    S32 g = ll_round(color[1] * color_scale_factor);
     if (g > MAX_COLOR)
     {
         g = MAX_COLOR;
@@ -401,7 +401,7 @@ void LLColor4U::setVecScaleClamp(const LLColor3& color)
     }
     mV[VGREEN] = g;
 
-    S32 b = ll_round(color.mV[VBLUE] * color_scale_factor);
+    S32 b = ll_round(color[2] * color_scale_factor);
     if (b > MAX_COLOR)
     {
         b = MAX_COLOR;
