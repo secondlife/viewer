@@ -849,9 +849,4 @@ LLViewerTexture *LLDrawPoolAvatar::getDebugTexture()
 }
 
 
-LLColor3 LLDrawPoolAvatar::getDebugColor() const
-{
-    return LLColor3(0.f, 1.f, 0.f);
-}
-
 

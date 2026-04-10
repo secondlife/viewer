@@ -94,7 +94,7 @@ S32 LLPrimTextureList::setBumpShinyFullbright(const U8 index, const U8 bump) { r
 S32 LLPrimTextureList::setID(const U8 index, const LLUUID& id) { return TEM_CHANGE_NONE; }
 S32 LLPrimTextureList::setGlow(const U8 index, const F32 glow) { return TEM_CHANGE_NONE; }
 S32 LLPrimTextureList::setAlpha(const U8 index, const F32 alpha) { return TEM_CHANGE_NONE; }
-S32 LLPrimTextureList::setColor(const U8 index, const LLColor3& color) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setColor(const U8 index, const glm::vec3& color) { return TEM_CHANGE_NONE; }
 S32 LLPrimTextureList::setColor(const U8 index, const LLColor4& color) { return TEM_CHANGE_NONE; }
 S32 LLPrimTextureList::setScale(const U8 index, const F32 s, const F32 t) { return TEM_CHANGE_NONE; }
 S32 LLPrimTextureList::setScaleS(const U8 index, const F32 s) { return TEM_CHANGE_NONE; }

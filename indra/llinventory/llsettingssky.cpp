@@ -520,7 +520,7 @@ void LLSettingsSky::replaceWithSky(const LLSettingsSky::ptr_t& pother)
     mNextHaloTextureId = pother->mNextHaloTextureId;
 }
 
-bool lerp_legacy_color(LLColor3& a, bool& a_has_legacy, const LLColor3& b, bool b_has_legacy, const LLColor3& def, F32 mix)
+bool lerp_legacy_color(glm::vec3& a, bool& a_has_legacy, const glm::vec3& b, bool b_has_legacy, const glm::vec3& def, F32 mix)
 {
     if (b_has_legacy)
     {
@@ -660,8 +660,8 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
 
         mHasLegacyHaze |= lerp_legacy_float(mHazeDensity, mLegacyHazeDensity, other->mHazeDensity, other->mLegacyHazeDensity, 0.7f, static_cast<F32>(blendf));
         mHasLegacyHaze |= lerp_legacy_float(mDistanceMultiplier, mLegacyDistanceMultiplier, other->mDistanceMultiplier, other->mLegacyDistanceMultiplier, 0.8f, static_cast<F32>(blendf));
-        mHasLegacyHaze |= lerp_legacy_color(mAmbientColor, mLegacyAmbientColor, other->mAmbientColor, other->mLegacyAmbientColor, LLColor3(0.25f, 0.25f, 0.25f), static_cast<F32>(blendf));
-        mHasLegacyHaze |= lerp_legacy_color(mBlueDensity, mLegacyBlueDensity, other->mBlueDensity, other->mLegacyBlueDensity, LLColor3(0.2447f, 0.4487f, 0.7599f), static_cast<F32>(blendf));
+        mHasLegacyHaze |= lerp_legacy_color(mAmbientColor, mLegacyAmbientColor, other->mAmbientColor, other->mLegacyAmbientColor, glm::vec3(0.25f, 0.25f, 0.25f), static_cast<F32>(blendf));
+        mHasLegacyHaze |= lerp_legacy_color(mBlueDensity, mLegacyBlueDensity, other->mBlueDensity, other->mLegacyBlueDensity, glm::vec3(0.2447f, 0.4487f, 0.7599f), static_cast<F32>(blendf));
 
         if (mLegacyHazeHorizon == mLegacyDensityMultiplier == mLegacyBlueHorizon)
         {
@@ -673,23 +673,23 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
             // Example values that make lerp-based individual transition painfully bright:
             // Start: 3 Haze Horiz, 0.1 Density, 6.54 Distance, white ambient, white blue horizon
             // End: 0.03 Haze Horiz, 0.775 Density, 90.95 Distance, black ambient, black blue horizon
-            F32 strt_level = mHazeHorizon * mDensityMultiplier * mBlueHorizon.length();
-            F32 end_level = other->mHazeHorizon * other->mDensityMultiplier * other->mBlueHorizon.length();
+            F32 strt_level = mHazeHorizon * mDensityMultiplier * glm::length(mBlueHorizon);
+            F32 end_level = other->mHazeHorizon * other->mDensityMultiplier * glm::length(other->mBlueHorizon);
             mHasLegacyHaze |= lerp_legacy_float(mHazeHorizon, mLegacyHazeHorizon, other->mHazeHorizon, other->mLegacyHazeHorizon, 0.19f, static_cast<F32>(blendf));
             mHasLegacyHaze |= lerp_legacy_float(mDensityMultiplier, mLegacyDensityMultiplier, other->mDensityMultiplier, other->mLegacyDensityMultiplier, 0.0001f, static_cast<F32>(blendf));
-            mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, LLColor3(0.4954f, 0.4954f, 0.6399f), static_cast<F32>(blendf));
+            mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, glm::vec3(0.4954f, 0.4954f, 0.6399f), static_cast<F32>(blendf));
 
             // lerp the fake level instead of density multiplier to avoid brightening the sky too much.
             // This makes density multiplier non linear.
             F32 new_level = lerp(strt_level, end_level, static_cast<F32>(blendf));
-            mDensityMultiplier = new_level / (mHazeHorizon * mBlueHorizon.length());
+            mDensityMultiplier = new_level / (mHazeHorizon * glm::length(mBlueHorizon));
         }
         else
         {
             // default values are used, so we should lerp settings independently
             mHasLegacyHaze |= lerp_legacy_float(mHazeHorizon, mLegacyHazeHorizon, other->mHazeHorizon, other->mLegacyHazeHorizon, 0.19f, static_cast<F32>(blendf));
             mHasLegacyHaze |= lerp_legacy_float(mDensityMultiplier, mLegacyDensityMultiplier, other->mDensityMultiplier, other->mLegacyDensityMultiplier, 0.0001f, static_cast<F32>(blendf));
-            mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, LLColor3(0.4954f, 0.4954f, 0.6399f), static_cast<F32>(blendf));
+            mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, glm::vec3(0.4954f, 0.4954f, 0.6399f), static_cast<F32>(blendf));
         }
         parammapping_t defaults = other->getParameterMap();
         stringset_t skip = getSkipInterpolateKeys();
@@ -1294,21 +1294,21 @@ void LLSettingsSky::saveValuesToLLSD()
 
     settings[SETTING_SUN_SCALE] = mSunScale;
     settings[SETTING_SUN_ROTATION] = ll_sd_from_quat(mSunRotation);
-    settings[SETTING_SUNLIGHT_COLOR] = mSunlightColor.getValue();
+    settings[SETTING_SUNLIGHT_COLOR] = LLColor3(mSunlightColor).getValue();
     settings[SETTING_STAR_BRIGHTNESS] = mStarBrightness;
     settings[SETTING_MOON_BRIGHTNESS] = mMoonBrightness;
     settings[SETTING_MOON_SCALE] = mMoonScale;
     settings[SETTING_MOON_ROTATION] = ll_sd_from_quat(mMoonRotation);
     settings[SETTING_MAX_Y] = mMaxY;
-    settings[SETTING_GLOW] = mGlow.getValue();
+    settings[SETTING_GLOW] = LLColor3(mGlow).getValue();
     settings[SETTING_GAMMA] = mGamma;
     settings[SETTING_CLOUD_VARIANCE] = mCloudVariance;
     settings[SETTING_CLOUD_SHADOW] = mCloudShadow;
     settings[SETTING_CLOUD_SCROLL_RATE] = ll_sd_from_vec2(mScrollRate);
     settings[SETTING_CLOUD_SCALE] = mCloudScale;
-    settings[SETTING_CLOUD_POS_DENSITY1] = mCloudPosDensity1.getValue();
-    settings[SETTING_CLOUD_POS_DENSITY2] = mCloudPosDensity2.getValue();
-    settings[SETTING_CLOUD_COLOR] = mCloudColor.getValue();
+    settings[SETTING_CLOUD_POS_DENSITY1] = LLColor3(mCloudPosDensity1).getValue();
+    settings[SETTING_CLOUD_POS_DENSITY2] = LLColor3(mCloudPosDensity2).getValue();
+    settings[SETTING_CLOUD_COLOR] = LLColor3(mCloudColor).getValue();
     settings[SETTING_ABSORPTION_CONFIG] = mAbsorptionConfigs;
     settings[SETTING_MIE_CONFIG] = mMieConfigs;
     settings[SETTING_RAYLEIGH_CONFIG] = mRayleighConfigs;
@@ -1325,9 +1325,9 @@ void LLSettingsSky::saveValuesToLLSD()
     set_legacy(settings, legacy, SETTING_DENSITY_MULTIPLIER, mLegacyDensityMultiplier, LLSD::Real(mDensityMultiplier));
     set_legacy(settings, legacy, SETTING_HAZE_HORIZON, mLegacyHazeHorizon, LLSD::Real(mHazeHorizon));
     set_legacy(settings, legacy, SETTING_HAZE_DENSITY, mLegacyHazeDensity, LLSD::Real(mHazeDensity));
-    set_legacy(settings, legacy, SETTING_BLUE_HORIZON, mLegacyBlueHorizon, mBlueHorizon.getValue());
-    set_legacy(settings, legacy, SETTING_BLUE_DENSITY, mLegacyBlueDensity, mBlueDensity.getValue());
-    set_legacy(settings, legacy, SETTING_AMBIENT, mLegacyAmbientColor, mAmbientColor.getValue());
+    set_legacy(settings, legacy, SETTING_BLUE_HORIZON, mLegacyBlueHorizon, LLColor3(mBlueHorizon).getValue());
+    set_legacy(settings, legacy, SETTING_BLUE_DENSITY, mLegacyBlueDensity, LLColor3(mBlueDensity).getValue());
+    set_legacy(settings, legacy, SETTING_AMBIENT, mLegacyAmbientColor, LLColor3(mAmbientColor).getValue());
 }
 
 F32 LLSettingsSky::getSunMoonGlowFactor() const
@@ -1387,7 +1387,7 @@ LLVector3 LLSettingsSky::getLightDirection() const
     return LLVector3::z_axis_neg;
 }
 
-LLColor3 LLSettingsSky::getLightDiffuse() const
+glm::vec3 LLSettingsSky::getLightDiffuse() const
 {
     update();
 
@@ -1401,10 +1401,10 @@ LLColor3 LLSettingsSky::getLightDiffuse() const
         return getMoonDiffuse();
     }
 
-    return LLColor3::white;
+    return glm::vec3(1.0f);
 }
 
-LLColor3 LLSettingsSky::getColor(const std::string& key, const LLColor3& default_value)
+glm::vec3 LLSettingsSky::getColor(const std::string& key, const glm::vec3& default_value)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     LLSD& settings = getSettings();
@@ -1435,7 +1435,7 @@ F32 LLSettingsSky::getFloat(const std::string& key, F32 default_value)
     return default_value;
 }
 
-LLColor3 LLSettingsSky::getAmbientColor() const
+glm::vec3 LLSettingsSky::getAmbientColor() const
 {
     return mAmbientColor;
 }
@@ -1453,12 +1453,12 @@ LLColor3 LLSettingsSky::getAmbientColorClamped() const
     return ambient;
 }
 
-LLColor3 LLSettingsSky::getBlueDensity() const
+glm::vec3 LLSettingsSky::getBlueDensity() const
 {
     return mBlueDensity;
 }
 
-LLColor3 LLSettingsSky::getBlueHorizon() const
+glm::vec3 LLSettingsSky::getBlueHorizon() const
 {
     return mBlueHorizon;
 }
@@ -1538,7 +1538,7 @@ void LLSettingsSky::setReflectionProbeAmbiance(F32 ambiance)
     setLLSDDirty();
 }
 
-void LLSettingsSky::setAmbientColor(const LLColor3 &val)
+void LLSettingsSky::setAmbientColor(const glm::vec3 &val)
 {
     mAmbientColor = val;
     mLegacyAmbientColor = true;
@@ -1546,7 +1546,7 @@ void LLSettingsSky::setAmbientColor(const LLColor3 &val)
     setLLSDDirty();
 }
 
-void LLSettingsSky::setBlueDensity(const LLColor3 &val)
+void LLSettingsSky::setBlueDensity(const glm::vec3 &val)
 {
     mBlueDensity = val;
     mLegacyBlueDensity = true;
@@ -1554,7 +1554,7 @@ void LLSettingsSky::setBlueDensity(const LLColor3 &val)
     setLLSDDirty();
 }
 
-void LLSettingsSky::setBlueHorizon(const LLColor3 &val)
+void LLSettingsSky::setBlueHorizon(const glm::vec3 &val)
 {
     mBlueHorizon = val;
     mLegacyBlueHorizon = true;
@@ -1595,7 +1595,7 @@ void LLSettingsSky::setHazeHorizon(F32 val)
 }
 
 // Get total from rayleigh and mie density values for normalization
-LLColor3 LLSettingsSky::getTotalDensity() const
+glm::vec3 LLSettingsSky::getTotalDensity() const
 {
     LLColor3    blue_density = getBlueDensity();
     F32         haze_density = getHazeDensity();
@@ -1605,7 +1605,7 @@ LLColor3 LLSettingsSky::getTotalDensity() const
 
 // Sunlight attenuation effect (hue and brightness) due to atmosphere
 // this is used later for sunlight modulation at various altitudes
-LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
+glm::vec3 LLSettingsSky::getLightAttenuation(F32 distance) const
 {
     F32         density_multiplier = getDensityMultiplier();
     LLColor3    blue_density       = getBlueDensity();
@@ -1615,7 +1615,7 @@ LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
     return light_atten;
 }
 
-LLColor3 LLSettingsSky::getLightTransmittance(F32 distance) const
+glm::vec3 LLSettingsSky::getLightTransmittance(F32 distance) const
 {
     LLColor3 total_density      = getTotalDensity();
     F32      density_multiplier = getDensityMultiplier();
@@ -1625,7 +1625,7 @@ LLColor3 LLSettingsSky::getLightTransmittance(F32 distance) const
 }
 
 // SL-16127: getTotalDensity() and getDensityMultiplier() call LLSettingsSky::getColor() and LLSettingsSky::getFloat() respectively which are S-L-O-W
-LLColor3 LLSettingsSky::getLightTransmittanceFast( const LLColor3& total_density, const F32 density_multiplier, const F32 distance ) const
+glm::vec3 LLSettingsSky::getLightTransmittanceFast( const LLColor3& total_density, const F32 density_multiplier, const F32 distance ) const
 {
     // Transparency (-> density) from Beer's law
     LLColor3 transmittance = componentExp(total_density * -(density_multiplier * distance));
@@ -1634,19 +1634,19 @@ LLColor3 LLSettingsSky::getLightTransmittanceFast( const LLColor3& total_density
 
 // performs soft scale clip and gamma correction ala the shader implementation
 // scales colors down to 0 - 1 range preserving relative ratios
-LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in,const F32 &gamma) const
+glm::vec3 LLSettingsSky::gammaCorrect(const glm::vec3& in,const F32 &gamma) const
 {
     //F32 gamma = getGamma(); // SL-16127: Use cached gamma from atmospheric vars
 
     LLColor3 v(in);
     // scale down to 0 to 1 range preserving relative ratio (aka homegenize)
-    F32 max_color = llmax(llmax(in.mV[0], in.mV[1]), in.mV[2]);
+    F32 max_color = llmax(llmax(in[0], in[1]), in[2]);
     if (max_color > 1.0f)
     {
         v *= 1.0f / max_color;
     }
 
-    LLColor3 color = in * 2.0f;
+    LLColor3 color = LLColor3(in) * 2.0f;
     color = smear(1.f) - componentSaturate(color); // clamping after mul seems wrong, but prevents negative colors...
     componentPow(color, gamma);
     color = smear(1.f) - color;
@@ -1671,7 +1671,7 @@ LLColor4 LLSettingsSky::getMoonAmbient() const
     return mMoonAmbient;
 }
 
-LLColor3 LLSettingsSky::getMoonDiffuse() const
+glm::vec3 LLSettingsSky::getMoonDiffuse() const
 {
     update();
     return mMoonDiffuse;
@@ -1683,7 +1683,7 @@ LLColor4 LLSettingsSky::getSunAmbient() const
     return mSunAmbient;
 }
 
-LLColor3 LLSettingsSky::getSunDiffuse() const
+glm::vec3 LLSettingsSky::getSunDiffuse() const
 {
     update();
     return mSunDiffuse;
@@ -1701,14 +1701,14 @@ LLColor4 LLSettingsSky::getTotalAmbient() const
     return mTotalAmbient;
 }
 
-LLColor3 LLSettingsSky::getMoonlightColor() const
+glm::vec3 LLSettingsSky::getMoonlightColor() const
 {
     return getSunlightColor(); //moon and sun share light color
 }
 
-void LLSettingsSky::clampColor(LLColor3& color, F32 gamma, F32 scale)
+void LLSettingsSky::clampColor(glm::vec3& color, F32 gamma, const F32 scale)
 {
-    F32 max_color = llmax(color.mV[0], color.mV[1], color.mV[2]);
+    F32 max_color = llmax(color[0], color[1], color[2]);
     if (max_color > scale)
     {
         color *= scale/max_color;
@@ -1763,7 +1763,7 @@ void LLSettingsSky::calculateLightSettings() const
     sunlight *= 1.0f - cloud_shadow;
     sunlight += tmpAmbient;
 
-    mHazeColor = getBlueHorizon() * getBlueDensity() * sunlight;
+    mHazeColor = LLColor3(getBlueHorizon()) * LLColor3(getBlueDensity()) * sunlight;
     mHazeColor += LLColor4(haze_horizon, haze_horizon, haze_horizon, haze_horizon) * getHazeDensity() * sunlight;
 
     F32 moon_brightness = getIsMoonUp() ? getMoonBrightness() : 0.001f;
@@ -1937,12 +1937,12 @@ LLUUID LLSettingsSky::getHaloTextureId() const
 }
 
 //---------------------------------------------------------------------
-LLColor3 LLSettingsSky::getCloudColor() const
+glm::vec3 LLSettingsSky::getCloudColor() const
 {
     return mCloudColor;
 }
 
-void LLSettingsSky::setCloudColor(const LLColor3 &val)
+void LLSettingsSky::setCloudColor(const glm::vec3 &val)
 {
     mCloudColor = val;
     setLLSDDirty();
@@ -1960,23 +1960,23 @@ void LLSettingsSky::setCloudNoiseTextureId(const LLUUID &id)
     setLLSDDirty();
 }
 
-LLColor3 LLSettingsSky::getCloudPosDensity1() const
+glm::vec3 LLSettingsSky::getCloudPosDensity1() const
 {
     return mCloudPosDensity1;
 }
 
-void LLSettingsSky::setCloudPosDensity1(const LLColor3 &val)
+void LLSettingsSky::setCloudPosDensity1(const glm::vec3 &val)
 {
     mCloudPosDensity1 = val;
     setLLSDDirty();
 }
 
-LLColor3 LLSettingsSky::getCloudPosDensity2() const
+glm::vec3 LLSettingsSky::getCloudPosDensity2() const
 {
     return mCloudPosDensity2;
 }
 
-void LLSettingsSky::setCloudPosDensity2(const LLColor3 &val)
+void LLSettingsSky::setCloudPosDensity2(const glm::vec3 &val)
 {
     mCloudPosDensity2 = val;
     setLLSDDirty();
@@ -2105,12 +2105,12 @@ void LLSettingsSky::setGamma(F32 val)
     setDirtyFlag(true);
     setLLSDDirty();
 }
-LLColor3 LLSettingsSky::getGlow() const
+glm::vec3 LLSettingsSky::getGlow() const
 {
     return mGlow;
 }
 
-void LLSettingsSky::setGlow(const LLColor3 &val)
+void LLSettingsSky::setGlow(const glm::vec3 &val)
 {
     mGlow = val;
     setLLSDDirty();
@@ -2187,7 +2187,7 @@ void LLSettingsSky::setStarBrightness(F32 val)
     setLLSDDirty();
 }
 
-LLColor3 LLSettingsSky::getSunlightColor() const
+glm::vec3 LLSettingsSky::getSunlightColor() const
 {
     return mSunlightColor;
 }
@@ -2206,7 +2206,7 @@ LLColor3 LLSettingsSky::getSunlightColorClamped() const
     return sunlight;
 }
 
-void LLSettingsSky::setSunlightColor(const LLColor3 &val)
+void LLSettingsSky::setSunlightColor(const glm::vec3 &val)
 {
     mSunlightColor = val;
     setDirtyFlag(true);

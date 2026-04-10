@@ -57,7 +57,7 @@ public:
     /*virtual*/ bool verify() const;
     /*virtual*/ LLViewerTexture *getTexture();
     /*virtual*/ LLViewerTexture *getDebugTexture();
-    /*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
+
 
     static S32 sDiffTex;
 };

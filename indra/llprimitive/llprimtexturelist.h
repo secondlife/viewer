@@ -31,6 +31,7 @@
 #include "v3color.h"
 #include "v4color.h"
 #include "llmaterial.h"
+#include "glm/vec3.hpp"
 
 
 class LLTextureEntry;
@@ -84,7 +85,7 @@ public:
     LLTextureEntry* getTexture(const U8 index) const;
 
     S32 setID(const U8 index, const LLUUID& id);
-    S32 setColor(const U8 index, const LLColor3& color);
+    S32 setColor(const U8 index, const glm::vec3& color);
     S32 setColor(const U8 index, const LLColor4& color);
     S32 setAlpha(const U8 index, const F32 alpha);
     S32 setScale(const U8 index, const F32 s, const F32 t);

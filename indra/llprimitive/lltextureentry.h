@@ -29,6 +29,7 @@
 #include "lluuid.h"
 #include "v4color.h"
 #include "llsd.h"
+#include "glm/vec3.hpp"
 #include "llmaterialid.h"
 #include "llmaterial.h"
 #include "llgltfmaterial.h"
@@ -111,7 +112,7 @@ public:
     // These return a TEM_ flag from above to indicate if something changed.
     S32  setID (const LLUUID &tex_id);
     S32  setColor(const LLColor4 &color);
-    S32  setColor(const LLColor3 &color);
+    S32  setColor(const glm::vec3 &color);
     S32  setAlpha(const F32 alpha);
     S32  setScale(F32 s, F32 t);
     S32  setScaleS(F32 s);

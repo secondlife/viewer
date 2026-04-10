@@ -31,8 +31,9 @@
 
 class LLImageRaw;
 class LLColor4U;
-class LLColor3;
 class LLMatrix3;
+
+#include <glm/vec3.hpp>
 
 enum class EStencilBlendMode
 {
@@ -79,12 +80,12 @@ private:
     // When specified, the LLColor3 alpha parameter indicates the intensity of the effect for each color channel
     // acting in effect as an alpha blending factor different for each channel. For instance (1.0,0.0,0.0) will apply
     // the effect only to the Red channel. Intermediate values blends the effect with the source color.
-    void filterGamma(F32 gamma, const LLColor3& alpha);         // Apply gamma to each channel
-    void filterLinearize(F32 tail, const LLColor3& alpha);      // Use histogram to linearize constrast between min and max values minus tail
-    void filterEqualize(S32 nb_classes, const LLColor3& alpha); // Use histogram to equalize constrast between nb_classes throughout the image
-    void filterColorize(const LLColor3& color, const LLColor3& alpha);  // Colorize with color and alpha per channel
-    void filterContrast(F32 slope, const LLColor3& alpha);      // Change contrast according to slope: > 1.0 more contrast, < 1.0 less contrast
-    void filterBrightness(F32 add, const LLColor3& alpha);      // Change brightness according to add: > 0 brighter, < 0 darker
+    void filterGamma(F32 gamma, const glm::vec3& alpha);         // Apply gamma to each channel
+    void filterLinearize(F32 tail, const glm::vec3& alpha);      // Use histogram to linearize constrast between min and max values minus tail
+    void filterEqualize(S32 nb_classes, const glm::vec3& alpha); // Use histogram to equalize constrast between nb_classes throughout the image
+    void filterColorize(const glm::vec3& color, const glm::vec3& alpha);  // Colorize with color and alpha per channel
+    void filterContrast(F32 slope, const glm::vec3& alpha);      // Change contrast according to slope: > 1.0 more contrast, < 1.0 less contrast
+    void filterBrightness(F32 add, const glm::vec3& alpha);      // Change brightness according to add: > 0 brighter, < 0 darker
 
     // Filter Primitives
     void colorTransform(const LLMatrix3 &transform);

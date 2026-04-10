@@ -174,7 +174,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
 
     LLTexUnit::eTextureFilterOptions filter_mode = has_normal_mips ? LLTexUnit::eTextureFilterOptions::TFO_ANISOTROPIC : LLTexUnit::eTextureFilterOptions::TFO_POINT;
 
-    LLColor4      specular(sun_up ? psky->getSunlightColor() : psky->getMoonlightColor());
+    LLColor4      specular(LLColor3(sun_up ? psky->getSunlightColor() : psky->getMoonlightColor()));
     F32           phase_time = static_cast<F32>(LLFrameTimer::getElapsedSeconds()) * 0.5f;
     LLGLSLShader *shader     = nullptr;
 
@@ -331,7 +331,3 @@ LLViewerTexture *LLDrawPoolWater::getDebugTexture()
     return LLViewerTextureManager::getFetchedTexture(IMG_SMOKE);
 }
 
-LLColor3 LLDrawPoolWater::getDebugColor() const
-{
-    return LLColor3(0.f, 1.f, 1.f);
-}

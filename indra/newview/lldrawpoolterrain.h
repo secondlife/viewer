@@ -59,7 +59,7 @@ public:
     /*virtual*/ void dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures);
     /*virtual*/ LLViewerTexture *getTexture();
     /*virtual*/ LLViewerTexture *getDebugTexture();
-    /*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
+
 
     LLPointer<LLViewerTexture> mAlphaRampImagep;
     LLPointer<LLViewerTexture> m2DAlphaRampImagep;

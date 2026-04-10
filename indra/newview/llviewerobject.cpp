@@ -5472,9 +5472,9 @@ S32 LLViewerObject::setTESpecularMap(const U8 te, const LLUUID& uuid)
     return setTESpecularMapCore(te, image);
 }
 
-S32 LLViewerObject::setTEColor(const U8 te, const LLColor3& color)
+S32 LLViewerObject::setTEColor(const U8 te, const glm::vec3& color)
 {
-    return setTEColor(te, LLColor4(color));
+    return setTEColor(te, LLColor4(LLColor3(color)));
 }
 
 S32 LLViewerObject::setTEColor(const U8 te, const LLColor4& color)

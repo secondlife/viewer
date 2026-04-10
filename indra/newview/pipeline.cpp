@@ -5668,8 +5668,8 @@ void LLPipeline::setupHWLights()
             }
 
             //send linear light color to shader
-            LLColor4  light_color = light->getLightLinearColor() * light_scale;
-            light_color.mV[3] = 0.0f;
+            const glm::vec3 light_rgb = light->getLightLinearColor() * light_scale;
+            LLColor4 light_color(LLColor3(light_rgb), 0.0f);
 
             F32 fade = iter->fade;
             if (fade < LIGHT_FADE_TIME)
@@ -8510,9 +8510,9 @@ void LLPipeline::renderDeferredLighting()
                     F32        s = volume->getLightRadius() * 1.5f;
 
                     // send light color to shader in linear space
-                    LLColor3 col = volume->getLightLinearColor() * light_scale;
+                    glm::vec3 col = volume->getLightLinearColor() * light_scale;
 
-                    if (col.lengthSquared() < 0.001f)
+                    if (glm::dot(col, col) < 0.001f)
                     {
                         continue;
                     }
@@ -8544,7 +8544,7 @@ void LLPipeline::renderDeferredLighting()
 
                         gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, std::span<const GLfloat>(c, 3));
                         gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
-                        gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(col.mV, 3));
+                        gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(glm::value_ptr(col), 3));
                         gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF));
                         gDeferredLightProgram.uniform1i(LLShaderMgr::CLASSIC_MODE, (psky->canAutoAdjust()) ? 1 : 0);
 
@@ -8565,7 +8565,7 @@ void LLPipeline::renderDeferredLighting()
                         tc = mul_mat4_vec3(mat, tc);
 
                         fullscreen_lights.push_back(LLVector4(tc.x, tc.y, tc.z, s));
-                        light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF)));
+                        light_colors.push_back(LLVector4(col.x, col.y, col.z, volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF)));
                     }
                 }
 
@@ -8605,11 +8605,11 @@ void LLPipeline::renderDeferredLighting()
                     setupSpotLight(gDeferredSpotLightProgram, drawablep);
 
                     // send light color to shader in linear space
-                    LLColor3 col = volume->getLightLinearColor() * light_scale;
+                    glm::vec3 col = volume->getLightLinearColor() * light_scale;
 
                     gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, std::span<const GLfloat>(c, 3));
                     gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
-                    gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(col.mV, 3));
+                    gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(glm::value_ptr(col), 3));
                     gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF));
                     gDeferredSpotLightProgram.uniform1i(LLShaderMgr::CLASSIC_MODE, (psky->canAutoAdjust()) ? 1 : 0);
 
@@ -8682,11 +8682,11 @@ void LLPipeline::renderDeferredLighting()
                     setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
                     // send light color to shader in linear space
-                    LLColor3 col = volume->getLightLinearColor() * light_scale;
+                    glm::vec3 col = volume->getLightLinearColor() * light_scale;
 
                     gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, std::span<const GLfloat>(glm::value_ptr(tc), 3));
                     gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, light_size_final);
-                    gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(col.mV, 3));
+                    gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, std::span<const GLfloat>(glm::value_ptr(col), 3));
                     gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, light_falloff_final);
                     gDeferredMultiSpotLightProgram.uniform1i(LLShaderMgr::CLASSIC_MODE, (psky->canAutoAdjust()) ? 1 : 0);
 

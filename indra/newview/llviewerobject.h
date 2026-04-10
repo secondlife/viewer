@@ -380,7 +380,7 @@ public:
     S32                 setTETextureCore(const U8 te, LLViewerTexture *image);
     S32 setTENormalMapCore(const U8 te, LLViewerTexture *image);
     S32 setTESpecularMapCore(const U8 te, LLViewerTexture *image);
-    /*virtual*/ S32     setTEColor(const U8 te, const LLColor3 &color);
+    /*virtual*/ S32     setTEColor(const U8 te, const glm::vec3 &color);
     /*virtual*/ S32     setTEColor(const U8 te, const LLColor4 &color);
     /*virtual*/ S32     setTEScale(const U8 te, const F32 s, const F32 t);
     /*virtual*/ S32     setTEScaleS(const U8 te, const F32 s);

@@ -86,12 +86,12 @@ public:
         setLLSDDirty();
     }
 
-    LLColor3 getWaterFogColor() const
+    const glm::vec3& getWaterFogColor() const
     {
         return mWaterFogColor;
     }
 
-    void setWaterFogColor(LLColor3 val)
+    void setWaterFogColor(const glm::vec3& val)
     {
         mWaterFogColor = val;
         setDirtyFlag(true);
@@ -277,7 +277,7 @@ protected:
     LLUUID    mNextNormalMapID;
 
     F32 mBlurMultiplier;
-    LLColor3 mWaterFogColor;
+    glm::vec3 mWaterFogColor{0.f};
     F32 mWaterFogDensity;
     F32 mFogMod;
     F32 mFresnelOffset;

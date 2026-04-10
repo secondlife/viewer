@@ -188,7 +188,7 @@ S32 LLPrimTextureList::setID(const U8 index, const LLUUID& id)
     return TEM_CHANGE_NONE;
 }
 
-S32 LLPrimTextureList::setColor(const U8 index, const LLColor3& color)
+S32 LLPrimTextureList::setColor(const U8 index, const glm::vec3& color)
 {
     if (index < mEntryList.size())
     {

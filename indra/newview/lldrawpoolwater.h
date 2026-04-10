@@ -68,7 +68,7 @@ public:
     void prerender() override;
 
     LLViewerTexture *getDebugTexture() override;
-    LLColor3 getDebugColor() const; // For AGP debug display
+
 
     void setTransparentTextures(const LLUUID& transparentTextureId, const LLUUID& nextTransparentTextureId);
     void setOpaqueTexture(const LLUUID& opaqueTextureId);

@@ -171,38 +171,38 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
         }
         else if (filter_name == "gamma")
         {
-            LLColor3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
+            glm::vec3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
             filterGamma(static_cast<float>(mFilterData[i][1].asReal()),color);
         }
         else if (filter_name == "colorize")
         {
-            LLColor3 color(static_cast<float>(mFilterData[i][1].asReal()),static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()));
-            LLColor3 alpha(static_cast<F32>(mFilterData[i][4].asReal()),static_cast<float>(mFilterData[i][5].asReal()),static_cast<float>(mFilterData[i][6].asReal()));
+            glm::vec3 color(static_cast<float>(mFilterData[i][1].asReal()),static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()));
+            glm::vec3 alpha(static_cast<F32>(mFilterData[i][4].asReal()),static_cast<float>(mFilterData[i][5].asReal()),static_cast<float>(mFilterData[i][6].asReal()));
             filterColorize(color,alpha);
         }
         else if (filter_name == "contrast")
         {
-            LLColor3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
+            glm::vec3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
             filterContrast(static_cast<float>(mFilterData[i][1].asReal()),color);
         }
         else if (filter_name == "brighten")
         {
-            LLColor3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
+            glm::vec3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
             filterBrightness(static_cast<float>(mFilterData[i][1].asReal()),color);
         }
         else if (filter_name == "darken")
         {
-            LLColor3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
+            glm::vec3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
             filterBrightness(static_cast<float>(-mFilterData[i][1].asReal()),color);
         }
         else if (filter_name == "linearize")
         {
-            LLColor3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
+            glm::vec3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
             filterLinearize(static_cast<float>(mFilterData[i][1].asReal()),color);
         }
         else if (filter_name == "posterize")
         {
-            LLColor3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
+            glm::vec3 color(static_cast<float>(mFilterData[i][2].asReal()),static_cast<float>(mFilterData[i][3].asReal()),static_cast<float>(mFilterData[i][4].asReal()));
             filterEqualize(static_cast<S32>(mFilterData[i][1].asReal()),color);
         }
         else if (filter_name == "screen")
@@ -748,7 +748,7 @@ void LLImageFilter::filterRotate(F32 angle)
     colorTransform(transfo);
 }
 
-void LLImageFilter::filterGamma(F32 gamma, const LLColor3& alpha)
+void LLImageFilter::filterGamma(F32 gamma, const glm::vec3& alpha)
 {
     std::array<U8, 256> gamma_red_lut;
     std::array<U8, 256> gamma_green_lut;
@@ -758,15 +758,15 @@ void LLImageFilter::filterGamma(F32 gamma, const LLColor3& alpha)
     {
         F32 gamma_i = llclampf(powf(static_cast<float>(i)/255.0f,1.0f/gamma));
         // Blend in with alpha values
-        gamma_red_lut[i]   = static_cast<U8>((1.0f - alpha.mV[0]) * static_cast<float>(i) + alpha.mV[0] * 255.0f * gamma_i);
-        gamma_green_lut[i] = static_cast<U8>((1.0f - alpha.mV[1]) * static_cast<float>(i) + alpha.mV[1] * 255.0f * gamma_i);
-        gamma_blue_lut[i]  = static_cast<U8>((1.0f - alpha.mV[2]) * static_cast<float>(i) + alpha.mV[2] * 255.0f * gamma_i);
+        gamma_red_lut[i]   = static_cast<U8>((1.0f - alpha[0]) * static_cast<float>(i) + alpha[0] * 255.0f * gamma_i);
+        gamma_green_lut[i] = static_cast<U8>((1.0f - alpha[1]) * static_cast<float>(i) + alpha[1] * 255.0f * gamma_i);
+        gamma_blue_lut[i]  = static_cast<U8>((1.0f - alpha[2]) * static_cast<float>(i) + alpha[2] * 255.0f * gamma_i);
     }
 
     colorCorrect(gamma_red_lut.data(),gamma_green_lut.data(),gamma_blue_lut.data());
 }
 
-void LLImageFilter::filterLinearize(F32 tail, const LLColor3& alpha)
+void LLImageFilter::filterLinearize(F32 tail, const glm::vec3& alpha)
 {
     // Get the histogram
     const U32* histo = getBrightnessHistogram();
@@ -808,9 +808,9 @@ void LLImageFilter::filterLinearize(F32 tail, const LLColor3& alpha)
         {
             U8 value_i = (i < min_v ? 0 : 255);
             // Blend in with alpha values
-            linear_red_lut[i]   = static_cast<U8>((1.0f - alpha.mV[0]) * static_cast<float>(i) + alpha.mV[0] * value_i);
-            linear_green_lut[i] = static_cast<U8>((1.0f - alpha.mV[1]) * static_cast<float>(i) + alpha.mV[1] * value_i);
-            linear_blue_lut[i]  = static_cast<U8>((1.0f - alpha.mV[2]) * static_cast<float>(i) + alpha.mV[2] * value_i);
+            linear_red_lut[i]   = static_cast<U8>((1.0f - alpha[0]) * static_cast<float>(i) + alpha[0] * value_i);
+            linear_green_lut[i] = static_cast<U8>((1.0f - alpha[1]) * static_cast<float>(i) + alpha[1] * value_i);
+            linear_blue_lut[i]  = static_cast<U8>((1.0f - alpha[2]) * static_cast<float>(i) + alpha[2] * value_i);
         }
     }
     else
@@ -822,9 +822,9 @@ void LLImageFilter::filterLinearize(F32 tail, const LLColor3& alpha)
         {
             U8 value_i = static_cast<U8>(llclampb(static_cast<S32>(slope*i + translate)));
             // Blend in with alpha values
-            linear_red_lut[i]   = static_cast<U8>((1.0f - alpha.mV[0]) * static_cast<float>(i) + alpha.mV[0] * value_i);
-            linear_green_lut[i] = static_cast<U8>((1.0f - alpha.mV[1]) * static_cast<float>(i) + alpha.mV[1] * value_i);
-            linear_blue_lut[i]  = static_cast<U8>((1.0f - alpha.mV[2]) * static_cast<float>(i) + alpha.mV[2] * value_i);
+            linear_red_lut[i]   = static_cast<U8>((1.0f - alpha[0]) * static_cast<float>(i) + alpha[0] * value_i);
+            linear_green_lut[i] = static_cast<U8>((1.0f - alpha[1]) * static_cast<float>(i) + alpha[1] * value_i);
+            linear_blue_lut[i]  = static_cast<U8>((1.0f - alpha[2]) * static_cast<float>(i) + alpha[2] * value_i);
         }
     }
 
@@ -832,7 +832,7 @@ void LLImageFilter::filterLinearize(F32 tail, const LLColor3& alpha)
     colorCorrect(linear_red_lut.data(),linear_green_lut.data(),linear_blue_lut.data());
 }
 
-void LLImageFilter::filterEqualize(S32 nb_classes, const LLColor3& alpha)
+void LLImageFilter::filterEqualize(S32 nb_classes, const glm::vec3& alpha)
 {
     // Regularize the parameter: must be between 2 and 255
     nb_classes = llmax(nb_classes,2);
@@ -863,9 +863,9 @@ void LLImageFilter::filterEqualize(S32 nb_classes, const LLColor3& alpha)
     for (S32 i = 0; i < 256; i++)
     {
         // Blend in current_value with alpha values
-        equalize_red_lut[i]   = static_cast<U8>((1.0f - alpha.mV[0]) * static_cast<float>(i) + alpha.mV[0] * current_value);
-        equalize_green_lut[i] = static_cast<U8>((1.0f - alpha.mV[1]) * static_cast<float>(i) + alpha.mV[1] * current_value);
-        equalize_blue_lut[i]  = static_cast<U8>((1.0f - alpha.mV[2]) * static_cast<float>(i) + alpha.mV[2] * current_value);
+        equalize_red_lut[i]   = static_cast<U8>((1.0f - alpha[0]) * static_cast<float>(i) + alpha[0] * current_value);
+        equalize_green_lut[i] = static_cast<U8>((1.0f - alpha[1]) * static_cast<float>(i) + alpha[1] * current_value);
+        equalize_blue_lut[i]  = static_cast<U8>((1.0f - alpha[2]) * static_cast<float>(i) + alpha[2] * current_value);
         if (cumulated_histo[i] >= current_count)
         {
             current_count += delta_count;
@@ -878,27 +878,27 @@ void LLImageFilter::filterEqualize(S32 nb_classes, const LLColor3& alpha)
     colorCorrect(equalize_red_lut.data(),equalize_green_lut.data(),equalize_blue_lut.data());
 }
 
-void LLImageFilter::filterColorize(const LLColor3& color, const LLColor3& alpha)
+void LLImageFilter::filterColorize(const glm::vec3& color, const glm::vec3& alpha)
 {
     std::array<U8, 256> red_lut;
     std::array<U8, 256> green_lut;
     std::array<U8, 256> blue_lut;
 
-    F32 red_composite   =  255.0f * alpha.mV[0] * color.mV[0];
-    F32 green_composite =  255.0f * alpha.mV[1] * color.mV[1];
-    F32 blue_composite  =  255.0f * alpha.mV[2] * color.mV[2];
+    F32 red_composite   =  255.0f * alpha[0] * color[0];
+    F32 green_composite =  255.0f * alpha[1] * color[1];
+    F32 blue_composite  =  255.0f * alpha[2] * color[2];
 
     for (S32 i = 0; i < 256; i++)
     {
-        red_lut[i]   = static_cast<U8>(llclampb(static_cast<S32>((1.0f - alpha.mV[0]) * static_cast<F32>(i) + red_composite)));
-        green_lut[i] = static_cast<U8>(llclampb(static_cast<S32>((1.0f - alpha.mV[1]) * static_cast<F32>(i) + green_composite)));
-        blue_lut[i]  = static_cast<U8>(llclampb(static_cast<S32>((1.0f - alpha.mV[2]) * static_cast<F32>(i) + blue_composite)));
+        red_lut[i]   = static_cast<U8>(llclampb(static_cast<S32>((1.0f - alpha[0]) * static_cast<F32>(i) + red_composite)));
+        green_lut[i] = static_cast<U8>(llclampb(static_cast<S32>((1.0f - alpha[1]) * static_cast<F32>(i) + green_composite)));
+        blue_lut[i]  = static_cast<U8>(llclampb(static_cast<S32>((1.0f - alpha[2]) * static_cast<F32>(i) + blue_composite)));
     }
 
     colorCorrect(red_lut.data(),green_lut.data(),blue_lut.data());
 }
 
-void LLImageFilter::filterContrast(F32 slope, const LLColor3& alpha)
+void LLImageFilter::filterContrast(F32 slope, const glm::vec3& alpha)
 {
     std::array<U8, 256> contrast_red_lut;
     std::array<U8, 256> contrast_green_lut;
@@ -910,15 +910,15 @@ void LLImageFilter::filterContrast(F32 slope, const LLColor3& alpha)
     {
         U8 value_i = static_cast<U8>(llclampb(static_cast<S32>(slope*i + translate)));
         // Blend in with alpha values
-        contrast_red_lut[i]   = static_cast<U8>((1.0f - alpha.mV[0]) * static_cast<float>(i) + alpha.mV[0] * value_i);
-        contrast_green_lut[i] = static_cast<U8>((1.0f - alpha.mV[1]) * static_cast<float>(i) + alpha.mV[1] * value_i);
-        contrast_blue_lut[i]  = static_cast<U8>((1.0f - alpha.mV[2]) * static_cast<float>(i) + alpha.mV[2] * value_i);
+        contrast_red_lut[i]   = static_cast<U8>((1.0f - alpha[0]) * static_cast<float>(i) + alpha[0] * value_i);
+        contrast_green_lut[i] = static_cast<U8>((1.0f - alpha[1]) * static_cast<float>(i) + alpha[1] * value_i);
+        contrast_blue_lut[i]  = static_cast<U8>((1.0f - alpha[2]) * static_cast<float>(i) + alpha[2] * value_i);
     }
 
     colorCorrect(contrast_red_lut.data(),contrast_green_lut.data(),contrast_blue_lut.data());
 }
 
-void LLImageFilter::filterBrightness(F32 add, const LLColor3& alpha)
+void LLImageFilter::filterBrightness(F32 add, const glm::vec3& alpha)
 {
     std::array<U8, 256> brightness_red_lut;
     std::array<U8, 256> brightness_green_lut;
@@ -930,9 +930,9 @@ void LLImageFilter::filterBrightness(F32 add, const LLColor3& alpha)
     {
         U8 value_i = static_cast<U8>(llclampb(i + add_value));
         // Blend in with alpha values
-        brightness_red_lut[i]   = static_cast<U8>((1.0f - alpha.mV[0]) * static_cast<float>(i) + alpha.mV[0] * value_i);
-        brightness_green_lut[i] = static_cast<U8>((1.0f - alpha.mV[1]) * static_cast<float>(i) + alpha.mV[1] * value_i);
-        brightness_blue_lut[i]  = static_cast<U8>((1.0f - alpha.mV[2]) * static_cast<float>(i) + alpha.mV[2] * value_i);
+        brightness_red_lut[i]   = static_cast<U8>((1.0f - alpha[0]) * static_cast<float>(i) + alpha[0] * value_i);
+        brightness_green_lut[i] = static_cast<U8>((1.0f - alpha[1]) * static_cast<float>(i) + alpha[1] * value_i);
+        brightness_blue_lut[i]  = static_cast<U8>((1.0f - alpha[2]) * static_cast<float>(i) + alpha[2] * value_i);
     }
 
     colorCorrect(brightness_red_lut.data(),brightness_green_lut.data(),brightness_blue_lut.data());

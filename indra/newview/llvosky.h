@@ -129,8 +129,8 @@ protected:
 class LLHeavenBody
 {
 protected:
-    LLColor3        mColor;
-    LLColor3        mColorCached;
+    glm::vec3       mColor{0.f};
+    glm::vec3       mColorCached{0.f};
     F32             mIntensity;
     glm::vec3       mDirection{0.f};        // direction of the local heavenly body
     glm::quat       mRotation;
@@ -153,17 +153,17 @@ public:
     LLVector3 getDirection() const;
     void setDirection(const LLVector3 &direction);
 
-    const LLColor3& getColorCached() const;
-    void setColorCached(const LLColor3& c);
-    const LLColor3& getColor() const;
-    void setColor(const LLColor3& c);
+    const glm::vec3& getColorCached() const;
+    void setColorCached(const glm::vec3& c);
+    const glm::vec3& getColor() const;
+    void setColor(const glm::vec3& c);
 
     void renewColor();
 
     static F32 interpVal();
     static void setInterpVal(const F32 v);
 
-    LLColor3 getInterpColor() const;
+    glm::vec3 getInterpColor() const;
 
     const F32& getVisibility() const;
     void setVisibility(const F32 c = 1);
@@ -316,13 +316,6 @@ protected:
     LLHeavenBody        mMoon;
     F32                 mAtmHeight;
     glm::vec3           mCameraPosAgent{0.f};
-    F32                 mBrightnessScale;
-    LLColor3            mBrightestPoint;
-    F32                 mBrightnessScaleNew;
-    LLColor3            mBrightestPointNew;
-    F32                 mBrightnessScaleGuess;
-    LLColor3            mBrightestPointGuess;
-    bool                mWeatherChange;
     F32                 mCloudDensity;
     F32                 mWind;
 
@@ -332,7 +325,6 @@ protected:
     S32                 mCubeMapUpdateStage;        // state of cubemap uodate: -1 idle; 0-5 per-face updates; 6 finalizing
 
     F32                 mAmbientScale;
-    LLColor3            mNightColorShift;
     F32                 mInterpVal;
     F32                 mWorldScale;
 

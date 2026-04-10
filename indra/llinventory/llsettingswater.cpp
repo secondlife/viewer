@@ -126,7 +126,7 @@ void LLSettingsWater::loadValuesFromLLSD()
     LLSD& settings = getSettings();
 
     mBlurMultiplier = static_cast<F32>(settings[SETTING_BLUR_MULTIPLIER].asReal());
-    mWaterFogColor = LLColor3(settings[SETTING_FOG_COLOR]);
+    mWaterFogColor = LLColor3(LLSD(settings[SETTING_FOG_COLOR]));
     mWaterFogDensity = static_cast<F32>(settings[SETTING_FOG_DENSITY].asReal());
     mFogMod = static_cast<F32>(settings[SETTING_FOG_MOD].asReal());
     mFresnelOffset = static_cast<F32>(settings[SETTING_FRESNEL_OFFSET].asReal());
@@ -149,7 +149,7 @@ void LLSettingsWater::saveValuesToLLSD()
 
     LLSD & settings = getSettings();
     settings[SETTING_BLUR_MULTIPLIER] = LLSD::Real(mBlurMultiplier);
-    settings[SETTING_FOG_COLOR] = mWaterFogColor.getValue();
+    settings[SETTING_FOG_COLOR] = LLColor3(mWaterFogColor).getValue();
     settings[SETTING_FOG_DENSITY] = LLSD::Real(mWaterFogDensity);
     settings[SETTING_FOG_MOD] = LLSD::Real(mFogMod);
     settings[SETTING_FRESNEL_OFFSET] = LLSD::Real(mFresnelOffset);

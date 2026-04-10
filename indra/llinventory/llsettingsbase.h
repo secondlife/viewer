@@ -347,6 +347,7 @@ public:
 
     static void lerpVector3(LLVector3& a, const LLVector3& b, F32 mix);
     static void lerpColor(LLColor3& a, const LLColor3& b, F32 mix);
+    static void lerpColor(glm::vec3& a, const glm::vec3& b, F32 mix);
 
 protected:
 

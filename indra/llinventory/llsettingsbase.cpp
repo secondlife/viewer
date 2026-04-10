@@ -147,6 +147,11 @@ void LLSettingsBase::lerpColor(LLColor3& a, const LLColor3& b, F32 mix)
     a.mV[2] = lerp(a.mV[2], b.mV[2], mix);
 }
 
+void LLSettingsBase::lerpColor(glm::vec3& a, const glm::vec3& b, F32 mix)
+{
+    a = glm::mix(a, b, mix);
+}
+
 LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other)
 {
     LLSD newSettings;
