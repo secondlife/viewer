@@ -8170,7 +8170,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     }
     else*/
     {
-        shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_CLIP, std::span<const GLfloat>(mSunClipPlanes.mV, 4));
+        shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_CLIP, std::span<const GLfloat>(glm::value_ptr(mSunClipPlanes), 4));
     }
     shader.uniform1f(LLShaderMgr::DEFERRED_SUN_WASH, RenderDeferredSunWash);
     shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_NOISE, RenderShadowNoise);
@@ -9897,21 +9897,21 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
         {
             F32 x = static_cast<F32>(i+1)/4.f;
             x = powf(x, sxp);
-            mSunClipPlanes.mV[i] = near_clip+range*x;
+            mSunClipPlanes[i] = near_clip+range*x;
         }
 
-        mSunClipPlanes.mV[0] *= 1.25f; //bump back first split for transition padding
+        mSunClipPlanes[0] *= 1.25f; //bump back first split for transition padding
     }
 
     if (gCubeSnapshot)
     { // stretch clip planes for reflection probe renders to reduce number of shadow passes
-        mSunClipPlanes.mV[1] = mSunClipPlanes.mV[2];
-        mSunClipPlanes.mV[2] = mSunClipPlanes.mV[3];
-        mSunClipPlanes.mV[3] *= 1.5f;
+        mSunClipPlanes[1] = mSunClipPlanes[2];
+        mSunClipPlanes[2] = mSunClipPlanes[3];
+        mSunClipPlanes[3] *= 1.5f;
     }
 
     // convenience array of 4 near clip plane distances
-    F32 dist[] = { near_clip, mSunClipPlanes.mV[0], mSunClipPlanes.mV[1], mSunClipPlanes.mV[2], mSunClipPlanes.mV[3] };
+    F32 dist[] = { near_clip, mSunClipPlanes[0], mSunClipPlanes[1], mSunClipPlanes[2], mSunClipPlanes[3] };
 
     if (mSunDiffuse == LLColor4::black)
     { //sun diffuse is totally black shadows don't matter
@@ -9990,8 +9990,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                 }
                 mRT->shadow[j].flush();
 
-                mShadowError.mV[j] = 0.f;
-                mShadowFOV.mV[j] = 0.f;
+                mShadowError[j] = 0.f;
+                mShadowFOV[j] = 0.f;
 
                 continue;
             }
@@ -10102,20 +10102,20 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                 bfb = lp.mV[1]-bfm*lp.mV[0];
 
                 //calculate error
-                mShadowError.mV[j] = 0.f;
+                mShadowError[j] = 0.f;
 
                 for (U32 i = 0; i < wpf.size(); ++i)
                 {
                     F32 lx = (wpf[i].mV[1]-bfb)/bfm;
-                    mShadowError.mV[j] += fabsf(wpf[i].mV[0]-lx);
+                    mShadowError[j] += fabsf(wpf[i].mV[0]-lx);
                 }
 
-                mShadowError.mV[j] /= wpf.size();
-                mShadowError.mV[j] /= size.mV[0];
+                mShadowError[j] /= wpf.size();
+                mShadowError[j] /= size.mV[0];
 
-                if (mShadowError.mV[j] > RenderShadowErrorCutoff)
+                if (mShadowError[j] > RenderShadowErrorCutoff)
                 { //just use ortho projection
-                    mShadowFOV.mV[j] = -1.f;
+                    mShadowFOV[j] = -1.f;
                     origin.clear();
                     proj[j] = glm::ortho(min.mV[0], max.mV[0],
                                         min.mV[1], max.mV[1],
@@ -10158,7 +10158,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
                     F32 cutoff = llmin(static_cast<F32>(RenderShadowFOVCutoff), 1.4f);
 
-                    mShadowFOV.mV[j] = fovx;
+                    mShadowFOV[j] = fovx;
 
                     if (fovx < cutoff && fovz > cutoff)
                     {
@@ -10187,7 +10187,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                         fovx = acos(fovx);
                         fovz = acos(fovz);
 
-                        mShadowFOV.mV[j] = cutoff;
+                        mShadowFOV[j] = cutoff;
                     }
 
                     origin += center;
@@ -10206,7 +10206,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                     if (fovx > cutoff)
                     { //just use ortho projection
                         origin.clear();
-                        mShadowError.mV[j] = -1.f;
+                        mShadowError[j] = -1.f;
                         proj[j] = glm::ortho(min.mV[0], max.mV[0],
                                 min.mV[1], max.mV[1],
                                 -max.mV[2], -min.mV[2]);
