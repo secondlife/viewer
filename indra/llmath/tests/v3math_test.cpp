@@ -640,4 +640,76 @@ namespace tut
         ensure("cross:ortho_a", is_approx_equal(dot(a, ab), 0.f));
         ensure("cross:ortho_b", is_approx_equal(dot(b, ab), 0.f));
     }
+
+    // The packed_highp glm::vec3 qualifier is used in places where a
+    // std::vector<vec3> needs to be handed to a third-party C API as a
+    // tightly-packed F32[3*N] array (e.g.
+    // LLPhysicsDecomp::Request::mPositions feeding LLCDMeshData with
+    // mVertexStrideBytes = 12). The default glm::vec3 in this codebase
+    // is 16-byte aligned (GLM_FORCE_DEFAULT_ALIGNED_GENTYPES), which
+    // would silently corrupt that contract. These tests pin the
+    // contract so a future glm bump or alignment change can't break it
+    // unnoticed.
+    template<> template<>
+    void v3math_object::test<40>()
+    {
+        // packed_highp is exactly 12 bytes, no tail padding
+        using packed_vec3 = glm::vec<3, F32, glm::packed_highp>;
+        ensure_equals("packed_vec3 sizeof == 12", sizeof(packed_vec3), size_t(12));
+        ensure_equals("packed_vec3 alignof == 4", alignof(packed_vec3), size_t(4));
+    }
+
+    template<> template<>
+    void v3math_object::test<41>()
+    {
+        // std::vector<packed_vec3> elements are contiguous and
+        // &v[0].x is a valid F32[3*N] pointer with stride == 12.
+        using packed_vec3 = glm::vec<3, F32, glm::packed_highp>;
+        std::vector<packed_vec3> v;
+        v.emplace_back(1.f, 2.f, 3.f);
+        v.emplace_back(4.f, 5.f, 6.f);
+        v.emplace_back(7.f, 8.f, 9.f);
+
+        const F32* base = &v[0].x;
+        ensure_equals("packed_vec3[0].x", base[0], 1.f);
+        ensure_equals("packed_vec3[0].y", base[1], 2.f);
+        ensure_equals("packed_vec3[0].z", base[2], 3.f);
+        ensure_equals("packed_vec3[1].x", base[3], 4.f);
+        ensure_equals("packed_vec3[1].y", base[4], 5.f);
+        ensure_equals("packed_vec3[1].z", base[5], 6.f);
+        ensure_equals("packed_vec3[2].x", base[6], 7.f);
+        ensure_equals("packed_vec3[2].y", base[7], 8.f);
+        ensure_equals("packed_vec3[2].z", base[8], 9.f);
+
+        // 12-byte stride between successive vectors
+        const auto stride = reinterpret_cast<const char*>(&v[1])
+                          - reinterpret_cast<const char*>(&v[0]);
+        ensure_equals("packed_vec3 stride bytes", static_cast<size_t>(stride), size_t(12));
+    }
+
+    template<> template<>
+    void v3math_object::test<42>()
+    {
+        // packed_vec3 supports the arithmetic / dot / operator[]
+        // operations the LLPhysicsDecomp::Request consumers rely on
+        // (operator[] for the bbox loop, vec - vec for the triangle-
+        // area helper that bridges through default-aligned glm::vec3).
+        using packed_vec3 = glm::vec<3, F32, glm::packed_highp>;
+        const packed_vec3 a(1.f, 2.f, 3.f);
+        const packed_vec3 b(4.f, 6.f, 8.f);
+
+        // operator[] indexed read
+        ensure_equals("packed_vec3[0]", a[0], 1.f);
+        ensure_equals("packed_vec3[1]", a[1], 2.f);
+        ensure_equals("packed_vec3[2]", a[2], 3.f);
+
+        // bridge to default-aligned glm::vec3 for dot/sub
+        const glm::vec3 ad(a.x, a.y, a.z);
+        const glm::vec3 bd(b.x, b.y, b.z);
+        const glm::vec3 diff = bd - ad;
+        ensure_equals("packed bridge sub.x", diff.x, 3.f);
+        ensure_equals("packed bridge sub.y", diff.y, 4.f);
+        ensure_equals("packed bridge sub.z", diff.z, 5.f);
+        ensure_equals("packed bridge dot",   glm::dot(ad, bd), 1.f*4.f + 2.f*6.f + 3.f*8.f);
+    }
 }
