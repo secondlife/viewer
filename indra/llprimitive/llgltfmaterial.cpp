@@ -709,7 +709,7 @@ void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& d
 
     if (override_mat.mEmissiveColor != getDefaultEmissiveColor())
     {
-        data["ec"] = LLColor3(override_mat.mEmissiveColor).getValue();
+        data["ec"] = ll_sd_from_color3(override_mat.mEmissiveColor);
     }
 
     if (override_mat.mMetallicFactor != getDefaultMetallicFactor())
@@ -783,9 +783,8 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     const LLSD& ec = data["ec"];
     if (ec.isDefined())
     {
-        LLColor3 tmp;
-        tmp.setValue(ec);
-        mEmissiveColor = packed_vec3(tmp.mV[0], tmp.mV[1], tmp.mV[2]);
+        glm::vec3 tmp = ll_color3_from_sd(ec);
+        mEmissiveColor = packed_vec3(tmp.x, tmp.y, tmp.z);
         if (mEmissiveColor == getDefaultEmissiveColor())
         {
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
