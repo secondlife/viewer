@@ -91,10 +91,10 @@ public:
     explicit LLSimInfo(U64 handle);
 
     // Convert local region coordinates into world coordinates
-    LLVector3d getGlobalPos(const LLVector3& local_pos) const;
+    LLVector3d getGlobalPos(const glm::vec3& local_pos) const;
     // Get the world coordinates of the SW corner of that region
     LLVector3d getGlobalOrigin() const;
-    LLVector3 getLocalPos(LLVector3d global_pos) const;
+    glm::vec3 getLocalPos(LLVector3d global_pos) const;
 
     void clearImage();                  // Clears the reference to the Land for sale image for that region
     void dropImagePriority();           // Drops the boost level of the Land for sale image for that region
