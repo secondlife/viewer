@@ -2625,16 +2625,8 @@ void LLModelPreview::updateStatusMessages()
         //enable = enable && !use_hull && fmp->childGetValue("physics_optimize").asBoolean();
 
         //enable/disable "analysis" UI
-#if LL_HAVOK
-        LLPanel* panel = fmp->getChild<LLPanel>("physics simplification");
-        panel->setVisible(true);
-
-        panel = fmp->getChild<LLPanel>("physics analysis havok");
-        panel->setVisible(true);
-#else
         LLPanel* panel = fmp->getChild<LLPanel>("physics analysis vhacd");
         panel->setVisible(true);
-#endif
         LLView* child = panel->getFirstChild();
         while (child)
         {

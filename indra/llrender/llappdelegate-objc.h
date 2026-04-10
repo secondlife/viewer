@@ -46,7 +46,6 @@
 - (void) showInputWindow:(bool)show withEvent:(nullable NSEvent *)textEvent;
 - (void) languageUpdated;
 - (bool) romanScript;
-- (void) setBugsplatValue:(nullable NSString *)value forAttribute:(nullable NSString *)attribute;
 @end
 
 @interface LLApplication : NSApplication

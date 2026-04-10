@@ -282,10 +282,6 @@ public:
       */
     LLRunner& getRunner() { return mRunner; }
 
-#ifdef LL_WINDOWS
-    virtual bool reportCrashToBugsplat(void* pExcepInfo /*EXCEPTION_POINTERS*/) { return false; }
-#endif
-
 public:
     using string_map = std::map<std::string, std::string>;
     string_map mOptionMap;  // Contains all command-line options and arguments in a map

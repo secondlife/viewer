@@ -39,7 +39,6 @@
 #include "llappviewermacosx-for-objc.h"
 #include "llwindowmacosx-objc.h"
 #include "llcommandlineparser.h"
-#include "llsdserialize.h"
 
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
@@ -47,17 +46,13 @@
 #include "llfloaterworldmap.h"
 #include "llurldispatcher.h"
 #include "llerrorcontrol.h"
-#include "llvoavatarself.h"         // for gAgentAvatarp->getFullname()
 #include <ApplicationServices/ApplicationServices.h>
 #ifdef LL_CARBON_CRASH_HANDLER
 #include <Carbon/Carbon.h>
 #endif
-#include <vector>
 #include <exception>
-#include <fstream>
 
 #include "lldir.h"
-#include "lldiriterator.h"
 #include <signal.h>
 #include <CoreAudio/CoreAudio.h>    // for systemwide mute
 class LLMediaCtrl;      // for LLURLDispatcher
@@ -151,119 +146,6 @@ void clearDumpLogsDir()
     {
         gDirUtilp->deleteDirAndContents(gDirUtilp->getDumpLogsDirPath());
     }
-}
-
-// The BugsplatMac API is structured as a number of different method
-// overrides, each returning a different piece of metadata. But since we
-// obtain such metadata by opening and parsing a file, it seems ridiculous to
-// reopen and reparse it for every individual string desired. What we want is
-// to open and parse the file once, retaining the data for subsequent
-// requests. That's why this is an LLSingleton.
-// Another approach would be to provide a function that simply returns
-// CrashMetadata, storing the struct in LLAppDelegate, but nat doesn't know
-// enough Objective-C++ to code that. We'd still have to detect which of the
-// method overrides is called first so that the results are order-insensitive.
-class CrashMetadataSingleton: public CrashMetadata, public LLSingleton<CrashMetadataSingleton>
-{
-    LLSINGLETON(CrashMetadataSingleton);
-
-    // convenience method to log each metadata field retrieved by constructor
-    std::string get_metadata(const LLSD& info, const LLSD::String& key) const
-    {
-        std::string data(info[key].asString());
-        LL_INFOS("Bugsplat") << "  " << key << "='" << data << "'" << LL_ENDL;
-        return data;
-    }
-};
-
-// Populate the fields of our public base-class struct.
-CrashMetadataSingleton::CrashMetadataSingleton()
-{
-    // Note: we depend on being able to read the static_debug_info.log file
-    // from the *previous* run before we overwrite it with the new one for
-    // *this* run. LLAppViewer initialization must happen in the Right Order.
-
-    // Todo: consider converting static file into bugspalt attributes file
-    staticDebugPathname = *gViewerAppPtr->getStaticDebugFile();
-    std::ifstream static_file(staticDebugPathname);
-    LLSD info;
-    if (! static_file.is_open())
-    {
-        LL_WARNS("Bugsplat") << "Can't open '" << staticDebugPathname
-                   << "'; no metadata about previous run" << LL_ENDL;
-    }
-    else if (! LLSDSerialize::deserialize(info, static_file, LLSDSerialize::SIZE_UNLIMITED))
-    {
-        LL_WARNS("Bugsplat") << "Can't parse '" << staticDebugPathname
-                   << "'; no metadata about previous run" << LL_ENDL;
-    }
-    else
-    {
-        LL_INFOS("Bugsplat") << "Previous run metadata from '" << staticDebugPathname << "':" << LL_ENDL;
-        logFilePathname      = get_metadata(info, "SLLog");
-        userSettingsPathname = get_metadata(info, "SettingsFilename");
-        accountSettingsPathname = get_metadata(info, "PerAccountSettingsFilename");
-        OSInfo               = get_metadata(info, "OSInfo");
-        agentFullname        = get_metadata(info, "LoginName");
-        // Translate underscores back to spaces
-        std::ranges::replace(agentFullname, '_', ' ');
-        regionName           = get_metadata(info, "CurrentRegion");
-        fatalMessage         = get_metadata(info, "FatalMessage");
-
-        if (gDirUtilp->fileExists(gDirUtilp->getDumpLogsDirPath()))
-        {
-            LLDirIterator file_iter(gDirUtilp->getDumpLogsDirPath(), "*.log");
-            std::string file_name;
-            bool found = true;
-            while(found)
-            {
-                if((found = file_iter.next(file_name)))
-                {
-                    std::string log_filename = gDirUtilp->getDumpLogsDirPath(file_name);
-                    if(LLError::logFileName() != log_filename)
-                    {
-                        secondLogFilePathname = log_filename;
-                    }
-                }
-            }
-        }
-
-        // Populate bugsplat attributes
-        LLXMLNodePtr out_node = new LLXMLNode("XmlCrashContext", false);
-
-        out_node->createChild("OS", false)->setValue(OSInfo);
-        out_node->createChild("AppState", false)->setValue(info["StartupState"].asString());
-        out_node->createChild("GraphicsCard", false)->setValue(info["GraphicsCard"].asString());
-        out_node->createChild("GLVersion", false)->setValue(info["GLInfo"]["GLVersion"].asString());
-        out_node->createChild("GLRenderer", false)->setValue(info["GLInfo"]["GLRenderer"].asString());
-        out_node->createChild("RAM", false)->setValue(info["RAMInfo"]["Physical"].asString());
-
-        if (!out_node->isNull())
-        {
-            attributesPathname = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "CrashContext.xml");
-            LLFILE* fp = LLFile::fopen(attributesPathname, "w");
-
-            if (fp != NULL)
-            {
-                LLXMLNode::writeHeaderToFile(fp);
-                out_node->writeToFile(fp);
-
-                fclose(fp);
-            }
-        }
-    }
-    // else Todo: consider fillig at least some values, like OS
-}
-
-// Avoid having to compile all of our LLSingleton machinery in Objective-C++.
-CrashMetadata& CrashMetadata_instance()
-{
-    return CrashMetadataSingleton::instance();
-}
-
-void infos(const std::string& message)
-{
-    LL_INFOS("InitOSX", "Bugsplat") << message << LL_ENDL;
 }
 
 int main( int argc, char **argv )
@@ -379,9 +261,7 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 #define SET_SIG(SIGNAL) sigaction(SIGNAL, &act, &old_act); \
                         if(act.sa_sigaction != old_act.sa_sigaction) ++reset_count;
     // Synchronous signals
-#   ifndef LL_BUGSPLAT
-    SET_SIG(SIGABRT) // let bugsplat catch this
-#   endif
+    SET_SIG(SIGABRT)
     SET_SIG(SIGALRM)
     SET_SIG(SIGBUS)
     SET_SIG(SIGFPE)

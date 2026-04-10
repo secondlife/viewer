@@ -615,9 +615,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
     }
     catch (...)
     {
-        // Ideally for Windows need to log SEH exception instead or to set SEH
-        // handlers but bugsplat shows local variables for windows, which should
-        // be enough
+        // Ideally for Windows need to log SEH exception instead or to set SEH handlers
         LL_WARNS("Voice") << "voiceConnectionStateMachine crashed" << LL_ENDL;
         throw;
     }

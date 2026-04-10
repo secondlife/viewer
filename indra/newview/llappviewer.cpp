@@ -683,14 +683,8 @@ LLAppViewer::LLAppViewer()
     // from the previous viewer run between this constructor call and the
     // init() call, which will overwrite the static_debug_info.log file for
     // THIS run. So setDebugFileNames() early.
-#   ifdef LL_BUGSPLAT
-    // MAINT-8917: don't create a dump directory just for the
-    // static_debug_info.log file
-    std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
-#   else // ! LL_BUGSPLAT
     // write Google Breakpad minidump files to a per-run dump directory to avoid multiple viewer issues.
     std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-#   endif // ! LL_BUGSPLAT
     mDumpPath = logdir;
 
     setDebugFileNames(logdir);
@@ -1736,7 +1730,7 @@ bool LLAppViewer::cleanup()
     // shut down mesh streamer
     gMeshRepo.shutdown();
 
-    // shut down Havok
+    // shut down physics extensions
     LLPhysicsExtensions::quitSystem();
 
     // Must clean up texture references before viewer window is destroyed.
@@ -3244,15 +3238,6 @@ bool LLAppViewer::waitForUpdater()
 
 void LLAppViewer::writeDebugInfo(bool isStatic)
 {
-#if LL_WINDOWS && LL_BUGSPLAT
-    // bugsplat does not create dump folder and debug logs are written directly
-    // to logs folder, so it conflicts with main instance
-    if (mSecondInstance)
-    {
-        return;
-    }
-#endif
-
     //Try to do the minimum when writing data during a crash.
     std::string* debug_filename;
     debug_filename = ( isStatic
@@ -3621,15 +3606,11 @@ void LLAppViewer::writeSystemInfo()
         gDebugInfo["Dynamic"] = LLSD::emptyMap();
 
 #if LL_DARWIN
-    // crash processing in CrashMetadataSingleton reads SLLog
     gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.crash");
-#elif LL_WINDOWS && !LL_BUGSPLAT
+#elif LL_WINDOWS
     gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
 #else
-    // Far from ideal, especially when multiple instances get involved.
-    // Note that attachmentsForBugSplat expects .old extendion.
-    // Todo: improve.
-    gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");  //LLError::logFileName();
+    gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");
 #endif
 
     gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::instance().getChannel();
@@ -3662,16 +3643,10 @@ void LLAppViewer::writeSystemInfo()
     gDebugInfo["MainloopThreadID"] = static_cast<S32>(thread_id);
 #endif
 
-#ifndef LL_BUGSPLAT
     // "CrashNotHandled" is set here, while things are running well,
     // in case of a freeze. If there is a freeze, the crash logger will be launched
     // and can read this value from the debug_info.log.
     gDebugInfo["CrashNotHandled"] = LLSD::Boolean(true);
-#else // LL_BUGSPLAT
-    // "CrashNotHandled" is obsolete; it used (not very successsfully)
-    // to try to distinguish crashes from freezes - the intent here to to avoid calling it a freeze
-    gDebugInfo["CrashNotHandled"] = LLSD::Boolean(false);
-#endif // ! LL_BUGSPLAT
 
     // Insert crash host url (url to post crash log to) if configured. This insures
     // that the crash report will go to the proper location in the case of a
@@ -3948,13 +3923,7 @@ void LLAppViewer::processMarkerFiles()
         {
             // the file existed, is ours, and matched our version, so we can report on what it says
             LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec crashed or froze" << LL_ENDL;
-#if LL_WINDOWS && LL_BUGSPLAT
-            // bugsplat will set correct state in bugsplatSendLog
-            // Might be more accurate to rename this one into 'unknown'
-            gLastExecEvent = LAST_EXEC_UNKNOWN;
-#else
             gLastExecEvent = LAST_EXEC_OTHER_CRASH;
-#endif // LL_WINDOWS
 
         }
         else

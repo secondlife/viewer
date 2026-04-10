@@ -42,8 +42,6 @@ public:
     bool init() override; // Override to do application initialization
     bool cleanup() override;
 
-    bool reportCrashToBugsplat(void* pExcepInfo) override;
-
 protected:
     bool initWindow() override; // Override to initialize the viewer's window.
     void initLoggingAndGetLastDuration() override; // Override to clean stack_trace info.
