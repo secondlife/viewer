@@ -4404,3 +4404,17 @@ bool LLContextMenu::addChild(LLView* view, S32 tab_group)
     return addContextChild(view, tab_group);
 }
 
+void LLContextMenu::deleteAllChildren()
+{
+    mHoverItem = nullptr;
+    LLMenuGL::deleteAllChildren();
+}
+
+void LLContextMenu::removeChild(LLView* ctrl)
+{
+    if (ctrl == mHoverItem)
+    {
+        mHoverItem = nullptr;
+    }
+    LLMenuGL::removeChild(ctrl);
+}

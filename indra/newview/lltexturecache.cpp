@@ -875,7 +875,7 @@ std::string LLTextureCache::getTextureFileName(const LLUUID& id)
 //debug
 bool LLTextureCache::isInCache(const LLUUID& id)
 {
-    LLMutexLock lock(&mHeaderMutex);
+    LLMutexLock lock(&mHeaderIDMapMutex);
     id_map_t::const_iterator iter = mHeaderIDMap.find(id);
 
     return (iter != mHeaderIDMap.end()) ;
@@ -991,6 +991,8 @@ void LLTextureCache::setReadOnly(bool read_only)
 // Returns the unused amount of max_size if any
 S64 LLTextureCache::initCache(ELLPath location, S64 max_size, bool texture_cache_mismatch)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     llassert_always(getPending() == 0) ; //should not start accessing the texture cache before initialized.
 
     S64 entries_size = (max_size * 36) / 100; //0.36 * max_size
@@ -1115,10 +1117,13 @@ S32 LLTextureCache::openAndReadEntry(const LLUUID& id, Entry& entry, bool create
 {
     S32 idx = -1;
 
-    id_map_t::iterator iter1 = mHeaderIDMap.find(id);
-    if (iter1 != mHeaderIDMap.end())
     {
-        idx = iter1->second;
+        LLMutexLock lock(&mHeaderIDMapMutex);
+        id_map_t::iterator iter1 = mHeaderIDMap.find(id);
+        if (iter1 != mHeaderIDMap.end())
+        {
+            idx = iter1->second;
+        }
     }
 
     if (idx < 0)
@@ -1146,10 +1151,19 @@ S32 LLTextureCache::openAndReadEntry(const LLUUID& id, Entry& entry, bool create
                     // Erase entry from LRU regardless
                     mLRU.erase(curiter2);
                     // Look up entry and use it if it is valid
-                    id_map_t::iterator iter3 = mHeaderIDMap.find(oldid);
-                    if (iter3 != mHeaderIDMap.end() && iter3->second >= 0)
+
+                    S32 found_idx = -1;
                     {
-                        idx = iter3->second;
+                        LLMutexLock lock(&mHeaderIDMapMutex);
+                        id_map_t::iterator iter3 = mHeaderIDMap.find(oldid);
+                        if (iter3 != mHeaderIDMap.end() && iter3->second >= 0)
+                        {
+                            found_idx = iter3->second;
+                        }
+                    }
+                    if (found_idx >= 0)
+                    {
+                        idx = found_idx;
                         removeCachedTexture(oldid) ;//remove the existing cached texture to release the entry index.
                         break;
                     }
@@ -1285,7 +1299,10 @@ bool LLTextureCache::updateEntry(S32& idx, Entry& entry, S32 new_image_size, S32
         bool update_header = false ;
         if(entry.mImageSize < 0) //is a brand-new entry
         {
-            mHeaderIDMap[entry.mID] = idx;
+            {
+                LLMutexLock lock(&mHeaderIDMapMutex);
+                mHeaderIDMap[entry.mID] = idx;
+            }
             mTexturesSizeMap[entry.mID] = new_body_size ;
             mTexturesSizeTotal += new_body_size ;
 
@@ -1323,8 +1340,8 @@ bool LLTextureCache::updateEntry(S32& idx, Entry& entry, S32 new_image_size, S32
 
 U32 LLTextureCache::openAndReadEntries(std::vector<Entry>& entries)
 {
+    LLMutexLock lock(&mHeaderIDMapMutex);
     U32 num_entries = mHeaderEntriesInfo.mEntries;
-
     mHeaderIDMap.clear();
     mTexturesSizeMap.clear();
     mFreeList.clear();
@@ -1618,7 +1635,10 @@ void LLTextureCache::purgeAllTextures(bool purge_directories)
             LLFile::rmdir(mTexturesDirName);
         }
     }
-    mHeaderIDMap.clear();
+    {
+        LLMutexLock lock(&mHeaderIDMapMutex);
+        mHeaderIDMap.clear();
+    }
     mTexturesSizeMap.clear();
     mTexturesSizeTotal = 0;
     mFreeList.clear();
@@ -1665,6 +1685,7 @@ void LLTextureCache::purgeTexturesLazy(F32 time_limit_sec)
         {
             if (iter1->second > 0)
             {
+                LLMutexLock lock(&mHeaderIDMapMutex);
                 id_map_t::iterator iter2 = mHeaderIDMap.find(iter1->first);
                 if (iter2 != mHeaderIDMap.end())
                 {
@@ -1706,8 +1727,13 @@ void LLTextureCache::purgeTexturesLazy(F32 time_limit_sec)
             Entry entry = mPurgeEntryList.back().second;
             mPurgeEntryList.pop_back();
             // make sure record is still valid
-            id_map_t::iterator iter_header = mHeaderIDMap.find(entry.mID);
-            if (iter_header != mHeaderIDMap.end() && iter_header->second == idx)
+            bool remove_entry = false;
+            {
+                LLMutexLock lock(&mHeaderIDMapMutex);
+                id_map_t::iterator iter_header = mHeaderIDMap.find(entry.mID);
+                remove_entry = (iter_header != mHeaderIDMap.end() && iter_header->second == idx);
+            }
+            if (remove_entry)
             {
                 std::string tex_filename = getTextureFileName(entry.mID);
                 removeEntry(idx, entry, tex_filename);
@@ -1750,6 +1776,7 @@ void LLTextureCache::purgeTextures(bool validate)
     {
         if (iter1->second > 0)
         {
+            LLMutexLock lock(&mHeaderIDMapMutex);
             id_map_t::iterator iter2 = mHeaderIDMap.find(iter1->first);
             if (iter2 != mHeaderIDMap.end())
             {
@@ -2004,7 +2031,7 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 {
     U32 offset;
     {
-        LLMutexLock lock(&mHeaderMutex);
+        LLMutexLock lock(&mHeaderIDMapMutex);
         id_map_t::const_iterator iter = mHeaderIDMap.find(id);
         if(iter == mHeaderIDMap.end())
         {
@@ -2018,9 +2045,10 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
     U8* data;
     S32 head[4];
     {
+        LL_PROFILE_ZONE_NAMED("Read fast cache");
         LLMutexLock lock(&mFastCacheMutex);
 
-        openFastCache();
+        openFastCache(); // only reopens if needed, lasts 10 seconds
 
         mFastCachep->seek(APR_SET, offset);
 
@@ -2051,7 +2079,9 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 
         closeFastCache();
     }
-    LLPointer<LLImageRaw> raw = new LLImageRaw(data, head[0], head[1], head[2], true);
+
+    // directly construct image from new buffer.
+    LLPointer<LLImageRaw> raw = new LLImageRaw(data, head[0], head[1], head[2], true /*take ownership*/);
 
     return raw;
 }
@@ -2229,7 +2259,10 @@ void LLTextureCache::removeCachedTexture(const LLUUID& id)
         mTexturesSizeTotal -= mTexturesSizeMap[id] ;
         mTexturesSizeMap.erase(id);
     }
-    mHeaderIDMap.erase(id);
+    {
+        LLMutexLock lock(&mHeaderIDMapMutex);
+        mHeaderIDMap.erase(id);
+    }
     // We are inside header's mutex so mHeaderAPRFilePoolp is safe to use,
     // but getLocalAPRFilePool() is not safe, it might be in use by worker
     LLAPRFile::remove(getTextureFileName(id), mHeaderAPRFilePoolp);
@@ -2260,7 +2293,10 @@ void LLTextureCache::removeEntry(S32 idx, Entry& entry, std::string& filename)
 
         entry.mImageSize = -1;
         entry.mBodySize = 0;
-        mHeaderIDMap.erase(entry.mID);
+        {
+            LLMutexLock lock(&mHeaderIDMapMutex);
+            mHeaderIDMap.erase(entry.mID);
+        }
         mTexturesSizeMap.erase(entry.mID);
         mFreeList.insert(idx);
     }

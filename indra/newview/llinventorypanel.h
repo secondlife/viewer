@@ -300,7 +300,7 @@ protected:
     LLPointer<LLFolderViewGroupedItemBridge> mGroupedItemBridge;
     Params                      mParams;    // stored copy of parameter block
 
-    std::map<LLUUID, LLFolderViewItem*> mItemMap;
+    std::unordered_map<LLUUID, LLFolderViewItem*> mItemMap;
     /**
      * Pointer to LLInventoryFolderViewModelBuilder.
      *

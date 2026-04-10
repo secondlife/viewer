@@ -634,12 +634,6 @@ bool get_is_item_worn(const LLUUID& id, const LLViewerInventoryItem* item)
         return false;
     }
 
-    // Consider the item as worn if it has links in COF.
-    if (LLAppearanceMgr::instance().isLinkedInCOF(id))
-    {
-        return true;
-    }
-
     switch(item->getType())
     {
         case LLAssetType::AT_OBJECT:
@@ -2555,7 +2549,7 @@ bool get_is_favorite(const LLUUID& obj_id)
         return obj && obj->getIsFavorite();
     }
 
-    return object->getIsFavorite();
+    return object && object->getIsFavorite();
 }
 
 void set_favorite(const LLUUID& obj_id, bool favorite)

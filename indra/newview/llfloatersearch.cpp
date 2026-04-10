@@ -123,19 +123,32 @@ void LLFloaterSearch::initiateSearch(const LLSD& tokens)
     subs["COLLECTION"] = "";
     if (subs["TYPE"] == "standard")
     {
+        std::string collection_args;
         if (mCollectionType.find(collection) != mCollectionType.end())
         {
-            subs["COLLECTION"] = "&collection_chosen=" + std::string(collection);
+            collection_args = "&collection_chosen=" + std::string(collection);
         }
-        else
+        else if (tokens.has("collections") && tokens["collections"].isArray())
         {
-            std::string collection_args("");
+            const LLSD &sd = tokens["collections"];
+            for (LLSD::array_const_iterator it = sd.beginArray();
+                it != sd.endArray();
+                ++it)
+            {
+                if (mCollectionType.find(it->asString()) != mCollectionType.end())
+                {
+                    collection_args += "&collection_chosen=" + std::string(*it);
+                }
+            }
+        }
+        if (collection_args.empty())
+        {
             for (std::set<std::string>::iterator it = mCollectionType.begin(); it != mCollectionType.end(); ++it)
             {
                 collection_args += "&collection_chosen=" + std::string(*it);
             }
-            subs["COLLECTION"] = collection_args;
         }
+        subs["COLLECTION"] = collection_args;
     }
 
     // Default to PG

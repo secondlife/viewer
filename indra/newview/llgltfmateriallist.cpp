@@ -170,7 +170,7 @@ namespace
 
 void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::string& data_in)
 {
-    std::istringstream str(data_in);
+    boost::iostreams::stream<boost::iostreams::array_source> str(data_in.data(), data_in.size());
 
     LLSD data;
 

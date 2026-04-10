@@ -42,6 +42,7 @@
 #include "llcoproceduremanager.h"
 #include "lleventcoro.h"
 #include "llsdutil.h"
+#include "llstartup.h"
 #include "llworld.h"
 
 ///----------------------------------------------------------------------------
@@ -460,25 +461,75 @@ void LLViewerAssetStorage::assetRequestCoro(
 
     if (!gAgent.getRegion())
     {
-        LL_WARNS_ONCE("ViewerAsset") << "Asset request fails: no region set" << LL_ENDL;
-        result_code = LL_ERR_ASSET_REQUEST_FAILED;
-        ext_status = LLExtStat::NONE;
-        removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status, 0);
-        return;
+        if (STATE_WORLD_INIT <= LLStartUp::getStartupState())
+        {
+            // Viewer isn't ready, wait for region to become available
+            LL_INFOS_ONCE("ViewerAsset") << "Waiting for agent region to be set" << LL_ENDL;
+
+            LLEventStream region_init("waitForRegion", true);
+            std::string pump_name = region_init.getName();
+
+            boost::signals2::connection region_conn =
+                gAgent.addRegionChangedCallback([pump_name]()
+                {
+                    LLEventPumps::instance().obtain(pump_name).post(LLSD());
+                });
+            F32Seconds timeout_seconds(LL_ASSET_STORAGE_TIMEOUT);
+            llcoro::suspendUntilEventOnWithTimeout(region_init, timeout_seconds, LLSDMap("timeout", LLSD::Boolean(true)));
+            gAgent.removeRegionChangedCallback(region_conn);
+            region_conn.disconnect();
+
+            if (LLApp::isExiting() || !gAssetStorage)
+            {
+                return;
+            }
+
+            // recheck region whether suspend ended on timeout or not
+            if (!gAgent.getRegion())
+            {
+                LL_WARNS_ONCE("ViewerAsset") << "Asset request fails: timeout reached while waiting for region" << LL_ENDL;
+                result_code = LL_ERR_NO_CAP;
+                ext_status = LLExtStat::NONE;
+                removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status, 0);
+                return;
+            }
+        }
+        else
+        {
+            LL_WARNS_ONCE("ViewerAsset") << "Asset request fails: no region set" << LL_ENDL;
+            result_code = LL_ERR_NO_CAP;
+            ext_status = LLExtStat::NONE;
+            removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status, 0);
+            return;
+        }
     }
-    else if (!gAgent.getRegion()->capabilitiesReceived())
+
+    if (!gAgent.getRegion()->capabilitiesReceived())
     {
         LL_WARNS_ONCE("ViewerAsset") << "Waiting for capabilities" << LL_ENDL;
 
         LLEventStream capsRecv("waitForCaps", true);
 
-        gAgent.getRegion()->setCapabilitiesReceivedCallback(
-            boost::bind(&LLViewerAssetStorage::capsRecvForRegion, this, _1, capsRecv.getName()));
+        boost::signals2::connection caps_conn =
+            gAgent.getRegion()->setCapabilitiesReceivedCallback(
+                boost::bind(&LLViewerAssetStorage::capsRecvForRegion, this, _1, capsRecv.getName()));
 
-        llcoro::suspendUntilEventOn(capsRecv);
+        F32Seconds timeout_seconds(LL_ASSET_STORAGE_TIMEOUT); // from minutes to seconds, by default 5 minutes
+        LLSD result = llcoro::suspendUntilEventOnWithTimeout(capsRecv, timeout_seconds, LLSDMap("timeout", LLSD::Boolean(true)));
+        caps_conn.disconnect();
 
         if (LLApp::isExiting() || !gAssetStorage)
         {
+            return;
+        }
+
+        if (result.has("timeout"))
+        {
+            // Caps failed to arrive in 5 minutes
+            LL_WARNS_ONCE("ViewerAsset") << "Asset " << uuid << " request fails : capabilities took too long to arrive" << LL_ENDL;
+            result_code = LL_ERR_NO_CAP;
+            ext_status = LLExtStat::NONE;
+            removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status, 0);
             return;
         }
 
@@ -492,7 +543,7 @@ void LLViewerAssetStorage::assetRequestCoro(
     if (mViewerAssetUrl.empty())
     {
         LL_WARNS_ONCE("ViewerAsset") << "asset request fails: caps received but no viewer asset cap found" << LL_ENDL;
-        result_code = LL_ERR_ASSET_REQUEST_FAILED;
+        result_code = LL_ERR_NO_CAP;
         ext_status = LLExtStat::NONE;
         removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status, 0);
         return;

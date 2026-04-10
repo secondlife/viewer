@@ -32,6 +32,11 @@
 
 class LLVertexBufferData;
 
+// Rendering fonts is expensive, this class is intended to store
+// vertex buffers for rendered text, so that they can be reused.
+// LLFontVertexBuffer tracks font and rendering parameters, but
+// expects caller to track text changes and call reset() when
+// text changes.
 class LLFontVertexBuffer
 {
 public:
@@ -125,6 +130,47 @@ private:
     S32 mLastFontCacheGen = 0;
 
     static bool sEnableBufferCollection;
+};
+
+// Extracting width from a font is expensive, and due to
+// mechanics of font rendering, we need width separately
+// and usually before rendering.
+// LLFontWidthBuffer tracks font and rendering parameters,
+// but expects caller to track text changes and call reset()
+// when text changes.
+class LLFontWidthBuffer
+{
+public:
+    LLFontWidthBuffer();
+    ~LLFontWidthBuffer();
+
+    void reset();
+
+    F32 getWidth(const LLFontGL* fontp,
+        const llwchar* wchars,
+        S32 begin_offset,
+        S32 max_chars,
+        bool no_padding);
+
+    static void enableBufferCollection(bool enable) { sEnableBufferCollection = enable; }
+private:
+        const LLFontGL* mLastFont = nullptr;
+        S32 mLastOffset = 0;
+        S32 mLastMaxChars = 0;
+        bool mLastNoPadding = false;
+        F32 mWidth = -1.f;
+
+        // LLFontGL's values that affect width calculation
+        F32 mLastScaleX = 1.f;
+        F32 mLastScaleY = 1.f;
+        F32 mLastVertDPI = 0.f;
+        F32 mLastHorizDPI = 0.f;
+        S32 mLastResGeneration = 0;
+
+        // Cache generation tracking
+        S32 mLastFontCacheGen = 0;
+
+        static bool sEnableBufferCollection;
 };
 
 #endif

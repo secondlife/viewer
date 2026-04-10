@@ -2125,8 +2125,7 @@ LLFolderViewItem* LLInventoryPanel::getItemByID(const LLUUID& id)
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    std::map<LLUUID, LLFolderViewItem*>::iterator map_it;
-    map_it = mItemMap.find(id);
+    auto map_it = mItemMap.find(id);
     if (map_it != mItemMap.end())
     {
         return map_it->second;

@@ -850,7 +850,12 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
 
     // Start observing changes in "My Outfits" category.
     mCategoriesObserver->addCategory(cat_id,
-        boost::bind(&LLOutfitGallery::refreshOutfit, this, cat_id), true);
+        [this, cat_id]()
+        {
+            mPendingOutfitRefreshes.insert(cat_id);
+            startIdleLoop(cat_id);
+        },
+        true);
 
     outfit_category->fetch();
     refreshOutfit(cat_id);
@@ -899,6 +904,18 @@ void LLOutfitGallery::updateChangedCategoryName(LLViewerInventoryCategory *cat, 
             item->setOutfitFavorite(cat->getIsFavorite());
         }
     }
+}
+
+bool LLOutfitGallery::updateOneOutfit()
+{
+    if (mPendingOutfitRefreshes.empty())
+        return false;
+
+    auto it = mPendingOutfitRefreshes.begin();
+    LLUUID outfit_id = *it;
+    mPendingOutfitRefreshes.erase(it);
+    refreshOutfit(outfit_id);
+    return true;
 }
 
 void LLOutfitGallery::onOutfitRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id)

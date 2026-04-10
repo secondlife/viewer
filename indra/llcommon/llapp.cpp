@@ -93,6 +93,7 @@ bool LLApp::sDisableCrashlogger = false;
 LLScalarCond<LLApp::EAppStatus> LLApp::sStatus{LLApp::APP_STATUS_STOPPED};
 LLAppErrorHandler LLApp::sErrorHandler = NULL;
 
+bool gDisconnected = false;
 
 LLApp::LLApp()
 {

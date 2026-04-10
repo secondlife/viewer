@@ -68,10 +68,10 @@ public:
     virtual LLTextSegmentPtr clone(LLTextBase& terget) const { return new LLTextSegment(mStart, mEnd); }
     static LLStyleSP cloneStyle(LLTextBase& target, const LLStyle* source);
 
-    bool                        getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
+    bool                        getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height);
     bool                        getPermitsEmoji() const { return mPermitsEmoji; };
 
-    virtual bool                getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
+    virtual bool                getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height);
     virtual S32                 getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
 
     /**
@@ -139,7 +139,7 @@ public:
     virtual ~LLNormalTextSegment();
     /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const;
 
-    /*virtual*/ bool                getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
+    /*virtual*/ bool                getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height);
     /*virtual*/ S32                 getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
     /*virtual*/ S32                 getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const;
     /*virtual*/ void                updateLayout(const class LLTextBase& editor);
@@ -182,6 +182,7 @@ protected:
     LLFontVertexBuffer  mFontBufferPreSelection;
     LLFontVertexBuffer  mFontBufferSelection;
     LLFontVertexBuffer  mFontBufferPostSelection;
+    LLFontWidthBuffer   mFontWidthBuffer;
     S32                 mLastGeneration = -1;
 };
 
@@ -254,7 +255,7 @@ public:
     ~LLInlineViewSegment();
     /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const;
 
-    /*virtual*/ bool        getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
+    /*virtual*/ bool        getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height);
     /*virtual*/ S32         getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const;
     /*virtual*/ void        updateLayout(const class LLTextBase& editor);
     /*virtual*/ F32         draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
@@ -280,7 +281,7 @@ public:
     LLLineBreakTextSegment(S32 pos);
     ~LLLineBreakTextSegment();
     /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const;
-    /*virtual*/ bool        getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
+    /*virtual*/ bool        getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height);
     S32         getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const;
     F32         draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
 
@@ -295,7 +296,7 @@ public:
     ~LLImageTextSegment();
     /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const;
 
-    /*virtual*/ bool        getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
+    /*virtual*/ bool        getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height);
     S32         getNumChars(S32 num_pixels, S32 segment_offset, S32 char_offset, S32 max_chars, S32 line_ind) const;
     F32         draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
 
@@ -761,6 +762,7 @@ protected:
     bool                        mUseEmoji;
     bool                        mUseColor;
     bool                        mTrackEnd;          // if true, keeps scroll position at end of document during resize
+    bool                        mTrackValueChange;  // if true, send out onValueChange() from low level text modification methods
     bool                        mReadOnly;
     bool                        mBGVisible;         // render background?
     bool                        mClip;              // clip text to widget rect

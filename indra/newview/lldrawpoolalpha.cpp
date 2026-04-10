@@ -267,7 +267,7 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
 
     gGL.setColorMask(true, false);
 
-    if (!rigged)
+    if (!rigged && getType() == LLDrawPoolAlpha::POOL_ALPHA_POST_WATER)
     { //render "highlight alpha" on final non-rigged pass
         // NOTE -- hacky call here protected by !rigged instead of alongside "forwardRender"
         // so renderDebugAlpha is executed while gls_pipeline_alpha and depth GL state

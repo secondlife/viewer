@@ -647,7 +647,7 @@ void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by
 
     for (U32 type = LLWearableType::WT_SHIRT; type < LLWearableType::WT_COUNT; type++)
     {
-        if (clothing_by_type[type].empty())
+        if (!clothing_by_type[type].empty())
             continue;
 
         LLWearableType::EType w_type = static_cast<LLWearableType::EType>(type);

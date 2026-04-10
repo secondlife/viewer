@@ -144,6 +144,8 @@ LLAppCoreHttp::~LLAppCoreHttp()
 
 void LLAppCoreHttp::init()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     LLCoreHttpUtil::setPropertyMethods(
         std::bind(&LLControlGroup::getBOOL, std::ref(gSavedSettings), std::placeholders::_1),
         std::bind(&LLControlGroup::declareBOOL, std::ref(gSavedSettings), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, LLControlVariable::PERSIST_NONDFT));

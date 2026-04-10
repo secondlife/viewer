@@ -398,6 +398,8 @@ bool getSerialNumber(unsigned char *unique_id, size_t len)
 
 S32 LLMachineID::init()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     size_t len = sizeof(static_unique_id);
     memset(static_unique_id, 0, len);
     S32 ret_code = 0;

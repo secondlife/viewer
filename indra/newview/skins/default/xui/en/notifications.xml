@@ -202,6 +202,16 @@ No tutorial is currently available.
 
   <notification
    icon="alertmodal.tga"
+   name="FoundLegacyNsisInstallation"
+   type="alertmodal">
+      [APP_NAME] found an installation of an older version [VERSION]. To uninstall the older version, please follow [https://community.secondlife.com/knowledgebase/english/how-to-uninstall-and-reinstall-second-life-r524 this manual].
+      <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LoginFailedNoNetwork"
    type="alertmodal">
     <tag>fail</tag>
@@ -2466,6 +2476,17 @@ You already have a landmark for this location.
   </notification>
 
   <notification
+   icon="alert.tga"
+   name="LandmarkLocationUnknown"
+   type="alert">
+Viewer wasn't able to get region's location. Region might be temporarily unavailable, was removed or landmark failed to load.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  <tag>fail</tag>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="CannotCreateLandmarkNotOwner"
    type="alertmodal">
@@ -4408,6 +4429,14 @@ Click OK to download and install.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DownloadingUpdate"
+   type="alertmodal">
+Downloading update [VERSION]...
+The viewer will restart once the download is complete.
   </notification>
 
   <notification
@@ -8585,10 +8614,10 @@ Scripts associated with this experience will be able to do the following on regi
    priority="critical"
    persist="true"
    type="notify">
-Warning: The object &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; wants total access to your Linden Dollars account. If you allow access, it can remove funds from your account at any time, or empty your account completely, on an ongoing basis with no additional warnings.
-  
-Do not allow access if you do not fully understand why it wants access to your account.
+Warning:
+[WARNINGS]
 
+Do not allow access if you do not fully understand why it wants access to your account.
   <tag>confirm</tag>
     <form name="form">
       <button
@@ -8601,9 +8630,7 @@ Do not allow access if you do not fully understand why it wants access to your a
        name="Deny"
        text="Deny"/>
     </form>
-    <footer>
-[FOOTERTEXT]
-    </footer>
+    <footer>[FOOTERTEXT]</footer>
   </notification>
 
 	<notification
@@ -9116,6 +9143,14 @@ Failed to save snapshot to [PATH]: Disk is full. [NEED_MEMORY]KB is required but
   <notification icon="notifytip.tga"
     name="SnapshotToLocalDirNotExist" type="notifytip">
 Failed to save snapshot to [PATH]: Directory does not exist.
+  </notification>
+
+  <notification icon="notifytip.tga"
+    name="SnapshotSavedToComputer" type="notifytip">
+Screenshot saved to:
+    [FILEPATH]
+
+Click to open folder.
   </notification>
 
   <notification
@@ -9668,6 +9703,22 @@ Are you sure you want to leave this call?
     <tag>voice</tag>
     <usetemplate
      ignoretext="Confirm before I leave call"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes">
+      <unique/>
+    </usetemplate>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmLeaveAdhoc"
+   type="alertmodal">
+Are you sure you want to leave this conference chat?
+    <tag>confirm</tag>
+    <tag>voice</tag>
+    <usetemplate
+     ignoretext="Confirm before I leave conference chat"
      name="okcancelignore"
      notext="No"
      yestext="Yes">

@@ -29,6 +29,11 @@
 #include "llappviewer.h"
 #include "llstartup.h"
 
+#if LL_VELOPACK && LL_WINDOWS
+#include "llvelopack.h"
+#include <shellapi.h>
+#endif
+
 #if LL_WINDOWS
 #   include <process.h>     // _spawnl()
 #else
@@ -266,6 +271,7 @@ std::unique_ptr<LLViewerStats::PhaseMap> LLStartUp::sPhases(new LLViewerStats::P
 
 void login_show();
 void login_callback(S32 option, void* userdata);
+void uninstall_nsis_if_required();
 void show_release_notes_if_required();
 void show_first_run_dialog();
 bool first_run_dialog_callback(const LLSD& notification, const LLSD& response);
@@ -921,6 +927,7 @@ bool idle_startup()
         LL_DEBUGS("AppInit") << "PeekMessage processed" << LL_ENDL;
 #endif
         do_startup_frame();
+        uninstall_nsis_if_required();
         timeout.reset();
         return false;
     }
@@ -2605,6 +2612,67 @@ void release_notes_coro(const std::string url)
     LLWeb::loadURLInternal(url);
 }
 
+/**
+* Check if this is a fresh velopack install and
+* if uninstallation of old viewer is needed.
+*/
+void uninstall_nsis_if_required()
+{
+#if LL_VELOPACK && LL_WINDOWS
+    bool checked_for_legacy_install = gSavedSettings.getBOOL("PreviousInstallChecked");
+    if (checked_for_legacy_install)
+    {
+        return;
+    }
+    gSavedSettings.setBOOL("PreviousInstallChecked", true);
+
+    LL_INFOS() << "Looking for previous NSIS installs" << LL_ENDL;
+
+    S32 found_major = 0;
+    S32 found_minor = 0;
+    S32 found_patch = 0;
+    U64 found_build = 0;
+
+    if (!get_nsis_version(found_major, found_minor, found_patch, found_build))
+    {
+        return;
+    }
+
+    LLVersionInfo* ver_inst = LLVersionInfo::getInstance();
+
+    if (found_major > ver_inst->getMajor())
+    {
+        LL_INFOS() << "Found installed nsis version that is newer" << found_major << "." << found_minor << "." << found_patch << "." << found_build << LL_ENDL;
+        return;
+    }
+
+    if (found_major == ver_inst->getMajor()
+        && found_minor > ver_inst->getMinor())
+    {
+        LL_INFOS() << "Found installed nsis version that is newer" << found_major << "." << found_minor << "." << found_patch << "." << found_build << LL_ENDL;
+        return;
+    }
+
+    if (found_major == ver_inst->getMajor()
+        && found_minor == ver_inst->getMinor()
+        && found_patch > ver_inst->getPatch())
+    {
+        LL_INFOS() << "Found installed nsis version that is newer" << found_major << "." << found_minor << "." << found_patch << "." << found_build << LL_ENDL;
+        return;
+    }
+
+    // Assume that nsis is going to be something like x.x.x, while velopack is x.x.(x+1),
+    // so there is no point to check build.
+    LL_INFOS() << "Found NSIS install " << found_major << "." << found_minor << "." << found_patch << "." << found_build << LL_ENDL;
+
+    clear_nsis_links();
+
+    LLSD args;
+    args["VERSION"] = llformat("%d.%d.%d", found_major, found_minor, found_patch);
+    LLNotificationsUtil::add("FoundLegacyNsisInstallation", args);
+#endif
+}
+
 void validate_release_notes_coro(const std::string url)
 {
     LLVersionInfo& versionInfo(LLVersionInfo::instance());
@@ -2638,15 +2706,24 @@ void show_release_notes_if_required()
     // below. If viewer release notes stop working, might be because that
     // LLEventMailDrop got moved out of LLVersionInfo and hasn't yet been
     // instantiated.
-    if (!release_notes_shown && (LLVersionInfo::instance().getChannelAndVersion() != gLastRunVersion)
-        && LLVersionInfo::instance().getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
-        && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
-        && !gSavedSettings.getBOOL("FirstLoginThisInstall"))
+    if (release_notes_shown
+        || LLVersionInfo::instance().getChannelAndVersion() == gLastRunVersion
+        || gSavedSettings.getBOOL("FirstLoginThisInstall")) // New users don't need to see release notes
+    {
+        return;
+    }
+    S32 mode = gSavedSettings.getS32("UpdaterShowReleaseNotes");
+    if (mode == 0)
+    {
+        return;
+    }
+    if (mode == 2 // Show even for test builds
+        || LLVersionInfo::instance().getViewerMaturity() != LLVersionInfo::TEST_VIEWER) // don't show Release Notes for the test builds
+
     {
 
 #if LL_RELEASE_FOR_DOWNLOAD
-        if (!gSavedSettings.getBOOL("CmdLineSkipUpdater")
-            && !LLAppViewer::instance()->isUpdaterMissing())
+        if (!gSavedSettings.getBOOL("CmdLineSkipUpdater"))
         {
             // Instantiate a "relnotes" listener which assumes any arriving event
             // is the release notes URL string. Since "relnotes" is an
@@ -3164,14 +3241,22 @@ void reset_login()
     if ( gViewerWindow )
     {   // Hide menus and normal buttons
         gViewerWindow->setNormalControlsVisible( false );
-        gLoginMenuBarView->setVisible( true );
-        gLoginMenuBarView->setEnabled( true );
+
+        if (gLoginMenuBarView)
+        {
+            gLoginMenuBarView->setVisible(true);
+            gLoginMenuBarView->setEnabled(true);
+        }
+        else
+        {
+            LL_WARNS("AppInit") << "gLoginMenuBarView not initialized" << LL_ENDL;
+        }
     }
 
     // Hide any other stuff
     LLFloaterReg::hideVisibleInstances();
 
-    if (LLStartUp::getStartupState() > STATE_WORLD_INIT)
+    if (LLStartUp::getStartupState() > STATE_WORLD_INIT && gViewerWindow)
     {
         gViewerWindow->resetStatusBarContainer();
     }

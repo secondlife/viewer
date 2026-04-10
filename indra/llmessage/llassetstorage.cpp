@@ -453,6 +453,7 @@ bool LLAssetStorage::findInCacheAndInvokeCallback(const LLUUID& uuid, LLAssetTyp
     bool exists = LLFileSystem::getExists(uuid, type);
     if (exists)
     {
+        LL_PROFILE_ZONE_SCOPED;
         LLFileSystem file(uuid, type);
         U32 size = file.getSize();
         if (size > 0)
@@ -562,7 +563,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
                 if (callback == tmp->mDownCallback && user_data == tmp->mUserData)
                 {
                     // this is a duplicate from the same subsystem - throw it away
-                    LL_WARNS("AssetStorage") << "Discarding duplicate request for asset " << uuid
+                    LL_DEBUGS("AssetStorage") << "Discarding duplicate request for asset " << uuid
                                              << "." << LLAssetType::lookup(type) << LL_ENDL;
                     return;
                 }
@@ -1315,6 +1316,9 @@ const char* LLAssetStorage::getErrorString(S32 status)
 
         case LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE:
             return "Asset request: asset not found in database";
+
+        case LL_ERR_NO_CAP:
+            return "Asset request: region or asset capability not available";
 
         case LL_ERR_EOF:
             return "End of file";

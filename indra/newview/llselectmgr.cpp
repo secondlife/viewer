@@ -3054,7 +3054,6 @@ void LLSelectMgr::logNoOp(LLSelectNode* node, void *)
 // static
 void LLSelectMgr::logAttachmentRequest(LLSelectNode* node, void *)
 {
-    LLAttachmentsMgr::instance().onAttachmentRequested(node->mItemID);
 }
 
 // static
@@ -6193,6 +6192,15 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
         node->mCategory = category;
         node->mName.assign(name);
         node->mDescription.assign(desc);
+
+        LLViewerObject* obj = node->getObject();
+        if (obj && LLViewerObject::isObjectInPendingUpdate(owner_id, obj))
+        {
+            // current response doesn't return modify permissions flags,
+            // so we should request it separately if needed
+            obj->requestObjectUpdate();
+        }
+
     }
 
     dialog_refresh_all();

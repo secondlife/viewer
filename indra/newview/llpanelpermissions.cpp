@@ -786,7 +786,9 @@ void LLPanelPermissions::refresh()
         getChildView("Edit Cost")->setEnabled(change_sale_allowed && !is_for_sale_mixed);
         // Set the checkbox to tentative if the prices of each object selected
         // are not the same.
-        getChild<LLUICtrl>("checkbox for sale")->setTentative(              is_for_sale_mixed);
+        // If object is marked for sale yet is not transferable, mark as tentative,
+        // as it is in a state where it can't be sold
+        getChild<LLUICtrl>("checkbox for sale")->setTentative((!can_transfer && num_for_sale) || is_for_sale_mixed);
         getChildView("sale type")->setEnabled(num_for_sale && can_transfer && !is_sale_price_mixed);
 
         getChildView("Next owner can:")->setEnabled(true);

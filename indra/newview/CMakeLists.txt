@@ -43,6 +43,7 @@ include(TinyEXR)
 include(ThreeJS)
 include(Tracy)
 include(UI)
+include(Velopack)
 include(ViewerMiscLibs)
 include(ViewerManager)
 include(VisualLeakDetector)
@@ -197,7 +198,6 @@ set(viewer_SOURCE_FILES
     llfloateravatartextures.cpp
     llfloaterbanduration.cpp
     llfloaterbeacons.cpp
-    llfloaterbigpreview.cpp
     llfloaterbuildoptions.cpp
     llfloaterbulkpermission.cpp
     llfloaterbulkupload.cpp
@@ -280,7 +280,6 @@ set(viewer_SOURCE_FILES
     llfloaterpay.cpp
     llfloaterperformance.cpp
     llfloaterperms.cpp
-    llfloaterpostprocess.cpp
     llfloaterprofile.cpp
     llfloaterpreference.cpp
     llfloaterpreferencesgraphicsadvanced.cpp
@@ -305,7 +304,6 @@ set(viewer_SOURCE_FILES
     llfloatersidepanelcontainer.cpp
     llfloaterslapptest.cpp
     llfloatersnapshot.cpp
-    llfloatersounddevices.cpp
     llfloaterspellchecksettings.cpp
     llfloatertelehub.cpp
     llfloatertestinspectors.cpp
@@ -317,7 +315,6 @@ set(viewer_SOURCE_FILES
     llfloatertranslationsettings.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
-    llfloatervoiceeffect.cpp
     llfloatervoicevolume.cpp
     llfloaterwebcontent.cpp
     llfloaterwhitelistentry.cpp
@@ -513,7 +510,6 @@ set(viewer_SOURCE_FILES
     llpanelsnapshotprofile.cpp
     llpanelteleporthistory.cpp
     llpaneltiptoast.cpp
-    llpanelvoiceeffect.cpp
     llpaneltopinfobar.cpp
     llpanelpulldown.cpp
     llpanelvoicedevicesettings.cpp
@@ -659,6 +655,7 @@ set(viewer_SOURCE_FILES
     llurllineeditorctrl.cpp
     llurlwhitelist.cpp
     llversioninfo.cpp
+    llvvmquery.cpp
     llviewchildren.cpp
     llviewerassetstats.cpp
     llviewerassetstorage.cpp
@@ -736,7 +733,6 @@ set(viewer_SOURCE_FILES
     llvovolume.cpp
     llvowater.cpp
     llvowlsky.cpp
-    llwatchdog.cpp
     llwearableitemslist.cpp
     llwearablelist.cpp
     llweb.cpp
@@ -882,7 +878,6 @@ set(viewer_HEADER_FILES
     llfloateravatartextures.h
     llfloaterbanduration.h
     llfloaterbeacons.h
-    llfloaterbigpreview.h
     llfloaterbuildoptions.h
     llfloaterbulkpermission.h
     llfloaterbulkupload.h
@@ -969,7 +964,6 @@ set(viewer_HEADER_FILES
     llfloaterpay.h
     llfloaterperformance.h
     llfloaterperms.h
-    llfloaterpostprocess.h
     llfloaterprofile.h
     llfloaterpreference.h
     llfloaterpreferencesgraphicsadvanced.h
@@ -994,7 +988,6 @@ set(viewer_HEADER_FILES
     llfloatersidepanelcontainer.h
     llfloaterslapptest.h
     llfloatersnapshot.h
-    llfloatersounddevices.h
     llfloaterspellchecksettings.h
     llfloatertelehub.h
     llfloatertestinspectors.h
@@ -1006,7 +999,6 @@ set(viewer_HEADER_FILES
     llfloatertranslationsettings.h
     llfloateruipreview.h
     llfloaterurlentry.h
-    llfloatervoiceeffect.h
     llfloatervoicevolume.h
     llfloaterwebcontent.h
     llfloaterwhitelistentry.h
@@ -1188,7 +1180,6 @@ set(viewer_HEADER_FILES
     llpaneltiptoast.h
     llpanelpulldown.h
     llpanelvoicedevicesettings.h
-    llpanelvoiceeffect.h
     llpaneltopinfobar.h
     llpanelvolume.h
     llpanelvolumepulldown.h
@@ -1338,6 +1329,7 @@ set(viewer_HEADER_FILES
     llurllineeditorctrl.h
     llurlwhitelist.h
     llversioninfo.h
+    llvvmquery.h
     llviewchildren.h
     llviewerassetstats.h
     llviewerassetstorage.h
@@ -1414,7 +1406,6 @@ set(viewer_HEADER_FILES
     llvovolume.h
     llvowater.h
     llvowlsky.h
-    llwatchdog.h
     llwearableitemslist.h
     llwearablelist.h
     llweb.h
@@ -1458,6 +1449,8 @@ if (DARWIN)
   LIST(APPEND viewer_SOURCE_FILES llappviewermacosx-objc.h)
   LIST(APPEND viewer_SOURCE_FILES llfilepicker_mac.mm)
   LIST(APPEND viewer_HEADER_FILES llfilepicker_mac.h)
+  LIST(APPEND viewer_SOURCE_FILES llvelopack.cpp)
+  LIST(APPEND viewer_HEADER_FILES llvelopack.h)
 
   set_source_files_properties(
     llappviewermacosx-objc.mm
@@ -1520,16 +1513,19 @@ if (WINDOWS)
 
     list(APPEND viewer_SOURCE_FILES
          llappviewerwin32.cpp
+         llvelopack.cpp
          llwindebug.cpp
          )
     set_source_files_properties(
       llappviewerwin32.cpp
+      llvelopack.cpp
       PROPERTIES
       COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
       )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
+         llvelopack.h
          llwindebug.h
          )
 
@@ -1943,6 +1939,7 @@ if (WINDOWS)
               "--discord=${USE_DISCORD}"
               "--openal=${USE_OPENAL}"
               "--tracy=${USE_TRACY}"
+              "--velopack=${USE_VELOPACK}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
               "--channel=${VIEWER_CHANNEL}"
@@ -2064,6 +2061,10 @@ target_link_libraries(${VIEWER_BINARY_NAME}
 
 if (USE_DISCORD)
    target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
+endif ()
+
+if (TARGET ll::velopack)
+   target_link_libraries(${VIEWER_BINARY_NAME} ll::velopack )
 endif ()
 
 if( TARGET ll::intel_memops )
@@ -2263,9 +2264,11 @@ if (DARWIN)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
+              --bundleid=${MACOSX_BUNDLE_GUI_IDENTIFIER}
               "--discord=${USE_DISCORD}"
               "--openal=${USE_OPENAL}"
               "--tracy=${USE_TRACY}"
+              "--velopack=${USE_VELOPACK}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
               "--channel=${VIEWER_CHANNEL}"

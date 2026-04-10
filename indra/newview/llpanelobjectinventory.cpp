@@ -1830,7 +1830,7 @@ void LLPanelObjectInventory::onFocusReceived()
 
 LLFolderViewItem* LLPanelObjectInventory::getItemByID( const LLUUID& id )
 {
-    std::map<LLUUID, LLFolderViewItem*>::iterator map_it = mItemMap.find(id);
+    auto map_it = mItemMap.find(id);
     if (map_it != mItemMap.end())
     {
         return map_it->second;

@@ -250,7 +250,7 @@ private:
     LLButton*       mDefaultBtn;
     LLUIString      mLabel;
 
-    typedef std::map<std::string, std::string, std::less<>> ui_string_map_t;
+    typedef std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>> ui_string_map_t;
     ui_string_map_t mUIStrings;
 
 
@@ -292,7 +292,7 @@ public:
     }
 
 private:
-    typedef std::map< std::string, LLPanelClassCreatorFunc, std::less<>> param_name_map_t;
+    typedef std::unordered_map<std::string, LLPanelClassCreatorFunc, ll::string_hash, std::equal_to<>> param_name_map_t;
 
     param_name_map_t mPanelClassesNames;
 };

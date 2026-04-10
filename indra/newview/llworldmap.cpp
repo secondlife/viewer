@@ -118,6 +118,7 @@ LLVector3d LLSimInfo::getGlobalOrigin() const
 {
     return from_region_handle(mHandle);
 }
+
 LLVector3 LLSimInfo::getLocalPos(LLVector3d global_pos) const
 {
     LLVector3d sim_origin = from_region_handle(mHandle);
@@ -602,25 +603,103 @@ void LLWorldMap::dropImagePriorities()
 // Load all regions in a given rectangle (in region grid coordinates, i.e. world / 256 meters)
 void LLWorldMap::updateRegions(S32 x0, S32 y0, S32 x1, S32 y1)
 {
-    // Convert those boundaries to the corresponding (MAP_BLOCK_SIZE x MAP_BLOCK_SIZE) block coordinates
-    x0 = x0 / MAP_BLOCK_SIZE;
-    x1 = x1 / MAP_BLOCK_SIZE;
-    y0 = y0 / MAP_BLOCK_SIZE;
-    y1 = y1 / MAP_BLOCK_SIZE;
+    constexpr S32 MAX_REQUEST_REGIONS = 64; // Server side enforced limit.
+    constexpr S32 REGIONS_PER_BLOCK = MAP_BLOCK_SIZE * MAP_BLOCK_SIZE; // 4 x 4 = 16 regions per block
+    constexpr S32 MAX_TOTAL_BLOCKS = MAX_REQUEST_REGIONS / REGIONS_PER_BLOCK; // 64 / 16 = 4 blocks total
+    constexpr S32 MAX_BLOCKS_PER_SIDE = MAX_TOTAL_BLOCKS; // Can have up to 4 blocks in one dimension (e.g., 4x1, 1x4, 2x2)
 
-    // Load the region info those blocks
-    for (S32 block_x = llmax(x0, 0); block_x <= llmin(x1, MAP_BLOCK_RES-1); ++block_x)
+    // Convert region coordinates to block coordinates
+    // We use fixed sized blocks for ease of storage and lookup,
+    // but the requests can be of variable size of up to
+    // MAX_REQUEST_REGIONS.
+    S32 block_x0 = x0 / MAP_BLOCK_SIZE;
+    S32 block_x1 = x1 / MAP_BLOCK_SIZE;
+    S32 block_y0 = y0 / MAP_BLOCK_SIZE;
+    S32 block_y1 = y1 / MAP_BLOCK_SIZE;
+
+    // Clamp to valid range
+    block_x0 = llmax(block_x0, 0);
+    block_x1 = llmin(block_x1, MAP_BLOCK_RES - 1);
+    block_y0 = llmax(block_y0, 0);
+    block_y1 = llmin(block_y1, MAP_BLOCK_RES - 1);
+
+    // Process blocks, grouping unloaded blocks into larger requests up to MAX_TOTAL_BLOCKS
+    for (S32 block_y = block_y0; block_y <= block_y1; )
     {
-        for (S32 block_y = llmax(y0, 0); block_y <= llmin(y1, MAP_BLOCK_RES-1); ++block_y)
+        for (S32 block_x = block_x0; block_x <= block_x1; )
         {
             S32 offset = block_x | (block_y * MAP_BLOCK_RES);
             if (!mMapBlockLoaded[offset])
             {
-                //LL_INFOS("WorldMap") << "Loading Block (" << block_x << "," << block_y << ")" << LL_ENDL;
-                LLWorldMapMessage::getInstance()->sendMapBlockRequest(block_x * MAP_BLOCK_SIZE, block_y * MAP_BLOCK_SIZE, (block_x * MAP_BLOCK_SIZE) + MAP_BLOCK_SIZE - 1, (block_y * MAP_BLOCK_SIZE) + MAP_BLOCK_SIZE - 1);
-                mMapBlockLoaded[offset] = true;
+                // Find the maximum contiguous unloaded rectangle starting at this block
+                S32 request_width = 1;
+                S32 request_height = 1;
+
+                // Expand width (check horizontal contiguous unloaded blocks)
+                while (request_width < MAX_BLOCKS_PER_SIDE &&
+                    (block_x + request_width) <= block_x1)
+                {
+                    // request_height is 1, can add blocks one by one.
+                    S32 check_offset = (block_x + request_width) | (block_y * MAP_BLOCK_RES);
+                    if (mMapBlockLoaded[check_offset])
+                    {
+                        break;
+                    }
+                    ++request_width;
+                }
+
+                // Expand height (check vertical contiguous unloaded blocks)
+                while (request_height < MAX_BLOCKS_PER_SIDE &&
+                    (block_y + request_height) <= block_y1 &&
+                    (request_width * (request_height + 1) <= MAX_TOTAL_BLOCKS)) // Don't exceed 64 total regions
+                {
+                    bool can_expand = true;
+                    // Width can be >1, loop over blocks in the line
+                    for (S32 x = 0; x < request_width; ++x)
+                    {
+                        S32 check_offset = (block_x + x) | ((block_y + request_height) * MAP_BLOCK_RES);
+                        if (mMapBlockLoaded[check_offset])
+                        {
+                            can_expand = false;
+                            break;
+                        }
+                    }
+                    if (!can_expand) break;
+                    ++request_height;
+                }
+
+                // Send request for the contiguous rectangle
+                S32 min_x = block_x * MAP_BLOCK_SIZE;
+                S32 min_y = block_y * MAP_BLOCK_SIZE;
+                S32 max_x = (block_x + request_width) * MAP_BLOCK_SIZE - 1;
+                S32 max_y = (block_y + request_height) * MAP_BLOCK_SIZE - 1;
+
+                LL_DEBUGS("WorldMap") << "Loading Block rectangle (" << block_x << "," << block_y
+                    << ") to (" << (block_x + request_width - 1) << "," << (block_y + request_height - 1)
+                    << ") [" << (request_width * request_height * MAP_BLOCK_SIZE * MAP_BLOCK_SIZE) << " regions]" << LL_ENDL;
+
+                LLWorldMapMessage::getInstance()->sendMapBlockRequest(min_x, min_y, max_x, max_y);
+
+                // Mark all blocks in the requested rectangle as loaded
+                for (S32 y = 0; y < request_height; ++y)
+                {
+                    for (S32 x = 0; x < request_width; ++x)
+                    {
+                        S32 mark_offset = (block_x + x) | ((block_y + y) * MAP_BLOCK_RES);
+                        mMapBlockLoaded[mark_offset] = true;
+                    }
+                }
+
+                // Skip over the width of blocks we just requested
+                block_x += request_width;
+            }
+            else
+            {
+                // This block is already loaded, move to next
+                ++block_x;
             }
         }
+        ++block_y;
     }
 }
 

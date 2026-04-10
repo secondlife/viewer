@@ -495,7 +495,9 @@ bool LLFeatureManager::loadGPUClass()
         {
             mGPUClass = GPU_CLASS_2;
         }
-        else if (gbps <= class1_gbps*4.f)
+        else if ((gbps <= class1_gbps*4.f)
+                 // Cap silicon's GPUs at med+ as they have high throughput, low capability
+                 || gGLManager.mIsApple)
         {
             mGPUClass = GPU_CLASS_3;
         }

@@ -77,11 +77,10 @@ bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType fil
     LL_PROFILE_ZONE_SCOPED;
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    llifstream file(filename, std::ios::binary);
-    if (file.is_open())
+    boost::system::error_code ec;
+    if (boost::filesystem::exists(filename, ec) && boost::filesystem::is_regular_file(filename, ec))
     {
-        file.seekg(0, std::ios::end);
-        return file.tellg() > 0;
+        return boost::filesystem::file_size(filename, ec) > 0;
     }
     return false;
 }
@@ -120,15 +119,12 @@ S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType fi
 {
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    S32 file_size = 0;
-    llifstream file(filename, std::ios::binary);
-    if (file.is_open())
+    boost::system::error_code ec;
+    if (boost::filesystem::exists(filename, ec) && boost::filesystem::is_regular_file(filename, ec))
     {
-        file.seekg(0, std::ios::end);
-        file_size = (S32)file.tellg();
+        return static_cast<S32>(boost::filesystem::file_size(filename, ec));
     }
-
-    return file_size;
+    return 0;
 }
 
 bool LLFileSystem::read(U8* buffer, S32 bytes)

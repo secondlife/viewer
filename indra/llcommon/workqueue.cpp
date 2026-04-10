@@ -38,7 +38,8 @@ LL::WorkQueueBase::WorkQueueBase(const std::string& name, bool auto_shutdown)
     {
         // Register for "LLApp" events so we can implicitly close() on viewer shutdown
         std::string listener_name = "WorkQueue:" + getKey();
-        LLEventPumps::instance().obtain("LLApp").listen(
+        LLEventPumps* pump = LLEventPumps::getInstance();
+        pump->obtain("LLApp").listen(
             listener_name,
             [this](const LLSD& stat)
             {
@@ -54,14 +55,25 @@ LL::WorkQueueBase::WorkQueueBase(const std::string& name, bool auto_shutdown)
 
         // Store the listener name so we can unregister in the destructor
         mListenerName = listener_name;
+        mPumpHandle = pump->getHandle();
     }
 }
 
 LL::WorkQueueBase::~WorkQueueBase()
 {
-    if (!mListenerName.empty() && !LLEventPumps::wasDeleted())
+    if (!mListenerName.empty() && !mPumpHandle.isDead())
     {
-        LLEventPumps::instance().obtain("LLApp").stopListening(mListenerName);
+        // Due to shutdown order issues, use handle, not a singleton
+        // and ignore fiber issue.
+        try
+        {
+            LLEventPumps* pump = mPumpHandle.get();
+            pump->obtain("LLApp").stopListening(mListenerName);
+        }
+        catch (const boost::fibers::lock_error&)
+        {
+            // Likely mutex is down, ignore
+        }
     }
 }
 
@@ -216,10 +228,15 @@ void LL::WorkQueueBase::callWork(const Work& work)
             LL_WARNS("LLCoros") << "Capturing and rethrowing uncaught exception in WorkQueueBase "
                                 << getKey() << LL_ENDL;
 
+            std::string name = getKey();
             LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
             main_queue->post(
                              // Bind the current exception, rethrow it in main loop.
-                             [exc = std::current_exception()]() { std::rethrow_exception(exc); });
+                             [exc = std::current_exception(), name]()
+            {
+                LL_INFOS("LLCoros") << "Rethrowing exception from WorkQueueBase::callWork " << name << LL_ENDL;
+                std::rethrow_exception(exc);
+            });
         }
         else
         {

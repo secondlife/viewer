@@ -14,6 +14,7 @@
 
 #include "llcoros.h"
 #include "llexception.h"
+#include "llhandle.h"
 #include "llinstancetracker.h"
 #include "llinstancetrackersubclass.h"
 #include "threadsafeschedule.h"
@@ -21,6 +22,9 @@
 #include <exception>                // std::current_exception
 #include <functional>               // std::function
 #include <string>
+
+class LLEventPumps;
+
 
 namespace LL
 {
@@ -202,6 +206,8 @@ namespace LL
 
         // Name used for the LLApp event listener (empty if not registered)
         std::string mListenerName;
+        // Due to shutdown order issues, store by handle
+        LLHandle<LLEventPumps> mPumpHandle;
     };
 
 /*****************************************************************************
@@ -530,7 +536,11 @@ namespace LL
                         reply,
                         // Bind the current exception to transport back to the
                         // originating WorkQueue. Once there, rethrow it.
-                        [exc = std::current_exception()](){ std::rethrow_exception(exc); });
+                        [exc = std::current_exception()]()
+                    {
+                        LL_INFOS("LLCoros") << "Rethrowing exception from WorkQueueBase::postTo" << LL_ENDL;
+                        std::rethrow_exception(exc);
+                    });
                 }
             },
             // if caller passed a TimePoint, pass it along to post()

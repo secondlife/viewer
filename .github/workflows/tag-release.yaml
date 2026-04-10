@@ -21,7 +21,9 @@ on:
       project:
         description: "Project Name (used for channel name in project builds, and tag name for all builds)"
         default: "hippo"
-      # TODO - add an input for selecting another sha to build other than head of branch
+      tag_override:
+        description: "Override the tag name (optional). If the tag already exists, a numeric suffix is appended."
+        required: false
 
 jobs:
   tag-release:
@@ -34,7 +36,7 @@ jobs:
           NIGHTLY_DATE=$(date --rfc-3339=date)
           echo NIGHTLY_DATE=${NIGHTLY_DATE} >> ${GITHUB_ENV}
           echo TAG_ID="$(echo ${{ github.sha }} | cut -c1-8)-${{ inputs.project || '${NIGHTLY_DATE}' }}" >> ${GITHUB_ENV}
-      - name: Update Tag
+      - name: Create Tag
         uses: actions/github-script@v8
         with:
           # use a real access token instead of GITHUB_TOKEN default.
@@ -44,9 +46,27 @@ jobs:
           # this token will need to be renewed anually in January
           github-token: ${{ secrets.LL_TAG_RELEASE_TOKEN }}
           script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: "refs/tags/${{ env.VIEWER_CHANNEL }}#${{ env.TAG_ID }}",
-              sha: context.sha
-            })
+            const override = `${{ inputs.tag_override }}`.trim();
+            const baseTag = override || `${{ env.VIEWER_CHANNEL }}#${{ env.TAG_ID }}`;
+
+            // Try the base tag first, then append -2, -3, etc. if it already exists
+            let tag = baseTag;
+            for (let attempt = 1; ; attempt++) {
+              try {
+                await github.rest.git.createRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `refs/tags/${tag}`,
+                  sha: context.sha
+                });
+                core.info(`Created tag: ${tag}`);
+                break;
+              } catch (e) {
+                if (e.status === 422 && attempt < 10) {
+                  core.info(`Tag '${tag}' already exists, trying next suffix...`);
+                  tag = `${baseTag}-${attempt + 1}`;
+                } else {
+                  throw e;
+                }
+              }
+            }

@@ -34,7 +34,6 @@
 
 #include "llcoros.h"
 #include "llevents.h"
-#include "lleventfilter.h"
 #include "lleventcoro.h"
 #include "llexception.h"
 #include "stringize.h"
@@ -133,16 +132,6 @@ void LLLogin::Impl::connect(const std::string& uri, const LLSD& login_params)
     LL_DEBUGS("LLLogin") << " connected with uri '" << uri << "', login_params " << login_params << LL_ENDL;
 }
 
-namespace
-{
-// Instantiate this rendezvous point at namespace scope so it's already
-// present no matter how early the updater might post to it.
-// Use an LLEventMailDrop, which has future-like semantics: regardless of the
-// relative order in which post() or listen() are called, it delivers each
-// post() event to its listener(s) until one of them consumes that event.
-static LLEventMailDrop sSyncPoint("LoginSync");
-}
-
 void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
 {
     LLSD printable_params = hidePasswd(login_params);
@@ -225,58 +214,7 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
             }
             else
             {
-                // Synchronize here with the updater. We synchronize here rather
-                // than in the fail.login handler, which actually examines the
-                // response from login.cgi, because here we are definitely in a
-                // coroutine and can definitely use suspendUntilBlah(). Whoever's
-                // listening for fail.login might not be.
-
-                // If the reason for login failure is that we must install a
-                // required update, we definitely want to pass control to the
-                // updater to manage that for us. We'll handle any other login
-                // failure ourselves, as usual. We figure that no matter where you
-                // are in the world, or what kind of network you're on, we can
-                // reasonably expect the Viewer Version Manager to respond more or
-                // less as quickly as login.cgi. This synchronization is only
-                // intended to smooth out minor races between the two services.
-                // But what if the updater crashes? Use a timeout so that
-                // eventually we'll tire of waiting for it and carry on as usual.
-                // Given the above, it can be a fairly short timeout, at least
-                // from a human point of view.
-
-                // Since sSyncPoint is an LLEventMailDrop, we DEFINITELY want to
-                // consume the posted event.
-                LLCoros::OverrideConsuming oc(true);
                 LLSD responses(mAuthResponse["responses"]);
-                LLSD updater;
-
-                if (printable_params["wait_for_updater"].asBoolean())
-                {
-                    std::string reason_response = responses["data"]["reason"].asString();
-                    // Timeout should produce the isUndefined() object passed here.
-                    if (reason_response == "update")
-                    {
-                        LL_INFOS("LLLogin") << "Login failure, waiting for sync from updater" << LL_ENDL;
-                        updater = llcoro::suspendUntilEventOnWithTimeout(sSyncPoint, 10, LLSD());
-                    }
-                    else
-                    {
-                        LL_DEBUGS("LLLogin") << "Login failure, waiting for sync from updater" << LL_ENDL;
-                        updater = llcoro::suspendUntilEventOnWithTimeout(sSyncPoint, 3, LLSD());
-                    }
-                    if (updater.isUndefined())
-                    {
-                        LL_WARNS("LLLogin") << "Failed to hear from updater, proceeding with fail.login"
-                                            << LL_ENDL;
-                    }
-                    else
-                    {
-                        LL_DEBUGS("LLLogin") << "Got responses from updater and login.cgi" << LL_ENDL;
-                    }
-                }
-
-                // Let the fail.login handler deal with empty updater response.
-                responses["updater"] = updater;
                 sendProgressEvent("offline", "fail.login", responses);
             }
             return;             // Done!

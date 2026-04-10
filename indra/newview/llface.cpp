@@ -1067,6 +1067,91 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
     return true;
 }
 
+F32 dot_product(const LLVector3& a, const LLVector3& b)
+{
+    return a.mV[VX] * b.mV[VX] + a.mV[VY] * b.mV[VY] + a.mV[VZ] * b.mV[VZ];
+}
+
+bool LLFace::calcAlignedPlanarGLTF(
+    const LLFace* align_to,
+    LLVector2* res_st_offset,
+    LLVector2* res_st_scale,
+    F32* res_st_rot,
+    S32 gltf_info_index) const
+{
+    if (!align_to)
+    {
+        return false;
+    }
+
+    const LLTextureEntry* orig_tep = align_to->getTextureEntry();
+    const LLTextureEntry* tep = getTextureEntry();
+    if (!orig_tep || !tep)
+    {
+        return false;
+    }
+
+    // Only support planar mapping for now
+    if (orig_tep->getTexGen() != LLTextureEntry::TEX_GEN_PLANAR ||
+        tep->getTexGen() != LLTextureEntry::TEX_GEN_PLANAR)
+    {
+        return false;
+    }
+
+    LLGLTFMaterial* orig_mat = orig_tep->getGLTFRenderMaterial();
+    LLGLTFMaterial* this_mat = tep->getGLTFRenderMaterial();
+    if (!orig_mat || !this_mat)
+    {
+        return false;
+    }
+
+    // Get the original GLTF transform for the specified channel
+    const auto& orig_tt = orig_mat->mTextureTransform[gltf_info_index];
+
+    // Convert GLTF transform to legacy TE transform
+    F32 map_scaleS, map_scaleT, map_offsS, map_offsT, map_rot;
+    LLGLTFMaterial::convertPBRTransformToTexture(
+        orig_tt.mScale,
+        orig_tt.mOffset,
+        orig_tt.mRotation,
+        map_scaleS, map_scaleT, map_offsS, map_offsT, map_rot);
+
+    // Calculate aligments
+    LLVector3 orig_pos, this_pos;
+    LLQuaternion orig_face_rot, this_face_rot;
+    F32 orig_proj_scale, this_proj_scale;
+    align_to->getPlanarProjectedParams(&orig_face_rot, &orig_pos, &orig_proj_scale);
+    getPlanarProjectedParams(&this_face_rot, &this_pos, &this_proj_scale);
+
+    // The rotation of "this face's" texture:
+    LLQuaternion orig_st_rot = LLQuaternion(map_rot, LLVector3::z_axis) * orig_face_rot;
+    LLQuaternion this_st_rot = orig_st_rot * ~this_face_rot;
+    F32 x_ang, y_ang, z_ang;
+    this_st_rot.getEulerAngles(&x_ang, &y_ang, &z_ang);
+
+    // Offset and scale of "this face's" texture:
+    LLVector3 centers_dist = (this_pos - orig_pos) * ~orig_st_rot;
+    LLVector3 st_scale(map_scaleS, map_scaleT, 1.f);
+    st_scale *= orig_proj_scale;
+    centers_dist.scaleVec(st_scale);
+    LLVector2 orig_st_offset(map_offsS, map_offsT);
+
+    LLVector2 tex_res_st_offset = orig_st_offset + (LLVector2)centers_dist;
+    tex_res_st_offset.mV[VX] -= (S32)tex_res_st_offset.mV[VX];
+    tex_res_st_offset.mV[VY] -= (S32)tex_res_st_offset.mV[VY];
+
+    st_scale /= this_proj_scale;
+
+    // Convert aligned legacy TE transform back to GLTF transform
+    LLGLTFMaterial::convertTextureTransformToPBR(
+        st_scale.mV[0], st_scale.mV[1],
+        tex_res_st_offset.mV[0], tex_res_st_offset.mV[1],
+        z_ang,
+        *res_st_scale, *res_st_offset, *res_st_rot);
+
+    return true;
+}
+
 void LLFace::updateRebuildFlags()
 {
     if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
@@ -1401,11 +1486,11 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             // They are used only to display a face selection marker
             // (white square with a rounded cross at the center)
             const auto& tt = gltf_mat->mTextureTransform[gltf_info_index];
-            r = -tt.mRotation * 2;
-            ms = tt.mScale[VX];
-            mt = tt.mScale[VY];
-            os += tt.mOffset[VX] + (ms - 1) / 2;
-            ot -= tt.mOffset[VY] + (mt - 1) / 2;
+            LLGLTFMaterial::convertPBRTransformToTexture(
+                tt.mScale,
+                tt.mOffset,
+                tt.mRotation,
+                ms, mt, os, ot, r);
         }
         else
         {

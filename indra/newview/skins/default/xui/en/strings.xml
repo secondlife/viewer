@@ -518,6 +518,8 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
 	<string name="ScriptQuestionCautionChatGranted">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].</string>
 	<string name="ScriptQuestionCautionChatDenied">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].</string>
+	<string name="ScriptTakeMoneyCaution">The object &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; wants total access to your Linden Dollars account. If you allow access, it can remove funds from your account at any time, or empty your account completely, on an ongoing basis with no additional warnings.</string>
+	<string name="PrivilegedLandAccessCaution">The object &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; wants privileged access to your land. If you allow access it may sell your land with no additional warnings.</string>
 	<string name="AdditionalPermissionsRequestHeader">If you allow access to your account, you will also be allowing the object to:</string>
 	<string name="ScriptTakeMoney">Take Linden dollars (L$) from you</string>
 	<string name="ActOnControlInputs">Act on your control inputs</string>
@@ -535,6 +537,7 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
 	<string name="ForceSitAvatar">Force your avatar to sit</string>
 	<string name="ChangeEnvSettings">Change your environment settings</string>
+	<string name="PrivilegedLandAccess">Sell land on your behalf.</string>
 	
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
@@ -2330,6 +2333,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="InventorySingleFolderEmpty">Folder is empty.</string>
 	<string name="InventorySingleFolderNoMatches">No matches.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
+	<string name="InventoryNoMaterial">You do not have a copy of this material in your inventory</string>
 	<string name="InventoryInboxNoItems">Your Marketplace purchases will appear here. You may then drag them into your inventory to use them.</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
 	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3</string>

@@ -65,6 +65,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "llkeyboard.h"
+#include "llmeshrepository.h"
 #include "u64.h"
 #include "llviewertexturelist.h"
 #include "lldatapacker.h"
@@ -173,7 +174,7 @@ bool LLViewerObjectList::removeFromLocalIDTable(LLViewerObject* objectp)
         U32 local_id = objectp->mLocalID;
         U64 indexid = (((U64)objectp->mRegionIndex) << 32) | (U64)local_id;
 
-        std::map<U64, LLUUID>::iterator iter = mIndexAndLocalIDToUUID.find(indexid);
+        auto iter = mIndexAndLocalIDToUUID.find(indexid);
         if (iter == mIndexAndLocalIDToUUID.end())
         {
             return false;
@@ -1397,6 +1398,8 @@ void LLViewerObjectList::killAllObjects()
         // Object must be dead, or it's the LLVOAvatarSelf which never dies.
         llassert((objectp == gAgentAvatarp) || objectp->isDead());
     }
+
+    gMeshRepo.unregisterAllMeshes();
 
     cleanDeadObjects(false);
 

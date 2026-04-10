@@ -37,6 +37,9 @@
 
 #include "llappviewer.h"
 #include "llbutton.h"
+#if LL_VELOPACK
+#include "llvelopack.h"
+#endif
 #include "llcheckboxctrl.h"
 #include "llcommandhandler.h"       // for secondlife:///app/login/
 #include "llcombobox.h"
@@ -220,6 +223,11 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     // STEAM-14: When user presses Enter with this field in focus, initiate login
     password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, false));
 
+    childSetAction("connect_btn", onClickConnect, this);
+
+    mLoginBtn = getChild<LLButton>("connect_btn");
+    setDefaultBtn(mLoginBtn);
+
     // change z sort of clickable text to be behind buttons
     sendChildToBack(getChildView("forgot_password_text"));
     sendChildToBack(getChildView("sign_up_text"));
@@ -295,11 +303,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     {
         onUpdateStartSLURL(start_slurl); // updates grid if needed
     }
-
-    childSetAction("connect_btn", onClickConnect, this);
-
-    mLoginBtn = getChild<LLButton>("connect_btn");
-    setDefaultBtn(mLoginBtn);
 
     std::string channel = LLVersionInfo::instance().getChannel();
     std::string version = stringize(LLVersionInfo::instance().getShortVersion(), " (",
@@ -939,6 +942,19 @@ void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 // static
 void LLPanelLogin::onClickConnect(bool commit_fields)
 {
+#if LL_VELOPACK
+    // In theory, you should never be able to get here.
+    // If there's a required update, try as you might you're not supposed to actually close the downloading update dialog.
+    // But just in case...
+    if (velopack_is_required_update_in_progress())
+    {
+        LLSD args;
+        args["VERSION"] = velopack_get_required_update_version();
+        LLNotificationsUtil::add("DownloadingUpdate", args);
+        return;
+    }
+#endif
+
     if (sInstance && sInstance->mCallback && !sInstance->mAlertNotif)
     {
         if (commit_fields)

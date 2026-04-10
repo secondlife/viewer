@@ -179,12 +179,11 @@ void ReplySender::flush()
     }
 }
 
-
-typedef std::set<LLUUID>                    AskQueue;
-typedef std::list<PendingReply*>            ReplyQueue;
-typedef std::map<LLUUID,U32>                PendingQueue;
-typedef std::map<LLUUID, LLCacheNameEntry*> Cache;
-typedef std::map<std::string, LLUUID>       ReverseCache;
+using AskQueue     = std::set<LLUUID>;
+using ReplyQueue   = std::list<PendingReply*>;
+using PendingQueue = std::unordered_map<LLUUID, U32>;
+using Cache        = std::unordered_map<LLUUID, LLCacheNameEntry*>;
+using ReverseCache = std::unordered_map<std::string, LLUUID>;
 
 class LLCacheName::Impl
 {
@@ -214,7 +213,7 @@ public:
     Impl(LLMessageSystem* msg);
     ~Impl();
 
-    bool getName(const LLUUID& id, std::string& first, std::string& last, std::map<std::string, std::string>& default_names);
+    bool getName(const LLUUID& id, std::string& first, std::string& last, cache_map_t& default_names);
 
     boost::signals2::connection addPending(const LLUUID& id, const LLCacheNameCallback& callback);
     void addPending(const LLUUID& id, const LLHost& host);
@@ -401,7 +400,7 @@ void LLCacheName::exportFile(std::ostream& ostr)
 }
 
 
-bool LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::string& last, std::map<std::string, std::string>& default_names)
+bool LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::string& last, cache_map_t &default_names)
 {
     if(id.isNull())
     {

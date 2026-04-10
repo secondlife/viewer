@@ -338,14 +338,21 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
         {
             LLVector3d global_pos;
             landmark->getGlobalPos(global_pos);
-            boost::function<void(std::string& slurl)> copy_slurl_to_clipboard_cb = [](const std::string& slurl)
+            if (!global_pos.isExactlyZero())
             {
-               gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(slurl));
-               LLSD args;
-               args["SLURL"] = slurl;
-               LLNotificationsUtil::add("CopySLURL", args);
-            };
-            LLLandmarkActions::getSLURLfromPosGlobal(global_pos, copy_slurl_to_clipboard_cb, true);
+                boost::function<void(std::string& slurl)> copy_slurl_to_clipboard_cb = [](const std::string& slurl)
+                {
+                    gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(slurl));
+                    LLSD args;
+                    args["SLURL"] = slurl;
+                    LLNotificationsUtil::add("CopySLURL", args);
+                };
+                LLLandmarkActions::getSLURLfromPosGlobal(global_pos, copy_slurl_to_clipboard_cb, true);
+            }
+            else
+            {
+                LLNotificationsUtil::add("LandmarkLocationUnknown");
+            }
         };
         LLLandmark* landmark = LLLandmarkActions::getLandmark(mUUIDs.front(), copy_slurl_cb);
         if (landmark)
