@@ -480,6 +480,7 @@ void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height
 
 void LLScrollContainer::draw()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     static LLUICachedControl<S32> scrollbar_size_control ("UIScrollbarSize", 0);
     S32 scrollbar_size = (mSize == -1 ? scrollbar_size_control : mSize);
 
