@@ -79,7 +79,6 @@
 #include "llviewerthrottle.h"
 #include "llvoavatarself.h"
 #include "llvotree.h"
-#include "llfloaterpathfindingconsole.h"
 // linden library includes
 #include "llavatarnamecache.h"
 #include "llerror.h"
@@ -681,14 +680,6 @@ void LLFloaterPreference::cancel(const std::vector<std::string> settings_to_skip
     {
         advanced_proxy_settings->cancel();
     }
-    //Need to reload the navmesh if the pathing console is up
-    LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
-    if ( !pathfindingConsoleHandle.isDead() )
-    {
-        LLFloaterPathfindingConsole* pPathfindingConsole = pathfindingConsoleHandle.get();
-        pPathfindingConsole->onRegionBoundaryCross();
-    }
-
     if (!mSavedGraphicsPreset.empty())
     {
         gSavedSettings.setString("PresetGraphicActive", mSavedGraphicsPreset);
@@ -1025,13 +1016,6 @@ void LLFloaterPreference::onBtnOK(const LLSD& userdata)
     }
 
     LLPanelLogin::updateLocationSelectorsVisibility();
-    //Need to reload the navmesh if the pathing console is up
-    LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
-    if ( !pathfindingConsoleHandle.isDead() )
-    {
-        LLFloaterPathfindingConsole* pPathfindingConsole = pathfindingConsoleHandle.get();
-        pPathfindingConsole->onRegionBoundaryCross();
-    }
 }
 
 // static

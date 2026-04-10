@@ -123,9 +123,6 @@ LLGLSLShader        gHighlightSpecularProgram;
 
 LLGLSLShader        gDeferredHighlightProgram;
 
-LLGLSLShader        gPathfindingProgram;
-LLGLSLShader        gPathfindingNoNormalsProgram;
-
 //avatar shader handles
 LLGLSLShader        gAvatarProgram;
 LLGLSLShader        gAvatarEyeballProgram;
@@ -3189,26 +3186,6 @@ bool LLViewerShaderMgr::loadShadersInterface()
         gUIProgram.mShaderFiles.push_back(make_pair("interface/uiF.glsl", GL_FRAGMENT_SHADER));
         gUIProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
         success = gUIProgram.createShader();
-    }
-
-    if (success)
-    {
-        gPathfindingProgram.mName = "Pathfinding Shader";
-        gPathfindingProgram.mShaderFiles.clear();
-        gPathfindingProgram.mShaderFiles.push_back(make_pair("interface/pathfindingV.glsl", GL_VERTEX_SHADER));
-        gPathfindingProgram.mShaderFiles.push_back(make_pair("interface/pathfindingF.glsl", GL_FRAGMENT_SHADER));
-        gPathfindingProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
-        success = gPathfindingProgram.createShader();
-    }
-
-    if (success)
-    {
-        gPathfindingNoNormalsProgram.mName = "PathfindingNoNormals Shader";
-        gPathfindingNoNormalsProgram.mShaderFiles.clear();
-        gPathfindingNoNormalsProgram.mShaderFiles.push_back(make_pair("interface/pathfindingNoNormalV.glsl", GL_VERTEX_SHADER));
-        gPathfindingNoNormalsProgram.mShaderFiles.push_back(make_pair("interface/pathfindingF.glsl", GL_FRAGMENT_SHADER));
-        gPathfindingNoNormalsProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
-        success = gPathfindingNoNormalsProgram.createShader();
     }
 
     if (success)

@@ -465,9 +465,6 @@ public:
 
     void addDebugBlip(const glm::vec3& position, const LLColor4& color);
 
-    void hidePermanentObjects( std::vector<U32>& restoreList );
-    void restorePermanentObjects( const std::vector<U32>& restoreList );
-    void skipRenderingOfTerrain( bool flag );
     void hideObject( const LLUUID& id );
     void restoreHiddenObject( const LLUUID& id );
     void handleShadowDetailChanged();

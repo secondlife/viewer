@@ -336,22 +336,6 @@
                   label="Script Events"
                   stat="simscripteps"
                   unit_label="eps"/>
-        <stat_view name="simpathfinding"
-                   label="Pathfinding"
-                   setting="OpenDebugStatPathfinding">
-          <stat_bar name="simsimaistepmsec"
-                    label="AI Step Time"
-                    stat="simsimaistepmsec"/>
-          <stat_bar name="simsimskippedsilhouettesteps"
-                    label="Skipped Silhouette Steps"
-                    stat="simsimskippedsilhouettesteps"
-                    unit_label="/sec"/>
-          <stat_bar name="simsimpctsteppedcharacters"
-          			label="Characters Updated"
-                    stat="simsimpctsteppedcharacters"
-          			unit_label="%"
-                    decimal_digits="1"/>
-        </stat_view>
         <stat_bar name="siminpps"
                   label="Packets In"
                   stat="siminpps"

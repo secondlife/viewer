@@ -266,11 +266,7 @@ set(viewer_SOURCE_FILES
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
     llfloatersimplesnapshot.cpp
-    llfloaterpathfindingcharacters.cpp
-    llfloaterpathfindingconsole.cpp
-    llfloaterpathfindinglinksets.cpp
-    llfloaterpathfindingobjects.cpp
-    llfloaterpay.cpp
+llfloaterpay.cpp
     llfloaterperformance.cpp
     llfloaterperms.cpp
     llfloaterprofile.cpp
@@ -396,8 +392,7 @@ set(viewer_SOURCE_FILES
     llmaterialmgr.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
-    llmenuoptionpathfindingrebakenavmesh.cpp
-    llmeshrepository.cpp
+llmeshrepository.cpp
     llmimetypes.cpp
     llmodelpreview.cpp
     llmorphview.cpp
@@ -512,18 +507,7 @@ set(viewer_SOURCE_FILES
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
-    llpathfindingcharacter.cpp
-    llpathfindingcharacterlist.cpp
-    llpathfindinglinkset.cpp
-    llpathfindinglinksetlist.cpp
-    llpathfindingmanager.cpp
-    llpathfindingnavmesh.cpp
-    llpathfindingnavmeshstatus.cpp
-    llpathfindingnavmeshzone.cpp
-    llpathfindingobject.cpp
-    llpathfindingobjectlist.cpp
-    llpathfindingpathtool.cpp
-    llpbrterrainfeatures.cpp
+llpbrterrainfeatures.cpp
     llpersistentnotificationstorage.cpp
     llphysicsmotion.cpp
     llpipelinelistener.cpp
@@ -947,11 +931,7 @@ set(viewer_HEADER_FILES
     llfloaterobjectweights.h
     llfloateropenobject.h
     llfloatersimplesnapshot.h
-    llfloaterpathfindingcharacters.h
-    llfloaterpathfindingconsole.h
-    llfloaterpathfindinglinksets.h
-    llfloaterpathfindingobjects.h
-    llfloaterpay.h
+llfloaterpay.h
     llfloaterperformance.h
     llfloaterperms.h
     llfloaterprofile.h
@@ -1074,8 +1054,7 @@ set(viewer_HEADER_FILES
     llmaterialmgr.h
     llmediactrl.h
     llmediadataclient.h
-    llmenuoptionpathfindingrebakenavmesh.h
-    llmeshrepository.h
+llmeshrepository.h
     llmimetypes.h
     llmodelpreview.h
     llmorphview.h
@@ -1177,18 +1156,7 @@ set(viewer_HEADER_FILES
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h
-    llpathfindingcharacter.h
-    llpathfindingcharacterlist.h
-    llpathfindinglinkset.h
-    llpathfindinglinksetlist.h
-    llpathfindingmanager.h
-    llpathfindingnavmesh.h
-    llpathfindingnavmeshstatus.h
-    llpathfindingnavmeshzone.h
-    llpathfindingobject.h
-    llpathfindingobjectlist.h
-    llpathfindingpathtool.h
-    llpbrterrainfeatures.h
+llpbrterrainfeatures.h
     llpersistentnotificationstorage.h
     llphysicsmotion.h
     llpipelinelistener.h
@@ -1566,11 +1534,6 @@ if (WINDOWS)
         res/lltoolgrab.cur
         res/lltoolland.cur
         res/lltoolpan.cur
-        res/lltoolpathfinding.cur
-        res/lltoolpathfindingpathend.cur
-        res/lltoolpathfindingpathendadd.cur
-        res/lltoolpathfindingpathstart.cur
-        res/lltoolpathfindingpathstartadd.cur
         res/lltoolpipette.cur
         res/lltoolrotate.cur
         res/lltoolscale.cur

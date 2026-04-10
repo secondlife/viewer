@@ -728,19 +728,12 @@ public:
     bool selectGetCharacter();
 
     // returns true if is all objects are not permanent
-    bool selectGetRootsNonPathfinding();
-    bool selectGetNonPathfinding();
-
-    // returns true if is all objects are not permanent
     bool selectGetRootsNonPermanent();
     bool selectGetNonPermanent();
 
     // returns true if is all objects are not character
     bool selectGetRootsNonCharacter();
     bool selectGetNonCharacter();
-
-    bool selectGetEditableLinksets();
-    bool selectGetViewableCharacters();
 
     // returns true if selected objects can be transferred.
     bool selectGetRootsTransfer();

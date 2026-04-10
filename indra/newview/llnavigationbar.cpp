@@ -744,7 +744,4 @@ int LLNavigationBar::getDefFavBarHeight()
     return mDefaultFpRect.getHeight();
 }
 
-bool LLNavigationBar::isRebakeNavMeshAvailable()
-{
-    return mCmbLocation->isNavMeshDirty();
-}
+

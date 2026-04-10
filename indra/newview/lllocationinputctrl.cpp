@@ -49,9 +49,6 @@
 #include "llinventoryobserver.h"
 #include "lllandmarkactions.h"
 #include "lllandmarklist.h"
-#include "llpathfindingmanager.h"
-#include "llpathfindingnavmesh.h"
-#include "llpathfindingnavmeshstatus.h"
 #include "llteleporthistory.h"
 #include "llslurl.h"
 #include "llstatusbar.h"            // getHealth()
@@ -64,8 +61,6 @@
 #include "llurllineeditorctrl.h"
 #include "llagentui.h"
 
-#include "llmenuoptionpathfindingrebakenavmesh.h"
-#include "llpathfindingmanager.h"
 #include <functional>
 
 using namespace std::placeholders;
@@ -204,8 +199,6 @@ LLLocationInputCtrl::Params::Params()
     damage_text("damage_text"),
     see_avatars_icon("see_avatars_icon"),
     maturity_help_topic("maturity_help_topic"),
-    pathfinding_dirty_icon("pathfinding_dirty_icon"),
-    pathfinding_disabled_icon("pathfinding_disabled_icon")
 {
 }
 
@@ -218,8 +211,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
     mForSaleBtn(NULL),
     mInfoBtn(NULL),
     mRegionCrossingSlot(),
-    mNavMeshSlot(),
-    mIsNavMeshDirty(false),
     mLandmarkImageOn(NULL),
     mLandmarkImageOff(NULL),
     mIconMaturityGeneral(NULL),
@@ -352,20 +343,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
     mParcelIcon[DAMAGE_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, DAMAGE_ICON));
     addChild(mParcelIcon[DAMAGE_ICON]);
 
-    LLIconCtrl::Params pathfinding_dirty_icon = p.pathfinding_dirty_icon;
-    pathfinding_dirty_icon.tool_tip = LLTrans::getString("LocationCtrlPathfindingDirtyTooltip");
-    pathfinding_dirty_icon.mouse_opaque = true;
-    mParcelIcon[PATHFINDING_DIRTY_ICON] = LLUICtrlFactory::create<LLIconCtrl>(pathfinding_dirty_icon);
-    mParcelIcon[PATHFINDING_DIRTY_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, PATHFINDING_DIRTY_ICON));
-    addChild(mParcelIcon[PATHFINDING_DIRTY_ICON]);
-
-    LLIconCtrl::Params pathfinding_disabled_icon = p.pathfinding_disabled_icon;
-    pathfinding_disabled_icon.tool_tip = LLTrans::getString("LocationCtrlPathfindingDisabledTooltip");
-    pathfinding_disabled_icon.mouse_opaque = true;
-    mParcelIcon[PATHFINDING_DISABLED_ICON] = LLUICtrlFactory::create<LLIconCtrl>(pathfinding_disabled_icon);
-    mParcelIcon[PATHFINDING_DISABLED_ICON]->setMouseDownCallback(std::bind(&LLLocationInputCtrl::onParcelIconClick, this, PATHFINDING_DISABLED_ICON));
-    addChild(mParcelIcon[PATHFINDING_DISABLED_ICON]);
-
     LLTextBox::Params damage_text = p.damage_text;
     damage_text.tool_tip = LLTrans::getString("LocationCtrlDamageTooltip");
     damage_text.mouse_opaque = true;
@@ -423,7 +400,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
             std::bind(&LLLocationInputCtrl::onLocationHistoryChanged, this,_1));
 
     mRegionCrossingSlot = gAgent.addRegionChangedCallback(std::bind(&LLLocationInputCtrl::onRegionBoundaryCrossed, this));
-    createNavMeshStatusListenerForCurrentRegion();
 
     mRemoveLandmarkObserver = new LLRemoveLandmarkObserver(this);
     mAddLandmarkObserver    = new LLAddLandmarkObserver(this);
@@ -450,7 +426,6 @@ LLLocationInputCtrl::~LLLocationInputCtrl()
     delete mParcelChangeObserver;
 
     mRegionCrossingSlot.disconnect();
-    mNavMeshSlot.disconnect();
     mCoordinatesControlConnection.disconnect();
     mParcelPropertiesControlConnection.disconnect();
     mParcelMgrConnection.disconnect();
@@ -669,13 +644,6 @@ void LLLocationInputCtrl::onAgentParcelChange()
 
 void LLLocationInputCtrl::onRegionBoundaryCrossed()
 {
-    createNavMeshStatusListenerForCurrentRegion();
-}
-
-void LLLocationInputCtrl::onNavMeshStatusChange(const LLPathfindingNavMeshStatus &pNavMeshStatus)
-{
-    mIsNavMeshDirty = pNavMeshStatus.isValid() && (pNavMeshStatus.getStatus() != LLPathfindingNavMeshStatus::kComplete);
-    refreshParcelIcons();
 }
 
 void LLLocationInputCtrl::onLandmarkLoaded([[maybe_unused]] LLLandmark* lm)
@@ -860,7 +828,6 @@ void LLLocationInputCtrl::refreshParcelIcons()
         bool allow_scripts  = vpm->allowAgentScripts(agent_region, current_parcel);
         bool allow_damage   = vpm->allowAgentDamage(agent_region, current_parcel);
         bool see_avs        = current_parcel->getSeeAVs();
-        bool pathfinding_dynamic_enabled = agent_region->dynamicPathfindingEnabled();
 
         // Most icons are "block this ability"
         mParcelIcon[VOICE_ICON]->setVisible(   !allow_voice );
@@ -869,8 +836,6 @@ void LLLocationInputCtrl::refreshParcelIcons()
         mParcelIcon[BUILD_ICON]->setVisible(   !allow_build );
         mParcelIcon[SCRIPTS_ICON]->setVisible( !allow_scripts );
         mParcelIcon[DAMAGE_ICON]->setVisible(  allow_damage );
-        mParcelIcon[PATHFINDING_DIRTY_ICON]->setVisible(mIsNavMeshDirty);
-        mParcelIcon[PATHFINDING_DISABLED_ICON]->setVisible(!mIsNavMeshDirty && !pathfinding_dynamic_enabled);
 
         mDamageText->setVisible(allow_damage);
         mParcelIcon[SEE_AVATARS_ICON]->setVisible( !see_avs );
@@ -1203,18 +1168,6 @@ bool LLLocationInputCtrl::onLocationContextMenuItemEnabled(const LLSD& userdata)
     return false;
 }
 
-void LLLocationInputCtrl::callbackRebakeRegion(const LLSD& notification, const LLSD& response)
-{
-    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (option == 0) // OK
-    {
-        if (LLPathfindingManager::getInstance() != NULL)
-        {
-            LLMenuOptionPathfindingRebakeNavmesh::getInstance()->sendRequestRebakeNavmesh();
-        }
-    }
-}
-
 void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
 {
     switch (icon)
@@ -1230,22 +1183,6 @@ void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
         break;
     case BUILD_ICON:
         LLNotificationsUtil::add("NoBuild");
-        break;
-    case PATHFINDING_DIRTY_ICON:
-        if (LLPathfindingManager::getInstance() != NULL)
-        {
-            LLMenuOptionPathfindingRebakeNavmesh *rebakeInstance = LLMenuOptionPathfindingRebakeNavmesh::getInstance();
-            if (rebakeInstance && rebakeInstance->canRebakeRegion() && (rebakeInstance->getMode() == LLMenuOptionPathfindingRebakeNavmesh::kRebakeNavMesh_Available))
-            {
-                LLNotificationsUtil::add("PathfindingDirtyRebake", LLSD(), LLSD(),
-                                         std::bind(&LLLocationInputCtrl::callbackRebakeRegion, this, _1, _2));
-                break;
-            }
-        }
-        LLNotificationsUtil::add("PathfindingDirty");
-        break;
-    case PATHFINDING_DISABLED_ICON:
-        LLNotificationsUtil::add("DynamicPathfindingDisabled");
         break;
     case SCRIPTS_ICON:
     {
@@ -1276,17 +1213,4 @@ void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
     }
 }
 
-void LLLocationInputCtrl::createNavMeshStatusListenerForCurrentRegion()
-{
-    if (mNavMeshSlot.connected())
-    {
-        mNavMeshSlot.disconnect();
-    }
 
-    LLViewerRegion *currentRegion = gAgent.getRegion();
-    if (currentRegion != NULL)
-    {
-        mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(currentRegion, std::bind(&LLLocationInputCtrl::onNavMeshStatusChange, this, _2));
-        LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(currentRegion, true);
-    }
-}

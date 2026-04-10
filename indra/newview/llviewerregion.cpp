@@ -3245,12 +3245,10 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("MeshUploadFlag");
     capabilityNames.append("ModifyMaterialParams");
     capabilityNames.append("ModifyRegion");
-    capabilityNames.append("NavMeshGenerationStatus");
     capabilityNames.append("NewFileAgentInventory");
     capabilityNames.append("ObjectAnimation");
     capabilityNames.append("ObjectMedia");
     capabilityNames.append("ObjectMediaNavigate");
-    capabilityNames.append("ObjectNavMeshProperties");
     capabilityNames.append("ParcelPropertiesUpdate");
     capabilityNames.append("ParcelVoiceInfoRequest");
     capabilityNames.append("ProductInfoRequest");
@@ -3263,7 +3261,6 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("RenderMaterials");
     capabilityNames.append("RequestTextureDownload");
     capabilityNames.append("ResourceCostSelected");
-    capabilityNames.append("RetrieveNavMeshSrc");
     capabilityNames.append("SearchStatRequest");
     capabilityNames.append("SearchStatTracking");
     capabilityNames.append("SendPostcard");
@@ -3274,7 +3271,6 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("SimConsoleAsync");
     capabilityNames.append("SimulatorFeatures");
     capabilityNames.append("StartGroupProposal");
-    capabilityNames.append("TerrainNavMeshProperties");
     capabilityNames.append("TextureStats");
     capabilityNames.append("UntrustedSimulatorMessage");
     capabilityNames.append("UpdateAgentInformation");
@@ -3686,12 +3682,6 @@ bool LLViewerRegion::bakesOnMeshEnabled() const
 {
     return (mSimulatorFeatures.has("BakesOnMeshEnabled") &&
         mSimulatorFeatures["BakesOnMeshEnabled"].asBoolean());
-}
-
-bool LLViewerRegion::dynamicPathfindingEnabled() const
-{
-    return ( mSimulatorFeatures.has("DynamicPathfindingEnabled") &&
-             mSimulatorFeatures["DynamicPathfindingEnabled"].asBoolean());
 }
 
 bool LLViewerRegion::avatarHoverHeightEnabled() const

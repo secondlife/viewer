@@ -31,7 +31,6 @@
 #include "lliconctrl.h"     // Params
 #include "lltextbox.h"      // Params
 #include "lllocationhistory.h"
-#include "llpathfindingnavmesh.h"
 
 class LLLandmark;
 
@@ -41,7 +40,6 @@ class LLRemoveLandmarkObserver;
 class LLParcelChangeObserver;
 class LLMenuGL;
 class LLTeleportHistoryItem;
-class LLPathfindingNavMeshStatus;
 
 /**
  * Location input control.
@@ -81,8 +79,6 @@ public:
                                             scripts_icon,
                                             damage_icon,
                                             see_avatars_icon,
-                                            pathfinding_dirty_icon,
-                                            pathfinding_disabled_icon;
         Optional<LLTextBox::Params>         damage_text;
         Params();
     };
@@ -109,8 +105,6 @@ public:
     LLLineEditor*           getTextEntry() const { return mTextEntry; }
     void                    handleLoginComplete();
 
-    bool isNavMeshDirty() { return mIsNavMeshDirty; }
-
 private:
 
     enum EParcelIcon
@@ -122,9 +116,7 @@ private:
         SCRIPTS_ICON,             // 4
         DAMAGE_ICON,              // 5
         SEE_AVATARS_ICON,         // 6
-        PATHFINDING_DIRTY_ICON,   // 7
-        PATHFINDING_DISABLED_ICON,// 8
-        ICON_COUNT                // 9 total
+        ICON_COUNT                // 7 total
     };
 
     friend class LLUICtrlFactory;
@@ -164,14 +156,10 @@ private:
     void                    onAddLandmarkButtonClicked();
     void                    onAgentParcelChange();
     void                    onRegionBoundaryCrossed();
-    void                    onNavMeshStatusChange(const LLPathfindingNavMeshStatus &pNavMeshStatus);
     // callbacks
     bool                    onLocationContextMenuItemEnabled(const LLSD& userdata);
     void                    onLocationContextMenuItemClicked(const LLSD& userdata);
-    void                    callbackRebakeRegion(const LLSD& notification, const LLSD& response);
     void                    onParcelIconClick(EParcelIcon icon);
-
-    void                    createNavMeshStatusListenerForCurrentRegion();
 
     LLMenuGL*               mLocationContextMenu;
     LLButton*               mAddLandmarkBtn;
@@ -193,15 +181,11 @@ private:
     boost::signals2::connection mParcelMgrConnection;
     boost::signals2::connection mLocationHistoryConnection;
     boost::signals2::connection mRegionCrossingSlot;
-    LLPathfindingNavMesh::navmesh_slot_t mNavMeshSlot;
-    bool mIsNavMeshDirty;
     LLUIImage* mLandmarkImageOn;
     LLUIImage* mLandmarkImageOff;
     LLPointer<LLUIImage> mIconMaturityGeneral;
     LLPointer<LLUIImage> mIconMaturityAdult;
     LLPointer<LLUIImage> mIconMaturityModerate;
-    LLPointer<LLUIImage> mIconPathfindingDynamic;
-
     std::string mAddLandmarkTooltip;
     std::string mEditLandmarkTooltip;
     // this field holds a human-readable form of the location string, it is needed to be able to compare copy-pated value and real location
