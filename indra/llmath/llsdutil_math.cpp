@@ -123,6 +123,10 @@ glm::vec3 ll_vec3_from_sd(const LLSD& sd, S32 start_index)
                      static_cast<F32>(sd[start_index + 2].asReal()));
 }
 
+// color3 (same wire format as vec3 — thin wrappers for clarity)
+LLSD ll_sd_from_color3(const glm::vec3& color) { return ll_sd_from_vec3(color); }
+glm::vec3 ll_color3_from_sd(const LLSD& sd) { return ll_vec3_from_sd(sd); }
+
 // vec2
 LLSD ll_sd_from_vec2(const glm::vec2& vec)
 {

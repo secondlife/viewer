@@ -44,70 +44,13 @@
 #include "llviewerregion.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "v3colorutil.h"
 
 #include "llsettingssky.h"
 #include "llenvironment.h"
 #include "lldrawpoolwater.h"
 
-class LLFastLn
-{
-public:
-    LLFastLn()
-    {
-        mTable[0] = 0;
-        for( S32 i = 1; i < 257; i++ )
-        {
-            mTable[i] = log(static_cast<F32>(i));
-        }
-    }
-
-    F32 ln( F32 x )
-    {
-        const F32 OO_255 = 0.003921568627450980392156862745098f;
-        const F32 LN_255 = 5.5412635451584261462455391880218f;
-
-        if( x < OO_255 )
-        {
-            return log(x);
-        }
-        else
-        if( x < 1 )
-        {
-            x *= 255.f;
-            S32 index = llfloor(x);
-            F32 t = x - index;
-            F32 low = mTable[index];
-            F32 high = mTable[index + 1];
-            return low + t * (high - low) - LN_255;
-        }
-        else
-        if( x <= 255 )
-        {
-            S32 index = llfloor(x);
-            F32 t = x - index;
-            F32 low = mTable[index];
-            F32 high = mTable[index + 1];
-            return low + t * (high - low);
-        }
-        else
-        {
-            return log( x );
-        }
-    }
-
-    F32 pow( F32 x, F32 y )
-    {
-        return static_cast<F32>(LL_FAST_EXP(y * ln(x)));
-    }
-
-
-private:
-    F32 mTable[257]; // index 0 is unused
-};
-
-static LLFastLn gFastLn;
-
+#include <glm/common.hpp>
+#include <glm/exponential.hpp>
 
 // Functions used a lot.
 
@@ -115,58 +58,24 @@ inline F32 LLHaze::calcPhase(const F32 cos_theta) const
 {
     const F32 g2 = mG * mG;
     const F32 den = 1 + g2 - 2 * mG * cos_theta;
-    return (1 - g2) * gFastLn.pow(den, -1.5);
+    return (1 - g2) * powf(den, -1.5f);
 }
 
-inline void color_pow(LLColor3 &col, const F32 e)
+static glm::vec3 calc_air_sca_sea_level()
 {
-    col.mV[0] = gFastLn.pow(col.mV[0], e);
-    col.mV[1] = gFastLn.pow(col.mV[1], e);
-    col.mV[2] = gFastLn.pow(col.mV[2], e);
-}
-
-inline LLColor3 color_norm(const LLColor3 &col)
-{
-    const F32 m = color_max(col);
-    if (m > 1.f)
-    {
-        return 1.f/m * col;
-    }
-    else return col;
-}
-
-inline void color_gamma_correct(LLColor3 &col)
-{
-    const F32 gamma_inv = 1.f/1.2f;
-    if (col.mV[0] != 0.f)
-    {
-        col.mV[0] = gFastLn.pow(col.mV[0], gamma_inv);
-    }
-    if (col.mV[1] != 0.f)
-    {
-        col.mV[1] = gFastLn.pow(col.mV[1], gamma_inv);
-    }
-    if (col.mV[2] != 0.f)
-    {
-        col.mV[2] = gFastLn.pow(col.mV[2], gamma_inv);
-    }
-}
-
-static LLColor3 calc_air_sca_sea_level()
-{
-    static LLColor3 WAVE_LEN(675, 520, 445);
-    static LLColor3 refr_ind = refr_ind_calc(WAVE_LEN);
-    static LLColor3 n21 = refr_ind * refr_ind - LLColor3(1, 1, 1);
-    static LLColor3 n4 = n21 * n21;
-    static LLColor3 wl2 = WAVE_LEN * WAVE_LEN * 1e-6f;
-    static LLColor3 wl4 = wl2 * wl2;
-    static LLColor3 mult_const = fsigma * 2.0f/ 3.0f * 1e24f * (F_PI * F_PI) * n4;
+    static glm::vec3 WAVE_LEN(675, 520, 445);
+    static glm::vec3 refr_ind = refr_ind_calc(WAVE_LEN);
+    static glm::vec3 n21 = refr_ind * refr_ind - glm::vec3(1, 1, 1);
+    static glm::vec3 n4 = n21 * n21;
+    static glm::vec3 wl2 = WAVE_LEN * WAVE_LEN * 1e-6f;
+    static glm::vec3 wl4 = wl2 * wl2;
+    static glm::vec3 mult_const = fsigma * 2.0f/ 3.0f * 1e24f * (F_PI * F_PI) * n4;
     static F32 dens_div_N = F32( ATM_SEA_LEVEL_NDENS / Ndens2);
-    return dens_div_N * mult_const.divide(wl4);
+    return dens_div_N * (mult_const / wl4);
 }
 
 // static constants.
-const glm::vec3 LLHaze::sAirScaSeaLevel = calc_air_sca_sea_level(); // LLColor3 -> glm::vec3 implicit
+const glm::vec3 LLHaze::sAirScaSeaLevel = calc_air_sca_sea_level();
 F32 const LLHaze::sAirScaIntense = (sAirScaSeaLevel.x + sAirScaSeaLevel.y + sAirScaSeaLevel.z);
 F32 const LLHaze::sAirScaAvg = LLHaze::sAirScaIntense / 3.f;
 
@@ -195,8 +104,10 @@ LLAtmospherics::~LLAtmospherics() = default;
 
 void LLAtmospherics::init()
 {
-    const F32 haze_int = color_intens(mHaze.calcSigSca(0));
-    mHazeConcentration = haze_int / (color_intens(mHaze.calcAirSca(0)) + haze_int);
+    const glm::vec3 sig_sca = mHaze.calcSigSca(0);
+    const F32 haze_int = sig_sca.x + sig_sca.y + sig_sca.z;
+    const glm::vec3 air_sca = mHaze.calcAirSca(0);
+    mHazeConcentration = haze_int / ((air_sca.x + air_sca.y + air_sca.z) + haze_int);
     mInitialized = true;
 }
 
@@ -209,23 +120,24 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
     if (isShiny && dir.mV[VZ] < -0.02f)
     {
         LLColor4 col;
-        LLColor3 desat_fog = LLColor3(mFogColor);
-        F32 brightness = desat_fog.brightness();// NOTE: Linear brightness!
+        glm::vec3 desat_fog(mFogColor.mV[VRED], mFogColor.mV[VGREEN], mFogColor.mV[VBLUE]);
+        F32 brightness = ll_color3::brightness(desat_fog); // NOTE: Linear brightness!
         // So that shiny somewhat shows up at night.
         if (brightness < 0.15f)
         {
             brightness = 0.15f;
-            desat_fog = smear(0.15f);
+            desat_fog = glm::vec3(0.15f);
         }
         F32 greyscale_sat = brightness * (1.0f - land_saturation);
-        desat_fog = desat_fog * land_saturation + smear(greyscale_sat);
+        desat_fog = desat_fog * land_saturation + glm::vec3(greyscale_sat);
         if (low_end)
         {
-            col = LLColor4(desat_fog, 0.f);
+            col = LLColor4(desat_fog.x, desat_fog.y, desat_fog.z, 0.f);
         }
         else
         {
-            col = LLColor4(desat_fog * 0.5f, 0.f);
+            glm::vec3 half = desat_fog * 0.5f;
+            col = LLColor4(half.x, half.y, half.z, 0.f);
         }
         float x = 1.0f-fabsf(-0.1f-dir.mV[VZ]);
         x *= x;
@@ -245,14 +157,14 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
     {
         F32 brightness = ll_color3::brightness(vars.hazeColor);
         F32 greyscale_sat = brightness * (1.0f - sky_saturation);
-        LLColor3 sky_color = LLColor3(vars.hazeColor) * sky_saturation + smear(greyscale_sat);
+        glm::vec3 sky_color = vars.hazeColor * sky_saturation + glm::vec3(greyscale_sat);
         //sky_color *= (0.5f + 0.5f * brightness); // SL-12574 EEP sky is being attenuated too much
-        return LLColor4(sky_color, 0.0f);
+        return LLColor4(sky_color.x, sky_color.y, sky_color.z, 0.0f);
     }
 
-    LLColor3 sky_color = low_end ? LLColor3(vars.hazeColor * 2.0f) : LLColor3(psky->gammaCorrect(vars.hazeColor * 2.0f, vars.gamma));
+    glm::vec3 sky_color = low_end ? vars.hazeColor * 2.0f : psky->gammaCorrect(vars.hazeColor * 2.0f, vars.gamma);
 
-    return LLColor4(sky_color, 0.0f);
+    return LLColor4(sky_color.x, sky_color.y, sky_color.z, 0.0f);
 }
 
 // NOTE: Keep these in sync!
@@ -261,8 +173,8 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 //       indra\newview\lllegacyatmospherics.cpp
 void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVector3 & Pn, AtmosphericsVars& vars)
 {
-    const LLColor3    blue_density = vars.blue_density;
-    const LLColor3    blue_horizon = vars.blue_horizon;
+    const glm::vec3   blue_density = vars.blue_density;
+    const glm::vec3   blue_horizon = vars.blue_horizon;
     const F32         haze_horizon = vars.haze_horizon;
     const F32         haze_density = vars.haze_density;
     const F32         density_multiplier = vars.density_multiplier;
@@ -296,81 +208,81 @@ void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVect
     Pn /= Plen;
 
     // Initialize temp variables
-    LLColor3 sunlight = vars.sunlight;
-    LLColor3 ambient = vars.ambient;
+    glm::vec3 sunlight = vars.sunlight;
+    glm::vec3 ambient = vars.ambient;
 
-    LLColor3 glow = vars.glow;
+    glm::vec3 glow = vars.glow;
     F32 cloud_shadow = vars.cloud_shadow;
 
     // Sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
-    LLColor3 light_atten = vars.light_atten;
-    [[maybe_unused]] LLColor3 light_transmittance = psky->getLightTransmittanceFast(vars.total_density, vars.density_multiplier, Plen);
+    glm::vec3 light_atten = vars.light_atten;
+    [[maybe_unused]] glm::vec3 light_transmittance = psky->getLightTransmittanceFast(vars.total_density, vars.density_multiplier, Plen);
 
     // Calculate relative weights
-    LLColor3 temp2(0.f, 0.f, 0.f);
-    LLColor3 temp1 = vars.total_density;
+    glm::vec3 temp2(0.f);
+    glm::vec3 temp1 = vars.total_density;
 
-    LLColor3 blue_weight = componentDiv(blue_density, temp1);
-    LLColor3 blue_factor = blue_horizon * blue_weight;
-    LLColor3 haze_weight = componentDiv(smear(haze_density), temp1);
-    LLColor3 haze_factor = haze_horizon * haze_weight;
+    glm::vec3 blue_weight = blue_density / temp1;
+    glm::vec3 blue_factor = blue_horizon * blue_weight;
+    glm::vec3 haze_weight = glm::vec3(haze_density) / temp1;
+    glm::vec3 haze_factor = haze_horizon * haze_weight;
 
 
     // Compute sunlight from P & lightnorm (for long rays like sky)
-    temp2.mV[1] = llmax(F_APPROXIMATELY_ZERO, llmax(0.f, Pn[1]) * 1.0f + sun_norm.y );
+    temp2.y = llmax(F_APPROXIMATELY_ZERO, llmax(0.f, Pn[1]) * 1.0f + sun_norm.y );
 
-    temp2.mV[1] = 1.f / temp2.mV[1];
-    componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
-    componentMultBy(sunlight, light_transmittance);
+    temp2.y = 1.f / temp2.y;
+    sunlight *= glm::exp((light_atten * -1.f) * temp2.y);
+    sunlight *= light_transmittance;
 
     // Distance
-    temp2.mV[2] = Plen * density_multiplier;
+    temp2.z = Plen * density_multiplier;
 
     // Transparency (-> temp1)
-    temp1 = componentExp((temp1 * -1.f) * temp2.mV[2]);
+    temp1 = glm::exp((temp1 * -1.f) * temp2.z);
 
     // Compute haze glow
-    temp2.mV[0] = Pn * LLVector3(sun_norm);
+    temp2.x = Pn * LLVector3(sun_norm);
 
-    temp2.mV[0] = 1.f - temp2.mV[0];
+    temp2.x = 1.f - temp2.x;
         // temp2.x is 0 at the sun and increases away from sun
-    temp2.mV[0] = llmax(temp2.mV[0], .001f);
+    temp2.x = llmax(temp2.x, .001f);
         // Set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
 
     // Higher glow.x gives dimmer glow (because next step is 1 / "angle")
-    temp2.mV[0] *= glow.mV[0];
+    temp2.x *= glow.x;
 
-    temp2.mV[0] = pow(temp2.mV[0], glow.mV[2]);
+    temp2.x = pow(temp2.x, glow.z);
         // glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
     // Add "minimum anti-solar illumination"
-    temp2.mV[0] += .25f;
+    temp2.x += .25f;
 
 
     // Haze color above cloud
-    vars.hazeColor = (blue_factor * (sunlight + ambient) + componentMult(haze_factor, sunlight * temp2.mV[0] + ambient));
+    vars.hazeColor = (blue_factor * (sunlight + ambient) + haze_factor * (sunlight * temp2.x + ambient));
 
     // Increase ambient when there are more clouds
-    LLColor3 tmpAmbient = ambient + (LLColor3::white - ambient) * cloud_shadow * 0.5f;
+    glm::vec3 tmpAmbient = ambient + (glm::vec3(1.f) - ambient) * cloud_shadow * 0.5f;
 
     // Dim sunlight by cloud shadow percentage
     sunlight *= (1.f - cloud_shadow);
 
     // Haze color below cloud
-    vars.hazeColorBelowCloud = (blue_factor * (sunlight + tmpAmbient) + componentMult(haze_factor, sunlight * temp2.mV[0] + tmpAmbient));
+    vars.hazeColorBelowCloud = (blue_factor * (sunlight + tmpAmbient) + haze_factor * (sunlight * temp2.x + tmpAmbient));
 
     // Final atmosphere additive
-    vars.hazeColor *= (glm::vec3(1.f) - glm::vec3(temp1.mV[0], temp1.mV[1], temp1.mV[2]));
+    vars.hazeColor *= (glm::vec3(1.f) - temp1);
 
 /*
     // SL-12574
 
     // Attenuate cloud color by atmosphere
-    temp1 = componentSqrt(temp1);   //less atmos opacity (more transparency) below clouds
+    temp1 = glm::sqrt(temp1);   //less atmos opacity (more transparency) below clouds
 
     // At horizon, blend high altitude sky color towards the darker color below the clouds
-    vars.hazeColor += componentMult(vars.hazeColorBelowCloud - vars.hazeColor, LLColor3::white - componentSqrt(temp1));
+    vars.hazeColor += (vars.hazeColorBelowCloud - vars.hazeColor) * (glm::vec3(1.f) - glm::sqrt(temp1));
 */
 }
 
@@ -393,10 +305,10 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
     camera_height += near_clip_height;
 
     F32 fog_distance = 0.f;
-    LLColor3 res_color[3];
+    glm::vec3 res_color[3];
 
-    LLColor3 sky_fog_color = LLColor3::white;
-    LLColor3 render_fog_color = LLColor3::white;
+    glm::vec3 sky_fog_color(1.f);
+    glm::vec3 render_fog_color(1.f);
 
     const F32 tosun_z = tosun.mV[VZ];
     tosun.mV[VZ] = 0.f;
@@ -444,11 +356,21 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
     vars.total_density = psky->getTotalDensity();
     vars.gamma = psky->getGamma();
 
-    res_color[0] = calcSkyColorInDir(psky, vars, tosun);
-    res_color[1] = calcSkyColorInDir(psky, vars, perp_tosun);
-    res_color[2] = calcSkyColorInDir(psky, vars, tosun_45);
+    {
+        const LLColor4 c0 = calcSkyColorInDir(psky, vars, tosun);
+        const LLColor4 c1 = calcSkyColorInDir(psky, vars, perp_tosun);
+        const LLColor4 c2 = calcSkyColorInDir(psky, vars, tosun_45);
+        res_color[0] = glm::vec3(c0.mV[VRED], c0.mV[VGREEN], c0.mV[VBLUE]);
+        res_color[1] = glm::vec3(c1.mV[VRED], c1.mV[VGREEN], c1.mV[VBLUE]);
+        res_color[2] = glm::vec3(c2.mV[VRED], c2.mV[VGREEN], c2.mV[VBLUE]);
+    }
 
-    sky_fog_color = color_norm(res_color[0] + res_color[1] + res_color[2]);
+    // color_norm: clamp to [0,1] range by dividing by max component if > 1
+    {
+        glm::vec3 sum = res_color[0] + res_color[1] + res_color[2];
+        const F32 m = llmax(sum.x, sum.y, sum.z);
+        sky_fog_color = (m > 1.f) ? (1.f / m) * sum : sum;
+    }
 
     F32 full_off = -0.25f;
     F32 full_on = 0.00f;
@@ -458,13 +380,11 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 
 
     // We need to clamp these to non-zero, in order for the gamma correction to work. 0^y = ???
-    S32 i;
-    for (i = 0; i < 3; i++)
-    {
-        sky_fog_color.mV[i] = llmax(0.0001f, sky_fog_color.mV[i]);
-    }
+    sky_fog_color = glm::max(sky_fog_color, glm::vec3(0.0001f));
 
-    color_gamma_correct(sky_fog_color);
+    // Gamma correction (1/1.2 exponent)
+    constexpr F32 gamma_inv = 1.f / 1.2f;
+    sky_fog_color = glm::pow(sky_fog_color, glm::vec3(gamma_inv));
 
     render_fog_color = sky_fog_color;
 
@@ -472,8 +392,7 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 
     if (camera_height > water_height)
     {
-        LLColor4 fog(render_fog_color);
-        mGLFogCol = fog;
+        mGLFogCol = LLColor4(render_fog_color.x, render_fog_color.y, render_fog_color.z, 1.f);
     }
     else
     {
@@ -493,30 +412,11 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
         mGLFogCol = fogCol;
     }
 
-    mFogColor = sky_fog_color;
-    mFogColor.setAlpha(1);
+    mFogColor = LLColor4(sky_fog_color.x, sky_fog_color.y, sky_fog_color.z, 1.f);
 
     LLDrawPoolWater::sWaterFogEnd = fog_distance*2.2f;
 
     stop_glerror();
-}
-
-// Functions used a lot.
-F32 color_norm_pow(LLColor3& col, F32 e, bool postmultiply)
-{
-    F32 mv = color_max(col);
-    if (0 == mv)
-    {
-        return 0;
-    }
-
-    col *= 1.f / mv;
-    color_pow(col, e);
-    if (postmultiply)
-    {
-        col *= mv;
-    }
-    return mv;
 }
 
 // Returns angle (RADIANs) between the horizontal projection of "v" and the x_axis.
@@ -668,13 +568,6 @@ bool approximatelyEqual(const F32 &a, const  F32 &b, const F32 &fraction_treshol
         return true;
     }
     return false;
-}
-
-bool approximatelyEqual(const LLColor3 &a, const  LLColor3 &b, const F32 &fraction_treshold)
-{
-    return approximatelyEqual(a.mV[0], b.mV[0], fraction_treshold)
-           && approximatelyEqual(a.mV[1], b.mV[1], fraction_treshold)
-           && approximatelyEqual(a.mV[2], b.mV[2], fraction_treshold);
 }
 
 bool approximatelyEqual(const glm::vec3 &a, const glm::vec3 &b, const F32 &fraction_treshold)

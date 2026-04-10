@@ -43,6 +43,12 @@ LLVector3 ll_vector3_from_sd(const LLSD& sd, S32 start_index = 0);
 LLSD ll_sd_from_vec3(const glm::vec3& vec);
 glm::vec3 ll_vec3_from_sd(const LLSD& sd, S32 start_index = 0);
 
+// color3 (glm::vec3 as RGB) — same wire format as LLColor3::getValue/setValue
+// (3-element LLSD array [r, g, b]) so call sites can swap without breaking
+// existing settings/preset round-trips.
+LLSD ll_sd_from_color3(const glm::vec3& color);
+glm::vec3 ll_color3_from_sd(const LLSD& sd);
+
 // vector4
 class LLVector4;
 LLSD ll_sd_from_vector4(const LLVector4& vec);

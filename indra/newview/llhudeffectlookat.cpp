@@ -73,13 +73,13 @@ public:
         : mTimeout(0.f),
           mPriority(0.f)
     {}
-    LLAttention(F32 timeout, F32 priority, const std::string& name, LLColor3 color) :
+    LLAttention(F32 timeout, F32 priority, const std::string& name, const glm::vec3& color) :
       mTimeout(timeout), mPriority(priority), mName(name), mColor(color)
     {
     }
     F32 mTimeout, mPriority;
     std::string mName;
-    LLColor3 mColor;
+    glm::vec3 mColor{0.f};
 };
 
 /**
@@ -109,30 +109,30 @@ public:
 static const
     LLAttention
         BOY_ATTS[] = { // default set of masculine attentions
-            LLAttention(MAX_TIMEOUT, 0, "None",          LLColor3(0.3f, 0.3f, 0.3f)), // LOOKAT_TARGET_NONE
-            LLAttention(3.f,         1, "Idle",          LLColor3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_IDLE
-            LLAttention(4.f,         3, "AutoListen",    LLColor3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_AUTO_LISTEN
-            LLAttention(2.f,         2, "FreeLook",      LLColor3(0.5f, 0.5f, 0.9f)), // LOOKAT_TARGET_FREELOOK
-            LLAttention(4.f,         3, "Respond",       LLColor3(0.0f, 0.0f, 0.0f)), // LOOKAT_TARGET_RESPOND
-            LLAttention(1.f,         4, "Hover",         LLColor3(0.5f, 0.9f, 0.5f)), // LOOKAT_TARGET_HOVER
-            LLAttention(MAX_TIMEOUT, 0, "Conversation",  LLColor3(0.1f, 0.1f, 0.5f)), // LOOKAT_TARGET_CONVERSATION
-            LLAttention(MAX_TIMEOUT, 6, "Select",        LLColor3(0.9f, 0.5f, 0.5f)), // LOOKAT_TARGET_SELECT
-            LLAttention(MAX_TIMEOUT, 6, "Focus",         LLColor3(0.9f, 0.5f, 0.9f)), // LOOKAT_TARGET_FOCUS
-            LLAttention(MAX_TIMEOUT, 7, "Mouselook",     LLColor3(0.9f, 0.9f, 0.5f)), // LOOKAT_TARGET_MOUSELOOK
-            LLAttention(0.f,         8, "Clear",         LLColor3(1.0f, 1.0f, 1.0f)), // LOOKAT_TARGET_CLEAR
+            LLAttention(MAX_TIMEOUT, 0, "None",          glm::vec3(0.3f, 0.3f, 0.3f)), // LOOKAT_TARGET_NONE
+            LLAttention(3.f,         1, "Idle",          glm::vec3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_IDLE
+            LLAttention(4.f,         3, "AutoListen",    glm::vec3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_AUTO_LISTEN
+            LLAttention(2.f,         2, "FreeLook",      glm::vec3(0.5f, 0.5f, 0.9f)), // LOOKAT_TARGET_FREELOOK
+            LLAttention(4.f,         3, "Respond",       glm::vec3(0.0f, 0.0f, 0.0f)), // LOOKAT_TARGET_RESPOND
+            LLAttention(1.f,         4, "Hover",         glm::vec3(0.5f, 0.9f, 0.5f)), // LOOKAT_TARGET_HOVER
+            LLAttention(MAX_TIMEOUT, 0, "Conversation",  glm::vec3(0.1f, 0.1f, 0.5f)), // LOOKAT_TARGET_CONVERSATION
+            LLAttention(MAX_TIMEOUT, 6, "Select",        glm::vec3(0.9f, 0.5f, 0.5f)), // LOOKAT_TARGET_SELECT
+            LLAttention(MAX_TIMEOUT, 6, "Focus",         glm::vec3(0.9f, 0.5f, 0.9f)), // LOOKAT_TARGET_FOCUS
+            LLAttention(MAX_TIMEOUT, 7, "Mouselook",     glm::vec3(0.9f, 0.9f, 0.5f)), // LOOKAT_TARGET_MOUSELOOK
+            LLAttention(0.f,         8, "Clear",         glm::vec3(1.0f, 1.0f, 1.0f)), // LOOKAT_TARGET_CLEAR
         },
         GIRL_ATTS[] = { // default set of feminine attentions
-            LLAttention(MAX_TIMEOUT, 0, "None",          LLColor3(0.3f, 0.3f, 0.3f)), // LOOKAT_TARGET_NONE
-            LLAttention(3.f,         1, "Idle",          LLColor3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_IDLE
-            LLAttention(4.f,         3, "AutoListen",    LLColor3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_AUTO_LISTEN
-            LLAttention(2.f,         2, "FreeLook",      LLColor3(0.5f, 0.5f, 0.9f)), // LOOKAT_TARGET_FREELOOK
-            LLAttention(4.f,         3, "Respond",       LLColor3(0.0f, 0.0f, 0.0f)), // LOOKAT_TARGET_RESPOND
-            LLAttention(1.f,         4, "Hover",         LLColor3(0.5f, 0.9f, 0.5f)), // LOOKAT_TARGET_HOVER
-            LLAttention(MAX_TIMEOUT, 0, "Conversation",  LLColor3(0.1f, 0.1f, 0.5f)), // LOOKAT_TARGET_CONVERSATION
-            LLAttention(MAX_TIMEOUT, 6, "Select",        LLColor3(0.9f, 0.5f, 0.5f)), // LOOKAT_TARGET_SELECT
-            LLAttention(MAX_TIMEOUT, 6, "Focus",         LLColor3(0.9f, 0.5f, 0.9f)), // LOOKAT_TARGET_FOCUS
-            LLAttention(MAX_TIMEOUT, 7, "Mouselook",     LLColor3(0.9f, 0.9f, 0.5f)), // LOOKAT_TARGET_MOUSELOOK
-            LLAttention(0.f,         8, "Clear",         LLColor3(1.0f, 1.0f, 1.0f)), // LOOKAT_TARGET_CLEAR
+            LLAttention(MAX_TIMEOUT, 0, "None",          glm::vec3(0.3f, 0.3f, 0.3f)), // LOOKAT_TARGET_NONE
+            LLAttention(3.f,         1, "Idle",          glm::vec3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_IDLE
+            LLAttention(4.f,         3, "AutoListen",    glm::vec3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_AUTO_LISTEN
+            LLAttention(2.f,         2, "FreeLook",      glm::vec3(0.5f, 0.5f, 0.9f)), // LOOKAT_TARGET_FREELOOK
+            LLAttention(4.f,         3, "Respond",       glm::vec3(0.0f, 0.0f, 0.0f)), // LOOKAT_TARGET_RESPOND
+            LLAttention(1.f,         4, "Hover",         glm::vec3(0.5f, 0.9f, 0.5f)), // LOOKAT_TARGET_HOVER
+            LLAttention(MAX_TIMEOUT, 0, "Conversation",  glm::vec3(0.1f, 0.1f, 0.5f)), // LOOKAT_TARGET_CONVERSATION
+            LLAttention(MAX_TIMEOUT, 6, "Select",        glm::vec3(0.9f, 0.5f, 0.5f)), // LOOKAT_TARGET_SELECT
+            LLAttention(MAX_TIMEOUT, 6, "Focus",         glm::vec3(0.9f, 0.5f, 0.9f)), // LOOKAT_TARGET_FOCUS
+            LLAttention(MAX_TIMEOUT, 7, "Mouselook",     glm::vec3(0.9f, 0.9f, 0.5f)), // LOOKAT_TARGET_MOUSELOOK
+            LLAttention(0.f,         8, "Clear",         glm::vec3(1.0f, 1.0f, 1.0f)), // LOOKAT_TARGET_CLEAR
         };
 
 static LLAttentionSet
@@ -542,8 +542,8 @@ void LLHUDEffectLookAt::render()
         gGL.scalef(0.3f, 0.3f, 0.3f);
         gGL.begin(LLRender::LINES);
         {
-            LLColor3 color = (*mAttentions)[mTargetType].mColor;
-            gGL.color3f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE]);
+            const glm::vec3& color = (*mAttentions)[mTargetType].mColor;
+            gGL.color3f(color.x, color.y, color.z);
             gGL.vertex3f(-1.f, 0.f, 0.f);
             gGL.vertex3f(1.f, 0.f, 0.f);
 

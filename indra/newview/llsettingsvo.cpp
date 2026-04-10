@@ -36,6 +36,7 @@
 #include "lltrace.h"
 #include "llfasttimer.h"
 #include "v3colorutil.h"
+#include "llsdutil_math.h"
 
 #include "llglslshader.h"
 #include "llviewershadermgr.h"
@@ -841,8 +842,8 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
         { // auto-adjust legacy sky to take advantage of probe ambiance
             shader->uniform3fv(LLShaderMgr::AMBIENT, (ambient * static_cast<F32>(auto_adjust_ambient_scale)).mV);
             shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, auto_adjust_hdr_scale);
-            LLColor3 blue_horizon = LLColor3(getBlueHorizon()) * static_cast<F32>(auto_adjust_blue_horizon_scale);
-            LLColor3 blue_density = LLColor3(getBlueDensity()) * static_cast<F32>(auto_adjust_blue_density_scale);
+            LLColor3 blue_horizon = LLColor3(getBlueHorizon() * static_cast<F32>(auto_adjust_blue_horizon_scale));
+            LLColor3 blue_density = LLColor3(getBlueDensity() * static_cast<F32>(auto_adjust_blue_density_scale));
             sun_light_color = sun_light_color * static_cast<F32>(auto_adjust_sun_color_scale);
 
             shader->uniform3fv(LLShaderMgr::SUNLIGHT_COLOR, sun_light_color.mV);
@@ -878,9 +879,9 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
 
         // Todo: default 'legacy' values duplicate the ones from functions like getBlueDensity() find a better home for them
         // There is LLSettingsSky::defaults(), but it doesn't contain everything since it is geared towards creating new settings.
-        param_map[SETTING_AMBIENT] = DefaultParam(LLShaderMgr::AMBIENT, LLColor3(0.25f, 0.25f, 0.25f).getValue());
-        param_map[SETTING_BLUE_DENSITY] = DefaultParam(LLShaderMgr::BLUE_DENSITY, LLColor3(0.2447f, 0.4487f, 0.7599f).getValue());
-        param_map[SETTING_BLUE_HORIZON] = DefaultParam(LLShaderMgr::BLUE_HORIZON, LLColor3(0.4954f, 0.4954f, 0.6399f).getValue());
+        param_map[SETTING_AMBIENT] = DefaultParam(LLShaderMgr::AMBIENT, ll_sd_from_color3(glm::vec3(0.25f, 0.25f, 0.25f)));
+        param_map[SETTING_BLUE_DENSITY] = DefaultParam(LLShaderMgr::BLUE_DENSITY, ll_sd_from_color3(glm::vec3(0.2447f, 0.4487f, 0.7599f)));
+        param_map[SETTING_BLUE_HORIZON] = DefaultParam(LLShaderMgr::BLUE_HORIZON, ll_sd_from_color3(glm::vec3(0.4954f, 0.4954f, 0.6399f)));
         param_map[SETTING_HAZE_DENSITY] = DefaultParam(LLShaderMgr::HAZE_DENSITY, LLSD(0.7f));
         param_map[SETTING_HAZE_HORIZON] = DefaultParam(LLShaderMgr::HAZE_HORIZON, LLSD(0.19f));
         param_map[SETTING_DENSITY_MULTIPLIER] = DefaultParam(LLShaderMgr::DENSITY_MULTIPLIER, LLSD(0.0001f));

@@ -98,7 +98,7 @@ LLSD LLSettingsWater::defaults(const LLSettingsBase::TrackPosition& position)
 
         // Magic constants copied form defaults.xml
         dfltsetting[SETTING_BLUR_MULTIPLIER] = LLSD::Real(0.04000f);
-        dfltsetting[SETTING_FOG_COLOR] = LLColor3(0.0156f, 0.1490f, 0.2509f).getValue();
+        dfltsetting[SETTING_FOG_COLOR] = ll_sd_from_color3(glm::vec3(0.0156f, 0.1490f, 0.2509f));
         dfltsetting[SETTING_FOG_DENSITY] = LLSD::Real(2.0f);
         dfltsetting[SETTING_FOG_MOD] = LLSD::Real(0.25f);
         dfltsetting[SETTING_FRESNEL_OFFSET] = LLSD::Real(0.5f);
@@ -126,7 +126,7 @@ void LLSettingsWater::loadValuesFromLLSD()
     LLSD& settings = getSettings();
 
     mBlurMultiplier = static_cast<F32>(settings[SETTING_BLUR_MULTIPLIER].asReal());
-    mWaterFogColor = LLColor3(LLSD(settings[SETTING_FOG_COLOR]));
+    mWaterFogColor = ll_color3_from_sd(settings[SETTING_FOG_COLOR]);
     mWaterFogDensity = static_cast<F32>(settings[SETTING_FOG_DENSITY].asReal());
     mFogMod = static_cast<F32>(settings[SETTING_FOG_MOD].asReal());
     mFresnelOffset = static_cast<F32>(settings[SETTING_FRESNEL_OFFSET].asReal());
@@ -149,7 +149,7 @@ void LLSettingsWater::saveValuesToLLSD()
 
     LLSD & settings = getSettings();
     settings[SETTING_BLUR_MULTIPLIER] = LLSD::Real(mBlurMultiplier);
-    settings[SETTING_FOG_COLOR] = LLColor3(mWaterFogColor).getValue();
+    settings[SETTING_FOG_COLOR] = ll_sd_from_color3(mWaterFogColor);
     settings[SETTING_FOG_DENSITY] = LLSD::Real(mWaterFogDensity);
     settings[SETTING_FOG_MOD] = LLSD::Real(mFogMod);
     settings[SETTING_FRESNEL_OFFSET] = LLSD::Real(mFresnelOffset);
@@ -176,7 +176,7 @@ LLSD LLSettingsWater::translateLegacySettings(LLSD legacy)
     }
     if (legacy.has(SETTING_LEGACY_FOG_COLOR))
     {
-        newsettings[SETTING_FOG_COLOR] = LLColor3(legacy[SETTING_LEGACY_FOG_COLOR]).getValue();
+        newsettings[SETTING_FOG_COLOR] = legacy[SETTING_LEGACY_FOG_COLOR];
         converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_FOG_DENSITY))
