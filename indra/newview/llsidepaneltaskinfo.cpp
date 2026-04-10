@@ -373,33 +373,8 @@ void LLSidepanelTaskInfo::refresh()
     getChildView("perm_modify")->setEnabled(true);
     getChild<LLUICtrl>("perm_modify")->setValue(MODIFY_INFO_STRINGS[string_index]);
 
-    std::string pfAttrName;
-
-    if ((mObjectSelection->getFirstRootNode()
-        && LLSelectMgr::getInstance()->selectGetRootsNonPathfinding())
-        || LLSelectMgr::getInstance()->selectGetNonPathfinding())
-    {
-        pfAttrName = "Pathfinding_Object_Attr_None";
-    }
-    else if ((mObjectSelection->getFirstRootNode()
-        && LLSelectMgr::getInstance()->selectGetRootsPermanent())
-        || LLSelectMgr::getInstance()->selectGetPermanent())
-    {
-        pfAttrName = "Pathfinding_Object_Attr_Permanent";
-    }
-    else if ((mObjectSelection->getFirstRootNode()
-        && LLSelectMgr::getInstance()->selectGetRootsCharacter())
-        || LLSelectMgr::getInstance()->selectGetCharacter())
-    {
-        pfAttrName = "Pathfinding_Object_Attr_Character";
-    }
-    else
-    {
-        pfAttrName = "Pathfinding_Object_Attr_MultiSelect";
-    }
-
     mDAPathfindingAttributes->setEnabled(true);
-    mDAPathfindingAttributes->setValue(LLTrans::getString(pfAttrName));
+    mDAPathfindingAttributes->setValue(LLTrans::getString("Pathfinding_Object_Attr_None"));
 
     // Update creator text field
     getChildView("Creator:")->setEnabled(true);

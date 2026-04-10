@@ -202,9 +202,6 @@ extern LLGLSLShader         gHighlightSpecularProgram;
 
 extern LLGLSLShader         gDeferredHighlightProgram;
 
-extern LLGLSLShader         gPathfindingProgram;
-extern LLGLSLShader         gPathfindingNoNormalsProgram;
-
 // avatar shader handles
 extern LLGLSLShader         gAvatarProgram;
 extern LLGLSLShader         gAvatarEyeballProgram;

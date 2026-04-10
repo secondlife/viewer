@@ -68,8 +68,6 @@
 #include "llfloaterland.h"
 #include "llfloaterimnearbychat.h"
 #include "llfloaterlandholdings.h"
-#include "llfloaterpathfindingcharacters.h"
-#include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpay.h"
 #include "llfloaterreporter.h"
 #include "llfloatersearch.h"
@@ -96,7 +94,6 @@
 #include "llpanelmaininventory.h"
 #include "llmarketplacefunctions.h"
 #include "llmaterialeditor.h"
-#include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
 #include "llparcel.h"
@@ -138,7 +135,6 @@
 #include "lltrans.h"
 #include "lltoolgrab.h"
 #include "llwindow.h"
-#include "llpathfindingmanager.h"
 #include "llstartup.h"
 #include <unordered_map>
 #include <boost/regex.hpp>
@@ -3497,21 +3493,6 @@ bool enable_mute_particle()
     return pick.mParticleOwnerID != LLUUID::null && pick.mParticleOwnerID != gAgent.getID();
 }
 
-bool enable_object_select_in_pathfinding_linksets()
-{
-    return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLSelectMgr::getInstance()->selectGetEditableLinksets();
-}
-
-bool visible_object_select_in_pathfinding_linksets()
-{
-    return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion();
-}
-
-bool enable_object_select_in_pathfinding_characters()
-{
-    return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() &&  LLSelectMgr::getInstance()->selectGetViewableCharacters();
-}
-
 bool enable_os_exception()
 {
 #if LL_DARWIN
@@ -5719,51 +5700,6 @@ class LLToolsSaveToObjectInventory : public view_listener_t
             derez_objects(DRD_SAVE_INTO_TASK_INVENTORY, node->mFromTaskID);
         }
         return true;
-    }
-};
-
-class LLToolsEnablePathfinding : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        return (LLPathfindingManager::getInstance() != NULL) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion();
-    }
-};
-
-class LLToolsEnablePathfindingView : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        return (LLPathfindingManager::getInstance() != NULL) && LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() && LLPathfindingManager::getInstance()->isPathfindingViewEnabled();
-    }
-};
-
-class LLToolsDoPathfindingRebakeRegion : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        bool hasPathfinding = (LLPathfindingManager::getInstance() != NULL);
-
-        if (hasPathfinding)
-        {
-            LLMenuOptionPathfindingRebakeNavmesh::getInstance()->sendRequestRebakeNavmesh();
-        }
-
-        return hasPathfinding;
-    }
-};
-
-class LLToolsEnablePathfindingRebakeRegion : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        bool returnValue = false;
-
-        if (LLNavigationBar::instanceExists())
-        {
-            returnValue = LLNavigationBar::getInstance()->isRebakeNavMeshAvailable();
-        }
-        return returnValue;
     }
 };
 
@@ -9961,10 +9897,6 @@ void initialize_menus()
     enable.add("Tools.VisibleTakeObject", std::bind(&tools_visible_take_object));
     view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
 
-    view_listener_t::addMenu(new LLToolsEnablePathfinding(), "Tools.EnablePathfinding");
-    view_listener_t::addMenu(new LLToolsEnablePathfindingView(), "Tools.EnablePathfindingView");
-    view_listener_t::addMenu(new LLToolsDoPathfindingRebakeRegion(), "Tools.DoPathfindingRebakeRegion");
-    view_listener_t::addMenu(new LLToolsEnablePathfindingRebakeRegion(), "Tools.EnablePathfindingRebakeRegion");
     view_listener_t::addMenu(new LLToolsCheckSelectionLODMode(), "Tools.ToolsCheckSelectionLODMode");
 
     // Help menu
@@ -10323,11 +10255,6 @@ void initialize_menus()
     enable.add("EnablePayAvatar", std::bind(&enable_pay_avatar));
     enable.add("EnableEdit", std::bind(&enable_object_edit));
     enable.add("EnableMuteParticle", std::bind(&enable_mute_particle));
-    commit.add("Pathfinding.Linksets.Select", std::bind(&LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects));
-    enable.add("EnableSelectInPathfindingLinksets", std::bind(&enable_object_select_in_pathfinding_linksets));
-    enable.add("VisibleSelectInPathfindingLinksets", std::bind(&visible_object_select_in_pathfinding_linksets));
-    commit.add("Pathfinding.Characters.Select", std::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
-    enable.add("EnableSelectInPathfindingCharacters", std::bind(&enable_object_select_in_pathfinding_characters));
     enable.add("Advanced.EnableErrorOSException", std::bind(&enable_os_exception));
     enable.add("EnableGLTF", std::bind(&enable_gltf));
     enable.add("EnableGLTFSaveAs", std::bind(&enable_gltf_save_as));

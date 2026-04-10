@@ -10,8 +10,6 @@ include(VHACD)
 set(llphysicsextensionsos_SOURCE_FILES
         llconvexdecomposition.cpp
         llconvexdecompositionvhacd.cpp
-        llpathinglib.cpp
-        LLPathingLibStubImpl.cpp
         llphysicsextensions.cpp
         LLPhysicsExtensionsStubImpl.cpp
         )
@@ -20,8 +18,6 @@ set(llphysicsextensionsos_HEADER_FILES
         CMakeLists.txt
         llconvexdecomposition.h
         llconvexdecompositionvhacd.h
-        llpathinglib.h
-        LLPathingLibStubImpl.h
         llphysicsextensions.h
         LLPhysicsExtensionsStubImpl.h
         )

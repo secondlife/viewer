@@ -367,33 +367,8 @@ void LLPanelPermissions::refresh()
     getChildView("perm_modify")->setEnabled(true);
     getChild<LLUICtrl>("perm_modify")->setValue(MODIFY_INFO_STRINGS[string_index]);
 
-    std::string pfAttrName;
-
-    if ((LLSelectMgr::getInstance()->getSelection()->getFirstRootNode()
-        && LLSelectMgr::getInstance()->selectGetRootsNonPathfinding())
-        || LLSelectMgr::getInstance()->selectGetNonPathfinding())
-    {
-        pfAttrName = "Pathfinding_Object_Attr_None";
-    }
-    else if ((LLSelectMgr::getInstance()->getSelection()->getFirstRootNode()
-        && LLSelectMgr::getInstance()->selectGetRootsPermanent())
-        || LLSelectMgr::getInstance()->selectGetPermanent())
-    {
-        pfAttrName = "Pathfinding_Object_Attr_Permanent";
-    }
-    else if ((LLSelectMgr::getInstance()->getSelection()->getFirstRootNode()
-        && LLSelectMgr::getInstance()->selectGetRootsCharacter())
-        || LLSelectMgr::getInstance()->selectGetCharacter())
-    {
-        pfAttrName = "Pathfinding_Object_Attr_Character";
-    }
-    else
-    {
-        pfAttrName = "Pathfinding_Object_Attr_MultiSelect";
-    }
-
     getChildView("pathfinding_attributes_value")->setEnabled(true);
-    getChild<LLUICtrl>("pathfinding_attributes_value")->setValue(LLTrans::getString(pfAttrName));
+    getChild<LLUICtrl>("pathfinding_attributes_value")->setValue(LLTrans::getString("Pathfinding_Object_Attr_None"));
 
     // Update creator text field
     getChildView("Creator:")->setEnabled(true);

@@ -1241,15 +1241,6 @@ function="World.EnvPreset"
                  function="Tools.EnableSelectNextPart" />
             </menu_item_call>
         </menu>
-        <menu_item_call
-            label="Region Objects"
-            name="pathfinding_linkset_menu_item">
-          <menu_item_call.on_click
-              function="Floater.ToggleOrBringToFront"
-              parameter="pathfinding_linksets" />
-          <menu_item_call.on_enable
-              function="Tools.EnablePathfinding" />
-        </menu_item_call> 
         <menu_item_separator/>
 
         <menu_item_call
@@ -1393,49 +1384,6 @@ function="World.EnvPreset"
                function="EditableSelected" />
           </menu_item_call>
         </menu>
-
-      <menu
-         create_jump_keys="true"
-         label="Pathfinding"
-         name="Pathfinding"
-         tear_off="true">
-        <menu_item_call
-            label="Region Objects"
-            name="pathfinding_linksets_menu_item">
-          <menu_item_call.on_click
-              function="Floater.ToggleOrBringToFront"
-              parameter="pathfinding_linksets" />
-          <menu_item_call.on_enable
-              function="Tools.EnablePathfinding" />
-        </menu_item_call>
-        <menu_item_call
-            label="Characters..."
-            name="pathfinding_characters_menu_item">
-          <menu_item_call.on_click
-              function="Floater.ToggleOrBringToFront"
-              parameter="pathfinding_characters" />
-          <menu_item_call.on_enable
-              function="Tools.EnablePathfinding" />
-        </menu_item_call>
-        <menu_item_call
-            label="View / test..."
-            name="pathfinding_console_menu_item">
-          <menu_item_call.on_click
-              function="Floater.ToggleOrBringToFront"
-              parameter="pathfinding_console" />
-          <menu_item_call.on_enable
-              function="Tools.EnablePathfindingView" />
-        </menu_item_call>
-        <menu_item_call
-            label="Rebake region"
-            name="pathfinding_rebake_navmesh_item">
-          <menu_item_call.on_click
-              function="Tools.DoPathfindingRebakeRegion"/>
-          <menu_item_call.on_enable
-              function="Tools.EnablePathfindingRebakeRegion" />
-        </menu_item_call>
-      </menu>
-
 
       <menu_item_separator/>
 

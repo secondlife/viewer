@@ -348,8 +348,6 @@ public:
     void setSimulatorFeatures(const LLSD& info);
 
 
-    bool dynamicPathfindingEnabled() const;
-
     bool avatarHoverHeightEnabled() const;
 
     enum eCacheMissType

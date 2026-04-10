@@ -3578,52 +3578,6 @@ bool LLSelectMgr::selectGetRootsCharacter()
 }
 
 //-----------------------------------------------------------------------------
-// selectGetNonPathfinding() - return true if all objects are not pathfinding
-//-----------------------------------------------------------------------------
-bool LLSelectMgr::selectGetNonPathfinding()
-{
-    for (LLObjectSelection::iterator iter = getSelection()->begin();
-         iter != getSelection()->end(); iter++ )
-    {
-        LLSelectNode* node = *iter;
-        LLViewerObject* object = node->getObject();
-        if( !object || !node->mValid )
-        {
-            return false;
-        }
-        if( object->flagObjectPermanent() || object->flagCharacter())
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-//-----------------------------------------------------------------------------
-// selectGetRootsNonPathfinding() - return true if all root objects are not
-// pathfinding
-//-----------------------------------------------------------------------------
-bool LLSelectMgr::selectGetRootsNonPathfinding()
-{
-    for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-         iter != getSelection()->root_end(); iter++ )
-    {
-        LLSelectNode* node = *iter;
-        LLViewerObject* object = node->getObject();
-        if( !node->mValid )
-        {
-            return false;
-        }
-        if( object->flagObjectPermanent() || object->flagCharacter())
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-//-----------------------------------------------------------------------------
 // selectGetNonPermanent() - return true if all objects are not permanent
 //-----------------------------------------------------------------------------
 bool LLSelectMgr::selectGetNonPermanent()
@@ -3716,61 +3670,7 @@ bool LLSelectMgr::selectGetRootsNonCharacter()
 }
 
 
-//-----------------------------------------------------------------------------
-// selectGetEditableLinksets() - return true if all objects are editable
-//                               pathfinding linksets
-//-----------------------------------------------------------------------------
-bool LLSelectMgr::selectGetEditableLinksets()
-{
-    for (LLObjectSelection::iterator iter = getSelection()->begin();
-         iter != getSelection()->end(); iter++ )
-    {
-        LLSelectNode* node = *iter;
-        LLViewerObject* object = node->getObject();
-        if( !object || !node->mValid )
-        {
-            return false;
-        }
-        if (object->flagUsePhysics() ||
-            object->flagTemporaryOnRez() ||
-            object->flagCharacter() ||
-            object->flagVolumeDetect() ||
-            object->flagAnimSource() ||
-            (object->getRegion() != gAgent.getRegion()) ||
-            (!gAgent.isGodlike() &&
-            !gAgent.canManageEstate() &&
-            !object->permYouOwner() &&
-            !object->permMove()))
-        {
-            return false;
-        }
-    }
-    return true;
-}
 
-//-----------------------------------------------------------------------------
-// selectGetViewableCharacters() - return true if all objects are characters
-//                        viewable within the pathfinding characters floater
-//-----------------------------------------------------------------------------
-bool LLSelectMgr::selectGetViewableCharacters()
-{
-    for (LLObjectSelection::iterator iter = getSelection()->begin();
-         iter != getSelection()->end(); iter++ )
-    {
-        LLSelectNode* node = *iter;
-        LLViewerObject* object = node->getObject();
-        if( !object || !node->mValid )
-        {
-            return false;
-        }
-        if( !object->flagCharacter() ||
-            (object->getRegion() != gAgent.getRegion()))
-        {
-            return false;
-        }
-    }
-    return true;
-}
 
 //-----------------------------------------------------------------------------
 // selectGetRootsTransfer() - return true if current agent can transfer all
