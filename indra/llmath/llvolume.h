@@ -1072,8 +1072,8 @@ public:
 
     [[nodiscard]] S32 getNumTriangles(S32* vcount = nullptr) const;
 
-    void generateSilhouetteVertices(std::vector<LLVector3> &vertices,
-                                    std::vector<LLVector3> &normals,
+    void generateSilhouetteVertices(std::vector<glm::vec3> &vertices,
+                                    std::vector<glm::vec3> &normals,
                                     const LLVector3& view_vec,
                                     const LLMatrix4& mat,
                                     const LLMatrix3& norm_mat,

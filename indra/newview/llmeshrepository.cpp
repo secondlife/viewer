@@ -5561,7 +5561,10 @@ S32 LLPhysicsDecomp::llcdCallback(const char* status, S32 p1, S32 p2)
 
 void LLPhysicsDecomp::setMeshData(LLCDMeshData& mesh, bool vertex_based)
 {
-    mesh.mVertexBase = mCurRequest->mPositions[0].mV;
+    // packed_vec3 stores xyz contiguously starting at offset 0 with
+    // sizeof == 12 (static_assert in Request), so &x is a valid F32[]
+    // base pointer for the LLCD mVertexStrideBytes=12 contract.
+    mesh.mVertexBase = &mCurRequest->mPositions[0].x;
     mesh.mVertexStrideBytes = 12;
     mesh.mNumVertices = static_cast<int>(mCurRequest->mPositions.size());
 
@@ -5751,12 +5754,14 @@ void LLPhysicsDecomp::notifyCompleted()
 void make_box(LLPhysicsDecomp::Request * request)
 {
     LLVector3 min,max;
-    min = request->mPositions[0];
+    // request->mPositions is std::vector<packed_vec3>; bridge through
+    // the F32* overload of update_min_max via &elem.x.
+    min = LLVector3(&request->mPositions[0].x);
     max = min;
 
     for (U32 i = 0; i < request->mPositions.size(); ++i)
     {
-        update_min_max(min, max, request->mPositions[i]);
+        update_min_max(min, max, &request->mPositions[i].x);
     }
 
     request->mHull.clear();
@@ -5924,11 +5929,12 @@ void LLPhysicsDecomp::Request::assignData(LLModel* mdl)
 
         for (S32 j = 0; j < face.mNumVertices; ++j)
         {
-            mPositions.push_back(LLVector3(face.mPositions[j].getF32ptr()));
+            const F32* p = face.mPositions[j].getF32ptr();
+            mPositions.emplace_back(p[0], p[1], p[2]);
             for (U32 k = 0 ; k < 3 ; k++)
             {
-                mBBox[0][k] = llmin(mBBox[0][k], mPositions[j].mV[k]);
-                mBBox[1][k] = llmax(mBBox[1][k], mPositions[j].mV[k]);
+                mBBox[0][k] = llmin(mBBox[0][k], mPositions[j][k]);
+                mBBox[1][k] = llmax(mBBox[1][k], mPositions[j][k]);
             }
         }
 
@@ -5964,11 +5970,17 @@ void LLPhysicsDecomp::Request::updateTriangleAreaThreshold()
 //check if the triangle area is large enough to qualify for a valid triangle
 bool LLPhysicsDecomp::Request::isValidTriangle(U16 idx1, U16 idx2, U16 idx3)
 {
-    LLVector3 a = mPositions[idx2] - mPositions[idx1] ;
-    LLVector3 b = mPositions[idx3] - mPositions[idx1] ;
-    F32 c = a * b ;
+    // Bridge packed_vec3 -> glm::vec3 (default-aligned) for the dot
+    // products. The original LL `vec * vec` operator is component-wise
+    // dot, replaced by glm::dot here.
+    const glm::vec3 p1(mPositions[idx1].x, mPositions[idx1].y, mPositions[idx1].z);
+    const glm::vec3 p2(mPositions[idx2].x, mPositions[idx2].y, mPositions[idx2].z);
+    const glm::vec3 p3(mPositions[idx3].x, mPositions[idx3].y, mPositions[idx3].z);
+    const glm::vec3 a = p2 - p1;
+    const glm::vec3 b = p3 - p1;
+    const F32 c = glm::dot(a, b);
 
-    return ((a*a) * (b*b) - c * c) > mTriangleAreaThreshold ;
+    return (glm::dot(a, a) * glm::dot(b, b) - c * c) > mTriangleAreaThreshold ;
 }
 
 void LLPhysicsDecomp::Request::setStatusMessage(const std::string& msg)

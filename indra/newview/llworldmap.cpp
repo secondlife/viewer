@@ -105,12 +105,12 @@ LLPointer<LLViewerFetchedTexture> LLSimInfo::getLandForSaleImage ()
     return mOverlayImage;
 }
 
-LLVector3d LLSimInfo::getGlobalPos(const LLVector3& local_pos) const
+LLVector3d LLSimInfo::getGlobalPos(const glm::vec3& local_pos) const
 {
     LLVector3d pos = from_region_handle(mHandle);
-    pos.mdV[VX] += local_pos.mV[VX];
-    pos.mdV[VY] += local_pos.mV[VY];
-    pos.mdV[VZ] += local_pos.mV[VZ];
+    pos.mdV[VX] += local_pos.x;
+    pos.mdV[VY] += local_pos.y;
+    pos.mdV[VZ] += local_pos.z;
     return pos;
 }
 
@@ -119,10 +119,13 @@ LLVector3d LLSimInfo::getGlobalOrigin() const
     return from_region_handle(mHandle);
 }
 
-LLVector3 LLSimInfo::getLocalPos(LLVector3d global_pos) const
+glm::vec3 LLSimInfo::getLocalPos(LLVector3d global_pos) const
 {
     LLVector3d sim_origin = from_region_handle(mHandle);
-    return LLVector3(global_pos - sim_origin);
+    const LLVector3d delta = global_pos - sim_origin;
+    return glm::vec3(static_cast<F32>(delta.mdV[VX]),
+                     static_cast<F32>(delta.mdV[VY]),
+                     static_cast<F32>(delta.mdV[VZ]));
 }
 
 void LLSimInfo::clearImage()

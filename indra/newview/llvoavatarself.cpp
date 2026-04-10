@@ -2799,7 +2799,7 @@ void LLVOAvatarSelf::sendHoverHeight() const
     if (!url.empty())
     {
         LLSD update = LLSD::emptyMap();
-        const LLVector3& hover_offset = getHoverOffset();
+        const glm::vec3& hover_offset = getHoverOffset();
         update["hover_height"] = hover_offset[2];
 
         LL_DEBUGS("Avatar") << avString() << "sending hover height value " << hover_offset[2] << LL_ENDL;
@@ -2809,18 +2809,18 @@ void LLVOAvatarSelf::sendHoverHeight() const
         // (comment from removed Responder)
         LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, update,
             "Hover height sent to sim", "Hover height not sent to sim");
-        mLastHoverOffsetSent = glm::vec3(hover_offset.mV[0], hover_offset.mV[1], hover_offset.mV[2]);
+        mLastHoverOffsetSent = hover_offset;
     }
 }
 
-void LLVOAvatarSelf::setHoverOffset(const LLVector3& hover_offset, bool send_update)
+void LLVOAvatarSelf::setHoverOffset(const glm::vec3& hover_offset, bool send_update)
 {
     if (getHoverOffset() != hover_offset)
     {
         LL_INFOS("Avatar") << avString() << " setting hover due to change " << hover_offset[2] << LL_ENDL;
         LLVOAvatar::setHoverOffset(hover_offset, send_update);
     }
-    if (send_update && (hover_offset != LLVector3(mLastHoverOffsetSent)))
+    if (send_update && (hover_offset != mLastHoverOffsetSent))
     {
         LL_INFOS("Avatar") << avString() << " sending hover due to change " << hover_offset[2] << LL_ENDL;
         sendHoverHeight();

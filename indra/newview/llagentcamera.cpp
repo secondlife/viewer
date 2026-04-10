@@ -389,12 +389,21 @@ void LLAgentCamera::unlockView()
 //-----------------------------------------------------------------------------
 // slamLookAt()
 //-----------------------------------------------------------------------------
-void LLAgentCamera::slamLookAt(const LLVector3 &look_at)
+void LLAgentCamera::slamLookAt(const glm::vec3 &look_at)
 {
-    LLVector3 look_at_norm = look_at;
-    look_at_norm.mV[VZ] = 0.f;
-    look_at_norm.normalize();
-    gAgent.resetAxes(glm::vec3(look_at_norm.mV[VX], look_at_norm.mV[VY], look_at_norm.mV[VZ]));
+    // Match LLVector3::normalize() semantics: zero out the vector if
+    // magnitude is below the threshold rather than dividing by ~0.
+    glm::vec3 look_at_norm(look_at.x, look_at.y, 0.f);
+    const F32 len = glm::length(look_at_norm);
+    if (len > FP_MAG_THRESHOLD)
+    {
+        look_at_norm /= len;
+    }
+    else
+    {
+        look_at_norm = glm::vec3(0.f);
+    }
+    gAgent.resetAxes(look_at_norm);
 }
 
 //-----------------------------------------------------------------------------
@@ -2757,7 +2766,7 @@ void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, con
 //-----------------------------------------------------------------------------
 // setSitCamera()
 //-----------------------------------------------------------------------------
-void LLAgentCamera::setSitCamera(const LLUUID &object_id, const LLVector3 &camera_pos, const LLVector3 &camera_focus)
+void LLAgentCamera::setSitCamera(const LLUUID &object_id, const glm::vec3 &camera_pos, const glm::vec3 &camera_focus)
 {
     bool camera_enabled = !object_id.isNull();
 

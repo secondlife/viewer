@@ -359,7 +359,7 @@ void LLPathfindingPathTool::computeTempPoints(S32 pX, S32 pY, MASK pMask)
     computeTempPath();
 }
 
-void LLPathfindingPathTool::setFinalA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
+void LLPathfindingPathTool::setFinalA(const glm::vec3 &pStartPoint, const glm::vec3 &pEndPoint)
 {
     mFinalPathData.mStartPointA = pStartPoint;
     mFinalPathData.mEndPointA = pEndPoint;
@@ -371,17 +371,17 @@ bool LLPathfindingPathTool::hasFinalA() const
     return mFinalPathData.mHasPointA;
 }
 
-LLVector3 LLPathfindingPathTool::getFinalAStart() const
+const glm::vec3& LLPathfindingPathTool::getFinalAStart() const
 {
-    return LLVector3(mFinalPathData.mStartPointA);
+    return mFinalPathData.mStartPointA;
 }
 
-LLVector3 LLPathfindingPathTool::getFinalAEnd() const
+const glm::vec3& LLPathfindingPathTool::getFinalAEnd() const
 {
-    return LLVector3(mFinalPathData.mEndPointA);
+    return mFinalPathData.mEndPointA;
 }
 
-void LLPathfindingPathTool::setTempA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
+void LLPathfindingPathTool::setTempA(const glm::vec3 &pStartPoint, const glm::vec3 &pEndPoint)
 {
     mTempPathData.mStartPointA = pStartPoint;
     mTempPathData.mEndPointA = pEndPoint;
@@ -393,7 +393,7 @@ bool LLPathfindingPathTool::hasTempA() const
     return mTempPathData.mHasPointA;
 }
 
-void LLPathfindingPathTool::setFinalB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
+void LLPathfindingPathTool::setFinalB(const glm::vec3 &pStartPoint, const glm::vec3 &pEndPoint)
 {
     mFinalPathData.mStartPointB = pStartPoint;
     mFinalPathData.mEndPointB = pEndPoint;
@@ -405,17 +405,17 @@ bool LLPathfindingPathTool::hasFinalB() const
     return mFinalPathData.mHasPointB;
 }
 
-LLVector3 LLPathfindingPathTool::getFinalBStart() const
+const glm::vec3& LLPathfindingPathTool::getFinalBStart() const
 {
-    return LLVector3(mFinalPathData.mStartPointB);
+    return mFinalPathData.mStartPointB;
 }
 
-LLVector3 LLPathfindingPathTool::getFinalBEnd() const
+const glm::vec3& LLPathfindingPathTool::getFinalBEnd() const
 {
-    return LLVector3(mFinalPathData.mEndPointB);
+    return mFinalPathData.mEndPointB;
 }
 
-void LLPathfindingPathTool::setTempB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
+void LLPathfindingPathTool::setTempB(const glm::vec3 &pStartPoint, const glm::vec3 &pEndPoint)
 {
     mTempPathData.mStartPointB = pStartPoint;
     mTempPathData.mEndPointB = pEndPoint;

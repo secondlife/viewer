@@ -125,10 +125,21 @@ public:
     class Request : public LLRefCount
     {
     public:
+        // mPositions feeds LLCDMeshData::mVertexBase with
+        // mVertexStrideBytes = 12 (see LLPhysicsDecomp::setMeshData),
+        // so the element type must be exactly 12 bytes contiguous F32
+        // xyz. The default glm::vec3 in this codebase is 16-byte
+        // aligned (GLM_FORCE_DEFAULT_ALIGNED_GENTYPES), which would
+        // break that stride contract — use packed_highp here so the
+        // raw &x pointer is a tightly packed F32[3*N] array.
+        using packed_vec3 = glm::vec<3, F32, glm::packed_highp>;
+        static_assert(sizeof(packed_vec3) == 12,
+                      "Request::mPositions stride contract requires sizeof == 12");
+
         //input params
         S32* mDecompID;
         std::string mStage;
-        std::vector<LLVector3> mPositions;
+        std::vector<packed_vec3> mPositions;
         std::vector<U16> mIndices;
         decomp_params mParams;
 

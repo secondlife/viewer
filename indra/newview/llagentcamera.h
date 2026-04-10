@@ -182,7 +182,7 @@ public:
     void            setupSitCamera();
     bool            sitCameraEnabled()      { return mSitCameraEnabled; }
     void            setSitCamera(const LLUUID &object_id,
-                                 const LLVector3 &camera_pos = LLVector3::zero, const LLVector3 &camera_focus = LLVector3::zero);
+                                 const glm::vec3 &camera_pos = glm::vec3(0.f), const glm::vec3 &camera_focus = glm::vec3(0.f));
 private:
     LLPointer<LLViewerObject> mSitCameraReferenceObject; // Object to which camera is related when sitting
     bool            mSitCameraEnabled;      // Use provided camera information when sitting?
@@ -246,7 +246,7 @@ public:
     bool            setLookAt(ELookAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
     ELookAtType     getLookAtType();
     void            lookAtLastChat();
-    void            slamLookAt(const LLVector3 &look_at); // Set the physics data
+    void            slamLookAt(const glm::vec3 &look_at); // Set the physics data
     bool            setPointAt(EPointAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
     EPointAtType    getPointAtType();
 public:
@@ -258,7 +258,7 @@ public:
     //--------------------------------------------------------------------
 public:
     LLVector3d      calcThirdPersonFocusOffset();
-    void            setThirdPersonHeadOffset(LLVector3 offset)  { mThirdPersonHeadOffset = offset; }
+    void            setThirdPersonHeadOffset(const glm::vec3& offset)  { mThirdPersonHeadOffset = offset; }
 private:
     glm::vec3       mThirdPersonHeadOffset{0.f, 0.f, 1.f};      // Head offset for third person camera position
 

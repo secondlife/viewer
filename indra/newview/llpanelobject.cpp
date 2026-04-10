@@ -1591,7 +1591,7 @@ void LLPanelObject::sendRotation(bool btn_down)
         // If false, all children are selected anyway - move avatar
         // If true, not all children are selected - save positions
         bool individual_selection = gSavedSettings.getBOOL("EditLinkedParts");
-        std::vector<LLVector3>& child_positions = mObject->mUnselectedChildrenPositions ;
+        std::vector<glm::vec3>& child_positions = mObject->mUnselectedChildrenPositions ;
         std::vector<glm::quat> child_rotations;
         if (mObject->isRootEdit() && individual_selection)
         {

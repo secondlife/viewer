@@ -102,20 +102,20 @@ private:
     void              computeFinalPoints(S32 pX, S32 pY, MASK pMask);
     void              computeTempPoints(S32 pX, S32 pY, MASK pMask);
 
-    void              setFinalA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+    void              setFinalA(const glm::vec3 &pStartPoint, const glm::vec3 &pEndPoint);
     bool              hasFinalA() const;
-    LLVector3         getFinalAStart() const;
-    LLVector3         getFinalAEnd() const;
+    const glm::vec3&  getFinalAStart() const;
+    const glm::vec3&  getFinalAEnd() const;
 
-    void              setTempA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+    void              setTempA(const glm::vec3 &pStartPoint, const glm::vec3 &pEndPoint);
     bool              hasTempA() const;
 
-    void              setFinalB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+    void              setFinalB(const glm::vec3 &pStartPoint, const glm::vec3 &pEndPoint);
     bool              hasFinalB() const;
-    LLVector3         getFinalBStart() const;
-    LLVector3         getFinalBEnd() const;
+    const glm::vec3&  getFinalBStart() const;
+    const glm::vec3&  getFinalBEnd() const;
 
-    void              setTempB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+    void              setTempB(const glm::vec3 &pStartPoint, const glm::vec3 &pEndPoint);
     bool              hasTempB() const;
 
     void              clearFinal();

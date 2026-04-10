@@ -116,9 +116,9 @@ private:
     // Frees all mesh memory resources
     void freeMeshData();
 
-    void setPosition( const LLVector3 &pos ) {  mPosition = pos; }
+    void setPosition( const glm::vec3 &pos ) {  mPosition = pos; }
     void setRotation( const glm::quat &rot ) { mRotation = rot; }
-    void setScale( const LLVector3 &scale ) { mScale = scale; }
+    void setScale( const glm::vec3 &scale ) { mScale = scale; }
 
     bool allocateVertexData( U32 numVertices );
 
@@ -178,9 +178,9 @@ public:
     // Transform Data Access
     //--------------------------------------------------------------------
     // Get position
-    LLVector3 getPosition() {
+    const glm::vec3& getPosition() {
         llassert (mSharedData);
-        return LLVector3(mSharedData->mPosition);
+        return mSharedData->mPosition;
     }
 
     // Get rotation
@@ -190,9 +190,9 @@ public:
     }
 
     // Get scale
-    LLVector3 getScale() {
+    const glm::vec3& getScale() {
         llassert (mSharedData);
-        return LLVector3(mSharedData->mScale);
+        return mSharedData->mScale;
     }
 
     //--------------------------------------------------------------------

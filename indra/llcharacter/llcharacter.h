@@ -278,8 +278,8 @@ public:
     static std::list< LLCharacter* > sInstances;
     static bool sAllowInstancesChange ; //debug use
 
-    virtual void    setHoverOffset(const LLVector3& hover_offset, bool send_update=true) { mHoverOffset = hover_offset; }
-    LLVector3       getHoverOffset() const { return LLVector3(mHoverOffset); }
+    virtual void    setHoverOffset(const glm::vec3& hover_offset, bool send_update=true) { mHoverOffset = hover_offset; }
+    const glm::vec3& getHoverOffset() const { return mHoverOffset; }
 
 protected:
     LLMotionController  mMotionController;

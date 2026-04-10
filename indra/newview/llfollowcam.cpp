@@ -204,21 +204,20 @@ void LLFollowCamParams::setFocusLocked( bool l )
 }
 
 //---------------------------------------------------------
-void LLFollowCamParams::setFocusOffset( const LLVector3& v )
+void LLFollowCamParams::setFocusOffset( const glm::vec3& v )
 {
-    mFocusOffset = v;
-    mFocusOffset = glm::clamp(mFocusOffset, FOLLOW_CAM_MIN_FOCUS_OFFSET, FOLLOW_CAM_MAX_FOCUS_OFFSET);
+    mFocusOffset = glm::clamp(v, FOLLOW_CAM_MIN_FOCUS_OFFSET, FOLLOW_CAM_MAX_FOCUS_OFFSET);
 }
 
 //---------------------------------------------------------
-void LLFollowCamParams::setPosition( const LLVector3& p )
+void LLFollowCamParams::setPosition( const glm::vec3& p )
 {
     mUsePosition = true;
     mPosition = p;
 }
 
 //---------------------------------------------------------
-void LLFollowCamParams::setFocus( const LLVector3& f )
+void LLFollowCamParams::setFocus( const glm::vec3& f )
 {
     mUseFocus = true;
     mFocus = f;
@@ -233,11 +232,11 @@ F32         LLFollowCamParams::getPositionThreshold () const { return mPositionT
 F32         LLFollowCamParams::getFocusThreshold    () const { return mFocusThreshold;      }
 F32         LLFollowCamParams::getDistance          () const { return mDistance;            }
 F32         LLFollowCamParams::getPitch             () const { return mPitch;               }
-LLVector3   LLFollowCamParams::getFocusOffset       () const { return mFocusOffset;         }
+glm::vec3   LLFollowCamParams::getFocusOffset       () const { return mFocusOffset;         }
 F32         LLFollowCamParams::getBehindnessAngle   () const { return mBehindnessMaxAngle;  }
 F32         LLFollowCamParams::getBehindnessLag     () const { return mBehindnessLag;       }
-LLVector3   LLFollowCamParams::getPosition          () const { return mPosition;            }
-LLVector3   LLFollowCamParams::getFocus             () const { return mFocus;               }
+glm::vec3   LLFollowCamParams::getPosition          () const { return mPosition;            }
+glm::vec3   LLFollowCamParams::getFocus             () const { return mFocus;               }
 bool        LLFollowCamParams::getPositionLocked    () const { return mPositionLocked;      }
 bool        LLFollowCamParams::getFocusLocked       () const { return mFocusLocked;         }
 
@@ -590,7 +589,7 @@ void LLFollowCam::setDistance( F32 d )
     }
 }
 
-void LLFollowCam::setPosition( const LLVector3& p )
+void LLFollowCam::setPosition( const glm::vec3& p )
 {
     if (p != mPosition)
     {
@@ -603,12 +602,12 @@ void LLFollowCam::setPosition( const LLVector3& p )
     }
 }
 
-void LLFollowCam::setFocus( const LLVector3& f )
+void LLFollowCam::setFocus( const glm::vec3& f )
 {
     if (f != mFocus)
     {
         LLFollowCamParams::setFocus(f);
-        mSimulatedFocusGlobal = gAgent.getPosGlobalFromAgent(glm::vec3(f.mV[VX], f.mV[VY], f.mV[VZ]));
+        mSimulatedFocusGlobal = gAgent.getPosGlobalFromAgent(f);
         if (mFocusLocked)
         {
             mRelativeFocus = (mFocus - mSubjectPosition) * ~LLQuaternion(mSubjectRotation);

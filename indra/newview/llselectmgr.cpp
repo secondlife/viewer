@@ -3241,17 +3241,17 @@ void LLSelectMgr::adjustTexturesByScale(bool send_to_sim, bool stretch)
                     {
                         for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
                         {
-                            LLVector3 scale_ratio = selectNode->mGLTFScaleRatios[te_num][i];
+                            const glm::vec3& scale_ratio = selectNode->mGLTFScaleRatios[te_num][i];
 
                             if (planar)
                             {
-                                scale_x = scale_ratio.mV[s_axis] / object_scale.mV[s_axis];
-                                scale_y = scale_ratio.mV[t_axis] / object_scale.mV[t_axis];
+                                scale_x = scale_ratio[s_axis] / object_scale.mV[s_axis];
+                                scale_y = scale_ratio[t_axis] / object_scale.mV[t_axis];
                             }
                             else
                             {
-                                scale_x = scale_ratio.mV[s_axis] * object_scale.mV[s_axis];
-                                scale_y = scale_ratio.mV[t_axis] * object_scale.mV[t_axis];
+                                scale_x = scale_ratio[s_axis] * object_scale.mV[s_axis];
+                                scale_y = scale_ratio[t_axis] * object_scale.mV[t_axis];
                             }
                             material->mTextureTransform[i].mScale = glm::vec2(scale_x, scale_y);
 
@@ -7067,10 +7067,10 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
             }
 
             LLGLTFMaterial* material = tep->getGLTFMaterialOverride();
-            LLVector3 material_v;
+            glm::vec3 material_v(0.f);
             F32 scale_x = 1;
             F32 scale_y = 1;
-            std::vector<LLVector3> material_v_vec;
+            std::vector<glm::vec3> material_v_vec;
             std::vector<glm::vec2> material_scales_vec;
             std::vector<glm::vec2> material_offset_vec;
             for (U32 i = 0; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++i)
@@ -7094,13 +7094,13 @@ void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
 
                 if (tep->getTexGen() == LLTextureEntry::TEX_GEN_PLANAR)
                 {
-                    material_v.mV[s_axis] = scale_x * scale.mV[s_axis];
-                    material_v.mV[t_axis] = scale_y * scale.mV[t_axis];
+                    material_v[s_axis] = scale_x * scale.mV[s_axis];
+                    material_v[t_axis] = scale_y * scale.mV[t_axis];
                 }
                 else
                 {
-                    material_v.mV[s_axis] = scale_x / scale.mV[s_axis];
-                    material_v.mV[t_axis] = scale_y / scale.mV[t_axis];
+                    material_v[s_axis] = scale_x / scale.mV[s_axis];
+                    material_v[t_axis] = scale_y / scale.mV[t_axis];
                 }
                 material_v_vec.push_back(material_v);
             }
@@ -7300,10 +7300,10 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
                 {
                     u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
                     gGL.texCoord2f( u_coord, v_coord );
-                    gGL.vertex3fv( mSilhouetteVertices[i].mV);
+                    gGL.vertex3fv( &mSilhouetteVertices[i].x );
                     u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
                     gGL.texCoord2f( u_coord, v_coord );
-                    gGL.vertex3fv(mSilhouetteVertices[i+1].mV);
+                    gGL.vertex3fv( &mSilhouetteVertices[i+1].x );
                 }
             }
             gGL.end();
@@ -7316,13 +7316,17 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
         {
             for(S32 i = 0; i < mSilhouetteVertices.size(); i+=2)
             {
-                if (!mSilhouetteNormals[i].isFinite() ||
-                    !mSilhouetteNormals[i+1].isFinite())
-                { //skip skewed segments
-                    continue;
+                {
+                    const glm::vec3& n0 = mSilhouetteNormals[i];
+                    const glm::vec3& n1 = mSilhouetteNormals[i+1];
+                    if (!std::isfinite(n0.x) || !std::isfinite(n0.y) || !std::isfinite(n0.z) ||
+                        !std::isfinite(n1.x) || !std::isfinite(n1.y) || !std::isfinite(n1.z))
+                    { //skip skewed segments
+                        continue;
+                    }
                 }
 
-                LLVector3 v[4];
+                glm::vec3 v[4];
                 glm::vec2 tc[4];
                 v[0] = mSilhouetteVertices[i] + (mSilhouetteNormals[i] * silhouette_thickness);
                 tc[0] = glm::vec2(u_coord, v_coord + LLSelectMgr::sHighlightVScale);
@@ -7340,24 +7344,24 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 
                 gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
                 gGL.texCoord2fv(&tc[0].x);
-                gGL.vertex3fv( v[0].mV );
+                gGL.vertex3fv( &v[0].x );
 
                 gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha);
                 gGL.texCoord2fv( &tc[1].x );
-                gGL.vertex3fv( v[1].mV );
+                gGL.vertex3fv( &v[1].x );
 
                 gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.0f); //LLSelectMgr::sHighlightAlpha);
                 gGL.texCoord2fv( &tc[2].x );
-                gGL.vertex3fv( v[2].mV );
+                gGL.vertex3fv( &v[2].x );
 
-                gGL.vertex3fv( v[2].mV );
+                gGL.vertex3fv( &v[2].x );
 
                 gGL.color4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha);
                 gGL.texCoord2fv( &tc[1].x );
-                gGL.vertex3fv( v[1].mV );
+                gGL.vertex3fv( &v[1].x );
 
                 gGL.texCoord2fv( &tc[3].x );
-                gGL.vertex3fv( v[3].mV );
+                gGL.vertex3fv( &v[3].x );
             }
         }
         gGL.end();

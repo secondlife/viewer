@@ -3853,8 +3853,8 @@ void LLVolumeFace::generateSilhouetteEdge(const LLVolume* volume, std::vector<S3
 //-----------------------------------------------------------------------------
 // generateSilhouetteVertices()
 //-----------------------------------------------------------------------------
-void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
-                                          std::vector<LLVector3> &normals,
+void LLVolume::generateSilhouetteVertices(std::vector<glm::vec3> &vertices,
+                                          std::vector<glm::vec3> &normals,
                                           const LLVector3& obj_cam_vec_in,
                                           const LLMatrix4& mat_in,
                                           const LLMatrix3& norm_mat_in,

@@ -319,7 +319,10 @@ void LLJointStateBlender::blendJointStates(bool apply_now)
                     F32 new_weight_sum = llmin(1.f, current_weight + sum_weights[POS_WEIGHT]);
 
                     // blend positions from both
-                    blended_pos = lerp(jsp->getPosition(), blended_pos, sum_weights[POS_WEIGHT] / new_weight_sum);
+                    // Disambiguate: jsp->getPosition() now returns glm::vec3,
+                    // blended_pos is LLVector3; bridge through LLVector3 to
+                    // hit the LL lerp(LLVector3, LLVector3, F32) overload.
+                    blended_pos = lerp(LLVector3(jsp->getPosition()), blended_pos, sum_weights[POS_WEIGHT] / new_weight_sum);
                     sum_weights[POS_WEIGHT] = new_weight_sum;
                 }
                 else
@@ -338,7 +341,7 @@ void LLJointStateBlender::blendJointStates(bool apply_now)
                     F32 new_weight_sum = llmin(1.f, current_weight + sum_weights[SCALE_WEIGHT]);
 
                     // blend scales from both
-                    blended_scale = lerp(jsp->getScale(), blended_scale, sum_weights[SCALE_WEIGHT] / new_weight_sum);
+                    blended_scale = lerp(LLVector3(jsp->getScale()), blended_scale, sum_weights[SCALE_WEIGHT] / new_weight_sum);
                     sum_weights[SCALE_WEIGHT] = new_weight_sum;
                 }
                 else

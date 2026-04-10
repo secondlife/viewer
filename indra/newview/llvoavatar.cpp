@@ -7949,7 +7949,7 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
         //LLFirstUse::useSit();
 
         gAgent.setFlying(false);
-        gAgentCamera.setThirdPersonHeadOffset(LLVector3::zero);
+        gAgentCamera.setThirdPersonHeadOffset(glm::vec3(0.f));
         //interpolate to new camera position
         gAgentCamera.startCameraAnimation();
         // make sure we are not trying to autopilot
@@ -8072,7 +8072,7 @@ void LLVOAvatar::getOffObject()
         at_axis.mV[VZ] = 0.f;
         at_axis.normalize();
         gAgent.resetAxes(at_axis);
-        gAgentCamera.setThirdPersonHeadOffset(LLVector3(0.f, 0.f, 1.f));
+        gAgentCamera.setThirdPersonHeadOffset(glm::vec3(0.f, 0.f, 1.f));
         gAgentCamera.setSitCamera(LLUUID::null);
     }
 }
