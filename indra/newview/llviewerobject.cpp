@@ -1341,7 +1341,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 case OBJECTDATA_FIELD_SIZE_76:
                     // pull out collision normal for avatar
                     htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
-                    static_cast<LLVOAvatar*>(this)->setFootPlane(collision_plane);
+                    static_cast<LLVOAvatar*>(this)->setFootPlane(glm::make_vec4(collision_plane.mV));
                     count += sizeof(LLVector4);
 
                 case OBJECTDATA_FIELD_SIZE_124:
@@ -1570,7 +1570,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     case OBJECTDATA_FIELD_SIZE_48:
                     // pull out collision normal for avatar
                     htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
-                    static_cast<LLVOAvatar*>(this)->setFootPlane(collision_plane);
+                    static_cast<LLVOAvatar*>(this)->setFootPlane(glm::make_vec4(collision_plane.mV));
                     count += sizeof(LLVector4);
 
                 case OBJECTDATA_FIELD_SIZE_64:
@@ -1685,7 +1685,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 {
                     LLVector4 collision_plane;
                     dp->unpackVector4(collision_plane, "Plane");
-                    static_cast<LLVOAvatar*>(this)->setFootPlane(collision_plane);
+                    static_cast<LLVOAvatar*>(this)->setFootPlane(glm::make_vec4(collision_plane.mV));
                 }
                 test_pos_parent = getPosition();
                 dp->unpackVector3(new_pos_parent, "Pos");

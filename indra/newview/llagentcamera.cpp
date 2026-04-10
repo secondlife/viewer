@@ -140,7 +140,7 @@ LLAgentCamera::LLAgentCamera() :
     mCameraCurrentFOVZoomFactor(0.f),
     mCameraFocusOffset(),
 
-    mCameraCollidePlane(),
+    // mCameraCollidePlane has in-class default {0,0,0,1}
 
     mCurrentCameraDistance(2.f),        // meters, set in init()
     mTargetCameraDistance(2.f),
@@ -212,7 +212,7 @@ void LLAgentCamera::init()
 
     mCameraPreset = static_cast<ECameraPreset>(gSavedSettings.getU32("CameraPresetType"));
 
-    mCameraCollidePlane.clear();
+    mCameraCollidePlane = glm::vec4(0.f, 0.f, 0.f, 1.f); // matches LLVector4::clear() semantics
     mCurrentCameraDistance = getCameraOffsetInitial().length() * gSavedSettings.getF32("CameraOffsetScale");
     mTargetCameraDistance = mCurrentCameraDistance;
     mCameraZoomFraction = 1.f;
@@ -1915,10 +1915,10 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
                 local_camera_offset = LLVector3(gAgent.getFrameAgent().rotateToAbsolute(static_cast<glm::vec3>(local_camera_offset)));
             }
 
-            if (!isDisableCameraConstraints() && !mCameraCollidePlane.isExactlyZero() &&
+            if (!isDisableCameraConstraints() && (mCameraCollidePlane != glm::vec4(0.f)) &&
                 (!isAgentAvatarValid() || !gAgentAvatarp->isSitting()))
             {
-                LLVector3 plane_normal(mCameraCollidePlane.mV);
+                LLVector3 plane_normal(mCameraCollidePlane.x, mCameraCollidePlane.y, mCameraCollidePlane.z);
 
                 F32 offset_dot_norm = local_camera_offset * plane_normal;
                 if (llabs(offset_dot_norm) < 0.001f)
@@ -1932,20 +1932,20 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
                 F32 pos_dot_norm = LLVector3(pa_g.x, pa_g.y, pa_g.z) * plane_normal;
 
                 // if agent is outside the colliding half-plane
-                if (pos_dot_norm > mCameraCollidePlane.mV[VW])
+                if (pos_dot_norm > mCameraCollidePlane.w)
                 {
                     // check to see if camera is on the opposite side (inside) the half-plane
-                    if (offset_dot_norm + pos_dot_norm < mCameraCollidePlane.mV[VW])
+                    if (offset_dot_norm + pos_dot_norm < mCameraCollidePlane.w)
                     {
                         // diminish offset by factor to push it back outside the half-plane
-                        camera_distance *= (pos_dot_norm - mCameraCollidePlane.mV[VW] - CAMERA_COLLIDE_EPSILON) / -offset_dot_norm;
+                        camera_distance *= (pos_dot_norm - mCameraCollidePlane.w - CAMERA_COLLIDE_EPSILON) / -offset_dot_norm;
                     }
                 }
                 else
                 {
-                    if (offset_dot_norm + pos_dot_norm > mCameraCollidePlane.mV[VW])
+                    if (offset_dot_norm + pos_dot_norm > mCameraCollidePlane.w)
                     {
-                        camera_distance *= (mCameraCollidePlane.mV[VW] - pos_dot_norm - CAMERA_COLLIDE_EPSILON) / offset_dot_norm;
+                        camera_distance *= (mCameraCollidePlane.w - pos_dot_norm - CAMERA_COLLIDE_EPSILON) / offset_dot_norm;
                     }
                 }
             }

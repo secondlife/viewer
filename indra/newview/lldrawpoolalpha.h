@@ -39,7 +39,7 @@ class LLDrawPoolAlpha final: public LLRenderPass
 public:
 
     // set by llsettingsvo so lldrawpoolalpha has quick access to the water plane in eye space
-    static LLVector4 sWaterPlane;
+    static glm::vec4 sWaterPlane;
 
     enum
     {

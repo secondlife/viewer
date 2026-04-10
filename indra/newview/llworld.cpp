@@ -545,12 +545,12 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
     intersection = land_intersection;
     intersection_normal = resolveLandNormalGlobal(land_intersection);
 
-    if (avatarp && !avatarp->mFootPlane.isExactlyClear())
+    if (avatarp && (avatarp->mFootPlane != glm::vec4(0.f, 0.f, 0.f, 1.f)))
     {
-        LLVector3 foot_plane_normal(avatarp->mFootPlane.mV);
+        LLVector3 foot_plane_normal(avatarp->mFootPlane.x, avatarp->mFootPlane.y, avatarp->mFootPlane.z);
         LLVector3 start_pt = avatarp->getRegion()->getPosRegionFromGlobal(point_a);
         // added 0.05 meters to compensate for error in foot plane reported by Havok
-        F32 norm_dist_from_plane = ((start_pt * foot_plane_normal) - avatarp->mFootPlane.mV[VW]) + 0.05f;
+        F32 norm_dist_from_plane = ((start_pt * foot_plane_normal) - avatarp->mFootPlane.w) + 0.05f;
         norm_dist_from_plane = llclamp(norm_dist_from_plane / segment_length, 0.f, 1.f);
         if (norm_dist_from_plane < normalized_land_distance)
         {

@@ -1095,7 +1095,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
         enorm = glm::normalize(enorm);
         ep = mul_mat4_vec3(mat, p);
 
-        LLVector4 waterPlane(enorm.x, enorm.y, enorm.z, -glm::dot(ep, enorm));
+        glm::vec4 waterPlane(enorm, -glm::dot(ep, enorm));
 
         norm = gPipeline.mHeroProbeManager.mMirrorNormal;
         p    = gPipeline.mHeroProbeManager.mMirrorPosition;
@@ -1107,7 +1107,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         LLDrawPoolAlpha::sWaterPlane = waterPlane;
 
-        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, waterPlane.mV);
+        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, glm::value_ptr(waterPlane));
         shader->uniform4fv(LLShaderMgr::CLIP_PLANE, glm::value_ptr(mirrorPlane));
         glm::vec3 light_direction = env.getClampedLightNorm();
 

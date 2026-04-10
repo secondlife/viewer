@@ -57,7 +57,7 @@ bool LLDrawPoolAlpha::sShowDebugAlpha = false;
 
 #define current_shader (LLGLSLShader::sCurBoundShaderPtr)
 
-LLVector4 LLDrawPoolAlpha::sWaterPlane;
+glm::vec4 LLDrawPoolAlpha::sWaterPlane(0.f);
 
 // minimum alpha before discarding a fragment
 static constexpr F32 MINIMUM_ALPHA = 0.004f; // ~ 1/255
@@ -115,7 +115,7 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool deferredEnvironment,
     else
     {
         shader->uniform1f(waterSign, water_sign);
-        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
+        shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(&LLDrawPoolAlpha::sWaterPlane.x, 4));
     }
 
     if (LLPipeline::sImpostorRender)

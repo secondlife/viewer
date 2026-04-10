@@ -8418,7 +8418,7 @@ void LLPipeline::renderDeferredLighting()
             glm::vec3 clamped_light = environment.getClampedLightNorm();
             soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(&clamped_light.x, 3));
 
-            soften_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
+            soften_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(&LLDrawPoolAlpha::sWaterPlane.x, 4));
 
             {
                 LLGLDepthTest depth(GL_FALSE);
@@ -8801,7 +8801,7 @@ void LLPipeline::doAtmospherics()
         glm::vec3 haze_light = environment.getClampedLightNorm();
         haze_shader.uniform3fv(LLShaderMgr::LIGHTNORM, std::span<const GLfloat>(&haze_light.x, 3));
 
-        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
+        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(&LLDrawPoolAlpha::sWaterPlane.x, 4));
 
         LLGLDepthTest depth(GL_FALSE);
 
@@ -8862,7 +8862,7 @@ void LLPipeline::doWaterHaze()
         LL_PROFILE_GPU_ZONE("haze");
         bindDeferredShader(haze_shader, nullptr, &mWaterDis);
 
-        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(LLDrawPoolAlpha::sWaterPlane.mV, 4));
+        haze_shader.uniform4fv(LLShaderMgr::WATER_WATERPLANE, std::span<const GLfloat>(&LLDrawPoolAlpha::sWaterPlane.x, 4));
 
         static LLStaticHashedString above_water_str("above_water");
         haze_shader.uniform1i(above_water_str, sUnderWaterRender ? -1 : 1);
