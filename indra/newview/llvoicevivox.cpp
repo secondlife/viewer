@@ -711,9 +711,7 @@ void LLVivoxVoiceClient::voiceControlCoro()
     }
     catch (...)
     {
-        // Ideally for Windows need to log SEH exception instead or to set SEH
-        // handlers but bugsplat shows local variables for windows, which should
-        // be enough
+        // Ideally for Windows need to log SEH exception instead or to set SEH handlers
         LL_WARNS("Voice") << "voiceControlStateMachine crashed in state " << state << LL_ENDL;
         throw;
     }

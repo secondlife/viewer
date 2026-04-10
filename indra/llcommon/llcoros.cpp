@@ -305,12 +305,7 @@ static constexpr U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
 
 U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS* exception_infop)
 {
-    if (LLApp::instance()->reportCrashToBugsplat(static_cast<void*>(exception_infop)))
-    {
-        // Handled
-        return EXCEPTION_CONTINUE_SEARCH;
-    }
-    else if (code == STATUS_MSC_EXCEPTION)
+    if (code == STATUS_MSC_EXCEPTION)
     {
         // C++ exception, go on
         return EXCEPTION_CONTINUE_SEARCH;

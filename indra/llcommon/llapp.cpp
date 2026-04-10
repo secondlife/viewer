@@ -324,7 +324,6 @@ void LLApp::setupErrorHandling(bool second_instance)
 
 #else  // ! LL_WINDOWS
 
-#if ! defined(LL_BUGSPLAT)
     //
     // Start up signal handling.
     //
@@ -332,7 +331,6 @@ void LLApp::setupErrorHandling(bool second_instance)
     // thread, asynchronous signals can be delivered to any thread (in theory)
     //
     setup_signals();
-#endif // ! LL_BUGSPLAT
 
 #endif // ! LL_WINDOWS
 }
@@ -515,9 +513,7 @@ void setup_signals()
     act.sa_flags = SA_SIGINFO;
 
     // Synchronous signals
-#   ifndef LL_BUGSPLAT
     sigaction(SIGABRT, &act, NULL);
-#   endif
     sigaction(SIGALRM, &act, NULL);
     sigaction(SIGBUS, &act, NULL);
     sigaction(SIGFPE, &act, NULL);
@@ -554,9 +550,7 @@ void clear_signals()
     act.sa_flags = SA_SIGINFO;
 
     // Synchronous signals
-#   ifndef LL_BUGSPLAT
     sigaction(SIGABRT, &act, NULL);
-#   endif
     sigaction(SIGALRM, &act, NULL);
     sigaction(SIGBUS, &act, NULL);
     sigaction(SIGFPE, &act, NULL);
@@ -614,7 +608,6 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 
         return;
     case SIGABRT:
-        // Note that this handler is not set for SIGABRT when using Bugsplat
         // Abort just results in termination of the app, no funky error handling.
         if (LLApp::sLogInSignal)
         {
