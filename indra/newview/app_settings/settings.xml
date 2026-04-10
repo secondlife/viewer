@@ -2722,17 +2722,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnableUIHints</key>
-    <map>
-      <key>Comment</key>
-      <string>Toggles UI hint popups</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>EnableVoiceChat</key>
     <map>
       <key>Comment</key>
@@ -14341,17 +14330,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>10</integer>
-    </map>
-    <key>NotMovingHintTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of seconds to wait for resident to move before displaying move hint.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>120.0</real>
     </map>
     <key>GroupMembersSortOrder</key>
     <map>

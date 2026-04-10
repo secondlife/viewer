@@ -36,7 +36,6 @@
 #include "llagentcamera.h"
 #include "llavatarnamecache.h"
 #include "llfocusmgr.h"
-#include "llfirstuse.h"
 #include "llfloaterland.h"
 #include "llfloaterreg.h"
 #include "llfloaterscriptdebug.h"
@@ -453,11 +452,6 @@ bool LLToolPie::handleLeftClickPick()
 
         return true;
     }
-    //////////
-    //  // Could be first left-click on nothing
-    //  LLFirstUse::useLeftClickNoHit();
-    /////////
-
     return LLTool::handleMouseDown(x, y, mask);
 }
 
@@ -633,7 +627,6 @@ bool LLToolPie::walkToClickedLocation()
 
         LLVector3d pos = LLToolPie::getInstance()->getPick().mPosGlobal;
         gAgent.startAutoPilotGlobal(pos, std::string(), NULL, NULL, NULL, 0.f, 0.03f, false);
-        LLFirstUse::notMoving(false);
         showVisualContextMenuEffect();
         return true;
     }
@@ -2059,7 +2052,6 @@ bool intersect_ray_with_sphere( const LLVector3& ray_pt, const LLVector3& ray_di
 
 void LLToolPie::startCameraSteering()
 {
-    LLFirstUse::notMoving(false);
     mMouseOutsideSlop = true;
 
     if (gAgentCamera.getFocusOnAvatar())

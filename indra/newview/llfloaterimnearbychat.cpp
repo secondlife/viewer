@@ -50,7 +50,6 @@
 #include "llfloaterreg.h"
 #include "lltrans.h"
 
-#include "llfirstuse.h"
 #include "llfloaterimnearbychat.h"
 #include "llfloaterimnearbychatlistener.h"
 #include "llagent.h" // gAgent
@@ -467,8 +466,6 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
     {
         im_box->flashConversationItemWidget(mSessionID,false);
     }
-
-    LLFirstUse::otherAvatarChatFirst(false);
 
     LLWString raw_text = mInputEditor->getWText();
 

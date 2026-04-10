@@ -32,7 +32,6 @@
 #include "llmenugl.h"
 #include "llfloaterreg.h"
 
-//#include "llfirstuse.h"
 // tools and manipulators
 #include "llfloaterinspect.h"
 #include "lltool.h"
@@ -378,9 +377,6 @@ void LLToolMgr::toggleBuildMode(const LLSD& sdname)
 
         setCurrentToolset(gBasicToolset);
         getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
-
-        // Could be first use
-        //LLFirstUse::useBuild();
 
         gAgentCamera.resetView(false);
 

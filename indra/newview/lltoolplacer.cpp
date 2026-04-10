@@ -32,7 +32,6 @@
 // viewer headers
 #include "llbutton.h"
 #include "llviewercontrol.h"
-//#include "llfirstuse.h"
 #include "llfloatertools.h"
 #include "llselectmgr.h"
 #include "llstatusbar.h"
@@ -180,11 +179,6 @@ bool LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
     {
         LL_WARNS() << "regionp was NULL; aborting function." << LL_ENDL;
         return false;
-    }
-
-    if (regionp->getRegionFlag(REGION_FLAGS_SANDBOX))
-    {
-        //LLFirstUse::useSandbox();
     }
 
     // Set params for new object based on its PCode.
@@ -484,12 +478,6 @@ bool LLToolPlacer::addDuplicate(S32 x, S32 y)
                                         gSavedSettings.getBOOL("CreateToolCopyCenters"),
                                         gSavedSettings.getBOOL("CreateToolCopyRotates"),
                                         false);             // select copy
-
-    if (regionp
-        && (regionp->getRegionFlag(REGION_FLAGS_SANDBOX)))
-    {
-        //LLFirstUse::useSandbox();
-    }
 
     return true;
 }

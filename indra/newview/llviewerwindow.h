@@ -342,7 +342,6 @@ public:
 
     void            updateWorldViewRect(bool use_full_window=false);
     LLView*         getToolBarHolder() { return mToolBarHolder.get(); }
-    LLView*         getHintHolder() { return mHintHolder.get(); }
     LLView*         getLoginPanelHolder() { return mLoginPanelHolder.get(); }
     bool            handleKey(KEY key, MASK mask);
     bool            handleKeyUp(KEY key, MASK mask);
@@ -553,7 +552,6 @@ private:
 
     LLHandle<LLView> mWorldViewPlaceholder; // widget that spans the portion of screen dedicated to rendering the 3d world
     LLHandle<LLView> mToolBarHolder;        // container for toolbars
-    LLHandle<LLView> mHintHolder;           // container for hints
     LLHandle<LLView> mLoginPanelHolder;     // container for login panel
     LLPopupView*    mPopupView;         // container for transient popups
 

@@ -177,7 +177,6 @@ set(viewer_SOURCE_FILES
     llfetchedgltfmaterial.cpp
     llfilepicker.cpp
     llfilteredwearablelist.cpp
-    llfirstuse.cpp
     llflexibleobject.cpp
     llfloater360capture.cpp
     llfloaterabout.cpp
@@ -326,7 +325,6 @@ llfloaterpay.cpp
     llgrouplist.cpp
     llgroupmgr.cpp
     llhasheduniqueid.cpp
-    llhints.cpp
     llhttpretrypolicy.cpp
     llhudeffect.cpp
     llhudeffectbeam.cpp
@@ -409,7 +407,6 @@ llmeshrepository.cpp
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
     llnotificationhandlerutil.cpp
-    llnotificationhinthandler.cpp
     llnotificationlistitem.cpp
     llnotificationlistview.cpp
     llnotificationmanager.cpp
@@ -838,7 +835,6 @@ set(viewer_HEADER_FILES
     llfetchedgltfmaterial.h
     llfilepicker.h
     llfilteredwearablelist.h
-    llfirstuse.h
     llflexibleobject.h
     llfloater360capture.h
     llfloaterabout.h
@@ -990,7 +986,6 @@ llfloaterpay.h
     llgrouplist.h
     llgroupmgr.h
     llhasheduniqueid.h
-    llhints.h
     llhttpretrypolicy.h
     llhudeffect.h
     llhudeffectbeam.h

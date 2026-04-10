@@ -37,7 +37,6 @@
 
 #include "llcombobox.h"
 #include "llfiltereditor.h"
-#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llmenubutton.h"

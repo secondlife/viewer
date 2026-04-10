@@ -372,7 +372,6 @@ static void update_tp_display(bool minimized)
             if (arrival_fraction > 1.f)
             {
                 arrival_fraction = 1.f;
-                //LLFirstUse::useTeleport();
                 LL_INFOS("Teleport") << "arrival_fraction is " << arrival_fraction << " changing state to TELEPORT_NONE" << LL_ENDL;
                 gAgent.setTeleportState(LLAgent::TELEPORT_NONE);
             }
@@ -391,7 +390,6 @@ static void update_tp_display(bool minimized)
         {
             if (gTeleportDisplayTimer.getElapsedTimeF32() > teleport_local_delay())
             {
-                //LLFirstUse::useTeleport();
                 LL_INFOS("Teleport") << "State is local and gTeleportDisplayTimer " << gTeleportDisplayTimer.getElapsedTimeF32()
                                      << " exceeds teleport_local_delete " << teleport_local_delay
                                      << "; setting state to TELEPORT_NONE"

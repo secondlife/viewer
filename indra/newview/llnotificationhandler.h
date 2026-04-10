@@ -244,24 +244,6 @@ protected:
 };
 
 /**
- * Handler for UI hints.
- */
-class LLHintHandler : public LLSystemNotificationHandler
-{
-public:
-    LLHintHandler();
-    virtual ~LLHintHandler() = default;
-
-    virtual void onAdd(LLNotificationPtr p);
-    virtual void onLoad(LLNotificationPtr p);
-    virtual void onDelete(LLNotificationPtr p);
-    virtual bool processNotification(const LLNotificationPtr& p, bool should_log = true);
-
-protected:
-    virtual void initChannel() {};
-};
-
-/**
  * Handler for browser notifications
  */
 class LLBrowserNotification : public LLSystemNotificationHandler

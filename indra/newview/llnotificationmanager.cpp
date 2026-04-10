@@ -54,7 +54,6 @@ void LLNotificationManager::init()
     mChannels.emplace_back(new LLAlertHandler("Alerts", "alert", false));
     mChannels.emplace_back(new LLAlertHandler("AlertModal", "alertmodal", true));
     mChannels.emplace_back(new LLOfferHandler());
-    mChannels.emplace_back(new LLHintHandler());
     mChannels.emplace_back(new LLBrowserNotification());
     mChannels.emplace_back(new LLIMHandler());
 

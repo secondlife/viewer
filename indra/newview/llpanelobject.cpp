@@ -65,7 +65,6 @@
 #include "pipeline.h"
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
-//#include "llfirstuse.h"
 
 #include "lldrawpool.h"
 #include <functional>
@@ -631,7 +630,6 @@ void LLPanelObject::getState( )
         if (objectp->getSculptParams())
         {
             selected_item = MI_SCULPT;
-            //LLFirstUse::useSculptedPrim();
         }
 
 

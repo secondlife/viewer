@@ -46,7 +46,6 @@
 #include "lleventtimer.h"
 #include "llfeaturemanager.h"
 #include "llfocusmgr.h"
-//#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloaterabout.h"
 #include "llfavoritesbar.h"

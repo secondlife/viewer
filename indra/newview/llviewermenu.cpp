@@ -58,7 +58,6 @@
 #include "lldiskcache.h"
 #include "llenvironment.h"
 #include "llfilepicker.h"
-#include "llfirstuse.h"
 #include "llfloaterabout.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
@@ -81,7 +80,6 @@
 #include "llgroupmgr.h"
 #include "lltooltip.h"
 #include "lltoolface.h"
-#include "llhints.h"
 #include "llhudeffecttrail.h"
 #include "llhudeffectresetskeleton.h"
 #include "llhudmanager.h"
@@ -3268,8 +3266,6 @@ class LLObjectBuild : public view_listener_t
         LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
         LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
 
-        // Could be first use
-        //LLFirstUse::useBuild();
         return true;
     }
 };
@@ -3322,8 +3318,6 @@ void handle_object_edit()
     LLViewerJoystick::getInstance()->moveObjects(true);
     LLViewerJoystick::getInstance()->setNeedsReset(true);
 
-    // Could be first use
-    //LLFirstUse::useBuild();
     return;
 }
 
@@ -3439,8 +3433,6 @@ class LLLandBuild : public view_listener_t
         LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
         LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
 
-        // Could be first use
-        //LLFirstUse::useBuild();
         return true;
     }
 };
@@ -3785,8 +3777,6 @@ bool handle_go_to()
         gAgentCamera.setFocusOnAvatar(true, ANIMATE);
     }
 
-    // Could be first use
-    //LLFirstUse::useGoTo();
     return true;
 }
 
@@ -9635,18 +9625,6 @@ class LLUpdateMembershipLabel : public view_listener_t
 };
 
 
-class LLToggleUIHints : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        bool ui_hints_enabled = gSavedSettings.getBOOL("EnableUIHints");
-        // toggle
-        ui_hints_enabled = !ui_hints_enabled;
-        gSavedSettings.setBOOL("EnableUIHints", ui_hints_enabled);
-        return true;
-    }
-};
-
 void LLUploadCostCalculator::calculateCost(const std::string& asset_type_str)
 {
     S32 upload_cost = -1;
@@ -10268,5 +10246,4 @@ void initialize_menus()
     view_listener_t::addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
     view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
     view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
-    view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
 }

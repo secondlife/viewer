@@ -47,7 +47,6 @@
 #include "llcolorswatch.h"
 #include "lltexturectrl.h"
 #include "llcombobox.h"
-//#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llmanipscale.h"
@@ -876,8 +875,6 @@ void LLPanelVolume::sendIsFlexible()
 
     if (is_flexible)
     {
-        //LLFirstUse::useFlexible();
-
         if (objectp->getClickAction() == CLICK_ACTION_SIT)
         {
             LLSelectMgr::getInstance()->selectionSetClickAction(CLICK_ACTION_NONE);

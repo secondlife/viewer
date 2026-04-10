@@ -55,7 +55,6 @@
 #include "llviewerregion.h"
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
-#include "llfirstuse.h"
 #include "llspeakers.h"
 #include "lltrans.h"
 #include "llrand.h"
@@ -468,7 +467,6 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
 
         if (voice_status)
         {
-            LLAppViewer::instance()->postToMainCoro([=]() { LLFirstUse::speak(true); });
         }
     }
 }

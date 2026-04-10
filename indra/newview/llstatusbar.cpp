@@ -33,7 +33,6 @@
 #include "llagentcamera.h"
 #include "llbutton.h"
 #include "llcommandhandler.h"
-#include "llfirstuse.h"
 #include "llviewercontrol.h"
 #include "llfloaterbuycurrency.h"
 #include "llbuycurrencyhtml.h"
@@ -44,7 +43,6 @@
 #include "llfloatermarketplace.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
-#include "llhints.h"
 #include "llhudicon.h"
 #include "llnavigationbar.h"
 #include "llkeyboard.h"
@@ -185,8 +183,6 @@ bool LLStatusBar::postBuild()
     mMediaToggle = getChild<LLButton>("media_toggle_btn");
     mMediaToggle->setClickedCallback( &LLStatusBar::onClickMediaToggle, this );
     mMediaToggle->setMouseEnterCallback(std::bind(&LLStatusBar::onMouseEnterNearbyMedia, this));
-
-    LLHints::getInstance()->registerHintTarget("linden_balance", getChild<LLView>("balance_bg")->getHandle());
 
     gSavedSettings.getControl("MuteAudio")->getSignal()->connect(std::bind(&LLStatusBar::onVolumeChanged, this, _2));
     gSavedSettings.getControl("EnableVoiceChat")->getSignal()->connect(std::bind(&LLStatusBar::onVoiceChanged, this, _2));
@@ -387,7 +383,6 @@ void LLStatusBar::setBalance(S32 balance)
 {
     if (balance > getBalance() && getBalance() != 0)
     {
-        LLFirstUse::receiveLindens();
     }
 
     std::string money_str = LLResMgr::getInstance()->getMonetaryString( balance );
@@ -524,7 +519,6 @@ void LLStatusBar::onClickBuyCurrency()
     // open a currency floater - actual one open depends on
     // value specified in settings.xml
     LLBuyCurrencyHTML::openCurrencyFloater();
-    LLFirstUse::receiveLindens(false);
 }
 
 void LLStatusBar::onClickShop()

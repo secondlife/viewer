@@ -40,7 +40,6 @@
 #include "llviewermediafocus.h"
 #include "llviewerparcelmediaautoplay.h"
 #include "llnotificationsutil.h"
-//#include "llfirstuse.h"
 #include "llpluginclassmedia.h"
 #include "llviewertexture.h"
 #include "llcorehttputil.h"
@@ -203,8 +202,6 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
             mMediaImpl->navigateTo(media_url, mime_type, true);
         }
 
-        //LLFirstUse::useMedia();
-
         LLViewerParcelMediaAutoPlay::playStarted();
     }
 }
@@ -242,8 +239,6 @@ void LLViewerParcelMedia::start()
         return;
     }
     mMediaImpl->start();
-
-    //LLFirstUse::useMedia();
 
     LLViewerParcelMediaAutoPlay::playStarted();
 }

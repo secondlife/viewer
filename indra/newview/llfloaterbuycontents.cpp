@@ -42,7 +42,6 @@
 #include "llinventoryfunctions.h"
 #include "llinventoryicon.h"
 #include "llinventorymodel.h"   // for gInventory
-#include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
 #include "llselectmgr.h"
@@ -292,7 +291,6 @@ void LLFloaterBuyContents::onClickBuy()
     // NOTE: do this here instead of on receipt of object, since contents are transfered
     // via a generic BulkUpdateInventory message with no way of distinguishing it from
     // other inventory operations
-    LLFirstUse::newInventory();
     closeFloater();
 }
 
