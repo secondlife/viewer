@@ -1440,11 +1440,11 @@ glm::vec3 LLSettingsSky::getAmbientColor() const
     return mAmbientColor;
 }
 
-LLColor3 LLSettingsSky::getAmbientColorClamped() const
+glm::vec3 LLSettingsSky::getAmbientColorClamped() const
 {
-    LLColor3 ambient = getAmbientColor();
+    glm::vec3 ambient = getAmbientColor();
 
-    F32 max_color = llmax(ambient.mV[0], ambient.mV[1], ambient.mV[2]);
+    F32 max_color = llmax(ambient[0], ambient[1], ambient[2]);
     if (max_color > 1.0f)
     {
         ambient *= 1.0f/max_color;
@@ -1625,11 +1625,10 @@ glm::vec3 LLSettingsSky::getLightTransmittance(F32 distance) const
 }
 
 // SL-16127: getTotalDensity() and getDensityMultiplier() call LLSettingsSky::getColor() and LLSettingsSky::getFloat() respectively which are S-L-O-W
-glm::vec3 LLSettingsSky::getLightTransmittanceFast( const LLColor3& total_density, const F32 density_multiplier, const F32 distance ) const
+glm::vec3 LLSettingsSky::getLightTransmittanceFast( const glm::vec3& total_density, const F32 density_multiplier, const F32 distance ) const
 {
     // Transparency (-> density) from Beer's law
-    LLColor3 transmittance = componentExp(total_density * -(density_multiplier * distance));
-    return transmittance;
+    return glm::exp(total_density * -(density_multiplier * distance));
 }
 
 // performs soft scale clip and gamma correction ala the shader implementation
@@ -2192,12 +2191,11 @@ glm::vec3 LLSettingsSky::getSunlightColor() const
     return mSunlightColor;
 }
 
-LLColor3 LLSettingsSky::getSunlightColorClamped() const
+glm::vec3 LLSettingsSky::getSunlightColorClamped() const
 {
-    LLColor3 sunlight = getSunlightColor();
-    //clampColor(sunlight, getGamma(), 3.0f);
+    glm::vec3 sunlight = getSunlightColor();
 
-    F32 max_color = llmax(sunlight.mV[0], sunlight.mV[1], sunlight.mV[2]);
+    F32 max_color = llmax(sunlight[0], sunlight[1], sunlight[2]);
     if (max_color > 1.0f)
     {
         sunlight *= 1.0f/max_color;

@@ -119,7 +119,7 @@ public:
 
     void setSigSca(const F32 s0, const F32 s1, const F32 s2)
     {
-        mSigSca = sAirScaAvg * LLColor3 (s0, s1, s2);
+        mSigSca = sAirScaAvg * glm::vec3(s0, s1, s2);
         mAbsCoef = 0.01f * (s0 + s1 + s2) / 3;
     }
 

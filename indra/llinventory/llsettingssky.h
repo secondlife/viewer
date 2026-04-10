@@ -274,7 +274,7 @@ public:
 
     glm::vec3 getLightAttenuation(F32 distance) const;
     glm::vec3 getLightTransmittance(F32 distance) const;
-    glm::vec3 getLightTransmittanceFast(const LLColor3& total_density, const F32 density_multiplier, const F32 distance) const;
+    glm::vec3 getLightTransmittanceFast(const glm::vec3& total_density, const F32 density_multiplier, const F32 distance) const;
     glm::vec3 getTotalDensity() const;
     glm::vec3 gammaCorrect(const glm::vec3& in,const F32 &gamma) const;
 
@@ -315,8 +315,8 @@ public:
     LLColor4  getTotalAmbient() const;
     LLColor4  getHazeColor() const;
 
-    LLColor3 getSunlightColorClamped() const;
-    LLColor3 getAmbientColorClamped() const;
+    glm::vec3 getSunlightColorClamped() const;
+    glm::vec3 getAmbientColorClamped() const;
 
     virtual LLSettingsBase::ptr_t buildDerivedClone() SETTINGS_OVERRIDE { return buildClone(); }
 
