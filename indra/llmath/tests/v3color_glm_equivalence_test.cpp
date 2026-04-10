@@ -291,4 +291,130 @@ namespace tut
         ensure("zero-sat HSL: g == L", std::fabs(c.mV[1] - 0.7f) < kEps);
         ensure("zero-sat HSL: b == L", std::fabs(c.mV[2] - 0.7f) < kEps);
     }
+
+    // ====================================================================
+    // ll_color3:: helper namespace tests — pin that the migration
+    // helpers preserve the LL semantics from tests #8-#14.
+    // ====================================================================
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<15>()
+    {
+        // ll_color3::inverse matches LLColor3 unary minus.
+        const LLColor3 c_ll(0.2f, 0.6f, 0.9f);
+        const LLColor3 inv_ll = -c_ll;
+
+        const glm::vec3 c_gm(0.2f, 0.6f, 0.9f);
+        const glm::vec3 inv_gm = ll_color3::inverse(c_gm);
+
+        ensure("ll_color3::inverse matches LL unary minus",
+               color_near(inv_ll, inv_gm));
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<16>()
+    {
+        // ll_color3::brightness matches LLColor3::brightness().
+        const LLColor3 ll(0.3f, 0.6f, 0.9f);
+        const glm::vec3 gm(0.3f, 0.6f, 0.9f);
+        ensure_approximately_equals("ll_color3::brightness matches",
+            ll.brightness(), ll_color3::brightness(gm), 16);
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<17>()
+    {
+        // ll_color3::from_html matches LLColor3 hex ctor for valid
+        // and edge inputs.
+        ensure("from_html matches LL: FFDDEE",
+            color_near(LLColor3("FFDDEE"), ll_color3::from_html("FFDDEE")));
+        ensure("from_html matches LL: 000000",
+            color_near(LLColor3("000000"), ll_color3::from_html("000000")));
+        ensure("from_html matches LL: FFFFFF",
+            color_near(LLColor3("FFFFFF"), ll_color3::from_html("FFFFFF")));
+
+        // Bonus: helper accepts a leading '#' (the LL ctor doesnt).
+        const glm::vec3 hashed = ll_color3::from_html("#FFDDEE");
+        const glm::vec3 unhashed = ll_color3::from_html("FFDDEE");
+        ensure("from_html accepts leading #",
+               std::fabs(hashed.x - unhashed.x) < kEps
+            && std::fabs(hashed.y - unhashed.y) < kEps
+            && std::fabs(hashed.z - unhashed.z) < kEps);
+
+        // Malformed input returns black.
+        const glm::vec3 bad = ll_color3::from_html("xx");
+        ensure("from_html: malformed -> black",
+            bad.x == 0.f && bad.y == 0.f && bad.z == 0.f);
+
+        // nullptr returns black, doesnt crash.
+        const glm::vec3 null_in = ll_color3::from_html(nullptr);
+        ensure("from_html: nullptr -> black",
+            null_in.x == 0.f && null_in.y == 0.f && null_in.z == 0.f);
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<18>()
+    {
+        // ll_color3::from_hsl matches LLColor3::setHSL across a few
+        // points covering: zero saturation, mid saturation, hue
+        // wrap, primary colors.
+        struct hsl_case { F32 h; F32 s; F32 l; const char* tag; };
+        const hsl_case cases[] = {
+            {0.f,    0.f,  0.7f, "zero-sat"},
+            {0.33f,  0.7f, 0.5f, "saturated mid"},
+            {0.f,    1.f,  0.5f, "pure red"},
+            {1.f/3,  1.f,  0.5f, "pure green"},
+            {2.f/3,  1.f,  0.5f, "pure blue"},
+            {0.95f,  0.6f, 0.4f, "near hue wrap"},
+        };
+        for (const auto& tc : cases)
+        {
+            LLColor3 ll;
+            ll.setHSL(tc.h, tc.s, tc.l);
+            const glm::vec3 gm = ll_color3::from_hsl(tc.h, tc.s, tc.l);
+            ensure(tc.tag, color_near(ll, gm));
+        }
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<19>()
+    {
+        // ll_color3::to_hsl matches LLColor3::calcHSL.
+        const LLColor3 ll(0.3f, 0.6f, 0.9f);
+        F32 h_ll = 0, s_ll = 0, l_ll = 0;
+        ll.calcHSL(&h_ll, &s_ll, &l_ll);
+
+        const glm::vec3 gm(0.3f, 0.6f, 0.9f);
+        F32 h_gm = 0, s_gm = 0, l_gm = 0;
+        ll_color3::to_hsl(gm, &h_gm, &s_gm, &l_gm);
+
+        ensure_approximately_equals("to_hsl H matches calcHSL", h_ll, h_gm, 16);
+        ensure_approximately_equals("to_hsl S matches calcHSL", s_ll, s_gm, 16);
+        ensure_approximately_equals("to_hsl L matches calcHSL", l_ll, l_gm, 16);
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<20>()
+    {
+        // ll_color3::to_srgb / to_linear match the LL helpers.
+        const LLColor3 linear_ll(0.04f, 0.5f, 0.9f);
+        const LLColor3 srgb_ll = srgbColor3(linear_ll);
+
+        const glm::vec3 linear_gm(0.04f, 0.5f, 0.9f);
+        const glm::vec3 srgb_gm = ll_color3::to_srgb(linear_gm);
+        ensure("to_srgb matches srgbColor3", color_near(srgb_ll, srgb_gm));
+
+        // round-trip srgb -> linear via the helper.
+        const glm::vec3 back = ll_color3::to_linear(srgb_gm);
+        ensure("to_linear undoes to_srgb", color_near(linear_ll, back, 1e-4f));
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<21>()
+    {
+        // Color constants in the helper namespace match the LL statics.
+        ensure("white matches", color_near(LLColor3::white, ll_color3::white));
+        ensure("black matches", color_near(LLColor3::black, ll_color3::black));
+        ensure("grey matches",  color_near(LLColor3::grey,  ll_color3::grey));
+    }
 }

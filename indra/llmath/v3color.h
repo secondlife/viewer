@@ -35,6 +35,10 @@ class LLVector4;
 #include "v3math.h" // needed for linearColor3v implemtation below
 #include <string.h>
 
+#include <glm/vec3.hpp>
+#include <glm/common.hpp>           // glm::clamp
+#include <glm/exponential.hpp>      // glm::exp / pow / sqrt
+
 //  LLColor3 = |r g b|
 
 static constexpr U32 LENGTHOFCOLOR3 = 3;
@@ -438,5 +442,146 @@ void LLColor3::write(std::vector<T>& v) const
     {
         v[i] = (T)mV[i];
     }
+}
+
+// ============================================================================
+// glm::vec3-flavoured helpers for the LLColor3 -> glm::vec3 migration.
+//
+// GLM has no native color type — glm::vec3 is the canonical RGB
+// representation. The helpers below preserve the LL semantics that
+// glm doesn't replicate directly:
+//
+//   * color3_inverse:  LL `-c` returns 1-rgb, NOT component negation.
+//                      Use this instead of unary minus on glm::vec3.
+//   * color3_brightness: LL brightness() == (r+g+b)/3, NAIVE average,
+//                        NOT Rec.709 luminance. Migration must
+//                        preserve this exact formula.
+//   * color3_from_html: parses "RRGGBB" hex strings to glm::vec3.
+//   * color3_setHSL / color3_calcHSL: HSL conversion as free
+//                                     functions on glm::vec3.
+//
+// See v3color_glm_equivalence_test.cpp tests #8-#14 for the
+// semantics each helper preserves.
+// ============================================================================
+
+namespace ll_color3
+{
+    // color3_inverse: LL `-c` semantics. Returns (1-r, 1-g, 1-b),
+    // saturated nowhere — caller is responsible if c has values
+    // outside [0, 1].
+    inline glm::vec3 inverse(const glm::vec3& c)
+    {
+        return glm::vec3(1.f) - c;
+    }
+
+    // brightness == (r+g+b)/3. NOT Rec.709 luminance. Use a different
+    // helper if you actually want luminance.
+    inline F32 brightness(const glm::vec3& c)
+    {
+        return (c.x + c.y + c.z) / 3.0f;
+    }
+
+    // Parse "RRGGBB" or "#RRGGBB" hex strings to a normalized RGB
+    // glm::vec3. Returns black on a malformed string. Mirrors the
+    // LLColor3(const char*) ctor body.
+    inline glm::vec3 from_html(const char* color_string)
+    {
+        if (color_string == nullptr || strlen(color_string) < 6) /* Flawfinder: ignore */
+        {
+            return glm::vec3(0.f);
+        }
+        // Skip a leading '#' if present.
+        const char* p = (color_string[0] == '#') ? color_string + 1 : color_string;
+        if (strlen(p) < 6) /* Flawfinder: ignore */
+        {
+            return glm::vec3(0.f);
+        }
+        char tempstr[7];
+        strncpy(tempstr, p, 6); /* Flawfinder: ignore */
+        tempstr[6] = '\0';
+        const F32 b = static_cast<F32>(strtol(&tempstr[4], nullptr, 16)) / 255.f;
+        tempstr[4] = '\0';
+        const F32 g = static_cast<F32>(strtol(&tempstr[2], nullptr, 16)) / 255.f;
+        tempstr[2] = '\0';
+        const F32 r = static_cast<F32>(strtol(&tempstr[0], nullptr, 16)) / 255.f;
+        return glm::vec3(r, g, b);
+    }
+
+    // HSL -> RGB. Bit-for-bit equivalent to LLColor3::setHSL — uses
+    // the same hueToRgb helper logic, written as a static lambda.
+    inline glm::vec3 from_hsl(F32 h, F32 s, F32 l)
+    {
+        if (s < 0.00001f)
+        {
+            return glm::vec3(l);
+        }
+        const F32 v2 = (l < 0.5f) ? l * (1.0f + s) : (l + s) - (s * l);
+        const F32 v1 = 2.0f * l - v2;
+        auto hue_to_rgb = [](F32 a, F32 b, F32 hue)
+        {
+            if (hue < 0.f) hue += 1.f;
+            if (hue > 1.f) hue -= 1.f;
+            if ((6.f * hue) < 1.f) return a + (b - a) * 6.f * hue;
+            if ((2.f * hue) < 1.f) return b;
+            if ((3.f * hue) < 2.f) return a + (b - a) * ((2.f / 3.f) - hue) * 6.f;
+            return a;
+        };
+        return glm::vec3(
+            hue_to_rgb(v1, v2, h + (1.f / 3.f)),
+            hue_to_rgb(v1, v2, h),
+            hue_to_rgb(v1, v2, h - (1.f / 3.f)));
+    }
+
+    // RGB -> HSL. Bit-for-bit equivalent to LLColor3::calcHSL.
+    inline void to_hsl(const glm::vec3& c, F32* hue, F32* saturation, F32* luminance)
+    {
+        const F32 var_R = c.x;
+        const F32 var_G = c.y;
+        const F32 var_B = c.z;
+        const F32 var_Min = (var_R < (var_G < var_B ? var_G : var_B)) ? var_R : (var_G < var_B ? var_G : var_B);
+        const F32 var_Max = (var_R > (var_G > var_B ? var_G : var_B)) ? var_R : (var_G > var_B ? var_G : var_B);
+        const F32 del_Max = var_Max - var_Min;
+        const F32 L = (var_Max + var_Min) / 2.0f;
+        F32 H = 0.f;
+        F32 S = 0.f;
+        if (del_Max != 0.f)
+        {
+            S = (L < 0.5f) ? (del_Max / (var_Max + var_Min))
+                           : (del_Max / (2.f - var_Max - var_Min));
+            const F32 del_R = (((var_Max - var_R) / 6.f) + (del_Max / 2.f)) / del_Max;
+            const F32 del_G = (((var_Max - var_G) / 6.f) + (del_Max / 2.f)) / del_Max;
+            const F32 del_B = (((var_Max - var_B) / 6.f) + (del_Max / 2.f)) / del_Max;
+            if (var_R >= var_Max)        H = del_B - del_G;
+            else if (var_G >= var_Max)   H = (1.f / 3.f) + del_R - del_B;
+            else if (var_B >= var_Max)   H = (2.f / 3.f) + del_G - del_R;
+            if (H < 0.f) H += 1.f;
+            if (H > 1.f) H -= 1.f;
+        }
+        if (hue) *hue = H;
+        if (saturation) *saturation = S;
+        if (luminance) *luminance = L;
+    }
+
+    // sRGB / linear gamma helpers — glm::vec3 overloads matching
+    // the existing LLColor3 versions. These call the same scalar
+    // linearTosRGB / sRGBtoLinear helpers from llmath.h that the
+    // LLColor3 versions use, so the values match bit-for-bit.
+    inline glm::vec3 to_srgb(const glm::vec3& a)
+    {
+        return glm::vec3(linearTosRGB(a.x), linearTosRGB(a.y), linearTosRGB(a.z));
+    }
+
+    inline glm::vec3 to_linear(const glm::vec3& a)
+    {
+        return glm::vec3(sRGBtoLinear(a.x), sRGBtoLinear(a.y), sRGBtoLinear(a.z));
+    }
+
+    // Common color constants as glm::vec3, available as inline
+    // variables for header-only constexpr-style use. (constexpr
+    // doesn't work because GLM_FORCE_DEFAULT_ALIGNED_GENTYPES makes
+    // glm::vec3 not literal in this build.)
+    inline const glm::vec3 white(1.f, 1.f, 1.f);
+    inline const glm::vec3 black(0.f, 0.f, 0.f);
+    inline const glm::vec3 grey(0.5f, 0.5f, 0.5f);
 }
 
