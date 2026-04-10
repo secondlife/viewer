@@ -60,6 +60,13 @@ public:
     explicit LLColor3(const LLColor4& color4);   // "explicit" to avoid automatic conversion
     explicit LLColor3(const LLVector4& vector4); // "explicit" to avoid automatic conversion
     explicit LLColor3(const LLSD& sd);
+    // Transitional: implicit during the LLColor3 -> glm::vec3 migration.
+    // Make explicit again (or delete LLColor3 entirely) once callers
+    // have migrated to glm::vec3 storage. Mirrors the LLVector3
+    // pattern. See ll_color3:: helpers in this file for the
+    // semantic-preserving migration replacements.
+    LLColor3(const glm::vec3& v);                // NOLINT(google-explicit-constructor)
+    inline operator glm::vec3() const;
 
     LLSD getValue() const
     {
@@ -196,6 +203,18 @@ inline LLColor3::LLColor3(const F32* vec)
     mV[VRED]   = vec[VRED];
     mV[VGREEN] = vec[VGREEN];
     mV[VBLUE]  = vec[VBLUE];
+}
+
+inline LLColor3::LLColor3(const glm::vec3& v)
+{
+    mV[VRED]   = v.x;
+    mV[VGREEN] = v.y;
+    mV[VBLUE]  = v.z;
+}
+
+inline LLColor3::operator glm::vec3() const
+{
+    return glm::vec3(mV[VRED], mV[VGREEN], mV[VBLUE]);
 }
 
 inline LLColor3::LLColor3(const char* color_string) // takes a string of format "RRGGBB" where RR is hex 00..FF

@@ -417,4 +417,40 @@ namespace tut
         ensure("black matches", color_near(LLColor3::black, ll_color3::black));
         ensure("grey matches",  color_near(LLColor3::grey,  ll_color3::grey));
     }
+
+    // ====================================================================
+    // Bridge ctor tests — pin that LLColor3 ↔ glm::vec3 implicit
+    // conversions preserve all three components.
+    // ====================================================================
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<22>()
+    {
+        // LLColor3(glm::vec3) bridge ctor round-trip.
+        const glm::vec3 gm(0.123f, 0.456f, 0.789f);
+        const LLColor3 ll(gm);  // bridge ctor
+        ensure("bridge ctor r", std::fabs(ll.mV[0] - gm.x) < kEps);
+        ensure("bridge ctor g", std::fabs(ll.mV[1] - gm.y) < kEps);
+        ensure("bridge ctor b", std::fabs(ll.mV[2] - gm.z) < kEps);
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<23>()
+    {
+        // operator glm::vec3() conversion operator round-trip.
+        const LLColor3 ll(0.321f, 0.654f, 0.987f);
+        const glm::vec3 gm = ll;  // conversion operator
+        ensure("conv op x", std::fabs(gm.x - ll.mV[0]) < kEps);
+        ensure("conv op y", std::fabs(gm.y - ll.mV[1]) < kEps);
+        ensure("conv op z", std::fabs(gm.z - ll.mV[2]) < kEps);
+    }
+
+    template<> template<>
+    void v3color_glm_equiv_object::test<24>()
+    {
+        // Full round-trip: glm -> LL -> glm preserves all components.
+        const glm::vec3 original(0.111f, 0.555f, 0.999f);
+        const glm::vec3 round = LLColor3(original);  // ctor + conv op
+        ensure("round-trip via bridge", color_near(LLColor3(original), round));
+    }
 }
