@@ -4,7 +4,6 @@ project(llmath)
 
 include(00-Common)
 include(LLCommon)
-include(bugsplat)
 include(Boost)
 include(SSE2NEON)
 

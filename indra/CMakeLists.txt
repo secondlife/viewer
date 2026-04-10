@@ -3,14 +3,7 @@
 # cmake_minimum_required should appear before any
 # other commands to guarantee full compatibility
 # with the version specified
-## 3.8 added VS_DEBUGGER_WORKING_DIRECTORY support
-## 3.13/12 is needed for add_link_options/add_compile_definitions
-## 3.14 added FILE CREATE_LINK
-## 3.16 is needed for target_precompile_headers
-## Nicky: Ideally we want at least 3.21 for good preset support
-##   We're not there yet, but once done, there is a kludge in Linking.cmake
-#    "if(${CMAKE_VERSION} VERSION_LESS "3.20.0")" that can also be removed
-cmake_minimum_required(VERSION 3.16.0...4.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24...4.0 FATAL_ERROR)
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.29.0")
     cmake_policy(SET CMP0156 NEW)
 endif()
@@ -82,9 +75,7 @@ endif (WINDOWS AND EXISTS ${LIBS_CLOSED_DIR}copy_win_scripts)
 
 add_custom_target(viewer)
 
-if (NOT USE_BUGSPLAT)
 add_subdirectory(${LIBS_OPEN_PREFIX}llcrashlogger)
-endif (NOT USE_BUGSPLAT)
 
 add_subdirectory(${LIBS_OPEN_PREFIX}llplugin)
 add_subdirectory(${LIBS_OPEN_PREFIX}llui)
@@ -100,34 +91,12 @@ if (ENABLE_MEDIA_PLUGINS)
 add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
 endif (ENABLE_MEDIA_PLUGINS)
 
-if (LINUX)
-  if (INSTALL_PROPRIETARY)
-      include(LLAppearanceUtility)
-      add_subdirectory(${LLAPPEARANCEUTILITY_SRC_DIR} ${LLAPPEARANCEUTILITY_BIN_DIR})
-  endif (INSTALL_PROPRIETARY)
-elseif (WINDOWS)
-  # cmake EXISTS requires an absolute path, see indra/cmake/Variables.cmake
-  if (EXISTS ${VIEWER_DIR}win_setup)
-    add_subdirectory(${VIEWER_DIR}win_setup)
-  endif (EXISTS ${VIEWER_DIR}win_setup)
-endif (LINUX)
-
 if (WINDOWS)
     # cmake EXISTS requires an absolute path, see indra/cmake/Variables.cmake
     if (EXISTS ${VIEWER_DIR}win_setup)
       add_subdirectory(${VIEWER_DIR}win_setup)
     endif (EXISTS ${VIEWER_DIR}win_setup)
 endif (WINDOWS)
-
-if (USE_BUGSPLAT)
-    if (BUGSPLAT_DB)
-        message(STATUS "Building with BugSplat; database '${BUGSPLAT_DB}'")
-    else (BUGSPLAT_DB)
-        message(WARNING "Building with BugSplat, but no database name set (BUGSPLAT_DB)")
-    endif (BUGSPLAT_DB)
-else (USE_BUGSPLAT)
-    message(STATUS "Not building with BugSplat")
-endif (USE_BUGSPLAT)
 
 add_subdirectory(${VIEWER_PREFIX}newview)
 add_dependencies(viewer secondlife-bin)

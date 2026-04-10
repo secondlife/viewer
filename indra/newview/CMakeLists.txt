@@ -8,12 +8,10 @@ include(00-Common)
 include(Linking)
 
 include(Boost)
-include(bugsplat)
 include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
 include(CubemapToEquirectangularJS)
-include(DBusGlib)
 include(DragDrop)
 include(EXPAT)
 include(Hunspell)
@@ -2026,7 +2024,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llprimitive
         llappearance
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
-        ll::bugsplat
         ll::ndof
         ll::tracy
         ll::openxr

@@ -11,7 +11,6 @@ include(LLCoreHttp)
 include(LLAddBuildTest)
 include(LLCommon)
 include(Tut)
-include(bugsplat)
 
 set(llcorehttp_SOURCE_FILES
     bufferarray.cpp

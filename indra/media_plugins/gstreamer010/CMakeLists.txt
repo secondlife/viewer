@@ -11,7 +11,6 @@ include(Linking)
 include(PluginAPI)
 include(OpenGL)
 
-include(GStreamer010Plugin)
 
 ### media_plugin_gstreamer010
 
