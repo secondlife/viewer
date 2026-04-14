@@ -969,7 +969,7 @@ bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
 
     if (other_window != NULL)
     {
-        LL_DEBUGS() << "Found other window with the name '" << getWindowTitle() << "'" << LL_ENDL;
+        LL_DEBUGS("AppInit") << "Found other window with the name '" << getWindowTitle() << "'" << LL_ENDL;
         COPYDATASTRUCT cds;
         const S32 SLURL_MESSAGE_TYPE = 0;
         cds.dwData = SLURL_MESSAGE_TYPE;
@@ -977,11 +977,229 @@ bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
         cds.lpData = (void*)url.c_str();
 
         LRESULT msg_result = SendMessage(other_window, WM_COPYDATA, NULL, (LPARAM)&cds);
-        LL_DEBUGS() << "SendMessage(WM_COPYDATA) to other window '"
+        LL_DEBUGS("AppInit") << "SendMessage(WM_COPYDATA) to other window '"
                  << getWindowTitle() << "' returned " << msg_result << LL_ENDL;
         return true;
     }
     return false;
+}
+
+bool LLAppViewerWin32::sendShutdownToOtherInstances(const std::wstring& install_dir)
+{
+    // Velopack installs viewer like this:
+    // %appdata%\Local\ChannelNameViewer\Update.exe // which is our uninstaller
+    // %appdata%\Local\ChannelNameViewer\SecondLifeViewer.exe // wrapper, redirects to main executable
+    // %appdata%\Local\ChannelNameViewer\current\SecondLifeViewer.exe // main executable
+    // For reliability don't expect install_dir to be actually in the base path, strip 'current'
+
+    const std::wstring current_suffix = L"\\current";
+    std::wstring normalized_path(install_dir);
+    if (normalized_path.length() >= current_suffix.length() &&
+        _wcsicmp(normalized_path.c_str() + normalized_path.length() - current_suffix.length(),
+            current_suffix.c_str()) == 0)
+    {
+        normalized_path.resize(normalized_path.length() - current_suffix.length());
+    }
+
+    wchar_t window_class[256]; // Assume max length < 255 chars.
+    mbstowcs(window_class, sWindowClass, 255);
+    window_class[255] = 0;
+
+    // Normalize the directory path
+    wchar_t our_dir_normalized[MAX_PATH];
+    wchar_t* file_part = nullptr;
+    DWORD result = GetFullPathNameW(normalized_path.c_str(), MAX_PATH, our_dir_normalized, &file_part);
+    if (result == 0 || result >= MAX_PATH)
+    {
+        LL_WARNS() << "Failed to normalize our executable path" << LL_ENDL;
+        return false;
+    }
+
+    // Remove trailing backslash if present
+    size_t dir_len = wcslen(our_dir_normalized);
+    if (dir_len > 0 && our_dir_normalized[dir_len - 1] == L'\\')
+    {
+        our_dir_normalized[dir_len - 1] = L'\0';
+        dir_len--;
+    }
+
+    // This message is meant for velopack, so we don't expect to have
+    // a window of our own, store any matching windows.
+    struct EnumData
+    {
+        const wchar_t* target_class;
+        const wchar_t* our_dir_normalized;
+        std::vector<HWND> found_windows;
+    };
+
+    EnumData enum_data;
+    enum_data.target_class = window_class;
+    enum_data.our_dir_normalized = our_dir_normalized;
+
+    // Callback function to find all matching windows
+    auto find_windows_callback = [](HWND hwnd, LPARAM lParam) -> BOOL
+    {
+        EnumData* data = reinterpret_cast<EnumData*>(lParam);
+        wchar_t class_name[256];
+
+        if (GetClassName(hwnd, class_name, 256) > 0)
+        {
+            if (wcscmp(class_name, data->target_class) == 0)
+            {
+                // Get the process ID for this window
+                DWORD process_id = 0;
+                GetWindowThreadProcessId(hwnd, &process_id);
+
+                // Open the process to query its executable path
+                HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, process_id);
+                if (hProcess)
+                {
+                    wchar_t exe_path[MAX_PATH];
+                    DWORD size = MAX_PATH;
+                    if (QueryFullProcessImageNameW(hProcess, 0, exe_path, &size))
+                    {
+                        // Normalize the other process's path
+                        wchar_t other_dir_normalized[MAX_PATH];
+                        wchar_t* other_file_part = nullptr;
+                        DWORD result = GetFullPathNameW(exe_path, MAX_PATH, other_dir_normalized, &other_file_part);
+
+                        if (result > 0 && result < MAX_PATH)
+                        {
+                            // Remove the filename part to get just the directory
+                            // We are doing this to avoid incidents, like having
+                            // multiple viewer version exes in the same folder.
+                            if (other_file_part)
+                            {
+                                *other_file_part = L'\0';
+                            }
+
+                            // Remove trailing backslash if present
+                            size_t other_dir_len = wcslen(other_dir_normalized);
+                            if (other_dir_len > 0 && other_dir_normalized[other_dir_len - 1] == L'\\')
+                            {
+                                other_dir_normalized[other_dir_len - 1] = L'\0';
+                                other_dir_len--;
+                            }
+
+                            // Strip "\current" suffix if present to normalize comparison
+                            // This handles both release (with \current) and debug builds (without)
+                            const std::wstring current_suffix = L"\\current";
+                            if (other_dir_len >= current_suffix.length())
+                            {
+                                size_t offset = other_dir_len - current_suffix.length();
+                                if (_wcsicmp(other_dir_normalized + offset, current_suffix.c_str()) == 0)
+                                {
+                                    other_dir_normalized[offset] = L'\0';
+                                }
+                            }
+
+                            // Compare directories (case-insensitive)
+                            if (_wcsicmp(other_dir_normalized, data->our_dir_normalized) == 0)
+                            {
+                                data->found_windows.push_back(hwnd);
+                            }
+                        }
+                    }
+                    CloseHandle(hProcess);
+                }
+            }
+        }
+
+        return TRUE; // Continue enumeration
+    };
+
+    // Find all matching windows and send shutdown messages
+    EnumWindows(find_windows_callback, reinterpret_cast<LPARAM>(&enum_data));
+
+    if (enum_data.found_windows.empty())
+    {
+        LL_DEBUGS("AppInit") << "No other instances found" << LL_ENDL;
+        return false;
+    }
+
+    LL_INFOS("AppInit") << "Found " << (S32)(enum_data.found_windows.size()) << " other instance(s), sending shutdown messages" << LL_ENDL;
+
+    // Get our own process ID to include in the message
+    DWORD our_process_id = GetCurrentProcessId();
+
+    constexpr UINT timeout_ms = 2000; // 2s. Viewer's message thread is supposed to be fast.
+    for (HWND other_window : enum_data.found_windows)
+    {
+        if (IsWindow(other_window))
+        {
+            DWORD_PTR result = 0;
+            LRESULT send_result = SendMessageTimeout(
+                other_window,
+                WM_POST_UNINSTALL_,
+                static_cast<WPARAM>(our_process_id),
+                static_cast<LPARAM>(WM_POST_UNINSTALL_MSG_SHUTDOWN),
+                SMTO_ABORTIFHUNG | SMTO_BLOCK,
+                timeout_ms,
+                &result
+            );
+
+            if (send_result == 0)
+            {
+                DWORD error = GetLastError();
+                if (error == ERROR_TIMEOUT)
+                {
+                    LL_WARNS("AppInit") << "Shutdown message timed out for window " << std::hex << other_window << std::dec << LL_ENDL;
+                }
+                else
+                {
+                    LL_WARNS("AppInit") << "Failed to send shutdown message to window " << std::hex << other_window
+                        << ", error: " << error << std::dec << LL_ENDL;
+                }
+
+                PostMessage(other_window, WM_CLOSE, 0, 0);
+            }
+            else
+            {
+                LL_DEBUGS("AppInit") << "Shutdown message sent successfully to window " << std::hex << other_window << std::dec << LL_ENDL;
+            }
+        }
+    }
+
+    // Poll for up to 30 seconds, checking every 5 seconds
+    const S32 MAX_WAIT_TIME_MS = 60000; // 30 seconds
+    const S32 POLL_INTERVAL_MS = 5000;  // 5 seconds
+    S32 elapsed_time_ms = 0;
+    size_t still_open_count = enum_data.found_windows.size();
+
+    while (elapsed_time_ms < MAX_WAIT_TIME_MS)
+    {
+        LL_INFOS("AppInit") << "Waiting for " << (S32)still_open_count << " instance(s) to close... ("
+            << (S32)(elapsed_time_ms / 1000) << "s elapsed)" << LL_ENDL;
+
+        ms_sleep(POLL_INTERVAL_MS);
+        elapsed_time_ms += POLL_INTERVAL_MS;
+
+        // Check if the specific windows we found still exist
+        // Don't enumerate all windows for new ones, assume that
+        // no instances were reused and assume user won't open
+        // the app again. For now just check our list.
+        still_open_count = 0;
+        for (HWND hwnd : enum_data.found_windows)
+        {
+            if (IsWindow(hwnd))
+            {
+                still_open_count++;
+            }
+        }
+
+        if (still_open_count == 0)
+        {
+            LL_INFOS("AppInit") << "All other instances have closed after " << (S32)(elapsed_time_ms / 1000) << " seconds" << LL_ENDL;
+            return false;
+        }
+    }
+
+    if (still_open_count != 0)
+    {
+        LL_WARNS("AppInit") << "Proceeding with uninstall with " << (S32)still_open_count << " instance(s) still open." << LL_ENDL;
+    }
+
+    return true;
 }
 
 
