@@ -21,14 +21,14 @@
    increment="64"
    initial_value="1024"
    label="Cache size (896 - 32768MB)"
-   label_width="159"
+   label_width="161"
    layout="topleft"
    left="33"
    max_val="32768"
    min_val="896"
    top_pad="10"
    name="cachesizespinner"
-   width="210" />
+   width="221" />
   <text
    type="string"
    length="1"
