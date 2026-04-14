@@ -1804,14 +1804,6 @@ function="World.EnvPreset"
      label="Help"
      name="Help"
      tear_off="true">
-        <menu_item_call
-         label="Guidebook"
-         name="How To"
-         shortcut="F1">
-            <menu_item_call.on_click
-             function="Help.ToggleHowTo"
-             parameter="" />
-        </menu_item_call>
 <!--        <menu_item_call
          label="Tutorial"
          name="Tutorial">
@@ -1819,7 +1811,6 @@ function="World.EnvPreset"
              function="Floater.Show"
              parameter="hud" />
         </menu_item_call>-->
-		<menu_item_separator/>
         <menu_item_call
              label="Knowledge Base"
              name="Knowledge Base">
