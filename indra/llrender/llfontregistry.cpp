@@ -181,16 +181,16 @@ LLFontDescriptor LLFontDescriptor::normalize() const
     return LLFontDescriptor(new_name,new_size,new_style, getFontFiles(), getFontCollectionFiles());
 }
 
-void LLFontDescriptor::addFontFile(const std::string& file_name, EFontHinting hinting, S32 flags, F32 size_delta, const std::string& char_functor)
+void LLFontDescriptor::addFontFile(const std::string& file_name, EFontHinting hinting, S32 flags, F32 size_delta, S32 weight, const std::string& char_functor)
 {
     char_functor_map_t::const_iterator it = mCharFunctors.find(char_functor);
-    mFontFiles.push_back(LLFontFileInfo(file_name, hinting, flags, size_delta, (mCharFunctors.end() != it) ? it->second : nullptr));
+    mFontFiles.push_back(LLFontFileInfo(file_name, hinting, flags, size_delta, weight, (mCharFunctors.end() != it) ? it->second : nullptr));
 }
 
-void LLFontDescriptor::addFontCollectionFile(const std::string& file_name, EFontHinting hinting, S32 flags, F32 size_delta, const std::string& char_functor)
+void LLFontDescriptor::addFontCollectionFile(const std::string& file_name, EFontHinting hinting, S32 flags, F32 size_delta, S32 weight, const std::string& char_functor)
 {
     char_functor_map_t::const_iterator it = mCharFunctors.find(char_functor);
-    mFontCollectionFiles.push_back(LLFontFileInfo(file_name, hinting, flags, size_delta, (mCharFunctors.end() != it) ? it->second : nullptr));
+    mFontCollectionFiles.push_back(LLFontFileInfo(file_name, hinting, flags, size_delta, weight, (mCharFunctors.end() != it) ? it->second : nullptr));
 }
 
 LLFontRegistry::LLFontRegistry(bool create_gl_textures)
@@ -291,6 +291,7 @@ bool font_desc_init_from_xml(LLXMLNodePtr node, LLFontDescriptor& desc)
             std::string char_functor;
             EFontHinting hinting = EFontHinting::FORCE_AUTOHINT;
             S32 flags = 0;
+            S32 weight = -1;
 
             if (child->hasAttribute("functor"))
             {
@@ -335,17 +336,22 @@ bool font_desc_init_from_xml(LLXMLNodePtr node, LLFontDescriptor& desc)
                 child->getAttributeF32("size_delta", size_delta);
             }
 
+            if (child->hasAttribute("font_weight"))
+            {
+                child->getAttributeS32("font_weight", weight);
+            }
+
             if (child->hasAttribute("load_collection"))
             {
                 bool col = false;
                 child->getAttributeBOOL("load_collection", col);
                 if (col)
                 {
-                    desc.addFontCollectionFile(font_file_name, hinting, flags, size_delta, char_functor);
+                    desc.addFontCollectionFile(font_file_name, hinting, flags, size_delta, weight, char_functor);
                 }
             }
 
-            desc.addFontFile(font_file_name, hinting, flags, size_delta, char_functor);
+            desc.addFontFile(font_file_name, hinting, flags, size_delta, weight, char_functor);
         }
         else if (child->hasName("os"))
         {
@@ -502,7 +508,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
     // Add ultimate fallback list - generated dynamically on linux,
     // null elsewhere.
     std::transform(getUltimateFallbackList().begin(), getUltimateFallbackList().end(), std::back_inserter(font_files),
-                   [](const std::string& file_name) { return LLFontFileInfo(file_name, EFontHinting::FORCE_AUTOHINT, 0, 0.f); });
+                   [](const std::string& file_name) { return LLFontFileInfo(file_name, EFontHinting::FORCE_AUTOHINT, 0, 0.f, -1); });
 
     // Load fonts based on names.
     if (font_files.empty())
@@ -558,7 +564,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
                     fontp = new LLFontGL;
                 }
                 if (fontp->loadFace(font_path, point_size_scale + font_file_it->mSizeDelta,
-                                 LLFontGL::sVertDPI, LLFontGL::sHorizDPI, is_fallback, i, font_file_it->mHinting, font_file_it->mFlags))
+                                 LLFontGL::sVertDPI, LLFontGL::sHorizDPI, font_file_it->mWeight, is_fallback, i, font_file_it->mHinting, font_file_it->mFlags))
                 {
                     is_font_loaded = true;
                     if (is_first_found)

@@ -4,9 +4,7 @@
 		<file>
 			NotoSansCJKjp-SemiBold.otf
 		</file>
-        <file load_collection="true" font_hinting="default">
-            Inter_18pt-Regular.ttf
-        </file>
+        <file load_collection="true" font_weight="400">Inter-VariableFont_opsz,wght.ttf</file>
 		<os name="Windows">
 			<file load_collection="true">
 				YuGothM.ttc
@@ -82,9 +80,7 @@
 		<file>
 			NotoSansCJKjp-Bold.otf
 		</file>
-        <file load_collection="true" font_hinting="default" flags="bold">
-            Inter_18pt-SemiBold.ttf
-        </file>
+        <file load_collection="true" font_weight="800" flags="bold">Inter-VariableFont_opsz,wght.ttf</file>
 		<os name="Windows">
 			<file load_collection="true">
 				YuGothB.ttc
@@ -104,11 +100,9 @@
 	</font>
 	<font name="SansSerif" comment="Name of san-serif font (Truetype file name)">
 		<file>
-			NotoSansCJKjp-Bold.otf
+			NotoSansCJKjp-SemiBold.otf
 		</file>
-        <file load_collection="true" font_hinting="default">
-            Inter_18pt-Regular.ttf
-        </file>
+        <file load_collection="true" font_weight="400">Inter-VariableFont_opsz,wght.ttf</file>
 		<os name="Windows">
 			<file>
 				arial.ttf
@@ -121,19 +115,13 @@
 		</os>
 	</font>
 	<font name="SansSerif" comment="Name of bold sans-serif font" font_style="BOLD">
-        <file load_collection="true" font_hinting="default" flags="bold">
-            Inter_18pt-SemiBold.ttf
-        </file>
+        <file load_collection="true" font_weight="800" flags="bold">Inter-VariableFont_opsz,wght.ttf</file>
 	</font>
 	<font name="SansSerif" comment="Name of italic sans-serif font" font_style="ITALIC">
-        <file load_collection="true">
-            Inter_18pt-Italic.ttf
-        </file>
+        <file load_collection="true" font_weight="400">Inter-Italic-VariableFont_opsz,wght.ttf</file>
 	</font>
 	<font name="SansSerif" comment="Name of bold italic sans-serif font" font_style="BOLD|ITALIC">
-        <file load_collection="true" font_hinting="default" flags="bold">
-            Inter_18pt-SemiBoldItalic.ttf
-        </file>
+        <file load_collection="true" flags="bold" font_weight="800">Inter-Italic-VariableFont_opsz,wght.ttf</file>
 	</font>
 	<font name="Monospace" comment="Name of monospace font">
 		<file>
@@ -144,29 +132,25 @@
 		</file>
 	</font>
 	<font name="DejaVu" comment="Name of DejaVu font">
-        <file load_collection="true" font_hinting="default">
-            Inter_18pt-Regular.ttf
-        </file>
+        <file>DejaVuSans.ttf</file>
 	</font>
 	<font name="DejaVu" comment="Name of DejaVu font (bold)" font_style="BOLD">
-        <file load_collection="true" font_hinting="force_auto" flags="bold">
-            Inter_18pt-SemiBold.ttf
+        <file>
+            DejaVuSans-Bold.ttf
         </file>
 	</font>
 	<font name="DejaVu" comment="Name of DejaVu font (italic)" font_style="ITALIC">
-        <file load_collection="true">
-            Inter_18pt-Italic.ttf
+        <file>
+            DejaVuSans-Oblique.ttf
         </file>
 	</font>
 	<font name="DejaVu" comment="Name of DejaVu font (bold italic)" font_style="BOLD|ITALIC">
-        <file load_collection="true" font_hinting="default" flags="bold">
-            Inter_18pt-SemiBoldItalic.ttf
+        <file>
+            DejaVuSans-BoldOblique.ttf
         </file>
 	</font>
 	<font name="Helvetica" comment="Name of Helvetica font">
-        <file load_collection="true" font_hinting="default">
-            Inter_18pt-Regular.ttf
-        </file>
+        <file load_collection="true" font_weight="400">Inter-VariableFont_opsz,wght.ttf</file>
 		<os name="Windows">
 			<file>
 				arial.ttf
@@ -179,9 +163,7 @@
 		</os>
 	</font>
 	<font name="Helvetica" comment="Name of Helvetica font (bold)" font_style="BOLD">
-        <file load_collection="true" font_hinting="default" flags="bold">
-            Inter_18pt-SemiBold.ttf
-        </file>
+        <file load_collection="true" font_weight="800" flags="bold">Inter-VariableFont_opsz,wght.ttf</file>
 		<os name="Windows">
 			<file>
 				arialbd.ttf
@@ -194,9 +176,7 @@
 		</os>
 	</font>
 	<font name="Helvetica" comment="Name of Helvetica font (italic)" font_style="ITALIC">
-        <file load_collection="true">
-            Inter_18pt-Italic.ttf
-        </file>
+        <file load_collection="true" font_weight="400">Inter-Italic-VariableFont_opsz,wght.ttf</file>
 		<os name="Windows">
 			<file>
 				ariali.ttf
@@ -209,9 +189,7 @@
 		</os>
 	</font>
 	<font name="Helvetica" comment="Name of Helvetica font (bold italic)" font_style="BOLD|ITALIC">
-        <file load_collection="true" font_hinting="default" flags="bold">
-            Inter_18pt-SemiBoldItalic.ttf
-        </file>
+        <file load_collection="true" flags="bold" font_weight="800">Inter-Italic-VariableFont_opsz,wght.ttf</file>
 		<os name="Windows">
 			<file>
 				arialbi.ttf
@@ -227,9 +205,7 @@
 		<file>
 			times.ttf
 		</file>
-        <file load_collection="true" font_hinting="default">
-            Inter_18pt-Regular.ttf
-        </file>
+        <file font_weight="400">Inter-VariableFont_opsz,wght.ttf</file>
 	</font>
 	<font_size name="Monospace" comment="Size for monospaced font (points, or 1/72 of an inch)" size="8.0"/>
 	<font_size name="Huge" comment="Size of huge font (points, or 1/72 of an inch)" size="16.0"/>
