@@ -7678,7 +7678,7 @@ Message from [NAME]:
    type="notify">
     <unique/>
 This land has damage enabled.
-You can be hurt here. If you die, you will be teleported to your home location.
+You can be hurt here. If you die, you might be teleported to your home location, region telehub or parcel landing point.
   </notification>
 
   <notification
