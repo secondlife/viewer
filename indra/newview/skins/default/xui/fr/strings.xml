@@ -5538,9 +5538,6 @@ Essayez avec le chemin d'accès à l'éditeur entre guillemets doubles
 	<string name="Command_Grid_Status_Label">
 		État de la grille
 	</string>
-	<string name="Command_HowTo_Label">
-		Aide rapide
-	</string>
 	<string name="Command_Inventory_Label">
 		Inventaire
 	</string>
@@ -5636,9 +5633,6 @@ Essayez avec le chemin d'accès à l'éditeur entre guillemets doubles
 	</string>
 	<string name="Command_Grid_Status_Tooltip">
 		Afficher l’état actuel de la grille
-	</string>
-	<string name="Command_HowTo_Tooltip">
-		Comment effectuer les opérations courantes
 	</string>
 	<string name="Command_Inventory_Tooltip">
 		Afficher et utiliser vos possessions
