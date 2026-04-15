@@ -932,7 +932,7 @@ bool LLFontFreetype::setVariationAxis(const std::string& axis_tag, F32 value)
     if (!found)
     {
         FT_Done_MM_Var(gFTLibrary, master);
-        LL_WARNS_ONCE("FontVariation") << "Axis '" << axis_tag << "' not found in font: " << mName << LL_ENDL;
+        LL_WARNS_ONCE("Font") << "Axis '" << axis_tag << "' not found in font: " << mName << LL_ENDL;
         return false;
     }
 
@@ -958,7 +958,7 @@ bool LLFontFreetype::setVariationAxis(const std::string& axis_tag, F32 value)
         return false;
     }
 
-    LL_INFOS("FontVariation") << "Set " << axis_tag << " = " << value
+    LL_DEBUGS("Font") << "Set " << axis_tag << " = " << value
         << " for font: " << mName << LL_ENDL;
     return true;
 }

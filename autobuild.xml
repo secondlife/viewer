@@ -2490,14 +2490,12 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>164a34f4bac8a886217bffb68464a883f8f14cc6</string>
+              <string>8de96fd083783b9f4df1d8d7028c8a713a7d7217</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-google-fonts/releases/assets/396854332</string>
+              <string>https://github.com/secondlife/3p-google-fonts/releases/download/v1.0.0-r6/google_fonts-1.0.0.24469773244-common-24469773244.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
