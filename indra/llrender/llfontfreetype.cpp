@@ -389,22 +389,28 @@ F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LL
 
     FT_Vector  delta;
 
-    llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
+    llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, FT_KERNING_UNFITTED, &delta));
 
     // Apply the FreeType auto-hinter's subpixel side-bearing correction between
     // adjacent glyphs. When the hinter has shifted the right side of the left
     // glyph or the left side of the right glyph, (rsb_delta - lsb_delta) is the
-    // sub-pixel nudge that keeps spacing visually even. It combines cleanly with
-    // the ll_round() that callers apply after kerning: sub-pixel values only
-    // affect the rounded pen when they cross a half-pixel threshold, matching
-    // the classic FT_Pos +-32 snap.
-    S32 delta_correction = 0;
-    if (left_glyph_info)
-        delta_correction += left_glyph_info->mRsbDelta;
-    if (right_glyph_info)
-        delta_correction -= right_glyph_info->mLsbDelta;
+    // sub-pixel nudge that keeps spacing visually even.
+    F32 delta_correction = 0.0f;
+    if (left_glyph_info && right_glyph_info)
+    {
+        // According to FreeType docs, these delta values should only trigger
+        // discrete ±1 pixel adjustments when they cross certain thresholds.
+        // Substructing delta_diff from delta.x doesn't work as well as treating
+        // it as a thresholds
+        S32 delta_diff = left_glyph_info->mRsbDelta - right_glyph_info->mLsbDelta;
+        if (delta_diff > 32)
+            delta_correction = -1.0f;
+        else if (delta_diff < -31)
+            delta_correction = 1.0f;
+    }
 
-    return (delta.x + delta_correction) * (1.f / 64.f);
+    // ft_kerning_unfitted mode always returns 26.6 fixed-point values
+    return (F32)(delta.x * (1.f / 64.f)) + delta_correction;
 }
 
 bool LLFontFreetype::hasGlyph(llwchar wch) const
