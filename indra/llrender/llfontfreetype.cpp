@@ -117,6 +117,8 @@ LLFontGlyphInfo::LLFontGlyphInfo(U32 index, EFontGlyphType glyph_type)
     mYBitmapOffset(0),  // Offset to the origin in the bitmap
     mXBearing(0),       // Distance from baseline to left in pixels
     mYBearing(0),       // Distance from baseline to top in pixels
+    mLsbDelta(0),
+    mRsbDelta(0),
     mBitmapEntry(std::make_pair(EFontGlyphType::Unspecified, -1)) // Which bitmap in the bitmap cache contains this glyph
 {
 }
@@ -132,6 +134,8 @@ LLFontGlyphInfo::LLFontGlyphInfo(const LLFontGlyphInfo& fgi)
     , mYBitmapOffset(fgi.mYBitmapOffset)
     , mXBearing(fgi.mXBearing)
     , mYBearing(fgi.mYBearing)
+    , mLsbDelta(fgi.mLsbDelta)
+    , mRsbDelta(fgi.mRsbDelta)
 {
     mBitmapEntry = fgi.mBitmapEntry;
 }
@@ -369,17 +373,10 @@ F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
 
     //llassert(!mIsFallback);
     LLFontGlyphInfo* left_glyph_info = getGlyphInfo(char_left, EFontGlyphType::Unspecified);;
-    U32 left_glyph = left_glyph_info ? left_glyph_info->mGlyphIndex : 0;
     // Kern this puppy.
     LLFontGlyphInfo* right_glyph_info = getGlyphInfo(char_right, EFontGlyphType::Unspecified);
-    U32 right_glyph = right_glyph_info ? right_glyph_info->mGlyphIndex : 0;
 
-    FT_Vector  delta;
-
-    llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
-
-    // ft_kerning_unfitted mode always returns 26.6 fixed-point values
-    return (F32)(delta.x * (1.0 / 64.0));
+    return getXKerning(left_glyph_info, right_glyph_info);
 }
 
 F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info) const
@@ -394,8 +391,20 @@ F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LL
 
     llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
 
-    // ft_kerning_unfitted mode always returns 26.6 fixed-point values
-    return (F32)(delta.x * (1.0 / 64.0));
+    // Apply the FreeType auto-hinter's subpixel side-bearing correction between
+    // adjacent glyphs. When the hinter has shifted the right side of the left
+    // glyph or the left side of the right glyph, (rsb_delta - lsb_delta) is the
+    // sub-pixel nudge that keeps spacing visually even. It combines cleanly with
+    // the ll_round() that callers apply after kerning: sub-pixel values only
+    // affect the rounded pen when they cross a half-pixel threshold, matching
+    // the classic FT_Pos +-32 snap.
+    S32 delta_correction = 0;
+    if (left_glyph_info)
+        delta_correction += left_glyph_info->mRsbDelta;
+    if (right_glyph_info)
+        delta_correction -= right_glyph_info->mLsbDelta;
+
+    return (delta.x + delta_correction) * (1.f / 64.f);
 }
 
 bool LLFontFreetype::hasGlyph(llwchar wch) const
@@ -540,6 +549,11 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
     gi->mHeight = height;
     gi->mXBearing = fontp->mFTFace->glyph->bitmap_left;
     gi->mYBearing = fontp->mFTFace->glyph->bitmap_top;
+    // FreeType fills these when the glyph has been auto-hinted; they describe how
+    // much the hinter nudged the left/right side bearings (in 26.6 pixels). Keep
+    // them so inter-glyph spacing can be corrected in getXKerning().
+    gi->mLsbDelta = (S32)fontp->mFTFace->glyph->lsb_delta;
+    gi->mRsbDelta = (S32)fontp->mFTFace->glyph->rsb_delta;
     // Convert these from 26.6 units to float pixels.
     gi->mXAdvance = fontp->mFTFace->glyph->advance.x / 64.f;
     gi->mYAdvance = fontp->mFTFace->glyph->advance.y / 64.f;

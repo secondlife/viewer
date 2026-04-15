@@ -88,6 +88,8 @@ struct LLFontGlyphInfo
     S32 mYBitmapOffset; // Offset to the origin in the bitmap
     S32 mXBearing;  // Distance from baseline to left in pixels
     S32 mYBearing;  // Distance from baseline to top in pixels
+    S32 mLsbDelta;  // FreeType subpixel left side bearing delta (26.6 units)
+    S32 mRsbDelta;  // FreeType subpixel right side bearing delta (26.6 units)
     std::pair<EFontGlyphType, S32> mBitmapEntry; // Which bitmap in the bitmap cache contains this glyph
 };
 
