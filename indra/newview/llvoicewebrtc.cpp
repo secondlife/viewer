@@ -343,6 +343,39 @@ const LLVoiceVersionInfo& LLWebRTCVoiceClient::getVersion()
     return mVoiceVersion;
 }
 
+// --------------------------------------------------
+
+void LLWebRTCVoiceClient::updateVersion()
+{
+    sessionStatePtr_t session = mNextSession.get() ? mNextSession : mSession;
+
+    if (session)
+    {
+        // A WebRTC session can be connected to multiple servers at once. To more easily disambiguate which server version is being printed, show the connection type. In most cases, this shouldn't matter and the Janus version should be the same for all connections. Janus versions are also logged for each connection.
+        mVoiceVersion.serverVersion = session->getVersion();
+        if (session->isCallbackPossible())
+        {
+            mVoiceVersion.mBuildVersion = "ad-hoc";
+        }
+        else if (session->isEstate())
+        {
+            mVoiceVersion.mBuildVersion = "estate";
+        }
+        else if (session->isSpatial())
+        {
+            mVoiceVersion.mBuildVersion = "parcel";
+        }
+        else
+        {
+            mVoiceVersion.mBuildVersion = mVoiceVersion.serverVersion;
+        }
+    }
+    else
+    {
+        mVoiceVersion.serverVersion = mVoiceVersion.mBuildVersion = "";
+    }
+}
+
 //---------------------------------------------------
 
 void LLWebRTCVoiceClient::updateSettings()
@@ -2054,6 +2087,22 @@ void LLWebRTCVoiceClient::sessionState::revive()
     mShuttingDown = false;
 }
 
+const std::string LLWebRTCVoiceClient::sessionState::getVersion() const
+{
+    // Prefer the version of a primary connection which has already received a version string over the data channel. If that does not make sense, fall back to any non-empty version string we can find.
+    bool primary = true;
+    do
+    {
+        for (auto& connection : mWebRTCConnections) {
+            if (connection->isPrimary() == primary && connection->getVersion().length()) {
+                return connection->getVersion();
+            }
+        }
+        primary = !primary;
+    } while (!primary);
+    return "";
+}
+
 //=========================================================================
 // the following are methods to support the coroutine implementation of the
 // voice connection and processing.  They should only be called in the context
@@ -2249,6 +2298,11 @@ void LLWebRTCVoiceClient::deleteSession(const sessionStatePtr_t &session)
     if (deleteNextAudioSession)
     {
         mNextSession.reset();
+    }
+
+    if (!sShuttingDown)
+    {
+        updateVersion();
     }
 }
 
@@ -2623,6 +2677,10 @@ void LLVoiceWebRTCConnection::sendData(const std::string &data)
     {
         mWebRTCDataInterface->sendData(data, false);
     }
+}
+
+const std::string& LLVoiceWebRTCConnection::getVersion() {
+    return mServerVersion;
 }
 
 // Tell the simulator that we're shutting down a voice connection.
@@ -3048,6 +3106,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
 // An object where each key is an agent id.  (in the future, we may allow
 // integer indices into an agentid list, populated on join commands.  For size.
 // Each key will point to a json object with keys identifying what's updated.
+// 'V'  - voice server version (string)
 // 'p'  - audio source power (level/volume) (int8 as int)
 // 'j'  - object of join data (currently only a boolean 'p' marking a primary participant)
 // 'l'  - boolean, always true if exists.
@@ -3107,6 +3166,16 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
             }
 
             boost::json::object participant_obj = participant_elem.value().as_object();
+
+            if (participant_obj.contains("V") && participant_obj["V"].is_string() && agent_id == gAgentID)
+            {
+                // sendJoin was called on the connection. The voice server has responded with the new version string. Set it here.
+                mServerVersion = participant_obj["V"].as_string().c_str();
+                LLWebRTCVoiceClient::getInstance()->updateVersion();
+                LL_DEBUGS("Voice") << "Received version string \"" << participant_obj["V"].as_string().c_str()
+                                   << "\" for connection: primary=" << mPrimary << ", spatial=" << isSpatial()
+                                   << ", region=" << mRegionID << ", mChannelID=" << mChannelID << LL_ENDL;
+            }
 
             LLWebRTCVoiceClient::participantStatePtr_t participant =
                 LLWebRTCVoiceClient::getInstance()->findParticipantByID(mChannelID, agent_id);
