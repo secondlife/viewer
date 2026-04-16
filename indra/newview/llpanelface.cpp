@@ -1073,6 +1073,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         // only turn on auto-adjust button if there is a media renderer and the media is loaded
         mBtnAlign->setEnabled(editable);
 
+        // enable if needed before changing selection
+        mComboMatMedia->setEnabledByValue("Materials", !has_pbr_material);
+
         if (mComboMatMedia->getCurrentIndex() < MATMEDIA_MATERIAL)
         {
             // When selecting an object with a pbr and UI combo is not set,
@@ -1677,7 +1680,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             mCheckFullbright->setValue((S32)(fullbright_flag != 0));
             mCheckFullbright->setEnabled(editable && !has_pbr_material);
             mCheckFullbright->setTentative(!identical_fullbright);
-            mComboMatMedia->setEnabledByValue("Materials", !has_pbr_material);
         }
 
         // Repeats per meter
