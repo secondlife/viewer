@@ -21,7 +21,7 @@
                         image_disabled_selected="PushButton_Selected_Disabled"
                         image_disabled="PushButton_Disabled"
                         button_width.min="70"
-                        button_width.max="140"
+                        button_width.max="145"
                         desired_height="24"
                         pad_left="10" 
                         pad_right="10"

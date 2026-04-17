@@ -319,7 +319,7 @@
    top_delta="25"
    name="Listen media from"
    height="15"
-   width="175"
+   width="180"
    halign="right">
       Hear media and sounds from
   </text>
@@ -346,7 +346,7 @@
    layout="topleft"
    height="15"
    left="23"
-   width="175"
+   width="180"
    name="media_autoplay_label"
    halign="right">
     Auto-play media
@@ -357,7 +357,7 @@
         follows="left|top"
         layout="topleft"
         height="23"
-        left_delta="180"
+        left_delta="185"
         top_delta="-4"
         name="media_auto_play_combo"
         width="130">
@@ -379,7 +379,7 @@
         layout="topleft"
         height="15"
         left="23"
-        width="175"
+        width="180"
         name="media_firstinteract_label"
         halign="right">
             Media first-interact
@@ -390,7 +390,7 @@
     follows="left|top"
     layout="topleft"
     height="23"
-    left_delta="180"
+    left_delta="185"
     top_delta="-4"
     width="130"
     name="media_first_interact_combo"
@@ -458,7 +458,7 @@
    layout="topleft"
    follows="left"
    height="15"
-   width="175"
+   width="180"
    name="noise_suppression_label"
    left="23"
    top_delta="22"
@@ -470,7 +470,7 @@
    enabled_control="EnableVoiceChat"
    follows="left|top"
    layout="topleft"
-   left_delta="180"
+   left_delta="185"
    top_delta="-6"
    width="130"
    height="23"
@@ -504,7 +504,7 @@
    left="23"
    top_delta="30"
    name="Listen from"
-   width="175"
+   width="180"
    height="15"
    halign="right">
      Hear voice from
@@ -514,7 +514,7 @@
    control_name="VoiceEarLocation"
    follows="left|top"
    layout="topleft"
-   left_delta="180"
+   left_delta="185"
    top_delta="-6"
    width="130"
    height="23"
@@ -546,7 +546,7 @@
    tool_tip="Check to enable voice echo cancellation"
    label="Echo Cancellation"
    layout="topleft"
-   left="260"
+   left="270"
    name="enable_echo_cancellation"
    top_pad="-15"
    width="200"/>
@@ -559,7 +559,7 @@
    layout="topleft"
    left="20"
    name="push_to_talk_toggle_check"
-   width="237"
+   width="245"
    tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."
    top_pad="5"/>
   <check_box
@@ -570,7 +570,7 @@
    label="Automatic Gain Control"
    layout="topleft"
    name="voice_automatic_gain_control"
-   left="260"
+   left="270"
    top_pad="-15"
    width="200"/>
   <check_box
@@ -592,7 +592,7 @@
    label="Show voice dot above avatars"
    layout="topleft"
    name="voice_dot_visualizer"
-   left="260"
+   left="270"
    top_pad="-15"
    width="200"/>
   <button
