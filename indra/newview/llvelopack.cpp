@@ -238,7 +238,7 @@ static bool custom_download_asset(void* user_data,
 {
     // The asset has already been downloaded at the coroutine level (before vpkc_download_updates).
     // This callback just copies the pre-downloaded file to where Velopack expects it.
-    // We cannot use getRawAndSuspend here — coroutine context is lost through the Rust FFI boundary.
+    // We cannot use getRawAndSuspend here - coroutine context is lost through the Rust FFI boundary.
     if (sPreDownloadedAssetPath.empty())
     {
         LL_WARNS("Velopack") << "No pre-downloaded asset available" << LL_ENDL;
@@ -786,7 +786,7 @@ static void ensure_update_manager(bool allow_downgrade)
         LL_INFOS("Velopack") << "Auto-detect failed (" << ll_safe_string(err)
                              << "), falling back to explicit locator" << LL_ENDL;
 
-        // Auto-detection failed — construct an explicit locator.
+        // Auto-detection failed - construct an explicit locator.
         // This handles legacy DMG installs that don't have Velopack's
         // install state (UpdateMac, sq.version) in the bundle.
         vpkc_locator_config_t locator = {};
@@ -954,7 +954,7 @@ static void on_downloading_closed(const LLSD& notification, const LLSD& response
     sDownloadingNotification = nullptr;
     if (sIsRequired)
     {
-        // User closed the downloading dialog during a required update — re-show it
+        // User closed the downloading dialog during a required update - re-show it
         show_downloading_notification(sTargetVersion);
     }
 }
@@ -1043,12 +1043,12 @@ void velopack_check_for_updates(const std::string& required_version, const std::
     // strictly lower than what we're running (e.g., a retracted build).
     bool has_required = !required_version.empty();
     int ver_cmp = has_required ? compare_running_version(required_version) : 0;
-    bool allow_downgrade = ver_cmp > 0; // running > required → rollback scenario
+    bool allow_downgrade = ver_cmp > 0; // running > required -> rollback scenario
     ensure_update_manager(allow_downgrade);
     if (!sUpdateManager)
         return;
 
-    // Ask Velopack to check its feed — this is the source of truth
+    // Ask Velopack to check its feed - this is the source of truth
     vpkc_update_info_t* update_info = nullptr;
     vpkc_update_check_t result = vpkc_check_for_updates(sUpdateManager, &update_info);
 
@@ -1074,7 +1074,7 @@ void velopack_check_for_updates(const std::string& required_version, const std::
     sPendingCheckInfo = update_info;
 
     // Determine if this is mandatory: running version is below VVM's required floor
-    bool is_required = ver_cmp < 0; // running < required → must update
+    bool is_required = ver_cmp < 0; // running < required -> must update
     sIsRequired = is_required;
 
     if (is_required)
@@ -1085,12 +1085,12 @@ void velopack_check_for_updates(const std::string& required_version, const std::
         return;
     }
 
-    // Optional update — check user preference
+    // Optional update - check user preference
     U32 updater_setting = gSavedSettings.getU32("UpdaterServiceSetting");
 
     if (updater_setting == 3)
     {
-        // "Install each update automatically" — download silently, apply on quit
+        // "Install each update automatically" - download silently, apply on quit
         LL_INFOS("Velopack") << "Optional update to " << target_version
                              << ", downloading automatically (UpdaterServiceSetting=3)" << LL_ENDL;
         velopack_download_pending_update();
