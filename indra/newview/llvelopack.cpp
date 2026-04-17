@@ -500,6 +500,73 @@ static bool paths_are_equal(const std::wstring& path1, const std::wstring& path2
     }
 }
 
+static void update_taskbar_shortcut(const std::string& nsis_folder_path, const std::wstring& appdata_path, const std::wstring& app_name, const std::wstring& link_name)
+{
+    std::wstring taskbar_path = appdata_path;
+    taskbar_path += L"\\Microsoft\\Internet Explorer\\Quick Launch\\User Pinned\\TaskBar\\";
+    taskbar_path += link_name;
+
+    if (!PathFileExistsW(taskbar_path.c_str()))
+    {
+        // User didn't create one
+        return;
+    }
+
+    // Verify we are removing or updating the right thing.
+    // It is not warranteed that the shortcut points to NSIS.
+    std::wstring target_path;
+    if (get_shortcut_target(taskbar_path, target_path))
+    {
+        // Strip the filename part to get just the folder path
+        std::filesystem::path trim_path(target_path);
+        if (trim_path.has_filename())
+        {
+            target_path = trim_path.parent_path().wstring();
+        }
+        std::wstring nsis_path_w = ll_convert<std::wstring>(nsis_folder_path);
+        if (!paths_are_equal(nsis_path_w, target_path))
+        {
+            // Shortcut points to something else, don't mess with it
+            LL_INFOS("Velopack") << "Found a matching shortcut, but it points to a different channel. Expected: "
+                << ll_convert_wide_to_string(nsis_path_w)
+                << ", actual: " << ll_convert_wide_to_string(target_path)
+                << LL_ENDL;
+            return;
+        }
+    }
+
+    // First try to overwrite shortcut
+    std::wstring current_exe = ll_convert<std::wstring>(gDirUtilp->getExecutablePathAndName());
+    HRESULT hr = create_shortcut(taskbar_path, current_exe, L"", app_name, current_exe);
+    if (SUCCEEDED(hr))
+    {
+        LL_INFOS("Velopack") << "Successfully updated taskbar shortcut to point to current exe" << LL_ENDL;
+        return;
+    }
+
+    // Try deleting and if possible, recreating separately. We should not leave hanging shortcuts behind.
+    if (!DeleteFileW(taskbar_path.c_str()))
+    {
+        DWORD error = GetLastError();
+        if (error != ERROR_FILE_NOT_FOUND)
+        {
+            LL_WARNS("Velopack") << "Failed to delete NSIS taskbar shortcut: "
+                << ll_convert_wide_to_string(taskbar_path)
+                << " (error: " << error << ")" << LL_ENDL;
+        }
+    }
+    else
+    {
+        // Deleted user created link, recreate it with new target if possible.
+        LL_INFOS("Velopack") << "Updating taskbar shortcut to point to current exe" << LL_ENDL;
+        HRESULT hr = create_shortcut(taskbar_path, current_exe, L"", app_name, current_exe);
+        if (FAILED(hr))
+        {
+            LL_WARNS("Velopack") << "Failed to re-create taskbar shortcut, error: " << std::hex << hr << ", NSIS shortcut was removed" << LL_ENDL;
+        }
+    }
+}
+
 void clear_nsis_links(const std::string& nsis_folder_path)
 {
     wchar_t path[MAX_PATH];
@@ -544,68 +611,17 @@ void clear_nsis_links(const std::string& nsis_folder_path)
         }
     }
 
-    // 3. Taskbar link, which is user-specific and located at:
-    // %AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Second Life.lnk
-    // Note that it can be a link to velopack already, but since
-    // we aren't removing, but recreating, it shouldn't be an issue.
+    // 3. Taskbar links, which are user-specific and located at:
+    // %AppData%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\
+    // Note that it can be a link to velopack already or to a different NSIS viewer.
+    // Name might also be different based on method of creation.
     if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, path)))
     {
-        std::wstring taskbar_path = path;
-        // Hardcoded, because this name is the default window name and isn't going to change in NSIS
-        taskbar_path += L"\\Microsoft\\Internet Explorer\\Quick Launch\\User Pinned\\TaskBar\\Second Life.lnk";
-
-        if (PathFileExistsW(taskbar_path.c_str()))
-        {
-            // First try to overwrite shortcut
-            std::wstring current_exe = ll_convert<std::wstring>(gDirUtilp->getExecutablePathAndName());
-
-            HRESULT hr = create_shortcut(taskbar_path, current_exe, L"", app_name, current_exe);
-            if (FAILED(hr))
-            {
-                LL_WARNS("Velopack") << "Failed to update taskbar shortcut, error " << std::hex << hr << LL_ENDL;
-                // Try deleting and if possible recreating separately. We should not leave hanging shortcuts behind.
-                // It is not warranted that the shortcut points to NSIS, so check the destination first.
-                std::wstring target_path;
-                if (get_shortcut_target(taskbar_path, target_path))
-                {
-                    // Strip the filename part to get just the folder path
-                    std::filesystem::path trim_path(target_path);
-                    if (trim_path.has_filename())
-                    {
-                        target_path = trim_path.parent_path().wstring();
-                    }
-                    std::wstring nsis_path_w = ll_convert<std::wstring>(nsis_folder_path);
-                    if (paths_are_equal(nsis_path_w, target_path))
-                    {
-                        if (!DeleteFileW(taskbar_path.c_str()))
-                        {
-                            DWORD error = GetLastError();
-                            if (error != ERROR_FILE_NOT_FOUND)
-                            {
-                                LL_WARNS("Velopack") << "Failed to delete NSIS taskbar shortcut: "
-                                    << ll_convert_wide_to_string(taskbar_path)
-                                    << " (error: " << error << ")" << LL_ENDL;
-                            }
-                        }
-                        else
-                        {
-                            // Deleted user created link, recreate it with new target if possible.
-                            LL_INFOS("Velopack") << "Updating taskbar shortcut to point to current exe" << LL_ENDL;
-                            HRESULT hr = create_shortcut(taskbar_path, current_exe, L"", app_name, current_exe);
-                            if (FAILED(hr))
-                            {
-                                LL_WARNS("Velopack") << "Failed to re-create taskbar shortcut, error: " << std::hex << hr << ", NSIS shortcut was removed" << LL_ENDL;
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                LL_INFOS("Velopack") << "Successfully updated taskbar shortcut to point to current exe" << LL_ENDL;
-            }
-        }
-        // else user didn't create a taskbar shortcut.
+        update_taskbar_shortcut(nsis_folder_path, path, app_name, L"Second Life.lnk"); // Window class name
+        update_taskbar_shortcut(nsis_folder_path, path, app_name, L"Second Life(1).lnk"); // Just in case user somehow did it twice and removed first
+        update_taskbar_shortcut(nsis_folder_path, path, app_name, L"SecondLifeViewer.lnk"); // Executable name
+        update_taskbar_shortcut(nsis_folder_path, path, app_name, L"secondlife-bin.lnk"); // Debug builds
+        update_taskbar_shortcut(nsis_folder_path, path, app_name, app_name + L".lnk"); // Default name
     }
 }
 
