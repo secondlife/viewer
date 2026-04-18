@@ -447,22 +447,8 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
     // commands and exit the process before we do anything else.
     if (!velopack_initialize())
     {
+        // Obsolete? Always return true
         // Velopack handled the invocation (install/uninstall hook)
-
-        // Drop install related settings
-        gDirUtilp->initAppDirs("SecondLife");
-
-        std::string user_settings_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml");
-        LLControlGroup settings("global");
-        if (settings.loadFromFile(user_settings_path))
-        {
-            // If user reinstalls or updates, we want to recheck for nsis leftovers.
-            if (settings.controlExists("PreviousInstallChecked"))
-            {
-                settings.setBOOL("PreviousInstallChecked", false);
-            }
-            settings.saveToFile(user_settings_path, true);
-        }
         return 0;
     }
 #endif
