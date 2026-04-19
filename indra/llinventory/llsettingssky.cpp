@@ -653,39 +653,14 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
             }
         }
 
+        mHasLegacyHaze |= lerp_legacy_float(mHazeHorizon, mLegacyHazeHorizon, other->mHazeHorizon, other->mLegacyHazeHorizon, 0.19f, (F32)blendf);
         mHasLegacyHaze |= lerp_legacy_float(mHazeDensity, mLegacyHazeDensity, other->mHazeDensity, other->mLegacyHazeDensity, 0.7f, (F32)blendf);
         mHasLegacyHaze |= lerp_legacy_float(mDistanceMultiplier, mLegacyDistanceMultiplier, other->mDistanceMultiplier, other->mLegacyDistanceMultiplier, 0.8f, (F32)blendf);
+        mHasLegacyHaze |= lerp_legacy_float(mDensityMultiplier, mLegacyDensityMultiplier, other->mDensityMultiplier, other->mLegacyDensityMultiplier, 0.0001f, (F32)blendf);
         mHasLegacyHaze |= lerp_legacy_color(mAmbientColor, mLegacyAmbientColor, other->mAmbientColor, other->mLegacyAmbientColor, LLColor3(0.25f, 0.25f, 0.25f), (F32)blendf);
+        mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, LLColor3(0.4954f, 0.4954f, 0.6399f), (F32)blendf);
         mHasLegacyHaze |= lerp_legacy_color(mBlueDensity, mLegacyBlueDensity, other->mBlueDensity, other->mLegacyBlueDensity, LLColor3(0.2447f, 0.4487f, 0.7599f), (F32)blendf);
 
-        if (mLegacyHazeHorizon == mLegacyDensityMultiplier == mLegacyBlueHorizon)
-        {
-            // mHazeHorizon coupled with mDensityMultiplier, mDistanceMultiplier and
-            // drastic blue horizon changes can result in a very bright sky during
-            // the transition. Purpose of this code is to calculate a 'fake level'
-            // and use it to even out brightness change.
-            //
-            // Example values that make lerp-based individual transition painfully bright:
-            // Start: 3 Haze Horiz, 0.1 Density, 6.54 Distance, white ambient, white blue horizon
-            // End: 0.03 Haze Horiz, 0.775 Density, 90.95 Distance, black ambient, black blue horizon
-            F32 strt_level = mHazeHorizon * mDensityMultiplier * mBlueHorizon.length();
-            F32 end_level = other->mHazeHorizon * other->mDensityMultiplier * other->mBlueHorizon.length();
-            mHasLegacyHaze |= lerp_legacy_float(mHazeHorizon, mLegacyHazeHorizon, other->mHazeHorizon, other->mLegacyHazeHorizon, 0.19f, (F32)blendf);
-            mHasLegacyHaze |= lerp_legacy_float(mDensityMultiplier, mLegacyDensityMultiplier, other->mDensityMultiplier, other->mLegacyDensityMultiplier, 0.0001f, (F32)blendf);
-            mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, LLColor3(0.4954f, 0.4954f, 0.6399f), (F32)blendf);
-
-            // lerp the fake level instead of density multiplier to avoid brightening the sky too much.
-            // This makes density multiplier non linear.
-            F32 new_level = lerp(strt_level, end_level, (F32)blendf);
-            mDensityMultiplier = new_level / (mHazeHorizon * mBlueHorizon.length());
-        }
-        else
-        {
-            // default values are used, so we should lerp settings independently
-            mHasLegacyHaze |= lerp_legacy_float(mHazeHorizon, mLegacyHazeHorizon, other->mHazeHorizon, other->mLegacyHazeHorizon, 0.19f, (F32)blendf);
-            mHasLegacyHaze |= lerp_legacy_float(mDensityMultiplier, mLegacyDensityMultiplier, other->mDensityMultiplier, other->mLegacyDensityMultiplier, 0.0001f, (F32)blendf);
-            mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, LLColor3(0.4954f, 0.4954f, 0.6399f), (F32)blendf);
-        }
         parammapping_t defaults = other->getParameterMap();
         stringset_t skip = getSkipInterpolateKeys();
         stringset_t slerps = getSlerpKeys();
