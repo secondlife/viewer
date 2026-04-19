@@ -66,6 +66,7 @@
 #include "llconversationlog.h"
 #if LL_WINDOWS
 #include "lldxhardware.h"
+#include <shellapi.h>
 #endif
 #include "lltexturestats.h"
 #include "lltrace.h"
@@ -2298,6 +2299,12 @@ void errorHandler(const std::string& title_string, const std::string& message_st
     }
 }
 
+namespace
+{
+    std::string getStartupLogFileName();
+    std::string getOldLogFileName(const std::string& log_file);
+}
+
 void LLAppViewer::initLoggingAndGetLastDuration()
 {
     //
@@ -2323,13 +2330,10 @@ void LLAppViewer::initLoggingAndGetLastDuration()
     else
     {
         // Remove the last ".old" log file.
-        std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-            "SecondLife.old");
+        std::string log_file = getStartupLogFileName();
+        std::string old_log_file = getOldLogFileName(log_file);
         LLFile::remove(old_log_file);
 
-        // Get name of the log file
-        std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-            "SecondLife.log");
         /*
         * Before touching any log files, compute the duration of the last run
         * by comparing the ctime of the previous start marker file with the ctime
@@ -2514,6 +2518,62 @@ namespace
         OSMessageBox(STRINGIZE(LLTrans::getString("MBCmdLineError") << clp.getErrorMessage()),
                      LLStringUtil::null,
                      OSMB_OK);
+    }
+
+    std::string getStartupLogFileName()
+    {
+        if (LLControlVariable* user_log_file = gSavedSettings.getControl("UserLogFile"))
+        {
+            std::string log_file = user_log_file->getValue().asString();
+            if (!log_file.empty())
+            {
+                return log_file;
+            }
+        }
+
+#if LL_WINDOWS
+        int argc = 0;
+        LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+        if (argv)
+        {
+            std::string log_file;
+            for (int i = 1; i + 1 < argc; ++i)
+            {
+                std::string option = ll_convert_wide_to_string(argv[i]);
+                if (option == "--logfile" || option == "-logfile" || option == "/logfile")
+                {
+                    log_file = ll_convert_wide_to_string(argv[i + 1]);
+                }
+            }
+            LocalFree(argv);
+
+            if (!log_file.empty())
+            {
+                return log_file;
+            }
+        }
+#endif
+
+        return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log");
+    }
+
+    std::string getOldLogFileName(const std::string& log_file)
+    {
+        std::string old_log_file = log_file;
+        size_t separator = old_log_file.find_last_of("/\\");
+        size_t extension = old_log_file.find_last_of('.');
+
+        if (extension != std::string::npos &&
+            (separator == std::string::npos || extension > separator))
+        {
+            old_log_file.replace(extension, std::string::npos, ".old");
+        }
+        else
+        {
+            old_log_file += ".old";
+        }
+
+        return old_log_file;
     }
 } // anonymous namespace
 
