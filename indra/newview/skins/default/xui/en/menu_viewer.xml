@@ -2467,7 +2467,7 @@ function="World.EnvPreset"
             <menu_item_call
              label="Snapshot to Disk"
              name="Snapshot to Disk"
-             shortcut="control|`"
+             shortcut="control|shift|D"
              use_mac_ctrl="true">
                 <menu_item_call.on_click
                  function="File.TakeSnapshotToDisk" />
