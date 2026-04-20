@@ -2922,14 +2922,12 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>91abbc360640b5b2e0a4c001a36ad411a9a42602</string>
+              <string>df2260187110aa51c20101183e18a55f86e71090</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife-3p/3p-velopack/releases/assets/380583560</string>
+              <string>https://github.com/secondlife-3p/3p-velopack/releases/download/v0.0.1535-r2/velopack-40232ef.24685318450-windows64-24685318450.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2938,14 +2936,12 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>05563a79bdeb83d66a72ac1e97587dc2a8f64511</string>
+              <string>ead94386d7b9a143824d7ccedc86433127028a91</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife-3p/3p-velopack/releases/assets/380583554</string>
+              <string>https://github.com/secondlife-3p/3p-velopack/releases/download/v0.0.1535-r2/velopack-40232ef.24685318450-darwin64-24685318450.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2958,7 +2954,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Velopack Ltd.</string>
         <key>version</key>
-        <string>40232ef.23500976684</string>
+        <string>40232ef.24685318450</string>
         <key>name</key>
         <string>velopack</string>
         <key>description</key>
