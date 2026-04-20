@@ -879,7 +879,7 @@ void LLMuteList::requestFromServer(const LLUUID& agent_id)
 void LLMuteList::cache(const LLUUID& agent_id)
 {
     // Write to disk even if empty, but never from degraded fallback state.
-    if (isLoaded() && mLoadSource != MLS_FALLBACK_CACHE)
+    if (isLoaded() && !isLoadedDegraded())
     {
         const std::string filename = getCacheFilename(agent_id);
         saveToFile(filename);
