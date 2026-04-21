@@ -95,6 +95,7 @@ public:
     static bool     maskFromString(const std::string& str, MASK *mask);     // False on failure
     static bool     keyFromString(const std::string& str, KEY *key);            // False on failure
     static std::string stringFromKey(KEY key, bool translate = true);
+    static std::string stringFromAcceleratorMenuKey(KEY key, bool translate = true);
     static std::string stringFromMouse(EMouseClickType click, bool translate = true);
     static std::string stringFromAccelerator( MASK accel_mask ); // separated for convinience, returns with "+": "Shift+" or "Shift+Alt+"...
     static std::string stringFromAccelerator( MASK accel_mask, KEY key );
@@ -108,6 +109,7 @@ public:
 
 protected:
     void            addKeyName(KEY key, const std::string& name);
+    virtual std::string stringFromAcceleratorMenuKeyImpl(KEY key, bool translate);
 
 protected:
     std::map<U16, KEY>  mTranslateKeyMap;       // Map of translations from OS keys to Linden KEYs

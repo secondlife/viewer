@@ -49,6 +49,7 @@ public:
 
 protected:
     MASK    updateModifiers();
+    std::string stringFromAcceleratorMenuKeyImpl(KEY key, bool translate) override;
     //void  setModifierKeyLevel( KEY key, bool new_state );
 private:
     std::map<U16, KEY> mTranslateNumpadMap;

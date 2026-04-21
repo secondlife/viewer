@@ -316,7 +316,15 @@ bool LLMenuItemGL::addToAcceleratorList(std::list <LLMenuKeyboardBinding*> *list
 // the current accelerator key and mask to the provided string.
 void LLMenuItemGL::appendAcceleratorString( std::string& st ) const
 {
-    st = LLKeyboard::stringFromAccelerator( mAcceleratorMask, mAcceleratorKey );
+    st = LLKeyboard::stringFromAccelerator(mAcceleratorMask);
+    std::string key_string = LLKeyboard::stringFromAcceleratorMenuKey(mAcceleratorKey);
+    if ((mAcceleratorMask & MASK_NORMALKEYS) &&
+        !key_string.empty() &&
+        (key_string[0] == '-' || key_string[0] == '=' || key_string[0] == '+'))
+    {
+        st.append(" ");
+    }
+    st.append(key_string);
     LL_DEBUGS("HotKeys") << "appendAcceleratorString: " << st << LL_ENDL;
 }
 

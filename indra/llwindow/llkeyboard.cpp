@@ -368,6 +368,22 @@ std::string LLKeyboard::stringFromKey(KEY key, bool translate)
     return res;
 }
 
+// static
+std::string LLKeyboard::stringFromAcceleratorMenuKey(KEY key, bool translate)
+{
+    if (gKeyboard != NULL)
+    {
+        return gKeyboard->stringFromAcceleratorMenuKeyImpl(key, translate);
+    }
+
+    return stringFromKey(key, translate);
+}
+
+std::string LLKeyboard::stringFromAcceleratorMenuKeyImpl(KEY key, bool translate)
+{
+    return stringFromKey(key, translate);
+}
+
 //static
 std::string LLKeyboard::stringFromMouse(EMouseClickType click, bool translate)
 {
