@@ -3100,6 +3100,13 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
             LL_WARNS("Voice") << "Expected object from data channel:" << data << LL_ENDL;
             return;
         }
+
+        bool is_primary_region = mPrimary;
+        if (!mPrimary && isSpatial() && gAgent.getRegion())
+        {
+            is_primary_region = (mRegionID == gAgent.getRegion()->getRegionID());
+            LL_WARNS() << "mPrimary is false, expected: " << is_primary_region << " connection state: " << getVoiceConnectionState() << LL_ENDL;
+        }
         boost::json::object voice_data = voice_data_parsed.as_object();
         boost::json::object mute;
         boost::json::object user_gain;
@@ -3189,7 +3196,7 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                         if (isSpatial())
                         {
                             // ignore muted flags from non-primary server
-                            if (mPrimary || primary)
+                            if (is_primary_region || primary)
                             {
                                 participant->mIsModeratorMuted = is_moderator_muted;
                                 if (gAgentID == agent_id)
@@ -3207,11 +3214,15 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
             }
             else
             {
-                if (isSpatial() && (mPrimary || primary))
+                if (isSpatial() && (is_primary_region || primary))
                 {
                     // mute info message can be received before join message, so try to mute again later
                     if (participant_obj.contains("m") && participant_obj["m"].is_bool())
                     {
+                        LL_WARNS() << "Mute info msg received: " << participant_obj["m"].as_bool()
+                                   << " but participant " << agent_id
+                                   << " was not found in channel " << mChannelID << LL_ENDL;
+
                         bool is_moderator_muted = participant_obj["m"].as_bool();
                         std::string channel_id = mChannelID;
                         F32 delay { 1.5f };
@@ -3223,10 +3234,15 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                                 if (participant)
                                 {
                                     participant->mIsModeratorMuted = is_moderator_muted;
+                                    LL_WARNS() << "Participant " << agent_id << " is found after delay, is_muted: " << is_moderator_muted << LL_ENDL;
                                     if (gAgentID == agent_id)
                                     {
                                         LLNearbyVoiceModeration::getInstance()->setMutedInfo(channel_id, is_moderator_muted);
                                     }
+                                }
+                                else
+                                {
+                                    LL_WARNS() << "Participant " << agent_id << " is still not found in channel " << channel_id << LL_ENDL;
                                 }
                             }, delay);
                     }
