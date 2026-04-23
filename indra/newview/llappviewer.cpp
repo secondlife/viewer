@@ -2380,7 +2380,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         // Rename current log file to ".old"
         LLFile::rename(log_file, old_log_file);
 
-        // Set the log file to SecondLife.log
+        // Set the log file.
         LLError::logToFile(log_file);
         LL_INFOS() << "Started logging to " << log_file << LL_ENDL;
         if (!duration_log_msg.empty())
@@ -2537,12 +2537,25 @@ namespace
         if (argv)
         {
             std::string log_file;
-            for (int i = 1; i + 1 < argc; ++i)
+            for (int i = 1; i < argc; ++i)
             {
                 std::string option = ll_convert_wide_to_string(argv[i]);
-                if (option == "--logfile" || option == "-logfile" || option == "/logfile")
+                if ((option == "--logfile" || option == "-logfile" || option == "/logfile") &&
+                    i + 1 < argc)
                 {
                     log_file = ll_convert_wide_to_string(argv[i + 1]);
+                }
+                else if (option.compare(0, 10, "--logfile=") == 0)
+                {
+                    log_file = option.substr(10);
+                }
+                else if (option.compare(0, 9, "-logfile=") == 0)
+                {
+                    log_file = option.substr(9);
+                }
+                else if (option.compare(0, 9, "/logfile:") == 0)
+                {
+                    log_file = option.substr(9);
                 }
             }
             LocalFree(argv);
@@ -2561,10 +2574,11 @@ namespace
     {
         std::string old_log_file = log_file;
         size_t separator = old_log_file.find_last_of("/\\");
+        size_t basename_start = (separator == std::string::npos) ? 0 : separator + 1;
         size_t extension = old_log_file.find_last_of('.');
 
         if (extension != std::string::npos &&
-            (separator == std::string::npos || extension > separator))
+            extension > basename_start)
         {
             old_log_file.replace(extension, std::string::npos, ".old");
         }
