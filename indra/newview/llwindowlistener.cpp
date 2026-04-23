@@ -91,7 +91,8 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
         &LLWindowListener::getPaths,
         LLSDMap("reply", LLSD()));
     add("keyDown",
-        keySomething + "keypress event.\n" + keyExplain + mask,
+        keySomething + "keypress event.\n" + keyExplain +
+        "The [\"char\"] parameter detects and handles non-ASCII characters seperately\n" + mask,
         &LLWindowListener::keyDown);
     add("keyUp",
         keySomething + "key release event.\n" + keyExplain + mask,
@@ -270,6 +271,20 @@ void LLWindowListener::keyDown(LLSD const & evt)
     KEY key = getKEY(evt);
     MASK mask = getMask(evt);
 
+    bool is_non_ascii = false;
+    llwchar uni_char = 0;
+
+    if (evt.has("char"))
+    {
+        LLWString wstr = utf8str_to_wstring(evt["char"].asString());
+        if (!wstr.empty())
+        {
+            uni_char = wstr[0];
+            // If the Unicode code point is outside ASCII range, use Unicode-only handling
+            is_non_ascii = (uni_char >= 0x80);
+        }
+     }
+
     if (evt.has("path"))
     {
         std::string path(evt["path"]);
@@ -284,8 +299,17 @@ void LLWindowListener::keyDown(LLSD const & evt)
             response.setResponse(target_view->getInfo());
 
             gFocusMgr.setKeyboardFocus(target_view);
-            gViewerInput.handleKey(key, mask, false);
-            if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
+
+            if (is_non_ascii)
+            {
+                // For non-ASCII characters, only send the Unicode event
+                mWindow->handleUnicodeChar(uni_char, mask);
+            }
+            else
+            {
+                gViewerInput.handleKey(key, mask, false);
+                if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
+            }
         }
         else
         {
@@ -296,8 +320,16 @@ void LLWindowListener::keyDown(LLSD const & evt)
     }
     else
     {
-        gViewerInput.handleKey(key, mask, false);
-        if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
+        if (is_non_ascii)
+        {
+            // For non-ASCII characters, only send the Unicode event
+            mWindow->handleUnicodeChar(uni_char, mask);
+        }
+        else
+        {
+            gViewerInput.handleKey(key, mask, false);
+            if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
+        }
     }
 }
 
