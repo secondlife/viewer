@@ -775,7 +775,8 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 
     //we need to wait for session initialization for outgoing ad-hoc and group chat session
     //correct session id for initiated ad-hoc chat will be received from the server
-    if (!LLIMModel::getInstance()->sendStartSession(mSessionID, mOtherParticipantID, mInitialTargetIDs, mType, mP2PAsAdhocCall))
+    //only use p2p-as-adhoc server init when this is actually a voice call, not a text-only IM
+    if (!LLIMModel::getInstance()->sendStartSession(mSessionID, mOtherParticipantID, mInitialTargetIDs, mType, mP2PAsAdhocCall && mStartedAsIMCall))
     {
         //we don't need to wait for any responses
         //so we're already initialized
