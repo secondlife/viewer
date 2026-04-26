@@ -2587,6 +2587,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             {
                 window_imp->post([=]()
                 {
+                    LL_INFOS("Window") << "Shutting down due to session terminating" << LL_ENDL;
                     // Check if app needs cleanup or can be closed immediately.
                     if (window_imp->mCallbacks->handleSessionExit(window_imp))
                     {
@@ -2604,6 +2605,47 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // Don't need to post quit or destroy window,
             // if session is ending OS is going to take care of it.
             return 0;
+        }
+        case WM_POWERBROADCAST:
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_POWERBROADCAST");
+            switch (w_param)
+            {
+            case PBT_APMSUSPEND:
+                LL_INFOS("Window") << "System is suspending (sleep/hibernate)" << LL_ENDL;
+                // System is about to enter sleep or hibernation
+                // Viewer can't function in hibernation, try to shut down.
+                // The system allows approximately two seconds for an
+                // application to handle this notification.
+                window_imp->post([=]()
+                {
+                    LL_INFOS("Window") << "Shutting down due to system suspending (sleep/hibernate)" << LL_ENDL;
+                    if (window_imp->mCallbacks->handleSessionExit(window_imp))
+                    {
+                        // Get the app to initiate cleanup.
+                        window_imp->mCallbacks->handleQuit(window_imp);
+                    }
+                });
+                ms_sleep(1000);
+                return TRUE;
+
+            case PBT_APMRESUMESUSPEND:
+                LL_INFOS("Window") << "System is resuming from suspend" << LL_ENDL;
+                // Shouldn't be up, but log just in case.
+                return TRUE;
+
+            case PBT_APMPOWERSTATUSCHANGE:
+                LL_INFOS("Window") << "Power status has changed" << LL_ENDL;
+                // Power status change (AC/battery)
+                // Viewer requires high performance, not much we can do.
+                // about it, but log for diagnostic purposes (example:
+                // OS trying to throw viewer at an iGPU after this message)
+                return TRUE;
+
+            default:
+                break;
+            }
+            break;
         }
         case WM_POST_UNINSTALL_:
         {
