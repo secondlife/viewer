@@ -118,6 +118,8 @@ public:
     virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) override {};                              // Stub
     virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) override {};   // Stub
 
+    bool isP2PSessionType() { return mIsP2PChat; }
+
 protected:
 
     // callback for click on any items of the visual states menu
