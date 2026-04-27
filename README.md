@@ -42,3 +42,11 @@ pull requests and more. See the [CONTRIBUTING][] and the [open source portal][] 
 [tpv]: http://wiki.secondlife.com/wiki/Third_Party_Viewer_Directory
 [open source portal]: http://wiki.secondlife.com/wiki/Open_Source_Portal
 [contributing]: https://github.com/secondlife/viewer/blob/main/CONTRIBUTING.md
+
+## 💰 Bounty Contribution
+
+- **Task:** [Win] Shut viewer down on sleep or hybernation
+- **Reward:** $100
+- **Source:** GitHub-Paid
+- **Date:** 2026-04-28
+
