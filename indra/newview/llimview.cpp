@@ -3254,7 +3254,8 @@ void LLIMMgr::addMessage(
             }
 
             // Fetch group chat or ad-hoc history, enabled by default.
-            if (gSavedPerAccountSettings.getBOOL("FetchGroupChatHistory") && !session->isP2PSessionType())
+            static LLCachedControl<bool> fetch_chat_history(gSavedPerAccountSettings, "FetchGroupChatHistory", true);
+            if (fetch_chat_history && !session->isP2PSessionType())
             {
                 std::string chat_url = gAgent.getRegionCapability("ChatSessionRequest");
                 if (!chat_url.empty())
@@ -4098,7 +4099,8 @@ public:
                     im_floater->processSessionUpdate(body["session_info"]);
 
                     // Send request for chat history, if enabled. Skip for peer-to-peer IMs.
-                    if (gSavedPerAccountSettings.getBOOL("FetchGroupChatHistory") && !im_floater->isP2PSessionType())
+                    static LLCachedControl<bool> fetch_chat_history(gSavedPerAccountSettings, "FetchGroupChatHistory", true);
+                    if (fetch_chat_history && !im_floater->isP2PSessionType())
                     {
                         std::string url = gAgent.getRegionCapability("ChatSessionRequest");
                         if (!url.empty())
