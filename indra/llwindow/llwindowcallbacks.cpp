@@ -68,6 +68,10 @@ void LLWindowCallbacks::handleMouseLeave(LLWindow *window)
     return;
 }
 
+void LLWindowCallbacks::handlePreCloseRequest()
+{
+}
+
 bool LLWindowCallbacks::handleCloseRequest(LLWindow *window, bool from_user)
 {
     //allow the window to close

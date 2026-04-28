@@ -508,6 +508,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     :
     LLWindow(callbacks, fullscreen, flags),
     mAbsoluteCursorPosition(false),
+    mReceivedSCClose(false),
     mMaxGLVersion(max_gl_version),
     mMaxCores(max_cores)
 {
@@ -2524,8 +2525,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_SYSCOMMAND:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SYSCOMMAND");
-            switch (w_param)
+            switch (w_param & 0xFFF0)
             {
+            case SC_CLOSE:
+                // User clicked close from system menu/taskbar or 'end process' from task manager
+                // Do nothing, will cause WM_CLOSE.
+                // If we don't get this message before WM_CLOSE, we are likely getting
+                // a kill from some external program. Win11 task manager Does cause SC_CLOSE.
+                window_imp->mReceivedSCClose = true;
+                break;
             case SC_KEYMENU:
                 // Disallow the ALT key from triggering the default system menu.
                 return 0;
@@ -2540,9 +2548,30 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_CLOSE:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_CLOSE");
-            // todo: WM_CLOSE can be caused by user and by task manager,
-            // distinguish these cases.
-            // For now assume it is always user.
+
+            window_imp->mCallbacks->handlePreCloseRequest(); // mark app as potentially closing
+            if (!window_imp->mReceivedSCClose)
+            {
+                // Some external program is trying to close the app.
+                // Assume that it's going to destroy process if it fails
+                // and try to fast-quit without confirmation or cleanup.
+                window_imp->post([=]()
+                {
+                    // Check if app needs cleanup or can be closed immediately.
+                    if (window_imp->mCallbacks->handleSessionExit(window_imp))
+                    {
+                        // Get the app to initiate cleanup.
+                        window_imp->mCallbacks->handleQuit(window_imp);
+                    }
+                });
+                return 0;
+            }
+            window_imp->mReceivedSCClose = false;
+
+            // There is no way to tell the difference between a user issued
+            // WM_CLOSE or task manager's WM_CLOSE.
+            // Assume it is a user and ask for confirmation, but create a marker file.
+            // If App keeps doing something after a second, or gets 'destroy' message clear the marker.
             window_imp->post([=]()
                 {
                     // Will the app allow the window to close?
@@ -2563,6 +2592,16 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 PostQuitMessage(0);  // Posts WM_QUIT with an exit code of 0
             }
             return 0;
+        }
+        case WM_NCDESTROY:
+            LL_INFOS("Window") << "Received WM_NCDESTROY" << LL_ENDL;
+            break;
+        case WM_WTSSESSION_CHANGE:
+        {
+            // Detects Remote Desktop disconnects, fast user switching, session logoff
+            // w_param: WTS_CONSOLE_CONNECT, WTS_CONSOLE_DISCONNECT, WTS_SESSION_LOGOFF, etc.
+            LL_INFOS("Window") << "Received WM_WTSSESSION_CHANGE with wParam: " << (U32)w_param << LL_ENDL;
+            break;
         }
         case WM_QUERYENDSESSION:
         {
@@ -2585,6 +2624,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 || (end_session_flags & ENDSESSION_CRITICAL) // will shutdown regardless of app state
                 || (end_session_flags & ENDSESSION_LOGOFF)) // logoff, can delay shutdown
             {
+                window_imp->mCallbacks->handlePreCloseRequest(); // mark app as closing
                 window_imp->post([=]()
                 {
                     LL_INFOS("Window") << "Shutting down due to session terminating" << LL_ENDL;
@@ -3318,7 +3358,18 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_DISPLAYCHANGE:
         {
-            WINDOW_IMP_POST(window_imp->mCallbacks->handleDisplayChanged());
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_DISPLAYCHANGE");
+            window_imp->post([=]() {
+                window_imp->mCallbacks->handleDisplayChanged();
+                // Note: WM_DISPLAYCHANGE was passing to WM_SETFOCUS
+                // which might have been unintended and was messing with zones.
+                // handleFocus was copied over and return 0 added, but
+                // handleFocus might be not needed here.
+                // handleFocus resets mouse, closes popups and keys, which
+                // we probablt should do on 'display change'.
+                window_imp->mCallbacks->handleFocus(window_imp);
+            });
+            return 0;
         }
 
         case WM_SETFOCUS:

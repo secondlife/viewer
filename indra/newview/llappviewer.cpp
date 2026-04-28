@@ -384,6 +384,7 @@ const std::string START_MARKER_FILE_NAME("SecondLife.start_marker");
 const std::string ERROR_MARKER_FILE_NAME("SecondLife.error_marker");
 const std::string LOGOUT_MARKER_FILE_NAME("SecondLife.logout_marker");
 const std::string WATCHDOG_MARKER_FILE_NAME("SecondLife.watchdog_marker");
+const std::string CLOSE_EVENT_MARKER_FILE_NAME("SecondLife.close_marker");
 static std::string gLaunchFileOnQuit;
 
 //----------------------------------------------------------------------------
@@ -4121,6 +4122,7 @@ void LLAppViewer::processMarkerFiles()
     // Bugsplat will set correct state in bugsplatSendLog.
     std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
     std::string watchdog_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, WATCHDOG_MARKER_FILE_NAME);
+    std::string close_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, CLOSE_EVENT_MARKER_FILE_NAME);
     if(LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
     {
         S32 marker_code = getMarkerErrorCode(error_marker_file);
@@ -4150,20 +4152,16 @@ void LLAppViewer::processMarkerFiles()
             LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' marker found, but versions did not match" << LL_ENDL;
         }
         LLAPRFile::remove(error_marker_file);
-        if (LLAPRFile::isExist(watchdog_marker_file, NULL, LL_APR_RB))
-        {
-            // If viewer crashed after a freeze was detected,
-            // crash still takes precendence. Just clear watchdog.
-            removeWatchdogMarker();
-        }
     }
     else
     {
-        // so only check watchdog marker if there is no error marker.
-        if (LLAPRFile::isExist(watchdog_marker_file, NULL, LL_APR_RB))
+        if (LAST_EXEC_UNKNOWN == gLastExecEvent
+            || LAST_EXEC_LOGOUT_UNKNOWN == gLastExecEvent)
         {
-            if (LAST_EXEC_UNKNOWN == gLastExecEvent
-                || LAST_EXEC_LOGOUT_UNKNOWN == gLastExecEvent)
+            // If viewer crashed after a freeze was detected,
+            // crash still takes precendence.
+            // So only check watchdog marker if there is no error marker.
+            if (LLAPRFile::isExist(watchdog_marker_file, NULL, LL_APR_RB))
             {
                 // watchdog marker gets created if we detect a freeze,
                 // so if viwer did not stop gracefully, and we know it wasn't a crash,
@@ -4175,8 +4173,34 @@ void LLAppViewer::processMarkerFiles()
                         << LL_ENDL;
                 }
             }
-            removeWatchdogMarker();
+            // If 'close' marker is found, viewer either started shutdown but
+            // failed, or viewer got killed by task manager.
+            // Marker does not indicate that viewer was closed or is closing,
+            // just that 'close' was requested before viewer died.
+            else if (LLAPRFile::isExist(close_marker_file, NULL, LL_APR_RB))
+            {
+                // For now treat as 'other' cause.
+                // Unfortunately we can't for certain distinguish task
+                // manager's case from other shutdown problems, so we
+                // have to report both.
+                // Todo: if this bears noticeable fruits, make a new state later.
+                // New categories need server/web side support.
+                if (markerIsSameVersion(close_marker_file))
+                {
+                    gLastExecEvent = LAST_EXEC_UNKNOWN == gLastExecEvent ? LAST_EXEC_OTHER_CRASH : LAST_EXEC_LOGOUT_CRASH;
+                    LL_INFOS("MarkerFile") << "'Close' marker '" << close_marker_file << "' found, setting LastExecEvent to CRASH"
+                        << LL_ENDL;
+                }
+            }
         }
+    }
+    if (LLAPRFile::isExist(watchdog_marker_file, NULL, LL_APR_RB))
+    {
+        removeWatchdogMarker();
+    }
+    if (LLAPRFile::isExist(close_marker_file, NULL, LL_APR_RB))
+    {
+        removeCloseRequestMarker();
     }
 
 #if LL_DARWIN
@@ -4221,6 +4245,7 @@ void LLAppViewer::removeMarkerFiles()
         {
             LL_WARNS("MarkerFile") << "logout marker '"<<mLogoutMarkerFileName<<"' not open"<< LL_ENDL;
         }
+        removeCloseRequestMarker();
         removeWatchdogMarker();
     }
     else
@@ -5609,6 +5634,34 @@ bool LLAppViewer::errorMarkerExists() const
     return LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB);
 }
 
+void LLAppViewer::createCloseRequestMarker() const
+{
+    // WINDOW THREAD! since we need this to act fast.
+    // This does not indicate that viewer was closed or is closing,
+    // but that 'close' was requested.
+    if (!mSecondInstance)
+    {
+        std::string close_marker = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, CLOSE_EVENT_MARKER_FILE_NAME);
+
+        LLAPRFile file;
+        file.open(close_marker, LL_APR_WB);
+        if (file.getFileHandle())
+        {
+            recordMarkerVersion(file);
+            file.close();
+        }
+    }
+}
+
+void LLAppViewer::removeCloseRequestMarker() const
+{
+    if (!mSecondInstance)
+    {
+        std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, CLOSE_EVENT_MARKER_FILE_NAME);
+        LLFile::remove(error_marker_file);
+    }
+}
+
 void LLAppViewer::createWatchdogMarker() const
 {
     if (!mSecondInstance)
@@ -5624,6 +5677,7 @@ void LLAppViewer::createWatchdogMarker() const
         }
     }
 }
+
 void LLAppViewer::removeWatchdogMarker() const
 {
     if (!mSecondInstance)

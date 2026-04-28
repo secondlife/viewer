@@ -41,6 +41,8 @@ public:
     virtual bool handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
     virtual bool handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
     virtual void handleMouseLeave(LLWindow *window);
+    // Called before close request is processed (ex: to create marker file in case OS is about to kill app).
+    virtual void handlePreCloseRequest();
     // return true to allow window to close, which will then cause handleQuit to be called
     virtual bool handleCloseRequest(LLWindow *window, bool from_user);
     virtual bool handleSessionExit(LLWindow* window);

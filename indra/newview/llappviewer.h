@@ -254,6 +254,8 @@ public:
     void createErrorMarker(eLastExecEvent error_code) const;
     bool errorMarkerExists() const;
 
+    void createCloseRequestMarker() const;
+    void removeCloseRequestMarker() const;
     void createWatchdogMarker() const;
     void removeWatchdogMarker() const;
 

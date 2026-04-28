@@ -238,6 +238,7 @@ protected:
     LPWSTR      mIconResource;
     LPWSTR      mIconSmallResource;
     bool        mInputProcessingPaused;
+    bool        mReceivedSCClose; // received SC_CLOSE and expecting WM_CLOSE
 
     // The following variables are for Language Text Input control.
     // They are all static, since one context is shared by all LLWindowWin32
