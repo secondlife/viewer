@@ -492,7 +492,7 @@
     <key>RecentJumpThresholdSecs</key>
     <map>
       <key>Comment</key>
-      <string>Seconds after a jump input during which finish-anim is suppressed to avoid interrupting rapid successive jumps.</string>
+      <string>Seconds after jump input during which landing finish-anim is suppressed to avoid interrupting rapid successive jumps.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

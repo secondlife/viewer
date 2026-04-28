@@ -2669,17 +2669,20 @@ void LLAgent::onAnimStop(const LLUUID& id)
     else if (id == ANIM_AGENT_PRE_JUMP || id == ANIM_AGENT_LAND || id == ANIM_AGENT_MEDIUM_LAND)
     {
         // FIRE-34049/FIRE-34273/https://github.com/secondlife/viewer/issues/4218
-        // Avoid forcing AGENT_CONTROL_FINISH_ANIM, which can short-circuit the next pre-jump
-        // during rapid successive jumps.
+        // Avoid forcing AGENT_CONTROL_FINISH_ANIM on landing, which can short-circuit the
+        // next pre-jump during rapid successive jumps.
+        // Do not suppress pre-jump finish, otherwise a quick tap from standing can stall.
         // TODO: a more robust fix would require knowing which specific animation finished,
         // information that is not currently provided by the simulator.
+        const bool is_landing_anim = (id == ANIM_AGENT_LAND || id == ANIM_AGENT_MEDIUM_LAND);
         const bool up_pos = (mControlFlags & AGENT_CONTROL_UP_POS) != 0;
         const F64 now = LLTimer::getTotalSeconds();
         const F64 elapsed = now - mLastJumpInputTime;
         static LLCachedControl<F32> recent_jump_threshold_secs(gSavedSettings, "RecentJumpThresholdSecs");
         const bool recent_jump = (mLastJumpInputTime > 0.0) && (elapsed < recent_jump_threshold_secs);
+        const bool suppress_finish = is_landing_anim && recent_jump;
 
-        if (!up_pos && !recent_jump)
+        if (!up_pos && !suppress_finish)
         {
             setControlFlags(AGENT_CONTROL_FINISH_ANIM);
         }
