@@ -191,6 +191,7 @@ void LLWatchdog::remove(LLWatchdogEntry* e)
 {
     lockThread();
     mSuspects.erase(e);
+    mFrozeList.erase(e);
     unlockThread();
 }
 
@@ -284,8 +285,9 @@ void LLWatchdog::run()
                 // Sets watchdog marker file
                 mCreateMarkerFnc(false);
                 // If it's mainloop and it somehow recovers, it will re-add itself
-                mSuspects.erase(*result);
-                mFrozeList.insert(*result);
+                LLWatchdogEntry* froze_entry = *result;
+                mSuspects.erase(result);
+                mFrozeList.insert(froze_entry);
                 LL_WARNS() << description << LL_ENDL;
             }
             else
@@ -307,8 +309,9 @@ void LLWatchdog::run()
                     mCreateMarkerFnc(false);
                     // Already reported, don't report again.
                     // If it's mainloop and it somehow recovers, it will re-add itself
+                    LLWatchdogEntry* froze_entry = *result;
                     mSuspects.erase(result);
-                    mFrozeList.insert(*result);
+                    mFrozeList.insert(froze_entry);
                 }
             }
         }

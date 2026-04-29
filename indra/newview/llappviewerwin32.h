@@ -44,7 +44,7 @@ public:
     bool cleanup() override;
 
     bool reportCrashToBugsplat(void* pExcepInfo) override;
-    bool reportCustomToBugsplat(const std::string& desription) override;
+    bool reportCustomToBugsplat(const std::string& description) override;
 
 protected:
     bool initWindow() override; // Override to initialize the viewer's window.
