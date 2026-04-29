@@ -59,13 +59,17 @@ LLConsole::LLConsole(const LLConsole::Params& p)
 :   LLUICtrl(p),
     LLFixedBuffer(p.max_lines),
     mLinePersistTime(p.persist_time), // seconds
-    mFont(p.font),
+    mFont(p.font.isProvided() ? static_cast<const LLFontGL*>(p.font) : LLFontGL::getFontDefault()),
     mConsoleWidth(0),
     mConsoleHeight(0)
 {
     if (p.font_size_index.isProvided())
     {
         setFontSize(p.font_size_index);
+    }
+    else if (mFont == NULL)
+    {
+        mFont = LLFontGL::getFontDefault();
     }
     mFadeTime = mLinePersistTime - FADE_DURATION;
     setMaxLines(LLUI::getInstance()->mSettingGroups["config"]->getS32("ConsoleMaxLines"));
