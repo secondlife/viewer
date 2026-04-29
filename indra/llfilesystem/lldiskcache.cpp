@@ -64,9 +64,9 @@ LLDiskCache::LLDiskCache(const std::string& cache_dir,
 // WARNING: purge() is called by LLPurgeDiskCacheThread. As such it must
 // NOT touch any LLDiskCache data without introducing and locking a mutex!
 
-// Interaction through the filesystem itself should be safe. Let’s say thread
+// Interaction through the filesystem itself should be safe. Let's say thread
 // A is accessing the cache file for reading/writing and thread B is trimming
-// the cache. Let’s also assume using llifstream to open a file and
+// the cache. Let's also assume using llifstream to open a file and
 // boost::filesystem::remove are not atomic (which will be pretty much the
 // case).
 
