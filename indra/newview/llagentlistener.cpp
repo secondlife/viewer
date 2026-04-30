@@ -44,6 +44,7 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "llviewerjointattachment.h"
 #include "llvoavatarself.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
@@ -200,6 +201,12 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "reply contains \"x\", \"y\" coordinates and \"onscreen\" flag to indicate if it's actually in within the current window\n"
         "avatar render position is used as the point",
         &LLAgentListener::getAgentScreenPos,
+        llsd::map("reply", LLSD()));
+    add("getAttachedObjectsList",
+        "Return scene-level data for currently attached objects on [\"reply\"]:\n"
+        "[\"attachments\"]: array of attachment objects\n"
+        "each attachment contains \"object_id\", \"inventory_item_id\", \"name\", \"attachment_point\", \"attachment_point_index\", \"position\", \"rotation\", and \"is_temporary\"",
+        &LLAgentListener::getAttachedObjectsList,
         llsd::map("reply", LLSD()));
 }
 
@@ -797,4 +804,50 @@ void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
     response["onscreen"] = LLViewerCamera::getInstance()->projectPosAgentToScreen(render_pos, screen_pos, false);
     response["x"] = screen_pos.mX;
     response["y"] = screen_pos.mY;
+}
+
+void LLAgentListener::getAttachedObjectsList(LLSD const& event_data)
+{
+    Response response(LLSD(), event_data);
+
+    if (!isAgentAvatarValid())
+    {
+        return response.error("Agent avatar is not available");
+    }
+
+    LLSD attachments = LLSD::emptyArray();
+
+    for (LLVOAvatar::attachment_map_t::const_iterator iter = gAgentAvatarp->mAttachmentPoints.begin();
+         iter != gAgentAvatarp->mAttachmentPoints.end(); ++iter)
+    {
+        const LLViewerJointAttachment* attachment = iter->second;
+        if (!attachment)
+        {
+            continue;
+        }
+
+        const LLViewerJointAttachment::attachedobjs_vec_t& attached_objects = attachment->mAttachedObjects;
+        for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator obj_iter = attached_objects.begin();
+             obj_iter != attached_objects.end(); ++obj_iter)
+        {
+            const LLViewerObject* object = obj_iter->get();
+            if (!object)
+            {
+                continue;
+            }
+
+            LLSD attachment_data;
+            attachment_data["object_id"] = object->getID();
+            attachment_data["inventory_item_id"] = object->getAttachmentItemID();
+            attachment_data["name"] = object->getFullname();
+            attachment_data["attachment_point"] = attachment->getName();
+            attachment_data["attachment_point_index"] = iter->first;
+            attachment_data["position"] = ll_sd_from_vector3(attachment->getWorldPosition());
+            attachment_data["rotation"] = ll_sd_from_quaternion(attachment->getWorldRotation());
+            attachment_data["is_temporary"] = object->isTempAttachment();
+            attachments.append(attachment_data);
+        }
+    }
+
+    response["attachments"] = attachments;
 }
