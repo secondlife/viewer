@@ -475,7 +475,21 @@ public:
                     LLStringUtil::format(time_string, substitution);
                 }
             }
-            LLFloaterReporter::showFromChat(mAvatarID, mFrom, time_string, mText);
+            std::string summary = mText;
+            const size_t newline_pos = summary.find_first_of("\r\n");
+            if (newline_pos != std::string::npos)
+            {
+                summary.erase(newline_pos);
+            }
+            LLStringUtil::trim(summary);
+
+            if (summary.size() > 64)
+            {
+                summary.resize(64);
+                LLStringUtil::trim(summary);
+            }
+
+            LLFloaterReporter::showFromChat(mAvatarID, mFrom, time_string, mText, summary);
         }
         else if(level == "block_unblock")
         {

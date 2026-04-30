@@ -660,7 +660,11 @@ void LLFloaterReporter::showFromAvatar(const LLUUID& avatar_id, const std::strin
 }
 
 // static
-void LLFloaterReporter::showFromChat(const LLUUID& avatar_id, const std::string& avatar_name, const std::string& time, const std::string& description)
+void LLFloaterReporter::showFromChat(const LLUUID& avatar_id,
+                                     const std::string& avatar_name,
+                                     const std::string& time,
+                                     const std::string& description,
+                                     const std::string& summary)
 {
     show(avatar_id, avatar_name);
 
@@ -671,8 +675,9 @@ void LLFloaterReporter::showFromChat(const LLUUID& avatar_id, const std::string&
     LLFloaterReporter *self = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
     if (self)
     {
-        std::string description = self->getString("chat_report_format", args);
-        self->getChild<LLUICtrl>("details_edit")->setValue(description);
+        std::string formatted_description = self->getString("chat_report_format", args);
+        self->getChild<LLUICtrl>("details_edit")->setValue(formatted_description);
+        self->getChild<LLUICtrl>("summary_edit")->setValue(summary);
     }
 }
 
