@@ -150,6 +150,8 @@ namespace tut
         worldmap_test()
         {
             mWorld = LLWorldMap::getInstance();
+            gMapBlockRequests.clear();
+            mWorld->cancelTracking();
         }
         ~worldmap_test()
         {
@@ -588,5 +590,23 @@ namespace tut
         ensure("updateRegions 4x4 blocks: request[2] max_y", gMapBlockRequests[2].max_y == 11);
         ensure("updateRegions 4x4 blocks: request[3] min_y", gMapBlockRequests[3].min_y == 12);
         ensure("updateRegions 4x4 blocks: request[3] max_y", gMapBlockRequests[3].max_y == 15);
+
+        // Test 30 : tracked block should be requested first so the searched region can render before surrounding tiles.
+        mWorld->reset();
+        gMapBlockRequests.clear();
+        LLVector3d tracked_pos(9.0 * REGION_WIDTH_METERS, 9.0 * REGION_WIDTH_METERS, 0.0);
+        mWorld->setTracking(tracked_pos);
+        mWorld->updateRegions(0, 0, 15, 15);
+        ensure("updateRegions tracked block: expected 5 requests", gMapBlockRequests.size() == 5);
+        ensure("updateRegions tracked block: first request min_x", gMapBlockRequests[0].min_x == 8);
+        ensure("updateRegions tracked block: first request min_y", gMapBlockRequests[0].min_y == 8);
+        ensure("updateRegions tracked block: first request max_x", gMapBlockRequests[0].max_x == 11);
+        ensure("updateRegions tracked block: first request max_y", gMapBlockRequests[0].max_y == 11);
+        for (size_t i = 0; i < gMapBlockRequests.size(); ++i)
+        {
+            const MapBlockRequest& req = gMapBlockRequests[i];
+            S32 regions = (req.max_x - req.min_x + 1) * (req.max_y - req.min_y + 1);
+            ensure("updateRegions tracked block: each request must not exceed 64 regions", regions <= 64);
+        }
     }
 }
