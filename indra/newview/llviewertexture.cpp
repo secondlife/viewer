@@ -1781,6 +1781,17 @@ void LLViewerFetchedTexture::processTextureStats()
         {
             mDesiredDiscardLevel =  llmin(getMaxDiscardLevel(), (S32)mLoadedCallbackDesiredDiscardLevel);
         }
+        else if (mSaveRawImage
+                 && mBoostLevel == LLGLTexture::BOOST_NONE
+                 && mKnownDrawWidth > 0
+                 && mKnownDrawHeight > 0)
+        {
+            mDesiredDiscardLevel = (S8)llmin(log((F32)mFullWidth / mKnownDrawWidth) / log_2,
+                                             log((F32)mFullHeight / mKnownDrawHeight) / log_2);
+            mDesiredDiscardLevel = llclamp(mDesiredDiscardLevel, (S8)0, (S8)getMaxDiscardLevel());
+            mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel);
+            mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
+        }
         else
         {
             if(!mKnownDrawWidth || !mKnownDrawHeight || (S32)mFullWidth <= mKnownDrawWidth || (S32)mFullHeight <= mKnownDrawHeight)
@@ -2345,6 +2356,14 @@ void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_call
     if(keep_imageraw)
     {
         mSaveRawImage = true;
+
+        if (mBoostLevel == LLGLTexture::BOOST_NONE
+            && mKnownDrawWidth > 0
+            && mKnownDrawHeight > 0
+            && (mKnownDrawWidth < mFullWidth || mKnownDrawHeight < mFullHeight))
+        {
+            setBoostLevel(LLGLTexture::BOOST_THUMBNAIL);
+        }
     }
     if (mNeedsAux && mAuxRawImage.isNull() && getDiscardLevel() >= 0)
     {
