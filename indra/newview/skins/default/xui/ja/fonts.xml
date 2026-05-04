@@ -80,7 +80,7 @@
 		<file>
 			NotoSansCJKjp-Bold.otf
 		</file>
-        <file load_collection="true" font_weight="800" flags="bold">InterVariableFont.ttf</file>
+        <file load_collection="true" font_weight="700" flags="bold">InterVariableFont.ttf</file>
 		<os name="Windows">
 			<file load_collection="true">
 				YuGothB.ttc
@@ -115,13 +115,13 @@
 		</os>
 	</font>
 	<font name="SansSerif" comment="Name of bold sans-serif font" font_style="BOLD">
-        <file load_collection="true" font_weight="800" flags="bold">InterVariableFont.ttf</file>
+        <file load_collection="true" font_weight="700" flags="bold">InterVariableFont.ttf</file>
 	</font>
 	<font name="SansSerif" comment="Name of italic sans-serif font" font_style="ITALIC">
         <file load_collection="true" font_weight="400">InterItalicVariableFont.ttf</file>
 	</font>
 	<font name="SansSerif" comment="Name of bold italic sans-serif font" font_style="BOLD|ITALIC">
-        <file load_collection="true" flags="bold" font_weight="800">InterItalicVariableFont.ttf</file>
+        <file load_collection="true" flags="bold" font_weight="700">InterItalicVariableFont.ttf</file>
 	</font>
 	<font name="Monospace" comment="Name of monospace font">
 		<file>
@@ -163,7 +163,7 @@
 		</os>
 	</font>
 	<font name="Helvetica" comment="Name of Helvetica font (bold)" font_style="BOLD">
-        <file load_collection="true" font_weight="800" flags="bold">InterVariableFont.ttf</file>
+        <file load_collection="true" font_weight="700" flags="bold">InterVariableFont.ttf</file>
 		<os name="Windows">
 			<file>
 				arialbd.ttf
@@ -189,7 +189,7 @@
 		</os>
 	</font>
 	<font name="Helvetica" comment="Name of Helvetica font (bold italic)" font_style="BOLD|ITALIC">
-        <file load_collection="true" flags="bold" font_weight="800">InterItalicVariableFont.ttf</file>
+        <file load_collection="true" flags="bold" font_weight="700">InterItalicVariableFont.ttf</file>
 		<os name="Windows">
 			<file>
 				arialbi.ttf

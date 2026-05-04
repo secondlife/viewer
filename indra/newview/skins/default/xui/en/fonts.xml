@@ -37,7 +37,7 @@
   <font
       name="SansSerifBold"
       comment="Name of bold sans-serif font">
-      <file load_collection="true" flags="bold" font_weight="600">InterVariableFont.ttf</file>
+      <file load_collection="true" flags="bold" font_weight="700">InterVariableFont.ttf</file>
       <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
@@ -64,7 +64,7 @@
       name="SansSerif"
       comment="Name of bold sans-serif font"
       font_style="BOLD">
-    <file load_collection="true" flags="bold" font_weight="600">InterVariableFont.ttf</file>
+    <file load_collection="true" flags="bold" font_weight="700">InterVariableFont.ttf</file>
     <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
   </font>
 
@@ -80,7 +80,7 @@
       name="SansSerif"
       comment="Name of bold italic sans-serif font"
       font_style="BOLD|ITALIC">
-    <file load_collection="true" font_weight="800">InterItalicVariableFont.ttf</file>
+    <file load_collection="true" flags="bold" font_weight="700">InterItalicVariableFont.ttf</file>
     <file size_delta="-0.5">DejaVuSans-BoldOblique.ttf</file>
   </font>
 
@@ -135,7 +135,7 @@
       name="Helvetica"
       comment="Name of Helvetica font (bold)"
       font_style="BOLD">
-    <file flags="bold" font_weight="800">InterVariableFont.ttf</file>
+    <file flags="bold" font_weight="700">InterVariableFont.ttf</file>
     <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
