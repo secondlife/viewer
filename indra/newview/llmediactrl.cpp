@@ -62,8 +62,14 @@
 #include "lllineeditor.h"
 #include "llfloaterwebcontent.h"
 #include "llwindowshade.h"
+#include "lleventapi.h"
+#include "llui.h"
 
 extern bool gRestoreGL;
+
+const std::string PAGE_TEXT_EXTRACT_MARKER = "PAGE_TEXT_EXTRACT:";
+
+class LLMediaCtrlListener;
 
 static LLDefaultChildRegistry::Register<LLMediaCtrl> r("web_browser");
 
@@ -100,6 +106,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
     mUpdateScrolls( false ),
     mTextureWidth ( 1024 ),
     mTextureHeight ( 1024 ),
+    mLoadingState( LOADING_STATE_INITIALIZING ),
     mClearCache(false),
     mHomePageMimeType(p.initial_mime_type),
     mErrorPageURL(p.error_page_url),
@@ -1024,6 +1031,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
         {
             LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN, url is " << self->getNavigateURI() << LL_ENDL;
             hideNotification();
+            mLoadingState = LOADING_STATE_LOADING;
         };
         break;
 
@@ -1034,6 +1042,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
             {
                 mHidingInitialLoad = false;
             }
+            mLoadingState = LOADING_STATE_LOADED;
         };
         break;
 
@@ -1062,6 +1071,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
             {
                 navigateTo(mErrorPageURL, HTTP_CONTENT_TEXT_HTML);
             };
+            mLoadingState = LOADING_STATE_ERROR;
         };
         break;
 
@@ -1106,12 +1116,14 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
         case MEDIA_EVENT_PLUGIN_FAILED:
         {
             LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED" << LL_ENDL;
+            mLoadingState = LOADING_STATE_ERROR;
         };
         break;
 
         case MEDIA_EVENT_PLUGIN_FAILED_LAUNCH:
         {
             LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_PLUGIN_FAILED_LAUNCH" << LL_ENDL;
+            mLoadingState = LOADING_STATE_ERROR;
         };
         break;
 
@@ -1194,6 +1206,33 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
         case MEDIA_EVENT_DEBUG_MESSAGE:
         {
             LL_INFOS("media") << self->getDebugMessageText() << LL_ENDL;
+
+            // Handle text extraction responses
+            std::string debug_text = self->getDebugMessageText();
+            if (debug_text.find(PAGE_TEXT_EXTRACT_MARKER) != std::string::npos)
+            {
+                if (LLPluginClassMedia* plugin = getMediaPlugin())
+                {
+                    // Disable plugin debugging if it was used just for text extraction
+                    static LLCachedControl<bool> media_debugging(gSavedSettings, "MediaPluginDebugging", false);
+                    plugin->enableMediaPluginDebugging(media_debugging);
+                }
+                // Extract the pump name and page text
+                size_t marker_pos = debug_text.find(PAGE_TEXT_EXTRACT_MARKER);
+                if (marker_pos != std::string::npos)
+                {
+                    std::string remaining = debug_text.substr(marker_pos + PAGE_TEXT_EXTRACT_MARKER.length());
+                    size_t colon_pos = remaining.find(':');
+                    if (colon_pos != std::string::npos)
+                    {
+                        std::string pump_name = remaining.substr(0, colon_pos);
+                        std::string page_text = remaining.substr(colon_pos + 1);
+
+                        // Send the response directly to the specified pump
+                        LLEventPumps::instance().obtain(pump_name).post(LLSD().with("text", page_text));
+                    }
+                }
+            }
         };
         break;
     };
@@ -1274,3 +1313,148 @@ bool LLMediaCtrl::wantsReturnKey() const
 {
     return true;
 }
+
+std::string LLMediaCtrl::getMediaMimeType()
+{
+    return mMediaSource ? mMediaSource->getMimeType() : "unknown";
+}
+
+std::string LLMediaCtrl::getMediaLoadingStatus()
+{
+    if (!mMediaSource)
+    {
+        return "error";
+    }
+
+    switch (mLoadingState)
+    {
+        case LOADING_STATE_INITIALIZING:
+            return "initializing";
+        case LOADING_STATE_LOADING:
+            return "loading";
+        case LOADING_STATE_LOADED:
+            return "loaded";
+        case LOADING_STATE_ERROR:
+        default:
+            return "error";
+    }
+}
+
+std::string LLMediaCtrl::getMediaTitle()
+{
+    if (mMediaSource)
+    {
+        if (LLPluginClassMedia* plugin = mMediaSource->getMediaPlugin())
+        {
+            return plugin->getMediaName();
+        }
+    }
+    return "unknown";
+}
+
+bool LLMediaCtrl::executeJavaScript(const std::string& script)
+{
+    if (mMediaSource && mMediaSource->hasMedia())
+    {
+        mMediaSource->executeJavaScript(script);
+        return true;
+    }
+    return false;
+}
+
+class LLMediaCtrlListener: public LLEventAPI
+{
+public:
+    LLMediaCtrlListener();
+
+private:
+    void getMediaInfo(const LLSD& request);
+    void getMediaText(const LLSD& request);
+    void replyError(const LLSD& request, const std::string& error);
+    LLMediaCtrl* findMediaCtrl(const std::string& path);
+};
+
+LLMediaCtrlListener::LLMediaCtrlListener():
+    LLEventAPI("LLMediaAPI", "Acces to LLMediaCtrl(web_browse widget) info")
+{
+    add("getMediaInfo",
+        "Get information about the web_browser widget specified by [\"path\"].\n"
+        "Returns URL, MIME type, and loading status of the widget.",
+        &LLMediaCtrlListener::getMediaInfo,
+        llsd::map("path", LLSD(), "reply", LLSD()));
+
+    add("getMediaText",
+        "Get text content from the web_browser widget specified by [\"path\"].\n"
+        "Returns the text content of the page or a portion of it.",
+        &LLMediaCtrlListener::getMediaText,
+        llsd::map("path", LLSD(), "reply", LLSD()));
+}
+
+LLMediaCtrl* LLMediaCtrlListener::findMediaCtrl(const std::string& path)
+{
+    LLView* view = LLUI::getInstance()->resolvePath(LLUI::getInstance()->getRootView(), path);
+    if (!view)
+    {
+        return nullptr;
+    }
+    return dynamic_cast<LLMediaCtrl*>(view);
+}
+
+void LLMediaCtrlListener::getMediaInfo(const LLSD& request)
+{
+    Response reply(LLSD(), request);
+    std::string path = request["path"];
+
+    LLMediaCtrl* media_ctrl = findMediaCtrl(path);
+    if (!media_ctrl)
+    {
+        reply["error"] = "Could not find web_browser widget at path: " + path;
+        return;
+    }
+
+    reply["url"] = media_ctrl->getCurrentNavUrl();
+    reply["mime_type"] = media_ctrl->getMediaMimeType();
+    reply["status"] = media_ctrl->getMediaLoadingStatus();
+    reply["title"] = media_ctrl->getMediaTitle();
+}
+
+void LLMediaCtrlListener::replyError(const LLSD& request, const std::string& error)
+{
+    Response reply(LLSD(), request);
+    reply["error"] = error;
+}
+
+void LLMediaCtrlListener::getMediaText(const LLSD& request)
+{
+    std::string path = request["path"];
+
+    LLMediaCtrl* media_ctrl = findMediaCtrl(path);
+    if (!media_ctrl)
+    {
+        replyError(request, "Could not find web_browser widget at path: " + path);
+        return;
+    }
+
+    LLPluginClassMedia* plugin = media_ctrl->getMediaPlugin();
+    if (!plugin)
+    {
+        replyError(request, "Media plugin is not available for widget at path: " + path);
+        return;
+    }
+
+    // Enable plugin debugging to capture console messages
+    plugin->enableMediaPluginDebugging(true);
+    std::string pump_name = request["reply"].asString();
+
+    // Execute JavaScript to extract page text, embedding pump name in the marker
+    const std::string text_extract_script = "console.log('" + PAGE_TEXT_EXTRACT_MARKER + pump_name + ":' + "
+                          "(document.body ? (document.body.innerText ? document.body.innerText.substring(0, 1000).replace(/\\s+/g, ' ').trim() : "
+                          "'No text content') : 'Document body not ready'));";
+
+    if (!media_ctrl->executeJavaScript(text_extract_script))
+    {
+        replyError(request, "Failed to execute JavaScript for text extraction");
+    }
+}
+
+static LLMediaCtrlListener sMediaCtrlListener;
