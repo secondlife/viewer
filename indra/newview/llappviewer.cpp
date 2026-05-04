@@ -2183,6 +2183,8 @@ bool LLAppViewer::cleanup()
     // deleteSingleton() methods.
     LLSingletonBase::deleteAll();
 
+    LLUICtrlFactory::deleteSingleton();
+
     LLSplashScreen::hide();
 
     LL_INFOS() << "Goodbye!" << LL_ENDL;
