@@ -158,6 +158,9 @@ public:
                      kdu_codestream* codestreamp);
     ~LLKDUDecodeState();
     bool processTileDecode(F32 decode_time, bool limit_time = true);
+#ifdef LL_WINDOWS
+    bool processTileDecodeSEH(F32 decode_time, bool limit_time = true);
+#endif
 
 private:
     S32 mNumComponents;
@@ -282,9 +285,15 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
 
     try
     {
-
         S32 data_size = base.getDataSize();
         S32 max_bytes = (base.getMaxBytes() ? base.getMaxBytes() : data_size);
+
+        // Data sanity checks
+        // 0 data size appears to be valid.
+        if (data_size < 0 || data_size > 128 * 1024 * 1024) // 128MB
+        {
+            LLTHROW(KDUError(STRINGIZE("Invalid data size: " << data_size)));
+        }
 
         //
         //  Initialization
@@ -385,7 +394,8 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
     catch (std::bad_alloc&)
     {
         // we are in a thread, can't show an 'out of memory' here,
-        // main thread will keep going
+        // as main thread will keep going
+        // Todo: should cause main thread to stop and show an error.
         throw;
     }
     catch (...)
@@ -602,7 +612,11 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
                 // Do the actual processing
                 F32 remaining_time = limit_time ? decode_time - decode_timer.getElapsedTimeF32().value() : 0.0f;
                 // This is where we do the actual decode.  If we run out of time, return false.
+#ifdef LL_WINDOWS
+                if (mDecodeState->processTileDecodeSEH(remaining_time, limit_time))
+#else
                 if (mDecodeState->processTileDecode(remaining_time, limit_time))
+#endif
                 {
                     mDecodeState.reset();
                 }
@@ -1302,6 +1316,11 @@ all necessary level shifting, type conversion, rounding and truncation. */
 LLKDUDecodeState::LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap,
                                    kdu_codestream* codestreamp)
 {
+    if (!buf)
+    {
+        LLTHROW(KDUError("Null buffer passed to LLKDUDecodeState"));
+    }
+
     S32 c;
 
     mTile = tile;
@@ -1311,6 +1330,11 @@ LLKDUDecodeState::LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap,
     mNumComponents = tile.get_num_components();
 
     llassert(mNumComponents <= 4);
+    if (mNumComponents <= 0 || mNumComponents > 4)
+    {
+        LL_WARNS() << "Invalid component count: " << mNumComponents << ", clamping to valid range" << LL_ENDL;
+        mNumComponents = llclamp(mNumComponents, 1, 4);
+    }
     mUseYCC = tile.get_ycc();
 
     for (c = 0; c < 4; ++c)
@@ -1362,6 +1386,20 @@ LLKDUDecodeState::~LLKDUDecodeState()
     }
     mTile.close();
 }
+
+#ifdef LL_WINDOWS
+bool LLKDUDecodeState::processTileDecodeSEH(F32 decode_time, bool limit_time)
+{
+    __try
+    {
+        return processTileDecode(decode_time, limit_time);
+    }
+    __except (msc_exception_filter(GetExceptionCode(), GetExceptionInformation()))
+    {
+        return false;
+    }
+}
+#endif
 
 bool LLKDUDecodeState::processTileDecode(F32 decode_time, bool limit_time)
 /* Decompresses a tile, writing the data into the supplied byte buffer.
