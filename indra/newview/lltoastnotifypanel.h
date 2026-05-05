@@ -134,6 +134,8 @@ protected:
     S32 mNumOptions { 0 };
     S32 mNumButtons { 0 };
 
+    S32 mButtonWidth;
+
     static const std::string sFontDefault;
     static const std::string sFontScript;
 };

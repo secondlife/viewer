@@ -5892,6 +5892,17 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
+      <integer>90</integer>
+    </map>
+    <key>ScriptToastButtonWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Default width of buttons in the Script dialog toast.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
       <integer>110</integer>
     </map>
     <key>NotificationChannelRightMargin</key>
