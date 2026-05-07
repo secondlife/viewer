@@ -3574,6 +3574,36 @@ void LLPanelPreferenceGameControl::applyGameControlInput()
     {
         std::string channel_name = channel.getLocalName();
         std::string channel_label = LLPanelPreferenceGameControl::getChannelLabel(channel_name, combobox->getAllData());
+
+        // Before assigning this channel, remove it from any other action row in the same
+        // category that already holds it.  Avatar movement and flycam are independent
+        // no-duplicate sets, so a channel may appear in one row of each set simultaneously.
+        // Device remapping tables allow duplicate targets, so this only applies to mActionTable.
+        if (!channel_label.empty() && sSelectedGrid == sGameControlPanel->mActionTable)
+        {
+            bool selected_is_flycam =
+                LLGameControl::getActionNameType(sSelectedItem->getValue().asString())
+                == LLGameControl::ACTION_NAME_FLYCAM;
+
+            for (LLScrollListItem* item : sGameControlPanel->mActionTable->getAllData())
+            {
+                if (item != sSelectedItem && item->getNumColumns() >= 2)
+                {
+                    bool item_is_flycam =
+                        LLGameControl::getActionNameType(item->getValue().asString())
+                        == LLGameControl::ACTION_NAME_FLYCAM;
+                    if (item_is_flycam != selected_is_flycam)
+                        continue;
+
+                    LLScrollListCell* cell = item->getColumn(1);
+                    if (cell && cell->getValue().asString() == channel_label)
+                    {
+                        cell->setValue(LLStringUtil::null);
+                    }
+                }
+            }
+        }
+
         sSelectedCell->setValue(channel_label);
         sSelectedGrid->deselectAllItems();
         sGameControlPanel->clearSelectionState();
@@ -3732,9 +3762,9 @@ bool LLPanelPreferenceGameControl::postBuild()
     mAxisSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
 
     // Populate action table with rows from XML config files
-    populateActionTableRows("game_control_table_rows.xml");      // Avatar movement actions
+    populateActionTableRows("game_control_table_rows.xml");        // Avatar movement actions
     addActionTableSeparator();
-    populateActionTableRows("game_control_table_camera_rows.xml"); // Flycam actions
+    populateActionTableRows("game_control_table_camera_rows.xml"); // Flycam movement actions
 
     // Populate device settings tables with empty rows
     populateOptionsTableRows();
