@@ -63,15 +63,73 @@ S32 LLSDXMLFormatter::format(const LLSD& data, std::ostream& ostr,
                              EFormatterOptions options) const
 {
     std::streamsize old_precision = ostr.precision(25);
-
-    std::string post;
-    if (options & LLSDFormatter::OPTIONS_PRETTY)
+    // Only enable exception bits that aren't already enabled
+    // This prevents immediate throw if error bits are already set
+    std::ios_base::iostate old_exceptions = ostr.exceptions();
+    std::ios_base::iostate desired_exceptions = 0;
+    if ((old_exceptions & std::ios_base::failbit) == 0)
     {
-        post = "\n";
+        desired_exceptions |= std::ios_base::failbit;
     }
-    ostr << "<llsd>" << post;
-    S32 rv = format_impl(data, ostr, options, 1);
-    ostr << "</llsd>\n";
+    if ((old_exceptions & std::ios_base::badbit) == 0)
+    {
+        desired_exceptions |= std::ios_base::badbit;
+    }
+
+    S32 rv = 0;
+
+    try
+    {
+        if (desired_exceptions != 0)
+        {
+            // Enable exceptions for badbit and failbit to catch I/O errors
+            ostr.exceptions(desired_exceptions);
+        }
+
+        std::string post;
+        if (options & LLSDFormatter::OPTIONS_PRETTY)
+        {
+            post = "\n";
+        }
+        ostr << "<llsd>" << post;
+        rv = format_impl(data, ostr, options, 1);
+        ostr << "</llsd>\n";
+    }
+    catch (const std::ios_base::failure& e)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: Stream I/O exception: " << e.what()
+            << " - Stream state: good=" << ostr.good()
+            << " eof=" << ostr.eof()
+            << " fail=" << ostr.fail()
+            << " bad=" << ostr.bad() << LL_ENDL;
+        rv = -1;
+    }
+    catch (const std::bad_alloc&)
+    {
+        // we might be saving something massive, don't error or crash
+        LL_WARNS() << "LLSDXMLFormatter::format: Memory allocation failed during formatting" << LL_ENDL;
+        rv = -1;
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: Standard exception: " << e.what() << LL_ENDL;
+        rv = -1;
+    }
+    catch (...)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: Unknown exception during formatting" << LL_ENDL;
+        rv = -1;
+    }
+
+    try
+    {
+        // Restore original exceptions exactly as they were on entry.
+        ostr.exceptions(old_exceptions);
+    }
+    catch (...)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: failed to restore exceptions" << LL_ENDL;
+    }
 
     ostr.precision(old_precision);
     return rv;
