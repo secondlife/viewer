@@ -9,7 +9,7 @@
          column="action"
          font="SansSerif"
          halign="left"
-         label="Camera"
+         label="Camera movement"
          name="action"
          value="Cam_FreeCam_Off" />
     </rows>

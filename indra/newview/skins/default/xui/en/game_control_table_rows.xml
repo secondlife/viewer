@@ -2,14 +2,14 @@
 <contents>
     <rows
      enabled="false"
-     name="move_actions"
+     name="avatar_actions"
      value="">
         <columns
          type="icontext"
          column="action"
          font="SansSerif"
          halign="left"
-         label="Move Actions"
+         label="Avatar movement"
          name="action"
          value="Move_Walk_Off" />
     </rows>
