@@ -43,6 +43,7 @@
 #include "llviewernetwork.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
+#include "llviewerjointattachment.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "llsdutil.h"
@@ -193,6 +194,12 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "if [\"dist\"] is not specified, 'RenderFarClip' setting is used\n"
         "reply contains \"result\" table with \"id\", \"global_pos\", \"region_pos\", \"region_id\" fields",
         &LLAgentListener::getNearbyObjectsList,
+        llsd::map("reply", LLSD()));
+
+    add("getAttachedObjectsList",
+        "Return attached objects list with information about each object\n"
+        "reply contains \"attachments\" result key",
+        &LLAgentListener::getAttachedObjectsList,
         llsd::map("reply", LLSD()));
 
     add("getAgentScreenPos",
@@ -767,6 +774,41 @@ void LLAgentListener::getNearbyObjectsList(LLSD const& event_data)
             {
                 response["result"].append(llsd::map("id", object->getID(), "global_pos", ll_sd_from_vector3d(object->getPositionGlobal()), "region_pos",
                           ll_sd_from_vector3(object->getPositionRegion()), "region_id", object->getRegion()->getRegionID()));
+            }
+        }
+    }
+}
+
+void LLAgentListener::getAttachedObjectsList(LLSD const& event_data)
+{
+    Response response(LLSD(), event_data);
+    response["attachments"] = LLSD::emptyArray();
+
+    if (!isAgentAvatarValid())
+    {
+        return;
+    }
+
+    for (const auto& [attachment_point_index, attachment_point] : gAgentAvatarp->mAttachmentPoints)
+    {
+        if (!attachment_point)
+        {
+            continue;
+        }
+
+        for (const auto& attachment_object_ptr : attachment_point->mAttachedObjects)
+        {
+            if (LLViewerObject* attachment_object = attachment_object_ptr.get())
+            {
+                response["attachments"].append(llsd::map(
+                    "object_id", attachment_object->getID(),
+                    "inventory_item_id", attachment_object->getAttachmentItemID(),
+                    "name", attachment_object->getAttachmentItemName(),
+                    "attachment_point", attachment_point->getName(),
+                    "attachment_point_index", attachment_point_index,
+                    "position", ll_sd_from_vector3(attachment_object->getPosition()),
+                    "rotation", ll_sd_from_quaternion(attachment_object->getRotation()),
+                    "is_temporary", attachment_object->isTempAttachment()));
             }
         }
     }
