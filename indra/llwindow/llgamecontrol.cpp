@@ -355,7 +355,6 @@ public:
     LLGameControl::InputChannel getChannelByAction(const std::string& action) const;
     LLGameControl::InputChannel getFlycamChannelByAction(const std::string& action) const;
 
-    bool updateActionMap(const std::string& name,  LLGameControl::InputChannel channel);
     U32 computeInternalActionFlags();
     void getFlycamInputs(std::vector<F32>& inputs_out);
     void setExternalInput(U32 action_flags, U32 buttons);
@@ -1281,68 +1280,6 @@ void LLGameControllerManager::setFlycamMappings(const std::string& mappings)
         });
 }
 
-bool LLGameControllerManager::updateActionMap(const std::string& action, LLGameControl::InputChannel channel)
-{
-    auto action_it = mActions.find(action);
-    if (action_it == mActions.end())
-    {
-        LL_WARNS("SDL3") << "unmappable action='" << action << "'" << LL_ENDL;
-        return false;
-    }
-
-    if (action_it->second == LLGameControl::ACTION_NAME_FLYCAM)
-    {
-        if (!channel.isNone())
-        {
-            // unmap any action already using this channel
-            for (size_t i = 0; i < mFlycamActions.size(); ++i)
-            {
-                if (mFlycamActions[i] != action && mFlycamChannels[i].isEqual(channel))
-                {
-                    mFlycamChannels[i] = LLGameControl::InputChannel(); // unmap conflicting
-                }
-            }
-        }
-        updateFlycamMap(action, channel);
-    }
-    else
-    {
-        // unmap any action already using this non-null channel
-        if (channel.isAxis())
-        {
-            for (const std::string& other : mAnalogActions)
-            {
-                if (other != action)
-                {
-                    LLGameControl::InputChannel other_channel =
-                        mActionTranslator.getChannelByAction(other + "+");
-                    if (other_channel.isEqual(channel))
-                    {
-                        mActionTranslator.updateMap(other, LLGameControl::InputChannel());
-                    }
-                }
-            }
-        }
-        else if (channel.isButton())
-        {
-            for (const std::string& other : mBinaryActions)
-            {
-                if (other != action)
-                {
-                    LLGameControl::InputChannel other_channel =
-                        mActionTranslator.getChannelByAction(other);
-                    if (other_channel.isEqual(channel))
-                    {
-                        mActionTranslator.updateMap(other, LLGameControl::InputChannel());
-                    }
-                }
-            }
-        }
-        mActionTranslator.updateMap(action, channel);
-    }
-    return true;
-}
-
 void LLGameControllerManager::updateFlycamMap(const std::string& action, LLGameControl::InputChannel channel)
 {
     auto flycam_it = std::find(mFlycamActions.begin(), mFlycamActions.end(), action);
@@ -1862,12 +1799,6 @@ LLGameControl::InputChannel LLGameControl::getChannelByName(const std::string& n
 LLGameControl::InputChannel LLGameControl::getChannelByAction(const std::string& action)
 {
     return g_manager.getChannelByAction(action);
-}
-
-// static
-bool LLGameControl::updateActionMap(const std::string& action, LLGameControl::InputChannel channel)
-{
-    return g_manager.updateActionMap(action, channel);
 }
 
 // static
