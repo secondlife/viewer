@@ -2676,7 +2676,7 @@ void LLAgent::onAnimStop(const LLUUID& id)
         const bool up_pos = (mControlFlags & AGENT_CONTROL_UP_POS) != 0;
         const F64 now = LLTimer::getTotalSeconds();
         const F64 elapsed = now - mLastJumpInputTime;
-        static LLCachedControl<F32> recent_jump_threshold_secs(gSavedSettings, "RecentJumpThresholdSecs");
+        static LLCachedControl<F32> recent_jump_threshold_secs(gSavedSettings, "RecentJumpThresholdSecs", 1.0);
         const bool recent_jump = (mLastJumpInputTime > 0.0) && (elapsed < recent_jump_threshold_secs);
 
         if (!up_pos && !recent_jump)
