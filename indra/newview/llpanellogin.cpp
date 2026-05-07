@@ -913,10 +913,17 @@ void LLPanelLogin::loadLoginPage()
 
     gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
 
-    if (sInstance->mWebBrowser->getCurrentNavUrl() != login_uri.asString())
+    if (sInstance->mWebBrowser)
     {
-        LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
-        sInstance->mWebBrowser->navigateTo(login_uri.asString(), "text/html");
+        if (sInstance->mWebBrowser->getCurrentNavUrl() != login_uri.asString())
+        {
+            LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
+            sInstance->mWebBrowser->navigateTo(login_uri.asString(), "text/html");
+        }
+    }
+    else
+    {
+        LL_WARNS("AppInit") << "No web browser control for login panel" << LL_ENDL;
     }
 }
 
