@@ -265,8 +265,10 @@ public:
     void            cameraOrbitAround(const F32 radians);   // Rotate camera CCW radians about build focus point
     void            cameraOrbitOver(const F32 radians);     // Rotate camera forward radians over build focus point
     void            cameraOrbitIn(const F32 meters);        // Move camera in toward build focus point
+    void            cameraRollOver(const F32 radians);      // Roll the camera
     void            resetCameraOrbit();
     void            resetOrbitDiff();
+    void            resetCameraRoll();
     //--------------------------------------------------------------------
     // Zoom
     //--------------------------------------------------------------------
@@ -359,6 +361,8 @@ public:
     F32             getOrbitDownKey() const     { return mOrbitDownKey; }
     F32             getOrbitInKey() const       { return mOrbitInKey; }
     F32             getOrbitOutKey() const      { return mOrbitOutKey; }
+    F32             getRollLeftKey() const      { return mRollLeftKey; }
+    F32             getRollRightKey() const     { return mRollRightKey; }
 
     void            setOrbitLeftKey(F32 mag)    { mOrbitLeftKey = mag; }
     void            setOrbitRightKey(F32 mag)   { mOrbitRightKey = mag; }
@@ -366,6 +370,8 @@ public:
     void            setOrbitDownKey(F32 mag)    { mOrbitDownKey = mag; }
     void            setOrbitInKey(F32 mag)      { mOrbitInKey = mag; }
     void            setOrbitOutKey(F32 mag)     { mOrbitOutKey = mag; }
+    void            setRollLeftKey(F32 mag) { mRollLeftKey = mag; }
+    void            setRollRightKey(F32 mag) { mRollRightKey = mag; }
 
     void            clearOrbitKeys();
 private:
@@ -378,6 +384,10 @@ private:
 
     F32             mOrbitAroundRadians;
     F32             mOrbitOverAngle;
+
+    F32             mRollLeftKey;
+    F32             mRollRightKey;
+    F32             mRollAngle = 0.f;
 
     //--------------------------------------------------------------------
     // Pan
@@ -411,7 +421,9 @@ private:
 /**                    Keys
  **                                                                            **
  *******************************************************************************/
-
+public:
+    void            storeCameraPosition();
+    void            loadCameraPosition();
 };
 
 extern LLAgentCamera gAgentCamera;

@@ -45,6 +45,7 @@ public:
     void setLinearVelocity(const LLVector3& velocity);
     void setPitchRate(F32 pitch_rate);
     void setYawRate(F32 yaw_rate);
+    void setRollRate(F32 roll_rate);
     void setZoomRate(F32 zoom_rate);
 
     void integrate(F32 delta_time);
@@ -55,6 +56,7 @@ protected:
     LLQuaternion mRotation;
     F32 mPitchRate { 0.0f };
     F32 mYawRate { 0.0f };
+    F32 mRollRate { 0.0f };
     F32 mZoomRate { 0.0f };
     F32 mView { DEFAULT_FIELD_OF_VIEW };
 };

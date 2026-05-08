@@ -214,6 +214,16 @@
          value="BUTTON_19" />
     </rows>
     <rows
+     name="game_control_button_20"
+     value="game_control_button_20">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_20" />
+    </rows>
+    <rows
      name="game_control_button_21"
      value="game_control_button_21">
         <columns
