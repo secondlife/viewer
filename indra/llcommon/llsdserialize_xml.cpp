@@ -63,27 +63,31 @@ S32 LLSDXMLFormatter::format(const LLSD& data, std::ostream& ostr,
                              EFormatterOptions options) const
 {
     std::streamsize old_precision = ostr.precision(25);
-    // Only enable exception bits that aren't already enabled
-    // This prevents immediate throw if error bits are already set
     std::ios_base::iostate old_exceptions = ostr.exceptions();
-    std::ios_base::iostate desired_exceptions = 0;
-    if ((old_exceptions & std::ios_base::failbit) == 0)
+    // Merged exception mask: preserve the caller's bits and add failbit|badbit
+    // for I/O error detection, so we never drop bits the caller already enabled.
+    std::ios_base::iostate new_exceptions =
+        old_exceptions | std::ios_base::badbit | std::ios_base::failbit;
+    // Bits we are newly adding (not already in the caller's mask).
+    std::ios_base::iostate added_bits = new_exceptions & ~old_exceptions;
+
+    // If the stream already has error-state bits that we would newly add to the
+    // exception mask, enabling those bits would throw immediately; bail out early.
+    if (added_bits && (ostr.rdstate() & added_bits))
     {
-        desired_exceptions |= std::ios_base::failbit;
-    }
-    if ((old_exceptions & std::ios_base::badbit) == 0)
-    {
-        desired_exceptions |= std::ios_base::badbit;
+        LL_WARNS() << "LLSDXMLFormatter::format: Stream already in error state" << LL_ENDL;
+        ostr.precision(old_precision);
+        return -1;
     }
 
     S32 rv = 0;
 
     try
     {
-        if (desired_exceptions != 0)
+        // Enable the merged exception mask to detect I/O errors during formatting.
+        if (added_bits)
         {
-            // Enable exceptions for badbit and failbit to catch I/O errors
-            ostr.exceptions(desired_exceptions);
+            ostr.exceptions(new_exceptions);
         }
 
         std::string post;
@@ -121,9 +125,12 @@ S32 LLSDXMLFormatter::format(const LLSD& data, std::ostream& ostr,
         rv = -1;
     }
 
+    // Restore original exception mask. First set to goodbit (never throws) so
+    // the subsequent restore call won't immediately throw if the stream is in
+    // error state for bits in old_exceptions.
     try
     {
-        // Restore original exceptions exactly as they were on entry.
+        ostr.exceptions(std::ios_base::goodbit);
         ostr.exceptions(old_exceptions);
     }
     catch (...)
