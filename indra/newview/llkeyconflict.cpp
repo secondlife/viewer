@@ -34,6 +34,7 @@
 
 #include "llkeyconflict.h"
 
+#include "llgamecontrol.h"
 #include "llinitparam.h"
 #include "llkeyboard.h"
 #include "lltrans.h"
@@ -243,6 +244,8 @@ std::string LLKeyConflictHandler::getStringFromKeyData(const LLKeyData& keydata)
 
     result += LLKeyboard::stringFromMouse(keydata.mMouse);
 
+    result += LLGameControl::controllerInputStringFromAction((LLGameControl::ActionType)keydata.mControllerActionType, keydata.mControllerAction);
+
     return result;
 }
 
@@ -294,7 +297,20 @@ void LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymod
         // Assumes U32_MAX conflict mask, and is assignable by default,
         // but assignability might have been overriden by generatePlaceholders.
         LLKeyConflict &type_data = (*destination)[it->command];
-        type_data.mKeyBind.addKeyData(mouse, key, mask, true);
+
+        if (it->controller.isProvided() && !it->controller.getValue().empty())
+        {
+            LLGameControl::ActionType actionType = LLGameControl::ActionType::NONE;
+            U8 action = 0;
+            if(LLGameControl::actionFromString(it->controller.getValue(),actionType, action))
+            {
+                type_data.mKeyBind.addKeyData(LLKeyData((U8)actionType, action));
+            }
+        }
+        else
+        {
+            type_data.mKeyBind.addKeyData(mouse, key, mask, true);
+        }
     }
 }
 
@@ -517,6 +533,14 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                         // set() because 'optional', for compatibility purposes
                         // just copy old keys.xml and rename to key_bindings.xml, it should work
                         binding.mouse.set(LLKeyboard::stringFromMouse(data.mMouse, false), true);
+                    }
+                    if(data.mControllerActionType > LLGameControl::ActionType::BUTTON)
+                    {
+                        binding.controller.setProvided(false);
+                    }
+                    else
+                    {
+                        binding.controller.set(LLGameControl::stringFromAction((LLGameControl::ActionType)(data.mControllerActionType), data.mControllerAction));
                     }
                     binding.command = iter->first;
                     mode.bindings.add(binding);

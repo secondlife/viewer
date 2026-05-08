@@ -454,7 +454,7 @@ LLAgent::LLAgent() :
     mCurrentFidget(0),
     mFirstLogin(false),
     mOutfitChosen(false),
-
+    mCrouch(false),
     mVoiceConnected(false),
 
     mMouselookModeInSignal(nullptr),
@@ -787,13 +787,17 @@ void LLAgent::moveUp(S32 direction)
             mLastJumpInputTime = LLTimer::getTotalSeconds();
         }
         setControlFlags(AGENT_CONTROL_UP_POS | AGENT_CONTROL_FAST_UP);
+        mCrouch = false;
     }
     else if (direction < 0)
     {
         setControlFlags(AGENT_CONTROL_UP_NEG | AGENT_CONTROL_FAST_UP);
     }
 
-    gAgentCamera.resetView();
+    if (!mCrouch)
+    {
+        gAgentCamera.resetView();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -842,6 +846,11 @@ void LLAgent::movePitch(F32 mag)
     {
         setControlFlags(AGENT_CONTROL_PITCH_NEG);
     }
+}
+
+bool LLAgent::isCrouching() const
+{
+    return mCrouch && !getFlying();
 }
 
 // Does this parcel allow you to fly?
@@ -911,6 +920,7 @@ void LLAgent::setFlying(bool fly, bool fail_sound)
         {
             add(LLStatViewer::FLY, 1);
         }
+        mCrouch = false;
         setControlFlags(AGENT_CONTROL_FLY);
     }
     else
@@ -4996,10 +5006,34 @@ static F32 g_deltaTime { 0.0f };
 static S32 g_lastUpdateFrame { 0 };
 static S32 g_deltaFrame { 0 };
 
+void LLAgent::updateGameControlMode()
+{
+    // Auto-derive the active mode from avatar state.  Flycam takes precedence
+    // (it is toggled via a game-control binding), then sitting/controls-taken
+    // maps to Captive, otherwise the normal Avatar mode.
+    LLGameControl::AgentControlMode mode;
+    if (mUsingFlycam)
+    {
+        mode = LLGameControl::CONTROL_MODE_FLYCAM;
+    }
+    else if (isSitting())
+    {
+        mode = LLGameControl::CONTROL_MODE_CAPTIVE;
+    }
+    else
+    {
+        mode = LLGameControl::CONTROL_MODE_AVATAR;
+    }
+    LLGameControl::setAgentControlMode(mode);
+}
+
 void LLAgent::applyExternalActionFlags(U32 outer_flags)
 {
     llassert(LLCoros::on_main_thread_main_coro());
-    assert(LLGameControl::isEnabled() && LLGameControl::willControlAvatar());
+    // Valid whenever game control is driving avatar or flycam: in FlyCam mode this
+    // only services the flycam on/off toggle (movement bits are ignored below).
+    assert(LLGameControl::isEnabled()
+        && (LLGameControl::willControlAvatar() || LLGameControl::willControlFlycam()));
     mExternalActionFlags = outer_flags;
 
     // HACK: AGENT_CONTROL_NUDGE_AT_NEG is used to toggle Flycam
@@ -5169,25 +5203,25 @@ void LLAgent::updateFlycam()
     std::vector<F32> flycam_inputs;
     LLGameControl::getFlycamInputs(flycam_inputs);
 
-    // Note: no matter how flycam_inputs are mapped to the controller
-    // they arrive in the following order:
-    constexpr S32 FLYCAM_ADVANCE = 0;
-    constexpr S32 FLYCAM_PAN     = 1;
-    constexpr S32 FLYCAM_RISE    = 2;
-    constexpr S32 FLYCAM_PITCH   = 3;
-    constexpr S32 FLYCAM_YAW     = 4;
-    constexpr S32 FLYCAM_ZOOM    = 5;
+    // The channel order is defined by LLGameControl::FlycamChannel.
+
+    // Defensive: getFlycamInputs() should return one value per channel.
+    if ((S32)flycam_inputs.size() < LLGameControl::FLYCAM_NUM_CHANNELS)
+    {
+        return;
+    }
 
     LLVector3 linear_velocity(
-            flycam_inputs[FLYCAM_ADVANCE],
-            flycam_inputs[FLYCAM_PAN],
-            flycam_inputs[FLYCAM_RISE]);
+            flycam_inputs[LLGameControl::FLYCAM_ADVANCE],
+            flycam_inputs[LLGameControl::FLYCAM_PAN],
+            flycam_inputs[LLGameControl::FLYCAM_RISE]);
     constexpr F32 MAX_FLYCAM_SPEED = 10.0f;
     mFlycam.setLinearVelocity(MAX_FLYCAM_SPEED * linear_velocity);
 
-    mFlycam.setPitchRate(flycam_inputs[FLYCAM_PITCH]);
-    mFlycam.setYawRate(flycam_inputs[FLYCAM_YAW]);
-    mFlycam.setZoomRate(flycam_inputs[FLYCAM_ZOOM]);
+    mFlycam.setPitchRate(flycam_inputs[LLGameControl::FLYCAM_PITCH]);
+    mFlycam.setYawRate(flycam_inputs[LLGameControl::FLYCAM_YAW]);
+    mFlycam.setRollRate(flycam_inputs[LLGameControl::FLYCAM_ROLL]);
+    mFlycam.setZoomRate(flycam_inputs[LLGameControl::FLYCAM_ZOOM]);
 
     mFlycam.integrate(g_deltaTime);
 

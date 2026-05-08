@@ -81,7 +81,6 @@
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterbuildoptions.h"
-#include "llgamecontrol.h"
 #include "llgroupmgr.h"
 #include "lllandmarkactions.h"
 #include "lltooltip.h"
@@ -1024,12 +1023,6 @@ class LLAdvancedToggleExperiment : public view_listener_t
     bool handleEvent(const LLSD& userdata)
     {
         std::string feature = userdata.asString();
-        if (feature == "GameControl")
-        {
-            LLGameControl::setEnabled(! LLGameControl::isEnabled());
-            LLFloaterPreference::refreshInstance();
-            return true;
-        }
         return false;
     }
 };
@@ -1040,10 +1033,6 @@ class LLAdvancedCheckExperiment : public view_listener_t
     {
         bool value = false;
         std::string feature = userdata.asString();
-        if (feature == "GameControl")
-        {
-            value = LLGameControl::isEnabled();
-        }
         return value;
     }
 };
@@ -6893,8 +6882,8 @@ class LLAvatarResetSkeleton : public view_listener_t
             }
             else
             {
-            avatar->resetSkeleton(false);
-        }
+                avatar->resetSkeleton(false);
+            }
         }
         return true;
     }
@@ -6959,9 +6948,9 @@ class LLAvatarResetSelfSkeletonAndAnimations : public view_listener_t
                 effectp->setSourceObject(gAgentAvatarp);
                 effectp->setTargetObject((LLViewerObject*)avatar);
                 effectp->setResetAnimations(true);
-        }
-        else
-        {
+            }
+            else
+            {
                 avatar->resetSkeleton(true);
             }
         }

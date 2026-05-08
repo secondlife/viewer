@@ -56,6 +56,7 @@
 #include "llmarketplacenotifications.h"
 #include "llmd5.h"
 #include "llmeshrepository.h"
+#include "llpanelpreferencegamecontrol.h"
 #include "llpumpio.h"
 #include "llmimetypes.h"
 #include "llslurl.h"
@@ -196,6 +197,7 @@
 #include "lldebugview.h"
 #include "llconsole.h"
 #include "llcontainerview.h"
+#include "lltoolfocus.h"
 #include "lltooltip.h"
 
 #include "llsdutil.h"
@@ -1147,13 +1149,29 @@ bool LLAppViewer::init()
     }
 
     LLGameControl::init(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "gamecontrollerdb.txt"),
-        [&](const std::string& name) -> bool { return gSavedSettings.getBOOL(name); },
-        [&](const std::string& name, bool value) { gSavedSettings.setBOOL(name, value); },
-        [&](const std::string& name) -> std::string { return gSavedSettings.getString(name); },
-        [&](const std::string& name, const std::string& value) { gSavedSettings.setString(name, value); },
-        [&](const std::string& name) -> LLSD { return gSavedSettings.getLLSD(name); },
-        [&](const std::string& name, const LLSD& value) { gSavedSettings.setLLSD(name, value); },
-        [&]() { LLPanelPreferenceGameControl::updateDeviceList(); });
+        [](const std::vector<std::string>& keys) -> LLSD
+        {
+            LLSD result = LLSD::emptyMap();
+            for (const std::string& key : keys)
+            {
+                if (gSavedSettings.controlExists(key))
+                {
+                    result[key] = gSavedSettings.getLLSD(key);
+                }
+            }
+            return result;
+        },
+        [](const LLSD& key_values)
+        {
+            for (auto it = key_values.beginMap(); it != key_values.endMap(); ++it)
+            {
+                if (gSavedSettings.controlExists(it->first))
+                {
+                    gSavedSettings.setLLSD(it->first, it->second);
+                }
+            }
+        },
+        []() { LLPanelPreferenceGameControl::updateDeviceList(); });
 
     try
     {
@@ -1264,6 +1282,7 @@ bool LLAppViewer::init()
     LLWorld::createInstance();
     LLViewerStatsRecorder::createInstance();
     LLSelectMgr::createInstance();
+    LLToolCamera::createInstance();
     LLViewerCamera::createInstance();
     LL::GLTFSceneManager::createInstance();
 
@@ -1354,7 +1373,7 @@ bool LLAppViewer::frame()
 void sendGameControlInput()
 {
     LLMessageSystem* msg = gMessageSystem;
-    const LLGameControl::State& state = LLGameControl::getState();
+    const LLGameControl::ServerState& state = LLGameControl::getServerState();
 
     msg->newMessageFast(_PREHASH_GameControlInput);
     msg->nextBlock("AgentData");
@@ -1379,7 +1398,7 @@ void sendGameControlInput()
         std::vector<U8> buttons;
         for (U8 i = 0; i < LLGameControl::NUM_BUTTONS; i++)
         {
-            if (button_flags & (0x1 << i))
+            if (button_flags & (0x1u << i))
             {
                 buttons.push_back(i);
             }
@@ -4912,6 +4931,7 @@ void LLAppViewer::loadKeyBindings()
         }
     }
     LLUrlRegistry::instance().setKeybindingHandler(&gViewerInput);
+    LLUrlRegistry::instance().setGameControllerHandler(LLGameControl::getInstance());
 }
 
 // As per GHI #4498, remove old, stale CEF cache folders from previous sessions
@@ -5384,28 +5404,38 @@ void LLAppViewer::idle()
             gAgent.autoPilot(&yaw);
         }
 
+        // Auto-derive the active game-control mode (Avatar/Captive/FlyCam) from
+        // current avatar state so the runtime mappings and gating track it.
+        gAgent.updateGameControlMode();
+
         // get control flags from each side
         U32 control_flags = gAgent.getControlFlags();
-        U32 game_control_action_flags = LLGameControl::computeInternalActionFlags();
 
         // apply to GameControl
         LLGameControl::setExternalInput(control_flags, gAgent.getGameControlButtonsFromKeys());
-        bool should_send_game_control = LLGameControl::computeFinalStateAndCheckForChanges();
         if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
         {
             LLPanelPreferenceGameControl::applyGameControlInput();
-            // skip this send because input is being used to set preferences
-            should_send_game_control = false;
         }
-        if (should_send_game_control)
+        else
         {
-            sendGameControlInput();
-        }
+            // Recompute canonical controller state (also populates the internal
+            // state consumed below) and send it to the server when it changed.
+            if (LLGameControl::computeFinalStateAndCheckForChanges())
+            {
+                sendGameControlInput();
+            }
 
-        // apply to AvatarControl
-        if (LLGameControl::isEnabled() && LLGameControl::willControlAvatar())
-        {
-            gAgent.applyExternalActionFlags(game_control_action_flags);
+            // Drive the local avatar from the controller.  In Avatar/Captive
+            // modes this moves the avatar; in FlyCam mode applyExternalActionFlags
+            // ignores movement bits (it early-returns while flycam is active) but
+            // still services the flycam on/off toggle, so we run it either way.
+            // Flycam *motion* is driven separately below via gAgent.updateFlycam().
+            if (LLGameControl::willControlAvatar() || LLGameControl::willControlFlycam())
+            {
+                U32 game_control_action_flags = LLGameControl::computeInternalActionFlags();
+                gAgent.applyExternalActionFlags(game_control_action_flags);
+            }
         }
 
         send_agent_update(false);

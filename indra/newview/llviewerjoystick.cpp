@@ -1370,7 +1370,7 @@ void LLViewerJoystick::scanJoystick()
 {
     if (mDriverState != JDS_INITIALIZED
             || !gSavedSettings.getBOOL("JoystickEnabled")
-            || (!mDeviceIs3DConnexion && LLGameControl::isEnabled()))
+            || !mDeviceIs3DConnexion)
     {
         return;
     }

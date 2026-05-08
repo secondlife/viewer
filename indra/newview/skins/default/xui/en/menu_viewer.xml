@@ -443,7 +443,7 @@
            function="Agent.toggleFlying" />
           <menu_item_call.on_enable
            function="Agent.enableFlyLand" />
-        </menu_item_call>       
+        </menu_item_call>
         <menu_item_call
          label="Stop animations"
          name="Stop Animating My Avatar"
@@ -484,14 +484,14 @@
          parameter="gestures" />
       </menu_item_check>
       <menu_item_separator/>
-      <menu_item_call 
+      <menu_item_call
        label="Reset skeleton"
        layout="topleft"
        name="Reset Skeleton">
         <menu_item_call.on_click
          function="Avatar.ResetSelfSkeleton" />
       </menu_item_call>
-      <menu_item_call 
+      <menu_item_call
        label="Reset skeleton and animations"
        layout="topleft"
        name="Reset Skeleton And Animations">
@@ -950,7 +950,7 @@
                  function="World.EnvSettings"
                  parameter="sunrise" />
                 <menu_item_check.on_check
-                 function="World.EnableEnvSettings" 
+                 function="World.EnableEnvSettings"
                  parameter="sunrise" />
             </menu_item_check>
           <menu_item_check
@@ -983,7 +983,7 @@
                  function="World.EnvSettings"
                  parameter="sunset" />
                 <menu_item_check.on_check
-                 function="World.EnableEnvSettings" 
+                 function="World.EnableEnvSettings"
                  parameter="sunset" />
             </menu_item_check>
             <menu_item_check
@@ -994,7 +994,7 @@
                  function="World.EnvSettings"
                  parameter="midnight" />
                 <menu_item_check.on_check
-                 function="World.EnableEnvSettings" 
+                 function="World.EnableEnvSettings"
                  parameter="midnight" />
             </menu_item_check>
             <menu_item_check
@@ -1005,7 +1005,7 @@
                  function="World.EnvSettings"
                  parameter="region" />
                 <menu_item_check.on_check
-                 function="World.EnableEnvSettings" 
+                 function="World.EnableEnvSettings"
                  parameter="region" />
             </menu_item_check>
         <menu_item_separator/>
@@ -1027,7 +1027,7 @@
 	     	 	 function="World.EnvSettings"
                  parameter="my_environs" />
 	     	</menu_item_call>
-	     	
+
 <menu_item_call
 	     	 	 label="Personal Lighting..."
 	     	 	 name="adjustment_tool">
@@ -1043,7 +1043,7 @@
 	     	 	 	function="World.EnvSettings"
 	     	 	 	parameter="pause_clouds" />
 	     	 	 	<menu_item_check.on_check
-	     	 	 	function="World.EnableEnvSettings" 
+	     	 	 	function="World.EnableEnvSettings"
 	     	 	 	parameter="pause_clouds" />
 	     	 	</menu_item_check>
 	     	</menu>
@@ -1056,7 +1056,7 @@
           <menu_item_check.on_check
            function="World.IsMasterAudioMuted"/>
         </menu_item_check>
-<!--   
+<!--
 	    <menu
 	     create_jump_keys="true"
 	     label="Environment Editor"
@@ -1125,8 +1125,8 @@ function="World.EnvPreset"
 </menu_item_call>
 </menu>
 </menu>
--->    
-    
+-->
+
     </menu>
     <menu
      create_jump_keys="true"
@@ -1274,7 +1274,7 @@ function="World.EnvPreset"
               parameter="pathfinding_linksets" />
           <menu_item_call.on_enable
               function="Tools.EnablePathfinding" />
-        </menu_item_call> 
+        </menu_item_call>
         <menu_item_separator/>
 
         <menu_item_call
@@ -1297,7 +1297,7 @@ function="World.EnvPreset"
           <menu_item_call.on_enable
              function="Tools.SomethingSelectedNoHUD" />
         </menu_item_call>
-		 
+
         <menu_item_separator/>
 
         <menu
@@ -1625,7 +1625,7 @@ function="World.EnvPreset"
                    function="View.CheckHighlightTransparent"/>
                 </menu_item_check>
         <menu_item_separator/>
-          
+
           <menu_item_check
             label="No Post-processing"
             name="No Post">
@@ -1635,7 +1635,7 @@ function="World.EnvPreset"
              function="ToggleControl"
              parameter="RenderDisablePostProcessing" />
           </menu_item_check>
-          
+
 
           <menu
            create_jump_keys="true"
@@ -1851,7 +1851,7 @@ function="World.EnvPreset"
              userdata="" />
             <on_enable
              function="Edit.EnableRedo" />
-        </menu_item_call>        
+        </menu_item_call>
     </menu>
     <menu
      create_jump_keys="true"
@@ -1885,13 +1885,13 @@ function="World.EnvPreset"
              <menu_item_call.on_click
                  function="Advanced.ShowURL"
                  parameter="http://community.secondlife.com/t5/Forums/ct-p/Forums"/>
-        </menu_item_call>         
+        </menu_item_call>
         <menu_item_call
              label="Support portal"
              name="Support portal">
              <menu_item_call.on_click
                  function="Advanced.ShowURL"
-                 parameter="https://support.secondlife.com/"/>         
+                 parameter="https://support.secondlife.com/"/>
         </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
@@ -1924,7 +1924,7 @@ function="World.EnvPreset"
                  function="Floater.Show"
                  parameter="bumps" />
         </menu_item_call>
-        <menu_item_separator/>    
+        <menu_item_separator/>
         <menu_item_call
          label="About [APP_NAME]"
          name="About Second Life">
@@ -2588,22 +2588,6 @@ function="World.EnvPreset"
      visible="false">
         <menu
          create_jump_keys="true"
-         label="Experimental Features"
-         name="Experimental Features"
-         tear_off="true">
-            <menu_item_check
-             label="GameControl"
-             name="ToggleGameControl">
-             <menu_item_check.on_check
-                 function="Advanced.CheckExperiment"
-                 parameter="GameControl" />
-             <menu_item_check.on_click
-                 function="Advanced.ToggleExperiment"
-                 parameter="GameControl" />
-            </menu_item_check>
-        </menu>
-        <menu
-         create_jump_keys="true"
          label="Consoles"
          name="Consoles"
          tear_off="true">
@@ -2618,7 +2602,7 @@ function="World.EnvPreset"
                 <menu_item_check.on_click
                  function="Advanced.ToggleConsole"
                  parameter="texture" />
-            </menu_item_check>            
+            </menu_item_check>
             <menu_item_check
              label="Debug Console"
              name="Debug Console"
@@ -2835,6 +2819,16 @@ function="World.EnvPreset"
               <menu_item_check.on_click
                function="ToggleControl"
                parameter="DebugShowMemory" />
+            </menu_item_check>
+            <menu_item_check
+             label="Show Game Controller State"
+             name="Show Game Controller State">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="DebugShowControllerState" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="DebugShowControllerState" />
             </menu_item_check>
 
             <menu_item_separator/>
@@ -3609,7 +3603,7 @@ function="World.EnvPreset"
             <menu_item_call.on_click
              function="Develop.ClearCache" />
           </menu_item_call>
-          
+
         </menu>
 
         <menu
@@ -3693,7 +3687,7 @@ function="World.EnvPreset"
          name="Dump Scripted Camera">
             <menu_item_call.on_click
              function="Advanced.DumpScriptedCamera" />
-        </menu_item_call>      
+        </menu_item_call>
         <menu
          create_jump_keys="true"
          label="Recorder"
@@ -4385,13 +4379,6 @@ function="World.EnvPreset"
          function="Advanced.CompressFileTest" />
       </menu_item_call>
 
-      <menu_item_call
-         label="Enable Visual Leak Detector"
-         name="Enable Visual Leak Detector">
-        <menu_item_call.on_click
-           function="Advanced.ToggleVisualLeakDetector" />
-        </menu_item_call>
-      
         <menu_item_check
          label="Output Debug Minidump"
          name="Output Debug Minidump">
