@@ -82,7 +82,7 @@ BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr,
         // We always include the device if it is from 3DConnexion, otherwise
         // if the GameControl feature is enabled then we perfer to route other devices to it.
         std::string product_name = ll_convert<std::string>(std::wstring(device_instance_ptr->tszProductName));
-        bool include_device = LLViewerJoystick::is3DConnexionDevice(product_name) || !LLGameControl::isEnabled();
+        bool include_device = LLViewerJoystick::is3DConnexionDevice(product_name);
 
         if (include_device)
         {
@@ -314,8 +314,7 @@ void LLFloaterJoystick::refreshListOfDevices()
         // We always include the device if it is from 3DConnexion, otherwise we only
         // support the device in this context when GameControl feature is disabled.
         std::string desc = LLViewerJoystick::getInstance()->getDescription();
-        bool include_device = LLViewerJoystick::is3DConnexionDevice(desc) ||
-            (!LLGameControl::isEnabled() && !desc.empty());
+        bool include_device = LLViewerJoystick::is3DConnexionDevice(desc);
 
         if (include_device)
         {

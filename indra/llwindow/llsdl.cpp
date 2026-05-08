@@ -93,7 +93,6 @@ void init_sdl(const std::string& app_name)
 #endif
 
 #if LL_SDL_WINDOW
-    // For linux we SDL_INIT_VIDEO and _AUDIO
     std::initializer_list<std::tuple< char const*, char const * > > hintList =
             {
                     {SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR,"0"},
@@ -136,5 +135,14 @@ void quit_sdl()
 #if LL_WINDOWS && defined(LL_SDL_WINDOW)
     SDL_UnregisterApp();
 #endif
-    SDL_Quit();
+
+    // When SDL_MAIN_USE_CALLBACKS is in effect (gSDLMainHandled=true), the
+    // SDL framework owns SDL_Init/SDL_Quit around the SDL_App* callbacks.
+    // Calling SDL_Quit() here would run before SDL's own SDL_Quit at process
+    // exit — SDL3 makes this idempotent, but it's still the wrong owner.
+    // Only quit ourselves when we initialised SDL ourselves.
+    if (!gSDLMainHandled)
+    {
+        SDL_Quit();
+    }
 }

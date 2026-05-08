@@ -351,6 +351,15 @@ private:
     S32             mCurrentFidget;
 
     //--------------------------------------------------------------------
+    // Crouch
+    //--------------------------------------------------------------------
+public:
+    bool isCrouching() const;
+    void toggleCrouch() { mCrouch = !mCrouch; }
+private:
+    bool mCrouch;
+
+    //--------------------------------------------------------------------
     // Fly
     //--------------------------------------------------------------------
 public:
@@ -508,6 +517,12 @@ public:
     //
     void applyExternalActionFlags(U32 flags);
     void updateFlycam();
+
+    // Auto-derive the active game-control AgentControlMode from current avatar
+    // state (flycam active -> FlyCam, sitting -> Captive, else Avatar) and push
+    // it to LLGameControl.  Called once per frame before game-control input is
+    // processed so the runtime mapping/gating tracks avatar state automatically.
+    void updateGameControlMode();
 
     void pressGameControlButton(U8 button);
     void releaseGameControlButton(U8 button);

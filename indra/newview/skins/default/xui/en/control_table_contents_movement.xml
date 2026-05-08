@@ -83,7 +83,7 @@
          font="SansSerif"
          halign="left"
          name="lst_action"
-         value="Strafe left" />
+         value="Strafe Left" />
     </rows>
     <rows
      name="slide_right"
@@ -93,7 +93,7 @@
          font="SansSerif"
          halign="left"
          name="lst_action"
-         value="Strafe right" />
+         value="Strafe Right" />
     </rows>
     <rows
      name="jump"

@@ -28,6 +28,7 @@
 #define LL_LLVIEWERINPUT_H
 
 #include "llkeyboard.h" // For EKeystate
+#include "llgamecontrol.h" // For LLGameControl::ActionType
 
 const S32 MAX_KEY_BINDINGS = 128; // was 60
 const S32 keybindings_xml_version = 1;
@@ -65,6 +66,15 @@ public:
     std::string     mFunctionName;
 };
 
+class LLControllerBinding
+{
+    public:
+    LLGameControl::ActionType   mActionType;
+    U8                          mAction;
+    LLKeyFunc                   mFunction;
+    std::string                 mFunctionName;
+};
+
 
 typedef enum e_keyboard_mode
 {
@@ -84,6 +94,7 @@ public:
                                 mask,
                                 command;
         Optional<std::string>   mouse; // Note, not mandatory for the sake of backward campatibility with keys.xml
+        Optional<std::string>   controller;
 
         KeyBinding();
     };
@@ -107,6 +118,8 @@ public:
 
     LLViewerInput();
     virtual ~LLViewerInput();
+
+    void            storeDeltaTime();
 
     bool            handleKey(KEY key, MASK mask, bool repeated);
     bool            handleKeyUp(KEY key, MASK mask);
@@ -132,6 +145,7 @@ public:
     // handleMouse() records state, scanMouse() goes through states, scanMouse(click) processes individual saved states after UI is done with them
     bool            handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask, EMouseClickType clicktype, bool down);
     void            scanMouse();
+    void            scanController();
 
     bool            isMouseBindUsed(const EMouseClickType mouse, const MASK mask, const S32 mode) const;
     bool            isLMouseHandlingDefault(const S32 mode) const { return mLMouseDefaultHandling[mode]; }
@@ -165,9 +179,12 @@ private:
                           EMouseState state,
                           bool ignore_additional_masks) const;
 
+    bool            scanControllerInput(const LLGameControl::ActionType actionType, const U8 action, const LLKeyPressState& state) const;
+
     S32             loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mode);
     bool            bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name);
     bool            bindMouse(const S32 mode, const EMouseClickType mouse, const MASK mask, const std::string& function_name);
+    bool            bindController(const S32 mode, const LLGameControl::ActionType actionType, U8 action, const std::string& function_name);
     void            resetBindings();
 
     // Hold all the ugly stuff torn out to make LLKeyboard non-viewer-specific here
@@ -175,13 +192,15 @@ private:
     // TODO: at some point it is better to remake this, especially keyaboard part
     // would be much better to send to functions actual state of the button than
     // to send what we think function wants based on collection of bools (mKeyRepeated, mKeyLevel, mKeyDown)
-    std::vector<LLKeyboardBinding>  mKeyBindings[MODE_COUNT];
-    std::vector<LLMouseBinding>     mMouseBindings[MODE_COUNT];
-    bool                            mLMouseDefaultHandling[MODE_COUNT]; // Due to having special priority
+    std::vector<LLKeyboardBinding>      mKeyBindings[MODE_COUNT];
+    std::vector<LLMouseBinding>         mMouseBindings[MODE_COUNT];
+    std::vector<LLControllerBinding>    mControllerBindings[MODE_COUNT];
+    bool                                mLMouseDefaultHandling[MODE_COUNT]; // Due to having special priority
 
     // keybindings that do not consume event and are handled earlier, before floaters
-    std::vector<LLKeyboardBinding>  mGlobalKeyBindings[MODE_COUNT];
-    std::vector<LLMouseBinding>     mGlobalMouseBindings[MODE_COUNT];
+    std::vector<LLKeyboardBinding>      mGlobalKeyBindings[MODE_COUNT];
+    std::vector<LLMouseBinding>         mGlobalMouseBindings[MODE_COUNT];
+    std::vector<LLControllerBinding>    mGlobalControllerBindings[MODE_COUNT];
 
     typedef std::map<U32, U32> key_remap_t;
     key_remap_t     mRemapKeys[MODE_COUNT];

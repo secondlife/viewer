@@ -30,7 +30,7 @@
 
 #include "SDL3/SDL_events.h"
 
-LLGameControl::State g_state;
+LLGameControl::ServerState g_state;
 
 // static
 bool LLGameControl::isInitialized()
@@ -65,7 +65,7 @@ void LLGameControl::processEvents(bool app_has_focus)
 }
 
 // static
-const LLGameControl::State& LLGameControl::getState()
+const LLGameControl::State& LLGameControl::getServerState()
 {
     return g_state;
 }

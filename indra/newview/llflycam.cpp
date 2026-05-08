@@ -73,6 +73,14 @@ void LLFlycam::setYawRate(F32 yaw_rate)
 }
 
 
+void LLFlycam::setRollRate(F32 roll_rate)
+{
+    // Note: this math expects roll_rate to be in range [-1.0, 1.0]
+    constexpr F32 ROLL_RATE_FACTOR = 0.90f;
+    mRollRate = roll_rate * ROLL_RATE_FACTOR;
+}
+
+
 void LLFlycam::setZoomRate(F32 zoom_rate)
 {
     // Note: this math expects zoom_rate to be in range [-1.0, 1.0]
@@ -99,6 +107,17 @@ void LLFlycam::integrate(F32 delta_time)
     {
         LLQuaternion dQ;
         dQ.setAngleAxis(angle, 0.0f, 1.0f, 0.0f);
+        mRotation = dQ * mRotation;
+        needs_renormalization = true;
+    }
+
+    // Roll about the camera's forward (local X) axis.  Like pitch this is a
+    // body-frame rotation, so it pre-multiplies mRotation.
+    angle = delta_time * mRollRate * (mView / DEFAULT_FIELD_OF_VIEW);
+    if (fabsf(angle) > 0.0f)
+    {
+        LLQuaternion dQ;
+        dQ.setAngleAxis(angle, 1.0f, 0.0f, 0.0f);
         mRotation = dQ * mRotation;
         needs_renormalization = true;
     }

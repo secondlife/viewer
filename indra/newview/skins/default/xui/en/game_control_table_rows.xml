@@ -41,7 +41,17 @@
          font="SansSerif"
          halign="left"
          name="action"
-         value="Jump Up" />
+         value="Jump/Up" />
+    </rows>
+    <rows
+     name="crouch"
+     value="crouch">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Crouch/Down" />
     </rows>
     <rows
      name="turn"
