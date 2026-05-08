@@ -380,8 +380,6 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
                     button_panel_width = min_width_required;
                     S32 width_increase = button_panel_width - mControlPanel->getRect().getWidth();
                     reshape(getRect().getWidth() + width_increase, getRect().getHeight());
-                    mInfoPanel->reshape(mInfoPanel->getRect().getWidth() + width_increase, mInfoPanel->getRect().getHeight());
-                    mTextBox->reshape(mTextBox->getRect().getWidth() + width_increase, mTextBox->getRect().getHeight());
                 }
             }
             //try get an average h_pad to spread out buttons
