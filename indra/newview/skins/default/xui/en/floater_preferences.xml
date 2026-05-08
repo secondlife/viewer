@@ -179,7 +179,7 @@
         <panel
          class="panel_preference_game_control"
          filename="panel_preferences_game_control.xml"
-         label="Game Control"
+         label="Game Controls"
          layout="topleft"
          help_topic="preferences_game_control_tab"
          name="game_control" />

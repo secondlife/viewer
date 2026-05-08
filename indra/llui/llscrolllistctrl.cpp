@@ -2155,9 +2155,10 @@ bool LLScrollListCtrl::handleClick(S32 x, S32 y, MASK mask)
             for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); iter++)
             {
                 LLScrollListItem* item = *iter;
-                if (item->getSelected())
+                if (item && item->getSelected())
                 {
                     LLScrollListCell* cellp = item->getColumn(column_index);
+                    if (!cellp) continue;
                     cellp->setValue(item_value);
                     cellp->onCommit();
                     if (mLastSelected == NULL)

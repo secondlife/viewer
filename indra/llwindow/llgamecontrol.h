@@ -44,9 +44,9 @@
 // leftshoulder _(9)_________'-.____           ____.-'_________(10) rightshoulder
 //             /  _________         \_________/                   \.
 //            /  /    1-   \                               (3)     \.
-//            | |           |     (4)   (5)   (6)           Y      |
-//            | |0-  (7)  0+|               _________  (2)X   B(1) |
-//            | |           |              /    3-   \      A      |
+//            | |           |     (4)   (5)   (6)           N      |
+//            | |0-  (7)  0+|               _________  (2)W   E(1) |
+//            | |           |              /    3-   \      S    |
 //            | |     1+    |             |           |    (0)     |
 //            |  \_________/              |2-  (8)  2+|            |
 //            |  leftstick     (11)       |           |            |
@@ -65,8 +65,16 @@
 // they are extracted from SDL, before being used anywhere.  See the
 // implementation in LLGameControllerManager::onAxis().
 
+// Interface to get controller binding from assigned command
+class LLGameControllerBindingToStringHandler
+{
+public:
+    virtual std::string getBindingAsString(const std::string& control) const = 0;
+    virtual bool hasHandlingDevice() const = 0;
+};
+
 // LLGameControl is a singleton with pure static public interface
-class LLGameControl : public LLSingleton<LLGameControl>
+class LLGameControl : public LLSingleton<LLGameControl>, public LLGameControllerBindingToStringHandler
 {
     LLSINGLETON_EMPTY_CTOR(LLGameControl);
     virtual ~LLGameControl();
@@ -77,16 +85,39 @@ public:
     {
         CONTROL_MODE_AVATAR,
         CONTROL_MODE_FLYCAM,
+        CONTROL_MODE_CAPTIVE, // Avatar is sitting, or controls have been taken
         CONTROL_MODE_NONE
+    };
+
+    enum ActionType: U8
+    {
+        DOF,
+        BUTTON,
+        NONE = 255,
+    };
+
+    enum MovementDirection: U8
+    {
+        MOVE_DIR_STRAFE_LEFT,
+        MOVE_DIR_STRAFE_RIGHT,
+        MOVE_DIR_PUSH_FORWARD,
+        MOVE_DIR_PUSH_BACKWARD,
+        MOVE_DIR_TURN_LEFT,
+        MOVE_DIR_TURN_RIGHT,
+        MOVE_DIR_LOOK_UP,
+        MOVE_DIR_LOOK_DOWN,
+        MOVE_DIR_RISE_UP,
+        MOVE_DIR_DROP_DOWN,
+        MOVE_DIR_ROLL_LEFT,
+        MOVE_DIR_ROLL_RIGHT,
+        NUM_MOVE_DIRS,
     };
 
     enum ActionNameType
     {
         ACTION_NAME_UNKNOWN,
-        ACTION_NAME_ANALOG,     // E.g., "push"
-        ACTION_NAME_ANALOG_POS, // E.g., "push+"
-        ACTION_NAME_ANALOG_NEG, // E.g., "push-"
-        ACTION_NAME_BINARY,     // E.g., "stop"
+        ACTION_NAME_ANALOG,     // avatar movement, e.g. "push"
+        ACTION_NAME_BINARY,     // maps to button, e.g. "stop"
         ACTION_NAME_FLYCAM      // E.g., "zoom"
     };
 
@@ -96,24 +127,24 @@ public:
         AXIS_LEFTY,
         AXIS_RIGHTX,
         AXIS_RIGHTY,
-        AXIS_TRIGGERLEFT,
-        AXIS_TRIGGERRIGHT,
+        AXIS_LEFT_TRIGGER,
+        AXIS_RIGHT_TRIGGER,
         NUM_AXES
     };
 
-    enum Button
+    enum Button : U8
     {
-        BUTTON_A,
-        BUTTON_B,
-        BUTTON_X,
-        BUTTON_Y,
+        BUTTON_SOUTH,
+        BUTTON_EAST,
+        BUTTON_WEST,
+        BUTTON_NORTH,
         BUTTON_BACK,
         BUTTON_GUIDE,
         BUTTON_START,
-        BUTTON_LEFTSTICK,
-        BUTTON_RIGHTSTICK,
-        BUTTON_LEFTSHOULDER,
-        BUTTON_RIGHTSHOULDER, // 10
+        BUTTON_LEFT_STICK,
+        BUTTON_RIGHT_STICK,
+        BUTTON_LEFT_SHOULDER,
+        BUTTON_RIGHT_SHOULDER, // 10
         BUTTON_DPAD_UP,
         BUTTON_DPAD_DOWN,
         BUTTON_DPAD_LEFT,
@@ -136,6 +167,21 @@ public:
         BUTTON_30,
         BUTTON_31,
         NUM_BUTTONS
+    };
+
+    // Order in which flycam channel values are packed by getFlycamInputs() and
+    // consumed by LLAgent::updateFlycam().  Zoom currently has no FlyCam axis
+    // label (stays 0); Roll is driven by buttons by default.
+    enum FlycamChannel : U8
+    {
+        FLYCAM_ADVANCE = 0,
+        FLYCAM_PAN,
+        FLYCAM_RISE,
+        FLYCAM_PITCH,
+        FLYCAM_YAW,
+        FLYCAM_ROLL,
+        FLYCAM_ZOOM,
+        FLYCAM_NUM_CHANNELS
     };
 
     static const U16 MAX_AXIS_DEAD_ZONE = 16384;
@@ -165,8 +211,9 @@ public:
             return mType == other.mType && mSign == other.mSign && mIndex == other.mIndex;
         }
 
-        std::string getLocalName() const; // AXIS_0-, AXIS_0+, BUTTON_0, NONE etc.
-        std::string getRemoteName() const; // GAME_CONTROL_AXIS_LEFTX, GAME_CONTROL_BUTTON_A, etc
+        std::string getLocalName() const; // AXIS_0, AXIS_1, BUTTON_0, NONE etc.
+        std::string getSignedLocalName() const; // AXIS_0-, AXIS_0+, BUTTON_0, NONE etc.
+        std::string getRemoteName() const; // AXIS_LEFTX, BUTTON_SOUTH, etc
 
         Type mType { TYPE_NONE };
         S32 mSign { 0 };
@@ -183,18 +230,24 @@ public:
             U16 mDeadZone { 0 };
             S16 mOffset { 0 };
 
+            void resetToDefaults();
+            /*
             void resetToDefaults()
             {
                 mMultiplier = 1;
                 mDeadZone = 0;
                 mOffset = 0;
             }
+            */
 
+            S16 computeModifiedValue(S16 raw_value) const;
+            /*
             S16 computeModifiedValue(S16 raw_value) const
             {
                 S32 new_value = ((S32)raw_value + S32(mOffset)) * mMultiplier;
                 return (S16)(std::clamp(new_value, -32768, 32767));
             }
+            */
 
             std::string saveToString() const;
             void loadFromString(std::string options);
@@ -206,6 +259,9 @@ public:
 
         U8 mapAxis(U8 axis) const;
         U8 mapButton(U8 button) const;
+
+        U8 unmapAxis(U8 axis) const;
+        U8 unmapButton(U8 button) const;
 
         S16 fixAxisValue(U8 axis, S16 value) const;
 
@@ -232,10 +288,25 @@ public:
     public:
         State();
         void clear();
+        void storePrevious();
         bool onButton(U8 button, bool pressed);
+        std::vector<U16> mAxes; // [ 0 , 32767 ] post-fix (dead zone/offset/invert applied), split into +/- half-axes
+        std::vector<U16> mRawAxes; // [ 0 , 32767 ] pre-fix values, same +/- half-axis layout as mAxes
+        U32 mButtons;
+
+        std::vector<U16> mPrevAxes;
+        U32 mPrevButtons;
+    };
+
+    class ServerState
+    {
+    public:
+        ServerState();
+        void clear();
         std::vector<S16> mAxes; // [ -32768, 32767 ]
         std::vector<S16> mPrevAxes; // value in last outgoing packet
         U32 mButtons;
+        U32 mPrevButtons;
     };
 
     // Device is a data structure for describing any detected controller
@@ -262,17 +333,27 @@ public:
         friend class LLGameControllerManager;
     };
 
-    static bool isEnabled();
-    static void setEnabled(bool enabled);
+    static bool actionFromString(const std::string& string, ActionType& actionType, U8& action);
+    static std::string stringFromAction(const ActionType actionType, U8 action);
+    static std::string controllerInputStringFromAction(const ActionType actionType, U8 action);
+
+    static F32 getControllerHeldTime(ActionType actionType, U8 action);
+    static S32 getControllerHeldFrames(ActionType actionType, U8 action);
 
     static bool isInitialized();
+
+    // Bulk settings I/O is delegated to the host so this library does not
+    // need to know about LLControlGroup at compile time.
+    //   loadSettings(keys)        -- returns an LLSD map of the requested keys.
+    //                                Keys absent from the host's store are
+    //                                omitted from the returned map.
+    //   saveSettings(key_values)  -- writes every entry of the LLSD map.
+    using LoadSettingsFn = std::function<LLSD(const std::vector<std::string>&)>;
+    using SaveSettingsFn = std::function<void(const LLSD&)>;
+
     static void init(const std::string& gamecontrollerdb_path,
-        std::function<bool(const std::string&)> loadBoolean,
-        std::function<void(const std::string&, bool)> saveBoolean,
-        std::function<std::string(const std::string&)> loadString,
-        std::function<void(const std::string&, const std::string&)> saveString,
-        std::function<LLSD(const std::string&)> loadObject,
-        std::function<void(const std::string&, const LLSD&)> saveObject,
+        LoadSettingsFn loadSettings,
+        SaveSettingsFn saveSettings,
         std::function<void()> updateUI);
     static void terminate();
 
@@ -284,37 +365,36 @@ public:
     // before deciding to put a GameControlInput packet on the wire
     // or not.
     static bool computeFinalStateAndCheckForChanges();
+    static void computeFinalState();
 
     static void clearAllStates();
 
     static void processEvents(bool app_has_focus = true);
     static void handleEvent(const SDL_Event& event, bool app_has_focus);
+    static const ServerState& getServerState();
     static const State& getState();
     static InputChannel getActiveInputChannel();
     static void getFlycamInputs(std::vector<F32>& inputs_out);
 
     // these methods for accepting input from keyboard
     static void setSendToServer(bool enable);
-    static void setControlAgent(bool enable);
-    static void setTranslateAgentActions(bool enable);
     static void setAgentControlMode(AgentControlMode mode);
 
-    static bool getSendToServer();
-    static bool getControlAgent();
-    static bool getTranslateAgentActions();
+    static bool sendToServer();
     static AgentControlMode getAgentControlMode();
-    static ActionNameType getActionNameType(const std::string& action);
 
-    static bool willControlAvatar();
+    // Runtime gating for the local-control path.  "Enabled" now means simply
+    // "a controller is connected" -- the feature no longer has a separate on/off
+    // toggle (see the "GameControl always enabled" change).  willControlAvatar()
+    // and willControlFlycam() additionally gate on the active AgentControlMode.
+    static bool isEnabled();        // a controller is connected
+    static bool willControlAvatar();// enabled AND mode is Avatar/Captive
+    static bool willControlFlycam();// enabled AND mode is FlyCam
+    static ActionNameType getActionNameType(const std::string& action);
 
     // Given a name like "AXIS_1-" or "BUTTON_5" returns the corresponding InputChannel
     // If the axis name lacks the +/- postfix it assumes '+' postfix.
     static LLGameControl::InputChannel getChannelByName(const std::string& name);
-
-    // action_name = push+, strafe-, etc
-    static LLGameControl::InputChannel getChannelByAction(const std::string& action);
-
-    static bool updateActionMap(const std::string& action_name,  LLGameControl::InputChannel channel);
 
     // Keyboard presses produce action_flags which can be translated into State
     // and game_control devices produce State which can be translated into action_flags.
@@ -324,12 +404,6 @@ public:
 
     // call this after putting a GameControlInput packet on the wire
     static void updateResendPeriod();
-
-    using getChannel_t = std::function<LLGameControl::InputChannel(const std::string& action)>;
-    static std::string stringifyAnalogMappings(getChannel_t getChannel);
-    static std::string stringifyBinaryMappings(getChannel_t getChannel);
-    static std::string stringifyFlycamMappings(getChannel_t getChannel);
-    static void getDefaultMappings(std::vector<std::pair<std::string, LLGameControl::InputChannel>>& mappings);
 
     static bool parseDeviceOptions(const std::string& options, std::string& name,
         std::vector<LLGameControl::Options::AxisOptions>& axis_options,
@@ -342,6 +416,43 @@ public:
     static void initByDefault();
     static void loadFromSettings();
     static void saveToSettings();
-    static void setDeviceOptions(const std::string& guid, const Options& options);
-};
 
+    // Settings serialization helpers used by loadFromSettings/saveToSettings
+    // and exposed for callers that need to snapshot or restore module state
+    // (e.g. preference panel cancel-restore).
+    //   getSettingKeys()                 -- the host setting names this module reads/writes.
+    //   getSettingsAsLLSD()              -- snapshot of current in-memory state, keyed by the same names.
+    //   applySettingsFromLLSD(settings)  -- apply 'settings' to in-memory state.
+    //                                       Keys not present in 'settings' are left unchanged.
+    static const std::vector<std::string>& getSettingKeys();
+    static LLSD getSettingsAsLLSD();
+    static void applySettingsFromLLSD(const LLSD& settings);
+
+    // GameControl settings, stored under the single "GameControl" setting key:
+    //   ModeMappings/<Mode>/Axes|Buttons  -- GLOBAL action -> canonical-input maps
+    //   Devices/<guid>/Config             -- per-device serialized hardware options
+    // 'mode' is "Avatar"/"FlyCam"/"Captive"; 'kind' is "Axes"/"Buttons".
+    static LLSD getDefaultModeMappings();        // { <Mode> : { Axes, Buttons } }
+    static LLSD getDefaultGameControlSettings(); // full default GameControl map
+    static const LLSD& getGameControlSettings();
+    static void setGameControlSettings(const LLSD& settings);
+
+    // Global per-mode action mapping accessors.  getModeMapping falls back to the
+    // built-in defaults when an entry is missing.
+    static LLSD getModeMapping(const std::string& mode, const std::string& kind);
+    static void setModeMapping(const std::string& mode, const std::string& kind,
+        const LLSD& mapping);
+    static void updateModeMapping(const std::string& mode, const std::string& kind,
+        const std::string& action, const std::string& input);
+    static std::string getDeviceConfig(const std::string& guid);
+    static void setDeviceConfig(const std::string& guid, const std::string& config);
+
+    // "Avatar"/"FlyCam"/"Captive" for the given mode (empty for CONTROL_MODE_NONE).
+    static std::string getModeName(AgentControlMode mode);
+
+    static void setDeviceOptions(const std::string& guid, const Options& options);
+
+    // inherited from LLGameControllerBindingToStringHandler
+    virtual std::string getBindingAsString(const std::string& control) const override;
+    virtual bool hasHandlingDevice() const override;
+};

@@ -37,6 +37,7 @@ public:
     LLKeyData(EMouseClickType mouse, KEY key, MASK mask);
     LLKeyData(EMouseClickType mouse, KEY key, bool ignore_mask);
     LLKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask);
+    LLKeyData(U8 actionType, U8 action);
     LLKeyData(const LLSD &key_data);
 
     LLSD asLLSD() const;
@@ -52,6 +53,8 @@ public:
     EMouseClickType mMouse;
     KEY mKey;
     MASK mMask;
+    U8 mControllerActionType;
+    U8 mControllerAction;
     // Either to expect exact match or ignore not expected masks as long as expected mask-bit is present
     bool mIgnoreMasks;
 };

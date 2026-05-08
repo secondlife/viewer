@@ -47,13 +47,18 @@ class LLGameControlTranslator
 {
 public:
 
+    using ControllerActionTypeIndex = std::pair<LLGameControl::ActionType,U32>;
+    using ControllerMapping = std::pair<ControllerActionTypeIndex, U32>;
+    using ControllerMappings = std::vector<ControllerMapping>;
+
     using ActionToMaskMap = std::map< std::string, U32 >; // < action : mask >
     using MaskToChannelMap = std::map< U32, LLGameControl::InputChannel >; // < mask : channel >
     using NamedChannel = std::pair < std::string , LLGameControl::InputChannel >;
     using NamedChannels = std::vector< NamedChannel >;
 
-
     LLGameControlTranslator();
+    const S32 calculateTranslatedButtons(const ControllerMappings& mapping, const LLGameControl::State state);
+    void calculateTranslatedAxes(const ControllerMappings& mapping, const LLGameControl::State& state, std::vector<U16>& outDOF);
     void setAvailableActionMasks(ActionToMaskMap& action_to_mask);
     LLGameControl::InputChannel getChannelByAction(const std::string& action) const;
     void setMappings(NamedChannels& named_channels);

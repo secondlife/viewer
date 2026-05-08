@@ -31,6 +31,7 @@
  */
 
 #include "llgamecontroltranslator.h"
+#include "llgamecontrol.h"
 #include "llsd.h"
 
 
@@ -38,6 +39,81 @@ using ActionToMaskMap = LLGameControlTranslator::ActionToMaskMap;
 
 LLGameControlTranslator::LLGameControlTranslator()
 {
+}
+
+
+
+const S32 LLGameControlTranslator::calculateTranslatedButtons(
+    const ControllerMappings& mappings,
+    const LLGameControl::State state
+)
+{
+    // HACK: supply hard-coded threshold for ON/OFF zones
+    constexpr S32 AXIS_THRESHOLD = 32768 / 8;
+
+    S32 result = 0;
+
+
+
+    size_t axesSize = state.mAxes.size();
+    for(const ControllerMapping& mapping : mappings)
+    {
+        const ControllerActionTypeIndex& from = mapping.first;
+        const U32 to = mapping.second;
+
+        U8 btn = 0;
+
+        if(from.first == LLGameControl::ActionType::BUTTON)
+        {
+            btn = (state.mButtons & (1 << from.second)) > 0;
+        }
+        else if(from.first == LLGameControl::ActionType::DOF)
+        {
+            if(from.second < axesSize) {
+                btn = state.mAxes[from.second] > AXIS_THRESHOLD;
+            }
+        }
+
+        result |= to * btn;
+    }
+    return result;
+}
+
+void LLGameControlTranslator::calculateTranslatedAxes(
+    const ControllerMappings& mappings,
+    const LLGameControl::State& state,
+    std::vector<U16>& outDOF
+)
+{
+    std::fill(outDOF.begin(), outDOF.end(), 0);
+
+    size_t outDOFSize = outDOF.size();
+    size_t dofSize = state.mAxes.size();
+    for(const ControllerMapping& mapping : mappings)
+    {
+        const ControllerActionTypeIndex& from = mapping.first;
+        const U32 to = mapping.second;
+
+        if(to >= outDOFSize)
+        {
+            continue;
+        }
+
+        S16 dof = 0;
+
+        if(from.first == LLGameControl::ActionType::BUTTON)
+        {
+            dof = 1.0 * ((state.mButtons & (1 << from.second)) > 0);
+        }
+        else if(from.first == LLGameControl::ActionType::DOF)
+        {
+            if(from.second < dofSize) {
+                dof = state.mAxes[from.second];
+            }
+        }
+
+        outDOF[to] = dof;
+    }
 }
 
 void LLGameControlTranslator::setAvailableActionMasks(ActionToMaskMap& action_to_mask)
@@ -136,18 +212,18 @@ void LLGameControlTranslator::updateMap(const std::string& action, const LLGameC
             // and those are pretty much the only supported devices right now
             // however TODO: figure out how to do this better.
             //
-            // AXIS_TRIGGERLEFT and AXIS_TRIGGERRIGHT are separate axes and most devices
+            // AXIS_LEFT_TRIGGER and AXIS_RIGHT_TRIGGER are separate axes and most devices
             // only allow them to read positive, not negative. When used for motion control
             // they are typically paired together. We assume as much here when computing
             // the other_channel.
-            if (channel.mIndex == LLGameControl::AXIS_TRIGGERLEFT)
+            if (channel.mIndex == LLGameControl::AXIS_LEFT_TRIGGER)
             {
-                other_channel.mIndex = LLGameControl::AXIS_TRIGGERRIGHT;
+                other_channel.mIndex = LLGameControl::AXIS_RIGHT_TRIGGER;
                 other_channel.mSign = 1;
             }
-            else if (channel.mIndex == LLGameControl::AXIS_TRIGGERRIGHT)
+            else if (channel.mIndex == LLGameControl::AXIS_RIGHT_TRIGGER)
             {
-                other_channel.mIndex = LLGameControl::AXIS_TRIGGERLEFT;
+                other_channel.mIndex = LLGameControl::AXIS_LEFT_TRIGGER;
                 other_channel.mSign = 1;
             }
             updateMapInternal(action + "-", other_channel);
