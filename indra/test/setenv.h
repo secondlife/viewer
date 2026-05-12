@@ -6,7 +6,7 @@
  *         environment before entry to main().
  *
  * $LicenseInfo:firstyear=2020&license=viewerlgpl$
- * Copyright (c) 2020, Linden Research, Inc.
+ * Copyright (c) 2026, Linden Research, Inc.
  * $/LicenseInfo$
  */
 
