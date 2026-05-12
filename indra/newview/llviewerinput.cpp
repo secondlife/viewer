@@ -840,8 +840,19 @@ bool toggle_voice(EKeystate s)
     // Toggle mic mute state directly instead of going through PTT toggle.
     // This works correctly for both PTT mode (press-to-talk) and non-PTT mode (voice control).
     // In PTT mode: mic unmutes on press, mic mutes on release (correct press-to-talk behavior)
-    // In non-PTT mode: mic unmutes when enabling voice, mic mutes when disabling voice
-    LLVoiceClient::getInstance()->setMuteMic(!LLVoiceClient::getInstance()->getMuteMic());
+    // In non-PTT mode: mic unmutes when enabling voice, mic stays in current state when disabling voice
+    //                  (respects OS-level mute that may have been applied while voice was active)
+    if (LLVoiceClient::getInstance()->voiceEnabled())
+    {
+        // Voice is enabled, disable it and leave mic in current state (respect OS mute)
+        LLVoiceClient::setVoiceEnabled(false);
+    }
+    else
+    {
+        // Voice is disabled, enable it and unmute the mic
+        LLVoiceClient::setVoiceEnabled(true);
+        LLVoiceClient::getInstance()->setMuteMic(false);
+    }
     return true;
 }
 
