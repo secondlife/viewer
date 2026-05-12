@@ -434,6 +434,7 @@ public:
     void setUserVolume(const LLUUID& id, F32 volume); // set's volume for specified agent, from 0-1 (where .5 is nominal)
     bool voiceEnabled();
     void setMuteMic(bool muted);        // Use this to mute the local mic (for when the client is minimized, etc), ignoring user PTT state.
+    bool getMuteMic() const { return mMuteMic; }
     void setUserPTTState(bool ptt);
     bool getUserPTTState();
     void toggleUserPTTState(void);
