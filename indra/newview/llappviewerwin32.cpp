@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -854,12 +854,7 @@ bool LLAppViewerWin32::cleanup()
     bool result = LLAppViewer::cleanup();
 
     gDXHardware.cleanup();
-
-    if (mIsConsoleAllocated)
-    {
-        FreeConsole();
-        mIsConsoleAllocated = false;
-    }
+    cleanupConsole();
 
     return result;
 }
@@ -941,6 +936,15 @@ void LLAppViewerWin32::initConsole()
     // pop up debug console
     mIsConsoleAllocated = create_console();
     return LLAppViewer::initConsole();
+}
+
+void LLAppViewerWin32::cleanupConsole()
+{
+    if (mIsConsoleAllocated)
+    {
+        FreeConsole();
+        mIsConsoleAllocated = false;
+    }
 }
 
 void write_debug_dx(const char* str)

@@ -17,7 +17,7 @@
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -276,6 +276,7 @@ protected:
     virtual bool initWindow(); // Initialize the viewer's window.
     virtual void initLoggingAndGetLastDuration(); // Initialize log files, logging system
     virtual void initConsole() {}; // Initialize OS level debugging console.
+    virtual void cleanupConsole() {}; // Cleanup OS level debugging console.
     virtual bool initHardwareTest() { return true; } // A false result indicates the app should quit.
     virtual bool initSLURLHandler();
     virtual bool sendURLToOtherInstance(const std::string& url);
