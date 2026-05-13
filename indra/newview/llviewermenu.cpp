@@ -9641,6 +9641,16 @@ void handle_flush_name_caches()
     if (gCacheName) gCacheName->clear();
 }
 
+bool is_master_audio_muted()
+{
+    return LLAppViewer::instance()->getMasterSystemAudioMute();
+}
+
+void toggle_master_audio()
+{
+    LLAppViewer::instance()->setMasterSystemAudioMute(!is_master_audio_muted());
+}
+
 class LLUploadCostCalculator : public view_listener_t
 {
     std::string mCostStr;
@@ -9912,6 +9922,8 @@ void initialize_menus()
     view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
     view_listener_t::addMenu(new LLWorldCheckBanLines() , "World.CheckBanLines");
     view_listener_t::addMenu(new LLWorldShowBanLines() , "World.ShowBanLines");
+    commit.add("World.ToggleMasterAudio", boost::bind(&toggle_master_audio));
+    enable.add("World.IsMasterAudioMuted", boost::bind(&is_master_audio_muted));
 
     // Tools menu
     view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");

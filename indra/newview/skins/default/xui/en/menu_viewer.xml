@@ -1030,7 +1030,15 @@
 	     	 	 	parameter="pause_clouds" />
 	     	 	</menu_item_check>
 	     	</menu>
-	     	
+        <menu_item_check
+          label="Mute/unmute sound"
+          name="toggle_sound"
+          shortcut="control|alt|shift|M">
+          <menu_item_check.on_click
+           function="World.ToggleMasterAudio"/>
+          <menu_item_check.on_check
+           function="World.IsMasterAudioMuted"/>
+        </menu_item_check>
 <!--   
 	    <menu
 	     create_jump_keys="true"
