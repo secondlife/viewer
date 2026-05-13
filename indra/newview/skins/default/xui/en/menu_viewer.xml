@@ -1003,6 +1003,17 @@
                  parameter="region" />
             </menu_item_check>
         <menu_item_separator/>
+           <menu_item_check
+             label="Switch to Shared after teleport"
+             name="Switch to Shared after teleport">
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="SwitchToSharedEnvAfterTeleport" />
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="SwitchToSharedEnvAfterTeleport" />
+            </menu_item_check>
+            <menu_item_separator/>
 	     	<menu_item_call
 	     	 label="My Environments..."
 	     	 name="my_environs">

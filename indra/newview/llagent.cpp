@@ -44,6 +44,7 @@
 #include "llchicletbar.h"
 #include "llconsole.h"
 #include "lldonotdisturbnotificationstorage.h"
+#include "llenvironment.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloaterimcontainer.h"
@@ -4171,6 +4172,11 @@ void LLAgent::handleTeleportFinished()
                                   << LL_ENDL;
             mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::onCapabilitiesReceivedAfterTeleport));
         }
+    }
+    static LLCachedControl<bool> shared_env_on_teleport(gSavedSettings, "SwitchToSharedEnvAfterTeleport", true);
+    if (shared_env_on_teleport)
+    {
+        LLEnvironment::instance().setSharedEnvironment();
     }
     LLPerfStats::tunables.autoTuneTimeout = true;
 }
