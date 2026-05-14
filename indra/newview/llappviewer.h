@@ -76,7 +76,7 @@ typedef enum
     LAST_EXEC_LOGOUT_CRASH,
     LAST_EXEC_BAD_ALLOC,
     LAST_EXEC_MISSING_FILES,
-    LAST_EXEC_GRAPHICS_INIT,
+    LAST_EXEC_INIT,
     LAST_EXEC_UNKNOWN,
     LAST_EXEC_LOGOUT_UNKNOWN,
     LAST_EXEC_COUNT
@@ -256,6 +256,8 @@ public:
 
     void createCloseRequestMarker() const;
     void removeCloseRequestMarker() const;
+    void createInitedMarker() const;
+    void removeInitedMarker() const;
     void createWatchdogMarker() const;
     void removeWatchdogMarker() const;
 

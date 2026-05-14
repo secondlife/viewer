@@ -384,6 +384,7 @@ const std::string START_MARKER_FILE_NAME("SecondLife.start_marker");
 const std::string ERROR_MARKER_FILE_NAME("SecondLife.error_marker");
 const std::string LOGOUT_MARKER_FILE_NAME("SecondLife.logout_marker");
 const std::string WATCHDOG_MARKER_FILE_NAME("SecondLife.watchdog_marker");
+const std::string INITED_MARKER_FILE_NAME("SecondLife.inited_marker");
 const std::string CLOSE_EVENT_MARKER_FILE_NAME("SecondLife.close_marker");
 static std::string gLaunchFileOnQuit;
 
@@ -690,6 +691,12 @@ LLAppViewer::LLAppViewer()
 
     gLoggedInTime.stop();
 
+    // Locking this early is needed to prevent multiple instances and
+    // to log, but it also means that early paths such as SLURL handling
+    // can invoke processMarkerFiles() and potentially clear markers
+    // from previous runs before those stats are reported.
+    // Todo: improve this. Perhaps store stats 'permanently' to be reported
+    // on next login and only login cleans stats up?
     processMarkerFiles();
     //
     // OK to write stuff to logs now, we've now crash reported if necessary
@@ -2289,6 +2296,9 @@ void errorHandler(const std::string& title_string, const std::string& message_st
         break;
     case LLError::LLUserWarningMsg::ERROR_MISSING_FILES:
         LLAppViewer::instance()->createErrorMarker(LAST_EXEC_MISSING_FILES);
+        break;
+    case LLError::LLUserWarningMsg::ERROR_INIT_FAILED:
+        LLAppViewer::instance()->createErrorMarker(LAST_EXEC_INIT);
         break;
     default:
         break;
@@ -4044,6 +4054,9 @@ void LLAppViewer::processMarkerFiles()
     // - Freeze (SecondLife.exec_marker present, not locked)
     // - LLError Crash (SecondLife.llerror_marker present)
     // - Other Crash (SecondLife.error_marker present)
+    // - Watchdog freeze (SecondLife.watchdog_marker present)
+    // - Failed to initialize (SecondLife.inited_marker not present)
+    // - Potentially killed by task manager (SecondLife.close_marker present)
     // These checks should also remove these files for the last 2 cases if they currently exist
 
     std::ostringstream marker_log_stream;
@@ -4156,6 +4169,7 @@ void LLAppViewer::processMarkerFiles()
     // Bugsplat will set correct state in bugsplatSendLog.
     std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
     std::string watchdog_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, WATCHDOG_MARKER_FILE_NAME);
+    std::string inited_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, INITED_MARKER_FILE_NAME);
     std::string close_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, CLOSE_EVENT_MARKER_FILE_NAME);
     if(LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
     {
@@ -4226,11 +4240,25 @@ void LLAppViewer::processMarkerFiles()
                         << LL_ENDL;
                 }
             }
+            else if ((LAST_EXEC_UNKNOWN == gLastExecEvent)
+                && !LLAPRFile::isExist(inited_marker_file, NULL, LL_APR_RB))
+            {
+                // Viewer didn't get to a login screen.
+                gLastExecEvent = LAST_EXEC_INIT;
+                LL_INFOS("MarkerFile") << "'Inited' marker '"
+                    << inited_marker_file
+                    << "' not found, assuming that init crashed."
+                    << LL_ENDL;
+            }
         }
     }
     if (LLAPRFile::isExist(watchdog_marker_file, NULL, LL_APR_RB))
     {
         removeWatchdogMarker();
+    }
+    if (LLAPRFile::isExist(inited_marker_file, NULL, LL_APR_RB))
+    {
+        removeInitedMarker();
     }
     if (LLAPRFile::isExist(close_marker_file, NULL, LL_APR_RB))
     {
@@ -5691,8 +5719,33 @@ void LLAppViewer::removeCloseRequestMarker() const
 {
     if (!mSecondInstance)
     {
-        std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, CLOSE_EVENT_MARKER_FILE_NAME);
-        LLFile::remove(error_marker_file, ENOENT);
+        std::string close_marker = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, CLOSE_EVENT_MARKER_FILE_NAME);
+        LLFile::remove(close_marker, ENOENT);
+    }
+}
+
+void LLAppViewer::createInitedMarker() const
+{
+    if (!mSecondInstance)
+    {
+        std::string inited_marker = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, INITED_MARKER_FILE_NAME);
+
+        LLAPRFile file;
+        file.open(inited_marker, LL_APR_WB);
+        if (file.getFileHandle())
+        {
+            recordMarkerVersion(file);
+            file.close();
+        }
+    }
+}
+
+void LLAppViewer::removeInitedMarker() const
+{
+    if (!mSecondInstance)
+    {
+        std::string inited_marker = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, INITED_MARKER_FILE_NAME);
+        LLFile::remove(inited_marker, ENOENT);
     }
 }
 
