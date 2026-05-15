@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script ed float" title="SCRIPT: NOVO SCRIPT">
 	<floater.string name="not_allowed">
-		Você não pode ver ou editar o script, uma vez que está definido como &quot;não&quot; copiar. Você precisa de permissões para ver ou editar um script dentro de um objeto.
+		Você não pode ver ou editar este script, pois ele está definido como &quot;não copiável&quot; ou &quot;não modificável&quot;. Você precisa dessas permissões para ver ou editar um script dentro de um objeto.
 	</floater.string>
 	<floater.string name="script_running">
 		Executando

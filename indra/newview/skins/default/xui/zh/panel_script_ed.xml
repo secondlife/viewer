@@ -4,7 +4,7 @@
 		載入中...
 	</panel.string>
 	<panel.string name="can_not_view">
-		你無法察看或編輯這腳本，它被設為「禁止複製」。 你需要完整權限去察看或編輯物件內的腳本。
+		你無法察看或編輯這腳本，因為它被設為「禁止複製」或「禁止修改」。你需要這些權限才能察看或編輯物件內的腳本。
 	</panel.string>
 	<panel.string name="public_objects_can_not_run">
 		公開物件不能執行腳本

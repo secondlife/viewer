@@ -412,6 +412,21 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
     return reset_count == 0;
 }
 
+bool LLAppViewerMacOSX::initSLURLHandler()
+{
+    if (isSecondInstance())
+    {
+        return false;
+    }
+    // Main secondlife:// registration is in info.plist, but macOS
+    // Launch Services caches URL scheme handlers, and a different
+    // viewer might still be registered.
+    // Register URL schemes with Launch Services on every launch
+    register_url_schemes();
+
+    return true;
+}
+
 std::string LLAppViewerMacOSX::generateSerialNumber()
 {
     char serial_md5[MD5HEX_STR_SIZE];       // Flawfinder: ignore

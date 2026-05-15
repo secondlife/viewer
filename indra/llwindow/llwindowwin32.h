@@ -40,6 +40,12 @@
 
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
+// For requesting shutdown on uninstall,
+// make sure it does not conflict with messages like WM_DUMMY_
+inline constexpr UINT WM_POST_UNINSTALL_ = WM_USER + 0x0019;
+inline constexpr DWORD WM_POST_UNINSTALL_MSG_SHUTDOWN = 1;
+inline constexpr DWORD WM_POST_UNINSTALL_MSG_UPDATE = 2;
+
 typedef void (*LLW32MsgCallback)(const MSG &msg);
 
 class LLWindowWin32 : public LLWindow
@@ -232,6 +238,7 @@ protected:
     LPWSTR      mIconResource;
     LPWSTR      mIconSmallResource;
     bool        mInputProcessingPaused;
+    bool        mReceivedSCClose; // received SC_CLOSE and expecting WM_CLOSE
 
     // The following variables are for Language Text Input control.
     // They are all static, since one context is shared by all LLWindowWin32

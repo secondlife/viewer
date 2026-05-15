@@ -314,6 +314,7 @@ namespace LLError
             ERROR_OTHER = 0,
             ERROR_BAD_ALLOC = 1,
             ERROR_MISSING_FILES = 2,
+            ERROR_INIT_FAILED = 3,
         } eLastExecEvent;
 
         // tittle, message and error code to include in error marker file

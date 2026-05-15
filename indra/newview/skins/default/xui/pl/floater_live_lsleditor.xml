@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater name="script ed float" title="SKRYPT: NOWY SKRYPT">
 	<floater.string name="not_allowed">
-		Nie posiadasz praw do podejrzenia lub edycji kodu tego skryptu, ponieważ ma on ustawione ograniczone zezwolenia. Musisz posiadać pełne prawa by móc zobaczyć lub edytować kod skryptu wewnątrz obiektu.
+		Nie możesz zobaczyć ani edytować tego skryptu, ponieważ ustawiono dla niego &quot;brak kopiowania&quot; lub &quot;brak modyfikacji&quot;. Aby zobaczyć lub edytować skrypt wewnątrz obiektu, potrzebujesz tych uprawnień.
 	</floater.string>
 	<floater.string name="script_running">
 		Włączony

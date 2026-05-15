@@ -44,6 +44,13 @@
          function="Tools.Link"/>
       </menu_item_call>
       <menu_item_call
+       label="Visited places..."
+       name="Visited Places"
+       shortcut="control|shift|L">
+        <menu_item_call.on_click
+         function="Tools.Unlink"/>
+      </menu_item_call>
+      <menu_item_call
        label="Picks..."
        name="Picks">
         <menu_item_call.on_click
@@ -1003,6 +1010,17 @@
                  parameter="region" />
             </menu_item_check>
         <menu_item_separator/>
+           <menu_item_check
+             label="Switch to Shared after teleport"
+             name="Switch to Shared after teleport">
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="SwitchToSharedEnvAfterTeleport" />
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="SwitchToSharedEnvAfterTeleport" />
+            </menu_item_check>
+            <menu_item_separator/>
 	     	<menu_item_call
 	     	 label="My Environments..."
 	     	 name="my_environs">
@@ -1030,7 +1048,15 @@
 	     	 	 	parameter="pause_clouds" />
 	     	 	</menu_item_check>
 	     	</menu>
-	     	
+        <menu_item_check
+          label="Mute/unmute sound"
+          name="toggle_sound"
+          shortcut="control|alt|shift|M">
+          <menu_item_check.on_click
+           function="World.ToggleMasterAudio"/>
+          <menu_item_check.on_check
+           function="World.IsMasterAudioMuted"/>
+        </menu_item_check>
 <!--   
 	    <menu
 	     create_jump_keys="true"
@@ -1804,14 +1830,6 @@ function="World.EnvPreset"
      label="Help"
      name="Help"
      tear_off="true">
-        <menu_item_call
-         label="Guidebook"
-         name="How To"
-         shortcut="F1">
-            <menu_item_call.on_click
-             function="Help.ToggleHowTo"
-             parameter="" />
-        </menu_item_call>
 <!--        <menu_item_call
          label="Tutorial"
          name="Tutorial">
@@ -1819,7 +1837,6 @@ function="World.EnvPreset"
              function="Floater.Show"
              parameter="hud" />
         </menu_item_call>-->
-		<menu_item_separator/>
         <menu_item_call
              label="Knowledge Base"
              name="Knowledge Base">

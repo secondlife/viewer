@@ -832,6 +832,7 @@ bool idle_startup()
         set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
         do_startup_frame();
         // LLViewerMedia::initBrowser();
+        LLAppViewer::instance()->createInitedMarker();
         LLStartUp::setStartupState( STATE_LOGIN_SHOW );
         return false;
     }

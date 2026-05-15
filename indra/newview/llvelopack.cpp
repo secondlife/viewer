@@ -43,6 +43,7 @@
 #include "Velopack.h"
 
 #if LL_WINDOWS
+#include "llappviewerwin32.h"
 #include <windows.h>
 #include <shlobj.h>
 #include <shobjidl.h>
@@ -666,8 +667,12 @@ static void on_before_uninstall(void* user_data, const char* app_version)
 
     unregister_protocol_handler(PROTOCOL_SECONDLIFE);
     unregister_protocol_handler(PROTOCOL_GRID_INFO);
-    unregister_uninstall_info();
     remove_shortcuts(app_name);
+
+    std::wstring install_dir = get_install_dir();
+    LLAppViewerWin32::sendShutdownToOtherInstances(install_dir);
+
+    unregister_uninstall_info();
 }
 
 static void on_log_message(void* user_data, const char* level, const char* message)
