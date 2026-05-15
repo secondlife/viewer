@@ -1956,7 +1956,7 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
     mConversationEventQueue.erase(uuid);
 
     // Don't let the focus fall IW, select and refocus on the first conversation in the list
-    if (change_focus && isInVisibleChain())
+    if (change_focus && is_widget_selected && isInVisibleChain())
     {
         setFocus(true);
         if (new_selection)
