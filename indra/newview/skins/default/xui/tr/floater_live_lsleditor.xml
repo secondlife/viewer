@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script ed float" title="KOMUT DOSYASI: YENİ KOMUT DOSYASI">
 	<floater.string name="not_allowed">
-		Bu komut dosyasını görüntüleyemez veya düzenleyemezsiniz, çünkü &quot;kopyalanamaz&quot; olarak ayarlanmıştır. Bir nesnenin içerisindeki bir komut dosyasını görüntülemek veya düzenlemek için tam izinlere ihtiyacınız var.
+		Bu komut dosyasını görüntüleyemez veya düzenleyemezsiniz, çünkü &quot;kopyalanamaz&quot; veya &quot;değiştirilemez&quot; olarak ayarlanmıştır. Bir nesnenin içerisindeki bir komut dosyasını görüntülemek veya düzenlemek için bu izinlere ihtiyacınız var.
 	</floater.string>
 	<floater.string name="script_running">
 		Çalışıyor
