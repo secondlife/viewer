@@ -44,6 +44,13 @@
          function="Tools.Link"/>
       </menu_item_call>
       <menu_item_call
+       label="Visited places..."
+       name="Visited Places"
+       shortcut="control|shift|L">
+        <menu_item_call.on_click
+         function="Tools.Unlink"/>
+      </menu_item_call>
+      <menu_item_call
        label="Picks..."
        name="Picks">
         <menu_item_call.on_click

@@ -5183,6 +5183,27 @@ void handle_link_objects()
     }
 }
 
+void handle_unlink_objects()
+{
+    if (LLSelectMgr::getInstance()->getSelection()->isEmpty())
+    {
+        LLPanel* visited_panel = LLFloaterSidePanelContainer::getPanel("places", "Teleport History");
+        if (visited_panel && visited_panel->isInVisibleChain())
+        {
+            LLFloaterReg::hideInstance("places");
+        }
+        else
+        {
+            LLFloaterReg::toggleInstanceOrBringToFront("places");
+            LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "open_teleport_history_tab"));
+        }
+    }
+    else
+    {
+        LLSelectMgr::getInstance()->unlinkObjects();
+    }
+}
+
 // You can return an object to its owner if it is on your land.
 class LLObjectReturn : public view_listener_t
 {
@@ -9940,7 +9961,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToolsUseSelectionForGrid(), "Tools.UseSelectionForGrid");
     view_listener_t::addMenu(new LLToolsSelectNextPartFace(), "Tools.SelectNextPart");
     commit.add("Tools.Link", boost::bind(&handle_link_objects));
-    commit.add("Tools.Unlink", boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
+    commit.add("Tools.Unlink", boost::bind(&handle_unlink_objects));
     view_listener_t::addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
     view_listener_t::addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
     view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");
