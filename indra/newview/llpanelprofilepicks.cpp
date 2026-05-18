@@ -655,7 +655,10 @@ bool LLPanelProfilePick::postBuild()
 void LLPanelProfilePick::reshape(S32 width, S32 height, bool called_from_parent)
 {
     LLPanelProfilePropertiesProcessorTab::reshape(width, height, called_from_parent);
-    mPickLocation->setCursor(0);
+    if (mPickLocation)
+    {
+        mPickLocation->setCursor(0);
+    }
 }
 
 void LLPanelProfilePick::onDescriptionFocusReceived()

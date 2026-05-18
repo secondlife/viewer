@@ -230,14 +230,14 @@ public:
 
 protected:
 
-    LLTextureCtrl*      mSnapshotCtrl;
-    LLLineEditor*       mPickName;
-    LLTextEditor*       mPickDescription;
-    LLLineEditor*       mPickLocation;
-    LLButton*           mSetCurrentLocationButton;
-    LLButton*           mSaveButton;
-    LLButton*           mCreateButton;
-    LLButton*           mCancelButton;
+    LLTextureCtrl*      mSnapshotCtrl = nullptr;
+    LLLineEditor*       mPickName = nullptr;
+    LLTextEditor*       mPickDescription = nullptr;
+    LLLineEditor*       mPickLocation = nullptr;
+    LLButton*           mSetCurrentLocationButton = nullptr;
+    LLButton*           mSaveButton = nullptr;
+    LLButton*           mCreateButton = nullptr;
+    LLButton*           mCancelButton = nullptr;
 
     LLVector3d mPosGlobal;
     LLUUID mParcelId;
