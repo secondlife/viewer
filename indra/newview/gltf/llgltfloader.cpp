@@ -1721,8 +1721,16 @@ glm::mat4 LLGLTFLoader::computeViewerBindMatrix(
     }
 
     const JointNodeData& node_data = node_iter->second;
+    if (!node_data.mIsOverrideValid)
+    {
+        // No valid override, falling back to rest matrix.
+        glm::mat4 fallback_bind = rotateGltfMatrixToViewerSpace(node_data.mGltfRestMatrix);
+        converted_bind_matrices[gltf_node_index] = fallback_bind;
+        return fallback_bind;
+    }
+
     auto bind_iter = rotated_bind_matrices.find(gltf_node_index);
-    if (bind_iter == rotated_bind_matrices.end() || !node_data.mIsOverrideValid)
+    if (bind_iter == rotated_bind_matrices.end())
     {
         converted_bind_matrices[gltf_node_index] = node_data.mOverrideRestMatrix;
         return node_data.mOverrideRestMatrix;
