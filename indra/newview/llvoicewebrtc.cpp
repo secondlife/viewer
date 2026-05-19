@@ -1678,6 +1678,10 @@ void LLWebRTCVoiceClient::setVoiceVolume(F32 volume)
 
 void LLWebRTCVoiceClient::predSetSpeakerVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume)
 {
+    if (session->mShuttingDown)
+    {
+        return;
+    }
     session->setSpeakerVolume(volume);
 }
 
@@ -1906,6 +1910,10 @@ LLWebRTCVoiceClient::sessionState::sessionState() :
 
 void LLWebRTCVoiceClient::predUpdateOwnVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 audio_level)
 {
+    if (session->mShuttingDown)
+    {
+        return;
+    }
     participantStatePtr_t participant = session->findParticipantByID(gAgentID);
     if (participant)
     {
@@ -1934,9 +1942,16 @@ void LLWebRTCVoiceClient::sessionState::sendData(const std::string &data)
 void LLWebRTCVoiceClient::sessionState::setMuteMic(bool muted)
 {
     mMuted = muted;
+    if (mShuttingDown)
+    {
+        return;
+    }
     for (auto &connection : mWebRTCConnections)
     {
-        connection->setMuteMic(muted);
+        if (!connection->isShuttingDown())
+        {
+            connection->setMuteMic(muted);
+        }
     }
 }
 
@@ -1945,7 +1960,10 @@ void LLWebRTCVoiceClient::sessionState::setSpeakerVolume(F32 volume)
     mSpeakerVolume = volume;
     for (auto &connection : mWebRTCConnections)
     {
-        connection->setSpeakerVolume(volume);
+        if (!connection->isShuttingDown())
+        {
+            connection->setSpeakerVolume(volume);
+        }
     }
 }
 
@@ -1957,7 +1975,10 @@ void LLWebRTCVoiceClient::sessionState::setUserVolume(const LLUUID &id, F32 volu
     }
     for (auto &connection : mWebRTCConnections)
     {
-        connection->setUserVolume(id, volume);
+        if (!connection->isShuttingDown())
+        {
+            connection->setUserVolume(id, volume);
+        }
     }
 }
 
@@ -1969,7 +1990,10 @@ void LLWebRTCVoiceClient::sessionState::setUserMute(const LLUUID &id, bool mute)
     }
     for (auto &connection : mWebRTCConnections)
     {
-        connection->setUserMute(id, mute);
+        if (!connection->isShuttingDown())
+        {
+            connection->setUserMute(id, mute);
+        }
     }
 }
 /*static*/
