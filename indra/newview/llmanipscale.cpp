@@ -1309,6 +1309,12 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
     LLVector3 grid_scale;
     LLQuaternion grid_rotation;
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    if (!camera)
+    {
+        // can be null on shutdown
+        return;
+    }
 
     bool uniform = LLManipScale::getUniform();
 
