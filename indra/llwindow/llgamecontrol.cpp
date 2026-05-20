@@ -1116,11 +1116,9 @@ void LLGameControllerManager::computeFinalState()
     // finish by accumulating "external" state (if enabled)
     U32 old_buttons = g_finalState.mButtons;
     g_finalState.mButtons = mButtonAccumulator;
-    if (g_translateAgentActions)
-    {
-        // accumulate from mExternalState
-        g_finalState.mButtons |= mExternalState.mButtons;
-    }
+
+    g_finalState.mButtons |= mExternalState.mButtons;
+
     if (old_buttons != g_finalState.mButtons)
     {
         g_nextResendPeriod = 0; // packet needs to go out ASAP
