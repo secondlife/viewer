@@ -775,8 +775,8 @@ void LLFloaterPreference::onOpen(const LLSD& key)
     updateClickActionViews();
 
 #if LL_LINUX
-    // Lixux doesn't support automatic mode
-    LLComboBox* combo = getChild<LLComboBox>("double_click_action_combo");
+    // Lixux doesn't support automatic maose warp mode
+    LLComboBox* combo = getChild<LLComboBox>("mouse_warp_combo");
     S32 mode = gSavedSettings.getS32("MouseWarpMode");
     if (mode == 0)
     {
