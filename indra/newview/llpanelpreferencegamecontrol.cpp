@@ -443,10 +443,19 @@ void LLPanelPreferenceGameControl::onCommitNumericValue()
     }
 }
 
+void LLPanelPreferenceGameControl::onChangeGameControlEnabled()
+{
+    bool enabled = gSavedSettings.getBOOL("EnableGameControl");
+    LLGameControl::setEnabled(enabled);
+    updateEnable();
+}
+
 // Initializes all UI controls and sets up callbacks.
 // Called once when the panel is first built from XML.
 bool LLPanelPreferenceGameControl::postBuild()
 {
+    gSavedSettings.getControl("EnableGameControl")->getSignal()->connect(boost::bind(&LLPanelPreferenceGameControl::onChangeGameControlEnabled, this));
+
     // Main checkboxes that control how game input is used
     mCheckGameControlToServer = getChild<LLCheckBoxCtrl>("game_control_to_server");
     mCheckGameControlToAgent = getChild<LLCheckBoxCtrl>("game_control_to_agent");

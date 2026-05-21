@@ -10,9 +10,10 @@
     top="1"
     width="517">
     <check_box
-        name="game_control_to_server"
-        control_name="GameControlToServer"
-        label="Send GameControl Data to server"
+        name="game_control_enabled"
+        control_name="EnableGameControl"
+        label="Gamecontroller"
+        tool_tip="Enable Gamecontroller support"
         layout="topleft"
         height="15"
         left="10"
@@ -23,6 +24,14 @@
         label="GameControl moves avatar and flycam"
         layout="topleft"
         height="15"
+        left="250"
+        top="10"/>
+    <check_box
+        name="game_control_to_server"
+        control_name="GameControlToServer"
+        label="Send GameControl Data to server"
+        layout="topleft"
+        height="15"
         left="10"
         top="30"/>
     <check_box
@@ -31,13 +40,13 @@
         label="Avatar actions interpreted as GameControl"
         layout="topleft"
         height="15"
-        left="10"
-        top="50"/>
+        left="250"
+        top="30"/>
     <tab_container
         name="game_control_tabs"
         layout="topleft"
         follows="all"
-        top="70"
+        top="50"
         left="2"
         right="-2"
         bottom="-32">

@@ -2538,7 +2538,7 @@ function="World.EnvPreset"
      name="Develop"
      tear_off="true"
      visible="false">
-        <menu
+        <!--menu
          create_jump_keys="true"
          label="Experimental Features"
          name="Experimental Features"
@@ -2553,7 +2553,7 @@ function="World.EnvPreset"
                  function="Advanced.ToggleExperiment"
                  parameter="GameControl" />
             </menu_item_check>
-        </menu>
+        </menu-->
         <menu
          create_jump_keys="true"
          label="Consoles"

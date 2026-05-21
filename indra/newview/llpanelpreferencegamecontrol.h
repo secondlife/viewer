@@ -93,6 +93,7 @@ public:
     void onCommitInputChannel(LLUICtrl* ctrl); // Handle channel combobox selection
     void onAxisOptionsSelect();                // Handle axis options table selection
     void onCommitNumericValue();               // Handle deadzone/offset value changes
+    void onChangeGameControlEnabled();         // Handle EnableGameControl toggle
 
     // Live input capture support
     static bool isWaitingForInputChannel();    // True if a cell is waiting for input

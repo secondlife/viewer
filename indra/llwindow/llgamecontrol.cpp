@@ -434,7 +434,7 @@ namespace
     U64 g_lastSend = 0;
     U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
 
-    bool g_enabled = false;
+    bool g_enabled = true;
     bool g_sendToServer = false;
     bool g_controlAgent = false;
     bool g_translateAgentActions = false;
