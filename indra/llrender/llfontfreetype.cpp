@@ -720,7 +720,50 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, ll
         llassert_always_msg(FT_Err_Ok == error, message.c_str());
     }
 
-    llassert_always(! FT_Render_Glyph(mFTFace->glyph, gFontRenderMode) );
+    // TODO: Make this more sturdy, make asserts/ll_errs conditional
+    // to non-critical characters.
+    // Temporarily leaving them for data gathering, but unicode chars
+    // like emojis should not cause the app to crash and should either
+    // fallback to some predetermined bitmap or simply return.
+
+    // Verify glyph slot is valid
+    if (!mFTFace->glyph)
+    {
+        LL_ERRS() << "FT_Load_Glyph succeeded but glyph slot is null for wchar " << llformat("U+%xu", U32(wch)) << LL_ENDL;
+        return;
+    }
+
+    // Check if bitmap buffer is already allocated
+    // It can potentially be preallocated for:
+    // 1. SVG/color glyphs rendered by FreeType's SVG_RendererHooks
+    // 2. Embedded bitmap fonts
+    // 3. Some Color emoji that use FT_LOAD_COLOR
+    if (!mFTFace->glyph->bitmap.buffer)
+    {
+        error = FT_Render_Glyph(mFTFace->glyph, gFontRenderMode);
+        if (error != FT_Err_Ok)
+        {
+            std::string render_message = llformat(
+                "Error %d (%s) rendering wchar %u glyph %u: format=%lu, pixel_mode=%d, render_mode=%d",
+                error, FT_Error_String(error), wch, glyph_index,
+                (unsigned long)mFTFace->glyph->format, mFTFace->glyph->bitmap.pixel_mode, gFontRenderMode);
+
+            // Try with FT_RENDER_MODE_NORMAL as fallback
+            if (gFontRenderMode != FT_RENDER_MODE_NORMAL)
+            {
+                LL_WARNS_ONCE() << render_message << LL_ENDL;
+                error = FT_Render_Glyph(mFTFace->glyph, FT_RENDER_MODE_NORMAL);
+                if (error != FT_Err_Ok)
+                {
+                    LL_ERRS() << "Fallback to FT_RENDER_MODE_NORMAL failed. " << render_message << LL_ENDL;
+                }
+            }
+            else
+            {
+                LL_ERRS() << render_message << LL_ENDL;
+            }
+        }
+    }
 
     mRenderGlyphCount++;
 }
