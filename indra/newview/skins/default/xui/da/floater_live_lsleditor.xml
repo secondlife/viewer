@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="script ed float" title="SCRIPT: NYT SCRIPT">
 	<floater.string name="not_allowed">
-		Du kan ikke se eller redigere dette script, da det er sat til &quot;no copy&quot; eller &quot;no modify&quot;. Du skal have disse tilladelser for at kunne se eller redigere et script i dette objekt.
+		Du kan ikke se eller redigere dette script, da det er sat til &quot;no copy&quot; eller &quot;no modify&quot;. Du skal have disse tilladelser for at kunne se eller redigere et script.
 	</floater.string>
 	<floater.string name="script_running">
 		Kører

@@ -4,7 +4,7 @@
 		Yükleniyor...
 	</panel.string>
 	<panel.string name="can_not_view">
-		Bu komut dosyasını görüntüleyemez veya düzenleyemezsiniz, çünkü &quot;kopyalanamaz&quot; veya &quot;değiştirilemez&quot; olarak ayarlanmıştır. Bir nesnenin içerisindeki bir komut dosyasını görüntülemek veya düzenlemek için bu izinlere ihtiyacınız var.
+		Bu komut dosyasını görüntüleyemez veya düzenleyemezsiniz, çünkü &quot;kopyalanamaz&quot; veya &quot;değiştirilemez&quot; olarak ayarlanmıştır. Bir komut dosyasını görüntülemek veya düzenlemek için bu izinlere ihtiyacınız var.
 	</panel.string>
 	<panel.string name="public_objects_can_not_run">
 		Kamuya Açık Nesneler komut dosyalarını çalıştıramaz

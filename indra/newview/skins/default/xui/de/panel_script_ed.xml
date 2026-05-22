@@ -4,7 +4,7 @@
 		Wird geladen...
 	</panel.string>
 	<panel.string name="can_not_view">
-		Dieses Skript kann nicht angezeigt oder bearbeitet werden, da als Berechtigung „kein kopieren&quot; oder „keine Änderungen&quot; festgelegt wurde. Um ein Skript innerhalb eines Objektes anzuzeigen oder zu bearbeiten, benötigen Sie diese Berechtigungen.
+		Dieses Skript kann nicht angezeigt oder bearbeitet werden, da als Berechtigung „kein kopieren&quot; oder „keine Änderungen&quot; festgelegt wurde. Um ein Skript anzuzeigen oder zu bearbeiten, benötigen Sie diese Berechtigungen.
 	</panel.string>
 	<panel.string name="public_objects_can_not_run">
 		Öffentliche Objekte können keine Skripts ausführen
