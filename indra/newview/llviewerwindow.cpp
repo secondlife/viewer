@@ -113,6 +113,7 @@
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
 #include "llfontfreetype.h"
+#include "llgamecontrol.h"
 #include "llgesturemgr.h"
 #include "llglheaders.h"
 #include "llhudmanager.h"
@@ -760,6 +761,49 @@ public:
                 ypos += y_inc;
                 av_iter++;
             }
+        }
+        static LLCachedControl<bool> debug_show_game_controller_state(gSavedSettings, "DebugShowControllerState", false);
+        if (debug_show_game_controller_state())
+        {
+            static const char* axis_names[LLGameControl::NUM_AXES] = {
+                "LEFT X", "LEFT Y", "RIGHT X", "RIGHT Y", "L TRIGGER", "R TRIGGER"
+            };
+            static const char* button_names[LLGameControl::NUM_BUTTONS] = {
+                "A", "B", "X", "Y", "BACK", "SELECT", "START", "LSTICK", "RSTICK",
+                "LSHOULDER", "RSHOULDER", "UP", "DOWN", "LEFT", "RIGHT",
+                "MISC1", "PADDLE1", "PADDLE2", "PADDLE3", "PADDLE4", "TOUCHPAD",
+                "B21", "B22", "B23", "B24", "B25", "B26", "B27", "B28", "B29", "B30", "B31",
+            };
+            const LLGameControl::State& gc_state = LLGameControl::getState();
+            for (size_t i = 0; i < gc_state.mAxes.size(); i+=2)
+            {
+                addText(xpos, ypos, llformat(
+                    "  %-10s %6d   %-10s %6d",
+                    (i < LLGameControl::NUM_AXES) ? axis_names[i] : "AXIS",
+                    (S32)gc_state.mAxes[i],
+                    ((i+1) < LLGameControl::NUM_AXES) ? axis_names[i+1] : "AXIS",
+                    i < gc_state.mAxes.size() ? (S32)gc_state.mAxes[i+1] : 0
+                ));
+                ypos += y_inc;
+            }
+            addText(xpos, ypos, "Game Controller Final State Axes");
+            ypos += y_inc;
+            static const char* pressed = "░░░░░░░░░░";
+            static const char* released = "          ";
+            for (U8 i = 0; i < LLGameControl::NUM_BUTTONS; i += 4)
+            {
+                addText(xpos, ypos, llformat(
+                    "  %-10s %-10s %-10s %-10s",
+                    gc_state.mButtons & (1 << (i+0)) ? pressed : released,
+                    gc_state.mButtons & (1 << (i+1)) ? pressed : released,
+                    gc_state.mButtons & (1 << (i+2)) ? pressed : released,
+                    gc_state.mButtons & (1 << (i+3)) ? pressed : released
+                ));
+                addText(xpos, ypos, llformat("  %-10s %-10s %-10s %-10s", button_names[i],button_names[i+1],button_names[i+2],button_names[i+3]));
+                ypos += y_inc;
+            }
+            addText(xpos, ypos, "Game Controller Final State Buttons");
+            ypos += y_inc;
         }
         static LLCachedControl<bool> debug_show_render_matrices(gSavedSettings, "DebugShowRenderMatrices", false);
         if (debug_show_render_matrices())

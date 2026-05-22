@@ -2733,6 +2733,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>DebugShowControllerState</key>
+    <map>
+      <key>Comment</key>
+      <string>Display internal controller state values</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>GameControlToServer</key>
     <map>
       <key>Comment</key>
