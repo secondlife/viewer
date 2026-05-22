@@ -33,7 +33,6 @@
 #include "llfilesystem.h"
 #include "llfasttimer.h"
 #include "lldiskcache.h"
-#include "boost/filesystem.hpp"
 
 constexpr S32 LLFileSystem::READ        = 0x00000001;
 constexpr S32 LLFileSystem::WRITE       = 0x00000002;
@@ -75,12 +74,9 @@ bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType fil
     LL_PROFILE_ZONE_SCOPED;
     const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
 
-    boost::system::error_code ec;
-    if (boost::filesystem::exists(filename, ec) && boost::filesystem::is_regular_file(filename, ec))
-    {
-        return boost::filesystem::file_size(filename, ec) > 0;
-    }
-    return false;
+    // not only test for existence but for the file to be not empty
+    S64 size =  LLFile::size(filename);
+    return size > 0;
 }
 
 // static
@@ -110,19 +106,6 @@ bool LLFileSystem::renameFile(const LLUUID& old_file_id, const LLAssetType::ETyp
     }
 
     return true;
-}
-
-// static
-S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType file_type)
-{
-    const std::string filename = LLDiskCache::metaDataToFilepath(file_id, file_type);
-
-    boost::system::error_code ec;
-    if (boost::filesystem::exists(filename, ec) && boost::filesystem::is_regular_file(filename, ec))
-    {
-        return static_cast<S32>(boost::filesystem::file_size(filename, ec));
-    }
-    return 0;
 }
 
 bool LLFileSystem::read(U8* buffer, S32 bytes)
