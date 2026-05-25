@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -209,6 +209,13 @@ public:
     S32 getVersion() const;
     void setVersion(S32 version);
 
+    const std::string& getDisplayName() const;
+    // The display name gets cached on demand, so needs a cleanup method.
+    // But in practice only secure folders' display name mismatches
+    // actual name, and those folders can't be renamed, so in practice
+    // this is useless unless we want to free memory.
+    void invalidateDisplayName();
+
     // Returns true if a fetch was issued (not nessesary in progress).
     // no requests will happen during expiry_seconds even if fetch completed
     bool fetch(S32 expiry_seconds = 10);
@@ -253,6 +260,19 @@ protected:
     S32 mDescendentCount;
     EFetchType mFetching;
     LLFrameTimer mDescendentsRequested;
+
+    // Display names are generated on demand and cached.
+    // buildDisplayName is essentially a way to localize
+    // system and library folders.
+    //
+    // TODO: This is on demand and mutable because that's how it
+    // worked in inventory bridge, before it was moved.
+    // But system folders always get loaded, it's likely better
+    // to just generate from the get go.
+    // Consider merging with localizeName.
+    void buildDisplayName() const;
+    mutable std::string mDisplayName;
+    mutable bool mNeedsDisplayNameUpdate = true;
 };
 
 class LLInventoryCallback : public LLRefCount

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2014, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -673,6 +673,25 @@ void LLViewerInventoryCategory::setVersion(S32 version)
     mVersion = version;
 }
 
+const std::string& LLViewerInventoryCategory::getDisplayName() const
+{
+    if (mNeedsDisplayNameUpdate)
+    {
+        buildDisplayName();
+    }
+    if (!mDisplayName.empty())
+    {
+        return mDisplayName;
+    }
+    return getName();
+}
+
+void LLViewerInventoryCategory::invalidateDisplayName()
+{
+    mNeedsDisplayNameUpdate = true;
+    mDisplayName.clear();
+}
+
 bool LLViewerInventoryCategory::fetch(S32 expiry_seconds)
 {
     if((VERSION_UNKNOWN == getVersion())
@@ -887,6 +906,34 @@ void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)
 void LLViewerInventoryCategory::localizeName()
 {
     LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
+}
+
+void LLViewerInventoryCategory::buildDisplayName() const
+{
+    // Secure and library folders can't be renamed,
+    // so we only need to do this once.
+    mNeedsDisplayNameUpdate = false;
+
+    //"Accessories" inventory category has folder type FT_NONE. So, this folder
+    //can not be detected as protected with LLFolderType::lookupIsProtectedType
+    //
+    // HACK: EXT - 6028 ([HARD CODED]? Inventory > Library > "Accessories" folder)
+    // Translation of Accessories folder in Library inventory folder
+    LLFolderType::EType preferred_type = getPreferredType();
+
+    bool is_accessories = false;
+    if (getName() == "Accessories")
+    {
+        // To ensure that Accessories folder is in Library we have to check its parent folder.
+        const LLUUID& parent_folder_id = getParentUUID();
+        is_accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
+    }
+
+    if (is_accessories || LLFolderType::lookupIsProtectedType(preferred_type))
+    {
+        // All predefined folders have translations in strings.xml.
+        LLTrans::findString(mDisplayName, std::string("InvFolder ") + getName(), LLSD());
+    }
 }
 
 // virtual

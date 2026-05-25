@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -249,11 +249,27 @@ const std::string& LLInvFVBridge::getName() const
 
 const std::string& LLInvFVBridge::getDisplayName() const
 {
-    if(mDisplayName.empty())
+    if(mSearchableName.empty())
     {
-        buildDisplayName();
+        // first request of display name, build search string and cache it for later use
+        buildSearchableName();
     }
-    return mDisplayName;
+
+    LLInventoryModel* model = getInventoryModel();
+    if (model)
+    {
+        LLViewerInventoryCategory* cat = model->getCategory(mUUID);
+        if (cat)
+        {
+            return cat->getDisplayName();
+        }
+        LLViewerInventoryItem* item = model->getItem(mUUID);
+        if (item)
+        {
+            return item->getName();
+        }
+    }
+    return LLStringUtil::null;
 }
 
 std::string LLInvFVBridge::getSearchableDescription() const
@@ -2035,22 +2051,22 @@ PermissionMask LLItemBridge::getPermissionMask() const
 }
 
 // virtual
-void LLItemBridge::buildDisplayName() const
+void LLItemBridge::buildSearchableName() const
 {
-    if (getItem())
+    LLViewerInventoryItem* item = getItem();
+    if (item)
     {
-        mDisplayName.assign(getItem()->getName());
+        // for items, display name matches item name
+        mSearchableName.assign(item->getName());
     }
     else
     {
-        mDisplayName.assign(LLStringUtil::null);
+        mSearchableName.assign(LLStringUtil::null);
     }
-
-    mSearchableName.assign(mDisplayName);
     mSearchableName.append(getLabelSuffix());
     LLStringUtil::toUpper(mSearchableName);
 
-    // Name set, so trigger a sort
+    // Searchable and name set, so trigger a sort
     LLInventorySort sorter = static_cast<LLFolderViewModelInventory&>(mRootViewModel).getSorter();
     if (mParent && !sorter.isByDate())
     {
@@ -2371,39 +2387,17 @@ void LLFolderBridge::selectItem()
     }
 }
 
-void LLFolderBridge::buildDisplayName() const
+void LLFolderBridge::buildSearchableName() const
 {
-    LLFolderType::EType preferred_type = getPreferredType();
-
-    // *TODO: to be removed when database supports multi language. This is a
-    // temporary attempt to display the inventory folder in the user locale.
-    // mantipov: *NOTE: be sure this code is synchronized with LLFriendCardsManager::findChildFolderUUID
-    //      it uses the same way to find localized string
-
-    // HACK: EXT - 6028 ([HARD CODED]? Inventory > Library > "Accessories" folder)
-    // Translation of Accessories folder in Library inventory folder
-    bool accessories = false;
-    if(getName() == "Accessories")
+    LLViewerInventoryCategory* cat = gInventory.getCategory(getUUID());
+    if (cat)
     {
-        //To ensure that Accessories folder is in Library we have to check its parent folder.
-        //Due to parent LLFolderViewFloder is not set to this item yet we have to check its parent via Inventory Model
-        LLInventoryCategory* cat = gInventory.getCategory(getUUID());
-        if(cat)
-        {
-            const LLUUID& parent_folder_id = cat->getParentUUID();
-            accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
-        }
+        mSearchableName.assign(cat->getDisplayName());
     }
-
-    //"Accessories" inventory category has folder type FT_NONE. So, this folder
-    //can not be detected as protected with LLFolderType::lookupIsProtectedType
-    mDisplayName.assign(getName());
-    if (accessories || LLFolderType::lookupIsProtectedType(preferred_type))
+    else
     {
-        LLTrans::findString(mDisplayName, std::string("InvFolder ") + getName(), LLSD());
+        mSearchableName.assign(LLStringUtil::null);
     }
-
-    mSearchableName.assign(mDisplayName);
     mSearchableName.append(getLabelSuffix());
     LLStringUtil::toUpper(mSearchableName);
 
@@ -2417,6 +2411,8 @@ void LLFolderBridge::buildDisplayName() const
 
 std::string LLFolderBridge::getLabelSuffix() const
 {
+    // Folders, unlike items, have context dependent suffixes
+    // that may change as the folder is loaded
     static LLCachedControl<bool> xui_debug(gSavedSettings, "DebugShowXUINames", 0);
 
     if (mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= FOLDER_LOADING_MESSAGE_DELAY)
@@ -6576,18 +6572,29 @@ void LLCallingCardBridge::refreshFolderViewItem()
 
 void LLCallingCardBridge::checkSearchBySuffixChanges()
 {
-    if (!mDisplayName.empty())
+    if (!mSearchableName.empty())
     {
-        // changes in mDisplayName are processed by rename function and here it will be always same
+        LLViewerInventoryItem* item = getItem();
+        if (!item)
+        {
+            // checkSearchBySuffixChanges is only used by friend list
+            // so if item is not found, we removed the calling card or
+            // are no longer friends.
+            mSearchableName.clear();
+            return;
+        }
+
+        // changes in display name are processed by rename function and here it will be always same
         // suffixes are also of fixed length, and we are processing change of one at a time,
         // so it should be safe to use length (note: mSearchableName is capitalized)
-        auto old_length = mSearchableName.length();
-        auto new_length = mDisplayName.length() + getLabelSuffix().length();
+        size_t old_length = mSearchableName.length();
+        const std::string& display_name = item->getName();
+        size_t new_length = display_name.length() + getLabelSuffix().length();
         if (old_length == new_length)
         {
             return;
         }
-        mSearchableName.assign(mDisplayName);
+        mSearchableName.assign(display_name);
         mSearchableName.append(getLabelSuffix());
         LLStringUtil::toUpper(mSearchableName);
         if (new_length<old_length)
@@ -7465,7 +7472,7 @@ bool LLObjectBridge::renameItem(const std::string& new_name)
         new_item->updateServer(false);
         model->updateItem(new_item);
         model->notifyObservers();
-        buildDisplayName();
+        buildSearchableName();
 
         if (isAgentAvatarValid())
         {
