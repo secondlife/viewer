@@ -48,6 +48,8 @@ public:
                 void *callback_data);
     ~LLPanelLogin();
 
+    void draw();
+
     virtual void setFocus( bool b );
 
     static void show(const LLRect &rect,
@@ -87,6 +89,8 @@ public:
     // extract name from cred in a format apropriate for username field
     static std::string getUserName(LLPointer<LLCredential> &cred);
 
+    void collapseGridPanel(bool collapse);
+
 private:
     friend class LLPanelLoginListener;
     void addFavoritesToStartLocation();
@@ -122,7 +126,6 @@ private:
 
     static LLPanelLogin* sInstance;
     static bool     sCapslockDidNotification;
-    bool            mFirstLoginThisInstall;
 
     static bool sCredentialSet;
 
@@ -130,8 +133,15 @@ private:
     unsigned int mPasswordLength;
     unsigned int mLocationLength;
 
+    LLTimer mForceRefreshTimer;
+    bool mForceRefresh {false};
+
     bool mAlertNotif;
     LLButton* mLoginBtn;
+    LLLayoutPanel* mGridPanel;
+    LLLayoutStack* mLoginStack;
+
+    LLMediaCtrl* mWebBrowser;
 };
 
 #endif

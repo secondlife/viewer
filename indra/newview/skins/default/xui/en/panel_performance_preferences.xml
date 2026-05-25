@@ -91,7 +91,7 @@
    layout="topleft"
    left_pad="40"
    name="fastest_lbl"
-   width="40">
+   width="42">
     Fastest
   </text>
   <radio_group
@@ -240,7 +240,7 @@
    left_pad="10"
    top_delta="1"
    name="farther_lbl"
-   width="40">
+   width="45">
     Farther
   </text>
   <text
@@ -284,7 +284,7 @@
    top_delta="0"
    left="160"
    name="enhancements_desc"
-   width="350">
+   width="375">
     Shadows significantly improve visual quality but can reduce speed.
   </text>
   <text
@@ -307,7 +307,8 @@
    left_delta="150"
    top_delta="0"
    name="ShadowDetail"
-   width="150">
+   width="153">
+    <combo_box.drop_down_button pad_right="20" />
     <combo_box.item
       label="None"
       name="0"
@@ -417,7 +418,7 @@
    top_delta="3"
    left_pad="10"
    name="photo_dist_det_desc"
-   width="180">
+   width="192">
       (Enter value between 0.0 and 4.0)
   </text>
   <text
@@ -426,7 +427,7 @@
    height="18"
    layout="topleft"
    top="80"
-   left="213"
+   left="215"
    name="0_lbl"
    width="7">
     0
@@ -446,7 +447,7 @@
    font="SansSerifSmall"
    height="18"
    layout="topleft"
-   left_pad="30"
+   left_pad="29"
    name="2_lbl"
    width="7">
     2
@@ -468,7 +469,7 @@
    layout="topleft"
    left_pad="30"
    name="4_lbl"
-   width="7">
+   width="8">
     4
   </text>
   <text
@@ -476,7 +477,7 @@
    font="SansSerifSmall"
    height="18"
    layout="topleft"
-   left_pad="30"
+   left_pad="29"
    name="5_lbl"
    width="7">
     5

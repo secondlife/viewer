@@ -4,7 +4,7 @@
 		Ładowanie...
 	</panel.string>
 	<panel.string name="can_not_view">
-		Nie możesz zobaczyć ani edytować tego skryptu, ponieważ ustawiono dla niego &quot;brak kopiowania&quot; lub &quot;brak modyfikacji&quot;. Aby zobaczyć lub edytować skrypt wewnątrz obiektu, potrzebujesz tych uprawnień.
+		Nie możesz zobaczyć ani edytować tego skryptu, ponieważ ustawiono dla niego &quot;brak kopiowania&quot; lub &quot;brak modyfikacji&quot;. Aby zobaczyć lub edytować skrypt, potrzebujesz tych uprawnień.
 	</panel.string>
 	<panel.string name="public_objects_can_not_run">
 		Publiczne obiekty nie mogą uruchamiać skryptów

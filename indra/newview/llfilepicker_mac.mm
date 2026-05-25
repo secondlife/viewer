@@ -245,8 +245,8 @@ void doSaveDialogModeless(const std::string* file,
         NSURL *last_url = [[NSUserDefaults standardUserDefaults] URLForKey:@"NSNavLastRootDirectory"];
         if(!last_url)
         {
-            NSURL *documents_url = [[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
-            [panel setDirectoryURL:documents_url];
+            NSURL *downloads_url = [[NSFileManager defaultManager] URLsForDirectory:NSDownloadsDirectory inDomains:NSUserDomainMask].firstObject;
+            [panel setDirectoryURL:downloads_url];
         }
 
         [panel beginWithCompletionHandler:^(NSModalResponse result)

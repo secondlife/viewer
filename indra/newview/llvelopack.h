@@ -46,12 +46,13 @@ void velopack_set_progress_callback(std::function<void(int)> callback);
 void velopack_cleanup();
 
 #if LL_WINDOWS
-void clear_nsis_links();
+void clear_nsis_links(const std::string& nsis_folder_path);
 bool get_nsis_version(
     int& nsis_major,
     int& nsis_minor,
     int& nsis_patch,
-    uint64_t& nsis_build);
+    uint64_t& nsis_build,
+    std::string& nsis_folder_path);
 #endif
 
 #endif // LL_VELOPACK

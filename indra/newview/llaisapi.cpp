@@ -1758,35 +1758,41 @@ void AISUpdate::doUpdate()
         const LLUUID id = ucv_it->first;
         S32 version = static_cast<S32>(ucv_it->second);
         LLViewerInventoryCategory *cat = gInventory.getCategory(id);
-        LL_DEBUGS("Inventory") << "cat version update " << cat->getName() << " to version " << cat->getVersion() << LL_ENDL;
-        if (cat->getVersion() != version)
+        // Update can be rather large and take time to process.
+        // By the time update gets to the category, it could
+        // could have been removed by the user
+        if (cat)
         {
-            // the AIS version should be considered the true version. Adjust
-            // our local category model to reflect this version number.  Otherwise
-            // it becomes possible to get stuck with the viewer being out of
-            // sync with the inventory system.  Under normal circumstances
-            // inventory COF is maintained on the viewer through calls to
-            // LLInventoryModel::accountForUpdate when a changing operation
-            // is performed.  This occasionally gets out of sync however.
-            if (version != LLViewerInventoryCategory::VERSION_UNKNOWN)
+            LL_DEBUGS("Inventory") << "cat " << cat->getName() << " version update from " << cat->getVersion() << " to AIS version " << version << LL_ENDL;
+            if (cat->getVersion() != version)
             {
-                LL_WARNS() << "Possible version mismatch for category " << cat->getName()
-                    << ", viewer version " << cat->getVersion()
-                    << " AIS version " << version << " !!!Adjusting local version!!!" << LL_ENDL;
-                cat->setVersion(version);
-            }
-            else
-            {
-                // We do not account for update if version is UNKNOWN, so we shouldn't rise version
-                // either or viewer will get stuck on descendants count -1, try to refetch folder instead
-                //
-                // Todo: proper backoff?
+                // the AIS version should be considered the true version. Adjust
+                // our local category model to reflect this version number.  Otherwise
+                // it becomes possible to get stuck with the viewer being out of
+                // sync with the inventory system.  Under normal circumstances
+                // inventory COF is maintained on the viewer through calls to
+                // LLInventoryModel::accountForUpdate when a changing operation
+                // is performed.  This occasionally gets out of sync however.
+                if (version != LLViewerInventoryCategory::VERSION_UNKNOWN)
+                {
+                    LL_WARNS() << "Possible version mismatch for category " << cat->getName()
+                        << ", viewer version " << cat->getVersion()
+                        << " AIS version " << version << " !!!Adjusting local version!!!" << LL_ENDL;
+                    cat->setVersion(version);
+                }
+                else
+                {
+                    // We do not account for update if version is UNKNOWN, so we shouldn't riase version
+                    // either or viewer will get stuck on descendants count -1, try to refetch folder instead
+                    //
+                    // Todo: proper backoff?
 
-                LL_WARNS() << "Possible version mismatch for category " << cat->getName()
-                    << ", viewer version " << cat->getVersion()
-                    << " AIS version " << version << " !!!Rerequesting category!!!" << LL_ENDL;
-                const S32 LONG_EXPIRY = 360;
-                cat->fetch(LONG_EXPIRY);
+                    LL_WARNS() << "Possible version mismatch for category " << cat->getName()
+                        << ", viewer version " << cat->getVersion()
+                        << " AIS version " << version << " !!!Rerequesting category!!!" << LL_ENDL;
+                    const S32 LONG_EXPIRY = 360;
+                    cat->fetch(LONG_EXPIRY);
+                }
             }
         }
     }

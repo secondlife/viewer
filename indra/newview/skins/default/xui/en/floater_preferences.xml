@@ -82,8 +82,8 @@
      name="pref core"
      tab_group="1"
      tab_position="left"
-     tab_width="140"
-     tab_padding_right="0"
+     tab_width="136"
+     tab_padding_right="4"
      top="40"
      width="658">
         <panel
@@ -107,6 +107,12 @@
          layout="topleft"
          help_topic="preferences_audio_tab"
          name="audio" />
+        <panel
+         class="panel_preference"
+         filename="panel_preferences_voice.xml"
+         label="Voice"
+         layout="topleft"
+         name="voice" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_chat.xml"

@@ -73,7 +73,9 @@ public:
                                                     icon_width,
                                                     text_pad,
                                                     text_pad_right,
+                                                    text_pad_top,
                                                     arrow_size,
+                                                    arrow_pad_top,
                                                     max_folder_item_overlap;
         Optional<bool>                              single_folder_mode,
                                                     double_click_override;
@@ -117,7 +119,9 @@ protected:
                                 mIconWidth,
                                 mTextPad,
                                 mTextPadRight,
+                                mTextPadTop,
                                 mArrowSize,
+                                mArrowPadTop,
                                 mMaxFolderItemOverlap;
 
     F32                         mControlLabelRotation;

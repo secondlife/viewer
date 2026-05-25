@@ -200,7 +200,7 @@ LLFontGL* LLViewerChat::getChatFont()
             break;
         default:
         case 1:
-            fontp = LLFontGL::getFontSansSerif();
+            fontp = LLFontGL::getFontSansSerifMedium();
             break;
         case 2:
             fontp = LLFontGL::getFontSansSerifBig();

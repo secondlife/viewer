@@ -702,6 +702,16 @@ bool LLViewerParcelMgr::allowAgentVoice() const
     return allowAgentVoice(gAgent.getRegion(), mAgentParcel);
 }
 
+bool LLViewerParcelMgr::isVoiceRestricted() const
+{
+    return mAgentParcel && !mAgentParcel->getParcelFlagUseEstateVoiceChannel();
+}
+
+bool LLViewerParcelMgr::allowVoiceModeration() const
+{
+    return isVoiceRestricted() && isParcelOwnedByAgent(mAgentParcel, GP_SESSION_MODERATOR);
+}
+
 bool LLViewerParcelMgr::allowAgentVoice(const LLViewerRegion* region, const LLParcel* parcel) const
 {
     return region && region->isVoiceEnabled()

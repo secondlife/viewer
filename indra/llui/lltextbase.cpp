@@ -51,6 +51,9 @@ const F32   CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32   CURSOR_THICKNESS = 2;
 const F32   TRIPLE_CLICK_INTERVAL = 0.3f;   // delay between double and triple click.
 
+constexpr F32 FOCUSED_SELECTION_BG_ALPHA = 1;
+constexpr F32 UNFOCUSED_SELECTION_BG_ALPHA = 0.7f;
+
 LLTextBase::line_info::line_info(S32 index_start, S32 index_end, LLRect rect, S32 line_num)
 :   mDocIndexStart(index_start),
     mDocIndexEnd(index_end),
@@ -530,7 +533,7 @@ void LLTextBase::drawSelectionBackground()
         // Draw the selection box (we're using a box instead of reversing the colors on the selected text).
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
         const LLColor4& color = mSelectedBGColor;
-        F32 alpha = hasFocus() ? 0.7f : 0.3f;
+        F32 alpha = hasFocus() ? FOCUSED_SELECTION_BG_ALPHA : UNFOCUSED_SELECTION_BG_ALPHA;
         alpha *= getDrawContext().mAlpha;
 
         LLColor4 selection_color(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], alpha);

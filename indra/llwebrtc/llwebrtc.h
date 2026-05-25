@@ -38,6 +38,7 @@
 #ifndef LLWEBRTC_H
 #define LLWEBRTC_H
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -55,6 +56,7 @@
 
 namespace llwebrtc
 {
+typedef std::map<std::string, std::map<std::string, std::string>> LLWebRTCStatsMap;
 
 class LLWebRTCLogCallback
 {
@@ -240,6 +242,8 @@ class LLWebRTCSignalingObserver
     // Called when the data channel has been established and data
     // transfer can begin.
     virtual void OnDataChannelReady(LLWebRTCDataInterface *data_interface) = 0;
+
+    virtual void OnStatsDelivered(const LLWebRTCStatsMap& stats_data) {}
 };
 
 // LLWebRTCPeerConnectionInterface representsd a connection to a peer,
@@ -273,6 +277,8 @@ class LLWebRTCPeerConnectionInterface
     virtual void unsetSignalingObserver(LLWebRTCSignalingObserver* observer) = 0;
 
     virtual void AnswerAvailable(const std::string &sdp) = 0;
+
+    virtual void gatherConnectionStats() = 0;
 };
 
 // The following define the dynamic linked library

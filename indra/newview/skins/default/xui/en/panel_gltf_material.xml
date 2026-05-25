@@ -7,7 +7,7 @@
  top="0"
  left="0"
  height="768"
- width="247">
+ width="257">
   <check_box
     follows="left|top"
     layout="topleft"
@@ -20,7 +20,7 @@
   <panel
     border="true"
     follows="left|top"
-    width="246"
+    width="256"
     height="196"
     layout="topleft"
     left="1"
@@ -175,7 +175,7 @@
   <panel
     border="true"
     follows="left|top"
-    width="246"
+    width="256"
     height="175"
     layout="topleft"
     left="1"
@@ -252,7 +252,7 @@
       layout="topleft"
       left_delta="0"
       top_pad="5"
-      width="96"
+      width="105"
       name="roughness_factor_lbl">
       Roughness Factor
     </text>
@@ -273,7 +273,7 @@
   <panel
     border="true"
     follows="left|top"
-    width="246"
+    width="256"
     height="175"
     layout="topleft"
     left="1"
@@ -343,7 +343,7 @@
   <panel
     border="true"
     follows="left|top"
-    width="246"
+    width="256"
     height="175"
     layout="topleft"
     left="1"

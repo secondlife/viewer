@@ -2019,11 +2019,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>94a72c6ddbfb23796ce913c55bc47c128542a582</string>
+              <string>8dc190451c5b7af0d72e7ab54f8fbde6dccf79c6</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.3-r1/openjpeg-2.5.3.15590356935-darwin64-15590356935.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.4-r1/openjpeg-2.5.4.18754730947-darwin64-18754730947.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2033,11 +2033,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>751172af405f4a47a3aebb37729d62229cab6c07</string>
+              <string>9c89879f81ee0434e1f59c47d74a25958ae08e9e</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.3-r1/openjpeg-2.5.3.15590356935-linux64-15590356935.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.4-r1/openjpeg-2.5.4.18754730947-linux64-18754730947.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2047,11 +2047,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8aab9cf250dfee252386e1c79b5205e6d3b3e19e</string>
+              <string>b78887212f18ae59dc7961e0e1af781e568bd92c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.3-r1/openjpeg-2.5.3.15590356935-windows64-15590356935.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.4-r1/openjpeg-2.5.4.18754730947-windows64-18754730947.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2191,64 +2191,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>https://github.com/secondlife/3p-openxr</string>
         <key>description</key>
         <string>Generated headers and sources for OpenXR loader.</string>
-      </map>
-      <key>slvoice</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>1e70b06fe6eb9796097010871b32d8e95167e373</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/gh/secondlife/3p-slvoice/slvoice-4.10.0000.32327.5fc3fe7c.5942f08-darwin64-5942f08.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>92b0ae08832bd0e99c34ef8f3e6346ad</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/613/1289/slvoice-3.2.0002.10426.500605-linux64-500605.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ddfb7c30d9756915e8b26f44e2ee3a69ee87fb9a</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/gh/secondlife/3p-slvoice/slvoice-4.10.0000.32327.5fc3fe7c.5942f08-windows64-5942f08.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>Mixed</string>
-        <key>license_file</key>
-        <string>LICENSES/vivox_licenses.txt</string>
-        <key>copyright</key>
-        <string>2010 Vivox, including audio coding using Polycom¨ Siren14TM (ITU-T Rec. G.722.1 Annex C)</string>
-        <key>version</key>
-        <string>4.10.0000.32327.5fc3fe7c.5942f08</string>
-        <key>name</key>
-        <string>slvoice</string>
-        <key>description</key>
-        <string>Vivox SDK components</string>
       </map>
       <key>sse2neon</key>
       <map>
@@ -2481,6 +2423,38 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>viewer-fonts</string>
         <key>description</key>
         <string>Viewer fonts</string>
+      </map>
+      <key>google-fonts</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8de96fd083783b9f4df1d8d7028c8a713a7d7217</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-google-fonts/releases/download/v1.0.0-r6/google_fonts-1.0.0.24469773244-common-24469773244.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>SIL Open Font License, Version 1.1</string>
+        <key>license_file</key>
+        <string>LICENSES/google_inter.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2020 The Inter Project Authors (https://github.com/rsms/inter)</string>
+        <key>version</key>
+        <string>1.0.0.22606339007</string>
+        <key>name</key>
+        <string>google-fonts</string>
+        <key>description</key>
+        <string>Google fonts</string>
       </map>
       <key>viewer-manager</key>
       <map>

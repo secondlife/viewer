@@ -343,6 +343,7 @@ public:
                 inner_->InitRecording();
                 inner_->StartRecording();
             }
+            inner_->InitPlayout();
             inner_->StartPlayout();
         }
     }
@@ -477,6 +478,13 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
                   const webrtc::Location& location = webrtc::Location::Current())
     {
         mSignalingThread->PostTask(std::move(task), location);
+    }
+
+    void PostDelayedSignalingTask(absl::AnyInvocable<void() &&> task,
+                  webrtc::TimeDelta delay,
+                  const webrtc::Location& location = webrtc::Location::Current())
+    {
+        mSignalingThread->PostDelayedTask(std::move(task), delay, location);
     }
 
     void PostNetworkTask(absl::AnyInvocable<void() &&> task,
@@ -648,6 +656,8 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     void enableSenderTracks(bool enable);
     void enableReceiverTracks(bool enable);
 
+    void gatherConnectionStats() override;
+
   protected:
 
     LLWebRTCImpl * mWebRTCImpl;
@@ -672,6 +682,10 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     // data
     std::vector<LLWebRTCDataObserver *> mDataObserverList;
     webrtc::scoped_refptr<webrtc::DataChannelInterface> mDataChannel;
+
+    // connection state tracking for delayed renegotiation on disconnect
+    webrtc::PeerConnectionInterface::PeerConnectionState mPeerConnectionState;
+    uint32_t mDisconnectCount;
 
     std::atomic<int> mPendingJobs;
 };

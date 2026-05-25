@@ -4,7 +4,7 @@
 		Caricamento in corso...
 	</panel.string>
 	<panel.string name="can_not_view">
-		Questo script non può essere visualizzato né modificato, perché è impostato come &quot;non copiabile&quot; o &quot;non modificabile&quot;. Per visualizzare o modificare uno script all'interno di un oggetto, devi avere questi permessi.
+		Questo script non può essere visualizzato né modificato, perché è impostato come &quot;non copiabile&quot; o &quot;non modificabile&quot;. Per visualizzare o modificare uno script, devi avere questi permessi.
 	</panel.string>
 	<panel.string name="public_objects_can_not_run">
 		Gli oggetti pubblici non possono eseguire gli script

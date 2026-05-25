@@ -63,7 +63,8 @@
                     use_ellipses="true" word_wrap="false" mouse_opaque="false" name="sender_or_fee_box" visible="false">
                     Sender: "Resident R e s i d e n t R e s i d e n t"
                   </text>
-                  <text allow_scroll="false" font="SansSerifSmall" top="0" right="-5" width="95" height="13" follows="right" halign="right" layout="topleft" left_pad="5"
+                  <!-- Old DejaVu font is used to avoid overlapping with sender name -->
+                  <text allow_scroll="false" font="DejaVu" font.size="LSmall" top="0" right="-5" width="100" height="13" follows="right" halign="right" layout="topleft" left_pad="5"
                     name="notification_time" value="2014/12/24 23:30" />
                 </panel>
               </panel>
@@ -105,7 +106,8 @@
                         use_ellipses="true" word_wrap="false" mouse_opaque="false" name="sender_or_fee_box_exp" visible="false">
                         Sender: "Resident R e s i d e n t R e s i d e n t"
                       </text>
-                      <text allow_scroll="false" font="SansSerifSmall" top="0" right="-1" width="95" height="13" follows="right" halign="right" layout="topleft" left_pad="5"
+                      <!-- Old DejaVu font is used to avoid overlapping with sender name -->
+                      <text allow_scroll="false" font="DejaVu" font.size="LSmall" top="0" right="-1" width="100" height="13" follows="right" halign="right" layout="topleft" left_pad="5"
                         name="notification_time_exp" value="2014/12/24 23:30" />
                     </panel>
                     <panel border="false" left="0" height="115" width="230" bevel_style="none" follows="all" layout="topleft" name="notification_text_panel_exp" visible="true">

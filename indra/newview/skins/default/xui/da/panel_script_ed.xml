@@ -4,7 +4,7 @@
 		Henter...
 	</panel.string>
 	<panel.string name="can_not_view">
-		Du kan ikke se eller redigere dette script, da det er sat til &quot;no copy&quot; eller &quot;no modify&quot;. Du skal have disse tilladelser for at kunne se eller redigere et script i dette objekt.
+		Du kan ikke se eller redigere dette script, da det er sat til &quot;no copy&quot; eller &quot;no modify&quot;. Du skal have disse tilladelser for at kunne se eller redigere et script.
 	</panel.string>
 	<panel.string name="public_objects_can_not_run">
 		Offentlige objekter kan ikke afvikle scripts

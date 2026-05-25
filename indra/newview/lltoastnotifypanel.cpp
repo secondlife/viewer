@@ -47,7 +47,7 @@
 
 const S32 BOTTOM_PAD = VPAD * 3;
 const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding
-S32 BUTTON_WIDTH = 90;
+const S32 BUTTON_WIDTH = 90;
 
 
 //static
@@ -59,7 +59,8 @@ LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal
 LLToastNotifyPanel::LLToastNotifyPanel(const LLNotificationPtr& notification, const LLRect& rect, bool show_images)
 :   LLCheckBoxToastPanel(notification)
 ,   LLInstanceTracker<LLToastNotifyPanel, LLUUID, LLInstanceTrackerReplaceOnCollision>(notification->getID())
-,   mTextBox(NULL)
+,   mTextBox(NULL),
+    mButtonWidth(BUTTON_WIDTH)
 {
     init(rect, show_images);
 }
@@ -70,9 +71,9 @@ void LLToastNotifyPanel::addDefaultButton()
     LLButton* ok_btn = createButton(form_element, false);
     LLRect new_btn_rect(ok_btn->getRect());
 
-    new_btn_rect.setOriginAndSize(llabs(getRect().getWidth() - BUTTON_WIDTH)/ 2, BOTTOM_PAD,
+    new_btn_rect.setOriginAndSize(llabs(getRect().getWidth() - mButtonWidth) / 2, BOTTOM_PAD,
             //auto_size for ok button makes it very small, so let's make it wider
-            BUTTON_WIDTH, new_btn_rect.getHeight());
+            mButtonWidth, new_btn_rect.getHeight());
     ok_btn->setRect(new_btn_rect);
     addChild(ok_btn, -1);
     mNumButtons = 1;
@@ -115,7 +116,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, bool is_opt
     p.font = font;
     p.rect.height = BTN_HEIGHT;
     p.click_callback.function(boost::bind(&LLToastNotifyPanel::onClickButton, userdata));
-    p.rect.width = BUTTON_WIDTH;
+    p.rect.width = mButtonWidth;
     p.auto_resize = false;
     p.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
     p.enabled = !form_element.has("enabled") || form_element["enabled"].asBoolean();
@@ -125,7 +126,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, bool is_opt
         p.image_color_disabled(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
     }
     // for the scriptdialog buttons we use fixed button size. This  is a limit!
-    if (!mIsScriptDialog && font->getWidth(form_element["text"].asString()) > (BUTTON_WIDTH-2*HPAD))
+    if (!mIsScriptDialog && font->getWidth(form_element["text"].asString()) > (mButtonWidth - 2 * HPAD))
     {
         p.rect.width = 1;
         p.auto_resize = true;
@@ -290,7 +291,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     mInfoPanel = getChild<LLPanel>("info_panel");
 
     mControlPanel = getChild<LLPanel>("control_panel");
-    BUTTON_WIDTH = gSavedSettings.getS32("ToastButtonWidth");
+
     // customize panel's attributes
     // is it intended for displaying a tip?
     mIsTip = mNotification->getType() == "notifytip";
@@ -298,6 +299,10 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     std::string notif_name = mNotification->getName();
     // is it a script dialog?
     mIsScriptDialog = (notif_name == "ScriptDialog" || notif_name == "ScriptDialogGroup");
+
+    static LLCachedControl<S32> btn_width(gSavedSettings, "ToastButtonWidth", 90);
+    static LLCachedControl<S32> script_button_width(gSavedSettings, "ScriptToastButtonWidth", 110);
+    mButtonWidth = mIsScriptDialog ? script_button_width : btn_width;
 
     bool is_content_trusted = (notif_name != "LoadWebPage");
     // is it a caution?
@@ -379,8 +384,21 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
         }
         else
         {
-            const S32 button_panel_width = mControlPanel->getRect().getWidth();// do not change width of the panel
+            S32 button_panel_width = mControlPanel->getRect().getWidth();// get initial width from XML
             S32 button_panel_height = mControlPanel->getRect().getHeight();
+
+            // Script dialog has wider buttons so it requires wider layout to ensure proper spacing
+            if (mIsScriptDialog)
+            {
+                // width for 3 columns: 3 buttons + 2 gaps
+                S32 min_width_required = 3 * mButtonWidth + 2 * (2 * HPAD);
+                if (min_width_required > button_panel_width)
+                {
+                    button_panel_width = min_width_required;
+                    S32 width_increase = button_panel_width - mControlPanel->getRect().getWidth();
+                    reshape(getRect().getWidth() + width_increase, getRect().getHeight());
+                }
+            }
             //try get an average h_pad to spread out buttons
             S32 h_pad = (button_panel_width - buttons_width) / (S32(buttons.size()));
             if(h_pad < 2*HPAD)
@@ -390,8 +408,8 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
                  * for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
                  * In last case set default h_pad to avoid heaping of buttons
                  */
-                S32 button_per_row = button_panel_width / BUTTON_WIDTH;
-                h_pad = (button_panel_width % BUTTON_WIDTH) / (button_per_row - 1);// -1  because we do not need space after last button in a row
+                S32 button_per_row = button_panel_width / mButtonWidth;
+                h_pad = (button_panel_width % mButtonWidth) / (button_per_row - 1);// -1  because we do not need space after last button in a row
                 if(h_pad < 2*HPAD) // still not enough space between buttons ?
                 {
                     h_pad = 2*HPAD;
@@ -402,7 +420,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
                 // we are using default width for script buttons so we can determinate button_rows
                 // to get a number of rows we divide the required width of the buttons to button_panel_width
                 // buttons.size() is reduced by -2 due to presence of ignore button which is calculated independently a bit lower
-                S32 button_rows = llceil(F32(buttons.size() - 2) * (BUTTON_WIDTH + h_pad) / (button_panel_width + h_pad));
+                S32 button_rows = llceil(F32(buttons.size() - 2) * (mButtonWidth + h_pad) / (button_panel_width + h_pad));
                 //reserve one row for the ignore_btn
                 button_rows++;
                 //calculate required panel height for scripdialog notification.

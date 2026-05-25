@@ -65,7 +65,7 @@
      left_pad="5"
      name="item_name"
      parse_urls="false"
-     top="6"
+     top="4"
      use_ellipses="true"
      width="180" />
 </panel>

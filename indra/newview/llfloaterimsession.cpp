@@ -1056,7 +1056,7 @@ void LLFloaterIMSession::processAgentListUpdates(const LLSD& body)
                     if (moderator_muted_text)
                         label = LLTrans::getString("IM_muted_text_label");
                     else
-                        label = LLTrans::getString("IM_to_label") + " " + LLIMModel::instance().getName(mSessionID);
+                        label = LLIMModel::instance().getName(mSessionID);
                     mInputEditor->setLabel(label);
 
                     if (moderator_muted_text)

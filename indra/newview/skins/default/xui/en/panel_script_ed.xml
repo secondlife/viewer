@@ -14,7 +14,7 @@
   </panel.string>
   <panel.string
     name="can_not_view">
-      You can not view or edit this script, since it has been set as &quot;no copy&quot; or &quot;no modify&quot;. You need these permissions to view or edit a script inside an object.
+      You can not view or edit this script, since it has been set as &quot;no copy&quot; or &quot;no modify&quot;. You need these permissions to view or edit a script.
   </panel.string>
   <panel.string
     name="public_objects_can_not_run">

@@ -134,6 +134,7 @@ void LLLoginInstance::reconnect()
 {
     // Sort of like connect, only using the pre-existing
     // request params.
+    mAttemptComplete = false;
     std::vector<std::string> uris;
     LLGridManager::getInstance()->getLoginURIs(uris);
     mLoginModule->connect(uris.front(), mRequestData);

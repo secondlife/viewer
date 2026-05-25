@@ -1354,6 +1354,10 @@ bool idle_startup()
     {
         set_startup_status(0.30f, LLTrans::getString("LoginInitializingWorld"), gAgent.mMOTD);
         do_startup_frame();
+
+        // close login UI before world UI is initialized, if it is still visible
+        LLPanelLogin::closePanel();
+
         // We should have an agent id by this point.
         llassert(!(gAgentID == LLUUID::null));
 
@@ -2633,8 +2637,9 @@ void uninstall_nsis_if_required()
     S32 found_minor = 0;
     S32 found_patch = 0;
     U64 found_build = 0;
+    std::string nsis_path;
 
-    if (!get_nsis_version(found_major, found_minor, found_patch, found_build))
+    if (!get_nsis_version(found_major, found_minor, found_patch, found_build, nsis_path))
     {
         return;
     }
@@ -2666,7 +2671,7 @@ void uninstall_nsis_if_required()
     // so there is no point to check build.
     LL_INFOS() << "Found NSIS install " << found_major << "." << found_minor << "." << found_patch << "." << found_build << LL_ENDL;
 
-    clear_nsis_links();
+    clear_nsis_links(nsis_path);
 
     LLSD args;
     args["VERSION"] = llformat("%d.%d.%d", found_major, found_minor, found_patch);

@@ -89,8 +89,7 @@ const S32 XL8_PADDING = 3;  // XL8_START_TAG.size() + XL8_END_TAG.size()
 const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
 
 // This enum corresponds to the sim's and adds P2P_CHAT_SESSION,
-// as webrtc uses the multiagent chat mechanism for p2p calls,
-// instead of relying on vivox calling.
+// as webrtc uses the multiagent chat mechanism for p2p calls.
 // Don't change this without consulting a server developer.
 enum EMultiAgentChatSessionType
 {
@@ -1943,12 +1942,6 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
     info = LLAvatarTracker::instance().getBuddyInfo(other_participant_id);
 
     U8 offline = (!info || info->isOnline()) ? IM_ONLINE : IM_OFFLINE;
-    // Old call to send messages to SLim client,  no longer supported.
-    //if((offline == IM_OFFLINE) && (LLVoiceClient::getInstance()->isOnlineSIP(other_participant_id)))
-    //{
-    //  // User is online through the OOW connector, but not with a regular viewer.  Try to send the message via SLVoice.
-    //  sent = LLVoiceClient::getInstance()->sendTextMessage(other_participant_id, utf8_text);
-    //}
 
     if(!sent)
     {
@@ -3088,8 +3081,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
     {
         if (type == IM_SESSION_P2P_INVITE)
         {
-            // decline p2p voice, either via the vivox-style call mechanism
-            // or via the webrtc-style "decline p2p" mechanism.
+            // decline p2p voice, via the webrtc-style "decline p2p" mechanism.
             LLVoiceP2PIncomingCallInterfacePtr call = LLVoiceClient::getInstance()->getIncomingCallInterface(payload["voice_channel_info"]);
             if (call)
             {

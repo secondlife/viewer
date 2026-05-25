@@ -39,6 +39,7 @@
 // For some reason, this won't work if it's not wrapped in the ifdef
 #ifdef FT_FREETYPE_H
 #include FT_FREETYPE_H
+#include FT_MULTIPLE_MASTERS_H
 #endif
 
 #include "lldir.h"
@@ -116,6 +117,8 @@ LLFontGlyphInfo::LLFontGlyphInfo(U32 index, EFontGlyphType glyph_type)
     mYBitmapOffset(0),  // Offset to the origin in the bitmap
     mXBearing(0),       // Distance from baseline to left in pixels
     mYBearing(0),       // Distance from baseline to top in pixels
+    mLsbDelta(0),
+    mRsbDelta(0),
     mBitmapEntry(std::make_pair(EFontGlyphType::Unspecified, -1)) // Which bitmap in the bitmap cache contains this glyph
 {
 }
@@ -131,6 +134,8 @@ LLFontGlyphInfo::LLFontGlyphInfo(const LLFontGlyphInfo& fgi)
     , mYBitmapOffset(fgi.mYBitmapOffset)
     , mXBearing(fgi.mXBearing)
     , mYBearing(fgi.mYBearing)
+    , mLsbDelta(fgi.mLsbDelta)
+    , mRsbDelta(fgi.mRsbDelta)
 {
     mBitmapEntry = fgi.mBitmapEntry;
 }
@@ -141,6 +146,7 @@ LLFontFreetype::LLFontFreetype()
     mDescender(0.f),
     mLineHeight(0.f),
     mIsFallback(false),
+    mHinting(EFontHinting::FORCE_AUTOHINT),
     mFTFace(nullptr),
     mRenderGlyphCount(0),
     mStyle(0),
@@ -164,7 +170,7 @@ LLFontFreetype::~LLFontFreetype()
     // mFallbackFonts cleaned up by LLPointer destructor
 }
 
-bool LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, bool is_fallback, S32 face_n)
+bool LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 weight, bool is_fallback, S32 face_n, EFontHinting hinting, S32 flags)
 {
     // Don't leak face objects.  This is also needed to deal with
     // changed font file names.
@@ -188,6 +194,20 @@ bool LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
         return false;
 
     mIsFallback = is_fallback;
+    mHinting = hinting;
+    mFontFlags = flags;
+    mWeight = weight;
+
+    bool variable_font = false;
+    if (weight >= 0)
+    {
+        variable_font = setVariationAxis("wght", static_cast<F32>(weight));
+
+        // For Inter, also set optical size based on point size
+        // This makes text look better at different sizes
+        setVariationAxis("opsz", point_size);
+    }
+
     F32 pixels_per_em = (point_size / 72.f)*vert_dpi; // Size in inches * dpi
 
     error = FT_Set_Char_Size(mFTFace,    /* handle to face object           */
@@ -241,6 +261,18 @@ bool LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
     mStyle = LLFontGL::NORMAL;
     if(mFTFace->style_flags & FT_STYLE_FLAG_BOLD)
     {
+        mStyle |= LLFontGL::BOLD;
+    }
+    else if (flags & LLFontGL::BOLD)
+    {
+        // FontGL applies programmatic bolding to fonts that are a part of 'bold' descriptor but don't have the bold style set.
+        // Ex: Inter SemiBold doesn't have FT_STYLE_FLAG_BOLD and without this style it would be bolded programmatically.
+        mStyle |= LLFontGL::BOLD;
+    }
+    else if (weight >= 600 && variable_font)
+    {
+        // If the font is heavy enough, consider it bold and avoid programmatic bolding
+        // even if it doesn't have the bold style set.
         mStyle |= LLFontGL::BOLD;
     }
 
@@ -341,16 +373,10 @@ F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
 
     //llassert(!mIsFallback);
     LLFontGlyphInfo* left_glyph_info = getGlyphInfo(char_left, EFontGlyphType::Unspecified);;
-    U32 left_glyph = left_glyph_info ? left_glyph_info->mGlyphIndex : 0;
     // Kern this puppy.
     LLFontGlyphInfo* right_glyph_info = getGlyphInfo(char_right, EFontGlyphType::Unspecified);
-    U32 right_glyph = right_glyph_info ? right_glyph_info->mGlyphIndex : 0;
 
-    FT_Vector  delta;
-
-    llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
-
-    return delta.x*(1.f/64.f);
+    return getXKerning(left_glyph_info, right_glyph_info);
 }
 
 F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info) const
@@ -363,9 +389,28 @@ F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LL
 
     FT_Vector  delta;
 
-    llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
+    llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, FT_KERNING_UNFITTED, &delta));
 
-    return delta.x*(1.f/64.f);
+    // Apply the FreeType auto-hinter's subpixel side-bearing correction between
+    // adjacent glyphs. When the hinter has shifted the right side of the left
+    // glyph or the left side of the right glyph, (rsb_delta - lsb_delta) is the
+    // sub-pixel nudge that keeps spacing visually even.
+    F32 delta_correction = 0.0f;
+    if (left_glyph_info && right_glyph_info)
+    {
+        // According to FreeType docs, these delta values should only trigger
+        // discrete ±1 pixel adjustments when they cross certain thresholds.
+        // Substructing delta_diff from delta.x doesn't work as well as treating
+        // it as a thresholds
+        S32 delta_diff = left_glyph_info->mRsbDelta - right_glyph_info->mLsbDelta;
+        if (delta_diff > 32)
+            delta_correction = -1.0f;
+        else if (delta_diff < -31)
+            delta_correction = 1.0f;
+    }
+
+    // ft_kerning_unfitted mode always returns 26.6 fixed-point values
+    return (F32)(delta.x * (1.f / 64.f)) + delta_correction;
 }
 
 bool LLFontFreetype::hasGlyph(llwchar wch) const
@@ -510,6 +555,11 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
     gi->mHeight = height;
     gi->mXBearing = fontp->mFTFace->glyph->bitmap_left;
     gi->mYBearing = fontp->mFTFace->glyph->bitmap_top;
+    // FreeType fills these when the glyph has been auto-hinted; they describe how
+    // much the hinter nudged the left/right side bearings (in 26.6 pixels). Keep
+    // them so inter-glyph spacing can be corrected in getXKerning().
+    gi->mLsbDelta = (S32)fontp->mFTFace->glyph->lsb_delta;
+    gi->mRsbDelta = (S32)fontp->mFTFace->glyph->rsb_delta;
     // Convert these from 26.6 units to float pixels.
     gi->mXAdvance = fontp->mFTFace->glyph->advance.x / 64.f;
     gi->mYAdvance = fontp->mFTFace->glyph->advance.y / 64.f;
@@ -635,7 +685,7 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, ll
     if (mFTFace == nullptr)
         return;
 
-    FT_Int32 load_flags = FT_LOAD_FORCE_AUTOHINT;
+    FT_Int32 load_flags = (FT_Int32)mHinting;
     if (EFontGlyphType::Color == bitmap_type)
     {
         // We may not actually get a color render so our caller should always examine mFTFace->glyph->bitmap.pixel_mode
@@ -670,7 +720,50 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, ll
         llassert_always_msg(FT_Err_Ok == error, message.c_str());
     }
 
-    llassert_always(! FT_Render_Glyph(mFTFace->glyph, gFontRenderMode) );
+    // TODO: Make this more sturdy, make asserts/ll_errs conditional
+    // to non-critical characters.
+    // Temporarily leaving them for data gathering, but unicode chars
+    // like emojis should not cause the app to crash and should either
+    // fallback to some predetermined bitmap or simply return.
+
+    // Verify glyph slot is valid
+    if (!mFTFace->glyph)
+    {
+        LL_ERRS() << "FT_Load_Glyph succeeded but glyph slot is null for wchar " << llformat("U+%xu", U32(wch)) << LL_ENDL;
+        return;
+    }
+
+    // Check if bitmap buffer is already allocated
+    // It can potentially be preallocated for:
+    // 1. SVG/color glyphs rendered by FreeType's SVG_RendererHooks
+    // 2. Embedded bitmap fonts
+    // 3. Some Color emoji that use FT_LOAD_COLOR
+    if (!mFTFace->glyph->bitmap.buffer)
+    {
+        error = FT_Render_Glyph(mFTFace->glyph, gFontRenderMode);
+        if (error != FT_Err_Ok)
+        {
+            std::string render_message = llformat(
+                "Error %d (%s) rendering wchar %u glyph %u: format=%lu, pixel_mode=%d, render_mode=%d",
+                error, FT_Error_String(error), wch, glyph_index,
+                (unsigned long)mFTFace->glyph->format, mFTFace->glyph->bitmap.pixel_mode, gFontRenderMode);
+
+            // Try with FT_RENDER_MODE_NORMAL as fallback
+            if (gFontRenderMode != FT_RENDER_MODE_NORMAL)
+            {
+                LL_WARNS_ONCE() << render_message << LL_ENDL;
+                error = FT_Render_Glyph(mFTFace->glyph, FT_RENDER_MODE_NORMAL);
+                if (error != FT_Err_Ok)
+                {
+                    LL_ERRS() << "Fallback to FT_RENDER_MODE_NORMAL failed. " << render_message << LL_ENDL;
+                }
+            }
+            else
+            {
+                LL_ERRS() << render_message << LL_ENDL;
+            }
+        }
+    }
 
     mRenderGlyphCount++;
 }
@@ -678,7 +771,7 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, ll
 void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 {
     resetBitmapCache();
-    loadFace(mName, mPointSize, vert_dpi ,horz_dpi, mIsFallback, 0);
+    loadFace(mName, mPointSize, vert_dpi ,horz_dpi, mWeight, mIsFallback, 0, mHinting, mFontFlags);
     if (!mIsFallback)
     {
         // This is the head of the list - need to rebuild ourself and all fallbacks.
@@ -844,6 +937,73 @@ void LLFontFreetype::setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32
             from_offset++;
         }
     }
+}
+
+bool LLFontFreetype::setVariationAxis(const std::string& axis_tag, F32 value)
+{
+    if (!mFTFace)
+        return false;
+
+    // Check if this is a variable font
+    FT_MM_Var* master = nullptr;
+    if (FT_Get_MM_Var(mFTFace, &master) != 0)
+    {
+        // Not a variable font - this is not an error, just silently skip
+        return false;
+    }
+
+    // Find the axis by tag (e.g., "wght" for weight)
+    FT_UInt axis_index = 0;
+    bool found = false;
+    for (FT_UInt i = 0; i < master->num_axis; i++)
+    {
+        // Compare the 4-byte tag
+        if (master->axis[i].tag == FT_MAKE_TAG(axis_tag[0], axis_tag[1], axis_tag[2], axis_tag[3]))
+        {
+            axis_index = i;
+            found = true;
+
+            // Clamp value to valid range for this axis
+            F32 min_val = master->axis[i].minimum / 65536.0f;
+            F32 max_val = master->axis[i].maximum / 65536.0f;
+            value = llclamp(value, min_val, max_val);
+
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        FT_Done_MM_Var(gFTLibrary, master);
+        LL_WARNS_ONCE("Font") << "Axis '" << axis_tag << "' not found in font: " << mName << LL_ENDL;
+        return false;
+    }
+
+    FT_UInt num_coords = master->num_axis;
+    FT_Fixed* coords = new FT_Fixed[num_coords];
+
+    // Get current coordinates
+    FT_Get_Var_Design_Coordinates(mFTFace, num_coords, coords);
+
+    // Update the specific axis
+    coords[axis_index] = (FT_Fixed)(value * 65536.0f);
+
+    // Set all coordinates
+    int error = FT_Set_Var_Design_Coordinates(mFTFace, num_coords, coords);
+
+    delete[] coords;
+    FT_Done_MM_Var(gFTLibrary, master);
+
+    if (error != 0)
+    {
+        LL_WARNS() << "Failed to set variation coordinates for " << axis_tag
+            << " = " << value << " in font: " << mName << LL_ENDL;
+        return false;
+    }
+
+    LL_DEBUGS("Font") << "Set " << axis_tag << " = " << value
+        << " for font: " << mName << LL_ENDL;
+    return true;
 }
 
 

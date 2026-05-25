@@ -17,6 +17,9 @@
 *~
 
 # Specific paths and/or names
+/.autobuild-installables/
+/.build-variables/
+/.logs/
 CMakeCache.txt
 cmake_install.cmake
 LICENSES

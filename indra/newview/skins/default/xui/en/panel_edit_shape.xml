@@ -15,7 +15,7 @@
      <string name="height_value_label_color" translate="false">White</string>
      <text
          follows="top|left|right"
-         font="SansSerifSmallBold"
+         font="SansSerifSmall"
          halign="right"
          height="12"
          layout="topleft"
@@ -36,7 +36,7 @@
          layout="topleft"
 		 left="10"
          name="accordion_panel"
-		 top_pad="0"
+		 top_pad="5"
          width="313">
 	 <accordion
         layout="topleft"

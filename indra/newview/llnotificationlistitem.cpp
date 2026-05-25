@@ -175,13 +175,15 @@ void LLNotificationListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
     mCondensedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "ScrollHoveredColor" ));
     mExpandedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "ScrollHoveredColor" ));
+    mNoticeTextExp->setBgReadOnlyColor(LLUIColorTable::instance().getColor("SelectedBgReadOnlyColor"));
 }
 
 void LLNotificationListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
     mCondensedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
     mExpandedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
-}
+    mNoticeTextExp->setBgReadOnlyColor(LLUIColorTable::instance().getColor("TextBgReadOnlyColor"));
+ }
 
 //static
 LLNotificationListItem* LLNotificationListItem::create(const Params& p)
