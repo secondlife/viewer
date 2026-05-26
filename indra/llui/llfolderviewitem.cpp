@@ -190,7 +190,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mItemHeight(p.item_height),
     mControlLabelRotation(0.f),
     mDragAndDropTarget(false),
-    mLabel(utf8str_to_wstring(p.name)),
+    mLabel(utf8str_to_wstring(p.name)), // will be immediately reset in postBuild()
     mRoot(p.root),
     mViewModelItem(p.listener),
     mIsMouseOverTitle(false),
@@ -244,8 +244,10 @@ bool LLFolderViewItem::postBuild()
     llassert(vmi); // not supposed to happen, if happens, find out why and fix
     if (vmi)
     {
-        // getDisplayName() is expensive (due to internal getLabelSuffix() and name building)
-        // it also sets search strings so it requires a filter reset
+        // First getDisplayName() is expensive due to internal
+        // lazy getLabelSuffix(), it is however needed as it sets
+        // search string, which can later determine visibility.
+        // Refreshing a search string also requires a filter reset.
         mLabel = utf8str_to_wstring(vmi->getDisplayName());
         mIsFavorite = vmi->isFavorite() && !vmi->isItemInTrash();
 
@@ -253,11 +255,8 @@ bool LLFolderViewItem::postBuild()
         vmi->dirtyFilter();
     }
 
-    // Don't do full refresh on constructor if it is possible to avoid
+    // Don't do full refresh on constructor if it is possible to avoid,
     // it significantly slows down bulk view creation.
-    // Todo: Ideally we need to move getDisplayName() out of constructor as well.
-    // Like: make a logic that will let filter update search string,
-    // while LLFolderViewItem::arrange() updates visual part
     mSuffixNeedsRefresh = true;
     mLabelWidthDirty = true;
     return true;
