@@ -4,7 +4,7 @@
 *
 * $LicenseInfo:firstyear=2001&license=viewerlgpl$
 * Second Life Viewer Source Code
-* Copyright (C) 2010, Linden Research, Inc.
+* Copyright (C) 2026, Linden Research, Inc.
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -248,7 +248,6 @@ bool LLFolderViewItem::postBuild()
         // it also sets search strings so it requires a filter reset
         mLabel = utf8str_to_wstring(vmi->getDisplayName());
         mIsFavorite = vmi->isFavorite() && !vmi->isItemInTrash();
-        setToolTip(vmi->getName());
 
         // Dirty the filter flag of the model from the view (CHUI-849)
         vmi->dirtyFilter();
@@ -363,7 +362,6 @@ void LLFolderViewItem::refresh()
     mLabel = utf8str_to_wstring(vmi.getDisplayName());
     mLabelFontBuffer.reset();
     mIsFavorite = vmi.isFavorite() && !vmi.isItemInTrash();
-    setToolTip(vmi.getName());
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
     mIcon = vmi.getIcon();
@@ -621,6 +619,19 @@ const std::string& LLFolderViewItem::getName( void ) const
 {
     static const std::string noName("");
     return getViewModelItem() ? getViewModelItem()->getName() : noName;
+}
+
+const std::string LLFolderViewItem::getToolTip() const
+{
+    // Return the item name as tooltip without storing it
+    if (!LLView::sDebugUnicode)
+    {
+        if (const LLFolderViewModelItem* vmi = getViewModelItem())
+        {
+            return vmi->getName();
+        }
+    }
+    return LLView::getToolTip();
 }
 
 // LLView functionality
