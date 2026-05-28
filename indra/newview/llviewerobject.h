@@ -427,10 +427,12 @@ public:
     virtual F32 getStreamingCost() const;
     virtual bool getCostData(LLMeshCostData& costs) const;
     virtual U32 getTriangleCount(S32* vcount = NULL) const;
+    virtual U32 getLODTriangleCount(S32 lod);
     virtual U32 getHighLODTriangleCount();
     F32 recursiveGetScaledSurfaceArea() const;
 
     U32 recursiveGetTriangleCount(S32* vcount = NULL) const;
+    void recursiveGetLODTriangleCount(S32 &high_lod, S32 &medium_lod, S32 &low_lod, S32 &lowest_lod);
 
     void setObjectCost(F32 cost);
     F32 getObjectCost();
