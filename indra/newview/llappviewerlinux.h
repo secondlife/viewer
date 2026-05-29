@@ -68,6 +68,16 @@ protected:
 
     virtual bool initSLURLHandler();
     virtual bool sendURLToOtherInstance(const std::string& url);
+    virtual void setOSHibernationMode(eHibernationMode mode);
+
+private:
+    // Power management state tracking
+    static guint32 sPowerInhibitCookie;
+    static bool sPowerInhibitActive;
+
+    // Helper methods for power management
+    bool inhibitPowerManagement(bool inhibit_display);
+    void uninhibitPowerManagement();
 };
 
 #if LL_DBUS_ENABLED

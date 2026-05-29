@@ -14429,6 +14429,17 @@
       <key>Value</key>
       <integer>180</integer>
     </map>
+    <key>OSHibernationMode</key>
+    <map>
+        <key>Comment</key>
+        <string>Whether to prevent OS from hibernating. 0 - can hibernate; 1 - can't hibernate, can turn screen off; 2 - can't hibernate, can't turn screen off </string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>HeightUnits</key>
     <map>
       <key>Comment</key>

@@ -1487,12 +1487,30 @@ void LLViewerWindow::handleCloseRequestCanceled()
 
 void LLViewerWindow::handleSuspendRequest()
 {
-    LLAppViewer::instance()->sendViewerStatistics();
-    // Todo: this should send a disconnect request as viewer
-    // can't keep heartbeat up while suspended and will get
-    // disconnected within a minute.
-    // Add a disconnect here once 'prevent OS from sleeping'
-    // feature is ready.
+    static LLCachedControl<S32> os_hibernation_mode(gSavedSettings, "OSHibernationMode", 0);
+    if (os_hibernation_mode == 0)
+    {
+        LL_INFOS() << "Got a 'suspend' event from OS" << LL_ENDL;
+        // Viewer doesn't handle hibernation.
+        // Just send statistics.
+        LLAppViewer::instance()->sendViewerStatistics(false);
+    }
+    else
+    {
+        LL_INFOS() << "Got a 'suspend' event from OS, disconnecting" << LL_ENDL;
+        // Viewer is set to prevent hibernation if agent isn't away.
+        // If we got here, likely Agent 'went' away then viewer got
+        // a hibernation message.
+        // We have a limited timeframe. Sends stats then disconnect.
+        LLViewerRegion* region = gAgent.getRegion();
+        if (region)
+        {
+            LLAppViewer::instance()->sendViewerStatistics(true);
+            LLAppViewer::instance()->metricsSend(!gDisconnected);
+            // Make sure to show a message.
+            LLAppViewer::instance()->forceDisconnect(LLTrans::getString("YouHaveBeenDisconnected"));
+        }
+    }
 }
 
 bool LLViewerWindow::handleCloseRequest(LLWindow *window, bool from_user)

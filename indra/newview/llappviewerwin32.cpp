@@ -1020,6 +1020,56 @@ bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
     return false;
 }
 
+void LLAppViewerWin32::setOSHibernationMode(eHibernationMode mode)
+{
+    // ES_CONTINUOUS tells Windows to reset the idle timer
+    // and restore normal operation
+    // ES_SYSTEM_REQUIRED prevents system sleep/hibernation
+    // ES_DISPLAY_REQUIRED prevents display sleep
+
+    if (mode == LL_HIBERNATE_MODE_DEFAULT)
+    {
+        // Allow OS to hibernate - clear the previous execution state flags
+        // ES_CONTINUOUS without other flags allows the system to idle normally
+        SetThreadExecutionState(ES_CONTINUOUS);
+        LL_INFOS("OS") << "Permitted OS hibernation/sleep" << LL_ENDL;
+    }
+    else if (mode == LL_HIBERNATE_MODE_PREVENT)
+    {
+        // Prevent OS from hibernating while viewer is running
+        // ES_CONTINUOUS | ES_SYSTEM_REQUIRED keeps the system awake
+        EXECUTION_STATE result = SetThreadExecutionState(
+            ES_CONTINUOUS | ES_SYSTEM_REQUIRED
+        );
+        if (result == NULL)
+        {
+            LL_WARNS("OS") << "Failed to prevent OS hibernation, error: " << GetLastError() << LL_ENDL;
+        }
+        else
+        {
+            LL_INFOS("OS") << "Prevented OS hibernation, but allowed display sleep" << LL_ENDL;
+        }
+    }
+    else if (mode == LL_HIBERNATE_MODE_PREVENT_SCREEN)
+    {
+        // Prevent OS from hibernating or turning screen off while viewer is running
+        // ES_CONTINUOUS | ES_SYSTEM_REQUIRED keeps the system awake
+        // ES_DISPLAY_REQUIRED keeps the display on
+        EXECUTION_STATE result = SetThreadExecutionState(
+            ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED
+        );
+
+        if (result == NULL)
+        {
+            LL_WARNS("OS") << "Failed to prevent OS hibernation and display sleep, error: " << GetLastError() << LL_ENDL;
+        }
+        else
+        {
+            LL_INFOS("OS") << "Prevented OS hibernation/sleep" << LL_ENDL;
+        }
+    }
+}
+
 bool LLAppViewerWin32::sendShutdownToOtherInstances(const std::wstring& install_dir)
 {
     // Velopack installs viewer like this:
