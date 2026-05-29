@@ -2657,21 +2657,22 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 // Viewer can't function in hibernation, try to shut down.
                 // The system allows approximately two seconds for an
                 // application to handle this notification.
+
+                // Mark app as potentially closing, to minimize issues if OS does not recover.
+                window_imp->mCallbacks->handlePreCloseRequest();
                 window_imp->post([=]()
                 {
-                    LL_INFOS("Window") << "Shutting down due to system suspending (sleep/hibernate)" << LL_ENDL;
-                    if (window_imp->mCallbacks->handleSessionExit(window_imp))
-                    {
-                        // Get the app to initiate cleanup.
-                        window_imp->mCallbacks->handleQuit(window_imp);
-                    }
+                    window_imp->mCallbacks->handleSuspendRequest();
                 });
+                // Window thread normally doesn't block main thread, but OS can suspend
+                // immediately if we don't wait.
+                // Keep OS from suspending to give a chance to send stats.
                 ms_sleep(1000);
                 return TRUE;
 
             case PBT_APMRESUMESUSPEND:
                 LL_INFOS("Window") << "System is resuming from suspend" << LL_ENDL;
-                // Shouldn't be up, but log just in case.
+                window_imp->mCallbacks->handleCloseRequestCanceled();
                 return TRUE;
 
             case PBT_APMPOWERSTATUSCHANGE:

@@ -4055,8 +4055,10 @@ void LLAppViewer::processMarkerFiles()
     // - Other Crash (SecondLife.error_marker present)
     // - Watchdog freeze (SecondLife.watchdog_marker present)
     // - Failed to initialize (SecondLife.inited_marker not present)
-    // - Potentially killed by task manager (SecondLife.close_marker present)
-    // These checks should also remove these files for the last 2 cases if they currently exist
+    // - Potentially killed by task manager or computer
+    // didn't recover from hibernation (SecondLife.close_marker present)
+    // These checks should also remove these files for the last 2 cases
+    // if they currently exist
 
     std::ostringstream marker_log_stream;
     bool marker_is_same_version = true;
@@ -4227,21 +4229,21 @@ void LLAppViewer::processMarkerFiles()
                 }
             }
             // If 'close' marker is found, viewer either started shutdown but
-            // failed, or viewer got killed by task manager.
+            // failed, OS did not recover from hibernation or viewer got
+            // killed by task manager.
             // Marker does not indicate that viewer was closed or is closing,
             // just that 'close' was requested before viewer died.
             else if (LLAPRFile::isExist(close_marker_file, NULL, LL_APR_RB))
             {
-                // For now treat as 'other' cause.
-                // Unfortunately we can't for certain distinguish task
-                // manager's case from other shutdown problems, so we
-                // have to report both.
-                // Todo: if this bears noticeable fruits, make a new state later.
-                // New categories need server/web side support.
+                // Unfortunately we can't reliably distinguish
+                // task manager's case from genuine shutdown, so we
+                // have to report all of them as the same thing.
+                // Todo: but we can distinguish hibernation, might want
+                // to simply not report it as an issue.
                 if (markerIsSameVersion(close_marker_file))
                 {
-                    gLastExecEvent = LAST_EXEC_UNKNOWN == gLastExecEvent ? LAST_EXEC_OTHER_CRASH : LAST_EXEC_LOGOUT_CRASH;
-                    LL_INFOS("MarkerFile") << "'Close' marker '" << close_marker_file << "' found, setting LastExecEvent to CRASH"
+                    gLastExecEvent = LAST_EXEC_OS_EVENT;
+                    LL_INFOS("MarkerFile") << "'Close' marker '" << close_marker_file << "' found, setting LastExecEvent to OS_EVENT"
                         << LL_ENDL;
                 }
             }
@@ -4470,6 +4472,11 @@ void LLAppViewer::abortQuit()
     LL_INFOS() << "abortQuit()" << LL_ENDL;
     mQuitRequested = false;
     mClosingFloaters = false;
+}
+
+void LLAppViewer::sendViewerStatistics()
+{
+    send_viewer_stats(false);
 }
 
 void LLAppViewer::migrateCacheDirectory()
