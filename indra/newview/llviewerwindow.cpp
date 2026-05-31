@@ -1474,7 +1474,25 @@ void LLViewerWindow::handlePreCloseRequest()
     {
         LLAppViewer::instance()->createCloseRequestMarker();
     }
+}
 
+void LLViewerWindow::handleCloseRequestCanceled()
+{
+    // WINDOW THREAD! since we need this to act fast.
+    if (!LLApp::isExiting() && !LLApp::isStopped())
+    {
+        LLAppViewer::instance()->removeCloseRequestMarker();
+    }
+}
+
+void LLViewerWindow::handleSuspendRequest()
+{
+    LLAppViewer::instance()->sendViewerStatistics();
+    // Todo: this should send a disconnect request as viewer
+    // can't keep heartbeat up while suspended and will get
+    // disconnected within a minute.
+    // Add a disconnect here once 'prevent OS from sleeping'
+    // feature is ready.
 }
 
 bool LLViewerWindow::handleCloseRequest(LLWindow *window, bool from_user)

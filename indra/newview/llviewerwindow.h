@@ -203,6 +203,8 @@ public:
     /*virtual*/ bool handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
     /*virtual*/ bool handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
     /*virtual*/ void handlePreCloseRequest();
+    /*virtual*/ void handleCloseRequestCanceled();
+    /*virtual*/ void handleSuspendRequest();
     /*virtual*/ bool handleCloseRequest(LLWindow *window, bool from_user);
     /*virtual*/ bool handleSessionExit(LLWindow* window);
     /*virtual*/ void handleQuit(LLWindow *window);

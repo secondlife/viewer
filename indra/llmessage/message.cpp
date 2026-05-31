@@ -78,6 +78,8 @@
 #include "lltransfertargetvfile.h"
 #include "llcorehttputil.h"
 #include "llpounceable.h"
+#include "llproxy.h"
+#include "llrand.h"
 
 // Constants
 //const char* MESSAGE_LOG_FILENAME = "message.log";
@@ -173,7 +175,7 @@ void LLMessageSystem::init()
     mTotalBytesIn = 0;
     mTotalBytesOut = 0;
 
-    mDroppedPackets = 0;            // total dropped packets in
+    mLostPackets = 0;               // total lost packets out
     mResentPackets = 0;             // total resent packets out
     mFailedResendPackets = 0;       // total resend failure packets out
     mOffCircuitPackets = 0;         // total # of off-circuit packets rejected
@@ -183,6 +185,13 @@ void LLMessageSystem::init()
 
     mIncomingCompressedSize = 0;
     mCurrentRecvPacketID = 0;
+
+    mActualBytesIn          = 0;
+    mActualBytesOut         = 0;
+    mDropPercentage         = 0.0f;
+    mPacketsToDrop          = 0;
+    mNumDroppedPackets      = 0;
+    mNumDroppedPacketsTotal = 0;
 
     mMessageFileVersionNumber = 0.f;
 
@@ -508,18 +517,16 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
 
         bool recv_reliable = false;
         bool recv_resent = false;
-        S32 acks = 0;
+        S32 num_acks = 0;
         S32 true_rcv_size = 0;
 
         U8* buffer = mTrueReceiveBuffer;
 
-        mTrueReceiveSize = mPacketRing.receivePacket(mSocket, (char *)mTrueReceiveBuffer);
+        mTrueReceiveSize = receivePacketOrDrop((char *)mTrueReceiveBuffer);
         // If you want to dump all received packets into SecondLife.log, uncomment this
         //dumpPacketToLog();
 
         receive_size = mTrueReceiveSize;
-        mLastSender = mPacketRing.getLastSender();
-        mLastReceivingIF = mPacketRing.getLastReceivingInterface();
 
         if (receive_size < (S32) LL_MINIMUM_VALID_PACKET_SIZE)
         {
@@ -535,24 +542,23 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
         }
         else
         {
-            LLHost host;
-            LLCircuitData* cdp;
-
-            // note if packet acks are appended.
+            // handle any packet ACKs (for outbound messages) found at tail of inbound message
             if(buffer[0] & LL_ACK_FLAG)
             {
-                acks += buffer[--receive_size];
+                // Note: these ACKs may have already been handled if this was a buffered message
+                // but it doesn't hurt to handle them again.
+                num_acks += buffer[--receive_size];
                 true_rcv_size = receive_size;
-                if(receive_size >= ((S32)(acks * sizeof(TPACKETID) + LL_MINIMUM_VALID_PACKET_SIZE)))
+                if(receive_size >= ((S32)(num_acks * sizeof(TPACKETID) + LL_MINIMUM_VALID_PACKET_SIZE)))
                 {
-                    receive_size -= acks * sizeof(TPACKETID);
+                    receive_size -= num_acks * sizeof(TPACKETID);
                 }
                 else
                 {
                     // mal-formed packet. ignore it and continue with
                     // the next one
                     LL_WARNS("Messaging") << "Malformed packet received. Packet size "
-                        << receive_size << " with invalid no. of acks " << acks
+                        << receive_size << " with invalid no. of acks " << num_acks
                         << LL_ENDL;
                     valid_packet = false;
                     continue;
@@ -562,20 +568,20 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
             // process the message as normal
             mIncomingCompressedSize = zeroCodeExpand(&buffer, &receive_size);
             mCurrentRecvPacketID = ntohl(*((U32*)(&buffer[1])));
-            host = getSender();
+            LLHost host = getSender();
 
             const bool resetPacketId = true;
-            cdp = findCircuit(host, resetPacketId);
+            LLCircuitData* cdp = findCircuit(host, resetPacketId);
 
             // At this point, cdp is now a pointer to the circuit that
             // this message came in on if it's valid, and NULL if the
             // circuit was bogus.
 
-            if(cdp && (acks > 0) && ((S32)(acks * sizeof(TPACKETID)) < (true_rcv_size)))
+            if(cdp && (num_acks > 0) && ((S32)(num_acks * sizeof(TPACKETID)) < (true_rcv_size)))
             {
                 TPACKETID packet_id;
                 U32 mem_id=0;
-                for(S32 i = 0; i < acks; ++i)
+                for(S32 i = 0; i < num_acks; ++i)
                 {
                     true_rcv_size -= sizeof(TPACKETID);
                     memcpy(&mem_id, &mTrueReceiveBuffer[true_rcv_size], /* Flawfinder: ignore*/
@@ -630,7 +636,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
                         str << tbuf << "(unknown)"
                             << (recv_reliable ? " reliable" : "")
                             << " resent "
-                            << ((acks > 0) ? "acks" : "")
+                            << ((num_acks > 0) ? "acks" : "")
                             << " DISCARD DUPLICATE";
                         LL_INFOS("Messaging") << str.str() << LL_ENDL;
                     }
@@ -680,7 +686,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
 
             if ( valid_packet )
             {
-                logValidMsg(cdp, host, recv_reliable, recv_resent, acks>0 );
+                logValidMsg(cdp, host, recv_reliable, recv_resent, num_acks>0 );
                 valid_packet = mTemplateMessageReader->readMessage(buffer, host);
             }
 
@@ -724,7 +730,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
     // Check to see if we need to print debug info
     if ((mt_sec - mCircuitPrintTime) > mCircuitPrintFreq)
     {
-        mPacketRing.dumpPacketRingStats();
+        dumpPacketRingStats();
         dumpCircuitInfo();
         mCircuitPrintTime = mt_sec;
     }
@@ -749,6 +755,10 @@ S32 LLMessageSystem::getReceiveBytes() const
     }
 }
 
+F32 LLMessageSystem::getBufferLoadRate() const
+{
+    return llmax(mHighPriorityInbound.getBufferLoadRate(), mLowPriorityInbound.getBufferLoadRate());
+}
 
 void LLMessageSystem::processAcks(LockMessageChecker&, F32 collect_time)
 {
@@ -822,7 +832,264 @@ void LLMessageSystem::processAcks(LockMessageChecker&, F32 collect_time)
 
 S32 LLMessageSystem::drainUdpSocket()
 {
-    return mPacketRing.drainSocket(mSocket);
+    S32 packet_size = 1;
+    S32 num_loops = 0;
+    S32 old_num_buffered_packets = getNumBufferedPackets();
+    while (packet_size > 0)
+    {
+        packet_size = bufferInboundPacket();
+        ++num_loops;
+    }
+    S32 num_dropped_packets = (num_loops - 1 + old_num_buffered_packets) - getNumBufferedPackets();
+    if (num_dropped_packets > 0)
+    {
+        mNumDroppedPackets += num_dropped_packets;
+    }
+    return getNumBufferedPackets();
+}
+
+bool LLMessageSystem::computeDrop()
+{
+    bool drop = (mDropPercentage > 0.0f && (ll_frand(100.f) < mDropPercentage));
+    if (drop)
+    {
+        ++mPacketsToDrop;
+    }
+    if (mPacketsToDrop > 0)
+    {
+        --mPacketsToDrop;
+        drop = true;
+    }
+    return drop;
+}
+
+bool LLMessageSystem::isHighPriorityMessage(const LLPacketBuffer& pkt) const
+{
+    S32 size = pkt.getSize();
+    if (size < LL_PACKET_ID_SIZE + 1)
+    {
+        return false;
+    }
+
+    // We want to prioritize crucial messages use to establish viewer <--> simulator connection,
+    // which are all low-frequency. A simple approximation is to just prioritize all non high-
+    // frequency messages.
+    //
+    // High frequency messages use a single byte for message_id whereas all low- and medium-
+    // frequency messages have 255 at the first byte of the message_id (which is after the
+    // LL_PACKET_ID_SIZE bytes of packet_id).
+    return *((const U8*)pkt.getData() + LL_PACKET_ID_SIZE) == 255;
+}
+
+void LLMessageSystem::dropPackets(U32 num_to_drop)
+{
+    mPacketsToDrop += num_to_drop;
+}
+
+void LLMessageSystem::setDropPercentage(F32 percent_to_drop)
+{
+    mDropPercentage = percent_to_drop;
+}
+
+S32 LLMessageSystem::receivePacketOrDrop(char* datap)
+{
+    if (getNumBufferedPackets() > 0)
+    {
+        LLHost invalid_host;
+        LLPacketBuffer pkt(invalid_host, nullptr, 0);
+        if (!mHighPriorityInbound.popPacket(pkt))
+        {
+            mLowPriorityInbound.popPacket(pkt);
+        }
+
+        S32 packet_size = pkt.getSize();
+        mLastSender      = pkt.getHost();
+        mLastReceivingIF = pkt.getReceivingInterface();
+
+        if (packet_size > 0)
+        {
+            memcpy(datap, pkt.getData(), packet_size);
+        }
+        return packet_size;
+    }
+
+    // Read directly from the socket.
+    bool drop = computeDrop();
+    S32 packet_size = 0;
+    if (LLProxy::isSOCKSProxyEnabled())
+    {
+        char buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];   /* Flawfinder ignore */
+        packet_size = receive_packet(mSocket, buffer);
+        if (packet_size > 0)
+        {
+            mActualBytesIn += packet_size;
+        }
+        if (packet_size > SOCKS_HEADER_SIZE)
+        {
+            if (drop)
+            {
+                packet_size = 0;
+            }
+            else
+            {
+                // *FIX We are assuming ATYP is 0x01 (IPv4), not 0x03 (hostname) or 0x04 (IPv6)
+                packet_size -= SOCKS_HEADER_SIZE;
+                memcpy(datap, buffer + SOCKS_HEADER_SIZE, packet_size);
+                proxywrap_t* header = static_cast<proxywrap_t*>(static_cast<void*>(buffer));
+                mLastSender.setAddress(header->addr);
+                mLastSender.setPort(ntohs(header->port));
+                mLastReceivingIF = ::get_receiving_interface();
+            }
+        }
+        else
+        {
+            packet_size = 0;
+        }
+    }
+    else
+    {
+        packet_size = receive_packet(mSocket, datap);
+        if (packet_size > 0)
+        {
+            mActualBytesIn += packet_size;
+            if (drop)
+            {
+                packet_size = 0;
+            }
+            else
+            {
+                mLastSender      = ::get_sender();
+                mLastReceivingIF = ::get_receiving_interface();
+            }
+        }
+    }
+    return packet_size;
+}
+
+S32 LLMessageSystem::bufferInboundPacket()
+{
+    LLHost invalid_host;
+    LLPacketBuffer pkt(invalid_host, nullptr, 0);
+    S32 packet_size = 0;
+
+    if (LLProxy::isSOCKSProxyEnabled())
+    {
+        char buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];   /* Flawfinder ignore */
+        packet_size = receive_packet(mSocket, buffer);
+        if (packet_size > 0)
+        {
+            mActualBytesIn += packet_size;
+            if (packet_size > SOCKS_HEADER_SIZE)
+            {
+                // *FIX We are assuming ATYP is 0x01 (IPv4), not 0x03 (hostname) or 0x04 (IPv6)
+                proxywrap_t* header = static_cast<proxywrap_t*>(static_cast<void*>(buffer));
+                LLHost sender;
+                sender.setAddress(header->addr);
+                sender.setPort(ntohs(header->port));
+                packet_size -= SOCKS_HEADER_SIZE;
+                pkt.init(buffer + SOCKS_HEADER_SIZE, packet_size, sender);
+            }
+            else
+            {
+                packet_size = 0;
+            }
+        }
+    }
+    else
+    {
+        pkt.init(mSocket);
+        packet_size = pkt.getSize();
+        if (packet_size > 0)
+        {
+            mActualBytesIn += packet_size;
+        }
+    }
+
+    if (packet_size >= (S32)LL_MINIMUM_VALID_PACKET_SIZE && !computeDrop())
+    {
+        const char* data = pkt.getData();
+        LLCircuitData* cdp = mCircuitInfo.findCircuit(pkt.getHost());
+        TPACKETID recv_packet_id = ntohl(*((U32*)(&data[1])));
+
+        // Harvest piggybacked ACKs for outbound messages from the packet tail of this inbound message
+        if (cdp && (data[0] & LL_ACK_FLAG))
+        {
+            U8 num_acks = (U8)data[packet_size - 1];
+            S32 true_rcv_size = packet_size - 1;
+            if (true_rcv_size >= (S32)(num_acks * sizeof(TPACKETID) + LL_MINIMUM_VALID_PACKET_SIZE))
+            {
+                TPACKETID ack_id;
+                U32 mem_id = 0;
+                for (S32 i = 0; i < num_acks; ++i)
+                {
+                    true_rcv_size -= sizeof(TPACKETID);
+                    memcpy(&mem_id, &data[true_rcv_size], sizeof(TPACKETID)); /* Flawfinder: ignore */
+                    ack_id = ntohl(mem_id);
+                    cdp->ackReliablePacket(ack_id);
+                }
+                if (!cdp->getUnackedPacketCount())
+                {
+                    mCircuitInfo.mUnackedCircuitMap.erase(cdp->mHost);
+                }
+            }
+        }
+
+        // ACK inbound reliable packet ASAP
+        if (cdp && (data[0] & LL_RELIABLE_FLAG))
+        {
+            cdp->collectRAck(recv_packet_id);
+        }
+
+        if (isHighPriorityMessage(pkt))
+        {
+            mHighPriorityInbound.pushPacket(pkt);
+        }
+        else
+        {
+            mLowPriorityInbound.pushPacket(pkt);
+        }
+    }
+
+    return packet_size;
+}
+
+bool LLMessageSystem::sendPacketToSocket(const char* datap, S32 data_size, LLHost host)
+{
+    mActualBytesOut += data_size;
+    if (!LLProxy::isSOCKSProxyEnabled())
+    {
+        return send_packet(mSocket, datap, data_size, host.getAddress(), host.getPort());
+    }
+
+    char headered_send_buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];
+
+    proxywrap_t* socks_header = static_cast<proxywrap_t*>(static_cast<void*>(&headered_send_buffer));
+    socks_header->rsv   = 0;
+    socks_header->addr  = host.getAddress();
+    socks_header->port  = htons(host.getPort());
+    socks_header->atype = ADDRESS_IPV4;
+    socks_header->frag  = 0;
+
+    memcpy(headered_send_buffer + SOCKS_HEADER_SIZE, datap, data_size);
+
+    return send_packet(mSocket,
+                       headered_send_buffer,
+                       data_size + SOCKS_HEADER_SIZE,
+                       LLProxy::getInstance()->getUDPProxy().getAddress(),
+                       LLProxy::getInstance()->getUDPProxy().getPort());
+}
+
+void LLMessageSystem::dumpPacketRingStats()
+{
+    mNumDroppedPacketsTotal += mNumDroppedPackets;
+    LL_INFOS("Messaging") << "buffered_packets=" << getNumBufferedPackets()
+                          << "buffered_bytes=" << (mHighPriorityInbound.getNumBufferedBytes() + mLowPriorityInbound.getNumBufferedBytes())
+                          << "recently_dropped=" << mNumDroppedPackets
+                          << "total_dropped=" << mNumDroppedPacketsTotal
+                          << "dropped_percentage=" << mDropPercentage << "%"
+                          << "bytes_IN=" << mActualBytesIn
+                          << "bytes_OUT=" << mActualBytesOut << LL_ENDL;
+    mNumDroppedPackets = 0;
 }
 
 void LLMessageSystem::copyMessageReceivedToSend()
@@ -1277,7 +1544,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
     }
 
     bool success;
-    success = mPacketRing.sendPacket(mSocket, (char *)buf_ptr, buffer_length, host);
+    success = sendPacketToSocket((char *)buf_ptr, buffer_length, host);
 
     if (!success)
     {
@@ -2607,7 +2874,7 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
     str << buffer << std::endl << std::endl;
     buffer = llformat( "SendPacket failures:       %20d", mSendPacketFailureCount);
     str << buffer << std::endl;
-    buffer = llformat( "Dropped packets:           %20d", mDroppedPackets);
+    buffer = llformat( "Dropped packets:           %20d", getTotalNumDroppedPackets());
     str << buffer << std::endl;
     buffer = llformat( "Resent packets:            %20d", mResentPackets);
     str << buffer << std::endl;
@@ -3333,7 +3600,7 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
 
 void LLMessageSystem::dumpPacketToLog()
 {
-    LL_WARNS("Messaging") << "Packet Dump from:" << mPacketRing.getLastSender() << LL_ENDL;
+    LL_WARNS("Messaging") << "Packet Dump from:" << mLastSender << LL_ENDL;
     LL_WARNS("Messaging") << "Packet Size:" << mTrueReceiveSize << LL_ENDL;
     char line_buffer[256];      /* Flawfinder: ignore */
     S32 i;

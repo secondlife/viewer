@@ -2298,7 +2298,7 @@ class LLAdvancedDropPacket : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        gMessageSystem->mPacketRing.dropPackets(1);
+        gMessageSystem->dropPackets(1);
         return true;
     }
 };

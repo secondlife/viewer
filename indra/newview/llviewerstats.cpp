@@ -791,7 +791,7 @@ void send_viewer_stats(bool include_preferences)
     LLSD &fail = body["stats"]["failures"];
 
     fail["send_packet"] = (S32) gMessageSystem->mSendPacketFailureCount;
-    fail["dropped"] = (S32) gMessageSystem->mDroppedPackets;
+    fail["dropped"] = (S32) gMessageSystem->getTotalNumDroppedPackets();
     fail["resent"] = (S32) gMessageSystem->mResentPackets;
     fail["failed_resends"] = (S32) gMessageSystem->mFailedResendPackets;
     fail["off_circuit"] = (S32) gMessageSystem->mOffCircuitPackets;

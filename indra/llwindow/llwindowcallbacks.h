@@ -43,6 +43,8 @@ public:
     virtual void handleMouseLeave(LLWindow *window);
     // Called before close request is processed (ex: to create marker file in case OS is about to kill app).
     virtual void handlePreCloseRequest();
+    virtual void handleCloseRequestCanceled();
+    virtual void handleSuspendRequest();
     // return true to allow window to close, which will then cause handleQuit to be called
     virtual bool handleCloseRequest(LLWindow *window, bool from_user);
     virtual bool handleSessionExit(LLWindow* window);

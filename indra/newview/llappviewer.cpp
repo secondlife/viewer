@@ -4055,8 +4055,10 @@ void LLAppViewer::processMarkerFiles()
     // - Other Crash (SecondLife.error_marker present)
     // - Watchdog freeze (SecondLife.watchdog_marker present)
     // - Failed to initialize (SecondLife.inited_marker not present)
-    // - Potentially killed by task manager (SecondLife.close_marker present)
-    // These checks should also remove these files for the last 2 cases if they currently exist
+    // - Potentially killed by task manager or computer
+    // didn't recover from hibernation (SecondLife.close_marker present)
+    // These checks should also remove these files for the last 2 cases
+    // if they currently exist
 
     std::ostringstream marker_log_stream;
     bool marker_is_same_version = true;
@@ -4227,21 +4229,21 @@ void LLAppViewer::processMarkerFiles()
                 }
             }
             // If 'close' marker is found, viewer either started shutdown but
-            // failed, or viewer got killed by task manager.
+            // failed, OS did not recover from hibernation or viewer got
+            // killed by task manager.
             // Marker does not indicate that viewer was closed or is closing,
             // just that 'close' was requested before viewer died.
             else if (LLAPRFile::isExist(close_marker_file, NULL, LL_APR_RB))
             {
-                // For now treat as 'other' cause.
-                // Unfortunately we can't for certain distinguish task
-                // manager's case from other shutdown problems, so we
-                // have to report both.
-                // Todo: if this bears noticeable fruits, make a new state later.
-                // New categories need server/web side support.
+                // Unfortunately we can't reliably distinguish
+                // task manager's case from genuine shutdown, so we
+                // have to report all of them as the same thing.
+                // Todo: but we can distinguish hibernation, might want
+                // to simply not report it as an issue.
                 if (markerIsSameVersion(close_marker_file))
                 {
-                    gLastExecEvent = LAST_EXEC_UNKNOWN == gLastExecEvent ? LAST_EXEC_OTHER_CRASH : LAST_EXEC_LOGOUT_CRASH;
-                    LL_INFOS("MarkerFile") << "'Close' marker '" << close_marker_file << "' found, setting LastExecEvent to CRASH"
+                    gLastExecEvent = LAST_EXEC_OS_EVENT;
+                    LL_INFOS("MarkerFile") << "'Close' marker '" << close_marker_file << "' found, setting LastExecEvent to OS_EVENT"
                         << LL_ENDL;
                 }
             }
@@ -4470,6 +4472,11 @@ void LLAppViewer::abortQuit()
     LL_INFOS() << "abortQuit()" << LL_ENDL;
     mQuitRequested = false;
     mClosingFloaters = false;
+}
+
+void LLAppViewer::sendViewerStatistics()
+{
+    send_viewer_stats(false);
 }
 
 void LLAppViewer::migrateCacheDirectory()
@@ -5894,7 +5901,6 @@ void LLAppViewer::idleNetwork()
     pingMainloopTimeout("idleNetwork");
 
     gObjectList.mNumNewObjects = 0;
-    S32 total_decoded = 0;
 
     static LLCachedControl<bool> speed_test(gSavedSettings, "SpeedTest", false);
     if (!speed_test())
@@ -5902,64 +5908,56 @@ void LLAppViewer::idleNetwork()
         LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("idle network"); //LL_RECORD_BLOCK_TIME(FTM_IDLE_NETWORK); // decode
 
         LLTimer check_message_timer;
-        //  Read all available packets from network
         const S64 frame_count = gFrameCount;  // U32->S64
-        F32 total_time = 0.0f;
+        S32 total_decoded = 0;
 
+        // Process packets from network
+        LockMessageChecker lmc(gMessageSystem);
+        while (lmc.checkAllMessages(frame_count, gServicePump))
         {
-            bool needs_drain = false;
-            LockMessageChecker lmc(gMessageSystem);
-            while (lmc.checkAllMessages(frame_count, gServicePump))
+            ++total_decoded;
+
+            // Time-box processing of network packets to prevent framerate catastrophe
+            if (check_message_timer.getElapsedTimeF32() >= CheckMessagesMaxTime)
             {
-                if (gDoDisconnect)
-                {
-                    // We're disconnecting, don't process any more messages from the server
-                    // We're usually disconnecting due to either network corruption or a
-                    // server going down, so this is OK.
-                    break;
-                }
-
-                total_decoded++;
-
-                if (total_decoded > MESSAGE_MAX_PER_FRAME)
-                {
-                    needs_drain = true;
-                    break;
-                }
-
-                // Prevent slow packets from completely destroying the frame rate.
-                // This usually happens due to clumps of avatars taking huge amount
-                // of network processing time (which needs to be fixed, but this is
-                // a good limit anyway).
-                total_time = check_message_timer.getElapsedTimeF32();
-                if (total_time >= CheckMessagesMaxTime)
-                {
-                    needs_drain = true;
-                    break;
-                }
-            }
-            if (needs_drain || gMessageSystem->mPacketRing.getNumBufferedPackets() > 0)
-            {
-                // Rather than allow packets to silently backup on the socket
-                // we drain them into our own buffer so we know how many exist.
+                // Drain the socket buffer so we know how many messages remain to process
                 S32 num_buffered_packets = gMessageSystem->drainUdpSocket();
-                if (num_buffered_packets > 0)
+                if (num_buffered_packets > total_decoded)
                 {
-                    // Increase CheckMessagesMaxTime so that we will eventually catch up
+                    // Grow CheckMessagesMaxTime until we process more packets each frame than arrive.
+                    // This might spiral out of control on very slow computers on fast networks when
+                    // the bandwidth settings are too high.  There is a mechanism for providing backpressure
+                    // to network bandwidth but it may be inadequate for the task
+                    // (see LLViewerThrottle::updateDynamicThrottle() for more details).
                     CheckMessagesMaxTime *= 1.035f; // 3.5% ~= 2x in 20 frames, ~8x in 60 frames
                 }
+                else if (num_buffered_packets == 0)
+                {
+                    // Reset CheckMessagesMaxTime to default value
+                    CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
+                }
+                break;
             }
-            else
+
+            if (total_decoded > MESSAGE_MAX_PER_FRAME)
             {
-                // Reset CheckMessagesMaxTime to default value
-                CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
+                // MESSAGE_MAX_PER_FRAME is very high (400)
+                // We expect to run out of time before reaching here, but just in case...
+                gMessageSystem->drainUdpSocket();
+                break;
             }
 
-            // Handle per-frame message system processing.
-
-            static LLCachedControl<F32> ack_collection_time(gSavedSettings, "AckCollectTime", 0.1f);
-            lmc.processAcks(ack_collection_time());
+            if (gDoDisconnect)
+            {
+                // We're disconnecting so no need to process packets.
+                break;
+            }
         }
+
+        // Handle per-frame message system processing.
+
+        static LLCachedControl<F32> ack_collection_time(gSavedSettings, "AckCollectTime", 0.1f);
+        lmc.processAcks(ack_collection_time());
     }
     add(LLStatViewer::NUM_NEW_OBJECTS, gObjectList.mNumNewObjects);
 

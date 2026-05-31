@@ -79,6 +79,7 @@ typedef enum
     LAST_EXEC_INIT,
     LAST_EXEC_UNKNOWN,
     LAST_EXEC_LOGOUT_UNKNOWN,
+    LAST_EXEC_OS_EVENT,
     LAST_EXEC_COUNT
 } eLastExecEvent;
 
@@ -113,6 +114,7 @@ public:
                    const LLSD& substitutions = LLSD()); // Display an error dialog and forcibly quit.
     void earlyExitNoNotify(); // Do not display error dialog then forcibly quit.
     void abortQuit();  // Called to abort a quit request.
+    void sendViewerStatistics();
 
     bool quitRequested() { return mQuitRequested; }
     bool logoutRequestSent() { return mLogoutRequestSent; }
