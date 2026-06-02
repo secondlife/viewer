@@ -196,8 +196,8 @@
              text_color="LtGray"
              tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
              top="13"
-	     valign="bottom"
-             width="290">
+             valign="bottom"
+             width="310">
               Places you save to your favorites bar will appear here.
             </label>
               <!-- More button actually is a text box. -->
