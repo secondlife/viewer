@@ -252,7 +252,6 @@ LLSelectMgr::LLSelectMgr()
 LLSelectMgr::~LLSelectMgr()
 {
     clearSelections();
-    mSlectionLodModChangedConnection.disconnect();
 }
 
 void LLSelectMgr::clearSelections()
@@ -3054,7 +3053,6 @@ void LLSelectMgr::logNoOp(LLSelectNode* node, void *)
 // static
 void LLSelectMgr::logAttachmentRequest(LLSelectNode* node, void *)
 {
-    LLAttachmentsMgr::instance().onAttachmentRequested(node->mItemID);
 }
 
 // static

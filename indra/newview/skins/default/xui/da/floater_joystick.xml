@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Joystick" title="JOYSTICK OPSÆTNING">
 	<check_box label="Aktiver Joystick:" name="enable_joystick"/>
-	<spinner label="X akse mapping" name="JoystickAxis1"/>
-	<spinner label="Y akse mapping" name="JoystickAxis2"/>
-	<spinner label="Z akse mapping" name="JoystickAxis0"/>
-	<spinner label="Hældning mapping" name="JoystickAxis4"/>
-	<spinner label="Drejning mapping" name="JoystickAxis5"/>
-	<spinner label="Rulning mapping" name="JoystickAxis3"/>
-	<spinner label="Zoom mapping" name="JoystickAxis6"/>
+	<spinner label="X akse mapping" name="JoystickAxis1" label_width="115" width="155"/>
+	<spinner label="Y akse mapping" name="JoystickAxis2" label_width="115" width="155"/>
+	<spinner label="Z akse mapping" name="JoystickAxis0" label_width="115" width="155"/>
+	<spinner label="Hældning mapping" name="JoystickAxis4" label_width="115" width="155"/>
+	<spinner label="Drejning mapping" name="JoystickAxis5" label_width="115" width="155"/>
+	<spinner label="Rulning mapping" name="JoystickAxis3" label_width="115" width="155"/>
+	<spinner label="Zoom mapping" name="JoystickAxis6" label_width="115" width="155"/>
 	<check_box label="Direkte zoom" name="ZoomDirect"/>
 	<check_box label="3D Cursor" name="Cursor3D"/>
 	<check_box label="Auto opret" name="AutoLeveling"/>

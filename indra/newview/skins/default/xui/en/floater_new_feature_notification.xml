@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
- height="130"
+ height="140"
  width="300"
  layout="topleft"
  name="floater_new_feature_notification"
@@ -40,7 +40,7 @@ New feature
    text_color="White"
    layout="topleft"
    left="10"
-   height="40"
+   height="50"
    top_pad="14"
    right="-10"
    word_wrap="true"

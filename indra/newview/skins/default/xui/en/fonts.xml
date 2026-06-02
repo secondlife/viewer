@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <fonts>
 
-  <font name="default" comment="default font files (global fallbacks)">
-    <file>DejaVuSans.ttf</file>
+  <font
+      name="default"
+      comment="default font files (global fallbacks)">
+    <file load_collection="true" font_weight="400">InterVariableFont.ttf</file>
+    <file size_delta="-0.5">DejaVuSans.ttf</file>
     <file functor="is_emoji">TwemojiSVG.ttf</file>
     <os name="Windows">
       <file>meiryo.TTC</file>
@@ -31,9 +34,11 @@
     </os>
   </font>
 
-  <font name="SansSerifBold"
-	comment="Name of bold sans-serif font">
-    <file>DejaVuSans-Bold.ttf</file>
+  <font
+      name="SansSerifBold"
+      comment="Name of bold sans-serif font">
+      <file load_collection="true" flags="bold" font_weight="700">InterVariableFont.ttf</file>
+      <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -42,8 +47,11 @@
       </os>
   </font>
 
-  <font name="SansSerif" comment="Name of san-serif font (Truetype file name)">
-    <file>DejaVuSans.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of san-serif font (Truetype file name)">
+    <file load_collection="true" font_weight="400">InterVariableFont.ttf</file>
+    <file size_delta="-0.5">DejaVuSans.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
       </os>
@@ -52,31 +60,38 @@
       </os>
   </font>
 
-  <font name="SansSerif"
-	comment="Name of bold sans-serif font"
-	font_style="BOLD">
-    <file>DejaVuSans-Bold.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of bold sans-serif font"
+      font_style="BOLD">
+    <file load_collection="true" flags="bold" font_weight="700">InterVariableFont.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
   </font>
 
-  <font name="SansSerif"
-	comment="Name of italic sans-serif font"
-	font_style="ITALIC">
-    <file>DejaVuSans-Oblique.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of italic sans-serif font"
+      font_style="ITALIC">
+    <file load_collection="true" font_weight="400">InterItalicVariableFont.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-Oblique.ttf</file>
   </font>
 
-  <font name="SansSerif"
-	comment="Name of bold italic sans-serif font"
-	font_style="BOLD|ITALIC">
-    <file>DejaVuSans-BoldOblique.ttf</file>
+  <font
+      name="SansSerif"
+      comment="Name of bold italic sans-serif font"
+      font_style="BOLD|ITALIC">
+    <file load_collection="true" flags="bold" font_weight="700">InterItalicVariableFont.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-BoldOblique.ttf</file>
   </font>
 
   <font name="Emoji"
 	comment="Name of emoji font">
     <file>TwemojiSVG.ttf</file>
   </font>
-
-  <font name="Monospace"
-	comment="Name of monospace font">
+  
+  <font
+      name="Monospace"
+      comment="Name of monospace font">
     <file>DejaVuSansMono.ttf</file>
   </font>
 
@@ -103,9 +118,11 @@
     <file>DejaVuSans-BoldOblique.ttf</file>
   </font>
 
-  <font name="Helvetica"
-	comment="Name of Helvetica font">
-    <file>DejaVuSans.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font">
+    <file font_weight="400">InterVariableFont.ttf</file>
+    <file size_delta="-0.5">DejaVuSans.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
       </os>
@@ -114,10 +131,12 @@
       </os>
   </font>
 
-  <font name="Helvetica"
-	comment="Name of Helvetica font (bold)"
-	font_style="BOLD">
-    <file>DejaVuSans-Bold.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font (bold)"
+      font_style="BOLD">
+    <file flags="bold" font_weight="700">InterVariableFont.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-Bold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -126,10 +145,12 @@
       </os>
   </font>
 
-  <font name="Helvetica"
-	comment="Name of Helvetica font (italic)"
-	font_style="ITALIC">
-    <file>DejaVuSans-Oblique.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font (italic)"
+      font_style="ITALIC">
+    <file font_weight="400">InterItalicVariableFont.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-Oblique.ttf</file>
     <os name="Windows">
       <file>ariali.ttf</file>
       </os>
@@ -138,10 +159,12 @@
       </os>
   </font>
 
-  <font name="Helvetica"
-	comment="Name of Helvetica font (bold italic)"
-	font_style="BOLD|ITALIC">
-    <file>DejaVuSans-BoldOblique.ttf</file>
+  <font
+      name="Helvetica"
+      comment="Name of Helvetica font (bold italic)"
+      font_style="BOLD|ITALIC">
+    <file font_weight="800">InterItalicVariableFont.ttf</file>
+    <file size_delta="-0.5">DejaVuSans-BoldOblique.ttf</file>
     <os name="Windows">
       <file>arialbi.ttf</file>
       </os>
@@ -150,33 +173,38 @@
       </os>
   </font>
 
-  <font name="OverrideTest"
-	comment="Name of font to test overriding">
+  <font
+      name="OverrideTest"
+      comment="Name of font to test overriding">
     <file>times.ttf</file>
-    <file>DejaVuSans.ttf</file>
+    <file font_weight="400">InterVariableFont.ttf</file>
   </font>
 
   <font_size name="Monospace"
-	     comment="Size for monospaced font (points, or 1/72 of an inch)"
-	     size="8.0"
-	     />
+         comment="Size for monospaced font (points, or 1/72 of an inch)"
+         size="8.0"
+         />
   <font_size name="Huge"
-	     comment="Size of huge font (points, or 1/72 of an inch)"
-	     size="16.0"
-	     />
+         comment="Size of huge font (points, or 1/72 of an inch)"
+         size="16.0"
+         />
   <font_size name="Large"
-	     comment="Size of large font (points, or 1/72 of an inch)"
-	     size="10.6"
-	     />
+         comment="Size of large font (points, or 1/72 of an inch)"
+         size="11.0"
+         />
   <font_size name="Medium"
-	     comment="Size of medium font (points, or 1/72 of an inch)"
-	     size="8.6"
-	     />
+         comment="Size of medium font (points, or 1/72 of an inch)"
+         size="10"
+         />
   <font_size name="Small"
-	     comment="Size of small font (points, or 1/72 of an inch)"
-	     size="7.6"
-	     />
-  <font_size name="SmallLSL"
+         comment="Size of small font (points, or 1/72 of an inch)"
+         size="9"
+         />
+   <font_size name="LSmall"
+         comment="Legacy size of small font (points, or 1/72 of an inch)"
+         size="7.6"
+         />
+<font_size name="SmallLSL"
          comment="Size of small font for LSL editor (points, or 1/72 of an inch)"
          size="7"
          />

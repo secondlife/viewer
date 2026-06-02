@@ -10,12 +10,12 @@
  title="WHITELIST ENTRY"
  width="390">
 
-  <text type="string" length="1" bottom="20" follows="top|left" height="15" layout="topleft"
-     left="10" name="media_label" top="20">
+    <text type="string" length="1" follows="top|left|right" height="30" layout="topleft"
+     left="10" name="media_label" top="20" right="-10" word_wrap="true">
         Enter a URL or URL pattern to add to the list of allowed domains
     </text>
 
-  <line_editor bottom_delta="40" enabled="true" follows="left|top" font="SansSerif"
+  <line_editor bottom_delta="15" enabled="true" follows="left|top" font="SansSerif"
 	     height="20" left="10" name="whitelist_entry"
 	     tool_tip="Enter a URL or URL pattern to White List"
 	     width="350" />

@@ -974,7 +974,7 @@
              layout="topleft"
              left="28"
              name="Set to group:"
-             top_pad="5"
+             top_pad="9"
              width="176">
                 Set to group:
             </text>
@@ -1022,7 +1022,7 @@
              layout="topleft"
              left="28"
              name="Owned by others:"
-             top_pad="5"
+             top_pad="9"
              width="176">
                 Owned by others:
             </text>
@@ -1593,7 +1593,7 @@ Only large parcels can be listed in search.
              left="10"
              name="with media:"
              top="10"
-             width="100">
+             width="110">
                 Type:
             </text>
             <combo_box
@@ -1620,7 +1620,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="10"
              name="at URL:"
-             width="100"
+             width="110"
              top_pad="10">
                 Home Page:
             </text>
@@ -1632,7 +1632,7 @@ Only large parcels can be listed in search.
              max_length_bytes="255"
              name="media_url"
              select_on_focus="true"
-             width="300"
+             width="290"
              top_delta="0"/>
             <button
              follows="left|top"
@@ -1659,13 +1659,13 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="20"
              layout="topleft"
-             left="110"
+             left="120"
              max_length_bytes="255"
              name="url_description"
              select_on_focus="true"
              tool_tip="Text displayed next to play/load button"
              top_delta="0"
-             width="300" />
+             width="290" />
             <text
              type="string"
              length="1"
@@ -1685,7 +1685,7 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="80"
              layout="topleft"
-             left="110"
+             left="120"
              name="media texture"
              tool_tip="Click to choose a picture"
              top_delta="0"
@@ -1698,7 +1698,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="8"
              name="replace_texture_help"
-             width="300"
+             width="290"
              word_wrap="true"
              top_delta="0">
              Objects using this texture will show the movie or web page after you click the play arrow.  Select the thumbnail to choose a different texture.
@@ -1707,7 +1707,7 @@ Only large parcels can be listed in search.
              height="16"
              label="Auto scale"
              layout="topleft"
-             left="107"
+             left="117"
              name="media_auto_scale"
              top_pad="-10"
              tool_tip="Checking this option will scale the content for this parcel automatically. It may be slightly slower and lower quality visually but no other texture scaling or alignment will be required."
@@ -1721,7 +1721,7 @@ Only large parcels can be listed in search.
              left="10"
              name="media_size"
              tool_tip="Size to render Web media, leave 0 for default."
-             width="100"
+             width="110"
              top_pad="10">
                 Size:
             </text>
@@ -1776,7 +1776,7 @@ Only large parcels can be listed in search.
              left="10"
              name="Options:"
              top_pad="10"
-             width="100">
+             width="110">
                 Options:
             </text>
             <check_box
@@ -1786,7 +1786,7 @@ Only large parcels can be listed in search.
              left_pad="-3"
              name="media_loop"
              tool_tip="Play media in a loop.  When the media has finished playing, it will restart from the beginning."
-             top_delta="-1"
+             top_delta="1"
              width="200" />
         </panel>
         <panel

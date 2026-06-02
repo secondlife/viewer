@@ -57,6 +57,7 @@
 #include "llviewerjoystick.h"
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
+#include "lleventapi.h"
 
 
 // Used when app not active to avoid processing hover.
@@ -67,6 +68,67 @@ LLToolset*      gCameraToolset      = NULL;
 //LLToolset*        gLandToolset        = NULL;
 LLToolset*      gMouselookToolset   = NULL;
 LLToolset*      gFaceEditToolset    = NULL;
+
+/////////////////////////////////////////////////////
+// LLToolMgrListener
+
+class LLToolMgrListener: public LLEventAPI
+{
+public:
+    LLToolMgrListener():
+        LLEventAPI("LLToolMgr",
+                   "LLToolMgr listener for tool management operations")
+    {
+        add("openBuildFloater",
+            "Open the build floater by toggling build mode",
+            &LLToolMgrListener::openFloater);
+        add("selectTool",
+            "Select the specified tool by [\"tool_name\"]. Valid tool names: Focus, Move, Edit, Create, Land",
+            &LLToolMgrListener::selectTool);
+    }
+
+private:
+    void openFloater(const LLSD& event) const
+    {
+        LLToolMgr::getInstance()->toggleBuildMode(LLSD("build"));
+    }
+
+    void selectTool(const LLSD& event) const
+    {
+        if (!event.has("tool_name"))
+        {
+            LL_WARNS() << "selectTool: called without tool_name" << LL_ENDL;
+            return;
+        }
+
+        static const std::unordered_map<std::string, S32> tool_indices = {
+            {"focus", 1},
+            {"move", 2},
+            {"edit", 3},
+            {"create", 4},
+            {"land", 5}
+        };
+
+        const std::string tool_name = utf8str_tolower(event["tool_name"].asString());
+        const auto it = tool_indices.find(tool_name);
+        if (it == tool_indices.end())
+        {
+            LL_WARNS() << "selectTool: unknown tool_name: " << std::quoted(tool_name) << LL_ENDL;
+            return;
+        }
+
+        LLToolset* current_toolset = LLToolMgr::getInstance()->getCurrentToolset();
+        if (!current_toolset)
+        {
+            LL_WARNS() << "selectTool: no current toolset available" << LL_ENDL;
+            return;
+        }
+
+        current_toolset->selectToolByIndex(it->second);
+    }
+};
+
+static LLToolMgrListener sToolMgrListener;
 
 /////////////////////////////////////////////////////
 // LLToolMgr

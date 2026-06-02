@@ -1485,6 +1485,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                         LLNotification::Params params("OfferFriendship");
                         params.substitutions = args;
                         params.payload = payload;
+                        params.offer_from_agent = true;
                         LLPostponedNotification::add<LLPostponedOfferNotification>(params, from_id, false);
                     }
                 }
@@ -1533,7 +1534,7 @@ void LLIMProcessing::requestOfflineMessages()
         && isAgentAvatarValid()
         && gAgent.getRegion()
         && gAgent.getRegion()->capabilitiesReceived()
-        && (LLMuteList::getInstance()->isLoaded() || LLMuteList::getInstance()->getLoadFailed()))
+        && LLMuteList::getInstance()->updateLoadState())
     {
         std::string cap_url = gAgent.getRegionCapability("ReadOfflineMsgs");
 

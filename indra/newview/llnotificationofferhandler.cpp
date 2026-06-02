@@ -36,6 +36,7 @@
 #include "llscriptfloater.h"
 #include "llimview.h"
 #include "llnotificationsutil.h"
+#include "llchannelmanager.h"
 
 #include <boost/regex.hpp>
 
@@ -135,7 +136,13 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification, 
 
             LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
             if(channel)
+            {
+                if (LLChannelManager::getInstance()->getStartUpToastInited() && notification->getOfferFromAgent())
+                {
+                    LLChannelManager::getInstance()->onStartUpToastClose();
+                }
                 channel->addToast(p);
+            }
 
         }
 

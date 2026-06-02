@@ -51,16 +51,13 @@ public:
     virtual bool    handleHover(S32 x, S32 y, MASK mask) override;
     virtual bool    handleToolTip(S32 x, S32 y, MASK mask) override;
 
-    // Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
-    typedef boost::signals2::signal<void (const LLTextureEntry& te)> signal_t;
-    void setToolSelectCallback(const signal_t::slot_type& cb) { mSignal.connect(cb); }
+    typedef boost::signals2::signal<void (LLPointer<LLViewerObject> obj, S32 te_index)> signal_t;
+    boost::signals2::connection setToolSelectCallback(const signal_t::slot_type& cb) { return mSignal.connect(cb); }
     void setResult(bool success, const std::string& msg);
 
-    void setTextureEntry(const LLTextureEntry* entry);
     static void pickCallback(const LLPickInfo& pick_info);
 
 protected:
-    LLTextureEntry  mTextureEntry;
     signal_t        mSignal;
     bool            mSuccess;
     std::string     mTooltipMsg;

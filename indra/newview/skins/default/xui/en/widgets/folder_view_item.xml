@@ -3,16 +3,21 @@
   folder_arrow_image="Folder_Arrow"
   favorite_image="Inv_Favorite_Star_Full"
   favorite_content_image="Inv_Favorite_Star_Content"
-  folder_indentation="8"
-  item_height="20" 
+  folder_indentation="10"
+  item_height="21" 
   item_top_pad="4"
   selection_image="Rounded_Square"
   mouse_opaque="true"
   follows="left|top|right"
   left_pad="5"
-  icon_pad="2"
+  icon_pad="4"
   icon_width="16"
-  text_pad="1"
+  text_pad="5"
   text_pad_right="4"
+  text_pad_top="0"
   arrow_size="12"
   max_folder_item_overlap="2"/>
+
+<!-- Potential properties not included above:
+  arrow_pad_top
+-->

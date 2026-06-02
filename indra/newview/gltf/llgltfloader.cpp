@@ -1398,6 +1398,24 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
         buildOverrideMatrix(viewer_data, joints_data, names_to_nodes, ident, ident);
     }
 
+    // Precompute the source bind pose in viewer coordinate space so each
+    // joint can later be remapped against its own GLTF rest matrix. This
+    // keeps bind-pose deltas local to the joint hierarchy. Without this,
+    // a source skeleton whose parent joints carry bind-pose rotations that
+    // the viewer skeleton does not have can leak those rotations into
+    // child joints with different local bases.
+    joint_node_mat4_map_t rotated_bind_matrices;
+    joint_node_mat4_map_t converted_bind_matrices;
+    if (inverse_count > 0)
+    {
+        for (S32 i = 0; i < joint_count && i < inverse_count; i++)
+        {
+            S32 joint = skin.mJoints[i];
+            glm::mat4 original_bind_matrix = glm::inverse(skin.mInverseBindMatricesData[i]);
+            rotated_bind_matrices[joint] = rotateGltfMatrixToViewerSpace(original_bind_matrix);
+        }
+    }
+
     for (S32 i = 0; i < joint_count; i++)
     {
         S32 joint = skin.mJoints[i];
@@ -1430,12 +1448,19 @@ void LLGLTFLoader::populateJointsFromSkin(S32 skin_idx)
         }
         else if (inverse_count > i)
         {
-            // Transalte existing bind matrix to viewer's overriden skeleton
-            glm::mat4 original_bind_matrix = glm::inverse(skin.mInverseBindMatricesData[i]);
-            glm::mat4 rotated_original = coord_system_rotation * original_bind_matrix;
-            glm::mat4 skeleton_transform = computeGltfToViewerSkeletonTransform(joints_data, joint, legal_name);
-            glm::mat4 tranlated_original = skeleton_transform * rotated_original;
-            glm::mat4 final_inverse_bind_matrix = glm::inverse(tranlated_original);
+            // Translate existing bind matrices to the viewer skeleton by
+            // preserving each joint's bind-pose delta from its own GLTF rest
+            // matrix. The previous world-space remap applied one skeleton
+            // transform directly to each bind matrix; when a source parent has
+            // bind-pose rotation that the viewer parent does not, that rotation
+            // could get baked into child inverse binds. Keeping the delta local
+            // fixes the resulting child joint twists.
+            glm::mat4 translated_original = computeViewerBindMatrix(
+                joints_data,
+                rotated_bind_matrices,
+                joint,
+                converted_bind_matrices);
+            glm::mat4 final_inverse_bind_matrix = glm::inverse(translated_original);
 
             LLMatrix4 gltf_transform = LLMatrix4(glm::value_ptr(final_inverse_bind_matrix));
             LL_DEBUGS("GLTF_DEBUG") << "mInvBindMatrix name: " << legal_name << " Translated val: " << gltf_transform << LL_ENDL;
@@ -1551,6 +1576,12 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
         glm::quat rotation;
         glm::decompose(translated_joint, scale, rotation, translation_override, skew, perspective);
 
+        glm::mat4 viewer_rotation_scale(1.0f);
+        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[0]), glm::vec3(1, 0, 0));
+        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[1]), glm::vec3(0, 1, 0));
+        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[2]), glm::vec3(0, 0, 1));
+        viewer_rotation_scale = glm::scale(viewer_rotation_scale, viewer_data.mScale);
+
         // Viewer allows overrides, which are base joint with applied translation override.
         // fortunately normal bones use only translation, without rotation or scale
         node.mOverrideMatrix = glm::recompose(glm::vec3(1, 1, 1), glm::identity<glm::quat>(), translation_override, glm::vec3(0, 0, 0), glm::vec4(0, 0, 0, 1));
@@ -1566,13 +1597,14 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
         }
         else
         {
-            // This is likely incomplete or even wrong.
-            // Viewer Collision bones specify rotation and scale.
-            // Importer should apply rotation and scale to this matrix and save as needed
-            // then subsctruct them from bind matrix
-            // Todo: get models that use collision bones, made by different programs
-
-            overriden_joint = glm::scale(overriden_joint, viewer_data.mScale);
+            // Collision volumes need the imported translation override, but
+            // their local rotation-scale basis must come from the raw viewer
+            // skeleton XML values. For non-uniform torso volumes, matching DAE
+            // requires viewer rotation followed by viewer scale.
+            overriden_joint = viewer_rotation_scale;
+            overriden_joint[3][0] = translation_override.x;
+            overriden_joint[3][1] = translation_override.y;
+            overriden_joint[3][2] = translation_override.z;
             node.mOverrideRestMatrix = parent_support_rest * overriden_joint;
         }
     }
@@ -1649,6 +1681,69 @@ glm::mat4 LLGLTFLoader::buildGltfRestMatrix(S32 joint_node_index, const joints_d
     }
     // Should we return armature or stop earlier?
     return data.mGltfMatrix;
+}
+
+// Convert a GLTF-space transform into the viewer coordinate space used by
+// skeleton override and bind-pose calculations. Keeping this conversion in
+// one helper ensures bind and rest matrices use the same rotation path,
+// including the optional XY rotation applied for compatible uploads.
+glm::mat4 LLGLTFLoader::rotateGltfMatrixToViewerSpace(const glm::mat4& gltf_matrix) const
+{
+    glm::mat4 rotated = coord_system_rotation * gltf_matrix;
+    if (mApplyXYRotation)
+    {
+        rotated = coord_system_rotationxy * rotated;
+    }
+    return rotated;
+}
+
+// Convert one GLTF bind matrix to the matching viewer bind matrix. The
+// function derives the joint-local bind delta from the GLTF bind and rest
+// matrices, then applies that same delta to the viewer override rest matrix.
+// Results are cached because child calculations can request the same joint
+// more than once while preserving local hierarchy behavior.
+glm::mat4 LLGLTFLoader::computeViewerBindMatrix(
+    const joints_data_map_t& joints_data_map,
+    const joint_node_mat4_map_t& rotated_bind_matrices,
+    S32 gltf_node_index,
+    joint_node_mat4_map_t& converted_bind_matrices) const
+{
+    auto cached = converted_bind_matrices.find(gltf_node_index);
+    if (cached != converted_bind_matrices.end())
+    {
+        return cached->second;
+    }
+
+    auto node_iter = joints_data_map.find(gltf_node_index);
+    if (node_iter == joints_data_map.end())
+    {
+        return glm::mat4(1.f);
+    }
+
+    const JointNodeData& node_data = node_iter->second;
+    if (!node_data.mIsOverrideValid)
+    {
+        // No valid override, falling back to rest matrix.
+        glm::mat4 fallback_bind = rotateGltfMatrixToViewerSpace(node_data.mGltfRestMatrix);
+        converted_bind_matrices[gltf_node_index] = fallback_bind;
+        return fallback_bind;
+    }
+
+    auto bind_iter = rotated_bind_matrices.find(gltf_node_index);
+    if (bind_iter == rotated_bind_matrices.end())
+    {
+        converted_bind_matrices[gltf_node_index] = node_data.mOverrideRestMatrix;
+        return node_data.mOverrideRestMatrix;
+    }
+
+    glm::mat4 gltf_joint_node = rotateGltfMatrixToViewerSpace(node_data.mGltfRestMatrix);
+    glm::mat4 gltf_joint_bind = bind_iter->second;
+    glm::mat4 viewer_joint_node = node_data.mOverrideRestMatrix;
+    glm::mat4 bind_delta = gltf_joint_bind * glm::inverse(gltf_joint_node);
+    glm::mat4 viewer_joint_bind = bind_delta * viewer_joint_node;
+
+    converted_bind_matrices[gltf_node_index] = viewer_joint_bind;
+    return viewer_joint_bind;
 }
 
 // This function computes the transformation matrix needed to convert from GLTF skeleton space
@@ -1903,4 +1998,3 @@ std::string LLGLTFLoader::getLodlessLabel(const LL::GLTF::Node& node)
     }
     return node.mName;
 }
-

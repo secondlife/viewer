@@ -172,8 +172,10 @@ public:
 
         Optional<LLFloaterEnums::EOpenPositioning>  positioning;
 
+        Optional<const LLFontGL*> header_font;
         Optional<S32>           header_height,
-                                legacy_header_height; // HACK see initFromXML()
+                                legacy_header_height, // HACK see initFromXML()
+                                header_vpad;
 
         Optional<F32>           rel_x,
                                 rel_y;
@@ -442,7 +444,7 @@ private:
     bool            offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButton index);
     void            addResizeCtrls();
     void            layoutResizeCtrls();
-    void            addDragHandle();
+    void            addDragHandle(const LLFloater::Params& p);
     void            layoutDragHandle();     // repair layout
 
     static void     updateActiveFloaterTransparency();

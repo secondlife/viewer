@@ -104,12 +104,15 @@ public:
      */
     static LLNotificationsUI::LLScreenChannel* getNotificationScreenChannel();
 
+    bool getStartUpToastInited() const { return mStartUpToastInited; }
+
     std::vector<ChannelElem>& getChannelList() { return mChannelList;}
 private:
 
     LLScreenChannel* createChannel(LLScreenChannelBase::Params& p);
 
     LLScreenChannel*            mStartUpChannel;
+    bool                        mStartUpToastInited{false};
     std::vector<ChannelElem>    mChannelList;
 };
 

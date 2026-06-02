@@ -38,6 +38,7 @@
 
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llcallbacklist.h"
 #include "llcommandhandler.h"
 #include "llcommunicationchannel.h"
 #include "llfloaterreg.h"
@@ -1466,12 +1467,50 @@ void LLViewerWindow::handleMouseLeave(LLWindow *window)
     LLToolTipMgr::instance().blockToolTips();
 }
 
+void LLViewerWindow::handlePreCloseRequest()
+{
+    // WINDOW THREAD! since we need this to act fast.
+    if (!LLApp::isExiting() && !LLApp::isStopped())
+    {
+        LLAppViewer::instance()->createCloseRequestMarker();
+    }
+}
+
+void LLViewerWindow::handleCloseRequestCanceled()
+{
+    // WINDOW THREAD! since we need this to act fast.
+    if (!LLApp::isExiting() && !LLApp::isStopped())
+    {
+        LLAppViewer::instance()->removeCloseRequestMarker();
+    }
+}
+
+void LLViewerWindow::handleSuspendRequest()
+{
+    LLAppViewer::instance()->sendViewerStatistics();
+    // Todo: this should send a disconnect request as viewer
+    // can't keep heartbeat up while suspended and will get
+    // disconnected within a minute.
+    // Add a disconnect here once 'prevent OS from sleeping'
+    // feature is ready.
+}
+
 bool LLViewerWindow::handleCloseRequest(LLWindow *window, bool from_user)
 {
     if (!LLApp::isExiting() && !LLApp::isStopped())
     {
         if (from_user)
         {
+            // Task naamger kills viewer after 1 second, 3 seconds
+            // is overkill, but decided to be on a safe side.
+            doAfterInterval([]()
+            {
+                // if user quits, marker will be cleaned by cleanup,
+                // if user cancels quit, marker will be cleaned here,
+                // but if task manager kills us, marker stays.
+                LLAppViewer::instance()->removeCloseRequestMarker();
+            }, 3.0f);
+
             // User has indicated they want to close, but we may need to ask
             // about modified documents.
             LLAppViewer::instance()->userQuit();
@@ -2330,14 +2369,22 @@ void LLViewerWindow::initWorldUI()
         physical_mem = LLMemory::getMaxMemKB();
     }
 
-    if (!gNonInteractive && physical_mem > MIN_PHYSICAL_MEMORY)
+    if (!gNonInteractive)
     {
-        LL_INFOS() << "Preloading cef instances" << LL_ENDL;
+        if (physical_mem > MIN_PHYSICAL_MEMORY)
+        {
+            LL_INFOS() << "Preloading cef instances" << LL_ENDL;
 
-        LLFloaterReg::getInstance("destinations");
-        LLFloaterReg::getInstance("avatar_welcome_pack");
-        LLFloaterReg::getInstance("search");
-        LLFloaterReg::getInstance("marketplace");
+            LLFloaterReg::getInstance("destinations");
+            LLFloaterReg::getInstance("avatar_welcome_pack");
+            LLFloaterReg::getInstance("search");
+            LLFloaterReg::getInstance("marketplace");
+        }
+        else if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+        {
+            // Preload the welcome pack for first-time login even on low end hardware
+            LLFloaterReg::getInstance("avatar_welcome_pack");
+        }
     }
 }
 

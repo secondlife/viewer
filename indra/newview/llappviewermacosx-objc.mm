@@ -38,3 +38,28 @@ void force_ns_sxeption()
     NSException *exception = [NSException exceptionWithName:@"Forced NSException" reason:nullptr userInfo:nullptr];
     @throw exception;
 }
+
+void register_url_schemes()
+{
+    @autoreleasepool // Objective-C automatic memory tracking and release.
+    {
+        NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
+        NSURL *bundleURL = [NSURL fileURLWithPath:bundlePath];
+
+        // Force Launch Services to re-register this app bundle
+        OSStatus status = LSRegisterURL((__bridge CFURLRef)bundleURL, true);
+
+        if (status == noErr)
+        {
+            // Explicitly set this app as the default handler for our URL schemes
+            NSArray *schemes = @[@"secondlife", @"x-grid-location-info"];
+            NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
+
+            for (NSString *scheme in schemes)
+            {
+                LSSetDefaultHandlerForURLScheme((__bridge CFStringRef)scheme,
+                                               (__bridge CFStringRef)bundleID);
+            }
+        }
+    }
+}

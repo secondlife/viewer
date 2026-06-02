@@ -122,7 +122,7 @@ class LLFloaterColorPicker
                void onClickPipette ( );
         static void onTextCommit ( LLUICtrl* ctrl, void* data );
         static void onImmediateCheck ( LLUICtrl* ctrl, void* data );
-               void onColorSelect( const class LLTextureEntry& te );
+               void onColorSelect(const LLColor4& color); // from pipette
     private:
         // mutators for color values, can raise event to preview changes at object
         void selectCurRgb ( F32 curRIn, F32 curGIn, F32 curBIn );
@@ -197,6 +197,7 @@ class LLFloaterColorPicker
         F32       mContextConeOutAlpha;
         F32       mContextConeFadeTime;
 
+        boost::signals2::scoped_connection  mPipetteConnection;
 };
 
 #endif // LL_LLFLOATERCOLORPICKER_H

@@ -67,12 +67,12 @@
     </text>
     <text
      follows="left|top"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="20"
      layout="topleft"
-     left_delta="50"
+     left_delta="53"
      name="version_channel_text"
-     top_delta="0"
+     top_delta="1"
      width="400">
         unknown
     </text>
@@ -81,7 +81,7 @@
      font="SansSerif"
      height="20"
      layout="topleft"
-     top_delta="0"
+     top_delta="-1"
      right="-100"
      name="grid_position_lbl"
      width="80">

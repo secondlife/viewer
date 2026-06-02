@@ -418,7 +418,26 @@ void send_complete_agent_movement(const LLHost& sim_host)
     msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
     msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
     msg->addU32Fast(_PREHASH_CircuitCode, msg->mOurCircuitCode);
-    msg->sendReliable(sim_host);
+
+    // build a lambda to be used as callback on ACK or timeout
+    void (*complete_agent_movement_callback)(void**, S32) = [](void**, S32 result)
+    {
+        if(LLApp::isExiting()) return;
+        if (result != LL_ERR_NOERR)
+        {
+            LL_WARNS("Messaging") << "CompleteAgentMovement failed with err=" << result << LL_ENDL;
+        }
+    };
+
+    // We use same retry strategy as UseCircuitCode because this is a crucial message
+    // that MUST arrive else we'll suffer a failed login/teleport/region-cross
+    msg->sendReliable(
+        sim_host,
+        gSavedSettings.getS32("UseCircuitCodeMaxRetries"),
+        false,
+        (F32Seconds)gSavedSettings.getF32("UseCircuitCodeTimeout"),
+        complete_agent_movement_callback,
+        NULL);
 }
 
 void process_logout_reply(LLMessageSystem* msg, void**)
@@ -3554,6 +3573,7 @@ extern U32Bits gObjectData;
 
 void process_object_update(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     // Update the data counters
     if (mesgsys->getReceiveCompressedSize())
     {
@@ -3575,6 +3595,7 @@ void process_object_update(LLMessageSystem *mesgsys, void **user_data)
 
 void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     // Update the data counters
     if (mesgsys->getReceiveCompressedSize())
     {
@@ -3596,6 +3617,7 @@ void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data
 
 void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     // Update the data counters
     if (mesgsys->getReceiveCompressedSize())
     {
@@ -3613,6 +3635,7 @@ void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data)
 
 void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     if (mesgsys->getReceiveCompressedSize())
     {
         gObjectData += (U32Bytes)mesgsys->getReceiveCompressedSize();
@@ -3972,6 +3995,7 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 
 void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLUUID  animation_id;
     LLUUID  uuid;
     S32     anim_sequence_id;
@@ -4083,6 +4107,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 
 void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLUUID  animation_id;
     LLUUID  uuid;
     S32     anim_sequence_id;
@@ -4148,6 +4173,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 
 void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLUUID uuid;
     mesgsys->getUUIDFast(_PREHASH_Sender, _PREHASH_ID, uuid);
 
@@ -5679,6 +5705,7 @@ void process_script_experience_details(const LLSD& experience_details, LLSD args
 
 void process_script_question(LLMessageSystem *msg, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     // *TODO: Translate owner name -> [FIRST] [LAST]
 
     LLHost sender = msg->getSender();

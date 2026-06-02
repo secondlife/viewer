@@ -216,7 +216,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                     <button
                             follows="left|bottom"
                             height="22"
-                            image_pressed="PushButton_Press"
+                            image_pressed="PushButton_Selected"
                             image_pressed_selected="PushButton_Selected_Press"
                             image_selected="PushButton_Selected_Press"
                             is_toggle="true"
@@ -251,7 +251,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                             follows="bottom|right"
                             height="22"
                             image_overlay="Search_Icon"
-                            image_pressed="PushButton_Press"
+                            image_pressed="PushButton_Selected"
                             image_pressed_selected="PushButton_Selected_Press"
                             image_selected="PushButton_Selected_Press"
                             is_toggle="true"

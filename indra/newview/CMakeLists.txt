@@ -43,6 +43,7 @@ include(TinyEXR)
 include(ThreeJS)
 include(Tracy)
 include(UI)
+include(Velopack)
 include(ViewerMiscLibs)
 include(ViewerManager)
 include(VisualLeakDetector)
@@ -242,7 +243,6 @@ set(viewer_SOURCE_FILES
     llfloaterhandler.cpp
     llfloaterhelpbrowser.cpp
     llfloaterhoverheight.cpp
-    llfloaterhowto.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
     llfloaterimsessiontab.cpp
@@ -416,6 +416,7 @@ set(viewer_SOURCE_FILES
     llfloaterimnearbychat.cpp
     llfloaterimnearbychathandler.cpp
     llfloaterimnearbychatlistener.cpp
+    llnearbyvoicemoderation.cpp
     llnetmap.cpp
     llnotificationalerthandler.cpp
     llnotificationgrouphandler.cpp
@@ -654,6 +655,7 @@ set(viewer_SOURCE_FILES
     llurllineeditorctrl.cpp
     llurlwhitelist.cpp
     llversioninfo.cpp
+    llvvmquery.cpp
     llviewchildren.cpp
     llviewerassetstats.cpp
     llviewerassetstorage.cpp
@@ -721,7 +723,6 @@ set(viewer_SOURCE_FILES
     llvoicechannel.cpp
     llvoiceclient.cpp
     llvoicevisualizer.cpp
-    llvoicevivox.cpp
     llvoicewebrtc.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
@@ -921,7 +922,6 @@ set(viewer_HEADER_FILES
     llfloaterhandler.h
     llfloaterhelpbrowser.h
     llfloaterhoverheight.h
-    llfloaterhowto.h
     llfloaterhud.h
     llfloaterimagepreview.h
     llfloaterimnearbychat.h
@@ -1093,6 +1093,7 @@ set(viewer_HEADER_FILES
     llnameeditor.h
     llnamelistctrl.h
     llnavigationbar.h
+    llnearbyvoicemoderation.h
     llnetmap.h
     llnotificationhandler.h
     llnotificationlistitem.h
@@ -1327,6 +1328,7 @@ set(viewer_HEADER_FILES
     llurllineeditorctrl.h
     llurlwhitelist.h
     llversioninfo.h
+    llvvmquery.h
     llviewchildren.h
     llviewerassetstats.h
     llviewerassetstorage.h
@@ -1393,7 +1395,6 @@ set(viewer_HEADER_FILES
     llvoicechannel.h
     llvoiceclient.h
     llvoicevisualizer.h
-    llvoicevivox.h
     llvoicewebrtc.h
     llvoinventorylistener.h
     llvopartgroup.h
@@ -1446,6 +1447,8 @@ if (DARWIN)
   LIST(APPEND viewer_SOURCE_FILES llappviewermacosx-objc.h)
   LIST(APPEND viewer_SOURCE_FILES llfilepicker_mac.mm)
   LIST(APPEND viewer_HEADER_FILES llfilepicker_mac.h)
+  LIST(APPEND viewer_SOURCE_FILES llvelopack.cpp)
+  LIST(APPEND viewer_HEADER_FILES llvelopack.h)
 
   set_source_files_properties(
     llappviewermacosx-objc.mm
@@ -1508,16 +1511,19 @@ if (WINDOWS)
 
     list(APPEND viewer_SOURCE_FILES
          llappviewerwin32.cpp
+         llvelopack.cpp
          llwindebug.cpp
          )
     set_source_files_properties(
       llappviewerwin32.cpp
+      llvelopack.cpp
       PROPERTIES
       COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
       )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
+         llvelopack.h
          llwindebug.h
          )
 
@@ -1777,9 +1783,7 @@ if (WINDOWS)
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
       ${SHARED_LIB_STAGING_DIR}/openjp2.dll
       ${SHARED_LIB_STAGING_DIR}/llwebrtc.dll
-      #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/libsndfile-1.dll
-      #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxoal.dll
       ${AUTOBUILD_INSTALL_DIR}/ca-bundle.crt
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
@@ -1789,18 +1793,6 @@ if (WINDOWS)
       media_plugin_libvlc
       media_plugin_example
       )
-
-    if (ADDRESS_SIZE EQUAL 64)
-       list(APPEND COPY_INPUT_DEPENDENCIES
-               ${SHARED_LIB_STAGING_DIR}/vivoxsdk_x64.dll
-               ${SHARED_LIB_STAGING_DIR}/ortp_x64.dll
-               )
-    else (ADDRESS_SIZE EQUAL 64)
-       list(APPEND COPY_INPUT_DEPENDENCIES
-               ${SHARED_LIB_STAGING_DIR}/vivoxsdk.dll
-               ${SHARED_LIB_STAGING_DIR}/ortp.dll
-               )
-    endif (ADDRESS_SIZE EQUAL 64)
 
     if (TARGET ll::discord_sdk)
         list(APPEND COPY_INPUT_DEPENDENCIES
@@ -1931,6 +1923,7 @@ if (WINDOWS)
               "--discord=${USE_DISCORD}"
               "--openal=${USE_OPENAL}"
               "--tracy=${USE_TRACY}"
+              "--velopack=${USE_VELOPACK}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
               "--channel=${VIEWER_CHANNEL}"
@@ -2052,6 +2045,10 @@ target_link_libraries(${VIEWER_BINARY_NAME}
 
 if (USE_DISCORD)
    target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
+endif ()
+
+if (TARGET ll::velopack)
+   target_link_libraries(${VIEWER_BINARY_NAME} ll::velopack )
 endif ()
 
 if( TARGET ll::intel_memops )
@@ -2183,7 +2180,7 @@ if (DARWIN)
   set(MACOSX_BUNDLE_BUNDLE_NAME "SecondLife")
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
   set(MACOSX_BUNDLE_BUNDLE_VERSION "${VIEWER_SHORT_VERSION}${VIEWER_MACOSX_PHASE}${VIEWER_REVISION}")
-  set(MACOSX_BUNDLE_COPYRIGHT "Copyright © Linden Research, Inc. 2020")
+  set(MACOSX_BUNDLE_COPYRIGHT "Copyright © Linden Research, Inc. 2026")
   set(MACOSX_BUNDLE_NSMAIN_NIB_FILE "SecondLife.nib")
   set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "LLApplication")
 
@@ -2251,9 +2248,11 @@ if (DARWIN)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
+              --bundleid=${MACOSX_BUNDLE_GUI_IDENTIFIER}
               "--discord=${USE_DISCORD}"
               "--openal=${USE_OPENAL}"
               "--tracy=${USE_TRACY}"
+              "--velopack=${USE_VELOPACK}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
               "--channel=${VIEWER_CHANNEL}"
@@ -2481,4 +2480,3 @@ if (LL_TESTS)
 endif (LL_TESTS)
 
 check_message_template(${VIEWER_BINARY_NAME})
-

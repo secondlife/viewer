@@ -30,6 +30,7 @@
 
 // @TODO this really should be private, but is used in llslurl
 #define MAINGRID "util.agni.lindenlab.com"
+#define BETAGRID "util.aditi.lindenlab.com"
 
 /// Exception thrown when a grid is not valid
 class LLInvalidGridName

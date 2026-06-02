@@ -77,6 +77,14 @@ protected:
 public:
         virtual ~LLMediaCtrl();
 
+        enum ELoadingState
+        {
+            LOADING_STATE_INITIALIZING = 0,
+            LOADING_STATE_LOADING = 1,
+            LOADING_STATE_LOADED = 2,
+            LOADING_STATE_ERROR = 3
+        };
+
         void setBorderVisible( bool border_visible );
 
         // For the tutorial window, we don't want to take focus on clicks,
@@ -181,6 +189,11 @@ public:
 
         virtual bool    acceptsTextInput() const { return true; }
 
+        std::string getMediaMimeType();
+        std::string getMediaLoadingStatus();
+        std::string getMediaTitle();
+        bool executeJavaScript(const std::string& script);
+
     protected:
         void convertInputCoords(S32& x, S32& y);
 
@@ -217,6 +230,7 @@ public:
         viewer_media_t mMediaSource;
         S32 mTextureWidth,
             mTextureHeight;
+        ELoadingState mLoadingState;
 
         class LLWindowShade* mWindowShade;
         LLHandle<LLContextMenu> mContextMenuHandle;

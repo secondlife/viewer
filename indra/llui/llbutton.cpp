@@ -85,6 +85,7 @@ LLButton::Params::Params()
     image_top_pad("image_top_pad"),
     image_bottom_pad("image_bottom_pad"),
     imgoverlay_label_space("imgoverlay_label_space", 1),
+    image_overlay_right_delta("image_overlay_right_delta", 0),
     label_color("label_color"),
     label_color_selected("label_color_selected"),   // requires is_toggle true
     label_color_disabled("label_color_disabled"),
@@ -109,6 +110,8 @@ LLButton::Params::Params()
     commit_on_capture_lost("commit_on_capture_lost", false),
     display_pressed_state("display_pressed_state", true),
     use_draw_context_alpha("use_draw_context_alpha", true),
+    draw_focus_border("draw_focus_border", true),
+    hover_hand_cursor("hover_hand_cursor", false),
     badge("badge"),
     handle_right_mouse("handle_right_mouse"),
     held_down_delay("held_down_delay"),
@@ -158,6 +161,7 @@ LLButton::LLButton(const LLButton::Params& p)
     mImageOverlayTopPad(p.image_top_pad),
     mImageOverlayBottomPad(p.image_bottom_pad),
     mImgOverlayLabelSpace(p.imgoverlay_label_space),
+    mImageOverlayRightDelta(p.image_overlay_right_delta),
     mIsToggle(p.is_toggle),
     mScaleImage(p.scale_image),
     mDropShadowedText(p.label_shadow),
@@ -179,6 +183,8 @@ LLButton::LLButton(const LLButton::Params& p)
     mMouseUpSignal(NULL),
     mHeldDownSignal(NULL),
     mUseDrawContextAlpha(p.use_draw_context_alpha),
+    mDrawFocusBorder(p.draw_focus_border),
+    mHoverHandCursor(p.hover_hand_cursor),
     mHandleRightMouse(p.handle_right_mouse),
     mFlashingTimer(NULL)
 {
@@ -653,7 +659,7 @@ bool LLButton::handleHover(S32 x, S32 y, MASK mask)
         }
 
         // We only handle the click if the click both started and ended within us
-        getWindow()->setCursor(UI_CURSOR_ARROW);
+        getWindow()->setCursor(mHoverHandCursor ? UI_CURSOR_HAND : UI_CURSOR_ARROW);
         LL_DEBUGS("UserInput") << "hover handled by " << getName() << LL_ENDL;
     }
     return true;
@@ -840,10 +846,9 @@ void LLButton::draw()
         label_color = ll::ui::SearchableControl::getHighlightFontColor();
 
     // overlay with keyboard focus border
-    if (hasFocus())
+    if (hasFocus() && mDrawFocusBorder)
     {
-        F32 lerp_amt = gFocusMgr.getFocusFlashAmt();
-        drawBorder(imagep, gFocusMgr.getFocusColor() % alpha, ll_round(lerp(1.f, 3.f, lerp_amt)));
+        drawBorder(imagep, gFocusMgr.getFocusColor() % alpha, gFocusMgr.getFocusFlashWidth());
     }
 
     if (use_glow_effect)
@@ -930,6 +935,17 @@ void LLButton::draw()
         }
         overlay_color.mV[VALPHA] *= alpha;
 
+        if (mImageOverlayRightDelta > 0)
+        {
+            mImageOverlay->draw(getRect().getWidth() - overlay_width - mImageOverlayRightDelta,
+                            center_y - (overlay_height / 2),
+                            overlay_width,
+                            overlay_height,
+                            overlay_color);
+        }
+        else
+        {
+
         switch(mImageOverlayAlignment)
         {
         case LLFontGL::LEFT:
@@ -963,6 +979,7 @@ void LLButton::draw()
         default:
             // draw nothing
             break;
+        }
         }
     }
 

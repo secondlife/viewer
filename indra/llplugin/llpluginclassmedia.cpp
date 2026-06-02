@@ -168,6 +168,7 @@ void LLPluginClassMedia::reset()
 
 void LLPluginClassMedia::idle(void)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     if(mPlugin)
     {
         mPlugin->idle();
@@ -1640,4 +1641,16 @@ void LLPluginClassMedia::initializeUrlHistory(const LLSD& url_history)
     sendMessage(message);
 
     LL_DEBUGS("Plugin") << "Sending history" << LL_ENDL;
+}
+
+void LLPluginClassMedia::forceRenderRefresh()
+{
+    // Force layout recalculation by briefly hiding/showing the web content
+    // Used to clear black screen issues after resize, see #5607
+    const std::string refresh_script =
+        "document.documentElement.style.visibility='hidden';"
+        "document.documentElement.offsetHeight;"
+        "document.documentElement.style.visibility='';";
+
+    executeJavaScript(refresh_script);
 }

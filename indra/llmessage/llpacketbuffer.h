@@ -38,6 +38,9 @@ public:
     LLPacketBuffer(S32 hSocket);    // receive a packet
     ~LLPacketBuffer();
 
+    LLPacketBuffer(const LLPacketBuffer&) = default;
+    LLPacketBuffer& operator=(const LLPacketBuffer&) = default;
+
     S32         getSize() const                 { return mSize; }
     const char  *getData() const                { return mData; }
     LLHost      getHost() const                 { return mHost; }

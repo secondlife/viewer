@@ -523,6 +523,7 @@ void LLReflectionMapManager::refreshSettings()
     mRenderReflectionProbeLevel = gSavedSettings.getS32("RenderReflectionProbeLevel");
     mRenderReflectionProbeCount = gSavedSettings.getU32("RenderReflectionProbeCount");
     mRenderReflectionProbeDynamicAllocation = gSavedSettings.getS32("RenderReflectionProbeDynamicAllocation");
+    cleanupQueryPool();
 }
 
 LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
@@ -568,6 +569,25 @@ U32 LLReflectionMapManager::probeCount()
 U32 LLReflectionMapManager::probeMemory()
 {
     return (mDynamicProbeCount * 6 * (mProbeResolution * mProbeResolution) * 4) / 1024 / 1024 + (mDynamicProbeCount * 6 * (LL_IRRADIANCE_MAP_RESOLUTION * LL_IRRADIANCE_MAP_RESOLUTION) * 4) / 1024 / 1024;
+}
+
+GLuint LLReflectionMapManager::allocateQuery()
+{
+    if (mQueryPool.empty())
+    {
+        GLuint query;
+        glGenQueries(1, &query);
+        return query;
+    }
+
+    GLuint query = mQueryPool.front();
+    mQueryPool.pop_front();
+    return query;
+}
+
+void LLReflectionMapManager::recycleQuery(GLuint query)
+{
+    mQueryPool.push_back(query);
 }
 
 struct CompareProbeDepth
@@ -713,6 +733,7 @@ void LLReflectionMapManager::deleteProbe(U32 i)
         other->mNeighbors.erase(iter);
     }
 
+    // Probes are distance sorted, order matters.
     mProbes.erase(mProbes.begin() + i);
 }
 
@@ -1549,8 +1570,21 @@ void LLReflectionMapManager::cleanup()
     glDeleteBuffers(1, &mUBO);
     mUBO = 0;
 
+    cleanupQueryPool();
+
     // note: also called on teleport (not just shutdown), so make sure we're in a good "starting" state
     initCubeFree();
+}
+
+void LLReflectionMapManager::cleanupQueryPool()
+{
+    if (!mQueryPool.empty())
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("cleanup query pool");
+        std::vector<GLuint> queries(mQueryPool.begin(), mQueryPool.end());
+        glDeleteQueries(static_cast<GLsizei>(queries.size()), queries.data());
+        mQueryPool.clear();
+    }
 }
 
 void LLReflectionMapManager::doOcclusion()

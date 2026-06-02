@@ -5,7 +5,7 @@
  can_minimize="true"
  can_close="true"
  can_resize="false"
- height="80"
+ height="84"
  width="515"
  layout="topleft"
  name="HoverHeight"
@@ -39,6 +39,6 @@
      label="Bind Camera view"
      layout="topleft"
      name="BindCameraCheck"
-     top_pad="7"
+     top_pad="14"
      width="237"/>
 </floater>

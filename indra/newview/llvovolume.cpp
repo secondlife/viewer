@@ -1253,7 +1253,35 @@ void LLVOVolume::updateSculptTexture()
 
 void LLVOVolume::updateVisualComplexity()
 {
-    LLVOAvatar* avatar = getAvatarAncestor();
+    LLVOAvatar* avatar = nullptr;
+    LLViewerObject* pobj = (LLViewerObject*)getParent();
+    LLViewerObject* lobj = this;
+    while (pobj)
+    {
+        avatar = pobj->asAvatar();
+        if (avatar)
+        {
+            break;
+        }
+        lobj = pobj;
+        pobj = (LLViewerObject*)pobj->getParent();
+    }
+
+    if (avatar)
+    {
+        // mark parent as dirty, complexity will be updated recursively.
+        avatar->markAttachmentComplexityDirty(lobj->getID());
+    }
+    LLVOAvatar* rigged_avatar = getAvatar();
+    if (rigged_avatar && (rigged_avatar != avatar))
+    {
+        // This might be wrong. Control avatars update each run,
+        // due to lack of dirty mechanics, and this might be
+        // where we should implement and call
+        // markControlAvatarComplexityDirty() if !isAttachment().
+        rigged_avatar->markAttachmentComplexityDirty(lobj->getID());
+    }
+    /*LLVOAvatar* avatar = getAvatarAncestor();
     if (avatar)
     {
         avatar->updateVisualComplexity();
@@ -1262,7 +1290,7 @@ void LLVOVolume::updateVisualComplexity()
     if(rigged_avatar && (rigged_avatar != avatar))
     {
         rigged_avatar->updateVisualComplexity();
-    }
+    }*/
 }
 
 void LLVOVolume::notifyMeshLoaded()
@@ -4417,7 +4445,7 @@ U32 LLVOVolume::getTriangleCount(S32* vcount) const
     return count;
 }
 
-U32 LLVOVolume::getHighLODTriangleCount()
+U32 LLVOVolume::getLODTriangleCount(S32 lod)
 {
     U32 ret = 0;
 
@@ -4425,16 +4453,16 @@ U32 LLVOVolume::getHighLODTriangleCount()
 
     if (!isSculpted())
     {
-        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), lod);
         ret = ref->getNumTriangles();
         LLPrimitive::getVolumeManager()->unrefVolume(ref);
     }
     else if (isMesh())
     {
-        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), lod);
         if (!ref->isMeshAssetLoaded() || ref->getNumVolumeFaces() == 0)
         {
-            gMeshRepo.loadMesh(this, volume->getParams(), LLModel::LOD_HIGH);
+            gMeshRepo.loadMesh(this, volume->getParams(), lod);
         }
         ret = ref->getNumTriangles();
         LLPrimitive::getVolumeManager()->unrefVolume(ref);
@@ -4445,6 +4473,11 @@ U32 LLVOVolume::getHighLODTriangleCount()
     }
 
     return ret;
+}
+
+U32 LLVOVolume::getHighLODTriangleCount()
+{
+    return getLODTriangleCount(LLModel::LOD_HIGH);
 }
 
 //static
@@ -5996,7 +6029,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                                     bool should_render = true;
                                     if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
                                     {
-                                        if (gltf_mat->mBaseColor.mV[3] == 0.0f)
+                                        if (gltf_mat->mBaseColor.mV[3] == 0.0f && !LLDrawPoolAlpha::sShowDebugAlpha)
                                         {
                                             should_render = false;
                                         }

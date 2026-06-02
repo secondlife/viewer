@@ -170,7 +170,7 @@
      left="30"
      name="Software updates:"
      mouse_opaque="false"
-     top_pad="5"
+     top_pad="8"
      width="300">
     Software updates:
   </text>
@@ -180,7 +180,7 @@
      height="23"
      layout="topleft"
      left_delta="50"
-     top_pad="5"
+     top_pad="10"
      name="updater_service_combobox"
      width="300">
         <combo_box.item
@@ -197,29 +197,29 @@
          value="0" />
   </combo_box>
   <check_box
-    top_delta="4"
+    top_pad="10"
     enabled="true"
     follows="left|top"
+    layout="topleft"
     height="14"
     control_name="UpdaterWillingToTest"
     label="Willing to update to Beta"
     left_delta="0"
     mouse_opaque="true"
     name="update_willing_to_test"
-    width="400"           
-    top_pad="5"/>
+    width="400"/>
   <check_box
-    top_delta="4"
+    top_pad="8"
     enabled="true"
     follows="left|top"
+    layout="topleft"
     height="14"
     control_name="UpdaterShowReleaseNotes"
     label="Show Release Notes after update"
     left_delta="0"
     mouse_opaque="true"
     name="update_show_release_notes"
-    width="400"
-    top_pad="5"/>
+    width="400"/>
   <text
      type="string"
      length="1"
@@ -229,7 +229,7 @@
      left="30"
      name="Proxy Settings:"
      mouse_opaque="false"
-     top_pad="5"
+     top_pad="8"
      width="300">
     Proxy Settings:
   </text>
@@ -242,8 +242,7 @@
     layout="topleft"
     left_delta="50"
     name="set_proxy"
-    top_pad="5"
-    >
+    top_pad="10" >
     <button.commit_callback
 		  function="Pref.Proxy" />
   </button>

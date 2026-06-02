@@ -73,9 +73,9 @@ namespace Details
     // We will wait RETRY_SECONDS + (errorCount * RETRY_SECONDS_INC) before retrying after an error.
     // This means we attempt to recover relatively quickly but back off giving more time to recover
     // until we finally give up after MAX_EVENT_POLL_HTTP_ERRORS attempts.
-    constexpr F32 EVENT_POLL_ERROR_RETRY_SECONDS = 15.f; // ~ half of a normal timeout.
-    constexpr F32 EVENT_POLL_ERROR_RETRY_SECONDS_INC = 5.f; // ~ half of a normal timeout.
-    constexpr S32 MAX_EVENT_POLL_HTTP_ERRORS = 10; // ~5 minutes, by the above rules.
+    constexpr F32 EVENT_POLL_ERROR_RETRY_SECONDS = 1.f;
+    constexpr F32 EVENT_POLL_ERROR_RETRY_SECONDS_INC = 3.f;
+    constexpr S32 MAX_EVENT_POLL_ERRORS = 15; // ~5 minutes, by the above rules.
     constexpr F64 MIN_SECONDS_PASSED = 10.0; // Minimum time we expect the server to hold the request.
 
     int LLEventPollImpl::sNextCounter = 1;
@@ -238,22 +238,25 @@ namespace Details
                 }
                 else if (!status.isHttpStatus())
                 {
-                    /// Some LLCore or LIBCurl error was returned.  This is unlikely to be recoverable
-                    LL_WARNS("LLEventPollImpl") << "<" << counter << "> Critical error from poll request returned from libraries.  Canceling coroutine." << LL_ENDL;
-                    break;
+                    // Some LLCore or LIBCurl error was returned.
+                    LL_WARNS("LLEventPollImpl") << "<" << counter << "> Error from poll request returned from libraries. " << status.toTerseString() << LL_ENDL;
                 }
-                LL_WARNS("LLEventPollImpl") << "<" << counter << "> Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
-                    << status.toTerseString() << ": '" << httpResults["message"] << "'" << LL_ENDL;
+                else
+                {
+                    LL_WARNS("LLEventPollImpl") << "<" << counter << "> Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
+                        << status.toTerseString() << ": '" << httpResults["message"] << "'" << LL_ENDL;
+                }
 
-                if (errorCount < MAX_EVENT_POLL_HTTP_ERRORS)
+                if (errorCount < MAX_EVENT_POLL_ERRORS)
                 {   // An unanticipated error has been received from our poll
                     // request. Calculate a timeout and wait for it to expire(sleep)
-                    // before trying again.  The sleep time is increased by 5 seconds
+                    // before trying again.  The sleep time is increased by 3 seconds
                     // for each consecutive error.
-                    ++errorCount;
 
                     F32 waitToRetry = EVENT_POLL_ERROR_RETRY_SECONDS
                         + errorCount * EVENT_POLL_ERROR_RETRY_SECONDS_INC;
+
+                    ++errorCount;
 
                     LL_WARNS("LLEventPollImpl") << "<" << counter << "> Retrying in " << waitToRetry <<
                         " seconds, error count is now " << errorCount << LL_ENDL;
@@ -328,26 +331,51 @@ namespace Details
                         {
                             // LLSD is too smart for it's own good and may act like a smart
                             // pointer for the content of (*i), so instead of passing (*i)
-                            // pass a prepared name and move ownership of "body",
-                            // as we are not going to need "body" anywhere else.
+                            // pass a prepared name and copy the body
                             std::string msg_name = (*i)["message"].asString();
 
-                            // WARNING: This is a shallow copy!
-                            // If something still retains the data (like in httpAdapter?) this might still
-                            // result in a crash, if it does appear to be the case, make a deep copy or
-                            // convert data to string and pass that string.
-                            const LLSD body = (*i)["body"];
-                            (*i)["body"].clear();
-                            work = [this, msg_name, body]()
+                            // Create a deep copy using binary serialization
+                            try
                             {
-                                handleMessage(msg_name, body);
-                            };
+                                std::stringstream body_stream;
+                                LLSDSerialize::toBinary((*i)["body"], body_stream);
+                                std::string body_str = body_stream.str();
+                                (*i)["body"].clear();
+                                work = [this, msg_name, body_str]()
+                                {
+                                    try
+                                    {
+                                        LLSD body;
+                                        std::istringstream istr(body_str);
+                                        LLSDSerialize::fromBinary(body, istr, body_str.size());
+                                        handleMessage(msg_name, body);
+                                    }
+                                    catch (std::bad_alloc&)
+                                    {
+                                        LLError::LLUserWarningMsg::showOutOfMemory();
+                                        LL_ERRS("LLCoros") << "Bad memory allocation in handleMessage() for " << msg_name << LL_ENDL;
+                                    }
+                                };
+                            }
+                            catch (std::bad_alloc&)
+                            {
+                                LLError::LLUserWarningMsg::showOutOfMemory();
+                                LL_ERRS("LLCoros") << "Bad memory allocation in eventPollCoro for " << msg_name << LL_ENDL;
+                            }
                         }
                         main_queue->post(work);
                     }
                     else
                     {
-                        handleMessage(*i);
+                        try
+                        {
+                            handleMessage(*i);
+                        }
+                        catch (std::bad_alloc&)
+                        {
+                            LLError::LLUserWarningMsg::showOutOfMemory();
+                            LL_ERRS("LLCoros") << "Bad memory allocation in handleMessage() for " << (*i)["message"].asString() << LL_ENDL;
+                        }
                     }
                 }
             }

@@ -95,7 +95,8 @@ public:
                                         show_label_focused,
                                         is_password,
                                         allow_emoji,
-                                        use_bg_color;
+                                        use_bg_color,
+                                        draw_focus_border;
 
         // colors
         Optional<LLUIColor>             cursor_color,
@@ -411,6 +412,7 @@ protected:
 
     bool        mAllowEmoji;
     bool        mUseBgColor;
+    bool        mDrawFocusBorder;
 
     LLWString   mPreeditWString;
     LLWString   mPreeditOverwrittenWString;

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -1423,6 +1423,7 @@ bool LLFolderView::search(LLFolderViewItem* first_item, const std::string &searc
             }
         }
 
+        // Note: for inventory getSearchableName should already be 'upper' case.
         std::string current_item_label(search_item->getViewModelItem()->getSearchableName());
         LLStringUtil::toUpper(current_item_label);
         auto search_string_length = llmin(upper_case_string.size(), current_item_label.size());

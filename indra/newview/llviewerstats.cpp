@@ -62,7 +62,6 @@
 #include "llsdserialize.h"
 #include "llsdutil.h"
 #include "llcorehttputil.h"
-#include "llvoicevivox.h"
 #include "llinventorymodel.h"
 #include "lluiusage.h"
 #include "lltranslate.h"
@@ -263,6 +262,20 @@ LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  HUDS_FRAME_PCT("huds_
 LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  UI_FRAME_PCT("ui_frame_pct");
 LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  SWAP_FRAME_PCT("swap_frame_pct");
 LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  IDLE_FRAME_PCT("idle_frame_pct");
+
+
+
+LLTrace::SampleStatHandle<U32> WEBRTC_PACKETS_IN_LOST("webrtc_packets_in_lost", "Lost incoming packets"),
+    WEBRTC_PACKETS_IN_RECEIVED("webrtc_packets_in_recv", "Incoming packets received"),
+    WEBRTC_PACKETS_OUT_SENT("webrtc_packets_out_sent", "Outgoing packets sent"),
+    WEBRTC_PACKETS_OUT_LOST("webrtc_packets_out_lost", "Lost outgoing packets");
+
+LLTrace::SampleStatHandle<F32> WEBRTC_JITTER_OUT("webrtc_jitter_out", "Timing variation of outgoing audio"),
+    WEBRTC_JITTER_IN("webrtc_jitter_in", "Timing variation of incoming audio"),
+    WEBRTC_LATENCY("webrtc_latency", "Round-trip audio delay"),
+    WEBRTC_UPLOAD_BANDWIDTH("webrtc_upload_bandwidth", "Estimated upload bandwidth"),
+    WEBRTC_JITTER_BUFFER("webrtc_jitter_buffer", "Average delay added to smooth incoming audio");
+
 }
 
 LLViewerStats::LLViewerStats()
@@ -778,12 +791,16 @@ void send_viewer_stats(bool include_preferences)
     LLSD &fail = body["stats"]["failures"];
 
     fail["send_packet"] = (S32) gMessageSystem->mSendPacketFailureCount;
-    fail["dropped"] = (S32) gMessageSystem->mDroppedPackets;
+    fail["dropped"] = (S32) gMessageSystem->getTotalNumDroppedPackets();
     fail["resent"] = (S32) gMessageSystem->mResentPackets;
     fail["failed_resends"] = (S32) gMessageSystem->mFailedResendPackets;
     fail["off_circuit"] = (S32) gMessageSystem->mOffCircuitPackets;
     fail["invalid"] = (S32) gMessageSystem->mInvalidOnCircuitPackets;
-    fail["missing_updater"] = (S32) LLAppViewer::instance()->isUpdaterMissing();
+#if LL_VELOPACK
+    fail["missing_updater"] = false;
+#else
+    fail["missing_updater"] = true;
+#endif
 
     LLSD &inventory = body["inventory"];
     inventory["usable"] = gInventory.isInventoryUsable();
@@ -791,8 +808,6 @@ void send_viewer_stats(bool include_preferences)
     gInventory.mValidationInfo->asLLSD(validation_info);
 
     body["ui"] = LLUIUsage::instance().asLLSD();
-
-    body["stats"]["voice"] = LLVoiceVivoxStats::getInstance()->read();
 
     // Misc stats, two strings and two ints
     // These are not expecticed to persist across multiple releases

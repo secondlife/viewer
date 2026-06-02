@@ -183,6 +183,7 @@ Learn about [https://community.secondlife.com/knowledgebase/joining-and-particip
               increment="1"
               follows="left|top"
               left="5"
+              top_pad="5"
               min_val="0"
               max_val="4096"
               label="Range:"
@@ -199,13 +200,13 @@ Learn about [https://community.secondlife.com/knowledgebase/joining-and-particip
          <layout_stack
            clip="false"
            follows="all"
-           height="410"
+           height="406"
            layout="topleft"
            left="0"
            mouse_opaque="false"
            orientation="vertical"
            right="-1"
-           top_pad="0">
+           top_pad="3">
            <layout_panel
              height="142"
              layout="topleft"

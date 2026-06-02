@@ -119,6 +119,49 @@ public:
 // Repeat for number of messages in file
 //
 
+// UDP Packet Buffer Layout
+//
+// Every UDP message sent or received by LLMessageSystem uses the following
+// on-wire layout.  Offsets are defined in EPacketHeaderLayout below.
+//
+// Byte(s)  Name          Description
+// -------  ----          -----------
+//   0      Flags         Bit-field (see flag constants below):
+//                          0x80  LL_ZERO_CODE_FLAG – body is zero-run-length encoded
+//                          0x40  LL_RELIABLE_FLAG  – sender expects a packet ACK
+//                          0x20  LL_RESENT_FLAG    – this is a retransmission
+//                          0x10  LL_ACK_FLAG       – piggybacked ACKs are appended
+//                                                    at the tail of this packet
+//  1-4     Packet ID     Sequence number, U32 in network (big-endian) byte order.
+//   5      Offset        Byte offset from PHL_NAME to the start of the message
+//                        body (past the message-ID bytes).  Zero for most messages.
+//  6+      Message ID    Variable-length message type identifier:
+//                          High-frequency   (1 byte,  values 0x01–0xFE)
+//                          Medium-frequency (2 bytes, 0xFF hh)
+//                          Low-frequency    (4 bytes, 0xFF 0xFF hh ll)
+//  ...     Body          Message block data, described by the message template.
+//                        Present only when LL_ZERO_CODE_FLAG is clear; otherwise
+//                        the body (everything after byte 5) is zero-coded (see
+//                        below).  The 6-byte header is never zero-coded.
+//
+// Optional ACK tail (present when LL_ACK_FLAG is set in the flags byte):
+//
+//  ...     ACK IDs       N packet-sequence IDs being acknowledged, each a U32 in
+//                        network byte order, packed contiguously immediately before
+//                        the ACK count byte.  Read in reverse: walk backwards from
+//                        just before the count byte, 4 bytes at a time.
+//  last    ACK Count     U8 giving N, the number of appended ACK IDs (max 255).
+//                        This is the very last byte of the UDP payload.
+//
+// Zero-coding (applied when LL_ZERO_CODE_FLAG is set):
+//
+//   Runs of zero bytes in the body are replaced by a two-byte token:
+//     0x00 N        – represents (N + 1) zero bytes, for N in 1..254
+//     0x00 0x00 N   – represents (256 + N) zero bytes  (wrap/overflow case)
+//   A literal 0x00 byte that starts no run is encoded as 0x00 0x00 0x00.
+//   The six-byte packet header is excluded from zero-coding and is always
+//   transmitted as-is.
+
 // Constants
 const S32 MAX_MESSAGE_INTERNAL_NAME_SIZE = 255;
 const S32 MAX_BUFFER_SIZE = NET_BUFFER_SIZE;
@@ -291,8 +334,11 @@ class LLMessageSystem : public LLMessageSenderInterface
     bool                mBlockUntrustedInterface;
     LLHost              mUntrustedInterface;
 
+ protected:
+    LLPacketRing        mHighPriorityInbound;
+    LLPacketRing        mLowPriorityInbound;
+
  public:
-    LLPacketRing                mPacketRing;
     LLReliablePacketParams      mReliablePacketParams;
 
     // Set this flag to true when you want *very* verbose logs.
@@ -334,7 +380,7 @@ public:
     U32                 mReliablePacketsIn;     // total reliable packets in
     U32                 mReliablePacketsOut;        // total reliable packets out
 
-    U32                 mDroppedPackets;            // total dropped packets in
+    U32                 mLostPackets;               // total reliable outbound packets declared lost
     U32                 mResentPackets;             // total resent packets out
     U32                 mFailedResendPackets;       // total resend failure packets out
     U32                 mOffCircuitPackets;         // total # of off-circuit packets rejected
@@ -419,6 +465,25 @@ public:
 
     // returns total number of buffered packets after the drain
     S32     drainUdpSocket();
+
+    // Inbound Packet-loss simulation controls
+    void dropPackets(U32 num_to_drop);
+    void setDropPercentage(F32 percent_to_drop);
+
+    // UDP byte-accounting
+    S32  getActualInBytes()  const { return mActualBytesIn; }
+    S32  getActualOutBytes() const { return mActualBytesOut; }
+    S32  getAndResetActualInBits()  { S32 bits = mActualBytesIn  * 8; mActualBytesIn  = 0; return bits; }
+    S32  getAndResetActualOutBits() { S32 bits = mActualBytesOut * 8; mActualBytesOut = 0; return bits; }
+
+    // Get number of "dropped" inbound packets
+    S32  getTotalNumDroppedPackets()   const { return mNumDroppedPacketsTotal + mNumDroppedPackets; }
+
+    S32  getNumBufferedPackets()  const { return mHighPriorityInbound.getNumBufferedPackets() + mLowPriorityInbound.getNumBufferedPackets(); }
+    void dumpPacketRingStats();
+
+    // Send datap to host via mSocket (with SOCKS proxy support if enabled).
+    bool sendPacketToSocket(const char* datap, S32 data_size, LLHost host);
 
     bool    isMessageFast(const char *msg);
     bool    isMessage(const char *msg)
@@ -754,7 +819,7 @@ public:
     S32     getReceiveBytes() const;
 
     S32     getUnackedListSize() const          { return mUnackedListSize; }
-    F32     getBufferLoadRate() const           { return mPacketRing.getBufferLoadRate(); }
+    F32     getBufferLoadRate() const;
 
     //const char* getCurrentSMessageName() const { return mCurrentSMessageName; }
     //const char* getCurrentSBlockName() const { return mCurrentSBlockName; }
@@ -897,6 +962,32 @@ private:
     LLHost mLastReceivingIF;
     S32 mIncomingCompressedSize;        // original size of compressed msg (0 if uncomp.)
     TPACKETID mCurrentRecvPacketID;       // packet ID of current receive packet (for reporting)
+
+    // Socket I/O helpers
+
+    // Receive one packet: pop from ring if buffered, else read from mSocket.
+    // Sets mLastSender and mLastReceivingIF.
+    // Returns packet_size, or 0 if no packet or packet was dropped.
+    S32  receivePacketOrDrop(char* datap);
+
+    // Read one raw packet from mSocket into inbound message queues
+    // Returns packet_size (0 if no packet was available).
+    S32  bufferInboundPacket();
+
+    // Returns true if the next inbound packet should be intentionally dropped.
+    bool computeDrop();
+
+    // Returns true if pkt carries a high-priority message and should be queued
+    // in mHighPriorityInbound.
+    bool isHighPriorityMessage(const LLPacketBuffer& pkt) const;
+
+    // Packet-loss simulation and byte-accounting state
+    S32 mActualBytesIn;
+    S32 mActualBytesOut;
+    F32 mDropPercentage;        // % of inbound packets to drop
+    U32 mPacketsToDrop;         // drop next N inbound packets
+    S32 mNumDroppedPackets;     // inbound
+    S32 mNumDroppedPacketsTotal;// inbound
 
     LLMessageBuilder* mMessageBuilder;
     LLTemplateMessageBuilder* mTemplateMessageBuilder;

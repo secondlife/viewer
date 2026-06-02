@@ -116,6 +116,8 @@ Voice Server Version: [VOICE_VERSION]
 	
 	<string name="AgniGridLabel">Second Life Main Grid (Agni)</string>
 	<string name="AditiGridLabel">Second Life Beta Test Grid (Aditi)</string>
+    <string name="AgniGridLabelShort">Agni (production)</string>
+    <string name="AditiGridLabelShort">Aditi (beta)</string>
 	
 	<string name="ViewerDownloadURL">http://secondlife.com/download</string>
 	<string name="LoginFailedViewerNotPermitted">
@@ -2323,7 +2325,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="LeaveMouselook">Press ESC to return to World View</string>
 
 	<!-- inventory -->
-	<string name="InventoryNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].</string>
+	<string name="InventoryNoMatchingItems">No matching items.</string>
 	<string name="InventoryNoMatchingRecentItems">Didn't find what you're looking for? Try [secondlife:///app/inventory/filters Show filters].</string>	
   <string name="InventoryNoMatchingFavorites">You haven't marked any items as favorites.</string>
 	<string name="PlacesNoMatchingItems">To add a place to your landmarks, click the star to the right of the location name.</string>
@@ -2333,6 +2335,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="InventorySingleFolderEmpty">Folder is empty.</string>
 	<string name="InventorySingleFolderNoMatches">No matches.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
+	<string name="InventoryNoMaterial">You do not have a copy of this material in your inventory</string>
 	<string name="InventoryInboxNoItems">Your Marketplace purchases will appear here. You may then drag them into your inventory to use them.</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
 	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.3</string>
@@ -3007,6 +3010,9 @@ If this message persists, restart your computer.
 		[APP_NAME] appears to have frozen or crashed on the previous run.
 Would you like to send a crash report?
 	</string>
+    <string name="MBFreezeDetected">
+        [APP_NAME] appears to have frozen. If this issue occurs regularly, please contact support at https://support.secondlife.com.
+    </string>
 	<string name="MBAlert">Notification</string>
 	<string name="MBNoDirectX">
 		[APP_NAME] is unable to detect DirectX 9.0b or greater.
@@ -4201,7 +4207,6 @@ name="Command_360_Capture_Label">360 snapshot</string>
   <string name="Command_Environments_Label">My Environments</string>
   <string name="Command_Gestures_Label">Gestures</string>
   <string name="Command_Grid_Status_Label">Grid status</string>
-  <string name="Command_HowTo_Label">Guidebook</string>
   <string name="Command_Inventory_Label">Inventory</string>
   <string name="Command_Map_Label">Map</string>
   <string name="Command_Marketplace_Label">Marketplace</string>
@@ -4234,7 +4239,6 @@ name="Command_360_Capture_Tooltip">Capture a 360 equirectangular image</string>
   <string name="Command_Environments_Tooltip">My Environments</string>
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
   <string name="Command_Grid_Status_Tooltip">Show current Grid status</string>
-  <string name="Command_HowTo_Tooltip">How to do common tasks</string>
   <string name="Command_Inventory_Tooltip">View and use your belongings</string>
   <string name="Command_Map_Tooltip">Map of the world</string>
   <string name="Command_Marketplace_Tooltip">Go shopping</string>

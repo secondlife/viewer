@@ -39,7 +39,7 @@ class LLConversationLogListItem;
  * it's always in actual state.
  */
 
-class LLConversationLogList: public LLFlatListViewEx, public LLConversationLogObserver
+class LLConversationLogList: public LLFlatListViewEx, public LLConversationLogObserver, public LLMuteListObserver
 {
     LOG_CLASS(LLConversationLogList);
 public:
@@ -76,6 +76,12 @@ public:
     virtual void changed();
     virtual void changed(const LLUUID& session_id, U32 mask);
 
+    /**
+     * Changes from LLMuteListObserver
+     */
+    virtual void onChange();
+    virtual void onChangeDetailed(const LLMute& mute);
+
 private:
 
     void setDirty(bool dirty = true) { mIsDirty = dirty; }
@@ -104,6 +110,8 @@ private:
     bool mIsDirty;
     bool mIsFriendsOnTop;
     std::string mNameFilter;
+
+    boost::signals2::scoped_connection mShowBlockedSignal;
 };
 
 /**

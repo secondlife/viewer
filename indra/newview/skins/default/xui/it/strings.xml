@@ -5453,9 +5453,6 @@ Prova a racchiudere il percorso dell'editor in doppie virgolette.
 	<string name="Command_Grid_Status_Label">
 		Stato della griglia
 	</string>
-	<string name="Command_HowTo_Label">
-		Istruzioni
-	</string>
 	<string name="Command_Inventory_Label">
 		Inventario
 	</string>
@@ -5551,9 +5548,6 @@ Prova a racchiudere il percorso dell'editor in doppie virgolette.
 	</string>
 	<string name="Command_Grid_Status_Tooltip">
 		Mostra stato griglia corrente
-	</string>
-	<string name="Command_HowTo_Tooltip">
-		Come eseguire le attività più comuni
 	</string>
 	<string name="Command_Inventory_Tooltip">
 		Visualizza e usa le tue cose

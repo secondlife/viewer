@@ -23,7 +23,7 @@
     <text
       parse_urls="false"
       allow_scroll="false"
-      v_pad = "6"
+      v_pad = "4"
       read_only = "true"
       follows="left|right"
       font.style="BOLD"
@@ -49,7 +49,7 @@
     left_pad="5"
     name="time_box"
     right="-5"
-    top="7"
+    top="5"
     value="23:30"
     width="110" />
 </panel>

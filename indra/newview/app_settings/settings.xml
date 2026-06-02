@@ -492,7 +492,7 @@
     <key>RecentJumpThresholdSecs</key>
     <map>
       <key>Comment</key>
-      <string>Seconds after a jump input during which finish-anim is suppressed to avoid interrupting rapid successive jumps.</string>
+      <string>Seconds after jump input during which landing finish-anim is suppressed to avoid interrupting rapid successive jumps.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3445,17 +3445,6 @@
       <key>Value</key>
       <string>https://viewer-help.secondlife.com/[LANGUAGE]/[CHANNEL]/[VERSION]/[TOPIC][DEBUG_MODE]</string>
     </map>
-    <key>HowToHelpURL</key>
-    <map>
-      <key>Comment</key>
-      <string>URL for How To help content</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>https://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/howto/index.html</string>
-    </map>
     <key>HomeSidePanelURL</key>
     <map>
       <key>Comment</key>
@@ -3477,17 +3466,6 @@
       <string>String</string>
       <key>Value</key>
       <string>https://search.[GRID]/viewer/?query_term=[QUERY]&amp;search_type=[TYPE][COLLECTION]&amp;maturity=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
-    </map>
-    <key>GuidebookURL</key>
-    <map>
-      <key>Comment</key>
-      <string>URL for Guidebook content</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://guidebooks.secondlife.io/welcome/index.html</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
@@ -4248,7 +4226,17 @@
       <key>Value</key>
       <string>0.0.0</string>
     </map>
-
+    <key>PreviousInstallChecked</key>
+    <map>
+        <key>Comment</key>
+        <string>Whether viewer checked previous install on the same channel for NSIS</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>LimitDragDistance</key>
     <map>
       <key>Comment</key>
@@ -5884,6 +5872,17 @@
       <key>Value</key>
       <integer>90</integer>
     </map>
+    <key>ScriptToastButtonWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Default width of buttons in the Script dialog toast.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>110</integer>
+    </map>
     <key>NotificationChannelRightMargin</key>
     <map>
       <key>Comment</key>
@@ -6114,6 +6113,39 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>OpenDebugStatVoice</key>
+    <map>
+      <key>Comment</key>
+      <string>Expand Voice (WebRTC) stats display</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>OpenDebugStatVoiceOutgoing</key>
+    <map>
+      <key>Comment</key>
+      <string>Expand Outgoing audio (Voice) stats display</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>OpenDebugStatVoiceIncoming</key>
+    <map>
+      <key>Comment</key>
+      <string>Expand Incoming audio (Voice) stats display</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>OutBandwidth</key>
     <map>
@@ -9031,6 +9063,17 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
+    <key>NametagOverWater</key>
+    <map>
+        <key>Comment</key>
+        <string>Render name tag over the transparent water while camera is above the water</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
     <key>RenderInitError</key>
     <map>
       <key>Comment</key>
@@ -11141,6 +11184,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ShowBlockedConvHistory</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies whether blocked agents will be shown in Call Log</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowMatureEvents</key>
     <map>
       <key>Comment</key>
@@ -11817,6 +11871,22 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
+    <key>TextureChannelPriority</key>
+    <map>
+      <key>Comment</key>
+      <string>Per-channel texture streaming aggressiveness. X=normals, Y=diffuse, Z=specular/metallic, W=emissive. 1.0=baseline, higher=more aggressive downrez.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector4</string>
+      <key>Value</key>
+      <array>
+        <real>5</real>
+        <real>7.5</real>
+        <real>20</real>
+        <real>7.5</real>
+      </array>
+    </map>
     <key>TextureCameraBoost</key>
     <map>
       <key>Comment</key>
@@ -12316,17 +12386,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>UIFloaterTitleVPad</key>
-    <map>
-      <key>Comment</key>
-      <string>Distance from top of floater to top of title string, pixels</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>7</real>
     </map>
     <key>UIImgDefaultEyesUUID</key>
     <map>
@@ -13112,11 +13171,11 @@
     <key>UpdaterShowReleaseNotes</key>
     <map>
         <key>Comment</key>
-        <string>Enables displaying of the Release notes in a web floater after update.</string>
+        <string>Enables displaying of the Release notes in a web floater after update. 0 - don't show, 1 - show, 2 - show even for test viewers</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
-        <string>Boolean</string>
+        <string>S32</string>
         <key>Value</key>
         <integer>1</integer>
     </map>
@@ -13251,6 +13310,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>SwitchToSharedEnvAfterTeleport</key>
+    <map>
+      <key>Comment</key>
+      <string>Switch to Shared Environment after teleport</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>PreferredBrowserBehavior</key>
     <map>
@@ -13494,141 +13564,8 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>VivoxAutoPostCrashDumps</key>
-    <map>
-      <key>Comment</key>
-      <string>If true, SLVoice will automatically send crash dumps directly to Vivox.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>VivoxDebugLevel</key>
-    <map>
-      <key>Comment</key>
-      <string>Logging level to use when launching the vivox daemon</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>0</string>
-    </map>
-    <key>VivoxLogDirectory</key>
-    <map>
-        <key>Comment</key>
-        <string>Default log path is Application Support/SecondLife/logs specify alternate absolute path here.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>String</string>
-        <key>Value</key>
-        <string></string>
-    </map>
-    <key>VivoxShutdownTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>shutdown timeout in miliseconds.  The amount of time to wait for the service to shutdown gracefully after the last disconnect</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>5</string>
-    </map>
-    <key>VivoxDebugSIPURIHostName</key>
-    <map>
-      <key>Comment</key>
-      <string>Hostname portion of vivox SIP URIs (empty string for the default).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
-    </map>
-    <key>VivoxDebugVoiceAccountServerURI</key>
-    <map>
-      <key>Comment</key>
-      <string>URI to the vivox account management server (empty string for the default).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
-    </map>
-    <key>VivoxVoiceHost</key>
-    <map>
-      <key>Comment</key>
-      <string>Client SLVoice host to connect to</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>127.0.0.1</string>
-    </map>
-    <key>VivoxVoicePort</key>
-    <map>
-      <key>Comment</key>
-      <string>Client SLVoice port to connect to</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>44125</integer>
-    </map>
-
-  <key>VivoxVadAuto</key>
-  <map>
-    <key>Comment</key>
-    <string>A flag indicating if the automatic VAD is enabled (1) or disabled (0). The individual settings are ignored if the auto-mode is enabled</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>VivoxVadHangover</key>
-  <map>
-    <key>Comment</key>
-    <string>The time (in milliseconds) that it takes or the VAD to switch back to silence from speech mode after the last speech frame has been detected</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>2000</integer>
-  </map>
-  <key>VivoxVadNoiseFloor</key>
-  <map>
-    <key>Comment</key>
-    <string>A dimensionless value between 0 and 20000 (default 576) that controls the maximum level at which the noise floor may be set at by the VAD's noise tracking</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>576</integer>
-  </map>
-  <key>VivoxVadSensitivity</key>
-  <map>
-    <key>Comment</key>
-    <string>A dimensionless value between 0 and 100, indicating the 'sensitivity of the VAD'. Increasing this value corresponds to decreasing the sensitivity of the VAD and 0 is turned off altogether</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>VoiceCallsFriendsOnly</key>
-  <!-- deprecated (see SL-12871) -->
+    <key>VoiceCallsFriendsOnly</key>
+    <!-- deprecated (see SL-12871) -->
     <map>
       <key>Comment</key>
       <string>(Deprecated) Only accept voice calls from residents on your friends list</string>
@@ -13704,17 +13641,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>VoiceHost</key>
-    <map>
-      <key>Comment</key>
-      <string>Client SLVoice host to connect to</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>127.0.0.1</string>
     </map>
     <key>VoiceImageLevel0</key>
     <map>
@@ -13804,17 +13730,6 @@
       <key>Value</key>
       <string>Default</string>
     </map>
-    <key>VoiceLogFile</key>
-    <map>
-      <key>Comment</key>
-      <string>Log file to use when launching the voice daemon</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
-    </map>
     <key>VoiceOutputAudioDevice</key>
     <map>
       <key>Comment</key>
@@ -13836,17 +13751,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>10</integer>
-    </map>
-    <key>VoicePort</key>
-    <map>
-      <key>Comment</key>
-      <string>Client SLVoice port to connect to</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>44125</integer>
     </map>
     <key>VoiceEchoCancellation</key>
     <map>
@@ -13934,7 +13838,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>WaterGLFogDensityScale</key>
     <map>
@@ -14534,7 +14438,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>OutfitOperationsTimeout</key>
     <map>

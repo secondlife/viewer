@@ -55,7 +55,6 @@
      width="30" />
   <panel_camera_item.text
    follows="top|left|right"
-     font="SansSerifMedium"
      height="15"
      layout="topleft"
      left ="38"

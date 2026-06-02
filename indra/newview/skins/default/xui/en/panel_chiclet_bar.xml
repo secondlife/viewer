@@ -109,7 +109,7 @@
                  image_overlay_alignment="center"
                  image_pressed="WellButton_Lit"
                  image_pressed_selected="WellButton_Lit_Selected"
-                 image_selected="PushButton_Press"
+                 image_selected="PushButton_Selected"
                  label_color="Black"
                  left="0"
                  name="Unread"

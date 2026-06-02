@@ -219,6 +219,10 @@ public:
 
     void            setButtonVisible(bool visible);
 
+    // Populates the provided LLSD with combo box-specific information(list of items, item count, current selection label)
+    // also includes base LLUICtrl information via parent class
+    void addInfo(LLSD & info);
+
     void            onButtonMouseDown();
     void            onListMouseUp();
     void            onItemSelected(const LLSD& data);

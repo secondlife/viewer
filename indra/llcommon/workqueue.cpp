@@ -38,7 +38,8 @@ LL::WorkQueueBase::WorkQueueBase(const std::string& name, bool auto_shutdown)
     {
         // Register for "LLApp" events so we can implicitly close() on viewer shutdown
         std::string listener_name = "WorkQueue:" + getKey();
-        LLEventPumps::instance().obtain("LLApp").listen(
+        LLEventPumps* pump = LLEventPumps::getInstance();
+        pump->obtain("LLApp").listen(
             listener_name,
             [this](const LLSD& stat)
             {
@@ -54,14 +55,25 @@ LL::WorkQueueBase::WorkQueueBase(const std::string& name, bool auto_shutdown)
 
         // Store the listener name so we can unregister in the destructor
         mListenerName = listener_name;
+        mPumpHandle = pump->getHandle();
     }
 }
 
 LL::WorkQueueBase::~WorkQueueBase()
 {
-    if (!mListenerName.empty() && !LLEventPumps::wasDeleted())
+    if (!mListenerName.empty() && !mPumpHandle.isDead())
     {
-        LLEventPumps::instance().obtain("LLApp").stopListening(mListenerName);
+        // Due to shutdown order issues, use handle, not a singleton
+        // and ignore fiber issue.
+        try
+        {
+            LLEventPumps* pump = mPumpHandle.get();
+            pump->obtain("LLApp").stopListening(mListenerName);
+        }
+        catch (const boost::fibers::lock_error&)
+        {
+            // Likely mutex is down, ignore
+        }
     }
 }
 

@@ -935,7 +935,7 @@ void LLFloaterIMSessionTab::hideOrShowTitle()
 
 void LLFloaterIMSessionTab::updateSessionName(const std::string& name)
 {
-    mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + name);
+    mInputEditor->setLabel(name);
 }
 
 void LLFloaterIMSessionTab::updateChatIcon(const LLUUID& id)

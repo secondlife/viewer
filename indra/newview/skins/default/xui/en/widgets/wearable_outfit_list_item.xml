@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <inventory_list_item
   follows="top|right|left"
-  height="20"
+  height="21"
   name="inventory_item"
   tab_stop="false" 
   hover_image="ListItem_Over"
@@ -17,7 +17,7 @@
   <worn_style
    font="SansSerifSmall"
    font.style="BOLD"
-   color="EmphasisColor" />
+   color="WornOutfitTextColor" />
   <item_icon
     height="16"
     follows="top|left"
@@ -25,18 +25,18 @@
     layout="topleft"
     left="0"
     name="item_icon"
-    top="0"
+    top="1"
     width="16" />
   <item_name
     follows="left|right"
-    height="20"
+    height="21"
     layout="topleft"
     left="21"
     parse_urls="false"
     use_ellipses="true"
     name="item_name"
     text_color="white"
-    top="4"
+    top="2"
     value="..."
     width="359" />
     <add_btn

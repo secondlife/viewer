@@ -157,7 +157,8 @@ BASE_ARGUMENTS=[
         for use by a .bat file.""",
          default=None),
     dict(name='versionfile',
-         description="""The name of a file containing the full version number."""),
+         description="""The name of a file containing the full version number.""",
+         default=None),
     ]
 
 def usage(arguments, srctree=""):

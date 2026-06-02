@@ -1768,6 +1768,11 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
         if(iter == mImpl->mActiveSet.end())
         {
             iter = mImpl->mActiveSet.begin();
+            if (iter == mImpl->mActiveSet.end())
+            {
+                // Set became empty
+                break;
+            }
         }
         if((*iter)->getParentID() > 0)
         {
@@ -3202,7 +3207,26 @@ void LLViewerRegion::unpackRegionHandshake()
         flags |= 0x00000002; //set the bit 1 to be 1 to tell sim the cache file is empty, no need to send cache probes.
     }
     msg->addU32("Flags", flags );
-    msg->sendReliable(host);
+
+    // build a lambda to be used as callback on ACK or timeout
+    void (*region_handshake_reply_callback)(void**, S32) = [](void**, S32 result)
+    {
+        if(LLApp::isExiting()) return;
+        if (result != LL_ERR_NOERR)
+        {
+            LL_WARNS("Messaging") << "RegionHandshakeReply failed with err=" << result << LL_ENDL;
+        }
+    };
+
+    // This is a crucial message for establishing a connection to a region
+    // (either the main region or a visible neighbor).
+    msg->sendReliable(
+        host,
+        gSavedSettings.getS32("UseCircuitCodeMaxRetries"),
+        false,
+        (F32Seconds)gSavedSettings.getF32("UseCircuitCodeTimeout"),
+        region_handshake_reply_callback,
+        NULL);
 
     mRegionTimer.reset(); //reset region timer.
 }
@@ -3300,6 +3324,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("SetDisplayName");
     capabilityNames.append("SimConsoleAsync");
     capabilityNames.append("SimulatorFeatures");
+    capabilityNames.append("SpatialVoiceModerationRequest");
     capabilityNames.append("StartGroupProposal");
     capabilityNames.append("TerrainNavMeshProperties");
     capabilityNames.append("TextureStats");
@@ -3798,6 +3823,16 @@ std::string LLViewerRegion::getSimHostName()
         return mSimulatorFeatures.has("HostName") ? mSimulatorFeatures["HostName"].asString() : getHost().getHostName();
     }
     return std::string("...");
+}
+
+
+bool LLViewerRegion::isRegionWebRTCEnabled()
+{
+    if (mSimulatorFeaturesReceived && mSimulatorFeatures.has("VoiceServerType"))
+    {
+        return mSimulatorFeatures["VoiceServerType"].asString() == "webrtc";
+    }
+    return false;
 }
 
 void LLViewerRegion::applyCacheMiscExtras(LLViewerObject* obj)

@@ -243,6 +243,58 @@ namespace tut
         xml_test("binary", expected);
     }
 
+    template<> template<>
+    void sd_xml_object::test<7>()
+    {
+        // Test that stream state (precision and exceptions) is correctly restored after format()
+        {
+            std::ostringstream ostr;
+
+            // Set custom precision
+            ostr.precision(10);
+
+            // Set some exception bits
+            ostr.exceptions(std::ios_base::badbit);
+            std::ios_base::iostate original_exceptions = ostr.exceptions();
+
+            // Format some LLSD data
+            mSD = 3.141592653589793;
+            S32 result = mFormatter->format(mSD, ostr);
+
+            // Verify formatting succeeded
+            ensure("format should succeed", result >= 0);
+
+            // Verify precision was restored
+            ensure_equals("precision should be restored",
+                ostr.precision(), 10);
+
+            // Verify exceptions were restored
+            ensure_equals("exception bits should be restored",
+                ostr.exceptions(), original_exceptions);
+        }
+
+        // Test with no bits set
+        {
+            std::ostringstream ostr;
+            ostr.precision(5);
+            std::ios_base::iostate original_exceptions = ostr.exceptions(); // 0
+
+            mSD = "test";
+            S32 result = mFormatter->format(mSD, ostr);
+
+            // Verify formatting succeeded
+            ensure("format should succeed", result >= 0);
+
+            // Verify exceptions were removed
+            ensure_equals("exception bits should remain unchanged",
+                ostr.exceptions(), original_exceptions);
+
+            // Verify precision was still restored even on failure
+            ensure_equals("precision should be restored even on stream failure",
+                ostr.precision(), (std::streamsize)5);
+        }
+    }
+
     class TestLLSDSerializeData
     {
     public:

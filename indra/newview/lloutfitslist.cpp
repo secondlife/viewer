@@ -519,6 +519,22 @@ void LLOutfitsList::resetItemSelection(LLWearableItemsList* list, const LLUUID& 
     list->resetSelection();
     mItemSelected = false;
     signalSelectionOutfitUUID(category_id);
+
+    // If filtering was applied while tab was collapsed, item visibility is updated but the parent tab height might not be updated.
+    // Force rearrange to recompute the height, when tab is expanded.
+    static LLCachedControl<bool> show_all_items(gSavedSettings, "OutfitListFilterFullList", 1);
+    if (!show_all_items)
+    {
+        outfits_map_t::const_iterator tab_iter = mOutfitsMap.find(category_id);
+        if (tab_iter != mOutfitsMap.end())
+        {
+            LLOutfitAccordionCtrlTab* tab = tab_iter->second;
+            if (tab && tab->getDisplayChildren())
+            {
+                list->notify(LLSD().with("rearrange", true));
+            }
+        }
+    }
 }
 
 void LLOutfitsList::onChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id)
@@ -1648,7 +1664,7 @@ bool LLOutfitListSortMenu::onEnable(LLSD::String param)
     }
     else if ("show_entire_outfit" == param)
     {
-        static LLCachedControl<bool> filter_mode(gSavedSettings, "OutfitListFilterFullList", 0);
+        static LLCachedControl<bool> filter_mode(gSavedSettings, "OutfitListFilterFullList", 1);
         return filter_mode;
     }
 

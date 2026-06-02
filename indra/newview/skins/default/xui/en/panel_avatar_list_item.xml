@@ -61,7 +61,7 @@
      left_pad="5"
      name="avatar_name"
      parse_urls="false"
-     top="6"
+     top="5"
      use_ellipses="true"
      value="(loading)"
      width="180" />

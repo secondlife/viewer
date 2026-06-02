@@ -1,10 +1,10 @@
 /**
- * @file llfloaterhowto.h
- * @brief A variant of web floater meant to open guidebook
+ * @file llvvmquery.h
+ * @brief Query the Viewer Version Manager (VVM) for update information
  *
- * $LicenseInfo:firstyear=2021&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2025&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2021, Linden Research, Inc.
+ * Copyright (C) 2025, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,35 +24,19 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERHOWTO_H
-#define LL_LLFLOATERHOWTO_H
+#ifndef LL_LLVVMQUERY_H
+#define LL_LLVVMQUERY_H
 
-#include "llfloaterwebcontent.h"
+/**
+ * Initialize the VVM update check.
+ *
+ * This launches a coroutine that queries the Viewer Version Manager (VVM)
+ * to check for available updates. If an update is available, it configures
+ * Velopack with the update URL and initiates the update check/download.
+ *
+ * The release notes URL from the VVM response is posted to the "relnotes"
+ * event pump for display.
+ */
+void initVVMUpdateCheck();
 
-class LLMediaCtrl;
-
-
-class LLFloaterHowTo :
-    public LLFloaterWebContent
-{
-public:
-    LOG_CLASS(LLFloaterHowTo);
-
-    typedef LLFloaterWebContent::Params Params;
-
-    LLFloaterHowTo(const Params& key);
-
-    void onOpen(const LLSD& key) override;
-
-    bool handleKeyHere(KEY key, MASK mask) override;
-
-    static LLFloaterHowTo* getInstance();
-
-    bool matchesKey(const LLSD& key) override { return true; /*single instance*/ };
-
-private:
-    bool postBuild() override;
-};
-
-#endif  // LL_LLFLOATERHOWTO_H
-
+#endif // LL_LLVVMQUERY_H

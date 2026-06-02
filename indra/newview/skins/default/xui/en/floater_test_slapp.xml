@@ -17,7 +17,6 @@
     follows="left|top|right"
     height="16"
     name="trusted_txt"
-    font="SansSerifMedium"
     text_color="white"
     layout="topleft"
     left="16">

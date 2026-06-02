@@ -50,7 +50,6 @@
      follows="top|left|right"
      height="24"
      label="Get started"
-     font="SansSerifMedium"
      layout="topleft"
      left="320"
      name="continue_btn"
@@ -59,6 +58,7 @@
      image_hover_unselected="PushButton_Login_Over"
      label_color="White"
      top_pad ="15"
+     pad_bottom="1"
      width="140"/>
     <button
      follows="top|left|right"
@@ -66,6 +66,7 @@
      label="Later"
      layout="topleft"
      left_pad="9"
+     pad_bottom="1"
      name="close_btn"
      width="90"/>
     <icon
@@ -97,7 +98,6 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerifMedium"
      text_color="White"
      height="75"
      width="260"
@@ -112,7 +112,6 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerifMedium"
      text_color="White"
      height="75"
      width="260"
@@ -126,7 +125,6 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerifMedium"
      text_color="White"
      height="75"
      width="260"

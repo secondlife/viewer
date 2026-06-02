@@ -140,7 +140,8 @@ public:
     struct Params : public LLInitParam::Block<Params, LLPanel::Params>
     {
         Optional<S32>           expanded_min_dim,
-                                min_dim;
+                                min_dim,
+                                max_dim;
         Optional<bool>          user_resize,
                                 auto_resize;
 
@@ -163,6 +164,8 @@ public:
     void setTargetDim(S32 value);
     S32 getMinDim() const { return llmax(0, mMinDim); }
     void setMinDim(S32 value) { mMinDim = value; }
+
+    void setMaxDim(S32 value) { mMaxDim = value < 0 ? S32_MAX : value; }
 
     S32 getExpandedMinDim() const { return mExpandedMinDim >= 0 ? mExpandedMinDim : getMinDim(); }
     void setExpandedMinDim(S32 value) { mExpandedMinDim = value; }
@@ -198,6 +201,7 @@ protected:
 
     S32     mExpandedMinDim;
     S32     mMinDim;
+    S32     mMaxDim;
     bool    mCollapsed;
     F32     mVisibleAmt;
     F32     mCollapseAmt;
