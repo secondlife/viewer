@@ -1039,6 +1039,19 @@ AISUpdate::AISUpdate(const LLSD& update, AISAPI::COMMAND_TYPE type, const LLSD& 
         mFetchDepth = request_body["depth"].asInteger();
     }
 
+    // Some tasks are time sensitive, don't wait for them.
+    // Like FETCHCOF which happens on load and is needed for outfit
+    // loading.
+    // FETCHCATEGORYLINKS is used for wearing outfits and fetching
+    // a user selected outfit or for following an outfit link in COF.
+    // Other tasks, like FETCHCATEGORYSUBSET are general background
+    // fetches and can safely wait.
+    // Do count 'time sensitive' tasks in batch timer.
+    mUseTimeout =
+        type != AISAPI::UPDATECATEGORY
+        && type != AISAPI::UPDATEITEM
+        && type != AISAPI::FETCHCOF
+        && type != AISAPI::FETCHCATEGORYLINKS;
     mTaskTimer.setTimerExpirySec(AIS_TASK_EXPIRY_SECONDS);
     mTaskTimer.start();
 
@@ -1069,6 +1082,11 @@ void AISUpdate::clearParseResults()
 
 void AISUpdate::checkTimeout()
 {
+    if (!mUseTimeout)
+    {
+        // Priority task, don't wait.
+        return;
+    }
     if (mTaskTimer.hasExpired() || sBatchTimer.hasExpired())
     {
         // If we are taking too long, don't starve other tasks,
