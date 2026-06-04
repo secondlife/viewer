@@ -1002,171 +1002,185 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
     end = sd.endMap();
     for (i = sd.beginMap(); i != end; ++i)
     {
-        if (i->first == INV_ITEM_ID_LABEL)
-        {
-            mUUID = i->second;
-            continue;
-        }
+        // Use string length as a fast pre-filter before string comparison
+        const std::string& key = i->first;
+        const LLSD& value = i->second;
+        const size_t key_len = key.length();
 
-        if (i->first == INV_PARENT_ID_LABEL)
+        switch (key_len)
         {
-            mParentUUID = i->second;
-            continue;
-        }
-
-        if (i->first == INV_THUMBNAIL_LABEL)
-        {
-            const LLSD &thumbnail_map = i->second;
-            if (thumbnail_map.has(INV_ASSET_ID_LABEL))
-            {
-                mThumbnailUUID = thumbnail_map[INV_ASSET_ID_LABEL];
-            }
-            /* Example:
-                <key> asset_id </key>
-                <uuid> acc0ec86 - 17f2 - 4b92 - ab41 - 6718b1f755f7 </uuid>
-                <key> perms </key>
-                <integer> 8 </integer>
-                <key>service</key>
-                <integer> 3 </integer>
-                <key>version</key>
-                <integer> 1 </key>
-            */
-          continue;
-        }
-
-        if (i->first == INV_THUMBNAIL_ID_LABEL)
-        {
-            mThumbnailUUID = i->second.asUUID();
-            continue;
-        }
-
-        if (i->first == INV_FAVORITE_LABEL)
-        {
-            const LLSD& favorite_map = i->second;
-            if (favorite_map.has(INV_TOGGLED_LABEL))
-            {
-                mFavorite = favorite_map[INV_TOGGLED_LABEL].asBoolean();
-            }
-            continue;
-        }
-
-        if (i->first == INV_PERMISSIONS_LABEL)
-        {
-            mPermissions.importLLSD(i->second);
-            continue;
-        }
-
-        if (i->first == INV_SALE_INFO_LABEL)
-        {
-            // Sale info used to contain next owner perm. It is now in
-            // the permissions. Thus, we read that out, and fix legacy
-            // objects. It's possible this op would fail, but it
-            // should pick up the vast majority of the tasks.
-            bool has_perm_mask = false;
-            U32  perm_mask     = 0;
-            if (!mSaleInfo.fromLLSD(i->second, has_perm_mask, perm_mask))
-            {
-                return false;
-            }
-            if (has_perm_mask)
-            {
-                if (perm_mask == PERM_NONE)
+            case 4: // "name", "desc", "type"
+                if (key == INV_NAME_LABEL) // "name"
                 {
-                    perm_mask = mPermissions.getMaskOwner();
+                    mName = value.asString();
+                    LLStringUtil::replaceNonstandardASCII(mName, ' ');
+                    LLStringUtil::replaceChar(mName, '|', ' ');
+                    continue;
                 }
-                // fair use fix.
-                if (!(perm_mask & PERM_COPY))
+                if (key == INV_DESC_LABEL) // "desc"
                 {
-                    perm_mask |= PERM_TRANSFER;
+                    mDescription = value.asString();
+                    LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
+                    continue;
                 }
-                mPermissions.setMaskNext(perm_mask);
-            }
-            continue;
-        }
+                if (key == INV_ASSET_TYPE_LABEL) // "type"
+                {
+                    if (value.isString())
+                    {
+                        mType = LLAssetType::lookup(value.asStringRef().c_str());
+                    }
+                    else if (value.isInteger())
+                    {
+                        S8 type = (U8)value.asInteger();
+                        mType = static_cast<LLAssetType::EType>(type);
+                    }
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_SHADOW_ID_LABEL)
-        {
-            mAssetUUID = i->second;
-            LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
-            cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
-            continue;
-        }
+            case 5: // "flags"
+                if (key == INV_FLAGS_LABEL)
+                {
+                    if (value.isBinary())
+                    {
+                        mFlags = ll_U32_from_sd(value);
+                    }
+                    else if (value.isInteger())
+                    {
+                        mFlags = value.asInteger();
+                    }
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_ASSET_ID_LABEL)
-        {
-            mAssetUUID = i->second;
-            continue;
-        }
+            case 7: // "item_id"
+                if (key == INV_ITEM_ID_LABEL)
+                {
+                    mUUID = value;
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_LINKED_ID_LABEL)
-        {
-            mAssetUUID = i->second;
-            continue;
-        }
+            case 8: // "asset_id", "inv_type"
+                if (key == INV_ASSET_ID_LABEL)
+                {
+                    mAssetUUID = value;
+                    continue;
+                }
+                if (key == INV_INVENTORY_TYPE_LABEL) // "inv_type"
+                {
+                    if (value.isString())
+                    {
+                        mInventoryType = LLInventoryType::lookup(value.asStringRef().c_str());
+                    }
+                    else if (value.isInteger())
+                    {
+                        S8 type = (U8)value.asInteger();
+                        mInventoryType = static_cast<LLInventoryType::EType>(type);
+                    }
+                    continue;
+                }
+                if (key == INV_FAVORITE_LABEL) // "favorite"
+                {
+                    if (value.has(INV_TOGGLED_LABEL))
+                    {
+                        mFavorite = value[INV_TOGGLED_LABEL].asBoolean();
+                    }
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_ASSET_TYPE_LABEL)
-        {
-            LLSD const &label = i->second;
-            if (label.isString())
-            {
-                mType = LLAssetType::lookup(label.asStringRef().c_str());
-            }
-            else if (label.isInteger())
-            {
-                S8 type = (U8) label.asInteger();
-                mType   = static_cast<LLAssetType::EType>(type);
-            }
-            continue;
-        }
+            case 9: // "parent_id", "shadow_id", "linked_id", "sale_info", "thumbnail"
+                if (key == INV_PARENT_ID_LABEL)
+                {
+                    mParentUUID = value;
+                    continue;
+                }
+                if (key == INV_SHADOW_ID_LABEL)
+                {
+                    mAssetUUID = value;
+                    LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
+                    cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
+                    continue;
+                }
+                if (key == INV_LINKED_ID_LABEL)
+                {
+                    mAssetUUID = value;
+                    continue;
+                }
+                if (key == INV_SALE_INFO_LABEL)
+                {
+                    // Sale info used to contain next owner perm. It is now in
+                    // the permissions. Thus, we read that out, and fix legacy
+                    // objects. It's possible this op would fail, but it
+                    // should pick up the vast majority of the tasks.
+                    bool has_perm_mask = false;
+                    U32  perm_mask     = 0;
+                    if (!mSaleInfo.fromLLSD(value, has_perm_mask, perm_mask))
+                    {
+                        return false;
+                    }
+                    if (has_perm_mask)
+                    {
+                        if (perm_mask == PERM_NONE)
+                        {
+                            perm_mask = mPermissions.getMaskOwner();
+                        }
+                        // fair use fix.
+                        if (!(perm_mask & PERM_COPY))
+                        {
+                            perm_mask |= PERM_TRANSFER;
+                        }
+                        mPermissions.setMaskNext(perm_mask);
+                    }
+                    continue;
+                }
+                if (key == INV_THUMBNAIL_LABEL)
+                {
+                    if (value.has(INV_ASSET_ID_LABEL))
+                    {
+                        mThumbnailUUID = value[INV_ASSET_ID_LABEL];
+                    }
+                    /* Example:
+                        <key> asset_id </key>
+                        <uuid> acc0ec86 - 17f2 - 4b92 - ab41 - 6718b1f755f7 </uuid>
+                        <key> perms </key>
+                        <integer> 8 </integer>
+                        <key>service</key>
+                        <integer> 3 </integer>
+                        <key>version</key>
+                        <integer> 1 </key>
+                    */
+                    continue;
+                }
+                break;
+            case 10: // "created_at"
+                if (key == INV_CREATION_DATE_LABEL)
+                {
+                    mCreationDate = value.asInteger();
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_INVENTORY_TYPE_LABEL)
-        {
-            LLSD const &label = i->second;
-            if (label.isString())
-            {
-                mInventoryType = LLInventoryType::lookup(label.asStringRef().c_str());
-            }
-            else if (label.isInteger())
-            {
-                S8 type        = (U8) label.asInteger();
-                mInventoryType = static_cast<LLInventoryType::EType>(type);
-            }
-            continue;
-        }
+            case 11: // "permissions"
+                if (key == INV_PERMISSIONS_LABEL)
+                {
+                    mPermissions.importLLSD(value);
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_FLAGS_LABEL)
-        {
-            LLSD const &label = i->second;
-            if (label.isBinary())
-            {
-                mFlags = ll_U32_from_sd(label);
-            }
-            else if (label.isInteger())
-            {
-                mFlags = label.asInteger();
-            }
-            continue;
-        }
+            case 12: // "thumbnail_id"
+                if (key == INV_THUMBNAIL_ID_LABEL)
+                {
+                    mThumbnailUUID = value.asUUID();
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_NAME_LABEL)
-        {
-            mName = i->second.asString();
-            LLStringUtil::replaceNonstandardASCII(mName, ' ');
-            LLStringUtil::replaceChar(mName, '|', ' ');
-            continue;
-        }
-
-        if (i->first == INV_DESC_LABEL)
-        {
-            mDescription = i->second.asString();
-            LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
-            continue;
-        }
-
-        if (i->first == INV_CREATION_DATE_LABEL)
-        {
-            mCreationDate = i->second.asInteger();
-            continue;
+            default:
+                // Unknown field - skip
+                break;
         }
     }
 

@@ -2719,10 +2719,11 @@ bool LLInventoryModel::loadSkeleton(
     for(LLSD::array_const_iterator it = options.beginArray(),
         end = options.endArray(); it != end; ++it)
     {
-        LLSD name = (*it)["name"];
-        LLSD folder_id = (*it)["folder_id"];
-        LLSD parent_id = (*it)["parent_id"];
-        LLSD version = (*it)["version"];
+        const LLSD &folder = *it;
+        const LLSD &name = folder["name"];
+        const LLSD &folder_id = folder["folder_id"];
+        const LLSD &parent_id = folder["parent_id"];
+        const LLSD &version = folder["version"];
         if(name.isDefined()
             && folder_id.isDefined()
             && parent_id.isDefined()
@@ -2736,7 +2737,7 @@ bool LLInventoryModel::loadSkeleton(
             cat->setParent(parent_id.asUUID());
 
             LLFolderType::EType preferred_type = LLFolderType::FT_NONE;
-            LLSD type_default = (*it)["type_default"];
+            const LLSD &type_default = folder["type_default"];
             if(type_default.isDefined())
             {
                 preferred_type = (LLFolderType::EType)type_default.asInteger();
@@ -3454,6 +3455,8 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
             const LLSD& llsd_cats = inventory["categories"];
             if (llsd_cats.isArray())
             {
+                size_t cats_count = llsd_cats.size();
+                categories.reserve(cats_count);
                 LLSD::array_const_iterator iter = llsd_cats.beginArray();
                 LLSD::array_const_iterator end  = llsd_cats.endArray();
                 for (; iter != end; ++iter)
@@ -3472,6 +3475,8 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
             const LLSD& llsd_items = inventory["items"];
             if (llsd_items.isArray())
             {
+                size_t items_count = llsd_items.size();
+                items.reserve(items_count);
                 LLSD::array_const_iterator iter = llsd_items.beginArray();
                 LLSD::array_const_iterator end  = llsd_items.endArray();
                 for (; iter != end; ++iter)
