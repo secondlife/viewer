@@ -33,6 +33,7 @@
 #include "llxorcipher.h"
 #include "llsd.h"
 #include "llsdserialize.h"
+#include "llstreamtools.h"
 #include "message.h"
 #include <boost/tokenizer.hpp>
 
@@ -827,6 +828,42 @@ bool LLInventoryItem::importLegacyStream(std::istream& input_stream)
             }
 
             mDescription.assign(valuestr);
+
+            // Currently server side doesn't handle escaped newline right
+            // and they end up unescaped.
+            // And even if we do copy the data correctly, moving the item
+            // from notecard using CopyInventoryFromNotecard drops the
+            // content after first the new line.
+            //
+            // Check if the description ends with | on this line
+            if (strchr(buffer, '|') == nullptr)
+            {
+                // No | found, continue reading lines until we find one
+                char next_buffer[MAX_STRING];
+                while (input_stream.good())
+                {
+                    input_stream.getline(next_buffer, MAX_STRING);
+
+                    // Look for | delimiter
+                    char* pipe_pos = strchr(next_buffer, '|');
+                    if (pipe_pos != nullptr)
+                    {
+                        // Found the delimiter, add text up to it
+                        *pipe_pos = '\0';  // Terminate at the pipe
+                        mDescription += '\n';
+                        mDescription += next_buffer;
+                        break;
+                    }
+                    else
+                    {
+                        // No delimiter yet, add the whole line
+                        mDescription += '\n';
+                        mDescription += next_buffer;
+                    }
+                }
+            }
+
+            unescape_string(mDescription);
             LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
             /* TODO -- ask Ian about this code
             const char *donkey = mDescription.c_str();
@@ -920,7 +957,12 @@ bool LLInventoryItem::exportLegacyStream(std::ostream& output_stream, bool inclu
     output_stream << buffer;
     mSaleInfo.exportLegacyStream(output_stream);
     output_stream << "\t\tname\t" << mName.c_str() << "|\n";
-    output_stream << "\t\tdesc\t" << mDescription.c_str() << "|\n";
+    // Note: Currently server side doesn't handle newline right for notecards.
+    // Even if we escape or replace all newlines with spaces, notecard's
+    // import buffer still ends up with newlines.
+    std::string desc = mDescription;
+    escape_string(desc);
+    output_stream << "\t\tdesc\t" << desc.c_str() << "|\n";
     output_stream << "\t\tcreation_date\t" << mCreationDate << "\n";
     output_stream << "\t}\n";
     return true;
