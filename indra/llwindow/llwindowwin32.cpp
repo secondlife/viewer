@@ -2434,6 +2434,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 update_width, update_height));
             break;
         }
+        case WM_ERASEBKGND:
+        {
+            RECT client_rect;
+            if (GetClientRect(window_imp->mWindowHandle, &client_rect))
+            {
+                FillRect((HDC)w_param, &client_rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
+            }
+            return 1;
+        }
         case WM_PARENTNOTIFY:
         {
             break;
