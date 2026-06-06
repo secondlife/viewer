@@ -41,7 +41,7 @@
 			<text name="LabelItemDescTitle">
 				Beschreibung:
 			</text>
-			<line_editor name="LabelItemDesc" tool_tip="Bei Auswahl der Option &quot;Mauszeiger-Tipps zu allen Objekten&quot; in den Viewer-Einstellungen wird für alle Objekte das Popup mit der Objektbeschreibung unter dem Mauszeiger eingeblendet. Die formelle Beschreibung ist auf 127 Byte begrenzt, und alle längeren Zeichenketten werden gekürzt."/>
+            <text_editor name="LabelItemDesc" tool_tip="Bei Auswahl der Option &quot;Mauszeiger-Tipps zu allen Objekten&quot; in den Viewer-Einstellungen wird für alle Objekte das Popup mit der Objektbeschreibung unter dem Mauszeiger eingeblendet. Die formelle Beschreibung ist auf 127 Byte begrenzt, und alle längeren Zeichenketten werden gekürzt."/>
 			<text name="LabelCreatorTitle">
 				Ersteller:
 			</text>
