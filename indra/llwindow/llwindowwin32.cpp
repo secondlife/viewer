@@ -4704,6 +4704,16 @@ void LLWindowWin32::requestHighPerformanceGPU() const
                             << ", Vendor: 0x" << std::hex << desc.VendorId << std::dec
                             << ", Flags: " << desc.Flags << LL_ENDL;
                     }
+                    // Skip Microsoft Basic Render Driver, it's a placeholder for missing drivers
+                    else if (description.find("Microsoft Basic Render Driver") != std::string::npos)
+                    {
+                        // User is likely missing drivers, so log a warning.
+                        // Don't consider this adapter as a valid selection.
+                        LL_WARNS("Window") << "Adapter " << adapterIndex << ": " << description
+                            << ", Dedicated VRAM: " << (desc.DedicatedVideoMemory / 1024 / 1024) << " MB"
+                            << ", Vendor: 0x" << std::hex << desc.VendorId << std::dec
+                            << ", Flags: " << desc.Flags << LL_ENDL;
+                    }
                     else
                     {
                         LL_INFOS("Window") << "Adapter " << adapterIndex << ": " << description
