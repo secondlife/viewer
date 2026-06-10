@@ -853,6 +853,13 @@ namespace action_give_inventory
                     break;
                 }
                 LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
+                if (!inv_item)
+                {
+                    shared = false;
+                    LL_WARNS() << "Failed to share an item " << *it
+                        << ". Item was not found in inventory." << LL_ENDL;
+                    continue;
+                }
                 if (!inv_item->getPermissions().allowCopyBy(gAgentID))
                 {
                     if (!noncopy_item_names.empty())
