@@ -116,6 +116,8 @@ public:
     static void updateClass();
     static bool isSystemMemoryLow();
     static bool isSystemMemoryCritical();
+
+    // Ranges from 1 (no RAM deficit) to 2 (RAM deficit)
     static F32 getSystemMemoryBudgetFactor();
 
     LLViewerTexture(bool usemipmaps = true);
@@ -268,6 +270,7 @@ public:
     // estimated free memory for textures, by bias calculation
     static F32 sFreeVRAMMegabytes;
 
+    static F32 sSysMemoryFactor;
     // Viewport pixel area, refreshed once per frame. Hoisted to keep the
     // per-texture hot path out of gViewerWindow.
     static F32 sWindowPixelArea;

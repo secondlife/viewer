@@ -3372,9 +3372,10 @@ void send_agent_update(bool force_send, bool send_reliable)
     static F32 last_draw_disatance_step = 1024;
     F32 memory_limited_draw_distance = gAgentCamera.mDrawDistance;
 
-    if (LLViewerTexture::isSystemMemoryCritical())
+    if (LLViewerTexture::getSystemMemoryBudgetFactor() > 1.f)
     {
-        // If we are low on memory, reduce requested draw distance
+        // We are critcally low on memory or recovering,
+        // limit requested draw distance
         memory_limited_draw_distance = llmax(gAgentCamera.mDrawDistance / LLViewerTexture::getSystemMemoryBudgetFactor(), gAgentCamera.mDrawDistance / 2.f);
     }
 

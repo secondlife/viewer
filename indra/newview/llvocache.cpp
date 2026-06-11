@@ -488,7 +488,7 @@ void LLVOCacheEntry::updateDebugSettings()
     static const F32 MIN_RADIUS = 1.0f;
 
     F32 draw_radius = gAgentCamera.mDrawDistance;
-    if (LLViewerTexture::isSystemMemoryCritical())
+    if (LLViewerTexture::getSystemMemoryBudgetFactor() > 1.f)
     {
         // Factor is intended to go from 1.0 to 2.0
         // For safety cap reduction at 50%, we don't want to go below half of draw distance
