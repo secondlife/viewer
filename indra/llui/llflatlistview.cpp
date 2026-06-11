@@ -31,6 +31,14 @@
 
 #include "llflatlistview.h"
 
+#include "llfocusmgr.h"
+#include "llrender2dutils.h"
+#include "llui.h"
+#include "lluicolortable.h"
+#include "llwindow.h"
+
+#include <algorithm>
+
 static const LLDefaultChildRegistry::Register<LLFlatListView> flat_list_view("flat_list_view");
 
 const LLSD SELECTED_EVENT   = LLSD().with("selected", true);
@@ -45,17 +53,28 @@ LLFlatListView::Params::Params()
     multi_select("multi_select"),
     keep_one_selected("keep_one_selected"),
     keep_selection_visible_on_reshape("keep_selection_visible_on_reshape",false),
+    allow_reorder("allow_reorder", false),
+    drag_indicator_color("drag_indicator_color"),
     no_items_text("no_items_text")
 {};
 
 void LLFlatListView::reshape(S32 width, S32 height, bool called_from_parent /* = true */)
 {
     S32 delta = height - getRect().getHeight();
+    LLRect visible_rc;
+    LLRect selected_rc = getLastSelectedItemRect();
+    bool keep_selection_visible = false;
+    if (delta != 0 && mKeepSelectionVisibleOnReshape && selected_rc.isValid())
+    {
+        visible_rc = getVisibleContentRect();
+        keep_selection_visible = visible_rc.overlaps(selected_rc);
+    }
+
     LLScrollContainer::reshape(width, height, called_from_parent);
     setItemsNoScrollWidth(width);
     rearrangeItems();
 
-    if(delta!= 0 && mKeepSelectionVisibleOnReshape)
+    if(keep_selection_visible)
     {
         ensureSelectedVisible();
     }
@@ -396,6 +415,11 @@ U32 LLFlatListView::size(const bool only_visible_items) const
 
 void LLFlatListView::clear()
 {
+    if (mReorderDragPair)
+    {
+        cancelReorderDrag();
+    }
+
     // This will clear mSelectedItemPairs, calling all appropriate callbacks.
     resetSelection();
 
@@ -460,6 +484,17 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
   , mIsConsecutiveSelection(false)
   , mKeepSelectionVisibleOnReshape(p.keep_selection_visible_on_reshape)
   , mFocusOnItemClicked(true)
+  , mAllowReorder(p.allow_reorder)
+  , mIsReordering(false)
+  , mProcessingRightClick(false)
+  , mReorderDragPair(NULL)
+  , mDeferredSelectPair(NULL)
+  , mReorderMouseDownX(0)
+  , mReorderMouseDownY(0)
+  , mReorderInsertIndex(-1)
+  , mDragIndicatorColor(p.drag_indicator_color.isProvided()
+        ? p.drag_indicator_color()
+        : LLUIColorTable::instance().getColor("EmphasisColor"))
 {
     mBorderThickness = getBorderWidth();
 
@@ -520,12 +555,29 @@ LLFlatListView::~LLFlatListView()
 // virtual
 void LLFlatListView::draw()
 {
+    // Keep scrolling while a reorder drag rests over the top/bottom edge, so the
+    // user does not have to drop, scroll, and grab again.
+    if (mIsReordering)
+    {
+        S32 local_x, local_y;
+        LLUI::getInstance()->getMousePositionLocal(this, &local_x, &local_y);
+        if (autoScroll(local_x, local_y))
+        {
+            mReorderInsertIndex = constrainInsertIndex(getInsertIndexAt(local_x, local_y));
+        }
+    }
+
     // Highlight border if a child of this container has keyboard focus
     if( mSelectedItemsBorder->getVisible() )
     {
         mSelectedItemsBorder->setKeyboardFocusHighlight( hasFocus() );
     }
     LLScrollContainer::draw();
+
+    if (mIsReordering && mReorderInsertIndex >= 0)
+    {
+        drawReorderIndicator();
+    }
 }
 
 // virtual
@@ -617,6 +669,8 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
         setFocus(true);
     }
 
+    armReorderDrag(item_pair);
+
     bool select_item = !isSelected(item_pair);
 
     //*TODO find a better place for that enforcing stuff
@@ -695,6 +749,16 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
         return;
     }
 
+    // When a reorderable list has a multi-selection, a plain click on one of the
+    // selected rows must not collapse the selection yet: the user may be about to
+    // drag the whole selection. Defer collapsing to mouse-up if no drag happens.
+    if (mAllowReorder && mMultipleSelection && !(mask & (MASK_CONTROL | MASK_SHIFT))
+        && isSelected(item_pair) && numSelected() > 1)
+    {
+        mDeferredSelectPair = item_pair;
+        return;
+    }
+
     //no need to do additional commit on selection reset
     if (!(mask & MASK_CONTROL) || !mMultipleSelection) resetSelection(true);
 
@@ -715,8 +779,302 @@ void LLFlatListView::onItemRightMouseClick(item_pair_t* item_pair, MASK mask)
     if ( !(mask & MASK_CONTROL) && mMultipleSelection && isSelected(item_pair) )
         return;
 
-    // else got same behavior as at onItemMouseClick
+    // else got same behavior as at onItemMouseClick, but a right click must never start a drag
+    mProcessingRightClick = true;
     onItemMouseClick(item_pair, mask);
+    mProcessingRightClick = false;
+}
+
+static const S32 REORDER_DRAG_THRESHOLD = 5;
+
+void LLFlatListView::armReorderDrag(item_pair_t* item_pair)
+{
+    if (!mAllowReorder || mProcessingRightClick)
+    {
+        return;
+    }
+
+    if (!item_pair || !item_pair->first)
+    {
+        return;
+    }
+
+    if (size() < 2)
+    {
+        return; // nothing to reorder against
+    }
+
+    if (gFocusMgr.getMouseCapture() && !hasMouseCapture())
+    {
+        return;
+    }
+
+    mReorderDragPair = item_pair;
+    mReorderDragGroup.clear();
+    mDeferredSelectPair = NULL;
+    mIsReordering = false;
+    mReorderInsertIndex = -1;
+
+    LLUI::getInstance()->getMousePositionLocal(this, &mReorderMouseDownX, &mReorderMouseDownY);
+    gFocusMgr.setMouseCapture(this);
+}
+
+void LLFlatListView::updateReorderDrag(S32 x, S32 y)
+{
+    if (!mReorderDragPair) return;
+
+    if (!mIsReordering)
+    {
+        if (abs(y - mReorderMouseDownY) < REORDER_DRAG_THRESHOLD
+            && abs(x - mReorderMouseDownX) < REORDER_DRAG_THRESHOLD)
+        {
+            return; // still within the click slop, not a drag yet
+        }
+        mIsReordering = true;
+        buildReorderGroup();
+    }
+
+    mReorderInsertIndex = constrainInsertIndex(getInsertIndexAt(x, y));
+}
+
+void LLFlatListView::buildReorderGroup()
+{
+    mReorderDragGroup.clear();
+
+    bool drag_selection = mMultipleSelection && isSelected(mReorderDragPair) && numSelected() > 1;
+
+    for (item_pair_t* pair : mItemPairs)
+    {
+        if (!pair->first->getVisible()) continue;
+
+        if (pair == mReorderDragPair)
+        {
+            mReorderDragGroup.push_back(pair);
+        }
+        else if (drag_selection && isSelected(pair)
+                 && (!mReorderValidateCallback || mReorderValidateCallback(mReorderDragPair->second, pair->second)))
+        {
+            // only carry along selected rows that belong to the grabbed row's group
+            mReorderDragGroup.push_back(pair);
+        }
+    }
+}
+
+bool LLFlatListView::isInReorderGroup(item_pair_t* item_pair) const
+{
+    return std::find(mReorderDragGroup.begin(), mReorderDragGroup.end(), item_pair) != mReorderDragGroup.end();
+}
+
+void LLFlatListView::getReorderRemaining(pairs_list_t& remaining) const
+{
+    remaining.clear();
+    for (item_pair_t* pair : mItemPairs)
+    {
+        if (!pair->first->getVisible() || isInReorderGroup(pair)) continue;
+        remaining.push_back(pair);
+    }
+}
+
+void LLFlatListView::finishReorderDrag()
+{
+    if (mReorderDragPair && mIsReordering && mReorderInsertIndex >= 0)
+    {
+        pairs_list_t remaining;
+        getReorderRemaining(remaining);
+
+        // Resolve the drop boundary to the remaining row it lands before (NULL = append).
+        item_pair_t* anchor = NULL;
+        S32 cur = 0;
+        for (item_pair_t* pair : remaining)
+        {
+            if (cur == mReorderInsertIndex) { anchor = pair; break; }
+            ++cur;
+        }
+
+        LLSD moved_value = mReorderDragPair->second;
+
+        for (item_pair_t* pair : mReorderDragGroup)
+        {
+            mItemPairs.remove(pair);
+        }
+
+        pairs_iterator_t it = (anchor != NULL)
+            ? std::find(mItemPairs.begin(), mItemPairs.end(), anchor)
+            : mItemPairs.end();
+        for (item_pair_t* pair : mReorderDragGroup)
+        {
+            mItemPairs.insert(it, pair); // preserves group order; it stays before anchor
+        }
+
+        rearrangeItems();
+
+        if (mReorderCallback)
+        {
+            mReorderCallback(moved_value, mReorderInsertIndex);
+        }
+    }
+
+    cancelReorderDrag();
+}
+
+void LLFlatListView::cancelReorderDrag()
+{
+    if (hasMouseCapture())
+    {
+        gFocusMgr.setMouseCapture(NULL);
+    }
+
+    clearReorderDragState();
+}
+
+void LLFlatListView::clearReorderDragState()
+{
+    if (mIsReordering)
+    {
+        getWindow()->setCursor(UI_CURSOR_ARROW);
+    }
+    mReorderDragPair = NULL;
+    mReorderDragGroup.clear();
+    mDeferredSelectPair = NULL;
+    mIsReordering = false;
+    mReorderInsertIndex = -1;
+}
+
+void LLFlatListView::onMouseCaptureLost()
+{
+    clearReorderDragState();
+}
+
+S32 LLFlatListView::getInsertIndexAt(S32 x, S32 y) const
+{
+    S32 panel_x, panel_y;
+    localPointToOtherView(x, y, &panel_x, &panel_y, mItemsPanel);
+
+    // The drop boundary among the remaining rows is the count of remaining rows
+    // whose vertical centre sits above the cursor.
+    S32 index = 0;
+    for (item_pair_t* pair : mItemPairs)
+    {
+        if (!pair->first->getVisible() || isInReorderGroup(pair)) continue;
+
+        if (pair->first->getRect().getCenterY() > panel_y)
+        {
+            ++index;
+        }
+    }
+    return index;
+}
+
+S32 LLFlatListView::constrainInsertIndex(S32 dest_index) const
+{
+    if (!mReorderValidateCallback) return dest_index;
+
+    // Clamp the boundary to the contiguous run of remaining rows that share the
+    // grabbed row's group, so a drag can't leave its group.
+    pairs_list_t remaining;
+    getReorderRemaining(remaining);
+
+    const LLSD& dragged = mReorderDragPair->second;
+    S32 first_valid = -1;
+    S32 last_valid = -1;
+    S32 i = 0;
+    for (item_pair_t* pair : remaining)
+    {
+        if (mReorderValidateCallback(dragged, pair->second))
+        {
+            if (first_valid < 0) first_valid = i;
+            last_valid = i;
+        }
+        ++i;
+    }
+
+    if (first_valid < 0) return -1; // no valid neighbour (whole group is being dragged)
+
+    if (dest_index < first_valid) return first_valid;
+    if (dest_index > last_valid + 1) return last_valid + 1;
+    return dest_index;
+}
+
+void LLFlatListView::drawReorderIndicator()
+{
+    pairs_list_t remaining;
+    getReorderRemaining(remaining);
+    if (remaining.empty()) return;
+
+    const LLRect& panel_rc = mItemsPanel->getRect();
+    const LLColor4& color = mDragIndicatorColor.get();
+
+    // faint highlight on each row being moved
+    for (item_pair_t* pair : mReorderDragGroup)
+    {
+        const LLRect& dr = pair->first->getRect();
+        gl_rect_2d(panel_rc.mLeft + dr.mLeft, panel_rc.mBottom + dr.mTop,
+                   panel_rc.mLeft + dr.mRight, panel_rc.mBottom + dr.mBottom,
+                   color % 0.15f, true);
+    }
+
+    // insertion line at the drop boundary among the remaining rows
+    S32 count = (S32)remaining.size();
+    bool at_end = mReorderInsertIndex >= count;
+    S32 anchor_idx = at_end ? count - 1 : mReorderInsertIndex;
+
+    item_pair_t* anchor = NULL;
+    S32 cur = 0;
+    for (item_pair_t* pair : remaining)
+    {
+        if (cur == anchor_idx) { anchor = pair; break; }
+        ++cur;
+    }
+    if (!anchor) return;
+
+    const LLRect& item_rc = anchor->first->getRect();
+    S32 left = panel_rc.mLeft + item_rc.mLeft;
+    S32 right = panel_rc.mLeft + item_rc.mRight;
+    S32 line_y = panel_rc.mBottom + (at_end ? item_rc.mBottom : item_rc.mTop);
+
+    if (line_y < 0 || line_y > getRect().getHeight()) return;
+
+    gl_rect_2d(left, line_y, right, line_y - 1, color, true);
+}
+
+bool LLFlatListView::handleHover(S32 x, S32 y, MASK mask)
+{
+    if (mAllowReorder && mReorderDragPair && hasMouseCapture())
+    {
+        updateReorderDrag(x, y);
+        if (mIsReordering)
+        {
+            getWindow()->setCursor(UI_CURSOR_ARROWDRAG);
+            return true;
+        }
+    }
+    return LLScrollContainer::handleHover(x, y, mask);
+}
+
+bool LLFlatListView::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+    if (mReorderDragPair && hasMouseCapture())
+    {
+        bool was_reordering = mIsReordering;
+        item_pair_t* deferred = mDeferredSelectPair;
+        mDeferredSelectPair = NULL;
+
+        finishReorderDrag();
+
+        if (was_reordering)
+        {
+            return true; // a drag happened: keep the (multi-)selection on the moved rows
+        }
+
+        // No drag: apply the selection collapse that was deferred on mouse-down.
+        if (deferred)
+        {
+            resetSelection(true);
+            selectItemPair(deferred, true);
+            return true;
+        }
+    }
+    return LLScrollContainer::handleMouseUp(x, y, mask);
 }
 
 bool LLFlatListView::handleKeyHere(KEY key, MASK mask)
@@ -1086,6 +1444,18 @@ bool LLFlatListView::isSelected(item_pair_t* item_pair) const
 bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
 {
     llassert(item_pair);
+
+    bool removing_reorder_pair = item_pair == mReorderDragPair
+        || std::find(mReorderDragGroup.begin(), mReorderDragGroup.end(), item_pair) != mReorderDragGroup.end();
+
+    if (removing_reorder_pair)
+    {
+        cancelReorderDrag();
+    }
+    if (item_pair == mDeferredSelectPair)
+    {
+        mDeferredSelectPair = NULL;
+    }
 
     bool deleted = false;
     bool selection_changed = false;

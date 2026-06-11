@@ -102,6 +102,11 @@ protected:
     void onSelectionChange(LLFlatListView* selected_list);
     void onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expanded);
 
+    // Clothing drag-to-reorder: only allow moves within the same wearable type,
+    // and translate a drop into a layer-order change.
+    bool canReorderClothing(const LLSD& dragged_value, const LLSD& neighbour_value);
+    void onClothingReordered(const LLSD& dragged_value, S32 new_index);
+
     LLPanelClothingListItem* buildClothingListItem(LLViewerInventoryItem* item, bool first, bool last);
     LLPanelBodyPartsListItem* buildBodypartListItem(LLViewerInventoryItem* item);
     LLPanelDeletableWearableListItem* buildAttachemntListItem(LLViewerInventoryItem* item);

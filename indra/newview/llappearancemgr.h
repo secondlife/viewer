@@ -210,6 +210,14 @@ public:
 
     bool moveWearable(LLViewerInventoryItem* item, bool closer_to_body);
 
+    // Move a clothing item to an absolute layer index within its wearable type
+    // (0 == closest to the body). Persists the new order in a single batch.
+    bool reorderWearable(LLViewerInventoryItem* item, U32 new_index);
+
+    // Apply a complete layer order for one wearable type in a single batch.
+    // ordered_link_ids lists the type's COF link items furthest-to-closest.
+    bool reorderWearableGroup(LLWearableType::EType type, const uuid_vec_t& ordered_link_ids);
+
     static void sortItemsByActualDescription(LLInventoryModel::item_array_t& items);
 
     //Divvy items into arrays by wearable type
@@ -249,6 +257,10 @@ private:
     std::string     mAppearanceServiceURL;
 
 private:
+
+    // Rewrite COF sort-index descriptions for one wearable type to match the
+    // current in-memory layer order, then trigger a single appearance update.
+    void persistWearableOrder(LLWearableType::EType type);
 
     void filterWearableItems(LLInventoryModel::item_array_t& items, S32 max_per_type, S32 max_total, bool skip_bodyparts = false);
 

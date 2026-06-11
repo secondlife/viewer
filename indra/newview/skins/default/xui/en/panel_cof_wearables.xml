@@ -26,6 +26,7 @@
          title="Clothing">
             <flat_list_view
              allow_select="true"
+             allow_reorder="true"
              follows="all"
              height="10"
              item_pad="3"

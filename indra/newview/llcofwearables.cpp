@@ -326,6 +326,9 @@ bool LLCOFWearables::postBuild()
     mClothing->setCommitOnSelectionChange(true);
     mBodyParts->setCommitOnSelectionChange(true);
 
+    mClothing->setReorderValidateCallback(boost::bind(&LLCOFWearables::canReorderClothing, this, _1, _2));
+    mClothing->setReorderCallback(boost::bind(&LLCOFWearables::onClothingReordered, this, _1, _2));
+
     //clothing is sorted according to its position relatively to the body
     mAttachments->setComparator(&WEARABLE_NAME_COMPARATOR);
     mBodyParts->setComparator(&WEARABLE_NAME_COMPARATOR);
@@ -375,6 +378,41 @@ void LLCOFWearables::onSelectionChange(LLFlatListView* selected_list)
     }
 
     onCommit();
+}
+
+bool LLCOFWearables::canReorderClothing(const LLSD& dragged_value, const LLSD& neighbour_value)
+{
+    LLViewerInventoryItem* dragged = gInventory.getItem(dragged_value.asUUID());
+    LLViewerInventoryItem* neighbour = gInventory.getItem(neighbour_value.asUUID());
+    if (!dragged || !neighbour) return false; // reject placeholder/dummy rows
+    if (!dragged->isWearableType() || !neighbour->isWearableType()) return false;
+
+    return dragged->getWearableType() == neighbour->getWearableType();
+}
+
+void LLCOFWearables::onClothingReordered(const LLSD& dragged_value, S32 /*new_index*/)
+{
+    LLViewerInventoryItem* item = gInventory.getItem(dragged_value.asUUID());
+    if (!item || !item->isWearableType()) return;
+
+    LLWearableType::EType type = item->getWearableType();
+
+    // Persist the affected type group's full order from the list's current order
+    // (furthest-to-closest), which covers both single- and multi-row drags.
+    uuid_vec_t ordered_link_ids;
+    std::vector<LLSD> values;
+    mClothing->getValues(values);
+    for (const LLSD& value : values)
+    {
+        LLViewerInventoryItem* other = gInventory.getItem(value.asUUID());
+        if (!other || !other->isWearableType() || other->getWearableType() != type) continue;
+
+        ordered_link_ids.push_back(value.asUUID());
+    }
+
+    if (ordered_link_ids.size() < 2) return;
+
+    LLAppearanceMgr::getInstance()->reorderWearableGroup(type, ordered_link_ids);
 }
 
 void LLCOFWearables::onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expanded)
@@ -559,6 +597,12 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 
     item_panel->setShowMoveUpButton(!first);
     item_panel->setShowMoveDownButton(!last);
+
+    // hint that rows in a multi-layer group can be dragged to reorder
+    if (!(first && last))
+    {
+        item_panel->setToolTip(LLTrans::getString("ReorderClothingTooltip"));
+    }
 
     //setting callbacks
     //*TODO move that item panel's inner structure disclosing stuff into the panels

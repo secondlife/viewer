@@ -225,6 +225,7 @@ If you feel this is an error, please contact support@secondlife.com</string>
     <string name="Toycamera">Toy Camera</string>
 	
     <!-- Tooltip -->
+	<string name="ReorderClothingTooltip">Drag to reorder layers, or use the arrows</string> <!-- Hint shown on clothing rows that can be dragged to reorder -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
 	<string name="TooltipOwner">Owner:</string> <!-- Owner name follows -->
