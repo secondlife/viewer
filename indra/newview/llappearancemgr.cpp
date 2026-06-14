@@ -4306,6 +4306,13 @@ bool LLAppearanceMgr::reorderWearableGroup(LLWearableType::EType type, const uui
     if (count < 2) return false;
     if (ordered_link_ids.size() != count) return false; // order must cover the whole group
 
+    // Validate everything before mutating, so a bad link can't leave it half-reordered.
+    for (const LLUUID& link_id : ordered_link_ids)
+    {
+        LLViewerInventoryItem* link = gInventory.getItem(link_id);
+        if (!link || link->getWearableType() != type) return false;
+    }
+
     // ordered_link_ids runs furthest-to-closest; body index 0 is closest to the body.
     // Place each target at its body index, leaving already-placed lower indices untouched.
     for (U32 body_index = 0; body_index < count; ++body_index)
