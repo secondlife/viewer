@@ -249,6 +249,28 @@ public:
         }
     };
 
+    struct CompareDepthRenderOrder
+    {
+        bool operator()(const LLSpatialGroup* const& lhs, const LLSpatialGroup* const& rhs)
+        {
+            // farther avatars draw first so rigged alpha can be depth-interleaved
+            // with the distance-sorted alpha groups; all of an avatar's groups
+            // share one depth (see LLSpatialBridge::mAvatarp), keeping each
+            // avatar's run contiguous and in attachment render order
+            if (lhs->mDepth != rhs->mDepth)
+            {
+                return lhs->mDepth > rhs->mDepth;
+            }
+
+            if (lhs->mAvatarp != rhs->mAvatarp)
+            {
+                return lhs->mAvatarp < rhs->mAvatarp;
+            }
+
+            return lhs->mRenderOrder > rhs->mRenderOrder;
+        }
+    };
+
     typedef enum
     {
         GEOM_DIRTY              = LLViewerOctreeGroup::INVALID_STATE,
@@ -458,6 +480,15 @@ public:
     //transform agent space bounding box into this Spatial Bridge's coordinate frame
     void transformExtents(const LLVector4a* src, LLVector4a* dst);
     LLDrawable* mDrawable;
+
+    // rigged alpha draw-order stamp, set per detailed update by
+    // LLVOAvatar::idleUpdateMisc -- one stamp per attachment, however many
+    // child prims/groups the linkset spans. LLPipeline::postSort fans it out
+    // to each of this bridge's visible rigged alpha groups. Raw pointer is
+    // only ever compared, never dereferenced (avatar may die first).
+    LLVOAvatar* mAvatarp = nullptr;
+    U32 mRenderOrder = 0;
+    F32 mDepth = 0.f;
 };
 
 class LLCullResult

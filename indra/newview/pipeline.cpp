@@ -3591,6 +3591,8 @@ void LLPipeline::postSort(LLCamera &camera)
 
     LL_PUSH_CALLSTACKS();
 
+    static LLCachedControl<bool> interleaved_alpha(gSavedSettings, "RenderInterleavedAlpha", true);
+
     // build render map
     for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
     {
@@ -3663,6 +3665,23 @@ void LLPipeline::postSort(LLCamera &camera)
 
             if (rigged_alpha != group->mDrawMap.end())
             {  // store rigged alpha groups for LLDrawPoolAlpha prepass (skip distance update, rigged attachments use depth buffer)
+                // fan the attachment's draw-order stamp (LLVOAvatar::idleUpdateMisc)
+                // out from the bridge to every visible group of the linkset,
+                // however its prims bin into the bridge octree. The depth copy
+                // gives all of an avatar's groups one shared depth -- what lets
+                // the interleaved walk treat the avatar as a single contiguous
+                // run -- and is gated so the legacy path keeps bounds-front depths.
+                LLSpatialBridge* stamp_bridge = group->getSpatialPartition()->asBridge();
+                if (stamp_bridge && stamp_bridge->mAvatarp)
+                {
+                    group->mAvatarp = stamp_bridge->mAvatarp;
+                    group->mRenderOrder = stamp_bridge->mRenderOrder;
+                    if (interleaved_alpha)
+                    {
+                        group->mDepth = stamp_bridge->mDepth;
+                    }
+                }
+
                 if (hasRenderType(LLDrawPool::POOL_ALPHA))
                 {
                     sCull->pushRiggedAlphaGroup(group);
@@ -3707,8 +3726,18 @@ void LLPipeline::postSort(LLCamera &camera)
         // order alpha groups by distance
         std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
 
-        // order rigged alpha groups by avatar attachment order
-        std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareRenderOrder());
+        if (interleaved_alpha)
+        {
+            // order rigged alpha groups by avatar depth, then attachment order,
+            // so LLDrawPoolAlpha can depth-interleave whole avatars with the
+            // distance-sorted alpha groups above
+            std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareDepthRenderOrder());
+        }
+        else
+        {
+            // order rigged alpha groups by avatar attachment order
+            std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareRenderOrder());
+        }
     }
 
     LL_PUSH_CALLSTACKS();

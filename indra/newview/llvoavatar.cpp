@@ -3025,6 +3025,13 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
     if (detailed_update)
     {
         U32 draw_order = 0;
+        // camera-axis depth of this avatar; stamped onto every rigged
+        // attachment bridge below so the rigged alpha groups can be
+        // depth-interleaved with the distance-sorted alpha groups while each
+        // avatar's attachment-order run stays contiguous
+        // (LLSpatialGroup::CompareDepthRenderOrder, LLDrawPoolAlpha::renderAlpha)
+        LLViewerCamera* camera = LLViewerCamera::getInstance();
+        F32 rigged_depth = (getRenderPosition() - camera->getOrigin()) * camera->getAtAxis();
         bool attachment_selected = LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 0 && LLSelectMgr::getInstance()->getSelection()->isAttachment();
         for (const auto& [attachment_point_id, attachment] : mAttachmentPoints)
         {
@@ -3086,12 +3093,14 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                             bridge->updateMove();
                             bridge->setState(LLDrawable::EARLY_MOVE);
 
-                            LLSpatialGroup* group = attached_object->mDrawable->getSpatialGroup();
-                            if (group)
-                            { //set draw order of group
-                                group->mAvatarp = this;
-                                group->mRenderOrder = draw_order++;
-                            }
+                            //set draw order of the attachment; LLPipeline::postSort
+                            //fans the stamp out to each of the bridge's visible
+                            //rigged alpha groups, so the whole linkset sorts with
+                            //this avatar in attachment order no matter how its
+                            //prims bin into the bridge octree
+                            bridge->mAvatarp = this;
+                            bridge->mRenderOrder = draw_order++;
+                            bridge->mDepth = rigged_depth;
                         }
                     }
 
