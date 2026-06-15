@@ -713,7 +713,7 @@ void LLViewerTexture::updateClass()
         else
         {
             // Slowly ramp up factor to free memory (increasing factor decreases draw range)
-            constexpr F32 MAX_INCREMENT = 0.05;
+            constexpr F32 MAX_INCREMENT = 0.05f;
             F32 increment = MAX_INCREMENT * llmax(-(F32)sys_budget_debt / (F32)budget_target, 0.f);
             sSysMemoryFactor += increment * gFrameIntervalSeconds;
         }
@@ -730,7 +730,7 @@ void LLViewerTexture::updateClass()
         if (free_sys_mem > MEM_THRESHOLD && sSysMemoryFactor > 1.f)
         {
             // Ramp down factor over time.
-            constexpr F32 DECREMENT = 0.02;
+            constexpr F32 DECREMENT = 0.02f;
             sSysMemoryFactor -= DECREMENT * gFrameIntervalSeconds;
             sSysMemoryFactor = llclamp(sSysMemoryFactor, 1.f, 2.f);
         }
