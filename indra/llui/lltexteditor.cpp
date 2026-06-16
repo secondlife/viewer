@@ -61,6 +61,7 @@
 #include "lltooltip.h"
 #include "llmenugl.h"
 #include "llchatmentionhelper.h"
+#include "llgestureautocompletehelper.h"
 
 #include <queue>
 #include "llcombobox.h"
@@ -1964,7 +1965,8 @@ bool LLTextEditor::handleKeyHere(KEY key, MASK mask )
         if (!mReadOnly)
         {
             if ((mShowEmojiHelper && LLEmojiHelper::instance().handleKey(this, key, mask)) ||
-                (mShowChatMentionPicker && LLChatMentionHelper::instance().handleKey(this, key, mask)))
+                (mShowChatMentionPicker && LLChatMentionHelper::instance().handleKey(this, key, mask)) ||
+                LLGestureAutocompleteHelper::instance().handleKey(this, key, mask))
             {
                 return true;
             }

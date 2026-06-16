@@ -55,6 +55,7 @@
 #include "llfloaterimnearbychatlistener.h"
 #include "llagent.h" // gAgent
 #include "llgesturemgr.h"
+#include "llgestureautocompletehelper.h"
 #include "llmultigesture.h"
 #include "llkeyboard.h"
 #include "llanimationstates.h"
@@ -70,6 +71,8 @@
 #include "llautoreplace.h"
 #include "lluiusage.h"
 
+#include <map>
+
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
 static LLFloaterIMNearbyChatListener sChatListener;
@@ -77,6 +80,71 @@ static LLFloaterIMNearbyChatListener sChatListener;
 constexpr S32 EXPANDED_HEIGHT = 266;
 constexpr S32 COLLAPSED_HEIGHT = 60;
 constexpr S32 EXPANDED_MIN_HEIGHT = 150;
+constexpr size_t MAX_GESTURE_AUTOCOMPLETE_ROWS = 50;
+
+namespace
+{
+bool buildGestureAutocompleteRows(
+    const std::string& prefix,
+    std::vector<LLGestureAutocompleteHelper::Row>& rows,
+    size_t& total,
+    std::string& empty_text)
+{
+    rows.clear();
+    total = 0;
+    empty_text.clear();
+
+    if (prefix.empty() || prefix[0] != '/' || prefix.find_first_of(" \t") != std::string::npos)
+    {
+        return false;
+    }
+
+    std::string lower_prefix = prefix;
+    LLStringUtil::toLower(lower_prefix);
+
+    std::map<std::string, std::string> unique;
+    const LLGestureMgr::item_map_t& active = LLGestureMgr::instance().getActiveGestures();
+
+    for (const auto& entry : active)
+    {
+        LLMultiGesture* gesture = entry.second;
+
+        if (!gesture || gesture->getTrigger().empty() || gesture->getTrigger()[0] != '/')
+        {
+            continue;
+        }
+
+        std::string lower_trigger = gesture->getTrigger();
+        LLStringUtil::toLower(lower_trigger);
+
+        if (lower_trigger.compare(0, lower_prefix.size(), lower_prefix) != 0)
+        {
+            continue;
+        }
+
+        unique.emplace(
+            gesture->getTrigger(),
+            gesture->mName);
+    }
+
+    for (const auto& gesture : unique)
+    {
+        ++total;
+
+        if (rows.size() < MAX_GESTURE_AUTOCOMPLETE_ROWS)
+        {
+            rows.push_back({ gesture.first, gesture.first, gesture.second });
+        }
+    }
+
+    if (rows.empty())
+    {
+        empty_text = prefix == "/" ? "No active slash gestures" : "No matching gestures";
+    }
+
+    return total > 0;
+}
+}
 
 // legacy callback glue
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
@@ -501,6 +569,30 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 
     KEY key = gKeyboard->currentKey();
 
+    if (gSavedSettings.getBOOL("ChatAutocompleteGestures"))
+    {
+        std::vector<LLGestureAutocompleteHelper::Row> rows;
+        size_t total = 0;
+        std::string empty_text;
+        const std::string utf8_trigger = wstring_to_utf8str(raw_text);
+
+        if (buildGestureAutocompleteRows(utf8_trigger, rows, total, empty_text))
+        {
+            LLGestureAutocompleteHelper::instance().showHelper(
+                mInputEditor,
+                rows,
+                total,
+                empty_text,
+                [this](std::string trigger)
+                {
+                    mInputEditor->setText(trigger + " ");
+                    mInputEditor->endOfDoc();
+                });
+            return;
+        }
+
+        LLGestureAutocompleteHelper::instance().hideHelper(mInputEditor);
+    }
     // Ignore "special" keys, like backspace, arrows, etc.
     if (gSavedSettings.getBOOL("ChatAutocompleteGestures")
         && length > 1
@@ -589,6 +681,9 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
         LLWString text = mInputEditor->getConvertedText();
         LLWStringUtil::trim(text);
         LLWStringUtil::replaceChar(text,182,'\n'); // Convert paragraph symbols back into newlines.
+
+        LLGestureAutocompleteHelper::instance().hideHelper();
+
         if (!text.empty())
         {
             // Check if this is destined for another channel
