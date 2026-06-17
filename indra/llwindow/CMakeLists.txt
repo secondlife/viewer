@@ -60,6 +60,7 @@ set(macosx_HEADER_FILES
     llkeyboardmacosx.h
     llwindowmacosx.h
     llwindowmacosx-objc.h
+    llwindowmacosx_iokit.h
     llopenglview-objc.h
     llappdelegate-objc.h
     )
