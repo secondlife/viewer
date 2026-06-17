@@ -292,7 +292,8 @@ LLCOFWearables::LLCOFWearables() : LLPanel(),
     mBodyPartsTab(NULL),
     mLastSelectedTab(NULL),
     mAccordionCtrl(NULL),
-    mCOFVersion(-1)
+    mCOFVersion(-1),
+    mRefreshPending(false)
 {
     mClothingMenu = new CofClothingContextMenu(this);
     mAttachmentMenu = new CofAttachmentContextMenu(this);
@@ -328,6 +329,7 @@ bool LLCOFWearables::postBuild()
 
     mClothing->setReorderValidateCallback(boost::bind(&LLCOFWearables::canReorderClothing, this, _1, _2));
     mClothing->setReorderCallback(boost::bind(&LLCOFWearables::onClothingReordered, this, _1, _2));
+    mClothing->setReorderEndedCallback(boost::bind(&LLCOFWearables::onReorderEnded, this));
 
     //clothing is sorted according to its position relatively to the body
     mAttachments->setComparator(&WEARABLE_NAME_COMPARATOR);
@@ -415,6 +417,15 @@ void LLCOFWearables::onClothingReordered(const LLSD& dragged_value, S32 /*new_in
     LLAppearanceMgr::getInstance()->reorderWearableGroup(type, ordered_link_ids);
 }
 
+void LLCOFWearables::onReorderEnded()
+{
+    // Run a refresh that arrived (and was skipped) while the drag was active.
+    if (mRefreshPending)
+    {
+        refresh();
+    }
+}
+
 void LLCOFWearables::onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expanded)
 {
     bool had_selected_items = mClothing->numSelected() || mAttachments->numSelected() || mBodyParts->numSelected();
@@ -439,6 +450,15 @@ void LLCOFWearables::onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expa
 
 void LLCOFWearables::refresh()
 {
+    // Don't rebuild mid-drag, clearing the list would cancel the active reorder.
+    // Remember it so onReorderEnded() can re-run the skipped refresh on release.
+    if (mClothing && mClothing->isReorderActive())
+    {
+        mRefreshPending = true;
+        return;
+    }
+    mRefreshPending = false;
+
     const LLUUID cof_id = LLAppearanceMgr::instance().getCOF();
     if (cof_id.isNull())
     {

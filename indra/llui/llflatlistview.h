@@ -282,6 +282,12 @@ public:
     void setReorderCallback(reorder_signal_t cb) { mReorderCallback = cb; }
     void setReorderValidateCallback(reorder_validate_signal_t cb) { mReorderValidateCallback = cb; }
 
+    /** Fired when a reorder grab is released, whether or not it moved anything */
+    void setReorderEndedCallback(boost::function<void()> cb) { mReorderEndedCallback = cb; }
+
+    /** True while an item is grabbed for a drag-to-reorder (before or during the drag) */
+    bool isReorderActive() const { return mReorderDragPair != NULL; }
+
     /** Sets flag whether onCommit should be fired if selection was changed */
     // FIXME: this should really be a separate signal, since "Commit" implies explicit user action, and selection changes can happen more indirectly.
     void setCommitOnSelectionChange(bool b)     { mCommitOnSelectionChange = b; }
@@ -489,6 +495,7 @@ private:
     LLUIColor mDragIndicatorColor;
     reorder_signal_t mReorderCallback;
     reorder_validate_signal_t mReorderValidateCallback;
+    boost::function<void()> mReorderEndedCallback;
 
     /** All pairs of the list */
     pairs_list_t mItemPairs;

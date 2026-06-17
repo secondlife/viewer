@@ -1064,6 +1064,13 @@ bool LLFlatListView::handleMouseUp(S32 x, S32 y, MASK mask)
 
         finishReorderDrag();
 
+        // The grab ended (moved or not); let owners re-run work they deferred
+        // while a drag was active.
+        if (mReorderEndedCallback)
+        {
+            mReorderEndedCallback();
+        }
+
         if (was_reordering)
         {
             return true; // a drag happened: keep the (multi-)selection on the moved rows
