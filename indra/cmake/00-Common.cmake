@@ -18,6 +18,17 @@ include(Variables)
 
 # We go to some trouble to set LL_BUILD to the set of relevant compiler flags.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{LL_BUILD}")
+
+if (DARWIN)
+  # LL_BUILD carries a literal -mmacosx-version-min=<ver> from
+  # viewer-build-variables. We derive the macOS deployment target in
+  # Variables.cmake (clamping up to the SDK's supported minimum when needed)
+  # and let CMAKE_OSX_DEPLOYMENT_TARGET emit the flag to both compiler and
+  # linker. Strip the verbatim flag here so it can't conflict with the
+  # clamped deployment target.
+  string(REGEX REPLACE "-mmacosx-version-min=[0-9.]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif (DARWIN)
+
 # Given that, all the flags you see added below are flags NOT present in
 # https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables.
 # Before adding new ones here, it's important to ask: can this flag really be
