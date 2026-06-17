@@ -64,7 +64,8 @@ public:
                             reserve_scroll_corner,
                             border_visible,
                             hide_scrollbar,
-                            ignore_arrow_keys;
+                            ignore_arrow_keys,
+                            keep_scroll_pos;
         Optional<F32>       min_auto_scroll_rate,
                             max_auto_scroll_rate;
         Optional<U32>       max_auto_scroll_zone;
@@ -136,10 +137,10 @@ private:
     void updateScroll();
     bool autoScroll(S32 x, S32 y, bool do_scroll);
     void calcVisibleSize( S32 *visible_width, S32 *visible_height, bool* show_h_scrollbar, bool* show_v_scrollbar ) const;
-    void preserveScrollbarMetrics(EOrientation axis, bool show, S32 doc_size, S32 page_size);
 
     LLScrollbar* mScrollbar[ORIENTATION_COUNT];
     S32         mStoredDocPos[ORIENTATION_COUNT];
+    bool        mKeepScrollPos;
     S32         mSize;
     bool        mIsOpaque;
     LLUIColor   mBackgroundColor;
