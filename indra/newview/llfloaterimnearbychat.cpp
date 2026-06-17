@@ -570,7 +570,7 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 
     KEY key = gKeyboard->currentKey();
 
-    static LLCachedControl<bool> autocomplete_gestures(gSavedSettings, "ChatAutocompleteGestures");
+    static LLCachedControl<bool> autocomplete_gestures(gSavedSettings, "ChatAutocompleteGestures", true);
 
     if (autocomplete_gestures)
     {
