@@ -399,6 +399,8 @@ protected:
 
     virtual bool handleHover(S32 x, S32 y, MASK mask) override;
 
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+
     virtual bool handleMouseUp(S32 x, S32 y, MASK mask) override;
 
     virtual void onMouseCaptureLost() override;
@@ -435,6 +437,9 @@ private:
     void getReorderRemaining(pairs_list_t& remaining) const;
     // Number of leading non-dragged items whose centre sits above (x, y).
     S32 getInsertIndexAt(S32 x, S32 y) const;
+    // Row under (x, y), counting the padding above each row, so presses in the
+    // inter-row gaps still map to a row instead of falling through.
+    item_pair_t* getReorderPairAt(S32 x, S32 y) const;
     // Clamps an insertion boundary to the validator's contiguous group.
     S32 constrainInsertIndex(S32 dest_index) const;
     void drawReorderIndicator();

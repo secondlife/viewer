@@ -968,6 +968,26 @@ S32 LLFlatListView::getInsertIndexAt(S32 x, S32 y) const
     return index;
 }
 
+LLFlatListView::item_pair_t* LLFlatListView::getReorderPairAt(S32 x, S32 y) const
+{
+    S32 panel_x, panel_y;
+    localPointToOtherView(x, y, &panel_x, &panel_y, mItemsPanel);
+
+    for (item_pair_t* pair : mItemPairs)
+    {
+        if (!pair->first->getVisible()) continue;
+
+        // Claim the padding above each row so gap presses still resolve to a row.
+        LLRect rc = pair->first->getRect();
+        rc.mTop += mItemPad;
+        if (rc.pointInRect(panel_x, panel_y))
+        {
+            return pair;
+        }
+    }
+    return NULL;
+}
+
 S32 LLFlatListView::constrainInsertIndex(S32 dest_index) const
 {
     if (!mReorderValidateCallback) return dest_index;
@@ -1052,6 +1072,24 @@ bool LLFlatListView::handleHover(S32 x, S32 y, MASK mask)
         }
     }
     return LLScrollContainer::handleHover(x, y, mask);
+}
+
+bool LLFlatListView::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+    bool handled = LLScrollContainer::handleMouseDown(x, y, mask);
+
+    // A press in the padding between rows misses every item, so the per-item
+    // mouse-down never arms a reorder. Map it to the nearest row and arm there;
+    // armReorderDrag's capture guard ignores presses a child control already took.
+    if (mAllowReorder && !mReorderDragPair && !(mask & (MASK_CONTROL | MASK_SHIFT)))
+    {
+        if (item_pair_t* pair = getReorderPairAt(x, y))
+        {
+            onItemMouseClick(pair, mask);
+        }
+    }
+
+    return handled || (mReorderDragPair != NULL);
 }
 
 bool LLFlatListView::handleMouseUp(S32 x, S32 y, MASK mask)
