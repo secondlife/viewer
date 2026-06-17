@@ -600,6 +600,8 @@ bool LLVOAvatar::sLimitNonImpostors = false; // True unless RenderAvatarMaxNonIm
 F32 LLVOAvatar::sRenderDistance = 256.f;
 S32 LLVOAvatar::sNumVisibleAvatars = 0;
 S32 LLVOAvatar::sNumLODChangesThisFrame = 0;
+bool LLVOAvatar::sAvatarCullNeedsUpdate = true;
+F64 LLVOAvatar::sLastCullUpdateTime = 0.0;
 
 const LLUUID LLVOAvatar::sStepSoundOnLand("e8af4a28-aa83-4310-a7c4-c047e15ea0df");
 const LLUUID LLVOAvatar::sStepSounds[LL_MCODE_END] =
@@ -2766,6 +2768,28 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 
     // force immediate pixel area update on avatars using last frames data (before drawable or camera updates)
     setPixelAreaAndAngle(gAgent);
+
+    if (!isSelf())
+    {
+        F32 current_pixel_area = getPixelArea();
+        if (mLastCulledPixelArea >= 0.f)
+        {
+            // Avoid rapidly switching two avatars back and forth between ranks.
+            // And update frequency reduction
+            F32 pixel_area_change = fabsf(current_pixel_area - mLastCulledPixelArea) / mLastCulledPixelArea;
+            if (pixel_area_change > 0.1f) // 10% threshold
+            {
+                sAvatarCullNeedsUpdate = true;
+                mLastCulledPixelArea = current_pixel_area;
+            }
+        }
+        else
+        {
+            // First frame
+            sAvatarCullNeedsUpdate = true;
+            mLastCulledPixelArea = current_pixel_area;
+        }
+    }
 
     // force asynchronous drawable update
     if(mDrawable.notNull())
@@ -5132,9 +5156,11 @@ void LLVOAvatar::updateVisibility()
         LL_DEBUGS("AvatarRender") << "visible was " << mVisible << " now " << visible << LL_ENDL;
     }
 
+    if (mVisible != visible)
+    {
+        setCullNeedsUpdate();
+    }
     mVisible = visible;
-
-    mVisibilityPreference = visible ? getPixelArea() : 0;
 }
 
 // private
@@ -9941,7 +9967,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
     setCompositeUpdatesEnabled( true );
 
     // If all of the avatars are completely baked, release the global image caches to conserve memory.
-    cullAvatarsByPixelArea();
+    setCullNeedsUpdate();
 
     if (isSelf())
     {
@@ -10601,39 +10627,71 @@ S32 LLVOAvatar::getUnbakedPixelAreaRank()
     return 0;
 }
 
-// static
+// static, gets called once per frame from updateApparentAngles.
 void LLVOAvatar::cullAvatarsByPixelArea()
 {
-    LLCharacter::sInstances.sort([](LLCharacter* lhs, LLCharacter* rhs)
+    F64 current_time = LLFrameTimer::getElapsedSeconds();
+    bool needs_resort = sAvatarCullNeedsUpdate || ((current_time - sLastCullUpdateTime) >= 1.0);
+
+    if (needs_resort)
+    {
+        LLCharacter::sInstances.sort([](LLCharacter* lhs, LLCharacter* rhs)
         {
-            return ((LLVOAvatar*)lhs)->mVisibilityPreference > ((LLVOAvatar*)rhs)->mVisibilityPreference;
+            LLVOAvatar* lhs_av = (LLVOAvatar*)lhs;
+            LLVOAvatar* rhs_av = (LLVOAvatar*)rhs;
+            if (lhs_av->mVisible != rhs_av->mVisible)
+            {
+                return lhs_av->mVisible;
+            }
+            // Sort by pixel area in descending order (larger pixel area = higher priority)
+            return lhs_av->getPixelArea() > rhs_av->getPixelArea();
         });
 
-    // Update the avatars that have changed status
-    U32 rank = 2; // Rank 1 is reserved for self.
-    for (LLCharacter* character : LLCharacter::sInstances)
+        // Update the avatars that have changed status
+        U32 rank = 2; // Rank 1 is reserved for self.
+        for (LLCharacter* character : LLCharacter::sInstances)
+        {
+            LLVOAvatar* inst = (LLVOAvatar*)character;
+            bool culled = !inst->isSelf() && !inst->isFullyBaked();
+
+            if (inst->mCulled != culled)
+            {
+                inst->mCulled = culled;
+                LL_DEBUGS() << "avatar " << inst->getID() << (culled ? " start culled" : " start not culled" ) << LL_ENDL;
+                inst->updateMeshTextures();
+            }
+
+            if (inst->isSelf())
+            {
+                inst->setVisibilityRank(1);
+            }
+            else if (inst->mDrawable.notNull() && inst->mDrawable->isVisible())
+            {
+                inst->setVisibilityRank(rank++);
+            }
+            else
+            {
+                inst->setVisibilityRank(sMaxNonImpostors * 5);
+            }
+            inst->mLastCulledPixelArea = inst->getPixelArea();
+        }
+        sAvatarCullNeedsUpdate = false;
+        sLastCullUpdateTime = current_time;
+    }
+    else
     {
-        LLVOAvatar* inst = (LLVOAvatar*)character;
-        bool culled = !inst->isSelf() && !inst->isFullyBaked();
+        for (LLCharacter* character : LLCharacter::sInstances)
+        {
+            // Todo: this can be optimized by tracking baked's callbacks
+            LLVOAvatar* inst = (LLVOAvatar*)character;
+            bool culled = !inst->isSelf() && !inst->isFullyBaked();
 
-        if (inst->mCulled != culled)
-        {
-            inst->mCulled = culled;
-            LL_DEBUGS() << "avatar " << inst->getID() << (culled ? " start culled" : " start not culled" ) << LL_ENDL;
-            inst->updateMeshTextures();
-        }
-
-        if (inst->isSelf())
-        {
-            inst->setVisibilityRank(1);
-        }
-        else if (inst->mDrawable.notNull() && inst->mDrawable->isVisible())
-        {
-            inst->setVisibilityRank(rank++);
-        }
-        else
-        {
-            inst->setVisibilityRank(sMaxNonImpostors * 5);
+            if (inst->mCulled != culled)
+            {
+                inst->mCulled = culled;
+                LL_DEBUGS() << "avatar " << inst->getID() << (culled ? " start culled" : " start not culled") << LL_ENDL;
+                inst->updateMeshTextures();
+            }
         }
     }
 
