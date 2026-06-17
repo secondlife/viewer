@@ -144,7 +144,38 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DARWIN 1)
 
   string(REGEX MATCH "-mmacosx-version-min=([^ ]+)" scratch "$ENV{LL_BUILD}")
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "${CMAKE_MATCH_1}" CACHE STRING "macOS Deploy Target" FORCE)
+  set(LL_REQUESTED_DEPLOYMENT_TARGET "${CMAKE_MATCH_1}")
+
+  # Determine the lowest deployment target the active macOS SDK still supports.
+  # We aim for 11.0 in our public builds, but newer Xcode/SDK releases
+  # periodically raise this floor (e.g. Xcode 26 -> 13.3, Xcode 27 -> 14), and
+  # linking against a deployment target below the SDK's minimum fails. Read the
+  # supported minimum from the SDK and clamp our requested target up to it when
+  # necessary, so the build tracks whatever the SDK allows automatically.
+  set(LL_SDK_MINIMUM_DEPLOYMENT_TARGET "")
+  execute_process(
+    COMMAND xcrun --sdk macosx --show-sdk-path
+    OUTPUT_VARIABLE LL_MACOS_SDK_PATH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET)
+  if (LL_MACOS_SDK_PATH AND EXISTS "${LL_MACOS_SDK_PATH}/SDKSettings.plist")
+    execute_process(
+      COMMAND /usr/libexec/PlistBuddy -c
+              "Print :SupportedTargets:macosx:MinimumDeploymentTarget"
+              "${LL_MACOS_SDK_PATH}/SDKSettings.plist"
+      OUTPUT_VARIABLE LL_SDK_MINIMUM_DEPLOYMENT_TARGET
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET)
+  endif ()
+
+  set(LL_EFFECTIVE_DEPLOYMENT_TARGET "${LL_REQUESTED_DEPLOYMENT_TARGET}")
+  if (LL_SDK_MINIMUM_DEPLOYMENT_TARGET AND
+      LL_REQUESTED_DEPLOYMENT_TARGET VERSION_LESS LL_SDK_MINIMUM_DEPLOYMENT_TARGET)
+    message(STATUS "Requested macOS deploy target ${LL_REQUESTED_DEPLOYMENT_TARGET} is below the SDK minimum ${LL_SDK_MINIMUM_DEPLOYMENT_TARGET}; clamping to ${LL_SDK_MINIMUM_DEPLOYMENT_TARGET}")
+    set(LL_EFFECTIVE_DEPLOYMENT_TARGET "${LL_SDK_MINIMUM_DEPLOYMENT_TARGET}")
+  endif ()
+
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "${LL_EFFECTIVE_DEPLOYMENT_TARGET}" CACHE STRING "macOS Deploy Target" FORCE)
   message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET = '${CMAKE_OSX_DEPLOYMENT_TARGET}'")
 
   # Use dwarf symbols for most libraries for compilation speed
