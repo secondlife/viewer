@@ -42,7 +42,8 @@ LLFloaterGestureAutocompletePicker::LLFloaterGestureAutocompletePicker(const LLS
 bool LLFloaterGestureAutocompletePicker::postBuild()
 {
     mGestureList = getChild<LLScrollListCtrl>("gesture_list");
-    mGestureList->setDoubleClickCallback(boost::bind(&LLFloaterGestureAutocompletePicker::commitSelected, this));
+    mGestureList->setCommitOnKeyboardMovement(false);
+    mGestureList->setCommitCallback(boost::bind(&LLFloaterGestureAutocompletePicker::commitSelected, this));
 
     return LLFloater::postBuild();
 }
@@ -83,8 +84,12 @@ void LLFloaterGestureAutocompletePicker::onOpen(const LLSD& key)
         element["columns"][0]["column"] = "trigger";
         element["columns"][0]["value"] = LLStringUtil::null;
         element["columns"][1]["column"] = "name";
-        element["columns"][1]["value"] =
-            llformat("Showing %d of %d", (S32)rows.size(), (S32)helper.total());
+
+        LLStringUtil::format_map_t args;
+        args["[COUNT]"] = llformat("%d", (S32)rows.size());
+        args["[TOTAL]"] = llformat("%d", (S32)helper.total());
+        element["columns"][1]["value"] = getString("showing_count", args);
+
         mGestureList->addElement(element);
     }
 

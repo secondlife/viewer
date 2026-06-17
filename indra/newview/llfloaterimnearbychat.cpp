@@ -94,7 +94,8 @@ bool buildGestureAutocompleteRows(
     total = 0;
     empty_text.clear();
 
-    if (prefix.empty() || prefix[0] != '/' || prefix.find_first_of(" \t") != std::string::npos)
+    // Wait for at least one character after the slash before offering matches.
+    if (prefix.size() < 2 || prefix[0] != '/' || prefix.find_first_of(" \t") != std::string::npos)
     {
         return false;
     }
@@ -139,7 +140,7 @@ bool buildGestureAutocompleteRows(
 
     if (rows.empty())
     {
-        empty_text = prefix == "/" ? "No active slash gestures" : "No matching gestures";
+        empty_text = "No matching gestures";
     }
 
     return total > 0;
@@ -569,7 +570,9 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 
     KEY key = gKeyboard->currentKey();
 
-    if (gSavedSettings.getBOOL("ChatAutocompleteGestures"))
+    static LLCachedControl<bool> autocomplete_gestures(gSavedSettings, "ChatAutocompleteGestures");
+
+    if (autocomplete_gestures)
     {
         std::vector<LLGestureAutocompleteHelper::Row> rows;
         size_t total = 0;
@@ -594,7 +597,7 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
         LLGestureAutocompleteHelper::instance().hideHelper(mInputEditor);
     }
     // Ignore "special" keys, like backspace, arrows, etc.
-    if (gSavedSettings.getBOOL("ChatAutocompleteGestures")
+    if (autocomplete_gestures
         && length > 1
         && raw_text[0] == '/'
         && key < KEY_SPECIAL)

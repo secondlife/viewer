@@ -29,6 +29,7 @@
 
 #include "llfloater.h"
 #include "llfloaterreg.h"
+#include "llfocusmgr.h"
 #include "lluictrl.h"
 
 constexpr char GESTURE_AUTOCOMPLETE_FLOATER[] = "gesture_autocomplete_picker";
@@ -146,7 +147,22 @@ void LLGestureAutocompleteHelper::setHostCtrl(LLUICtrl* host_ctrl)
         {
             mHostHandle = host_ctrl->getHandle();
             mHostCtrlFocusLostConn = host_ctrl->setFocusLostCallback(
-                [this](auto*) { hideHelper(getHostCtrl()); });
+                [this](auto*)
+                {
+                    // Scroll list grabs focus on click.
+                    // Keep focus on the host when the click was ours.
+                    LLFloater* helper_floater = mHelperHandle.get();
+                    if (helper_floater && gFocusMgr.childHasKeyboardFocus(helper_floater))
+                    {
+                        if (LLUICtrl* host = getHostCtrl())
+                        {
+                            host->setFocus(true);
+                        }
+                        return;
+                    }
+
+                    hideHelper(getHostCtrl());
+                });
         }
     }
 }

@@ -13,6 +13,10 @@
  sound_flags="0"
  height="136"
  width="340">
+   <floater.string
+    name="showing_count">
+       Showing [COUNT] of [TOTAL]
+   </floater.string>
    <scroll_list
     follows="all"
     height="130"
