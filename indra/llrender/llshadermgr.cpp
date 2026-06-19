@@ -1142,34 +1142,55 @@ bool LLShaderMgr::loadCachedProgramBinary(LLGLSLShader* shader)
     {
         std::string in_path = gDirUtilp->add(mShaderCacheDir, shader->mShaderHash.asString() + ".shaderbin");
         auto& shader_info = binary_iter->second;
-        if (shader_info.mBinaryLength > 0)
+
+        try
         {
-            std::vector<U8> in_data;
-            in_data.resize(shader_info.mBinaryLength);
-
-            LLUniqueFile filep = LLFile::fopen(in_path, "rb");
-            if (filep)
+            constexpr GLsizei MAX_SHADER_BINARY_SIZE = 1024 * 1024; // 1 MB, normally around 10KB
+            if (shader_info.mBinaryLength > 0 && shader_info.mBinaryLength <= MAX_SHADER_BINARY_SIZE)
             {
-                size_t result = fread(in_data.data(), sizeof(U8), in_data.size(), filep);
-                filep.close();
+                std::vector<U8> in_data;
+                in_data.resize(shader_info.mBinaryLength);
 
-                if (result == in_data.size())
+                LLUniqueFile filep = LLFile::fopen(in_path, "rb");
+                if (filep)
                 {
-                    GLenum error = glGetError(); // Clear current error
-                    glProgramBinary(shader->mProgramObject, shader_info.mBinaryFormat, in_data.data(), shader_info.mBinaryLength);
+                    size_t result = fread(in_data.data(), sizeof(U8), in_data.size(), filep);
+                    filep.close();
 
-                    error = glGetError();
-                    GLint success = GL_TRUE;
-                    glGetProgramiv(shader->mProgramObject, GL_LINK_STATUS, &success);
-                    if (error == GL_NO_ERROR && success == GL_TRUE)
+                    if (result == in_data.size())
                     {
-                        binary_iter->second.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
-                        LL_INFOS() << "Loaded cached binary for shader: " << shader->mName << LL_ENDL;
-                        return true;
+                        GLenum error = glGetError(); // Clear current error
+                        glProgramBinary(shader->mProgramObject, shader_info.mBinaryFormat, in_data.data(), shader_info.mBinaryLength);
+
+                        error = glGetError();
+                        GLint success = GL_TRUE;
+                        glGetProgramiv(shader->mProgramObject, GL_LINK_STATUS, &success);
+                        if (error == GL_NO_ERROR && success == GL_TRUE)
+                        {
+                            binary_iter->second.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
+                            LL_INFOS() << "Loaded cached binary for shader: " << shader->mName << LL_ENDL;
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        LL_WARNS("ShaderMgr") << "Incomplete read of shader binary. Expected: "
+                            << in_data.size() << ", read: " << result << LL_ENDL;
                     }
                 }
             }
         }
+        catch (const std::bad_alloc&)
+        {
+            LL_WARNS("ShaderMgr") << "Failed to allocate memory for shader binary ("
+                << shader_info.mBinaryLength << " bytes) for: "
+                << shader->mName << LL_ENDL;
+        }
+        catch (const std::exception& err)
+        {
+            LL_WARNS("ShaderMgr") << "Caught exception " << err.what() << " while loading shader binary for: " << shader->mName << LL_ENDL;
+        }
+
         //an error occured, normally we would print log but in this case it means the shader needs recompiling.
         LL_INFOS() << "Failed to load cached binary for shader: " << shader->mName << " falling back to compilation" << LL_ENDL;
         LLFile::remove(in_path);
