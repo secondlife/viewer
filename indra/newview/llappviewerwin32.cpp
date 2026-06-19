@@ -193,6 +193,14 @@ namespace
             }
 
             LLAppViewer* app = LLAppViewer::instance();
+
+            // Include mainloop watchdog state if available
+            std::string watchdog_state = app->getMainloopWatchdogState();
+            if (!watchdog_state.empty())
+            {
+                sBugSplatSender->setAttribute(WCSTR(L"WatchdogState"), WCSTR(watchdog_state));
+            }
+
             if (!app->isSecondInstance() && !app->errorMarkerExists())
             {
                 // If marker doesn't exist, create a marker with 'other' or 'logout' code for next launch

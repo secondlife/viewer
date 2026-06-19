@@ -212,6 +212,7 @@ public:
     void pingMainloopTimeout(std::string_view state);
 
     F32 getMainloopTimeoutSec() const;
+    std::string getMainloopWatchdogState() const;
 
     // Handle the 'login completed' event.
     // *NOTE:Mani Fix this for login abstraction!!
