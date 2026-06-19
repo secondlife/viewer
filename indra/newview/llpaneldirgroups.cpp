@@ -51,6 +51,12 @@ bool LLPanelDirGroups::postBuild()
     childSetAction("Search", &LLPanelDirBrowser::onClickSearchCore, this);
     setDefaultBtn( "Search" );
 
+    if (gAgent.isTeen())
+    {
+        childSetEnabled("incmature", false);
+        gSavedSettings.setBOOL("ShowMatureGroups", false);
+    }
+
     return true;
 }
 
@@ -70,13 +76,18 @@ void LLPanelDirGroups::performQuery()
 
     // groups
     U32 scope = DFQ_GROUPS;
+    // if nothing is set will search for <= mature
+    // if DFQ_INC_PG is set, will look for <= PG
+    // if DFQ_INC_MATURE is set, will look for == mature
+    // if DFQ_INC_ADULT is set, will look for >= adult
+    scope |= DFQ_INC_PG;
 
     // Check group mature filter.
-    if ( !gSavedSettings.getBOOL("ShowMatureGroups")  || gAgent.isTeen() )
+    if ( gSavedSettings.getBOOL("ShowMatureGroups") && !gAgent.isTeen() )
     {
-        scope |= DFQ_FILTER_MATURE;
+        scope |= DFQ_INC_MATURE;
+        scope |= DFQ_INC_ADULT;
     }
-
     mCurrentSortColumn = "score";
     mCurrentSortAscending = false;
 
