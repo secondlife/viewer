@@ -359,7 +359,7 @@ protected:
     LLFlatListView(const LLFlatListView::Params& p);
 
     /** Manage selection on mouse events */
-    void onItemMouseClick(item_pair_t* item_pair, MASK mask);
+    void onItemMouseClick(item_pair_t* item_pair, MASK mask, EMouseClickType clicktype);
 
     void onItemRightMouseClick(item_pair_t* item_pair, MASK mask);
 
@@ -404,6 +404,8 @@ protected:
     virtual bool handleMouseUp(S32 x, S32 y, MASK mask) override;
 
     virtual void onMouseCaptureLost() override;
+
+    virtual void onVisibilityChange(bool new_visibility) override;
 
     virtual bool postBuild() override;
 
@@ -490,7 +492,6 @@ private:
     /** Drag-to-reorder state */
     bool mAllowReorder;
     bool mIsReordering;             // a drag is currently in progress
-    bool mProcessingRightClick;     // suppress drag arming during right-click handling
     item_pair_t* mReorderDragPair;  // the grabbed pair (drag anchor)
     pairs_list_t mReorderDragGroup; // all pairs being dragged, in visual order
     item_pair_t* mDeferredSelectPair; // collapse selection to this on mouse-up if no drag

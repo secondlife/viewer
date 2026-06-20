@@ -110,7 +110,7 @@ bool LLFlatListView::addItem(LLPanel * item, const LLSD& value /*= LLUUID::null*
     }
 
     //_4 is for MASK
-    item->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4));
+    item->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4, CLICK_LEFT));
     item->setRightMouseDownCallback(boost::bind(&LLFlatListView::onItemRightMouseClick, this, new_pair, _4));
 
     // Children don't accept the focus
@@ -161,7 +161,7 @@ bool LLFlatListView::addItemPairs(pairs_list_t panel_list, bool rearrange /*= tr
             mItemsPanel->addChild(panel);
 
             //_4 is for MASK
-            panel->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4));
+            panel->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4, CLICK_LEFT));
             panel->setRightMouseDownCallback(boost::bind(&LLFlatListView::onItemRightMouseClick, this, new_pair, _4));
             // Children don't accept the focus
             panel->setTabStop(false);
@@ -184,7 +184,7 @@ bool LLFlatListView::addItemPairs(pairs_list_t panel_list, bool rearrange /*= tr
             mItemsPanel->addChild(panel);
 
             //_4 is for MASK
-            panel->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, item_pair, _4));
+            panel->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, item_pair, _4, CLICK_LEFT));
             panel->setRightMouseDownCallback(boost::bind(&LLFlatListView::onItemRightMouseClick, this, item_pair, _4));
             // Children don't accept the focus
             panel->setTabStop(false);
@@ -236,7 +236,7 @@ bool LLFlatListView::insertItemAfter(LLPanel* after_item, LLPanel* item_to_add, 
     }
 
     //_4 is for MASK
-    item_to_add->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4));
+    item_to_add->setMouseDownCallback(boost::bind(&LLFlatListView::onItemMouseClick, this, new_pair, _4, CLICK_LEFT));
     item_to_add->setRightMouseDownCallback(boost::bind(&LLFlatListView::onItemRightMouseClick, this, new_pair, _4));
 
     rearrangeItems();
@@ -486,7 +486,6 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
   , mFocusOnItemClicked(true)
   , mAllowReorder(p.allow_reorder)
   , mIsReordering(false)
-  , mProcessingRightClick(false)
   , mReorderDragPair(NULL)
   , mDeferredSelectPair(NULL)
   , mReorderMouseDownX(0)
@@ -654,7 +653,7 @@ void LLFlatListView::rearrangeItems()
     mSelectedItemsBorder->setRect(getLastSelectedItemRect().stretch(-1));
 }
 
-void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
+void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask, EMouseClickType clicktype)
 {
     if (!item_pair) return;
 
@@ -669,7 +668,7 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
         setFocus(true);
     }
 
-    if (!(mask & (MASK_SHIFT | MASK_CONTROL)))
+    if (clicktype == CLICK_LEFT && !(mask & (MASK_SHIFT | MASK_CONTROL)))
     {
         armReorderDrag(item_pair);
     }
@@ -783,16 +782,14 @@ void LLFlatListView::onItemRightMouseClick(item_pair_t* item_pair, MASK mask)
         return;
 
     // else got same behavior as at onItemMouseClick, but a right click must never start a drag
-    mProcessingRightClick = true;
-    onItemMouseClick(item_pair, mask);
-    mProcessingRightClick = false;
+    onItemMouseClick(item_pair, mask, CLICK_RIGHT);
 }
 
 static const S32 REORDER_DRAG_THRESHOLD = 5;
 
 void LLFlatListView::armReorderDrag(item_pair_t* item_pair)
 {
-    if (!mAllowReorder || mProcessingRightClick)
+    if (!mAllowReorder)
     {
         return;
     }
@@ -948,6 +945,16 @@ void LLFlatListView::onMouseCaptureLost()
     clearReorderDragState();
 }
 
+void LLFlatListView::onVisibilityChange(bool new_visibility)
+{
+    if (!new_visibility && mReorderDragPair)
+    {
+        cancelReorderDrag();
+    }
+
+    LLScrollContainer::onVisibilityChange(new_visibility);
+}
+
 S32 LLFlatListView::getInsertIndexAt(S32 x, S32 y) const
 {
     S32 panel_x, panel_y;
@@ -1085,7 +1092,7 @@ bool LLFlatListView::handleMouseDown(S32 x, S32 y, MASK mask)
     {
         if (item_pair_t* pair = getReorderPairAt(x, y))
         {
-            onItemMouseClick(pair, mask);
+            onItemMouseClick(pair, mask, CLICK_LEFT);
         }
     }
 
