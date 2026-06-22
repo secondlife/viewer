@@ -910,7 +910,15 @@ void LLFlatListView::finishReorderDrag()
 
         if (mReorderCallback)
         {
-            mReorderCallback(moved_value, mReorderInsertIndex);
+            S32 visible_index = 0;
+            for (item_pair_t* pair : mItemPairs)
+            {
+                if (!pair->first->getVisible()) continue;
+                if (pair == mReorderDragPair) break;
+                ++visible_index;
+            }
+
+            mReorderCallback(moved_value, visible_index);
         }
     }
 
@@ -933,11 +941,19 @@ void LLFlatListView::clearReorderDragState()
     {
         getWindow()->setCursor(UI_CURSOR_ARROW);
     }
+
+    bool was_armed = (mReorderDragPair != NULL);
+
     mReorderDragPair = NULL;
     mReorderDragGroup.clear();
     mDeferredSelectPair = NULL;
     mIsReordering = false;
     mReorderInsertIndex = -1;
+
+    if (was_armed && mReorderEndedCallback)
+    {
+        mReorderEndedCallback();
+    }
 }
 
 void LLFlatListView::onMouseCaptureLost()
@@ -1108,13 +1124,6 @@ bool LLFlatListView::handleMouseUp(S32 x, S32 y, MASK mask)
         mDeferredSelectPair = NULL;
 
         finishReorderDrag();
-
-        // The grab ended (moved or not); let owners re-run work they deferred
-        // while a drag was active.
-        if (mReorderEndedCallback)
-        {
-            mReorderEndedCallback();
-        }
 
         if (was_reordering)
         {

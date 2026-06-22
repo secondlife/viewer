@@ -211,11 +211,12 @@ public:
     bool moveWearable(LLViewerInventoryItem* item, bool closer_to_body);
 
     // Move a clothing item to an absolute layer index within its wearable type
-    // (0 == closest to the body). Persists the new order in a single batch.
+    // (0 == closest to the body). Persists the new order to the COF link descriptions.
     bool reorderWearable(LLViewerInventoryItem* item, U32 new_index);
 
-    // Apply a complete layer order for one wearable type in a single batch.
-    // ordered_link_ids lists the type's COF link items furthest-to-closest.
+    // Apply a complete layer order for one wearable type, persisting it to the
+    // COF link descriptions. ordered_link_ids lists the type's COF link items
+    // furthest-to-closest.
     bool reorderWearableGroup(LLWearableType::EType type, const uuid_vec_t& ordered_link_ids);
 
     static void sortItemsByActualDescription(LLInventoryModel::item_array_t& items);
