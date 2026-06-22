@@ -76,17 +76,26 @@ void LLPanelDirGroups::performQuery()
 
     // groups
     U32 scope = DFQ_GROUPS;
-    // if nothing is set will search for <= mature
-    // if DFQ_INC_PG is set, will look for <= PG
-    // if DFQ_INC_MATURE is set, will look for == mature
-    // if DFQ_INC_ADULT is set, will look for >= adult
-    scope |= DFQ_INC_PG;
 
     // Check group mature filter.
     if ( gSavedSettings.getBOOL("ShowMatureGroups") && !gAgent.isTeen() )
     {
+        // Supposed behavior:
+        // if nothing is set will search for <= mature
+        // if DFQ_INC_PG is set, will look for <= PG
+        // if DFQ_INC_MATURE is set, will look for == mature
+        // if DFQ_INC_ADULT is set, will look for >= adult
+        // Not compatible with legacy DFQ_FILTER_MATURE.
+        // But there appears to be a server bug, so we only use
+        // this to show all and use legacy setting for 'pg only'
+        scope |= DFQ_INC_PG;
         scope |= DFQ_INC_MATURE;
         scope |= DFQ_INC_ADULT;
+    }
+    else
+    {
+        // DFQ_FILTER_MATURE is a legacy setting
+        scope |= DFQ_FILTER_MATURE;
     }
     mCurrentSortColumn = "score";
     mCurrentSortAscending = false;
