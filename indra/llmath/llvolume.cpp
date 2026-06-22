@@ -2383,11 +2383,31 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 
             //copy out vertices
             U32 num_verts = static_cast<U32>(pos.size())/(3*2);
+            if (num_verts == 0)
+            {
+                LL_WARNS() << "Zero vertices for face index: " << i << LL_ENDL;
+                face.resizeIndices(3);
+                face.resizeVertices(1);
+                face.mPositions->clear();
+                face.mNormals->clear();
+                face.mTexCoords->setZero();
+                memset(face.mIndices, 0, sizeof(U16) * 3);
+                continue;
+            }
+
+            if (num_verts > 65535) // U16 indices
+            {
+                LL_WARNS() << "Invalid vertex count " << num_verts << " exceeds maximum for face index: " << i << LL_ENDL;
+                mVolumeFaces.clear();
+                return false;
+            }
+
             face.resizeVertices(num_verts);
 
             if (num_verts > 0 && !face.mPositions)
             {
                 LL_WARNS() << "Failed to allocate " << num_verts << " vertices for face index: " << i << " Total: " << face_count << LL_ENDL;
+                face.resizeVertices(0);
                 face.resizeIndices(0);
                 continue;
             }
@@ -5677,7 +5697,40 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
     mOptimized = true;
 
     if (gen_tangents && mNormals && mTexCoords)
-    { // generate mikkt space tangents before cache optimizing since the index buffer may change
+    {
+        if (!mPositions || !mIndices || mNumVertices <= 0 || mNumIndices <= 0)
+        {
+            LL_WARNS_ONCE("LLVolume") << "Invalid volume face data for tangent generation: "
+                << "mPositions=" << (void*)mPositions
+                << ", mIndices=" << (void*)mIndices
+                << ", mNumVertices=" << mNumVertices
+                << ", mNumIndices=" << mNumIndices << LL_ENDL;
+            return false;
+        }
+
+        if (mNumIndices % 3 != 0)
+        {
+            LL_WARNS_ONCE("LLVolume") << "Non-triangulated mesh, mNumIndices=" << mNumIndices << LL_ENDL;
+            return false;
+        }
+
+        for (S32 i = 0; i < mNumIndices; ++i)
+        {
+            if (mIndices[i] >= mNumVertices)
+            {
+                LL_WARNS_ONCE("LLVolume") << "Out of bounds index detected: mIndices[" << i << "]="
+                    << mIndices[i] << " >= mNumVertices=" << mNumVertices << LL_ENDL;
+                return false;
+            }
+        }
+
+        if (mNormalizedScale.mV[0] == 0.0f || mNormalizedScale.mV[1] == 0.0f || mNormalizedScale.mV[2] == 0.0f)
+        {
+            LL_WARNS_ONCE("LLVolume") << "Invalid normalized scale: " << mNormalizedScale << LL_ENDL;
+            return false;
+        }
+
+        // generate mikkt space tangents before cache optimizing since the index buffer may change
         // a bit of a hack to do this here, but this function gets called exactly once for the lifetime of a mesh
         // and is executed on a background thread
         MikktData data(this);
