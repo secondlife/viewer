@@ -1087,7 +1087,14 @@ void LLShaderMgr::persistShaderCacheMetadata()
         return;
     }
 
-    LL_INFOS("ShaderMgr") << "Persisting shader cache metadata to disk" << LL_ENDL;
+    if (mShaderCacheDir.empty() || !LLFile::isdir(mShaderCacheDir))
+    {
+        LL_WARNS("ShaderMgr") << "Invalid shader cache directory: " << mShaderCacheDir << LL_ENDL;
+        return;
+    }
+
+    size_t total_entries = mShaderBinaryCache.size();
+    LL_INFOS("ShaderMgr") << "Persisting shader " << (S32)total_entries << " cache metadata entries to disk" << LL_ENDL;
 
     LLSD out;
     // Settings and shader cache get saved at different time, thus making
@@ -1098,6 +1105,8 @@ void LLShaderMgr::persistShaderCacheMetadata()
     out["shaders"] = LLSD::emptyMap();
     LLSD &shaders = out["shaders"];
 
+    size_t removed = 0;
+
     static const F32 LRU_TIME = (60.f * 60.f) * 24.f * 7.f; // 14 days
     const F32 current_time = (F32)LLTimer::getTotalSeconds();
     for (auto it = mShaderBinaryCache.begin(); it != mShaderBinaryCache.end();)
@@ -1106,8 +1115,9 @@ void LLShaderMgr::persistShaderCacheMetadata()
         if ((shader_metadata.mLastUsedTime + LRU_TIME) < current_time)
         {
             std::string shader_path = gDirUtilp->add(mShaderCacheDir, it->first.asString() + ".shaderbin");
-            LLFile::remove(shader_path);
+            LLFile::remove(shader_path, ENOENT);
             it = mShaderBinaryCache.erase(it);
+            removed++;
         }
         else
         {
@@ -1121,14 +1131,32 @@ void LLShaderMgr::persistShaderCacheMetadata()
     }
 
     std::string meta_out_path = gDirUtilp->add(mShaderCacheDir, "shaderdata.llsd");
+    if (shaders.size() == 0)
+    {
+        LL_WARNS("ShaderMgr") << "No shader cache entries to persist, removing cache metadata file" << LL_ENDL;
+        LLFile::remove(meta_out_path);
+        return;
+    }
+
     llofstream outstream(meta_out_path, std::ios_base::out | std::ios_base::binary);
     if (!outstream.is_open())
     {
         LL_WARNS("ShaderMgr") << "Failed to open file. Unable to save shader cache to: " << mShaderCacheDir << LL_ENDL;
         return;
     }
+
     LLSDSerialize::toBinary(out, outstream);
+    if (outstream.fail())
+    {
+        LL_WARNS("ShaderMgr") << "Failed to serialize shader cache metadata" << LL_ENDL;
+        outstream.close();
+        LLFile::remove(meta_out_path); // Clean up partial write
+        return;
+    }
     outstream.close();
+
+    LL_INFOS("ShaderMgr") << "Persisted " << (S32)shaders.size()
+        << " entries. Removed " << (S32)removed << " entries." << LL_ENDL;
 }
 
 bool LLShaderMgr::loadCachedProgramBinary(LLGLSLShader* shader)
