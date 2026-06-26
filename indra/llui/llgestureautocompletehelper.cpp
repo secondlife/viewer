@@ -43,7 +43,6 @@ void LLGestureAutocompleteHelper::showHelper(
     LLUICtrl* host_ctrl,
     const std::vector<Row>& rows,
     size_t total,
-    const std::string& empty_text,
     std::function<void(std::string)> commit_cb)
 {
     if (mHelperHandle.isDead())
@@ -57,7 +56,6 @@ void LLGestureAutocompleteHelper::showHelper(
     setHostCtrl(host_ctrl);
     mRows = rows;
     mTotal = total;
-    mEmptyText = empty_text;
     mGestureCommitCb = commit_cb;
 
     S32 floater_x, floater_y;
@@ -135,7 +133,6 @@ void LLGestureAutocompleteHelper::setHostCtrl(LLUICtrl* host_ctrl)
         mHostHandle.markDead();
         mGestureCommitCb = {};
         mRows.clear();
-        mEmptyText.clear();
         mTotal = 0;
 
         if (!mHelperHandle.isDead())

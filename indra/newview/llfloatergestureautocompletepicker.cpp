@@ -66,17 +66,6 @@ void LLFloaterGestureAutocompletePicker::onOpen(const LLSD& key)
         mGestureList->addElement(element);
     }
 
-    if (rows.empty() && !helper.emptyText().empty())
-    {
-        LLSD element;
-        element["enabled"] = false;
-        element["columns"][0]["column"] = "trigger";
-        element["columns"][0]["value"] = helper.emptyText();
-        element["columns"][1]["column"] = "name";
-        element["columns"][1]["value"] = LLStringUtil::null;
-        mGestureList->addElement(element);
-    }
-
     if (helper.total() > rows.size())
     {
         LLSD element;

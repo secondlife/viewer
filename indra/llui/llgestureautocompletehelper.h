@@ -54,7 +54,6 @@ public:
         LLUICtrl* host_ctrl,
         const std::vector<Row>& rows,
         size_t total,
-        const std::string& empty_text,
         std::function<void(std::string)> commit_cb);
     void hideHelper(const LLUICtrl* ctrl = nullptr);
     bool handleKey(const LLUICtrl* ctrl, KEY key, MASK mask);
@@ -62,7 +61,6 @@ public:
 
     const std::vector<Row>& rows() const { return mRows; }
     size_t total() const { return mTotal; }
-    const std::string& emptyText() const { return mEmptyText; }
 
 protected:
     void setHostCtrl(LLUICtrl* host_ctrl);
@@ -78,6 +76,5 @@ private:
     std::function<void(std::string)> mGestureCommitCb;
 
     std::vector<Row> mRows;
-    std::string mEmptyText;
     size_t mTotal = 0;
 };

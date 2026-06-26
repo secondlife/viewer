@@ -87,12 +87,10 @@ namespace
 bool buildGestureAutocompleteRows(
     const std::string& prefix,
     std::vector<LLGestureAutocompleteHelper::Row>& rows,
-    size_t& total,
-    std::string& empty_text)
+    size_t& total)
 {
     rows.clear();
     total = 0;
-    empty_text.clear();
 
     // Wait for at least one character after the slash before offering matches.
     if (prefix.size() < 2 || prefix[0] != '/' || prefix.find_first_of(" \t") != std::string::npos)
@@ -128,20 +126,17 @@ bool buildGestureAutocompleteRows(
             gesture->mName);
     }
 
-    for (const auto& gesture : unique)
+    for (const auto& [trigger, name] : unique)
     {
-        ++total;
-
-        if (rows.size() < MAX_GESTURE_AUTOCOMPLETE_ROWS)
+        if (rows.size() >= MAX_GESTURE_AUTOCOMPLETE_ROWS)
         {
-            rows.push_back({ gesture.first, gesture.first, gesture.second });
+            break;
         }
+
+        rows.push_back({ trigger, trigger, name });
     }
 
-    if (rows.empty())
-    {
-        empty_text = "No matching gestures";
-    }
+    total = unique.size();
 
     return total > 0;
 }
@@ -576,16 +571,14 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
     {
         std::vector<LLGestureAutocompleteHelper::Row> rows;
         size_t total = 0;
-        std::string empty_text;
         const std::string utf8_trigger = wstring_to_utf8str(raw_text);
 
-        if (buildGestureAutocompleteRows(utf8_trigger, rows, total, empty_text))
+        if (buildGestureAutocompleteRows(utf8_trigger, rows, total))
         {
             LLGestureAutocompleteHelper::instance().showHelper(
                 mInputEditor,
                 rows,
                 total,
-                empty_text,
                 [this](std::string trigger)
                 {
                     mInputEditor->setText(trigger + " ");
