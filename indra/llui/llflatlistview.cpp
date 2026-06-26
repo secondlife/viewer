@@ -486,8 +486,8 @@ LLFlatListView::LLFlatListView(const LLFlatListView::Params& p)
   , mFocusOnItemClicked(true)
   , mAllowReorder(p.allow_reorder)
   , mIsReordering(false)
-  , mReorderDragPair(NULL)
-  , mDeferredSelectPair(NULL)
+  , mReorderDragPair(nullptr)
+  , mDeferredSelectPair(nullptr)
   , mReorderMouseDownX(0)
   , mReorderMouseDownY(0)
   , mReorderInsertIndex(-1)
@@ -785,7 +785,7 @@ void LLFlatListView::onItemRightMouseClick(item_pair_t* item_pair, MASK mask)
     onItemMouseClick(item_pair, mask, CLICK_RIGHT);
 }
 
-static const S32 REORDER_DRAG_THRESHOLD = 5;
+static constexpr S32 REORDER_DRAG_THRESHOLD = 5;
 
 void LLFlatListView::armReorderDrag(item_pair_t* item_pair)
 {
@@ -811,7 +811,7 @@ void LLFlatListView::armReorderDrag(item_pair_t* item_pair)
 
     mReorderDragPair = item_pair;
     mReorderDragGroup.clear();
-    mDeferredSelectPair = NULL;
+    mDeferredSelectPair = nullptr;
     mIsReordering = false;
     mReorderInsertIndex = -1;
 
@@ -821,7 +821,8 @@ void LLFlatListView::armReorderDrag(item_pair_t* item_pair)
 
 void LLFlatListView::updateReorderDrag(S32 x, S32 y)
 {
-    if (!mReorderDragPair) return;
+    if (!mReorderDragPair)
+        return;
 
     if (!mIsReordering)
     {
@@ -845,7 +846,8 @@ void LLFlatListView::buildReorderGroup()
 
     for (item_pair_t* pair : mItemPairs)
     {
-        if (!pair->first->getVisible()) continue;
+        if (!pair->first->getVisible())
+            continue;
 
         if (pair == mReorderDragPair)
         {
@@ -870,7 +872,8 @@ void LLFlatListView::getReorderRemaining(pairs_list_t& remaining) const
     remaining.clear();
     for (item_pair_t* pair : mItemPairs)
     {
-        if (!pair->first->getVisible() || isInReorderGroup(pair)) continue;
+        if (!pair->first->getVisible() || isInReorderGroup(pair))
+            continue;
         remaining.push_back(pair);
     }
 }
@@ -882,12 +885,16 @@ void LLFlatListView::finishReorderDrag()
         pairs_list_t remaining;
         getReorderRemaining(remaining);
 
-        // Resolve the drop boundary to the remaining row it lands before (NULL = append).
-        item_pair_t* anchor = NULL;
+        // Resolve the drop boundary to the remaining row it lands before (nullptr = append).
+        item_pair_t* anchor = nullptr;
         S32 cur = 0;
         for (item_pair_t* pair : remaining)
         {
-            if (cur == mReorderInsertIndex) { anchor = pair; break; }
+            if (cur == mReorderInsertIndex)
+            {
+                anchor = pair;
+                break;
+            }
             ++cur;
         }
 
@@ -898,7 +905,7 @@ void LLFlatListView::finishReorderDrag()
             mItemPairs.remove(pair);
         }
 
-        pairs_iterator_t it = (anchor != NULL)
+        pairs_iterator_t it = (anchor != nullptr)
             ? std::find(mItemPairs.begin(), mItemPairs.end(), anchor)
             : mItemPairs.end();
         for (item_pair_t* pair : mReorderDragGroup)
@@ -913,8 +920,10 @@ void LLFlatListView::finishReorderDrag()
             S32 visible_index = 0;
             for (item_pair_t* pair : mItemPairs)
             {
-                if (!pair->first->getVisible()) continue;
-                if (pair == mReorderDragPair) break;
+                if (!pair->first->getVisible())
+                    continue;
+                if (pair == mReorderDragPair)
+                    break;
                 ++visible_index;
             }
 
@@ -929,7 +938,7 @@ void LLFlatListView::cancelReorderDrag()
 {
     if (hasMouseCapture())
     {
-        gFocusMgr.setMouseCapture(NULL);
+        gFocusMgr.setMouseCapture(nullptr);
     }
 
     clearReorderDragState();
@@ -942,11 +951,11 @@ void LLFlatListView::clearReorderDragState()
         getWindow()->setCursor(UI_CURSOR_ARROW);
     }
 
-    bool was_armed = (mReorderDragPair != NULL);
+    bool was_armed = (mReorderDragPair != nullptr);
 
-    mReorderDragPair = NULL;
+    mReorderDragPair = nullptr;
     mReorderDragGroup.clear();
-    mDeferredSelectPair = NULL;
+    mDeferredSelectPair = nullptr;
     mIsReordering = false;
     mReorderInsertIndex = -1;
 
@@ -981,7 +990,8 @@ S32 LLFlatListView::getInsertIndexAt(S32 x, S32 y) const
     S32 index = 0;
     for (item_pair_t* pair : mItemPairs)
     {
-        if (!pair->first->getVisible() || isInReorderGroup(pair)) continue;
+        if (!pair->first->getVisible() || isInReorderGroup(pair))
+            continue;
 
         if (pair->first->getRect().getCenterY() > panel_y)
         {
@@ -998,7 +1008,8 @@ LLFlatListView::item_pair_t* LLFlatListView::getReorderPairAt(S32 x, S32 y) cons
 
     for (item_pair_t* pair : mItemPairs)
     {
-        if (!pair->first->getVisible()) continue;
+        if (!pair->first->getVisible())
+            continue;
 
         // Claim the padding above each row so gap presses still resolve to a row.
         LLRect rc = pair->first->getRect();
@@ -1008,12 +1019,13 @@ LLFlatListView::item_pair_t* LLFlatListView::getReorderPairAt(S32 x, S32 y) cons
             return pair;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 S32 LLFlatListView::constrainInsertIndex(S32 dest_index) const
 {
-    if (!mReorderValidateCallback) return dest_index;
+    if (!mReorderValidateCallback)
+        return dest_index;
 
     // Clamp the boundary to the contiguous run of remaining rows that share the
     // grabbed row's group, so a drag can't leave its group.
@@ -1028,16 +1040,20 @@ S32 LLFlatListView::constrainInsertIndex(S32 dest_index) const
     {
         if (mReorderValidateCallback(dragged, pair->second))
         {
-            if (first_valid < 0) first_valid = i;
+            if (first_valid < 0)
+                first_valid = i;
             last_valid = i;
         }
         ++i;
     }
 
-    if (first_valid < 0) return -1; // no valid neighbour (whole group is being dragged)
+    if (first_valid < 0)
+        return -1; // no valid neighbour (whole group is being dragged)
 
-    if (dest_index < first_valid) return first_valid;
-    if (dest_index > last_valid + 1) return last_valid + 1;
+    if (dest_index < first_valid)
+        return first_valid;
+    if (dest_index > last_valid + 1)
+        return last_valid + 1;
     return dest_index;
 }
 
@@ -1045,7 +1061,8 @@ void LLFlatListView::drawReorderIndicator()
 {
     pairs_list_t remaining;
     getReorderRemaining(remaining);
-    if (remaining.empty()) return;
+    if (remaining.empty())
+        return;
 
     const LLRect& panel_rc = mItemsPanel->getRect();
     const LLColor4& color = mDragIndicatorColor.get();
@@ -1064,21 +1081,27 @@ void LLFlatListView::drawReorderIndicator()
     bool at_end = mReorderInsertIndex >= count;
     S32 anchor_idx = at_end ? count - 1 : mReorderInsertIndex;
 
-    item_pair_t* anchor = NULL;
+    item_pair_t* anchor = nullptr;
     S32 cur = 0;
     for (item_pair_t* pair : remaining)
     {
-        if (cur == anchor_idx) { anchor = pair; break; }
+        if (cur == anchor_idx)
+        {
+            anchor = pair;
+            break;
+        }
         ++cur;
     }
-    if (!anchor) return;
+    if (!anchor)
+        return;
 
     const LLRect& item_rc = anchor->first->getRect();
     S32 left = panel_rc.mLeft + item_rc.mLeft;
     S32 right = panel_rc.mLeft + item_rc.mRight;
     S32 line_y = panel_rc.mBottom + (at_end ? item_rc.mBottom : item_rc.mTop);
 
-    if (line_y < 0 || line_y > getRect().getHeight()) return;
+    if (line_y < 0 || line_y > getRect().getHeight())
+        return;
 
     gl_rect_2d(left, line_y, right, line_y - 1, color, true);
 }
@@ -1112,7 +1135,7 @@ bool LLFlatListView::handleMouseDown(S32 x, S32 y, MASK mask)
         }
     }
 
-    return handled || (mReorderDragPair != NULL);
+    return handled || (mReorderDragPair != nullptr);
 }
 
 bool LLFlatListView::handleMouseUp(S32 x, S32 y, MASK mask)
@@ -1121,7 +1144,7 @@ bool LLFlatListView::handleMouseUp(S32 x, S32 y, MASK mask)
     {
         bool was_reordering = mIsReordering;
         item_pair_t* deferred = mDeferredSelectPair;
-        mDeferredSelectPair = NULL;
+        mDeferredSelectPair = nullptr;
 
         finishReorderDrag();
 
@@ -1518,7 +1541,7 @@ bool LLFlatListView::removeItemPair(item_pair_t* item_pair, bool rearrange)
     }
     if (item_pair == mDeferredSelectPair)
     {
-        mDeferredSelectPair = NULL;
+        mDeferredSelectPair = nullptr;
     }
 
     bool deleted = false;
