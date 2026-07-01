@@ -434,7 +434,7 @@ jobs:
           tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
       - name: Post Windows symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: BugSplat-Git/symbol-upload@33f604b631df9b4be22a06c52e46acccd2db596b
+        uses: BugSplat-Git/symbol-upload@ab8a5097b50707645ed9b51d3191499f9bea6d34
         with:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"
@@ -462,7 +462,7 @@ jobs:
           name: macOS-symbols
       - name: Post Mac symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: BugSplat-Git/symbol-upload@33f604b631df9b4be22a06c52e46acccd2db596b
+        uses: BugSplat-Git/symbol-upload@ab8a5097b50707645ed9b51d3191499f9bea6d34
         with:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"
