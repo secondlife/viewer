@@ -39,7 +39,7 @@ void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color,
         if (display_list && !display_list->empty())
         {
             // Deliberately empty pending verts.
-            // They aren't related to the iamge, so don't register them under draw
+            // They aren't related to the image, so don't register them under draw zone
             gGL.flush();
             LL_PROFILE_ZONE_SCOPED;
             gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);

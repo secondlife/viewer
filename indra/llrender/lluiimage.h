@@ -38,7 +38,11 @@
 
 #include <boost/signals2.hpp>
 
+#include <bit>
+#include <chrono>
 #include <type_traits>
+#include <unordered_map>
+#include <vector>
 
 extern const LLColor4 UI_VERTEX_COLOR;
 
@@ -120,46 +124,42 @@ public:
     static void enableDisplayListsCollection(bool enable) { sEnableDisplayListsCollection = enable; }
 
 protected:
-    // Key for identifying unique display list configurations
-    struct DisplayListKey
+    // Packed key for identifying unique display list configurations
+    struct PackedKey
     {
-        S32 x;
-        S32 y;
-        S32 width;
-        S32 height;
-        LLColor4 color;
-        bool solid_color;
-        LLVector3 translate;
-        LLVector3 scale;
+        uint64_t position;    // x and y coordinates
+        uint64_t color_flags; // RGBA color + solid_color flag
+        uint64_t dimensions;  // width and height
+        uint64_t translate;   // UI offset
+        uint64_t scale;       // UI scale
 
-        // Pack for hashing
-        struct PackedKey
+        constexpr bool operator==(const PackedKey& other) const
         {
-            uint64_t position;    // x and y coordinates
-            uint64_t color_flags; // RGBA color + solid_color flag
-            uint64_t dimensions;  // width and height
-            // todo: fix, translation, scale, position, shouldn't be needed
-            uint64_t translate;   // UI offset
-            uint64_t scale;      // UI scale
+            return position == other.position &&
+                color_flags == other.color_flags &&
+                dimensions == other.dimensions &&
+                translate == other.translate &&
+                scale == other.scale;
+        }
 
-            constexpr bool operator==(const PackedKey& other) const
+        struct Hash
+        {
+            std::size_t operator()(const PackedKey& key) const
             {
-                return position == other.position &&
-                    color_flags == other.color_flags &&
-                    dimensions == other.dimensions &&
-                    translate == other.translate &&
-                    scale == other.scale;
+                return static_cast<std::size_t>(key.position ^ key.color_flags ^
+                                               key.dimensions ^ key.translate ^ key.scale);
             }
         };
 
-        constexpr PackedKey pack() const
+        // Static factory function to create PackedKey from parameters
+        static constexpr PackedKey create(S32 x, S32 y, S32 width, S32 height,
+                                         const LLColor4& color, bool solid_color,
+                                         const LLVector3& translate, const LLVector3& scale)
         {
-            // Convert floats to 8-bit values for packing (0.0-1.0 -> 0-255)
             auto float_to_u8 = [](F32 f) -> uint8_t {
                 return static_cast<uint8_t>(llclamp(f * 255.0f, 0.0f, 255.0f));
             };
 
-            // Helper to convert float to uint32 preserving bit pattern
             auto float_to_bits = [](F32 f) -> uint32_t {
                 return std::bit_cast<uint32_t>(f);
             };
@@ -189,47 +189,6 @@ protected:
 
             return PackedKey{ pos, col, dim, trns, scl };
         }
-
-        constexpr bool operator==(const DisplayListKey& other) const
-        {
-            return pack() == other.pack();
-        }
-
-        struct Hash
-        {
-            using is_transparent = void;  // Enable transparent lookup
-
-            std::size_t operator()(const DisplayListKey& key) const
-            {
-                auto packed = key.pack();
-                return static_cast<std::size_t>(packed.position ^ packed.color_flags ^ packed.dimensions ^ packed.translate ^ packed.scale);
-            }
-
-            std::size_t operator()(const PackedKey& packed) const
-            {
-                return static_cast<std::size_t>(packed.position ^ packed.color_flags ^ packed.dimensions ^ packed.translate ^ packed.scale);
-            }
-        };
-
-        struct KeyEqual
-        {
-            using is_transparent = void;  // Enable transparent lookup
-
-            bool operator()(const DisplayListKey& lhs, const DisplayListKey& rhs) const
-            {
-                return lhs == rhs;
-            }
-
-            bool operator()(const DisplayListKey& lhs, const PackedKey& rhs) const
-            {
-                return lhs.pack() == rhs;
-            }
-
-            bool operator()(const PackedKey& lhs, const DisplayListKey& rhs) const
-            {
-                return lhs == rhs.pack();
-            }
-        };
     };
 
     // Cached display list for a specific configuration
@@ -261,11 +220,8 @@ protected:
     mutable S32             mCachedW;
     mutable S32             mCachedH;
 
-    // Display list cache
-    // const member functions promise not to modify the object's logical state, but
-    // cache does not modify logical state, mutabale to permit const correctness
-    // (standard C++ pattern for transparent caching).
-    mutable std::unordered_map<DisplayListKey, CachedDisplayList, DisplayListKey::Hash> mDisplayLists;
+    // Display list cache - now using PackedKey directly
+    mutable std::unordered_map<PackedKey, CachedDisplayList, PackedKey::Hash> mDisplayLists;
 
     // Track all LLUIImage cache instances for global cleanup
     static std::vector<LLPointer<LLUIImage> > sImageList;

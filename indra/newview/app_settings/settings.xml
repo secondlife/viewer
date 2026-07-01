@@ -9896,7 +9896,7 @@
   <key>CollectUIImageVertexBuffers</key>
   <map>
     <key>Comment</key>
-    <string>When enabled images will cache buffers and reuse them. When disabled general cahce will be used with a significant overhead for hash, but it regenerates vertices each frame so it's always up to date.</string>
+    <string>When enabled, images will cache vertex buffers and reuse them. When disabled, the general cache will be used with significant hash-lookup overhead, but vertices are regenerated each frame so they are always up to date.</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>

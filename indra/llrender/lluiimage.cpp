@@ -31,7 +31,6 @@
 
 // Project includes
 #include "lluiimage.h"
-#include <chrono>
 #include <algorithm>
 
 // Static member initialization
@@ -57,21 +56,10 @@ LLUIImage::~LLUIImage()
 {
     delete mImageLoaded;
 
-    if (!mDisplayLists.empty())
-    {
-        llassert(false);
-        // Unregister from global cleanup list (sanity check)
-        // But it's supposed to be cleared already, else we wouldn't
-        // be destructing this opbject.
-        auto it = std::find(sImageList.begin(), sImageList.end(), this);
-        if (it != sImageList.end())
-        {
-            // Swap with last element and pop (O(1) removal)
-            *it = sImageList.back();
-            sImageList.pop_back();
-        }
-    }
-
+    // Unregister from global cleanup list (sanity check)
+    // But it's supposed to be cleared already, else we wouldn't
+    // be destructing this object.
+    unregisterFromGlobalCleanup();
     mDisplayLists.clear();
 }
 
@@ -91,12 +79,12 @@ buffer_data_list_t* LLUIImage::findDisplayList(S32 x, S32 y, S32 width, S32 heig
 {
     LLVector3 ui_translation = gGL.getUITranslation();
     LLVector3 ui_scale = gGL.getUIScale();
-    DisplayListKey key{ x, y, width, height, color, solid_color, ui_translation, ui_scale };
+
+    auto key = PackedKey::create(x, y, width, height, color, solid_color, ui_translation, ui_scale);
 
     auto it = mDisplayLists.find(key);
     if (it != mDisplayLists.end())
     {
-        // Found cached display list, update last used time
         it->second.last_used = std::chrono::steady_clock::now();
         return &it->second.list;
     }
@@ -108,7 +96,7 @@ buffer_data_list_t* LLUIImage::genDisplayList(S32 x, S32 y, S32 width, S32 heigh
     LL_PROFILE_ZONE_SCOPED;
     LLVector3 ui_translation = gGL.getUITranslation();
     LLVector3 ui_scale = gGL.getUIScale();
-    DisplayListKey key{ x, y, width, height, color, solid_color, ui_translation, ui_scale };
+    auto key = PackedKey::create(x, y, width, height, color, solid_color, ui_translation, ui_scale);
 
     CachedDisplayList cached;
     cached.last_used = std::chrono::steady_clock::now();
@@ -129,6 +117,7 @@ buffer_data_list_t* LLUIImage::genDisplayList(S32 x, S32 y, S32 width, S32 heigh
     gGL.endList();
 
     // Insert into cache
+    // emplace, since we only call genDisplayList if key was not found.
     auto result = mDisplayLists.emplace(key, std::move(cached));
 
     // Register for cleanup on first buffer creation
@@ -154,7 +143,18 @@ void LLUIImage::cleanupDisplayLists()
         llassert(false); //it shouldn't be in this list
         unregisterFromGlobalCleanup();
         // marks current position for a recheck. Increments after cleanupDisplayLists.
-        sCleanupIndex--;
+        if (sCleanupIndex > 0)
+        {
+            sCleanupIndex--;
+        }
+        else if (sImageList.empty())
+        {
+            sCleanupIndex = 0;
+        }
+        else
+        {
+            sCleanupIndex = sImageList.size() - 1;
+        }
         return;
     }
 
@@ -180,7 +180,18 @@ void LLUIImage::cleanupDisplayLists()
     {
         unregisterFromGlobalCleanup();
         // marks current position for a recheck. Increments after cleanupDisplayLists.
-        sCleanupIndex--;
+        if (sCleanupIndex > 0)
+        {
+            sCleanupIndex--;
+        }
+        else if (sImageList.empty())
+        {
+            sCleanupIndex = 0;
+        }
+        else
+        {
+            sCleanupIndex = sImageList.size() - 1;
+        }
     }
 }
 
