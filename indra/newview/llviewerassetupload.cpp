@@ -881,6 +881,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
     if (uploadInfo->showUploadDialog())
     {
+        // todo: localize this string
         std::string uploadMessage = "Uploading...\n\n";
         uploadMessage.append(uploadInfo->getDisplayName());
         LLUploadDialog::modalUploadDialog(uploadMessage);
@@ -888,24 +889,35 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
     LLSD body = uploadInfo->generatePostBody();
 
-    result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOptions);
+    // Retry stage-2 upload by re-requesting a fresh one-time uploader capability (up to 3 attempts total)
+    const S32 MAX_UPLOAD_RETRIES = 2;
+    S32 upload_retry_count = 0;
+    LLCore::HttpStatus status;
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if ((!status) || (result.has("error")))
+    while (upload_retry_count <= MAX_UPLOAD_RETRIES)
     {
-        HandleUploadError(status, result, uploadInfo);
-        if (uploadInfo->showUploadDialog())
-            LLUploadDialog::modalUploadFinished();
-        return;
-    }
+        // Stage 1: Request uploader URL
+        result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOptions);
 
-    std::string uploader = result["uploader"].asString();
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    bool success = false;
-    if (!uploader.empty() && uploadInfo->getAssetId().notNull())
-    {
+        if ((!status) || (result.has("error")))
+        {
+            HandleUploadError(status, result, uploadInfo);
+            if (uploadInfo->showUploadDialog())
+                LLUploadDialog::modalUploadFinished();
+            return;
+        }
+
+        std::string uploader = result["uploader"].asString();
+        if (uploader.empty() || uploadInfo->getAssetId().isNull())
+        {
+            LL_WARNS() << "No upload url provided. Nothing uploaded, responding with previous result." << LL_ENDL;
+            break;
+        }
+
+        // Stage 2: Upload to the uploader URL
         result = httpAdapter->postFileAndSuspend(httpRequest, uploader, uploadInfo->getAssetId(), uploadInfo->getAssetType(), httpOptions);
         httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -914,40 +926,53 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
         if ((!status) || (ulstate != "complete"))
         {
-            HandleUploadError(status, result, uploadInfo);
-            if (uploadInfo->showUploadDialog())
-                LLUploadDialog::modalUploadFinished();
-            return;
-        }
-        if (!result.has("success"))
-        {
-            result["success"] = LLSD::Boolean((ulstate == "complete") && status);
+            if (upload_retry_count < MAX_UPLOAD_RETRIES)
+            {
+                upload_retry_count++;
+                LL_WARNS() << "Upload to uploader failed (attempt " << upload_retry_count
+                          << " of " << (MAX_UPLOAD_RETRIES + 1) << "), re-requesting uploader..." << LL_ENDL;
+                llcoro::suspendUntilTimeout(1.0f);
+                continue;
+            }
+            else
+            {
+                HandleUploadError(status, result, uploadInfo);
+                if (uploadInfo->showUploadDialog())
+                    LLUploadDialog::modalUploadFinished();
+                return;
+            }
         }
 
-        S32 uploadPrice = result["upload_price"].asInteger();
-
-        if (uploadPrice > 0)
-        {
-            // this upload costed us L$, update our balance
-            // and display something saying that it cost L$
-            LLStatusBar::sendMoneyBalanceRequest();
-
-            LLSD args;
-            args["AMOUNT"] = llformat("%d", uploadPrice);
-            LLNotificationsUtil::add("UploadPayment", args);
-        }
+        // Success!
+        break;
     }
-    else
+
+    if (!result.has("success"))
     {
-        LL_WARNS() << "No upload url provided.  Nothing uploaded, responding with previous result." << LL_ENDL;
+        result["success"] = LLSD::Boolean((result["state"].asString() == "complete") && status);
     }
+
+    S32 uploadPrice = result["upload_price"].asInteger();
+
+    if (uploadPrice > 0)
+    {
+        // this upload costed us L$, update our balance
+        // and display something saying that it cost L$
+        LLStatusBar::sendMoneyBalanceRequest();
+
+        LLSD args;
+        args["AMOUNT"] = llformat("%d", uploadPrice);
+        LLNotificationsUtil::add("UploadPayment", args);
+    }
+
     LLUUID serverInventoryItem = uploadInfo->finishUpload(result);
 
+    bool succeeded = false;
     if (uploadInfo->showInventoryPanel())
     {
         if (serverInventoryItem.notNull())
         {
-            success = true;
+            succeeded = true;
 
             LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
 
@@ -973,7 +998,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
     LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
     if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE && floater_snapshot && floater_snapshot->isShown())
     {
-        floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
+        floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", succeeded).with("msg", "inventory")));
     }
 }
 
