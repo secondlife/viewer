@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,6 +31,13 @@
 
 // Project includes
 #include "lluiimage.h"
+#include <chrono>
+#include <algorithm>
+
+// Static member initialization
+std::vector<LLPointer<LLUIImage> > LLUIImage::sImageList;
+size_t LLUIImage::sCleanupIndex = 0;
+bool LLUIImage::sEnableDisplayListsCollection = true;
 
 LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
 :   mName(name),
@@ -49,6 +56,23 @@ LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
 LLUIImage::~LLUIImage()
 {
     delete mImageLoaded;
+
+    if (!mDisplayLists.empty())
+    {
+        llassert(false);
+        // Unregister from global cleanup list (sanity check)
+        // But it's supposed to be cleared already, else we wouldn't
+        // be destructing this opbject.
+        auto it = std::find(sImageList.begin(), sImageList.end(), this);
+        if (it != sImageList.end())
+        {
+            // Swap with last element and pop (O(1) removal)
+            *it = sImageList.back();
+            sImageList.pop_back();
+        }
+    }
+
+    mDisplayLists.clear();
 }
 
 S32 LLUIImage::getWidth() const
@@ -61,6 +85,155 @@ S32 LLUIImage::getHeight() const
 {
     // return clipped dimensions of actual image area
     return ll_round((F32)mImage->getHeight(0) * mClipRegion.getHeight());
+}
+
+buffer_data_list_t* LLUIImage::findDisplayList(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, bool solid_color) const
+{
+    LLVector3 ui_translation = gGL.getUITranslation();
+    LLVector3 ui_scale = gGL.getUIScale();
+    DisplayListKey key{ x, y, width, height, color, solid_color, ui_translation, ui_scale };
+
+    auto it = mDisplayLists.find(key);
+    if (it != mDisplayLists.end())
+    {
+        // Found cached display list, update last used time
+        it->second.last_used = std::chrono::steady_clock::now();
+        return &it->second.list;
+    }
+    return nullptr;
+}
+
+buffer_data_list_t* LLUIImage::genDisplayList(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, bool solid_color) const
+{
+    LL_PROFILE_ZONE_SCOPED;
+    LLVector3 ui_translation = gGL.getUITranslation();
+    LLVector3 ui_scale = gGL.getUIScale();
+    DisplayListKey key{ x, y, width, height, color, solid_color, ui_translation, ui_scale };
+
+    CachedDisplayList cached;
+    cached.last_used = std::chrono::steady_clock::now();
+
+    // Generate the display list by capturing the draw commands
+    gGL.beginList(&cached.list);
+
+    gl_draw_scaled_image_with_border(
+        x, y,
+        width, height,
+        mImage,
+        color,
+        solid_color,
+        mClipRegion,
+        mScaleRegion,
+        mScaleStyle == SCALE_INNER);
+
+    gGL.endList();
+
+    // Insert into cache
+    auto result = mDisplayLists.emplace(key, std::move(cached));
+
+    // Register for cleanup on first buffer creation
+    if (mDisplayLists.size() == 1)
+    {
+        sImageList.push_back(const_cast<LLUIImage*>(this));
+    }
+
+    return &result.first->second.list;
+}
+
+void LLUIImage::invalidateDisplayLists()
+{
+    mDisplayLists.clear();
+
+    unregisterFromGlobalCleanup();
+}
+
+void LLUIImage::cleanupDisplayLists()
+{
+    if (mDisplayLists.empty())
+    {
+        llassert(false); //it shouldn't be in this list
+        unregisterFromGlobalCleanup();
+        // marks current position for a recheck. Increments after cleanupDisplayLists.
+        sCleanupIndex--;
+        return;
+    }
+
+    // Time threshold for cleaning up unused display lists (global cleanup)
+    constexpr std::chrono::seconds DISPLAY_LIST_TIMEOUT{ 2 };
+    auto now = std::chrono::steady_clock::now();
+
+    // Remove display lists that haven't been used recently
+    for (auto it = mDisplayLists.begin(); it != mDisplayLists.end(); )
+    {
+        if (now - it->second.last_used > DISPLAY_LIST_TIMEOUT)
+        {
+            it = mDisplayLists.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    // Unregister from cleanup list if all display lists were removed
+    if (mDisplayLists.empty())
+    {
+        unregisterFromGlobalCleanup();
+        // marks current position for a recheck. Increments after cleanupDisplayLists.
+        sCleanupIndex--;
+    }
+}
+
+void LLUIImage::unregisterFromGlobalCleanup()
+{
+    auto list_it = std::find(sImageList.begin(), sImageList.end(), this);
+    if (list_it != sImageList.end())
+    {
+        // Swap with last element and pop (O(1) removal)
+        *list_it = sImageList.back();
+        sImageList.pop_back();
+    }
+}
+
+// static
+void LLUIImage::updateClass()
+{
+    if (sImageList.empty())
+    {
+        return;
+    }
+
+    // Clean up a batch of images each frame to amortize the cost
+    // ensuring all images are checked regularly
+    // Note: buffers often get obsolete in batches, perhaps
+    // increase rate of cleanup after a buffer was removed?
+    // and decrease rate if no buffer were removed and creates
+    // for a while?
+    constexpr size_t BATCH_SIZE = 8;
+    size_t images_to_process = std::min(BATCH_SIZE, sImageList.size());
+
+    for (size_t i = 0; i < images_to_process; ++i)
+    {
+        if (sCleanupIndex >= sImageList.size())
+        {
+            sCleanupIndex = 0;
+        }
+
+        sImageList[sCleanupIndex]->cleanupDisplayLists();
+        ++sCleanupIndex;
+    }
+}
+
+void LLUIImage::cleanupClass()
+{
+    std::vector<LLPointer<LLUIImage> > list_copy(sImageList);
+    sImageList.clear();
+    for (LLUIImage* image : list_copy)
+    {
+        // invalidateDisplayLists will attempt to clear sImageList
+        image->invalidateDisplayLists();
+    }
+    sCleanupIndex = 0;
 }
 
 void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, const LLVector3& y_axis,
@@ -77,7 +250,7 @@ void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, c
          }
          else
          {
-            border_scale = (F32)rect.getWidth() / border_width;
+             border_scale = (F32)rect.getWidth() / border_width;
          }
     }
 
@@ -124,6 +297,8 @@ void LLUIImage::onImageLoaded()
     {
         (*mImageLoaded)();
     }
+
+    invalidateDisplayLists();
 }
 
 namespace LLInitParam

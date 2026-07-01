@@ -614,6 +614,16 @@ void LLPipeline::init()
             LLFontWidthBuffer::enableBufferCollection(enable_buffers);
         });
     }
+
+    cntrl_ptr = gSavedSettings.getControl("CollectUIImageVertexBuffers");
+    if (cntrl_ptr.notNull())
+    {
+        cntrl_ptr->getCommitSignal()->connect([](LLControlVariable* control, const LLSD& value, const LLSD& previous)
+        {
+            bool enable_buffers = control->getValue().asBoolean();
+            LLUIImage::enableDisplayListsCollection(enable_buffers);
+        });
+    }
 }
 
 LLPipeline::~LLPipeline()
@@ -1151,6 +1161,8 @@ void LLPipeline::refreshCachedSettings()
     bool enable_buffers = gSavedSettings.getBOOL("CollectFontVertexBuffers");
     LLFontVertexBuffer::enableBufferCollection(enable_buffers);
     LLFontWidthBuffer::enableBufferCollection(enable_buffers);
+    enable_buffers = gSavedSettings.getBOOL("CollectUIImageVertexBuffers");
+    LLUIImage::enableDisplayListsCollection(enable_buffers);
 }
 
 void LLPipeline::releaseGLBuffers()

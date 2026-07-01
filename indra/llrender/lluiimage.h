@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -34,6 +34,7 @@
 #include "llinitparam.h"
 #include "lltexture.h"
 #include "llrender2dutils.h"
+#include "llvertexbuffer.h"
 
 #include <boost/signals2.hpp>
 
@@ -58,21 +59,28 @@ public:
     LL_FORCE_INLINE void setClipRegion(const LLRectf& region)
     {
         mClipRegion = region;
+        // This happens when image becomes loaded
+        invalidateDisplayLists();
     }
 
     LL_FORCE_INLINE void setScaleRegion(const LLRectf& region)
     {
         mScaleRegion = region;
+        // This happens when image becomes loaded
+        invalidateDisplayLists();
     }
 
     LL_FORCE_INLINE void setScaleStyle(EScaleStyle style)
     {
         mScaleStyle = style;
+        // This happens when image becomes loaded
+        invalidateDisplayLists();
     }
 
     LL_FORCE_INLINE LLPointer<LLTexture> getImage() { return mImage; }
     LL_FORCE_INLINE const LLPointer<LLTexture>& getImage() const { return mImage; }
 
+    LL_FORCE_INLINE void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, bool solid_color) const;
     LL_FORCE_INLINE void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color = UI_VERTEX_COLOR) const;
     LL_FORCE_INLINE void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR) const;
     LL_FORCE_INLINE void draw(const LLRect& rect, const LLColor4& color = UI_VERTEX_COLOR) const { draw(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color); }
@@ -85,6 +93,10 @@ public:
     LL_FORCE_INLINE void drawBorder(const LLRect& rect, const LLColor4& color, S32 border_width) const { drawBorder(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color, border_width); }
     LL_FORCE_INLINE void drawBorder(S32 x, S32 y, const LLColor4& color, S32 border_width) const { drawBorder(x, y, getWidth(), getHeight(), color, border_width); }
 
+    // Note: draw3D is not cached with display lists because it uses world-space rendering
+    // with dynamic transforms (gl_segmented_rect_3d_tex). These calls are infrequent and
+    // highly dynamic, making caching ineffective. The 2D UI methods benefit from caching
+    // because they're called many times per frame with the same dimensions.
     void draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, const LLVector3& y_axis, const LLRect& rect, const LLColor4& color);
 
     LL_FORCE_INLINE const std::string& getName() const { return mName; }
@@ -100,7 +112,145 @@ public:
 
     void onImageLoaded();
 
+    // Global cleanup of unused display lists across all LLUIImage instances
+    // Should be called periodically (e.g., once per frame or when memory pressure is detected)
+    static void updateClass();
+    static void cleanupClass();
+
+    static void enableDisplayListsCollection(bool enable) { sEnableDisplayListsCollection = enable; }
+
 protected:
+    // Key for identifying unique display list configurations
+    struct DisplayListKey
+    {
+        S32 x;
+        S32 y;
+        S32 width;
+        S32 height;
+        LLColor4 color;
+        bool solid_color;
+        LLVector3 translate;
+        LLVector3 scale;
+
+        // Pack for hashing
+        struct PackedKey
+        {
+            uint64_t position;    // x and y coordinates
+            uint64_t color_flags; // RGBA color + solid_color flag
+            uint64_t dimensions;  // width and height
+            // todo: fix, translation, scale, position, shouldn't be needed
+            uint64_t translate;   // UI offset
+            uint64_t scale;      // UI scale
+
+            constexpr bool operator==(const PackedKey& other) const
+            {
+                return position == other.position &&
+                    color_flags == other.color_flags &&
+                    dimensions == other.dimensions &&
+                    translate == other.translate &&
+                    scale == other.scale;
+            }
+        };
+
+        constexpr PackedKey pack() const
+        {
+            // Convert floats to 8-bit values for packing (0.0-1.0 -> 0-255)
+            auto float_to_u8 = [](F32 f) -> uint8_t {
+                return static_cast<uint8_t>(llclamp(f * 255.0f, 0.0f, 255.0f));
+            };
+
+            // Helper to convert float to uint32 preserving bit pattern
+            auto float_to_bits = [](F32 f) -> uint32_t {
+                return std::bit_cast<uint32_t>(f);
+            };
+
+            uint8_t r = float_to_u8(color.mV[VRED]);
+            uint8_t g = float_to_u8(color.mV[VGREEN]);
+            uint8_t b = float_to_u8(color.mV[VBLUE]);
+            uint8_t a = float_to_u8(color.mV[VALPHA]);
+
+            uint64_t pos = (static_cast<uint64_t>(static_cast<uint32_t>(x)) << 32) |
+                static_cast<uint64_t>(static_cast<uint32_t>(y));
+
+            uint64_t col = (static_cast<uint64_t>(r) << 56) |
+                (static_cast<uint64_t>(g) << 48) |
+                (static_cast<uint64_t>(b) << 40) |
+                (static_cast<uint64_t>(a) << 32) |
+                (solid_color ? 1ULL : 0ULL);
+
+            uint64_t dim = (static_cast<uint64_t>(static_cast<uint32_t>(width)) << 32) |
+                static_cast<uint64_t>(static_cast<uint32_t>(height));
+
+            uint64_t trns = (static_cast<uint64_t>(float_to_bits(translate.mV[VX])) << 32) |
+                static_cast<uint64_t>(float_to_bits(translate.mV[VY]));
+
+            uint64_t scl = (static_cast<uint64_t>(float_to_bits(scale.mV[VX])) << 32) |
+                static_cast<uint64_t>(float_to_bits(scale.mV[VY]));
+
+            return PackedKey{ pos, col, dim, trns, scl };
+        }
+
+        constexpr bool operator==(const DisplayListKey& other) const
+        {
+            return pack() == other.pack();
+        }
+
+        struct Hash
+        {
+            using is_transparent = void;  // Enable transparent lookup
+
+            std::size_t operator()(const DisplayListKey& key) const
+            {
+                auto packed = key.pack();
+                return static_cast<std::size_t>(packed.position ^ packed.color_flags ^ packed.dimensions ^ packed.translate ^ packed.scale);
+            }
+
+            std::size_t operator()(const PackedKey& packed) const
+            {
+                return static_cast<std::size_t>(packed.position ^ packed.color_flags ^ packed.dimensions ^ packed.translate ^ packed.scale);
+            }
+        };
+
+        struct KeyEqual
+        {
+            using is_transparent = void;  // Enable transparent lookup
+
+            bool operator()(const DisplayListKey& lhs, const DisplayListKey& rhs) const
+            {
+                return lhs == rhs;
+            }
+
+            bool operator()(const DisplayListKey& lhs, const PackedKey& rhs) const
+            {
+                return lhs.pack() == rhs;
+            }
+
+            bool operator()(const PackedKey& lhs, const DisplayListKey& rhs) const
+            {
+                return lhs == rhs.pack();
+            }
+        };
+    };
+
+    // Cached display list for a specific configuration
+    struct CachedDisplayList
+    {
+        buffer_data_list_t list;
+        std::chrono::steady_clock::time_point last_used;
+    };
+
+    // Get a display list for the given configuration
+    buffer_data_list_t* findDisplayList(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, bool solid_color) const;
+    // Generate a new display list for the given configuration, draws immediately.
+    buffer_data_list_t* genDisplayList(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, bool solid_color) const;
+
+    // Invalidate all cached display lists (called when image properties change)
+    void invalidateDisplayLists();
+
+    // Clean up old display lists for this image (called by updateClass)
+    void cleanupDisplayLists();
+    void unregisterFromGlobalCleanup();
+
     image_loaded_signal_t* mImageLoaded;
 
     std::string             mName;
@@ -110,6 +260,17 @@ protected:
     EScaleStyle             mScaleStyle;
     mutable S32             mCachedW;
     mutable S32             mCachedH;
+
+    // Display list cache
+    // const member functions promise not to modify the object's logical state, but
+    // cache does not modify logical state, mutabale to permit const correctness
+    // (standard C++ pattern for transparent caching).
+    mutable std::unordered_map<DisplayListKey, CachedDisplayList, DisplayListKey::Hash> mDisplayLists;
+
+    // Track all LLUIImage cache instances for global cleanup
+    static std::vector<LLPointer<LLUIImage> > sImageList;
+    static size_t sCleanupIndex;  // Round-robin cleanup position
+    static bool sEnableDisplayListsCollection;
 };
 
 #include "lluiimage.inl"
