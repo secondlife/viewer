@@ -680,6 +680,8 @@ void LLOutfitsList::applyFilterToTab(
     }
     else
     {
+        // We got a match
+        tab->setVisible(true);
         // Try restoring the tab selection.
         restoreOutfitSelection(tab, category_id);
     }
