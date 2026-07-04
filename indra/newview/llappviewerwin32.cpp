@@ -181,6 +181,12 @@ namespace
             sBugSplatSender->setAttribute(WCSTR(L"VRAM"), WCSTR(STRINGIZE(gGLManager.mVRAM)));
             sBugSplatSender->setAttribute(WCSTR(L"RAM"), WCSTR(STRINGIZE(gSysMemory.getPhysicalMemoryKB().value())));
 
+            // Memory usage at crash time (can be 1s obsolete)
+            sBugSplatSender->setAttribute(WCSTR(L"MemAllocatedKB"), WCSTR(std::to_string(LLMemory::getAllocatedMemKB().value())));
+            sBugSplatSender->setAttribute(WCSTR(L"MemAvailableKB"), WCSTR(std::to_string(LLMemory::getAvailableMemKB().value())));
+            sBugSplatSender->setAttribute(WCSTR(L"MemMaxPhysicalKB"), WCSTR(std::to_string(LLMemory::getMaxMemKB().value())));
+            sBugSplatSender->setAttribute(WCSTR(L"MemAvailCommitMB"), WCSTR(std::to_string(LLMemory::getAvailableCommitMemMB().value())));
+
             if (gAgent.getRegion())
             {
                 // region location, when we have it
@@ -193,6 +199,7 @@ namespace
             }
 
             LLAppViewer* app = LLAppViewer::instance();
+
             if (!app->isSecondInstance() && !app->errorMarkerExists())
             {
                 // If marker doesn't exist, create a marker with 'other' or 'logout' code for next launch

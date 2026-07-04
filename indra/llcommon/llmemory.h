@@ -429,10 +429,18 @@ public:
     static void updateMemoryInfo() ;
     static void logMemoryInfo(bool update = false);
 
+#if LL_WINDOWS
+    // Commit charge is a Windows-only concept, combines page file and ram
+    static U32Megabytes getAvailableCommitMemMB();
+#endif
     static U32Kilobytes getAvailableMemKB() ;
     static U32Kilobytes getMaxMemKB() ;
     static U32Kilobytes getAllocatedMemKB() ;
 private:
+    // LLMemoryInfo directly updates memory stats
+    friend class LLMemoryInfo;
+
+    static U32Megabytes sAvailCommitMemInMB;
     static U32Kilobytes sAvailPhysicalMemInKB ;
     static U32Kilobytes sMaxPhysicalMemInKB ;
     static U32Kilobytes sAllocatedMemInKB;

@@ -43,6 +43,7 @@
 #include "llerrorcontrol.h"
 #include "llevents.h"
 #include "llformat.h"
+#include "llmemory.h"
 #include "llregex.h"
 #include "lltimer.h"
 #include "llsdserialize.h"
@@ -802,15 +803,13 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 }
 
 //static
-void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
+void LLMemoryInfo::updateAvailableMemory()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if LL_WINDOWS
-    // Sigh, this shouldn't be a static method, then we wouldn't have to
-    // reload this data separately from refresh()
-    LLSD statsMap(loadStatsMap());
-
-    avail_mem_kb = (U32Kilobytes)statsMap["Avail Physical KB"].asInteger();
+    // On windows loadStatsMap will fill sAvailPhysicalMemInKB,
+    // sAvailCommitMemInMB, sAllocatedMemInKB and sAllocatedPageSizeInKB
+    loadStatsMap();
 
 #elif LL_DARWIN
     // use host_statistics64 to get memory info
@@ -822,11 +821,11 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
     kern_return_t result = host_statistics64(host, HOST_VM_INFO64, reinterpret_cast<host_info_t>(&vmstat), &count);
     if (result == KERN_SUCCESS)
     {
-        avail_mem_kb = U64Bytes((vmstat.free_count + vmstat.inactive_count) * page_size);
+        LLMemory::sAvailPhysicalMemInKB = U64Bytes((vmstat.free_count + vmstat.inactive_count) * page_size);
     }
     else
     {
-        avail_mem_kb = (U32Kilobytes)-1;
+        LLMemory::sAvailPhysicalMemInKB = (U32Kilobytes)-1;
     }
 
 #elif LL_LINUX
@@ -880,12 +879,12 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
     // (could also run 'free', but easier to read a file than run a program)
     LLSD statsMap(loadStatsMap());
 
-    avail_mem_kb = (U32Kilobytes)statsMap["MemFree"].asInteger();
+    LLMemory::sAvailPhysicalMemInKB = (U32Kilobytes)statsMap["MemFree"].asInteger();
 #else
     //do not know how to collect available memory info for other systems.
     //leave it blank here for now.
 
-    avail_mem_kb = (U32Kilobytes)-1 ;
+    LLMemory::sAvailPhysicalMemInKB = (U32Kilobytes)-1 ;
 #endif
 }
 
@@ -958,15 +957,22 @@ LLSD LLMemoryInfo::loadStatsMap()
 
     static constexpr DWORDLONG div = 1024;
 
-    stats.add("Percent Memory use", state.dwMemoryLoad/div);
+    stats.add("Percent Memory use", state.dwMemoryLoad);
     stats.add("Total Physical KB",  state.ullTotalPhys/div);
     stats.add("Avail Physical KB",  state.ullAvailPhys/div);
+
+    // Despite the confusing naming "PageFile" , these values
+    // actually represent the committed memory limit for
+    // the system or the current process, whichever is smaller.
     stats.add("Total page KB",      state.ullTotalPageFile/div);
     stats.add("Avail page KB",      state.ullAvailPageFile/div);
 
     static constexpr DWORDLONG mb_div = 1024 * 1024;
     stats.add("Total Virtual MB", state.ullTotalVirtual/mb_div);  // ~134 million MB
     stats.add("Avail Virtual MB", state.ullAvailVirtual/mb_div);
+
+    LLMemory::sAvailPhysicalMemInKB = U32Kilobytes::convert(U64Bytes(state.ullAvailPhys));
+    LLMemory::sAvailCommitMemInMB = U32Megabytes::convert(U64Bytes(state.ullAvailPageFile));
 
     // SL-12122 - Call to GetPerformanceInfo() was removed here. Took
     // on order of 10 ms, causing unacceptable frame time spike every
@@ -982,18 +988,38 @@ LLSD LLMemoryInfo::loadStatsMap()
     // specifically accepts PROCESS_MEMORY_COUNTERS*, and since this is a
     // classic-C API, PROCESS_MEMORY_COUNTERS_EX isn't a subclass. Cast the
     // pointer.
-    GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*) &pmem, sizeof(pmem));
+    if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmem, sizeof(pmem)))
+    {
+        LLMemory::sAllocatedMemInKB = U32Kilobytes::convert(U64Bytes(pmem.WorkingSetSize));
+        LLMemory::sAllocatedPageSizeInKB = U32Kilobytes::convert(U64Bytes(pmem.PagefileUsage));
 
-    stats.add("Page Fault Count",              pmem.PageFaultCount);
-    stats.add("PeakWorkingSetSize KB",         pmem.PeakWorkingSetSize/div);
-    stats.add("WorkingSetSize KB",             pmem.WorkingSetSize/div);
-    stats.add("QutaPeakPagedPoolUsage KB",     pmem.QuotaPeakPagedPoolUsage/div);
-    stats.add("QuotaPagedPoolUsage KB",        pmem.QuotaPagedPoolUsage/div);
-    stats.add("QuotaPeakNonPagedPoolUsage KB", pmem.QuotaPeakNonPagedPoolUsage/div);
-    stats.add("QuotaNonPagedPoolUsage KB",     pmem.QuotaNonPagedPoolUsage/div);
-    stats.add("PagefileUsage KB",              pmem.PagefileUsage/div);
-    stats.add("PeakPagefileUsage KB",          pmem.PeakPagefileUsage/div);
-    stats.add("PrivateUsage KB",               pmem.PrivateUsage/div);
+        stats.add("Page Fault Count", pmem.PageFaultCount);
+        stats.add("PeakWorkingSetSize KB", pmem.PeakWorkingSetSize / div);
+        stats.add("WorkingSetSize KB", pmem.WorkingSetSize / div);
+        stats.add("QuotaPeakPagedPoolUsage KB", pmem.QuotaPeakPagedPoolUsage / div);
+        stats.add("QuotaPagedPoolUsage KB", pmem.QuotaPagedPoolUsage / div);
+        stats.add("QuotaPeakNonPagedPoolUsage KB", pmem.QuotaPeakNonPagedPoolUsage / div);
+        stats.add("QuotaNonPagedPoolUsage KB", pmem.QuotaNonPagedPoolUsage / div);
+        stats.add("PagefileUsage KB", pmem.PagefileUsage / div);
+        stats.add("PeakPagefileUsage KB", pmem.PeakPagefileUsage / div);
+        stats.add("PrivateUsage KB", pmem.PrivateUsage / div);
+    }
+    else
+    {
+        LLMemory::sAllocatedMemInKB = U32Kilobytes(0);
+        LLMemory::sAllocatedPageSizeInKB = U32Kilobytes(0);
+
+        stats.add("Page Fault Count", 0);
+        stats.add("PeakWorkingSetSize KB", 0);
+        stats.add("WorkingSetSize KB", 0);
+        stats.add("QuotaPeakPagedPoolUsage KB", 0);
+        stats.add("QuotaPagedPoolUsage KB", 0);
+        stats.add("QuotaPeakNonPagedPoolUsage KB", 0);
+        stats.add("QuotaNonPagedPoolUsage KB", 0);
+        stats.add("PagefileUsage KB", 0);
+        stats.add("PeakPagefileUsage KB", 0);
+        stats.add("PrivateUsage KB", 0);
+    }
 
 #elif LL_DARWIN
 

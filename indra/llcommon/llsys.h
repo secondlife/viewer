@@ -134,11 +134,12 @@ public:
     static U32Kilobytes getHardwareMemSize(); // Because some Mac linkers won't let us reference extern gSysMemory from a different lib.
 #endif
 
-    //get the available memory in KiloBytes.
-    static void getAvailableMemoryKB(U32Kilobytes& avail_mem_kb);
+    // Updates LLMemory's values (which ones is OS specific).
+    static void updateAvailableMemory();
 
     // Retrieve a map of memory statistics. The keys of the map are platform-
     // dependent. The values are in kilobytes to try to avoid integer overflow.
+    // On windows updates LLMemory values.
     LLSD getStatsMap() const;
 
     // Re-fetch memory data (as reported by stream() and getStatsMap()) from the
