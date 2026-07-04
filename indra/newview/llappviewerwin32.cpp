@@ -201,6 +201,12 @@ namespace
                 sBugSplatSender->setAttribute(WCSTR(L"WatchdogState"), WCSTR(watchdog_state));
             }
 
+            // Memory usage at crash time (can be 1s obsolete)
+            sBugSplatSender->setAttribute(WCSTR("MemAllocatedKB"), WCSTR(std::to_string(LLMemory::getAllocatedMemKB().value())));
+            sBugSplatSender->setAttribute(WCSTR("MemAvailableKB"), WCSTR(std::to_string(LLMemory::getAvailableMemKB().value())));
+            sBugSplatSender->setAttribute(WCSTR("MemMaxPhysicalKB"), WCSTR(std::to_string(LLMemory::getMaxMemKB().value())));
+            sBugSplatSender->setAttribute(WCSTR("MemAvailCommitMB"), WCSTR(std::to_string(LLMemory::getAvailableCommitMemMB.value()))); // updates once in 30s
+
             if (!app->isSecondInstance() && !app->errorMarkerExists())
             {
                 // If marker doesn't exist, create a marker with 'other' or 'logout' code for next launch

@@ -52,6 +52,9 @@
 
 //static
 
+// On windows commit charge information is vital for OOM diagnosis.
+U32Megabytes LLMemory::sAvailCommitMemInMB(U32_MAX);
+
 // most important memory metric for texture streaming
 //  On Windows, this should agree with resource monitor -> performance -> memory -> available
 //  On OS X, this should be activity monitor -> memory -> (physical memory - memory used)
@@ -105,20 +108,11 @@ void LLMemory::updateMemoryInfo()
     sMaxPhysicalMemInKB = gSysMemory.getPhysicalMemoryKB();
 
     U32Kilobytes avail_mem;
-    LLMemoryInfo::getAvailableMemoryKB(avail_mem);
-    sAvailPhysicalMemInKB = avail_mem;
+    LLMemoryInfo::getAvailableMemoryKB();
 
 #if LL_WINDOWS
-    PROCESS_MEMORY_COUNTERS counters;
-
-    if (!GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters)))
-    {
-        LL_WARNS() << "GetProcessMemoryInfo failed" << LL_ENDL;
-        return ;
-    }
-
-    sAllocatedMemInKB = U32Kilobytes::convert(U64Bytes(counters.WorkingSetSize));
-    sAllocatedPageSizeInKB = U32Kilobytes::convert(U64Bytes(counters.PagefileUsage));
+    // On windows getAvailableMemoryKB fills sAvailPhysicalMemInKB,
+    //sAllocatedMemInKB and sAllocatedPageSizeInKB
     sample(sVirtualMem, sAllocatedPageSizeInKB);
 
 #elif defined(LL_DARWIN)
@@ -199,6 +193,15 @@ void LLMemory::logMemoryInfo(bool update)
     LL_INFOS() << llformat("Current allocated page size: %.2f MB", sAllocatedPageSizeInKB / 1024.0) << LL_ENDL;
     LL_INFOS() << llformat("Current available physical memory: %.2f MB", sAvailPhysicalMemInKB / 1024.0) << LL_ENDL;
     LL_INFOS() << llformat("Current max usable memory: %.2f MB", sMaxPhysicalMemInKB / 1024.0) << LL_ENDL;
+}
+
+//static
+U32Megabytes LLMemory::getAvailableCommitMemMB()
+{
+    // Commit charge combines page file and ram,
+    // theoretical limit is 128TB on 64bit windows.
+    // Store as MB instead of KB to prevent overflow.
+    return sAvailCommitMemInMB;
 }
 
 //static

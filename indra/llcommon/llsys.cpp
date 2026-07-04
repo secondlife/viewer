@@ -802,15 +802,12 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 }
 
 //static
-void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
+void LLMemoryInfo::getAvailableMemoryKB()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if LL_WINDOWS
-    // Sigh, this shouldn't be a static method, then we wouldn't have to
-    // reload this data separately from refresh()
-    LLSD statsMap(loadStatsMap());
-
-    avail_mem_kb = (U32Kilobytes)statsMap["Avail Physical KB"].asInteger();
+    // loadStatsMap wil fill sAvailPhysicalMemInKB
+    loadStatsMap();
 
 #elif LL_DARWIN
     // use host_statistics64 to get memory info
@@ -822,11 +819,11 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
     kern_return_t result = host_statistics64(host, HOST_VM_INFO64, reinterpret_cast<host_info_t>(&vmstat), &count);
     if (result == KERN_SUCCESS)
     {
-        avail_mem_kb = U64Bytes((vmstat.free_count + vmstat.inactive_count) * page_size);
+        sAvailPhysicalMemInKB = U64Bytes((vmstat.free_count + vmstat.inactive_count) * page_size);
     }
     else
     {
-        avail_mem_kb = (U32Kilobytes)-1;
+        sAvailPhysicalMemInKB = (U32Kilobytes)-1;
     }
 
 #elif LL_LINUX
@@ -880,12 +877,12 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
     // (could also run 'free', but easier to read a file than run a program)
     LLSD statsMap(loadStatsMap());
 
-    avail_mem_kb = (U32Kilobytes)statsMap["MemFree"].asInteger();
+    sAvailPhysicalMemInKB = (U32Kilobytes)statsMap["MemFree"].asInteger();
 #else
     //do not know how to collect available memory info for other systems.
     //leave it blank here for now.
 
-    avail_mem_kb = (U32Kilobytes)-1 ;
+    sAvailPhysicalMemInKB = (U32Kilobytes)-1 ;
 #endif
 }
 
@@ -961,12 +958,19 @@ LLSD LLMemoryInfo::loadStatsMap()
     stats.add("Percent Memory use", state.dwMemoryLoad/div);
     stats.add("Total Physical KB",  state.ullTotalPhys/div);
     stats.add("Avail Physical KB",  state.ullAvailPhys/div);
+
+    // Despite the confusing naming "PageFile" , these values
+    // actually represent the committed memory limit for
+    // the system or the current process, whichever is smaller.
     stats.add("Total page KB",      state.ullTotalPageFile/div);
     stats.add("Avail page KB",      state.ullAvailPageFile/div);
 
     static constexpr DWORDLONG mb_div = 1024 * 1024;
     stats.add("Total Virtual MB", state.ullTotalVirtual/mb_div);  // ~134 million MB
     stats.add("Avail Virtual MB", state.ullAvailVirtual/mb_div);
+
+    LLMemory::sAvailPhysicalMemInKB = (U32Kilobytes)(state.ullAvailPhys / div);
+    LLMemory::sAvailCommitMemInMB = U32Kilobytes::convert(U64Bytes(state.ullAvailPageFile));
 
     // SL-12122 - Call to GetPerformanceInfo() was removed here. Took
     // on order of 10 ms, causing unacceptable frame time spike every
@@ -994,6 +998,9 @@ LLSD LLMemoryInfo::loadStatsMap()
     stats.add("PagefileUsage KB",              pmem.PagefileUsage/div);
     stats.add("PeakPagefileUsage KB",          pmem.PeakPagefileUsage/div);
     stats.add("PrivateUsage KB",               pmem.PrivateUsage/div);
+
+    LLMemory::sAllocatedMemInKB = U32Kilobytes::convert(U64Bytes(pmem.WorkingSetSize));
+    LLMemory::sAllocatedPageSizeInKB = U32Kilobytes::convert(U64Bytes(pmem.PagefileUsage));
 
 #elif LL_DARWIN
 
