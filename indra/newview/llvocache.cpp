@@ -32,6 +32,7 @@
 #include "lldrawable.h"
 #include "llviewerregion.h"
 #include "llagentcamera.h"
+#include "llmemory.h"
 #include "llsdserialize.h"
 #include "llworld.h" // For LLWorld::getInstance()
 //static variables
@@ -488,6 +489,13 @@ void LLVOCacheEntry::updateDebugSettings()
     static const F32 MIN_RADIUS = 1.0f;
 
     F32 draw_radius = gAgentCamera.mDrawDistance;
+    const F32 mem_factor = LLMemory::getSystemMemoryBudgetFactor();
+    if (mem_factor > 1.f)
+    {
+        // Factor is intended to go from 1.0 to 2.0
+        // For safety cap reduction at 50%, we don't want to go below half of draw distance
+        draw_radius = llmax(draw_radius / mem_factor, draw_radius / 2.f);
+    }
     const F32 clamped_min_radius = llclamp((F32) min_radius, MIN_RADIUS, draw_radius); // [1, mDrawDistance]
     sNearRadius = MIN_RADIUS + ((clamped_min_radius - MIN_RADIUS) * adjust_factor);
 
