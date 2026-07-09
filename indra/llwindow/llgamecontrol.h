@@ -187,6 +187,10 @@ public:
     static const U16 MAX_AXIS_DEAD_ZONE = 16384;
     static const U16 MAX_AXIS_OFFSET = 16384;
 
+    // Default dead zone applied to a freshly-constructed / reset axis
+    // is nonzero because most controllers have a bit of hysteresis or offset.
+    static constexpr U16 DEFAULT_DEAD_ZONE = 1024;
+
     class InputChannel
     {
     public:
@@ -227,27 +231,12 @@ public:
         struct AxisOptions
         {
             S32 mMultiplier = 1;
-            U16 mDeadZone { 0 };
+            U16 mDeadZone { DEFAULT_DEAD_ZONE };
             S16 mOffset { 0 };
 
             void resetToDefaults();
-            /*
-            void resetToDefaults()
-            {
-                mMultiplier = 1;
-                mDeadZone = 0;
-                mOffset = 0;
-            }
-            */
 
             S16 computeModifiedValue(S16 raw_value) const;
-            /*
-            S16 computeModifiedValue(S16 raw_value) const
-            {
-                S32 new_value = ((S32)raw_value + S32(mOffset)) * mMultiplier;
-                return (S16)(std::clamp(new_value, -32768, 32767));
-            }
-            */
 
             std::string saveToString() const;
             void loadFromString(std::string options);

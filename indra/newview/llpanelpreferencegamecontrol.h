@@ -87,6 +87,10 @@ public:
     static bool isWaitingForInputChannel();    // True if a cell is waiting for input
     static void applyGameControlInput();       // Assign detected input to selected cell
 
+    // Data Output tab: refresh the Value column with the channel values packed into
+    // the most recent outgoing GameControlInput message.  Called from the send path.
+    static void updateDataOutput();
+
 protected:
     bool postBuild() override;
 
@@ -107,6 +111,10 @@ protected:
     void populateAxisStateRows();       // Create axis-state rows (one per physical axis)
     void populateButtonStateRows();     // Create button-state rows (one per physical button)
     void populateDeviceStateValues();   // Fill the Value columns from the selected device's live state
+
+    // Data Output tab (live, read-only view of the last outgoing GameControlInput).
+    void populateDataOutputRows();      // Create the AXIS_/BUTTON_ label rows (with a blank separator)
+    void populateDataOutputValues();    // Fill the Value column from the last outgoing server state
 
     // Utility methods
     static void setNumericLabel(LLScrollListCell* cell, S32 value);  // Format numeric cell
@@ -169,6 +177,10 @@ private:
     LLScrollListCtrl* mAxisState { nullptr };      // Axis | Value (live raw axis values)
     LLScrollListCtrl* mButtonState { nullptr };    // Button | Value (live pressed state)
     std::string mStateSelectedDeviceGUID;          // GUID of the device shown in the state tab
+
+    // Data Output tab (live, read-only view of the last outgoing GameControlInput)
+    LLPanel* mTabDataOutput { nullptr };
+    LLScrollListCtrl* mDataOutput { nullptr };     // Output | Value (last sent axis/button values)
 
     // Inline editors - positioned over table cells when editing
     LLSpinCtrl* mNumericValueEditor { nullptr };    // For deadzone/offset values
