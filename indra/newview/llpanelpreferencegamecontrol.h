@@ -127,7 +127,10 @@ private:
 
     // Actions-tab helpers
     std::string currentEditMode();   // mode string ("Avatar"/"FlyCam"/"Captive") from mActionMode
+    void populateActionModeList();       // build the per-mode rows (Enabled checkbox + label)
     void onActionModeChanged();      // rebuild the action table when the edit-mode selector changes
+    void onModeEnabledToggled(S32 mode_ordinal, bool enabled);  // toggle conversion for one mode
+    void updateActionModeEnabledUI();    // sync the per-mode checkboxes and lock/unlock the tables
     LLComboBox* actionSelectorForMode(bool axis, const std::string& mode) const;  // default vs flycam selector
     void removeDuplicateActionInput(const std::string& mode, const std::string& kind,
         const std::string& keep_action, const std::string& input_value, const LLComboBox* input_selector);
@@ -145,6 +148,7 @@ private:
     void rememberOriginalSettings();  // Capture settings for cancel restoration
 
     // Sends game_control data to server
+    LLCheckBoxCtrl* mCheckGameControlEnabled { nullptr };   // master on/off for the feature
     LLCheckBoxCtrl* mCheckGameControlToServer { nullptr };
 
     // Sub-tab panels
@@ -152,7 +156,8 @@ private:
     LLPanel* mTabDevices { nullptr };
 
     // Actions tab
-    LLComboBox* mActionMode { nullptr };            // Avatar / FlyCam / Captive
+    LLScrollListCtrl* mActionMode { nullptr };      // Avatar / FlyCam / Captive rows,
+                                                    // each with an Enabled checkbox
     LLButton* mRestoreActionsDefaults { nullptr };
     LLScrollListCtrl* mActionMappingsAxes { nullptr };     // Action | Axis Input (axis action block)
     LLScrollListCtrl* mActionMappingsButtons { nullptr };  // Action | Buttons Input (button action block)
@@ -184,7 +189,8 @@ private:
 
     // Inline editors - positioned over table cells when editing
     LLSpinCtrl* mNumericValueEditor { nullptr };    // For deadzone/offset values
-    LLComboBox* mAxisInputSelector { nullptr };     // Canonical axes (action Input + axis Output popups)
+    LLComboBox* mAxisInputSelector { nullptr };     // Axis-action Input popup (sticks + "Triggers left/right" pair)
+    LLComboBox* mAxisOutputSelector { nullptr };    // Device axis Output popup (individual canonical axes, index-based)
     LLComboBox* mButtonInputSelector { nullptr };   // Canonical buttons (action Input + button Output popups)
 
     // Action selectors: source of the "Action" column rows, chosen by edit mode.
