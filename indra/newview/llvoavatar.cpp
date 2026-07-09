@@ -3025,13 +3025,26 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
     if (detailed_update)
     {
         U32 draw_order = 0;
-        // camera-axis depth of this avatar; stamped onto every rigged
-        // attachment bridge below so the rigged alpha groups can be
-        // depth-interleaved with the distance-sorted alpha groups while each
-        // avatar's attachment-order run stays contiguous
-        // (LLSpatialGroup::CompareDepthRenderOrder, LLDrawPoolAlpha::renderAlpha)
+        // camera-axis depth of this avatar, stamped onto every rigged attachment
+        // bridge below so its alpha interleaves with world alpha
+        // (LLDrawPoolAlpha::renderAlpha). From the animated extents, so avatars
+        // sharing a sit target still order deterministically; pulled a quarter
+        // of the bounds toward the camera to match the metric
+        // LLSpatialPartition::calcDistance stamps onto world alpha groups.
         LLViewerCamera* camera = LLViewerCamera::getInstance();
-        F32 rigged_depth = (getRenderPosition() - camera->getOrigin()) * camera->getAtAxis();
+        const LLVector3& at_axis = camera->getAtAxis();
+        F32 rigged_depth;
+        if (mLastAnimExtents[0] == LLVector3() || mLastAnimExtents[1] == LLVector3())
+        { // extents not computed yet
+            rigged_depth = (getRenderPosition() - camera->getOrigin()) * at_axis;
+        }
+        else
+        {
+            const LLVector3 center = (mLastAnimExtents[0] + mLastAnimExtents[1]) * 0.5f;
+            const LLVector3 half = (mLastAnimExtents[1] - mLastAnimExtents[0]) * 0.5f;
+            rigged_depth = (center - camera->getOrigin()) * at_axis -
+                           0.25f * (half * at_axis.scaledVec(at_axis));
+        }
         bool attachment_selected = LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 0 && LLSelectMgr::getInstance()->getSelection()->isAttachment();
         for (const auto& [attachment_point_id, attachment] : mAttachmentPoints)
         {

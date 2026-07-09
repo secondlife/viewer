@@ -625,6 +625,12 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged, bool m
                                     LLPipeline::sImpostorRenderAlphaDepthPass ||
                                     getType() == LLDrawPoolAlpha::POOL_ALPHA_PRE_WATER;
 
+    // merged mode: per-group depth-write guard, re-emplaced only when the write
+    // state changes so a run of same-state groups pays one glDepthMask, not one
+    // per group (see below)
+    std::optional<LLGLDepthTest> depth_state;
+    bool depth_state_writes = false;
+
     while (iter != iter_end || rigged_iter != rigged_end)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("renderAlpha - group");
@@ -686,11 +692,14 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged, bool m
             // depth-reject geometry behind it (it still blends; it just can't
             // erase). Non-merged passes keep the pass-wide depth state set by
             // the caller.
-            std::optional<LLGLDepthTest> depth_state;
             if (merged)
             {
                 bool write_depth = write_depth_always || (rigged && group->mAvatarp != nullptr);
-                depth_state.emplace(GL_TRUE, write_depth ? GL_TRUE : GL_FALSE);
+                if (!depth_state || write_depth != depth_state_writes)
+                {
+                    depth_state.emplace(GL_TRUE, write_depth ? GL_TRUE : GL_FALSE);
+                    depth_state_writes = write_depth;
+                }
             }
 
             static std::vector<LLDrawInfo*> emissives;
