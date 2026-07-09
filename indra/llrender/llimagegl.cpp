@@ -2548,8 +2548,10 @@ bool LLImageGL::scaleDown(S32 desired_discard)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
-    // Don't let eviction re-arm visibility: the glGenerateMipmap re-bind below
-    // would otherwise stamp mLastBindFrame and keep the texture fetch-eligible.
+    // Don't let eviction re-arm the GC: the glGenerateMipmap re-bind below would
+    // otherwise stamp mLastBindFrame, so the next computeDesiredDiscard treats the
+    // just-evicted texture as freshly drawn, un-floors it, and re-fetches - the
+    // evict/refetch oscillation.
     LLImageGLStampBypass no_stamp;
 
     if (mTarget != GL_TEXTURE_2D

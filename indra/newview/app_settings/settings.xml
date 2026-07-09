@@ -11992,16 +11992,49 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>TextureFetchVisibilityFrames</key>
+    <key>TextureLoadTargetFPS</key>
     <map>
       <key>Comment</key>
-      <string>Only fetch a texture if it was drawn within this many rendered frames; out-of-view content isn't fetched. Minimum 1 (0 is clamped up). Boosted/UI textures, avatar bakes, and callback textures are exempt.</string>
+      <string>Frame rate the viewer is willing to drop to while loading textures. The texture pipeline's per-frame budget is the headroom between this and the actual frame cost, so fast machines load aggressively and slow ones hold their frame rate.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>30.0</real>
+    </map>
+    <key>TextureLoadBudgetMaxMS</key>
+    <map>
+      <key>Comment</key>
+      <string>Hard cap, in milliseconds per frame, on the adaptive texture-pipeline budget.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>10.0</real>
+    </map>
+    <key>TextureFetchStepMips</key>
+    <map>
+      <key>Comment</key>
+      <string>Fetch refinement step, in mip levels: a texture whose resident data is coarser than desired by more than this fetches in steps of this size instead of jumping straight to the final resolution, so it sharpens progressively instead of sitting blurry then popping. 0 = jump directly. Boosted/pinned textures always jump.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
+      <integer>2</integer>
+    </map>
+    <key>TextureFrustumAllowance</key>
+    <map>
+      <key>Comment</key>
+      <string>Falloff width for out-of-frustum texture resolution, as a fraction of screen size. Content grazing the screen edge keeps full resolution; content this far past the edge reaches the deepest mip, lerped between. Keeps barely-out-of-view textures resident so panning back doesn't refetch them.</string>
+      <key>Persist</key>
       <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
     </map>
     <key>TextureDecodeDisabled</key>
     <map>

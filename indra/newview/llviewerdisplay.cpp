@@ -140,6 +140,24 @@ void render_disconnected_background();
 void getProfileStatsContext(boost::json::object& stats);
 std::string getProfileStatsFilename();
 
+// Adaptive texture-pipeline budget: spend the frame-time headroom between the
+// frame we're rendering and TextureLoadTargetFPS, clamped [2ms, max]. Headroom
+// is measured (smoothed frame interval minus the pipeline's own last spend),
+// so fast machines get big budgets and machines already at target hold the
+// floor. Only consumed while queues have work - drain loops exit when empty.
+static F32 sTexturePipelineSpent = 0.f;
+static F32 texture_pipeline_budget()
+{
+    static LLCachedControl<F32> target_fps(gSavedSettings, "TextureLoadTargetFPS", 60.f);
+    static LLCachedControl<F32> max_ms(gSavedSettings, "TextureLoadBudgetMaxMS", 10.f);
+    static F32 smoothed_other = 0.008f;
+    F32 other = llmax(gFrameIntervalSeconds.value() - sTexturePipelineSpent, 0.f);
+    smoothed_other = smoothed_other * 0.9f + other * 0.1f;
+    F32 target_interval = 1.f / llclamp((F32)target_fps, 15.f, 240.f);
+    F32 headroom = target_interval - smoothed_other;
+    return llclamp(headroom, 0.002f, llclamp((F32)max_ms, 2.f, 50.f) * 0.001f);
+}
+
 void display_startup()
 {
     if (   !gViewerWindow
@@ -500,9 +518,10 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("List");
-                F32 max_image_decode_time = 0.050f * gFrameIntervalSeconds.value();          // 50 ms/second decode time
-                max_image_decode_time     = llclamp(max_image_decode_time, 0.002f, 0.005f);  // min 2ms/frame, max 5ms/frame)
+                F32 max_image_decode_time = texture_pipeline_budget();
+                LLTimer tex_timer;
                 gTextureList.updateImages(max_image_decode_time);
+                sTexturePipelineSpent = tex_timer.getElapsedTimeF32();
             }
 
             {
@@ -862,9 +881,10 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("List");
-                F32 max_image_decode_time = 0.050f*gFrameIntervalSeconds.value(); // 50 ms/second decode time
-                max_image_decode_time = llclamp(max_image_decode_time, 0.002f, 0.005f ); // min 2ms/frame, max 5ms/frame)
+                F32 max_image_decode_time = texture_pipeline_budget();
+                LLTimer tex_timer;
                 gTextureList.updateImages(max_image_decode_time);
+                sTexturePipelineSpent = tex_timer.getElapsedTimeF32();
             }
 
             {

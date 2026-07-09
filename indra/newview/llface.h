@@ -269,10 +269,21 @@ public:
     // return mSkinInfo->mHash or 0 if mSkinInfo is null
     U64 getSkinHash();
 
-    // true if face was recently in the main camera frustum according to LLViewerTextureList updates
+    // True if this face's projected bounding disc overlaps the screen - maintained
+    // by calcPixelArea() (sticky between its throttled updates). Drives per-texture
+    // fetch admission (LLViewerTextureList::updateImageDecodePriority -> mOnScreen).
     bool mInFrustum = false;
+    // How far past the screen boundary the projected disc sits, as a fraction of
+    // screen size (0 = on screen). Feeds the frustum-allowance falloff so barely
+    // out-of-view content keeps its resolution. Maintained with mInFrustum.
+    F32 mFrustumOverflow = 0.f;
     // value of gFrameCount the last time the face was touched by LLViewerTextureList::updateImageDecodePriority
     U32 mLastTextureUpdate = 0;
+    // Cached per-channel streaming coverage (repeat-adjusted screen pixels),
+    // refreshed at the mLastTextureUpdate cadence and shared by every texture
+    // on this face. 0 = degenerate / not yet measured. See
+    // update_face_stream_vsize in llviewertexturelist.cpp.
+    F32 mStreamVSize[LLRender::NUM_TEXTURE_CHANNELS] = {};
 
 private:
     LLPointer<LLVertexBuffer> mVertexBuffer;

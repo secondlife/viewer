@@ -215,6 +215,20 @@ protected:
     F32 mChannelCoverage[4] = { 0.f, 0.f, 0.f, 0.f };
     F32 mChannelCoverageMin[4] = { 0.f, 0.f, 0.f, 0.f };
 
+    // Any face using this texture projects onto the screen (published alongside
+    // the coverage above). Selects the fetch-priority band in updateFetch.
+    // Defaults true so unmeasured textures (fresh objects, no-face users) are
+    // never starved.
+    bool mOnScreen = true;
+
+    // How far out of frustum the texture's least-out-of-view use sits, as a
+    // fraction of screen size (0 = on screen). Drives the frustum-allowance
+    // falloff in computeDesiredDiscard.
+    F32 mFrustumOverflow = 0.f;
+
+    // Membership flag for LLViewerTextureList::mFastFetchList (dedup).
+    bool mInFastFetchList = false;
+
     ll_face_list_t    mFaceList[LLRender::NUM_TEXTURE_CHANNELS]; //reverse pointer pointing to the faces using this image as texture
     U32               mNumFaces[LLRender::NUM_TEXTURE_CHANNELS];
     LLFrameTimer      mLastFaceListUpdateTimer ;
