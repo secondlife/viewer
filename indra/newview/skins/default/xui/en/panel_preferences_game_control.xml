@@ -10,13 +10,24 @@
     top="1"
     width="517">
     <check_box
-        name="game_control_to_server"
-        label="Send GameControl Data to server"
+        name="game_control_enabled"
+        label="Enable GameControl"
         layout="topleft"
         follows="top|left"
         height="16"
+        width="200"
         top="8"
-        left="10"/>
+        left="10"
+        tool_tip="Master switch: when off, no controller input drives actions and no GameControl data is sent to the server."/>
+    <check_box
+        name="game_control_to_server"
+        label="Send GameControl Data to server"
+        layout="topleft"
+        follows="top|right"
+        height="16"
+        width="230"
+        top="8"
+        right="-10"/>
     <tab_container
         name="game_control_tabs"
         layout="topleft"
@@ -29,27 +40,36 @@
         <panel
             name="tab_actions"
             label="Actions Mappings">
-            <combo_box
-                name="action_mode"
+            <!-- Mode selector: one row per action mode.  Selecting a row chooses
+                 which mode's mappings are edited below; the "Enabled" checkbox
+                 toggles whether game-control input is converted to that mode's
+                 actions (when off, the mode's mappings are locked). -->
+            <panel
+                name="action_mode_panel"
                 layout="topleft"
                 follows="top|left"
                 top="8"
                 left="1"
-                height="23"
-                width="232">
-                <combo_box.item
-                    label="When moving avatar"
-                    name="avatar"
-                    value="0"/>
-                <combo_box.item
-                    label="When moving flycam"
-                    name="flycam"
-                    value="1"/>
-                <combo_box.item
-                    label="When sitting"
-                    name="captive"
-                    value="2"/>
-            </combo_box>
+                width="234"
+                height="72">
+                <scroll_list
+                    name="action_mode"
+                    follows="all"
+                    top="1"
+                    left="1"
+                    right="-1"
+                    bottom="-1"
+                    can_sort="false"
+                    column_padding="0"
+                    draw_heading="true"
+                    multi_select="false"
+                    selection_type="row"
+                    tool_tip="Select a mode to edit its mappings.  Uncheck Enabled to lock a mode's mappings and stop converting game-control input to that mode's actions."
+                    fg_disable_color="ScrollUnselectedColor">
+                    <scroll_list.columns name="enabled" label="Enabled" type="checkbox" relative_width="0.3"/>
+                    <scroll_list.columns name="mode"    label="Mode"    relative_width="0.7"/>
+                </scroll_list>
+            </panel>
             <button
                 name="restore_actions_defaults"
                 layout="topleft"
@@ -64,7 +84,7 @@
                 name="action_mappings_panel"
                 layout="topleft"
                 follows="all"
-                top="40"
+                top="88"
                 left="1"
                 right="-1"
                 bottom="-1">
@@ -268,21 +288,11 @@
                 left="61"
                 height="23"
                 width="260"/>
-            <text
-                type="string"
-                name="state_remap_note"
-                layout="topleft"
-                follows="top|left|right"
-                word_wrap="true"
-                top="40"
-                left="9"
-                right="-9"
-                height="28">'Raw Value' = after remapping but before adjustments  'Fixed Value' = after adjustments: Invert, Dead Zone, and Offset</text>
             <panel
                 name="device_state_settings"
                 layout="topleft"
                 follows="all"
-                top="72"
+                top="40"
                 left="1"
                 right="-1"
                 bottom="-2">
@@ -307,9 +317,9 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="input"       label="Axis"        relative_width="0.6"/>
-                        <scroll_list.columns name="raw_value"   label="Raw Value"   relative_width="0.2"/>
-                        <scroll_list.columns name="fixed_value" label="Fixed Value" relative_width="0.2"/>
+                        <scroll_list.columns name="input"       label="Axis"           relative_width="0.6"/>
+                        <scroll_list.columns name="raw_value"   label="Raw Value"      relative_width="0.2"/>
+                        <scroll_list.columns name="fixed_value" label="Adjusted Value" relative_width="0.2"/>
                     </scroll_list>
                 </panel>
                 <panel
@@ -333,8 +343,8 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="input" label="Button"    relative_width="0.5"/>
-                        <scroll_list.columns name="value" label="Raw Value" relative_width="0.5"/>
+                        <scroll_list.columns name="input" label="Button" relative_width="0.5"/>
+                        <scroll_list.columns name="value" label="Value"  relative_width="0.5"/>
                     </scroll_list>
                 </panel>
             </panel>
@@ -344,22 +354,41 @@
         <panel
             name="tab_data_output"
             label="Data Output">
-            <scroll_list
-                name="data_output"
+            <text
+                type="string"
+                name="data_output_note"
+                layout="topleft"
+                follows="top|left|right"
+                word_wrap="true"
+                top="8"
+                left="9"
+                right="-9"
+                height="28">The last GameControlData sent to the server:</text>
+            <panel
+                name="data_output_panel"
+                layout="topleft"
                 follows="all"
-                top="1"
+                top="30"
                 left="1"
                 right="-1"
-                bottom="-1"
-                can_sort="false"
-                column_padding="0"
-                draw_heading="true"
-                multi_select="false"
-                selection_type="header"
-                fg_disable_color="ScrollUnselectedColor">
-                <scroll_list.columns name="output" label="Output" relative_width="0.5"/>
-                <scroll_list.columns name="value"  label="Value"  relative_width="0.5"/>
-            </scroll_list>
+                bottom="-1">
+                <scroll_list
+                    name="data_output"
+                    follows="all"
+                    top="1"
+                    left="1"
+                    right="-1"
+                    bottom="-1"
+                    can_sort="false"
+                    column_padding="0"
+                    draw_heading="true"
+                    multi_select="false"
+                    selection_type="header"
+                    fg_disable_color="ScrollUnselectedColor">
+                    <scroll_list.columns name="output" label="Output" relative_width="0.5"/>
+                    <scroll_list.columns name="value"  label="Value"  relative_width="0.5"/>
+                </scroll_list>
+            </panel>
         </panel>
     </tab_container>
     <spinner
@@ -368,8 +397,47 @@
         increment="1"
         width="100"
         height="18"/>
+    <!-- axis_input_selector: the canonical axis INPUTS an axis action can be bound
+         to on the Actions tab.  The two triggers are offered only as the combined
+         "Triggers left/right" pair (value AXIS_TRIGGERS): each trigger is positive-
+         only, so the pair is treated as one bidirectional axis (left trigger drives
+         the negative direction, right trigger the positive).  See the trigger-pair
+         handling in llgamecontrol.cpp (rebuildActionLookup / avatarAxisBridge). -->
     <combo_box
         name="axis_input_selector"
+        width="200"
+        height="18">
+        <combo_box.item
+            label="Left stick: tilt left/right"
+            name="axis_leftx"
+            value="AXIS_LEFTX"/>
+        <combo_box.item
+            label="Left stick: tilt forward/back"
+            name="axis_lefty"
+            value="AXIS_LEFTY"/>
+        <combo_box.item
+            label="Right stick: tilt left/right"
+            name="axis_rightx"
+            value="AXIS_RIGHTX"/>
+        <combo_box.item
+            label="Right stick: tilt forward/back"
+            name="axis_righty"
+            value="AXIS_RIGHTY"/>
+        <combo_box.item
+            label="Triggers left/right"
+            name="axis_triggers"
+            value="AXIS_TRIGGERS"/>
+        <combo_box.item
+            label="None"
+            name="axis_none"
+            value="AXIS_NONE"/>
+    </combo_box>
+    <!-- axis_output_selector: the canonical axis a physical device axis maps to on
+         the Devices tab.  This is strictly index-based (item N == canonical axis N,
+         matching LLGameControl::KeyboardAxis; the final "None" item == NUM_AXES), so
+         it lists every individual canonical axis, including each trigger separately. -->
+    <combo_box
+        name="axis_output_selector"
         width="200"
         height="18">
         <combo_box.item
@@ -397,6 +465,10 @@
             name="axis_5"
             value="AXIS_RIGHT_TRIGGER"/>
         <combo_box.item
+            label="Triggers left/right"
+            name="axis_output_triggers"
+            value="AXIS_TRIGGERS"/>
+        <combo_box.item
             label="None"
             name="axis_none"
             value="AXIS_NONE"/>
@@ -418,11 +490,8 @@
             label="Look up/down"
             value="Look up/down"/>
         <combo_box.item
-            label="Rise up"
-            value="Rise up"/>
-        <combo_box.item
-            label="Drop down"
-            value="Drop down"/>
+            label="Move up/down"
+            value="Move up/down"/>
         <combo_box.item
             label="None"
             value="None"/>
@@ -643,11 +712,11 @@
             label="Toggle run"
             value="Toggle run"/>
         <combo_box.item
-            label="Rise up"
-            value="Rise up"/>
+            label="Move up"
+            value="Move up"/>
         <combo_box.item
-            label="Drop down"
-            value="Drop down"/>
+            label="Move down"
+            value="Move down"/>
         <combo_box.item
             label="Turn left"
             value="Turn left"/>
@@ -713,11 +782,8 @@
             label="Look up/down"
             value="Look up/down"/>
         <combo_box.item
-            label="Rise up"
-            value="Rise up"/>
-        <combo_box.item
-            label="Drop down"
-            value="Drop down"/>
+            label="Move up/down"
+            value="Move up/down"/>
         <combo_box.item
             label="Roll left/right"
             value="Roll left/right"/>
