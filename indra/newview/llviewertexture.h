@@ -226,6 +226,11 @@ protected:
     // falloff in computeDesiredDiscard.
     F32 mFrustumOverflow = 0.f;
 
+    // Last frame this texture was out of frustum (mFrustumOverflow > 0). The
+    // GC in computeDesiredDiscard gives re-entering content one grace window to
+    // be drawn and re-stamp mLastBindFrame before its staleness is judged.
+    mutable U32 mLastOffScreenFrame = 0;
+
     // Membership flag for LLViewerTextureList::mFastFetchList (dedup).
     bool mInFastFetchList = false;
 

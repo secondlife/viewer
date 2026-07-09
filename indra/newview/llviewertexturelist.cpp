@@ -378,6 +378,12 @@ void LLViewerTextureList::shutdown()
     }
     mFastCacheList.clear();
 
+    for (auto& img : mFastFetchList)
+    {
+        img->mInFastFetchList = false;
+    }
+    mFastFetchList.clear();
+
     mUUIDMap.clear();
 
     mImageList.clear();
@@ -875,6 +881,8 @@ void LLViewerTextureList::updateImages(F32 max_time)
     // collected and creates scheduled the frame they're ready, instead of
     // one state transition per round-robin visit. Cheap - no face scans -
     // and bounded by the fetch worker's own concurrency.
+    LLTimer fast_fetch_timer;
+    S32 min_count = 32;
     for (size_t i = 0; i < mFastFetchList.size(); )
     {
         LLViewerFetchedTexture* imagep = mFastFetchList[i];
@@ -891,6 +899,11 @@ void LLViewerTextureList::updateImages(F32 max_time)
         else
         {
             ++i;
+        }
+
+        if (fast_fetch_timer.getElapsedTimeF32() > remaining_time && --min_count <= 0)
+        {
+            break;
         }
     }
 
@@ -1209,10 +1222,6 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                         face->mLastTextureUpdate = gFrameCount;
                     }
 
-                    any_face = true;
-                    on_screen = on_screen || face->mInFrustum;
-                    min_overflow = llmin(min_overflow, face->mFrustumOverflow);
-
                     // Cached measurement - see update_face_stream_vsize above.
                     // Zero = degenerate extents / not yet through a geometry
                     // build: not renderable, must not be measured (a
@@ -1223,6 +1232,10 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     {
                         continue;
                     }
+
+                    any_face = true;
+                    on_screen = on_screen || face->mInFrustum;
+                    min_overflow = llmin(min_overflow, face->mFrustumOverflow);
 
                     if (bucket >= 0 && bucket < 4)
                     {

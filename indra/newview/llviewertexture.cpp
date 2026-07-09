@@ -571,6 +571,20 @@ void LLViewerTexture::updateClass()
             sPixelToTexelRatio += llmax((F32)relax_rate, 0.f) * dt;
         }
         // else: hold in the hysteresis band.
+
+        // Allocation failures outrank the byte estimate: if setManualImage hit
+        // GL_OUT_OF_MEMORY since last frame, the CPU-side vram_used estimate has
+        // diverged from reality, so step the ratio down now regardless of the band.
+        static U32 last_oom_count = 0;
+        U32 oom_count = LLImageGL::sOOMErrorCount.load();
+        if (oom_count > last_oom_count)
+        {
+            U32 new_events = llmin(oom_count - last_oom_count, (U32)5);
+            sPixelToTexelRatio -= llmax((F32)tighten_rate, 0.f) * 1.0f * (F32)new_events;
+            last_oom_count = oom_count;
+            LL_WARNS_ONCE("Texture") << "GL out-of-memory during texture upload triggered a pixel:texel ratio backoff." << LL_ENDL;
+        }
+
         sPixelToTexelRatio = llclamp(sPixelToTexelRatio, 0.f, r_max);
 
         // Keep the GC-suspend frame current while backgrounded. This suppresses
@@ -3068,6 +3082,7 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) c
     {
         const F32 f = llclamp(mFrustumOverflow / llmax((F32)frustum_allowance, 0.01f), 0.f, 1.f);
         ideal += f * ((F32)dim_max_i - ideal);
+        mLastOffScreenFrame = LLFrameTimer::getFrameCount();
     }
 
     const S32 target = (S32)floor(ideal);
@@ -3118,7 +3133,8 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) c
             constexpr U32 GC_RESUME_GRACE_FRAMES = 10;
             const U32 now = LLFrameTimer::getFrameCount();
             if (gli->mLastBindFrame > 0                                  // drawn, or anchored at creation (postCreateTexture)
-                && now - sGCSuspendedFrame > GC_RESUME_GRACE_FRAMES)     // not just back from background
+                && now - sGCSuspendedFrame > GC_RESUME_GRACE_FRAMES      // not just back from background
+                && now - mLastOffScreenFrame > GC_RESUME_GRACE_FRAMES)   // re-entering content gets one grace window to be drawn and re-stamp before staleness is judged
             {
                 const U32 cooldown = llmax((U32)gc_cooldown_frames, 1u);
                 const S32 periods = (S32)((now - gli->mLastBindFrame) / cooldown);

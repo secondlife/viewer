@@ -159,6 +159,7 @@ void log_glerror();
 void assert_glerror();
 
 void clear_glerror();
+void drain_glerror(); // pops ALL pending GL error flags (bounded so a lost/reset context that returns errors forever cannot hang the caller); use before an attributable glGetError check.
 
 
 # define stop_glerror() assert_glerror()

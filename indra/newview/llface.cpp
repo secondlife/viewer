@@ -2297,6 +2297,8 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
     // don't update every frame
     if (gFrameTimeSeconds - mLastPixelAreaUpdate < PIXEL_AREA_UPDATE_PERIOD)
     {
+        cos_angle_to_view_dir = mLastCosAngleToViewDir;
+        radius = mLastRadius;
         return true;
     }
 
@@ -2464,8 +2466,11 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
         F32 screen_radius = (F32)llmax(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
         F32 past_edge = center_px - radius - screen_radius;
         mInFrustum = past_edge <= 5.f;
-        mFrustumOverflow = llmax(past_edge, 0.f) / screen_radius;
+        mFrustumOverflow = llmax(past_edge - 5.f, 0.f) / screen_radius;
     }
+
+    mLastCosAngleToViewDir = cos_angle_to_view_dir;
+    mLastRadius = radius;
 
     return true ;
 }

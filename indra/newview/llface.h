@@ -320,6 +320,11 @@ private:
     // gFrameTimeSeconds when mPixelArea was last updated
     F32         mLastPixelAreaUpdate = 0.f;
 
+    // Last cos-angle-to-view-dir and projected radius computed by calcPixelArea;
+    // reused by its throttled early-return so the overlap test gets real values.
+    F32         mLastCosAngleToViewDir = 1.f;
+    F32         mLastRadius = 0.f;
+
     // virtual size of face in texture area  (mPixelArea adjusted by texture repeats)
     // used to determine desired resolution of texture
     F32         mVSize;

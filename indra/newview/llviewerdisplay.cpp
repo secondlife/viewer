@@ -152,6 +152,9 @@ static F32 texture_pipeline_budget()
     static LLCachedControl<F32> max_ms(gSavedSettings, "TextureLoadBudgetMaxMS", 10.f);
     static F32 smoothed_other = 0.008f;
     F32 other = llmax(gFrameIntervalSeconds.value() - sTexturePipelineSpent, 0.f);
+    // A single multi-second hitch must not crater the budget for the following
+    // frames, so cap the sample before it enters the EMA.
+    other = llmin(other, 0.1f);
     smoothed_other = smoothed_other * 0.9f + other * 0.1f;
     F32 target_interval = 1.f / llclamp((F32)target_fps, 15.f, 240.f);
     F32 headroom = target_interval - smoothed_other;
