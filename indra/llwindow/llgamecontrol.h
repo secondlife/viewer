@@ -184,6 +184,18 @@ public:
         FLYCAM_NUM_CHANNELS
     };
 
+    // Axis-map output codes stored in Options::mAxisMap (one per physical axis):
+    //   0 .. NUM_AXES-1          maps 1:1 to that canonical axis
+    //   AXIS_OUTPUT_NONE         physical axis is unmapped / disabled
+    //   AXIS_OUTPUT_TRIGGER_PAIR physical axis fans out to the canonical trigger
+    //                            pair: its negative half drives the LEFT_TRIGGER
+    //                            channel, its positive half the RIGHT_TRIGGER channel.
+    // The trigger pair is a virtual bidirectional axis (left = negative side,
+    // right = positive side) shared with the Actions-tab "Triggers left/right" input.
+    static constexpr U8 AXIS_OUTPUT_NONE = NUM_AXES;
+    static constexpr U8 AXIS_OUTPUT_TRIGGER_PAIR = NUM_AXES + 1;
+    static constexpr U8 NUM_AXIS_OUTPUTS = NUM_AXES + 2;
+
     static const U16 MAX_AXIS_DEAD_ZONE = 16384;
     static const U16 MAX_AXIS_OFFSET = 16384;
 
@@ -369,6 +381,11 @@ public:
     static void setSendToServer(bool enable);
     static void setAgentControlMode(AgentControlMode mode);
 
+    // Master runtime on/off for the whole feature: gates all game-control ->
+    // action logic (via isEnabled()) and the sending of GameControlData.
+    static void setGameControlEnabled(bool enabled);
+    static bool getGameControlEnabled();
+
     static bool sendToServer();
     static AgentControlMode getAgentControlMode();
 
@@ -384,6 +401,12 @@ public:
     // Given a name like "AXIS_1-" or "BUTTON_5" returns the corresponding InputChannel
     // If the axis name lacks the +/- postfix it assumes '+' postfix.
     static LLGameControl::InputChannel getChannelByName(const std::string& name);
+
+    // Translate between an axis-map output code and its symbolic name, as used by the
+    // Devices-tab output selector: "AXIS_LEFTX".."AXIS_RIGHT_TRIGGER" for the canonical
+    // axes, "AXIS_TRIGGERS" for the fan-out pair, and "AXIS_NONE"/unrecognized for None.
+    static U8 axisOutputFromName(const std::string& name);
+    static std::string axisOutputName(U8 code);
 
     // Keyboard presses produce action_flags which can be translated into State
     // and game_control devices produce State which can be translated into action_flags.
@@ -433,6 +456,12 @@ public:
         const LLSD& mapping);
     static void updateModeMapping(const std::string& mode, const std::string& kind,
         const std::string& action, const std::string& input);
+
+    // Per-mode enable flag: when false, game-control input is not converted to the
+    // mode's actions and its mappings are treated as locked.  Defaults to true when
+    // the flag is absent.  'mode' is "Avatar"/"FlyCam"/"Captive".
+    static bool isModeEnabled(const std::string& mode);
+    static void setModeEnabled(const std::string& mode, bool enabled);
     static std::string getDeviceConfig(const std::string& guid);
     static void setDeviceConfig(const std::string& guid, const std::string& config);
 
