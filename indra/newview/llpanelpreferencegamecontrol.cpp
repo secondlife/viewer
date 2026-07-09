@@ -53,6 +53,13 @@ namespace
     static LLScrollListItem* sSelectedItem { nullptr };
     static LLScrollListCell* sSelectedCell { nullptr };
 
+    // The selector combobox overlays the edited cell, but its drop-down button
+    // texture is semi-transparent, so the cell's own text shows through and
+    // "doubles" with the selector's label.  While a selector is open we blank
+    // the cell's text and stash its value here, restoring it when the selector
+    // closes (see initCombobox / clearSelectionState).
+    static LLSD sSelectedCellValue;
+
     // Selector items use the label "None" for the unmapped entry.
     // Table cells should render that as a blank cell rather than the word.
     const std::string NONE_LABEL("None");
@@ -145,6 +152,10 @@ void LLPanelPreferenceGameControl::onGridSelect(LLUICtrl* ctrl)
     if (!table || !table->getEnabled())
         return;
 
+    // Deselect everything in the other scroll_list
+    LLScrollListCtrl* sibling = (table == mActionMappingsAxes) ? mActionMappingsButtons : mActionMappingsAxes;
+    sibling->deselectAllItems(true);
+
     if (LLScrollListItem* item = table->getFirstSelected())
     {
         // Try to show combobox for editing; if not applicable, deselect
@@ -178,7 +189,7 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
         // Only the Output column (4) uses a popup selector.
         if (item->getSelectedCell() != 4)
             return false;
-        combobox = mAxisInputSelector;
+        combobox = mAxisOutputSelector;
         col = 4;
     }
     else if (grid == mButtonChannels)
@@ -229,6 +240,11 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
     sSelectedItem = item;
     sSelectedCell = cell;
 
+    // Hide the cell's text under the (translucent) selector so it doesn't
+    // double with the selector's label; clearSelectionState() restores it.
+    sSelectedCellValue = cell->getValue();
+    cell->setValue(LLSD());
+
     return true;
 }
 
@@ -269,18 +285,18 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
     }
     else if (sSelectedGrid == mAxisChannels)
     {
-        // The row is a physical axis; the selected item's index is the canonical
-        // axis it maps to.  "None" (index >= NUM_AXES) is not a valid output.
+        // The row is a physical axis; the selected item's value names the output it
+        // maps to: an individual canonical axis, "Triggers left/right" (the fan-out
+        // pair), or "None".  Output codes are resolved by LLGameControl so the panel
+        // stays agnostic of the axis-map encoding.
         S32 axis = mAxisChannels->getItemIndex(sSelectedItem);
-        S32 output = combobox->getCurrentIndex();
+        std::string output_name = combobox->getValue().asString();
         LLGameControl::Options& options = getSelectedDeviceOptions();
-        if (output >= 0 && output < (S32)LLGameControl::NUM_AXES)
-        {
-            options.getAxisMap()[axis] = (U8)output;
-            LLGameControl::setDeviceOptions(mSelectedDeviceGUID, options);
-        }
-        // Re-render the cell from the actual map (handles the ignored "None" case).
-        sSelectedCell->setValue(selectorLabelAt(mAxisInputSelector, options.getAxisMap()[axis]));
+        options.getAxisMap()[axis] = LLGameControl::axisOutputFromName(output_name);
+        LLGameControl::setDeviceOptions(mSelectedDeviceGUID, options);
+        // Re-render the cell from the actual map.
+        sSelectedCell->setValue(inputLabel(mAxisOutputSelector,
+            LLGameControl::axisOutputName(options.getAxisMap()[axis])));
     }
     else if (sSelectedGrid == mButtonChannels)
     {
@@ -296,6 +312,11 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
         }
         sSelectedCell->setValue(selectorLabelAt(mButtonInputSelector, options.getButtonMap()[button]));
     }
+
+    // The branches above set the cell to its committed value; keep the
+    // restore-on-close value in sync so clearSelectionState() doesn't revert
+    // the cell back to its pre-edit text.
+    sSelectedCellValue = sSelectedCell->getValue();
 
     sSelectedGrid->deselectAllItems();
     clearSelectionState();
@@ -322,6 +343,9 @@ void LLPanelPreferenceGameControl::applyGameControlInput()
 void LLPanelPreferenceGameControl::onAxisChannelsSelect()
 {
     clearSelectionState();
+
+    // Deselect everything in the other scroll_list
+    mButtonChannels->deselectAllItems(true);
 
     if (LLScrollListItem* row = mAxisChannels->getFirstSelected())
     {
@@ -391,6 +415,9 @@ void LLPanelPreferenceGameControl::onButtonChannelsSelect()
 {
     clearSelectionState();
 
+    // Deselect everything in the other scroll_list
+    mAxisChannels->deselectAllItems(true);
+
     if (LLScrollListItem* row = mButtonChannels->getFirstSelected())
     {
         initCombobox(row, mButtonChannels);
@@ -430,7 +457,15 @@ void LLPanelPreferenceGameControl::onCommitNumericValue()
 // Called once when the panel is first built from XML.
 bool LLPanelPreferenceGameControl::postBuild()
 {
-    // Send-to-server checkbox (top-left of the main panel)
+    // Master enable checkbox (top-left of the main panel): runtime on/off for all
+    // game-control -> action logic and for sending GameControlData to the server.
+    mCheckGameControlEnabled = getChild<LLCheckBoxCtrl>("game_control_enabled");
+    mCheckGameControlEnabled->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        {
+            LLGameControl::setGameControlEnabled(mCheckGameControlEnabled->getValue());
+        });
+
+    // Send-to-server checkbox (top-right of the main panel)
     mCheckGameControlToServer = getChild<LLCheckBoxCtrl>("game_control_to_server");
     mCheckGameControlToServer->setCommitCallback([this](LLUICtrl*, const LLSD&)
         {
@@ -443,8 +478,9 @@ bool LLPanelPreferenceGameControl::postBuild()
     mTabDevices = getChild<LLPanel>("tab_devices");
 
     // Actions tab (global, per-mode)
-    mActionMode = getChild<LLComboBox>("action_mode");
+    mActionMode = getChild<LLScrollListCtrl>("action_mode");
     mActionMode->setCommitCallback([this](LLUICtrl*, const LLSD&) { onActionModeChanged(); });
+    populateActionModeList();
 
     mRestoreActionsDefaults = getChild<LLButton>("restore_actions_defaults");
     mRestoreActionsDefaults->setCommitCallback([this](LLUICtrl*, const LLSD&) { onResetActionsToDefaults(); });
@@ -502,8 +538,14 @@ bool LLPanelPreferenceGameControl::postBuild()
     mFlycamBinaryActionSelector = getChild<LLComboBox>("flycam_binary_action_selector");
 
     // Canonical input selectors, shown inline when editing an Input/Output cell.
+    // The Actions tab binds an axis action to a canonical input (sticks or the
+    // "Triggers left/right" pair) via mAxisInputSelector; the Devices tab maps a
+    // physical axis to an individual canonical axis via mAxisOutputSelector.
     mAxisInputSelector = getChild<LLComboBox>("axis_input_selector");
     mAxisInputSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
+
+    mAxisOutputSelector = getChild<LLComboBox>("axis_output_selector");
+    mAxisOutputSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
 
     mButtonInputSelector = getChild<LLComboBox>("button_input_selector");
     mButtonInputSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
@@ -535,6 +577,7 @@ bool LLPanelPreferenceGameControl::postBuild()
         grid->setRect(rect);
         grid->updateLayout();
     };
+    fixHeadingTop(mActionMode);
     fixHeadingTop(mActionMappingsAxes);
     fixHeadingTop(mActionMappingsButtons);
     fixHeadingTop(mAxisChannels);
@@ -550,7 +593,8 @@ bool LLPanelPreferenceGameControl::postBuild()
 // Loads current LLGameControl state into UI controls and refreshes all tables.
 void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
 {
-    // Sync checkbox with current LLGameControl state
+    // Sync checkboxes with current LLGameControl state
+    mCheckGameControlEnabled->setValue(LLGameControl::getGameControlEnabled());
     mCheckGameControlToServer->setValue(LLGameControl::sendToServer());
 
     clearSelectionState();
@@ -563,6 +607,7 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
     // Refresh device list and settings
     updateDeviceListInternal();
 
+    mCheckGameControlEnabled->setEnabled(true);
     mCheckGameControlToServer->setEnabled(true);
     mActionMappingsAxes->setEnabled(true);
     mActionMappingsButtons->setEnabled(true);
@@ -570,6 +615,10 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
     mButtonChannels->setEnabled(true);
     mDeviceList->setEnabled(true);
     mStateDeviceList->setEnabled(true);
+
+    // Apply the current mode's enable flag (must run after the blanket enables
+    // above): syncs the checkbox and locks the tables if the mode is disabled.
+    updateActionModeEnabledUI();
 
     // Clear original settings - will be populated on first saveSettings() call
     mOrigSettings = LLSD::emptyMap();
@@ -777,11 +826,92 @@ void LLPanelPreferenceGameControl::populateActionMappings()
     addBlock(mActionMappingsButtons, KIND_BUTTONS, actionSelectorForMode(false, mode), mButtonInputSelector);
 }
 
+// Builds the mode-selector rows: one per action mode, each with an Enabled
+// checkbox and the mode's display label.  The row value is the mode ordinal
+// (matching LLGameControl::AgentControlMode) used by currentEditMode().
+void LLPanelPreferenceGameControl::populateActionModeList()
+{
+    mActionMode->clearRows();
+
+    struct ModeRow { LLGameControl::AgentControlMode mode; const char* label; };
+    static const ModeRow rows[] = {
+        { LLGameControl::CONTROL_MODE_AVATAR,  "When moving avatar" },
+        { LLGameControl::CONTROL_MODE_FLYCAM,  "When moving flycam" },
+        { LLGameControl::CONTROL_MODE_CAPTIVE, "When sitting"       },
+    };
+
+    for (const ModeRow& mr : rows)
+    {
+        std::string mode = LLGameControl::getModeName(mr.mode);
+
+        LLScrollListItem::Params row_params;
+        row_params.value = (S32)mr.mode;
+
+        LLScrollListCell::Params check_cell;
+        check_cell.column = "enabled";
+        check_cell.type = "checkbox";
+        check_cell.value = LLGameControl::isModeEnabled(mode);
+        row_params.columns.add(check_cell);
+
+        LLScrollListCell::Params label_cell;
+        label_cell.column = "mode";
+        label_cell.font = LLFontGL::getFontSansSerif();
+        label_cell.value = std::string(mr.label);
+        row_params.columns.add(label_cell);
+
+        LLScrollListItem* row = mActionMode->addRow(row_params);
+
+        // Wire the per-row checkbox so toggling it enables/disables that mode
+        // independently of which row is currently selected for editing.
+        if (auto* check = dynamic_cast<LLScrollListCheck*>(row->getColumn(0)))
+        {
+            S32 ordinal = (S32)mr.mode;
+            check->getCheckBox()->setCommitCallback(
+                [this, ordinal](LLUICtrl* ctrl, const LLSD&)
+                { onModeEnabledToggled(ordinal, ctrl->getValue().asBoolean()); });
+        }
+    }
+}
+
 // Handles a change in the edit-mode selector: rebuild the action table.
 void LLPanelPreferenceGameControl::onActionModeChanged()
 {
     clearSelectionState();
     populateActionMappings();
+    updateActionModeEnabledUI();
+}
+
+// Toggle whether game-control input is converted to one mode's actions.
+void LLPanelPreferenceGameControl::onModeEnabledToggled(S32 mode_ordinal, bool enabled)
+{
+    clearSelectionState();
+    LLGameControl::setModeEnabled(
+        LLGameControl::getModeName((LLGameControl::AgentControlMode)mode_ordinal), enabled);
+    // If the toggled mode is the one being edited, lock/unlock its tables now.
+    updateActionModeEnabledUI();
+}
+
+// Sync each mode row's checkbox with its stored flag (keeps the list correct
+// after apply/cancel/reset) and lock/unlock the action tables (and Restore
+// Defaults) for the mode being edited so a disabled mode's mappings can't change.
+void LLPanelPreferenceGameControl::updateActionModeEnabledUI()
+{
+    for (LLScrollListItem* item : mActionMode->getAllData())
+    {
+        std::string mode = LLGameControl::getModeName(
+            (LLGameControl::AgentControlMode)item->getValue().asInteger());
+        if (auto* check = dynamic_cast<LLScrollListCheck*>(item->getColumn(0)))
+        {
+            check->getCheckBox()->set(LLGameControl::isModeEnabled(mode));
+        }
+    }
+
+    bool enabled = LLGameControl::isModeEnabled(currentEditMode());
+    // A disabled mode's tables grey out; onGridSelect() also refuses edits on a
+    // disabled table, so this both signals and enforces the lock.
+    mActionMappingsAxes->setEnabled(enabled);
+    mActionMappingsButtons->setEnabled(enabled);
+    mRestoreActionsDefaults->setEnabled(enabled);
 }
 
 // Enforces that an input drives at most one action within a mode's block.  When a
@@ -821,8 +951,9 @@ void LLPanelPreferenceGameControl::populateAxisChannelsRows()
 {
     mAxisChannels->clearRows();
 
-    // Column 0 shows the physical controller axis inputs (not actions)
-    std::vector<LLScrollListItem*> items = mAxisInputSelector->getAllData();
+    // Column 0 shows the physical controller axis inputs (not actions).  The output
+    // selector's first NUM_AXES items are the individual canonical axes, in order.
+    std::vector<LLScrollListItem*> items = mAxisOutputSelector->getAllData();
 
     LLScrollListItem::Params row_params;
     LLScrollListCell::Params cell_params;
@@ -862,7 +993,8 @@ void LLPanelPreferenceGameControl::populateAxisChannelsCells()
         row->getColumn(1)->setValue(axis_options.mMultiplier == -1);  // Invert checkbox
         setNumericLabel(row->getColumn(2), axis_options.mDeadZone);
         setNumericLabel(row->getColumn(3), axis_options.mOffset);
-        row->getColumn(4)->setValue(selectorLabelAt(mAxisInputSelector, axis_map[i]));  // Output
+        row->getColumn(4)->setValue(inputLabel(mAxisOutputSelector,
+            LLGameControl::axisOutputName(axis_map[i])));  // Output
     }
 }
 
@@ -949,7 +1081,8 @@ void LLPanelPreferenceGameControl::populateAxisStateRows()
 {
     mAxisState->clearRows();
 
-    std::vector<LLScrollListItem*> items = mAxisInputSelector->getAllData();
+    // One row per physical axis, labelled from the output selector's canonical-axis items.
+    std::vector<LLScrollListItem*> items = mAxisOutputSelector->getAllData();
 
     LLScrollListItem::Params row_params;
     LLScrollListCell::Params cell_params;
@@ -1184,11 +1317,21 @@ void LLPanelPreferenceGameControl::fitInRect(LLUICtrl* ctrl, LLScrollListCtrl* g
 // Clears the current cell selection state and hides all popup editors.
 void LLPanelPreferenceGameControl::clearSelectionState()
 {
+    // Restore the text we blanked when the selector opened (initCombobox).
+    // On commit this is the freshly committed value; otherwise it's the
+    // original, so a dismissed selector leaves the cell unchanged.
+    if (sSelectedCell)
+    {
+        sSelectedCell->setValue(sSelectedCellValue);
+    }
+    sSelectedCellValue = LLSD();
+
     sSelectedGrid = nullptr;
     sSelectedItem = nullptr;
     sSelectedCell = nullptr;
     mNumericValueEditor->setVisible(false);
     mAxisInputSelector->setVisible(false);
+    mAxisOutputSelector->setVisible(false);
     mButtonInputSelector->setVisible(false);
 }
 

@@ -368,6 +368,24 @@ std::string LLGameControl::InputChannel::getRemoteName() const
 }
 
 
+// How a physical/canonical axis feeds the analog action it is bound to.  A normal
+// bidirectional stick axis drives both directions (HALF_FULL).  A single trigger,
+// used as one side of the "Triggers left/right" pair, is positive-only and drives
+// just one direction of the action: the left trigger the negative side, the right
+// trigger the positive side.
+enum AxisHalf : S8
+{
+    HALF_NEGATIVE = -1,
+    HALF_FULL     = 0,
+    HALF_POSITIVE = 1,
+};
+
+struct AxisActionBinding
+{
+    std::string label;          // bound UI action label, empty when unbound
+    S8          half { HALF_FULL };
+};
+
 // internal class for managing list of controllers and per-controller state
 class LLGameControllerManager
 {
@@ -399,7 +417,7 @@ public:
     void getFlycamInputs(std::vector<F32>& inputs_out);
     void setExternalInput(U32 action_flags, U32 buttons);
 
-    // Rebuild mAxisActionLabels/mButtonActionLabels from the global ModeMappings
+    // Rebuild mAxisActionBindings/mButtonActionLabels from the global ModeMappings
     // for the currently-active AgentControlMode.  Cheap; called on settings change
     // and on mode change.  Safe to call every frame (early-outs when up to date).
     void rebuildActionLookup(bool force = false);
@@ -425,9 +443,10 @@ private:
     // Runtime action lookup for the active AgentControlMode, rebuilt from the
     // global ModeMappings whenever settings or the active mode change.  Each entry
     // holds the UI action label (e.g. "Move forward/back") bound to that canonical
-    // input, or "" if unbound.  mAxisActionLabels is indexed by physical axis
-    // (KeyboardAxis, NUM_AXES); mButtonActionLabels by Button (NUM_BUTTONS).
-    std::vector<std::string> mAxisActionLabels;
+    // input, or "" if unbound.  mAxisActionBindings is indexed by canonical axis
+    // (KeyboardAxis, NUM_AXES) and also records which half of the action a trigger
+    // half-axis feeds; mButtonActionLabels by Button (NUM_BUTTONS).
+    std::vector<AxisActionBinding> mAxisActionBindings;
     std::vector<std::string> mButtonActionLabels;
     LLGameControl::AgentControlMode mLookupMode { LLGameControl::CONTROL_MODE_NONE };
 
@@ -477,6 +496,9 @@ namespace
     U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
 
     bool g_sendToServer = false;
+    // Master runtime toggle for the whole feature: when false, no game-control
+    // input is converted to actions and nothing is sent to the server.
+    bool g_gameControlEnabled = true;
     LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_AVATAR;
 
     // g_gameControlSettings is the nested GameControl structure stored under the
@@ -498,15 +520,25 @@ namespace
     // (see buildDefaultGameControlSettings()).
     const std::string GC_COMMENT("Comment");
     const std::string GC_SENDTOSERVER("SendDataToServer");
+    // Top-level master enable for the whole feature (distinct from the per-mode
+    // GC_ENABLED flag below).  Absent in pre-existing configs -> treated as true.
+    const std::string GC_MASTERENABLED("MasterEnabled");
     const std::string GC_DEVICES("Devices");
     const std::string GC_DEFAULT_DEVICE("Default");
     const std::string GC_CONFIG("Config");
     const std::string GC_MODEMAPPINGS("ModeMappings");
     const std::string GC_AXES("Axes");
     const std::string GC_BUTTONS("Buttons");
+    // Per-mode flag gating whether game-control input is converted to that mode's
+    // actions.  When false the mode's mappings are locked and no actions fire.
+    const std::string GC_ENABLED("Enabled");
     const std::string GC_MODE_AVATAR("Avatar");
     const std::string GC_MODE_FLYCAM("FlyCam");
     const std::string GC_MODE_CAPTIVE("Captive");
+
+    // Symbolic input name for the combined trigger pair, used both as an axis-action
+    // Input value (Actions tab) and as a physical-axis Output value (Devices tab).
+    const std::string INPUT_AXIS_TRIGGERS("AXIS_TRIGGERS");
 
 #ifdef TEMPORARILY_DISABLED
     std::string ENUM_AGENTCONTROLMODE_FLYCAM("flycam");
@@ -564,8 +596,9 @@ namespace
         avatar_axes["Move forward/back"] = "AXIS_LEFTY";
         avatar_axes["Turn left/right"]   = "AXIS_RIGHTX";
         avatar_axes["Look up/down"]      = "AXIS_RIGHTY";
-        avatar_axes["Rise up"]           = "AXIS_LEFT_TRIGGER";
-        avatar_axes["Drop down"]         = "AXIS_RIGHT_TRIGGER";
+        // The two triggers form a single bidirectional axis: left trigger drives the
+        // negative direction (drop), right trigger the positive (rise).
+        avatar_axes["Move up/down"]      = "AXIS_TRIGGERS";
 
         // Buttons: action label -> button input
         LLSD avatar_buttons;
@@ -607,6 +640,8 @@ namespace
             LLSD mode;
             mode[GC_AXES]    = axes;
             mode[GC_BUTTONS] = buttons;
+            // Conversion for each mode is enabled by default.
+            mode[GC_ENABLED] = true;
             return mode;
         };
 
@@ -629,6 +664,7 @@ namespace
         LLSD settings;
         settings[GC_COMMENT] = "GameControl settings";
         settings[GC_SENDTOSERVER] = false;
+        settings[GC_MASTERENABLED] = true;
         settings[GC_MODEMAPPINGS] = buildDefaultModeMappings();
         settings[GC_DEVICES][GC_DEFAULT_DEVICE] = device;
         return settings;
@@ -1158,6 +1194,72 @@ static void storeHalfAxes(std::vector<U16>& half_axes, U8 base, S16 value)
     }
 }
 
+// Writes a single half-axis slot to a magnitude without disturbing its sibling.
+// Used when two physical axes each own one half of the same canonical axis (the
+// "Triggers left/right" merge) so their contributions do not clobber each other.
+static void storeOneHalf(std::vector<U16>& half_axes, U8 slot, S16 value)
+{
+    half_axes[slot] = (U16)std::max<S32>(0, value);
+}
+
+// Fans a single bidirectional axis value across the canonical trigger channels:
+// the negative part drives the LEFT_TRIGGER channel, the positive part the
+// RIGHT_TRIGGER channel.  Triggers are positive-only, so each magnitude lands in
+// its channel's positive half and the unused negative halves are cleared.
+static void storeTriggerPairFanout(std::vector<U16>& half_axes, S16 value)
+{
+    constexpr U8 LT = LLGameControl::AXIS_LEFT_TRIGGER;
+    constexpr U8 RT = LLGameControl::AXIS_RIGHT_TRIGGER;
+    half_axes[RT * 2]     = value > 0 ? (U16)value : 0;
+    half_axes[RT * 2 + 1] = 0;
+    half_axes[LT * 2]     = value < 0 ? (U16)abs((S32)value) : 0;
+    half_axes[LT * 2 + 1] = 0;
+}
+
+// Routes a (fixed, sign-corrected) axis value into the canonical half-axis slots of
+// 'state' according to the physical axis' output code 'out':
+//   - a specific canonical axis: split by sign into that axis' two halves (1:1);
+//   - AXIS_OUTPUT_TRIGGER_PAIR: fan a bidirectional axis across the trigger channels
+//     (negative -> LEFT_TRIGGER, positive -> RIGHT_TRIGGER);
+//   - a stick canonical axis fed by a physical trigger: merge into one half of it
+//     (left trigger -> negative half, right trigger -> positive half).
+// 'phys' is the physical axis index; 'phys_is_trigger' whether it is a trigger.
+static void routeAxisValue(LLGameControl::State& state, U8 phys, bool phys_is_trigger,
+    U8 out, S16 value, S16 raw_value)
+{
+    constexpr U8 LT = LLGameControl::AXIS_LEFT_TRIGGER;
+
+    if (out == LLGameControl::AXIS_OUTPUT_NONE)
+    {
+        return; // physical axis disabled: contributes nothing
+    }
+
+    if (out == LLGameControl::AXIS_OUTPUT_TRIGGER_PAIR)
+    {
+        // Fan-out: a single bidirectional axis drives the whole trigger pair, so this
+        // physical axis owns both trigger channels and clears their unused halves.
+        storeTriggerPairFanout(state.mAxes, value);
+        storeTriggerPairFanout(state.mRawAxes, raw_value);
+        return;
+    }
+
+    if (phys_is_trigger && out < LT)
+    {
+        // Merge: a physical trigger feeds one half of a bidirectional (stick) axis.
+        // Left trigger -> negative half, right trigger -> positive half.  Write only
+        // our half, using the press magnitude so the two triggers do not clobber each
+        // other; inversion is not meaningful here (the half is fixed by which trigger).
+        U8 slot = (phys == LT) ? (U8)(out * 2 + 1) : (U8)(out * 2);
+        storeOneHalf(state.mAxes, slot, (S16)abs((S32)value));
+        storeOneHalf(state.mRawAxes, slot, (S16)abs((S32)raw_value));
+        return;
+    }
+
+    // Normal 1:1 mapping: split the signed value into the canonical axis' halves.
+    storeHalfAxes(state.mAxes, (U8)(out * 2), value);
+    storeHalfAxes(state.mRawAxes, (U8)(out * 2), raw_value);
+}
+
 void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
 {
     device_it it = findDevice(id);
@@ -1169,36 +1271,39 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
         return;
     }
 
-    // Map axis using device-specific settings
-    // or leave the value unchanged
-    U8 mapped_axis = it->mOptions.mapAxis(axis);
-    if (mapped_axis != axis)
-    {
-        LL_DEBUGS("SDL3") << "Axis mapped: joystick=0x" << std::hex << id << std::dec
-            << " input axis i=" << (S32)axis
-            << " mapped axis i=" << (S32)mapped_axis << LL_ENDL;
-        axis = mapped_axis;
-    }
-
-    if (axis >= LLGameControl::NUM_AXES)
+    // 'axis' is the physical axis index for the remainder of this function; the
+    // hardware fix and stick-negation below are keyed on it so they describe the
+    // physical sensor, then the output code routes the result to canonical slots.
+    U8 phys = axis;
+    if (phys >= LLGameControl::NUM_AXES)
     {
         LL_WARNS("SDL3") << "Unknown axis: joystick=0x" << std::hex << id << std::dec
-            << " axis=" << (S32)(axis)
+            << " axis=" << (S32)(phys)
             << " value=" << (S32)(value) << LL_ENDL;
         return;
+    }
+
+    // The output code says where this physical axis goes: a single canonical axis,
+    // the trigger pair (fan-out), or None.
+    U8 out = it->mOptions.mapAxis(phys);
+    if (out != phys)
+    {
+        LL_DEBUGS("SDL3") << "Axis mapped: joystick=0x" << std::hex << id << std::dec
+            << " input axis i=" << (S32)phys
+            << " output i=" << (S32)out << LL_ENDL;
     }
 
     // Keep the pre-fix (raw) value so the UI can display it alongside the
     // post-fix value; see LLGameControl::Device::State::mRawAxes.
     S16 raw_value = value;
 
-    // Fix value using device-specific settings
-    // or leave the value unchanged
-    S16 fixed_value = it->mOptions.fixAxisValue(axis, value);
+    // Fix value using this physical axis' settings (dead zone / offset / invert),
+    // or leave the value unchanged.
+    S16 fixed_value = it->mOptions.fixAxisValue(phys, value);
     if (fixed_value != value)
     {
         LL_DEBUGS("SDL3") << "Value fixed: joystick=0x" << std::hex << id << std::dec
-            << " axis i=" << (S32)axis
+            << " axis i=" << (S32)phys
             << " input value=" << (S32)value
             << " fixed value=" << (S32)fixed_value << LL_ENDL;
         value = fixed_value;
@@ -1209,20 +1314,20 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
     // reference frame.  Therefore we implicitly negate those axes here where
     // they are extracted from SDL, before being used anywhere.  The raw value is
     // negated the same way so both share one sign convention and differ only by
-    // the fix transform (dead zone / offset / invert).
-    if (axis < SDL_GAMEPAD_AXIS_LEFT_TRIGGER)
+    // the fix transform (dead zone / offset / invert).  Triggers are positive-only
+    // and are left un-negated.
+    bool phys_is_trigger = phys >= LLGameControl::AXIS_LEFT_TRIGGER;
+    if (!phys_is_trigger)
     {
         value = negateAxisValue(value);
         raw_value = negateAxisValue(raw_value);
     }
 
     LL_DEBUGS("SDL3") << "joystick=0x" << std::hex << id << std::dec
-        << " axis=" << (S32)(axis)
+        << " axis=" << (S32)(phys)
         << " value=" << (S32)(value) << LL_ENDL;
 
-    U8 base = axis * 2;
-    storeHalfAxes(it->mState.mAxes, base, value);
-    storeHalfAxes(it->mState.mRawAxes, base, raw_value);
+    routeAxisValue(it->mState, phys, phys_is_trigger, out, value, raw_value);
 }
 
 void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool pressed)
@@ -1530,9 +1635,10 @@ namespace
 
     // Step-0 bridge (approach A): UI action label -> engine effect for the
     // Avatar/Captive modes.  Analog axis labels expand to a positive-half and
-    // negative-half AGENT_CONTROL bit; unidirectional trigger labels ("Rise up",
-    // "Drop down") use only the positive half.  Button labels expand to a single
-    // AGENT_CONTROL bit (the fly/flycam entries reuse the HACK bits consumed by
+    // negative-half AGENT_CONTROL bit; when an axis is bound to the trigger pair the
+    // per-axis binding half (see AxisActionBinding) selects which of these two bits a
+    // given trigger drives.  Button labels expand to a single AGENT_CONTROL bit (the
+    // fly/flycam entries reuse the HACK bits consumed by
     // LLAgent::applyExternalActionFlags).  Labels that map to viewer *commands*
     // rather than movement bits (Interact, Toggle sit/menu/mouselook/3rd-person,
     // Mouse clicks) are intentionally absent here and are a separate follow-up.
@@ -1547,8 +1653,7 @@ namespace
             { "Move forward/back", { AGENT_CONTROL_AT_POS,    AGENT_CONTROL_AT_NEG } },
             { "Turn left/right",   { AGENT_CONTROL_YAW_POS,   AGENT_CONTROL_YAW_NEG } },
             { "Look up/down",      { AGENT_CONTROL_PITCH_POS, AGENT_CONTROL_PITCH_NEG } },
-            { "Rise up",           { AGENT_CONTROL_UP_POS,    0 } },
-            { "Drop down",         { AGENT_CONTROL_UP_NEG,    0 } },
+            { "Move up/down",      { AGENT_CONTROL_UP_POS,    AGENT_CONTROL_UP_NEG } },
         };
         return bridge;
     }
@@ -1558,6 +1663,10 @@ namespace
         static const std::map<std::string, U32> bridge = {
             { "Jump",          AGENT_CONTROL_UP_POS },
             { "Crouch",        AGENT_CONTROL_UP_NEG },
+            // A button drives only one half-axis, so up/down are two separate button
+            // actions (the analog counterpart is the single "Move up/down" axis).
+            { "Move up",       AGENT_CONTROL_UP_POS },
+            { "Move down",     AGENT_CONTROL_UP_NEG },
             { "Move forward",  AGENT_CONTROL_AT_POS },
             { "Move back",     AGENT_CONTROL_AT_NEG },
             { "Strafe left",   AGENT_CONTROL_LEFT_POS },
@@ -1568,17 +1677,24 @@ namespace
         };
         return bridge;
     }
+
+    // Defensive-repair helpers for stale/renamed axis-action keys in saved settings
+    // (e.g. a pre-merge "Rise up").  Defined below, after the flycam bridge.
+    //   isKnownAnalogAxisAction - is 'label' a real axis action for this mode?
+    //   defaultAxisActionForInput - which action owns 'input' in the built-in defaults?
+    bool isKnownAnalogAxisAction(LLGameControl::AgentControlMode mode, const std::string& label);
+    std::string defaultAxisActionForInput(LLGameControl::AgentControlMode mode, const std::string& input);
 }
 
 void LLGameControllerManager::rebuildActionLookup(bool force)
 {
     LLGameControl::AgentControlMode mode = g_agentControlMode;
-    if (!force && mode == mLookupMode && !mAxisActionLabels.empty())
+    if (!force && mode == mLookupMode && !mAxisActionBindings.empty())
     {
         return; // already current
     }
     mLookupMode = mode;
-    mAxisActionLabels.assign(LLGameControl::NUM_AXES, std::string());
+    mAxisActionBindings.assign(LLGameControl::NUM_AXES, AxisActionBinding());
     mButtonActionLabels.assign(LLGameControl::NUM_BUTTONS, std::string());
 
     const std::string& mode_name = modeToString(mode);
@@ -1588,14 +1704,45 @@ void LLGameControllerManager::rebuildActionLookup(bool force)
     }
 
     // Invert ModeMappings[mode][Axes|Buttons] (action label -> input name) into
-    // canonical input index -> action label.  Last binding wins on collision.
+    // canonical input index -> action binding.  Last binding wins on collision.
     LLSD axes = LLGameControl::getModeMapping(mode_name, GC_AXES);
     for (auto it = axes.beginMap(); it != axes.endMap(); ++it)
     {
-        LLGameControl::InputChannel channel = channelFromInputName(it->second.asString());
+        const std::string& action = it->first;
+        std::string input = it->second.asString();
+
+        // Defensively handle stale/renamed action keys (e.g. a pre-merge "Rise up"
+        // left in saved settings).  If the key isn't a valid axis action for this mode,
+        // reassign its input to the action that owns that input by default -- unless
+        // that default action is already mapped, in which case drop the stale key
+        // (treat as None).  This only sanitizes the in-memory lookup; the stored
+        // settings are left untouched (they'll be fixed if/when the user edits them).
+        std::string bound_action = action;
+        if (!isKnownAnalogAxisAction(mode, action))
+        {
+            std::string default_action = defaultAxisActionForInput(mode, input);
+            if (default_action.empty() || axes.has(default_action))
+            {
+                continue; // no free default owner for this input: treat as None
+            }
+            bound_action = default_action;
+        }
+
+        if (input == INPUT_AXIS_TRIGGERS)
+        {
+            // The trigger pair is one bidirectional axis: the left trigger feeds the
+            // action's negative side, the right trigger its positive side.  (SL's
+            // positive sense is left/forward/up and, for yaw, counter-clockwise per
+            // the right-hand rule, so e.g. the right trigger turns left by default;
+            // invert the trigger axes in Device Options to reverse that.)
+            mAxisActionBindings[LLGameControl::AXIS_LEFT_TRIGGER]  = { bound_action, HALF_NEGATIVE };
+            mAxisActionBindings[LLGameControl::AXIS_RIGHT_TRIGGER] = { bound_action, HALF_POSITIVE };
+            continue;
+        }
+        LLGameControl::InputChannel channel = channelFromInputName(input);
         if (channel.isAxis() && channel.mIndex < LLGameControl::NUM_AXES)
         {
-            mAxisActionLabels[channel.mIndex] = it->first;
+            mAxisActionBindings[channel.mIndex] = { bound_action, HALF_FULL };
         }
     }
     LLSD buttons = LLGameControl::getModeMapping(mode_name, GC_BUTTONS);
@@ -1619,26 +1766,32 @@ U32 LLGameControllerManager::computeInternalActionFlags()
 
     U32 flags = 0;
 
-    // Axes: each physical axis' two half-magnitudes (positive at axis*2, negative
-    // at axis*2+1 in g_innerState) drive the bound label's positive/negative bits.
+    // Axes: work from each canonical axis' signed deflection (positive half at
+    // axis*2 minus negative half at axis*2+1).  Using the deflection rather than a
+    // single half makes the per-axis Invert option work for triggers too: inverting
+    // moves the magnitude into the other half and flips the sign.  A trigger half
+    // (HALF_NEGATIVE = left, HALF_POSITIVE = right) applies its side's polarity; a
+    // full axis (HALF_FULL) uses the deflection directly.
     const auto& axis_bridge = avatarAxisBridge();
     for (U8 axis = 0; axis < LLGameControl::NUM_AXES; ++axis)
     {
-        const std::string& label = mAxisActionLabels[axis];
-        if (label.empty())
+        const AxisActionBinding& binding = mAxisActionBindings[axis];
+        if (binding.label.empty())
         {
             continue;
         }
-        auto it = axis_bridge.find(label);
+        auto it = axis_bridge.find(binding.label);
         if (it == axis_bridge.end())
         {
             continue;
         }
-        if (g_innerState.mAxes[axis * 2] > AXIS_THRESHOLD)
+        S32 deflection = (S32)g_innerState.mAxes[axis * 2] - (S32)g_innerState.mAxes[axis * 2 + 1];
+        S32 value = binding.half == HALF_NEGATIVE ? -deflection : deflection;
+        if (value > AXIS_THRESHOLD)
         {
             flags |= it->second.posFlag;
         }
-        if (g_innerState.mAxes[axis * 2 + 1] > AXIS_THRESHOLD)
+        if (value < -(S32)AXIS_THRESHOLD)
         {
             flags |= it->second.negFlag;
         }
@@ -1674,16 +1827,15 @@ namespace
     struct FlycamAxisEffect { U8 channel; F32 polarity; };
 
     // FlyCam-mode axis label -> flycam channel + polarity applied to the axis'
-    // signed value (positive half minus negative half).  "Rise up"/"Drop down"
-    // are two labels on the paired triggers that accumulate into RISE with
-    // opposite sign, giving the tied-trigger behavior for free.
+    // signed value (positive half minus negative half).  "Move up/down" bound to the
+    // trigger pair yields the tied-trigger RISE behavior: the right trigger (positive
+    // half) rises, the left trigger (negative half) drops.
     const std::map<std::string, FlycamAxisEffect>& flycamAxisBridge()
     {
         static const std::map<std::string, FlycamAxisEffect> bridge = {
             { "Move forward/back", { LLGameControl::FLYCAM_ADVANCE,  1.f } },
             { "Strafe left/right", { LLGameControl::FLYCAM_PAN,      1.f } },
-            { "Rise up",           { LLGameControl::FLYCAM_RISE,     1.f } },
-            { "Drop down",         { LLGameControl::FLYCAM_RISE,    -1.f } },
+            { "Move up/down",      { LLGameControl::FLYCAM_RISE,     1.f } },
             { "Look up/down",      { LLGameControl::FLYCAM_PITCH,    1.f } },
             { "Turn left/right",   { LLGameControl::FLYCAM_YAW,      1.f } },
             { "Roll left/right",   { LLGameControl::FLYCAM_ROLL,     1.f } },
@@ -1708,10 +1860,50 @@ namespace
         };
         return bridge;
     }
+
+    // (Declared above, before rebuildActionLookup.)  The axis bridges are the complete
+    // set of valid axis actions per mode, so bridge membership is the authoritative
+    // "is this a real axis action" test.
+    bool isKnownAnalogAxisAction(LLGameControl::AgentControlMode mode, const std::string& label)
+    {
+        if (mode == LLGameControl::CONTROL_MODE_FLYCAM)
+        {
+            return flycamAxisBridge().count(label) > 0;
+        }
+        // Avatar and Captive share the avatar axis actions.
+        return avatarAxisBridge().count(label) > 0;
+    }
+
+    std::string defaultAxisActionForInput(LLGameControl::AgentControlMode mode, const std::string& input)
+    {
+        const std::string& mode_name = modeToString(mode);
+        if (mode_name.empty())
+        {
+            return LLStringUtil::null;
+        }
+        LLSD axes = buildDefaultModeMappings()[mode_name][GC_AXES];
+        for (auto it = axes.beginMap(); it != axes.endMap(); ++it)
+        {
+            if (it->second.asString() == input)
+            {
+                return it->first;
+            }
+        }
+        return LLStringUtil::null;
+    }
 }
 
 void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
 {
+    // When the feature is off or FlyCam-mode conversion is disabled, produce no
+    // motion.  This path (LLAgent::updateFlycam) is not gated by willControlFlycam(),
+    // so gate it here on both the master toggle and the per-mode flag.
+    if (!LLGameControl::getGameControlEnabled() || !LLGameControl::isModeEnabled(GC_MODE_FLYCAM))
+    {
+        inputs.assign(LLGameControl::FLYCAM_NUM_CHANNELS, 0.f);
+        return;
+    }
+
     // Ensure the runtime lookup matches the active (FlyCam) mode.
     rebuildActionLookup();
 
@@ -1722,20 +1914,26 @@ void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
     const auto& bridge = flycamAxisBridge();
     for (U8 axis = 0; axis < LLGameControl::NUM_AXES; ++axis)
     {
-        const std::string& label = mAxisActionLabels[axis];
-        if (label.empty())
+        const AxisActionBinding& binding = mAxisActionBindings[axis];
+        if (binding.label.empty())
         {
             continue;
         }
-        auto it = bridge.find(label);
+        auto it = bridge.find(binding.label);
         if (it == bridge.end())
         {
             continue;
         }
         // g_innerState half-axes: positive magnitude at axis*2, negative at axis*2+1.
+        // Use the signed deflection so the per-axis Invert option works for triggers
+        // (inverting swaps which half holds the magnitude, flipping the sign).  A
+        // right-trigger half (HALF_NEGATIVE) negates; left (HALF_POSITIVE) and full
+        // axes use the deflection as-is.
         F32 pos = (F32)g_innerState.mAxes[axis * 2]     / 32767.f;
         F32 neg = (F32)g_innerState.mAxes[axis * 2 + 1] / 32767.f;
-        dof[it->second.channel] += it->second.polarity * (pos - neg);
+        F32 deflection = pos - neg;
+        F32 signed_value = binding.half == HALF_NEGATIVE ? -deflection : deflection;
+        dof[it->second.channel] += it->second.polarity * signed_value;
     }
 
     // Button-driven flycam motion (roll on the shoulders, dpad advance/pan):
@@ -2211,7 +2409,7 @@ bool LLGameControl::computeFinalStateAndCheckForChanges()
     //     g_lastSend has "expired"
     //         either because g_nextResendPeriod has been zeroed
     //         or the last send really has expired.
-    return g_sendToServer && (g_lastSend + g_nextResendPeriod < get_now_nsec());
+    return g_gameControlEnabled && g_sendToServer && (g_lastSend + g_nextResendPeriod < get_now_nsec());
 }
 
 // static
@@ -2350,6 +2548,21 @@ bool LLGameControl::sendToServer()
 }
 
 // static
+void LLGameControl::setGameControlEnabled(bool enabled)
+{
+    g_gameControlEnabled = enabled;
+    // Persisted inside the GameControl map alongside SendDataToServer.
+    ensureGameControlSettings();
+    g_gameControlSettings[GC_MASTERENABLED] = g_gameControlEnabled;
+}
+
+// static
+bool LLGameControl::getGameControlEnabled()
+{
+    return g_gameControlEnabled;
+}
+
+// static
 void LLGameControl::setAgentControlMode(AgentControlMode mode)
 {
     // AgentControlMode is purely runtime state, auto-derived from avatar state
@@ -2368,9 +2581,10 @@ LLGameControl::AgentControlMode LLGameControl::getAgentControlMode()
 // static
 bool LLGameControl::isEnabled()
 {
-    // The feature no longer has a separate on/off toggle; it is "enabled"
-    // whenever at least one controller is connected.
-    return !g_manager.mDevices.empty();
+    // "Enabled" means the master toggle is on AND at least one controller is
+    // connected.  willControlAvatar()/willControlFlycam() build on this, so the
+    // master toggle gates all game-control -> action logic through them.
+    return g_gameControlEnabled && !g_manager.mDevices.empty();
 }
 
 // static
@@ -2378,13 +2592,16 @@ bool LLGameControl::willControlAvatar()
 {
     return isEnabled()
         && (g_agentControlMode == CONTROL_MODE_AVATAR
-            || g_agentControlMode == CONTROL_MODE_CAPTIVE);
+            || g_agentControlMode == CONTROL_MODE_CAPTIVE)
+        && isModeEnabled(modeToString(g_agentControlMode));
 }
 
 // static
 bool LLGameControl::willControlFlycam()
 {
-    return isEnabled() && g_agentControlMode == CONTROL_MODE_FLYCAM;
+    return isEnabled()
+        && g_agentControlMode == CONTROL_MODE_FLYCAM
+        && isModeEnabled(GC_MODE_FLYCAM);
 }
 
 // static
@@ -2457,6 +2674,29 @@ void LLGameControl::updateModeMapping(const std::string& mode, const std::string
 }
 
 // static
+bool LLGameControl::isModeEnabled(const std::string& mode)
+{
+    ensureGameControlSettings();
+    const LLSD& mode_map = g_gameControlSettings[GC_MODEMAPPINGS][mode];
+    // Default to enabled when the flag is absent (e.g. settings saved before this
+    // flag existed), so pre-existing configs keep working.
+    if (mode_map.isMap() && mode_map.has(GC_ENABLED))
+    {
+        return mode_map[GC_ENABLED].asBoolean();
+    }
+    return true;
+}
+
+// static
+void LLGameControl::setModeEnabled(const std::string& mode, bool enabled)
+{
+    ensureGameControlSettings();
+    g_gameControlSettings[GC_MODEMAPPINGS][mode][GC_ENABLED] = enabled;
+    // The runtime gates (willControlAvatar/willControlFlycam/getFlycamInputs) read
+    // this flag live each frame, so no action-lookup rebuild is needed here.
+}
+
+// static
 std::string LLGameControl::getDeviceConfig(const std::string& guid)
 {
     ensureGameControlSettings();
@@ -2504,6 +2744,35 @@ LLGameControl::InputChannel LLGameControl::getChannelByName(const std::string& n
     }
 
     return channel;
+}
+
+// static
+U8 LLGameControl::axisOutputFromName(const std::string& name)
+{
+    if (name == INPUT_AXIS_TRIGGERS)
+    {
+        return AXIS_OUTPUT_TRIGGER_PAIR;
+    }
+    InputChannel channel = channelFromInputName(name);
+    if (channel.isAxis() && channel.mIndex < NUM_AXES)
+    {
+        return channel.mIndex;
+    }
+    return AXIS_OUTPUT_NONE; // "AXIS_NONE" or anything unrecognized
+}
+
+// static
+std::string LLGameControl::axisOutputName(U8 code)
+{
+    if (code == AXIS_OUTPUT_TRIGGER_PAIR)
+    {
+        return INPUT_AXIS_TRIGGERS;
+    }
+    if (code < NUM_AXES)
+    {
+        return InputChannel(InputChannel::TYPE_AXIS, code).getRemoteName();
+    }
+    return "AXIS_NONE";
 }
 
 // static
@@ -2611,7 +2880,9 @@ bool LLGameControl::parseDeviceOptions(const std::string& options, std::string& 
         if (!value.empty())
         {
             size_t number = std::stoull(value);
-            if (number >= NUM_AXES || std::to_string(number) != value)
+            // Output codes cover the canonical axes plus the None and trigger-pair
+            // sentinels (see LLGameControl::AXIS_OUTPUT_*).
+            if (number >= NUM_AXIS_OUTPUTS || std::to_string(number) != value)
             {
                 LL_WARNS("SDL3") << "Invalid axis mapping: " << i << "->" << value << LL_ENDL;
             }
@@ -2703,6 +2974,7 @@ std::string LLGameControl::stringifyDeviceOptions(const std::string& name,
 void LLGameControl::initByDefault()
 {
     g_sendToServer = false;
+    g_gameControlEnabled = true;
     g_agentControlMode = CONTROL_MODE_AVATAR;
     g_gameControlSettings = buildDefaultGameControlSettings();
     g_manager.resetDeviceOptionsToDefaults();
@@ -2734,6 +3006,7 @@ LLSD LLGameControl::getSettingsAsLLSD()
     }
 
     g_gameControlSettings[GC_SENDTOSERVER] = g_sendToServer;
+    g_gameControlSettings[GC_MASTERENABLED] = g_gameControlEnabled;
 
     LLSD result = LLSD::emptyMap();
     result[SETTING_GAMECONTROL] = g_gameControlSettings;
@@ -2749,6 +3022,10 @@ void LLGameControl::applySettingsFromLLSD(const LLSD& settings)
     // SendDataToServer is nested inside the GameControl map.
     if (g_gameControlSettings.has(GC_SENDTOSERVER))
         g_sendToServer = g_gameControlSettings[GC_SENDTOSERVER].asBoolean();
+
+    // Master enable defaults to true when absent (pre-existing configs).
+    g_gameControlEnabled = !g_gameControlSettings.has(GC_MASTERENABLED)
+        || g_gameControlSettings[GC_MASTERENABLED].asBoolean();
 
     // Rebuild the device-options cache from GameControl/Devices/<guid>/Config and
     // apply it to the connected devices.
