@@ -1375,6 +1375,9 @@ void sendGameControlInput()
 
     LLGameControl::updateResendPeriod();
     gAgent.sendMessage();
+
+    // Mirror the just-sent channel values into the preferences "Data Output" tab.
+    LLPanelPreferenceGameControl::updateDataOutput();
 }
 
 bool LLAppViewer::doFrame()

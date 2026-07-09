@@ -755,7 +755,7 @@ S16 LLGameControl::Options::AxisOptions::computeModifiedValue(S16 raw_value) con
 void LLGameControl::Options::AxisOptions::resetToDefaults()
 {
     mMultiplier = 1;
-    mDeadZone = 0;
+    mDeadZone = DEFAULT_DEAD_ZONE;
     mOffset = 0;
 }
 
