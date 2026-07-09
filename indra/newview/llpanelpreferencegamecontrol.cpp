@@ -487,6 +487,10 @@ bool LLPanelPreferenceGameControl::postBuild()
     mAxisState = getChild<LLScrollListCtrl>("axis_state");
     mButtonState = getChild<LLScrollListCtrl>("button_state");
 
+    // Data Output tab (live, read-only view of the last outgoing GameControlInput)
+    mTabDataOutput = getChild<LLPanel>("tab_data_output");
+    mDataOutput = getChild<LLScrollListCtrl>("data_output");
+
     // Spin control for editing deadzone/offset values inline
     mNumericValueEditor = getChild<LLSpinCtrl>("numeric_value_editor");
     mNumericValueEditor->setCommitCallback([this](LLUICtrl*, const LLSD&) { onCommitNumericValue(); });
@@ -515,6 +519,11 @@ bool LLPanelPreferenceGameControl::postBuild()
     populateAxisStateRows();
     populateButtonStateRows();
 
+    // The Data Output tab's rows are static (AXIS_0..5, a blank separator, then
+    // BUTTON_0..31); their Value cells are refreshed whenever a fresh
+    // GameControlInput message is sent (see updateDataOutput()).
+    populateDataOutputRows();
+
     // Workaround for the common bug:
     // LLScrollListCtrl with draw_heading="true" initially has incorrect mTop (17 px higher).
     // Each scroll list fills a dedicated wrapper panel, so the corrected top is its
@@ -532,6 +541,7 @@ bool LLPanelPreferenceGameControl::postBuild()
     fixHeadingTop(mButtonChannels);
     fixHeadingTop(mAxisState);
     fixHeadingTop(mButtonState);
+    fixHeadingTop(mDataOutput);
 
     return true;
 }
@@ -1031,6 +1041,75 @@ void LLPanelPreferenceGameControl::populateDeviceStateValues()
     {
         S32 value = (state->mButtons >> i) & 0x1;
         buttonRows[i]->getColumn(1)->setValue(llformat("%d ", value));
+    }
+}
+
+// Static hook, called from the send path each time a fresh GameControlInput
+// message goes out.  Refreshes the Data Output tab's Value column from the
+// values just packed into that message (the current server state).
+void LLPanelPreferenceGameControl::updateDataOutput()
+{
+    if (sGameControlPanel)
+    {
+        sGameControlPanel->populateDataOutputValues();
+    }
+}
+
+// Creates the Data Output rows: one per canonical axis (AXIS_0..AXIS_5), a single
+// empty separator row, then one per canonical button (BUTTON_0..BUTTON_31).
+// The Value column is filled later in populateDataOutputValues().
+void LLPanelPreferenceGameControl::populateDataOutputRows()
+{
+    mDataOutput->clearRows();
+
+    LLScrollListItem::Params row_params;
+    LLScrollListCell::Params cell_params;
+    cell_params.font = LLFontGL::getFontSansSerif();
+    for (S32 i = 0; i < (S32)(mDataOutput->getNumColumns()); ++i)
+    {
+        cell_params.column = mDataOutput->getColumn(i)->mName;
+        row_params.columns.add(cell_params);
+    }
+    row_params.columns(1).font_halign = "right";  // Value
+
+    for (size_t i = 0; i < LLGameControl::NUM_AXES; ++i)
+    {
+        LLScrollListItem* row = mDataOutput->addRow(row_params);
+        row->getColumn(0)->setValue(llformat("AXIS_%d", (S32)i));
+    }
+
+    // One empty row separates the axis block from the button block.
+    mDataOutput->addRow(row_params);
+
+    for (size_t i = 0; i < LLGameControl::NUM_BUTTONS; ++i)
+    {
+        LLScrollListItem* row = mDataOutput->addRow(row_params);
+        row->getColumn(0)->setValue(llformat("BUTTON_%d", (S32)i));
+    }
+}
+
+// Fills the Data Output Value column from the last outgoing server state: each
+// axis shows its signed [-32768, 32767] value; each button shows 1 (pressed) or
+// 0 (released).  The row layout matches populateDataOutputRows() (axes, then a
+// blank separator row, then buttons).
+void LLPanelPreferenceGameControl::populateDataOutputValues()
+{
+    const LLGameControl::ServerState& state = LLGameControl::getServerState();
+
+    std::vector<LLScrollListItem*> rows = mDataOutput->getAllData();
+    size_t row = 0;
+
+    for (size_t i = 0; i < LLGameControl::NUM_AXES && i < state.mAxes.size() && row < rows.size(); ++i, ++row)
+    {
+        rows[row]->getColumn(1)->setValue(llformat("%d ", (S32)state.mAxes[i]));
+    }
+
+    ++row;  // skip the empty separator row
+
+    for (size_t i = 0; i < LLGameControl::NUM_BUTTONS && row < rows.size(); ++i, ++row)
+    {
+        S32 value = (state.mButtons >> i) & 0x1;
+        rows[row]->getColumn(1)->setValue(llformat("%d ", value));
     }
 }
 
