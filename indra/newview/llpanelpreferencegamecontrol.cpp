@@ -73,6 +73,67 @@ namespace
     {
         return label.asString() == NONE_LABEL ? LLSD() : label;
     }
+
+    // PromptFont glyph(s) for a canonical controller input value.
+    // Codepoints are from the PromptFont package's promptfont.h, preferring the
+    // generic vendor-neutral "gamepad"/"dpad"/"analog" sets and falling back to
+    // the Xbox set for shoulders/triggers (no generic equivalents exist).
+    // Rendered with the "PromptFont" family declared in fonts.xml.  Inputs with
+    // no entry (e.g. BUTTON_21..31, *_NONE) return empty and keep their text label.
+    std::string promptFontGlyph(const std::string& input_value)
+    {
+        static const std::map<std::string, LLWString> sGlyphs = {
+            // Face buttons
+            { "BUTTON_SOUTH", { 0x21A7 } },  // PF_GAMEPAD_A (bottom)
+            { "BUTTON_EAST",  { 0x21A6 } },  // PF_GAMEPAD_B (right)
+            { "BUTTON_WEST",  { 0x21A4 } },  // PF_GAMEPAD_X (left)
+            { "BUTTON_NORTH", { 0x21A5 } },  // PF_GAMEPAD_Y (top)
+            // D-pad
+            { "BUTTON_DPAD_UP",    { 0x219F } },  // PF_DPAD_UP
+            { "BUTTON_DPAD_DOWN",  { 0x21A1 } },  // PF_DPAD_DOWN
+            { "BUTTON_DPAD_LEFT",  { 0x219E } },  // PF_DPAD_LEFT
+            { "BUTTON_DPAD_RIGHT", { 0x21A0 } },  // PF_DPAD_RIGHT
+            // Shoulders / stick clicks
+            { "BUTTON_LEFT_SHOULDER",  { 0x2198 } },  // PF_XBOX_LEFT_SHOULDER
+            { "BUTTON_RIGHT_SHOULDER", { 0x2199 } },  // PF_XBOX_RIGHT_SHOULDER
+            { "BUTTON_LEFT_STICK",     { 0x21BA } },  // PF_ANALOG_L_CLICK (L3)
+            { "BUTTON_RIGHT_STICK",    { 0x21BB } },  // PF_ANALOG_R_CLICK (R3)
+            // Menu cluster
+            { "BUTTON_BACK",  { 0x21F7 } },  // PF_GAMEPAD_SELECT (menu left)
+            { "BUTTON_GUIDE", { 0x21F9 } },  // PF_GAMEPAD_HOME   (menu middle)
+            { "BUTTON_START", { 0x21F8 } },  // PF_GAMEPAD_START  (menu right)
+            // Misc / paddles / touchpad
+            { "BUTTON_15",       { 0x2212 } },  // PF_GAMEPAD_M1 (Misc1)
+            { "BUTTON_PADDLE1",  { 0x2277 } },  // PF_GAMEPAD_R4
+            { "BUTTON_PADDLE2",  { 0x2276 } },  // PF_GAMEPAD_L4
+            { "BUTTON_PADDLE3",  { 0x2279 } },  // PF_GAMEPAD_R5
+            { "BUTTON_PADDLE4",  { 0x2278 } },  // PF_GAMEPAD_L5
+            { "BUTTON_TOUCHPAD", { 0x21E7 } },  // PF_SONY_TOUCHPAD
+            // Axes
+            { "AXIS_LEFTX",  { 0x21C4 } },  // PF_ANALOG_L_LEFT_RIGHT
+            { "AXIS_LEFTY",  { 0x21C5 } },  // PF_ANALOG_L_UP_DOWN
+            { "AXIS_RIGHTX", { 0x21C6 } },  // PF_ANALOG_R_LEFT_RIGHT
+            { "AXIS_RIGHTY", { 0x21F5 } },  // PF_ANALOG_R_UP_DOWN
+            { "AXIS_LEFT_TRIGGER",  { 0x2196 } },  // PF_XBOX_LEFT_TRIGGER
+            { "AXIS_RIGHT_TRIGGER", { 0x2197 } },  // PF_XBOX_RIGHT_TRIGGER
+            // Combined trigger pair: show both trigger glyphs side by side.
+            { "AXIS_TRIGGERS", { 0x2196, 0x2197 } },
+        };
+        auto it = sGlyphs.find(input_value);
+        if (it == sGlyphs.end())
+        {
+            return LLStringUtil::null;
+        }
+        return wstring_to_utf8str(it->second);
+    }
+
+    // The PromptFont glyphs live on real Unicode arrow codepoints, so they must be
+    // drawn with the dedicated PromptFont family rather than the default text font.
+    // Sized larger than the SansSerif rows so the icons read clearly.
+    const LLFontGL* promptFontForCell()
+    {
+        return LLFontGL::getFont(LLFontDescriptor("PromptFont", "Huge", 0));
+    }
 }
 
 // Static entry point called when device list changes (device connected/disconnected).
@@ -177,20 +238,36 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
 
     if (grid == mActionMappingsAxes || grid == mActionMappingsButtons)
     {
-        // Only the Input column (1) of a real action row is editable.
+        // Two editable columns map to the same input: the PromptFont icon column
+        // (1) opens the glyph selector, the text description column (2) opens the
+        // text selector.  Both commit through onCommitInputChannel, which rebuilds
+        // the row so the icon and description update together.
         LLSD row_value = item->getValue();
-        if (item->getSelectedCell() != 1 || !row_value.isMap())
+        if (!row_value.isMap())
             return false;
-        combobox = (grid == mActionMappingsAxes) ? mAxisInputSelector : mButtonInputSelector;
-        col = 1;
+        bool axes = (grid == mActionMappingsAxes);
+        S32 sel = item->getSelectedCell();
+        if (sel == 1)
+        {
+            combobox = axes ? mAxisInputGlyphSelector : mButtonInputGlyphSelector;
+        }
+        else if (sel == 2)
+        {
+            combobox = axes ? mAxisInputSelector : mButtonInputSelector;
+        }
+        else
+        {
+            return false;
+        }
+        col = sel;
     }
     else if (grid == mAxisChannels)
     {
-        // Only the Output column (4) uses a popup selector.
-        if (item->getSelectedCell() != 4)
+        // Only the Output column (1) uses a popup selector.
+        if (item->getSelectedCell() != 1)
             return false;
         combobox = mAxisOutputSelector;
-        col = 4;
+        col = 1;
     }
     else if (grid == mButtonChannels)
     {
@@ -212,24 +289,35 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
     S32 row_index = grid->getItemIndex(item);
     fitInRect(combobox, grid, row_index, col);
 
-    // Pre-select the dropdown item whose label matches the cell's current text.
-    // Match against the selector items directly (rather than parsing the item
-    // value) so this works regardless of the value naming scheme.
+    // Pre-select the item matching the cell's current input.
     std::string value;
-    std::string cell_value = cell->getValue();
-    std::vector<LLScrollListItem*> items = combobox->getAllData();
-    for (const LLScrollListItem* combo_item : items)
+    if (grid == mActionMappingsAxes || grid == mActionMappingsButtons)
     {
-        if (combo_item->getColumn(0)->getValue().asString() == cell_value)
+        // Use the action's stored mapping value directly, so pre-selection is
+        // correct even when the icon cell is blank (input has no glyph).
+        LLSD row_value = item->getValue();
+        LLSD mapping = LLGameControl::getModeMapping(currentEditMode(), row_value["kind"].asString());
+        std::string action = row_value["action"].asString();
+        value = mapping.has(action) ? mapping[action].asString() : LLStringUtil::null;
+    }
+    else
+    {
+        // Device tables: match the cell's current text against the selector items
+        // (works regardless of the value naming scheme).
+        std::string cell_value = cell->getValue();
+        for (const LLScrollListItem* combo_item : combobox->getAllData())
         {
-            value = combo_item->getValue().asString();
-            break;
+            if (combo_item->getColumn(0)->getValue().asString() == cell_value)
+            {
+                value = combo_item->getValue().asString();
+                break;
+            }
         }
     }
     if (value.empty())
     {
         // No match (e.g. a blank "None" cell): select the last item, which is "None".
-        value = items.back()->getValue().asString();
+        value = combobox->getAllData().back()->getValue().asString();
     }
 
     combobox->setValue(value);
@@ -260,6 +348,11 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
     llassert(combobox);
     if (!combobox)
         return;
+
+    // Editing an action mapping can change whether the input cell shows a text
+    // label or a PromptFont glyph, which means recreating the cell with the right
+    // font; remember to rebuild the action tables once the commit is applied.
+    bool action_grid_edited = (sSelectedGrid == mActionMappingsAxes || sSelectedGrid == mActionMappingsButtons);
 
     if (sSelectedGrid == mActionMappingsAxes || sSelectedGrid == mActionMappingsButtons)
     {
@@ -320,6 +413,13 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
 
     sSelectedGrid->deselectAllItems();
     clearSelectionState();
+
+    // Rebuild the action tables so a newly bound (or unbound) button action is
+    // re-rendered with the correct cell font -- text label vs PromptFont glyph.
+    if (action_grid_edited)
+    {
+        populateActionMappings();
+    }
 }
 
 // Returns true if a cell is currently selected and waiting for input channel assignment.
@@ -349,13 +449,37 @@ void LLPanelPreferenceGameControl::onAxisChannelsSelect()
 
     if (LLScrollListItem* row = mAxisChannels->getFirstSelected())
     {
-        LLGameControl::Options& deviceOptions = getSelectedDeviceOptions();
-        S32 row_index = mAxisChannels->getItemIndex(row);
+        // Only the Output column (1) is editable; initCombobox ignores the rest.
+        // Axis tuning (invert/offset/dead zone) now lives on the Device State tab.
+        initCombobox(row, mAxisChannels);
+    }
+}
+
+// Handles selection in the (now editable) axis-state table on the Device State
+// tab.  Syncs the Invert checkbox immediately and shows the numeric editor for the
+// Offset/Dead Zone columns.  Edits target the state tab's selected device.
+void LLPanelPreferenceGameControl::onAxisStateSelect()
+{
+    clearSelectionState();
+
+    // Deselect everything in the other scroll_list
+    mButtonState->deselectAllItems(true);
+
+    auto options_it = mDeviceOptions.find(mStateSelectedDeviceGUID);
+    if (options_it == mDeviceOptions.end())
+    {
+        return;
+    }
+    LLGameControl::Options& deviceOptions = options_it->second.options;
+
+    if (LLScrollListItem* row = mAxisState->getFirstSelected())
+    {
+        S32 row_index = mAxisState->getItemIndex(row);
 
         {
             // Always sync invert checkbox - clicking the checkbox selects the row
-            // but doesn't automatically update the underlying option
-            constexpr S32 invert_checkbox_column = 1;
+            // but doesn't automatically update the underlying option.
+            constexpr S32 invert_checkbox_column = 2;
             bool invert = row->getColumn(invert_checkbox_column)->getValue().asBoolean();
             S32 multiplier = invert ? -1 : 1;
             if (multiplier != deviceOptions.getAxisOptions()[row_index].mMultiplier)
@@ -373,38 +497,33 @@ void LLPanelPreferenceGameControl::onAxisChannelsSelect()
                             : LLGameControl::AXIS_LEFT_TRIGGER;
                     deviceOptions.getAxisOptions()[other_row_index].mMultiplier = multiplier;
 
-                    if (LLScrollListItem* other_row = mAxisChannels->getItemByIndex(other_row_index))
+                    if (LLScrollListItem* other_row = mAxisState->getItemByIndex(other_row_index))
                     {
                         other_row->getColumn(invert_checkbox_column)->setValue(invert);
                     }
                 }
 
-                LLGameControl::setDeviceOptions(mSelectedDeviceGUID, deviceOptions);
+                LLGameControl::setDeviceOptions(mStateSelectedDeviceGUID, deviceOptions);
             }
         }
 
         S32 column_index = row->getSelectedCell();
-        if (column_index == 2 || column_index == 3)
+        if (column_index == 3 || column_index == 4)
         {
-            fitInRect(mNumericValueEditor, mAxisChannels, row_index, column_index);
-            if (column_index == 2)
+            fitInRect(mNumericValueEditor, mAxisState, row_index, column_index);
+            if (column_index == 4)  // Dead Zone
             {
                 mNumericValueEditor->setMinValue(0);
                 mNumericValueEditor->setMaxValue(LLGameControl::MAX_AXIS_DEAD_ZONE);
                 mNumericValueEditor->setValue(deviceOptions.getAxisOptions()[row_index].mDeadZone);
             }
-            else // column_index == 3
+            else  // column_index == 3, Offset
             {
                 mNumericValueEditor->setMinValue(-LLGameControl::MAX_AXIS_OFFSET);
                 mNumericValueEditor->setMaxValue(LLGameControl::MAX_AXIS_OFFSET);
                 mNumericValueEditor->setValue(deviceOptions.getAxisOptions()[row_index].mOffset);
             }
             mNumericValueEditor->setVisible(true);
-        }
-        else
-        {
-            // Output column (4) shows the axis selector popup; other columns are no-ops.
-            initCombobox(row, mAxisChannels);
         }
     }
 }
@@ -424,32 +543,39 @@ void LLPanelPreferenceGameControl::onButtonChannelsSelect()
     }
 }
 
-// Called when user commits a numeric value (deadzone or offset) in the spin control.
-// Validates and clamps the value, then updates both the UI and device options.
+// Called when user commits a numeric value (offset or dead zone) in the spin
+// control over the Device State tab's axis table.  Validates and clamps the value,
+// then updates both the UI and the state device's options.
 void LLPanelPreferenceGameControl::onCommitNumericValue()
 {
-    if (LLScrollListItem* row = mAxisChannels->getFirstSelected())
+    auto options_it = mDeviceOptions.find(mStateSelectedDeviceGUID);
+    if (options_it == mDeviceOptions.end())
     {
-        LLGameControl::Options& deviceOptions = getSelectedDeviceOptions();
+        return;
+    }
+    LLGameControl::Options& deviceOptions = options_it->second.options;
+
+    if (LLScrollListItem* row = mAxisState->getFirstSelected())
+    {
         S32 value = mNumericValueEditor->getValue().asInteger();
-        S32 row_index = mAxisChannels->getItemIndex(row);
+        S32 row_index = mAxisState->getItemIndex(row);
         S32 column_index = row->getSelectedCell();
-        llassert(column_index == 2 || column_index == 3);  // 2=deadzone, 3=offset
-        if (column_index < 2 || column_index > 3)
+        llassert(column_index == 3 || column_index == 4);  // 3=offset, 4=dead zone
+        if (column_index < 3 || column_index > 4)
             return;
 
-        if (column_index == 2)
+        if (column_index == 4)  // Dead Zone
         {
             value = std::clamp<S32>(value, 0, LLGameControl::MAX_AXIS_DEAD_ZONE);
             deviceOptions.getAxisOptions()[row_index].mDeadZone = (U16)value;
         }
-        else  // column_index == 3
+        else  // column_index == 3, Offset
         {
             value = std::clamp<S32>(value, -LLGameControl::MAX_AXIS_OFFSET, LLGameControl::MAX_AXIS_OFFSET);
             deviceOptions.getAxisOptions()[row_index].mOffset = (S16)value;
         }
         setNumericLabel(row->getColumn(column_index), value);
-        LLGameControl::setDeviceOptions(mSelectedDeviceGUID, deviceOptions);
+        LLGameControl::setDeviceOptions(mStateSelectedDeviceGUID, deviceOptions);
     }
 }
 
@@ -518,9 +644,16 @@ bool LLPanelPreferenceGameControl::postBuild()
     mStateDeviceList = getChild<LLComboBox>("state_device_list");
     mPanelDeviceState = getChild<LLPanel>("device_state_settings");
     mStateDeviceList->setCommitCallback([this](LLUICtrl*, const LLSD& value)
-        { mStateSelectedDeviceGUID = value.asString(); });
+        {
+            mStateSelectedDeviceGUID = value.asString();
+            clearSelectionState();
+            populateAxisStateOptionCells();  // refresh invert/offset/dead-zone for the new device
+        });
 
     mAxisState = getChild<LLScrollListCtrl>("axis_state");
+    // The axis-state table is now editable: its Invert/Offset/Dead Zone columns
+    // tune the state device's axis options while its Raw/Adjusted columns update live.
+    mAxisState->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAxisStateSelect(); });
     mButtonState = getChild<LLScrollListCtrl>("button_state");
 
     // Data Output tab (live, read-only view of the last outgoing GameControlInput)
@@ -549,6 +682,16 @@ bool LLPanelPreferenceGameControl::postBuild()
 
     mButtonInputSelector = getChild<LLComboBox>("button_input_selector");
     mButtonInputSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
+
+    // Glyph selectors shown when editing the PromptFont "Axis"/"Button" column.
+    // Their items mirror the text selectors' values, so build them from those.
+    mAxisInputGlyphSelector = getChild<LLComboBox>("axis_input_glyph_selector");
+    mAxisInputGlyphSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
+    buildInputGlyphSelector(mAxisInputSelector, mAxisInputGlyphSelector);
+
+    mButtonInputGlyphSelector = getChild<LLComboBox>("button_input_glyph_selector");
+    mButtonInputGlyphSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
+    buildInputGlyphSelector(mButtonInputSelector, mButtonInputGlyphSelector);
 
     // The device tables' rows are static (one per physical axis/button); their
     // cells are filled per-device.  The action table is mode-specific and built
@@ -799,13 +942,22 @@ void LLPanelPreferenceGameControl::populateActionMappings()
             if (action == NONE_LABEL)   // skip the "None" sentinel; not an action row
                 continue;
 
+            // Current input bound to this action, and the PromptFont glyph to
+            // show instead of the text label, if this input has one.
+            std::string input_value = mapping.has(action) ? mapping[action].asString() : LLStringUtil::null;
+            std::string glyph = promptFontGlyph(input_value);
+
             LLScrollListItem::Params row_params;
-            LLScrollListCell::Params cell_params;
-            // Match the font size used by the "Controls" preferences panel
-            cell_params.font = LLFontGL::getFontSansSerif();
             for (S32 c = 0; c < grid->getNumColumns(); ++c)
             {
+                LLScrollListCell::Params cell_params;
                 cell_params.column = grid->getColumn(c)->mName;
+                // The icon column (1) renders the controller glyph in PromptFont
+                // when this input has one; the action (0) and description (2)
+                // columns match the "Controls" preferences panel font.
+                cell_params.font = (c == 1 && !glyph.empty())
+                    ? promptFontForCell()
+                    : LLFontGL::getFontSansSerif();
                 row_params.columns.add(cell_params);
             }
 
@@ -817,8 +969,10 @@ void LLPanelPreferenceGameControl::populateActionMappings()
 
             LLScrollListItem* row = grid->addRow(row_params);
             row->getColumn(0)->setValue(item->getColumn(0)->getValue());  // action label
-            std::string input_value = mapping.has(action) ? mapping[action].asString() : LLStringUtil::null;
-            row->getColumn(1)->setValue(blankIfNone(inputLabel(input_selector, input_value)));
+            // Columns 1 (icon) and 2 (description) both derive from input_value, so
+            // they always refer to the same controller input.
+            row->getColumn(1)->setValue(glyph.empty() ? LLSD() : LLSD(glyph));
+            row->getColumn(2)->setValue(blankIfNone(inputLabel(input_selector, input_value)));
         }
     };
 
@@ -946,7 +1100,8 @@ void LLPanelPreferenceGameControl::removeDuplicateActionInput(const std::string&
 }
 
 // Creates one row per physical axis in the axis-channels table.
-// Columns: Input (physical axis) | Invert | Dead Zone | Offset | Output.
+// Columns: Input (physical axis) | Output.  Axis tuning (invert/offset/dead zone)
+// lives on the Device State tab; this table only maps physical axis -> canonical.
 void LLPanelPreferenceGameControl::populateAxisChannelsRows()
 {
     mAxisChannels->clearRows();
@@ -965,11 +1120,6 @@ void LLPanelPreferenceGameControl::populateAxisChannelsRows()
         row_params.columns.add(cell_params);
     }
 
-    // Configure column types and alignment
-    row_params.columns(1).type = "checkbox";     // Invert
-    row_params.columns(2).font_halign = "right";  // Dead Zone
-    row_params.columns(3).font_halign = "right";  // Offset
-
     for (size_t i = 0; i < LLGameControl::NUM_AXES; ++i)
     {
         LLScrollListItem* row = mAxisChannels->addRow(row_params);
@@ -977,23 +1127,16 @@ void LLPanelPreferenceGameControl::populateAxisChannelsRows()
     }
 }
 
-// Fills axis-channel cells (invert / deadzone / offset / output) from the current device.
+// Fills axis-channel Output cells from the current device's axis map.
 void LLPanelPreferenceGameControl::populateAxisChannelsCells()
 {
     std::vector<LLScrollListItem*> rows = mAxisChannels->getAllData();
     const LLGameControl::Options& options = getSelectedDeviceOptions();
-    const auto& all_axis_options = options.getAxisOptions();
     const auto& axis_map = options.getAxisMap();
-    llassert(rows.size() == all_axis_options.size());
 
-    for (size_t i = 0; i < rows.size(); ++i)
+    for (size_t i = 0; i < rows.size() && i < axis_map.size(); ++i)
     {
-        LLScrollListItem* row = rows[i];
-        const LLGameControl::Options::AxisOptions& axis_options = all_axis_options[i];
-        row->getColumn(1)->setValue(axis_options.mMultiplier == -1);  // Invert checkbox
-        setNumericLabel(row->getColumn(2), axis_options.mDeadZone);
-        setNumericLabel(row->getColumn(3), axis_options.mOffset);
-        row->getColumn(4)->setValue(inputLabel(mAxisOutputSelector,
+        rows[i]->getColumn(1)->setValue(inputLabel(mAxisOutputSelector,
             LLGameControl::axisOutputName(axis_map[i])));  // Output
     }
 }
@@ -1073,10 +1216,14 @@ void LLPanelPreferenceGameControl::updateDeviceStateList()
         mStateDeviceList->selectNthItem(0);
     }
     mStateSelectedDeviceGUID = mStateDeviceList->getValue().asString();
+
+    // Refresh the editable axis option cells for the (re)selected state device.
+    populateAxisStateOptionCells();
 }
 
-// Creates one row per physical axis in the axis-state table.
-// Columns: Axis (physical axis label) | Value (filled live in draw()).
+// Creates one row per physical axis in the axis-state table.  Columns:
+// Axis | Raw Value | Invert | Offset | Dead Zone | Adjusted Value.  Raw/Adjusted
+// are filled live in draw(); Invert/Offset/Dead Zone are editable axis options.
 void LLPanelPreferenceGameControl::populateAxisStateRows()
 {
     mAxisState->clearRows();
@@ -1093,12 +1240,40 @@ void LLPanelPreferenceGameControl::populateAxisStateRows()
         row_params.columns.add(cell_params);
     }
     row_params.columns(1).font_halign = "right";  // Raw Value
-    row_params.columns(2).font_halign = "right";  // Value
+    row_params.columns(2).type = "checkbox";       // Invert
+    row_params.columns(3).font_halign = "right";  // Offset
+    row_params.columns(4).font_halign = "right";  // Dead Zone
+    row_params.columns(5).font_halign = "right";  // Adjusted Value
 
     for (size_t i = 0; i < LLGameControl::NUM_AXES; ++i)
     {
         LLScrollListItem* row = mAxisState->addRow(row_params);
         row->getColumn(0)->setValue(items[i]->getColumn(0)->getValue());  // physical axis label
+    }
+
+    // Fill the editable option columns for the currently selected state device.
+    populateAxisStateOptionCells();
+}
+
+// Fills the Device State axis table's editable option cells (Invert / Offset /
+// Dead Zone) from the state tab's selected device.  Called when rows are built and
+// whenever the selected state device changes; the per-frame draw() only refreshes
+// the Raw/Adjusted columns, so it never clobbers these while the user edits.
+void LLPanelPreferenceGameControl::populateAxisStateOptionCells()
+{
+    auto options_it = mDeviceOptions.find(mStateSelectedDeviceGUID);
+    if (options_it == mDeviceOptions.end())
+    {
+        return;
+    }
+    const auto& all_axis_options = options_it->second.options.getAxisOptions();
+    std::vector<LLScrollListItem*> rows = mAxisState->getAllData();
+    for (size_t i = 0; i < rows.size() && i < all_axis_options.size(); ++i)
+    {
+        const LLGameControl::Options::AxisOptions& axis_options = all_axis_options[i];
+        rows[i]->getColumn(2)->setValue(axis_options.mMultiplier == -1);  // Invert checkbox
+        setNumericLabel(rows[i]->getColumn(3), axis_options.mOffset);      // Offset
+        setNumericLabel(rows[i]->getColumn(4), axis_options.mDeadZone);    // Dead Zone
     }
 }
 
@@ -1166,7 +1341,7 @@ void LLPanelPreferenceGameControl::populateDeviceStateValues()
         S32 raw   = (S32)state->mRawAxes[base] - (S32)state->mRawAxes[base + 1];
         S32 fixed = (S32)state->mAxes[base]    - (S32)state->mAxes[base + 1];
         axisRows[i]->getColumn(1)->setValue(llformat("%d ", raw));    // Raw Value (pre-fix)
-        axisRows[i]->getColumn(2)->setValue(llformat("%d ", fixed));  // Value (post-fix)
+        axisRows[i]->getColumn(5)->setValue(llformat("%d ", fixed));  // Adjusted Value (post-fix)
     }
 
     std::vector<LLScrollListItem*> buttonRows = mButtonState->getAllData();
@@ -1272,6 +1447,39 @@ std::string LLPanelPreferenceGameControl::selectorLabelAt(const LLComboBox* sele
     return items[index]->getColumn(0)->getValue().asString();
 }
 
+// Populates glyph_selector with one item per value in text_selector.  Each item
+// keeps the canonical value but is displayed as its PromptFont glyph, so the
+// dropdown shown over the icon column matches the icons in the table.  Inputs
+// with no glyph (e.g. "None", spare buttons) keep their text label in the normal
+// font so they remain readable and selectable.
+void LLPanelPreferenceGameControl::buildInputGlyphSelector(const LLComboBox* text_selector, LLComboBox* glyph_selector)
+{
+    glyph_selector->clearRows();
+    for (const LLScrollListItem* item : text_selector->getAllData())
+    {
+        std::string value = item->getValue().asString();
+        std::string glyph = promptFontGlyph(value);
+
+        LLSD element;
+        element["value"] = value;
+        LLSD& column = element["columns"][0];
+        column["column"] = "input";
+        if (glyph.empty())
+        {
+            column["value"] = item->getColumn(0)->getValue().asString();  // text label
+            column["font"]["name"] = "SansSerif";
+            column["font"]["size"] = "Small";
+        }
+        else
+        {
+            column["value"] = glyph;
+            column["font"]["name"] = "PromptFont";
+            column["font"]["size"] = "Huge";
+        }
+        glyph_selector->addElement(element);
+    }
+}
+
 // Returns the options struct for the currently selected device.
 LLGameControl::Options& LLPanelPreferenceGameControl::getSelectedDeviceOptions()
 {
@@ -1333,6 +1541,8 @@ void LLPanelPreferenceGameControl::clearSelectionState()
     mAxisInputSelector->setVisible(false);
     mAxisOutputSelector->setVisible(false);
     mButtonInputSelector->setVisible(false);
+    mAxisInputGlyphSelector->setVisible(false);
+    mButtonInputGlyphSelector->setVisible(false);
 }
 
 // Resets the current mode's axis + button action mappings to the built-in defaults.
@@ -1367,6 +1577,9 @@ void LLPanelPreferenceGameControl::onResetDeviceToDefaults()
 
     populateAxisChannelsCells();
     populateButtonChannelsCells();
+    // Invert/offset/dead-zone now live on the Device State tab; refresh them too
+    // (a no-op unless the reset device is the one shown there).
+    populateAxisStateOptionCells();
 
     LLGameControl::applySettingsFromLLSD(getSettingsAsLLSD());
 }

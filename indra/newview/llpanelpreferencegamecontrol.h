@@ -109,6 +109,7 @@ protected:
     // Device State tab (per-device, live read-only) population.
     void updateDeviceStateList();       // Rebuild the state device selector from connected devices
     void populateAxisStateRows();       // Create axis-state rows (one per physical axis)
+    void populateAxisStateOptionCells();// Fill the state-tab axis option cells (invert/offset/dead zone) from the state device
     void populateButtonStateRows();     // Create button-state rows (one per physical button)
     void populateDeviceStateValues();   // Fill the Value columns from the selected device's live state
 
@@ -136,10 +137,14 @@ private:
         const std::string& keep_action, const std::string& input_value, const LLComboBox* input_selector);
     static std::string inputLabel(const LLComboBox* input_selector, const std::string& input_value);  // value -> label
     static std::string selectorLabelAt(const LLComboBox* selector, S32 index);  // label of item at index
+    // Fill glyph_selector with one item per value in text_selector, each labelled
+    // with that input's PromptFont glyph (or its text label where no glyph exists).
+    static void buildInputGlyphSelector(const LLComboBox* text_selector, LLComboBox* glyph_selector);
 
     // Handlers for individual table selections/commits
-    void onAxisChannelsSelect();     // invert checkbox / deadzone-offset editor / output popup
+    void onAxisChannelsSelect();     // output popup (Device Options tab)
     void onButtonChannelsSelect();   // output popup
+    void onAxisStateSelect();        // invert checkbox / offset-deadzone editor (Device State tab)
 
     // Reset to defaults handlers
     void onResetActionsToDefaults();    // Reset current mode's action mappings
@@ -192,6 +197,13 @@ private:
     LLComboBox* mAxisInputSelector { nullptr };     // Axis-action Input popup (sticks + "Triggers left/right" pair)
     LLComboBox* mAxisOutputSelector { nullptr };    // Device axis Output popup (individual canonical axes, index-based)
     LLComboBox* mButtonInputSelector { nullptr };   // Canonical buttons (action Input + button Output popups)
+
+    // Glyph counterparts of the two action-Input selectors above, shown when the
+    // user edits the PromptFont icon ("Axis"/"Button") column instead of the text
+    // "input_description" column.  Same values, but each item is rendered as its
+    // PromptFont glyph.  Built in postBuild() from the text selectors' values.
+    LLComboBox* mAxisInputGlyphSelector { nullptr };
+    LLComboBox* mButtonInputGlyphSelector { nullptr };
 
     // Action selectors: source of the "Action" column rows, chosen by edit mode.
     LLComboBox* mAnalogActionSelector { nullptr };        // Avatar/Captive axis actions
