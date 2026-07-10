@@ -310,10 +310,10 @@ std::string LLGameControl::InputChannel::getRemoteName() const
                 name = "BUTTON_NORTH";
                 break;
             case 4:
-                name = "BUTTON_BACK";
+                name = "BUTTON_SELECT";
                 break;
             case 5:
-                name = "BUTTON_GUIDE";
+                name = "BUTTON_HOME";
                 break;
             case 6:
                 name = "BUTTON_START";
@@ -442,7 +442,7 @@ private:
 
     // Runtime action lookup for the active AgentControlMode, rebuilt from the
     // global ModeMappings whenever settings or the active mode change.  Each entry
-    // holds the UI action label (e.g. "Move forward/back") bound to that canonical
+    // holds the UI action label (e.g. "Fly up/down") bound to that canonical
     // input, or "" if unbound.  mAxisActionBindings is indexed by canonical axis
     // (KeyboardAxis, NUM_AXES) and also records which half of the action a trigger
     // half-axis feeds; mButtonActionLabels by Button (NUM_BUTTONS).
@@ -598,7 +598,7 @@ namespace
         avatar_axes["Look up/down"]      = "AXIS_RIGHTY";
         // The two triggers form a single bidirectional axis: left trigger drives the
         // negative direction (drop), right trigger the positive (rise).
-        avatar_axes["Move up/down"]      = "AXIS_TRIGGERS";
+        avatar_axes["Fly up/down"]      = "AXIS_TRIGGERS";
 
         // Buttons: action label -> button input
         LLSD avatar_buttons;
@@ -606,8 +606,8 @@ namespace
         avatar_buttons["Crouch"]                 = "BUTTON_EAST";
         avatar_buttons["Toggle sit"]             = "BUTTON_WEST";
         avatar_buttons["Interact"]               = "BUTTON_NORTH";
-        avatar_buttons["Toggle 3rd person view"] = "BUTTON_BACK";
-        avatar_buttons["Toggle menu"]            = "BUTTON_GUIDE";
+        avatar_buttons["Toggle 3rd person view"] = "BUTTON_SELECT";
+        avatar_buttons["Toggle menu"]            = "BUTTON_HOME";
         avatar_buttons["Toggle mouselook"]       = "BUTTON_START";
         avatar_buttons["Toggle fly"]             = "BUTTON_LEFT_STICK";
         avatar_buttons["Toggle flycam"]          = "BUTTON_RIGHT_STICK";
@@ -626,7 +626,7 @@ namespace
         flycam_buttons["Select"]         = "BUTTON_SOUTH";
         flycam_buttons["Toggle AltZoom"] = "BUTTON_EAST";
         flycam_buttons["Interact"]       = "BUTTON_NORTH";
-        flycam_buttons["Toggle menu"]    = "BUTTON_GUIDE";
+        flycam_buttons["Toggle menu"]    = "BUTTON_HOME";
         flycam_buttons["Toggle flycam"]  = "BUTTON_RIGHT_STICK";
         flycam_buttons["Roll left"]      = "BUTTON_LEFT_SHOULDER";
         flycam_buttons["Roll right"]     = "BUTTON_RIGHT_SHOULDER";
@@ -1454,32 +1454,32 @@ void LLGameControllerManager::computeFinalState()
 {
     static const LLGameControlTranslator::ControllerMappings axis_mappings = {
         // Axes
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_STRAFE_LEFT},          LLGameControl::MovementDirection::MOVE_DIR_STRAFE_LEFT},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_STRAFE_RIGHT},         LLGameControl::MovementDirection::MOVE_DIR_STRAFE_RIGHT},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_PUSH_FORWARD},           LLGameControl::MovementDirection::MOVE_DIR_PUSH_FORWARD},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_PUSH_BACKWARD},          LLGameControl::MovementDirection::MOVE_DIR_PUSH_BACKWARD},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_STRAFE_LEFT},   LLGameControl::MovementDirection::MOVE_DIR_STRAFE_LEFT},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_STRAFE_RIGHT},  LLGameControl::MovementDirection::MOVE_DIR_STRAFE_RIGHT},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_PUSH_FORWARD},  LLGameControl::MovementDirection::MOVE_DIR_PUSH_FORWARD},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_PUSH_BACKWARD}, LLGameControl::MovementDirection::MOVE_DIR_PUSH_BACKWARD},
         {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_TURN_LEFT},     LLGameControl::MovementDirection::MOVE_DIR_TURN_LEFT},
         {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_TURN_RIGHT},    LLGameControl::MovementDirection::MOVE_DIR_TURN_RIGHT},
         {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_LOOK_UP},       LLGameControl::MovementDirection::MOVE_DIR_LOOK_UP},
         {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_LOOK_DOWN},     LLGameControl::MovementDirection::MOVE_DIR_LOOK_DOWN},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_RISE_UP},            LLGameControl::MovementDirection::MOVE_DIR_RISE_UP},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_DROP_DOWN},          LLGameControl::MovementDirection::MOVE_DIR_DROP_DOWN},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_RISE_UP},       LLGameControl::MovementDirection::MOVE_DIR_RISE_UP},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_DROP_DOWN},     LLGameControl::MovementDirection::MOVE_DIR_DROP_DOWN},
         {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_ROLL_LEFT},     LLGameControl::MovementDirection::MOVE_DIR_ROLL_LEFT},
         {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_ROLL_RIGHT},    LLGameControl::MovementDirection::MOVE_DIR_ROLL_RIGHT}
     };
 
     static const LLGameControlTranslator::ControllerMappings button_mappings = {
-        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_SOUTH},              (U32)1 << LLGameControl::Button::BUTTON_SOUTH},
-        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_EAST},              (U32)1 << LLGameControl::Button::BUTTON_EAST},
-        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_WEST},              (U32)1 << LLGameControl::Button::BUTTON_WEST},
-        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_NORTH},              (U32)1 << LLGameControl::Button::BUTTON_NORTH},
-        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_BACK},           (U32)1 << LLGameControl::Button::BUTTON_BACK},
-        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_GUIDE},          (U32)1 << LLGameControl::Button::BUTTON_GUIDE},
+        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_SOUTH},          (U32)1 << LLGameControl::Button::BUTTON_SOUTH},
+        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_EAST},           (U32)1 << LLGameControl::Button::BUTTON_EAST},
+        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_WEST},           (U32)1 << LLGameControl::Button::BUTTON_WEST},
+        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_NORTH},          (U32)1 << LLGameControl::Button::BUTTON_NORTH},
+        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_SELECT},         (U32)1 << LLGameControl::Button::BUTTON_SELECT},
+        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_HOME},           (U32)1 << LLGameControl::Button::BUTTON_HOME},
         {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_START},          (U32)1 << LLGameControl::Button::BUTTON_START},
-        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_LEFT_STICK},      (U32)1 << LLGameControl::Button::BUTTON_LEFT_STICK},
-        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_RIGHT_STICK},     (U32)1 << LLGameControl::Button::BUTTON_RIGHT_STICK},
-        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_LEFT_SHOULDER},   (U32)1 << LLGameControl::Button::BUTTON_LEFT_SHOULDER},
-        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_RIGHT_SHOULDER},  (U32)1 << LLGameControl::Button::BUTTON_RIGHT_SHOULDER},
+        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_LEFT_STICK},     (U32)1 << LLGameControl::Button::BUTTON_LEFT_STICK},
+        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_RIGHT_STICK},    (U32)1 << LLGameControl::Button::BUTTON_RIGHT_STICK},
+        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_LEFT_SHOULDER},  (U32)1 << LLGameControl::Button::BUTTON_LEFT_SHOULDER},
+        {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_RIGHT_SHOULDER}, (U32)1 << LLGameControl::Button::BUTTON_RIGHT_SHOULDER},
         {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_DPAD_UP},        (U32)1 << LLGameControl::Button::BUTTON_DPAD_UP},
         {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_DPAD_DOWN},      (U32)1 << LLGameControl::Button::BUTTON_DPAD_DOWN},
         {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_DPAD_LEFT},      (U32)1 << LLGameControl::Button::BUTTON_DPAD_LEFT},
@@ -1522,19 +1522,17 @@ void LLGameControllerManager::computeFinalState()
         g_nextResendPeriod = 0; // packet needs to go out ASAP
     }
 
-    size_t final_i = 0;
+    size_t j = 0;
     // clamp the accumulated axes
     for(size_t i = 0; i < LLGameControl::NUM_MOVE_DIRS; i+=2)
     {
-        S16 axis_pos = g_mappedState.mAxes[i];
-        S16 axis_neg = g_mappedState.mAxes[i+1];
-        if (true)
+        // Accumulate in S32 to avoid overflow
+        S32 axis_pos = g_mappedState.mAxes[i];
+        S32 axis_neg = g_mappedState.mAxes[i+1];
         {
-            // Note: we accumulate mExternalState onto local 'axis' variable
-            // rather than onto mAxisAccumulator[i] because the internal
-            // accumulated value is also used to drive the Flycam, and
-            // we don't want any external state leaking into that value.
-            // TODO: FIX TO greater not sum
+            // The internal accumulated value also drives the Flycam, so fold
+            // mExternalState in here (per half-axis, greater wins) rather than into
+            // g_innerState, to keep external state out of the Flycam path.
             if(mExternalState.mAxes[i] > axis_pos)
             {
                 axis_pos = mExternalState.mAxes[i];
@@ -1544,23 +1542,23 @@ void LLGameControllerManager::computeFinalState()
                 axis_neg = mExternalState.mAxes[i+1];
             }
         }
-        // axis = (S16)std::min(std::max(axis, -32768), 32767);
-        S16 axis = axis_pos + (axis_neg * -1);
+        // Sum the two maxed halves and clamp to the signed range sent on the wire.
+        S16 axis = (S16)std::clamp(axis_pos - axis_neg, -32768, 32767);
         // check for change
         // Note: g_mappedState uses NUM_MOVE_DIRS split half-axes (indexed by 'i'),
-        // while g_finalState uses NUM_AXES combined signed axes (indexed by 'final_i').
-        if (g_finalState.mAxes[final_i] != axis)
+        // while g_finalState uses NUM_AXES combined signed axes (indexed by 'j').
+        if (g_finalState.mAxes[j] != axis)
         {
             // When axis changes we explicitly update the corresponding prevAxis
             // prior to storing axis.  The only other place where prevAxis
-            // is updated in updateResendPeriod() which is explicitly called after
+            // is updated is updateResendPeriod() which is explicitly called after
             // a packet is sent.  The result is: unchanged axes are included in
             // first resend but not later ones.
-            g_finalState.mPrevAxes[final_i] = g_finalState.mAxes[final_i];
-            g_finalState.mAxes[final_i] = axis;
+            g_finalState.mPrevAxes[j] = g_finalState.mAxes[j];
+            g_finalState.mAxes[j] = axis;
             g_nextResendPeriod = 0; // packet needs to go out ASAP
         }
-        ++final_i;
+        ++j;
     }
 }
 
@@ -1592,8 +1590,8 @@ namespace
             { "BUTTON_EAST",           LLGameControl::BUTTON_EAST },
             { "BUTTON_WEST",           LLGameControl::BUTTON_WEST },
             { "BUTTON_NORTH",          LLGameControl::BUTTON_NORTH },
-            { "BUTTON_BACK",           LLGameControl::BUTTON_BACK },
-            { "BUTTON_GUIDE",          LLGameControl::BUTTON_GUIDE },
+            { "BUTTON_SELECT",         LLGameControl::BUTTON_SELECT },
+            { "BUTTON_HOME",           LLGameControl::BUTTON_HOME },
             { "BUTTON_START",          LLGameControl::BUTTON_START },
             { "BUTTON_LEFT_STICK",     LLGameControl::BUTTON_LEFT_STICK },
             { "BUTTON_RIGHT_STICK",    LLGameControl::BUTTON_RIGHT_STICK },
@@ -1653,7 +1651,7 @@ namespace
             { "Move forward/back", { AGENT_CONTROL_AT_POS,    AGENT_CONTROL_AT_NEG } },
             { "Turn left/right",   { AGENT_CONTROL_YAW_POS,   AGENT_CONTROL_YAW_NEG } },
             { "Look up/down",      { AGENT_CONTROL_PITCH_POS, AGENT_CONTROL_PITCH_NEG } },
-            { "Move up/down",      { AGENT_CONTROL_UP_POS,    AGENT_CONTROL_UP_NEG } },
+            { "Fly up/down",       { AGENT_CONTROL_UP_POS,    AGENT_CONTROL_UP_NEG } },
         };
         return bridge;
     }
@@ -1664,7 +1662,7 @@ namespace
             { "Jump",          AGENT_CONTROL_UP_POS },
             { "Crouch",        AGENT_CONTROL_UP_NEG },
             // A button drives only one half-axis, so up/down are two separate button
-            // actions (the analog counterpart is the single "Move up/down" axis).
+            // actions (the analog counterpart is the single "Fly up/down" axis).
             { "Move up",       AGENT_CONTROL_UP_POS },
             { "Move down",     AGENT_CONTROL_UP_NEG },
             { "Move forward",  AGENT_CONTROL_AT_POS },
@@ -1827,7 +1825,7 @@ namespace
     struct FlycamAxisEffect { U8 channel; F32 polarity; };
 
     // FlyCam-mode axis label -> flycam channel + polarity applied to the axis'
-    // signed value (positive half minus negative half).  "Move up/down" bound to the
+    // signed value (positive half minus negative half).  "Fly up/down" bound to the
     // trigger pair yields the tied-trigger RISE behavior: the right trigger (positive
     // half) rises, the left trigger (negative half) drops.
     const std::map<std::string, FlycamAxisEffect>& flycamAxisBridge()
@@ -1835,7 +1833,7 @@ namespace
         static const std::map<std::string, FlycamAxisEffect> bridge = {
             { "Move forward/back", { LLGameControl::FLYCAM_ADVANCE,  1.f } },
             { "Strafe left/right", { LLGameControl::FLYCAM_PAN,      1.f } },
-            { "Move up/down",      { LLGameControl::FLYCAM_RISE,     1.f } },
+            { "Fly up/down",      { LLGameControl::FLYCAM_RISE,     1.f } },
             { "Look up/down",      { LLGameControl::FLYCAM_PITCH,    1.f } },
             { "Turn left/right",   { LLGameControl::FLYCAM_YAW,      1.f } },
             { "Roll left/right",   { LLGameControl::FLYCAM_ROLL,     1.f } },
@@ -2174,7 +2172,7 @@ bool LLGameControl::actionFromString(const std::string& string, ActionType& acti
         }
         else if(string == "button_back")
         {
-            action = BUTTON_BACK;
+            action = BUTTON_SELECT;
         }
         else if(string == "button_start")
         {
@@ -2182,7 +2180,7 @@ bool LLGameControl::actionFromString(const std::string& string, ActionType& acti
         }
         else if(string == "button_guide")
         {
-            action = BUTTON_GUIDE;
+            action = BUTTON_HOME;
         }
         else if(string == "button_leftstick")
         {
@@ -2258,18 +2256,18 @@ std::string LLGameControl::stringFromAction(const ActionType actionType, const U
         {
             switch(action)
             {
-                case MovementDirection::MOVE_DIR_STRAFE_LEFT:        return "axis_left";
-                case MovementDirection::MOVE_DIR_STRAFE_RIGHT:       return "axis_right";
-                case MovementDirection::MOVE_DIR_PUSH_FORWARD:     return "axis_forward";
-                case MovementDirection::MOVE_DIR_PUSH_BACKWARD:    return "axis_backward";
-                case MovementDirection::MOVE_DIR_TURN_LEFT:   return "axis_turn_left";
-                case MovementDirection::MOVE_DIR_TURN_RIGHT:  return "axis_turn_right";
-                case MovementDirection::MOVE_DIR_LOOK_UP:     return "axis_look_up";
-                case MovementDirection::MOVE_DIR_LOOK_DOWN:   return "axis_look_down";
-                case MovementDirection::MOVE_DIR_RISE_UP:          return "axis_up";
-                case MovementDirection::MOVE_DIR_DROP_DOWN:        return "axis_down";
-                case MovementDirection::MOVE_DIR_ROLL_LEFT:   return "axis_roll_left";
-                case MovementDirection::MOVE_DIR_ROLL_RIGHT:  return "axis_roll_right";
+                case MovementDirection::MOVE_DIR_STRAFE_LEFT:   return "axis_left";
+                case MovementDirection::MOVE_DIR_STRAFE_RIGHT:  return "axis_right";
+                case MovementDirection::MOVE_DIR_PUSH_FORWARD:  return "axis_forward";
+                case MovementDirection::MOVE_DIR_PUSH_BACKWARD: return "axis_backward";
+                case MovementDirection::MOVE_DIR_TURN_LEFT:     return "axis_turn_left";
+                case MovementDirection::MOVE_DIR_TURN_RIGHT:    return "axis_turn_right";
+                case MovementDirection::MOVE_DIR_LOOK_UP:       return "axis_look_up";
+                case MovementDirection::MOVE_DIR_LOOK_DOWN:     return "axis_look_down";
+                case MovementDirection::MOVE_DIR_RISE_UP:       return "axis_up";
+                case MovementDirection::MOVE_DIR_DROP_DOWN:     return "axis_down";
+                case MovementDirection::MOVE_DIR_ROLL_LEFT:     return "axis_roll_left";
+                case MovementDirection::MOVE_DIR_ROLL_RIGHT:    return "axis_roll_right";
             }
         }
         case ActionType::BUTTON:
@@ -2280,13 +2278,13 @@ std::string LLGameControl::stringFromAction(const ActionType actionType, const U
                 case BUTTON_EAST:      return "button_east";
                 case BUTTON_WEST:      return "button_west";
                 case BUTTON_NORTH:     return "button_north";
-                case BUTTON_BACK:           return "button_back";
+                case BUTTON_SELECT:         return "button_back";
                 case BUTTON_START:          return "button_start";
-                case BUTTON_GUIDE:          return "button_guide";
-                case BUTTON_LEFT_STICK:      return "button_leftstick";
-                case BUTTON_RIGHT_STICK:     return "button_rightstick";
-                case BUTTON_LEFT_SHOULDER:   return "button_leftshoulder";
-                case BUTTON_RIGHT_SHOULDER:  return "button_rightshoulder";
+                case BUTTON_HOME:           return "button_guide";
+                case BUTTON_LEFT_STICK:     return "button_leftstick";
+                case BUTTON_RIGHT_STICK:    return "button_rightstick";
+                case BUTTON_LEFT_SHOULDER:  return "button_leftshoulder";
+                case BUTTON_RIGHT_SHOULDER: return "button_rightshoulder";
                 case BUTTON_DPAD_UP:        return "button_dpad_up";
                 case BUTTON_DPAD_DOWN:      return "button_dpad_down";
                 case BUTTON_DPAD_LEFT:      return "button_dpad_left";
