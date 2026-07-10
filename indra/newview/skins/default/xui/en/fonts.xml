@@ -88,7 +88,12 @@
 	comment="Name of emoji font">
     <file>TwemojiSVG.ttf</file>
   </font>
-  
+
+  <font name="PromptFont"
+	comment="Game-controller button/axis glyphs (Shinmera PromptFont, OFL). Used only on specific game-control UI cells; NOT a global fallback (its glyphs occupy real Unicode arrow codepoints).">
+    <file>PromptFont.ttf</file>
+  </font>
+
   <font
       name="Monospace"
       comment="Name of monospace font">

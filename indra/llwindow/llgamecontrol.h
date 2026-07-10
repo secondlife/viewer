@@ -138,8 +138,8 @@ public:
         BUTTON_EAST,
         BUTTON_WEST,
         BUTTON_NORTH,
-        BUTTON_BACK,
-        BUTTON_GUIDE,
+        BUTTON_SELECT, // BUTTON_BACK in SDL
+        BUTTON_HOME,   // BUTTON_GUIDE in SDL
         BUTTON_START,
         BUTTON_LEFT_STICK,
         BUTTON_RIGHT_STICK,

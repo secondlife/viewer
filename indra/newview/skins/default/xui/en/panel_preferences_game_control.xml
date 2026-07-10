@@ -109,8 +109,9 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="action" label="Action" relative_width="0.5"/>
-                        <scroll_list.columns name="input" label="Axis Input" relative_width="0.5"/>
+                        <scroll_list.columns name="action" label="Action" relative_width="0.40"/>
+                        <scroll_list.columns name="input" label="Axis" relative_width="0.20"/>
+                        <scroll_list.columns name="input_description" label="Description" relative_width="0.40"/>
                     </scroll_list>
                 </panel>
                 <panel
@@ -134,8 +135,9 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="action" label="Action" relative_width="0.5"/>
-                        <scroll_list.columns name="input" label="Buttons Input" relative_width="0.5"/>
+                        <scroll_list.columns name="action" label="Action" relative_width="0.40"/>
+                        <scroll_list.columns name="input" label="Button" relative_width="0.20"/>
+                        <scroll_list.columns name="input_description" label="Description" relative_width="0.40"/>
                     </scroll_list>
                 </panel>
             </panel>
@@ -221,11 +223,8 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="input"     label="Input"     relative_width="0.33"/>
-                        <scroll_list.columns name="invert"    label="Invert"    relative_width="0.09"/>
-                        <scroll_list.columns name="dead_zone" label="Dead Zone" relative_width="0.15"/>
-                        <scroll_list.columns name="offset"    label="Offset"    relative_width="0.10"/>
-                        <scroll_list.columns name="output"    label="Output"    relative_width="0.33"/>
+                        <scroll_list.columns name="input"  label="Input"  relative_width="0.5"/>
+                        <scroll_list.columns name="output" label="Output" relative_width="0.5"/>
                     </scroll_list>
                 </panel>
                 <panel
@@ -317,9 +316,12 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="input"       label="Axis"           relative_width="0.6"/>
-                        <scroll_list.columns name="raw_value"   label="Raw Value"      relative_width="0.2"/>
-                        <scroll_list.columns name="fixed_value" label="Adjusted Value" relative_width="0.2"/>
+                        <scroll_list.columns name="input"       label="Axis"           relative_width="0.24"/>
+                        <scroll_list.columns name="raw_value"   label="Raw Value"      relative_width="0.15"/>
+                        <scroll_list.columns name="invert"      label="Invert"         type="checkbox" relative_width="0.10"/>
+                        <scroll_list.columns name="offset"      label="Offset"         relative_width="0.13"/>
+                        <scroll_list.columns name="dead_zone"   label="Dead Zone"      relative_width="0.16"/>
+                        <scroll_list.columns name="fixed_value" label="Adjusted Value" relative_width="0.22"/>
                     </scroll_list>
                 </panel>
                 <panel
@@ -399,7 +401,7 @@
         height="18"/>
     <!-- axis_input_selector: the canonical axis INPUTS an axis action can be bound
          to on the Actions tab.  The two triggers are offered only as the combined
-         "Triggers left/right" pair (value AXIS_TRIGGERS): each trigger is positive-
+         "Triggers ↔" pair (value AXIS_TRIGGERS): each trigger is positive-
          only, so the pair is treated as one bidirectional axis (left trigger drives
          the negative direction, right trigger the positive).  See the trigger-pair
          handling in llgamecontrol.cpp (rebuildActionLookup / avatarAxisBridge). -->
@@ -408,23 +410,23 @@
         width="200"
         height="18">
         <combo_box.item
-            label="Left stick: tilt left/right"
+            label="L Stick ↔"
             name="axis_leftx"
             value="AXIS_LEFTX"/>
         <combo_box.item
-            label="Left stick: tilt forward/back"
+            label="L Stick ↕"
             name="axis_lefty"
             value="AXIS_LEFTY"/>
         <combo_box.item
-            label="Right stick: tilt left/right"
+            label="R Stick ↔"
             name="axis_rightx"
             value="AXIS_RIGHTX"/>
         <combo_box.item
-            label="Right stick: tilt forward/back"
+            label="R Stick ↕"
             name="axis_righty"
             value="AXIS_RIGHTY"/>
         <combo_box.item
-            label="Triggers left/right"
+            label="Triggers ↔"
             name="axis_triggers"
             value="AXIS_TRIGGERS"/>
         <combo_box.item
@@ -432,6 +434,14 @@
             name="axis_none"
             value="AXIS_NONE"/>
     </combo_box>
+    <!-- axis_input_glyph_selector: the glyph counterpart of axis_input_selector,
+         shown when editing the PromptFont "Axis" (icon) column.  Items are built
+         in C++ from axis_input_selector's values so the value list stays in one
+         place; each item's label is the PromptFont glyph for that axis. -->
+    <combo_box
+        name="axis_input_glyph_selector"
+        width="200"
+        height="18"/>
     <!-- axis_output_selector: the canonical axis a physical device axis maps to on
          the Devices tab.  This is strictly index-based (item N == canonical axis N,
          matching LLGameControl::KeyboardAxis; the final "None" item == NUM_AXES), so
@@ -441,31 +451,31 @@
         width="200"
         height="18">
         <combo_box.item
-            label="Left stick: tilt left/right"
+            label="L Stick ↔"
             name="axis_0"
             value="AXIS_LEFTX"/>
         <combo_box.item
-            label="Left stick: tilt forward/back"
+            label="L Stick ↕"
             name="axis_1"
             value="AXIS_LEFTY"/>
         <combo_box.item
-            label="Right stick: tilt left/right"
+            label="R Stick ↔"
             name="axis_2"
             value="AXIS_RIGHTX"/>
         <combo_box.item
-            label="Right stick: tilt forward/back"
+            label="R Stick ↕"
             name="axis_3"
             value="AXIS_RIGHTY"/>
         <combo_box.item
-            label="Left trigger: push/release"
+            label="L Trigger ←"
             name="axis_4"
             value="AXIS_LEFT_TRIGGER"/>
         <combo_box.item
-            label="Right trigger: push/release"
+            label="R Trigger →"
             name="axis_5"
             value="AXIS_RIGHT_TRIGGER"/>
         <combo_box.item
-            label="Triggers left/right"
+            label="Triggers ↔"
             name="axis_output_triggers"
             value="AXIS_TRIGGERS"/>
         <combo_box.item
@@ -478,20 +488,20 @@
         width="380"
         height="18">
         <combo_box.item
-            label="Strafe left/right"
+            label="Strafe ↔"
             value="Strafe left/right"/>
         <combo_box.item
-            label="Move forward/back"
+            label="Move ↕"
             value="Move forward/back"/>
         <combo_box.item
-            label="Turn left/right"
+            label="Turn ↔"
             value="Turn left/right"/>
         <combo_box.item
-            label="Look up/down"
+            label="Look ↕"
             value="Look up/down"/>
         <combo_box.item
-            label="Move up/down"
-            value="Move up/down"/>
+            label="Fly ↕"
+            value="Fly up/down"/>
         <combo_box.item
             label="None"
             value="None"/>
@@ -517,47 +527,47 @@
             name="BUTTON_3"
             value="BUTTON_NORTH"/>
         <combo_box.item
-            label="Menu left"
+            label="Select"
             name="BUTTON_4"
-            value="BUTTON_BACK"/>
+            value="BUTTON_SELECT"/>
         <combo_box.item
-            label="Menu middle"
+            label="Home"
             name="BUTTON_5"
-            value="BUTTON_GUIDE"/>
+            value="BUTTON_HOME"/>
         <combo_box.item
-            label="Menu right"
+            label="Start"
             name="BUTTON_6"
             value="BUTTON_START"/>
         <combo_box.item
-            label="Left stick"
+            label="L Stick"
             name="BUTTON_7"
             value="BUTTON_LEFT_STICK"/>
         <combo_box.item
-            label="Right stick"
+            label="R Stick"
             name="BUTTON_8"
             value="BUTTON_RIGHT_STICK"/>
         <combo_box.item
-            label="Left shoulder"
+            label="L Shoulder"
             name="BUTTON_9"
             value="BUTTON_LEFT_SHOULDER"/>
         <combo_box.item
-            label="Right shoulder"
+            label="R Shoulder"
             name="BUTTON_10"
             value="BUTTON_RIGHT_SHOULDER"/>
         <combo_box.item
-            label="DPad up"
+            label="DPad Up"
             name="BUTTON_11"
             value="BUTTON_DPAD_UP"/>
         <combo_box.item
-            label="DPad down"
+            label="DPad Down"
             name="BUTTON_12"
             value="BUTTON_DPAD_DOWN"/>
         <combo_box.item
-            label="DPad left"
+            label="DPad Left"
             name="BUTTON_13"
             value="BUTTON_DPAD_LEFT"/>
         <combo_box.item
-            label="DPad right"
+            label="DPad Right"
             name="BUTTON_14"
             value="BUTTON_DPAD_RIGHT"/>
         <combo_box.item
@@ -581,7 +591,7 @@
             name="BUTTON_19"
             value="BUTTON_PADDLE4"/>
         <combo_box.item
-            label="20: Touchpad"
+            label="Touchpad"
             name="BUTTON_20"
             value="BUTTON_TOUCHPAD"/>
         <combo_box.item
@@ -633,6 +643,14 @@
             name="BUTTON_NONE"
             value="BUTTON_NONE"/>
     </combo_box>
+    <!-- button_input_glyph_selector: the glyph counterpart of button_input_selector,
+         shown when editing the PromptFont "Button" (icon) column.  Items are built
+         in C++ from button_input_selector's values; each item's label is the
+         PromptFont glyph for that button (falling back to text where none exists). -->
+    <combo_box
+        name="button_input_glyph_selector"
+        width="380"
+        height="18"/>
     <!--
     For reference, here are the RAW indices of the various input channels
     of a standard XBox controller.  Button (N) is numbered in parentheses,
@@ -764,28 +782,29 @@
             value="None"/>
     </combo_box>
     <!-- FlyCam-mode action selectors: distinct action sets for the FlyCam mode.
-         Item value == label == the action key used in the GameControl settings. -->
+         Item value is the ASCII action key used in the GameControl settings (it must
+         match the hard-coded key in llgamecontrol.cpp); label is the display text. -->
     <combo_box
         name="flycam_analog_action_selector"
         width="380"
         height="18">
         <combo_box.item
-            label="Strafe left/right"
+            label="Strafe ↔"
             value="Strafe left/right"/>
         <combo_box.item
-            label="Move forward/back"
+            label="Move ↕"
             value="Move forward/back"/>
         <combo_box.item
-            label="Turn left/right"
+            label="Turn ↔"
             value="Turn left/right"/>
         <combo_box.item
-            label="Look up/down"
+            label="Look ↕"
             value="Look up/down"/>
         <combo_box.item
-            label="Move up/down"
-            value="Move up/down"/>
+            label="Fly ↕"
+            value="Fly up/down"/>
         <combo_box.item
-            label="Roll left/right"
+            label="Roll ↻↺"
             value="Roll left/right"/>
         <combo_box.item
             label="None"
@@ -811,22 +830,22 @@
             label="Toggle flycam"
             value="Toggle flycam"/>
         <combo_box.item
-            label="Roll left"
+            label="Roll ↺"
             value="Roll left"/>
         <combo_box.item
-            label="Roll right"
+            label="Roll ↻"
             value="Roll right"/>
         <combo_box.item
-            label="Move forward"
+            label="Move ↑"
             value="Move forward"/>
         <combo_box.item
-            label="Move back"
+            label="Move ↓"
             value="Move back"/>
         <combo_box.item
-            label="Strafe left"
+            label="Strafe ←"
             value="Strafe left"/>
         <combo_box.item
-            label="Strafe right"
+            label="Strafe →"
             value="Strafe right"/>
         <combo_box.item
             label="None"
