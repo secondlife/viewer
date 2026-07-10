@@ -49,6 +49,7 @@
 
 #include "llglheaders.h"
 #include "llglslshader.h"
+#include "llgltexture.h"
 
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_access.hpp>
@@ -1079,48 +1080,55 @@ void LLGLManager::initWGL()
         wglDXLockObjectsNV = (PFNWGLDXLOCKOBJECTSNVPROC)GLH_EXT_GET_PROC_ADDRESS("wglDXLockObjectsNV");
         wglDXUnlockObjectsNV = (PFNWGLDXUNLOCKOBJECTSNVPROC)GLH_EXT_GET_PROC_ADDRESS("wglDXUnlockObjectsNV");
 
-        // Discover which adapter the GL context lives on by probing wglDXOpenDeviceNV
-        IDXGIFactory1* dxgi_factory = nullptr;
-        if (SUCCEEDED(CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&dxgi_factory)))
-        {
-            IDXGIAdapter* adapter = nullptr;
-            for (UINT i = 0; dxgi_factory->EnumAdapters(i, &adapter) != DXGI_ERROR_NOT_FOUND; ++i)
-            {
-                ID3D11Device* probe_device = nullptr;
-                HRESULT hr = D3D11CreateDevice(
-                    adapter, D3D_DRIVER_TYPE_UNKNOWN,
-                    nullptr, 0, nullptr, 0,
-                    D3D11_SDK_VERSION,
-                    &probe_device, nullptr, nullptr);
-
-                if (SUCCEEDED(hr) && probe_device)
-                {
-                    HANDLE probe_handle = wglDXOpenDeviceNV(probe_device);
-                    if (probe_handle)
-                    {
-                        // This adapter matches the GL context
-                        DXGI_ADAPTER_DESC adesc;
-                        if (SUCCEEDED(adapter->GetDesc(&adesc)))
-                        {
-                            mGLAdapterLuidHigh = adesc.AdapterLuid.HighPart;
-                            mGLAdapterLuidLow = adesc.AdapterLuid.LowPart;
-                            LL_INFOS("RenderInit") << "GL adapter LUID: "
-                                << std::hex << mGLAdapterLuidHigh << ":" << mGLAdapterLuidLow << LL_ENDL;
-                        }
-                        wglDXCloseDeviceNV(probe_handle);
-                        probe_device->Release();
-                        adapter->Release();
-                        break;
-                    }
-                    probe_device->Release();
-                }
-                adapter->Release();
-            }
-            dxgi_factory->Release();
-        }
+        detectGLAdapterLuid();
     }
 #endif
 }
+
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+void LLGLManager::detectGLAdapterLuid()
+{
+    // Discover which adapter the GL context lives on by probing wglDXOpenDeviceNV
+    IDXGIFactory1* dxgi_factory = nullptr;
+    if (SUCCEEDED(CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&dxgi_factory)))
+    {
+        IDXGIAdapter* adapter = nullptr;
+        for (UINT i = 0; dxgi_factory->EnumAdapters(i, &adapter) != DXGI_ERROR_NOT_FOUND; ++i)
+        {
+            ID3D11Device* probe_device = nullptr;
+            HRESULT hr = D3D11CreateDevice(
+                adapter, D3D_DRIVER_TYPE_UNKNOWN,
+                nullptr, 0, nullptr, 0,
+                D3D11_SDK_VERSION,
+                &probe_device, nullptr, nullptr);
+
+            if (SUCCEEDED(hr) && probe_device)
+            {
+                HANDLE probe_handle = wglDXOpenDeviceNV(probe_device);
+                if (probe_handle)
+                {
+                    // This adapter matches the GL context
+                    DXGI_ADAPTER_DESC adesc;
+                    if (SUCCEEDED(adapter->GetDesc(&adesc)))
+                    {
+                        mGLAdapterLuidHigh = adesc.AdapterLuid.HighPart;
+                        mGLAdapterLuidLow = adesc.AdapterLuid.LowPart;
+                        LL_INFOS("RenderInit") << "GL adapter LUID: "
+                            << std::hex << mGLAdapterLuidHigh << ":" << mGLAdapterLuidLow << LL_ENDL;
+                    }
+                    wglDXCloseDeviceNV(probe_handle);
+                    probe_device->Release();
+                    adapter->Release();
+                    break;
+                }
+                probe_device->Release();
+            }
+            adapter->Release();
+        }
+        dxgi_factory->Release();
+    }
+}
+#endif
 
 // return false if unable (or unwilling due to old drivers) to init GL
 bool LLGLManager::initGL()
@@ -1428,6 +1436,8 @@ void LLGLManager::shutdownGL()
 {
     if (mInited)
     {
+        // Tear down the shared NV_DX_interop device while the GL context is still valid.
+        LLGLTexture::releaseSharedInteropDevice();
         glFinish();
         stop_glerror();
         mInited = false;

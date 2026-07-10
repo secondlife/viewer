@@ -30,6 +30,104 @@
 #if LL_WINDOWS
 #include <d3d11_1.h>
 #include <dxgi.h>
+
+namespace
+{
+    // Process-wide shared D3D11 device + NV_DX_interop GL device.
+    //
+    // Creating a D3D11 device (DXGI factory + adapter enumeration +
+    // D3D11CreateDevice + wglDXOpenDeviceNV) is expensive, so we build it once
+    // and reuse it for every media texture rather than one device per texture.
+    // Only the per-texture copy target, its interop registration and the blit
+    // resources live on the LLGLTexture instance.
+    struct InteropSharedDevice
+    {
+        ID3D11Device1*        mDevice = nullptr;
+        ID3D11DeviceContext*  mContext = nullptr;
+        HANDLE                mGLDevice = nullptr;
+    };
+
+    InteropSharedDevice gInteropShared;
+
+    // Lazily create (or return the existing) shared device. Returns false on failure.
+    bool getSharedInteropDevice(ID3D11Device1** out_device, ID3D11DeviceContext** out_context, HANDLE* out_gl_device)
+    {
+        if (!gInteropShared.mDevice)
+        {
+            IDXGIAdapter* gl_adapter = nullptr;
+            IDXGIFactory1* factory = nullptr;
+            HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&factory);
+            if (SUCCEEDED(hr) && factory)
+            {
+                if (gGLManager.mGLAdapterLuidHigh || gGLManager.mGLAdapterLuidLow)
+                {
+                    IDXGIAdapter* adapter = nullptr;
+                    for (UINT i = 0; factory->EnumAdapters(i, &adapter) != DXGI_ERROR_NOT_FOUND; ++i)
+                    {
+                        DXGI_ADAPTER_DESC adesc;
+                        if (SUCCEEDED(adapter->GetDesc(&adesc)) &&
+                            adesc.AdapterLuid.HighPart == (LONG)gGLManager.mGLAdapterLuidHigh &&
+                            adesc.AdapterLuid.LowPart == (DWORD)gGLManager.mGLAdapterLuidLow)
+                        {
+                            gl_adapter = adapter;
+                            break;
+                        }
+                        adapter->Release();
+                    }
+                }
+                factory->Release();
+            }
+
+            ID3D11Device* base_device = nullptr;
+            ID3D11DeviceContext* d3d_context = nullptr;
+            hr = D3D11CreateDevice(
+                gl_adapter,
+                gl_adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE,
+                nullptr, 0, nullptr, 0,
+                D3D11_SDK_VERSION,
+                &base_device, nullptr, &d3d_context);
+
+            if (gl_adapter)
+            {
+                gl_adapter->Release();
+            }
+
+            if (FAILED(hr) || !base_device)
+            {
+                LL_WARNS("Texture") << "Failed to create shared D3D11 device, hr=0x" << std::hex << hr << LL_ENDL;
+                return false;
+            }
+
+            ID3D11Device1* d3d_device = nullptr;
+            hr = base_device->QueryInterface(__uuidof(ID3D11Device1), (void**)&d3d_device);
+            base_device->Release();
+            if (FAILED(hr) || !d3d_device)
+            {
+                LL_WARNS("Texture") << "Failed to get shared ID3D11Device1, hr=0x" << std::hex << hr << LL_ENDL;
+                d3d_context->Release();
+                return false;
+            }
+
+            HANDLE gl_device = wglDXOpenDeviceNV(d3d_device);
+            if (!gl_device)
+            {
+                LL_WARNS("Texture") << "wglDXOpenDeviceNV failed for shared device" << LL_ENDL;
+                d3d_context->Release();
+                d3d_device->Release();
+                return false;
+            }
+
+            gInteropShared.mDevice = d3d_device;
+            gInteropShared.mContext = d3d_context;
+            gInteropShared.mGLDevice = gl_device;
+        }
+
+        *out_device = gInteropShared.mDevice;
+        *out_context = gInteropShared.mContext;
+        *out_gl_device = gInteropShared.mGLDevice;
+        return true;
+    }
+}
 #endif
 
 LLGLTexture::LLGLTexture(bool usemipmaps)
@@ -384,77 +482,14 @@ bool LLGLTexture::createGLTextureFromHandle(void* handle, S32 width, S32 height,
         return false;
     }
 
-    ID3D11Device1* d3d_device = (ID3D11Device1*)mInteropDevice;
-    ID3D11DeviceContext* d3d_context = (ID3D11DeviceContext*)mInteropContext;
-    HANDLE gl_device = mInteropGLDevice;
-
-    // Lazily create the D3D device and GL interop device — reuse across frames
-    if (!d3d_device)
+    // Grab the process-wide shared device — created once and reused for every
+    // texture, so we don't pay for a D3D11 device per media surface.
+    ID3D11Device1* d3d_device = nullptr;
+    ID3D11DeviceContext* d3d_context = nullptr;
+    HANDLE gl_device = nullptr;
+    if (!getSharedInteropDevice(&d3d_device, &d3d_context, &gl_device))
     {
-        IDXGIAdapter* gl_adapter = nullptr;
-        IDXGIFactory1* factory = nullptr;
-        HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&factory);
-        if (SUCCEEDED(hr) && factory)
-        {
-            if (gGLManager.mGLAdapterLuidHigh || gGLManager.mGLAdapterLuidLow)
-            {
-                IDXGIAdapter* adapter = nullptr;
-                for (UINT i = 0; factory->EnumAdapters(i, &adapter) != DXGI_ERROR_NOT_FOUND; ++i)
-                {
-                    DXGI_ADAPTER_DESC adesc;
-                    if (SUCCEEDED(adapter->GetDesc(&adesc)) &&
-                        adesc.AdapterLuid.HighPart == (LONG)gGLManager.mGLAdapterLuidHigh &&
-                        adesc.AdapterLuid.LowPart == (DWORD)gGLManager.mGLAdapterLuidLow)
-                    {
-                        gl_adapter = adapter;
-                        break;
-                    }
-                    adapter->Release();
-                }
-            }
-            factory->Release();
-        }
-
-        ID3D11Device* base_device = nullptr;
-        hr = D3D11CreateDevice(
-            gl_adapter,
-            gl_adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE,
-            nullptr, 0, nullptr, 0,
-            D3D11_SDK_VERSION,
-            &base_device, nullptr, &d3d_context);
-
-        if (gl_adapter)
-        {
-            gl_adapter->Release();
-        }
-
-        if (FAILED(hr) || !base_device)
-        {
-            LL_WARNS("Texture") << "Failed to create D3D11 device, hr=0x" << std::hex << hr << LL_ENDL;
-            return false;
-        }
-
-        hr = base_device->QueryInterface(__uuidof(ID3D11Device1), (void**)&d3d_device);
-        base_device->Release();
-        if (FAILED(hr) || !d3d_device)
-        {
-            LL_WARNS("Texture") << "Failed to get ID3D11Device1, hr=0x" << std::hex << hr << LL_ENDL;
-            d3d_context->Release();
-            return false;
-        }
-
-        gl_device = wglDXOpenDeviceNV(d3d_device);
-        if (!gl_device)
-        {
-            LL_WARNS("Texture") << "wglDXOpenDeviceNV failed" << LL_ENDL;
-            d3d_context->Release();
-            d3d_device->Release();
-            return false;
-        }
-
-        mInteropDevice = d3d_device;
-        mInteropContext = d3d_context;
-        mInteropGLDevice = gl_device;
+        return false;
     }
 
     // Open the shared texture — NT handle from CEF via DuplicateHandle
@@ -665,6 +700,9 @@ bool LLGLTexture::createGLTextureFromHandle(void* handle, S32 width, S32 height,
 void LLGLTexture::releaseInteropResources()
 {
 #if LL_WINDOWS
+    // Only tear down this texture's per-instance resources. The shared D3D11 /
+    // interop device is intentionally left alive so a transient failure (e.g. a
+    // stale handle during a CEF resize) doesn't force an expensive device rebuild.
     if (mInteropBlitFBO)
     {
         glDeleteFramebuffers(1, &mInteropBlitFBO);
@@ -682,29 +720,38 @@ void LLGLTexture::releaseInteropResources()
     }
     if (mInteropGLHandle)
     {
-        wglDXUnlockObjectsNV(mInteropGLDevice, 1, &mInteropGLHandle);
-        wglDXUnregisterObjectNV(mInteropGLDevice, mInteropGLHandle);
+        if (gInteropShared.mGLDevice)
+        {
+            wglDXUnlockObjectsNV(gInteropShared.mGLDevice, 1, &mInteropGLHandle);
+            wglDXUnregisterObjectNV(gInteropShared.mGLDevice, mInteropGLHandle);
+        }
         mInteropGLHandle = nullptr;
-    }
-    if (mInteropGLDevice)
-    {
-        wglDXCloseDeviceNV(mInteropGLDevice);
-        mInteropGLDevice = nullptr;
     }
     if (mInteropTexture)
     {
         ((ID3D11Texture2D*)mInteropTexture)->Release();
         mInteropTexture = nullptr;
     }
-    if (mInteropContext)
+#endif
+}
+
+void LLGLTexture::releaseSharedInteropDevice()
+{
+#if LL_WINDOWS
+    if (gInteropShared.mGLDevice)
     {
-        ((ID3D11DeviceContext*)mInteropContext)->Release();
-        mInteropContext = nullptr;
+        wglDXCloseDeviceNV(gInteropShared.mGLDevice);
+        gInteropShared.mGLDevice = nullptr;
     }
-    if (mInteropDevice)
+    if (gInteropShared.mContext)
     {
-        ((ID3D11Device1*)mInteropDevice)->Release();
-        mInteropDevice = nullptr;
+        gInteropShared.mContext->Release();
+        gInteropShared.mContext = nullptr;
+    }
+    if (gInteropShared.mDevice)
+    {
+        gInteropShared.mDevice->Release();
+        gInteropShared.mDevice = nullptr;
     }
 #endif
 }

@@ -146,7 +146,13 @@ public:
         return false;
 #endif
     }
+    // Releases this texture's per-instance interop resources. The shared D3D11
+    // device is left intact so transient failures don't force an expensive rebuild.
     void       releaseInteropResources();
+
+    // Tears down the process-wide shared D3D11 / NV_DX_interop device. Must be
+    // called while the GL context is still valid (e.g. from LLGLManager::shutdownGL).
+    static void releaseSharedInteropDevice();
 
     LLTexUnit::eTextureAddressMode getAddressMode(void) const ;
     S32        getMaxDiscardLevel() const;
@@ -205,11 +211,10 @@ protected:
     LLGLTextureState  mTextureState ;
 
 #if LL_WINDOWS
-    // NV_DX_interop resources kept alive while the GL texture is in use
-    void* mInteropDevice = nullptr;     // ID3D11Device1*
-    void* mInteropContext = nullptr;    // ID3D11DeviceContext*
-    void* mInteropTexture = nullptr;    // ID3D11Texture2D*
-    void* mInteropGLDevice = nullptr;   // HANDLE from wglDXOpenDeviceNV
+    // Per-texture NV_DX_interop resources kept alive while the GL texture is in
+    // use. The D3D11 device, context and interop GL device are shared across all
+    // textures (see llgltexture.cpp) and are NOT stored here.
+    void* mInteropTexture = nullptr;    // ID3D11Texture2D* (per-texture copy target)
     void* mInteropGLHandle = nullptr;   // HANDLE from wglDXRegisterObjectNV
     LLGLuint mInteropSrcTex = 0;        // GL name from NV_DX_interop registration
     LLGLuint mInteropBlitFBO = 0;       // FBO for flip blit
