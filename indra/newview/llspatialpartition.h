@@ -481,11 +481,12 @@ public:
     void transformExtents(const LLVector4a* src, LLVector4a* dst);
     LLDrawable* mDrawable;
 
-    // rigged alpha draw-order stamp, set per detailed update by
-    // LLVOAvatar::idleUpdateMisc -- one stamp per attachment, however many
-    // child prims/groups the linkset spans. LLPipeline::postSort fans it out
-    // to each of this bridge's visible rigged alpha groups. Raw pointer is
-    // only ever compared, never dereferenced (avatar may die first).
+    // rigged alpha draw-order stamp -- one stamp per attachment (set per
+    // detailed update by LLVOAvatar::idleUpdateMisc) or per animesh (set per
+    // frame by LLControlAvatar::idleUpdate), however many child prims/groups
+    // the linkset spans. LLPipeline::postSort fans it out to each of this
+    // bridge's visible rigged alpha groups. Raw pointer is only ever
+    // compared, never dereferenced (avatar may die first).
     LLVOAvatar* mAvatarp = nullptr;
     U32 mRenderOrder = 0;
     F32 mDepth = 0.f;

@@ -366,6 +366,23 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     else
     {
         LLVOAvatar::idleUpdate(agent,time);
+
+        // stamp the rigged alpha draw order onto the animesh bridge, same as
+        // LLVOAvatar::idleUpdateMisc does for attachment bridges, worn animesh
+        // is skipped: the wearer's attachment loop stamps this same bridge
+        // twith he wearer's depth and attachment order, keeping it inside
+        // the wearer's contiguous run. Fetched from the drawable, not
+        // mControlAVBridge, which can go stale (see markForDeath).
+        if (mRootVolp && mRootVolp->mDrawable && !getAttachedAvatar())
+        {
+            LLSpatialBridge* bridge = mRootVolp->mDrawable->getSpatialBridge();
+            if (bridge)
+            {
+                bridge->mAvatarp = this;
+                bridge->mRenderOrder = 0;
+                bridge->mDepth = calcRiggedAlphaDepth();
+            }
+        }
     }
 }
 

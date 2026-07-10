@@ -686,8 +686,9 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged, bool m
 
             // merged mode: rigged alpha writes depth so attachment-order
             // layering holds and impostors/DoF still see it -- but only when
-            // the group carries an avatar stamp (mAvatarp, see
-            // LLSpatialBridge). An unstamped group (e.g. animesh) has no
+            // the group carries an avatar stamp (mAvatarp, stamped for
+            // attachments by LLVOAvatar::idleUpdateMisc and for animesh by
+            // LLControlAvatar::idleUpdate). A not-yet-stamped group has no
             // defined position in the rigged order and must not be allowed to
             // depth-reject geometry behind it (it still blends; it just can't
             // erase). Non-merged passes keep the pass-wide depth state set by

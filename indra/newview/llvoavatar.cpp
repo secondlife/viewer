@@ -3008,6 +3008,27 @@ static void override_bbox(LLDrawable* drawable, LLVector4a* extents)
     drawable->movePartition();
 }
 
+// camera-axis depth of this avatar, stamped onto every rigged alpha bridge
+// (attachments below, animesh in LLControlAvatar::idleUpdate) so its alpha
+// interleaves with world alpha (LLDrawPoolAlpha::renderAlpha). From the
+// animated extents, so avatars sharing a sit target still order
+// deterministically; pulled a quarter of the bounds toward the camera to match
+// the metric LLSpatialPartition::calcDistance stamps onto world alpha groups.
+F32 LLVOAvatar::calcRiggedAlphaDepth() const
+{
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    const LLVector3& at_axis = camera->getAtAxis();
+    if (mLastAnimExtents[0] == LLVector3() || mLastAnimExtents[1] == LLVector3())
+    { // extents not computed yet
+        return (getRenderPosition() - camera->getOrigin()) * at_axis;
+    }
+
+    const LLVector3 center = (mLastAnimExtents[0] + mLastAnimExtents[1]) * 0.5f;
+    const LLVector3 half = (mLastAnimExtents[1] - mLastAnimExtents[0]) * 0.5f;
+    return (center - camera->getOrigin()) * at_axis -
+           0.25f * (half * at_axis.scaledVec(at_axis));
+}
+
 void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
@@ -3025,26 +3046,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
     if (detailed_update)
     {
         U32 draw_order = 0;
-        // camera-axis depth of this avatar, stamped onto every rigged attachment
-        // bridge below so its alpha interleaves with world alpha
-        // (LLDrawPoolAlpha::renderAlpha). From the animated extents, so avatars
-        // sharing a sit target still order deterministically; pulled a quarter
-        // of the bounds toward the camera to match the metric
-        // LLSpatialPartition::calcDistance stamps onto world alpha groups.
-        LLViewerCamera* camera = LLViewerCamera::getInstance();
-        const LLVector3& at_axis = camera->getAtAxis();
-        F32 rigged_depth;
-        if (mLastAnimExtents[0] == LLVector3() || mLastAnimExtents[1] == LLVector3())
-        { // extents not computed yet
-            rigged_depth = (getRenderPosition() - camera->getOrigin()) * at_axis;
-        }
-        else
-        {
-            const LLVector3 center = (mLastAnimExtents[0] + mLastAnimExtents[1]) * 0.5f;
-            const LLVector3 half = (mLastAnimExtents[1] - mLastAnimExtents[0]) * 0.5f;
-            rigged_depth = (center - camera->getOrigin()) * at_axis -
-                           0.25f * (half * at_axis.scaledVec(at_axis));
-        }
+        const F32 rigged_depth = calcRiggedAlphaDepth();
         bool attachment_selected = LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 0 && LLSelectMgr::getInstance()->getSelection()->isAttachment();
         for (const auto& [attachment_point_id, attachment] : mAttachmentPoints)
         {
