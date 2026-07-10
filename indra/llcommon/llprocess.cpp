@@ -35,7 +35,17 @@
 #include "apr_signal.h"
 #include "llevents.h"
 #include "llexception.h"
+#include "stringize.h"
 
+#include <boost/process.hpp>
+#include <boost/process/v1/child.hpp>
+#include <boost/process/v1/io.hpp>
+#include <boost/process/v1/args.hpp>
+#include <boost/process/v1/start_dir.hpp>
+#include <boost/process/v1/search_path.hpp>
+#include <boost/process/v1/async.hpp>
+#include <boost/process/v1/async_pipe.hpp>
+#include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio/buffers_iterator.hpp>
@@ -47,11 +57,16 @@
 #include <typeinfo>
 #include <utility>
 
+
+namespace bp = boost::process::v1;
+namespace asio = boost::asio;
+
 /*****************************************************************************
 *   Helpers
 *****************************************************************************/
+/*
 static const char* whichfile_[] = { "stdin", "stdout", "stderr" };
-static std::string empty;
+
 static LLProcess::Status interpret_status(int status);
 static std::string getDesc(const LLProcess::Params& params);
 
@@ -60,7 +75,7 @@ static std::string whichfile(LLProcess::FILESLOT index)
     if (index < LL_ARRAY_SIZE(whichfile_))
         return whichfile_[index];
     return STRINGIZE("file slot " << index);
-}
+}*/
 
 /**
  * Ref-counted "mainloop" listener. As long as there are still outstanding
@@ -130,1008 +145,6 @@ private:
 };
 static LLProcessListener sProcessListener;
 
-/*****************************************************************************
-*   WritePipe and ReadPipe
-*****************************************************************************/
-LLProcess::BasePipe::~BasePipe() {}
-const LLProcess::BasePipe::size_type
-      // use funky syntax to call max() to avoid blighted max() macros
-      LLProcess::BasePipe::npos((std::numeric_limits<LLProcess::BasePipe::size_type>::max)());
-
-class WritePipeImpl: public LLProcess::WritePipe
-{
-    LOG_CLASS(WritePipeImpl);
-public:
-    WritePipeImpl(const std::string& desc, apr_file_t* pipe):
-        mDesc(desc),
-        mPipe(pipe),
-        // Essential to initialize our std::ostream with our special streambuf!
-        mStream(&mStreambuf)
-    {
-        mConnection = LLEventPumps::instance().obtain("mainloop")
-            .listen(LLEventPump::inventName("WritePipe"),
-                    boost::bind(&WritePipeImpl::tick, this, _1));
-
-#if ! LL_WINDOWS
-        // We can't count on every child process reading everything we try to
-        // write to it. And if the child terminates with WritePipe data still
-        // pending, unless we explicitly suppress it, Posix will hit us with
-        // SIGPIPE. That would terminate the viewer, boom. "Ignoring" it means
-        // APR gets the correct errno, passes it back to us, we log it, etc.
-        signal(SIGPIPE, SIG_IGN);
-#endif
-    }
-
-    virtual std::ostream& get_ostream() { return mStream; }
-    virtual size_type size() const { return mStreambuf.size(); }
-
-    bool tick(const LLSD&)
-    {
-        typedef boost::asio::streambuf::const_buffers_type const_buffer_sequence;
-        // If there's anything to send, try to send it.
-        std::size_t total(mStreambuf.size()), consumed(0);
-        if (total)
-        {
-            const_buffer_sequence bufs = mStreambuf.data();
-            // In general, our streambuf might contain a number of different
-            // physical buffers; iterate over those.
-            bool keepwriting = true;
-            for (auto bufi(boost::asio::buffer_sequence_begin(bufs)), bufend(boost::asio::buffer_sequence_end(bufs));
-                 bufi != bufend && keepwriting; ++bufi)
-            {
-                // http://www.boost.org/doc/libs/1_49_0_beta1/doc/html/boost_asio/reference/buffer.html#boost_asio.reference.buffer.accessing_buffer_contents
-                // Although apr_file_write() accepts const void*, we
-                // manipulate const char* so we can increment the pointer.
-                const char* remainptr = static_cast<const char*>(bufi->data());
-                std::size_t remainlen = boost::asio::buffer_size(*bufi);
-                while (remainlen)
-                {
-                    // Tackle the current buffer in discrete chunks. On
-                    // Windows, we've observed strange failures when trying to
-                    // write big lengths (~1 MB) in a single operation. Even a
-                    // 32K chunk seems too large. At some point along the way
-                    // apr_file_write() returns 11 (Resource temporarily
-                    // unavailable, i.e. EAGAIN) and says it wrote 0 bytes --
-                    // even though it did write the chunk! Our next write
-                    // attempt retries with the same chunk, resulting in the
-                    // chunk being duplicated at the child end. Using smaller
-                    // chunks is empirically more reliable.
-                    std::size_t towrite((std::min)(remainlen, std::size_t(4*1024)));
-                    apr_size_t written(towrite);
-                    apr_status_t err = apr_file_write(mPipe, remainptr, &written);
-                    // EAGAIN is exactly what we want from a nonblocking pipe.
-                    // Rather than waiting for data, it should return immediately.
-                    if (! (err == APR_SUCCESS || APR_STATUS_IS_EAGAIN(err)))
-                    {
-                        LL_WARNS("LLProcess") << "apr_file_write(" << towrite << ") on " << mDesc
-                                              << " got " << err << ":" << LL_ENDL;
-                        ll_apr_warn_status(err);
-                    }
-
-                    // 'written' is modified to reflect the number of bytes actually
-                    // written. Make sure we consume those later. (Don't consume them
-                    // now, that would invalidate the buffer iterator sequence!)
-                    consumed += written;
-                    // don't forget to advance to next chunk of current buffer
-                    remainptr += written;
-                    remainlen -= written;
-
-                    char msgbuf[512];
-                    LL_DEBUGS("LLProcess") << "wrote " << written << " of " << towrite
-                                           << " bytes to " << mDesc
-                                           << " (original " << total << "),"
-                                           << " code " << err << ": "
-                                           << apr_strerror(err, msgbuf, sizeof(msgbuf))
-                                           << LL_ENDL;
-
-                    // The parent end of this pipe is nonblocking. If we weren't able
-                    // to write everything we wanted, don't keep banging on it -- that
-                    // won't change until the child reads some. Wait for next tick().
-                    if (written < towrite)
-                    {
-                        keepwriting = false; // break outer loop over buffers too
-                        break;
-                    }
-                } // next chunk of current buffer
-            }     // next buffer
-            // In all, we managed to write 'consumed' bytes. Remove them from the
-            // streambuf so we don't keep trying to send them. This could be
-            // anywhere from 0 up to mStreambuf.size(); anything we haven't yet
-            // sent, we'll try again later.
-            mStreambuf.consume(consumed);
-        }
-
-        return false;
-    }
-
-private:
-    std::string mDesc;
-    apr_file_t* mPipe;
-    LLTempBoundListener mConnection;
-    boost::asio::streambuf mStreambuf;
-    std::ostream mStream;
-};
-
-class ReadPipeImpl: public LLProcess::ReadPipe
-{
-    LOG_CLASS(ReadPipeImpl);
-public:
-    ReadPipeImpl(const std::string& desc, apr_file_t* pipe, LLProcess::FILESLOT index):
-        mDesc(desc),
-        mPipe(pipe),
-        mIndex(index),
-        // Essential to initialize our std::istream with our special streambuf!
-        mStream(&mStreambuf),
-        mPump("ReadPipe", true),    // tweak name as needed to avoid collisions
-        mLimit(0),
-        mEOF(false)
-    {
-        mConnection = LLEventPumps::instance().obtain("mainloop")
-            .listen(LLEventPump::inventName("ReadPipe"),
-                    boost::bind(&ReadPipeImpl::tick, this, _1));
-    }
-
-    ~ReadPipeImpl()
-    {
-        if (mConnection.connected())
-        {
-            mConnection.disconnect();
-        }
-    }
-
-    // Much of the implementation is simply connecting the abstract virtual
-    // methods with implementation data concealed from the base class.
-    virtual std::istream& get_istream() { return mStream; }
-    virtual std::string getline() { return LLProcess::getline(mStream); }
-    virtual LLEventPump& getPump() { return mPump; }
-    virtual void setLimit(size_type limit) { mLimit = limit; }
-    virtual size_type getLimit() const { return mLimit; }
-    virtual size_type size() const { return mStreambuf.size(); }
-
-    virtual std::string read(size_type len)
-    {
-        // Read specified number of bytes into a buffer.
-        size_type readlen((std::min)(size(), len));
-        // Formally, &buffer[0] is invalid for a vector of size() 0. Exit
-        // early in that situation.
-        if (! readlen)
-            return "";
-        // Make a buffer big enough.
-        std::vector<char> buffer(readlen);
-        mStream.read(&buffer[0], readlen);
-        // Since we've already clamped 'readlen', we can think of no reason
-        // why mStream.read() should read fewer than 'readlen' bytes.
-        // Nonetheless, use the actual retrieved length.
-        return std::string(&buffer[0], mStream.gcount());
-    }
-
-    virtual std::string peek(size_type offset=0, size_type len=npos) const
-    {
-        // Constrain caller's offset and len to overlap actual buffer content.
-        std::size_t real_offset = (std::min)(mStreambuf.size(), std::size_t(offset));
-        size_type   want_end    = (len == npos)? npos : (real_offset + len);
-        std::size_t real_end    = (std::min)(mStreambuf.size(), std::size_t(want_end));
-        boost::asio::streambuf::const_buffers_type cbufs = mStreambuf.data();
-        return std::string(boost::asio::buffers_begin(cbufs) + real_offset,
-                           boost::asio::buffers_begin(cbufs) + real_end);
-    }
-
-    virtual size_type find(const std::string& seek, size_type offset=0) const
-    {
-        // If we're passing a string of length 1, use find(char), which can
-        // use an O(n) std::find() rather than the O(n^2) std::search().
-        if (seek.length() == 1)
-        {
-            return find(seek[0], offset);
-        }
-
-        // If offset is beyond the whole buffer, can't even construct a valid
-        // iterator range; can't possibly find the string we seek.
-        if (offset > mStreambuf.size())
-        {
-            return npos;
-        }
-
-        boost::asio::streambuf::const_buffers_type cbufs = mStreambuf.data();
-        boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type>
-            begin(boost::asio::buffers_begin(cbufs)),
-            end  (boost::asio::buffers_end(cbufs)),
-            found(std::search(begin + offset, end, seek.begin(), seek.end()));
-        return (found == end)? npos : (found - begin);
-    }
-
-    virtual size_type find(char seek, size_type offset=0) const
-    {
-        // If offset is beyond the whole buffer, can't even construct a valid
-        // iterator range; can't possibly find the char we seek.
-        if (offset > mStreambuf.size())
-        {
-            return npos;
-        }
-
-        boost::asio::streambuf::const_buffers_type cbufs = mStreambuf.data();
-        boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type>
-            begin(boost::asio::buffers_begin(cbufs)),
-            end  (boost::asio::buffers_end(cbufs)),
-            found(std::find(begin + offset, end, seek));
-        return (found == end)? npos : (found - begin);
-    }
-
-    bool tick(const LLSD&)
-    {
-        // Once we've hit EOF, skip all the rest of this.
-        if (mEOF)
-            return false;
-
-        typedef boost::asio::streambuf::mutable_buffers_type mutable_buffer_sequence;
-        // Try, every time, to read into our streambuf. In fact, we have no
-        // idea how much data the child might be trying to send: keep trying
-        // until we're convinced we've temporarily exhausted the pipe.
-        enum PipeState { RETRY, EXHAUSTED, CLOSED };
-        PipeState state = RETRY;
-        std::size_t committed(0);
-        do
-        {
-            // attempt to read an arbitrary size
-            mutable_buffer_sequence bufs = mStreambuf.prepare(4096);
-            // In general, the mutable_buffer_sequence returned by prepare() might
-            // contain a number of different physical buffers; iterate over those.
-            std::size_t tocommit(0);
-            for (auto bufi(boost::asio::buffer_sequence_begin(bufs)), bufend(boost::asio::buffer_sequence_end(bufs));
-                 bufi != bufend; ++bufi)
-            {
-                // http://www.boost.org/doc/libs/1_49_0_beta1/doc/html/boost_asio/reference/buffer.html#boost_asio.reference.buffer.accessing_buffer_contents
-                std::size_t toread(boost::asio::buffer_size(*bufi));
-                apr_size_t gotten(toread);
-                apr_status_t err = apr_file_read(mPipe,
-                                                 bufi->data(),
-                                                 &gotten);
-                // EAGAIN is exactly what we want from a nonblocking pipe.
-                // Rather than waiting for data, it should return immediately.
-                if (! (err == APR_SUCCESS || APR_STATUS_IS_EAGAIN(err)))
-                {
-                    // Handle EOF specially: it's part of normal-case processing.
-                    if (err == APR_EOF)
-                    {
-                        LL_DEBUGS("LLProcess") << "EOF on " << mDesc << LL_ENDL;
-                    }
-                    else
-                    {
-                        LL_WARNS("LLProcess") << "apr_file_read(" << toread << ") on " << mDesc
-                                              << " got " << err << ":" << LL_ENDL;
-                        ll_apr_warn_status(err);
-                    }
-                    // Either way, though, we won't need any more tick() calls.
-                    mConnection.disconnect();
-                    // Ignore any subsequent calls we might get anyway.
-                    mEOF = true;
-                    state = CLOSED; // also break outer retry loop
-                    break;
-                }
-
-                // 'gotten' was modified to reflect the number of bytes actually
-                // received. Make sure we commit those later. (Don't commit them
-                // now, that would invalidate the buffer iterator sequence!)
-                tocommit += gotten;
-                LL_DEBUGS("LLProcess") << "filled " << gotten << " of " << toread
-                                       << " bytes from " << mDesc << LL_ENDL;
-
-                // The parent end of this pipe is nonblocking. If we weren't even
-                // able to fill this buffer, don't loop to try to fill the next --
-                // that won't change until the child writes more. Wait for next
-                // tick().
-                if (gotten < toread)
-                {
-                    // break outer retry loop too
-                    state = EXHAUSTED;
-                    break;
-                }
-            }
-
-            // Don't forget to "commit" the data!
-            mStreambuf.commit(tocommit);
-            committed += tocommit;
-
-            // state is changed from RETRY when we can't fill any one buffer
-            // of the mutable_buffer_sequence established by the current
-            // prepare() call -- whether due to error or not enough bytes.
-            // That is, if state is still RETRY, we've filled every physical
-            // buffer in the mutable_buffer_sequence. In that case, for all we
-            // know, the child might have still more data pending -- go for it!
-        } while (state == RETRY);
-
-        // Once we recognize that the pipe is closed, make one more call to
-        // listener. The listener might be waiting for a particular substring
-        // to arrive, or a particular length of data or something. The event
-        // with "eof" == true announces that nothing further will arrive, so
-        // use it or lose it.
-        if (committed || state == CLOSED)
-        {
-            // If we actually received new data, publish it on our LLEventPump
-            // as advertised. Constrain it by mLimit. But show listener the
-            // actual accumulated buffer size, regardless of mLimit.
-            size_type datasize((std::min)(mLimit, size_type(mStreambuf.size())));
-            mPump.post(LLSDMap
-                       ("data", peek(0, datasize))
-                       ("len", LLSD::Integer(mStreambuf.size()))
-                       ("slot", LLSD::Integer(mIndex))
-                       ("name", whichfile(mIndex))
-                       ("desc", mDesc)
-                       ("eof", state == CLOSED)
-                       ("exhst", state == EXHAUSTED));
-        }
-
-        return false;
-    }
-
-private:
-    std::string mDesc;
-    apr_file_t* mPipe;
-    LLProcess::FILESLOT mIndex;
-    LLTempBoundListener mConnection;
-    boost::asio::streambuf mStreambuf;
-    std::istream mStream;
-    LLEventStream mPump;
-    size_type mLimit;
-    bool mEOF;
-};
-
-/*****************************************************************************
-*   LLProcess itself
-*****************************************************************************/
-/// Need an exception to avoid constructing an invalid LLProcess object, but
-/// internal use only
-struct LLProcessError: public LLException
-{
-    LLProcessError(const std::string& msg): LLException(msg) {}
-};
-
-LLProcessPtr LLProcess::create(const LLSDOrParams& params)
-{
-    try
-    {
-        return LLProcessPtr(new LLProcess(params));
-    }
-    catch (const LLProcessError& e)
-    {
-        LL_WARNS("LLProcess") << e.what() << LL_ENDL;
-
-        // If caller is requesting an event on process termination, send one
-        // indicating bad launch. This may prevent someone waiting forever for
-        // a termination post that can't arrive because the child never
-        // started.
-        if (params.postend.isProvided())
-        {
-            LLEventPumps::instance().obtain(params.postend)
-                .post(LLSDMap
-                      // no "id"
-                      ("desc", getDesc(params))
-                      ("state", LLProcess::UNSTARTED)
-                      // no "data"
-                      ("string", e.what())
-                     );
-        }
-
-        return LLProcessPtr();
-    }
-}
-
-/// Call an apr function returning apr_status_t. On failure, log warning and
-/// throw LLProcessError mentioning the function call that produced that
-/// result.
-#define chkapr(func)                            \
-    if (ll_apr_warn_status(func))               \
-        throw LLProcessError(#func " failed")
-
-LLProcess::LLProcess(const LLSDOrParams& params):
-    mAutokill(params.autokill),
-    // Because 'autokill' originally meant both 'autokill' and 'attached', to
-    // preserve existing semantics, we promise that mAttached defaults to the
-    // same setting as mAutokill.
-    mAttached(params.attached.isProvided()? params.attached : params.autokill),
-    mPool(NULL)
-{
-    mPipes.resize(NSLOTS);
-
-    if (! params.validateBlock(true))
-    {
-        LLTHROW(LLProcessError(STRINGIZE("not launched: failed parameter validation\n"
-                                         << LLSDNotationStreamer(params))));
-    }
-
-    mPostend = params.postend;
-
-    apr_pool_create(&mPool, gAPRPoolp);
-    if (!mPool)
-    {
-        LLTHROW(LLProcessError(STRINGIZE("failed to create apr pool")));
-    }
-
-    apr_procattr_t *procattr = NULL;
-    chkapr(apr_procattr_create(&procattr, mPool));
-
-    // IQA-490, CHOP-900: On Windows, ask APR to jump through hoops to
-    // constrain the set of handles passed to the child process. Before we
-    // changed to APR, the Windows implementation of LLProcessLauncher called
-    // CreateProcess(bInheritHandles=false), meaning to pass NO open handles
-    // to the child process. Now that we support pipes, though, we must allow
-    // apr_proc_create() to pass bInheritHandles=true. But without taking
-    // special pains, that causes trouble in a number of ways, due to the fact
-    // that the viewer is constantly opening and closing files -- most of
-    // which CreateProcess() passes to every child process!
-#if ! defined(APR_HAS_PROCATTR_CONSTRAIN_HANDLE_SET)
-    // Our special preprocessor symbol isn't even defined -- wrong APR
-    LL_WARNS("LLProcess") << "This version of APR lacks Linden "
-                          << "apr_procattr_constrain_handle_set() extension" << LL_ENDL;
-#else
-    chkapr(apr_procattr_constrain_handle_set(procattr, 1));
-#endif
-
-    // For which of stdin, stdout, stderr should we create a pipe to the
-    // child? In the viewer, there are only a couple viable
-    // apr_procattr_io_set() alternatives: inherit the viewer's own stdxxx
-    // handle (APR_NO_PIPE, e.g. for stdout, stderr), or create a pipe that's
-    // blocking on the child end but nonblocking at the viewer end
-    // (APR_CHILD_BLOCK).
-    // Other major options could include explicitly creating a single APR pipe
-    // and passing it as both stdout and stderr (apr_procattr_child_out_set(),
-    // apr_procattr_child_err_set()), or accepting a filename, opening it and
-    // passing that apr_file_t (simple <, >, 2> redirect emulation).
-    std::vector<apr_int32_t> select;
-    for (const FileParam& fparam : params.files)
-    {
-        // Every iteration, we're going to append an item to 'select'. At the
-        // top of the loop, its size() is, in effect, an index. Use that to
-        // pick a string description for messages.
-        std::string which(whichfile(FILESLOT(select.size())));
-        if (fparam.type().empty())  // inherit our file descriptor
-        {
-            select.push_back(APR_NO_PIPE);
-        }
-        else if (fparam.type() == "pipe") // anonymous pipe
-        {
-            if (! fparam.name().empty())
-            {
-                LL_WARNS("LLProcess") << "For " << params.executable()
-                                      << ": internal names for reusing pipes ('"
-                                      << fparam.name() << "' for " << which
-                                      << ") are not yet supported -- creating distinct pipe"
-                                      << LL_ENDL;
-            }
-            // The viewer can't block for anything: the parent end MUST be
-            // nonblocking. As the APR documentation itself points out, it
-            // makes very little sense to set nonblocking I/O for the child
-            // end of a pipe: only a specially-written child could deal with
-            // that.
-            select.push_back(APR_CHILD_BLOCK);
-        }
-        else
-        {
-            LLTHROW(LLProcessError(STRINGIZE("For " << params.executable()
-                                             << ": unsupported FileParam for " << which
-                                             << ": type='" << fparam.type()
-                                             << "', name='" << fparam.name() << "'")));
-        }
-    }
-    // By default, pass APR_NO_PIPE for unspecified slots.
-    while (select.size() < NSLOTS)
-    {
-        select.push_back(APR_NO_PIPE);
-    }
-    chkapr(apr_procattr_io_set(procattr, select[STDIN], select[STDOUT], select[STDERR]));
-
-    // Thumbs down on implicitly invoking the shell to invoke the child. From
-    // our point of view, the other major alternative to APR_PROGRAM_PATH
-    // would be APR_PROGRAM_ENV: still copy environment, but require full
-    // executable pathname. I don't see a downside to searching the PATH,
-    // though: if our caller wants (e.g.) a specific Python interpreter, s/he
-    // can still pass the full pathname.
-    chkapr(apr_procattr_cmdtype_set(procattr, APR_PROGRAM_PATH));
-    // YES, do extra work if necessary to report child exec() failures back to
-    // parent process.
-    chkapr(apr_procattr_error_check_set(procattr, 1));
-    // Do not start a non-autokill child in detached state. On Posix
-    // platforms, this setting attempts to daemonize the new child, closing
-    // std handles and the like, and that's a bit more detachment than we
-    // want. autokill=false just means not to implicitly kill the child when
-    // the parent terminates!
-//  chkapr(apr_procattr_detach_set(procattr, mAutokill? 0 : 1));
-
-    if (mAutokill)
-    {
-#if ! defined(APR_HAS_PROCATTR_AUTOKILL_SET)
-        // Our special preprocessor symbol isn't even defined -- wrong APR
-        LL_WARNS("LLProcess") << "This version of APR lacks Linden apr_procattr_autokill_set() extension" << LL_ENDL;
-#elif ! APR_HAS_PROCATTR_AUTOKILL_SET
-        // Symbol is defined, but to 0: expect apr_procattr_autokill_set() to
-        // return APR_ENOTIMPL.
-#else   // APR_HAS_PROCATTR_AUTOKILL_SET nonzero
-        ll_apr_warn_status(apr_procattr_autokill_set(procattr, 1));
-#endif
-    }
-
-    // In preparation for calling apr_proc_create(), we collect a number of
-    // const char* pointers obtained from std::string::c_str(). Turns out
-    // LLInitParam::Block's helpers Optional, Mandatory, Multiple et al.
-    // guarantee that converting to the wrapped type (std::string in our
-    // case), e.g. by calling operator(), returns a reference to *the same
-    // instance* of the wrapped type that's stored in our Block subclass.
-    // That's important! We know 'params' persists throughout this method
-    // call; but without that guarantee, when you see params.cwd().c_str(),
-    // grit your teeth and smile and carry on.
-
-    if (params.cwd.isProvided())
-    {
-        chkapr(apr_procattr_dir_set(procattr, params.cwd().c_str()));
-    }
-
-    // create an argv vector for the child process
-    std::vector<const char*> argv;
-
-    // Add the executable path. See above remarks about c_str().
-    argv.push_back(params.executable().c_str());
-
-    // Add arguments. See above remarks about c_str().
-    for (const std::string& arg : params.args)
-    {
-        argv.push_back(arg.c_str());
-    }
-
-    // terminate with a null pointer
-    argv.push_back(NULL);
-
-    // Launch! The NULL would be the environment block, if we were passing
-    // one. Hand-expand chkapr() macro so we can fill in the actual command
-    // string instead of the variable names.
-    if (ll_apr_warn_status(apr_proc_create(&mProcess, argv[0], &argv[0], NULL, procattr,
-                                           mPool)))
-    {
-        LLTHROW(LLProcessError(STRINGIZE(params << " failed")));
-    }
-
-    // arrange to call status_callback()
-    apr_proc_other_child_register(&mProcess, &LLProcess::status_callback, this, mProcess.in,
-                                  mPool);
-    // and make sure we poll it once per "mainloop" tick
-    sProcessListener.addPoll(*this);
-    mStatus.mState = RUNNING;
-
-    mDesc = STRINGIZE(getDesc(params) << " (" << mProcess.pid << ')');
-    LL_INFOS("LLProcess") << mDesc << ": launched " << params << LL_ENDL;
-
-    // Unless caller explicitly turned off autokill (child should persist),
-    // take steps to terminate the child. This is all suspenders-and-belt: in
-    // theory our destructor should kill an autokill child, but in practice
-    // that doesn't always work (e.g. VWR-21538).
-    if (mAutokill)
-    {
-/*==========================================================================*|
-        // NO: There may be an APR bug, not sure -- but at least on Mac, when
-        // gAPRPoolp is destroyed, OUR process receives SIGTERM! Apparently
-        // either our own PID is getting into the list of processes to kill()
-        // (unlikely), or somehow one of those PIDs is getting zeroed first,
-        // so that kill() sends SIGTERM to the whole process group -- this
-        // process included. I'd have to build and link with a debug version
-        // of APR to know for sure. It's too bad: this mechanism would be just
-        // right for dealing with static autokill LLProcessPtr variables,
-        // which aren't destroyed until after APR is no longer available.
-
-        // Tie the lifespan of this child process to the lifespan of our APR
-        // pool: on destruction of the pool, forcibly kill the process. Tell
-        // APR to try SIGTERM and suspend 3 seconds. If that didn't work, use
-        // SIGKILL.
-        apr_pool_note_subprocess(gAPRPoolp, &mProcess, APR_KILL_AFTER_TIMEOUT);
-|*==========================================================================*/
-
-        // On Windows, associate the new child process with our Job Object.
-        autokill();
-    }
-
-    // Instantiate the proper pipe I/O machinery
-    // want to be able to point to apr_proc_t::in, out, err by index
-    typedef apr_file_t* apr_proc_t::*apr_proc_file_ptr;
-    static apr_proc_file_ptr members[] =
-        { &apr_proc_t::in, &apr_proc_t::out, &apr_proc_t::err };
-    for (size_t i = 0; i < NSLOTS; ++i)
-    {
-        if (select[i] != APR_CHILD_BLOCK)
-            continue;
-        std::string desc(STRINGIZE(mDesc << ' ' << whichfile(FILESLOT(i))));
-        apr_file_t* pipe(mProcess.*(members[i]));
-        if (i == STDIN)
-        {
-            mPipes[i] = std::make_unique<WritePipeImpl>(desc, pipe);
-        }
-        else
-        {
-            mPipes[i] = std::make_unique<ReadPipeImpl>(desc, pipe, FILESLOT(i));
-        }
-        // Removed temporaily for Xcode 7 build tests: error was:
-        // "error: expression with side effects will be evaluated despite
-        // being used as an operand to 'typeid' [-Werror,-Wpotentially-evaluated-expression]""
-        //LL_DEBUGS("LLProcess") << "Instantiating " << typeid(mPipes[i]).name()
-        //                     << "('" << desc << "')" << LL_ENDL;
-    }
-}
-
-// Helper to obtain a description string, given a Params block
-static std::string getDesc(const LLProcess::Params& params)
-{
-    // If caller specified a description string, by all means use it.
-    if (params.desc.isProvided())
-        return params.desc;
-
-    // Caller didn't say. Use the executable name -- but use just the filename
-    // part. On Mac, for instance, full pathnames get cumbersome.
-    return LLProcess::basename(params.executable);
-}
-
-//static
-std::string LLProcess::basename(const std::string& path)
-{
-    // If there are Linden utility functions to manipulate pathnames, I
-    // haven't found them -- and for this usage, Boost.Filesystem seems kind
-    // of heavyweight.
-    std::string::size_type delim = path.find_last_of("\\/");
-    // If path contains no pathname delimiters, return the whole thing.
-    if (delim == std::string::npos)
-        return path;
-
-    // Return just the part beyond the last delimiter.
-    return path.substr(delim + 1);
-}
-
-LLProcess::~LLProcess()
-{
-    // In the Linden viewer, there's at least one static LLProcessPtr. Its
-    // destructor will be called *after* ll_cleanup_apr(). In such a case,
-    // unregistering is pointless (and fatal!) -- and kill(), which also
-    // relies on APR, is impossible.
-    if (! gAPRPoolp)
-        return;
-
-    // Only in state RUNNING are we registered for callback. In UNSTARTED we
-    // haven't yet registered. And since receiving the callback is the only
-    // way we detect child termination, we only change from state RUNNING at
-    // the same time we unregister.
-    if (mStatus.mState == RUNNING)
-    {
-        // We're still registered for a callback: unregister. Do it before
-        // we even issue the kill(): even if kill() somehow prompted an
-        // instantaneous callback (unlikely), this object is going away! Any
-        // information updated in this object by such a callback is no longer
-        // available to any consumer anyway.
-        apr_proc_other_child_unregister(this);
-        // One less LLProcess to poll for
-        sProcessListener.dropPoll(*this);
-    }
-
-    if (mAttached)
-    {
-        kill("destructor");
-    }
-
-    if (mPool)
-    {
-        apr_pool_destroy(mPool);
-        mPool = NULL;
-    }
-}
-
-bool LLProcess::kill(const std::string& who)
-{
-    if (isRunning())
-    {
-        LL_INFOS("LLProcess") << who << " killing " << mDesc << LL_ENDL;
-
-#if LL_WINDOWS
-        int sig = -1;
-#else  // Posix
-        int sig = SIGTERM;
-#endif
-
-        ll_apr_warn_status(apr_proc_kill(&mProcess, sig));
-    }
-
-    return ! isRunning();
-}
-
-//static
-bool LLProcess::kill(const LLProcessPtr& p, const std::string& who)
-{
-    if (! p)
-        return true;                // process dead! (was never running)
-    return p->kill(who);
-}
-
-bool LLProcess::isRunning() const
-{
-    return getStatus().mState == RUNNING;
-}
-
-//static
-bool LLProcess::isRunning(const LLProcessPtr& p)
-{
-    if (! p)
-        return false;
-    return p->isRunning();
-}
-
-LLProcess::Status LLProcess::getStatus() const
-{
-    return mStatus;
-}
-
-//static
-LLProcess::Status LLProcess::getStatus(const LLProcessPtr& p)
-{
-    if (! p)
-    {
-        // default-constructed Status has mState == UNSTARTED
-        return Status();
-    }
-    return p->getStatus();
-}
-
-std::string LLProcess::getStatusString() const
-{
-    return getStatusString(getStatus());
-}
-
-std::string LLProcess::getStatusString(const Status& status) const
-{
-    return getStatusString(mDesc, status);
-}
-
-//static
-std::string LLProcess::getStatusString(const std::string& desc, const LLProcessPtr& p)
-{
-    if (! p)
-    {
-        // default-constructed Status has mState == UNSTARTED
-        return getStatusString(desc, Status());
-    }
-    return desc + " " + p->getStatusString();
-}
-
-//static
-std::string LLProcess::getStatusString(const std::string& desc, const Status& status)
-{
-    if (status.mState == UNSTARTED)
-        return desc + " was never launched";
-
-    if (status.mState == RUNNING)
-        return desc + " running";
-
-    if (status.mState == EXITED)
-        return STRINGIZE(desc << " exited with code " << status.mData);
-
-    if (status.mState == KILLED)
-#if LL_WINDOWS
-        return STRINGIZE(desc << " killed with exception " << std::hex << status.mData);
-#else
-        return STRINGIZE(desc << " killed by signal " << status.mData
-                         << " (" << apr_signal_description_get(status.mData) << ")");
-#endif
-
-    return STRINGIZE(desc << " in unknown state " << status.mState << " (" << status.mData << ")");
-}
-
-// Classic-C-style APR callback
-void LLProcess::status_callback(int reason, void* data, int status)
-{
-    // Our only role is to bounce this static method call back into object
-    // space.
-    static_cast<LLProcess*>(data)->handle_status(reason, status);
-}
-
-#define tabent(symbol) { symbol, #symbol }
-static struct ReasonCode
-{
-    int code;
-    const char* name;
-} reasons[] =
-{
-    tabent(APR_OC_REASON_DEATH),
-    tabent(APR_OC_REASON_UNWRITABLE),
-    tabent(APR_OC_REASON_RESTART),
-    tabent(APR_OC_REASON_UNREGISTER),
-    tabent(APR_OC_REASON_LOST),
-    tabent(APR_OC_REASON_RUNNING)
-};
-#undef tabent
-
-// Object-oriented callback
-void LLProcess::handle_status(int reason, int status)
-{
-    {
-        // This odd appearance of LL_DEBUGS is just to bracket a lookup that will
-        // only be performed if in fact we're going to produce the log message.
-        LL_DEBUGS("LLProcess") << empty;
-        std::string reason_str;
-        for (const ReasonCode& rcp : reasons)
-        {
-            if (reason == rcp.code)
-            {
-                reason_str = rcp.name;
-                break;
-            }
-        }
-        if (reason_str.empty())
-        {
-            reason_str = STRINGIZE("unknown reason " << reason);
-        }
-        LL_CONT << mDesc << ": handle_status(" << reason_str << ", " << status << ")" << LL_ENDL;
-    }
-
-    if (! (reason == APR_OC_REASON_DEATH || reason == APR_OC_REASON_LOST))
-    {
-        // We're only interested in the call when the child terminates.
-        return;
-    }
-
-    // Somewhat oddly, APR requires that you explicitly unregister even when
-    // it already knows the child has terminated. We must pass the same 'data'
-    // pointer as for the register() call, which was our 'this'.
-    apr_proc_other_child_unregister(this);
-    // don't keep polling for a terminated process
-    sProcessListener.dropPoll(*this);
-    // We overload mStatus.mState to indicate whether the child is registered
-    // for APR callback: only RUNNING means registered. Track that we've
-    // unregistered. We know the child has terminated; might be EXITED or
-    // KILLED; refine below.
-    mStatus.mState = EXITED;
-
-    // Make last-gasp calls for each of the ReadPipes we have on hand. Since
-    // they're listening on "mainloop", we can be sure they'll eventually
-    // collect all pending data from the child. But we want to be able to
-    // guarantee to our consumer that by the time we post on the "postend"
-    // LLEventPump, our ReadPipes are already buffering all the data there
-    // will ever be from the child. That lets the "postend" listener decide
-    // what to do with that final data.
-    for (size_t i = 0; i < mPipes.size(); ++i)
-    {
-        std::string error;
-        ReadPipeImpl* ppipe = getPipePtr<ReadPipeImpl>(error, FILESLOT(i));
-        if (ppipe)
-        {
-            static LLSD trivial;
-            ppipe->tick(trivial);
-        }
-    }
-
-//  wi->rv = apr_proc_wait(wi->child, &wi->rc, &wi->why, APR_NOWAIT);
-    // It's just wrong to call apr_proc_wait() here. The only way APR knows to
-    // call us with APR_OC_REASON_DEATH is that it's already reaped this child
-    // process, so calling wait() will only produce "huh?" from the OS. We
-    // must rely on the status param passed in, which unfortunately comes
-    // straight from the OS wait() call, which means we have to decode it by
-    // hand.
-    mStatus = interpret_status(status);
-    LL_INFOS("LLProcess") << getStatusString() << LL_ENDL;
-
-    // If caller requested notification on child termination, send it.
-    if (! mPostend.empty())
-    {
-        LLEventPumps::instance().obtain(mPostend)
-            .post(LLSDMap
-                  ("id",     getProcessID())
-                  ("desc",   mDesc)
-                  ("state",  mStatus.mState)
-                  ("data",   mStatus.mData)
-                  ("string", getStatusString())
-                 );
-    }
-}
-
-LLProcess::id LLProcess::getProcessID() const
-{
-    return mProcess.pid;
-}
-
-LLProcess::handle LLProcess::getProcessHandle() const
-{
-#if LL_WINDOWS
-    return mProcess.hproc;
-#else
-    return mProcess.pid;
-#endif
-}
-
-std::string LLProcess::getPipeName(FILESLOT) const
-{
-    // LLProcess::FileParam::type "npipe" is not yet implemented
-    return "";
-}
-
-template<class PIPETYPE>
-PIPETYPE* LLProcess::getPipePtr(std::string& error, FILESLOT slot)
-{
-    if (slot >= NSLOTS)
-    {
-        error = STRINGIZE(mDesc << " has no slot " << slot);
-        return NULL;
-    }
-    if (!mPipes[slot])
-    {
-        error = STRINGIZE(mDesc << ' ' << whichfile(slot) << " not a monitored pipe");
-        return NULL;
-    }
-    // Make sure we dynamic_cast in pointer domain so we can test, rather than
-    // accepting runtime's exception.
-    PIPETYPE* ppipe = dynamic_cast<PIPETYPE*>(mPipes[slot].get());
-    if (! ppipe)
-    {
-        error = STRINGIZE(mDesc << ' ' << whichfile(slot) << " not a " << typeid(PIPETYPE).name());
-        return NULL;
-    }
-
-    error.clear();
-    return ppipe;
-}
-
-template <class PIPETYPE>
-PIPETYPE& LLProcess::getPipe(FILESLOT slot)
-{
-    std::string error;
-    PIPETYPE* wp = getPipePtr<PIPETYPE>(error, slot);
-    if (! wp)
-    {
-        LLTHROW(NoPipe(error));
-    }
-    return *wp;
-}
-
-template <class PIPETYPE>
-boost::optional<PIPETYPE&> LLProcess::getOptPipe(FILESLOT slot)
-{
-    std::string error;
-    PIPETYPE* wp = getPipePtr<PIPETYPE>(error, slot);
-    if (! wp)
-    {
-        LL_DEBUGS("LLProcess") << error << LL_ENDL;
-        return boost::optional<PIPETYPE&>();
-    }
-    return *wp;
-}
-
-LLProcess::WritePipe& LLProcess::getWritePipe(FILESLOT slot)
-{
-    return getPipe<WritePipe>(slot);
-}
-
-boost::optional<LLProcess::WritePipe&> LLProcess::getOptWritePipe(FILESLOT slot)
-{
-    return getOptPipe<WritePipe>(slot);
-}
-
-LLProcess::ReadPipe& LLProcess::getReadPipe(FILESLOT slot)
-{
-    return getPipe<ReadPipe>(slot);
-}
-
-boost::optional<LLProcess::ReadPipe&> LLProcess::getOptReadPipe(FILESLOT slot)
-{
-    return getOptPipe<ReadPipe>(slot);
-}
-
-//static
-std::string LLProcess::getline(std::istream& in)
-{
-    std::string line;
-    std::getline(in, line);
-    // Blur the distinction between "\r\n" and plain "\n". std::getline() will
-    // have eaten the "\n", but we could still end up with a trailing "\r".
-    std::string::size_type lastpos = line.find_last_not_of("\r");
-    if (lastpos != std::string::npos)
-    {
-        // Found at least one character that's not a trailing '\r'. SKIP OVER
-        // IT and erase the rest of the line.
-        line.erase(lastpos+1);
-    }
-    return line;
-}
-
 std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
 {
     if (params.cwd.isProvided())
@@ -1145,18 +158,1001 @@ std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
     }
     return out;
 }
+/*****************************************************************************
+*   Helper classes for pipe I/O
+*****************************************************************************/
+
+class WritePipeImpl : public LLProcess::WritePipe
+{
+    LOG_CLASS(WritePipeImpl);
+public:
+    WritePipeImpl(const std::string& desc,
+        std::shared_ptr<bp::async_pipe> pipe) :
+        mDesc(desc),
+        mPipe(pipe),
+        mStream(&mStreambuf),
+        mWritePending(false)
+    {
+        // Start async write monitoring
+        startAsyncWrite();
+    }
+
+    virtual ~WritePipeImpl() = default;
+
+    virtual std::ostream& get_ostream() override { return mStream; }
+
+    virtual size_type size() const override
+    {
+        return mStreambuf.size();
+    }
+
+    void tick()
+    {
+        // Don't start a new write if one is already pending
+        if (mWritePending || !mPipe || !mPipe->is_open() || mStreambuf.size() == 0)
+            return;
+
+        mWritePending = true;
+
+        // Write buffered data asynchronously
+        asio::async_write(*mPipe, mStreambuf.data(),
+            [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
+        {
+            mWritePending = false;
+
+            if (!ec)
+            {
+                mStreambuf.consume(bytes_transferred);
+                LL_DEBUGS("LLProcess") << "Wrote " << bytes_transferred
+                    << " bytes to " << mDesc << LL_ENDL;
+            }
+            else if (ec != asio::error::operation_aborted)
+            {
+                LL_WARNS("LLProcess") << "Write error on " << mDesc
+                    << ": " << ec.message() << LL_ENDL;
+            }
+        });
+    }
+
+private:
+    void startAsyncWrite()
+    {
+        if (!mPipe || !mPipe->is_open() || mStreambuf.size() == 0)
+            return;
+
+        // Write buffered data asynchronously
+        asio::async_write(*mPipe, mStreambuf.data(),
+            [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
+        {
+            if (!ec)
+            {
+                mStreambuf.consume(bytes_transferred);
+                LL_DEBUGS("LLProcess") << "Wrote " << bytes_transferred
+                    << " bytes to " << mDesc << LL_ENDL;
+                // Continue writing if there's more data
+                startAsyncWrite();
+            }
+            else if (ec != asio::error::operation_aborted)
+            {
+                LL_WARNS("LLProcess") << "Write error on " << mDesc
+                    << ": " << ec.message() << LL_ENDL;
+            }
+        });
+    }
+
+    std::string mDesc;
+    std::shared_ptr<bp::async_pipe> mPipe;
+    asio::streambuf mStreambuf;
+    std::ostream mStream;
+    bool mWritePending;
+};
+
+class ReadPipeImpl : public LLProcess::ReadPipe
+{
+    LOG_CLASS(ReadPipeImpl);
+public:
+    ReadPipeImpl(const std::string& desc,
+        std::shared_ptr<bp::async_pipe> pipe,
+        LLProcess::FILESLOT slot) :
+        mDesc(desc),
+        mPipe(pipe),
+        mSlot(slot),
+        mStream(&mStreambuf),
+        mPump("ReadPipe", true),   // tweak name as needed to avoid collisions, use LLEventPump::inventName?
+        mLimit(0),
+        mEOF(false)
+    {
+        // Start async read
+        startAsyncRead();
+    }
+
+    virtual ~ReadPipeImpl()
+    {
+        if (mPipe && mPipe->is_open())
+        {
+            boost::system::error_code ec;
+            mPipe->close(ec);
+        }
+    }
+
+    virtual std::istream& get_istream() override { return mStream; }
+
+    virtual std::string getline() override
+    {
+        return LLProcess::getline(mStream);
+    }
+
+    virtual LLEventPump& getPump() override { return mPump; }
+
+    virtual void setLimit(size_type limit) override { mLimit = limit; }
+
+    virtual size_type getLimit() const override { return mLimit; }
+
+    virtual size_type size() const override { return mStreambuf.size(); }
+
+    virtual std::string read(size_type len) override
+    {
+        size_type readlen = (std::min)(size(), len);
+        if (!readlen)
+            return "";
+
+        std::vector<char> buffer(readlen);
+        mStream.read(&buffer[0], readlen);
+        return std::string(&buffer[0], mStream.gcount());
+    }
+
+    virtual std::string peek(size_type offset = 0, size_type len = npos) const override
+    {
+        std::size_t real_offset = (std::min)(mStreambuf.size(), std::size_t(offset));
+        size_type want_end = (len == npos) ? npos : (real_offset + len);
+        std::size_t real_end = (std::min)(mStreambuf.size(), std::size_t(want_end));
+
+        auto cbufs = mStreambuf.data();
+        return std::string(asio::buffers_begin(cbufs) + real_offset,
+            asio::buffers_begin(cbufs) + real_end);
+    }
+
+    virtual size_type find(const std::string& seek, size_type offset = 0) const override
+    {
+        if (seek.length() == 1)
+            return find(seek[0], offset);
+
+        if (offset > mStreambuf.size())
+            return npos;
+
+        auto cbufs = mStreambuf.data();
+        auto begin = asio::buffers_begin(cbufs);
+        auto end = asio::buffers_end(cbufs);
+        auto found = std::search(begin + offset, end, seek.begin(), seek.end());
+        return (found == end) ? npos : (found - begin);
+    }
+
+    virtual size_type find(char seek, size_type offset = 0) const override
+    {
+        if (offset > mStreambuf.size())
+            return npos;
+
+        auto cbufs = mStreambuf.data();
+        auto begin = asio::buffers_begin(cbufs);
+        auto end = asio::buffers_end(cbufs);
+        auto found = std::find(begin + offset, end, seek);
+        return (found == end) ? npos : (found - begin);
+    }
+
+private:
+    void startAsyncRead()
+    {
+        if (!mPipe || !mPipe->is_open() || mEOF)
+            return;
+
+        size_type to_read = (mLimit > 0 && mStreambuf.size() >= mLimit) ? 0 : 4096;
+        if (to_read == 0)
+            return;
+
+        auto bufs = mStreambuf.prepare(to_read);
+
+        mPipe->async_read_some(bufs,
+            [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
+        {
+            if (!ec)
+            {
+                mStreambuf.commit(bytes_transferred);
+                LL_DEBUGS("LLProcess") << "Read " << bytes_transferred
+                    << " bytes from " << mDesc << LL_ENDL;
+
+                LLSD event;
+                event["len"] = LLSD::Integer(mStreambuf.size());
+                event["slot"] = LLSD::Integer(mSlot);
+                event["desc"] = mDesc;
+
+                if (mLimit > 0)
+                {
+                    size_type data_len = (std::min)(mStreambuf.size(), mLimit);
+                    event["data"] = peek(0, data_len);
+                }
+
+                mPump.post(event);
+                startAsyncRead();
+            }
+            else if (ec == asio::error::eof)
+            {
+                if (bytes_transferred > 0)
+                {
+                    mStreambuf.commit(bytes_transferred);
+
+                    LLSD event;
+                    event["len"] = LLSD::Integer(mStreambuf.size());
+                    event["slot"] = LLSD::Integer(mSlot);
+                    event["desc"] = mDesc;
+
+                    if (mLimit > 0)
+                    {
+                        size_type data_len = (std::min)(mStreambuf.size(), mLimit);
+                        event["data"] = peek(0, data_len);
+                    }
+
+                    mPump.post(event);
+                }
+
+                mEOF = true;
+                LL_DEBUGS("LLProcess") << "EOF on " << mDesc << LL_ENDL;
+
+                LLSD eof_event;
+                eof_event["eof"] = true;
+                eof_event["slot"] = LLSD::Integer(mSlot);
+                eof_event["desc"] = mDesc;
+                mPump.post(eof_event);
+            }
+            else if (ec != asio::error::operation_aborted)
+            {
+                LL_WARNS("LLProcess") << "Read error on " << mDesc
+                    << ": " << ec.message() << LL_ENDL;
+            }
+        });
+    }
+
+    std::string mDesc;
+    std::shared_ptr<bp::async_pipe> mPipe;
+    LLProcess::FILESLOT mSlot;
+    mutable asio::streambuf mStreambuf;
+    std::istream mStream;
+    LLEventStream mPump; //  pump specific to this pipe
+    size_type mLimit;
+    bool mEOF;
+};
+
+/*****************************************************************************
+*   LLProcess implementation
+*****************************************************************************/
+
+const LLProcess::BasePipe::size_type LLProcess::BasePipe::npos =
+static_cast<LLProcess::BasePipe::size_type>(-1);
+
+LLProcess::LLProcess(const Params& params) :
+    mStatus(),
+    mDesc(params.desc.isProvided() ? params.desc() : basename(params.executable())),
+    mPostend(params.postend.isProvided() ? params.postend() : ""),
+    mAutokill(params.autokill),
+    mAttached(params.attached)
+{
+    launch(params);
+}
+
+LLProcess::~LLProcess()
+{
+    if (mChild && mChild->running())
+    {
+        if (mAttached && mAutokill)
+        {
+            LL_INFOS("LLProcess") << "Terminating child process " << mDesc << LL_ENDL;
+            std::error_code ec;
+            mChild->terminate(ec);
+
+#if !LL_WINDOWS
+            // On POSIX, terminate() sends SIGTERM which allows graceful shutdown
+            // Give the process some time to terminate gracefully
+            for (int i = 0; i < 30 && mChild->running(); ++i)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+
+            // Force kill if still running
+            if (mChild->running())
+            {
+                LL_WARNS("LLProcess") << "Force killing " << mDesc << LL_ENDL;
+                (void)::kill(mChild->id(), SIGKILL);
+            }
+#else
+            // On Windows, terminate() already does an immediate hard kill via TerminateProcess()
+            // Wait briefly to ensure termination completes
+            WaitForSingleObject(mChild->native_handle(), 100);
+#endif
+        }
+        else
+        {
+            LL_INFOS("LLProcess") << "Not terminating " << mDesc
+                << " (attached=" << mAttached
+                << ", autokill=" << mAutokill << ")" << LL_ENDL;
+        }
+    }
+
+    if (mMainloopConnection.connected())
+    {
+        mMainloopConnection.disconnect();
+    }
+}
+
+//static
+LLProcessPtr LLProcess::create(const LLSDOrParams& params)
+{
+    try
+    {
+        return std::make_shared<LLProcess>(params);
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS("LLProcess") << "Failed to create process: " << e.what() << LL_ENDL;
+        return LLProcessPtr();
+    }
+}
+
+void LLProcess::launch(const Params& params)
+{
+    // Validate FileParam types before attempting to launch
+    int file_idx = 0;
+    for (const auto& fparam : params.files)
+    {
+        if (fparam.type.isProvided())
+        {
+            const std::string& type = fparam.type();
+            // Only "" (inherit) and "pipe" are supported
+            if (!type.empty() && type != "pipe")
+            {
+                std::string slotname;
+                switch (file_idx)
+                {
+                case STDIN: slotname = "stdin"; break;
+                case STDOUT: slotname = "stdout"; break;
+                case STDERR: slotname = "stderr"; break;
+                default: slotname = STRINGIZE("file slot " << file_idx); break;
+                }
+
+                LL_WARNS("LLProcess") << "For " << params.executable()
+                    << ": unsupported FileParam for " << slotname
+                    << ": type='" << type << "'";
+
+                if (fparam.name.isProvided())
+                {
+                    LL_CONT << ", name='" << fparam.name() << "'";
+                }
+
+                LL_CONT << LL_ENDL;
+
+                throw std::runtime_error(
+                    STRINGIZE("unsupported FileParam type '" << type
+                        << "' for " << slotname));
+            }
+
+            // Warn about internal pipe names (not yet supported)
+            if (type == "pipe" && fparam.name.isProvided() && !fparam.name().empty())
+            {
+                LL_WARNS("LLProcess") << "Internal pipe name '" << fparam.name()
+                    << "' not yet supported; ignoring" << LL_ENDL;
+            }
+        }
+        file_idx++;
+    }
+
+    // Build arguments vector
+    std::vector<std::string> args;
+    for (const auto& arg : params.args)
+    {
+        args.push_back(arg);
+    }
+
+    // Determine pipe configuration
+    bool use_stdin_pipe = false;
+    bool use_stdout_pipe = false;
+    bool use_stderr_pipe = false;
+
+    file_idx = 0;
+    for (const auto& fparam : params.files)
+    {
+        if (fparam.type.isProvided() && fparam.type() == "pipe")
+        {
+            switch (file_idx)
+            {
+            case STDIN: use_stdin_pipe = true; break;
+            case STDOUT: use_stdout_pipe = true; break;
+            case STDERR: use_stderr_pipe = true; break;
+            }
+        }
+        file_idx++;
+    }
+
+    // Create pipes if needed
+    if (use_stdin_pipe)
+    {
+        mStdinPipe = std::make_unique<bp::async_pipe>(mIOContext);
+        LL_DEBUGS("LLProcess") << "Created stdin pipe for " << mDesc << LL_ENDL;
+    }
+    if (use_stdout_pipe)
+    {
+        mStdoutPipe = std::make_unique<bp::async_pipe>(mIOContext);
+        LL_DEBUGS("LLProcess") << "Created stdout pipe for " << mDesc << LL_ENDL;
+    }
+    if (use_stderr_pipe)
+    {
+        mStderrPipe = std::make_unique<bp::async_pipe>(mIOContext);
+        LL_DEBUGS("LLProcess") << "Created stderr pipe for " << mDesc << LL_ENDL;
+    }
+
+    // Build the process
+    try
+    {
+        std::error_code ec;
+
+        // Create child process with appropriate redirections
+        if (use_stdin_pipe && use_stdout_pipe && use_stderr_pipe)
+        {
+            if (params.cwd.isProvided())
+            {
+                mChild = std::make_unique<bp::child>(
+                    params.executable(),
+                    bp::args(args),
+                    bp::std_in < *mStdinPipe,
+                    bp::std_out > *mStdoutPipe,
+                    bp::std_err > *mStderrPipe,
+                    bp::start_dir(params.cwd()),
+                    mIOContext,
+                    ec
+                );
+            }
+            else
+            {
+                mChild = std::make_unique<bp::child>(
+                    params.executable(),
+                    bp::args(args),
+                    bp::std_in < *mStdinPipe,
+                    bp::std_out > *mStdoutPipe,
+                    bp::std_err > *mStderrPipe,
+                    mIOContext,
+                    ec
+                );
+            }
+        }
+        else if (use_stdout_pipe && use_stderr_pipe)
+        {
+            if (params.cwd.isProvided())
+            {
+                mChild = std::make_unique<bp::child>(
+                    params.executable(),
+                    bp::args(args),
+                    bp::std_out > *mStdoutPipe,
+                    bp::std_err > *mStderrPipe,
+                    bp::start_dir(params.cwd()),
+                    mIOContext,
+                    ec
+                );
+            }
+            else
+            {
+                mChild = std::make_unique<bp::child>(
+                    params.executable(),
+                    bp::args(args),
+                    bp::std_out > *mStdoutPipe,
+                    bp::std_err > *mStderrPipe,
+                    mIOContext,
+                    ec
+                );
+            }
+        }
+        else if (use_stdout_pipe)
+        {
+            if (params.cwd.isProvided())
+            {
+                mChild = std::make_unique<bp::child>(
+                    params.executable(),
+                    bp::args(args),
+                    bp::std_out > *mStdoutPipe,
+                    bp::start_dir(params.cwd()),
+                    mIOContext,
+                    ec
+                );
+            }
+            else
+            {
+                mChild = std::make_unique<bp::child>(
+                    params.executable(),
+                    bp::args(args),
+                    bp::std_out > *mStdoutPipe,
+                    mIOContext,
+                    ec
+                );
+            }
+        }
+        else
+        {
+            if (params.cwd.isProvided())
+            {
+                mChild = std::make_unique<bp::child>(
+                    params.executable(),
+                    bp::args(args),
+                    bp::start_dir(params.cwd()),
+                    mIOContext,
+                    ec
+                );
+            }
+            else
+            {
+                mChild = std::make_unique<bp::child>(
+                    params.executable(),
+                    bp::args(args),
+                    mIOContext,
+                    ec
+                );
+            }
+        }
+
+        if (ec)
+        {
+            throw std::runtime_error(STRINGIZE("failed to launch " << params.executable()
+                << ": " << ec.message()));
+        }
+
+        mStatus.mState = RUNNING;
+
+        // Create pipe wrappers
+        if (mStdinPipe)
+        {
+            mWritePipe = std::make_unique<WritePipeImpl>(
+                STRINGIZE(mDesc << " stdin"),
+                std::shared_ptr<bp::async_pipe>(mStdinPipe.get(), [](auto*) {})
+            );
+        }
+        if (mStdoutPipe)
+        {
+            mStdoutReadPipe = std::make_unique<ReadPipeImpl>(
+                STRINGIZE(mDesc << " stdout"),
+                std::shared_ptr<bp::async_pipe>(mStdoutPipe.get(), [](auto*) {}),
+                STDOUT
+            );
+        }
+        if (mStderrPipe)
+        {
+            mStderrReadPipe = std::make_unique<ReadPipeImpl>(
+                STRINGIZE(mDesc << " stderr"),
+                std::shared_ptr<bp::async_pipe>(mStderrPipe.get(), [](auto*) {}),
+                STDERR
+            );
+        }
+
+        // Hook into mainloop for I/O processing
+        mMainloopConnection = LLEventPumps::instance().obtain("mainloop")
+            .listen(LLEventPump::inventName("LLProcess"),
+                [this](const LLSD&) { tick(); return false; });
+
+        LL_INFOS("LLProcess") << "Launched " << mDesc
+            << " (PID: " << mChild->id() << ")" << LL_ENDL;
+    }
+    catch (const std::exception& e)
+    {
+        throw std::runtime_error(STRINGIZE("failed to create process: " << e.what()));
+    }
+}
+
+void LLProcess::tick()
+{
+    // Poll I/O context to process async operations
+    while (mIOContext.poll_one() > 0)
+    {
+        // Keep polling until no more handlers are ready
+    }
+
+    if (auto* wp = dynamic_cast<WritePipeImpl*>(mWritePipe.get()))
+        wp->tick();
+
+#if LL_WINDOWS
+    // Check process status
+    if (mChild && !mChild->running())
+    {
+        WaitForSingleObject(mChild->native_handle(), 100);
+        int exit_code = mChild->exit_code();
+        handleExit(exit_code);
+    }
+#else
+    // Check process status using WNOHANG to avoid blocking or generating
+    // signals that interfere with other waitpid() callers.
+    if (mChild && mStatus.mState == RUNNING)
+    {
+        int status = 0;
+        pid_t result;
+        do {
+            result = ::waitpid(mChild->id(), &status, WNOHANG);
+        } while (result == -1 && errno == EINTR);
+
+        if (result == mChild->id())
+        {
+            // Child has exited; decode status manually
+            int exit_code = 0;
+            if (WIFEXITED(status))
+                exit_code = WEXITSTATUS(status);
+            handleExit(exit_code);
+        }
+        // result == 0 means still running; result == -1/ECHILD means already reaped
+    }
+#endif
+}
+
+void LLProcess::handleExit(int exit_code)
+{
+    if (mStatus.mState != RUNNING)
+        return; // Already handled
+
+    // Before handling exit, drain any remaining data from pipes
+    // This is important because the child might have written data just before exiting
+    for (int i = 0; i < 10; ++i)
+    {
+        if (mIOContext.poll_one() == 0)
+            break; // No more work to do
+    }
+
+#if LL_WINDOWS
+    // On Windows, all terminations result in EXITED state
+    mStatus.mState = EXITED;
+    mStatus.mData = exit_code;
+#else
+    // On POSIX, need to check if process was signaled
+    int status;
+    pid_t result = waitpid(mChild->id(), &status, WNOHANG);
+
+    if (result == mChild->id())
+    {
+        if (WIFEXITED(status))
+        {
+            mStatus.mState = EXITED;
+            mStatus.mData = WEXITSTATUS(status);
+        }
+        else if (WIFSIGNALED(status))
+        {
+            mStatus.mState = KILLED;
+            mStatus.mData = WTERMSIG(status);
+        }
+        else
+        {
+            // Shouldn't happen, but treat as exit
+            mStatus.mState = EXITED;
+            mStatus.mData = exit_code;
+        }
+    }
+    else
+    {
+        // Couldn't get detailed status, use what boost::process gives us
+        mStatus.mState = EXITED;
+        mStatus.mData = exit_code;
+    }
+#endif
+
+    LL_INFOS("LLProcess") << mDesc << " exited with code " << exit_code << LL_ENDL;
+
+    // Post to event pump if configured
+    if (!mPostend.empty())
+    {
+        LLSD event;
+        event["id"] = static_cast<int>(getProcessID());
+        event["desc"] = mDesc;
+        event["state"] = mStatus.mState;
+        event["data"] = exit_code;
+        event["string"] = getStatusString(mStatus);
+
+        LLEventPumps::instance().obtain(mPostend).post(event);
+    }
+
+    // Disconnect from mainloop
+    if (mMainloopConnection.connected())
+    {
+        mMainloopConnection.disconnect();
+    }
+}
+
+bool LLProcess::isRunning() const
+{
+    return mChild && mChild->running();
+}
+
+//static
+bool LLProcess::isRunning(const LLProcessPtr& ptr)
+{
+    return ptr && ptr->isRunning();
+}
+
+LLProcess::Status LLProcess::getStatus() const
+{
+    return mStatus;
+}
+
+//static
+LLProcess::Status LLProcess::getStatus(const LLProcessPtr& ptr)
+{
+    if (!ptr)
+    {
+        Status status;
+        status.mState = UNSTARTED;
+        return status;
+    }
+    return ptr->getStatus();
+}
+
+std::string LLProcess::getStatusString() const
+{
+    return getStatusString(mDesc, mStatus);
+}
+
+//static
+std::string LLProcess::getStatusString(const std::string& desc, const LLProcessPtr& ptr)
+{
+    return getStatusString(desc, getStatus(ptr));
+}
+
+std::string LLProcess::getStatusString(const Status& status) const
+{
+    return getStatusString(mDesc, status);
+}
+
+//static
+std::string LLProcess::getStatusString(const std::string& desc, const Status& status)
+{
+    std::string result = desc + ": ";
+    switch (status.mState)
+    {
+    case UNSTARTED: return result + "not started";
+    case RUNNING: return result + "running";
+    case EXITED: return result + STRINGIZE("exited with code " << status.mData);
+    case KILLED: return result + STRINGIZE("killed by signal " << status.mData);
+    default: return result + "unknown state";
+    }
+}
+
+bool LLProcess::kill(const std::string& who)
+{
+    if (!mChild || !mChild->running())
+        return true;
+
+    LL_INFOS("LLProcess") << who << " killing " << mDesc << LL_ENDL;
+
+    std::error_code ec;
+    mChild->terminate(ec);
+
+    if (ec)
+    {
+        LL_WARNS("LLProcess") << "Failed to terminate " << mDesc
+            << ": " << ec.message() << LL_ENDL;
+        return false;
+    }
+
+    // Don't set status here - let handleExit() do it when the process actually terminates
+    // The state will be determined by how the process exited:
+    // - Windows: EXITED with exit code -1
+    // - POSIX: KILLED with signal SIGTERM (or SIGKILL)
+
+    return true;
+}
+
+//static
+bool LLProcess::kill(const LLProcessPtr& ptr, const std::string& who)
+{
+    return ptr && ptr->kill(who);
+}
+
+LLProcess::id LLProcess::getProcessID() const
+{
+    if (!mChild)
+        return 0;
+
+#if LL_WINDOWS
+    return static_cast<int>(mChild->id());
+#else
+    return mChild->id();
+#endif
+}
+
+LLProcess::handle LLProcess::getProcessHandle() const
+{
+    if (!mChild)
+        return 0;
+
+#if LL_WINDOWS
+    return mChild->native_handle();
+#else
+    return mChild->id();
+#endif
+}
+
+//static
+LLProcess::handle LLProcess::isRunning(handle h, const std::string& desc)
+{
+#if LL_WINDOWS
+    if (h == 0 || h == INVALID_HANDLE_VALUE)
+        return 0;
+
+    DWORD exit_code;
+    if (GetExitCodeProcess(h, &exit_code))
+    {
+        return (exit_code == STILL_ACTIVE) ? h : 0;
+    }
+    return 0;
+#else
+    if (h == 0)
+        return 0;
+
+    // Use waitpid with WNOHANG to check if process is still running
+    // This is more reliable than kill(pid, 0) and properly reaps zombies
+    int status;
+    pid_t result;
+
+    // Retry on EINTR (interrupted system call)
+    do
+    {
+        result = waitpid(h, &status, WNOHANG);
+    } while (result == -1 && errno == EINTR);
+
+    if (result == 0)
+    {
+        // Process still running
+        return h;
+    }
+    else if (result == h)
+    {
+        // Process has terminated (and we've reaped it)
+        return 0;
+    }
+    else if (result == -1)
+    {
+        // Error occurred
+        if (errno == ECHILD)
+        {
+            // Process doesn't exist or was already reaped
+            return 0;
+        }
+        // For other errors, assume process is gone
+        LL_WARNS("LLProcess") << "waitpid(" << h << ") failed: "
+            << strerror(errno) << LL_ENDL;
+        return 0;
+    }
+
+    // Shouldn't get here, but if we do, assume process is gone
+    return 0;
+#endif
+}
+
+std::string LLProcess::getPipeName(FILESLOT slot) const
+{
+    // Named pipes not yet implemented in this PoC
+    return "";
+}
+
+LLProcess::WritePipe& LLProcess::getWritePipe(FILESLOT slot)
+{
+    if (slot != STDIN)
+        throw NoPipe(STRINGIZE(mDesc << ": no slot " << slot));
+
+    if (!mWritePipe)
+        throw NoPipe(STRINGIZE(mDesc << ": stdin is not a monitored pipe"));
+
+    return *mWritePipe;
+}
+
+LLProcess::ReadPipe& LLProcess::getReadPipe(FILESLOT slot)
+{
+    if (slot >= NSLOTS)
+        throw NoPipe(STRINGIZE(mDesc << ": no slot " << slot));
+
+    if (slot == STDIN)
+        throw NoPipe(STRINGIZE(mDesc << ": ReadPipe is invalid for stdin"));
+
+    // At this point, slot must be STDOUT or STDERR
+    // Check if a pipe was configured for this slot
+    if (slot == STDOUT)
+    {
+        if (!mStdoutReadPipe)
+            throw NoPipe(STRINGIZE(mDesc << ": stdout is not a monitored pipe"));
+        return *mStdoutReadPipe;
+    }
+    else if (slot == STDERR)
+    {
+        if (!mStderrReadPipe)
+            throw NoPipe(STRINGIZE(mDesc << ": stderr is not a monitored pipe"));
+        return *mStderrReadPipe;
+    }
+    else
+    {
+        // This should never happen given the checks above, but handle it anyway
+        throw NoPipe(STRINGIZE(mDesc << ": no slot " << slot));
+    }
+}
+
+LLProcess::WritePipe* LLProcess::getOptWritePipe(FILESLOT slot)
+{
+    if (slot != STDIN)
+    {
+        LL_WARNS("LLProcess") << mDesc << ": no slot " << slot << LL_ENDL;
+        return nullptr;
+    }
+
+    if (!mWritePipe)
+    {
+        LL_WARNS("LLProcess") << mDesc << ": stdin is not a monitored pipe" << LL_ENDL;
+        return nullptr;
+    }
+
+    return mWritePipe.get();
+}
+
+LLProcess::ReadPipe* LLProcess::getOptReadPipe(FILESLOT slot)
+{
+    if (slot >= NSLOTS)
+    {
+        LL_WARNS("LLProcess") << mDesc << ": no slot " << slot << LL_ENDL;
+        return nullptr;
+    }
+
+    if (slot == STDIN)
+    {
+        LL_WARNS("LLProcess") << mDesc << ": ReadPipe is invalid for stdin" << LL_ENDL;
+        return nullptr;
+    }
+
+    if (slot == STDOUT)
+    {
+        if (!mStdoutReadPipe)
+        {
+            LL_WARNS("LLProcess") << mDesc << ": stdout is not a monitored pipe" << LL_ENDL;
+            return nullptr;
+        }
+        return mStdoutReadPipe.get();
+    }
+    else if (slot == STDERR)
+    {
+        if (!mStderrReadPipe)
+        {
+            LL_WARNS("LLProcess") << mDesc << ": stderr is not a monitored pipe" << LL_ENDL;
+            return nullptr;
+        }
+        return mStderrReadPipe.get();
+    }
+    else
+    {
+        LL_WARNS("LLProcess") << mDesc << ": no slot " << slot << LL_ENDL;
+        return nullptr;
+    }
+}
+
+//static
+std::string LLProcess::basename(const std::string& path)
+{
+    std::string::size_type delim = path.find_last_of("\\/");
+    if (delim == std::string::npos)
+        return path;
+    return path.substr(delim + 1);
+}
+
+//static
+std::string LLProcess::getline(std::istream& in)
+{
+    std::string line;
+    std::getline(in, line);
+    // Trim trailing \r for cross-platform compatibility
+    if (!line.empty() && line.back() == '\r')
+        line.pop_back();
+    return line;
+}
 
 /*****************************************************************************
 *   Windows specific
 *****************************************************************************/
 #if LL_WINDOWS
-
+/*
 static std::string WindowsErrorString(const std::string& operation);
-
-void LLProcess::autokill()
-{
-    // hopefully now handled by apr_procattr_autokill_set()
-}
 
 LLProcess::handle LLProcess::isRunning(handle h, const std::string& desc)
 {
@@ -1197,7 +1193,7 @@ static LLProcess::Status interpret_status(int status)
     // function (unfortunately static) called why_from_exit_code():
     /* See WinNT.h STATUS_ACCESS_VIOLATION and family for how
      * this class of failures was determined
-     */
+     * /
     if ((status & 0xFFFF0000) == 0xC0000000)
     {
         result.mState = LLProcess::KILLED;
@@ -1218,12 +1214,12 @@ static std::string WindowsErrorString(const std::string& operation)
     return STRINGIZE(operation << " failed (" << result << "): "
                      << windows_message<std::string>(result));
 }
-
+*/
 /*****************************************************************************
 *   Posix specific
 *****************************************************************************/
 #else // Mac and linux
-
+/*
 #include <signal.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -1342,6 +1338,6 @@ static LLProcess::Status interpret_status(int status)
     }
 
     return result;
-}
+}*/
 
 #endif  // Posix

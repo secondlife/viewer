@@ -60,6 +60,14 @@ if (WINDOWS)
         libboost_url-mt${addrsfx}
         PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
 
+    # Add Boost.Process library
+    find_library(BOOST_PROCESS_LIBRARY
+        NAMES
+        libboost_process
+        libboost_process-mt
+        libboost_process-mt${addrsfx}
+        PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
 else (WINDOWS)
 
     find_library(BOOST_CONTEXT_LIBRARY
@@ -104,6 +112,14 @@ else (WINDOWS)
         boost_url-mt${addrsfx}
         PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
 
+    # Add Boost.Process library
+    find_library(BOOST_PROCESS_LIBRARY
+        NAMES
+        boost_process
+        boost_process-mt
+        boost_process-mt${addrsfx}
+        PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
 endif (WINDOWS)
 
 target_link_libraries(ll::boost INTERFACE
@@ -112,7 +128,8 @@ target_link_libraries(ll::boost INTERFACE
     ${BOOST_FILESYSTEM_LIBRARY}
     ${BOOST_PROGRAMOPTIONS_LIBRARY}
     ${BOOST_THREAD_LIBRARY}
-    ${BOOST_URL_LIBRARY})
+    ${BOOST_URL_LIBRARY}
+    ${BOOST_PROCESS_LIBRARY})
 
 if (LINUX)
     target_link_libraries(ll::boost INTERFACE rt)
