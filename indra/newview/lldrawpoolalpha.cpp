@@ -209,14 +209,14 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         // attachment order with depth writes) with the distance-sorted alpha
         // groups, so world alpha composites correctly both in front of and
         // behind avatars.
-        forwardRender(false, true);
+        forwardRender(EAlphaStream::INTERLEAVED);
     }
     else
     {
         if (!LLPipeline::sRenderingHUDs)
         {
             // first pass, render rigged objects only and render to depth buffer
-            forwardRender(true);
+            forwardRender(EAlphaStream::RIGGED);
         }
 
         // second pass, regular forward alpha rendering
@@ -244,7 +244,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     }
 }
 
-void LLDrawPoolAlpha::forwardRender(bool rigged, bool merged)
+void LLDrawPoolAlpha::forwardRender(EAlphaStream stream)
 {
     gPipeline.enableLightsDynamic();
 
@@ -253,7 +253,7 @@ void LLDrawPoolAlpha::forwardRender(bool rigged, bool merged)
     //enable writing to alpha for emissive effects
     gGL.setColorMask(true, true);
 
-    bool write_depth = rigged ||
+    bool write_depth = stream == EAlphaStream::RIGGED ||
         LLDrawPoolWater::sSkipScreenCopy
         // we want depth written so that rendered alpha will
         // contribute to the alpha mask used for impostors
@@ -261,8 +261,8 @@ void LLDrawPoolAlpha::forwardRender(bool rigged, bool merged)
         || getType() == LLDrawPoolAlpha::POOL_ALPHA_PRE_WATER; // needed for accurate water fog
 
 
-    // in merged mode depth writes are decided per group inside renderAlpha
-    LLGLDepthTest depth(GL_TRUE, (write_depth && !merged) ? GL_TRUE : GL_FALSE);
+    // in interleaved mode depth writes are decided per group inside renderAlpha
+    LLGLDepthTest depth(GL_TRUE, (write_depth && stream != EAlphaStream::INTERLEAVED) ? GL_TRUE : GL_FALSE);
 
     mColorSFactor = LLRender::BF_SOURCE_ALPHA;           // } regular alpha blend
     mColorDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA; // }
@@ -270,10 +270,10 @@ void LLDrawPoolAlpha::forwardRender(bool rigged, bool merged)
     mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
     gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
 
-    if ((rigged || merged) && mType == LLDrawPool::POOL_ALPHA_POST_WATER)
+    if (stream != EAlphaStream::WORLD && mType == LLDrawPool::POOL_ALPHA_POST_WATER)
     { // draw GLTF scene to depth buffer before rigged alpha
-        // (explicit depth-write scope: in merged mode the pass-wide depth state
-        // above has writes off)
+        // (explicit depth-write scope: in interleaved mode the pass-wide depth
+        // state above has writes off)
         LLGLDepthTest gltf_depth(GL_TRUE, GL_TRUE);
         LL::GLTFSceneManager::instance().render(false, false);
         LL::GLTFSceneManager::instance().render(false, true);
@@ -283,11 +283,11 @@ void LLDrawPoolAlpha::forwardRender(bool rigged, bool merged)
 
     // If the face is more than 90% transparent, then don't update the Depth buffer for Dof
     // We don't want the nearly invisible objects to cause of DoF effects
-    renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, false, rigged, merged);
+    renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, false, stream);
 
     gGL.setColorMask(true, false);
 
-    if ((!rigged || merged) && (LLPipeline::sRenderingHUDs || getType() == LLDrawPoolAlpha::POOL_ALPHA_POST_WATER))
+    if (stream != EAlphaStream::RIGGED && (LLPipeline::sRenderingHUDs || getType() == LLDrawPoolAlpha::POOL_ALPHA_POST_WATER))
     { //render "highlight alpha" on final non-rigged pass for non-HUDs (HUDs only run pre-water alpha pass)
         // NOTE -- hacky call here protected by !rigged instead of alongside "forwardRender"
         // so renderDebugAlpha is executed while gls_pipeline_alpha and depth GL state
@@ -581,9 +581,13 @@ void LLDrawPoolAlpha::renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissiv
     }
 }
 
-void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged, bool merged)
+void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, EAlphaStream stream)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    const bool merged = stream == EAlphaStream::INTERLEAVED;
+    // stream of the current group; flips per group in the interleaved walk
+    bool rigged = stream == EAlphaStream::RIGGED;
+
     bool initialized_lighting = false;
     bool light_enabled = true;
 
@@ -637,10 +641,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged, bool m
 
         if (merged)
         { // single back-to-front walk over both streams: take the farther of
-          // the two heads. All of an avatar's rigged groups share one depth
-          // (see LLSpatialBridge::mAvatarp), so each avatar's attachment-order
-          // run drains contiguously; on ties rigged draws first so world
-          // alpha at the same depth composites over it.
+          // the two heads. All of an avatar's rigged groups share one avatar
+          // depth (see LLSpatialBridge::mAvatarp), so each avatar's
+          // attachment-order run drains contiguously; on ties rigged draws
+          // first so world alpha at the same depth composites over it.
             if (rigged_iter == rigged_end)
             {
                 rigged = false;
@@ -651,7 +655,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged, bool m
             }
             else
             {
-                rigged = (*rigged_iter)->mDepth >= (*iter)->mDepth;
+                rigged = (*rigged_iter)->mAvatarDepth >= (*iter)->mDepth;
             }
         }
 

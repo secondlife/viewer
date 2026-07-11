@@ -380,7 +380,7 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
             {
                 bridge->mAvatarp = this;
                 bridge->mRenderOrder = 0;
-                bridge->mDepth = calcRiggedAlphaDepth();
+                bridge->mAvatarDepth = calcRiggedAlphaDepth();
             }
         }
     }

@@ -43,6 +43,7 @@
 #include "llvoavatar.h"
 #include "llfetchedgltfmaterial.h"
 
+#include <functional>
 #include <queue>
 #include <unordered_map>
 
@@ -242,7 +243,8 @@ public:
         {
             if (lhs->mAvatarp != rhs->mAvatarp)
             {
-                return lhs->mAvatarp < rhs->mAvatarp;
+                // std::less: raw < on unrelated pointers is unspecified
+                return std::less<const LLVOAvatar*>()(lhs->mAvatarp, rhs->mAvatarp);
             }
 
             return lhs->mRenderOrder > rhs->mRenderOrder;
@@ -255,19 +257,26 @@ public:
         {
             // farther avatars draw first so rigged alpha can be depth-interleaved
             // with the distance-sorted alpha groups; all of an avatar's groups
-            // share one depth (see LLSpatialBridge::mAvatarp), keeping each
-            // avatar's run contiguous and in attachment render order
-            if (lhs->mDepth != rhs->mDepth)
+            // share one avatar depth (see LLSpatialBridge::mAvatarp), keeping
+            // each avatar's run contiguous and in attachment render order
+            if (lhs->mAvatarDepth != rhs->mAvatarDepth)
             {
-                return lhs->mDepth > rhs->mDepth;
+                return lhs->mAvatarDepth > rhs->mAvatarDepth;
             }
 
             if (lhs->mAvatarp != rhs->mAvatarp)
             {
-                return lhs->mAvatarp < rhs->mAvatarp;
+                return std::less<const LLVOAvatar*>()(lhs->mAvatarp, rhs->mAvatarp);
             }
 
-            return lhs->mRenderOrder > rhs->mRenderOrder;
+            if (lhs->mRenderOrder != rhs->mRenderOrder)
+            {
+                return lhs->mRenderOrder > rhs->mRenderOrder;
+            }
+
+            // bounds depth keeps groups of one attachment (which tie on all
+            // of the above) in a stable back-to-front order
+            return lhs->mDepth > rhs->mDepth;
         }
     };
 
@@ -373,6 +382,10 @@ public:
     //used by LLVOAVatar to set render order in alpha draw pool to preserve legacy render order behavior
     LLVOAvatar* mAvatarp = nullptr;
     U32 mRenderOrder = 0;
+    // rigged alpha sort key (LLSpatialBridge::mAvatarDepth, fanned out in
+    // LLPipeline::postSort); separate from mDepth so mixed groups keep their
+    // bounds depth in the world-alpha sort
+    F32 mAvatarDepth = 0.f;
     // Reflection Probe associated with this node (if any)
     LLPointer<LLReflectionMap> mReflectionProbe = nullptr;
 } LL_ALIGN_POSTFIX(16);
@@ -489,7 +502,7 @@ public:
     // compared, never dereferenced (avatar may die first).
     LLVOAvatar* mAvatarp = nullptr;
     U32 mRenderOrder = 0;
-    F32 mDepth = 0.f;
+    F32 mAvatarDepth = 0.f;
 };
 
 class LLCullResult

@@ -3112,10 +3112,12 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                             //fans the stamp out to each of the bridge's visible
                             //rigged alpha groups, so the whole linkset sorts with
                             //this avatar in attachment order no matter how its
-                            //prims bin into the bridge octree
+                            //prims bin into the bridge octree. Staleness-safe under
+                            //detailed_update: mUpdatePeriod > 1 implies isImpostor(),
+                            //whose attachments never enter the live alpha streams
                             bridge->mAvatarp = this;
                             bridge->mRenderOrder = draw_order++;
-                            bridge->mDepth = rigged_depth;
+                            bridge->mAvatarDepth = rigged_depth;
                         }
                     }
 

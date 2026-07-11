@@ -3667,19 +3667,15 @@ void LLPipeline::postSort(LLCamera &camera)
             {  // store rigged alpha groups for LLDrawPoolAlpha prepass (skip distance update, rigged attachments use depth buffer)
                 // fan the attachment's draw-order stamp (LLVOAvatar::idleUpdateMisc)
                 // out from the bridge to every visible group of the linkset,
-                // however its prims bin into the bridge octree. The depth copy
-                // gives all of an avatar's groups one shared depth -- what lets
-                // the interleaved walk treat the avatar as a single contiguous
-                // run -- and is gated so the legacy path keeps bounds-front depths.
+                // however its prims bin into the bridge octree. The shared
+                // mAvatarDepth keys each avatar's contiguous run in the
+                // interleaved walk; mDepth stays bounds-derived for the world sort.
                 LLSpatialBridge* stamp_bridge = group->getSpatialPartition()->asBridge();
                 if (stamp_bridge && stamp_bridge->mAvatarp)
                 {
                     group->mAvatarp = stamp_bridge->mAvatarp;
                     group->mRenderOrder = stamp_bridge->mRenderOrder;
-                    if (interleaved_alpha)
-                    {
-                        group->mDepth = stamp_bridge->mDepth;
-                    }
+                    group->mAvatarDepth = stamp_bridge->mAvatarDepth;
                 }
 
                 if (hasRenderType(LLDrawPool::POOL_ALPHA))

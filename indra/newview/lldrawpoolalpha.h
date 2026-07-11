@@ -58,18 +58,22 @@ public:
     /*virtual*/ void renderPostDeferred(S32 pass);
     /*virtual*/ S32  getNumPasses() { return 1; }
 
-    // rigged: render the rigged alpha groups (depth-writing) instead of the
-    //         distance-sorted alpha groups
-    // merged: render both streams in a single back-to-front walk, splicing each
-    //         avatar's rigged run in at the avatar's depth; depth writes are
-    //         then decided per group inside renderAlpha
-    void forwardRender(bool rigged = false, bool merged = false);
+    // which alpha stream(s) a pass draws
+    enum class EAlphaStream
+    {
+        WORLD,      // the distance-sorted alpha groups
+        RIGGED,     // the rigged alpha groups only (depth-writing prepass)
+        INTERLEAVED // both streams in one back-to-front walk; depth writes
+                    // decided per group inside renderAlpha
+    };
+
+    void forwardRender(EAlphaStream stream = EAlphaStream::WORLD);
     /*virtual*/ void prerender();
 
     void renderDebugAlpha();
 
     void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, bool texture = true);
-    void renderAlpha(U32 mask, bool depth_only = false, bool rigged = false, bool merged = false);
+    void renderAlpha(U32 mask, bool depth_only = false, EAlphaStream stream = EAlphaStream::WORLD);
     void renderAlphaHighlight();
 
     static bool sShowDebugAlpha;
