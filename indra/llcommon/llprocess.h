@@ -245,7 +245,7 @@ public:
 private:
     void launch(const Params& params);
     void tick();
-    void handleExit(int exit_code);
+    void handleExit(Status exitStatus);
 
     // Boost.Process components
     boost::asio::io_context mIOContext;

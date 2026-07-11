@@ -440,7 +440,7 @@ LLProcess::LLProcess(const Params& params) :
 
 LLProcess::~LLProcess()
 {
-    if (mChild && mChild->running())
+    if (mChild && mStatus.mState == RUNNING)
     {
         if (mAttached && mAutokill)
         {
@@ -592,7 +592,17 @@ void LLProcess::launch(const Params& params)
     {
         std::error_code ec;
 
-        // Create child process with appropriate redirections
+#if !LL_WINDOWS
+        // Ignore SIGPIPE so that writing to a child's closed stdin doesn't
+        // terminate the viewer process. The write will fail with EPIPE instead.
+        signal(SIGPIPE, SIG_IGN);
+#endif
+
+        // Create child process with appropriate redirections.
+        // Do NOT pass mIOContext to bp::child: boost::process v1 would then
+        // install a SIGCHLD handler via boost::asio without SA_RESTART, which
+        // causes blocking waitpid() calls elsewhere to return EINTR. We detect
+        // child exit ourselves via waitpid(WNOHANG) in tick() instead.
         if (use_stdin_pipe && use_stdout_pipe && use_stderr_pipe)
         {
             if (params.cwd.isProvided())
@@ -604,7 +614,6 @@ void LLProcess::launch(const Params& params)
                     bp::std_out > *mStdoutPipe,
                     bp::std_err > *mStderrPipe,
                     bp::start_dir(params.cwd()),
-                    mIOContext,
                     ec
                 );
             }
@@ -616,7 +625,6 @@ void LLProcess::launch(const Params& params)
                     bp::std_in < *mStdinPipe,
                     bp::std_out > *mStdoutPipe,
                     bp::std_err > *mStderrPipe,
-                    mIOContext,
                     ec
                 );
             }
@@ -631,7 +639,6 @@ void LLProcess::launch(const Params& params)
                     bp::std_out > *mStdoutPipe,
                     bp::std_err > *mStderrPipe,
                     bp::start_dir(params.cwd()),
-                    mIOContext,
                     ec
                 );
             }
@@ -642,7 +649,6 @@ void LLProcess::launch(const Params& params)
                     bp::args(args),
                     bp::std_out > *mStdoutPipe,
                     bp::std_err > *mStderrPipe,
-                    mIOContext,
                     ec
                 );
             }
@@ -656,7 +662,6 @@ void LLProcess::launch(const Params& params)
                     bp::args(args),
                     bp::std_out > *mStdoutPipe,
                     bp::start_dir(params.cwd()),
-                    mIOContext,
                     ec
                 );
             }
@@ -666,7 +671,6 @@ void LLProcess::launch(const Params& params)
                     params.executable(),
                     bp::args(args),
                     bp::std_out > *mStdoutPipe,
-                    mIOContext,
                     ec
                 );
             }
@@ -679,7 +683,6 @@ void LLProcess::launch(const Params& params)
                     params.executable(),
                     bp::args(args),
                     bp::start_dir(params.cwd()),
-                    mIOContext,
                     ec
                 );
             }
@@ -688,7 +691,6 @@ void LLProcess::launch(const Params& params)
                 mChild = std::make_unique<bp::child>(
                     params.executable(),
                     bp::args(args),
-                    mIOContext,
                     ec
                 );
             }
@@ -754,11 +756,13 @@ void LLProcess::tick()
 
 #if LL_WINDOWS
     // Check process status
-    if (mChild && !mChild->running())
+    if (mChild && mStatus.mState == RUNNING && !mChild->running())
     {
         WaitForSingleObject(mChild->native_handle(), 100);
-        int exit_code = mChild->exit_code();
-        handleExit(exit_code);
+        Status exitStatus;
+        exitStatus.mState = EXITED;
+        exitStatus.mData = mChild->exit_code();
+        handleExit(exitStatus);
     }
 #else
     // Check process status using WNOHANG to avoid blocking or generating
@@ -773,67 +777,46 @@ void LLProcess::tick()
 
         if (result == mChild->id())
         {
-            // Child has exited; decode status manually
-            int exit_code = 0;
+            // Child has exited; decode exit status now (before handleExit,
+            // since the child has already been reaped by this waitpid call).
+            Status exitStatus;
             if (WIFEXITED(status))
-                exit_code = WEXITSTATUS(status);
-            handleExit(exit_code);
+            {
+                exitStatus.mState = EXITED;
+                exitStatus.mData = WEXITSTATUS(status);
+            }
+            else if (WIFSIGNALED(status))
+            {
+                exitStatus.mState = KILLED;
+                exitStatus.mData = WTERMSIG(status);
+            }
+            else
+            {
+                exitStatus.mState = EXITED;
+                exitStatus.mData = 0;
+            }
+            handleExit(exitStatus);
         }
         // result == 0 means still running; result == -1/ECHILD means already reaped
     }
 #endif
 }
 
-void LLProcess::handleExit(int exit_code)
+void LLProcess::handleExit(Status exitStatus)
 {
     if (mStatus.mState != RUNNING)
         return; // Already handled
 
-    // Before handling exit, drain any remaining data from pipes
-    // This is important because the child might have written data just before exiting
+    mStatus = exitStatus;
+
+    // Drain any remaining data from pipes before notifying callers
     for (int i = 0; i < 10; ++i)
     {
         if (mIOContext.poll_one() == 0)
-            break; // No more work to do
+            break;
     }
 
-#if LL_WINDOWS
-    // On Windows, all terminations result in EXITED state
-    mStatus.mState = EXITED;
-    mStatus.mData = exit_code;
-#else
-    // On POSIX, need to check if process was signaled
-    int status;
-    pid_t result = waitpid(mChild->id(), &status, WNOHANG);
-
-    if (result == mChild->id())
-    {
-        if (WIFEXITED(status))
-        {
-            mStatus.mState = EXITED;
-            mStatus.mData = WEXITSTATUS(status);
-        }
-        else if (WIFSIGNALED(status))
-        {
-            mStatus.mState = KILLED;
-            mStatus.mData = WTERMSIG(status);
-        }
-        else
-        {
-            // Shouldn't happen, but treat as exit
-            mStatus.mState = EXITED;
-            mStatus.mData = exit_code;
-        }
-    }
-    else
-    {
-        // Couldn't get detailed status, use what boost::process gives us
-        mStatus.mState = EXITED;
-        mStatus.mData = exit_code;
-    }
-#endif
-
-    LL_INFOS("LLProcess") << mDesc << " exited with code " << exit_code << LL_ENDL;
+    LL_INFOS("LLProcess") << mDesc << " " << getStatusString(mStatus) << LL_ENDL;
 
     // Post to event pump if configured
     if (!mPostend.empty())
@@ -842,7 +825,7 @@ void LLProcess::handleExit(int exit_code)
         event["id"] = static_cast<int>(getProcessID());
         event["desc"] = mDesc;
         event["state"] = mStatus.mState;
-        event["data"] = exit_code;
+        event["data"] = mStatus.mData;
         event["string"] = getStatusString(mStatus);
 
         LLEventPumps::instance().obtain(mPostend).post(event);
@@ -857,7 +840,7 @@ void LLProcess::handleExit(int exit_code)
 
 bool LLProcess::isRunning() const
 {
-    return mChild && mChild->running();
+    return mStatus.mState == RUNNING;
 }
 
 //static
@@ -915,7 +898,7 @@ std::string LLProcess::getStatusString(const std::string& desc, const Status& st
 
 bool LLProcess::kill(const std::string& who)
 {
-    if (!mChild || !mChild->running())
+    if (!mChild || mStatus.mState != RUNNING)
         return true;
 
     LL_INFOS("LLProcess") << who << " killing " << mDesc << LL_ENDL;
