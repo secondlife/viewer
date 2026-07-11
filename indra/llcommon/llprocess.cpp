@@ -449,18 +449,26 @@ LLProcess::~LLProcess()
             mChild->terminate(ec);
 
 #if !LL_WINDOWS
-            // On POSIX, terminate() sends SIGTERM which allows graceful shutdown
-            // Give the process some time to terminate gracefully
-            for (int i = 0; i < 30 && mChild->running(); ++i)
+            // On POSIX, terminate() sends SIGTERM which allows graceful shutdown.
+            // Poll with waitpid(WNOHANG) rather than mChild->running() to avoid
+            // competing with tick()'s own waitpid call.
+            pid_t pid = mChild->id();
+            for (int i = 0; i < 30; ++i)
             {
+                int child_status;
+                if (::waitpid(pid, &child_status, WNOHANG) == pid)
+                    break; // child exited
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
             // Force kill if still running
-            if (mChild->running())
             {
-                LL_WARNS("LLProcess") << "Force killing " << mDesc << LL_ENDL;
-                (void)::kill(mChild->id(), SIGKILL);
+                int child_status;
+                if (::waitpid(pid, &child_status, WNOHANG) == 0)
+                {
+                    LL_WARNS("LLProcess") << "Force killing " << mDesc << LL_ENDL;
+                    (void)::kill(pid, SIGKILL);
+                }
             }
 #else
             // On Windows, terminate() already does an immediate hard kill via TerminateProcess()
