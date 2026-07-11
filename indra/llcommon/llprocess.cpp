@@ -481,6 +481,10 @@ LLProcess::~LLProcess()
             LL_INFOS("LLProcess") << "Not terminating " << mDesc
                 << " (attached=" << mAttached
                 << ", autokill=" << mAutokill << ")" << LL_ENDL;
+            // Detach the bp::child so its destructor does not send SIGKILL
+            // to the still-running process (boost::process v1 terminates the
+            // child in bp::child::~child() if the handle is still valid).
+            mChild->detach();
         }
     }
 
@@ -500,6 +504,20 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
     catch (const std::exception& e)
     {
         LL_WARNS("LLProcess") << "Failed to create process: " << e.what() << LL_ENDL;
+
+        // Even on failure, fire the postend event if requested, so callers
+        // that listen for it can detect the launch failure.
+        if (params.postend.isProvided() && !params.postend().empty())
+        {
+            std::string desc = params.desc.isProvided() ? params.desc() :
+                               (params.executable.isProvided() ? LLProcess::basename(params.executable()) : "");
+            LLSD event;
+            event["desc"]   = desc;
+            event["state"]  = LLProcess::UNSTARTED;
+            event["string"] = e.what();
+            LLEventPumps::instance().obtain(params.postend()).post(event);
+        }
+
         return LLProcessPtr();
     }
 }
@@ -611,98 +629,48 @@ void LLProcess::launch(const Params& params)
         // install a SIGCHLD handler via boost::asio without SA_RESTART, which
         // causes blocking waitpid() calls elsewhere to return EINTR. We detect
         // child exit ourselves via waitpid(WNOHANG) in tick() instead.
+        //
+        // Use a generic lambda to avoid repeating the executable/args/cwd for
+        // each of the 8 pipe-combination branches.
+        auto make_child = [&](auto&&... redirects) {
+            if (params.cwd.isProvided())
+                mChild = std::make_unique<bp::child>(
+                    params.executable(),
+                    bp::args(args),
+                    bp::start_dir(params.cwd()),
+                    std::forward<decltype(redirects)>(redirects)...,
+                    ec
+                );
+            else
+                mChild = std::make_unique<bp::child>(
+                    params.executable(),
+                    bp::args(args),
+                    std::forward<decltype(redirects)>(redirects)...,
+                    ec
+                );
+        };
+
         if (use_stdin_pipe && use_stdout_pipe && use_stderr_pipe)
-        {
-            if (params.cwd.isProvided())
-            {
-                mChild = std::make_unique<bp::child>(
-                    params.executable(),
-                    bp::args(args),
-                    bp::std_in < *mStdinPipe,
-                    bp::std_out > *mStdoutPipe,
-                    bp::std_err > *mStderrPipe,
-                    bp::start_dir(params.cwd()),
-                    ec
-                );
-            }
-            else
-            {
-                mChild = std::make_unique<bp::child>(
-                    params.executable(),
-                    bp::args(args),
-                    bp::std_in < *mStdinPipe,
-                    bp::std_out > *mStdoutPipe,
-                    bp::std_err > *mStderrPipe,
-                    ec
-                );
-            }
-        }
+            make_child(bp::std_in  < *mStdinPipe,
+                       bp::std_out > *mStdoutPipe,
+                       bp::std_err > *mStderrPipe);
+        else if (use_stdin_pipe && use_stdout_pipe)
+            make_child(bp::std_in  < *mStdinPipe,
+                       bp::std_out > *mStdoutPipe);
+        else if (use_stdin_pipe && use_stderr_pipe)
+            make_child(bp::std_in  < *mStdinPipe,
+                       bp::std_err > *mStderrPipe);
         else if (use_stdout_pipe && use_stderr_pipe)
-        {
-            if (params.cwd.isProvided())
-            {
-                mChild = std::make_unique<bp::child>(
-                    params.executable(),
-                    bp::args(args),
-                    bp::std_out > *mStdoutPipe,
-                    bp::std_err > *mStderrPipe,
-                    bp::start_dir(params.cwd()),
-                    ec
-                );
-            }
-            else
-            {
-                mChild = std::make_unique<bp::child>(
-                    params.executable(),
-                    bp::args(args),
-                    bp::std_out > *mStdoutPipe,
-                    bp::std_err > *mStderrPipe,
-                    ec
-                );
-            }
-        }
+            make_child(bp::std_out > *mStdoutPipe,
+                       bp::std_err > *mStderrPipe);
+        else if (use_stdin_pipe)
+            make_child(bp::std_in  < *mStdinPipe);
         else if (use_stdout_pipe)
-        {
-            if (params.cwd.isProvided())
-            {
-                mChild = std::make_unique<bp::child>(
-                    params.executable(),
-                    bp::args(args),
-                    bp::std_out > *mStdoutPipe,
-                    bp::start_dir(params.cwd()),
-                    ec
-                );
-            }
-            else
-            {
-                mChild = std::make_unique<bp::child>(
-                    params.executable(),
-                    bp::args(args),
-                    bp::std_out > *mStdoutPipe,
-                    ec
-                );
-            }
-        }
+            make_child(bp::std_out > *mStdoutPipe);
+        else if (use_stderr_pipe)
+            make_child(bp::std_err > *mStderrPipe);
         else
-        {
-            if (params.cwd.isProvided())
-            {
-                mChild = std::make_unique<bp::child>(
-                    params.executable(),
-                    bp::args(args),
-                    bp::start_dir(params.cwd()),
-                    ec
-                );
-            }
-            else
-            {
-                mChild = std::make_unique<bp::child>(
-                    params.executable(),
-                    bp::args(args),
-                    ec
-                );
-            }
-        }
+            make_child();
 
         if (ec)
         {
@@ -805,7 +773,18 @@ void LLProcess::tick()
             }
             handleExit(exitStatus);
         }
-        // result == 0 means still running; result == -1/ECHILD means already reaped
+        else if (result == -1 && errno == ECHILD)
+        {
+            // The zombie was already reaped by someone else (e.g. a SIGCHLD
+            // handler from APR or another library). We can't determine the
+            // real exit code; synthesize EXITED/0 so the process is no longer
+            // considered "running" and waitfor() doesn't spin for 60 seconds.
+            Status exitStatus;
+            exitStatus.mState = EXITED;
+            exitStatus.mData = 0;
+            handleExit(exitStatus);
+        }
+        // result == 0 means still running
     }
 #endif
 }
@@ -911,6 +890,7 @@ bool LLProcess::kill(const std::string& who)
 
     LL_INFOS("LLProcess") << who << " killing " << mDesc << LL_ENDL;
 
+#if LL_WINDOWS
     std::error_code ec;
     mChild->terminate(ec);
 
@@ -920,12 +900,23 @@ bool LLProcess::kill(const std::string& who)
             << ": " << ec.message() << LL_ENDL;
         return false;
     }
+#else
+    // Send SIGTERM so the child can clean up gracefully, and so tick()'s
+    // waitpid() reports WIFSIGNALED/WTERMSIG == SIGTERM rather than SIGKILL.
+    // Do NOT call mChild->terminate(): in boost::process v1, that function
+    // sends SIGKILL and may set the internal pid to -1, which would cause
+    // tick()'s waitpid(mChild->id(), ...) to wait for any child (-1) and
+    // never match the result against the stored pid.
+    pid_t pid = mChild->id();
+    if (::kill(pid, SIGTERM) != 0 && errno != ESRCH)
+    {
+        LL_WARNS("LLProcess") << "Failed to send SIGTERM to " << mDesc
+            << " (pid " << pid << "): " << strerror(errno) << LL_ENDL;
+        return false;
+    }
+#endif
 
     // Don't set status here - let handleExit() do it when the process actually terminates
-    // The state will be determined by how the process exited:
-    // - Windows: EXITED with exit code -1
-    // - POSIX: KILLED with signal SIGTERM (or SIGKILL)
-
     return true;
 }
 
@@ -1024,13 +1015,24 @@ std::string LLProcess::getPipeName(FILESLOT slot) const
 
 LLProcess::WritePipe& LLProcess::getWritePipe(FILESLOT slot)
 {
-    if (slot != STDIN)
+    if (slot >= NSLOTS)
         throw NoPipe(STRINGIZE(mDesc << ": no slot " << slot));
 
-    if (!mWritePipe)
-        throw NoPipe(STRINGIZE(mDesc << ": stdin is not a monitored pipe"));
+    if (slot == STDIN)
+    {
+        if (!mWritePipe)
+            throw NoPipe(STRINGIZE(mDesc << ": stdin is not a monitored pipe"));
+        return *mWritePipe;
+    }
 
-    return *mWritePipe;
+    // STDOUT or STDERR slots: neither has a WritePipe.
+    // Distinguish "not piped at all" from "piped but wrong direction".
+    const char* slotname = (slot == STDOUT) ? "stdout" : "stderr";
+    bool is_piped = (slot == STDOUT) ? bool(mStdoutReadPipe) : bool(mStderrReadPipe);
+    if (!is_piped)
+        throw NoPipe(STRINGIZE(mDesc << ": " << slotname << " is not a monitored pipe"));
+    else
+        throw NoPipe(STRINGIZE(mDesc << ": " << slotname << " is a ReadPipe, not a WritePipe"));
 }
 
 LLProcess::ReadPipe& LLProcess::getReadPipe(FILESLOT slot)
@@ -1064,19 +1066,30 @@ LLProcess::ReadPipe& LLProcess::getReadPipe(FILESLOT slot)
 
 LLProcess::WritePipe* LLProcess::getOptWritePipe(FILESLOT slot)
 {
-    if (slot != STDIN)
+    if (slot >= NSLOTS)
     {
         LL_WARNS("LLProcess") << mDesc << ": no slot " << slot << LL_ENDL;
         return nullptr;
     }
 
-    if (!mWritePipe)
+    if (slot == STDIN)
     {
-        LL_WARNS("LLProcess") << mDesc << ": stdin is not a monitored pipe" << LL_ENDL;
-        return nullptr;
+        if (!mWritePipe)
+        {
+            LL_WARNS("LLProcess") << mDesc << ": stdin is not a monitored pipe" << LL_ENDL;
+            return nullptr;
+        }
+        return mWritePipe.get();
     }
 
-    return mWritePipe.get();
+    // STDOUT or STDERR slots: neither has a WritePipe.
+    const char* slotname = (slot == STDOUT) ? "stdout" : "stderr";
+    bool is_piped = (slot == STDOUT) ? bool(mStdoutReadPipe) : bool(mStderrReadPipe);
+    if (!is_piped)
+        LL_WARNS("LLProcess") << mDesc << ": " << slotname << " is not a monitored pipe" << LL_ENDL;
+    else
+        LL_WARNS("LLProcess") << mDesc << ": " << slotname << " is a ReadPipe, not a WritePipe" << LL_ENDL;
+    return nullptr;
 }
 
 LLProcess::ReadPipe* LLProcess::getOptReadPipe(FILESLOT slot)
