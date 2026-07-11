@@ -172,10 +172,7 @@ public:
         mPipe(pipe),
         mStream(&mStreambuf),
         mWritePending(false)
-    {
-        // Start async write monitoring
-        startAsyncWrite();
-    }
+    {}
 
     virtual ~WritePipeImpl() = default;
 
@@ -186,15 +183,24 @@ public:
         return mStreambuf.size();
     }
 
+    // Called from LLProcess::tick() to initiate writing buffered data.
+    // Self-chains: each completed write immediately starts the next one if
+    // more data is waiting, so large transfers don't stall between ticks.
     void tick()
     {
-        // Don't start a new write if one is already pending
+        startAsyncWrite();
+    }
+
+private:
+    void startAsyncWrite()
+    {
         if (mWritePending || !mPipe || !mPipe->is_open() || mStreambuf.size() == 0)
             return;
 
         mWritePending = true;
 
-        // Write buffered data asynchronously
+        // Write all buffered data asynchronously, then chain to the next write
+        // if more data was queued while this one was in flight.
         asio::async_write(*mPipe, mStreambuf.data(),
             [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
         {
@@ -205,31 +211,8 @@ public:
                 mStreambuf.consume(bytes_transferred);
                 LL_DEBUGS("LLProcess") << "Wrote " << bytes_transferred
                     << " bytes to " << mDesc << LL_ENDL;
-            }
-            else if (ec != asio::error::operation_aborted)
-            {
-                LL_WARNS("LLProcess") << "Write error on " << mDesc
-                    << ": " << ec.message() << LL_ENDL;
-            }
-        });
-    }
-
-private:
-    void startAsyncWrite()
-    {
-        if (!mPipe || !mPipe->is_open() || mStreambuf.size() == 0)
-            return;
-
-        // Write buffered data asynchronously
-        asio::async_write(*mPipe, mStreambuf.data(),
-            [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
-        {
-            if (!ec)
-            {
-                mStreambuf.consume(bytes_transferred);
-                LL_DEBUGS("LLProcess") << "Wrote " << bytes_transferred
-                    << " bytes to " << mDesc << LL_ENDL;
-                // Continue writing if there's more data
+                // If wstdin() queued more data while we were writing, send it
+                // immediately instead of waiting for the next mainloop tick.
                 startAsyncWrite();
             }
             else if (ec != asio::error::operation_aborted)
