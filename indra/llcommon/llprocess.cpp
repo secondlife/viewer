@@ -704,7 +704,7 @@ void LLProcess::launch(const Params& params)
 
 void LLProcess::tick()
 {
-    // Poll I/O context before scheduling the next stdin write so pending read
+    // Poll I/O context before initiating stdin writes so pending read
     // callbacks can drain first; this avoids LLLeap large-message stalls where
     // a child process waits on output consumption before accepting more input.
     while (mIOContext.poll_one() > 0)
