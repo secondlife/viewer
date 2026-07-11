@@ -704,14 +704,17 @@ void LLProcess::launch(const Params& params)
 
 void LLProcess::tick()
 {
-    // Poll I/O context to process async operations
+    if (auto* wp = dynamic_cast<WritePipeImpl*>(mWritePipe.get()))
+        wp->tick();
+
+    // Poll I/O context to process async operations. Kick off any pending stdin
+    // write before entering this loop so composed async_write operations can
+    // advance through as many immediately-ready pipe events as possible during
+    // the current mainloop tick instead of waiting for the next one.
     while (mIOContext.poll_one() > 0)
     {
         // Keep polling until no more handlers are ready
     }
-
-    if (auto* wp = dynamic_cast<WritePipeImpl*>(mWritePipe.get()))
-        wp->tick();
 
 #if LL_WINDOWS
     // Check process status
