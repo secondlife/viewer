@@ -796,11 +796,13 @@ void LLProcess::handleExit(Status exitStatus)
 
     mStatus = exitStatus;
 
-    // Drain any remaining data from pipes before notifying callers
-    for (int i = 0; i < 10; ++i)
+    // Drain any remaining pipe handlers before notifying callers. LLLeap
+    // consumes child stdout/stderr from these callbacks, and some tests write
+    // enough data to require far more than a handful of async-read completions
+    // after the child has already exited.
+    while (mIOContext.poll_one() > 0)
     {
-        if (mIOContext.poll_one() == 0)
-            break;
+        // Keep polling until no more handlers are immediately ready.
     }
 
     LL_INFOS("LLProcess") << mDesc << " " << getStatusString(mStatus) << LL_ENDL;
