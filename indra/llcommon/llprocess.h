@@ -230,6 +230,8 @@ public:
         virtual LLEventPump& getPump() = 0;
         virtual void setLimit(size_type limit) = 0;
         virtual size_type getLimit() const = 0;
+        // True once the pipe has observed child-process EOF.
+        virtual bool atEOF() const = 0;
     };
 
     WritePipe& getWritePipe(FILESLOT slot = STDIN);

@@ -271,6 +271,8 @@ public:
 
     virtual size_type getLimit() const override { return mLimit; }
 
+    virtual bool atEOF() const override { return mEOF; }
+
     virtual size_type size() const override { return mStreambuf.size(); }
 
     virtual std::string read(size_type len) override
@@ -772,6 +774,18 @@ void LLProcess::tick()
         // result == 0 means still running
     }
 #endif
+
+    // Keep pumping after process exit until all ReadPipes report EOF, then
+    // disconnect from mainloop to avoid losing trailing EOF notifications.
+    if (mStatus.mState != RUNNING && mMainloopConnection.connected())
+    {
+        bool stdout_eof = (!mStdoutReadPipe || mStdoutReadPipe->atEOF());
+        bool stderr_eof = (!mStderrReadPipe || mStderrReadPipe->atEOF());
+        if (stdout_eof && stderr_eof)
+        {
+            mMainloopConnection.disconnect();
+        }
+    }
 }
 
 void LLProcess::handleExit(Status exitStatus)
@@ -805,11 +819,7 @@ void LLProcess::handleExit(Status exitStatus)
         LLEventPumps::instance().obtain(mPostend).post(event);
     }
 
-    // Disconnect from mainloop
-    if (mMainloopConnection.connected())
-    {
-        mMainloopConnection.disconnect();
-    }
+    // Leave mainloop connected until tick() observes EOF on all ReadPipes.
 }
 
 bool LLProcess::isRunning() const
