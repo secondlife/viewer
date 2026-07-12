@@ -45,6 +45,8 @@
 #include <glib.h>
 #endif
 
+#include <algorithm>
+
 extern "C" {
 # include "fontconfig/fontconfig.h"
 }
@@ -1934,6 +1936,44 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
         return rtns;
     }
 
+    // Ask FontConfig directly for common living scripts first, so they aren't
+    // crowded out of max_font_count_cutoff by other fonts.
+    static const char* const important_langs[] = {
+        "ja", "zh-cn", "zh-tw", "ko",                    // CJK / Korean
+        "th", "hi", "ta", "te", "kn", "ml", "gu", "pa",  // South/Southeast Asian
+        "km", "lo", "my", "si",                          // Southeast Asian
+        "ka", "am",                                      // Georgian, Ethiopic
+    };
+    for (const char* lang : important_langs)
+    {
+        std::string lang_pattern = "slant=0:index=0:weight=80:spacing=0:lang=" + std::string(lang);
+        FcPattern *lang_pat = FcNameParse((FcChar8*) lang_pattern.c_str());
+        if (!lang_pat)
+        {
+            continue;
+        }
+        FcConfigSubstitute(nullptr, lang_pat, FcMatchPattern);
+        FcDefaultSubstitute(lang_pat);
+        FcResult lang_result;
+        FcPattern *match = FcFontMatch(nullptr, lang_pat, &lang_result);
+        FcPatternDestroy(lang_pat);
+        if (match)
+        {
+            FcChar8 *filename;
+            if (FcResultMatch == FcPatternGetString(match, FC_FILE, 0, &filename) && filename)
+            {
+                std::string path((const char*)filename);
+                if (std::find(rtns.begin(), rtns.end(), path) == rtns.end())
+                {
+                    LL_DEBUGS() << "Guaranteed fallback for lang '" << lang << "': " << path << LL_ENDL;
+                    rtns.push_back(path);
+                }
+            }
+            FcPatternDestroy(match);
+        }
+    }
+    const size_t guaranteed_font_count = rtns.size();
+
     sortpat = FcNameParse((FcChar8*) sort_order.c_str());
     if (sortpat)
     {
@@ -1949,13 +1989,18 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
         // Get the full pathnames to the fonts, where available,
         // which is what we really want.
         found_font_count = fs->nfont;
+        size_t general_count = 0;
         for (int i=0; i<fs->nfont; ++i)
         {
             FcChar8 *filename;
             if (FcResultMatch == FcPatternGetString(fs->fonts[i], FC_FILE, 0, &filename) && filename)
             {
-                rtns.push_back(std::string((const char*)filename));
-                if (rtns.size() >= max_font_count_cutoff)
+                std::string path((const char*)filename);
+                if (std::find(rtns.begin(), rtns.end(), path) != rtns.end())
+                    continue; // already guaranteed above, don't load it twice
+
+                rtns.push_back(path);
+                if (++general_count >= max_font_count_cutoff)
                     break; // hit limit
             }
         }
@@ -1968,7 +2013,9 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
         LL_DEBUGS() << "  file: " << *it << LL_ENDL;
     }
 
-    LL_INFOS() << "Using " << rtns.size() << "/" << found_font_count << " system fonts." << LL_ENDL;
+    LL_INFOS() << "Using " << rtns.size() << " system fonts (" << guaranteed_font_count
+               << " guaranteed script matches + " << (rtns.size() - guaranteed_font_count)
+               << "/" << found_font_count << " from general scan)." << LL_ENDL;
 
     rtns.push_back(final_fallback);
 #endif
