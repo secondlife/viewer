@@ -64,18 +64,18 @@ namespace asio = boost::asio;
 /*****************************************************************************
 *   Helpers
 *****************************************************************************/
-/*
+
 static const char* whichfile_[] = { "stdin", "stdout", "stderr" };
 
-static LLProcess::Status interpret_status(int status);
-static std::string getDesc(const LLProcess::Params& params);
+//static LLProcess::Status interpret_status(int status);
+//static std::string getDesc(const LLProcess::Params& params);
 
 static std::string whichfile(LLProcess::FILESLOT index)
 {
     if (index < LL_ARRAY_SIZE(whichfile_))
         return whichfile_[index];
     return STRINGIZE("file slot " << index);
-}*/
+}
 
 /**
  * Ref-counted "mainloop" listener. As long as there are still outstanding
