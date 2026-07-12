@@ -878,13 +878,16 @@ bool LLProcess::kill(const std::string& who)
     LL_INFOS("LLProcess") << who << " killing " << mDesc << LL_ENDL;
 
 #if LL_WINDOWS
-    std::error_code ec;
-    mChild->terminate(ec);
-
-    if (ec)
+    // Call TerminateProcess directly with exit code (UINT)-1 so that
+    // tick()'s GetExitCodeProcess reads back -1 as a signed int, matching
+    // the original APR-based behavior expected by tests and callers.
+    // Do NOT use mChild->terminate(): boost::process v1 may use a different
+    // exit code (e.g. EXIT_FAILURE=1) or invalidate the handle internally,
+    // which would break the exit-code check in tick().
+    if (!::TerminateProcess(mChild->native_handle(), (UINT)-1))
     {
         LL_WARNS("LLProcess") << "Failed to terminate " << mDesc
-            << ": " << ec.message() << LL_ENDL;
+            << ": error " << ::GetLastError() << LL_ENDL;
         return false;
     }
 #else
