@@ -211,7 +211,7 @@ private:
                 mStreambuf.consume(bytes_transferred);
                 LL_DEBUGS("LLProcess") << "Wrote " << bytes_transferred
                     << " bytes to " << mDesc << LL_ENDL;
-                // If wstdin() queued more data while we were writing, send it
+                // If callers wrote more data to the ostream while we were writing, send it
                 // immediately instead of waiting for the next mainloop tick.
                 startAsyncWrite();
             }
@@ -1184,7 +1184,7 @@ static LLProcess::Status interpret_status(int status)
     // function (unfortunately static) called why_from_exit_code():
     /* See WinNT.h STATUS_ACCESS_VIOLATION and family for how
      * this class of failures was determined
-     * /
+     */
     if ((status & 0xFFFF0000) == 0xC0000000)
     {
         result.mState = LLProcess::KILLED;
