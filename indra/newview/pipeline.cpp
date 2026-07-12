@@ -3559,6 +3559,19 @@ void renderSoundHighlights(LLDrawable *drawablep)
     }
 }
 
+bool LLPipeline::canUseInterleavedAlpha()
+{
+    static LLCachedControl<bool> interleaved_alpha(gSavedSettings, "RenderInterleavedAlpha", true);
+    return interleaved_alpha && !sRenderingHUDs && !sShadowRender && !gCubeSnapshot &&
+           LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD;
+}
+
+void LLPipeline::sortAlphaGroupsForInterleaving()
+{
+    std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareWorldAlphaDepth());
+    std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareDepthRenderOrder());
+}
+
 void LLPipeline::postSort(LLCamera &camera)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
@@ -3590,8 +3603,6 @@ void LLPipeline::postSort(LLCamera &camera)
     }
 
     LL_PUSH_CALLSTACKS();
-
-    static LLCachedControl<bool> interleaved_alpha(gSavedSettings, "RenderInterleavedAlpha", true);
 
     // build render map
     for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
@@ -3717,24 +3728,10 @@ void LLPipeline::postSort(LLCamera &camera)
 
     if (!sShadowRender)
     {
-        if (interleaved_alpha)
-        {
-            // order alpha groups by distance, a stamped attachment's groups
-            // keyed at the wearer's depth (one contiguous ensemble block)
-            std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareWorldAlphaDepth());
-
-            // order rigged alpha groups by avatar depth then attachment order
-            // for the depth-interleaved walk in LLDrawPoolAlpha
-            std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareDepthRenderOrder());
-        }
-        else
-        {
-            // order alpha groups by distance
-            std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
-
-            // order rigged alpha groups by avatar attachment order
-            std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareRenderOrder());
-        }
+        // Legacy order is the baseline for every consumer. Post-water replaces
+        // it with the interleaved order only when it actually uses the merge.
+        std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
+        std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareRenderOrder());
     }
 
     LL_PUSH_CALLSTACKS();

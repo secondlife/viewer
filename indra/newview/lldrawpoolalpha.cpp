@@ -164,6 +164,15 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     // prepare shaders
     llassert(LLPipeline::sRenderDeferred);
 
+    const bool interleave = LLPipeline::canUseInterleavedAlpha() &&
+                            getType() == LLDrawPool::POOL_ALPHA_POST_WATER;
+    if (interleave)
+    {
+        // postSort deliberately leaves the shared lists in legacy order for
+        // pre-water; switch them only for the consumer that performs the merge
+        gPipeline.sortAlphaGroupsForInterleaving();
+    }
+
     emissive_shader = &gDeferredEmissiveProgram;
     prepare_alpha_shader(emissive_shader, false, water_sign);
 
@@ -200,13 +209,12 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     // already being setup for rendering
     LLGLSLShader::unbind();
 
-    static LLCachedControl<bool> interleaved_alpha(gSavedSettings, "RenderInterleavedAlpha", true);
-
-    if (interleaved_alpha && !LLPipeline::sRenderingHUDs &&
-        getType() == LLDrawPool::POOL_ALPHA_POST_WATER)
+    if (interleave)
     {
         // single pass: depth-interleave whole avatars with the distance-sorted
-        // alpha groups so world alpha composites correctly around avatars
+        // alpha groups so world alpha composites correctly around avatars.
+        // The centralized eligibility gate limits the merged walk to the world
+        // camera; HUD, cube, and reflection renders keep legacy two-pass order.
         forwardRender(EAlphaStream::INTERLEAVED);
     }
     else
@@ -651,7 +659,23 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, EAlphaStream stream
             }
             else
             {
-                rigged = (*rigged_iter)->mAvatarDepth >= (*iter)->worldAlphaDepth();
+                F32 rigged_depth = (*rigged_iter)->mAvatarDepth;
+                F32 world_depth = (*iter)->worldAlphaDepth();
+                if (rigged_depth != world_depth)
+                {
+                    rigged = rigged_depth > world_depth;
+                }
+                else
+                {
+                    // equal depth: keep each avatar's ensemble contiguous. Its
+                    // own rigged draws before its own unrigged; a plain world
+                    // group composites over it (rigged first); two coincident
+                    // avatars drain in the sorts' std::less identity order.
+                    const LLVOAvatar* world_av = (*iter)->mAvatarp;
+                    const LLVOAvatar* rigged_av = (*rigged_iter)->mAvatarp;
+                    rigged = !rigged_av || !world_av || world_av == rigged_av ||
+                             std::less<const LLVOAvatar*>()(rigged_av, world_av);
+                }
             }
         }
 

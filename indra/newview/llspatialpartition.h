@@ -254,6 +254,16 @@ public:
 
             if (lhs->mAvatarp != rhs->mAvatarp)
             {
+                // at an exact depth tie, drain stamped ensembles before plain
+                // world groups so a null head cannot split every ensemble
+                if (!lhs->mAvatarp)
+                {
+                    return false;
+                }
+                if (!rhs->mAvatarp)
+                {
+                    return true;
+                }
                 // std::less: raw < on unrelated pointers is unspecified
                 return std::less<const LLVOAvatar*>()(lhs->mAvatarp, rhs->mAvatarp);
             }
@@ -290,6 +300,16 @@ public:
 
             if (lhs->mAvatarp != rhs->mAvatarp)
             {
+                // An unstamped rigged group has no ensemble key; keep it first
+                // at an exact depth tie, matching the merge's legacy fallback.
+                if (!lhs->mAvatarp)
+                {
+                    return true;
+                }
+                if (!rhs->mAvatarp)
+                {
+                    return false;
+                }
                 return std::less<const LLVOAvatar*>()(lhs->mAvatarp, rhs->mAvatarp);
             }
 
@@ -825,4 +845,3 @@ extern const F32 SG_MAX_OBJ_RAD;
 
 
 #endif //LL_LLSPATIALPARTITION_H
-
