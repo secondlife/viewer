@@ -328,10 +328,10 @@ private:
         if (!mPipe || !mPipe->is_open() || mEOF)
             return;
 
-        // Always read data regardless of mLimit: stopping reads would fill the
-        // OS pipe buffer and block the child process, causing a deadlock with
-        // large messages. mLimit only controls how many bytes are included in
-        // the event notification, not whether we keep consuming pipe data.
+        // Always read data regardless of mLimit to prevent INTEGRATION_TEST_llleap
+        // deadlock: stopping reads fills the OS pipe buffer and blocks the child,
+        // which prevents large (~1 MB) messages from being fully received.
+        // mLimit only controls how many bytes appear in event notifications.
         auto bufs = mStreambuf.prepare(4096);
 
         mPipe->async_read_some(bufs,
