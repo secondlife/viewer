@@ -205,6 +205,8 @@ public:
     {
     public:
         virtual std::ostream& get_ostream() = 0;
+        // Called each mainloop tick to initiate any pending async writes.
+        virtual void tick() {}
     };
 
     /// Read pipe for stdout/stderr
@@ -251,10 +253,11 @@ private:
     boost::asio::io_context mIOContext;
     std::unique_ptr<boost::process::v1::child> mChild;
 
-    // Pipes - using Boost.Process async pipes
-    std::unique_ptr<boost::process::v1::async_pipe> mStdinPipe;
-    std::unique_ptr<boost::process::v1::async_pipe> mStdoutPipe;
-    std::unique_ptr<boost::process::v1::async_pipe> mStderrPipe;
+    // Pipes - using Boost.Process async pipes (shared_ptr so WritePipeImpl/
+    // ReadPipeImpl keep the pipe alive as long as async operations are in flight)
+    std::shared_ptr<boost::process::v1::async_pipe> mStdinPipe;
+    std::shared_ptr<boost::process::v1::async_pipe> mStdoutPipe;
+    std::shared_ptr<boost::process::v1::async_pipe> mStderrPipe;
 
     // Our pipe wrapper implementations
     std::unique_ptr<WritePipe> mWritePipe;

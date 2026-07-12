@@ -186,7 +186,7 @@ public:
     // Called from LLProcess::tick() to initiate writing buffered data.
     // Self-chains: each completed write immediately starts the next one if
     // more data is waiting, so large transfers don't stall between ticks.
-    void tick()
+    void tick() override
     {
         startAsyncWrite();
     }
@@ -582,17 +582,17 @@ void LLProcess::launch(const Params& params)
     // Create pipes if needed
     if (use_stdin_pipe)
     {
-        mStdinPipe = std::make_unique<bp::async_pipe>(mIOContext);
+        mStdinPipe = std::make_shared<bp::async_pipe>(mIOContext);
         LL_DEBUGS("LLProcess") << "Created stdin pipe for " << mDesc << LL_ENDL;
     }
     if (use_stdout_pipe)
     {
-        mStdoutPipe = std::make_unique<bp::async_pipe>(mIOContext);
+        mStdoutPipe = std::make_shared<bp::async_pipe>(mIOContext);
         LL_DEBUGS("LLProcess") << "Created stdout pipe for " << mDesc << LL_ENDL;
     }
     if (use_stderr_pipe)
     {
-        mStderrPipe = std::make_unique<bp::async_pipe>(mIOContext);
+        mStderrPipe = std::make_shared<bp::async_pipe>(mIOContext);
         LL_DEBUGS("LLProcess") << "Created stderr pipe for " << mDesc << LL_ENDL;
     }
 
@@ -668,14 +668,14 @@ void LLProcess::launch(const Params& params)
         {
             mWritePipe = std::make_unique<WritePipeImpl>(
                 STRINGIZE(mDesc << " stdin"),
-                std::shared_ptr<bp::async_pipe>(mStdinPipe.get(), [](auto*) {})
+                mStdinPipe
             );
         }
         if (mStdoutPipe)
         {
             mStdoutReadPipe = std::make_unique<ReadPipeImpl>(
                 STRINGIZE(mDesc << " stdout"),
-                std::shared_ptr<bp::async_pipe>(mStdoutPipe.get(), [](auto*) {}),
+                mStdoutPipe,
                 STDOUT
             );
         }
@@ -683,7 +683,7 @@ void LLProcess::launch(const Params& params)
         {
             mStderrReadPipe = std::make_unique<ReadPipeImpl>(
                 STRINGIZE(mDesc << " stderr"),
-                std::shared_ptr<bp::async_pipe>(mStderrPipe.get(), [](auto*) {}),
+                mStderrPipe,
                 STDERR
             );
         }
@@ -707,8 +707,8 @@ void LLProcess::tick()
     // Initiate pending stdin writes before draining the I/O context so that
     // self-chained async writes can keep advancing within the same tick
     // instead of waiting for the next mainloop frame.
-    if (auto* wp = dynamic_cast<WritePipeImpl*>(mWritePipe.get()))
-        wp->tick();
+    if (mWritePipe)
+        mWritePipe->tick();
 
     while (mIOContext.poll_one() > 0)
     {
