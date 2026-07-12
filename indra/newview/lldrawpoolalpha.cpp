@@ -205,10 +205,8 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     if (interleaved_alpha && !LLPipeline::sRenderingHUDs &&
         getType() == LLDrawPool::POOL_ALPHA_POST_WATER)
     {
-        // single pass: depth-interleave whole avatars (rigged alpha, drawn in
-        // attachment order with depth writes) with the distance-sorted alpha
-        // groups, so world alpha composites correctly both in front of and
-        // behind avatars.
+        // single pass: depth-interleave whole avatars with the distance-sorted
+        // alpha groups so world alpha composites correctly around avatars
         forwardRender(EAlphaStream::INTERLEAVED);
     }
     else
@@ -629,9 +627,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, EAlphaStream stream
                                     LLPipeline::sImpostorRenderAlphaDepthPass ||
                                     getType() == LLDrawPoolAlpha::POOL_ALPHA_PRE_WATER;
 
-    // merged mode: per-group depth-write guard, re-emplaced only when the write
-    // state changes so a run of same-state groups pays one glDepthMask, not one
-    // per group (see below)
+    // merged mode: per-group depth-write guard, re-emplaced only when the
+    // write state changes (one glDepthMask per run, not per group)
     std::optional<LLGLDepthTest> depth_state;
     bool depth_state_writes = false;
 
@@ -640,11 +637,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, EAlphaStream stream
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("renderAlpha - group");
 
         if (merged)
-        { // single back-to-front walk over both streams: take the farther of
-          // the two heads. All of an avatar's rigged groups share one avatar
-          // depth (see LLSpatialBridge::mAvatarp), so each avatar's
-          // attachment-order run drains contiguously; on ties rigged draws
-          // first so world alpha at the same depth composites over it.
+        { // take the farther of the two stream heads; an ensemble's groups
+          // share one avatar depth, so each avatar drains contiguously --
+          // rigged run first (ties go rigged), then its unrigged attachment
+          // groups, which composite over it
             if (rigged_iter == rigged_end)
             {
                 rigged = false;
@@ -655,7 +651,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, EAlphaStream stream
             }
             else
             {
-                rigged = (*rigged_iter)->mAvatarDepth >= (*iter)->mDepth;
+                rigged = (*rigged_iter)->mAvatarDepth >= (*iter)->worldAlphaDepth();
             }
         }
 
@@ -688,15 +684,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, EAlphaStream stream
                 }
             }
 
-            // merged mode: rigged alpha writes depth so attachment-order
-            // layering holds and impostors/DoF still see it -- but only when
-            // the group carries an avatar stamp (mAvatarp, stamped for
-            // attachments by LLVOAvatar::idleUpdateMisc and for animesh by
-            // LLControlAvatar::idleUpdate). A not-yet-stamped group has no
-            // defined position in the rigged order and must not be allowed to
-            // depth-reject geometry behind it (it still blends; it just can't
-            // erase). Non-merged passes keep the pass-wide depth state set by
-            // the caller.
+            // merged mode: stamped rigged groups write depth so attachment-order
+            // layering holds; an unstamped group has no defined position in the
+            // rigged order and must not depth-reject geometry behind it (it
+            // still blends). Non-merged passes keep the caller's depth state.
             if (merged)
             {
                 bool write_depth = write_depth_always || (rigged && group->mAvatarp != nullptr);

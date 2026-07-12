@@ -3107,14 +3107,16 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                             bridge->setState(LLDrawable::MOVE_UNDAMPED);
                             bridge->updateMove();
                             bridge->setState(LLDrawable::EARLY_MOVE);
+                        }
 
-                            //set draw order of the attachment; LLPipeline::postSort
-                            //fans the stamp out to each of the bridge's visible
-                            //rigged alpha groups, so the whole linkset sorts with
-                            //this avatar in attachment order no matter how its
-                            //prims bin into the bridge octree. Staleness-safe under
-                            //detailed_update: mUpdatePeriod > 1 implies isImpostor(),
-                            //whose attachments never enter the live alpha streams
+                        //stamp the attachment's draw order; LLPipeline::postSort
+                        //fans it out to the bridge's alpha groups, sorting the
+                        //wearer's whole ensemble at one avatar depth. HUD alpha
+                        //sorts in HUD space, so unrigged HUDs stay unstamped.
+                        //Stale-safe: mUpdatePeriod > 1 implies isImpostor(),
+                        //whose attachments never enter the live alpha streams
+                        if (rigged || !attached_object->isHUDAttachment())
+                        {
                             bridge->mAvatarp = this;
                             bridge->mRenderOrder = draw_order++;
                             bridge->mAvatarDepth = rigged_depth;

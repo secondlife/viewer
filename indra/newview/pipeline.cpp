@@ -3637,11 +3637,22 @@ void LLPipeline::postSort(LLCamera &camera)
 
         if (hasRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA))
         {
+            LLSpatialBridge *bridge = group->getSpatialPartition()->asBridge();
+
+            // fan the attachment's stamp (LLVOAvatar::idleUpdateMisc) out from
+            // the bridge to every visible alpha group of the linkset; the shared
+            // mAvatarDepth keys the wearer's ensemble as one block in the walk
+            if (bridge && bridge->mAvatarp)
+            {
+                group->mAvatarp = bridge->mAvatarp;
+                group->mRenderOrder = bridge->mRenderOrder;
+                group->mAvatarDepth = bridge->mAvatarDepth;
+            }
+
             LLSpatialGroup::draw_map_t::iterator alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA);
 
             if (alpha != group->mDrawMap.end())
             {  // store alpha groups for sorting
-                LLSpatialBridge *bridge = group->getSpatialPartition()->asBridge();
                 if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD && !gCubeSnapshot)
                 {
                     if (bridge)
@@ -3665,19 +3676,6 @@ void LLPipeline::postSort(LLCamera &camera)
 
             if (rigged_alpha != group->mDrawMap.end())
             {  // store rigged alpha groups for LLDrawPoolAlpha prepass (skip distance update, rigged attachments use depth buffer)
-                // fan the attachment's draw-order stamp (LLVOAvatar::idleUpdateMisc)
-                // out from the bridge to every visible group of the linkset,
-                // however its prims bin into the bridge octree. The shared
-                // mAvatarDepth keys each avatar's contiguous run in the
-                // interleaved walk; mDepth stays bounds-derived for the world sort.
-                LLSpatialBridge* stamp_bridge = group->getSpatialPartition()->asBridge();
-                if (stamp_bridge && stamp_bridge->mAvatarp)
-                {
-                    group->mAvatarp = stamp_bridge->mAvatarp;
-                    group->mRenderOrder = stamp_bridge->mRenderOrder;
-                    group->mAvatarDepth = stamp_bridge->mAvatarDepth;
-                }
-
                 if (hasRenderType(LLDrawPool::POOL_ALPHA))
                 {
                     sCull->pushRiggedAlphaGroup(group);
@@ -3719,18 +3717,21 @@ void LLPipeline::postSort(LLCamera &camera)
 
     if (!sShadowRender)
     {
-        // order alpha groups by distance
-        std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
-
         if (interleaved_alpha)
         {
-            // order rigged alpha groups by avatar depth, then attachment order,
-            // so LLDrawPoolAlpha can depth-interleave whole avatars with the
-            // distance-sorted alpha groups above
+            // order alpha groups by distance, a stamped attachment's groups
+            // keyed at the wearer's depth (one contiguous ensemble block)
+            std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareWorldAlphaDepth());
+
+            // order rigged alpha groups by avatar depth then attachment order
+            // for the depth-interleaved walk in LLDrawPoolAlpha
             std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareDepthRenderOrder());
         }
         else
         {
+            // order alpha groups by distance
+            std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
+
             // order rigged alpha groups by avatar attachment order
             std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareRenderOrder());
         }
