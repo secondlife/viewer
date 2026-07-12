@@ -241,7 +241,7 @@ public:
         mPipe(pipe),
         mSlot(slot),
         mStream(&mStreambuf),
-        mPump("ReadPipe", true),   // tweak name as needed to avoid collisions, use LLEventPump::inventName?
+        mPump("ReadPipe", true),
         mLimit(0),
         mEOF(false)
     {
@@ -399,7 +399,7 @@ private:
     LLProcess::FILESLOT mSlot;
     mutable asio::streambuf mStreambuf;
     std::istream mStream;
-    LLEventStream mPump; //  pump specific to this pipe
+    LLEventStream mPump; // pump specific to this pipe
     size_type mLimit;
     bool mEOF;
 };
