@@ -343,16 +343,19 @@ private:
                 LL_DEBUGS("LLProcess") << "Read " << bytes_transferred
                     << " bytes from " << mDesc << LL_ENDL;
 
+                // Restore original 7-field event contract:
+                // data, len, slot, name, desc, eof, exhst
+                // A successful async read corresponds to the original EXHAUSTED
+                // state: we got data, pipe is not yet closed.
+                size_type data_len = (std::min)(mStreambuf.size(), mLimit);
                 LLSD event;
-                event["len"] = LLSD::Integer(mStreambuf.size());
-                event["slot"] = LLSD::Integer(mSlot);
-                event["desc"] = mDesc;
-
-                if (mLimit > 0)
-                {
-                    size_type data_len = (std::min)(mStreambuf.size(), mLimit);
-                    event["data"] = peek(0, data_len);
-                }
+                event["data"]  = peek(0, data_len);
+                event["len"]   = LLSD::Integer(mStreambuf.size());
+                event["slot"]  = LLSD::Integer(mSlot);
+                event["name"]  = whichfile(mSlot);
+                event["desc"]  = mDesc;
+                event["eof"]   = false;
+                event["exhst"] = true;
 
                 mPump.post(event);
                 startAsyncRead();
@@ -367,20 +370,19 @@ private:
                 mEOF = true;
                 LL_DEBUGS("LLProcess") << "EOF on " << mDesc << LL_ENDL;
 
-                // Match the original behavior: pack eof, len, and data into a
-                // single event so consumers can "use it or lose it" -- the
-                // eof event is the last chance to see any remaining buffered data.
+                // Match the original behavior: pack all 7 fields into the
+                // single eof event so consumers can "use it or lose it" --
+                // this is the last chance to see any remaining buffered data.
+                // EOF corresponds to the original CLOSED state.
+                size_type data_len = (std::min)(mStreambuf.size(), mLimit);
                 LLSD eof_event;
-                eof_event["eof"] = true;
-                eof_event["len"] = LLSD::Integer(mStreambuf.size());
-                eof_event["slot"] = LLSD::Integer(mSlot);
-                eof_event["desc"] = mDesc;
-
-                if (mLimit > 0)
-                {
-                    size_type data_len = (std::min)(mStreambuf.size(), mLimit);
-                    eof_event["data"] = peek(0, data_len);
-                }
+                eof_event["data"]  = peek(0, data_len);
+                eof_event["len"]   = LLSD::Integer(mStreambuf.size());
+                eof_event["slot"]  = LLSD::Integer(mSlot);
+                eof_event["name"]  = whichfile(mSlot);
+                eof_event["desc"]  = mDesc;
+                eof_event["eof"]   = true;
+                eof_event["exhst"] = false;
 
                 mPump.post(eof_event);
             }
