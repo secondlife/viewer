@@ -362,28 +362,26 @@ private:
                 if (bytes_transferred > 0)
                 {
                     mStreambuf.commit(bytes_transferred);
-
-                    LLSD event;
-                    event["len"] = LLSD::Integer(mStreambuf.size());
-                    event["slot"] = LLSD::Integer(mSlot);
-                    event["desc"] = mDesc;
-
-                    if (mLimit > 0)
-                    {
-                        size_type data_len = (std::min)(mStreambuf.size(), mLimit);
-                        event["data"] = peek(0, data_len);
-                    }
-
-                    mPump.post(event);
                 }
 
                 mEOF = true;
                 LL_DEBUGS("LLProcess") << "EOF on " << mDesc << LL_ENDL;
 
+                // Match the original behavior: pack eof, len, and data into a
+                // single event so consumers can "use it or lose it" -- the
+                // eof event is the last chance to see any remaining buffered data.
                 LLSD eof_event;
                 eof_event["eof"] = true;
+                eof_event["len"] = LLSD::Integer(mStreambuf.size());
                 eof_event["slot"] = LLSD::Integer(mSlot);
                 eof_event["desc"] = mDesc;
+
+                if (mLimit > 0)
+                {
+                    size_type data_len = (std::min)(mStreambuf.size(), mLimit);
+                    eof_event["data"] = peek(0, data_len);
+                }
+
                 mPump.post(eof_event);
             }
             else if (ec != asio::error::operation_aborted)
