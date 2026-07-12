@@ -328,11 +328,11 @@ private:
         if (!mPipe || !mPipe->is_open() || mEOF)
             return;
 
-        size_type to_read = (mLimit > 0 && mStreambuf.size() >= mLimit) ? 0 : 4096;
-        if (to_read == 0)
-            return;
-
-        auto bufs = mStreambuf.prepare(to_read);
+        // Always read data regardless of mLimit: stopping reads would fill the
+        // OS pipe buffer and block the child process, causing a deadlock with
+        // large messages. mLimit only controls how many bytes are included in
+        // the event notification, not whether we keep consuming pipe data.
+        auto bufs = mStreambuf.prepare(4096);
 
         mPipe->async_read_some(bufs,
             [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
@@ -704,16 +704,16 @@ void LLProcess::launch(const Params& params)
 
 void LLProcess::tick()
 {
-    // Poll I/O context before initiating stdin writes so pending read
-    // callbacks can drain first; this avoids LLLeap large-message stalls where
-    // a child process waits on output consumption before accepting more input.
+    // Initiate pending stdin writes before draining the I/O context so that
+    // self-chained async writes can keep advancing within the same tick
+    // instead of waiting for the next mainloop frame.
+    if (auto* wp = dynamic_cast<WritePipeImpl*>(mWritePipe.get()))
+        wp->tick();
+
     while (mIOContext.poll_one() > 0)
     {
         // Keep polling until no more handlers are ready
     }
-
-    if (auto* wp = dynamic_cast<WritePipeImpl*>(mWritePipe.get()))
-        wp->tick();
 
 #if LL_WINDOWS
     // Check process status
