@@ -4736,6 +4736,12 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
     // Fonts previously in getFontListSans() have moved to fonts.xml.
     return std::vector<std::string>();
 }
+
+LLFontFallbackMatch LLWindowWin32::findFallbackFontForChar(llwchar wch)
+{
+    // Not implemented on Windows; would use DirectWrite (IDWriteFontFallback::MapCharacters).
+    return LLFontFallbackMatch();
+}
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()

@@ -45,6 +45,8 @@
 #include <glib.h>
 #endif
 
+#include <algorithm>
+
 extern "C" {
 # include "fontconfig/fontconfig.h"
 }
@@ -1879,100 +1881,54 @@ void LLWindowSDL::bringToFront()
 //static
 std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
 {
-    std::vector<std::string> rtns;
+    // Lazy-loaded fonts, seeded with fonts.xml
+    return std::vector<std::string>();
+}
+
+LLFontFallbackMatch LLWindowSDL::findFallbackFontForChar(llwchar wch)
+{
+    LLFontFallbackMatch result;
 #if LL_LINUX
-    // Use libfontconfig to find us a nice ordered list of fallback fonts
-    // specific to this system.
-    std::string final_fallback("/usr/share/fonts/truetype/kochi/kochi-gothic.ttf");
-    const int max_font_count_cutoff = 40; // fonts are expensive in the current system, don't enumerate an arbitrary number of them
-    // Our 'ideal' font properties which define the sorting results.
-    // slant=0 means Roman, index=0 means the first face in a font file
-    // (the one we actually use), weight=80 means medium weight,
-    // spacing=0 means proportional spacing.
-    std::string sort_order("slant=0:index=0:weight=80:spacing=0");
-    // elide_unicode_coverage removes fonts from the list whose unicode
-    // range is covered by fonts earlier in the list.  This usually
-    // removes ~90% of the fonts as redundant (which is great because
-    // the font list can be huge), but might unnecessarily reduce the
-    // renderable range if for some reason our FreeType actually fails
-    // to use some of the fonts we want it to.
-    const bool elide_unicode_coverage = true;
-
-    FcFontSet *fs = nullptr;
-    FcPattern *sortpat = nullptr;
-
-    LL_INFOS() << "Getting system font list from FontConfig..." << LL_ENDL;
-
-    // If the user has a system-wide language preference, then favor
-    // fonts from that language group.  This doesn't affect the types
-    // of languages that can be displayed, but ensures that their
-    // preferred language is rendered from a single consistent font where
-    // possible.
-    FL_Locale *locale = nullptr;
-    FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
-    if (success != 0)
-    {
-        if (success >= 2 && locale->lang) // confident!
-        {
-            LL_INFOS("AppInit") << "Language " << locale->lang << LL_ENDL;
-            LL_INFOS("AppInit") << "Location " << locale->country << LL_ENDL;
-            LL_INFOS("AppInit") << "Variant " << locale->variant << LL_ENDL;
-
-            LL_INFOS() << "Preferring fonts of language: "
-                       << locale->lang
-                       << LL_ENDL;
-            sort_order = "lang=" + std::string(locale->lang) + ":"
-                         + sort_order;
-        }
-    }
-    FL_FreeLocale(&locale);
-
     if (!FcInit())
     {
-        LL_WARNS() << "FontConfig failed to initialize." << LL_ENDL;
-        rtns.push_back(final_fallback);
-        return rtns;
+        LL_WARNS_ONCE() << "FontConfig failed to initialize." << LL_ENDL;
+        return result;
     }
 
-    sortpat = FcNameParse((FcChar8*) sort_order.c_str());
-    if (sortpat)
-    {
-        // Sort the list of system fonts from most-to-least-desirable.
-        FcResult result;
-        fs = FcFontSort(nullptr, sortpat, elide_unicode_coverage, nullptr, &result);
-        FcPatternDestroy(sortpat);
-    }
+    // Ask FontConfig for the best font covering this codepoint.
+    FcCharSet* charset = FcCharSetCreate();
+    FcCharSetAddChar(charset, (FcChar32)wch);
 
-    int found_font_count = 0;
-    if (fs)
+    FcPattern* pat = FcPatternCreate();
+    FcPatternAddCharSet(pat, FC_CHARSET, charset);
+    FcPatternAddBool(pat, FC_SCALABLE, FcTrue);
+
+    FcConfigSubstitute(nullptr, pat, FcMatchPattern);
+    FcDefaultSubstitute(pat);
+
+    FcResult fc_result;
+    FcPattern* match = FcFontMatch(nullptr, pat, &fc_result);
+    if (match)
     {
-        // Get the full pathnames to the fonts, where available,
-        // which is what we really want.
-        found_font_count = fs->nfont;
-        for (int i=0; i<fs->nfont; ++i)
+        FcChar8* filename = nullptr;
+        if (FcResultMatch == FcPatternGetString(match, FC_FILE, 0, &filename) && filename)
         {
-            FcChar8 *filename;
-            if (FcResultMatch == FcPatternGetString(fs->fonts[i], FC_FILE, 0, &filename) && filename)
+            result.mPath = (const char*)filename;
+
+            // .ttc/.otc collections carry several faces; get the right one.
+            int index = 0;
+            if (FcResultMatch == FcPatternGetInteger(match, FC_INDEX, 0, &index))
             {
-                rtns.push_back(std::string((const char*)filename));
-                if (rtns.size() >= max_font_count_cutoff)
-                    break; // hit limit
+                result.mFaceIndex = index;
             }
         }
-        FcFontSetDestroy (fs);
+        FcPatternDestroy(match);
     }
 
-    LL_DEBUGS() << "Using font list: " << LL_ENDL;
-    for (auto it = rtns.begin(); it != rtns.end(); ++it)
-    {
-        LL_DEBUGS() << "  file: " << *it << LL_ENDL;
-    }
-
-    LL_INFOS() << "Using " << rtns.size() << "/" << found_font_count << " system fonts." << LL_ENDL;
-
-    rtns.push_back(final_fallback);
+    FcPatternDestroy(pat);
+    FcCharSetDestroy(charset);
 #endif
-    return rtns;
+    return result;
 }
 
 void LLWindowSDL::setLanguageTextInput(const LLCoordGL& position)
