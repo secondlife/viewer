@@ -50,14 +50,15 @@
 #include <stdexcept>
 #include <limits>
 #include <algorithm>
+#include <errno.h>
 #include <vector>
 #include <typeinfo>
+#include <signal.h>
 #include <utility>
 
 #if !LL_WINDOWS
  // not necessarily available on random SDL platforms
  // for waitpid()
-#include <errno.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -296,8 +297,10 @@ private:
                 event["eof"]   = false;
                 event["exhst"] = true;
 
-                mPump.post(event);
+                // Arm the next read before posting: LLEventStream::post() is synchronous
+                // and listeners may destroy this object.
                 startAsyncRead();
+                mPump.post(event);
             }
             else if (ec == asio::error::eof
 #if LL_WINDOWS
@@ -875,7 +878,7 @@ bool LLProcess::kill(const std::string& who)
 #endif
 
     // Don't set status here - let handleExit() do it when the process actually terminates
-    return true;
+    return !isRunning();
 }
 
 //static
