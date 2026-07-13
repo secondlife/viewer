@@ -1554,15 +1554,14 @@ namespace tut
         listener.checkHistory(
             [](const EventListener::Listory& history)
             {
-                ensure("received events", !history.empty());
+                bool saw_data = false;
                 for (const LLSD& event : history)
                 {
-                    if (!event["eof"].asBoolean())
-                    {
-                        ensure("event data within limit",
-                               event["data"].asString().length() <= 50);
-                    }
+                    const std::string data = event["data"].asString();
+                    ensure("event data within limit", data.length() <= 50);
+                    saw_data = saw_data || !data.empty();
                 }
+                ensure("saw at least one data event", saw_data);
             });
     }
 
