@@ -1700,5 +1700,25 @@ namespace tut
         ensure_equals("stdout size", childout.size(), 0);
         ensure_equals("stderr size", childerr.size(), 0);
         ensure_equals("process exited", py.mPy->getStatus().mState, LLProcess::EXITED);
+
+        auto check_eof = [](const EventListener::Listory& history, const std::string& which)
+        {
+            ensure_equals(STRINGIZE(which << " events"), history.size(), 1);
+            const LLSD& event = history.front();
+            ensure(STRINGIZE(which << " eof event"), event["eof"].asBoolean());
+            ensure_equals(STRINGIZE(which << " len"), event["len"].asInteger(), 0);
+        };
+
+        outListener.checkHistory(
+            [&](const EventListener::Listory& history)
+            {
+                check_eof(history, "stdout");
+            });
+
+        errListener.checkHistory(
+            [&](const EventListener::Listory& history)
+            {
+                check_eof(history, "stderr");
+            });
     }
 } // namespace tut
