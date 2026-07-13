@@ -199,8 +199,13 @@ private:
 
         mWritePending = true;
 
-        // Write all buffered data asynchronously, then chain to the next write
-        // if more data was queued while this one was in flight.
+        // Write all buffered data asynchronously. Do NOT self-chain in the
+        // completion handler: sending the next buffer immediately can cause
+        // the child to respond within the same tick(), which posts a read
+        // event before the test listener has a chance to disconnect -- that
+        // was the root cause of test 18 "more than 3 events" and test 9
+        // "many small messages" failures. tick() calls mWritePipe->tick() on
+        // every mainloop frame, so any newly-queued data will be sent then.
         asio::async_write(*mPipe, mStreambuf.data(),
             [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
         {
@@ -211,9 +216,6 @@ private:
                 mStreambuf.consume(bytes_transferred);
                 LL_DEBUGS("LLProcess") << "Wrote " << bytes_transferred
                     << " bytes to " << mDesc << LL_ENDL;
-                // If callers wrote more data to the ostream while we were writing, send it
-                // immediately instead of waiting for the next mainloop tick.
-                startAsyncWrite();
             }
             else if (ec != asio::error::operation_aborted)
             {
@@ -362,7 +364,13 @@ private:
                 mPump.post(event);
                 startAsyncRead();
             }
-            else if (ec == asio::error::eof)
+            else if (ec == asio::error::eof
+#if LL_WINDOWS
+                     // On Windows anonymous pipes, the write end closing
+                     // delivers ERROR_BROKEN_PIPE (109), not asio::error::eof.
+                     || ec.value() == ERROR_BROKEN_PIPE
+#endif
+                    )
             {
                 if (bytes_transferred > 0)
                 {
@@ -418,7 +426,7 @@ LLProcess::LLProcess(const Params& params) :
     mDesc(params.desc.isProvided() ? params.desc() : basename(params.executable())),
     mPostend(params.postend.isProvided() ? params.postend() : ""),
     mAutokill(params.autokill),
-    mAttached(params.attached)
+    mAttached(params.attached.isProvided() ? params.attached() : bool(params.autokill))
 {
     launch(params);
 }
@@ -944,7 +952,26 @@ LLProcess::handle LLProcess::getProcessHandle() const
         return 0;
 
 #if LL_WINDOWS
-    return mChild->native_handle();
+    // Duplicate the process handle so the caller owns an independent copy.
+    // boost::process v1's child_handle destructor always closes proc_info.hProcess
+    // (even after child::detach()), so the raw native_handle() becomes invalid
+    // once ~child() runs.  DuplicateHandle gives the caller a handle whose
+    // lifetime is not tied to boost's internal child_handle cleanup.
+    HANDLE source = mChild->native_handle();
+    if (!source || source == INVALID_HANDLE_VALUE)
+        return 0;
+    HANDLE dup = nullptr;
+    if (!::DuplicateHandle(
+            ::GetCurrentProcess(), source,
+            ::GetCurrentProcess(), &dup,
+            PROCESS_QUERY_INFORMATION | SYNCHRONIZE,
+            FALSE, 0))
+    {
+        LL_WARNS("LLProcess") << "DuplicateHandle failed for " << mDesc
+            << ": error " << ::GetLastError() << LL_ENDL;
+        return 0;
+    }
+    return dup;
 #else
     return mChild->id();
 #endif
@@ -960,8 +987,12 @@ LLProcess::handle LLProcess::isRunning(handle h, const std::string& desc)
     DWORD exit_code;
     if (GetExitCodeProcess(h, &exit_code))
     {
-        return (exit_code == STILL_ACTIVE) ? h : 0;
+        if (exit_code == STILL_ACTIVE)
+            return h;   // process still running
+        // Process has exited: close the duplicated handle (see getProcessHandle()).
     }
+    // Either process exited or GetExitCodeProcess failed; either way we're done.
+    CloseHandle(h);
     return 0;
 #else
     if (h == 0)
