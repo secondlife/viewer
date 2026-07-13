@@ -30,7 +30,6 @@
 #include "llinitparam.h"
 #include "llsdparam.h"
 #include "llexception.h"
-#include "apr_thread_proc.h"
 #include <boost/process.hpp>
 #include <boost/process/v1/child.hpp>
 #include <boost/process/v1/io.hpp>

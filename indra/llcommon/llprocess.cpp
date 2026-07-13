@@ -30,9 +30,6 @@
 #include "llsdserialize.h"
 #include "llsingleton.h"
 #include "llstring.h"
-#include "stringize.h"
-#include "llapr.h"
-#include "apr_signal.h"
 #include "llevents.h"
 #include "llexception.h"
 #include "stringize.h"
@@ -67,83 +64,12 @@ namespace asio = boost::asio;
 
 static const char* whichfile_[] = { "stdin", "stdout", "stderr" };
 
-//static LLProcess::Status interpret_status(int status);
-//static std::string getDesc(const LLProcess::Params& params);
-
 static std::string whichfile(LLProcess::FILESLOT index)
 {
     if (index < LL_ARRAY_SIZE(whichfile_))
         return whichfile_[index];
     return STRINGIZE("file slot " << index);
 }
-
-/**
- * Ref-counted "mainloop" listener. As long as there are still outstanding
- * LLProcess objects, keep listening on "mainloop" so we can keep polling APR
- * for process status.
- */
-class LLProcessListener
-{
-    LOG_CLASS(LLProcessListener);
-public:
-    LLProcessListener():
-        mCount(0)
-    {}
-
-    void addPoll(const LLProcess&)
-    {
-        // Unconditionally increment mCount. If it was zero before
-        // incrementing, listen on "mainloop".
-        if (mCount++ == 0)
-        {
-            LL_DEBUGS("LLProcess") << "listening on \"mainloop\"" << LL_ENDL;
-            mConnection = LLEventPumps::instance().obtain("mainloop")
-                .listen("LLProcessListener", boost::bind(&LLProcessListener::tick, this, _1));
-        }
-    }
-
-    void dropPoll(const LLProcess&)
-    {
-        // Unconditionally decrement mCount. If it's zero after decrementing,
-        // stop listening on "mainloop".
-        if (--mCount == 0)
-        {
-            LL_DEBUGS("LLProcess") << "disconnecting from \"mainloop\"" << LL_ENDL;
-            mConnection.disconnect();
-        }
-    }
-
-private:
-    /// called once per frame by the "mainloop" LLEventPump
-    bool tick(const LLSD&)
-    {
-        // Tell APR to sense whether each registered LLProcess is still
-        // running and call handle_status() appropriately. We should be able
-        // to get the same info from an apr_proc_wait(APR_NOWAIT) call; but at
-        // least in APR 1.4.2, testing suggests that even with APR_NOWAIT,
-        // apr_proc_wait() blocks the caller. We can't have that in the
-        // viewer. Hence the callback rigmarole. (Once we update APR, it's
-        // probably worth testing again.) Also -- although there's an
-        // apr_proc_other_child_refresh() call, i.e. get that information for
-        // one specific child, it accepts an 'apr_other_child_rec_t*' that's
-        // mentioned NOWHERE else in the documentation or header files! I
-        // would use the specific call in LLProcess::getStatus() if I knew
-        // how. As it is, each call to apr_proc_other_child_refresh_all() will
-        // call callbacks for ALL still-running child processes. That's why we
-        // centralize such calls, using "mainloop" to ensure it happens once
-        // per frame, and refcounting running LLProcess objects to remain
-        // registered only while needed.
-        LL_DEBUGS("LLProcess") << "calling apr_proc_other_child_refresh_all()" << LL_ENDL;
-        apr_proc_other_child_refresh_all(APR_OC_REASON_RUNNING);
-        return false;
-    }
-
-    /// If this object is destroyed before mCount goes to zero, stop
-    /// listening on "mainloop" anyway.
-    LLTempBoundListener mConnection;
-    unsigned mCount;
-};
-static LLProcessListener sProcessListener;
 
 std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
 {
