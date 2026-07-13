@@ -1431,4 +1431,43 @@ namespace tut
         waitfor(*py.mPy);
         ensure("postend never triggered", listener.mTriggered);
     }
+
+    template<> template<>
+    void object::test<25>()
+    {
+        set_test_name("large stdin write");
+        PythonProcessLauncher py(get_test_name(),
+                                 "import sys\n"
+                                 "expected = int(sys.argv[1])\n"
+                                 "data = sys.stdin.buffer.read(expected)\n"
+                                 "if len(data) != expected:\n"
+                                 "    print('short read %s' % len(data))\n"
+                                 "elif data != (b'x' * expected):\n"
+                                 "    print('payload mismatch')\n"
+                                 "else:\n"
+                                 "    print('ok')\n");
+        const std::size_t payload_size = 1024 * 1024;
+        const std::string payload(payload_size, 'x');
+        py.mParams.args.add(stringize(payload_size));
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // stdin
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // stdout
+        py.launch();
+
+        LLProcess::ReadPipe& childout(py.mPy->getReadPipe(LLProcess::STDOUT));
+        std::ostream& childin(py.mPy->getWritePipe(LLProcess::STDIN).get_ostream());
+        childin.write(payload.data(), payload.size());
+        childin.flush();
+
+        int i, timeout = 20;
+        for (i = 0; i < timeout && py.mPy->isRunning() && ! childout.contains("\n"); ++i)
+        {
+            yield();
+        }
+        ensure("large stdin write timed out", i < timeout);
+        ensure("child never replied", childout.contains("\n"));
+        ensure_equals("large stdin ack", childout.getline(), "ok");
+        waitfor(*py.mPy);
+        ensure_equals("bad child termination", py.mPy->getStatus().mState, LLProcess::EXITED);
+        ensure_equals("bad child exit code", py.mPy->getStatus().mData, 0);
+    }
 } // namespace tut
