@@ -872,7 +872,7 @@ bool LLProcess::kill(const std::string& who)
 //static
 bool LLProcess::kill(const LLProcessPtr& ptr, const std::string& who)
 {
-    return ptr && ptr->kill(who);
+    return !ptr || ptr->kill(who);
 }
 
 LLProcess::id LLProcess::getProcessID() const
