@@ -661,6 +661,7 @@ void LLProcess::tick()
     if (mWritePipe)
         mWritePipe->tick();
 
+    mIOContext.restart();
     while (mIOContext.poll_one() > 0)
     {
         // Keep polling until no more handlers are ready
