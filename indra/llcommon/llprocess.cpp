@@ -54,6 +54,15 @@
 #include <typeinfo>
 #include <utility>
 
+#if !LL_WINDOWS
+ // not necessarily available on random SDL platforms
+ // for waitpid()
+#include <errno.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#endif
+
 
 namespace bp = boost::process::v1;
 namespace asio = boost::asio;
@@ -441,8 +450,14 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
     }
 }
 
-void LLProcess::launch(const Params& params)
+void LLProcess::launch(const LLSDOrParams& params)
 {
+    if (!params.validateBlock(true))
+    {
+        LL_WARNS("LLProcess") << "Failed parameter validation " << LLSDNotationStreamer(params) << LL_ENDL;
+        throw std::runtime_error("not launched: failed parameter validation\n");
+    }
+
     // Validate FileParam types before attempting to launch
     int file_idx = 0;
     for (const auto& fparam : params.files)

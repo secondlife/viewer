@@ -246,7 +246,7 @@ public:
     LLProcess(const Params& params);
 
 private:
-    void launch(const Params& params);
+    void launch(const LLSDOrParams& params);
     void tick();
     void handleExit(Status exitStatus);
 
