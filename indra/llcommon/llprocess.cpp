@@ -748,6 +748,14 @@ void LLProcess::handleExit(Status exitStatus)
     // consumes child stdout/stderr from these callbacks, and some tests write
     // enough data to require far more than a handful of async-read completions
     // after the child has already exited.
+    if (mIOContext.stopped())
+    {
+        // If the io_context has reached the stopped state,
+        // following loop will never run and trailing stdout/stderr
+        // handlers(and EOF notifications) may be missed.
+        LL_INFOS("LLProcess") << "mIOContext was stopped on exit, restarting" << LL_ENDL;
+        mIOContext.restart();
+    }
     while (mIOContext.poll_one() > 0)
     {
         // Keep polling until no more handlers are immediately ready.
