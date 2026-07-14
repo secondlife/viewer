@@ -674,6 +674,8 @@ void LLProcess::connectMainloop()
         .listen(LLEventPump::inventName("LLProcess"),
             [weak](const LLSD&)
             {
+                // Lock weak_ptr to keep *this alive during tick(), preventing
+                // destruction mid-callback if a listener drops the last LLProcessPtr.
                 auto self = weak.lock();
                 if (self) self->tick();
                 return false;
@@ -779,8 +781,8 @@ void LLProcess::handleExit(Status exitStatus)
     if (mIOContext.stopped())
     {
         // If the io_context has reached the stopped state,
-        // following loop will never run and trailing stdout/stderr
-        // handlers(and EOF notifications) may be missed.
+        // the following loop will never run and trailing stdout/stderr
+        // handlers (and EOF notifications) may be missed.
         LL_INFOS("LLProcess") << "mIOContext was stopped on exit, restarting" << LL_ENDL;
         mIOContext.restart();
     }
