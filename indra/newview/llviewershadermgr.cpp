@@ -29,6 +29,8 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "llappviewer.h"
+#include "llcompositor.h"
 #include "llfeaturemanager.h"
 #include "llviewershadermgr.h"
 #include "llviewercontrol.h"
@@ -3231,12 +3233,31 @@ bool LLViewerShaderMgr::loadShadersInterface()
 
     if (success)
     {
+        // The compositor draws with this program from the OS main thread
+        // (shader objects are shared across the context share group). Take
+        // it away before re-linking: setBlitShader blocks until any
+        // in-flight composite finishes, so we never delete the program out
+        // from under a present.
+        LLCompositor& compositor = LLAppViewer::instance()->getCompositor();
+        compositor.setBlitShader(nullptr);
+
         gCompositorBlitProgram.mName = "Compositor Blit Shader";
         gCompositorBlitProgram.mShaderFiles.clear();
         gCompositorBlitProgram.mShaderFiles.push_back(make_pair("interface/compositorblitV.glsl", GL_VERTEX_SHADER));
         gCompositorBlitProgram.mShaderFiles.push_back(make_pair("interface/compositorblitF.glsl", GL_FRAGMENT_SHADER));
         gCompositorBlitProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
         success = gCompositorBlitProgram.createShader();
+        if (!success)
+        {
+            // The compositor cannot present a single frame without this
+            // shader - there is no fallback blit path, and a viewer that
+            // can't present just hangs on its first publish. Fail hard and
+            // loud instead.
+            LL_ERRS() << "Unable to load compositor blit shader, verify graphics driver installed and current." << LL_ENDL;
+        }
+
+        // Linked and ready - hand it back to the compositor.
+        compositor.setBlitShader(&gCompositorBlitProgram);
     }
 
     if (success)

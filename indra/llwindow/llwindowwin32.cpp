@@ -62,6 +62,7 @@
 #include <Imm.h>
 #include <iomanip>
 #include <future>
+#include <mutex>
 #include <sstream>
 #include <utility>                  // std::pair
 
@@ -1928,8 +1929,21 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
     sWindowHandleForMessageBox = mWindowHandle;
 }
 
+// wglCreateContextAttribsARB / wglMakeCurrent / wglDeleteContext all mutate
+// per-driver state keyed on the window's single (CS_OWNDC) HDC. Called
+// concurrently from multiple threads - which happens when the compositor's
+// producer threads spin up together - wglMakeCurrent sporadically fails
+// (returns FALSE, leaves no current context), which then no-ops glGenTextures
+// and cascades into texture-allocation failures. Serialize all context
+// create/bind/destroy so those calls never overlap on the shared HDC. This is
+// startup-only (each thread binds its context once and keeps it), so it costs
+// nothing per frame.
+static std::mutex sGLContextMutex;
+
 void* LLWindowWin32::createSharedContext()
 {
+    std::lock_guard<std::mutex> lock(sGLContextMutex);
+
     mMaxGLVersion = llclamp(mMaxGLVersion, 3.f, 4.6f);
 
     S32 version_major = llfloor(mMaxGLVersion);
@@ -1986,26 +2000,24 @@ void* LLWindowWin32::createSharedContext()
 
 void LLWindowWin32::makeContextCurrent(void* contextPtr)
 {
-    // TEMP ctxdiag: confirm whether wglMakeCurrent actually succeeds per
-    // thread. All contexts share the single mhDC; an HDC can only be current
-    // on one thread at a time, so concurrent producers may be failing here
-    // silently (no current context -> glGenTextures no-ops).
-    BOOL ok = wglMakeCurrent(mhDC, (HGLRC) contextPtr);
-    DWORD err = ok ? 0 : GetLastError();
-    HGLRC after = wglGetCurrentContext();
-    HDC   afterdc = wglGetCurrentDC();
-    LL_INFOS("ctxdiag") << "makeContextCurrent thread=" << LLThread::currentID()
-                        << " req_rc=" << contextPtr
-                        << " mhDC=" << (void*)mhDC
-                        << " ok=" << (S32)ok
-                        << " GetLastError=" << (U32)err
-                        << " cur_rc=" << (void*)after
-                        << " cur_dc=" << (void*)afterdc << LL_ENDL;
+    // Serialize against other threads' context create/bind/destroy - see
+    // sGLContextMutex. Without this, concurrent wglMakeCurrent calls on the
+    // shared HDC sporadically fail and leave the thread with no current
+    // context.
+    std::lock_guard<std::mutex> lock(sGLContextMutex);
+
+    if (!wglMakeCurrent(mhDC, (HGLRC) contextPtr))
+    {
+        LL_WARNS() << "wglMakeCurrent failed (GetLastError=" << (U32)GetLastError()
+                   << ") for context " << contextPtr << " on thread "
+                   << LLThread::currentID() << LL_ENDL;
+    }
     LL_PROFILER_GPU_CONTEXT;
 }
 
 void LLWindowWin32::destroySharedContext(void* contextPtr)
 {
+    std::lock_guard<std::mutex> lock(sGLContextMutex);
     wglDeleteContext((HGLRC)contextPtr);
 }
 

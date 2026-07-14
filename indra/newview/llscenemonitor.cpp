@@ -313,15 +313,21 @@ void LLSceneMonitor::capture()
 
         gGL.getTexUnit(0)->bind(&cur_target);
 
-        // Read from the most recently presented swap chain image - the
-        // frame the user is actually seeing. The compositor owns the
-        // swap chain now.
-        LLSwapChain& src = const_cast<LLSwapChain&>(LLAppViewer::instance()->getCompositor().getSwapChain());
+        // Read from our own back buffer - the world frame this thread just
+        // rendered. The swap chain surface belongs to the compositor's
+        // context on the OS main thread; reading GL_BACK from here while it
+        // concurrently composites and swaps that same surface is undefined.
+        // The back buffer holds the same scene (pre-UI), which is what the
+        // scene-load diff wants anyway.
+        LLRenderTarget& src = LLAppViewer::instance()->getBackBuffer();
         src.bindForRead();
 
         glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, cur_target.getWidth(), cur_target.getHeight()); //copy the content
 
-        src.unbindRead();
+        // Restore the read binding to the current draw target (the same
+        // restore LLSwapChain::unbindRead does).
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, LLRenderTarget::sCurFBO);
+        glReadBuffer(LLRenderTarget::sCurFBO ? GL_COLOR_ATTACHMENT0 : GL_BACK);
 
         mDiffState = NEED_DIFF;
     }

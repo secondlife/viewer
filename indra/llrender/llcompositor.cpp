@@ -33,6 +33,7 @@
 #include "llrendertarget.h"
 #include "llimagegl.h"
 #include "llgl.h"
+#include "llglstates.h"
 #include "llglslshader.h"
 #include "llwindow.h"
 
@@ -178,11 +179,6 @@ void LLCompositor::presentFrame()
     // Draw every layer's front texture as a quad straight into the default
     // framebuffer, bottom first. Binding the texture for sampling is also
     // what pulls the producer context's writes into this one.
-    //
-    // The blit shader lives in LLViewerShaderMgr (compositorblitV/F.glsl).
-    // Until it's handed to us and compiled, just present - nothing to
-    // draw with yet.
-    const bool shader_ready = mBlitShader && mBlitShader->mProgramObject;
 
     const GLint dst_w = (GLint)mSwapChain.getWidth();
     const GLint dst_h = (GLint)mSwapChain.getHeight();
@@ -193,107 +189,142 @@ void LLCompositor::presentFrame()
     // window) and composite the layers straight into it.
     mSwapChain.acquireNextImage();
     mSwapChain.bindForRender();
-    glDisable(GL_BLEND);
-    glDisable(GL_SCISSOR_TEST);
-    glDisable(GL_DEPTH_TEST);
-    glDepthMask(GL_FALSE);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    if (shader_ready)
+
     {
-        mBlitShader->bind();
-    }
+        // Hold the shader handoff lock across the composite. A shader reload
+        // on the viewer thread clears mBlitShader, re-links the program, and
+        // sets it again - the lock makes that wait out an in-flight composite
+        // instead of deleting the program we're drawing with.
+        std::lock_guard<std::mutex> shader_lock(mBlitShaderMutex);
 
-    // Snapshot the layer list under its lock so a concurrent add/remove can't
-    // invalidate our iterator mid-present. We drop the lock before touching
-    // any layer - the readiness gate below covers per-layer lifetime.
-    std::vector<LLCompositable*> layers;
-    {
-        std::lock_guard<std::mutex> lock(mCompositablesMutex);
-        layers = mCompositables;
-    }
+        // Not drawable: no compiled shader yet (startup, or mid-reload), or a
+        // degenerate swap chain (the NDC math below divides by these). We
+        // still run the loop either way - the mailbox drain must not stop.
+        const bool can_draw = mBlitShader && mBlitShader->mProgramObject
+                              && dst_w > 0 && dst_h > 0;
 
-    for (LLCompositable* c : layers)
-    {
-        if (!shader_ready)
+        // Composite state, scoped and cache-aware so this thread's GL state
+        // mirrors stay truthful - on single-thread fallbacks the world render
+        // shares this context and trusts those caches.
+        LLGLDisable blend(GL_BLEND);
+        LLGLDisable scissor(GL_SCISSOR_TEST);
+        LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+        gGL.setColorMask(true, true);
+
+        if (can_draw)
         {
-            break;
+            mBlitShader->bind();
         }
 
-        // The producer must have finished allocating its front buffer and not
-        // be tearing it down: otherwise frontBuffer()'s RT is mid-mutation on
-        // the producer thread and its mTex is unsafe to read.
-        if (!c->isReady())
+        // Snapshot the layer list under its lock so a concurrent add/remove
+        // can't invalidate our iterator mid-present. We drop the lock before
+        // touching any layer - the readiness gate below covers per-layer
+        // lifetime.
+        std::vector<LLCompositable*> layers;
         {
-            continue;
+            std::lock_guard<std::mutex> lock(mCompositablesMutex);
+            layers = mCompositables;
         }
 
-        // Mailbox claim for queue-paced layers.
-        c->tryAcquireNewFront();
-
-        LLRenderTarget& front = c->frontBuffer();
-
-        // Don't hold an outer lease while calling accessors that take
-        // their own - leases don't nest. Each call below takes its own;
-        // only the texture guard's lease spans the draw.
-        if (!front.isComplete())
+        for (LLCompositable* c : layers)
         {
-            continue; // layer not allocated yet (early init)
+            // The producer must have finished allocating its front buffer and
+            // not be tearing it down: otherwise frontBuffer()'s RT is
+            // mid-mutation on the producer thread and its mTex is unsafe to
+            // read.
+            if (!c->isReady())
+            {
+                continue;
+            }
+
+            // Mailbox claim for queue-paced layers. This runs even on
+            // presents that can't draw - the claim is what unblocks the
+            // producer's publish wait, and skipping it would starve the
+            // world thread behind a shader reload or a degenerate window.
+            c->tryAcquireNewFront();
+
+            if (!can_draw)
+            {
+                continue;
+            }
+
+            LLRenderTarget& front = c->frontBuffer();
+
+            // Don't hold an outer lease while calling accessors that take
+            // their own - leases don't nest. Each call below takes its own;
+            // only the texture guard's lease spans the draw.
+            if (!front.isComplete())
+            {
+                continue; // layer not allocated yet (early init)
+            }
+
+            S32 dst_x = 0, dst_y = 0;
+            c->compositeOffset(dst_x, dst_y);
+
+            // The cross-context primitive is the color texture (LLImageGL), not
+            // the FBO-centric RT. Sample it directly: the guard holds its shared
+            // lease across the draw and its fence orders the GPU. Single-context
+            // layers (no attachment image) fall back to the raw RT name (no
+            // lease needed).
+            LLImageGL* sync = front.getColorAttachmentImage();
+            LLScopedTexName src_tex_guard;
+            U32 src_tex;
+            if (sync)
+            {
+                src_tex_guard = sync->getTexName();
+                src_tex = src_tex_guard.get();
+            }
+            else
+            {
+                src_tex = front.getTexture(0);
+            }
+
+            if (src_tex == 0)
+            {
+                // A layer that reached ready with no usable texture name.
+                // Never bind name 0 and draw whatever's resident there.
+                llassert(false);
+                continue;
+            }
+
+            // Read the layer size under the texture guard's shared lease -
+            // resize() publishes the new size under the matching unique lease,
+            // so size and storage stay paired.
+            const GLint w = (GLint)front.getWidth();
+            const GLint h = (GLint)front.getHeight();
+
+            // Wait on the producer's fence so we only sample finished pixels.
+            if (sync)
+            {
+                sync->waitFrameCompleteFence();
+            }
+
+            // Layer rect in NDC; GL origin bottom-left matches the
+            // compositeOffset convention.
+            const F32 x0 = 2.f * (F32)dst_x / (F32)dst_w - 1.f;
+            const F32 y0 = 2.f * (F32)dst_y / (F32)dst_h - 1.f;
+            const F32 x1 = 2.f * (F32)(dst_x + w) / (F32)dst_w - 1.f;
+            const F32 y1 = 2.f * (F32)(dst_y + h) / (F32)dst_h - 1.f;
+
+            // Bind and draw the layer quad.
+            static const LLStaticHashedString sBlitRect("blit_rect");
+            gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, src_tex);
+            mBlitShader->uniform4f(sBlitRect, x0, y0, x1, y1);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+            // Reverse fence: the producer waits on this before writing into
+            // the buffer again.
+            if (sync)
+            {
+                sync->placeReadCompleteFence();
+            }
         }
 
-        S32 dst_x = 0, dst_y = 0;
-        c->compositeOffset(dst_x, dst_y);
-        const GLint w = (GLint)front.getWidth();
-        const GLint h = (GLint)front.getHeight();
-
-        // The cross-context primitive is the color texture (LLImageGL), not the
-        // FBO-centric RT. Sample it directly: the guard holds its shared lease
-        // across the draw and its fence orders the GPU. Single-context layers
-        // (no attachment image) fall back to the raw RT name (no lease needed).
-        LLImageGL* sync = front.getColorAttachmentImage();
-        LLScopedTexName src_tex_guard;
-        U32 src_tex;
-        if (sync)
+        if (can_draw)
         {
-            src_tex_guard = sync->getTexName();
-            src_tex = src_tex_guard.get();
+            mBlitShader->unbind();
         }
-        else
-        {
-            src_tex = front.getTexture(0);
-        }
-        llassert(src_tex != 0);
-
-        // Wait on the producer's fence so we only sample finished pixels.
-        if (sync)
-        {
-            sync->waitFrameCompleteFence();
-        }
-
-        // Layer rect in NDC; GL origin bottom-left matches the
-        // compositeOffset convention.
-        const F32 x0 = 2.f * (F32)dst_x / (F32)dst_w - 1.f;
-        const F32 y0 = 2.f * (F32)dst_y / (F32)dst_h - 1.f;
-        const F32 x1 = 2.f * (F32)(dst_x + w) / (F32)dst_w - 1.f;
-        const F32 y1 = 2.f * (F32)(dst_y + h) / (F32)dst_h - 1.f;
-
-        // Bind and draw the layer quad.
-        static const LLStaticHashedString sBlitRect("blit_rect");
-        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, src_tex);
-        mBlitShader->uniform4f(sBlitRect, x0, y0, x1, y1);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-        // Reverse fence: the producer waits on this before writing into
-        // the buffer again.
-        if (sync)
-        {
-            sync->placeReadCompleteFence();
-        }
-    }
-
-    if (shader_ready)
-    {
-        mBlitShader->unbind();
     }
 
     // Layers composited into the present surface; flush any batched GL and

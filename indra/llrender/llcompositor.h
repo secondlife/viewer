@@ -123,8 +123,15 @@ public:
 
     // The blit shader we composite with (compositorblitV/F.glsl, owned
     // and compiled by LLViewerShaderMgr). Until it's set and compiled
-    // we present without drawing any layers.
-    void setBlitShader(LLGLSLShader* shader) { mBlitShader = shader; }
+    // we present without drawing any layers. Callable from any thread:
+    // the shader manager clears this before re-linking the program and
+    // sets it again after, and the lock makes that handoff wait out any
+    // in-flight composite instead of deleting the program under it.
+    void setBlitShader(LLGLSLShader* shader)
+    {
+        std::lock_guard<std::mutex> lock(mBlitShaderMutex);
+        mBlitShader = shader;
+    }
 
     // Debug overlay stats (Show Render Info). Per-layer numbers come
     // straight from the producer's own metrics - we do no bookkeeping
@@ -175,8 +182,12 @@ private:
     U32                     mPresentCount = 0;        // compositor-thread-only
     F64                     mPresentWindowStart = 0.0; // compositor-thread-only
 
-    // Set by the viewer once LLViewerShaderMgr has compiled it.
+    // Set by the viewer once LLViewerShaderMgr has compiled it. Guarded by
+    // mBlitShaderMutex: presentFrame holds the lock across the composite so
+    // a shader reload on the viewer thread can't delete the program while
+    // we're drawing with it.
     LLGLSLShader* mBlitShader = nullptr;
+    std::mutex    mBlitShaderMutex;
 };
 
 #endif // LL_LLCOMPOSITOR_H

@@ -46,7 +46,14 @@ LLViewerThread::LLViewerThread(LLWindow* window)
     // The shared context has to be created on the OS main thread,
     // which is where this constructor runs.
     mContext = mWindow->createSharedContext();
-    llassert(mContext != nullptr);
+    if (!mContext)
+    {
+        // An llassert alone compiles out in Release, and running without a
+        // context doesn't fail loudly on its own: wglMakeCurrent(hdc, NULL)
+        // succeeds, so the whole render thread would just no-op its GL with
+        // no diagnostic pointing here. Die with the cause named instead.
+        LL_ERRS() << "Failed to create the viewer render context, verify graphics driver installed and current." << LL_ENDL;
+    }
 }
 
 LLViewerThread::~LLViewerThread()

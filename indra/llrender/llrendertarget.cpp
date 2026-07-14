@@ -114,9 +114,6 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
 {
     S32 pix_diff = (resx*resy)-(mResX*mResY);
 
-    mResX = resx;
-    mResY = resy;
-
     llassert(mInternalFormat.size() == mTex.size());
 
     for (U32 i = 0; i < mTex.size(); ++i)
@@ -127,9 +124,35 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
         // unguarded - we hold the lease, so getTexName() would self-deadlock.
         // The GL name is stable across re-spec, so the LLImageGL stays valid.
         LLUniqueLease lease = mTex[i]->getUniqueLease();
+
+        // The consumer's CPU-side lease is released before ours granted, but
+        // its GPU reads of the old storage can still be in flight. Same
+        // contract as any other writer into this attachment: wait its
+        // read-complete fence (server-side, orders our re-spec after the
+        // read) before touching the storage. No-op without cross-context
+        // sync.
+        mTex[i]->waitReadCompleteFence();
+
+        if (i == 0)
+        {
+            // Publish the new size under the first attachment's unique
+            // lease. The compositor reads getWidth/getHeight while holding
+            // this attachment's shared lease across its draw, so the lease
+            // pair orders size against storage.
+            mResX = resx;
+            mResY = resy;
+        }
+
         gGL.getTexUnit(0)->bindManual(mUsage, mTex[i]->getTexNameRaw());
         LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, mInternalFormat[i], mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
         sBytesAllocated += pix_diff*4;
+    }
+
+    if (mTex.empty())
+    {
+        // Depth-only RT: no color attachment lease to publish under.
+        mResX = resx;
+        mResY = resy;
     }
 
     // Only the owner re-specs depth; a borrower (mDepth null, mSharedDepth set)
@@ -137,6 +160,7 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
     if (mDepth.notNull())
     {
         LLUniqueLease lease = mDepth->getUniqueLease();
+        mDepth->waitReadCompleteFence();
         U32 internal_type = LLTexUnit::getInternalType(mUsage);
         gGL.getTexUnit(0)->bindManual(mUsage, mDepth->getTexNameRaw());
         LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);

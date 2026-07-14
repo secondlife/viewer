@@ -3758,9 +3758,9 @@ bool LLAppViewer::initWindow()
         mCompositor.attachToWindow(gViewerWindow->getWindow(), w, h);
         mCompositor.addCompositable(this);
 
-        // Shader objects are shared across the context share group, so
-        // the compositor can use this program from the OS main thread.
-        mCompositor.setBlitShader(&gCompositorBlitProgram);
+        // The blit shader is handed to the compositor by
+        // LLViewerShaderMgr::loadShadersInterface once it's linked (and
+        // taken away / re-handed around every shader reload).
 
         // Seed the vsync mode; the compositor applies the interval on
         // its own context at the first present.
