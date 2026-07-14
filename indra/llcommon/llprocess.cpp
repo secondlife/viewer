@@ -34,16 +34,11 @@
 #include "llexception.h"
 #include "stringize.h"
 
-#include <boost/process.hpp>
-#include <boost/process/v1/child.hpp>
-#include <boost/process/v1/io.hpp>
-#include <boost/process/v1/args.hpp>
-#include <boost/process/v1/start_dir.hpp>
-#include <boost/process/v1/search_path.hpp>
-#include <boost/process/v1/async.hpp>
-#include <boost/process/v1/async_pipe.hpp>
+#include <boost/process/v2/process.hpp>
+#include <boost/process/v2/environment.hpp>
+#include <boost/process/v2/start_dir.hpp>
+#include <boost/process/v2/stdio.hpp>
 #include <boost/asio.hpp>
-#include <boost/bind.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio/buffers_iterator.hpp>
 #include <iostream>
@@ -68,7 +63,7 @@
 #endif
 
 
-namespace bp = boost::process::v1;
+namespace bp = boost::process::v2;
 namespace asio = boost::asio;
 
 /*****************************************************************************
@@ -106,7 +101,7 @@ class WritePipeImpl : public LLProcess::WritePipe
     LOG_CLASS(WritePipeImpl);
 public:
     WritePipeImpl(const std::string& desc,
-        std::shared_ptr<bp::async_pipe> pipe) :
+        std::shared_ptr<asio::writable_pipe> pipe) :
         mDesc(desc),
         mPipe(pipe),
         mStream(&mStreambuf),
@@ -173,7 +168,7 @@ private:
     }
 
     std::string mDesc;
-    std::shared_ptr<bp::async_pipe> mPipe;
+    std::shared_ptr<asio::writable_pipe> mPipe;
     asio::streambuf mStreambuf;
     std::ostream mStream;
     bool mWritePending;
@@ -184,7 +179,7 @@ class ReadPipeImpl : public LLProcess::ReadPipe
     LOG_CLASS(ReadPipeImpl);
 public:
     ReadPipeImpl(const std::string& desc,
-        std::shared_ptr<bp::async_pipe> pipe,
+        std::shared_ptr<asio::readable_pipe> pipe,
         LLProcess::FILESLOT slot) :
         mDesc(desc),
         mPipe(pipe),
@@ -354,7 +349,7 @@ private:
     }
 
     std::string mDesc;
-    std::shared_ptr<bp::async_pipe> mPipe;
+    std::shared_ptr<asio::readable_pipe> mPipe;
     LLProcess::FILESLOT mSlot;
     mutable asio::streambuf mStreambuf;
     std::istream mStream;
@@ -387,7 +382,7 @@ LLProcess::~LLProcess()
         if (mAttached && mAutokill)
         {
             LL_INFOS("LLProcess") << "Terminating child process " << mDesc << LL_ENDL;
-            std::error_code ec;
+            boost::system::error_code ec;
             mChild->terminate(ec);
 
 #if !LL_WINDOWS
@@ -430,9 +425,9 @@ LLProcess::~LLProcess()
             LL_INFOS("LLProcess") << "Not terminating " << mDesc
                 << " (attached=" << mAttached
                 << ", autokill=" << mAutokill << ")" << LL_ENDL;
-            // Detach the bp::child so its destructor does not send SIGKILL
-            // to the still-running process (boost::process v1 terminates the
-            // child in bp::child::~child() if the handle is still valid).
+            // Detach the bp::process so its destructor does not send SIGKILL
+            // to the still-running process (boost::process v2 terminates the
+            // child in bp::process::~process() if the handle is still valid).
             mChild->detach();
         }
     }
@@ -557,27 +552,28 @@ void LLProcess::launch(const LLSDOrParams& params)
         file_idx++;
     }
 
-    // Create pipes if needed
+    // Create pipes if needed - v2 uses asio pipes directly
+    // NOTE: From parent's perspective: write to stdin, read from stdout/stderr
     if (use_stdin_pipe)
     {
-        mStdinPipe = std::make_shared<bp::async_pipe>(mIOContext);
+        mStdinPipe = std::make_shared<asio::writable_pipe>(mIOContext);
         LL_DEBUGS("LLProcess") << "Created stdin pipe for " << mDesc << LL_ENDL;
     }
     if (use_stdout_pipe)
     {
-        mStdoutPipe = std::make_shared<bp::async_pipe>(mIOContext);
+        mStdoutPipe = std::make_shared<asio::readable_pipe>(mIOContext);
         LL_DEBUGS("LLProcess") << "Created stdout pipe for " << mDesc << LL_ENDL;
     }
     if (use_stderr_pipe)
     {
-        mStderrPipe = std::make_shared<bp::async_pipe>(mIOContext);
+        mStderrPipe = std::make_shared<asio::readable_pipe>(mIOContext);
         LL_DEBUGS("LLProcess") << "Created stderr pipe for " << mDesc << LL_ENDL;
     }
 
     // Build the process
     try
     {
-        std::error_code ec;
+        boost::system::error_code ec;
 #if !LL_WINDOWS
         // Ignore SIGPIPE so that writing to a child's closed stdin doesn't
         // terminate the viewer process. The write will fail with EPIPE instead.
@@ -585,57 +581,55 @@ void LLProcess::launch(const LLSDOrParams& params)
 #endif
 
         // Create child process with appropriate redirections.
-        // Do NOT pass mIOContext to bp::child: boost::process v1 would then
-        // install a SIGCHLD handler via boost::asio without SA_RESTART, which
-        // causes blocking waitpid() calls elsewhere to return EINTR. We detect
-        // child exit ourselves via waitpid(WNOHANG) in tick() instead.
-        //
-        // Use a generic lambda to avoid repeating the executable/args/cwd for
-        // each of the 8 pipe-combination branches.
-        auto make_child = [&](auto&&... redirects) {
-            if (params.cwd.isProvided())
-                mChild = std::make_unique<bp::child>(
-                    params.executable(),
-                    bp::args(args),
-                    bp::start_dir(params.cwd()),
-                    std::forward<decltype(redirects)>(redirects)...,
-                    ec
-                );
-            else
-                mChild = std::make_unique<bp::child>(
-                    params.executable(),
-                    bp::args(args),
-                    std::forward<decltype(redirects)>(redirects)...,
-                    ec
-                );
-        };
+        // v2 uses process_stdio for I/O redirection
+        bp::process_stdio stdio;
 
-        if (use_stdin_pipe && use_stdout_pipe && use_stderr_pipe)
-            make_child(bp::std_in  < *mStdinPipe,
-                       bp::std_out > *mStdoutPipe,
-                       bp::std_err > *mStderrPipe);
-        else if (use_stdin_pipe && use_stdout_pipe)
-            make_child(bp::std_in  < *mStdinPipe,
-                       bp::std_out > *mStdoutPipe);
-        else if (use_stdin_pipe && use_stderr_pipe)
-            make_child(bp::std_in  < *mStdinPipe,
-                       bp::std_err > *mStderrPipe);
-        else if (use_stdout_pipe && use_stderr_pipe)
-            make_child(bp::std_out > *mStdoutPipe,
-                       bp::std_err > *mStderrPipe);
-        else if (use_stdin_pipe)
-            make_child(bp::std_in  < *mStdinPipe);
-        else if (use_stdout_pipe)
-            make_child(bp::std_out > *mStdoutPipe);
-        else if (use_stderr_pipe)
-            make_child(bp::std_err > *mStderrPipe);
+        if (use_stdin_pipe)
+            stdio.in = *mStdinPipe;
         else
-            make_child();
+            stdio.in = nullptr; // inherit
 
-        if (ec)
+        if (use_stdout_pipe)
+            stdio.out = *mStdoutPipe;
+        else
+            stdio.out = nullptr; // inherit
+
+        if (use_stderr_pipe)
+            stdio.err = *mStderrPipe;
+        else
+            stdio.err = nullptr; // inherit
+
+        // Build executable path
+        boost::filesystem::path executable_path(params.executable());
+
+        // In Boost.Process v2, error_code cannot be passed as an initializer.
+        // Use the throwing overload and catch the exception instead.
+        try
+        {
+            if (params.cwd.isProvided())
+            {
+                mChild = std::make_unique<bp::process>(
+                    mIOContext,
+                    executable_path,
+                    args,
+                    bp::process_start_dir(params.cwd()),
+                    stdio
+                );
+            }
+            else
+            {
+                mChild = std::make_unique<bp::process>(
+                    mIOContext,
+                    executable_path,
+                    args,
+                    stdio
+                );
+            }
+        }
+        catch (const boost::system::system_error& ex)
         {
             throw std::runtime_error(STRINGIZE("failed to launch " << params.executable()
-                << ": " << ec.message()));
+                << ": " << ex.what()));
         }
 
         mStatus.mState = RUNNING;
@@ -893,7 +887,7 @@ bool LLProcess::kill(const std::string& who)
     // Call TerminateProcess directly with exit code (UINT)-1 so that
     // tick()'s GetExitCodeProcess reads back -1 as a signed int, matching
     // the original APR-based behavior expected by tests and callers.
-    // Do NOT use mChild->terminate(): boost::process v1 may use a different
+    // Do NOT use mChild->terminate(): boost::process v2 may use a different
     // exit code (e.g. EXIT_FAILURE=1) or invalidate the handle internally,
     // which would break the exit-code check in tick().
     if (!::TerminateProcess(mChild->native_handle(), (UINT)-1))
@@ -905,7 +899,7 @@ bool LLProcess::kill(const std::string& who)
 #else
     // Send SIGTERM so the child can clean up gracefully, and so tick()'s
     // waitpid() reports WIFSIGNALED/WTERMSIG == SIGTERM rather than SIGKILL.
-    // Do NOT call mChild->terminate(): in boost::process v1, that function
+    // Do NOT call mChild->terminate(): in boost::process v2, that function
     // sends SIGKILL and may set the internal pid to -1, which would cause
     // tick()'s waitpid(mChild->id(), ...) to wait for any child (-1) and
     // never match the result against the stored pid.
@@ -947,10 +941,10 @@ LLProcess::handle LLProcess::getProcessHandle() const
 
 #if LL_WINDOWS
     // Duplicate the process handle so the caller owns an independent copy.
-    // boost::process v1's child_handle destructor always closes proc_info.hProcess
-    // (even after child::detach()), so the raw native_handle() becomes invalid
-    // once ~child() runs.  DuplicateHandle gives the caller a handle whose
-    // lifetime is not tied to boost's internal child_handle cleanup.
+    // boost::process v2's process destructor always closes the handle
+    // (even after process::detach()), so the raw native_handle() becomes invalid
+    // once ~process() runs. DuplicateHandle gives the caller a handle whose
+    // lifetime is not tied to boost's internal process cleanup.
     HANDLE source = mChild->native_handle();
     if (!source || source == INVALID_HANDLE_VALUE)
         return 0;

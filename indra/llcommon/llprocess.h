@@ -31,15 +31,15 @@
 #include "llsdparam.h"
 #include "llexception.h"
 #include <memory>
-#include <boost/process.hpp>
-#include <boost/process/v1/child.hpp>
-#include <boost/process/v1/io.hpp>
-#include <boost/process/v1/args.hpp>
-#include <boost/process/v1/start_dir.hpp>
-#include <boost/process/v1/search_path.hpp>
+#include <boost/process/v2/process.hpp>
+#include <boost/process/v2/environment.hpp>
+#include <boost/process/v2/start_dir.hpp>
+#include <boost/process/v2/stdio.hpp>
 #include <boost/signals2.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/streambuf.hpp>
+#include <boost/asio/readable_pipe.hpp>
+#include <boost/asio/writable_pipe.hpp>
 #include <iosfwd>                   // std::ostream
 
 #if LL_WINDOWS
@@ -319,15 +319,17 @@ private:
     void tick();
     void handleExit(Status exitStatus);
 
-    // Boost.Process components
+    // Boost.Process v2 components
     boost::asio::io_context mIOContext;
-    std::unique_ptr<boost::process::v1::child> mChild;
+    std::unique_ptr<boost::process::v2::process> mChild;
 
-    // Pipes - using Boost.Process async pipes (std::shared_ptr so WritePipeImpl/
-    // ReadPipeImpl keep the pipe alive as long as async operations are in flight)
-    std::shared_ptr<boost::process::v1::async_pipe> mStdinPipe;
-    std::shared_ptr<boost::process::v1::async_pipe> mStdoutPipe;
-    std::shared_ptr<boost::process::v1::async_pipe> mStderrPipe;
+    // Pipes - using Boost.Asio pipes directly (v2 no longer has async_pipe)
+    // From parent's perspective: write to stdin (writable_pipe), read from stdout/stderr (readable_pipe)
+    // std::shared_ptr so WritePipeImpl/ReadPipeImpl keep the pipe alive as
+    // long as async operations are in flight
+    std::shared_ptr<boost::asio::writable_pipe> mStdinPipe;
+    std::shared_ptr<boost::asio::readable_pipe> mStdoutPipe;
+    std::shared_ptr<boost::asio::readable_pipe> mStderrPipe;
 
     // Our pipe wrapper implementations
     std::unique_ptr<WritePipe> mWritePipe;

@@ -131,6 +131,12 @@ target_link_libraries(ll::boost INTERFACE
     ${BOOST_URL_LIBRARY}
     ${BOOST_PROCESS_LIBRARY})
 
+if (WINDOWS)
+    # Boost.Process v2 on Windows requires ntdll for NtSuspendProcess,
+    # NtResumeProcess and RtlNtStatusToDosError
+    target_link_libraries(ll::boost INTERFACE ntdll)
+endif (WINDOWS)
+
 if (LINUX)
     target_link_libraries(ll::boost INTERFACE rt)
 endif (LINUX)
