@@ -387,7 +387,7 @@ LLProcess::~LLProcess()
         if (mAttached && mAutokill)
         {
             LL_INFOS("LLProcess") << "Terminating child process " << mDesc << LL_ENDL;
-            boost::system::error_code ec;
+            std::error_code ec;
             mChild->terminate(ec);
 
 #if !LL_WINDOWS
@@ -570,7 +570,7 @@ void LLProcess::launch(const LLSDOrParams& params)
     // Build the process
     try
     {
-        boost::system::error_code ec;
+        std::error_code ec;
 #if !LL_WINDOWS
         // Ignore SIGPIPE so that writing to a child's closed stdin doesn't
         // terminate the viewer process. The write will fail with EPIPE instead.
