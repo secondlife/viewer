@@ -632,6 +632,22 @@ void LLProcess::launch(const LLSDOrParams& params)
                 << ": " << ex.what()));
         }
 
+#if !LL_WINDOWS
+        // boost::process v2 may install a SIGCHLD handler via boost::asio
+        // without SA_RESTART when mIOContext is passed to bp::process.
+        // Without SA_RESTART, blocking waitpid() calls elsewhere in the
+        // process return EINTR when a child exits. Ensure SA_RESTART is set.
+        {
+            struct sigaction sa_chld;
+            if (sigaction(SIGCHLD, nullptr, &sa_chld) == 0 &&
+                !(sa_chld.sa_flags & SA_RESTART))
+            {
+                sa_chld.sa_flags |= SA_RESTART;
+                sigaction(SIGCHLD, &sa_chld, nullptr);
+            }
+        }
+#endif
+
         mStatus.mState = RUNNING;
 
         // Create pipe wrappers
