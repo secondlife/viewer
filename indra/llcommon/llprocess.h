@@ -30,6 +30,7 @@
 #include "llinitparam.h"
 #include "llsdparam.h"
 #include "llexception.h"
+#include <memory>
 #include <boost/process.hpp>
 #include <boost/process/v1/child.hpp>
 #include <boost/process/v1/io.hpp>
@@ -73,7 +74,7 @@ typedef std::shared_ptr<LLProcess> LLProcessPtr;
  * child-process termination in a standalone test context.
  */
 
-class LL_COMMON_API LLProcess
+class LL_COMMON_API LLProcess : public std::enable_shared_from_this<LLProcess>
 {
     LOG_CLASS(LLProcess);
 public:

@@ -641,10 +641,21 @@ void LLProcess::launch(const LLSDOrParams& params)
             );
         }
 
-        // Hook into mainloop for I/O processing
+        // Hook into mainloop for I/O processing.
+        // Capture a weak_ptr to prevent use-after-free: a listener responding
+        // to a synchronous event post inside tick() may drop the last
+        // LLProcessPtr, destroying this object while tick() is on the stack.
+        // Locking the weak_ptr before calling tick() keeps *this alive for the
+        // duration of the callback.
+        std::weak_ptr<LLProcess> weak = shared_from_this();
         mMainloopConnection = LLEventPumps::instance().obtain("mainloop")
             .listen(LLEventPump::inventName("LLProcess"),
-                [this](const LLSD&) { tick(); return false; });
+                [weak](const LLSD&)
+                {
+                    auto self = weak.lock();
+                    if (self) self->tick();
+                    return false;
+                });
 
         LL_INFOS("LLProcess") << "Launched " << mDesc
             << " (PID: " << mChild->id() << ")" << LL_ENDL;
