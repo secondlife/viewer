@@ -402,8 +402,8 @@ LLProcess::~LLProcess()
                         << mDesc << ": " << strerror(errno) << LL_ENDL;
                     break;
                 }
-                // On EINTR (signal interrupted the call) or w == 0 (still
-                // running), wait before the next poll attempt.
+                // Sleep before next poll: applies to both EINTR and
+                // still-running (w == 0) cases.
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
@@ -748,8 +748,8 @@ void LLProcess::tick()
     {
         int status = 0;
         pid_t result;
-        // Retry on EINTR: SA_RESTART only restarts blocking system calls,
-        // not WNOHANG (non-blocking) calls, so manual retry is still needed.
+        // Retry on EINTR: SA_RESTART only applies to blocking calls, not
+        // WNOHANG waitpid(), so manual retry is still needed.
         do { // manual EINTR retry (SA_RESTART does not apply to WNOHANG)
             result = ::waitpid(mChild->id(), &status, WNOHANG);
         } while (result == -1 && errno == EINTR);
