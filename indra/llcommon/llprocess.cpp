@@ -138,6 +138,14 @@ private:
 
         mWritePending = true;
 
+        // Snapshot the number of bytes currently buffered so the async_write
+        // operates on a fixed-size, stable view. Any data written to
+        // get_ostream() while this write is in flight lands in the streambuf's
+        // put area and is excluded from the current operation; it will be sent
+        // on the next tick(). Without this snapshot, a concurrent write to
+        // get_ostream() could reallocate/invalidate the buffer sequence.
+        std::size_t writeSize = mStreambuf.size();
+
         // Write all buffered data asynchronously. Do NOT self-chain in the
         // completion handler: sending the next buffer immediately can cause
         // the child to respond within the same tick(), which posts a read
@@ -145,7 +153,7 @@ private:
         // was the root cause of test 18 "more than 3 events" and test 9
         // "many small messages" failures. tick() calls mWritePipe->tick() on
         // every mainloop frame, so any newly-queued data will be sent then.
-        asio::async_write(*mPipe, mStreambuf.data(),
+        asio::async_write(*mPipe, asio::buffer(mStreambuf.data(), writeSize),
             [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
         {
             mWritePending = false;
