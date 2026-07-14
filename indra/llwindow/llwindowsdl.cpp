@@ -45,8 +45,6 @@
 #include <glib.h>
 #endif
 
-#include <algorithm>
-
 extern "C" {
 # include "fontconfig/fontconfig.h"
 }
@@ -1889,7 +1887,10 @@ LLFontFallbackMatch LLWindowSDL::findFallbackFontForChar(llwchar wch)
 {
     LLFontFallbackMatch result;
 #if LL_LINUX
-    if (!FcInit())
+    // FcInit() is idempotent, but this runs per missing codepoint, so only
+    // attempt initialization once.
+    static bool fc_ready = FcInit();
+    if (!fc_ready)
     {
         LL_WARNS_ONCE() << "FontConfig failed to initialize." << LL_ENDL;
         return result;
@@ -1897,9 +1898,16 @@ LLFontFallbackMatch LLWindowSDL::findFallbackFontForChar(llwchar wch)
 
     // Ask FontConfig for the best font covering this codepoint.
     FcCharSet* charset = FcCharSetCreate();
+    FcPattern* pat = FcPatternCreate();
+    if (!charset || !pat)
+    {
+        if (charset) FcCharSetDestroy(charset);
+        if (pat) FcPatternDestroy(pat);
+        return result;
+    }
+
     FcCharSetAddChar(charset, (FcChar32)wch);
 
-    FcPattern* pat = FcPatternCreate();
     FcPatternAddCharSet(pat, FC_CHARSET, charset);
     FcPatternAddBool(pat, FC_SCALABLE, FcTrue);
 
