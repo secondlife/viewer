@@ -641,8 +641,12 @@ void LLProcess::launch(const LLSDOrParams& params)
         // process return EINTR when a child exits. Ensure SA_RESTART is set.
         {
             struct sigaction sa_chld;
-            if (sigaction(SIGCHLD, nullptr, &sa_chld) == 0 &&
-                !(sa_chld.sa_flags & SA_RESTART))
+            if (sigaction(SIGCHLD, nullptr, &sa_chld) != 0)
+            {
+                LL_WARNS("LLProcess") << "Failed to read SIGCHLD disposition: "
+                    << strerror(errno) << LL_ENDL;
+            }
+            else if (!(sa_chld.sa_flags & SA_RESTART))
             {
                 sa_chld.sa_flags |= SA_RESTART;
                 if (sigaction(SIGCHLD, &sa_chld, nullptr) != 0)
@@ -746,7 +750,7 @@ void LLProcess::tick()
         pid_t result;
         // Retry on EINTR: SA_RESTART only restarts blocking system calls,
         // not WNOHANG (non-blocking) calls, so manual retry is still needed.
-        do {
+        do { // manual EINTR retry (SA_RESTART does not apply to WNOHANG)
             result = ::waitpid(mChild->id(), &status, WNOHANG);
         } while (result == -1 && errno == EINTR);
 
