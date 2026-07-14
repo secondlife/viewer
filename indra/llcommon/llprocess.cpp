@@ -397,9 +397,16 @@ LLProcess::~LLProcess()
             pid_t pid = mChild->id();
             for (int i = 0; i < 30; ++i)
             {
-                int child_status;
-                if (::waitpid(pid, &child_status, WNOHANG) == pid)
-                    break; // child exited
+                int child_status = 0;
+                pid_t w = ::waitpid(pid, &child_status, WNOHANG);
+                if (w == pid || (w == -1 && errno == ECHILD))
+                    break; // child exited or was already reaped
+                if (w == -1 && errno != EINTR)
+                {
+                    LL_WARNS("LLProcess") << "waitpid(" << pid << ") failed while terminating "
+                        << mDesc << ": " << strerror(errno) << LL_ENDL;
+                    break;
+                }
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
