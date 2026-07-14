@@ -708,19 +708,25 @@ LLGameControl::~LLGameControl()
 LLGameControl::State::State()
     :
     mButtons(0),
+    mPhysicalButtons(0),
     mPrevButtons(0)
 
 {
     mAxes.resize(NUM_MOVE_DIRS, 0);
     mRawAxes.resize(NUM_MOVE_DIRS, 0);
     mPrevAxes.resize(NUM_MOVE_DIRS, 0);
+    mPhysicalRawAxes.resize(NUM_AXES, 0);
+    mPhysicalFixedAxes.resize(NUM_AXES, 0);
 }
 
 void LLGameControl::State::clear()
 {
     std::fill(mAxes.begin(), mAxes.end(), 0);
     std::fill(mRawAxes.begin(), mRawAxes.end(), 0);
+    std::fill(mPhysicalRawAxes.begin(), mPhysicalRawAxes.end(), 0);
+    std::fill(mPhysicalFixedAxes.begin(), mPhysicalFixedAxes.end(), 0);
     mButtons = 0;
+    mPhysicalButtons = 0;
 
     // // DO NOT clear mPrevAxes because those are managed by external logic.
     // std::fill(mPrevAxes.begin(), mPrevAxes.end(), 0);
@@ -1260,14 +1266,14 @@ static void routeAxisValue(LLGameControl::State& state, U8 phys, bool phys_is_tr
     storeHalfAxes(state.mRawAxes, (U8)(out * 2), raw_value);
 }
 
-void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
+void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 raw_value)
 {
     device_it it = findDevice(id);
     if (it == mDevices.end())
     {
         LL_WARNS("SDL3") << "Unknown device: joystick=0x" << std::hex << id << std::dec
             << " axis=" << (S32)axis
-            << " value=" << (S32)value << LL_ENDL;
+            << " value=" << (S32)raw_value << LL_ENDL;
         return;
     }
 
@@ -1279,55 +1285,41 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
     {
         LL_WARNS("SDL3") << "Unknown axis: joystick=0x" << std::hex << id << std::dec
             << " axis=" << (S32)(phys)
-            << " value=" << (S32)(value) << LL_ENDL;
+            << " value=" << (S32)(raw_value) << LL_ENDL;
         return;
     }
 
     // The output code says where this physical axis goes: a single canonical axis,
     // the trigger pair (fan-out), or None.
     U8 out = it->mOptions.mapAxis(phys);
-    if (out != phys)
-    {
-        LL_DEBUGS("SDL3") << "Axis mapped: joystick=0x" << std::hex << id << std::dec
-            << " input axis i=" << (S32)phys
-            << " output i=" << (S32)out << LL_ENDL;
-    }
-
-    // Keep the pre-fix (raw) value so the UI can display it alongside the
-    // post-fix value; see LLGameControl::Device::State::mRawAxes.
-    S16 raw_value = value;
-
-    // Fix value using this physical axis' settings (dead zone / offset / invert),
-    // or leave the value unchanged.
-    S16 fixed_value = it->mOptions.fixAxisValue(phys, value);
-    if (fixed_value != value)
-    {
-        LL_DEBUGS("SDL3") << "Value fixed: joystick=0x" << std::hex << id << std::dec
-            << " axis i=" << (S32)phys
-            << " input value=" << (S32)value
-            << " fixed value=" << (S32)fixed_value << LL_ENDL;
-        value = fixed_value;
-    }
 
     // Note: the RAW analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD
     // whereas those directions are actually POSITIVE in SL's local right-handed
     // reference frame.  Therefore we implicitly negate those axes here where
-    // they are extracted from SDL, before being used anywhere.  The raw value is
+    // they are extracted from SDL, before being used anywhere.  The raw_value is
     // negated the same way so both share one sign convention and differ only by
     // the fix transform (dead zone / offset / invert).  Triggers are positive-only
     // and are left un-negated.
     bool phys_is_trigger = phys >= LLGameControl::AXIS_LEFT_TRIGGER;
     if (!phys_is_trigger)
     {
-        value = negateAxisValue(value);
         raw_value = negateAxisValue(raw_value);
     }
 
+    S16 fixed_value = it->mOptions.fixAxisValue(phys, raw_value);
     LL_DEBUGS("SDL3") << "joystick=0x" << std::hex << id << std::dec
         << " axis=" << (S32)(phys)
-        << " value=" << (S32)(value) << LL_ENDL;
+        << " raw_value=" << (S32)(raw_value)
+        << " fixed_value=" << (S32)(fixed_value) << LL_ENDL;
 
-    routeAxisValue(it->mState, phys, phys_is_trigger, out, value, raw_value);
+    // Preserve the pre-map values keyed by physical axis for the preferences UI.
+    // routeAxisValue() below re-keys the state axes by canonical output axis, which
+    // loses 'phys'; the Device-State tab's per-physical-axis rows need it.  Stored
+    // unconditionally (even when 'out' is disabled) so a row still shows its reading.
+    it->mState.mPhysicalRawAxes[phys]   = raw_value;
+    it->mState.mPhysicalFixedAxes[phys] = fixed_value;
+
+    routeAxisValue(it->mState, phys, phys_is_trigger, out, fixed_value, raw_value);
 }
 
 void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool pressed)
@@ -1341,6 +1333,21 @@ void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool presse
     }
 
     mlastActiveControllerID = id;
+
+    // 'button' is the physical button index here; preserve its pressed state keyed by
+    // that index for the preferences Device-State tab (whose rows are physical buttons)
+    // before mapButton() below re-keys it to the canonical button for the input pipeline.
+    if (button < LLGameControl::NUM_BUTTONS)
+    {
+        if (pressed)
+        {
+            it->mState.mPhysicalButtons |= (0x01 << button);
+        }
+        else
+        {
+            it->mState.mPhysicalButtons &= ~(0x01 << button);
+        }
+    }
 
     // Map button using device-specific settings
     // or leave the value unchanged
