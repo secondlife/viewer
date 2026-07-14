@@ -430,7 +430,13 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
 {
     try
     {
-        return std::make_shared<LLProcess>(params);
+        // Construct and then register the mainloop connection separately.
+        // connectMainloop() calls shared_from_this(), which requires the
+        // shared_ptr control block to be fully initialized — this is only true
+        // after make_shared returns, not during the constructor.
+        LLProcessPtr ptr = std::make_shared<LLProcess>(params);
+        ptr->connectMainloop();
+        return ptr;
     }
     catch (const std::exception& e)
     {
@@ -641,22 +647,6 @@ void LLProcess::launch(const LLSDOrParams& params)
             );
         }
 
-        // Hook into mainloop for I/O processing.
-        // Capture a weak_ptr to prevent use-after-free: a listener responding
-        // to a synchronous event post inside tick() may drop the last
-        // LLProcessPtr, destroying this object while tick() is on the stack.
-        // Locking the weak_ptr before calling tick() keeps *this alive for the
-        // duration of the callback.
-        std::weak_ptr<LLProcess> weak = shared_from_this();
-        mMainloopConnection = LLEventPumps::instance().obtain("mainloop")
-            .listen(LLEventPump::inventName("LLProcess"),
-                [weak](const LLSD&)
-                {
-                    auto self = weak.lock();
-                    if (self) self->tick();
-                    return false;
-                });
-
         LL_INFOS("LLProcess") << "Launched " << mDesc
             << " (PID: " << mChild->id() << ")" << LL_ENDL;
     }
@@ -664,6 +654,27 @@ void LLProcess::launch(const LLSDOrParams& params)
     {
         throw std::runtime_error(STRINGIZE("failed to create process: " << e.what()));
     }
+}
+
+void LLProcess::connectMainloop()
+{
+    // Capture a weak_ptr to prevent use-after-free: a listener responding to
+    // a synchronous event post inside tick() may drop the last LLProcessPtr,
+    // destroying this object while tick() is on the call stack. Locking the
+    // weak_ptr before calling tick() keeps *this alive for the duration of
+    // the callback.
+    // NOTE: shared_from_this() is only valid after the shared_ptr owning this
+    // object has been fully constructed, so this must be called from create()
+    // rather than from the constructor.
+    std::weak_ptr<LLProcess> weak = shared_from_this();
+    mMainloopConnection = LLEventPumps::instance().obtain("mainloop")
+        .listen(LLEventPump::inventName("LLProcess"),
+            [weak](const LLSD&)
+            {
+                auto self = weak.lock();
+                if (self) self->tick();
+                return false;
+            });
 }
 
 void LLProcess::tick()

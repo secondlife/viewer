@@ -247,6 +247,7 @@ public:
 
 private:
     void launch(const LLSDOrParams& params);
+    void connectMainloop();
     void tick();
     void handleExit(Status exitStatus);
 
