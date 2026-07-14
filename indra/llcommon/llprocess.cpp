@@ -41,6 +41,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio/buffers_iterator.hpp>
+#include <boost/filesystem/path.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <limits>
@@ -575,7 +576,6 @@ void LLProcess::launch(const LLSDOrParams& params)
     // Build the process
     try
     {
-        boost::system::error_code ec;
 #if !LL_WINDOWS
         // Ignore SIGPIPE so that writing to a child's closed stdin doesn't
         // terminate the viewer process. The write will fail with EPIPE instead.
@@ -828,7 +828,7 @@ void LLProcess::handleExit(Status exitStatus)
         // Keep polling until no more handlers are immediately ready.
     }
 
-    LL_INFOS("LLProcess") << mDesc << " " << getStatusString(mStatus) << LL_ENDL;
+    LL_INFOS("LLProcess") << getStatusString(mStatus) << LL_ENDL;
 
     // Post to event pump if configured
     if (!mPostend.empty())
