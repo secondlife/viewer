@@ -50,7 +50,10 @@
 #include <stdexcept>
 #include <limits>
 #include <algorithm>
+#include <chrono>
+#include <cstring>
 #include <errno.h>
+#include <thread>
 #include <vector>
 #include <typeinfo>
 #include <signal.h>
