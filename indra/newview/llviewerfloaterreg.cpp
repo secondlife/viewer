@@ -69,6 +69,7 @@
 #include "llfloaterdirectory.h"
 #include "llfloaterdisplayname.h"
 #include "llfloatereditextdaycycle.h"
+#include "llfloaterembeddedbrowsertest.h"
 #include "llfloateremojipicker.h"
 #include "llfloaterenvironmentadjust.h"
 #include "llfloaterexperienceprofile.h"
@@ -375,6 +376,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("env_edit_extdaycycle", "floater_edit_ext_day_cycle.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditExtDayCycle>);
     LLFloaterReg::add("my_environments", "floater_my_environments.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMyEnvironment>);
 
+    LLFloaterReg::add("embedded_browser_test", "floater_embedded_browser_test.xml", (LLFloaterBuildFunc) &LLFloaterReg::build<LLFloaterEmbeddedBrowserTest>);
     LLFloaterReg::add("event", "floater_event.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEvent>);
     LLFloaterReg::add("experiences", "floater_experiences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterExperiences>);
     LLFloaterReg::add("experience_profile", "floater_experienceprofile.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterExperienceProfile>);

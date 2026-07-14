@@ -223,6 +223,7 @@ set(viewer_SOURCE_FILES
     llfloaterdisplayname.cpp
     llfloatereditenvironmentbase.cpp
     llfloatereditextdaycycle.cpp
+    llfloaterembeddedbrowsertest.cpp
     llfloateremojipicker.cpp
     llfloaterenvironmentadjust.cpp
     llfloaterevent.cpp
@@ -903,6 +904,7 @@ set(viewer_HEADER_FILES
     llfloaterdisplayname.h
     llfloatereditenvironmentbase.h
     llfloatereditextdaycycle.h
+    llfloaterembeddedbrowsertest.h
     llfloateremojipicker.h
     llfloaterenvironmentadjust.h
     llfloaterevent.h
@@ -1905,13 +1907,14 @@ if (WINDOWS)
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         stage_third_party_libs
         llwebrtc
+        llembeddedbrowser
         ${COPY_INPUT_DEPENDENCIES}
       COMMENT "Performing viewer_manifest copy"
       )
 
     add_custom_target(copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat)
 
-    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon llwebrtc copy_w_viewer_manifest)
+    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon llwebrtc llembeddedbrowser copy_w_viewer_manifest)
 
     # Useful for remote debugging or profiling if set to target a shared drive. for example, brad sets it to "dist/secondlife" to deploy under
     # the build tree (and then I share that directory) or "f:/dist/secondlife" to deploy to a network mounted drive (although this can be slow).
@@ -2091,6 +2094,7 @@ endif (WINDOWS)
 target_link_libraries(${VIEWER_BINARY_NAME}
         llaudio
         llcharacter
+        llembeddedbrowser
         llimage
         llinventory
         llmessage
@@ -2383,7 +2387,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
           "${VIEWER_APP_XCARCHIVE}"
             "${VIEWER_CHANNEL}"
           WORKING_DIRECTORY "${SYMBOLS_STAGING_DIR}/.."
-          DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc
+          DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc llembeddedbrowser
           COMMENT "Generating ${VIEWER_APP_XCARCHIVE} for upload to BugSplat"
         )
       add_custom_target(generate_symbols DEPENDS

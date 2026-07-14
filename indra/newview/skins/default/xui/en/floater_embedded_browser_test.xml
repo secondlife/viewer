@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+  legacy_header_height="18"
+  can_resize="false"
+  height="580"
+  layout="topleft"
+  name="contents"
+  title="Embedded Browser Test"
+  width="544">
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Red"
+      layout="bottomleft"
+      right="-350"
+      name="browse_red_btn"
+      bottom="10"
+      width="90" />
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Green"
+      layout="bottomleft"
+      right="-250"
+      name="browse_green_btn"
+      bottom="10"
+      width="90" />
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Blue"
+      layout="bottomleft"
+      right="-150"
+      name="browse_blue_btn"
+      bottom="10"
+      width="90" />
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Close"
+      layout="bottomleft"
+      right="-10"
+      name="close_btn"
+      bottom="10"
+      width="90" />
+
+</floater>
