@@ -402,6 +402,8 @@ LLProcess::~LLProcess()
                         << mDesc << ": " << strerror(errno) << LL_ENDL;
                     break;
                 }
+                // On EINTR (signal interrupted the call) or w == 0 (still
+                // running), wait before the next poll attempt.
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
 
@@ -643,7 +645,11 @@ void LLProcess::launch(const LLSDOrParams& params)
                 !(sa_chld.sa_flags & SA_RESTART))
             {
                 sa_chld.sa_flags |= SA_RESTART;
-                sigaction(SIGCHLD, &sa_chld, nullptr);
+                if (sigaction(SIGCHLD, &sa_chld, nullptr) != 0)
+                {
+                    LL_WARNS("LLProcess") << "Failed to set SA_RESTART on SIGCHLD: "
+                        << strerror(errno) << LL_ENDL;
+                }
             }
         }
 #endif
@@ -738,6 +744,8 @@ void LLProcess::tick()
     {
         int status = 0;
         pid_t result;
+        // Retry on EINTR: SA_RESTART only restarts blocking system calls,
+        // not WNOHANG (non-blocking) calls, so manual retry is still needed.
         do {
             result = ::waitpid(mChild->id(), &status, WNOHANG);
         } while (result == -1 && errno == EINTR);
