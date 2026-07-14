@@ -106,8 +106,9 @@ jobs:
       # Only set variants to the one configuration: don't let build.sh loop
       # over variants, let GitHub distribute variants over multiple hosts.
       variants: ${{ matrix.configuration }}
-      # Pass USE_VELOPACK to CMake when using Velopack installer (default) - Windows and macOS
-      autobuild_configure_parameters: ${{ (contains(matrix.runner, 'windows') || contains(matrix.runner, 'macos')) && (github.event.inputs.installer_type || 'velopack') == 'velopack' && '-- -DUSE_VELOPACK:BOOL=ON' || '' }}
+      # Velopack installer for Windows/macOS. Needs the private velopack package,
+      # so skip it when there's no token (open source / fork builds).
+      autobuild_configure_parameters: ${{ (contains(matrix.runner, 'windows') || contains(matrix.runner, 'macos')) && secrets.SHARED_AUTOBUILD_GITHUB_TOKEN != '' && (github.event.inputs.installer_type || 'velopack') == 'velopack' && '-- -DUSE_VELOPACK:BOOL=ON' || '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
