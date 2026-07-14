@@ -46,8 +46,9 @@ class LLTextBox;
 //   - Actions (global, per mode Avatar/FlyCam/Captive): one table binding each
 //     mode's axis and button actions to a canonical input.  Independent of device.
 //   - Devices (per device): normalizes physical hardware to canonical inputs --
-//     an axis-channels table (Input | Invert | Dead Zone | Offset | Output) and a
-//     button-channels table (Input | Output).
+//     an axis-channels table and a button-channels table, each mapping the physical
+//     input (icon + text) to the canonical output (icon + text).  Axis tuning
+//     (invert/offset/dead zone) lives on the Device State tab.
 //
 // All settings are stored under a single "GameControl" key:
 //   GameControl/ModeMappings/<Mode>/{Axes,Buttons} - GLOBAL action -> input
@@ -118,6 +119,11 @@ protected:
     void populateDataOutputValues();    // Fill the Value column from the last outgoing server state
 
     // Utility methods
+    // Column index of a named axis-state column.  Lets the code address the
+    // Device State axis table by column name, so the XML column order is the
+    // single source of truth: columns can be reordered in the XML with no code
+    // change here.  Returns -1 if no such column exists.
+    S32 axisStateColumn(const std::string& name) const;
     static void setNumericLabel(LLScrollListCell* cell, S32 value);  // Format numeric cell
     static void fitInRect(LLUICtrl* ctrl, LLScrollListCtrl* grid, S32 row_index, S32 col_index);  // Position editor over cell
 
@@ -174,8 +180,8 @@ private:
     LLCheckBoxCtrl* mCheckShowAllDevices { nullptr };  // Include disconnected devices
     LLPanel* mPanelDeviceSettings { nullptr };
     LLButton* mRestoreDeviceDefaults { nullptr };
-    LLScrollListCtrl* mAxisChannels { nullptr };    // Input | Invert | Dead Zone | Offset | Output
-    LLScrollListCtrl* mButtonChannels { nullptr };  // Input | Output
+    LLScrollListCtrl* mAxisChannels { nullptr };    // input(glyph) | input_description | output_description | output(glyph)
+    LLScrollListCtrl* mButtonChannels { nullptr };  // input(glyph) | input_description | output_description | output(glyph)
 
     // Device State tab (per-device, live read-only)
     LLPanel* mTabDeviceState { nullptr };
@@ -184,8 +190,8 @@ private:
     LLTextBox* mStateRemapNote { nullptr };        // Note that values are post-remap
     LLComboBox* mStateDeviceList { nullptr };      // Dropdown listing connected devices
     LLPanel* mPanelDeviceState { nullptr };        // Wrapper holding the two state tables
-    LLScrollListCtrl* mAxisState { nullptr };      // Axis | Value (live raw axis values)
-    LLScrollListCtrl* mButtonState { nullptr };    // Button | Value (live pressed state)
+    LLScrollListCtrl* mAxisState { nullptr };      // Input(glyph) | Axis | Raw/Adjusted values | invert/offset/dead-zone
+    LLScrollListCtrl* mButtonState { nullptr };    // Input(glyph) | Button | Value (live pressed state)
     std::string mStateSelectedDeviceGUID;          // GUID of the device shown in the state tab
 
     // Data Output tab (live, read-only view of the last outgoing GameControlInput)
@@ -204,6 +210,11 @@ private:
     // PromptFont glyph.  Built in postBuild() from the text selectors' values.
     LLComboBox* mAxisInputGlyphSelector { nullptr };
     LLComboBox* mButtonInputGlyphSelector { nullptr };
+
+    // Glyph counterpart of mAxisOutputSelector, shown when the user edits the
+    // PromptFont icon ("output") column of the Devices-tab axis-channels table
+    // instead of the text "output_description" column.  Built in postBuild().
+    LLComboBox* mAxisOutputGlyphSelector { nullptr };
 
     // Action selectors: source of the "Action" column rows, chosen by edit mode.
     LLComboBox* mAnalogActionSelector { nullptr };        // Avatar/Captive axis actions

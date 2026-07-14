@@ -293,7 +293,23 @@ public:
         bool onButton(U8 button, bool pressed);
         std::vector<U16> mAxes; // [ 0 , 32767 ] post-fix (dead zone/offset/invert applied), split into +/- half-axes
         std::vector<U16> mRawAxes; // [ 0 , 32767 ] pre-fix values, same +/- half-axis layout as mAxes
+
+        // Pre-map (physical-axis-indexed) copies of the per-axis values, kept only for
+        // the preferences Device-State tab.  onAxis() re-keys mAxes/mRawAxes by canonical
+        // output axis (mapAxis) for the input pipeline, discarding the physical index; the
+        // tab's rows are physical-axis-indexed (their Invert/Offset/Dead-Zone options are),
+        // so it reads these to show Raw/Adjusted on the matching row.  Signed [ -32768,
+        // 32767 ], one entry per physical axis (NUM_AXES), not split into half-axes.
+        std::vector<S16> mPhysicalRawAxes;   // pre-fix, indexed by physical axis
+        std::vector<S16> mPhysicalFixedAxes; // post-fix, indexed by physical axis
+
         U32 mButtons;
+
+        // Pre-map button state, keyed by physical button index (same reason as the
+        // mPhysical*Axes above): onButton() re-keys mButtons by canonical button
+        // (mapButton) for the input pipeline, and the Device-State tab's rows are
+        // physical buttons, so it reads this to show each row's own pressed state.
+        U32 mPhysicalButtons;
 
         std::vector<U16> mPrevAxes;
         U32 mPrevButtons;

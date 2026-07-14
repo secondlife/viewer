@@ -38,8 +38,8 @@
         bottom="-2">
         <!-- ACTIONS: global, per-mode.  Binds canonical inputs to logical actions. -->
         <panel
-            name="tab_actions"
-            label="Actions Mappings">
+            name="tab_action_mappings"
+            label="Action Mappings">
             <!-- Mode selector: one row per action mode.  Selecting a row chooses
                  which mode's mappings are edited below; the "Enabled" checkbox
                  toggles whether game-control input is converted to that mode's
@@ -110,8 +110,8 @@
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
                         <scroll_list.columns name="action" label="Action" relative_width="0.40"/>
-                        <scroll_list.columns name="input" label="Axis" relative_width="0.20"/>
-                        <scroll_list.columns name="input_description" label="Description" relative_width="0.40"/>
+                        <scroll_list.columns name="input" label="Input" relative_width="0.20"/>
+                        <scroll_list.columns name="input_description" label="Axis" relative_width="0.40"/>
                     </scroll_list>
                 </panel>
                 <panel
@@ -136,16 +136,16 @@
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
                         <scroll_list.columns name="action" label="Action" relative_width="0.40"/>
-                        <scroll_list.columns name="input" label="Button" relative_width="0.20"/>
-                        <scroll_list.columns name="input_description" label="Description" relative_width="0.40"/>
+                        <scroll_list.columns name="input" label="Input" relative_width="0.20"/>
+                        <scroll_list.columns name="input_description" label="Button" relative_width="0.40"/>
                     </scroll_list>
                 </panel>
             </panel>
         </panel>
         <!-- DEVICES: per-device.  Normalizes physical hardware to canonical inputs. -->
         <panel
-            name="tab_devices"
-            label="Device Options">
+            name="tab_device_mappings"
+            label="Device Mappings">
             <text
                 type="string"
                 name="nodevice_message"
@@ -223,8 +223,10 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="input"  label="Input"  relative_width="0.5"/>
-                        <scroll_list.columns name="output" label="Output" relative_width="0.5"/>
+                        <scroll_list.columns name="input"              label=""              relative_width="0.15"/>
+                        <scroll_list.columns name="input_description"  label="What you press" relative_width="0.35"/>
+                        <scroll_list.columns name="output_description" label="What you get"   relative_width="0.35"/>
+                        <scroll_list.columns name="output"             label=""              relative_width="0.15"/>
                     </scroll_list>
                 </panel>
                 <panel
@@ -248,16 +250,18 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="input"  label="Input"  relative_width="0.5"/>
-                        <scroll_list.columns name="output" label="Output" relative_width="0.5"/>
+                        <scroll_list.columns name="input"              label=""              relative_width="0.15"/>
+                        <scroll_list.columns name="input_description"  label="What you press" relative_width="0.35"/>
+                        <scroll_list.columns name="output_description" label="What you get"   relative_width="0.35"/>
+                        <scroll_list.columns name="output"             label=""              relative_width="0.15"/>
                     </scroll_list>
                 </panel>
             </panel>
         </panel>
         <!-- DEVICE STATE: live, read-only view of the raw input from the selected device. -->
         <panel
-            name="tab_device_state"
-            label="Device State">
+            name="tab_device_options"
+            label="Device Options">
             <text
                 type="string"
                 name="state_nodevice_message"
@@ -316,12 +320,13 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="input"       label="Axis"           relative_width="0.24"/>
-                        <scroll_list.columns name="raw_value"   label="Raw Value"      relative_width="0.15"/>
+                        <scroll_list.columns name="input_glyph" label="Input"          relative_width="0.12"/>
+                        <scroll_list.columns name="input"       label="Axis"           relative_width="0.18"/>
+                        <scroll_list.columns name="raw_value"   label="Raw Value"      relative_width="0.14"/>
+                        <scroll_list.columns name="offset"      label="Offset"         relative_width="0.12"/>
                         <scroll_list.columns name="invert"      label="Invert"         type="checkbox" relative_width="0.10"/>
-                        <scroll_list.columns name="offset"      label="Offset"         relative_width="0.13"/>
-                        <scroll_list.columns name="dead_zone"   label="Dead Zone"      relative_width="0.16"/>
-                        <scroll_list.columns name="fixed_value" label="Adjusted Value" relative_width="0.22"/>
+                        <scroll_list.columns name="dead_zone"   label="Dead Zone"      relative_width="0.15"/>
+                        <scroll_list.columns name="fixed_value" label="Adjusted Value" relative_width="0.19"/>
                     </scroll_list>
                 </panel>
                 <panel
@@ -345,8 +350,9 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="input" label="Button" relative_width="0.5"/>
-                        <scroll_list.columns name="value" label="Value"  relative_width="0.5"/>
+                        <scroll_list.columns name="input_glyph" label="Input"  relative_width="0.15"/>
+                        <scroll_list.columns name="input"       label="Button" relative_width="0.45"/>
+                        <scroll_list.columns name="value"       label="Value"  relative_width="0.40"/>
                     </scroll_list>
                 </panel>
             </panel>
@@ -354,20 +360,20 @@
         <!-- DATA OUTPUT: live, read-only view of the channel values packed into the
              most recent outgoing GameControlInput message. -->
         <panel
-            name="tab_data_output"
-            label="Data Output">
+            name="tab_server_data"
+            label="Server Data">
             <text
                 type="string"
-                name="data_output_note"
+                name="data_note"
                 layout="topleft"
                 follows="top|left|right"
                 word_wrap="true"
                 top="8"
                 left="9"
                 right="-9"
-                height="28">The last GameControlData sent to the server:</text>
+                height="28">Data sent to the server:</text>
             <panel
-                name="data_output_panel"
+                name="data_panel"
                 layout="topleft"
                 follows="all"
                 top="30"
@@ -387,7 +393,7 @@
                     multi_select="false"
                     selection_type="header"
                     fg_disable_color="ScrollUnselectedColor">
-                    <scroll_list.columns name="output" label="Output" relative_width="0.5"/>
+                    <scroll_list.columns name="output" label="Name" relative_width="0.5"/>
                     <scroll_list.columns name="value"  label="Value"  relative_width="0.5"/>
                 </scroll_list>
             </panel>
@@ -483,6 +489,14 @@
             name="axis_none"
             value="AXIS_NONE"/>
     </combo_box>
+    <!-- axis_output_glyph_selector: the glyph counterpart of axis_output_selector,
+         shown when editing the PromptFont "output" (icon) column of the Devices-tab
+         axis-channels table.  Items are built in C++ from axis_output_selector's
+         values; each item's label is the PromptFont glyph for that canonical axis. -->
+    <combo_box
+        name="axis_output_glyph_selector"
+        width="200"
+        height="18"/>
     <combo_box
         name="analog_action_selector"
         width="380"
