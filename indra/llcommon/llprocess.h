@@ -102,9 +102,9 @@ public:
     };
 
     /// Param block definition
-    struct Params : public LLInitParam::Block<Params>
+    struct Params: public LLInitParam::Block<Params>
     {
-        Params() :
+        Params():
             executable("executable"),
             args("args"),
             cwd("cwd"),
@@ -116,16 +116,84 @@ public:
         {
         }
 
+        /// pathname of executable
         Mandatory<std::string> executable;
+        /**
+         * zero or more additional command-line arguments. Arguments are
+         * passed through as exactly as we can manage, whitespace and all.
+         * @note On Windows we manage this by implicitly double-quoting each
+         * argument while assembling the command line.
+         */
         Multiple<std::string> args;
+        /// current working directory, if need it changed
         Optional<std::string> cwd;
+        /// implicitly kill child process on termination of parent, whether
+        /// voluntary or crash (default true)
         Optional<bool> autokill;
+        /// implicitly kill process on destruction of LLProcess object
+        /// (default same as autokill)
+        ///
+        /// Originally, 'autokill' conflated two concepts: kill child process on
+        /// - destruction of its LLProcess object, and
+        /// - termination of parent process, voluntary or otherwise.
+        ///
+        /// It's useful to tease these apart. Some child processes are sent a
+        /// "clean up and terminate" message before the associated LLProcess
+        /// object is destroyed. A child process launched with attached=false
+        /// has an extra time window from the destruction of its LLProcess
+        /// until parent-process termination in which to perform its own
+        /// orderly shutdown, yet autokill=true still guarantees that we won't
+        /// accumulate orphan instances of such processes indefinitely. With
+        /// attached=true, if a child process cannot clean up between the
+        /// shutdown message and LLProcess destruction (presumably very soon
+        /// thereafter), it's forcibly killed anyway -- which can lead to
+        /// distressing user-visible crash indications.
+        ///
+        /// (The usefulness of attached=true with autokill=false is less
+        /// clear, but we don't prohibit that combination.)
         Optional<bool> attached;
-        Multiple<FileParam, AtMost<3>> files;
+        /**
+         * Up to three FileParam items: for child stdin, stdout, stderr.
+         * Passing two FileParam entries means default treatment for stderr,
+         * and so forth.
+         *
+         * @note LLInitParam::Block permits usage like this:
+         * @code
+         * LLProcess::Params params;
+         * ...
+         * params.files
+         *     .add(LLProcess::FileParam()) // stdin
+         *     .add(LLProcess::FileParam().type("pipe") // stdout
+         *     .add(LLProcess::FileParam().type("file").name("error.log"));
+         * @endcode
+         *
+         * @note While it's theoretically plausible to pass additional open
+         * file handles to a child specifically written to expect them, our
+         * underlying implementation doesn't yet support that.
+         */
+        Multiple<FileParam, AtMost<3> > files;
+        /**
+         * On child-process termination, if this LLProcess object still
+         * exists, post LLSD event to LLEventPump with specified name (default
+         * no event). Event contains at least:
+         *
+         * - "id" as obtained from getProcessID()
+         * - "desc" short string description of child (executable + pid)
+         * - "state" @c state enum value, from Status.mState
+         * - "data"  if "state" is EXITED, exit code; if KILLED, on Posix,
+         *   signal number
+         * - "string" English text describing "state" and "data" (e.g. "exited
+         *   with code 0")
+         */
         Optional<std::string> postend;
+        /**
+         * Description of child process for logging purposes. It need not be
+         * unique; the logged description string will contain the PID as well.
+         * If this is omitted, a description will be derived from the
+         * executable name.
+         */
         Optional<std::string> desc;
     };
-
     typedef LLSDParamAdapter<Params> LLSDOrParams;
 
     static LLProcessPtr create(const LLSDOrParams& params);
@@ -140,10 +208,10 @@ public:
      */
     enum state
     {
-        UNSTARTED,
-        RUNNING,
-        EXITED,
-        KILLED
+        UNSTARTED,                  ///< initial value, invisible to consumer
+        RUNNING,                    ///< child process launched
+        EXITED,                     ///< child process terminated voluntarily
+        KILLED                      ///< child process terminated involuntarily
     };
 
     /**
