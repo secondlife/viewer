@@ -39,7 +39,6 @@
 #include <boost/signals2.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/streambuf.hpp>
-#include <boost/optional.hpp>
 #include <iosfwd>                   // std::ostream
 
 #if LL_WINDOWS
