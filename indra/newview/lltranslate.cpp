@@ -155,7 +155,7 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, LLSD 
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("getMerchantStatusCoro", httpPolicy);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("verifyKeyCoro", httpPolicy);
     LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
     LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
     LLCore::HttpHeaders::ptr_t httpHeaders = std::make_shared<LLCore::HttpHeaders>();
@@ -807,12 +807,16 @@ LLSD LLAzureTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCorout
     LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray);
     LLCore::BufferArrayStream outs(rawbody.get());
 
-    static const std::string allowed_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "
-                                             "0123456789"
-                                             "-._~";
+    // Azure Translator API expects UTF-8 encoded JSON with properly escaped special characters
+    std::string json_escaped_msg = msg;
+    LLStringUtil::replaceString(json_escaped_msg, "\\", "\\\\");  // Escape backslashes first
+    LLStringUtil::replaceString(json_escaped_msg, "\"", "\\\"");  // Escape quotes
+    LLStringUtil::replaceString(json_escaped_msg, "\n", "\\n");   // Escape newlines
+    LLStringUtil::replaceString(json_escaped_msg, "\r", "\\r");   // Escape carriage returns
+    LLStringUtil::replaceString(json_escaped_msg, "\t", "\\t");   // Escape tabs
 
     outs << "[{\"text\":\"";
-    outs << LLURI::escape(msg, allowed_chars);
+    outs << json_escaped_msg;
     outs << "\"}]";
 
     return adapter->postRawAndSuspend(request, url, rawbody, options, headers);
