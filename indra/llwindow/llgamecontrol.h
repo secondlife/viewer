@@ -170,15 +170,14 @@ public:
     };
 
     // Order in which flycam channel values are packed by getFlycamInputs() and
-    // consumed by LLAgent::updateFlycam().  Zoom currently has no FlyCam axis
-    // label (stays 0); Roll is driven by buttons by default.
+    // consumed by LLAgent::updateFlycam().
     enum FlycamChannel : U8
     {
-        FLYCAM_ADVANCE = 0,
-        FLYCAM_PAN,
-        FLYCAM_RISE,
-        FLYCAM_PITCH,
-        FLYCAM_YAW,
+        FLYCAM_TRUCK = 0, // strafe left/right
+        FLYCAM_DOLLY,     // advance forward/back
+        FLYCAM_PAN,       // yaw left/right
+        FLYCAM_TILT,      // pitch up/down
+        FLYCAM_BOOM,      // rise up/down
         FLYCAM_ROLL,
         FLYCAM_ZOOM,
         FLYCAM_NUM_CHANNELS
@@ -424,10 +423,31 @@ public:
     static U8 axisOutputFromName(const std::string& name);
     static std::string axisOutputName(U8 code);
 
+    // Actions bound to a button/axis that don't correspond to an AGENT_CONTROL_*
+    // bit (e.g. they toggle viewer-side state rather than a movement flag).
+    // These are plain small integers, not bitmasks, so they cannot be OR'd into
+    // a flags word; they are carried separately in AgentActions::mMiscActions.
+    static constexpr U32 ACTION_TOGGLE_FLY = 33;
+    static constexpr U32 ACTION_TOGGLE_SIT = 34;
+    static constexpr U32 ACTION_TOGGLE_SPEAK = 35;
+    static constexpr U32 ACTION_TOGGLE_FLYCAM = 36;
+    static constexpr U32 ACTION_TOGGLE_MOUSELOOK = 37;
+    static constexpr U32 ACTION_TOGGLE_3RD_PERSON = 38;
+
+    // Result of translating controller/keyboard State into agent actions:
+    // mControlFlags holds the AGENT_CONTROL_* bits (OR-combinable), while
+    // mMiscActions holds any ACTION_TOGGLE_* (or future non-flag) actions,
+    // in the order they were detected.
+    struct AgentActions
+    {
+        std::vector<U32> mMiscActions;
+        U32 mControlFlags { 0 };
+    };
+
     // Keyboard presses produce action_flags which can be translated into State
     // and game_control devices produce State which can be translated into action_flags.
     // These methods help exchange such translations.
-    static U32 computeInternalActionFlags();
+    static AgentActions computeAgentActions();
     static void setExternalInput(U32 action_flags, U32 buttons_from_keys);
 
     // call this after putting a GameControlInput packet on the wire

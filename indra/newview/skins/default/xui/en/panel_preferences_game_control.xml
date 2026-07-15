@@ -48,7 +48,7 @@
                 name="action_mode_panel"
                 layout="topleft"
                 follows="top|left"
-                top="8"
+                top="6"
                 left="1"
                 width="234"
                 height="72">
@@ -74,7 +74,7 @@
                 name="restore_actions_defaults"
                 layout="topleft"
                 follows="top|right"
-                top="8"
+                top="6"
                 right="-8"
                 height="23"
                 width="140"
@@ -84,7 +84,7 @@
                 name="action_mappings_panel"
                 layout="topleft"
                 follows="all"
-                top="88"
+                top="82"
                 left="1"
                 right="-1"
                 bottom="-1">
@@ -95,7 +95,7 @@
                     top="1"
                     left="1"
                     right="-1"
-                    height="140">
+                    height="146">
                     <scroll_list
                         name="action_mappings_axes"
                         follows="all"
@@ -161,9 +161,9 @@
                 name="show_all_known_devices"
                 label="Show all known devices"
                 layout="topleft"
-                follows="top|right"
-                top="14"
-                right="-9"
+                follows="top|left"
+                top="38"
+                left="61"
                 height="16"
                 width="160"/>
             <text
@@ -172,7 +172,7 @@
                 layout="topleft"
                 follows="top|left"
                 valign="center"
-                top="12"
+                top="10"
                 left="9"
                 height="23"
                 width="48">Device:</text>
@@ -180,7 +180,7 @@
                 name="device_list"
                 layout="topleft"
                 follows="top|left"
-                top="12"
+                top="10"
                 left="61"
                 height="23"
                 width="260"/>
@@ -188,7 +188,7 @@
                 name="restore_device_defaults"
                 layout="topleft"
                 follows="top|right"
-                top="40"
+                top="10"
                 right="-8"
                 height="23"
                 width="140"
@@ -198,7 +198,7 @@
                 name="device_settings"
                 layout="topleft"
                 follows="all"
-                top="68"
+                top="66"
                 left="1"
                 right="-1"
                 bottom="-2">
@@ -209,7 +209,7 @@
                     top="1"
                     left="1"
                     right="-1"
-                    height="140">
+                    height="146">
                     <scroll_list
                         name="axis_channels"
                         follows="all"
@@ -279,23 +279,33 @@
                 layout="topleft"
                 follows="top|left"
                 valign="center"
-                top="12"
+                top="10"
                 left="9"
                 height="23"
                 width="48">Device:</text>
             <combo_box
-                name="state_device_list"
+                name="options_device_list"
                 layout="topleft"
                 follows="top|left"
-                top="12"
+                top="10"
                 left="61"
                 height="23"
                 width="260"/>
+            <button
+                name="restore_device_options_defaults"
+                layout="topleft"
+                follows="top|right"
+                top="10"
+                right="-8"
+                height="23"
+                width="140"
+                label="Restore Defaults"
+                tool_tip="Restores the default Offset, Invert, and Dead Zone for every axis of the selected device."/>
             <panel
                 name="device_state_settings"
                 layout="topleft"
                 follows="all"
-                top="40"
+                top="38"
                 left="1"
                 right="-1"
                 bottom="-2">
@@ -306,7 +316,7 @@
                     top="1"
                     left="1"
                     right="-1"
-                    height="140">
+                    height="146">
                     <scroll_list
                         name="axis_state"
                         follows="all"
@@ -323,10 +333,10 @@
                         <scroll_list.columns name="input_glyph" label="Input"          relative_width="0.12"/>
                         <scroll_list.columns name="input"       label="Axis"           relative_width="0.18"/>
                         <scroll_list.columns name="raw_value"   label="Raw Value"      relative_width="0.14"/>
-                        <scroll_list.columns name="offset"      label="Offset"         relative_width="0.12"/>
+                        <scroll_list.columns name="offset"      label="Offset"         relative_width="0.10"/>
                         <scroll_list.columns name="invert"      label="Invert"         type="checkbox" relative_width="0.10"/>
                         <scroll_list.columns name="dead_zone"   label="Dead Zone"      relative_width="0.15"/>
-                        <scroll_list.columns name="fixed_value" label="Adjusted Value" relative_width="0.19"/>
+                        <scroll_list.columns name="fixed_value" label="Adjusted Value" relative_width="0.21"/>
                     </scroll_list>
                 </panel>
                 <panel
@@ -393,8 +403,9 @@
                     multi_select="false"
                     selection_type="header"
                     fg_disable_color="ScrollUnselectedColor">
-                    <scroll_list.columns name="output" label="Name" relative_width="0.5"/>
-                    <scroll_list.columns name="value"  label="Value"  relative_width="0.5"/>
+                    <scroll_list.columns name="index"  label="#"      relative_width="0.1"/>
+                    <scroll_list.columns name="output" label="Name"   relative_width="0.5"/>
+                    <scroll_list.columns name="value"  label="Value"  relative_width="0.4"/>
                 </scroll_list>
             </panel>
         </panel>
@@ -432,7 +443,7 @@
             name="axis_righty"
             value="AXIS_RIGHTY"/>
         <combo_box.item
-            label="Triggers ↔"
+            label="Triggers ↘↙"
             name="axis_triggers"
             value="AXIS_TRIGGERS"/>
         <combo_box.item
@@ -473,15 +484,15 @@
             name="axis_3"
             value="AXIS_RIGHTY"/>
         <combo_box.item
-            label="L Trigger ←"
+            label="L Trigger ↘"
             name="axis_4"
             value="AXIS_LEFT_TRIGGER"/>
         <combo_box.item
-            label="R Trigger →"
+            label="R Trigger ↙"
             name="axis_5"
             value="AXIS_RIGHT_TRIGGER"/>
         <combo_box.item
-            label="Triggers ↔"
+            label="Triggers ↘↙"
             name="axis_output_triggers"
             value="AXIS_TRIGGERS"/>
         <combo_box.item
@@ -505,8 +516,8 @@
             label="Strafe ↔"
             value="Strafe left/right"/>
         <combo_box.item
-            label="Move ↕"
-            value="Move forward/back"/>
+            label="Advance ↕"
+            value="Advance forward/back"/>
         <combo_box.item
             label="Turn ↔"
             value="Turn left/right"/>
@@ -702,95 +713,85 @@
             label="Crouch"
             value="Crouch"/>
         <combo_box.item
-            label="Toggle sit"
+            label="Sit"
             value="Toggle sit"/>
         <combo_box.item
             label="Interact"
             value="Interact"/>
         <combo_box.item
-            label="Toggle 3rd person view"
-            value="Toggle 3rd person view"/>
+            label="Toggle speak"
+            value="Toggle speak"/>
         <combo_box.item
-            label="Toggle menu"
-            value="Toggle menu"/>
+            label="3rd person view"
+            value="3rd Person camera"/>
         <combo_box.item
             label="Toggle mouselook"
             value="Toggle mouselook"/>
         <combo_box.item
-            label="Toggle fly"
-            value="Toggle fly"/>
-        <combo_box.item
-            label="Toggle flycam"
+            label="FlyCam"
             value="Toggle flycam"/>
         <combo_box.item
-            label="Mouse click left"
+            label="Mouse left"
             value="Mouse click left"/>
         <combo_box.item
-            label="Mouse click right"
+            label="Mouse right"
             value="Mouse click right"/>
         <combo_box.item
-            label="Move forward"
-            value="Move forward"/>
+            label="Advance ↑"
+            value="Advance forward"/>
         <combo_box.item
-            label="Move back"
-            value="Move back"/>
+            label="Retreat ↓"
+            value="Advance back"/>
         <combo_box.item
-            label="Strafe left"
+            label="Strafe ←"
             value="Strafe left"/>
         <combo_box.item
-            label="Strafe right"
+            label="Strafe →"
             value="Strafe right"/>
         <combo_box.item
-            label="Toggle run"
-            value="Toggle run"/>
+            label="Fly ↑"
+            value="Fly up"/>
         <combo_box.item
-            label="Move up"
-            value="Move up"/>
+            label="Fly ↓"
+            value="Fly down"/>
         <combo_box.item
-            label="Move down"
-            value="Move down"/>
-        <combo_box.item
-            label="Turn left"
+            label="Turn ←"
             value="Turn left"/>
         <combo_box.item
-            label="Turn right"
+            label="Turn →"
             value="Turn right"/>
         <combo_box.item
-            label="Touchpad"
-            value="Touchpad"/>
+            label="None"
+            value="None"/>
+    </combo_box>
+    <combo_box
+        name="sit_binary_action_selector"
+        width="380"
+        height="18">
         <combo_box.item
-            label="Roll left"
-            value="Roll left"/>
+            label="Stand"
+            value="Toggle sit"/>
         <combo_box.item
-            label="Roll right"
-            value="Roll right"/>
+            label="Interact"
+            value="Interact"/>
         <combo_box.item
-            label="Action 23"
-            value="Action 23"/>
+            label="Toggle speak"
+            value="Toggle speak"/>
         <combo_box.item
-            label="Action 24"
-            value="Action 24"/>
+            label="3rd person view"
+            value="3rd Person camera"/>
         <combo_box.item
-            label="Action 25"
-            value="Action 25"/>
+            label="Toggle mouselook"
+            value="Toggle mouselook"/>
         <combo_box.item
-            label="Action 26"
-            value="Action 26"/>
+            label="FlyCam"
+            value="Toggle flycam"/>
         <combo_box.item
-            label="Action 27"
-            value="Action 27"/>
+            label="Mouse left"
+            value="Mouse click left"/>
         <combo_box.item
-            label="Action 28"
-            value="Action 28"/>
-        <combo_box.item
-            label="Action 29"
-            value="Action 29"/>
-        <combo_box.item
-            label="Action 30"
-            value="Action 30"/>
-        <combo_box.item
-            label="Action 31"
-            value="Action 31"/>
+            label="Mouse right"
+            value="Mouse click right"/>
         <combo_box.item
             label="None"
             value="None"/>
@@ -803,23 +804,26 @@
         width="380"
         height="18">
         <combo_box.item
-            label="Strafe ↔"
-            value="Strafe left/right"/>
+            label="Truck ↔"
+            value="Truck left/right"/>
         <combo_box.item
-            label="Move ↕"
-            value="Move forward/back"/>
+            label="Dolly ↕"
+            value="Dolly forward/back"/>
         <combo_box.item
-            label="Turn ↔"
-            value="Turn left/right"/>
+            label="Pan ↔"
+            value="Pan left/right"/>
         <combo_box.item
-            label="Look ↕"
-            value="Look up/down"/>
+            label="Tilt ↕"
+            value="Tilt up/down"/>
         <combo_box.item
-            label="Fly ↕"
-            value="Fly up/down"/>
+            label="Boom ↕"
+            value="Boom up/down"/>
         <combo_box.item
             label="Roll ↻↺"
-            value="Roll left/right"/>
+            value="Roll CCW/CW"/>
+        <combo_box.item
+            label="Zoom -/+"
+            value="Zoom in/out"/>
         <combo_box.item
             label="None"
             value="None"/>
@@ -829,38 +833,50 @@
         width="380"
         height="18">
         <combo_box.item
-            label="Select"
-            value="Select"/>
+            label="Zoom -"
+            value="Zoom out"/>
         <combo_box.item
-            label="Toggle AltZoom"
+            label="Pan →"
+            value="Pan right"/>
+        <combo_box.item
+            label="Pan ←"
+            value="Pan left"/>
+        <combo_box.item
+            label="Zoom +"
+            value="Zoom in"/>
+        <combo_box.item
+            label="AltZoom"
             value="Toggle AltZoom"/>
         <combo_box.item
-            label="Interact"
-            value="Interact"/>
+            label="Follow"
+            value="Toggle follow"/>
         <combo_box.item
-            label="Toggle menu"
-            value="Toggle menu"/>
-        <combo_box.item
-            label="Toggle flycam"
+            label="Leave flycam"
             value="Toggle flycam"/>
         <combo_box.item
             label="Roll ↺"
-            value="Roll left"/>
+            value="Roll CCW"/>
         <combo_box.item
             label="Roll ↻"
-            value="Roll right"/>
+            value="Roll CW"/>
         <combo_box.item
-            label="Move ↑"
-            value="Move forward"/>
+            label="Dolly ↑"
+            value="Dolly forward"/>
         <combo_box.item
-            label="Move ↓"
-            value="Move back"/>
+            label="Dolly ↓"
+            value="Dolly back"/>
         <combo_box.item
-            label="Strafe ←"
-            value="Strafe left"/>
+            label="Truck ←"
+            value="Truck left"/>
         <combo_box.item
-            label="Strafe →"
-            value="Strafe right"/>
+            label="Truck →"
+            value="Truck right"/>
+        <combo_box.item
+            label="Boom ↑"
+            value="Boom up"/>
+        <combo_box.item
+            label="Boom ↓"
+            value="Boom down"/>
         <combo_box.item
             label="None"
             value="None"/>

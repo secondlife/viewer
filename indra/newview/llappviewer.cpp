@@ -5430,14 +5430,14 @@ void LLAppViewer::idle()
             }
 
             // Drive the local avatar from the controller.  In Avatar/Captive
-            // modes this moves the avatar; in FlyCam mode applyExternalActionFlags
+            // modes this moves the avatar; in FlyCam mode applyExternalActions
             // ignores movement bits (it early-returns while flycam is active) but
             // still services the flycam on/off toggle, so we run it either way.
             // Flycam *motion* is driven separately below via gAgent.updateFlycam().
             if (LLGameControl::willControlAvatar() || LLGameControl::willControlFlycam())
             {
-                U32 game_control_action_flags = LLGameControl::computeInternalActionFlags();
-                gAgent.applyExternalActionFlags(game_control_action_flags);
+                LLGameControl::AgentActions game_control_actions = LLGameControl::computeAgentActions();
+                gAgent.applyExternalActions(game_control_actions);
             }
         }
 
