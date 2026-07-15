@@ -39,7 +39,11 @@
 #include "llfilepicker.h"
 #include "llfloaterwebcontent.h"    // for handling window close requests and geometry change requests in media browser windows.
 #include "llfocusmgr.h"
+#include "llgl.h"
 #include "llimagegl.h"
+#if LL_WINDOWS
+#include "llwin32headers.h"
+#endif
 #include "llkeyboard.h"
 #include "lllogininstance.h"
 #include "llmarketplacefunctions.h"
@@ -1879,7 +1883,8 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             media_source->setTarget(target);
 
             const std::string plugin_dir = gDirUtilp->getLLPluginDir();
-            if (media_source->init(launcher_name, plugin_dir, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
+            if (media_source->init(launcher_name, plugin_dir, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins"),
+                                  gGLManager.mGLAdapterLuidHigh, gGLManager.mGLAdapterLuidLow, gGLManager.mHasNVDXInterop))
             {
                 return media_source;
             }
@@ -3101,6 +3106,13 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     LLCoros::LockType lock(mLock); // don't allow media source tear-down during update
 
+    // If the accelerated (D3D interop) texture is active, skip the software path —
+    // the GL texture is updated on the main thread via MEDIA_EVENT_ACCELERATED_UPDATE
+    if (media_tex->hasInteropTexture())
+    {
+        return;
+    }
+
     // wrap "data" in an LLImageRaw but do NOT make a copy
     LLPointer<LLImageRaw> raw = new LLImageRaw(data, media_tex->getWidth(), media_tex->getHeight(), media_tex->getComponents(), true);
 
@@ -3152,6 +3164,12 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
     // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
     LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture( mTextureId, USE_MIPMAPS );
 
+    // Don't destroy/recreate the texture when it's backed by D3D interop
+    if (media_tex->hasInteropTexture())
+    {
+        return media_tex;
+    }
+
     if ( mNeedsNewTexture
         || (media_tex->getWidth() != mMediaSource->getTextureWidth())
         || (media_tex->getHeight() != mMediaSource->getTextureHeight())
@@ -3164,6 +3182,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
 
         int texture_width = mMediaSource->getTextureWidth();
         int texture_height = mMediaSource->getTextureHeight();
+
         int texture_depth = mMediaSource->getTextureDepth();
 
         // MEDIAOPT: check to see if size actually changed before doing work
@@ -3609,6 +3628,47 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
                 // This request is directed at another instance
                 pass_through = false;
                 LLFloaterWebContent::geometryChanged(uuid, plugin->getGeometryX(), plugin->getGeometryY(), plugin->getGeometryWidth(), plugin->getGeometryHeight());
+            }
+        }
+        break;
+
+        case LLViewerMediaObserver::MEDIA_EVENT_ACCELERATED_UPDATE:
+        {
+            void* accel_handle = plugin->getAcceleratedTextureHandle();
+            if (accel_handle)
+            {
+                LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture(mTextureId, USE_MIPMAPS);
+                if (media_tex)
+                {
+                    // Pass power-of-two dimensions so the copy texture matches
+                    // what the renderer expects (content in top-left sub-region)
+                    S32 tex_width = llmin(plugin->getTextureWidth(), gGLManager.mGLMaxTextureSize);
+                    S32 tex_height = llmin(plugin->getTextureHeight(), gGLManager.mGLMaxTextureSize);
+
+                    if (media_tex->createGLTextureFromHandle(accel_handle, tex_width, tex_height))
+                    {
+                        // NOTE: do NOT syncTexName() the returned interop name here.
+                        // createGLTextureFromHandle already installs it into the GL
+                        // texture as a *borrowed* name (owned by the interop layer);
+                        // calling syncTexName would clear that borrowed flag and make
+                        // the still-registered name deletable by LLImageGL, which is
+                        // exactly the double-free that crashed LLNetMap::mObjectImage.
+                        mTextureUsedWidth = plugin->getWidth();
+                        mTextureUsedHeight = plugin->getHeight();
+                        mNeedsNewTexture = false;
+                    }
+                    else
+                    {
+                        // Handle was stale (e.g. resize in progress) — release interop
+                        // so the system can recover on the next successful frame
+                        media_tex->releaseInteropResources();
+                        mNeedsNewTexture = true;
+                    }
+                }
+#if LL_WINDOWS
+                CloseHandle(accel_handle);
+#endif
+                plugin->releaseAcceleratedTextureHandle();
             }
         }
         break;

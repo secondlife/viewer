@@ -41,10 +41,13 @@
 // _getpid()/getpid()
 #if LL_WINDOWS
 #include <process.h>
+#include <d3d11_1.h>
+#include <dxgi.h>
 #else
 #include <unistd.h>
 #endif
 
+#include <unordered_map>
 #include "dullahan.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +66,7 @@ private:
     bool init();
 
     void onPageChangedCallback(const unsigned char* pixels, int x, int y, const int width, const int height);
+    void onAcceleratedPageChangedCallback(void* handle, const std::vector<dullahan::dullahan_rect>& dirty_rects);
     void onCustomSchemeURLCallback(std::string url, bool user_gesture, bool is_redirect);
     void onConsoleMessageCallback(std::string message, std::string source, int line);
     void onStatusMessageCallback(std::string value);
@@ -120,6 +124,16 @@ private:
     VolumeCatcher mVolumeCatcher;
     F32 mCurVolume;
     dullahan* mCEFLib;
+#if LL_WINDOWS
+    DWORD mViewerProcessID;
+    LUID mViewerAdapterLuid;
+    bool mSharedTextureEnable;
+    ID3D11Device* mD3DDevice;
+    ID3D11Device1* mD3DDevice1;
+    ID3D11DeviceContext* mD3DContext;
+    U32 mNextTextureId;
+    std::unordered_map<U32, ID3D11Texture2D*> mCopyTextures;
+#endif
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -162,6 +176,16 @@ MediaPluginBase(host_send_func, host_user_data)
 
     mCEFLib = new dullahan();
 
+#if LL_WINDOWS
+    mViewerProcessID = 0;
+    mViewerAdapterLuid = {};
+    mSharedTextureEnable = false;
+    mD3DDevice = nullptr;
+    mD3DDevice1 = nullptr;
+    mD3DContext = nullptr;
+    mNextTextureId = 1;
+#endif
+
     setVolume();
 }
 
@@ -170,6 +194,32 @@ MediaPluginBase(host_send_func, host_user_data)
 MediaPluginCEF::~MediaPluginCEF()
 {
     mCEFLib->shutdown();
+
+#if LL_WINDOWS
+    for (auto& pair : mCopyTextures)
+    {
+        if (pair.second)
+        {
+            pair.second->Release();
+        }
+    }
+    mCopyTextures.clear();
+    if (mD3DDevice1)
+    {
+        mD3DDevice1->Release();
+        mD3DDevice1 = nullptr;
+    }
+    if (mD3DContext)
+    {
+        mD3DContext->Release();
+        mD3DContext = nullptr;
+    }
+    if (mD3DDevice)
+    {
+        mD3DDevice->Release();
+        mD3DDevice = nullptr;
+    }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -204,6 +254,49 @@ void MediaPluginCEF::onPageChangedCallback(const unsigned char* pixels, int x, i
         }
         setDirty(0, 0, mWidth, mHeight);
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::onAcceleratedPageChangedCallback(void* handle, const std::vector<dullahan::dullahan_rect>& dirty_rects)
+{
+#if LL_WINDOWS
+    // DuplicateHandle CEF's NT handle into the viewer process
+    HANDLE viewer_handle = nullptr;
+    HANDLE viewer_process = OpenProcess(PROCESS_DUP_HANDLE, FALSE, mViewerProcessID);
+    if (viewer_process)
+    {
+        DuplicateHandle(
+            GetCurrentProcess(),
+            handle,
+            viewer_process,
+            &viewer_handle,
+            0,
+            FALSE,
+            DUPLICATE_SAME_ACCESS);
+        CloseHandle(viewer_process);
+    }
+
+    if (!viewer_handle)
+    {
+        return;
+    }
+
+    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "accelerated_update");
+    message.setValuePointer("handle", viewer_handle);
+    message.setValueS32("dirty_count", (S32)dirty_rects.size());
+
+    for (size_t i = 0; i < dirty_rects.size(); ++i)
+    {
+        std::string prefix = "dirty_" + std::to_string(i) + "_";
+        message.setValueS32(prefix + "x", dirty_rects[i].x);
+        message.setValueS32(prefix + "y", dirty_rects[i].y);
+        message.setValueS32(prefix + "width", dirty_rects[i].width);
+        message.setValueS32(prefix + "height", dirty_rects[i].height);
+    }
+
+    sendMessage(message);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -612,8 +705,15 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
         {
             if (message_name == "init")
             {
+#if LL_WINDOWS
+                mViewerProcessID = message_in.getValueU32("viewer_pid");
+                mViewerAdapterLuid.HighPart = (LONG)message_in.getValueS32("adapter_luid_high");
+                mViewerAdapterLuid.LowPart = (DWORD)message_in.getValueU32("adapter_luid_low");
+                mSharedTextureEnable = message_in.getValueBoolean("shared_texture_enable");
+#endif
                 // event callbacks from Dullahan
                 mCEFLib->setOnPageChangedCallback(std::bind(&MediaPluginCEF::onPageChangedCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+                mCEFLib->setOnAcceleratedPageChangedCallback(std::bind(&MediaPluginCEF::onAcceleratedPageChangedCallback, this, std::placeholders::_1, std::placeholders::_2));
                 mCEFLib->setOnCustomSchemeURLCallback(std::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
                 mCEFLib->setOnConsoleMessageCallback(std::bind(&MediaPluginCEF::onConsoleMessageCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
                 mCEFLib->setOnStatusMessageCallback(std::bind(&MediaPluginCEF::onStatusMessageCallback, this, std::placeholders::_1));
@@ -710,6 +810,13 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 settings.log_file = mCefLogFile;
                 settings.log_verbose = mCefLogVerbose;
                 settings.autoplay_without_gesture = true;
+
+#if LL_WINDOWS
+                settings.use_adapter_luid           = true;
+                settings.adapter_luid.high_part     = mViewerAdapterLuid.HighPart;
+                settings.adapter_luid.low_part      = mViewerAdapterLuid.LowPart;
+                settings.shared_texture_enable      = mSharedTextureEnable;
+#endif
 
                 std::vector<std::string> custom_schemes(1, "secondlife");
                 mCEFLib->setCustomSchemes(custom_schemes);
@@ -933,6 +1040,21 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             {
                 mEnableMediaPluginDebugging = message_in.getValueBoolean("enable");
             }
+#if LL_WINDOWS0
+            else if (message_name == "accelerated_release")
+            {
+                U32 texture_id = message_in.getValueU32("texture_id");
+                auto it = mCopyTextures.find(texture_id);
+                if (it != mCopyTextures.end())
+                {
+                    if (it->second)
+                    {
+                        it->second->Release();
+                    }
+                    mCopyTextures.erase(it);
+                }
+            }
+#endif
             if (message_name == "pick_file_response")
             {
                 LLSD file_list_llsd = message_in.getValueLLSD("file_list");

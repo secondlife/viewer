@@ -25,7 +25,110 @@
  */
 #include "linden_common.h"
 #include "llgltexture.h"
+#include "llimagegl.h"
 
+#if LL_WINDOWS
+#include <d3d11_1.h>
+#include <dxgi.h>
+
+namespace
+{
+    // Process-wide shared D3D11 device + NV_DX_interop GL device.
+    //
+    // Creating a D3D11 device (DXGI factory + adapter enumeration +
+    // D3D11CreateDevice + wglDXOpenDeviceNV) is expensive, so we build it once
+    // and reuse it for every media texture rather than one device per texture.
+    // Only the per-texture copy target, its interop registration and the blit
+    // resources live on the LLGLTexture instance.
+    struct InteropSharedDevice
+    {
+        ID3D11Device1*        mDevice = nullptr;
+        ID3D11DeviceContext*  mContext = nullptr;
+        HANDLE                mGLDevice = nullptr;
+    };
+
+    InteropSharedDevice gInteropShared;
+
+    // Lazily create (or return the existing) shared device. Returns false on failure.
+    bool getSharedInteropDevice(ID3D11Device1** out_device, ID3D11DeviceContext** out_context, HANDLE* out_gl_device)
+    {
+        if (!gInteropShared.mDevice)
+        {
+            IDXGIAdapter* gl_adapter = nullptr;
+            IDXGIFactory1* factory = nullptr;
+            HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&factory);
+            if (SUCCEEDED(hr) && factory)
+            {
+                if (gGLManager.mGLAdapterLuidHigh || gGLManager.mGLAdapterLuidLow)
+                {
+                    IDXGIAdapter* adapter = nullptr;
+                    for (UINT i = 0; factory->EnumAdapters(i, &adapter) != DXGI_ERROR_NOT_FOUND; ++i)
+                    {
+                        DXGI_ADAPTER_DESC adesc;
+                        if (SUCCEEDED(adapter->GetDesc(&adesc)) &&
+                            adesc.AdapterLuid.HighPart == (LONG)gGLManager.mGLAdapterLuidHigh &&
+                            adesc.AdapterLuid.LowPart == (DWORD)gGLManager.mGLAdapterLuidLow)
+                        {
+                            gl_adapter = adapter;
+                            break;
+                        }
+                        adapter->Release();
+                    }
+                }
+                factory->Release();
+            }
+
+            ID3D11Device* base_device = nullptr;
+            ID3D11DeviceContext* d3d_context = nullptr;
+            hr = D3D11CreateDevice(
+                gl_adapter,
+                gl_adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE,
+                nullptr, 0, nullptr, 0,
+                D3D11_SDK_VERSION,
+                &base_device, nullptr, &d3d_context);
+
+            if (gl_adapter)
+            {
+                gl_adapter->Release();
+            }
+
+            if (FAILED(hr) || !base_device)
+            {
+                LL_WARNS("Texture") << "Failed to create shared D3D11 device, hr=0x" << std::hex << hr << LL_ENDL;
+                return false;
+            }
+
+            ID3D11Device1* d3d_device = nullptr;
+            hr = base_device->QueryInterface(__uuidof(ID3D11Device1), (void**)&d3d_device);
+            base_device->Release();
+            if (FAILED(hr) || !d3d_device)
+            {
+                LL_WARNS("Texture") << "Failed to get shared ID3D11Device1, hr=0x" << std::hex << hr << LL_ENDL;
+                d3d_context->Release();
+                return false;
+            }
+
+            HANDLE gl_device = wglDXOpenDeviceNV(d3d_device);
+            if (!gl_device)
+            {
+                LL_WARNS("Texture") << "wglDXOpenDeviceNV failed for shared device" << LL_ENDL;
+                d3d_context->Release();
+                d3d_device->Release();
+                return false;
+            }
+
+            gInteropShared.mDevice = d3d_device;
+            gInteropShared.mContext = d3d_context;
+            gInteropShared.mGLDevice = gl_device;
+        }
+
+        *out_device = gInteropShared.mDevice;
+        *out_context = gInteropShared.mContext;
+        *out_gl_device = gInteropShared.mGLDevice;
+        return true;
+    }
+}
+#endif
 
 LLGLTexture::LLGLTexture(bool usemipmaps)
 {
@@ -77,6 +180,9 @@ void LLGLTexture::init()
 
 void LLGLTexture::cleanup()
 {
+#if LL_WINDOWS
+    releaseInteropResources();
+#endif
     if(mGLTexturep)
     {
         mGLTexturep->cleanup();
@@ -360,11 +466,290 @@ bool LLGLTexture::isGLTextureCreated() const
 
 void LLGLTexture::destroyGLTexture()
 {
+#if LL_WINDOWS
+    // Tear down the interop layer before mGLTexturep is torn down below, mirroring
+    // cleanup(). releaseInteropResources() drops mGLTexturep's borrowed reference to
+    // the interop name and frees that name itself, so mGLTexturep has nothing to
+    // (double-)free. No-op for non-interop textures.
+    releaseInteropResources();
+#endif
     if(mGLTexturep.notNull() && mGLTexturep->getHasGLTexture())
     {
         mGLTexturep->destroyGLTexture() ;
         mTextureState = DELETED ;
     }
+}
+
+bool LLGLTexture::createGLTextureFromHandle(void* handle, S32 width, S32 height, LLGLuint* tex_name)
+{
+#if LL_WINDOWS
+    if (!gGLManager.mHasNVDXInterop)
+    {
+        LL_WARNS("Texture") << "WGL_NV_DX_interop not available" << LL_ENDL;
+        return false;
+    }
+
+    // Grab the process-wide shared device — created once and reused for every
+    // texture, so we don't pay for a D3D11 device per media surface.
+    ID3D11Device1* d3d_device = nullptr;
+    ID3D11DeviceContext* d3d_context = nullptr;
+    HANDLE gl_device = nullptr;
+    if (!getSharedInteropDevice(&d3d_device, &d3d_context, &gl_device))
+    {
+        return false;
+    }
+
+    // Open the shared texture — NT handle from CEF via DuplicateHandle
+    ID3D11Texture2D* src_texture = nullptr;
+    HRESULT hr = d3d_device->OpenSharedResource1((HANDLE)handle, __uuidof(ID3D11Texture2D), (void**)&src_texture);
+    if (FAILED(hr) || !src_texture)
+    {
+        LL_WARNS("Texture") << "OpenSharedResource1 failed, handle=0x" << std::hex << (uintptr_t)handle
+                            << " hr=0x" << hr << LL_ENDL;
+        return false;
+    }
+
+    D3D11_TEXTURE2D_DESC desc;
+    src_texture->GetDesc(&desc);
+
+    // (Re)create the copy texture if dimensions changed or first call
+    ID3D11Texture2D* d3d_texture = (ID3D11Texture2D*)mInteropTexture;
+    bool need_new_texture = !d3d_texture;
+    if (d3d_texture)
+    {
+        D3D11_TEXTURE2D_DESC existing_desc;
+        d3d_texture->GetDesc(&existing_desc);
+        if (existing_desc.Width != (UINT)width || existing_desc.Height != (UINT)height || existing_desc.Format != desc.Format)
+        {
+            need_new_texture = true;
+        }
+    }
+
+    if (need_new_texture)
+    {
+        // Build the new texture and interop BEFORE tearing down the old one,
+        // so a failure leaves the previous frame intact
+        D3D11_TEXTURE2D_DESC copy_desc = {};
+        copy_desc.Width = width;
+        copy_desc.Height = height;
+        copy_desc.MipLevels = 1;
+        copy_desc.ArraySize = 1;
+        copy_desc.Format = desc.Format;
+        copy_desc.SampleDesc.Count = 1;
+        copy_desc.SampleDesc.Quality = 0;
+        copy_desc.Usage = D3D11_USAGE_DEFAULT;
+        copy_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+        ID3D11Texture2D* new_texture = nullptr;
+        hr = d3d_device->CreateTexture2D(&copy_desc, nullptr, &new_texture);
+        if (FAILED(hr) || !new_texture)
+        {
+            LL_WARNS("Texture") << "Failed to create copy texture, hr=0x" << std::hex << hr << LL_ENDL;
+            src_texture->Release();
+            return (mInteropGLHandle != nullptr); // keep old frame if available
+        }
+
+        LLGLuint new_gl_name = 0;
+        LLImageGL::generateTextures(1, &new_gl_name);
+        if (!new_gl_name)
+        {
+            LL_WARNS("Texture") << "Failed to generate GL texture name" << LL_ENDL;
+            new_texture->Release();
+            src_texture->Release();
+            return (mInteropGLHandle != nullptr);
+        }
+
+        HANDLE new_gl_handle = wglDXRegisterObjectNV(gl_device, new_texture, new_gl_name, GL_TEXTURE_2D, WGL_ACCESS_READ_ONLY_NV);
+        if (!new_gl_handle)
+        {
+            LL_WARNS("Texture") << "wglDXRegisterObjectNV failed" << LL_ENDL;
+            LLImageGL::deleteTextures(1, &new_gl_name);
+            new_texture->Release();
+            src_texture->Release();
+            return (mInteropGLHandle != nullptr);
+        }
+
+        if (!wglDXLockObjectsNV(gl_device, 1, &new_gl_handle))
+        {
+            LL_WARNS("Texture") << "wglDXLockObjectsNV failed after registration" << LL_ENDL;
+            wglDXUnregisterObjectNV(gl_device, new_gl_handle);
+            LLImageGL::deleteTextures(1, &new_gl_name);
+            new_texture->Release();
+            src_texture->Release();
+            return (mInteropGLHandle != nullptr);
+        }
+
+        // New resources are ready — now tear down the old ones
+        if (mInteropGLHandle)
+        {
+            wglDXUnlockObjectsNV(gl_device, 1, &mInteropGLHandle);
+            wglDXUnregisterObjectNV(gl_device, mInteropGLHandle);
+        }
+        // The interop source name is owned solely by this layer (mGLTexturep only
+        // borrows it), so free the superseded one here now that it has been
+        // unregistered and is a plain GL name again. mGLTexturep still references it
+        // as a borrowed name until setBorrowedTexName installs the new one below;
+        // that overwrite does not delete it again (borrowed names aren't freed by
+        // LLImageGL).
+        if (mInteropSrcTex)
+        {
+            LLImageGL::deleteTextures(1, &mInteropSrcTex);
+            mInteropSrcTex = 0;
+        }
+        if (d3d_texture)
+        {
+            d3d_texture->Release();
+        }
+
+        d3d_texture = new_texture;
+        mInteropTexture = new_texture;
+        mInteropGLHandle = new_gl_handle;
+        mInteropSrcTex = new_gl_name;
+
+        // mInteropSrcTex is sampled directly by the renderer. It is registered and
+        // stays locked with NV_DX_interop, so it must NEVER be deleted through
+        // LLImageGL's ordinary lifecycle (deferred deletes, name-pool recycling,
+        // background createGLTexture / discard): glDeleteTextures on a still-
+        // registered name lets the pool recycle it into an unrelated texture, which
+        // then double-frees it (this crashed in LLNetMap::mObjectImage's destructor).
+        // We install it as a *borrowed* name (LLImageGL never frees it) and remain
+        // its sole owner. No flip here: dullahan delivers the shared texture
+        // bottom-up (flip_pixels_y honored in OnAcceleratedPaint), already in GL
+        // orientation. Set sampling params while the object is locked for GL use.
+        glBindTexture(GL_TEXTURE_2D, mInteropSrcTex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        if (mGLTexturep.isNull())
+        {
+            generateGLTexture();
+        }
+        // Borrow the interop name into mGLTexturep: sampled but never deleted by
+        // LLImageGL. setBorrowedTexName frees any prior LLImageGL-owned (software)
+        // name exactly once; a superseded interop name was already freed above.
+        mGLTexturep->setBorrowedTexName(mInteropSrcTex);
+        mGLTexturep->setGLTextureCreated(true);
+
+        mFullWidth = width;
+        mFullHeight = height;
+        mComponents = 4;
+        setTexelsPerImage();
+    }
+
+    // Unlock GL, copy D3D, re-lock GL — the lock/unlock handles D3D↔GL sync
+    HANDLE gl_handle = mInteropGLHandle;
+    wglDXUnlockObjectsNV(gl_device, 1, &gl_handle);
+
+    // Acquire keyed mutex on the source if present — use 0 timeout to avoid stalling
+    IDXGIKeyedMutex* keyed_mutex = nullptr;
+    src_texture->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)&keyed_mutex);
+    if (keyed_mutex)
+    {
+        hr = keyed_mutex->AcquireSync(0, 0);
+        if (FAILED(hr))
+        {
+            // Texture not ready yet — skip this frame, keep previous content
+            keyed_mutex->Release();
+            src_texture->Release();
+            wglDXLockObjectsNV(gl_device, 1, &gl_handle);
+            return true;
+        }
+    }
+
+    D3D11_BOX src_box = {};
+    src_box.left = 0;
+    src_box.right = desc.Width;
+    src_box.top = 0;
+    src_box.bottom = desc.Height;
+    src_box.front = 0;
+    src_box.back = 1;
+    d3d_context->CopySubresourceRegion(d3d_texture, 0, 0, 0, 0, src_texture, 0, &src_box);
+
+    if (keyed_mutex)
+    {
+        keyed_mutex->ReleaseSync(0);
+        keyed_mutex->Release();
+    }
+    src_texture->Release();
+
+    // Re-lock interop for GL access — the interop copy is the sampled texture as-is
+    // (dullahan already delivered it in GL orientation).
+    wglDXLockObjectsNV(gl_device, 1, &gl_handle);
+
+    if (tex_name)
+    {
+        *tex_name = mInteropSrcTex;
+    }
+
+    return true;
+#else
+    LL_WARNS("Texture") << "createGLTextureFromHandle is only supported on Windows" << LL_ENDL;
+    return false;
+#endif
+}
+
+void LLGLTexture::releaseInteropResources()
+{
+#if LL_WINDOWS
+    // This layer is the sole owner of the interop source name (mGLTexturep only
+    // borrows it for sampling). The shared D3D11 / interop device is intentionally
+    // left alive so a transient failure (e.g. a stale handle during a CEF resize)
+    // doesn't force an expensive device rebuild.
+    //
+    // Order matters: unlock + unregister the source BEFORE deleting its GL name, so
+    // glDeleteTextures never runs on a still-registered/locked interop object (that
+    // corrupts the driver name table and lets the pool recycle the name into an
+    // unrelated texture).
+    if (mInteropGLHandle)
+    {
+        if (gInteropShared.mGLDevice)
+        {
+            wglDXUnlockObjectsNV(gInteropShared.mGLDevice, 1, &mInteropGLHandle);
+            wglDXUnregisterObjectNV(gInteropShared.mGLDevice, mInteropGLHandle);
+        }
+        mInteropGLHandle = nullptr;
+    }
+    if (mInteropSrcTex)
+    {
+        // Drop mGLTexturep's borrowed reference first (no delete there), then free
+        // the now-unregistered plain GL name here exactly once.
+        if (mGLTexturep.notNull())
+        {
+            mGLTexturep->clearBorrowedTexName();
+        }
+        LLImageGL::deleteTextures(1, &mInteropSrcTex);
+        mInteropSrcTex = 0;
+    }
+    if (mInteropTexture)
+    {
+        ((ID3D11Texture2D*)mInteropTexture)->Release();
+        mInteropTexture = nullptr;
+    }
+#endif
+}
+
+void LLGLTexture::releaseSharedInteropDevice()
+{
+#if LL_WINDOWS
+    if (gInteropShared.mGLDevice)
+    {
+        wglDXCloseDeviceNV(gInteropShared.mGLDevice);
+        gInteropShared.mGLDevice = nullptr;
+    }
+    if (gInteropShared.mContext)
+    {
+        gInteropShared.mContext->Release();
+        gInteropShared.mContext = nullptr;
+    }
+    if (gInteropShared.mDevice)
+    {
+        gInteropShared.mDevice->Release();
+        gInteropShared.mDevice = nullptr;
+    }
+#endif
 }
 
 void LLGLTexture::setTexelsPerImage()

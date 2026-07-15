@@ -10,6 +10,7 @@ include(Linking)
 include(PluginAPI)
 
 include(ExamplePlugin)
+include(CEFPlugin)
 
 ### media_plugin_example
 
@@ -22,7 +23,11 @@ add_library(media_plugin_example
     ${media_plugin_example_SOURCE_FILES}
     )
 
-target_link_libraries(media_plugin_example media_plugin_base )
+target_link_libraries(media_plugin_example media_plugin_base ll::cef)
+
+if (WINDOWS)
+  target_link_libraries(media_plugin_example d3d11 dxgi)
+endif (WINDOWS)
 
 if (WINDOWS)
   set_target_properties(

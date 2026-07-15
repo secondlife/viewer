@@ -74,6 +74,14 @@ extern PFNWGLGETSWAPINTERVALEXTPROC wglGetSwapIntervalEXT;
 // WGL_ARB_create_context
 extern PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
 
+// WGL_NV_DX_interop
+extern PFNWGLDXOPENDEVICENVPROC          wglDXOpenDeviceNV;
+extern PFNWGLDXCLOSEDEVICENVPROC         wglDXCloseDeviceNV;
+extern PFNWGLDXREGISTEROBJECTNVPROC      wglDXRegisterObjectNV;
+extern PFNWGLDXUNREGISTEROBJECTNVPROC    wglDXUnregisterObjectNV;
+extern PFNWGLDXLOCKOBJECTSNVPROC         wglDXLockObjectsNV;
+extern PFNWGLDXUNLOCKOBJECTSNVPROC       wglDXUnlockObjectsNV;
+
 // GL_VERSION_1_3
 extern PFNGLACTIVETEXTUREPROC               glActiveTexture;
 extern PFNGLSAMPLECOVERAGEPROC              glSampleCoverage;

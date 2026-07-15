@@ -67,7 +67,7 @@ LLPluginClassMedia::~LLPluginClassMedia()
     reset();
 }
 
-bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::string &plugin_dir, const std::string &plugin_filename, bool debug)
+bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::string &plugin_dir, const std::string &plugin_filename, bool debug, S32 adapter_luid_high, U32 adapter_luid_low, bool shared_texture_enable)
 {
     LL_DEBUGS("Plugin") << "launcher: " << launcher_filename << LL_ENDL;
     LL_DEBUGS("Plugin") << "dir: " << plugin_dir << LL_ENDL;
@@ -80,6 +80,12 @@ bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::s
     LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "init");
     message.setValue("target", mTarget);
     message.setValueReal("factor", mZoomFactor);
+#if LL_WINDOWS
+    message.setValueU32("viewer_pid", (U32)GetCurrentProcessId());
+    message.setValueS32("adapter_luid_high", adapter_luid_high);
+    message.setValueU32("adapter_luid_low", adapter_luid_low);
+#endif
+    message.setValueBoolean("shared_texture_enable", shared_texture_enable);
     sendMessage(message);
 
     mPlugin->init(launcher_filename, plugin_dir, plugin_filename, debug);
@@ -142,6 +148,8 @@ void LLPluginClassMedia::reset()
     mMediaName.clear();
     mMediaDescription.clear();
     mBackgroundColor = LLColor4(1.0f, 1.0f, 1.0f, 1.0f);
+    mAcceleratedTextureHandle = nullptr;
+    mAcceleratedTextureId = 0;
 
     // media_browser class
     mNavigateURI.clear();
@@ -373,16 +381,6 @@ void LLPluginClassMedia::setSizeInternal(void)
         mRequestedMediaHeight = nextPowerOf2(mRequestedMediaHeight);
     }
 
-#if LL_DARWIN
-    if (!gHiDPISupport)
-#endif
-    {
-        if (mRequestedMediaWidth > 2048)
-            mRequestedMediaWidth = 2048;
-
-        if (mRequestedMediaHeight > 2048)
-            mRequestedMediaHeight = 2048;
-    }
 }
 
 void LLPluginClassMedia::setAutoScale(bool auto_scale)
@@ -1275,6 +1273,19 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
         {
             mHoverText = message.getValue("tooltip");
         }
+        else if (message_name == "accelerated_update")
+        {
+            mAcceleratedTextureHandle = message.getValuePointer("handle");
+            mAcceleratedTextureId = message.getValueU32("texture_id");
+
+            // For the accelerated path, the texture dimensions are the full
+            // media size (what was given to CEF via setSize), not the dirty
+            // rect bounds which may be smaller
+            mTextureWidth = mMediaWidth;
+            mTextureHeight = mMediaHeight;
+
+            mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_ACCELERATED_UPDATE);
+        }
         else
         {
             LL_WARNS("Plugin") << "Unknown " << message_name << " class message: " << message_name << LL_ENDL;
@@ -1398,6 +1409,14 @@ void LLPluginClassMedia::mediaEvent(LLPluginClassMediaOwner::EMediaEvent event)
     if(mOwner)
     {
         mOwner->handleMediaEvent(this, event);
+    }
+}
+
+void LLPluginClassMedia::releaseAcceleratedTextureHandle()
+{
+    if (mAcceleratedTextureHandle)
+    {
+        mAcceleratedTextureHandle = nullptr;
     }
 }
 

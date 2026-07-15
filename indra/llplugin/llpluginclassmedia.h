@@ -46,7 +46,10 @@ public:
     bool init(const std::string &launcher_filename,
                       const std::string &plugin_dir,
                       const std::string &plugin_filename,
-                      bool debug);
+                      bool debug,
+                      S32 adapter_luid_high = 0,
+                      U32 adapter_luid_low = 0,
+                      bool shared_texture_enable = false);
 
     // undoes everything init() didm called by the media manager when destroying a source
     void reset();
@@ -315,6 +318,10 @@ public:
     std::string getHoverText() const { return mHoverText; };
     std::string getHoverLink() const { return mHoverLink; };
 
+    // Valid after MEDIA_EVENT_ACCELERATED_UPDATE
+    void* getAcceleratedTextureHandle() const { return mAcceleratedTextureHandle; };
+    void releaseAcceleratedTextureHandle();
+
     // these are valid during MEDIA_EVENT_LINK_HOVERED
     std::string getFileDownloadFilename() const { return mFileDownloadFilename; }
 
@@ -478,6 +485,9 @@ protected:
     std::string     mHoverLink;
     std::string     mFileDownloadFilename;
     bool            mIsMultipleFilePick;
+
+    void*           mAcceleratedTextureHandle;
+    U32             mAcceleratedTextureId;
 
     /////////////////////////////////////////
     // media_time class

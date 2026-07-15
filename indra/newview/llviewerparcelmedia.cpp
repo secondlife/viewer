@@ -488,6 +488,12 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
         };
         break;
 
+        case MEDIA_EVENT_ACCELERATED_UPDATE:
+        {
+            // LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_ACCELERATED_UPDATE " << LL_ENDL;
+        };
+        break;
+
         case MEDIA_EVENT_TIME_DURATION_UPDATED:
         {
             // LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_TIME_DURATION_UPDATED, time is " << self->getCurrentTime() << " of " << self->getDuration() << LL_ENDL;

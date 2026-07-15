@@ -138,6 +138,22 @@ public:
     void       setTexName(LLGLuint); // for forcing w/ externally created textures only
     void       setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
 
+    bool       createGLTextureFromHandle(void* handle, S32 width, S32 height, LLGLuint* tex_name = nullptr);
+    bool       hasInteropTexture() const {
+#ifdef LL_WINDOWS
+        return mInteropGLHandle != nullptr;
+#else
+        return false;
+#endif
+    }
+    // Releases this texture's per-instance interop resources. The shared D3D11
+    // device is left intact so transient failures don't force an expensive rebuild.
+    void       releaseInteropResources();
+
+    // Tears down the process-wide shared D3D11 / NV_DX_interop device. Must be
+    // called while the GL context is still valid (e.g. from LLGLManager::shutdownGL).
+    static void releaseSharedInteropDevice();
+
     LLTexUnit::eTextureAddressMode getAddressMode(void) const ;
     S32        getMaxDiscardLevel() const;
     S32        getDiscardLevel() const;
@@ -194,8 +210,20 @@ protected:
 protected:
     LLGLTextureState  mTextureState ;
 
-
+#if LL_WINDOWS
+    // Per-texture NV_DX_interop resources kept alive while the GL texture is in
+    // use. The D3D11 device, context and interop GL device are shared across all
+    // textures (see llgltexture.cpp) and are NOT stored here.
+    void* mInteropTexture = nullptr;    // ID3D11Texture2D* (per-texture copy target)
+    void* mInteropGLHandle = nullptr;   // HANDLE from wglDXRegisterObjectNV
+    // GL name from NV_DX_interop registration. Sampled directly by the renderer
+    // (installed into mGLTexturep as a *borrowed* name), but owned solely by this
+    // interop layer: it is registered/locked with NV_DX_interop and is freed only
+    // here (in releaseInteropResources / on resize), always after unregistering.
+    LLGLuint mInteropSrcTex = 0;
+#endif
 };
 
 #endif // LL_GL_TEXTURE_H
+
 

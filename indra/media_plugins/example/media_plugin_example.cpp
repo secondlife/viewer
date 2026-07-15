@@ -34,6 +34,13 @@
 #include "llpluginmessageclasses.h"
 #include "media_plugin_base.h"
 
+#if LL_WINDOWS
+#include <d3d11.h>
+#include <dxgi.h>
+#endif
+
+#include "dullahan.h"
+
 #include <time.h>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +57,14 @@ public:
 private:
     bool init();
     void update(F64 milliseconds);
+    void determineAdapterLuid();
     bool mFirstTime;
+
+    dullahan* mCEFLib;
+#if LL_WINDOWS
+    S32 mAdapterLuidHigh;
+    U32 mAdapterLuidLow;
+#endif
 
     time_t mLastUpdateTime;
     enum Constants { ENumObjects = 64 };
@@ -79,6 +93,12 @@ MediaPluginBase(host_send_func, host_user_data)
     mPixels = 0;
     mLastUpdateTime = 0;
     mBackgroundPixels = 0;
+
+    mCEFLib = new dullahan();
+#if LL_WINDOWS
+    mAdapterLuidHigh = 0;
+    mAdapterLuidLow = 0;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -371,11 +391,45 @@ void mediaPluginExample::update(F64 milliseconds)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+void mediaPluginExample::determineAdapterLuid()
+{
+#if LL_WINDOWS
+    IDXGIFactory1* dxgi_factory = nullptr;
+    if (SUCCEEDED(CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&dxgi_factory)))
+    {
+        IDXGIAdapter* adapter = nullptr;
+        if (SUCCEEDED(dxgi_factory->EnumAdapters(0, &adapter)))
+        {
+            DXGI_ADAPTER_DESC adesc;
+            if (SUCCEEDED(adapter->GetDesc(&adesc)))
+            {
+                mAdapterLuidHigh = adesc.AdapterLuid.HighPart;
+                mAdapterLuidLow = adesc.AdapterLuid.LowPart;
+            }
+            adapter->Release();
+        }
+        dxgi_factory->Release();
+    }
+#endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 bool mediaPluginExample::init()
 {
     LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "name_text");
     message.setValue("name", "Example Plugin");
     sendMessage(message);
+
+    determineAdapterLuid();
+
+    dullahan::dullahan_settings settings;
+#if LL_WINDOWS
+    settings.use_adapter_luid       = true;
+    settings.adapter_luid.high_part = mAdapterLuidHigh;
+    settings.adapter_luid.low_part  = mAdapterLuidLow;
+#endif
+    mCEFLib->init(settings);
 
     return true;
 };

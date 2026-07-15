@@ -546,6 +546,7 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
 
     mGLTextureCreated = false ;
     mTexName = 0;
+    mBorrowedName = false;
     mWidth = 0;
     mHeight = 0;
     mCurrentDiscardLevel = -1;
@@ -1165,7 +1166,7 @@ bool LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
                    << " getHeight() " << getHeight()
                    << LL_ENDL;
         }
-
+        
         if ((x_pos + width) > data_width ||
             (y_pos + height) > data_height)
         {
@@ -1179,7 +1180,6 @@ bool LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
                    << " source_height " << data_height
                    << LL_ENDL;
         }
-
 
         glPixelStorei(GL_UNPACK_ROW_LENGTH, data_width);
         stop_glerror();
@@ -1489,7 +1489,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 }
 
 //create an empty GL texture: just create a texture name
-//the texture is assiciate with some image by calling glTexImage outside LLImageGL
+//the texture is associated with some image by calling glTexImage outside LLImageGL
 bool LLImageGL::createGLTexture()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -1508,8 +1508,12 @@ bool LLImageGL::createGLTexture()
 
     if(mTexName)
     {
-        LLImageGL::deleteTextures(1, (reinterpret_cast<GLuint*>(&mTexName))) ;
+        if (!mBorrowedName) // borrowed names are owned elsewhere; never delete here
+        {
+            LLImageGL::deleteTextures(1, (reinterpret_cast<GLuint*>(&mTexName))) ;
+        }
         mTexName = 0;
+        mBorrowedName = false;
     }
 
 
@@ -1719,11 +1723,12 @@ bool LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, bool data_
         else
         {
             //not on background thread, immediately set mTexName
-            if (old_texname != 0 && old_texname != new_texname)
+            if (old_texname != 0 && old_texname != new_texname && !mBorrowedName)
             {
                 LLImageGL::deleteTextures(1, &old_texname);
             }
             mTexName = new_texname;
+            mBorrowedName = false; // new_texname is an LLImageGL-owned name
         }
     }
 
@@ -1796,11 +1801,35 @@ void LLImageGL::syncTexName(LLGLuint texname)
 {
     if (texname != 0)
     {
-        if (mTexName != 0 && mTexName != texname)
+        if (mTexName != 0 && mTexName != texname && !mBorrowedName)
         {
             LLImageGL::deleteTextures(1, &mTexName);
         }
         mTexName = texname;
+        mBorrowedName = false; // texname is an LLImageGL-owned name
+    }
+}
+
+void LLImageGL::setBorrowedTexName(LLGLuint texName)
+{
+    // Free any prior LLImageGL-owned name (mirrors syncTexName). A prior *borrowed*
+    // name is owned elsewhere and freed by that owner, so never delete it here.
+    if (mTexName != 0 && mTexName != texName && !mBorrowedName)
+    {
+        LLImageGL::deleteTextures(1, &mTexName);
+    }
+    mTexName = texName;
+    mBorrowedName = true;
+}
+
+void LLImageGL::clearBorrowedTexName()
+{
+    // The external owner has freed the GL name; drop our reference without deleting.
+    // No-op when the current name isn't borrowed so we never clobber a real texture.
+    if (mBorrowedName)
+    {
+        mTexName = 0;
+        mBorrowedName = false;
     }
 }
 
@@ -1946,9 +1975,13 @@ void LLImageGL::destroyGLTexture()
             mTextureMemory = (S64Bytes)0;
         }
 
-        LLImageGL::deleteTextures(1, &mTexName);
+        if (!mBorrowedName) // borrowed names are owned elsewhere; never delete here
+        {
+            LLImageGL::deleteTextures(1, &mTexName);
+        }
         mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.
         mTexName = 0;
+        mBorrowedName = false;
         mGLTextureCreated = false ;
     }
 }

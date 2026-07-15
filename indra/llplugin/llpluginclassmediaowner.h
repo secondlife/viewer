@@ -67,7 +67,9 @@ public:
 
         MEDIA_EVENT_DEBUG_MESSAGE,          // plugin sending back debug information for host to process
 
-        MEDIA_EVENT_LINK_HOVERED            // Got a "link hovered" event from the plugin
+        MEDIA_EVENT_LINK_HOVERED,           // Got a "link hovered" event from the plugin
+
+        MEDIA_EVENT_ACCELERATED_UPDATE      // Accelerated (GPU) texture handle update from the plugin
 
     } EMediaEvent;
 

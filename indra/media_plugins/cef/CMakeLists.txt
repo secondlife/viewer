@@ -55,6 +55,10 @@ target_link_libraries(media_plugin_cef
 )
 
 if (WINDOWS)
+  target_link_libraries(media_plugin_cef d3d11 dxgi)
+endif (WINDOWS)
+
+if (WINDOWS)
   set_target_properties(
     media_plugin_cef
     PROPERTIES

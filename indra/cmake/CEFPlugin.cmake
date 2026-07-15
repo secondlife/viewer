@@ -13,6 +13,7 @@ if (WINDOWS)
         libcef.lib
         libcef_dll_wrapper.lib
         dullahan.lib
+        d3dcompiler.lib
     )
 elseif (DARWIN)
     FIND_LIBRARY(APPKIT_LIBRARY AppKit)

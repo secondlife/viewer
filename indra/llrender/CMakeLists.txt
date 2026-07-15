@@ -106,3 +106,7 @@ target_link_libraries(llrender
         OpenGL::GLU
         )
 
+if (WINDOWS)
+    target_link_libraries(llrender d3d11 dxgi)
+endif (WINDOWS)
+

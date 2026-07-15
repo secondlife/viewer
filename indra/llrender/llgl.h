@@ -100,6 +100,9 @@ public:
     // Vendor-specific extensions
     bool mHasAMDAssociations = false;
     bool mHasNVXGpuMemoryInfo = false;
+    bool mHasNVDXInterop = false;
+    S32  mGLAdapterLuidHigh = 0;
+    U32  mGLAdapterLuidLow = 0;
 
     bool mIsAMD;
     bool mIsNVIDIA;
@@ -144,6 +147,12 @@ public:
 private:
     void initExtensions();
     void initGLStates();
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    // Probe DXGI adapters to discover which one the current GL context lives on,
+    // storing its LUID in mGLAdapterLuidHigh/Low. Requires the WGL_NV_DX_interop
+    // procs to be loaded and the GL context to be current.
+    void detectGLAdapterLuid();
+#endif
 };
 
 extern LLGLManager gGLManager;
