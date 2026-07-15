@@ -71,6 +71,6 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         unsigned char* mBrowserTabPixels = nullptr;
         unsigned int mBrowserTabWidth = 512;
         unsigned int mBrowserTabHeight = 512;
-        unsigned int mBrowserTabDepth = 3;
+        unsigned int mBrowserTabDepth = 4;
         std::string mCurrentUrl;
 };

@@ -127,7 +127,7 @@ void LLFloaterEmbeddedBrowserTest::createUI()
     mMemoryBufferSwatchTop = floater_rect.getHeight() - (legacy_height + margin);
     mMemoryBufferSwatchWidth = 512; // TODO: gl_draw_scaled_image_with_border with non-power of 2 textures
     mMemoryBufferSwatchHeight = 512;
-    mMemoryBufferSwatchDepth = 3;
+    mMemoryBufferSwatchDepth = 4;
 
     mMemoryBufferRaw = new LLImageRaw(mMemoryBufferSwatchWidth, mMemoryBufferSwatchHeight, mMemoryBufferSwatchDepth);
 

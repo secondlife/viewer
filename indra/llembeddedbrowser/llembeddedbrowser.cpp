@@ -83,11 +83,34 @@ void LLEmbeddedBrowser::update(unsigned int id)
 {
     LLMutexLock lock(&mPixelMutex);
 
-    for (unsigned int i = 0; i < mBrowserTabWidth * mBrowserTabHeight * mBrowserTabDepth; i += mBrowserTabDepth)
+    const unsigned int checkerSize = 16 + rand() % 64;
+    unsigned char color_a[4] =
     {
-        mBrowserTabPixels[i + 0] = mCurrentUrl == "red" ? rand() % 256 : 0;
-        mBrowserTabPixels[i + 1] = mCurrentUrl == "green" ? rand() % 256 : 0;
-        mBrowserTabPixels[i + 2] = mCurrentUrl == "blue" ? rand() % 256 : 0;
+        mCurrentUrl == "red" ? (unsigned char)(64 + rand() % 128) : (unsigned char)0,
+        mCurrentUrl == "green" ? (unsigned char)(64 + rand() % 128) : (unsigned char)0,
+        mCurrentUrl == "blue" ? (unsigned char)(64 + rand() % 128) : (unsigned char)0,
+        255
+    };
+    unsigned char color_b[4] =
+    {
+        mCurrentUrl == "red" ? (unsigned char)(192 + rand() % 64) : (unsigned char)0,
+        mCurrentUrl == "green" ? (unsigned char)(192 + rand() % 64) : (unsigned char)0,
+        mCurrentUrl == "blue" ? (unsigned char)(192 + rand() % 64) : (unsigned char)0,
+        255
+    };
+
+    for (unsigned int y = 0; y < mBrowserTabHeight; ++y)
+    {
+        for (unsigned int x = 0; x < mBrowserTabWidth; ++x)
+        {
+            unsigned char* pixel = ((x / checkerSize) + (y / checkerSize)) % 2 == 0 ? color_a : color_b;
+
+            size_t offset = (y * mBrowserTabWidth + x) * mBrowserTabDepth;
+            for (unsigned int c = 0; c < mBrowserTabDepth; ++c)
+            {
+                mBrowserTabPixels[offset + c] = pixel[c];
+            }
+        }
     }
 }
 
@@ -110,7 +133,7 @@ void LLEmbeddedBrowser::navigate(const std::string& url)
 
 void LLEmbeddedBrowserUpdateThread::run()
 {
-    unsigned int frame_rate = 5;
+    unsigned int frame_rate = 10;
 
     while (! isQuitting())
     {
