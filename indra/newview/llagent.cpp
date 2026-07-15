@@ -5008,17 +5008,63 @@ void LLAgent::updateGameControlMode()
     LLGameControl::setAgentControlMode(mode);
 }
 
-void LLAgent::applyExternalActionFlags(U32 outer_flags)
+void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
 {
+    LL_INFOS("Messaging") << "wtf? control_flags = 0x" << std::hex << std::setw(8) << std::setfill('0') << actions.mControlFlags << std::dec << LL_ENDL;
     llassert(LLCoros::on_main_thread_main_coro());
     // Valid whenever game control is driving avatar or flycam: in FlyCam mode this
     // only services the flycam on/off toggle (movement bits are ignored below).
     assert(LLGameControl::isEnabled()
         && (LLGameControl::willControlAvatar() || LLGameControl::willControlFlycam()));
-    mExternalActionFlags = outer_flags;
 
-    // HACK: AGENT_CONTROL_NUDGE_AT_NEG is used to toggle Flycam
-    if ((mExternalActionFlags & AGENT_CONTROL_NUDGE_AT_NEG) > 0)
+    // Process the non-flag actions first (see AgentActions comment in llgamecontrol.h).
+    bool toggle_fly = false;
+    bool toggle_flycam = false;
+    bool toggle_sit = false;
+    bool toggle_speak = false;
+    bool toggle_mouselook = false;
+    bool toggle_third_person = false;
+    for (U32 action : actions.mMiscActions)
+    {
+        switch (action)
+        {
+        case LLGameControl::ACTION_TOGGLE_FLY:
+            toggle_fly = true;
+            break;
+        case LLGameControl::ACTION_TOGGLE_FLYCAM:
+            toggle_flycam = true;
+            break;
+        case LLGameControl::ACTION_TOGGLE_SIT:
+            toggle_sit = true;
+            break;
+        case LLGameControl::ACTION_TOGGLE_SPEAK:
+            toggle_speak = true;
+            break;
+        case LLGameControl::ACTION_TOGGLE_MOUSELOOK:
+            toggle_mouselook = true;
+            break;
+        case LLGameControl::ACTION_TOGGLE_3RD_PERSON:
+            toggle_third_person = true;
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (toggle_fly)
+    {
+        if (mToggleFly)
+        {
+            setFlying(!getFlying());
+        }
+        mToggleFly = false;
+    }
+    else
+    {
+        mToggleFly = true;
+    }
+
+    if (toggle_flycam)
     {
         if (mToggleFlycam)
         {
@@ -5038,6 +5084,77 @@ void LLAgent::applyExternalActionFlags(U32 outer_flags)
     {
         mToggleFlycam = true;
     }
+
+    if (toggle_sit)
+    {
+        if (mToggleSit)
+        {
+            if (isSitting())
+            {
+                standUp();
+            }
+            else
+            {
+                sitDown();
+            }
+        }
+        mToggleSit = false;
+    }
+    else
+    {
+        mToggleSit = true;
+    }
+
+    if (toggle_speak)
+    {
+        if (mToggleSpeak)
+        {
+            LLVoiceClient::getInstance()->toggleUserPTTState();
+        }
+        mToggleSpeak = false;
+    }
+    else
+    {
+        mToggleSpeak = true;
+    }
+
+    if (toggle_mouselook)
+    {
+        if (mToggleMouselook)
+        {
+            // Mirrors LLViewMouselook's "View.Mouselook" toggle.
+            if (!gAgentCamera.cameraMouselook())
+            {
+                gAgentCamera.changeCameraToMouselook();
+            }
+            else
+            {
+                gAgentCamera.changeCameraToDefault();
+            }
+        }
+        mToggleMouselook = false;
+    }
+    else
+    {
+        mToggleMouselook = true;
+    }
+
+    if (toggle_third_person)
+    {
+        if (mToggleThirdPerson)
+        {
+            // Not a bidirectional toggle: always forces third-person camera
+            // (e.g. to recover from mouselook/flycam/customize-avatar).
+            gAgentCamera.changeCameraToThirdPerson();
+        }
+        mToggleThirdPerson = false;
+    }
+    else
+    {
+        mToggleThirdPerson = true;
+    }
+
+    mExternalActionFlags = actions.mControlFlags;
 
     // measure delta time and frame
     // Note: it is possible for the deltas to be very large
@@ -5126,19 +5243,6 @@ void LLAgent::applyExternalActionFlags(U32 outer_flags)
         movePitch(pitch);
     }
 
-    if ((mExternalActionFlags & AGENT_CONTROL_FLY) > 0)
-    {
-        if (mToggleFly)
-        {
-            setFlying(!getFlying());
-        }
-        mToggleFly = false;
-    }
-    else
-    {
-        mToggleFly = true;
-    }
-
     if (mExternalActionFlags & AGENT_CONTROL_STOP)
     {
         setControlFlags(AGENT_CONTROL_STOP);
@@ -5165,6 +5269,19 @@ void LLAgent::applyExternalActionFlags(U32 outer_flags)
     else
     {
         mToggleRun = true;
+    }
+
+    if ((mExternalActionFlags & AGENT_CONTROL_SIT_ON_GROUND) > 0
+        && isAgentAvatarValid() && !isSitting() && !getFlying() && !gAgentAvatarp->mInAir)
+    {
+        // "Sit": only sit if currently standing; a no-op otherwise
+        // (already sitting, flying, or airborne).
+        sitDown();
+    }
+    else if ((mExternalActionFlags & AGENT_CONTROL_STAND_UP) > 0 && isSitting())
+    {
+        // "Stand up": only stand if currently sitting.
+        standUp();
     }
 }
 
@@ -5193,14 +5310,14 @@ void LLAgent::updateFlycam()
     }
 
     LLVector3 linear_velocity(
-            flycam_inputs[LLGameControl::FLYCAM_ADVANCE],
-            flycam_inputs[LLGameControl::FLYCAM_PAN],
-            flycam_inputs[LLGameControl::FLYCAM_RISE]);
+            flycam_inputs[LLGameControl::FLYCAM_DOLLY],
+            flycam_inputs[LLGameControl::FLYCAM_TRUCK],
+            flycam_inputs[LLGameControl::FLYCAM_BOOM]);
     constexpr F32 MAX_FLYCAM_SPEED = 10.0f;
     mFlycam.setLinearVelocity(MAX_FLYCAM_SPEED * linear_velocity);
 
-    mFlycam.setPitchRate(flycam_inputs[LLGameControl::FLYCAM_PITCH]);
-    mFlycam.setYawRate(flycam_inputs[LLGameControl::FLYCAM_YAW]);
+    mFlycam.setPitchRate(flycam_inputs[LLGameControl::FLYCAM_TILT]);
+    mFlycam.setYawRate(flycam_inputs[LLGameControl::FLYCAM_PAN]);
     mFlycam.setRollRate(flycam_inputs[LLGameControl::FLYCAM_ROLL]);
     mFlycam.setZoomRate(flycam_inputs[LLGameControl::FLYCAM_ZOOM]);
 
