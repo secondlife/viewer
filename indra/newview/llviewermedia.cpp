@@ -3645,11 +3645,14 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
                     S32 tex_width = llmin(plugin->getTextureWidth(), gGLManager.mGLMaxTextureSize);
                     S32 tex_height = llmin(plugin->getTextureHeight(), gGLManager.mGLMaxTextureSize);
 
-                    LLGLuint tex_name = 0;
-                    if (media_tex->createGLTextureFromHandle(accel_handle, tex_width, tex_height, &tex_name))
+                    if (media_tex->createGLTextureFromHandle(accel_handle, tex_width, tex_height))
                     {
-                        media_tex->getGLTexture()->syncTexName(tex_name);
-
+                        // NOTE: do NOT syncTexName() the returned interop name here.
+                        // createGLTextureFromHandle already installs it into the GL
+                        // texture as a *borrowed* name (owned by the interop layer);
+                        // calling syncTexName would clear that borrowed flag and make
+                        // the still-registered name deletable by LLImageGL, which is
+                        // exactly the double-free that crashed LLNetMap::mObjectImage.
                         mTextureUsedWidth = plugin->getWidth();
                         mTextureUsedHeight = plugin->getHeight();
                         mNeedsNewTexture = false;

@@ -216,9 +216,11 @@ protected:
     // textures (see llgltexture.cpp) and are NOT stored here.
     void* mInteropTexture = nullptr;    // ID3D11Texture2D* (per-texture copy target)
     void* mInteropGLHandle = nullptr;   // HANDLE from wglDXRegisterObjectNV
-    LLGLuint mInteropSrcTex = 0;        // GL name from NV_DX_interop registration
-    LLGLuint mInteropBlitFBO = 0;       // FBO for flip blit
-    LLGLuint mInteropOutputTex = 0;     // Persistent flipped GL texture
+    // GL name from NV_DX_interop registration. Sampled directly by the renderer
+    // (installed into mGLTexturep as a *borrowed* name), but owned solely by this
+    // interop layer: it is registered/locked with NV_DX_interop and is freed only
+    // here (in releaseInteropResources / on resize), always after unregistering.
+    LLGLuint mInteropSrcTex = 0;
 #endif
 };
 

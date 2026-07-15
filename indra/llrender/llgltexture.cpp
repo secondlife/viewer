@@ -466,6 +466,13 @@ bool LLGLTexture::isGLTextureCreated() const
 
 void LLGLTexture::destroyGLTexture()
 {
+#if LL_WINDOWS
+    // Tear down the interop layer before mGLTexturep is torn down below, mirroring
+    // cleanup(). releaseInteropResources() drops mGLTexturep's borrowed reference to
+    // the interop name and frees that name itself, so mGLTexturep has nothing to
+    // (double-)free. No-op for non-interop textures.
+    releaseInteropResources();
+#endif
     if(mGLTexturep.notNull() && mGLTexturep->getHasGLTexture())
     {
         mGLTexturep->destroyGLTexture() ;
@@ -578,6 +585,17 @@ bool LLGLTexture::createGLTextureFromHandle(void* handle, S32 width, S32 height,
             wglDXUnlockObjectsNV(gl_device, 1, &mInteropGLHandle);
             wglDXUnregisterObjectNV(gl_device, mInteropGLHandle);
         }
+        // The interop source name is owned solely by this layer (mGLTexturep only
+        // borrows it), so free the superseded one here now that it has been
+        // unregistered and is a plain GL name again. mGLTexturep still references it
+        // as a borrowed name until setBorrowedTexName installs the new one below;
+        // that overwrite does not delete it again (borrowed names aren't freed by
+        // LLImageGL).
+        if (mInteropSrcTex)
+        {
+            LLImageGL::deleteTextures(1, &mInteropSrcTex);
+            mInteropSrcTex = 0;
+        }
         if (d3d_texture)
         {
             d3d_texture->Release();
@@ -588,32 +606,31 @@ bool LLGLTexture::createGLTextureFromHandle(void* handle, S32 width, S32 height,
         mInteropGLHandle = new_gl_handle;
         mInteropSrcTex = new_gl_name;
 
-        // Create persistent output texture for the flipped result
-        if (mInteropOutputTex)
-        {
-            LLImageGL::deleteTextures(1, &mInteropOutputTex);
-        }
-        LLImageGL::generateTextures(1, &mInteropOutputTex);
-        glBindTexture(GL_TEXTURE_2D, mInteropOutputTex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        // mInteropSrcTex is sampled directly by the renderer. It is registered and
+        // stays locked with NV_DX_interop, so it must NEVER be deleted through
+        // LLImageGL's ordinary lifecycle (deferred deletes, name-pool recycling,
+        // background createGLTexture / discard): glDeleteTextures on a still-
+        // registered name lets the pool recycle it into an unrelated texture, which
+        // then double-frees it (this crashed in LLNetMap::mObjectImage's destructor).
+        // We install it as a *borrowed* name (LLImageGL never frees it) and remain
+        // its sole owner. No flip here: dullahan delivers the shared texture
+        // bottom-up (flip_pixels_y honored in OnAcceleratedPaint), already in GL
+        // orientation. Set sampling params while the object is locked for GL use.
+        glBindTexture(GL_TEXTURE_2D, mInteropSrcTex);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        // Create FBO for the blit
-        if (mInteropBlitFBO)
-        {
-            glDeleteFramebuffers(1, &mInteropBlitFBO);
-        }
-        glGenFramebuffers(1, &mInteropBlitFBO);
-
         if (mGLTexturep.isNull())
         {
             generateGLTexture();
         }
-        mGLTexturep->setTexName(mInteropOutputTex);
+        // Borrow the interop name into mGLTexturep: sampled but never deleted by
+        // LLImageGL. setBorrowedTexName frees any prior LLImageGL-owned (software)
+        // name exactly once; a superseded interop name was already freed above.
+        mGLTexturep->setBorrowedTexName(mInteropSrcTex);
         mGLTexturep->setGLTextureCreated(true);
 
         mFullWidth = width;
@@ -658,36 +675,13 @@ bool LLGLTexture::createGLTextureFromHandle(void* handle, S32 width, S32 height,
     }
     src_texture->Release();
 
-    // Re-lock interop for GL access
+    // Re-lock interop for GL access — the interop copy is the sampled texture as-is
+    // (dullahan already delivered it in GL orientation).
     wglDXLockObjectsNV(gl_device, 1, &gl_handle);
-
-    // Blit from interop texture to output texture with vertical flip
-    // Blit from interop texture to output texture with vertical flip
-    GLint prev_read_fbo = 0, prev_draw_fbo = 0;
-    glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &prev_read_fbo);
-    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prev_draw_fbo);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, mInteropBlitFBO);
-    glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mInteropSrcTex, 0);
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, mInteropOutputTex, 0);
-    glReadBuffer(GL_COLOR_ATTACHMENT0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT1);
-
-    // Blit only the content region (desc.Width x desc.Height), not the power-of-two padding.
-    // Flip Y and place at bottom-left of the destination (GL row 0 = bottom).
-    glBlitFramebuffer(
-        0, 0, desc.Width, desc.Height,              // src: content region
-        0, desc.Height, desc.Width, 0,              // dst: flipped into bottom-left
-        GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-    glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, 0, 0);
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, prev_read_fbo);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, prev_draw_fbo);
 
     if (tex_name)
     {
-        *tex_name = mInteropOutputTex;
+        *tex_name = mInteropSrcTex;
     }
 
     return true;
@@ -700,24 +694,15 @@ bool LLGLTexture::createGLTextureFromHandle(void* handle, S32 width, S32 height,
 void LLGLTexture::releaseInteropResources()
 {
 #if LL_WINDOWS
-    // Only tear down this texture's per-instance resources. The shared D3D11 /
-    // interop device is intentionally left alive so a transient failure (e.g. a
-    // stale handle during a CEF resize) doesn't force an expensive device rebuild.
-    if (mInteropBlitFBO)
-    {
-        glDeleteFramebuffers(1, &mInteropBlitFBO);
-        mInteropBlitFBO = 0;
-    }
-    if (mInteropOutputTex)
-    {
-        LLImageGL::deleteTextures(1, &mInteropOutputTex);
-        mInteropOutputTex = 0;
-    }
-    if (mInteropSrcTex)
-    {
-        LLImageGL::deleteTextures(1, &mInteropSrcTex);
-        mInteropSrcTex = 0;
-    }
+    // This layer is the sole owner of the interop source name (mGLTexturep only
+    // borrows it for sampling). The shared D3D11 / interop device is intentionally
+    // left alive so a transient failure (e.g. a stale handle during a CEF resize)
+    // doesn't force an expensive device rebuild.
+    //
+    // Order matters: unlock + unregister the source BEFORE deleting its GL name, so
+    // glDeleteTextures never runs on a still-registered/locked interop object (that
+    // corrupts the driver name table and lets the pool recycle the name into an
+    // unrelated texture).
     if (mInteropGLHandle)
     {
         if (gInteropShared.mGLDevice)
@@ -726,6 +711,17 @@ void LLGLTexture::releaseInteropResources()
             wglDXUnregisterObjectNV(gInteropShared.mGLDevice, mInteropGLHandle);
         }
         mInteropGLHandle = nullptr;
+    }
+    if (mInteropSrcTex)
+    {
+        // Drop mGLTexturep's borrowed reference first (no delete there), then free
+        // the now-unregistered plain GL name here exactly once.
+        if (mGLTexturep.notNull())
+        {
+            mGLTexturep->clearBorrowedTexName();
+        }
+        LLImageGL::deleteTextures(1, &mInteropSrcTex);
+        mInteropSrcTex = 0;
     }
     if (mInteropTexture)
     {

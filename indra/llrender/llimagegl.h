@@ -275,6 +275,13 @@ protected:
 
     bool mExternalTexture;
 
+    // When true, mTexName is a GL name owned by some other subsystem (e.g. an
+    // NV_DX_interop-registered texture) and must NEVER be handed to
+    // glDeleteTextures by LLImageGL. Defaults false; only the borrowing owner sets
+    // it (see setBorrowedTexName). Distinct from mExternalTexture, which only gates
+    // ~LLImageGL bookkeeping.
+    bool mBorrowedName;
+
     // STATICS
 public:
     static std::unordered_set<LLImageGL*> sImageList;
@@ -325,6 +332,16 @@ public:
 
     //similar to setTexName, but will call deleteTextures on mTexName if mTexName is not 0 or texname
     void syncTexName(LLGLuint texname);
+
+    // Adopt a GL name owned externally (e.g. NV_DX_interop). Frees any prior
+    // LLImageGL-owned name exactly once, then holds texName as a borrowed name that
+    // LLImageGL will never delete. The owner is responsible for deleting texName and
+    // calling clearBorrowedTexName() when done.
+    void setBorrowedTexName(LLGLuint texName);
+
+    // Drop a borrowed name without deleting it (the external owner freed it). No-op
+    // if the current name is not borrowed, so it never clobbers a real texture.
+    void clearBorrowedTexName();
 
     //for debug use: show texture size distribution
     //----------------------------------------
