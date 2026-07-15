@@ -31,6 +31,9 @@
 
 #include "llembeddedbrowser.h"
 
+
+#include "llthread.h"
+
 LLEmbeddedBrowser::LLEmbeddedBrowser()
 {
     std::cout << "LLEmbeddedBrowser created" << std::endl;
@@ -50,7 +53,7 @@ void LLEmbeddedBrowser::init()
 
 void LLEmbeddedBrowser::reset()
 {
-    
+
 }
 
 unsigned int LLEmbeddedBrowser::create(const std::string& url)
@@ -59,35 +62,59 @@ unsigned int LLEmbeddedBrowser::create(const std::string& url)
 
     mCurrentUrl = url;
 
+    mUpdateThread = new LLEmbeddedBrowserUpdateThread(this, 0 /* id */);
+    mUpdateThread->start();
+
     return 0;
 }
 
 void LLEmbeddedBrowser::destroy(unsigned int id)
 {
-    
+    if (mUpdateThread)
+    {
+        std::cout << "@@@ shutting down LLEmbeddedBrowserUpdateThread" << std::endl;
+        mUpdateThread->shutdown();   // public: signals quit + wakes the thread
+        delete mUpdateThread;
+        mUpdateThread = nullptr;
+    }
 }
 
 void LLEmbeddedBrowser::update(unsigned int id)
 {
-    for(unsigned int i = 0; i < mBrowserTabWidth * mBrowserTabHeight * mBrowserTabDepth; i += mBrowserTabDepth)
+    LLMutexLock lock(&mPixelMutex);
+
+    for (unsigned int i = 0; i < mBrowserTabWidth * mBrowserTabHeight * mBrowserTabDepth; i += mBrowserTabDepth)
     {
-        mBrowserTabPixels[i + 0] = mCurrentUrl == "red" ? rand() % 256 : 0; 
+        mBrowserTabPixels[i + 0] = mCurrentUrl == "red" ? rand() % 256 : 0;
         mBrowserTabPixels[i + 1] = mCurrentUrl == "green" ? rand() % 256 : 0;
-        mBrowserTabPixels[i + 2] = mCurrentUrl == "blue" ? rand() % 256 : 0; 
+        mBrowserTabPixels[i + 2] = mCurrentUrl == "blue" ? rand() % 256 : 0;
     }
 }
 
 void LLEmbeddedBrowser::updateAll()
 {
-    
+
 }
 
 const unsigned char* LLEmbeddedBrowser::getPixels(unsigned int id)
 {
+    LLMutexLock lock(&mPixelMutex);
+
     return mBrowserTabPixels;
 }
 
 void LLEmbeddedBrowser::navigate(const std::string& url)
 {
     mCurrentUrl = url;
+}
+
+void LLEmbeddedBrowserUpdateThread::run()
+{
+    unsigned int frame_rate = 5;
+
+    while (! isQuitting())
+    {
+        mBrowser->update(mBrowserId);
+        ms_sleep(1000 / frame_rate);
+    }
 }

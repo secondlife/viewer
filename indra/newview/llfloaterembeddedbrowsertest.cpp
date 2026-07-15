@@ -33,7 +33,7 @@
 #include "llfloaterembeddedbrowsertest.h"
 
 LLFloaterEmbeddedBrowserTest::LLFloaterEmbeddedBrowserTest(const LLSD& key)
-    :   LLFloater("floater_embedded_browser_test")
+    : LLFloater("floater_embedded_browser_test")
 {
     mMemoryBufferSwatch = nullptr;
 }
@@ -52,7 +52,7 @@ bool LLFloaterEmbeddedBrowserTest::postBuild()
     getChild<LLUICtrl>("browse_red_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onBrowseBtn, this, "red"));
     getChild<LLUICtrl>("browse_green_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onBrowseBtn, this, "green"));
     getChild<LLUICtrl>("browse_blue_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onBrowseBtn, this, "blue"));
- 
+
     // Do this here vss the constructor so that the floater size
     // has been established and we can get correct size for the swatch
     createUI();
@@ -62,6 +62,8 @@ bool LLFloaterEmbeddedBrowserTest::postBuild()
 
 void LLFloaterEmbeddedBrowserTest::onCloseBtn()
 {
+    LLEmbeddedBrowser::getInstance()->destroy(0);
+
     closeFloater();
 }
 
@@ -78,7 +80,7 @@ void LLFloaterEmbeddedBrowserTest::draw()
 
     if (mMemoryBufferSwatch != nullptr)
     {
-        LLEmbeddedBrowser::getInstance()->update(0);
+        //LLEmbeddedBrowser::getInstance()->update(0);
 
         unsigned char* bits = mMemoryBufferRaw->getData();
         if (bits != nullptr)

@@ -29,6 +29,26 @@
 #include <string>
 
 #include "llsingleton.h"
+#include "llmutex.h"
+
+class LLEmbeddedBrowser;
+
+class LLEmbeddedBrowserUpdateThread :
+    public LLThread
+{
+    public:
+        LLEmbeddedBrowserUpdateThread(LLEmbeddedBrowser* browser, unsigned int id)
+            : LLThread("EmbeddedBrowserUpdate"),
+              mBrowser(browser),
+              mBrowserId(id)
+        {}
+
+        void run() override;
+
+    private:
+        LLEmbeddedBrowser* mBrowser;
+        unsigned int mBrowserId;
+};
 
 class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser>
 {
@@ -39,7 +59,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser>
 
         void init();
         void reset();
-        
+
         unsigned int create(const std::string& url);
         void destroy(unsigned int id);
         void update(unsigned int id);
@@ -48,6 +68,8 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser>
         void navigate(const std::string& url);
 
     private:
+        LLMutex mPixelMutex;
+        LLEmbeddedBrowserUpdateThread* mUpdateThread = nullptr;
         unsigned char* mBrowserTabPixels = nullptr;
         unsigned int mBrowserTabWidth = 512;
         unsigned int mBrowserTabHeight = 512;

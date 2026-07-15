@@ -34,7 +34,7 @@ class LLViewerTexture;
 class LLFloaterEmbeddedBrowserTest:
     public LLFloater
 {
-    friend class LLFloaterReg;
+        friend class LLFloaterReg;
 
     private:
         LLFloaterEmbeddedBrowserTest(const LLSD& key);
