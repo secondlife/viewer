@@ -10,30 +10,48 @@
     <button
       follows="left|bottom"
       height="20"
+      label="Add"
+      layout="bottomleft"
+      left="10"
+      name="add_tab_btn"
+      bottom="10"
+      width="70" />
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Rem"
+      layout="bottomleft"
+      left="85"
+      name="rem_tab_btn"
+      bottom="10"
+      width="70" />
+    <button
+      follows="left|bottom"
+      height="20"
       label="Red"
       layout="bottomleft"
-      right="-350"
+      left="190"
       name="browse_red_btn"
       bottom="10"
-      width="90" />
+      width="70" />
     <button
       follows="left|bottom"
       height="20"
       label="Green"
       layout="bottomleft"
-      right="-250"
+      left="265"
       name="browse_green_btn"
       bottom="10"
-      width="90" />
+      width="70" />
     <button
       follows="left|bottom"
       height="20"
       label="Blue"
       layout="bottomleft"
-      right="-150"
+      left="340"
       name="browse_blue_btn"
       bottom="10"
-      width="90" />
+      width="70" />
     <button
       follows="left|bottom"
       height="20"
@@ -42,6 +60,6 @@
       right="-10"
       name="close_btn"
       bottom="10"
-      width="90" />
+      width="70" />
 
 </floater>

@@ -32,8 +32,7 @@
 class LLViewerTexture;
 
 class LLFloaterEmbeddedBrowserTest:
-    public LLFloater
-{
+    public LLFloater {
         friend class LLFloaterReg;
 
     private:
@@ -41,6 +40,10 @@ class LLFloaterEmbeddedBrowserTest:
         ~LLFloaterEmbeddedBrowserTest();
 
         bool postBuild() override;
+
+        // Button handlers
+        void onAddTabBtn();
+        void onRemTabBtn();
         void onCloseBtn();
         void onBrowseBtn(const std::string url);
 

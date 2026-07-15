@@ -34,8 +34,7 @@
 class LLEmbeddedBrowser;
 
 class LLEmbeddedBrowserUpdateThread :
-    public LLThread
-{
+    public LLThread {
     public:
         LLEmbeddedBrowserUpdateThread(LLEmbeddedBrowser* browser, unsigned int id)
             : LLThread("EmbeddedBrowserUpdate"),
@@ -50,9 +49,8 @@ class LLEmbeddedBrowserUpdateThread :
         unsigned int mBrowserId;
 };
 
-class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser>
-{
-    LLSINGLETON(LLEmbeddedBrowser);
+class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
+        LLSINGLETON(LLEmbeddedBrowser);
 
     public:
         ~LLEmbeddedBrowser();
