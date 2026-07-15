@@ -33,6 +33,8 @@
 #include "llpluginmessageclasses.h"
 #include "llcontrol.h"
 
+#include <cmath>
+
 extern LLControlGroup gSavedSettings;
 #if LL_DARWIN
 extern bool gHiDPISupport;
@@ -1616,7 +1618,13 @@ void LLPluginClassMedia::setLoop(bool loop)
 
 void LLPluginClassMedia::setVolume(float volume)
 {
-    if(volume != mRequestedVolume)
+    // VLC's volume is integer, 0 to 100 range. When converted from float,
+    // changes below 0.01 won't be noticed by VLC.
+    // CEF's audio range is DWORD, 0 to 65535. But changes so small are
+    // inaudible and don't warrant the overhead, so use a bigger epsilon
+    // to avoid extra messages and locking.
+    constexpr float VOLUME_EPSILON = 0.002f;
+    if (std::abs(volume - mRequestedVolume) > VOLUME_EPSILON)
     {
         mRequestedVolume = volume;
 
