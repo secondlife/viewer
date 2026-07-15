@@ -31,7 +31,6 @@
 
 #include "llembeddedbrowser.h"
 
-
 #include "llthread.h"
 
 LLEmbeddedBrowser::LLEmbeddedBrowser()
@@ -62,7 +61,7 @@ unsigned int LLEmbeddedBrowser::create(const std::string& url)
 
     mCurrentUrl = url;
 
-    mUpdateThread = new LLEmbeddedBrowserUpdateThread(this, 0 /* id */);
+    mUpdateThread = new LLEmbeddedBrowserUpdateThread(this, 0);
     mUpdateThread->start();
 
     return 0;
@@ -72,8 +71,8 @@ void LLEmbeddedBrowser::destroy(unsigned int id)
 {
     if (mUpdateThread)
     {
-        std::cout << "@@@ shutting down LLEmbeddedBrowserUpdateThread" << std::endl;
-        mUpdateThread->shutdown();   // public: signals quit + wakes the thread
+        std::cout << "Shutting down LLEmbeddedBrowserUpdateThread" << std::endl;
+        mUpdateThread->shutdown();
         delete mUpdateThread;
         mUpdateThread = nullptr;
     }
@@ -83,7 +82,8 @@ void LLEmbeddedBrowser::update(unsigned int id)
 {
     LLMutexLock lock(&mPixelMutex);
 
-    const unsigned int checkerSize = 16 + rand() % 64;
+    // Draw a checkerboard pattern with random colors based on the current URL
+    const unsigned int checker_size = 16 + rand() % 64;
     unsigned char color_a[4] =
     {
         mCurrentUrl == "red" ? (unsigned char)(64 + rand() % 128) : (unsigned char)0,
@@ -98,14 +98,12 @@ void LLEmbeddedBrowser::update(unsigned int id)
         mCurrentUrl == "blue" ? (unsigned char)(192 + rand() % 64) : (unsigned char)0,
         255
     };
-
     for (unsigned int y = 0; y < mBrowserTabHeight; ++y)
     {
         for (unsigned int x = 0; x < mBrowserTabWidth; ++x)
         {
-            unsigned char* pixel = ((x / checkerSize) + (y / checkerSize)) % 2 == 0 ? color_a : color_b;
-
-            size_t offset = (y * mBrowserTabWidth + x) * mBrowserTabDepth;
+            unsigned char* pixel = ((x / checker_size) + (y / checker_size)) % 2 == 0 ? color_a : color_b;
+            unsigned int offset = (y * mBrowserTabWidth + x) * mBrowserTabDepth;
             for (unsigned int c = 0; c < mBrowserTabDepth; ++c)
             {
                 mBrowserTabPixels[offset + c] = pixel[c];
