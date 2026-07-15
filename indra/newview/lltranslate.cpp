@@ -807,17 +807,7 @@ LLSD LLAzureTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCorout
     LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray);
     LLCore::BufferArrayStream outs(rawbody.get());
 
-    // Azure Translator API expects UTF-8 encoded JSON with properly escaped special characters
-    std::string json_escaped_msg = msg;
-    LLStringUtil::replaceString(json_escaped_msg, "\\", "\\\\");  // Escape backslashes first
-    LLStringUtil::replaceString(json_escaped_msg, "\"", "\\\"");  // Escape quotes
-    LLStringUtil::replaceString(json_escaped_msg, "\n", "\\n");   // Escape newlines
-    LLStringUtil::replaceString(json_escaped_msg, "\r", "\\r");   // Escape carriage returns
-    LLStringUtil::replaceString(json_escaped_msg, "\t", "\\t");   // Escape tabs
-
-    outs << "[{\"text\":\"";
-    outs << json_escaped_msg;
-    outs << "\"}]";
+    outs << boost::json::serialize(boost::json::array{ boost::json::object{{ "text", msg }} });
 
     return adapter->postRawAndSuspend(request, url, rawbody, options, headers);
 }
