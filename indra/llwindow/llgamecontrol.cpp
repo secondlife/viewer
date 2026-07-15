@@ -413,7 +413,7 @@ public:
 
     LLGameControl::ActionNameType getActionNameType(const std::string& action) const;
 
-    U32 computeInternalActionFlags();
+    LLGameControl::AgentActions computeAgentActions();
     void getFlycamInputs(std::vector<F32>& inputs_out);
     void setExternalInput(U32 action_flags, U32 buttons);
 
@@ -537,7 +537,8 @@ namespace
     const std::string GC_MODE_CAPTIVE("Captive");
 
     // Symbolic input name for the combined trigger pair, used both as an axis-action
-    // Input value (Actions tab) and as a physical-axis Output value (Devices tab).
+    // The two triggers form a single bidirectional axis: left trigger drives the
+    // negative direction, right trigger the positive.
     const std::string INPUT_AXIS_TRIGGERS("AXIS_TRIGGERS");
 
 #ifdef TEMPORARILY_DISABLED
@@ -592,13 +593,11 @@ namespace
     {
         // Axes: action label -> axis input
         LLSD avatar_axes;
-        avatar_axes["Strafe left/right"] = "AXIS_LEFTX";
-        avatar_axes["Move forward/back"] = "AXIS_LEFTY";
-        avatar_axes["Turn left/right"]   = "AXIS_RIGHTX";
-        avatar_axes["Look up/down"]      = "AXIS_RIGHTY";
-        // The two triggers form a single bidirectional axis: left trigger drives the
-        // negative direction (drop), right trigger the positive (rise).
-        avatar_axes["Fly up/down"]      = "AXIS_TRIGGERS";
+        avatar_axes["Strafe left/right"]    = "AXIS_LEFTX";
+        avatar_axes["Advance forward/back"] = "AXIS_LEFTY";
+        avatar_axes["Turn left/right"]      = "AXIS_RIGHTX";
+        avatar_axes["Look up/down"]         = "AXIS_RIGHTY";
+        avatar_axes["Fly up/down"]          = "AXIS_TRIGGERS";
 
         // Buttons: action label -> button input
         LLSD avatar_buttons;
@@ -606,34 +605,40 @@ namespace
         avatar_buttons["Crouch"]                 = "BUTTON_EAST";
         avatar_buttons["Toggle sit"]             = "BUTTON_WEST";
         avatar_buttons["Interact"]               = "BUTTON_NORTH";
-        avatar_buttons["Toggle 3rd person view"] = "BUTTON_SELECT";
-        avatar_buttons["Toggle menu"]            = "BUTTON_HOME";
+        avatar_buttons["Toggle speak"]           = "BUTTON_SELECT";
+        avatar_buttons["3rd Person camera"]      = "BUTTON_HOME";
         avatar_buttons["Toggle mouselook"]       = "BUTTON_START";
-        avatar_buttons["Toggle fly"]             = "BUTTON_LEFT_STICK";
         avatar_buttons["Toggle flycam"]          = "BUTTON_RIGHT_STICK";
         avatar_buttons["Mouse click left"]       = "BUTTON_LEFT_SHOULDER";
         avatar_buttons["Mouse click right"]      = "BUTTON_RIGHT_SHOULDER";
-        avatar_buttons["Move forward"]           = "BUTTON_DPAD_UP";
-        avatar_buttons["Move back"]              = "BUTTON_DPAD_DOWN";
+        avatar_buttons["Advance forward"]        = "BUTTON_DPAD_UP";
+        avatar_buttons["Advance back"]           = "BUTTON_DPAD_DOWN";
         avatar_buttons["Strafe left"]            = "BUTTON_DPAD_LEFT";
         avatar_buttons["Strafe right"]           = "BUTTON_DPAD_RIGHT";
 
         // FlyCam adds a Roll axis and uses a distinct button set.
-        LLSD flycam_axes = avatar_axes;
-        flycam_axes["Roll left/right"] = "AXIS_NONE";
+        LLSD flycam_axes;
+        flycam_axes["Truck left/right"]    = "AXIS_LEFTX";
+        flycam_axes["Dolly forward/back"]  = "AXIS_LEFTY";
+        flycam_axes["Pan left/right"]      = "AXIS_RIGHTX";
+        flycam_axes["Tilt up/down"]        = "AXIS_RIGHTY";
+        flycam_axes["Boom up/down"]        = "AXIS_TRIGGERS";
+        flycam_axes["Roll left/right"]     = "AXIS_NONE";
 
         LLSD flycam_buttons;
-        flycam_buttons["Select"]         = "BUTTON_SOUTH";
-        flycam_buttons["Toggle AltZoom"] = "BUTTON_EAST";
-        flycam_buttons["Interact"]       = "BUTTON_NORTH";
-        flycam_buttons["Toggle menu"]    = "BUTTON_HOME";
-        flycam_buttons["Toggle flycam"]  = "BUTTON_RIGHT_STICK";
-        flycam_buttons["Roll left"]      = "BUTTON_LEFT_SHOULDER";
-        flycam_buttons["Roll right"]     = "BUTTON_RIGHT_SHOULDER";
-        flycam_buttons["Move forward"]   = "BUTTON_DPAD_UP";
-        flycam_buttons["Move back"]      = "BUTTON_DPAD_DOWN";
-        flycam_buttons["Strafe left"]    = "BUTTON_DPAD_LEFT";
-        flycam_buttons["Strafe right"]   = "BUTTON_DPAD_RIGHT";
+        flycam_buttons["Zoom out"]        = "BUTTON_SOUTH";
+        flycam_buttons["Pan right"]       = "BUTTON_EAST";
+        flycam_buttons["Pan left"]        = "BUTTON_WEST";
+        flycam_buttons["Zoom in"]         = "BUTTON_NORTH";
+        flycam_buttons["Toggle AltZoom"]  = "BUTTON_SELECT";
+        flycam_buttons["Toggle follow" ]  = "BUTTON_START";
+        flycam_buttons["Toggle flycam" ]  = "BUTTON_RIGHT_STICK";
+        flycam_buttons["Roll CCW"]        = "BUTTON_LEFT_SHOULDER";
+        flycam_buttons["Roll CW"]         = "BUTTON_RIGHT_SHOULDER";
+        flycam_buttons["Dolly forward"]   = "BUTTON_DPAD_UP";
+        flycam_buttons["Dolly back"]      = "BUTTON_DPAD_DOWN";
+        flycam_buttons["Truck left"]      = "BUTTON_DPAD_LEFT";
+        flycam_buttons["Truck right"]     = "BUTTON_DPAD_RIGHT";
 
         auto makeMode = [](const LLSD& axes, const LLSD& buttons)
         {
@@ -698,6 +703,7 @@ namespace
             devices[guid] = device;
         }
     }
+
 }
 
 LLGameControl::~LLGameControl()
@@ -1642,11 +1648,11 @@ namespace
     // Avatar/Captive modes.  Analog axis labels expand to a positive-half and
     // negative-half AGENT_CONTROL bit; when an axis is bound to the trigger pair the
     // per-axis binding half (see AxisActionBinding) selects which of these two bits a
-    // given trigger drives.  Button labels expand to a single AGENT_CONTROL bit (the
-    // fly/flycam entries reuse the HACK bits consumed by
-    // LLAgent::applyExternalActionFlags).  Labels that map to viewer *commands*
-    // rather than movement bits (Interact, Toggle sit/menu/mouselook/3rd-person,
-    // Mouse clicks) are intentionally absent here and are a separate follow-up.
+    // given trigger drives.  Button labels expand to a single AGENT_CONTROL bit,
+    // except the ACTION_TOGGLE_* entries below, which are non-flag actions carried
+    // via AgentActions::mMiscActions and processed by LLAgent::applyExternalActions.
+    // Labels that map to other viewer *commands* (Interact, Mouse clicks) are
+    // intentionally absent here and are a separate follow-up.
     struct AxisActionEffect { U32 posFlag; U32 negFlag; };
 
     const std::map<std::string, AxisActionEffect>& avatarAxisBridge()
@@ -1654,11 +1660,11 @@ namespace
         // Note: g_innerState half-axes are pre-negated so LEFT/FORWARD/UP land in
         // the positive half (axis*2); see LLGameControllerManager::onAxis().
         static const std::map<std::string, AxisActionEffect> bridge = {
-            { "Strafe left/right", { AGENT_CONTROL_LEFT_POS,  AGENT_CONTROL_LEFT_NEG } },
-            { "Move forward/back", { AGENT_CONTROL_AT_POS,    AGENT_CONTROL_AT_NEG } },
-            { "Turn left/right",   { AGENT_CONTROL_YAW_POS,   AGENT_CONTROL_YAW_NEG } },
-            { "Look up/down",      { AGENT_CONTROL_PITCH_POS, AGENT_CONTROL_PITCH_NEG } },
-            { "Fly up/down",       { AGENT_CONTROL_UP_POS,    AGENT_CONTROL_UP_NEG } },
+            { "Strafe left/right",    { AGENT_CONTROL_LEFT_POS,  AGENT_CONTROL_LEFT_NEG } },
+            { "Advance forward/back", { AGENT_CONTROL_AT_POS,    AGENT_CONTROL_AT_NEG } },
+            { "Turn left/right",      { AGENT_CONTROL_YAW_POS,   AGENT_CONTROL_YAW_NEG } },
+            { "Look up/down",         { AGENT_CONTROL_PITCH_POS, AGENT_CONTROL_PITCH_NEG } },
+            { "Fly up/down",          { AGENT_CONTROL_UP_POS,    AGENT_CONTROL_UP_NEG } },
         };
         return bridge;
     }
@@ -1666,19 +1672,40 @@ namespace
     const std::map<std::string, U32>& avatarButtonBridge()
     {
         static const std::map<std::string, U32> bridge = {
-            { "Jump",          AGENT_CONTROL_UP_POS },
-            { "Crouch",        AGENT_CONTROL_UP_NEG },
-            // A button drives only one half-axis, so up/down are two separate button
-            // actions (the analog counterpart is the single "Fly up/down" axis).
-            { "Move up",       AGENT_CONTROL_UP_POS },
-            { "Move down",     AGENT_CONTROL_UP_NEG },
-            { "Move forward",  AGENT_CONTROL_AT_POS },
-            { "Move back",     AGENT_CONTROL_AT_NEG },
-            { "Strafe left",   AGENT_CONTROL_LEFT_POS },
-            { "Strafe right",  AGENT_CONTROL_LEFT_NEG },
-            // HACK bits consumed by LLAgent::applyExternalActionFlags for toggles.
-            { "Toggle fly",    AGENT_CONTROL_FLY },          // HACK
-            { "Toggle flycam", AGENT_CONTROL_NUDGE_AT_NEG }, // HACK
+            { "Jump",            AGENT_CONTROL_UP_POS },
+            { "Crouch",          AGENT_CONTROL_UP_NEG },
+            { "Fly up",          AGENT_CONTROL_UP_POS },
+            { "Fly down",        AGENT_CONTROL_UP_NEG },
+            { "Advance forward", AGENT_CONTROL_AT_POS },
+            { "Advance back",    AGENT_CONTROL_AT_NEG },
+            { "Strafe left",     AGENT_CONTROL_LEFT_POS },
+            { "Strafe right",    AGENT_CONTROL_LEFT_NEG },
+            { "Turn left",       AGENT_CONTROL_YAW_POS },
+            { "Turn right",      AGENT_CONTROL_YAW_NEG },
+            { "Look up",         AGENT_CONTROL_PITCH_POS },
+            { "Look down",       AGENT_CONTROL_PITCH_NEG },
+            // HACK bits consumed by LLAgent::applyExternalActions for toggles.
+            //{ "Toggle fly",      AGENT_CONTROL_FLY },          // HACK
+            //{ "Toggle flycam",   AGENT_CONTROL_NUDGE_AT_NEG }, // HACK
+            /*
+            // Real protocol bits: LLAgent::applyExternalActions gates these on
+            // avatar state (only sits down when standing on the ground, only stands
+            // up when sitting) so holding the button while the action doesn't apply
+            // is inert.
+            { "Sit down",        AGENT_CONTROL_SIT_DOWN },
+            { "Stand up",        AGENT_CONTROL_STAND_UP },
+            */
+
+            // The actions above correspond to existing AGENT_CONTROL_* bit-flags,
+            // so their values are multiples of 2.
+            // Actions that don't map directly to original AGENT_CONTROL_* bit-flags are given numerical
+            // values that increment up from 33.
+            { "Toggle fly",        LLGameControl::ACTION_TOGGLE_FLY },
+            { "Toggle sit",        LLGameControl::ACTION_TOGGLE_SIT},
+            { "Toggle speak",      LLGameControl::ACTION_TOGGLE_SPEAK},
+            { "Toggle flycam",     LLGameControl::ACTION_TOGGLE_FLYCAM},
+            { "Toggle mouselook",  LLGameControl::ACTION_TOGGLE_MOUSELOOK},
+            { "3rd Person camera", LLGameControl::ACTION_TOGGLE_3RD_PERSON},
         };
         return bridge;
     }
@@ -1689,7 +1716,26 @@ namespace
     //   defaultAxisActionForInput - which action owns 'input' in the built-in defaults?
     bool isKnownAnalogAxisAction(LLGameControl::AgentControlMode mode, const std::string& label);
     std::string defaultAxisActionForInput(LLGameControl::AgentControlMode mode, const std::string& input);
-}
+
+    // avatarButtonBridge() values are either an AGENT_CONTROL_* bit (OR-combinable
+    // into AgentActions::mControlFlags) or one of the ACTION_TOGGLE_* ids below
+    // (plain integers, not bitmasks, routed instead into AgentActions::mMiscActions).
+    bool isMiscAction(U32 value)
+    {
+        switch (value)
+        {
+        case LLGameControl::ACTION_TOGGLE_FLY:
+        case LLGameControl::ACTION_TOGGLE_SIT:
+        case LLGameControl::ACTION_TOGGLE_SPEAK:
+        case LLGameControl::ACTION_TOGGLE_FLYCAM:
+        case LLGameControl::ACTION_TOGGLE_MOUSELOOK:
+        case LLGameControl::ACTION_TOGGLE_3RD_PERSON:
+            return true;
+        default:
+            return false;
+        }
+    }
+} // namespace
 
 void LLGameControllerManager::rebuildActionLookup(bool force)
 {
@@ -1761,7 +1807,7 @@ void LLGameControllerManager::rebuildActionLookup(bool force)
     }
 }
 
-U32 LLGameControllerManager::computeInternalActionFlags()
+LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
 {
     // Ensure the lookup matches the active mode (cheap no-op when up to date).
     rebuildActionLookup();
@@ -1769,7 +1815,7 @@ U32 LLGameControllerManager::computeInternalActionFlags()
     // Threshold matching LLGameControlTranslator's ON/OFF zone for analog->digital.
     constexpr U16 AXIS_THRESHOLD = 32768 / 8;
 
-    U32 flags = 0;
+    LLGameControl::AgentActions result;
 
     // Axes: work from each canonical axis' signed deflection (positive half at
     // axis*2 minus negative half at axis*2+1).  Using the deflection rather than a
@@ -1794,16 +1840,28 @@ U32 LLGameControllerManager::computeInternalActionFlags()
         S32 value = binding.half == HALF_NEGATIVE ? -deflection : deflection;
         if (value > AXIS_THRESHOLD)
         {
-            flags |= it->second.posFlag;
+            result.mControlFlags |= it->second.posFlag;
         }
         if (value < -(S32)AXIS_THRESHOLD)
         {
-            flags |= it->second.negFlag;
+            result.mControlFlags |= it->second.negFlag;
         }
     }
 
-    // Buttons: each pressed button contributes its bound label's bit.
+    // Buttons: each pressed button contributes its bound label's action.  Most
+    // labels are level-triggered (held == asserted), matching how the movement bits
+    // work.  A few labels are one-shot *commands* ("Sit down", "Stand up") whose
+    // effect should fire once per physical press rather than every frame the button
+    // is held -- for those, only the not-pressed -> pressed edge counts.  Edge state
+    // is tracked per physical button via g_innerState.mPrevButtons (maintained every
+    // frame by accumulateInternalState()'s storePrevious(), which runs before this),
+    // not on the resulting AGENT_CONTROL bit, since the same held button can flip
+    // which of these labels it's bound to across a single frame boundary (sitting
+    // flips the active mode Avatar -> Captive); from the new bit's own history that
+    // would otherwise look like a fresh press.
+
     const auto& button_bridge = avatarButtonBridge();
+    U32 pressed_edges = g_innerState.mButtons & ~g_innerState.mPrevButtons;
     for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
     {
         if (!(g_innerState.mButtons & (1U << btn)))
@@ -1815,14 +1873,26 @@ U32 LLGameControllerManager::computeInternalActionFlags()
         {
             continue;
         }
+        if ((label == "Sit down" || label == "Stand up") && !(pressed_edges & (1U << btn)))
+        {
+            continue;
+        }
         auto it = button_bridge.find(label);
         if (it != button_bridge.end())
         {
-            flags |= it->second;
+            if (isMiscAction(it->second))
+            {
+                result.mMiscActions.push_back(it->second);
+            }
+            else
+            {
+                // this action corresponds to AGENT_CONTROL_* and sets a bit in mControlFlags
+                result.mControlFlags |= it->second;
+            }
         }
     }
 
-    return flags;
+    return result;
 }
 
 namespace
@@ -1838,12 +1908,13 @@ namespace
     const std::map<std::string, FlycamAxisEffect>& flycamAxisBridge()
     {
         static const std::map<std::string, FlycamAxisEffect> bridge = {
-            { "Move forward/back", { LLGameControl::FLYCAM_ADVANCE,  1.f } },
-            { "Strafe left/right", { LLGameControl::FLYCAM_PAN,      1.f } },
-            { "Fly up/down",      { LLGameControl::FLYCAM_RISE,     1.f } },
-            { "Look up/down",      { LLGameControl::FLYCAM_PITCH,    1.f } },
-            { "Turn left/right",   { LLGameControl::FLYCAM_YAW,      1.f } },
-            { "Roll left/right",   { LLGameControl::FLYCAM_ROLL,     1.f } },
+            { "Truck left/right",   { LLGameControl::FLYCAM_TRUCK,    1.f } },
+            { "Dolly forward/back", { LLGameControl::FLYCAM_DOLLY,    1.f } },
+            { "Tilt up/down",       { LLGameControl::FLYCAM_TILT,     1.f } },
+            { "Pan left/right",     { LLGameControl::FLYCAM_PAN,      1.f } },
+            { "Boom up/down",       { LLGameControl::FLYCAM_BOOM,     1.f } },
+            { "Roll CCW/CW",        { LLGameControl::FLYCAM_ROLL,     1.f } },
+            { "Zoom in/out",        { LLGameControl::FLYCAM_ZOOM,     1.f } },
         };
         return bridge;
     }
@@ -1851,17 +1922,25 @@ namespace
     // FlyCam-mode button label -> flycam channel + full-deflection contribution.
     // A gamepad has no free axis for roll (all six are used for translate/look),
     // so roll is driven by the shoulder buttons by default; the dpad likewise
-    // provides digital advance/pan.  Command-type buttons (Select, Interact,
+    // provides digital dolly/pan.  Command-type buttons (Select, Interact,
     // Toggle AltZoom/menu) and the flycam on/off toggle are handled elsewhere.
     const std::map<std::string, FlycamAxisEffect>& flycamButtonBridge()
     {
         static const std::map<std::string, FlycamAxisEffect> bridge = {
-            { "Roll left",    { LLGameControl::FLYCAM_ROLL,     1.f } },
-            { "Roll right",   { LLGameControl::FLYCAM_ROLL,    -1.f } },
-            { "Move forward", { LLGameControl::FLYCAM_ADVANCE,  1.f } },
-            { "Move back",    { LLGameControl::FLYCAM_ADVANCE, -1.f } },
-            { "Strafe left",  { LLGameControl::FLYCAM_PAN,      1.f } },
-            { "Strafe right", { LLGameControl::FLYCAM_PAN,     -1.f } },
+            { "Truck left",     { LLGameControl::FLYCAM_TRUCK,   1.f } },
+            { "Truck right",    { LLGameControl::FLYCAM_TRUCK,  -1.f } },
+            { "Dolly forward",  { LLGameControl::FLYCAM_DOLLY,   1.f } },
+            { "Dolly back",     { LLGameControl::FLYCAM_DOLLY,  -1.f } },
+            { "Pan left",       { LLGameControl::FLYCAM_PAN,     1.f } },
+            { "Pan right",      { LLGameControl::FLYCAM_PAN,    -1.f } },
+            { "Tilt up",        { LLGameControl::FLYCAM_TILT,    1.f } },
+            { "Tilt down",      { LLGameControl::FLYCAM_TILT,   -1.f } },
+            { "Boom up",        { LLGameControl::FLYCAM_BOOM,    1.f } },
+            { "Boom down",      { LLGameControl::FLYCAM_BOOM,   -1.f } },
+            { "Roll CCW",       { LLGameControl::FLYCAM_ROLL,    1.f } },
+            { "Roll CW",        { LLGameControl::FLYCAM_ROLL,   -1.f } },
+            { "Zoom in",        { LLGameControl::FLYCAM_ZOOM,    1.f } },
+            { "Zoom out",       { LLGameControl::FLYCAM_ZOOM,   -1.f } },
         };
         return bridge;
     }
@@ -1941,8 +2020,11 @@ void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
         dof[it->second.channel] += it->second.polarity * signed_value;
     }
 
-    // Button-driven flycam motion (roll on the shoulders, dpad advance/pan):
-    // each pressed button contributes full deflection to its channel.
+    // ADEBUG TODO BOOKMARK: avoid repetitive button_bridge.find() by building
+    // the index translation once and then just iterating over the indicies.
+
+    // Button-driven flycam motion: each pressed button contributes full
+    // deflection to its channel.
     const auto& button_bridge = flycamButtonBridge();
     for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
     {
@@ -2781,9 +2863,9 @@ std::string LLGameControl::axisOutputName(U8 code)
 }
 
 // static
-U32 LLGameControl::computeInternalActionFlags()
+LLGameControl::AgentActions LLGameControl::computeAgentActions()
 {
-    return g_manager.computeInternalActionFlags();
+    return g_manager.computeAgentActions();
 }
 
 // static

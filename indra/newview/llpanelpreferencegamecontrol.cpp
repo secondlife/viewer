@@ -693,7 +693,7 @@ bool LLPanelPreferenceGameControl::postBuild()
     mStateNoDeviceMessage = getChild<LLTextBox>("state_nodevice_message");
     mStateDevicePrompt = getChild<LLTextBox>("state_device_prompt");
     mStateRemapNote = getChild<LLTextBox>("state_remap_note");
-    mStateDeviceList = getChild<LLComboBox>("state_device_list");
+    mStateDeviceList = getChild<LLComboBox>("options_device_list");
     mPanelDeviceState = getChild<LLPanel>("device_state_settings");
     mStateDeviceList->setCommitCallback([this](LLUICtrl*, const LLSD& value)
         {
@@ -701,6 +701,9 @@ bool LLPanelPreferenceGameControl::postBuild()
             clearSelectionState();
             populateAxisStateOptionCells();  // refresh invert/offset/dead-zone for the new device
         });
+
+    mRestoreDeviceOptionsDefaults = getChild<LLButton>("restore_device_options_defaults");
+    mRestoreDeviceOptionsDefaults->setCommitCallback([this](LLUICtrl*, const LLSD&) { onResetDeviceOptionsToDefaults(); });
 
     mAxisState = getChild<LLScrollListCtrl>("axis_state");
     // The axis-state table is now editable: its Invert/Offset/Dead Zone columns
@@ -721,6 +724,7 @@ bool LLPanelPreferenceGameControl::postBuild()
     mBinaryActionSelector = getChild<LLComboBox>("binary_action_selector");
     mFlycamAnalogActionSelector = getChild<LLComboBox>("flycam_analog_action_selector");
     mFlycamBinaryActionSelector = getChild<LLComboBox>("flycam_binary_action_selector");
+    mCaptiveBinaryActionSelector = getChild<LLComboBox>("sit_binary_action_selector");
 
     // Canonical input selectors, shown inline when editing an Input/Output cell.
     // The Actions tab binds an axis action to a canonical input (sticks or the
@@ -975,9 +979,13 @@ std::string LLPanelPreferenceGameControl::currentEditMode()
 LLComboBox* LLPanelPreferenceGameControl::actionSelectorForMode(bool axis, const std::string& mode) const
 {
     bool flycam = (mode == "FlyCam");
+    // Avatar and Captive share the same axis actions (see llgamecontrol.cpp);
+    // only their button actions differ (Captive swaps in e.g. "Stand" for "Jump").
     if (axis)
         return flycam ? mFlycamAnalogActionSelector : mAnalogActionSelector;
-    return flycam ? mFlycamBinaryActionSelector : mBinaryActionSelector;
+    if (flycam)
+        return mFlycamBinaryActionSelector;
+    return (mode == "Captive") ? mCaptiveBinaryActionSelector : mBinaryActionSelector;
 }
 
 // Rebuilds the two Actions tables for the current mode: axis actions in the top
@@ -1294,6 +1302,7 @@ void LLPanelPreferenceGameControl::updateDeviceStateList()
     mStateDevicePrompt->setVisible(hasDevice);
     mStateRemapNote->setVisible(hasDevice);
     mStateDeviceList->setVisible(hasDevice);
+    mRestoreDeviceOptionsDefaults->setVisible(hasDevice);
     mPanelDeviceState->setVisible(hasDevice);
 
     if (!hasDevice)
@@ -1351,6 +1360,7 @@ void LLPanelPreferenceGameControl::populateAxisStateRows()
     // source of truth (reordering columns in the XML needs no change here).
     row_params.columns(axisStateColumn("raw_value")).font_halign = "right";
     row_params.columns(axisStateColumn("invert")).type = "checkbox";
+    row_params.columns(axisStateColumn("invert")).font_halign = "right"; // right-align the checkbox within the cell
     row_params.columns(axisStateColumn("offset")).font_halign = "right";
     row_params.columns(axisStateColumn("dead_zone")).font_halign = "right";
     row_params.columns(axisStateColumn("fixed_value")).font_halign = "right";
@@ -1513,12 +1523,15 @@ void LLPanelPreferenceGameControl::populateDataOutputRows()
         cell_params.column = mDataOutput->getColumn(i)->mName;
         row_params.columns.add(cell_params);
     }
-    row_params.columns(1).font_halign = "right";  // Value
+    row_params.columns(2).font_halign = "right";  // Value
 
+    // Column 0 is a per-block 0-based index; it restarts at 0 for the button
+    // block below.  Column 1 is the canonical output name, column 2 the Value.
     for (size_t i = 0; i < LLGameControl::NUM_AXES; ++i)
     {
         LLScrollListItem* row = mDataOutput->addRow(row_params);
-        row->getColumn(0)->setValue(llformat("AXIS_%d", (S32)i));
+        row->getColumn(0)->setValue(llformat("%d", (S32)i));
+        row->getColumn(1)->setValue(LLGameControl::axisOutputName((U8)i));
     }
 
     // One empty row separates the axis block from the button block.
@@ -1527,7 +1540,17 @@ void LLPanelPreferenceGameControl::populateDataOutputRows()
     for (size_t i = 0; i < LLGameControl::NUM_BUTTONS; ++i)
     {
         LLScrollListItem* row = mDataOutput->addRow(row_params);
-        row->getColumn(0)->setValue(llformat("BUTTON_%d", (S32)i));
+        row->getColumn(0)->setValue(llformat("%d", (S32)i));
+        // getRemoteName() gives the Button enum's symbolic name for the named
+        // buttons (0..BUTTON_TOUCHPAD) but blanks the unnamed tail; fall back to
+        // the indexed BUTTON_N form there, which is exactly the enum name for those.
+        std::string name = LLGameControl::InputChannel(LLGameControl::InputChannel::TYPE_BUTTON, (U8)i).getRemoteName();
+        LLStringUtil::trim(name);
+        if (name.empty())
+        {
+            name = llformat("BUTTON_%d", (S32)i);
+        }
+        row->getColumn(1)->setValue(name);
     }
 }
 
@@ -1544,7 +1567,7 @@ void LLPanelPreferenceGameControl::populateDataOutputValues()
 
     for (size_t i = 0; i < LLGameControl::NUM_AXES && i < state.mAxes.size() && row < rows.size(); ++i, ++row)
     {
-        rows[row]->getColumn(1)->setValue(llformat("%d ", (S32)state.mAxes[i]));
+        rows[row]->getColumn(2)->setValue(llformat("%d ", (S32)state.mAxes[i]));
     }
 
     ++row;  // skip the empty separator row
@@ -1552,7 +1575,7 @@ void LLPanelPreferenceGameControl::populateDataOutputValues()
     for (size_t i = 0; i < LLGameControl::NUM_BUTTONS && row < rows.size(); ++i, ++row)
     {
         S32 value = (state.mButtons >> i) & 0x1;
-        rows[row]->getColumn(1)->setValue(llformat("%d ", value));
+        rows[row]->getColumn(2)->setValue(llformat("%d ", value));
     }
 }
 
@@ -1721,6 +1744,30 @@ void LLPanelPreferenceGameControl::onResetDeviceToDefaults()
     populateButtonChannelsCells();
     // Invert/offset/dead-zone now live on the Device State tab; refresh them too
     // (a no-op unless the reset device is the one shown there).
+    populateAxisStateOptionCells();
+
+    LLGameControl::applySettingsFromLLSD(getSettingsAsLLSD());
+}
+
+// Resets the state-tab device's per-axis tuning (Invert / Offset / Dead Zone) to
+// defaults for every axis, leaving the axis/button remaps untouched.  This backs
+// the Device Options tab's "Restore Defaults" button.
+void LLPanelPreferenceGameControl::onResetDeviceOptionsToDefaults()
+{
+    clearSelectionState();
+    auto options_it = mDeviceOptions.find(mStateSelectedDeviceGUID);
+    if (options_it == mDeviceOptions.end())
+    {
+        return;
+    }
+
+    LLGameControl::Options& options = options_it->second.options;
+    for (LLGameControl::Options::AxisOptions& axis_options : options.getAxisOptions())
+    {
+        axis_options.resetToDefaults();
+    }
+    LLGameControl::setDeviceOptions(mStateSelectedDeviceGUID, options);
+
     populateAxisStateOptionCells();
 
     LLGameControl::applySettingsFromLLSD(getSettingsAsLLSD());

@@ -34,6 +34,7 @@
 #include "llcoordframe.h"           // for mFrameAgent
 #include "llavatarappearancedefines.h"
 #include "llflycam.h"
+#include "llgamecontrol.h"
 #include "llkeyboard.h"
 #include "llpermissionsflags.h"
 #include "llevents.h"
@@ -515,7 +516,7 @@ public:
     // computed as a function of input and state, and are sent to the server
     // to steer its character controller for the avatar.
     //
-    void applyExternalActionFlags(U32 flags);
+    void applyExternalActions(const LLGameControl::AgentActions& actions);
     void updateFlycam();
 
     // Auto-derive the active game-control AgentControlMode from current avatar
@@ -537,6 +538,10 @@ private:
     bool mToggleFly { true };
     bool mToggleRun { true };
     bool mToggleFlycam { true };
+    bool mToggleSit { true };
+    bool mToggleSpeak { true };
+    bool mToggleMouselook { true };
+    bool mToggleThirdPerson { true };
     bool mUsingFlycam { false };
 
     //--------------------------------------------------------------------

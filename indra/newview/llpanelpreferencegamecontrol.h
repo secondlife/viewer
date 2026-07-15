@@ -155,6 +155,7 @@ private:
     // Reset to defaults handlers
     void onResetActionsToDefaults();    // Reset current mode's action mappings
     void onResetDeviceToDefaults();     // Reset selected device's options (remap/invert/deadzone/offset)
+    void onResetDeviceOptionsToDefaults();  // Reset state device's per-axis tuning (invert/offset/dead zone)
 
     void rememberOriginalSettings();  // Capture settings for cancel restoration
 
@@ -189,6 +190,7 @@ private:
     LLTextBox* mStateDevicePrompt { nullptr };     // "Device:" label
     LLTextBox* mStateRemapNote { nullptr };        // Note that values are post-remap
     LLComboBox* mStateDeviceList { nullptr };      // Dropdown listing connected devices
+    LLButton* mRestoreDeviceOptionsDefaults { nullptr };  // Restore per-axis tuning to defaults
     LLPanel* mPanelDeviceState { nullptr };        // Wrapper holding the two state tables
     LLScrollListCtrl* mAxisState { nullptr };      // Input(glyph) | Axis | Raw/Adjusted values | invert/offset/dead-zone
     LLScrollListCtrl* mButtonState { nullptr };    // Input(glyph) | Button | Value (live pressed state)
@@ -217,10 +219,11 @@ private:
     LLComboBox* mAxisOutputGlyphSelector { nullptr };
 
     // Action selectors: source of the "Action" column rows, chosen by edit mode.
-    LLComboBox* mAnalogActionSelector { nullptr };        // Avatar/Captive axis actions
-    LLComboBox* mBinaryActionSelector { nullptr };        // Avatar/Captive button actions
+    LLComboBox* mAnalogActionSelector { nullptr };        // Avatar axis actions
+    LLComboBox* mBinaryActionSelector { nullptr };        // Avatar button actions
     LLComboBox* mFlycamAnalogActionSelector { nullptr };  // FlyCam axis actions
     LLComboBox* mFlycamBinaryActionSelector { nullptr };  // FlyCam button actions
+    LLComboBox* mCaptiveBinaryActionSelector { nullptr }; // Captive (sitting) button actions
 
     // Per-device options storage
     struct DeviceOptions
