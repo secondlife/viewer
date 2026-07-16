@@ -330,7 +330,7 @@ jobs:
           echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
 
       - name: Upload executable
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: matrix.build_variant == 'Viewer' && steps.build.outputs.viewer_app
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
@@ -340,14 +340,14 @@ jobs:
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
       - name: Upload symbol file
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: matrix.build_variant == 'Viewer' && steps.build.outputs.symbolfile
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
           path: ${{ steps.build.outputs.symbolfile }}
 
       - name: Upload metadata
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: matrix.build_variant == 'Viewer'
         with:
           name: "${{ steps.build.outputs.artifact }}-metadata"
@@ -356,7 +356,7 @@ jobs:
             ${{ steps.build.outputs.metadata }}
 
       - name: Upload physics package
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         # should only be set for viewer-private
         if: matrix.build_variant == 'Viewer' && matrix.configuration == 'Release' && steps.build.outputs.physicstpv
         with:
@@ -366,7 +366,7 @@ jobs:
             ${{ steps.build.outputs.physicstpv }}
 
       - name: Upload appearance utility package
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: matrix.build_variant == 'Viewer' && steps.build.outputs.appearanceutility
         with:
           name: "${{ steps.build.outputs.artifact }}-appearanceutility"
@@ -460,13 +460,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download viewer exe
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: Windows-app
           path: _artifacts
       - name: Download Windows Symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: Windows-symbols
       - name: Extract viewer pdb
@@ -499,7 +499,7 @@ jobs:
     steps:
       - name: Download Mac Symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: macOS-symbols
       - name: Post Mac symbols
@@ -521,11 +521,11 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.setup.outputs.release_run
     steps:
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: "*-installer"
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: "*-metadata"
 

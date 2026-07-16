@@ -1515,7 +1515,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
     S32 size;
     U32 face_count = 0;
 
-    if (!dp.unpackBinaryData(packed_buffer, size, "TextureEntry"))
+    if (!dp.unpackBinaryData(packed_buffer, MAX_TE_BUFFER, size, "TextureEntry"))
     {
         retval = TEM_INVALID;
         LL_WARNS() << "Bad texture entry block!  Abort!" << LL_ENDL;

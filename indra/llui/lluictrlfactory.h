@@ -81,12 +81,13 @@ class LLWidgetNameRegistry
 
 // Build time optimization, generate this once in .cpp file
 #ifndef LLUICTRLFACTORY_CPP
-extern template class LLUICtrlFactory* LLSingleton<class LLUICtrlFactory>::getInstance();
+extern template class LLUICtrlFactory* LLSimpleton<class LLUICtrlFactory>::getInstance();
 #endif
 
-class LLUICtrlFactory : public LLSingleton<LLUICtrlFactory>
+class LLUICtrlFactory : public LLSimpleton<LLUICtrlFactory>
 {
-    LLSINGLETON(LLUICtrlFactory);
+public:
+    LLUICtrlFactory();
     ~LLUICtrlFactory();
 
     // only partial specialization allowed in inner classes, so use extra dummy parameter
@@ -313,6 +314,10 @@ template<typename T>
 LLChildRegistry<DERIVED>::Register<T>::Register(const char* tag, LLWidgetCreatorFunc func)
 :   LLChildRegistry<DERIVED>::StaticRegistrar(tag, func == nullptr ? (LLWidgetCreatorFunc)&LLUICtrlFactory::defaultBuilder<T> : func)
 {
+    if (!LLUICtrlFactory::instanceExists())
+    {
+        LLUICtrlFactory::createInstance();
+    }
     // add this widget to various registries
     LLUICtrlFactory::instance().registerWidget(typeid(T), typeid(typename T::Params), tag);
 

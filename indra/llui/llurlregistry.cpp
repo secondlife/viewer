@@ -149,12 +149,77 @@ static bool stringHasUrl(const std::string &text)
     // fast heuristic test for a URL in a string. This is used
     // to avoid lots of costly regex calls, BUT it needs to be
     // kept in sync with the LLUrlEntry regexes we support.
-    return (text.find("://") != std::string::npos ||
-            text.find("www.") != std::string::npos ||
-            text.find(".com") != std::string::npos ||
-            text.find("<nolink>") != std::string::npos ||
-            text.find("<icon") != std::string::npos ||
-            text.find("@") != std::string::npos);
+
+    // Early exit for empty or very short strings
+    // Smallest url is 5 characters
+    if (text.length() < 3)
+    {
+        return false;
+    }
+
+    // Single pass search for common URL indicators
+    for (size_t i = 0; i < text.length(); ++i)
+    {
+        char c = text[i];
+
+        // Check for @ (email or mention)
+        if (c == '@')
+        {
+            return true;
+        }
+
+        if (i + 3 >= text.length())
+        {
+            // Nothing else is going to match or fit if we don't
+            // have at least 4 characters left
+            // Ex: expectation is that there is something after protocol delimiter
+            // and .com takes 4 characters.
+            return false;
+        }
+
+        // Check for protocol delimiter
+        if (c == ':' && text[i + 1] == '/' && text[i + 2] == '/')
+        {
+            return true;
+        }
+
+        // Check for www. at start of word
+        if (c == 'w'
+            && text[i + 1] == 'w'
+            && text[i + 2] == 'w'
+            && text[i + 3] == '.')
+        {
+            return true;
+        }
+
+        // Check for .com (and similar)
+        if (c == '.')
+        {
+            const char* suffix = text.c_str() + i + 1;
+            if ((suffix[0] == 'c' && suffix[1] == 'o' && suffix[2] == 'm') ||
+                (suffix[0] == 'n' && suffix[1] == 'e' && suffix[2] == 't') ||
+                (suffix[0] == 'o' && suffix[1] == 'r' && suffix[2] == 'g') ||
+                (suffix[0] == 'e' && suffix[1] == 'd' && suffix[2] == 'u'))
+            {
+                return true;
+            }
+        }
+
+        // Check for <nolink> or <icon
+        if (c == '<')
+        {
+            if (i + 7 < text.length() && text.compare(i + 1, 6, "nolink") == 0)
+            {
+                return true;
+            }
+            if (i + 4 < text.length() && text.compare(i + 1, 4, "icon") == 0)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb, bool is_content_trusted, bool skip_non_mentions)

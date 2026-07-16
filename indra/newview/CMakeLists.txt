@@ -591,6 +591,7 @@ set(viewer_SOURCE_FILES
     llslurl.cpp
     llsnapshotlivepreview.cpp
     llspatialpartition.cpp
+    llstatslistener.cpp
     llspeakers.cpp
     llspeakingindicatormanager.cpp
     llsplitbutton.cpp
@@ -727,7 +728,6 @@ set(viewer_SOURCE_FILES
     llvoicechannel.cpp
     llvoiceclient.cpp
     llvoicevisualizer.cpp
-    llvoicevivox.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
     llvosky.cpp
@@ -1265,6 +1265,7 @@ set(viewer_HEADER_FILES
     llsnapshotlivepreview.h
     llsnapshotmodel.h
     llspatialpartition.h
+    llstatslistener.h
     llspeakers.h
     llspeakingindicatormanager.h
     llsplitbutton.h
@@ -1403,7 +1404,6 @@ set(viewer_HEADER_FILES
     llvoicechannel.h
     llvoiceclient.h
     llvoicevisualizer.h
-    llvoicevivox.h
     llvoinventorylistener.h
     llvopartgroup.h
     llvosky.h
@@ -1781,9 +1781,7 @@ if (WINDOWS)
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
       ${SHARED_LIB_STAGING_DIR}/openjp2.dll
       ${SHARED_LIB_STAGING_DIR}/llwebrtc.dll
-      #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/libsndfile-1.dll
-      #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxoal.dll
       ${AUTOBUILD_INSTALL_DIR}/ca-bundle.crt
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
@@ -1793,18 +1791,6 @@ if (WINDOWS)
       media_plugin_libvlc
       media_plugin_example
       )
-
-    if (ADDRESS_SIZE EQUAL 64)
-       list(APPEND COPY_INPUT_DEPENDENCIES
-               ${SHARED_LIB_STAGING_DIR}/vivoxsdk_x64.dll
-               ${SHARED_LIB_STAGING_DIR}/ortp_x64.dll
-               )
-    else (ADDRESS_SIZE EQUAL 64)
-       list(APPEND COPY_INPUT_DEPENDENCIES
-               ${SHARED_LIB_STAGING_DIR}/vivoxsdk.dll
-               ${SHARED_LIB_STAGING_DIR}/ortp.dll
-               )
-    endif (ADDRESS_SIZE EQUAL 64)
 
     if (TARGET ll::discord_sdk)
         list(APPEND COPY_INPUT_DEPENDENCIES
@@ -2196,7 +2182,7 @@ if (DARWIN)
   set(MACOSX_BUNDLE_BUNDLE_NAME "SecondLife")
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
   set(MACOSX_BUNDLE_BUNDLE_VERSION "${VIEWER_SHORT_VERSION}${VIEWER_MACOSX_PHASE}${VIEWER_REVISION}")
-  set(MACOSX_BUNDLE_COPYRIGHT "Copyright © Linden Research, Inc. 2020")
+  set(MACOSX_BUNDLE_COPYRIGHT "Copyright © Linden Research, Inc. 2026")
   set(MACOSX_BUNDLE_NSMAIN_NIB_FILE "SecondLife.nib")
   set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "LLApplication")
 

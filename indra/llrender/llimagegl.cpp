@@ -66,8 +66,8 @@ static LLMutex sTexMemMutex;
 static std::unordered_map<U32, U64> sTextureAllocs;
 static U64 sTextureBytes = 0;
 
-// track a texture alloc on the currently bound texture.
-// asserts that no currently tracked alloc exists
+// Per-mip upload paths call this once per level; only free_tex_image
+// removes a texture's accounting entirely.
 void LLImageGLMemory::alloc_tex_image(U32 width, U32 height, U32 intformat, U32 count)
 {
     U32 texUnit = gGL.getCurrentTexUnitIndex();
@@ -80,12 +80,43 @@ void LLImageGLMemory::alloc_tex_image(U32 width, U32 height, U32 intformat, U32 
 
     sTexMemMutex.lock();
 
-    // it is a precondition that no existing allocation exists for this texture
-    llassert(sTextureAllocs.find(texName) == sTextureAllocs.end());
-
-    sTextureAllocs[texName] = size;
+    auto iter = sTextureAllocs.find(texName);
+    if (iter != sTextureAllocs.end())
+    {
+        iter->second += size;
+    }
+    else
+    {
+        sTextureAllocs[texName] = size;
+    }
     sTextureBytes += size;
 
+    sTexMemMutex.unlock();
+}
+
+// Add mip 1..N bytes to existing accounting. Use after glGenerateMipmap.
+void LLImageGLMemory::account_extra_mip_bytes(U32 base_width, U32 base_height, U32 intformat)
+{
+    U64 extra = 0;
+    U32 w = base_width;
+    U32 h = base_height;
+    while (w > 1 || h > 1)
+    {
+        w = w > 1 ? w >> 1 : 1;
+        h = h > 1 ? h >> 1 : 1;
+        extra += LLImageGL::dataFormatBytes(intformat, w, h);
+    }
+
+    U32 texUnit = gGL.getCurrentTexUnitIndex();
+    U32 texName = gGL.getTexUnit(texUnit)->getCurrTexture();
+
+    sTexMemMutex.lock();
+    auto iter = sTextureAllocs.find(texName);
+    if (iter != sTextureAllocs.end())
+    {
+        iter->second += extra;
+        sTextureBytes += extra;
+    }
     sTexMemMutex.unlock();
 }
 
@@ -135,6 +166,8 @@ U64 LLImageGL::getTextureBytesAllocated()
 //statics
 
 U32 LLImageGL::sUniqueCount             = 0;
+std::atomic<U32> LLImageGL::sOOMErrorCount(0);
+thread_local bool LLImageGL::sStampBindFrame = true;
 U32 LLImageGL::sBindCount               = 0;
 S32 LLImageGL::sCount                   = 0;
 
@@ -459,7 +492,7 @@ bool LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, b
 //----------------------------------------------------------------------------
 
 LLImageGL::LLImageGL(bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
-:   mSaveData(0), mExternalTexture(false)
+:   mExternalTexture(false)
 {
     init(usemipmaps, allow_compression);
     setSize(0, 0, 0);
@@ -468,7 +501,7 @@ LLImageGL::LLImageGL(bool usemipmaps/* = true*/, bool allow_compression/* = true
 }
 
 LLImageGL::LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
-:   mSaveData(0), mExternalTexture(false)
+:   mExternalTexture(false)
 {
     llassert( components <= 4 );
     init(usemipmaps, allow_compression);
@@ -478,7 +511,7 @@ LLImageGL::LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps/* = t
 }
 
 LLImageGL::LLImageGL(const LLImageRaw* imageraw, bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
-:   mSaveData(0), mExternalTexture(false)
+:   mExternalTexture(false)
 {
     init(usemipmaps, allow_compression);
     setSize(0, 0, 0);
@@ -587,8 +620,6 @@ void LLImageGL::cleanup()
         destroyGLTexture();
     }
     freePickMask();
-
-    mSaveData = NULL; // deletes data
 }
 
 //----------------------------------------------------------------------------
@@ -683,7 +714,10 @@ void LLImageGL::dump()
 //----------------------------------------------------------------------------
 void LLImageGL::forceUpdateBindStats(void) const
 {
-    mLastBindTime = sLastFrameTime;
+    // Intentionally a no-op: mLastBindTime is written only by real bind
+    // paths so the staleness signal reflects actual GPU use. Callers that
+    // still invoke this (avatar "keep alive" sites, deleted-texture
+    // fallback) no longer falsely refresh staleness.
 }
 
 bool LLImageGL::updateBindStats() const
@@ -742,6 +776,7 @@ void LLImageGL::setImage(const LLImageRaw* imageraw)
 bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32 usename /* = 0 */)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    LLImageGLStampBypass no_stamp; // upload binds are not visibility
 
     const bool is_compressed = isCompressed();
 
@@ -854,6 +889,7 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                     {
                         LL_PROFILE_GPU_ZONE("generate mip map");
                         glGenerateMipmap(mTarget);
+                        account_extra_mip_bytes(w, h, mFormatInternal);
                     }
                     stop_glerror();
                 }
@@ -1455,7 +1491,18 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         LL_PROFILE_ZONE_NUM(width);
         LL_PROFILE_ZONE_NUM(height);
 
-        free_cur_tex_image();
+        // Release prior accounting only on the base mip; per-mip iteration
+        // accumulates the rest via the additive alloc_tex_image.
+        if (miplevel == 0)
+        {
+            free_cur_tex_image();
+        }
+
+        // Drain stale GL errors so an OOM detected below belongs to this alloc.
+        // Otherwise a failed glTexImage2D is swallowed in release while
+        // alloc_tex_image still counts the bytes, inflating the used-VRAM figure.
+        drain_glerror();
+
         const bool use_sub_image = should_stagger_image_set(compress);
         if (!use_sub_image)
         {
@@ -1465,19 +1512,30 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         else
         {
             // break up calls to a manageable size for the GL command buffer
-            {
-                LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
-                glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
-            }
-
-            U8* src = (U8*)(pixels);
-            if (src)
-            {
-                LL_PROFILE_ZONE_NAMED("glTexImage2D copy");
-                sub_image_lines(target, miplevel, 0, 0, width, height, pixformat, pixtype, src, width);
-            }
+            LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
+            glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
         }
-        alloc_tex_image(width, height, intformat, 1);
+
+        if (glGetError() == GL_OUT_OF_MEMORY)
+        {
+            ++sOOMErrorCount;
+            LL_WARNS_ONCE("Texture") << "glTexImage2D failed with GL_OUT_OF_MEMORY ("
+                                     << width << "x" << height << " mip " << miplevel
+                                     << ") - not counting bytes" << LL_ENDL;
+        }
+        else
+        {
+            if (use_sub_image)
+            {
+                U8* src = (U8*)(pixels);
+                if (src)
+                {
+                    LL_PROFILE_ZONE_NAMED("glTexImage2D copy");
+                    sub_image_lines(target, miplevel, 0, 0, width, height, pixformat, pixtype, src, width);
+                }
+            }
+            alloc_tex_image(width, height, intformat, 1);
+        }
     }
     stop_glerror();
 }
@@ -1607,7 +1665,6 @@ bool LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
     {
         destroyGLTexture();
         mCurrentDiscardLevel = discard_level;
-        mLastBindTime = sLastFrameTime;
         mGLTextureCreated = false;
         return true ;
     }
@@ -1623,6 +1680,7 @@ bool LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, bool data_
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     LL_PROFILE_GPU_ZONE("createGLTexture");
     checkActiveThread();
+    LLImageGLStampBypass no_stamp; // creation binds are not visibility
 
     bool main_thread = on_main_thread();
 
@@ -1723,9 +1781,7 @@ bool LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, bool data_
 
 
     mTextureMemory = (S64Bytes)getMipBytes(mCurrentDiscardLevel);
-
-    // mark this as bound at this point, so we don't throw it out immediately
-    mLastBindTime = sLastFrameTime;
+    mGLCreateTime = sLastFrameTime;
 
     checkActiveThread();
     return true;
@@ -1852,12 +1908,13 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
     LLGLint is_compressed = 0;
     if (compressed_ok)
     {
-        glGetTexLevelParameteriv(mTarget, is_compressed, GL_TEXTURE_COMPRESSED, (GLint*)&is_compressed);
+        glGetTexLevelParameteriv(mTarget, gl_discard, GL_TEXTURE_COMPRESSED, (GLint*)&is_compressed);
     }
 
     //-----------------------------------------------------------------------------------------------
     GLenum error ;
-    while((error = glGetError()) != GL_NO_ERROR)
+    S32 error_count = 0 ;
+    while((error = glGetError()) != GL_NO_ERROR && ++error_count <= 16)
     {
         LL_WARNS() << "GL Error happens before reading back texture. Error code: " << error << LL_ENDL ;
     }
@@ -1917,7 +1974,8 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
         LL_WARNS() << "GL Error happens after reading back texture. Error code: " << error << LL_ENDL ;
         imageraw->deleteData() ;
 
-        while((error = glGetError()) != GL_NO_ERROR)
+        error_count = 0 ;
+        while((error = glGetError()) != GL_NO_ERROR && ++error_count <= 16)
         {
             LL_WARNS() << "GL Error happens after reading back texture. Error code: " << error << LL_ENDL ;
         }
@@ -2031,6 +2089,37 @@ S32 LLImageGL::getWidth(S32 discard_level) const
     S32 width = mWidth >> discard_level;
     if (width < 1) width = 1;
     return width;
+}
+
+// static
+S32 LLImageGL::dimDerivedMaxDiscard(S32 width, S32 height)
+{
+    if (width <= 0 || height <= 0)
+    {
+        return 0;
+    }
+    // max(w,h) - min() caps short on rectangular textures
+    // (1024x512 reaches 1x1 at discard 10, not 9).
+    return (S32)floorf(log2f((F32)llmax(width, height)));
+}
+
+void LLImageGL::stampBound() const
+{
+    // Both stamps skip same-frame re-binds (bindFast runs per draw). They dedupe
+    // separately, so a non-camera pass touching the time stamp first doesn't stop
+    // a real camera bind from setting the frame stamp later the same frame.
+    if (mLastBindTime != sLastFrameTime)
+    {
+        mLastBindTime = sLastFrameTime;
+    }
+    if (sStampBindFrame)
+    {
+        const U32 frame = LLFrameTimer::getFrameCount();
+        if (mLastBindFrame != frame)
+        {
+            mLastBindFrame = frame;
+        }
+    }
 }
 
 S64 LLImageGL::getBytes(S32 discard_level) const
@@ -2455,6 +2544,12 @@ bool LLImageGL::scaleDown(S32 desired_discard)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
+    // Don't let eviction re-arm the GC: the glGenerateMipmap re-bind below would
+    // otherwise stamp mLastBindFrame, so the next computeDesiredDiscard treats the
+    // just-evicted texture as freshly drawn, un-floors it, and re-fetches - the
+    // evict/refetch oscillation.
+    LLImageGLStampBypass no_stamp;
+
     if (mTarget != GL_TEXTURE_2D
         || mFormatInternal == -1 // not initialized
         )
@@ -2462,7 +2557,12 @@ bool LLImageGL::scaleDown(S32 desired_discard)
         return false;
     }
 
-    desired_discard = llmin(desired_discard, mMaxDiscardLevel);
+    // GL pyramid reaches 1x1 regardless of codec levels;
+    // mMaxDiscardLevel is hardcapped at MAX_DISCARD_LEVEL.
+    S32 dim_max_discard = (mWidth > 0 && mHeight > 0)
+        ? dimDerivedMaxDiscard(mWidth, mHeight)
+        : (S32)mMaxDiscardLevel;
+    desired_discard = llmin(desired_discard, dim_max_discard);
 
     if (desired_discard <= mCurrentDiscardLevel)
     {
@@ -2495,6 +2595,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
                 LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glGenerateMipmap");
                 gGL.getTexUnit(0)->bind(this);
                 glGenerateMipmap(mTarget);
+                account_extra_mip_bytes(desired_width, desired_height, mFormatInternal);
                 gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
             }
         }
@@ -2540,6 +2641,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glGenerateMipmap");
             glGenerateMipmap(mTarget);
+            account_extra_mip_bytes(desired_width, desired_height, mFormatInternal);
         }
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

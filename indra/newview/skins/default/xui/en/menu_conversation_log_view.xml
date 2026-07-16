@@ -34,6 +34,16 @@
        function="CallLog.Check"
        parameter="sort_friends_on_top" />
   </menu_item_check>
+    <menu_item_check
+     label="Show muted"
+     name="show_muted">
+        <on_click
+         function="CallLog.Action"
+         parameter="show_blocked" />
+        <on_check
+         function="CallLog.Check"
+         parameter="show_blocked" />
+    </menu_item_check>
   <menu_item_separator />
   <menu_item_call
    label="View Nearby chat history..."

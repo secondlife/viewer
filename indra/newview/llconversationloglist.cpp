@@ -45,6 +45,7 @@ LLConversationLogList::LLConversationLogList(const Params& p)
     mIsDirty(true)
 {
     LLConversationLog::instance().addObserver(this);
+    LLMuteList::instance().addObserver(this);
 
     // Set up context menu.
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -65,6 +66,15 @@ LLConversationLogList::LLConversationLogList(const Params& p)
     }
 
     mIsFriendsOnTop = gSavedSettings.getBOOL("SortFriendsFirst");
+    LLControlVariable* cntrl_ptr = gSavedSettings.getControl("ShowBlockedConvHistory");
+    if (cntrl_ptr)
+    {
+        mShowBlockedSignal = cntrl_ptr->getCommitSignal()->connect(
+            [this](LLControlVariable* control, const LLSD& value, const LLSD& previous)
+        {
+            setDirty(true);
+        });
+    }
 }
 
 LLConversationLogList::~LLConversationLogList()
@@ -74,6 +84,7 @@ LLConversationLogList::~LLConversationLogList()
         mContextMenu.get()->die();
     }
 
+    LLMuteList::getInstance()->removeObserver(this);
     LLConversationLog::instance().removeObserver(this);
 }
 
@@ -178,6 +189,44 @@ void LLConversationLogList::changed(const LLUUID& session_id, U32 mask)
     }
 }
 
+// inherited from LLMuteListObserver
+void LLConversationLogList::onChange()
+{
+}
+
+// inherited from LLMuteListObserver
+void LLConversationLogList::onChangeDetailed(const LLMute& mute)
+{
+    if (isDirty())
+    {
+        // Going to refresh either way.
+        return;
+    }
+
+    static LLCachedControl<bool> show_blocked(gSavedSettings, "ShowBlockedConvHistory", false);
+    if (!show_blocked())
+    {
+        // Check if any conversation in the log has this participant
+        const std::vector<LLConversation>& conversations = LLConversationLog::instance().getConversations();
+
+        // Note sure if actually need this update. List can be rather large
+        // and rebuilding it on every event can be expensive.
+        // But 'mute' events are also rare, so maybe not a problem.
+        // There also might be a way to react only to relevant changes,
+        // instead of reacting to everything, like ignoring voice only mutes,
+        // which are not relevant for this log by themselves.
+        for (const LLConversation& conversation : conversations)
+        {
+            if (conversation.getParticipantID() == mute.mID)
+            {
+                setDirty(true);
+                break;
+            }
+        }
+    }
+    // else don't need to hide anything
+}
+
 void LLConversationLogList::addNewItem(const LLConversation* conversation)
 {
     LLConversationLogListItem* item = new LLConversationLogListItem(&*conversation);
@@ -207,12 +256,20 @@ void LLConversationLogList::rebuildList()
 
     const std::vector<LLConversation>& conversations = log_instance.getConversations();
     std::vector<LLConversation>::const_iterator iter = conversations.begin();
+    LLMuteList* mutes = LLMuteList::getInstance();
+
+    static LLCachedControl<bool> show_blocked(gSavedSettings, "ShowBlockedConvHistory", false);
 
     for (; iter != conversations.end(); ++iter)
     {
         bool not_found = have_filter && !findInsensitive(iter->getConversationName(), mNameFilter) && !findInsensitive(iter->getTimestamp(), mNameFilter);
         if (not_found)
             continue;
+
+        if (!show_blocked() && mutes->isMuted(iter->getParticipantID()))
+        {
+            continue;
+        }
 
         addNewItem(&*iter);
     }
@@ -517,8 +574,8 @@ bool LLConversationLogListNameComparator::doCompare(const LLConversationLogListI
     LLStringUtil::toUpper(name1);
     LLStringUtil::toUpper(name2);
 
-    bool friends_first = gSavedSettings.getBOOL("SortFriendsFirst");
-    if (friends_first && (LLAvatarActions::isFriend(id1) ^ LLAvatarActions::isFriend(id2)))
+    static LLCachedControl<bool> sort_friends_first(gSavedSettings, "SortFriendsFirst", true);
+    if (sort_friends_first() && (LLAvatarActions::isFriend(id1) ^ LLAvatarActions::isFriend(id2)))
     {
         return LLAvatarActions::isFriend(id1);
     }
@@ -533,8 +590,8 @@ bool LLConversationLogListDateComparator::doCompare(const LLConversationLogListI
     const LLUUID& id1 = conversation1->getConversation()->getParticipantID();
     const LLUUID& id2 = conversation2->getConversation()->getParticipantID();
 
-    bool friends_first = gSavedSettings.getBOOL("SortFriendsFirst");
-    if (friends_first && (LLAvatarActions::isFriend(id1) ^ LLAvatarActions::isFriend(id2)))
+    static LLCachedControl<bool> sort_friends_first(gSavedSettings, "SortFriendsFirst", true);
+    if (sort_friends_first() && (LLAvatarActions::isFriend(id1) ^ LLAvatarActions::isFriend(id2)))
     {
         return LLAvatarActions::isFriend(id1);
     }

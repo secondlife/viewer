@@ -40,6 +40,7 @@
 #include "llinventorydefines.h"
 #include "lllslconstants.h"
 #include "llmaterialtable.h"
+#include "llmemory.h"
 #include "llregionhandle.h"
 #include "llsd.h"
 #include "llsdserialize.h"
@@ -3373,11 +3374,12 @@ void send_agent_update(bool force_send, bool send_reliable)
 
     static F32 last_draw_disatance_step = 1024;
     F32 memory_limited_draw_distance = gAgentCamera.mDrawDistance;
-
-    if (LLViewerTexture::isSystemMemoryCritical())
+    const F32 mem_factor = LLMemory::getSystemMemoryBudgetFactor();
+    if (mem_factor > 1.f)
     {
-        // If we are low on memory, reduce requested draw distance
-        memory_limited_draw_distance = llmax(gAgentCamera.mDrawDistance / LLViewerTexture::getSystemMemoryBudgetFactor(), gAgentCamera.mDrawDistance / 2.f);
+        // We are critically low on memory or recovering,
+        // limit requested draw distance
+        memory_limited_draw_distance = llmax(gAgentCamera.mDrawDistance / mem_factor, gAgentCamera.mDrawDistance / 2.f);
     }
 
     if (tp_state == LLAgent::TELEPORT_ARRIVING || LLStartUp::getStartupState() < STATE_MISC)
@@ -3556,6 +3558,7 @@ extern U32Bits gObjectData;
 
 void process_object_update(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     // Update the data counters
     if (mesgsys->getReceiveCompressedSize())
     {
@@ -3577,6 +3580,7 @@ void process_object_update(LLMessageSystem *mesgsys, void **user_data)
 
 void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     // Update the data counters
     if (mesgsys->getReceiveCompressedSize())
     {
@@ -3598,6 +3602,7 @@ void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data
 
 void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     // Update the data counters
     if (mesgsys->getReceiveCompressedSize())
     {
@@ -3615,6 +3620,7 @@ void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data)
 
 void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     if (mesgsys->getReceiveCompressedSize())
     {
         gObjectData += (U32Bytes)mesgsys->getReceiveCompressedSize();
@@ -3970,6 +3976,7 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 
 void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLUUID  animation_id;
     LLUUID  uuid;
     S32     anim_sequence_id;
@@ -4081,6 +4088,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 
 void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLUUID  animation_id;
     LLUUID  uuid;
     S32     anim_sequence_id;
@@ -4146,6 +4154,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
 
 void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLUUID uuid;
     mesgsys->getUUIDFast(_PREHASH_Sender, _PREHASH_ID, uuid);
 
@@ -5677,6 +5686,7 @@ void process_script_experience_details(const LLSD& experience_details, LLSD args
 
 void process_script_question(LLMessageSystem *msg, void **user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     // *TODO: Translate owner name -> [FIRST] [LAST]
 
     LLHost sender = msg->getSender();

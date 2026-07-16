@@ -750,9 +750,29 @@ void LLFeatureManager::applyBaseMasks()
     {
         maskFeatures("VRAMGT512");
     }
-    if (gGLManager.mVRAM < 2048)
+
+    // Texture quality is driven by detected VRAM. Feature masks take the MIN
+    // of applied values, so cascading lower tiers downgrade RenderTextureQuality:
+    //   <= 2GB -> Low(0), <= 4GB -> Medium(1), < 8GB -> High(2), >= 8GB -> Ultra(3).
+    // When VRAM cannot be detected (mVRAM == 0, common on Linux) fall back to Medium.
+    if (gGLManager.mVRAM == 0)
     {
-        maskFeatures("VRAMLT2GB");
+        maskFeatures("VRAMLT4GB");
+    }
+    else
+    {
+        if (gGLManager.mVRAM < 8192)
+        {
+            maskFeatures("VRAMLT8GB");
+        }
+        if (gGLManager.mVRAM <= 4096)
+        {
+            maskFeatures("VRAMLT4GB");
+        }
+        if (gGLManager.mVRAM <= 2048)
+        {
+            maskFeatures("VRAMLT2GB");
+        }
     }
     if (!gGLManager.mHasAnisotropic || 2.f > gGLManager.mMaxAnisotropy)
     {

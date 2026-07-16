@@ -106,6 +106,7 @@ void LLFloaterSettingsDebug::onCommitSettings()
 
     LLVector3 vector;
     LLVector3d vectord;
+    LLVector4 vector4;
     LLQuaternion quat;
     LLRect rect;
     LLColor4 col4;
@@ -141,6 +142,13 @@ void LLFloaterSettingsDebug::onCommitSettings()
         vectord.mdV[VY] = mValSpinner2->getValue().asReal();
         vectord.mdV[VZ] = mValSpinner3->getValue().asReal();
         controlp->set(vectord.getValue());
+        break;
+      case TYPE_VEC4:
+        vector4.mV[VX] = (F32)mValSpinner1->getValue().asReal();
+        vector4.mV[VY] = (F32)mValSpinner2->getValue().asReal();
+        vector4.mV[VZ] = (F32)mValSpinner3->getValue().asReal();
+        vector4.mV[VW] = (F32)mValSpinner4->getValue().asReal();
+        controlp->set(vector4.getValue());
         break;
       case TYPE_QUAT:
         quat.mQ[VX] = mValSpinner1->getValueF32();
@@ -351,6 +359,40 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
                 mValSpinner3->setValue(v[VZ]);
             }
             break;
+          }
+          case TYPE_VEC4:
+          {
+              LLVector4 v;
+              v.setValue(sd);
+              mValSpinner1->setVisible(true);
+              mValSpinner1->setLabel(std::string("X"));
+              mValSpinner2->setVisible(true);
+              mValSpinner2->setLabel(std::string("Y"));
+              mValSpinner3->setVisible(true);
+              mValSpinner3->setLabel(std::string("Z"));
+              mValSpinner4->setVisible(true);
+              mValSpinner4->setLabel(std::string("W"));
+              if (!mValSpinner1->hasFocus())
+              {
+                  mValSpinner1->setPrecision(3);
+                  mValSpinner1->setValue(v[VX]);
+              }
+              if (!mValSpinner2->hasFocus())
+              {
+                  mValSpinner2->setPrecision(3);
+                  mValSpinner2->setValue(v[VY]);
+              }
+              if (!mValSpinner3->hasFocus())
+              {
+                  mValSpinner3->setPrecision(3);
+                  mValSpinner3->setValue(v[VZ]);
+              }
+              if (!mValSpinner4->hasFocus())
+              {
+                  mValSpinner4->setPrecision(3);
+                  mValSpinner4->setValue(v[VW]);
+              }
+              break;
           }
           case TYPE_QUAT:
           {

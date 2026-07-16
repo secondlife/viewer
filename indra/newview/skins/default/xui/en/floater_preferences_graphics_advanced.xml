@@ -127,31 +127,35 @@
       top_delta="16"
       left="30"
       width="160"
-      name="MaxTextureResolutionLabel"
+      name="TextureQualityLabel"
       text_readonly_color="LabelDisabledColor">
-        Maximum LOD resolution:
+        Texture quality:
     </text>
     <combo_box
-     control_name="RenderMaxTextureResolution"
+     control_name="RenderTextureQuality"
      height="19"
      layout="topleft"
      left_pad="10"
      top_delta="0"
-     name="MaxTextureResolution"
-     tool_tip="Maximum resolution for 'level of detail' textures"
+     name="TextureQuality"
+     tool_tip="Controls maximum texture resolution and how aggressively textures stream by channel. Higher quality keeps more detail in memory."
      width="90">
         <combo_box.item
-          label="512"
-          name="512"
-          value="512"/>
+          label="Low"
+          name="Low"
+          value="0"/>
         <combo_box.item
-          label="1024"
-          name="1024"
-          value="1024"/>
+          label="Medium"
+          name="Medium"
+          value="1"/>
         <combo_box.item
-          label="2048"
-          name="2048"
-          value="2048"/>
+          label="High"
+          name="High"
+          value="2"/>
+        <combo_box.item
+          label="Ultra"
+          name="Ultra"
+          value="3"/>
     </combo_box>
 
   <check_box

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -134,11 +134,12 @@ public:
     static U32Kilobytes getHardwareMemSize(); // Because some Mac linkers won't let us reference extern gSysMemory from a different lib.
 #endif
 
-    //get the available memory in KiloBytes.
-    static void getAvailableMemoryKB(U32Kilobytes& avail_mem_kb);
+    // Updates LLMemory's values.
+    static void updateAvailableMemory();
 
     // Retrieve a map of memory statistics. The keys of the map are platform-
-    // dependent. The values are in kilobytes to try to avoid integer overflow.
+    // dependent.
+    // On Windows updates LLMemory values.
     LLSD getStatsMap() const;
 
     // Re-fetch memory data (as reported by stream() and getStatsMap()) from the

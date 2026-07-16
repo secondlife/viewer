@@ -73,6 +73,20 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
     LLViewerTexture* baseColorTex = media_tex ? media_tex : mBaseColorTexture;
     LLViewerTexture* emissiveTex = media_tex ? media_tex : mEmissiveTexture;
 
+    if (media_tex)
+    {
+        // Media hides these but they stay registered for coverage. Stamp them so
+        // the GC doesn't coarsen/refetch them while the media is playing.
+        if (mBaseColorTexture.notNull())
+        {
+            if (LLImageGL* gl_tex = mBaseColorTexture->getGLTexture()) { gl_tex->stampBound(); }
+        }
+        if (mEmissiveTexture.notNull())
+        {
+            if (LLImageGL* gl_tex = mEmissiveTexture->getGLTexture()) { gl_tex->stampBound(); }
+        }
+    }
+
     if (!LLPipeline::sShadowRender || (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK))
     {
         if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
@@ -97,13 +111,26 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 
     if (!LLPipeline::sShadowRender)
     {
-        if (mNormalTexture.notNull() && mNormalTexture->getDiscardLevel() <= 4)
+        // Bind the normal map at whatever resolution is resident, like Blinn-Phong
+        // (soft, never absent). Only fall back to the flat normal when it's not
+        // loaded yet. (The old discard<=4 gate dropped distant/tiled PBR normals
+        // entirely, making PBR look flatter than equivalent Blinn content.)
+        if (mNormalTexture.notNull() && mNormalTexture->hasGLTexture())
         {
             shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture);
         }
         else
         {
             shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
+            if (mNormalTexture.notNull())
+            {
+                // In use, just not loaded yet - stamp it so the GC doesn't treat
+                // it as unseen and pin it deep before its first real bind.
+                if (LLImageGL* gl_tex = mNormalTexture->getGLTexture())
+                {
+                    gl_tex->stampBound();
+                }
+            }
         }
 
         if (mMetallicRoughnessTexture.notNull())

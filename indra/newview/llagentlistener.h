@@ -68,6 +68,7 @@ private:
     void getID(LLSD const& event_data);
     void getNearbyAvatarsList(LLSD const& event_data);
     void getNearbyObjectsList(LLSD const& event_data);
+    void getAttachedObjectsList(LLSD const& event_data);
     void getAgentScreenPos(LLSD const& event_data);
 
     LLViewerObject * findObjectClosestTo( const LLVector3 & position, bool sit_target = false ) const;

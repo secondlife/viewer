@@ -39,6 +39,7 @@
 #include "llrender.h"
 #include "threadpool.h"
 #include "workqueue.h"
+#include <atomic>
 #include <unordered_set>
 
 #define LL_IMAGEGL_THREAD_CHECK 0 //set to 1 to enable thread debugging for ImageGL
@@ -51,6 +52,11 @@ class LLWindow;
 namespace LLImageGLMemory
 {
     void alloc_tex_image(U32 width, U32 height, U32 intformat, U32 count);
+
+    // Add mip 1..N bytes to existing accounting. Call after glGenerateMipmap
+    // when only the base mip was accounted; without this the bytes counter
+    // undercounts mipmap-generated textures by ~25%.
+    void account_extra_mip_bytes(U32 base_width, U32 base_height, U32 intformat);
     void free_tex_image(U32 texName);
     void free_tex_images(U32 count, const U32* texNames);
     void free_cur_tex_image();
@@ -151,6 +157,15 @@ public:
     S32  getDiscardLevel() const        { return mCurrentDiscardLevel; }
     S32  getMaxDiscardLevel() const     { return mMaxDiscardLevel; }
 
+    // floor(log2(max(w, h))) - deepest GL pyramid level (down to 1x1).
+    // Returns 0 for non-positive inputs.
+    static S32 dimDerivedMaxDiscard(S32 width, S32 height);
+
+    // Record the wall-clock bind time - every bind path that touches a
+    // streaming-managed texture must call this, or the staleness signal
+    // sees the texture as never-bound and ramps it toward eviction.
+    void stampBound() const;
+
     // override the current discard level
     // should only be used for local textures where you know exactly what you're doing
     void setDiscardLevel(S32 level) { mCurrentDiscardLevel = level; }
@@ -224,14 +239,23 @@ public:
 public:
     // Various GL/Rendering options
     S64Bytes mTextureMemory;
-    mutable F32  mLastBindTime; // last time this was bound, by discard level
+    mutable F32  mLastBindTime = 0.f;  // wall-clock time at last stampBound (bind or bind-attempt)
+    mutable U32  mLastBindFrame = 0;   // frame index (LLFrameTimer::getFrameCount) at last CAMERA-pass
+                                       // stampBound; 0 = never. Drives visibility GC + fetch gating.
+    F32          mGLCreateTime = 0.f;  // wall-clock time the GL texture was created
+
+    // When false, stampBound skips the mLastBindFrame stamp (mLastBindTime still
+    // updates). Set false around non-camera passes (probes, shadows, impostors)
+    // and administrative binds (upload, scaleDown - via LLImageGLStampBypass) so
+    // those binds don't count as camera visibility. Thread-local so a GL upload
+    // thread can't flip it on the render thread mid-frame.
+    static thread_local bool sStampBindFrame;
 
 private:
     U32 createPickMask(S32 pWidth, S32 pHeight);
     void freePickMask();
     bool isCompressed();
 
-    LLPointer<LLImageRaw> mSaveData; // used for destroyGL/restoreGL
     LL::WorkQueue::weak_t mMainQueue;
     U8* mPickMask;  //downsampled bitmap approximation of alpha channel.  NULL if no alpha channel
     U16 mPickMaskWidth;
@@ -285,6 +309,11 @@ public:
     // Global memory statistics
     static U32 sBindCount;                  // Tracks number of texture binds for current frame
     static U32 sUniqueCount;                // Tracks number of unique texture binds for current frame
+    // glTexImage2D GL_OUT_OF_MEMORY failures detected (bytes NOT counted for
+    // these). Written from whichever thread runs texture creation; read by
+    // the streaming 1Hz pressure log. Nonzero = the driver is refusing
+    // allocations and the VRAM budget is unreliable.
+    static std::atomic<U32> sOOMErrorCount;
     static LLImageGL* sDefaultGLTexture ;
     static bool sAutomatedTest;
     static bool sCompressTextures;          //use GL texture compression
@@ -337,6 +366,19 @@ public:
 //End of definitions for texture auditing use only
 //****************************************************************************************************
 
+};
+
+// RAII: suppress the mLastBindFrame stamp for the current scope. Use around
+// administrative binds (upload, create, scaleDown) so they don't count as
+// camera visibility - otherwise the GC's own scaleDown re-stamps what it just
+// aged out and oscillates. Saves/restores, so it nests correctly.
+class LLImageGLStampBypass
+{
+public:
+    LLImageGLStampBypass() : mPrev(LLImageGL::sStampBindFrame) { LLImageGL::sStampBindFrame = false; }
+    ~LLImageGLStampBypass() { LLImageGL::sStampBindFrame = mPrev; }
+private:
+    bool mPrev;
 };
 
 class LLImageGLThread : public LLSimpleton<LLImageGLThread>, LL::ThreadPool

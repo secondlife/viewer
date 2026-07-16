@@ -129,7 +129,7 @@ namespace tut
 
         LLDataPackerBinaryBuffer lldp1(packbuf, cur_size);
         lldp1.unpackString(unpkstr , "linden_lab_str");
-        lldp1.unpackBinaryData((U8*)unpkstrBinary, unpksizeBinary, "linden_lab_bd");
+        lldp1.unpackBinaryData((U8*)unpkstrBinary, 256, unpksizeBinary, "linden_lab_bd");
         lldp1.unpackBinaryDataFixed((U8*)unpkstrBinaryFixed, sizeBinaryFixed, "linden_lab_bdf");
         lldp1.unpackU8(unpkvalU8,"linden_lab_u8");
         lldp1.unpackU16(unpkvalU16,"linden_lab_u16");
@@ -288,7 +288,7 @@ namespace tut
 
         LLDataPackerAsciiBuffer lldp1(packbuf, cur_size);
         lldp1.unpackString(unpkstr , "linden_lab_str");
-        lldp1.unpackBinaryData((U8*)unpkstrBinary, unpksizeBinary, "linden_lab_bd");
+        lldp1.unpackBinaryData((U8*)unpkstrBinary, 256, unpksizeBinary, "linden_lab_bd");
         lldp1.unpackBinaryDataFixed((U8*)unpkstrBinaryFixed, sizeBinaryFixed, "linden_lab_bdf");
         lldp1.unpackU8(unpkvalU8,"linden_lab_u8");
         lldp1.unpackU16(unpkvalU16,"linden_lab_u16");
@@ -433,7 +433,7 @@ namespace tut
         LLDataPackerAsciiFile lldp1(fp,2);
 
         lldp1.unpackString(unpkstr , "linden_lab_str");
-        lldp1.unpackBinaryData((U8*)unpkstrBinary, unpksizeBinary, "linden_lab_bd");
+        lldp1.unpackBinaryData((U8*)unpkstrBinary, 256, unpksizeBinary, "linden_lab_bd");
         lldp1.unpackBinaryDataFixed((U8*)unpkstrBinaryFixed, sizeBinaryFixed, "linden_lab_bdf");
         lldp1.unpackU8(unpkvalU8,"linden_lab_u8");
         lldp1.unpackU16(unpkvalU16,"linden_lab_u16");
@@ -540,7 +540,7 @@ namespace tut
         LLDataPackerAsciiFile lldp1(istr,2);
 
         lldp1.unpackString(unpkstr , "linden_lab_str");
-        lldp1.unpackBinaryData((U8*)unpkstrBinary, unpksizeBinary, "linden_lab_bd");
+        lldp1.unpackBinaryData((U8*)unpkstrBinary, 256, unpksizeBinary, "linden_lab_bd");
         lldp1.unpackBinaryDataFixed((U8*)unpkstrBinaryFixed, sizeBinaryFixed, "linden_lab_bdf");
         lldp1.unpackU8(unpkvalU8,"linden_lab_u8");
         lldp1.unpackU16(unpkvalU16,"linden_lab_u16");

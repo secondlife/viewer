@@ -1529,7 +1529,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                         U16 param_type;
                         S32 param_size;
                         dp.unpackU16(param_type, "param_type");
-                        dp.unpackBinaryData(param_block, param_size, "param_data");
+                        dp.unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data");
                         //LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
                         LLDataPackerBinaryBuffer dp2(param_block, param_size);
                         unpackParameterEntry(param_type, &dp2);
@@ -1786,7 +1786,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     dp->unpackU32(size, "ScratchPadSize");
                     delete [] mData;
                     mData = new U8[size];
-                    dp->unpackBinaryData((U8 *)mData, sp_size, "PartData");
+                    dp->unpackBinaryData((U8 *)mData, size, sp_size, "PartData");
                 }
                 else
                 {
@@ -1859,7 +1859,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     U16 param_type;
                     S32 param_size;
                     dp->unpackU16(param_type, "param_type");
-                    dp->unpackBinaryData(param_block, param_size, "param_data");
+                    dp->unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data");
                     //LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
                     LLDataPackerBinaryBuffer dp2(param_block, param_size);
                     unpackParameterEntry(param_type, &dp2);
@@ -3224,6 +3224,7 @@ S32 LLFilenameAndTask::sCount = 0;
 // static
 void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLUUID task_id;
     msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_TaskID, task_id);
     LLViewerObject* object = gObjectList.findObject(task_id);
@@ -5242,7 +5243,20 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry& texture_entry)
 
     const LLUUID& image_id = getTE(te)->getID();
     LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
-    mTEImages[te] = bakedTexture ? bakedTexture : LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+    if (bakedTexture)
+    {
+        mTEImages[te] = bakedTexture;
+    }
+    else
+    {
+        LLViewerFetchedTexture* img = LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        // Same creation seed the PBR path applies in updateTEMaterialTextures'
+        // fetch_texture - without it a Blinn texture has decode_priority 0 and
+        // cannot even fetch headers until its first coverage measurement,
+        // while the equivalent PBR texture starts fetching immediately.
+        img->addTextureStats(64.f * 64.f, true);
+        mTEImages[te] = img;
+    }
 
     updateAvatarMeshVisibility(image_id, old_image_id);
 
@@ -5253,11 +5267,14 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 {
     if (getTE(te)->getMaterialParams().notNull())
     {
+        // Same creation seed as the PBR fetch_texture below - see setTE.
         const LLUUID& norm_id = getTE(te)->getMaterialParams()->getNormalID();
         mTENormalMaps[te] = LLViewerTextureManager::getFetchedTexture(norm_id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        mTENormalMaps[te]->addTextureStats(64.f * 64.f, true);
 
         const LLUUID& spec_id = getTE(te)->getMaterialParams()->getSpecularID();
         mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        mTESpecularMaps[te]->addTextureStats(64.f * 64.f, true);
     }
 
     LLFetchedGLTFMaterial* mat = (LLFetchedGLTFMaterial*) getTE(te)->getGLTFRenderMaterial();

@@ -233,7 +233,15 @@ bool LLFloaterColorPicker::postBuild()
     childSetCommitCallback("sspin", onTextCommit, (void*)this );
     childSetCommitCallback("lspin", onTextCommit, (void*)this );
 
-    LLToolPipette::getInstance()->setToolSelectCallback(boost::bind(&LLFloaterColorPicker::onColorSelect, this, _1));
+    mPipetteConnection = LLToolPipette::getInstance()->setToolSelectCallback(
+        [this](LLPointer<LLViewerObject> object, S32 te_index)
+    {
+        const LLTextureEntry* entry = object->getTE(te_index);
+        if (entry)
+        {
+            onColorSelect(entry->getColor());
+        }
+    });
 
     return true;
 }
@@ -460,10 +468,10 @@ void LLFloaterColorPicker::onImmediateCheck( LLUICtrl* ctrl, void* data)
     }
 }
 
-void LLFloaterColorPicker::onColorSelect( const LLTextureEntry& te )
+// From pipette
+void LLFloaterColorPicker::onColorSelect( const LLColor4 &color )
 {
-    // Pipete
-    selectCurRgb(te.getColor().mV[VRED], te.getColor().mV[VGREEN], te.getColor().mV[VBLUE]);
+    selectCurRgb(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE]);
 }
 
 void LLFloaterColorPicker::onMouseCaptureLost()

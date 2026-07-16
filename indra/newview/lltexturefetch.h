@@ -106,7 +106,8 @@ public:
     // keep in mind that if fetcher isn't done, it still might need original raw image
     bool getRequestFinished(const LLUUID& id, S32& discard_level, S32& worker_state,
                             LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
-                            LLCore::HttpStatus& last_http_get_status);
+                            LLCore::HttpStatus& last_http_get_status,
+                            S32& codec_levels);
 
     // Threads:  T*
     bool updateRequestPriority(const LLUUID& id, F32 priority);

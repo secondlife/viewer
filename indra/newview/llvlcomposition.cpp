@@ -173,7 +173,10 @@ LLPointer<LLViewerFetchedTexture> fetch_terrain_texture(const LLUUID& id)
         return nullptr;
     }
 
-    LLPointer<LLViewerFetchedTexture> tex = LLViewerTextureManager::getFetchedTexture(id);
+    // LOD_TEXTURE so streaming math runs (the base-class processTextureStats
+    // pins mDesiredDiscardLevel at 0).
+    LLPointer<LLViewerFetchedTexture> tex = LLViewerTextureManager::getFetchedTexture(
+        id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
     return tex;
 }
 
@@ -343,18 +346,9 @@ bool LLTerrainMaterials::makeTextureReady(LLPointer<LLViewerFetchedTexture>& tex
     {
         if (boost)
         {
+            // Quality is driven by the streaming math via synthetic signals
+            // for BOOST_TERRAIN textures in updateImageDecodePriority.
             boost_minimap_texture(tex, BASE_SIZE*BASE_SIZE);
-
-            S32 width = tex->getFullWidth();
-            S32 height = tex->getFullHeight();
-            S32 min_dim = llmin(width, height);
-            S32 ddiscard = 0;
-            while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
-            {
-                ddiscard++;
-                min_dim /= 2;
-            }
-            tex->setMinDiscardLevel(ddiscard);
         }
         return false;
     }

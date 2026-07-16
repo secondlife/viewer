@@ -57,6 +57,8 @@ namespace
 LLColor4U MAX_WATER_COLOR(0, 48, 96, 240);
 
 S32 LLSurface::sTextureSize = 256;
+F32 LLSurface::sNearestVisiblePatchDistance = FLT_MAX;
+U32 LLSurface::sNearestVisiblePatchFrame = 0;
 
 // ---------------- LLSurface:: Public Members ---------------
 
@@ -122,7 +124,7 @@ LLSurface::~LLSurface()
     else if (poolp->mReferences.empty())
     {
         gPipeline.removePool(poolp);
-        // Don't enable this until we blitz the draw pool for it as well.  -- djs
+        // Don't enable this until we blitz the draw pool for it as well.  - djs
         mSTexturep = nullptr;
     }
     else
@@ -583,6 +585,13 @@ void LLSurface::updatePatchVisibilities(LLAgent &agent)
 
     LLSurfacePatch *patchp;
 
+    // Reset the cross-region accumulator at the start of each frame.
+    if (sNearestVisiblePatchFrame != gFrameCount)
+    {
+        sNearestVisiblePatchDistance = FLT_MAX;
+        sNearestVisiblePatchFrame = gFrameCount;
+    }
+
     mVisiblePatchCount = 0;
     for (S32 i=0; i<mNumberOfPatches; i++)
     {
@@ -593,6 +602,7 @@ void LLSurface::updatePatchVisibilities(LLAgent &agent)
         {
             mVisiblePatchCount++;
             patchp->updateCameraDistanceRegion(pos_region);
+            sNearestVisiblePatchDistance = llmin(sNearestVisiblePatchDistance, patchp->getDistance());
         }
     }
 }
@@ -961,7 +971,7 @@ std::ostream& operator<<(std::ostream &s, const LLSurface &S)
 void LLSurface::createPatchData()
 {
     // Assumes mGridsPerEdge, mGridsPerPatchEdge, and mPatchesPerEdge have been properly set
-    // TODO -- check for create() called when surface is not empty
+    // TODO - check for create() called when surface is not empty
     S32 i, j;
     LLSurfacePatch *patchp;
 
