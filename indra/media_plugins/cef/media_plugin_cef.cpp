@@ -652,7 +652,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 // SL-15560: Product team overruled my change to set the default
                 // embedded background color to match the floater background
                 // and set it to white
-                settings.background_color = 0xffffffff; // white
+                settings.background_color = 0x00000000; // transparent
 
                 settings.root_cache_path = mRootCachePath;
                 settings.cookies_enabled = mCookiesEnabled;
@@ -734,7 +734,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 message.setValueS32("default_width", 1024);
                 message.setValueS32("default_height", 1024);
                 message.setValueS32("depth", mDepth);
-                message.setValueU32("internalformat", GL_RGB);
+                message.setValueU32("internalformat", GL_RGBA);
                 message.setValueU32("format", GL_BGRA);
                 message.setValueU32("type", GL_UNSIGNED_BYTE);
                 message.setValueBoolean("coords_opengl", true);

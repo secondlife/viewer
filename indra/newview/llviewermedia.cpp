@@ -3172,9 +3172,9 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
         // MEDIAOPT: seems insane that we actually have to make an imageraw then
         // immediately discard it
         LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
-        // Clear the texture to the background color, ignoring alpha.
+        // Clear the texture to the background color with alpha.
         // convert background color channels from [0.0, 1.0] to [0, 255];
-        raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0xff);
+        raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0x00);
 
         // ask media source for correct GL image format constants
         media_tex->setExplicitFormat(mMediaSource->getTextureFormatInternal(),
