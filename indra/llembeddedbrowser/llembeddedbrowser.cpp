@@ -55,8 +55,11 @@ void LLEmbeddedBrowser::reset()
 
 }
 
-unsigned int LLEmbeddedBrowser::create(const std::string& url)
+unsigned int LLEmbeddedBrowser::create(const std::string& url, unsigned int width, unsigned int height)
 {
+    mBrowserTabWidth = width;
+    mBrowserTabHeight = height;
+
     mBrowserTabPixels = new unsigned char[mBrowserTabWidth * mBrowserTabHeight * mBrowserTabDepth];
 
     mCurrentUrl = url;

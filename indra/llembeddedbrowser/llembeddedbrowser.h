@@ -58,7 +58,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void init();
         void reset();
 
-        unsigned int create(const std::string& url);
+        unsigned int create(const std::string& url, unsigned int width, unsigned int height);
         void destroy(unsigned int id);
         void update(unsigned int id);
         void updateAll();
@@ -69,8 +69,8 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         LLMutex mPixelMutex;
         LLEmbeddedBrowserUpdateThread* mUpdateThread = nullptr;
         unsigned char* mBrowserTabPixels = nullptr;
-        unsigned int mBrowserTabWidth = 512;
-        unsigned int mBrowserTabHeight = 512;
-        unsigned int mBrowserTabDepth = 4;
+        unsigned int mBrowserTabWidth = 0;
+        unsigned int mBrowserTabHeight = 0;
+        const unsigned int mBrowserTabDepth = 4;
         std::string mCurrentUrl;
 };

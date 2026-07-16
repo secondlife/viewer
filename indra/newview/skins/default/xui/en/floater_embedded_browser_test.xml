@@ -2,11 +2,11 @@
 <floater
   legacy_header_height="18"
   can_resize="false"
-  height="580"
+  height="680"
   layout="topleft"
   name="contents"
   title="Embedded Browser Test"
-  width="544">
+  width="644">
     <button
       follows="left|bottom"
       height="20"

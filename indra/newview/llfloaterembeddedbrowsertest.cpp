@@ -35,6 +35,13 @@
 LLFloaterEmbeddedBrowserTest::LLFloaterEmbeddedBrowserTest(const LLSD& key)
     : LLFloater("floater_embedded_browser_test")
 {
+    mMemoryBufferTexWidth = 0;
+    mMemoryBufferTexHeight = 0;
+    mMemoryBufferSwatchLeft = 0;
+    mMemoryBufferSwatchTop = 0;
+    mMemoryBufferSwatchWidth = 0;
+    mMemoryBufferSwatchHeight = 0;
+    mMemoryBufferSwatchDepth = 4;
     mMemoryBufferRaw = nullptr;
     mMemoryBufferSwatch = nullptr;
 }
@@ -46,8 +53,6 @@ LLFloaterEmbeddedBrowserTest::~LLFloaterEmbeddedBrowserTest()
 bool LLFloaterEmbeddedBrowserTest::postBuild()
 {
     LLEmbeddedBrowser::getInstance()->init();
-
-    LLEmbeddedBrowser::getInstance()->create("red");
 
     // Buttons that add or remove a new tab
     getChild<LLUICtrl>("add_tab_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onAddTabBtn, this));
@@ -61,9 +66,11 @@ bool LLFloaterEmbeddedBrowserTest::postBuild()
     // Close the floater
     getChild<LLUICtrl>("close_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onCloseBtn, this));
 
-    // Do this here vss th constructor so that the floater size has
-    // been established and we can get correct size for the swatch
+    // Do this here versus the constructor so that the floater size has
+    // been established and we can eventually get correct size for the swatch
     createUI();
+
+    LLEmbeddedBrowser::getInstance()->create("red", mMemoryBufferSwatchWidth, mMemoryBufferSwatchHeight);
 
     return true;
 }
@@ -98,38 +105,82 @@ void LLFloaterEmbeddedBrowserTest::draw()
 
     if (mMemoryBufferSwatch != nullptr)
     {
-        unsigned char* bits = mMemoryBufferRaw->getData();
-        if (bits != nullptr)
+        const unsigned char* src = LLEmbeddedBrowser::getInstance()->getPixels(0);
+        if (src != nullptr)
         {
-            memcpy(bits, LLEmbeddedBrowser::getInstance()->getPixels(0),
-                   mMemoryBufferSwatchWidth * mMemoryBufferSwatchHeight * mMemoryBufferSwatchDepth);
+            unsigned char* dst = mMemoryBufferRaw->getData();
 
-            // TODO: make 512 a variable once non-power-of-2 textures are supported in gl_draw_scaled_image_with_border
-            mMemoryBufferSwatch->setSubImage(mMemoryBufferRaw, 0, 0, 512, 512);
+            const unsigned int src_stride = mMemoryBufferSwatchWidth * mMemoryBufferSwatchDepth;
+            const unsigned int dst_stride = mMemoryBufferTexWidth * mMemoryBufferSwatchDepth;
 
-            gl_draw_scaled_image_with_border(
-                mMemoryBufferSwatchLeft, mMemoryBufferSwatchTop - mMemoryBufferSwatchHeight,
-                mMemoryBufferSwatchWidth, mMemoryBufferSwatchHeight,
-                mMemoryBufferSwatch,
-                LLColor4::white
-            );
+            for (unsigned int y = 0; y < mMemoryBufferSwatchHeight; ++y)
+            {
+                memcpy(dst + y * dst_stride, src + y * src_stride, src_stride);
+            }
+
+            mMemoryBufferSwatch->setSubImage(mMemoryBufferRaw, 0, 0, mMemoryBufferTexWidth, mMemoryBufferTexHeight);
+
+            const F32 u_max = (F32)mMemoryBufferSwatchWidth / (F32)mMemoryBufferTexWidth;
+            const F32 v_max = (F32)mMemoryBufferSwatchHeight / (F32)mMemoryBufferTexHeight;
+
+            gGL.getTexUnit(0)->bind(mMemoryBufferSwatch);
+            gGL.color4f(1.f, 1.f, 1.f, 1.f);
+            gGL.begin(LLRender::TRIANGLES);
+            {
+                S32 left = mMemoryBufferSwatchLeft;
+                S32 top = mMemoryBufferSwatchTop;
+                S32 right = left + mMemoryBufferSwatchWidth;
+                S32 bottom = top - mMemoryBufferSwatchHeight;
+
+                gGL.texCoord2f(0.f, 0.f);
+                gGL.vertex2i(left, top);
+                gGL.texCoord2f(0.f, v_max);
+                gGL.vertex2i(left, bottom);
+                gGL.texCoord2f(u_max, v_max);
+                gGL.vertex2i(right, bottom);
+
+                gGL.texCoord2f(0.f, 0.f);
+                gGL.vertex2i(left, top);
+                gGL.texCoord2f(u_max, v_max);
+                gGL.vertex2i(right, bottom);
+                gGL.texCoord2f(u_max, 0.f);
+                gGL.vertex2i(right, top);
+            }
+            gGL.end();
         }
     }
 }
 
+static unsigned int nextPowerOfTwo(unsigned int v)
+{
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v++;
+    return v;
+}
+
 void LLFloaterEmbeddedBrowserTest::createUI()
 {
-    const unsigned int margin = 16;
-    const unsigned int legacy_height = 18;
+    const unsigned int margin = 16; // margin around the swatch on all sides
+    const unsigned int legacy_height = 18; // the height of the legacy header area (title bar, etc.)
+    const unsigned int button_height = 30; // the height consumed by buttons and their at the bottom of the floater
 
     LLRect floater_rect = getRect();
     mMemoryBufferSwatchLeft = margin;
     mMemoryBufferSwatchTop = floater_rect.getHeight() - (legacy_height + margin);
-    mMemoryBufferSwatchWidth = 512; // TODO: gl_draw_scaled_image_with_border with non-power of 2 textures
-    mMemoryBufferSwatchHeight = 512;
-    mMemoryBufferSwatchDepth = 4;
 
-    mMemoryBufferRaw = new LLImageRaw(mMemoryBufferSwatchWidth, mMemoryBufferSwatchHeight, mMemoryBufferSwatchDepth);
+    mMemoryBufferSwatchWidth = floater_rect.getWidth() - (2 * margin);
+    mMemoryBufferSwatchHeight = floater_rect.getHeight() - (2 * margin + legacy_height + button_height);
+
+    mMemoryBufferTexWidth = nextPowerOfTwo(mMemoryBufferSwatchWidth);
+    mMemoryBufferTexHeight = nextPowerOfTwo(mMemoryBufferSwatchHeight);
+
+    mMemoryBufferRaw = new LLImageRaw(mMemoryBufferTexWidth, mMemoryBufferTexHeight, mMemoryBufferSwatchDepth);
+    mMemoryBufferRaw->clear(0, 0, 0, 255);
 
     mMemoryBufferSwatch = LLViewerTextureManager::getLocalTexture((LLImageRaw*)mMemoryBufferRaw, false);
     gGL.getTexUnit(0)->bind(mMemoryBufferSwatch);

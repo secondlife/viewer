@@ -51,6 +51,8 @@ class LLFloaterEmbeddedBrowserTest:
 
         void createUI();
 
+        unsigned int mMemoryBufferTexWidth;
+        unsigned int mMemoryBufferTexHeight;
         unsigned int mMemoryBufferSwatchLeft;
         unsigned int mMemoryBufferSwatchTop;
         unsigned int mMemoryBufferSwatchWidth;
