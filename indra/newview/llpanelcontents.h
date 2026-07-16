@@ -54,8 +54,16 @@ public:
 
 
     void            onNewScriptFlyoutCommit(LLUICtrl* ctrl);
+    void            onNewNotecardCommit();
     static void     onClickPermissions(void*);
     void            onClickPublish();
+
+    void            createTaskInventoryItemHelper(LLViewerObject* object,
+                        LLAssetType::EType asset_type,
+                        LLInventoryType::EType inventory_type,
+                        U8 sub_type,
+                        const std::string& name,
+                        const LLSD& params);
 
     // Key suffix for "tentative" fields
     static const char* TENTATIVE_SUFFIX;

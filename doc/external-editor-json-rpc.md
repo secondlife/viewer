@@ -12,6 +12,7 @@ This document describes all the message interfaces defined for WebSocket communi
   - [SessionHandshakeResponse](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#sessionhandshakeresponse)
   - [Session OK](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#session-ok)
   - [SessionDisconnect](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#sessiondisconnect)
+  - [SessionPing](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#sessionping)
 - [Language and Syntax Interfaces](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#language-and-syntax-interfaces)
   - [SyntaxChange](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#syntaxchange)
   - [Language Syntax ID Request](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#language-syntax-id-request)
@@ -151,6 +152,8 @@ WebSocket connects -> session.handshake -> session.ok
 | `session.handshake` (response)  | Extension -> Viewer | Response     | `SessionHandshakeResponse` |
 | `session.ok`                    | Viewer -> Extension | Notification | _(no interface)_           |
 | `session.disconnect`            | Bidirectional      | Notification | `SessionDisconnect`        |
+| `session.ping`                  | Bidirectional      | Call         | `SessionPing`              |
+| `session.ping` (response)       | Bidirectional      | Response     | `SessionPingResponse`      |
 | `script.subscribe`              | Extension -> Viewer | Call         | `ScriptSubscribe`          |
 | `script.subscribe` (response)   | Viewer -> Extension | Response     | `ScriptSubscribeResponse`  |
 | `script.unsubscribe`            | Viewer -> Extension | Notification | `ScriptUnsubscribe`        |
@@ -183,6 +186,8 @@ WebSocket connects -> session.handshake -> session.ok
 | `object.script.set_running` (response) | Viewer -> Extension | Response | `ObjectScriptSetRunningResponse` |
 | `object.request`                | Extension -> Viewer | Call         | `ObjectRequestParams`          |
 | `object.request` (response)     | Viewer -> Extension | Response     | `ObjectRequestResponse`        |
+| `object.list`                   | Extension -> Viewer | Call         | `{}` (no params)               |
+| `object.list` (response)        | Viewer -> Extension | Response     | `ObjectListResponse`           |
 
 ## Session Management Interfaces
 
@@ -281,6 +286,62 @@ interface SessionDisconnect {
   - `3`: Connection timeout
   - `4`: Internal server error
 - `message`: Human-readable description of the disconnect reason
+
+### SessionPing
+
+**JSON-RPC Method:** `session.ping` (call, bidirectional)
+
+Heartbeat call used to verify the connection is alive and measure latency. Either side can initiate a ping; the recipient responds with the original timestamp plus its own server time.
+
+```typescript
+interface SessionPing {
+  timestamp: number;
+}
+```
+
+**Fields:**
+
+- `timestamp`: Unix timestamp in milliseconds when the ping was sent
+
+**Response:**
+
+```typescript
+interface SessionPingResponse {
+  timestamp: number;
+  server_time: number;
+}
+```
+
+**Response Fields:**
+
+- `timestamp`: The original timestamp from the request (echoed back)
+- `server_time`: Unix timestamp in milliseconds when the response was generated
+
+**Example Request:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "session.ping",
+  "id": 42,
+  "params": {
+    "timestamp": 1721145600000
+  }
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 42,
+  "result": {
+    "timestamp": 1721145600000,
+    "server_time": 1721145600015
+  }
+}
+```
 
 ## Language and Syntax Interfaces
 
@@ -1017,3 +1078,30 @@ interface ObjectRequestResponse {
 1. Extension calls `object.request`
 2. Viewer responds with `{ success: true }` (or error)
 3. Viewer sends `object.publish` notification (asynchronously, when ready)
+
+---
+
+### ObjectList
+
+**JSON-RPC Method:** `object.list` (call from extension to viewer)
+
+Requests the complete list of currently published objects. Called by the extension immediately after the handshake completes (`session.ok`) to restore state for any objects the viewer already has published.
+
+The viewer responds synchronously with all published objects in the same format as `object.publish` notifications. No follow-up notifications are sent.
+
+```typescript
+// No request parameters
+
+interface ObjectListResponse {
+  objects: PublishedObject[];  // All currently published objects; empty array if none
+}
+```
+
+**Fields:**
+
+- `objects`: Array of `PublishedObject` records (same shape as the `object` field in `object.publish`). Empty array when no objects are currently published.
+
+**Sequence:**
+1. Viewer sends `session.ok`
+2. Extension calls `object.list` (no params)
+3. Viewer responds with `{ objects: [...] }` synchronously

@@ -226,6 +226,8 @@ protected:
     LLSD handleObjectItemDelete(U32 connection_id, const LLSD& params);
     LLSD handleObjectItemCreate(const std::string& method, const LLSD& id, const LLSD& params);
     LLSD handleObjectUnpublish(U32 connection_id, const LLSD& params);
+    LLSD handleObjectList() const;
+    LLSD buildPublishedObjectLLSD(LLViewerObject* root) const;
 
     struct ValidatedItem
     {

@@ -536,7 +536,67 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 if (!server) return LLSD();
                 return server->handleObjectUnpublish(connection_id, params);
             });
+        script_connection->registerMethod("object.list",
+            [that](const std::string&, const LLSD&, const LLSD&) -> LLSD
+            {
+                auto server = that.lock();
+                if (!server) return LLSD();
+                return server->handleObjectList();
+            });
     }
+}
+
+LLSD LLScriptEditorWSServer::handleObjectList() const
+{
+    LLSD objects = LLSD::emptyArray();
+    for (const auto& [object_id, info] : mPublishedObjects)
+    {
+        LLViewerObject* root = gObjectList.findObject(object_id);
+        if (!root)
+        {
+            LL_DEBUGS("ScriptEditorWS") << "object.list: skipping " << object_id
+                << " (no longer in scene)" << LL_ENDL;
+            continue;
+        }
+
+        // Use cached names from PublishedObjectInfo, but fetch live inventory
+        LLSD pub;
+        pub["object_id"]          = info.mObjectID;
+        pub["object_name"]        = info.mObjectName;
+        pub["object_description"] = info.mObjectDescription;
+        pub["owner_id"]           = info.mOwnerID;
+        if (!info.mRegionName.empty())
+        {
+            pub["region"] = info.mRegionName;
+        }
+        pub["inventory"] = buildPrimInventoryLLSD(root);
+
+        LLSD linked_objects = LLSD::emptyArray();
+        for (const auto& prim_info : info.mPrims)
+        {
+            if (prim_info.mLinkNumber == 1) continue;  // skip root
+
+            LLViewerObject* child = gObjectList.findObject(prim_info.mPrimID);
+            if (!child) continue;
+
+            LLSD link;
+            link["link_id"]     = prim_info.mPrimID;
+            link["link_number"] = prim_info.mLinkNumber;
+            link["link_name"]   = prim_info.mPrimName;  // Cached name
+            link["inventory"]   = buildPrimInventoryLLSD(child);
+            linked_objects.append(link);
+        }
+        if (linked_objects.size() > 0)
+        {
+            pub["linked_objects"] = linked_objects;
+        }
+
+        objects.append(pub);
+    }
+
+    LLSD response;
+    response["objects"] = objects;
+    return response;
 }
 
 void LLScriptEditorWSServer::broadcastLanguageChange()
@@ -1123,35 +1183,93 @@ LLSD LLScriptEditorWSServer::handleObjectUnpublish(U32 connection_id, const LLSD
 LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, const LLSD& id, const LLSD& params)
 {
     std::string type = params["type"].asString();
-    if (type == "notecard")
-        throw LLJSONRPCConnection::InvalidParams("Notecard creation not yet supported");
-    if (type != "script")
+    if (type != "script" && type != "notecard")
+    {
         throw LLJSONRPCConnection::InvalidParams("Unsupported item type: " + type);
+    }
 
     LLUUID prim_id = params["prim_id"].asUUID();
     if (prim_id.isNull())
+    {
         throw LLJSONRPCConnection::InvalidParams("prim_id is required");
+    }
 
     LLViewerObject* prim = gObjectList.findObject(prim_id);
     if (!prim)
+    {
         throw LLJSONRPCConnection::InvalidParams("Prim not found");
+    }
 
     LLViewerObject* root = prim->getRootEdit();
     if (!root || !isObjectPublished(root->getID()))
+    {
         throw LLJSONRPCConnection::ForbiddenError("Object is not published");
+    }
 
     std::string name = params["name"].asString();
     if (name.empty())
+    {
         throw LLJSONRPCConnection::InvalidParams("name is required");
+    }
 
-    std::string vm = params["vm"].asString();
-    U8 script_language;
-    if (vm == "luau")
-        script_language = SST_LUA;
-    else if (vm == "mono" || vm == "lsl2")
-        script_language = SST_LSL;
+    bool has_cap = prim->getRegion() && !prim->getRegion()->getCapability("CreateTaskInventoryItem").empty();
+
+    if (type == "notecard" && !has_cap)
+    {
+        throw LLJSONRPCConnection::ForbiddenError("Notecard creation requires CreateTaskInventoryItem capability");
+    }
+
+    // Resolve type-specific fields
+    LLAssetType::EType asset_type;
+    LLInventoryType::EType inv_type;
+    U8 sub_type = 0;
+    const char* perm_key;
+    LLSD cap_params;
+
+    if (type == "script")
+    {
+        std::string vm = params["vm"].asString();
+        if (vm == "luau")
+        {
+            sub_type = SST_LUA;
+        }
+        else if (vm == "mono" || vm == "lsl2")
+        {
+            sub_type = SST_LSL;
+        }
+        else
+        {
+            throw LLJSONRPCConnection::InvalidParams("vm must be 'luau', 'mono', or 'lsl2'");
+        }
+
+        asset_type            = LLAssetType::AT_LSL_TEXT;
+        inv_type              = LLInventoryType::IT_LSL;
+        perm_key              = "Scripts";
+        cap_params["enabled"] = true;
+        cap_params["vm"]      = vm;
+    }
     else
-        throw LLJSONRPCConnection::InvalidParams("vm must be 'luau', 'mono', or 'lsl2'");
+    {
+        asset_type = LLAssetType::AT_NOTECARD;
+        inv_type   = LLInventoryType::IT_NOTECARD;
+        perm_key   = "Notecards";
+        if (params.has("text"))
+        {
+            cap_params["text"] = params["text"].asString();
+        }
+    }
+
+    LLPermissions perms;
+    perms.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+    perms.initMasks(
+        PERM_ALL,
+        PERM_ALL,
+        LLFloaterPerms::getEveryonePerms(perm_key),
+        LLFloaterPerms::getGroupPerms(perm_key),
+        PERM_MOVE | LLFloaterPerms::getNextOwnerPerms(perm_key));
+
+    std::string desc;
+    LLViewerAssetType::generateDescriptionFor(asset_type, desc);
 
     // Snapshot existing item IDs before creation
     std::set<LLUUID> existing_items;
@@ -1166,37 +1284,23 @@ LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, c
 
     // Set up event pump to wait for inventory change
     LLEventMailDrop result_pump("objectItemCreate." + LLUUID::generateNewID().asString(), true);
-    std::string pump_name = result_pump.getName();
-    mPendingItemCreates[prim_id] = pump_name;
+    mPendingItemCreates[prim_id] = result_pump.getName();
 
-    // Build permissions and create the item
-    LLPermissions perms;
-    perms.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
-    perms.initMasks(
-        PERM_ALL,
-        PERM_ALL,
-        LLFloaterPerms::getEveryonePerms("Scripts"),
-        LLFloaterPerms::getGroupPerms("Scripts"),
-        PERM_MOVE | LLFloaterPerms::getNextOwnerPerms("Scripts"));
-
-    std::string desc;
-    LLViewerAssetType::generateDescriptionFor(LLAssetType::AT_LSL_TEXT, desc);
-
-    LLPointer<LLViewerInventoryItem> new_item =
-        new LLViewerInventoryItem(
-            LLUUID::null,
-            LLUUID::null,
-            perms,
-            LLUUID::null,
-            LLAssetType::AT_LSL_TEXT,
-            LLInventoryType::IT_LSL,
-            name,
-            desc,
-            LLSaleInfo::DEFAULT,
-            LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK & script_language,
-            time_corrected());
-
-    prim->saveScript(new_item, true, true, LLUUID::null);
+    if (has_cap)
+    {
+        prim->createInventoryItem(asset_type, inv_type, sub_type, name, desc, perms, cap_params, nullptr);
+    }
+    else
+    {
+        // Fallback: legacy RezScript UDP (scripts only — notecards already rejected above)
+        LLPointer<LLViewerInventoryItem> new_item =
+            new LLViewerInventoryItem(
+                LLUUID::null, LLUUID::null, perms, LLUUID::null,
+                asset_type, inv_type, name, desc, LLSaleInfo::DEFAULT,
+                LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK & sub_type,
+                time_corrected());
+        prim->saveScript(new_item, true, true, LLUUID::null);
+    }
 
     // Wait for inventory change callback (timeout 30s)
     LLSD event = llcoro::suspendUntilEventOnWithTimeout(result_pump, 30.0f, LLSD().with("timeout", true));
@@ -1204,13 +1308,14 @@ LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, c
     if (event.has("timeout"))
     {
         mPendingItemCreates.erase(prim_id);
-        throw LLJSONRPCConnection::InternalError("Timed out waiting for script creation");
+        throw LLJSONRPCConnection::InternalError("Timed out waiting for item creation");
     }
 
-    // Re-validate prim and find the new item by diffing
     prim = gObjectList.findObject(prim_id);
     if (!prim)
+    {
         throw LLJSONRPCConnection::InternalError("Prim no longer exists");
+    }
 
     LLSD response;
     {
@@ -1221,20 +1326,21 @@ LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, c
             if (existing_items.find(obj->getUUID()) == existing_items.end())
             {
                 LLInventoryItem* created = dynamic_cast<LLInventoryItem*>(obj.get());
-                if (created && created->getType() == LLAssetType::AT_LSL_TEXT)
+                if (created && created->getType() == asset_type)
                 {
                     response["item_id"]     = created->getUUID();
                     response["name"]        = created->getName();
                     response["description"] = created->getDescription();
-                    response["type"]        = "script";
+                    response["type"]        = type;
 
-                    U8 subtype = created->getInventorySubType();
-                    response["subtype"] = static_cast<S32>(subtype);
-
-                    const std::string& runtime = created->getRuntime();
-                    if (!runtime.empty())
+                    if (type == "script")
                     {
-                        response["vm"] = runtime;
+                        response["subtype"] = static_cast<S32>(created->getInventorySubType());
+                        const std::string& runtime = created->getRuntime();
+                        if (!runtime.empty())
+                        {
+                            response["vm"] = runtime;
+                        }
                     }
 
                     const LLPermissions& item_perms = created->getPermissions();
@@ -1242,9 +1348,8 @@ LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, c
                     perm_entry["owner"]      = static_cast<S32>(item_perms.getMaskOwner());
                     perm_entry["next_owner"] = static_cast<S32>(item_perms.getMaskNextOwner());
                     response["permissions"]  = perm_entry;
-
-                    response["creator_id"] = item_perms.getCreator();
-                    response["prim_id"]    = prim_id;
+                    response["creator_id"]   = item_perms.getCreator();
+                    response["prim_id"]      = prim_id;
                     break;
                 }
             }
@@ -1252,7 +1357,9 @@ LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, c
     }
 
     if (!response.has("item_id"))
-        throw LLJSONRPCConnection::InternalError("Script was not found in updated inventory");
+    {
+        throw LLJSONRPCConnection::InternalError("Item was not found in updated inventory");
+    }
 
     return response;
 }
@@ -1679,6 +1786,43 @@ void LLScriptEditorWSServer::onPrimInventoryReady(const LLUUID& object_id, const
     }
 }
 
+LLSD LLScriptEditorWSServer::buildPublishedObjectLLSD(LLViewerObject* root) const
+{
+    auto nvDesc = [](LLNameValue* nv) -> std::string {
+        return (nv && nv->getString() && nv->getString()[0] != '\0') ? nv->getString() : std::string();
+    };
+
+    LLSD pub;
+    pub["object_id"]          = root->getID();
+    pub["object_name"]        = getPrimName(root);
+    pub["object_description"] = nvDesc(root->getNVPair("Desc"));
+    pub["owner_id"]           = root->mOwnerID;
+    if (root->getRegion())
+    {
+        pub["region"] = root->getRegion()->getName();
+    }
+    pub["inventory"] = buildPrimInventoryLLSD(root);
+
+    LLSD linked_objects = LLSD::emptyArray();
+    S32 link_number = 2;
+    for (LLViewerObject* child : root->getChildren())
+    {
+        LLSD link;
+        link["link_id"]          = child->getID();
+        link["link_number"]      = link_number++;
+        link["link_name"]        = getPrimName(child);
+        link["link_description"] = nvDesc(child->getNVPair("Desc"));
+        link["inventory"]        = buildPrimInventoryLLSD(child);
+        linked_objects.append(link);
+    }
+    if (linked_objects.size() > 0)
+    {
+        pub["linked_objects"] = linked_objects;
+    }
+
+    return pub;
+}
+
 void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
 {
     auto pending_it = mPendingPublishes.find(object_id);
@@ -1696,65 +1840,14 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
         return;
     }
 
-    // Build the publish LLSD
-    // Object name and description come from ObjectPropertiesFamily (async),
-    // so look them up from the selection node if available; fall back to empty.
-    auto getNodeName = [](LLViewerObject* obj) -> std::string {
-        // Prefer the NameValue pair from ObjectUpdate — available as soon as the object
-        // is in view, without waiting for ObjectProperties to arrive.
-        LLNameValue* nv = obj->getNVPair("Name");
-        if (nv && nv->getString() && nv->getString()[0] != '\0')
-        {
-            return std::string(nv->getString());
-        }
-        // Fall back to the selection node name (populated after ObjectProperties arrives).
-        LLSelectNode* node = LLSelectMgr::instance().getSelection()->findNode(obj);
-        return (node && !node->mName.empty()) ? node->mName : std::string();
-    };
-    auto getNodeDesc = [](LLViewerObject* obj) -> std::string {
-        LLNameValue* nv = obj->getNVPair("Desc");
-        if (nv && nv->getString() && nv->getString()[0] != '\0')
-        {
-            return std::string(nv->getString());
-        }
-        LLSelectNode* node = LLSelectMgr::instance().getSelection()->findNode(obj);
-        return (node && !node->mDescription.empty()) ? node->mDescription : std::string();
-    };
-
-    LLSD pub;
-    pub["object_id"]          = root->getID();
-    pub["object_name"]        = getNodeName(root);
-    pub["object_description"] = getNodeDesc(root);
-    pub["owner_id"]           = root->mOwnerID;
-    if (root->getRegion())
-    {
-        pub["region"] = root->getRegion()->getName();
-    }
-    pub["inventory"] = buildPrimInventoryLLSD(root);
-
-    LLSD linked_objects = LLSD::emptyArray();
-    S32 link_number = 2;
-    for (LLViewerObject* child : root->getChildren())
-    {
-        LLSD link;
-        link["link_id"]          = child->getID();
-        link["link_number"]      = link_number++;
-        link["link_name"]        = getNodeName(child);
-        link["link_description"] = getNodeDesc(child);
-        link["inventory"]        = buildPrimInventoryLLSD(child);
-        linked_objects.append(link);
-    }
-    if (linked_objects.size() > 0)
-    {
-        pub["linked_objects"] = linked_objects;
-    }
+    LLSD pub = buildPublishedObjectLLSD(root);
 
     // Store in the published registry
     PublishedObjectInfo info;
     info.mObjectID          = root->getID();
     info.mOwnerID           = root->mOwnerID;
-    info.mObjectName        = getNodeName(root);
-    info.mObjectDescription = getNodeDesc(root);
+    info.mObjectName        = pub["object_name"].asString();
+    info.mObjectDescription = pub["object_description"].asString();
     if (root->getRegion())
     {
         info.mRegionName = root->getRegion()->getName();
@@ -1771,7 +1864,7 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
     {
         PublishedPrimInfo prim_info;
         prim_info.mPrimID          = prim->getID();
-        prim_info.mPrimName        = getNodeName(prim);
+        prim_info.mPrimName        = getPrimName(prim);  // Use helper with selection fallback
         prim_info.mLinkNumber      = link_num++;
         prim_info.mInventorySerial = static_cast<S16>(prim->getInventorySerial());
         info.mPrims.push_back(prim_info);
@@ -1787,7 +1880,7 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
     notifyAll("object.publish", message);
 
     LL_INFOS("ScriptEditorWS") << "Published object " << object_id
-        << " (" << getNodeName(root) << ") with "
+        << " (" << pub["object_name"].asString() << ") with "
         << (all_prims.size() - 1) << " linked prim(s)" << LL_ENDL;
 }
 

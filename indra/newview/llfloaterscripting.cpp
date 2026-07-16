@@ -82,8 +82,37 @@ LLFloaterScripting::LLFloaterScripting(const LLSD& seed)
 
 bool LLFloaterScripting::postBuild()
 {
-    refresh();
+    // Subscribe to tight integration changes
+    mTightIntegrationConnection = gSavedSettings.getControl("ExternalEditorTightIntegration")->getSignal()->connect(
+        boost::bind(&LLFloaterScripting::onTightIntegrationChanged, this));
+
+    // Apply initial state
+    onTightIntegrationChanged();
+
     return true;
+}
+
+LLFloaterScripting::~LLFloaterScripting()
+{
+    mTightIntegrationConnection.disconnect();
+}
+
+void LLFloaterScripting::onTightIntegrationChanged()
+{
+    bool tight = gSavedSettings.getBOOL("ExternalEditorTightIntegration");
+
+    // Force websocket on when tight integration is enabled
+    if (tight)
+    {
+        gSavedSettings.setBOOL("ExternalWebsocketSyncEnable", true);
+    }
+
+    // Disable websocket checkbox when tight integration is on
+    LLCheckBoxCtrl* wsCheck = getChild<LLCheckBoxCtrl>("websocket_sync_enable");
+    if (wsCheck)
+    {
+        wsCheck->setEnabled(!tight);
+    }
 }
 
 void LLFloaterScripting::onClickClose()

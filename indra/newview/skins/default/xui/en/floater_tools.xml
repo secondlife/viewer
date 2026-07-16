@@ -3066,7 +3066,7 @@ even though the user gets a free copy.
              left="7"
              name="button new script"
              top="10"
-             width="89">
+             width="137">
                 <flyout_button.item
                  label="New LSL Script"
                  name="new_lsl_script"
@@ -3079,11 +3079,20 @@ even though the user gets a free copy.
             <button
              follows="left|top"
              height="23"
-             label="Permissions"
+             label="New Notecard"
              layout="topleft"
              left_pad="7"
+             name="button new notecard"
+             width="137" />
+            <button
+             follows="left|top"
+             height="23"
+             label="Permissions"
+             layout="topleft"
+             left="7"
+             top="37"
              name="button permissions"
-             width="134" />
+             width="137" />
             <button
              follows="left|top"
              height="23"
@@ -3093,12 +3102,12 @@ even though the user gets a free copy.
              layout="topleft"
              left_pad="7"
              name="button publish"
-             width="134" />
+             width="137" />
             <filter_editor
              follows="left|top|right"
              label="Enter filter text"
              layout="topleft"
-             top="40"
+             top="67"
              left="10"
              text_pad_left="10"
              max_length_chars="300"
@@ -3111,11 +3120,11 @@ even though the user gets a free copy.
              border_visible="true"
              bevel_style="in"
              follows="left|top|right"
-             height="367"
+             height="340"
              layout="topleft"
              left="10"
              name="contents_inventory"
-             top="70"
+             top="97"
              width="275" />
 		</panel>
         </tab_container>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
   legacy_header_height="18"
-  height="265"
+  height="295"
   layout="topleft"
   name="floater_scripting_settings"
   help_topic="scripting_settings"
@@ -82,6 +82,17 @@
   </button>
 
   <check_box
+    control_name="ExternalEditorTightIntegration"
+    follows="top|left"
+    height="20"
+    label="VS Code Tight Integration"
+    layout="topleft"
+    left="30"
+    name="tight_integration"
+    top_pad="20"
+    width="256" />
+
+  <check_box
     control_name="ExternalWebsocketSyncEnable"
     follows="top|left"
     height="20"
@@ -89,7 +100,7 @@
     layout="topleft"
     left="30"
     name="websocket_sync_enable"
-    top_pad="20"
+    top_pad="10"
     width="200" />
 
   <text

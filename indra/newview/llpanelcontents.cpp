@@ -85,6 +85,10 @@ bool LLPanelContents::postBuild()
     setMouseOpaque(false);
 
     getChild<LLUICtrl>("button new script")->setCommitCallback(boost::bind(&LLPanelContents::onNewScriptFlyoutCommit, this, _1));
+    if (getChild<LLUICtrl>("button new notecard", false))
+    {
+        childSetAction("button new notecard", boost::bind(&LLPanelContents::onNewNotecardCommit, this));
+    }
     childSetAction("button permissions",&LLPanelContents::onClickPermissions, this);
 
     mPublishButton = getChild<LLButton>("button publish");
@@ -119,6 +123,7 @@ void LLPanelContents::getState(LLViewerObject *objectp )
     if( !objectp )
     {
         getChildView("button new script")->setEnabled(false);
+        getChildView("button new notecard")->setEnabled(false);
         mPublishButton->setEnabled(false);
         mPublishButton->setToggleState(false);
         return;
@@ -154,9 +159,18 @@ void LLPanelContents::getState(LLViewerObject *objectp )
     getChildView("button permissions")->setEnabled(!objectp->isPermanentEnforced());
     mPanelInventoryObject->setEnabled(!objectp->isPermanentEnforced());
 
+    bool single_root = (LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1);
+
+    // New Notecard button - requires the CreateTaskInventoryItem cap.
+    bool has_create_cap = region && !region->getCapability("CreateTaskInventoryItem").empty();
+    getChildView("button new notecard")->setEnabled(
+        has_create_cap &&
+        editable &&
+        all_volume &&
+        single_root);
+
     // Publish button - enabled only when WS server is configured, and a single editable root object is selected.
     bool ws_enabled = gSavedSettings.getBOOL("ExternalWebsocketSyncEnable");
-    bool single_root = (LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1);
     mPublishButton->setEnabled(ws_enabled && editable && all_volume && single_root);
 
     // Sync toggle state to reflect whether the object is currently published.
@@ -259,73 +273,114 @@ void LLPanelContents::onNewScriptFlyoutCommit(LLUICtrl* ctrl)
 {
     const bool children_ok = true;
     LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
-    if (object)
+    if (!object) return;
+
+    U8 script_language;
+    const std::string value = ctrl->getValue().asString();
+    if (value == "lsl")
     {
-        LLPermissions perm;
-        perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
-
-        // Parameters are base, owner, everyone, group, next
-        perm.initMasks(
-            PERM_ALL,
-            PERM_ALL,
-            LLFloaterPerms::getEveryonePerms("Scripts"),
-            LLFloaterPerms::getGroupPerms("Scripts"),
-            PERM_MOVE | LLFloaterPerms::getNextOwnerPerms("Scripts"));
-        std::string desc;
-        LLViewerAssetType::generateDescriptionFor(LLAssetType::AT_LSL_TEXT, desc);
-
-        U8 script_language;
-        const std::string value = ctrl->getValue().asString();
-        if (value == "lsl")
+        script_language = SST_LSL;
+    }
+    else if (value == "lua")
+    {
+        script_language = SST_LUA;
+    }
+    else
+    {
+        script_language = SST_LSL;
+        LLViewerRegion* region = object->getRegion();
+        if (region && region->simulatorFeaturesReceived())
         {
-            script_language = SST_LSL;
-        }
-        else if (value == "lua")
-        {
-            script_language = SST_LUA;
-        }
-        else
-        {
-            // Action button clicked without a selection — auto-detect from region.
-            script_language = SST_LSL;
-            LLViewerRegion* region = object->getRegion();
-            if (region && region->simulatorFeaturesReceived())
+            LLSD simulatorFeatures;
+            region->getSimulatorFeatures(simulatorFeatures);
+            if (simulatorFeatures["LuaScriptsEnabled"].asBoolean())
             {
-                LLSD simulatorFeatures;
-                region->getSimulatorFeatures(simulatorFeatures);
-                if (simulatorFeatures["LuaScriptsEnabled"].asBoolean())
-                {
-                    script_language = SST_LUA;
-                }
+                script_language = SST_LUA;
             }
         }
+    }
 
-        LLUUID template_id;
-        // *TODO* Get a template ID based on user preferences.  Template ID is the inventory item UUID of a script
-        // in the user's inventory that is used as a template for new scripts.
+    std::string vm = (script_language == SST_LUA) ? "luau" : "mono";
 
+    LLSD params;
+    params["enabled"] = true;
+    params["vm"] = vm;
+
+    createTaskInventoryItemHelper(object,
+        LLAssetType::AT_LSL_TEXT,
+        LLInventoryType::IT_LSL,
+        script_language,
+        "New Script",
+        params);
+}
+
+void LLPanelContents::createTaskInventoryItemHelper(
+    LLViewerObject* object,
+    LLAssetType::EType asset_type,
+    LLInventoryType::EType inventory_type,
+    U8 sub_type,
+    const std::string& name,
+    const LLSD& params)
+{
+    const char* perm_key = (asset_type == LLAssetType::AT_LSL_TEXT) ? "Scripts" : "Notecards";
+
+    LLPermissions perm;
+    perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
+    perm.initMasks(
+        PERM_ALL,
+        PERM_ALL,
+        LLFloaterPerms::getEveryonePerms(perm_key),
+        LLFloaterPerms::getGroupPerms(perm_key),
+        PERM_MOVE | LLFloaterPerms::getNextOwnerPerms(perm_key));
+
+    std::string desc;
+    LLViewerAssetType::generateDescriptionFor(asset_type, desc);
+
+    // Use cap if available, fall back to saveScript for scripts
+    if (!object->getRegion()->getCapability("CreateTaskInventoryItem").empty())
+    {
+        object->createInventoryItem(asset_type, inventory_type, sub_type,
+            name, desc, perm, params,
+            [](bool success, const LLSD& response)
+            {
+                if (!success)
+                {
+                    LL_WARNS() << "CreateTaskInventoryItem failed: "
+                               << response["message"].asString() << LL_ENDL;
+                }
+            });
+    }
+    else if (asset_type == LLAssetType::AT_LSL_TEXT)
+    {
+        // Fallback: use legacy RezScript UDP
         LLPointer<LLViewerInventoryItem> new_item =
             new LLViewerInventoryItem(
-                LLUUID::null,
-                LLUUID::null,
-                perm,
-                LLUUID::null,
-                LLAssetType::AT_LSL_TEXT,
-                LLInventoryType::IT_LSL,
-                "New Script",
-                desc,
-                LLSaleInfo::DEFAULT,
-                LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK & script_language,
+                LLUUID::null, LLUUID::null, perm,
+                LLUUID::null, asset_type, inventory_type,
+                name, desc, LLSaleInfo::DEFAULT,
+                LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK & sub_type,
                 time_corrected());
-        object->saveScript(new_item, true, true, template_id);
-
-        // *NOTE: In order to resolve SL-22177, we needed to create
-        // the script first, and then you have to click it in
-        // inventory to edit it.
-        // *TODO: The script creation should round-trip back to the
-        // viewer so the viewer can auto-open the script and start
-        // editing ASAP.
+        object->saveScript(new_item, true, true, LLUUID::null);
     }
+    else
+    {
+        LL_WARNS() << "Cannot create " << LLAssetType::lookup(asset_type)
+                   << " — capability not available" << LL_ENDL;
+    }
+}
+
+void LLPanelContents::onNewNotecardCommit()
+{
+    const bool children_ok = true;
+    LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
+    if (!object) return;
+
+    createTaskInventoryItemHelper(object,
+        LLAssetType::AT_NOTECARD,
+        LLInventoryType::IT_NOTECARD,
+        0,
+        "New Notecard",
+        LLSD());
 }
 
 // static

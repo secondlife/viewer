@@ -1130,44 +1130,20 @@ void LLScriptEdCore::openInExternalEditor()
 
     std::string filename = mContainer->getTmpFileName(script_name);
 
-    // Save the script to a temporary file.
-    if (!writeToFile(filename))
-    {
-        // In case some characters from script name are forbidden
-        // and not accounted for, name is too long or some other issue,
-        // try file that doesn't include script name
-        script_name.clear();
-        filename = mContainer->getTmpFileName(script_name);
-        writeToFile(filename);
-    }
-
-    if (mContainer->mLiveFile && mContainer->mLiveFile->filename() != filename)
-    { // The name may have changed if we changed the type of scipt being edited.
-        delete mContainer->mLiveFile;
-        mContainer->mLiveFile = NULL;
-    }
-    // Start watching file changes.
-    if (!mContainer->mLiveFile)
-    {
-        mContainer->mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLScriptEdContainer::onExternalChange, mContainer, _1));
-        mContainer->mLiveFile->addToEventTimer();
-    }
     if (gSavedSettings.getBOOL("ExternalEditorTightIntegration"))
     {
-        // VS Code tight integration path
+        // VS Code tight integration path.
+        // The extension opens the script as a virtual sl:// document; no temp file is needed.
         auto server = LLScriptEditorWSServer::ensureServerRunning();
         if (server)
         {
-            std::string script_id_hash_str(mContainer->getUniqueHash());
-            server->subscribeScriptEditor(mContainer->mObjectUUID, mContainer->mItemUUID,
-                mScriptName, mContainer->getHandle(), script_id_hash_str);
             mContainer->mWebSocketServer = server;
 
             LLViewerObject* object      = gObjectList.findObject(mContainer->mObjectUUID);
             LLViewerObject* root_object = object ? object->getRootEdit() : nullptr;
             LLUUID          root_id     = root_object ? root_object->getID() : mContainer->mObjectUUID;
 
-            if (!LLScriptEditorWSServer::launchVSCode(root_id))
+            if (!LLScriptEditorWSServer::launchVSCode(root_id, mContainer->mItemUUID))
             {
                 LLNotificationsUtil::add("GenericAlert",
                     LLSD().with("MESSAGE", LLTrans::getString("VSCodeLaunchFailed")));
@@ -1181,7 +1157,29 @@ void LLScriptEdCore::openInExternalEditor()
     }
     else
     {
-        // Legacy external editor path
+        // Legacy external editor path: write temp file, watch it, open in external editor.
+        if (!writeToFile(filename))
+        {
+            // In case some characters from script name are forbidden
+            // and not accounted for, name is too long or some other issue,
+            // try file that doesn't include script name
+            script_name.clear();
+            filename = mContainer->getTmpFileName(script_name);
+            writeToFile(filename);
+        }
+
+        if (mContainer->mLiveFile && mContainer->mLiveFile->filename() != filename)
+        { // The name may have changed if we changed the type of script being edited.
+            delete mContainer->mLiveFile;
+            mContainer->mLiveFile = NULL;
+        }
+        // Start watching file changes.
+        if (!mContainer->mLiveFile)
+        {
+            mContainer->mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLScriptEdContainer::onExternalChange, mContainer, _1));
+            mContainer->mLiveFile->addToEventTimer();
+        }
+
         mContainer->startWebsocketServer();
 
         LLExternalEditor ed;

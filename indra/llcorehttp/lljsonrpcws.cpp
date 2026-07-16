@@ -559,6 +559,22 @@ void LLJSONRPCServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t connecti
     {
         connection->registerMethod(method, handler);
     }
+
+    // Register session.ping handler for connection health monitoring
+    connection->registerMethod("session.ping",
+        [](const std::string&, const LLSD&, const LLSD& params) -> LLSD
+        {
+            LLSD result;
+            // Echo back the original timestamp
+            if (params.has("timestamp"))
+            {
+                result["timestamp"] = params["timestamp"];
+            }
+            // Add server's current time in milliseconds
+            result["server_time"] = static_cast<LLSD::Integer>(
+                LLDate::now().secondsSinceEpoch() * 1000.0);
+            return result;
+        });
 }
 
 void LLJSONRPCServer::registerGlobalMethod(const std::string& method, MethodHandler handler)
