@@ -2351,6 +2351,47 @@ void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+bool LLViewerMediaImpl::isTransparentAt(const LLVector2& texture_coords)
+{
+    if (!mMediaSource || !mMediaSource->textureValid())
+    {
+        return false;
+    }
+
+    // Only media with an alpha channel (BGRA) can have transparent areas.
+    const S32 depth = mMediaSource->getTextureDepth();
+    if (depth != 4)
+    {
+        return false;
+    }
+
+    const U8* pixels = mMediaSource->getBitsData();
+    if (!pixels)
+    {
+        return false;
+    }
+
+    S32 x, y;
+    scaleTextureCoords(texture_coords, &x, &y);
+
+    // scaleTextureCoords returns browser coordinates (y = 0 at the top), but
+    // plugins with coords_opengl write rows bottom-up in GL order into the
+    // shared buffer (dullahan's flip_pixels_y), so flip y to address the buffer.
+    if (mMediaSource->getTextureCoordsOpenGL())
+    {
+        y = mMediaSource->getHeight() - 1 - y;
+    }
+
+    const S32 buffer_width = mMediaSource->getBitsWidth();
+    if (x < 0 || y < 0 || x >= buffer_width || y >= mMediaSource->getBitsHeight())
+    {
+        return false;
+    }
+
+    return pixels[(y * buffer_width + x) * depth + 3] == 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S32 button)
 {
     if(mMediaSource)

@@ -3712,6 +3712,17 @@ F32 LLViewerMediaTexture::getMaxVirtualSize()
 
     return mMaxVirtualSize;
 }
+
+//virtual
+bool LLViewerMediaTexture::getMask(const LLVector2 &tc)
+{
+    if (mIsPlaying && mMediaImplp)
+    {
+        return !mMediaImplp->isTransparentAt(tc);
+    }
+
+    return LLViewerTexture::getMask(tc);
+}
 //----------------------------------------------------------------------------------------------
 //end of LLViewerMediaTexture
 //----------------------------------------------------------------------------------------------

@@ -244,6 +244,9 @@ public:
     void scrollWheel(const LLVector2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask);
     void scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MASK mask);
     void mouseCapture();
+    // True if the media pixel at the given texture coordinates is fully
+    // transparent, so mouse events can pass through to the world.
+    bool isTransparentAt(const LLVector2& texture_coords);
 
     void navigateBack();
     void navigateForward();
