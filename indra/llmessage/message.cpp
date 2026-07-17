@@ -897,7 +897,7 @@ bool LLMessageSystem::isHighPriorityMessage(const LLPacketBuffer& pkt) const
     //
     // AvatarAppearance is "Low 158" which means it is stored in four bytes: 0xff 0xff 0x00 0x9E
     // the last two bytes represent 158 in a BigEndian U16
-    return !(header[1] == 255 && header[2] == 0 && header[3] == 158);
+    return header[1] != 255 && header[2] != 0 && header[3] != 158;
 }
 
 void LLMessageSystem::dropPackets(U32 num_to_drop)
@@ -1070,7 +1070,7 @@ S32 LLMessageSystem::bufferInboundPacket()
             // Skip genuine duplicate resends, same as checkMessages()/logValidMsg()
             // would do further downstream.
             bool recv_resent = (data[0] & LL_RESENT_FLAG) != 0;
-            if (!(recv_resent && cdp->isDuplicateResend(recv_packet_id)))
+            if (!recv_resent || !cdp->isDuplicateResend(recv_packet_id))
             {
                 cdp->checkPacketInID(recv_packet_id, recv_resent);
                 pkt.setPacketIDChecked(true);
