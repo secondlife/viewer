@@ -963,7 +963,7 @@ public:
 
     // Continuation of processAvatarAppearance() starting from already-parsed contents, shared by
     // both the normal (avatar already exists) and deferred (see below) paths.
-    void            processParsedAppearanceMessage(const LLPointer<LLAppearanceMessageContents>& contents);
+    void            processParsedAppearanceMessage(LLPointer<LLAppearanceMessageContents>& contents);
     void            applyParsedAppearanceMessage(LLAppearanceMessageContents& contents, bool slam_params);
 
     // An AvatarAppearance message can arrive before the ObjectUpdate that creates its avatar.

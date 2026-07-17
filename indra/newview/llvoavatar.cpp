@@ -9746,7 +9746,7 @@ void LLVOAvatar::applyPendingAvatarAppearance(LLVOAvatar* avatarp)
             sPendingAvatarAppearanceContents.erase(contents_iter);
             sPendingAvatarAppearanceTimers.erase(avatarp->getID());
 
-            LL_INFOS("Messaging") << "Applying deferred AvatarAppearance for " << avatarp->getID() << LL_ENDL;
+            LL_DEBUGS("Messaging") << "Applying deferred AvatarAppearance for " << avatarp->getID() << LL_ENDL;
             avatarp->mLastAppearanceMessageTimer.reset();
             avatarp->processParsedAppearanceMessage(contents);
         }
@@ -9828,7 +9828,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
     processParsedAppearanceMessage(contents);
 }
 
-void LLVOAvatar::processParsedAppearanceMessage(const LLPointer<LLAppearanceMessageContents>& contents)
+void LLVOAvatar::processParsedAppearanceMessage(LLPointer<LLAppearanceMessageContents>& contents)
 {
     // Resolve the avatar-agnostic parts of contents (raw visual param values, attachment data)
     // against this avatar's live state now that we know it exists.
@@ -10029,7 +10029,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
         if (visualParamWeightsAreDefault() && mRuthTimer.getElapsedTimeF32() > LOADING_TIMEOUT_SECONDS)
         {
             // re-request appearance, hoping that it comes back with a shape next time
-            LL_INFOS() << "Re-requesting AvatarAppearance for object: "  << getID() << LL_ENDL;
+            LL_INFOS() << "Re-requesting AvatarAppearance for agent: "  << getID() << LL_ENDL;
             LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
             mRuthTimer.reset();
         }

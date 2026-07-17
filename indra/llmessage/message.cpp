@@ -519,10 +519,11 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
         bool recv_resent = false;
         S32 num_acks = 0;
         S32 true_rcv_size = 0;
+        bool recv_packet_id_checked = false;
 
         U8* buffer = mTrueReceiveBuffer;
 
-        mTrueReceiveSize = receivePacketOrDrop((char *)mTrueReceiveBuffer);
+        mTrueReceiveSize = receivePacketOrDrop((char *)mTrueReceiveBuffer, recv_packet_id_checked);
         // If you want to dump all received packets into SecondLife.log, uncomment this
         //dumpPacketToLog();
 
@@ -686,7 +687,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
 
             if ( valid_packet )
             {
-                logValidMsg(cdp, host, recv_reliable, recv_resent, num_acks>0 );
+                logValidMsg(cdp, host, recv_reliable, recv_resent, num_acks>0, recv_packet_id_checked );
                 valid_packet = mTemplateMessageReader->readMessage(buffer, host);
             }
 
@@ -909,8 +910,10 @@ void LLMessageSystem::setDropPercentage(F32 percent_to_drop)
     mDropPercentage = percent_to_drop;
 }
 
-S32 LLMessageSystem::receivePacketOrDrop(char* datap)
+S32 LLMessageSystem::receivePacketOrDrop(char* datap, bool& packet_id_already_checked)
 {
+    packet_id_already_checked = false;
+
     if (getNumBufferedPackets() > 0)
     {
         LLHost invalid_host;
@@ -923,6 +926,7 @@ S32 LLMessageSystem::receivePacketOrDrop(char* datap)
         S32 packet_size = pkt.getSize();
         mLastSender      = pkt.getHost();
         mLastReceivingIF = pkt.getReceivingInterface();
+        packet_id_already_checked = pkt.getPacketIDChecked();
 
         if (packet_size > 0)
         {
@@ -931,7 +935,8 @@ S32 LLMessageSystem::receivePacketOrDrop(char* datap)
         return packet_size;
     }
 
-    // Read directly from the socket.
+    // Read directly from the socket. checkPacketInID() has not run yet for
+    // this packet.
     bool drop = computeDrop();
     S32 packet_size = 0;
     if (LLProxy::isSOCKSProxyEnabled())
@@ -1052,10 +1057,24 @@ S32 LLMessageSystem::bufferInboundPacket()
             }
         }
 
-        // ACK inbound reliable packet ASAP
-        if (cdp && (data[0] & LL_RELIABLE_FLAG))
+        if (cdp)
         {
-            cdp->collectRAck(recv_packet_id);
+            // ACK inbound reliable packet ASAP
+            if ((data[0] & LL_RELIABLE_FLAG))
+            {
+                cdp->collectRAck(recv_packet_id);
+            }
+
+            // Check packet sequencing here, in true socket-arrival order, before
+            // this packet is sorted into the high/low priority inbound queue.
+            // Skip genuine duplicate resends, same as checkMessages()/logValidMsg()
+            // would do further downstream.
+            bool recv_resent = (data[0] & LL_RESENT_FLAG) != 0;
+            if (!(recv_resent && cdp->isDuplicateResend(recv_packet_id)))
+            {
+                cdp->checkPacketInID(recv_packet_id, recv_resent);
+                pkt.setPacketIDChecked(true);
+            }
         }
 
         if (isHighPriorityMessage(pkt))
@@ -1686,7 +1705,13 @@ void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
     }
 }
 
-void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, bool recv_reliable, bool recv_resent, bool recv_acks )
+void LLMessageSystem::logValidMsg(
+        LLCircuitData *cdp,
+        const LLHost& host,
+        bool recv_reliable,
+        bool recv_resent,
+        bool recv_acks,
+        bool skip_packet_id_check )
 {
     if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
     {
@@ -1703,8 +1728,13 @@ void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, bool r
 
     if (cdp)
     {
-        // update circuit packet ID tracking (missing/out of order packets)
-        cdp->checkPacketInID( mCurrentRecvPacketID, recv_resent );
+        if (!skip_packet_id_check)
+        {
+            // update circuit packet ID tracking (missing/out of order packets)
+            // Already done in bufferInboundPacket(), in true socket-arrival
+            // order, if this packet came off the high/low priority queues.
+            cdp->checkPacketInID( mCurrentRecvPacketID, recv_resent );
+        }
         cdp->addBytesIn( (S32Bytes)mTrueReceiveSize );
     }
 
