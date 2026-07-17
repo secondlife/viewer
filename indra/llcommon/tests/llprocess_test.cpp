@@ -17,7 +17,9 @@
 #include <vector>
 #include <list>
 // std headers
+#include <chrono>
 #include <fstream>
+#include <thread>
 // external library headers
 #include "llapr.h"
 #include "apr_thread_proc.h"
@@ -1720,4 +1722,75 @@ namespace tut
                 check_eof(history, "stderr");
             });
     }
+
+    template<> template<>
+    void object::test<34>()
+    {
+        set_test_name("tick() completes quickly after kill()");
+        // Regression test: tick() must not block after kill() is called.
+        // The old Windows code called WaitForSingleObject(..., 100) in tick(),
+        // causing a 100 ms stall on the main thread. This test ensures that a
+        // mainloop tick completes well under that threshold even when the child
+        // process has been killed and may still be exiting.
+        PythonProcessLauncher py(get_test_name(),
+                                 "import time\n"
+                                 "time.sleep(120)\n");
+        py.launch();
+
+        // Wait for the process to start up
+        yield();
+        ensure("process started", py.mPy->isRunning());
+
+        // Send the kill signal
+        py.mPy->kill();
+
+        // Sleep longer than the tick threshold to ensure the child has had
+        // time to exit at the OS level, so the next tick is likely to enter
+        // the "process just exited" code path that used to block for 100 ms.
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        // Time a single mainloop tick: it must not block
+        auto start = std::chrono::steady_clock::now();
+        LLEventPumps::instance().obtain("mainloop").post(LLSD());
+        auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - start).count();
+
+        ensure(STRINGIZE("tick() took " << elapsed_ms << " ms, expected < 75 ms"),
+               elapsed_ms < 75);
+
+        // Let the process fully exit so cleanup is orderly
+        waitfor(*py.mPy);
+    }
+
+    template<> template<>
+    void object::test<35>()
+    {
+        set_test_name("LLProcess destructor completes quickly after kill()");
+        // Regression test: after an explicit kill() call the destructor must
+        // not perform a blocking wait.  The old Windows code called
+        // WaitForSingleObject(..., 100) in the destructor, causing a 100 ms
+        // stall on the main thread.  With mKillCalled set to true, the
+        // destructor skips the termination/wait block entirely.
+        PythonProcessLauncher py(get_test_name(),
+                                 "import time\n"
+                                 "time.sleep(120)\n");
+        py.launch();
+
+        // Wait for the process to start up
+        yield();
+        ensure("process started", py.mPy->isRunning());
+
+        // Kill the process (sets mKillCalled = true)
+        py.mPy->kill();
+
+        // Time how long the destructor takes
+        auto start = std::chrono::steady_clock::now();
+        py.mPy.reset();  // explicit destruction
+        auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - start).count();
+
+        ensure(STRINGIZE("destructor took " << elapsed_ms << " ms, expected < 75 ms"),
+               elapsed_ms < 75);
+    }
+
 } // namespace tut
