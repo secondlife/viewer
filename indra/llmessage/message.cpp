@@ -866,19 +866,37 @@ bool LLMessageSystem::computeDrop()
 bool LLMessageSystem::isHighPriorityMessage(const LLPacketBuffer& pkt) const
 {
     S32 size = pkt.getSize();
-    if (size < LL_PACKET_ID_SIZE + 1)
+
+    // avoid stepping out of bounds
+    const S32 MIN_VALID_PACKET_SIZE = LL_PACKET_ID_SIZE + 4;
+    if (size < MIN_VALID_PACKET_SIZE)
     {
         return false;
     }
 
-    // We want to prioritize crucial messages use to establish viewer <--> simulator connection,
+    // We want to prioritize crucial messages used to establish viewer <--> simulator connection,
     // which are all low-frequency. A simple approximation is to just prioritize all non high-
     // frequency messages.
     //
-    // High frequency messages use a single byte for message_id whereas all low- and medium-
-    // frequency messages have 255 at the first byte of the message_id (which is after the
-    // LL_PACKET_ID_SIZE bytes of packet_id).
-    return *((const U8*)pkt.getData() + LL_PACKET_ID_SIZE) == 255;
+    // High frequency messages use a single byte for message_id whereas medium- and low-
+    // frequency messages have 255 at the first byte (which is after the LL_PACKET_ID_SIZE
+    // bytes of packet_id).
+    const U8* header = (const U8*)pkt.getData() + LL_PACKET_ID_SIZE;
+    if (header[0] != 255)
+    {
+        // high-frequency message
+        return false;
+    }
+
+    // BUG: The low-frequency AvatarAppearance message will be ignored if its agent is unknown
+    // and the agent is created upon receipt of its first high-frequency ObjectUpdate message.
+    // This race condition will be exacerbated by our default prioritization strategy.
+    //
+    // WORKAROUND: All middle- and low-frequency messages are high-priority except AvatarAppearance
+    //
+    // AvatarAppearance is "Low 158" which means it is stored in four bytes: 0xff 0xff 0x00 0x9E
+    // the last two bytes represent 158 in a BigEndian U16
+    return !(header[1] == 255 && header[2] == 0 && header[3] == 158);
 }
 
 void LLMessageSystem::dropPackets(U32 num_to_drop)
