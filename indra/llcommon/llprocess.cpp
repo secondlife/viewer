@@ -371,7 +371,8 @@ LLProcess::LLProcess(const Params& params) :
     mDesc(params.desc.isProvided() ? params.desc() : basename(params.executable())),
     mPostend(params.postend.isProvided() ? params.postend() : ""),
     mAutokill(params.autokill),
-    mAttached(params.attached.isProvided() ? params.attached() : bool(params.autokill))
+    mAttached(params.attached.isProvided() ? params.attached() : bool(params.autokill)),
+    mKillCalled(false)
 {
     launch(params);
 }
@@ -380,7 +381,7 @@ LLProcess::~LLProcess()
 {
     if (mChild && mStatus.mState == RUNNING)
     {
-        if (mAttached && mAutokill)
+        if (mAttached && mAutokill && !mKillCalled)
         {
             LL_INFOS("LLProcess") << "Terminating child process " << mDesc << LL_ENDL;
             boost::system::error_code ec;
@@ -419,11 +420,29 @@ LLProcess::~LLProcess()
             }
 #else
             // On Windows, terminate() already does an immediate hard kill via TerminateProcess()
-            // Wait briefly to ensure termination completes
-            WaitForSingleObject(mChild->native_handle(), 100);
+            // Only wait if terminate succeeded (process was running)
+
+            if (!ec)
+            {
+                DWORD exit_code = 0;
+                bool still_running = (::GetExitCodeProcess(mChild->native_handle(), &exit_code)
+                    && exit_code == STILL_ACTIVE);
+                if (still_running)
+                {
+                    // We are likely on the main thread. Don't wait long!
+                    // Maybe shouldn't wait at all.
+                    WaitForSingleObject(mChild->native_handle(), 10);
+                }
+            }
+            else
+            {
+                LL_WARNS("LLProcess") << "Process " << mDesc
+                    << " terminate failed with error " << ec.value()
+                    << " (" << ec.message() << "), skipping wait" << LL_ENDL;
+            }
 #endif
         }
-        else
+        else if (!mKillCalled)
         {
             LL_INFOS("LLProcess") << "Not terminating " << mDesc
                 << " (attached=" << mAttached
@@ -735,11 +754,38 @@ void LLProcess::tick()
     // Check process status
     if (mChild && mStatus.mState == RUNNING && !mChild->running())
     {
-        WaitForSingleObject(mChild->native_handle(), 100);
-        Status exitStatus;
-        exitStatus.mState = EXITED;
-        exitStatus.mData = mChild->exit_code();
-        handleExit(exitStatus);
+        // Process has exited.
+        // We are on the main thread, so get exit code without blocking
+        DWORD exit_code = STILL_ACTIVE;
+        if (::GetExitCodeProcess(mChild->native_handle(), &exit_code))
+        {
+            if (exit_code != STILL_ACTIVE)
+            {
+                // Exit code is available
+                Status exitStatus;
+                exitStatus.mState = EXITED;
+                exitStatus.mData = static_cast<int>(exit_code);
+                handleExit(exitStatus);
+            }
+            else
+            {
+                // Exit code not ready yet, will retry next tick
+                // This shouldn't happen if mChild->running() returned false,
+                // but handle it gracefully
+                LL_DEBUGS("LLProcess") << "Process " << mDesc
+                    << " exited but exit code not ready yet" << LL_ENDL;
+            }
+        }
+        else
+        {
+            LL_WARNS("LLProcess") << "GetExitCodeProcess failed for " << mDesc
+                << ": error " << ::GetLastError() << LL_ENDL;
+            // Synthesize exit status
+            Status exitStatus;
+            exitStatus.mState = EXITED;
+            exitStatus.mData = -1;
+            handleExit(exitStatus);
+        }
     }
 #else
     // Check process status using WNOHANG to avoid blocking or generating
@@ -940,7 +986,13 @@ bool LLProcess::kill(const std::string& who)
     }
 #endif
 
+    // Mark as killed so the destructor doesn't repeat the termination attempt,
+    // but a better idea might be to modify mState.
+    mKillCalled = true;
     // Don't set status here - let handleExit() do it when the process actually terminates
+    // so that it will be able to post EOF event.
+    // At this point in time mStatus.mState is still RUNNING, so this is basically
+    // retuning false.
     return !isRunning();
 }
 
