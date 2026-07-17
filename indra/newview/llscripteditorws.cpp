@@ -62,6 +62,19 @@
 #include "llviewerassettype.h"
 #include "llviewerinventory.h"
 
+namespace
+{
+    // Per-operation timeouts (seconds) for coroutine-based async RPC handlers.
+    constexpr F32 ASSET_FETCH_TIMEOUT     = 30.0f;
+    constexpr F32 SCRIPT_UPLOAD_TIMEOUT   = 60.0f;
+    constexpr F32 NOTECARD_UPLOAD_TIMEOUT = 30.0f;
+    constexpr F32 ITEM_CREATE_TIMEOUT     = 30.0f;
+
+    // Linkset flush coalescing delays (seconds).
+    constexpr F32 LINKSET_ADD_FLUSH_DELAY    = 5.0f;
+    constexpr F32 LINKSET_REMOVE_FLUSH_DELAY = 0.2f;
+}
+
 class LLPublishedPrimListener : public LLVOInventoryListener
 {
 public:
@@ -293,7 +306,6 @@ void LLScriptEditorWSServer::onConnectionClosed(const LLWebsocketMgr::WSConnecti
     {
         U32 connection_id = script_connection->getConnectionID();
         unsubscribeConnection(connection_id);
-        unpublishConnection(connection_id);
         mActiveConnections.erase(connection_id);
 
         LL_DEBUGS("ScriptEditorWS") << "Removed connection from active connections. Total: "
@@ -305,22 +317,24 @@ void LLScriptEditorWSServer::onConnectionClosed(const LLWebsocketMgr::WSConnecti
 bool LLScriptEditorWSServer::subscribeScriptEditor(const LLUUID& object_id, const LLUUID& item_id, std::string_view script_name,
     const LLHandle<LLPanel>& editor_handle, const std::string& script_id)
 {
-    if (!editor_handle.isDead())
+    if (editor_handle.isDead())
     {
-        auto it = mSubscriptions.find(script_id);
-        if (it == mSubscriptions.end())
-        {   // Don't re-add if already subscribed
-            mSubscriptions.emplace(script_id,
-                LLScriptEditorWSServer::EditorSubscription(object_id, item_id, script_name, editor_handle));
-            return false;
-        }
-        else
-        { // Update existing subscription with new editor handle
-            it->second.mEditorHandle = editor_handle;
-        }
-        return true;
+        return false;
     }
-    return false;
+
+    auto it = mSubscriptions.find(script_id);
+    if (it == mSubscriptions.end())
+    {
+        // New subscription
+        mSubscriptions.emplace(script_id,
+            EditorSubscription(object_id, item_id, script_name, editor_handle));
+    }
+    else
+    {
+        // Refresh existing subscription with the new editor handle
+        it->second.mEditorHandle = editor_handle;
+    }
+    return true;
 }
 
 void LLScriptEditorWSServer::unsubscribeEditor(const std::string &script_id)
@@ -338,7 +352,7 @@ void LLScriptEditorWSServer::unsubscribeEditor(const std::string &script_id)
         { // We have removed the last subscription, close the connection
             LL_DEBUGS("ScriptEditorWS") << "Closing connection ID " << connection_id <<
                 " as last subscription was removed" << LL_ENDL;
-            connection->sendDisconnect(LLScriptEditorWSConnection::REASON_EDITOR_CLOSED, "Editor closed");
+            connection->sendDisconnect(LLScriptEditorWSConnection::DisconnectReason::EDITOR_CLOSED, "Editor closed");
         }
 
     }
@@ -358,7 +372,7 @@ void LLScriptEditorWSServer::unsubscribeConnection(U32 connection_id)
     }
 }
 
-LLScriptEditorWSServer::SubscriptionError_t LLScriptEditorWSServer::updateScriptSubscription(const std::string &script_id, U32 connection_id)
+LLScriptEditorWSServer::SubscriptionError LLScriptEditorWSServer::updateScriptSubscription(const std::string &script_id, U32 connection_id)
 {
     auto it = mSubscriptions.find(script_id);
     if (it != mSubscriptions.end())
@@ -366,13 +380,13 @@ LLScriptEditorWSServer::SubscriptionError_t LLScriptEditorWSServer::updateScript
         if (it->second.mEditorHandle.isDead())
         {
             unsubscribeEditor(script_id);
-            return SUBSCRIPTION_INVALID_EDITOR;
+            return SubscriptionError::INVALID_EDITOR;
         }
 
         auto con_it = mActiveConnections.find(connection_id);
         if (con_it == mActiveConnections.end())
         {
-            return SUBSCRIPTION_INTERNAL_ERROR;
+            return SubscriptionError::INTERNAL_ERROR;
         }
 
         if ((it->second.mConnectionID != 0) && !it->second.mConnection.expired()
@@ -382,14 +396,14 @@ LLScriptEditorWSServer::SubscriptionError_t LLScriptEditorWSServer::updateScript
                                        << ", cannot subscribe again on connection ID " << connection_id << LL_ENDL;
             // In the future we may want to support multiple connections per script.
             // That would imply it was open in multiple editors.
-            return SUBSCRIPTION_ALREADY_SUBSCRIBED;
+            return SubscriptionError::ALREADY_SUBSCRIBED;
         }
 
         it->second.mConnectionID = connection_id;
         it->second.mConnection   = con_it->second;
-        return SUBSCRIPTION_SUCCESS;
+        return SubscriptionError::SUCCESS;
     }
-    return SUBSCRIPTION_INVALID_SUBSCRIPTION;
+    return SubscriptionError::INVALID_SUBSCRIPTION;
 }
 
 
@@ -480,8 +494,14 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 }
                 return LLSD();
             });
-        script_connection->registerMethod("script.unsubscribe", [](const std::string&, const LLSD&, const LLSD& params) -> LLSD
-            {   // this is a notification, no response expected
+        script_connection->registerAsyncMethod("script.unsubscribe",
+            [that, connection_id](const std::string&, const LLSD&, const LLSD& params) -> LLSD
+            {
+                auto server = that.lock();
+                if (server)
+                {
+                    return server->handleScriptUnsubscribe(connection_id, params);
+                }
                 return LLSD();
             });
         script_connection->registerMethod("script.list",
@@ -515,8 +535,8 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 if (!server) return LLSD();
                 return server->handleObjectContentSave(method, id, params);
             });
-        script_connection->registerMethod("object.item.delete",
-            [that, connection_id](const std::string&, const LLSD&, const LLSD& params) -> LLSD
+        script_connection->registerAsyncMethod("object.item.delete",
+            [that, connection_id](const std::string& method, const LLSD& id, const LLSD& params) -> LLSD
             {
                 auto server = that.lock();
                 if (!server) return LLSD();
@@ -536,8 +556,8 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 if (!server) return LLSD();
                 return server->handleObjectUnpublish(connection_id, params);
             });
-        script_connection->registerMethod("object.list",
-            [that](const std::string&, const LLSD&, const LLSD&) -> LLSD
+        script_connection->registerAsyncMethod("object.list",
+            [that](const std::string& method, const LLSD& id, const LLSD&) -> LLSD
             {
                 auto server = that.lock();
                 if (!server) return LLSD();
@@ -728,34 +748,34 @@ LLSD LLScriptEditorWSServer::handleScriptSubscribe(U32 connection_id, const LLSD
     std::string script_name = params["script_name"].asString();
     std::string language    = params["script_language"].asString();
 
-    SubscriptionError_t result = updateScriptSubscription(script_id, connection_id);
+    SubscriptionError result = updateScriptSubscription(script_id, connection_id);
 
     response["script_id"] = script_id;
-    response["success"]   = (result == SUBSCRIPTION_SUCCESS);
-    response["status"]    = result;
+    response["success"]   = (result == SubscriptionError::SUCCESS);
+    response["status"]    = static_cast<S32>(result);
 
-    LL_WARNS_IF(result != SUBSCRIPTION_SUCCESS, "ScriptEditorWS")
-        << "Script connect request for script " << script_id << " failed with status " << result << LL_ENDL;
+    LL_WARNS_IF(result != SubscriptionError::SUCCESS, "ScriptEditorWS")
+        << "Script connect request for script " << script_id << " failed with status " << static_cast<S32>(result) << LL_ENDL;
     switch (result)
     {
-    case SUBSCRIPTION_SUCCESS:
+    case SubscriptionError::SUCCESS:
         response["message"] = "OK";
         break;
-    case SUBSCRIPTION_INVALID_EDITOR:
+    case SubscriptionError::INVALID_EDITOR:
         response["message"] = "Invalid editor handle";
         break;
-    case SUBSCRIPTION_INVALID_SUBSCRIPTION:
+    case SubscriptionError::INVALID_SUBSCRIPTION:
         response["message"] = "No subscription found for script";
         break;
-    case SUBSCRIPTION_ALREADY_SUBSCRIBED:
+    case SubscriptionError::ALREADY_SUBSCRIBED:
         response["message"] = "Script already subscribed";
         break;
-    case SUBSCRIPTION_INTERNAL_ERROR:
+    case SubscriptionError::INTERNAL_ERROR:
         response["message"] = "Internal server error";
         break;
     }
 
-    if (result == SUBSCRIPTION_SUCCESS)
+    if (result == SubscriptionError::SUCCESS)
     {
         auto it = mSubscriptions.find(script_id);
         if (it != mSubscriptions.end())
@@ -913,7 +933,7 @@ LLSD LLScriptEditorWSServer::handleObjectContentGet(const std::string& method, c
         true);
 
     LLSD cb_result = llcoro::suspendUntilEventOnWithTimeout(
-        result_pump, 30.0f, LLSD().with("timeout", true));
+        result_pump, ASSET_FETCH_TIMEOUT, LLSD().with("timeout", true));
 
     if (cb_result.has("timeout"))
         throw LLJSONRPCConnection::RequestTimeoutError("Asset fetch timed out");
@@ -957,7 +977,7 @@ LLSD LLScriptEditorWSServer::handleObjectContentGet(const std::string& method, c
     }
     else
     {
-        text_content = std::string(buffer.data());  // c-string ctor stops at first null
+        text_content = std::string(buffer.data());
     }
 
     LLSD response;
@@ -1045,7 +1065,7 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
     LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
 
     LLSD cb_result = llcoro::suspendUntilEventOnWithTimeout(
-        result_pump, 60.0f, LLSD().with("timeout", true));
+        result_pump, SCRIPT_UPLOAD_TIMEOUT, LLSD().with("timeout", true));
 
     if (cb_result.has("timeout"))
         throw LLJSONRPCConnection::RequestTimeoutError("Script upload/compile timed out");
@@ -1119,7 +1139,7 @@ LLSD LLScriptEditorWSServer::saveNotecard(LLViewerObject* prim, LLInventoryItem*
     LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
 
     LLSD cb_result = llcoro::suspendUntilEventOnWithTimeout(
-        result_pump, 30.0f, LLSD().with("timeout", true));
+        result_pump, NOTECARD_UPLOAD_TIMEOUT, LLSD().with("timeout", true));
 
     if (cb_result.has("timeout"))
         throw LLJSONRPCConnection::RequestTimeoutError("Notecard upload timed out");
@@ -1282,9 +1302,26 @@ LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, c
         }
     }
 
+    // Reject if another item.create is already in flight for this prim; the
+    // map keys by prim, so two concurrent creates would clobber one another.
+    if (mPendingItemCreates.find(prim_id) != mPendingItemCreates.end())
+    {
+        throw LLJSONRPCConnection::InvalidRequest(
+            "An item.create is already in flight for this prim");
+    }
+
     // Set up event pump to wait for inventory change
     LLEventMailDrop result_pump("objectItemCreate." + LLUUID::generateNewID().asString(), true);
     mPendingItemCreates[prim_id] = result_pump.getName();
+
+    // RAII: guarantee the pending entry is cleared on every exit path (throw
+    // or normal return), so no exception between here and the erase-on-post
+    // in onPrimInventoryChanged can leave a stale entry behind. Uses a
+    // shared_ptr custom deleter as a lightweight scope guard.
+    std::shared_ptr<void> pending_guard(nullptr, [this, prim_id](void*)
+    {
+        mPendingItemCreates.erase(prim_id);
+    });
 
     if (has_cap)
     {
@@ -1302,12 +1339,11 @@ LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, c
         prim->saveScript(new_item, true, true, LLUUID::null);
     }
 
-    // Wait for inventory change callback (timeout 30s)
-    LLSD event = llcoro::suspendUntilEventOnWithTimeout(result_pump, 30.0f, LLSD().with("timeout", true));
+    // Wait for inventory change callback
+    LLSD event = llcoro::suspendUntilEventOnWithTimeout(result_pump, ITEM_CREATE_TIMEOUT, LLSD().with("timeout", true));
 
     if (event.has("timeout"))
     {
-        mPendingItemCreates.erase(prim_id);
         throw LLJSONRPCConnection::InternalError("Timed out waiting for item creation");
     }
 
@@ -1496,7 +1532,12 @@ void LLScriptEditorWSServer::forwardChatToIDE(const LLChat& chat_msg) const
     std::vector<std::string> lines = LLStringUtil::getTokens(chat_msg.mText, "\n");
     // If this is a runtime error, the first line will look like: "<Object Name> [script:<Script Name>] Script run-time error"
     static const std::string runtime_error_marker = "Script run-time error";
-    if (!lines.empty() && std::equal(runtime_error_marker.rbegin(), runtime_error_marker.rend(), lines.front().rbegin()))
+    auto ends_with = [](const std::string& s, const std::string& suffix)
+    {
+        return s.size() >= suffix.size() &&
+               std::equal(suffix.rbegin(), suffix.rend(), s.rbegin());
+    };
+    if (!lines.empty() && ends_with(lines.front(), runtime_error_marker))
     {
         is_error = true;
         std::string first_line = lines.front();
@@ -1513,46 +1554,13 @@ void LLScriptEditorWSServer::forwardChatToIDE(const LLChat& chat_msg) const
             remove_count++;
         }
 
-        // TODO: Build an actual error message to forward to the external editor
-        // Explaination:
-        // Well! Heck!
-        // As it turns out, the complete error message arrives as either two or three
-        // separate chat messages from the server.
-        // 2 if the script is LSL or if it is Lua but not owned by the editing agent
-        // 3 if the script is Lua and owned by the editing agent.
-        //
-        // Message 1: <Object Name> [script:<Script Name>] Script run-time error
-        // Message 2: <runtime error>
-        // Message 3: <script>:<line>: <actual error message>\n
-        //              <call stack>
-        //
-        // These need to be compositited into a single error message to send to the IDE.
-        //
-        //if (lines.size() > 1)
-        //{   // The second line is the actual error message
-        //    error_message = lines[1];
-        //    remove_count++;
-        //    if ((error_message == "runtime error") && (lines.size() > 2))
-        //    { // If the error message is just "runtime error", the next line might actually be the real message:
-        //        // "lua_script:7: attempt to perform arithmetic (sub) on nil"
-        //        static const boost::regex LUA_ERROR_REGEX(R"(^(.+?):(\d+):\s*(.+)$)");
-        //
-        //        if (boost::regex_match(first_line, m, RUNTIME_ERR_REGEX_FLEX))
-        //        {
-        //            line_number   = std::stoi(m[2].str());
-        //            error_message = m[3].str();
-        //            remove_count++;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        error_message = "Unknown script runtime error";
-        //    }
-        //}
-        //else
-        //{
-        //    error_message = "Unknown script runtime error";
-        //}
+        // TODO: Build an actual error message to forward to the external editor.
+        // The complete error message arrives as two or three separate chat
+        // messages from the server (2 for LSL / non-owner Lua, 3 for owner Lua):
+        //   Message 1: <Object Name> [script:<Script Name>] Script run-time error
+        //   Message 2: <runtime error>
+        //   Message 3: <script>:<line>: <actual error message>\n<call stack>
+        // These need to be composited into a single error message for the IDE.
         if (lines.size() > remove_count)
         {   // The rest of the lines may contain a stack trace
             lines.erase(lines.begin(), lines.begin() + remove_count);
@@ -1641,10 +1649,21 @@ LLSD LLScriptEditorWSServer::errorResponse(const std::string& message)
 // static
 std::string LLScriptEditorWSServer::getPrimName(LLViewerObject* obj)
 {
+    if (!obj)
+    {
+        return std::string();
+    }
+
     LLNameValue* nv = obj->getNVPair("Name");
-    if (nv && nv->getString() && nv->getString()[0] != '\0')
-        return std::string(nv->getString());
-    // Fall back to the selection node name (populated after ObjectProperties arrives)
+    if (nv)
+    {
+        const char* name = nv->getString();
+        if (name && name[0] != '\0')
+        {
+            return std::string(name);
+        }
+    }
+
     LLSelectNode* node = LLSelectMgr::instance().getSelection()->findNode(obj);
     return (node && !node->mName.empty()) ? node->mName : std::string();
 }
@@ -1914,7 +1933,7 @@ void LLScriptEditorWSServer::onLinksetChildAdded(const LLUUID& root_id, LLViewer
     mNewChildPrims[root_id].insert(child_id);
 
     // Start safety-timeout timer (no-op if one is already pending for this root)
-    scheduleLinksetFlush(root_id, 5.0f);
+    scheduleLinksetFlush(root_id, LINKSET_ADD_FLUSH_DELAY);
 }
 
 void LLScriptEditorWSServer::onLinksetChildRemoved(const LLUUID& root_id, const LLUUID& child_id)
@@ -1956,7 +1975,7 @@ void LLScriptEditorWSServer::onLinksetChildRemoved(const LLUUID& root_id, const 
     }
 
     // Schedule coalesced flush — multiple simultaneous removes share one timer
-    scheduleLinksetFlush(root_id, 0.2f);
+    scheduleLinksetFlush(root_id, LINKSET_REMOVE_FLUSH_DELAY);
 }
 
 void LLScriptEditorWSServer::scheduleLinksetFlush(const LLUUID& root_id, F32 delay)
@@ -1977,6 +1996,21 @@ void LLScriptEditorWSServer::scheduleLinksetFlush(const LLUUID& root_id, F32 del
         }
     });
     mLinksetFlushTimers[root_id] = t->getWeak();
+}
+
+void LLScriptEditorWSServer::cancelLinksetFlushTimer(const LLUUID& root_id)
+{
+    auto it = mLinksetFlushTimers.find(root_id);
+    if (it == mLinksetFlushTimers.end())
+        return;
+    if (auto locked = it->second.lock())
+    {
+        // LLEventTimer contract (see lleventtimer.h): the shared_ptr held by
+        // LLInstanceTracker uses a no-op deleter, so this raw delete is safe
+        // and is the documented way to cancel a pending timer.
+        delete locked.get();
+    }
+    mLinksetFlushTimers.erase(it);
 }
 
 void LLScriptEditorWSServer::flushLinksetUpdate(const LLUUID& root_id)
@@ -2049,13 +2083,7 @@ void LLScriptEditorWSServer::onPrimInventoryChanged(const LLUUID& object_id, con
         {
             // All new children have inventory — cancel timeout, flush now
             mNewChildPrims.erase(nc_root_it);
-            auto timer_it = mLinksetFlushTimers.find(object_id);
-            if (timer_it != mLinksetFlushTimers.end())
-            {
-                auto locked = timer_it->second.lock();
-                if (locked) delete locked.get(); // cancels the timer
-                mLinksetFlushTimers.erase(timer_it);
-            }
+            cancelLinksetFlushTimer(object_id);
             flushLinksetUpdate(object_id);
         }
         // else: still waiting for other new children
@@ -2171,13 +2199,7 @@ void LLScriptEditorWSServer::unpublishObject(const LLUUID& object_id, const std:
     mPublishedObjects.erase(it);
 
     // Cancel any pending linkset flush so it cannot fire after removal
-    auto timer_it = mLinksetFlushTimers.find(object_id);
-    if (timer_it != mLinksetFlushTimers.end())
-    {
-        auto locked = timer_it->second.lock();
-        if (locked) delete locked.get();
-        mLinksetFlushTimers.erase(timer_it);
-    }
+    cancelLinksetFlushTimer(object_id);
     mNewChildPrims.erase(object_id);
 
     LLSD message;
@@ -2192,14 +2214,9 @@ void LLScriptEditorWSServer::unpublishObject(const LLUUID& object_id, const std:
         << " reason: " << reason << LL_ENDL;
 }
 
-void LLScriptEditorWSServer::unpublishConnection(U32 connection_id)
-{
-    // Objects are no longer connection-owned; they persist for all connections.
-    // Nothing to do when a connection closes.
-}
 
 //========================================================================
-U32 LLScriptEditorWSConnection::sNextConnectionID = 1;
+std::atomic<U32> LLScriptEditorWSConnection::sNextConnectionID{1};
 
 std::shared_ptr<LLScriptEditorWSServer> LLScriptEditorWSConnection::getServer() const
 {
@@ -2242,7 +2259,7 @@ void LLScriptEditorWSConnection::onOpen()
     features["syntax_cache"]     = true;
     handshake["features"]        = features;
 
-    wptr_t that = shared_from_this();
+    wptr_t that = weak_from_this();
 
     // Send session.handshake method call and the response
     call("session.handshake", handshake, [that](const LLSD& result, const LLSD& error) {
@@ -2280,11 +2297,11 @@ void LLScriptEditorWSConnection::onClose()
     mFeatures.clear();
 }
 
-void LLScriptEditorWSConnection::sendDisconnect(S32 reason, const std::string& message)
+void LLScriptEditorWSConnection::sendDisconnect(DisconnectReason reason, const std::string& message)
 {
     LL_INFOS("ScriptEditorWS") << "Sending disconnect to client: " << message << LL_ENDL;
     LLSD params;
-    params["reason"]  = reason;
+    params["reason"]  = static_cast<S32>(reason);
     params["message"] = message;
     notify("session.disconnect", params);
     closeConnection(1000, message);
@@ -2294,42 +2311,45 @@ void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result)
 {
     LL_INFOS("ScriptEditorWS") << "Processing handshake response from client" << LL_ENDL;
 
-    // Extract and validate client information
-    mClientName = result["client_name"].asString();
-    mClientVersion = result["client_version"].asString();
+    mClientName      = result["client_name"].asString();
+    mClientVersion   = result["client_version"].asString();
     mProtocolVersion = result["protocol_version"].asString();
 
-    if (mChallenge.notNull())
+    // Validate challenge response (if a challenge was issued).
+    const bool challenge_issued = mChallenge.notNull();
+    bool       valid_response   = true;
+    if (challenge_issued)
     {
-        // Validate challenge response
-        bool valid_response = (result.has("challenge_response") &&
-            (result["challenge_response"].asUUID() == mChallenge));
+        valid_response = result.has("challenge_response") &&
+            (result["challenge_response"].asUUID() == mChallenge);
+        mChallenge.setNull();
+    }
 
+    // Always clean up the temporary challenge file if one was created,
+    // regardless of validation outcome.
+    if (!mChallengeFile.empty())
+    {
         LLFile::remove(mChallengeFile);
         mChallengeFile.clear();
-        mChallenge.setNull();
-        if (!valid_response)
-        {
-            LL_WARNS("ScriptEditorWS") << "Invalid or missing challenge response from client" << LL_ENDL;
-            sendDisconnect(REASON_PROTOCOL_ERROR, "Invalid challenge response");
-            return;
-        }
     }
-    LLUUID challenge_response = result["challenge_response"].asUUID();
 
-    // Validate protocol compatibility
+    if (challenge_issued && !valid_response)
+    {
+        LL_WARNS("ScriptEditorWS") << "Invalid or missing challenge response from client" << LL_ENDL;
+        sendDisconnect(DisconnectReason::PROTOCOL_ERROR, "Invalid challenge response");
+        return;
+    }
+
     if (mProtocolVersion != "1.0")
     {
         LL_WARNS("ScriptEditorWS") << "Protocol version mismatch. Expected: 1.0, Got: "
                                     << mProtocolVersion << LL_ENDL;
     }
 
-    // Store script information if provided
-    mScriptName = result["script_name"].asString();
+    mScriptName     = result["script_name"].asString();
     mScriptLanguage = result["script_language"].asString();
 
-    // Store supported languages
-    for (const auto& lang : llsd::inArray( result["languages"]))
+    for (const auto& lang : llsd::inArray(result["languages"]))
     {
         if (lang.isString())
         {
@@ -2345,14 +2365,6 @@ void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result)
         }
     }
 
-    if (mChallenge.notNull())
-    {
-        // Remove temporary challenge file
-        LLFile::remove(mChallengeFile);
-        mChallenge.setNull();
-        mChallengeFile.clear();
-    }
-
     notify("session.ok");
 
     LL_INFOS("ScriptEditorWS") << "Handshake completed successfully." << LL_ENDL;
@@ -2362,12 +2374,12 @@ std::string LLScriptEditorWSConnection::generateChallenge()
 {
     mChallenge.generate();
 
-    mChallengeFile = std::string(LLFile::tmpdir()) + "sl_script_challenge.tmp";
+    mChallengeFile = std::string(LLFile::tmpdir()) + "sl_script_challenge_" + mChallenge.asString() + ".tmp";
 
     llofstream file(mChallengeFile.c_str());
     if (!file.is_open())
     {
-        LL_WARNS() << "Unable to open challenge file: " << mChallengeFile << LL_ENDL;
+        LL_WARNS("ScriptEditorWS") << "Unable to open challenge file: " << mChallengeFile << LL_ENDL;
         mChallenge.setNull();
         mChallengeFile.clear();
         return std::string();

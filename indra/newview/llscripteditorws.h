@@ -37,6 +37,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <atomic>
 
 // Forward declarations
 class LLLiveLSLEditor;
@@ -54,19 +55,27 @@ public:
     using ptr_t  = std::shared_ptr<LLScriptEditorWSConnection>;
     using wptr_t = std::weak_ptr<LLScriptEditorWSConnection>;
 
-    enum DisconnectReason
+    enum class DisconnectReason : S32
     {
-        REASON_NORMAL         = 0,
-        REASON_EDITOR_CLOSED  = 1,
-        REASON_PROTOCOL_ERROR = 2,
-        REASON_TIMEOUT        = 3,
-        REASON_INTERNAL_ERROR = 4
+        NORMAL         = 0,
+        EDITOR_CLOSED  = 1,
+        PROTOCOL_ERROR = 2,
+        TIMEOUT        = 3,
+        INTERNAL_ERROR = 4
     };
 
     LLScriptEditorWSConnection(const LLWebsocketMgr::WSServer::ptr_t server, const LLWebsocketMgr::connection_h& handle) :
         LLJSONRPCConnection(server, handle)
     {
-        mConnectionID = sNextConnectionID++;
+        // Reserve id 0 as the "unassigned" sentinel used by EditorSubscription;
+        // on wrap, skip past it.
+        U32 id;
+        do
+        {
+            id = sNextConnectionID.fetch_add(1, std::memory_order_relaxed);
+        }
+        while (id == 0);
+        mConnectionID = id;
     }
 
     ~LLScriptEditorWSConnection() override = default;
@@ -77,7 +86,7 @@ public:
     void onOpen() override;
     void onClose() override;
 
-    void sendDisconnect(S32 reason = 0, const std::string& message = "Goodbye");
+    void sendDisconnect(DisconnectReason reason = DisconnectReason::NORMAL, const std::string& message = "Goodbye");
 
 private:
     using string_set_t = std::set<std::string>;
@@ -104,7 +113,7 @@ private:
     LLUUID       mChallenge;
     std::string  mChallengeFile;   ///< Temporary file used for challenge-response verification
 
-    static U32   sNextConnectionID;
+    static std::atomic<U32> sNextConnectionID;
 };
 
 /**
@@ -147,16 +156,16 @@ class LLScriptEditorWSServer : public LLJSONRPCServer
 {
 public:
     static constexpr U32 ALL_CONNECTIONS = 0xFFFFFFFF;
-    enum SubscriptionError_t
+    enum class SubscriptionError
     {
-        SUBSCRIPTION_SUCCESS = 0,
-        SUBSCRIPTION_INVALID_EDITOR,
-        SUBSCRIPTION_INVALID_SUBSCRIPTION,
-        SUBSCRIPTION_ALREADY_SUBSCRIBED,
-        SUBSCRIPTION_INTERNAL_ERROR
+        SUCCESS = 0,
+        INVALID_EDITOR,
+        INVALID_SUBSCRIPTION,
+        ALREADY_SUBSCRIBED,
+        INTERNAL_ERROR
     };
 
-    static constexpr char const* DEFAULT_SERVER_NAME = "script_editor_server";
+    static constexpr const char* DEFAULT_SERVER_NAME = "script_editor_server";
     static constexpr U16         DEFAULT_SERVER_PORT = 9020;
 
     using ptr_t = std::shared_ptr<LLScriptEditorWSServer>;
@@ -164,7 +173,7 @@ public:
 
     LLScriptEditorWSServer(const std::string& name, U16 port, bool local_only = true);
 
-    virtual ~LLScriptEditorWSServer() = default;
+    ~LLScriptEditorWSServer() override = default;
 
     static LLScriptEditorWSServer::ptr_t getServer();
     static LLScriptEditorWSServer::ptr_t ensureServerRunning();
@@ -196,7 +205,6 @@ public:
     bool publishObject(const LLUUID& object_id);
     void unpublishObject(const LLUUID& object_id, const std::string& reason = "");
     bool isObjectPublished(const LLUUID& object_id) const;
-    void unpublishConnection(U32 connection_id);
     void onPrimInventoryReady(const LLUUID& object_id, const LLUUID& prim_id);
     void onPrimInventoryChanged(const LLUUID& object_id, const LLUUID& prim_id);
     void onObjectPropertyChanged(const LLUUID& prim_id, const std::string& name, const std::string& desc);
@@ -246,6 +254,7 @@ protected:
     void cleanupPrimListeners(const LLUUID& object_id);
     void buildAndSendPublish(const LLUUID& object_id);
     void scheduleLinksetFlush(const LLUUID& root_id, F32 delay);
+    void cancelLinksetFlushTimer(const LLUUID& root_id);
     void flushLinksetUpdate(const LLUUID& root_id);
     static LLSD errorResponse(const std::string& message);
 
@@ -293,7 +302,7 @@ private:
         std::vector<std::unique_ptr<LLPublishedPrimListener>> mListeners;   // listeners for pending prims
     };
 
-    SubscriptionError_t updateScriptSubscription(const std::string &script_id, U32 connection_id);
+    SubscriptionError updateScriptSubscription(const std::string &script_id, U32 connection_id);
     void                unsubscribeConnection(U32 connection_id);
 
     subscriptions_t mSubscriptions;
