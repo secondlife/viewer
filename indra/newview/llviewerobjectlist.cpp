@@ -255,6 +255,12 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
     if (just_created)
     {
         gPipeline.addObject(objectp);
+
+        if (objectp->isAvatar())
+        {
+            // Apply any AvatarAppearance message that arrived for this avatar before it existed.
+            LLVOAvatar::applyPendingAvatarAppearance((LLVOAvatar*)objectp);
+        }
     }
 
     // Also sets the approx. pixel area

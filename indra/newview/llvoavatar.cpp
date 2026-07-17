@@ -261,8 +261,15 @@ struct LLAppearanceMessageContents: public LLRefCount
     S32 mCOFVersion;
     // For future use:
     //U32 appearance_flags = 0;
+    // Raw per-block visual param values as received on the wire, in message order. Avatar-agnostic.
+    // Resolved into mParams/mParamWeights (which require a live avatar instance) by
+    // LLVOAvatar::resolveAppearanceMessageContents().
+    std::vector<U8> mParamRawValues;
     std::vector<F32> mParamWeights;
     std::vector<LLVisualParam*> mParams;
+    // Attachment point data as received on the wire (attachment_id -> attach_point). Avatar-agnostic.
+    // Applied to the live avatar's mSimAttachments by LLVOAvatar::resolveAppearanceMessageContents().
+    std::map<LLUUID, S32> mAttachmentData;
     LLVector3 mHoverOffset;
     bool mHoverOffsetWasSet;
 };
@@ -9556,9 +9563,13 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
     apr_file_printf(file, "</textures>\n");
 }
 
-void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMessageContents& contents)
+// static
+void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, const LLUUID& agent_id, LLAppearanceMessageContents& contents)
 {
-    parseTEMessage(mesgsys, _PREHASH_ObjectData, -1, contents.mTEContents);
+    // Static/avatar-agnostic: this must remain safe to call before the target avatar object
+    // exists (see addPendingAvatarAppearance() below), so it may only decode wire data into
+    // contents, never touch a specific avatar instance's live state.
+    LLPrimitive::parseTEMessage(mesgsys, _PREHASH_ObjectData, -1, contents.mTEContents, TEX_NUM_INDICES);
 
     // Parse the AppearanceData field, if any.
     if (mesgsys->has(_PREHASH_AppearanceData))
@@ -9578,39 +9589,61 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
     {
         LLVector3 hover;
         mesgsys->getVector3Fast(_PREHASH_AppearanceHover, _PREHASH_HoverHeight, hover);
-        //LL_DEBUGS("Avatar") << avString() << " hover received " << hover.mV[ VX ] << "," << hover.mV[ VY ] << "," << hover.mV[ VZ ] << LL_ENDL;
+        //LL_DEBUGS("Avatar") << " hover received " << hover.mV[ VX ] << "," << hover.mV[ VY ] << "," << hover.mV[ VZ ] << LL_ENDL;
         contents.mHoverOffset = hover;
         contents.mHoverOffsetWasSet = true;
     }
 
-    // Get attachment info, if sent
+    // Get attachment info, if sent. Stored raw here; reconciled against the live avatar's
+    // previous attachment set by resolveAppearanceMessageContents(), since that comparison
+    // requires a specific avatar instance.
     LLUUID attachment_id;
     U8     attach_point;
     S32    attach_count = mesgsys->getNumberOfBlocksFast(_PREHASH_AttachmentBlock);
-    LL_DEBUGS("AVAppearanceAttachments") << "Agent " << getID() << " has "
+    LL_DEBUGS("AVAppearanceAttachments") << "Agent " << agent_id << " has "
                                          << attach_count << " attachments" << LL_ENDL;
-    size_t old_size = mSimAttachments.size();
-    mSimAttachments.clear();
     for (S32 attach_i = 0; attach_i < attach_count; attach_i++)
     {
         mesgsys->getUUIDFast(_PREHASH_AttachmentBlock, _PREHASH_ID, attachment_id, attach_i);
         mesgsys->getU8Fast(_PREHASH_AttachmentBlock, _PREHASH_AttachmentPoint, attach_point, attach_i);
-        LL_DEBUGS("AVAppearanceAttachments") << "AV " << getID() << " has attachment " << attach_i << " "
+        LL_DEBUGS("AVAppearanceAttachments") << "AV " << agent_id << " has attachment " << attach_i << " "
             << (attachment_id.isNull() ? "pending" : attachment_id.asString())
             << " on point " << (S32)attach_point << LL_ENDL;
 
         if (attachment_id.notNull())
         {
-            mSimAttachments[attachment_id] = attach_point;
+            contents.mAttachmentData[attachment_id] = attach_point;
         }
         else
         {
             // at the moment viewer is only interested in non-null attachments
-            LL_DEBUGS("AVAppearanceAttachments") << "AV " << getID()
+            LL_DEBUGS("AVAppearanceAttachments") << "AV " << agent_id
                 << " has null attachment on point " << (S32)attach_point
                 << ", discarding" << LL_ENDL;
         }
     }
+
+    // Parse visual params, if any. Only the raw wire values are captured here: matching them to
+    // this avatar's LLVisualParam objects requires a live avatar instance, and happens in
+    // resolveAppearanceMessageContents() instead.
+    S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
+    if (num_blocks > 1)
+    {
+        contents.mParamRawValues.reserve(num_blocks);
+        for (S32 i = 0; i < num_blocks; i++)
+        {
+            U8 value;
+            mesgsys->getU8Fast(_PREHASH_VisualParam, _PREHASH_ParamValue, value, i);
+            contents.mParamRawValues.push_back(value);
+        }
+    }
+}
+
+void LLVOAvatar::resolveAppearanceMessageContents(LLAppearanceMessageContents& contents)
+{
+    // Apply attachment data, now that we have a specific avatar instance to compare against.
+    size_t old_size = mSimAttachments.size();
+    mSimAttachments = contents.mAttachmentData;
 
     // todo? Doesn't detect if attachments were switched
     if (old_size != mSimAttachments.size())
@@ -9623,9 +9656,9 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
         }
     }
 
-    // Parse visual params, if any.
-    S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
-    if( num_blocks > 1)
+    // Resolve visual params against this avatar's own tweakable param list.
+    S32 num_blocks = (S32)contents.mParamRawValues.size();
+    if (num_blocks > 1)
     {
         //LL_DEBUGS("Avatar") << avString() << " handle visual params, num_blocks " << num_blocks << LL_ENDL;
 
@@ -9651,9 +9684,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
                     break;
                 }
 
-                U8 value;
-                mesgsys->getU8Fast(_PREHASH_VisualParam, _PREHASH_ParamValue, value, i);
-                F32 newWeight = U8_to_F32(value, param->getMinWeight(), param->getMaxWeight());
+                F32 newWeight = U8_to_F32(contents.mParamRawValues[i], param->getMinWeight(), param->getMaxWeight());
                 contents.mParamWeights.push_back(newWeight);
                 contents.mParams.push_back(param);
 
@@ -9682,6 +9713,58 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
             S32 index = (S32)(it - contents.mParams.begin());
             contents.mParamAppearanceVersion = ll_round(contents.mParamWeights[index]);
             //LL_DEBUGS("Avatar") << "appversion req by appearance_version param: " << contents.mParamAppearanceVersion << LL_ENDL;
+        }
+    }
+}
+
+// Time (in microseconds, see totalTime()) a parsed-but-unapplied AvatarAppearance message is
+// kept waiting for its avatar's ObjectUpdate to arrive before being dropped.
+static const U64 AVATAR_APPEARANCE_EXPIRY = 20 * 1000000ULL; // 20 seconds
+
+std::map<LLUUID, LLPointer<LLAppearanceMessageContents> > LLVOAvatar::sPendingAvatarAppearanceContents;
+std::map<LLUUID, U64>                                     LLVOAvatar::sPendingAvatarAppearanceTimers;
+
+// static
+void LLVOAvatar::addPendingAvatarAppearance(const LLUUID& agent_id, LLMessageSystem* mesgsys)
+{
+    LLPointer<LLAppearanceMessageContents> contents(new LLAppearanceMessageContents);
+    parseAppearanceMessage(mesgsys, agent_id, *contents);
+
+    sPendingAvatarAppearanceContents[agent_id] = contents;
+    sPendingAvatarAppearanceTimers[agent_id] = totalTime() + AVATAR_APPEARANCE_EXPIRY;
+}
+
+// static
+void LLVOAvatar::applyPendingAvatarAppearance(LLVOAvatar* avatarp)
+{
+    if (avatarp)
+    {
+        auto contents_iter = sPendingAvatarAppearanceContents.find(avatarp->getID());
+        if (contents_iter != sPendingAvatarAppearanceContents.end())
+        {
+            LLPointer<LLAppearanceMessageContents> contents = contents_iter->second;
+            sPendingAvatarAppearanceContents.erase(contents_iter);
+            sPendingAvatarAppearanceTimers.erase(avatarp->getID());
+
+            LL_INFOS("Messaging") << "Applying deferred AvatarAppearance for " << avatarp->getID() << LL_ENDL;
+            avatarp->mLastAppearanceMessageTimer.reset();
+            avatarp->processParsedAppearanceMessage(contents);
+        }
+    }
+
+    // check for expired entries
+    U64 now = totalTime();
+    for (auto timer_iter = sPendingAvatarAppearanceTimers.begin(); timer_iter != sPendingAvatarAppearanceTimers.end(); )
+    {
+        if (now > timer_iter->second)
+        {
+            LL_WARNS("Messaging") << "Expired AvatarAppearance for agent " << timer_iter->first << LL_ENDL;
+            sPendingAvatarAppearanceContents.erase(timer_iter->first);
+            timer_iter = sPendingAvatarAppearanceTimers.erase(timer_iter);
+        }
+        else
+        {
+            ++timer_iter;
         }
     }
 }
@@ -9736,11 +9819,20 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
     mLastAppearanceMessageTimer.reset();
 
     LLPointer<LLAppearanceMessageContents> contents(new LLAppearanceMessageContents);
-    parseAppearanceMessage(mesgsys, *contents);
+    parseAppearanceMessage(mesgsys, getID(), *contents);
     if (enable_verbose_dumps)
     {
         dumpAppearanceMsgParams(dump_prefix + "appearance_msg", *contents);
     }
+
+    processParsedAppearanceMessage(contents);
+}
+
+void LLVOAvatar::processParsedAppearanceMessage(const LLPointer<LLAppearanceMessageContents>& contents)
+{
+    // Resolve the avatar-agnostic parts of contents (raw visual param values, attachment data)
+    // against this avatar's live state now that we know it exists.
+    resolveAppearanceMessageContents(*contents);
 
     S32 appearance_version;
     if (!resolve_appearance_version(*contents, appearance_version))

@@ -4184,7 +4184,11 @@ void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data)
     }
     else
     {
-        LL_WARNS("Messaging") << "avatar_appearance sent for unknown avatar " << uuid << LL_ENDL;
+        // WORKAROUND: this can arrive before the ObjectUpdate that creates the avatar (e.g. if
+        // the ObjectUpdate was lost and is being resent). Defer it until the avatar shows up,
+        // instead of dropping it.
+        LL_WARNS("Messaging") << "avatar_appearance sent for unknown avatar " << uuid << "; deferring" << LL_ENDL;
+        LLVOAvatar::addPendingAvatarAppearance(uuid, mesgsys);
     }
 }
 
