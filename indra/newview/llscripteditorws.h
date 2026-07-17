@@ -258,6 +258,26 @@ protected:
     void flushLinksetUpdate(const LLUUID& root_id);
     static LLSD errorResponse(const std::string& message);
 
+    /// Wraps `fn` in a MethodHandler with a weak-ptr guard on this server,
+    /// so the handler safely no-ops after server shutdown. `fn` is called
+    /// with (LLScriptEditorWSServer&, method, id, params) and returns LLSD.
+    template <typename Fn>
+    LLJSONRPCConnection::MethodHandler bindHandler(Fn fn)
+    {
+        std::weak_ptr<LLWebsocketMgr::WSServer> weak_base = weak_from_this();
+        return [weak_base, fn = std::move(fn)]
+               (const std::string& method, const LLSD& id, const LLSD& params) -> LLSD
+        {
+            auto base = weak_base.lock();
+            if (!base)
+            {
+                return LLSD();
+            }
+            auto server = std::static_pointer_cast<LLScriptEditorWSServer>(base);
+            return fn(*server, method, id, params);
+        };
+    }
+
 private:
     struct EditorSubscription
     {
@@ -306,6 +326,11 @@ private:
     void                unsubscribeConnection(U32 connection_id);
 
     subscriptions_t mSubscriptions;
+    // Per-connection subscription count. Invariant: for c != 0,
+    // mConnectionSubscriptionCounts[c] == count of entries in mSubscriptions
+    // whose mConnectionID == c. Maintained transactionally at every site that
+    // mutates SubscriptionInfo::mConnectionID.
+    std::unordered_map<U32, S32> mConnectionSubscriptionCounts;
     std::map<U32, LLScriptEditorWSConnection::wptr_t> mActiveConnections;
 
     std::map<LLUUID, PublishedObjectInfo> mPublishedObjects;  // keyed by root object_id

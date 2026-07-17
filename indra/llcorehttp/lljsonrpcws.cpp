@@ -462,19 +462,42 @@ void LLJSONRPCConnection::unregisterMethod(const std::string& method)
     LL_DEBUGS("JSONRPC") << "Unregistered method: " << method << LL_ENDL;
 }
 
+LLSD LLJSONRPCConnection::makeEnvelope(const LLSD& id,
+                                       const std::string& method,
+                                       const LLSD& params,
+                                       const LLSD& result,
+                                       const LLSD& error)
+{
+    LLSD env;
+    env["jsonrpc"] = "2.0";
+    // Notifications (requests without an id) are the only case that omits id.
+    if (!(id.isUndefined() && !method.empty()))
+    {
+        env["id"] = id;
+    }
+    if (!method.empty())
+    {
+        env["method"] = method;
+    }
+    if (params.isDefined())
+    {
+        env["params"] = params;
+    }
+    if (result.isDefined())
+    {
+        env["result"] = result;
+    }
+    if (error.isDefined())
+    {
+        env["error"] = error;
+    }
+    return env;
+}
+
 LLSD LLJSONRPCConnection::call(const std::string& method, const LLSD& params, ResponseCallback callback)
 {
-    LLSD request;
-    request["jsonrpc"] = "2.0";
-    request["method"] = method;
-
-    if (!params.isUndefined())
-    {
-        request["params"] = params;
-    }
-
     LLSD id = generateId();
-    request["id"] = id;
+    LLSD request = makeEnvelope(id, method, params, LLSD(), LLSD());
     const std::string id_str = id.asString();
 
     // Store callback if provided. Fire-and-forget calls (no callback) are
@@ -504,16 +527,7 @@ LLSD LLJSONRPCConnection::call(const std::string& method, const LLSD& params, Re
 
 bool LLJSONRPCConnection::notify(const std::string& method, const LLSD& params)
 {
-    LLSD notification;
-    notification["jsonrpc"] = "2.0";
-    notification["method"] = method;
-
-    if (!params.isUndefined())
-    {
-        notification["params"] = params;
-    }
-
-    // Notifications don't have an id
+    LLSD notification = makeEnvelope(LLSD(), method, params, LLSD(), LLSD());
 
     if (!sendMessage(LlsdToJson(notification)))
     {
@@ -527,10 +541,7 @@ bool LLJSONRPCConnection::notify(const std::string& method, const LLSD& params)
 
 bool LLJSONRPCConnection::sendResponse(const LLSD& id, const LLSD& result)
 {
-    LLSD response;
-    response["jsonrpc"] = "2.0";
-    response["result"] = result;
-    response["id"] = id;
+    LLSD response = makeEnvelope(id, std::string(), LLSD(), result, LLSD());
 
     if (!sendMessage(LlsdToJson(response)))
     {
@@ -543,9 +554,6 @@ bool LLJSONRPCConnection::sendResponse(const LLSD& id, const LLSD& result)
 
 bool LLJSONRPCConnection::sendError(const LLSD& id, const RPCError& error)
 {
-    LLSD response;
-    response["jsonrpc"] = "2.0";
-
     LLSD error_obj;
     error_obj["code"] = error.getCode();
     error_obj["message"] = error.what();
@@ -555,8 +563,8 @@ bool LLJSONRPCConnection::sendError(const LLSD& id, const RPCError& error)
         error_obj["data"] = error.getData();
     }
 
-    response["error"] = error_obj;
-    response["id"] = id.isUndefined() ? LLSD() : id;  // null for parse errors
+    // Responses always include id; an undefined id serializes as null (used for parse errors).
+    LLSD response = makeEnvelope(id, std::string(), LLSD(), LLSD(), error_obj);
 
     if (!sendMessage(LlsdToJson(response)))
     {
@@ -717,20 +725,16 @@ void LLJSONRPCServer::broadcastNotification(const std::string& method, const LLS
     // We can't use the base broadcastMessage() because we need structured JSON-RPC messages
 
     // Create the notification message
-    LLSD notification;
-    notification["jsonrpc"] = "2.0";
-    notification["method"] = method;
-    if (!params.isUndefined())
-    {
-        notification["params"] = params;
-    }
+    LLSD notification = LLJSONRPCConnection::makeEnvelope(LLSD(), method, params, LLSD(), LLSD());
 
     // Use the base class broadcast functionality
     broadcastMessage(boost::json::serialize(LlsdToJson(notification)));
 
-    mTotalNotificationsSent += getConnectionCount();
+    // Cache the count: getConnectionCount() walks a locked container in the base.
+    size_t count = getConnectionCount();
+    mTotalNotificationsSent += count;
     LL_DEBUGS("JSONRPC") << "Broadcast notification: " << method
-                         << " to " << getConnectionCount() << " clients" << LL_ENDL;
+                         << " to " << count << " clients" << LL_ENDL;
 }
 
 LLSD LLJSONRPCServer::getServerStats() const

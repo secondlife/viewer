@@ -355,6 +355,23 @@ protected:
      */
     LLSD generateId();
 
+public:
+    /**
+     * @brief Build a JSON-RPC 2.0 envelope.
+     *
+     * Stamps "jsonrpc" = "2.0" and includes only the fields that are set:
+     *  - @a method is included when non-empty.
+     *  - @a params, @a result, @a error are included when defined.
+     *  - @a id is included unless it is undefined and @a method is non-empty
+     *    (i.e. notifications omit id; responses keep id, serializing an
+     *    undefined id as JSON null per the JSON-RPC spec).
+     */
+    static LLSD makeEnvelope(const LLSD& id,
+                             const std::string& method,
+                             const LLSD& params,
+                             const LLSD& result,
+                             const LLSD& error);
+
 private:
     // Guards the three maps below. Handlers/callbacks are copied out from
     // under the lock and then invoked without it held, to avoid re-entrancy

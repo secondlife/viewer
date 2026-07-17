@@ -61,6 +61,7 @@
 #include "llfloaterperms.h"
 #include "llviewerassettype.h"
 #include "llviewerinventory.h"
+#include "llsdjson.h"
 
 namespace
 {
@@ -73,6 +74,86 @@ namespace
     // Linkset flush coalescing delays (seconds).
     constexpr F32 LINKSET_ADD_FLUSH_DELAY    = 5.0f;
     constexpr F32 LINKSET_REMOVE_FLUSH_DELAY = 0.2f;
+
+    // Creates a uniquely-named LLEventMailDrop under "<prefix>.<uuid>", passes
+    // its name to kickoff (which arranges for one post to that pump), then
+    // suspends the current coroutine up to 	imeout seconds for the result.
+    // Throws RequestTimeoutError(timeout_msg) if the deadline elapses.
+    template <typename Kickoff>
+    LLSD await_async_result(const std::string& pump_prefix,
+                            F32 timeout,
+                            const std::string& timeout_msg,
+                            Kickoff&& kickoff)
+    {
+        LLEventMailDrop pump(pump_prefix + "." + LLUUID::generateNewID().asString(), true);
+        std::string pump_name = pump.getName();
+        std::forward<Kickoff>(kickoff)(pump_name);
+        LLSD result = llcoro::suspendUntilEventOnWithTimeout(
+            pump, timeout, LLSD().with("timeout", true));
+        if (result.has("timeout"))
+        {
+            throw LLJSONRPCConnection::RequestTimeoutError(timeout_msg);
+        }
+        return result;
+    }
+
+    // Builds the (success, failure) callback pair used by LLResourceUploadInfo-
+    // derived uploads. Both outcomes post a single LLSD to pump_name:
+    //   - success: the server's response LLSD with item_id/task_id added.
+    //   - failure: { "failed": true, "reason": <reason> }.
+    auto make_asset_upload_callbacks(const std::string& pump_name)
+    {
+        auto on_success = [pump_name](LLUUID item_id, LLUUID task_id, LLUUID /*new_asset_id*/, LLSD response)
+        {
+            response["item_id"] = item_id;
+            response["task_id"] = task_id;
+            LLEventPumps::instance().post(pump_name, response);
+        };
+        auto on_failure = [pump_name](LLUUID /*item_id*/, LLUUID /*task_id*/, LLSD /*response*/, std::string reason)
+        {
+            LLSD failure;
+            failure["failed"] = true;
+            failure["reason"] = reason;
+            LLEventPumps::instance().post(pump_name, failure);
+            return false;
+        };
+        return std::make_pair(std::move(on_success), std::move(on_failure));
+    }
+
+    // Returns [root, *root->getChildren()] in stable order. Root must be non-null.
+    std::vector<LLViewerObject*> collect_linkset(LLViewerObject* root)
+    {
+        std::vector<LLViewerObject*> prims;
+        const auto& children = root->getChildren();
+        prims.reserve(1 + children.size());
+        prims.push_back(root);
+        for (LLViewerObject* child : children)
+        {
+            prims.push_back(child);
+        }
+        return prims;
+    }
+
+    // Returns the value of NV pair key on obj as a string, or empty if
+    // obj / pair / string is null or empty. NUL-safe.
+    std::string nv_string(LLViewerObject* obj, const char* key)
+    {
+        if (!obj)
+        {
+            return std::string();
+        }
+        LLNameValue* nv = obj->getNVPair(key);
+        if (!nv)
+        {
+            return std::string();
+        }
+        const char* s = nv->getString();
+        if (!s || s[0] == '\0')
+        {
+            return std::string();
+        }
+        return std::string(s);
+    }
 }
 
 class LLPublishedPrimListener : public LLVOInventoryListener
@@ -345,10 +426,28 @@ void LLScriptEditorWSServer::unsubscribeEditor(const std::string &script_id)
         S32 connection_id = it->second.mConnectionID;
         auto connection = it->second.mConnection.lock();
         mSubscriptions.erase(it);
-        ptrdiff_t count = std::count_if(mSubscriptions.begin(), mSubscriptions.end(), [connection_id](const auto& pair) {
-            return pair.second.mConnectionID == connection_id;
-        });
-        if (connection && !count)
+
+        // Maintain per-connection count; erase entry when it hits zero.
+        bool last_for_connection = false;
+        if (connection_id != 0)
+        {
+            auto cit = mConnectionSubscriptionCounts.find(connection_id);
+            if (cit != mConnectionSubscriptionCounts.end())
+            {
+                if (--cit->second <= 0)
+                {
+                    mConnectionSubscriptionCounts.erase(cit);
+                    last_for_connection = true;
+                }
+            }
+            else
+            {
+                // No counter entry means no other subs referenced this connection.
+                last_for_connection = true;
+            }
+        }
+
+        if (connection && last_for_connection)
         { // We have removed the last subscription, close the connection
             LL_DEBUGS("ScriptEditorWS") << "Closing connection ID " << connection_id <<
                 " as last subscription was removed" << LL_ENDL;
@@ -370,6 +469,8 @@ void LLScriptEditorWSServer::unsubscribeConnection(U32 connection_id)
             it->second.mConnection.reset();
         }
     }
+    // All subs for this connection now have mConnectionID == 0.
+    mConnectionSubscriptionCounts.erase(connection_id);
 }
 
 LLScriptEditorWSServer::SubscriptionError LLScriptEditorWSServer::updateScriptSubscription(const std::string &script_id, U32 connection_id)
@@ -399,8 +500,12 @@ LLScriptEditorWSServer::SubscriptionError LLScriptEditorWSServer::updateScriptSu
             return SubscriptionError::ALREADY_SUBSCRIBED;
         }
 
+        // If this entry was previously bound to a different (dead) connection,
+        // it would have been cleared by unsubscribeConnection, so mConnectionID
+        // is always 0 here.
         it->second.mConnectionID = connection_id;
         it->second.mConnection   = con_it->second;
+        ++mConnectionSubscriptionCounts[connection_id];
         return SubscriptionError::SUCCESS;
     }
     return SubscriptionError::INVALID_SUBSCRIPTION;
@@ -440,129 +545,94 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
     if (script_connection)
     {
         LL_DEBUGS("ScriptEditorWS") << "Setting up script editor connection methods" << LL_ENDL;
-        wptr_t that(std::static_pointer_cast<LLScriptEditorWSServer>(shared_from_this()));
-
         U32 connection_id = script_connection->getConnectionID();
 
+        // Sync methods (run on the WebSocket I/O thread; must not touch
+        // main-thread-only viewer state).
         script_connection->registerMethod("language.syntax.id",
-            [that](const std::string&, const LLSD&, const LLSD&) -> LLSD
+            bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
-                auto server = that.lock();
-                if (server)
-                {
-                    return server->handleLanguageIdRequest();
-                }
-                return LLSD();
-            });
+                return s.handleLanguageIdRequest();
+            }));
+
         script_connection->registerMethod("language.syntax",
-            [that](const std::string&, const LLSD&, const LLSD& params)
+            bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
-                auto server = that.lock();
-                if (server)
-                {
-                    return server->handleSyntaxRequest(params);
-                }
-                return LLSD();
-            });
+                return s.handleSyntaxRequest(params);
+            }));
+
         script_connection->registerMethod("language.syntax.cache",
-            [that](const std::string&, const LLSD&, const LLSD& params)
+            bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
-                auto server = that.lock();
-                if (server)
-                {
-                    return server->handleSyntaxCacheRequest();
-                }
-                return LLSD();
-            });
+                return s.handleSyntaxCacheRequest();
+            }));
+
         script_connection->registerMethod("language.syntax.get",
-            [that](const std::string&, const LLSD&, const LLSD& params)
+            bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
-                auto server = that.lock();
-                if (server)
-                {
-                    return server->handleSyntaxCacheFileRequest(params);
-                }
-                return LLSD();
-            });
+                return s.handleSyntaxCacheFileRequest(params);
+            }));
+
         script_connection->registerMethod("script.subscribe",
-            [that, connection_id](const std::string&, const LLSD&, const LLSD& params) -> LLSD
+            bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
-                auto server = that.lock();
-                if (server)
-                {
-                    return server->handleScriptSubscribe(connection_id, params);
-                }
-                return LLSD();
-            });
-        script_connection->registerAsyncMethod("script.unsubscribe",
-            [that, connection_id](const std::string&, const LLSD&, const LLSD& params) -> LLSD
-            {
-                auto server = that.lock();
-                if (server)
-                {
-                    return server->handleScriptUnsubscribe(connection_id, params);
-                }
-                return LLSD();
-            });
+                return s.handleScriptSubscribe(connection_id, params);
+            }));
+
         script_connection->registerMethod("script.list",
-            [that](const std::string&, const LLSD&, const LLSD& params) -> LLSD
+            bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
-                auto server = that.lock();
-                if (server)
-                {
-                    return server->handleFileWatcherFileListRequest();
-                }
-                return LLSD();
-            });
-        script_connection->registerAsyncMethod("object.request",
-            [that, connection_id](const std::string& method, const LLSD& id, const LLSD& params) -> LLSD
-            {
-                auto server = that.lock();
-                if (!server) return LLSD();
-                return server->handleObjectRequest(connection_id, params);
-            });
-        script_connection->registerAsyncMethod("object.content.get",
-            [that](const std::string& method, const LLSD& id, const LLSD& params) -> LLSD
-            {
-                auto server = that.lock();
-                if (!server) return LLSD();
-                return server->handleObjectContentGet(method, id, params);
-            });
-        script_connection->registerAsyncMethod("object.content.save",
-            [that](const std::string& method, const LLSD& id, const LLSD& params) -> LLSD
-            {
-                auto server = that.lock();
-                if (!server) return LLSD();
-                return server->handleObjectContentSave(method, id, params);
-            });
-        script_connection->registerAsyncMethod("object.item.delete",
-            [that, connection_id](const std::string& method, const LLSD& id, const LLSD& params) -> LLSD
-            {
-                auto server = that.lock();
-                if (!server) return LLSD();
-                return server->handleObjectItemDelete(connection_id, params);
-            });
-        script_connection->registerAsyncMethod("object.item.create",
-            [that](const std::string& method, const LLSD& id, const LLSD& params) -> LLSD
-            {
-                auto server = that.lock();
-                if (!server) return LLSD();
-                return server->handleObjectItemCreate(method, id, params);
-            });
+                return s.handleFileWatcherFileListRequest();
+            }));
+
         script_connection->registerMethod("object.unpublish",
-            [that, connection_id](const std::string&, const LLSD&, const LLSD& params) -> LLSD
+            bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
-                auto server = that.lock();
-                if (!server) return LLSD();
-                return server->handleObjectUnpublish(connection_id, params);
-            });
+                return s.handleObjectUnpublish(connection_id, params);
+            }));
+
+        // Async methods (dispatched to the main thread inside a coroutine).
+        script_connection->registerAsyncMethod("script.unsubscribe",
+            bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
+            {
+                return s.handleScriptUnsubscribe(connection_id, params);
+            }));
+
+        script_connection->registerAsyncMethod("object.request",
+            bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
+            {
+                return s.handleObjectRequest(connection_id, params);
+            }));
+
+        script_connection->registerAsyncMethod("object.content.get",
+            bindHandler([](LLScriptEditorWSServer& s, const std::string& method, const LLSD& id, const LLSD& params)
+            {
+                return s.handleObjectContentGet(method, id, params);
+            }));
+
+        script_connection->registerAsyncMethod("object.content.save",
+            bindHandler([](LLScriptEditorWSServer& s, const std::string& method, const LLSD& id, const LLSD& params)
+            {
+                return s.handleObjectContentSave(method, id, params);
+            }));
+
+        script_connection->registerAsyncMethod("object.item.delete",
+            bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
+            {
+                return s.handleObjectItemDelete(connection_id, params);
+            }));
+
+        script_connection->registerAsyncMethod("object.item.create",
+            bindHandler([](LLScriptEditorWSServer& s, const std::string& method, const LLSD& id, const LLSD& params)
+            {
+                return s.handleObjectItemCreate(method, id, params);
+            }));
+
         script_connection->registerAsyncMethod("object.list",
-            [that](const std::string& method, const LLSD& id, const LLSD&) -> LLSD
+            bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
-                auto server = that.lock();
-                if (!server) return LLSD();
-                return server->handleObjectList();
-            });
+                return s.handleObjectList();
+            }));
     }
 }
 
@@ -900,43 +970,36 @@ LLSD LLScriptEditorWSServer::handleObjectContentGet(const std::string& method, c
     LLUUID prim_id = params["prim_id"].asUUID();
     LLUUID item_id = params["item_id"].asUUID();
 
-    // Use LLEventMailDrop so that if the callback fires synchronously (cache hit)
-    // before suspendUntilEventOnWithTimeout registers its listener, the event is
-    // queued and replayed when the listener attaches -- no race condition.
-    LLEventMailDrop result_pump("objectContentGet." + LLUUID::generateNewID().asString(), true);
-    std::string pump_name = result_pump.getName();
-
-    gAssetStorage->getInvItemAsset(
-        v.prim->getRegion()->getHost(),
-        gAgent.getID(),
-        gAgent.getSessionID(),
-        v.item->getPermissions().getOwner(),
-        v.prim->getID(),
-        v.item->getUUID(),
-        v.item->getAssetUUID(),
-        v.type,
-        [pump_name](const LLUUID& asset_uuid, LLAssetType::EType asset_type, void*, S32 status, LLExtStat)
+    LLSD cb_result = await_async_result(
+        "objectContentGet", ASSET_FETCH_TIMEOUT, "Asset fetch timed out",
+        [&](const std::string& pump_name)
         {
-            LLSD result;
-            if (status == LL_ERR_NOERR)
-            {
-                result["asset_uuid"] = asset_uuid;
-                result["asset_type"] = static_cast<S32>(asset_type);
-            }
-            else
-            {
-                result["error"] = status;
-            }
-            LLEventPumps::instance().post(pump_name, result);
-        },
-        nullptr,
-        true);
-
-    LLSD cb_result = llcoro::suspendUntilEventOnWithTimeout(
-        result_pump, ASSET_FETCH_TIMEOUT, LLSD().with("timeout", true));
-
-    if (cb_result.has("timeout"))
-        throw LLJSONRPCConnection::RequestTimeoutError("Asset fetch timed out");
+            gAssetStorage->getInvItemAsset(
+                v.prim->getRegion()->getHost(),
+                gAgent.getID(),
+                gAgent.getSessionID(),
+                v.item->getPermissions().getOwner(),
+                v.prim->getID(),
+                v.item->getUUID(),
+                v.item->getAssetUUID(),
+                v.type,
+                [pump_name](const LLUUID& asset_uuid, LLAssetType::EType asset_type, void*, S32 status, LLExtStat)
+                {
+                    LLSD result;
+                    if (status == LL_ERR_NOERR)
+                    {
+                        result["asset_uuid"] = asset_uuid;
+                        result["asset_type"] = static_cast<S32>(asset_type);
+                    }
+                    else
+                    {
+                        result["error"] = status;
+                    }
+                    LLEventPumps::instance().post(pump_name, result);
+                },
+                nullptr,
+                true);
+        });
 
     if (cb_result.has("error"))
     {
@@ -1041,34 +1104,17 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
     if (url.empty())
         throw LLJSONRPCConnection::InternalError("UpdateScriptTask capability not available");
 
-    LLEventMailDrop result_pump("objectContentSave." + LLUUID::generateNewID().asString(), true);
-    std::string pump_name = result_pump.getName();
-
-    LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
-        prim->getID(), item->getUUID(),
-        compile_target, false, LLUUID::null, content,
-        [pump_name](LLUUID item_id, LLUUID task_id, LLUUID new_asset_id, LLSD response)
+    LLSD cb_result = await_async_result(
+        "objectContentSave", SCRIPT_UPLOAD_TIMEOUT, "Script upload/compile timed out",
+        [&](const std::string& pump_name)
         {
-            response["item_id"]  = item_id;
-            response["task_id"]  = task_id;
-            LLEventPumps::instance().post(pump_name, response);
-        },
-        [pump_name](LLUUID item_id, LLUUID task_id, LLSD response, std::string reason)
-        {
-            LLSD failure;
-            failure["failed"] = true;
-            failure["reason"] = reason;
-            LLEventPumps::instance().post(pump_name, failure);
-            return false;
-        }));
-
-    LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
-
-    LLSD cb_result = llcoro::suspendUntilEventOnWithTimeout(
-        result_pump, SCRIPT_UPLOAD_TIMEOUT, LLSD().with("timeout", true));
-
-    if (cb_result.has("timeout"))
-        throw LLJSONRPCConnection::RequestTimeoutError("Script upload/compile timed out");
+            auto [on_success, on_failure] = make_asset_upload_callbacks(pump_name);
+            LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
+                prim->getID(), item->getUUID(),
+                compile_target, false, LLUUID::null, content,
+                std::move(on_success), std::move(on_failure)));
+            LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
+        });
 
     if (cb_result.has("failed"))
         throw LLJSONRPCConnection::InternalError("Upload failed: " + cb_result["reason"].asString());
@@ -1115,34 +1161,17 @@ LLSD LLScriptEditorWSServer::saveNotecard(LLViewerObject* prim, LLInventoryItem*
     std::ostringstream ostr;
     notecard.exportStream(ostr);
 
-    LLEventMailDrop result_pump("objectContentSaveNotecard." + LLUUID::generateNewID().asString(), true);
-    std::string pump_name = result_pump.getName();
-
-    LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLBufferedAssetUploadInfo>(
-        prim->getID(), item->getUUID(),
-        LLAssetType::AT_NOTECARD, ostr.str(),
-        [pump_name](LLUUID item_id, LLUUID task_id, LLUUID new_asset_id, LLSD response)
+    LLSD cb_result = await_async_result(
+        "objectContentSaveNotecard", NOTECARD_UPLOAD_TIMEOUT, "Notecard upload timed out",
+        [&](const std::string& pump_name)
         {
-            response["item_id"] = item_id;
-            response["task_id"] = task_id;
-            LLEventPumps::instance().post(pump_name, response);
-        },
-        [pump_name](LLUUID item_id, LLUUID task_id, LLSD response, std::string reason)
-        {
-            LLSD failure;
-            failure["failed"] = true;
-            failure["reason"] = reason;
-            LLEventPumps::instance().post(pump_name, failure);
-            return false;
-        }));
-
-    LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
-
-    LLSD cb_result = llcoro::suspendUntilEventOnWithTimeout(
-        result_pump, NOTECARD_UPLOAD_TIMEOUT, LLSD().with("timeout", true));
-
-    if (cb_result.has("timeout"))
-        throw LLJSONRPCConnection::RequestTimeoutError("Notecard upload timed out");
+            auto [on_success, on_failure] = make_asset_upload_callbacks(pump_name);
+            LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLBufferedAssetUploadInfo>(
+                prim->getID(), item->getUUID(),
+                LLAssetType::AT_NOTECARD, ostr.str(),
+                std::move(on_success), std::move(on_failure)));
+            LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
+        });
 
     if (cb_result.has("failed"))
         throw LLJSONRPCConnection::InternalError("Upload failed: " + cb_result["reason"].asString());
@@ -1344,7 +1373,7 @@ LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, c
 
     if (event.has("timeout"))
     {
-        throw LLJSONRPCConnection::InternalError("Timed out waiting for item creation");
+        throw LLJSONRPCConnection::RequestTimeoutError("Timed out waiting for item creation");
     }
 
     prim = gObjectList.findObject(prim_id);
@@ -1626,12 +1655,18 @@ void LLScriptEditorWSServer::notifyConnection(U32 connection_id, const std::stri
 
 void LLScriptEditorWSServer::notifyAll(const std::string& method, const LLSD& params) const
 {
+    // Serialize once, deliver many: build the JSON-RPC envelope and its wire
+    // string a single time, then hand the bytes to each connection.
+    LLSD envelope = LLJSONRPCConnection::makeEnvelope(
+        LLSD(), method, params, LLSD(), LLSD());
+    std::string payload = boost::json::serialize(LlsdToJson(envelope));
+
     for (const auto& pair : mActiveConnections)
     {
         auto connection = pair.second.lock();
         if (connection)
         {
-            connection->notify(method, params);
+            connection->sendMessage(payload);
         }
     }
 }
@@ -1649,19 +1684,15 @@ LLSD LLScriptEditorWSServer::errorResponse(const std::string& message)
 // static
 std::string LLScriptEditorWSServer::getPrimName(LLViewerObject* obj)
 {
+    std::string name = nv_string(obj, "Name");
+    if (!name.empty())
+    {
+        return name;
+    }
+
     if (!obj)
     {
         return std::string();
-    }
-
-    LLNameValue* nv = obj->getNVPair("Name");
-    if (nv)
-    {
-        const char* name = nv->getString();
-        if (name && name[0] != '\0')
-        {
-            return std::string(name);
-        }
     }
 
     LLSelectNode* node = LLSelectMgr::instance().getSelection()->findNode(obj);
@@ -1746,12 +1777,7 @@ bool LLScriptEditorWSServer::publishObject(const LLUUID& object_id)
     }
 
     // Collect root + all children
-    std::vector<LLViewerObject*> prims;
-    prims.push_back(root);
-    for (LLViewerObject* child : root->getChildren())
-    {
-        prims.push_back(child);
-    }
+    std::vector<LLViewerObject*> prims = collect_linkset(root);
 
     // Set up a PendingPublish to coordinate inventory loading across all prims.
     // We register a listener and call requestInventory() on every prim.
@@ -1807,14 +1833,10 @@ void LLScriptEditorWSServer::onPrimInventoryReady(const LLUUID& object_id, const
 
 LLSD LLScriptEditorWSServer::buildPublishedObjectLLSD(LLViewerObject* root) const
 {
-    auto nvDesc = [](LLNameValue* nv) -> std::string {
-        return (nv && nv->getString() && nv->getString()[0] != '\0') ? nv->getString() : std::string();
-    };
-
     LLSD pub;
     pub["object_id"]          = root->getID();
     pub["object_name"]        = getPrimName(root);
-    pub["object_description"] = nvDesc(root->getNVPair("Desc"));
+    pub["object_description"] = nv_string(root, "Desc");
     pub["owner_id"]           = root->mOwnerID;
     if (root->getRegion())
     {
@@ -1830,7 +1852,7 @@ LLSD LLScriptEditorWSServer::buildPublishedObjectLLSD(LLViewerObject* root) cons
         link["link_id"]          = child->getID();
         link["link_number"]      = link_number++;
         link["link_name"]        = getPrimName(child);
-        link["link_description"] = nvDesc(child->getNVPair("Desc"));
+        link["link_description"] = nv_string(child, "Desc");
         link["inventory"]        = buildPrimInventoryLLSD(child);
         linked_objects.append(link);
     }
@@ -1873,13 +1895,8 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
     }
 
     S32 link_num = 1;
-    std::vector<LLViewerObject*> all_prims;
-    all_prims.push_back(root);
-    for (LLViewerObject* child : root->getChildren())
-    {
-        all_prims.push_back(child);
-    }
-    for (LLViewerObject* prim : all_prims)
+    std::vector<LLViewerObject*> prims = collect_linkset(root);
+    for (LLViewerObject* prim : prims)
     {
         PublishedPrimInfo prim_info;
         prim_info.mPrimID          = prim->getID();
@@ -1900,7 +1917,7 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
 
     LL_INFOS("ScriptEditorWS") << "Published object " << object_id
         << " (" << pub["object_name"].asString() << ") with "
-        << (all_prims.size() - 1) << " linked prim(s)" << LL_ENDL;
+        << (prims.size() - 1) << " linked prim(s)" << LL_ENDL;
 }
 
 void LLScriptEditorWSServer::onLinksetChildAdded(const LLUUID& root_id, LLViewerObject* child)
