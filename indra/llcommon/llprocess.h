@@ -341,6 +341,7 @@ private:
     std::string mPostend;
     bool mAutokill;
     bool mAttached;
+    bool mKillCalled;
 
     // For integrating with LLEventPump mainloop
     boost::signals2::scoped_connection mMainloopConnection;
