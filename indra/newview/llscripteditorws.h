@@ -239,10 +239,10 @@ protected:
 
     struct ValidatedItem
     {
-        LLViewerObject*     prim;
-        LLViewerObject*     root;
-        LLInventoryItem*    item;
-        LLAssetType::EType  type;
+        LLViewerObject*    prim{ nullptr };
+        LLViewerObject*    root{ nullptr };
+        LLInventoryItem*   item{ nullptr };
+        LLAssetType::EType type{ LLAssetType::AT_NONE };
     };
     ValidatedItem validatePublishedItem(const LLSD& params, U32 permMask) const;
 
