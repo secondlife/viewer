@@ -952,17 +952,10 @@ protected:
     LLPointer<LLAppearanceMessageContents>  mLastProcessedAppearance;
 
 public:
-    // Decodes the wire message into contents. Avatar-agnostic: does not require (and must not
-    // require) a live LLVOAvatar instance, since it also runs for AvatarAppearance messages that
-    // arrive before their avatar's ObjectUpdate has been received.
     static void     parseAppearanceMessage(LLMessageSystem* mesgsys, const LLUUID& agent_id, LLAppearanceMessageContents& contents);
-    // Resolves the avatar-agnostic parts of contents (raw visual param values, attachment data)
-    // against this avatar's live state, e.g. LLVisualParam pointers. Requires a real avatar instance.
     void            resolveAppearanceMessageContents(LLAppearanceMessageContents& contents);
     void            processAvatarAppearance(LLMessageSystem* mesgsys);
 
-    // Continuation of processAvatarAppearance() starting from already-parsed contents, shared by
-    // both the normal (avatar already exists) and deferred (see below) paths.
     void            processParsedAppearanceMessage(LLPointer<LLAppearanceMessageContents>& contents);
     void            applyParsedAppearanceMessage(LLAppearanceMessageContents& contents, bool slam_params);
 
@@ -974,8 +967,7 @@ public:
 
 private:
     static std::map<LLUUID, LLPointer<LLAppearanceMessageContents> > sPendingAvatarAppearanceContents;
-    // Value is the totalTime() (microseconds) at which the entry expires.
-    static std::map<LLUUID, U64>                                     sPendingAvatarAppearanceTimers;
+    static std::map<LLUUID, U64>                                     sPendingAvatarAppearanceExpiries;
 
 public:
     void            hideHair();

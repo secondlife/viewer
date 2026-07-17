@@ -9717,12 +9717,10 @@ void LLVOAvatar::resolveAppearanceMessageContents(LLAppearanceMessageContents& c
     }
 }
 
-// Time (in microseconds, see totalTime()) a parsed-but-unapplied AvatarAppearance message is
-// kept waiting for its avatar's ObjectUpdate to arrive before being dropped.
-static const U64 AVATAR_APPEARANCE_EXPIRY = 20 * 1000000ULL; // 20 seconds
+static const U64 AVATAR_APPEARANCE_EXPIRY = 20 * USEC_PER_SEC;
 
 std::map<LLUUID, LLPointer<LLAppearanceMessageContents> > LLVOAvatar::sPendingAvatarAppearanceContents;
-std::map<LLUUID, U64>                                     LLVOAvatar::sPendingAvatarAppearanceTimers;
+std::map<LLUUID, U64>                                     LLVOAvatar::sPendingAvatarAppearanceExpiries;
 
 // static
 void LLVOAvatar::addPendingAvatarAppearance(const LLUUID& agent_id, LLMessageSystem* mesgsys)
@@ -9731,7 +9729,7 @@ void LLVOAvatar::addPendingAvatarAppearance(const LLUUID& agent_id, LLMessageSys
     parseAppearanceMessage(mesgsys, agent_id, *contents);
 
     sPendingAvatarAppearanceContents[agent_id] = contents;
-    sPendingAvatarAppearanceTimers[agent_id] = totalTime() + AVATAR_APPEARANCE_EXPIRY;
+    sPendingAvatarAppearanceExpiries[agent_id] = totalTime() + AVATAR_APPEARANCE_EXPIRY;
 }
 
 // static
@@ -9744,7 +9742,7 @@ void LLVOAvatar::applyPendingAvatarAppearance(LLVOAvatar* avatarp)
         {
             LLPointer<LLAppearanceMessageContents> contents = contents_iter->second;
             sPendingAvatarAppearanceContents.erase(contents_iter);
-            sPendingAvatarAppearanceTimers.erase(avatarp->getID());
+            sPendingAvatarAppearanceExpiries.erase(avatarp->getID());
 
             LL_DEBUGS("Messaging") << "Applying deferred AvatarAppearance for " << avatarp->getID() << LL_ENDL;
             avatarp->mLastAppearanceMessageTimer.reset();
@@ -9754,13 +9752,13 @@ void LLVOAvatar::applyPendingAvatarAppearance(LLVOAvatar* avatarp)
 
     // check for expired entries
     U64 now = totalTime();
-    for (auto timer_iter = sPendingAvatarAppearanceTimers.begin(); timer_iter != sPendingAvatarAppearanceTimers.end(); )
+    for (auto timer_iter = sPendingAvatarAppearanceExpiries.begin(); timer_iter != sPendingAvatarAppearanceExpiries.end(); )
     {
         if (now > timer_iter->second)
         {
             LL_WARNS("Messaging") << "Expired AvatarAppearance for agent " << timer_iter->first << LL_ENDL;
             sPendingAvatarAppearanceContents.erase(timer_iter->first);
-            timer_iter = sPendingAvatarAppearanceTimers.erase(timer_iter);
+            timer_iter = sPendingAvatarAppearanceExpiries.erase(timer_iter);
         }
         else
         {
