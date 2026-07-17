@@ -268,35 +268,11 @@ S32 LLImageJ2C::calcHeaderSizeJ2C()
 //static
 S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate)
 {
-    // Note: This provides an estimation for the first to last quality layer of a given discard level
-    // This is however an efficient approximation, as the true discard level boundary would be
-    // in general too big for fast fetching.
-    // For details about the equation used here, see https://wiki.lindenlab.com/wiki/THX1138_KDU_Improvements#Byte_Range_Study
-
-    // Estimate the number of layers. This is consistent with what's done for j2c encoding in LLImageJ2CKDU::encodeImpl().
-    constexpr S32 precision = 8; // assumed bitrate per component channel, might change in future for HDR support
-    constexpr S32 max_components = 4; // assumed the file has four components; three color and alpha
-    // Use MAX_IMAGE_SIZE_DEFAULT (currently 2048) if either dimension is unknown (zero)
-    S32 width  = (w > 0) ? w : 2048;
-    S32 height = (h > 0) ? h : 2048;
-    S32 max_dimension = llmax(width, height); // Find largest dimension
-    S32 block_area = MAX_BLOCK_SIZE * MAX_BLOCK_SIZE; // Calculated initial block area from established max block size (currently 64)
-    S32 max_layers = (S32)llmax(llround(log2f((float)max_dimension) - log2f((float)MAX_BLOCK_SIZE)), 4); // Find number of powers of two between extents and block size to a minimum of 4
-    block_area *= llmax(max_layers, 1); // Adjust initial block area by max number of layers
-    S32 totalbytes = (S32) (MIN_LAYER_SIZE * max_components * precision); // Start estimation with a minimum reasonable size
-    S32 block_layers = 0;
-    while (block_layers <= max_layers) // Walk the layers
-    {
-        if (block_layers <= (5 - discard_level))  // Walk backwards from discard 5 to required discard layer.
-            totalbytes += (S32) (block_area * max_components * precision * rate); // Add each block layer reduced by assumed compression rate
-        block_layers++; // Move to next layer
-        block_area *= 4; // Increase block area by power of four
-    }
-
-    totalbytes /= 8; // to bytes
-    totalbytes += calcHeaderSizeJ2C();  // header
-
-    return totalbytes;
+    // Dispatch to the linked impl so OpenJPEG (block-aligned, needs
+    // over-allocation) and KDU (packet-aligned, lean) each return what
+    // their decoder actually needs.
+    static std::unique_ptr<LLImageJ2CImpl> s_estimator(fallbackCreateLLImageJ2CImpl());
+    return s_estimator->estimateDataSize(w, h, comp, discard_level, rate);
 }
 
 S32 LLImageJ2C::calcHeaderSize()

@@ -189,7 +189,12 @@ public:
         return new LLEmbeddedItemSegment(mStart, mImage, mItem, *editor);
     }
 
-    /*virtual*/ bool getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
+    /*virtual*/ bool getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height)
+    {
+        return getSegmentDimensionsF32(first_char, num_chars, width, height);
+    }
+
+    inline bool getSegmentDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
     {
         if (num_chars == 0)
         {
@@ -213,8 +218,9 @@ public:
         }
         else
         {
-            S32 width, height;
-            getDimensions(mStart, 1, width, height);
+            F32 width;
+            S32 height;
+            getSegmentDimensionsF32(mStart, 1, width, height);
             if (width > num_pixels)
             {
                 return 0;

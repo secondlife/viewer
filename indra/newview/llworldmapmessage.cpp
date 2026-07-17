@@ -154,6 +154,7 @@ void LLWorldMapMessage::sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16
 // public static
 void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     if (gNonInteractive)
     {
         return;
@@ -248,6 +249,7 @@ void LLWorldMapMessage::processMapBlockReply(LLMessageSystem* msg, void**)
 // public static
 void LLWorldMapMessage::processMapItemReply(LLMessageSystem* msg, void**)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     //LL_INFOS("WorldMap") << LL_ENDL;
     U32 type;
     msg->getU32Fast(_PREHASH_RequestData, _PREHASH_ItemType, type);

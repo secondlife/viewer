@@ -620,7 +620,9 @@ void LLPipeline::init()
     {
         cntrl_ptr->getCommitSignal()->connect([](LLControlVariable* control, const LLSD& value, const LLSD& previous)
         {
-            LLFontVertexBuffer::enableBufferCollection(control->getValue().asBoolean());
+            bool enable_buffers = control->getValue().asBoolean();
+            LLFontVertexBuffer::enableBufferCollection(enable_buffers);
+            LLFontWidthBuffer::enableBufferCollection(enable_buffers);
         });
     }
 }
@@ -1158,7 +1160,9 @@ void LLPipeline::refreshCachedSettings()
         LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);
     }
 
-    LLFontVertexBuffer::enableBufferCollection(gSavedSettings.getBOOL("CollectFontVertexBuffers"));
+    bool enable_buffers = gSavedSettings.getBOOL("CollectFontVertexBuffers");
+    LLFontVertexBuffer::enableBufferCollection(enable_buffers);
+    LLFontWidthBuffer::enableBufferCollection(enable_buffers);
 }
 
 void LLPipeline::releaseGLBuffers()
@@ -9468,6 +9472,9 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
     LL_PROFILE_GPU_ZONE("renderShadow");
 
     LLPipeline::sShadowRender = true;
+    // Shadow binds aren't visibility. RAII (not a hardcoded restore) so a shadow
+    // pass nested in a probe render doesn't re-enable stamping for the rest of it.
+    LLImageGLStampBypass stamp_bypass;
 
     // disable occlusion culling during shadow render
     U32 saved_occlusion = sUseOcclusion;
@@ -10852,6 +10859,9 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
 
     sShadowRender = true;
     sImpostorRender = true;
+    // Impostor binds aren't visibility. RAII so the nested shadow pass can't
+    // re-enable stamping mid-render.
+    LLImageGLStampBypass stamp_bypass;
 
     LLViewerCamera* viewer_camera = LLViewerCamera::getInstance();
 

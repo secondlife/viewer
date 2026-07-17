@@ -865,9 +865,6 @@ Delete "$INSTDIR\trial\*.html"
 Delete "$INSTDIR\newview.exe"
 Delete "$INSTDIR\SecondLife.exe"
 
-# MAINT-3099 workaround - prevent these log files, if present, from causing a user alert
-Delete "$INSTDIR\VivoxVoiceService-*.log"
-
 # Remove entire help directory
 RMDir /r  "$INSTDIR\help"
 

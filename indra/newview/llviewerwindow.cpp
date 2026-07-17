@@ -200,6 +200,7 @@
 
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
+#include "llstatslistener.h"
 #include "llcleanup.h"
 
 #if LL_WINDOWS
@@ -1883,6 +1884,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     LLWindowListener::KeyboardGetter getter = [](){ return gKeyboard; };
     mWindowListener = std::make_unique<LLWindowListener>(this, getter);
     mViewerWindowListener = std::make_unique<LLViewerWindowListener>(this);
+    mStatsListener = std::make_unique<LLStatsListener>();
 
     mSystemChannel.reset(new LLNotificationChannel("System", "Visible", LLNotificationFilters::includeEverything));
     mCommunicationChannel.reset(new LLCommunicationChannel("Communication", "Visible"));
@@ -5583,7 +5585,13 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
 
         // actually render the scene
         gCubeSnapshot = true;
-        display_cube_face();
+        {
+            // Probe binds aren't visibility - otherwise every probe slice re-stamps
+            // behind-camera textures and cycles them evict->refetch. RAII so the
+            // nested shadow pass in display_cube_face doesn't re-enable stamping.
+            LLImageGLStampBypass stamp_bypass;
+            display_cube_face();
+        }
         gCubeSnapshot = false;
     }
 

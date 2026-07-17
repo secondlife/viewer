@@ -739,7 +739,7 @@ bool LLMediaCtrl::ensureMediaSourceExists()
             mMediaSource->setUsedInUI(true);
             mMediaSource->setHomeURL(mHomePageUrl, mHomePageMimeType);
             mMediaSource->setTarget(mTarget);
-            mMediaSource->setVisible( getVisible() );
+            mMediaSource->setVisible( isInVisibleChain() );
             mMediaSource->addObserver( this );
             mMediaSource->setBackgroundColor( getBackgroundColor() );
             mMediaSource->setTrustedBrowser(mTrusted);

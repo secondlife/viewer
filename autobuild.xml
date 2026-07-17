@@ -2039,64 +2039,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>description</key>
         <string>Generated headers and sources for OpenXR loader.</string>
       </map>
-      <key>slvoice</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>1e70b06fe6eb9796097010871b32d8e95167e373</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/gh/secondlife/3p-slvoice/slvoice-4.10.0000.32327.5fc3fe7c.5942f08-darwin64-5942f08.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>92b0ae08832bd0e99c34ef8f3e6346ad</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/613/1289/slvoice-3.2.0002.10426.500605-linux64-500605.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ddfb7c30d9756915e8b26f44e2ee3a69ee87fb9a</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/gh/secondlife/3p-slvoice/slvoice-4.10.0000.32327.5fc3fe7c.5942f08-windows64-5942f08.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>Mixed</string>
-        <key>license_file</key>
-        <string>LICENSES/vivox_licenses.txt</string>
-        <key>copyright</key>
-        <string>2010 Vivox, including audio coding using Polycom¨ Siren14TM (ITU-T Rec. G.722.1 Annex C)</string>
-        <key>version</key>
-        <string>4.10.0000.32327.5fc3fe7c.5942f08</string>
-        <key>name</key>
-        <string>slvoice</string>
-        <key>description</key>
-        <string>Vivox SDK components</string>
-      </map>
       <key>sse2neon</key>
       <map>
         <key>platforms</key>
@@ -2512,11 +2454,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7338377a9c6913bc8768d446fe627b8176bc89d4</string>
+              <string>c70247d7683312ee81149dbae603574c0851e04c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.23/webrtc-m137.7151.04.23.22004231636-darwin64-22004231636.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.16/webrtc-m144.7559.06.16.28218655958-darwin64-28218655958.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2526,11 +2468,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a2df83ed8d7fc1374398d7a37633bae17f5d68a1</string>
+              <string>d187fd666eec8c14dbef959cdc9a6600a13736c7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.23/webrtc-m137.7151.04.23.22004231636-linux64-22004231636.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.16/webrtc-m144.7559.06.16.28218655958-linux64-28218655958.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2540,11 +2482,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>665c2447c794a88542fab30638f0013bea58480c</string>
+              <string>47ecfec6deaa775c958fc532d7a43d186ba191f1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.23/webrtc-m137.7151.04.23.22004231636-windows64-22004231636.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.16/webrtc-m144.7559.06.16.28218655958-windows64-28218655958.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2557,7 +2499,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2011, The WebRTC project authors. All rights reserved.</string>
         <key>version</key>
-        <string>m137.7151.04.23.22004231636</string>
+        <string>m144.7559.06.16.28218655958</string>
         <key>name</key>
         <string>webrtc</string>
         <key>vcs_branch</key>
@@ -3389,7 +3331,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       <key>license_file</key>
       <string>docs/LICENSE-source.txt</string>
       <key>copyright</key>
-      <string>Copyright (c) 2020, Linden Research, Inc.</string>
+      <string>Copyright (c) 2026, Linden Research, Inc.</string>
       <key>version_file</key>
       <string>newview/viewer_version.txt</string>
       <key>name</key>

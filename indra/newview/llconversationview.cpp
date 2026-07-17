@@ -217,6 +217,12 @@ bool LLConversationViewSession::postBuild()
     LLFolderViewItem::postBuild();
 
     mItemPanel = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>("panel_conversation_list_item.xml", NULL, LLPanel::child_registry_t::instance());
+
+    if (!mItemPanel)
+    {
+        LLError::LLUserWarningMsg::showMissingFiles();
+        LL_ERRS() << "Failed to construct mItemPanel from panel_conversation_list_item.xml" << LL_ENDL;
+    }
     addChild(mItemPanel);
 
     mCallIconLayoutPanel = mItemPanel->getChild<LLPanel>("call_icon_panel");

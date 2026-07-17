@@ -5925,7 +5925,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>110</integer>
+      <integer>127</integer>
     </map>
     <key>NotificationChannelRightMargin</key>
     <map>
@@ -8035,17 +8035,6 @@
       <key>Value</key>
       <integer>1</integer>
   </map>
-  <key>RenderMinFreeMainMemoryThreshold</key>
-  <map>
-    <key>Comment</key>
-    <string>If available free physical memory is below this value textures get agresively scaled down</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>512</integer>
-  </map>
   <key>RenderLowMemMinDiscardIncrement</key>
   <map>
     <key>Comment</key>
@@ -8068,27 +8057,27 @@
     <key>Value</key>
     <real>0.1</real>
   </map>
-  <key>RenderMaxTextureIndex</key>
-  <map>
-    <key>Comment</key>
-    <string>Maximum texture index to use for indexed texture rendering.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>16</integer>
-  </map>
   <key>RenderMaxTextureResolution</key>
   <map>
     <key>Comment</key>
-    <string>Maximum texture resolution to download for non-boosted textures.</string>
+    <string>Maximum texture resolution to download for non-boosted textures. Driven by RenderTextureQuality.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
     <integer>2048</integer>
+  </map>
+  <key>RenderTextureQuality</key>
+  <map>
+    <key>Comment</key>
+    <string>Texture quality preset: 0=Low, 1=Medium, 2=High, 3=Ultra. Drives RenderMaxTextureResolution, TexturePixelToTexelRatio, TexturePressureTightenRate, TexturePressureRelaxRate, and TextureChannelRatio* (Normal/BaseColor/Specular/Emissive). The pressure water marks (TexturePressureHighWater/LowWater) are constant across tiers.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>2</integer>
   </map>
     <key>RenderDownScaleMethod</key>
     <map>
@@ -8100,17 +8089,6 @@
         <string>U32</string>
         <key>Value</key>
         <integer>0</integer>
-    </map>
-    <key>RenderDebugTextureBind</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable texture bind performance test.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
   <key>RenderDelayCreation</key>
   <map>
@@ -9287,7 +9265,7 @@
   <key>RenderReflectionDetail</key>
     <map>
       <key>Comment</key>
-      <string>DEPRECATED -- use RenderTransparentWater and RenderReflectionProbeDetail -- Detail of reflection render pass.</string>
+      <string>DEPRECATED - use RenderTransparentWater and RenderReflectionProbeDetail - Detail of reflection render pass.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9427,17 +9405,6 @@
     <string>S32</string>
     <key>Value</key>
     <integer>64</integer>
-  </map>
-  <key>RenderReservedTextureIndices</key>
-  <map>
-    <key>Comment</key>
-    <string>Count of texture indices to reserve for shadow and reflection maps when using indexed texture rendering.  Probably only want to set from the login screen.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>S32</string>
-    <key>Value</key>
-    <integer>14</integer>
   </map>
   <key>RenderResolutionDivisor</key>
   <map>
@@ -11217,6 +11184,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>ShowBlockedConvHistory</key>
+    <map>
+      <key>Comment</key>
+      <string>Specifies whether blocked agents will be shown in Call Log</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowMatureEvents</key>
     <map>
       <key>Comment</key>
@@ -11893,16 +11871,214 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
-    <key>TextureCameraBoost</key>
+    <key>TextureChannelRatioNormal</key>
     <map>
       <key>Comment</key>
-      <string>Amount to boost resolution of textures that are important to the camera.</string>
+      <string>Per-channel pixel:texel ratio multiplier for normal maps (texels per pixel, applied on top of the global TexturePixelToTexelRatio). 1.0 = full quality; lower = coarser. Driven by the RenderTextureQuality preset.</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>8.0</real>
+      <real>1.0</real>
+    </map>
+    <key>TextureChannelRatioBaseColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Per-channel pixel:texel ratio multiplier for base color / diffuse (texels per pixel, applied on top of the global TexturePixelToTexelRatio). 1.0 = full quality. Driven by the RenderTextureQuality preset.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>TextureChannelRatioSpecular</key>
+    <map>
+      <key>Comment</key>
+      <string>Per-channel pixel:texel ratio multiplier for specular / metallic-roughness (texels per pixel, applied on top of the global TexturePixelToTexelRatio). 0.5 = half resolution (specular detail is usually less perceptible than diffuse). Driven by the RenderTextureQuality preset.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
+    </map>
+    <key>TextureChannelRatioEmissive</key>
+    <map>
+      <key>Comment</key>
+      <string>Per-channel pixel:texel ratio multiplier for emissive (texels per pixel, applied on top of the global TexturePixelToTexelRatio). 0.5 = half resolution. Driven by the RenderTextureQuality preset.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
+    </map>
+    <key>TextureMaxDiscardOverride</key>
+    <map>
+      <key>Comment</key>
+      <string>When non-zero, overrides the per-texture codec-derived max discard cap. 0 = use codec-reported levels. Higher lets the streaming math push past the codec ceiling; scaleDown handles the GL side.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TexturePixelToTexelRatio</key>
+    <map>
+      <key>Comment</key>
+      <string>Max texels per screen pixel the streamer will allocate (the "R" in a 1:R pixel:texel ratio). 1.0 = one texel per pixel. VRAM pressure walks the effective ratio down from here.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>TextureBackgroundMinRatio</key>
+    <map>
+      <key>Comment</key>
+      <string>Lowest pixel:texel ratio the streamer decays to while the viewer is backgrounded, to free VRAM for other apps. Lower frees more but re-rezzes slower on return. Restored when focus comes back.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.001</real>
+    </map>
+    <key>TexturePressureHighWater</key>
+    <map>
+      <key>Comment</key>
+      <string>High water mark as a fraction of the VRAM budget. When used VRAM crosses this, the global pixel:texel ratio tightens (backs off detail) at TexturePressureTightenRate. Held at 0.90 - it's a physical "crossed the budget" threshold, not a tier preference.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.90</real>
+    </map>
+    <key>TexturePressureLowWater</key>
+    <map>
+      <key>Comment</key>
+      <string>Low water mark as a fraction of the VRAM budget. When used VRAM drops below this, the global pixel:texel ratio relaxes (restores detail) at TexturePressureRelaxRate. The band between low and high is the hysteresis zone where the ratio holds steady - wide enough to prevent sawtooth.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.70</real>
+    </map>
+    <key>TexturePressureTightenRate</key>
+    <map>
+      <key>Comment</key>
+      <string>Rate (ratio units/sec) at which the global pixel:texel ratio drops while used VRAM is above the high watermark. Deliberately slow so eviction (scaleDown draining) frees bytes before the next step - prevents over-shoot / thrash.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.30</real>
+    </map>
+    <key>TexturePressureRelaxRate</key>
+    <map>
+      <key>Comment</key>
+      <string>Rate (ratio units/sec) at which the global pixel:texel ratio climbs back toward TexturePixelToTexelRatio while used VRAM is below the low watermark. Typically slower than the tighten rate so detail returns gradually as headroom appears.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.10</real>
+    </map>
+    <key>TextureUpRezMargin</key>
+    <map>
+      <key>Comment</key>
+      <string>Hysteresis dead-band (in mip levels) around a texture's current discard. A texture only fetches a finer mip when its ideal discard falls more than this below the current level, and only evicts when it rises more than this above - prevents fetch/scaleDown thrash at mip boundaries when an object slowly recedes.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.2</real>
+    </map>
+    <key>TextureCooldownStepSeconds</key>
+    <map>
+      <key>Comment</key>
+      <string>While backgrounded, the pixel:texel ratio drops one mip toward TextureBackgroundMinRatio every this many seconds.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>5.0</real>
+    </map>
+    <key>TextureGCStepFrames</key>
+    <map>
+      <key>Comment</key>
+      <string>Foreground GC cooldown, in rendered frames. For every this many frames a texture goes without being drawn, its mip drops by TextureGCStepMips. Resets when the texture is drawn again.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>5</integer>
+    </map>
+    <key>TextureGCStepMips</key>
+    <map>
+      <key>Comment</key>
+      <string>Mip levels dropped each time a TextureGCStepFrames cooldown elapses. 1 is gentlest; higher sheds VRAM faster in coarser jumps.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>TextureLoadTargetFPS</key>
+    <map>
+      <key>Comment</key>
+      <string>Frame rate the viewer is willing to drop to while loading textures. The texture pipeline's per-frame budget is the headroom between this and the actual frame cost, so fast machines load aggressively and slow ones hold their frame rate.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>30.0</real>
+    </map>
+    <key>TextureLoadBudgetMaxMS</key>
+    <map>
+      <key>Comment</key>
+      <string>Hard cap, in milliseconds per frame, on the adaptive texture-pipeline budget.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>10.0</real>
+    </map>
+    <key>TextureFetchStepMips</key>
+    <map>
+      <key>Comment</key>
+      <string>Fetch refinement step, in mip levels: a texture whose resident data is coarser than desired by more than this fetches in steps of this size instead of jumping straight to the final resolution, so it sharpens progressively instead of sitting blurry then popping. 0 = jump directly. Boosted/pinned textures always jump.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+    <key>TextureFrustumAllowance</key>
+    <map>
+      <key>Comment</key>
+      <string>Falloff width for out-of-frustum texture resolution, as a fraction of screen size. Content grazing the screen edge keeps full resolution; content this far past the edge reaches the deepest mip, lerped between. Keeps barely-out-of-view textures resident so panning back doesn't refetch them.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.5</real>
     </map>
     <key>TextureDecodeDisabled</key>
     <map>
@@ -11936,28 +12112,6 @@
       <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>TextureDiscardBackgroundedTime</key>
-    <map>
-        <key>Comment</key>
-        <string>Specify how long to wait before discarding texture data after viewer is backgrounded.  (zero or negative to disable)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>F32</string>
-        <key>Value</key>
-        <real>60.0</real>
-    </map>
-    <key>TextureDiscardMinimizedTime</key>
-    <map>
-        <key>Comment</key>
-        <string>Specify how long to wait before discarding texture data after viewer is minimized.  (zero or negative to disable)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>F32</string>
-        <key>Value</key>
-        <real>1.0</real>
     </map>
     <key>TextureFetchConcurrency</key>
     <map>
@@ -12047,27 +12201,27 @@
       <key>Value</key>
       <string />
     </map>
-    <key>TextureScaleMinAreaFactor</key>
+    <key>TextureAvatarBoost</key>
     <map>
         <key>Comment</key>
-        <string>Limits how texture scale affects area calculation.</string>
+        <string>Coverage multiplier for avatar textures: worn attachments (rigged extents make their measurement unreliable) and baked system-avatar textures. 4.0 = one mip finer than measured. A bonus, not a pin - nearby avatars gain headroom while distant avatars still downrez with their measured coverage. 1.0 disables.</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>0.0095</real>
+        <real>4.0</real>
     </map>
-    <key>TextureScaleMaxAreaFactor</key>
+    <key>TextureDownrezCoverageBias</key>
     <map>
         <key>Comment</key>
-        <string>Limits how texture scale affects area calculation.</string>
+        <string>Which end of a texture's texels-per-pixel spread sizes it. Each texture tracks the screen coverage of its most demanding use (lowest texels per pixel) and least demanding use (highest texels per pixel, most oversampled). 0 = size to the most demanding use (best quality); 1 = size to the least demanding use (frees the most memory). Interpolation is geometric (log-space), so the resulting discard level moves linearly with this value - 0.5 sits halfway between the two ends in mip levels. Default 0.25 is the best universal balance.</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>25.0</real>
+        <real>0.25</real>
     </map>
     <key>ThreadPoolSizes</key>
     <map>
@@ -13559,141 +13713,8 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>VivoxAutoPostCrashDumps</key>
-    <map>
-      <key>Comment</key>
-      <string>If true, SLVoice will automatically send crash dumps directly to Vivox.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>VivoxDebugLevel</key>
-    <map>
-      <key>Comment</key>
-      <string>Logging level to use when launching the vivox daemon</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>0</string>
-    </map>
-    <key>VivoxLogDirectory</key>
-    <map>
-        <key>Comment</key>
-        <string>Default log path is Application Support/SecondLife/logs specify alternate absolute path here.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>String</string>
-        <key>Value</key>
-        <string></string>
-    </map>
-    <key>VivoxShutdownTimeout</key>
-    <map>
-      <key>Comment</key>
-      <string>shutdown timeout in miliseconds.  The amount of time to wait for the service to shutdown gracefully after the last disconnect</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>5</string>
-    </map>
-    <key>VivoxDebugSIPURIHostName</key>
-    <map>
-      <key>Comment</key>
-      <string>Hostname portion of vivox SIP URIs (empty string for the default).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
-    </map>
-    <key>VivoxDebugVoiceAccountServerURI</key>
-    <map>
-      <key>Comment</key>
-      <string>URI to the vivox account management server (empty string for the default).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
-    </map>
-    <key>VivoxVoiceHost</key>
-    <map>
-      <key>Comment</key>
-      <string>Client SLVoice host to connect to</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>127.0.0.1</string>
-    </map>
-    <key>VivoxVoicePort</key>
-    <map>
-      <key>Comment</key>
-      <string>Client SLVoice port to connect to</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>44125</integer>
-    </map>
-
-  <key>VivoxVadAuto</key>
-  <map>
-    <key>Comment</key>
-    <string>A flag indicating if the automatic VAD is enabled (1) or disabled (0). The individual settings are ignored if the auto-mode is enabled</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>VivoxVadHangover</key>
-  <map>
-    <key>Comment</key>
-    <string>The time (in milliseconds) that it takes or the VAD to switch back to silence from speech mode after the last speech frame has been detected</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>2000</integer>
-  </map>
-  <key>VivoxVadNoiseFloor</key>
-  <map>
-    <key>Comment</key>
-    <string>A dimensionless value between 0 and 20000 (default 576) that controls the maximum level at which the noise floor may be set at by the VAD's noise tracking</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>576</integer>
-  </map>
-  <key>VivoxVadSensitivity</key>
-  <map>
-    <key>Comment</key>
-    <string>A dimensionless value between 0 and 100, indicating the 'sensitivity of the VAD'. Increasing this value corresponds to decreasing the sensitivity of the VAD and 0 is turned off altogether</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>VoiceCallsFriendsOnly</key>
-  <!-- deprecated (see SL-12871) -->
+    <key>VoiceCallsFriendsOnly</key>
+    <!-- deprecated (see SL-12871) -->
     <map>
       <key>Comment</key>
       <string>(Deprecated) Only accept voice calls from residents on your friends list</string>
@@ -13769,17 +13790,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>VoiceHost</key>
-    <map>
-      <key>Comment</key>
-      <string>Client SLVoice host to connect to</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>127.0.0.1</string>
     </map>
     <key>VoiceImageLevel0</key>
     <map>
@@ -13869,17 +13879,6 @@
       <key>Value</key>
       <string>Default</string>
     </map>
-    <key>VoiceLogFile</key>
-    <map>
-      <key>Comment</key>
-      <string>Log file to use when launching the voice daemon</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string></string>
-    </map>
     <key>VoiceOutputAudioDevice</key>
     <map>
       <key>Comment</key>
@@ -13901,17 +13900,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>10</integer>
-    </map>
-    <key>VoicePort</key>
-    <map>
-      <key>Comment</key>
-      <string>Client SLVoice port to connect to</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>44125</integer>
     </map>
     <key>VoiceEchoCancellation</key>
     <map>
@@ -16477,7 +16465,7 @@
   <key>EmulateCoreCount</key>
   <map>
     <key>Comment</key>
-    <string>For debugging -- number of cores to restrict the main process to, or 0 for no limit.  Requires restart.</string>
+    <string>For debugging - number of cores to restrict the main process to, or 0 for no limit.  Requires restart.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -16631,7 +16619,7 @@
 <key>MultiModeDoubleClickFolder</key>
 <map>
   <key>Comment</key>
-  <string>Sets the action for Double-click on folder in multi-folder view (0 - expands and collapses folder, 1 - opens a new window, 2 – stays in current floater but switches to SFV)</string>
+  <string>Sets the action for Double-click on folder in multi-folder view (0 - expands and collapses folder, 1 - opens a new window, 2 - stays in current floater but switches to SFV)</string>
   <key>Persist</key>
   <integer>1</integer>
   <key>Type</key>

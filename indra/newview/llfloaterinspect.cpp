@@ -100,6 +100,7 @@ void LLFloaterInspect::onOpen(const LLSD& key)
     LLSelectMgr::getInstance()->setForceSelection(forcesel);    // restore previouis value
     mObjectSelection = LLSelectMgr::getInstance()->getSelection();
     refresh();
+    mDirty = false;
 }
 void LLFloaterInspect::onClickCreatorProfile()
 {

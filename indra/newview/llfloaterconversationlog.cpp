@@ -100,6 +100,10 @@ void LLFloaterConversationLog::onCustomAction (const LLSD& userdata)
     {
         mConversationLogList->toggleSortFriendsOnTop();
     }
+    else if ("show_blocked" == command_name)
+    {
+        gSavedSettings.setBOOL("ShowBlockedConvHistory", !gSavedSettings.getBOOL("ShowBlockedConvHistory"));
+    }
     else if ("view_nearby_chat_history" == command_name)
     {
         LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
@@ -128,6 +132,10 @@ bool LLFloaterConversationLog::isActionChecked(const LLSD& userdata)
     else if ("sort_friends_on_top" == command_name)
     {
         return gSavedSettings.getBOOL("SortFriendsFirst");
+    }
+    else if ("show_blocked" == command_name)
+    {
+        return gSavedSettings.getBOOL("ShowBlockedConvHistory");
     }
 
     return false;

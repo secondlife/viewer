@@ -433,6 +433,8 @@ LLInventoryModel::LLInventoryModel()
 :   // These are now ordered, keep them that way.
     mBacklinkMMap(),
     mIsAgentInvUsable(false),
+    mLibrarySkeletonLoadTime(0.f),
+    mAgentSkeletonLoadTime(0.f),
     mRootFolderID(),
     mLibraryRootFolderID(),
     mLibraryOwnerID(),
@@ -2383,10 +2385,22 @@ void LLInventoryModel::cache(
         items,
         INCLUDE_TRASH,
         can_cache);
+
+    if (categories.empty() && items.empty())
+    {
+        LL_WARNS(LOG_INV) << "Nothing to cache for " << parent_folder_id << LL_ENDL;
+        return;
+    }
+
     // Use temporary file to avoid potential conflicts with other
     // instances (even a 'read only' instance unzips into a file)
     std::string temp_file = gDirUtilp->getTempFilename();
-    saveToFile(temp_file, categories, items);
+    if (!saveToFile(temp_file, categories, items))
+    {
+        LL_WARNS(LOG_INV) << "Failed to save inventory cache for " << parent_folder_id << LL_ENDL;
+        LLFile::remove(temp_file);
+        return;
+    }
     std::string gzip_filename = getInvCacheAddres(agent_id);
     gzip_filename.append(".gz");
     if(gzip_file(temp_file, gzip_filename))
@@ -2989,6 +3003,16 @@ bool LLInventoryModel::loadSkeleton(
                       << " after " << timer.getElapsedTimeF32() << " seconds."
                       << LL_ENDL;
 
+    const F32 elapsed = timer.getElapsedTimeF32();
+    if (owner_id == mLibraryOwnerID)
+    {
+        mLibrarySkeletonLoadTime = elapsed;
+    }
+    else
+    {
+        mAgentSkeletonLoadTime = elapsed;
+    }
+
     return rv;
 }
 
@@ -3537,6 +3561,11 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
         S32 cat_count = 0;
         for (auto& cat : categories)
         {
+            if (cat.isNull())
+            {
+                LL_WARNS(LOG_INV) << "Skipping null category during inventory save" << LL_ENDL;
+                continue;
+            }
             if (cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
             {
                 LLSD sd;
@@ -3551,6 +3580,11 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
         auto it_count = items.size();
         for (auto& item : items)
         {
+            if (item.isNull())
+            {
+                LL_WARNS(LOG_INV) << "Skipping null item during inventory save" << LL_ENDL;
+                continue;
+            }
             LLSD sd;
             item->asLLSD(sd);
             item_array.append(sd);
@@ -3566,6 +3600,12 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
         fileSD.close();
 
         LL_INFOS(LOG_INV) << "Inventory saved: " << (S32)cat_count << " categories, " << (S32)it_count << " items." << LL_ENDL;
+    }
+    catch(std::bad_alloc&)
+    {
+        // We are quiting, so just log an error and move on.
+        LL_WARNS(LOG_INV) << "Failed to save inventory to cache due to memory allocation failure." << LL_ENDL;
+        return false;
     }
     catch (...)
     {

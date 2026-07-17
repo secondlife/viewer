@@ -586,14 +586,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path_optional("vcruntime140_1.dll")
             self.path_optional("vcruntime140_threads.dll")
 
-            # SLVoice executable
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                self.path("SLVoice.exe")
-
-            # Vivox libraries
-            self.path("vivoxsdk_x64.dll")
-            self.path("ortp_x64.dll")
-
             # BugSplat
             if self.args.get('bugsplat'):
                 self.path("BsSndRpt64.exe")
@@ -1149,16 +1141,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # Need to get the llcommon dll from any of the build directories as well.
                 libfile_parent = self.get_dst_prefix()
                 dylibs=[]
-                # SLVoice executable
-                with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                    self.path("SLVoice")
-
-                # Vivox libraries
-                for libfile in (
-                                'libortp.dylib',
-                                'libvivoxsdk.dylib',
-                                ):
-                    self.path2basename(relpkgdir, libfile)
 
                 # Discord social SDK
                 if self.args['discord'] == 'ON':
@@ -1538,15 +1520,6 @@ class Linux_x86_64_Manifest(LinuxManifest):
 
             if self.args['discord'] == 'ON':
                 self.path("libdiscord_partner_sdk.so*")
-
-        # Vivox runtimes
-        with self.prefix(src=relpkgdir, dst="bin"):
-            self.path("SLVoice")
-        with self.prefix(src=relpkgdir, dst="lib"):
-            self.path("libortp.so")
-            self.path("libsndfile.so.1")
-            #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
-            self.path("libvivoxsdk.so")
 
         self.strip_binaries()
 ################################################################
