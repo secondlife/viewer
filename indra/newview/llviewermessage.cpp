@@ -4181,14 +4181,18 @@ void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data)
     if (avatarp)
     {
         avatarp->processAvatarAppearance( mesgsys );
+        return;
+    }
+    // Remember that this avatar needs to see its appearance re-requested when
+    // they will finally be created. HB
+    LLVOAvatar::registerEarlyAppearance(uuid);
+    if (uuid == gAgentID)
+    {
+        LL_WARNS("Messaging") << "AvatarAppearance message received before avatar is created." << LL_ENDL;
     }
     else
     {
-        // WORKAROUND: this can arrive before the ObjectUpdate that creates the avatar (e.g. if
-        // the ObjectUpdate was lost and is being resent). Defer it until the avatar shows up,
-        // instead of dropping it.
-        LL_WARNS("Messaging") << "avatar_appearance sent for unknown avatar " << uuid << "; deferring" << LL_ENDL;
-        LLVOAvatar::addPendingAvatarAppearance(uuid, mesgsys);
+        LL_WARNS("Messaging") << "AvatarAppearance message received for unknown avatar " << uuid << LL_ENDL;
     }
 }
 

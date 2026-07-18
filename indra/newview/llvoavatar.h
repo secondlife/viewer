@@ -949,27 +949,19 @@ protected:
  **                    APPEARANCE
  **/
 
+public:
+    // Used when an AvatarAppearance UDP message is received before the
+    // corresponding avatar could be created.
+    static void registerEarlyAppearance(const LLUUID& av_id)
+    {
+        sEarlyApperanceList.emplace(av_id);
+    }
+
     LLPointer<LLAppearanceMessageContents>  mLastProcessedAppearance;
 
-public:
-    static void     parseAppearanceMessage(LLMessageSystem* mesgsys, const LLUUID& agent_id, LLAppearanceMessageContents& contents);
-    void            resolveAppearanceMessageContents(LLAppearanceMessageContents& contents);
+    void            parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMessageContents& msg);
     void            processAvatarAppearance(LLMessageSystem* mesgsys);
-
-    void            processParsedAppearanceMessage(LLPointer<LLAppearanceMessageContents>& contents);
     void            applyParsedAppearanceMessage(LLAppearanceMessageContents& contents, bool slam_params);
-
-    // An AvatarAppearance message can arrive before the ObjectUpdate that creates its avatar.
-    // Rather than drop such a message, store its parsed contents in a map and apply them
-    // when the avatar shows up. Entries older than AVATAR_APPEARANCE_EXPIRY are dropped.
-    static void     addPendingAvatarAppearance(const LLUUID& agent_id, LLMessageSystem* mesgsys);
-    static void     applyPendingAvatarAppearance(LLVOAvatar* avatarp);
-
-private:
-    static std::map<LLUUID, LLPointer<LLAppearanceMessageContents> > sPendingAvatarAppearanceContents;
-    static std::map<LLUUID, U64>                                     sPendingAvatarAppearanceExpiries;
-
-public:
     void            hideHair();
     void            hideSkirt();
     void            startAppearanceAnimation();
@@ -997,6 +989,8 @@ private:
     F32             mLastAppearanceBlendTime;
     bool            mIsEditingAppearance; // flag for if we're actively in appearance editing mode
     bool            mUseLocalAppearance; // flag for if we're using a local composite
+
+    static uuid_list_t  sEarlyApperanceList;
 
     //--------------------------------------------------------------------
     // Visibility
