@@ -607,7 +607,7 @@ void renderFace(LLDrawable* drawable, LLFace *face)
             volume = vobj->getVolume();
         }
 
-        if (volume)
+        if (volume && volume->getNumVolumeFaces() > face->getTEOffset())
         {
             const LLVolumeFace& vol_face = volume->getVolumeFace(face->getTEOffset());
             LLVertexBuffer::drawElements(LLRender::TRIANGLES, vol_face.mPositions, NULL, vol_face.mNumIndices, vol_face.mIndices);

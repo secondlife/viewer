@@ -393,36 +393,6 @@ public:
     bool isEmpty() { return mEntries.empty(); }
 };
 
-
-// This code is not naming-standards compliant. Leaving it like this for
-// now to make the connection to code in
-//  bool packTEMessage(LLDataPacker &dp) const;
-// more obvious. This should be refactored to remove the duplication, at which
-// point we can fix the names as well.
-// - Vir
-struct LLTEContents
-{
-    static const U32 MAX_TES = 45;
-
-    LLUUID      image_data[MAX_TES];
-    LLColor4U   colors[MAX_TES];
-    F32    scale_s[MAX_TES];
-    F32    scale_t[MAX_TES];
-    S16    offset_s[MAX_TES];
-    S16    offset_t[MAX_TES];
-    S16    image_rot[MAX_TES];
-    U8     bump[MAX_TES];
-    U8     media_flags[MAX_TES];
-    U8     glow[MAX_TES];
-    LLMaterialID material_ids[MAX_TES];
-
-    static const U32 MAX_TE_BUFFER = 4096;
-    U8 packed_buffer[MAX_TE_BUFFER];
-
-    U32 size;
-    U32 face_count;
-};
-
 class LLPrimitive : public LLXform
 {
 public:
@@ -496,13 +466,13 @@ public:
     LLMaterialPtr getTEMaterialParams(const U8 index);
 
     void copyTEs(const LLPrimitive *primitive);
-    S32 packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_face_index, EMsgVariableType type) const;
     bool packTEMessage(LLMessageSystem *mesgsys) const;
     bool packTEMessage(LLDataPacker &dp) const;
     S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num); // Variable num of blocks
     S32 unpackTEMessage(LLDataPacker &dp);
     S32 parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec);
     S32 applyParsedTEMessage(LLTEContents& tec);
+    S32 unpackTEMessageInternal(LLTEContents& tec);
 
 #ifdef CHECK_FOR_FINITE
     inline void setPosition(const LLVector3& pos);
@@ -581,6 +551,7 @@ public:
 
 private:
     void updateNumBumpmap(const U8 index, const U8 bump);
+    U8* packTEMessageInternal(U8* cur_ptr) const;
 
 protected:
     LLPCode             mPrimitiveCode;     // Primitive code
@@ -590,7 +561,6 @@ protected:
     LLPointer<LLVolume> mVolumep;
     LLPrimTextureList   mTextureList;       // list of texture GUIDs, scales, offsets
     U8                  mMaterial;          // Material code
-    U8                  mNumTEs;            // # of faces on the primitve
     U8                  mNumBumpmapTEs;     // number of bumpmap TEs.
     U32                 mMiscFlags;         // home for misc bools
 
@@ -789,9 +759,10 @@ void LLPrimitive::setAcceleration(const F32 x, const F32 y, const F32 z)
 }
 #endif // CHECK_FOR_FINITE
 
-inline bool LLPrimitive::validTE(const U8 te_num) const
+inline bool LLPrimitive::validTE(const U8 te_index) const
 {
-    return (mNumTEs && te_num < mNumTEs);
+    U8 num_tes = mTextureList.size();
+    return (num_tes && te_index < num_tes);
 }
 
 #endif

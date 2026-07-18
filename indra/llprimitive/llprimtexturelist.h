@@ -41,6 +41,35 @@ class LLMaterialID;
 // are of some derived class: LLFooTextureEntry
 typedef std::vector<LLTextureEntry*> texture_list_t;
 
+// This code is not naming-standards compliant. Leaving it like this for
+// now to make the connection to code in
+//  bool packTEMessage(LLDataPacker &dp) const;
+// more obvious. This should be refactored to remove the duplication, at which
+// point we can fix the names as well.
+// - Vir
+struct LLTEContents
+{
+    static const U8 MAX_TES = 45;
+
+    LLUUID      image_data[MAX_TES];
+    LLColor4U   colors[MAX_TES];
+    F32    scale_s[MAX_TES];
+    F32    scale_t[MAX_TES];
+    S16    offset_s[MAX_TES];
+    S16    offset_t[MAX_TES];
+    S16    image_rot[MAX_TES];
+    U8     bump[MAX_TES];
+    U8     media_flags[MAX_TES];
+    U8     glow[MAX_TES];
+    LLMaterialID material_ids[MAX_TES];
+
+    static const U32 MAX_TE_BUFFER = 4096;
+    U8 packed_buffer[MAX_TE_BUFFER];
+
+    S32 size;
+    U8 face_count;
+};
+
 class LLPrimTextureList
 {
 public:
@@ -78,8 +107,8 @@ public:
     // IMPORTANT! -- if you use this function you must check the return value
     S32 takeTexture(const U8 index, LLTextureEntry* te);
 
-//  // copies contents of 'entry' and stores it in 'index' slot
-//  void copyTexture(const U8 index, const LLTextureEntry* entry);
+    // copies contents of 'entry' and stores it in 'index' slot
+    S32 copyTexture(const U8 index, const LLTextureEntry* entry);
 
     // returns pointer to texture at 'index' slot
     LLTextureEntry* getTexture(const U8 index) const;
@@ -109,10 +138,9 @@ public:
 
     LLMaterialPtr getMaterialParams(const U8 index);
 
-    S32 size() const;
+    U8 size() const;
 
-//  void forceResize(S32 new_size);
-    void setSize(S32 new_size);
+    void setSize(U8 new_size);
 
     void setAllIDs(const LLUUID& id);
 protected:

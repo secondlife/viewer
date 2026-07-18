@@ -62,7 +62,7 @@ class LLVolumeOctree;
 
 //============================================================================
 
-constexpr S32 MIN_DETAIL_FACES = 6;
+constexpr U8 MIN_DETAIL_FACES = 6;
 constexpr S32 MIN_LOD = 0;
 constexpr S32 MAX_LOD = 3;
 
@@ -201,7 +201,7 @@ constexpr U8 LL_SCULPT_FLAG_INVERT    = 64;
 constexpr U8 LL_SCULPT_FLAG_MIRROR    = 128;
 constexpr U8 LL_SCULPT_FLAG_MASK = LL_SCULPT_FLAG_INVERT | LL_SCULPT_FLAG_MIRROR;
 
-constexpr S32 LL_SCULPT_MESH_MAX_FACES = 8;
+constexpr U8 LL_SCULPT_MESH_MAX_FACES = 8;
 
 extern bool gDebugGL;
 
@@ -699,7 +699,7 @@ public:
 
     S32  getTotal() const                               { return mTotal; }
     S32  getTotalOut() const                            { return mTotalOut; }   // Total number of outside points
-    bool isFlat(S32 face) const                         { return (mFaces[face].mCount == 2); }
+    bool isFlat(U8 face) const                          { return (mFaces[face].mCount == 2); }
     bool isOpen() const                                 { return mOpen; }
     void setDirty()                                     { mDirty = true; }
 
@@ -1027,8 +1027,8 @@ public:
 
     U8 getProfileType() const                               { return mParams.getProfileParams().getCurveType(); }
     U8 getPathType() const                                  { return mParams.getPathParams().getCurveType(); }
-    S32 getNumFaces() const;
-    S32 getNumVolumeFaces() const                           { return static_cast<S32>(mVolumeFaces.size()); }
+    U8 getNumFaces() const;
+    U8 getNumVolumeFaces() const                            { return static_cast<U8>(mVolumeFaces.size()); }
     F32 getDetail() const                                   { return mDetail; }
     F32 getSurfaceArea() const                              { return mSurfaceArea; }
     const LLVolumeParams& getParams() const                 { return mParams; }

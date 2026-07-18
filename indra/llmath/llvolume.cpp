@@ -609,7 +609,7 @@ LLProfile::Face* LLProfile::addHole(const LLProfileParams& params, bool flat, F3
         mProfile[i] = pt[j--];
     }
 
-    for (S32 i=0;i<(S32)mFaces.size();i++)
+    for (U8 i=0;i<mFaces.size();i++)
     {
         if (mFaces[i].mCap)
         {
@@ -752,7 +752,6 @@ bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detai
     mFaces.resize(0);
 
     // Generate the face data
-    S32 i;
     F32 begin = params.getBegin();
     F32 end = params.getEnd();
     F32 hollow = params.getHollow();
@@ -776,14 +775,14 @@ bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detai
                 addCap (LL_FACE_PATH_BEGIN);
             }
 
-            for (i = llfloor(begin * 4.f); i < llfloor(end * 4.f + .999f); i++)
+            for (S32 i = llfloor(begin * 4.f); i < llfloor(end * 4.f + .999f); i++)
             {
                 addFace((face_num++) * (split +1), split+2, 1, LL_FACE_OUTER_SIDE_0 << i, true);
             }
 
             LLVector4a scale(1,1,4,1);
 
-            for (i = 0; i <(S32) mProfile.size(); i++)
+            for (S32 i = 0; i <(S32) mProfile.size(); i++)
             {
                 // Scale by 4 to generate proper tex coords.
                 mProfile[i].mul(scale);
@@ -821,7 +820,7 @@ bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detai
         {
             genNGon(params, 3,0, 0, 1, split);
             LLVector4a scale(1,1,3,1);
-            for (i = 0; i <(S32) mProfile.size(); i++)
+            for (S32 i = 0; i <(S32) mProfile.size(); i++)
             {
                 // Scale by 3 to generate proper tex coords.
                 mProfile[i].mul(scale);
@@ -833,7 +832,7 @@ bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detai
                 addCap(LL_FACE_PATH_BEGIN);
             }
 
-            for (i = llfloor(begin * 3.f); i < llfloor(end * 3.f + .999f); i++)
+            for (S32 i = llfloor(begin * 3.f); i < llfloor(end * 3.f + .999f); i++)
             {
                 addFace((face_num++) * (split +1), split+2, 1, LL_FACE_OUTER_SIDE_0 << i, true);
             }
@@ -2789,9 +2788,9 @@ bool LLVolume::cacheOptimize(bool gen_tangents)
 }
 
 
-S32 LLVolume::getNumFaces() const
+U8 LLVolume::getNumFaces() const
 {
-    return mIsMeshAssetLoaded ? getNumVolumeFaces() : (S32)mProfilep->mFaces.size();
+    return mIsMeshAssetLoaded ? getNumVolumeFaces() : static_cast<U8>(mProfilep->mFaces.size());
 }
 
 
@@ -2805,7 +2804,7 @@ void LLVolume::createVolumeFaces()
     }
     else
     {
-        S32 num_faces = getNumFaces();
+        U8 num_faces = getNumFaces();
         bool partial_build = true;
         if (num_faces != mVolumeFaces.size())
         {
@@ -2813,7 +2812,7 @@ void LLVolume::createVolumeFaces()
             mVolumeFaces.resize(num_faces);
         }
         // Initialize volume faces with parameter data
-        for (S32 i = 0; i < (S32)mVolumeFaces.size(); i++)
+        for (U8 i = 0; i < mVolumeFaces.size(); i++)
         {
             LLVolumeFace& vf = mVolumeFaces[i];
             LLProfile::Face& face = mProfilep->mFaces[i];
@@ -3734,7 +3733,7 @@ S32 LLVolume::getNumTriangles(S32* vcount) const
     U32 triangle_count = 0;
     U32 vertex_count = 0;
 
-    for (S32 i = 0; i < getNumVolumeFaces(); ++i)
+    for (U8 i = 0; i < getNumVolumeFaces(); ++i)
     {
         const LLVolumeFace& face = getVolumeFace(i);
         triangle_count += face.mNumIndices/3;
@@ -4247,7 +4246,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
     if (face == -1) // ALL_SIDES
     {
         start_face = 0;
-        end_face = getNumVolumeFaces() - 1;
+        end_face = static_cast<S32>(getNumVolumeFaces()) - 1;
     }
     else
     {
@@ -4260,7 +4259,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
 
     F32 closest_t = 2.f; // must be larger than 1
 
-    end_face = llmin(end_face, getNumVolumeFaces()-1);
+    end_face = llmin(end_face, static_cast<S32>(getNumVolumeFaces())-1);
 
     for (S32 i = start_face; i <= end_face; i++)
     {
@@ -4812,7 +4811,7 @@ LLFaceID LLVolume::generateFaceMask()
 bool LLVolume::isFaceMaskValid(LLFaceID face_mask)
 {
     LLFaceID test_mask = 0;
-    for(S32 i = 0; i < getNumFaces(); i++)
+    for(U8 i = 0; i < getNumFaces(); i++)
     {
         test_mask |= mProfilep->mFaces[i].mFaceID;
     }

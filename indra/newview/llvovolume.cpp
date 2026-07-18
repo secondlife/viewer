@@ -2257,32 +2257,33 @@ void LLVOVolume::setNumTEs(const U8 num_tes)
 {
     const U8 old_num_tes = getNumTEs() ;
 
-    if(old_num_tes && old_num_tes < num_tes) //new faces added
+    if(old_num_tes)
     {
-        LLViewerObject::setNumTEs(num_tes) ;
-
-        if(mMediaImplList.size() >= old_num_tes && mMediaImplList[old_num_tes -1].notNull())//duplicate the last media textures if exists.
+        if (old_num_tes < num_tes) //new faces added
         {
-            mMediaImplList.resize(num_tes) ;
-            const LLTextureEntry* te = getTE(old_num_tes - 1) ;
-            for(U8 i = old_num_tes; i < num_tes ; i++)
+            LLViewerObject::setNumTEs(num_tes) ;
+
+            if(mMediaImplList.size() >= old_num_tes && mMediaImplList[old_num_tes -1].notNull())//duplicate the last media textures if exists.
             {
-                setTE(i, *te) ;
-                mMediaImplList[i] = mMediaImplList[old_num_tes -1] ;
+                mMediaImplList.resize(num_tes) ;
+                const LLTextureEntry* te = getTE(old_num_tes - 1) ;
+                for(U8 i = old_num_tes; i < num_tes ; i++)
+                {
+                    setTE(i, *te) ;
+                    mMediaImplList[i] = mMediaImplList[old_num_tes -1] ;
+                }
+                mMediaImplList[old_num_tes -1]->setUpdated(true) ;
             }
-            mMediaImplList[old_num_tes -1]->setUpdated(true) ;
         }
-    }
-    else if(old_num_tes > num_tes && mMediaImplList.size() > num_tes) //old faces removed
-    {
-        U8 end = (U8)(mMediaImplList.size()) ;
-        for(U8 i = num_tes; i < end ; i++)
+        else if(old_num_tes > num_tes && mMediaImplList.size() > num_tes) //old faces removed
         {
-            removeMediaImpl(i) ;
+            U8 end = (U8)(mMediaImplList.size()) ;
+            for(U8 i = num_tes; i < end ; i++)
+            {
+                removeMediaImpl(i) ;
+            }
+            mMediaImplList.resize(num_tes) ;
         }
-        mMediaImplList.resize(num_tes) ;
-
-        LLViewerObject::setNumTEs(num_tes) ;
     }
     else
     {
