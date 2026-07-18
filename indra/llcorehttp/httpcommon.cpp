@@ -36,9 +36,9 @@
 namespace LLCore
 {
 
-HttpStatus::type_enum_t EXT_CURL_EASY;
-HttpStatus::type_enum_t EXT_CURL_MULTI;
-HttpStatus::type_enum_t LLCORE;
+const HttpStatus::type_enum_t HttpStatus::EXT_CURL_EASY;
+const HttpStatus::type_enum_t HttpStatus::EXT_CURL_MULTI;
+const HttpStatus::type_enum_t HttpStatus::LLCORE;
 
 HttpStatus::operator U32() const
 {
