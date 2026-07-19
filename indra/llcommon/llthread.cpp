@@ -314,11 +314,13 @@ void LLThread::shutdown()
             // The thread isn't already stopped
             // First, set the flag that indicates that we're ready to die
             setQuitting();
+            if (!isStopped())
+            {
+                // Give the thread a chance to update status.
+                yield();
+            }
 
             //LL_INFOS() << "LLThread::~LLThread() Killing thread " << mName << " Status: " << mStatus << LL_ENDL;
-            // Now wait a bit for the thread to exit
-            // It's unclear whether I should even bother doing this - this destructor
-            // should never get called unless we're already stopped, really...
             S32 counter = 0;
             const S32 MAX_WAIT = 600;
             while (counter < MAX_WAIT)
@@ -327,9 +329,9 @@ void LLThread::shutdown()
                 {
                     break;
                 }
-                // Sleep for a tenth of a second
-                ms_sleep(100);
-                yield();
+                // Sleep for 10ms, 6 seconds total, then give up and kill the thread
+                // Warning: This can be called from the main thread
+                ms_sleep(10);
                 counter++;
             }
         }

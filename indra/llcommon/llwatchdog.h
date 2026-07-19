@@ -107,6 +107,7 @@ public:
         bool crash_on_freeze);
     void run();
     void cleanup();
+    void shutdown();
 
 
 private:

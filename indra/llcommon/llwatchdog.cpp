@@ -51,6 +51,7 @@ public:
     {
         mStopping = true;
         mSleepMsecs = 1;
+        setQuitting();
     }
 
     void run() override
@@ -225,11 +226,20 @@ void LLWatchdog::init(
     mCrashOnFreeze = crash_on_freeze;
 }
 
+void LLWatchdog::shutdown()
+{
+    if (mTimer)
+    {
+        mTimer->stop();
+    }
+}
+
 void LLWatchdog::cleanup()
 {
     if (mTimer)
     {
         mTimer->stop();
+        mTimer->shutdown();
         delete mTimer;
         mTimer = nullptr;
     }
