@@ -1750,6 +1750,14 @@ bool LLAppViewer::cleanup()
     LLPluginProcessParent::shutdown();
 
     disconnectViewer();
+
+    if (LLWatchdog::instanceExists())
+    {
+        // Signal a stop early, so that it will be out
+        // of sleep loop by the time we get to clean it.
+        LLWatchdog::getInstance()->shutdown();
+    }
+
     LLViewerCamera::deleteSingleton();
 
     LL_INFOS() << "Viewer disconnected" << LL_ENDL;
@@ -2079,7 +2087,7 @@ bool LLAppViewer::cleanup()
     if (sTextureFetch)
     {
         sTextureFetch->shutdown();
-        sTextureFetch->waitOnPending();
+        sTextureFetch->waitOnPending(10.f);
         delete sTextureFetch;
         sTextureFetch = NULL;
     }
@@ -2124,7 +2132,10 @@ bool LLAppViewer::cleanup()
     gSavedSettings.cleanup();
     LLUIColorTable::instance().clear();
 
-    LLWatchdog::getInstance()->cleanup();
+    if (LLWatchdog::instanceExists())
+    {
+        LLWatchdog::getInstance()->cleanup();
+    }
 
     LLViewerAssetStatsFF::cleanup();
 
