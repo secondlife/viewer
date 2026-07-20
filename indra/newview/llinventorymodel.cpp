@@ -82,6 +82,7 @@ const S32 LLInventoryModel::sCurrentInvCacheVersion = 5;
 bool LLInventoryModel::sFirstTimeInViewer2 = true;
 
 S32 LLInventoryModel::sPendingSystemFolders = 0;
+std::vector<std::thread> LLInventoryModel::sPendingCacheThreads;
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -465,6 +466,7 @@ LLInventoryModel::~LLInventoryModel()
 
 void LLInventoryModel::cleanupInventory()
 {
+    LL_PROFILE_ZONE_SCOPED;
     empty();
     // Deleting one observer might erase others from the list, so always pop off the front
     while (!mObservers.empty())
@@ -2367,6 +2369,7 @@ void LLInventoryModel::cache(
     const LLUUID& parent_folder_id,
     const LLUUID& agent_id)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS(LOG_INV) << "Caching " << parent_folder_id << " for " << agent_id
                        << LL_ENDL;
     LLViewerInventoryCategory* root_cat = getCategory(parent_folder_id);
@@ -2401,17 +2404,56 @@ void LLInventoryModel::cache(
     }
     std::string gzip_filename = getInvCacheAddres(agent_id);
     gzip_filename.append(".gz");
-    if(gzip_file(temp_file, gzip_filename))
-    {
-        LL_DEBUGS(LOG_INV) << "Successfully compressed " << temp_file << " to " << gzip_filename << LL_ENDL;
-        LLFile::remove(temp_file);
-    }
-    else
-    {
-        LL_WARNS(LOG_INV) << "Unable to compress " << temp_file << " into " << gzip_filename << LL_ENDL;
-    }
+
+    // Launch detached packing thread
+    // Main thread is the only one modifying sPendingCacheThreads
+    sPendingCacheThreads.emplace_back(
+        [temp_file, gzip_filename]() {
+        LLTimer gzip_timer;
+
+        if (gzip_file(temp_file, gzip_filename))
+        {
+            F32 gzip_time = gzip_timer.getElapsedTimeF32();
+            LL_DEBUGS(LOG_INV) << "Successfully compressed " << temp_file
+                << " to " << gzip_filename
+                << " in " << gzip_time << "s (async)" << LL_ENDL;
+            LLFile::remove(temp_file);
+        }
+        else
+        {
+            LL_WARNS(LOG_INV) << "Unable to compress " << temp_file
+                << " into " << gzip_filename << LL_ENDL;
+        }
+    });
 }
 
+void LLInventoryModel::waitForPendingCacheWrites()
+{
+    LL_PROFILE_ZONE_SCOPED;
+
+    // By this point all threads should have already been added,
+    // viewer is shutting down, main thread is the only one to
+    // modify sPendingCacheThreads
+    if (!sPendingCacheThreads.empty())
+    {
+        LL_DEBUGS(LOG_INV) << "Waiting for " << sPendingCacheThreads.size()
+            << " inventory cache compression thread(s) to complete..." << LL_ENDL;
+
+        LLTimer wait_timer;
+
+        for (auto& thread : sPendingCacheThreads)
+        {
+            if (thread.joinable())
+            {
+                thread.join();
+            }
+        }
+
+        F32 wait_time = wait_timer.getElapsedTimeF32();
+        LL_INFOS(LOG_INV) << "Inventory cache compressions completed in "
+            << wait_time << "s" << LL_ENDL;
+    }
+}
 
 void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
 {
