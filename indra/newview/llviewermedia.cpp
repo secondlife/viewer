@@ -323,11 +323,23 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
         media_impl->mMediaHeight = media_entry->getHeightPixels();
         media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
         media_impl->mMediaEntryURL = media_entry->getCurrentURL();
+        bool transparent_bg_changed = (media_impl->mTransparentBackground != media_entry->getTransparentBackground());
+        media_impl->mTransparentBackground = media_entry->getTransparentBackground();
         if (media_impl->mMediaSource)
         {
             media_impl->mMediaSource->setAutoScale(media_impl->mMediaAutoScale);
             media_impl->mMediaSource->setLoop(media_impl->mMediaLoop);
             media_impl->mMediaSource->setSize(media_entry->getWidthPixels(), media_entry->getHeightPixels());
+            if (transparent_bg_changed)
+            {
+                // CEF transparent mode is init only, reload to take effect.
+                std::string current_url = media_impl->mMediaEntryURL;
+                media_impl->destroyMediaSource();
+                if (!current_url.empty())
+                {
+                    media_impl->navigateTo(current_url, "", false, false);
+                }
+            }
         }
 
         bool url_changed = (media_impl->mMediaEntryURL != previous_url);
@@ -369,6 +381,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
         media_impl->setHomeURL(media_entry->getHomeURL());
         media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
         media_impl->mMediaEntryURL = media_entry->getCurrentURL();
+        media_impl->mTransparentBackground = media_entry->getTransparentBackground();
         if(media_impl->isAutoPlayable())
         {
             needs_navigate = true;
@@ -1657,6 +1670,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(     const LLUUID& texture_id,
     mTrustedBrowser(false),
     mZoomFactor(1.0),
     mCleanBrowser(false),
+    mTransparentBackground(false),
     mMimeProbe(),
     mCanceling(false)
 {
@@ -1788,7 +1802,7 @@ void LLViewerMediaImpl::setMediaType(const std::string& media_type)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /*static*/
-LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target, bool clean_browser)
+LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target, bool clean_browser, bool transparent_background)
 {
     if (gNonInteractive)
     {
@@ -1877,6 +1891,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 
             media_source->setTarget(target);
+            media_source->setTransparentBackground(transparent_background);
 
             const std::string plugin_dir = gDirUtilp->getLLPluginDir();
             if (media_source->init(launcher_name, plugin_dir, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
@@ -1938,7 +1953,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
     // Save the MIME type that really caused the plugin to load
     mCurrentMimeType = mMimeType;
 
-    LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mZoomFactor, mTarget, mCleanBrowser);
+    LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mZoomFactor, mTarget, mCleanBrowser, mTransparentBackground);
 
     if (media_source)
     {

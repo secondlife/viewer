@@ -997,6 +997,13 @@ void LLPluginClassMedia::setJavascriptEnabled(const bool enabled)
     sendMessage(message);
 }
 
+void LLPluginClassMedia::setTransparentBackground(const bool enabled)
+{
+    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "transparent_background");
+    message.setValueBoolean("enable", enabled);
+    sendMessage(message);
+}
+
 void LLPluginClassMedia::setWebSecurityDisabled(const bool disabled)
 {
     LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "web_security_disabled");
