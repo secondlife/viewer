@@ -615,7 +615,7 @@ const LLUUID LLVOAvatar::sStepSounds[LL_MCODE_END] =
     SND_RUBBER_RUBBER
 };
 
-uuid_list_t LLVOAvatar::sEarlyApperanceList;
+uuid_list_t LLVOAvatar::sEarlyAppearanceList;
 
 S32 LLVOAvatar::sRenderName = RENDER_NAME_ALWAYS;
 S32 LLVOAvatar::sRenderGroupTitles = RENDER_GROUP_TITLE_ALWAYS;
@@ -782,10 +782,10 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
     sInstances.push_back(this);
 
-    uuid_list_t::iterator it = sEarlyApperanceList.find(id);
-    if (it != sEarlyApperanceList.end())
+    uuid_list_t::iterator it = sEarlyAppearanceList.find(id);
+    if (it != sEarlyAppearanceList.end())
     {
-        sEarlyApperanceList.erase(it);
+        sEarlyAppearanceList.erase(it);
         LL_INFOS("Avatar") << "Re-requesting AvatarAppearance for new avatar " << id << LL_ENDL;
         LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
     }

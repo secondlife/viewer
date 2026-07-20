@@ -954,7 +954,7 @@ public:
     // corresponding avatar could be created.
     static void registerEarlyAppearance(const LLUUID& av_id)
     {
-        sEarlyApperanceList.emplace(av_id);
+        sEarlyAppearanceList.emplace(av_id);
     }
 
     LLPointer<LLAppearanceMessageContents>  mLastProcessedAppearance;
@@ -990,7 +990,7 @@ private:
     bool            mIsEditingAppearance; // flag for if we're actively in appearance editing mode
     bool            mUseLocalAppearance; // flag for if we're using a local composite
 
-    static uuid_list_t  sEarlyApperanceList;
+    static uuid_list_t  sEarlyAppearanceList;
 
     //--------------------------------------------------------------------
     // Visibility
