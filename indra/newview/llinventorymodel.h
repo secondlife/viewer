@@ -199,9 +199,6 @@ public:
     // Wait for any pending async cache operations to complete
     static void waitForPendingCacheWrites();
 private:
-    // Async gzip compression tracking
-    static std::vector<std::thread> sPendingCacheThreads;
-
     // Information for tracking the actual inventory. We index this
     // information in a lot of different ways so we can access
     // the inventory using several different identifiers.
