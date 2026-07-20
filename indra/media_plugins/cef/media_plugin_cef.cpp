@@ -652,7 +652,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 // SL-15560: Product team overruled my change to set the default
                 // embedded background color to match the floater background
                 // and set it to white
-                settings.background_color = 0x00000000; // transparent
+                settings.background_color = 0x00ffffff; // transparent
 
                 settings.root_cache_path = mRootCachePath;
                 settings.cookies_enabled = mCookiesEnabled;
