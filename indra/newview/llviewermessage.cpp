@@ -4183,17 +4183,10 @@ void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data)
         avatarp->processAvatarAppearance( mesgsys );
         return;
     }
-    // Remember that this avatar needs to see its appearance re-requested when
-    // they will finally be created. HB
+    // The avatar object doesn't exist yet.
+    // We will re-request its appearance data after it is created.
     LLVOAvatar::registerEarlyAppearance(uuid);
-    if (uuid == gAgentID)
-    {
-        LL_WARNS("Messaging") << "AvatarAppearance message received before avatar is created." << LL_ENDL;
-    }
-    else
-    {
-        LL_WARNS("Messaging") << "AvatarAppearance message received for unknown avatar " << uuid << LL_ENDL;
-    }
+    LL_WARNS("Messaging") << "AvatarAppearance received for avatar " << uuid << " before object created" << LL_ENDL;
 }
 
 void process_camera_constraint(LLMessageSystem *mesgsys, void **user_data)
