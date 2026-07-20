@@ -2906,6 +2906,7 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
 
 void end_messaging_system(bool print_summary)
 {
+    LL_PROFILE_ZONE_SCOPED;
     gTransferManager.cleanup();
     LLTransferTargetVFile::updateQueue(true); // shutdown LLTransferTargetVFile
     if (gMessageSystem)

@@ -92,6 +92,7 @@ bool LLPluginClassMedia::init(const std::string &launcher_filename, const std::s
 
 void LLPluginClassMedia::reset()
 {
+    LL_PROFILE_ZONE_SCOPED;
     if(mPlugin)
     {
         mPlugin->requestShutdown();
