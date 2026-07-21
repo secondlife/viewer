@@ -983,12 +983,14 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 
     if (mThumbnailUUID.notNull())
     {
-        sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+        LLSD& thumbnail = sd[INV_THUMBNAIL_LABEL];
+        thumbnail[INV_ASSET_ID_LABEL] = mThumbnailUUID;
     }
 
     if (mFavorite)
     {
-        sd[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
+        LLSD& favorite = sd[INV_FAVORITE_LABEL];
+        favorite[INV_TOGGLED_LABEL] = mFavorite;
     }
 
     U32 mask = mPermissions.getMaskBase();
@@ -1005,7 +1007,7 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
         cipher.encrypt(shadow_id.mData, UUID_BYTES);
         sd[INV_SHADOW_ID_LABEL] = shadow_id;
     }
-    sd[INV_ASSET_TYPE_LABEL] = std::string(LLAssetType::lookup(mType));
+    sd[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
     const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
     if(!inv_type_str.empty())
     {
@@ -1298,12 +1300,14 @@ LLSD LLInventoryCategory::asLLSD() const
 
     if (mThumbnailUUID.notNull())
     {
-        sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+        LLSD& thumbnail = sd[INV_THUMBNAIL_LABEL];
+        thumbnail[INV_ASSET_ID_LABEL] = mThumbnailUUID;
     }
 
     if (mFavorite)
     {
-        sd[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
+        LLSD& favorite = sd[INV_FAVORITE_LABEL];
+        favorite[INV_TOGGLED_LABEL] = mFavorite;
     }
 
     return sd;
@@ -1563,17 +1567,19 @@ void LLInventoryCategory::exportLLSD(LLSD& cat_data) const
 {
     cat_data[INV_FOLDER_ID_LABEL] = mUUID;
     cat_data[INV_PARENT_ID_LABEL] = mParentUUID;
-    cat_data[INV_ASSET_TYPE_LABEL] = std::string(LLAssetType::lookup(mType));
+    cat_data[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
     cat_data[INV_PREFERRED_TYPE_LABEL] = LLFolderType::lookup(mPreferredType);
     cat_data[INV_NAME_LABEL] = mName;
 
     if (mThumbnailUUID.notNull())
     {
-        cat_data[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+        LLSD& thumbnail = cat_data[INV_THUMBNAIL_LABEL];
+        thumbnail[INV_ASSET_ID_LABEL] = mThumbnailUUID;
     }
     if (mFavorite)
     {
-        cat_data[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
+        LLSD& favorite = cat_data[INV_FAVORITE_LABEL];
+        favorite[INV_TOGGLED_LABEL] = mFavorite;
     }
 }
 

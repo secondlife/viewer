@@ -430,29 +430,31 @@ void LLInventoryModel::cleanupInventory()
 {
     LL_PROFILE_ZONE_SCOPED;
     empty();
-    // Deleting one observer might erase others from the list, so always pop off the front
-    while (!mObservers.empty())
+    // Deleting one observer might trigger removeObserver, so use a local copy
+    if (!mObservers.empty())
     {
-        observer_list_t::iterator iter = mObservers.begin();
-        LLInventoryObserver* observer = *iter;
-        mObservers.erase(iter);
-        delete observer;
+        observer_list_t observers_to_delete;
+        observers_to_delete.swap(mObservers);
+
+        for (LLInventoryObserver* observer : observers_to_delete)
+        {
+            delete observer;
+        }
     }
 
     if (mBulkFecthCallbackSlot.connected())
     {
         mBulkFecthCallbackSlot.disconnect();
     }
-    mObservers.clear();
 
     // Run down HTTP transport
     mHttpHeaders.reset();
     mHttpOptions.reset();
 
     delete mHttpRequestFG;
-    mHttpRequestFG = NULL;
+    mHttpRequestFG = nullptr;
     delete mHttpRequestBG;
-    mHttpRequestBG = NULL;
+    mHttpRequestBG = nullptr;
 }
 
 // This is a convenience function to check if one object has a parent
