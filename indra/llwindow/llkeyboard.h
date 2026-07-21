@@ -48,7 +48,7 @@ struct LLKeyPressState
         mState(state),
         mValue(value),
         mElapsedTime(0.0),
-        mElapsedFrames(0.0),
+        mElapsedFrames(0),
         mRepeat(false),
         mAnalog(false)
     {
@@ -63,7 +63,7 @@ struct LLKeyPressState
         mDown(down),
         mValue(value),
         mElapsedTime(0.0),
-        mElapsedFrames(0.0),
+        mElapsedFrames(0),
         mRepeat(false),
         mAnalog(false)
     {
@@ -109,7 +109,7 @@ public:
 
 
     F32             getCurKeyElapsedTime()  { return getKeyDown(mCurScanKey) ? getKeyElapsedTime( mCurScanKey ) : 0.f; }
-    S32             getCurKeyElapsedFrameCount()    { return getKeyDown(mCurScanKey) ? getKeyElapsedFrameCount( mCurScanKey ) : 0.0; }
+    S32             getCurKeyElapsedFrameCount()    { return getKeyDown(mCurScanKey) ? getKeyElapsedFrameCount( mCurScanKey ) : 0; }
     KEY             getCurScanKey() { return mCurScanKey; }
     bool            getKeyDown(const KEY key) { return mKeyLevel[key]; }
     bool            getKeyRepeated(const KEY key) { return mKeyRepeated[key]; }
