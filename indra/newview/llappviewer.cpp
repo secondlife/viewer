@@ -1749,14 +1749,14 @@ bool LLAppViewer::cleanup()
     // Give any remaining SLPlugin instances a chance to exit cleanly.
     LLPluginProcessParent::shutdown();
 
-    disconnectViewer();
-
     if (LLWatchdog::instanceExists())
     {
         // Signal a stop early, so that it will be out
-        // of sleep loop by the time we get to clean it.
+        // of 1s sleep loop by the time we get to clean it.
         LLWatchdog::getInstance()->shutdown();
     }
+
+    disconnectViewer();
 
     LLViewerCamera::deleteSingleton();
 
