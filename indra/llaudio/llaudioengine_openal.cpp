@@ -208,6 +208,9 @@ void LLAudioEngine_OpenAL::reopenOnDefaultDevice()
     LL_INFOS() << "OS default audio device changed; reopening OpenAL device (was: "
         << old_name << ")" << LL_ENDL;
 
+    // Clear any prior device error state so failures below report accurately.
+    (void)alcGetError(mALDevice);
+
     if (mReopenDeviceSOFT(mALDevice, NULL, NULL))
     {
         LL_INFOS() << "OpenAL device reopened successfully, now on: "
