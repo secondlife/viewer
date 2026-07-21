@@ -2454,6 +2454,7 @@ void LLInventoryModel::cache(
     // Main thread is the only one modifying sPendingCacheThreads
     auto compress_cache = [temp_file, gzip_filename]()
     {
+        LL_PROFILE_ZONE_NAMED("inv cache compression");
         LLTimer gzip_timer;
 
         if (gzip_file(temp_file, gzip_filename))
