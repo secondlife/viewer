@@ -2485,28 +2485,28 @@ void LLInventoryModel::cache(
 
 void LLInventoryModel::waitForPendingCacheWrites()
 {
+    if (sPendingCacheThreads.empty())
+    {
+        return;
+    }
     LL_PROFILE_ZONE_SCOPED;
 
     // By this point all threads should have already been added,
     // viewer is shutting down, main thread is the only one to
     // modify sPendingCacheThreads
-    if (!sPendingCacheThreads.empty())
+    LL_DEBUGS(LOG_INV) << "Waiting for " << sPendingCacheThreads.size()
+        << " inventory cache compression thread(s) to complete..." << LL_ENDL;
+
+    for (auto& thread : sPendingCacheThreads)
     {
-        LL_DEBUGS(LOG_INV) << "Waiting for " << sPendingCacheThreads.size()
-            << " inventory cache compression thread(s) to complete..." << LL_ENDL;
-
-        LLTimer wait_timer;
-
-        for (auto& thread : sPendingCacheThreads)
+        if (thread.joinable())
         {
-            if (thread.joinable())
-            {
-                thread.join();
-            }
+            thread.join();
         }
-
-        LL_INFOS(LOG_INV) << "Inventory cache compression completed" << LL_ENDL;
     }
+    sPendingCacheThreads.clear();
+
+    LL_INFOS(LOG_INV) << "Inventory cache compression completed" << LL_ENDL;
 }
 
 void LLInventoryModel::addCategory(LLViewerInventoryCategory* category)
