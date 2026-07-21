@@ -53,6 +53,12 @@ namespace
     static LLScrollListItem* sSelectedItem { nullptr };
     static LLScrollListCell* sSelectedCell { nullptr };
 
+    // The combobox popup currently overlaying sSelectedCell (one of the four
+    // action-mapping/output selectors below).  Stashed so applyGameControlInput()
+    // can drive it (and reuse onCommitInputChannel()) without having to re-derive
+    // which selector initCombobox() chose.
+    static LLComboBox* sSelectedCombobox { nullptr };
+
     // The selector combobox overlays the edited cell, but its drop-down button
     // texture is semi-transparent, so the cell's own text shows through and
     // "doubles" with the selector's label.  While a selector is open we blank
@@ -359,6 +365,7 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
     sSelectedGrid = grid;
     sSelectedItem = item;
     sSelectedCell = cell;
+    sSelectedCombobox = combobox;
 
     // Hide the cell's text under the (translucent) selector so it doesn't
     // double with the selector's label; clearSelectionState() restores it.
@@ -476,12 +483,44 @@ bool LLPanelPreferenceGameControl::isWaitingForInputChannel()
     return sSelectedCell != nullptr;
 }
 
-// Static method called when controller input is detected while a channel selector is open.
-// Automatically assigns the detected input channel to the selected cell.
-// NOTE: live-input capture is currently disabled (stub); the selector popups are the
-// only way to assign an input.
+// Static method called in the mainloop when an Action Mappings input selector is open.
+// Refreshes the canonical controller state, and if the user is pressing a button or
+// tilting an axis that matches the kind of selector open (button vs. axis), assigns
+// it to the selected cell as if the user had picked it from the dropdown.
 void LLPanelPreferenceGameControl::applyGameControlInput()
 {
+    if (!sGameControlPanel || !sSelectedCombobox)
+        return;
+
+    bool wants_axis = (sSelectedGrid == sGameControlPanel->mActionMappingsAxes);
+    bool wants_button = (sSelectedGrid == sGameControlPanel->mActionMappingsButtons);
+    if (!wants_axis && !wants_button)
+        return;
+
+    // Recompute the canonical controller state from the live device input without
+    // triggering the normal "send to server" bookkeeping (see computeFinalStateAndCheckForChanges()),
+    // since input used to configure a mapping should not drive the avatar or the network.
+    LLGameControl::computeFinalState();
+
+    LLGameControl::InputChannel channel = LLGameControl::getActiveInputChannel();
+    if (wants_axis && !channel.isAxis())
+        return;
+    if (wants_button && !channel.isButton())
+        return;
+
+    std::string value = channel.getRemoteName();
+    if (!sSelectedCombobox->setSelectedByValue(value, true))
+    {
+        // The action-mapping axis selector has no entries for the individual
+        // trigger axes: it collapses them into one virtual "Triggers" item
+        // (see AXIS_TRIGGERS in panel_preferences_game_control.xml).
+        if (value != "AXIS_LEFT_TRIGGER" && value != "AXIS_RIGHT_TRIGGER")
+            return;
+        if (!sSelectedCombobox->setSelectedByValue(std::string("AXIS_TRIGGERS"), true))
+            return;
+    }
+
+    sGameControlPanel->onCommitInputChannel(sSelectedCombobox);
 }
 
 // Handles selection in the axis-channels table (invert, deadzone, offset, output).
@@ -1701,6 +1740,7 @@ void LLPanelPreferenceGameControl::clearSelectionState()
     sSelectedGrid = nullptr;
     sSelectedItem = nullptr;
     sSelectedCell = nullptr;
+    sSelectedCombobox = nullptr;
     mNumericValueEditor->setVisible(false);
     mAxisInputSelector->setVisible(false);
     mAxisOutputSelector->setVisible(false);
