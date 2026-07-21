@@ -460,7 +460,6 @@ private:
     // std::vector<S16> mAxesMappedAccumulator;
     // LLGameControl::State mAccumulatedState;
     // LLGameControl::State mMappedAccumulatedState;
-    U32 mButtonAccumulator { 0 };
     U32 mLastActiveFlags { 0 };
     U32 mLastFlycamActionFlags { 0 };
     SDL_JoystickID mlastActiveControllerID { 0 };
