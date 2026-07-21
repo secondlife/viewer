@@ -103,7 +103,7 @@ void LLGameControlTranslator::calculateTranslatedAxes(
 
         if(from.first == LLGameControl::ActionType::BUTTON)
         {
-            dof = 1.0 * ((state.mButtons & (1 << from.second)) > 0);
+            dof = (state.mButtons & (1 << from.second)) > 0;
         }
         else if(from.first == LLGameControl::ActionType::DOF)
         {
