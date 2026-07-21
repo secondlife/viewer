@@ -979,13 +979,18 @@ static void update_face_stream_vsize(LLFace* face)
     const LLVector4a* ext = face->isState(LLFace::RIGGED) ? face->mRiggedExtents : face->mExtents;
     LLVector4a diag;
     diag.setSub(ext[1], ext[0]);
-    // World area of the face ~ product of the two largest AABB dims (max
-    // pairwise product; robust for flat faces).
+    // Effective world area = (longest AABB dim)^2, not true area: mip need is
+    // driven by the longest axis (anisotropic sampling reads fine mips along
+    // it), and a true-area basis pins small/elongated faces (trim, signs) at
+    // the deepest mip. Matches legacy's bounding-disc basis for elongated
+    // faces, tighter for square ones.
     F32 dx = diag[0], dy = diag[1], dz = diag[2];
-    F32 area_world = llmax(dx * dy, llmax(dx * dz, dy * dz));
-    // Pixels per meter at the nearest point. Distance floored: nearer than
-    // this the screen clamp below governs anyway.
-    F32 dist = llmax(face->mDistanceToCamera, 0.5f);
+    F32 longest = llmax(dx, llmax(dy, dz));
+    F32 area_world = longest * longest;
+    // Pixels per meter at the nearest point. Floor is tiny (matching legacy's
+    // 0.001): small faces inspected up close land UNDER the screen clamp, so
+    // a coarse floor costs them a mip+.
+    F32 dist = llmax(face->mDistanceToCamera, 0.01f);
     F32 ppm = LLDrawable::sCurPixelAngle / dist;
     F32 face_px = area_world * ppm * ppm;
     if (face_px <= 0.f)
@@ -1359,15 +1364,31 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         {
             imagep->mLastVisibleFrame = LLFrameTimer::getFrameCount();
         }
-    }
 
-#if 0
-    imagep->setDebugText(llformat("%d/%d -- %d/%d",
-        imagep->getDiscardLevel(),
-        imagep->getDesiredDiscardLevel(),
-        imagep->getWidth(),
-        imagep->getFullWidth()));
-#endif
+        // In-world streaming diagnostics: current/desired discard, held/full
+        // dims, measured coverage, behindness, off-screen flag, frames since
+        // last confirmed visible.
+        static LLCachedControl<bool> stream_debug(gSavedSettings, "TextureStreamDebugText", false);
+        if (stream_debug)
+        {
+            imagep->setDebugText(llformat("d%d>%d %d/%d r %.3f cov %.0f [N %.0f/%.0f BC %.0f/%.0f S %.0f/%.0f E %.0f/%.0f] i %.1f>%.1f b %.2f%s v %d",
+                imagep->getDiscardLevel(),
+                imagep->getDesiredDiscardLevel(),
+                imagep->getWidth(),
+                imagep->getFullWidth(),
+                LLViewerTexture::sPixelToTexelRatio,
+                max_coverage,
+                imagep->mChannelCoverage[0], imagep->mChannelCoverageMin[0],
+                imagep->mChannelCoverage[1], imagep->mChannelCoverageMin[1],
+                imagep->mChannelCoverage[2], imagep->mChannelCoverageMin[2],
+                imagep->mChannelCoverage[3], imagep->mChannelCoverageMin[3],
+                imagep->mDbgIdealPolicy,
+                imagep->mDbgIdealFinal,
+                imagep->mBehindness,
+                imagep->mOnScreen ? "" : " OFF",
+                (S32)(LLFrameTimer::getFrameCount() - imagep->mLastVisibleFrame)));
+        }
+    }
 
     F32 max_inactive_time = 20.f; // inactive time before deleting saved raw image
     S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, and 1 for "entries" in updateImagesFetchTextures

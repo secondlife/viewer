@@ -243,6 +243,12 @@ protected:
     // unmeasured content in computeDesiredDiscard.
     mutable U32 mLastMeasuredFrame = 0;
 
+    // Debug taps for the TextureStreamDebugText overlay: continuous ideal
+    // discard before (policy) and after (final) the unload lifecycle.
+    // -1 = not computed this visit (early return / unmeasured).
+    mutable F32 mDbgIdealPolicy = -1.f;
+    mutable F32 mDbgIdealFinal = -1.f;
+
     // Membership flag for LLViewerTextureList::mFastFetchList (dedup).
     bool mInFastFetchList = false;
 

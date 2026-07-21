@@ -520,12 +520,13 @@ void LLViewerTexture::updateClass()
     // -Geenz 2025-03-21
     F32 vram_budget = max_vram_budget == 0 ? llmax(1024, (F32)gGLManager.mVRAM / tex_vram_divisor) : (F32)max_vram_budget;
 
-    // Try to leave at least half a GB for everyone else and for bias,
-    // but keep at least 768MB for ourselves
-    // Viewer can 'overshoot' target when scene changes, if viewer goes over budget it
-    // can negatively impact performance, so leave 20% of a breathing room for
-    // 'bias' calculation to kick in.
-    F32 vram_target = llmax(llmin(vram_budget - 512.f, vram_budget * 0.8f), MIN_VRAM_BUDGET);
+    // Leave VRAM in reserve for other applications. Applied before the
+    // watermarks.
+    static LLCachedControl<F32> vram_reserve(gSavedSettings, "TextureVRAMReserve", 0.2f);
+    vram_budget *= 1.f - llclamp((F32)vram_reserve, 0.f, 0.9f);
+
+    // Keep at least half a GB for everyone else, but at least 768MB for us.
+    F32 vram_target = llmax(vram_budget - 512.f, MIN_VRAM_BUDGET);
     sFreeVRAMMegabytes = vram_target - vram_used;
 
     // VRAM pressure controller for the global pixel:texel ratio. Tightens above
@@ -564,11 +565,17 @@ void LLViewerTexture::updateClass()
         }
         else if (vram_used > high)
         {
-            sPixelToTexelRatio -= llmax((F32)tighten_rate, 0.f) * dt;
+            // Proportional, not constant-rate: full speed only when far past
+            // the watermark, tapering to 0 at the band edge. The constant-rate
+            // relay + lagging actuator (instant quantized evict, seconds-slow
+            // refetch) limit-cycled the whole scene between r~0 and r~1.
+            F32 p = llclamp((vram_used - high) / llmax(vram_budget * 0.1f, 1.f), 0.f, 1.f);
+            sPixelToTexelRatio -= llmax((F32)tighten_rate, 0.f) * p * dt;
         }
         else if (vram_used < low)
         {
-            sPixelToTexelRatio += llmax((F32)relax_rate, 0.f) * dt;
+            F32 p = llclamp((low - vram_used) / llmax(vram_budget * 0.1f, 1.f), 0.f, 1.f);
+            sPixelToTexelRatio += llmax((F32)relax_rate, 0.f) * p * dt;
         }
         // else: hold in the hysteresis band.
 
@@ -2080,15 +2087,6 @@ bool LLViewerFetchedTexture::updateFetch()
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - priority <= 0");
         make_request = false;
     }
-    else if (mDesiredDiscardLevel > (S32)mCodecMaxDiscardLevel &&
-             current_discard >= 0)
-    {
-        // Desired is past codec_max. Only scaleDown can satisfy it.
-        // Applies even when current is also past codec_max (post-scaleDown);
-        // re-fetching at codec_max then scaleDown-ing again is pure thrash.
-        LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - desired > codec max");
-        make_request = false;
-    }
     else  if (mNeedsCreateTexture || mIsMissingAsset)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - create or missing");
@@ -2116,8 +2114,12 @@ bool LLViewerFetchedTexture::updateFetch()
         }
         else
         {
-            // already at a higher resolution mip, don't discard
-            if (current_discard >= 0 && current_discard <= desired_discard)
+            // Already at-or-finer than POLICY wants - compare against
+            // mDesiredDiscardLevel, not the codec-clamped request level:
+            // when policy wants coarser than the codec encodes, current
+            // settles past codec max via scaleDown, and comparing against
+            // the clamped value refetched data we just scaled away.
+            if (current_discard >= 0 && current_discard <= (S32)mDesiredDiscardLevel)
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - current <= desired");
                 make_request = false;
@@ -3086,6 +3088,8 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) c
         // Unmeasured is usually a transient rebuild: hold the current level
         // for a dwell before treating it as unused (this path bypasses the
         // hysteresis, so a premature slam is a full-depth bounce).
+        mDbgIdealPolicy = -1.f;
+        mDbgIdealFinal = -1.f;
         const S32 current_level = getDiscardLevel();
         if (current_level >= 0 && mLastMeasuredFrame > 0
             && (LLFrameTimer::getFrameCount() - mLastMeasuredFrame) <= dwell)
@@ -3095,6 +3099,7 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) c
         return dim_max_i;   // never measured / persistently unmeasured -> coarsest mip
     }
     mLastMeasuredFrame = LLFrameTimer::getFrameCount();
+    mDbgIdealPolicy = ideal;
 
     // Unload lifecycle (avatar bakes exempt): two independent signals, deeper
     // one wins (max, not sum). Angular = out-of-frustum, ramping to full
@@ -3156,6 +3161,7 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) c
     // (a 2048 map can't hit its own resolution on a 1080p screen), which reads
     // as everything being blurry. Pressure still evicts by lowering R_global.
     ideal = llmax(ideal, 0.f);
+    mDbgIdealFinal = ideal;
 
     const S32 target = (S32)floor(ideal);
 

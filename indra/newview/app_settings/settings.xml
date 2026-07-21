@@ -12179,6 +12179,17 @@
         <key>Value</key>
         <real>1.0</real>
     </map>
+    <key>TextureStreamDebugText</key>
+    <map>
+      <key>Comment</key>
+      <string>Show per-texture streaming diagnostics as floating debug text on objects: current&gt;desired discard, held/full dims, measured coverage (px^2), behindness, off-screen flag, frames since last confirmed visible.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>TextureUnloadDwellSeconds</key>
     <map>
       <key>Comment</key>
@@ -12189,6 +12200,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.0</real>
+    </map>
+    <key>TextureVRAMReserve</key>
+    <map>
+      <key>Comment</key>
+      <string>Fraction of the texture VRAM budget held in reserve for other applications. Applied before the pressure watermarks. 0..0.9.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.2</real>
     </map>
     <key>ThreadPoolSizes</key>
     <map>
