@@ -77,10 +77,17 @@ S32 LLUIImage::getHeight() const
 
 buffer_data_list_t* LLUIImage::findDisplayList(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, bool solid_color) const
 {
+    LLImageGL* gl_image = mImage->getGLTexture();
+    if (!gl_image)
+    {
+        return nullptr;
+    }
+
     LLVector3 ui_translation = gGL.getUITranslation();
     LLVector3 ui_scale = gGL.getUIScale();
+    LLGLuint tex_name = gl_image->getTexName();
 
-    auto key = PackedKey::create(x, y, width, height, color, solid_color, ui_translation, ui_scale);
+    auto key = PackedKey::create(x, y, width, height, color, solid_color, ui_translation, ui_scale, tex_name);
 
     auto it = mDisplayLists.find(key);
     if (it != mDisplayLists.end())
@@ -94,9 +101,23 @@ buffer_data_list_t* LLUIImage::findDisplayList(S32 x, S32 y, S32 width, S32 heig
 buffer_data_list_t* LLUIImage::genDisplayList(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, bool solid_color) const
 {
     LL_PROFILE_ZONE_SCOPED;
+
+    LLImageGL* gl_image = mImage->getGLTexture();
+    if (!gl_image)
+    {
+        // Don't cache when texture hasn't been created yet
+        // draw just aborts in this case, so don't draw either.
+        return nullptr;
+    }
+
     LLVector3 ui_translation = gGL.getUITranslation();
     LLVector3 ui_scale = gGL.getUIScale();
-    auto key = PackedKey::create(x, y, width, height, color, solid_color, ui_translation, ui_scale);
+
+    // Get the GL texture name - this uniquely identifies the current texture state
+    // including discard level changes, texture recreation, etc.
+    LLGLuint tex_name = gl_image->getTexName();
+
+    auto key = PackedKey::create(x, y, width, height, color, solid_color, ui_translation, ui_scale, tex_name);
 
     CachedDisplayList cached;
     cached.last_used = std::chrono::steady_clock::now();
