@@ -2248,11 +2248,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e88a7c97a6843d43e0093388f211299ec2892790</string>
+              <string>9029bba6c40e4a7feb9df576c9f0d1fdcb6e723d</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-viewer-fonts/releases/download/v1.1.0-r1/viewer_fonts-1.0.0.10204976553-common-10204976553.tar.zst</string>
+              <string>https://github.com/secondlife/3p-viewer-fonts/releases/download/v1.1.1-pre-r0/viewer_fonts-1.0.0.29798070195-common-29798070195.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2263,9 +2263,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>license_file</key>
         <string>LICENSES/fonts.txt</string>
         <key>copyright</key>
-        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT</string>
+        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT, Copyright (c) 2003 by Bitstream, Inc., Copyright (c) 2006 by Tavmjong Bah, Copyright Yukari Hafner (Shinmera) SIL-OFL-1.1.</string>
         <key>version</key>
-        <string>1.0.0.10204976553</string>
+        <string>1.0.0.29798070195</string>
         <key>name</key>
         <string>viewer-fonts</string>
         <key>description</key>

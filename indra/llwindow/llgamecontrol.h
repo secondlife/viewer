@@ -435,20 +435,29 @@ public:
     static constexpr U32 ACTION_TOGGLE_3RD_PERSON = 38;
 
     // Result of translating controller/keyboard State into agent actions:
-    // mControlFlags holds the AGENT_CONTROL_* bits (OR-combinable), while
-    // mMiscActions holds any ACTION_TOGGLE_* (or future non-flag) actions,
-    // in the order they were detected.
+    // mControlFlags holds the AGENT_CONTROL_* bits (OR-combinable), mMiscActions
+    // holds any ACTION_TOGGLE_* (or future non-flag) actions in the order they
+    // were detected, and mIsRunning is the final walk/run decision -- true when
+    // either the "Toggle run" button is currently engaged or the movement axes
+    // are pushed hard enough (see LLGameControllerManager::computeAgentActions()).
     struct AgentActions
     {
         std::vector<U32> mMiscActions;
         U32 mControlFlags { 0 };
+        bool mIsRunning { false };
     };
 
     // Keyboard presses produce action_flags which can be translated into State
     // and game_control devices produce State which can be translated into action_flags.
     // These methods help exchange such translations.
     static AgentActions computeAgentActions();
-    static void setExternalInput(U32 action_flags, U32 buttons_from_keys);
+
+    // is_running mirrors gAgent::getRunning() (the same walk/run state
+    // computeAgentActions()/RUN_ENGAGE_FRACTION derive from an analog controller
+    // axis): translated movement axes are set to full deflection when running,
+    // half deflection when walking -- approximating the walk/run threshold as a
+    // 50% stick tilt, per LLGameControllerManager::computeAgentActions().
+    static void setExternalInput(U32 action_flags, U32 buttons_from_keys, bool is_running);
 
     // call this after putting a GameControlInput packet on the wire
     static void updateResendPeriod();
