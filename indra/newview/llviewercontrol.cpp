@@ -128,6 +128,10 @@ namespace
         F32 channel_ratio_basecolor;    // TextureChannelRatioBaseColor
         F32 channel_ratio_specular;     // TextureChannelRatioSpecular
         F32 channel_ratio_emissive;     // TextureChannelRatioEmissive
+        F32 offscreen_unload_bias;      // TextureOffscreenUnloadBias
+        F32 gc_step_seconds;            // TextureGCStepSeconds  (wall-clock)
+        F32 cooldown_step_seconds;      // TextureCooldownStepSeconds
+        F32 uprez_margin;               // TextureUpRezMargin
     };
 
     // Tier values: Low (2-4GB), Medium (4-8GB), High (8-16GB), Ultra (16+GB).
@@ -138,15 +142,19 @@ namespace
     //    floor (down to 0 = deepest mips), so there is no per-tier minimum.
     //  - the channel ratios coarsen specular/emissive/normal relative to base
     //    color (each is a multiplier on the global ratio).
+    //  - offscreen_unload_bias (UB) is the behindness (0 = frustum edge,
+    //    1 = directly behind) at which out-of-frustum content reaches full
+    //    unload: lower tiers slam sooner; High/Ultra (1.0) only reach full
+    //    unload directly behind the camera.
     // The pressure water marks (TexturePressureHighWater/LowWater) are NOT tiered - they're a
     // physical "crossed the budget" threshold (0.90 / 0.70), constant across
     // tiers. Lower tiers start blurrier (lower R_max) and tighten faster.
-    //                            max_res  Rmax   tight  relax  N      BC     S      E
+    //                            max_res  Rmax   tight  relax  N      BC     S      E       UB     GC     CD     UR
     static constexpr TexturePreset TEXTURE_PRESETS[4] = {
-        /* 0 Low    */ { "Low",    1024,   0.10f, 0.50f, 0.05f, 0.50f, 1.00f, 0.25f, 0.25f },
-        /* 1 Medium */ { "Medium", 2048,   0.40f, 0.35f, 0.08f, 1.00f, 1.00f, 0.50f, 0.50f },
-        /* 2 High   */ { "High",   2048,   0.80f, 0.25f, 0.10f, 1.00f, 1.00f, 0.50f, 1.00f },
-        /* 3 Ultra  */ { "Ultra",  2048,   1.00f, 0.15f, 0.12f, 1.00f, 1.00f, 1.00f, 1.00f },
+        /* 0 Low    */ { "Low",    1024,   0.10f, 0.50f, 0.05f, 0.50f, 1.00f, 0.25f, 0.25f,  0.25f,  1.0f,  5.0f,  0.2f },
+        /* 1 Medium */ { "Medium", 2048,   0.40f, 0.35f, 0.08f, 1.00f, 1.00f, 0.50f, 0.50f,  0.50f,  1.0f,  5.0f,  0.2f },
+        /* 2 High   */ { "High",   2048,   0.80f, 0.25f, 0.10f, 1.00f, 1.00f, 0.50f, 1.00f,  1.00f,  2.0f,  5.0f,  0.2f },
+        /* 3 Ultra  */ { "Ultra",  2048,   1.00f, 0.15f, 0.12f, 1.00f, 1.00f, 1.00f, 1.00f,  1.00f,  2.0f,  5.0f,  0.2f },
     };
 }
 
@@ -164,6 +172,10 @@ static bool handleRenderTextureQualityChanged(const LLSD& newvalue)
     gSavedSettings.setF32("TextureChannelRatioBaseColor",   p.channel_ratio_basecolor);
     gSavedSettings.setF32("TextureChannelRatioSpecular",    p.channel_ratio_specular);
     gSavedSettings.setF32("TextureChannelRatioEmissive",    p.channel_ratio_emissive);
+    gSavedSettings.setF32("TextureOffscreenUnloadBias",     p.offscreen_unload_bias);
+    gSavedSettings.setF32("TextureGCStepSeconds",           p.gc_step_seconds);
+    gSavedSettings.setF32("TextureCooldownStepSeconds",     p.cooldown_step_seconds);
+    gSavedSettings.setF32("TextureUpRezMargin",             p.uprez_margin);
 
     LL_INFOS("TextureStream") << "Applied texture quality preset: " << p.name << LL_ENDL;
     return true;

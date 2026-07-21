@@ -2454,19 +2454,25 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
         mImportanceToCamera = LLFace::calcImportanceToCamera(cos_angle_to_view_dir, dist) ;
     }
 
-    // On-screen test: does the face's projected disc overlap the screen disc?
-    // (Same construction as adjustPartialOverlapPixelArea.) Behind-camera faces
-    // get acos(cos) near pi and fall out; the generous screen radius errs toward
-    // "on screen" so fetch admission never starves edge content. mFrustumOverflow
-    // is how far past the boundary the disc sits, as a fraction of screen size -
-    // 0 on screen, 0.1 = 10% of a screen out - and feeds the frustum allowance
-    // falloff in computeDesiredDiscard.
+    // Screen-disc overlap -> mInFrustum; angular off-screen-ness ->
+    // mBehindness (0 = on screen, 1 = directly behind). Feeds fetch
+    // admission and the off-screen falloff in computeDesiredDiscard.
     {
         F32 center_px = acosf(llclamp(cos_angle_to_view_dir, -1.f, 1.f)) * LLDrawable::sCurPixelAngle;
         F32 screen_radius = (F32)llmax(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
         F32 past_edge = center_px - radius - screen_radius;
         mInFrustum = past_edge <= 5.f;
-        mFrustumOverflow = llmax(past_edge - 5.f, 0.f) / screen_radius;
+
+        // Two boundaries on purpose: mInFrustum stays generous (fetch
+        // admission errs open); mBehindness starts at the circumscribed disc
+        // (~the real frustum edge) so everything outside the view belongs to
+        // the angular policy, never the GC.
+        F32 w = (F32)gViewerWindow->getWindowWidthRaw();
+        F32 h = (F32)gViewerWindow->getWindowHeightRaw();
+        F32 screen_half_diag = 0.5f * sqrtf(w * w + h * h);
+        F32 ang = acosf(llclamp(cos_angle_to_view_dir, -1.f, 1.f));
+        F32 edge_ang = (radius + screen_half_diag + 5.f) / LLDrawable::sCurPixelAngle;
+        mBehindness = llclamp((ang - edge_ang) / llmax(F_PI - edge_ang, 0.001f), 0.f, 1.f);
     }
 
     mLastCosAngleToViewDir = cos_angle_to_view_dir;

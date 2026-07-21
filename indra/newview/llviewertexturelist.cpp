@@ -1134,7 +1134,12 @@ static void update_face_stream_vsize(LLFace* face)
 
 void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep, bool flush_images)
 {
-    llassert(!gCubeSnapshot);
+    // Real guard, not llassert (compiled out in Release): streaming inputs
+    // are world-view-only; a probe capture's camera would poison them.
+    if (gCubeSnapshot)
+    {
+        return;
+    }
 
     // Refresh spotlight priorities first: light projector textures register as
     // LIGHT_TEX volumes (no faces), and both their fetch priority
@@ -1162,7 +1167,8 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         F32 max_coverage = 0.f;
         bool on_screen = false;   // any face's projected disc overlaps the screen
         bool any_face = false;
-        F32 min_overflow = FLT_MAX; // least out-of-frustum use across faces
+        F32 min_behindness = FLT_MAX; // least-behind (most on-screen) use across faces
+        bool any_visible = false; // any measured face's object is visible or merely frustum-culled (only occlusion stalls the GC clock)
 
 
         U32 face_count = 0;
@@ -1194,6 +1200,9 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                 }
             }
             max_coverage = (F32)MAX_IMAGE_AREA;
+            // Used in too many places to scan - treat as visible so the GC clock
+            // keeps advancing (same full-screen reasoning as the coverage above).
+            any_visible = true;
         }
         else
         {
@@ -1235,7 +1244,28 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 
                     any_face = true;
                     on_screen = on_screen || face->mInFrustum;
-                    min_overflow = llmin(min_overflow, face->mFrustumOverflow);
+                    min_behindness = llmin(min_behindness, face->mBehindness);
+
+                    // GC clock: the world camera's occlusion verdict is the
+                    // only input. The drawable cull stamp is pass-agnostic
+                    // (shadow/probe culls write it too) and must not drive
+                    // residency; the occlusion slot is world-pure. Out of
+                    // frustum the flag is frozen, so those faces always count
+                    // visible - the angular ramp owns them.
+                    LLDrawable* drawablep = face->getDrawable();
+                    bool visible;
+                    if (face->mBehindness > 0.f)
+                    {
+                        visible = true;   // out of frustum - angular policy territory
+                    }
+                    else
+                    {
+                        LLSpatialGroup* group = drawablep ? drawablep->getSpatialGroup() : nullptr;
+                        bool occluded = LLPipeline::sUseOcclusion > 1 && group &&
+                                        group->isOcclusionState(LLSpatialGroup::OCCLUDED);
+                        visible = !occluded;
+                    }
+                    any_visible = any_visible || visible;
 
                     if (bucket >= 0 && bucket < 4)
                     {
@@ -1315,9 +1345,20 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         // spotlights, the >1024-face boost path, not-yet-built geometry) stay
         // eligible - blocking them is what stalls load-in.
         imagep->mOnScreen = on_screen || !any_face;
-        // Least out-of-frustum use governs the allowance falloff; unknown = 0
+        // Least-behind use governs the off-screen unload falloff; unknown = 0
         // (no penalty), same reasoning as mOnScreen.
-        imagep->mFrustumOverflow = any_face ? min_overflow : 0.f;
+        imagep->mBehindness = any_face ? min_behindness : 0.f;
+
+        // Stamp the occlusion GC's staleness clock whenever a measured face
+        // passed the cull verdict this sweep. Textures with no scannable faces
+        // (bakes, spotlights, terrain, not-yet-built geometry) count as visible
+        // so the GC never ages out content it can't see - same never-starve rule
+        // as mOnScreen above. computeDesiredDiscard reads LLFrameTimer's frame
+        // count, so stamp from the same source (not gFrameCount).
+        if (any_visible || !any_face)
+        {
+            imagep->mLastVisibleFrame = LLFrameTimer::getFrameCount();
+        }
     }
 
 #if 0

@@ -273,10 +273,11 @@ public:
     // by calcPixelArea() (sticky between its throttled updates). Drives per-texture
     // fetch admission (LLViewerTextureList::updateImageDecodePriority -> mOnScreen).
     bool mInFrustum = false;
-    // How far past the screen boundary the projected disc sits, as a fraction of
-    // screen size (0 = on screen). Feeds the frustum-allowance falloff so barely
-    // out-of-view content keeps its resolution. Maintained with mInFrustum.
-    F32 mFrustumOverflow = 0.f;
+    // Angular off-screen-ness of the face: 0 = projected disc overlaps the screen
+    // (or ahead), 1 = directly behind the camera. Maintained with mInFrustum by
+    // calcPixelArea (sticky between throttled updates); drives the off-screen
+    // unload falloff.
+    F32 mBehindness = 0.f;
     // value of gFrameCount the last time the face was touched by LLViewerTextureList::updateImageDecodePriority
     U32 mLastTextureUpdate = 0;
     // Cached per-channel streaming coverage (repeat-adjusted screen pixels),
