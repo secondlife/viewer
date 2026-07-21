@@ -1904,7 +1904,7 @@ void LLViewerInput::scanController()
         {
             keyState.mElapsedTime = LLGameControl::getControllerHeldTime(LLGameControl::ActionType::DOF, i);
             keyState.mElapsedFrames = LLGameControl::getControllerHeldFrames(LLGameControl::ActionType::DOF, i);
-            keyState.mValue = std::clamp(((F32)current) / 32767.0,0.0,1.0);
+            keyState.mValue = std::clamp(((F32)current) / 32767.0f, 0.0f, 1.0f);
             keyState.mState = keyState.mDown ? KEYSTATE_DOWN : (keyState.mLevel ? KEYSTATE_LEVEL : KEYSTATE_UP);
             scanControllerInput(LLGameControl::ActionType::DOF, i, keyState);
         }
@@ -1923,7 +1923,7 @@ void LLViewerInput::scanController()
             keyState.mUp = !current && prev;
             keyState.mElapsedTime = LLGameControl::getControllerHeldTime(LLGameControl::ActionType::BUTTON, i);
             keyState.mElapsedFrames = LLGameControl::getControllerHeldFrames(LLGameControl::ActionType::BUTTON, i);
-            keyState.mValue = current ? 1.0 : 0.0;
+            keyState.mValue = current ? 1.0f : 0.0f;
             keyState.mState = keyState.mDown ? KEYSTATE_DOWN : (keyState.mLevel ? KEYSTATE_LEVEL : KEYSTATE_UP);
             scanControllerInput(LLGameControl::ActionType::BUTTON, i, keyState);
         }
