@@ -42,6 +42,7 @@
 #include "llfloaterperms.h"
 #include "llfloaterreg.h"
 #include "llinventorytype.h"
+#include "llinventorydefines.h"
 #include "llnotecard.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewscript.h"
@@ -634,6 +635,30 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
             {
                 return s.handleObjectList();
             }));
+
+        script_connection->registerAsyncMethod("object.script.set_running",
+            bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
+            {
+                return s.handleObjectScriptSetRunning(connection_id, params);
+            }));
+
+        script_connection->registerAsyncMethod("object.script.reset",
+            bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
+            {
+                return s.handleObjectScriptReset(connection_id, params);
+            }));
+
+        script_connection->registerAsyncMethod("object.modify",
+            bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
+            {
+                return s.handleObjectModify(connection_id, params);
+            }));
+
+        script_connection->registerAsyncMethod("object.item.modify",
+            bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
+            {
+                return s.handleObjectItemModify(connection_id, params);
+            }));
     }
 }
 
@@ -687,6 +712,245 @@ LLSD LLScriptEditorWSServer::handleObjectList() const
 
     LLSD response;
     response["objects"] = objects;
+    return response;
+}
+
+LLSD LLScriptEditorWSServer::handleObjectScriptSetRunning(U32 connection_id, const LLSD& params)
+{
+    LLUUID prim_id = params["prim_id"].asUUID();
+    LLUUID item_id = params["item_id"].asUUID();
+    bool running = params["running"].asBoolean();
+
+    if (prim_id.isNull() || item_id.isNull())
+        throw LLJSONRPCConnection::InvalidParams("prim_id and item_id are required");
+
+    LLViewerObject* prim = gObjectList.findObject(prim_id);
+    if (!prim)
+        throw LLJSONRPCConnection::InvalidParams("Prim not found");
+
+    LLViewerObject* root = prim->getRootEdit();
+    if (!root || !isObjectPublished(root->getID()))
+        throw LLJSONRPCConnection::ForbiddenError("Object is not published");
+
+    LLInventoryItem* item = dynamic_cast<LLInventoryItem*>(prim->getInventoryObject(item_id));
+    if (!item)
+        throw LLJSONRPCConnection::InvalidParams("Script not found in prim inventory");
+
+    if (item->getType() != LLAssetType::AT_LSL_TEXT)
+        throw LLJSONRPCConnection::InvalidParams("Item is not a script");
+
+    if (!gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))
+        throw LLJSONRPCConnection::ForbiddenError("No modify permission on script");
+
+    // Send SetScriptRunning message to simulator
+    LLMessageSystem* msg = gMessageSystem;
+    msg->newMessageFast(_PREHASH_SetScriptRunning);
+    msg->nextBlockFast(_PREHASH_AgentData);
+    msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+    msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+    msg->nextBlockFast(_PREHASH_Script);
+    msg->addUUIDFast(_PREHASH_ObjectID, prim_id);
+    msg->addUUIDFast(_PREHASH_ItemID, item_id);
+    msg->addBOOLFast(_PREHASH_Running, running);
+    msg->sendReliable(prim->getRegion()->getHost());
+
+    LLSD response;
+    response["success"] = true;
+    return response;
+}
+
+LLSD LLScriptEditorWSServer::handleObjectScriptReset(U32 connection_id, const LLSD& params)
+{
+    LLUUID prim_id = params["prim_id"].asUUID();
+    LLUUID item_id = params["item_id"].asUUID();
+
+    if (prim_id.isNull() || item_id.isNull())
+        throw LLJSONRPCConnection::InvalidParams("prim_id and item_id are required");
+
+    LLViewerObject* prim = gObjectList.findObject(prim_id);
+    if (!prim)
+        throw LLJSONRPCConnection::InvalidParams("Prim not found");
+
+    LLViewerObject* root = prim->getRootEdit();
+    if (!root || !isObjectPublished(root->getID()))
+        throw LLJSONRPCConnection::ForbiddenError("Object is not published");
+
+    LLInventoryItem* item = dynamic_cast<LLInventoryItem*>(prim->getInventoryObject(item_id));
+    if (!item)
+        throw LLJSONRPCConnection::InvalidParams("Script not found in prim inventory");
+
+    if (item->getType() != LLAssetType::AT_LSL_TEXT)
+        throw LLJSONRPCConnection::InvalidParams("Item is not a script");
+
+    if (!gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))
+        throw LLJSONRPCConnection::ForbiddenError("No modify permission on script");
+
+    // Send ScriptReset message to simulator
+    LLMessageSystem* msg = gMessageSystem;
+    msg->newMessageFast(_PREHASH_ScriptReset);
+    msg->nextBlockFast(_PREHASH_AgentData);
+    msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+    msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+    msg->nextBlockFast(_PREHASH_Script);
+    msg->addUUIDFast(_PREHASH_ObjectID, prim_id);
+    msg->addUUIDFast(_PREHASH_ItemID, item_id);
+    msg->sendReliable(prim->getRegion()->getHost());
+
+    LLSD response;
+    response["success"] = true;
+    return response;
+}
+
+LLSD LLScriptEditorWSServer::handleObjectModify(U32 connection_id, const LLSD& params)
+{
+    // ─────────────────────────────────────────────────────────────
+    // Step 1: Parameter Validation
+    // ─────────────────────────────────────────────────────────────
+    LLUUID prim_id = params["prim_id"].asUUID();
+    if (prim_id.isNull())
+        throw LLJSONRPCConnection::InvalidParams("prim_id is required");
+
+    bool has_name = params.has("name");
+    bool has_desc = params.has("description");
+    bool has_perms = params.has("permissions") && params["permissions"].has("next_owner");
+
+    if (!has_name && !has_desc && !has_perms)
+        throw LLJSONRPCConnection::InvalidParams(
+            "At least one property (name, description, or permissions) must be specified");
+
+    // ─────────────────────────────────────────────────────────────
+    // Step 2: Find and Validate Object
+    // ─────────────────────────────────────────────────────────────
+    LLViewerObject* prim = gObjectList.findObject(prim_id);
+    if (!prim)
+        throw LLJSONRPCConnection::InvalidParams("Prim not found");
+
+    LLViewerObject* root = prim->getRootEdit();
+    if (!root || !isObjectPublished(root->getID()))
+        throw LLJSONRPCConnection::ForbiddenError("Object is not published");
+
+    if (!prim->permModify())
+        throw LLJSONRPCConnection::ForbiddenError("No modify permission on object");
+
+    // ─────────────────────────────────────────────────────────────
+    // Step 3: Send Property Update Messages
+    // ─────────────────────────────────────────────────────────────
+    LLMessageSystem* msg = gMessageSystem;
+    LLHost host = prim->getRegion()->getHost();
+    U32 local_id = prim->getLocalID();
+
+    if (has_name)
+    {
+        std::string new_name = params["name"].asString();
+        msg->newMessageFast(_PREHASH_ObjectName);
+        msg->nextBlockFast(_PREHASH_AgentData);
+        msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+        msg->nextBlockFast(_PREHASH_ObjectData);
+        msg->addU32Fast(_PREHASH_LocalID, local_id);
+        msg->addStringFast(_PREHASH_Name, new_name);
+        msg->sendReliable(host);
+    }
+
+    if (has_desc)
+    {
+        std::string new_desc = params["description"].asString();
+        msg->newMessageFast(_PREHASH_ObjectDescription);
+        msg->nextBlockFast(_PREHASH_AgentData);
+        msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+        msg->nextBlockFast(_PREHASH_ObjectData);
+        msg->addU32Fast(_PREHASH_LocalID, local_id);
+        msg->addStringFast(_PREHASH_Description, new_desc);
+        msg->sendReliable(host);
+    }
+
+    if (has_perms)
+    {
+        U32 next_owner_mask = static_cast<U32>(params["permissions"]["next_owner"].asInteger());
+        msg->newMessageFast(_PREHASH_ObjectPermissions);
+        msg->nextBlockFast(_PREHASH_AgentData);
+        msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+        msg->nextBlockFast(_PREHASH_HeaderData);
+        msg->addBOOLFast(_PREHASH_Override, false);
+        msg->nextBlockFast(_PREHASH_ObjectData);
+        msg->addU32Fast(_PREHASH_ObjectLocalID, local_id);
+        msg->addU8Fast(_PREHASH_Field, PERM_NEXT_OWNER);
+        msg->addBOOLFast(_PREHASH_Set, true);
+        msg->addU32Fast(_PREHASH_Mask, next_owner_mask);
+        msg->sendReliable(host);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Step 4: Return Success Response
+    // ─────────────────────────────────────────────────────────────
+    LLSD response;
+    response["success"] = true;
+    response["prim_id"] = prim_id.asString();
+    return response;
+}
+
+LLSD LLScriptEditorWSServer::handleObjectItemModify(U32 connection_id, const LLSD& params)
+{
+    // ─────────────────────────────────────────────────────────────
+    // Step 1: Parameter Validation
+    // ─────────────────────────────────────────────────────────────
+    if (!params.has("prim_id") || !params.has("item_id"))
+        throw LLJSONRPCConnection::InvalidParams("prim_id and item_id are required");
+
+    bool has_name = params.has("name");
+    bool has_desc = params.has("description");
+    bool has_perms = params.has("permissions") && params["permissions"].has("next_owner");
+
+    if (!has_name && !has_desc && !has_perms)
+        throw LLJSONRPCConnection::InvalidParams(
+            "At least one property (name, description, or permissions) must be specified");
+
+    // ─────────────────────────────────────────────────────────────
+    // Step 2: Validate Published Item (reuse existing helper)
+    // ─────────────────────────────────────────────────────────────
+    ValidatedItem v = validatePublishedItem(params, PERM_MODIFY);
+
+    LLUUID prim_id = params["prim_id"].asUUID();
+    LLUUID item_id = params["item_id"].asUUID();
+
+    // ─────────────────────────────────────────────────────────────
+    // Step 3: Create Modified Item Copy
+    // ─────────────────────────────────────────────────────────────
+    LLPointer<LLViewerInventoryItem> new_item =
+        new LLViewerInventoryItem(static_cast<LLViewerInventoryItem*>(v.item));
+
+    if (has_name)
+    {
+        new_item->rename(params["name"].asString());
+    }
+
+    if (has_desc)
+    {
+        new_item->setDescription(params["description"].asString());
+    }
+
+    if (has_perms)
+    {
+        LLPermissions perm = new_item->getPermissions();
+        U32 next_owner_mask = static_cast<U32>(params["permissions"]["next_owner"].asInteger());
+        perm.setMaskNext(next_owner_mask);
+        new_item->setPermissions(perm);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Step 4: Send UpdateTaskInventory Message
+    // ─────────────────────────────────────────────────────────────
+    v.prim->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, false);
+
+    // ─────────────────────────────────────────────────────────────
+    // Step 5: Return Success Response
+    // ─────────────────────────────────────────────────────────────
+    LLSD response;
+    response["success"] = true;
+    response["prim_id"] = prim_id.asString();
+    response["item_id"] = item_id.asString();
     return response;
 }
 
@@ -1110,9 +1374,10 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
         [&](const std::string& pump_name)
         {
             auto [on_success, on_failure] = make_asset_upload_callbacks(pump_name);
+            bool is_running = params.has("running") ? params["running"].asBoolean() : false;
             LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
                 prim->getID(), item->getUUID(),
-                compile_target, false, LLUUID::null, content,
+                compile_target, is_running, LLUUID::null, content,
                 std::move(on_success), std::move(on_failure)));
             LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
         });
@@ -1355,7 +1620,11 @@ LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, c
 
     if (has_cap)
     {
-        prim->createInventoryItem(asset_type, inv_type, sub_type, name, desc, perms, cap_params, nullptr);
+        prim->createInventoryItem(asset_type, inv_type, sub_type, name, desc, perms, cap_params,
+            [pump_name = result_pump.getName()](bool success, const LLSD& response)
+            {
+                LLEventPumps::instance().obtain(pump_name).post(response);
+            });
     }
     else
     {
@@ -1384,7 +1653,31 @@ LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, c
     }
 
     LLSD response;
+
+    // If cap returned item_id directly, use it
+    if (event.has("success") && event["success"].asBoolean() &&
+        event.has("item_id") && event["item_id"].asUUID().notNull())
     {
+        response["item_id"]     = event["item_id"];
+        response["name"]        = event["name"];
+        response["description"] = desc;
+        response["type"]        = type;
+        response["prim_id"]     = prim_id;
+
+        if (type == "script")
+        {
+            response["subtype"] = static_cast<S32>(sub_type);
+        }
+
+        LLSD perm_entry;
+        perm_entry["owner"]      = static_cast<S32>(perms.getMaskOwner());
+        perm_entry["next_owner"] = static_cast<S32>(perms.getMaskNextOwner());
+        response["permissions"]  = perm_entry;
+        response["creator_id"]   = gAgent.getID();
+    }
+    else
+    {
+        // Fallback: search inventory (for UDP path or if cap didn't return item_id)
         LLInventoryObject::object_list_t inv;
         prim->getInventoryContents(inv);
         for (auto& obj : inv)
@@ -1738,7 +2031,13 @@ LLSD LLScriptEditorWSServer::buildPrimInventoryLLSD(LLViewerObject* object) cons
                 entry["vm"] = runtime;
             }
 
-            // running state: omitted initially, backfilled async (Phase 4)
+            // Script runtime state from task inventory cap
+            LLViewerInventoryItem* viewer_item = dynamic_cast<LLViewerInventoryItem*>(item);
+            if (viewer_item)
+            {
+                entry["running"] = viewer_item->getIsRunning();
+                entry["faulted"] = viewer_item->getIsFaulted();
+            }
         }
 
         // Permissions

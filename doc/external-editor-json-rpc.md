@@ -44,6 +44,8 @@ This document describes all the message interfaces defined for WebSocket communi
   - [ObjectItemDelete](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#objectitemdelete)
   - [ObjectScriptSetRunning](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#objectscriptsetrunning)
   - [ObjectRequest](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#objectrequest)
+  - [ObjectModify](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#objectmodify)
+  - [ObjectItemModify](../../../VSCode/sl-vscode-edit/doc/Message_Interfaces.md#objectitemmodify)
 
 ## Usage Flow
 
@@ -184,10 +186,16 @@ WebSocket connects -> session.handshake -> session.ok
 | `object.item.delete` (response) | Viewer -> Extension | Response     | `ObjectItemDeleteResponse` |
 | `object.script.set_running`     | Extension -> Viewer | Call         | `ObjectScriptSetRunningParams` |
 | `object.script.set_running` (response) | Viewer -> Extension | Response | `ObjectScriptSetRunningResponse` |
+| `object.script.reset`           | Extension -> Viewer | Call         | `ObjectScriptResetParams`        |
+| `object.script.reset` (response)| Viewer -> Extension | Response     | `ObjectScriptResetResponse`      |
 | `object.request`                | Extension -> Viewer | Call         | `ObjectRequestParams`          |
 | `object.request` (response)     | Viewer -> Extension | Response     | `ObjectRequestResponse`        |
 | `object.list`                   | Extension -> Viewer | Call         | `{}` (no params)               |
 | `object.list` (response)        | Viewer -> Extension | Response     | `ObjectListResponse`           |
+| `object.modify`                 | Extension -> Viewer | Call         | `ObjectModifyParams`           |
+| `object.modify` (response)      | Viewer -> Extension | Response     | `ObjectModifyResponse`         |
+| `object.item.modify`            | Extension -> Viewer | Call         | `ObjectItemModifyParams`       |
+| `object.item.modify` (response) | Viewer -> Extension | Response     | `ObjectItemModifyResponse`     |
 
 ## Session Management Interfaces
 
@@ -764,6 +772,7 @@ interface ObjectInventoryItem {
   subtype?: number;        // Scripts only: language from II_FLAGS_SUBTYPE_MASK (0=LSL, 1=Luau)
   vm?: ScriptVM;           // Scripts only: which VM the script targets
   running?: boolean;       // Scripts only: whether the script is running
+  faulted?: boolean;       // Scripts only: whether the script has a runtime fault
   permissions?: ItemPermissions;
   creator_id?: string;
 }
@@ -1049,6 +1058,26 @@ interface ObjectScriptSetRunningResponse {
 
 ---
 
+### ObjectScriptReset
+
+**JSON-RPC Method:** `object.script.reset` (call from extension to viewer)
+
+Resets a script within a prim, clearing its state and restarting from the default state entry.
+
+```typescript
+interface ObjectScriptResetParams {
+  prim_id: string;
+  item_id: string;
+}
+
+interface ObjectScriptResetResponse {
+  success: boolean;
+  message?: string;
+}
+```
+
+---
+
 ### ObjectRequest
 
 **JSON-RPC Method:** `object.request` (call from extension to viewer)
@@ -1105,3 +1134,87 @@ interface ObjectListResponse {
 1. Viewer sends `session.ok`
 2. Extension calls `object.list` (no params)
 3. Viewer responds with `{ objects: [...] }` synchronously
+
+---
+
+### ObjectModify
+
+**JSON-RPC Method:** `object.modify` (call from extension to viewer)
+
+Modifies properties of a prim (root or linked) such as name, description, or permissions. Only specified fields are modified; omitted fields remain unchanged. Requires `PERM_MODIFY` on the object.
+
+```typescript
+interface ObjectModifyParams {
+  prim_id: string;           // UUID of any prim (root or child)
+  name?: string;             // New display name
+  description?: string;      // New description
+  permissions?: {
+    next_owner?: number;     // Permission mask applied on transfer
+  };
+}
+
+interface ObjectModifyResponse {
+  success: boolean;
+  prim_id: string;           // Echoed back from request
+  message?: string;          // Error description on failure
+}
+```
+
+**Fields:**
+
+- `prim_id`: UUID of the prim to modify. Child prims are addressable directly by UUID.
+- `name` (optional): New display name for the prim. If omitted, name remains unchanged.
+- `description` (optional): New description for the prim. If omitted, description remains unchanged.
+- `permissions` (optional): Permission changes.
+  - `next_owner`: Permission mask applied when the object is transferred. Uses same bit flags as `ItemPermissions` (e.g., `PERM_MODIFY=0x4000`, `PERM_COPY=0x8000`, `PERM_TRANSFER=0x2000`).
+- `success`: Whether the update operation succeeded.
+- `message` (optional): Error description. Only present when `success` is `false`.
+
+**Notes:**
+- At least one property field (`name`, `description`, or `permissions`) must be specified.
+- An `object.update` notification will fire after successful modification.
+- Owner permissions cannot be modified directly — only `next_owner` can be changed.
+
+---
+
+### ObjectItemModify
+
+**JSON-RPC Method:** `object.item.modify` (call from extension to viewer)
+
+Modifies properties of an inventory item such as name, description, or permissions. Only specified fields are modified; omitted fields remain unchanged. Requires `PERM_MODIFY` on the item.
+
+```typescript
+interface ObjectItemModifyParams {
+  prim_id: string;           // UUID of any prim (root or child)
+  item_id: string;           // Inventory item UUID
+  name?: string;             // New display name (no file extension)
+  description?: string;      // New description
+  permissions?: {
+    next_owner?: number;     // Permission mask applied on transfer
+  };
+}
+
+interface ObjectItemModifyResponse {
+  success: boolean;
+  prim_id: string;           // Echoed back from request
+  item_id: string;           // Echoed back from request
+  message?: string;          // Error description on failure
+}
+```
+
+**Fields:**
+
+- `prim_id`: UUID of the prim that owns the item. Child prims are addressable directly by UUID.
+- `item_id`: Inventory item UUID.
+- `name` (optional): New display name for the item. Should not include file extension (e.g., `.lsl`, `.luau`). If omitted, name remains unchanged.
+- `description` (optional): New description for the item. If omitted, description remains unchanged.
+- `permissions` (optional): Permission changes.
+  - `next_owner`: Permission mask applied when the item is transferred. Uses same bit flags as `ItemPermissions` (e.g., `PERM_MODIFY=0x4000`, `PERM_COPY=0x8000`, `PERM_TRANSFER=0x2000`).
+- `success`: Whether the update operation succeeded.
+- `message` (optional): Error description. Only present when `success` is `false`.
+
+**Notes:**
+- At least one property field (`name`, `description`, or `permissions`) must be specified.
+- An `object.update` notification will fire after successful modification.
+- Owner permissions cannot be modified directly — only `next_owner` can be changed.
+- If the item is renamed, the virtual filesystem path will change and the extension must handle the rename appropriately.
