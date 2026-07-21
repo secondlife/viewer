@@ -5029,7 +5029,6 @@ void LLAgent::updateGameControlMode()
 
 void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
 {
-    LL_INFOS("Messaging") << "wtf? control_flags = 0x" << std::hex << std::setw(8) << std::setfill('0') << actions.mControlFlags << std::dec << LL_ENDL;
     llassert(LLCoros::on_main_thread_main_coro());
     // Valid whenever game control is driving avatar or flycam: in FlyCam mode this
     // only services the flycam on/off toggle (movement bits are ignored below).
@@ -5171,6 +5170,22 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
     else
     {
         mToggleThirdPerson = true;
+    }
+
+    // actions.mIsRunning is the final walk/run decision computed by
+    // LLGameControllerManager::computeAgentActions() (button toggle OR analog
+    // axis deflection); just mirror it onto the agent's running state.
+    if (actions.mIsRunning != getRunning())
+    {
+        if (actions.mIsRunning)
+        {
+            setRunning();
+        }
+        else
+        {
+            clearRunning();
+        }
+        sendWalkRun(actions.mIsRunning);
     }
 
     mExternalActionFlags = actions.mControlFlags;

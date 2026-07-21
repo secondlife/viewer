@@ -5411,11 +5411,17 @@ void LLAppViewer::idle()
         // current avatar state so the runtime mappings and gating track it.
         gAgent.updateGameControlMode();
 
-        // get control flags from each side
+        // Read the agent's control flags now, before applyExternalActions() below
+        // (which drives the avatar from a real game controller) has a chance to
+        // fold any controller-driven movement into them this frame -- so the
+        // keyboard-derived GameControl state computed here can never be sourced
+        // from the controller's own output.  See LLGameControllerManager::
+        // setExternalInput()/accumulateFinalState() for where the two are
+        // combined (only as fully-independent final ServerStates).
         U32 control_flags = gAgent.getControlFlags();
 
         // apply to GameControl
-        LLGameControl::setExternalInput(control_flags, gAgent.getGameControlButtonsFromKeys());
+        LLGameControl::setExternalInput(control_flags, gAgent.getGameControlButtonsFromKeys(), gAgent.getRunning());
         if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
         {
             LLPanelPreferenceGameControl::applyGameControlInput();
