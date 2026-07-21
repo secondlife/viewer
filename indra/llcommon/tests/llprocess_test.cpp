@@ -120,6 +120,9 @@ void yield(int seconds=1)
     LLEventPumps::instance().obtain("mainloop").post(LLSD());
 }
 
+constexpr int EOF_EVENT_RETRY_COUNT = 20;
+constexpr auto EOF_EVENT_RETRY_DELAY = std::chrono::milliseconds(50);
+
 void waitfor(LLProcess& proc, int timeout=60)
 {
     int i = 0;
@@ -1222,6 +1225,14 @@ namespace tut
         LLProcess::ReadPipe& childout(py.mPy->getReadPipe(LLProcess::STDOUT));
         EventListener listener(childout.getPump());
         waitfor(*py.mPy);
+        // On Windows the pipe-close EOF notification can trail the process exit
+        // status by a short interval, so keep pumping for up to 1 second
+        // (20 * 50 ms) until it arrives.
+        for (int i = 0; i < EOF_EVENT_RETRY_COUNT && listener.mHistory.empty(); ++i)
+        {
+            std::this_thread::sleep_for(EOF_EVENT_RETRY_DELAY);
+            LLEventPumps::instance().obtain("mainloop").post(LLSD());
+        }
         // We can't be positive there will only be a single event, if the OS
         // (or any other intervening layer) does crazy buffering. What we want
         // to ensure is that there was exactly ONE event with "eof" true, and
@@ -1697,6 +1708,17 @@ namespace tut
         EventListener errListener(childerr.getPump());
 
         waitfor(*py.mPy);
+        // On Windows the pipe-close EOF notification can trail the process exit
+        // status by a short interval, so keep pumping for up to 1 second
+        // (20 * 50 ms) until both pipes report it.
+        for (int i = 0;
+             i < EOF_EVENT_RETRY_COUNT &&
+             (outListener.mHistory.empty() || errListener.mHistory.empty());
+             ++i)
+        {
+            std::this_thread::sleep_for(EOF_EVENT_RETRY_DELAY);
+            LLEventPumps::instance().obtain("mainloop").post(LLSD());
+        }
 
         ensure_equals("stdout size", childout.size(), 0);
         ensure_equals("stderr size", childerr.size(), 0);
