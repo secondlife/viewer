@@ -1475,7 +1475,7 @@ S32 LLGameControl::getControllerHeldFrames(ActionType actionType, U8 action)
         case ActionType::BUTTON:
             return g_buttonLevelFrames[action];
         default:
-            return 0.0;
+            return 0;
     }
 }
 
