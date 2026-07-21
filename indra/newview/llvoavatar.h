@@ -957,6 +957,16 @@ public:
         sEarlyAppearanceList.emplace(av_id);
     }
 
+    // Entries left behind by agents who never get instantiated (e.g. an
+    // AvatarAppearance message arrives for an avatar we never rez) are a
+    // small resource leak. Teleporting to another region invalidates the
+    // whole list, since it was only ever relevant to avatars in the region
+    // we're leaving, so clear it out at that point to bound the leak.
+    static void resetEarlyAppearanceList()
+    {
+        sEarlyAppearanceList.clear();
+    }
+
     LLPointer<LLAppearanceMessageContents>  mLastProcessedAppearance;
 
     void            parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMessageContents& msg);

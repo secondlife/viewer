@@ -785,9 +785,11 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     uuid_list_t::iterator it = sEarlyAppearanceList.find(id);
     if (it != sEarlyAppearanceList.end())
     {
-        // Note: this is the only place where we remove from sEarlyAppearanceList
-        // which means any agent who receives an AvatarAppearance message but is never
-        // actually instantiated will remain on the list.  This is a resource leak
+        // Note: aside from LLVOAvatar::resetEarlyAppearanceList() (called on
+        // teleport), this is the only place where we remove from
+        // sEarlyAppearanceList, which means any agent who receives an
+        // AvatarAppearance message but is never actually instantiated will
+        // remain on the list until the next teleport. This is a resource leak
         // but we expect it to be small enough per-session to not cause problems.
         sEarlyAppearanceList.erase(it);
         LL_INFOS("Avatar") << "Re-requesting AvatarAppearance for new avatar " << id << LL_ENDL;
