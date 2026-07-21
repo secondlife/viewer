@@ -715,9 +715,11 @@
         <combo_box.item
             label="Sit"
             value="Toggle sit"/>
+        <!-- TODO: implement Interact feature
         <combo_box.item
             label="Interact"
             value="Interact"/>
+        -->
         <combo_box.item
             label="Toggle speak"
             value="Toggle speak"/>
@@ -730,6 +732,9 @@
         <combo_box.item
             label="FlyCam"
             value="Toggle flycam"/>
+        <combo_box.item
+            label="Toggle run"
+            value="Toggle run"/>
         <combo_box.item
             label="Mouse left"
             value="Mouse click left"/>

@@ -410,12 +410,13 @@ public:
 
     void accumulateInternalState();
     void computeFinalState();
+    void accumulateFinalState();
 
     LLGameControl::ActionNameType getActionNameType(const std::string& action) const;
 
     LLGameControl::AgentActions computeAgentActions();
     void getFlycamInputs(std::vector<F32>& inputs_out);
-    void setExternalInput(U32 action_flags, U32 buttons);
+    void setExternalInput(U32 action_flags, U32 buttons, bool is_running);
 
     // Rebuild mAxisActionBindings/mButtonActionLabels from the global ModeMappings
     // for the currently-active AgentControlMode.  Cheap; called on settings change
@@ -436,7 +437,12 @@ private:
             });
     }
 
-    LLGameControl::State mExternalState;
+    // Keyboard-only contribution (from AGENT_CONTROL_* bits, via setExternalInput()),
+    // already reduced to the same wire format as g_finalState.  Kept separate from
+    // the controller-only g_controllerState and combined into g_finalState only in
+    // accumulateFinalState(), so keyboard input never flows through the
+    // controller's own axis/button pipeline and vice-versa.
+    LLGameControl::ServerState mExternalServerState;
     LLGameControlTranslator mActionTranslator;
     std::map<std::string, LLGameControl::ActionNameType> mActions;
 
@@ -458,6 +464,14 @@ private:
     U32 mLastActiveFlags { 0 };
     U32 mLastFlycamActionFlags { 0 };
     SDL_JoystickID mlastActiveControllerID { 0 };
+
+    // Persistent "is running" sub-states, combined into AgentActions::mIsRunning
+    // by computeAgentActions(): mIsToggleRunning flips on each "Toggle run" button
+    // press (edge-triggered, like a caps-lock); mIsAnalogRunning follows how hard
+    // the movement axes are pushed, with hysteresis so it doesn't flicker at the
+    // boundary.
+    bool mIsToggleRunning { false };
+    bool mIsAnalogRunning { false };
 
     friend class LLGameControl;
 };
@@ -485,7 +499,8 @@ namespace
     LLGameControl::State g_innerState; // state from all game controllers
     LLGameControl::State g_mappedState; // state after user mapping is applied
     LLGameControl::State g_flycamMappedState; // state for flycam after user mapping is applied
-    LLGameControl::ServerState g_finalState; // sum of inner and outer
+    LLGameControl::ServerState g_controllerState; // controller-only, pre-keyboard-accumulation
+    LLGameControl::ServerState g_finalState; // g_controllerState + mExternalServerState (see accumulateFinalState)
 
     LLTimer g_buttonLevelTimer[LLGameControl::Button::NUM_BUTTONS];
     LLTimer g_axisHeldTimer[LLGameControl::MovementDirection::NUM_MOVE_DIRS];
@@ -604,7 +619,9 @@ namespace
         avatar_buttons["Jump"]                   = "BUTTON_SOUTH";
         avatar_buttons["Crouch"]                 = "BUTTON_EAST";
         avatar_buttons["Toggle sit"]             = "BUTTON_WEST";
-        avatar_buttons["Interact"]               = "BUTTON_NORTH";
+        avatar_buttons["Toggle run"]             = "BUTTON_LEFT_STICK";
+        // TODO: implement Interact feature
+        //avatar_buttons["Interact"]               = "BUTTON_NORTH";
         avatar_buttons["Toggle speak"]           = "BUTTON_SELECT";
         avatar_buttons["3rd Person camera"]      = "BUTTON_HOME";
         avatar_buttons["Toggle mouselook"]       = "BUTTON_START";
@@ -1387,7 +1404,7 @@ void LLGameControllerManager::clearAllStates()
     {
         device.mState.clear();
     }
-    mExternalState.clear();
+    mExternalServerState.clear();
     mLastActiveFlags = 0;
     mLastFlycamActionFlags = 0;
 }
@@ -1516,24 +1533,18 @@ void LLGameControllerManager::computeFinalState()
         {{LLGameControl::ActionType::BUTTON, LLGameControl::Button::BUTTON_31},             (U32)1 << LLGameControl::Button::BUTTON_31}
     };
 
-    // We assume accumulateInternalState() has already been called and we will
-    // finish by accumulating "external" state (if enabled)
-    U32 old_buttons = g_finalState.mButtons;
+    // We assume accumulateInternalState() has already been called.  This
+    // computes the CONTROLLER-ONLY state into g_controllerState -- no keyboard
+    // (mExternalServerState) contribution here -- so that a real controller's
+    // input can never flow through agent control flags and back into itself.
+    // The keyboard contribution is combined in afterward, exclusively by
+    // accumulateFinalState() below.
     g_mappedState.clear();
     g_mappedState.mButtons = mActionTranslator.calculateTranslatedButtons(button_mappings, g_innerState);
 
     mActionTranslator.calculateTranslatedAxes(axis_mappings, g_innerState, g_mappedState.mAxes);
 
-    g_finalState.mPrevButtons = g_finalState.mButtons;
-    g_finalState.mButtons = g_mappedState.mButtons;
-
-    // TODO: accumulate from mExternalState in a different way
-    g_finalState.mButtons |= mExternalState.mButtons;
-
-    if (old_buttons != g_finalState.mButtons)
-    {
-        g_nextResendPeriod = 0; // packet needs to go out ASAP
-    }
+    g_controllerState.mButtons = g_mappedState.mButtons;
 
     size_t j = 0;
     // clamp the accumulated axes
@@ -1542,24 +1553,37 @@ void LLGameControllerManager::computeFinalState()
         // Accumulate in S32 to avoid overflow
         S32 axis_pos = g_mappedState.mAxes[i];
         S32 axis_neg = g_mappedState.mAxes[i+1];
-        {
-            // The internal accumulated value also drives the Flycam, so fold
-            // mExternalState in here (per half-axis, greater wins) rather than into
-            // g_innerState, to keep external state out of the Flycam path.
-            if(mExternalState.mAxes[i] > axis_pos)
-            {
-                axis_pos = mExternalState.mAxes[i];
-            }
-            if(mExternalState.mAxes[i+1] > axis_neg)
-            {
-                axis_neg = mExternalState.mAxes[i+1];
-            }
-        }
-        // Sum the two maxed halves and clamp to the signed range sent on the wire.
-        S16 axis = (S16)std::clamp(axis_pos - axis_neg, -32768, 32767);
-        // check for change
         // Note: g_mappedState uses NUM_MOVE_DIRS split half-axes (indexed by 'i'),
-        // while g_finalState uses NUM_AXES combined signed axes (indexed by 'j').
+        // while g_controllerState uses NUM_AXES combined signed axes (indexed by 'j').
+        g_controllerState.mAxes[j] = (S16)std::clamp(axis_pos - axis_neg, -32768, 32767);
+        ++j;
+    }
+
+    accumulateFinalState();
+}
+
+void LLGameControllerManager::accumulateFinalState()
+{
+    // This is the only place controller state (g_controllerState, real hardware)
+    // and keyboard state (mExternalServerState, from AGENT_CONTROL_* bits -- see
+    // setExternalInput()) are combined: into g_finalState, the single
+    // ServerState actually packed into the outgoing GameControlInput message.
+    // Buttons OR together; axes sum (clamped to the wire's signed range) so
+    // simultaneous keyboard + controller input on the same axis combines
+    // rather than either one masking the other.
+    U32 old_buttons = g_finalState.mButtons;
+    U32 new_buttons = g_controllerState.mButtons | mExternalServerState.mButtons;
+    g_finalState.mPrevButtons = old_buttons;
+    g_finalState.mButtons = new_buttons;
+    if (old_buttons != new_buttons)
+    {
+        g_nextResendPeriod = 0; // packet needs to go out ASAP
+    }
+
+    for (size_t j = 0; j < LLGameControl::NUM_AXES; ++j)
+    {
+        S32 combined = (S32)g_controllerState.mAxes[j] + (S32)mExternalServerState.mAxes[j];
+        S16 axis = (S16)std::clamp(combined, -32768, 32767);
         if (g_finalState.mAxes[j] != axis)
         {
             // When axis changes we explicitly update the corresponding prevAxis
@@ -1571,7 +1595,6 @@ void LLGameControllerManager::computeFinalState()
             g_finalState.mAxes[j] = axis;
             g_nextResendPeriod = 0; // packet needs to go out ASAP
         }
-        ++j;
     }
 }
 
@@ -1706,6 +1729,9 @@ namespace
             { "Toggle flycam",     LLGameControl::ACTION_TOGGLE_FLYCAM},
             { "Toggle mouselook",  LLGameControl::ACTION_TOGGLE_MOUSELOOK},
             { "3rd Person camera", LLGameControl::ACTION_TOGGLE_3RD_PERSON},
+            // Note: "Toggle run" is handled specially in computeAgentActions() --
+            // it flips LLGameControllerManager's own mIsToggleRunning rather than
+            // going through mMiscActions -- so it is intentionally absent here.
         };
         return bridge;
     }
@@ -1824,6 +1850,10 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     // (HALF_NEGATIVE = left, HALF_POSITIVE = right) applies its side's polarity; a
     // full axis (HALF_FULL) uses the deflection directly.
     const auto& axis_bridge = avatarAxisBridge();
+    // Largest deflection seen on a ground-movement axis (Strafe/Advance) this frame,
+    // used below to drive the analog "is running" hysteresis.  Turning, looking, and
+    // flying don't affect ground running speed, so they're excluded.
+    S32 movement_magnitude = 0;
     for (U8 axis = 0; axis < LLGameControl::NUM_AXES; ++axis)
     {
         const AxisActionBinding& binding = mAxisActionBindings[axis];
@@ -1846,6 +1876,26 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         {
             result.mControlFlags |= it->second.negFlag;
         }
+        if (binding.label == "Strafe left/right" || binding.label == "Advance forward/back")
+        {
+            movement_magnitude = std::max(movement_magnitude, std::abs(value));
+        }
+    }
+
+    // Analog "is running" hysteresis: engage once a movement axis is pushed past
+    // 60% of full deflection, release once every movement axis drops back below
+    // 40%.  The dead zone between the two thresholds avoids flicker right at the
+    // boundary.
+    constexpr F32 RUN_ENGAGE_FRACTION = 0.6f;
+    constexpr F32 RUN_RELEASE_FRACTION = 0.4f;
+    F32 movement_fraction = (F32)movement_magnitude / 32767.f;
+    if (movement_fraction > RUN_ENGAGE_FRACTION)
+    {
+        mIsAnalogRunning = true;
+    }
+    else if (movement_fraction < RUN_RELEASE_FRACTION)
+    {
+        mIsAnalogRunning = false;
     }
 
     // Buttons: each pressed button contributes its bound label's action.  Most
@@ -1873,6 +1923,16 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         {
             continue;
         }
+        if (label == "Toggle run")
+        {
+            // Edge-triggered: flip the persistent run-toggle once per physical
+            // press rather than every frame the button is held.
+            if (pressed_edges & (1U << btn))
+            {
+                mIsToggleRunning = !mIsToggleRunning;
+            }
+            continue;
+        }
         if ((label == "Sit down" || label == "Stand up") && !(pressed_edges & (1U << btn)))
         {
             continue;
@@ -1891,6 +1951,8 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
             }
         }
     }
+
+    result.mIsRunning = mIsToggleRunning || mIsAnalogRunning;
 
     return result;
 }
@@ -2051,43 +2113,84 @@ void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
     inputs = dof;
 }
 
-void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons)
+void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons, bool is_running)
 {
-    return;
-    if (true)
-    {
-        // HACK: these are the bits we can safely translate from control flags to GameControl
-        // Extracting LLGameControl::InputChannels that are mapped to other bits is a WIP.
-        // TODO: translate other bits to GameControl, which might require measure of gAgent
-        // state changes (e.g. sitting <--> standing, flying <--> not-flying, etc)
-        const U32 BITS_OF_INTEREST =
-            AGENT_CONTROL_AT_POS | AGENT_CONTROL_AT_NEG
-            | AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_LEFT_NEG
-            | AGENT_CONTROL_UP_POS | AGENT_CONTROL_UP_NEG
-            | AGENT_CONTROL_YAW_POS | AGENT_CONTROL_YAW_NEG
-            | AGENT_CONTROL_PITCH_POS | AGENT_CONTROL_PITCH_NEG
-            | AGENT_CONTROL_STOP
-            | AGENT_CONTROL_FAST_AT
-            | AGENT_CONTROL_FAST_LEFT
-            | AGENT_CONTROL_FAST_UP;
-        action_flags &= BITS_OF_INTEREST;
+    // Translate the AGENT_CONTROL_* bits that correspond directly to a
+    // movement/turn/look/fly axis into the matching canonical wire axis of
+    // mExternalServerState -- the same final ServerState format
+    // sendGameControlInput() packs -- so keyboard-driven avatar movement
+    // (control_flags) is mirrored into outgoing GameControlInput data (and
+    // therefore visible to LSL scripts) even when no physical game controller
+    // is present.  'action_flags' is expected to be gAgent::getControlFlags()
+    // read BEFORE any game-controller-driven movement (see
+    // LLGameControllerManager::computeAgentActions()/LLAgent::
+    // applyExternalActions()) is folded into it this frame, so this never
+    // re-derives GameControl data from the controller's own output; the
+    // controller-only contribution (g_controllerState) is computed entirely
+    // separately by computeFinalState() and the two are combined only in
+    // accumulateFinalState(), right before a packet is sent.  Other
+    // AGENT_CONTROL_* bits (Stop, fast-movement modifiers, sit, etc.) have no
+    // direct GameControl axis/button equivalent and are left untranslated.
+    static const struct { U32 posFlag; U32 negFlag; U8 axis; } AXIS_BITS[] = {
+        { AGENT_CONTROL_LEFT_POS,  AGENT_CONTROL_LEFT_NEG,  LLGameControl::AXIS_LEFTX        },
+        { AGENT_CONTROL_AT_POS,    AGENT_CONTROL_AT_NEG,    LLGameControl::AXIS_LEFTY        },
+        { AGENT_CONTROL_YAW_POS,   AGENT_CONTROL_YAW_NEG,   LLGameControl::AXIS_RIGHTX       },
+        { AGENT_CONTROL_PITCH_POS, AGENT_CONTROL_PITCH_NEG, LLGameControl::AXIS_RIGHTY       },
+        { AGENT_CONTROL_UP_POS,    AGENT_CONTROL_UP_NEG,    LLGameControl::AXIS_LEFT_TRIGGER },
+    };
 
-        U32 active_flags = action_flags & mActionTranslator.getMappedFlags();
-        if (active_flags != mLastActiveFlags)
-        {
-            mLastActiveFlags = active_flags;
-            mExternalState = mActionTranslator.computeStateFromFlags(action_flags);
-            mExternalState.mButtons |= buttons;
-        }
-        else
-        {
-            mExternalState.mButtons = buttons;
-        }
-    }
-    else
+    // Approximate the walk/run stick-tilt threshold (see RUN_ENGAGE_FRACTION /
+    // RUN_RELEASE_FRACTION in computeAgentActions()) as a flat 50%: a keyboard
+    // "walk" looks like a half-deflected axis, a keyboard "run" looks like a
+    // fully-deflected one.
+    const S16 magnitude = is_running ? std::numeric_limits<S16>::max()
+                                      : std::numeric_limits<S16>::max() / 2;
+
+    mExternalServerState.clear();
+    for (const auto& bit : AXIS_BITS)
     {
-        mExternalState.mButtons = buttons;
+        S32 value = 0;
+        if (action_flags & bit.posFlag)
+        {
+            value += magnitude;
+        }
+        if (action_flags & bit.negFlag)
+        {
+            value -= magnitude;
+        }
+        mExternalServerState.mAxes[bit.axis] = (S16)std::clamp(value, -32768, 32767);
     }
+
+    // Also translate those same bits into a "pressed" state for whichever
+    // GameControl button (if any) is currently bound -- via the active mode's
+    // Button mappings -- to the action that produces that bit (e.g. "Jump"
+    // bound to BUTTON_SOUTH).  This mirrors computeAgentActions()'s button
+    // loop in reverse: there, a pressed physical button yields a control
+    // flag; here, an active control flag yields a "pressed" button so
+    // outgoing GameControlInput/LSL-visible button state matches whichever
+    // button the user has mapped to that keyboard action.  ACTION_TOGGLE_*
+    // (mMiscActions) labels have no persistent flag to test and are skipped.
+    rebuildActionLookup();
+    const auto& button_bridge = avatarButtonBridge();
+    for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
+    {
+        const std::string& label = mButtonActionLabels[btn];
+        if (label.empty())
+        {
+            continue;
+        }
+        auto it = button_bridge.find(label);
+        if (it == button_bridge.end() || isMiscAction(it->second))
+        {
+            continue;
+        }
+        if (action_flags & it->second)
+        {
+            mExternalServerState.mButtons |= (0x01U << btn);
+        }
+    }
+
+    mExternalServerState.mButtons |= buttons;
 }
 
 void LLGameControllerManager::clear()
@@ -2869,9 +2972,9 @@ LLGameControl::AgentActions LLGameControl::computeAgentActions()
 }
 
 // static
-void LLGameControl::setExternalInput(U32 action_flags, U32 buttons)
+void LLGameControl::setExternalInput(U32 action_flags, U32 buttons, bool is_running)
 {
-    g_manager.setExternalInput(action_flags, buttons);
+    g_manager.setExternalInput(action_flags, buttons, is_running);
 }
 
 //static
