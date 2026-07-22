@@ -201,6 +201,60 @@ void LLDrawPoolTerrain::drawLoop()
     }
 }
 
+//============================================
+// velocity buffer implementation
+//============================================
+S32 LLDrawPoolTerrain::getNumVelocityPasses()
+{
+    return 1;
+}
+
+void LLDrawPoolTerrain::beginVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+
+    gVelocityProgram.bind();
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    gVelocityProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+}
+
+void LLDrawPoolTerrain::endVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+
+    gVelocityProgram.unbind();
+}
+
+void LLDrawPoolTerrain::renderVelocity(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LLGLEnable cull(GL_CULL_FACE);
+
+    if (mDrawFace.empty())
+    {
+        return;
+    }
+
+    for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+         iter != mDrawFace.end(); iter++)
+    {
+        LLFace *facep = *iter;
+        LLDrawable* drawable = facep->getDrawable();
+        if (!drawable) continue;
+
+        LLMatrix4* model_matrix = &(drawable->getRegion()->mRenderMatrix);
+
+        llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
+        LLRenderPass::applyModelMatrix(model_matrix);
+
+        LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::CURRENT_OBJECT_MATRIX, 1, GL_FALSE, (GLfloat*)model_matrix->mMatrix);
+        LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::LAST_OBJECT_MATRIX, 1, GL_FALSE, (GLfloat*)model_matrix->mMatrix);
+
+        facep->renderIndexed();
+    }
+}
+
 void LLDrawPoolTerrain::renderFullShader()
 {
     const bool use_local_materials = gLocalTerrainMaterials.makeMaterialsReady(true, false);

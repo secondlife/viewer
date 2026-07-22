@@ -51,8 +51,14 @@ void main()
     vec2 dlt = kern_scale * delta / (1.0+norm.xy*norm.xy);
     dlt /= max(-pos.z*dist_factor, 1.0);
 
-    vec2 defined_weight = kern[0].xy; // special case the first (centre) sample's weight in the blur; we have to sample it anyway so we get it for 'free'
-    vec4 col = defined_weight.xyxx * ccol;
+    // Only blur SSAO (G channel), pass through shadows (R, B, A channels)
+    // Initialize: R with no blur, G with blur weight, B and A with no blur
+    float defined_weight = kern[0].x; // weight for SSAO blur only
+    vec4 col;
+    col.r = ccol.r; // directional shadow - no blur
+    col.g = kern[0].x * ccol.g; // SSAO - apply blur
+    col.b = ccol.b; // spot shadow 0 - no blur
+    col.a = ccol.a; // spot shadow 1 - no blur
 
     // relax tolerance according to distance to avoid speckling artifacts, as angles and distances are a lot more abrupt within a small screen area at larger distances
     float pointplanedist_tolerance_pow2 = pos.z*pos.z*0.00005;
@@ -85,8 +91,9 @@ void main()
 
         if (d*d <= pointplanedist_tolerance_pow2)
         {
-            col += texture(lightMap, samptc)*k[i].xyxx;
-            defined_weight += k[i].xy;
+            vec4 sampcol = texture(lightMap, samptc);
+            col.g += sampcol.g * k[i].x; // only blur SSAO
+            defined_weight += k[i].x;
         }
     }
 
@@ -100,12 +107,13 @@ void main()
 
         if (d*d <= pointplanedist_tolerance_pow2)
         {
-            col += texture(lightMap, samptc)*k[i].xyxx;
-            defined_weight += k[i].xy;
+            vec4 sampcol = texture(lightMap, samptc);
+            col.g += sampcol.g * k[i].x; // only blur SSAO
+            defined_weight += k[i].x;
         }
     }
 
-    col /= defined_weight.xyxx;
+    col.g /= defined_weight;
     //col.y *= col.y;
 
     frag_color = max(col, vec4(0));

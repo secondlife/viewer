@@ -31,6 +31,6 @@ in vec2 vary_texcoord0;
 
 void main()
 {
-    vec3 col = texture(diffuseRect, vary_texcoord0.xy).rgb;
-    frag_color = vec4(col, 0.0);
+    vec4 col = texture(diffuseRect, vary_texcoord0.xy);
+    frag_color = col;
 }

@@ -73,6 +73,8 @@ RenderGLMultiThreadedTextures      1   0
 RenderGLMultiThreadedMedia         1   1
 RenderReflectionProbeResolution 1 128
 RenderScreenSpaceReflections 1  1
+RenderScreenSpaceReflectionGlossySamples 1 8
+RenderScreenSpaceReflectionsResolutionMultiplier 1 1
 RenderMirrors				1	1
 RenderHeroProbeResolution	1	2048
 RenderHeroProbeDistance		1	16
@@ -85,6 +87,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   1
 RenderDisableVintageMode           1   1
 RenderTextureQuality               1   3
+RenderMirrorCount			1	4
 RenderReflectionProbeCount  1   256
 
 //
@@ -104,6 +107,7 @@ RenderMaxPartCount			1	0
 RenderTransparentWater      1   0
 RenderReflectionsEnabled    1   0
 RenderReflectionProbeDetail	1	0
+RenderReflectionProbeQuality	1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
 RenderTerrainPBRDetail      1   -4
@@ -116,8 +120,11 @@ WLSkyDetail					1	96
 RenderFSAAType  			1	0
 RenderFSAASamples			1	0
 RenderScreenSpaceReflections 1  0
+RenderScreenSpaceReflectionGlossySamples 1 1
+RenderScreenSpaceReflectionsResolutionMultiplier 1 0.25
 RenderReflectionProbeLevel  1   0
 RenderMirrors				1	0
+RenderMirrorCount			1	1
 RenderHeroProbeResolution	1	256
 RenderHeroProbeDistance		1	4
 RenderHeroProbeUpdateRate	1	6
@@ -146,6 +153,7 @@ RenderLocalLightCount		1	256
 RenderTransparentWater      1   0
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
+RenderReflectionProbeQuality	1	0
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
 RenderTerrainPBRDetail      1   -1
@@ -158,8 +166,11 @@ WLSkyDetail					1	96
 RenderFSAAType  			1	0
 RenderFSAASamples			1	0
 RenderScreenSpaceReflections 1  0
+RenderScreenSpaceReflectionGlossySamples 1 1
+RenderScreenSpaceReflectionsResolutionMultiplier 1 0.25
 RenderReflectionProbeLevel  1   0
 RenderMirrors				1	0
+RenderMirrorCount			1	1
 RenderHeroProbeResolution	1	256
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	3
@@ -199,9 +210,13 @@ RenderFSAAType  			1	1
 RenderFSAASamples			1	1
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
+RenderReflectionProbeQuality	1	1
 RenderScreenSpaceReflections 1  0
+RenderScreenSpaceReflectionGlossySamples 1 2
+RenderScreenSpaceReflectionsResolutionMultiplier 1 0.25
 RenderReflectionProbeLevel  1   1
 RenderMirrors				1	0
+RenderMirrorCount			1	1
 RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	3
@@ -240,9 +255,13 @@ RenderFSAAType  			1	1
 RenderFSAASamples			1	1
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
-RenderScreenSpaceReflections 1  0
+RenderReflectionProbeQuality	1	1
+RenderScreenSpaceReflections 1  1
+RenderScreenSpaceReflectionGlossySamples 1 2
+RenderScreenSpaceReflectionsResolutionMultiplier 1 0.25
 RenderReflectionProbeLevel  1   1
 RenderMirrors				1	0
+RenderMirrorCount			1	1
 RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	2
@@ -281,9 +300,13 @@ RenderFSAAType  			1	2
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
-RenderScreenSpaceReflections 1  0
+RenderReflectionProbeQuality	1	1
+RenderScreenSpaceReflections 1  1
+RenderScreenSpaceReflectionGlossySamples 1 4
+RenderScreenSpaceReflectionsResolutionMultiplier 1 0.5
 RenderReflectionProbeLevel  1   2
 RenderMirrors				1	0
+RenderMirrorCount			1	1
 RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	8
 RenderHeroProbeUpdateRate	1	2
@@ -322,9 +345,13 @@ RenderFSAAType  			1	2
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
-RenderScreenSpaceReflections 1  0
+RenderReflectionProbeQuality	1	1
+RenderScreenSpaceReflections 1  1
+RenderScreenSpaceReflectionGlossySamples 1 4
+RenderScreenSpaceReflectionsResolutionMultiplier 1 1
 RenderReflectionProbeLevel  1   3
 RenderMirrors				1	0
+RenderMirrorCount			1	2
 RenderHeroProbeResolution	1	1024
 RenderHeroProbeDistance		1	16
 RenderHeroProbeUpdateRate	1	1
@@ -363,9 +390,13 @@ RenderFSAAType  			1	2
 RenderFSAASamples			1	3
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
-RenderScreenSpaceReflections 1  0
+RenderReflectionProbeQuality	1	1
+RenderScreenSpaceReflections 1  1
+RenderScreenSpaceReflectionGlossySamples 1 8
+RenderScreenSpaceReflectionsResolutionMultiplier 1 1
 RenderReflectionProbeLevel  1   3
 RenderMirrors				1	0
+RenderMirrorCount			1	4
 RenderHeroProbeResolution	1	2048
 RenderHeroProbeDistance		1	16
 RenderHeroProbeUpdateRate	1	1

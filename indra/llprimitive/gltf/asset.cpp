@@ -24,19 +24,13 @@
  * $/LicenseInfo$
  */
 
-#include "../llviewerprecompiledheaders.h"
+#include "linden_common.h"
 
 #include "asset.h"
 #include "llvolumeoctree.h"
-#include "../llviewershadermgr.h"
-#include "../llviewercontrol.h"
-#include "../llviewertexturelist.h"
-#include "../pipeline.h"
 #include "buffer_util.h"
+#include "lldir.h"
 #include "llimagejpeg.h"
-#include "../llskinningutil.h"
-
-#include <future>
 
 using namespace LL::GLTF;
 using namespace boost::json;
@@ -48,7 +42,13 @@ namespace LL
     {
         static std::unordered_set<std::string> ExtensionsSupported = {
             "KHR_materials_unlit",
-            "KHR_texture_transform"
+            "KHR_texture_transform",
+            "KHR_materials_transmission",
+            "KHR_materials_ior",
+            "KHR_materials_volume",
+            "KHR_materials_dispersion",
+            "KHR_materials_emissive_strength",
+            "KHR_materials_specular"
         };
 
         static std::unordered_set<std::string> ExtensionsIgnored = {
@@ -127,10 +127,9 @@ void Asset::updateTransforms()
     {
         scene.updateTransforms(*this);
     }
-
-    uploadTransforms();
 }
 
+#if 0 // viewer-side rendering code — needs llskinningutil, llviewershadermgr, etc.
 void Asset::uploadTransforms()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
@@ -236,6 +235,7 @@ void Asset::uploadMaterials()
     glBufferData(GL_UNIFORM_BUFFER, md.size() * sizeof(vec4), md.data(), GL_STREAM_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
+#endif // viewer-side rendering code
 
 S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
     LLVector4a* intersection,         // return the intersection point
@@ -448,6 +448,7 @@ const Image& Image::operator=(const Value& src)
 
 void Asset::update()
 {
+#if 0 // viewer-side rendering code — needs gFrameTimeSeconds, gSavedSettings, LLViewerTexture, etc.
     LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     F32 dt = gFrameTimeSeconds - mLastUpdateTime;
 
@@ -489,6 +490,7 @@ void Asset::update()
             }
         }
     }
+#endif
 }
 
 bool Asset::prep()
@@ -524,6 +526,7 @@ bool Asset::prep()
         }
     }
 
+#if 0 // viewer-side texture code — needs LLViewerTextureManager
     for (auto& image : mImages)
     {
         if (!image.prep(*this, mLoadIntoVRAM))
@@ -531,6 +534,7 @@ bool Asset::prep()
             return false;
         }
     }
+#endif
 
     for (auto& mesh : mMeshes)
     {
@@ -555,6 +559,8 @@ bool Asset::prep()
             return false;
         }
     }
+
+#if 0 // viewer-side rendering code — needs gDebugProgram, LLVertexBuffer
     if (mLoadIntoVRAM)
     {
         // prepare vertex buffers
@@ -590,9 +596,7 @@ bool Asset::prep()
 
                 for (U32 variant = 0; variant < LLGLSLShader::NUM_GLTF_VARIANTS; ++variant)
                 {
-#ifdef SHOW_ASSERT
                     U32 attribute_mask = 0;
-#endif
                     // for each mesh
                     for (auto& mesh : mMeshes)
                     {
@@ -610,82 +614,16 @@ bool Asset::prep()
 
                                 // all primitives of a given variant and material should all have the same attribute mask
                                 llassert(attribute_mask == 0 || primitive.mAttributeMask == attribute_mask);
-#ifdef SHOW_ASSERT
                                 attribute_mask |= primitive.mAttributeMask;
-#endif
                             }
                         }
-                    }
-
-                    // allocate vertex buffer and pack it
-                    if (vertex_count[variant] > 0)
-                    {
-                        U32 mat_idx = mat_id + 1;
-                        #if 0
-                        LLVertexBuffer* vb = new LLVertexBuffer(attribute_mask);
-
-                        rd.mBatches[variant][mat_idx].mVertexBuffer = vb;
-                        vb->allocateBuffer(vertex_count[variant],
-                            index_count[variant] * 2); // hack double index count... TODO: find a better way to indicate 32-bit indices will be used
-                        vb->setBuffer();
-
-                        for (auto& mesh : mMeshes)
-                        {
-                            for (auto& primitive : mesh.mPrimitives)
-                            {
-                                if (primitive.mMaterial == mat_id && primitive.mShaderVariant == variant)
-                                {
-                                    primitive.upload(vb);
-                                }
-                            }
-                        }
-
-                        vb->unmapBuffer();
-
-                        vb->unbind();
-                        #endif
                     }
                 }
             }
         }
-
-        // sanity check that all primitives have a vertex buffer
-        for (auto& mesh : mMeshes)
-        {
-            for (auto& primitive : mesh.mPrimitives)
-            {
-                //llassert(primitive.mVertexBuffer.notNull());
-            }
-        }
     }
-    #if 0
-    // build render batches
-    for (S32 node_id = 0; node_id < mNodes.size(); ++node_id)
-    {
-        Node& node = mNodes[node_id];
+#endif
 
-        if (node.mMesh != INVALID_INDEX)
-        {
-            auto& mesh = mMeshes[node.mMesh];
-
-            S32 mat_idx = mesh.mPrimitives[0].mMaterial + 1;
-
-            S32 double_sided = mat_idx == 0 ? 0 : mMaterials[mat_idx - 1].mDoubleSided;
-
-            for (S32 j = 0; j < mesh.mPrimitives.size(); ++j)
-            {
-                auto& primitive = mesh.mPrimitives[j];
-
-                S32 variant = primitive.mShaderVariant;
-
-                RenderData& rd = mRenderData[double_sided];
-                RenderBatch& rb = rd.mBatches[variant][mat_idx];
-
-                rb.mPrimitives.push_back({ j, node_id });
-            }
-        }
-    }
-    #endif
     return true;
 }
 
@@ -957,10 +895,9 @@ void Asset::eraseBufferView(S32 bufferView)
 
 }
 
-LLViewerFetchedTexture* fetch_texture(const LLUUID& id);
-
 bool Image::prep(Asset& asset, bool loadIntoVRAM)
 {
+#if 0 // viewer-side texture code — needs LLViewerTextureManager, LLLocalBitmapMgr, etc.
     mLoadIntoTexturePipe = loadIntoVRAM;
 
     LLUUID id;
@@ -991,10 +928,13 @@ bool Image::prep(Asset& asset, bool loadIntoVRAM)
 
     // Block until prep is done on the main thread
     return prep_future.get();
+#endif
+    return false;
 }
 
 bool Image::prepImpl(Asset& asset, const LLUUID& id)
 {
+#if 0 // viewer-side texture code
     if (id.notNull())
     { // loaded from an asset, fetch the texture from the asset system
         mTexture = fetch_texture(id);
@@ -1061,6 +1001,8 @@ bool Image::prepImpl(Asset& asset, const LLUUID& id)
     }
 
     return true;
+#endif
+    return false;
 }
 
 
@@ -1088,6 +1030,7 @@ void Image::clearData(Asset& asset)
 
 bool Image::save(Asset& asset, const std::string& folder)
 {
+#if 0 // viewer-side texture code
     // NOTE:  this *MUST* be a lossless save
     // Artists use this to save their work repeatedly, so
     // adding any compression artifacts here will degrade
@@ -1190,6 +1133,8 @@ bool Image::save(Asset& asset, const std::string& folder)
     clearData(asset);
 
     return true;
+#endif
+    return false;
 }
 
 void TextureInfo::serialize(object& dst) const
@@ -1324,6 +1269,106 @@ void Material::Unlit::serialize(object& dst) const
     // no members and object has already been created, nothing to do
 }
 
+const Material::Transmission& Material::Transmission::operator=(const Value& src)
+{
+    mPresent = true;
+    if (src.is_object())
+    {
+        copy(src, "transmissionFactor", mTransmissionFactor);
+    }
+    return *this;
+}
+
+void Material::Transmission::serialize(object& dst) const
+{
+    write(mTransmissionFactor, "transmissionFactor", dst, 0.f);
+}
+
+const Material::IOR& Material::IOR::operator=(const Value& src)
+{
+    mPresent = true;
+    if (src.is_object())
+    {
+        copy(src, "ior", mIor);
+    }
+    return *this;
+}
+
+void Material::IOR::serialize(object& dst) const
+{
+    write(mIor, "ior", dst, 1.5f);
+}
+
+const Material::Volume& Material::Volume::operator=(const Value& src)
+{
+    mPresent = true;
+    if (src.is_object())
+    {
+        copy(src, "thicknessFactor", mThicknessFactor);
+        copy(src, "attenuationDistance", mAttenuationDistance);
+        copy(src, "attenuationColor", mAttenuationColor);
+    }
+    return *this;
+}
+
+void Material::Volume::serialize(object& dst) const
+{
+    write(mThicknessFactor, "thicknessFactor", dst, 0.f);
+    write(mAttenuationDistance, "attenuationDistance", dst, std::numeric_limits<F32>::infinity());
+    write(mAttenuationColor, "attenuationColor", dst, vec3(1.f, 1.f, 1.f));
+}
+
+const Material::Dispersion& Material::Dispersion::operator=(const Value& src)
+{
+    mPresent = true;
+    if (src.is_object())
+    {
+        copy(src, "dispersion", mDispersion);
+    }
+    return *this;
+}
+
+void Material::Dispersion::serialize(object& dst) const
+{
+    write(mDispersion, "dispersion", dst, 0.f);
+}
+
+const Material::EmissiveStrength& Material::EmissiveStrength::operator=(const Value& src)
+{
+    mPresent = true;
+    if (src.is_object())
+    {
+        copy(src, "emissiveStrength", mEmissiveStrength);
+    }
+    return *this;
+}
+
+void Material::EmissiveStrength::serialize(object& dst) const
+{
+    write(mEmissiveStrength, "emissiveStrength", dst, 1.0f);
+}
+
+const Material::Specular& Material::Specular::operator=(const Value& src)
+{
+    mPresent = true;
+    if (src.is_object())
+    {
+        copy(src, "specularFactor", mSpecularFactor);
+        copy(src, "specularTexture", mSpecularTexture);
+        copy(src, "specularColorFactor", mSpecularColorFactor);
+        copy(src, "specularColorTexture", mSpecularColorTexture);
+    }
+    return *this;
+}
+
+void Material::Specular::serialize(object& dst) const
+{
+    write(mSpecularFactor, "specularFactor", dst, 1.0f);
+    write(mSpecularTexture, "specularTexture", dst);
+    write(mSpecularColorFactor, "specularColorFactor", dst, vec3(1.f, 1.f, 1.f));
+    write(mSpecularColorTexture, "specularColorTexture", dst);
+}
+
 void TextureTransform::getPacked(vec4* packed) const
 {
     packed[0] = vec4(mScale.x, mScale.y, mRotation, mOffset.x);
@@ -1364,7 +1409,14 @@ void Material::serialize(object& dst) const
     write(mAlphaMode, "alphaMode", dst, Material::AlphaMode::OPAQUE);
     write(mAlphaCutoff, "alphaCutoff", dst, 0.5f);
     write(mDoubleSided, "doubleSided", dst, false);
-    write_extensions(dst, &mUnlit, "KHR_materials_unlit");
+    write_extensions(dst,
+        &mUnlit, "KHR_materials_unlit",
+        &mTransmission, "KHR_materials_transmission",
+        &mIOR, "KHR_materials_ior",
+        &mVolume, "KHR_materials_volume",
+        &mDispersion, "KHR_materials_dispersion",
+        &mEmissiveStrength, "KHR_materials_emissive_strength",
+        &mSpecular, "KHR_materials_specular");
 }
 
 const Material& Material::operator=(const Value& src)
@@ -1381,7 +1433,13 @@ const Material& Material::operator=(const Value& src)
         copy(src, "alphaCutoff", mAlphaCutoff);
         copy(src, "doubleSided", mDoubleSided);
         copy_extensions(src,
-            "KHR_materials_unlit", &mUnlit );
+            "KHR_materials_unlit", &mUnlit,
+            "KHR_materials_transmission", &mTransmission,
+            "KHR_materials_ior", &mIOR,
+            "KHR_materials_volume", &mVolume,
+            "KHR_materials_dispersion", &mDispersion,
+            "KHR_materials_emissive_strength", &mEmissiveStrength,
+            "KHR_materials_specular", &mSpecular);
     }
     return *this;
 }

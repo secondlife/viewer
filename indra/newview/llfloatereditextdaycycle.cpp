@@ -82,6 +82,11 @@ namespace {
     const std::string BTN_SAVE("save_btn");
     const std::string BTN_FLYOUT("btn_flyout");
     const std::string BTN_CANCEL("cancel_btn");
+    const std::string BTN_UPGRADE("btn_upgrade");
+    const std::string BTN_UPGRADE_FLYOUT("btn_upgrade_flyout");
+    const std::string XML_UPGRADE_MENU_FILE("menu_upgrade_settings.xml");
+    const std::string ACTION_UPGRADE_CURRENT("upgrade_current");
+    const std::string ACTION_UPGRADE_ALL("upgrade_all");
     const std::string BTN_ADDFRAME("add_frame");
     const std::string BTN_DELFRAME("delete_frame");
     const std::string BTN_IMPORT("btn_import");
@@ -166,6 +171,7 @@ private:
 LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     LLFloaterEditEnvironmentBase(key),
     mFlyoutControl(nullptr),
+    mUpgradeFlyoutControl(nullptr),
     mDayLength(0),
     mCurrentTrack(1),
     mShiftCopyEnabled(false),
@@ -198,6 +204,7 @@ LLFloaterEditExtDayCycle::~LLFloaterEditExtDayCycle()
     // Todo: consider remaking mFlyoutControl into full view class that initializes intself with floater,
     // complete with postbuild, e t c...
     delete mFlyoutControl;
+    delete mUpgradeFlyoutControl;
 }
 
 // virtual
@@ -223,6 +230,10 @@ bool LLFloaterEditExtDayCycle::postBuild()
 
     mNameEditor->setKeystrokeCallback([this](LLLineEditor*, void*) { onNameKeystroke(); }, NULL);
     mCancelButton->setCommitCallback([this](LLUICtrl*, const LLSD&) { onClickCloseBtn(); });
+
+    mUpgradeFlyoutControl = new LLFlyoutComboBtnCtrl(this, BTN_UPGRADE, BTN_UPGRADE_FLYOUT, XML_UPGRADE_MENU_FILE, true);
+    mUpgradeFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &) { onButtonUpgrade(ctrl); });
+
     mTimeSlider->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTimeSliderCallback(); });
     mAddFrameButton->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAddFrame(); });
     mDeleteFrameButton->setCommitCallback([this](LLUICtrl*, const LLSD&) { onRemoveFrame(); });
@@ -1222,6 +1233,47 @@ void LLFloaterEditExtDayCycle::updateButtons()
         button->setEnabled(extended_env);
         button->setToggleState(track == mCurrentTrack);
     }
+
+    // upgrade button - only visible for sky tracks with a sky below max version
+    bool show_upgrade = false;
+    if (mCurrentTrack != LLSettingsDay::TRACK_WATER && mEditSky)
+    {
+        show_upgrade = mEditSky->getSkySettingVersion() < LLSettingsSky::MAX_SKY_SETTINGS_VERSION;
+    }
+    getChild<LLUICtrl>(BTN_UPGRADE)->setVisible(show_upgrade);
+    getChild<LLUICtrl>(BTN_UPGRADE_FLYOUT)->setVisible(show_upgrade);
+}
+
+void LLFloaterEditExtDayCycle::onButtonUpgrade(LLUICtrl *ctrl)
+{
+    std::string action = ctrl->getName();
+
+    if (action == ACTION_UPGRADE_ALL)
+    {
+        if (!mEditDay) return;
+        for (U32 track = 1; track < LLSettingsDay::TRACK_MAX; ++track)
+        {
+            LLSettingsDay::CycleTrack_t &cycle_track = mEditDay->getCycleTrack(track);
+            for (auto &frame : cycle_track)
+            {
+                LLSettingsSky::ptr_t sky = std::static_pointer_cast<LLSettingsSky>(frame.second);
+                if (sky && sky->getSkySettingVersion() < LLSettingsSky::MAX_SKY_SETTINGS_VERSION)
+                {
+                    sky->setSkySettingVersion(LLSettingsSky::MAX_SKY_SETTINGS_VERSION);
+                    sky->update();
+                }
+            }
+        }
+    }
+    else
+    {
+        if (!mEditSky) return;
+        mEditSky->setSkySettingVersion(LLSettingsSky::MAX_SKY_SETTINGS_VERSION);
+        mEditSky->update();
+    }
+
+    synchronizeTabs();
+    updateButtons();
 }
 
 void LLFloaterEditExtDayCycle::updateSlider()

@@ -7,14 +7,32 @@
         left="0"
         name="panel_settings_sky_hbodies"
         top="0">
-    <layout_stack 
-            name="main_ls"
+    <scroll_container
+            name="sunmoon_scroll"
             follows="all"
+            layout="topleft"
+            left="0"
+            top="0"
+            right="-1"
+            bottom="-1"
+            opaque="false"
+            reserve_scroll_corner="true">
+        <panel
+                name="sunmoon_panel"
+                follows="left|top"
+                layout="topleft"
+                left="0"
+                top="0"
+                height="470"
+                width="690">
+    <layout_stack
+            name="main_ls"
+            follows="left|top"
             layout="topleft"
             left="5"
             top="5"
-            right="-5"
-            bottom="-5"
+            width="680"
+            height="460"
             orientation="horizontal">
         <layout_panel
                 border="true"
@@ -23,7 +41,7 @@
                 user_resize="false"
                 visible="true"
                 name="sun_layout"
-                height="400">
+                height="460">
             <text
                     name="sun_stars_label"
                     follows="left|top"
@@ -211,12 +229,36 @@
                     width="215"
                     can_edit_text="true"/>
             <text
-                    name="star_brightness_label"
+                    name="sun_brightness_label"
                     follows="left|top"
                     height="10"
                     layout="topleft"
                     left_delta="-5"
                     top_delta="22"
+                    width="200">
+                Sun Brightness (lux):
+            </text>
+            <slider
+                    decimal_digits="0"
+                    follows="left|top"
+                    height="16"
+                    increment="1000"
+                    initial_value="0"
+                    layout="topleft"
+                    left_delta="5"
+                    min_val="0"
+                    max_val="2000000"
+                    name="sun_brightness"
+                    top_delta="13"
+                    width="215"
+                    can_edit_text="true"/>
+            <text
+                    name="star_brightness_label"
+                    follows="left|top"
+                    height="10"
+                    layout="topleft"
+                    left_delta="-5"
+                    top_delta="25"
                     width="200">
                 Star Brightness:
             </text>
@@ -254,7 +296,7 @@
                 auto_resize="true"
                 user_resize="false"
                 visible="true"
-                height="400">
+                height="460">
                     <text
                             name="moon_label"
                             follows="left|top"
@@ -410,4 +452,7 @@
 
         </layout_panel>
     </layout_stack>
-</panel>                
+        </panel>
+    </scroll_container>
+</panel>
+

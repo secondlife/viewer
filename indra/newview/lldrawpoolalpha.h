@@ -49,17 +49,22 @@ public:
                             LLVertexBuffer::MAP_COLOR |
                             LLVertexBuffer::MAP_TEXCOORD0
     };
-    virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+    U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
 
     LLDrawPoolAlpha(U32 type);
-    /*virtual*/ ~LLDrawPoolAlpha();
+    ~LLDrawPoolAlpha() override;
 
-    /*virtual*/ S32 getNumPostDeferredPasses();
-    /*virtual*/ void renderPostDeferred(S32 pass);
-    /*virtual*/ S32  getNumPasses() { return 1; }
+    S32 getNumPostDeferredPasses() override;
+    void renderPostDeferred(S32 pass) override;
+    S32 getNumPasses() override { return 1; }
+
+    S32 getNumVelocityPasses() override;
+    void beginVelocityPass(S32 pass) override;
+    void endVelocityPass(S32 pass) override;
+    void renderVelocity(S32 pass) override;
 
     void forwardRender(bool write_depth = false);
-    /*virtual*/ void prerender();
+    void prerender() override;
 
     void renderDebugAlpha();
 

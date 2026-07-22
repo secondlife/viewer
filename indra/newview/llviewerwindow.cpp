@@ -5212,6 +5212,15 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
     F32 depth_conversion_factor_1 = (LLViewerCamera::getInstance()->getFar() + LLViewerCamera::getInstance()->getNear()) / (2.f * LLViewerCamera::getInstance()->getFar() * LLViewerCamera::getInstance()->getNear());
     F32 depth_conversion_factor_2 = (LLViewerCamera::getInstance()->getFar() - LLViewerCamera::getInstance()->getNear()) / (2.f * LLViewerCamera::getInstance()->getFar() * LLViewerCamera::getInstance()->getNear());
 
+    // Warmup pass: render the scene once to populate mSceneMap for SSR.
+    // Without this, SSR traces against an empty scene map on the first capture pass.
+    if (LLPipeline::sRenderDeferred && gPipeline.RenderScreenSpaceReflections)
+    {
+        gDisplaySwapBuffers = false;
+        gDepthDirty = true;
+        display(do_rebuild, scale_factor, 0, true);
+    }
+
     // Subimages are in fact partial rendering of the final view. This happens when the final view is bigger than the screen.
     // In most common cases, scale_factor is 1 and there's no more than 1 iteration on x and y
     for (int subimage_y = 0; subimage_y < scale_factor; ++subimage_y)
@@ -5482,7 +5491,8 @@ bool LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
 
 void display_cube_face();
 
-bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 cubeIndex, S32 face, F32 near_clip, bool dynamic_render, bool useCustomClipPlane, LLPlane clipPlane)
+bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 cubeIndex, S32 face, F32 near_clip, bool dynamic_render, bool useCustomClipPlane, LLPlane clipPlane,
+    const LLVector3* overrideLookDir, const LLVector3* overrideUpDir)
 {
     // NOTE: implementation derived from LLFloater360Capture::capture360Images() and simpleSnapshot
     LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
@@ -5585,7 +5595,10 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     int i = face;
     {
         // set up camera to look in each direction
-        camera->lookDir(look_dirs[i], look_upvecs[i]);
+        if (overrideLookDir && overrideUpDir)
+            camera->lookDir(*overrideLookDir, *overrideUpDir);
+        else
+            camera->lookDir(look_dirs[i], look_upvecs[i]);
 
         // turning this flag off here prohibits the screen swap
         // to present the new page to the viewer - this stops

@@ -46,7 +46,7 @@
 #include "llnotificationsutil.h"
 #include "llscrolllistctrl.h"
 #include "lltextureentry.h"
-#include "lltinygltfhelper.h"
+#include "llgltfhelper.h"
 #include "llviewertexture.h"
 
 /*=======================================*/
@@ -243,14 +243,14 @@ bool LLLocalGLTFMaterial::loadMaterial()
             LLStringUtil::toLower(filename_lc);
             std::string material_name;
 
-            tinygltf::Model model;
-            decode_successful = LLTinyGLTFHelper::loadModel(mFilename, model);
+            LL::GLTF::Asset asset;
+            decode_successful = LLGLTFHelper::loadModel(mFilename, asset);
             if (decode_successful)
             {
                 // Might be a good idea to make these textures into local textures
-                decode_successful = LLTinyGLTFHelper::getMaterialFromModel(
+                decode_successful = LLGLTFHelper::getMaterialFromModel(
                     mFilename,
-                    model,
+                    asset,
                     mMaterialIndex,
                     this,
                     material_name);
@@ -343,10 +343,10 @@ S32 LLLocalGLTFMaterialMgr::addUnit(const std::vector<std::string>& filenames)
 
 S32 LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
 {
-    tinygltf::Model model;
-    LLTinyGLTFHelper::loadModel(filename, model);
+    LL::GLTF::Asset asset;
+    LLGLTFHelper::loadModel(filename, asset);
 
-    auto materials_in_file = model.materials.size();
+    auto materials_in_file = asset.mMaterials.size();
     if (materials_in_file <= 0)
     {
         return 0;

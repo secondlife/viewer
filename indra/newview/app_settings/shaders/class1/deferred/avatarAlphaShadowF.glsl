@@ -34,22 +34,13 @@ in float target_pos_x;
 in vec2 vary_texcoord0;
 uniform vec4 color;
 
+void bayerDitherDiscard(float alpha, float threshold);
+
 void main()
 {
     float alpha = texture(diffuseMap, vary_texcoord0.xy).a * color.a;
 
-    if (alpha < 0.05) // treat as totally transparent
-    {
-        discard;
-    }
-
-    if (alpha < minimum_alpha) // treat as semi-transparent
-    {
-      if (fract(0.5*floor(target_pos_x / pos_w )) < 0.25)
-      {
-        discard;
-      }
-    }
+    bayerDitherDiscard(alpha, minimum_alpha);
 
     frag_color = vec4(1,1,1,1);
 }

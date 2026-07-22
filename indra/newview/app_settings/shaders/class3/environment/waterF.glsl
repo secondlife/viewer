@@ -24,8 +24,11 @@
  */
 
 // class3/environment/waterF.glsl
-
-#define WATER_MINIMAL 1
+#ifdef SSR
+#define WATER_MINIMAL_PLUS 1
+#else
+#define WATER_MINIMAL_PLUS 1
+#endif
 
 out vec4 frag_color;
 
@@ -42,7 +45,7 @@ void mirrorClip(vec3 pos);
 // PBR interface
 vec2 BRDF(float NoV, float roughness);
 
-void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
+void calcDiffuseSpecular(vec3 baseColor, float metallic, float specularFactor, vec3 specularColorFactor, float ior, inout vec3 diffuseColor, inout vec3 specularColor, inout float specularWeight);
 
 void pbrIbl(vec3 diffuseColor,
     vec3 specularColor,
@@ -51,12 +54,13 @@ void pbrIbl(vec3 diffuseColor,
     float ao,       // ambient occlusion factor
     float nv,       // normal dot view vector
     float perceptualRoughness,
+    float specularWeight,
     out vec3 diffuse,
     out vec3 specular);
 
 void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
-                    float metallic,
+                    float specularWeight,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
                     vec3 l, // surface point to light
@@ -66,7 +70,7 @@ void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 
 vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
-                  float metallic,
+                  float specularWeight,
                   vec3 pos,
                   vec3 norm,
                   float perceptualRoughness,
@@ -289,7 +293,7 @@ void main()
 #endif
 
     float metallic = 1.0;
-    float perceptualRoughness = blurMultiplier;
+    float perceptualRoughness = blurMultiplier * blurMultiplier;
     float gloss      = 1 - perceptualRoughness;
 
     vec3  irradiance = vec3(0);
@@ -305,8 +309,9 @@ void main()
 
     vec3 diffuseColor = vec3(0);
     vec3 specularColor = vec3(0);
+    float waterSpecWeight = 1.0;
     vec3 specular_linear = srgb_to_linear(specular);
-    calcDiffuseSpecular(specular_linear, metallic, diffuseColor, specularColor);
+    calcDiffuseSpecular(specular_linear, metallic, 1.0, vec3(1.0), 1.5, diffuseColor, specularColor, waterSpecWeight);
 
     vec3 v = -normalize(pos.xyz);
 
@@ -320,7 +325,7 @@ void main()
     vec3 diffPunc = vec3(0);
     vec3 specPunc = vec3(0);
 
-    pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
+    pbrPunctual(diffuseColor, specularColor, perceptualRoughness, waterSpecWeight, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
 
     vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit_linear * shadow * atten;
     radiance *= df2.y;
@@ -344,6 +349,6 @@ void main()
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0);
 
-    frag_color = min(vec4(1),max(vec4(color.rgb, spec * water_mask), vec4(0)));
+    frag_color = max(vec4(color.rgb, spec * water_mask), vec4(0));
 }
 

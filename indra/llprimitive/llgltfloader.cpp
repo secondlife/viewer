@@ -24,28 +24,12 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "llgltfloader.h"
 #include "meshoptimizer.h"
 #include <glm/gtc/packing.hpp>
 
-// Import & define single-header gltf import/export lib
-#define TINYGLTF_IMPLEMENTATION
-#define TINYGLTF_USE_CPP14  // default is C++ 11
-
-// tinygltf by default loads image files using STB
-#define STB_IMAGE_IMPLEMENTATION
-// to use our own image loading:
-// 1. replace this definition with TINYGLTF_NO_STB_IMAGE
-// 2. provide image loader callback with TinyGLTF::SetImageLoader(LoadimageDataFunction LoadImageData, void *user_data)
-
-// tinygltf saves image files using STB
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-// similarly, can override with TINYGLTF_NO_STB_IMAGE_WRITE and TinyGLTF::SetImageWriter(fxn, data)
-
-// Additionally, disable inclusion of STB header files entirely with
-// TINYGLTF_NO_INCLUDE_STB_IMAGE
-// TINYGLTF_NO_INCLUDE_STB_IMAGE_WRITE
-#include "tinygltf/tiny_gltf.h"
 
 
 // TODO: includes inherited from dae loader.  Validate / prune
@@ -131,7 +115,6 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
     // Clear the material cache for new file
     mMaterialCache.clear();
 
-    tinygltf::TinyGLTF loader;
     std::string filename_lc(filename);
     LLStringUtil::toLower(filename_lc);
 
@@ -185,6 +168,9 @@ bool LLGLTFLoader::OpenFile(const std::string &filename)
     notifyUnsupportedExtension(false);
 
     bool meshesLoaded = parseMeshes();
+
+    mMaterialsLoaded = parseMaterials();
+    if (mMaterialsLoaded) uploadMaterials();
 
     setLoadState(DONE);
 
@@ -635,7 +621,7 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
                     LL::GLTF::Image& image = mGLTFAsset.mImages[sourceIndex];
                     if (image.mTexture.notNull())
                     {
-                        mTexturesNeedScaling |= image.mHeight > LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT || image.mWidth > LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT;
+                        mTexturesNeedScaling |= image.mHeight > LLGLTexture::MAX_IMAGE_SIZE_DEFAULT || image.mWidth > LLGLTexture::MAX_IMAGE_SIZE_DEFAULT;
                         impMat.setDiffuseMap(image.mTexture->getID());
                         LL_INFOS("GLTF_IMPORT") << "Using existing texture ID: " << image.mTexture->getID().asString() << LL_ENDL;
                     }
@@ -646,6 +632,34 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
                 }
             }
         }
+
+        // Process metallic-roughness texture
+        if (material->mPbrMetallicRoughness.mMetallicRoughnessTexture.mIndex >= 0)
+        {
+            std::string full_path;
+            processTexture(full_path, material->mPbrMetallicRoughness.mMetallicRoughnessTexture.mIndex, "metallic_roughness", material->mName);
+        }
+
+        // Process normal texture
+        if (material->mNormalTexture.mIndex >= 0)
+        {
+            std::string full_path;
+            processTexture(full_path, material->mNormalTexture.mIndex, "normal", material->mName);
+        }
+
+        // Process occlusion texture
+        if (material->mOcclusionTexture.mIndex >= 0)
+        {
+            std::string full_path;
+            processTexture(full_path, material->mOcclusionTexture.mIndex, "occlusion", material->mName);
+        }
+
+        // Process emissive texture
+        if (material->mEmissiveTexture.mIndex >= 0)
+        {
+            std::string full_path;
+            processTexture(full_path, material->mEmissiveTexture.mIndex, "emissive", material->mName);
+        }
     }
 
     // Create cached material with both material and name
@@ -654,6 +668,210 @@ LLGLTFLoader::LLGLTFImportMaterial LLGLTFLoader::processMaterial(S32 material_in
     // Cache the processed material
     mMaterialCache[material_index] = cachedMat;
     return cachedMat;
+}
+
+bool LLGLTFLoader::parseMaterials()
+{
+    if (!mGltfLoaded) return false;
+
+    // fill local texture data structures
+    mGltfSamplers.clear();
+    for (const auto& in_sampler : mGLTFAsset.mSamplers)
+    {
+        gltf_sampler sampler;
+        sampler.magFilter = in_sampler.mMagFilter > 0 ? in_sampler.mMagFilter : GL_LINEAR;
+        sampler.minFilter = in_sampler.mMinFilter > 0 ? in_sampler.mMinFilter : GL_LINEAR;
+        sampler.wrapS     = in_sampler.mWrapS;
+        sampler.wrapT     = in_sampler.mWrapT;
+        sampler.name      = in_sampler.mName;
+        mGltfSamplers.push_back(sampler);
+    }
+
+    mGltfImages.clear();
+    for (const auto& in_image : mGLTFAsset.mImages)
+    {
+        gltf_image image;
+        image.numChannels     = in_image.mComponent > 0 ? in_image.mComponent : 0;
+        image.bytesPerChannel = in_image.mBits > 0 ? (in_image.mBits >> 3) : 0;
+        image.pixelType       = in_image.mPixelType;
+        image.size            = 0;
+        image.height          = in_image.mHeight > 0 ? in_image.mHeight : 0;
+        image.width           = in_image.mWidth > 0 ? in_image.mWidth : 0;
+        image.data            = nullptr;
+
+        mGltfImages.push_back(image);
+    }
+
+    mGltfTextures.clear();
+    for (const auto& in_tex : mGLTFAsset.mTextures)
+    {
+        gltf_texture tex;
+        tex.imageIdx   = in_tex.mSource >= 0 ? in_tex.mSource : 0;
+        tex.samplerIdx = in_tex.mSampler >= 0 ? in_tex.mSampler : 0;
+        tex.imageUuid.setNull();
+
+        if (tex.imageIdx >= mGltfImages.size() || (!mGltfSamplers.empty() && tex.samplerIdx >= mGltfSamplers.size()))
+        {
+            LL_WARNS("GLTF_IMPORT") << "Texture sampler/image index error" << LL_ENDL;
+            return false;
+        }
+
+        mGltfTextures.push_back(tex);
+    }
+
+    // parse each material
+    for (const auto& gltf_material : mGLTFAsset.mMaterials)
+    {
+        gltf_render_material mat;
+        mat.name = gltf_material.mName;
+
+        const auto& pbr = gltf_material.mPbrMetallicRoughness;
+        mat.hasPBR = true;
+
+        mat.baseColor = LLColor4(pbr.mBaseColorFactor[0], pbr.mBaseColorFactor[1], pbr.mBaseColorFactor[2], pbr.mBaseColorFactor[3]);
+        mat.hasBaseTex = pbr.mBaseColorTexture.mIndex >= 0;
+        mat.baseColorTexIdx = pbr.mBaseColorTexture.mIndex >= 0 ? pbr.mBaseColorTexture.mIndex : 0;
+        mat.baseColorTexCoords = pbr.mBaseColorTexture.mTexCoord;
+
+        mat.metalness = pbr.mMetallicFactor;
+        mat.roughness = pbr.mRoughnessFactor;
+        mat.hasMRTex = pbr.mMetallicRoughnessTexture.mIndex >= 0;
+        mat.metalRoughTexIdx = pbr.mMetallicRoughnessTexture.mIndex >= 0 ? pbr.mMetallicRoughnessTexture.mIndex : 0;
+        mat.metalRoughTexCoords = pbr.mMetallicRoughnessTexture.mTexCoord;
+
+        mat.normalScale = gltf_material.mNormalTexture.mScale;
+        mat.hasNormalTex = gltf_material.mNormalTexture.mIndex >= 0;
+        mat.normalTexIdx = gltf_material.mNormalTexture.mIndex >= 0 ? gltf_material.mNormalTexture.mIndex : 0;
+        mat.normalTexCoords = gltf_material.mNormalTexture.mTexCoord;
+
+        mat.occlusionScale = gltf_material.mOcclusionTexture.mStrength;
+        mat.hasOcclusionTex = gltf_material.mOcclusionTexture.mIndex >= 0;
+        mat.occlusionTexIdx = gltf_material.mOcclusionTexture.mIndex >= 0 ? gltf_material.mOcclusionTexture.mIndex : 0;
+        mat.occlusionTexCoords = gltf_material.mOcclusionTexture.mTexCoord;
+
+        mat.emissiveColor = LLColor4(gltf_material.mEmissiveFactor[0], gltf_material.mEmissiveFactor[1], gltf_material.mEmissiveFactor[2], 1.0f);
+        mat.hasEmissiveTex = gltf_material.mEmissiveTexture.mIndex >= 0;
+        mat.emissiveTexIdx = gltf_material.mEmissiveTexture.mIndex >= 0 ? gltf_material.mEmissiveTexture.mIndex : 0;
+        mat.emissiveTexCoords = gltf_material.mEmissiveTexture.mTexCoord;
+
+        switch (gltf_material.mAlphaMode)
+        {
+            case LL::GLTF::Material::AlphaMode::MASK:
+                mat.alphaMode = "MASK";
+                break;
+            case LL::GLTF::Material::AlphaMode::BLEND:
+                mat.alphaMode = "BLEND";
+                break;
+            default:
+                mat.alphaMode = "OPAQUE";
+                break;
+        }
+        mat.alphaMask = gltf_material.mAlphaCutoff;
+
+        if (gltf_material.mTransmission.mPresent)
+        {
+            mat.transmissionFactor = gltf_material.mTransmission.mTransmissionFactor;
+        }
+
+        if (gltf_material.mIOR.mPresent)
+        {
+            mat.iorFactor = gltf_material.mIOR.mIor;
+        }
+
+        if (gltf_material.mVolume.mPresent)
+        {
+            mat.attenuationColor = LLColor4(gltf_material.mVolume.mAttenuationColor[0],
+                                             gltf_material.mVolume.mAttenuationColor[1],
+                                             gltf_material.mVolume.mAttenuationColor[2], 1.0f);
+            mat.attenuationDistance = gltf_material.mVolume.mAttenuationDistance;
+            mat.thicknessFactor = gltf_material.mVolume.mThicknessFactor;
+        }
+
+        if (gltf_material.mDispersion.mPresent)
+        {
+            mat.dispersionFactor = gltf_material.mDispersion.mDispersion;
+        }
+
+        if ((mat.hasNormalTex    && (mat.normalTexIdx     >= mGltfTextures.size())) ||
+            (mat.hasOcclusionTex && (mat.occlusionTexIdx  >= mGltfTextures.size())) ||
+            (mat.hasEmissiveTex  && (mat.emissiveTexIdx   >= mGltfTextures.size())) ||
+            (mat.hasBaseTex      && (mat.baseColorTexIdx  >= mGltfTextures.size())) ||
+            (mat.hasMRTex        && (mat.metalRoughTexIdx >= mGltfTextures.size())))
+        {
+            LL_WARNS("GLTF_IMPORT") << "Texture resource index error" << LL_ENDL;
+            return false;
+        }
+
+        if ((mat.hasNormalTex    && (mat.normalTexCoords      > 2)) ||
+            (mat.hasOcclusionTex && (mat.occlusionTexCoords   > 2)) ||
+            (mat.hasEmissiveTex  && (mat.emissiveTexCoords    > 2)) ||
+            (mat.hasBaseTex      && (mat.baseColorTexCoords   > 2)) ||
+            (mat.hasMRTex        && (mat.metalRoughTexCoords  > 2)))
+        {
+            LL_WARNS("GLTF_IMPORT") << "Image texcoord index error" << LL_ENDL;
+            return false;
+        }
+
+        mGltfMaterials.push_back(mat);
+    }
+
+    return true;
+}
+
+void LLGLTFLoader::uploadMaterials()
+{
+    for (gltf_render_material& mat : mGltfMaterials)
+    {
+        if (mat.hasBaseTex)
+        {
+            gltf_texture& gtex = mGltfTextures[mat.baseColorTexIdx];
+            if (gtex.imageUuid.isNull())
+            {
+                gtex.imageUuid = imageBufferToTextureUUID(gtex);
+            }
+        }
+
+        if (mat.hasMRTex)
+        {
+            gltf_texture& gtex = mGltfTextures[mat.metalRoughTexIdx];
+            if (gtex.imageUuid.isNull())
+            {
+                gtex.imageUuid = imageBufferToTextureUUID(gtex);
+            }
+        }
+
+        if (mat.hasNormalTex)
+        {
+            gltf_texture& gtex = mGltfTextures[mat.normalTexIdx];
+            if (gtex.imageUuid.isNull())
+            {
+                gtex.imageUuid = imageBufferToTextureUUID(gtex);
+            }
+        }
+
+        if (mat.hasOcclusionTex)
+        {
+            gltf_texture& gtex = mGltfTextures[mat.occlusionTexIdx];
+            if (gtex.imageUuid.isNull())
+            {
+                gtex.imageUuid = imageBufferToTextureUUID(gtex);
+            }
+        }
+
+        if (mat.hasEmissiveTex)
+        {
+            gltf_texture& gtex = mGltfTextures[mat.emissiveTexIdx];
+            if (gtex.imageUuid.isNull())
+            {
+                gtex.imageUuid = imageBufferToTextureUUID(gtex);
+            }
+        }
+    }
+}
+
+LLUUID LLGLTFLoader::imageBufferToTextureUUID(const gltf_texture& tex)
+{
+    return LLUUID::null;
 }
 
 std::string LLGLTFLoader::processTexture(std::string& full_path_out, S32 texture_index, const std::string& texture_type, const std::string& material_name)

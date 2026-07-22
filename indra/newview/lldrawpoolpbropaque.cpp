@@ -29,6 +29,7 @@
 #include "lldrawpool.h"
 #include "lldrawpoolpbropaque.h"
 #include "llviewershadermgr.h"
+#include "llrender.h"
 #include "pipeline.h"
 #include "gltfscenemanager.h"
 
@@ -91,5 +92,55 @@ void LLDrawPoolGLTFPBR::renderPostDeferred(S32 pass)
 
         gGL.setColorMask(true, false);
     }
+}
+
+S32 LLDrawPoolGLTFPBR::getNumVelocityPasses()
+{
+    return 1;
+}
+
+void LLDrawPoolGLTFPBR::beginVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    LLGLSLShader& shader = (mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK)
+        ? gVelocityAlphaProgram : gVelocityProgram;
+    shader.bind();
+    shader.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    shader.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    shader.uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+}
+
+void LLDrawPoolGLTFPBR::endVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    if (mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK)
+        gVelocityAlphaProgram.unbind();
+    else
+        gVelocityProgram.unbind();
+}
+
+void LLDrawPoolGLTFPBR::renderVelocity(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
+
+    bool alpha_mask = (mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK);
+
+    // Static pass for this pool type only
+    if (alpha_mask)
+        pushVelocityBatchesTextured(mRenderType);
+    else
+        pushVelocityBatches(mRenderType);
+
+    // Rigged pass for this pool type only
+    LLGLSLShader& shader = alpha_mask ? gVelocityAlphaProgram : gVelocityProgram;
+    shader.bind(true);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+    if (alpha_mask)
+        pushRiggedVelocityBatchesTextured(mRenderType + 1);
+    else
+        pushRiggedVelocityBatches(mRenderType + 1);
 }
 

@@ -153,6 +153,11 @@ public:
     void bindScreenToTexture();
     void renderFinalize();
     void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
+    void buildHiZBuffer();
+    void renderSSRTrace();
+    void renderSSRAlpha();
+    void renderSSRWater();
+    void filterSSRBuffer();
     void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
     void generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history = true);
     void tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_correct);
@@ -162,6 +167,7 @@ public:
     void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
     void generateSMAABuffers(LLRenderTarget* src);
     void applySMAA(LLRenderTarget* src, LLRenderTarget* dst);
+    void resolveSMAAT2x(LLRenderTarget* src, LLRenderTarget* dst);
     void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
     void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
     void combineGlow(LLRenderTarget* src, LLRenderTarget* dst);
@@ -308,6 +314,8 @@ public:
 
     void renderGeomDeferred(LLCamera& camera, bool do_occlusion = false);
     void renderGeomPostDeferred(LLCamera& camera);
+    void renderGeomVelocity();
+    void renderMotionBlurComposite(LLRenderTarget* src, LLRenderTarget* dst);
     void renderGeomShadow(LLCamera& camera);
     void bindLightFunc(LLGLSLShader& shader);
 
@@ -668,9 +676,11 @@ public:
     static bool             sNoAlpha;
     static bool             sUseFarClip;
     static bool             sShadowRender;
+    static bool             sVelocityRender;
     static bool             sDynamicLOD;
     static bool             sPickAvatar;
     static bool             sReflectionRender;
+    static bool             sDefaultProbeRender;
     static bool             sDistortionRender;
     static bool             sImpostorRender;
     static bool             sImpostorRenderAlphaDepthPass;
@@ -683,6 +693,7 @@ public:
     static bool             sReflectionProbesEnabled;
     static S32              sVisibleLightCount;
     static bool             sRenderingHUDs;
+    static bool             sT2xJitterEnabled;
     static F32              sDistortionWaterClipPlaneMargin;
 
     static LLTrace::EventStatHandle<S64> sStatBatchSize;
@@ -724,6 +735,12 @@ public:
     // for use by SSR
     LLRenderTarget          mSceneMap;
 
+    // Pre-computed SSR: RGB=reflection, A=fade
+    LLRenderTarget          mSSRBuffer;
+    std::vector<LLRenderTarget> mSSRMipTemp;  // Per-mip temp targets for SSR Gaussian ping-pong
+
+    bool mInForwardAlphaPass = false;
+
     // exposure map for getting average color in scene
     LLRenderTarget          mLuminanceMap;
     LLRenderTarget          mExposureMap;
@@ -733,9 +750,13 @@ public:
     LLRenderTarget          mPostPingMap;
     LLRenderTarget          mPostPongMap;
 
+    LLRenderTarget          mVelocityMap;
+
     // FXAA helper target
     LLRenderTarget          mFXAAMap;
     LLRenderTarget          mSMAABlendBuffer;
+    LLRenderTarget          mSMAAHistory;
+    U32                     mSMAAFrameIndex = 0;
 
     // render ui to buffer target
     LLRenderTarget          mUIScreen;
@@ -1078,16 +1099,14 @@ public:
     static F32 RenderAutoHideSurfaceAreaLimit;
     static bool RenderScreenSpaceReflections;
     static S32 RenderScreenSpaceReflectionIterations;
-    static F32 RenderScreenSpaceReflectionRayStep;
-    static F32 RenderScreenSpaceReflectionDistanceBias;
-    static F32 RenderScreenSpaceReflectionDepthRejectBias;
-    static F32 RenderScreenSpaceReflectionAdaptiveStepMultiplier;
     static S32 RenderScreenSpaceReflectionGlossySamples;
     static S32 RenderBufferVisualization;
     static bool RenderMirrors;
+    static S32 RenderMirrorCount;
     static S32 RenderHeroProbeUpdateRate;
     static S32 RenderHeroProbeConservativeUpdateMultiplier;
     static bool RenderAvatarCloth;
+    static bool RenderMotionBlur;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

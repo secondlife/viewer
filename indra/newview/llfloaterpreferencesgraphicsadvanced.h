@@ -55,6 +55,7 @@ public:
     // callback for when client modifies a render option
     void onRenderOptionEnable();
     void onAdvancedAtmosphericsEnable();
+    void onReflectionsQualityChanged();
     LOG_CLASS(LLFloaterPreferenceGraphicsAdvanced);
 
 protected:

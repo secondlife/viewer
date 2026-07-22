@@ -80,7 +80,7 @@ const float M_PI = 3.14159265;
 
 void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
-                    float metallic,
+                    float specularWeight,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
                     vec3 l, // surface point to light
@@ -145,16 +145,10 @@ void main()
 
     if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 orm = spec.rgb;
-        float perceptualRoughness = orm.g;
-        float metallic = orm.b;
-        vec3 f0 = vec3(0.04);
-        vec3 baseColor = diffuse.rgb;
-
-        vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
-        diffuseColor *= 1.0 - metallic;
-
-        vec3 specularColor = mix(f0, baseColor.rgb, metallic);
+        vec3 diffuseColor = diffuse.rgb;             // RT0.rgb is pre-computed diffuse
+        float specularWeight = gb.albedo.a;           // RT0.a
+        vec3 specularColor = spec.rgb;                // RT1.rgb is F0
+        float perceptualRoughness = spec.a;           // RT1.a
         vec3 diffPunc = vec3(0);
         vec3 specPunc = vec3(0);
 
@@ -175,13 +169,13 @@ void main()
 
                 vec3 intensity = dist_atten * dlit * 3.25 * shadow; // Legacy attenuation, magic number to balance with legacy materials
 
-                pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv), nl, diffPunc, specPunc);
+                pbrPunctual(diffuseColor, specularColor, perceptualRoughness, specularWeight, n.xyz, v, normalize(lv), nl, diffPunc, specPunc);
 
                 final_color += intensity * clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
             }
 
             amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy ) * 3.25; //magic number to balance with legacy ambiance
-            pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv), nl, diffPunc, specPunc);
+            pbrPunctual(diffuseColor, specularColor, perceptualRoughness, specularWeight, n.xyz, v, normalize(lv), nl, diffPunc, specPunc);
 
             final_color += amb_rgb * clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
         }

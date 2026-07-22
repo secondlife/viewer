@@ -51,7 +51,7 @@
 #include "llpluginclassmedia.h"
 #include "llresourcedata.h"
 #include "llstatusbar.h"
-#include "lltinygltfhelper.h"
+#include "llgltfhelper.h"
 #include "lltoast.h"
 #include "llviewercontrol.h"    // gSavedSettings
 #include "llviewertexturelist.h"
@@ -678,17 +678,17 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLU
         // gltf does not use normal upload procedure
         if (ext == "gltf" || ext == "glb")
         {
-            tinygltf::Model model;
-            if (LLTinyGLTFHelper::loadModel(filename, model))
+            LL::GLTF::Asset asset;
+            if (LLGLTFHelper::loadModel(filename, asset))
             {
-                S32 materials_in_file = static_cast<S32>(model.materials.size());
+                S32 materials_in_file = static_cast<S32>(asset.mMaterials.size());
 
                 for (S32 i = 0; i < materials_in_file; i++)
                 {
                     // Todo:
                     // 1. Decouple bulk upload from material editor
                     // 2. Take into account possiblity of identical textures
-                    LLMaterialEditor::uploadMaterialFromModel(filename, model, i, dest);
+                    LLMaterialEditor::uploadMaterialFromModel(filename, asset, i, dest);
                 }
             }
         }
@@ -783,17 +783,17 @@ bool get_bulk_upload_expected_cost(
 
         if (ext == "gltf" || ext == "glb")
         {
-            tinygltf::Model model;
+            LL::GLTF::Asset asset;
 
-            if (LLTinyGLTFHelper::loadModel(filename, model))
+            if (LLGLTFHelper::loadModel(filename, asset))
             {
-                S32 materials_in_file = static_cast<S32>(model.materials.size());
+                S32 materials_in_file = static_cast<S32>(asset.mMaterials.size());
 
                 for (S32 i = 0; i < materials_in_file; i++)
                 {
                     LLPointer<LLFetchedGLTFMaterial> material = new LLFetchedGLTFMaterial();
                     std::string material_name;
-                    bool decode_successful = LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, material.get(), material_name);
+                    bool decode_successful = LLGLTFHelper::getMaterialFromModel(filename, asset, i, material.get(), material_name);
 
                     if (decode_successful)
                     {

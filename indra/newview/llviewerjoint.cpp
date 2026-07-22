@@ -88,7 +88,7 @@ U32 LLViewerJoint::render( F32 pixelArea, bool first_pass, bool is_dummy )
         {
             triangle_count += drawShape( pixelArea, first_pass, is_dummy );
         }
-        else if (LLPipeline::sShadowRender)
+        else if (LLPipeline::sShadowRender || LLPipeline::sVelocityRender)
         {
             triangle_count += drawShape(pixelArea, first_pass, is_dummy );
         }

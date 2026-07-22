@@ -47,6 +47,11 @@ public:
 
     S32 getNumDeferredPasses() override;
     void renderDeferred(S32 pass) override;
+
+    S32 getNumVelocityPasses() override;
+    void beginVelocityPass(S32 pass) override;
+    void endVelocityPass(S32 pass) override;
+    void renderVelocity(S32 pass) override;
 };
 
 class LLDrawPoolGrass final : public LLRenderPass
@@ -65,6 +70,11 @@ public:
 
     S32 getNumDeferredPasses() override { return 1; }
     void renderDeferred(S32 pass) override;
+
+    S32 getNumVelocityPasses() override;
+    void beginVelocityPass(S32 pass) override;
+    void endVelocityPass(S32 pass) override;
+    void renderVelocity(S32 pass) override;
 };
 
 class LLDrawPoolAlphaMask final : public LLRenderPass
@@ -83,6 +93,11 @@ public:
 
     S32 getNumDeferredPasses() override { return 1; }
     void renderDeferred(S32 pass) override;
+
+    S32 getNumVelocityPasses() override;
+    void beginVelocityPass(S32 pass) override;
+    void endVelocityPass(S32 pass) override;
+    void renderVelocity(S32 pass) override;
 };
 
 class LLDrawPoolFullbrightAlphaMask final : public LLRenderPass
@@ -100,6 +115,11 @@ public:
 
     S32 getNumPostDeferredPasses() override { return 1; }
     void renderPostDeferred(S32 pass) override;
+
+    S32 getNumVelocityPasses() override;
+    void beginVelocityPass(S32 pass) override;
+    void endVelocityPass(S32 pass) override;
+    void renderVelocity(S32 pass) override;
 };
 
 
@@ -118,6 +138,11 @@ public:
 
     S32 getNumPostDeferredPasses() override { return 1; }
     void renderPostDeferred(S32 pass) override;
+
+    S32 getNumVelocityPasses() override;
+    void beginVelocityPass(S32 pass) override;
+    void endVelocityPass(S32 pass) override;
+    void renderVelocity(S32 pass) override;
 };
 
 class LLDrawPoolGlow final : public LLRenderPass

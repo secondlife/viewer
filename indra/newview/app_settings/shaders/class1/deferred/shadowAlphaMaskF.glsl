@@ -33,6 +33,8 @@ in vec4 vertex_color;
 in vec2 vary_texcoord0;
 uniform float minimum_alpha;
 
+void bayerDitherDiscard(float alpha, float threshold);
+
 void main()
 {
     float alpha = diffuseLookup(vary_texcoord0.xy).a;
@@ -46,18 +48,7 @@ void main()
     alpha *= vertex_color.a;
 #endif
 
-    if (alpha < 0.05) // treat as totally transparent
-    {
-        discard;
-    }
-
-    if (alpha < 0.88) // treat as semi-transparent
-    {
-        if (fract(0.5*floor(target_pos_x / post_pos.w )) < 0.25)
-        {
-            discard;
-        }
-    }
+    bayerDitherDiscard(alpha, 0.88);
 
     frag_color = vec4(1,1,1,1);
 }

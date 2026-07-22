@@ -245,6 +245,7 @@ void display_update_camera()
     }
     LLViewerCamera::getInstance()->setFar(final_far);
     LLVOAvatar::sRenderDistance = llclamp(final_far, 16.f, 256.f);
+    LLPipeline::sT2xJitterEnabled = (LLPipeline::RenderFSAAType == 3);
     gViewerWindow->setup3DRender();
 
     if (!gCubeSnapshot)
@@ -1058,7 +1059,17 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
         if (LLPipeline::sRenderDeferred)
         {
+            gPipeline.renderSSRTrace();
+            gPipeline.renderSSRAlpha();
+            gPipeline.renderSSRWater();
+            gPipeline.filterSSRBuffer();
+
             gPipeline.renderDeferredLighting();
+
+            // Copy screen to scene map for SSR to trace against next frame/pass.
+            // Must happen after deferred lighting so the lit scene is available.
+            gPipeline.copyScreenSpaceReflections(&gPipeline.mRT->screen, &gPipeline.mSceneMap);
+            gPipeline.buildHiZBuffer();
         }
 
         LLPipeline::sUnderWaterRender = false;
@@ -1214,9 +1225,16 @@ void display_cube_face()
     display_update_camera();
 
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Env Update");
-        // update all the sky/atmospheric/water settings
-        LLEnvironment::instance().update(LLViewerCamera::getInstance());
+        S32 probeIdx = gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx;
+        bool heroSkipEnv = gPipeline.mHeroProbeManager.isMirrorPass()
+                        && probeIdx >= 0
+                        && gPipeline.mHeroProbeManager.mHeroShadowsComplete[probeIdx];
+        if (!heroSkipEnv)
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Env Update");
+            // update all the sky/atmospheric/water settings
+            LLEnvironment::instance().update(LLViewerCamera::getInstance());
+        }
     }
 
     LLSpatialGroup::sNoDelete = true;
@@ -1228,12 +1246,33 @@ void display_cube_face()
     static LLCullResult result;
     LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
     LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater();
+
+    // During water probe rendering, the reflected camera is below water but
+    // we're rendering the above-water scene for the reflection.
+    if (LLPipeline::sUnderWaterRender && gPipeline.mHeroProbeManager.isMirrorPass()
+        && gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx == 0)
+    {
+        LLPipeline::sUnderWaterRender = false;
+    }
+
     gPipeline.updateCull(*LLViewerCamera::getInstance(), result);
 
     gGL.setColorMask(true, true);
 
     glClearColor(0.f, 0.f, 0.f, 0.f);
-    gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
+
+    {
+        S32 probeIdx = gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx;
+        bool heroSkipShadow = gPipeline.mHeroProbeManager.isMirrorPass()
+                           && probeIdx >= 0
+                           && gPipeline.mHeroProbeManager.mHeroShadowsComplete[probeIdx];
+        if (!heroSkipShadow)
+        {
+            gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
+            if (gPipeline.mHeroProbeManager.isMirrorPass() && probeIdx >= 0)
+                gPipeline.mHeroProbeManager.mHeroShadowsComplete[probeIdx] = true;
+        }
+    }
 
     glClear(GL_DEPTH_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
 
@@ -1258,6 +1297,12 @@ void display_cube_face()
     LLAppViewer::instance()->pingMainloopTimeout("Display:RenderStart");
 
     LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater();
+
+    if (LLPipeline::sUnderWaterRender && gPipeline.mHeroProbeManager.isMirrorPass()
+        && gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx == 0)
+    {
+        LLPipeline::sUnderWaterRender = false;
+    }
 
     gGL.setColorMask(true, true);
 
@@ -1507,6 +1552,10 @@ void render_ui(F32 zoom_factor, int subfield)
         set_current_modelview(glm::make_mat4(gGLLastModelView));
     }
 
+    // Disable T2x jitter before any projection setup in the UI path.
+    // The main scene projection was jittered; UI/HUD/nametags must not be.
+    LLPipeline::sT2xJitterEnabled = false;
+
     if(LLSceneMonitor::getInstance()->needsUpdate())
     {
         gGL.pushMatrix();
@@ -1518,6 +1567,10 @@ void render_ui(F32 zoom_factor, int subfield)
 
     // apply gamma correction and post effects
     gPipeline.renderFinalize();
+
+    // Reload the projection matrix without jitter for HUD/nametag rendering.
+    // sT2xJitterEnabled is already false, so this produces an unjittered matrix.
+    gViewerWindow->setup3DRender();
 
     {
         LLGLState::checkStates();

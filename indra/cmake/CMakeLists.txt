@@ -56,7 +56,6 @@ set(cmake_SOURCE_FILES
         SSE2NEON.cmake
         TemplateCheck.cmake
         TinyEXR.cmake
-        TinyGLTF.cmake
         Tracy.cmake
         Tut.cmake
         UI.cmake

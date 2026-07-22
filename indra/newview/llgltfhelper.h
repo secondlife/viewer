@@ -1,5 +1,5 @@
 /**
- * @file   lltinygltfhelper.h
+ * @file   llgltfhelper.h
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -29,30 +29,28 @@
 #include "llgltfmaterial.h"
 #include "llgltfmateriallist.h"
 #include "llpointer.h"
-#include "tinygltf/tiny_gltf.h"
+#include "gltf/asset.h"
 
 class LLImageRaw;
 class LLViewerFetchedTexture;
 
-namespace LLTinyGLTFHelper
+namespace LLGLTFHelper
 {
     LLColor4 getColor(const std::vector<double>& in);
-    const tinygltf::Image* getImageFromTextureIndex(const tinygltf::Model& model, S32 texture_index);
-    LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index, std::string& name, bool flip = true);
-    LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index, bool flip = true);
+    LLImageRaw* getTexture(const std::string& folder, const LL::GLTF::Asset& asset, S32 texture_index, std::string& name, bool flip = true);
+    LLImageRaw* getTexture(const std::string& folder, const LL::GLTF::Asset& asset, S32 texture_index, bool flip = true);
 
-    bool loadModel(const std::string& filename, tinygltf::Model& model_out);
-    bool saveModel(const std::string& filename, tinygltf::Model& model_in);
+    bool loadModel(const std::string& filename, LL::GLTF::Asset& asset_out);
 
     bool getMaterialFromModel(
         const std::string& filename,
-        const tinygltf::Model& model,
+        const LL::GLTF::Asset& asset,
         S32 mat_index,
         LLFetchedGLTFMaterial* material,
         std::string& material_name,
         bool flip = true);
 
-    void initFetchedTextures(tinygltf::Material& material,
+    void initFetchedTextures(const LL::GLTF::Material& material,
         LLPointer<LLImageRaw>& base_color_img,
         LLPointer<LLImageRaw>& normal_img,
         LLPointer<LLImageRaw>& mr_img,
@@ -63,4 +61,3 @@ namespace LLTinyGLTFHelper
         LLPointer<LLViewerFetchedTexture>& mr_tex,
         LLPointer<LLViewerFetchedTexture>& emissive_tex);
 }
-

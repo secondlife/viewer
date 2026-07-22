@@ -36,15 +36,18 @@ class LLSpatialGroup;
 class LLViewerObject;
 
 // number of reflection probes to keep in vram
-#define LL_MAX_HERO_PROBE_COUNT 2
+#define LL_MAX_HERO_PROBE_COUNT 8
 
 struct HeroProbeData
 {
-    LLMatrix4 heroBox;
-    LLVector4 heroSphere;
-    GLint     heroShape;
+    LLMatrix4 heroBox[LL_MAX_HERO_PROBE_COUNT];
+    LLVector4 heroSphere[LL_MAX_HERO_PROBE_COUNT];
     GLint     heroMipCount;
     GLint     heroProbeCount;
+    // heroParams[i] = { shape, cubeIndex, 0, 0 }
+    GLint     heroParams[LL_MAX_HERO_PROBE_COUNT][4];
+    LLMatrix4 heroPlaneMatrix[LL_MAX_HERO_PROBE_COUNT];
+    LLVector4 heroClipPlane[LL_MAX_HERO_PROBE_COUNT];
 };
 
 class alignas(16) LLHeroProbeManager
@@ -88,8 +91,12 @@ public:
     bool isMirrorPass() const { return mRenderingMirror; }
 
     LLVector3 mMirrorPosition;
-    LLVector3     mMirrorNormal;
+    LLVector3 mMirrorNormal;
     HeroProbeData mHeroData;
+
+    bool mHeroShadowsComplete[LL_MAX_HERO_PROBE_COUNT] = {};
+
+    S32 mCurrentRenderingProbeIdx = -1;
 
 private:
     friend class LLPipeline;
@@ -113,6 +120,10 @@ private:
     LLPointer<LLVertexBuffer> mVertexBuffer;
 
     LLPlane mCurrentClipPlane;
+
+    bool mIsPlanar = false;
+    LLVector3 mPlanarLookDir;
+    LLVector3 mPlanarUpDir;
 
 
     // update the specified face of the specified probe
@@ -142,7 +153,7 @@ private:
     bool mRenderingMirror = false;
 
     std::vector<LLPointer<LLVOVolume>>                       mHeroVOList;
-    LLPointer<LLVOVolume>                                 mNearestHero;
+    std::vector<LLPointer<LLVOVolume>>                       mActiveHeroes;
 
     // Part of a hacky workaround to fix #3331.
     bool mInitialized = false;

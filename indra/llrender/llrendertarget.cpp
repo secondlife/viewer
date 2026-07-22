@@ -95,9 +95,28 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
     {
         gGL.getTexUnit(0)->bindManual(mUsage, mDepth);
         U32 internal_type = LLTexUnit::getInternalType(mUsage);
-        LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);
 
-        sBytesAllocated += pix_diff*4;
+        if (mGenerateMipMaps != LLTexUnit::TMG_NONE && mMipLevels > 1)
+        {
+            // Recalculate mip levels for new resolution
+            mMipLevels = 1 + (U32)floor(log10((float)llmax(mResX, mResY)) / log10(2.0));
+
+            for (U32 level = 0; level < mMipLevels; level++)
+            {
+                U32 w = llmax(1U, mResX >> level);
+                U32 h = llmax(1U, mResY >> level);
+                glTexImage2D(internal_type, level, GL_DEPTH_COMPONENT24, w, h, 0,
+                             GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+            }
+            glTexParameteri(internal_type, GL_TEXTURE_MAX_LEVEL, mMipLevels - 1);
+
+            sBytesAllocated += (S32)(pix_diff * 4 * 1.33f);
+        }
+        else
+        {
+            LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);
+            sBytesAllocated += pix_diff * 4;
+        }
     }
 }
 
@@ -300,10 +319,29 @@ bool LLRenderTarget::allocateDepth()
     U32 internal_type = LLTexUnit::getInternalType(mUsage);
     stop_glerror();
     clear_glerror();
-    LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);
-    gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 
-    sBytesAllocated += mResX*mResY*4;
+    if (mGenerateMipMaps != LLTexUnit::TMG_NONE && mMipLevels > 1)
+    {
+        // Allocate depth mip chain for Hi-Z pyramid generation.
+        for (U32 level = 0; level < mMipLevels; level++)
+        {
+            U32 w = llmax(1U, mResX >> level);
+            U32 h = llmax(1U, mResY >> level);
+            glTexImage2D(internal_type, level, GL_DEPTH_COMPONENT24, w, h, 0,
+                         GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+        }
+        glTexParameteri(internal_type, GL_TEXTURE_MAX_LEVEL, mMipLevels - 1);
+
+        // ~33% extra for mip chain
+        sBytesAllocated += (U32)(mResX * mResY * 4 * 1.33f);
+    }
+    else
+    {
+        LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);
+        sBytesAllocated += mResX * mResY * 4;
+    }
+
+    gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 
     if (glGetError() != GL_NO_ERROR)
     {
@@ -312,6 +350,63 @@ bool LLRenderTarget::allocateDepth()
     }
 
     return true;
+}
+
+void LLRenderTarget::bindDepthMipLevel(S32 level)
+{
+    llassert(mFBO);
+    llassert(mDepth);
+    llassert(level < (S32)mMipLevels);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+    sCurFBO = mFBO;
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+        LLTexUnit::getInternalType(mUsage), mDepth, level);
+    glDrawBuffer(GL_NONE);
+
+    S32 w = llmax(1, (S32)(mResX >> level));
+    S32 h = llmax(1, (S32)(mResY >> level));
+    glViewport(0, 0, w, h);
+}
+
+void LLRenderTarget::resetDepthMipLevel()
+{
+    llassert(mFBO);
+    llassert(mDepth);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+        LLTexUnit::getInternalType(mUsage), mDepth, 0);
+    glViewport(0, 0, mResX, mResY);
+
+    GLenum drawbuffers[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
+                            GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
+    glDrawBuffers((GLsizei)mTex.size(), drawbuffers);
+}
+
+void LLRenderTarget::bindColorMipLevel(S32 level, U32 attachment)
+{
+    llassert(mFBO);
+    llassert(attachment < mTex.size());
+    llassert(level < (S32)mMipLevels);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+    sCurFBO = mFBO;
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment,
+        LLTexUnit::getInternalType(mUsage), mTex[attachment], level);
+
+    S32 w = llmax(1, (S32)(mResX >> level));
+    S32 h = llmax(1, (S32)(mResY >> level));
+    glViewport(0, 0, w, h);
+}
+
+void LLRenderTarget::resetColorMipLevel(U32 attachment)
+{
+    llassert(mFBO);
+    llassert(attachment < mTex.size());
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment,
+        LLTexUnit::getInternalType(mUsage), mTex[attachment], 0);
+    glViewport(0, 0, mResX, mResY);
 }
 
 void LLRenderTarget::shareDepthBuffer(LLRenderTarget& target)
@@ -345,6 +440,21 @@ void LLRenderTarget::shareDepthBuffer(LLRenderTarget& target)
 
         target.mUseDepth = true;
     }
+}
+
+void LLRenderTarget::blitDepthFrom(LLRenderTarget& source)
+{
+    llassert(mFBO);
+    llassert(source.mFBO);
+    llassert(mDepth);       // this target must own its depth buffer
+    llassert(source.mDepth); // source must have depth
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, source.mFBO);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFBO);
+    glBlitFramebuffer(0, 0, source.mResX, source.mResY,
+                      0, 0, mResX, mResY,
+                      GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
 }
 
 void LLRenderTarget::release()

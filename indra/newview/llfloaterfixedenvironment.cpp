@@ -68,6 +68,7 @@ namespace
     const std::string BUTTON_NAME_CANCEL("btn_cancel");
     const std::string BUTTON_NAME_FLYOUT("btn_flyout");
     const std::string BUTTON_NAME_LOAD("btn_load");
+    const std::string BUTTON_NAME_UPGRADE("btn_upgrade");
 
     const std::string ACTION_SAVE("save_settings");
     const std::string ACTION_SAVEAS("save_as_new_settings");
@@ -420,6 +421,8 @@ bool LLFloaterFixedEnvironmentWater::postBuild()
     if (!LLFloaterFixedEnvironment::postBuild())
         return false;
 
+    getChild<LLUICtrl>(BUTTON_NAME_UPGRADE)->setVisible(false);
+
     LLPanelSettingsWater * panel;
     panel = new LLPanelSettingsWaterMainTab;
     panel->buildFromFile("panel_settings_water.xml");
@@ -487,6 +490,8 @@ bool LLFloaterFixedEnvironmentSky::postBuild()
     if (!LLFloaterFixedEnvironment::postBuild())
         return false;
 
+    getChild<LLButton>(BUTTON_NAME_UPGRADE)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonUpgrade(); });
+
     LLPanelSettingsSky * panel;
     panel = new LLPanelSettingsSkyAtmosTab;
     panel->buildFromFile("panel_settings_sky_atmos.xml");
@@ -534,6 +539,25 @@ void LLFloaterFixedEnvironmentSky::onClose(bool app_quitting)
     LLEnvironment::instance().revertBeaconsState();
 
     LLFloaterFixedEnvironment::onClose(app_quitting);
+}
+
+void LLFloaterFixedEnvironmentSky::refresh()
+{
+    LLFloaterFixedEnvironment::refresh();
+
+    LLSettingsSky::ptr_t sky = std::static_pointer_cast<LLSettingsSky>(mSettings);
+    bool can_upgrade = sky && sky->getSkySettingVersion() < LLSettingsSky::MAX_SKY_SETTINGS_VERSION;
+    getChild<LLUICtrl>(BUTTON_NAME_UPGRADE)->setVisible(can_upgrade);
+}
+
+void LLFloaterFixedEnvironmentSky::onButtonUpgrade()
+{
+    LLSettingsSky::ptr_t sky = std::static_pointer_cast<LLSettingsSky>(mSettings);
+    if (!sky) return;
+    sky->setSkySettingVersion(LLSettingsSky::MAX_SKY_SETTINGS_VERSION);
+    sky->update();
+    syncronizeTabs();
+    refresh();
 }
 
 void LLFloaterFixedEnvironmentSky::doImportFromDisk()

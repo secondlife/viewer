@@ -33,7 +33,7 @@
 #include "llfetchedgltfmaterial.h"
 #include "llfilesystem.h"
 #include "llsdserialize.h"
-#include "lltinygltfhelper.h"
+#include "llgltfhelper.h"
 #include "llviewercontrol.h"
 #include "llviewergenericmessage.h"
 #include "llviewerobjectlist.h"
@@ -43,8 +43,6 @@
 #include "llagent.h"
 #include "llvocache.h"
 #include "llworld.h"
-
-#include "tinygltf/tiny_gltf.h"
 
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
@@ -223,6 +221,55 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
 
                 if (obj)
                 {
+                    // Preserve locally-applied extension data that the server
+                    // may have sanitized (e.g. KHR_materials_specular,
+                    // KHR_materials_emissive_strength)
+                    LLTextureEntry* tep = obj->getTE(te);
+                    if (tep)
+                    {
+                        const LLGLTFMaterial* existing_override = tep->getGLTFMaterialOverride();
+                        LL_WARNS("GLTF") << "applyOverrideMessage: te=" << te
+                            << " existing_override=" << (existing_override ? "yes" : "no")
+                            << " od has sc=" << od[i].has("sc");
+                        if (existing_override)
+                        {
+                            LL_CONT << " existing specColor=("
+                                << existing_override->mSpecularColorFactor.mV[0] << ","
+                                << existing_override->mSpecularColorFactor.mV[1] << ","
+                                << existing_override->mSpecularColorFactor.mV[2] << ")";
+                        }
+                        LL_CONT << LL_ENDL;
+                        if (existing_override)
+                        {
+                            if (existing_override->mEmissiveStrength != LLGLTFMaterial::getDefaultEmissiveStrength()
+                                && !od[i].has("es"))
+                            {
+                                mat->mEmissiveStrength = existing_override->mEmissiveStrength;
+                            }
+                            if (existing_override->mSpecularFactor != LLGLTFMaterial::getDefaultSpecularFactor()
+                                && !od[i].has("sf"))
+                            {
+                                mat->mSpecularFactor = existing_override->mSpecularFactor;
+                            }
+                            if (existing_override->mSpecularColorFactor != LLGLTFMaterial::getDefaultSpecularColorFactor()
+                                && !od[i].has("sc"))
+                            {
+                                mat->mSpecularColorFactor = existing_override->mSpecularColorFactor;
+                            }
+                            if (existing_override->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR].notNull()
+                                && !od[i].has("tex"))
+                            {
+                                mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR] =
+                                    existing_override->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR];
+                            }
+                            if (existing_override->mIOR != LLGLTFMaterial::getDefaultIOR()
+                                && !od[i].has("ior"))
+                            {
+                                mat->mIOR = existing_override->mIOR;
+                            }
+                        }
+                    }
+
                     obj->setTEGLTFMaterialOverride(te, mat);
                     if (obj->getTE(te) && obj->getTE(te)->isSelected())
                     {
@@ -514,7 +561,7 @@ class AssetLoadUserData
 {
 public:
     AssetLoadUserData() {}
-    tinygltf::Model mModelIn;
+    std::string mData;
     LLPointer<LLFetchedGLTFMaterial> mMaterial;
 };
 
@@ -568,23 +615,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                         {
                             if (asset.has("data") && asset["data"].isString())
                             {
-                                std::string data = asset["data"];
-
-                                std::string warn_msg, error_msg;
-
-                                LL_PROFILE_ZONE_SCOPED;
-                                tinygltf::TinyGLTF gltf;
-
-                                if (!gltf.LoadASCIIFromString(&asset_data->mModelIn, &error_msg, &warn_msg, data.c_str(), static_cast<U32>(data.length()), ""))
-                                {
-                                    LL_WARNS("GLTF") << "Failed to decode material asset: "
-                                        << LL_NEWLINE
-                                        << warn_msg
-                                        << LL_NEWLINE
-                                        << error_msg
-                                        << LL_ENDL;
-                                    return false;
-                                }
+                                asset_data->mData = asset["data"].asString();
                                 return true;
                             }
                         }
@@ -603,7 +634,12 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
 
             if (result)
             {
-                asset_data->mMaterial->setFromModel(asset_data->mModelIn, 0/*only one index*/);
+                std::string warn_msg, error_msg;
+                if (!asset_data->mMaterial->fromJSON(asset_data->mData, warn_msg, error_msg))
+                {
+                    LL_WARNS("GLTF") << "Failed to decode material asset: " << error_msg << LL_ENDL;
+                    result = false;
+                }
             }
             else
             {

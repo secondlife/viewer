@@ -55,7 +55,7 @@ vec3 hue_to_rgb(float hue);
 
 void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
-                    float metallic,
+                    float specularWeight,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
                     vec3 l, // surface point to light
@@ -87,17 +87,10 @@ void main()
 
     if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = gb.emissive.rgb;
-        vec3 orm = spec.rgb;
-        float perceptualRoughness = orm.g;
-        float metallic = orm.b;
-        vec3 f0 = vec3(0.04);
-        vec3 baseColor = diffuse.rgb;
-
-        vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
-        diffuseColor *= 1.0 - metallic;
-
-        vec3 specularColor = mix(f0, baseColor.rgb, metallic);
+        vec3 diffuseColor = diffuse.rgb;             // RT0.rgb is pre-computed diffuse
+        float specularWeight = gb.albedo.a;           // RT0.a
+        vec3 specularColor = spec.rgb;                // RT1.rgb is F0
+        float perceptualRoughness = spec.a;           // RT1.a
 
         for (int light_idx = 0; light_idx < LIGHT_COUNT; ++light_idx)
         {
@@ -119,7 +112,7 @@ void main()
                 float nl = 0;
                 vec3 diff = vec3(0);
                 vec3 specPunc = vec3(0);
-                pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, nl, diff, specPunc);
+                pbrPunctual(diffuseColor, specularColor, perceptualRoughness, specularWeight, n.xyz, v, lv, nl, diff, specPunc);
                 final_color += intensity * clamp(nl * (diff + specPunc), vec3(0), vec3(10));
             }
         }

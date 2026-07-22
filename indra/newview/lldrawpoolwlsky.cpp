@@ -181,6 +181,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         LLGLSPipelineDepthTestSkyBox sky(true, true);
 
         sky_shader->uniform1i(LLShaderMgr::CUBE_SNAPSHOT, gCubeSnapshot ? 1 : 0);
+        sky_shader->uniform1i(LLShaderMgr::DEFAULT_PROBE_RENDER, LLPipeline::sDefaultProbeRender ? 1 : 0);
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
@@ -340,6 +341,7 @@ void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 
         cloudshader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
         cloudshader->uniform1f(LLShaderMgr::CLOUD_VARIANCE, cloud_variance);
         cloudshader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
+        cloudshader->uniform1i(LLShaderMgr::DEFAULT_PROBE_RENDER, LLPipeline::sDefaultProbeRender ? 1 : 0);
 
         /// Render the skydome
         renderDome(camPosLocal, camHeightLocal, cloudshader);

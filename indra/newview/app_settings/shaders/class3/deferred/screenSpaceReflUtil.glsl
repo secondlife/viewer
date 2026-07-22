@@ -23,372 +23,397 @@
  * $/LicenseInfo$
  */
 
+// Based on https://imanolfotia.com/blog/1
+
 uniform sampler2D sceneMap;
 uniform sampler2D sceneDepth;
 
 uniform vec2 screen_res;
 uniform mat4 projection_matrix;
-//uniform float zNear;
-//uniform float zFar;
 uniform mat4 inv_proj;
-uniform mat4 modelview_delta;  // should be transform from last camera space to current camera space
+uniform mat4 modelview_delta;
 uniform mat4 inv_modelview_delta;
+
+uniform int iterationCount;
+uniform float maxThickness;
+uniform float depthBias;
+uniform float glossySampleCount;
+uniform float noiseSine;
+uniform float maxZDepth;
+uniform float maxRoughness;
+uniform vec2 ssrJitterOffset;
+uniform int hizMipCount;
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
-float random (vec2 uv)
+float random(vec2 uv)
 {
-    return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123); //simple random function
+    return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123);
 }
-
-// Based off of https://github.com/RoundedGlint585/ScreenSpaceReflection/
-// A few tweaks here and there to suit our needs.
 
 vec2 generateProjectedPosition(vec3 pos)
 {
-    vec4 samplePosition = projection_matrix * vec4(pos, 1.f);
+    vec4 samplePosition = projection_matrix * vec4(pos, 1.0);
     samplePosition.xy = (samplePosition.xy / samplePosition.w) * 0.5 + 0.5;
+    // Compensate for SMAA T2x jitter difference between current and previous frame.
+    // mSceneMap was rendered with the previous frame's jittered projection;
+    // offset the UV so depth/color lookups hit the correct texels.
+    samplePosition.xy += ssrJitterOffset;
     return samplePosition.xy;
 }
 
-bool isBinarySearchEnabled = true;
-bool isAdaptiveStepEnabled = true;
-bool isExponentialStepEnabled = true;
-bool debugDraw = false;
-
-uniform float iterationCount;
-uniform float rayStep;
-uniform float distanceBias;
-uniform float depthRejectBias;
-uniform float glossySampleCount;
-uniform float adaptiveStepMultiplier;
-uniform float noiseSine;
-
-float epsilon = 0.1;
-
 float getLinearDepth(vec2 tc)
 {
-    float depth = texture(sceneDepth, tc).r;
-
+    // Force LOD 0 — sceneDepth now carries the Hi-Z mip chain,
+    // and reflected UVs have chaotic derivatives that could cause
+    // auto-LOD selection to sample coarse Hi-Z levels.
+    float depth = textureLod(sceneDepth, tc, 0).r;
     vec4 pos = getPositionWithDepth(tc, depth);
-
     return -pos.z;
 }
 
-bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float hitDepth, float depth, sampler2D textureFrame)
+float projectDepth(vec3 viewPos)
 {
-    // transform position and reflection into same coordinate frame as the sceneMap and sceneDepth
-    reflection += position;
-    position = (inv_modelview_delta * vec4(position, 1)).xyz;
-    reflection = (inv_modelview_delta * vec4(reflection, 1)).xyz;
-    reflection -= position;
+    vec4 clip = projection_matrix * vec4(viewPos, 1.0);
+    return (clip.z / clip.w) * 0.5 + 0.5;
+}
 
-    depth = -position.z;
+// Hi-Z hierarchical screen-space ray trace (Godot parametric-T approach).
+// origin/dir are in UV+depth space: (u, v, rawDepth) where depth is [0,1].
+// Returns hit position (uv + raw depth) or vec3(-1) on miss.
+//
+// Uses parametric T along the ray for all comparisons, avoiding the AMD
+// absolute-depth comparison that breaks for camera-facing rays (dir.z < 0).
+// Z is normalized so dir.z = ±1, making depth_t = (cellDepth - origin.z) / dir.z
+// trivially comparable with the edge_t from cell boundary intersections.
+//
+// Our Hi-Z stores MIN depth (standard GL: 0=near, 1=far), so min = closest.
+// Godot uses reversed-Z with MAX depth, but the logic maps cleanly:
+//   Godot: max(a,b,c,d) with reversed-Z → closest surface
+//   Ours:  min(a,b,c,d) with standard-Z → closest surface
+// The comparison flips accordingly.
+//
+// References:
+//   Godot Engine SSR: screen_space_reflection.glsl (MIT license)
+//   Sugulee/GPU Pro 5: Hi-Z Screen-Space Cone-Traced Reflections
+// Returns vec4: xyz = hit position (UV + raw depth), w = 1.0 on hit.
+// Returns vec4(-1) on miss (ray exits screen or runs out of iterations).
+// Thickness-rejected surfaces are skipped (mip-0 march) but don't kill the trace.
+vec4 hiZTrace(vec3 origin, vec3 dir, int maxIterations)
+{
+    int maxLevel = hizMipCount - 1;
 
-    vec3 step = rayStep * reflection;
-    vec3 marchingPosition = position + step;
-    float delta;
-    float depthFromScreen;
-    vec2 screenPosition;
-    bool hit = false;
-    hitColor = vec4(0);
+    // Guard near-zero Z direction — treat as Z+ epsilon.
+    if (abs(dir.z) < 1e-7)
+        dir.z = 1e-7;
 
-    int i = 0;
-    if (depth > depthRejectBias)
+    // Normalize direction so |dir.z| = 1.
+    // This makes depth_t = (cellDepth - origin.z) * zDir directly comparable
+    // with edge_t values along the XY axes.
+    // Reference: https://hacksoflife.blogspot.com/2020/10/a-tip-for-hiz-ssr-parametric-t-tracing.html
+    vec3 rayDir = dir / abs(dir.z);
+
+    // Standard GL: 0=near, 1=far. Camera-facing rays move toward 0 (dir.z < 0).
+    // Godot (reversed-Z): facing_camera = rayDir.z >= 0 (toward near=1.0).
+    // For standard GL: facing_camera = dir.z < 0 (toward near=0.0).
+    bool facingCamera = dir.z < 0.0;
+    float zDir = rayDir.z;  // ±1 after normalization
+
+    // Cell step direction: +1 or -1 per axis (matches Godot cell_step).
+    vec2 cellStep = vec2(rayDir.x < 0.0 ? -1.0 : 1.0,
+                         rayDir.y < 0.0 ? -1.0 : 1.0);
+
+    int curLevel = 0;
+    float t = 0.0;
+
+    // Compute t_max: parametric T to the screen edge where we stop tracing.
+    vec2 t0 = (vec2(0.0) - origin.xy) / rayDir.xy;
+    vec2 t1 = (vec2(1.0) - origin.xy) / rayDir.xy;
+    vec2 t2 = max(t0, t1);
+    float tMax = min(t2.x, t2.y);
+
+    // Initial advance: push past origin cell to avoid self-intersection.
+    // Matches Godot's initial advance exactly.
     {
-        for (; i < iterationCount && !hit; i++)
+        vec2 cellIndex = floor(origin.xy * screen_res);
+        vec2 newCellIndex = cellIndex + clamp(cellStep, vec2(0.0), vec2(1.0));
+        vec2 newCellPos = (newCellIndex / screen_res) + cellStep * 0.000001;
+        vec2 posT = (newCellPos - origin.xy) / rayDir.xy;
+        t = min(posT.x, posT.y);
+    }
+
+    for (int i = 0; i < maxIterations && curLevel >= 0 && t < tMax; i++)
+    {
+        vec3 pos = origin + rayDir * t;
+
+        // Cell lookup at current mip level.
+        vec2 cellCount = vec2(max(1, int(screen_res.x) >> curLevel),
+                              max(1, int(screen_res.y) >> curLevel));
+        ivec2 cellIndex = ivec2(floor(pos.xy * cellCount));
+        cellIndex = clamp(cellIndex, ivec2(0), ivec2(cellCount) - 1);
+
+        // Min depth in this cell (closest surface, standard GL).
+        float cellDepth = texelFetch(sceneDepth, cellIndex, curLevel).r;
+
+        // Parametric T to the depth surface.
+        // Since rayDir.z = ±1, this is (cellDepth - origin.z) * (±1).
+        float depthT = (cellDepth - origin.z) * zDir;
+
+        // Parametric T to the nearest cell boundary in XY.
+        vec2 newCellIndex = vec2(cellIndex) + clamp(cellStep, vec2(0.0), vec2(1.0));
+        vec2 newCellPos = (newCellIndex / cellCount) + cellStep * 0.000001;
+        vec2 posT = (newCellPos - origin.xy) / rayDir.xy;
+        float edgeT = min(posT.x, posT.y);
+
+        // Hit detection (matches Godot exactly):
+        // Forward rays: hit if depth surface is reached before cell boundary.
+        // Camera-facing rays: hit if ray hasn't traveled past the depth surface.
+        bool hit = facingCamera ? (t <= depthT) : (depthT <= edgeT);
+
+        int mipOffset = hit ? -1 : 1;
+
+        // Thickness gate at mip 0 (matches Godot depth_tolerance check):
+        // Linearize depths and reject if surface is too far behind ray.
+        if (curLevel == 0 && hit)
         {
-            screenPosition = generateProjectedPosition(marchingPosition);
-            if (screenPosition.x > 1 || screenPosition.x < 0 ||
-                screenPosition.y > 1 || screenPosition.y < 0)
+            float z0 = getPositionWithDepth(pos.xy, cellDepth).z;
+            float z1 = getPositionWithDepth(pos.xy, pos.z).z;
+            if ((z0 - z1) > maxThickness)
             {
                 hit = false;
-                break;
-            }
-            depthFromScreen = getLinearDepth(screenPosition);
-            delta = abs(marchingPosition.z) - depthFromScreen;
-
-            if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon)
-            {
-                break;
-            }
-
-            if (abs(delta) < distanceBias)
-            {
-                vec4 color = vec4(1);
-                if(debugDraw)
-                    color = vec4( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2, 0);
-                hitColor = texture(sceneMap, screenPosition) * color;
-                hitDepth = depthFromScreen;
-                hit = true;
-                break;
-            }
-            if (isBinarySearchEnabled && delta > 0)
-            {
-                break;
-            }
-            if (isAdaptiveStepEnabled)
-            {
-                float directionSign = sign(abs(marchingPosition.z) - depthFromScreen);
-                //this is sort of adapting step, should prevent lining reflection by doing sort of iterative converging
-                //some implementation doing it by binary search, but I found this idea more cheaty and way easier to implement
-                step = step * (1.0 - rayStep * max(directionSign, 0.0));
-                marchingPosition += step * (-directionSign);
-            }
-            else
-            {
-                marchingPosition += step;
-            }
-
-            if (isExponentialStepEnabled)
-            {
-                step *= adaptiveStepMultiplier;
+                mipOffset = 0;  // Stay at mip 0, march cell-by-cell.
             }
         }
-        if(isBinarySearchEnabled)
+
+        // Advance parametric T (matches Godot exactly):
+        // Only advance to depthT for non-facing-camera hits.
+        // For facing-camera hits, descend without advancing.
+        if (hit)
         {
-            for(; i < iterationCount && !hit; i++)
-            {
-                step *= 0.5;
-                marchingPosition = marchingPosition - step * sign(delta);
-
-                screenPosition = generateProjectedPosition(marchingPosition);
-                if (screenPosition.x > 1 || screenPosition.x < 0 ||
-                    screenPosition.y > 1 || screenPosition.y < 0)
-                {
-                    hit = false;
-                    break;
-                }
-                depthFromScreen = getLinearDepth(screenPosition);
-                delta = abs(marchingPosition.z) - depthFromScreen;
-
-                if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon)
-                {
-                    break;
-                }
-
-                if (abs(delta) < distanceBias && depthFromScreen != (depth - distanceBias))
-                {
-                    vec4 color = vec4(1);
-                    if(debugDraw)
-                        color = vec4( 0.5+ sign(delta)/2,0.3,0.5- sign(delta)/2, 0);
-                    hitColor = texture(sceneMap, screenPosition) * color;
-                    hitDepth = depthFromScreen;
-                    hit = true;
-                    break;
-                }
-            }
+            if (!facingCamera)
+                t = max(t, depthT);
         }
+        else
+        {
+            t = edgeT;
+        }
+
+        curLevel = min(curLevel + mipOffset, maxLevel);
     }
 
-    return hit;
+    vec3 hitPos = origin + rayDir * t;
+
+    // Final bounds check.
+    if (hitPos.x < 0.0 || hitPos.x > 1.0 ||
+        hitPos.y < 0.0 || hitPos.y > 1.0 ||
+        t >= tMax)
+        return vec4(-1.0);
+
+    return vec4(hitPos, 1.0);
 }
 
-uniform vec3 POISSON3D_SAMPLES[128] = vec3[128](
-    vec3(0.5433144, 0.1122154, 0.2501391),
-    vec3(0.6575254, 0.721409, 0.16286),
-    vec3(0.02888453, 0.05170321, 0.7573566),
-    vec3(0.06635678, 0.8286457, 0.07157445),
-    vec3(0.8957489, 0.4005505, 0.7916042),
-    vec3(0.3423355, 0.5053263, 0.9193521),
-    vec3(0.9694794, 0.9461077, 0.5406441),
-    vec3(0.9975473, 0.02789414, 0.7320132),
-    vec3(0.07781899, 0.3862341, 0.918594),
-    vec3(0.4439073, 0.9686955, 0.4055861),
-    vec3(0.9657035, 0.6624081, 0.7082613),
-    vec3(0.7712346, 0.07273269, 0.3292839),
-    vec3(0.2489169, 0.2550394, 0.1950516),
-    vec3(0.7249326, 0.9328285, 0.3352458),
-    vec3(0.6028461, 0.4424961, 0.5393377),
-    vec3(0.2879795, 0.7427881, 0.6619173),
-    vec3(0.3193627, 0.0486145, 0.08109283),
-    vec3(0.1233155, 0.602641, 0.4378719),
-    vec3(0.9800708, 0.211729, 0.6771586),
-    vec3(0.4894537, 0.3319927, 0.8087631),
-    vec3(0.4802743, 0.6358885, 0.814935),
-    vec3(0.2692913, 0.9911493, 0.9934899),
-    vec3(0.5648789, 0.8553897, 0.7784553),
-    vec3(0.8497344, 0.7870212, 0.02065313),
-    vec3(0.7503014, 0.2826185, 0.05412734),
-    vec3(0.8045461, 0.6167251, 0.9532926),
-    vec3(0.04225039, 0.2141281, 0.8678675),
-    vec3(0.07116079, 0.9971236, 0.3396397),
-    vec3(0.464099, 0.480959, 0.2775862),
-    vec3(0.6346927, 0.31871, 0.6588384),
-    vec3(0.449012, 0.8189669, 0.2736875),
-    vec3(0.452929, 0.2119148, 0.672004),
-    vec3(0.01506042, 0.7102436, 0.9800494),
-    vec3(0.1970513, 0.4713539, 0.4644522),
-    vec3(0.13715, 0.7253224, 0.5056525),
-    vec3(0.9006432, 0.5335414, 0.02206874),
-    vec3(0.9960898, 0.7961011, 0.01468861),
-    vec3(0.3386469, 0.6337739, 0.9310676),
-    vec3(0.1745718, 0.9114985, 0.1728188),
-    vec3(0.6342545, 0.5721557, 0.4553517),
-    vec3(0.1347412, 0.1137158, 0.7793725),
-    vec3(0.3574478, 0.3448052, 0.08741581),
-    vec3(0.7283059, 0.4753885, 0.2240275),
-    vec3(0.8293507, 0.9971212, 0.2747005),
-    vec3(0.6501846, 0.000688076, 0.7795712),
-    vec3(0.01149416, 0.4930083, 0.792608),
-    vec3(0.666189, 0.1875442, 0.7256873),
-    vec3(0.8538797, 0.2107637, 0.1547532),
-    vec3(0.5826825, 0.9750752, 0.9105834),
-    vec3(0.8914346, 0.08266425, 0.5484225),
-    vec3(0.4374518, 0.02987111, 0.7810078),
-    vec3(0.2287418, 0.1443802, 0.1176908),
-    vec3(0.2671157, 0.8929081, 0.8989366),
-    vec3(0.5425819, 0.5524959, 0.6963879),
-    vec3(0.3515188, 0.8304397, 0.0502702),
-    vec3(0.3354864, 0.2130747, 0.141169),
-    vec3(0.9729427, 0.3509927, 0.6098799),
-    vec3(0.7585629, 0.7115368, 0.9099342),
-    vec3(0.0140543, 0.6072157, 0.9436461),
-    vec3(0.9190664, 0.8497264, 0.1643751),
-    vec3(0.1538157, 0.3219983, 0.2984214),
-    vec3(0.8854713, 0.2968667, 0.8511457),
-    vec3(0.1910622, 0.03047311, 0.3571215),
-    vec3(0.2456353, 0.5568692, 0.3530164),
-    vec3(0.6927255, 0.8073994, 0.5808484),
-    vec3(0.8089353, 0.8969175, 0.3427134),
-    vec3(0.194477, 0.7985603, 0.8712182),
-    vec3(0.7256182, 0.5653068, 0.3985921),
-    vec3(0.9889427, 0.4584851, 0.8363391),
-    vec3(0.5718582, 0.2127113, 0.2950557),
-    vec3(0.5480209, 0.0193435, 0.2992659),
-    vec3(0.6598953, 0.09478426, 0.92187),
-    vec3(0.1385615, 0.2193868, 0.205245),
-    vec3(0.7623423, 0.1790726, 0.1508465),
-    vec3(0.7569032, 0.3773386, 0.4393887),
-    vec3(0.5842971, 0.6538072, 0.5224424),
-    vec3(0.9954313, 0.5763943, 0.9169143),
-    vec3(0.001311183, 0.340363, 0.1488652),
-    vec3(0.8167927, 0.4947158, 0.4454727),
-    vec3(0.3978434, 0.7106082, 0.002727509),
-    vec3(0.5459411, 0.7473233, 0.7062873),
-    vec3(0.4151598, 0.5614617, 0.4748358),
-    vec3(0.4440694, 0.1195122, 0.9624678),
-    vec3(0.1081301, 0.4813806, 0.07047641),
-    vec3(0.2402785, 0.3633997, 0.3898734),
-    vec3(0.2317942, 0.6488295, 0.4221864),
-    vec3(0.01145542, 0.9304277, 0.4105759),
-    vec3(0.3563728, 0.9228861, 0.3282344),
-    vec3(0.855314, 0.6949819, 0.3175117),
-    vec3(0.730832, 0.01478493, 0.5728671),
-    vec3(0.9304829, 0.02653277, 0.712552),
-    vec3(0.4132186, 0.4127623, 0.6084146),
-    vec3(0.7517329, 0.9978395, 0.1330464),
-    vec3(0.5210338, 0.4318751, 0.9721575),
-    vec3(0.02953994, 0.1375937, 0.9458942),
-    vec3(0.1835506, 0.9896691, 0.7919457),
-    vec3(0.3857062, 0.2682322, 0.1264563),
-    vec3(0.6319699, 0.8735335, 0.04390657),
-    vec3(0.5630485, 0.3339024, 0.993995),
-    vec3(0.90701, 0.1512893, 0.8970422),
-    vec3(0.3027443, 0.1144253, 0.1488708),
-    vec3(0.9149003, 0.7382028, 0.7914025),
-    vec3(0.07979286, 0.6892691, 0.2866171),
-    vec3(0.7743186, 0.8046008, 0.4399814),
-    vec3(0.3128662, 0.4362317, 0.6030678),
-    vec3(0.1133721, 0.01605821, 0.391872),
-    vec3(0.5185481, 0.9210006, 0.7889017),
-    vec3(0.8217013, 0.325305, 0.1668191),
-    vec3(0.8358996, 0.1449739, 0.3668382),
-    vec3(0.1778213, 0.5599256, 0.1327691),
-    vec3(0.06690693, 0.5508637, 0.07212365),
-    vec3(0.9750564, 0.284066, 0.5727578),
-    vec3(0.4350255, 0.8949825, 0.03574753),
-    vec3(0.8931149, 0.9177974, 0.8123496),
-    vec3(0.9055127, 0.989903, 0.813235),
-    vec3(0.2897243, 0.3123978, 0.5083504),
-    vec3(0.1519223, 0.3958645, 0.2640327),
-    vec3(0.6840154, 0.6463035, 0.2346607),
-    vec3(0.986473, 0.8714055, 0.3960275),
-    vec3(0.6819352, 0.4169535, 0.8379834),
-    vec3(0.9147297, 0.6144146, 0.7313942),
-    vec3(0.6554981, 0.5014008, 0.9748477),
-    vec3(0.9805915, 0.1318207, 0.2371372),
-    vec3(0.5980836, 0.06796348, 0.9941338),
-    vec3(0.6836596, 0.9917196, 0.2319056),
-    vec3(0.5276511, 0.2745509, 0.5422578),
-    vec3(0.829482, 0.03758276, 0.1240466),
-    vec3(0.2698198, 0.0002266169, 0.3449324)
-);
-
-vec3 getPoissonSample(int i) {
-    return POISSON3D_SAMPLES[i] * 2 - 1;
-}
-
-float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness)
+float calculateEdgeFade(vec2 screenPos)
 {
-#ifdef TRANSPARENT_SURFACE
-collectedColor = vec4(1, 0, 1, 1);
-    return 0;
-#endif
-    collectedColor = vec4(0);
+    vec2 distFromCenter = abs(screenPos * 2.0 - 1.0);
+    vec2 fade = smoothstep(0.85, 1.0, distFromCenter);
+    return 1.0 - max(fade.x, fade.y);
+}
+
+float tapScreenSpaceReflection(
+    int totalSamples,
+    vec2 tc,
+    vec3 viewPos,
+    vec3 n,
+    inout vec4 collectedColor,
+    sampler2D source,
+    float glossiness)
+{
+    float roughness = 1.0 - glossiness;
+
+    if (roughness >= maxRoughness)
+        return 0.0;
+
+    vec3 viewDir = normalize(viewPos);
+    vec3 normal = normalize(n);
+
+    float viewDotNormal = dot(-viewDir, normal);
+    if (viewDotNormal <= 0.0)
+    {
+        collectedColor = vec4(0.0);
+        return 0.0;
+    }
+
+    vec2 distFromCenter = abs(tc * 2.0 - 1.0);
+    float baseEdgeFade = 1.0 - smoothstep(0.85, 1.0, max(distFromCenter.x, distFromCenter.y));
+    if (baseEdgeFade <= 0.001)
+    {
+        collectedColor = vec4(0.0);
+        return 0.0;
+    }
+
+    // Bias the ray origin along the normal, scaled by distance.
+    // Prevents grazing-angle rays from scraping the originating surface
+    // at distance where depth precision breaks down.
+    float biasAmount = max(0.01, -viewPos.z * depthBias);
+    vec3 biasedPos = viewPos - normal * biasAmount;
+
+    vec3 transformedPos = (inv_modelview_delta * vec4(biasedPos, 1.0)).xyz;
+    float startDepth = -transformedPos.z;
+
+    if (startDepth > maxZDepth)
+    {
+        collectedColor = vec4(0.0);
+        return 0.0;
+    }
+
+    vec3 perfectReflDir = normalize(reflect(viewDir, normal));
+
+    int numSamples = max(1, int(glossySampleCount));
+    vec3 accumColor = vec3(0.0);
+    float accumFade = 0.0;
     int hits = 0;
 
-    float depth = -viewPos.z;
-
-    vec3 rayDirection = normalize(reflect(viewPos, normalize(n)));
-
-    vec2 uv2 = tc * screen_res;
-    float c = (uv2.x + uv2.y) * 0.125;
-    float jitter = mod( c, 1.0);
-
-    vec2 screenpos = 1 - abs(tc * 2 - 1);
-    float vignette = clamp((abs(screenpos.x) * abs(screenpos.y)) * 16,0, 1);
-    vignette *= clamp((dot(normalize(viewPos), n) * 0.5 + 0.5) * 5.5 - 0.8, 0, 1);
-
-    float zFar = 128.0;
-    vignette *= clamp(1.0+(viewPos.z/zFar), 0.0, 1.0);
-
-    vignette *= clamp(glossiness * 3 - 1.7, 0, 1);
-
-    vec4 hitpoint;
-
-    glossiness = 1 - glossiness;
-
-    totalSamples = int(max(glossySampleCount, glossySampleCount * glossiness * vignette));
-
-    totalSamples = max(totalSamples, 1);
-    if (glossiness < 0.35)
+    for (int s = 0; s < numSamples; s++)
     {
-        if (vignette > 0)
+        vec3 reflectDir = perfectReflDir;
+
+        // Jitter reflection direction based on roughness (importance-sampled GGX)
+        if (roughness > 0.001)
         {
-            for (int i = 0; i < totalSamples; i++)
-            {
-                vec3 firstBasis = normalize(cross(getPoissonSample(i), rayDirection));
-                vec3 secondBasis = normalize(cross(rayDirection, firstBasis));
-                vec2 coeffs = vec2(random(tc + vec2(0, i)) + random(tc + vec2(i, 0)));
-                vec3 reflectionDirectionRandomized = rayDirection + ((firstBasis * coeffs.x + secondBasis * coeffs.y) * glossiness);
+            float alpha = roughness * roughness;
+            float u1 = random(tc * screen_res + noiseSine + float(s) * 0.123);
+            float u2 = random(tc * screen_res * 1.7 + noiseSine + float(s) * 0.456 + 0.5);
 
-                //float hitDepth;
+            float theta = atan(alpha * sqrt(u1) / sqrt(1.0 - u1));
+            float phi = 2.0 * 3.14159265 * u2;
 
-                bool hit = traceScreenRay(viewPos, normalize(reflectionDirectionRandomized), hitpoint, depth, depth, source);
+            vec3 up = abs(reflectDir.y) < 0.999 ? vec3(0, 1, 0) : vec3(1, 0, 0);
+            vec3 tangent = normalize(cross(up, reflectDir));
+            vec3 bitangent = cross(reflectDir, tangent);
 
-                hitpoint.a = 0;
+            vec3 h = normalize(
+                sin(theta) * cos(phi) * tangent +
+                sin(theta) * sin(phi) * bitangent +
+                cos(theta) * reflectDir
+            );
 
-                if (hit)
-                {
-                    ++hits;
-                    collectedColor += hitpoint;
-                    collectedColor.a += 1;
-                }
-            }
-
-            if (hits > 0)
-            {
-                collectedColor /= hits;
-            }
-            else
-            {
-                collectedColor = vec4(0);
-            }
+            reflectDir = normalize(reflect(-reflectDir, h));
         }
+
+        vec3 reflTarget = viewPos + reflectDir;
+        vec3 transformedTarget = (inv_modelview_delta * vec4(reflTarget, 1.0)).xyz;
+        vec3 transformedReflDir = normalize(transformedTarget - transformedPos);
+
+        if (transformedReflDir.z >= 0.5)
+            continue;
+
+        // Fade rays pointing back toward camera to avoid sharp SSR boundary.
+        float cameraFacingFade = 1.0 - smoothstep(0.45, 0.5, transformedReflDir.z);
+
+        // Push ray origin along surface normal to prevent self-intersection.
+        // Deterministic (not random) to avoid per-pixel noise.
+        // Scales with distance to match depth-buffer precision degradation.
+        float clearance = max(0.05, -viewPos.z * 0.002);
+        vec3 clearedPos = biasedPos + normal * clearance;
+        vec3 transformedClearedPos = (inv_modelview_delta * vec4(clearedPos, 1.0)).xyz;
+
+        // Project ray origin and a nearby point to screen space (UV + raw depth).
+        // Use a short step (fraction of distance-to-camera) to ensure the end
+        // point stays in front of the camera — projecting at maxZDepth can wrap
+        // behind the camera for reflections going toward the viewer.
+        vec3 ssOrigin = vec3(generateProjectedPosition(transformedClearedPos),
+                             projectDepth(transformedClearedPos));
+        float stepDist = max(0.1, -transformedClearedPos.z * 0.1);
+        vec3 transformedEnd = transformedClearedPos + transformedReflDir * stepDist;
+        vec3 ssFar = vec3(generateProjectedPosition(transformedEnd),
+                          projectDepth(transformedEnd));
+        vec3 ssDir = ssFar - ssOrigin;
+
+        vec4 result = hiZTrace(ssOrigin, ssDir, iterationCount);
+
+        if (result.x < 0.0)
+            continue;
+
+        vec2 hitTC = result.xy;
+
+        // Read actual surface depth at the hit pixel (mip 0, exact pixel).
+        ivec2 hitPixel = ivec2(hitTC * screen_res);
+        hitPixel = clamp(hitPixel, ivec2(0), ivec2(screen_res) - 1);
+        float hitSurfaceDepth = texelFetch(sceneDepth, hitPixel, 0).r;
+
+        // Reject sky / far-plane hits (forward-Z: 1.0 = far).
+        float hitDepth = -getPositionWithDepth(hitTC, hitSurfaceDepth).z;
+        if (hitDepth > maxZDepth)
+            continue;
+
+        // Confidence validation (matches Godot):
+        // Compare the trace's final depth with the actual surface depth at that pixel.
+        // No dead zone — smoothstep from 0 penalizes any mismatch.
+        // Squared for strong near-hits with rapid falloff.
+        vec3 viewSpaceSurface = getPositionWithDepth(hitTC, hitSurfaceDepth).xyz;
+        vec3 viewSpaceHit = getPositionWithDepth(hitTC, result.z).xyz;
+        float hitDistance = length(viewSpaceSurface - viewSpaceHit);
+        float confidence = 1.0 - smoothstep(0.0, maxThickness, hitDistance);
+        confidence *= confidence;
+
+        if (confidence < 0.95)
+            continue;
+
+        // Short-ray back-face check (Godot-style):
+        // For rays that traveled < 3 pixels, compute a geometric normal at the
+        // hit point from depth buffer cross-derivatives. Reject if the reflected
+        // ray exits the surface (dot >= 0), which indicates self-intersection.
+        float rayLen = length(result.xy - ssOrigin.xy);
+        float rayPixelLen = rayLen * max(screen_res.x, screen_res.y);
+        if (rayPixelLen < 3.0)
+        {
+            float dR = texelFetch(sceneDepth, hitPixel + ivec2(1, 0), 0).r;
+            float dD = texelFetch(sceneDepth, hitPixel + ivec2(0, 1), 0).r;
+            vec3 posR = getPositionWithDepth((vec2(hitPixel) + vec2(1.5, 0.5)) / screen_res, dR).xyz;
+            vec3 posD = getPositionWithDepth((vec2(hitPixel) + vec2(0.5, 1.5)) / screen_res, dD).xyz;
+            vec3 hitGeomNormal = cross(posR - viewSpaceSurface, posD - viewSpaceSurface);
+            // Ensure normal faces toward camera (positive Z in view space).
+            if (hitGeomNormal.z < 0.0) hitGeomNormal = -hitGeomNormal;
+            hitGeomNormal = normalize(hitGeomNormal);
+
+            if (dot(reflectDir, hitGeomNormal) >= 0.0)
+                continue;
+        }
+
+        float edgeFade = calculateEdgeFade(hitTC);
+
+        float zFadeStart = maxZDepth * 0.8;
+        float zFade = 1.0 - smoothstep(zFadeStart, maxZDepth, hitDepth);
+
+        vec4 sampledColor = textureLod(source, hitTC, 0.0);
+
+        // Tone map hit color (Reinhard on luminance) to compress brights
+        // before mip chain averaging — prevents fireflies.
+        float luma = dot(sampledColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+        sampledColor.rgb /= (1.0 + luma);
+
+        // Fade-in: suppress near-origin artifacts from self-intersection.
+        float fadeIn = smoothstep(0.0, 0.01, rayLen);
+        float rayFade = 1.0 - smoothstep(0.6, 1.0, rayLen);
+
+        float sampleFade = edgeFade * zFade * fadeIn * rayFade * confidence * cameraFacingFade;
+
+        accumColor += sampledColor.rgb * sampleFade;
+        accumFade += sampleFade;
+        hits++;
     }
-    float hitAlpha = hits;
-    hitAlpha /= totalSamples;
-    collectedColor.a = hitAlpha * vignette;
-    return hits;
+
+    if (hits == 0)
+    {
+        collectedColor = vec4(0.0);
+        return 0.0;
+    }
+
+    accumColor /= float(numSamples);
+    accumFade /= float(numSamples);
+
+    float combinedFade = accumFade * baseEdgeFade;
+
+    collectedColor = vec4(accumColor * baseEdgeFade, combinedFade);
+    return 1.0;
 }

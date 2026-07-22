@@ -888,3 +888,39 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
         gPipeline.enableLightsDynamic();
     }
 }
+
+S32 LLDrawPoolAlpha::getNumVelocityPasses()
+{
+    // Only render velocity from one instance to avoid double-stamping mLastModelMatrix
+    if (getType() == LLDrawPool::POOL_ALPHA_PRE_WATER)
+        return 0;
+    return 1;
+}
+
+void LLDrawPoolAlpha::beginVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityAlphaProgram.bind();
+    gVelocityAlphaProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    gVelocityAlphaProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    gVelocityAlphaProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+}
+
+void LLDrawPoolAlpha::endVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityAlphaProgram.unbind();
+}
+
+void LLDrawPoolAlpha::renderVelocity(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    LLGLEnable cull(GL_CULL_FACE);
+    pushVelocityBatchesTextured(LLRenderPass::PASS_ALPHA);
+
+    gVelocityAlphaProgram.bind(true);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    LLGLSLShader::sCurBoundShaderPtr->uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+    pushRiggedVelocityBatchesTextured(LLRenderPass::PASS_ALPHA_RIGGED);
+}

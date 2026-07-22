@@ -25,22 +25,25 @@
 
 #define FLT_MAX 3.402823466e+38
 
-#if defined(SSR)
-float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness);
-#endif
-
 uniform samplerCubeArray   reflectionProbes;
 uniform samplerCubeArray   irradianceProbes;
 
 uniform sampler2D sceneMap;
+uniform vec2 screen_res;
 uniform int cube_snapshot;
 uniform float max_probe_lod;
 
 uniform bool transparent_surface;
 
+uniform float ssrMipScale;
+
+float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness);
+
 uniform int classic_mode;
 
 #define MAX_REFMAP_COUNT 256  // must match LL_MAX_REFLECTION_PROBE_COUNT
+
+#define MAX_HERO_PROBE_COUNT 8
 
 layout (std140) uniform ReflectionProbes
 {
@@ -50,7 +53,7 @@ layout (std140) uniform ReflectionProbes
     /// box[0..2] - plane 0 .. 2 in [A,B,C,D] notation
     //  box[3][0..2] - plane thickness
     mat4 refBox[MAX_REFMAP_COUNT];
-    mat4 heroBox;
+    mat4 heroBox[MAX_HERO_PROBE_COUNT];
     // list of bounding spheres for reflection probes sorted by distance to camera (closest first)
     vec4 refSphere[MAX_REFMAP_COUNT];
     // extra parameters
@@ -59,7 +62,7 @@ layout (std140) uniform ReflectionProbes
     //  z - fade in
     //  w - znear
     vec4 refParams[MAX_REFMAP_COUNT];
-    vec4 heroSphere;
+    vec4 heroSphere[MAX_HERO_PROBE_COUNT];
     // index  of cube map in reflectionProbes for a corresponding reflection probe
     // e.g. cube map channel of refSphere[2] is stored in refIndex[2]
     // refIndex.x - cubemap channel in reflectionProbes
@@ -76,9 +79,13 @@ layout (std140) uniform ReflectionProbes
     // number of reflection probes present in refSphere
     int refmapCount;
 
-    int heroShape;
     int heroMipCount;
     int heroProbeCount;
+
+    // heroParams[i] = { shape, cubeIndex, 0, 0 }
+    ivec4 heroParams[MAX_HERO_PROBE_COUNT];
+    mat4 heroPlaneMatrix[MAX_HERO_PROBE_COUNT];
+    vec4 heroClipPlane[MAX_HERO_PROBE_COUNT];
 };
 
 // Inputs
@@ -498,7 +505,7 @@ float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, vec4 i, out float d
 // c - center of probe
 // r2 - radius of probe squared
 // i - index of probe
-vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c, int i)
+vec4 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c, int i)
 {
     // parallax adjustment
     vec3 v;
@@ -528,9 +535,10 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
 
     v = env_mat * v;
 
-    vec4 ret = textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), lod) * refParams[i].y;
+    vec4 probeSample = textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), lod);
+    probeSample.rgb *= refParams[i].y;
 
-    return ret.rgb;
+    return vec4(probeSample.rgb, probeSample.a);
 }
 
 // Tap an irradiance map
@@ -575,6 +583,13 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
 
 vec3 sampleProbes(vec3 pos, vec3 dir, float lod)
 {
+#ifdef REFLECTION_PROBE_MED_QUALITY
+    // Sample void probe ONCE using original direction (medium quality mode and above)
+    vec3 voidDir = env_mat * dir;
+    vec4 voidSample = textureLod(reflectionProbes, vec4(voidDir, 0), lod);
+    vec3 voidColor = voidSample.rgb * refParams[0].y;
+#endif
+
     float wsum[2];
     wsum[0] = 0;
     wsum[1] = 0;
@@ -599,12 +614,22 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod)
 
         float w = 0;
         float dw = 0;
-        vec3 refcol;
+        vec4 refcol;
 
         {
             refcol = tapRefMap(pos, dir, w, dw, lod, refSphere[i].xyz, i);
 
-            col[p] += refcol.rgb*w;
+#ifdef REFLECTION_PROBE_MED_QUALITY
+            // Medium quality and above: Blend with void probe based on alpha: alpha=0 (geometry) uses probe, alpha=1 (sky) uses void
+            // Square the alpha to make the blend softer at edges (helps with supersampled subpixel blending)
+            float blend_factor = refcol.a * refcol.a;
+            vec3 blended = mix(refcol.rgb, voidColor, blend_factor);
+#else
+            // Low quality: No alpha blending, just use probe color
+            vec3 blended = refcol.rgb;
+#endif
+
+            col[p] += blended*w;
             wsum[p] += w;
             dwsum[p] += dw;
         }
@@ -692,35 +717,73 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
 
 #if defined(HERO_PROBES)
 
-uniform vec4 clipPlane;
 uniform samplerCubeArray   heroProbes;
 
 void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
 {
-    float clipDist = dot(pos.xyz, clipPlane.xyz) + clipPlane.w;
-    float w = 0;
-    float dw = 0;
     float falloffMult = 10;
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
-    if (heroShape < 1)
+
+    for (int pi = 0; pi < heroProbeCount; ++pi)
     {
-        float d = 0;
-        boxIntersect(pos, norm, heroBox, d, 1.0);
+        int shape = heroParams[pi].x;
+        int cubeIndex = heroParams[pi].y;
 
-        w = max(d, 0);
+        float clipDist = dot(pos.xyz, heroClipPlane[pi].xyz) + heroClipPlane[pi].w;
+        float w = 0;
+        float dw = 0;
+
+        if (shape < 1)
+        {   // box
+            float d = 0;
+            boxIntersect(pos, norm, heroBox[pi], d, 1.0);
+            w = max(d, 0);
+        }
+        else if (shape == 1)
+        {   // sphere
+            float r = heroSphere[pi].w;
+            w = sphereWeight(pos, refnormpersp, heroSphere[pi].xyz, r, vec4(1), dw);
+        }
+        else
+        {   // planar (shape == 2)
+            float d = 0;
+            boxIntersect(pos, norm, heroBox[pi], d, 1.0);
+            w = max(d, 0);
+        }
+
+        clipDist = clipDist * 0.95 + 0.05;
+        clipDist = clamp(clipDist * falloffMult, 0, 1);
+        w = clamp(w * falloffMult * clipDist, 0, 1);
+        w = mix(0, w, clamp(glossiness - 0.75, 0, 1) * 4);
+
+        if (w < 0.001)
+            continue;
+
+        if (shape == 2)
+        {
+            // Planar: apply correction matrix then sample face 0
+            vec3 worldDir = env_mat * refnormpersp;
+            vec3 corrected = mat3(heroPlaneMatrix[pi]) * worldDir;
+            vec3 cubemapDir = corrected;
+
+            // Angular fade: attenuate for directions near face edges
+            float cosAngle = cubemapDir.x / max(length(cubemapDir), 0.001);
+            w *= smoothstep(0.0, 0.1, cosAngle);
+
+            // Ensure face 0 is sampled
+            cubemapDir.x = max(cubemapDir.x, 0.001);
+
+            glossenv = mix(glossenv, textureLod(heroProbes,
+                vec4(cubemapDir, cubeIndex),
+                (1.0 - glossiness) * heroMipCount).xyz, w);
+        }
+        else
+        {
+            glossenv = mix(glossenv, textureLod(heroProbes,
+                vec4(env_mat * refnormpersp, cubeIndex),
+                (1.0 - glossiness) * heroMipCount).xyz, w);
+        }
     }
-    else
-    {
-        float r = heroSphere.w;
-
-        w = sphereWeight(pos, refnormpersp, heroSphere.xyz, r, vec4(1), dw);
-    }
-
-    clipDist = clipDist * 0.95 + 0.05;
-    clipDist = clamp(clipDist * falloffMult, 0, 1);
-    w = clamp(w * falloffMult * clipDist, 0, 1);
-    w = mix(0, w, clamp(glossiness - 0.75, 0, 1) * 4); // We only generate a quarter of the mips for the hero probes.  Linearly interpolate between normal probes and hero probes based upon glossiness.
-    glossenv = mix(glossenv, textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-glossiness)*heroMipCount).xyz, w);
 }
 
 #else
@@ -750,21 +813,37 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod);
 
 #if defined(SSR)
-    if (cube_snapshot != 1 && glossiness >= 0.9)
+    if (cube_snapshot != 1)
     {
-        vec4 ssr = vec4(0);
-        if (transparent)
+        float roughness = 1.0 - glossiness;
+        if (roughness < 0.7)
         {
-            tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, 1);
-            ssr.a *= glossiness;
-        }
-        else
-        {
-            tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, glossiness);
-        }
+            vec4 ssr = vec4(0.0);
 
+            if (transparent)
+            {
+                tapScreenSpaceReflection(1, tc, pos.xyz, norm, ssr, sceneMap, glossiness);
+            }
+            else
+            {
+                ssr = textureLod(sceneMap, tc, roughness * ssrMipScale);
+            }
 
-        glossenv = mix(glossenv, ssr.rgb, ssr.a);
+            if (ssr.a > 0.001)
+            {
+                ssr.rgb /= ssr.a;
+
+                float l = dot(ssr.rgb, vec3(0.2126, 0.7152, 0.0722));
+                ssr.rgb /= max(1.0 - l, 0.001);
+
+                ssr.a *= 1.0 - smoothstep(0.6, 0.7, roughness);
+
+                if (transparent)
+                    ssr.a *= glossiness;
+
+                glossenv = mix(glossenv, ssr.rgb, ssr.a);
+            }
+        }
     }
 #endif
 
@@ -867,20 +946,36 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
 #if defined(SSR)
     if (cube_snapshot != 1)
     {
-        vec4 ssr = vec4(0);
-
-        if (transparent)
+        float roughness = 1.0 - glossiness;
+        if (roughness < 0.7)
         {
-            tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, 1);
-            ssr.a *= glossiness;
-        }
-        else
-        {
-            tapScreenSpaceReflection(1, tc, pos, norm, ssr, sceneMap, glossiness);
-        }
+            vec4 ssr = vec4(0.0);
 
-        glossenv = mix(glossenv, ssr.rgb, ssr.a);
-        legacyenv = mix(legacyenv, ssr.rgb, ssr.a);
+            if (transparent)
+            {
+                tapScreenSpaceReflection(1, tc, pos.xyz, norm, ssr, sceneMap, glossiness);
+            }
+            else
+            {
+                float ssrLod = clamp(log2(1.0 + roughness * roughness * ssrMipScale * 4.0), 0.0, ssrMipScale);
+                ssr = textureLod(sceneMap, tc, ssrLod);
+            }
+
+            if (ssr.a > 0.001)
+            {
+                ssr.rgb /= ssr.a;
+                float l = dot(ssr.rgb, vec3(0.2126, 0.7152, 0.0722));
+                ssr.rgb /= max(1.0 - l, 0.001);
+
+                ssr.a *= 1.0 - smoothstep(0.6, 0.7, roughness);
+
+                if (transparent)
+                    ssr.a *= glossiness;
+
+                glossenv = mix(glossenv, ssr.rgb, ssr.a);
+                legacyenv = mix(legacyenv, ssr.rgb, ssr.a);
+            }
+        }
     }
 #endif
 

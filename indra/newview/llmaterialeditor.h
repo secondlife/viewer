@@ -40,10 +40,7 @@ class LLTextureCtrl;
 class LLTextBox;
 class LLViewerInventoryItem;
 
-namespace tinygltf
-{
-    class Model;
-}
+namespace LL { namespace GLTF { class Asset; } }
 
 // todo: Consider making into a notification or just merging with
 // presets. Layout is identical to camera/graphics presets so there
@@ -89,9 +86,9 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     LLMaterialEditor(const LLSD& key);
     ~LLMaterialEditor();
 
-    bool setFromGltfModel(const tinygltf::Model& model, S32 index, bool set_textures = false);
+    bool setFromGltfModel(const LL::GLTF::Asset& asset, S32 index, bool set_textures = false);
 
-    void setFromGltfMetaData(const std::string& filename, const  tinygltf::Model& model, S32 index);
+    void setFromGltfMetaData(const std::string& filename, const LL::GLTF::Asset& asset, S32 index);
 
     // open a file dialog and select a gltf/glb file for import
     static void importMaterial(const LLUUID dest_folder = LLUUID::null);
@@ -106,7 +103,7 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     // @index if -1 and file contains more than one material,
     // will promt to select specific one
     static void uploadMaterialFromModel(const std::string& filename,
-                                        tinygltf::Model& model,
+                                        LL::GLTF::Asset& asset,
                                         S32 index,
                                         const LLUUID& dest_folder_id = LLUUID::null);
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1, const LLUUID& dest_folder = LLUUID::null);
@@ -209,12 +206,25 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     LLColor4 getEmissiveColor();
     void setEmissiveColor(const LLColor4& color);
 
+    F32 getEmissiveStrength();
+    void setEmissiveStrength(F32 strength);
+
     LLUUID getNormalId();
     void setNormalId(const LLUUID& id);
     void setNormalUploadId(const LLUUID& id);
 
     bool getDoubleSided();
     void setDoubleSided(bool double_sided);
+
+    F32 getSpecularFactor();
+    void setSpecularFactor(F32 factor);
+    LLColor3 getSpecularColorFactor();
+    void setSpecularColorFactor(const LLColor3& color);
+    LLUUID getSpecularId();
+    void setSpecularId(const LLUUID& id);
+
+    F32 getIOR();
+    void setIOR(F32 ior);
 
     void setCanSaveAs(bool value);
     void setCanSave(bool value);
@@ -245,7 +255,7 @@ private:
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
     bool setFromSelection();
 
-    void loadMaterial(const tinygltf::Model &model, const std::string & filename, S32 index, bool open_floater = true);
+    void loadMaterial(const LL::GLTF::Asset& asset, const std::string& filename, S32 index, bool open_floater = true);
 
     friend class LLMaterialFilePicker;
 
@@ -256,8 +266,10 @@ private:
     LLTextureCtrl* mMetallicTextureCtrl;
     LLTextureCtrl* mEmissiveTextureCtrl;
     LLTextureCtrl* mNormalTextureCtrl;
+    LLTextureCtrl* mSpecularTextureCtrl;
     LLColorSwatchCtrl* mBaseColorCtrl;
     LLColorSwatchCtrl* mEmissiveColorCtrl;
+    LLColorSwatchCtrl* mSpecularColorCtrl;
 
     // 'Default' texture, unless it's null or from inventory is the one with the fee
     LLUUID mBaseColorTextureUploadId;

@@ -24,11 +24,10 @@
  * $/LicenseInfo$
  */
 
-#include "../llviewerprecompiledheaders.h"
+#include "linden_common.h"
 
 #include "asset.h"
 #include "buffer_util.h"
-#include "../llskinningutil.h"
 
 using namespace LL::GLTF;
 using namespace boost::json;
@@ -399,6 +398,7 @@ Skin::~Skin()
     }
 }
 
+#if 0 // viewer-side rendering code — needs llskinningutil
 void Skin::uploadMatrixPalette(Asset& asset)
 {
     // prepare matrix palette
@@ -456,6 +456,7 @@ void Skin::uploadMatrixPalette(Asset& asset)
     glBufferData(GL_UNIFORM_BUFFER, glmp.size() * sizeof(F32), glmp.data(), GL_STREAM_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
+#endif // viewer-side rendering code
 
 bool Skin::prep(Asset& asset)
 {

@@ -39,15 +39,15 @@ float linearDepth(float d, float znear, float zfar);
 
 void main()
 {
-    vec3 col = vec3(0,0,0);
+    vec4 col = vec4(0,0,0,0);
 
     float w[9] = float[9]( 0.0002, 0.0060, 0.0606, 0.2417, 0.3829, 0.2417, 0.0606, 0.0060, 0.0002 );
 
     for (int i = 0; i < 9; ++i)
     {
         vec2 tc = vary_texcoord0 + (i-4)*direction*resScale;
-        col += texture(diffuseRect, tc).rgb * w[i];
+        col += texture(diffuseRect, tc) * w[i];
     }
 
-    frag_color = max(vec4(col, 0.0), vec4(0));
+    frag_color = max(col, vec4(0));
 }

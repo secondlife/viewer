@@ -428,12 +428,22 @@ void main()
 // Matte plastic potato terrain
 #define mix_orm vec3(1.0, 1.0, 0.0)
 #endif
-    frag_data[0] = max(vec4(pbr_mix.col.xyz, 0.0), vec4(0));                                                   // Diffuse
-    frag_data[1] = max(vec4(mix_orm.rgb, base_color_factor_alpha), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
-    frag_data[2] = encodeNormal(tnorm, 0, GBUFFER_FLAG_HAS_PBR); // normal, flags
+    // Pre-compute shading-space values for new GBuffer layout (default specular: factor=1, colorFactor=white)
+    float metallic = mix_orm.b;
+    float perceptualRoughness = mix_orm.g;
+    float ao = mix_orm.r;
+    vec3 col = pbr_mix.col.xyz;
+
+    vec3 f0 = mix(vec3(0.04), col, metallic);
+    vec3 diffuse = col * (1.0 - metallic);
+    float specWeight = 1.0;
+
+    frag_data[0] = max(vec4(diffuse, specWeight), vec4(0));                                                     // Diffuse + specularWeight
+    frag_data[1] = max(vec4(f0, perceptualRoughness), vec4(0));                                                 // F0 + roughness
+    frag_data[2] = encodeNormal(tnorm, ao, GBUFFER_FLAG_HAS_PBR);                                              // normal, occlusion, flags
 
 #if defined(HAS_EMISSIVE)
-    frag_data[3] = max(vec4(mix_emissive,0), vec4(0));                                                // PBR sRGB Emissive
+    frag_data[3] = max(vec4(mix_emissive, 1.5), vec4(0));                                                        // Emissive + IOR
 #endif
 }
 

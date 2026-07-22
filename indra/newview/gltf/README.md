@@ -140,9 +140,8 @@ our existing implementations.
 
 NEVER include buffer_util.h from a header.
 
-Loading from and saving to disk (import/export) is currently done using tinygltf, but this is not a long term
-solution.  Eventually the implementation should rely solely on boost::json for reading and writing .gltf
-files and should handle .bin files natively.
+Loading from and saving to disk (import/export) uses boost::json for reading and writing .gltf
+files. The implementation handles .bin files natively via LL::GLTF::Asset.
 
 When serializing Images and Buffers to the server, clients MUST store a single UUID "uri" field and nothing else.
 The server MUST reject any data that violates this requirement.

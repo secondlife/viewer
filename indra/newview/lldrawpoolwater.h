@@ -75,6 +75,7 @@ public:
     void setNormalMaps(const LLUUID& normalMapId, const LLUUID& nextNormalMapId);
 
     void pushWaterPlanes(int pass);
+    void renderSSR();
 
 protected:
     void renderOpaqueLegacyWater();

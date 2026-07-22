@@ -33,10 +33,9 @@
 #include "animation.h"
 #include "boost/json.hpp"
 #include "common.h"
-#include "../llviewertexture.h"
+#include "llgltexture.h"
 #include "llglslshader.h"
-
-extern F32SecondsImplicit       gFrameTimeSeconds;
+#include <limits>
 
 // wingdi defines OPAQUE, which conflicts with our enum
 #if defined(OPAQUE)
@@ -122,6 +121,65 @@ namespace LL
                 void serialize(boost::json::object& dst) const;
             };
 
+            class Transmission : public Extension // KHR_materials_transmission
+            {
+            public:
+                F32 mTransmissionFactor = 0.f;
+
+                const Transmission& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
+            };
+
+            class IOR : public Extension // KHR_materials_ior
+            {
+            public:
+                F32 mIor = 1.5f;
+
+                const IOR& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
+            };
+
+            class Volume : public Extension // KHR_materials_volume
+            {
+            public:
+                F32 mThicknessFactor = 0.f;
+                F32 mAttenuationDistance = std::numeric_limits<F32>::infinity();
+                vec3 mAttenuationColor = vec3(1.f, 1.f, 1.f);
+
+                const Volume& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
+            };
+
+            class Dispersion : public Extension // KHR_materials_dispersion
+            {
+            public:
+                F32 mDispersion = 0.f;
+
+                const Dispersion& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
+            };
+
+            class EmissiveStrength : public Extension // KHR_materials_emissive_strength
+            {
+            public:
+                F32 mEmissiveStrength = 1.0f;
+
+                const EmissiveStrength& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
+            };
+
+            class Specular : public Extension // KHR_materials_specular
+            {
+            public:
+                F32 mSpecularFactor = 1.0f;
+                TextureInfo mSpecularTexture;
+                vec3 mSpecularColorFactor = vec3(1.f, 1.f, 1.f);
+                TextureInfo mSpecularColorTexture;
+
+                const Specular& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
+            };
+
             enum class AlphaMode
             {
                 OPAQUE,
@@ -157,6 +215,12 @@ namespace LL
             F32 mAlphaCutoff = 0.5f;
             bool mDoubleSided = false;
             Unlit mUnlit;
+            Transmission mTransmission;
+            IOR mIOR;
+            Volume mVolume;
+            Dispersion mDispersion;
+            EmissiveStrength mEmissiveStrength;
+            Specular mSpecular;
 
             bool isMultiUV() const;
 
@@ -304,7 +368,7 @@ namespace LL
 
             bool mLoadIntoTexturePipe = false;
 
-            LLPointer<LLViewerFetchedTexture> mTexture;
+            LLPointer<LLGLTexture> mTexture;
 
             const Image& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
@@ -384,7 +448,7 @@ namespace LL
             std::string mFilename;
 
             // the last time update() was called according to gFrameTimeSeconds
-            F32 mLastUpdateTime = gFrameTimeSeconds;
+            F32 mLastUpdateTime = 0.f;
 
             // data used for rendering
             // 0 - single sided

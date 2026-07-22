@@ -35,6 +35,10 @@ uniform sampler2D diffuseMap;  //always in sRGB space
 uniform float metallicFactor;
 uniform float roughnessFactor;
 uniform vec3 emissiveColor;
+uniform float specularFactor;
+uniform vec3 specularColorFactor;
+uniform float emissiveStrength;
+uniform float ior;
 uniform sampler2D bumpMap;
 uniform sampler2D emissiveMap;
 uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
@@ -97,27 +101,32 @@ void main()
     //   metal     0.0
     vec3 spec = texture(specularMap, metallic_roughness_texcoord.xy).rgb;
 
-    spec.g *= roughnessFactor;
-    spec.b *= metallicFactor;
+    float perceptualRoughness = spec.g * roughnessFactor;
+    float metallic = spec.b * metallicFactor;
+    float ao = spec.r;
 
-    vec3 emissive = emissiveColor;
+    // KHR_materials_ior + KHR_materials_specular
+    float ior_f0 = pow((ior - 1.0) / (ior + 1.0), 2.0);
+    vec3 dielectric_f0 = min(vec3(ior_f0) * specularColorFactor, vec3(1.0)) * specularFactor;
+    float dielectric_f90 = specularFactor;
+
+    vec3 f0 = mix(dielectric_f0, col, metallic);
+    vec3 diffuse = mix(col * (1.0 - max(dielectric_f0.r, max(dielectric_f0.g, dielectric_f0.b))), vec3(0.0), metallic);
+    float specWeight = mix(dielectric_f90, 1.0, metallic);
+
+    // KHR_materials_emissive_strength
+    vec3 emissive = emissiveColor * emissiveStrength;
     emissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
 
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
 
-    //spec.rgb = vec3(1,1,0);
-    //col = vec3(0,0,0);
-    //emissive = vary_tangent.xyz*0.5+0.5;
-    //emissive = vec3(sign*0.5+0.5);
-    //emissive = vNt * 0.5 + 0.5;
-    //emissive = tnorm*0.5+0.5;
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
-    frag_data[0] = max(vec4(col, 0.0), vec4(0));                                                   // Diffuse
-    frag_data[1] = max(vec4(spec.rgb,0.0), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
-    frag_data[2] = encodeNormal(tnorm, 0, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
+    frag_data[0] = max(vec4(diffuse, specWeight), vec4(0));                                         // Diffuse + specularWeight
+    frag_data[1] = max(vec4(f0, perceptualRoughness), vec4(0));                                     // F0 + roughness
+    frag_data[2] = encodeNormal(tnorm, ao, GBUFFER_FLAG_HAS_PBR);                                  // normal, occlusion, flags
 
 #if defined(HAS_EMISSIVE)
-    frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
+    frag_data[3] = max(vec4(emissive, ior), vec4(0));                                               // Emissive + IOR
 #endif
 }
 

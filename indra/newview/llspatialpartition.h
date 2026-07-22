@@ -101,6 +101,7 @@ public:
     const LLMatrix4* mNormalMapMatrix = nullptr;
     const LLMatrix4* mTextureMatrix = nullptr;
     const LLMatrix4* mModelMatrix = nullptr;
+    LLMatrix4* mLastModelMatrix = nullptr;
 
     LLPointer<LLVOAvatar> mAvatar = nullptr;
     LLMeshSkinInfo* mSkinInfo = nullptr;
