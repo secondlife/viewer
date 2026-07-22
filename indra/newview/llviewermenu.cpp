@@ -5810,7 +5810,7 @@ class LLToolsEnableScriptEditorServer : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        return gSavedSettings.getBOOL("ExternalWebsocketSyncEnable");
+        return LLScriptEditorWSServer::isEnabled();
     }
 };
 
@@ -5825,7 +5825,7 @@ class LLToolsToggleScriptEditorServer : public view_listener_t
         }
         else
         {
-            if (gSavedSettings.getBOOL("ExternalEditorTightIntegration"))
+            if (LLScriptEditorWSServer::isTightIntegration())
             {
                 LLScriptEditorWSServer::launchVSCode();
             }

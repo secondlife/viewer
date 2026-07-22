@@ -955,9 +955,7 @@ void LLViewerObject::addChild(LLViewerObject *childp)
         {
             mSeatCount++;
         }
-
-        // Notify WS server of linkset structure change
-        if (!childp->isAvatar())
+        else
         {
             if (auto ws_server = LLScriptEditorWSServer::getServer())
             {

@@ -158,6 +158,10 @@ namespace
     }
 }
 
+LLCachedControl<bool> LLScriptEditorWSServer::sEnableScriptEditorWS(gSavedSettings, "ExternalWebsocketSyncEnable", false);
+LLCachedControl<bool> LLScriptEditorWSServer::sTightIntegration(gSavedSettings, "ExternalEditorTightIntegration", false);
+
+
 class LLPublishedPrimListener : public LLVOInventoryListener
 {
 public:
@@ -219,7 +223,7 @@ LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::getServer()
 
 LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::ensureServerRunning()
 {
-    if (!gSavedSettings.getBOOL("ExternalWebsocketSyncEnable"))
+    if (!LLScriptEditorWSServer::isEnabled())
     {
         LL_DEBUGS("ScriptEditorWS") << "WebSocket server is disabled by ExternalWebsocketSyncEnable" << LL_ENDL;
         return nullptr;
@@ -1754,6 +1758,7 @@ LLSD LLScriptEditorWSServer::handleObjectItemCreate(const std::string& method, c
 
 void LLScriptEditorWSServer::notifyScript(const std::string& script_id, const std::string &method, const LLSD& message) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     auto it = mSubscriptions.find(script_id);
     if (it != mSubscriptions.end())
     {
@@ -1768,6 +1773,7 @@ void LLScriptEditorWSServer::notifyScript(const std::string& script_id, const st
 
 void LLScriptEditorWSServer::sendUnsubscribeScriptEditor(const std::string& script_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     LLSD params;
     params["script_id"] = script_id;
 
@@ -1776,6 +1782,7 @@ void LLScriptEditorWSServer::sendUnsubscribeScriptEditor(const std::string& scri
 
 void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, const LLSD &results) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     LLHandle<LLPanel> editor_handle = findEditorForScript(script_id);
     if (editor_handle.isDead())
     {
@@ -1865,6 +1872,7 @@ void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, co
 
 void LLScriptEditorWSServer::forwardChatToIDE(const LLChat& chat_msg) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     auto it = std::find_if(mSubscriptions.begin(), mSubscriptions.end(),
                            [&chat_msg](const auto& pair) { return (pair.second.mObjectID == chat_msg.mFromID); });
 
@@ -1964,6 +1972,7 @@ void LLScriptEditorWSServer::forwardChatToIDE(const LLChat& chat_msg) const
 
 void LLScriptEditorWSServer::notifyConnection(U32 connection_id, const std::string& method, const LLSD& params) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     auto it = mActiveConnections.find(connection_id);
     if (it != mActiveConnections.end())
     {
@@ -1977,6 +1986,7 @@ void LLScriptEditorWSServer::notifyConnection(U32 connection_id, const std::stri
 
 void LLScriptEditorWSServer::notifyAll(const std::string& method, const LLSD& params) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     // Serialize once, deliver many: build the JSON-RPC envelope and its wire
     // string a single time, then hand the bytes to each connection.
     LLSD envelope = LLJSONRPCConnection::makeEnvelope(
@@ -2023,6 +2033,7 @@ std::string LLScriptEditorWSServer::getPrimName(LLViewerObject* obj)
 
 LLSD LLScriptEditorWSServer::buildPrimInventoryLLSD(LLViewerObject* object) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     LLSD items = LLSD::emptyArray();
     if (!object) return items;
 
@@ -2085,6 +2096,7 @@ LLSD LLScriptEditorWSServer::buildPrimInventoryLLSD(LLViewerObject* object) cons
 
 bool LLScriptEditorWSServer::publishObject(const LLUUID& object_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     LLViewerObject* root = gObjectList.findObject(object_id);
     if (!root)
     {
@@ -2147,6 +2159,7 @@ bool LLScriptEditorWSServer::isObjectPublished(const LLUUID& object_id) const
 
 void LLScriptEditorWSServer::onPrimInventoryReady(const LLUUID& object_id, const LLUUID& prim_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     auto it = mPendingPublishes.find(object_id);
     if (it == mPendingPublishes.end()) return;
 
@@ -2161,6 +2174,7 @@ void LLScriptEditorWSServer::onPrimInventoryReady(const LLUUID& object_id, const
 
 LLSD LLScriptEditorWSServer::buildPublishedObjectLLSD(LLViewerObject* root) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     LLSD pub;
     pub["object_id"]          = root->getID();
     pub["object_name"]        = getPrimName(root);
@@ -2194,6 +2208,7 @@ LLSD LLScriptEditorWSServer::buildPublishedObjectLLSD(LLViewerObject* root) cons
 
 void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     auto pending_it = mPendingPublishes.find(object_id);
     if (pending_it == mPendingPublishes.end())
     {
@@ -2250,6 +2265,7 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
 
 void LLScriptEditorWSServer::onLinksetChildAdded(const LLUUID& root_id, LLViewerObject* child)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     auto obj_it = mPublishedObjects.find(root_id);
     if (obj_it == mPublishedObjects.end()) return;
 
@@ -2283,6 +2299,7 @@ void LLScriptEditorWSServer::onLinksetChildAdded(const LLUUID& root_id, LLViewer
 
 void LLScriptEditorWSServer::onLinksetChildRemoved(const LLUUID& root_id, const LLUUID& child_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     auto obj_it = mPublishedObjects.find(root_id);
     if (obj_it == mPublishedObjects.end()) return;
 
@@ -2360,6 +2377,7 @@ void LLScriptEditorWSServer::cancelLinksetFlushTimer(const LLUUID& root_id)
 
 void LLScriptEditorWSServer::flushLinksetUpdate(const LLUUID& root_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     auto obj_it = mPublishedObjects.find(root_id);
     if (obj_it == mPublishedObjects.end()) return;
 
@@ -2397,6 +2415,7 @@ void LLScriptEditorWSServer::flushLinksetUpdate(const LLUUID& root_id)
 
 void LLScriptEditorWSServer::onPrimInventoryChanged(const LLUUID& object_id, const LLUUID& prim_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     auto pub_it = mPublishedObjects.find(object_id);
     if (pub_it == mPublishedObjects.end())
         return;
@@ -2474,6 +2493,7 @@ void LLScriptEditorWSServer::onPrimInventoryChanged(const LLUUID& object_id, con
 void LLScriptEditorWSServer::onObjectPropertyChanged(
     const LLUUID& prim_id, const std::string& name, const std::string& desc)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     LLViewerObject* prim = gObjectList.findObject(prim_id);
     if (!prim) return;
     LLUUID root_id = prim->getRootEdit()->getID();
@@ -2532,6 +2552,7 @@ void LLScriptEditorWSServer::cleanupPrimListeners(const LLUUID& object_id)
 
 void LLScriptEditorWSServer::unpublishObject(const LLUUID& object_id, const std::string& reason)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     auto it = mPublishedObjects.find(object_id);
     if (it == mPublishedObjects.end())
     {
@@ -2570,6 +2591,7 @@ std::shared_ptr<LLScriptEditorWSServer> LLScriptEditorWSConnection::getServer() 
 
 void LLScriptEditorWSConnection::onOpen()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     // Call parent class to set up JSON-RPC infrastructure
     LLJSONRPCConnection::onOpen();
 
@@ -2628,6 +2650,7 @@ void LLScriptEditorWSConnection::onOpen()
 
 void LLScriptEditorWSConnection::onClose()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     // Call parent class to clean up JSON-RPC infrastructure
     LLJSONRPCConnection::onClose();
     mOwningServer.reset();
@@ -2654,6 +2677,7 @@ void LLScriptEditorWSConnection::sendDisconnect(DisconnectReason reason, const s
 
 void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     LL_INFOS("ScriptEditorWS") << "Processing handshake response from client" << LL_ENDL;
 
     mClientName      = result["client_name"].asString();

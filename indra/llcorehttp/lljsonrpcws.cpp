@@ -94,6 +94,7 @@ void LLJSONRPCConnection::onClose()
 
 void LLJSONRPCConnection::onMessage(const std::string& message)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     LL_DEBUGS("JSONRPC") << "Received JSON-RPC message: " << message << LL_ENDL;
 
     try
@@ -137,6 +138,7 @@ void LLJSONRPCConnection::onMessage(const std::string& message)
 
 void LLJSONRPCConnection::processMessage(const LLSD& message_obj)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     try
     {
         // Determine if this is a request, notification, or response
@@ -170,6 +172,7 @@ void LLJSONRPCConnection::processMessage(const LLSD& message_obj)
 
 void LLJSONRPCConnection::processRequest(const LLSD& request)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     std::string method = request["method"].asString();
     LLSD params = request.has("params") ? request["params"] : LLSD();
     LLSD id = request.has("id") ? request["id"] : LLSD();
@@ -310,6 +313,7 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
 
 void LLJSONRPCConnection::processResponse(const LLSD& response)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     if (!response.has("id"))
     {
         LL_WARNS("JSONRPC") << "Response missing id field" << LL_ENDL;
@@ -419,6 +423,7 @@ bool LLJSONRPCConnection::validateMessage(const LLSD& message, bool is_request)
 
 void LLJSONRPCConnection::sweepTimeouts()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     // Pop expired deadlines and collect their callbacks. Tombstones (entries
     // whose request already completed) are silently discarded.
     std::vector<std::pair<std::string, ResponseCallback>> expired;
@@ -526,6 +531,7 @@ LLSD LLJSONRPCConnection::makeEnvelope(const LLSD& id,
 
 LLSD LLJSONRPCConnection::call(const std::string& method, const LLSD& params, ResponseCallback callback)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     LLSD id = generateId();
     LLSD request = makeEnvelope(id, method, params, LLSD(), LLSD());
     const std::string id_str = id.asString();
@@ -557,6 +563,7 @@ LLSD LLJSONRPCConnection::call(const std::string& method, const LLSD& params, Re
 
 bool LLJSONRPCConnection::notify(const std::string& method, const LLSD& params)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     LLSD notification = makeEnvelope(LLSD(), method, params, LLSD(), LLSD());
 
     if (!sendMessage(LlsdToJson(notification)))
@@ -571,6 +578,7 @@ bool LLJSONRPCConnection::notify(const std::string& method, const LLSD& params)
 
 bool LLJSONRPCConnection::sendResponse(const LLSD& id, const LLSD& result)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     LLSD response = makeEnvelope(id, std::string(), LLSD(), result, LLSD());
 
     if (!sendMessage(LlsdToJson(response)))
@@ -584,6 +592,7 @@ bool LLJSONRPCConnection::sendResponse(const LLSD& id, const LLSD& result)
 
 bool LLJSONRPCConnection::sendError(const LLSD& id, const RPCError& error)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     LLSD error_obj;
     error_obj["code"] = error.getCode();
     error_obj["message"] = error.what();
@@ -751,6 +760,7 @@ LLSD LLJSONRPCServer::getMethodList() const
 
 void LLJSONRPCServer::broadcastNotification(const std::string& method, const LLSD& params)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     // Use custom broadcast logic since we need to call notify() on each JSON-RPC connection
     // We can't use the base broadcastMessage() because we need structured JSON-RPC messages
 

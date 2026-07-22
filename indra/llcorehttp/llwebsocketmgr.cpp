@@ -65,6 +65,7 @@ void LLWebsocketMgr::cleanupSingleton()
 
 void LLWebsocketMgr::update()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     std::vector<WSServer::ptr_t> stops;
 
     for (auto &[name, server] : mServers)
@@ -255,6 +256,7 @@ struct Server_impl
             // Run controlled event loop with periodic stop flag checking
             while (!mOwner->mShouldStop && !mServer.stopped())
             {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_WEBSOCKET("ws server run_for");
                 // Process events for up to 100ms, then check the stop flag
                 std::chrono::milliseconds timeout(100);
                 std::size_t handlers_run = mServer.get_io_service().run_for(timeout);
@@ -314,6 +316,7 @@ struct Server_impl
      */
     void onOpen(websocketpp::connection_hdl hdl) const
     {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
         LL_ERRS_IF(!mOwner, "WebSocket") << "mOwner should never be null. If it is, something is very wrong!" << LL_ENDL;
 
         mOwner->handleOpenConnection(hdl);
@@ -325,6 +328,7 @@ struct Server_impl
      */
     void onClose(websocketpp::connection_hdl hdl) const
     {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
         LL_ERRS_IF(!mOwner, "WebSocket") << "mOwner should never be null" << LL_ENDL;
         mOwner->handleCloseConnection(hdl);
     }
@@ -342,6 +346,7 @@ struct Server_impl
      */
     void onMessage(websocketpp::connection_hdl hdl, Server_t::message_ptr msg) const
     {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
         LL_ERRS_IF(!mOwner, "WebSocket") << "mOwner should never be null" << LL_ENDL;
         LLWebsocketMgr::WSConnection::ptr_t connection = mOwner->getConnection(hdl);
         if (!connection)
@@ -466,6 +471,7 @@ bool LLWebsocketMgr::WSServer::isRunning() const
 
 void LLWebsocketMgr::WSServer::broadcastMessage(const std::string& message)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     LL_ERRS_IF(!mImpl, "WebSocket") << "WebSocket server " << mServerName << " implementation is null !" << LL_ENDL;
     LLMutexLock lock(&mConnectionMutex);
     for (const auto& [handle, conn] : mConnections)
@@ -476,6 +482,7 @@ void LLWebsocketMgr::WSServer::broadcastMessage(const std::string& message)
 
 bool LLWebsocketMgr::WSServer::sendMessageTo(const connection_h& handle, const std::string& message)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     LL_ERRS_IF(!mImpl, "WebSocket") << "WebSocket server " << mServerName << " implementation is null !" << LL_ENDL;
     websocketpp::lib::error_code ec;
     mImpl->mServer.send(handle, message, websocketpp::frame::opcode::text, ec);
@@ -549,6 +556,7 @@ LLWebsocketMgr::connection_state_t LLWebsocketMgr::WSServer::getConnectionState(
 
 void LLWebsocketMgr::WSServer::handleOpenConnection(const connection_h& handle)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     WSConnection::ptr_t connection;
     size_t              size(0);
     {
@@ -585,6 +593,7 @@ void LLWebsocketMgr::WSServer::handleOpenConnection(const connection_h& handle)
 
 void LLWebsocketMgr::WSServer::handleCloseConnection(const connection_h& handle)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     size_t              size(0);
     WSConnection::ptr_t connection;
     {
@@ -611,6 +620,7 @@ void LLWebsocketMgr::WSServer::handleCloseConnection(const connection_h& handle)
 
 void LLWebsocketMgr::WSServer::handleMessage(const connection_h& handle, const std::string& message)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     WSConnection::ptr_t connection = getConnection(handle);
     if (connection)
     {

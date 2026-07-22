@@ -85,10 +85,7 @@ bool LLPanelContents::postBuild()
     setMouseOpaque(false);
 
     getChild<LLUICtrl>("button new script")->setCommitCallback(boost::bind(&LLPanelContents::onNewScriptFlyoutCommit, this, _1));
-    if (getChild<LLUICtrl>("button new notecard", false))
-    {
-        childSetAction("button new notecard", boost::bind(&LLPanelContents::onNewNotecardCommit, this));
-    }
+    childSetAction("button new notecard", boost::bind(&LLPanelContents::onNewNotecardCommit, this));
     childSetAction("button permissions",&LLPanelContents::onClickPermissions, this);
 
     mPublishButton = getChild<LLButton>("button publish");
@@ -138,12 +135,14 @@ void LLPanelContents::getState(LLViewerObject *objectp )
                            && ( objectp->permYouOwner() || ( !group_id.isNull() && gAgent.isInGroup(group_id) )));  // solves SL-23488
     bool all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
 
+    S32  object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+    S32  root_count = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
+    bool single_root  = (root_count == 1);
+
+    bool new_button_enabled = editable && all_volume && (single_root || (object_count == 1));
+
     // Edit script button - ok if object is editable and there's an unambiguous destination for the object.
-    getChildView("button new script")->setEnabled(
-        editable &&
-        all_volume &&
-        ((LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1)
-            || (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)));
+    getChildView("button new script")->setEnabled(new_button_enabled);
 
     // Enable the Lua script option only when the region supports it.
     bool lua_region = false;
@@ -159,22 +158,17 @@ void LLPanelContents::getState(LLViewerObject *objectp )
     getChildView("button permissions")->setEnabled(!objectp->isPermanentEnforced());
     mPanelInventoryObject->setEnabled(!objectp->isPermanentEnforced());
 
-    bool single_root = (LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1);
+
 
     // New Notecard button - requires the CreateTaskInventoryItem cap.
     bool has_create_cap = region && !region->getCapability("CreateTaskInventoryItem").empty();
-    getChildView("button new notecard")->setEnabled(
-        has_create_cap &&
-        editable &&
-        all_volume &&
-        single_root);
+    getChildView("button new notecard")->setEnabled(has_create_cap && new_button_enabled);
 
     // Publish button - enabled only when WS server is configured, and a single editable root object is selected.
-    bool ws_enabled = gSavedSettings.getBOOL("ExternalWebsocketSyncEnable");
-    mPublishButton->setEnabled(ws_enabled && editable && all_volume && single_root);
+    mPublishButton->setEnabled(LLScriptEditorWSServer::isEnabled() && new_button_enabled);
 
     // Sync toggle state to reflect whether the object is currently published.
-    if (ws_enabled)
+    if (LLScriptEditorWSServer::isEnabled())
     {
         auto server = LLScriptEditorWSServer::getServer();
         mPublishButton->setToggleState(server && server->isObjectPublished(objectp->getID()));

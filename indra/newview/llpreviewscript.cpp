@@ -1130,7 +1130,7 @@ void LLScriptEdCore::openInExternalEditor()
 
     std::string filename = mContainer->getTmpFileName(script_name);
 
-    if (gSavedSettings.getBOOL("ExternalEditorTightIntegration"))
+    if (LLScriptEditorWSServer::isTightIntegration())
     {
         // VS Code tight integration path.
         // The extension opens the script as a virtual sl:// document; no temp file is needed.
