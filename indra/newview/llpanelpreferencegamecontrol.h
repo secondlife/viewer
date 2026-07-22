@@ -134,10 +134,9 @@ private:
 
     // Actions-tab helpers
     std::string currentEditMode();   // mode string ("Avatar"/"FlyCam"/"Captive") from mActionMode
-    void populateActionModeList();       // build the per-mode rows (Enabled checkbox + label)
     void onActionModeChanged();      // rebuild the action table when the edit-mode selector changes
-    void onModeEnabledToggled(S32 mode_ordinal, bool enabled);  // toggle conversion for one mode
-    void updateActionModeEnabledUI();    // sync the per-mode checkboxes and lock/unlock the tables
+    void onModeEnabledToggled(bool enabled);  // toggle conversion for the currently-selected mode
+    void updateActionModeEnabledUI();    // sync the Enabled checkbox and lock/unlock the tables
     LLComboBox* actionSelectorForMode(bool axis, const std::string& mode) const;  // default vs flycam selector
     void removeDuplicateActionInput(const std::string& mode, const std::string& kind,
         const std::string& keep_action, const std::string& input_value, const LLComboBox* input_selector);
@@ -160,7 +159,6 @@ private:
     void rememberOriginalSettings();  // Capture settings for cancel restoration
 
     // Sends game_control data to server
-    LLCheckBoxCtrl* mCheckGameControlEnabled { nullptr };   // master on/off for the feature
     LLCheckBoxCtrl* mCheckGameControlToServer { nullptr };
 
     // Sub-tab panels
@@ -168,8 +166,8 @@ private:
     LLPanel* mTabDevices { nullptr };
 
     // Actions tab
-    LLScrollListCtrl* mActionMode { nullptr };      // Avatar / FlyCam / Captive rows,
-                                                    // each with an Enabled checkbox
+    LLComboBox* mActionMode { nullptr };            // selects which mode's mappings are edited
+    LLCheckBoxCtrl* mCheckActionModeEnabled { nullptr };  // enables/disables the selected mode
     LLButton* mRestoreActionsDefaults { nullptr };
     LLScrollListCtrl* mActionMappingsAxes { nullptr };     // Action | Axis Input (axis action block)
     LLScrollListCtrl* mActionMappingsButtons { nullptr };  // Action | Buttons Input (button action block)
