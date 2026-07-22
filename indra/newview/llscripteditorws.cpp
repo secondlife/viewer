@@ -1221,16 +1221,44 @@ LLScriptEditorWSServer::ValidatedItem LLScriptEditorWSServer::validatePublishedI
         !gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE))
         throw LLJSONRPCConnection::ForbiddenError("Insufficient permissions");
 
-    if ((permMask & PERM_MODIFY) &&
-        !gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))
-        throw LLJSONRPCConnection::ForbiddenError("Insufficient permissions");
+    if (permMask & PERM_MODIFY)
+    {
+        // Writes into task inventory require modify permission on both the
+        // item AND the containing prim. A no-mod object can be published
+        // (read-only), but its contents cannot be changed.
+        if (!gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))
+            throw LLJSONRPCConnection::ForbiddenError("Insufficient permissions");
+
+        if (!prim->permModify())
+            throw LLJSONRPCConnection::ForbiddenError("No modify permission on object");
+    }
 
     return { prim, root, item, type };
 }
 
 LLSD LLScriptEditorWSServer::handleObjectContentGet(const std::string& method, const LLSD& id, const LLSD& params)
 {
-    auto v = validatePublishedItem(params, PERM_COPY | PERM_MODIFY);
+    // Permission policy for reading item contents:
+    //   - Scripts:   require both PERM_COPY and PERM_MODIFY. No-copy or
+    //                no-modify scripts cannot have their source exposed.
+    //   - Notecards: no permission requirement -- no-mod notecards remain
+    //                readable so external editors can view their contents.
+    U32 required_perms = 0;
+    {
+        LLUUID prim_id_peek = params["prim_id"].asUUID();
+        LLUUID item_id_peek = params["item_id"].asUUID();
+        LLViewerObject* prim_peek = gObjectList.findObject(prim_id_peek);
+        if (prim_peek)
+        {
+            if (auto* it = dynamic_cast<LLInventoryItem*>(prim_peek->getInventoryObject(item_id_peek)))
+            {
+                if (it->getType() == LLAssetType::AT_LSL_TEXT)
+                    required_perms = PERM_COPY | PERM_MODIFY;
+            }
+        }
+    }
+
+    auto v = validatePublishedItem(params, required_perms);
 
     LLUUID prim_id = params["prim_id"].asUUID();
     LLUUID item_id = params["item_id"].asUUID();

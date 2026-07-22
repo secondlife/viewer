@@ -209,6 +209,12 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
             return;
         }
         ptr_t conn = std::static_pointer_cast<LLJSONRPCConnection>(getSelfPtr());
+        if (!conn)
+        {
+            LL_WARNS("JSONRPC") << "Connection expired before async method " << method
+                                << " could be launched" << LL_ENDL;
+            return;
+        }
         LLMainThreadTask::dispatch(
             [handler, method, id, params, conn]()
             {
@@ -219,15 +225,39 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
                         try
                         {
                             LLSD result = handler(method, id, params);
-                            conn->sendResponse(id, result);
+                            if (conn->isConnected())
+                            {
+                                conn->sendResponse(id, result);
+                            }
+                            else
+                            {
+                                LL_WARNS("JSONRPC") << "Connection closed before async method "
+                                                    << method << " could send response" << LL_ENDL;
+                            }
                         }
                         catch (const RPCError& e)
                         {
-                            conn->sendError(id, e);
+                            if (conn->isConnected())
+                            {
+                                conn->sendError(id, e);
+                            }
+                            else
+                            {
+                                LL_WARNS("JSONRPC") << "Connection closed before async method "
+                                                    << method << " could send error" << LL_ENDL;
+                            }
                         }
                         catch (const std::exception& e)
                         {
-                            conn->sendError(id, InternalError(e.what()));
+                            if (conn->isConnected())
+                            {
+                                conn->sendError(id, InternalError(e.what()));
+                            }
+                            else
+                            {
+                                LL_WARNS("JSONRPC") << "Connection closed before async method "
+                                                    << method << " could send error" << LL_ENDL;
+                            }
                         }
                     });
             });
