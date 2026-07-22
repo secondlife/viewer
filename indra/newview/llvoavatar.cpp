@@ -615,6 +615,8 @@ const LLUUID LLVOAvatar::sStepSounds[LL_MCODE_END] =
     SND_RUBBER_RUBBER
 };
 
+uuid_list_t LLVOAvatar::sEarlyAppearanceList;
+
 S32 LLVOAvatar::sRenderName = RENDER_NAME_ALWAYS;
 S32 LLVOAvatar::sRenderGroupTitles = RENDER_GROUP_TITLE_ALWAYS;
 S32 LLVOAvatar::sNumVisibleChatBubbles = 0;
@@ -779,6 +781,20 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mVisuallyMuteSetting = LLVOAvatar::VisualMuteSettings(LLRenderMuteList::getInstance()->getSavedVisualMuteSetting(getID()));
 
     sInstances.push_back(this);
+
+    uuid_list_t::iterator it = sEarlyAppearanceList.find(id);
+    if (it != sEarlyAppearanceList.end())
+    {
+        // Note: aside from LLVOAvatar::resetEarlyAppearanceList() (called on
+        // teleport), this is the only place where we remove from
+        // sEarlyAppearanceList, which means any agent who receives an
+        // AvatarAppearance message but is never actually instantiated will
+        // remain on the list until the next teleport. This is a resource leak
+        // but we expect it to be small enough per-session to not cause problems.
+        sEarlyAppearanceList.erase(it);
+        LL_INFOS("Avatar") << "Re-requesting AvatarAppearance for new avatar " << id << LL_ENDL;
+        LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
+    }
 }
 
 std::string LLVOAvatar::avString() const
@@ -9937,7 +9953,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
         if (visualParamWeightsAreDefault() && mRuthTimer.getElapsedTimeF32() > LOADING_TIMEOUT_SECONDS)
         {
             // re-request appearance, hoping that it comes back with a shape next time
-            LL_INFOS() << "Re-requesting AvatarAppearance for object: "  << getID() << LL_ENDL;
+            LL_INFOS() << "Re-requesting AvatarAppearance for agent: "  << getID() << LL_ENDL;
             LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
             mRuthTimer.reset();
         }
