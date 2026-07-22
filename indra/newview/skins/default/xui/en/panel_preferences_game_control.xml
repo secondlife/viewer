@@ -9,30 +9,11 @@
     name="game_control_panel"
     top="1"
     width="517">
-    <check_box
-        name="game_control_enabled"
-        label="Enable GameControl"
-        layout="topleft"
-        follows="top|left"
-        height="16"
-        width="200"
-        top="8"
-        left="10"
-        tool_tip="Master switch: when off, no controller input drives actions and no GameControl data is sent to the server."/>
-    <check_box
-        name="game_control_to_server"
-        label="Send GameControl Data to server"
-        layout="topleft"
-        follows="top|right"
-        height="16"
-        width="230"
-        top="8"
-        right="-10"/>
     <tab_container
         name="game_control_tabs"
         layout="topleft"
         follows="all"
-        top="30"
+        top="2"
         left="2"
         right="-2"
         bottom="-2">
@@ -40,36 +21,43 @@
         <panel
             name="tab_action_mappings"
             label="Action Mappings">
-            <!-- Mode selector: one row per action mode.  Selecting a row chooses
-                 which mode's mappings are edited below; the "Enabled" checkbox
-                 toggles whether game-control input is converted to that mode's
-                 actions (when off, the mode's mappings are locked). -->
-            <panel
-                name="action_mode_panel"
+            <!-- Mode selector: picks which mode's mappings are edited below; only
+                 one mode is shown at a time.  The "Enabled" checkbox toggles
+                 whether game-control input is converted to that mode's actions
+                 (when off, the mode's mappings are locked), and tracks whichever
+                 mode is currently selected in the combo box. -->
+            <combo_box
+                name="action_mode"
                 layout="topleft"
                 follows="top|left"
                 top="6"
                 left="1"
-                width="234"
-                height="72">
-                <scroll_list
-                    name="action_mode"
-                    follows="all"
-                    top="1"
-                    left="1"
-                    right="-1"
-                    bottom="-1"
-                    can_sort="false"
-                    column_padding="0"
-                    draw_heading="true"
-                    multi_select="false"
-                    selection_type="row"
-                    tool_tip="Select a mode to edit its mappings.  Uncheck Enabled to lock a mode's mappings and stop converting game-control input to that mode's actions."
-                    fg_disable_color="ScrollUnselectedColor">
-                    <scroll_list.columns name="enabled" label="Enabled" type="checkbox" relative_width="0.3"/>
-                    <scroll_list.columns name="mode"    label="Mode"    relative_width="0.7"/>
-                </scroll_list>
-            </panel>
+                height="23"
+                width="210"
+                tool_tip="Select a mode to edit its mappings.">
+                <combo_box.item
+                    label="When moving avatar"
+                    name="avatar"
+                    value="0"/>
+                <combo_box.item
+                    label="When moving flycam"
+                    name="flycam"
+                    value="1"/>
+                <combo_box.item
+                    label="When sitting"
+                    name="captive"
+                    value="2"/>
+            </combo_box>
+            <check_box
+                name="action_mode_enabled"
+                label="Mode enabled"
+                layout="topleft"
+                follows="top|left"
+                top="10"
+                left="217"
+                height="16"
+                width="70"
+                tool_tip="Uncheck to lock this mode's mappings and stop converting game-control input to this mode's actions."/>
             <button
                 name="restore_actions_defaults"
                 layout="topleft"
@@ -84,7 +72,7 @@
                 name="action_mappings_panel"
                 layout="topleft"
                 follows="all"
-                top="82"
+                top="36"
                 left="1"
                 right="-1"
                 bottom="-1">
@@ -372,13 +360,22 @@
         <panel
             name="tab_server_data"
             label="Server Data">
+            <check_box
+                name="game_control_to_server"
+                label="Send GameControl Data to server"
+                layout="topleft"
+                follows="top|left"
+                height="16"
+                width="230"
+                top="8"
+                left="9"/>
             <text
                 type="string"
                 name="data_note"
                 layout="topleft"
                 follows="top|left|right"
                 word_wrap="true"
-                top="8"
+                top="30"
                 left="9"
                 right="-9"
                 height="28">Data sent to the server:</text>
@@ -386,7 +383,7 @@
                 name="data_panel"
                 layout="topleft"
                 follows="all"
-                top="30"
+                top="52"
                 left="1"
                 right="-1"
                 bottom="-1">
@@ -776,9 +773,11 @@
         <combo_box.item
             label="Stand"
             value="Toggle sit"/>
+        <!-- TODO: implement Interact feature
         <combo_box.item
             label="Interact"
             value="Interact"/>
+        -->
         <combo_box.item
             label="Toggle speak"
             value="Toggle speak"/>
@@ -791,12 +790,6 @@
         <combo_box.item
             label="FlyCam"
             value="Toggle flycam"/>
-        <combo_box.item
-            label="Mouse left"
-            value="Mouse click left"/>
-        <combo_box.item
-            label="Mouse right"
-            value="Mouse click right"/>
         <combo_box.item
             label="None"
             value="None"/>

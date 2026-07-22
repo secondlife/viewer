@@ -396,11 +396,6 @@ public:
     static void setSendToServer(bool enable);
     static void setAgentControlMode(AgentControlMode mode);
 
-    // Master runtime on/off for the whole feature: gates all game-control ->
-    // action logic (via isEnabled()) and the sending of GameControlData.
-    static void setGameControlEnabled(bool enabled);
-    static bool getGameControlEnabled();
-
     static bool sendToServer();
     static AgentControlMode getAgentControlMode();
 

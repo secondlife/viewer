@@ -510,9 +510,6 @@ namespace
     U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
 
     bool g_sendToServer = false;
-    // Master runtime toggle for the whole feature: when false, no game-control
-    // input is converted to actions and nothing is sent to the server.
-    bool g_gameControlEnabled = true;
     LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_AVATAR;
 
     // g_gameControlSettings is the nested GameControl structure stored under the
@@ -534,9 +531,6 @@ namespace
     // (see buildDefaultGameControlSettings()).
     const std::string GC_COMMENT("Comment");
     const std::string GC_SENDTOSERVER("SendDataToServer");
-    // Top-level master enable for the whole feature (distinct from the per-mode
-    // GC_ENABLED flag below).  Absent in pre-existing configs -> treated as true.
-    const std::string GC_MASTERENABLED("MasterEnabled");
     const std::string GC_DEVICES("Devices");
     const std::string GC_DEFAULT_DEVICE("Default");
     const std::string GC_CONFIG("Config");
@@ -625,8 +619,6 @@ namespace
         avatar_buttons["3rd Person camera"]      = "BUTTON_HOME";
         avatar_buttons["Toggle mouselook"]       = "BUTTON_START";
         avatar_buttons["Toggle flycam"]          = "BUTTON_RIGHT_STICK";
-        avatar_buttons["Mouse click left"]       = "BUTTON_LEFT_SHOULDER";
-        avatar_buttons["Mouse click right"]      = "BUTTON_RIGHT_SHOULDER";
         avatar_buttons["Advance forward"]        = "BUTTON_DPAD_UP";
         avatar_buttons["Advance back"]           = "BUTTON_DPAD_DOWN";
         avatar_buttons["Strafe left"]            = "BUTTON_DPAD_LEFT";
@@ -685,7 +677,6 @@ namespace
         LLSD settings;
         settings[GC_COMMENT] = "GameControl settings";
         settings[GC_SENDTOSERVER] = false;
-        settings[GC_MASTERENABLED] = true;
         settings[GC_MODEMAPPINGS] = buildDefaultModeMappings();
         settings[GC_DEVICES][GC_DEFAULT_DEVICE] = device;
         return settings;
@@ -1673,8 +1664,7 @@ namespace
     // given trigger drives.  Button labels expand to a single AGENT_CONTROL bit,
     // except the ACTION_TOGGLE_* entries below, which are non-flag actions carried
     // via AgentActions::mMiscActions and processed by LLAgent::applyExternalActions.
-    // Labels that map to other viewer *commands* (Interact, Mouse clicks) are
-    // intentionally absent here and are a separate follow-up.
+    // TODO: implement "Interact" action.
     struct AxisActionEffect { U32 posFlag; U32 negFlag; };
 
     const std::map<std::string, AxisActionEffect>& avatarAxisBridge()
@@ -1983,8 +1973,8 @@ namespace
     // FlyCam-mode button label -> flycam channel + full-deflection contribution.
     // A gamepad has no free axis for roll (all six are used for translate/look),
     // so roll is driven by the shoulder buttons by default; the dpad likewise
-    // provides digital dolly/pan.  Command-type buttons (Select, Interact,
-    // Toggle AltZoom/menu) and the flycam on/off toggle are handled elsewhere.
+    // provides digital dolly/pan.
+    // TODO: implement Reset
     const std::map<std::string, FlycamAxisEffect>& flycamButtonBridge()
     {
         static const std::map<std::string, FlycamAxisEffect> bridge = {
@@ -2040,10 +2030,10 @@ namespace
 
 void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
 {
-    // When the feature is off or FlyCam-mode conversion is disabled, produce no
-    // motion.  This path (LLAgent::updateFlycam) is not gated by willControlFlycam(),
-    // so gate it here on both the master toggle and the per-mode flag.
-    if (!LLGameControl::getGameControlEnabled() || !LLGameControl::isModeEnabled(GC_MODE_FLYCAM))
+    // When FlyCam-mode conversion is disabled, produce no motion.  This path
+    // (LLAgent::updateFlycam) is not gated by willControlFlycam(), so gate it
+    // here on the per-mode flag.
+    if (!LLGameControl::isModeEnabled(GC_MODE_FLYCAM))
     {
         inputs.assign(LLGameControl::FLYCAM_NUM_CHANNELS, 0.f);
         return;
@@ -2598,7 +2588,7 @@ bool LLGameControl::computeFinalStateAndCheckForChanges()
     //     g_lastSend has "expired"
     //         either because g_nextResendPeriod has been zeroed
     //         or the last send really has expired.
-    return g_gameControlEnabled && g_sendToServer && (g_lastSend + g_nextResendPeriod < get_now_nsec());
+    return g_sendToServer && (g_lastSend + g_nextResendPeriod < get_now_nsec());
 }
 
 // static
@@ -2737,21 +2727,6 @@ bool LLGameControl::sendToServer()
 }
 
 // static
-void LLGameControl::setGameControlEnabled(bool enabled)
-{
-    g_gameControlEnabled = enabled;
-    // Persisted inside the GameControl map alongside SendDataToServer.
-    ensureGameControlSettings();
-    g_gameControlSettings[GC_MASTERENABLED] = g_gameControlEnabled;
-}
-
-// static
-bool LLGameControl::getGameControlEnabled()
-{
-    return g_gameControlEnabled;
-}
-
-// static
 void LLGameControl::setAgentControlMode(AgentControlMode mode)
 {
     // AgentControlMode is purely runtime state, auto-derived from avatar state
@@ -2770,10 +2745,9 @@ LLGameControl::AgentControlMode LLGameControl::getAgentControlMode()
 // static
 bool LLGameControl::isEnabled()
 {
-    // "Enabled" means the master toggle is on AND at least one controller is
-    // connected.  willControlAvatar()/willControlFlycam() build on this, so the
-    // master toggle gates all game-control -> action logic through them.
-    return g_gameControlEnabled && !g_manager.mDevices.empty();
+    // "Enabled" means at least one controller is connected.
+    // willControlAvatar()/willControlFlycam() build on this.
+    return !g_manager.mDevices.empty();
 }
 
 // static
@@ -3163,7 +3137,6 @@ std::string LLGameControl::stringifyDeviceOptions(const std::string& name,
 void LLGameControl::initByDefault()
 {
     g_sendToServer = false;
-    g_gameControlEnabled = true;
     g_agentControlMode = CONTROL_MODE_AVATAR;
     g_gameControlSettings = buildDefaultGameControlSettings();
     g_manager.resetDeviceOptionsToDefaults();
@@ -3195,7 +3168,6 @@ LLSD LLGameControl::getSettingsAsLLSD()
     }
 
     g_gameControlSettings[GC_SENDTOSERVER] = g_sendToServer;
-    g_gameControlSettings[GC_MASTERENABLED] = g_gameControlEnabled;
 
     LLSD result = LLSD::emptyMap();
     result[SETTING_GAMECONTROL] = g_gameControlSettings;
@@ -3211,10 +3183,6 @@ void LLGameControl::applySettingsFromLLSD(const LLSD& settings)
     // SendDataToServer is nested inside the GameControl map.
     if (g_gameControlSettings.has(GC_SENDTOSERVER))
         g_sendToServer = g_gameControlSettings[GC_SENDTOSERVER].asBoolean();
-
-    // Master enable defaults to true when absent (pre-existing configs).
-    g_gameControlEnabled = !g_gameControlSettings.has(GC_MASTERENABLED)
-        || g_gameControlSettings[GC_MASTERENABLED].asBoolean();
 
     // Rebuild the device-options cache from GameControl/Devices/<guid>/Config and
     // apply it to the connected devices.

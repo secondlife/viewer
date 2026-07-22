@@ -674,15 +674,7 @@ void LLPanelPreferenceGameControl::onCommitNumericValue()
 // Called once when the panel is first built from XML.
 bool LLPanelPreferenceGameControl::postBuild()
 {
-    // Master enable checkbox (top-left of the main panel): runtime on/off for all
-    // game-control -> action logic and for sending GameControlData to the server.
-    mCheckGameControlEnabled = getChild<LLCheckBoxCtrl>("game_control_enabled");
-    mCheckGameControlEnabled->setCommitCallback([this](LLUICtrl*, const LLSD&)
-        {
-            LLGameControl::setGameControlEnabled(mCheckGameControlEnabled->getValue());
-        });
-
-    // Send-to-server checkbox (top-right of the main panel)
+    // Send-to-server checkbox (on the Server Data sub-tab)
     mCheckGameControlToServer = getChild<LLCheckBoxCtrl>("game_control_to_server");
     mCheckGameControlToServer->setCommitCallback([this](LLUICtrl*, const LLSD&)
         {
@@ -694,10 +686,15 @@ bool LLPanelPreferenceGameControl::postBuild()
     mTabActions = getChild<LLPanel>("tab_action_mappings");
     mTabDevices = getChild<LLPanel>("tab_device_mappings");
 
-    // Actions tab (global, per-mode)
-    mActionMode = getChild<LLScrollListCtrl>("action_mode");
+    // Actions tab (global, per-mode).  The mode items (Avatar/FlyCam/Captive) are
+    // defined in the XML; only one mode is visible at a time, with a single
+    // Enabled checkbox that tracks whichever mode is currently selected.
+    mActionMode = getChild<LLComboBox>("action_mode");
     mActionMode->setCommitCallback([this](LLUICtrl*, const LLSD&) { onActionModeChanged(); });
-    populateActionModeList();
+
+    mCheckActionModeEnabled = getChild<LLCheckBoxCtrl>("action_mode_enabled");
+    mCheckActionModeEnabled->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        { onModeEnabledToggled(mCheckActionModeEnabled->getValue()); });
 
     mRestoreActionsDefaults = getChild<LLButton>("restore_actions_defaults");
     mRestoreActionsDefaults->setCommitCallback([this](LLUICtrl*, const LLSD&) { onResetActionsToDefaults(); });
@@ -822,7 +819,6 @@ bool LLPanelPreferenceGameControl::postBuild()
         grid->setRect(rect);
         grid->updateLayout();
     };
-    fixHeadingTop(mActionMode);
     fixHeadingTop(mActionMappingsAxes);
     fixHeadingTop(mActionMappingsButtons);
     fixHeadingTop(mAxisChannels);
@@ -838,8 +834,7 @@ bool LLPanelPreferenceGameControl::postBuild()
 // Loads current LLGameControl state into UI controls and refreshes all tables.
 void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
 {
-    // Sync checkboxes with current LLGameControl state
-    mCheckGameControlEnabled->setValue(LLGameControl::getGameControlEnabled());
+    // Sync checkbox with current LLGameControl state
     mCheckGameControlToServer->setValue(LLGameControl::sendToServer());
 
     clearSelectionState();
@@ -852,7 +847,6 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
     // Refresh device list and settings
     updateDeviceListInternal();
 
-    mCheckGameControlEnabled->setEnabled(true);
     mCheckGameControlToServer->setEnabled(true);
     mActionMappingsAxes->setEnabled(true);
     mActionMappingsButtons->setEnabled(true);
@@ -1086,53 +1080,6 @@ void LLPanelPreferenceGameControl::populateActionMappings()
     addBlock(mActionMappingsButtons, KIND_BUTTONS, actionSelectorForMode(false, mode), mButtonInputSelector);
 }
 
-// Builds the mode-selector rows: one per action mode, each with an Enabled
-// checkbox and the mode's display label.  The row value is the mode ordinal
-// (matching LLGameControl::AgentControlMode) used by currentEditMode().
-void LLPanelPreferenceGameControl::populateActionModeList()
-{
-    mActionMode->clearRows();
-
-    struct ModeRow { LLGameControl::AgentControlMode mode; const char* label; };
-    static const ModeRow rows[] = {
-        { LLGameControl::CONTROL_MODE_AVATAR,  "When moving avatar" },
-        { LLGameControl::CONTROL_MODE_FLYCAM,  "When moving flycam" },
-        { LLGameControl::CONTROL_MODE_CAPTIVE, "When sitting"       },
-    };
-
-    for (const ModeRow& mr : rows)
-    {
-        std::string mode = LLGameControl::getModeName(mr.mode);
-
-        LLScrollListItem::Params row_params;
-        row_params.value = (S32)mr.mode;
-
-        LLScrollListCell::Params check_cell;
-        check_cell.column = "enabled";
-        check_cell.type = "checkbox";
-        check_cell.value = LLGameControl::isModeEnabled(mode);
-        row_params.columns.add(check_cell);
-
-        LLScrollListCell::Params label_cell;
-        label_cell.column = "mode";
-        label_cell.font = LLFontGL::getFontSansSerif();
-        label_cell.value = std::string(mr.label);
-        row_params.columns.add(label_cell);
-
-        LLScrollListItem* row = mActionMode->addRow(row_params);
-
-        // Wire the per-row checkbox so toggling it enables/disables that mode
-        // independently of which row is currently selected for editing.
-        if (auto* check = dynamic_cast<LLScrollListCheck*>(row->getColumn(0)))
-        {
-            S32 ordinal = (S32)mr.mode;
-            check->getCheckBox()->setCommitCallback(
-                [this, ordinal](LLUICtrl* ctrl, const LLSD&)
-                { onModeEnabledToggled(ordinal, ctrl->getValue().asBoolean()); });
-        }
-    }
-}
-
 // Handles a change in the edit-mode selector: rebuild the action table.
 void LLPanelPreferenceGameControl::onActionModeChanged()
 {
@@ -1141,32 +1088,22 @@ void LLPanelPreferenceGameControl::onActionModeChanged()
     updateActionModeEnabledUI();
 }
 
-// Toggle whether game-control input is converted to one mode's actions.
-void LLPanelPreferenceGameControl::onModeEnabledToggled(S32 mode_ordinal, bool enabled)
+// Toggle whether game-control input is converted to the currently-selected
+// mode's actions.
+void LLPanelPreferenceGameControl::onModeEnabledToggled(bool enabled)
 {
     clearSelectionState();
-    LLGameControl::setModeEnabled(
-        LLGameControl::getModeName((LLGameControl::AgentControlMode)mode_ordinal), enabled);
-    // If the toggled mode is the one being edited, lock/unlock its tables now.
+    LLGameControl::setModeEnabled(currentEditMode(), enabled);
     updateActionModeEnabledUI();
 }
 
-// Sync each mode row's checkbox with its stored flag (keeps the list correct
-// after apply/cancel/reset) and lock/unlock the action tables (and Restore
-// Defaults) for the mode being edited so a disabled mode's mappings can't change.
+// Sync the Enabled checkbox with the selected mode's stored flag (keeps it
+// correct after apply/cancel/reset and after switching modes) and lock/unlock
+// the action tables (and Restore Defaults) so a disabled mode's mappings can't change.
 void LLPanelPreferenceGameControl::updateActionModeEnabledUI()
 {
-    for (LLScrollListItem* item : mActionMode->getAllData())
-    {
-        std::string mode = LLGameControl::getModeName(
-            (LLGameControl::AgentControlMode)item->getValue().asInteger());
-        if (auto* check = dynamic_cast<LLScrollListCheck*>(item->getColumn(0)))
-        {
-            check->getCheckBox()->set(LLGameControl::isModeEnabled(mode));
-        }
-    }
-
     bool enabled = LLGameControl::isModeEnabled(currentEditMode());
+    mCheckActionModeEnabled->set(enabled);
     // A disabled mode's tables grey out; onGridSelect() also refuses edits on a
     // disabled table, so this both signals and enforces the lock.
     mActionMappingsAxes->setEnabled(enabled);
