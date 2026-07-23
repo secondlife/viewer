@@ -40,13 +40,17 @@
                     name="avatar"
                     value="0"/>
                 <combo_box.item
+                    label="When in mouselook"
+                    name="mouselook"
+                    value="1"/>
+                <combo_box.item
                     label="When moving flycam"
                     name="flycam"
-                    value="1"/>
+                    value="2"/>
                 <combo_box.item
                     label="When sitting"
                     name="captive"
-                    value="2"/>
+                    value="3"/>
             </combo_box>
             <check_box
                 name="action_mode_enabled"
@@ -727,6 +731,94 @@
             label="Interact"
             value="Interact"/>
         -->
+        <combo_box.item
+            label="Toggle speak"
+            value="Toggle speak"/>
+        <combo_box.item
+            label="3rd person view"
+            value="3rd Person camera"/>
+        <combo_box.item
+            label="Toggle mouselook"
+            value="Toggle mouselook"/>
+        <combo_box.item
+            label="FlyCam"
+            value="Toggle flycam"/>
+        <combo_box.item
+            label="Toggle run"
+            value="Toggle run"/>
+        <combo_box.item
+            label="Mouse left"
+            value="Mouse click left"/>
+        <combo_box.item
+            label="Mouse right"
+            value="Mouse click right"/>
+        <combo_box.item
+            label="Advance ↑"
+            value="Advance forward"/>
+        <combo_box.item
+            label="Retreat ↓"
+            value="Advance back"/>
+        <combo_box.item
+            label="Strafe ←"
+            value="Strafe left"/>
+        <combo_box.item
+            label="Strafe →"
+            value="Strafe right"/>
+        <combo_box.item
+            label="Fly ↑"
+            value="Fly up"/>
+        <combo_box.item
+            label="Fly ↓"
+            value="Fly down"/>
+        <combo_box.item
+            label="Turn ←"
+            value="Turn left"/>
+        <combo_box.item
+            label="Turn →"
+            value="Turn right"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <!-- Mouselook-mode action selectors: initialized as independent copies of the
+         Avatar selectors above (same items/defaults for now), so Mouselook's
+         action set can be tuned separately later without touching Avatar's. -->
+    <combo_box
+        name="mouselook_analog_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Strafe ↔"
+            value="Strafe left/right"/>
+        <combo_box.item
+            label="Advance ↕"
+            value="Advance forward/back"/>
+        <combo_box.item
+            label="Turn ↔"
+            value="Turn left/right"/>
+        <combo_box.item
+            label="Look ↕"
+            value="Look up/down"/>
+        <combo_box.item
+            label="Fly ↕"
+            value="Fly up/down"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <combo_box
+        name="mouselook_binary_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Jump"
+            value="Jump"/>
+        <combo_box.item
+            label="Crouch"
+            value="Crouch"/>
+        <combo_box.item
+            label="Sit"
+            value="Toggle sit"/>
         <combo_box.item
             label="Toggle speak"
             value="Toggle speak"/>

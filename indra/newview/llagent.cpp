@@ -4989,13 +4989,19 @@ static S32 g_deltaFrame { 0 };
 
 void LLAgent::updateGameControlMode()
 {
-    // Auto-derive the active mode from avatar state.  Flycam takes precedence
-    // (it is toggled via a game-control binding), then sitting/controls-taken
-    // maps to Captive, otherwise the normal Avatar mode.
+    // Auto-derive the active mode from avatar/camera state.  Flycam takes
+    // precedence (it is toggled via a game-control binding), then mouselook
+    // (the camera mode can be entered while sitting too, so it is checked
+    // ahead of Captive), then sitting/controls-taken maps to Captive,
+    // otherwise the normal Avatar mode.
     LLGameControl::AgentControlMode mode;
     if (mUsingFlycam)
     {
         mode = LLGameControl::CONTROL_MODE_FLYCAM;
+    }
+    else if (gAgentCamera.cameraMouselook())
+    {
+        mode = LLGameControl::CONTROL_MODE_MOUSELOOK;
     }
     else if (isSitting())
     {
