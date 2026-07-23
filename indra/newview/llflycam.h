@@ -48,6 +48,14 @@ public:
     void setRollRate(F32 roll_rate);
     void setZoomRate(F32 zoom_rate);
 
+    // Begins a smooth transition from the current transform to
+    // 'target_position'/'target_rotation', taking 'duration' seconds.  While
+    // the transition is in progress, integrate() ignores the rates set by
+    // setLinearVelocity()/setPitchRate()/etc. and instead lerps toward the
+    // target; normal input-driven integration resumes once it completes.
+    void startReset(const LLVector3& target_position, const LLQuaternion& target_rotation, F32 duration);
+    bool isResetting() const { return mResetTimeRemaining > 0.0f; }
+
     void integrate(F32 delta_time);
 
 protected:
@@ -59,4 +67,14 @@ protected:
     F32 mRollRate { 0.0f };
     F32 mZoomRate { 0.0f };
     F32 mView { DEFAULT_FIELD_OF_VIEW };
+
+    // Reset-in-progress state: integrate() lerps mPosition/mRotation from
+    // mResetStart* to mResetTarget* as mResetTimeRemaining counts down from
+    // mResetDuration to zero.
+    LLVector3 mResetStartPosition;
+    LLQuaternion mResetStartRotation;
+    LLVector3 mResetTargetPosition;
+    LLQuaternion mResetTargetRotation;
+    F32 mResetDuration { 0.0f };
+    F32 mResetTimeRemaining { 0.0f };
 };

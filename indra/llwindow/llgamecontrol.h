@@ -390,7 +390,14 @@ public:
     static const ServerState& getServerState();
     static const State& getState();
     static InputChannel getActiveInputChannel();
-    static void getFlycamInputs(std::vector<F32>& inputs_out);
+
+    // Packs the FlyCam-mode DOF channels (order per FlycamChannel) into
+    // 'inputs_out'.  FlycamMiscAction commands (e.g. FLYCAM_ACTION_RESET) are
+    // discrete one-shot commands rather than per-frame DOF contributions, so
+    // they are reported separately via 'misc_actions_out': the bitmask of
+    // FlycamMiscAction values whose bound button transitioned from
+    // not-pressed to pressed this frame.
+    static void getFlycamInputs(std::vector<F32>& inputs_out, U32& misc_actions_out);
 
     // these methods for accepting input from keyboard
     static void setSendToServer(bool enable);
@@ -418,26 +425,41 @@ public:
     static U8 axisOutputFromName(const std::string& name);
     static std::string axisOutputName(U8 code);
 
-    // Actions bound to a button/axis that don't correspond to an AGENT_CONTROL_*
-    // bit (e.g. they toggle viewer-side state rather than a movement flag).
-    // These are plain small integers, not bitmasks, so they cannot be OR'd into
-    // a flags word; they are carried separately in AgentActions::mMiscActions.
-    static constexpr U32 ACTION_TOGGLE_FLY = 33;
-    static constexpr U32 ACTION_TOGGLE_SIT = 34;
-    static constexpr U32 ACTION_TOGGLE_SPEAK = 35;
-    static constexpr U32 ACTION_TOGGLE_FLYCAM = 36;
-    static constexpr U32 ACTION_TOGGLE_MOUSELOOK = 37;
-    static constexpr U32 ACTION_TOGGLE_3RD_PERSON = 38;
+    // Edge-triggered ("pressed this frame") one-shot commands bound to a
+    // button that don't correspond to an AGENT_CONTROL_* bit (e.g. they
+    // toggle viewer-side state rather than a movement flag).  Each mode has
+    // its own bitmask of these, so bit values are only meaningful within
+    // their own mode: AvatarMiscAction values are carried in
+    // AgentActions::mMiscActionBits (Avatar/Captive), FlycamMiscAction
+    // values in the misc_actions_out bitmask of getFlycamInputs() (FlyCam).
+    // Each mode's button-bridge (avatarMiscButtonBridge()/
+    // flycamMiscButtonBridge() in llgamecontrol.cpp) maps a label to its bit;
+    // membership there -- not a shared "is this misc" test -- is what keeps
+    // these out of the mode's combinable/continuous bridge.
+    enum AvatarMiscAction : U32
+    {
+        AVATAR_ACTION_TOGGLE_FLY        = 1u << 0,
+        AVATAR_ACTION_TOGGLE_SIT        = 1u << 1,
+        AVATAR_ACTION_TOGGLE_SPEAK      = 1u << 2,
+        AVATAR_ACTION_TOGGLE_FLYCAM     = 1u << 3,
+        AVATAR_ACTION_TOGGLE_MOUSELOOK  = 1u << 4,
+        AVATAR_ACTION_TOGGLE_3RD_PERSON = 1u << 5,
+    };
+
+    enum FlycamMiscAction : U32
+    {
+        FLYCAM_ACTION_RESET = 1u << 0,
+    };
 
     // Result of translating controller/keyboard State into agent actions:
-    // mControlFlags holds the AGENT_CONTROL_* bits (OR-combinable), mMiscActions
-    // holds any ACTION_TOGGLE_* (or future non-flag) actions in the order they
-    // were detected, and mIsRunning is the final walk/run decision -- true when
+    // mControlFlags holds the AGENT_CONTROL_* bits (OR-combinable),
+    // mMiscActionBits holds any AvatarMiscAction bits that edge-triggered
+    // this frame, and mIsRunning is the final walk/run decision -- true when
     // either the "Toggle run" button is currently engaged or the movement axes
     // are pushed hard enough (see LLGameControllerManager::computeAgentActions()).
     struct AgentActions
     {
-        std::vector<U32> mMiscActions;
+        U32 mMiscActionBits { 0 };
         U32 mControlFlags { 0 };
         bool mIsRunning { false };
     };
