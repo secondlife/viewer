@@ -84,6 +84,7 @@ public:
     enum AgentControlMode
     {
         CONTROL_MODE_AVATAR,
+        CONTROL_MODE_MOUSELOOK, // Avatar camera is in mouselook
         CONTROL_MODE_FLYCAM,
         CONTROL_MODE_CAPTIVE, // Avatar is sitting, or controls have been taken
         CONTROL_MODE_NONE
@@ -411,7 +412,7 @@ public:
     // toggle (see the "GameControl always enabled" change).  willControlAvatar()
     // and willControlFlycam() additionally gate on the active AgentControlMode.
     static bool isEnabled();        // a controller is connected
-    static bool willControlAvatar();// enabled AND mode is Avatar/Captive
+    static bool willControlAvatar();// enabled AND mode is Avatar/Mouselook/Captive
     static bool willControlFlycam();// enabled AND mode is FlyCam
     static ActionNameType getActionNameType(const std::string& action);
 
@@ -505,7 +506,7 @@ public:
     // GameControl settings, stored under the single "GameControl" setting key:
     //   ModeMappings/<Mode>/Axes|Buttons  -- GLOBAL action -> canonical-input maps
     //   Devices/<guid>/Config             -- per-device serialized hardware options
-    // 'mode' is "Avatar"/"FlyCam"/"Captive"; 'kind' is "Axes"/"Buttons".
+    // 'mode' is "Avatar"/"Mouselook"/"FlyCam"/"Captive"; 'kind' is "Axes"/"Buttons".
     static LLSD getDefaultModeMappings();        // { <Mode> : { Axes, Buttons } }
     static LLSD getDefaultGameControlSettings(); // full default GameControl map
     static const LLSD& getGameControlSettings();
@@ -521,13 +522,13 @@ public:
 
     // Per-mode enable flag: when false, game-control input is not converted to the
     // mode's actions and its mappings are treated as locked.  Defaults to true when
-    // the flag is absent.  'mode' is "Avatar"/"FlyCam"/"Captive".
+    // the flag is absent.  'mode' is "Avatar"/"Mouselook"/"FlyCam"/"Captive".
     static bool isModeEnabled(const std::string& mode);
     static void setModeEnabled(const std::string& mode, bool enabled);
     static std::string getDeviceConfig(const std::string& guid);
     static void setDeviceConfig(const std::string& guid, const std::string& config);
 
-    // "Avatar"/"FlyCam"/"Captive" for the given mode (empty for CONTROL_MODE_NONE).
+    // "Avatar"/"Mouselook"/"FlyCam"/"Captive" for the given mode (empty for CONTROL_MODE_NONE).
     static std::string getModeName(AgentControlMode mode);
 
     static void setDeviceOptions(const std::string& guid, const Options& options);

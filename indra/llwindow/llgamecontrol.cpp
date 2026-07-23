@@ -541,6 +541,7 @@ namespace
     // actions.  When false the mode's mappings are locked and no actions fire.
     const std::string GC_ENABLED("Enabled");
     const std::string GC_MODE_AVATAR("Avatar");
+    const std::string GC_MODE_MOUSELOOK("Mouselook");
     const std::string GC_MODE_FLYCAM("FlyCam");
     const std::string GC_MODE_CAPTIVE("Captive");
 
@@ -586,10 +587,11 @@ namespace
     {
         switch (mode)
         {
-            case LLGameControl::CONTROL_MODE_AVATAR:  return GC_MODE_AVATAR;
-            case LLGameControl::CONTROL_MODE_FLYCAM:  return GC_MODE_FLYCAM;
-            case LLGameControl::CONTROL_MODE_CAPTIVE: return GC_MODE_CAPTIVE;
-            default:                                  return LLStringUtil::null;
+            case LLGameControl::CONTROL_MODE_AVATAR:    return GC_MODE_AVATAR;
+            case LLGameControl::CONTROL_MODE_MOUSELOOK: return GC_MODE_MOUSELOOK;
+            case LLGameControl::CONTROL_MODE_FLYCAM:    return GC_MODE_FLYCAM;
+            case LLGameControl::CONTROL_MODE_CAPTIVE:   return GC_MODE_CAPTIVE;
+            default:                                    return LLStringUtil::null;
         }
     }
 
@@ -623,6 +625,30 @@ namespace
         avatar_buttons["Advance back"]           = "BUTTON_DPAD_DOWN";
         avatar_buttons["Strafe left"]            = "BUTTON_DPAD_LEFT";
         avatar_buttons["Strafe right"]           = "BUTTON_DPAD_RIGHT";
+
+        // Mouselook shares the avatar action set (movement/look/jump/etc. still
+        // apply while the camera is in mouselook), but is initialized as its own
+        // independent copy so its defaults can be tuned separately later.
+        LLSD mouselook_axes;
+        mouselook_axes["Strafe left/right"]    = "AXIS_LEFTX";
+        mouselook_axes["Advance forward/back"] = "AXIS_LEFTY";
+        mouselook_axes["Turn left/right"]      = "AXIS_RIGHTX";
+        mouselook_axes["Look up/down"]         = "AXIS_RIGHTY";
+        mouselook_axes["Fly up/down"]          = "AXIS_TRIGGERS";
+
+        LLSD mouselook_buttons;
+        mouselook_buttons["Jump"]                   = "BUTTON_SOUTH";
+        mouselook_buttons["Crouch"]                 = "BUTTON_EAST";
+        mouselook_buttons["Toggle sit"]             = "BUTTON_WEST";
+        mouselook_buttons["Toggle run"]             = "BUTTON_LEFT_STICK";
+        mouselook_buttons["Toggle speak"]           = "BUTTON_SELECT";
+        mouselook_buttons["3rd Person camera"]      = "BUTTON_HOME";
+        mouselook_buttons["Toggle mouselook"]       = "BUTTON_START";
+        mouselook_buttons["Toggle flycam"]          = "BUTTON_RIGHT_STICK";
+        mouselook_buttons["Advance forward"]        = "BUTTON_DPAD_UP";
+        mouselook_buttons["Advance back"]           = "BUTTON_DPAD_DOWN";
+        mouselook_buttons["Strafe left"]            = "BUTTON_DPAD_LEFT";
+        mouselook_buttons["Strafe right"]           = "BUTTON_DPAD_RIGHT";
 
         // FlyCam adds a Roll axis and uses a distinct button set.
         LLSD flycam_axes;
@@ -660,9 +686,10 @@ namespace
         };
 
         LLSD mappings;
-        mappings[GC_MODE_AVATAR]  = makeMode(avatar_axes, avatar_buttons);
-        mappings[GC_MODE_FLYCAM]  = makeMode(flycam_axes, flycam_buttons);
-        mappings[GC_MODE_CAPTIVE] = makeMode(avatar_axes, avatar_buttons);
+        mappings[GC_MODE_AVATAR]    = makeMode(avatar_axes, avatar_buttons);
+        mappings[GC_MODE_MOUSELOOK] = makeMode(mouselook_axes, mouselook_buttons);
+        mappings[GC_MODE_FLYCAM]    = makeMode(flycam_axes, flycam_buttons);
+        mappings[GC_MODE_CAPTIVE]   = makeMode(avatar_axes, avatar_buttons);
         return mappings;
     }
 
@@ -1659,7 +1686,7 @@ namespace
     }
 
     // Step-0 bridge (approach A): UI action label -> engine effect for the
-    // Avatar/Captive modes.  Analog axis labels expand to a positive-half and
+    // Avatar/Mouselook/Captive modes.  Analog axis labels expand to a positive-half and
     // negative-half AGENT_CONTROL bit; when an axis is bound to the trigger pair the
     // per-axis binding half (see AxisActionBinding) selects which of these two bits a
     // given trigger drives.  Button labels expand to a single AGENT_CONTROL bit via
@@ -1716,7 +1743,7 @@ namespace
         return bridge;
     }
 
-    // Avatar/Captive-mode button label -> one-shot AvatarMiscAction bit.  These
+    // Avatar/Mouselook/Captive-mode button label -> one-shot AvatarMiscAction bit.  These
     // don't correspond to an AGENT_CONTROL_* flag, so they're kept in a bridge
     // separate from avatarButtonBridge() and edge-triggered (not-pressed ->
     // pressed) by computeAgentActions() into AgentActions::mMiscActionBits,
@@ -2009,7 +2036,7 @@ namespace
         {
             return flycamAxisBridge().count(label) > 0;
         }
-        // Avatar and Captive share the avatar axis actions.
+        // Avatar, Mouselook, and Captive share the avatar axis actions.
         return avatarAxisBridge().count(label) > 0;
     }
 
@@ -2774,6 +2801,7 @@ bool LLGameControl::willControlAvatar()
 {
     return isEnabled()
         && (g_agentControlMode == CONTROL_MODE_AVATAR
+            || g_agentControlMode == CONTROL_MODE_MOUSELOOK
             || g_agentControlMode == CONTROL_MODE_CAPTIVE)
         && isModeEnabled(modeToString(g_agentControlMode));
 }
