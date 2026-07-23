@@ -609,6 +609,7 @@ set(viewer_SOURCE_FILES
     lltexturefetch.cpp
     lltextureinfo.cpp
     lltextureinfodetails.cpp
+    lltexturememorybudget.cpp
     lltexturestats.cpp
     lltextureview.cpp
     llthumbnailctrl.cpp
@@ -1281,6 +1282,7 @@ set(viewer_HEADER_FILES
     lltexturefetch.h
     lltextureinfo.h
     lltextureinfodetails.h
+    lltexturememorybudget.h
     lltexturestats.h
     lltextureview.h
     llthumbnailctrl.h
@@ -2407,6 +2409,7 @@ if (LL_TESTS)
     lldateutil.cpp
 #    llmediadataclient.cpp
     lllogininstance.cpp
+    lltexturememorybudget.cpp
 #    llremoteparcelrequest.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp

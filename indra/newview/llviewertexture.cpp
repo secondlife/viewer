@@ -49,6 +49,7 @@
 #include "llimagegl.h"
 #include "lldrawpool.h"
 #include "lltexturefetch.h"
+#include "lltexturememorybudget.h"
 #include "llviewertexturelist.h"
 #include "llviewercontrol.h"
 #include "pipeline.h"
@@ -492,10 +493,8 @@ void LLViewerTexture::updateClass()
     }
 
     LLViewerMediaTexture::updateClass();
-    // This is a divisor used to determine how much VRAM from our overall VRAM budget to use.
-    // This is **cumulative** on whatever the detected or manually set VRAM budget is.
-    // If we detect 2048MB of VRAM, this will, by default, only use 1024.
-    // If you set 1024MB of VRAM, this will, by default, use 512.
+    // This is a divisor used to determine how much detected VRAM to use when
+    // automatic budgeting is enabled.
     // -Geenz 2025-03-03
     static LLCachedControl<U32> tex_vram_divisor(gSavedSettings, "RenderTextureVRAMDivisor", 2);
     static LLCachedControl<U32> max_vram_budget(gSavedSettings, "RenderMaxVRAMBudget", 0);
@@ -507,11 +506,27 @@ void LLViewerTexture::updateClass()
     // NOTE: our metrics miss about half the vram we use, so this biases high but turns out to typically be within 5% of the real number
     F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc);
 
-    // For debugging purposes, it's useful to be able to set the VRAM budget manually.
-    // But when manual control is not enabled, use the VRAM divisor.
-    // While we're at it, assume we have 1024 to play with at minimum when the divisor is in use.  Works more elegantly with the logic below this.
-    // -Geenz 2025-03-21
-    F32 budget = max_vram_budget == 0 ? llmax(1024, (F32)gGLManager.mVRAM / tex_vram_divisor) : (F32)max_vram_budget;
+    F32 budget = (F32)max_vram_budget;
+    if (max_vram_budget == 0)
+    {
+        budget = llmax(1024.f, (F32)gGLManager.mVRAM / tex_vram_divisor);
+
+        if (LLTextureMemoryBudget::USES_UNIFIED_MEMORY)
+        {
+            static const U32 physical_memory_mb =
+                gSysMemory.getPhysicalMemoryKB().valueInUnits<LLUnits::Megabytes>();
+            budget = (F32)LLTextureMemoryBudget::getAutomaticBudgetMB(
+                gGLManager.mVRAM,
+                tex_vram_divisor(),
+                physical_memory_mb,
+                true);
+            LL_INFOS_ONCE("TextureMemory")
+                << "Automatic unified-memory texture budget capped at "
+                << budget << " MB (detected VRAM: " << gGLManager.mVRAM
+                << " MB, physical memory: " << physical_memory_mb << " MB)"
+                << LL_ENDL;
+        }
+    }
 
     // Try to leave at least half a GB for everyone else and for bias,
     // but keep at least 768MB for ourselves
