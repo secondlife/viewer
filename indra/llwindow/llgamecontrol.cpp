@@ -415,7 +415,7 @@ public:
     LLGameControl::ActionNameType getActionNameType(const std::string& action) const;
 
     LLGameControl::AgentActions computeAgentActions();
-    void getFlycamInputs(std::vector<F32>& inputs_out);
+    void getFlycamInputs(std::vector<F32>& inputs_out, U32& misc_actions_out);
     void setExternalInput(U32 action_flags, U32 buttons, bool is_running);
 
     // Rebuild mAxisActionBindings/mButtonActionLabels from the global ModeMappings
@@ -641,6 +641,7 @@ namespace
         flycam_buttons["Toggle AltZoom"]  = "BUTTON_SELECT";
         flycam_buttons["Toggle follow" ]  = "BUTTON_START";
         flycam_buttons["Toggle flycam" ]  = "BUTTON_RIGHT_STICK";
+        flycam_buttons["Reset"]           = "BUTTON_LEFT_STICK";
         flycam_buttons["Roll CCW"]        = "BUTTON_LEFT_SHOULDER";
         flycam_buttons["Roll CW"]         = "BUTTON_RIGHT_SHOULDER";
         flycam_buttons["Dolly forward"]   = "BUTTON_DPAD_UP";
@@ -1661,9 +1662,10 @@ namespace
     // Avatar/Captive modes.  Analog axis labels expand to a positive-half and
     // negative-half AGENT_CONTROL bit; when an axis is bound to the trigger pair the
     // per-axis binding half (see AxisActionBinding) selects which of these two bits a
-    // given trigger drives.  Button labels expand to a single AGENT_CONTROL bit,
-    // except the ACTION_TOGGLE_* entries below, which are non-flag actions carried
-    // via AgentActions::mMiscActions and processed by LLAgent::applyExternalActions.
+    // given trigger drives.  Button labels expand to a single AGENT_CONTROL bit via
+    // avatarButtonBridge(), except the one-shot commands in avatarMiscButtonBridge()
+    // (below), which are non-flag actions carried via AgentActions::mMiscActionBits
+    // and processed by LLAgent::applyExternalActions.
     // TODO: implement "Interact" action.
     struct AxisActionEffect { U32 posFlag; U32 negFlag; };
 
@@ -1707,20 +1709,27 @@ namespace
             { "Sit down",        AGENT_CONTROL_SIT_DOWN },
             { "Stand up",        AGENT_CONTROL_STAND_UP },
             */
-
-            // The actions above correspond to existing AGENT_CONTROL_* bit-flags,
-            // so their values are multiples of 2.
-            // Actions that don't map directly to original AGENT_CONTROL_* bit-flags are given numerical
-            // values that increment up from 33.
-            { "Toggle fly",        LLGameControl::ACTION_TOGGLE_FLY },
-            { "Toggle sit",        LLGameControl::ACTION_TOGGLE_SIT},
-            { "Toggle speak",      LLGameControl::ACTION_TOGGLE_SPEAK},
-            { "Toggle flycam",     LLGameControl::ACTION_TOGGLE_FLYCAM},
-            { "Toggle mouselook",  LLGameControl::ACTION_TOGGLE_MOUSELOOK},
-            { "3rd Person camera", LLGameControl::ACTION_TOGGLE_3RD_PERSON},
             // Note: "Toggle run" is handled specially in computeAgentActions() --
             // it flips LLGameControllerManager's own mIsToggleRunning rather than
-            // going through mMiscActions -- so it is intentionally absent here.
+            // going through either bridge -- so it is intentionally absent here.
+        };
+        return bridge;
+    }
+
+    // Avatar/Captive-mode button label -> one-shot AvatarMiscAction bit.  These
+    // don't correspond to an AGENT_CONTROL_* flag, so they're kept in a bridge
+    // separate from avatarButtonBridge() and edge-triggered (not-pressed ->
+    // pressed) by computeAgentActions() into AgentActions::mMiscActionBits,
+    // rather than OR'd every frame the button is held like a movement flag.
+    const std::map<std::string, U32>& avatarMiscButtonBridge()
+    {
+        static const std::map<std::string, U32> bridge = {
+            { "Toggle fly",        LLGameControl::AVATAR_ACTION_TOGGLE_FLY },
+            { "Toggle sit",        LLGameControl::AVATAR_ACTION_TOGGLE_SIT },
+            { "Toggle speak",      LLGameControl::AVATAR_ACTION_TOGGLE_SPEAK },
+            { "Toggle flycam",     LLGameControl::AVATAR_ACTION_TOGGLE_FLYCAM },
+            { "Toggle mouselook",  LLGameControl::AVATAR_ACTION_TOGGLE_MOUSELOOK },
+            { "3rd Person camera", LLGameControl::AVATAR_ACTION_TOGGLE_3RD_PERSON },
         };
         return bridge;
     }
@@ -1731,25 +1740,6 @@ namespace
     //   defaultAxisActionForInput - which action owns 'input' in the built-in defaults?
     bool isKnownAnalogAxisAction(LLGameControl::AgentControlMode mode, const std::string& label);
     std::string defaultAxisActionForInput(LLGameControl::AgentControlMode mode, const std::string& input);
-
-    // avatarButtonBridge() values are either an AGENT_CONTROL_* bit (OR-combinable
-    // into AgentActions::mControlFlags) or one of the ACTION_TOGGLE_* ids below
-    // (plain integers, not bitmasks, routed instead into AgentActions::mMiscActions).
-    bool isMiscAction(U32 value)
-    {
-        switch (value)
-        {
-        case LLGameControl::ACTION_TOGGLE_FLY:
-        case LLGameControl::ACTION_TOGGLE_SIT:
-        case LLGameControl::ACTION_TOGGLE_SPEAK:
-        case LLGameControl::ACTION_TOGGLE_FLYCAM:
-        case LLGameControl::ACTION_TOGGLE_MOUSELOOK:
-        case LLGameControl::ACTION_TOGGLE_3RD_PERSON:
-            return true;
-        default:
-            return false;
-        }
-    }
 } // namespace
 
 void LLGameControllerManager::rebuildActionLookup(bool force)
@@ -1888,18 +1878,21 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     }
 
     // Buttons: each pressed button contributes its bound label's action.  Most
-    // labels are level-triggered (held == asserted), matching how the movement bits
-    // work.  A few labels are one-shot *commands* ("Sit down", "Stand up") whose
-    // effect should fire once per physical press rather than every frame the button
-    // is held -- for those, only the not-pressed -> pressed edge counts.  Edge state
-    // is tracked per physical button via g_innerState.mPrevButtons (maintained every
-    // frame by accumulateInternalState()'s storePrevious(), which runs before this),
-    // not on the resulting AGENT_CONTROL bit, since the same held button can flip
-    // which of these labels it's bound to across a single frame boundary (sitting
-    // flips the active mode Avatar -> Captive); from the new bit's own history that
-    // would otherwise look like a fresh press.
+    // labels (avatarButtonBridge()) are level-triggered (held == asserted),
+    // matching how the movement bits work, and OR their AGENT_CONTROL_* bit
+    // into mControlFlags every frame they're held.  One-shot *commands*
+    // (avatarMiscButtonBridge(), plus "Sit down"/"Stand up") should instead
+    // fire once per physical press -- for those, only the not-pressed ->
+    // pressed edge counts.  Edge state is tracked per physical button via
+    // g_innerState.mPrevButtons (maintained every frame by
+    // accumulateInternalState()'s storePrevious(), which runs before this),
+    // not on the resulting bit, since the same held button can flip which of
+    // these labels it's bound to across a single frame boundary (sitting
+    // flips the active mode Avatar -> Captive); from the new bit's own
+    // history that would otherwise look like a fresh press.
 
     const auto& button_bridge = avatarButtonBridge();
+    const auto& misc_button_bridge = avatarMiscButtonBridge();
     U32 pressed_edges = g_innerState.mButtons & ~g_innerState.mPrevButtons;
     for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
     {
@@ -1929,15 +1922,14 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         auto it = button_bridge.find(label);
         if (it != button_bridge.end())
         {
-            if (isMiscAction(it->second))
-            {
-                result.mMiscActions.push_back(it->second);
-            }
-            else
-            {
-                // this action corresponds to AGENT_CONTROL_* and sets a bit in mControlFlags
-                result.mControlFlags |= it->second;
-            }
+            // this action corresponds to AGENT_CONTROL_* and sets a bit in mControlFlags
+            result.mControlFlags |= it->second;
+            continue;
+        }
+        auto mit = misc_button_bridge.find(label);
+        if (mit != misc_button_bridge.end() && (pressed_edges & (1U << btn)))
+        {
+            result.mMiscActionBits |= mit->second;
         }
     }
 
@@ -1974,7 +1966,6 @@ namespace
     // A gamepad has no free axis for roll (all six are used for translate/look),
     // so roll is driven by the shoulder buttons by default; the dpad likewise
     // provides digital dolly/pan.
-    // TODO: implement Reset
     const std::map<std::string, FlycamAxisEffect>& flycamButtonBridge()
     {
         static const std::map<std::string, FlycamAxisEffect> bridge = {
@@ -1992,6 +1983,19 @@ namespace
             { "Roll CW",        { LLGameControl::FLYCAM_ROLL,   -1.f } },
             { "Zoom in",        { LLGameControl::FLYCAM_ZOOM,    1.f } },
             { "Zoom out",       { LLGameControl::FLYCAM_ZOOM,   -1.f } },
+        };
+        return bridge;
+    }
+
+    // FlyCam-mode button label -> one-shot FlycamMiscAction bit.  These are
+    // discrete commands rather than per-frame DOF contributions, so they're
+    // kept in a bridge separate from flycamButtonBridge() and edge-triggered
+    // (not-pressed -> pressed) by getFlycamInputs() into its misc_actions_out
+    // bitmask, mirroring avatarMiscButtonBridge()/mMiscActionBits above.
+    const std::map<std::string, U32>& flycamMiscButtonBridge()
+    {
+        static const std::map<std::string, U32> bridge = {
+            { "Reset", LLGameControl::FLYCAM_ACTION_RESET },
         };
         return bridge;
     }
@@ -2028,8 +2032,10 @@ namespace
     }
 }
 
-void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
+void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs, U32& misc_actions)
 {
+    misc_actions = 0;
+
     // When FlyCam-mode conversion is disabled, produce no motion.  This path
     // (LLAgent::updateFlycam) is not gated by willControlFlycam(), so gate it
     // here on the per-mode flag.
@@ -2071,12 +2077,17 @@ void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
         dof[it->second.channel] += it->second.polarity * signed_value;
     }
 
-    // ADEBUG TODO BOOKMARK: avoid repetitive button_bridge.find() by building
+    // TODO: avoid repetitive button_bridge.find() by building
     // the index translation once and then just iterating over the indicies.
 
     // Button-driven flycam motion: each pressed button contributes full
-    // deflection to its channel.
+    // deflection to its channel, every frame it's held (flycamButtonBridge()).
+    // One-shot commands (flycamMiscButtonBridge()) fire only on the
+    // not-pressed -> pressed edge instead, mirroring how computeAgentActions()
+    // splits avatarButtonBridge()/avatarMiscButtonBridge() above.
     const auto& button_bridge = flycamButtonBridge();
+    const auto& misc_button_bridge = flycamMiscButtonBridge();
+    U32 pressed_edges = g_innerState.mButtons & ~g_innerState.mPrevButtons;
     for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
     {
         if (!(g_innerState.mButtons & (1U << btn)))
@@ -2092,6 +2103,12 @@ void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
         if (it != button_bridge.end())
         {
             dof[it->second.channel] += it->second.polarity;
+            continue;
+        }
+        auto mit = misc_button_bridge.find(label);
+        if (mit != misc_button_bridge.end() && (pressed_edges & (1U << btn)))
+        {
+            misc_actions |= mit->second;
         }
     }
 
@@ -2157,8 +2174,10 @@ void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons, bo
     // loop in reverse: there, a pressed physical button yields a control
     // flag; here, an active control flag yields a "pressed" button so
     // outgoing GameControlInput/LSL-visible button state matches whichever
-    // button the user has mapped to that keyboard action.  ACTION_TOGGLE_*
-    // (mMiscActions) labels have no persistent flag to test and are skipped.
+    // button the user has mapped to that keyboard action.  Labels bound to a
+    // one-shot AvatarMiscAction (avatarMiscButtonBridge()) have no persistent
+    // flag to test and are absent from avatarButtonBridge(), so they're
+    // skipped automatically here.
     rebuildActionLookup();
     const auto& button_bridge = avatarButtonBridge();
     for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
@@ -2169,7 +2188,7 @@ void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons, bo
             continue;
         }
         auto it = button_bridge.find(label);
-        if (it == button_bridge.end() || isMiscAction(it->second))
+        if (it == button_bridge.end())
         {
             continue;
         }
@@ -2705,9 +2724,9 @@ LLGameControl::InputChannel LLGameControl::getActiveInputChannel()
 }
 
 // static
-void LLGameControl::getFlycamInputs(std::vector<F32>& inputs_out)
+void LLGameControl::getFlycamInputs(std::vector<F32>& inputs_out, U32& misc_actions_out)
 {
-    return g_manager.getFlycamInputs(inputs_out);
+    return g_manager.getFlycamInputs(inputs_out, misc_actions_out);
 }
 
 // static

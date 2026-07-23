@@ -535,13 +535,7 @@ private:
     U32 mExternalActionFlags { 0 };
     U32 mGameControlButtonsFromKeys { 0 };
     LLFlycam mFlycam;
-    bool mToggleFly { true };
     bool mToggleRun { true };
-    bool mToggleFlycam { true };
-    bool mToggleSit { true };
-    bool mToggleSpeak { true };
-    bool mToggleMouselook { true };
-    bool mToggleThirdPerson { true };
     bool mUsingFlycam { false };
 
     //--------------------------------------------------------------------

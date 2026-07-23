@@ -90,6 +90,22 @@ void LLFlycam::setZoomRate(F32 zoom_rate)
 }
 
 
+void LLFlycam::startReset(const LLVector3& target_position, const LLQuaternion& target_rotation, F32 duration)
+{
+    mResetStartPosition = mPosition;
+    mResetStartRotation = mRotation;
+    mResetTargetPosition = target_position;
+    mResetTargetRotation = target_rotation;
+    mResetDuration = std::max(duration, 0.001f);
+    mResetTimeRemaining = mResetDuration;
+
+    // Drop any live rates so leftover input doesn't fight the lerp, or get
+    // applied unexpectedly the moment the reset completes.
+    mLinearVelocity.clear();
+    mPitchRate = mYawRate = mRollRate = mZoomRate = 0.0f;
+}
+
+
 void LLFlycam::integrate(F32 delta_time)
 {
     // cap delta_time to slow camera motion when framerates are low
@@ -97,6 +113,18 @@ void LLFlycam::integrate(F32 delta_time)
     if (delta_time > MAX_DELTA_TIME)
     {
         delta_time = MAX_DELTA_TIME;
+    }
+
+    if (mResetTimeRemaining > 0.0f)
+    {
+        // Reset in progress: lerp toward the target transform and ignore
+        // whatever rates setLinearVelocity()/setPitchRate()/etc. set this
+        // frame -- flycam input has no effect until the lerp completes.
+        mResetTimeRemaining = std::max(mResetTimeRemaining - delta_time, 0.0f);
+        F32 fraction = 1.0f - (mResetTimeRemaining / mResetDuration);
+        mPosition = lerp(mResetStartPosition, mResetTargetPosition, fraction);
+        mRotation = nlerp(fraction, mResetStartRotation, mResetTargetRotation);
+        return;
     }
 
     // Note: we modulate pitch and yaw rates by view ratio
