@@ -218,6 +218,11 @@ private:
     // perform an update on the currently updating Probe
     void doProbeUpdate();
 
+    // Accumulate and consume the per-frame CPU budget for non-realtime probe updates.
+    void replenishProbeUpdateBudget();
+    bool hasProbeUpdateBudget() const;
+    void doBudgetedProbeUpdate();
+
     // update the specified face of the specified probe
     void updateProbeFace(LLReflectionMap* probe, U32 face);
 
@@ -263,6 +268,12 @@ private:
     U32 mRenderReflectionProbeCount = 256U;
     S32 mRenderReflectionProbeDynamicAllocation = -1;
 
+    // CPU milliseconds available for incremental reflection probe work.
+    F32 mProbeUpdateBudget = 0.f;
+    F32 mProbeUpdateCredit = 0.f;
+    F32 mProbeUpdateCost = 1.f;
+    U32 mFramesSinceProbeUpdate = 0;
+
     // resolution of reflection probes
     U32 mProbeResolution = 128;
 
@@ -284,4 +295,3 @@ private:
 
     ReflectionProbeData mProbeData;
 };
-

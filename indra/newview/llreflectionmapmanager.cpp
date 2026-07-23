@@ -40,6 +40,7 @@
 #include "llstartup.h"
 #include "llviewermenufile.h"
 #include "llnotificationsutil.h"
+#include "lltimer.h"
 
 #if LL_WINDOWS
 #pragma warning (push)
@@ -218,6 +219,8 @@ void LLReflectionMapManager::update()
         return;
     }
 
+    replenishProbeUpdateBudget();
+
     if (mPaused && gFrameTimeSeconds > mResumeTime)
     {
         resume();
@@ -335,7 +338,10 @@ void LLReflectionMapManager::update()
     if (mUpdatingProbe != nullptr)
     {
         did_update = true;
-        doProbeUpdate();
+        if (hasProbeUpdateBudget())
+        {
+            doBudgetedProbeUpdate();
+        }
     }
 
     // update distance to camera for all probes
@@ -497,7 +503,7 @@ void LLReflectionMapManager::update()
     }
 
     // switch to updating the next oldest probe
-    if (!did_update && oldestProbe != nullptr)
+    if (!did_update && oldestProbe != nullptr && hasProbeUpdateBudget())
     {
         LLReflectionMap* probe = oldestProbe;
         llassert(probe->mCubeIndex != -1);
@@ -506,7 +512,7 @@ void LLReflectionMapManager::update()
 
         sUpdateCount++;
         mUpdatingProbe = probe;
-        doProbeUpdate();
+        doBudgetedProbeUpdate();
     }
 
     if (oldestOccluded)
@@ -735,6 +741,44 @@ void LLReflectionMapManager::deleteProbe(U32 i)
 
     // Probes are distance sorted, order matters.
     mProbes.erase(mProbes.begin() + i);
+}
+
+void LLReflectionMapManager::replenishProbeUpdateBudget()
+{
+    static LLCachedControl<F32> update_budget(gSavedSettings, "RenderReflectionProbeUpdateBudget", 1.f);
+
+    mProbeUpdateBudget = llmax((F32)update_budget, 0.f);
+    ++mFramesSinceProbeUpdate;
+
+    if (mProbeUpdateBudget > 0.f)
+    {
+        // Permit a small burst so an expensive face does not permanently put
+        // the scheduler behind, while preventing unlimited idle-time credit.
+        const F32 credit_limit = llmax(mProbeUpdateBudget * 4.f, mProbeUpdateCost * 2.f);
+        mProbeUpdateCredit = llmin(mProbeUpdateCredit + mProbeUpdateBudget, credit_limit);
+    }
+}
+
+bool LLReflectionMapManager::hasProbeUpdateBudget() const
+{
+    constexpr U32 MAX_DEFERRED_FRAMES = 30;
+    return mProbeUpdateBudget <= 0.f ||
+           mProbeUpdateCredit >= mProbeUpdateCost ||
+           mFramesSinceProbeUpdate >= MAX_DEFERRED_FRAMES;
+}
+
+void LLReflectionMapManager::doBudgetedProbeUpdate()
+{
+    LLTimer timer;
+    doProbeUpdate();
+
+    const F32 elapsed_ms = timer.getElapsedTimeF32() * 1000.f;
+    mProbeUpdateCost = lerp(mProbeUpdateCost, llmax(elapsed_ms, 0.01f), 0.2f);
+    if (mProbeUpdateBudget > 0.f)
+    {
+        mProbeUpdateCredit -= elapsed_ms;
+    }
+    mFramesSinceProbeUpdate = 0;
 }
 
 

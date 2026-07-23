@@ -9361,6 +9361,17 @@
     <string>F32</string>
     <key>Value</key>
     <real>2.0</real>
+    </map>
+  <key>RenderReflectionProbeUpdateBudget</key>
+  <map>
+    <key>Comment</key>
+    <string>CPU time in milliseconds accrued per frame for incremental reflection probe updates. Set to 0 to disable throttling.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
   </map>
   <key>RenderReflectionProbeLevel</key>
   <map>
