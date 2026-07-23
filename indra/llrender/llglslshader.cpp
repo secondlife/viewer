@@ -1060,7 +1060,14 @@ void LLGLSLShader::bind()
         {
             sCurBoundShaderPtr->readProfileQuery();
         }
-        LLVertexBuffer::unbind();
+        // Apple's OpenGL-on-Metal layer pays a high price for rebinding buffer
+        // objects on every shader transition. LLVertexBuffer tracks the
+        // attribute formats needed by the new shader, so the current buffer
+        // can remain bound until a draw actually selects a different one.
+        if (!gGLManager.mIsApple)
+        {
+            LLVertexBuffer::unbind();
+        }
         glUseProgram(mProgramObject);
         sCurBoundShader = mProgramObject;
         sCurBoundShaderPtr = this;

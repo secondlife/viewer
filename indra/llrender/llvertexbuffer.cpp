@@ -682,6 +682,13 @@ U32 LLVertexBuffer::sGLRenderIndices = 0;
 U32 LLVertexBuffer::sLastMask = 0;
 U32 LLVertexBuffer::sVertexCount = 0;
 
+// Attribute pointer state belongs to the currently bound array buffer. Keep
+// enough state to avoid resubmitting identical formats to OpenGL-on-Metal.
+static U32 sVertexAttribsConfigured = 0;
+static U32 sColorPointerSource = 0;
+static constexpr U32 COLOR_POINTER_COLOR = 1;
+static constexpr U32 COLOR_POINTER_EMISSIVE = 2;
+
 
 //NOTE: each component must be AT LEAST 4 bytes in size to avoid a performance penalty on AMD hardware
 const U32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
@@ -972,6 +979,8 @@ void LLVertexBuffer::unbind()
     STOP_GLERROR;
     sGLRenderBuffer = 0;
     sGLRenderIndices = 0;
+    sVertexAttribsConfigured = 0;
+    sColorPointerSource = 0;
 }
 
 //static
@@ -1444,12 +1453,16 @@ void LLVertexBuffer::_unmapBuffer()
             mGLBuffer = gen_buffer();
             glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
             sGLRenderBuffer = mGLBuffer;
+            sVertexAttribsConfigured = 0;
+            sColorPointerSource = 0;
             glBufferData(GL_ARRAY_BUFFER, mSize, mMappedData, GL_STATIC_DRAW);
         }
         else if (mGLBuffer != sGLRenderBuffer)
         {
             glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
             sGLRenderBuffer = mGLBuffer;
+            sVertexAttribsConfigured = 0;
+            sColorPointerSource = 0;
         }
         STOP_GLERROR;
 
@@ -1689,10 +1702,12 @@ void LLVertexBuffer::setBuffer()
     {
         glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
         sGLRenderBuffer = mGLBuffer;
+        sVertexAttribsConfigured = 0;
+        sColorPointerSource = 0;
 
         setupVertexBuffer();
     }
-    else if (sLastMask != data_mask)
+    else if (gGLManager.mIsApple || sLastMask != data_mask)
     {
         setupVertexBuffer();
         sLastMask = data_mask;
@@ -1715,97 +1730,107 @@ void LLVertexBuffer::setupVertexBuffer()
     U8* base = nullptr;
 
     U32 data_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
+    U32 setup_mask = gGLManager.mIsApple ?
+        data_mask & ~sVertexAttribsConfigured : data_mask;
 
-    if (data_mask & MAP_NORMAL)
+    if (setup_mask & MAP_NORMAL)
     {
         AttributeType loc = TYPE_NORMAL;
         void* ptr = (void*)(base + mOffsets[TYPE_NORMAL]);
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_NORMAL], ptr);
     }
-    if (data_mask & MAP_TEXCOORD3)
+    if (setup_mask & MAP_TEXCOORD3)
     {
         AttributeType loc = TYPE_TEXCOORD3;
         void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD3]);
         glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD3], ptr);
     }
-    if (data_mask & MAP_TEXCOORD2)
+    if (setup_mask & MAP_TEXCOORD2)
     {
         AttributeType loc = TYPE_TEXCOORD2;
         void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD2]);
         glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD2], ptr);
     }
-    if (data_mask & MAP_TEXCOORD1)
+    if (setup_mask & MAP_TEXCOORD1)
     {
         AttributeType loc = TYPE_TEXCOORD1;
         void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD1]);
         glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], ptr);
     }
-    if (data_mask & MAP_TANGENT)
+    if (setup_mask & MAP_TANGENT)
     {
         AttributeType loc = TYPE_TANGENT;
         void* ptr = (void*)(base + mOffsets[TYPE_TANGENT]);
         glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TANGENT], ptr);
     }
-    if (data_mask & MAP_TEXCOORD0)
+    if (setup_mask & MAP_TEXCOORD0)
     {
         AttributeType loc = TYPE_TEXCOORD0;
         void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD0]);
         glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], ptr);
     }
-    if (data_mask & MAP_COLOR)
+    const U32 desired_color_source = (data_mask & MAP_EMISSIVE) ?
+        COLOR_POINTER_EMISSIVE :
+        ((data_mask & MAP_COLOR) ? COLOR_POINTER_COLOR : 0);
+    if (desired_color_source &&
+        (!gGLManager.mIsApple || desired_color_source != sColorPointerSource))
     {
         AttributeType loc = TYPE_COLOR;
-        //bind emissive instead of color pointer if emissive is present
-        void* ptr = (data_mask & MAP_EMISSIVE) ? (void*)(base + mOffsets[TYPE_EMISSIVE]) : (void*)(base + mOffsets[TYPE_COLOR]);
+        void* ptr = desired_color_source == COLOR_POINTER_EMISSIVE ?
+            (void*)(base + mOffsets[TYPE_EMISSIVE]) :
+            (void*)(base + mOffsets[TYPE_COLOR]);
         glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_COLOR], ptr);
+        sColorPointerSource = desired_color_source;
     }
-    if (data_mask & MAP_EMISSIVE)
+    if (setup_mask & MAP_EMISSIVE)
     {
         AttributeType loc = TYPE_EMISSIVE;
         void* ptr = (void*)(base + mOffsets[TYPE_EMISSIVE]);
         glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], ptr);
-
-        if (!(data_mask & MAP_COLOR))
-        { //map emissive to color channel when color is not also being bound to avoid unnecessary shader swaps
-            loc = TYPE_COLOR;
-            glVertexAttribPointer(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], ptr);
-        }
     }
-    if (data_mask & MAP_WEIGHT)
+    if (setup_mask & MAP_WEIGHT)
     {
         AttributeType loc = TYPE_WEIGHT;
         void* ptr = (void*)(base + mOffsets[TYPE_WEIGHT]);
         glVertexAttribPointer(loc, 1, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT], ptr);
     }
-    if (data_mask & MAP_WEIGHT4)
+    if (setup_mask & MAP_WEIGHT4)
     {
         AttributeType loc = TYPE_WEIGHT4;
         void* ptr = (void*)(base + mOffsets[TYPE_WEIGHT4]);
         glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], ptr);
     }
-    if (data_mask & MAP_JOINT)
+    if (setup_mask & MAP_JOINT)
     {
         AttributeType loc = TYPE_JOINT;
         void* ptr = (void*)(base + mOffsets[TYPE_JOINT]);
         glVertexAttribIPointer(loc, 4, GL_UNSIGNED_SHORT, LLVertexBuffer::sTypeSize[TYPE_JOINT], ptr);
     }
-    if (data_mask & MAP_CLOTHWEIGHT)
+    if (setup_mask & MAP_CLOTHWEIGHT)
     {
         AttributeType loc = TYPE_CLOTHWEIGHT;
         void* ptr = (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]);
         glVertexAttribPointer(loc, 4, GL_FLOAT, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_CLOTHWEIGHT], ptr);
     }
-    if (data_mask & MAP_TEXTURE_INDEX)
+    if (setup_mask & MAP_TEXTURE_INDEX)
     {
         AttributeType loc = TYPE_TEXTURE_INDEX;
         void* ptr = (void*)(base + mOffsets[TYPE_VERTEX] + 12);
         glVertexAttribIPointer(loc, 1, GL_UNSIGNED_INT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
     }
-    if (data_mask & MAP_VERTEX)
+    if (setup_mask & MAP_VERTEX)
     {
         AttributeType loc = TYPE_VERTEX;
         void* ptr = (void*)(base + mOffsets[TYPE_VERTEX]);
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
+    }
+    if (gGLManager.mIsApple)
+    {
+        sVertexAttribsConfigured |= data_mask;
+        if (desired_color_source)
+        {
+            sVertexAttribsConfigured |= MAP_COLOR;
+        }
     }
     STOP_GLERROR;
 }
@@ -1921,7 +1946,6 @@ void LLVertexBuffer::setIndexData(const U32* data, U32 offset, U32 count)
     }
     flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)data, mMappedIndexData);
 }
-
 
 
 
