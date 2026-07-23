@@ -152,6 +152,10 @@ public:
         bool isConnected() const;
 
     protected:
+        /// Returns a shared_ptr to this connection, retrieved from the owning server.
+        /// Valid only while the connection is open and registered with the server.
+        ptr_t getSelfPtr();
+
         connection_h mConnectionHandle;
         std::weak_ptr<WSServer> mOwningServer; // Back-reference to the server this connection belongs to
     };
@@ -260,6 +264,7 @@ public:
          * This method is thread-safe and can be called from any thread.
          */
         bool            closeConnection(const connection_h& handle, U16 code = 1000, const std::string& reason = std::string());
+        void            closeAllConnections(U16 code = 1001, const std::string& reason = "Server shutting down");
 
     private:
         using connection_map_t = std::map<connection_h, WSConnection::ptr_t, std::owner_less<connection_h> >;

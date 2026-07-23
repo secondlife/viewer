@@ -506,6 +506,16 @@ bool LLViewerInventoryItem::unpackMessage(const LLSD& item)
 
     LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
 
+    // Parse script runtime state from task inventory cap
+    if (item.has("running"))
+    {
+        mIsRunning = item["running"].asBoolean();
+    }
+    if (item.has("faulted"))
+    {
+        mIsFaulted = item["faulted"].asBoolean();
+    }
+
     mIsComplete = true;
     return rv;
 }

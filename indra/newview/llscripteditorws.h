@@ -31,11 +31,13 @@
 #include "lluuid.h"
 #include "llhandle.h"
 #include "lltimer.h"
+#include "lleventtimer.h"
 
 #include <memory>
 #include <string>
 #include <map>
 #include <set>
+#include <atomic>
 
 // Forward declarations
 class LLLiveLSLEditor;
@@ -43,6 +45,9 @@ class LLScriptEdContainer;
 class LLScriptEditorWSServer;
 class LLChat;
 class LLPanel;
+class LLPublishedPrimListener;
+class LLViewerObject;
+class LLInventoryItem;
 
 class LLScriptEditorWSConnection : public LLJSONRPCConnection, public std::enable_shared_from_this<LLScriptEditorWSConnection>
 {
@@ -50,19 +55,27 @@ public:
     using ptr_t  = std::shared_ptr<LLScriptEditorWSConnection>;
     using wptr_t = std::weak_ptr<LLScriptEditorWSConnection>;
 
-    enum DisconnectReason
+    enum class DisconnectReason : S32
     {
-        REASON_NORMAL         = 0,
-        REASON_EDITOR_CLOSED  = 1,
-        REASON_PROTOCOL_ERROR = 2,
-        REASON_TIMEOUT        = 3,
-        REASON_INTERNAL_ERROR = 4
+        NORMAL         = 0,
+        EDITOR_CLOSED  = 1,
+        PROTOCOL_ERROR = 2,
+        TIMEOUT        = 3,
+        INTERNAL_ERROR = 4
     };
 
     LLScriptEditorWSConnection(const LLWebsocketMgr::WSServer::ptr_t server, const LLWebsocketMgr::connection_h& handle) :
         LLJSONRPCConnection(server, handle)
     {
-        mConnectionID = sNextConnectionID++;
+        // Reserve id 0 as the "unassigned" sentinel used by EditorSubscription;
+        // on wrap, skip past it.
+        U32 id;
+        do
+        {
+            id = sNextConnectionID.fetch_add(1, std::memory_order_relaxed);
+        }
+        while (id == 0);
+        mConnectionID = id;
     }
 
     ~LLScriptEditorWSConnection() override = default;
@@ -73,7 +86,7 @@ public:
     void onOpen() override;
     void onClose() override;
 
-    void sendDisconnect(S32 reason = 0, const std::string& message = "Goodbye");
+    void sendDisconnect(DisconnectReason reason = DisconnectReason::NORMAL, const std::string& message = "Goodbye");
 
 private:
     using string_set_t = std::set<std::string>;
@@ -100,7 +113,7 @@ private:
     LLUUID       mChallenge;
     std::string  mChallengeFile;   ///< Temporary file used for challenge-response verification
 
-    static U32   sNextConnectionID;
+    static std::atomic<U32> sNextConnectionID;
 };
 
 /**
@@ -142,16 +155,17 @@ private:
 class LLScriptEditorWSServer : public LLJSONRPCServer
 {
 public:
-    enum SubscriptionError_t
+    static constexpr U32 ALL_CONNECTIONS = 0xFFFFFFFF;
+    enum class SubscriptionError
     {
-        SUBSCRIPTION_SUCCESS = 0,
-        SUBSCRIPTION_INVALID_EDITOR,
-        SUBSCRIPTION_INVALID_SUBSCRIPTION,
-        SUBSCRIPTION_ALREADY_SUBSCRIBED,
-        SUBSCRIPTION_INTERNAL_ERROR
+        SUCCESS = 0,
+        INVALID_EDITOR,
+        INVALID_SUBSCRIPTION,
+        ALREADY_SUBSCRIBED,
+        INTERNAL_ERROR
     };
 
-    static constexpr char const* DEFAULT_SERVER_NAME = "script_editor_server";
+    static constexpr const char* DEFAULT_SERVER_NAME = "script_editor_server";
     static constexpr U16         DEFAULT_SERVER_PORT = 9020;
 
     using ptr_t = std::shared_ptr<LLScriptEditorWSServer>;
@@ -159,9 +173,14 @@ public:
 
     LLScriptEditorWSServer(const std::string& name, U16 port, bool local_only = true);
 
-    virtual ~LLScriptEditorWSServer() = default;
+    ~LLScriptEditorWSServer() override = default;
 
     static LLScriptEditorWSServer::ptr_t getServer();
+    static LLScriptEditorWSServer::ptr_t ensureServerRunning();
+    static std::string                   buildVSCodeURI(const LLUUID& object_id = LLUUID::null,
+                                                        const LLUUID& script_id = LLUUID::null);
+    static bool                          launchVSCode(const LLUUID& object_id = LLUUID::null,
+                                                      const LLUUID& script_id = LLUUID::null);
 
     void onStarted() override;
     void onStopped() override;
@@ -182,6 +201,19 @@ public:
 
     std::set<std::string> getActiveScripts() const;
 
+    // --- Object Content Publishing ---
+    bool publishObject(const LLUUID& object_id);
+    void unpublishObject(const LLUUID& object_id, const std::string& reason = "");
+    bool isObjectPublished(const LLUUID& object_id) const;
+    void onPrimInventoryReady(const LLUUID& object_id, const LLUUID& prim_id);
+    void onPrimInventoryChanged(const LLUUID& object_id, const LLUUID& prim_id);
+    void onObjectPropertyChanged(const LLUUID& prim_id, const std::string& name, const std::string& desc);
+    void onLinksetChildAdded(const LLUUID& root_id, LLViewerObject* child);
+    void onLinksetChildRemoved(const LLUUID& root_id, const LLUUID& child_id);
+
+    static bool isEnabled() { return sEnableScriptEditorWS; }
+    static bool isTightIntegration() { return sTightIntegration; }
+
 protected:
     LLWebsocketMgr::WSConnection::ptr_t connectionFactory(LLWebsocketMgr::WSServer::ptr_t server,
                                                          LLWebsocketMgr::connection_h handle) override;
@@ -197,6 +229,61 @@ protected:
     LLSD handleScriptSubscribe(U32 connection_id, const LLSD& params);
     LLSD handleScriptUnsubscribe(U32 connection_id, const LLSD& params);
     LLSD handleFileWatcherFileListRequest() const;
+    LLSD handleObjectRequest(U32 connection_id, const LLSD& params);
+    LLSD handleObjectContentGet(const std::string& method, const LLSD& id, const LLSD& params);
+    LLSD handleObjectContentSave(const std::string& method, const LLSD& id, const LLSD& params);
+    LLSD saveScript(LLViewerObject* prim, LLInventoryItem* item, const std::string& content, const LLSD& params);
+    LLSD saveNotecard(LLViewerObject* prim, LLInventoryItem* item, const std::string& content);
+    LLSD handleObjectItemDelete(U32 connection_id, const LLSD& params);
+    LLSD handleObjectItemCreate(const std::string& method, const LLSD& id, const LLSD& params);
+    LLSD handleObjectUnpublish(U32 connection_id, const LLSD& params);
+    LLSD handleObjectList() const;
+    LLSD handleObjectScriptSetRunning(U32 connection_id, const LLSD& params);
+    LLSD handleObjectScriptReset(U32 connection_id, const LLSD& params);
+    LLSD handleObjectModify(U32 connection_id, const LLSD& params);
+    LLSD handleObjectItemModify(U32 connection_id, const LLSD& params);
+    LLSD buildPublishedObjectLLSD(LLViewerObject* root) const;
+
+    struct ValidatedItem
+    {
+        LLViewerObject*    prim{ nullptr };
+        LLViewerObject*    root{ nullptr };
+        LLInventoryItem*   item{ nullptr };
+        LLAssetType::EType type{ LLAssetType::AT_NONE };
+    };
+    ValidatedItem validatePublishedItem(const LLSD& params, U32 permMask) const;
+
+    // --- Object Content Publishing (helpers) ---
+    static std::string getPrimName(LLViewerObject* obj);
+    LLSD buildPrimInventoryLLSD(LLViewerObject* object) const;
+    void notifyConnection(U32 connection_id, const std::string& method, const LLSD& params) const;
+    void notifyAll(const std::string& method, const LLSD& params) const;
+    void cleanupPrimListeners(const LLUUID& object_id);
+    void buildAndSendPublish(const LLUUID& object_id);
+    void scheduleLinksetFlush(const LLUUID& root_id, F32 delay);
+    void cancelLinksetFlushTimer(const LLUUID& root_id);
+    void flushLinksetUpdate(const LLUUID& root_id);
+    static LLSD errorResponse(const std::string& message);
+
+    /// Wraps `fn` in a MethodHandler with a weak-ptr guard on this server,
+    /// so the handler safely no-ops after server shutdown. `fn` is called
+    /// with (LLScriptEditorWSServer&, method, id, params) and returns LLSD.
+    template <typename Fn>
+    LLJSONRPCConnection::MethodHandler bindHandler(Fn fn)
+    {
+        std::weak_ptr<LLWebsocketMgr::WSServer> weak_base = weak_from_this();
+        return [weak_base, fn = std::move(fn)]
+               (const std::string& method, const LLSD& id, const LLSD& params) -> LLSD
+        {
+            auto base = weak_base.lock();
+            if (!base)
+            {
+                return LLSD();
+            }
+            auto server = std::static_pointer_cast<LLScriptEditorWSServer>(base);
+            return fn(*server, method, id, params);
+        };
+    }
 
 private:
     struct EditorSubscription
@@ -216,11 +303,48 @@ private:
     };
     using subscriptions_t = std::unordered_map<std::string, EditorSubscription>;
 
-    SubscriptionError_t updateScriptSubscription(const std::string &script_id, U32 connection_id);
+    struct PublishedPrimInfo
+    {
+        LLUUID      mPrimID;
+        std::string mPrimName;
+        S32         mLinkNumber;        // 1=root, >=2=child
+        S16         mInventorySerial;   // last-seen serial for change detection (Phase 4)
+    };
+
+    struct PublishedObjectInfo
+    {
+        LLUUID                                              mObjectID;      // root prim UUID
+        LLUUID                                              mOwnerID;
+        std::string                                         mObjectName;
+        std::string                                         mObjectDescription;
+        std::string                                         mRegionName;
+        std::vector<PublishedPrimInfo>                       mPrims;         // root + all children
+        std::vector<std::unique_ptr<LLPublishedPrimListener>> mListeners;
+    };
+
+    struct PendingPublish
+    {
+        LLUUID                                              mObjectID;
+        std::set<LLUUID>                                    mPendingPrims;  // prims whose inventory we're still waiting for
+        std::vector<std::unique_ptr<LLPublishedPrimListener>> mListeners;   // listeners for pending prims
+    };
+
+    SubscriptionError updateScriptSubscription(const std::string &script_id, U32 connection_id);
     void                unsubscribeConnection(U32 connection_id);
 
     subscriptions_t mSubscriptions;
+    // Per-connection subscription count. Invariant: for c != 0,
+    // mConnectionSubscriptionCounts[c] == count of entries in mSubscriptions
+    // whose mConnectionID == c. Maintained transactionally at every site that
+    // mutates SubscriptionInfo::mConnectionID.
+    std::unordered_map<U32, S32> mConnectionSubscriptionCounts;
     std::map<U32, LLScriptEditorWSConnection::wptr_t> mActiveConnections;
+
+    std::map<LLUUID, PublishedObjectInfo> mPublishedObjects;  // keyed by root object_id
+    std::map<LLUUID, PendingPublish>      mPendingPublishes;  // keyed by root object_id
+    std::map<LLUUID, std::string>         mPendingItemCreates; // prim_id -> pump name awaiting inventory update
+    std::map<LLUUID, std::set<LLUUID>>             mNewChildPrims;      // root_id → children awaiting first inventory response
+    std::map<LLUUID, std::weak_ptr<LLEventTimer>>   mLinksetFlushTimers; // root_id → pending coalesce timer
 
     boost::signals2::connection mLanguageChangeSignal;
     LLUUID mLastSyntaxId;
@@ -229,4 +353,7 @@ private:
     LLTimer mCleanupTimer;
     static constexpr F32 CLEANUP_INTERVAL = 60.0f; // seconds
     static constexpr F32 CONNECTION_TIMEOUT = 300.0f; // 5 minutes
+
+    static LLCachedControl<bool> sEnableScriptEditorWS;
+    static LLCachedControl<bool> sTightIntegration;
 };

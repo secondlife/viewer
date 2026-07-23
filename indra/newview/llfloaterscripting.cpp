@@ -42,6 +42,7 @@
 #include "lleventcoro.h"
 #include "llviewermenufile.h"
 #include "llappviewer.h"
+#include "llscripteditorws.h"
 
 namespace
 {
@@ -82,8 +83,33 @@ LLFloaterScripting::LLFloaterScripting(const LLSD& seed)
 
 bool LLFloaterScripting::postBuild()
 {
-    refresh();
+    // Subscribe to tight integration changes
+    mTightIntegrationConnection = gSavedSettings.getControl("ExternalEditorTightIntegration")->getSignal()->connect(
+        boost::bind(&LLFloaterScripting::onTightIntegrationChanged, this));
+
+    // Apply initial state
+    onTightIntegrationChanged();
+
     return true;
+}
+
+LLFloaterScripting::~LLFloaterScripting()
+{
+    mTightIntegrationConnection.disconnect();
+}
+
+void LLFloaterScripting::onTightIntegrationChanged()
+{
+    bool tight = gSavedSettings.getBOOL("ExternalEditorTightIntegration");
+
+    // Force websocket on when tight integration is enabled
+    if (LLScriptEditorWSServer::isTightIntegration())
+    {
+        gSavedSettings.setBOOL("ExternalWebsocketSyncEnable", true);
+    }
+
+    // Disable websocket checkbox when tight integration is on
+    getChild<LLCheckBoxCtrl>("websocket_sync_enable")->setEnabled(!tight);
 }
 
 void LLFloaterScripting::onClickClose()

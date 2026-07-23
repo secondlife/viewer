@@ -44,6 +44,10 @@ public:
 
 private:
     LLFloaterScripting(const LLSD& seed);
+    ~LLFloaterScripting() override;
 
+    void onTightIntegrationChanged();
+
+    boost::signals2::connection mTightIntegrationConnection;
 };
 

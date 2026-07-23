@@ -3058,35 +3058,56 @@ even though the user gets a free copy.
          name="Contents"
          top_delta="0"
          width="295">
-            <button
+            <flyout_button
              follows="left|top"
              height="23"
              label="New Script"
-             label_selected="New Script"
              layout="topleft"
-             left="8"
+             left="7"
              name="button new script"
              top="10"
-             width="134"
-             font="DejaVu"
-             font.size="LSmall"
-             pad_bottom="1" />
+             width="137">
+                <flyout_button.item
+                 label="New LSL Script"
+                 name="new_lsl_script"
+                 value="lsl" />
+                <flyout_button.item
+                 label="New Lua Script"
+                 name="new_lua_script"
+                 value="lua" />
+            </flyout_button>
+            <button
+             follows="left|top"
+             height="23"
+             label="New Notecard"
+             layout="topleft"
+             left_pad="7"
+             name="button new notecard"
+             width="137" />
             <button
              follows="left|top"
              height="23"
              label="Permissions"
              layout="topleft"
-             left_pad="8"
+             left="7"
+             top="37"
              name="button permissions"
-             width="134"
-             font="DejaVu"
-             font.size="LSmall"
-             pad_bottom="1" />
+             width="137" />
+            <button
+             follows="left|top"
+             height="23"
+             is_toggle="true"
+             label="Explore in IDE"
+             label_selected="Stop Exploring"
+             layout="topleft"
+             left_pad="7"
+             name="button publish"
+             width="137" />
             <filter_editor
              follows="left|top|right"
              label="Enter filter text"
              layout="topleft"
-             top="40"
+             top="67"
              left="10"
              text_pad_left="10"
              max_length_chars="300"
@@ -3099,11 +3120,11 @@ even though the user gets a free copy.
              border_visible="true"
              bevel_style="in"
              follows="left|top|right"
-             height="367"
+             height="340"
              layout="topleft"
              left="10"
              name="contents_inventory"
-             top="70"
+             top="97"
              width="275" />
 		</panel>
         </tab_container>

@@ -30,6 +30,10 @@
 #include "llerror.h"
 #include "llsdjson.h"
 #include "lldate.h"
+#include "llcoros.h"
+#include "llmainthreadtask.h"
+#include "lleventtimer.h"
+#include "lltimer.h"
 
 #include <boost/json.hpp>
 
@@ -40,29 +44,57 @@
 void LLJSONRPCConnection::onOpen()
 {
     LL_INFOS("JSONRPC") << "JSON-RPC connection opened" << LL_ENDL;
+
+    // Start the recurring timeout sweep timer on the main thread. The timer
+    // is canceled in onClose() before the connection can be destroyed, so
+    // capturing `this` is safe. Keep a weak_ptr so we can safely test
+    // whether the timer instance still exists at cancellation time.
+    LLEventTimer* timer = LLEventTimer::run_every(TIMEOUT_SWEEP_INTERVAL,
+        [this]() { sweepTimeouts(); });
+    mTimeoutTimer = timer->getWeak();
 }
 
 void LLJSONRPCConnection::onClose()
 {
-    LL_INFOS("JSONRPC") << "JSON-RPC connection closed, clearing "
-                        << mPendingRequests.size() << " pending requests" << LL_ENDL;
+    // Cancel the sweep timer if it is still alive. LLEventTimer's instance
+    // tracker keeps a shared_ptr with a no-op deleter, so raw `delete` is
+    // the documented cancellation idiom (see lleventtimer.h).
+    if (auto timer = mTimeoutTimer.lock())
+    {
+        delete timer.get();
+    }
+    mTimeoutTimer.reset();
 
-    // Cancel all pending requests
-    for (auto& [id, callback] : mPendingRequests)
+    // Move the pending-request map out under the lock so we can invoke the
+    // callbacks without holding it (callbacks may themselves call into this
+    // connection).
+    std::unordered_map<std::string, ResponseCallback> pending;
+    {
+        LLMutexLock lock(&mMutex);
+        pending.swap(mPendingRequests);
+        // Deadlines correspond to entries in mPendingRequests; drop them.
+        std::priority_queue<PendingDeadline> empty;
+        mPendingDeadlines.swap(empty);
+    }
+
+    LL_INFOS("JSONRPC") << "JSON-RPC connection closed, clearing "
+                        << pending.size() << " pending requests" << LL_ENDL;
+
+    for (auto& [id, callback] : pending)
     {
         if (callback)
         {
             LLSD error;
-            error["code"] = RPCError::CONNECTION_CLOSED; // Use named constant instead of magic number
+            error["code"] = RPCError::CONNECTION_CLOSED;
             error["message"] = "Connection closed";
             callback(LLSD(), error);
         }
     }
-    mPendingRequests.clear();
 }
 
 void LLJSONRPCConnection::onMessage(const std::string& message)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     LL_DEBUGS("JSONRPC") << "Received JSON-RPC message: " << message << LL_ENDL;
 
     try
@@ -84,24 +116,18 @@ void LLJSONRPCConnection::onMessage(const std::string& message)
         // Handle batch vs single message
         if (message_obj.isArray())
         {
-            // Batch request
-            if (message_obj.size() == 0)
-            {
-                sendError(LLSD(), InvalidRequest("Empty batch"));
-                return;
-            }
+            // JSON-RPC 2.0 batch requests are intentionally not supported.
+            // No known client (including the sl-vscode-plugin) sends batches,
+            // and a spec-compliant implementation would require accumulating
+            // responses across sync + async handlers before shipping a single
+            // array frame. If a real use case appears, implement per
+            // JSON-RPC 2.0 §6.
+            sendError(LLSD(), InvalidRequest("Batch requests are not supported"));
+            return;
+        }
 
-            // Process each message in the batch
-            for (S32 i = 0; i < message_obj.size(); ++i)
-            {
-                processMessage(message_obj[i]);
-            }
-        }
-        else
-        {
-            // Single message
-            processMessage(message_obj);
-        }
+        // Single message
+        processMessage(message_obj);
     }
     catch (const std::exception& e)
     {
@@ -112,6 +138,7 @@ void LLJSONRPCConnection::onMessage(const std::string& message)
 
 void LLJSONRPCConnection::processMessage(const LLSD& message_obj)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     try
     {
         // Determine if this is a request, notification, or response
@@ -145,6 +172,7 @@ void LLJSONRPCConnection::processMessage(const LLSD& message_obj)
 
 void LLJSONRPCConnection::processRequest(const LLSD& request)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     std::string method = request["method"].asString();
     LLSD params = request.has("params") ? request["params"] : LLSD();
     LLSD id = request.has("id") ? request["id"] : LLSD();
@@ -153,9 +181,93 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
     LL_DEBUGS("JSONRPC") << "Processing " << (is_notification ? "notification" : "request")
                          << " for method: " << method << LL_ENDL;
 
-    // Find method handler
-    auto it = mMethodHandlers.find(method);
-    if (it == mMethodHandlers.end())
+    // Resolve the handler under the mutex, then invoke it unlocked.
+    MethodHandler handler;
+    bool          is_async = false;
+    {
+        LLMutexLock lock(&mMutex);
+        auto async_it = mAsyncMethodHandlers.find(method);
+        if (async_it != mAsyncMethodHandlers.end())
+        {
+            handler  = async_it->second;
+            is_async = true;
+        }
+        else
+        {
+            auto sync_it = mMethodHandlers.find(method);
+            if (sync_it != mMethodHandlers.end())
+            {
+                handler = sync_it->second;
+            }
+        }
+    }
+
+    if (is_async)
+    {
+        // Async handler — launched as a coroutine, response sent by the lambda.
+        if (is_notification)
+        {
+            LL_WARNS("JSONRPC") << "Async method " << method
+                                << " called as notification; ignoring" << LL_ENDL;
+            return;
+        }
+        ptr_t conn = std::static_pointer_cast<LLJSONRPCConnection>(getSelfPtr());
+        if (!conn)
+        {
+            LL_WARNS("JSONRPC") << "Connection expired before async method " << method
+                                << " could be launched" << LL_ENDL;
+            return;
+        }
+        LLMainThreadTask::dispatch(
+            [handler, method, id, params, conn]()
+            {
+                LLCoros::instance().launch(
+                    "JSONRPC::" + method,
+                    [handler, method, id, params, conn]()
+                    {
+                        try
+                        {
+                            LLSD result = handler(method, id, params);
+                            if (conn->isConnected())
+                            {
+                                conn->sendResponse(id, result);
+                            }
+                            else
+                            {
+                                LL_WARNS("JSONRPC") << "Connection closed before async method "
+                                                    << method << " could send response" << LL_ENDL;
+                            }
+                        }
+                        catch (const RPCError& e)
+                        {
+                            if (conn->isConnected())
+                            {
+                                conn->sendError(id, e);
+                            }
+                            else
+                            {
+                                LL_WARNS("JSONRPC") << "Connection closed before async method "
+                                                    << method << " could send error" << LL_ENDL;
+                            }
+                        }
+                        catch (const std::exception& e)
+                        {
+                            if (conn->isConnected())
+                            {
+                                conn->sendError(id, InternalError(e.what()));
+                            }
+                            else
+                            {
+                                LL_WARNS("JSONRPC") << "Connection closed before async method "
+                                                    << method << " could send error" << LL_ENDL;
+                            }
+                        }
+                    });
+            });
+        return;
+    }
+
+    if (!handler)
     {
         if (!is_notification)
         {
@@ -166,8 +278,7 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
 
     try
     {
-        // Call the method handler with method name, ID, and parameters
-        LLSD result = it->second(method, id, params);
+        LLSD result = handler(method, id, params);
 
         if (!is_notification)
         {
@@ -202,6 +313,7 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
 
 void LLJSONRPCConnection::processResponse(const LLSD& response)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     if (!response.has("id"))
     {
         LL_WARNS("JSONRPC") << "Response missing id field" << LL_ENDL;
@@ -209,20 +321,23 @@ void LLJSONRPCConnection::processResponse(const LLSD& response)
     }
 
     std::string id = response["id"].asString();
-    auto it = mPendingRequests.find(id);
-    if (it == mPendingRequests.end())
+    ResponseCallback callback;
     {
-        LL_WARNS("JSONRPC") << "Received response for unknown request id: " << id << LL_ENDL;
-        return;
+        LLMutexLock lock(&mMutex);
+        auto it = mPendingRequests.find(id);
+        if (it == mPendingRequests.end())
+        {
+            LL_WARNS("JSONRPC") << "Received response for unknown request id: " << id << LL_ENDL;
+            return;
+        }
+        callback = std::move(it->second);
+        mPendingRequests.erase(it);
     }
-
-    ResponseCallback callback = it->second;
-    mPendingRequests.erase(it);
 
     if (callback)
     {
         LLSD result = response.has("result") ? response["result"] : LLSD();
-        LLSD error = response.has("error") ? response["error"] : LLSD();
+        LLSD error  = response.has("error")  ? response["error"]  : LLSD();
 
         callback(result, error);
     }
@@ -294,21 +409,60 @@ bool LLJSONRPCConnection::validateMessage(const LLSD& message, bool is_request)
             if (!error.isMap())
             {
                 LL_WARNS("JSONRPC") << "Error must be an object" << LL_ENDL;
+                return false;
             }
             if (!error.has("code") || !error.has("message"))
             {
                 LL_WARNS("JSONRPC") << "Error must have code and message" << LL_ENDL;
+                return false;
             }
         }
     }
     return true;
 }
 
+void LLJSONRPCConnection::sweepTimeouts()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
+    // Pop expired deadlines and collect their callbacks. Tombstones (entries
+    // whose request already completed) are silently discarded.
+    std::vector<std::pair<std::string, ResponseCallback>> expired;
+    const F64 now = LLTimer::getTotalSeconds();
+    {
+        LLMutexLock lock(&mMutex);
+        while (!mPendingDeadlines.empty() && mPendingDeadlines.top().mDeadline <= now)
+        {
+            std::string id = mPendingDeadlines.top().mId;
+            mPendingDeadlines.pop();
+            auto it = mPendingRequests.find(id);
+            if (it != mPendingRequests.end())
+            {
+                expired.emplace_back(std::move(id), std::move(it->second));
+                mPendingRequests.erase(it);
+            }
+        }
+    }
+
+    for (auto& [id, callback] : expired)
+    {
+        LL_WARNS("JSONRPC") << "Request " << id << " timed out after "
+                            << REQUEST_TIMEOUT_SECONDS << " seconds" << LL_ENDL;
+        if (callback)
+        {
+            LLSD error;
+            error["code"]    = RPCError::REQUEST_TIMEOUT;
+            error["message"] = "Request timed out";
+            callback(LLSD(), error);
+        }
+    }
+}
+
 LLSD LLJSONRPCConnection::generateId()
 {
-    // Server-wide atomic counter for efficient unique ID generation
-    // Start from 1000 to avoid conflicts with any manual test IDs
-    static std::atomic<U64> sRequestIdCounter{1000};
+    // Server-wide atomic counter for efficient unique ID generation.
+    // Start above zero to avoid conflicts with any manual test IDs.
+    static constexpr U64 REQUEST_ID_START = 1000;
+    static std::atomic<U64> sRequestIdCounter{REQUEST_ID_START};
 
     // Generate server-unique sequential ID
     U64 id = sRequestIdCounter.fetch_add(1);
@@ -317,43 +471,87 @@ LLSD LLJSONRPCConnection::generateId()
 
 void LLJSONRPCConnection::registerMethod(const std::string& method, MethodHandler handler)
 {
-    mMethodHandlers[method] = handler;
+    {
+        LLMutexLock lock(&mMutex);
+        mMethodHandlers[method] = std::move(handler);
+    }
     LL_DEBUGS("JSONRPC") << "Registered method: " << method << LL_ENDL;
+}
+
+void LLJSONRPCConnection::registerAsyncMethod(const std::string& method, MethodHandler handler)
+{
+    {
+        LLMutexLock lock(&mMutex);
+        mAsyncMethodHandlers[method] = std::move(handler);
+    }
+    LL_DEBUGS("JSONRPC") << "Registered async method: " << method << LL_ENDL;
 }
 
 void LLJSONRPCConnection::unregisterMethod(const std::string& method)
 {
-    mMethodHandlers.erase(method);
+    {
+        LLMutexLock lock(&mMutex);
+        mMethodHandlers.erase(method);
+        mAsyncMethodHandlers.erase(method);
+    }
     LL_DEBUGS("JSONRPC") << "Unregistered method: " << method << LL_ENDL;
+}
+
+LLSD LLJSONRPCConnection::makeEnvelope(const LLSD& id,
+                                       const std::string& method,
+                                       const LLSD& params,
+                                       const LLSD& result,
+                                       const LLSD& error)
+{
+    LLSD env;
+    env["jsonrpc"] = "2.0";
+    // Notifications (requests without an id) are the only case that omits id.
+    if (!(id.isUndefined() && !method.empty()))
+    {
+        env["id"] = id;
+    }
+    if (!method.empty())
+    {
+        env["method"] = method;
+    }
+    if (params.isDefined())
+    {
+        env["params"] = params;
+    }
+    if (result.isDefined())
+    {
+        env["result"] = result;
+    }
+    if (error.isDefined())
+    {
+        env["error"] = error;
+    }
+    return env;
 }
 
 LLSD LLJSONRPCConnection::call(const std::string& method, const LLSD& params, ResponseCallback callback)
 {
-    LLSD request;
-    request["jsonrpc"] = "2.0";
-    request["method"] = method;
-
-    if (!params.isUndefined())
-    {
-        request["params"] = params;
-    }
-
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     LLSD id = generateId();
-    request["id"] = id;
+    LLSD request = makeEnvelope(id, method, params, LLSD(), LLSD());
+    const std::string id_str = id.asString();
 
-    // Store callback if provided
+    // Store callback if provided. Fire-and-forget calls (no callback) are
+    // not tracked for timeouts since there is nobody to deliver the error to.
     if (callback)
     {
-        mPendingRequests[id.asString()] = callback;
+        LLMutexLock lock(&mMutex);
+        mPendingRequests[id_str] = std::move(callback);
+        mPendingDeadlines.push({ LLTimer::getTotalSeconds() + REQUEST_TIMEOUT_SECONDS, id_str });
     }
 
     // Send the request
     if (!sendMessage(LlsdToJson(request)))
     {
         // Remove from pending if send failed
-        if (callback)
         {
-            mPendingRequests.erase(id.asString());
+            LLMutexLock lock(&mMutex);
+            mPendingRequests.erase(id_str);
         }
         LL_WARNS("JSONRPC") << "Failed to send request" << LL_ENDL;
         return LLSD();
@@ -365,16 +563,8 @@ LLSD LLJSONRPCConnection::call(const std::string& method, const LLSD& params, Re
 
 bool LLJSONRPCConnection::notify(const std::string& method, const LLSD& params)
 {
-    LLSD notification;
-    notification["jsonrpc"] = "2.0";
-    notification["method"] = method;
-
-    if (!params.isUndefined())
-    {
-        notification["params"] = params;
-    }
-
-    // Notifications don't have an id
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
+    LLSD notification = makeEnvelope(LLSD(), method, params, LLSD(), LLSD());
 
     if (!sendMessage(LlsdToJson(notification)))
     {
@@ -388,10 +578,8 @@ bool LLJSONRPCConnection::notify(const std::string& method, const LLSD& params)
 
 bool LLJSONRPCConnection::sendResponse(const LLSD& id, const LLSD& result)
 {
-    LLSD response;
-    response["jsonrpc"] = "2.0";
-    response["result"] = result;
-    response["id"] = id;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
+    LLSD response = makeEnvelope(id, std::string(), LLSD(), result, LLSD());
 
     if (!sendMessage(LlsdToJson(response)))
     {
@@ -404,9 +592,7 @@ bool LLJSONRPCConnection::sendResponse(const LLSD& id, const LLSD& result)
 
 bool LLJSONRPCConnection::sendError(const LLSD& id, const RPCError& error)
 {
-    LLSD response;
-    response["jsonrpc"] = "2.0";
-
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     LLSD error_obj;
     error_obj["code"] = error.getCode();
     error_obj["message"] = error.what();
@@ -416,8 +602,8 @@ bool LLJSONRPCConnection::sendError(const LLSD& id, const RPCError& error)
         error_obj["data"] = error.getData();
     }
 
-    response["error"] = error_obj;
-    response["id"] = id.isUndefined() ? LLSD() : id;  // null for parse errors
+    // Responses always include id; an undefined id serializes as null (used for parse errors).
+    LLSD response = makeEnvelope(id, std::string(), LLSD(), LLSD(), error_obj);
 
     if (!sendMessage(LlsdToJson(response)))
     {
@@ -513,6 +699,22 @@ void LLJSONRPCServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t connecti
     {
         connection->registerMethod(method, handler);
     }
+
+    // Register session.ping handler for connection health monitoring
+    connection->registerMethod("session.ping",
+        [](const std::string&, const LLSD&, const LLSD& params) -> LLSD
+        {
+            LLSD result;
+            // Echo back the original timestamp
+            if (params.has("timestamp"))
+            {
+                result["timestamp"] = params["timestamp"];
+            }
+            // Add server's current time in milliseconds
+            result["server_time"] = static_cast<LLSD::Integer>(
+                LLDate::now().secondsSinceEpoch() * 1000.0);
+            return result;
+        });
 }
 
 void LLJSONRPCServer::registerGlobalMethod(const std::string& method, MethodHandler handler)
@@ -558,54 +760,21 @@ LLSD LLJSONRPCServer::getMethodList() const
 
 void LLJSONRPCServer::broadcastNotification(const std::string& method, const LLSD& params)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     // Use custom broadcast logic since we need to call notify() on each JSON-RPC connection
     // We can't use the base broadcastMessage() because we need structured JSON-RPC messages
 
     // Create the notification message
-    LLSD notification;
-    notification["jsonrpc"] = "2.0";
-    notification["method"] = method;
-    if (!params.isUndefined())
-    {
-        notification["params"] = params;
-    }
+    LLSD notification = LLJSONRPCConnection::makeEnvelope(LLSD(), method, params, LLSD(), LLSD());
 
     // Use the base class broadcast functionality
     broadcastMessage(boost::json::serialize(LlsdToJson(notification)));
 
-    mTotalNotificationsSent += getConnectionCount();
+    // Cache the count: getConnectionCount() walks a locked container in the base.
+    size_t count = getConnectionCount();
+    mTotalNotificationsSent += count;
     LL_DEBUGS("JSONRPC") << "Broadcast notification: " << method
-                         << " to " << getConnectionCount() << " clients" << LL_ENDL;
-}
-
-void LLJSONRPCServer::broadcastCall(const std::string& method, const LLSD& params,
-                                   BatchResponseCallback callback)
-{
-    if (callback)
-    {
-        LL_WARNS("JSONRPC") << "Broadcast call response callbacks not yet implemented" << LL_ENDL;
-    }
-
-    // Create the request message with a server-unique ID
-    LLSD request;
-    request["jsonrpc"] = "2.0";
-    request["method"] = method;
-
-    // Use the same ID generation as connections for consistency
-    static std::atomic<U64> sBroadcastIdCounter{10000000}; // Start at 10M to clearly distinguish from regular requests
-    U64 id = sBroadcastIdCounter.fetch_add(1);
-    request["id"] = LLSD(llformat("broadcast_%llu", id));
-
-    if (!params.isUndefined())
-    {
-        request["params"] = params;
-    }
-
-    // Use the base class broadcast functionality
-    broadcastMessage(boost::json::serialize(LlsdToJson(request)));
-
-    LL_DEBUGS("JSONRPC") << "Broadcast call: " << method
-                         << " to " << getConnectionCount() << " clients" << LL_ENDL;
+                         << " to " << count << " clients" << LL_ENDL;
 }
 
 LLSD LLJSONRPCServer::getServerStats() const

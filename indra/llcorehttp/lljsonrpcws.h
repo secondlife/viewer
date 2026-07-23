@@ -33,6 +33,9 @@
 #include <functional>
 #include <unordered_map>
 #include <memory>
+#include <queue>
+
+class LLEventTimer;
 
 /**
  * @class LLJSONRPCConnection
@@ -218,12 +221,6 @@ public:
             : RPCError(SERVICE_UNAVAILABLE, details) {}
     };
 
-    class MessageTooLargeError : public RPCError {
-    public:
-        MessageTooLargeError(const std::string& details = "Message exceeds maximum size")
-            : RPCError(MESSAGE_TOO_LARGE, details) {}
-    };
-
     class InvalidSessionError : public RPCError {
     public:
         InvalidSessionError(const std::string& details = "Session expired or invalid")
@@ -235,7 +232,7 @@ public:
                        const LLWebsocketMgr::connection_h& handle)
         : LLWebsocketMgr::WSConnection(server, handle) {}
 
-    virtual ~LLJSONRPCConnection() = default;
+    ~LLJSONRPCConnection() override = default;
 
     // WebSocket connection lifecycle
     void onOpen() override;
@@ -246,8 +243,30 @@ public:
      * @brief Register a method handler
      * @param method The method name to register
      * @param handler The function to call when this method is invoked
+     *
+     * @warning Sync handlers execute on the WebSocket I/O thread. They must
+     *          only touch state that is either internal to this connection
+     *          (protected by the connection's mutex) or otherwise thread-safe.
+     *          Do NOT read or write viewer main-thread-only state (e.g.,
+     *          gAgent, gObjectList, LLSelectMgr, LLFloaterReg, gSavedSettings,
+     *          LLInventoryModel, or any LLViewerObject) from a sync handler;
+     *          register with registerAsyncMethod() instead, which dispatches
+     *          to the main thread inside a coroutine.
      */
     void registerMethod(const std::string& method, MethodHandler handler);
+
+    /**
+     * @brief Register an async method handler, executed in a coroutine
+     *
+     * Unlike registerMethod(), the handler runs inside an LLCoros coroutine
+     * and may use llcoro::suspendUntilEventOn* to wait for async results.
+     * The handler returns its result normally; the framework sends the
+     * JSON-RPC response automatically when the coroutine returns.
+     *
+     * @param method  The method name to register
+     * @param handler The coroutine-safe function to call
+     */
+    void registerAsyncMethod(const std::string& method, MethodHandler handler);
 
     /**
      * @brief Unregister a method handler
@@ -336,9 +355,52 @@ protected:
      */
     LLSD generateId();
 
+public:
+    /**
+     * @brief Build a JSON-RPC 2.0 envelope.
+     *
+     * Stamps "jsonrpc" = "2.0" and includes only the fields that are set:
+     *  - @a method is included when non-empty.
+     *  - @a params, @a result, @a error are included when defined.
+     *  - @a id is included unless it is undefined and @a method is non-empty
+     *    (i.e. notifications omit id; responses keep id, serializing an
+     *    undefined id as JSON null per the JSON-RPC spec).
+     */
+    static LLSD makeEnvelope(const LLSD& id,
+                             const std::string& method,
+                             const LLSD& params,
+                             const LLSD& result,
+                             const LLSD& error);
+
 private:
+    // Guards the three maps below. Handlers/callbacks are copied out from
+    // under the lock and then invoked without it held, to avoid re-entrancy
+    // and to keep the critical section short.
+    mutable LLMutex mMutex;
     std::unordered_map<std::string, MethodHandler> mMethodHandlers;
+    std::unordered_map<std::string, MethodHandler> mAsyncMethodHandlers;
     std::unordered_map<std::string, ResponseCallback> mPendingRequests;
+
+    // Per-request timeout tracking. mPendingDeadlines is a min-heap of
+    // (deadline, request_id) ordered by deadline; entries whose request has
+    // already been answered become tombstones (skipped when they reach the
+    // top). A single recurring timer per connection sweeps the heap.
+    struct PendingDeadline
+    {
+        F64         mDeadline;   // absolute time in seconds (LLTimer::getTotalSeconds)
+        std::string mId;
+        // std::priority_queue is a max-heap; invert to get min-heap by deadline.
+        bool operator<(const PendingDeadline& rhs) const { return mDeadline > rhs.mDeadline; }
+    };
+    std::priority_queue<PendingDeadline> mPendingDeadlines;
+    std::weak_ptr<LLEventTimer>          mTimeoutTimer;
+
+    static constexpr F64 REQUEST_TIMEOUT_SECONDS = 120.0;
+    static constexpr F32 TIMEOUT_SWEEP_INTERVAL  = 1.0f;
+
+    /// Invoked by the sweep timer; fires the timeout callback for any
+    /// request whose deadline has passed. Safe to call from the main thread.
+    void sweepTimeouts();
 };
 
 /**
@@ -376,13 +438,6 @@ private:
  * @code
  * // Broadcast notification to all connected clients
  * server->broadcastNotification("serverAlert", LLSD("Server will restart in 5 minutes"));
- *
- * // Call a method on all clients and collect responses
- * server->broadcastCall("getClientStatus", LLSD(), [](const LLSD& responses) {
- *     for (const auto& response : llsd::inArray(responses)) {
- *         LL_INFOS() << "Client status: " << response << LL_ENDL;
- *     }
- * });
  * @endcode
  */
 class LLJSONRPCServer : public LLWebsocketMgr::WSServer
@@ -391,10 +446,9 @@ public:
     using ptr_t = std::shared_ptr<LLJSONRPCServer>;
     using MethodHandler = LLJSONRPCConnection::MethodHandler;
     using ResponseCallback = LLJSONRPCConnection::ResponseCallback;
-    using BatchResponseCallback = std::function<void(const LLSD& responses)>;
 
     LLJSONRPCServer(const std::string& name, U16 port, bool local_only = true);
-    virtual ~LLJSONRPCServer() = default;
+    ~LLJSONRPCServer() override = default;
 
     // Server lifecycle callbacks
     void onConnectionOpened(const LLWebsocketMgr::WSConnection::ptr_t& connection) override;
@@ -425,15 +479,6 @@ public:
      * @param params The parameters to pass
      */
     void broadcastNotification(const std::string& method, const LLSD& params = LLSD());
-
-    /**
-     * @brief Call a method on all connected clients
-     * @param method The method name
-     * @param params The parameters to pass
-     * @param callback Callback to receive aggregated responses
-     */
-    void broadcastCall(const std::string& method, const LLSD& params = LLSD(),
-                      BatchResponseCallback callback = nullptr);
 
     /**
      * @brief Get server statistics

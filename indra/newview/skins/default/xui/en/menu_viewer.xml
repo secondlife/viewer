@@ -1384,14 +1384,25 @@ function="World.EnvPreset"
                function="EditableSelected" />
           </menu_item_call>
           <menu_item_call
-             label="Set Scripts to Not Running"
-             name="Set Scripts to Not Running">
+              label="Set Scripts to Not Running"
+              name="Set Scripts to Not Running">
             <menu_item_call.on_click
-               function="Tools.SelectedScriptAction"
-               parameter="stop" />
+                function="Tools.SelectedScriptAction"
+                parameter="stop" />
             <menu_item_call.on_enable
-               function="EditableSelected" />
+                function="EditableSelected" />
           </menu_item_call>
+          <menu_item_separator/>
+          <menu_item_check
+              label="Script Editor Server"
+              name="Script Editor Server">
+            <menu_item_check.on_check
+                function="Tools.CheckScriptEditorServer" />
+            <menu_item_check.on_click
+                function="Tools.ToggleScriptEditorServer" />
+            <menu_item_check.on_enable
+                function="Tools.EnableScriptEditorServer" />
+          </menu_item_check>
         </menu>
 
       <menu

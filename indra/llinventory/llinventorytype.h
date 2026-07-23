@@ -123,6 +123,8 @@ public:
 
         ICONNAME_MATERIAL,
 
+        ICONNAME_SCRIPT_LUAU,
+
         ICONNAME_INVALID,
         ICONNAME_UNKNOWN,
         ICONNAME_COUNT,

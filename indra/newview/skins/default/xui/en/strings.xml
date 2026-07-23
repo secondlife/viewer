@@ -4052,6 +4052,8 @@ Try enclosing path to the editor with double quotes.
 (e.g. "/path to my/editor" "%s")</string>
  <string name="ExternalEditorCommandParseError">Error parsing the external editor command.</string>
  <string name="ExternalEditorFailedToRun">External editor failed to run.</string>
+ <string name="ExternalEditorFailedToStart">Failed to start the WebSocket server. Ensure the ExternalWebsocketSyncEnable setting is on.</string>
+ <string name="VSCodeLaunchFailed">Failed to launch VS Code. Ensure the 'code' command is available on your PATH.</string>
 
  <!--  Machine translation of chat messahes -->
  <string name="TranslationFailed">Translation failed: [REASON]</string>
