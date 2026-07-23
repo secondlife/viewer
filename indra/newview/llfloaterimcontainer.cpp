@@ -1726,7 +1726,7 @@ bool LLFloaterIMContainer::visibleContextMenuItem(const LLSD& userdata)
 void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
 {
     setVisibleAndFrontmost(false);
-    selectConversationPair(session_id, true);
+    selectConversationPair(session_id, true, true, true);
 
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
     if (session_floater)
@@ -1772,13 +1772,13 @@ void LLFloaterIMContainer::selectNextConversationByID(const LLUUID& uuid)
 }
 
 // Synchronous select the conversation item and the conversation floater
-bool LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater/*=true*/)
+bool LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater/*=true*/, bool force_select_widget/*=false*/)
 {
     bool handled = true;
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
 
     /* widget processing */
-    if (select_widget && mConversationsRoot->getSelectedCount() <= 1)
+    if (select_widget && (force_select_widget || mConversationsRoot->getSelectedCount() <= 1))
     {
         LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
         if (widget && widget->getParentFolder())
