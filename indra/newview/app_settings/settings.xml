@@ -8038,7 +8038,7 @@
   <key>RenderTextureQuality</key>
   <map>
     <key>Comment</key>
-    <string>Texture quality preset: 0=Low, 1=Medium, 2=High, 3=Ultra. Drives RenderMaxTextureResolution, TexturePixelToTexelRatio, TexturePressureTightenRate, TexturePressureRelaxRate, and TextureChannelRatio* (Normal/BaseColor/Specular/Emissive). The pressure water marks (TexturePressureHighWater/LowWater) are constant across tiers.</string>
+    <string>Texture quality preset: 0=Low, 1=Medium, 2=High, 3=Ultra. Drives RenderMaxTextureResolution, TexturePixelToTexelRatio, TexturePressureTightenRate, TexturePressureRelaxRate, TextureChannelRatio* (Normal/BaseColor/Specular/Emissive), TextureOffscreenUnloadBias, TextureGCStepSeconds, TextureCooldownStepSeconds, and TextureUpRezMargin. The pressure water marks (TexturePressureHighWater/LowWater) are constant across tiers.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -11970,21 +11970,21 @@
       <key>Value</key>
       <real>5.0</real>
     </map>
-    <key>TextureGCStepFrames</key>
+    <key>TextureGCStepSeconds</key>
     <map>
       <key>Comment</key>
-      <string>Foreground GC cooldown, in rendered frames. For every this many frames a texture goes without being drawn, its mip drops by TextureGCStepMips. Resets when the texture is drawn again.</string>
+      <string>Wall-clock seconds per unload step once TextureUnloadDwellSeconds has elapsed: every this many seconds of continued off-screen/occlusion staleness drops the mip by TextureGCStepMips. Driven by the RenderTextureQuality preset.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>F32</string>
       <key>Value</key>
-      <integer>5</integer>
+      <real>2.0</real>
     </map>
     <key>TextureGCStepMips</key>
     <map>
       <key>Comment</key>
-      <string>Mip levels dropped each time a TextureGCStepFrames cooldown elapses. 1 is gentlest; higher sheds VRAM faster in coarser jumps.</string>
+      <string>Mip levels dropped each time a TextureGCStepSeconds cooldown elapses. 1 is gentlest; higher sheds VRAM faster in coarser jumps.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12024,17 +12024,6 @@
       <string>U32</string>
       <key>Value</key>
       <integer>2</integer>
-    </map>
-    <key>TextureFrustumAllowance</key>
-    <map>
-      <key>Comment</key>
-      <string>Falloff width for out-of-frustum texture resolution, as a fraction of screen size. Content grazing the screen edge keeps full resolution; content this far past the edge reaches the deepest mip, lerped between. Keeps barely-out-of-view textures resident so panning back doesn't refetch them.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.5</real>
     </map>
     <key>TextureDecodeDisabled</key>
     <map>
@@ -12178,6 +12167,50 @@
         <string>F32</string>
         <key>Value</key>
         <real>0.25</real>
+    </map>
+    <key>TextureOffscreenUnloadBias</key>
+    <map>
+        <key>Comment</key>
+        <string>How far out of frustum content must be before angle-driven unload reaches full depth, in behindness units (0 = frustum edge, 1 = directly behind). Unload fraction ramps linearly from the frustum edge to this point. Below 1 = full unload nearer the frustum edge (aggressive); above 1 = even directly-behind content never fully unloads (protective); 0 disables angle-driven unload.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>1.0</real>
+    </map>
+    <key>TextureStreamDebugText</key>
+    <map>
+      <key>Comment</key>
+      <string>Show per-texture streaming diagnostics as floating debug text on objects: current&gt;desired discard, held/full dims, measured coverage (px^2), behindness, off-screen flag, frames since last confirmed visible.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureUnloadDwellSeconds</key>
+    <map>
+      <key>Comment</key>
+      <string>Seconds a texture must be continuously off-screen, occlusion-stale, or unmeasured before its first unload step; later steps follow TextureGCStepSeconds. Wall-clock, independent of frame rate. Damps evict/refetch cycling from glances away, occlusion flap, and geometry rebuilds.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>TextureVRAMReserve</key>
+    <map>
+      <key>Comment</key>
+      <string>Fraction of the texture VRAM budget held in reserve for other applications. Applied before the pressure watermarks. 0..0.9.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.2</real>
     </map>
     <key>ThreadPoolSizes</key>
     <map>

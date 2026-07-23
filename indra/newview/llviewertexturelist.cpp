@@ -979,13 +979,18 @@ static void update_face_stream_vsize(LLFace* face)
     const LLVector4a* ext = face->isState(LLFace::RIGGED) ? face->mRiggedExtents : face->mExtents;
     LLVector4a diag;
     diag.setSub(ext[1], ext[0]);
-    // World area of the face ~ product of the two largest AABB dims (max
-    // pairwise product; robust for flat faces).
+    // Effective world area = (longest AABB dim)^2, not true area: mip need is
+    // driven by the longest axis (anisotropic sampling reads fine mips along
+    // it), and a true-area basis pins small/elongated faces (trim, signs) at
+    // the deepest mip. Matches legacy's bounding-disc basis for elongated
+    // faces, tighter for square ones.
     F32 dx = diag[0], dy = diag[1], dz = diag[2];
-    F32 area_world = llmax(dx * dy, llmax(dx * dz, dy * dz));
-    // Pixels per meter at the nearest point. Distance floored: nearer than
-    // this the screen clamp below governs anyway.
-    F32 dist = llmax(face->mDistanceToCamera, 0.5f);
+    F32 longest = llmax(dx, llmax(dy, dz));
+    F32 area_world = longest * longest;
+    // Pixels per meter at the nearest point. Floor is tiny (matching legacy's
+    // 0.001): small faces inspected up close land UNDER the screen clamp, so
+    // a coarse floor costs them a mip+.
+    F32 dist = llmax(face->mDistanceToCamera, 0.01f);
     F32 ppm = LLDrawable::sCurPixelAngle / dist;
     F32 face_px = area_world * ppm * ppm;
     if (face_px <= 0.f)
@@ -1134,7 +1139,12 @@ static void update_face_stream_vsize(LLFace* face)
 
 void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep, bool flush_images)
 {
-    llassert(!gCubeSnapshot);
+    // Real guard, not llassert (compiled out in Release): streaming inputs
+    // are world-view-only; a probe capture's camera would poison them.
+    if (gCubeSnapshot)
+    {
+        return;
+    }
 
     // Refresh spotlight priorities first: light projector textures register as
     // LIGHT_TEX volumes (no faces), and both their fetch priority
@@ -1162,7 +1172,8 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         F32 max_coverage = 0.f;
         bool on_screen = false;   // any face's projected disc overlaps the screen
         bool any_face = false;
-        F32 min_overflow = FLT_MAX; // least out-of-frustum use across faces
+        F32 min_behindness = FLT_MAX; // least-behind (most on-screen) use across faces
+        bool any_visible = false; // any measured face's object is visible or merely frustum-culled (only occlusion stalls the GC clock)
 
 
         U32 face_count = 0;
@@ -1194,6 +1205,9 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                 }
             }
             max_coverage = (F32)MAX_IMAGE_AREA;
+            // Used in too many places to scan - treat as visible so the GC clock
+            // keeps advancing (same full-screen reasoning as the coverage above).
+            any_visible = true;
         }
         else
         {
@@ -1235,7 +1249,28 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 
                     any_face = true;
                     on_screen = on_screen || face->mInFrustum;
-                    min_overflow = llmin(min_overflow, face->mFrustumOverflow);
+                    min_behindness = llmin(min_behindness, face->mBehindness);
+
+                    // GC clock: the world camera's occlusion verdict is the
+                    // only input. The drawable cull stamp is pass-agnostic
+                    // (shadow/probe culls write it too) and must not drive
+                    // residency; the occlusion slot is world-pure. Out of
+                    // frustum the flag is frozen, so those faces always count
+                    // visible - the angular ramp owns them.
+                    LLDrawable* drawablep = face->getDrawable();
+                    bool visible;
+                    if (face->mBehindness > 0.f)
+                    {
+                        visible = true;   // out of frustum - angular policy territory
+                    }
+                    else
+                    {
+                        LLSpatialGroup* group = drawablep ? drawablep->getSpatialGroup() : nullptr;
+                        bool occluded = LLPipeline::sUseOcclusion > 1 && group &&
+                                        group->isOcclusionState(LLSpatialGroup::OCCLUDED);
+                        visible = !occluded;
+                    }
+                    any_visible = any_visible || visible;
 
                     if (bucket >= 0 && bucket < 4)
                     {
@@ -1315,18 +1350,45 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         // spotlights, the >1024-face boost path, not-yet-built geometry) stay
         // eligible - blocking them is what stalls load-in.
         imagep->mOnScreen = on_screen || !any_face;
-        // Least out-of-frustum use governs the allowance falloff; unknown = 0
+        // Least-behind use governs the off-screen unload falloff; unknown = 0
         // (no penalty), same reasoning as mOnScreen.
-        imagep->mFrustumOverflow = any_face ? min_overflow : 0.f;
-    }
+        imagep->mBehindness = any_face ? min_behindness : 0.f;
 
-#if 0
-    imagep->setDebugText(llformat("%d/%d -- %d/%d",
-        imagep->getDiscardLevel(),
-        imagep->getDesiredDiscardLevel(),
-        imagep->getWidth(),
-        imagep->getFullWidth()));
-#endif
+        // Stamp the occlusion GC's staleness clock whenever a measured face
+        // passed the cull verdict this sweep. Textures with no scannable faces
+        // (bakes, spotlights, terrain, not-yet-built geometry) count as visible
+        // so the GC never ages out content it can't see - same never-starve rule
+        // as mOnScreen above. computeDesiredDiscard reads LLFrameTimer's frame
+        // count, so stamp from the same source (not gFrameCount).
+        if (any_visible || !any_face)
+        {
+            imagep->mLastVisibleFrame = LLFrameTimer::getFrameCount();
+        }
+
+        // In-world streaming diagnostics: current/desired discard, held/full
+        // dims, measured coverage, behindness, off-screen flag, frames since
+        // last confirmed visible.
+        static LLCachedControl<bool> stream_debug(gSavedSettings, "TextureStreamDebugText", false);
+        if (stream_debug)
+        {
+            imagep->setDebugText(llformat("d%d>%d %d/%d r %.3f cov %.0f [N %.0f/%.0f BC %.0f/%.0f S %.0f/%.0f E %.0f/%.0f] i %.1f>%.1f b %.2f%s v %d",
+                imagep->getDiscardLevel(),
+                imagep->getDesiredDiscardLevel(),
+                imagep->getWidth(),
+                imagep->getFullWidth(),
+                LLViewerTexture::sPixelToTexelRatio,
+                max_coverage,
+                imagep->mChannelCoverage[0], imagep->mChannelCoverageMin[0],
+                imagep->mChannelCoverage[1], imagep->mChannelCoverageMin[1],
+                imagep->mChannelCoverage[2], imagep->mChannelCoverageMin[2],
+                imagep->mChannelCoverage[3], imagep->mChannelCoverageMin[3],
+                imagep->mDbgIdealPolicy,
+                imagep->mDbgIdealFinal,
+                imagep->mBehindness,
+                imagep->mOnScreen ? "" : " OFF",
+                (S32)(LLFrameTimer::getFrameCount() - imagep->mLastVisibleFrame)));
+        }
+    }
 
     F32 max_inactive_time = 20.f; // inactive time before deleting saved raw image
     S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, and 1 for "entries" in updateImagesFetchTextures

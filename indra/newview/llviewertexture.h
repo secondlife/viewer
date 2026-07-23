@@ -221,15 +221,33 @@ protected:
     // never starved.
     bool mOnScreen = true;
 
-    // How far out of frustum the texture's least-out-of-view use sits, as a
-    // fraction of screen size (0 = on screen). Drives the frustum-allowance
-    // falloff in computeDesiredDiscard.
-    F32 mFrustumOverflow = 0.f;
+    // Least-behind use across the faces using this texture, angular: 0 = something
+    // on screen, up to 1 = every use directly behind the camera. Drives the
+    // off-screen unload falloff in computeDesiredDiscard.
+    F32 mBehindness = 0.f;
 
-    // Last frame this texture was out of frustum (mFrustumOverflow > 0). The
-    // GC in computeDesiredDiscard gives re-entering content one grace window to
-    // be drawn and re-stamp mLastBindFrame before its staleness is judged.
-    mutable U32 mLastOffScreenFrame = 0;
+    // Last frame any measured face's object reported visible per the renderer's
+    // cull verdict (frustum + occlusion queries); stamped by the coverage sweep
+    // and anchored at GL-texture creation; the staleness clock for the occlusion
+    // GC. 0 = never.
+    mutable U32 mLastVisibleFrame = 0;
+
+    // Frame the texture's aggregate behindness last transitioned onto >0
+    // (0 = currently on screen); the dwell clock for the progressive
+    // off-screen unload.
+    mutable U32 mOffScreenEnterFrame = 0;
+
+    // Last frame the coverage sweep produced a real measurement for this
+    // texture (some face had usable extents). Distinguishes a transient
+    // unmeasured read (geometry rebuild in flight) from persistently
+    // unmeasured content in computeDesiredDiscard.
+    mutable U32 mLastMeasuredFrame = 0;
+
+    // Debug taps for the TextureStreamDebugText overlay: continuous ideal
+    // discard before (policy) and after (final) the unload lifecycle.
+    // -1 = not computed this visit (early return / unmeasured).
+    mutable F32 mDbgIdealPolicy = -1.f;
+    mutable F32 mDbgIdealFinal = -1.f;
 
     // Membership flag for LLViewerTextureList::mFastFetchList (dedup).
     bool mInFastFetchList = false;
@@ -498,6 +516,12 @@ protected:
     // scaleDown can still trim the GL pyramid past this.
     static constexpr S8 sFallbackCodecMaxDiscardLevel = 5; // MIN_DECOMPOSITION_LEVELS
     S8  mCodecMaxDiscardLevel = sFallbackCodecMaxDiscardLevel;
+
+    // Finest discard this texture has ever had created this session. Reload
+    // targets at/coarser than this are disk-cache-backed: progressive fetch
+    // stepping is skipped for them (each step is a full lap through the fetch
+    // queue - pure latency when the bytes are local).
+    S8    mBestDiscardEver = S8_MAX;
 
     bool mNeedsAux;                 // We need to decode the auxiliary channels
     bool mHasAux;                    // We have aux channels
