@@ -762,6 +762,8 @@ bool LLPanelPreferenceGameControl::postBuild()
     // Action selectors: provide the "Action" column rows, chosen by edit mode.
     mAnalogActionSelector = getChild<LLComboBox>("analog_action_selector");
     mBinaryActionSelector = getChild<LLComboBox>("binary_action_selector");
+    mMouselookAnalogActionSelector = getChild<LLComboBox>("mouselook_analog_action_selector");
+    mMouselookBinaryActionSelector = getChild<LLComboBox>("mouselook_binary_action_selector");
     mFlycamAnalogActionSelector = getChild<LLComboBox>("flycam_analog_action_selector");
     mFlycamBinaryActionSelector = getChild<LLComboBox>("flycam_binary_action_selector");
     mCaptiveBinaryActionSelector = getChild<LLComboBox>("sit_binary_action_selector");
@@ -1009,7 +1011,8 @@ void LLPanelPreferenceGameControl::populateDeviceSettings(const std::string& gui
     populateButtonChannelsCells();
 }
 
-// The mode string ("When moving Avatar"/"When moving FlyCam"/"When sitting") currently selected for editing.
+// The mode string ("When moving Avatar"/"When moving FlyCam"/"When sitting"/
+// "When in mouselook") currently selected for editing.
 std::string LLPanelPreferenceGameControl::currentEditMode()
 {
     S32 ordinal = mActionMode->getValue().asInteger();
@@ -1020,10 +1023,14 @@ std::string LLPanelPreferenceGameControl::currentEditMode()
 LLComboBox* LLPanelPreferenceGameControl::actionSelectorForMode(bool axis, const std::string& mode) const
 {
     bool flycam = (mode == "FlyCam");
-    // Avatar and Captive share the same axis actions (see llgamecontrol.cpp);
-    // only their button actions differ (Captive swaps in e.g. "Stand" for "Jump").
+    bool mouselook = (mode == "Mouselook");
+    // Avatar, Captive, and Mouselook share the same axis actions (see
+    // llgamecontrol.cpp); each has its own button-action selector so their
+    // button sets can diverge (e.g. Captive swaps in "Stand" for "Jump").
     if (axis)
-        return flycam ? mFlycamAnalogActionSelector : mAnalogActionSelector;
+        return flycam ? mFlycamAnalogActionSelector : (mouselook ? mMouselookAnalogActionSelector : mAnalogActionSelector);
+    if (mouselook)
+        return mMouselookBinaryActionSelector;
     if (flycam)
         return mFlycamBinaryActionSelector;
     return (mode == "Captive") ? mCaptiveBinaryActionSelector : mBinaryActionSelector;

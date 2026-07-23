@@ -43,8 +43,8 @@ class LLTextBox;
 // Preference panel for configuring game controller (gamepad) input.
 //
 // Two visible sub-tabs:
-//   - Actions (global, per mode Avatar/FlyCam/Captive): one table binding each
-//     mode's axis and button actions to a canonical input.  Independent of device.
+//   - Actions (global, per mode Avatar/Mouselook/FlyCam/Captive): one table binding
+//     each mode's axis and button actions to a canonical input.  Independent of device.
 //   - Devices (per device): normalizes physical hardware to canonical inputs --
 //     an axis-channels table and a button-channels table, each mapping the physical
 //     input (icon + text) to the canonical output (icon + text).  Axis tuning
@@ -133,7 +133,7 @@ private:
     void clearSelectionState();  // Hide editors and clear selection tracking
 
     // Actions-tab helpers
-    std::string currentEditMode();   // mode string ("Avatar"/"FlyCam"/"Captive") from mActionMode
+    std::string currentEditMode();   // mode string ("Avatar"/"Mouselook"/"FlyCam"/"Captive") from mActionMode
     void onActionModeChanged();      // rebuild the action table when the edit-mode selector changes
     void onModeEnabledToggled(bool enabled);  // toggle conversion for the currently-selected mode
     void updateActionModeEnabledUI();    // sync the Enabled checkbox and lock/unlock the tables
@@ -235,6 +235,8 @@ private:
     // Action selectors: source of the "Action" column rows, chosen by edit mode.
     LLComboBox* mAnalogActionSelector { nullptr };        // Avatar axis actions
     LLComboBox* mBinaryActionSelector { nullptr };        // Avatar button actions
+    LLComboBox* mMouselookAnalogActionSelector { nullptr }; // Mouselook axis actions
+    LLComboBox* mMouselookBinaryActionSelector { nullptr }; // Mouselook button actions
     LLComboBox* mFlycamAnalogActionSelector { nullptr };  // FlyCam axis actions
     LLComboBox* mFlycamBinaryActionSelector { nullptr };  // FlyCam button actions
     LLComboBox* mCaptiveBinaryActionSelector { nullptr }; // Captive (sitting) button actions
