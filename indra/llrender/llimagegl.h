@@ -39,7 +39,9 @@
 #include "llrender.h"
 #include "threadpool.h"
 #include "workqueue.h"
+#include <memory>
 #include <unordered_set>
+#include <vector>
 
 #define LL_IMAGEGL_THREAD_CHECK 0 //set to 1 to enable thread debugging for ImageGL
 
@@ -61,6 +63,15 @@ class LLImageGL : public LLRefCount
 {
     friend class LLTexUnit;
 public:
+    struct TextureUploadPreparation
+    {
+        bool mAlphaAnalyzed = false;
+        bool mIsMask = false;
+        U16 mPickMaskWidth = 0;
+        U16 mPickMaskHeight = 0;
+        std::vector<U8> mPickMask;
+    };
+
 
     // call once per frame
     static void updateClass();
@@ -207,6 +218,10 @@ public:
     virtual void cleanup(); // Clean up the LLImageGL so it can be reinitialized.  Be careful when using this in derived class destructors
 
     void setNeedsAlphaAndPickMask(bool need_mask);
+    bool getNeedsAlphaAndPickMask() const { return mNeedsAlphaAndPickMask; }
+    static TextureUploadPreparation prepareForUpload(const LLImageRaw* image);
+    void applyUploadPreparation(TextureUploadPreparation&& preparation);
+    void discardUploadPreparation();
 
 #if LL_IMAGEGL_THREAD_CHECK
     // thread debugging
@@ -242,6 +257,8 @@ private:
 
     bool mIsMask;
     bool mNeedsAlphaAndPickMask;
+    bool mTextureUploadPrepared;
+    std::unique_ptr<TextureUploadPreparation> mUploadPreparation;
     S8   mAlphaStride ;
     S8   mAlphaOffset ;
 
