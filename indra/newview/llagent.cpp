@@ -5016,141 +5016,66 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
     assert(LLGameControl::isEnabled()
         && (LLGameControl::willControlAvatar() || LLGameControl::willControlFlycam()));
 
-    // Process the non-flag actions first (see AgentActions comment in llgamecontrol.h).
-    bool toggle_fly = false;
-    bool toggle_flycam = false;
-    bool toggle_sit = false;
-    bool toggle_speak = false;
-    bool toggle_mouselook = false;
-    bool toggle_third_person = false;
-    for (U32 action : actions.mMiscActions)
+    // Process the non-flag actions first (see AgentActions comment in
+    // llgamecontrol.h).  Each bit in mMiscActionBits is already edge-triggered
+    // by LLGameControllerManager::computeAgentActions() (set only on the
+    // frame the bound button transitions from not-pressed to pressed), so no
+    // further debouncing is needed here -- just react to the bit directly.
+    const U32 misc_actions = actions.mMiscActionBits;
+
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_FLY)
     {
-        switch (action)
+        setFlying(!getFlying());
+    }
+
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_FLYCAM)
+    {
+        mUsingFlycam = !mUsingFlycam;
+        if (mUsingFlycam)
         {
-        case LLGameControl::ACTION_TOGGLE_FLY:
-            toggle_fly = true;
-            break;
-        case LLGameControl::ACTION_TOGGLE_FLYCAM:
-            toggle_flycam = true;
-            break;
-        case LLGameControl::ACTION_TOGGLE_SIT:
-            toggle_sit = true;
-            break;
-        case LLGameControl::ACTION_TOGGLE_SPEAK:
-            toggle_speak = true;
-            break;
-        case LLGameControl::ACTION_TOGGLE_MOUSELOOK:
-            toggle_mouselook = true;
-            break;
-        case LLGameControl::ACTION_TOGGLE_3RD_PERSON:
-            toggle_third_person = true;
-            break;
-        default:
-            break;
+            // copy main camera transform to flycam
+            LLViewerCamera* camera = LLViewerCamera::getInstance();
+            mFlycam.setTransform(camera->getOrigin(), camera->getQuaternion());
+            mFlycam.setView(camera->getView());
+            mLastFlycamUpdate = LLFrameTimer::getTotalTime();
         }
     }
 
-    if (toggle_fly)
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_SIT)
     {
-        if (mToggleFly)
+        if (isSitting())
         {
-            setFlying(!getFlying());
+            standUp();
         }
-        mToggleFly = false;
-    }
-    else
-    {
-        mToggleFly = true;
+        else
+        {
+            sitDown();
+        }
     }
 
-    if (toggle_flycam)
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_SPEAK)
     {
-        if (mToggleFlycam)
-        {
-            mUsingFlycam = !mUsingFlycam;
-            if (mUsingFlycam)
-            {
-                // copy main camera transform to flycam
-                LLViewerCamera* camera = LLViewerCamera::getInstance();
-                mFlycam.setTransform(camera->getOrigin(), camera->getQuaternion());
-                mFlycam.setView(camera->getView());
-                mLastFlycamUpdate = LLFrameTimer::getTotalTime();
-            }
-        }
-        mToggleFlycam = false;
-    }
-    else
-    {
-        mToggleFlycam = true;
+        LLVoiceClient::getInstance()->toggleUserPTTState();
     }
 
-    if (toggle_sit)
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_MOUSELOOK)
     {
-        if (mToggleSit)
+        // Mirrors LLViewMouselook's "View.Mouselook" toggle.
+        if (!gAgentCamera.cameraMouselook())
         {
-            if (isSitting())
-            {
-                standUp();
-            }
-            else
-            {
-                sitDown();
-            }
+            gAgentCamera.changeCameraToMouselook();
         }
-        mToggleSit = false;
-    }
-    else
-    {
-        mToggleSit = true;
+        else
+        {
+            gAgentCamera.changeCameraToDefault();
+        }
     }
 
-    if (toggle_speak)
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_3RD_PERSON)
     {
-        if (mToggleSpeak)
-        {
-            LLVoiceClient::getInstance()->toggleUserPTTState();
-        }
-        mToggleSpeak = false;
-    }
-    else
-    {
-        mToggleSpeak = true;
-    }
-
-    if (toggle_mouselook)
-    {
-        if (mToggleMouselook)
-        {
-            // Mirrors LLViewMouselook's "View.Mouselook" toggle.
-            if (!gAgentCamera.cameraMouselook())
-            {
-                gAgentCamera.changeCameraToMouselook();
-            }
-            else
-            {
-                gAgentCamera.changeCameraToDefault();
-            }
-        }
-        mToggleMouselook = false;
-    }
-    else
-    {
-        mToggleMouselook = true;
-    }
-
-    if (toggle_third_person)
-    {
-        if (mToggleThirdPerson)
-        {
-            // Not a bidirectional toggle: always forces third-person camera
-            // (e.g. to recover from mouselook/flycam/customize-avatar).
-            gAgentCamera.changeCameraToThirdPerson();
-        }
-        mToggleThirdPerson = false;
-    }
-    else
-    {
-        mToggleThirdPerson = true;
+        // Not a bidirectional toggle: always forces third-person camera
+        // (e.g. to recover from mouselook/flycam/customize-avatar).
+        gAgentCamera.changeCameraToThirdPerson();
     }
 
     // actions.mIsRunning is the final walk/run decision computed by
@@ -5314,7 +5239,8 @@ void LLAgent::updateFlycam()
 {
     // Note: flycam_inputs arrive in range [-1,1]
     std::vector<F32> flycam_inputs;
-    LLGameControl::getFlycamInputs(flycam_inputs);
+    U32 flycam_misc_actions = 0;
+    LLGameControl::getFlycamInputs(flycam_inputs, flycam_misc_actions);
 
     // The channel order is defined by LLGameControl::FlycamChannel.
 
@@ -5322,6 +5248,36 @@ void LLAgent::updateFlycam()
     if ((S32)flycam_inputs.size() < LLGameControl::FLYCAM_NUM_CHANNELS)
     {
         return;
+    }
+
+    if ((flycam_misc_actions & LLGameControl::FLYCAM_ACTION_RESET) && isAgentAvatarValid())
+    {
+        // Reorient the flycam as if it were the 3rd-person camera: above and
+        // behind the avatar, looking down.  mFlycam.startReset() smoothly
+        // lerps into this transform (see LLFlycam::integrate()); flycam
+        // input has no effect until the lerp completes.
+        constexpr F32 FLYCAM_RESET_DURATION = 1.0f; // seconds; may be tuned later
+        constexpr F32 FLYCAM_RESET_FOCUS_HEIGHT = 1.0f; // meters above avatar root
+
+        LLQuaternion avatar_rot = gAgentAvatarp->isSitting()
+            ? gAgentAvatarp->getRenderRotation()
+            : mFrameAgent.getQuaternion();
+        LLVector3 avatar_pos = getPositionAgent();
+
+        // Reuse the same behind/above offset the real 3rd-person camera uses,
+        // rotated into the avatar's current facing.
+        F32 camera_offset_scale = gSavedSettings.getF32("CameraOffsetScale");
+        LLVector3 local_offset = gAgentCamera.getCameraOffsetInitial() * camera_offset_scale;
+        LLVector3 target_position = avatar_pos + local_offset * avatar_rot;
+
+        // Look toward the avatar (roughly torso height); since the camera
+        // sits above and behind, this naturally tilts the view down and
+        // toward the avatar's facing direction.
+        LLVector3 focus_point = avatar_pos + LLVector3(0.f, 0.f, FLYCAM_RESET_FOCUS_HEIGHT);
+        LLCoordFrame target_frame;
+        target_frame.lookAt(target_position, focus_point, LLVector3::z_axis);
+
+        mFlycam.startReset(target_position, target_frame.getQuaternion(), FLYCAM_RESET_DURATION);
     }
 
     LLVector3 linear_velocity(

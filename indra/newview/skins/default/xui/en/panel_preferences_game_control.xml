@@ -852,6 +852,9 @@
             label="Leave flycam"
             value="Toggle flycam"/>
         <combo_box.item
+            label="Reset"
+            value="Reset"/>
+        <combo_box.item
             label="Roll ↺"
             value="Roll CCW"/>
         <combo_box.item
