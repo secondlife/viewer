@@ -7193,6 +7193,7 @@ void LLViewerObject::resetRot()
 
     // Reset the accumulated angular velocity rotation
     mAngularVelocityRot.loadIdentity();
+    setAngularVelocity(LLVector3::zero);
 }
 
 U32 LLViewerObject::getPartitionType() const
