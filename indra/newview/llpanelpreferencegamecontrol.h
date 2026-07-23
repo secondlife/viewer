@@ -156,6 +156,11 @@ private:
     void onResetDeviceToDefaults();     // Reset selected device's options (remap/invert/deadzone/offset)
     void onResetDeviceOptionsToDefaults();  // Reset state device's per-axis tuning (invert/offset/dead zone)
 
+    // Auto-calibration: samples the state device's raw axes over several frames and
+    // derives Offset/Dead Zone for axes that don't move.  See updateAutoCalibration().
+    void onAutoCalibrate();          // Kick off a new calibration pass
+    void updateAutoCalibration();    // Advance the in-progress pass; called once per frame from draw()
+
     void rememberOriginalSettings();  // Capture settings for cancel restoration
 
     // Sends game_control data to server
@@ -189,10 +194,21 @@ private:
     LLTextBox* mStateRemapNote { nullptr };        // Note that values are post-remap
     LLComboBox* mStateDeviceList { nullptr };      // Dropdown listing connected devices
     LLButton* mRestoreDeviceOptionsDefaults { nullptr };  // Restore per-axis tuning to defaults
+    LLButton* mAutoCalibrate { nullptr };          // Kicks off automatic offset/dead-zone calibration
     LLPanel* mPanelDeviceState { nullptr };        // Wrapper holding the two state tables
     LLScrollListCtrl* mAxisState { nullptr };      // Input(glyph) | Axis | Raw/Adjusted values | invert/offset/dead-zone
     LLScrollListCtrl* mButtonState { nullptr };    // Input(glyph) | Button | Value (live pressed state)
     std::string mStateSelectedDeviceGUID;          // GUID of the device shown in the state tab
+
+    // Auto-calibration: in-progress sample capture kicked off by mAutoCalibrate.
+    // updateAutoCalibration() (called from draw()) appends one raw-axis sample per
+    // physical axis each frame; once CALIBRATION_SAMPLE_COUNT samples are collected,
+    // any axis whose samples were all equal is treated as being at rest, and its
+    // Offset/Dead Zone are derived from that reading.
+    static constexpr S32 CALIBRATION_SAMPLE_COUNT = 5;
+    bool mCalibrating { false };
+    S32 mCalibrationSamplesCollected { 0 };
+    std::vector<std::vector<S16>> mCalibrationSamples;  // per physical axis, up to CALIBRATION_SAMPLE_COUNT raw samples
 
     // Data Output tab (live, read-only view of the last outgoing GameControlInput)
     LLPanel* mTabDataOutput { nullptr };

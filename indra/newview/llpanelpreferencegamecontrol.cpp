@@ -735,11 +735,15 @@ bool LLPanelPreferenceGameControl::postBuild()
         {
             mStateSelectedDeviceGUID = value.asString();
             clearSelectionState();
+            mCalibrating = false;  // switching devices invalidates any in-progress calibration
             populateAxisStateOptionCells();  // refresh invert/offset/dead-zone for the new device
         });
 
     mRestoreDeviceOptionsDefaults = getChild<LLButton>("restore_device_options_defaults");
     mRestoreDeviceOptionsDefaults->setCommitCallback([this](LLUICtrl*, const LLSD&) { onResetDeviceOptionsToDefaults(); });
+
+    mAutoCalibrate = getChild<LLButton>("auto_calibrate");
+    mAutoCalibrate->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAutoCalibrate(); });
 
     mAxisState = getChild<LLScrollListCtrl>("axis_state");
     // The axis-state table is now editable: its Invert/Offset/Dead Zone columns
@@ -870,6 +874,10 @@ void LLPanelPreferenceGameControl::draw()
     if (mTabDeviceState && mTabDeviceState->getVisible())
     {
         populateDeviceStateValues();
+        if (mCalibrating)
+        {
+            updateAutoCalibration();
+        }
     }
     LLPanelPreference::draw();
 }
@@ -1748,6 +1756,98 @@ void LLPanelPreferenceGameControl::onResetDeviceOptionsToDefaults()
     populateAxisStateOptionCells();
 
     LLGameControl::applySettingsFromLLSD(getSettingsAsLLSD());
+}
+
+// Starts a new auto-calibration pass for the state tab's selected device: clears any
+// previously-collected samples and lets updateAutoCalibration() (called from draw())
+// gather CALIBRATION_SAMPLE_COUNT raw-axis readings, one per frame while the Device
+// Options tab is visible.
+void LLPanelPreferenceGameControl::onAutoCalibrate()
+{
+    clearSelectionState();
+    if (mStateSelectedDeviceGUID.empty())
+    {
+        return;
+    }
+
+    mCalibrationSamples.assign(LLGameControl::NUM_AXES, {});
+    mCalibrationSamplesCollected = 0;
+    mCalibrating = true;
+}
+
+// Advances an in-progress auto-calibration pass by one frame: records the state
+// device's current raw axis readings, and once CALIBRATION_SAMPLE_COUNT frames have
+// been sampled, derives Offset/Dead Zone for every axis whose readings never changed
+// across all samples (i.e. the axis wasn't being manipulated, so its readings are its
+// natural "zero input" state).  Axes that changed are left untouched.
+void LLPanelPreferenceGameControl::updateAutoCalibration()
+{
+    // Locate the live state for the selected device by GUID (same lookup as
+    // populateDeviceStateValues()).
+    const LLGameControl::State* state = nullptr;
+    for (const LLGameControl::Device& device : LLGameControl::getDevices())
+    {
+        if (device.getGUID() == mStateSelectedDeviceGUID)
+        {
+            state = &device.getState();
+            break;
+        }
+    }
+    if (!state)
+    {
+        mCalibrating = false;
+        return;
+    }
+
+    for (size_t i = 0; i < mCalibrationSamples.size() && i < state->mPhysicalRawAxes.size(); ++i)
+    {
+        mCalibrationSamples[i].push_back(state->mPhysicalRawAxes[i]);
+    }
+    ++mCalibrationSamplesCollected;
+    if (mCalibrationSamplesCollected < CALIBRATION_SAMPLE_COUNT)
+    {
+        return;
+    }
+
+    mCalibrating = false;
+
+    auto options_it = mDeviceOptions.find(mStateSelectedDeviceGUID);
+    if (options_it != mDeviceOptions.end())
+    {
+        std::vector<LLGameControl::Options::AxisOptions>& all_axis_options = options_it->second.options.getAxisOptions();
+        for (size_t i = 0; i < mCalibrationSamples.size() && i < all_axis_options.size(); ++i)
+        {
+            const std::vector<S16>& samples = mCalibrationSamples[i];
+            bool steady = !samples.empty();
+            for (size_t s = 1; s < samples.size() && steady; ++s)
+            {
+                steady = (samples[s] == samples[0]);
+            }
+            if (!steady)
+            {
+                // Axis moved during the measurement window: the user is manipulating
+                // it, so leave its Offset/Dead Zone untouched.
+                continue;
+            }
+
+            S32 offset = std::clamp<S32>(-(S32)samples[0],
+                -LLGameControl::MAX_AXIS_OFFSET, LLGameControl::MAX_AXIS_OFFSET);
+            S32 dead_zone = (S32)(2.1 * (double)offset);
+            dead_zone = std::clamp<S32>(dead_zone < 0 ? -dead_zone : dead_zone, 0, LLGameControl::MAX_AXIS_DEAD_ZONE);
+
+            LLGameControl::Options::AxisOptions& axis_options = all_axis_options[i];
+            axis_options.mOffset = (S16)offset;
+            axis_options.mDeadZone = (U16)dead_zone;
+        }
+        LLGameControl::setDeviceOptions(mStateSelectedDeviceGUID, options_it->second.options);
+
+        populateAxisStateOptionCells();
+
+        LLGameControl::applySettingsFromLLSD(getSettingsAsLLSD());
+    }
+
+    mCalibrationSamples.clear();
+    mCalibrationSamplesCollected = 0;
 }
 
 // Captures current settings values into mOrigSettings for later restoration upon cancel().
