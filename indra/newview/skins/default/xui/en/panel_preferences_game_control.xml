@@ -289,11 +289,21 @@
                 width="140"
                 label="Restore Defaults"
                 tool_tip="Restores the default Offset, Invert, and Dead Zone for every axis of the selected device."/>
+            <button
+                name="auto_calibrate"
+                layout="topleft"
+                follows="top|right"
+                top="35"
+                right="-8"
+                height="23"
+                width="140"
+                label="Auto calibrate"
+                tool_tip="Samples the selected device's raw axes over 5 frames; any axis that doesn't move is assumed to be at rest, and its Offset and Dead Zone are set from that reading."/>
             <panel
                 name="device_state_settings"
                 layout="topleft"
                 follows="all"
-                top="38"
+                top="63"
                 left="1"
                 right="-1"
                 bottom="-2">

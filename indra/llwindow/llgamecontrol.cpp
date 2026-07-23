@@ -913,7 +913,7 @@ std::string LLGameControl::Options::AxisOptions::saveToString() const
     {
         options.push_back("invert:1");
     }
-    if (mDeadZone)
+    if (mDeadZone != DEFAULT_DEAD_ZONE)
     {
         options.push_back(llformat("dead_zone:%u", mDeadZone));
     }
