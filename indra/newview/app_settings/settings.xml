@@ -16173,7 +16173,7 @@
     <key>CEFRemoteDebuggingPort</key>
     <map>
       <key>Comment</key>
-      <string>Enable CEF remote debugging on the specified port ( set 0 to disable)</string>
+      <string>Enable CEF remote debugging on the specified base port (set 0 to disable). Each new SLPlugin gets base+N.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
