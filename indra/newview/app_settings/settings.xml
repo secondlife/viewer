@@ -16170,6 +16170,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CEFRemoteDebuggingPort</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable CEF remote debugging on the specified port ( set 0 to disable)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>360CaptureJPEGEncodeQuality</key>
   <map>
     <key>Comment</key>

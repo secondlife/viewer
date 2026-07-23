@@ -974,6 +974,10 @@ void LLPluginClassMedia::setUserDataPath(const std::string &user_data_path_cache
 
     bool cef_verbose_log = gSavedSettings.getBOOL("CefVerboseLog");
     message.setValueBoolean("cef_verbose_log", cef_verbose_log);
+
+    U32 cef_remote_debugging_port = gSavedSettings.getU32("CEFRemoteDebuggingPort");
+    message.setValueU32("cef_remote_debugging_port", cef_remote_debugging_port);
+    mCefRemoteDebuggingPort = cef_remote_debugging_port;
     sendMessage(message);
 }
 
