@@ -63,6 +63,87 @@
 #include <sys/wait.h>
 #endif
 
+#if LL_WINDOWS
+#include <windows.h>
+#include "llwin32headers.h"
+#include <mutex>
+
+namespace {
+    // Global job object that will kill all child processes when parent terminates
+    HANDLE g_jobObject = NULL;
+    bool g_jobObjectInitialized = false;
+    std::mutex g_jobObjectMutex;
+
+    void InitializeJobObject()
+    {
+        if (g_jobObjectInitialized)
+            return;
+        std::lock_guard<std::mutex> lock(g_jobObjectMutex);
+        if (g_jobObjectInitialized)
+            return;
+
+        g_jobObjectInitialized = true;
+
+        // Create a job object
+        g_jobObject = ::CreateJobObjectW(NULL, NULL);
+        if (g_jobObject == NULL)
+        {
+            LL_WARNS("LLProcess") << "Failed to create job object: " << ::GetLastError() << LL_ENDL;
+            return;
+        }
+
+        // Configure the job to kill all processes when the last handle closes
+        // (i.e., when the parent process exits)
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = { 0 };
+        jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+
+        // Windows 8+ supports nested jobs (for VS studio)
+        jeli.BasicLimitInformation.LimitFlags |= JOB_OBJECT_LIMIT_BREAKAWAY_OK;
+
+        if (!::SetInformationJobObject(g_jobObject, JobObjectExtendedLimitInformation,
+            &jeli, sizeof(jeli)))
+        {
+            LL_WARNS("LLProcess") << "Failed to set job object limits: " << ::GetLastError() << LL_ENDL;
+            ::CloseHandle(g_jobObject);
+            g_jobObject = NULL;
+            return;
+        }
+
+        LL_INFOS("LLProcess") << "Job object created - child processes will terminate with parent" << LL_ENDL;
+    }
+
+    void AssignProcessToJob(HANDLE hProcess, const std::string& desc)
+    {
+        if (!g_jobObjectInitialized)
+            InitializeJobObject();
+
+        if (g_jobObject != NULL)
+        {
+            if (!::AssignProcessToJobObject(g_jobObject, hProcess))
+            {
+                DWORD error = ::GetLastError();
+                // ERROR_ACCESS_DENIED (5) means the process is already in a job
+                // This can happen if the parent viewer is itself in a job
+                if (error == ERROR_ACCESS_DENIED)
+                {
+                    LL_WARNS("LLProcess") << "Autokill requested but process " << desc
+                        << " is already in a job object (ERROR_ACCESS_DENIED)"
+                        << LL_ENDL;
+                }
+                else
+                {
+                    LL_WARNS("LLProcess") << "Failed to assign process " << desc
+                        << " to job object: error " << error << LL_ENDL;
+                }
+            }
+            else
+            {
+                LL_DEBUGS("LLProcess") << "Process " << desc << " assigned to job object" << LL_ENDL;
+            }
+        }
+    }
+}
+#endif
 
 namespace bp = boost::process::v2;
 namespace asio = boost::asio;
@@ -653,7 +734,16 @@ void LLProcess::launch(const LLSDOrParams& params)
                 << ": " << ex.what()));
         }
 
-#if !LL_WINDOWS
+#if LL_WINDOWS
+        // Add the process to the job object so it terminates when parent dies.
+        // This is done for all processes with autokill=true (the default).
+        // Job objects are the Windows-recommended way to ensure child processes
+        // don't become orphaned if the parent crashes or is killed.
+        if (mAutokill && mChild)
+        {
+            AssignProcessToJob(mChild->native_handle(), mDesc);
+        }
+#else
         // boost::process v2 may install a SIGCHLD handler via boost::asio
         // without SA_RESTART when mIOContext is passed to bp::process.
         // Without SA_RESTART, blocking waitpid() calls elsewhere in the
