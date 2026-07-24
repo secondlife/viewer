@@ -2633,6 +2633,12 @@ std::vector<std::string> LLWindowMacOSX::getDynamicFallbackFontList()
     return std::vector<std::string>();
 }
 
+LLFontFallbackMatch LLWindowMacOSX::findFallbackFontForChar(llwchar wch)
+{
+    // Not implemented on macOS; would use CoreText (CTFontCreateForString).
+    return LLFontFallbackMatch();
+}
+
 // static
 MASK LLWindowMacOSX::modifiersToMask(S16 modifiers)
 {

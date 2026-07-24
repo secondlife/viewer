@@ -157,6 +157,7 @@ public:
     void setTitle(const std::string title) override;
 
     static std::vector<std::string> getDynamicFallbackFontList();
+    static LLFontFallbackMatch findFallbackFontForChar(llwchar wch);
 
     void *createSharedContext() override;
     void makeContextCurrent(void *context) override;
