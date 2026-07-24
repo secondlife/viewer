@@ -5103,6 +5103,35 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
         gAgentCamera.changeCameraToThirdPerson();
     }
 
+    // Simulated mouse buttons (see llgamecontrol.h's AvatarMouseButton) are
+    // level-triggered: actions.mMouseButtonBits reflects which buttons are
+    // currently held, so the press/release edges are found here by diffing
+    // against last frame's value. Each edge is dispatched through
+    // LLViewerWindow exactly like a real mouse click, at the current cursor
+    // position, so it drives hover/pick/pie-menu/tool-manager the same way a
+    // hardware click would (e.g. touching/grabbing objects, walk-to-clicked,
+    // pie menu on right click).
+    U32 mouse_pressed_edges  = actions.mMouseButtonBits & ~mPrevMouseButtonBits;
+    U32 mouse_released_edges = ~actions.mMouseButtonBits & mPrevMouseButtonBits;
+    mPrevMouseButtonBits = actions.mMouseButtonBits;
+
+    if (mouse_pressed_edges & LLGameControl::AVATAR_MOUSE_BUTTON_LEFT)
+    {
+        gViewerWindow->handleMouseDown(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
+    }
+    if (mouse_released_edges & LLGameControl::AVATAR_MOUSE_BUTTON_LEFT)
+    {
+        gViewerWindow->handleMouseUp(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
+    }
+    if (mouse_pressed_edges & LLGameControl::AVATAR_MOUSE_BUTTON_RIGHT)
+    {
+        gViewerWindow->handleRightMouseDown(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
+    }
+    if (mouse_released_edges & LLGameControl::AVATAR_MOUSE_BUTTON_RIGHT)
+    {
+        gViewerWindow->handleRightMouseUp(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
+    }
+
     // actions.mIsRunning is the final walk/run decision computed by
     // LLGameControllerManager::computeAgentActions() (button toggle OR analog
     // axis deflection); just mirror it onto the agent's running state.

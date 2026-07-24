@@ -101,9 +101,10 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="action" label="Action" relative_width="0.40"/>
-                        <scroll_list.columns name="input" label="Input" relative_width="0.20"/>
-                        <scroll_list.columns name="input_description" label="Axis" relative_width="0.40"/>
+                        <scroll_list.columns name="action" label="Action" relative_width="0.35"/>
+                        <scroll_list.columns name="input" label="Input" relative_width="0.15"/>
+                        <scroll_list.columns name="input_description" label="Axis" relative_width="0.35"/>
+                        <scroll_list.columns name="invert" label="Invert" type="checkbox" relative_width="0.15"/>
                     </scroll_list>
                 </panel>
                 <panel
@@ -746,12 +747,6 @@
         <combo_box.item
             label="Toggle run"
             value="Toggle run"/>
-        <combo_box.item
-            label="Mouse left"
-            value="Mouse click left"/>
-        <combo_box.item
-            label="Mouse right"
-            value="Mouse click right"/>
         <combo_box.item
             label="Advance ↑"
             value="Advance forward"/>

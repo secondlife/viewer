@@ -61,9 +61,11 @@
 //
 // Note: the analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD
 // whereas those directions are actually POSITIVE in SL's local right-handed
-// reference frame.  This is why we implicitly negate those axes the moment
-// they are extracted from SDL, before being used anywhere.  See the
-// implementation in LLGameControllerManager::onAxis().
+// reference frame.  Rather than hard-coding a sign flip in the raw-axis
+// extraction (LLGameControllerManager::onAxis()), this is handled by the
+// per-mode, per-action Invert flag (see getAxisInvert/setAxisInvert): the
+// built-in default mappings set Invert on whichever actions need it to feel
+// correct by default (e.g. "Strafe left/right", "Truck left/right").
 
 // Interface to get controller binding from assigned command
 class LLGameControllerBindingToStringHandler
@@ -452,15 +454,31 @@ public:
         FLYCAM_ACTION_RESET = 1u << 0,
     };
 
+    // Simulated mouse buttons bound to a button, unlike AvatarMiscAction these are
+    // level-triggered (asserted every frame the bound button is held, mirroring a
+    // real mouse button) rather than one-shot, so holding the bound button holds
+    // the mouse button down (e.g. for click-drag).  See avatarMouseButtonBridge()
+    // in llgamecontrol.cpp for the button-label -> bit mapping, and
+    // AgentActions::mMouseButtonBits for the resulting per-frame state.
+    enum AvatarMouseButton : U32
+    {
+        AVATAR_MOUSE_BUTTON_LEFT  = 1u << 0,
+        AVATAR_MOUSE_BUTTON_RIGHT = 1u << 1,
+    };
+
     // Result of translating controller/keyboard State into agent actions:
     // mControlFlags holds the AGENT_CONTROL_* bits (OR-combinable),
-    // mMiscActionBits holds any AvatarMiscAction bits that edge-triggered
-    // this frame, and mIsRunning is the final walk/run decision -- true when
-    // either the "Toggle run" button is currently engaged or the movement axes
-    // are pushed hard enough (see LLGameControllerManager::computeAgentActions()).
+    // mMiscActionBits holds any AvatarMiscAction bits that edge-triggered this
+    // frame, mMouseButtonBits holds the AvatarMouseButton bits currently held
+    // (level-triggered; the caller must diff against the previous frame's value
+    // itself to detect press/release edges), and mIsRunning is the final
+    // walk/run decision -- true when either the "Toggle run" button is currently
+    // engaged or the movement axes are pushed hard enough (see
+    // LLGameControllerManager::computeAgentActions()).
     struct AgentActions
     {
         U32 mMiscActionBits { 0 };
+        U32 mMouseButtonBits { 0 };
         U32 mControlFlags { 0 };
         bool mIsRunning { false };
     };
@@ -519,6 +537,13 @@ public:
         const LLSD& mapping);
     static void updateModeMapping(const std::string& mode, const std::string& kind,
         const std::string& action, const std::string& input);
+
+    // Per-mode, per-axis-action Invert flag (axes only; buttons have no polarity).
+    // When set, the action's mapped axis value is negated before being applied.
+    // Defaults to false when absent, except for the built-in defaults' invert-by-
+    // default axis actions (see buildDefaultModeMappings()).
+    static bool getAxisInvert(const std::string& mode, const std::string& action);
+    static void setAxisInvert(const std::string& mode, const std::string& action, bool invert);
 
     // Per-mode enable flag: when false, game-control input is not converted to the
     // mode's actions and its mappings are treated as locked.  Defaults to true when
