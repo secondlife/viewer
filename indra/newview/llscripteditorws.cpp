@@ -157,9 +157,6 @@ namespace
         return std::string(s);
     }
 
-    LLCachedControl<bool>* OPT_ENABLESCRIPTEDITORWS(nullptr);
-    LLCachedControl<bool>* OPT_TIGHTINTEGRATION(nullptr);
-
 }
 
 class LLPublishedPrimListener : public LLVOInventoryListener
@@ -223,20 +220,14 @@ LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::getServer()
 
 bool LLScriptEditorWSServer::isEnabled()
 {
-    if (!OPT_ENABLESCRIPTEDITORWS)
-    {
-        OPT_ENABLESCRIPTEDITORWS = new LLCachedControl<bool>(gSavedSettings, "ExternalWebsocketSyncEnable", false);
-    }
-    return *OPT_ENABLESCRIPTEDITORWS;
+    static LLCachedControl<bool> OPT_ENABLESCRIPTEDITORWS(gSavedSettings, "ExternalWebsocketSyncEnable", false);
+    return OPT_ENABLESCRIPTEDITORWS;
 }
 
 bool LLScriptEditorWSServer::isTightIntegration()
 {
-    if (!OPT_TIGHTINTEGRATION)
-    {
-        OPT_TIGHTINTEGRATION = new LLCachedControl<bool>(gSavedSettings, "ExternalWebsocketSyncTightIntegration", false);
-    }
-    return *OPT_TIGHTINTEGRATION;
+    static LLCachedControl<bool> OPT_TIGHTINTEGRATION(gSavedSettings, "ExternalWebsocketSyncTightIntegration", false);
+    return OPT_TIGHTINTEGRATION;
 }
 
 LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::ensureServerRunning()
