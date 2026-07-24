@@ -354,6 +354,4 @@ private:
     static constexpr F32 CLEANUP_INTERVAL = 60.0f; // seconds
     static constexpr F32 CONNECTION_TIMEOUT = 300.0f; // 5 minutes
 
-    LLCachedControl<bool> *mEnableScriptEditorWS;
-    LLCachedControl<bool> *mTightIntegration;
 };
