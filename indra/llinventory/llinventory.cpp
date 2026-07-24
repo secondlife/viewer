@@ -63,6 +63,7 @@ static const std::string INV_CREATION_DATE_LABEL("created_at");
 static const std::string INV_TOGGLED_LABEL("toggled");
 static const std::string INV_SCRIPT_LABEL("script");
 static const std::string INV_RUNTIME_LABEL("runtime");
+static const std::string INV_METADATA_LABEL("metadata");
 
 // key used by agent-inventory-service
 static const std::string INV_ASSET_TYPE_LABEL_WS("type_default");
@@ -1110,6 +1111,35 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
                 // Clear any stale runtime when a script block is present
                 // but no explicit runtime value is provided.
                 mRuntime.clear();
+            }
+            continue;
+        }
+
+        if (i->first == INV_METADATA_LABEL)
+        {
+            // Server (non-AIS) exports thumbnail/favorite/script nested under
+            // a "metadata" wrapper; mirror the legacy-stream parser behavior.
+            const LLSD& metadata = i->second;
+            if (metadata.has(INV_THUMBNAIL_LABEL))
+            {
+                const LLSD& thumbnail = metadata[INV_THUMBNAIL_LABEL];
+                if (thumbnail.has(INV_ASSET_ID_LABEL))
+                {
+                    mThumbnailUUID = thumbnail[INV_ASSET_ID_LABEL].asUUID();
+                }
+            }
+            if (metadata.has(INV_FAVORITE_LABEL))
+            {
+                const LLSD& favorite = metadata[INV_FAVORITE_LABEL];
+                if (favorite.has(INV_TOGGLED_LABEL))
+                {
+                    mFavorite = favorite[INV_TOGGLED_LABEL].asBoolean();
+                }
+            }
+            if (metadata.has(INV_SCRIPT_LABEL)
+                && metadata[INV_SCRIPT_LABEL].has(INV_RUNTIME_LABEL))
+            {
+                mRuntime = metadata[INV_SCRIPT_LABEL][INV_RUNTIME_LABEL].asString();
             }
             continue;
         }

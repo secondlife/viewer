@@ -156,11 +156,8 @@ namespace
         }
         return std::string(s);
     }
+
 }
-
-LLCachedControl<bool> LLScriptEditorWSServer::sEnableScriptEditorWS(gSavedSettings, "ExternalWebsocketSyncEnable", false);
-LLCachedControl<bool> LLScriptEditorWSServer::sTightIntegration(gSavedSettings, "ExternalEditorTightIntegration", false);
-
 
 class LLPublishedPrimListener : public LLVOInventoryListener
 {
@@ -203,8 +200,8 @@ private:
 };
 
 //========================================================================
-LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port, bool local_only)
-    : LLJSONRPCServer(name, port, local_only)
+LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port, bool local_only):
+    LLJSONRPCServer(name, port, local_only)
 {
     LL_INFOS("ScriptEditorWS") << "Created JSON-RPC script editor server: " << name
                                << " on port " << port << LL_ENDL;
@@ -219,6 +216,18 @@ LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::getServer()
     LLWebsocketMgr&               wsmgr  = LLWebsocketMgr::instance();
     return std::static_pointer_cast<LLScriptEditorWSServer>(
             wsmgr.findServerByName(LLScriptEditorWSServer::DEFAULT_SERVER_NAME));
+}
+
+bool LLScriptEditorWSServer::isEnabled()
+{
+    static LLCachedControl<bool> OPT_ENABLESCRIPTEDITORWS(gSavedSettings, "ExternalWebsocketSyncEnable", false);
+    return OPT_ENABLESCRIPTEDITORWS;
+}
+
+bool LLScriptEditorWSServer::isTightIntegration()
+{
+    static LLCachedControl<bool> OPT_TIGHTINTEGRATION(gSavedSettings, "ExternalWebsocketSyncTightIntegration", false);
+    return OPT_TIGHTINTEGRATION;
 }
 
 LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::ensureServerRunning()
