@@ -72,8 +72,9 @@ namespace
 
     // Kinds of action mapping, used both as the LLGameControl mapping key and as
     // the block discriminator stored in each action-table row's value.
-    const std::string KIND_AXES("Axes");
-    const std::string KIND_BUTTONS("Buttons");
+    const std::string MODE_INPUT_TYPE_AXES("Axes");
+    const std::string MODE_INPUT_TYPE_BUTTONS("Buttons");
+    const std::string MODE_INPUT_TYPE_AXES_INVERT("AxesInvert");
 
     LLSD blankIfNone(const LLSD& label)
     {
@@ -225,6 +226,25 @@ void LLPanelPreferenceGameControl::onGridSelect(LLUICtrl* ctrl)
 
     if (LLScrollListItem* item = table->getFirstSelected())
     {
+        if (table == mActionMappingsAxes)
+        {
+            // Always sync the Invert checkbox -- clicking it selects the row (firing
+            // this same commit callback) but doesn't itself persist the new value.
+            // Only meaningful when the row has a real axis mapped (the checkbox is
+            // disabled and inert otherwise, matching populateActionMappings()).
+            std::string mode = currentEditMode();
+            LLSD row_value = item->getValue();
+            std::string action = row_value["action"].asString();
+            LLSD mapping = LLGameControl::getModeMapping(mode, MODE_INPUT_TYPE_AXES);
+            std::string input_value = mapping.has(action) ? mapping[action].asString() : LLStringUtil::null;
+            std::string none_value = mAxisInputSelector->getAllData().back()->getValue().asString();
+            if (!input_value.empty() && input_value != none_value)
+            {
+                S32 invert_col = mActionMappingsAxes->getColumn("invert")->mIndex;
+                LLGameControl::setAxisInvert(mode, action, item->getColumn(invert_col)->getValue().asBoolean());
+            }
+        }
+
         // Try to show combobox for editing; if not applicable, deselect
         if (initCombobox(item, table))
             return;
@@ -235,7 +255,7 @@ void LLPanelPreferenceGameControl::onGridSelect(LLUICtrl* ctrl)
 
 // Initializes and displays the appropriate combobox over the selected cell.
 // Chooses the combobox and editable column from the table and (for the Actions
-// table) the row's block kind.  Returns true if a combobox was shown, false if the
+// table) the row's block input_type.  Returns true if a combobox was shown, false if the
 // click wasn't on an editable cell.
 bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScrollListCtrl* grid)
 {
@@ -334,7 +354,7 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
         // Use the action's stored mapping value directly, so pre-selection is
         // correct even when the icon cell is blank (input has no glyph).
         LLSD row_value = item->getValue();
-        LLSD mapping = LLGameControl::getModeMapping(currentEditMode(), row_value["kind"].asString());
+        LLSD mapping = LLGameControl::getModeMapping(currentEditMode(), row_value["input_type"].asString());
         std::string action = row_value["action"].asString();
         value = mapping.has(action) ? mapping[action].asString() : LLStringUtil::null;
     }
@@ -402,21 +422,21 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
         // The edited row identifies the action + block; the combobox supplies the input.
         LLSD row_value = sSelectedItem->getValue();
         std::string mode = currentEditMode();
-        std::string kind = row_value["kind"].asString();
+        std::string input_type = row_value["input_type"].asString();
         std::string action = row_value["action"].asString();
-        const LLComboBox* input_selector = (kind == KIND_AXES) ? mAxisInputSelector : mButtonInputSelector;
+        const LLComboBox* input_selector = (input_type == MODE_INPUT_TYPE_AXES) ? mAxisInputSelector : mButtonInputSelector;
         std::string input_value = combobox->getValue().asString();
         std::string input_label = combobox->getSelectedItemLabel();
 
         if (input_label != NONE_LABEL)
         {
             // An input can drive at most one action within a block: clear it elsewhere.
-            removeDuplicateActionInput(mode, kind, action, input_value, input_selector);
+            removeDuplicateActionInput(mode, input_type, action, input_value, input_selector);
         }
 
         // Store the mapping directly in LLGameControl's live GameControl settings.
         // gSavedSettings is updated later via saveSettings() when the user clicks OK.
-        LLGameControl::updateModeMapping(mode, kind, action, input_value);
+        LLGameControl::updateModeMapping(mode, input_type, action, input_value);
         sSelectedCell->setValue(blankIfNone(input_label));
     }
     else if (sSelectedGrid == mAxisChannels)
@@ -485,7 +505,7 @@ bool LLPanelPreferenceGameControl::isWaitingForInputChannel()
 
 // Static method called in the mainloop when an Action Mappings input selector is open.
 // Refreshes the canonical controller state, and if the user is pressing a button or
-// tilting an axis that matches the kind of selector open (button vs. axis), assigns
+// tilting an axis that matches the input_type of selector open (button vs. axis), assigns
 // it to the selected cell as if the user had picked it from the dropdown.
 void LLPanelPreferenceGameControl::applyGameControlInput()
 {
@@ -1037,7 +1057,7 @@ LLComboBox* LLPanelPreferenceGameControl::actionSelectorForMode(bool axis, const
 }
 
 // Rebuilds the two Actions tables for the current mode: axis actions in the top
-// table, button actions in the bottom table.  Each row stores {kind, action} as its
+// table, button actions in the bottom table.  Each row stores {input_type, action} as its
 // value and shows the action label + its currently-mapped input.
 void LLPanelPreferenceGameControl::populateActionMappings()
 {
@@ -1046,10 +1066,15 @@ void LLPanelPreferenceGameControl::populateActionMappings()
 
     std::string mode = currentEditMode();
 
-    auto addBlock = [&](LLScrollListCtrl* grid, const std::string& kind,
+    auto addBlock = [&](LLScrollListCtrl* grid, const std::string& input_type,
         const LLComboBox* action_selector, const LLComboBox* input_selector)
     {
-        LLSD mapping = LLGameControl::getModeMapping(mode, kind);
+        LLSD mapping = LLGameControl::getModeMapping(mode, input_type);
+        // Axes-only Invert column: -1 for the Buttons block (no such column there).
+        // The selector's last item is the "None" value (e.g. AXIS_NONE), used below
+        // to tell an unmapped row from a mapped one.
+        S32 invert_col = (input_type == MODE_INPUT_TYPE_AXES) ? grid->getColumn("invert")->mIndex : -1;
+        std::string none_value = input_selector->getAllData().back()->getValue().asString();
 
         for (LLScrollListItem* item : action_selector->getAllData())
         {
@@ -1066,19 +1091,25 @@ void LLPanelPreferenceGameControl::populateActionMappings()
             for (S32 c = 0; c < grid->getNumColumns(); ++c)
             {
                 LLScrollListCell::Params cell_params;
-                cell_params.column = grid->getColumn(c)->mName;
+                const std::string& col_name = grid->getColumn(c)->mName;
+                cell_params.column = col_name;
                 // The icon column (1) renders the controller glyph in PromptFont
                 // when this input has one; the action (0) and description (2)
                 // columns match the "Controls" preferences panel font.
                 cell_params.font = (c == 1 && !glyph.empty())
                     ? promptFontForCell()
                     : LLFontGL::getFontSansSerif();
+                if (c == invert_col)
+                {
+                    cell_params.type = "checkbox";
+                    cell_params.font_halign = "right"; // right-align the checkbox within the cell
+                }
                 row_params.columns.add(cell_params);
             }
 
-            // Row value carries the block kind and action key (used on commit/lookup).
+            // Row value carries the block input_type and action key (used on commit/lookup).
             LLSD row_value;
-            row_value["kind"] = kind;
+            row_value["input_type"] = input_type;
             row_value["action"] = action;
             row_params.value = row_value;
 
@@ -1088,11 +1119,20 @@ void LLPanelPreferenceGameControl::populateActionMappings()
             // they always refer to the same controller input.
             row->getColumn(1)->setValue(glyph.empty() ? LLSD() : LLSD(glyph));
             row->getColumn(2)->setValue(blankIfNone(inputLabel(input_selector, input_value)));
+
+            if (invert_col >= 0)
+            {
+                // Disabled (and left at its last value) whenever no axis is mapped,
+                // since there is nothing to invert.
+                bool mapped = !input_value.empty() && input_value != none_value;
+                row->getColumn(invert_col)->setValue(LLGameControl::getAxisInvert(mode, action));
+                row->getColumn(invert_col)->setEnabled(mapped);
+            }
         }
     };
 
-    addBlock(mActionMappingsAxes, KIND_AXES, actionSelectorForMode(true, mode), mAxisInputSelector);
-    addBlock(mActionMappingsButtons, KIND_BUTTONS, actionSelectorForMode(false, mode), mButtonInputSelector);
+    addBlock(mActionMappingsAxes, MODE_INPUT_TYPE_AXES, actionSelectorForMode(true, mode), mAxisInputSelector);
+    addBlock(mActionMappingsButtons, MODE_INPUT_TYPE_BUTTONS, actionSelectorForMode(false, mode), mButtonInputSelector);
 }
 
 // Handles a change in the edit-mode selector: rebuild the action table.
@@ -1128,17 +1168,17 @@ void LLPanelPreferenceGameControl::updateActionModeEnabledUI()
 
 // Enforces that an input drives at most one action within a mode's block.  When a
 // new (non-None) input is assigned to an action, any *other* action in the same
-// mode+kind mapping that currently uses that same input is reset to "None"
+// mode+input_type mapping that currently uses that same input is reset to "None"
 // (its Input cell blanked and its mapping set to the selector's None value).
 void LLPanelPreferenceGameControl::removeDuplicateActionInput(const std::string& mode,
-    const std::string& kind, const std::string& keep_action, const std::string& input_value,
+    const std::string& input_type, const std::string& keep_action, const std::string& input_value,
     const LLComboBox* input_selector)
 {
     // The selector's last item is the "None" value (e.g. AXIS_NONE / BUTTON_NONE).
     std::string none_value = input_selector->getAllData().back()->getValue().asString();
-    LLSD mapping = LLGameControl::getModeMapping(mode, kind);
+    LLSD mapping = LLGameControl::getModeMapping(mode, input_type);
 
-    LLScrollListCtrl* grid = (kind == KIND_AXES) ? mActionMappingsAxes : mActionMappingsButtons;
+    LLScrollListCtrl* grid = (input_type == MODE_INPUT_TYPE_AXES) ? mActionMappingsAxes : mActionMappingsButtons;
     for (LLScrollListItem* row : grid->getAllData())
     {
         LLSD row_value = row->getValue();
@@ -1151,7 +1191,7 @@ void LLPanelPreferenceGameControl::removeDuplicateActionInput(const std::string&
 
         if (mapping.has(action) && mapping[action].asString() == input_value)
         {
-            LLGameControl::updateModeMapping(mode, kind, action, none_value);
+            LLGameControl::updateModeMapping(mode, input_type, action, none_value);
             row->getColumn(1)->setValue(LLSD());  // blank the Input cell
         }
     }
@@ -1709,8 +1749,9 @@ void LLPanelPreferenceGameControl::onResetActionsToDefaults()
 
     std::string mode = currentEditMode();
     LLSD defaults = LLGameControl::getDefaultModeMappings();
-    LLGameControl::setModeMapping(mode, KIND_AXES, defaults[mode][KIND_AXES]);
-    LLGameControl::setModeMapping(mode, KIND_BUTTONS, defaults[mode][KIND_BUTTONS]);
+    LLGameControl::setModeMapping(mode, MODE_INPUT_TYPE_AXES, defaults[mode][MODE_INPUT_TYPE_AXES]);
+    LLGameControl::setModeMapping(mode, MODE_INPUT_TYPE_BUTTONS, defaults[mode][MODE_INPUT_TYPE_BUTTONS]);
+    LLGameControl::setModeMapping(mode, MODE_INPUT_TYPE_AXES_INVERT, defaults[mode][MODE_INPUT_TYPE_AXES_INVERT]);
     populateActionMappings();
 
     // Push the pending UI state into LLGameControl's runtime so the effect is

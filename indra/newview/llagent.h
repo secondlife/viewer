@@ -534,6 +534,10 @@ private:
     U64 mLastFlycamUpdate { 0 };
     U32 mExternalActionFlags { 0 };
     U32 mGameControlButtonsFromKeys { 0 };
+    // Previous frame's LLGameControl::AgentActions::mMouseButtonBits, used by
+    // applyExternalActions() to find the press/release edges of the
+    // level-triggered simulated mouse buttons.
+    U32 mPrevMouseButtonBits { 0 };
     LLFlycam mFlycam;
     bool mToggleRun { true };
     bool mUsingFlycam { false };
