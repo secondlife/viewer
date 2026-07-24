@@ -431,14 +431,7 @@ public:
     // Edge-triggered ("pressed this frame") one-shot commands bound to a
     // button that don't correspond to an AGENT_CONTROL_* bit (e.g. they
     // toggle viewer-side state rather than a movement flag).  Each mode has
-    // its own bitmask of these, so bit values are only meaningful within
-    // their own mode: AvatarMiscAction values are carried in
-    // AgentActions::mMiscActionBits (Avatar/Captive), FlycamMiscAction
-    // values in the misc_actions_out bitmask of getFlycamInputs() (FlyCam).
-    // Each mode's button-bridge (avatarMiscButtonBridge()/
-    // flycamMiscButtonBridge() in llgamecontrol.cpp) maps a label to its bit;
-    // membership there -- not a shared "is this misc" test -- is what keeps
-    // these out of the mode's combinable/continuous bridge.
+    // its own bitmask of these.
     enum AvatarMiscAction : U32
     {
         AVATAR_ACTION_TOGGLE_FLY        = 1u << 0,
@@ -454,33 +447,25 @@ public:
         FLYCAM_ACTION_RESET = 1u << 0,
     };
 
-    // Simulated mouse buttons bound to a button, unlike AvatarMiscAction these are
-    // level-triggered (asserted every frame the bound button is held, mirroring a
-    // real mouse button) rather than one-shot, so holding the bound button holds
-    // the mouse button down (e.g. for click-drag).  See avatarMouseButtonBridge()
-    // in llgamecontrol.cpp for the button-label -> bit mapping, and
-    // AgentActions::mMouseButtonBits for the resulting per-frame state.
+    // Simulated mouse button actions (press-n-hold)
     enum AvatarMouseButton : U32
     {
         AVATAR_MOUSE_BUTTON_LEFT  = 1u << 0,
         AVATAR_MOUSE_BUTTON_RIGHT = 1u << 1,
     };
 
-    // Result of translating controller/keyboard State into agent actions:
-    // mControlFlags holds the AGENT_CONTROL_* bits (OR-combinable),
-    // mMiscActionBits holds any AvatarMiscAction bits that edge-triggered this
-    // frame, mMouseButtonBits holds the AvatarMouseButton bits currently held
-    // (level-triggered; the caller must diff against the previous frame's value
-    // itself to detect press/release edges), and mIsRunning is the final
-    // walk/run decision -- true when either the "Toggle run" button is currently
-    // engaged or the movement axes are pushed hard enough (see
-    // LLGameControllerManager::computeAgentActions()).
+    // Result of translating controller inputs into agent actions:
     struct AgentActions
     {
-        U32 mMiscActionBits { 0 };
-        U32 mMouseButtonBits { 0 };
-        U32 mControlFlags { 0 };
+        U32 mMiscActionBits { 0 };  // toggles
+        U32 mMouseButtonBits { 0 }; // press-n-holds
+        U32 mControlFlags { 0 };    // translation into AGENT_CONRTOL bits
         bool mIsRunning { false };
+
+        // Signed magnitudes ([-1, 1]) of the inputs that set YAW/PITCH bits
+        // in mControlFlags'. Used to modulate turn speeds.
+        F32 mYawAmplitude { 0.f };
+        F32 mPitchAmplitude { 0.f };
     };
 
     // Keyboard presses produce action_flags which can be translated into State

@@ -5226,15 +5226,17 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
     if (direction != 0)
     {
         F32 sign = (direction < 0 ? -1.0f : 1.0f);
-        // HACK: hard-code 3.0 seconds for YawRate measure.  It is simpler,
-        // and the missing variable yaw rate is unnoticeable.
-        moveYaw(sign * LLFloaterMove::getYawRate(3.0f));
+        // actions.mYawAmplitude is the analog stick deflection ([-1, 1]) that
+        // set this flag; use its magnitude to modulate turn speed instead of
+        // always snapping to full rate
+        moveYaw(sign * fabs(actions.mYawAmplitude));
     }
 
     {
-        F32 pitch = ((mExternalActionFlags & AGENT_CONTROL_PITCH_POS) > 0 ? 1.0f : 0.0f)
+        F32 pitch_sign = ((mExternalActionFlags & AGENT_CONTROL_PITCH_POS) > 0 ? 1.0f : 0.0f)
             - ((mExternalActionFlags & AGENT_CONTROL_PITCH_NEG) > 0 ? 1.0f : 0.0f);
-        movePitch(pitch);
+        // Same analog modulation as yaw above, via actions.mPitchAmplitude.
+        movePitch(pitch_sign * fabs(actions.mPitchAmplitude));
     }
 
     if (mExternalActionFlags & AGENT_CONTROL_STOP)

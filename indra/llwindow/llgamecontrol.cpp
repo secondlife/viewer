@@ -1867,18 +1867,12 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
 
     LLGameControl::AgentActions result;
 
-    // Axes: work from each canonical axis' signed deflection (positive half at
-    // axis*2 minus negative half at axis*2+1).  Using the deflection rather than a
-    // single half makes the Device Options per-axis Invert option work for triggers
-    // too: inverting there moves the magnitude into the other half and flips the
-    // sign.  A trigger half (HALF_NEGATIVE = left, HALF_POSITIVE = right) applies
-    // its side's polarity; a full axis (HALF_FULL) uses the deflection directly.
-    // binding.invert (the per-mode, per-action Invert flag) is then applied on top.
+    // step through the axis mappings and calculate the combined contribution to various
+    // action directions
     const auto& axis_bridge = avatarAxisBridge();
-    // Largest deflection seen on a ground-movement axis (Strafe/Advance) this frame,
-    // used below to drive the analog "is running" hysteresis.  Turning, looking, and
-    // flying don't affect ground running speed, so they're excluded.
     S32 movement_magnitude = 0;
+    S32 yaw_value = 0;
+    S32 pitch_value = 0;
     for (U8 axis = 0; axis < LLGameControl::NUM_AXES; ++axis)
     {
         const AxisActionBinding& binding = mAxisActionBindings[axis];
@@ -1891,7 +1885,16 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         {
             continue;
         }
+
+        // Axes: work from each canonical axis' signed deflection (positive half at
+        // axis*2 minus negative half at axis*2+1). Using the deflection rather than a
+        // single half makes the Device Options per-axis Invert option work for triggers
+        // too: inverting there moves the magnitude into the other half and flips the
+        // sign.  A trigger half (HALF_NEGATIVE = left, HALF_POSITIVE = right) applies
+        // its side's polarity; a full axis (HALF_FULL) uses the deflection directly.
+        // binding.invert (the per-mode, per-action Invert flag) is then applied on top.
         S32 deflection = (S32)g_innerState.mAxes[axis * 2] - (S32)g_innerState.mAxes[axis * 2 + 1];
+
         S32 value = binding.half == HALF_NEGATIVE ? -deflection : deflection;
         if (binding.invert)
         {
@@ -1907,7 +1910,17 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         }
         if (binding.label == "Strafe left/right" || binding.label == "Advance forward/back")
         {
+            // Largest deflection seen on a ground-movement axis (Strafe/Advance) this frame,
+            // drives the analog "is running" hysteresis.
             movement_magnitude = std::max(movement_magnitude, std::abs(value));
+        }
+        else if (binding.label == "Turn left/right" && std::abs(value) > std::abs(yaw_value))
+        {
+            yaw_value = value;
+        }
+        else if (binding.label == "Look up/down" && std::abs(value) > std::abs(pitch_value))
+        {
+            pitch_value = value;
         }
     }
 
@@ -1927,23 +1940,25 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         mIsAnalogRunning = false;
     }
 
-    // Buttons: each pressed button contributes its bound label's action.  Most
-    // labels (avatarButtonBridge()) are level-triggered (held == asserted),
+    // Each pressed button contributes its bound label's action.
+    // Most labels in avatarButtonBridge() are level-triggered (held == asserted),
     // matching how the movement bits work, and OR their AGENT_CONTROL_* bit
-    // into mControlFlags every frame they're held.  Simulated mouse buttons
-    // (avatarMouseButtonBridge()) are likewise level-triggered, OR'd into
-    // mMouseButtonBits every frame they're held, so a held bound button holds
-    // the mouse button down (e.g. for click-drag); LLAgent::applyExternalActions
-    // diffs mMouseButtonBits against its own previous-frame value to find the
-    // press/release edges. One-shot *commands* (avatarMiscButtonBridge(), plus
-    // "Sit down"/"Stand up") should instead fire once per physical press -- for
-    // those, only the not-pressed -> pressed edge counts.  Edge state is tracked
-    // per physical button via g_innerState.mPrevButtons (maintained every frame
-    // by accumulateInternalState()'s storePrevious(), which runs before this),
-    // not on the resulting bit, since the same held button can flip which of
-    // these labels it's bound to across a single frame boundary (sitting
-    // flips the active mode Avatar -> Captive); from the new bit's own
-    // history that would otherwise look like a fresh press.
+    // into mControlFlags every frame they're held.
+    //
+    // Simulated mouse buttons in avatarMouseButtonBridge() are likewise
+    // level-triggered, OR'd into mMouseButtonBits every frame they're held,
+    // so a held bound button holds the mouse button down (e.g. for click-drag)
+    // LLAgent::applyExternalActions diffs mMouseButtonBits against its own
+    // previous-frame value to find the press/release edges.
+    //
+    // One-shot *commands* (avatarMiscButtonBridge(), plus "Sit down"/"Stand up")
+    // should instead fire once per physical press -- for those, only the not-pressed
+    // -> pressed edge counts.  Edge state is tracked per physical button via
+    // g_innerState.mPrevButtons (maintained every frame by accumulateInternalState()'s
+    // storePrevious(), which runs before this), not on the resulting bit, since
+    // the same held button can flip which of these labels it's bound to across a
+    // single frame boundary (sitting flips the active mode Avatar -> Captive);
+    // from the new bit's own history that would otherwise look like a fresh press.
 
     const auto& button_bridge = avatarButtonBridge();
     const auto& mouse_button_bridge = avatarMouseButtonBridge();
@@ -1979,6 +1994,25 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         {
             // this action corresponds to AGENT_CONTROL_* and sets a bit in mControlFlags
             result.mControlFlags |= it->second;
+
+            // but we also want to compute contribution modulation so
+            // button input can be reasonably combined with axis input
+            if (label == "Turn left" && 32767 > std::abs(yaw_value))
+            {
+                yaw_value = 32767;
+            }
+            else if (label == "Turn right" && 32767 > std::abs(yaw_value))
+            {
+                yaw_value = -32767;
+            }
+            else if (label == "Look up" && 32767 > std::abs(pitch_value))
+            {
+                pitch_value = 32767;
+            }
+            else if (label == "Look down" && 32767 > std::abs(pitch_value))
+            {
+                pitch_value = -32767;
+            }
             continue;
         }
         auto bit = mouse_button_bridge.find(label);
@@ -1996,6 +2030,9 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     }
 
     result.mIsRunning = mIsToggleRunning || mIsAnalogRunning;
+
+    result.mYawAmplitude = std::clamp((F32)yaw_value / 32767.f, -1.f, 1.f);
+    result.mPitchAmplitude = std::clamp((F32)pitch_value / 32767.f, -1.f, 1.f);
 
     return result;
 }
