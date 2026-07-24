@@ -384,6 +384,7 @@ struct AxisActionBinding
 {
     std::string label;          // bound UI action label, empty when unbound
     S8          half { HALF_FULL };
+    bool        invert { false }; // per-mode, per-action Invert flag (see getAxisInvert)
 };
 
 // internal class for managing list of controllers and per-controller state
@@ -537,6 +538,9 @@ namespace
     const std::string GC_MODEMAPPINGS("ModeMappings");
     const std::string GC_AXES("Axes");
     const std::string GC_BUTTONS("Buttons");
+    // Per-mode axis-action -> Invert(bool) map, sibling of GC_AXES.  Buttons have no
+    // polarity so there is no button counterpart.
+    const std::string GC_AXES_INVERT("AxesInvert");
     // Per-mode flag gating whether game-control input is converted to that mode's
     // actions.  When false the mode's mappings are locked and no actions fire.
     const std::string GC_ENABLED("Enabled");
@@ -626,6 +630,12 @@ namespace
         avatar_buttons["Strafe left"]            = "BUTTON_DPAD_LEFT";
         avatar_buttons["Strafe right"]           = "BUTTON_DPAD_RIGHT";
 
+        // Default per-axis-action Invert flags
+        LLSD avatar_axes_invert;
+        avatar_axes_invert["Strafe left/right"] = true;
+        avatar_axes_invert["Advance forward/back"] = true;
+        avatar_axes_invert["Turn left/right"] = true;
+
         // Mouselook shares the avatar action set (movement/look/jump/etc. still
         // apply while the camera is in mouselook), but is initialized as its own
         // independent copy so its defaults can be tuned separately later.
@@ -643,12 +653,19 @@ namespace
         mouselook_buttons["Toggle run"]             = "BUTTON_LEFT_STICK";
         mouselook_buttons["Toggle speak"]           = "BUTTON_SELECT";
         mouselook_buttons["3rd Person camera"]      = "BUTTON_HOME";
+        mouselook_buttons["Mouse click left"]       = "BUTTON_LEFT_SHOULDER";
+        mouselook_buttons["Mouse click right"]      = "BUTTON_RIGHT_SHOULDER";
         mouselook_buttons["Toggle mouselook"]       = "BUTTON_START";
         mouselook_buttons["Toggle flycam"]          = "BUTTON_RIGHT_STICK";
         mouselook_buttons["Advance forward"]        = "BUTTON_DPAD_UP";
         mouselook_buttons["Advance back"]           = "BUTTON_DPAD_DOWN";
         mouselook_buttons["Strafe left"]            = "BUTTON_DPAD_LEFT";
         mouselook_buttons["Strafe right"]           = "BUTTON_DPAD_RIGHT";
+
+        LLSD mouselook_axes_invert;
+        mouselook_axes_invert["Strafe left/right"] = true;
+        mouselook_axes_invert["Advance forward/back"] = true;
+        mouselook_axes_invert["Turn left/right"] = true;
 
         // FlyCam adds a Roll axis and uses a distinct button set.
         LLSD flycam_axes;
@@ -675,21 +692,27 @@ namespace
         flycam_buttons["Truck left"]      = "BUTTON_DPAD_LEFT";
         flycam_buttons["Truck right"]     = "BUTTON_DPAD_RIGHT";
 
-        auto makeMode = [](const LLSD& axes, const LLSD& buttons)
+        LLSD flycam_axes_invert;
+        flycam_axes_invert["Truck left/right"] = true;
+        flycam_axes_invert["Dolly forward/back"] = true;
+        flycam_axes_invert["Pan left/right"] = true;
+
+        auto makeMode = [](const LLSD& axes, const LLSD& buttons, const LLSD& axes_invert)
         {
             LLSD mode;
-            mode[GC_AXES]    = axes;
-            mode[GC_BUTTONS] = buttons;
+            mode[GC_AXES]        = axes;
+            mode[GC_BUTTONS]     = buttons;
+            mode[GC_AXES_INVERT] = axes_invert;
             // Conversion for each mode is enabled by default.
             mode[GC_ENABLED] = true;
             return mode;
         };
 
         LLSD mappings;
-        mappings[GC_MODE_AVATAR]    = makeMode(avatar_axes, avatar_buttons);
-        mappings[GC_MODE_MOUSELOOK] = makeMode(mouselook_axes, mouselook_buttons);
-        mappings[GC_MODE_FLYCAM]    = makeMode(flycam_axes, flycam_buttons);
-        mappings[GC_MODE_CAPTIVE]   = makeMode(avatar_axes, avatar_buttons);
+        mappings[GC_MODE_AVATAR]    = makeMode(avatar_axes, avatar_buttons, avatar_axes_invert);
+        mappings[GC_MODE_MOUSELOOK] = makeMode(mouselook_axes, mouselook_buttons, mouselook_axes_invert);
+        mappings[GC_MODE_FLYCAM]    = makeMode(flycam_axes, flycam_buttons, flycam_axes_invert);
+        mappings[GC_MODE_CAPTIVE]   = makeMode(avatar_axes, avatar_buttons, avatar_axes_invert);
         return mappings;
     }
 
@@ -1209,21 +1232,6 @@ const LLGameControl::Device* LLGameControllerManager::getLastActiveDevice() cons
     return &mDevices.front();
 }
 
-// Negates a signed axis value, accounting for the asymmetric S16 range
-// [-32768, 32767] by shifting one during negation.
-static S16 negateAxisValue(S16 value)
-{
-    if (value < 0)
-    {
-        return (S16)(-(value + 1));
-    }
-    if (value > 0)
-    {
-        return (S16)((-value) - 1);
-    }
-    return 0;
-}
-
 // Splits a signed axis value into the +/- half-axis pair used by State::mAxes /
 // State::mRawAxes: the positive magnitude lands in half_axes[base], the negative
 // magnitude in half_axes[base + 1].
@@ -1319,8 +1327,8 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 raw_value)
     }
 
     // 'axis' is the physical axis index for the remainder of this function; the
-    // hardware fix and stick-negation below are keyed on it so they describe the
-    // physical sensor, then the output code routes the result to canonical slots.
+    // hardware fix below is keyed on it so it describes the physical sensor, then
+    // the output code routes the result to canonical slots.
     U8 phys = axis;
     if (phys >= LLGameControl::NUM_AXES)
     {
@@ -1334,18 +1342,12 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 raw_value)
     // the trigger pair (fan-out), or None.
     U8 out = it->mOptions.mapAxis(phys);
 
-    // Note: the RAW analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD
-    // whereas those directions are actually POSITIVE in SL's local right-handed
-    // reference frame.  Therefore we implicitly negate those axes here where
-    // they are extracted from SDL, before being used anywhere.  The raw_value is
-    // negated the same way so both share one sign convention and differ only by
-    // the fix transform (dead zone / offset / invert).  Triggers are positive-only
-    // and are left un-negated.
+    // Note: raw_value is left as SDL reports it (no implicit sign flip here) --
+    // any needed correction for SL's local right-handed reference frame (e.g. the
+    // RAW analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD) is instead
+    // expressed as a per-mode, per-action Invert flag (see getAxisInvert), applied
+    // once the value reaches its bound action in computeAgentActions()/getFlycamInputs().
     bool phys_is_trigger = phys >= LLGameControl::AXIS_LEFT_TRIGGER;
-    if (!phys_is_trigger)
-    {
-        raw_value = negateAxisValue(raw_value);
-    }
 
     S16 fixed_value = it->mOptions.fixAxisValue(phys, raw_value);
     LL_DEBUGS("SDL3") << "joystick=0x" << std::hex << id << std::dec
@@ -1761,6 +1763,20 @@ namespace
         return bridge;
     }
 
+    // Avatar/Mouselook/Captive-mode button label -> AvatarMouseButton bit.  Unlike
+    // avatarMiscButtonBridge()'s one-shot commands, a simulated mouse button should
+    // behave like the real thing (held down for as long as the bound button is),
+    // so these are level-triggered every frame into AgentActions::mMouseButtonBits
+    // -- mirroring avatarButtonBridge() rather than avatarMiscButtonBridge().
+    const std::map<std::string, U32>& avatarMouseButtonBridge()
+    {
+        static const std::map<std::string, U32> bridge = {
+            { "Mouse click left",  LLGameControl::AVATAR_MOUSE_BUTTON_LEFT },
+            { "Mouse click right", LLGameControl::AVATAR_MOUSE_BUTTON_RIGHT },
+        };
+        return bridge;
+    }
+
     // Defensive-repair helpers for stale/renamed axis-action keys in saved settings
     // (e.g. a pre-merge "Rise up").  Defined below, after the flycam bridge.
     //   isKnownAnalogAxisAction - is 'label' a real axis action for this mode?
@@ -1811,6 +1827,8 @@ void LLGameControllerManager::rebuildActionLookup(bool force)
             bound_action = default_action;
         }
 
+        bool invert = LLGameControl::getAxisInvert(mode_name, bound_action);
+
         if (input == INPUT_AXIS_TRIGGERS)
         {
             // The trigger pair is one bidirectional axis: the left trigger feeds the
@@ -1818,14 +1836,14 @@ void LLGameControllerManager::rebuildActionLookup(bool force)
             // positive sense is left/forward/up and, for yaw, counter-clockwise per
             // the right-hand rule, so e.g. the right trigger turns left by default;
             // invert the trigger axes in Device Options to reverse that.)
-            mAxisActionBindings[LLGameControl::AXIS_LEFT_TRIGGER]  = { bound_action, HALF_NEGATIVE };
-            mAxisActionBindings[LLGameControl::AXIS_RIGHT_TRIGGER] = { bound_action, HALF_POSITIVE };
+            mAxisActionBindings[LLGameControl::AXIS_LEFT_TRIGGER]  = { bound_action, HALF_NEGATIVE, invert };
+            mAxisActionBindings[LLGameControl::AXIS_RIGHT_TRIGGER] = { bound_action, HALF_POSITIVE, invert };
             continue;
         }
         LLGameControl::InputChannel channel = channelFromInputName(input);
         if (channel.isAxis() && channel.mIndex < LLGameControl::NUM_AXES)
         {
-            mAxisActionBindings[channel.mIndex] = { bound_action, HALF_FULL };
+            mAxisActionBindings[channel.mIndex] = { bound_action, HALF_FULL, invert };
         }
     }
     LLSD buttons = LLGameControl::getModeMapping(mode_name, GC_BUTTONS);
@@ -1851,10 +1869,11 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
 
     // Axes: work from each canonical axis' signed deflection (positive half at
     // axis*2 minus negative half at axis*2+1).  Using the deflection rather than a
-    // single half makes the per-axis Invert option work for triggers too: inverting
-    // moves the magnitude into the other half and flips the sign.  A trigger half
-    // (HALF_NEGATIVE = left, HALF_POSITIVE = right) applies its side's polarity; a
-    // full axis (HALF_FULL) uses the deflection directly.
+    // single half makes the Device Options per-axis Invert option work for triggers
+    // too: inverting there moves the magnitude into the other half and flips the
+    // sign.  A trigger half (HALF_NEGATIVE = left, HALF_POSITIVE = right) applies
+    // its side's polarity; a full axis (HALF_FULL) uses the deflection directly.
+    // binding.invert (the per-mode, per-action Invert flag) is then applied on top.
     const auto& axis_bridge = avatarAxisBridge();
     // Largest deflection seen on a ground-movement axis (Strafe/Advance) this frame,
     // used below to drive the analog "is running" hysteresis.  Turning, looking, and
@@ -1874,6 +1893,10 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         }
         S32 deflection = (S32)g_innerState.mAxes[axis * 2] - (S32)g_innerState.mAxes[axis * 2 + 1];
         S32 value = binding.half == HALF_NEGATIVE ? -deflection : deflection;
+        if (binding.invert)
+        {
+            value = -value;
+        }
         if (value > AXIS_THRESHOLD)
         {
             result.mControlFlags |= it->second.posFlag;
@@ -1907,18 +1930,23 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     // Buttons: each pressed button contributes its bound label's action.  Most
     // labels (avatarButtonBridge()) are level-triggered (held == asserted),
     // matching how the movement bits work, and OR their AGENT_CONTROL_* bit
-    // into mControlFlags every frame they're held.  One-shot *commands*
-    // (avatarMiscButtonBridge(), plus "Sit down"/"Stand up") should instead
-    // fire once per physical press -- for those, only the not-pressed ->
-    // pressed edge counts.  Edge state is tracked per physical button via
-    // g_innerState.mPrevButtons (maintained every frame by
-    // accumulateInternalState()'s storePrevious(), which runs before this),
+    // into mControlFlags every frame they're held.  Simulated mouse buttons
+    // (avatarMouseButtonBridge()) are likewise level-triggered, OR'd into
+    // mMouseButtonBits every frame they're held, so a held bound button holds
+    // the mouse button down (e.g. for click-drag); LLAgent::applyExternalActions
+    // diffs mMouseButtonBits against its own previous-frame value to find the
+    // press/release edges. One-shot *commands* (avatarMiscButtonBridge(), plus
+    // "Sit down"/"Stand up") should instead fire once per physical press -- for
+    // those, only the not-pressed -> pressed edge counts.  Edge state is tracked
+    // per physical button via g_innerState.mPrevButtons (maintained every frame
+    // by accumulateInternalState()'s storePrevious(), which runs before this),
     // not on the resulting bit, since the same held button can flip which of
     // these labels it's bound to across a single frame boundary (sitting
     // flips the active mode Avatar -> Captive); from the new bit's own
     // history that would otherwise look like a fresh press.
 
     const auto& button_bridge = avatarButtonBridge();
+    const auto& mouse_button_bridge = avatarMouseButtonBridge();
     const auto& misc_button_bridge = avatarMiscButtonBridge();
     U32 pressed_edges = g_innerState.mButtons & ~g_innerState.mPrevButtons;
     for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
@@ -1951,6 +1979,13 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         {
             // this action corresponds to AGENT_CONTROL_* and sets a bit in mControlFlags
             result.mControlFlags |= it->second;
+            continue;
+        }
+        auto bit = mouse_button_bridge.find(label);
+        if (bit != mouse_button_bridge.end())
+        {
+            // level-triggered: held for as long as the bound button is
+            result.mMouseButtonBits |= bit->second;
             continue;
         }
         auto mit = misc_button_bridge.find(label);
@@ -2093,14 +2128,19 @@ void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs, U32& mis
             continue;
         }
         // g_innerState half-axes: positive magnitude at axis*2, negative at axis*2+1.
-        // Use the signed deflection so the per-axis Invert option works for triggers
-        // (inverting swaps which half holds the magnitude, flipping the sign).  A
-        // right-trigger half (HALF_NEGATIVE) negates; left (HALF_POSITIVE) and full
-        // axes use the deflection as-is.
+        // Use the signed deflection so the Device Options per-axis Invert option
+        // works for triggers too (inverting there swaps which half holds the
+        // magnitude, flipping the sign).  A right-trigger half (HALF_NEGATIVE)
+        // negates; left (HALF_POSITIVE) and full axes use the deflection as-is.
+        // binding.invert (the per-mode, per-action Invert flag) is applied on top.
         F32 pos = (F32)g_innerState.mAxes[axis * 2]     / 32767.f;
         F32 neg = (F32)g_innerState.mAxes[axis * 2 + 1] / 32767.f;
         F32 deflection = pos - neg;
         F32 signed_value = binding.half == HALF_NEGATIVE ? -deflection : deflection;
+        if (binding.invert)
+        {
+            signed_value = -signed_value;
+        }
         dof[it->second.channel] += it->second.polarity * signed_value;
     }
 
@@ -2878,6 +2918,23 @@ void LLGameControl::updateModeMapping(const std::string& mode, const std::string
 {
     ensureGameControlSettings();
     g_gameControlSettings[GC_MODEMAPPINGS][mode][kind][action] = input;
+    // Take effect immediately (live panel edit), without waiting for OK: refresh
+    // the runtime action lookup for the active mode.
+    g_manager.rebuildActionLookup(true);
+}
+
+// static
+bool LLGameControl::getAxisInvert(const std::string& mode, const std::string& action)
+{
+    LLSD inverts = getModeMapping(mode, GC_AXES_INVERT);
+    return inverts.has(action) && inverts[action].asBoolean();
+}
+
+// static
+void LLGameControl::setAxisInvert(const std::string& mode, const std::string& action, bool invert)
+{
+    ensureGameControlSettings();
+    g_gameControlSettings[GC_MODEMAPPINGS][mode][GC_AXES_INVERT][action] = invert;
     // Take effect immediately (live panel edit), without waiting for OK: refresh
     // the runtime action lookup for the active mode.
     g_manager.rebuildActionLookup(true);
