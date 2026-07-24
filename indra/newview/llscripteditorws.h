@@ -211,8 +211,8 @@ public:
     void onLinksetChildAdded(const LLUUID& root_id, LLViewerObject* child);
     void onLinksetChildRemoved(const LLUUID& root_id, const LLUUID& child_id);
 
-    static bool isEnabled() { return sEnableScriptEditorWS; }
-    static bool isTightIntegration() { return sTightIntegration; }
+    static bool isEnabled();
+    static bool isTightIntegration();
 
 protected:
     LLWebsocketMgr::WSConnection::ptr_t connectionFactory(LLWebsocketMgr::WSServer::ptr_t server,
@@ -354,6 +354,4 @@ private:
     static constexpr F32 CLEANUP_INTERVAL = 60.0f; // seconds
     static constexpr F32 CONNECTION_TIMEOUT = 300.0f; // 5 minutes
 
-    static LLCachedControl<bool> sEnableScriptEditorWS;
-    static LLCachedControl<bool> sTightIntegration;
 };

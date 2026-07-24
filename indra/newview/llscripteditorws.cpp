@@ -158,10 +158,6 @@ namespace
     }
 }
 
-LLCachedControl<bool> LLScriptEditorWSServer::sEnableScriptEditorWS(gSavedSettings, "ExternalWebsocketSyncEnable", false);
-LLCachedControl<bool> LLScriptEditorWSServer::sTightIntegration(gSavedSettings, "ExternalEditorTightIntegration", false);
-
-
 class LLPublishedPrimListener : public LLVOInventoryListener
 {
 public:
@@ -219,6 +215,18 @@ LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::getServer()
     LLWebsocketMgr&               wsmgr  = LLWebsocketMgr::instance();
     return std::static_pointer_cast<LLScriptEditorWSServer>(
             wsmgr.findServerByName(LLScriptEditorWSServer::DEFAULT_SERVER_NAME));
+}
+
+bool LLScriptEditorWSServer::isEnabled()
+{
+    static LLCachedControl<bool> enabled(gSavedSettings, "ExternalWebsocketSyncEnable", false);
+    return enabled;
+}
+
+bool LLScriptEditorWSServer::isTightIntegration()
+{
+    static LLCachedControl<bool> tight_integration(gSavedSettings, "ExternalEditorTightIntegration", false);
+    return tight_integration;
 }
 
 LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::ensureServerRunning()
