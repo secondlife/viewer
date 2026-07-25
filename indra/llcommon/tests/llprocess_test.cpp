@@ -110,6 +110,19 @@ static std::string readfile(const std::string& pathname, const std::string& desc
     return output;
 }
 
+#if LL_WINDOWS
+static std::string readfile_if_present(const std::string& pathname)
+{
+    std::ifstream inf(pathname.c_str());
+    if (!inf.is_open())
+    {
+        return "";
+    }
+    return std::string((std::istreambuf_iterator<char>(inf)),
+                       std::istreambuf_iterator<char>());
+}
+#endif
+
 /// Looping on LLProcess::isRunning() must now be accompanied by pumping
 /// "mainloop" -- otherwise the status won't update and you get an infinite
 /// loop.
@@ -251,6 +264,215 @@ struct PythonProcessLauncher
     NamedExtTempFile mScript;
 };
 
+#if LL_WINDOWS
+namespace
+{
+    static constexpr const char* AUTOKILL_HELPER_SCRIPT_ENV = "LLPROCESS_AUTOKILL_HELPER_SCRIPT";
+    static constexpr const char* AUTOKILL_HELPER_PIDFILE_ENV = "LLPROCESS_AUTOKILL_HELPER_PIDFILE";
+    static constexpr const char* AUTOKILL_HELPER_RELEASE_ENV = "LLPROCESS_AUTOKILL_HELPER_RELEASE";
+    static constexpr const char* AUTOKILL_HELPER_COUNT_ENV = "LLPROCESS_AUTOKILL_HELPER_COUNT";
+    static constexpr int AUTOKILL_HELPER_RELEASE_TIMEOUT_SECONDS = 60;
+    static constexpr int AUTOKILL_HELPER_PID_TIMEOUT_SECONDS = 15;
+    static constexpr DWORD AUTOKILL_HELPER_POLL_INTERVAL_MS = 100;
+    static constexpr DWORD AUTOKILL_CHILD_TERMINATION_TIMEOUT_MS = 5000;
+    static constexpr int AUTOKILL_HELPER_INVALID_ENV_EXIT = 2;
+    static constexpr int AUTOKILL_HELPER_INVALID_COUNT_EXIT = 3;
+    static constexpr int AUTOKILL_HELPER_LAUNCH_FAILURE_EXIT = 4;
+
+    struct ScopedEnvironmentVariable
+    {
+        ScopedEnvironmentVariable(const char* name, const std::string& value):
+            mName(name),
+            mHadValue(false)
+        {
+            DWORD size = GetEnvironmentVariableA(name, nullptr, 0);
+            if (size > 0)
+            {
+                std::vector<char> buffer(size);
+                DWORD copied = GetEnvironmentVariableA(name, buffer.data(), size);
+                if (copied > 0)
+                {
+                    mHadValue = true;
+                    mOldValue.assign(buffer.data(), copied);
+                }
+            }
+            SetEnvironmentVariableA(name, value.c_str());
+        }
+
+        ~ScopedEnvironmentVariable()
+        {
+            SetEnvironmentVariableA(mName.c_str(), mHadValue ? mOldValue.c_str() : nullptr);
+        }
+
+        std::string mName;
+        std::string mOldValue;
+        bool mHadValue;
+    };
+
+    std::string get_current_executable_path()
+    {
+        std::vector<char> buffer(MAX_PATH);
+        for (;;)
+        {
+            DWORD length = GetModuleFileNameA(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+            tut::ensure("GetModuleFileNameA() failed", length > 0);
+            if (length < buffer.size() &&
+                (length < buffer.size() - 1 || buffer[length] == '\0'))
+            {
+                return std::string(buffer.data(), length);
+            }
+            buffer.resize(buffer.size() * 2);
+        }
+    }
+
+    void run_autokill_helper_from_environment()
+    {
+        const std::string script = LLStringUtil::getenv(AUTOKILL_HELPER_SCRIPT_ENV);
+        if (script.empty())
+        {
+            return;
+        }
+
+        const std::string pidfile = LLStringUtil::getenv(AUTOKILL_HELPER_PIDFILE_ENV);
+        const std::string releasefile = LLStringUtil::getenv(AUTOKILL_HELPER_RELEASE_ENV);
+        const std::string countstr = LLStringUtil::getenv(AUTOKILL_HELPER_COUNT_ENV);
+        const std::string python = LLStringUtil::getenv("PYTHON");
+        int child_count = 1;
+        if (!countstr.empty())
+        {
+            try
+            {
+                child_count = std::stoi(countstr);
+            }
+            catch (const std::exception& err)
+            {
+                LL_WARNS("LLProcess") << "Invalid autokill helper child count '"
+                                       << countstr << "': " << err.what() << LL_ENDL;
+                std::exit(AUTOKILL_HELPER_INVALID_COUNT_EXIT);
+            }
+        }
+
+        if (pidfile.empty() || releasefile.empty() || python.empty() || child_count < 1)
+        {
+            std::exit(AUTOKILL_HELPER_INVALID_ENV_EXIT);
+        }
+
+        std::vector<LLProcessPtr> children;
+        children.reserve(child_count);
+        std::ofstream out(pidfile.c_str(), std::ios::trunc);
+        for (int i = 0; i < child_count; ++i)
+        {
+            LLProcess::Params params;
+            params.executable = python;
+            params.args.add(script);
+            params.autokill = true;
+            params.attached = false;
+            LLProcessPtr child = LLProcess::create(params);
+            if (!child)
+            {
+                std::exit(AUTOKILL_HELPER_LAUNCH_FAILURE_EXIT);
+            }
+            children.push_back(child);
+            out << child->getProcessID() << '\n';
+        }
+        out.flush();
+        out.close();
+
+        for (DWORD elapsed_ms = 0;
+             elapsed_ms < AUTOKILL_HELPER_RELEASE_TIMEOUT_SECONDS * 1000;
+             elapsed_ms += AUTOKILL_HELPER_POLL_INTERVAL_MS)
+        {
+            if (readfile_if_present(releasefile) == "exit")
+            {
+                break;
+            }
+            Sleep(AUTOKILL_HELPER_POLL_INTERVAL_MS);
+        }
+
+        // Exit the helper process itself so the job handle closes and Windows
+        // terminates the autokilled children.
+        std::exit(0);
+    }
+
+    std::vector<DWORD> wait_for_helper_pids(
+        const std::string& pidfile,
+        int expected_count,
+        int timeout = AUTOKILL_HELPER_PID_TIMEOUT_SECONDS)
+    {
+        for (int i = 0;
+             i < (timeout * 1000) / static_cast<int>(AUTOKILL_HELPER_POLL_INTERVAL_MS);
+             ++i)
+        {
+            std::ifstream inf(pidfile.c_str());
+            std::vector<DWORD> pids;
+            DWORD pid = 0;
+            while (inf >> pid)
+            {
+                pids.push_back(pid);
+            }
+            if (static_cast<int>(pids.size()) == expected_count)
+            {
+                return pids;
+            }
+            Sleep(AUTOKILL_HELPER_POLL_INTERVAL_MS);
+            LLEventPumps::instance().obtain("mainloop").post(LLSD());
+        }
+        tut::ensure(STRINGIZE("expected " << expected_count
+                                << " child pids within " << timeout
+                                << " seconds"), false);
+        return {};
+    }
+
+    void verify_autokill_on_helper_exit(const std::string& desc, int child_count)
+    {
+        NamedExtTempFile child_script("py",
+            "import time\n"
+            "time.sleep(30)\n");
+        NamedTempFile pidfile("pid", "");
+        NamedTempFile releasefile("release", "");
+
+        ScopedEnvironmentVariable helper_script(AUTOKILL_HELPER_SCRIPT_ENV, child_script.getName());
+        ScopedEnvironmentVariable helper_pidfile(AUTOKILL_HELPER_PIDFILE_ENV, pidfile.getName());
+        ScopedEnvironmentVariable helper_release(AUTOKILL_HELPER_RELEASE_ENV, releasefile.getName());
+        ScopedEnvironmentVariable helper_count(AUTOKILL_HELPER_COUNT_ENV, std::to_string(child_count));
+
+        LLProcess::Params params;
+        params.executable = get_current_executable_path();
+        params.desc = desc + " helper";
+        LLProcessPtr helper = LLProcess::create(params);
+        tut::ensure("helper launched", bool(helper));
+
+        std::vector<DWORD> pids = wait_for_helper_pids(pidfile.getName(), child_count);
+        std::vector<HANDLE> handles;
+        handles.reserve(pids.size());
+        for (DWORD pid : pids)
+        {
+            // SYNCHRONIZE lets the test wait for the child to terminate, while
+            // PROCESS_QUERY_LIMITED_INFORMATION keeps the requested access minimal.
+            HANDLE handle = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+            tut::ensure(STRINGIZE("opened child process handle for pid " << pid), handle != nullptr);
+            handles.push_back(handle);
+        }
+
+        {
+            std::ofstream out(releasefile.getName().c_str(), std::ios::trunc);
+            out << "exit";
+        }
+
+        waitfor(*helper);
+        tut::ensure_equals("helper exited", helper->getStatus().mState, LLProcess::EXITED);
+
+        for (HANDLE handle : handles)
+        {
+            tut::ensure_equals("autokilled child exited",
+                               WaitForSingleObject(handle, AUTOKILL_CHILD_TERMINATION_TIMEOUT_MS),
+                               WAIT_OBJECT_0);
+            CloseHandle(handle);
+        }
+    }
+}
+#endif
+
 /// convenience function for PythonProcessLauncher::run()
 template <typename CONTENT>
 static void python(const std::string& desc, const CONTENT& script)
@@ -303,6 +525,13 @@ namespace tut
 {
     struct llprocess_data
     {
+        llprocess_data()
+        {
+#if LL_WINDOWS
+            run_autokill_helper_from_environment();
+#endif
+        }
+
         LLAPRPool pool;
     };
     typedef test_group<llprocess_data> llprocess_group;
@@ -1815,4 +2044,25 @@ namespace tut
                elapsed_ms < 75);
     }
 
+    template<> template<>
+    void object::test<36>()
+    {
+        set_test_name("autokill ensures child termination on parent exit");
+#if !LL_WINDOWS
+        skip("Windows-specific test");
+#else
+        verify_autokill_on_helper_exit(get_test_name(), 1);
+#endif
+    }
+
+    template<> template<>
+    void object::test<37>()
+    {
+        set_test_name("multiple processes with autokill");
+#if !LL_WINDOWS
+        skip("Windows-specific test");
+#else
+        verify_autokill_on_helper_exit(get_test_name(), 2);
+#endif
+    }
 } // namespace tut
