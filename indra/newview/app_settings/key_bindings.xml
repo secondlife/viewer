@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<keys xml_version="1">
+<keys xml_version="2">
   <first_person>
     <binding key="A" mask="NONE" command="slide_left"/>
     <binding key="D" mask="NONE" command="slide_right"/>
@@ -9,6 +9,7 @@
     <binding key="C" mask="NONE" command="push_down"/>
     <binding key="C" mask="SHIFT" command="toggle_down"/>
     <binding key="F" mask="NONE" command="toggle_fly"/>
+    <binding key="Z" mask="NONE" command="toggle_flycam"/>
 
     <binding key="LEFT" mask="NONE" command="slide_left"/>
     <binding key="RIGHT" mask="NONE" command="slide_right"/>
@@ -49,6 +50,7 @@
     <binding key="C" mask="SHIFT" command="toggle_down"/>
 
     <binding key="F" mask="NONE" command="toggle_fly"/>
+    <binding key="Z" mask="NONE" command="toggle_flycam"/>
 
     <binding key="SPACE" mask="NONE" command="stop_moving"/>
     <binding key="ENTER" mask="NONE" command="start_chat"/>
@@ -190,6 +192,7 @@
     <binding key="DIVIDE" mask="NONE" command="start_gesture"/>
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
+    <binding key="Z" mask="NONE" command="toggle_flycam"/>
 
     <binding key="" mask="NONE" mouse="LMB" command="script_trigger_lbutton"/>
 
@@ -218,5 +221,31 @@
     <binding key="" mask="NONE" mouse="MMB" command="voice_follow_key"/>
 
     <binding key="" mask="NONE" mouse="LMB" command="script_trigger_lbutton"/>
+    <binding key="Z" mask="NONE" command="toggle_flycam"/>
   </edit_avatar>
+  <flycam>
+    <binding key="W" mask="NONE" command="flycam_move_forward"/>
+    <binding key="S" mask="NONE" command="flycam_move_backward"/>
+    <binding key="A" mask="NONE" command="flycam_truck_left"/>
+    <binding key="D" mask="NONE" command="flycam_truck_right"/>
+    <binding key="E" mask="NONE" command="flycam_move_up"/>
+    <binding key="C" mask="NONE" command="flycam_move_down"/>
+
+    <binding key="LEFT" mask="NONE" command="flycam_yaw_left"/>
+    <binding key="RIGHT" mask="NONE" command="flycam_yaw_right"/>
+    <binding key="UP" mask="NONE" command="flycam_pitch_up"/>
+    <binding key="DOWN" mask="NONE" command="flycam_pitch_down"/>
+
+    <binding key="Q" mask="NONE" command="flycam_roll_left"/>
+    <binding key="Q" mask="SHIFT" command="flycam_roll_right"/>
+
+    <binding key="HOME" mask="NONE" command="flycam_reset"/>
+
+    <binding key="Z" mask="NONE" command="toggle_flycam"/>
+
+    <binding key="ENTER" mask="NONE" command="start_chat"/>
+    <binding key="DIVIDE" mask="NONE" command="start_gesture"/>
+
+    <binding key="" mask="NONE" mouse="LMB" command="script_trigger_lbutton"/>
+  </flycam>
 </keys>

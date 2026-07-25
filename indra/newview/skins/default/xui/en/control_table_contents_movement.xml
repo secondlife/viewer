@@ -176,6 +176,17 @@
          value="Fly/Stop flying" />
     </rows>
     <rows
+     name="toggle_flycam"
+     value="toggle_flycam">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         tool_tip="Turn flycam on or off"
+         value="Toggle flycam" />
+    </rows>
+    <rows
      name="toggle_sit"
      value="toggle_sit">
         <columns
