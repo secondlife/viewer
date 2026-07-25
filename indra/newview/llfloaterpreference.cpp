@@ -2877,6 +2877,7 @@ void LLPanelPreferenceControls::populateControlTable()
     case LLKeyConflictHandler::MODE_FIRST_PERSON:
     case LLKeyConflictHandler::MODE_EDIT_AVATAR:
     case LLKeyConflictHandler::MODE_SITTING:
+    case LLKeyConflictHandler::MODE_FLYCAM:
         filename = "control_table_contents_columns_basic.xml";
         break;
     default:
@@ -2906,6 +2907,12 @@ void LLPanelPreferenceControls::populateControlTable()
         addControlTableRows("control_table_contents_media.xml");
         addControlTableSeparator();
         addControlTableRows("control_table_contents_game_control.xml");
+    }
+    else if (mEditingMode == LLKeyConflictHandler::MODE_FLYCAM)
+    {
+        // Flycam has its own dedicated set of actions; camera/editing/media
+        // groups don't apply to it.
+        addControlTableRows("control_table_contents_flycam.xml");
     }
     // MODE_THIRD_PERSON; MODE_EDIT_AVATAR; MODE_SITTING
     else if (mEditingMode < LLKeyConflictHandler::MODE_SAVED_SETTINGS)
