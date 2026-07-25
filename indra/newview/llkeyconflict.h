@@ -61,6 +61,7 @@ public:
         MODE_THIRD_PERSON,
         MODE_EDIT_AVATAR,
         MODE_SITTING,
+        MODE_FLYCAM,
         MODE_SAVED_SETTINGS, // for settings from saved settings
         MODE_COUNT
     };

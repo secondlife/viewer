@@ -44,6 +44,7 @@
 
 #include <boost/signals2.hpp>
 
+#include <array>
 #include <functional>
 
 extern const bool   ANIMATE;
@@ -492,6 +493,7 @@ public:
     bool            anyControlGrabbed() const;      // True iff a script has taken over a control
     bool            isControlGrabbed(S32 control_index) const;
     bool            isUsingFlycam() const { return mUsingFlycam; }
+    void            toggleFlycam();
     // Send message to simulator to force grabbed controls to be
     // released, in case of a poorly written script.
     void            forceReleaseControls();
@@ -529,6 +531,9 @@ public:
     void releaseGameControlButton(U8 button);
     U32 getGameControlButtonsFromKeys() const { return mGameControlButtonsFromKeys; }
 
+    void setFlycamKeyInput(U8 channel, F32 value) { mFlycamKeyInput[channel] = value; }
+    void setFlycamKeyReset(bool reset) { mFlycamKeyResetRequested = reset; }
+
 private:
 
     U64 mLastFlycamUpdate { 0 };
@@ -541,6 +546,8 @@ private:
     LLFlycam mFlycam;
     bool mToggleRun { true };
     bool mUsingFlycam { false };
+    std::array<F32, LLGameControl::FLYCAM_NUM_CHANNELS> mFlycamKeyInput {};
+    bool mFlycamKeyResetRequested { false };
 
     //--------------------------------------------------------------------
     // Animations

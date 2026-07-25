@@ -359,6 +359,13 @@ bool LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const 
                 res = true;
             }
             break;
+        case MODE_FLYCAM:
+            if (keys.flycam.isProvided())
+            {
+                loadFromSettings(keys.flycam, destination);
+                res = true;
+            }
+            break;
         default:
             LL_ERRS() << "Not implememted mode " << load_mode << LL_ENDL;
             break;
@@ -572,6 +579,14 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                 {
                     keys.sitting.bindings.set(mode.bindings, true);
                 }
+                break;
+            case MODE_FLYCAM:
+                // Unlike the long-established modes above, 'flycam' is a new
+                // block: a key_bindings.xml written before this mode existed
+                // has no <flycam> tag at all, so isProvided() would be false
+                // forever and this mode's bindings would never get written
+                // back out. Therefore set it unconditionally.
+                keys.flycam.bindings.set(mode.bindings, true);
                 break;
             default:
                 LL_ERRS() << "Not implememted mode " << mLoadMode << LL_ENDL;
