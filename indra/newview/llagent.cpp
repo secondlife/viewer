@@ -5036,15 +5036,7 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
 
     if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_FLYCAM)
     {
-        mUsingFlycam = !mUsingFlycam;
-        if (mUsingFlycam)
-        {
-            // copy main camera transform to flycam
-            LLViewerCamera* camera = LLViewerCamera::getInstance();
-            mFlycam.setTransform(camera->getOrigin(), camera->getQuaternion());
-            mFlycam.setView(camera->getView());
-            mLastFlycamUpdate = LLFrameTimer::getTotalTime();
-        }
+        toggleFlycam();
     }
 
     if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_SIT)
@@ -5262,6 +5254,20 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
     }
 }
 
+void LLAgent::toggleFlycam()
+{
+    mUsingFlycam = !mUsingFlycam;
+    LL_INFOS("adebug") << "using_flycam=" << mUsingFlycam << LL_ENDL; // adebug
+    if (mUsingFlycam)
+    {
+        // copy main camera transform to flycam
+        LLViewerCamera* camera = LLViewerCamera::getInstance();
+        mFlycam.setTransform(camera->getOrigin(), camera->getQuaternion());
+        mFlycam.setView(camera->getView());
+        mLastFlycamUpdate = LLFrameTimer::getTotalTime();
+    }
+}
+
 void LLAgent::pressGameControlButton(U8 button_index)
 {
     mGameControlButtonsFromKeys |= (1U << button_index);
@@ -5287,7 +5293,19 @@ void LLAgent::updateFlycam()
         return;
     }
 
-    if ((flycam_misc_actions & LLGameControl::FLYCAM_ACTION_RESET) && isAgentAvatarValid())
+    // Blend in keyboard-driven flycam input (independent of LLGameControl,
+    // which only sees a physical controller).  mFlycamKeyInput is
+    // level-triggered by flycam_axis_key<> in llviewerinput.cpp -- it must be
+    // re-set every frame a key is held, so clear it here once consumed.
+    for (U8 i = 0; i < LLGameControl::FLYCAM_NUM_CHANNELS; ++i)
+    {
+        flycam_inputs[i] = llclamp(flycam_inputs[i] + mFlycamKeyInput[i], -1.f, 1.f);
+    }
+    mFlycamKeyInput.fill(0.f);
+    bool flycam_key_reset_requested = mFlycamKeyResetRequested;
+    mFlycamKeyResetRequested = false;
+
+    if (((flycam_misc_actions & LLGameControl::FLYCAM_ACTION_RESET) || flycam_key_reset_requested) && isAgentAvatarValid())
     {
         // Reorient the flycam as if it were the 3rd-person camera: above and
         // behind the avatar, looking down.  mFlycam.startReset() smoothly

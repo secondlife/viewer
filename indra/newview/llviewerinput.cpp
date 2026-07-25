@@ -353,6 +353,16 @@ bool agent_toggle_fly( const LLKeyPressState& s )
     return true;
 }
 
+bool agent_toggle_flycam( const LLKeyPressState& s )
+{
+    // Only catch the edge
+    if (KEYSTATE_DOWN == s.mState )
+    {
+        gAgent.toggleFlycam();
+    }
+    return true;
+}
+
 F32 get_orbit_rate( const LLKeyPressState& s )
 {
     F32 time = s.mElapsedTime;
@@ -366,6 +376,26 @@ F32 get_orbit_rate( const LLKeyPressState& s )
     {
         return 1;
     }
+}
+
+// Keyboard-driven flycam translate/rotate: sets a per-channel rate that
+// LLAgent::updateFlycam() blends in and clears every frame (same
+// "set while held, cleared once consumed" idiom as mOrbitInKey/mPanUpKey).
+template <U8 CHANNEL, S32 SIGN>
+bool flycam_axis_key(const LLKeyPressState& s)
+{
+    if (KEYSTATE_UP == s.mState) return true;
+    gAgent.setFlycamKeyInput(CHANNEL, SIGN * get_orbit_rate(s));
+    return true;
+}
+
+bool flycam_reset_key(const LLKeyPressState& s)
+{
+    if (KEYSTATE_DOWN == s.mState)
+    {
+        gAgent.setFlycamKeyReset(true);
+    }
+    return true;
 }
 
 bool camera_spin_around_ccw( const LLKeyPressState& s )
@@ -1078,6 +1108,20 @@ REGISTER_KEYBOARD_ACTION(script_mouse_handler_name, script_trigger_lbutton);
 REGISTER_KEYBOARD_ACTION("roll_left", camera_roll_left);
 REGISTER_KEYBOARD_ACTION("roll_right", camera_roll_right);
 REGISTER_KEYBOARD_ACTION("roll_reset", camera_roll_reset);
+REGISTER_KEYBOARD_ACTION("toggle_flycam", agent_toggle_flycam);
+REGISTER_KEYBOARD_ACTION("flycam_move_forward", (flycam_axis_key<LLGameControl::FLYCAM_DOLLY, 1>));
+REGISTER_KEYBOARD_ACTION("flycam_move_backward", (flycam_axis_key<LLGameControl::FLYCAM_DOLLY, -1>));
+REGISTER_KEYBOARD_ACTION("flycam_truck_left", (flycam_axis_key<LLGameControl::FLYCAM_TRUCK, 1>));
+REGISTER_KEYBOARD_ACTION("flycam_truck_right", (flycam_axis_key<LLGameControl::FLYCAM_TRUCK, -1>));
+REGISTER_KEYBOARD_ACTION("flycam_move_up", (flycam_axis_key<LLGameControl::FLYCAM_BOOM, 1>));
+REGISTER_KEYBOARD_ACTION("flycam_move_down", (flycam_axis_key<LLGameControl::FLYCAM_BOOM, -1>));
+REGISTER_KEYBOARD_ACTION("flycam_yaw_left", (flycam_axis_key<LLGameControl::FLYCAM_PAN, 1>));
+REGISTER_KEYBOARD_ACTION("flycam_yaw_right", (flycam_axis_key<LLGameControl::FLYCAM_PAN, -1>));
+REGISTER_KEYBOARD_ACTION("flycam_pitch_up", (flycam_axis_key<LLGameControl::FLYCAM_TILT, 1>));
+REGISTER_KEYBOARD_ACTION("flycam_pitch_down", (flycam_axis_key<LLGameControl::FLYCAM_TILT, -1>));
+REGISTER_KEYBOARD_ACTION("flycam_roll_left", (flycam_axis_key<LLGameControl::FLYCAM_ROLL, -1>));
+REGISTER_KEYBOARD_ACTION("flycam_roll_right", (flycam_axis_key<LLGameControl::FLYCAM_ROLL, 1>));
+REGISTER_KEYBOARD_ACTION("flycam_reset", flycam_reset_key);
 REGISTER_KEYBOARD_ACTION("game_control_button_0", game_control_button<0>);
 REGISTER_KEYBOARD_ACTION("game_control_button_1", game_control_button<1>);
 REGISTER_KEYBOARD_ACTION("game_control_button_2", game_control_button<2>);
@@ -1164,6 +1208,11 @@ bool LLViewerInput::modeFromString(const std::string& string, S32 *mode)
     else if (cmp_string == "sitting")
     {
         *mode = MODE_SITTING;
+        return true;
+    }
+    else if (cmp_string == "flycam")
+    {
+        *mode = MODE_FLYCAM;
         return true;
     }
 
@@ -1556,6 +1605,7 @@ LLViewerInput::Keys::Keys()
     third_person("third_person"),
     sitting("sitting"),
     edit_avatar("edit_avatar"),
+    flycam("flycam"),
     xml_version("xml_version", 0)
 {}
 
@@ -1588,8 +1638,11 @@ S32 LLViewerInput::loadBindingsXML(const std::string& filename)
         binding_count += loadBindingMode(keys.third_person, MODE_THIRD_PERSON);
         binding_count += loadBindingMode(keys.sitting, MODE_SITTING);
         binding_count += loadBindingMode(keys.edit_avatar, MODE_EDIT_AVATAR);
+        binding_count += loadBindingMode(keys.flycam, MODE_FLYCAM);
 
         // verify version
+        bool needs_rewrite = false;
+
         if (keys.xml_version < 1)
         {
             // updating from a version that was not aware of LMouse bindings
@@ -1625,6 +1678,35 @@ S32 LLViewerInput::loadBindingsXML(const std::string& filename)
                 keys.edit_avatar.bindings.add(mouse_binding);
             }
 
+            needs_rewrite = true;
+        }
+
+        if (keys.xml_version < 2 && !keys.flycam.isProvided())
+        {
+            // Updating from a version that predates the flycam mode: an old
+            // customized key_bindings.xml has no <flycam> block at all, so
+            // without this fixup the user would get zero flycam keybindings
+            // (no LLKeyConflictHandler-style fallback exists in this runtime
+            // loader). Pull the authoritative default flycam bindings from
+            // the shipped app_settings file and merge them in.
+            std::string default_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
+            if (default_filename != filename)
+            {
+                Keys default_keys;
+                LLSimpleXUIParser default_parser;
+                if (default_parser.readXUI(default_filename, default_keys)
+                    && default_keys.validateBlock()
+                    && default_keys.flycam.isProvided())
+                {
+                    keys.flycam.set(default_keys.flycam.getValue(), true);
+                    binding_count += loadBindingMode(keys.flycam, MODE_FLYCAM);
+                    needs_rewrite = true;
+                }
+            }
+        }
+
+        if (needs_rewrite)
+        {
             // fix version
             keys.xml_version.set(keybindings_xml_version, true);
 
@@ -1761,7 +1843,11 @@ S32 LLViewerInput::loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mo
 
 EKeyboardMode LLViewerInput::getMode() const
 {
-    if ( gAgentCamera.cameraMouselook() )
+    if ( gAgent.isUsingFlycam() )
+    {
+        return MODE_FLYCAM;
+    }
+    else if ( gAgentCamera.cameraMouselook() )
     {
         return MODE_FIRST_PERSON;
     }
