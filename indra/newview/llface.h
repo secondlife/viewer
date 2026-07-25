@@ -242,9 +242,7 @@ private:
     bool        calcPixelArea(F32& cos_angle_to_view_dir, F32& radius) ;
 public:
     static F32 calcImportanceToCamera(F32 to_view_dir, F32 dist);
-    // source_area > 0 lowers the "large but unimportant" floor for
-    // moderate sources; 0 keeps the legacy sMinLargeImageSize floor.
-    static F32 adjustPixelArea(F32 importance, F32 pixel_area, S32 source_area = 0) ;
+    static F32 adjustPixelArea(F32 importance, F32 pixel_area) ;
 
 public:
 
@@ -253,9 +251,6 @@ public:
 
     LLVector2       mTexExtents[2];
     F32             mDistance;
-    // Camera-to-face distance, cached by calcPixelArea; read by the
-    // streaming math's distance signal.
-    F32             mDistanceToCamera = 0.f;
     F32         mLastUpdateTime;
     F32         mLastSkinTime;
     F32         mLastMoveTime;
@@ -269,21 +264,10 @@ public:
     // return mSkinInfo->mHash or 0 if mSkinInfo is null
     U64 getSkinHash();
 
-    // True if this face's projected bounding disc overlaps the screen - maintained
-    // by calcPixelArea() (sticky between its throttled updates). Drives per-texture
-    // fetch admission (LLViewerTextureList::updateImageDecodePriority -> mOnScreen).
+    // true if face was recently in the main camera frustum according to LLViewerTextureList updates
     bool mInFrustum = false;
-    // How far past the screen boundary the projected disc sits, as a fraction of
-    // screen size (0 = on screen). Feeds the frustum-allowance falloff so barely
-    // out-of-view content keeps its resolution. Maintained with mInFrustum.
-    F32 mFrustumOverflow = 0.f;
     // value of gFrameCount the last time the face was touched by LLViewerTextureList::updateImageDecodePriority
     U32 mLastTextureUpdate = 0;
-    // Cached per-channel streaming coverage (repeat-adjusted screen pixels),
-    // refreshed at the mLastTextureUpdate cadence and shared by every texture
-    // on this face. 0 = degenerate / not yet measured. See
-    // update_face_stream_vsize in llviewertexturelist.cpp.
-    F32 mStreamVSize[LLRender::NUM_TEXTURE_CHANNELS] = {};
 
 private:
     LLPointer<LLVertexBuffer> mVertexBuffer;
@@ -319,11 +303,6 @@ private:
 
     // gFrameTimeSeconds when mPixelArea was last updated
     F32         mLastPixelAreaUpdate = 0.f;
-
-    // Last cos-angle-to-view-dir and projected radius computed by calcPixelArea;
-    // reused by its throttled early-return so the overlap test gets real values.
-    F32         mLastCosAngleToViewDir = 1.f;
-    F32         mLastRadius = 0.f;
 
     // virtual size of face in texture area  (mPixelArea adjusted by texture repeats)
     // used to determine desired resolution of texture

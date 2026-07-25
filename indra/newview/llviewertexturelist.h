@@ -30,11 +30,9 @@
 #include "lluuid.h"
 //#include "message.h"
 #include "llgl.h"
-#include "llrender.h"
 #include "llviewertexture.h"
 #include "llui.h"
 #include <list>
-#include <map>
 #include <unordered_set>
 #include "lluiimage.h"
 
@@ -94,10 +92,6 @@ class LLViewerTextureList
     friend class LLLocalBitmap;
 
 public:
-    // eTexIndex -> TextureChannel* index (0=Normal, 1=BaseColor,
-    // 2=Specular, 3=Emissive). Single source of truth.
-    static const S32 sChannelToPriority[LLRender::NUM_TEXTURE_CHANNELS];
-
     static bool createUploadFile(LLPointer<LLImageRaw> raw_image,
                                  const std::string& out_filename,
                                  const S32 max_image_dimentions = LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT,
@@ -225,10 +219,6 @@ public:
 
     image_list_t mCallbackList;
     image_list_t mFastCacheList;
-
-    // In-flight fetches pumped every frame (additive to the round-robin
-    // sweep, which remains the universal pump). See updateImages.
-    std::vector<LLPointer<LLViewerFetchedTexture> > mFastFetchList;
 
     bool mForceResetTextureStats;
 

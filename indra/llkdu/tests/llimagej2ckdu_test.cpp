@@ -83,8 +83,6 @@ void LLImageBase::setSize(S32 , S32 , S32 ) { }
 bool LLImageBase::isBufferInvalid() const { return false; }
 
 LLImageJ2CImpl::~LLImageJ2CImpl() { }
-bool LLImage::sUseNewByteRange = false;
-S32 LLImageJ2C::calcHeaderSizeJ2C() { return 0; }
 
 LLImageFormatted::LLImageFormatted(S8 ) { }
 LLImageFormatted::~LLImageFormatted() { }

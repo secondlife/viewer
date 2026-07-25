@@ -542,7 +542,6 @@ private:
     S32 mRequestedDiscard;
     S32 mLoadedDiscard;
     S32 mDecodedDiscard;
-    S32 mCodecLevels = 0;
     LLFrameTimer mRequestedDeltaTimer;
     LLFrameTimer mFetchDeltaTimer;
     LLTimer mCacheReadTimer;
@@ -1844,10 +1843,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
             else
             {
                 llassert_always(mRawImage.notNull());
-                if (mFormattedImage.notNull())
-                {
-                    mCodecLevels = (S32)mFormattedImage->getLevels();
-                }
                 LL_DEBUGS(LOG_TXT) << mID << ": Decoded. Discard: " << mDecodedDiscard
                                    << " Raw Image: " << llformat("%dx%d",mRawImage->getWidth(),mRawImage->getHeight()) << LL_ENDL;
                 setState(WRITE_TO_CACHE);
@@ -2779,12 +2774,10 @@ LLTextureFetchWorker* LLTextureFetch::getWorker(const LLUUID& id)
 // Threads:  T*
 bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level, S32& worker_state,
                                         LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
-                                        LLCore::HttpStatus& last_http_get_status,
-                                        S32& codec_levels)
+                                        LLCore::HttpStatus& last_http_get_status)
 {
     LL_PROFILE_ZONE_SCOPED;
     bool res = false;
-    codec_levels = 0;
     LLTextureFetchWorker* worker = getWorker(id);
     if (worker)
     {
@@ -2816,9 +2809,6 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level, S3
             discard_level = worker->mDecodedDiscard;
             raw = worker->mRawImage;
             aux = worker->mAuxImage;
-            // Cached on the worker so the value survives mFormattedImage
-            // clears (cache-retry, decode-abort, write-to-cache complete).
-            codec_levels = worker->mCodecLevels;
 
             decode_time = worker->mDecodeTime;
             fetch_time = worker->mFetchTime;

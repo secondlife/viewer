@@ -5376,20 +5376,7 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry& texture_entry)
 
     const LLUUID& image_id = getTE(te)->getID();
     LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
-    if (bakedTexture)
-    {
-        mTEImages[te] = bakedTexture;
-    }
-    else
-    {
-        LLViewerFetchedTexture* img = LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-        // Same creation seed the PBR path applies in updateTEMaterialTextures'
-        // fetch_texture - without it a Blinn texture has decode_priority 0 and
-        // cannot even fetch headers until its first coverage measurement,
-        // while the equivalent PBR texture starts fetching immediately.
-        img->addTextureStats(64.f * 64.f, true);
-        mTEImages[te] = img;
-    }
+    mTEImages[te] = bakedTexture ? bakedTexture : LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 
     updateAvatarMeshVisibility(image_id, old_image_id);
 
@@ -5400,14 +5387,11 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 {
     if (getTE(te)->getMaterialParams().notNull())
     {
-        // Same creation seed as the PBR fetch_texture below - see setTE.
         const LLUUID& norm_id = getTE(te)->getMaterialParams()->getNormalID();
         mTENormalMaps[te] = LLViewerTextureManager::getFetchedTexture(norm_id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-        mTENormalMaps[te]->addTextureStats(64.f * 64.f, true);
 
         const LLUUID& spec_id = getTE(te)->getMaterialParams()->getSpecularID();
         mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-        mTESpecularMaps[te]->addTextureStats(64.f * 64.f, true);
     }
 
     LLFetchedGLTFMaterial* mat = (LLFetchedGLTFMaterial*) getTE(te)->getGLTFRenderMaterial();

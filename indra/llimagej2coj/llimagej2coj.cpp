@@ -919,32 +919,3 @@ bool LLImageJ2COJ::getMetadata(LLImageJ2C &base)
     base.setSize(width, height, components);
     return true;
 }
-
-
-// OpenJPEG-tuned byte estimator. Conservative pyramid walk that accounts for
-// OJ's whole-code-block decode behavior (even with strict mode off). Larger
-// images get a per-resolution multiplier so the byte range lands inside the
-// last needed code-block boundary.
-S32 LLImageJ2COJ::estimateDataSize(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate) const
-{
-    constexpr S32 precision = 8;
-    constexpr S32 max_components = 4;
-    S32 width  = (w > 0) ? w : 2048;
-    S32 height = (h > 0) ? h : 2048;
-    S32 max_dimension = llmax(width, height);
-    S32 block_area = MAX_BLOCK_SIZE * MAX_BLOCK_SIZE;
-    S32 max_layers = (S32)llmax(llround(log2f((float)max_dimension) - log2f((float)MAX_BLOCK_SIZE)), 4);
-    block_area *= llmax(max_layers, 1);
-    S32 totalbytes = (S32)(MIN_LAYER_SIZE * max_components * precision);
-    S32 block_layers = 0;
-    while (block_layers <= max_layers)
-    {
-        if (block_layers <= (5 - discard_level))
-            totalbytes += (S32)(block_area * max_components * precision * rate);
-        block_layers++;
-        block_area *= 4;
-    }
-    totalbytes /= 8;
-    totalbytes += LLImageJ2C::calcHeaderSizeJ2C();
-    return totalbytes;
-}

@@ -878,15 +878,11 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
             LLViewerFetchedTexture* img = LLViewerTextureManager::staticCastToFetchedTexture(imagep) ;
             if(img)
             {
-                // cur:desired:width  then per-bucket coverage bounds
-                // (N/BC/S/E, sqrt so values read as pixel dimensions,
-                // max~min) - the exact inputs computeDesiredDiscard sees.
-                debug_text << img->getDiscardLevel() << ":" << img->getDesiredDiscardLevel() << ":" << img->getWidth()
-                           << " N" << (S32)sqrtf(img->getChannelCoverage(0)) << "~" << (S32)sqrtf(img->getChannelCoverageMin(0))
-                           << " BC" << (S32)sqrtf(img->getChannelCoverage(1)) << "~" << (S32)sqrtf(img->getChannelCoverageMin(1))
-                           << " S" << (S32)sqrtf(img->getChannelCoverage(2)) << "~" << (S32)sqrtf(img->getChannelCoverageMin(2))
-                           << " E" << (S32)sqrtf(img->getChannelCoverage(3)) << "~" << (S32)sqrtf(img->getChannelCoverageMin(3))
-                           << "\n";
+                debug_text << img->getDiscardLevel() << ":" << img->getDesiredDiscardLevel() << ":" << img->getWidth() << ":" << (S32) sqrtf(vsize) << ":" << (S32) sqrtf(img->getMaxVirtualSize()) << "\n";
+                /*F32 pri = img->getDecodePriority();
+                pri = llmax(pri, 0.0f);
+                if (pri < min_vsize) min_vsize = pri;
+                if (pri > max_vsize) max_vsize = pri;*/
             }
         }
         else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_FACE_AREA))
@@ -932,7 +928,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
     {
         LLLightImageParams* params = getLightImageParams();
         LLUUID id = params->getLightTexture();
-        mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE);
         if (mLightTexture.notNull())
         {
             F32 rad = getLightRadius();
@@ -1800,41 +1796,6 @@ void LLVOVolume::regenFaces()
         {
             facep->setNormalMap(getTENormalMap(i));
             facep->setSpecularMap(getTESpecularMap(i));
-        }
-
-        // Register PBR channel textures HERE, at geometry build, exactly when
-        // the Blinn textures above register - mirrored from rebuildGeom
-        // (which still re-runs this when the material resolves later).
-        // Without this, PBR textures had zero registered faces until the
-        // spatial group's budget-throttled rebuildGeom ran, so the streaming
-        // math read "not measured -> deepest mip" for PBR content while
-        // identical Blinn content on the same geometry measured immediately.
-        {
-            const LLTextureEntry* te = facep->getTextureEntry();
-            LLFetchedGLTFMaterial* gltf_mat = te ? (LLFetchedGLTFMaterial*)te->getGLTFRenderMaterial() : nullptr;
-            if (gltf_mat)
-            {
-                if (!facep->hasMedia())
-                {
-                    facep->setTexture(LLRender::DIFFUSE_MAP, nullptr);
-                }
-                facep->setTexture(LLRender::NORMAL_MAP, nullptr);
-                facep->setTexture(LLRender::SPECULAR_MAP, nullptr);
-                facep->setTexture(LLRender::BASECOLOR_MAP, gltf_mat->mBaseColorTexture);
-                facep->setTexture(LLRender::GLTF_NORMAL_MAP, gltf_mat->mNormalTexture);
-                facep->setTexture(LLRender::METALLIC_ROUGHNESS_MAP, gltf_mat->mMetallicRoughnessTexture);
-                facep->setTexture(LLRender::EMISSIVE_MAP, gltf_mat->mEmissiveTexture);
-            }
-            else
-            {
-                // No (or no longer a) PBR material: clear any stale GLTF
-                // channel registrations so a removed material's textures
-                // stop accruing phantom coverage from this face.
-                facep->setTexture(LLRender::BASECOLOR_MAP, nullptr);
-                facep->setTexture(LLRender::GLTF_NORMAL_MAP, nullptr);
-                facep->setTexture(LLRender::METALLIC_ROUGHNESS_MAP, nullptr);
-                facep->setTexture(LLRender::EMISSIVE_MAP, nullptr);
-            }
         }
         facep->setViewerObject(this);
 
@@ -3406,7 +3367,7 @@ LLViewerTexture* LLVOVolume::getLightTexture()
     {
         if (mLightTexture.isNull() || id != mLightTexture->getID())
         {
-            mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+            mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE);
         }
     }
     else
@@ -5889,16 +5850,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                     facep->setTexture(LLRender::GLTF_NORMAL_MAP, gltf_mat->mNormalTexture);
                     facep->setTexture(LLRender::METALLIC_ROUGHNESS_MAP, gltf_mat->mMetallicRoughnessTexture);
                     facep->setTexture(LLRender::EMISSIVE_MAP, gltf_mat->mEmissiveTexture);
-                }
-                else
-                {
-                    // Face is not (or no longer) PBR: clear any stale GLTF
-                    // channel registrations, or a removed material's textures
-                    // keep accruing phantom coverage from this face forever.
-                    facep->setTexture(LLRender::BASECOLOR_MAP, nullptr);
-                    facep->setTexture(LLRender::GLTF_NORMAL_MAP, nullptr);
-                    facep->setTexture(LLRender::METALLIC_ROUGHNESS_MAP, nullptr);
-                    facep->setTexture(LLRender::EMISSIVE_MAP, nullptr);
                 }
 
                 //ALWAYS null out vertex buffer on rebuild -- if the face lands in a render

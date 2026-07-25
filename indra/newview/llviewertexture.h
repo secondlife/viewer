@@ -114,6 +114,8 @@ protected:
 public:
     static void initClass();
     static void updateClass();
+    static bool isSystemMemoryLow();
+    static bool isSystemMemoryCritical();
 
     LLViewerTexture(bool usemipmaps = true);
     LLViewerTexture(const LLUUID& id, bool usemipmaps) ;
@@ -144,11 +146,6 @@ public:
     S32 getMaxVirtualSizeResetCounter() const { return mMaxVirtualSizeResetCounter; }
 
     virtual F32  getMaxVirtualSize() ;
-
-    // Read-only debug access to the per-bucket coverage bounds (see
-    // mChannelCoverage) - used by the RENDER_DEBUG_TEXTURE_PRIORITY overlay.
-    F32 getChannelCoverage(S32 bucket) const { return (bucket >= 0 && bucket < 4) ? mChannelCoverage[bucket] : 0.f; }
-    F32 getChannelCoverageMin(S32 bucket) const { return (bucket >= 0 && bucket < 4) ? mChannelCoverageMin[bucket] : 0.f; }
 
     LLFrameTimer* getLastReferencedTimer() { return &mLastReferencedTimer; }
 
@@ -193,6 +190,8 @@ private:
     friend class LLBumpImageList;
     friend class LLUIImageList;
 
+    static U32Megabytes getFreeSystemMemory();
+
 protected:
     friend class LLViewerTextureList;
     LLUUID mID;
@@ -202,37 +201,6 @@ protected:
     mutable S32  mMaxVirtualSizeResetCounter;
     mutable S32  mMaxVirtualSizeResetInterval;
     LLFrameTimer mLastReferencedTimer;
-
-    // Screen-space pixel coverage bounds among the texture's faces, per
-    // priority bucket (0=Normal, 1=BaseColor, 2=Specular, 3=Emissive). 0 = the
-    // texture is not used in that channel (or hasn't been measured yet).
-    // Populated by LLViewerTextureList::updateImageDecodePriority; consumed by
-    // LLViewerLODTexture::computeDesiredDiscard. This is the only view-dependent
-    // streaming signal - distance, size, tiling, and channel role all collapse
-    // into it. Max = the most demanding use (lowest texels-per-pixel variant,
-    // the quality bound); Min = the least demanding positive use (highest
-    // texels-per-pixel, most oversampled - the downrez-bias end).
-    F32 mChannelCoverage[4] = { 0.f, 0.f, 0.f, 0.f };
-    F32 mChannelCoverageMin[4] = { 0.f, 0.f, 0.f, 0.f };
-
-    // Any face using this texture projects onto the screen (published alongside
-    // the coverage above). Selects the fetch-priority band in updateFetch.
-    // Defaults true so unmeasured textures (fresh objects, no-face users) are
-    // never starved.
-    bool mOnScreen = true;
-
-    // How far out of frustum the texture's least-out-of-view use sits, as a
-    // fraction of screen size (0 = on screen). Drives the frustum-allowance
-    // falloff in computeDesiredDiscard.
-    F32 mFrustumOverflow = 0.f;
-
-    // Last frame this texture was out of frustum (mFrustumOverflow > 0). The
-    // GC in computeDesiredDiscard gives re-entering content one grace window to
-    // be drawn and re-stamp mLastBindFrame before its staleness is judged.
-    mutable U32 mLastOffScreenFrame = 0;
-
-    // Membership flag for LLViewerTextureList::mFastFetchList (dedup).
-    bool mInFastFetchList = false;
 
     ll_face_list_t    mFaceList[LLRender::NUM_TEXTURE_CHANNELS]; //reverse pointer pointing to the faces using this image as texture
     U32               mNumFaces[LLRender::NUM_TEXTURE_CHANNELS];
@@ -254,28 +222,16 @@ public:
     static S32 sRawCount;
     static S32 sAuxCount;
     static LLFrameTimer sEvaluationTimer;
-
-    // The global max pixel:texel ratio (texels per screen pixel, the "R" in 1:R).
-    // The watermark controller in updateClass walks it between TexturePixelToTexelRatio
-    // and 0 as VRAM pressure changes; lower means coarser desired discards.
-    static F32 sPixelToTexelRatio;
-
-    // Frame index the GC was last suspended (kept current while backgrounded).
-    // The foreground GC only runs once getFrameCount() is a grace window past
-    // this, so content can re-stamp after an alt-tab before anything is collected.
-    static U32 sGCSuspendedFrame;
-
+    static F32 sDesiredDiscardBias;
+    static U32 sBiasTexturesUpdated;
     static S32 sMaxSculptRez ;
     static U32 sMinLargeImageSize ;
     static U32 sMaxSmallImageSize ;
+    static bool sFreezeImageUpdates;
     static F32  sCurrentTime ;
 
     // estimated free memory for textures, by bias calculation
     static F32 sFreeVRAMMegabytes;
-
-    // Viewport pixel area, refreshed once per frame. Hoisted to keep the
-    // per-texture hot path out of gViewerWindow.
-    static F32 sWindowPixelArea;
 
     enum EDebugTexels
     {
@@ -322,15 +278,26 @@ public:
     LLViewerFetchedTexture(const LLImageRaw* raw, FTType f_type, bool usemipmaps);
     LLViewerFetchedTexture(const std::string& url, FTType f_type, const LLUUID& id, bool usemipmaps = true);
 
-    // Avatar bake/skin textures - exempt from non-visibility-driven discard
-    // (staleness, background, pressure) to avoid the universal-cloud bug.
-    static bool isAgentAvatarBoost(S32 boost_level)
+public:
+
+    struct Compare
     {
-        return boost_level == BOOST_AVATAR
-            || boost_level == BOOST_AVATAR_BAKED
-            || boost_level == BOOST_AVATAR_SELF
-            || boost_level == BOOST_AVATAR_BAKED_SELF;
-    }
+        // lhs < rhs
+        bool operator()(const LLPointer<LLViewerFetchedTexture> &lhs, const LLPointer<LLViewerFetchedTexture> &rhs) const
+        {
+            const LLViewerFetchedTexture* lhsp = (const LLViewerFetchedTexture*)lhs;
+            const LLViewerFetchedTexture* rhsp = (const LLViewerFetchedTexture*)rhs;
+
+            // greater priority is "less"
+            const F32 lpriority = lhsp->mMaxVirtualSize;
+            const F32 rpriority = rhsp->mMaxVirtualSize;
+            if (lpriority > rpriority) // higher priority
+                return true;
+            if (lpriority < rpriority)
+                return false;
+            return lhsp < rhsp;
+        }
+    };
 
 public:
     /*virtual*/ S8 getType() const override;
@@ -371,7 +338,7 @@ public:
 
     void updateVirtualSize() ;
 
-    S32  getDesiredDiscardLevel() const      { return mDesiredDiscardLevel; }
+    S32  getDesiredDiscardLevel()            { return mDesiredDiscardLevel; }
     void setMinDiscardLevel(S32 discard)    { mMinDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel,(S8)discard); }
 
     void setBoostLevel(S32 level) override;
@@ -493,12 +460,6 @@ protected:
     S8  mDesiredDiscardLevel;           // The discard level we'd LIKE to have - if we have it and there's space
     S8  mMinDesiredDiscardLevel;    // The minimum discard level we'd like to have
 
-    // Fetch-side discard cap from the J2C codestream's DWT level count
-    // (populated by the fetcher). Distinct from LLImageGL::mMaxDiscardLevel -
-    // scaleDown can still trim the GL pyramid past this.
-    static constexpr S8 sFallbackCodecMaxDiscardLevel = 5; // MIN_DECOMPOSITION_LEVELS
-    S8  mCodecMaxDiscardLevel = sFallbackCodecMaxDiscardLevel;
-
     bool mNeedsAux;                 // We need to decode the auxiliary channels
     bool mHasAux;                    // We have aux channels
     bool mDecodingAux;              // Are we decoding high components
@@ -578,21 +539,12 @@ public:
     S8 getType() const override;
     // Process image stats to determine priority/quality requirements.
     void processTextureStats() override;
+    bool isUpdateFrozen() ;
 
     bool scaleDown() override;
 
 private:
     void init(bool firstinit) ;
-
-    // The whole streaming pipeline: desired discard from the pixel:texel ratio.
-    // For each channel bucket the texture is used in, the most-demanding
-    // (largest coverage) face sets that bucket's requirement at
-    // floor(log4(texels / (R_global * channelRatio[b] * coverage))); the sharpest
-    // requirement across buckets wins (one GL image serves all its channels).
-    // A per-mip hysteresis dead-band against the current discard level prevents
-    // fetch/scaleDown thrash. avatar_bake textures use the configured max ratio
-    // instead of the pressure-driven sPixelToTexelRatio (anti cloud-bug).
-    S32 computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) const;
 };
 
 //

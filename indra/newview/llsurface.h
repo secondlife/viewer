@@ -163,12 +163,6 @@ public:
 
     F32 mDetailTextureScale;    //  Number of times to repeat detail texture across this surface
 
-    // Closest visible patch distance across all surfaces this frame
-    // (meters), or FLT_MAX if none visible. Drives BOOST_TERRAIN
-    // streaming - terrain has no faces registered with its texture.
-    static F32 sNearestVisiblePatchDistance;
-    static U32 sNearestVisiblePatchFrame;
-
 private:
     void createSTexture();
     void initTextures();

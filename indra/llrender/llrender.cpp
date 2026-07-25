@@ -194,9 +194,6 @@ void LLTexUnit::bindFast(LLTexture* texture)
     gGL.mCurrTextureUnitIndex = mIndex;
     mCurrTexture = gl_tex->getTexName();
     mCurrTexType = gl_tex->getTarget();
-    // bindFast bypasses updateBindStats(); stamp directly so the staleness
-    // signal sees per-frame use of batched textures.
-    gl_tex->stampBound();
     if (!mCurrTexture)
     {
         LL_PROFILE_ZONE_NAMED("MISSING TEXTURE");
@@ -241,11 +238,6 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
                         texture->setActive() ;
                         texture->updateBindStatsForTester() ;
                     }
-                    // updateBindStats only stamps time; the GC and fetch gate use
-                    // the frame stamp, so stamp it here too or bind()-drawn faces
-                    // (bump/material/media) oscillate. Admin/non-camera binds are
-                    // already suppressed via LLImageGLStampBypass / sStampBindFrame.
-                    gl_tex->stampBound();
                     mHasMipMaps = gl_tex->mHasMipMaps;
                     if (gl_tex->mTexOptionsDirty)
                     {
@@ -254,17 +246,11 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
                         setTextureFilteringOption(gl_tex->mFilterOption);
                     }
                 }
-                else
-                {
-                    // Already current - still being used, keep it fresh.
-                    gl_tex->stampBound();
-                }
             }
             else
             {
                 //if deleted, will re-generate it immediately
                 texture->forceImmediateUpdate() ;
-                gl_tex->stampBound();
 
                 gl_tex->forceUpdateBindStats() ;
                 return texture->bindDefaultImage(mIndex);
@@ -326,8 +312,6 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32
         glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
         stop_glerror();
         texture->updateBindStats();
-        // Frame-stamp fresh binds too - see bind(LLTexture*) above.
-        texture->stampBound();
         mHasMipMaps = texture->mHasMipMaps;
         if (texture->mTexOptionsDirty)
         {
@@ -337,11 +321,6 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32
             setTextureFilteringOption(texture->mFilterOption);
             stop_glerror();
         }
-    }
-    else
-    {
-        // Already current - still being used, keep it fresh.
-        texture->stampBound();
     }
 
     stop_glerror();

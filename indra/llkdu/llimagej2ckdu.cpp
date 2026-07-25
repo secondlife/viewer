@@ -1551,33 +1551,3 @@ void kdc_flow_control::process_components()
         }
     }
 }
-
-// Layer-factored byte estimator. Walks the resolution pyramid to count
-// layers, weights by layer_factor, then picks between a sqrt-based "new"
-// estimate and a raw-dimensions "old" estimate per TextureNewByteRange.
-// Reference: https://wiki.lindenlab.com/wiki/THX1138_KDU_Improvements#Byte_Range_Study
-S32 LLImageJ2CKDU::estimateDataSize(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate) const
-{
-    S32 width  = (w > 0) ? w : 2048;
-    S32 height = (h > 0) ? h : 2048;
-    S32 nb_layers = 1;
-    S32 surface = width * height;
-    S32 s = MAX_BLOCK_SIZE * MAX_BLOCK_SIZE;
-    while (surface > s)
-    {
-        nb_layers++;
-        s *= 4;
-    }
-    F32 layer_factor = 3.0f * (7 - llclamp(nb_layers, 1, 6));
-
-    width  >>= discard_level;
-    height >>= discard_level;
-    width  = llmax(width, 1);
-    height = llmax(height, 1);
-
-    S32 new_bytes = (S32)(sqrtf((F32)(width * height)) * (F32)comp * rate * 1000.f / layer_factor);
-    S32 old_bytes = (S32)((F32)(width * height * comp) * rate);
-    S32 bytes = (LLImage::useNewByteRange() && (new_bytes < old_bytes)) ? new_bytes : old_bytes;
-    bytes = llmax(bytes, LLImageJ2C::calcHeaderSizeJ2C());
-    return bytes;
-}
