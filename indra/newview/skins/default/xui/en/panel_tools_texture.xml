@@ -153,9 +153,7 @@
              left="8"
              name="object_horizontal"
              top_pad="4"
-             width="278"
-             font="DejaVu"
-             font.size="LSmall" />
+             width="278" />
             <text
              type="string"
              length="1"
