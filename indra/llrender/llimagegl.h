@@ -285,11 +285,6 @@ public:
     // Global memory statistics
     static U32 sBindCount;                  // Tracks number of texture binds for current frame
     static U32 sUniqueCount;                // Tracks number of unique texture binds for current frame
-    // glTexImage2D GL_OUT_OF_MEMORY failures detected (bytes NOT counted for
-    // these). Written from whichever thread runs texture creation; read by
-    // the streaming 1Hz pressure log. Nonzero = the driver is refusing
-    // allocations and the VRAM budget is unreliable.
-    static std::atomic<U32> sOOMErrorCount;
     static LLImageGL* sDefaultGLTexture ;
     static bool sAutomatedTest;
     static bool sCompressTextures;          //use GL texture compression
