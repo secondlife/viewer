@@ -4,9 +4,10 @@
                 image_selected="SegmentedBtn_Left_Selected"
                 image_unselected="SegmentedBtn_Left_Off"
                 image_disabled="SegmentedBtn_Left_Disabled"/>
-  <combo_button image_selected="ComboButton_Selected"
-                image_unselected="ComboButton_Off"
-                image_disabled="ComboButton_Disabled"
-                pad_right="6"
-                tab_stop="false"/>
+  <drop_down_button image_selected="ComboButton_Selected"
+                    image_unselected="ComboButton_Off"
+                    image_disabled="ComboButton_Disabled"
+                    image_pressed="ComboButton_Selected"
+                    pad_right="6"
+                    tab_stop="false"/>
 </flyout_button>
