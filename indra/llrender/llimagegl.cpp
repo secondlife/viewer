@@ -542,7 +542,6 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
 
     mIsMask = false;
     mNeedsAlphaAndPickMask = true ;
-    mTextureUploadPrepared = false;
     mUploadPreparation.reset();
     mAlphaStride = 0 ;
     mAlphaOffset = 0 ;
@@ -747,24 +746,30 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
+    bool alpha_prepared = false;
+    bool pick_mask_prepared = false;
     if (mUploadPreparation)
     {
         TextureUploadPreparation preparation = std::move(*mUploadPreparation);
         mUploadPreparation.reset();
-        if (preparation.mAlphaAnalyzed)
+        alpha_prepared = preparation.mAlphaAnalyzed;
+        pick_mask_prepared = preparation.mPickMaskPrepared;
+        if (alpha_prepared)
         {
             mIsMask = preparation.mIsMask;
         }
 
-        freePickMask();
-        if (!preparation.mPickMask.empty())
+        if (pick_mask_prepared)
         {
-            mPickMask = new U8[preparation.mPickMask.size()];
-            memcpy(mPickMask, preparation.mPickMask.data(), preparation.mPickMask.size());
+            freePickMask();
             mPickMaskWidth = preparation.mPickMaskWidth;
             mPickMaskHeight = preparation.mPickMaskHeight;
+            if (!preparation.mPickMask.empty())
+            {
+                mPickMask = new U8[preparation.mPickMask.size()];
+                memcpy(mPickMask, preparation.mPickMask.data(), preparation.mPickMask.size());
+            }
         }
-        mTextureUploadPrepared = true;
     }
 
     const bool is_compressed = isCompressed();
@@ -826,11 +831,11 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                     }
 
                     LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in, mAllowCompression);
-                    if (gl_level == 0 && !mTextureUploadPrepared)
+                    if (gl_level == 0 && !alpha_prepared)
                     {
                         analyzeAlpha(data_in, w, h);
                     }
-                    if (!mTextureUploadPrepared)
+                    if (!pick_mask_prepared)
                     {
                         updatePickMask(w, h, data_in);
                     }
@@ -875,13 +880,13 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                                  w, h,
                                  mFormatPrimary, mFormatType,
                                  data_in, mAllowCompression);
-                    if (!mTextureUploadPrepared)
+                    if (!alpha_prepared)
                     {
                         analyzeAlpha(data_in, w, h);
                     }
                     stop_glerror();
 
-                    if (!mTextureUploadPrepared)
+                    if (!pick_mask_prepared)
                     {
                         updatePickMask(w, h, data_in);
                     }
@@ -954,7 +959,6 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                             }
 
                             mGLTextureCreated = false;
-                            mTextureUploadPrepared = false;
                             return false;
                         }
                         else
@@ -983,12 +987,12 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                         }
 
                         LLImageGL::setManualImage(mTarget, m, mFormatInternal, w, h, mFormatPrimary, mFormatType, cur_mip_data, mAllowCompression);
-                        if (m == 0 && !mTextureUploadPrepared)
+                        if (m == 0 && !alpha_prepared)
                         {
                             analyzeAlpha(data_in, w, h);
                         }
                         stop_glerror();
-                        if (m == 0 && !mTextureUploadPrepared)
+                        if (m == 0 && !pick_mask_prepared)
                         {
                             updatePickMask(w, h, cur_mip_data);
                         }
@@ -1040,12 +1044,12 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
 
             LLImageGL::setManualImage(mTarget, 0, mFormatInternal, w, h,
                          mFormatPrimary, mFormatType, (GLvoid *)data_in, mAllowCompression);
-            if (!mTextureUploadPrepared)
+            if (!alpha_prepared)
             {
                 analyzeAlpha(data_in, w, h);
             }
 
-            if (!mTextureUploadPrepared)
+            if (!pick_mask_prepared)
             {
                 updatePickMask(w, h, data_in);
             }
@@ -1061,7 +1065,6 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
         }
     }
     stop_glerror();
-    mTextureUploadPrepared = false;
     mGLTextureCreated = true;
     return true;
 }
@@ -2162,10 +2165,8 @@ bool analyze_alpha_mask(const U8* data, U32 width, U32 height, S32 alpha_stride,
     U32 alpha_total = 0;
     U32 sample[16] = {};
 
-    if (width >= 2 && height >= 2)
+    if (width >= 2 && height >= 2 && width % 2 == 0 && height % 2 == 0)
     {
-        llassert(width % 2 == 0);
-        llassert(height % 2 == 0);
         const U8* row_start = data + alpha_offset;
         for (U32 y = 0; y < height; y += 2)
         {
@@ -2258,17 +2259,21 @@ LLImageGL::TextureUploadPreparation LLImageGL::prepareForUpload(const LLImageRaw
 
     if (components == 4)
     {
-        result.mPickMaskWidth = width / 2;
-        result.mPickMaskHeight = height / 2;
-        const U32 bit_count = (width / 2 + 1) * (height / 2 + 1);
+        const U32 pick_width = (static_cast<U32>(width) + 1) / 2;
+        const U32 pick_height = (static_cast<U32>(height) + 1) / 2;
+        result.mPickMaskPrepared = true;
+        result.mPickMaskWidth = static_cast<U16>(pick_width);
+        result.mPickMaskHeight = static_cast<U16>(pick_height);
+        const U32 bit_count = pick_width * pick_height;
         result.mPickMask.resize((bit_count + 7) / 8);
 
+        const S32 alpha_offset = components - 1;
         U32 pick_bit = 0;
         for (S32 y = 0; y < height; y += 2)
         {
             for (S32 x = 0; x < width; x += 2)
             {
-                if (data[(y * width + x) * 4 + 3] > 32)
+                if (data[(y * width + x) * components + alpha_offset] > 32)
                 {
                     result.mPickMask[pick_bit / 8] |= 1 << (pick_bit % 8);
                 }
@@ -2288,7 +2293,6 @@ void LLImageGL::applyUploadPreparation(TextureUploadPreparation&& preparation)
 void LLImageGL::discardUploadPreparation()
 {
     mUploadPreparation.reset();
-    mTextureUploadPrepared = false;
 }
 
 void LLImageGL::calcAlphaChannelOffsetAndStride()
@@ -2380,14 +2384,14 @@ U32 LLImageGL::createPickMask(S32 pWidth, S32 pHeight)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     freePickMask();
-    U32 pick_width = pWidth/2 + 1;
-    U32 pick_height = pHeight/2 + 1;
+    U32 pick_width = (static_cast<U32>(pWidth) + 1) / 2;
+    U32 pick_height = (static_cast<U32>(pHeight) + 1) / 2;
 
     U32 size = pick_width * pick_height;
     size = (size + 7) / 8; // pixelcount-to-bits
     mPickMask = new U8[size];
-    mPickMaskWidth = pick_width - 1;
-    mPickMaskHeight = pick_height - 1;
+    mPickMaskWidth = static_cast<U16>(pick_width);
+    mPickMaskHeight = static_cast<U16>(pick_height);
 
     memset(mPickMask, 0, sizeof(U8) * size);
 

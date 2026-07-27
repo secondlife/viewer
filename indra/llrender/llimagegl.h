@@ -67,6 +67,7 @@ public:
     {
         bool mAlphaAnalyzed = false;
         bool mIsMask = false;
+        bool mPickMaskPrepared = false;
         U16 mPickMaskWidth = 0;
         U16 mPickMaskHeight = 0;
         std::vector<U8> mPickMask;
@@ -257,7 +258,6 @@ private:
 
     bool mIsMask;
     bool mNeedsAlphaAndPickMask;
-    bool mTextureUploadPrepared;
     std::unique_ptr<TextureUploadPreparation> mUploadPreparation;
     S8   mAlphaStride ;
     S8   mAlphaOffset ;
