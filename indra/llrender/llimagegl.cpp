@@ -42,6 +42,7 @@
 #include "llwindow.h"
 #include "llframetimer.h"
 #include <unordered_set>
+#include <utility>
 
 extern LL_COMMON_API bool on_main_thread();
 
@@ -541,6 +542,7 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
 
     mIsMask = false;
     mNeedsAlphaAndPickMask = true ;
+    mUploadPreparation.reset();
     mAlphaStride = 0 ;
     mAlphaOffset = 0 ;
 
@@ -588,6 +590,7 @@ void LLImageGL::cleanup()
         destroyGLTexture();
     }
     freePickMask();
+    discardUploadPreparation();
 
     mSaveData = NULL; // deletes data
 }
@@ -744,6 +747,32 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
+    bool alpha_prepared = false;
+    bool pick_mask_prepared = false;
+    if (mUploadPreparation)
+    {
+        TextureUploadPreparation preparation = std::move(*mUploadPreparation);
+        mUploadPreparation.reset();
+        alpha_prepared = preparation.mAlphaAnalyzed;
+        pick_mask_prepared = preparation.mPickMaskPrepared;
+        if (alpha_prepared)
+        {
+            mIsMask = preparation.mIsMask;
+        }
+
+        if (pick_mask_prepared)
+        {
+            freePickMask();
+            mPickMaskWidth = preparation.mPickMaskWidth;
+            mPickMaskHeight = preparation.mPickMaskHeight;
+            if (!preparation.mPickMask.empty())
+            {
+                mPickMask = new U8[preparation.mPickMask.size()];
+                memcpy(mPickMask, preparation.mPickMask.data(), preparation.mPickMask.size());
+            }
+        }
+    }
+
     const bool is_compressed = isCompressed();
 
     if (mUseMipMaps)
@@ -803,11 +832,14 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                     }
 
                     LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in, mAllowCompression);
-                    if (gl_level == 0)
+                    if (gl_level == 0 && !alpha_prepared)
                     {
                         analyzeAlpha(data_in, w, h);
                     }
-                    updatePickMask(w, h, data_in);
+                    if (!pick_mask_prepared)
+                    {
+                        updatePickMask(w, h, data_in);
+                    }
 
                     if(mFormatSwapBytes)
                     {
@@ -849,10 +881,16 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                                  w, h,
                                  mFormatPrimary, mFormatType,
                                  data_in, mAllowCompression);
-                    analyzeAlpha(data_in, w, h);
+                    if (!alpha_prepared)
+                    {
+                        analyzeAlpha(data_in, w, h);
+                    }
                     stop_glerror();
 
-                    updatePickMask(w, h, data_in);
+                    if (!pick_mask_prepared)
+                    {
+                        updatePickMask(w, h, data_in);
+                    }
 
                     if(mFormatSwapBytes)
                     {
@@ -950,12 +988,12 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                         }
 
                         LLImageGL::setManualImage(mTarget, m, mFormatInternal, w, h, mFormatPrimary, mFormatType, cur_mip_data, mAllowCompression);
-                        if (m == 0)
+                        if (m == 0 && !alpha_prepared)
                         {
                             analyzeAlpha(data_in, w, h);
                         }
                         stop_glerror();
-                        if (m == 0)
+                        if (m == 0 && !pick_mask_prepared)
                         {
                             updatePickMask(w, h, cur_mip_data);
                         }
@@ -1007,9 +1045,15 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
 
             LLImageGL::setManualImage(mTarget, 0, mFormatInternal, w, h,
                          mFormatPrimary, mFormatType, (GLvoid *)data_in, mAllowCompression);
-            analyzeAlpha(data_in, w, h);
+            if (!alpha_prepared)
+            {
+                analyzeAlpha(data_in, w, h);
+            }
 
-            updatePickMask(w, h, data_in);
+            if (!pick_mask_prepared)
+            {
+                updatePickMask(w, h, data_in);
+            }
 
             stop_glerror();
 
@@ -2114,6 +2158,153 @@ void LLImageGL::setNeedsAlphaAndPickMask(bool need_mask)
     }
 }
 
+namespace
+{
+bool analyze_alpha_mask(const U8* data, U32 width, U32 height, S32 alpha_stride, S32 alpha_offset)
+{
+    U32 length = width * height;
+    U32 alpha_total = 0;
+    U32 sample[16] = {};
+
+    // Generate a histogram of quantized alpha.
+    // Also add the histogram of a 2x2 box-sampled version. The idea is
+    // to mid-skew the data (and thus reduce the chance of treating it as
+    // a mask) for high-frequency alpha maps, which suffer the worst from
+    // aliasing when used as alpha masks.
+    if (width >= 2 && height >= 2 && width % 2 == 0 && height % 2 == 0)
+    {
+        const U8* row_start = data + alpha_offset;
+        for (U32 y = 0; y < height; y += 2)
+        {
+            const U8* current = row_start;
+            for (U32 x = 0; x < width; x += 2)
+            {
+                const U32 s1 = current[0];
+                alpha_total += s1;
+                const U32 s2 = current[width * alpha_stride];
+                alpha_total += s2;
+                current += alpha_stride;
+                const U32 s3 = current[0];
+                alpha_total += s3;
+                const U32 s4 = current[width * alpha_stride];
+                alpha_total += s4;
+                current += alpha_stride;
+
+                ++sample[s1 / 16];
+                ++sample[s2 / 16];
+                ++sample[s3 / 16];
+                ++sample[s4 / 16];
+
+                const U32 average_sum = s1 + s2 + s3 + s4;
+                alpha_total += average_sum;
+                sample[average_sum / (16 * 4)] += 4;
+            }
+
+            row_start += 2 * width * alpha_stride;
+        }
+        length *= 2; // We sampled everything twice, essentially.
+    }
+    else
+    {
+        const U8* current = data + alpha_offset;
+        for (U32 i = 0; i < length; ++i)
+        {
+            const U32 alpha = *current;
+            alpha_total += alpha;
+            ++sample[alpha / 16];
+            current += alpha_stride;
+        }
+    }
+
+    // Too many mid-range alpha samples make the texture unsuitable for a
+    // 1-bit mask. Likewise, if all samples are clumped in one half of the
+    // range (but not at an absolute extreme), treat that as an intentional
+    // effect rather than a mask.
+    U32 midrange_total = 0;
+    for (U32 i = 2; i < 13; ++i)
+    {
+        midrange_total += sample[i];
+    }
+    U32 lower_half_total = 0;
+    for (U32 i = 0; i < 8; ++i)
+    {
+        lower_half_total += sample[i];
+    }
+    U32 upper_half_total = 0;
+    for (U32 i = 8; i < 16; ++i)
+    {
+        upper_half_total += sample[i];
+    }
+
+    return midrange_total <= length / 48 &&
+           (lower_half_total != length || alpha_total == 0) &&
+           (upper_half_total != length || alpha_total == 255 * length);
+}
+}
+
+LLImageGL::TextureUploadPreparation LLImageGL::prepareForUpload(const LLImageRaw* image)
+{
+    LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("prepare texture upload");
+
+    TextureUploadPreparation result;
+    if (!image || image->isBufferInvalid())
+    {
+        return result;
+    }
+
+    const S32 width = image->getWidth();
+    const S32 height = image->getHeight();
+    const S32 components = image->getComponents();
+    const U8* data = image->getData();
+    if (!data || (components != 1 && components != 2 && components != 4))
+    {
+        return result;
+    }
+
+    if (!sSkipAnalyzeAlpha)
+    {
+        result.mAlphaAnalyzed = true;
+        result.mIsMask = analyze_alpha_mask(data, width, height, components, components - 1);
+    }
+
+    if (components == 4)
+    {
+        const U32 pick_width = (static_cast<U32>(width) + 1) / 2;
+        const U32 pick_height = (static_cast<U32>(height) + 1) / 2;
+        result.mPickMaskPrepared = true;
+        result.mPickMaskWidth = static_cast<U16>(pick_width);
+        result.mPickMaskHeight = static_cast<U16>(pick_height);
+        const U32 bit_count = pick_width * pick_height;
+        result.mPickMask.resize((bit_count + 7) / 8);
+
+        const S32 alpha_offset = components - 1;
+        U32 pick_bit = 0;
+        for (S32 y = 0; y < height; y += 2)
+        {
+            for (S32 x = 0; x < width; x += 2)
+            {
+                if (data[(y * width + x) * components + alpha_offset] > 32)
+                {
+                    result.mPickMask[pick_bit / 8] |= 1 << (pick_bit % 8);
+                }
+                ++pick_bit;
+            }
+        }
+    }
+
+    return result;
+}
+
+void LLImageGL::applyUploadPreparation(TextureUploadPreparation&& preparation)
+{
+    mUploadPreparation = std::make_unique<TextureUploadPreparation>(std::move(preparation));
+}
+
+void LLImageGL::discardUploadPreparation()
+{
+    mUploadPreparation.reset();
+}
+
 void LLImageGL::calcAlphaChannelOffsetAndStride()
 {
     if(mAlphaOffset == INVALID_OFFSET)//do not need alpha mask
@@ -2195,98 +2386,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-
-    U32 length = w * h;
-    U32 alphatotal = 0;
-
-    U32 sample[16];
-    memset(sample, 0, sizeof(U32)*16);
-
-    // generate histogram of quantized alpha.
-    // also add-in the histogram of a 2x2 box-sampled version.  The idea is
-    // this will mid-skew the data (and thus increase the chances of not
-    // being used as a mask) from high-frequency alpha maps which
-    // suffer the worst from aliasing when used as alpha masks.
-    if (w >= 2 && h >= 2)
-    {
-        llassert(w % 2 == 0);
-        llassert(h % 2 == 0);
-        const GLubyte* rowstart = ((const GLubyte*) data_in) + mAlphaOffset;
-        for (U32 y = 0; y < h; y += 2)
-        {
-            const GLubyte* current = rowstart;
-            for (U32 x = 0; x < w; x += 2)
-            {
-                const U32 s1 = current[0];
-                alphatotal += s1;
-                const U32 s2 = current[w * mAlphaStride];
-                alphatotal += s2;
-                current += mAlphaStride;
-                const U32 s3 = current[0];
-                alphatotal += s3;
-                const U32 s4 = current[w * mAlphaStride];
-                alphatotal += s4;
-                current += mAlphaStride;
-
-                ++sample[s1/16];
-                ++sample[s2/16];
-                ++sample[s3/16];
-                ++sample[s4/16];
-
-                const U32 asum = (s1+s2+s3+s4);
-                alphatotal += asum;
-                sample[asum/(16*4)] += 4;
-            }
-
-            rowstart += 2 * w * mAlphaStride;
-        }
-        length *= 2; // we sampled everything twice, essentially
-    }
-    else
-    {
-        const GLubyte* current = ((const GLubyte*) data_in) + mAlphaOffset;
-        for (U32 i = 0; i < length; i++)
-        {
-            const U32 s1 = *current;
-            alphatotal += s1;
-            ++sample[s1/16];
-            current += mAlphaStride;
-        }
-    }
-
-    // if more than 1/16th of alpha samples are mid-range, this
-    // shouldn't be treated as a 1-bit mask
-
-    // also, if all of the alpha samples are clumped on one half
-    // of the range (but not at an absolute extreme), then consider
-    // this to be an intentional effect and don't treat as a mask.
-
-    U32 midrangetotal = 0;
-    for (U32 i = 2; i < 13; i++)
-    {
-        midrangetotal += sample[i];
-    }
-    U32 lowerhalftotal = 0;
-    for (U32 i = 0; i < 8; i++)
-    {
-        lowerhalftotal += sample[i];
-    }
-    U32 upperhalftotal = 0;
-    for (U32 i = 8; i < 16; i++)
-    {
-        upperhalftotal += sample[i];
-    }
-
-    if (midrangetotal > length/48 || // lots of midrange, or
-        (lowerhalftotal == length && alphatotal != 0) || // all close to transparent but not all totally transparent, or
-        (upperhalftotal == length && alphatotal != 255*length)) // all close to opaque but not all totally opaque
-    {
-        mIsMask = false; // not suitable for masking
-    }
-    else
-    {
-        mIsMask = true;
-    }
+    mIsMask = analyze_alpha_mask(static_cast<const U8*>(data_in), w, h, mAlphaStride, mAlphaOffset);
 }
 
 //----------------------------------------------------------------------------
@@ -2294,14 +2394,14 @@ U32 LLImageGL::createPickMask(S32 pWidth, S32 pHeight)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     freePickMask();
-    U32 pick_width = pWidth/2 + 1;
-    U32 pick_height = pHeight/2 + 1;
+    U32 pick_width = (static_cast<U32>(pWidth) + 1) / 2;
+    U32 pick_height = (static_cast<U32>(pHeight) + 1) / 2;
 
     U32 size = pick_width * pick_height;
     size = (size + 7) / 8; // pixelcount-to-bits
     mPickMask = new U8[size];
-    mPickMaskWidth = pick_width - 1;
-    mPickMaskHeight = pick_height - 1;
+    mPickMaskWidth = static_cast<U16>(pick_width);
+    mPickMaskHeight = static_cast<U16>(pick_height);
 
     memset(mPickMask, 0, sizeof(U8) * size);
 
@@ -2641,4 +2741,3 @@ void LLImageGLThread::run()
     gGL.shutdown();
     mWindow->destroySharedContext(mContext);
 }
-

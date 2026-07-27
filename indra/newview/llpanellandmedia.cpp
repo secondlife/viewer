@@ -135,8 +135,6 @@ void LLPanelLandMedia::refresh()
         mMediaURLEdit->setText(parcel->getMediaURL());
         mMediaURLEdit->setEnabled( false );
 
-        getChild<LLUICtrl>("current_url")->setValue(parcel->getMediaCurrentURL());
-
         mMediaDescEdit->setText(parcel->getMediaDesc());
         mMediaDescEdit->setEnabled( can_change_media );
 
@@ -234,12 +232,9 @@ void LLPanelLandMedia::setMediaURL(const std::string& media_url)
     LLParcel *parcel = mParcel->getParcel();
     if(parcel)
         parcel->setMediaCurrentURL(media_url);
-    // LLViewerMedia::navigateHome();
 
 
     mMediaURLEdit->onCommit();
-    // LLViewerParcelMedia::sendMediaNavigateMessage(media_url);
-    getChild<LLUICtrl>("current_url")->setValue(media_url);
 }
 std::string LLPanelLandMedia::getMediaURL()
 {
@@ -322,8 +317,6 @@ void LLPanelLandMedia::onResetBtn(void *userdata)
     LLParcel* parcel = self->mParcel->getParcel();
     // LLViewerMedia::navigateHome();
     self->refresh();
-    self->getChild<LLUICtrl>("current_url")->setValue(parcel->getMediaURL());
-    // LLViewerParcelMedia::sendMediaNavigateMessage(parcel->getMediaURL());
 
 }
 
