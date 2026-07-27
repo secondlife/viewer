@@ -41,6 +41,8 @@ extern bool gHiDPISupport;
 #endif
 
 static int LOW_PRIORITY_TEXTURE_SIZE_DEFAULT = 256;
+static const U32 MIN_DEBUG_PORT = 1024;
+static const U32 MAX_DEBUG_PORT = 65535;
 
 static int nextPowerOf2( int value )
 {
@@ -963,6 +965,34 @@ void LLPluginClassMedia::showPageSource()
     sendMessage(message);
 }
 
+
+static U32 assignCefDebuggingPort()
+{
+    U32 base_port = gSavedSettings.getU32("CEFRemoteDebuggingPort");
+    if (base_port == 0)
+    {
+        return 0;
+    }
+    base_port = llclamp<U32>(base_port, MIN_DEBUG_PORT, MAX_DEBUG_PORT);
+
+    static U32 last_base_port = 0;
+    static U32 offset = 0;
+    if (base_port != last_base_port)
+    {
+        last_base_port = base_port;
+        offset = 0;
+    }
+
+    U32 new_port = base_port + offset;
+    if (new_port > MAX_DEBUG_PORT)
+    {
+        return 0;
+    }
+
+    ++offset;
+    return new_port;
+}
+
 void LLPluginClassMedia::setUserDataPath(const std::string &user_data_path_cache,
                                          const std::string &username,
                                          const std::string &user_data_path_cef_log)
@@ -974,6 +1004,10 @@ void LLPluginClassMedia::setUserDataPath(const std::string &user_data_path_cache
 
     bool cef_verbose_log = gSavedSettings.getBOOL("CefVerboseLog");
     message.setValueBoolean("cef_verbose_log", cef_verbose_log);
+
+    U32 cef_remote_debugging_port = assignCefDebuggingPort();
+    message.setValueU32("cef_remote_debugging_port", cef_remote_debugging_port);
+    mCefRemoteDebuggingPort = cef_remote_debugging_port;
     sendMessage(message);
 }
 
