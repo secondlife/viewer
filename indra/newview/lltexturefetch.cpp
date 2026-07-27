@@ -402,6 +402,9 @@ public:
     // Threads:  Tid
     void callbackDecoded(bool success, const std::string& error_message, LLImageRaw* raw, LLImageRaw* aux, S32 decode_id);
 
+    // Threads:  Ttf or Tid when queuing the preparation failed
+    void callbackUploadPreparation(LLImageRaw* raw, LLImageGL::TextureUploadPreparation&& preparation);
+
     // Threads:  T*
     void setGetStatus(LLCore::HttpStatus status, const std::string& reason)
     {
@@ -447,7 +450,7 @@ public:
 protected:
     LLTextureFetchWorker(LLTextureFetch* fetcher, FTType f_type,
                          const std::string& url, const LLUUID& id, const LLHost& host,
-                         F32 priority, S32 discard, S32 size);
+                         F32 priority, S32 discard, S32 size, bool prepare_for_upload);
 
 private:
 
@@ -531,6 +534,7 @@ private:
     LLPointer<LLImageFormatted> mFormattedImage;
     LLPointer<LLImageRaw>       mRawImage,
                                 mAuxImage;
+    LLImageGL::TextureUploadPreparation mUploadPreparation;
     FTType mFTType;
     LLUUID mID;
     LLHost mHost;
@@ -568,6 +572,7 @@ private:
     bool mDecoded;
     bool mWritten;
     bool mNeedsAux;
+    bool mPrepareForUpload;
     bool mHaveAllData;
     bool mInLocalCache;
     bool mInCache;
@@ -860,7 +865,8 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
                                            const LLHost& host,  // Simulator host
                                            F32 priority,        // Priority
                                            S32 discard,         // Desired discard
-                                           S32 size)            // Desired size
+                                           S32 size,            // Desired size
+                                           bool prepare_for_upload)
     : LLWorkerClass(fetcher, "TextureFetch"),
       LLCore::HttpHandler(),
       mState(INIT),
@@ -894,6 +900,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
       mDecoded(false),
       mWritten(false),
       mNeedsAux(false),
+      mPrepareForUpload(prepare_for_upload),
       mHaveAllData(false),
       mInLocalCache(false),
       mInCache(false),
@@ -1110,6 +1117,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
         }
         mSkippedStatesTime = 0;
         mRawImage = NULL ;
+        mUploadPreparation = {};
         mRequestedDiscard = -1;
         mLoadedDiscard = -1;
         mDecodedDiscard = -1;
@@ -1794,6 +1802,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
         mDecodeTimer.reset();
         mRawImage = NULL;
         mAuxImage = NULL;
+        mUploadPreparation = {};
 
         // if we have the entire image data (and the image is not J2C), decode the full res image
         // DO NOT decode a higher res j2c than was requested.  This is a waste of time and memory.
@@ -2323,51 +2332,80 @@ void LLTextureFetchWorker::callbackCacheWrite(bool success)
 //////////////////////////////////////////////////////////////////////////////
 
 // Threads:  Tid
-void LLTextureFetchWorker::callbackDecoded(bool success, const std::string &error_message, LLImageRaw* raw, LLImageRaw* aux, S32 decode_id)
+void LLTextureFetchWorker::callbackDecoded(bool success, const std::string &error_message,
+                                           LLImageRaw* raw, LLImageRaw* aux, S32 decode_id)
+{
+    bool prepare_for_upload = false;
+    {
+        LLMutexLock lock(&mWorkMutex);                                  // +Mw
+        if (mDecodeHandle == 0)
+        {
+            return; // aborted, ignore
+        }
+        if (mDecodeHandle != decode_id)
+        {
+            // Queue doesn't support canceling old requests.
+            // This shouldn't normally happen, but in case it's possible that a worker
+            // will request decode, be aborted, reinited then start a new decode
+            LL_DEBUGS(LOG_TXT) << mID << " received obsolete decode's callback" << LL_ENDL;
+            return; // ignore
+        }
+        if (mState != DECODE_IMAGE_UPDATE)
+        {
+            LL_DEBUGS(LOG_TXT) << "Decode callback for " << mID << " with state = " << mState << LL_ENDL;
+            mDecodeHandle = 0;
+            return;
+        }
+        llassert_always(mFormattedImage.notNull());
+
+        mDecodeHandle = 0;
+        if (success)
+        {
+            llassert_always(raw);
+            mRawImage = raw;
+            mAuxImage = aux;
+            mUploadPreparation = {};
+            prepare_for_upload = mPrepareForUpload;
+            mDecoded = !prepare_for_upload;
+            mDecodedDiscard = mFormattedImage->getDiscardLevel();
+            if (mDecodedDiscard < mDesiredDiscard)
+            {
+                LL_WARNS_ONCE(LOG_TXT) << "Decoded higher resolution than requested" << LL_ENDL;
+            }
+            LL_DEBUGS(LOG_TXT) << mID << ": Decode Finished. Discard: " << mDecodedDiscard
+                               << " Raw Image: " << llformat("%dx%d",mRawImage->getWidth(),mRawImage->getHeight()) << LL_ENDL;
+        }
+        else
+        {
+            mUploadPreparation = {};
+            LL_WARNS(LOG_TXT) << "DECODE FAILED: " << mID << " Discard: " << (S32)mFormattedImage->getDiscardLevel() << ", reason: " << error_message << LL_ENDL;
+            removeFromCache();
+            mDecodedDiscard = -1; // Redundant, here for clarity and paranoia
+            mDecoded = true;
+        }
+    }
+
+    if (success && prepare_for_upload)
+    {
+        // Keep the potentially multi-millisecond scan on the texture fetch
+        // worker and outside mWorkMutex.
+        mFetcher->scheduleUploadPreparation(mID, raw);
+    }
+//  LL_INFOS(LOG_TXT) << mID << " : DECODE COMPLETE " << LL_ENDL;
+}
+
+// Threads:  Ttf or Tid when queuing the preparation failed
+void LLTextureFetchWorker::callbackUploadPreparation(
+    LLImageRaw* raw, LLImageGL::TextureUploadPreparation&& preparation)
 {
     LLMutexLock lock(&mWorkMutex);                                      // +Mw
-    if (mDecodeHandle == 0)
+    if (mState != DECODE_IMAGE_UPDATE || mRawImage.get() != raw)
     {
-        return; // aborted, ignore
-    }
-    if (mDecodeHandle != decode_id)
-    {
-        // Queue doesn't support canceling old requests.
-        // This shouldn't normally happen, but in case it's possible that a worked
-        // will request decode, be aborted, reinited then start a new decode
-        LL_DEBUGS(LOG_TXT) << mID << " received obsolete decode's callback" << LL_ENDL;
-        return; // ignore
-    }
-    if (mState != DECODE_IMAGE_UPDATE)
-    {
-        LL_DEBUGS(LOG_TXT) << "Decode callback for " << mID << " with state = " << mState << LL_ENDL;
-        mDecodeHandle = 0;
         return;
     }
-    llassert_always(mFormattedImage.notNull());
 
-    mDecodeHandle = 0;
-    if (success)
-    {
-        llassert_always(raw);
-        mRawImage = raw;
-        mAuxImage = aux;
-        mDecodedDiscard = mFormattedImage->getDiscardLevel();
-        if (mDecodedDiscard < mDesiredDiscard)
-        {
-            LL_WARNS_ONCE(LOG_TXT) << "Decoded higher resolution than requested" << LL_ENDL;
-        }
-        LL_DEBUGS(LOG_TXT) << mID << ": Decode Finished. Discard: " << mDecodedDiscard
-                           << " Raw Image: " << llformat("%dx%d",mRawImage->getWidth(),mRawImage->getHeight()) << LL_ENDL;
-    }
-    else
-    {
-        LL_WARNS(LOG_TXT) << "DECODE FAILED: " << mID << " Discard: " << (S32)mFormattedImage->getDiscardLevel() << ", reason: " << error_message << LL_ENDL;
-        removeFromCache();
-        mDecodedDiscard = -1; // Redundant, here for clarity and paranoia
-    }
+    mUploadPreparation = std::move(preparation);
     mDecoded = true;
-//  LL_INFOS(LOG_TXT) << mID << " : DECODE COMPLETE " << LL_ENDL;
 }                                                                       // -Mw
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2515,7 +2553,7 @@ LLTextureFetch::~LLTextureFetch()
 }
 
 S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
-    S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http)
+    S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http, bool prepare_for_upload)
 {
     LL_PROFILE_ZONE_SCOPED;
     if (mDebugPause)
@@ -2599,6 +2637,7 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
         }
         worker->mActiveCount++;
         worker->mNeedsAux = needs_aux;
+        worker->mPrepareForUpload = prepare_for_upload;
         worker->setImagePriority(priority);
         worker->setDesiredDiscard(desired_discard, desired_size);
         worker->setCanUseHTTP(can_use_http);
@@ -2619,7 +2658,8 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
     }
     else
     {
-        worker = new LLTextureFetchWorker(this, f_type, url, id, host, priority, desired_discard, desired_size);
+        worker = new LLTextureFetchWorker(this, f_type, url, id, host, priority, desired_discard,
+                                          desired_size, prepare_for_upload);
         lockQueue();                                                    // +Mfq
         mRequestMap[id] = worker;
         unlockQueue();                                                  // -Mfq
@@ -2776,10 +2816,38 @@ LLTextureFetchWorker* LLTextureFetch::getWorker(const LLUUID& id)
     return getWorkerAfterLock(id);
 }                                                                       // -Mfq
 
+// Threads:  Tid
+void LLTextureFetch::scheduleUploadPreparation(const LLUUID& id, LLImageRaw* raw)
+{
+    LLPointer<LLImageRaw> raw_image = raw;
+    const bool posted = mRequestQueue.tryPost(
+        [this, id, raw_image]()
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("tf - prepare texture upload");
+            LLImageGL::TextureUploadPreparation preparation =
+                LLImageGL::prepareForUpload(raw_image);
+            LLTextureFetchWorker* worker = getWorker(id);
+            if (worker)
+            {
+                worker->callbackUploadPreparation(raw_image, std::move(preparation));
+            }
+        });
+
+    if (!posted)
+    {
+        LLTextureFetchWorker* worker = getWorker(id);
+        if (worker)
+        {
+            worker->callbackUploadPreparation(raw_image, {});
+        }
+    }
+}
+
 
 // Threads:  T*
 bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level, S32& worker_state,
                                         LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
+                                        LLImageGL::TextureUploadPreparation& preparation,
                                         LLCore::HttpStatus& last_http_get_status)
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -2815,6 +2883,8 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level, S3
             discard_level = worker->mDecodedDiscard;
             raw = worker->mRawImage;
             aux = worker->mAuxImage;
+            preparation = std::move(worker->mUploadPreparation);
+            worker->mUploadPreparation = {};
 
             decode_time = worker->mDecodeTime;
             fetch_time = worker->mFetchTime;
@@ -2860,6 +2930,8 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level, S3
                 discard_level = worker->mDecodedDiscard;
                 raw = worker->mRawImage;
                 aux = worker->mAuxImage;
+                preparation = std::move(worker->mUploadPreparation);
+                worker->mUploadPreparation = {};
             }
             worker->unlockWorkMutex();                                  // -Mw
         }
@@ -3209,7 +3281,8 @@ S32 LLTextureFetch::getLastFetchState(const LLUUID& id, S32& requested_discard, 
 
 // Threads:  T*
 S32 LLTextureFetch::getLastRawImage(const LLUUID& id,
-    LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux)
+    LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
+    LLImageGL::TextureUploadPreparation& preparation)
 {
     LL_PROFILE_ZONE_SCOPED;
     S32 decoded_discard = -1;
@@ -3219,6 +3292,8 @@ S32 LLTextureFetch::getLastRawImage(const LLUUID& id,
             worker->lockWorkMutex();                                    // +Mw
             raw = worker->mRawImage;
             aux = worker->mAuxImage;
+            preparation = std::move(worker->mUploadPreparation);
+            worker->mUploadPreparation = {};
             decoded_discard = worker->mDecodedDiscard;
             worker->unlockWorkMutex();                                  // -Mw
     }
@@ -3739,4 +3814,3 @@ void LLTextureFetchTester::updateStats(const std::map<S32, F32> state_timers, co
     mSkippedStatesTime = skipped_states_time;
     outputTestResults();
 }
-

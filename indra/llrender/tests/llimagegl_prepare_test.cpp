@@ -59,6 +59,7 @@ namespace tut
 
         LLImageGL::TextureUploadPreparation result = LLImageGL::prepareForUpload(image);
 
+        ensure("RGBA preparation has usable results", result.hasResults());
         ensure("alpha analysis is prepared", result.mAlphaAnalyzed);
         ensure("binary alpha is classified as a mask", result.mIsMask);
         ensure("RGBA pick mask is prepared", result.mPickMaskPrepared);
@@ -111,6 +112,7 @@ namespace tut
 
         LLImageGL::TextureUploadPreparation result = LLImageGL::prepareForUpload(image);
 
+        ensure("RGB preparation has no usable results", !result.hasResults());
         ensure("RGB has no alpha preparation", !result.mAlphaAnalyzed);
         ensure("RGB has no pick-mask preparation", !result.mPickMaskPrepared);
         ensure("RGB has no prepared pick-mask data", result.mPickMask.empty());

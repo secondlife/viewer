@@ -87,7 +87,8 @@ public:
     // Threads:  T* (but Tmain mostly)
     // returns discard on success, fail code otherwise
     S32 createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
-                      S32 w, S32 h, S32 c, S32 discard, bool needs_aux, bool can_use_http);
+                      S32 w, S32 h, S32 c, S32 discard, bool needs_aux, bool can_use_http,
+                      bool prepare_for_upload);
 
     // Requests that a fetch operation be deleted from the queue.
     // If @cancel is true, also stops any I/O operations pending.
@@ -106,6 +107,7 @@ public:
     // keep in mind that if fetcher isn't done, it still might need original raw image
     bool getRequestFinished(const LLUUID& id, S32& discard_level, S32& worker_state,
                             LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
+                            LLImageGL::TextureUploadPreparation& preparation,
                             LLCore::HttpStatus& last_http_get_status);
 
     // Threads:  T*
@@ -135,7 +137,8 @@ public:
 
     // @return  Fetch last raw image
     // Threads:  T*
-    S32 getLastRawImage(const LLUUID& id, LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux);
+    S32 getLastRawImage(const LLUUID& id, LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
+                        LLImageGL::TextureUploadPreparation& preparation);
 
     // Debug utility - generally not safe
     void dump();
@@ -269,6 +272,9 @@ private:
 
     // Threads:  Ttf
     void commonUpdate();
+
+    // Threads:  Tid
+    void scheduleUploadPreparation(const LLUUID& id, LLImageRaw* raw);
 
     // Metrics command helpers
     /**
@@ -443,4 +449,3 @@ private:
     std::map<S32, F32> mStateTimersMap;
 };
 #endif // LL_LLTEXTUREFETCH_H
-

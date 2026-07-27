@@ -71,6 +71,11 @@ public:
         U16 mPickMaskWidth = 0;
         U16 mPickMaskHeight = 0;
         std::vector<U8> mPickMask;
+
+        bool hasResults() const
+        {
+            return mAlphaAnalyzed || mPickMaskPrepared;
+        }
     };
 
 
@@ -223,6 +228,7 @@ public:
     static TextureUploadPreparation prepareForUpload(const LLImageRaw* image);
     void applyUploadPreparation(TextureUploadPreparation&& preparation);
     void discardUploadPreparation();
+    bool hasUploadPreparation() const { return mUploadPreparation != nullptr; }
 
 #if LL_IMAGEGL_THREAD_CHECK
     // thread debugging

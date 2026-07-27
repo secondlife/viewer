@@ -1404,7 +1404,7 @@ void LLViewerFetchedTexture::destroyTexture()
     mFullyLoaded = false;
 }
 
-void LLViewerFetchedTexture::addToCreateTexture()
+void LLViewerFetchedTexture::addToCreateTexture(LLImageGL::TextureUploadPreparation preparation)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     bool force_update = false;
@@ -1444,7 +1444,7 @@ void LLViewerFetchedTexture::addToCreateTexture()
     }
     else
     {
-        scheduleCreateTexture();
+        scheduleCreateTexture(std::move(preparation));
     }
     return;
 }
@@ -1614,7 +1614,7 @@ void LLViewerFetchedTexture::postCreateTexture()
     mNeedsCreateTexture = false;
 }
 
-void LLViewerFetchedTexture::scheduleCreateTexture()
+void LLViewerFetchedTexture::scheduleCreateTexture(LLImageGL::TextureUploadPreparation preparation)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
@@ -1623,6 +1623,13 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
         mNeedsCreateTexture = true;
         if (preCreateTexture())
         {
+            if (preparation.hasResults() &&
+                !mGLTexturep->getHasExplicitFormat() &&
+                mGLTexturep->getNeedsAlphaAndPickMask() &&
+                mRawImage->getComponents() != 3)
+            {
+                mGLTexturep->applyUploadPreparation(std::move(preparation));
+            }
 #if LL_IMAGEGL_THREAD_CHECK
             //grab a copy of the raw image data to make sure it isn't modified pending texture creation
             U8* data = mRawImage->getData();
@@ -1682,7 +1689,8 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
                         unref();
                     });
             }
-            else if (!mGLTexturep->getHasExplicitFormat() &&
+            else if (!mGLTexturep->hasUploadPreparation() &&
+                     !mGLTexturep->getHasExplicitFormat() &&
                      mGLTexturep->getNeedsAlphaAndPickMask() &&
                      mRawImage->getComponents() != 3)
             {
@@ -1916,11 +1924,14 @@ void LLViewerFetchedTexture::setBoostLevel(S32 level)
     }
 }
 
-bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 current_discard, S32 fetch_discard, F32 decode_priority)
+bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 current_discard,
+                                                 S32 fetch_discard, F32 decode_priority,
+                                                 LLImageGL::TextureUploadPreparation preparation)
 {
     // We may have data ready regardless of whether or not we are finished (e.g. waiting on write)
     if (mRawImage.notNull())
     {
+        LLPointer<LLImageRaw> prepared_raw_image = mRawImage;
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - has raw image");
         LLTexturePipelineTester* tester = (LLTexturePipelineTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
         if (tester)
@@ -1969,6 +1980,7 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
                     if (scaled.notNull())
                     {
                         mRawImage = scaled;
+                        preparation = {};
                     }
                 }
             }
@@ -1988,11 +2000,16 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
                     if (scaled.notNull())
                     {
                         mRawImage = scaled;
+                        preparation = {};
                     }
                 }
             }
 
-            addToCreateTexture();
+            if (mFTType == FTT_LOCAL_FILE || mRawImage != prepared_raw_image)
+            {
+                preparation = {};
+            }
+            addToCreateTexture(std::move(preparation));
 
             return true;
         }
@@ -2119,11 +2136,13 @@ bool LLViewerFetchedTexture::updateFetch()
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - is fetching");
         // Sets mRawDiscardLevel, mRawImage, mAuxRawImage
         S32 fetch_discard = current_discard;
+        LLImageGL::TextureUploadPreparation preparation;
 
         if (mRawImage.notNull()) sRawCount--;
         if (mAuxRawImage.notNull()) sAuxCount--;
         // keep in mind that fetcher still might need raw image, don't modify original
         bool finished = LLAppViewer::getTextureFetch()->getRequestFinished(getID(), fetch_discard, mFetchState, mRawImage, mAuxRawImage,
+            preparation,
             mLastHttpGetStatus);
         if (mRawImage.notNull()) sRawCount++;
         if (mAuxRawImage.notNull())
@@ -2143,7 +2162,8 @@ bool LLViewerFetchedTexture::updateFetch()
                 mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
         }
 
-        if (!processFetchResults(desired_discard, current_discard, fetch_discard, decode_priority))
+        if (!processFetchResults(desired_discard, current_discard, fetch_discard, decode_priority,
+                                 std::move(preparation)))
         {
             return false;
         }
@@ -2225,8 +2245,13 @@ bool LLViewerFetchedTexture::updateFetch()
         // bypass texturefetch directly by pulling from LLTextureCache
         S32 fetch_request_response = -1;
         S32 worker_discard = -1;
+        const bool prepare_for_upload =
+            mFTType != FTT_LOCAL_FILE &&
+            !isForSculptOnly() &&
+            !mGLTexturep->getHasExplicitFormat() &&
+            mGLTexturep->getNeedsAlphaAndPickMask();
         fetch_request_response = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
-            w, h, c, desired_discard, needsAux(), mCanUseHTTP);
+            w, h, c, desired_discard, needsAux(), mCanUseHTTP, prepare_for_upload);
 
         if (fetch_request_response >= 0) // positive values and 0 are discard values
         {
@@ -2257,14 +2282,17 @@ bool LLViewerFetchedTexture::updateFetch()
                 // worker actually has the image
                 if (mRawImage.notNull()) sRawCount--;
                 if (mAuxRawImage.notNull()) sAuxCount--;
-                decoded_discard = LLAppViewer::getTextureFetch()->getLastRawImage(getID(), mRawImage, mAuxRawImage);
+                LLImageGL::TextureUploadPreparation preparation;
+                decoded_discard = LLAppViewer::getTextureFetch()->getLastRawImage(
+                    getID(), mRawImage, mAuxRawImage, preparation);
                 if (mRawImage.notNull()) sRawCount++;
                 if (mAuxRawImage.notNull())
                 {
                     mHasAux = true;
                     sAuxCount++;
                 }
-                processFetchResults(desired_discard, current_discard, decoded_discard, decode_priority);
+                processFetchResults(desired_discard, current_discard, decoded_discard, decode_priority,
+                                    std::move(preparation));
             }
         }
 

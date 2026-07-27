@@ -29,6 +29,7 @@
 
 #include "llatomic.h"
 #include "llgltexture.h"
+#include "llimagegl.h"
 #include "lltimer.h"
 #include "llframetimer.h"
 #include "llhost.h"
@@ -318,14 +319,14 @@ public:
     void deleteCallbackEntry(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
     void clearCallbackEntryList() ;
 
-    void addToCreateTexture();
+    void addToCreateTexture(LLImageGL::TextureUploadPreparation preparation = {});
 
     //call to determine if createTexture is necessary
     bool preCreateTexture(S32 usename = 0);
      // ONLY call from LLViewerTextureList or ImageGL background thread
     bool createTexture(S32 usename = 0);
     void postCreateTexture();
-    void scheduleCreateTexture();
+    void scheduleCreateTexture(LLImageGL::TextureUploadPreparation preparation = {});
 
     void destroyTexture() ;
 
@@ -428,7 +429,8 @@ private:
     void init(bool firstinit) ;
     void cleanup() ;
 
-    bool processFetchResults(S32& desired_discard, S32 current_discard, S32 fetch_discard, F32 decode_priority);
+    bool processFetchResults(S32& desired_discard, S32 current_discard, S32 fetch_discard,
+                             F32 decode_priority, LLImageGL::TextureUploadPreparation preparation);
 
     void saveRawImage() ;
 
