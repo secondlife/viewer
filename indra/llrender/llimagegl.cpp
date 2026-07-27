@@ -542,6 +542,7 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
 
     mIsMask = false;
     mNeedsAlphaAndPickMask = true ;
+    mMasksCalculated = false;
     mUploadPreparation.reset();
     mAlphaStride = 0 ;
     mAlphaOffset = 0 ;
@@ -628,6 +629,7 @@ bool LLImageGL::setSize(S32 width, S32 height, S32 ncomponents, S32 discard_leve
             return false;
         }
 
+        mMasksCalculated = false;
         mWidth = width;
         mHeight = height;
         mComponents = ncomponents;
@@ -746,28 +748,32 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
+    const bool calculate_masks = needsAlphaAndPickMaskCalculation();
     bool alpha_prepared = false;
     bool pick_mask_prepared = false;
     if (mUploadPreparation)
     {
         TextureUploadPreparation preparation = std::move(*mUploadPreparation);
         mUploadPreparation.reset();
-        alpha_prepared = preparation.mAlphaAnalyzed;
-        pick_mask_prepared = preparation.mPickMaskPrepared;
-        if (alpha_prepared)
+        if (calculate_masks)
         {
-            mIsMask = preparation.mIsMask;
-        }
-
-        if (pick_mask_prepared)
-        {
-            freePickMask();
-            mPickMaskWidth = preparation.mPickMaskWidth;
-            mPickMaskHeight = preparation.mPickMaskHeight;
-            if (!preparation.mPickMask.empty())
+            alpha_prepared = preparation.mAlphaAnalyzed;
+            pick_mask_prepared = preparation.mPickMaskPrepared;
+            if (alpha_prepared)
             {
-                mPickMask = new U8[preparation.mPickMask.size()];
-                memcpy(mPickMask, preparation.mPickMask.data(), preparation.mPickMask.size());
+                mIsMask = preparation.mIsMask;
+            }
+
+            if (pick_mask_prepared)
+            {
+                freePickMask();
+                mPickMaskWidth = preparation.mPickMaskWidth;
+                mPickMaskHeight = preparation.mPickMaskHeight;
+                if (!preparation.mPickMask.empty())
+                {
+                    mPickMask = new U8[preparation.mPickMask.size()];
+                    memcpy(mPickMask, preparation.mPickMask.data(), preparation.mPickMask.size());
+                }
             }
         }
     }
@@ -831,11 +837,11 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                     }
 
                     LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in, mAllowCompression);
-                    if (gl_level == 0 && !alpha_prepared)
+                    if (calculate_masks && gl_level == 0 && !alpha_prepared)
                     {
                         analyzeAlpha(data_in, w, h);
                     }
-                    if (!pick_mask_prepared)
+                    if (calculate_masks && !pick_mask_prepared)
                     {
                         updatePickMask(w, h, data_in);
                     }
@@ -880,13 +886,13 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                                  w, h,
                                  mFormatPrimary, mFormatType,
                                  data_in, mAllowCompression);
-                    if (!alpha_prepared)
+                    if (calculate_masks && !alpha_prepared)
                     {
                         analyzeAlpha(data_in, w, h);
                     }
                     stop_glerror();
 
-                    if (!pick_mask_prepared)
+                    if (calculate_masks && !pick_mask_prepared)
                     {
                         updatePickMask(w, h, data_in);
                     }
@@ -987,12 +993,12 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                         }
 
                         LLImageGL::setManualImage(mTarget, m, mFormatInternal, w, h, mFormatPrimary, mFormatType, cur_mip_data, mAllowCompression);
-                        if (m == 0 && !alpha_prepared)
+                        if (calculate_masks && m == 0 && !alpha_prepared)
                         {
                             analyzeAlpha(data_in, w, h);
                         }
                         stop_glerror();
-                        if (m == 0 && !pick_mask_prepared)
+                        if (calculate_masks && m == 0 && !pick_mask_prepared)
                         {
                             updatePickMask(w, h, cur_mip_data);
                         }
@@ -1044,12 +1050,12 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
 
             LLImageGL::setManualImage(mTarget, 0, mFormatInternal, w, h,
                          mFormatPrimary, mFormatType, (GLvoid *)data_in, mAllowCompression);
-            if (!alpha_prepared)
+            if (calculate_masks && !alpha_prepared)
             {
                 analyzeAlpha(data_in, w, h);
             }
 
-            if (!pick_mask_prepared)
+            if (calculate_masks && !pick_mask_prepared)
             {
                 updatePickMask(w, h, data_in);
             }
@@ -1065,6 +1071,10 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
         }
     }
     stop_glerror();
+    if (calculate_masks && data_in != nullptr && !is_compressed)
+    {
+        mMasksCalculated = true;
+    }
     mGLTextureCreated = true;
     return true;
 }
@@ -2144,6 +2154,8 @@ void LLImageGL::setNeedsAlphaAndPickMask(bool need_mask)
     if(mNeedsAlphaAndPickMask != need_mask)
     {
         mNeedsAlphaAndPickMask = need_mask;
+        mMasksCalculated = false;
+        mUploadPreparation.reset();
 
         if(mNeedsAlphaAndPickMask)
         {

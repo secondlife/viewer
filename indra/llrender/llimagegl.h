@@ -225,6 +225,10 @@ public:
 
     void setNeedsAlphaAndPickMask(bool need_mask);
     bool getNeedsAlphaAndPickMask() const { return mNeedsAlphaAndPickMask; }
+    bool needsAlphaAndPickMaskCalculation() const
+    {
+        return mNeedsAlphaAndPickMask && !mMasksCalculated;
+    }
     static TextureUploadPreparation prepareForUpload(const LLImageRaw* image);
     void applyUploadPreparation(TextureUploadPreparation&& preparation);
     void discardUploadPreparation();
@@ -264,6 +268,7 @@ private:
 
     bool mIsMask;
     bool mNeedsAlphaAndPickMask;
+    bool mMasksCalculated;
     std::unique_ptr<TextureUploadPreparation> mUploadPreparation;
     S8   mAlphaStride ;
     S8   mAlphaOffset ;

@@ -32,6 +32,7 @@
 
 #include "lldir.h"
 #include "llimage.h"
+#include "llimagegl.h"
 #include "lluuid.h"
 #include "llworkerthread.h"
 #include "lltextureinfo.h"

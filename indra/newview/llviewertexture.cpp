@@ -1625,7 +1625,7 @@ void LLViewerFetchedTexture::scheduleCreateTexture(LLImageGL::TextureUploadPrepa
         {
             if (preparation.hasResults() &&
                 !mGLTexturep->getHasExplicitFormat() &&
-                mGLTexturep->getNeedsAlphaAndPickMask() &&
+                mGLTexturep->needsAlphaAndPickMaskCalculation() &&
                 mRawImage->getComponents() != 3)
             {
                 mGLTexturep->applyUploadPreparation(std::move(preparation));
@@ -1691,7 +1691,7 @@ void LLViewerFetchedTexture::scheduleCreateTexture(LLImageGL::TextureUploadPrepa
             }
             else if (!mGLTexturep->hasUploadPreparation() &&
                      !mGLTexturep->getHasExplicitFormat() &&
-                     mGLTexturep->getNeedsAlphaAndPickMask() &&
+                     mGLTexturep->needsAlphaAndPickMaskCalculation() &&
                      mRawImage->getComponents() != 3)
             {
                 auto main_queue = mMainQueue.lock();
@@ -2249,7 +2249,7 @@ bool LLViewerFetchedTexture::updateFetch()
             mFTType != FTT_LOCAL_FILE &&
             !isForSculptOnly() &&
             !mGLTexturep->getHasExplicitFormat() &&
-            mGLTexturep->getNeedsAlphaAndPickMask();
+            mGLTexturep->needsAlphaAndPickMaskCalculation();
         fetch_request_response = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
             w, h, c, desired_discard, needsAux(), mCanUseHTTP, prepare_for_upload);
 

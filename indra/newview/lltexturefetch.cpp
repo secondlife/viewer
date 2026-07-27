@@ -2829,7 +2829,7 @@ void LLTextureFetch::scheduleUploadPreparation(const LLUUID& id, LLImageRaw* raw
             LLTextureFetchWorker* worker = getWorker(id);
             if (worker)
             {
-                worker->callbackUploadPreparation(raw_image, std::move(preparation));
+                worker->callbackUploadPreparation(raw_image.get(), std::move(preparation));
             }
         });
 
@@ -2838,7 +2838,7 @@ void LLTextureFetch::scheduleUploadPreparation(const LLUUID& id, LLImageRaw* raw
         LLTextureFetchWorker* worker = getWorker(id);
         if (worker)
         {
-            worker->callbackUploadPreparation(raw_image, {});
+            worker->callbackUploadPreparation(raw_image.get(), {});
         }
     }
 }
