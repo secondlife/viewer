@@ -591,6 +591,7 @@ void LLImageGL::cleanup()
         destroyGLTexture();
     }
     freePickMask();
+    discardUploadPreparation();
 
     mSaveData = NULL; // deletes data
 }
