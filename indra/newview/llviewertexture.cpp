@@ -63,6 +63,8 @@
 #include "lltexturecache.h"
 #include "llviewerwindow.h"
 #include "llwindow.h"
+
+#include <utility>
 ///////////////////////////////////////////////////////////////////////////////
 
 // statics
@@ -1581,6 +1583,7 @@ bool LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 void LLViewerFetchedTexture::postCreateTexture()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    mGLTexturep->discardUploadPreparation();
     if (!mNeedsCreateTexture)
     {
         return;
@@ -1678,6 +1681,54 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
                         postCreateTexture();
                         unref();
                     });
+            }
+            else if (!mGLTexturep->getHasExplicitFormat() &&
+                     mGLTexturep->getNeedsAlphaAndPickMask() &&
+                     mRawImage->getComponents() != 3)
+            {
+                auto main_queue = mMainQueue.lock();
+                auto general_queue = LL::WorkQueue::getInstance("General");
+                if (main_queue && general_queue)
+                {
+                    LLPointer<LLImageRaw> raw_image = mRawImage;
+                    ref();
+                    const bool posted = main_queue->postTo(
+                        general_queue,
+                        [raw_image]()
+                        {
+                            return LLImageGL::prepareForUpload(raw_image);
+                        },
+                        [this, raw_image](LLImageGL::TextureUploadPreparation preparation)
+                        {
+                            if (mNeedsCreateTexture)
+                            {
+                                if (mRawImage == raw_image)
+                                {
+                                    mGLTexturep->applyUploadPreparation(std::move(preparation));
+                                }
+                                if (!mCreatePending)
+                                {
+                                    mCreatePending = true;
+                                    gTextureList.mCreateTextureList.push(this);
+                                }
+                            }
+                            unref();
+                        });
+                    if (!posted)
+                    {
+                        unref();
+                        if (!mCreatePending)
+                        {
+                            mCreatePending = true;
+                            gTextureList.mCreateTextureList.push(this);
+                        }
+                    }
+                }
+                else if (!mCreatePending)
+                {
+                    mCreatePending = true;
+                    gTextureList.mCreateTextureList.push(this);
+                }
             }
             else
             {
@@ -4108,4 +4159,3 @@ void LLTexturePipelineTester::LLTextureTestSession::reset()
 //----------------------------------------------------------------------------------------------
 //end of LLTexturePipelineTester
 //----------------------------------------------------------------------------------------------
-
