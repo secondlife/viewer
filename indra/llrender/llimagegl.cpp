@@ -2165,6 +2165,11 @@ bool analyze_alpha_mask(const U8* data, U32 width, U32 height, S32 alpha_stride,
     U32 alpha_total = 0;
     U32 sample[16] = {};
 
+    // Generate a histogram of quantized alpha.
+    // Also add the histogram of a 2x2 box-sampled version. The idea is
+    // to mid-skew the data (and thus reduce the chance of treating it as
+    // a mask) for high-frequency alpha maps, which suffer the worst from
+    // aliasing when used as alpha masks.
     if (width >= 2 && height >= 2 && width % 2 == 0 && height % 2 == 0)
     {
         const U8* row_start = data + alpha_offset;
@@ -2196,7 +2201,7 @@ bool analyze_alpha_mask(const U8* data, U32 width, U32 height, S32 alpha_stride,
 
             row_start += 2 * width * alpha_stride;
         }
-        length *= 2;
+        length *= 2; // We sampled everything twice, essentially.
     }
     else
     {
@@ -2210,6 +2215,10 @@ bool analyze_alpha_mask(const U8* data, U32 width, U32 height, S32 alpha_stride,
         }
     }
 
+    // Too many mid-range alpha samples make the texture unsuitable for a
+    // 1-bit mask. Likewise, if all samples are clumped in one half of the
+    // range (but not at an absolute extreme), treat that as an intentional
+    // effect rather than a mask.
     U32 midrange_total = 0;
     for (U32 i = 2; i < 13; ++i)
     {
