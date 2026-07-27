@@ -253,17 +253,9 @@
      image_pressed="Info_Press"
      image_unselected="Info_Over"
      left_pad="3"
-     name="info_btn"
+     name="info_btn_owner"
      top_delta="-2"
      width="16" />
-          <!--  <button
-             follows="left|top"
-             height="23"
-             label="Profile"
-             layout="topleft"
-             left_pad="4"
-             name="Profile..."
-             width="90" />-->
             <text
              type="string"
              length="1"
@@ -272,11 +264,10 @@
              layout="topleft"
              left="10"
              name="Group:"
-             top_pad="7"
+             top_pad="13"
              width="100">
                 Group:
             </text>
-   <!--TODO: HOOK UP GROUP ICON-->
             <text
              follows="left|top"
              height="16"
@@ -287,15 +278,6 @@
              width="240">
                 TestString PleaseIgnore
             </text>
-                 <button
-     follows="right"
-     height="23"
-     image_pressed="Info_Press"
-     image_unselected="Info_Over"
-     left_pad="3"
-     name="info_btn"
-     top_delta="-2"
-     width="16" />
             <button
              follows="left|top"
              height="23"
@@ -305,7 +287,7 @@
              right="-154"
              name="Set..."
              width="90"
-             top_delta="-2"/>
+             top_delta="-5"/>
             <check_box
              enabled="false"
              height="16"

@@ -194,7 +194,7 @@ public:
     void onImageFormatChange(LLFloaterSnapshotBase* view);
     void applyCustomResolution(LLFloaterSnapshotBase* view, S32 w, S32 h);
     static void onSendingPostcardFinished(LLFloaterSnapshotBase* floater, bool status);
-    bool checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, bool isWidthChanged, S32 max_value);
+    bool checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, bool isWidthChanged, S32 max_value) const;
     void setImageSizeSpinnersValues(LLFloaterSnapshotBase *view, S32 width, S32 height);
     void updateSpinners(LLFloaterSnapshotBase* view, LLSnapshotLivePreview* previewp, S32& width, S32& height, bool is_width_changed);
     static void onSnapshotUploadFinished(LLFloaterSnapshotBase* floater, bool status);
