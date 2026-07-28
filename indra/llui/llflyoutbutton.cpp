@@ -46,7 +46,10 @@ LLFlyoutButton::LLFlyoutButton(const Params& p)
     bp.rect.left(0).bottom(0).width(getRect().getWidth() - FLYOUT_BUTTON_ARROW_WIDTH).height(getRect().getHeight());
     bp.click_callback.function(boost::bind(&LLFlyoutButton::onActionButtonClick, this, _2));
     bp.follows.flags(FOLLOWS_ALL);
-    bp.font(p.font);
+    if (p.font.isProvided())
+    {
+        bp.font(p.font);
+    }
 
     mActionButton = LLUICtrlFactory::create<LLButton>(bp);
     addChild(mActionButton);

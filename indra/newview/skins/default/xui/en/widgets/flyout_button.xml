@@ -8,6 +8,7 @@
                     image_unselected="ComboButton_Off"
                     image_disabled="ComboButton_Disabled"
                     image_pressed="ComboButton_Selected"
+                    image_pressed_selected="ComboButton_Selected"
                     pad_right="6"
                     tab_stop="false"/>
 </flyout_button>
