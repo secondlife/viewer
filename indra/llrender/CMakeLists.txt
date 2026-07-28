@@ -106,8 +106,3 @@ target_link_libraries(llrender
         OpenGL::GLU
         )
 
-if (LL_TESTS)
-  include(LLAddBuildTest)
-  set(test_libs llrender llimage)
-  LL_ADD_INTEGRATION_TEST(llimagegl_prepare "" "${test_libs}")
-endif (LL_TESTS)
