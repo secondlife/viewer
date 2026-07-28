@@ -3746,6 +3746,13 @@ std::string LLAppViewer::getViewerInfoString(bool default_string) const
             {
                 args[ii->first] = LLTrans::getString("none_text", default_string);
             }
+            else if (ii->second.isBoolean())
+            {
+                // LLSD intentionally renders false as an empty string to
+                // preserve string-to-boolean round trips. Viewer info is
+                // human-readable, so show both boolean states explicitly.
+                args[ii->first] = ii->second.asBoolean() ? "true" : "false";
+            }
             else
             {
                 // don't forget to render value asString()
