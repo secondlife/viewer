@@ -107,7 +107,6 @@ public:
 
     // For wrapping textures created via GL elsewhere with our API only. Use with caution.
     LLImageGL(LLGLuint mTexName, U32 components, LLGLenum target, LLGLint  formatInternal, LLGLenum formatPrimary, LLGLenum formatType, LLTexUnit::eTextureAddressMode addressMode);
-
 protected:
     virtual ~LLImageGL();
 
@@ -128,6 +127,7 @@ public:
         S32 category = sMaxCategories-1, bool defer_copy = false, LLGLuint* tex_name = nullptr);
     bool createGLTexture(S32 discard_level, const U8* data, bool data_hasmips = false, S32 usename = 0, bool defer_copy = false, LLGLuint* tex_name = nullptr);
     void setImage(const LLImageRaw* imageraw);
+    bool setImage(const LLImageRaw* imageraw, const U8* data_in, bool data_hasmips = false, S32 usename = 0);
     bool setImage(const U8* data_in, bool data_hasmips = false, S32 usename = 0);
     // *TODO: This function may not work if the textures is compressed (i.e.
     // RenderCompressTextures is 0). Partial image updates do not work on
@@ -241,6 +241,7 @@ private:
     bool mAutoGenMips = false;
 
     bool mIsMask;
+    bool mAlphaAnalyzed; // Track if analyzeAlpha has been called
     bool mNeedsAlphaAndPickMask;
     S8   mAlphaStride ;
     S8   mAlphaOffset ;

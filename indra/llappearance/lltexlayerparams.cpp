@@ -328,6 +328,7 @@ bool LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
             mStaticImageRaw = NULL;
             mStaticImageRaw = new LLImageRaw;
             mStaticImageTGA->decodeAndProcess(mStaticImageRaw, info->mDomain, effective_weight);
+            mStaticImageRaw->analyzeAlpha();
             mNeedsCreateTexture = true;
             LL_DEBUGS() << "Built Cached Alpha: " << info->mStaticImageFileName << ": (" << mStaticImageRaw->getWidth() << ", " << mStaticImageRaw->getHeight() << ") " << "Domain: " << info->mDomain << " Weight: " << effective_weight << LL_ENDL;
         }

@@ -3103,6 +3103,7 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
 
     // wrap "data" in an LLImageRaw but do NOT make a copy
     LLPointer<LLImageRaw> raw = new LLImageRaw(data, media_tex->getWidth(), media_tex->getHeight(), media_tex->getComponents(), true);
+    raw->setAlphaAnalysis(false);
 
     // *NOTE: Recreating the GL texture each media update may seem wasteful
     // (note the texture creation in preMediaTexUpdate), however, it apparently

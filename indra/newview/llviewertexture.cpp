@@ -380,6 +380,7 @@ void LLViewerTextureManager::init()
 
     memset(data, 0, dim * dim * 3);
     LLViewerTexture::sBlackImagep = LLViewerTextureManager::getLocalTexture(image_raw.get(), true);
+    image_raw->analyzeAlpha();
 
 #if 1
     LLPointer<LLViewerFetchedTexture> imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT);

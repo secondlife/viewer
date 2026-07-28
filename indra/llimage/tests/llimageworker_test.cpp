@@ -69,6 +69,7 @@ U8* LLImageRaw::reallocateData(S32 size) { return NULL; }
 const U8* LLImageBase::getData() const { return NULL; }
 U8* LLImageBase::getData() { return NULL; }
 const std::string& LLImage::getLastThreadError() { static std::string msg; return msg; }
+bool LLImageRaw::analyzeAlpha() { return false; }
 
 // End Stubbing
 // -------------------------------------------------------------------------------------------

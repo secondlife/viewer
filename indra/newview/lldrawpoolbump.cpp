@@ -862,6 +862,19 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
             nrm_data[idx+3]= src_data[(j*resX+i)*src_cmp+src_cmp-1];
         }
     }
+
+    // Alpha channel is directly copied from source, so analysis can be inherited
+    if (src->hasAlphaAnalysis() && src_cmp >= 4)
+    {
+        // Source has 4 components and has been analyzed
+        nrm_image->copyAlphaAnalysis(src);
+    }
+    else if (src_cmp == 3)
+    {
+        // Source is RGB, we're copying the blue channel to alpha
+        // Blue channel as alpha doesn't make it a proper alpha mask
+        nrm_image->setAlphaAnalysis(false);
+    }
 }
 
 // static

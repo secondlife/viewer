@@ -190,6 +190,7 @@ void LLSkyTex::initEmpty(const S32 tex)
             mSkyData[basic_offset].setToBlack();
         }
     }
+    mImageRaw[tex]->setAlphaAnalysis(true);  // Uniform opaque = mask
 
     createGLImage(tex);
 }

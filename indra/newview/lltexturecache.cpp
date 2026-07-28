@@ -2083,6 +2083,11 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
     // directly construct image from new buffer.
     LLPointer<LLImageRaw> raw = new LLImageRaw(data, head[0], head[1], head[2], true /*take ownership*/);
 
+    // might be a good idea to store this in the fast cache as well,
+    // but for now, just analyze it here. Cost should be negligible due
+    // to tiny size of images in fast cache.
+    raw->analyzeAlpha();
+
     return raw;
 }
 

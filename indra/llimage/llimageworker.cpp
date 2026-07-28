@@ -219,6 +219,14 @@ bool ImageRequest::processRequest()
 void ImageRequest::finishRequest(bool completed)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    if (completed && mDecodedRaw && mDecodedImageRaw.notNull())
+    {
+        // Analyze alpha on a worker thread if image has alpha.
+        // Assume that content of the buffer changed during decoding.
+        // This is needed for rendering optimizations later.
+        mDecodedImageRaw->resetAnalysis();
+        mDecodedImageRaw->analyzeAlpha();
+    }
     if (mResponder.notNull())
     {
         bool success = completed && mDecodedRaw && (!mNeedsAux || mDecodedAux);
