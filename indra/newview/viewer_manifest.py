@@ -764,7 +764,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
         pack_version = '.'.join(self.args['version'][:3])
         if len(self.args['version']) > 3 and self.args['version'][3]:
             pack_version += '-' + self.args['version'][3]
-        pack_title = self.app_name()  # Display name with spaces
+        pack_title = pack_id  #Wrapper exe, don't use spaces
         pack_dir = self.get_dst_prefix()
         main_exe = self.final_exe()
         installer_base = self.installer_base_name()
