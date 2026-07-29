@@ -287,49 +287,6 @@ public:
     void addEmissive(LLImageRaw* src);
     void addEmissiveScaled(LLImageRaw* src);
     void addEmissiveUnscaled(LLImageRaw* src);
-
-public:
-    // Alpha mask analysis (cached results from analyzeAlpha)
-    struct AlphaAnalysis
-    {
-        bool analyzed = false;      // Has analysis been performed?
-        bool is_mask = false;       // Whether suitable for 1-bit masking
-
-        void reset() { analyzed = false; is_mask = false; }
-    };
-
-    // Returns true if data represents a suitable 1-bit mask
-    // Purpose: it is easier to render a 1-bit alpha mask than
-    // a full 8-bit alpha channel.
-    static bool analyzeAlphaData(const void* data_in, U32 width, U32 height, S8 alpha_offset, S8 alpha_stride);
-
-    // Analyze alpha channel to determine if suitable for 1-bit masking
-    // This is thread-safe and can be called from worker threads
-    // Returns true if analysis was performed (image has alpha channel)
-    bool analyzeAlpha();
-
-    void setAlphaAnalysis(bool is_mask)
-    {
-        mAlphaAnalysis.analyzed = true;
-        mAlphaAnalysis.is_mask = is_mask;
-    }
-    void copyAlphaAnalysis(const LLImageRaw* src)
-    {
-        if (src && src->mAlphaAnalysis.analyzed && src->getComponents() == getComponents())
-        {
-            mAlphaAnalysis = src->mAlphaAnalysis;
-        }
-    }
-
-    const AlphaAnalysis& getAlphaAnalysis() const { return mAlphaAnalysis; }
-    bool hasAlphaAnalysis() const { return mAlphaAnalysis.analyzed; }
-    void resetAnalysis() { return mAlphaAnalysis.reset(); }
-protected:
-    AlphaAnalysis mAlphaAnalysis;
-
-    // Helper: determine alpha offset/stride based on component count
-    static bool getAlphaChannelLayout(S8 components, S8& out_offset, S8& out_stride);
-
 protected:
     // Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
     void compositeScaled4onto3( const LLImageRaw* src );

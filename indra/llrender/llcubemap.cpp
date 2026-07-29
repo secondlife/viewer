@@ -206,7 +206,6 @@ void LLCubeMap::initEnvironmentMap(const std::vector<LLPointer<LLImageRaw> >& ra
         mImages[i] = new LLImageGL(resolution, resolution, components, true);
         mImages[i]->setTarget(mTargets[i], LLTexUnit::TT_CUBE_MAP);
         mRawImages[i] = rawimages[i];
-        mRawImages[i]->analyzeAlpha();
         if (!mImages[i]->createGLTexture(0, mRawImages[i], texname))
         {
             LL_WARNS() << "Failed to create GL texture for environment cubemap face " << i << LL_ENDL;

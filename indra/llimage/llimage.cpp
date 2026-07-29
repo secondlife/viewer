@@ -891,7 +891,6 @@ void LLImageRaw::deleteData()
     LLImageDataLock lock(this);
 
     LLImageBase::deleteData();
-    mAlphaAnalysis.reset();
 }
 
 void LLImageRaw::setDataAndSize(U8 *data, S32 width, S32 height, S8 components)
@@ -994,26 +993,6 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
             *pos = a;
             pos++;
         }
-    }
-
-    // Since we're filling with a uniform color, we can determine mask status directly
-    // For a texture to be a mask, alpha must be either 0 or 255 (not in mid-range)
-    mAlphaAnalysis.analyzed = true;
-
-    if (getComponents() == 4 || getComponents() == 2 || getComponents() == 1)
-    {
-        // Determine alpha value based on component count
-        U8 alpha_value = (getComponents() == 4) ? a :
-            (getComponents() == 2) ? g :
-            r;  // For 1-component, the value itself is alpha
-
-        // Uniform color is a mask only if alpha is fully transparent or fully opaque
-        mAlphaAnalysis.is_mask = (alpha_value == 0 || alpha_value == 255);
-    }
-    else
-    {
-        // No alpha channel
-        mAlphaAnalysis.is_mask = false;
     }
 }
 
@@ -1349,28 +1328,6 @@ void LLImageRaw::copyUnscaledAlphaMask( const LLImageRaw* src, const LLColor4U& 
         src_data += 1;
         dst_data += 4;
     }
-
-    // if source has been analyzed as a mask, and we're filling with solid color,
-    // we can determine the destination mask status without full analysis
-    dst->mAlphaAnalysis.reset();
-    if (src->hasAlphaAnalysis())
-    {
-        // The source is a 1-component grayscale alpha
-        // If it's a mask (binary alpha values), the result is also a mask
-        dst->mAlphaAnalysis.analyzed = true;
-        dst->mAlphaAnalysis.is_mask = src->getAlphaAnalysis().is_mask;
-    }
-    else if (fill.mV[0] == fill.mV[1] && fill.mV[1] == fill.mV[2])
-    {
-        // Uniform RGB fill - we can analyze the source alpha inline
-        // This is common case: filling with black (0,0,0) or white (255,255,255)
-
-        if (src->hasAlphaAnalysis())
-        {
-            dst->mAlphaAnalysis.analyzed = true;
-            dst->mAlphaAnalysis.is_mask = src->getAlphaAnalysis().is_mask;
-        }
-    }
 }
 
 
@@ -1386,69 +1343,26 @@ void LLImageRaw::fill( const LLColor4U& color )
     }
 
     S32 pixels = getWidth() * getHeight();
-    switch (getComponents())
+    if( 4 == getComponents() )
     {
-    case 4: // RGBA
-    {
-        U32* data = (U32*)getData();
+        U32* data = (U32*) getData();
         U32 rgbaColor = color.asRGBA();
-        for (S32 i = 0; i < pixels; i++)
+        for( S32 i = 0; i < pixels; i++ )
         {
-            data[i] = rgbaColor;
+            data[ i ] = rgbaColor;
         }
-
-        // Directly determine mask status from fill color
-        // Uniform alpha is a mask only if fully transparent or fully opaque
-        mAlphaAnalysis.analyzed = true;
-        mAlphaAnalysis.is_mask = (color.mV[3] == 0 || color.mV[3] == 255);
-        break;
     }
-    case 3: // RGB
+    else
+    if( 3 == getComponents() )
     {
         U8* data = getData();
-        for (S32 i = 0; i < pixels; i++)
+        for( S32 i = 0; i < pixels; i++ )
         {
             data[0] = color.mV[0];
             data[1] = color.mV[1];
             data[2] = color.mV[2];
             data += 3;
         }
-
-        // No alpha channel
-        mAlphaAnalysis.analyzed = true;
-        mAlphaAnalysis.is_mask = false;
-        break;
-    }
-
-    case 2: // Luminance-Alpha
-    {
-        U8* data = getData();
-        U8 lum = color.mV[0]; // Use red as luminance
-        U8 alpha = color.mV[3];
-        for (S32 i = 0; i < pixels; i++)
-        {
-            data[0] = lum;
-            data[1] = alpha;
-            data += 2;
-        }
-
-        // Directly determine mask status
-        mAlphaAnalysis.analyzed = true;
-        mAlphaAnalysis.is_mask = (alpha == 0 || alpha == 255);
-        break;
-    }
-
-    case 1: // Luminance or Alpha only
-    {
-        U8* data = getData();
-        U8 val = color.mV[0]; // Use red channel
-        memset(data, val, pixels);
-
-        // Single component could be alpha
-        mAlphaAnalysis.analyzed = true;
-        mAlphaAnalysis.is_mask = (val == 0 || val == 255);
-        break;
-    }
     }
 }
 
@@ -1487,13 +1401,6 @@ LLPointer<LLImageRaw> LLImageRaw::duplicate()
 
     //make a duplicate
     LLPointer<LLImageRaw> dup = new LLImageRaw(getData(), getWidth(), getHeight(), getComponents());
-
-    // Copy alpha analysis if it was performed
-    if (mAlphaAnalysis.analyzed)
-    {
-        dup->mAlphaAnalysis = mAlphaAnalysis;
-    }
-
     return dup;
 }
 
@@ -1547,17 +1454,6 @@ void LLImageRaw::copy(const LLImageRaw* src)
             copyScaled4onto3( src );
         }
     }
-
-    // Copy alpha analysis if source was analyzed and components match
-    if (src->mAlphaAnalysis.analyzed && src->getComponents() == dst->getComponents())
-    {
-        dst->mAlphaAnalysis = src->mAlphaAnalysis;
-    }
-    else
-    {
-        // Reset analysis if components changed
-        dst->mAlphaAnalysis.reset();
-    }
 }
 
 // Src and dst are same size.  Src and dst have same number of components.
@@ -1572,14 +1468,6 @@ void LLImageRaw::copyUnscaled(const LLImageRaw* src)
     llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
 
     memcpy( dst->getData(), src->getData(), getWidth() * getHeight() * getComponents() );   /* Flawfinder: ignore */
-    if (mAlphaAnalysis.analyzed)
-    {
-        dst->mAlphaAnalysis = src->mAlphaAnalysis;
-    }
-    else
-    {
-        dst->mAlphaAnalysis.reset();
-    }
 }
 
 
@@ -1592,10 +1480,6 @@ void LLImageRaw::copyScaled3onto4(const LLImageRaw* src)
     LLImageRaw temp( src->getWidth(), src->getHeight(), 4);
     temp.copyUnscaled3onto4( src );
     copyScaled( &temp );
-
-    // Uniform alpha=255 is preserved by scaling, result is a mask
-    mAlphaAnalysis.analyzed = true;
-    mAlphaAnalysis.is_mask = true;
 }
 
 
@@ -1608,10 +1492,6 @@ void LLImageRaw::copyScaled4onto3(const LLImageRaw* src)
     LLImageRaw temp( src->getWidth(), src->getHeight(), 3);
     temp.copyUnscaled4onto3( src );
     copyScaled( &temp );
-
-    // Destination has no alpha channel, cannot be a mask
-    mAlphaAnalysis.analyzed = true;
-    mAlphaAnalysis.is_mask = false;
 }
 
 
@@ -1636,10 +1516,6 @@ void LLImageRaw::copyUnscaled4onto3( const LLImageRaw* src )
         src_data += 4;
         dst_data += 3;
     }
-
-    // Destination has no alpha channel, cannot be a mask
-    mAlphaAnalysis.analyzed = true;
-    mAlphaAnalysis.is_mask = false;
 }
 
 
@@ -1666,10 +1542,6 @@ void LLImageRaw::copyUnscaled3onto4( const LLImageRaw* src )
         src_data += 3;
         dst_data += 4;
     }
-
-    // Result has uniform alpha=255, a valid mask
-    mAlphaAnalysis.analyzed = true;
-    mAlphaAnalysis.is_mask = true;
 }
 
 
@@ -1802,21 +1674,6 @@ bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
         LL_WARNS() << "Failed to allocate temporary image buffer" << LL_ENDL;
         return false;
     }
-    if (scale_image_data)
-    {
-        // Data was scaled - handle analysis like in scaled()
-        if (mAlphaAnalysis.is_mask)
-        {
-            // If was a mask, may no longer be after interpolation
-            mAlphaAnalysis.reset();
-        }
-    }
-    else
-    {
-        // Size changed but image data not scaled (just padded/cropped)
-        // Padding adds black (alpha=0), which could affect mask status
-        mAlphaAnalysis.reset();
-    }
 
     return true ;
 }
@@ -1852,12 +1709,6 @@ LLPointer<LLImageRaw> LLImageRaw::scaled(S32 new_width, S32 new_height)
             return result;
         }
         memcpy(result->getData(), getData(), getDataSize());
-
-        // Copy alpha analysis - exact duplicate
-        if (mAlphaAnalysis.analyzed)
-        {
-            result->mAlphaAnalysis = mAlphaAnalysis;
-        }
     }
     else
     {
@@ -1872,27 +1723,6 @@ LLPointer<LLImageRaw> LLImageRaw::scaled(S32 new_width, S32 new_height)
                 return result;
             }
             bilinear_scale(getData(), old_width, old_height, components, old_width*components, result->getData(), new_width, new_height, components, new_width*components);
-
-            if (mAlphaAnalysis.analyzed)
-            {
-                if (new_width >= old_width && new_height >= old_height)
-                {
-                    // Upscaling - bilinear will preserve binary values if source is binary
-                    result->mAlphaAnalysis = mAlphaAnalysis;
-                }
-                else if (!mAlphaAnalysis.is_mask)
-                {
-                    // If source is NOT a mask, result definitely won't be either
-                    result->mAlphaAnalysis.analyzed = true;
-                    result->mAlphaAnalysis.is_mask = false;
-                }
-                else
-                {
-                    // Downscaling a mask - needs re-analysis
-                    // because bilinear filtering may create mid-range alpha values
-                    result->analyzeAlpha();
-                }
-            }
         }
     }
 
@@ -2195,163 +2025,6 @@ bool LLImageRaw::validateSrcAndDst(std::string func, const LLImageRaw* src, cons
 
         return false;
     }
-    return true;
-}
-
-bool LLImageRaw::getAlphaChannelLayout(S8 components, S8& out_offset, S8& out_stride)
-{
-    switch (components)
-    {
-    case 1: // Luminance or Alpha only
-        out_stride = 1;
-        out_offset = 0;
-        return true;
-
-    case 2: // Luminance-Alpha
-        out_stride = 2;
-        out_offset = 1; // Alpha is second byte
-        return true;
-
-    case 4: // RGBA
-        out_stride = 4;
-        out_offset = 3; // Alpha is fourth byte
-        return true;
-
-    case 3: // RGB - no alpha
-    default:
-        return false;
-    }
-}
-
-
-bool LLImageRaw::analyzeAlphaData(
-    const void* data_in,
-    U32 w,
-    U32 h,
-    S8 alpha_offset,
-    S8 alpha_stride)
-{
-    if (!data_in)
-    {
-        return false;
-    }
-
-    LL_PROFILE_ZONE_SCOPED;
-
-    U32 length = w * h;
-    U32 alphatotal = 0;
-    U32 sample[16];
-    memset(sample, 0, sizeof(U32) * 16);
-
-    // generate histogram of quantized alpha.
-    // also add-in the histogram of a 2x2 box-sampled version.  The idea is
-    // this will mid-skew the data (and thus increase the chances of not
-    // being used as a mask) from high-frequency alpha maps which
-    // suffer the worst from aliasing when used as alpha masks.
-    if (w >= 2 && h >= 2)
-    {
-        llassert(w % 2 == 0);
-        llassert(h % 2 == 0);
-        // GLubyte
-        const unsigned char* rowstart = ((const unsigned char*)data_in) + alpha_offset;
-        for (U32 y = 0; y < h; y += 2)
-        {
-            const unsigned char* current = rowstart;
-            for (U32 x = 0; x < w; x += 2)
-            {
-                const U32 s1 = current[0];
-                alphatotal += s1;
-                const U32 s2 = current[w * alpha_stride];
-                alphatotal += s2;
-                current += alpha_stride;
-                const U32 s3 = current[0];
-                alphatotal += s3;
-                const U32 s4 = current[w * alpha_stride];
-                alphatotal += s4;
-                current += alpha_stride;
-
-                ++sample[s1 / 16];
-                ++sample[s2 / 16];
-                ++sample[s3 / 16];
-                ++sample[s4 / 16];
-
-                const U32 asum = (s1 + s2 + s3 + s4);
-                alphatotal += asum;
-                sample[asum / (16 * 4)] += 4;
-            }
-
-            rowstart += 2 * w * alpha_stride;
-        }
-        length *= 2; // we sampled everything twice, essentially
-    }
-    else
-    {
-        const unsigned char* current = ((const unsigned char*)data_in) + alpha_offset;
-        for (U32 i = 0; i < length; i++)
-        {
-            const U32 s1 = *current;
-            alphatotal += s1;
-            ++sample[s1 / 16];
-            current += alpha_stride;
-        }
-    }
-
-    // if more than 1/16th of alpha samples are mid-range, this
-    // shouldn't be treated as a 1-bit mask
-
-    // also, if all of the alpha samples are clumped on one half
-    // of the range (but not at an absolute extreme), then consider
-    // this to be an intentional effect and don't treat as a mask.
-
-    U32 midrangetotal = 0;
-    for (U32 i = 2; i < 13; i++)
-    {
-        midrangetotal += sample[i];
-    }
-    U32 lowerhalftotal = 0;
-    for (U32 i = 0; i < 8; i++)
-    {
-        lowerhalftotal += sample[i];
-    }
-    U32 upperhalftotal = 0;
-    for (U32 i = 8; i < 16; i++)
-    {
-        upperhalftotal += sample[i];
-    }
-
-    if (midrangetotal > length / 48 ||
-        (lowerhalftotal == length && alphatotal != 0) ||
-        (upperhalftotal == length && alphatotal != 255 * length))
-    {
-        return false; // not suitable for masking
-    }
-    else
-    {
-        return true; // is a mask
-    }
-}
-
-bool LLImageRaw::analyzeAlpha()
-{
-    // Skip if already analyzed
-    if (mAlphaAnalysis.analyzed)
-    {
-        return true;
-    }
-
-    S8 components = getComponents();
-    S8 alpha_offset, alpha_stride;
-
-    // Check if we have alpha channel
-    if (!getAlphaChannelLayout(components, alpha_offset, alpha_stride))
-    {
-        return false; // No alpha channel
-    }
-
-    // Call static analysis function
-    mAlphaAnalysis.is_mask = analyzeAlphaData(getData(), getWidth(), getHeight(), alpha_offset, alpha_stride);
-    mAlphaAnalysis.analyzed = true;
-
     return true;
 }
 

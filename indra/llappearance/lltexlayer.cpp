@@ -1898,7 +1898,6 @@ LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name,
         {
             if( (image_raw->getComponents() == 1) && is_mask )
             {
-                image_raw->analyzeAlpha();
                 // Convert grayscale alpha masks from single channel into RGBA.
                 // Fill RGB with black to allow fixed function gl calls
                 // to match shader implementation.
@@ -1906,12 +1905,8 @@ LLGLTexture* LLTexLayerStaticImageList::getTexture(const std::string& file_name,
                 image_raw = new LLImageRaw(image_raw->getWidth(),
                                            image_raw->getHeight(),
                                            4);
+
                 image_raw->copyUnscaledAlphaMask(alpha_image_raw, LLColor4U::black);
-            }
-            else if (is_mask)
-            {
-                // Pre-analyze for other mask formats
-                image_raw->analyzeAlpha();
             }
             if (!tex->createGLTexture(0, image_raw, 0, true, LLGLTexture::LOCAL))
             {

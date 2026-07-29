@@ -96,7 +96,6 @@ void LLViewerDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum
     }
 
     LLPointer<LLImageRaw> raw_image = new LLImageRaw(mFullWidth, mFullHeight, mComponents);
-    raw_image->setAlphaAnalysis(false);
     if (internal_format >= 0)
     {
         setExplicitFormat(internal_format, primary_format, type_format, swap_bytes);

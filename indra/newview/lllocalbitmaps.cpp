@@ -208,7 +208,6 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
                 if (decodeBitmap(raw_image))
                 {
                     // decode is successful, we can safely proceed.
-                    raw_image->analyzeAlpha();
                     LLUUID old_id = LLUUID::null;
                     if ((optional_firstupdate != UT_FIRSTUSE) && !mWorldID.isNull())
                     {
