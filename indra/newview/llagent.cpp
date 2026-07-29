@@ -5009,14 +5009,19 @@ static S32 g_deltaFrame { 0 };
 void LLAgent::updateGameControlMode()
 {
     // Auto-derive the active mode from avatar/camera state.  Flycam takes
-    // precedence (it is toggled via a game-control binding), then mouselook
-    // (the camera mode can be entered while sitting too, so it is checked
-    // ahead of Captive), then sitting/controls-taken maps to Captive,
+    // precedence (it is toggled via a game-control binding), then Mouse-cursor
+    // mode (also an explicit toggle -- see mUsingMouseCursor/toggleMouseCursorMode()),
+    // then mouselook (the camera mode can be entered while sitting too, so it is
+    // checked ahead of Captive), then sitting/controls-taken maps to Captive,
     // otherwise the normal Avatar mode.
     LLGameControl::AgentControlMode mode;
     if (mUsingFlycam)
     {
         mode = LLGameControl::CONTROL_MODE_FLYCAM;
+    }
+    else if (mUsingMouseCursor)
+    {
+        mode = LLGameControl::CONTROL_MODE_MOUSE;
     }
     else if (gAgentCamera.cameraMouselook())
     {
@@ -5093,6 +5098,36 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
         // Not a bidirectional toggle: always forces third-person camera
         // (e.g. to recover from mouselook/flycam/customize-avatar).
         gAgentCamera.changeCameraToThirdPerson();
+    }
+
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_MOUSE_CURSOR)
+    {
+        toggleMouseCursorMode();
+    }
+
+    // CONTROL_MODE_MOUSE: drive the actual on-screen cursor from
+    // actions.mMouseCursorDX/DY (the analog deflection of whatever's bound to "Mouse
+    // left/right"/"Mouse up/down") BEFORE the click dispatch below, so a synthesized
+    // click lands wherever the stick just moved the cursor to, in the same frame.
+    if (LLGameControl::getAgentControlMode() == LLGameControl::CONTROL_MODE_MOUSE)
+    {
+        constexpr F32 MOUSE_CURSOR_PIXELS_PER_SEC = 1200.f;
+        U64 mouse_cursor_now = LLFrameTimer::getTotalTime();
+        F32 mouse_cursor_dt = (mLastMouseCursorUpdate == 0)
+            ? 0.f : F32(mouse_cursor_now - mLastMouseCursorUpdate) / (F32)(USEC_PER_SEC);
+        mLastMouseCursorUpdate = mouse_cursor_now;
+
+        if (actions.mMouseCursorDX != 0.f || actions.mMouseCursorDY != 0.f)
+        {
+            LLCoordGL cursor_pos = gViewerWindow->getCurrentMouse();
+            S32 new_x = cursor_pos.mX + ll_round(actions.mMouseCursorDX * MOUSE_CURSOR_PIXELS_PER_SEC * mouse_cursor_dt);
+            S32 new_y = cursor_pos.mY + ll_round(actions.mMouseCursorDY * MOUSE_CURSOR_PIXELS_PER_SEC * mouse_cursor_dt);
+            gViewerWindow->moveCursorTo(new_x, new_y);
+        }
+    }
+    else
+    {
+        mLastMouseCursorUpdate = 0;
     }
 
     // Simulated mouse buttons (see llgamecontrol.h's AvatarMouseButton) are
@@ -5285,6 +5320,12 @@ void LLAgent::toggleFlycam()
         mFlycam.setView(camera->getView());
         mLastFlycamUpdate = LLFrameTimer::getTotalTime();
     }
+}
+
+void LLAgent::toggleMouseCursorMode()
+{
+    mUsingMouseCursor = !mUsingMouseCursor;
+    mLastMouseCursorUpdate = 0; // avoid a jump from a stale delta-time baseline
 }
 
 void LLAgent::pressGameControlButton(U8 button_index)

@@ -240,6 +240,8 @@ private:
     LLComboBox* mFlycamAnalogActionSelector { nullptr };  // FlyCam axis actions
     LLComboBox* mFlycamBinaryActionSelector { nullptr };  // FlyCam button actions
     LLComboBox* mCaptiveBinaryActionSelector { nullptr }; // Captive (sitting) button actions
+    LLComboBox* mMouseAnalogActionSelector { nullptr };   // Mouse-cursor-mode axis actions
+    LLComboBox* mMouseBinaryActionSelector { nullptr };   // Mouse-cursor-mode button actions
 
     // Per-device options storage
     struct DeviceOptions
