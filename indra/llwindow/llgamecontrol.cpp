@@ -412,6 +412,7 @@ public:
     void accumulateInternalState();
     void computeFinalState();
     void accumulateFinalState();
+    void computeSemanticState(LLGameControl::ServerState& state);
 
     LLGameControl::ActionNameType getActionNameType(const std::string& action) const;
 
@@ -446,6 +447,13 @@ private:
     LLGameControl::ServerState mExternalServerState;
     LLGameControlTranslator mActionTranslator;
     std::map<std::string, LLGameControl::ActionNameType> mActions;
+
+    // Raw copies of setExternalInput()'s arguments, kept for computeSemanticState()'s
+    // keyboard fold-in: it maps 'mExternalActionFlags' (AGENT_CONTROL_* bits) directly
+    // onto the avatar semantic axes, which needs the flags themselves rather than
+    // mExternalServerState's already-reduced (and mapping-order-agnostic) axes/buttons.
+    U32 mExternalActionFlags { 0 };
+    bool mExternalIsRunning { false };
 
     // Runtime action lookup for the active AgentControlMode, rebuilt from the
     // global ModeMappings whenever settings or the active mode change.  Each entry
@@ -482,19 +490,27 @@ namespace
     LLGameControl* g_gameControl = nullptr;
     LLGameControllerManager g_manager;
 
-    // The GameControlInput message is sent via UDP which is lossy.
-    // Since we send the only the list of pressed buttons the receiving
-    // side can compute the difference between subsequent states to
-    // find button-down/button-up events.
+    // The GameControlData message is sent via UDP which is lossy, and every message
+    // packs the complete current state (all canonical axes/buttons and all of the
+    // active mode's semantic axes/buttons), not just what changed.
     //
-    // To reduce the likelihood of buttons being stuck "pressed" forever
-    // on the receiving side (for lost final packet) we resend the last
-    // data state. However, to keep the ambient resend bandwidth low we
+    // To reduce the likelihood of a final state change being lost forever (dropped
+    // packet, nothing after it to correct the receiver) we resend the same data state
+    // after it stops changing. However, to keep the ambient resend bandwidth low we
     // expand the resend period at a geometric rate.
     //
     constexpr U64 MSEC_PER_NSEC = 1000000;
     constexpr U64 FIRST_RESEND_PERIOD = 100 * MSEC_PER_NSEC;
     constexpr U64 RESEND_EXPANSION_RATE = 10;
+
+    // Hard cap on outgoing GameControlData rate, independent of the resend logic
+    // above: even when a fresh change wants to go out immediately (g_nextResendPeriod
+    // == 0), never send faster than the simulator's expected max frame rate -- no
+    // point flooding the wire faster than the server can consume. 45Hz matches
+    // llviewerobject.cpp's PHYSICS_TIMESTEP, which runs simulator physics at the same
+    // rate ("At 45 Hz collisions seem stable...").
+    constexpr F32 EXPECTED_SERVER_FRAME_RATE = 45.f; // Hz
+    constexpr U64 MIN_SEND_PERIOD = (U64)(1000.0 / EXPECTED_SERVER_FRAME_RATE * MSEC_PER_NSEC); // nsec
 
     LLGameControl::State g_innerState; // state from all game controllers
     LLGameControl::State g_mappedState; // state after user mapping is applied
@@ -509,6 +525,7 @@ namespace
 
     U64 g_lastSend = 0;
     U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
+    U8 g_packetNum = 0; // GameControlData's AgentData.Packet sequence number; wraps at 255
 
     bool g_sendToServer = false;
     LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_AVATAR;
@@ -872,17 +889,25 @@ bool LLGameControl::State::onButton(U8 button, bool pressed)
 LLGameControl::ServerState::ServerState()
 : mButtons(0)
 , mPrevButtons(0)
+, mSemanticButtons(0)
+, mPrevSemanticButtons(0)
+, mActionMode(LLGameControl::CONTROL_MODE_AVATAR)
+, mPrevActionMode(LLGameControl::CONTROL_MODE_AVATAR)
 {
     mAxes.resize(NUM_AXES,0);
     mPrevAxes.resize(NUM_AXES,0);
+    mSemanticAxes.resize(NUM_SEMANTIC_SLOTS,0);
+    mPrevSemanticAxes.resize(NUM_SEMANTIC_SLOTS,0);
 }
 
 void LLGameControl::ServerState::clear()
 {
     std::fill(mAxes.begin(), mAxes.end(), 0);
     mButtons = 0;
+    std::fill(mSemanticAxes.begin(), mSemanticAxes.end(), 0);
+    mSemanticButtons = 0;
 
-    // // DO NOT clear mPrevAxes because those are managed by external logic.
+    // // DO NOT clear mPrevAxes/mPrevSemanticAxes because those are managed by external logic.
     // std::fill(mPrevAxes.begin(), mPrevAxes.end(), 0);
     // mPrevButtons = 0;
 }
@@ -1633,7 +1658,7 @@ void LLGameControllerManager::accumulateFinalState()
     // This is the only place controller state (g_controllerState, real hardware)
     // and keyboard state (mExternalServerState, from AGENT_CONTROL_* bits -- see
     // setExternalInput()) are combined: into g_finalState, the single
-    // ServerState actually packed into the outgoing GameControlInput message.
+    // ServerState actually packed into the outgoing GameControlData message.
     // Buttons OR together; axes sum (clamped to the wire's signed range) so
     // simultaneous keyboard + controller input on the same axis combines
     // rather than either one masking the other.
@@ -1662,6 +1687,8 @@ void LLGameControllerManager::accumulateFinalState()
             g_nextResendPeriod = 0; // packet needs to go out ASAP
         }
     }
+
+    computeSemanticState(g_finalState);
 }
 
 LLGameControl::ActionNameType LLGameControllerManager::getActionNameType(const std::string& action) const
@@ -1820,6 +1847,89 @@ namespace
         static const std::map<std::string, U32> bridge = {
             { "Mouse click left",  LLGameControl::AVATAR_MOUSE_BUTTON_LEFT },
             { "Mouse click right", LLGameControl::AVATAR_MOUSE_BUTTON_RIGHT },
+        };
+        return bridge;
+    }
+
+    // GameControlData's ModeAxes packs the 5 avatar-movement axes in this
+    // fixed order (LLGameControl::SemanticAxis), regardless of which physical inputs
+    // are mapped.  This mirrors avatarAxisBridge()'s label set -- keep the two in sync
+    // by hand, same as the other avatar*Bridge()s.
+    const std::map<std::string, LLGameControl::SemanticAxis>& avatarSemanticAxisSlots()
+    {
+        static const std::map<std::string, LLGameControl::SemanticAxis> bridge = {
+            { "Strafe left/right",    LLGameControl::SEMANTIC_AXIS_STRAFE },
+            { "Advance forward/back", LLGameControl::SEMANTIC_AXIS_ADVANCE },
+            { "Turn left/right",      LLGameControl::SEMANTIC_AXIS_TURN },
+            { "Look up/down",         LLGameControl::SEMANTIC_AXIS_LOOK },
+            { "Fly up/down",          LLGameControl::SEMANTIC_AXIS_RISE },
+        };
+        return bridge;
+    }
+
+    // Digital (button) equivalents of the same 5 axes -- mirrors avatarButtonBridge()'s
+    // movement-action label set, adding the semantic slot + sign each one drives.  A
+    // pressed button contributes full deflection (+/-32767) to its slot, same as
+    // computeAgentActions() does for Turn/Look.  Also doubles as the "is this button
+    // action a movement action" membership test used to exclude it from
+    // ModeButtons (see getSemanticButtonIndexTable() / computeSemanticState()).
+    struct SemanticButtonAxisEffect { LLGameControl::SemanticAxis slot; F32 sign; };
+    const std::map<std::string, SemanticButtonAxisEffect>& avatarSemanticButtonAxisSlots()
+    {
+        static const std::map<std::string, SemanticButtonAxisEffect> bridge = {
+            { "Strafe left",     { LLGameControl::SEMANTIC_AXIS_STRAFE,  1.f } },
+            { "Strafe right",    { LLGameControl::SEMANTIC_AXIS_STRAFE, -1.f } },
+            { "Advance forward", { LLGameControl::SEMANTIC_AXIS_ADVANCE, 1.f } },
+            { "Advance back",    { LLGameControl::SEMANTIC_AXIS_ADVANCE,-1.f } },
+            { "Turn left",       { LLGameControl::SEMANTIC_AXIS_TURN,    1.f } },
+            { "Turn right",      { LLGameControl::SEMANTIC_AXIS_TURN,   -1.f } },
+            { "Look up",         { LLGameControl::SEMANTIC_AXIS_LOOK,    1.f } },
+            { "Look down",       { LLGameControl::SEMANTIC_AXIS_LOOK,   -1.f } },
+            { "Jump",            { LLGameControl::SEMANTIC_AXIS_RISE,    1.f } },
+            { "Crouch",          { LLGameControl::SEMANTIC_AXIS_RISE,   -1.f } },
+            { "Fly up",          { LLGameControl::SEMANTIC_AXIS_RISE,    1.f } },
+            { "Fly down",        { LLGameControl::SEMANTIC_AXIS_RISE,   -1.f } },
+        };
+        return bridge;
+    }
+
+    // Mouse mode's ModeAxes slot order: reuses the same 5 SemanticAxis slots
+    // internally as avatarSemanticAxisSlots(), but the STRAFE/ADVANCE slots now carry
+    // "Mouse left/right"/"Mouse up/down" (on-screen cursor movement) -- the receiver
+    // must disambiguate via AgentData.ActionMode, same as for Avatar vs FlyCam. Only
+    // the first NUM_MOUSE_SEMANTIC_AXES slots (no RISE) are ever packed onto the wire
+    // for this mode -- see numSemanticAxesForMode().
+    const std::map<std::string, LLGameControl::SemanticAxis>& mouseSemanticAxisSlots()
+    {
+        static const std::map<std::string, LLGameControl::SemanticAxis> bridge = {
+            { "Mouse left/right", LLGameControl::SEMANTIC_AXIS_STRAFE },
+            { "Mouse up/down",    LLGameControl::SEMANTIC_AXIS_ADVANCE },
+            { "Turn left/right",  LLGameControl::SEMANTIC_AXIS_TURN },
+            { "Look up/down",     LLGameControl::SEMANTIC_AXIS_LOOK },
+            { "Fly up/down",      LLGameControl::SEMANTIC_AXIS_RISE },
+        };
+        return bridge;
+    }
+
+    // Mouse mode's digital-button equivalent of mouseSemanticAxisSlots(). Deliberately
+    // omits "Strafe left/right"/"Advance forward/back" (unlike
+    // avatarSemanticButtonAxisSlots()): those still work as real avatar movement (via
+    // avatarButtonBridge(), unaffected by mode) but have no valid ModeAxes slot
+    // in Mouse mode -- STRAFE/ADVANCE mean cursor movement here, and there is no keyboard-
+    // or-D-Pad equivalent of "nudge the mouse". So a D-Pad Strafe/Advance press in Mouse
+    // mode moves the avatar locally but is invisible to the semantic wire data, same as
+    // isMovementButtonAction() already excludes it from ModeButtons.
+    const std::map<std::string, SemanticButtonAxisEffect>& mouseSemanticButtonAxisSlots()
+    {
+        static const std::map<std::string, SemanticButtonAxisEffect> bridge = {
+            { "Turn left",  { LLGameControl::SEMANTIC_AXIS_TURN,  1.f } },
+            { "Turn right", { LLGameControl::SEMANTIC_AXIS_TURN, -1.f } },
+            { "Look up",    { LLGameControl::SEMANTIC_AXIS_LOOK,  1.f } },
+            { "Look down",  { LLGameControl::SEMANTIC_AXIS_LOOK, -1.f } },
+            { "Jump",       { LLGameControl::SEMANTIC_AXIS_RISE,  1.f } },
+            { "Crouch",     { LLGameControl::SEMANTIC_AXIS_RISE, -1.f } },
+            { "Fly up",     { LLGameControl::SEMANTIC_AXIS_RISE,  1.f } },
+            { "Fly down",   { LLGameControl::SEMANTIC_AXIS_RISE, -1.f } },
         };
         return bridge;
     }
@@ -2172,6 +2282,97 @@ namespace
         return bridge;
     }
 
+    // Is 'action' (a button action label) a "movement" action for 'mode' -- i.e. one
+    // folded into mSemanticAxes instead of appearing in ModeButtons?  Avatar/
+    // Mouselook/Captive/Mouse's movement actions are avatarButtonBridge()'s label set
+    // (in Mouse mode these still drive avatar movement locally, e.g. D-Pad Strafe/
+    // Advance, even though they no longer have a ModeAxes slot of their own --
+    // see mouseSemanticButtonAxisSlots()); FlyCam's are flycamButtonBridge()'s (Truck/
+    // Dolly/Pan/Tilt/Boom/Roll/Zoom, which -- unlike avatarButtonBridge() -- already
+    // carries the FlycamChannel + polarity each label drives, reused directly by
+    // computeSemanticState()).
+    bool isMovementButtonAction(LLGameControl::AgentControlMode mode, const std::string& action)
+    {
+        if (action.empty())
+        {
+            return false;
+        }
+        switch (mode)
+        {
+            case LLGameControl::CONTROL_MODE_AVATAR:
+            case LLGameControl::CONTROL_MODE_MOUSELOOK:
+            case LLGameControl::CONTROL_MODE_CAPTIVE:
+            case LLGameControl::CONTROL_MODE_MOUSE:
+                return avatarButtonBridge().count(action) > 0;
+            case LLGameControl::CONTROL_MODE_FLYCAM:
+                return flycamButtonBridge().count(action) > 0;
+            default:
+                return false;
+        }
+    }
+
+    // Per-mode ModeButtons renumbering table: canonical Button index ->
+    // semantic index, or LLGameControl::NO_SEMANTIC_BUTTON if this button has none.
+    //
+    // Built once per mode from that mode's *default* button mapping (not the user's
+    // current/live mapping), in two passes over ascending canonical button index:
+    //   1. buttons the default mapping assigns to a non-movement action (see
+    //      isMovementButtonAction()) get the next sequential semantic index, in
+    //      canonical-button-index order.
+    //   2. buttons the default mapping does not assign at all get the next sequential
+    //      index (after all of pass 1), also in canonical-button-index order.
+    // Buttons the default mapping assigns to a movement action get no index at all --
+    // e.g. the D-Pad, default-mapped to Strafe/Advance -- so they can never appear in
+    // ModeButtons even if the user later rebinds that physical button to a
+    // non-movement action. This is a known, accepted limitation until the default
+    // mapping settles; see gamecontrol-runtime-wiring-plan memory.
+    const std::vector<U8>& getSemanticButtonIndexTable(LLGameControl::AgentControlMode mode)
+    {
+        static std::map<LLGameControl::AgentControlMode, std::vector<U8>> cache;
+        auto found = cache.find(mode);
+        if (found != cache.end())
+        {
+            return found->second;
+        }
+
+        std::vector<U8> table(LLGameControl::NUM_BUTTONS, LLGameControl::NO_SEMANTIC_BUTTON);
+        const std::string& mode_name = modeToString(mode);
+        if (!mode_name.empty())
+        {
+            std::vector<std::string> default_action_for_button(LLGameControl::NUM_BUTTONS);
+            LLSD default_buttons = buildDefaultModeMappings()[mode_name][GC_BUTTONS];
+            for (auto it = default_buttons.beginMap(); it != default_buttons.endMap(); ++it)
+            {
+                LLGameControl::InputChannel channel = channelFromInputName(it->second.asString());
+                if (channel.isButton() && channel.mIndex < LLGameControl::NUM_BUTTONS)
+                {
+                    default_action_for_button[channel.mIndex] = it->first;
+                }
+            }
+
+            U8 next_index = 0;
+            for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
+            {
+                const std::string& action = default_action_for_button[btn];
+                if (action.empty() || isMovementButtonAction(mode, action))
+                {
+                    continue; // handled in pass 2, or permanently excluded (movement action)
+                }
+                table[btn] = next_index++;
+            }
+            for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
+            {
+                if (!default_action_for_button[btn].empty())
+                {
+                    continue; // already assigned above, or excluded as a movement action
+                }
+                table[btn] = next_index++;
+            }
+        }
+
+        return cache.emplace(mode, std::move(table)).first->second;
+    }
+
     // (Declared above, before rebuildActionLookup.)  The axis bridges are the complete
     // set of valid axis actions per mode, so bridge membership is the authoritative
     // "is this a real axis action" test.
@@ -2208,6 +2409,260 @@ namespace
             }
         }
         return LLStringUtil::null;
+    }
+}
+
+// Fills in state.mActionMode/mSemanticAxes/mSemanticButtons (the AgentData.ActionMode/
+// ModeAxes/ModeButtons blocks of GameControlData) from the current
+// controller + keyboard state and the active mode's *live* action mapping
+// (mAxisActionBindings/mButtonActionLabels), mirroring computeAgentActions()'s
+// per-axis/per-button loops but emitting signed magnitudes / renumbered indices
+// instead of AGENT_CONTROL_*/FlycamChannel bits, and packed in whichever mode-specific
+// slot order applies (SemanticAxis for Avatar/Mouselook/Captive/Mouse, FlycamChannel for
+// FlyCam; see LLGameControl::NUM_SEMANTIC_SLOTS/numSemanticAxesForMode()).
+void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& state)
+{
+    rebuildActionLookup();
+
+    // AgentData.ActionMode: resend immediately on change, same as axes/buttons below.
+    U8 old_mode = state.mActionMode;
+    U8 new_mode = (U8)g_agentControlMode;
+    state.mPrevActionMode = old_mode;
+    state.mActionMode = new_mode;
+    if (old_mode != new_mode)
+    {
+        g_nextResendPeriod = 0;
+    }
+
+    S32 semantic_values[LLGameControl::NUM_SEMANTIC_SLOTS] = { 0 };
+    U32 new_semantic_buttons = 0;
+
+    if (g_agentControlMode == LLGameControl::CONTROL_MODE_AVATAR
+        || g_agentControlMode == LLGameControl::CONTROL_MODE_MOUSELOOK
+        || g_agentControlMode == LLGameControl::CONTROL_MODE_CAPTIVE
+        || g_agentControlMode == LLGameControl::CONTROL_MODE_MOUSE)
+    {
+        // In Mouse mode the STRAFE/ADVANCE wire slots carry "Mouse left/right"/"Mouse
+        // up/down" (cursor movement) instead of Strafe/Advance -- see
+        // mouseSemanticAxisSlots()/mouseSemanticButtonAxisSlots().
+        bool is_mouse_mode = (g_agentControlMode == LLGameControl::CONTROL_MODE_MOUSE);
+
+        const auto& axis_slots = is_mouse_mode ? mouseSemanticAxisSlots() : avatarSemanticAxisSlots();
+        for (U8 axis = 0; axis < LLGameControl::NUM_AXES; ++axis)
+        {
+            const AxisActionBinding& binding = mAxisActionBindings[axis];
+            if (binding.label.empty())
+            {
+                continue;
+            }
+            auto it = axis_slots.find(binding.label);
+            if (it == axis_slots.end())
+            {
+                continue;
+            }
+
+            // Same signed-deflection calculation as computeAgentActions(): positive
+            // half minus negative half, trigger-half selection, then per-action invert.
+            S32 deflection = (S32)g_innerState.mAxes[axis * 2] - (S32)g_innerState.mAxes[axis * 2 + 1];
+            S32 value = binding.half == HALF_NEGATIVE ? -deflection : deflection;
+            if (binding.invert)
+            {
+                value = -value;
+            }
+            U8 slot = it->second;
+            if (std::abs(value) > std::abs(semantic_values[slot]))
+            {
+                semantic_values[slot] = value;
+            }
+        }
+
+        // Movement buttons (real controller only -- keyboard's contribution to these
+        // same actions is folded in below via mExternalActionFlags, and double-counting
+        // it here too would sum the same keypress twice) contribute full deflection to
+        // their axis, same as computeAgentActions() does for Turn/Look; they never
+        // reach ModeButtons.
+        const auto& button_axis_slots = is_mouse_mode ? mouseSemanticButtonAxisSlots() : avatarSemanticButtonAxisSlots();
+        for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
+        {
+            if (!(g_innerState.mButtons & (1U << btn)))
+            {
+                continue;
+            }
+            const std::string& label = mButtonActionLabels[btn];
+            if (label.empty())
+            {
+                continue;
+            }
+            auto it = button_axis_slots.find(label);
+            if (it == button_axis_slots.end())
+            {
+                continue;
+            }
+            S32 full = (S32)(it->second.sign * 32767.f);
+            if (std::abs(full) > std::abs(semantic_values[it->second.slot]))
+            {
+                semantic_values[it->second.slot] = full;
+            }
+        }
+
+        // Keyboard-only contribution: setExternalInput()'s AGENT_CONTROL_* bits map
+        // directly onto the TURN/LOOK/RISE semantic slots (YAW->TURN, PITCH->LOOK,
+        // UP->RISE), which mean the same thing in every avatar-family mode including
+        // Mouse. This is more direct/robust than the legacy raw-AxisData/ButtonData
+        // keyboard path (mExternalServerState), which only surfaces a keypress at all
+        // if some digital button happens to be bound to the matching
+        // avatarButtonBridge() action -- e.g. Turn/Look have no default button
+        // binding, so keyboard turning/looking would otherwise be invisible here.
+        // Summed on top of the controller-only value above, mirroring how
+        // accumulateFinalState() sums keyboard + controller for the raw axes, so a
+        // keyboard-only user still produces meaningful ModeAxes.
+        static const struct { U32 posFlag; U32 negFlag; LLGameControl::SemanticAxis slot; } KEY_AXIS_BITS[] = {
+            { AGENT_CONTROL_YAW_POS,   AGENT_CONTROL_YAW_NEG,   LLGameControl::SEMANTIC_AXIS_TURN },
+            { AGENT_CONTROL_PITCH_POS, AGENT_CONTROL_PITCH_NEG, LLGameControl::SEMANTIC_AXIS_LOOK },
+            { AGENT_CONTROL_UP_POS,    AGENT_CONTROL_UP_NEG,    LLGameControl::SEMANTIC_AXIS_RISE },
+        };
+        // LEFT->STRAFE, AT->ADVANCE: only applies outside Mouse mode. In Mouse mode
+        // those wire slots mean "Mouse left/right"/"Mouse up/down", and keyboard has no
+        // notion of moving the mouse cursor, so this contribution must not apply there.
+        static const struct { U32 posFlag; U32 negFlag; LLGameControl::SemanticAxis slot; } KEY_MOVEMENT_AXIS_BITS[] = {
+            { AGENT_CONTROL_LEFT_POS, AGENT_CONTROL_LEFT_NEG, LLGameControl::SEMANTIC_AXIS_STRAFE },
+            { AGENT_CONTROL_AT_POS,   AGENT_CONTROL_AT_NEG,   LLGameControl::SEMANTIC_AXIS_ADVANCE },
+        };
+        const S32 key_magnitude = mExternalIsRunning ? 32767 : 32767 / 2;
+        for (const auto& bit : KEY_AXIS_BITS)
+        {
+            S32 kb_value = 0;
+            if (mExternalActionFlags & bit.posFlag)
+            {
+                kb_value += key_magnitude;
+            }
+            if (mExternalActionFlags & bit.negFlag)
+            {
+                kb_value -= key_magnitude;
+            }
+            semantic_values[bit.slot] += kb_value;
+        }
+        if (!is_mouse_mode)
+        {
+            for (const auto& bit : KEY_MOVEMENT_AXIS_BITS)
+            {
+                S32 kb_value = 0;
+                if (mExternalActionFlags & bit.posFlag)
+                {
+                    kb_value += key_magnitude;
+                }
+                if (mExternalActionFlags & bit.negFlag)
+                {
+                    kb_value -= key_magnitude;
+                }
+                semantic_values[bit.slot] += kb_value;
+            }
+        }
+    }
+    else if (g_agentControlMode == LLGameControl::CONTROL_MODE_FLYCAM)
+    {
+        // No keyboard-driven path to FlyCam's channels exists in this codebase (FlyCam
+        // motion is only ever produced by a real controller, via getFlycamInputs()),
+        // so this is controller-only -- same scope FlyCam has always had.
+        const auto& axis_slots = flycamAxisBridge();
+        for (U8 axis = 0; axis < LLGameControl::NUM_AXES; ++axis)
+        {
+            const AxisActionBinding& binding = mAxisActionBindings[axis];
+            if (binding.label.empty())
+            {
+                continue;
+            }
+            auto it = axis_slots.find(binding.label);
+            if (it == axis_slots.end())
+            {
+                continue;
+            }
+            S32 deflection = (S32)g_innerState.mAxes[axis * 2] - (S32)g_innerState.mAxes[axis * 2 + 1];
+            S32 value = binding.half == HALF_NEGATIVE ? -deflection : deflection;
+            if (binding.invert)
+            {
+                value = -value;
+            }
+            S32 signed_value = (S32)(it->second.polarity * (F32)value);
+            U8 slot = it->second.channel;
+            if (std::abs(signed_value) > std::abs(semantic_values[slot]))
+            {
+                semantic_values[slot] = signed_value;
+            }
+        }
+
+        const auto& button_axis_slots = flycamButtonBridge();
+        for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
+        {
+            if (!(g_innerState.mButtons & (1U << btn)))
+            {
+                continue;
+            }
+            const std::string& label = mButtonActionLabels[btn];
+            if (label.empty())
+            {
+                continue;
+            }
+            auto it = button_axis_slots.find(label);
+            if (it == button_axis_slots.end())
+            {
+                continue;
+            }
+            S32 full = (S32)(it->second.polarity * 32767.f);
+            U8 slot = it->second.channel;
+            if (std::abs(full) > std::abs(semantic_values[slot]))
+            {
+                semantic_values[slot] = full;
+            }
+        }
+    }
+    // else CONTROL_MODE_NONE: no movement concept applies; semantic_values stays zero.
+
+    // ModeButtons: every currently-pressed button -- real controller OR a
+    // keyboard-simulated press folded in via setExternalInput() (mExternalServerState,
+    // e.g. a literal "simulate this GameControl button" keybind) -- whose current
+    // action is not a movement action for the active mode (those are folded into
+    // mSemanticAxes above instead; see isMovementButtonAction()), renumbered via the
+    // mode's default-mapping-derived index table.
+    U32 combined_buttons = g_innerState.mButtons | mExternalServerState.mButtons;
+    const std::vector<U8>& index_table = getSemanticButtonIndexTable(g_agentControlMode);
+    for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
+    {
+        if (!(combined_buttons & (1U << btn)))
+        {
+            continue;
+        }
+        if (isMovementButtonAction(g_agentControlMode, mButtonActionLabels[btn]))
+        {
+            continue; // folded into mSemanticAxes instead
+        }
+        U8 semantic_index = index_table[btn];
+        if (semantic_index != LLGameControl::NO_SEMANTIC_BUTTON)
+        {
+            new_semantic_buttons |= (1U << semantic_index);
+        }
+    }
+
+    U32 old_semantic_buttons = state.mSemanticButtons;
+    state.mPrevSemanticButtons = old_semantic_buttons;
+    state.mSemanticButtons = new_semantic_buttons;
+    if (old_semantic_buttons != new_semantic_buttons)
+    {
+        g_nextResendPeriod = 0;
+    }
+
+    for (U8 slot = 0; slot < LLGameControl::NUM_SEMANTIC_SLOTS; ++slot)
+    {
+        S16 value = (S16)std::clamp(semantic_values[slot], -32768, 32767);
+        if (state.mSemanticAxes[slot] != value)
+        {
+            // Same first-resend-includes-the-change, later-resends-don't pattern as
+            // mAxes above; updateResendPeriod() catches mPrevSemanticAxes up on
+            // second+ resend.
+            state.mPrevSemanticAxes[slot] = state.mSemanticAxes[slot];
+            state.mSemanticAxes[slot] = value;
+            g_nextResendPeriod = 0;
+        }
     }
 }
 
@@ -2305,11 +2760,15 @@ void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs, U32& mis
 
 void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons, bool is_running)
 {
+    // Kept raw for computeSemanticState()'s keyboard fold-in (see mExternalActionFlags).
+    mExternalActionFlags = action_flags;
+    mExternalIsRunning = is_running;    // avatar is running via external input
+
     // Translate the AGENT_CONTROL_* bits that correspond directly to a
     // movement/turn/look/fly axis into the matching canonical wire axis of
     // mExternalServerState -- the same final ServerState format
-    // sendGameControlInput() packs -- so keyboard-driven avatar movement
-    // (control_flags) is mirrored into outgoing GameControlInput data (and
+    // sendGameControlData() packs -- so keyboard-driven avatar movement
+    // (control_flags) is mirrored into outgoing GameControlData (and
     // therefore visible to LSL scripts) even when no physical game controller
     // is present.  'action_flags' is expected to be gAgent::getControlFlags()
     // read BEFORE any game-controller-driven movement (see
@@ -2357,7 +2816,7 @@ void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons, bo
     // bound to BUTTON_SOUTH).  This mirrors computeAgentActions()'s button
     // loop in reverse: there, a pressed physical button yields a control
     // flag; here, an active control flag yields a "pressed" button so
-    // outgoing GameControlInput/LSL-visible button state matches whichever
+    // outgoing GameControlData/LSL-visible button state matches whichever
     // button the user has mapped to that keyboard action.  Labels bound to a
     // one-shot AvatarMiscAction (avatarMiscButtonBridge()) have no persistent
     // flag to test and are absent from avatarButtonBridge(), so they're
@@ -2642,8 +3101,8 @@ std::string LLGameControl::stringFromAction(const ActionType actionType, const U
             {
                 case MovementDirection::MOVE_DIR_STRAFE_LEFT:   return "axis_left";
                 case MovementDirection::MOVE_DIR_STRAFE_RIGHT:  return "axis_right";
-                case MovementDirection::MOVE_DIR_ADVANCE:  return "axis_forward";
-                case MovementDirection::MOVE_DIR_RETREAT: return "axis_backward";
+                case MovementDirection::MOVE_DIR_ADVANCE:       return "axis_forward";
+                case MovementDirection::MOVE_DIR_RETREAT:       return "axis_backward";
                 case MovementDirection::MOVE_DIR_TURN_LEFT:     return "axis_turn_left";
                 case MovementDirection::MOVE_DIR_TURN_RIGHT:    return "axis_turn_right";
                 case MovementDirection::MOVE_DIR_LOOK_UP:       return "axis_look_up";
@@ -2778,9 +3237,9 @@ void LLGameControl::computeFinalState()
 }
 
 //static
-// returns 'true' if GameControlInput message needs to go out,
+// returns 'true' if GameControlData message needs to go out,
 // which will be the case for new data or resend. Call this right
-// before deciding to put a GameControlInput packet on the wire
+// before deciding to put a GameControlData packet on the wire
 // or not.
 bool LLGameControl::computeFinalStateAndCheckForChanges()
 {
@@ -2791,7 +3250,9 @@ bool LLGameControl::computeFinalStateAndCheckForChanges()
     //     g_lastSend has "expired"
     //         either because g_nextResendPeriod has been zeroed
     //         or the last send really has expired.
-    return g_sendToServer && (g_lastSend + g_nextResendPeriod < get_now_nsec());
+    //     but never more often than MIN_SEND_PERIOD, regardless of the above.
+    U64 wait_period = std::max(g_nextResendPeriod, MIN_SEND_PERIOD);
+    return g_sendToServer && (g_lastSend + wait_period < get_now_nsec());
 }
 
 // static
@@ -3193,7 +3654,33 @@ void LLGameControl::updateResendPeriod()
         // In other words: we want to include changed axes in the first resend
         // so we only overwrite g_finalState.mPrevAxes on higher resends.
         g_finalState.mPrevAxes = g_finalState.mAxes;
+        g_finalState.mPrevSemanticAxes = g_finalState.mSemanticAxes;
         g_nextResendPeriod *= RESEND_EXPANSION_RATE;
+    }
+}
+
+//static
+U8 LLGameControl::getNextPacketNum()
+{
+    return g_packetNum++;
+}
+
+//static
+U8 LLGameControl::numSemanticAxesForMode(AgentControlMode mode)
+{
+    switch (mode)
+    {
+        case CONTROL_MODE_AVATAR:
+        case CONTROL_MODE_MOUSELOOK:
+        case CONTROL_MODE_CAPTIVE:
+            return NUM_SEMANTIC_AXES;
+        case CONTROL_MODE_MOUSE:
+            return NUM_MOUSE_SEMANTIC_AXES;
+        case CONTROL_MODE_FLYCAM:
+            return FLYCAM_NUM_CHANNELS;
+        case CONTROL_MODE_NONE:
+        default:
+            return 0;
     }
 }
 
