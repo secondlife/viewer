@@ -494,6 +494,8 @@ public:
     bool            isControlGrabbed(S32 control_index) const;
     bool            isUsingFlycam() const { return mUsingFlycam; }
     void            toggleFlycam();
+    bool            isUsingMouseCursor() const { return mUsingMouseCursor; }
+    void            toggleMouseCursorMode();
     // Send message to simulator to force grabbed controls to be
     // released, in case of a poorly written script.
     void            forceReleaseControls();
@@ -522,7 +524,8 @@ public:
     void updateFlycam();
 
     // Auto-derive the active game-control AgentControlMode from current avatar
-    // state (flycam active -> FlyCam, sitting -> Captive, else Avatar) and push
+    // state (flycam active -> FlyCam, else mouse-cursor mode active -> Mouse, else
+    // mouselook camera -> Mouselook, else sitting -> Captive, else Avatar) and push
     // it to LLGameControl.  Called once per frame before game-control input is
     // processed so the runtime mapping/gating tracks avatar state automatically.
     void updateGameControlMode();
@@ -548,6 +551,13 @@ private:
     bool mUsingFlycam { false };
     std::array<F32, LLGameControl::FLYCAM_NUM_CHANNELS> mFlycamKeyInput {};
     bool mFlycamKeyResetRequested { false };
+
+    // CONTROL_MODE_MOUSE: toggled by AVATAR_ACTION_TOGGLE_MOUSE_CURSOR, same pattern
+    // as mUsingFlycam/toggleFlycam(). mLastMouseCursorUpdate is the previous frame's
+    // timestamp used to compute the cursor's per-frame movement delta; reset to 0
+    // whenever the mode isn't active so re-entering doesn't jump the cursor.
+    bool mUsingMouseCursor { false };
+    U64 mLastMouseCursorUpdate { 0 };
 
     //--------------------------------------------------------------------
     // Animations

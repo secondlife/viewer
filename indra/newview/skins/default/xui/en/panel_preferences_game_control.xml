@@ -51,6 +51,10 @@
                     label="When sitting"
                     name="captive"
                     value="3"/>
+                <combo_box.item
+                    label="When using mouse cursor"
+                    name="mouse"
+                    value="4"/>
             </combo_box>
             <check_box
                 name="action_mode_enabled"
@@ -745,6 +749,9 @@
             label="FlyCam"
             value="Toggle flycam"/>
         <combo_box.item
+            label="Mouse cursor"
+            value="Toggle mouse cursor"/>
+        <combo_box.item
             label="Toggle run"
             value="Toggle run"/>
         <combo_box.item
@@ -827,6 +834,9 @@
             label="FlyCam"
             value="Toggle flycam"/>
         <combo_box.item
+            label="Mouse cursor"
+            value="Toggle mouse cursor"/>
+        <combo_box.item
             label="Toggle run"
             value="Toggle run"/>
         <combo_box.item
@@ -887,6 +897,108 @@
         <combo_box.item
             label="FlyCam"
             value="Toggle flycam"/>
+        <combo_box.item
+            label="Mouse cursor"
+            value="Toggle mouse cursor"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <!-- Mouse-mode action selectors: initialized as independent copies of the
+         Avatar selectors above, with the left-stick axis actions replaced by
+         "Mouse left/right"/"Mouse up/down" (which drive the on-screen cursor;
+         see LLGameControllerManager::computeAgentActions()) and "Mouse click
+         left/right" added to the button set (shoulder buttons by default). -->
+    <combo_box
+        name="mouse_analog_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Mouse ↔"
+            value="Mouse left/right"/>
+        <combo_box.item
+            label="Mouse ↕"
+            value="Mouse up/down"/>
+        <combo_box.item
+            label="Turn ↔"
+            value="Turn left/right"/>
+        <combo_box.item
+            label="Look ↕"
+            value="Look up/down"/>
+        <combo_box.item
+            label="Fly ↕"
+            value="Fly up/down"/>
+        <combo_box.item
+            label="Strafe ↔"
+            value="Strafe left/right"/>
+        <combo_box.item
+            label="Advance ↕"
+            value="Advance forward/back"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <combo_box
+        name="mouse_binary_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Jump"
+            value="Jump"/>
+        <combo_box.item
+            label="Crouch"
+            value="Crouch"/>
+        <combo_box.item
+            label="Sit"
+            value="Toggle sit"/>
+        <combo_box.item
+            label="Toggle speak"
+            value="Toggle speak"/>
+        <combo_box.item
+            label="3rd person view"
+            value="3rd Person camera"/>
+        <combo_box.item
+            label="Toggle mouselook"
+            value="Toggle mouselook"/>
+        <combo_box.item
+            label="FlyCam"
+            value="Toggle flycam"/>
+        <combo_box.item
+            label="Mouse cursor"
+            value="Toggle mouse cursor"/>
+        <combo_box.item
+            label="Toggle run"
+            value="Toggle run"/>
+        <combo_box.item
+            label="Mouse left"
+            value="Mouse click left"/>
+        <combo_box.item
+            label="Mouse right"
+            value="Mouse click right"/>
+        <combo_box.item
+            label="Advance ↑"
+            value="Advance forward"/>
+        <combo_box.item
+            label="Retreat ↓"
+            value="Advance back"/>
+        <combo_box.item
+            label="Strafe ←"
+            value="Strafe left"/>
+        <combo_box.item
+            label="Strafe →"
+            value="Strafe right"/>
+        <combo_box.item
+            label="Fly ↑"
+            value="Fly up"/>
+        <combo_box.item
+            label="Fly ↓"
+            value="Fly down"/>
+        <combo_box.item
+            label="Turn ←"
+            value="Turn left"/>
+        <combo_box.item
+            label="Turn →"
+            value="Turn right"/>
         <combo_box.item
             label="None"
             value="None"/>

@@ -3499,6 +3499,22 @@ void LLViewerWindow::moveCursorToCenter()
     }
 }
 
+void LLViewerWindow::moveCursorTo(S32 x, S32 y)
+{
+    // Clamp to the world view so a gamepad-driven cursor (see
+    // LLAgent::applyExternalActions()'s CONTROL_MODE_MOUSE handling) can't warp
+    // itself off-screen.
+    x = llclamp(x, 0, getWorldViewWidthScaled());
+    y = llclamp(y, 0, getWorldViewHeightScaled());
+
+    LLUI::getInstance()->setMousePositionScreen(x, y);
+
+    // on a forced move, all deltas get zeroed out to prevent jumping
+    mCurrentMousePoint.set(x, y);
+    mLastMousePoint.set(x, y);
+    mCurrentMouseDelta.set(0, 0);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 //

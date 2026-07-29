@@ -548,6 +548,7 @@ namespace
     const std::string GC_MODE_MOUSELOOK("Mouselook");
     const std::string GC_MODE_FLYCAM("FlyCam");
     const std::string GC_MODE_CAPTIVE("Captive");
+    const std::string GC_MODE_MOUSE("Mouse");
 
     // Symbolic input name for the combined trigger pair, used both as an axis-action
     // The two triggers form a single bidirectional axis: left trigger drives the
@@ -595,6 +596,7 @@ namespace
             case LLGameControl::CONTROL_MODE_MOUSELOOK: return GC_MODE_MOUSELOOK;
             case LLGameControl::CONTROL_MODE_FLYCAM:    return GC_MODE_FLYCAM;
             case LLGameControl::CONTROL_MODE_CAPTIVE:   return GC_MODE_CAPTIVE;
+            case LLGameControl::CONTROL_MODE_MOUSE:     return GC_MODE_MOUSE;
             default:                                    return LLStringUtil::null;
         }
     }
@@ -621,8 +623,8 @@ namespace
         avatar_buttons["Toggle run"]             = "BUTTON_LEFT_STICK";
         // TODO: implement Interact feature
         //avatar_buttons["Interact"]               = "BUTTON_NORTH";
-        avatar_buttons["Toggle speak"]           = "BUTTON_SELECT";
-        avatar_buttons["3rd Person camera"]      = "BUTTON_HOME";
+        avatar_buttons["Toggle mouse cursor"]    = "BUTTON_SELECT";
+        avatar_buttons["Toggle speak"]           = "BUTTON_HOME";
         avatar_buttons["Toggle mouselook"]       = "BUTTON_START";
         avatar_buttons["Toggle flycam"]          = "BUTTON_RIGHT_STICK";
         avatar_buttons["Advance forward"]        = "BUTTON_DPAD_UP";
@@ -651,8 +653,8 @@ namespace
         mouselook_buttons["Crouch"]                 = "BUTTON_EAST";
         mouselook_buttons["Toggle sit"]             = "BUTTON_WEST";
         mouselook_buttons["Toggle run"]             = "BUTTON_LEFT_STICK";
-        mouselook_buttons["Toggle speak"]           = "BUTTON_SELECT";
-        mouselook_buttons["3rd Person camera"]      = "BUTTON_HOME";
+        mouselook_buttons["Toggle mouse cursor"]    = "BUTTON_SELECT";
+        mouselook_buttons["Toggle speak"]           = "BUTTON_HOME";
         mouselook_buttons["Mouse click left"]       = "BUTTON_LEFT_SHOULDER";
         mouselook_buttons["Mouse click right"]      = "BUTTON_RIGHT_SHOULDER";
         mouselook_buttons["Toggle mouselook"]       = "BUTTON_START";
@@ -666,6 +668,49 @@ namespace
         mouselook_axes_invert["Strafe left/right"] = true;
         mouselook_axes_invert["Advance forward/back"] = true;
         mouselook_axes_invert["Turn left/right"] = true;
+
+        // Mouse mode default are the same as Avatar mode but with the left
+        // stick repurposed to move the on-screen cursor, and shoulder buttons
+        // mapped to mouse clicks left and right.
+        LLSD mouse_axes;
+        mouse_axes["Mouse left/right"] = "AXIS_LEFTX";
+        mouse_axes["Mouse up/down"]    = "AXIS_LEFTY";
+        mouse_axes["Turn left/right"]  = "AXIS_RIGHTX";
+        mouse_axes["Look up/down"]     = "AXIS_RIGHTY";
+        mouse_axes["Fly up/down"]      = "AXIS_TRIGGERS";
+
+        LLSD mouse_buttons;
+        mouse_buttons["Jump"]                   = "BUTTON_SOUTH";
+        mouse_buttons["Crouch"]                 = "BUTTON_EAST";
+        mouse_buttons["Toggle sit"]             = "BUTTON_WEST";
+        mouse_buttons["Toggle run"]             = "BUTTON_LEFT_STICK";
+        mouse_buttons["Toggle mouse cursor"]    = "BUTTON_SELECT";
+        mouse_buttons["Toggle speak"]           = "BUTTON_HOME";
+        mouse_buttons["Toggle mouselook"]       = "BUTTON_START";
+        mouse_buttons["Toggle flycam"]          = "BUTTON_RIGHT_STICK";
+        mouse_buttons["Mouse click left"]       = "BUTTON_LEFT_SHOULDER";
+        mouse_buttons["Mouse click right"]      = "BUTTON_RIGHT_SHOULDER";
+        mouse_buttons["Advance forward"]        = "BUTTON_DPAD_UP";
+        mouse_buttons["Advance back"]           = "BUTTON_DPAD_DOWN";
+        mouse_buttons["Strafe left"]            = "BUTTON_DPAD_LEFT";
+        mouse_buttons["Strafe right"]           = "BUTTON_DPAD_RIGHT";
+
+        LLSD mouse_axes_invert;
+        // Kept in case the user re-binds Strafe/Advance back onto an axis; matches
+        // the Avatar/Mouselook default so re-binding doesn't silently feel different.
+        mouse_axes_invert["Strafe left/right"] = true;
+        mouse_axes_invert["Advance forward/back"] = true;
+        mouse_axes_invert["Turn left/right"] = true;
+        // "Mouse up/down": by the same raw-hardware-vs-target-sign reasoning as
+        // "Advance forward/back" above (push-up reads as a negative raw deflection,
+        // same physical axis/convention), invert so pushing the stick up moves the
+        // cursor up (screen/GL Y increases upward) rather than down. "Mouse left/
+        // right" needs no invert: unlike Strafe (which wants left=positive to match
+        // SL's world frame), cursor X wants right=positive, which is what the raw
+        // hardware already gives uninverted. NOTE: not yet verified in-world --
+        // flip this (or the other axis) if the cursor moves the wrong way on a
+        // real controller.
+        mouse_axes_invert["Mouse up/down"] = true;
 
         // FlyCam adds a Roll axis and uses a distinct button set.
         LLSD flycam_axes;
@@ -713,6 +758,7 @@ namespace
         mappings[GC_MODE_MOUSELOOK] = makeMode(mouselook_axes, mouselook_buttons, mouselook_axes_invert);
         mappings[GC_MODE_FLYCAM]    = makeMode(flycam_axes, flycam_buttons, flycam_axes_invert);
         mappings[GC_MODE_CAPTIVE]   = makeMode(avatar_axes, avatar_buttons, avatar_axes_invert);
+        mappings[GC_MODE_MOUSE]     = makeMode(mouse_axes, mouse_buttons, mouse_axes_invert);
         return mappings;
     }
 
@@ -1504,18 +1550,18 @@ void LLGameControllerManager::computeFinalState()
 {
     static const LLGameControlTranslator::ControllerMappings axis_mappings = {
         // Axes
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_STRAFE_LEFT},   LLGameControl::MovementDirection::MOVE_DIR_STRAFE_LEFT},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_STRAFE_RIGHT},  LLGameControl::MovementDirection::MOVE_DIR_STRAFE_RIGHT},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_PUSH_FORWARD},  LLGameControl::MovementDirection::MOVE_DIR_PUSH_FORWARD},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_PUSH_BACKWARD}, LLGameControl::MovementDirection::MOVE_DIR_PUSH_BACKWARD},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_TURN_LEFT},     LLGameControl::MovementDirection::MOVE_DIR_TURN_LEFT},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_TURN_RIGHT},    LLGameControl::MovementDirection::MOVE_DIR_TURN_RIGHT},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_LOOK_UP},       LLGameControl::MovementDirection::MOVE_DIR_LOOK_UP},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_LOOK_DOWN},     LLGameControl::MovementDirection::MOVE_DIR_LOOK_DOWN},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_RISE_UP},       LLGameControl::MovementDirection::MOVE_DIR_RISE_UP},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_DROP_DOWN},     LLGameControl::MovementDirection::MOVE_DIR_DROP_DOWN},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_ROLL_LEFT},     LLGameControl::MovementDirection::MOVE_DIR_ROLL_LEFT},
-        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_ROLL_RIGHT},    LLGameControl::MovementDirection::MOVE_DIR_ROLL_RIGHT}
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_STRAFE_LEFT},  LLGameControl::MovementDirection::MOVE_DIR_STRAFE_LEFT},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_STRAFE_RIGHT}, LLGameControl::MovementDirection::MOVE_DIR_STRAFE_RIGHT},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_ADVANCE},      LLGameControl::MovementDirection::MOVE_DIR_ADVANCE},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_RETREAT},      LLGameControl::MovementDirection::MOVE_DIR_RETREAT},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_TURN_LEFT},    LLGameControl::MovementDirection::MOVE_DIR_TURN_LEFT},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_TURN_RIGHT},   LLGameControl::MovementDirection::MOVE_DIR_TURN_RIGHT},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_LOOK_UP},      LLGameControl::MovementDirection::MOVE_DIR_LOOK_UP},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_LOOK_DOWN},    LLGameControl::MovementDirection::MOVE_DIR_LOOK_DOWN},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_RISE_UP},      LLGameControl::MovementDirection::MOVE_DIR_RISE_UP},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_DROP_DOWN},    LLGameControl::MovementDirection::MOVE_DIR_DROP_DOWN},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_ROLL_LEFT},    LLGameControl::MovementDirection::MOVE_DIR_ROLL_LEFT},
+        {{LLGameControl::ActionType::DOF, LLGameControl::MovementDirection::MOVE_DIR_ROLL_RIGHT},   LLGameControl::MovementDirection::MOVE_DIR_ROLL_RIGHT}
     };
 
     static const LLGameControlTranslator::ControllerMappings button_mappings = {
@@ -1745,20 +1791,21 @@ namespace
         return bridge;
     }
 
-    // Avatar/Mouselook/Captive-mode button label -> one-shot AvatarMiscAction bit.  These
-    // don't correspond to an AGENT_CONTROL_* flag, so they're kept in a bridge
+    // Avatar/Mouselook/Captive/Mouse-mode button label -> one-shot AvatarMiscAction bit.
+    // These don't correspond to an AGENT_CONTROL_* flag, so they're kept in a bridge
     // separate from avatarButtonBridge() and edge-triggered (not-pressed ->
     // pressed) by computeAgentActions() into AgentActions::mMiscActionBits,
     // rather than OR'd every frame the button is held like a movement flag.
     const std::map<std::string, U32>& avatarMiscButtonBridge()
     {
         static const std::map<std::string, U32> bridge = {
-            { "Toggle fly",        LLGameControl::AVATAR_ACTION_TOGGLE_FLY },
-            { "Toggle sit",        LLGameControl::AVATAR_ACTION_TOGGLE_SIT },
-            { "Toggle speak",      LLGameControl::AVATAR_ACTION_TOGGLE_SPEAK },
-            { "Toggle flycam",     LLGameControl::AVATAR_ACTION_TOGGLE_FLYCAM },
-            { "Toggle mouselook",  LLGameControl::AVATAR_ACTION_TOGGLE_MOUSELOOK },
-            { "3rd Person camera", LLGameControl::AVATAR_ACTION_TOGGLE_3RD_PERSON },
+            { "Toggle fly",          LLGameControl::AVATAR_ACTION_TOGGLE_FLY },
+            { "Toggle sit",          LLGameControl::AVATAR_ACTION_TOGGLE_SIT },
+            { "Toggle speak",        LLGameControl::AVATAR_ACTION_TOGGLE_SPEAK },
+            { "Toggle flycam",       LLGameControl::AVATAR_ACTION_TOGGLE_FLYCAM },
+            { "Toggle mouselook",    LLGameControl::AVATAR_ACTION_TOGGLE_MOUSELOOK },
+            { "3rd Person camera",   LLGameControl::AVATAR_ACTION_TOGGLE_3RD_PERSON },
+            { "Toggle mouse cursor", LLGameControl::AVATAR_ACTION_TOGGLE_MOUSE_CURSOR },
         };
         return bridge;
     }
@@ -1873,6 +1920,8 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     S32 movement_magnitude = 0;
     S32 yaw_value = 0;
     S32 pitch_value = 0;
+    S32 mouse_dx = 0;
+    S32 mouse_dy = 0;
     for (U8 axis = 0; axis < LLGameControl::NUM_AXES; ++axis)
     {
         const AxisActionBinding& binding = mAxisActionBindings[axis];
@@ -1880,6 +1929,28 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         {
             continue;
         }
+
+        // "Mouse left/right"/"Mouse up/down" (Mouse mode only) drive the on-screen
+        // cursor rather than an AGENT_CONTROL_* flag, so they're captured here
+        // separately from avatarAxisBridge() below.
+        bool is_mouse_x = binding.label == "Mouse left/right";
+        bool is_mouse_y = binding.label == "Mouse up/down";
+        if (is_mouse_x || is_mouse_y)
+        {
+            S32 deflection = (S32)g_innerState.mAxes[axis * 2] - (S32)g_innerState.mAxes[axis * 2 + 1];
+            S32 value = binding.half == HALF_NEGATIVE ? -deflection : deflection;
+            if (binding.invert)
+            {
+                value = -value;
+            }
+            S32& mouse_axis_value = is_mouse_x ? mouse_dx : mouse_dy;
+            if (std::abs(value) > std::abs(mouse_axis_value))
+            {
+                mouse_axis_value = value;
+            }
+            continue;
+        }
+
         auto it = axis_bridge.find(binding.label);
         if (it == axis_bridge.end())
         {
@@ -2033,6 +2104,8 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
 
     result.mYawAmplitude = std::clamp((F32)yaw_value / 32767.f, -1.f, 1.f);
     result.mPitchAmplitude = std::clamp((F32)pitch_value / 32767.f, -1.f, 1.f);
+    result.mMouseCursorDX = std::clamp((F32)mouse_dx / 32767.f, -1.f, 1.f);
+    result.mMouseCursorDY = std::clamp((F32)mouse_dy / 32767.f, -1.f, 1.f);
 
     return result;
 }
@@ -2107,6 +2180,13 @@ namespace
         if (mode == LLGameControl::CONTROL_MODE_FLYCAM)
         {
             return flycamAxisBridge().count(label) > 0;
+        }
+        if (mode == LLGameControl::CONTROL_MODE_MOUSE)
+        {
+            // Shares the avatar axis actions (Turn/Look/Fly, plus Strafe/Advance if the
+            // user re-binds them) and adds the two cursor-movement axes.
+            return avatarAxisBridge().count(label) > 0
+                || label == "Mouse left/right" || label == "Mouse up/down";
         }
         // Avatar, Mouselook, and Captive share the avatar axis actions.
         return avatarAxisBridge().count(label) > 0;
@@ -2411,11 +2491,11 @@ bool LLGameControl::actionFromString(const std::string& string, ActionType& acti
         }
         else if(string == "axis_forward")
         {
-            action = MOVE_DIR_PUSH_FORWARD;
+            action = MOVE_DIR_ADVANCE;
         }
         else if(string == "axis_backward")
         {
-            action = MOVE_DIR_PUSH_BACKWARD;
+            action = MOVE_DIR_RETREAT;
         }
         else if(string == "axis_turn_left")
         {
@@ -2562,8 +2642,8 @@ std::string LLGameControl::stringFromAction(const ActionType actionType, const U
             {
                 case MovementDirection::MOVE_DIR_STRAFE_LEFT:   return "axis_left";
                 case MovementDirection::MOVE_DIR_STRAFE_RIGHT:  return "axis_right";
-                case MovementDirection::MOVE_DIR_PUSH_FORWARD:  return "axis_forward";
-                case MovementDirection::MOVE_DIR_PUSH_BACKWARD: return "axis_backward";
+                case MovementDirection::MOVE_DIR_ADVANCE:  return "axis_forward";
+                case MovementDirection::MOVE_DIR_RETREAT: return "axis_backward";
                 case MovementDirection::MOVE_DIR_TURN_LEFT:     return "axis_turn_left";
                 case MovementDirection::MOVE_DIR_TURN_RIGHT:    return "axis_turn_right";
                 case MovementDirection::MOVE_DIR_LOOK_UP:       return "axis_look_up";
@@ -2879,7 +2959,8 @@ bool LLGameControl::willControlAvatar()
     return isEnabled()
         && (g_agentControlMode == CONTROL_MODE_AVATAR
             || g_agentControlMode == CONTROL_MODE_MOUSELOOK
-            || g_agentControlMode == CONTROL_MODE_CAPTIVE)
+            || g_agentControlMode == CONTROL_MODE_CAPTIVE
+            || g_agentControlMode == CONTROL_MODE_MOUSE)
         && isModeEnabled(modeToString(g_agentControlMode));
 }
 
