@@ -1370,42 +1370,40 @@ bool LLAppViewer::frame()
     return ret;
 }
 
-void sendGameControlInput()
+void sendGameControlData()
 {
     LLMessageSystem* msg = gMessageSystem;
     const LLGameControl::ServerState& state = LLGameControl::getServerState();
 
-    msg->newMessageFast(_PREHASH_GameControlInput);
-    msg->nextBlock("AgentData");
-    msg->addUUID("AgentID", gAgentID);
-    msg->addUUID("SessionID", gAgentSessionID);
+    msg->newMessageFast(_PREHASH_GameControlData);
+    msg->nextBlockFast(_PREHASH_AgentData);
+    msg->addUUIDFast(_PREHASH_AgentID, gAgentID);
+    msg->addUUIDFast(_PREHASH_SessionID, gAgentSessionID);
+    msg->addU8Fast(_PREHASH_Packet, LLGameControl::getNextPacketNum());
+    msg->addU8Fast(_PREHASH_ActionMode, state.mActionMode);
 
-    size_t num_indices = state.mAxes.size();
-    for (U8 i = 0; i < num_indices; ++i)
+    // Non-modal canonical axes/buttons: pack every available value every message,
+    // whether or not it changed since the last one (no per-field diffing).
+    size_t num_axes = state.mAxes.size();
+    for (U8 i = 0; i < num_axes; ++i)
     {
-        if (state.mAxes[i] != state.mPrevAxes[i])
-        {
-            // only pack an axis if it differs from previously packed value
-            msg->nextBlockFast(_PREHASH_AxisData);
-            msg->addU8Fast(_PREHASH_Index, i);
-            msg->addS16Fast(_PREHASH_Value, state.mAxes[i]);
-        }
+        msg->nextBlockFast(_PREHASH_Axes);
+        msg->addS16Fast(_PREHASH_Value, state.mAxes[i]);
     }
+    msg->nextBlockFast(_PREHASH_Buttons);
+    msg->addU32Fast(_PREHASH_Flags, state.mButtons);
 
-    U32 button_flags = state.mButtons;
-    if (button_flags > 0)
+    // Modal semantic axes/buttons: same always-pack-everything policy, but the
+    // number of axes packed depends on ActionMode -- see message_template.msg's
+    // GameControlData doc and LLGameControl::numSemanticAxesForMode().
+    U8 num_mode_axes = LLGameControl::numSemanticAxesForMode((LLGameControl::AgentControlMode)state.mActionMode);
+    for (U8 i = 0; i < num_mode_axes; ++i)
     {
-        std::vector<U8> buttons;
-        for (U8 i = 0; i < LLGameControl::NUM_BUTTONS; i++)
-        {
-            if (button_flags & (0x1u << i))
-            {
-                buttons.push_back(i);
-            }
-        }
-        msg->nextBlockFast(_PREHASH_ButtonData);
-        msg->addBinaryDataFast(_PREHASH_Data, (void*)(buttons.data()), narrow(buttons.size()));
+        msg->nextBlockFast(_PREHASH_ModeAxes);
+        msg->addS16Fast(_PREHASH_Value, state.mSemanticAxes[i]);
     }
+    msg->nextBlockFast(_PREHASH_ModeButtons);
+    msg->addU32Fast(_PREHASH_Flags, state.mSemanticButtons);
 
     LLGameControl::updateResendPeriod();
     gAgent.sendMessage();
@@ -5432,7 +5430,7 @@ void LLAppViewer::idle()
             // state consumed below) and send it to the server when it changed.
             if (LLGameControl::computeFinalStateAndCheckForChanges())
             {
-                sendGameControlInput();
+                sendGameControlData();
             }
 
             // Drive the local avatar from the controller.  In Avatar/Captive

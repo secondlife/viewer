@@ -8,7 +8,7 @@ version 2.0
 // for each type is listed below:
 // Low: 431
 // Medium: 18
-// High: 32
+// High: 33
 // PLEASE UPDATE THIS WHEN YOU ADD A NEW MESSAGE!
 
 
@@ -567,6 +567,11 @@ version 2.0
 // PlacesQuery
 // Used for getting a list of places for the group land panel
 // and the user land holdings panel.  NOT for the directory.
+// 
+// The dataserver now implements the "/agent/<agent-id>/owned-land" 
+// endpoint as a replacement for PlacesQuery and PlacesReply.  
+// This has not yet been exposed in the viewer through a capability... 
+// but this message's days are numbered.
 {
     PlacesQuery Low 29 NotTrusted Zerocoded
     {
@@ -2106,7 +2111,7 @@ version 2.0
     }
 }
 
-//  ObjectBypassModUpdate
+//  ObjectBypassedUpdate
 //  Viewer -> Simulator
 //  Allows the owner of an object to bypass mod protections for
 //  Predefined fields.
@@ -7501,9 +7506,12 @@ version 2.0
     }
 }
 
+// ScriptDataRequest and ScriptDataReply are no longer used in the
+// simulator or the dataserver. Please see "/region/<region-id>/data-request"
+// in llscript_dataserver.cpp for the HTTP endpoint.
 // Script on simulator asks dataserver for information
 {
-    ScriptDataRequest Low 337 Trusted Unencoded
+    ScriptDataRequest Low 337 Trusted Unencoded UDPDeprecated
     {
         DataBlock Variable
         {   Hash        U64         }
@@ -7514,7 +7522,7 @@ version 2.0
 
 // Data server responds with data
 {
-    ScriptDataReply Low 338 Trusted Unencoded
+    ScriptDataReply Low 338 Trusted Unencoded UDPDeprecated
     {
         DataBlock Variable
         {   Hash    U64         }
@@ -9256,6 +9264,7 @@ version 2.0
     }
 }
 
+// DEPRECATED -- remove once all simulators support GameControlData message
 // viewer -> simulator
 // GameControlInput - input from game controller
 // The main payload of this message is split into two Variable chunks:
@@ -9288,3 +9297,114 @@ version 2.0
         { Data  Variable 1  }
     }
 }
+
+// GameControlData
+// viewer -> simulator
+// GameControlData - data from game controller
+//
+// The Packet field of the AgentData is an increasing sequence number (with overflow
+// after 255) for each GameControlData message, used to ignore late arrivals for
+// out-of-order GameControlData messages.
+//
+// The ActionMode field of the AgentData block represents the viewer's game-control
+// mode and is used to assign meaning to the semantic data (see below).
+//
+// Canonical Axes has up to 6 axes: the server will ignore any axes beyond 6 and if
+// fewer than 6 are packed then the server will assume the unpacked axes haven't changed
+// since last message.
+//   0 AXIS_LEFTX
+//   1 AXIS_LEFTY
+//   2 AXIS_RIGHTX
+//   3 AXIS_RIGHTY
+//   4 AXIS_LEFT_TRIGGER
+//   5 AXIS_RIGHT_TRIGGER
+//
+// ButtonData is a 32-bit mask of pressed buttons
+//   0 BUTTON_SOUTH
+//   1 BUTTON_EAST
+//   2 BUTTON_WEST
+//   3 BUTTON_NORTH
+//   4 BUTTON_SELECT
+//   5 BUTTON_HOME
+//   6 BUTTON_START
+//   7 BUTTON_LEFT_STICK
+//   8 BUTTON_RIGHT_STICK
+//   9 BUTTON_LEFT_SHOULDER
+//  10 BUTTON_RIGHT_SHOULDER
+//  11 BUTTON_DPAD_UP
+//  12 BUTTON_DPAD_DOWN
+//  13 BUTTON_DPAD_LEFT
+//  14 BUTTON_DPAD_RIGHT
+//  15 BUTTON_MISC1
+//  16 BUTTON_PADDLE1
+//  17 BUTTON_PADDLE2
+//  18 BUTTON_PADDLE3
+//  19 BUTTON_PADDLE4
+//  20 BUTTON_TOUCHPAD
+//  21 BUTTON_21
+//   ...
+//  31 BUTTON_31
+//
+// Semantic data is mostly the same as canonical, but reordered (and combined in the case of the triggers)
+// according to their meaning. The meaning of the semantic axis data depends on the mode.  The modes are:
+//   0 CONTROL_MODE_AVATAR
+//   1 CONTROL_MODE_MOUSELOOK
+//   2 CONTROL_MODE_FLYCAM
+//   3 CONTROL_MODE_CAPTIVE (sitting)
+//   4 CONTROL_MODE_MOUSE (mouse cursor)
+//
+// For AVATAR, MOUSELOOK, and CAPTIVE modes the axes are:
+//   0 AXIS_STRAFE
+//   1 AXIS_ADVANCE
+//   2 AXIS_TURN
+//   3 AXIS_LOOK
+//   4 AXIS_RISE
+//
+// For FLYCAM the axes are:
+//   0 FLYCAM_AXIS_TRUCK
+//   1 FLYCAM_AXIS_DOLLY
+//   2 FLYCAM_AXIS_PAN
+//   3 FLYCAM_AXIS_TILT
+//   4 FLYCAM_AXIS_BOOM
+//   5 FLYCAM_AXIS_ROLL
+//   6 FLYCAM_AXIS_ZOOM
+//
+// For MOUSE mode the axes are:
+//   0 MOUSE_DX
+//   1 MOUSE_DY
+//   2 AXIS_TURN
+//   3 AXIS_LOOK
+//
+// Similarly for semantic buttons the meaning of the bits depend on the mode:
+// TODO: document the semantic button bits for the various modes.
+// Carries canonical gamepad state plus mode-dependent semantic interpretation.
+// Replaces the deprecated GameControlInput (High 32).
+{
+    GameControlData High 33 NotTrusted Zerocoded
+    {
+        AgentData Single
+        {   AgentID     LLUUID  }
+        {   SessionID   LLUUID  }
+        {   Packet      U8      }
+        {   ActionMode  U8      }
+    }
+    // non-modal canonical data
+    {
+        Axes Variable
+        { Value S16 }
+    }
+    {
+        Buttons Single
+        { Flags U32 }
+    }
+    // modal semantic data
+    {
+        ModeAxes Variable
+        { Value S16 }
+    }
+    {
+        ModeButtons Single
+        { Flags U32 }
+    }
+}
+

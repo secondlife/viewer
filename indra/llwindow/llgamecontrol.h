@@ -136,6 +136,31 @@ public:
         NUM_AXES
     };
 
+    // Fixed order of the GameControlData message's ModeAxes block (for Avatar/
+    // Mouselook/Captive; Mouse packs only the first NUM_MOUSE_SEMANTIC_AXES of these,
+    // see numSemanticAxesForMode()): the avatar-movement intent an axis (or button) is
+    // currently bound to, independent of which physical canonical axis/button that
+    // happens to be for the active mapping.
+    enum SemanticAxis : U8
+    {
+        SEMANTIC_AXIS_STRAFE, // STRAFE_LEFT_RIGHT
+        SEMANTIC_AXIS_ADVANCE,// ADVANCE_FORWARD_BACK ("Advance forward/back")
+        SEMANTIC_AXIS_TURN,   // TURN_LEFT_RIGHT
+        SEMANTIC_AXIS_LOOK,   // LOOK_UP_DOWN
+        SEMANTIC_AXIS_RISE,   // RISE_UP_DOWN ("Fly up/down")
+        NUM_SEMANTIC_AXES
+    };
+
+    // CONTROL_MODE_MOUSE's ModeAxes block omits SEMANTIC_AXIS_RISE (there is no "fly
+    // up/down" concept while driving the on-screen cursor) -- see message_template.msg's
+    // GameControlData doc and numSemanticAxesForMode().
+    static constexpr U8 NUM_MOUSE_SEMANTIC_AXES = NUM_SEMANTIC_AXES - 1;
+
+    // Sentinel stored in a semantic-button index table for a physical button that has
+    // no ModeButtons index (its default action is a movement action folded into
+    // ModeAxes instead -- see LLGameControllerManager).
+    static constexpr U8 NO_SEMANTIC_BUTTON = 255;
+
     enum Button : U8
     {
         BUTTON_SOUTH,
@@ -186,6 +211,23 @@ public:
         FLYCAM_ZOOM,
         FLYCAM_NUM_CHANNELS
     };
+
+    // GameControlData's ModeAxes/ModeButtons blocks use whichever mode-specific slot
+    // order matches the sender's ActionMode: Avatar/Mouselook/Captive use SemanticAxis
+    // (NUM_SEMANTIC_AXES slots, in that order; Mouse packs only the first
+    // NUM_MOUSE_SEMANTIC_AXES of them); FlyCam uses FlycamChannel (FLYCAM_NUM_CHANNELS
+    // slots, in that order); CONTROL_MODE_NONE uses none (always zero/empty).
+    // ServerState reserves enough slots for the largest of these so any mode's data
+    // fits without resizing per-frame -- see numSemanticAxesForMode().
+    static constexpr U8 NUM_SEMANTIC_SLOTS =
+        (U8)FLYCAM_NUM_CHANNELS > (U8)NUM_SEMANTIC_AXES ? (U8)FLYCAM_NUM_CHANNELS : (U8)NUM_SEMANTIC_AXES;
+
+    // Number of leading elements of ServerState::mSemanticAxes that are valid/packed
+    // into GameControlData's ModeAxes block for 'mode' (see message_template.msg's
+    // GameControlData doc): NUM_SEMANTIC_AXES for Avatar/Mouselook/Captive,
+    // NUM_MOUSE_SEMANTIC_AXES for Mouse (no RISE axis), FLYCAM_NUM_CHANNELS for FlyCam,
+    // 0 for CONTROL_MODE_NONE.
+    static U8 numSemanticAxesForMode(AgentControlMode mode);
 
     // Axis-map output codes stored in Options::mAxisMap (one per physical axis):
     //   0 .. NUM_AXES-1          maps 1:1 to that canonical axis
@@ -327,6 +369,18 @@ public:
         std::vector<S16> mPrevAxes; // value in last outgoing packet
         U32 mButtons;
         U32 mPrevButtons;
+
+        // Semantic re-encoding of the above (see NUM_SEMANTIC_SLOTS / NO_SEMANTIC_BUTTON):
+        // mSemanticAxes is indexed by SemanticAxis or FlycamChannel, whichever matches
+        // mActionMode (unused trailing slots are zero); mSemanticButtons is a bitmask
+        // of semantic button indices from the active mode's semantic button index
+        // table.  mActionMode mirrors LLGameControl::AgentControlMode.
+        std::vector<S16> mSemanticAxes;
+        std::vector<S16> mPrevSemanticAxes;
+        U32 mSemanticButtons;
+        U32 mPrevSemanticButtons;
+        U8 mActionMode;
+        U8 mPrevActionMode;
     };
 
     // Device is a data structure for describing any detected controller
@@ -380,9 +434,10 @@ public:
     static const std::list<LLGameControl::Device>& getDevices();
     static const std::map<std::string, std::string>& getDeviceOptions();
 
-    // returns 'true' if GameControlInput message needs to go out,
-    // which will be the case for new data or resend. Call this right
-    // before deciding to put a GameControlInput packet on the wire
+    // returns 'true' if GameControlData message needs to go out,
+    // which will be the case for new data or resend (throttled to never fire
+    // faster than the server's expected max frame rate). Call this right
+    // before deciding to put a GameControlData packet on the wire
     // or not.
     static bool computeFinalStateAndCheckForChanges();
     static void computeFinalState();
@@ -488,8 +543,13 @@ public:
     // 50% stick tilt, per LLGameControllerManager::computeAgentActions().
     static void setExternalInput(U32 action_flags, U32 buttons_from_keys, bool is_running);
 
-    // call this after putting a GameControlInput packet on the wire
+    // call this after putting a GameControlData packet on the wire
     static void updateResendPeriod();
+
+    // Returns the AgentData.Packet sequence number for the next outgoing
+    // GameControlData message, then increments it (U8 wraps after 255).
+    // Call exactly once per message, while packing it.
+    static U8 getNextPacketNum();
 
     static bool parseDeviceOptions(const std::string& options, std::string& name,
         std::vector<LLGameControl::Options::AxisOptions>& axis_options,
