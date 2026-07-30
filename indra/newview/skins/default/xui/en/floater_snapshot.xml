@@ -5,7 +5,7 @@
  can_minimize="true"
  can_resize="false"
  can_close="true"
- height="475"
+ height="561"
  layout="topleft"
  name="Snapshot"
  single_instance="true"
@@ -115,7 +115,7 @@
 	   top_delta="0"
        width="31" />
 	<panel
-     height="179"
+     height="268"
      layout="topleft"
 	 follows="top|left"
      left="0"
@@ -213,6 +213,55 @@
          top_pad="1"
          width="180"
          name="no_post_check" />
+        <check_box
+         label="Avatars only"
+         tool_tip="Render only avatars and their attachments. World, sky and water are hidden and the background is transparent (save as PNG to keep transparency)."
+         layout="topleft"
+         height="16"
+         left="10"
+         top_pad="1"
+         width="180"
+         name="avatars_only_check" />
+        <check_box
+         enabled_control="SnapshotAvatarsOnly"
+         label="Include seat objects"
+         tool_tip="Also render the objects avatars are sitting on (chairs, vehicles, poseballs)."
+         layout="topleft"
+         height="16"
+         left="30"
+         top_pad="1"
+         width="160"
+         name="sit_objects_check" />
+        <check_box
+         enabled_control="SnapshotAvatarsOnly"
+         label="Include animesh"
+         tool_tip="Also render animesh (animated objects) that are not worn as attachments."
+         layout="topleft"
+         height="16"
+         left="30"
+         top_pad="1"
+         width="160"
+         name="animesh_check" />
+        <check_box
+         enabled_control="SnapshotAvatarsOnly"
+         label="Include particles"
+         tool_tip="Also render particles in avatars-only snapshots."
+         layout="topleft"
+         height="16"
+         left="30"
+         top_pad="1"
+         width="160"
+         name="particles_check" />
+        <check_box
+         enabled_control="SnapshotAvatarsOnly"
+         label="Include selected objects"
+         tool_tip="Also render currently selected objects in avatars-only snapshots."
+         layout="topleft"
+         height="16"
+         left="30"
+         top_pad="1"
+         width="160"
+         name="selected_objects_check" />
         <text
          type="string"
          length="1"

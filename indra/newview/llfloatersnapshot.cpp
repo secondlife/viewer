@@ -496,6 +496,66 @@ void LLFloaterSnapshotBase::ImplBase::onClickNoPost(LLUICtrl *ctrl, void* data)
     view->impl->updateControls(view);
 }
 
+// avatars-only snapshot
+// static
+void LLFloaterSnapshotBase::ImplBase::onClickAvatarsOnly(LLUICtrl *ctrl, void* data)
+{
+    bool avatars_only = ((LLCheckBoxCtrl*)ctrl)->get();
+    gSavedSettings.setBOOL("SnapshotAvatarsOnly", avatars_only);
+
+    LLFloaterSnapshotBase* view = (LLFloaterSnapshotBase*)data;
+    view->getPreviewView()->updateSnapshot(true, true);
+    view->impl->updateControls(view);
+}
+
+// avatars-only seat objects
+// static
+void LLFloaterSnapshotBase::ImplBase::onClickSitObjects(LLUICtrl *ctrl, void* data)
+{
+    bool sit_objects = ((LLCheckBoxCtrl*)ctrl)->get();
+    gSavedSettings.setBOOL("SnapshotSitObjects", sit_objects);
+
+    LLFloaterSnapshotBase* view = (LLFloaterSnapshotBase*)data;
+    view->getPreviewView()->updateSnapshot(true, true);
+    view->impl->updateControls(view);
+}
+
+// avatars-only animesh
+// static
+void LLFloaterSnapshotBase::ImplBase::onClickAnimesh(LLUICtrl *ctrl, void* data)
+{
+    bool animesh = ((LLCheckBoxCtrl*)ctrl)->get();
+    gSavedSettings.setBOOL("SnapshotAnimesh", animesh);
+
+    LLFloaterSnapshotBase* view = (LLFloaterSnapshotBase*)data;
+    view->getPreviewView()->updateSnapshot(true, true);
+    view->impl->updateControls(view);
+}
+
+// avatars-only particles
+// static
+void LLFloaterSnapshotBase::ImplBase::onClickParticles(LLUICtrl *ctrl, void* data)
+{
+    bool particles = ((LLCheckBoxCtrl*)ctrl)->get();
+    gSavedSettings.setBOOL("SnapshotParticles", particles);
+
+    LLFloaterSnapshotBase* view = (LLFloaterSnapshotBase*)data;
+    view->getPreviewView()->updateSnapshot(true, true);
+    view->impl->updateControls(view);
+}
+
+// avatars-only selected objects
+// static
+void LLFloaterSnapshotBase::ImplBase::onClickSelectedObjects(LLUICtrl *ctrl, void* data)
+{
+    bool selected = ((LLCheckBoxCtrl*)ctrl)->get();
+    gSavedSettings.setBOOL("SnapshotSelectedObjects", selected);
+
+    LLFloaterSnapshotBase* view = (LLFloaterSnapshotBase*)data;
+    view->getPreviewView()->updateSnapshot(true, true);
+    view->impl->updateControls(view);
+}
+
 // static
 void LLFloaterSnapshotBase::ImplBase::onClickFilter(LLUICtrl *ctrl, void* data)
 {
@@ -1001,6 +1061,18 @@ bool LLFloaterSnapshot::postBuild()
 
     getChild<LLUICtrl>("no_post_check")->setValue(gSavedSettings.getBOOL("RenderSnapshotNoPost"));
     childSetCommitCallback("no_post_check", ImplBase::onClickNoPost, this);
+
+    // avatars-only snapshot
+    getChild<LLUICtrl>("avatars_only_check")->setValue(gSavedSettings.getBOOL("SnapshotAvatarsOnly"));
+    childSetCommitCallback("avatars_only_check", ImplBase::onClickAvatarsOnly, this);
+    getChild<LLUICtrl>("sit_objects_check")->setValue(gSavedSettings.getBOOL("SnapshotSitObjects"));
+    childSetCommitCallback("sit_objects_check", ImplBase::onClickSitObjects, this);
+    getChild<LLUICtrl>("animesh_check")->setValue(gSavedSettings.getBOOL("SnapshotAnimesh"));
+    childSetCommitCallback("animesh_check", ImplBase::onClickAnimesh, this);
+    getChild<LLUICtrl>("particles_check")->setValue(gSavedSettings.getBOOL("SnapshotParticles"));
+    childSetCommitCallback("particles_check", ImplBase::onClickParticles, this);
+    getChild<LLUICtrl>("selected_objects_check")->setValue(gSavedSettings.getBOOL("SnapshotSelectedObjects"));
+    childSetCommitCallback("selected_objects_check", ImplBase::onClickSelectedObjects, this);
 
     getChild<LLButton>("retract_btn")->setCommitCallback(boost::bind(&LLFloaterSnapshot::onExtendFloater, this));
     getChild<LLButton>("extend_btn")->setCommitCallback(boost::bind(&LLFloaterSnapshot::onExtendFloater, this));

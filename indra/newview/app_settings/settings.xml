@@ -16555,5 +16555,60 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SnapshotAnimesh</key>
+    <map>
+      <key>Comment</key>
+      <string>If enabled, avatars-only snapshots also render animesh (animated objects).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>SnapshotParticles</key>
+    <map>
+      <key>Comment</key>
+      <string>If enabled, avatars-only snapshots also render particles.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>SnapshotSelectedObjects</key>
+    <map>
+      <key>Comment</key>
+      <string>If enabled, avatars-only snapshots also render currently selected objects.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>SnapshotAvatarsOnly</key>
+    <map>
+      <key>Comment</key>
+      <string>If enabled, snapshots render only avatars and their attachments on a transparent background.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>SnapshotSitObjects</key>
+    <map>
+      <key>Comment</key>
+      <string>If enabled, avatars-only snapshots also render the objects avatars are sitting on.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
 </map>
 </llsd>

@@ -54,6 +54,7 @@
 #include "llviewertexturelist.h"
 #include "llwindow.h"
 #include "llworld.h"
+#include "pipeline.h" // avatars-only snapshot
 #include <boost/filesystem.hpp>
 
 constexpr F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
@@ -576,6 +577,10 @@ void LLSnapshotLivePreview::generateThumbnailImage(bool force_update)
     }
     else
     {
+        // avatars-only snapshot — only render avatars and their attachments
+        static LLCachedControl<bool> avatars_only_thumb(gSavedSettings, "SnapshotAvatarsOnly", false);
+        LLPipeline::setSnapshotAvatarsOnly(avatars_only_thumb);
+
         // The thumbnail is a screen view with screen grab positioning preview
         if(!gViewerWindow->thumbnailSnapshot(raw,
                                          mThumbnailWidth, mThumbnailHeight,
@@ -587,6 +592,8 @@ void LLSnapshotLivePreview::generateThumbnailImage(bool force_update)
         {
             raw = NULL ;
         }
+
+        LLPipeline::setSnapshotAvatarsOnly(false); // avatars-only snapshot
     }
 
     if (raw)
@@ -740,6 +747,10 @@ bool LLSnapshotLivePreview::onIdle( void* snapshot_preview )
         previewp->getWindow()->incBusyCount();
         previewp->setImageScaled(false);
 
+        // avatars-only snapshot — only render avatars and their attachments
+        static LLCachedControl<bool> avatars_only(gSavedSettings, "SnapshotAvatarsOnly", false);
+        LLPipeline::setSnapshotAvatarsOnly(avatars_only);
+
         // grab the raw image
         if (gViewerWindow->rawSnapshot(
                 previewp->mPreviewImage,
@@ -775,6 +786,7 @@ bool LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             previewp->setThumbnailImageSize();
             previewp->generateThumbnailImage(true) ;
         }
+        LLPipeline::setSnapshotAvatarsOnly(false); // avatars-only snapshot
         previewp->getWindow()->decBusyCount();
         previewp->setVisible(use_freeze_frame && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
         previewp->mSnapshotActive = false;
@@ -985,7 +997,15 @@ LLPointer<LLImageFormatted> LLSnapshotLivePreview::getFormattedImage()
                 mFormattedImage = new LLImageBMP();
                 break;
         }
-        if (mFormattedImage->encode(mPreviewImage, 0))
+        // JPEG encoder rejects RGBA input — flatten avatars-only captures to RGB
+        LLPointer<LLImageRaw> encode_src = mPreviewImage;
+        if (format == LLSnapshotModel::SNAPSHOT_FORMAT_JPEG && mPreviewImage->getComponents() == 4)
+        {
+            encode_src = new LLImageRaw(mPreviewImage->getWidth(), mPreviewImage->getHeight(), 3);
+            encode_src->copy(mPreviewImage);
+        }
+
+        if (mFormattedImage->encode(encode_src, 0))
         {
             // We can update the data size precisely at that point
             mDataSize = mFormattedImage->getDataSize();
