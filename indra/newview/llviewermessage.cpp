@@ -66,6 +66,7 @@
 #include "llfloaterpreference.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloatersnapshot.h"
+#include "llgamecontrol.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llimprocessing.h"
@@ -3950,6 +3951,11 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
         if (measurementp )
         {
             measurementp->sample(stat_value);
+            if (stat_id == LL_SIM_STAT_FPS)
+            {
+                // let GameControlData's outgoing throttle track the sim's actual rate
+                LLGameControl::setServerFrameRate(stat_value);
+            }
         }
         else
         {
