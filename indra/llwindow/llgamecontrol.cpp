@@ -27,7 +27,6 @@
 #include "llgamecontrol.h"
 
 #include <algorithm>
-#include <chrono>
 #include <unordered_map>
 
 #include "SDL3/SDL.h"
@@ -39,6 +38,7 @@
 #include "llgamecontroltranslator.h"
 #include "llsd.h"
 #include "llsdl.h"
+#include "lltimer.h"
 
 namespace std
 {
@@ -492,25 +492,26 @@ namespace
 
     // The GameControlData message is sent via UDP which is lossy, and every message
     // packs the complete current state (all canonical axes/buttons and all of the
-    // active mode's semantic axes/buttons), not just what changed.
+    // active mode's semantic axes/buttons), not just what changed.  So we resend
+    // the last final state a few times and then continue to send it with a geometrically
+    // expanding period.
     //
-    // To reduce the likelihood of a final state change being lost forever (dropped
-    // packet, nothing after it to correct the receiver) we resend the same data state
-    // after it stops changing. However, to keep the ambient resend bandwidth low we
-    // expand the resend period at a geometric rate.
-    //
-    constexpr U64 MSEC_PER_NSEC = 1000000;
-    constexpr U64 FIRST_RESEND_PERIOD = 100 * MSEC_PER_NSEC;
-    constexpr U64 RESEND_EXPANSION_RATE = 10;
+    // To ensure the data eventually arives we resend the last final state with an
+    // expanding resend period.
+    constexpr U64 USEC_PER_MSEC = 1000;
+    constexpr U64 FIRST_RESEND_PERIOD = 100 * USEC_PER_MSEC; // 100 msec, in usec
+    constexpr U64 RESEND_EXPANSION_RATE = 4;
 
-    // Hard cap on outgoing GameControlData rate, independent of the resend logic
-    // above: even when a fresh change wants to go out immediately (g_nextResendPeriod
-    // == 0), never send faster than the simulator's expected max frame rate -- no
-    // point flooding the wire faster than the server can consume. 45Hz matches
-    // llviewerobject.cpp's PHYSICS_TIMESTEP, which runs simulator physics at the same
-    // rate ("At 45 Hz collisions seem stable...").
-    constexpr F32 EXPECTED_SERVER_FRAME_RATE = 45.f; // Hz
-    constexpr U64 MIN_SEND_PERIOD = (U64)(1000.0 / EXPECTED_SERVER_FRAME_RATE * MSEC_PER_NSEC); // nsec
+    constexpr F32 DEFAULT_SERVER_FRAME_RATE = 45.f; // Hz
+    constexpr F32 MIN_SERVER_FRAME_RATE = 1.f; // Hz: clamp against div-by-near-zero on a stalled/lagged sim
+    constexpr U64 MIN_RESEND_PERIOD = USEC_PER_SEC / DEFAULT_SERVER_FRAME_RATE;
+    F32 g_serverFrameRate = DEFAULT_SERVER_FRAME_RATE;
+
+    U64 getMinSendPeriod()
+    {
+        U64 period = (U64)((F32)(USEC_PER_SEC) / g_serverFrameRate);
+        return llmax(period, MIN_RESEND_PERIOD);
+    }
 
     LLGameControl::State g_innerState; // state from all game controllers
     LLGameControl::State g_mappedState; // state after user mapping is applied
@@ -523,9 +524,28 @@ namespace
     S32 g_buttonLevelFrames[LLGameControl::Button::NUM_BUTTONS];
     S32 g_axisHeldFrames[LLGameControl::MovementDirection::NUM_MOVE_DIRS];
 
-    U64 g_lastSend = 0;
-    U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
+    // g_nextSend is an absolute expiry timestamp (usec, same clock as totalTime()):
+    // once it's in the past ('g_nextSend < now') the next GameControlData is due.
+    // Keeping the deadline itself (rather than a last-sent time + period to add at
+    // check time) means the check is a single comparison; see updateResendPeriod()
+    // and scheduleImmediateResend() for the only two places it's computed.
+    U64 g_nextSend = 0;
+    U64 g_nextResendPeriod = 0;
     U8 g_packetNum = 0; // GameControlData's AgentData.Packet sequence number; wraps at 255
+
+    // Call whenever outgoing state changes: restarts the resend backoff and pulls
+    // the send deadline up so the change goes out as soon as the min-send-period
+    // floor allows. Uses std::min (never pushes the deadline later) so that calling
+    // this every frame during continuous input (e.g. an analog stick held off-center)
+    // does not repeatedly reset an already-pending near-term deadline out to
+    // "now + floor" forever -- once the deadline is closer than a full floor period,
+    // the candidate computed from the (advancing) 'now' is always later than it,
+    // and std::min leaves the pending deadline alone.
+    void scheduleImmediateResend()
+    {
+        g_nextResendPeriod = 0;
+        g_nextSend = std::min(g_nextSend, (U64)totalTime() + getMinSendPeriod());
+    }
 
     bool g_sendToServer = false;
     LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_AVATAR;
@@ -1668,7 +1688,7 @@ void LLGameControllerManager::accumulateFinalState()
     g_finalState.mButtons = new_buttons;
     if (old_buttons != new_buttons)
     {
-        g_nextResendPeriod = 0; // packet needs to go out ASAP
+        scheduleImmediateResend(); // packet needs to go out ASAP
     }
 
     for (size_t j = 0; j < LLGameControl::NUM_AXES; ++j)
@@ -1684,7 +1704,7 @@ void LLGameControllerManager::accumulateFinalState()
             // first resend but not later ones.
             g_finalState.mPrevAxes[j] = g_finalState.mAxes[j];
             g_finalState.mAxes[j] = axis;
-            g_nextResendPeriod = 0; // packet needs to go out ASAP
+            scheduleImmediateResend(); // packet needs to go out ASAP
         }
     }
 
@@ -2431,7 +2451,7 @@ void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& s
     state.mActionMode = new_mode;
     if (old_mode != new_mode)
     {
-        g_nextResendPeriod = 0;
+        scheduleImmediateResend();
     }
 
     S32 semantic_values[LLGameControl::NUM_SEMANTIC_SLOTS] = { 0 };
@@ -2648,7 +2668,7 @@ void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& s
     state.mSemanticButtons = new_semantic_buttons;
     if (old_semantic_buttons != new_semantic_buttons)
     {
-        g_nextResendPeriod = 0;
+        scheduleImmediateResend();
     }
 
     for (U8 slot = 0; slot < LLGameControl::NUM_SEMANTIC_SLOTS; ++slot)
@@ -2661,7 +2681,7 @@ void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& s
             // second+ resend.
             state.mPrevSemanticAxes[slot] = state.mSemanticAxes[slot];
             state.mSemanticAxes[slot] = value;
-            g_nextResendPeriod = 0;
+            scheduleImmediateResend();
         }
     }
 }
@@ -2847,12 +2867,6 @@ void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons, bo
 void LLGameControllerManager::clear()
 {
     mDevices.clear();
-}
-
-U64 get_now_nsec()
-{
-    std::chrono::time_point<std::chrono::steady_clock> t0;
-    return (std::chrono::steady_clock::now() - t0).count();
 }
 
 void onJoystickDeviceAdded(const SDL_Event& event)
@@ -3232,7 +3246,8 @@ const std::map<std::string, std::string>& LLGameControl::getDeviceOptions()
 void LLGameControl::computeFinalState()
 {
     g_manager.accumulateInternalState();
-    // Note: LLGameControllerManager::computeFinalState() modifies g_nextResendPeriod as a side-effect
+    // Note: LLGameControllerManager::computeFinalState() calls scheduleImmediateResend()
+    // (pulling g_nextSend forward) as a side-effect whenever outgoing state changed.
     g_manager.computeFinalState();
 }
 
@@ -3245,14 +3260,10 @@ bool LLGameControl::computeFinalStateAndCheckForChanges()
 {
     computeFinalState();
 
-    // should send input when:
-    //     sending is enabled and
-    //     g_lastSend has "expired"
-    //         either because g_nextResendPeriod has been zeroed
-    //         or the last send really has expired.
-    //     but never more often than MIN_SEND_PERIOD, regardless of the above.
-    U64 wait_period = std::max(g_nextResendPeriod, MIN_SEND_PERIOD);
-    return g_sendToServer && (g_lastSend + wait_period < get_now_nsec());
+    // g_nextSend is the absolute deadline (see scheduleImmediateResend() and
+    // updateResendPeriod(), the only two places that set it): once it's in the
+    // past, the next GameControlData is due.
+    return g_sendToServer && (g_nextSend < (U64)totalTime());
 }
 
 // static
@@ -3388,6 +3399,17 @@ void LLGameControl::setSendToServer(bool enable)
 bool LLGameControl::sendToServer()
 {
     return g_sendToServer;
+}
+
+// static
+void LLGameControl::setServerFrameRate(F32 fps)
+{
+    if (fps <= 0.f)
+    {
+        g_serverFrameRate = DEFAULT_SERVER_FRAME_RATE;
+        return;
+    }
+    g_serverFrameRate = llmin(DEFAULT_SERVER_FRAME_RATE, llmax(fps, MIN_SERVER_FRAME_RATE));
 }
 
 // static
@@ -3637,26 +3659,18 @@ void LLGameControl::setExternalInput(U32 action_flags, U32 buttons, bool is_runn
 void LLGameControl::updateResendPeriod()
 {
     // we expect this method to be called right after data is sent
-    g_lastSend = get_now_nsec();
+    g_finalState.mPrevAxes = g_finalState.mAxes;
+    g_finalState.mPrevSemanticAxes = g_finalState.mSemanticAxes;
+    // resend starts at FIRST_RESEND_PERIOD and expands by RESEND_EXPANSION_RATE on each resend
     if (g_nextResendPeriod == 0)
     {
-        g_nextResendPeriod = FIRST_RESEND_PERIOD;
+        g_nextResendPeriod = llmax(FIRST_RESEND_PERIOD, getMinSendPeriod());
     }
     else
     {
-        // Reset mPrevAxes only on second resend or higher
-        // because when the joysticks are being used we expect a steady stream
-        // of recorrection data rather than sparse changes.
-        //
-        // (The above assumption is not necessarily true for "Actions" input
-        // (e.g. keyboard events).  TODO: figure out what to do about this.)
-        //
-        // In other words: we want to include changed axes in the first resend
-        // so we only overwrite g_finalState.mPrevAxes on higher resends.
-        g_finalState.mPrevAxes = g_finalState.mAxes;
-        g_finalState.mPrevSemanticAxes = g_finalState.mSemanticAxes;
         g_nextResendPeriod *= RESEND_EXPANSION_RATE;
     }
+    g_nextSend = (U64)totalTime() + std::max(g_nextResendPeriod, getMinSendPeriod());
 }
 
 //static

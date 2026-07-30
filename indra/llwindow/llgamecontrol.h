@@ -462,6 +462,13 @@ public:
     static void setSendToServer(bool enable);
     static void setAgentControlMode(AgentControlMode mode);
 
+    // Called whenever a fresh SimStats report gives us the simulator's current
+    // frame rate, so the GameControlData outgoing throttle (see
+    // computeFinalStateAndCheckForChanges() above) can track it instead of
+    // assuming a fixed expected rate. 'fps' <= 0 is ignored (falls back to the
+    // default expected rate).
+    static void setServerFrameRate(F32 fps);
+
     static bool sendToServer();
     static AgentControlMode getAgentControlMode();
 
