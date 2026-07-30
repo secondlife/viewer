@@ -651,9 +651,11 @@ bool LLFolderView::startDrag()
 
 void LLFolderView::commitRename( const LLSD& data )
 {
+    // Intentionally doesn't check mRenamer->getVisible(),
+    // since this can be called from 'focus lost' event.
+    // Ex: clicking inworld should commit the rename.
     finishRenamingItem();
     arrange( NULL, NULL );
-
 }
 
 void LLFolderView::draw()
@@ -727,13 +729,17 @@ void LLFolderView::draw()
 
 void LLFolderView::finishRenamingItem( void )
 {
-    if(!mRenamer)
+    if (!mRenamer)
     {
         return;
     }
     if( mRenameItem )
     {
         mRenameItem->rename( mRenamer->getText() );
+        // Clear text to avoid duplicate renames.
+        // Ex: 'return' key will trigger rename from handleKeyHere
+        // and might trigger commitRename from focus lost event.
+        mRenamer->setText(LLStringUtil::null);
     }
 
     closeRenamer();
