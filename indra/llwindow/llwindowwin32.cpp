@@ -2493,6 +2493,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_ACTIVATEAPP:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_ACTIVATEAPP");
+            // Resolve ownership before deferring the work because thread IDs can
+            // be reused after a thread exits.
+            const bool activating_same_process_thread =
+                !w_param && is_thread_from_current_process(static_cast<DWORD>(l_param));
             window_imp->post([=]()
                 {
                     // This message should be sent whenever the app gains or loses focus.
@@ -2502,7 +2506,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     // the viewer and one of those dialogs must not be treated as
                     // switching to another application: in fullscreen that would
                     // minimize the viewer and hide its owned dialog.
-                    if (!activating && is_thread_from_current_process(static_cast<DWORD>(l_param)))
+                    if (!activating && activating_same_process_thread)
                     {
                         activating = TRUE;
                     }
