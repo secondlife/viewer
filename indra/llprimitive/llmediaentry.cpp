@@ -127,6 +127,9 @@ LLMediaEntry::LLMediaEntry(const LLMediaEntry &rhs) :
     // "permissions" fields
     mPermsInteract = rhs.mPermsInteract;
     mPermsControl = rhs.mPermsControl;
+
+    // "display" fields
+    mTransparentBackground = rhs.mTransparentBackground;
 }
 
 LLMediaEntry::~LLMediaEntry()
