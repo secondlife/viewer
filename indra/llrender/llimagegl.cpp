@@ -541,6 +541,7 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
 
     mIsMask = false;
     mNeedsAlphaAndPickMask = true ;
+    mAlphaAnalysisSerial = 0;
     mAlphaStride = 0 ;
     mAlphaOffset = 0 ;
 
@@ -1951,6 +1952,9 @@ void LLImageGL::destroyGLTexture()
         mTexName = 0;
         mGLTextureCreated = false ;
     }
+
+    // Invalidate pending jobs
+    ++mAlphaAnalysisSerial;
 }
 
 //force to invalidate the gl texture, most likely a sculpty texture
@@ -2110,6 +2114,9 @@ void LLImageGL::setNeedsAlphaAndPickMask(bool need_mask)
         {
             mAlphaOffset = INVALID_OFFSET ;
             mIsMask = false;
+
+            // Invalidate pending jobs
+            ++mAlphaAnalysisSerial;
         }
     }
 }
@@ -2318,6 +2325,11 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
     S8 alpha_offset = mAlphaOffset;
     S8 alpha_stride = mAlphaStride;
 
+    // Viewer can rapidly switch between lods, which would invalidate
+    // previous analysis results.
+    // Use a serial number filter out obsolete analysis results.
+    U32 request_serial = ++mAlphaAnalysisSerial;
+
     ref(); // Keep texture alive
 
     auto mainq = mMainQueue.lock();
@@ -2327,9 +2339,10 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
         LL::WorkQueue::getInstance("LLImageGL") : // Use the image processing queue if available
         LL::WorkQueue::getInstance("General"); // Fallback to general
 
+    bool posted_job = false;
     if (mainq && workerq)
     {
-        mainq->postTo(
+        posted_job = mainq->postTo(
             workerq,
             // Worker thread: analyze alpha
             [data_copy, w, h, alpha_offset, alpha_stride]() -> bool
@@ -2340,9 +2353,13 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
             return is_mask;
         },
             // Main thread: apply result
-            [this](bool is_mask)
+            [this, request_serial](bool is_mask)
         {
-            mIsMask = is_mask;
+            // Only apply if no newer analysis has been requested
+            if (mAlphaAnalysisSerial == request_serial)
+            {
+                mIsMask = is_mask;
+            }
             unref();
         }
         );
@@ -2350,7 +2367,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
         // Conservative default until analysis completes
         mIsMask = false;
     }
-    else
+    if (!posted_job)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
         // Queues not available - fall back to synchronous analysis
