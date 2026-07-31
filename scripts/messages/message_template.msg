@@ -9298,20 +9298,20 @@ version 2.0
     }
 }
 
-// GameControlData
 // viewer -> simulator
 // GameControlData - data from game controller
+// Carries canonical gamepad state plus mode-dependent semantic interpretation.
+// Replaces the deprecated GameControlInput (High 32).
 //
 // The Packet field of the AgentData is an increasing sequence number (with overflow
 // after 255) for each GameControlData message, used to ignore late arrivals for
-// out-of-order GameControlData messages.
+// out-of-order messages.
 //
 // The ActionMode field of the AgentData block represents the viewer's game-control
 // mode and is used to assign meaning to the semantic data (see below).
 //
-// Canonical Axes has up to 6 axes: the server will ignore any axes beyond 6 and if
-// fewer than 6 are packed then the server will assume the unpacked axes haven't changed
-// since last message.
+// Canonical Axes has up to 6 Values: the server will ignore any Values beyond 6 and if
+// fewer than 6 are packed then it will assume unpacked Values are zero.
 //   0 AXIS_LEFTX
 //   1 AXIS_LEFTY
 //   2 AXIS_RIGHTX
@@ -9345,22 +9345,22 @@ version 2.0
 //   ...
 //  31 BUTTON_31
 //
-// Semantic data is mostly the same as canonical, but reordered (and combined in the case of the triggers)
-// according to their meaning. The meaning of the semantic axis data depends on the mode.  The modes are:
+// Modal data is mostly the same as canonical, but reordered (and combined in the case of the triggers)
+// according to their semantic meanings, which depend on the mode.  The possible modes are:
 //   0 CONTROL_MODE_AVATAR
 //   1 CONTROL_MODE_MOUSELOOK
 //   2 CONTROL_MODE_FLYCAM
 //   3 CONTROL_MODE_CAPTIVE (sitting)
 //   4 CONTROL_MODE_MOUSE (mouse cursor)
 //
-// For AVATAR, MOUSELOOK, and CAPTIVE modes the axes are:
+// For AVATAR, MOUSELOOK, and CAPTIVE modes the semantics are:
 //   0 AXIS_STRAFE
 //   1 AXIS_ADVANCE
 //   2 AXIS_TURN
 //   3 AXIS_LOOK
 //   4 AXIS_RISE
 //
-// For FLYCAM the axes are:
+// For FLYCAM the semantics are:
 //   0 FLYCAM_AXIS_TRUCK
 //   1 FLYCAM_AXIS_DOLLY
 //   2 FLYCAM_AXIS_PAN
@@ -9375,10 +9375,9 @@ version 2.0
 //   2 AXIS_TURN
 //   3 AXIS_LOOK
 //
-// Similarly for semantic buttons the meaning of the bits depend on the mode:
-// TODO: document the semantic button bits for the various modes.
-// Carries canonical gamepad state plus mode-dependent semantic interpretation.
-// Replaces the deprecated GameControlInput (High 32).
+// Similarly for semantic ModeButtons the meaning of the Flags depend on the mode:
+// TODO: document the ModeButton Flags for the various modes.
+//
 {
     GameControlData High 33 NotTrusted Zerocoded
     {
@@ -9390,20 +9389,24 @@ version 2.0
     }
     // non-modal canonical data
     {
+        // server will zero unpacked Values
         Axes Variable
         { Value S16 }
     }
     {
-        Buttons Single
+        // server will zero unpacked Flags
+        Buttons Variable
         { Flags U32 }
     }
     // modal semantic data
     {
+        // server will zero unpacked Values
         ModeAxes Variable
         { Value S16 }
     }
     {
-        ModeButtons Single
+        // server will zero unpacked Flags
+        ModeButtons Variable
         { Flags U32 }
     }
 }
