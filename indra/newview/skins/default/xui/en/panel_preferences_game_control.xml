@@ -397,7 +397,7 @@
                 top="30"
                 left="9"
                 right="-9"
-                height="28">Data sent to the server:</text>
+                height="28">Data sent to the server: canonical axes/buttons, then the semantic axes/buttons for the current mode.</text>
             <panel
                 name="data_panel"
                 layout="topleft"
