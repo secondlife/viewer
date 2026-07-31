@@ -116,6 +116,7 @@ protected:
 
     // Data Output tab (live, read-only view of the last outgoing GameControlInput).
     void populateDataOutputRows();      // Create the AXIS_/BUTTON_ label rows (with a blank separator)
+    void populateDataOutputSemanticRows(LLGameControl::AgentControlMode mode);  // Rebuild the mode-dependent semantic block
     void populateDataOutputValues();    // Fill the Value column from the last outgoing server state
 
     // Utility methods
@@ -213,6 +214,12 @@ private:
     // Data Output tab (live, read-only view of the last outgoing GameControlInput)
     LLPanel* mTabDataOutput { nullptr };
     LLScrollListCtrl* mDataOutput { nullptr };     // Output | Value (last sent axis/button values)
+
+    // AgentControlMode (as an S32; -1 == none yet) the semantic block of mDataOutput
+    // was last built for.  populateDataOutputValues() rebuilds that block via
+    // populateDataOutputSemanticRows() whenever the live ServerState::mActionMode no
+    // longer matches, since both row count and labels are mode-dependent.
+    S32 mDataOutputSemanticMode { -1 };
 
     // Inline editors - positioned over table cells when editing
     LLSpinCtrl* mNumericValueEditor { nullptr };    // For deadzone/offset values

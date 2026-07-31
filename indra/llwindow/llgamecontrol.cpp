@@ -496,8 +496,8 @@ namespace
     // the last final state a few times and then continue to send it with a geometrically
     // expanding period.
     //
-    // To ensure the data eventually arives we resend the last final state with an
-    // expanding resend period.
+    // To ensure the data eventually arives we resend the last final state forever
+    // but with an expanding resend period.
     constexpr U64 USEC_PER_MSEC = 1000;
     constexpr U64 FIRST_RESEND_PERIOD = 100 * USEC_PER_MSEC; // 100 msec, in usec
     constexpr U64 RESEND_EXPANSION_RATE = 4;
@@ -509,6 +509,8 @@ namespace
 
     U64 getMinSendPeriod()
     {
+        // We don't want to flood the server faster than it can handle GameControlData events
+        // so we track its reported frame rate and adjust accordingly.
         U64 period = (U64)((F32)(USEC_PER_SEC) / g_serverFrameRate);
         return llmax(period, MIN_RESEND_PERIOD);
     }
@@ -3696,6 +3698,105 @@ U8 LLGameControl::numSemanticAxesForMode(AgentControlMode mode)
         default:
             return 0;
     }
+}
+
+// static
+U8 LLGameControl::numSemanticButtonsForMode(AgentControlMode mode)
+{
+    if (mode == CONTROL_MODE_NONE)
+    {
+        return 0;
+    }
+    const std::vector<U8>& table = getSemanticButtonIndexTable(mode);
+    U8 count = 0;
+    for (U8 semantic_index : table)
+    {
+        if (semantic_index != NO_SEMANTIC_BUTTON && (U8)(semantic_index + 1) > count)
+        {
+            count = (U8)(semantic_index + 1);
+        }
+    }
+    return count;
+}
+
+// static
+std::string LLGameControl::semanticAxisName(AgentControlMode mode, U8 slot)
+{
+    static const char* const AVATAR_FAMILY_NAMES[NUM_SEMANTIC_AXES] =
+        { "AXIS_STRAFE", "AXIS_ADVANCE", "AXIS_TURN", "AXIS_LOOK", "AXIS_RISE" };
+    static const char* const MOUSE_NAMES[NUM_MOUSE_SEMANTIC_AXES] =
+        { "MOUSE_DX", "MOUSE_DY", "AXIS_TURN", "AXIS_LOOK" };
+    static const char* const FLYCAM_NAMES[FLYCAM_NUM_CHANNELS] =
+        { "FLYCAM_AXIS_TRUCK", "FLYCAM_AXIS_DOLLY", "FLYCAM_AXIS_PAN", "FLYCAM_AXIS_TILT",
+          "FLYCAM_AXIS_BOOM", "FLYCAM_AXIS_ROLL", "FLYCAM_AXIS_ZOOM" };
+
+    switch (mode)
+    {
+        case CONTROL_MODE_AVATAR:
+        case CONTROL_MODE_MOUSELOOK:
+        case CONTROL_MODE_CAPTIVE:
+            if (slot < NUM_SEMANTIC_AXES)
+            {
+                return AVATAR_FAMILY_NAMES[slot];
+            }
+            break;
+        case CONTROL_MODE_MOUSE:
+            if (slot < NUM_MOUSE_SEMANTIC_AXES)
+            {
+                return MOUSE_NAMES[slot];
+            }
+            break;
+        case CONTROL_MODE_FLYCAM:
+            if (slot < FLYCAM_NUM_CHANNELS)
+            {
+                return FLYCAM_NAMES[slot];
+            }
+            break;
+        case CONTROL_MODE_NONE:
+        default:
+            break;
+    }
+    return LLStringUtil::null;
+}
+
+// static
+std::string LLGameControl::semanticButtonName(AgentControlMode mode, U8 slot)
+{
+    if (mode == CONTROL_MODE_NONE || slot >= numSemanticButtonsForMode(mode))
+    {
+        return LLStringUtil::null;
+    }
+
+    // Find the canonical button 'mode's default mapping assigned this semantic slot
+    // to (getSemanticButtonIndexTable() is a bijection from {buttons with a slot} to
+    // {0 .. numSemanticButtonsForMode(mode)-1}), then label it with that button's
+    // default action, e.g. "Toggle sit" for Avatar slot 0 (BUTTON_WEST). Buttons the
+    // default mapping leaves unassigned still get a slot (pass 2 of
+    // getSemanticButtonIndexTable()) but have no descriptive name.
+    const std::vector<U8>& index_table = getSemanticButtonIndexTable(mode);
+    U8 canonical_button = NUM_BUTTONS;
+    for (U8 btn = 0; btn < NUM_BUTTONS; ++btn)
+    {
+        if (index_table[btn] == slot)
+        {
+            canonical_button = btn;
+            break;
+        }
+    }
+    if (canonical_button < NUM_BUTTONS)
+    {
+        const std::string& mode_name = modeToString(mode);
+        LLSD default_buttons = buildDefaultModeMappings()[mode_name][GC_BUTTONS];
+        for (auto it = default_buttons.beginMap(); it != default_buttons.endMap(); ++it)
+        {
+            LLGameControl::InputChannel channel = channelFromInputName(it->second.asString());
+            if (channel.isButton() && channel.mIndex == canonical_button)
+            {
+                return it->first;
+            }
+        }
+    }
+    return llformat("MODE_BUTTON_%d", (S32)slot);
 }
 
 // static
