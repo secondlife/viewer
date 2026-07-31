@@ -523,8 +523,7 @@ public:
         AVATAR_ACTION_TOGGLE_SPEAK        = 1u << 2,
         AVATAR_ACTION_TOGGLE_FLYCAM       = 1u << 3,
         AVATAR_ACTION_TOGGLE_MOUSELOOK    = 1u << 4,
-        AVATAR_ACTION_TOGGLE_3RD_PERSON   = 1u << 5,
-        AVATAR_ACTION_TOGGLE_MOUSE_CURSOR = 1u << 6,
+        AVATAR_ACTION_TOGGLE_MOUSE_CURSOR = 1u << 5,
     };
 
     enum FlycamMiscAction : U32

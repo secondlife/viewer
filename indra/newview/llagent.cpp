@@ -5093,13 +5093,6 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
         }
     }
 
-    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_3RD_PERSON)
-    {
-        // Not a bidirectional toggle: always forces third-person camera
-        // (e.g. to recover from mouselook/flycam/customize-avatar).
-        gAgentCamera.changeCameraToThirdPerson();
-    }
-
     if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_MOUSE_CURSOR)
     {
         toggleMouseCursorMode();
