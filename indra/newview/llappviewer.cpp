@@ -1383,27 +1383,45 @@ void sendGameControlData()
     msg->addU8Fast(_PREHASH_ActionMode, state.mActionMode);
 
     // Non-modal canonical axes/buttons: pack every available value every message,
-    // whether or not it changed since the last one (no per-field diffing).
+    // whether or not it changed since the last one (no per-field diffing). Trailing
+    // zero axes are truncated and the Buttons block is skipped entirely when zero --
+    // the server assumes anything not packed is zero -- to save bytes.
     size_t num_axes = state.mAxes.size();
-    for (U8 i = 0; i < num_axes; ++i)
+    while (num_axes > 0 && state.mAxes[num_axes - 1] == 0)
+    {
+        --num_axes;
+    }
+    for (size_t i = 0; i < num_axes; ++i)
     {
         msg->nextBlockFast(_PREHASH_Axes);
         msg->addS16Fast(_PREHASH_Value, state.mAxes[i]);
     }
-    msg->nextBlockFast(_PREHASH_Buttons);
-    msg->addU32Fast(_PREHASH_Flags, state.mButtons);
+    if (state.mButtons != 0)
+    {
+        msg->nextBlockFast(_PREHASH_Buttons);
+        msg->addU32Fast(_PREHASH_Flags, state.mButtons);
+    }
 
-    // Modal semantic axes/buttons: same always-pack-everything policy, but the
-    // number of axes packed depends on ActionMode -- see message_template.msg's
-    // GameControlData doc and LLGameControl::numSemanticAxesForMode().
-    U8 num_mode_axes = LLGameControl::numSemanticAxesForMode((LLGameControl::AgentControlMode)state.mActionMode);
-    for (U8 i = 0; i < num_mode_axes; ++i)
+    // Modal semantic axes/buttons: same truncation policy, except the number of
+    // axes considered depends on ActionMode -- see message_template.msg's
+    // GameControlData doc and LLGameControl::numSemanticAxesForMode() -- since the
+    // server computes its own expected axis count from the mode and zeros anything
+    // not packed.
+    size_t num_mode_axes = LLGameControl::numSemanticAxesForMode((LLGameControl::AgentControlMode)state.mActionMode);
+    while (num_mode_axes > 0 && state.mSemanticAxes[num_mode_axes - 1] == 0)
+    {
+        --num_mode_axes;
+    }
+    for (size_t i = 0; i < num_mode_axes; ++i)
     {
         msg->nextBlockFast(_PREHASH_ModeAxes);
         msg->addS16Fast(_PREHASH_Value, state.mSemanticAxes[i]);
     }
-    msg->nextBlockFast(_PREHASH_ModeButtons);
-    msg->addU32Fast(_PREHASH_Flags, state.mSemanticButtons);
+    if (state.mSemanticButtons != 0)
+    {
+        msg->nextBlockFast(_PREHASH_ModeButtons);
+        msg->addU32Fast(_PREHASH_Flags, state.mSemanticButtons);
+    }
 
     LLGameControl::updateResendPeriod();
     gAgent.sendMessage();

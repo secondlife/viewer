@@ -5311,7 +5311,6 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
 void LLAgent::toggleFlycam()
 {
     mUsingFlycam = !mUsingFlycam;
-    LL_INFOS("adebug") << "using_flycam=" << mUsingFlycam << LL_ENDL; // adebug
     if (mUsingFlycam)
     {
         // copy main camera transform to flycam
