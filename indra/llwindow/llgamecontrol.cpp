@@ -1853,7 +1853,6 @@ namespace
             { "Toggle speak",        LLGameControl::AVATAR_ACTION_TOGGLE_SPEAK },
             { "Toggle flycam",       LLGameControl::AVATAR_ACTION_TOGGLE_FLYCAM },
             { "Toggle mouselook",    LLGameControl::AVATAR_ACTION_TOGGLE_MOUSELOOK },
-            { "3rd Person camera",   LLGameControl::AVATAR_ACTION_TOGGLE_3RD_PERSON },
             { "Toggle mouse cursor", LLGameControl::AVATAR_ACTION_TOGGLE_MOUSE_CURSOR },
         };
         return bridge;
