@@ -155,6 +155,11 @@ void LLFloaterIMContainer::sessionIDUpdated(const LLUUID& old_session_id, const 
 {
     // The general strategy when a session id is modified is to delete all related objects and create them anew.
 
+    // The conversation floater can be active while participant widgets are selected.
+    // Preserve that state separately so the new conversation widget can be selected
+    // after the server replaces an outgoing ad-hoc session id.
+    const bool was_active = old_session_id == getSelectedSession();
+
     // Note however that the LLFloaterIMSession has its session id updated through a call to sessionInitReplyReceived()
     // and do not need to be deleted and recreated (trying this creates loads of problems). We do need however to suppress
     // its related mSessions record as it's indexed with the wrong id.
@@ -167,6 +172,11 @@ void LLFloaterIMContainer::sessionIDUpdated(const LLUUID& old_session_id, const 
     // Create a new conversation with the new id
     addConversationListItem(new_session_id, change_focus);
     LLFloaterIMSessionTab::addToHost(new_session_id);
+
+    if (was_active)
+    {
+        selectConversationPair(new_session_id, true, false, true);
+    }
 }
 
 
