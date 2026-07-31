@@ -1542,20 +1542,28 @@ void LLPanelPreferenceGameControl::populateDeviceStateValues()
 // Static hook, called from the send path each time a fresh GameControlInput
 // message goes out.  Refreshes the Data Output tab's Value column from the
 // values just packed into that message (the current server state).
+// sGameControlPanel exists for the lifetime of the panel instance, not just while
+// it's on-screen (e.g. Preferences closed, or another tab selected), and this is
+// called unconditionally on every outgoing message -- so skip the refresh (and the
+// mode-change/row-rebuild check inside populateDataOutputValues()) unless the tab is
+// actually visible; it will simply pick up the current values on the next send after
+// the user switches back to it.
 void LLPanelPreferenceGameControl::updateDataOutput()
 {
-    if (sGameControlPanel)
+    if (sGameControlPanel && sGameControlPanel->mTabDataOutput->isInVisibleChain())
     {
         sGameControlPanel->populateDataOutputValues();
     }
 }
 
 // Creates the Data Output rows: one per canonical axis (AXIS_0..AXIS_5), a single
-// empty separator row, then one per canonical button (BUTTON_0..BUTTON_31).
+// empty separator row, then one per canonical button (BUTTON_0..BUTTON_31), then
+// the semantic (mode-dependent) block built by populateDataOutputSemanticRows().
 // The Value column is filled later in populateDataOutputValues().
 void LLPanelPreferenceGameControl::populateDataOutputRows()
 {
     mDataOutput->clearRows();
+    mDataOutputSemanticMode = -1;  // force the semantic block below to build fresh
 
     LLScrollListItem::Params row_params;
     LLScrollListCell::Params cell_params;
@@ -1594,15 +1602,76 @@ void LLPanelPreferenceGameControl::populateDataOutputRows()
         }
         row->getColumn(1)->setValue(name);
     }
+
+    populateDataOutputSemanticRows((LLGameControl::AgentControlMode)LLGameControl::getServerState().mActionMode);
+}
+
+// Rebuilds the semantic (mode-dependent) block of Data Output rows -- a blank
+// separator, one row per semantic axis slot for 'mode' (LLGameControl::
+// numSemanticAxesForMode()/semanticAxisName()), another blank separator, then one
+// row per semantic button slot (numSemanticButtonsForMode()/semanticButtonName()).
+// Called whenever populateDataOutputValues() finds the live ServerState::mActionMode
+// no longer matches mDataOutputSemanticMode: unlike the canonical block above, both
+// the semantic block's row count and its labels depend on the mode, so simply
+// truncating/re-adding rows here (rather than reusing stale ones) is what keeps a
+// mode switch from leaving behind a stale label or a Value from a slot that no
+// longer exists for the new mode.
+void LLPanelPreferenceGameControl::populateDataOutputSemanticRows(LLGameControl::AgentControlMode mode)
+{
+    static const S32 CANONICAL_ROW_COUNT = (S32)LLGameControl::NUM_AXES + 1 + (S32)LLGameControl::NUM_BUTTONS;
+    while (mDataOutput->getItemCount() > CANONICAL_ROW_COUNT)
+    {
+        mDataOutput->deleteSingleItem(mDataOutput->getItemCount() - 1);
+    }
+
+    LLScrollListItem::Params row_params;
+    LLScrollListCell::Params cell_params;
+    cell_params.font = LLFontGL::getFontSansSerif();
+    for (S32 i = 0; i < (S32)(mDataOutput->getNumColumns()); ++i)
+    {
+        cell_params.column = mDataOutput->getColumn(i)->mName;
+        row_params.columns.add(cell_params);
+    }
+    row_params.columns(2).font_halign = "right";  // Value
+
+    // One empty row separates the canonical button block from the semantic axes.
+    mDataOutput->addRow(row_params);
+
+    U8 num_semantic_axes = LLGameControl::numSemanticAxesForMode(mode);
+    for (U8 i = 0; i < num_semantic_axes; ++i)
+    {
+        LLScrollListItem* row = mDataOutput->addRow(row_params);
+        row->getColumn(0)->setValue(llformat("%d", (S32)i));
+        row->getColumn(1)->setValue(LLGameControl::semanticAxisName(mode, i));
+    }
+
+    // One empty row separates the semantic axes from the semantic buttons.
+    mDataOutput->addRow(row_params);
+
+    U8 num_semantic_buttons = LLGameControl::numSemanticButtonsForMode(mode);
+    for (U8 i = 0; i < num_semantic_buttons; ++i)
+    {
+        LLScrollListItem* row = mDataOutput->addRow(row_params);
+        row->getColumn(0)->setValue(llformat("%d", (S32)i));
+        row->getColumn(1)->setValue(LLGameControl::semanticButtonName(mode, i));
+    }
+
+    mDataOutputSemanticMode = (S32)mode;
 }
 
 // Fills the Data Output Value column from the last outgoing server state: each
 // axis shows its signed [-32768, 32767] value; each button shows 1 (pressed) or
-// 0 (released).  The row layout matches populateDataOutputRows() (axes, then a
-// blank separator row, then buttons).
+// 0 (released).  The row layout matches populateDataOutputRows()/
+// populateDataOutputSemanticRows(): canonical axes, a blank separator, canonical
+// buttons, a blank separator, semantic axes, a blank separator, semantic buttons.
 void LLPanelPreferenceGameControl::populateDataOutputValues()
 {
     const LLGameControl::ServerState& state = LLGameControl::getServerState();
+    LLGameControl::AgentControlMode mode = (LLGameControl::AgentControlMode)state.mActionMode;
+    if ((S32)mode != mDataOutputSemanticMode)
+    {
+        populateDataOutputSemanticRows(mode);
+    }
 
     std::vector<LLScrollListItem*> rows = mDataOutput->getAllData();
     size_t row = 0;
@@ -1617,6 +1686,23 @@ void LLPanelPreferenceGameControl::populateDataOutputValues()
     for (size_t i = 0; i < LLGameControl::NUM_BUTTONS && row < rows.size(); ++i, ++row)
     {
         S32 value = (state.mButtons >> i) & 0x1;
+        rows[row]->getColumn(2)->setValue(llformat("%d ", value));
+    }
+
+    ++row;  // skip the empty separator row between canonical buttons and semantic axes
+
+    U8 num_semantic_axes = LLGameControl::numSemanticAxesForMode(mode);
+    for (size_t i = 0; i < num_semantic_axes && i < state.mSemanticAxes.size() && row < rows.size(); ++i, ++row)
+    {
+        rows[row]->getColumn(2)->setValue(llformat("%d ", (S32)state.mSemanticAxes[i]));
+    }
+
+    ++row;  // skip the empty separator row between semantic axes and semantic buttons
+
+    U8 num_semantic_buttons = LLGameControl::numSemanticButtonsForMode(mode);
+    for (size_t i = 0; i < num_semantic_buttons && row < rows.size(); ++i, ++row)
+    {
+        S32 value = (state.mSemanticButtons >> i) & 0x1;
         rows[row]->getColumn(2)->setValue(llformat("%d ", value));
     }
 }

@@ -229,6 +229,27 @@ public:
     // 0 for CONTROL_MODE_NONE.
     static U8 numSemanticAxesForMode(AgentControlMode mode);
 
+    // Number of leading bits of ServerState::mSemanticButtons that are ever set for
+    // 'mode': NUM_BUTTONS minus however many canonical buttons that mode's *default*
+    // button mapping assigns to a movement action (those are folded into
+    // mSemanticAxes instead -- see getSemanticButtonIndexTable() in llgamecontrol.cpp).
+    // 0 for CONTROL_MODE_NONE.
+    static U8 numSemanticButtonsForMode(AgentControlMode mode);
+
+    // Display name for ServerState::mSemanticAxes[slot] under 'mode', matching the
+    // per-mode axis tables documented in message_template.msg's GameControlData doc
+    // (e.g. "AXIS_STRAFE", "FLYCAM_AXIS_TRUCK", "MOUSE_DX"). Empty if slot >=
+    // numSemanticAxesForMode(mode).
+    static std::string semanticAxisName(AgentControlMode mode, U8 slot);
+
+    // Display name for ServerState::mSemanticButtons bit 'slot' under 'mode': the
+    // default-mapped action's label if 'mode's default button mapping assigns that
+    // slot's canonical button to a non-movement action (e.g. "Toggle sit"), else a
+    // generic "MODE_BUTTON_<n>" fallback -- mirroring how canonical buttons fall back
+    // to BUTTON_<n> (InputChannel::getRemoteName()) when unnamed. Empty if slot >=
+    // numSemanticButtonsForMode(mode).
+    static std::string semanticButtonName(AgentControlMode mode, U8 slot);
+
     // Axis-map output codes stored in Options::mAxisMap (one per physical axis):
     //   0 .. NUM_AXES-1          maps 1:1 to that canonical axis
     //   AXIS_OUTPUT_NONE         physical axis is unmapped / disabled
