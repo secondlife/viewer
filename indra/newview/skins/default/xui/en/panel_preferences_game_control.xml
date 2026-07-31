@@ -740,9 +740,6 @@
             label="Toggle speak"
             value="Toggle speak"/>
         <combo_box.item
-            label="3rd person view"
-            value="3rd Person camera"/>
-        <combo_box.item
             label="Toggle mouselook"
             value="Toggle mouselook"/>
         <combo_box.item
@@ -825,9 +822,6 @@
             label="Toggle speak"
             value="Toggle speak"/>
         <combo_box.item
-            label="3rd person view"
-            value="3rd Person camera"/>
-        <combo_box.item
             label="Toggle mouselook"
             value="Toggle mouselook"/>
         <combo_box.item
@@ -888,9 +882,6 @@
         <combo_box.item
             label="Toggle speak"
             value="Toggle speak"/>
-        <combo_box.item
-            label="3rd person view"
-            value="3rd Person camera"/>
         <combo_box.item
             label="Toggle mouselook"
             value="Toggle mouselook"/>
@@ -955,16 +946,13 @@
             label="Toggle speak"
             value="Toggle speak"/>
         <combo_box.item
-            label="3rd person view"
-            value="3rd Person camera"/>
-        <combo_box.item
             label="Toggle mouselook"
             value="Toggle mouselook"/>
         <combo_box.item
             label="FlyCam"
             value="Toggle flycam"/>
         <combo_box.item
-            label="Mouse cursor"
+            label="Toggle mouse cursor"
             value="Toggle mouse cursor"/>
         <combo_box.item
             label="Toggle run"
