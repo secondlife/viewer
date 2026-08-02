@@ -3232,9 +3232,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>Visual Studio 17 2022</string>
                   <string>-A</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>-T</string>
+                  <string>v143</string>
                 </array>
                 <key>arguments</key>
                 <array>
@@ -3244,15 +3246,13 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>devenv</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
                 </array>
               </map>
               <key>default</key>
@@ -3267,9 +3267,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>Visual Studio 17 2022</string>
                   <string>-A</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>-T</string>
+                  <string>v143</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DUSE_OPENAL:BOOL=ON</string>
@@ -3282,19 +3284,13 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>msbuild.exe</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>/p:Configuration=RelWithDebInfo</string>
-                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:minimal</string>
-                  <string>/p:VCBuildAdditionalOptions= /incremental</string>
-                </array>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
                 </array>
               </map>
               <key>name</key>
@@ -3307,9 +3303,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>Visual Studio 17 2022</string>
                   <string>-A</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>-T</string>
+                  <string>v143</string>
                 </array>
                 <key>arguments</key>
                 <array>
@@ -3319,15 +3317,13 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>devenv</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
                 </array>
               </map>
               <key>name</key>
@@ -3340,9 +3336,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
+                  <string>Visual Studio 17 2022</string>
                   <string>-A</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
+                  <string>-T</string>
+                  <string>v143</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
@@ -3356,19 +3354,13 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>msbuild.exe</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:minimal</string>
-                  <string>/p:VCBuildAdditionalOptions= /incremental</string>
-                </array>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
                 </array>
               </map>
               <key>name</key>
@@ -3376,7 +3368,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             </map>
           </map>
           <key>build_directory</key>
-          <string>build-vc${AUTOBUILD_VSVER|170}-$AUTOBUILD_ADDRSIZE</string>
+          <string>build-vc170-$AUTOBUILD_ADDRSIZE</string>
           <key>name</key>
           <string>windows</string>
         </map>

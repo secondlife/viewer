@@ -79,15 +79,32 @@ if(WINDOWS)
         MESSAGE(WARNING "New MSVC_VERSION ${MSVC_VERSION} of MSVC: adapt Copy3rdPartyLibs.cmake")
     endif (MSVC80)
 
-    if (MSVC_TOOLSET_VER AND DEFINED ENV{VCTOOLSREDISTDIR})
+    if (MSVC_TOOLSET_VER)
         if(ADDRESS_SIZE EQUAL 32)
-            set(redist_find_path "$ENV{VCTOOLSREDISTDIR}x86\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
+            set(redist_arch x86)
         else(ADDRESS_SIZE EQUAL 32)
-            set(redist_find_path "$ENV{VCTOOLSREDISTDIR}x64\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
+            set(redist_arch x64)
         endif(ADDRESS_SIZE EQUAL 32)
-        get_filename_component(redist_path "${redist_find_path}" ABSOLUTE)
+
+        # Select the runtime from the Visual Studio instance chosen by CMake.
+        # VCTOOLSREDISTDIR can name a newer VS installation that happens to be
+        # active in the environment, even when this build selected VS 2022.
+        set(redist_version_file
+            "${CMAKE_GENERATOR_INSTANCE}/VC/Auxiliary/Build/Microsoft.VCRedistVersion.default.txt")
+        if(CMAKE_GENERATOR_INSTANCE AND EXISTS "${redist_version_file}")
+            file(STRINGS "${redist_version_file}" redist_version LIMIT_COUNT 1)
+            string(STRIP "${redist_version}" redist_version)
+            set(redist_find_path
+                "${CMAKE_GENERATOR_INSTANCE}/VC/Redist/MSVC/${redist_version}/${redist_arch}/Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
+        elseif(DEFINED ENV{VCTOOLSREDISTDIR})
+            set(redist_find_path
+                "$ENV{VCTOOLSREDISTDIR}${redist_arch}\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
+        endif()
+        if(redist_find_path)
+            get_filename_component(redist_path "${redist_find_path}" ABSOLUTE)
+        endif()
         MESSAGE(STATUS "VC Runtime redist path: ${redist_path}")
-    endif (MSVC_TOOLSET_VER AND DEFINED ENV{VCTOOLSREDISTDIR})
+    endif (MSVC_TOOLSET_VER)
 
     if(ADDRESS_SIZE EQUAL 32)
         # this folder contains the 32bit DLLs.. (yes really!)

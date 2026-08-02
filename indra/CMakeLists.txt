@@ -22,6 +22,12 @@ set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
 project(${ROOT_PROJECT_NAME})
 
+if(CMAKE_GENERATOR MATCHES "^Visual Studio")
+  message(STATUS "Visual Studio generator: ${CMAKE_GENERATOR}")
+  message(STATUS "Visual Studio instance: ${CMAKE_GENERATOR_INSTANCE}")
+  message(STATUS "Visual Studio platform toolset: ${CMAKE_VS_PLATFORM_TOOLSET}")
+endif()
+
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"  "${CMAKE_CURRENT_BINARY_DIR}")
 
 include(conanbuildinfo OPTIONAL RESULT_VARIABLE USE_CONAN )
