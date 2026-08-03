@@ -1406,18 +1406,24 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
         }
     }
 
+    // The task inventory can be refreshed while the upload is in flight,
+    // invalidating the raw item pointer returned by validatePublishedItem().
+    // Keep stable identifiers for use after await_async_result().
+    const LLUUID prim_id = prim->getID();
+    const LLUUID item_id = item->getUUID();
+
     std::string url = prim->getRegion()->getCapability("UpdateScriptTask");
     if (url.empty())
         throw LLJSONRPCConnection::InternalError("UpdateScriptTask capability not available");
 
     LLSD cb_result = await_async_result(
         "objectContentSave", SCRIPT_UPLOAD_TIMEOUT, "Script upload/compile timed out",
-        [&](const std::string& pump_name)
+        [&, prim_id, item_id](const std::string& pump_name)
         {
             auto [on_success, on_failure] = make_asset_upload_callbacks(pump_name);
             bool is_running = params.has("running") ? params["running"].asBoolean() : false;
             LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
-                prim->getID(), item->getUUID(),
+                prim_id, item_id,
                 compile_target, is_running, LLUUID::null, content,
                 std::move(on_success), std::move(on_failure)));
             LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
@@ -1428,8 +1434,8 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
 
     LLSD response;
     response["success"]  = true;
-    response["prim_id"]  = prim->getID();
-    response["item_id"]  = item->getUUID();
+    response["prim_id"]  = prim_id;
+    response["item_id"]  = item_id;
     response["compiled"] = cb_result["compiled"];
     if (!cb_result["compiled"].asBoolean() && cb_result.has("errors"))
     {
@@ -1438,8 +1444,8 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
 
     // If the script is open in the viewer's editor, update it
     LLSD floater_key;
-    floater_key["taskid"] = prim->getID();
-    floater_key["itemid"] = item->getUUID();
+    floater_key["taskid"] = prim_id;
+    floater_key["itemid"] = item_id;
     LLLiveLSLEditor* editor = LLFloaterReg::findTypedInstance<LLLiveLSLEditor>("preview_scriptedit", floater_key);
     if (editor)
     {
@@ -1457,6 +1463,12 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
 LLSD LLScriptEditorWSServer::saveNotecard(LLViewerObject* prim, LLInventoryItem* item,
                                            const std::string& content)
 {
+    // The task inventory can be refreshed while the upload is in flight,
+    // invalidating the raw item pointer returned by validatePublishedItem().
+    // Keep stable identifiers for use after await_async_result().
+    const LLUUID prim_id = prim->getID();
+    const LLUUID item_id = item->getUUID();
+
     std::string url = prim->getRegion()->getCapability("UpdateNotecardTaskInventory");
     if (url.empty())
         throw LLJSONRPCConnection::InternalError("UpdateNotecardTaskInventory capability not available");
@@ -1470,11 +1482,11 @@ LLSD LLScriptEditorWSServer::saveNotecard(LLViewerObject* prim, LLInventoryItem*
 
     LLSD cb_result = await_async_result(
         "objectContentSaveNotecard", NOTECARD_UPLOAD_TIMEOUT, "Notecard upload timed out",
-        [&](const std::string& pump_name)
+        [&, prim_id, item_id](const std::string& pump_name)
         {
             auto [on_success, on_failure] = make_asset_upload_callbacks(pump_name);
             LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLBufferedAssetUploadInfo>(
-                prim->getID(), item->getUUID(),
+                prim_id, item_id,
                 LLAssetType::AT_NOTECARD, ostr.str(),
                 std::move(on_success), std::move(on_failure)));
             LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
@@ -1485,13 +1497,13 @@ LLSD LLScriptEditorWSServer::saveNotecard(LLViewerObject* prim, LLInventoryItem*
 
     LLSD response;
     response["success"] = true;
-    response["prim_id"] = prim->getID();
-    response["item_id"] = item->getUUID();
+    response["prim_id"] = prim_id;
+    response["item_id"] = item_id;
 
     // If the notecard is open in the viewer's editor, update it
     LLSD floater_key;
-    floater_key["taskid"] = prim->getID();
-    floater_key["itemid"] = item->getUUID();
+    floater_key["taskid"] = prim_id;
+    floater_key["itemid"] = item_id;
     LLPreviewNotecard* nc = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", floater_key);
     if (nc)
     {
