@@ -157,8 +157,13 @@ public:
     static constexpr U8 NUM_MOUSE_SEMANTIC_AXES = NUM_SEMANTIC_AXES - 1;
 
     // Sentinel stored in a semantic-button index table for a physical button that has
-    // no ModeButtons index (its default action is a movement action folded into
-    // ModeAxes instead -- see LLGameControllerManager).
+    // no ModeButtons index -- only true in CONTROL_MODE_NONE, which has no ModeButtons
+    // concept at all. Every button in every other mode gets a ModeButtons index
+    // identical to its own default-mapped canonical Button index -- including buttons
+    // whose current action is a movement action (e.g. D-Pad Strafe/Advance), which set
+    // both their ModeAxes contribution and their own ModeButtons bit (see
+    // LLGameControllerManager::computeSemanticState() / getSemanticButtonIndexTable()
+    // in llgamecontrol.cpp).
     static constexpr U8 NO_SEMANTIC_BUTTON = 255;
 
     enum Button : U8

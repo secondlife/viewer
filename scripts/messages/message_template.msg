@@ -567,10 +567,10 @@ version 2.0
 // PlacesQuery
 // Used for getting a list of places for the group land panel
 // and the user land holdings panel.  NOT for the directory.
-// 
-// The dataserver now implements the "/agent/<agent-id>/owned-land" 
-// endpoint as a replacement for PlacesQuery and PlacesReply.  
-// This has not yet been exposed in the viewer through a capability... 
+//
+// The dataserver now implements the "/agent/<agent-id>/owned-land"
+// endpoint as a replacement for PlacesQuery and PlacesReply.
+// This has not yet been exposed in the viewer through a capability...
 // but this message's days are numbered.
 {
     PlacesQuery Low 29 NotTrusted Zerocoded
