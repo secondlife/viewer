@@ -2506,7 +2506,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_POWERBROADCAST:
         {
-            // Might need to register for power brodcast interface
+            // Might need to register for power broadcast interface
             // Todo: log monitor suspending and resuming.
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_POWERBROADCAST");
             LL_INFOS("Window") << "Received WM_POWERBROADCAST with wParam: " << (U32)w_param << " lParam: " << (U32)l_param << LL_ENDL;
