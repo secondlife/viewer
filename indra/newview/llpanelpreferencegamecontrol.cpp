@@ -1975,10 +1975,8 @@ void LLPanelPreferenceGameControl::updateAutoCalibration()
                 continue;
             }
 
-            S32 offset = std::clamp<S32>(-(S32)samples[0],
-                -LLGameControl::MAX_AXIS_OFFSET, LLGameControl::MAX_AXIS_OFFSET);
-            S32 dead_zone = (S32)(2.1 * (double)offset);
-            dead_zone = std::clamp<S32>(dead_zone < 0 ? -dead_zone : dead_zone, 0, LLGameControl::MAX_AXIS_DEAD_ZONE);
+            S32 offset = std::clamp<S32>(-(S32)samples[0], -(S32)(LLGameControl::MAX_AXIS_OFFSET), (S32)(LLGameControl::MAX_AXIS_OFFSET));
+            S32 dead_zone = std::clamp(2 * std::abs(offset), (S32)(LLGameControl::DEFAULT_AXIS_DEAD_ZONE), (S32)(LLGameControl::MAX_AXIS_DEAD_ZONE));
 
             LLGameControl::Options::AxisOptions& axis_options = all_axis_options[i];
             axis_options.mOffset = (S16)offset;
