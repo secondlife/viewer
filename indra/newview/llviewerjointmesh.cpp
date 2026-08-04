@@ -95,10 +95,10 @@ const S32 NUM_AXES = 3;
 // rotation Z 0-n
 // pivot parent 0-n -- child = n+1
 
-static LLMatrix4    gJointMatUnaligned[32];
-static LLMatrix4a   gJointMatAligned[32];
-static LLMatrix3    gJointRotUnaligned[32];
-static LLVector4    gJointPivot[32];
+static LLMatrix4    gJointMatUnaligned[LL_CHARACTER_MAX_JOINTS_PER_MESH];
+static LLMatrix4a   gJointMatAligned[LL_CHARACTER_MAX_JOINTS_PER_MESH];
+static LLMatrix3    gJointRotUnaligned[LL_CHARACTER_MAX_JOINTS_PER_MESH];
+static LLVector4    gJointPivot[LL_CHARACTER_MAX_JOINTS_PER_MESH];
 
 //-----------------------------------------------------------------------------
 // uploadJointMatrices()
@@ -111,7 +111,8 @@ void LLViewerJointMesh::uploadJointMatrices()
     bool hardware_skinning = (poolp && poolp->getShaderLevel() > 0);
 
     //calculate joint matrices
-    for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); joint_num++)
+    size_t num_joints = llmin(reference_mesh->mJointRenderData.size(), LL_CHARACTER_MAX_JOINTS_PER_MESH);
+    for (joint_num = 0; joint_num < num_joints; joint_num++)
     {
         LLMatrix4 joint_mat = *reference_mesh->mJointRenderData[joint_num]->mWorldMatrix;
 
@@ -137,12 +138,20 @@ void LLViewerJointMesh::uploadJointMatrices()
                 LLVector4 parent_pivot(sj->mRootToParentJointSkinOffset);
                 parent_pivot.mV[VW] = 0.f;
                 gJointPivot[j++] = parent_pivot;
+                if (j >= LL_CHARACTER_MAX_JOINTS_PER_MESH)
+                {
+                    break;
+                }
             }
 
             LLVector4 child_pivot(sj->mRootToJointSkinOffset);
             child_pivot.mV[VW] = 0.f;
 
             gJointPivot[j++] = child_pivot;
+            if (j >= LL_CHARACTER_MAX_JOINTS_PER_MESH)
+            {
+                break;
+            }
 
             last_pivot_uploaded = true;
         }
@@ -167,7 +176,7 @@ void LLViewerJointMesh::uploadJointMatrices()
         GLfloat mat[45*4];
         memset(mat, 0, sizeof(GLfloat)*45*4);
 
-        for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); joint_num++)
+        for (joint_num = 0; joint_num < num_joints; joint_num++)
         {
             gJointMatUnaligned[joint_num].transpose();
 
@@ -188,7 +197,7 @@ void LLViewerJointMesh::uploadJointMatrices()
     else
     {
         //load gJointMatUnaligned into gJointMatAligned
-        for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); ++joint_num)
+        for (joint_num = 0; joint_num < num_joints; ++joint_num)
         {
             gJointMatAligned[joint_num].loadu(gJointMatUnaligned[joint_num]);
         }
@@ -221,6 +230,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, bool first_pass, bool is_dummy)
     if (!mValid || !mMesh || !mFace || !mVisible ||
         !mFace->getVertexBuffer() ||
         mMesh->getNumFaces() == 0 ||
+        mMesh->mFaceVertexCount == 0 ||
         LLGLSLShader::sCurBoundShaderPtr == NULL)
     {
         return 0;
@@ -292,7 +302,8 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, bool first_pass, bool is_dummy)
 
     if (mMesh->hasWeights())
     {
-        if ((mFace->getPool()->getShaderLevel() > 0))
+        LLDrawPool* poolp = mFace->getPool();
+        if (poolp && (poolp->getShaderLevel() > 0))
         {
             if (first_pass)
             {
