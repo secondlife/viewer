@@ -2444,12 +2444,16 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
                 return 1;
             }
-            else if (w_param == DBT_DEVTYP_DEVICEINTERFACE)
+            else if (l_param)
             {
-                // Might need to register for monitor device notifications
-                // to get this message when monitor is suspended or resumed.
-                // Todo: log monitor suspending and resuming.
-                LL_INFOS("Window") << "DEVICEINTERFACE: " << change_type << LL_ENDL;
+                const auto* hdr = reinterpret_cast<const DEV_BROADCAST_HDR*>(l_param);
+                if (hdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
+                {
+                    // Might need to register for monitor device notifications
+                    // to get this message when monitor is suspended or resumed.
+                    // TODO: log monitor suspending and resuming.
+                    LL_INFOS("Window") << "DEVICEINTERFACE: " << change_type << LL_ENDL;
+                }
             }
             break;
         }
