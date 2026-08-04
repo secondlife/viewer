@@ -272,7 +272,7 @@ public:
 
     // Default dead zone applied to a freshly-constructed / reset axis
     // is nonzero because most controllers have a bit of hysteresis or offset.
-    static constexpr U16 DEFAULT_DEAD_ZONE = 1024;
+    static constexpr U16 DEFAULT_AXIS_DEAD_ZONE = 2048;
 
     class InputChannel
     {
@@ -314,7 +314,7 @@ public:
         struct AxisOptions
         {
             S32 mMultiplier = 1;
-            U16 mDeadZone { DEFAULT_DEAD_ZONE };
+            U16 mDeadZone { DEFAULT_AXIS_DEAD_ZONE };
             S16 mOffset { 0 };
 
             void resetToDefaults();

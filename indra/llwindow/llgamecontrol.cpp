@@ -954,7 +954,7 @@ S16 LLGameControl::Options::AxisOptions::computeModifiedValue(S16 raw_value) con
 void LLGameControl::Options::AxisOptions::resetToDefaults()
 {
     mMultiplier = 1;
-    mDeadZone = DEFAULT_DEAD_ZONE;
+    mDeadZone = DEFAULT_AXIS_DEAD_ZONE;
     mOffset = 0;
 }
 
@@ -1056,7 +1056,7 @@ std::string LLGameControl::Options::AxisOptions::saveToString() const
     {
         options.push_back("invert:1");
     }
-    if (mDeadZone != DEFAULT_DEAD_ZONE)
+    if (mDeadZone != DEFAULT_AXIS_DEAD_ZONE)
     {
         options.push_back(llformat("dead_zone:%u", mDeadZone));
     }
