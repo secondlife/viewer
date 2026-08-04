@@ -177,6 +177,19 @@ void show_window_creation_error(const std::string& title)
     LL_WARNS("Window") << title << LL_ENDL;
 }
 
+static bool is_thread_from_current_process(DWORD thread_id)
+{
+    HANDLE thread_handle = OpenThread(THREAD_QUERY_LIMITED_INFORMATION, FALSE, thread_id);
+    if (!thread_handle)
+    {
+        return false;
+    }
+
+    const DWORD process_id = GetProcessIdOfThread(thread_handle);
+    CloseHandle(thread_handle);
+    return process_id == GetCurrentProcessId();
+}
+
 HGLRC SafeCreateContext(HDC &hdc)
 {
     __try
@@ -2480,10 +2493,23 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_ACTIVATEAPP:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_ACTIVATEAPP");
+            // Resolve ownership before deferring the work because thread IDs can
+            // be reused after a thread exits.
+            const bool activating_same_process_thread =
+                !w_param && is_thread_from_current_process(static_cast<DWORD>(l_param));
             window_imp->post([=]()
                 {
                     // This message should be sent whenever the app gains or loses focus.
                     BOOL activating = (BOOL)w_param;
+
+                    // Native dialogs run on a worker thread. Moving focus between
+                    // the viewer and one of those dialogs must not be treated as
+                    // switching to another application: in fullscreen that would
+                    // minimize the viewer and hide its owned dialog.
+                    if (!activating && activating_same_process_thread)
+                    {
+                        activating = TRUE;
+                    }
 
                     if (window_imp->mFullscreen)
                     {
