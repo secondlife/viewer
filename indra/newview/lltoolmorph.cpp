@@ -143,6 +143,8 @@ void LLVisualParamHint::requestHintUpdates( LLVisualParamHint* exception1, LLVis
 
 bool LLVisualParamHint::needsRender()
 {
+    // needsRender gets called once per frame from
+    // LLViewerDynamicTexture::updateAllInstances()
     return mNeedsUpdate && mDelayFrames-- <= 0 && !gAgentAvatarp->getIsAppearanceAnimating() && mAllowsUpdates;
 }
 

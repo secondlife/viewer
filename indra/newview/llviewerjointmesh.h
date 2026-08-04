@@ -67,11 +67,6 @@ public:
     void dump() override;
 
     bool isAnimatable() const override { return false; }
-
-private:
-
-    //copy mesh into given face's vertex buffer, applying current animation pose
-    static void updateGeometry(LLFace* face, LLPolyMesh* mesh);
 };
 
 #endif // LL_LLVIEWERJOINTMESH_H
