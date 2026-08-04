@@ -1043,7 +1043,7 @@ void LLRender::syncMatrices()
                 shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, norm_mat);
             }
 
-            if (shader->getUniformLocation(LLShaderMgr::INVERSE_MODELVIEW_MATRIX))
+            if (shader->getUniformLocation(LLShaderMgr::INVERSE_MODELVIEW_MATRIX) >= 0)
             {
                 shader->uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(cached_inv_mdv));
             }
@@ -1075,14 +1075,14 @@ void LLRender::syncMatrices()
             // GZ: This was previously disabled seemingly due to a bug involving the deferred renderer's regular pushing and popping of mats.
             // We're reenabling this and cleaning up the code around that - that would've been the appropriate course initially.
             // Anything beyond the standard proj and inv proj mats are special cases.  Please setup special uniforms accordingly in the future.
-            if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
+            if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX) >= 0)
             {
                 glm::mat4 inv_proj = glm::inverse(mat);
                 shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, false, glm::value_ptr(inv_proj));
             }
 
             // Used by some full screen effects - such as full screen lights, glow, etc.
-            if (shader->getUniformLocation(LLShaderMgr::IDENTITY_MATRIX))
+            if (shader->getUniformLocation(LLShaderMgr::IDENTITY_MATRIX) >= 0)
             {
                 shader->uniformMatrix4fv(LLShaderMgr::IDENTITY_MATRIX, 1, GL_FALSE, glm::value_ptr(glm::identity<glm::mat4>()));
             }
