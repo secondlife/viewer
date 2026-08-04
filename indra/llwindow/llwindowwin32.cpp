@@ -2509,7 +2509,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // Might need to register for power broadcast interface
             // Todo: log monitor suspending and resuming.
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_POWERBROADCAST");
-            LL_INFOS("Window") << "Received WM_POWERBROADCAST with wParam: " << (U32)w_param << " lParam: " << (U32)l_param << LL_ENDL;
+            LL_INFOS("Window") << "Received WM_POWERBROADCAST with wParam: 0x" << std::hex << (uintptr_t)w_param << " lParam: 0x" << (uintptr_t)l_param << std::dec << LL_ENDL;
             break;
         }
 
