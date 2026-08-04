@@ -748,6 +748,7 @@ void LLWebRTCImpl::updateDevices()
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
         mDeviceModule->PlayoutDeviceName(index, name, guid);
+        RTC_LOG(LS_VERBOSE) << "updateDevices: playout device [" << index << "] name='" << name << "' guid='" << guid << "'";
         mPlayoutDeviceList.emplace_back(name, guid);
     }
 
@@ -766,8 +767,11 @@ void LLWebRTCImpl::updateDevices()
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
         mDeviceModule->RecordingDeviceName(index, name, guid);
+        RTC_LOG(LS_VERBOSE) << "updateDevices: recording device [" << index << "] name='" << name << "' guid='" << guid << "'";
         mRecordingDeviceList.emplace_back(name, guid);
     }
+
+    RTC_LOG(LS_INFO) << "updateDevices, playout count: " << renderDeviceCount << "; capture count: " << captureDeviceCount;
 
     for (auto &observer : mVoiceDevicesObserverList)
     {
