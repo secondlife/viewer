@@ -1891,9 +1891,9 @@ namespace
     // Digital (button) equivalents of the same 5 axes -- mirrors avatarButtonBridge()'s
     // movement-action label set, adding the semantic slot + sign each one drives.  A
     // pressed button contributes full deflection (+/-32767) to its slot, same as
-    // computeAgentActions() does for Turn/Look.  Also doubles as the "is this button
-    // action a movement action" membership test used to exclude it from
-    // ModeButtons (see getSemanticButtonIndexTable() / computeSemanticState()).
+    // computeAgentActions() does for Turn/Look -- *and* also sets its own bit in
+    // ModeButtons (see computeSemanticState()), unlike an analog stick tilt of the
+    // same axis, which only ever shows up in ModeAxes.
     struct SemanticButtonAxisEffect { LLGameControl::SemanticAxis slot; F32 sign; };
     const std::map<std::string, SemanticButtonAxisEffect>& avatarSemanticButtonAxisSlots()
     {
@@ -1938,8 +1938,8 @@ namespace
     // avatarButtonBridge(), unaffected by mode) but have no valid ModeAxes slot
     // in Mouse mode -- STRAFE/ADVANCE mean cursor movement here, and there is no keyboard-
     // or-D-Pad equivalent of "nudge the mouse". So a D-Pad Strafe/Advance press in Mouse
-    // mode moves the avatar locally but is invisible to the semantic wire data, same as
-    // isMovementButtonAction() already excludes it from ModeButtons.
+    // mode moves the avatar locally and is invisible to ModeAxes, but -- like any other
+    // pressed button -- still sets its own ModeButtons bit.
     const std::map<std::string, SemanticButtonAxisEffect>& mouseSemanticButtonAxisSlots()
     {
         static const std::map<std::string, SemanticButtonAxisEffect> bridge = {
@@ -2303,50 +2303,17 @@ namespace
         return bridge;
     }
 
-    // Is 'action' (a button action label) a "movement" action for 'mode' -- i.e. one
-    // folded into mSemanticAxes instead of appearing in ModeButtons?  Avatar/
-    // Mouselook/Captive/Mouse's movement actions are avatarButtonBridge()'s label set
-    // (in Mouse mode these still drive avatar movement locally, e.g. D-Pad Strafe/
-    // Advance, even though they no longer have a ModeAxes slot of their own --
-    // see mouseSemanticButtonAxisSlots()); FlyCam's are flycamButtonBridge()'s (Truck/
-    // Dolly/Pan/Tilt/Boom/Roll/Zoom, which -- unlike avatarButtonBridge() -- already
-    // carries the FlycamChannel + polarity each label drives, reused directly by
-    // computeSemanticState()).
-    bool isMovementButtonAction(LLGameControl::AgentControlMode mode, const std::string& action)
-    {
-        if (action.empty())
-        {
-            return false;
-        }
-        switch (mode)
-        {
-            case LLGameControl::CONTROL_MODE_AVATAR:
-            case LLGameControl::CONTROL_MODE_MOUSELOOK:
-            case LLGameControl::CONTROL_MODE_CAPTIVE:
-            case LLGameControl::CONTROL_MODE_MOUSE:
-                return avatarButtonBridge().count(action) > 0;
-            case LLGameControl::CONTROL_MODE_FLYCAM:
-                return flycamButtonBridge().count(action) > 0;
-            default:
-                return false;
-        }
-    }
-
-    // Per-mode ModeButtons renumbering table: canonical Button index ->
-    // semantic index, or LLGameControl::NO_SEMANTIC_BUTTON if this button has none.
+    // Per-mode ModeButtons index table: canonical Button index -> semantic index, or
+    // LLGameControl::NO_SEMANTIC_BUTTON if this button has none.
     //
-    // Built once per mode from that mode's *default* button mapping (not the user's
-    // current/live mapping), in two passes over ascending canonical button index:
-    //   1. buttons the default mapping assigns to a non-movement action (see
-    //      isMovementButtonAction()) get the next sequential semantic index, in
-    //      canonical-button-index order.
-    //   2. buttons the default mapping does not assign at all get the next sequential
-    //      index (after all of pass 1), also in canonical-button-index order.
-    // Buttons the default mapping assigns to a movement action get no index at all --
-    // e.g. the D-Pad, default-mapped to Strafe/Advance -- so they can never appear in
-    // ModeButtons even if the user later rebinds that physical button to a
-    // non-movement action. This is a known, accepted limitation until the default
-    // mapping settles; see gamecontrol-runtime-wiring-plan memory.
+    // A button's semantic index is always identical to its default-mapped canonical Button
+    // index -- e.g. BUTTON_WEST (2) always sets ModeButtons bit 2 -- for every mode with a
+    // mapping (modeToString() non-empty); CONTROL_MODE_NONE has no ModeButtons concept
+    // at all, so every entry stays NO_SEMANTIC_BUTTON. This includes buttons whose
+    // current action is a movement action (e.g. D-Pad Strafe/Advance) -- those buttons
+    // set both their ModeAxes contribution (see avatarSemanticButtonAxisSlots() et al.,
+    // used by computeSemanticState()) and their own ModeButtons bit, same as a keyboard
+    // key mapped to the same action already does via mExternalServerState.
     const std::vector<U8>& getSemanticButtonIndexTable(LLGameControl::AgentControlMode mode)
     {
         static std::map<LLGameControl::AgentControlMode, std::vector<U8>> cache;
@@ -2357,37 +2324,11 @@ namespace
         }
 
         std::vector<U8> table(LLGameControl::NUM_BUTTONS, LLGameControl::NO_SEMANTIC_BUTTON);
-        const std::string& mode_name = modeToString(mode);
-        if (!mode_name.empty())
+        if (!modeToString(mode).empty())
         {
-            std::vector<std::string> default_action_for_button(LLGameControl::NUM_BUTTONS);
-            LLSD default_buttons = buildDefaultModeMappings()[mode_name][GC_BUTTONS];
-            for (auto it = default_buttons.beginMap(); it != default_buttons.endMap(); ++it)
-            {
-                LLGameControl::InputChannel channel = channelFromInputName(it->second.asString());
-                if (channel.isButton() && channel.mIndex < LLGameControl::NUM_BUTTONS)
-                {
-                    default_action_for_button[channel.mIndex] = it->first;
-                }
-            }
-
-            U8 next_index = 0;
             for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
             {
-                const std::string& action = default_action_for_button[btn];
-                if (action.empty() || isMovementButtonAction(mode, action))
-                {
-                    continue; // handled in pass 2, or permanently excluded (movement action)
-                }
-                table[btn] = next_index++;
-            }
-            for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
-            {
-                if (!default_action_for_button[btn].empty())
-                {
-                    continue; // already assigned above, or excluded as a movement action
-                }
-                table[btn] = next_index++;
+                table[btn] = btn;
             }
         }
 
@@ -2641,10 +2582,12 @@ void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& s
 
     // ModeButtons: every currently-pressed button -- real controller OR a
     // keyboard-simulated press folded in via setExternalInput() (mExternalServerState,
-    // e.g. a literal "simulate this GameControl button" keybind) -- whose current
-    // action is not a movement action for the active mode (those are folded into
-    // mSemanticAxes above instead; see isMovementButtonAction()), renumbered via the
-    // mode's default-mapping-derived index table.
+    // e.g. a literal "simulate this GameControl button" keybind) -- sets its own bit,
+    // renumbered via the mode's default-mapped index table. This includes buttons whose
+    // current action is a movement action (e.g. D-Pad Strafe/Advance): those already
+    // fold into mSemanticAxes above too, so a movement button (or a keyboard key mapped
+    // to the same action) shows up in both ModeAxes and ModeButtons, whereas tilting the
+    // equivalent analog stick only ever shows up in ModeAxes.
     U32 combined_buttons = g_innerState.mButtons | mExternalServerState.mButtons;
     const std::vector<U8>& index_table = getSemanticButtonIndexTable(g_agentControlMode);
     for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
@@ -2652,10 +2595,6 @@ void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& s
         if (!(combined_buttons & (1U << btn)))
         {
             continue;
-        }
-        if (isMovementButtonAction(g_agentControlMode, mButtonActionLabels[btn]))
-        {
-            continue; // folded into mSemanticAxes instead
         }
         U8 semantic_index = index_table[btn];
         if (semantic_index != LLGameControl::NO_SEMANTIC_BUTTON)
@@ -3767,11 +3706,11 @@ std::string LLGameControl::semanticButtonName(AgentControlMode mode, U8 slot)
     }
 
     // Find the canonical button 'mode's default mapping assigned this semantic slot
-    // to (getSemanticButtonIndexTable() is a bijection from {buttons with a slot} to
-    // {0 .. numSemanticButtonsForMode(mode)-1}), then label it with that button's
-    // default action, e.g. "Toggle sit" for Avatar slot 0 (BUTTON_WEST). Buttons the
-    // default mapping leaves unassigned still get a slot (pass 2 of
-    // getSemanticButtonIndexTable()) but have no descriptive name.
+    // to (getSemanticButtonIndexTable() maps a button with a slot to itself, i.e.
+    // canonical_button == slot), then label it with that button's default action,
+    // e.g. "Toggle sit" for Avatar slot 2 (BUTTON_WEST). Buttons the default mapping
+    // leaves unassigned still get a slot (identical to their own canonical index) but
+    // have no descriptive name.
     const std::vector<U8>& index_table = getSemanticButtonIndexTable(mode);
     U8 canonical_button = NUM_BUTTONS;
     for (U8 btn = 0; btn < NUM_BUTTONS; ++btn)
