@@ -96,7 +96,6 @@ const S32 NUM_AXES = 3;
 // pivot parent 0-n -- child = n+1
 
 static LLMatrix4    gJointMatUnaligned[LL_CHARACTER_MAX_JOINTS_PER_MESH];
-static LLMatrix4a   gJointMatAligned[LL_CHARACTER_MAX_JOINTS_PER_MESH];
 static LLMatrix3    gJointRotUnaligned[LL_CHARACTER_MAX_JOINTS_PER_MESH];
 static LLVector4    gJointPivot[LL_CHARACTER_MAX_JOINTS_PER_MESH];
 
@@ -107,8 +106,6 @@ void LLViewerJointMesh::uploadJointMatrices()
 {
     S32 joint_num;
     LLPolyMesh *reference_mesh = mMesh->getReferenceMesh();
-    LLDrawPool *poolp = mFace ? mFace->getPool() : NULL;
-    bool hardware_skinning = (poolp && poolp->getShaderLevel() > 0);
 
     //calculate joint matrices
     size_t num_joints = llmin(reference_mesh->mJointRenderData.size(), LL_CHARACTER_MAX_JOINTS_PER_MESH);
@@ -116,10 +113,7 @@ void LLViewerJointMesh::uploadJointMatrices()
     {
         LLMatrix4 joint_mat = *reference_mesh->mJointRenderData[joint_num]->mWorldMatrix;
 
-        if (hardware_skinning)
-        {
-            joint_mat *= LLDrawPoolAvatar::getModelView();
-        }
+        joint_mat *= LLDrawPoolAvatar::getModelView();
         gJointMatUnaligned[joint_num] = joint_mat;
         gJointRotUnaligned[joint_num] = joint_mat.getMat3();
     }
@@ -171,8 +165,6 @@ void LLViewerJointMesh::uploadJointMatrices()
     }
 
     // upload matrices
-    if (hardware_skinning)
-    {
         GLfloat mat[45*4];
         memset(mat, 0, sizeof(GLfloat)*45*4);
 
@@ -193,15 +185,6 @@ void LLViewerJointMesh::uploadJointMatrices()
             LLGLSLShader::sCurBoundShaderPtr->uniform4fv(LLViewerShaderMgr::AVATAR_MATRIX, 45, mat);
         }
         stop_glerror();
-    }
-    else
-    {
-        //load gJointMatUnaligned into gJointMatAligned
-        for (joint_num = 0; joint_num < num_joints; ++joint_num)
-        {
-            gJointMatAligned[joint_num].loadu(gJointMatUnaligned[joint_num]);
-        }
-    }
 }
 
 //--------------------------------------------------------------------
@@ -302,13 +285,9 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, bool first_pass, bool is_dummy)
 
     if (mMesh->hasWeights())
     {
-        LLDrawPool* poolp = mFace->getPool();
-        if (poolp && (poolp->getShaderLevel() > 0))
+        if (first_pass)
         {
-            if (first_pass)
-            {
-                uploadJointMatrices();
-            }
+            uploadJointMatrices();
         }
 
         buff->setBuffer();
@@ -365,15 +344,6 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, bool damp_w
 
     if (!mFace->getVertexBuffer())
     {
-        return;
-    }
-
-    LLDrawPool *poolp = mFace->getPool();
-    bool hardware_skinning = (poolp && poolp->getShaderLevel() > 0);
-
-    if (!hardware_skinning && terse_update)
-    { //no need to do terse updates if we're doing software vertex skinning
-     // since mMesh is being copied into mVertexBuffer every frame
         return;
     }
 
@@ -460,75 +430,8 @@ bool LLViewerJointMesh::updateLOD(F32 pixel_area, bool activate)
     return (valid != activate);
 }
 
-// static
-void LLViewerJointMesh::updateGeometry(LLFace *mFace, LLPolyMesh *mMesh)
-{
-    LLStrider<LLVector3> o_vertices;
-    LLStrider<LLVector3> o_normals;
-
-    //get vertex and normal striders
-    LLVertexBuffer* buffer = mFace->getVertexBuffer();
-    buffer->getVertexStrider(o_vertices,  0);
-    buffer->getNormalStrider(o_normals,   0);
-
-    F32* __restrict vert = o_vertices[0].mV;
-    F32* __restrict norm = o_normals[0].mV;
-
-    const F32* __restrict weights = mMesh->getWeights();
-    const LLVector4a* __restrict coords = (LLVector4a*) mMesh->getCoords();
-    const LLVector4a* __restrict normals = (LLVector4a*) mMesh->getNormals();
-
-    U32 offset = mMesh->mFaceVertexOffset*4;
-    vert += offset;
-    norm += offset;
-
-    for (U32 index = 0; index < mMesh->getNumVertices(); index++)
-    {
-        // equivalent to joint = floorf(weights[index]);
-        S32 joint = _mm_cvtt_ss2si(_mm_load_ss(weights+index));
-        F32 w = weights[index] - joint;
-
-        LLMatrix4a gBlendMat;
-
-        if (w != 0.f)
-        {
-            // blend between matrices and apply
-            gBlendMat.setLerp(gJointMatAligned[joint+0],
-                              gJointMatAligned[joint+1], w);
-
-            LLVector4a res;
-            gBlendMat.affineTransform(coords[index], res);
-            res.store4a(vert+index*4);
-            gBlendMat.rotate(normals[index], res);
-            res.store4a(norm+index*4);
-        }
-        else
-        {  // No lerp required in this case.
-            LLVector4a res;
-            gJointMatAligned[joint].affineTransform(coords[index], res);
-            res.store4a(vert+index*4);
-            gJointMatAligned[joint].rotate(normals[index], res);
-            res.store4a(norm+index*4);
-        }
-    }
-
-    buffer->unmapBuffer();
-}
-
 void LLViewerJointMesh::updateJointGeometry()
 {
-    if (!(mValid
-          && mMesh
-          && mFace
-          && mMesh->hasWeights()
-          && mFace->getVertexBuffer()
-          && LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) == 0))
-    {
-        return;
-    }
-
-    uploadJointMatrices();
-    updateGeometry(mFace, mMesh);
 }
 
 void LLViewerJointMesh::dump()
