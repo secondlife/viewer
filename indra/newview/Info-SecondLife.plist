@@ -34,6 +34,8 @@
 	<string>${MACOSX_BUNDLE_COPYRIGHT}</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>For voice chat, you must grant permission for Second Life to use the microphone.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Second Life uses WebRTC for voice chat, which may require local network access while establishing the voice connection.</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
