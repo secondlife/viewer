@@ -407,6 +407,11 @@ public:
     void onAxis(SDL_JoystickID id, U8 axis, S16 value);
     void onButton(SDL_JoystickID id, U8 button, bool pressed);
 
+    // Re-derives a device's live (post-fix) axis state from its last-known raw
+    // values using its *current* Options, instead of waiting for the next
+    // hardware axis event.
+    void recomputeDeviceAxesFromRaw(LLGameControl::Device& device);
+
     void clearAllStates();
 
     void accumulateInternalState();
@@ -1256,6 +1261,7 @@ void LLGameControllerManager::setDeviceOptions(const std::string& guid, const LL
         if (device.getGUID() == guid)
         {
             device.mOptions = options;
+            recomputeDeviceAxesFromRaw(device);
 
             // remember the options
             std::string options_str = device.saveOptionsToString(true);
@@ -1456,6 +1462,19 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 raw_value)
     it->mState.mPhysicalFixedAxes[phys] = fixed_value;
 
     routeAxisValue(it->mState, phys, phys_is_trigger, out, fixed_value, raw_value);
+}
+
+void LLGameControllerManager::recomputeDeviceAxesFromRaw(LLGameControl::Device& device)
+{
+    for (U8 phys = 0; phys < LLGameControl::NUM_AXES; ++phys)
+    {
+        S16 raw_value = device.mState.mPhysicalRawAxes[phys];
+        U8 out = device.mOptions.mapAxis(phys);
+        bool phys_is_trigger = phys >= LLGameControl::AXIS_LEFT_TRIGGER;
+        S16 fixed_value = device.mOptions.fixAxisValue(phys, raw_value);
+        device.mState.mPhysicalFixedAxes[phys] = fixed_value;
+        routeAxisValue(device.mState, phys, phys_is_trigger, out, fixed_value, raw_value);
+    }
 }
 
 void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool pressed)
