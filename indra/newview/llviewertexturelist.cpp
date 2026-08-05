@@ -31,6 +31,7 @@
 #include "llviewertexturelist.h"
 
 #include "llagent.h"
+#include "llvoavatarself.h"
 #include "llgl.h" // fot gathering stats from GL
 #include "llimagegl.h"
 #include "llimagebmp.h"
@@ -909,6 +910,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 
         F32 max_vsize = 0.f;
         bool on_screen = false;
+        LLVOAvatarSelf* self_avatar = gAgentAvatarp.get();
 
         U32 face_count = 0;
         U32 max_faces_to_check = 1024;
@@ -975,6 +977,16 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     {
                         static LLCachedControl<F32> texture_camera_boost(gSavedSettings, "TextureCameraBoost", 8.f);
                         vsize *= llmax(face->mImportanceToCamera*texture_camera_boost, 1.f);
+                    }
+
+                    // Keep textures used by the agent's own attachments ahead of crowded-scene content.
+                    // Do not use BOOST_AVATAR_SELF here: attachment textures remain normal LOD textures so
+                    // RenderMaxTextureResolution and memory pressure continue to apply, and shared texture
+                    // assets are not permanently pinned after an attachment is removed.
+                    if (self_avatar && (face->mAvatar == self_avatar || (objp->isAttachment() && objp->getAvatarAncestor() == self_avatar)))
+                    {
+                        static LLCachedControl<F32> self_avatar_boost(gSavedSettings, "TextureSelfAvatarBoost", 4.f);
+                        vsize *= llmax((F32)self_avatar_boost, 1.f);
                     }
 
                     max_vsize = llmax(max_vsize, vsize);

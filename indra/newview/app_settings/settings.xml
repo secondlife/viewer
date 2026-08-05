@@ -11887,6 +11887,17 @@
       <key>Value</key>
       <real>8.0</real>
     </map>
+    <key>TextureSelfAvatarBoost</key>
+    <map>
+      <key>Comment</key>
+      <string>Coverage multiplier for textures used by the agent's own attachments. 4.0 gives approximately one mip of extra priority without pinning the texture or bypassing the maximum texture resolution.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>4.0</real>
+    </map>
     <key>TextureDecodeDisabled</key>
     <map>
       <key>Comment</key>
