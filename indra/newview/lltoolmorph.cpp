@@ -93,6 +93,20 @@ LLVisualParamHint::LLVisualParamHint(
 {
     LLVisualParamHint::sInstances.insert( this );
     mBackgroundp = LLUI::getUIImage("avatar_thumb_bkgrnd.png");
+    if (mBackgroundp)
+    {
+        LLViewerFetchedTexture* tex = dynamic_cast<LLViewerFetchedTexture*>(mBackgroundp->getImage().get());
+        if (tex)
+        {
+            tex->setKnownDrawSize(width, height);
+        }
+
+        mBackgroundLoadedConnection = mBackgroundp->addLoadedCallback([this]()
+        {
+            mNeedsUpdate = true;
+            mDelayFrames = 0;
+        });
+    }
 
     llassert(width != 0);
     llassert(height != 0);
@@ -104,6 +118,7 @@ LLVisualParamHint::LLVisualParamHint(
 LLVisualParamHint::~LLVisualParamHint()
 {
     LLVisualParamHint::sInstances.erase( this );
+    mBackgroundLoadedConnection.disconnect();
 }
 
 //virtual
@@ -143,12 +158,14 @@ void LLVisualParamHint::requestHintUpdates( LLVisualParamHint* exception1, LLVis
 
 bool LLVisualParamHint::needsRender()
 {
+    // needsRender gets called once per frame from
+    // LLViewerDynamicTexture::updateAllInstances()
     return mNeedsUpdate && mDelayFrames-- <= 0 && !gAgentAvatarp->getIsAppearanceAnimating() && mAllowsUpdates;
 }
 
 void LLVisualParamHint::preRender(bool clear_depth)
 {
-    LLViewerWearable* wearable = (LLViewerWearable*)mWearablePtr;
+    LLViewerWearable* wearable = dynamic_cast<LLViewerWearable*>(mWearablePtr);
     if (wearable)
     {
         wearable->setVolatile(true);
@@ -258,7 +275,7 @@ bool LLVisualParamHint::render()
 
     gAgentAvatarp->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);
     mWearablePtr->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);
-    LLViewerWearable* wearable = (LLViewerWearable*)mWearablePtr;
+    LLViewerWearable* wearable = dynamic_cast<LLViewerWearable*>(mWearablePtr);
     if (wearable)
     {
         wearable->setVolatile(false);
