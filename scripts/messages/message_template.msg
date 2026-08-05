@@ -9353,14 +9353,14 @@ version 2.0
 //   3 CONTROL_MODE_CAPTIVE (sitting)
 //   4 CONTROL_MODE_MOUSE (mouse cursor)
 //
-// For AVATAR, MOUSELOOK, and CAPTIVE modes the semantics are:
+// For AVATAR, MOUSELOOK, and CAPTIVE modes the axis semantics are:
 //   0 AXIS_STRAFE
 //   1 AXIS_ADVANCE
 //   2 AXIS_TURN
 //   3 AXIS_LOOK
 //   4 AXIS_RISE
 //
-// For FLYCAM the semantics are:
+// For FLYCAM the axis semantics are:
 //   0 FLYCAM_AXIS_TRUCK
 //   1 FLYCAM_AXIS_DOLLY
 //   2 FLYCAM_AXIS_PAN
@@ -9369,14 +9369,118 @@ version 2.0
 //   5 FLYCAM_AXIS_ROLL
 //   6 FLYCAM_AXIS_ZOOM
 //
-// For MOUSE mode the axes are:
+// For MOUSE mode the axis semantics are:
 //   0 MOUSE_DX
 //   1 MOUSE_DY
 //   2 AXIS_TURN
 //   3 AXIS_LOOK
 //
-// Similarly for semantic ModeButtons the meaning of the Flags depend on the mode:
-// TODO: document the ModeButton Flags for the various modes.
+// Similarly for semantic ModeButtons the meaning of the Flags depend on the mode.
+// A ModeButtons bit index is always identical to the canonical Button index to which
+// it is mapped by default, no matter how it is actually mapped.
+// Canonical buttons with no default action in a given mode are still assigned a bit
+// but it has no meaning (it is never used for that mode).
+//
+// For AVATAR and CAPTIVE modes the ModeButtons bit meanings are:
+// Bit    Default_Button         Name
+// -----------------------------------------------------------------------
+//   0    BUTTON_SOUTH           Jump
+//   1    BUTTON_EAST            Crouch
+//   2    BUTTON_WEST            Toggle sit
+//   3    BUTTON_NORTH           (unbound; reserved for future "Interact")
+//   4    BUTTON_SELECT          Toggle mouse cursor
+//   5    BUTTON_HOME            Toggle speak
+//   6    BUTTON_START           Toggle mouselook
+//   7    BUTTON_LEFT_STICK      (unbound)
+//   8    BUTTON_RIGHT_STICK     Toggle flycam
+//   9    BUTTON_LEFT_SHOULDER   (unbound)
+//  10    BUTTON_RIGHT_SHOULDER  (unbound)
+//  11    BUTTON_DPAD_UP         Advance forward (also folded into ModeAxes AXIS_ADVANCE)
+//  12    BUTTON_DPAD_DOWN       Advance back (also folded into ModeAxes AXIS_ADVANCE)
+//  13    BUTTON_DPAD_LEFT       Strafe left (also folded into ModeAxes AXIS_STRAFE)
+//  14    BUTTON_DPAD_RIGHT      Strafe right (also folded into ModeAxes AXIS_STRAFE)
+//  15-31                         (unbound)
+//
+// For MOUSELOOK mode the ModeButtons bit meanings are:
+// Bit    Default_Button         Name
+// -----------------------------------------------------------------------
+//   0    BUTTON_SOUTH           Jump
+//   1    BUTTON_EAST            Crouch
+//   2    BUTTON_WEST            Toggle sit
+//   3    BUTTON_NORTH           (unbound)
+//   4    BUTTON_SELECT          Toggle mouse cursor
+//   5    BUTTON_HOME            Toggle speak
+//   6    BUTTON_START           Toggle mouselook
+//   7    BUTTON_LEFT_STICK      (unbound)
+//   8    BUTTON_RIGHT_STICK     Toggle flycam
+//   9    BUTTON_LEFT_SHOULDER   Mouse click left
+//  10    BUTTON_RIGHT_SHOULDER  Mouse click right
+//  11    BUTTON_DPAD_UP         Advance forward (also folded into ModeAxes AXIS_ADVANCE)
+//  12    BUTTON_DPAD_DOWN       Advance back (also folded into ModeAxes AXIS_ADVANCE)
+//  13    BUTTON_DPAD_LEFT       Strafe left (also folded into ModeAxes AXIS_STRAFE)
+//  14    BUTTON_DPAD_RIGHT      Strafe right (also folded into ModeAxes AXIS_STRAFE)
+//  15-31                       (unbound)
+//
+// For FLYCAM mode the ModeButtons bit meanings are:
+// Bit    Default_Button         Name
+// -----------------------------------------------------------------------
+//   0    BUTTON_SOUTH           Zoom out (also folded into ModeAxes FLYCAM_AXIS_ZOOM)
+//   1    BUTTON_EAST            Pan right (also folded into ModeAxes FLYCAM_AXIS_PAN)
+//   2    BUTTON_WEST            Pan left (also folded into ModeAxes FLYCAM_AXIS_PAN)
+//   3    BUTTON_NORTH           Zoom in (also folded into ModeAxes FLYCAM_AXIS_ZOOM)
+//   4    BUTTON_SELECT          Toggle AltZoom
+//   5    BUTTON_HOME            (unbound)
+//   6    BUTTON_START           Toggle follow
+//   7    BUTTON_LEFT_STICK      Reset
+//   8    BUTTON_RIGHT_STICK     Toggle flycam
+//   9    BUTTON_LEFT_SHOULDER   Roll CCW (also folded into ModeAxes FLYCAM_AXIS_ROLL)
+//  10    BUTTON_RIGHT_SHOULDER  Roll CW (also folded into ModeAxes FLYCAM_AXIS_ROLL)
+//  11    BUTTON_DPAD_UP         Dolly forward (also folded into ModeAxes FLYCAM_AXIS_DOLLY)
+//  12    BUTTON_DPAD_DOWN       Dolly back (also folded into ModeAxes FLYCAM_AXIS_DOLLY)
+//  13    BUTTON_DPAD_LEFT       Truck left (also folded into ModeAxes FLYCAM_AXIS_TRUCK)
+//  14    BUTTON_DPAD_RIGHT      Truck right (also folded into ModeAxes FLYCAM_AXIS_TRUCK)
+//  15-31                       (unbound)
+//
+// For CAPTIVE mode (avatar is sitting, or controls have been taken) the ModeButtons
+// bit meanings are identical to AVATAR mode (CAPTIVE reuses AVATAR's default button
+// mapping in buildDefaultModeMappings()):
+// Bit    Default_Button         Name
+// -----------------------------------------------------------------------
+//   0  BUTTON_SOUTH           Jump
+//   1  BUTTON_EAST            Crouch
+//   2  BUTTON_WEST            Toggle sit
+//   3  BUTTON_NORTH           (unbound; reserved for future "Interact")
+//   4  BUTTON_SELECT          Toggle mouse cursor
+//   5  BUTTON_HOME            Toggle speak
+//   6  BUTTON_START           Toggle mouselook
+//   7  BUTTON_LEFT_STICK      (unbound)
+//   8  BUTTON_RIGHT_STICK     Toggle flycam
+//   9  BUTTON_LEFT_SHOULDER   (unbound)
+//  10  BUTTON_RIGHT_SHOULDER  (unbound)
+//  11  BUTTON_DPAD_UP         Advance forward (also folded into ModeAxes AXIS_ADVANCE)
+//  12  BUTTON_DPAD_DOWN       Advance back (also folded into ModeAxes AXIS_ADVANCE)
+//  13  BUTTON_DPAD_LEFT       Strafe left (also folded into ModeAxes AXIS_STRAFE)
+//  14  BUTTON_DPAD_RIGHT      Strafe right (also folded into ModeAxes AXIS_STRAFE)
+//  15-31                       (unbound)
+//
+// For MOUSE mode (left stick drives the on-screen cursor instead of avatar
+// movement) the ModeButtons bit meanings are:
+//   0  BUTTON_SOUTH           Jump
+//   1  BUTTON_EAST            Crouch
+//   2  BUTTON_WEST            Toggle sit
+//   3  BUTTON_NORTH           (unbound)
+//   4  BUTTON_SELECT          Toggle mouse cursor
+//   5  BUTTON_HOME            Toggle speak
+//   6  BUTTON_START           Toggle mouselook
+//   7  BUTTON_LEFT_STICK      (unbound)
+//   8  BUTTON_RIGHT_STICK     Toggle flycam
+//   9  BUTTON_LEFT_SHOULDER   Mouse click left
+//  10  BUTTON_RIGHT_SHOULDER  Mouse click right
+//  11  BUTTON_DPAD_UP         Advance forward (also folded into ModeAxes AXIS_ADVANCE)
+//  12  BUTTON_DPAD_DOWN       Advance back (also folded into ModeAxes AXIS_ADVANCE)
+//  13  BUTTON_DPAD_LEFT       Strafe left (also folded into ModeAxes AXIS_STRAFE)
+//  14  BUTTON_DPAD_RIGHT      Strafe right (also folded into ModeAxes AXIS_STRAFE)
+//  15-31                     (unbound)
 //
 {
     GameControlData High 33 NotTrusted Zerocoded

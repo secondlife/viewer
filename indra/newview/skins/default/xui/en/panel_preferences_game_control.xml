@@ -749,9 +749,6 @@
             label="Mouse cursor"
             value="Toggle mouse cursor"/>
         <combo_box.item
-            label="Toggle run"
-            value="Toggle run"/>
-        <combo_box.item
             label="Advance ↑"
             value="Advance forward"/>
         <combo_box.item
@@ -830,9 +827,6 @@
         <combo_box.item
             label="Mouse cursor"
             value="Toggle mouse cursor"/>
-        <combo_box.item
-            label="Toggle run"
-            value="Toggle run"/>
         <combo_box.item
             label="Mouse left"
             value="Mouse click left"/>
@@ -954,9 +948,6 @@
         <combo_box.item
             label="Toggle mouse cursor"
             value="Toggle mouse cursor"/>
-        <combo_box.item
-            label="Toggle run"
-            value="Toggle run"/>
         <combo_box.item
             label="Mouse left"
             value="Mouse click left"/>
