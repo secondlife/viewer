@@ -93,6 +93,20 @@ LLVisualParamHint::LLVisualParamHint(
 {
     LLVisualParamHint::sInstances.insert( this );
     mBackgroundp = LLUI::getUIImage("avatar_thumb_bkgrnd.png");
+    if (mBackgroundp)
+    {
+        LLViewerFetchedTexture* tex = dynamic_cast<LLViewerFetchedTexture*>(mBackgroundp->getImage().get());
+        if (tex)
+        {
+            tex->setKnownDrawSize(width, height);
+        }
+
+        mBackgroundLoadedConnection = mBackgroundp->addLoadedCallback([this]()
+        {
+            mNeedsUpdate = true;
+            mDelayFrames = 0;
+        });
+    }
 
     llassert(width != 0);
     llassert(height != 0);
@@ -104,6 +118,7 @@ LLVisualParamHint::LLVisualParamHint(
 LLVisualParamHint::~LLVisualParamHint()
 {
     LLVisualParamHint::sInstances.erase( this );
+    mBackgroundLoadedConnection.disconnect();
 }
 
 //virtual
