@@ -417,15 +417,21 @@ void LLWebRTCImpl::terminate()
             }
         });
 
-        for (auto& connection : mPeerConnections)
-        {
-            connection->terminate();
-        }
+        mSignalingThread->PostTask(
+            [this]()
+            {
+                for (auto& connection : mPeerConnections)
+                {
+                    connection->terminate();
+                }
+            });
 
-        // connection->terminate() above spawns a number of Signaling thread calls to
+        // connection->terminate() above spawns a number of additional Signaling thread calls to
         // shut down the connection.  The following Blocking Call will wait
         // until they're done before it's executed, allowing time to clean up.
-        mSignalingThread->BlockingCall([this]() { mPeerConnectionFactory = nullptr; });
+        mSignalingThread->BlockingCall([this]() {
+            mPeerConnectionFactory = nullptr;
+        });
 
         mWorkerThread->BlockingCall(
             [this]()
