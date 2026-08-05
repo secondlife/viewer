@@ -478,12 +478,9 @@ private:
     U32 mLastFlycamActionFlags { 0 };
     SDL_JoystickID mlastActiveControllerID { 0 };
 
-    // Persistent "is running" sub-states, combined into AgentActions::mIsRunning
-    // by computeAgentActions(): mIsToggleRunning flips on each "Toggle run" button
-    // press (edge-triggered, like a caps-lock); mIsAnalogRunning follows how hard
-    // the movement axes are pushed, with hysteresis so it doesn't flicker at the
-    // boundary.
-    bool mIsToggleRunning { false };
+    // Persistent "is running" state, folded into AgentActions::mIsRunning by
+    // computeAgentActions(): follows how hard the movement axes are pushed, with
+    // hysteresis so it doesn't flicker at the boundary.
     bool mIsAnalogRunning { false };
 
     friend class LLGameControl;
@@ -664,7 +661,6 @@ namespace
         avatar_buttons["Jump"]                   = "BUTTON_SOUTH";
         avatar_buttons["Crouch"]                 = "BUTTON_EAST";
         avatar_buttons["Toggle sit"]             = "BUTTON_WEST";
-        avatar_buttons["Toggle run"]             = "BUTTON_LEFT_STICK";
         // TODO: implement Interact feature
         //avatar_buttons["Interact"]               = "BUTTON_NORTH";
         avatar_buttons["Toggle mouse cursor"]    = "BUTTON_SELECT";
@@ -696,7 +692,6 @@ namespace
         mouselook_buttons["Jump"]                   = "BUTTON_SOUTH";
         mouselook_buttons["Crouch"]                 = "BUTTON_EAST";
         mouselook_buttons["Toggle sit"]             = "BUTTON_WEST";
-        mouselook_buttons["Toggle run"]             = "BUTTON_LEFT_STICK";
         mouselook_buttons["Toggle mouse cursor"]    = "BUTTON_SELECT";
         mouselook_buttons["Toggle speak"]           = "BUTTON_HOME";
         mouselook_buttons["Mouse click left"]       = "BUTTON_LEFT_SHOULDER";
@@ -727,7 +722,6 @@ namespace
         mouse_buttons["Jump"]                   = "BUTTON_SOUTH";
         mouse_buttons["Crouch"]                 = "BUTTON_EAST";
         mouse_buttons["Toggle sit"]             = "BUTTON_WEST";
-        mouse_buttons["Toggle run"]             = "BUTTON_LEFT_STICK";
         mouse_buttons["Toggle mouse cursor"]    = "BUTTON_SELECT";
         mouse_buttons["Toggle speak"]           = "BUTTON_HOME";
         mouse_buttons["Toggle mouselook"]       = "BUTTON_START";
@@ -1852,9 +1846,6 @@ namespace
             { "Sit down",        AGENT_CONTROL_SIT_DOWN },
             { "Stand up",        AGENT_CONTROL_STAND_UP },
             */
-            // Note: "Toggle run" is handled specially in computeAgentActions() --
-            // it flips LLGameControllerManager's own mIsToggleRunning rather than
-            // going through either bridge -- so it is intentionally absent here.
         };
         return bridge;
     }
@@ -2196,16 +2187,6 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         {
             continue;
         }
-        if (label == "Toggle run")
-        {
-            // Edge-triggered: flip the persistent run-toggle once per physical
-            // press rather than every frame the button is held.
-            if (pressed_edges & (1U << btn))
-            {
-                mIsToggleRunning = !mIsToggleRunning;
-            }
-            continue;
-        }
         if ((label == "Sit down" || label == "Stand up") && !(pressed_edges & (1U << btn)))
         {
             continue;
@@ -2250,7 +2231,7 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
         }
     }
 
-    result.mIsRunning = mIsToggleRunning || mIsAnalogRunning;
+    result.mIsRunning = mIsAnalogRunning;
 
     result.mYawAmplitude = std::clamp((F32)yaw_value / 32767.f, -1.f, 1.f);
     result.mPitchAmplitude = std::clamp((F32)pitch_value / 32767.f, -1.f, 1.f);
