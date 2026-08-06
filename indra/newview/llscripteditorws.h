@@ -39,6 +39,7 @@
 #include <map>
 #include <set>
 #include <atomic>
+#include <functional>
 
 // Forward declarations
 class LLLiveLSLEditor;
@@ -87,6 +88,7 @@ public:
     void onClose() override;
 
     void sendDisconnect(DisconnectReason reason = DisconnectReason::NORMAL, const std::string& message = "Goodbye");
+    bool hasFeature(const std::string& feature) const;
 
 private:
     using string_set_t = std::set<std::string>;
@@ -205,6 +207,8 @@ public:
     bool publishObject(const LLUUID& object_id);
     void unpublishObject(const LLUUID& object_id, const std::string& reason = "");
     bool isObjectPublished(const LLUUID& object_id) const;
+
+    // *TODO*: These should be moved to LLPublishedObjectMgr at some point.
     void onPrimInventoryReady(const LLUUID& object_id, const LLUUID& prim_id);
     void onPrimInventoryChanged(const LLUUID& object_id, const LLUUID& prim_id);
     void onObjectPropertyChanged(const LLUUID& prim_id, const std::string& name, const std::string& desc, S16 inventory_serial = -1);
@@ -242,6 +246,9 @@ protected:
     LLSD handleObjectScriptReset(U32 connection_id, const LLSD& params);
     LLSD handleObjectModify(U32 connection_id, const LLSD& params);
     LLSD handleObjectItemModify(U32 connection_id, const LLSD& params);
+    LLSD handleCommandExecute(U32 connection_id, const LLSD& params);
+    LLSD handleCommandList();
+    void sendCommandExecute(U32 connection_id, const std::string& command, const LLSD& params);
 
     struct ValidatedItem
     {
@@ -312,6 +319,23 @@ private:
     std::map<U32, LLScriptEditorWSConnection::wptr_t> mActiveConnections;
 
     mutable LLPublishedObjectMgr mPublishedObjectManager;
+
+    struct WSCommandInfo
+    {
+        std::string command;
+        std::string description;
+    };
+    enum WSCommandError
+    {
+        UnknownCommand  = 1,
+        InvalidParams   = 2,
+        NotPermitted    = 3,
+        ExecutionError  = 4,
+    };
+    using WSCommandHandler = std::function<LLSD(U32 connection_id, const LLSD& params)>;
+    std::unordered_map<std::string, std::pair<WSCommandInfo, WSCommandHandler>> mCommandRegistry;
+
+    void registerCommand(const WSCommandInfo& info, WSCommandHandler handler);
 
     boost::signals2::connection mLanguageChangeSignal;
     LLUUID mLastSyntaxId;

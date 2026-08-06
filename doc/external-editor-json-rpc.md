@@ -46,6 +46,9 @@ This document describes all the message interfaces defined for WebSocket communi
   - [ObjectRequest](#objectrequest)
   - [ObjectModify](#objectmodify)
   - [ObjectItemModify](#objectitemmodify)
+- [Command Interfaces](#command-interfaces)
+  - [CommandExecute](#commandexecute)
+  - [CommandList](#commandlist)
 
 ## Usage Flow
 
@@ -196,6 +199,10 @@ WebSocket connects -> session.handshake -> session.ok
 | `object.modify` (response)      | Viewer -> Extension | Response     | `ObjectModifyResponse`         |
 | `object.item.modify`            | Extension -> Viewer | Call         | `ObjectItemModifyParams`       |
 | `object.item.modify` (response) | Viewer -> Extension | Response     | `ObjectItemModifyResponse`     |
+| `command.execute`               | Bidirectional       | Call         | `CommandExecuteParams`         |
+| `command.execute` (response)    | Bidirectional       | Response     | `CommandExecuteResponse`       |
+| `command.list`                  | Bidirectional       | Call         | _(no params)_                  |
+| `command.list` (response)       | Bidirectional       | Response     | `CommandListResponse`          |
 
 ## Session Management Interfaces
 
@@ -235,6 +242,7 @@ interface SessionHandshake {
   - `live_sync`: Viewer supports live script synchronisation with the external editor
   - `compilation`: Viewer will forward compilation results via `script.compiled`
   - `syntax_cache`: Viewer supports `language.syntax.cache` and `language.syntax.get` for retrieving syntax definition files
+  - `commands`: Both sides support `command.execute` and `command.list`
 
 ### SessionHandshakeResponse
 
@@ -1218,3 +1226,135 @@ interface ObjectItemModifyResponse {
 - An `object.update` notification will fire after successful modification.
 - Owner permissions cannot be modified directly — only `next_owner` can be changed.
 - If the item is renamed, the virtual filesystem path will change and the extension must handle the rename appropriately.
+
+---
+
+## Command Interfaces
+
+These interfaces provide a general-purpose, bidirectional command channel. Either side may invoke a named command on the other side and receive a structured result. The feature is optional and must be negotiated via the `commands` flag in the session handshake.
+
+### CommandExecute
+
+**JSON-RPC Method:** `command.execute` (call, bidirectional)
+
+Invokes a named command on the receiving side. Commands are identified by a namespaced string and carry an optional freeform parameter map.
+
+```typescript
+interface CommandExecuteParams {
+  command: string;                       // namespaced command id, e.g. "viewer.teleport"
+  params?: Record<string, unknown>;      // command-specific arguments
+}
+
+interface CommandExecuteResponse {
+  success: boolean;
+  result?: unknown;                      // optional command-specific return value
+  error_code?: number;
+  message?: string;
+}
+```
+
+**Fields:**
+
+- `command`: Namespaced command identifier. The prefix before the first `.` identifies the side that owns and executes the command:
+  - `viewer.*` - commands executed by the viewer (e.g. `viewer.teleport`, `viewer.script.recompile_all`)
+  - `editor.*` - commands executed by the extension (e.g. `editor.open_file`, `editor.show_message`)
+- `params` (optional): Command-specific argument map. Structure varies by command.
+- `success`: Whether the command was found and executed without error.
+- `result` (optional): Command-specific return value. Only present when `success` is `true` and the command produces output.
+- `error_code` (optional): Numeric failure code. Only present when `success` is `false`:
+  - `1` - Unknown command
+  - `2` - Invalid or missing parameters
+  - `3` - Not permitted
+  - `4` - Execution error
+- `message` (optional): Human-readable error description. Only present when `success` is `false`.
+
+**Capability gate:** A side MUST NOT send `command.execute` unless the peer advertised `commands: true` in the handshake. A receiver that receives the call without having negotiated the feature MUST respond with `success: false, error_code: 1`.
+
+**Example - extension asks viewer to teleport:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "command.execute",
+  "id": 7,
+  "params": {
+    "command": "viewer.teleport",
+    "params": { "region": "Aditi", "position": [128, 128, 25] }
+  }
+}
+```
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 7,
+  "result": { "success": true }
+}
+```
+
+**Example - viewer asks extension to show a message:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "command.execute",
+  "id": 8,
+  "params": {
+    "command": "editor.show_message",
+    "params": { "message": "Script reset complete", "level": "info" }
+  }
+}
+```
+
+---
+
+### CommandList
+
+**JSON-RPC Method:** `command.list` (call, bidirectional)
+
+Requests the list of commands the receiving side supports. Intended for tooling and autocomplete; implementations may omit this method and return an error response if discovery is not needed.
+
+This method takes no parameters.
+
+**Response:**
+
+```typescript
+interface CommandListResponse {
+  commands: CommandInfo[];
+}
+
+interface CommandInfo {
+  command: string;
+  description?: string;
+  params?: Record<string, CommandParamInfo>;
+}
+
+interface CommandParamInfo {
+  type: "string" | "number" | "boolean" | "object" | "array";
+  required?: boolean;
+  description?: string;
+}
+```
+
+**Response Fields:**
+
+- `commands`: Array of commands the responder supports. Each entry describes one command.
+  - `command`: The namespaced command identifier.
+  - `description` (optional): Human-readable description of what the command does.
+  - `params` (optional): Map of parameter names to their type descriptors.
+
+**Known viewer commands:**
+
+| Command | Required params | Description |
+|---------|----------------|-------------|
+| `viewer.teleport` | `region: string` | Teleport agent to a region. Optional `position: [x, y, z]`. |
+| `viewer.script.recompile_all` | `object_id: string` | Recompile all scripts in an object. |
+| `viewer.script.reset_all` | `object_id: string` | Reset all scripts in an object. |
+| `viewer.camera.focus` | `object_id: string` | Move camera focus to an in-world object. |
+
+**Known extension commands:**
+
+| Command | Required params | Description |
+|---------|----------------|-------------|
+| `editor.open_file` | `path: string` | Open a file in the editor. Optional `line: number`. |
+| `editor.show_message` | `message: string` | Show a notification. Optional `level: "info" | "warn" | "error"`. |

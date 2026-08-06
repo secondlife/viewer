@@ -31,6 +31,7 @@
 #include "llscripteditorws.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llappviewer.h"
 #include "llchat.h"
 #include "lldate.h"
@@ -61,6 +62,7 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "llviewermenu.h"
 #include "llviewertexteditor.h"
 #include "llvoinventorylistener.h"
 #include "roles_constants.h"
@@ -166,6 +168,46 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
 {
     LL_INFOS("ScriptEditorWS") << "Created JSON-RPC script editor server: " << name
                                << " on port " << port << LL_ENDL;
+
+    registerCommand({ "viewer.teleport", "Teleport agent to an in-world object" },
+        [](U32, const LLSD& p) -> LLSD
+        {
+            LLUUID object_id = p["object_id"].asUUID();
+            if (object_id.isNull())
+                throw LLJSONRPCConnection::InvalidParams("object_id is required");
+
+            LLViewerObject* object = gObjectList.findObject(object_id);
+            if (!object)
+                throw LLJSONRPCConnection::InvalidParams("object_id not found");
+
+            LLVector3d global_pos = object->getPositionGlobal();
+            gAgent.teleportViaLocation(global_pos);
+
+            LLSD response;
+            response["success"] = true;
+            return response;
+        });
+
+    registerCommand({ "viewer.camera.focus", "Zoom camera to an in-world object (same behavior as context menu Zoom In)" },
+        [](U32, const LLSD& p) -> LLSD
+        {
+            LLUUID object_id = p["object_id"].asUUID();
+            if (object_id.isNull())
+                throw LLJSONRPCConnection::InvalidParams("object_id is required");
+
+            if (!handle_zoom_to_object(object_id))
+            {
+                LLSD response;
+                response["success"]    = false;
+                response["error_code"] = WSCommandError::ExecutionError;
+                response["message"]    = "Object not found or not reachable";
+                return response;
+            }
+
+            LLSD response;
+            response["success"] = true;
+            return response;
+        });
 }
 
 LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::getServer()
@@ -623,6 +665,18 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
             {
                 return s.handleObjectItemModify(connection_id, params);
             }));
+
+        script_connection->registerAsyncMethod("command.execute",
+            bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
+            {
+                return s.handleCommandExecute(connection_id, params);
+            }));
+
+        script_connection->registerMethod("command.list",
+            bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
+            {
+                return s.handleCommandList();
+            }));
     }
 }
 
@@ -852,6 +906,79 @@ LLSD LLScriptEditorWSServer::handleObjectItemModify(U32 connection_id, const LLS
     response["prim_id"] = prim_id.asString();
     response["item_id"] = item_id.asString();
     return response;
+}
+
+void LLScriptEditorWSServer::registerCommand(const WSCommandInfo& info, WSCommandHandler handler)
+{
+    mCommandRegistry.emplace(info.command, std::make_pair(info, std::move(handler)));
+}
+
+bool LLScriptEditorWSConnection::hasFeature(const std::string& feature) const
+{
+    return mFeatures.count(feature) > 0;
+}
+
+LLSD LLScriptEditorWSServer::handleCommandExecute(U32 connection_id, const LLSD& params)
+{
+    const std::string command = params["command"].asString();
+    if (command.empty())
+    {
+        throw LLJSONRPCConnection::InvalidParams("command is required");
+    }
+
+    auto it = mCommandRegistry.find(command);
+    if (it == mCommandRegistry.end())
+    {
+        LLSD response;
+        response["success"]    = false;
+        response["error_code"] = WSCommandError::UnknownCommand;
+        response["message"]    = "Unknown command: " + command;
+        return response;
+    }
+
+    return it->second.second(connection_id, params["params"]);
+}
+
+LLSD LLScriptEditorWSServer::handleCommandList()
+{
+    LLSD commands(LLSD::emptyArray());
+    for (const auto& [name, entry] : mCommandRegistry)
+    {
+        LLSD info;
+        info["command"]     = entry.first.command;
+        info["description"] = entry.first.description;
+        commands.append(info);
+    }
+    LLSD response;
+    response["commands"] = commands;
+    return response;
+}
+
+void LLScriptEditorWSServer::sendCommandExecute(
+    U32 connection_id, const std::string& command, const LLSD& params)
+{
+    auto it = mActiveConnections.find(connection_id);
+    if (it == mActiveConnections.end())
+    {
+        return;
+    }
+
+    auto connection = it->second.lock();
+    if (!connection || !connection->hasFeature("commands"))
+    {
+        return;
+    }
+
+    LLSD call_params;
+    call_params["command"] = command;
+    call_params["params"]  = params;
+
+    connection->call("command.execute", call_params,
+        [command](const LLSD& result, const LLSD& error)
+        {
+            LL_WARNS_IF(!error.isUndefined() || !result["success"].asBoolean(), "WSCommand")
+                << "command.execute failed for " << command << LL_ENDL;
+        });
 }
 
 void LLScriptEditorWSServer::broadcastLanguageChange()
@@ -2300,6 +2427,7 @@ void LLScriptEditorWSConnection::onOpen()
     features["live_sync"]        = true;
     features["compilation"]      = true;
     features["syntax_cache"]     = true;
+    features["commands"]         = true;
     handshake["features"]        = features;
 
     wptr_t that = weak_from_this();
