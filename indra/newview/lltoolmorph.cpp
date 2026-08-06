@@ -165,6 +165,13 @@ bool LLVisualParamHint::needsRender()
 
 void LLVisualParamHint::preRender(bool clear_depth)
 {
+    LL_DEBUGS("ParamHint") << "preRender: param=" << mVisualParam->getName()
+        << " id=" << mVisualParam->getID()
+        << " weight=" << mVisualParamWeight
+        << " dirtyMesh=" << gAgentAvatarp->mDirtyMesh
+        << " pixelArea=" << gAgentAvatarp->mAdjustedPixelArea
+        << " appearanceAnimating=" << gAgentAvatarp->getIsAppearanceAnimating()
+        << LL_ENDL;
     LLViewerWearable* wearable = dynamic_cast<LLViewerWearable*>(mWearablePtr);
     if (wearable)
     {
@@ -184,6 +191,19 @@ void LLVisualParamHint::preRender(bool clear_depth)
     {
         gAgentAvatarp->updateGeometry(gAgentAvatarp->mDrawable);
         gAgentAvatarp->updateLOD();
+
+        if (gAgentAvatarp->mDrawable->isState(LLDrawable::REBUILD_GEOMETRY))
+        {
+            LL_WARNS_ONCE("ParamHint") << "preRender: clearing REBUILD_GEOMETRY after updateGeometry/updateLOD"
+                << " param=" << mVisualParam->getName()
+                << " dirtyMesh=" << gAgentAvatarp->mDirtyMesh
+                << LL_ENDL;
+            // Clear REBUILD_GEOMETRY so that renderSkinned inside generateImpostor
+            // does not re-run updateMeshData() with a partially consistent mesh state,
+            // which would reassign mFace pointers on some meshes while others are
+            // mid-draw with stale vertex offsets.
+            gAgentAvatarp->mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
+        }
     }
     else
     {
@@ -263,8 +283,15 @@ bool LLVisualParamHint::render()
 
     LLViewerCamera::getInstance()->setPerspective(false, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, false);
 
-    if (gAgentAvatarp->mDrawable.notNull())
+    llassert(!LLPipeline::sImpostorRender); // We are rendering this from UI, shouldn't be set
+    if (gAgentAvatarp->mDrawable.notNull() && !LLPipeline::sImpostorRender)
     {
+        LL_DEBUGS("ParamHint") << "render: generating impostor"
+            << " param=" << mVisualParam->getName()
+            << " drawableState=0x" << std::hex << gAgentAvatarp->mDrawable->getState() << std::dec
+            << " dirtyMesh=" << gAgentAvatarp->mDirtyMesh
+            << " mMeshValid=" << gAgentAvatarp->mMeshValid
+            << LL_ENDL;
         LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
         gGL.flush();
         gGL.setSceneBlendType(LLRender::BT_REPLACE);

@@ -611,6 +611,7 @@ void LLDrawPoolAvatar::beginSkinned()
 
     sVertexProgram->bind();
     sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
+    sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 }
 
 void LLDrawPoolAvatar::endSkinned()
@@ -624,6 +625,7 @@ void LLDrawPoolAvatar::endSkinned()
 
     // if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
     sRenderingSkinned = false;
+    sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
     sVertexProgram->disableTexture(LLViewerShaderMgr::BUMP_MAP);
     gGL.getTexUnit(0)->activate();
     sVertexProgram->unbind();
