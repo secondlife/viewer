@@ -585,7 +585,12 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     ~LLWebRTCPeerConnectionImpl();
 
     void init(LLWebRTCImpl * webrtc_impl);
+    // Posts closeOnSignalingThread() and returns immediately.
     void terminate();
+    // The actual close.  Signaling thread only.  Callable directly (via a
+    // BlockingCall) when the caller needs the connection to be fully closed
+    // before it continues -- see LLWebRTCImpl::terminate().
+    void closeOnSignalingThread();
 
     virtual void AddRef() const override = 0;
     virtual webrtc::RefCountReleaseStatus Release() const override = 0;
@@ -690,6 +695,11 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
 
     // Accessed only on the WebRTC signaling thread.
     bool mStatsRequestPending;
+
+    // Set by closeOnSignalingThread() so that no new stats request (or other
+    // callback into the viewer) is issued while we're tearing down.
+    // Accessed only on the WebRTC signaling thread.
+    bool mShuttingDown;
 
     std::atomic<int> mPendingJobs;
 };
