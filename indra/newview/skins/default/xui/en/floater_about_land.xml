@@ -247,15 +247,6 @@
              width="360">
                 TestString PleaseIgnore
             </text>
-             <button
-     follows="right"
-     height="23"
-     image_pressed="Info_Press"
-     image_unselected="Info_Over"
-     left_pad="3"
-     name="info_btn_owner"
-     top_delta="-2"
-     width="16" />
             <text
              type="string"
              length="1"
