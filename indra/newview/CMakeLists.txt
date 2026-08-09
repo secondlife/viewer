@@ -1831,7 +1831,7 @@ endif(USE_PRECOMPILED_HEADERS)
 if (WINDOWS)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        # *TODO -reenable this once we get server usage sorted out
+        # re-enable this once we get server usage sorted out
         LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE"
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO /LARGEADDRESSAWARE"
         LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF /LARGEADDRESSAWARE"
@@ -2415,15 +2415,6 @@ if (LL_TESTS)
     llworldmipmap.cpp
   )
 
-  set_source_files_properties(
-    llworldmap.cpp
-    llworldmipmap.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_SOURCE_FILES
-    tests/llviewertexture_stub.cpp
-    #llviewertexturelist.cpp
-  )
-
 #  set_source_files_properties(
 #    llvocache.cpp
 #    PROPERTIES
@@ -2431,123 +2422,7 @@ if (LL_TESTS)
 #    LL_TEST_ADDITIONAL_PROJECTS "llprimitive"
 #  )
 
-  set(test_libs
-          llcommon
-          llfilesystem
-          llxml
-          llmessage
-          llcharacter
-          llui
-          lllogin
-          llplugin
-          llappearance
-    )
-
-  set_source_files_properties(
-    llmediadataclient.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${test_libs}"
-  )
-
-  set_source_files_properties(
-    llworldmap.cpp
-    llworldmipmap.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_SOURCE_FILES
-    tests/llviewertexture_stub.cpp
-  )
-
-  set_source_files_properties(
-    llmediadataclient.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES llprimitive
-  )
-
-  set_source_files_properties(
-    lllogininstance.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_SOURCE_FILES llversioninfo.cpp
-  )
-
-  set_property( SOURCE
-          ${viewer_TEST_SOURCE_FILES}
-          PROPERTY
-          LL_TEST_ADDITIONAL_LIBRARIES ${test_libs}
-  )
-
-  LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
-
-  #set(TEST_DEBUG on)
-
-  set(test_libs
-          llfilesystem
-          llmath
-          llcommon
-          llmessage
-          llcorehttp
-          llxml
-          llui
-          llplugin
-          llappearance
-          lllogin
-          llprimitive
-          lllogin
-          )
-
-  LL_ADD_INTEGRATION_TEST(cppfeatures
-    ""
-    "${test_libs}"
-    )
-
-  LL_ADD_INTEGRATION_TEST(llsechandler_basic
-    llsechandler_basic.cpp
-    "${test_libs}"
-    )
-
-  LL_ADD_INTEGRATION_TEST(llsecapi
-     llsecapi.cpp
-    "${test_libs}"
-    )
-
-  set(llslurl_test_sources
-      llslurl.cpp
-      llviewernetwork.cpp
-  )
-
-  LL_ADD_INTEGRATION_TEST(llslurl
-     "${llslurl_test_sources}"
-    "${test_libs}"
-    )
-
-  set(llviewercontrollistener_test_sources
-    llviewercontrollistener.cpp
-    ../llxml/llcontrol.cpp
-    ../llxml/llxmltree.cpp
-    ../llxml/llxmlparser.cpp
-    ../llcommon/commoncontrol.cpp
-    )
-
-  LL_ADD_INTEGRATION_TEST(llviewercontrollistener
-    "${llviewercontrollistener_test_sources}"
-    "${test_libs}"
-    )
-
-  LL_ADD_INTEGRATION_TEST(llviewernetwork
-     llviewernetwork.cpp
-    "${test_libs}"
-    )
-
-  LL_ADD_INTEGRATION_TEST(llviewerassetstats
-    llviewerassetstats.cpp
-    "${test_libs}"
-    )
-
-# LL_ADD_INTEGRATION_TEST(llhttpretrypolicy "llhttpretrypolicy.cpp" "${test_libs}")
-
-  #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
-  #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
-  #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
-  #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
+  add_subdirectory(tests_doctest)
 
 
 endif (LL_TESTS)

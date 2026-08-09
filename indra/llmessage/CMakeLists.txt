@@ -192,28 +192,6 @@ target_include_directories( llmessage  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 # tests
 if (LL_TESTS)
-  SET(llmessage_TEST_SOURCE_FILES
-    llcoproceduremanager.cpp
-    llnamevalue.cpp
-    lltrustedmessageservice.cpp
-    lltemplatemessagedispatcher.cpp
-    )
-  set_property( SOURCE ${llmessage_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_LIBRARIES llmath llcorehttp)
-  LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
-
-  #    set(TEST_DEBUG on)
-
-  set(test_libs
-          llfilesystem
-          llmath
-          llcorehttp
-          llmessage
-          llcommon
-          )
-
-  #LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
+  include(Doctest)
+  add_subdirectory(tests_doctest)
 endif (LL_TESTS)
-

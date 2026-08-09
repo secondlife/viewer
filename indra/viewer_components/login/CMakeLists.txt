@@ -5,6 +5,7 @@ project(login)
 include(00-Common)
 if(LL_TESTS)
   include(LLAddBuildTest)
+  include(Doctest)
 endif(LL_TESTS)
 include(LLCommon)
 include(LLCoreHttp)
@@ -36,14 +37,30 @@ target_link_libraries(lllogin
     )
 
 if(LL_TESTS)
-  SET(lllogin_TEST_SOURCE_FILES
-      lllogin.cpp
-      )
-  set_source_files_properties(
-    lllogin.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES llmessage llcorehttp llcommon
-    )
+  enable_testing()
+  add_executable(login_doctest
+      tests/lllogin_doctest.cpp
+      ${CMAKE_SOURCE_DIR}/test/doctest_main.cpp
+      ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
+  )
 
-  LL_ADD_PROJECT_UNIT_TESTS(lllogin "${lllogin_TEST_SOURCE_FILES}")
+  target_include_directories(login_doctest
+      PRIVATE
+          ${DOCTEST_INCLUDE_DIR}
+          ${CMAKE_SOURCE_DIR}/extern/doctest
+          ${CMAKE_SOURCE_DIR}/test
+          ${CMAKE_CURRENT_SOURCE_DIR}
+          ${CMAKE_CURRENT_SOURCE_DIR}/tests
+  )
+
+  target_link_libraries(login_doctest
+      lllogin
+      llmessage
+      llcorehttp
+      llcommon
+      llmath
+      llxml
+  )
+
+  add_test(NAME login_doctest COMMAND login_doctest)
 endif(LL_TESTS)

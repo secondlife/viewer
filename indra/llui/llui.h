@@ -38,6 +38,7 @@
 #include "lluicolor.h"
 #include "lluicolortable.h"
 #include "lluiimage.h"
+#include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 #include "llframetimer.h"
 #include "v2math.h"

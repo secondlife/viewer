@@ -59,16 +59,6 @@ target_include_directories( llfilesystem  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR
 # Add tests
 if (LL_TESTS)
     include(LLAddBuildTest)
-    # UNIT TESTS
-    SET(llfilesystem_TEST_SOURCE_FILES
-    lldiriterator.cpp
-    )
-
-    LL_ADD_PROJECT_UNIT_TESTS(llfilesystem "${llfilesystem_TEST_SOURCE_FILES}")
-
-    # INTEGRATION TESTS
-    set(test_libs llmath llcommon llfilesystem )
-
-    # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
-    LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")
+    include(Doctest)
+    add_subdirectory(tests_doctest)
 endif (LL_TESTS)

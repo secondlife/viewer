@@ -24,6 +24,8 @@ project(${ROOT_PROJECT_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"  "${CMAKE_CURRENT_BINARY_DIR}")
 
+enable_testing()
+
 include(conanbuildinfo OPTIONAL RESULT_VARIABLE USE_CONAN )
 if( USE_CONAN )
     set( USE_CONAN ON )
@@ -92,11 +94,6 @@ add_subdirectory(${LIBS_OPEN_PREFIX}llplugin)
 add_subdirectory(${LIBS_OPEN_PREFIX}llui)
 add_subdirectory(${LIBS_OPEN_PREFIX}viewer_components)
 
-if( LL_TESTS )
-# Legacy C++ tests. Build always, run if LL_TESTS is true.
-add_subdirectory(${VIEWER_PREFIX}test)
-endif()
-
 if (ENABLE_MEDIA_PLUGINS)
 # viewer media plugins
 add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
@@ -147,4 +144,3 @@ if (LL_TESTS)
   # individual apps can add themselves as dependencies
   add_subdirectory(${INTEGRATION_TESTS_PREFIX}integration_tests)
 endif (LL_TESTS)
-

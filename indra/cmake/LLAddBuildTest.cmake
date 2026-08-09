@@ -28,6 +28,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   set(alltest_SOURCE_FILES
           ${CMAKE_SOURCE_DIR}/test/test.cpp
           ${CMAKE_SOURCE_DIR}/test/lltut.cpp
+          ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
           )
   set(alltest_DEP_TARGETS
           # needed by the test harness itself
@@ -200,6 +201,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
           tests/${testname}_test.cpp
           ${CMAKE_SOURCE_DIR}/test/test.cpp
           ${CMAKE_SOURCE_DIR}/test/lltut.cpp
+          ${CMAKE_SOURCE_DIR}/test/lltest_harness.cpp
           ${additional_source_files}
           )
 

@@ -96,42 +96,6 @@ target_include_directories( llcorehttp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../ll
 set(LLCOREHTTP_TESTS ON CACHE BOOL
     "Build and run llcorehttp integration tests specifically")
 if (LL_TESTS AND LLCOREHTTP_TESTS)
-  SET(llcorehttp_TEST_SOURCE_FILES
-      )
-
-  set(llcorehttp_TEST_HEADER_FILES
-      tests/test_httpstatus.hpp
-      tests/test_refcounted.hpp
-      tests/test_httpoperation.hpp
-      tests/test_httprequest.hpp
-      tests/test_httprequestqueue.hpp
-      tests/test_httpheaders.hpp
-      tests/test_bufferarray.hpp
-      tests/test_bufferstream.hpp
-      )
-
-  list(APPEND llcorehttp_TEST_SOURCE_FILES ${llcorehttp_TEST_HEADER_FILES})
-
-  # LL_ADD_PROJECT_UNIT_TESTS(llcorehttp "${llcorehttp_TEST_SOURCE_FILES}")
-
-  #    set(TEST_DEBUG on)
-  set(test_libs
-          llcorehttp
-          llmessage
-          llcommon
-      )
-
-  # If http_proxy is in the current environment (e.g. to fetch s3-proxy
-  # autobuild packages), suppress it for this integration test: it screws up
-  # the tests.
-  LL_ADD_INTEGRATION_TEST(llcorehttp
-                          "${llcorehttp_TEST_SOURCE_FILES}"
-                          "${test_libs}"
-                          "-Dhttp_proxy"
-                          ${PYTHON_EXECUTABLE}
-                          "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
-                          )
- 
   #
   # Example Programs
   #
@@ -164,5 +128,7 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
   endif (WINDOWS)
 
   target_link_libraries(http_texture_load ${example_libs})
+
+  add_subdirectory(tests_doctest)
 
 endif (LL_TESTS AND LLCOREHTTP_TESTS)

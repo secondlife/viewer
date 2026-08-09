@@ -10,6 +10,8 @@ include(Tut)
 include(LLAddBuildTest)
 include(bugsplat)
 
+return()
+
 set(test_SOURCE_FILES
     io.cpp
     llapp_tut.cpp
@@ -31,6 +33,7 @@ set(test_SOURCE_FILES
     llstreamtools_tut.cpp
     lltemplatemessagebuilder_tut.cpp
     lltut.cpp
+    lltest_harness.cpp
     message_tut.cpp
     test.cpp
     )
