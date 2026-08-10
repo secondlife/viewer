@@ -1113,7 +1113,20 @@ void LLWebRTCPeerConnectionImpl::closeOnSignalingThread()
 
         // NOTE: Close() delivers any pending GetStats report inline, before it
         // returns, so the observer list below must still be valid here.
-        mPeerConnection->Close();
+        try
+        {
+            mPeerConnection->Close();
+        }
+        catch (const std::out_of_range&)
+        {
+            RTC_LOG(LS_WARNING) << __FUNCTION__
+                << ": std::out_of_range in PeerConnection::Close()";
+        }
+        catch (const std::exception& e)
+        {
+            RTC_LOG(LS_WARNING) << __FUNCTION__
+                << ": exception in PeerConnection::Close(): " << e.what();
+        }
         if (mLocalStream)
         {
             auto tracks = mLocalStream->GetAudioTracks();
