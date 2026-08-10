@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,97 +27,46 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterbuycurrencyhtml.h"
-#include "llhttpconstants.h"
-#include "llstatusbar.h"
+#include "llmediactrl.h"
+#include "llviewercontrol.h"
+#include "llweb.h"
 
-////////////////////////////////////////////////////////////////////////////////
-//
-LLFloaterBuyCurrencyHTML::LLFloaterBuyCurrencyHTML( const LLSD& key ):
-    LLFloater( key ),
-    mSpecificSumRequested( false ),
-    mMessage( "" ),
-    mSum( 0 )
+
+LLFloaterBuyCurrencyHTML::LLFloaterBuyCurrencyHTML(const LLSD& key)
+    :   LLFloater(key),
+        mBrowser(nullptr)
 {
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
+LLFloaterBuyCurrencyHTML::~LLFloaterBuyCurrencyHTML()
+{
+}
+
 bool LLFloaterBuyCurrencyHTML::postBuild()
 {
-    // observer media events
-    mBrowser = getChild<LLMediaCtrl>( "browser" );
-    mBrowser->addObserver( this );
-
+    mBrowser = getChild<LLMediaCtrl>("browser");
+    mBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+    LLViewerMedia::getInstance()->getOpenIDCookie(mBrowser);
     return true;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
 void LLFloaterBuyCurrencyHTML::navigateToFinalURL()
 {
-    // URL for actual currency buy contents is in XUI file
-    std::string buy_currency_url = getString( "buy_currency_url" );
+    std::string buy_currency_url = gSavedSettings.getString("BuyCurrencyPacksURL");
 
-    // replace [LANGUAGE] meta-tag with view language
     LLStringUtil::format_map_t replace;
-
-    // viewer language
-    replace[ "[LANGUAGE]" ] = LLUI::getLanguage();
-
-    // flag that specific amount requested
-    replace[ "[SPECIFIC_AMOUNT]" ] = ( mSpecificSumRequested ? "y":"n" );
-
-    // amount requested
-    std::ostringstream codec( "" );
-    codec << mSum;
-    replace[ "[SUM]" ] = codec.str();
-
-    // users' current balance
-    codec.clear();
-    codec.str( "" );
-    codec << gStatusBar->getBalance();
-    replace[ "[BAL]" ] = codec.str();
-
-    // message - "This cost L$x,xxx for example
-    replace[ "[MSG]" ] = LLURI::escape( mMessage );
-    LLStringUtil::format( buy_currency_url, replace );
-
-    // write final URL to debug console
-    LL_INFOS() << "Buy currency HTML parsed URL is " << buy_currency_url << LL_ENDL;
-
-    // kick off the navigation
-    mBrowser->navigateTo( buy_currency_url, HTTP_CONTENT_TEXT_HTML );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLFloaterBuyCurrencyHTML::handleMediaEvent( LLPluginClassMedia* self, EMediaEvent event )
-{
-    // placeholder for now - just in case we want to catch media events
-    if ( LLPluginClassMediaOwner::MEDIA_EVENT_NAVIGATE_COMPLETE == event )
+    replace["[LANGUAGE]"] = LLUI::getLanguage();
+    if (mShortfall > 0)
     {
-        // update currency after we complete a navigation since there are many ways
-        // this can result in a different L$ balance
-        LLStatusBar::sendMoneyBalanceRequest();
-    };
-}
+        replace["[SHORTFALL]"] = std::to_string(mShortfall);
+    }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLFloaterBuyCurrencyHTML::onClose( bool app_quitting )
-{
-    // Update L$ balance one more time
-    LLStatusBar::sendMoneyBalanceRequest();
+    LLStringUtil::format(buy_currency_url, replace);
 
-    destroy();
-}
+    if (mShortfall <= 0)
+    {
+        LLStringUtil::replaceString(buy_currency_url, "&shortfall=[SHORTFALL]", "");
+    }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-void LLFloaterBuyCurrencyHTML::setParams( bool specific_sum_requested, const std::string& message, S32 sum )
-{
-    // save these away - used to construct URL later
-    mSpecificSumRequested = specific_sum_requested;
-    mMessage = message;
-    mSum = sum;
+    mBrowser->navigateTo(buy_currency_url, HTTP_CONTENT_TEXT_HTML);
 }

@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
- can_resize="false"
+ can_resize="true"
+ can_minimize="false"
  can_close="true"
- width="422"
- height="202"
+ min_width="360"
+ min_height="400"
+ width="450"
+ height="650"
  layout="topleft"
  name="floater_buy_currency_html"
- help_topic="floater_buy_currency_html"
  save_rect="true"
  single_instance="true"
- title="BUY CURRENCY"
->
-  <floater.string
-    name="buy_currency_url" translate="false">
-    https://quick-buy.secondlife.com/[LANGUAGE]/display/?sa=[SPECIFIC_AMOUNT]&amp;sum=[SUM]&amp;msg=[MSG]&amp;bal=[BAL]
-  </floater.string>
+ title="BUY L$">
   <web_browser
     trusted_content="true" 
     follows="all"
