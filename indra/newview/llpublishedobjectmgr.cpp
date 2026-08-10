@@ -72,7 +72,13 @@ namespace
         }
 
         LLSelectNode* node = LLSelectMgr::instance().getSelection()->findNode(obj);
-        return (node && !node->mName.empty()) ? node->mName : std::string();
+        if (node && !node->mName.empty())
+        {
+            return node->mName;
+        }
+
+        // Never emit an empty prim/object name to downstream tooling.
+        return obj->getID().asString();
     }
 }
 
@@ -162,6 +168,37 @@ bool LLPublishedObjectMgr::markPendingPublishPrimReady(const LLUUID& object_id, 
 
     it->second.mPendingPrims.erase(prim_id);
     return it->second.mPendingPrims.empty();
+}
+
+void LLPublishedObjectMgr::recordPendingPropertyChange(
+    const LLUUID& root_id,
+    const LLUUID& prim_id,
+    const std::string& name,
+    const std::string& desc)
+{
+    auto it = mPendingPublishes.find(root_id);
+    if (it == mPendingPublishes.end())
+    {
+        return;
+    }
+
+    PendingPublish& pending = it->second;
+    if (prim_id == root_id)
+    {
+        pending.mHasRootProperties = true;
+        pending.mObjectDescription = desc;
+        if (!name.empty())
+        {
+            pending.mObjectName = name;
+        }
+        return;
+    }
+
+    if (!name.empty())
+    {
+        pending.mPrimNames[prim_id] = name;
+    }
+    pending.mPrimDescriptions[prim_id] = desc;
 }
 
 std::vector<std::unique_ptr<LLPublishedPrimListener>> LLPublishedObjectMgr::takePendingPublishListeners(const LLUUID& object_id)
@@ -387,6 +424,7 @@ LLSD LLPublishedObjectMgr::buildObjectListLLSD() const
             link["link_id"]     = prim_info.mPrimID;
             link["link_number"] = prim_info.mLinkNumber;
             link["link_name"]   = prim_info.mPrimName;
+            link["link_description"] = prim_info.mPrimDescription;
             link["inventory"]   = buildPrimInventoryLLSD(child);
             linked_objects.append(link);
         }
@@ -428,7 +466,13 @@ bool LLPublishedObjectMgr::buildLinksetUpdateLLSD(
         {
             link_name = prim_info.mPrimName;
         }
+        std::string link_desc = prim ? nv_string(prim, "Desc") : std::string();
+        if (link_desc.empty())
+        {
+            link_desc = prim_info.mPrimDescription;
+        }
         entry["link_name"] = link_name;
+        entry["link_description"] = link_desc;
         entry["inventory"] = prim ? buildPrimInventoryLLSD(prim) : LLSD::emptyArray();
 
         linked_objects.append(entry);
@@ -463,6 +507,7 @@ bool LLPublishedObjectMgr::reconcileLinksetChildAdded(
     PublishedPrimInfo prim_info;
     prim_info.mPrimID          = child_id;
     prim_info.mPrimName        = get_prim_name(child);
+    prim_info.mPrimDescription = nv_string(child, "Desc");
     prim_info.mLinkNumber      = static_cast<S32>(info->mPrims.size()) + 1;
     prim_info.mInventorySerial = -1;
     info->mPrims.push_back(prim_info);
@@ -584,6 +629,7 @@ LLPublishedObjectMgr::reconcileInventoryChanged(
             if (p.mPrimID == prim_id)
             {
                 p.mPrimName        = get_prim_name(prim);
+                p.mPrimDescription = nv_string(prim, "Desc");
                 p.mInventorySerial = 0;
                 break;
             }
@@ -633,7 +679,8 @@ bool LLPublishedObjectMgr::applyPropertyChange(
 
     if (prim_id == root_id)
     {
-        bool name_changed = (pub_info->mObjectName != name);
+        bool has_name = !name.empty();
+        bool name_changed = has_name && (pub_info->mObjectName != name);
         bool desc_changed = (pub_info->mObjectDescription != desc);
         if (!name_changed && !desc_changed)
         {
@@ -659,15 +706,25 @@ bool LLPublishedObjectMgr::applyPropertyChange(
     {
         return false;
     }
-    if (prim_it->mPrimName == name)
+    const bool name_changed = !name.empty() && prim_it->mPrimName != name;
+    const bool desc_changed = prim_it->mPrimDescription != desc;
+    if (!name_changed && !desc_changed)
     {
         return false;
     }
 
-    prim_it->mPrimName = name;
     LLSD modified_entry;
-    modified_entry["link_id"]   = prim_id;
-    modified_entry["link_name"] = name;
+    modified_entry["link_id"] = prim_id;
+    if (name_changed)
+    {
+        prim_it->mPrimName = name;
+        modified_entry["link_name"] = name;
+    }
+    if (desc_changed)
+    {
+        prim_it->mPrimDescription = desc;
+        modified_entry["link_description"] = desc;
+    }
     LLSD modified_arr = LLSD::emptyArray();
     modified_arr.append(modified_entry);
     update["changes"]["linked_objects"]["modified"] = modified_arr;
@@ -792,8 +849,44 @@ LLPublishedObjectMgr::PublishedObjectInfo& LLPublishedObjectMgr::finalizePending
     const LLUUID& object_id, PublishedObjectInfo&& info)
 {
     PublishedObjectInfo& published_info = mPublishedObjects[object_id];
+    auto pending_it = mPendingPublishes.find(object_id);
     published_info = std::move(info);
-    published_info.mListeners = takePendingPublishListeners(object_id);
+
+    if (pending_it != mPendingPublishes.end())
+    {
+        PendingPublish& pending = pending_it->second;
+        if (pending.mHasRootProperties)
+        {
+            if (!pending.mObjectName.empty())
+            {
+                published_info.mObjectName = pending.mObjectName;
+            }
+            published_info.mObjectDescription = pending.mObjectDescription;
+        }
+
+        for (PublishedPrimInfo& prim_info : published_info.mPrims)
+        {
+            auto name_it = pending.mPrimNames.find(prim_info.mPrimID);
+            if (name_it != pending.mPrimNames.end() && !name_it->second.empty())
+            {
+                prim_info.mPrimName = name_it->second;
+            }
+
+            auto desc_it = pending.mPrimDescriptions.find(prim_info.mPrimID);
+            if (desc_it != pending.mPrimDescriptions.end())
+            {
+                prim_info.mPrimDescription = desc_it->second;
+            }
+        }
+
+        published_info.mListeners = std::move(pending.mListeners);
+        mPendingPublishes.erase(pending_it);
+    }
+    else
+    {
+        published_info.mListeners = takePendingPublishListeners(object_id);
+    }
+
     return published_info;
 }
 

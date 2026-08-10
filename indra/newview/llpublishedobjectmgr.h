@@ -49,6 +49,7 @@ public:
         LLUUID      mPrimID;
         std::string mPrimName;
         S32         mLinkNumber;
+        std::string mPrimDescription;
         S16         mInventorySerial;
     };
 
@@ -82,6 +83,11 @@ public:
         LLUUID      mObjectID;
         std::set<LLUUID> mPendingPrims;
         std::vector<std::unique_ptr<LLPublishedPrimListener>> mListeners;
+        bool        mHasRootProperties{ false };
+        std::string mObjectName;
+        std::string mObjectDescription;
+        std::map<LLUUID, std::string> mPrimNames;
+        std::map<LLUUID, std::string> mPrimDescriptions;
     };
 
     enum class InventoryChangeKind
@@ -153,6 +159,11 @@ public:
     bool hasPendingPublish(const LLUUID& object_id) const;
     bool markPendingPublishPrimReady(const LLUUID& object_id, const LLUUID& prim_id);
     std::vector<std::unique_ptr<LLPublishedPrimListener>> takePendingPublishListeners(const LLUUID& object_id);
+    void recordPendingPropertyChange(
+        const LLUUID& root_id,
+        const LLUUID& prim_id,
+        const std::string& name,
+        const std::string& desc);
     void cancelPendingPublish(const LLUUID& object_id);
     PublishedObjectInfo& finalizePendingPublish(const LLUUID& object_id, PublishedObjectInfo&& info);
     bool cleanupObjectStateForUnpublish(const LLUUID& object_id);

@@ -2086,7 +2086,13 @@ std::string LLScriptEditorWSServer::getPrimName(LLViewerObject* obj)
     }
 
     LLSelectNode* node = LLSelectMgr::instance().getSelection()->findNode(obj);
-    return (node && !node->mName.empty()) ? node->mName : std::string();
+    if (node && !node->mName.empty())
+    {
+        return node->mName;
+    }
+
+    // Never emit an empty prim/object name to downstream tooling.
+    return obj->getID().asString();
 }
 
 bool LLScriptEditorWSServer::publishObject(const LLUUID& object_id)
@@ -2113,6 +2119,13 @@ bool LLScriptEditorWSServer::publishObject(const LLUUID& object_id)
 
     // Collect root + all children
     std::vector<LLViewerObject*> prims = collect_linkset(root);
+
+    // Request object properties for each prim in the linkset (root + children),
+    // matching the hover path so name/description metadata is refreshed.
+    for (LLViewerObject* prim : prims)
+    {
+        LLSelectMgr::instance().requestObjectPropertiesFamily(prim);
+    }
 
     // Set up a PendingPublish to coordinate inventory loading across all prims.
     // We register a listener and call requestInventory() on every prim.
@@ -2196,6 +2209,31 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
 
     LLPublishedObjectMgr::PublishedObjectInfo& published_info = mPublishedObjectManager.finalizePendingPublish(object_id, std::move(info));
 
+    // Align outgoing publish payload with any property responses that arrived
+    // while inventory-gated publish was still pending.
+    pub["object_name"] = published_info.mObjectName;
+    pub["object_description"] = published_info.mObjectDescription;
+    if (pub.has("linked_objects"))
+    {
+        LLSD& linked_objects = pub["linked_objects"];
+        for (S32 i = 0; i < linked_objects.size(); ++i)
+        {
+            const LLUUID link_id = linked_objects[i]["link_id"].asUUID();
+            auto prim_it = std::find_if(
+                published_info.mPrims.begin(),
+                published_info.mPrims.end(),
+                [&](const LLPublishedObjectMgr::PublishedPrimInfo& p)
+                {
+                    return p.mPrimID == link_id;
+                });
+            if (prim_it != published_info.mPrims.end())
+            {
+                linked_objects[i]["link_name"] = prim_it->mPrimName;
+                linked_objects[i]["link_description"] = prim_it->mPrimDescription;
+            }
+        }
+    }
+
     // Send notification
     LLSD message;
     message["object"] = pub;
@@ -2204,6 +2242,13 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
     LL_INFOS("ScriptEditorWS") << "Published object " << object_id
         << " (" << pub["object_name"].asString() << ") with "
         << (prims.size() - 1) << " linked prim(s)" << LL_ENDL;
+
+    // Re-request object properties now that the object is published so
+    // onObjectPropertyChanged can emit object.update for root and linked prims.
+    for (LLViewerObject* prim : prims)
+    {
+        LLSelectMgr::instance().requestObjectPropertiesFamily(prim);
+    }
 }
 
 void LLScriptEditorWSServer::onLinksetChildAdded(const LLUUID& root_id, LLViewerObject* child)
@@ -2343,6 +2388,8 @@ void LLScriptEditorWSServer::onObjectPropertyChanged(
     }
 
     LLUUID root_id = prim->getRootEdit()->getID();
+
+    mPublishedObjectManager.recordPendingPropertyChange(root_id, prim_id, name, desc);
 
     bool should_refresh_inventory = mPublishedObjectManager.markPrimInventorySerialAndDetectChange(
         root_id,
