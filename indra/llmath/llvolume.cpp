@@ -52,6 +52,7 @@
 #include "llmeshoptimizer.h"
 #include "lltimer.h"
 #include "llvolumeoctree.h"
+#include "workqueue.h"
 
 #include "mikktspace/mikktspace.hh"
 
@@ -2301,30 +2302,149 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
-    //input stream is now pointing at a zlib compressed block of LLSD
-    //decompress block
-    LLSD mdl;
-    U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, is, size);
-    if (uzip_result != LLUZipHelper::ZR_OK)
+    // Sanity-check before even trying to decompress
+    constexpr S32 MAX_MESH_COMPRESSED_SIZE = 128 * 1024 * 1024; // 128 MB
+    const LLUUID& mesh_id = getParams().getSculptID();
+
+    if (size <= 0 || size > MAX_MESH_COMPRESSED_SIZE)
     {
-        LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD with code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+        LL_WARNS("MeshStreaming") << "Rejecting implausible compressed mesh size " << size
+            << " for mesh id " << mesh_id << LL_ENDL;
         return false;
     }
-    return unpackVolumeFacesInternal(mdl);
+
+    //input stream is now pointing at a zlib compressed block of LLSD
+    //decompress block
+    try
+    {
+        LLSD mdl;
+        U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, is, size);
+        if (uzip_result != LLUZipHelper::ZR_OK)
+        {
+            LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD with code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+            return false;
+        }
+        return unpackVolumeFacesInternal(mdl);
+    }
+    catch (const std::bad_alloc&)
+    {
+        constexpr S32 SMALL_MESH_THRESHOLD = 4000;
+        if (size < SMALL_MESH_THRESHOLD)
+        {
+            // showOutOfMemory and LL_ERRS must run on the main thread.
+            // Post to mainloop WorkQueue, mirroring LLThread::tryRun().
+            LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+            bool done = false;
+            if (main_queue)
+            {
+                const LLUUID mesh_id_copy = mesh_id; // capture by value for the lambda
+                done = main_queue->post([mesh_id_copy, size]()
+                {
+                    LLError::LLUserWarningMsg::showOutOfMemory();
+                    LL_ERRS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id_copy
+                        << " of compressed size " << size << LL_ENDL;
+                });
+            }
+            if (!done)
+            {
+                // No main queue available (e.g. during shutdown)
+                LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                    << " of compressed size " << size << " (main queue unavailable)" << LL_ENDL;
+            }
+        }
+        else
+        {
+            LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                << " of compressed size " << size << LL_ENDL;
+        }
+        return false;
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS("MeshStreaming") << "Exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << ": " << e.what() << LL_ENDL;
+        return false;
+    }
+    catch (...)
+    {
+        LL_WARNS("MeshStreaming") << "Unknown exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << LL_ENDL;
+        return false;
+    }
 }
 
 bool LLVolume::unpackVolumeFaces(U8* in_data, S32 size)
 {
-    //input data is now pointing at a zlib compressed block of LLSD
-    //decompress block
-    LLSD mdl;
-    U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, in_data, size);
-    if (uzip_result != LLUZipHelper::ZR_OK)
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+    constexpr S32 MAX_MESH_COMPRESSED_SIZE = 128 * 1024 * 1024; // 128 MB
+    const LLUUID& mesh_id = getParams().getSculptID();
+
+    if (!in_data || size <= 0 || size > MAX_MESH_COMPRESSED_SIZE)
     {
-        LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD with code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+        LL_WARNS("MeshStreaming") << "Rejecting implausible compressed mesh size " << size
+            << " for mesh id " << mesh_id << LL_ENDL;
         return false;
     }
-    return unpackVolumeFacesInternal(mdl);
+
+    //input data is now pointing at a zlib compressed block of LLSD
+    //decompress block
+    try
+    {
+        LLSD mdl;
+        U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, in_data, size);
+        if (uzip_result != LLUZipHelper::ZR_OK)
+        {
+            LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD, mesh id " << mesh_id
+                << ", code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+            return false;
+        }
+        return unpackVolumeFacesInternal(mdl);
+    }
+    catch (const std::bad_alloc&)
+    {
+        constexpr S32 SMALL_MESH_THRESHOLD = 4000;
+        if (size < SMALL_MESH_THRESHOLD)
+        {
+            // showOutOfMemory and LL_ERRS must run on the main thread.
+            // Post to mainloop WorkQueue, mirroring LLThread::tryRun().
+            LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+            bool done = false;
+            if (main_queue)
+            {
+                const LLUUID mesh_id_copy = mesh_id; // capture by value for the lambda
+                done = main_queue->post([mesh_id_copy, size]()
+                {
+                    LLError::LLUserWarningMsg::showOutOfMemory();
+                    LL_ERRS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id_copy
+                        << " of compressed size " << size << LL_ENDL;
+                });
+            }
+            if (!done)
+            {
+                // No main queue available (e.g. during shutdown)
+                LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                    << " of compressed size " << size << " (main queue unavailable)" << LL_ENDL;
+            }
+        }
+        else
+        {
+            LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                << " of compressed size " << size << LL_ENDL;
+        }
+        return false;
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS("MeshStreaming") << "Exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << ": " << e.what() << LL_ENDL;
+        return false;
+    }
+    catch (...)
+    {
+        LL_WARNS("MeshStreaming") << "Unknown exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << LL_ENDL;
+        return false;
+    }
 }
 
 bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
