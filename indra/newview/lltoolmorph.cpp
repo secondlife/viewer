@@ -192,17 +192,20 @@ void LLVisualParamHint::preRender(bool clear_depth)
         gAgentAvatarp->updateGeometry(gAgentAvatarp->mDrawable);
         gAgentAvatarp->updateLOD();
 
-        if (gAgentAvatarp->mDrawable->isState(LLDrawable::REBUILD_GEOMETRY))
+        if (gAgentAvatarp->mDrawable->isState(LLDrawable::REBUILD_GEOMETRY)
+            || gAgentAvatarp->mDirtyMesh > 0)
         {
-            LL_WARNS_ONCE("ParamHint") << "preRender: clearing REBUILD_GEOMETRY after updateGeometry/updateLOD"
+            // updateLOD marks meshes for an update.
+            LL_DEBUGS("ParamHint") << "preRender: updateMeshData"
                 << " param=" << mVisualParam->getName()
                 << " dirtyMesh=" << gAgentAvatarp->mDirtyMesh
+                << " rebuildGeom=" << gAgentAvatarp->mDrawable->isState(LLDrawable::REBUILD_GEOMETRY)
                 << LL_ENDL;
-            // Clear REBUILD_GEOMETRY so that renderSkinned inside generateImpostor
+            // Clear states and force update so that renderSkinned inside generateImpostor
             // does not re-run updateMeshData() with a partially consistent mesh state,
             // which would reassign mFace pointers on some meshes while others are
             // mid-draw with stale vertex offsets.
-            gAgentAvatarp->mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
+            gAgentAvatarp->updateMeshData();
         }
     }
     else
