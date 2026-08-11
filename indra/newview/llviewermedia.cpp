@@ -560,10 +560,14 @@ LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
 // This is the predicate function used to sort sViewerMediaImplList by priority.
 bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
 {
-    if (i1->isForcedUnloaded() != i2->isForcedUnloaded())
+    // isForcedUnloaded can be pricey, avoid a repeat,
+    // note that this one is specifically i2, when everything else is i1
+    // Consider making isForcedUnloaded cache the value temporarily?
+    bool i2_forced_unloaded = i2->isForcedUnloaded();
+    if (i1->isForcedUnloaded() != i2_forced_unloaded)
     {
         // Muted or failed items always go to the end of the list, period.
-        return i2->isForcedUnloaded();
+        return i2_forced_unloaded;
     }
     else if(i1->hasFocus() != i2->hasFocus())
     {
