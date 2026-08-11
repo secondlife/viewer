@@ -160,7 +160,4 @@ void LLBuyCurrencyHTML::closeDialog()
     {
         buy_currency_floater->closeFloater();
     };
-
-    // Update L$ balance in the status bar in case L$ were purchased
-    LLStatusBar::sendMoneyBalanceRequest();
 }

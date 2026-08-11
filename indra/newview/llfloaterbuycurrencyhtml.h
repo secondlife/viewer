@@ -30,7 +30,8 @@
 #include "llmediactrl.h"
 
 class LLFloaterBuyCurrencyHTML:
-    public LLFloater
+    public LLFloater,
+    public LLViewerMediaObserver
 {
     friend class LLFloaterReg;
 
@@ -38,6 +39,9 @@ public:
     LLFloaterBuyCurrencyHTML(const LLSD& key);
     ~LLFloaterBuyCurrencyHTML();
     bool postBuild() override;
+    void onClose(bool app_quitting) override;
+    void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
+
     void navigateToFinalURL();
     void setShortfall(S32 shortfall) { mShortfall = shortfall; }
 

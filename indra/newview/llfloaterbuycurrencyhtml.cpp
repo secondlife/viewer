@@ -28,6 +28,7 @@
 
 #include "llfloaterbuycurrencyhtml.h"
 #include "llmediactrl.h"
+#include "llstatusbar.h"
 #include "llviewercontrol.h"
 #include "llweb.h"
 
@@ -42,9 +43,18 @@ LLFloaterBuyCurrencyHTML::~LLFloaterBuyCurrencyHTML()
 {
 }
 
+void LLFloaterBuyCurrencyHTML::onClose(bool app_quitting)
+{
+    if (!app_quitting)
+        LLStatusBar::sendMoneyBalanceRequest();
+
+    LLFloater::onClose(app_quitting);
+}
+
 bool LLFloaterBuyCurrencyHTML::postBuild()
 {
     mBrowser = getChild<LLMediaCtrl>("browser");
+    mBrowser->addObserver(this);
     mBrowser->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
     LLViewerMedia::getInstance()->getOpenIDCookie(mBrowser);
     return true;
@@ -69,4 +79,13 @@ void LLFloaterBuyCurrencyHTML::navigateToFinalURL()
     }
 
     mBrowser->navigateTo(buy_currency_url, HTTP_CONTENT_TEXT_HTML);
+}
+
+void LLFloaterBuyCurrencyHTML::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
+{
+    if ((LLPluginClassMediaOwner::MEDIA_EVENT_NAVIGATE_COMPLETE == event) &&
+        (self->getNavigateURI().find("done=success") != std::string::npos))
+    {
+        LLStatusBar::sendMoneyBalanceRequest();
+    }
 }
