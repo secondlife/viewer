@@ -560,55 +560,30 @@ LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
 // This is the predicate function used to sort sViewerMediaImplList by priority.
 bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
 {
-    if(i1->isForcedUnloaded() && !i2->isForcedUnloaded())
+    if (i1->isForcedUnloaded() != i2->isForcedUnloaded())
     {
         // Muted or failed items always go to the end of the list, period.
-        return false;
+        return i2->isForcedUnloaded();
     }
-    else if(i2->isForcedUnloaded() && !i1->isForcedUnloaded())
-    {
-        // Muted or failed items always go to the end of the list, period.
-        return true;
-    }
-    else if(i1->hasFocus())
+    else if(i1->hasFocus() != i2->hasFocus())
     {
         // The item with user focus always comes to the front of the list, period.
-        return true;
+        return i1->hasFocus();
     }
-    else if(i2->hasFocus())
-    {
-        // The item with user focus always comes to the front of the list, period.
-        return false;
-    }
-    else if(i1->isParcelMedia())
+    else if(i1->isParcelMedia() != i2->isParcelMedia())
     {
         // The parcel media impl sorts above all other inworld media, unless one has focus.
-        return true;
+        return i1->isParcelMedia();
     }
-    else if(i2->isParcelMedia())
+    else if (i1->getUsedInUI() != i2->getUsedInUI())
     {
-        // The parcel media impl sorts above all other inworld media, unless one has focus.
-        return false;
+        // UI elements sort above inworld media.
+        return i1->getUsedInUI();
     }
-    else if(i1->getUsedInUI() && !i2->getUsedInUI())
-    {
-        // i1 is a UI element, i2 is not.  This makes i1 "less than" i2, so it sorts earlier in our list.
-        return true;
-    }
-    else if(i2->getUsedInUI() && !i1->getUsedInUI())
-    {
-        // i2 is a UI element, i1 is not.  This makes i2 "less than" i1, so it sorts earlier in our list.
-        return false;
-    }
-    else if(i1->isPlayable() && !i2->isPlayable())
+    else if (i1->isPlayable() != i2->isPlayable())
     {
         // Playable items sort above ones that wouldn't play even if they got high enough priority
-        return true;
-    }
-    else if(!i1->isPlayable() && i2->isPlayable())
-    {
-        // Playable items sort above ones that wouldn't play even if they got high enough priority
-        return false;
+        return i1->isPlayable();
     }
     else if(i1->getInterest() == i2->getInterest())
     {
