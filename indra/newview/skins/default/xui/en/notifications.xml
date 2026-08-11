@@ -425,6 +425,17 @@ Initialization with the Marketplace failed because of a system or network error.
     </notification>
 
     <notification
+        icon="alertmodal.tga"
+        name="CannotPasteFolderIntoSelf"
+        type="alertmodal">
+        You cannot paste a folder into itself or into one of its subfolders.
+        <tag>fail</tag>
+        <usetemplate
+          name="okbutton"
+          yestext="OK"/>
+    </notification>
+
+    <notification
      icon="notifytip.tga"
      name="InvalidKeystroke"
      type="notifytip">
