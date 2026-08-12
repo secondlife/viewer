@@ -45,6 +45,7 @@
 #include "llinventorytype.h"
 #include "llinventorydefines.h"
 #include "llnotecard.h"
+#include "llnotificationsutil.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewscript.h"
 #include "llprocess.h"
@@ -261,11 +262,18 @@ LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::ensureServerRunning()
 
     if (!server->isRunning())
     {
+        U16 port = static_cast<U16>(gSavedSettings.getS32("ExternalWebsocketSyncPort"));
+        LLSD args;
+        args["PORT"] = static_cast<S32>(port);
+
         if (!wsmgr.startServer(DEFAULT_SERVER_NAME))
         {
             LL_WARNS("ScriptEditorWS") << "Failed to start script editor websocket server" << LL_ENDL;
+            LLNotificationsUtil::add("ExternalEditorServerFailed", args);
             return nullptr;
         }
+
+        LLNotificationsUtil::add("ExternalEditorServerStarted", args);
     }
 
     return server;
@@ -377,6 +385,8 @@ void LLScriptEditorWSServer::onStopped()
     mActiveConnections.clear();
 
     LL_INFOS("ScriptEditorWS") << "Script editor WebSocket server stopped, all state cleaned up" << LL_ENDL;
+
+    LLNotificationsUtil::add("ExternalEditorServerStopped");
 }
 
 void LLScriptEditorWSServer::onConnectionOpened(const LLWebsocketMgr::WSConnection::ptr_t& connection)

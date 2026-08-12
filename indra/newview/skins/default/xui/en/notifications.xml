@@ -7056,6 +7056,27 @@ The string [STRING_NAME] is missing from strings.xml
    type="notifytip">
 [MESSAGE]
   </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="ExternalEditorServerStarted"
+   type="notifytip">
+External editor server started on port [PORT].
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="ExternalEditorServerFailed"
+   type="notifytip">
+Failed to start external editor server on port [PORT].
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="ExternalEditorServerStopped"
+   type="notifytip">
+External editor server stopped.
+  </notification>
   
   <notification
    icon="notifytip.tga"
