@@ -2175,6 +2175,7 @@ bool LLAppViewer::cleanup()
     LLWorld::deleteSingleton();
     LLVoiceClient::deleteSingleton();
     LLUI::deleteSingleton();
+    LLGridManager::deleteSingleton();
     LLWatchdog::deleteSingleton();
 
     // It's not at first obvious where, in this long sequence, a generic cleanup
@@ -3009,6 +3010,8 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
+    LLGridManager::createInstance();
+
     LLSLURL start_slurl;
     if (!starting_location.empty())
     {
@@ -3057,6 +3060,7 @@ bool LLAppViewer::initConfiguration()
             // Do not save settings.
             // Might be smarter to have an exit code for a more reliable
             // "early exit, needs cleanup" case.
+            LLGridManager::deleteSingleton();
             LLSingletonBase::deleteAll();
             cleanupConsole();
             delete mSettingsLocationList;
@@ -3117,6 +3121,7 @@ bool LLAppViewer::initConfiguration()
 
         // Since returning 'false' is basically an error without cleanup,
         // do cleanup here. No need to worry about marker files here.
+        LLGridManager::deleteSingleton();
         LLSingletonBase::deleteAll();
         cleanupConsole();
         return false;
