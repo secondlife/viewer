@@ -76,6 +76,7 @@
 #if LL_VELOPACK
 #include "llvelopack.h"
 #endif
+#include "llversioninfovars.h"
 
 // Bugsplat (http://bugsplat.com) crash reporting tool
 #ifdef LL_BUGSPLAT

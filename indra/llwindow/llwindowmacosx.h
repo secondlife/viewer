@@ -36,11 +36,6 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <OpenGL/OpenGL.h>
 
-// AssertMacros.h does bad things.
-#include "fix_macros.h"
-#undef verify
-#undef require
-
 class LLWindowMacOSX : public LLWindow
 {
 public:

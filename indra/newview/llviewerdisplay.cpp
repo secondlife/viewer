@@ -55,7 +55,6 @@
 #include "llmemory.h"
 #include "llparcel.h"
 #include "llperfstats.h"
-#include "llpostprocess.h"
 #include "llrender.h"
 #include "llscenemonitor.h"
 #include "llsdjson.h"
@@ -1074,7 +1073,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         LLGLSLShader::finishProfile(stats);
 
         auto report_name = getProfileStatsFilename();
-        std::ofstream outf(report_name);
+        llofstream outf(report_name);
         if (! outf)
         {
             LL_WARNS() << "Couldn't write to " << std::quoted(report_name) << LL_ENDL;
@@ -1140,15 +1139,12 @@ std::string getProfileStatsFilename()
     // same second), may produce (e.g.) sec==61, but avoids collisions and
     // preserves chronological filename sort order.
     std::string name;
-    std::error_code ec;
     do
     {
         // base + missing 2-digit seconds, append ".json"
         // post-increment sec in case we have to try again
         name = stringize(base, std::setw(2), std::setfill('0'), sec++, ".json");
-    } while (std::filesystem::exists(fsyspath(name), ec));
-    // Ignoring ec means we might potentially return a name that does already
-    // exist -- but if we can't check its existence, what more can we do?
+    } while (LLFile::exists(name));
     return name;
 }
 

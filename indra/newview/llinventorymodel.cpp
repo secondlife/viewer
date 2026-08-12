@@ -2865,7 +2865,7 @@ bool LLInventoryModel::loadSkeleton(
         const S32 NO_VERSION = LLViewerInventoryCategory::VERSION_UNKNOWN;
         std::string gzip_filename(inventory_filename);
         gzip_filename.append(".gz");
-        LLFILE* fp = LLFile::fopen(gzip_filename, "rb");
+        LLFILE* fp = LLFile::fopen(gzip_filename, LLFILE_MODE("rb"));
         bool remove_inventory_file = false;
         if (LLAppViewer::instance()->isSecondInstance())
         {
@@ -5054,7 +5054,7 @@ bool decompress_file(const char* src_filename, const char* dst_filename)
     // open the files
     src = gzopen(src_filename, "rb");
     if(!src) goto err_decompress;
-    dst = LLFile::fopen(dst_filename, "wb");
+    dst = LLFile::fopen(dst_filename, LLFILE_MODE("wb"));
     if(!dst) goto err_decompress;
 
     // decompress.

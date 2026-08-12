@@ -13,7 +13,6 @@ include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
 include(CubemapToEquirectangularJS)
-include(DBusGlib)
 include(DragDrop)
 if (USE_DISCORD)
   include(Discord)
@@ -47,7 +46,6 @@ include(Velopack)
 include(ViewerMiscLibs)
 include(ViewerManager)
 include(VisualLeakDetector)
-include(VulkanGltf)
 include(ZLIBNG)
 include(LLPrimitive)
 
@@ -78,6 +76,8 @@ if (HAVOK)
       endif (DARWIN)
    endif()
 endif ()
+
+configure_file(llversioninfovars.h.in llversioninfovars.h @ONLY)
 
 set(viewer_SOURCE_FILES
     gltfscenemanager.cpp
@@ -532,6 +532,7 @@ set(viewer_SOURCE_FILES
     llpathfindingobjectlist.cpp
     llpathfindingpathtool.cpp
     llpbrterrainfeatures.cpp
+    llperfstats.cpp
     llpersistentnotificationstorage.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
@@ -724,7 +725,6 @@ set(viewer_SOURCE_FILES
     llvoicechannel.cpp
     llvoiceclient.cpp
     llvoicevisualizer.cpp
-    llvoicewebrtc.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
     llvosky.cpp
@@ -1199,6 +1199,7 @@ set(viewer_HEADER_FILES
     llpathfindingobject.h
     llpathfindingobjectlist.h
     llpathfindingpathtool.h
+    llperfstats.h
     llpbrterrainfeatures.h
     llpersistentnotificationstorage.h
     llphysicsmotion.h
@@ -1397,7 +1398,6 @@ set(viewer_HEADER_FILES
     llvoicechannel.h
     llvoiceclient.h
     llvoicevisualizer.h
-    llvoicewebrtc.h
     llvoinventorylistener.h
     llvopartgroup.h
     llvosky.h
@@ -1423,12 +1423,7 @@ set(viewer_HEADER_FILES
     noise.h
     pipeline.h
     roles_constants.h
-    VertexCache.h
-    VorbisFramework.h
     )
-
-  list(APPEND viewer_SOURCE_FILES llperfstats.cpp)
-  list(APPEND viewer_HEADER_FILES llperfstats.h)
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
@@ -1437,11 +1432,10 @@ source_group("CMake Rules" FILES ViewerInstall.cmake)
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt"
            "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}\n")
 
-set_source_files_properties(
-   llversioninfo.cpp tests/llversioninfo_test.cpp
-   PROPERTIES
-   COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
-   )
+if (NOT DISABLE_WEBRTC)
+  LIST(APPEND viewer_SOURCE_FILES llvoicewebrtc.cpp)
+  LIST(APPEND viewer_HEADER_FILES llvoicewebrtc.h)
+endif()
 
 if (DARWIN)
   LIST(APPEND viewer_SOURCE_FILES llappviewermacosx.cpp)
@@ -1470,7 +1464,6 @@ if (DARWIN)
     llappdelegate-objc.mm
     PROPERTIES
     SKIP_PRECOMPILE_HEADERS TRUE
-    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
     # BugsplatMac is a module, imported with @import. That language feature
     # demands these -f switches.
     # Xcode 10.2 requires that Objective-C++ headers declare nullability of
@@ -1513,7 +1506,6 @@ set(macosx_viewer_HEADER_FILES
 
 set(linux_viewer_SOURCE_FILES
     llappviewerlinux.cpp
-    llappviewerlinux_api_dbus.cpp
     )
 
 set(linux_viewer_HEADER_FILES
@@ -1531,14 +1523,6 @@ set(windows_viewer_HEADER_FILES
 
 if (LINUX)
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux.cpp)
-    set_source_files_properties(
-      llappviewerlinux.cpp
-      PROPERTIES
-      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
-      )
-    LIST(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
-    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
-
 endif (LINUX)
 
 if (WINDOWS)
@@ -1548,12 +1532,6 @@ if (WINDOWS)
          llvelopack.cpp
          llwindebug.cpp
          )
-    set_source_files_properties(
-      llappviewerwin32.cpp
-      llvelopack.cpp
-      PROPERTIES
-      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
-      )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
@@ -1767,6 +1745,7 @@ set(viewer_APPSETTINGS_FILES
     packages-info.txt
     featuretable.txt
     featuretable_mac.txt
+    featuretable_linux.txt
     )
 
 source_group("App Settings" FILES ${viewer_APPSETTINGS_FILES})
@@ -1790,6 +1769,15 @@ set_source_files_properties(${viewer_CHARACTER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
 
+set(viewer_MISC_FILES
+    viewer_manifest.py
+    )
+
+set_source_files_properties(${viewer_MISC_FILES}
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+
+list(APPEND viewer_SOURCE_FILES ${viewer_MISC_FILES})
+
 if (WINDOWS)
   file(GLOB viewer_INSTALLER_FILES installers/windows/*.nsi)
 
@@ -1801,13 +1789,6 @@ if (WINDOWS)
   list(APPEND viewer_SOURCE_FILES ${viewer_INSTALLER_FILES})
 endif (WINDOWS)
 
-if( DEFINED LLSTARTUP_COMPILE_FLAGS )
-   # progress view disables/enables icons based on available packages
-   set_source_files_properties(llprogressview.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
-
-   set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
-endif()
-
 list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
 
 add_executable(${VIEWER_BINARY_NAME}
@@ -1815,6 +1796,8 @@ add_executable(${VIEWER_BINARY_NAME}
     MACOSX_BUNDLE
     ${viewer_SOURCE_FILES}
     )
+
+target_include_directories(${VIEWER_BINARY_NAME} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # add package files
 file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
@@ -2053,11 +2036,13 @@ elseif (DARWIN)
       target_link_libraries(${VIEWER_BINARY_NAME} llphysicsextensionsos)
     endif()
 else (WINDOWS)
-        # Linux
-    set_target_properties(${VIEWER_BINARY_NAME}
-        PROPERTIES
-        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
-        )
+    if (HAVOK OR HAVOK_TPV)
+    	# Linux
+    	set_target_properties(${VIEWER_BINARY_NAME}
+        	PROPERTIES
+        	LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -no-pie -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
+        	)
+    endif ()
 endif (WINDOWS)
 
 # *NOTE: - this list is very sensitive to ordering, test carefully on all
@@ -2105,7 +2090,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcorehttp
         llcommon
         llmeshoptimizer
-        llwebrtc
         lllogin
         llprimitive
         llappearance
@@ -2116,8 +2100,12 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::openxr
         )
 
+if (NOT DISABLE_WEBRTC)
+    target_link_libraries(${VIEWER_BINARY_NAME} llwebrtc )
+endif()
+
 if (USE_DISCORD)
-   target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
+    target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
 endif ()
 
 if (TARGET ll::velopack)
@@ -2125,11 +2113,11 @@ if (TARGET ll::velopack)
 endif ()
 
 if( TARGET ll::intel_memops )
-   target_link_libraries(${VIEWER_BINARY_NAME} ll::intel_memops )
+    target_link_libraries(${VIEWER_BINARY_NAME} ll::intel_memops )
 endif()
 
 if( TARGET ll::nvapi )
-   target_link_libraries(${VIEWER_BINARY_NAME} ll::nvapi )
+    target_link_libraries(${VIEWER_BINARY_NAME} ll::nvapi )
 endif()
 
 if ( TARGET llconvexdecomposition )
@@ -2168,13 +2156,12 @@ if (LINUX)
   set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
     SLPlugin
-    #media_plugin_gstreamer010
-    llcommon
+    media_plugin_cef
+    media_plugin_gstreamer10
+    media_plugin_libvlc
+    media_plugin_example
+    llwebrtc
     )
-
-  #if (NOT USE_BUGSPLAT)
-  #    LIST(APPEND COPY_INPUT_DEPENDENCIES linux-crash-logger)
-  #endif (NOT USE_BUGSPLAT)
 
   add_custom_command(
       OUTPUT ${product}.tar.xz
@@ -2407,7 +2394,7 @@ if (LL_TESTS)
     lldateutil.cpp
 #    llmediadataclient.cpp
     lllogininstance.cpp
-#    llremoteparcelrequest.cpp
+    llremoteparcelrequest.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
 #    llvocache.cpp
@@ -2432,21 +2419,24 @@ if (LL_TESTS)
 #  )
 
   set(test_libs
-          llcommon
-          llfilesystem
-          llxml
-          llmessage
-          llcharacter
-          llui
-          lllogin
-          llplugin
-          llappearance
-    )
+    llfilesystem
+    llmath
+    llcommon
+    llmessage
+    llcorehttp
+    llxml
+    llui
+    llplugin
+    llappearance
+    llprimitive
+    lllogin
+  )
 
-  set_source_files_properties(
-    llmediadataclient.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${test_libs}"
+  set_property(SOURCE
+    ${viewer_TEST_SOURCE_FILES}
+    PROPERTY
+    LL_TEST_ADDITIONAL_LIBRARIES 
+    ${test_libs}
   )
 
   set_source_files_properties(
@@ -2458,66 +2448,39 @@ if (LL_TESTS)
   )
 
   set_source_files_properties(
-    llmediadataclient.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES llprimitive
-  )
-
-  set_source_files_properties(
     lllogininstance.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_SOURCE_FILES llversioninfo.cpp
-  )
-
-  set_property( SOURCE
-          ${viewer_TEST_SOURCE_FILES}
-          PROPERTY
-          LL_TEST_ADDITIONAL_LIBRARIES ${test_libs}
+    LL_TEST_ADDITIONAL_SOURCE_FILES
+    llversioninfo.cpp
   )
 
   LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
-
-  set(test_libs
-          llfilesystem
-          llmath
-          llcommon
-          llmessage
-          llcorehttp
-          llxml
-          llui
-          llplugin
-          llappearance
-          lllogin
-          llprimitive
-          lllogin
-          )
-
   LL_ADD_INTEGRATION_TEST(cppfeatures
     ""
     "${test_libs}"
-    )
+  )
 
   LL_ADD_INTEGRATION_TEST(llsechandler_basic
     llsechandler_basic.cpp
     "${test_libs}"
-    )
+  )
 
   LL_ADD_INTEGRATION_TEST(llsecapi
-     llsecapi.cpp
+    llsecapi.cpp
     "${test_libs}"
-    )
+  )
 
   set(llslurl_test_sources
-      llslurl.cpp
-      llviewernetwork.cpp
+    llslurl.cpp
+    llviewernetwork.cpp
   )
 
   LL_ADD_INTEGRATION_TEST(llslurl
-     "${llslurl_test_sources}"
+    "${llslurl_test_sources}"
     "${test_libs}"
-    )
+  )
 
   set(llviewercontrollistener_test_sources
     llviewercontrollistener.cpp
@@ -2525,31 +2488,34 @@ if (LL_TESTS)
     ../llxml/llxmltree.cpp
     ../llxml/llxmlparser.cpp
     ../llcommon/commoncontrol.cpp
-    )
+  )
 
   LL_ADD_INTEGRATION_TEST(llviewercontrollistener
     "${llviewercontrollistener_test_sources}"
     "${test_libs}"
-    )
+  )
 
   LL_ADD_INTEGRATION_TEST(llviewernetwork
-     llviewernetwork.cpp
+    llviewernetwork.cpp
     "${test_libs}"
-    )
+  )
 
   LL_ADD_INTEGRATION_TEST(llviewerassetstats
     llviewerassetstats.cpp
     "${test_libs}"
-    )
+  )
 
-# LL_ADD_INTEGRATION_TEST(llhttpretrypolicy "llhttpretrypolicy.cpp" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llhttpretrypolicy "llhttpretrypolicy.cpp" "${test_libs}")
 
-  #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
-  #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
-  #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
-  #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
-
-
+  set(lltextureinfo_test_sources
+    lltextureinfo.cpp
+    ../llxml/llcontrol.cpp
+    ../llxml/llxmltree.cpp
+    ../llxml/llxmlparser.cpp
+    ../llcommon/commoncontrol.cpp
+  )
+  LL_ADD_INTEGRATION_TEST(lltextureinfo "${lltextureinfo_test_sources}" "${test_libs}")
+  #LL_ADD_INTEGRATION_TEST(lltextureinfodetails "" "${test_libs}") test cases currently empty
 endif (LL_TESTS)
 
 check_message_template(${VIEWER_BINARY_NAME})

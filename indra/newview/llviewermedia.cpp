@@ -1821,6 +1821,13 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
     }
     else
     {
+#if LL_LINUX
+        if(plugin_basename == "media_plugin_gstreamer10" && gSavedSettings.getBOOL("MediaPluginForceVLC"))
+        {
+            plugin_basename = "media_plugin_libvlc";
+        }
+#endif
+
         std::string launcher_name = gDirUtilp->getLLPluginLauncher();
         std::string plugin_name = gDirUtilp->getLLPluginFilename(plugin_basename);
 
@@ -1828,16 +1835,13 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
         user_data_path_cache += gDirUtilp->getDirDelimiter();
 
         // See if the plugin executable exists
-        llstat s;
-        if(LLFile::stat(launcher_name, &s))
+        if (!LLFile::isfile(launcher_name))
         {
             LL_WARNS_ONCE("Media") << "Couldn't find launcher at " << launcher_name << LL_ENDL;
         }
-        else if(LLFile::stat(plugin_name, &s))
+        else if (!LLFile::isfile(plugin_name))
         {
-#if !LL_LINUX
             LL_WARNS_ONCE("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;
-#endif
         }
         else
         {
@@ -1869,6 +1873,11 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
             media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled  || clean_browser);
 
+#if LL_LINUX
+            bool media_plugin_pipewire_volume_catcher = gSavedSettings.getBOOL("MediaPluginPipeWireVolumeCatcher");
+            media_source->enablePipeWireVolumeCatcher( media_plugin_pipewire_volume_catcher );
+#endif
+
             // need to set agent string here before instance created
             media_source->setBrowserUserAgent(LLViewerMedia::getInstance()->getCurrentUserAgent());
 
@@ -1890,9 +1899,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             }
         }
     }
-#if !LL_LINUX
     LL_WARNS_ONCE("Plugin") << "plugin initialization failed for mime type: " << media_type << LL_ENDL;
-#endif
 
     if(gAgent.isInitialized())
     {
@@ -3641,7 +3648,7 @@ LLViewerMediaImpl::canUndo() const
     if (mMediaSource)
         return mMediaSource->canUndo();
     else
-        return FALSE;
+        return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3661,7 +3668,7 @@ LLViewerMediaImpl::canRedo() const
     if (mMediaSource)
         return mMediaSource->canRedo();
     else
-        return FALSE;
+        return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3741,7 +3748,7 @@ LLViewerMediaImpl::canDoDelete() const
     if (mMediaSource)
         return mMediaSource->canDoDelete();
     else
-        return FALSE;
+        return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3761,7 +3768,7 @@ LLViewerMediaImpl::canSelectAll() const
     if (mMediaSource)
         return mMediaSource->canSelectAll();
     else
-        return FALSE;
+        return false;
 }
 
 void LLViewerMediaImpl::setUpdated(bool updated)

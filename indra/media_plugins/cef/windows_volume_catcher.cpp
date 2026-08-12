@@ -44,7 +44,6 @@ public:
 private:
     F32     mVolume;
     F32     mPan;
-    bool mSystemIsVistaOrHigher;
 };
 
 VolumeCatcherImpl::VolumeCatcherImpl()

@@ -89,14 +89,14 @@ static void aprchk_(const char* call, apr_status_t rv, apr_status_t expected=APR
  * @param desc Optional description of the file for error message;
  * defaults to "in <pathname>"
  */
-static std::string readfile(const std::string& pathname, const std::string& desc="")
+static std::string readfile(const std::filesystem::path& pathname, const std::string& desc="")
 {
     std::string use_desc(desc);
     if (use_desc.empty())
     {
-        use_desc = "in " + pathname;
+        use_desc = "in " + pathname.string();
     }
-    std::ifstream inf(pathname.c_str());
+    llifstream  inf(pathname.c_str());
     std::string output;
     if (!std::getline(inf, output))
     {
@@ -183,7 +183,7 @@ struct PythonProcessLauncher
 
         mParams.desc = desc + " script";
         mParams.executable = PYTHON;
-        mParams.args.add(mScript.getName());
+        mParams.args.add(mScript.getPath().string());
     }
 
     /// Launch Python script; verify that it launched
@@ -203,7 +203,7 @@ struct PythonProcessLauncher
             const char* APR_LOG = getenv("APR_LOG");
             if (APR_LOG && *APR_LOG)
             {
-                std::ifstream inf(APR_LOG);
+                llifstream inf(APR_LOG);
                 if (! inf.is_open())
                 {
                     LL_WARNS() << "Couldn't open '" << APR_LOG << "'" << LL_ENDL;
@@ -251,11 +251,11 @@ struct PythonProcessLauncher
     {
         NamedTempFile out("out", ""); // placeholder
         // pass name of this temporary file to the script
-        mParams.args.add(out.getName());
+        mParams.args.add(out.getPath().string());
         run();
         // assuming the script wrote to that file, read it
         std::string desc = "from " + mDesc + " script";
-        return readfile(out.getName(), desc);
+        return readfile(out.getPath(), desc);
     }
 
     LLProcess::Params mParams;
@@ -498,23 +498,23 @@ public:
 
     NamedTempDir():
         mPath(NamedTempFile::temp_path()),
-        mCreated(boost::filesystem::create_directories(mPath))
+        mCreated(std::filesystem::create_directories(mPath))
     {
-        mPath = boost::filesystem::canonical(mPath);
+        mPath = std::filesystem::canonical(mPath);
     }
 
     ~NamedTempDir()
     {
         if (mCreated)
         {
-            boost::filesystem::remove_all(mPath);
+            std::filesystem::remove_all(mPath);
         }
     }
 
     std::string getName() const { return mPath.string(); }
 
 private:
-    boost::filesystem::path mPath;
+    std::filesystem::path mPath;
     bool mCreated;
 };
 
@@ -674,7 +674,7 @@ namespace tut
 #endif
         // Have to have a named copy of this std::string so its c_str() value
         // will persist.
-        std::string scriptname(script.getName());
+        std::string scriptname(script.getPath().string());
         argv.push_back(scriptname.c_str());
         argv.push_back(NULL);
 
@@ -953,14 +953,14 @@ namespace tut
                                  "with open(sys.argv[1], 'w') as f:\n"
                                  "    f.write('bad')\n");
         NamedTempFile out("out", "not started");
-        py.mParams.args.add(out.getName());
+        py.mParams.args.add(out.getPath().string());
         py.launch();
         // Wait for the script to wake up and do its first write
         int i = 0, timeout = 60;
         for ( ; i < timeout; ++i)
         {
             yield();
-            if (readfile(out.getName(), "from kill() script") == "ok")
+            if (readfile(out.getPath(), "from kill() script") == "ok")
                 break;
         }
         // If we broke this loop because of the counter, something's wrong
@@ -979,7 +979,7 @@ namespace tut
         // If kill() failed, the script would have woken up on its own and
         // overwritten the file with 'bad'. But if kill() succeeded, it should
         // not have had that chance.
-        ensure_equals(get_test_name() + " script output", readfile(out.getName()), "ok");
+        ensure_equals(get_test_name() + " script output", readfile(out.getPath()), "ok");
     }
 
     template<> template<>
@@ -999,7 +999,7 @@ namespace tut
                                      "# if caller hasn't managed to kill by now, bad\n"
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('bad')\n");
-            py.mParams.args.add(out.getName());
+            py.mParams.args.add(out.getPath().string());
             py.launch();
             // Capture handle for later
             phandle = py.mPy->getProcessHandle();
@@ -1008,7 +1008,7 @@ namespace tut
             for ( ; i < timeout; ++i)
             {
                 yield();
-                if (readfile(out.getName(), "from kill() script") == "ok")
+                if (readfile(out.getPath(), "from kill() script") == "ok")
                     break;
             }
             // If we broke this loop because of the counter, something's wrong
@@ -1021,7 +1021,7 @@ namespace tut
         // If kill() failed, the script would have woken up on its own and
         // overwritten the file with 'bad'. But if kill() succeeded, it should
         // not have had that chance.
-        ensure_equals(get_test_name() + " script output", readfile(out.getName()), "ok");
+        ensure_equals(get_test_name() + " script output", readfile(out.getPath()), "ok");
     }
 
     template<> template<>
@@ -1051,8 +1051,8 @@ namespace tut
                                      "# okay, saw 'go', write 'ack'\n"
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('ack')\n");
-            py.mParams.args.add(from.getName());
-            py.mParams.args.add(to.getName());
+            py.mParams.args.add(from.getPath().string());
+            py.mParams.args.add(to.getPath().string());
             py.mParams.autokill = false;
             py.launch();
             // Capture handle for later
@@ -1062,7 +1062,7 @@ namespace tut
             for ( ; i < timeout; ++i)
             {
                 yield();
-                if (readfile(from.getName(), "from autokill script") == "ok")
+                if (readfile(from.getPath(), "from autokill script") == "ok")
                     break;
             }
             // If we broke this loop because of the counter, something's wrong
@@ -1074,14 +1074,14 @@ namespace tut
         // How do we know it's not terminated? By making it respond to
         // a specific stimulus in a specific way.
         {
-            std::ofstream outf(to.getName().c_str());
+            llofstream outf(to.getPath());
             outf << "go";
         } // flush and close.
         // now wait for the script to terminate... one way or another.
         waitfor(phandle, "autokill script");
         // If the LLProcess destructor implicitly called kill(), the
         // script could not have written 'ack' as we expect.
-        ensure_equals(get_test_name() + " script output", readfile(from.getName()), "ack");
+        ensure_equals(get_test_name() + " script output", readfile(from.getPath()), "ack");
     }
 
     template<> template<>
@@ -1113,8 +1113,8 @@ namespace tut
                                      "# okay, saw 'go', write 'ack'\n"
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('ack')\n");
-            py.mParams.args.add(from.getName());
-            py.mParams.args.add(to.getName());
+            py.mParams.args.add(from.getPath().string());
+            py.mParams.args.add(to.getPath().string());
             py.mParams.autokill = true;
             py.mParams.attached = false;
             py.launch();
@@ -1125,7 +1125,7 @@ namespace tut
             for ( ; i < timeout; ++i)
             {
                 yield();
-                if (readfile(from.getName(), "from autokill script") == "ok")
+                if (readfile(from.getPath(), "from autokill script") == "ok")
                     break;
             }
             // If we broke this loop because of the counter, something's wrong
@@ -1137,14 +1137,14 @@ namespace tut
         // How do we know it's not terminated? By making it respond to
         // a specific stimulus in a specific way.
         {
-            std::ofstream outf(to.getName().c_str());
+            llofstream outf(to.getPath());
             outf << "go";
         } // flush and close.
         // now wait for the script to terminate... one way or another.
         waitfor(phandle, "autokill script");
         // If the LLProcess destructor implicitly called kill(), the
         // script could not have written 'ack' as we expect.
-        ensure_equals(get_test_name() + " script output", readfile(from.getName()), "ack");
+        ensure_equals(get_test_name() + " script output", readfile(from.getPath()), "ack");
     }
 
     template<> template<>

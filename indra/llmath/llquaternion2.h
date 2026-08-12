@@ -40,8 +40,9 @@
 /////////////////////////////
 #include "llquaternion.h"
 
-class LLQuaternion2
+class alignas(16) LLQuaternion2
 {
+    LL_ALIGN_NEW
 public:
 
     //////////////////////////

@@ -52,7 +52,7 @@ typedef U32 uint32_t;
 #include "llformat.h"
 #include "llmemorystream.h"
 
-#include "../test/hexdump.h"
+#include "hexdump.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
@@ -1860,7 +1860,7 @@ namespace tut
 #if LL_WINDOWS
         std::string q("\"");
         std::string qPYTHON(q + PYTHON + q);
-        std::string qscript(q + scriptfile.getName() + q);
+        std::string qscript(q + scriptfile.getPath().string() + q);
         int rc = (int)_spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(),
                          std::forward<ARGS>(args)..., NULL);
         if (rc == -1)
@@ -1877,7 +1877,7 @@ namespace tut
 #else  // LL_DARWIN, LL_LINUX
         LLProcess::Params params;
         params.executable = PYTHON;
-        params.args.add(scriptfile.getName());
+        params.args.add(scriptfile.getPath().string());
         for (const std::string& arg : StringVec{ std::forward<ARGS>(args)... })
         {
             params.args.add(arg);
@@ -1973,12 +1973,12 @@ namespace tut
             int bufflen{ static_cast<int>(buffstr.length()) };
             out.write(reinterpret_cast<const char*>(&bufflen), sizeof(bufflen));
             LL_DEBUGS() << "Wrote length: "
-                        << hexdump(reinterpret_cast<const char*>(&bufflen),
+                        << LL::hexdump(reinterpret_cast<const char*>(&bufflen),
                                    sizeof(bufflen))
                         << LL_ENDL;
             out.write(buffstr.c_str(), buffstr.length());
             LL_DEBUGS() << "Wrote data:   "
-                        << hexmix(buffstr.c_str(), buffstr.length())
+                        << LL::hexmix(buffstr.c_str(), buffstr.length())
                         << LL_ENDL;
         }
     }
@@ -2054,8 +2054,8 @@ namespace tut
                    "        yield frombytes\n"
                    << pydata <<
                    // Don't forget raw-string syntax for Windows pathnames.
-                   "debug = open(r'" << debug.getName() << "', 'w')\n"
-                   "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n";});
+                   "debug = open(r'" << debug.getPath().string() << "', 'w')\n"
+                   "verify(parse_each(open(r'" << file.getPath().string() << "', 'rb')))\n";});
         }
         catch (const failure&)
         {
@@ -2163,13 +2163,13 @@ namespace tut
                "]\n"
                // Don't forget raw-string syntax for Windows pathnames.
                // N.B. Using 'print' implicitly adds newlines.
-               "with open(r'" << file.getName() << "', 'wb') as f:\n"
+               "with open(r'" << (const char*)file.getPath().u8string().c_str() << "', 'wb') as f:\n"
                "    for item in DATA:\n"
                "        serialized = llsd." << pyformatter << "(item)\n"
                "        f.write(lenformat.pack(len(serialized)))\n"
                "        f.write(serialized)\n";});
 
-        std::ifstream inf(file.getName().c_str());
+        llifstream inf(file.getPath());
         LLSD item;
         try
         {
