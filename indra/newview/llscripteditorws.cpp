@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file llscripteditorws.cpp
  * @brief JSON-RPC 2.0 WebSocket server implementation for external script editor integration
  *
@@ -1930,17 +1930,51 @@ void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, co
 void LLScriptEditorWSServer::forwardChatToIDE(const LLChat& chat_msg) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
-    auto it = std::find_if(mSubscriptions.begin(), mSubscriptions.end(),
-                           [&chat_msg](const auto& pair) { return (pair.second.mObjectID == chat_msg.mFromID); });
 
-    if (it == mSubscriptions.end())
-    { // Not a script we are tracking
+    LLUUID object_id = chat_msg.mFromID;
+    bool tracking = false;
+    bool publish    = false;
+
+    LLUUID publish_id = object_id;
+    LLViewerObject* objectp = gObjectList.findObject(object_id);
+    if (objectp)
+    {
+        LLViewerObject* root = objectp->getRootEdit();
+        if (root)
+        {
+            publish_id = root->getID();
+        }
+    }
+
+    const EditorSubscription* subinfo = nullptr;
+    std::string               script_id;
+    // have we either published or subscribed to this object?
+    if (isObjectPublished(publish_id))
+    {
+        tracking = true;
+        publish  = true;
+    }
+    else
+    {
+        // If the object is not published, we may still be tracking it if it is a script we are subscribed to
+        auto it = std::find_if(mSubscriptions.begin(), mSubscriptions.end(),
+                               [&object_id](const auto& pair) { return (pair.second.mObjectID == object_id); });
+        if (it != mSubscriptions.end())
+        {
+            tracking = true;
+            subinfo = &it->second;
+            script_id = it->first;
+        }
+    }
+
+    if (!tracking)
+    {   // Not a script we are tracking
         return;
     }
 
     bool is_error = false;
     std::string error_message;
-    std::string object_name;
+    std::string object_name = chat_msg.mFromName;
     std::string script_name;
     S32         line_number = 0;
     // We have at least one script from this object, we will forward the message to the IDE
@@ -1953,6 +1987,7 @@ void LLScriptEditorWSServer::forwardChatToIDE(const LLChat& chat_msg) const
         return s.size() >= suffix.size() &&
                std::equal(suffix.rbegin(), suffix.rend(), s.rbegin());
     };
+
     if (!lines.empty() && ends_with(lines.front(), runtime_error_marker))
     {
         is_error = true;
@@ -1986,25 +2021,27 @@ void LLScriptEditorWSServer::forwardChatToIDE(const LLChat& chat_msg) const
             lines.clear();
         }
 
-        // We should also check that the script name matches one of our subscriptions
-        if (!script_name.empty() && (it->second.mScriptName != script_name))
-        {   // right object, wrong script
-            auto sit = std::find_if(mSubscriptions.begin(), mSubscriptions.end(),
-                [&chat_msg, &script_name](const auto& pair)
-                {
-                    return (pair.second.mScriptName == script_name) && (pair.second.mObjectID == chat_msg.mFromID);
-                });
-            if (sit != mSubscriptions.end())
-            {   // We have a better match
-                it = sit;
+        if (subinfo)
+        {
+            // We should also check that the script name matches one of our subscriptions
+            if (!script_name.empty() && (subinfo->mScriptName != script_name))
+            { // right object, wrong script
+                auto sit =
+                    std::find_if(mSubscriptions.begin(), mSubscriptions.end(), [&chat_msg, &script_name](const auto& pair)
+                                 { return (pair.second.mScriptName == script_name) && (pair.second.mObjectID == chat_msg.mFromID); });
+                if (sit != mSubscriptions.end())
+                { // We have a better match
+                    subinfo = &sit->second;
+                    script_id = sit->first;
+                }
             }
         }
     }
-    std::string script_id = it->first;
+
     LLSD message;
     message["script_id"] = script_id;
-    message["object_id"] = chat_msg.mFromID;
-    message["object_name"] = chat_msg.mFromName;
+    message["object_id"] = object_id;
+    message["object_name"] = object_name;
     message["message"]     = chat_msg.mText;
 
     if (is_error)
@@ -2021,10 +2058,7 @@ void LLScriptEditorWSServer::forwardChatToIDE(const LLChat& chat_msg) const
         }
     }
 
-    if (!it->second.mConnection.expired())
-    {
-        it->second.mConnection.lock()->notify(is_error ? "runtime.error" : "runtime.debug", message);
-    }
+    notifyAll(is_error ? "runtime.error" : "runtime.debug", message);
 }
 
 void LLScriptEditorWSServer::notifyConnection(U32 connection_id, const std::string& method, const LLSD& params) const
