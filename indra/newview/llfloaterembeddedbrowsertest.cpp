@@ -70,7 +70,7 @@ bool LLFloaterEmbeddedBrowserTest::postBuild()
     // been established and we can eventually get correct size for the swatch
     createUI();
 
-    LLEmbeddedBrowser::getInstance()->create("red", mMemoryBufferSwatchWidth, mMemoryBufferSwatchHeight);
+    mBrowserId = LLEmbeddedBrowser::getInstance()->create("red", mMemoryBufferSwatchWidth, mMemoryBufferSwatchHeight);
 
     return true;
 }
@@ -87,7 +87,7 @@ void LLFloaterEmbeddedBrowserTest::onRemTabBtn()
 
 void LLFloaterEmbeddedBrowserTest::onCloseBtn()
 {
-    LLEmbeddedBrowser::getInstance()->destroy(0);
+    LLEmbeddedBrowser::getInstance()->destroy(mBrowserId);
 
     closeFloater();
 }
@@ -96,7 +96,7 @@ void LLFloaterEmbeddedBrowserTest::onBrowseBtn(const std::string url)
 {
     std::cout << "LLFloaterEmbeddedBrowserTest::onBrowseBtn() - url: " << url << std::endl;
 
-    LLEmbeddedBrowser::getInstance()->navigate(url);
+    LLEmbeddedBrowser::getInstance()->navigate(mBrowserId, url);
 }
 
 void LLFloaterEmbeddedBrowserTest::draw()
@@ -105,7 +105,7 @@ void LLFloaterEmbeddedBrowserTest::draw()
 
     if (mMemoryBufferSwatch != nullptr)
     {
-        const unsigned char* src = LLEmbeddedBrowser::getInstance()->getPixels(0);
+        const unsigned char* src = LLEmbeddedBrowser::getInstance()->getPixels(mBrowserId);
         if (src != nullptr)
         {
             unsigned char* dst = mMemoryBufferRaw->getData();

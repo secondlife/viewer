@@ -35,6 +35,7 @@
 #include "llcallbacklist.h"
 #include "lldir.h"
 #include "lldiriterator.h"
+#include "llembeddedbrowser.h"
 #include "llevent.h"        // LLSimpleListener
 #include "llfilepicker.h"
 #include "llfloaterwebcontent.h"    // for handling window close requests and geometry change requests in media browser windows.
@@ -1733,11 +1734,51 @@ bool LLViewerMediaImpl::initializeMedia(const std::string& mime_type)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+static const S32 DEFAULT_EMBEDDED_BROWSER_WIDTH = 1024;
+static const S32 DEFAULT_EMBEDDED_BROWSER_HEIGHT = 1024;
+
+// LLImageGL::setSize() requires power-of-two dimensions; the embedded browser's pixel
+// buffer is sized to the media's actual (non-power-of-two) dimensions, so the GL texture
+// backing it must be padded up to the next power of two, the same way the CEF plugin's
+// getTextureWidth()/getTextureHeight() differ from its getWidth()/getHeight().
+static S32 nextPowerOfTwoEmbeddedBrowser(S32 dim)
+{
+    S32 result = 1;
+    while (result < dim)
+    {
+        result <<= 1;
+    }
+    return result;
+}
+
 void LLViewerMediaImpl::createMediaSource()
 {
+    if (mMediaSource || mUseEmbeddedBrowser)
+    {
+        // A media source already exists (either backend) -- some call sites (e.g.
+        // setVisible()) only guard this call with `if(!mMediaSource)`, which is always
+        // true on the embedded-browser backend since mMediaSource is never assigned
+        // there, so this function must be idempotent itself to avoid leaking a tab.
+        return;
+    }
+
     if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
     {
         // This media shouldn't be created yet.
+        return;
+    }
+
+    if (gSavedSettings.getBOOL("UseEmbeddedBrowser"))
+    {
+        S32 width = (mMediaWidth > 0) ? mMediaWidth : DEFAULT_EMBEDDED_BROWSER_WIDTH;
+        S32 height = (mMediaHeight > 0) ? mMediaHeight : DEFAULT_EMBEDDED_BROWSER_HEIGHT;
+
+        LLEmbeddedBrowser::getInstance()->setMaxDimensions(
+            gSavedSettings.getU32("EmbeddedBrowserMaxWidth"),
+            gSavedSettings.getU32("EmbeddedBrowserMaxHeight"));
+
+        mUseEmbeddedBrowser = true;
+        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(mMediaURL, width, height);
         return;
     }
 
@@ -1769,6 +1810,13 @@ void LLViewerMediaImpl::destroyMediaSource()
     }
 
     cancelMimeTypeProbe();
+
+    if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->destroy(mEmbeddedBrowserId);
+        mUseEmbeddedBrowser = false;
+        return;
+    }
 
     {
         LLCoros::LockType lock(mLock); // Delay tear-down while bg thread is updating
@@ -2037,7 +2085,14 @@ void LLViewerMediaImpl::setSize(int width, int height)
 {
     mMediaWidth = width;
     mMediaHeight = height;
-    if(mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        if (width > 0 && height > 0)
+        {
+            LLEmbeddedBrowser::getInstance()->resize(mEmbeddedBrowserId, width, height);
+        }
+    }
+    else if(mMediaSource)
     {
         mMediaSource->setSize(width, height);
     }
@@ -2625,6 +2680,12 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
         return;
     }
 
+    if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->navigate(mEmbeddedBrowserId, url);
+        return;
+    }
+
     navigateInternal();
 }
 
@@ -2926,7 +2987,7 @@ static LLTrace::BlockTimerStatHandle FTM_MEDIA_SET_SUBIMAGE("Set Subimage");
 void LLViewerMediaImpl::update()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA; //LL_RECORD_BLOCK_TIME(FTM_MEDIA_DO_UPDATE);
-    if(mMediaSource == NULL)
+    if(mMediaSource == NULL && !mUseEmbeddedBrowser)
     {
         if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
         {
@@ -2955,7 +3016,7 @@ void LLViewerMediaImpl::update()
             }
         }
     }
-    else
+    else if (mMediaSource)
     {
         updateVolume();
 
@@ -2967,38 +3028,48 @@ void LLViewerMediaImpl::update()
     }
 
 
-    if(mMediaSource == NULL)
+    if(mMediaSource == NULL && !mUseEmbeddedBrowser)
     {
         return;
     }
 
-    // Make sure a navigate doesn't happen during the idle -- it can cause mMediaSource to get destroyed, which can cause a crash.
-    setNavigateSuspended(true);
-
-    mMediaSource->idle();
-
-    setNavigateSuspended(false);
-
-    if(mMediaSource == NULL)
+    if (mUseEmbeddedBrowser)
     {
-        return;
+        if (mSuspendUpdates || !mVisible)
+        {
+            return;
+        }
     }
-
-    if(mMediaSource->isPluginExited())
+    else
     {
-        resetPreviousMediaState();
-        destroyMediaSource();
-        return;
-    }
+        // Make sure a navigate doesn't happen during the idle -- it can cause mMediaSource to get destroyed, which can cause a crash.
+        setNavigateSuspended(true);
 
-    if(!mMediaSource->textureValid())
-    {
-        return;
-    }
+        mMediaSource->idle();
 
-    if(mSuspendUpdates || !mVisible)
-    {
-        return;
+        setNavigateSuspended(false);
+
+        if(mMediaSource == NULL)
+        {
+            return;
+        }
+
+        if(mMediaSource->isPluginExited())
+        {
+            resetPreviousMediaState();
+            destroyMediaSource();
+            return;
+        }
+
+        if(!mMediaSource->textureValid())
+        {
+            return;
+        }
+
+        if(mSuspendUpdates || !mVisible)
+        {
+            return;
+        }
     }
 
 
@@ -3015,6 +3086,11 @@ void LLViewerMediaImpl::update()
     {
         // Push update to worker thread
         auto main_queue = LLImageGLThread::sEnabledMedia ? mMainQueue.lock() : nullptr;
+        // Keep this frame's embedded-browser pixel snapshot (if any) alive for as long as
+        // the lambdas below might reference `data`, regardless of what
+        // mEmbeddedBrowserFrameSnapshot gets reassigned to by a later frame -- see its
+        // declaration in llviewermedia.h. [=, this] below captures this local by value.
+        auto embedded_frame_snapshot = mEmbeddedBrowserFrameSnapshot;
         if (main_queue)
         {
             mTextureUpdatePending = true;
@@ -3056,7 +3132,39 @@ bool LLViewerMediaImpl::preMediaTexUpdate(LLViewerMediaTexture*& media_tex, U8*&
     {
         media_tex = updateMediaImage();
 
-        if (media_tex && mMediaSource)
+        if (media_tex && mUseEmbeddedBrowser)
+        {
+            // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
+            media_tex->setPlaying(true);
+
+            // Take an owned copy of the tab's current pixel buffer (plus the width/height
+            // it was produced at, atomically with the copy) rather than a live pointer
+            // into LLEmbeddedBrowser's internal storage: the caller in update() may hand
+            // `data` off to an async GL-upload task on another thread, and the source tab
+            // can be resized (reallocating its buffer) or destroyed in the meantime. This
+            // snapshot is kept alive via mEmbeddedBrowserFrameSnapshot -- see update().
+            auto snapshot = std::make_shared<std::vector<U8>>();
+            unsigned int media_width = 0;
+            unsigned int media_height = 0;
+            bool copied = LLEmbeddedBrowser::getInstance()->copyPixels(mEmbeddedBrowserId, *snapshot, media_width, media_height);
+
+            // The placeholder redraws its entire buffer every frame, so treat
+            // the whole buffer as the dirty rect rather than tracking partial updates.
+            x_pos = 0;
+            y_pos = 0;
+            width = (S32)media_width;
+            height = (S32)media_height;
+            data_width = (S32)media_width;
+            data_height = (S32)media_height;
+
+            if (copied && width > 0 && height > 0)
+            {
+                mEmbeddedBrowserFrameSnapshot = snapshot;
+                data = mEmbeddedBrowserFrameSnapshot->data();
+                retval = true;
+            }
+        }
+        else if (media_tex && mMediaSource)
         {
             LLRect dirty_rect;
             S32 media_width = mMediaSource->getTextureWidth();
@@ -3143,7 +3251,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     llassert(!gCubeSnapshot);
-    if (!mMediaSource)
+    if (!mMediaSource && !mUseEmbeddedBrowser)
     {
         return nullptr; // not ready for updating
     }
@@ -3151,6 +3259,43 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
     //llassert(!mTextureId.isNull());
     // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
     LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture( mTextureId, USE_MIPMAPS );
+
+    if (mUseEmbeddedBrowser)
+    {
+        // LLImageGL::setSize() requires power-of-two dimensions, so the GL texture is
+        // allocated at the padded size and the actual (non-power-of-two) media content
+        // is copied into its top-left corner by doMediaTexUpdate()'s setSubImage() call.
+        S32 media_width = getMediaWidth();
+        S32 media_height = getMediaHeight();
+        S32 texture_width = getMediaTextureWidth();
+        S32 texture_height = getMediaTextureHeight();
+        const S32 texture_depth = 4;
+
+        if ( mNeedsNewTexture
+            || (media_tex->getWidth() != texture_width)
+            || (media_tex->getHeight() != texture_height)
+            )
+        {
+            media_tex->destroyGLTexture();
+
+            LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
+            raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0xff);
+
+            media_tex->setExplicitFormat(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, false);
+
+            int discard_level = 0;
+            if (!media_tex->createGLTexture(discard_level, raw))
+            {
+                LL_WARNS("Media") << "Failed to create media texture" << LL_ENDL;
+            }
+
+            mNeedsNewTexture = false;
+            mTextureUsedWidth = media_width;
+            mTextureUsedHeight = media_height;
+        }
+
+        return media_tex;
+    }
 
     if ( mNeedsNewTexture
         || (media_tex->getWidth() != mMediaSource->getTextureWidth())
@@ -3295,6 +3440,66 @@ bool LLViewerMediaImpl::isMediaPaused()
 bool LLViewerMediaImpl::hasMedia() const
 {
     return mMediaSource != NULL;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+bool LLViewerMediaImpl::isTextureReady() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return LLEmbeddedBrowser::getInstance()->getPixels(mEmbeddedBrowserId) != NULL;
+    }
+    return mMediaSource && mMediaSource->textureValid();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+S32 LLViewerMediaImpl::getMediaWidth() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return (S32)LLEmbeddedBrowser::getInstance()->getWidth(mEmbeddedBrowserId);
+    }
+    return mMediaSource ? mMediaSource->getWidth() : 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+S32 LLViewerMediaImpl::getMediaHeight() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return (S32)LLEmbeddedBrowser::getInstance()->getHeight(mEmbeddedBrowserId);
+    }
+    return mMediaSource ? mMediaSource->getHeight() : 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+S32 LLViewerMediaImpl::getMediaTextureWidth() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return nextPowerOfTwoEmbeddedBrowser(getMediaWidth());
+    }
+    return mMediaSource ? mMediaSource->getTextureWidth() : 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+S32 LLViewerMediaImpl::getMediaTextureHeight() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return nextPowerOfTwoEmbeddedBrowser(getMediaHeight());
+    }
+    return mMediaSource ? mMediaSource->getTextureHeight() : 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+bool LLViewerMediaImpl::getMediaTextureCoordsOpenGL() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return false;
+    }
+    return mMediaSource && mMediaSource->getTextureCoordsOpenGL();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

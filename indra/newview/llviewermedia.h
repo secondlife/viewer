@@ -44,6 +44,8 @@
 #include "llcoros.h"
 #include "llcorehttputil.h"
 
+#include <vector>
+
 class LLViewerMediaImpl;
 class LLUUID;
 class LLViewerMediaTexture;
@@ -276,6 +278,16 @@ public:
     void updateImagesMediaStreams();
     LLUUID getMediaTextureID() const;
 
+    // Backend-agnostic accessors used by consumers (e.g. LLMediaCtrl) that need to draw
+    // the media texture directly without caring whether it's backed by the CEF plugin
+    // or LLEmbeddedBrowser.
+    bool isTextureReady() const;
+    S32 getMediaWidth() const;
+    S32 getMediaHeight() const;
+    S32 getMediaTextureWidth() const;
+    S32 getMediaTextureHeight() const;
+    bool getMediaTextureCoordsOpenGL() const;
+
     void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; }
     void setVisible(bool visible);
     bool getVisible() const { return mVisible; }
@@ -449,6 +461,17 @@ private:
 private:
     // a single media url with some data and an impl.
     std::shared_ptr<LLPluginClassMedia> mMediaSource;
+    // When true, this media impl is backed by LLEmbeddedBrowser instead of
+    // mMediaSource/CEF -- see LLViewerMediaImpl::createMediaSource().
+    bool mUseEmbeddedBrowser = false;
+    unsigned int mEmbeddedBrowserId = 0;
+    // Owns the most recent embedded-browser frame snapshot handed to doMediaTexUpdate().
+    // preMediaTexUpdate() replaces this with a fresh copy every frame; update()'s async
+    // GL-upload lambda captures a local copy of the shared_ptr (not just the raw data
+    // pointer) so the buffer it reads from stays alive for the lambda's lifetime even
+    // if this member is reassigned or the underlying LLEmbeddedBrowser tab is resized
+    // or destroyed before the worker thread gets around to running it.
+    std::shared_ptr<std::vector<U8>> mEmbeddedBrowserFrameSnapshot;
     LLCoros::Mutex mLock;
     F64     mZoomFactor;
     LLUUID mTextureId;

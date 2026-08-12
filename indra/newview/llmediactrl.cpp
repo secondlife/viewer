@@ -816,20 +816,14 @@ void LLMediaCtrl::draw()
 
     bool draw_media = false;
 
-    LLPluginClassMedia* media_plugin = NULL;
     LLViewerMediaTexture* media_texture = NULL;
 
-    if(mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && mMediaSource->isTextureReady())
     {
-        media_plugin = mMediaSource->getMediaPlugin();
-
-        if(media_plugin && (media_plugin->textureValid()))
+        media_texture = LLViewerTextureManager::findMediaTexture(mMediaTextureID);
+        if(media_texture)
         {
-            media_texture = LLViewerTextureManager::findMediaTexture(mMediaTextureID);
-            if(media_texture)
-            {
-                draw_media = true;
-            }
+            draw_media = true;
         }
     }
 
@@ -851,15 +845,15 @@ void LLMediaCtrl::draw()
             gGL.getTexUnit(0)->bind(media_texture);
             LLColor4 media_color = LLColor4::white % alpha;
             gGL.color4fv( media_color.mV );
-            F32 max_u = ( F32 )media_plugin->getWidth() / ( F32 )media_plugin->getTextureWidth();
-            F32 max_v = ( F32 )media_plugin->getHeight() / ( F32 )media_plugin->getTextureHeight();
+            F32 max_u = ( F32 )mMediaSource->getMediaWidth() / ( F32 )mMediaSource->getMediaTextureWidth();
+            F32 max_v = ( F32 )mMediaSource->getMediaHeight() / ( F32 )mMediaSource->getMediaTextureHeight();
 
             S32 x_offset, y_offset, width, height;
             calcOffsetsAndSize(&x_offset, &y_offset, &width, &height);
 
             // draw the browser
             gGL.begin(LLRender::TRIANGLES);
-            if (! media_plugin->getTextureCoordsOpenGL())
+            if (! mMediaSource->getMediaTextureCoordsOpenGL())
             {
                 // render using web browser reported width and height, instead of trying to invert GL scale
                 gGL.texCoord2f( max_u, 0.f );
@@ -933,9 +927,9 @@ void LLMediaCtrl::calcOffsetsAndSize(S32 *x_offset, S32 *y_offset, S32 *width, S
 
     if (mStretchToFill)
     {
-        if (mMaintainAspectRatio && mMediaSource && mMediaSource->getMediaPlugin())
+        if (mMaintainAspectRatio && mMediaSource && mMediaSource->getMediaWidth() > 0 && mMediaSource->getMediaHeight() > 0)
         {
-            F32 media_aspect = (F32)(mMediaSource->getMediaPlugin()->getWidth()) / (F32)(mMediaSource->getMediaPlugin()->getHeight());
+            F32 media_aspect = (F32)(mMediaSource->getMediaWidth()) / (F32)(mMediaSource->getMediaHeight());
             F32 view_aspect = (F32)(r.getWidth()) / (F32)(r.getHeight());
             if (media_aspect > view_aspect)
             {
@@ -956,10 +950,15 @@ void LLMediaCtrl::calcOffsetsAndSize(S32 *x_offset, S32 *y_offset, S32 *width, S
             *height = r.getHeight();
         }
     }
+    else if (mMediaSource)
+    {
+        *width = llmin(mMediaSource->getMediaWidth(), r.getWidth());
+        *height = llmin(mMediaSource->getMediaHeight(), r.getHeight());
+    }
     else
     {
-        *width = llmin(mMediaSource->getMediaPlugin()->getWidth(), r.getWidth());
-        *height = llmin(mMediaSource->getMediaPlugin()->getHeight(), r.getHeight());
+        *width = r.getWidth();
+        *height = r.getHeight();
     }
 
     *x_offset = (r.getWidth() - *width) / 2;

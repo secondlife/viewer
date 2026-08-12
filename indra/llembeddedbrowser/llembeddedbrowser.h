@@ -26,12 +26,17 @@
 
 #pragma once
 
+#include <map>
+#include <memory>
+#include <random>
 #include <string>
+#include <vector>
 
 #include "llsingleton.h"
 #include "llmutex.h"
 
 class LLEmbeddedBrowser;
+class LLEmbeddedBrowserTab;
 
 class LLEmbeddedBrowserUpdateThread :
     public LLThread {
@@ -49,6 +54,40 @@ class LLEmbeddedBrowserUpdateThread :
         unsigned int mBrowserId;
 };
 
+// All state for a single browser instance (one per floater or prim face
+// showing media). Each tab drives its own update thread and pixel buffer
+// so that N tabs don't serialize on each other.
+class LLEmbeddedBrowserTab
+{
+    public:
+        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height);
+        ~LLEmbeddedBrowserTab();
+
+        void update();
+        const unsigned char* getPixels();
+        // Atomically snapshots the current pixel buffer together with the width/height
+        // it was produced at, all under one lock -- unlike getPixels()/getWidth()/
+        // getHeight() called separately, the result can't end up mismatched by a
+        // concurrent resize(), and the caller owns an independent copy that stays
+        // valid even if this tab is resized or destroyed immediately afterward (e.g.
+        // when handed off to an async GL upload on another thread).
+        bool copyPixels(std::vector<unsigned char>& out_pixels, unsigned int& out_width, unsigned int& out_height);
+        void navigate(const std::string& url);
+        void resize(unsigned int width, unsigned int height);
+        unsigned int getWidth() const;
+        unsigned int getHeight() const;
+
+    private:
+        mutable LLMutex mPixelMutex;
+        std::unique_ptr<LLEmbeddedBrowserUpdateThread> mUpdateThread;
+        unsigned char* mPixels = nullptr;
+        unsigned int mWidth = 0;
+        unsigned int mHeight = 0;
+        const unsigned int mDepth = 4;
+        std::string mCurrentUrl;
+        std::mt19937 mRng;
+};
+
 class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         LLSINGLETON(LLEmbeddedBrowser);
 
@@ -63,14 +102,31 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void update(unsigned int id);
         void updateAll();
         const unsigned char* getPixels(unsigned int id);
-        void navigate(const std::string& url);
+        bool copyPixels(unsigned int id, std::vector<unsigned char>& out_pixels, unsigned int& out_width, unsigned int& out_height);
+        unsigned int getWidth(unsigned int id);
+        unsigned int getHeight(unsigned int id);
+        void navigate(unsigned int id, const std::string& url);
+        void resize(unsigned int id, unsigned int width, unsigned int height);
+
+        // Caps requested create() dimensions -- callers (e.g. newview, which knows about
+        // EmbeddedBrowserMaxWidth/Height in settings.xml) should call this once before
+        // creating tabs. Defaults to 4096x4096 if never called.
+        void setMaxDimensions(unsigned int max_width, unsigned int max_height);
 
     private:
-        LLMutex mPixelMutex;
-        LLEmbeddedBrowserUpdateThread* mUpdateThread = nullptr;
-        unsigned char* mBrowserTabPixels = nullptr;
-        unsigned int mBrowserTabWidth = 0;
-        unsigned int mBrowserTabHeight = 0;
-        const unsigned int mBrowserTabDepth = 4;
-        std::string mCurrentUrl;
+        // Looks up a tab under mTabsMutex and returns a shared_ptr copy rather than a
+        // reference into the map, so callers can safely call (potentially slow) methods
+        // on the returned tab with mTabsMutex already released -- a concurrent destroy()
+        // erasing the map entry only drops the map's reference; the tab object itself
+        // stays alive until the caller's shared_ptr copy also goes out of scope. This
+        // keeps mTabsMutex held only for a brief map lookup, never for the duration of a
+        // tab's own (per-tab-mutex-protected) work, which is the whole point of giving
+        // each tab its own thread and buffer.
+        std::shared_ptr<LLEmbeddedBrowserTab> findTab(unsigned int id);
+
+        mutable LLMutex mTabsMutex;
+        std::map<unsigned int, std::shared_ptr<LLEmbeddedBrowserTab>> mTabs;
+        unsigned int mNextTabId = 0;
+        unsigned int mMaxWidth = 4096;
+        unsigned int mMaxHeight = 4096;
 };

@@ -60,4 +60,5 @@ class LLFloaterEmbeddedBrowserTest:
         unsigned int mMemoryBufferSwatchDepth;
         LLPointer<LLImageRaw> mMemoryBufferRaw;
         LLPointer<LLViewerTexture> mMemoryBufferSwatch;
+        unsigned int mBrowserId = 0;
 };
