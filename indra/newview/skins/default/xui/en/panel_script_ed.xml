@@ -242,21 +242,21 @@
      right="300"
     width="140">
     <combo_box.item
-      label="LSL: Legacy (LSO2)"
-      name="compile_target_lsl2"
-      value="lsl2" />
+      label="Lua"
+      name="compile_target_luau"
+      value="luau" />
     <combo_box.item
-      label="LSL: Mono"
-      name="compile_target_mono"
-      value="mono" />
-    <combo_box.item
-      label="LSL: 2025 VM"
+      label="LSL on Luau"
       name="compile_target_lsl_luau"
       value="lsl-luau" />
     <combo_box.item
-      label="SLua"
-      name="compile_target_luau"
-      value="luau" />
+      label="LSL on Mono"
+      name="compile_target_mono"
+      value="mono" />
+    <combo_box.item
+      label="LSL"
+      name="compile_target_lsl2"
+      value="lsl2" />
   </combo_box>
   <text
     name="compile_target_label"
