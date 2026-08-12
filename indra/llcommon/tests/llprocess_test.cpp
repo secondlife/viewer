@@ -431,9 +431,9 @@ namespace
         NamedTempFile pidfile("pid", "");
         NamedTempFile releasefile("release", "");
 
-        ScopedEnvironmentVariable helper_script(AUTOKILL_HELPER_SCRIPT_ENV, child_script.getName());
-        ScopedEnvironmentVariable helper_pidfile(AUTOKILL_HELPER_PIDFILE_ENV, pidfile.getName());
-        ScopedEnvironmentVariable helper_release(AUTOKILL_HELPER_RELEASE_ENV, releasefile.getName());
+        ScopedEnvironmentVariable helper_script(AUTOKILL_HELPER_SCRIPT_ENV, child_script.getPath().string());
+        ScopedEnvironmentVariable helper_pidfile(AUTOKILL_HELPER_PIDFILE_ENV, pidfile.getPath().string());
+        ScopedEnvironmentVariable helper_release(AUTOKILL_HELPER_RELEASE_ENV, releasefile.getPath().string());
         ScopedEnvironmentVariable helper_count(AUTOKILL_HELPER_COUNT_ENV, std::to_string(child_count));
 
         LLProcess::Params params;
@@ -442,7 +442,7 @@ namespace
         LLProcessPtr helper = LLProcess::create(params);
         tut::ensure("helper launched", bool(helper));
 
-        std::vector<DWORD> pids = wait_for_helper_pids(pidfile.getName(), child_count);
+        std::vector<DWORD> pids = wait_for_helper_pids(pidfile.getPath().string(), child_count);
         std::vector<HANDLE> handles;
         handles.reserve(pids.size());
         for (DWORD pid : pids)
@@ -455,7 +455,7 @@ namespace
         }
 
         {
-            std::ofstream out(releasefile.getName().c_str(), std::ios::trunc);
+            std::ofstream out(releasefile.getPath(), std::ios::trunc);
             out << "exit";
         }
 
