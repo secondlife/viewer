@@ -337,6 +337,17 @@ void LLAvatarActions::showProfile(const LLUUID& avatar_id)
     }
 }
 
+bool LLAvatarActions::myProfileVisible()
+{
+    LLFloater* floaterp = getProfileFloater(gAgentID);
+    return floaterp && floaterp->isInVisibleChain();
+}
+
+bool LLAvatarActions::myPicksTabVisible()
+{
+    return myProfileVisible() && isPickTabSelected(gAgentID);
+}
+
 // static
 void LLAvatarActions::showPicks(const LLUUID& avatar_id)
 {
