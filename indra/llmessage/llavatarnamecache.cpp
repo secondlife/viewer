@@ -924,4 +924,3 @@ bool max_age_from_cache_control(const std::string& cache_control, S32 *max_age)
     }
     return false;
 }
-

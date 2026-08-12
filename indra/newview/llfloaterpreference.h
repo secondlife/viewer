@@ -235,6 +235,7 @@ private:
     LLScrollListCtrl* mEnabledPopups = nullptr;
     LLScrollListCtrl* mDisabledPopups = nullptr;
     LLButton*       mDeleteTranscriptsBtn = nullptr;
+    bool            mDeleteTranscriptsPending = false;
     LLButton*       mEnablePopupBtn = nullptr;
     LLButton*       mDisablePopupBtn = nullptr;
     LLComboBox*     mTimeFormatCombobox = nullptr;

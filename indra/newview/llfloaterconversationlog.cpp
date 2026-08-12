@@ -26,6 +26,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llconversationloglist.h"
+#include "llchatservicehistory.h"
 #include "llfiltereditor.h"
 #include "llfloaterconversationlog.h"
 #include "llfloaterreg.h"
@@ -106,12 +107,15 @@ void LLFloaterConversationLog::onCustomAction (const LLSD& userdata)
     }
     else if ("view_nearby_chat_history" == command_name)
     {
-        LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
+        if (!LLChatServiceHistory::historySuppressed())
+            LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
     }
 }
 
 bool LLFloaterConversationLog::isActionEnabled(const LLSD& userdata)
 {
+    if (userdata.asString() == "view_nearby_chat_history")
+        return !LLChatServiceHistory::historySuppressed();
     return true;
 }
 
@@ -140,4 +144,3 @@ bool LLFloaterConversationLog::isActionChecked(const LLSD& userdata)
 
     return false;
 }
-

@@ -27,10 +27,12 @@
 #define LLFLOATERCONVERSATIONPREVIEW_H_
 
 #include "llchathistory.h"
+#include "llchatservicehistory.h"
 #include "llfloater.h"
 
 extern const std::string LL_FCP_COMPLETE_NAME;  //"complete_name"
 extern const std::string LL_FCP_ACCOUNT_NAME;       //"user_name"
+extern const std::string LL_FCP_PARTICIPANT_ID;     //"participant_id"
 
 class LLSpinCtrl;
 
@@ -47,15 +49,21 @@ public:
     void draw() override;
     void onOpen(const LLSD& key) override;
     void onClose(bool app_quitting) override;
+    void invalidateHistory();
 
 private:
     void onMoreHistoryBtnClick();
     void showHistory();
+    void startLegacyLoad();
+    void startServiceLoad();
+    void onServiceLoaded(U64 token, const LLChatServiceHistory::HistoryResult& result);
+    void onServiceSnapshot(const LLChatServiceHistory::Snapshot& snapshot);
 
     LLMutex         mMutex;
     LLSpinCtrl*     mPageSpinner;
     LLChatHistory*  mChatHistory;
     LLUUID          mSessionID;
+    LLUUID          mParticipantID;
     int             mCurrentPage;
     int             mPageSize;
 
@@ -67,6 +75,16 @@ private:
     bool            mHistoryThreadsBusy;
     bool            mOpened;
     bool            mIsGroup;
+    bool            mIsP2P;
+    bool            mServiceLocalLoading;
+    bool            mServiceReloadPending;
+    bool            mLoadingIndicatorVisible;
+    bool            mServiceNameReloaded;
+    bool            mServicePresentationAllowed;
+    U64             mServiceToken;
+    U32             mServiceAppliedSerial;
+    boost::signals2::connection mHistoryContentConnection;
+    boost::signals2::connection mServiceSnapshotConnection;
 };
 
 #endif /* LLFLOATERCONVERSATIONPREVIEW_H_ */

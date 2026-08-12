@@ -12228,13 +12228,20 @@ Cannot create large prims that intersect other residents.  Please re-try when ot
    icon="alertmodal.tga"
    name="PreferenceChatDeleteTranscripts"
    type="alertmodal">
-    This will delete the transcripts for all previous conversations. The list of past conversations will not be affected. All files with the suffixes .txt and txt.backup in the folder [FOLDER] will be deleted.
+    This removes local transcript files and downloaded ChatService history. Remote records are retained, but service rows at or below the recorded deletion boundary remain hidden locally. The list of past conversations is not affected.
     <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I delete transcripts."
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="ChatServiceHistoryDeleteFailed"
+   type="alert">
+    Some local history could not be deleted safely. History remains hidden until Delete Transcripts succeeds.
   </notification>
 
   <notification

@@ -51,6 +51,8 @@
 #include "llsyswellwindow.h"
 #include "lltrans.h"
 #include "llchathistory.h"
+#include "llchatservicehistory.h"
+#include "llloadingindicator.h"
 #include "llnotifications.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -81,6 +83,7 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
     mTypingTimeoutTimer(),
     mPositioned(false),
     mSessionInitialized(false),
+    mChatServiceLoadingVisible(false),
     mMeTypingTimer(),
     mOtherTypingTimer()
 {
@@ -374,6 +377,8 @@ bool LLFloaterIMSession::postBuild()
     //see LLFloaterIMPanel for how it is done (IB)
 
     initIMFloater();
+    getChild<LLTextBox>("chat_service_loading_text")->setValue(
+        LLTrans::getString("loading_chat_logs"));
 
     return result;
 }
@@ -713,6 +718,8 @@ void LLFloaterIMSession::setVisible(bool visible)
 
     if (visible && isInVisibleChain())
     {
+        // Visibility updates presentation state; session creation and live delivery
+        // own service refresh priority.
         sIMFloaterShowedSignal(mSessionID);
         updateMessages();
     }
@@ -1117,6 +1124,20 @@ void LLFloaterIMSession::processSessionUpdate(const LLSD& session_update)
 // virtual
 void LLFloaterIMSession::draw()
 {
+    const bool loading = mSession && mIsP2PChat &&
+        gSavedPerAccountSettings.getBOOL("LogShowHistory") &&
+        (mSession->isChatHistoryLoading() ||
+         LLChatServiceHistory::getSnapshot(
+             mSession->mOtherParticipantID).service_work_active);
+    if (loading != mChatServiceLoadingVisible)
+    {
+        mChatServiceLoadingVisible = loading;
+        getChildView("chat_service_loading")->setVisible(loading);
+        LLLoadingIndicator* indicator =
+            getChild<LLLoadingIndicator>("chat_service_loading_wheel");
+        if (loading) indicator->start(); else indicator->stop();
+    }
+
     // add people who were added via dropPerson()
     if (!mPendingParticipants.empty())
     {

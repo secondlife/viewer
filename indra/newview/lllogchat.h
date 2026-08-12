@@ -109,6 +109,10 @@ public:
     static void getListOfTranscriptBackupFiles(std::vector<std::string>& list_of_transcriptions);
 
     static void loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params = LLSD(), bool is_group = false);
+    // ChatService resolves the family once, then reuses this canonical parser per exact path.
+    static void getTranscriptFamily(const std::string& file_name, std::vector<std::string>& paths);
+    static void loadChatHistoryExact(const std::string& path, std::list<LLSD>& messages,
+                                     const LLSD& load_params = LLSD());
 
     typedef boost::signals2::signal<void ()> save_history_signal_t;
     boost::signals2::connection setSaveHistorySignal(const save_history_signal_t::slot_type& cb);
@@ -122,6 +126,9 @@ public:
         std::vector<std::string>& listOfFilesToMove);
 
     static void deleteTranscripts();
+    static bool deleteTranscriptContent();
+    static bool deleteTranscriptContent(const std::string& directory);
+    static void notifyTranscriptCreated();
     static bool isTranscriptExist(const LLUUID& avatar_id, bool is_group=false);
     static bool isNearbyTranscriptExist();
     static bool isAdHocTranscriptExist(std::string file_name);
@@ -137,6 +144,10 @@ public:
     void cleanupHistoryThreads();
 
 private:
+    friend struct LLChatServiceHistoryAccess;
+    static void loadChatHistoryExactUnchecked(const std::string& path,
+                                              std::list<LLSD>& messages,
+                                              const LLSD& load_params = LLSD());
     static std::string cleanFileName(std::string filename);
 
     LLMutex* historyThreadsMutex();

@@ -30,6 +30,7 @@
 #include "../llui/lldockablefloater.h"
 #include "lleventtimer.h"
 #include "llinstantmessage.h"
+#include "llchatservicehistory.h"
 
 #include "lllogchat.h"
 #include "llvoicechannel.h"
@@ -117,6 +118,12 @@ public:
         void buildHistoryFileName();
 
         void loadHistory();
+        void startHistoryLoading();
+        void replaceHistoricalMessages(const chat_message_list_t& history);
+        void applyChatServiceSnapshot(const LLChatServiceHistory::Snapshot& snapshot);
+        void clearHistoricalMessages();
+        void clearForHistoryDeletion();
+        bool isChatHistoryLoading() const { return mChatHistoryLocalLoading; }
 
         LLUUID mSessionID;
         std::string mName;
@@ -140,6 +147,11 @@ public:
         S32 mNumUnread;
 
         chat_message_list_t mMsgs;
+        chat_message_list_t mChatServiceHistoricalValue;
+        U64 mChatHistoryLoadToken = 0;
+        U32 mChatHistoryArchiveSerial = 0;
+        bool mChatHistoryLocalLoading = false;
+        bool mChatServicePresentationAllowed = false;
 
         LLVoiceChannel* mVoiceChannel;
         LLIMSpeakerMgr* mSpeakers;
@@ -166,6 +178,7 @@ public:
 
         static LLUUID generateHash(const std::set<LLUUID>& sorted_uuids);
         boost::signals2::connection mAvatarNameCacheConnection;
+        boost::signals2::connection mChatServiceSnapshotConnection;
     };
 
 
@@ -182,6 +195,7 @@ public:
      * Returns NULL if the session does not exist
      */
     LLIMSession* findIMSession(const LLUUID& session_id) const;
+    void reloadDirectHistories();
 
     /**
      * Find an Ad-Hoc IM Session with specified participants

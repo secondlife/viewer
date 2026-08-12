@@ -189,6 +189,7 @@ private:
     LLFrameTimer mOtherTypingTimer;
 
     bool mSessionInitialized;
+    bool mChatServiceLoadingVisible;
     LLSD mQueuedMsgsForInit;
 
     uuid_vec_t mInvitedParticipants;

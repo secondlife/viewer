@@ -57,6 +57,7 @@
 #include "llagent.h" //gAgent
 #include "llagentpicksinfo.h"
 #include "llavataractions.h"
+#include "llchatservicehistory.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
 #include "llcommandhandler.h"
@@ -1566,7 +1567,9 @@ bool LLPanelProfileSecondLife::onEnableMenu(const LLSD& userdata)
     }
     else if (item_name == "chat_history")
     {
-        return LLLogChat::isTranscriptExist(agent_id);
+        return !LLChatServiceHistory::historySuppressed() &&
+               (LLLogChat::isTranscriptExist(agent_id) ||
+                LLChatServiceHistory::localHistoryExists(agent_id));
     }
     else if (item_name == "add_friend")
     {
@@ -2490,4 +2493,3 @@ void LLPanelProfile::createClassified()
     mPanelClassifieds->createClassified();
     mTabContainer->selectTabPanel(mPanelClassifieds);
 }
-

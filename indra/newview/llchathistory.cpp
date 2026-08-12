@@ -31,6 +31,7 @@
 #include <boost/signals2.hpp>
 
 #include "llavatarnamecache.h"
+#include "llchatservicehistory.h"
 #include "llinstantmessage.h"
 
 #include "llimview.h"
@@ -976,7 +977,10 @@ protected:
                 menu->setItemVisible("Zoom In", should_show_zoom && gObjectList.findObject(mAvatarID));
                 menu->setItemEnabled("Block Unblock", LLAvatarActions::canBlock(mAvatarID));
                 menu->setItemEnabled("Mute Text", LLAvatarActions::canBlock(mAvatarID));
-                menu->setItemEnabled("Chat History", LLLogChat::isTranscriptExist(mAvatarID));
+                menu->setItemEnabled("Chat History",
+                    !LLChatServiceHistory::historySuppressed() &&
+                    (LLLogChat::isTranscriptExist(mAvatarID) ||
+                     LLChatServiceHistory::localHistoryExists(mAvatarID)));
             }
 
             menu->setItemEnabled("Map", (LLAvatarTracker::instance().isBuddyOnline(mAvatarID) && is_agent_mappable(mAvatarID)) || gAgent.isGodlike() );

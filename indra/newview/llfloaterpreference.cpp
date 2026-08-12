@@ -33,6 +33,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterpreference.h"
+#include "llchatservicehistory.h"
 
 #include "message.h"
 #include "llfloaterautoreplacesettings.h"
@@ -542,7 +543,8 @@ bool LLFloaterPreference::postBuild()
 
 void LLFloaterPreference::updateDeleteTranscriptsButton()
 {
-    mDeleteTranscriptsBtn->setEnabled(LLLogChat::transcriptFilesExist());
+    mDeleteTranscriptsBtn->setEnabled(!mDeleteTranscriptsPending &&
+        (LLLogChat::transcriptFilesExist() || LLChatServiceHistory::localHistoryExists()));
 }
 
 void LLFloaterPreference::onDoNotDisturbResponseChanged()
@@ -1918,17 +1920,28 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 {
     if (0 == LLNotificationsUtil::getSelectedOption(notification, response))
     {
-        LLLogChat::deleteTranscripts();
+        LLHandle<LLFloaterPreference> handle = getDerivedHandle<LLFloaterPreference>();
+        mDeleteTranscriptsPending = true;
         updateDeleteTranscriptsButton();
+        if (!LLChatServiceHistory::deleteTranscriptsAsync(
+                [handle](bool)
+                {
+                    if (LLFloaterPreference* floater = handle.get())
+                    {
+                        floater->mDeleteTranscriptsPending = false;
+                        floater->updateDeleteTranscriptsButton();
+                    }
+                }))
+        {
+            mDeleteTranscriptsPending = false;
+            updateDeleteTranscriptsButton();
+        }
     }
 }
 
 void LLFloaterPreference::onLogChatHistorySaved()
 {
-    if (!mDeleteTranscriptsBtn->getEnabled())
-    {
-        mDeleteTranscriptsBtn->setEnabled(true);
-    }
+    updateDeleteTranscriptsButton();
 }
 
 void LLFloaterPreference::updateClickActionControls()
