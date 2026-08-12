@@ -1711,6 +1711,14 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
         mVoiceEnabled = enabled;
         LLVoiceClientStatusObserver::EStatusType status;
 
+        // Gate the audio devices on voice being enabled: the capture mic and
+        // playout speaker only run while voice is on, and the mic isn't held
+        // open when voice is off.
+        if (mWebRTCDeviceInterface)
+        {
+            mWebRTCDeviceInterface->setVoiceEnabled(enabled);
+        }
+
         if (enabled)
         {
             LL_DEBUGS("Voice") << "enabling" << LL_ENDL;
@@ -3460,9 +3468,10 @@ void LLVoiceWebRTCConnection::OnStatsDelivered(const llwebrtc::LLWebRTCStatsMap&
             {
                 if (attributes.contains("packetsLost"))
                 {
-                    U32 out_packets_lost = 0;
-                    LLStringUtil::convertToU32(attributes.at("packetsLost"), out_packets_lost);
-                    sample(LLStatViewer::WEBRTC_PACKETS_OUT_LOST, out_packets_lost);
+                    // packetsLost may be negative, clamp to zero for unsigned Viewer stats
+                    S32 out_packets_lost = 0;
+                    LLStringUtil::convertToS32(attributes.at("packetsLost"), out_packets_lost);
+                    sample(LLStatViewer::WEBRTC_PACKETS_OUT_LOST, static_cast<U32>(llmax(out_packets_lost, 0)));
                 }
                 if (attributes.contains("jitter"))
                 {
@@ -3476,9 +3485,10 @@ void LLVoiceWebRTCConnection::OnStatsDelivered(const llwebrtc::LLWebRTCStatsMap&
             {
                 if (attributes.contains("packetsLost"))
                 {
-                    U32 in_packets_lost = 0;
-                    LLStringUtil::convertToU32(attributes.at("packetsLost"), in_packets_lost);
-                    sample(LLStatViewer::WEBRTC_PACKETS_IN_LOST, in_packets_lost);
+                    // packetsLost may be negative, clamp to zero for unsigned Viewer stats
+                    S32 in_packets_lost = 0;
+                    LLStringUtil::convertToS32(attributes.at("packetsLost"), in_packets_lost);
+                    sample(LLStatViewer::WEBRTC_PACKETS_IN_LOST, static_cast<U32>(llmax(in_packets_lost, 0)));
                 }
                 if (attributes.contains("packetsReceived"))
                 {
