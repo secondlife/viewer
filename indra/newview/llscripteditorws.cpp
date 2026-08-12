@@ -208,6 +208,12 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
             response["success"] = true;
             return response;
         });
+
+    registerCommand({ "viewer.object.save_back_to_contents", "Save an in-world object back to source object contents" },
+        [this](U32 connection_id, const LLSD& p) -> LLSD
+        {
+            return this->handleSaveBackToObjectContents(connection_id, p);
+        });
 }
 
 LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::getServer()
@@ -916,6 +922,65 @@ void LLScriptEditorWSServer::registerCommand(const WSCommandInfo& info, WSComman
 bool LLScriptEditorWSConnection::hasFeature(const std::string& feature) const
 {
     return mFeatures.count(feature) > 0;
+}
+
+LLSD LLScriptEditorWSServer::handleSaveBackToObjectContents(U32 connection_id, const LLSD& params)
+{
+    LLUUID object_id = params["object_id"].asUUID();
+    if (object_id.isNull())
+    {
+        throw LLJSONRPCConnection::InvalidParams("object_id is required");
+    }
+
+    const LLPublishedObjectMgr::PublishedObjectInfo* published_info =
+        mPublishedObjectManager.getPublished(object_id);
+    if (!published_info)
+    {
+        LLSD response;
+        response["success"] = false;
+        response["error_code"] = WSCommandError::InvalidParams;
+        response["message"] = "Object is not published";
+        return response;
+    }
+
+    if (!published_info->mCanSaveBackToContents || published_info->mSourceTaskID.isNull())
+    {
+        LLSD response;
+        response["success"] = false;
+        response["error_code"] = WSCommandError::NotPermitted;
+        response["message"] = "Save back is not available for this object";
+        return response;
+    }
+
+    LLViewerObject* root = gObjectList.findObject(object_id);
+    if (!root)
+    {
+        LLSD response;
+        response["success"] = false;
+        response["error_code"] = WSCommandError::InvalidParams;
+        response["message"] = "object_id not found";
+        return response;
+    }
+
+    if (!save_object_back_to_contents(root, published_info->mSourceTaskID))
+    {
+        LLSD response;
+        response["success"] = false;
+        response["error_code"] = WSCommandError::ExecutionError;
+        response["message"] = "Failed to save object back to contents";
+        return response;
+    }
+
+    LL_DEBUGS("ScriptEditorWS") << "Save-back requested via command for object "
+                                << object_id << " on connection " << connection_id << LL_ENDL;
+
+    LLSD response;
+    response["success"] = true;
+
+    LLSD result;
+    result["object_id"] = object_id;
+    response["result"] = result;
+    return response;
 }
 
 LLSD LLScriptEditorWSServer::handleCommandExecute(U32 connection_id, const LLSD& params)
@@ -2228,6 +2293,20 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
     {
         info.mRegionName = root->getRegion()->getName();
     }
+    LLSelectNode* root_select_node = LLSelectMgr::instance().getSelection()->findNode(root);
+    if (root_select_node
+        && root_select_node->mValid
+        && !root_select_node->mFromTaskID.isNull()
+        && !root->isAttachment())
+    {
+        info.mCanSaveBackToContents = true;
+        info.mSourceTaskID = root_select_node->mFromTaskID;
+    }
+    else
+    {
+        info.mCanSaveBackToContents = false;
+        info.mSourceTaskID.setNull();
+    }
 
     S32 link_num = 1;
     std::vector<LLViewerObject*> prims = collect_linkset(root);
@@ -2246,6 +2325,7 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
     // Align outgoing publish payload with any property responses that arrived
     // while inventory-gated publish was still pending.
     pub["object_name"] = published_info.mObjectName;
+    pub["can_save_back"] = published_info.mCanSaveBackToContents;
     pub["object_description"] = published_info.mObjectDescription;
     if (pub.has("linked_objects"))
     {

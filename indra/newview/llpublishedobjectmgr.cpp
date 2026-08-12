@@ -404,6 +404,7 @@ LLSD LLPublishedObjectMgr::buildObjectListLLSD() const
         {
             pub["region"] = info.mRegionName;
         }
+        pub["can_save_back"] = info.mCanSaveBackToContents;
         pub["inventory"] = buildPrimInventoryLLSD(root);
 
         LLSD linked_objects = LLSD::emptyArray();

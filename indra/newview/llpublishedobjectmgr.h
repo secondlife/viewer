@@ -67,6 +67,8 @@ public:
         std::string mObjectName;
         std::string mObjectDescription;
         std::string mRegionName;
+        bool        mCanSaveBackToContents{ false };
+        LLUUID      mSourceTaskID;
         std::vector<PublishedPrimInfo> mPrims;
         std::vector<std::unique_ptr<LLPublishedPrimListener>> mListeners;
     };

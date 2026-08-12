@@ -247,6 +247,7 @@ protected:
     LLSD handleObjectModify(U32 connection_id, const LLSD& params);
     LLSD handleObjectItemModify(U32 connection_id, const LLSD& params);
     LLSD handleCommandExecute(U32 connection_id, const LLSD& params);
+    LLSD handleSaveBackToObjectContents(U32 connection_id, const LLSD& params);
     LLSD handleCommandList();
     void sendCommandExecute(U32 connection_id, const std::string& command, const LLSD& params);
 
