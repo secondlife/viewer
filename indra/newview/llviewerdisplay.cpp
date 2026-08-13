@@ -973,6 +973,12 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
             constexpr F32 g = 0.5f;
             glClearColor(g, g, g, 1.f);
         }
+        else if (LLPipeline::sSnapshotAvatarsOnly)
+        {
+            // avatars-only snapshot — sky is disabled, so the debug magenta clear would
+            // show through and bleed into alpha-blended edges; clear to black instead
+            glClearColor(0, 0, 0, 1);
+        }
         else
         {
             glClearColor(1, 0, 1, 1);
@@ -1241,6 +1247,12 @@ void display_cube_face()
     if (gUseWireframe)
     {
         glClearColor(0.5f, 0.5f, 0.5f, 1.f);
+    }
+    else if (LLPipeline::sSnapshotAvatarsOnly)
+    {
+        // avatars-only snapshot — sky is disabled, so the debug magenta clear would
+        // show through and bleed into alpha-blended edges; clear to black instead
+        glClearColor(0.f, 0.f, 0.f, 1.f);
     }
     else
     {

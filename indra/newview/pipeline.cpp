@@ -86,6 +86,7 @@
 #include "llviewerregion.h" // for audio debugging.
 #include "llviewerwindow.h" // For getSpinAxis
 #include "llvoavatarself.h"
+#include "llcontrolavatar.h" // avatars-only snapshot
 #include "llvocache.h"
 #include "llvosky.h"
 #include "llvowlsky.h"
@@ -325,6 +326,66 @@ bool    LLPipeline::sReflectionRender = false;
 bool    LLPipeline::sDistortionRender = false;
 bool    LLPipeline::sImpostorRender = false;
 bool    LLPipeline::sImpostorRenderAlphaDepthPass = false;
+bool    LLPipeline::sSnapshotAvatarsOnly = false; // snapshot renders only avatars and their attachments
+std::set<const LLViewerObject*> LLPipeline::sSnapshotSeatRoots;     // seat linkset roots kept in avatars-only snapshots
+std::set<const LLViewerObject*> LLPipeline::sSnapshotSelectedRoots; // selected object roots kept in avatars-only snapshots
+
+// enable/disable avatars-only snapshot rendering. When enabling with the seat
+// option on, collect the root of every linkset an avatar is sitting on so the cull
+// filter can keep it, and force it active so it culls as its own spatial bridge
+// (static objects share octree groups with unrelated neighbors).
+// static
+void LLPipeline::setSnapshotAvatarsOnly(bool enable)
+{
+    sSnapshotAvatarsOnly = enable;
+    sSnapshotSeatRoots.clear();
+    sSnapshotSelectedRoots.clear();
+
+    static LLCachedControl<bool> include_seats(gSavedSettings, "SnapshotSitObjects", false);
+    if (enable && include_seats)
+    {
+        for (LLCharacter* character : LLCharacter::sInstances)
+        {
+            LLVOAvatar* av = (LLVOAvatar*)character;
+            if (!av->isDead() && !av->isControlAvatar() && av->isSitting())
+            {
+                LLViewerObject* parent = (LLViewerObject*)av->getParent();
+                LLViewerObject* root = parent ? parent->getRootEdit() : nullptr;
+                if (root && root->mDrawable)
+                {
+                    sSnapshotSeatRoots.insert(root);
+                    root->mDrawable->makeActive();
+                }
+            }
+        }
+    }
+
+    static LLCachedControl<bool> include_selected(gSavedSettings, "SnapshotSelectedObjects", true);
+    if (enable && include_selected)
+    {
+        // Collect every selected root linkset so it renders in the snapshot.
+        // makeActive() moves the drawable into a spatial bridge so the cull
+        // filter (which only keeps bridge and avatar partitions) passes it.
+        LLObjectSelectionHandle sel = LLSelectMgr::getInstance()->getSelection();
+        for (LLObjectSelection::root_object_iterator it = sel->root_object_begin();
+             it != sel->root_object_end(); ++it)
+        {
+            LLViewerObject* root = (*it)->getObject();
+            if (!root) continue;
+            sSnapshotSelectedRoots.insert(root);
+            // Animated objects (animesh) are rendered through their LLControlAvatar
+            // spatial bridge; makeActive() on the root prim would move it to a new
+            // bridge that lacks bone-transform data, displacing rigged child geometry.
+            // For animesh we keep the root prim in sSnapshotSelectedRoots so the
+            // LLControlAvatar bridge check (above) can match via cav->mRootVolp.
+            if (root->mDrawable && !root->isAnimatedObject())
+            {
+                root->mDrawable->makeActive();
+            }
+        }
+    }
+}
+bool    LLPipeline::sShowJellyDollAsImpostor = true;
 bool    LLPipeline::sUnderWaterRender = false;
 bool    LLPipeline::sTextureBindTest = false;
 bool    LLPipeline::sRenderAttachedLights = true;
@@ -2570,6 +2631,88 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
         return;
     }
 
+    // avatars-only snapshot — cull everything that is not an avatar or one of its attachments
+    if (sSnapshotAvatarsOnly)
+    {
+        static LLCachedControl<bool> include_animesh(gSavedSettings, "SnapshotAnimesh", false);
+        static LLCachedControl<bool> include_particles(gSavedSettings, "SnapshotParticles", false);
+        LLSpatialPartition* part = group->getSpatialPartition();
+        LLSpatialBridge* bridge = part->asBridge();
+        if (bridge)
+        {
+            const LLViewerObject* vobj = bridge->mDrawable ? bridge->mDrawable->getVObj().get() : nullptr;
+            bool keep = false;
+            if (vobj)
+            {
+                if (vobj->isAvatar())
+                {
+                    const LLVOAvatar* av = static_cast<const LLVOAvatar*>(vobj);
+                    if (!av->isControlAvatar())
+                    {
+                        keep = true; // real avatar
+                    }
+                    else
+                    {
+                        // animesh: keep when worn as an attachment, always if the
+                        // animesh option is on, or when the root animesh prim was
+                        // explicitly selected (sSnapshotSelectedRoots).
+                        const LLControlAvatar* cav = static_cast<const LLControlAvatar*>(av);
+                        keep = include_animesh
+                            || (cav->mRootVolp && cav->mRootVolp->isAttachment())
+                            || (!sSnapshotSelectedRoots.empty() && cav->mRootVolp
+                                && sSnapshotSelectedRoots.count(cav->mRootVolp) > 0);
+                    }
+                }
+                else
+                {
+                    keep = vobj->isAttachment()
+                        || (include_animesh && vobj->isAnimatedObject())
+                        || (!sSnapshotSeatRoots.empty()     && sSnapshotSeatRoots.count(vobj)     > 0)
+                        || (!sSnapshotSelectedRoots.empty() && sSnapshotSelectedRoots.count(vobj) > 0);
+                }
+            }
+            if (!keep)
+            {
+                return;
+            }
+        }
+        else if (part->mPartitionType != LLViewerRegion::PARTITION_BRIDGE
+              && part->mPartitionType != LLViewerRegion::PARTITION_AVATAR
+              && part->mPartitionType != LLViewerRegion::PARTITION_CONTROL_AV
+              && part->mPartitionType != LLViewerRegion::PARTITION_HUD)
+        {
+            // world geometry — allow particle partitions only when the option is on
+            // AND at least one drawable in the group comes from an avatar attachment source
+            if (include_particles
+                && (part->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
+                    || part->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE))
+            {
+                bool has_attachment_source = false;
+                for (LLSpatialGroup::element_iter it = group->getDataBegin();
+                     it != group->getDataEnd() && !has_attachment_source; ++it)
+                {
+                    LLDrawable* drawable = (LLDrawable*)(*it)->getDrawable();
+                    if (!drawable || drawable->isDead()) { continue; }
+                    LLVOPartGroup* vopg = dynamic_cast<LLVOPartGroup*>(drawable->getVObj().get());
+                    if (!vopg) { continue; }
+                    LLViewerPartGroup* vpg = vopg->getViewerPartGroup();
+                    if (!vpg || vpg->mParticles.empty()) { continue; }
+                    const LLViewerPartSource* src = vpg->mParticles[0]->mPartSourcep.get();
+                    if (src && src->mSourceObjectp.notNull()
+                        && src->mSourceObjectp->isAttachment())
+                    {
+                        has_attachment_source = true;
+                    }
+                }
+                if (!has_attachment_source) { return; }
+            }
+            else
+            {
+                return;
+            }
+        }
+    }
+
     group->setVisible();
 
     if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD && !gCubeSnapshot)
@@ -4136,6 +4279,223 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LL_PROFILE_GPU_ZONE("renderGeomPostDeferred");
 
+    // avatars-only snapshot — initialize the alpha channel as a transparency
+    // accumulator (1 = fully transparent), then stamp 0 (fully opaque) wherever the
+    // depth buffer already holds opaque geometry. The alpha pools' glow-suppression
+    // blend (dst_a *= 1 - src_a) then accumulates per-pixel coverage of blended
+    // geometry on top, and snapshot readback uses the accumulator alone. Stamping
+    // opaque coverage here (instead of classifying by depth at readback) lets rigged
+    // alpha keep its stock depth writes, which are needed to occlude layered alpha
+    // like inverted-hull cel-shade shells.
+    if (sSnapshotAvatarsOnly && !sRenderingHUDs && !sImpostorRender)
+    {
+        // Alpha-channel transparency stamp.  Clear alpha to 1 (transparent
+        // everywhere), then overdraw alpha=0 (opaque) wherever the deferred
+        // G-buffer recorded geometry (depth < 1 at the far plane).
+        gGL.setColorMask(false, true);
+        glClearColor(0.f, 0.f, 0.f, 1.f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        {
+            LLGLDisable blend(GL_BLEND);
+            // fragment depth forced to the far plane; GL_GREATER passes only where
+            // opaque geometry wrote depth < 1
+            LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+            glDepthRangef(1.f, 1.f);
+
+            gDebugProgram.bind();
+            gGL.diffuseColor4f(0.f, 0.f, 0.f, 0.f);
+
+            gGL.matrixMode(LLRender::MM_PROJECTION);
+            gGL.pushMatrix();
+            gGL.loadIdentity();
+            gGL.matrixMode(LLRender::MM_MODELVIEW);
+            gGL.pushMatrix();
+            gGL.loadIdentity();
+            gGL.syncMatrices();
+
+            mScreenTriangleVB->setBuffer();
+            mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+            gGL.matrixMode(LLRender::MM_PROJECTION);
+            gGL.popMatrix();
+            gGL.matrixMode(LLRender::MM_MODELVIEW);
+            gGL.popMatrix();
+
+            gDebugProgram.unbind();
+            glDepthRangef(0.f, 1.f);
+        }
+
+        // Seat alpha stamp: write alpha=0 (opaque) for the alpha-pool faces of
+        // each seat object, but only where the face's texture actually has
+        // coverage.  Faces are drawn textured through the fullbright alpha-mask
+        // shader so fully-transparent texels are discarded and never touch the
+        // alpha channel -- background pixels covered by oversized mostly
+        // transparent planes (shadow prims etc.) stay transparent.  Surviving
+        // fragments composite their texel alpha into the transmittance channel
+        // so baked shadow gradients keep partial coverage.  Depth is TESTed
+        // (no write) so pixels the avatar occupies (closer depth) are left
+        // alone.
+        if (!sSnapshotSeatRoots.empty() || !sSnapshotSelectedRoots.empty())
+        {
+            LLVertexBuffer::unbind();
+
+            // Keep culling enabled: stamping back faces creates opaque dark bands in
+            // gaps between geometry pieces (e.g. between control panels).  Post-deferred
+            // POOL_FULLBRIGHT faces (front rails, etc.) are caught by the second depth
+            // stamp below, which runs after the pool render loop and uses the depth that
+            // POOL_FULLBRIGHT wrote during its normal (cull-enabled) render pass.
+            LLGLEnable    seat_cull(GL_CULL_FACE);
+            LLGLDepthTest seat_depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+            LLGLEnable    seat_blend(GL_BLEND);
+            // Default blend for near-opaque faces (material alpha 0.8–0.99):
+            // composite transmittance dst_a *= (1 - texel_alpha) so partial-opacity
+            // seat faces render at their correct transparency.
+            // Fully-opaque-material faces override this to BF_ZERO/BF_ZERO per face
+            // (see below) so the entire geometry coverage stamps alpha=0 regardless
+            // of texture alpha — otherwise lace/ornate textures leave a noisy fringe
+            // of partially-opaque pixels inside what should be solid geometry.
+            gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
+
+            LLGLSLShader& stamp_shader = gDeferredFullbrightAlphaMaskProgram;
+            stamp_shader.bind();
+            stamp_shader.setMinimumAlpha(0.05f);
+            gGL.diffuseColor4f(1.f, 1.f, 1.f, 1.f);
+
+            gGL.matrixMode(LLRender::MM_PROJECTION);
+            gGL.pushMatrix();
+            gGL.loadMatrix(gGLProjection);
+            gGL.matrixMode(LLRender::MM_MODELVIEW);
+            gGL.pushMatrix();
+            gGL.loadMatrix(gGLModelView);
+
+            auto stampSeatFaces = [&](LLDrawable* drawable)
+            {
+                if (!drawable || drawable->isDead()) return;
+
+                gGL.pushMatrix();
+                gGL.multMatrix((F32*)drawable->getRenderMatrix().mMatrix);
+                gGL.syncMatrices();
+
+                for (S32 fi = 0; fi < drawable->getNumFaces(); ++fi)
+                {
+                    LLFace* face = drawable->getFace(fi);
+                    if (!face || !face->getIndicesCount()) continue;
+
+                    // Stamp alpha-blended faces AND post-deferred fullbright faces.
+                    // Opaque/deferred faces write to the G-buffer and are handled by
+                    // the depth stamp above.  Fullbright faces bypass the G-buffer
+                    // (renderPostDeferred), so they must be caught here too.
+                    U32 pt = face->getPoolType();
+                    if (pt != LLDrawPool::POOL_ALPHA_PRE_WATER &&
+                        pt != LLDrawPool::POOL_ALPHA_POST_WATER &&
+                        pt != LLDrawPool::POOL_ALPHA &&
+                        pt != LLDrawPool::POOL_FULLBRIGHT &&
+                        pt != LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK)
+                        continue;
+
+                    // Skip faces where material alpha < 80%.  Below this threshold the
+                    // face is intended to be partially transparent (shadow prims,
+                    // decorative overlays, etc.).  Stamping them creates a semi-opaque
+                    // dark overlay in the transparency mask that looks wrong against any
+                    // compositing background.  Faces above this threshold are treated
+                    // as solid and stamped with alpha=0 via BF_ZERO/BF_ZERO below.
+                    const LLTextureEntry* te = face->getTextureEntry();
+                    if (!te || te->getAlpha() < 0.8f) continue;
+
+                    // POOL_FULLBRIGHT = Alpha Mode None: scene ignores texture alpha → stamp
+                    // everything solid, minimum_alpha=0 so no texels are discarded.
+                    // POOL_ALPHA* = Blend mode: the face's edge gradient should remain soft so
+                    // the POOL_ALPHA glow-suppression blend (dst_a *= 1-src_a) can create the
+                    // correct smooth fade.  Raise minimum_alpha to 0.5 so only the clearly-
+                    // opaque part of the texture is hard-stamped; texels 0-0.49 are left at
+                    // alpha=1 for the pool render to handle naturally.  This prevents blend-mode
+                    // faces from looking like hard alpha-mask cutouts in the snapshot.
+                    // POOL_FULLBRIGHT_ALPHA_MASK keeps 0.05 for proper cutout shapes.
+                    float face_min_alpha;
+                    if (pt == LLDrawPool::POOL_FULLBRIGHT)
+                        face_min_alpha = 0.f;
+                    else if (pt == LLDrawPool::POOL_ALPHA ||
+                             pt == LLDrawPool::POOL_ALPHA_PRE_WATER ||
+                             pt == LLDrawPool::POOL_ALPHA_POST_WATER)
+                        face_min_alpha = 0.5f;
+                    else
+                        face_min_alpha = 0.05f;
+                    stamp_shader.setMinimumAlpha(face_min_alpha);
+
+                    // Fully-opaque-material faces use a solid stamp (BF_ZERO/BF_ZERO):
+                    // every covered pixel writes alpha=0 regardless of texture alpha.
+                    // This prevents lace/ornate textures with partial-alpha interiors
+                    // from leaving a scattered noisy fringe in the transparency mask.
+                    // Faces with partial material alpha keep gradient blend so their
+                    // semi-transparency is preserved in the composited output.
+                    gGL.blendFunc(LLRender::BF_ZERO,
+                                  (te->getAlpha() >= 0.99f) ? LLRender::BF_ZERO
+                                                             : LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
+
+                    LLViewerTexture* tex = face->getTexture();
+                    if (!tex) continue;
+                    // shader is texture-indexed (samples tex0..texN by per-vertex
+                    // index); bind the face texture to every channel so any baked
+                    // index resolves to it
+                    S32 stamp_channels = llmax(1, (S32)stamp_shader.mFeatures.mIndexedTextureChannels);
+                    for (S32 ch = 0; ch < stamp_channels; ++ch)
+                    {
+                        gGL.getTexUnit(ch)->bindFast(tex);
+                    }
+
+                    LLVertexBuffer* vb = face->getVertexBuffer();
+                    if (!vb) continue;
+                    vb->setBuffer();
+                    vb->drawRange(LLRender::TRIANGLES,
+                        face->getGeomIndex(),
+                        face->getGeomIndex() + face->getGeomCount() - 1,
+                        face->getIndicesCount(),
+                        face->getIndicesStart());
+                }
+
+                gGL.popMatrix();
+            };
+
+            auto stampLinkset = [&](const LLViewerObject* root)
+            {
+                if (root->mDrawable) stampSeatFaces(root->mDrawable);
+                for (LLViewerObject* child : root->getChildren())
+                {
+                    if (child && child->mDrawable) stampSeatFaces(child->mDrawable);
+                }
+            };
+
+            for (const LLViewerObject* seat : sSnapshotSeatRoots)
+                stampLinkset(seat);
+            for (const LLViewerObject* sel : sSnapshotSelectedRoots)
+            {
+                // Animesh (animated objects) use rigged meshes driven by
+                // LLControlAvatar bone transforms.  The stamp shader has no
+                // bone-matrix support, so stamping rigged children positions
+                // them at their bind-pose location rather than the animated
+                // position, producing floating geometry at the wrong spot.
+                // Skip the stamp for animesh; their deferred body geometry is
+                // already covered by the first depth stamp (POOL_AVATAR writes
+                // to the G-buffer), and POOL_ALPHA hair over the stamped body
+                // will composite correctly from the pool render.
+                if (!sel->isAnimatedObject())
+                    stampLinkset(sel);
+            }
+
+            gGL.matrixMode(LLRender::MM_PROJECTION);
+            gGL.popMatrix();
+            gGL.matrixMode(LLRender::MM_MODELVIEW);
+            gGL.popMatrix();
+
+            stamp_shader.unbind();
+            LLVertexBuffer::unbind();
+            gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
+        }
+
+        gGL.setColorMask(true, true);
+    }
+
     if (gUseWireframe)
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -4148,6 +4508,11 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
     bool done_atmospherics = LLPipeline::sRenderingHUDs; //skip atmospherics on huds
     bool done_water_haze = done_atmospherics;
     bool done_water_exclusion = false;
+    // avatars-only snapshot: second depth stamp fires just before POOL_ALPHA renders so
+    // it catches post-deferred pools (POOL_FULLBRIGHT, POOL_GLOW) but NOT POOL_ALPHA.
+    // Firing after POOL_ALPHA would stamp semi-transparent fur/cloth edge pixels as opaque
+    // with whatever sky color the scene rendered there, producing a colored fringe halo.
+    bool done_second_stamp = (!sSnapshotAvatarsOnly || sRenderingHUDs || sImpostorRender);
 
     // do water exclusion just before water pass.
     U32 water_exclusion_pass = LLDrawPool::POOL_WATEREXCLUSION;
@@ -4207,6 +4572,40 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
             done_water_haze = true;
         }
 
+        if (cur_type >= water_haze_pass && !done_second_stamp)
+        {
+            // Run second depth stamp just before POOL_ALPHA renders.
+            // By now POOL_FULLBRIGHT (type 5) and POOL_GLOW (type 17) have written
+            // their depth, so this GL_GREATER pass picks them up.  POOL_ALPHA has NOT
+            // rendered yet, so semi-transparent alpha faces (shadow prims, fur edges)
+            // don't contaminate the mask with colored atmospheric RGB.
+            gGL.setColorMask(false, true);
+            {
+                LLGLDisable no_blend(GL_BLEND);
+                LLGLDepthTest d2(GL_TRUE, GL_FALSE, GL_GREATER);
+                glDepthRangef(1.f, 1.f);
+                gDebugProgram.bind();
+                gGL.diffuseColor4f(0.f, 0.f, 0.f, 0.f);
+                gGL.matrixMode(LLRender::MM_PROJECTION);
+                gGL.pushMatrix();
+                gGL.loadIdentity();
+                gGL.matrixMode(LLRender::MM_MODELVIEW);
+                gGL.pushMatrix();
+                gGL.loadIdentity();
+                gGL.syncMatrices();
+                mScreenTriangleVB->setBuffer();
+                mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+                gGL.matrixMode(LLRender::MM_PROJECTION);
+                gGL.popMatrix();
+                gGL.matrixMode(LLRender::MM_MODELVIEW);
+                gGL.popMatrix();
+                gDebugProgram.unbind();
+                glDepthRangef(0.f, 1.f);
+            }
+            gGL.setColorMask(true, false);
+            done_second_stamp = true;
+        }
+
         pool_set_t::iterator iter2 = iter1;
         if (hasRenderType(poolp->getType()) && poolp->getNumPostDeferredPasses() > 0)
         {
@@ -4252,6 +4651,41 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
         }
         iter1 = iter2;
         stop_glerror();
+    }
+
+    // Fallback: second depth stamp if the pool loop never reached water_haze_pass
+    // (e.g. no POOL_ALPHA pools exist in this frame — unusual but possible).
+    if (!done_second_stamp)
+    {
+        gGL.setColorMask(false, true);
+
+        LLGLDisable blend2(GL_BLEND);
+        LLGLDepthTest depth2(GL_TRUE, GL_FALSE, GL_GREATER);
+        glDepthRangef(1.f, 1.f);
+
+        gDebugProgram.bind();
+        gGL.diffuseColor4f(0.f, 0.f, 0.f, 0.f);
+
+        gGL.matrixMode(LLRender::MM_PROJECTION);
+        gGL.pushMatrix();
+        gGL.loadIdentity();
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        gGL.pushMatrix();
+        gGL.loadIdentity();
+        gGL.syncMatrices();
+
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+        gGL.matrixMode(LLRender::MM_PROJECTION);
+        gGL.popMatrix();
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        gGL.popMatrix();
+
+        gDebugProgram.unbind();
+        glDepthRangef(0.f, 1.f);
+
+        gGL.setColorMask(true, true);
     }
 
     gGLLastMatrix = NULL;
@@ -7350,6 +7784,18 @@ void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget*
 void LLPipeline::generateGlow(LLRenderTarget* src)
 {
     LL_PROFILE_GPU_ZONE("glow generate");
+
+    // avatars-only snapshot hijacks the screen alpha channel as a transparency
+    // accumulator; the glow extractor reads that channel as glow strength and would
+    // bloom the entire image. Output black glow instead.
+    if (sSnapshotAvatarsOnly)
+    {
+        mGlow[1].bindTarget();
+        mGlow[1].clear();
+        mGlow[1].flush();
+        return;
+    }
+
     if (sRenderGlow)
     {
         mGlow[2].bindTarget();
@@ -8043,7 +8489,12 @@ void LLPipeline::renderFinalize()
 
         generateLuminance(&mRT->screen, &mLuminanceMap);
 
-        generateExposure(&mLuminanceMap, &mExposureMap);
+        // avatars-only snapshot — keep the pre-snapshot exposure; adapting to the
+        // synthetic black background makes the live view flash dark/bright afterwards
+        if (!sSnapshotAvatarsOnly)
+        {
+            generateExposure(&mLuminanceMap, &mExposureMap);
+        }
 
         static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
         bool apply_cas = cas_sharpness != 0.0f && gCASProgram.isComplete() && gCASLegacyGammaProgram.isComplete();
@@ -8992,7 +9443,10 @@ void LLPipeline::doAtmospherics()
 
         LLGLEnable blend(GL_BLEND);
         gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_SOURCE_ALPHA, LLRender::BF_ZERO, LLRender::BF_SOURCE_ALPHA);
-        gGL.setColorMask(true, true);
+        // avatars-only snapshot hijacks the screen alpha as a transparency mask;
+        // the haze full-screen blit modifies alpha via dst*src_alpha, which corrupts
+        // transparent (alpha=1) gap pixels.  Don't write alpha during haze in that mode.
+        gGL.setColorMask(true, !sSnapshotAvatarsOnly);
 
         // apply haze
         LLGLSLShader& haze_shader = gHazeProgram;
@@ -9056,8 +9510,8 @@ void LLPipeline::doWaterHaze()
 
         LLGLEnable blend(GL_BLEND);
         gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_SOURCE_ALPHA, LLRender::BF_ZERO, LLRender::BF_SOURCE_ALPHA);
-
-        gGL.setColorMask(true, true);
+        // same transparency-mask protection as doAtmospherics
+        gGL.setColorMask(true, !sSnapshotAvatarsOnly);
 
         // apply haze
         LLGLSLShader& haze_shader = gHazeWaterProgram;

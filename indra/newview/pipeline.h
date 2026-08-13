@@ -42,6 +42,7 @@
 #include "llheroprobemanager.h"
 
 #include <stack>
+#include <set>
 
 class LLViewerTexture;
 class LLFace;
@@ -674,6 +675,11 @@ public:
     static bool             sDistortionRender;
     static bool             sImpostorRender;
     static bool             sImpostorRenderAlphaDepthPass;
+    static bool             sSnapshotAvatarsOnly; // snapshot renders only avatars and their attachments
+    static std::set<const LLViewerObject*> sSnapshotSeatRoots;     // seat linkset roots kept in avatars-only snapshots
+    static std::set<const LLViewerObject*> sSnapshotSelectedRoots; // selected object roots kept in avatars-only snapshots
+    static void             setSnapshotAvatarsOnly(bool enable); // sets the flag and collects seated-on / selected objects
+    static bool             sShowJellyDollAsImpostor;
     static bool             sUnderWaterRender;
     static bool             sRenderGlow;
     static bool             sTextureBindTest;

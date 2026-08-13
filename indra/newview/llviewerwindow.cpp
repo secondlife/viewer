@@ -5238,9 +5238,12 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
     LLImageDataLock lock(raw);
 
+    // avatars-only color snapshots carry an alpha channel so the background can be transparent
+    bool avatars_only_alpha = LLPipeline::sSnapshotAvatarsOnly && type == LLSnapshotModel::SNAPSHOT_TYPE_COLOR;
+
     if ((image_buffer_x > 0) && (image_buffer_y > 0))
     {
-        raw->resize(image_buffer_x, image_buffer_y, 3);
+        raw->resize(image_buffer_x, image_buffer_y, avatars_only_alpha ? 4 : 3);
     }
     else
     {
@@ -5269,6 +5272,31 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
     F32 depth_conversion_factor_1 = (LLViewerCamera::getInstance()->getFar() + LLViewerCamera::getInstance()->getNear()) / (2.f * LLViewerCamera::getInstance()->getFar() * LLViewerCamera::getInstance()->getNear());
     F32 depth_conversion_factor_2 = (LLViewerCamera::getInstance()->getFar() - LLViewerCamera::getInstance()->getNear()) / (2.f * LLViewerCamera::getInstance()->getFar() * LLViewerCamera::getInstance()->getNear());
+
+    // avatars-only snapshot — hide sky, clouds, water, terrain and other world-only render types;
+    // world objects are culled in LLPipeline::markNotCulled
+    if (LLPipeline::sSnapshotAvatarsOnly)
+    {
+        static LLCachedControl<bool> include_particles(gSavedSettings, "SnapshotParticles", false);
+        gPipeline.pushRenderTypeMask();
+        gPipeline.clearRenderTypeMask(
+            LLPipeline::RENDER_TYPE_SKY,
+            LLPipeline::RENDER_TYPE_WL_SKY,
+            LLPipeline::RENDER_TYPE_CLOUDS,
+            LLPipeline::RENDER_TYPE_TERRAIN,
+            LLPipeline::RENDER_TYPE_TREE,
+            LLPipeline::RENDER_TYPE_GRASS,
+            LLPipeline::RENDER_TYPE_PASS_GRASS,
+            LLPipeline::RENDER_TYPE_WATER,
+            LLPipeline::RENDER_TYPE_VOIDWATER,
+            LLPipeline::END_RENDER_TYPES);
+        if (!include_particles)
+        {
+            gPipeline.clearRenderTypeMask(
+                LLPipeline::RENDER_TYPE_PARTICLES,
+                LLPipeline::END_RENDER_TYPES);
+        }
+    }
 
     // Subimages are in fact partial rendering of the final view. This happens when the final view is bigger than the screen.
     // In most common cases, scale_factor is 1 and there's no more than 1 iteration on x and y
@@ -5324,12 +5352,26 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
                     {
                         if (type == LLSnapshotModel::SNAPSHOT_TYPE_COLOR)
                         {
+                            // avatars-only — matting pass 1 (black background); alpha is
+                            // computed after the white-background pass below
+                            if (avatars_only_alpha)
+                            {
+                                glReadPixels(
+                                         subimage_x_offset, out_y + subimage_y_offset,
+                                         read_width, 1,
+                                         GL_RGBA, GL_UNSIGNED_BYTE,
+                                         raw->getData() + output_buffer_offset
+                                         );
+                            }
+                            else
+                            {
                             glReadPixels(
                                      subimage_x_offset, out_y + subimage_y_offset,
                                      read_width, 1,
                                      GL_RGB, GL_UNSIGNED_BYTE,
                                      raw->getData() + output_buffer_offset
                                      );
+                            }
                         }
                         else // LLSnapshotModel::SNAPSHOT_TYPE_DEPTH
                         {
@@ -5356,11 +5398,73 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
                         }
                     }
                 }
+
+                // avatars-only soft alpha — single-render coverage readback.
+                // The screen render target's alpha channel holds accumulated transparency:
+                // initialized to 1, stamped to 0 where opaque geometry wrote depth, and
+                // multiplied by 1-alpha for every blended fragment (renderGeomPostDeferred).
+                if (avatars_only_alpha)
+                {
+                    // accumulated transparency from the scene render target
+                    std::vector<U8> trans_buf((size_t)read_height * read_width * 4);
+                    gPipeline.mRT->screen.bindTarget();
+                    for (U32 out_y = 0; out_y < read_height; out_y++)
+                    {
+                        if (out_y % 100 == 0)
+                        {
+                            LLAppViewer::instance()->pingMainloopTimeout("LLViewerWindow::rawSnapshot");
+                        }
+                        glReadPixels(
+                                 subimage_x_offset, out_y + subimage_y_offset,
+                                 read_width, 1,
+                                 GL_RGBA, GL_UNSIGNED_BYTE,
+                                 trans_buf.data() + (size_t)out_y * read_width * 4
+                                 );
+                    }
+                    gPipeline.mRT->screen.flush();
+
+                    for (U32 out_y = 0; out_y < read_height; out_y++)
+                    {
+                        S32 output_buffer_offset = (
+                                                    (out_y * (raw->getWidth()))
+                                                    + (window_width * subimage_x)
+                                                    + (raw->getWidth() * window_height * subimage_y)
+                                                    - output_buffer_offset_x
+                                                    - (output_buffer_offset_y * (raw->getWidth()))
+                                                    ) * raw->getComponents();
+
+                        for (S32 i = 0; i < (S32)read_width; i++)
+                        {
+                            U8* px = raw->getData() + output_buffer_offset + (i * 4);
+                            // transparency accumulated by blended geometry (255 = background)
+                            S32 a = 255 - (S32)trans_buf[((size_t)out_y * read_width + i) * 4 + 3];
+
+                            if (a <= 0)
+                            {
+                                px[0] = px[1] = px[2] = px[3] = 0;
+                            }
+                            else
+                            {
+                                // un-premultiply: blended-over-background color is color * alpha
+                                px[0] = (U8)llmin(255, (S32)px[0] * 255 / a);
+                                px[1] = (U8)llmin(255, (S32)px[1] * 255 / a);
+                                px[2] = (U8)llmin(255, (S32)px[2] * 255 / a);
+                                px[3] = (U8)a;
+                            }
+                        }
+                    }
+                }
             }
             output_buffer_offset_x += subimage_x_offset;
             stop_glerror();
         }
         output_buffer_offset_y += subimage_y_offset;
+    }
+
+    // restore render types hidden for avatars-only snapshot
+    if (LLPipeline::sSnapshotAvatarsOnly)
+    {
+        gPipeline.popRenderTypeMask();
     }
 
     gDisplaySwapBuffers = false;
@@ -5386,7 +5490,11 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
     // Pre-pad image to number of pixels such that the line length is a multiple of 4 bytes (for BMP encoding)
     // Note: this formula depends on the number of components being 3.  Not obvious, but it's correct.
-    image_width += (image_width * 3) % 4;
+    // 4-component (avatars-only) rows are always 4-byte aligned, no padding needed
+    if (!avatars_only_alpha)
+    {
+        image_width += (image_width * 3) % 4;
+    }
 
     bool ret = true ;
     // Resize image

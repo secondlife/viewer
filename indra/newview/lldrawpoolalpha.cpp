@@ -836,7 +836,17 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                 // install glow-accumulating blend mode
                 // don't touch color, add to alpha (glow)
-                gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, LLRender::BF_ONE, LLRender::BF_ONE);
+                if (LLPipeline::sSnapshotAvatarsOnly && !LLPipeline::sRenderingHUDs && !LLPipeline::sImpostorRender)
+                {
+                    // avatars-only snapshot repurposes the alpha channel as
+                    // transmittance for the transparent background; adding glow
+                    // there would punch see-through haze around glowing faces
+                    gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, LLRender::BF_ZERO, LLRender::BF_ONE);
+                }
+                else
+                {
+                    gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, LLRender::BF_ONE, LLRender::BF_ONE);
+                }
 
                 bool rebind = false;
                 LLGLSLShader* lastShader = current_shader;

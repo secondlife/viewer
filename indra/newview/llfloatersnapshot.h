@@ -102,6 +102,11 @@ public:
     static void onClickNewSnapshot(void* data);
     static void onClickAutoSnap(LLUICtrl *ctrl, void* data);
     static void onClickNoPost(LLUICtrl *ctrl, void* data);
+    static void onClickAvatarsOnly(LLUICtrl *ctrl, void* data); // avatars-only snapshot
+    static void onClickSitObjects(LLUICtrl *ctrl, void* data);  // avatars-only seat objects
+    static void onClickAnimesh(LLUICtrl *ctrl, void* data);     // avatars-only animesh
+    static void onClickParticles(LLUICtrl *ctrl, void* data);        // avatars-only particles
+    static void onClickSelectedObjects(LLUICtrl *ctrl, void* data);  // avatars-only selected objects
     static void onClickFilter(LLUICtrl *ctrl, void* data);
     static void onClickDisplaySetting(LLUICtrl *ctrl, void* data);
     static void onCommitFreezeFrame(LLUICtrl* ctrl, void* data);
