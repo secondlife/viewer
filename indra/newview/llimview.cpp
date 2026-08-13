@@ -2263,6 +2263,13 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
     if((dialog == IM_NOTHING_SPECIAL) &&
        (other_participant_id.notNull()))
     {
+        // The packet has been sent; only an as-yet undiscovered direct conversation
+        // needs a bounded list confirmation. Listed conversations gain no refresh.
+        if (session && session->isP2PSessionType())
+        {
+            LLChatServiceHistory::noteOutboundDirectMessage(other_participant_id);
+        }
+
         // Do we have to replace the /me's here?
         std::string from;
         LLAgentUI::buildFullname(from);

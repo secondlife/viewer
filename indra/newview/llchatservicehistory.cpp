@@ -105,6 +105,13 @@ enum ESummary
     SUMMARY_VALID
 };
 
+enum EOutboundDiscovery
+{
+    OUTBOUND_NONE,
+    OUTBOUND_PENDING,
+    OUTBOUND_CONFIRMING
+};
+
 struct CapabilityContext
 {
     LLUUID region_id;
@@ -174,6 +181,9 @@ struct Resident
     bool retry_used = false;
     bool metadata_waiting = false;
     bool priority_waiting = false;
+
+    // Unknown outbound conversations retain one bounded discovery confirmation.
+    EOutboundDiscovery outbound_discovery = OUTBOUND_NONE;
 
     LLChatServiceHistory::Snapshot snapshot;
 };
@@ -1320,8 +1330,9 @@ void handleRequestFailure(const LLUUID& id, Resident& resident, S32 status)
     }
 }
 
-bool processList(const LLSD& body)
+bool processList(const LLSD& body, bool& confirm_outbound_discovery)
 {
+    confirm_outbound_discovery = false;
     std::vector<ListEntry> entries;
     if (!validateConversationList(body, sRuntime.agent_id, entries))
     {
@@ -1333,12 +1344,22 @@ bool processList(const LLSD& body)
         listed.insert(entry.resident_id);
     }
 
-    // Validate the complete list before preserving priority placeholders and appending background work.
+    // Validate the complete list before preserving priority placeholders and
+    // appending background work. The first miss after an outbound hint retains its
+    // placeholder for one delayed confirmation; the next valid miss retires it.
     for (auto& pair : sRuntime.residents)
     {
         pair.second.listed = listed.count(pair.first) != 0;
         if (!pair.second.listed)
         {
+            if (pair.second.outbound_discovery == OUTBOUND_PENDING)
+            {
+                pair.second.outbound_discovery = OUTBOUND_CONFIRMING;
+                confirm_outbound_discovery = true;
+                continue;
+            }
+
+            pair.second.outbound_discovery = OUTBOUND_NONE;
             sRuntime.queue.erase(std::remove(sRuntime.queue.begin(), sRuntime.queue.end(), pair.first),
                                  sRuntime.queue.end());
             if (sRuntime.priority_resident == pair.first)
@@ -1360,6 +1381,7 @@ bool processList(const LLSD& body)
         resident.conversation_id = entry.conversation_id;
         resident.advertised_token = entry.last_msg_id;
         resident.listed = true;
+        resident.outbound_discovery = OUTBOUND_NONE;
         if (resident.metadata.state == META_FAILED)
         {
             resident.metadata.state = META_UNREQUESTED;
@@ -1391,7 +1413,8 @@ void requestList(const CapabilityContext& context, U32 epoch)
     }
 
     // Discovery mutates resident scheduling state only after the complete response
-    // passes strict validation.
+    // passes strict validation. A pending outbound hint remains visible across the
+    // HTTP suspension and is consumed by processList rather than this request latch.
     const HttpResult response = request(context.list_url, NULL);
     if (!ownsRuntime(epoch) || sampleContext() != context || sRuntime.delete_requested ||
         !baseNetworkEligible(context))
@@ -1405,13 +1428,22 @@ void requestList(const CapabilityContext& context, U32 epoch)
         sRuntime.list_needed = true;
         return;
     }
-    if (!response.body.isUndefined() && response.status >= 200 && response.status < 300 &&
-        processList(response.body))
+    if (!response.body.isUndefined() && response.status >= 200 && response.status < 300)
     {
-        sRuntime.list_needed = false;
-        sRuntime.list_retry_used = false;
-        sRuntime.next_list = F64(LLTimer::getTotalSeconds()) + LIST_INTERVAL;
-        return;
+        bool confirm_outbound_discovery = false;
+        if (processList(response.body, confirm_outbound_discovery))
+        {
+            const F64 now = F64(LLTimer::getTotalSeconds());
+            sRuntime.list_needed = confirm_outbound_discovery;
+            sRuntime.list_retry_used = false;
+            sRuntime.next_list = now + LIST_INTERVAL;
+            if (confirm_outbound_discovery)
+            {
+                sRuntime.network_not_before = llmax(sRuntime.network_not_before,
+                                                     now + RETRY_DELAY);
+            }
+            return;
+        }
     }
     if (retryable(response.status) && !sRuntime.list_retry_used)
     {
@@ -1445,6 +1477,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         if (!resident.listed || resident.conversation_id.empty())
         {
             // A failed discovery remains dormant until a fresh open/list/region trigger.
+            resident.outbound_discovery = OUTBOUND_NONE;
             resident.snapshot.head_preview.clear();
             setWorkActive(id, false);
             clearPriority(id);
@@ -2868,6 +2901,26 @@ void LLChatServiceHistory::prioritizeResident(const LLUUID& id, bool inbound)
         !sRuntime.delete_requested && context.complete() && !uuidBlocked(id);
     setWorkActive(id, potentially_active);
     wakeManager();
+}
+
+void LLChatServiceHistory::noteOutboundDirectMessage(const LLUUID& id)
+{
+    if (!sRuntime.running || !sRuntime.rollout || !transcriptConsent() ||
+        sRuntime.delete_requested || id.isNull() || id == sRuntime.agent_id)
+    {
+        return;
+    }
+
+    // Established conversations rely on ordinary list tokens and inbound priority.
+    // Unknown outbound conversations receive one bounded post-send confirmation.
+    Resident& resident = sRuntime.residents[id];
+    if (resident.listed || resident.outbound_discovery != OUTBOUND_NONE)
+    {
+        return;
+    }
+
+    resident.outbound_discovery = OUTBOUND_PENDING;
+    prioritizeResident(id);
 }
 
 LLChatServiceHistory::Snapshot LLChatServiceHistory::getSnapshot(const LLUUID& id)

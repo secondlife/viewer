@@ -75,9 +75,11 @@ namespace LLChatServiceHistory
     bool localHistoryExists();
     bool localHistoryExists(const LLUUID& resident_id);
 
-    // Open and accepted-inbound activity share one account-scoped priority queue.
+    // Opens and accepted-inbound activity share one account-scoped priority queue.
+    // A first outbound send may confirm discovery for an as-yet unlisted resident.
     bool isPersistedDirectDialog(EInstantMessage dialog);
     void prioritizeResident(const LLUUID& resident_id, bool inbound = false);
+    void noteOutboundDirectMessage(const LLUUID& resident_id);
 
     // Views connect first and then query so they cannot miss an active-work transition.
     Snapshot getSnapshot(const LLUUID& resident_id);
