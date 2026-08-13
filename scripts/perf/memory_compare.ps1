@@ -8,7 +8,7 @@
     Neither build's memory usage lives in a single process, so this sums
     across the right set for each side rather than looking at secondlife-bin
     alone:
-      - legacy (media plugin):   secondlife-bin, SLPlugin
+      - legacy (media plugin):   secondlifeviewer, SLPlugin
       - this build (embedded):   secondlife-bin, cefshm_producer
 
     Logs one row per process name per sample (Count/WorkingSetMB/PrivateMB),
@@ -29,7 +29,7 @@
     VMMap if you need the precise shared-vs-private split.
 
 .PARAMETER ProcessNames
-    Process names to sample (no .exe suffix), e.g. secondlife-bin,SLPlugin
+    Process names to sample (no .exe suffix), e.g. secondlifeviewer,SLPlugin
 
 .PARAMETER Label
     Free-text tag written into every row (e.g. "legacy" or "embedded") so
@@ -47,10 +47,10 @@
     Stop after this many minutes. Default 0 (run until Ctrl+C).
 
 .EXAMPLE
-    .\memory_compare.ps1 -ProcessNames secondlife-bin,SLPlugin -Label legacy -OutFile mem.csv -DurationMinutes 10
+    .\memory_compare.ps1 -ProcessNames secondlifeviewer,SLPlugin -Label legacy -OutFile mem.csv -DurationMinutes 5
 
 .EXAMPLE
-    .\memory_compare.ps1 -ProcessNames secondlife-bin,cefshm_producer -Label embedded -OutFile mem.csv -DurationMinutes 10
+    .\memory_compare.ps1 -ProcessNames secondlife-bin,cefshm_producer -Label embedded -OutFile mem.csv -DurationMinutes 5
 #>
 param(
     [Parameter(Mandatory = $true)]
