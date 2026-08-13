@@ -64,6 +64,9 @@ namespace cefshm_demo
                           // on the producer side. Windows-only, matching SendKeyEvent itself.
         kSetFocus    = 17, // data = {uint8 focus} -- straight into llCefBrowserManager::SetFocus();
                           // drives caret blink and focus/blur page JS, independent of key/mouse events
+        kExecuteJavaScript = 21, // text payload: JS source, straight into
+                          // llCefBrowserManager::ExecuteJavaScript() -- fire-and-forget, no result
+                          // is returned (matching LLPluginClassMedia::executeJavaScript() itself)
 
         // consumer -> producer, control channel only
         kRequestSlot     = 5, // empty payload

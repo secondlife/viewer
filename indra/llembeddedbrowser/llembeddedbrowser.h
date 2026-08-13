@@ -107,6 +107,9 @@ class LLEmbeddedBrowserTab
         bool copyPixels(std::vector<unsigned char>& out_pixels, unsigned int& out_width, unsigned int& out_height);
         void navigate(const std::string& url);
         void resize(unsigned int width, unsigned int height);
+        // Fire-and-forget, matching LLPluginClassMedia::executeJavaScript() -- no result is
+        // returned to the caller.
+        void executeJavaScript(const std::string& code);
         unsigned int getWidth() const;
         unsigned int getHeight() const;
 
@@ -177,6 +180,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         unsigned int getHeight(unsigned int id);
         void navigate(unsigned int id, const std::string& url);
         void resize(unsigned int id, unsigned int width, unsigned int height);
+        void executeJavaScript(unsigned int id, const std::string& code);
 
         void mouseMove(unsigned int id, int x, int y);
         void mouseButton(unsigned int id, int x, int y, unsigned char button, bool is_down);

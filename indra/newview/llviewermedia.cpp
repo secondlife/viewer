@@ -2078,7 +2078,11 @@ void LLViewerMediaImpl::loadURI()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::executeJavaScript(const std::string& code)
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->executeJavaScript(mEmbeddedBrowserId, code);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->executeJavaScript(code);
     }

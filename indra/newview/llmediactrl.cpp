@@ -1405,7 +1405,7 @@ std::string LLMediaCtrl::getMediaTitle()
 
 bool LLMediaCtrl::executeJavaScript(const std::string& script)
 {
-    if (mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
         mMediaSource->executeJavaScript(script);
         return true;

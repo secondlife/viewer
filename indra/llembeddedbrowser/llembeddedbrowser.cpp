@@ -284,6 +284,15 @@ void LLEmbeddedBrowserTab::navigate(const std::string& url)
     }
 }
 
+void LLEmbeddedBrowserTab::executeJavaScript(const std::string& code)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        mSub->send_text(kExecuteJavaScript, code);
+    }
+}
+
 void LLEmbeddedBrowserTab::resize(unsigned int width, unsigned int height)
 {
     LLMutexLock lock(&mPixelMutex);
@@ -527,6 +536,14 @@ void LLEmbeddedBrowser::navigate(unsigned int id, const std::string& url)
     if (auto tab = findTab(id))
     {
         tab->navigate(url);
+    }
+}
+
+void LLEmbeddedBrowser::executeJavaScript(unsigned int id, const std::string& code)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->executeJavaScript(code);
     }
 }
 

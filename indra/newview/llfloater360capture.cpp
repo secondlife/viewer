@@ -694,13 +694,9 @@ void LLFloater360Capture::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
                                             << ")"
                                         );
 
-                // execute the command on the page
-                LLPluginClassMedia* plugin = mWebBrowser->getMediaPlugin();
-                if (plugin)
-                {
-                    plugin->executeJavaScript(cmd);
-                }
-                else
+                // execute the command on the page -- backend-agnostic (works whether
+                // mWebBrowser is backed by the CEF plugin or the embedded browser)
+                if (!mWebBrowser->executeJavaScript(cmd))
                 {
                     LL_WARNS("360Capture") << "No media plugin found" << LL_ENDL;
                 }
@@ -783,13 +779,9 @@ void LLFloater360Capture::onSaveLocalBtn()
     const std::string cmd = "saveAsEqrImage(\"" + suggested_filename + "\", " + xmp_details + ")";
 
     // send it to the browser instance, triggering the equirectangular capture
-    // process and complimentary offer to save the image
-    LLPluginClassMedia* plugin = mWebBrowser->getMediaPlugin();
-    if (plugin)
-    {
-        plugin->executeJavaScript(cmd);
-    }
-    else
+    // process and complimentary offer to save the image -- backend-agnostic (works
+    // whether mWebBrowser is backed by the CEF plugin or the embedded browser)
+    if (!mWebBrowser->executeJavaScript(cmd))
     {
         LL_WARNS("360Capture") << "No media plugin found" << LL_ENDL;
     }
