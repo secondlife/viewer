@@ -40,8 +40,8 @@
 #include "llagent.h"
 #include "lltrans.h"
 #include "lluiusage.h"
-#include "llmutelist.h"
 #include "llnearbyvoicemoderation.h"
+#include "llmutelist.h"
 
 const F32 LLVoiceClient::OVERDRIVEN_POWER_LEVEL = 0.7f;
 
@@ -602,14 +602,14 @@ LLVoiceP2POutgoingCallInterface *LLVoiceClient::getOutgoingCallInterface(const L
         LLVoiceVersionInfo versionInfo = LLVoiceClient::getInstance()->getVersion();
         voice_server_type = versionInfo.internalVoiceServerType;
     }
+#ifndef DISABLE_WEBRTC
     if (voiceChannelInfo.has("voice_server_type") && voiceChannelInfo["voice_server_type"] != voice_server_type)
     {
         // there's a mismatch between what the peer is offering and what our server
         // can handle, so default to webrtc
-#ifndef DISABLE_WEBRTC
         voice_server_type = WEBRTC_VOICE_SERVER_TYPE;
-#endif
     }
+#endif
     LLVoiceModuleInterface *module = getVoiceModule(voice_server_type);
     return dynamic_cast<LLVoiceP2POutgoingCallInterface *>(module);
 }
@@ -798,9 +798,10 @@ bool LLVoiceClient::getVoiceEnabled(const LLUUID& id) const
 
 std::string LLVoiceClient::getDisplayName(const LLUUID& id) const
 {
-    std::string result;
 #ifndef DISABLE_WEBRTC
-    result = LLWebRTCVoiceClient::getInstance()->getDisplayName(id);
+    std::string result = LLWebRTCVoiceClient::getInstance()->getDisplayName(id);
+#else
+    std::string result;
 #endif
     return result;
 }

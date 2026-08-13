@@ -1297,7 +1297,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
                 else
                 {
                     mCanUseCapability = false;
-                    if (gDisconnected)
+                    if (gDisconnected || LLAppViewer::isExiting())
                     {
                         // We lost connection or are shutting down.
                         mCanUseHTTP = false;
@@ -1315,6 +1315,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
             else
             {
                 mCanUseCapability = false;
+                if (gDisconnected || LLAppViewer::isExiting())
+                {
+                    // We lost connection or are shutting down.
+                    mCanUseHTTP = false;
+                    return true; // abort
+                }
                 mRegionRetryAttempt++;
                 mRegionRetryTimer.setTimerExpirySec(CAP_MISSING_EXPIRATION_DELAY);
                 // This will happen if not logged in or if a region deoes not have HTTP Texture enabled

@@ -111,7 +111,7 @@ jobs:
       autobuild_configure_parameters: ${{ (contains(matrix.runner, 'windows') || contains(matrix.runner, 'macos')) && (github.event.inputs.installer_type || 'velopack') == 'velopack' && '-- -DUSE_VELOPACK:BOOL=ON' || '' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
@@ -130,18 +130,18 @@ jobs:
           df -h
 
       - name: Setup python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
       - name: Checkout build variables
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: secondlife/build-variables
           ref: master
           path: .build-variables
 
       - name: Checkout master-message-template
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: secondlife/master-message-template
           path: .master-message-template
@@ -151,7 +151,7 @@ jobs:
 
       - name: Cache autobuild packages
         id: cache-installables
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: .autobuild-installables
           key: ${{ runner.os }}-64-${{ matrix.configuration }}-${{ matrix.build_variant }}-${{ hashFiles('autobuild.xml') }}
@@ -330,8 +330,8 @@ jobs:
           echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
 
       - name: Upload executable
-        uses: actions/upload-artifact@v7
         if: matrix.build_variant == 'Viewer' && steps.build.outputs.viewer_app
+        uses: actions/upload-artifact@v7
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
           path: |
@@ -340,8 +340,8 @@ jobs:
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
       - name: Upload symbol file
-        uses: actions/upload-artifact@v7
         if: matrix.build_variant == 'Viewer' && steps.build.outputs.symbolfile
+        uses: actions/upload-artifact@v7
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
           path: ${{ steps.build.outputs.symbolfile }}
@@ -476,7 +476,7 @@ jobs:
           tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
       - name: Post Windows symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: BugSplat-Git/symbol-upload@095d163ae9ceb006d286a731dcd35cf6a1b458c8
+        uses: BugSplat-Git/symbol-upload@3857759bd957dadb075509a4e951f04f9baa5ea3
         with:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"
@@ -504,7 +504,7 @@ jobs:
           name: macOS-symbols
       - name: Post Mac symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: BugSplat-Git/symbol-upload@095d163ae9ceb006d286a731dcd35cf6a1b458c8
+        uses: BugSplat-Git/symbol-upload@3857759bd957dadb075509a4e951f04f9baa5ea3
         with:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"
@@ -529,13 +529,13 @@ jobs:
         with:
           pattern: "*-metadata"
 
-      - uses: actions/download-artifact@v7
-        with:
-          name: "Linux-app"
-
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: "*-releases"
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: "Linux-app"
 
       - name: Rename metadata
         run: |

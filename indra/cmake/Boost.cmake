@@ -67,12 +67,28 @@ find_library(BOOST_URL_LIBRARY
     boost_url-mt${addrsfx}
     PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
 
+find_library(BOOST_PROCESS_LIBRARY
+    NAMES
+    libboost_process
+    libboost_process-mt
+    libboost_process-mt${addrsfx}
+    boost_process
+    boost_process-mt
+    boost_process-mt${addrsfx}
+    PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+
 target_link_libraries(ll::boost INTERFACE
     ${BOOST_FIBER_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_FILESYSTEM_LIBRARY}
     ${BOOST_PROGRAMOPTIONS_LIBRARY}
-    ${BOOST_URL_LIBRARY})
+    ${BOOST_URL_LIBRARY}
+    ${BOOST_PROCESS_LIBRARY})
+
+if (WINDOWS)
+    # Boost.Process v2 needs ntdll (NtSuspendProcess/NtResumeProcess)
+    target_link_libraries(ll::boost INTERFACE ntdll)
+endif (WINDOWS)
 
 if (LINUX)
     target_link_libraries(ll::boost INTERFACE rt)

@@ -36,6 +36,7 @@
 
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llcallbacklist.h"
 #include "llcommandhandler.h"
 #include "llcommunicationchannel.h"
 #include "llfloaterreg.h"
@@ -1464,12 +1465,68 @@ void LLViewerWindow::handleMouseLeave(LLWindow *window)
     LLToolTipMgr::instance().blockToolTips();
 }
 
+void LLViewerWindow::handlePreCloseRequest()
+{
+    // WINDOW THREAD! since we need this to act fast.
+    if (!LLApp::isExiting() && !LLApp::isStopped())
+    {
+        LLAppViewer::instance()->createCloseRequestMarker();
+    }
+}
+
+void LLViewerWindow::handleCloseRequestCanceled()
+{
+    // WINDOW THREAD! since we need this to act fast.
+    if (!LLApp::isExiting() && !LLApp::isStopped())
+    {
+        LLAppViewer::instance()->removeCloseRequestMarker();
+    }
+}
+
+void LLViewerWindow::handleSuspendRequest()
+{
+    static LLCachedControl<S32> os_hibernation_mode(gSavedSettings, "OSHibernationMode", 0);
+    if (os_hibernation_mode == 0)
+    {
+        LL_INFOS() << "Got a 'suspend' event from OS" << LL_ENDL;
+        // Viewer doesn't handle hibernation.
+        // Just send statistics.
+        LLAppViewer::instance()->sendViewerStatistics(false);
+    }
+    else
+    {
+        LL_INFOS() << "Got a 'suspend' event from OS, disconnecting" << LL_ENDL;
+        // Viewer is set to prevent hibernation if agent isn't away.
+        // If we got here, likely Agent 'went' away then viewer got
+        // a hibernation message.
+        // We have a limited timeframe. Sends stats then disconnect.
+        LLViewerRegion* region = gAgent.getRegion();
+        if (region)
+        {
+            LLAppViewer::instance()->sendViewerStatistics(true);
+            LLAppViewer::instance()->metricsSend(!gDisconnected);
+            // Make sure to show a message.
+            LLAppViewer::instance()->forceDisconnect(LLTrans::getString("YouHaveBeenDisconnected"));
+        }
+    }
+}
+
 bool LLViewerWindow::handleCloseRequest(LLWindow *window, bool from_user)
 {
     if (!LLApp::isExiting() && !LLApp::isStopped())
     {
         if (from_user)
         {
+            // Task naamger kills viewer after 1 second, 3 seconds
+            // is overkill, but decided to be on a safe side.
+            doAfterInterval([]()
+            {
+                // if user quits, marker will be cleaned by cleanup,
+                // if user cancels quit, marker will be cleaned here,
+                // but if task manager kills us, marker stays.
+                LLAppViewer::instance()->removeCloseRequestMarker();
+            }, 3.0f);
+
             // User has indicated they want to close, but we may need to ask
             // about modified documents.
             LLAppViewer::instance()->userQuit();
@@ -1490,6 +1547,9 @@ bool LLViewerWindow::handleSessionExit(LLWindow* window)
     {
         // Viewer received WM_ENDSESSION and app will be killed soon if it doesn't respond
         LLAppViewer* app = LLAppViewer::instance();
+        // Normally we'd include preferences, but serializing them can be expensive.
+        // There is also a chance this won't be processed if the logout request arrives first.
+        app->sendViewerStatistics(false /*no preferences*/);
         app->sendSimpleLogoutRequest();
         app->earlyExitNoNotify();
 
@@ -1774,13 +1834,17 @@ bool LLViewerWindow::handleTimerEvent(LLWindow *window)
     return false;
 }
 
-bool LLViewerWindow::handleDeviceChange(LLWindow *window)
+bool LLViewerWindow::handleDeviceChange(LLWindow *window, const std::string& change_type)
 {
     // give a chance to use a joystick after startup (hot-plugging)
     if (!LLViewerJoystick::getInstance()->isJoystickInitialized() )
     {
         LLViewerJoystick::getInstance()->init(true);
         return true;
+    }
+    else
+    {
+        LL_INFOS("Window") << "Device change event: " << change_type << LL_ENDL;
     }
     return false;
 }
@@ -1803,6 +1867,7 @@ bool LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32
 
 bool LLViewerWindow::handleDisplayChanged()
 {
+    LL_INFOS("Window") << "Display change event" << LL_ENDL;
     LLFontGL::sResolutionGeneration++;
     return false;
 }

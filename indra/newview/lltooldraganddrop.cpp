@@ -2578,7 +2578,12 @@ bool is_water_exclusion_face(LLViewerObject* obj, S32 face)
     bool exclude_water = (image->getID() == IMG_ALPHA_GRAD) && obj->isImageAlphaBlended(face);
 
     // transparency
-    exclude_water &= (obj->getTE(face)->getColor().mV[VALPHA] == 1);
+    // getTE gets from a different source than getTEImage, so check for null
+    LLTextureEntry* te = obj->getTE(face);
+    if (te)
+    {
+        exclude_water &= (te->getColor().mV[VALPHA] == 1);
+    }
 
     //absence of normal and specular textures
     image = obj->getTENormalMap(face);

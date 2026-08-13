@@ -1,10 +1,9 @@
 /**
- * @file llfloaterhowto.h
- * @brief A variant of web floater meant to open guidebook
+ * @file llfloatergestureautocompletepicker.h
  *
- * $LicenseInfo:firstyear=2021&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2021, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,35 +23,25 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERHOWTO_H
-#define LL_LLFLOATERHOWTO_H
+#pragma once
 
-#include "llfloaterwebcontent.h"
+#include "llfloater.h"
 
-class LLMediaCtrl;
+class LLScrollListCtrl;
 
-
-class LLFloaterHowTo :
-    public LLFloaterWebContent
+class LLFloaterGestureAutocompletePicker : public LLFloater
 {
 public:
-    LOG_CLASS(LLFloaterHowTo);
+    LLFloaterGestureAutocompletePicker(const LLSD& key);
 
-    typedef LLFloaterWebContent::Params Params;
-
-    LLFloaterHowTo(const Params& key);
-
+    bool postBuild() override;
     void onOpen(const LLSD& key) override;
-
-    bool handleKeyHere(KEY key, MASK mask) override;
-
-    static LLFloaterHowTo* getInstance();
-
-    bool matchesKey(const LLSD& key) override { return true; /*single instance*/ };
+    bool handleKey(KEY key, MASK mask, bool called_from_parent) override;
+    void onClose(bool app_quitting) override;
+    void goneFromFront() override;
 
 private:
-    bool postBuild() override;
+    bool commitSelected();
+
+    LLScrollListCtrl* mGestureList;
 };
-
-#endif  // LL_LLFLOATERHOWTO_H
-

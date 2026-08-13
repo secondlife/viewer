@@ -116,6 +116,7 @@ private:
     std::string mRootCachePath;
     std::string mCefLogFile;
     bool mCefLogVerbose;
+    U32 mCefRemoteDebuggingPort;
     std::vector<std::string> mPickedFiles;
     VolumeCatcher mVolumeCatcher;
     F32 mCurVolume;
@@ -157,6 +158,7 @@ MediaPluginBase(host_send_func, host_user_data)
     mCanSelectAll = false;
     mCefLogFile = "";
     mCefLogVerbose = false;
+    mCefRemoteDebuggingPort = 0;
     mPickedFiles.clear();
     mCurVolume = 0.0;
 
@@ -709,6 +711,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 settings.webgl_enabled = true;
                 settings.log_file = mCefLogFile;
                 settings.log_verbose = mCefLogVerbose;
+                settings.enable_remote_debug = (mCefRemoteDebuggingPort != 0);
+                settings.remote_debugging_port = mCefRemoteDebuggingPort;
                 settings.autoplay_without_gesture = true;
 
                 std::vector<std::string> custom_schemes(1, "secondlife");
@@ -773,6 +777,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
                 mCefLogFile = message_in.getValue("cef_log_file");
                 mCefLogVerbose = message_in.getValueBoolean("cef_verbose_log");
+                mCefRemoteDebuggingPort = message_in.getValueU32("cef_remote_debugging_port");
             }
             else if (message_name == "size_change")
             {

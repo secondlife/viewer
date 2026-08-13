@@ -249,6 +249,25 @@ public:
 
     /*virtual*/ bool            canEdit() const { return false; }
 
+    /*virtual*/ bool            handleRightMouseDown(S32 x, S32 y, MASK mask)
+    {
+        bool show_menu = !mEditor.hasSelection()
+            || (mEditor.mSelectionStart == mStart && mEditor.mSelectionEnd == mStart + 1);
+        if (show_menu && mEditor.getShowContextMenu())
+        {
+            // User clicked an item, user expects the menu to be
+            // in 'context' for the item. Change selection to match.
+            // Todo: Might be better to 'smartly' deselect here
+            // and to have an object specific menu.
+            mEditor.setCursorPos(mStart + 1);
+            mEditor.mSelectionStart = mStart;
+            mEditor.mSelectionEnd = mStart + 1;
+
+            mEditor.showContextMenu(x, y);
+            return true;
+        }
+        return false;
+    }
 
     /*virtual*/ bool            handleHover(S32 x, S32 y, MASK mask)
     {
