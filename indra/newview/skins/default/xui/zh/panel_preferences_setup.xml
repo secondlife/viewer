@@ -36,4 +36,12 @@
 		代理伺服器設定：
 	</text>
 	<button label="調整代理伺服器設定" label_selected="瀏覽" name="set_proxy"/>
+	<text name="os_hibernation_mode">
+		不處於離開狀態時阻止作業系統休眠：
+	</text>
+	<combo_box name="os_hibernation_combobox" tool_tip="僅在使用者不處於離開狀態時阻止作業系統睡眠">
+		<combo_box.item label="可休眠" name="can_hibernate"/>
+		<combo_box.item label="不可休眠，可關閉螢幕" name="cant_hibernate"/>
+		<combo_box.item label="不可休眠，不可關閉螢幕" name="cant_hibernate_screen"/>
+	</combo_box>
 </panel>

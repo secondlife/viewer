@@ -862,6 +862,7 @@ LLPolyMesh *LLPolyMesh::getMesh(const std::string &name, LLPolyMesh* reference_m
 //-----------------------------------------------------------------------------
 void LLPolyMesh::freeAllMeshes()
 {
+    LL_PROFILE_ZONE_SCOPED;
         // delete each item in the global lists
         for_each(sGlobalSharedMeshList.begin(), sGlobalSharedMeshList.end(), DeletePairedPointer());
         sGlobalSharedMeshList.clear();

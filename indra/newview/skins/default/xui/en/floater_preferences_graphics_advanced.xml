@@ -695,7 +695,7 @@
     height="16"
     increment="1"
     initial_value="160"
-    label="Sky:"
+    label="Post Process Quality:"
     label_width="164"
     layout="topleft"
     left="420"

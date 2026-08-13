@@ -425,6 +425,17 @@ Initialization with the Marketplace failed because of a system or network error.
     </notification>
 
     <notification
+        icon="alertmodal.tga"
+        name="CannotPasteFolderIntoSelf"
+        type="alertmodal">
+        You cannot paste a folder into itself or into one of its subfolders.
+        <tag>fail</tag>
+        <usetemplate
+          name="okbutton"
+          yestext="OK"/>
+    </notification>
+
+    <notification
      icon="notifytip.tga"
      name="InvalidKeystroke"
      type="notifytip">
@@ -3950,7 +3961,6 @@ Local Data you are deleting is shared between multiple grids, are you sure you w
 Your character will appear in a moment.
 
 Use arrow keys to walk.
-Press the F1 key at any time for help or to learn more about [SECOND_LIFE].
 Please choose the male or female avatar. You can change your mind later.
     <usetemplate
      name="okcancelbuttons"
@@ -6744,6 +6754,14 @@ Your trash is overflowing. This may cause problems logging in.
   </notification>
 
   <notification
+   icon="notifytip.tga"
+   name="InventoryLimitReachedAIS"
+   type="notifytip">
+Your inventory is experiencing issues. Please, contact support.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="InventoryLimitReachedAISAlert"
    type="alertmodal">
@@ -7699,7 +7717,7 @@ Message from [NAME]:
    type="notify">
     <unique/>
 This land has damage enabled.
-You can be hurt here. If you die, you will be teleported to your home location.
+You can be hurt here. If you die, you might be teleported to your home location, region telehub or parcel landing point.
   </notification>
 
   <notification

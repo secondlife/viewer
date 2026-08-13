@@ -160,6 +160,8 @@ private:
     void buildOverrideMatrix(LLJointData& data, joints_data_map_t &gltf_nodes, joints_name_to_node_map_t &names_to_nodes, glm::mat4& parent_rest, glm::mat4& support_rest) const;
     glm::mat4 buildGltfRestMatrix(S32 joint_node_index, const LL::GLTF::Skin& gltf_skin) const;
     glm::mat4 buildGltfRestMatrix(S32 joint_node_index, const joints_data_map_t& joint_data) const;
+    glm::mat4 rotateGltfMatrixToViewerSpace(const glm::mat4& gltf_matrix) const;
+    glm::mat4 computeViewerBindMatrix(const joints_data_map_t& joints_data_map, const joint_node_mat4_map_t& rotated_bind_matrices, S32 gltf_node_index, joint_node_mat4_map_t& converted_bind_matrices) const;
     glm::mat4 computeGltfToViewerSkeletonTransform(const joints_data_map_t& joints_data_map, S32 gltf_node_index, const std::string& joint_name) const;
     bool checkForXYrotation(const LL::GLTF::Skin& gltf_skin, S32 joint_idx, S32 bind_indx);
     void checkForXYrotation(const LL::GLTF::Skin& gltf_skin);

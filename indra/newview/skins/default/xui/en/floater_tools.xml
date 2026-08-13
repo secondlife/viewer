@@ -1559,9 +1559,7 @@ even though the user gets a free copy.
              left_delta="0"
              name="object_horizontal"
              top_pad="10"
-             width="95"
-             font="DejaVu"
-             font.size="LSmall" />
+             width="95" />
             <menu_button
              menu_filename="menu_copy_paste_pos.xml"
              follows="top|left"
@@ -2651,9 +2649,7 @@ even though the user gets a free copy.
              left="8"
              name="object_horizontal"
              top_pad="10"
-             width="278"
-             font="DejaVu"
-             font.size="LSmall" />
+             width="278" />
             <check_box
              height="16"
              label="Light"

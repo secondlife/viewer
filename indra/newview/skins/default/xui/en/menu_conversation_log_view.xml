@@ -35,8 +35,8 @@
        parameter="sort_friends_on_top" />
   </menu_item_check>
     <menu_item_check
-     label="Show muted"
-     name="show_muted">
+     label="Show blocked"
+     name="show_blocked">
         <on_click
          function="CallLog.Action"
          parameter="show_blocked" />

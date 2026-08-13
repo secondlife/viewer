@@ -110,6 +110,7 @@ LLFontManager::~LLFontManager()
 LLFontGlyphInfo::LLFontGlyphInfo(U32 index, EFontGlyphType glyph_type)
 :   mGlyphIndex(index),
     mGlyphType(glyph_type),
+    mChar(0),
     mWidth(0),          // In pixels
     mHeight(0),         // In pixels
     mXAdvance(0.f),     // In pixels
@@ -127,6 +128,7 @@ LLFontGlyphInfo::LLFontGlyphInfo(U32 index, EFontGlyphType glyph_type)
 LLFontGlyphInfo::LLFontGlyphInfo(const LLFontGlyphInfo& fgi)
     : mGlyphIndex(fgi.mGlyphIndex)
     , mGlyphType(fgi.mGlyphType)
+    , mChar(fgi.mChar)
     , mWidth(fgi.mWidth)
     , mHeight(fgi.mHeight)
     , mXAdvance(fgi.mXAdvance)
@@ -151,7 +153,8 @@ LLFontFreetype::LLFontFreetype()
     mFTFace(nullptr),
     mRenderGlyphCount(0),
     mStyle(0),
-    mPointSize(0)
+    mPointSize(0),
+    mMaxDigitWidth(0.0f)
 {
 }
 
@@ -347,6 +350,10 @@ F32 LLFontFreetype::getXAdvance(llwchar wch) const
     LLFontGlyphInfo* gi = getGlyphInfo(wch, EFontGlyphType::Unspecified);
     if (gi)
     {
+        if (wch >= '0' && wch <= '9' && mMaxDigitWidth > 0.0f)
+        {
+            return mMaxDigitWidth;
+        }
         return gi->mXAdvance;
     }
     else
@@ -366,6 +373,12 @@ F32 LLFontFreetype::getXAdvance(const LLFontGlyphInfo* glyph) const
 {
     if (mFTFace == nullptr)
         return 0.0;
+
+    // Use max digit width for tabular numbers
+    if (mWeight > 0 && glyph->mChar >= '0' && glyph->mChar <= '9' && mMaxDigitWidth > 0.0f)
+    {
+        return mMaxDigitWidth;
+    }
 
     return glyph->mXAdvance;
 }
@@ -388,8 +401,27 @@ F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LL
     if (mFTFace == nullptr)
         return 0.0;
 
-    U32 left_glyph = left_glyph_info ? left_glyph_info->mGlyphIndex : 0;
-    U32 right_glyph = right_glyph_info ? right_glyph_info->mGlyphIndex : 0;
+    U32 left_glyph = 0;
+    U32 right_glyph = 0;
+
+    if (left_glyph_info)
+    {
+        if (mWeight > 0 && left_glyph_info->mChar >= '0' && left_glyph_info->mChar <= '9')
+        {
+            // Disable kerning for digits when using tabular numbers
+            return 0.0;
+        }
+        left_glyph = left_glyph_info->mGlyphIndex;
+    }
+    if (right_glyph_info)
+    {
+        if (mWeight > 0 && right_glyph_info->mChar >= '0' && right_glyph_info->mChar <= '9')
+        {
+            // Disable kerning for digits when using tabular numbers
+            return 0.0;
+        }
+        right_glyph = right_glyph_info->mGlyphIndex;
+    }
 
     FT_Vector  delta;
 
@@ -589,6 +621,7 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
     mFontBitmapCachep->nextOpenPos(width, pos_x, pos_y, bitmap_glyph_type, bitmap_num);
 
     LLFontGlyphInfo* gi = new LLFontGlyphInfo(glyph_index, requested_glyph_type);
+    gi->mChar = wch;
     gi->mXBitmapOffset = pos_x;
     gi->mYBitmapOffset = pos_y;
     gi->mBitmapEntry = std::make_pair(bitmap_glyph_type, bitmap_num);
@@ -604,6 +637,14 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
     // Convert these from 26.6 units to float pixels.
     gi->mXAdvance = fontp->mFTFace->glyph->advance.x / 64.f;
     gi->mYAdvance = fontp->mFTFace->glyph->advance.y / 64.f;
+
+    if (mWeight > 0 && wch >= '0' && wch <= '9')
+    {
+        // Digits are supposed to be preloaded, and buffers
+        // refresh when new chars get added, so this lazy load
+        // should not cause any issues.
+        mMaxDigitWidth = llmax(mMaxDigitWidth, gi->mXAdvance);
+    }
 
     insertGlyphInfo(wch, gi);
 
@@ -761,7 +802,50 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, ll
         llassert_always_msg(FT_Err_Ok == error, message.c_str());
     }
 
-    llassert_always(! FT_Render_Glyph(mFTFace->glyph, gFontRenderMode) );
+    // TODO: Make this more sturdy, make asserts/ll_errs conditional
+    // to non-critical characters.
+    // Temporarily leaving them for data gathering, but unicode chars
+    // like emojis should not cause the app to crash and should either
+    // fallback to some predetermined bitmap or simply return.
+
+    // Verify glyph slot is valid
+    if (!mFTFace->glyph)
+    {
+        LL_ERRS() << "FT_Load_Glyph succeeded but glyph slot is null for wchar " << llformat("U+%xu", U32(wch)) << LL_ENDL;
+        return;
+    }
+
+    // Check if bitmap buffer is already allocated
+    // It can potentially be preallocated for:
+    // 1. SVG/color glyphs rendered by FreeType's SVG_RendererHooks
+    // 2. Embedded bitmap fonts
+    // 3. Some Color emoji that use FT_LOAD_COLOR
+    if (!mFTFace->glyph->bitmap.buffer)
+    {
+        error = FT_Render_Glyph(mFTFace->glyph, gFontRenderMode);
+        if (error != FT_Err_Ok)
+        {
+            std::string render_message = llformat(
+                "Error %d (%s) rendering wchar %u glyph %u: format=%lu, pixel_mode=%d, render_mode=%d",
+                error, FT_Error_String(error), wch, glyph_index,
+                (unsigned long)mFTFace->glyph->format, mFTFace->glyph->bitmap.pixel_mode, gFontRenderMode);
+
+            // Try with FT_RENDER_MODE_NORMAL as fallback
+            if (gFontRenderMode != FT_RENDER_MODE_NORMAL)
+            {
+                LL_WARNS_ONCE() << render_message << LL_ENDL;
+                error = FT_Render_Glyph(mFTFace->glyph, FT_RENDER_MODE_NORMAL);
+                if (error != FT_Err_Ok)
+                {
+                    LL_ERRS() << "Fallback to FT_RENDER_MODE_NORMAL failed. " << render_message << LL_ENDL;
+                }
+            }
+            else
+            {
+                LL_ERRS() << render_message << LL_ENDL;
+            }
+        }
+    }
 
     mRenderGlyphCount++;
 }
@@ -797,6 +881,7 @@ void LLFontFreetype::resetBitmapCache()
     }
     mCharGlyphInfoMap.clear();
     mFontBitmapCachep->reset();
+    mMaxDigitWidth = 0.0f;
 
     // Adding default glyph is skipped for fallback fonts here as well as in loadFace().
     // This if was added as fix for EXT-4971.

@@ -41,9 +41,9 @@
 #include "llhudrender.h"
 #include "llui.h"
 #include "llviewercamera.h"
+#include "llviewerregion.h"
 #include "llviewertexturelist.h"
 #include "llviewerobject.h"
-#include "llvovolume.h"
 #include "llviewerwindow.h"
 #include "llstatusbar.h"
 #include "llmenugl.h"
@@ -291,7 +291,22 @@ void LLHUDNameTag::renderText()
             + (x_pixel_vec * screen_offset.mV[VX])
             + (y_pixel_vec * screen_offset.mV[VY]);
 
-    LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+    // Check if an underwater name tag should be rendered over the water (while camera is above the water)
+    bool render_over_water = false;
+    static LLCachedControl<bool> nametag_over_water(gSavedSettings, "NametagOverWater", true);
+    if (nametag_over_water &&
+        mSourceObject &&
+        mSourceObject->getRegion() &&
+        LLPipeline::sRenderTransparentWater &&
+        !LLViewerCamera::getInstance()->cameraUnderWater())
+    {
+        if (mSourceObject->getPositionAgent().mV[VZ] < mSourceObject->getRegion()->getWaterHeight())
+        {
+            render_over_water = true;
+        }
+    }
+    LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, render_over_water ? GL_ALWAYS : GL_LEQUAL);
+
     LLRect screen_rect;
     screen_rect.setCenterAndSize(0, static_cast<S32>(lltrunc(-mHeight / 2 + mOffsetY)), static_cast<S32>(lltrunc(mWidth)), static_cast<S32>(lltrunc(mHeight)));
     mRoundedRectImgp->draw3D(render_position, x_pixel_vec, y_pixel_vec, screen_rect, bg_color);

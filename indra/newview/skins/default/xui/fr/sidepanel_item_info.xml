@@ -38,7 +38,7 @@
 			<text name="LabelItemDescTitle">
 				Description :
 			</text>
-			<line_editor name="LabelItemDesc" tool_tip="Lorsque les utilisateurs sélectionnent &apos;Conseils de survol sur tous les objets&apos; dans les paramètres de la visionneuse, la description contextuelle de chaque objet apparaît sous le pointeur de la souris. La description de la prim est limitée à 127 octets, toute chaîne supérieure à cette limite sera tronquée."/>
+            <text_editor name="LabelItemDesc" tool_tip="Lorsque les utilisateurs sélectionnent &apos;Conseils de survol sur tous les objets&apos; dans les paramètres de la visionneuse, la description contextuelle de chaque objet apparaît sous le pointeur de la souris. La description de la prim est limitée à 127 octets, toute chaîne supérieure à cette limite sera tronquée."/>
 			<text name="LabelCreatorTitle">
 				Créateur :
 			</text>

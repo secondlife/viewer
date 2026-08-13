@@ -230,11 +230,35 @@ bool LLVolatileAPRPool::isFull()
 bool _ll_apr_warn_status(apr_status_t status, const char* file, int line)
 {
     if(APR_SUCCESS == status) return false;
-
-    char buf[MAX_STRING];   /* Flawfinder: ignore */
+    char buf[MAX_STRING];
     apr_strerror(status, buf, sizeof(buf));
-    LL_WARNS("APR") << "APR: " << file << ":" << line << " " << buf << LL_ENDL;
 
+#ifdef LL_WINDOWS
+    // On Windows, APR error strings may be in the system's ANSI code page (e.g., Cyrillic)
+    // Convert to UTF-8 for proper logging
+    std::string error_msg = buf;
+    int wlen = MultiByteToWideChar(CP_ACP, 0, buf, -1, nullptr, 0);
+    if (wlen > 0)
+    {
+        std::wstring wbuf(wlen, L'\0');
+        MultiByteToWideChar(CP_ACP, 0, buf, -1, &wbuf[0], wlen);
+
+        int utf8len = WideCharToMultiByte(CP_UTF8, 0, wbuf.c_str(), -1, nullptr, 0, nullptr, nullptr);
+        if (utf8len > 0)
+        {
+            std::string utf8buf(utf8len, '\0');
+            WideCharToMultiByte(CP_UTF8, 0, wbuf.c_str(), -1, &utf8buf[0], utf8len, nullptr, nullptr);
+            error_msg = utf8buf.c_str(); // Remove null terminator
+        }
+        LL_WARNS("APR") << "APR: " << file << ":" << line << " " << error_msg << " (0x" << std::hex << status << std::dec << ")" << LL_ENDL;
+    }
+    else
+    {
+        LL_WARNS("APR") << "APR: " << file << ":" << line << " " << buf << " (0x" << std::hex << status << std::dec << ")" << LL_ENDL;
+    }
+#else
+    LL_WARNS("APR") << "APR: " << file << ":" << line << " " << buf << " (0x" << std::hex << status << std::dec << ")" << LL_ENDL;
+#endif
     return true;
 }
 

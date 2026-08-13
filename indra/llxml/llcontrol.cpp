@@ -399,6 +399,7 @@ static bool compareRoutine(settings_pair_t lhs, settings_pair_t rhs)
 
 void LLControlGroup::cleanup()
 {
+    LL_PROFILE_ZONE_SCOPED;
     if(mSettingsProfile && getCount.size() != 0)
     {
         std::string file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, SETTINGS_PROFILE);
@@ -959,6 +960,7 @@ U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, bool require
 
 U32 LLControlGroup::saveToFile(const std::string& filename, bool nondefault_only)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LLSD settings;
     int num_saved = 0;
     for (ctrl_name_table_t::iterator iter = mNameTable.begin();

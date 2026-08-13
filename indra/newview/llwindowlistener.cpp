@@ -90,6 +90,12 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
         "to list; all nodes from root if no [\"under\"].",
         &LLWindowListener::getPaths,
         LLSDMap("reply", LLSD()));
+    add("getSubtree",
+        "Send on [\"reply\"] a nested tree of info maps for all descendants of\n"
+        "optional [\"under\"] path (default: root). Each node contains the same\n"
+        "fields as getInfo plus a [\"children\"] array of child nodes.",
+        &LLWindowListener::getSubtree,
+        LLSDMap("reply", LLSD()));
     add("keyDown",
         keySomething + "keypress event.\n" + keyExplain +
         "The [\"char\"] parameter detects and handles non-ASCII characters seperately\n" + mask,
@@ -263,6 +269,41 @@ void LLWindowListener::getPaths(LLSD const & request)
     {
         response["paths"].append((*ti)->getPathname());
     }
+}
+
+static LLSD buildSubtree(LLView* view)
+{
+    LLSD children;
+    LLSD node = view->getInfo();
+    for (LLView::child_list_const_iter_t it = view->beginChild(); it != view->endChild(); ++it)
+    {
+        children.append(buildSubtree(*it));
+    }
+    node["children"] = children;
+    return node;
+}
+
+void LLWindowListener::getSubtree(LLSD const & request)
+{
+    Response response(LLSD(), request);
+    LLView* root = LLUI::getInstance()->getRootView();
+    LLView* base = nullptr;
+    std::string under(request["under"]);
+
+    if (under.empty())
+    {
+        base = root;
+    }
+    else
+    {
+        base = LLUI::getInstance()->resolvePath(root, under);
+        if (!base)
+        {
+            return response.error(STRINGIZE(request["op"].asString() << " request specified invalid \"under\" path: '" << under << "'"));
+        }
+    }
+
+    response.setResponse(buildSubtree(base));
 }
 
 void LLWindowListener::keyDown(LLSD const & evt)
