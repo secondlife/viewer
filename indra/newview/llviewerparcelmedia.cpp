@@ -545,13 +545,15 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 
         case MEDIA_EVENT_CLICK_LINK_HREF:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << self->getClickTarget() << "\", uri is " << self->getClickURL() << LL_ENDL;
+            // self is nullptr for an embedded-browser-originated event.
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << (self ? self->getClickTarget() : "(embedded browser)") << "\", uri is " << (self ? self->getClickURL() : "(embedded browser)") << LL_ENDL;
         };
         break;
 
         case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << self->getClickURL() << LL_ENDL;
+            // self is nullptr for an embedded-browser-originated event.
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << (self ? self->getClickURL() : "(embedded browser)") << LL_ENDL;
         };
         break;
 

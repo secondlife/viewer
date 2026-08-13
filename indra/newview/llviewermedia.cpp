@@ -2291,7 +2291,11 @@ void LLViewerMediaImpl::focus(bool focus)
 {
     mHasFocus = focus;
 
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->setFocus(mEmbeddedBrowserId, focus);
+    }
+    else if (mMediaSource)
     {
         // call focus just for the hell of it, even though this apopears to be a nop
         mMediaSource->focus(focus);
@@ -3679,6 +3683,30 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
             case LLEmbeddedBrowserEventType::CursorChanged:
                 mLastSetCursor = cursorTypeFromEmbeddedBrowserCursor(event.mValue);
                 emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_CURSOR_CHANGED);
+                break;
+
+            case LLEmbeddedBrowserEventType::ClickLinkHref:
+                // Mirrors LLPluginClassMedia's own handling of the plugin's "click_href"
+                // message (see llpluginclassmedia.cpp) -- the UUID is generated here, at the
+                // owner layer, rather than carried over shm, for the same reason: it only
+                // needs to identify this click to code further upstream (e.g. a popup
+                // notification), not to the producer/CEF side.
+                mEmbeddedClickURL    = event.mText;
+                mEmbeddedClickTarget = event.mTarget;
+                mEmbeddedClickUUID   = LLUUID::generateNewID().asString();
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_CLICK_LINK_HREF);
+                break;
+
+            case LLEmbeddedBrowserEventType::ClickLinkNoFollow:
+                // Mirrors handleMediaEvent()'s own MEDIA_EVENT_CLICK_LINK_NOFOLLOW case just
+                // below -- that one only ever runs for the plugin path (it's this class's own
+                // LLPluginClassMediaOwner callback, never invoked for embedded browser), so
+                // the actual SLURL dispatch needs doing here too rather than relying on
+                // LLMediaCtrl's copy of this case, which is log-only.
+                mEmbeddedClickURL     = event.mText;
+                mEmbeddedClickNavType = event.mUserGesture ? "clicked" : "navigated";
+                LLURLDispatcher::dispatch(mEmbeddedClickURL, mEmbeddedClickNavType, NULL, mTrustedBrowser);
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_CLICK_LINK_NOFOLLOW);
                 break;
         }
     }

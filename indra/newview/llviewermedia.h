@@ -292,6 +292,15 @@ public:
     // object, so its title is cached here instead (see updateEmbeddedBrowserEvents()).
     std::string getMediaName() const;
 
+    // Embedded-browser-only equivalents of LLPluginClassMedia's own mClick* accessors,
+    // populated from updateEmbeddedBrowserEvents() just before MEDIA_EVENT_CLICK_LINK_HREF/
+    // MEDIA_EVENT_CLICK_LINK_NOFOLLOW fires (self is null for those, so observers read these
+    // instead -- see the handleMediaEvent patches in llmediactrl.cpp).
+    std::string getClickURL() const { return mEmbeddedClickURL; }
+    std::string getClickTarget() const { return mEmbeddedClickTarget; }
+    std::string getClickUUID() const { return mEmbeddedClickUUID; }
+    std::string getClickNavType() const { return mEmbeddedClickNavType; }
+
     void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; }
     void setVisible(bool visible);
     bool getVisible() const { return mVisible; }
@@ -484,6 +493,11 @@ private:
     // or destroyed before the worker thread gets around to running it.
     std::shared_ptr<std::vector<U8>> mEmbeddedBrowserFrameSnapshot;
     std::string mEmbeddedBrowserTitle;
+    // See getClickURL()/getClickTarget()/getClickUUID()/getClickNavType() above.
+    std::string mEmbeddedClickURL;
+    std::string mEmbeddedClickTarget;
+    std::string mEmbeddedClickUUID;
+    std::string mEmbeddedClickNavType;
 
     // Drains LLEmbeddedBrowser::popEvent() for mEmbeddedBrowserId, updating the cached
     // state below and calling emitEvent(nullptr, ...) for each one -- nullptr is a safe,

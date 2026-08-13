@@ -46,17 +46,24 @@ class LLSubscriber;
 enum class LLEmbeddedBrowserEventType
 {
     LoadStart,
-    LoadEnd,        // mValue = HTTP status code
-    TitleChanged,   // mText = new title
-    AddressChanged, // mText = new URL
-    CursorChanged,  // mValue = an llCefCursorType value, opaque here
+    LoadEnd,          // mValue = HTTP status code
+    TitleChanged,     // mText = new title
+    AddressChanged,   // mText = new URL
+    CursorChanged,    // mValue = an llCefCursorType value, opaque here
+    ClickLinkHref,    // mText = url, mTarget = target frame/window name -- a link wants to
+                      // open in a new window/tab (target="_blank", window.open(), etc.)
+    ClickLinkNoFollow // mText = url, mUserGesture/mIsRedirect describe how navigation to
+                      // this recognized custom URL scheme (e.g. "secondlife://") was triggered
 };
 
 struct LLEmbeddedBrowserEvent
 {
     LLEmbeddedBrowserEventType type;
     std::string mText;
+    std::string mTarget;
     unsigned int mValue = 0;
+    bool mUserGesture = false;
+    bool mIsRedirect = false;
 };
 
 class LLEmbeddedBrowserUpdateThread :
@@ -111,6 +118,9 @@ class LLEmbeddedBrowserTab
         // LLWindowWin32::getNativeKeyData(). Windows-only, matching the producer's own
         // SendKeyEvent.
         void keyEvent(unsigned int msg, unsigned int wParam, unsigned int lParam);
+        // Drives CEF's own caret blink and focus/blur page JS -- call with true when the
+        // LLMediaCtrl hosting this tab gains keyboard focus, false when it loses it.
+        void setFocus(bool focus);
 
         // Pops the oldest queued event (received from the producer since the last call),
         // false if none are pending. Call in a loop to drain all of them -- unlike
@@ -164,6 +174,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void mouseButton(unsigned int id, int x, int y, unsigned char button, bool is_down);
         void scrollWheel(unsigned int id, int x, int y, int deltaY);
         void keyEvent(unsigned int id, unsigned int msg, unsigned int wParam, unsigned int lParam);
+        void setFocus(unsigned int id, bool focus);
         bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
 
         // Caps requested create() dimensions -- callers (e.g. newview, which knows about

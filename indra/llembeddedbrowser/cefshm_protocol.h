@@ -32,6 +32,7 @@
 #pragma once
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 namespace cefshm_demo
 {
@@ -59,6 +60,8 @@ namespace cefshm_demo
                           // keyboard message triple, straight from LLWindowWin32::getNativeKeyData()
                           // on the consumer side, straight into llCefBrowserManager::SendKeyEvent()
                           // on the producer side. Windows-only, matching SendKeyEvent itself.
+        kSetFocus    = 17, // data = {uint8 focus} -- straight into llCefBrowserManager::SetFocus();
+                          // drives caret blink and focus/blur page JS, independent of key/mouse events
 
         // consumer -> producer, control channel only
         kRequestSlot     = 5, // empty payload
@@ -80,6 +83,12 @@ namespace cefshm_demo
         kEventAddressChanged = 13, // text payload: the new URL
         kEventCursorChanged  = 14, // data = {uint32 cursorType} -- an llCefCursorType value
                                    // (see llCefBrowserHandle.h), opaque to this protocol layer
+        kEventClickLinkHref     = 15, // data = {uint32 urlLen, url bytes, target bytes (remainder)} --
+                                       // a link wants to open in a new window/tab (target="_blank",
+                                       // window.open(), etc.), see llCefBrowserManager::SetOnOpenPopupCallback
+        kEventClickLinkNoFollow = 16, // data = {uint8 flags (bit0=userGesture, bit1=isRedirect), url bytes
+                                       // (remainder)} -- navigation to a recognized custom URL scheme (e.g.
+                                       // "secondlife://"), see llCefBrowserManager::SetOnCustomSchemeURLCallback
     };
 
     inline std::uint32_t pack_i32x2(std::uint8_t* d, std::int32_t x, std::int32_t y)
@@ -138,5 +147,25 @@ namespace cefshm_demo
         n += pack_u32(d + n, wParam);
         n += pack_u32(d + n, lParam);
         return n;
+    }
+
+    inline bool unpack_click_href(const std::uint8_t* d, std::size_t n,
+                                  std::string& url, std::string& target)
+    {
+        std::uint32_t url_len;
+        if (!unpack_u32(d, n, url_len) || n < 4 + std::size_t(url_len)) return false;
+        url.assign(reinterpret_cast<const char*>(d + 4), url_len);
+        target.assign(reinterpret_cast<const char*>(d + 4 + url_len), n - 4 - url_len);
+        return true;
+    }
+
+    inline bool unpack_click_nofollow(const std::uint8_t* d, std::size_t n, std::string& url,
+                                      bool& userGesture, bool& isRedirect)
+    {
+        if (n < 1) return false;
+        userGesture = (d[0] & 1) != 0;
+        isRedirect  = (d[0] & 2) != 0;
+        url.assign(reinterpret_cast<const char*>(d + 1), n - 1);
+        return true;
     }
 }

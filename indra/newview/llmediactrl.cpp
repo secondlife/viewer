@@ -1091,10 +1091,15 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_CLICK_LINK_HREF:
         {
-            // retrieve the event parameters
-            std::string url = self->getClickURL();
-            std::string target = self->isOverrideClickTarget() ? self->getOverrideClickTarget() : self->getClickTarget();
-            std::string uuid = self->getClickUUID();
+            // retrieve the event parameters. self is null for an embedded-browser-originated
+            // event (see LLViewerMediaImpl::updateEmbeddedBrowserEvents()) -- it has no
+            // isOverrideClickTarget()/getOverrideClickTarget() override state (that's only
+            // ever set on a real LLPluginClassMedia, see llfloatertos.cpp), so embedded just
+            // uses its own plain click target.
+            std::string url = self ? self->getClickURL() : mMediaSource->getClickURL();
+            std::string target = self ? (self->isOverrideClickTarget() ? self->getOverrideClickTarget() : self->getClickTarget())
+                                       : mMediaSource->getClickTarget();
+            std::string uuid = self ? self->getClickUUID() : mMediaSource->getClickUUID();
             LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << target << "\", uri is " << url << LL_ENDL;
 
             // try as slurl first
@@ -1123,7 +1128,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << self->getClickURL() << LL_ENDL;
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << (self ? self->getClickURL() : mMediaSource->getClickURL()) << LL_ENDL;
         };
         break;
 

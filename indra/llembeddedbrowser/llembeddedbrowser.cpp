@@ -190,6 +190,15 @@ void LLEmbeddedBrowserTab::update()
                 event.type = LLEmbeddedBrowserEventType::CursorChanged;
                 unpack_u32(cmd.data.data(), cmd.data.size(), event.mValue);
                 break;
+            case kEventClickLinkHref:
+                event.type = LLEmbeddedBrowserEventType::ClickLinkHref;
+                unpack_click_href(cmd.data.data(), cmd.data.size(), event.mText, event.mTarget);
+                break;
+            case kEventClickLinkNoFollow:
+                event.type = LLEmbeddedBrowserEventType::ClickLinkNoFollow;
+                unpack_click_nofollow(cmd.data.data(), cmd.data.size(), event.mText,
+                                      event.mUserGesture, event.mIsRedirect);
+                break;
             default:
                 continue; // not an event opcode this tab understands
         }
@@ -326,6 +335,16 @@ void LLEmbeddedBrowserTab::keyEvent(unsigned int msg, unsigned int wParam, unsig
         std::uint8_t payload[12];
         const std::uint32_t n = pack_key_event(payload, msg, wParam, lParam);
         mSub->send(kKeyEvent, payload, n);
+    }
+}
+
+void LLEmbeddedBrowserTab::setFocus(bool focus)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::uint8_t payload[1] = { focus ? std::uint8_t(1) : std::uint8_t(0) };
+        mSub->send(kSetFocus, payload, 1);
     }
 }
 
@@ -513,6 +532,14 @@ void LLEmbeddedBrowser::keyEvent(unsigned int id, unsigned int msg, unsigned int
     if (auto tab = findTab(id))
     {
         tab->keyEvent(msg, wParam, lParam);
+    }
+}
+
+void LLEmbeddedBrowser::setFocus(unsigned int id, bool focus)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->setFocus(focus);
     }
 }
 
