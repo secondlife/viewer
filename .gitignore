@@ -94,3 +94,6 @@ web/secondlife.com.*
 
 .env
 .vscode
+
+# memory_compare.ps1 output (see scripts/perf)
+mem.csv
