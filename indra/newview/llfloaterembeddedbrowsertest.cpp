@@ -58,10 +58,12 @@ bool LLFloaterEmbeddedBrowserTest::postBuild()
     getChild<LLUICtrl>("add_tab_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onAddTabBtn, this));
     getChild<LLUICtrl>("rem_tab_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onRemTabBtn, this));
 
-    // Buttons that browse to a specific URL (red, green, blue for now) in current browser tab
-    getChild<LLUICtrl>("browse_red_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onBrowseBtn, this, "red"));
-    getChild<LLUICtrl>("browse_green_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onBrowseBtn, this, "green"));
-    getChild<LLUICtrl>("browse_blue_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onBrowseBtn, this, "blue"));
+    // Buttons that browse to a specific URL in the current browser tab -- these used to
+    // be "red"/"green"/"blue" tokens the checkerboard placeholder special-cased into solid
+    // colors; now that llembeddedbrowser is a real cefshm consumer, they need real URLs.
+    getChild<LLUICtrl>("browse_red_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onBrowseBtn, this, "https://www.google.com"));
+    getChild<LLUICtrl>("browse_green_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onBrowseBtn, this, "https://www.wikipedia.org"));
+    getChild<LLUICtrl>("browse_blue_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onBrowseBtn, this, "https://secondlife.com"));
 
     // Close the floater
     getChild<LLUICtrl>("close_btn")->setCommitCallback(boost::bind(&LLFloaterEmbeddedBrowserTest::onCloseBtn, this));
@@ -70,7 +72,7 @@ bool LLFloaterEmbeddedBrowserTest::postBuild()
     // been established and we can eventually get correct size for the swatch
     createUI();
 
-    mBrowserId = LLEmbeddedBrowser::getInstance()->create("red", mMemoryBufferSwatchWidth, mMemoryBufferSwatchHeight);
+    mBrowserId = LLEmbeddedBrowser::getInstance()->create("https://www.google.com", mMemoryBufferSwatchWidth, mMemoryBufferSwatchHeight);
 
     return true;
 }

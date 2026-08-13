@@ -1778,7 +1778,10 @@ void LLViewerMediaImpl::createMediaSource()
             gSavedSettings.getU32("EmbeddedBrowserMaxHeight"));
 
         mUseEmbeddedBrowser = true;
-        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(mMediaURL, width, height);
+        // Matches loadURI()'s legacy-plugin behavior: data: URIs need their payload
+        // re-escaped (see LLURI::escapePathAndData()'s dedicated data: handling) to parse
+        // correctly -- plain http(s) URLs pass through this unchanged either way.
+        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height);
         return;
     }
 
@@ -2680,9 +2683,23 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
         return;
     }
 
+    if (!mMediaSource && !mUseEmbeddedBrowser)
+    {
+        // First load trigger for this impl (e.g. a UI-driven LLMediaCtrl calling
+        // navigateTo() directly, ahead of the priority-driven idle pass that normally
+        // calls createMediaSource() first for in-world media) -- resolve embedded-browser-
+        // vs-plugin now, so the legacy plugin path below can't win this race and
+        // permanently lock this impl out of the embedded browser via createMediaSource()'s
+        // own idempotency guard. createMediaSource() already handles the actual
+        // navigate/load for either backend using the mMediaURL just set above, so return
+        // either way instead of falling through and repeating it.
+        createMediaSource();
+        return;
+    }
+
     if (mUseEmbeddedBrowser)
     {
-        LLEmbeddedBrowser::getInstance()->navigate(mEmbeddedBrowserId, url);
+        LLEmbeddedBrowser::getInstance()->navigate(mEmbeddedBrowserId, LLURI::escapePathAndData(url));
         return;
     }
 
@@ -3281,7 +3298,11 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
             LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
             raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0xff);
 
-            media_tex->setExplicitFormat(GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, false);
+            // llembeddedbrowser's pixel buffer is CEF's native OnPaint byte order (BGRA),
+            // same as llshmframe's own documented convention -- unlike the CEF-plugin path
+            // just below, there's no LLPluginClassMedia to ask via getTextureFormatPrimary(),
+            // so this has to know that byte order explicitly rather than assuming RGBA.
+            media_tex->setExplicitFormat(GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, false);
 
             int discard_level = 0;
             if (!media_tex->createGLTexture(discard_level, raw))
@@ -3497,7 +3518,10 @@ bool LLViewerMediaImpl::getMediaTextureCoordsOpenGL() const
 {
     if (mUseEmbeddedBrowser)
     {
-        return false;
+        // LLEmbeddedBrowserTab::update() now flips its buffer to bottom-up rows to match
+        // what prim-face rendering has always assumed (see the row-flip there), so this
+        // buffer is GL-native, same as the plugin path reporting coords_opengl == true.
+        return true;
     }
     return mMediaSource && mMediaSource->getTextureCoordsOpenGL();
 }

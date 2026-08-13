@@ -28,7 +28,6 @@
 
 #include <map>
 #include <memory>
-#include <random>
 #include <string>
 #include <vector>
 
@@ -37,6 +36,7 @@
 
 class LLEmbeddedBrowser;
 class LLEmbeddedBrowserTab;
+class LLSubscriber;
 
 class LLEmbeddedBrowserUpdateThread :
     public LLThread {
@@ -78,14 +78,23 @@ class LLEmbeddedBrowserTab
         unsigned int getHeight() const;
 
     private:
+        // Best-effort: claims the cefshm_producer control channel, requests a view,
+        // and stores the resulting per-view LLSubscriber in mSub plus sends the tab's
+        // current URL as that view's initial navigation. Blocks the calling thread (the
+        // tab's own update thread, never called concurrently with itself) for up to a
+        // few seconds while it retries the control-channel handshake, matching
+        // llcefshm-example's own CefShmConsumer::connectToProducer(). Returns false if
+        // no producer is reachable right now; update() just retries on a later tick.
+        bool connectToProducer();
+
         mutable LLMutex mPixelMutex;
         std::unique_ptr<LLEmbeddedBrowserUpdateThread> mUpdateThread;
+        std::unique_ptr<LLSubscriber> mSub;
         unsigned char* mPixels = nullptr;
         unsigned int mWidth = 0;
         unsigned int mHeight = 0;
         const unsigned int mDepth = 4;
         std::string mCurrentUrl;
-        std::mt19937 mRng;
 };
 
 class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {

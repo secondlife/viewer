@@ -25,9 +25,10 @@
  * $/LicenseInfo$
  */
 
+#include <chrono>
 #include <cstring>
-#include <functional>
 #include <iostream>
+#include <thread>
 #include <vector>
 
 #include "linden_common.h"
@@ -36,43 +37,32 @@
 
 #include "llthread.h"
 
-// Fills one full row of `width` pixels (each `depth` bytes) alternating between
-// first_color/second_color every `checker_size` pixels. Builds each color block via
-// exponential-doubling memcpy (write one pixel, then repeatedly double the filled
-// span) instead of a per-pixel loop, so the whole row is laid down with O(log
-// checker_size) memcpy calls instead of O(width) individual pixel writes.
-static void fillCheckerRow(unsigned char* row, unsigned int width, unsigned int depth, unsigned int checker_size,
-                            const unsigned char* first_color, const unsigned char* second_color)
-{
-    unsigned int x = 0;
-    bool use_first = true;
-    while (x < width)
-    {
-        unsigned int block_pixels = llmin(checker_size, width - x);
-        const unsigned char* color = use_first ? first_color : second_color;
-        unsigned char* block_start = row + (size_t)x * depth;
+#include <shmframe/llshmframe.h>
+#include "cefshm_protocol.h"
 
-        memcpy(block_start, color, depth);
-        unsigned int filled = 1;
-        while (filled < block_pixels)
-        {
-            unsigned int copy_count = llmin(filled, block_pixels - filled);
-            memcpy(block_start + (size_t)filled * depth, block_start, (size_t)copy_count * depth);
-            filled += copy_count;
-        }
+using namespace cefshm_demo;
 
-        x += block_pixels;
-        use_first = !use_first;
-    }
+namespace {
+    // Matches llcefshm-example's own CefShmConsumer::connectToProducer() timings --
+    // long enough to outlast a losing control-channel race against another consumer
+    // (that library steals a crashed claimant's channel after ~2s) or a producer
+    // that just hasn't started yet.
+    constexpr auto kControlClaimRetryInterval = std::chrono::milliseconds(50);
+    constexpr auto kControlClaimTimeout       = std::chrono::seconds(3);
+    constexpr auto kSlotRequestTimeout        = std::chrono::seconds(2);
+    constexpr auto kSlotReplyPollInterval     = std::chrono::milliseconds(5);
 }
 
 LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height) :
     mWidth(width),
     mHeight(height),
-    mCurrentUrl(url),
-    mRng(std::random_device{}() ^ (unsigned int)id)
+    mCurrentUrl(url)
 {
-    mPixels = new unsigned char[mWidth * mHeight * mDepth];
+    // Zero-initialized: this shows as black until connectToProducer() succeeds and the
+    // first real frame arrives, rather than whatever garbage new[] handed back -- the
+    // handshake with cefshm_producer can take up to a few seconds, unlike the
+    // checkerboard placeholder this replaces, which painted its first frame instantly.
+    mPixels = new unsigned char[(size_t)mWidth * mHeight * mDepth]();
 
     mUpdateThread = std::make_unique<LLEmbeddedBrowserUpdateThread>(browser, id);
     mUpdateThread->start();
@@ -86,59 +76,131 @@ LLEmbeddedBrowserTab::~LLEmbeddedBrowserTab()
         mUpdateThread.reset();
     }
 
+    {
+        LLMutexLock lock(&mPixelMutex);
+        mSub.reset(); // clean detach -- lets cefshm_producer free this slot right away
+    }
+
     delete[] mPixels;
     mPixels = nullptr;
 }
 
+bool LLEmbeddedBrowserTab::connectToProducer()
+{
+    // Claim the control channel. A losing race must destroy this LLSubscriber and
+    // open() a fresh one to retry -- poll() on an already-connected instance can never
+    // re-attempt the claim, it only re-validates the session it already has.
+    std::unique_ptr<LLSubscriber> ctrl;
+    const auto claim_deadline = std::chrono::steady_clock::now() + kControlClaimTimeout;
+    for (;;)
+    {
+        ctrl = LLSubscriber::open(kControlChannelName);
+        if (!ctrl->connected())
+        {
+            return false; // no cefshm_producer reachable right now
+        }
+        if (ctrl->owns_command_channel()) break;
+
+        if (std::chrono::steady_clock::now() >= claim_deadline)
+        {
+            return false;
+        }
+        ctrl.reset();
+        std::this_thread::sleep_for(kControlClaimRetryInterval);
+    }
+
+    std::uint64_t req_id = 0;
+    if (!ctrl->send(kRequestSlot, nullptr, 0, 0, &req_id))
+    {
+        return false;
+    }
+
+    LLCommand reply;
+    bool got_reply = false;
+    const auto reply_deadline = std::chrono::steady_clock::now() + kSlotRequestTimeout;
+    while (std::chrono::steady_clock::now() < reply_deadline)
+    {
+        if (ctrl->receive(reply) && reply.reply_to == req_id) { got_reply = true; break; }
+        std::this_thread::sleep_for(kSlotReplyPollInterval);
+    }
+    if (!got_reply)
+    {
+        return false;
+    }
+
+    std::uint32_t index = 0;
+    if (reply.type != kSlotAssigned || !unpack_u32(reply.data.data(), reply.data.size(), index))
+    {
+        return false; // producer has no free slot right now
+    }
+
+    ctrl.reset(); // release the control claim for the next requester
+
+    auto sub = LLSubscriber::open(kChannelPrefix + std::to_string(index));
+    if (!sub->connected() || !sub->owns_command_channel())
+    {
+        return false;
+    }
+
+    LLMutexLock lock(&mPixelMutex);
+    mSub = std::move(sub);
+    if (!mCurrentUrl.empty())
+    {
+        mSub->send_text(kSetUrl, mCurrentUrl);
+    }
+    // The producer always starts a fresh view at its own default (960x540), regardless
+    // of what this tab's create()/resize() actually asked for -- ask it to match right
+    // away rather than sitting at the wrong size until some later, unrelated resize().
+    std::uint8_t payload[8];
+    pack_size(payload, mWidth, mHeight);
+    mSub->send(kResize, payload, 8);
+    return true;
+}
+
 void LLEmbeddedBrowserTab::update()
 {
+    if (!mSub)
+    {
+        connectToProducer(); // best-effort; failure just leaves the current buffer and retries next tick
+        return;
+    }
+
+    std::vector<unsigned char> frame_buf;
+    LLFrameInfo info{};
+    const LLReadResult result = mSub->read_latest(frame_buf, info);
+
+    if (result == LLReadResult::Disconnected)
+    {
+        LLMutexLock lock(&mPixelMutex);
+        mSub.reset(); // producer went away -- connectToProducer() retries on a later tick
+        return;
+    }
+
+    if (result != LLReadResult::Ok || info.width == 0 || info.height == 0)
+    {
+        return; // NoNewFrame/Contended/Throttled/BufferTooSmall -- nothing to display yet
+    }
+
     LLMutexLock lock(&mPixelMutex);
-
-    // Draw a checkerboard pattern with colors based on the current URL: "red"/"green"/"blue"
-    // get a randomized single-channel color (as before); any other URL gets a stable,
-    // always-visible two-tone pattern derived from a hash of the URL itself. Uses a
-    // per-tab RNG rather than the CRT's global rand(), since each tab now updates on
-    // its own thread and rand() isn't guaranteed thread-safe across platforms.
-    auto rand_in = [this](unsigned int n) { return std::uniform_int_distribution<unsigned int>(0, n - 1)(mRng); };
-
-    const unsigned int checker_size = 16 + rand_in(64);
-    unsigned char color_a[4] = { 0, 0, 0, 255 };
-    unsigned char color_b[4] = { 0, 0, 0, 255 };
-
-    if (mCurrentUrl == "red" || mCurrentUrl == "green" || mCurrentUrl == "blue")
+    if (info.width != mWidth || info.height != mHeight)
     {
-        unsigned int channel = (mCurrentUrl == "red") ? 0 : (mCurrentUrl == "green") ? 1 : 2;
-        color_a[channel] = (unsigned char)(64 + rand_in(128));
-        color_b[channel] = (unsigned char)(192 + rand_in(64));
-    }
-    else
-    {
-        std::hash<std::string> hasher;
-        size_t hash = hasher(mCurrentUrl);
-        for (unsigned int c = 0; c < 3; ++c)
-        {
-            unsigned char base = (unsigned char)((hash >> (c * 8)) & 0xFF);
-            color_a[c] = base / 2;
-            color_b[c] = (unsigned char)(255 - (base / 2));
-        }
+        delete[] mPixels;
+        mWidth = info.width;
+        mHeight = info.height;
+        mPixels = new unsigned char[(size_t)mWidth * mHeight * mDepth];
     }
 
-    // Blocks repeat every checker_size rows, so only two distinct row patterns ever
-    // occur (one starting with color_a, one starting with color_b). Build each once,
-    // then lay down every output row with a single whole-row memcpy -- this replaces
-    // the O(width*height) per-pixel loop with O(height) large, vectorizable memcpy
-    // calls (plus the two O(log checker_size) row builds), which keeps mPixelMutex
-    // held for a small fraction of the time on large (e.g. 4096x4096) buffers.
-    std::vector<unsigned char> row_starts_a((size_t)mWidth * mDepth);
-    std::vector<unsigned char> row_starts_b((size_t)mWidth * mDepth);
-    fillCheckerRow(row_starts_a.data(), mWidth, mDepth, checker_size, color_a, color_b);
-    fillCheckerRow(row_starts_b.data(), mWidth, mDepth, checker_size, color_b, color_a);
-
+    // CEF's OnPaint (and this whole shm pipeline) hands back top-down rows, but prim-face
+    // rendering has no orientation compensation of its own anywhere (unlike LLMediaCtrl's
+    // floater quad, which picks its UV winding based on the media source's self-reported
+    // coordinate convention) -- it just trusts mPixels' row order to already match what
+    // the CEF media plugin has always supplied for prim faces (bottom-up), so this flips
+    // on the way in rather than leaving that to a UV fix that doesn't exist for prims.
+    const size_t row_bytes = (size_t)mWidth * mDepth;
+    const unsigned char* src = frame_buf.data();
     for (unsigned int y = 0; y < mHeight; ++y)
     {
-        bool row_starts_with_a = ((y / checker_size) % 2 == 0);
-        const unsigned char* src = row_starts_with_a ? row_starts_a.data() : row_starts_b.data();
-        memcpy(mPixels + (size_t)y * mWidth * mDepth, src, (size_t)mWidth * mDepth);
+        memcpy(mPixels + (size_t)y * row_bytes, src + (size_t)(mHeight - 1 - y) * row_bytes, row_bytes);
     }
 }
 
@@ -163,6 +225,10 @@ void LLEmbeddedBrowserTab::navigate(const std::string& url)
 {
     LLMutexLock lock(&mPixelMutex);
     mCurrentUrl = url;
+    if (mSub)
+    {
+        mSub->send_text(kSetUrl, url);
+    }
 }
 
 void LLEmbeddedBrowserTab::resize(unsigned int width, unsigned int height)
@@ -174,10 +240,15 @@ void LLEmbeddedBrowserTab::resize(unsigned int width, unsigned int height)
         return;
     }
 
-    delete[] mPixels;
-    mWidth = width;
-    mHeight = height;
-    mPixels = new unsigned char[mWidth * mHeight * mDepth]();
+    // Just a hint to the producer -- the local buffer is reconciled in update() once a
+    // frame published at the new size actually arrives, same as llcefshm-example's own
+    // consumer does, rather than resizing mPixels ahead of that round trip.
+    if (mSub)
+    {
+        std::uint8_t payload[8];
+        pack_size(payload, width, height);
+        mSub->send(kResize, payload, 8);
+    }
 }
 
 unsigned int LLEmbeddedBrowserTab::getWidth() const
