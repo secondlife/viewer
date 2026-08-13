@@ -52,8 +52,12 @@ enum class LLEmbeddedBrowserEventType
     CursorChanged,    // mValue = an llCefCursorType value, opaque here
     ClickLinkHref,    // mText = url, mTarget = target frame/window name -- a link wants to
                       // open in a new window/tab (target="_blank", window.open(), etc.)
-    ClickLinkNoFollow // mText = url, mUserGesture/mIsRedirect describe how navigation to
-                      // this recognized custom URL scheme (e.g. "secondlife://") was triggered
+    ClickLinkNoFollow, // mText = url, mUserGesture/mIsRedirect describe how navigation to
+                       // this recognized custom URL scheme (e.g. "secondlife://") was triggered
+    FileDialogRequest, // mDialogId = an opaque id to echo back to respondToFileDialog(); mValue =
+                       // an llCefFileDialogMode ordinal (Open=0, OpenMultiple=1, OpenFolder=2,
+                       // Save=3); mText = the dialog's suggested/default file path
+    StatusTextChanged  // mText = new status-bar text (e.g. a hovered link's URL)
 };
 
 struct LLEmbeddedBrowserEvent
@@ -64,6 +68,7 @@ struct LLEmbeddedBrowserEvent
     unsigned int mValue = 0;
     bool mUserGesture = false;
     bool mIsRedirect = false;
+    long long mDialogId = 0;
 };
 
 class LLEmbeddedBrowserUpdateThread :
@@ -121,6 +126,9 @@ class LLEmbeddedBrowserTab
         // Drives CEF's own caret blink and focus/blur page JS -- call with true when the
         // LLMediaCtrl hosting this tab gains keyboard focus, false when it loses it.
         void setFocus(bool focus);
+        // Completes a pending FileDialogRequest event -- dialogId must be the value from
+        // that event's mDialogId; pass an empty filePaths to indicate the user canceled.
+        void respondToFileDialog(long long dialogId, const std::vector<std::string>& filePaths);
 
         // Pops the oldest queued event (received from the producer since the last call),
         // false if none are pending. Call in a loop to drain all of them -- unlike
@@ -175,6 +183,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void scrollWheel(unsigned int id, int x, int y, int deltaY);
         void keyEvent(unsigned int id, unsigned int msg, unsigned int wParam, unsigned int lParam);
         void setFocus(unsigned int id, bool focus);
+        void respondToFileDialog(unsigned int id, long long dialogId, const std::vector<std::string>& filePaths);
         bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
 
         // Caps requested create() dimensions -- callers (e.g. newview, which knows about

@@ -301,6 +301,21 @@ public:
     std::string getClickUUID() const { return mEmbeddedClickUUID; }
     std::string getClickNavType() const { return mEmbeddedClickNavType; }
 
+    // Embedded-browser-only equivalent of LLPluginClassMedia::getStatusText(), populated just
+    // before MEDIA_EVENT_STATUS_TEXT_CHANGED fires -- see the handleMediaEvent patches in
+    // llmediactrl.cpp/llfloaterwebcontent.cpp/llpaneldirweb.cpp/llpanelprofile.cpp, and
+    // LLMediaCtrl::getStatusText(), the widget-level passthrough those actually call.
+    std::string getStatusText() const { return mEmbeddedStatusText; }
+
+    // Embedded-browser-only equivalent of LLPluginClassMedia::getFileDownloadFilename(),
+    // populated just before MEDIA_EVENT_FILE_DOWNLOAD fires -- see handleMediaEvent in
+    // llmediactrl.cpp, which is what LLEmbeddedMediaFilePicker (llviewermenufile.h) is
+    // constructed from.
+    std::string getFileDownloadFilename() const { return mEmbeddedFileDownloadFilename; }
+    // Completes the file dialog request that most recently fired MEDIA_EVENT_PICK_FILE_REQUEST
+    // or MEDIA_EVENT_FILE_DOWNLOAD -- pass an empty vector to indicate the user canceled.
+    void respondToFileDialog(const std::vector<std::string>& filePaths);
+
     void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; }
     void setVisible(bool visible);
     bool getVisible() const { return mVisible; }
@@ -498,6 +513,11 @@ private:
     std::string mEmbeddedClickTarget;
     std::string mEmbeddedClickUUID;
     std::string mEmbeddedClickNavType;
+    // See getFileDownloadFilename()/respondToFileDialog() above.
+    std::string mEmbeddedFileDownloadFilename;
+    long long mEmbeddedFileDialogId = 0;
+    // See getStatusText() above.
+    std::string mEmbeddedStatusText;
 
     // Drains LLEmbeddedBrowser::popEvent() for mEmbeddedBrowserId, updating the cached
     // state below and calling emitEvent(nullptr, ...) for each one -- nullptr is a safe,

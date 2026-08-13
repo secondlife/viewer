@@ -199,6 +199,17 @@ void LLEmbeddedBrowserTab::update()
                 unpack_click_nofollow(cmd.data.data(), cmd.data.size(), event.mText,
                                       event.mUserGesture, event.mIsRedirect);
                 break;
+            case kEventFileDialogRequest: {
+                event.type = LLEmbeddedBrowserEventType::FileDialogRequest;
+                std::int64_t dialogId = 0;
+                unpack_file_dialog_request(cmd.data.data(), cmd.data.size(), dialogId, event.mValue, event.mText);
+                event.mDialogId = dialogId;
+                break;
+            }
+            case kEventStatusTextChanged:
+                event.type = LLEmbeddedBrowserEventType::StatusTextChanged;
+                event.mText = std::string(cmd.text());
+                break;
             default:
                 continue; // not an event opcode this tab understands
         }
@@ -345,6 +356,22 @@ void LLEmbeddedBrowserTab::setFocus(bool focus)
     {
         std::uint8_t payload[1] = { focus ? std::uint8_t(1) : std::uint8_t(0) };
         mSub->send(kSetFocus, payload, 1);
+    }
+}
+
+void LLEmbeddedBrowserTab::respondToFileDialog(long long dialogId, const std::vector<std::string>& filePaths)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::size_t size = 12;
+        for (const auto& path : filePaths)
+        {
+            size += 4 + path.size();
+        }
+        std::vector<std::uint8_t> payload(size);
+        const std::uint32_t n = pack_file_dialog_response(payload.data(), dialogId, filePaths);
+        mSub->send(kFileDialogResponse, payload.data(), n);
     }
 }
 
@@ -540,6 +567,14 @@ void LLEmbeddedBrowser::setFocus(unsigned int id, bool focus)
     if (auto tab = findTab(id))
     {
         tab->setFocus(focus);
+    }
+}
+
+void LLEmbeddedBrowser::respondToFileDialog(unsigned int id, long long dialogId, const std::vector<std::string>& filePaths)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->respondToFileDialog(dialogId, filePaths);
     }
 }
 

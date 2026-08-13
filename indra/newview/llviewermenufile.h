@@ -32,12 +32,14 @@
 #include "llinventorytype.h"
 #include "llfilepicker.h"
 #include "llthread.h"
+#include "llpointer.h"
 #include <queue>
 
 #include "llviewerassetupload.h"
 
 class LLTransactionID;
 class LLPluginClassMedia;
+class LLViewerMediaImpl;
 
 
 void init_menu_file();
@@ -159,6 +161,23 @@ public:
 
 private:
     std::shared_ptr<LLPluginClassMedia> mPlugin;
+};
+
+// Embedded-browser equivalent of LLMediaFilePicker above -- same two-constructor shape,
+// but keyed to an LLViewerMediaImpl (an intrusively-refcounted LLPointer target, so no
+// getSharedPtr()-style dance is needed to keep it alive across this thread) instead of a
+// plugin, since embedded browser has no LLPluginClassMedia. See
+// LLViewerMediaImpl::respondToFileDialog().
+class LLEmbeddedMediaFilePicker : public LLFilePickerThread
+{
+public:
+    LLEmbeddedMediaFilePicker(LLViewerMediaImpl* media, LLFilePicker::ELoadFilter filter, bool get_multiple);
+    LLEmbeddedMediaFilePicker(LLViewerMediaImpl* media, LLFilePicker::ESaveFilter filter, const std::string &proposed_name);
+
+    virtual void notify(const std::vector<std::string>& filenames);
+
+private:
+    LLPointer<LLViewerMediaImpl> mMediaImpl;
 };
 
 

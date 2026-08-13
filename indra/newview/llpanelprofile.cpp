@@ -1912,7 +1912,8 @@ void LLPanelProfileWeb::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
     switch(event)
     {
         case MEDIA_EVENT_STATUS_TEXT_CHANGED:
-            childSetValue("status_text", LLSD( self->getStatusText() ) );
+            // self is nullptr for an embedded-browser-originated event.
+            childSetValue("status_text", LLSD( self ? self->getStatusText() : mWebBrowser->getStatusText() ) );
         break;
 
         case MEDIA_EVENT_NAVIGATE_BEGIN:

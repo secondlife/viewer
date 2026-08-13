@@ -32,7 +32,9 @@
 #pragma once
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <string>
+#include <vector>
 
 namespace cefshm_demo
 {
@@ -89,6 +91,22 @@ namespace cefshm_demo
         kEventClickLinkNoFollow = 16, // data = {uint8 flags (bit0=userGesture, bit1=isRedirect), url bytes
                                        // (remainder)} -- navigation to a recognized custom URL scheme (e.g.
                                        // "secondlife://"), see llCefBrowserManager::SetOnCustomSchemeURLCallback
+        kEventFileDialogRequest = 18, // data = {int64 dialogId, uint32 mode (an llCefFileDialogMode ordinal --
+                                       // Open=0, OpenMultiple=1, OpenFolder=2, Save=3), defaultFilePath bytes
+                                       // (remainder)} -- see llCefBrowserManager::SetOnFileDialogCallback.
+                                       // title/acceptFilters aren't forwarded: nothing on the consumer side
+                                       // uses them today (see llmediactrl.cpp's own filter-guessing-from-
+                                       // filename logic for MEDIA_EVENT_FILE_DOWNLOAD).
+
+        // consumer -> producer, per-view channel
+        kFileDialogResponse = 19, // data = {int64 dialogId, uint32 count, count * (uint32 len, bytes)} --
+                                   // the file(s) the user picked, echoing the dialogId from
+                                   // kEventFileDialogRequest; empty count means canceled. See
+                                   // llCefBrowserManager::RespondToFileDialog.
+
+        // producer -> consumer, per-view channel
+        kEventStatusTextChanged = 20, // text payload: the new status-bar text (e.g. a hovered
+                                       // link's URL), see llCefBrowserManager::SetOnStatusMessageCallback
     };
 
     inline std::uint32_t pack_i32x2(std::uint8_t* d, std::int32_t x, std::int32_t y)
@@ -167,5 +185,42 @@ namespace cefshm_demo
         isRedirect  = (d[0] & 2) != 0;
         url.assign(reinterpret_cast<const char*>(d + 1), n - 1);
         return true;
+    }
+
+    inline std::uint32_t pack_i64(std::uint8_t* d, std::int64_t v)
+    {
+        for (int i = 0; i < 8; ++i) d[i] = std::uint8_t(std::uint64_t(v) >> (8 * i));
+        return 8;
+    }
+
+    inline bool unpack_i64(const std::uint8_t* d, std::size_t n, std::int64_t& v)
+    {
+        if (n < 8) return false;
+        std::uint64_t u = 0;
+        for (int i = 0; i < 8; ++i) u |= std::uint64_t(d[i]) << (8 * i);
+        v = std::int64_t(u);
+        return true;
+    }
+
+    inline bool unpack_file_dialog_request(const std::uint8_t* d, std::size_t n, std::int64_t& dialogId,
+                                           std::uint32_t& mode, std::string& defaultFilePath)
+    {
+        if (n < 12 || !unpack_i64(d, n, dialogId) || !unpack_u32(d + 8, n - 8, mode)) return false;
+        defaultFilePath.assign(reinterpret_cast<const char*>(d + 12), n - 12);
+        return true;
+    }
+
+    inline std::uint32_t pack_file_dialog_response(std::uint8_t* d, std::int64_t dialogId,
+                                                    const std::vector<std::string>& filePaths)
+    {
+        std::uint32_t n = pack_i64(d, dialogId);
+        n += pack_u32(d + n, std::uint32_t(filePaths.size()));
+        for (const auto& path : filePaths)
+        {
+            n += pack_u32(d + n, std::uint32_t(path.size()));
+            std::memcpy(d + n, path.data(), path.size());
+            n += std::uint32_t(path.size());
+        }
+        return n;
     }
 }

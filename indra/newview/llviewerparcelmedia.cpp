@@ -527,7 +527,8 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 
         case MEDIA_EVENT_STATUS_TEXT_CHANGED:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << self->getStatusText() << LL_ENDL;
+            // self is nullptr for an embedded-browser-originated event.
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << (self ? self->getStatusText() : "(embedded browser)") << LL_ENDL;
         };
         break;
 

@@ -3708,8 +3708,51 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                 LLURLDispatcher::dispatch(mEmbeddedClickURL, mEmbeddedClickNavType, NULL, mTrustedBrowser);
                 emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_CLICK_LINK_NOFOLLOW);
                 break;
+
+            case LLEmbeddedBrowserEventType::FileDialogRequest:
+            {
+                mEmbeddedFileDialogId = event.mDialogId;
+
+                // Mode is an llCefFileDialogMode ordinal (see cefshm_protocol.h) -- kept as a
+                // plain int rather than pulling in llcefbrowser's own enum, same reasoning as
+                // kEventCursorChanged's llCefCursorType. Open/OpenMultiple mirrors this class's
+                // own MEDIA_EVENT_PICK_FILE_REQUEST handling further below (which only ever runs
+                // for the plugin path); Save is left to LLMediaCtrl's existing FILE_DOWNLOAD
+                // handling (mAllowFileDownload-gated) via the emitEvent() below, since that gate
+                // is owned by the widget, not this class.
+                switch (event.mValue)
+                {
+                    case 0: // Open
+                    case 1: // OpenMultiple
+                        (new LLEmbeddedMediaFilePicker(this, LLFilePicker::FFLOAD_ALL, event.mValue == 1))->getFile();
+                        emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_PICK_FILE_REQUEST);
+                        break;
+
+                    case 3: // Save
+                        mEmbeddedFileDownloadFilename = event.mText;
+                        emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD);
+                        break;
+
+                    default: // OpenFolder (2), or anything unrecognized -- not supported, matching
+                             // the legacy CEF plugin's own onFileDialog(), which silently returns
+                             // an empty response for any dialog_type it doesn't explicitly handle.
+                        respondToFileDialog(std::vector<std::string>());
+                        break;
+                }
+                break;
+            }
+
+            case LLEmbeddedBrowserEventType::StatusTextChanged:
+                mEmbeddedStatusText = event.mText;
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_STATUS_TEXT_CHANGED);
+                break;
         }
     }
+}
+
+void LLViewerMediaImpl::respondToFileDialog(const std::vector<std::string>& filePaths)
+{
+    LLEmbeddedBrowser::getInstance()->respondToFileDialog(mEmbeddedBrowserId, mEmbeddedFileDialogId, filePaths);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

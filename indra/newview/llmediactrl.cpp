@@ -1068,7 +1068,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_STATUS_TEXT_CHANGED:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << self->getStatusText() << LL_ENDL;
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << (self ? self->getStatusText() : mMediaSource->getStatusText()) << LL_ENDL;
         };
         break;
 
@@ -1197,25 +1197,41 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_FILE_DOWNLOAD:
         {
+            // self is nullptr for an embedded-browser-originated event -- see
+            // LLViewerMediaImpl::getFileDownloadFilename()/respondToFileDialog().
             if (mAllowFileDownload)
             {
                 // pick a file from SAVE FILE dialog
                 // for now the only thing that should be allowed to save is 360s
-                std::string suggested_filename = self->getFileDownloadFilename();
+                std::string suggested_filename = self ? self->getFileDownloadFilename() : mMediaSource->getFileDownloadFilename();
                 LLFilePicker::ESaveFilter filter = LLFilePicker::FFSAVE_ALL;
                 if (suggested_filename.find(".jpg") != std::string::npos || suggested_filename.find(".jpeg") != std::string::npos)
                     filter = LLFilePicker::FFSAVE_JPEG;
                 if (suggested_filename.find(".png") != std::string::npos)
                     filter = LLFilePicker::FFSAVE_PNG;
 
-                (new LLMediaFilePicker(self, filter, suggested_filename))->getFile();
+                if (self)
+                {
+                    (new LLMediaFilePicker(self, filter, suggested_filename))->getFile();
+                }
+                else
+                {
+                    (new LLEmbeddedMediaFilePicker(mMediaSource, filter, suggested_filename))->getFile();
+                }
             }
             else
             {
                 // Media might be blocked, waiting for a file,
                 // send an empty response to unblock it
                 const std::vector<std::string> empty_response;
-                self->sendPickFileResponse(empty_response);
+                if (self)
+                {
+                    self->sendPickFileResponse(empty_response);
+                }
+                else
+                {
+                    mMediaSource->respondToFileDialog(empty_response);
+                }
 
                 LLNotificationsUtil::add("MediaFileDownloadUnsupported");
             }
@@ -1271,6 +1287,14 @@ std::string LLMediaCtrl::getMediaName()
 {
     if (mMediaSource)
         return mMediaSource->getMediaName();
+    else
+        return LLStringUtil::null;
+}
+
+std::string LLMediaCtrl::getStatusText()
+{
+    if (mMediaSource)
+        return mMediaSource->getStatusText();
     else
         return LLStringUtil::null;
 }

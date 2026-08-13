@@ -138,7 +138,8 @@ void LLPanelDirWeb::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event
     }
     else if (event == MEDIA_EVENT_STATUS_TEXT_CHANGED)
     {
-        const std::string text = self->getStatusText();
+        // self is nullptr for an embedded-browser-originated event.
+        const std::string text = self ? self->getStatusText() : mWebBrowser->getStatusText();
         if (text.length())
             mStatusBarText->setText(text);
     }
