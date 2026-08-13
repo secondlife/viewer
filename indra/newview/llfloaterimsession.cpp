@@ -1124,18 +1124,29 @@ void LLFloaterIMSession::processSessionUpdate(const LLSD& session_update)
 // virtual
 void LLFloaterIMSession::draw()
 {
-    const bool loading = mSession && mIsP2PChat &&
+    // The floater presents both model-owned local reads and account-scoped service
+    // work without scheduling either source from draw().
+    const bool loading =
+        mSession &&
+        mIsP2PChat &&
         gSavedPerAccountSettings.getBOOL("LogShowHistory") &&
         (mSession->isChatHistoryLoading() ||
-         LLChatServiceHistory::getSnapshot(
-             mSession->mOtherParticipantID).service_work_active);
+         LLChatServiceHistory::getSnapshot(mSession->mOtherParticipantID).service_work_active);
+
     if (loading != mChatServiceLoadingVisible)
     {
         mChatServiceLoadingVisible = loading;
         getChildView("chat_service_loading")->setVisible(loading);
         LLLoadingIndicator* indicator =
             getChild<LLLoadingIndicator>("chat_service_loading_wheel");
-        if (loading) indicator->start(); else indicator->stop();
+        if (loading)
+        {
+            indicator->start();
+        }
+        else
+        {
+            indicator->stop();
+        }
     }
 
     // add people who were added via dropPerson()

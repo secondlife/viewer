@@ -543,8 +543,9 @@ bool LLFloaterPreference::postBuild()
 
 void LLFloaterPreference::updateDeleteTranscriptsButton()
 {
-    mDeleteTranscriptsBtn->setEnabled(!mDeleteTranscriptsPending &&
-        (LLLogChat::transcriptFilesExist() || LLChatServiceHistory::localHistoryExists()));
+    const bool history_exists =
+        LLLogChat::transcriptFilesExist() || LLChatServiceHistory::localHistoryExists();
+    mDeleteTranscriptsBtn->setEnabled(!mDeleteTranscriptsPending && history_exists);
 }
 
 void LLFloaterPreference::onDoNotDisturbResponseChanged()
@@ -1920,9 +1921,12 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 {
     if (0 == LLNotificationsUtil::getSelectedOption(notification, response))
     {
+        // Disable repeated requests immediately. The weak handle keeps the
+        // main-queue completion safe if Preferences closes during the durable sweep.
         LLHandle<LLFloaterPreference> handle = getDerivedHandle<LLFloaterPreference>();
         mDeleteTranscriptsPending = true;
         updateDeleteTranscriptsButton();
+
         if (!LLChatServiceHistory::deleteTranscriptsAsync(
                 [handle](bool)
                 {

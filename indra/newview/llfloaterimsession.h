@@ -189,6 +189,8 @@ private:
     LLFrameTimer mOtherTypingTimer;
 
     bool mSessionInitialized;
+
+    // Cache the rendered state so draw() starts or stops the loading indicator only on transitions.
     bool mChatServiceLoadingVisible;
     LLSD mQueuedMsgsForInit;
 

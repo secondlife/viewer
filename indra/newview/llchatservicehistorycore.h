@@ -24,6 +24,8 @@ namespace LLChatServiceHistoryCore
     extern const char* const CSV_HEADER;
     extern const char* const INDEX_HEADER;
 
+    // Cassandra compares UUIDv1 timestamps first and the final eight bytes as signed
+    // values when timestamps tie.
     struct TimeUuidKey
     {
         U64 ticks = 0;
@@ -31,11 +33,21 @@ namespace LLChatServiceHistoryCore
 
         bool operator==(const TimeUuidKey& rhs) const;
         bool operator<(const TimeUuidKey& rhs) const;
-        bool operator>(const TimeUuidKey& rhs) const { return rhs < *this; }
-        bool operator<=(const TimeUuidKey& rhs) const { return !(rhs < *this); }
-        bool operator>=(const TimeUuidKey& rhs) const { return !(*this < rhs); }
+        bool operator>(const TimeUuidKey& rhs) const
+        {
+            return rhs < *this;
+        }
+        bool operator<=(const TimeUuidKey& rhs) const
+        {
+            return !(rhs < *this);
+        }
+        bool operator>=(const TimeUuidKey& rhs) const
+        {
+            return !(*this < rhs);
+        }
     };
 
+    // Row is the single validated representation shared by wire pages and CSV files.
     struct Row
     {
         std::string conversation_id;
@@ -48,6 +60,7 @@ namespace LLChatServiceHistoryCore
         TimeUuidKey key;
     };
 
+    // Direct entries are extracted only after the complete discovery list validates.
     struct ListEntry
     {
         LLUUID resident_id;
@@ -55,6 +68,8 @@ namespace LLChatServiceHistoryCore
         std::string last_msg_id;
     };
 
+    // Pages retain rows newer than the account deletion cutoff and expose the next
+    // validated cursor only while older paging remains necessary.
     struct Page
     {
         std::vector<Row> rows;
@@ -63,6 +78,7 @@ namespace LLChatServiceHistoryCore
         bool cutoff_reached = false;
     };
 
+    // Archive states distinguish repairable torn tails from complete corrupt records.
     enum EArchiveState
     {
         ARCHIVE_ABSENT,
@@ -72,6 +88,8 @@ namespace LLChatServiceHistoryCore
         ARCHIVE_FAILED
     };
 
+    // A scan folds the canonical file into a bounded display window and a compact
+    // summary without materializing the complete archive.
     struct ArchiveScan
     {
         EArchiveState state = ARCHIVE_ABSENT;
@@ -91,6 +109,7 @@ namespace LLChatServiceHistoryCore
     bool persistedDirectDialog(S32 dialog);
     bool parseCreatedAt(const std::string& text, std::string& normalized);
 
+    // Both wire validators are all-or-nothing and clear their output before parsing.
     bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
                                   std::vector<ListEntry>& entries);
     bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
@@ -101,10 +120,14 @@ namespace LLChatServiceHistoryCore
 
     std::string quoteCsv(const std::string& value);
     void writeCsvRow(std::ostream& output, const Row& row);
+
+    // scanArchive never repairs storage; callers decide whether a classified archive
+    // may be displayed, repaired, or quarantined.
     bool scanArchive(const std::string& path, const LLUUID& agent_id,
                      const LLUUID& resident_id, U64 deleted_before_ticks,
                      U32 display_cap, ArchiveScan& scan);
 
+    // Capture the regular file's physical identity for guarded repair and publication.
     bool archiveStamp(const std::string& path, U64& file_size, S64& file_mtime);
 }
 

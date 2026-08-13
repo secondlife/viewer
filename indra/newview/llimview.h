@@ -28,9 +28,9 @@
 #define LL_LLIMVIEW_H
 
 #include "../llui/lldockablefloater.h"
+#include "llchatservicehistory.h"
 #include "lleventtimer.h"
 #include "llinstantmessage.h"
-#include "llchatservicehistory.h"
 
 #include "lllogchat.h"
 #include "llvoicechannel.h"
@@ -117,13 +117,19 @@ public:
         /** ad-hoc sessions involve sophisticated chat history file naming schemes */
         void buildHistoryFileName();
 
+        // Direct history is an asynchronous overlay; these operations never discard live rows.
         void loadHistory();
         void startHistoryLoading();
         void replaceHistoricalMessages(const chat_message_list_t& history);
         void applyChatServiceSnapshot(const LLChatServiceHistory::Snapshot& snapshot);
         void clearHistoricalMessages();
+
+        // Account deletion is the explicit exception that clears both live and historical rows.
         void clearForHistoryDeletion();
-        bool isChatHistoryLoading() const { return mChatHistoryLocalLoading; }
+        bool isChatHistoryLoading() const
+        {
+            return mChatHistoryLocalLoading;
+        }
 
         LLUUID mSessionID;
         std::string mName;
@@ -147,7 +153,11 @@ public:
         S32 mNumUnread;
 
         chat_message_list_t mMsgs;
+
+        // Historical rows are replaced as one overlay so live rows remain untouched.
         chat_message_list_t mChatServiceHistoricalValue;
+
+        // Process-unique tokens and archive serials reject stale asynchronous reads.
         U64 mChatHistoryLoadToken = 0;
         U32 mChatHistoryArchiveSerial = 0;
         bool mChatHistoryLocalLoading = false;
@@ -195,6 +205,8 @@ public:
      * Returns NULL if the session does not exist
      */
     LLIMSession* findIMSession(const LLUUID& session_id) const;
+
+    // Reload every model-owned direct session, including sessions without an open floater.
     void reloadDirectHistories();
 
     /**

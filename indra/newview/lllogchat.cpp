@@ -150,24 +150,38 @@ namespace
     void parseHistoryFile(LLFILE* input, std::list<LLSD>& messages,
                           const LLSD& load_params, bool load_all)
     {
+        // A bounded load seeks near EOF and discards the first partial line; full
+        // stitched reads parse from the beginning of each exact transcript path.
         char buffer[LOG_RECALL_SIZE];
         bool skip_partial_line = true;
         if (load_all || fseek(input, (LOG_RECALL_SIZE - 1) * -1, SEEK_END))
         {
             skip_partial_line = false;
-            if (fseek(input, 0, SEEK_SET)) return;
+            if (fseek(input, 0, SEEK_SET))
+            {
+                return;
+            }
         }
+
         while (fgets(buffer, LOG_RECALL_SIZE, input))
         {
+            // Normalize either newline style before applying legacy multiline rules.
             size_t length = strlen(buffer);
             while (length && (buffer[length - 1] == '\n' || buffer[length - 1] == '\r'))
+            {
                 buffer[--length] = '\0';
+            }
+
             if (skip_partial_line)
             {
                 skip_partial_line = false;
                 continue;
             }
+
             std::string line(remove_utf8_bom(buffer));
+
+            // Restore mention URLs only when the inexpensive marker indicates the
+            // formatter's markdown wrapper may be present.
             if (line.find("/mention)") != std::string::npos)
             {
                 static const boost::regex mention_regex(
@@ -175,14 +189,22 @@ namespace
                     boost::regex::perl | boost::regex::icase);
                 line = boost::regex_replace(line, mention_regex, "$2");
             }
+
+            // Indented lines continue the prior multiline message in the current
+            // plaintext format.
             if (!line.empty() && line[0] == ' ')
             {
                 line.erase(0, MULTI_LINE_PREFIX.length());
                 append_to_last_message(messages, '\n' + line);
                 continue;
             }
+
+            // Parser failures remain readable as plain transcript text.
             LLSD item;
-            if (!LLChatLogParser::parse(line, item, load_params)) item[LL_IM_TEXT] = line;
+            if (!LLChatLogParser::parse(line, item, load_params))
+            {
+                item[LL_IM_TEXT] = line;
+            }
             messages.push_back(item);
         }
     }
@@ -539,6 +561,7 @@ void LLLogChat::getTranscriptFamily(const std::string& file_name, std::vector<st
     {
         return;
     }
+
     const std::string stem = cleanFileName(file_name);
     const std::string directory = gDirUtilp->getPerAccountChatLogsDir() +
                                   gDirUtilp->getDirDelimiter();
@@ -548,14 +571,17 @@ void LLLogChat::getTranscriptFamily(const std::string& file_name, std::vector<st
         paths.push_back(ordinary);
     }
 
-    // Monthly shards follow the ordinary file in lexical order for deterministic seam rows.
+    // Monthly shards follow the ordinary file in lexical order for deterministic
+    // seam ordering across separate legacy files.
     std::vector<std::string> shards;
-    LLDirIterator iterator(directory, stem + "-????-??." + LL_TRANSCRIPT_FILE_EXTENSION);
+    // Split the glob before the separator so its question marks cannot form a C++ trigraph.
+    LLDirIterator iterator(directory, stem + "-????" "-??." + LL_TRANSCRIPT_FILE_EXTENSION);
     std::string name;
     while (iterator.next(name))
     {
         shards.push_back(directory + name);
     }
+
     std::sort(shards.begin(), shards.end());
     paths.insert(paths.end(), shards.begin(), shards.end());
 }
@@ -564,7 +590,11 @@ void LLLogChat::getTranscriptFamily(const std::string& file_name, std::vector<st
 void LLLogChat::loadChatHistoryExact(const std::string& path, std::list<LLSD>& messages,
                                      const LLSD& load_params)
 {
-    if (LLChatServiceHistory::historySuppressed()) return;
+    if (LLChatServiceHistory::historySuppressed())
+    {
+        return;
+    }
+
     loadChatHistoryExactUnchecked(path, messages, load_params);
 }
 
@@ -576,6 +606,7 @@ void LLLogChat::loadChatHistoryExactUnchecked(
     {
         return;
     }
+
     LLFILE* input = LLFile::fopen(path, LLFILE_MODE("rb"));
     if (!input)
     {
@@ -901,6 +932,8 @@ bool LLLogChat::deleteTranscriptContent(const std::string& directory)
         }
     }
 
+    // Retry each captured path independently while writers remain excluded. Any
+    // exhausted target keeps the durable account deletion in its pending state.
     for (const std::string& fullpath : list_of_transcriptions)
     {
         S32 retry_count = 0;
@@ -935,9 +968,13 @@ bool LLLogChat::deleteTranscriptContent(const std::string& directory)
 #if LL_WINDOWS
     return true;
 #else
-    // Commit removed directory entries before durable Delete can publish completion.
+    // Flush removed directory entries before durable Delete can publish completion.
     const int descriptor = ::open(directory.c_str(), O_RDONLY | O_DIRECTORY);
-    if (descriptor < 0) return false;
+    if (descriptor < 0)
+    {
+        return false;
+    }
+
     const bool synced = ::fsync(descriptor) == 0;
     ::close(descriptor);
     return synced;

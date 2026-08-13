@@ -49,9 +49,13 @@ public:
     void draw() override;
     void onOpen(const LLSD& key) override;
     void onClose(bool app_quitting) override;
+
+    // Fence outstanding loads and clear the visible history after account deletion.
     void invalidateHistory();
 
 private:
+    // Non-P2P previews retain the legacy loader, while P2P previews use the shared
+    // stitched loader and resident snapshot stream.
     void onMoreHistoryBtnClick();
     void showHistory();
     void startLegacyLoad();
@@ -81,6 +85,8 @@ private:
     bool            mLoadingIndicatorVisible;
     bool            mServiceNameReloaded;
     bool            mServicePresentationAllowed;
+
+    // Tokens fence asynchronous applies across close, reopen, and reload requests.
     U64             mServiceToken;
     U32             mServiceAppliedSerial;
     boost::signals2::connection mHistoryContentConnection;

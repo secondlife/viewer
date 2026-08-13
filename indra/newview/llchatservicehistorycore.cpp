@@ -40,6 +40,7 @@ namespace
 
     bool cleanText(const std::string& value, size_t limit)
     {
+        // Wire and CSV text must remain bounded, NUL-free, and canonical UTF-8.
         return value.size() <= limit && value.find('\0') == std::string::npos &&
                wstring_to_utf8str(utf8str_to_wstring(value)) == value;
     }
@@ -51,6 +52,7 @@ namespace
         {
             return false;
         }
+
         return LLStringUtil::convertToS32(text, dialog) && persistedDirectDialog(dialog);
     }
 
@@ -58,6 +60,8 @@ namespace
                        const LLUUID& agent_id, const LLUUID& resident_id,
                        Row& row)
     {
+        // A stored row is trusted only after every field and cross-field identity
+        // constraint matches the current account and resident.
         if (fields.size() != COLUMN_COUNT ||
             fields[0] != directConversationId(agent_id, resident_id) ||
             !parseTimeUuid(fields[1], row.key) ||
@@ -69,6 +73,7 @@ namespace
         {
             return false;
         }
+
         row.conversation_id = fields[0];
         row.msg_id = fields[1];
         row.from_name = fields[3];
@@ -76,7 +81,8 @@ namespace
         return true;
     }
 
-    // Decode RFC-4180 records incrementally so archive validation never needs a second parser.
+    // Decode RFC-4180 records incrementally so validation and torn-tail recovery
+    // classify the same byte stream with one parser.
     bool readRecord(std::istream& input, std::vector<std::string>& fields,
                     bool& eof_torn, bool& had_record)
     {
@@ -87,11 +93,14 @@ namespace
         bool quoted = false;
         bool quote_closed = false;
         bool started = false;
+
         for (;;)
         {
             const int raw = input.get();
             if (raw == EOF)
             {
+                // EOF after a complete unquoted field is a valid final record. An
+                // open quote or too few columns marks only the final record as torn.
                 had_record = started;
                 eof_torn = started && (quoted || fields.size() + 1 < COLUMN_COUNT);
                 if (started && !eof_torn && !quoted)
@@ -102,6 +111,9 @@ namespace
             }
             started = true;
             const char ch = static_cast<char>(raw);
+
+            // Quoted fields retain delimiters and newlines; doubled quotes decode
+            // to one literal quote.
             if (quoted)
             {
                 if (ch != '"')
@@ -119,6 +131,9 @@ namespace
                 quote_closed = true;
                 continue;
             }
+
+            // Outside quotes, delimiters advance columns and either newline style
+            // terminates the record. Bytes after a closing quote are invalid.
             if (ch == '"')
             {
                 if (!field.empty() || quote_closed)
@@ -179,13 +194,18 @@ namespace
 #if LL_WINDOWS
         const DWORD attributes = GetFileAttributesW(ll_convert<std::wstring>(path).c_str());
         if (attributes == INVALID_FILE_ATTRIBUTES)
+        {
             return GetLastError() == ERROR_FILE_NOT_FOUND ||
                    GetLastError() == ERROR_PATH_NOT_FOUND;
+        }
         exists = true;
         return !(attributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT));
 #else
         struct stat status;
-        if (::lstat(path.c_str(), &status) != 0) return errno == ENOENT;
+        if (::lstat(path.c_str(), &status) != 0)
+        {
+            return errno == ENOENT;
+        }
         exists = true;
         return S_ISREG(status.st_mode);
 #endif
@@ -216,6 +236,7 @@ bool parseCanonicalUuid(const std::string& text, LLUUID& id)
     {
         return false;
     }
+
     id.set(text, false);
     return id.asString() == text;
 }
@@ -235,10 +256,12 @@ bool parseTimeUuid(const std::string& text, TimeUuidKey& key)
     const U64 time_mid = (U64(id.mData[4]) << 8) | U64(id.mData[5]);
     const U64 time_high = (U64(id.mData[6] & 0x0f) << 8) | U64(id.mData[7]);
     key.ticks = (time_high << 48) | (time_mid << 32) | time_low;
+
     for (U32 pos = 0; pos < key.tail.size(); ++pos)
     {
         key.tail[pos] = static_cast<S8>(id.mData[pos + 8]);
     }
+
     return true;
 }
 
@@ -246,8 +269,15 @@ bool persistedDirectDialog(S32 dialog)
 {
     switch (dialog)
     {
-        case 0: case 3: case 4: case 20: case 22: case 26: case 38:
+        case 0:
+        case 3:
+        case 4:
+        case 20:
+        case 22:
+        case 26:
+        case 38:
             return true;
+
         default:
             return false;
     }
@@ -264,31 +294,59 @@ bool parseCreatedAt(const std::string& text, std::string& normalized)
     {
         return false;
     }
+
+    // Reject signed, variable-width, and otherwise non-decimal date fields before
+    // converting the fixed calendar components.
     for (U32 position : DIGIT_POSITIONS)
     {
-        if (text[position] < '0' || text[position] > '9') return false;
+        if (text[position] < '0' || text[position] > '9')
+        {
+            return false;
+        }
     }
+
     const U32 year = std::stoi(text.substr(0, 4));
     const U32 month = std::stoi(text.substr(5, 2));
     const U32 day = std::stoi(text.substr(8, 2));
     const U32 hour = std::stoi(text.substr(11, 2));
     const U32 minute = std::stoi(text.substr(14, 2));
     const U32 second = std::stoi(text.substr(17, 2));
-    static const U32 DAYS_PER_MONTH[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    static const U32 DAYS_PER_MONTH[] = {
+        31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    };
     if (!year || month < 1 || month > 12 || hour > 23 || minute > 59 || second > 59)
+    {
         return false;
-    U32 month_days = DAYS_PER_MONTH[month - 1];
-    if (month == 2 && (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0))) ++month_days;
-    if (day < 1 || day > month_days) return false;
+    }
 
+    // Validate the day against the parsed month, including Gregorian leap years.
+    U32 month_days = DAYS_PER_MONTH[month - 1];
+    if (month == 2 && (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)))
+    {
+        ++month_days;
+    }
+    if (day < 1 || day > month_days)
+    {
+        return false;
+    }
+
+    // Fractional seconds are optional but must contain at least one digit.
     size_t position = 19;
     if (position < text.size() && text[position] == '.')
     {
         const size_t fraction = ++position;
         while (position < text.size() && text[position] >= '0' && text[position] <= '9')
+        {
             ++position;
-        if (position == fraction) return false;
+        }
+        if (position == fraction)
+        {
+            return false;
+        }
     }
+
+    // Offset-less service timestamps are normalized to UTC. Explicit zones must
+    // consume the complete suffix and remain within clock bounds.
     std::string parsed = text;
     if (position == text.size())
     {
@@ -296,7 +354,10 @@ bool parseCreatedAt(const std::string& text, std::string& normalized)
     }
     else if (text[position] == 'Z')
     {
-        if (position + 1 != text.size()) return false;
+        if (position + 1 != text.size())
+        {
+            return false;
+        }
     }
     else if (text[position] == '+' || text[position] == '-')
     {
@@ -310,17 +371,22 @@ bool parseCreatedAt(const std::string& text, std::string& normalized)
         }
         const U32 hours = (text[position + 1] - '0') * 10 + text[position + 2] - '0';
         const U32 minutes = (text[position + 4] - '0') * 10 + text[position + 5] - '0';
-        if (hours > 23 || minutes > 59) return false;
+        if (hours > 23 || minutes > 59)
+        {
+            return false;
+        }
     }
     else
     {
         return false;
     }
+
     LLDate date;
     if (!date.fromString(parsed))
     {
         return false;
     }
+
     normalized = parsed;
     return true;
 }
@@ -329,14 +395,19 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
                               std::vector<ListEntry>& entries)
 {
     entries.clear();
+
+    // Reject the complete discovery response before extracting any direct entries.
     if (!value.isArray() || value.size() > 10000)
     {
         return false;
     }
+
     std::set<LLUUID> residents;
     std::set<std::string> conversations;
     for (LLSD::array_const_iterator it = value.beginArray(); it != value.endArray(); ++it)
     {
+        // Every list row must have a known type and bounded canonical identifiers,
+        // even when non-direct rows are ignored by this feature.
         std::string type;
         std::string conversation;
         if (!it->isMap() || !llsdString(*it, "conversation_type", type) ||
@@ -350,6 +421,9 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
         {
             continue;
         }
+
+        // Direct entries must identify one unique peer and use the deterministic
+        // account/resident conversation ID with a valid latest-message token.
         std::string resident_text;
         std::string token;
         LLUUID resident;
@@ -365,8 +439,10 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
         {
             return false;
         }
+
         entries.push_back({resident, conversation, token});
     }
+
     return true;
 }
 
@@ -377,6 +453,9 @@ bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
                          U64 deleted_before_ticks, Page& page)
 {
     page = Page();
+
+    // The service echoes the exact conversation and fixed page size. Coercible LLSD
+    // types are rejected so paging state cannot drift across malformed responses.
     if (!value.isMap() || !value["conversation_id"].isString() ||
         value["conversation_id"].asString() != conversation_id ||
         !value["limit"].isInteger() || value["limit"].asInteger() != 100 ||
@@ -384,6 +463,9 @@ bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
     {
         return false;
     }
+
+    // Cursor echoes are exact: the head omits one, while older pages repeat the
+    // requested UUID unchanged.
     const LLSD& echoed = value["before_msg_id"];
     if ((requested_cursor.empty() && !echoed.isUndefined()) ||
         (!requested_cursor.empty() &&
@@ -397,9 +479,13 @@ bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
     {
         return false;
     }
+
     std::set<std::string> ids;
     TimeUuidKey previous;
     bool have_previous = false;
+
+    // Validate every row before the page can affect scheduler or archive state.
+    // UUIDv1 keys must be unique, strictly descending, and below the request cursor.
     for (LLSD::array_const_iterator it = value["messages"].beginArray();
          it != value["messages"].endArray(); ++it)
     {
@@ -424,9 +510,13 @@ bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
         {
             return false;
         }
+
         have_previous = true;
         previous = row.key;
         page.next_cursor = row.msg_id;
+
+        // The account-wide cutoff is inclusive. Once reached, older rows from the
+        // same validated page remain suppressed and older paging terminates.
         if (row.key.ticks <= deleted_before_ticks)
         {
             page.cutoff_reached = true;
@@ -436,11 +526,13 @@ bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
             page.rows.push_back(row);
         }
     }
+
     page.terminal = value["messages"].size() == 0 || page.cutoff_reached;
     if (page.terminal)
     {
         page.next_cursor.clear();
     }
+
     return true;
 }
 
@@ -450,6 +542,7 @@ std::string quoteCsv(const std::string& value)
     {
         return value;
     }
+
     std::string result("\"");
     for (char ch : value)
     {
@@ -459,6 +552,7 @@ std::string quoteCsv(const std::string& value)
             result.push_back('"');
         }
     }
+
     return result + '"';
 }
 
@@ -473,14 +567,26 @@ void writeCsvRow(std::ostream& output, const Row& row)
 bool archiveStamp(const std::string& path, U64& file_size, S64& file_mtime)
 {
     bool exists = false;
-    if (!inspectRegularFile(path, exists) || !exists) return false;
+    if (!inspectRegularFile(path, exists) || !exists)
+    {
+        return false;
+    }
+
     std::error_code error;
     const std::filesystem::path native_path = fsyspath(path);
     const uintmax_t size = std::filesystem::file_size(native_path, error);
-    if (error || size > std::numeric_limits<U64>::max()) return false;
+    if (error || size > std::numeric_limits<U64>::max())
+    {
+        return false;
+    }
+
     const std::filesystem::file_time_type write_time =
         std::filesystem::last_write_time(native_path, error);
-    if (error) return false;
+    if (error)
+    {
+        return false;
+    }
+
     file_size = static_cast<U64>(size);
     file_mtime = static_cast<S64>(write_time.time_since_epoch().count());
     return true;
@@ -491,6 +597,8 @@ bool scanArchive(const std::string& path, const LLUUID& agent_id,
                  U32 display_cap, ArchiveScan& scan)
 {
     scan = ArchiveScan();
+
+    // Only a regular canonical path may participate in archive reads.
     bool exists = false;
     if (!inspectRegularFile(path, exists))
     {
@@ -514,6 +622,7 @@ bool scanArchive(const std::string& path, const LLUUID& agent_id,
         return false;
     }
 
+    // The exact header is the first committed record and is never repairable data.
     std::vector<std::string> fields;
     bool torn = false;
     bool present = false;
@@ -522,10 +631,14 @@ bool scanArchive(const std::string& path, const LLUUID& agent_id,
         scan.state = ARCHIVE_CORRUPT;
         return false;
     }
+
     scan.valid_prefix_bytes = input.tellg();
     TimeUuidKey previous;
     bool have_previous = false;
     std::deque<Row> newest;
+
+    // Fold records in ascending TimeUUID order while retaining only the newest
+    // display_cap rows. Complete malformed records are corrupt; incomplete EOF is torn.
     for (;;)
     {
         if (!readRecord(input, fields, torn, present))
@@ -543,6 +656,7 @@ bool scanArchive(const std::string& path, const LLUUID& agent_id,
             scan.state = ARCHIVE_TORN;
             break;
         }
+
         Row row;
         if (!rowFromFields(fields, agent_id, resident_id, row) ||
             (have_previous && !(previous < row.key)))
@@ -550,14 +664,19 @@ bool scanArchive(const std::string& path, const LLUUID& agent_id,
             scan.state = ARCHIVE_CORRUPT;
             return false;
         }
+
         have_previous = true;
         previous = row.key;
         const std::streamoff position = input.tellg();
         scan.valid_prefix_bytes = position >= 0 ? position : scan.file_size;
+
+        // Deleted rows still participate in structural and ordering validation but
+        // do not enter the visible summary.
         if (row.key.ticks <= deleted_before_ticks)
         {
             continue;
         }
+
         if (!scan.has_oldest)
         {
             scan.has_oldest = true;
@@ -565,6 +684,7 @@ bool scanArchive(const std::string& path, const LLUUID& agent_id,
         }
         scan.newest = row.key;
         ++scan.row_count;
+
         if (display_cap)
         {
             newest.push_back(row);
@@ -574,6 +694,7 @@ bool scanArchive(const std::string& path, const LLUUID& agent_id,
             }
         }
     }
+
     scan.display_rows.assign(newest.begin(), newest.end());
     return scan.state == ARCHIVE_VALID;
 }

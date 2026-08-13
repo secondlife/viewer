@@ -108,14 +108,18 @@ void LLFloaterConversationLog::onCustomAction (const LLSD& userdata)
     else if ("view_nearby_chat_history" == command_name)
     {
         if (!LLChatServiceHistory::historySuppressed())
+        {
             LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
+        }
     }
 }
 
 bool LLFloaterConversationLog::isActionEnabled(const LLSD& userdata)
 {
     if (userdata.asString() == "view_nearby_chat_history")
+    {
         return !LLChatServiceHistory::historySuppressed();
+    }
     return true;
 }
 
@@ -144,3 +148,4 @@ bool LLFloaterConversationLog::isActionChecked(const LLSD& userdata)
 
     return false;
 }
+

@@ -5425,6 +5425,7 @@ void LLAppViewer::idleShutdown()
     // All floaters are closed.  Tell server we want to quit.
     if (!logoutRequestSent())
     {
+        // Fence outstanding history work before logout tears down its account and capability context.
         LLChatServiceHistory::stop();
         sendLogoutRequest();
 
@@ -5774,6 +5775,7 @@ void LLAppViewer::idleNetwork()
 
 void LLAppViewer::disconnectViewer()
 {
+    // This is idempotent and also covers disconnect paths that bypass the normal logout request.
     LLChatServiceHistory::stop();
 
     if (gDisconnected)
@@ -6109,6 +6111,7 @@ void LLAppViewer::handleLoginComplete()
         gDebugInfo["MainloopTimeoutState"] = LLAppViewer::instance()->mMainloopTimeout->getState();
     }
 
+    // Start only after login has established the per-account storage and region capability context.
     LLChatServiceHistory::start();
     mOnLoginCompleted();
 

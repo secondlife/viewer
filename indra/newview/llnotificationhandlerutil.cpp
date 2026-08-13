@@ -327,6 +327,7 @@ void LLHandlerUtil::decIMMesageCounter(const LLNotificationPtr& notification)
     {
     LLSD arg;
     arg["session_id"] = session_id;
+    // Keep the decrements clamped if notification dismissal follows session cleanup.
     session->mNumUnread = llmax(0, session->mNumUnread - 1);
     arg["num_unread"] = session->mNumUnread;
     session->mParticipantUnreadMessageCount =

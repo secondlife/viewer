@@ -23,22 +23,37 @@
 
 namespace LLChatServiceHistory
 {
+    // Resident snapshots are published on the main thread and contain every value
+    // direct-IM and Preview consumers need to render or reload history.
     struct Snapshot
     {
+        // Remote, metadata, or storage work is still active for this resident.
         bool service_work_active = false;
+
+        // Service rows may be presented under the current account-wide gates.
         bool service_presentation_allowed = false;
+
+        // Consumers reject local reads captured before the latest archive mutation.
         U32 archive_serial = 0;
+
+        // Shared name metadata is ready for blocking and legacy-path resolution.
         bool metadata_resolved = false;
         LLAvatarName metadata;
+
+        // The validated first page is presentation-only until durable publication.
         std::vector<LLChatServiceHistoryCore::Row> head_preview;
     };
 
+    // An asynchronous stitched read carries the account and archive generations
+    // needed to reject results that became stale while filesystem work ran.
     struct HistoryResult
     {
         std::list<LLSD> messages;
         U32 account_epoch = 0;
         U32 archive_serial = 0;
         bool included_service = false;
+
+        // The reader classified a canonical archive that manager-side maintenance must revisit.
         bool maintenance_needed = false;
     };
 
@@ -46,10 +61,13 @@ namespace LLChatServiceHistory
     typedef boost::function<void(bool)> delete_callback_t;
     typedef boost::function<void(const LLUUID&, const Snapshot&)> snapshot_callback_t;
 
+    // The synchronizer has one lifecycle per logged-in account.
     void start();
     void stop();
     void regionChanged();
 
+    // Account-wide gates keep all historical sources fail-closed during unsafe state
+    // recovery or transcript deletion.
     bool enabledForLogin();
     U32 accountEpoch();
     bool historySuppressed();
@@ -57,15 +75,21 @@ namespace LLChatServiceHistory
     bool localHistoryExists();
     bool localHistoryExists(const LLUUID& resident_id);
 
+    // Open and accepted-inbound activity share one account-scoped priority queue.
     bool isPersistedDirectDialog(EInstantMessage dialog);
     void prioritizeResident(const LLUUID& resident_id, bool inbound = false);
+
+    // Views connect first and then query so they cannot miss an active-work transition.
     Snapshot getSnapshot(const LLUUID& resident_id);
     boost::signals2::connection setSnapshotChanged(const snapshot_callback_t& callback);
     std::list<LLSD> mergeHeadPreview(const std::list<LLSD>& loaded,
                                      const Snapshot& snapshot, U32 limit);
 
+    // The callback runs on the main queue after legacy and service storage are read.
     bool loadStitchedHistory(const LLUUID& resident_id, const std::string& legacy_stem,
                              U32 limit, const history_callback_t& callback);
+
+    // Deletion records its durable cutoff before clearing views or sweeping files.
     bool deleteTranscriptsAsync(const delete_callback_t& callback);
 }
 

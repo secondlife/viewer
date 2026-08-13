@@ -3842,3 +3842,4 @@ void LLViewerRegion::applyCacheMiscExtras(LLViewerObject* obj)
         }
     }
 }
+

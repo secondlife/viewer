@@ -109,7 +109,8 @@ public:
     static void getListOfTranscriptBackupFiles(std::vector<std::string>& list_of_transcriptions);
 
     static void loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params = LLSD(), bool is_group = false);
-    // ChatService resolves the family once, then reuses this canonical parser per exact path.
+    // Enumerate the ordinary transcript followed by lexical monthly shards, then
+    // reuse the canonical parser for each exact path.
     static void getTranscriptFamily(const std::string& file_name, std::vector<std::string>& paths);
     static void loadChatHistoryExact(const std::string& path, std::list<LLSD>& messages,
                                      const LLSD& load_params = LLSD());
@@ -126,6 +127,9 @@ public:
         std::vector<std::string>& listOfFilesToMove);
 
     static void deleteTranscripts();
+
+    // The success-returning sweep lets durable ChatService deletion remain pending
+    // until every legacy transcript target has been removed safely.
     static bool deleteTranscriptContent();
     static bool deleteTranscriptContent(const std::string& directory);
     static void notifyTranscriptCreated();

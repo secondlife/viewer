@@ -1241,7 +1241,12 @@ void LLAvatarActions::inviteToGroup(const LLUUID& id)
 // static
 void LLAvatarActions::viewChatHistory(const LLUUID& id)
 {
-    if (LLChatServiceHistory::historySuppressed()) return;
+    // A pending account-wide deletion suppresses both transcript and service sources.
+    if (LLChatServiceHistory::historySuppressed())
+    {
+        return;
+    }
+
     const std::vector<LLConversation>& conversations = LLConversationLog::instance().getConversations();
     std::vector<LLConversation>::const_iterator iter = conversations.begin();
 
