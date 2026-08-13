@@ -1240,10 +1240,11 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_DEBUG_MESSAGE:
         {
-            LL_INFOS("media") << self->getDebugMessageText() << LL_ENDL;
+            // self is nullptr for an embedded-browser-originated event.
+            std::string debug_text = self ? self->getDebugMessageText() : mMediaSource->getDebugMessageText();
+            LL_INFOS("media") << debug_text << LL_ENDL;
 
             // Handle text extraction responses
-            std::string debug_text = self->getDebugMessageText();
             if (debug_text.find(PAGE_TEXT_EXTRACT_MARKER) != std::string::npos)
             {
                 if (LLPluginClassMedia* plugin = getMediaPlugin())
@@ -1486,15 +1487,14 @@ void LLMediaCtrlListener::getMediaText(const LLSD& request)
         return;
     }
 
-    LLPluginClassMedia* plugin = media_ctrl->getMediaPlugin();
-    if (!plugin)
+    // Enable plugin debugging to capture console messages -- embedded browser has no
+    // equivalent toggle (its console-message callback always forwards), so this only
+    // applies to the legacy plugin path; executeJavaScript() below is what actually
+    // gates on whether there's any media to run this against, for either backend.
+    if (LLPluginClassMedia* plugin = media_ctrl->getMediaPlugin())
     {
-        replyError(request, "Media plugin is not available for widget at path: " + path);
-        return;
+        plugin->enableMediaPluginDebugging(true);
     }
-
-    // Enable plugin debugging to capture console messages
-    plugin->enableMediaPluginDebugging(true);
     std::string pump_name = request["reply"].asString();
 
     // Execute JavaScript to extract page text, embedding pump name in the marker

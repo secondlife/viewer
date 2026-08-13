@@ -3750,6 +3750,17 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                 mEmbeddedStatusText = event.mText;
                 emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_STATUS_TEXT_CHANGED);
                 break;
+
+            case LLEmbeddedBrowserEventType::ConsoleMessage:
+                // Matches MediaPluginCEF::onConsoleMessageCallback()'s own format exactly (see
+                // media_plugin_cef.cpp) -- LLMediaCtrlListener::getMediaText() searches this text
+                // for its PAGE_TEXT_EXTRACT_MARKER, so the console.log() argument (event.mText)
+                // needs to survive intact somewhere in here, which it does regardless of the
+                // surrounding wording.
+                mEmbeddedDebugMessageText = "Console message: " + event.mText + " in file(" +
+                                             event.mTarget + ") at line " + std::to_string(event.mValue);
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_DEBUG_MESSAGE);
+                break;
         }
     }
 }

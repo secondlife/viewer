@@ -110,6 +110,9 @@ namespace cefshm_demo
         // producer -> consumer, per-view channel
         kEventStatusTextChanged = 20, // text payload: the new status-bar text (e.g. a hovered
                                        // link's URL), see llCefBrowserManager::SetOnStatusMessageCallback
+        kEventConsoleMessage = 22, // data = {int32 line, uint32 messageLen, message bytes, source bytes
+                                    // (remainder)} -- a console.log/warn/error call from page JS, see
+                                    // llCefBrowserManager::SetOnConsoleMessageCallback
     };
 
     inline std::uint32_t pack_i32x2(std::uint8_t* d, std::int32_t x, std::int32_t y)
@@ -225,5 +228,20 @@ namespace cefshm_demo
             n += std::uint32_t(path.size());
         }
         return n;
+    }
+
+    inline bool unpack_console_message(const std::uint8_t* d, std::size_t n, std::string& message,
+                                       std::string& source, std::int32_t& line)
+    {
+        std::uint32_t line_u, msg_len;
+        if (n < 8 || !unpack_u32(d, n, line_u) || !unpack_u32(d + 4, n - 4, msg_len) ||
+            n < 8 + std::size_t(msg_len))
+        {
+            return false;
+        }
+        line = std::int32_t(line_u);
+        message.assign(reinterpret_cast<const char*>(d + 8), msg_len);
+        source.assign(reinterpret_cast<const char*>(d + 8 + msg_len), n - 8 - msg_len);
+        return true;
     }
 }

@@ -57,7 +57,9 @@ enum class LLEmbeddedBrowserEventType
     FileDialogRequest, // mDialogId = an opaque id to echo back to respondToFileDialog(); mValue =
                        // an llCefFileDialogMode ordinal (Open=0, OpenMultiple=1, OpenFolder=2,
                        // Save=3); mText = the dialog's suggested/default file path
-    StatusTextChanged  // mText = new status-bar text (e.g. a hovered link's URL)
+    StatusTextChanged, // mText = new status-bar text (e.g. a hovered link's URL)
+    ConsoleMessage     // mText = console.log/warn/error message, mTarget = its source URL,
+                       // mValue = line number
 };
 
 struct LLEmbeddedBrowserEvent

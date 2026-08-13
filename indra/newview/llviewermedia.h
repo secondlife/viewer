@@ -316,6 +316,13 @@ public:
     // or MEDIA_EVENT_FILE_DOWNLOAD -- pass an empty vector to indicate the user canceled.
     void respondToFileDialog(const std::vector<std::string>& filePaths);
 
+    // Embedded-browser-only equivalent of LLPluginClassMedia::getDebugMessageText(), populated
+    // just before MEDIA_EVENT_DEBUG_MESSAGE fires from a page's console.log/warn/error call --
+    // see the handleMediaEvent patch in llmediactrl.cpp. Pre-formatted to match that plugin
+    // accessor's own text exactly ("Console message: <msg> in file(<source>) at line <n>"), since
+    // that's the string LLMediaCtrlListener::getMediaText() searches for its extraction marker in.
+    std::string getDebugMessageText() const { return mEmbeddedDebugMessageText; }
+
     void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; }
     void setVisible(bool visible);
     bool getVisible() const { return mVisible; }
@@ -518,6 +525,8 @@ private:
     long long mEmbeddedFileDialogId = 0;
     // See getStatusText() above.
     std::string mEmbeddedStatusText;
+    // See getDebugMessageText() above.
+    std::string mEmbeddedDebugMessageText;
 
     // Drains LLEmbeddedBrowser::popEvent() for mEmbeddedBrowserId, updating the cached
     // state below and calling emitEvent(nullptr, ...) for each one -- nullptr is a safe,

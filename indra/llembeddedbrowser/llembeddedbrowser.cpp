@@ -210,6 +210,13 @@ void LLEmbeddedBrowserTab::update()
                 event.type = LLEmbeddedBrowserEventType::StatusTextChanged;
                 event.mText = std::string(cmd.text());
                 break;
+            case kEventConsoleMessage: {
+                event.type = LLEmbeddedBrowserEventType::ConsoleMessage;
+                std::int32_t line = 0;
+                unpack_console_message(cmd.data.data(), cmd.data.size(), event.mText, event.mTarget, line);
+                event.mValue = static_cast<unsigned int>(line);
+                break;
+            }
             default:
                 continue; // not an event opcode this tab understands
         }
