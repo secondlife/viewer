@@ -2516,9 +2516,18 @@ void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MA
     mLastMouseY = y;
     if (mUseEmbeddedBrowser)
     {
-        // scroll_x has no equivalent in llCefBrowserManager::SendMouseWheelEvent (vertical
-        // deltaY only) -- horizontal scroll is dropped rather than approximated.
-        LLEmbeddedBrowser::getInstance()->scrollWheel(mEmbeddedBrowserId, x, y, scroll_y);
+        // scroll_y here is SL's own small per-notch "clicks" value (+-1, +-2... straight
+        // from the OS callback, see LLViewerWindow::handleScrollWheel) -- SendMouseWheelEvent
+        // expects CEF's own wheel-delta units (~WHEEL_DELTA, 120 per notch on Windows), so
+        // this needs scaling up or a real scroll registers as imperceptible to the page.
+        // Negated: Dullahan's own scrollEvent() (the legacy path just below) and
+        // llCefBrowserManager's SendMouseWheelEvent disagree on which sign of this same
+        // scroll_y means "scroll down" -- flipped here so embedded-browser scrolling
+        // matches the legacy plugin's established direction rather than CEF's raw default.
+        // scroll_x has no equivalent in SendMouseWheelEvent (vertical deltaY only) -- horizontal
+        // scroll is dropped rather than approximated.
+        static const S32 kCefWheelDeltaPerNotch = 120; // named to avoid colliding with WinUser.h's own WHEEL_DELTA macro
+        LLEmbeddedBrowser::getInstance()->scrollWheel(mEmbeddedBrowserId, x, y, -scroll_y * kCefWheelDeltaPerNotch);
     }
     else if (mMediaSource)
     {
