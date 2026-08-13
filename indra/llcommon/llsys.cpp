@@ -590,6 +590,9 @@ LLCPUInfo::LLCPUInfo()
     mHasSSE41 = proc.hasSSE41();
     mHasSSE42 = proc.hasSSE42();
     mHasSSE4a = proc.hasSSE4a();
+    mHasAVX = proc.hasAVX();
+    mHasAVX2 = proc.hasAVX2();
+    mHasAVX512F = proc.hasAVX512F();
     mHasAltivec = proc.hasAltivec();
     mCPUMHz = (F64)proc.getCPUFrequency();
     mFamily = proc.getCPUFamilyName();
@@ -630,6 +633,18 @@ LLCPUInfo::LLCPUInfo()
     if (mHasSSE4a)
     {
         mSSEVersions.append("4a");
+    }
+    if (mHasAVX)
+    {
+        mSIMDVersions.append("AVX");
+    }
+    if (mHasAVX2)
+    {
+        mSIMDVersions.append("AVX2");
+    }
+    if (mHasAVX512F)
+    {
+        mSIMDVersions.append("AVX-512F");
     }
 }
 
@@ -673,6 +688,21 @@ bool LLCPUInfo::hasSSE4a() const
     return mHasSSE4a;
 }
 
+bool LLCPUInfo::hasAVX() const
+{
+    return mHasAVX;
+}
+
+bool LLCPUInfo::hasAVX2() const
+{
+    return mHasAVX2;
+}
+
+bool LLCPUInfo::hasAVX512F() const
+{
+    return mHasAVX512F;
+}
+
 F64 LLCPUInfo::getMHz() const
 {
     return mCPUMHz;
@@ -686,6 +716,11 @@ std::string LLCPUInfo::getCPUString() const
 const LLSD& LLCPUInfo::getSSEVersions() const
 {
     return mSSEVersions;
+}
+
+const LLSD& LLCPUInfo::getSIMDVersions() const
+{
+    return mSIMDVersions;
 }
 
 void LLCPUInfo::stream(std::ostream& s) const

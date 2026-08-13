@@ -123,6 +123,9 @@ namespace
         eSSE4_1_Features = 38,
         eSSE4_2_Features = 39,
         eSSE4a_Features = 40,
+        eAVX_Features = 41,
+        eAVX2_Features = 42,
+        eAVX512F_Features = 43,
     };
 
     const char* cpu_feature_names[] =
@@ -170,6 +173,9 @@ namespace
         "SSE4.1 Instructions",
         "SSE4.2 Instructions",
         "SSE4a Instructions",
+        "AVX Instructions",   // 41
+        "AVX2 Instructions",  // 42
+        "AVX-512F Instructions", // 43
     };
 
     std::string intel_CPUFamilyName(int composed_family)
@@ -281,6 +287,21 @@ public:
     bool hasSSE4a() const
     {
         return hasExtension(cpu_feature_names[eSSE4a_Features]);
+    }
+
+    bool hasAVX() const
+    {
+        return hasExtension(cpu_feature_names[eAVX_Features]);
+    }
+
+    bool hasAVX2() const
+    {
+        return hasExtension(cpu_feature_names[eAVX2_Features]);
+    }
+
+    bool hasAVX512F() const
+    {
+        return hasExtension(cpu_feature_names[eAVX512F_Features]);
     }
 
     bool hasAltivec() const
@@ -572,12 +593,39 @@ private:
                     setExtension(cpu_feature_names[eSSE4_2_Features]);
                 }
 
+                // AVX: CPUID leaf 1, ECX bit 28, OSXSAVE + XCR0[1:2] enabled
+                if ((cpu_info[2] & 0x18000000) == 0x18000000 && ((_xgetbv(0) & 0x6) == 0x6))
+                {
+                    setExtension(cpu_feature_names[eAVX_Features]);
+                }
+
                 unsigned int feature_info = (unsigned int) cpu_info[3];
                 for(unsigned int index = 0, bit = 1; index < eSSE3_Features; ++index, bit <<= 1)
                 {
                     if(feature_info & bit)
                     {
                         setExtension(cpu_feature_names[index]);
+                    }
+                }
+            }
+            else if (i == 7)
+            {
+                // AVX2/AVX-512* require AVX to be usable (OSXSAVE + XCR0 state)
+                if (hasExtension(cpu_feature_names[eAVX_Features]))
+                {
+                    int cpu_info7[4] = { -1 };
+                    __cpuidex(cpu_info7, 7, 0);
+                    // AVX2: EBX bit 5
+                    if (cpu_info7[1] & 0x20)
+                    {
+                        setExtension(cpu_feature_names[eAVX2_Features]);
+                    }
+
+                    // AVX-512F: EBX bit 16; ZMM state in XCR0 (bits 5-7)
+                    const unsigned long long xcr0 = _xgetbv(0);
+                    if ((cpu_info7[1] & 0x10000) && ((xcr0 & 0xE6) == 0xE6))
+                    {
+                        setExtension(cpu_feature_names[eAVX512F_Features]);
                     }
                 }
             }
@@ -779,6 +827,29 @@ private:
             // Not supposed to happen?
             setExtension(cpu_feature_names[eSSE4a_Features]);
         }
+        if (cpu_features_str.find(" AVX1.0 ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eAVX_Features]);
+        }
+
+        // AVX2 and AVX-512F are reported in machdep.cpu.leaf7_features on macOS
+        char cpu_leaf7_features[1024];
+        len = sizeof(cpu_leaf7_features);
+        memset(cpu_leaf7_features, 0, len);
+        sysctlbyname("machdep.cpu.leaf7_features", (void*)cpu_leaf7_features, &len, NULL, 0);
+
+        std::string cpu_leaf7_str(cpu_leaf7_features);
+        cpu_leaf7_str = " " + cpu_leaf7_str + " ";
+
+        if (cpu_leaf7_str.find(" AVX2 ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eAVX2_Features]);
+        }
+
+        if (cpu_leaf7_str.find(" AVX512F ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eAVX512F_Features]);
+        }
     }
 };
 
@@ -915,6 +986,21 @@ private:
             setExtension(cpu_feature_names[eSSE4a_Features]);
         }
 
+        if (flags.find(" avx ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eAVX_Features]);
+        }
+
+        if (flags.find(" avx2 ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eAVX2_Features]);
+        }
+
+        if (flags.find(" avx512f ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eAVX512F_Features]);
+        }
+
 # endif // LL_X86
     }
 
@@ -979,6 +1065,9 @@ bool LLProcessorInfo::hasSSE3S() const { return mImpl->hasSSE3S(); }
 bool LLProcessorInfo::hasSSE41() const { return mImpl->hasSSE41(); }
 bool LLProcessorInfo::hasSSE42() const { return mImpl->hasSSE42(); }
 bool LLProcessorInfo::hasSSE4a() const { return mImpl->hasSSE4a(); }
+bool LLProcessorInfo::hasAVX() const { return mImpl->hasAVX(); }
+bool LLProcessorInfo::hasAVX2() const { return mImpl->hasAVX2(); }
+bool LLProcessorInfo::hasAVX512F() const { return mImpl->hasAVX512F(); }
 bool LLProcessorInfo::hasAltivec() const { return mImpl->hasAltivec(); }
 std::string LLProcessorInfo::getCPUFamilyName() const { return mImpl->getCPUFamilyName(); }
 std::string LLProcessorInfo::getCPUBrandName() const { return mImpl->getCPUBrandName(); }
