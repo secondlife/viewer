@@ -287,6 +287,10 @@ public:
     S32 getMediaTextureWidth() const;
     S32 getMediaTextureHeight() const;
     bool getMediaTextureCoordsOpenGL() const;
+    // Backend-agnostic (see above) -- the plugin path has always let observers pull this
+    // straight from LLPluginClassMedia at event time; the embedded-browser path has no such
+    // object, so its title is cached here instead (see updateEmbeddedBrowserEvents()).
+    std::string getMediaName() const;
 
     void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; }
     void setVisible(bool visible);
@@ -297,6 +301,13 @@ public:
     bool isMediaPlaying();
     bool isMediaPaused();
     bool hasMedia() const;
+    // Narrow, explicit alternative to hasMedia() for the embedded-browser case -- hasMedia()
+    // itself deliberately stays plugin-only (mMediaSource != NULL): it gates real callers
+    // elsewhere that immediately follow it with an unchecked getMediaPlugin()->someCall(),
+    // which would crash if hasMedia() started reporting true for embedded-browser media.
+    // Use `hasMedia() || isUsingEmbeddedBrowser()` at call sites that don't touch the
+    // plugin object directly (e.g. forwarding input).
+    bool isUsingEmbeddedBrowser() const { return mUseEmbeddedBrowser; }
     bool isMediaFailed() const { return mMediaSourceFailed; }
     void setMediaFailed(bool val) { mMediaSourceFailed = val; }
     void resetPreviousMediaState();
@@ -472,6 +483,15 @@ private:
     // if this member is reassigned or the underlying LLEmbeddedBrowser tab is resized
     // or destroyed before the worker thread gets around to running it.
     std::shared_ptr<std::vector<U8>> mEmbeddedBrowserFrameSnapshot;
+    std::string mEmbeddedBrowserTitle;
+
+    // Drains LLEmbeddedBrowser::popEvent() for mEmbeddedBrowserId, updating the cached
+    // state below and calling emitEvent(nullptr, ...) for each one -- nullptr is a safe,
+    // unambiguous signal to observers that this event has no real LLPluginClassMedia
+    // behind it (a genuine plugin callback never passes nullptr), see LLMediaCtrl and the
+    // other LLViewerMediaObserver overrides patched alongside this for the specific
+    // handful of events this can fire. Called once per update().
+    void updateEmbeddedBrowserEvents();
     LLCoros::Mutex mLock;
     F64     mZoomFactor;
     LLUUID mTextureId;

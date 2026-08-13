@@ -216,7 +216,7 @@ bool LLMediaCtrl::handleHover( S32 x, S32 y, MASK mask )
 bool LLMediaCtrl::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
     if (LLPanel::handleScrollWheel(x, y, clicks)) return true;
-    if (mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
         convertInputCoords(x, y);
         mMediaSource->scrollWheel(x, y, 0, clicks, gKeyboard->currentMask(true));
@@ -230,7 +230,7 @@ bool LLMediaCtrl::handleScrollWheel( S32 x, S32 y, S32 clicks )
 bool LLMediaCtrl::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
     if (LLPanel::handleScrollHWheel(x, y, clicks)) return true;
-    if (mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
         convertInputCoords(x, y);
         mMediaSource->scrollWheel(x, y, clicks, 0, gKeyboard->currentMask(true));
@@ -975,11 +975,16 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
     x -= x_offset;
     y -= y_offset;
 
+    // Backend-agnostic (see LLViewerMediaImpl::getMediaTextureCoordsOpenGL()) -- going
+    // through getMediaPlugin() directly (as this used to) always reads false for the
+    // embedded-browser backend, since mMediaSource->getMediaPlugin() is null there by
+    // construction (there's no real LLPluginClassMedia), taking the wrong branch below
+    // and inverting mouse Y for every embedded-browser click/move/scroll.
     bool coords_opengl = false;
 
-    if(mMediaSource && mMediaSource->hasMedia())
+    if(mMediaSource)
     {
-        coords_opengl = mMediaSource->getMediaPlugin()->getTextureCoordsOpenGL();
+        coords_opengl = mMediaSource->getMediaTextureCoordsOpenGL();
     }
 
     x = ll_round((F32)x * LLUI::getScaleFactor().mV[VX]);
@@ -989,7 +994,14 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
     }
     else
     {
-        y = ll_round((F32)(getRect().getHeight() - y) * LLUI::getScaleFactor().mV[VY]);
+        // height, not getRect().getHeight(): y was already shifted onto the aspect-
+        // corrected content rect above (y -= y_offset), which is smaller than the full
+        // widget rect whenever mMaintainAspectRatio (on by default -- see the ctor) is
+        // actually centering letterboxed/pillarboxed content. Flipping against the wrong
+        // (larger) height here throws Y off by exactly the centering offset -- invisible
+        // when the widget's aspect ratio happens to match the media's (no centering), and
+        // growing right along with the letterbox band otherwise.
+        y = ll_round((F32)(height - y) * LLUI::getScaleFactor().mV[VY]);
     };
 }
 
@@ -1022,13 +1034,16 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_CURSOR_CHANGED:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << self->getCursorName() << LL_ENDL;
+            // self is nullptr for an embedded-browser-originated event (see
+            // LLViewerMediaImpl::updateEmbeddedBrowserEvents()) -- it has no
+            // LLPluginClassMedia to ask for a cursor name.
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << (self ? self->getCursorName() : "(embedded browser)") << LL_ENDL;
         }
         break;
 
         case MEDIA_EVENT_NAVIGATE_BEGIN:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN, url is " << self->getNavigateURI() << LL_ENDL;
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN, url is " << (self ? self->getNavigateURI() : mMediaSource->getCurrentMediaURL()) << LL_ENDL;
             hideNotification();
             mLoadingState = LOADING_STATE_LOADING;
         };
@@ -1036,7 +1051,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_NAVIGATE_COMPLETE:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << self->getNavigateResultString() << LL_ENDL;
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << (self ? self->getNavigateResultString() : "(embedded browser)") << LL_ENDL;
             if(mHidingInitialLoad)
             {
                 mHidingInitialLoad = false;
@@ -1059,7 +1074,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_LOCATION_CHANGED:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << self->getLocation() << LL_ENDL;
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << (self ? self->getLocation() : mMediaSource->getCurrentMediaURL()) << LL_ENDL;
         };
         break;
 
@@ -1245,6 +1260,14 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 std::string LLMediaCtrl::getCurrentNavUrl()
 {
     return mCurrentNavUrl;
+}
+
+std::string LLMediaCtrl::getMediaName()
+{
+    if (mMediaSource)
+        return mMediaSource->getMediaName();
+    else
+        return LLStringUtil::null;
 }
 
 void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)

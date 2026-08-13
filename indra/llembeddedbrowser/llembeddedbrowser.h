@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <deque>
 #include <map>
 #include <memory>
 #include <string>
@@ -37,6 +38,26 @@
 class LLEmbeddedBrowser;
 class LLEmbeddedBrowserTab;
 class LLSubscriber;
+
+// Mirrors a subset of cefshm_demo::Opcode's kEvent* commands -- see
+// cefshm_protocol.h. Deliberately not the full LLPluginClassMediaOwner::
+// EMediaEvent set; just enough for load-state and title/location/cursor
+// feedback (see LLViewerMediaImpl, which translates these into that enum).
+enum class LLEmbeddedBrowserEventType
+{
+    LoadStart,
+    LoadEnd,        // mValue = HTTP status code
+    TitleChanged,   // mText = new title
+    AddressChanged, // mText = new URL
+    CursorChanged,  // mValue = an llCefCursorType value, opaque here
+};
+
+struct LLEmbeddedBrowserEvent
+{
+    LLEmbeddedBrowserEventType type;
+    std::string mText;
+    unsigned int mValue = 0;
+};
 
 class LLEmbeddedBrowserUpdateThread :
     public LLThread {
@@ -77,6 +98,27 @@ class LLEmbeddedBrowserTab
         unsigned int getWidth() const;
         unsigned int getHeight() const;
 
+        // Input: fire-and-forget sends over the per-view command channel, same as
+        // navigate()/resize() -- silently do nothing if not yet connected (no queueing;
+        // an input event that arrives before the first frame has nothing useful to hit
+        // anyway). x/y are canvas-space pixels, matching this tab's current width/height.
+        void mouseMove(int x, int y);
+        // button matches LLViewerMediaImpl's own convention (0 = left, the only value any
+        // current caller passes); is_down false = button-up.
+        void mouseButton(int x, int y, unsigned char button, bool is_down);
+        void scrollWheel(int x, int y, int deltaY);
+        // msg/wParam/lParam: a raw Win32 keyboard message triple, straight from
+        // LLWindowWin32::getNativeKeyData(). Windows-only, matching the producer's own
+        // SendKeyEvent.
+        void keyEvent(unsigned int msg, unsigned int wParam, unsigned int lParam);
+
+        // Pops the oldest queued event (received from the producer since the last call),
+        // false if none are pending. Call in a loop to drain all of them -- unlike
+        // getPixels()/getWidth() this is NOT a snapshot of current state, it's a FIFO of
+        // discrete occurrences (e.g. a load-start followed by a load-end in the same tick
+        // both need to surface, not collapse into "latest state").
+        bool popEvent(LLEmbeddedBrowserEvent& out_event);
+
     private:
         // Best-effort: claims the cefshm_producer control channel, requests a view,
         // and stores the resulting per-view LLSubscriber in mSub plus sends the tab's
@@ -95,6 +137,7 @@ class LLEmbeddedBrowserTab
         unsigned int mHeight = 0;
         const unsigned int mDepth = 4;
         std::string mCurrentUrl;
+        std::deque<LLEmbeddedBrowserEvent> mEvents;
 };
 
 class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
@@ -116,6 +159,12 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         unsigned int getHeight(unsigned int id);
         void navigate(unsigned int id, const std::string& url);
         void resize(unsigned int id, unsigned int width, unsigned int height);
+
+        void mouseMove(unsigned int id, int x, int y);
+        void mouseButton(unsigned int id, int x, int y, unsigned char button, bool is_down);
+        void scrollWheel(unsigned int id, int x, int y, int deltaY);
+        void keyEvent(unsigned int id, unsigned int msg, unsigned int wParam, unsigned int lParam);
+        bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
 
         // Caps requested create() dimensions -- callers (e.g. newview, which knows about
         // EmbeddedBrowserMaxWidth/Height in settings.xml) should call this once before

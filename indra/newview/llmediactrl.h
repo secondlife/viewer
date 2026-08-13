@@ -114,6 +114,10 @@ public:
         bool canNavigateBack();
         bool canNavigateForward();
         std::string getCurrentNavUrl();
+        // Backend-agnostic (see LLViewerMediaImpl::getMediaName()) -- unlike
+        // getMediaPlugin()->getMediaName(), works whether or not there's a real
+        // LLPluginClassMedia behind this control.
+        std::string getMediaName();
 
         // By default, we do not handle "secondlife:///app/" SLURLs, because
         // those can cause teleports, open windows, etc.  We cannot be sure

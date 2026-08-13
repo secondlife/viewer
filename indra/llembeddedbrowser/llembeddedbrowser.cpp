@@ -165,6 +165,39 @@ void LLEmbeddedBrowserTab::update()
         return;
     }
 
+    LLCommand cmd;
+    while (mSub->receive(cmd))
+    {
+        LLEmbeddedBrowserEvent event;
+        switch (cmd.type)
+        {
+            case kEventLoadStart:
+                event.type = LLEmbeddedBrowserEventType::LoadStart;
+                break;
+            case kEventLoadEnd:
+                event.type = LLEmbeddedBrowserEventType::LoadEnd;
+                unpack_u32(cmd.data.data(), cmd.data.size(), event.mValue);
+                break;
+            case kEventTitleChanged:
+                event.type = LLEmbeddedBrowserEventType::TitleChanged;
+                event.mText = std::string(cmd.text());
+                break;
+            case kEventAddressChanged:
+                event.type = LLEmbeddedBrowserEventType::AddressChanged;
+                event.mText = std::string(cmd.text());
+                break;
+            case kEventCursorChanged:
+                event.type = LLEmbeddedBrowserEventType::CursorChanged;
+                unpack_u32(cmd.data.data(), cmd.data.size(), event.mValue);
+                break;
+            default:
+                continue; // not an event opcode this tab understands
+        }
+
+        LLMutexLock lock(&mPixelMutex);
+        mEvents.push_back(event);
+    }
+
     std::vector<unsigned char> frame_buf;
     LLFrameInfo info{};
     const LLReadResult result = mSub->read_latest(frame_buf, info);
@@ -249,6 +282,63 @@ void LLEmbeddedBrowserTab::resize(unsigned int width, unsigned int height)
         pack_size(payload, width, height);
         mSub->send(kResize, payload, 8);
     }
+}
+
+void LLEmbeddedBrowserTab::mouseMove(int x, int y)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::uint8_t payload[8];
+        pack_i32x2(payload, x, y);
+        mSub->send(kMouseMove, payload, 8);
+    }
+}
+
+void LLEmbeddedBrowserTab::mouseButton(int x, int y, unsigned char button, bool is_down)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        // action: 0 = up, 1 = down, matching cef_mouse_up()'s convention in cefshm_producer.cpp.
+        std::uint8_t payload[10];
+        const std::uint32_t n = pack_mouse_button(payload, x, y, button, is_down ? 1 : 0);
+        mSub->send(kMouseButton, payload, n);
+    }
+}
+
+void LLEmbeddedBrowserTab::scrollWheel(int x, int y, int deltaY)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::uint8_t payload[12];
+        const std::uint32_t n = pack_scroll(payload, x, y, deltaY);
+        mSub->send(kScrollWheel, payload, n);
+    }
+}
+
+void LLEmbeddedBrowserTab::keyEvent(unsigned int msg, unsigned int wParam, unsigned int lParam)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::uint8_t payload[12];
+        const std::uint32_t n = pack_key_event(payload, msg, wParam, lParam);
+        mSub->send(kKeyEvent, payload, n);
+    }
+}
+
+bool LLEmbeddedBrowserTab::popEvent(LLEmbeddedBrowserEvent& out_event)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mEvents.empty())
+    {
+        return false;
+    }
+    out_event = mEvents.front();
+    mEvents.pop_front();
+    return true;
 }
 
 unsigned int LLEmbeddedBrowserTab::getWidth() const
@@ -394,14 +484,64 @@ void LLEmbeddedBrowser::navigate(unsigned int id, const std::string& url)
     }
 }
 
+void LLEmbeddedBrowser::mouseMove(unsigned int id, int x, int y)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->mouseMove(x, y);
+    }
+}
+
+void LLEmbeddedBrowser::mouseButton(unsigned int id, int x, int y, unsigned char button, bool is_down)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->mouseButton(x, y, button, is_down);
+    }
+}
+
+void LLEmbeddedBrowser::scrollWheel(unsigned int id, int x, int y, int deltaY)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->scrollWheel(x, y, deltaY);
+    }
+}
+
+void LLEmbeddedBrowser::keyEvent(unsigned int id, unsigned int msg, unsigned int wParam, unsigned int lParam)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->keyEvent(msg, wParam, lParam);
+    }
+}
+
+bool LLEmbeddedBrowser::popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event)
+{
+    if (auto tab = findTab(id))
+    {
+        return tab->popEvent(out_event);
+    }
+    return false;
+}
+
 void LLEmbeddedBrowserUpdateThread::run()
 {
     // Scale the update rate down for large tabs so the per-frame full-buffer fill/lock
-    // cost stays roughly bounded regardless of tab size: small tabs (e.g. <= 512x512)
-    // run at max_fps, and the rate falls off as pixel count grows, floored at min_fps.
+    // cost stays roughly bounded regardless of tab size: tabs up to 1280x720 run at
+    // max_fps, and the rate falls off as pixel count grows, floored at min_fps.
+    //
+    // These numbers were originally tuned for the checkerboard-placeholder generator
+    // (bounding the CPU cost of *painting* a synthetic pattern); now that this pulls
+    // real CEF frames, the same throttle governs input-to-display latency too -- the
+    // budget below was raised (2026-08-13) after real interactive testing showed the
+    // old 512x512-at-60fps / 10fps-floor numbers made mouse-move feedback feel sluggish
+    // on anything larger than a small thumbnail. Revisit downward again if this proves
+    // too costly on low-end hardware -- see the memory-comparison work elsewhere in this
+    // project for why that tradeoff matters here.
     const unsigned int max_fps = 60;
-    const unsigned int min_fps = 10;
-    const unsigned long long budget_pixels_per_sec = 512ull * 512ull * max_fps;
+    const unsigned int min_fps = 30;
+    const unsigned long long budget_pixels_per_sec = 1280ull * 720ull * max_fps;
 
     while (! isQuitting())
     {

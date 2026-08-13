@@ -41,6 +41,7 @@
 #include "llfloaterwebcontent.h"    // for handling window close requests and geometry change requests in media browser windows.
 #include "llfocusmgr.h"
 #include "llimagegl.h"
+#include "llsdutil.h"
 #include "llkeyboard.h"
 #include "lllogininstance.h"
 #include "llmarketplacefunctions.h"
@@ -2352,7 +2353,11 @@ void LLViewerMediaImpl::mouseDown(S32 x, S32 y, MASK mask, S32 button)
     mLastMouseX = x;
     mLastMouseY = y;
 //  LL_INFOS() << "mouse down (" << x << ", " << y << ")" << LL_ENDL;
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, true);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOWN, button, x, y, mask);
     }
@@ -2365,7 +2370,11 @@ void LLViewerMediaImpl::mouseUp(S32 x, S32 y, MASK mask, S32 button)
     mLastMouseX = x;
     mLastMouseY = y;
 //  LL_INFOS() << "mouse up (" << x << ", " << y << ")" << LL_ENDL;
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, false);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, button, x, y, mask);
     }
@@ -2378,7 +2387,11 @@ void LLViewerMediaImpl::mouseMove(S32 x, S32 y, MASK mask)
     mLastMouseX = x;
     mLastMouseY = y;
 //  LL_INFOS() << "mouse move (" << x << ", " << y << ")" << LL_ENDL;
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->mouseMove(mEmbeddedBrowserId, x, y);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_MOVE, 0, x, y, mask);
     }
@@ -2400,6 +2413,17 @@ void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 
     if(texture_y < 0.0f)
         texture_y = 1.0f + texture_y;
 
+    if (mUseEmbeddedBrowser)
+    {
+        // No texture-vs-media-size distinction here (unlike the plugin's power-of-two
+        // getTextureWidth()/Height()) -- LLEmbeddedBrowser::getWidth()/getHeight() already
+        // are the real media dimensions, so no y-delta adjustment is needed either.
+        LLEmbeddedBrowser* browser = LLEmbeddedBrowser::getInstance();
+        *x = ll_round(texture_x * browser->getWidth(mEmbeddedBrowserId));
+        *y = ll_round((1.0f - texture_y) * browser->getHeight(mEmbeddedBrowserId));
+        return;
+    }
+
     // scale x and y to texel units.
     *x = ll_round(texture_x * mMediaSource->getTextureWidth());
     *y = ll_round((1.0f - texture_y) * mMediaSource->getTextureHeight());
@@ -2411,7 +2435,7 @@ void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S32 button)
 {
-    if(mMediaSource)
+    if(mMediaSource || mUseEmbeddedBrowser)
     {
         S32 x, y;
         scaleTextureCoords(texture_coords, &x, &y);
@@ -2422,7 +2446,7 @@ void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S3
 
 void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords, MASK mask, S32 button)
 {
-    if(mMediaSource)
+    if(mMediaSource || mUseEmbeddedBrowser)
     {
         S32 x, y;
         scaleTextureCoords(texture_coords, &x, &y);
@@ -2433,7 +2457,7 @@ void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords, MASK mask, S32 
 
 void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
 {
-    if(mMediaSource)
+    if(mMediaSource || mUseEmbeddedBrowser)
     {
         S32 x, y;
         scaleTextureCoords(texture_coords, &x, &y);
@@ -2444,7 +2468,7 @@ void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
 
 void LLViewerMediaImpl::mouseDoubleClick(const LLVector2& texture_coords, MASK mask)
 {
-    if (mMediaSource)
+    if (mMediaSource || mUseEmbeddedBrowser)
     {
         S32 x, y;
         scaleTextureCoords(texture_coords, &x, &y);
@@ -2459,7 +2483,14 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
     scaleMouse(&x, &y);
     mLastMouseX = x;
     mLastMouseY = y;
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        // No double-click distinction on the wire yet (see cefshm_protocol.h's kMouseButton)
+        // -- sent as a plain click; CEF's own renderer infers double-click from timing on
+        // consecutive clicks the same way a real browser window would.
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, true);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOUBLE_CLICK, button, x, y, mask);
     }
@@ -2468,7 +2499,7 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::scrollWheel(const LLVector2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask)
 {
-    if (mMediaSource)
+    if (mMediaSource || mUseEmbeddedBrowser)
     {
         S32 x, y;
         scaleTextureCoords(texture_coords, &x, &y);
@@ -2483,7 +2514,13 @@ void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MA
     scaleMouse(&x, &y);
     mLastMouseX = x;
     mLastMouseY = y;
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        // scroll_x has no equivalent in llCefBrowserManager::SendMouseWheelEvent (vertical
+        // deltaY only) -- horizontal scroll is dropped rather than approximated.
+        LLEmbeddedBrowser::getInstance()->scrollWheel(mEmbeddedBrowserId, x, y, scroll_y);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->scrollEvent(x, y, scroll_x, scroll_y, mask);
     }
@@ -2492,7 +2529,11 @@ void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MA
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::onMouseCaptureLost()
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, mLastMouseX, mLastMouseY, 0, false);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, 0, mLastMouseX, mLastMouseY, 0);
     }
@@ -2910,7 +2951,7 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 {
     bool result = false;
 
-    if (mMediaSource)
+    if (mMediaSource || mUseEmbeddedBrowser)
     {
         // FIXME: THIS IS SO WRONG.
         // Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
@@ -2922,7 +2963,16 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
         if (!result)
         {
             LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
-            result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN, key, mask, native_key_data);
+            if (mUseEmbeddedBrowser)
+            {
+                LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
+                    ll_U32_from_sd(native_key_data["msg"]), ll_U32_from_sd(native_key_data["w_param"]), ll_U32_from_sd(native_key_data["l_param"]));
+                result = true;
+            }
+            else
+            {
+                result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN, key, mask, native_key_data);
+            }
         }
     }
 
@@ -2934,7 +2984,7 @@ bool LLViewerMediaImpl::handleKeyUpHere(KEY key, MASK mask)
 {
     bool result = false;
 
-    if (mMediaSource)
+    if (mMediaSource || mUseEmbeddedBrowser)
     {
         // FIXME: THIS IS SO WRONG.
         // Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
@@ -2946,7 +2996,16 @@ bool LLViewerMediaImpl::handleKeyUpHere(KEY key, MASK mask)
         if (!result)
         {
             LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
-            result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP, key, mask, native_key_data);
+            if (mUseEmbeddedBrowser)
+            {
+                LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
+                    ll_U32_from_sd(native_key_data["msg"]), ll_U32_from_sd(native_key_data["w_param"]), ll_U32_from_sd(native_key_data["l_param"]));
+                result = true;
+            }
+            else
+            {
+                result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP, key, mask, native_key_data);
+            }
         }
     }
 
@@ -2958,7 +3017,7 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 {
     bool result = false;
 
-    if (mMediaSource)
+    if (mMediaSource || mUseEmbeddedBrowser)
     {
         // only accept 'printable' characters, sigh...
         if (uni_char >= 32 // discard 'control' characters
@@ -2966,7 +3025,19 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
         {
             LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
 
-            mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(false), native_key_data);
+            if (mUseEmbeddedBrowser)
+            {
+                // native_key_data's msg/w_param/l_param are already WM_CHAR at this point
+                // (this is called from that same message's handling), which SendKeyEvent
+                // (see llCefBrowserManager.h) natively understands -- no separate
+                // "text input" opcode needed on Windows.
+                LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
+                    ll_U32_from_sd(native_key_data["msg"]), ll_U32_from_sd(native_key_data["w_param"]), ll_U32_from_sd(native_key_data["l_param"]));
+            }
+            else
+            {
+                mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(false), native_key_data);
+            }
         }
     }
 
@@ -3052,6 +3123,11 @@ void LLViewerMediaImpl::update()
 
     if (mUseEmbeddedBrowser)
     {
+        // Drain regardless of suspend/visible: matches the plugin path, where an async
+        // IPC event from the plugin process is never gated on the viewer's own idle-time
+        // suspend flags either -- those only guard the texture-copy step below.
+        updateEmbeddedBrowserEvents();
+
         if (mSuspendUpdates || !mVisible)
         {
             return;
@@ -3524,6 +3600,79 @@ bool LLViewerMediaImpl::getMediaTextureCoordsOpenGL() const
         return true;
     }
     return mMediaSource && mMediaSource->getTextureCoordsOpenGL();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+std::string LLViewerMediaImpl::getMediaName() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return mEmbeddedBrowserTitle;
+    }
+    return mMediaSource ? mMediaSource->getMediaName() : LLStringUtil::null;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Maps a subset of llCefCursorType's ordinals (see llCefBrowserHandle.h, not visible from
+// here -- this only crosses the wire as an opaque uint32, see cefshm_protocol.h's
+// kEventCursorChanged) to the closest ECursorType, matching getCursorFromString()'s string
+// table above it in spirit. Deliberately partial: the common pointer/text/link/wait/resize
+// cursors a web page actually uses, not an exhaustive 1:1 of every llCefCursorType value --
+// anything else (single-direction resize, panning, column/row resize, custom images, etc.)
+// falls back to the plain arrow rather than misrepresenting a cursor SL has no equivalent
+// for. Fragile by ordinal position: would silently mismap if llCefCursorType's own ordering
+// ever changes, since nothing on this side re-derives it from the enum itself.
+static ECursorType cursorTypeFromEmbeddedBrowserCursor(unsigned int cef_cursor_type)
+{
+    switch (cef_cursor_type)
+    {
+        case 0: return UI_CURSOR_ARROW;    // Pointer
+        case 1: return UI_CURSOR_CROSS;    // Cross
+        case 2: return UI_CURSOR_HAND;     // Hand
+        case 3: return UI_CURSOR_IBEAM;    // IBeam
+        case 4: return UI_CURSOR_WAIT;     // Wait
+        case 14: return UI_CURSOR_SIZENS;   // NorthSouthResize
+        case 15: return UI_CURSOR_SIZEWE;   // EastWestResize
+        case 16: return UI_CURSOR_SIZENESW; // NorthEastSouthWestResize
+        case 17: return UI_CURSOR_SIZENWSE; // NorthWestSouthEastResize
+        default: return UI_CURSOR_ARROW;
+    }
+}
+
+void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
+{
+    LLEmbeddedBrowserEvent event;
+    while (LLEmbeddedBrowser::getInstance()->popEvent(mEmbeddedBrowserId, event))
+    {
+        switch (event.type)
+        {
+            case LLEmbeddedBrowserEventType::LoadStart:
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_BEGIN);
+                break;
+
+            case LLEmbeddedBrowserEventType::LoadEnd:
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_COMPLETE);
+                break;
+
+            case LLEmbeddedBrowserEventType::TitleChanged:
+                mEmbeddedBrowserTitle = event.mText;
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_NAME_CHANGED);
+                break;
+
+            case LLEmbeddedBrowserEventType::AddressChanged:
+                // Cached so observers that need a real URL (rather than the LLPluginClassMedia*
+                // they'd normally read one from) have somewhere safe to get it -- see the
+                // handleMediaEvent patches in llmediactrl.cpp and elsewhere.
+                mCurrentMediaURL = event.mText;
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_LOCATION_CHANGED);
+                break;
+
+            case LLEmbeddedBrowserEventType::CursorChanged:
+                mLastSetCursor = cursorTypeFromEmbeddedBrowserCursor(event.mValue);
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_CURSOR_CHANGED);
+                break;
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
