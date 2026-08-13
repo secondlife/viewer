@@ -88,7 +88,7 @@ jobs:
       # autobuild-package.xml.
       AUTOBUILD_VCS_INFO: "true"
       AUTOBUILD_VSVER: "170"
-      DEVELOPER_DIR: "/Applications/Xcode_16.4.app/Contents/Developer"
+      DEVELOPER_DIR: "/Applications/Xcode_26.3.app/Contents/Developer"
       # Ensure that Linden viewer builds engage Bugsplat.
       BUGSPLAT_DB: ${{ needs.setup.outputs.bugsplat_db }}
       build_log_dir: ${{ github.workspace }}/.logs
