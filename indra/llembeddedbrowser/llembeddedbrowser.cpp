@@ -154,6 +154,15 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     std::uint8_t payload[8];
     pack_size(payload, mWidth, mHeight);
     mSub->send(kResize, payload, 8);
+
+    if (mHadDisconnected)
+    {
+        mHadDisconnected = false;
+        LLEmbeddedBrowserEvent event;
+        event.type = LLEmbeddedBrowserEventType::ProducerReconnected;
+        mEvents.push_back(event);
+    }
+
     return true;
 }
 
@@ -233,6 +242,13 @@ void LLEmbeddedBrowserTab::update()
     {
         LLMutexLock lock(&mPixelMutex);
         mSub.reset(); // producer went away -- connectToProducer() retries on a later tick
+        if (!mHadDisconnected)
+        {
+            mHadDisconnected = true;
+            LLEmbeddedBrowserEvent event;
+            event.type = LLEmbeddedBrowserEventType::ProducerDisconnected;
+            mEvents.push_back(event);
+        }
         return;
     }
 

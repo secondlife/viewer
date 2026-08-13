@@ -57,9 +57,14 @@ enum class LLEmbeddedBrowserEventType
     FileDialogRequest, // mDialogId = an opaque id to echo back to respondToFileDialog(); mValue =
                        // an llCefFileDialogMode ordinal (Open=0, OpenMultiple=1, OpenFolder=2,
                        // Save=3); mText = the dialog's suggested/default file path
-    StatusTextChanged, // mText = new status-bar text (e.g. a hovered link's URL)
-    ConsoleMessage     // mText = console.log/warn/error message, mTarget = its source URL,
-                       // mValue = line number
+    StatusTextChanged,     // mText = new status-bar text (e.g. a hovered link's URL)
+    ConsoleMessage,        // mText = console.log/warn/error message, mTarget = its source URL,
+                           // mValue = line number
+    ProducerDisconnected,  // the shm connection to cefshm_producer was lost -- fires exactly once
+                           // per outage (edge-triggered on the connected->disconnected transition),
+                           // never once per retry, so it's safe to notify the user from this
+    ProducerReconnected    // the connection came back after a ProducerDisconnected -- also
+                           // edge-triggered, fires exactly once per recovery
 };
 
 struct LLEmbeddedBrowserEvent
@@ -155,6 +160,11 @@ class LLEmbeddedBrowserTab
         mutable LLMutex mPixelMutex;
         std::unique_ptr<LLEmbeddedBrowserUpdateThread> mUpdateThread;
         std::unique_ptr<LLSubscriber> mSub;
+        // Set when a ProducerDisconnected event is pushed, cleared (and a matching
+        // ProducerReconnected pushed) the next time connectToProducer() succeeds -- makes both
+        // events edge-triggered on the connected/disconnected transition rather than firing on
+        // every poll/retry.
+        bool mHadDisconnected = false;
         unsigned char* mPixels = nullptr;
         unsigned int mWidth = 0;
         unsigned int mHeight = 0;

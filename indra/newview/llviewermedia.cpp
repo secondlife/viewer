@@ -3761,6 +3761,36 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                                              event.mTarget + ") at line " + std::to_string(event.mValue);
                 emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_DEBUG_MESSAGE);
                 break;
+
+            case LLEmbeddedBrowserEventType::ProducerDisconnected:
+                // Mirrors this class's own MEDIA_EVENT_PLUGIN_FAILED handling further below
+                // (mMediaSourceFailed/resetPreviousMediaState), except that one's own
+                // notification is deliberately left disabled (see the "getting called every
+                // frame" comment there) because that path can re-fire every frame while the
+                // plugin is stuck failing to load. This one is safe to actually show: popEvent()
+                // only ever delivers it once per outage (see mHadDisconnected in
+                // LLEmbeddedBrowserTab::update()/connectToProducer()), not once per retry.
+                mMediaSourceFailed = true;
+                resetPreviousMediaState();
+                {
+                    // Not LLMIMETypes::implType(mCurrentMimeType) here -- that maps to
+                    // "media_plugin_cef", which names the legacy plugin backend's DLL and
+                    // is actively wrong for this backend: there's no such plugin process
+                    // behind an embedded-browser failure, just a dead cefshm_producer.
+                    LLSD args;
+                    args["PLUGIN"] = "Embedded Browser Provider";
+                    LLNotificationsUtil::add("MediaPluginFailed", args);
+                }
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_PLUGIN_FAILED);
+                break;
+
+            case LLEmbeddedBrowserEventType::ProducerReconnected:
+                // connectToProducer() already re-sent the last URL, so a fresh LoadStart/
+                // LoadEnd pair (and the usual NAVIGATE_BEGIN/COMPLETE they drive) is on its way
+                // through the normal event path once the page reloads -- nothing else to redo
+                // here beyond letting this media be considered live again.
+                mMediaSourceFailed = false;
+                break;
         }
     }
 }
