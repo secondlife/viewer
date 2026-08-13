@@ -1473,9 +1473,24 @@ void LLIMModel::LLIMSession::replaceHistoricalMessages(const chat_message_list_t
     chat_message_list_t historical;
     for (const LLSD& source : history)
     {
+        const std::string from = source[LL_IM_FROM].asString();
+        LLUUID from_id;
+
+        // Plaintext transcripts store sender names but usually omit UUIDs. Recover
+        // resident identity from local name caches without scheduling a lookup.
+        if (source[LL_IM_FROM_ID].isDefined())
+        {
+            from_id = source[LL_IM_FROM_ID].asUUID();
+        }
+        else
+        {
+            const std::string legacy_name = gCacheName->buildLegacyName(from);
+            from_id = LLAvatarNameCache::getInstance()->findIdByName(legacy_name);
+        }
+
         LLSD message = source;
-        message["from"] = source[LL_IM_FROM];
-        message["from_id"] = source[LL_IM_FROM_ID];
+        message["from"] = from;
+        message["from_id"] = from_id;
         message["message"] = source[LL_IM_TEXT];
         message["time"] = source[LL_IM_TIME];
         message["timestamp"] = 0;
