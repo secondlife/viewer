@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -87,7 +87,7 @@ public:
     virtual const LLUUID& getUUID() const { return mUUID; }
     virtual const LLUUID& getThumbnailUUID() const { return LLUUID::null; }
     virtual bool isFavorite() const { return false; }
-    virtual void clearDisplayName() { mDisplayName.clear(); }
+    virtual void clearSearchableName() { mSearchableName.clear(); }
     virtual void restoreItem() {}
     virtual void restoreToWorld() {}
 
@@ -202,12 +202,11 @@ protected:
     LLInventoryType::EType mInvType;
     bool                        mIsLink;
     LLTimer                     mTimeSinceRequestStart;
-    mutable std::string         mDisplayName;
     mutable std::string         mSearchableName;
 
     void purgeItem(LLInventoryModel *model, const LLUUID &uuid);
     void removeObject(LLInventoryModel *model, const LLUUID &uuid);
-    virtual void buildDisplayName() const {}
+    virtual void buildSearchableName() const {}
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -266,7 +265,7 @@ public:
 protected:
     bool confirmRemoveItem(const LLSD& notification, const LLSD& response);
     virtual bool isItemPermissive() const;
-    virtual void buildDisplayName() const;
+    virtual void buildSearchableName() const;
     void doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb);
 
 private:
@@ -287,7 +286,7 @@ public:
     void callback_dropItemIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryItem* inv_item);
     void callback_dropCategoryIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryCategory* inv_category);
 
-    virtual void buildDisplayName() const;
+    virtual void buildSearchableName() const;
 
     virtual void performAction(LLInventoryModel* model, std::string action);
     virtual void openItem();

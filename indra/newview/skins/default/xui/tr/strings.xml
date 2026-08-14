@@ -5539,9 +5539,6 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Command_Grid_Status_Label">
 		Ağ durumu
 	</string>
-	<string name="Command_HowTo_Label">
-		Nasıl yapılır
-	</string>
 	<string name="Command_Inventory_Label">
 		Envanter
 	</string>
@@ -5637,9 +5634,6 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Command_Grid_Status_Tooltip">
 		Ağın mevcut durumunu göster
-	</string>
-	<string name="Command_HowTo_Tooltip">
-		Genel görevleri nasıl yapacağınız
 	</string>
 	<string name="Command_Inventory_Tooltip">
 		Eşyalarınızı görüntüleyin ve kullanın

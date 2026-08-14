@@ -540,6 +540,7 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
 
     mIsMask = false;
     mNeedsAlphaAndPickMask = true ;
+    mAlphaAnalysisSerial = 0;
     mAlphaStride = 0 ;
     mAlphaOffset = 0 ;
 
@@ -1945,6 +1946,9 @@ void LLImageGL::destroyGLTexture()
         mTexName = 0;
         mGLTextureCreated = false ;
     }
+
+    // Invalidate pending jobs
+    ++mAlphaAnalysisSerial;
 }
 
 //force to invalidate the gl texture, most likely a sculpty texture
@@ -2104,6 +2108,9 @@ void LLImageGL::setNeedsAlphaAndPickMask(bool need_mask)
         {
             mAlphaOffset = INVALID_OFFSET ;
             mIsMask = false;
+
+            // Invalidate pending jobs
+            ++mAlphaAnalysisSerial;
         }
     }
 }
@@ -2181,11 +2188,16 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
     }
 }
 
-void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
+bool LLImageGL::analyzeAlphaData(
+    const void* data_in,
+    U32 w,
+    U32 h,
+    S8 alpha_offset,
+    S8 alpha_stride)
 {
-    if(!data_in || sSkipAnalyzeAlpha || !mNeedsAlphaAndPickMask)
+    if (!data_in)
     {
-        return ;
+        return false;
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -2194,7 +2206,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
     U32 alphatotal = 0;
 
     U32 sample[16];
-    memset(sample, 0, sizeof(U32)*16);
+    memset(sample, 0, sizeof(U32) * 16);
 
     // generate histogram of quantized alpha.
     // also add-in the histogram of a 2x2 box-sampled version.  The idea is
@@ -2205,46 +2217,46 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
     {
         llassert(w % 2 == 0);
         llassert(h % 2 == 0);
-        const GLubyte* rowstart = ((const GLubyte*) data_in) + mAlphaOffset;
+        const GLubyte* rowstart = ((const GLubyte*)data_in) + alpha_offset;
         for (U32 y = 0; y < h; y += 2)
         {
-            const GLubyte* current = rowstart;
+            const unsigned char* current = rowstart;
             for (U32 x = 0; x < w; x += 2)
             {
                 const U32 s1 = current[0];
                 alphatotal += s1;
-                const U32 s2 = current[w * mAlphaStride];
+                const U32 s2 = current[w * alpha_stride];
                 alphatotal += s2;
-                current += mAlphaStride;
+                current += alpha_stride;
                 const U32 s3 = current[0];
                 alphatotal += s3;
-                const U32 s4 = current[w * mAlphaStride];
+                const U32 s4 = current[w * alpha_stride];
                 alphatotal += s4;
-                current += mAlphaStride;
+                current += alpha_stride;
 
-                ++sample[s1/16];
-                ++sample[s2/16];
-                ++sample[s3/16];
-                ++sample[s4/16];
+                ++sample[s1 / 16];
+                ++sample[s2 / 16];
+                ++sample[s3 / 16];
+                ++sample[s4 / 16];
 
-                const U32 asum = (s1+s2+s3+s4);
+                const U32 asum = (s1 + s2 + s3 + s4);
                 alphatotal += asum;
-                sample[asum/(16*4)] += 4;
+                sample[asum / (16 * 4)] += 4;
             }
 
-            rowstart += 2 * w * mAlphaStride;
+            rowstart += 2 * w * alpha_stride;
         }
         length *= 2; // we sampled everything twice, essentially
     }
     else
     {
-        const GLubyte* current = ((const GLubyte*) data_in) + mAlphaOffset;
+        const unsigned char* current = ((const unsigned char*)data_in) + alpha_offset;
         for (U32 i = 0; i < length; i++)
         {
             const U32 s1 = *current;
             alphatotal += s1;
-            ++sample[s1/16];
-            current += mAlphaStride;
+            ++sample[s1 / 16];
+            current += alpha_stride;
         }
     }
 
@@ -2271,15 +2283,103 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
         upperhalftotal += sample[i];
     }
 
-    if (midrangetotal > length/48 || // lots of midrange, or
-        (lowerhalftotal == length && alphatotal != 0) || // all close to transparent but not all totally transparent, or
-        (upperhalftotal == length && alphatotal != 255*length)) // all close to opaque but not all totally opaque
+    if (midrangetotal > length / 48 ||
+        (lowerhalftotal == length && alphatotal != 0) ||
+        (upperhalftotal == length && alphatotal != 255 * length))
     {
-        mIsMask = false; // not suitable for masking
+        return false; // not suitable for masking
     }
     else
     {
-        mIsMask = true;
+        return true; // is a mask
+    }
+}
+
+void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
+{
+    // if mNeedsAlphaAndPickMask is true, then offset and stride are supposed to be valid.
+    if (!data_in || sSkipAnalyzeAlpha || !mNeedsAlphaAndPickMask)
+        return;
+
+    // Already on a worker thread or a small image - analyze immediately
+    if (!on_main_thread() || (w < 64 && h < 64))
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+        // Should have been incremented by destroyGLTexture,
+        // but increment either way, for extra safety.
+        ++mAlphaAnalysisSerial;
+
+        mIsMask = analyzeAlphaData(data_in, w, h, mAlphaOffset, mAlphaStride);
+        return;
+    }
+
+    // On main thread - defer to worker thread
+
+    // Capture context
+    const S8 alpha_offset = mAlphaOffset;
+    const S8 alpha_stride = mAlphaStride;
+    const U32 request_serial = ++mAlphaAnalysisSerial;
+
+    // Copy data for worker thread
+    const size_t data_size = size_t(w) * size_t(h) * size_t(alpha_stride);
+    U8* data_copy = new (std::nothrow) U8[data_size];
+
+    if (!data_copy)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+        mIsMask = analyzeAlphaData(data_in, w, h, alpha_offset, alpha_stride);
+        return;
+    }
+    memcpy(data_copy, static_cast<const U8*>(data_in), data_size);
+
+    // Viewer can rapidly switch between lods, which would invalidate
+    // previous analysis results.
+    // Use a serial number to filter out obsolete analysis results.
+
+    ref(); // Keep texture alive
+
+    auto mainq = mMainQueue.lock();
+
+    // Get the GL thread queue
+    auto workerq = LLImageGLThread::sEnabledTextures ?
+        LL::WorkQueue::getInstance("LLImageGL") : // Use the image processing queue if available
+        LL::WorkQueue::getInstance("General"); // Fallback to general
+
+    bool posted_job = false;
+    if (mainq && workerq)
+    {
+        posted_job = mainq->postTo(
+            workerq,
+            // Worker thread: analyze alpha
+            [data_copy, w, h, alpha_offset, alpha_stride]() -> bool
+        {
+            LL_PROFILE_ZONE_NAMED("Deffered alpha mask analysis");
+            bool is_mask = LLImageGL::analyzeAlphaData(data_copy, w, h, alpha_offset, alpha_stride);
+            delete[] data_copy;
+            return is_mask;
+        },
+            // Main thread: apply result
+            [this, request_serial](bool is_mask)
+        {
+            // Only apply if no newer analysis has been requested
+            if (mAlphaAnalysisSerial == request_serial)
+            {
+                mIsMask = is_mask;
+            }
+            unref();
+        }
+        );
+
+        // Conservative default until analysis completes
+        mIsMask = false;
+    }
+    if (!posted_job)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+        // Queues not available - fall back to synchronous analysis
+        delete[] data_copy;
+        mIsMask = analyzeAlphaData(data_in, w, h, mAlphaOffset, mAlphaStride);
+        unref();
     }
 }
 

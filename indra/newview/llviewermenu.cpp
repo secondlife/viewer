@@ -124,6 +124,7 @@
 #include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerstatsrecorder.h"
 #include "llvlcomposition.h"
@@ -2299,7 +2300,7 @@ class LLAdvancedDropPacket : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        gMessageSystem->mPacketRing.dropPackets(1);
+        gMessageSystem->dropPackets(1);
         return true;
     }
 };
@@ -3712,7 +3713,7 @@ class LLAvatarSetImpostorMode : public view_listener_t
                 return false;
         }
 
-        LLVOAvatar::cullAvatarsByPixelArea();
+        LLVOAvatar::setCullNeedsUpdate();
         return true;
     }   // handleEvent()
 };
@@ -5136,6 +5137,31 @@ static void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
     derez_objects(dest, dest_id, first_region, error, NULL);
 }
 
+bool save_object_back_to_contents(LLViewerObject* object, const LLUUID& source_task_id)
+{
+    if (!object || source_task_id.isNull())
+    {
+        return false;
+    }
+
+    LLViewerRegion* first_region = object->getRegion();
+    if (!first_region)
+    {
+        return false;
+    }
+
+    std::vector<LLViewerObjectPtr> objects;
+    objects.push_back(object);
+
+    std::string error;
+    derez_objects(DRD_SAVE_INTO_TASK_INVENTORY, source_task_id, first_region, error, &objects);
+    if (!error.empty())
+    {
+        return false;
+    }
+    return true;
+}
+
 static void derez_objects_separate(EDeRezDestination dest, const LLUUID &dest_id)
 {
     std::vector<LLViewerObjectPtr> derez_object_list;
@@ -5180,6 +5206,27 @@ void handle_link_objects()
     else
     {
         LLSelectMgr::getInstance()->linkObjects();
+    }
+}
+
+void handle_unlink_objects()
+{
+    if (LLSelectMgr::getInstance()->getSelection()->isEmpty())
+    {
+        LLPanel* visited_panel = LLFloaterSidePanelContainer::getPanel("places", "Teleport History");
+        if (visited_panel && visited_panel->isInVisibleChain())
+        {
+            LLFloaterReg::hideInstance("places");
+        }
+        else
+        {
+            LLFloaterReg::toggleInstanceOrBringToFront("places");
+            LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "open_teleport_history_tab"));
+        }
+    }
+    else
+    {
+        LLSelectMgr::getInstance()->unlinkObjects();
     }
 }
 
@@ -5710,10 +5757,13 @@ class LLToolsSaveToObjectInventory : public view_listener_t
     bool handleEvent(const LLSD& userdata)
     {
         LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
-        if(node && (node->mValid) && (!node->mFromTaskID.isNull()))
+        if (node && node->mValid && !node->mFromTaskID.isNull())
         {
-            // *TODO: check to see if the fromtaskid object exists.
-            derez_objects(DRD_SAVE_INTO_TASK_INVENTORY, node->mFromTaskID);
+            LLViewerObject* object = node->getObject();
+            if (object)
+            {
+                save_object_back_to_contents(object, node->mFromTaskID);
+            }
         }
         return true;
     }
@@ -8037,6 +8087,20 @@ class LLToolsSelectedScriptAction : public view_listener_t
             msg = "Recompile";
             title = LLTrans::getString("CompileQueueTitle");
         }
+        else if (action == "compile lua")
+        {
+            name = "compile_queue";
+            target = "luau";
+            msg = "Recompile";
+            title = LLTrans::getString("CompileQueueTitle");
+        }
+        else if (action == "compile lsl-luau")
+        {
+            name = "compile_queue";
+            target = "lsl-luau";
+            msg = "Recompile";
+            title = LLTrans::getString("CompileQueueTitle");
+        }
         else if (action == "reset")
         {
             name = "reset_queue";
@@ -8459,6 +8523,27 @@ class LLEditableSelectedMono : public view_listener_t
     }
 };
 
+static bool is_lua_scripts_enabled()
+{
+    LLViewerRegion* region = gAgent.getRegion();
+    if (!region || region->getCapability("UpdateScriptTask").empty() || !region->simulatorFeaturesReceived())
+    {
+        return false;
+    }
+
+    LLSD simulator_features;
+    region->getSimulatorFeatures(simulator_features);
+    return simulator_features["LuaScriptsEnabled"].asBoolean();
+}
+
+class LLEditableSelectedLua : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        return is_editable_selected() && is_lua_scripts_enabled();
+    }
+};
+
 bool enable_object_take_copy()
 {
     bool all_valid = false;
@@ -8542,15 +8627,6 @@ class LLToolsEnableSaveToObjectInventory : public view_listener_t
     {
         bool new_value = enable_save_into_task_inventory();
         return new_value;
-    }
-};
-
-class LLToggleHowTo : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        LLFloaterReg::toggleInstanceOrBringToFront("guidebook");
-        return true;
     }
 };
 
@@ -9691,6 +9767,16 @@ void handle_flush_name_caches()
     if (gCacheName) gCacheName->clear();
 }
 
+bool is_master_audio_muted()
+{
+    return LLAppViewer::instance()->getMasterSystemAudioMute();
+}
+
+void toggle_master_audio()
+{
+    LLAppViewer::instance()->setMasterSystemAudioMute(!is_master_audio_muted());
+}
+
 class LLUploadCostCalculator : public view_listener_t
 {
     std::string mCostStr;
@@ -9962,6 +10048,8 @@ void initialize_menus()
     view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
     view_listener_t::addMenu(new LLWorldCheckBanLines() , "World.CheckBanLines");
     view_listener_t::addMenu(new LLWorldShowBanLines() , "World.ShowBanLines");
+    commit.add("World.ToggleMasterAudio", boost::bind(&toggle_master_audio));
+    enable.add("World.IsMasterAudioMuted", boost::bind(&is_master_audio_muted));
 
     // Tools menu
     view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");
@@ -9978,7 +10066,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToolsUseSelectionForGrid(), "Tools.UseSelectionForGrid");
     view_listener_t::addMenu(new LLToolsSelectNextPartFace(), "Tools.SelectNextPart");
     commit.add("Tools.Link", boost::bind(&handle_link_objects));
-    commit.add("Tools.Unlink", boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
+    commit.add("Tools.Unlink", boost::bind(&handle_unlink_objects));
     view_listener_t::addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
     view_listener_t::addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
     view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");
@@ -10008,11 +10096,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToolsCheckScriptEditorServer(), "Tools.CheckScriptEditorServer");
     view_listener_t::addMenu(new LLToolsEnableScriptEditorServer(), "Tools.EnableScriptEditorServer");
     view_listener_t::addMenu(new LLToolsToggleScriptEditorServer(), "Tools.ToggleScriptEditorServer");
-
-    // Help menu
-    // most items use the ShowFloater method
-    view_listener_t::addMenu(new LLToggleHowTo(), "Help.ToggleHowTo");
-
     // Advanced menu
     view_listener_t::addMenu(new LLAdvancedToggleConsole(), "Advanced.ToggleConsole");
     view_listener_t::addMenu(new LLAdvancedCheckConsole(), "Advanced.CheckConsole");
@@ -10383,5 +10466,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
     view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
     view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
+    view_listener_t::addMenu(new LLEditableSelectedLua(), "EditableSelectedLua");
     view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
 }

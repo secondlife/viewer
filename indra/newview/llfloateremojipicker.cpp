@@ -1001,6 +1001,9 @@ bool LLFloaterEmojiPicker::moveFocusedIconNext()
     if (mHoveredIcon)
         return false;
 
+    if (mFocusedIconRow < 0 || static_cast<size_t>(mFocusedIconRow) >= mEmojiGrid->getPanelList().size())
+        return false;
+
     LLScrollingPanel* panel = mEmojiGrid->getPanelList()[mFocusedIconRow];
     LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(panel);
     S32 colCount = row ? static_cast<S32>(row->mList->getPanelList().size()) : 0;

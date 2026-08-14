@@ -52,6 +52,7 @@
 #include "llmeshoptimizer.h"
 #include "lltimer.h"
 #include "llvolumeoctree.h"
+#include "workqueue.h"
 
 #include "mikktspace/mikktspace.hh"
 
@@ -1971,6 +1972,8 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const bool ge
     mNumHullIndices = 0;
 
     // set defaults
+    mSculptValidationCache.fill(LLSculptValidationState::Unvalidated);
+
     if (mParams.getPathParams().getCurveType() == LL_PCODE_PATH_FLEXIBLE)
     {
         mPathp = new LLDynamicPath();
@@ -1996,6 +1999,13 @@ void LLVolume::resizePath(S32 length)
     mPathp->resizePath(length);
     mVolumeFaces.clear();
     setDirty();
+}
+
+void LLVolume::setDirty()
+{
+    mPathp->setDirty();
+    mProfilep->setDirty();
+    mSculptValidationCache.fill(LLSculptValidationState::Unvalidated);
 }
 
 void LLVolume::regen()
@@ -2292,30 +2302,149 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
-    //input stream is now pointing at a zlib compressed block of LLSD
-    //decompress block
-    LLSD mdl;
-    U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, is, size);
-    if (uzip_result != LLUZipHelper::ZR_OK)
+    // Sanity-check before even trying to decompress
+    constexpr S32 MAX_MESH_COMPRESSED_SIZE = 128 * 1024 * 1024; // 128 MB
+    const LLUUID& mesh_id = getParams().getSculptID();
+
+    if (size <= 0 || size > MAX_MESH_COMPRESSED_SIZE)
     {
-        LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD with code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+        LL_WARNS("MeshStreaming") << "Rejecting implausible compressed mesh size " << size
+            << " for mesh id " << mesh_id << LL_ENDL;
         return false;
     }
-    return unpackVolumeFacesInternal(mdl);
+
+    //input stream is now pointing at a zlib compressed block of LLSD
+    //decompress block
+    try
+    {
+        LLSD mdl;
+        U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, is, size);
+        if (uzip_result != LLUZipHelper::ZR_OK)
+        {
+            LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD with code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+            return false;
+        }
+        return unpackVolumeFacesInternal(mdl);
+    }
+    catch (const std::bad_alloc&)
+    {
+        constexpr S32 SMALL_MESH_THRESHOLD = 4000;
+        if (size < SMALL_MESH_THRESHOLD)
+        {
+            // showOutOfMemory and LL_ERRS must run on the main thread.
+            // Post to mainloop WorkQueue, mirroring LLThread::tryRun().
+            LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+            bool done = false;
+            if (main_queue)
+            {
+                const LLUUID mesh_id_copy = mesh_id; // capture by value for the lambda
+                done = main_queue->post([mesh_id_copy, size]()
+                {
+                    LLError::LLUserWarningMsg::showOutOfMemory();
+                    LL_ERRS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id_copy
+                        << " of compressed size " << size << LL_ENDL;
+                });
+            }
+            if (!done)
+            {
+                // No main queue available (e.g. during shutdown)
+                LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                    << " of compressed size " << size << " (main queue unavailable)" << LL_ENDL;
+            }
+        }
+        else
+        {
+            LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                << " of compressed size " << size << LL_ENDL;
+        }
+        return false;
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS("MeshStreaming") << "Exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << ": " << e.what() << LL_ENDL;
+        return false;
+    }
+    catch (...)
+    {
+        LL_WARNS("MeshStreaming") << "Unknown exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << LL_ENDL;
+        return false;
+    }
 }
 
 bool LLVolume::unpackVolumeFaces(U8* in_data, S32 size)
 {
-    //input data is now pointing at a zlib compressed block of LLSD
-    //decompress block
-    LLSD mdl;
-    U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, in_data, size);
-    if (uzip_result != LLUZipHelper::ZR_OK)
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+    constexpr S32 MAX_MESH_COMPRESSED_SIZE = 128 * 1024 * 1024; // 128 MB
+    const LLUUID& mesh_id = getParams().getSculptID();
+
+    if (!in_data || size <= 0 || size > MAX_MESH_COMPRESSED_SIZE)
     {
-        LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD with code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+        LL_WARNS("MeshStreaming") << "Rejecting implausible compressed mesh size " << size
+            << " for mesh id " << mesh_id << LL_ENDL;
         return false;
     }
-    return unpackVolumeFacesInternal(mdl);
+
+    //input data is now pointing at a zlib compressed block of LLSD
+    //decompress block
+    try
+    {
+        LLSD mdl;
+        U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, in_data, size);
+        if (uzip_result != LLUZipHelper::ZR_OK)
+        {
+            LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD, mesh id " << mesh_id
+                << ", code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+            return false;
+        }
+        return unpackVolumeFacesInternal(mdl);
+    }
+    catch (const std::bad_alloc&)
+    {
+        constexpr S32 SMALL_MESH_THRESHOLD = 4000;
+        if (size < SMALL_MESH_THRESHOLD)
+        {
+            // showOutOfMemory and LL_ERRS must run on the main thread.
+            // Post to mainloop WorkQueue, mirroring LLThread::tryRun().
+            LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+            bool done = false;
+            if (main_queue)
+            {
+                const LLUUID mesh_id_copy = mesh_id; // capture by value for the lambda
+                done = main_queue->post([mesh_id_copy, size]()
+                {
+                    LLError::LLUserWarningMsg::showOutOfMemory();
+                    LL_ERRS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id_copy
+                        << " of compressed size " << size << LL_ENDL;
+                });
+            }
+            if (!done)
+            {
+                // No main queue available (e.g. during shutdown)
+                LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                    << " of compressed size " << size << " (main queue unavailable)" << LL_ENDL;
+            }
+        }
+        else
+        {
+            LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                << " of compressed size " << size << LL_ENDL;
+        }
+        return false;
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS("MeshStreaming") << "Exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << ": " << e.what() << LL_ENDL;
+        return false;
+    }
+    catch (...)
+    {
+        LL_WARNS("MeshStreaming") << "Unknown exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << LL_ENDL;
+        return false;
+    }
 }
 
 bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
@@ -2385,11 +2514,31 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 
             //copy out vertices
             U32 num_verts = static_cast<U32>(pos.size())/(3*2);
+            if (num_verts == 0)
+            {
+                LL_WARNS() << "Zero vertices for face index: " << i << LL_ENDL;
+                face.resizeIndices(3);
+                face.resizeVertices(1);
+                face.mPositions->clear();
+                face.mNormals->clear();
+                face.mTexCoords->setZero();
+                memset(face.mIndices, 0, sizeof(U16) * 3);
+                continue;
+            }
+
+            if (num_verts > 65535) // U16 indices
+            {
+                LL_WARNS() << "Invalid vertex count " << num_verts << " exceeds maximum for face index: " << i << LL_ENDL;
+                mVolumeFaces.clear();
+                return false;
+            }
+
             face.resizeVertices(num_verts);
 
             if (num_verts > 0 && !face.mPositions)
             {
                 LL_WARNS() << "Failed to allocate " << num_verts << " vertices for face index: " << i << " Total: " << face_count << LL_ENDL;
+                face.resizeVertices(0);
                 face.resizeIndices(0);
                 continue;
             }
@@ -3140,10 +3289,100 @@ S32 sculpt_sides(F32 detail)
     }
 }
 
+static bool validate_sculpt_geometry(const LLVolume* volume)
+{
+    if (!volume || volume->getNumVolumeFaces() == 0)
+    {
+        return true;
+    }
 
+    // Validate each face in the sculpt
+    for (S32 face_idx = 0; face_idx < volume->getNumVolumeFaces(); ++face_idx)
+    {
+        const LLVolumeFace& face = volume->getVolumeFace(face_idx);
+
+        // Skip validation for degenerate faces
+        if (face.mNumVertices < 3 || face.mNumIndices < 3)
+        {
+            continue;
+        }
+
+        // Calculate 'bounding' surface
+        LLVector4a extent_size;
+        extent_size.setSub(face.mExtents[1], face.mExtents[0]);
+
+        F32 width = extent_size[0];
+        F32 height = extent_size[1];
+        F32 depth = extent_size[2];
+
+        F32 bounding_surface = width * height + width * depth + height * depth;
+        bounding_surface *= 2;
+
+        if (!llfinite(bounding_surface) || bounding_surface <= FLT_EPSILON)
+        {
+            return false;
+        }
+
+        // Calculate total surface area of all triangles
+        F32 total_triangle_area = 0.0f;
+        S32 num_triangles = face.mNumIndices / 3;
+
+        for (S32 i = 0; i < num_triangles; ++i)
+        {
+            S32 idx_base = i * 3;
+            U16 idx0 = face.mIndices[idx_base];
+            U16 idx1 = face.mIndices[idx_base + 1];
+            U16 idx2 = face.mIndices[idx_base + 2];
+
+            // Validate indices
+            if (idx0 >= face.mNumVertices || idx1 >= face.mNumVertices || idx2 >= face.mNumVertices)
+            {
+                continue;
+            }
+
+            const LLVector4a& v0 = face.mPositions[idx0];
+            const LLVector4a& v1 = face.mPositions[idx1];
+            const LLVector4a& v2 = face.mPositions[idx2];
+
+            // Calculate triangle area
+            LLVector4a edge1, edge2, cross;
+            edge1.setSub(v1, v0);
+            edge2.setSub(v2, v0);
+            cross.setCross3(edge1, edge2);
+
+            F32 triangle_area = cross.getLength3().getF32() * 0.5f;
+            total_triangle_area += triangle_area;
+        }
+
+        if (!llfinite(total_triangle_area))
+        {
+            return false;
+        }
+
+        // The idea here is that the total area of a sculpt is normally comparable
+        // to the area of a bounding box. But a random overlapping collection of
+        // triangles has a significantly larger area than a sculpt normally has.
+        F32 area_ratio = total_triangle_area / bounding_surface;
+
+        constexpr F32 MAX_AREA_TO_AREA_RATIO = 16.0f;
+        if (area_ratio > MAX_AREA_TO_AREA_RATIO)
+        {
+            LL_DEBUGS("LLVOLUME") << "Sculpt rejected: excessive triangle area."
+                << "  Face index: " << face_idx
+                << "  Total triangle area: " << total_triangle_area << " sq m"
+                << "  Bounding surface area: " << bounding_surface << " sq m"
+                << "  Ratio: " << area_ratio
+                << "  Triangle count: " << num_triangles
+                << "  Bounds: [" << width << " x " << height << " x " << depth << "]" << LL_ENDL;
+            return false;
+        }
+    }
+
+    return true;
+}
 
 // determine the number of vertices in both s and t direction for this sculpt
-void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 detail, S32& s, S32& t)
+static void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 detail, S32& s, S32& t)
 {
     // this code has the following properties:
     // 1) the aspect ratio of the mesh is as close as possible to the ratio of the map
@@ -3253,10 +3492,62 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 
     mSculptLevel = sculpt_level;
 
-    // Delete any existing faces so that they get regenerated
-    mVolumeFaces.clear();
+    LLSculptValidationState cached_state = LLSculptValidationState::Valid;
+    if (!data_is_empty && (sculpt_level >= 0) && sculpt_level < SCULPT_CACHE_SIZE)
+    {
+        // validation might be expensive, so we do it only once per lod.
+        cached_state = mSculptValidationCache[sculpt_level];
+    }
 
-    createVolumeFaces();
+    switch (cached_state)
+    {
+    case LLSculptValidationState::Valid:
+        {
+            // Delete any existing faces, then regenerate
+            mVolumeFaces.clear();
+            createVolumeFaces();
+            break;
+        }
+    case LLSculptValidationState::Invalid:
+        {
+            // Invalid geometry
+            // Regenerate mesh with an empty placeholder
+            mVolumeFaces.clear();
+            sculptGenerateEmptyPlaceholder();
+            createVolumeFaces();
+            break;
+        }
+    case LLSculptValidationState::Unvalidated:
+        {
+            // First time at this LOD
+            mVolumeFaces.clear();
+            createVolumeFaces();
+
+            bool valid_geometry = true;
+
+            // Todo: can this be backed into createVolumeFaces?
+            // Or calculated without having to call createVolumeFaces first?
+            // Todo 2: should the same be done for meshes?
+            valid_geometry = validate_sculpt_geometry(this);
+            mSculptValidationCache[sculpt_level] = valid_geometry ? LLSculptValidationState::Valid : LLSculptValidationState::Invalid;
+
+            if (!valid_geometry)
+            {
+                LL_WARNS("LLVOLUME") << "Sculpt failed geometry validation - either invalid image or malicious. "
+                    << "Replacing with placeholder. Image: " << mParams.getSculptID() << LL_ENDL;
+
+                // Clear the malicious faces
+                mVolumeFaces.clear();
+
+                // Regenerate mesh with empty placeholder
+                sculptGenerateEmptyPlaceholder();
+
+                // Recreate faces with placeholder geometry
+                createVolumeFaces();
+            }
+            break;
+        }
+    } //switch (cached_state)
 }
 
 
@@ -5679,7 +5970,40 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
     mOptimized = true;
 
     if (gen_tangents && mNormals && mTexCoords)
-    { // generate mikkt space tangents before cache optimizing since the index buffer may change
+    {
+        if (!mPositions || !mIndices || mNumVertices <= 0 || mNumIndices <= 0)
+        {
+            LL_WARNS_ONCE("LLVolume") << "Invalid volume face data for tangent generation: "
+                << "mPositions=" << (void*)mPositions
+                << ", mIndices=" << (void*)mIndices
+                << ", mNumVertices=" << mNumVertices
+                << ", mNumIndices=" << mNumIndices << LL_ENDL;
+            return false;
+        }
+
+        if (mNumIndices % 3 != 0)
+        {
+            LL_WARNS_ONCE("LLVolume") << "Non-triangulated mesh, mNumIndices=" << mNumIndices << LL_ENDL;
+            return false;
+        }
+
+        for (S32 i = 0; i < mNumIndices; ++i)
+        {
+            if (mIndices[i] >= mNumVertices)
+            {
+                LL_WARNS_ONCE("LLVolume") << "Out of bounds index detected: mIndices[" << i << "]="
+                    << mIndices[i] << " >= mNumVertices=" << mNumVertices << LL_ENDL;
+                return false;
+            }
+        }
+
+        if (mNormalizedScale.mV[0] == 0.0f || mNormalizedScale.mV[1] == 0.0f || mNormalizedScale.mV[2] == 0.0f)
+        {
+            LL_WARNS_ONCE("LLVolume") << "Invalid normalized scale: " << mNormalizedScale << LL_ENDL;
+            return false;
+        }
+
+        // generate mikkt space tangents before cache optimizing since the index buffer may change
         // a bit of a hack to do this here, but this function gets called exactly once for the lifetime of a mesh
         // and is executed on a background thread
         MikktData data(this);

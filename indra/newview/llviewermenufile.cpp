@@ -335,7 +335,9 @@ void LLFilePickerReplyThread::startPicker(const file_picked_signal_t::slot_type 
 
 void LLFilePickerReplyThread::startPicker(const file_picked_signal_t::slot_type & cb, LLFilePicker::ESaveFilter filter, const std::string & proposed_name, const file_picked_signal_t::slot_type & failure_cb)
 {
-    (new LLFilePickerReplyThread(cb, filter, proposed_name, failure_cb))->getFile();
+    // Remove invalid characters
+    std::string sanitized_name = LLDir::getScrubbedFileName(proposed_name);
+    (new LLFilePickerReplyThread(cb, filter, sanitized_name, failure_cb))->getFile();
 }
 
 void LLFilePickerReplyThread::notify(const std::vector<std::string>& filenames)

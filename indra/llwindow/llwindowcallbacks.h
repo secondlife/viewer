@@ -41,6 +41,10 @@ public:
     virtual bool handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
     virtual bool handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
     virtual void handleMouseLeave(LLWindow *window);
+    // Called before close request is processed (ex: to create marker file in case OS is about to kill app).
+    virtual void handlePreCloseRequest();
+    virtual void handleCloseRequestCanceled();
+    virtual void handleSuspendRequest();
     // return true to allow window to close, which will then cause handleQuit to be called
     virtual bool handleCloseRequest(LLWindow *window, bool from_user);
     virtual bool handleSessionExit(LLWindow* window);
@@ -68,7 +72,7 @@ public:
     virtual void handleWindowUnblock(LLWindow *window);                         // window coming back after taking over CPU for a while
     virtual void handleDataCopy(LLWindow *window, S32 data_type, void *data);
     virtual bool handleTimerEvent(LLWindow *window);
-    virtual bool handleDeviceChange(LLWindow *window);
+    virtual bool handleDeviceChange(LLWindow *window, const std::string& change_type);
     virtual bool handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
     virtual bool handleDisplayChanged();
     virtual bool handleWindowDidChangeScreen(LLWindow *window);

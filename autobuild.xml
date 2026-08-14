@@ -2248,11 +2248,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e88a7c97a6843d43e0093388f211299ec2892790</string>
+              <string>d1584b3a0011dbb741bc64d32e8bd28845ddd4da</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-viewer-fonts/releases/download/v1.1.0-r1/viewer_fonts-1.0.0.10204976553-common-10204976553.tar.zst</string>
+              <string>https://github.com/secondlife/3p-viewer-fonts/releases/download/v1.1.0-r2/viewer_fonts-1.0.0.25128287087-common-25128287087.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2263,9 +2263,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>license_file</key>
         <string>LICENSES/fonts.txt</string>
         <key>copyright</key>
-        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT</string>
+        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT, Copyright (c) 2003 by Bitstream, Inc., Copyright (c) 2006 by Tavmjong Bah.</string>
         <key>version</key>
-        <string>1.0.0.10204976553</string>
+        <string>1.0.0.25128287087</string>
         <key>name</key>
         <string>viewer-fonts</string>
         <key>description</key>
@@ -2712,11 +2712,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>49046b0b41310d2fb0d72853730b2faad35d3e36</string>
+              <string>140d8fc952a10edb5f2d72ab405336019ef32cadfa64f0cfce76c9de4bc6268cbc87cc8cd89d3417fb78b531d441701afc8d016bafe4bd275df2707f7daf1387</string>
               <key>hash_algorithm</key>
-              <string>sha1</string>
+              <string>blake2b</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-vhacd/releases/download/v4.1.0-r1/vhacd-4.1.0-r1-common-18475951995.tar.zst</string>
+              <string>https://github.com/AlchemyViewer/3p-vhacd/releases/download/v4.1.0-r2/vhacd-4.1.0-r2-common-18166921729.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2729,7 +2729,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2011, Khaled Mamou</string>
         <key>version</key>
-        <string>4.1.0-r1</string>
+        <string>4.1.0-r2</string>
         <key>name</key>
         <string>vhacd</string>
         <key>description</key>

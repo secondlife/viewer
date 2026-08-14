@@ -38,7 +38,7 @@
 			<text name="LabelItemDescTitle">
 				Descrizione:
 			</text>
-			<line_editor name="LabelItemDesc" tool_tip="Quando la dicitura &quot;Vedi suggerimenti su tutti gli oggetti&quot; è selezionata nelle impostazioni del Viewer, passando il mouse sopra un oggetto si vedrà la sua descrizione. La descrizione dei Prim è limitata a 127 bytes. Se più lunga, verrá troncata."/>
+            <text_editor name="LabelItemDesc" tool_tip="Quando la dicitura &quot;Vedi suggerimenti su tutti gli oggetti&quot; è selezionata nelle impostazioni del Viewer, passando il mouse sopra un oggetto si vedrà la sua descrizione. La descrizione dei Prim è limitata a 127 bytes. Se più lunga, verrá troncata."/>
 			<text name="LabelCreatorTitle">
 				Ideatore:
 			</text>
