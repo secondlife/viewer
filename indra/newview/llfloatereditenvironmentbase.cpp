@@ -281,6 +281,9 @@ void LLFloaterEditEnvironmentBase::onSaveAsCommit(const LLSD& notification, cons
         else
         {
             LL_WARNS() << "Failed to copy fixed env setting" << LL_ENDL;
+            LLSD args;
+            args["SETTINGS_NAME"] = settings_name;
+            LLNotificationsUtil::add("SettingsSaveAsFailure", args);
         }
     }
 }

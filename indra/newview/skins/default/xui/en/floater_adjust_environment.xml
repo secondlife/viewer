@@ -13,6 +13,13 @@
   <string name="hdr_string">HDR Scale:</string>
   <string name="brightness_string">Brightness:</string>
   <string name="hdr_tooltip">Intensity of lighting effects such as realistically bright skies and dynamic exposure. 1.0 is the default, 0 is off, values between 0 and 1 are mixing Ambient with HDR.</string>
+  <string name="cloud_map">Cloud map</string>
+  <string name="sun_texture">Sun texture</string>
+  <string name="moon_texture">Moon texture</string>
+  <string name="bloom_texture">Bloom texture</string>
+  <string name="rainbow_texture">Rainbow texture</string>
+  <string name="halo_texture">Halo texture</string>
+  <string name="new_sky">Sky</string>
     <layout_stack name="outer_stack"
                   width="845"
                   height="275"
@@ -100,6 +107,16 @@
                       name="btn_reset"
                       left_delta="-2"
                       top_pad="10"
+                      width="100"/>
+                    <button
+                      follows="left|top"
+                      height="23"
+                      label="Save As"
+                      tool_tip="Save these settings as a fixed sky environment"
+                      layout="topleft"
+                      name="btn_save_as"
+                      left_delta="0"
+                      top_pad="4"
                       width="100"/>
                     <text follows="right|top"
                           name="sun_color_lbl"

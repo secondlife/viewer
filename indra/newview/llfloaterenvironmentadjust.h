@@ -85,6 +85,7 @@ private:
     void                        onReflectionProbeAmbianceChanged();
     void                        updateGammaLabel();
     void                        onButtonReset();
+    void                        onButtonSaveAs();
 
     void                        onEnvironmentUpdated(LLEnvironment::EnvSelection_t env, S32 version);
 

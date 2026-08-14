@@ -12451,6 +12451,17 @@ Are you sure you want to continue?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="SettingsSaveAsFailure"
+   type="alertmodal">
+Failed to create settings inventory item [SETTINGS_NAME].
+    <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
  icon="alertmodal.tga"
  name="PersonalSettingsConfirmReset"
  type="alertmodal">
@@ -12461,6 +12472,18 @@ Are you sure you want to continue?
      name="okcancelbuttons"
      notext="No"
      yestext="Yes"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="PersonalSettingsTexPermFail"
+ type="alertmodal">
+Cannot save as sky settings because the following textures are not owned by you or are not copyable:
+[TEXTURES]
+      <tag>fail</tag>
+      <usetemplate
+       name="okbutton"
+       yestext="OK"/>
   </notification>
 
   <notification

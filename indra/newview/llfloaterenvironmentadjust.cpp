@@ -28,15 +28,19 @@
 
 #include "llfloaterenvironmentadjust.h"
 
+#include "llcolorswatch.h"
+#include "llenvironment.h"
+#include "llinventorymodel.h"
+#include "llinventorypanel.h" // For opening after saving
 #include "llnotificationsutil.h"
+#include "llsettingsvo.h"
 #include "llslider.h"
 #include "llsliderctrl.h"
-#include "llcolorswatch.h"
 #include "lltexturectrl.h"
 #include "llvirtualtrackball.h"
-#include "llenvironment.h"
 #include "llviewercontrol.h"
 #include "pipeline.h"
+
 
 //=========================================================================
 namespace
@@ -65,6 +69,7 @@ namespace
     const std::string FIELD_SKY_MOON_ELEVATION("moon_elevation");
     const std::string FIELD_REFLECTION_PROBE_AMBIANCE("probe_ambiance");
     const std::string BTN_RESET("btn_reset");
+    const std::string BTN_SAVE_AS("btn_save_as");
 
     const F32 SLIDER_SCALE_SUN_AMBIENT(3.0f);
     const F32 SLIDER_SCALE_BLUE_HORIZON_DENSITY(2.0f);
@@ -110,6 +115,7 @@ bool LLFloaterEnvironmentAdjust::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonAzimElevChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonAzimElevChanged(); });
     getChild<LLUICtrl>(BTN_RESET)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onButtonReset(); });
+    getChild<LLUICtrl>(BTN_SAVE_AS)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onButtonSaveAs(); });
 
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudMapChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setDefaultImageAssetID(LLSettingsSky::GetDefaultCloudNoiseTextureId());
@@ -258,8 +264,114 @@ void LLFloaterEnvironmentAdjust::onButtonReset()
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
         }
     });
-
 }
+
+void LLFloaterEnvironmentAdjust::onButtonSaveAs()
+{
+    // Note that this saves only the sky, not water.
+    // Water is represented as a single texture here, for now
+    // might be not worth saving. Consider saving water as well
+    // or alternatively generating a day cycle (fixed ones are
+    // easier to export/import).
+    if (!mLiveSky)
+        return;
+
+    // Verify every texture embedded in the sky settings is either
+    // a sky default, a predefined/library texture, or a copy-permitted
+    // inventory item owned by the agent.  Collect all failing textures
+    // into one list and show a single notification.
+    struct TexEntry { LLUUID id; std::string name; };
+    const std::vector<TexEntry> textures_to_check =
+    {
+        { mLiveSky->getCloudNoiseTextureId(),  "cloud_map" },
+        { mLiveSky->getSunTextureId(),         "sun_texture" },
+        { mLiveSky->getMoonTextureId(),        "moon_texture" },
+        { mLiveSky->getBloomTextureId(),       "bloom_texture"},
+        { mLiveSky->getRainbowTextureId(),     "rainbow_texture"},
+        { mLiveSky->getHaloTextureId(),        "halo_texture" },
+    };
+
+    // Helper: a null UUID is "no texture" and is always allowed.
+    // A texture is safe when it is one of the sky defaults,
+    // a general predefined texture, or is present in inventory.
+    auto is_safe_texture = [](const LLUUID& tex_id) -> bool
+    {
+        if (tex_id.isNull())
+            return true;
+        // TODO: find a graceful way to move these ids (and water ones) into get_can_copy_texture
+        // as pickers should permit these textures by default to be able to work well with settings.
+        if (tex_id == LLSettingsSky::GetDefaultSunTextureId()
+            || tex_id == LLSettingsSky::GetBlankSunTextureId()
+            || tex_id == LLSettingsSky::GetDefaultMoonTextureId()
+            || tex_id == LLSettingsSky::GetDefaultCloudNoiseTextureId()
+            || tex_id == LLSettingsSky::GetDefaultBloomTextureId()
+            || tex_id == LLSettingsSky::GetDefaultRainbowTextureId()
+            || tex_id == LLSettingsSky::GetDefaultHaloTextureId())
+        {
+            return true;
+        }
+        return get_can_copy_texture(tex_id);
+    };
+
+    std::string bad_textures;
+    for (const TexEntry& entry : textures_to_check)
+    {
+        if (!is_safe_texture(entry.id))
+        {
+            if (!bad_textures.empty())
+                bad_textures += "\n";
+            std::string label = getString(entry.name);
+            bad_textures += "  - " + label;
+        }
+    }
+
+    if (!bad_textures.empty())
+    {
+        LLSD args;
+        args["TEXTURES"] = bad_textures;
+        LLNotificationsUtil::add("PersonalSettingsTexPermFail", args);
+        return;
+    }
+
+    LLSettingsSky::ptr_t sky_clone = mLiveSky->buildClone();
+    LLSD args;
+    args["DESC"] = getString("new_sky"); // note that notification adds (new) at the end
+
+    LLNotificationsUtil::add("SaveSettingAs", args, LLSD(),
+        [sky_clone](const LLSD& notification, const LLSD& response)
+    {
+        S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+        if (option != 0)
+            return;
+
+        std::string settings_name = response["message"].asString();
+        LLInventoryObject::correctInventoryName(settings_name);
+        if (settings_name.empty())
+        {
+            settings_name = "Unnamed";
+        }
+
+        sky_clone->setName(settings_name);
+
+        LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+        LLSettingsVOBase::createInventoryItem(sky_clone, parent_id, settings_name,
+            [settings_name](LLUUID /*asset_id*/, LLUUID inventory_id, LLUUID, LLSD results)
+        {
+            if (inventory_id.notNull())
+            {
+                LLInventoryPanel::openInventoryPanelAndSetSelection(true, inventory_id, true);
+            }
+            else
+            {
+                LL_WARNS("ENVIRONMENT") << "Failed to create sky settings inventory item. Results: " << results << LL_ENDL;
+                LLSD args;
+                args["SETTINGS_NAME"] = settings_name;
+                LLNotificationsUtil::add("SettingsSaveAsFailure", args);
+            }
+        });
+    });
+}
+
 //-------------------------------------------------------------------------
 void LLFloaterEnvironmentAdjust::onAmbientLightChanged()
 {
