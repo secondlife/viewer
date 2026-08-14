@@ -113,10 +113,11 @@ namespace cefshm_demo
         kEventConsoleMessage = 22, // data = {int32 line, uint32 messageLen, message bytes, source bytes
                                     // (remainder)} -- a console.log/warn/error call from page JS, see
                                     // llCefBrowserManager::SetOnConsoleMessageCallback
-        kEventVersionInfo = 23, // text payload: the CEF/Chromium version string this producer was
-                                  // built against, e.g. "CEF 150.0.11 (Chromium 150.0.7871.115)" --
-                                  // sent once per slot right after it's allocated, before any frames.
-                                  // See llCefBrowserVersion.h on the producer side.
+        kEventVersionInfo = 23, // text payload: llCefBrowser's own version plus the CEF/Chromium
+                                  // build it was built against, multi-line -- e.g.
+                                  // "0.15 (9f3f886)\n  CEF: 150.0.11\n  Chromium: 150.0.7871.115" --
+                                  // sent once per slot right after it's allocated, before any
+                                  // frames. See llCefBrowserVersion.h on the producer side.
     };
 
     inline std::uint32_t pack_i32x2(std::uint8_t* d, std::int32_t x, std::int32_t y)

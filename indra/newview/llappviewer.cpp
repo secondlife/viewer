@@ -139,7 +139,6 @@
 #include "llexception.h"
 #include "llembeddedbrowser.h"
 #if !LL_LINUX
-#include "cef/dullahan_version.h"
 #include "vlc/libvlc_version.h"
 #endif // LL_LINUX
 
@@ -3633,44 +3632,15 @@ LLSD LLAppViewer::getViewerInfo() const
         info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
     }
 
-#if !LL_LINUX
-    std::ostringstream cef_ver_codec;
-    cef_ver_codec << "Dullahan: ";
-    cef_ver_codec << DULLAHAN_VERSION_MAJOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << DULLAHAN_VERSION_MINOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << DULLAHAN_VERSION_POINT;
-    cef_ver_codec << ".";
-    cef_ver_codec << DULLAHAN_VERSION_BUILD;
-
-    cef_ver_codec << std::endl;
-    cef_ver_codec << "  CEF: ";
-    cef_ver_codec << CEF_VERSION;
-
-    cef_ver_codec << std::endl;
-    cef_ver_codec << "  Chromium: ";
-    cef_ver_codec << CHROME_VERSION_MAJOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << CHROME_VERSION_MINOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << CHROME_VERSION_BUILD;
-    cef_ver_codec << ".";
-    cef_ver_codec << CHROME_VERSION_PATCH;
-
-    info["LIBCEF_VERSION"] = cef_ver_codec.str();
-#else
-    info["LIBCEF_VERSION"] = "Undefined";
-#endif
-
-    // The (still-experimental, separate from the Dullahan-based plugin above)
-    // llshmframe/cefshm_producer embedded browser path. llshmframe's own version is a
-    // build-time constant; the CEF/Chromium version is reported live by whatever
-    // producer last connected, since the Viewer itself doesn't link CEF for this path.
+    // The llshmframe/cefshm_producer embedded browser path, which has superseded the
+    // Dullahan-based plugin this block used to report on. llshmframe's own version is a
+    // build-time constant; the llCefBrowser/CEF/Chromium version is reported live by
+    // whatever producer last connected, since the Viewer itself doesn't link CEF for
+    // this path.
     info["SHMFRAME_VERSION"] = LLEmbeddedBrowser::getShmFrameVersion();
-    std::string embedded_cef_version = LLEmbeddedBrowser::instance().getCefVersion();
-    info["EMBEDDED_CEF_VERSION"] = embedded_cef_version.empty() ?
-        LLSD(LLTrans::getString("NotConnected")) : LLSD(embedded_cef_version);
+    std::string embedded_cefbrowser_version = LLEmbeddedBrowser::instance().getCefBrowserVersion();
+    info["EMBEDDED_LLCEFBROWSER_VERSION"] = embedded_cefbrowser_version.empty() ?
+        LLSD(LLTrans::getString("NotConnected")) : LLSD(embedded_cefbrowser_version);
 
 #if !LL_LINUX
     std::ostringstream vlc_ver_codec;

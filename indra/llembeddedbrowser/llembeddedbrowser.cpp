@@ -230,7 +230,7 @@ void LLEmbeddedBrowserTab::update()
             case kEventVersionInfo:
                 // Global info about whatever producer is connected, not a per-tab UI
                 // event -- doesn't go through mEvents.
-                LLEmbeddedBrowser::instance().setCefVersion(std::string(cmd.text()));
+                LLEmbeddedBrowser::instance().setCefBrowserVersion(std::string(cmd.text()));
                 continue;
             default:
                 continue; // not an event opcode this tab understands
@@ -485,20 +485,20 @@ void LLEmbeddedBrowser::setMaxDimensions(unsigned int max_width, unsigned int ma
 /*static*/
 std::string LLEmbeddedBrowser::getShmFrameVersion()
 {
-    return "llshmframe " + std::to_string(LLSHMFRAME_VERSION_MAJOR) + "." +
+    return std::to_string(LLSHMFRAME_VERSION_MAJOR) + "." +
            std::to_string(LLSHMFRAME_VERSION_MINOR) + " (" + LLSHMFRAME_VERSION_GITHASH + ")";
 }
 
-std::string LLEmbeddedBrowser::getCefVersion() const
+std::string LLEmbeddedBrowser::getCefBrowserVersion() const
 {
     LLMutexLock lock(&mCefVersionMutex);
-    return mCefVersion;
+    return mCefBrowserVersion;
 }
 
-void LLEmbeddedBrowser::setCefVersion(const std::string& version)
+void LLEmbeddedBrowser::setCefBrowserVersion(const std::string& version)
 {
     LLMutexLock lock(&mCefVersionMutex);
-    mCefVersion = version;
+    mCefBrowserVersion = version;
 }
 
 void LLEmbeddedBrowser::destroy(unsigned int id)

@@ -211,14 +211,16 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // always available regardless of whether any producer is connected.
         static std::string getShmFrameVersion();
 
-        // The CEF/Chromium version the most recently connected cefshm_producer reported
-        // over the wire (see kEventVersionInfo in cefshm_protocol.h). Empty until at
-        // least one tab has completed its connection handshake.
-        std::string getCefVersion() const;
+        // The llCefBrowser/CEF/Chromium version block the most recently connected
+        // cefshm_producer reported over the wire (see kEventVersionInfo in
+        // cefshm_protocol.h) -- multi-line, matching how the legacy Dullahan-based
+        // plugin's own LIBCEF_VERSION is formatted. Empty until at least one tab has
+        // completed its connection handshake.
+        std::string getCefBrowserVersion() const;
 
         // Called by LLEmbeddedBrowserTab on receiving kEventVersionInfo -- not meant for
         // other callers.
-        void setCefVersion(const std::string& version);
+        void setCefBrowserVersion(const std::string& version);
 
     private:
         // Looks up a tab under mTabsMutex and returns a shared_ptr copy rather than a
@@ -238,5 +240,5 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         unsigned int mMaxHeight = 4096;
 
         mutable LLMutex mCefVersionMutex;
-        std::string mCefVersion;
+        std::string mCefBrowserVersion;
 };

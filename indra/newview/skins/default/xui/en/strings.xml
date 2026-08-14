@@ -61,11 +61,10 @@ HiDPI display mode: [HIDPI]
 	<string name="AboutLibs">
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
-[LIBCEF_VERSION]
+Embedded Browser llShmFrame Version: [SHMFRAME_VERSION]
+Embedded Browser llCefBrowser Version: [EMBEDDED_LLCEFBROWSER_VERSION]
 LibVLC Version: [LIBVLC_VERSION]
 Voice Server Version: [VOICE_VERSION]
-Embedded Browser llShmFrame Version: [SHMFRAME_VERSION]
-Embedded Browser CEF Version: [EMBEDDED_CEF_VERSION]
 	</string>
 	<string name="AboutTraffic">Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)</string>
 	<string name="AboutTime">[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
