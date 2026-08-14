@@ -927,7 +927,17 @@ void LLMediaCtrl::calcOffsetsAndSize(S32 *x_offset, S32 *y_offset, S32 *width, S
 
     if (mStretchToFill)
     {
-        if (mMaintainAspectRatio && mMediaSource && mMediaSource->getMediaWidth() > 0 && mMediaSource->getMediaHeight() > 0)
+        // The embedded-browser backend has no intrinsic aspect ratio to preserve --
+        // unlike a video plugin's fixed source resolution, a CEF browser always renders
+        // at exactly the size it was last told to (see setSize()/resize()), so
+        // getMediaWidth()/getMediaHeight() here is really "the size of the last frame
+        // that happened to arrive," not a property of the content itself. Letterboxing
+        // against it is not just unnecessary for this backend, it's actively wrong
+        // whenever that value is momentarily stale relative to a just-requested resize
+        // (e.g. the producer hasn't caught up yet) -- always fill the rect instead and
+        // let the already-in-flight resize converge the actual browser size to match.
+        if (mMaintainAspectRatio && mMediaSource && !mMediaSource->isUsingEmbeddedBrowser() &&
+            mMediaSource->getMediaWidth() > 0 && mMediaSource->getMediaHeight() > 0)
         {
             F32 media_aspect = (F32)(mMediaSource->getMediaWidth()) / (F32)(mMediaSource->getMediaHeight());
             F32 view_aspect = (F32)(r.getWidth()) / (F32)(r.getHeight());
