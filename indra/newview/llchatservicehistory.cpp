@@ -73,6 +73,7 @@ const char* const ENABLED_SETTING = "ChatServiceEnabled";
 const char* const INDEX_NAME = "chat_service_index.csv";
 const char* const STATE_NAME = "chat_service_state.xml";
 const char* const PENDING_NAME = "(name pending)";
+const char* const LEGACY_WALL_TIME = "chat_service_legacy_wall_time";
 const F64 REQUEST_SPACING = 2.1;
 const F64 RETRY_DELAY = 5.0;
 const F64 RATE_LIMIT_DELAY = 120.0;
@@ -2559,6 +2560,74 @@ bool legacyWallEpoch(const std::string& text, F64& epoch)
     }
 }
 
+bool sameSenderAndText(const LLSD& left, const LLSD& right)
+{
+    if (left[LL_IM_TEXT].asString() != right[LL_IM_TEXT].asString())
+    {
+        return false;
+    }
+
+    // Prefer exact resident identity when both sources carry it; otherwise require
+    // the transcript names to agree exactly.
+    const bool left_has_id = left[LL_IM_FROM_ID].isDefined();
+    const bool right_has_id = right[LL_IM_FROM_ID].isDefined();
+    return left_has_id && right_has_id
+        ? left[LL_IM_FROM_ID].asUUID() == right[LL_IM_FROM_ID].asUUID()
+        : left[LL_IM_FROM].asString() == right[LL_IM_FROM].asString();
+}
+
+bool sameSenderAndText(const LLSD& legacy, const Row& service)
+{
+    if (legacy[LL_IM_TEXT].asString() != service.message)
+    {
+        return false;
+    }
+
+    return legacy[LL_IM_FROM_ID].isDefined()
+        ? legacy[LL_IM_FROM_ID].asUUID() == service.from_id
+        : legacy[LL_IM_FROM].asString() == service.from_name;
+}
+
+bool sameLegacyMinute(F64 wall_epoch, F64 utc_epoch)
+{
+    // Legacy transcript minutes are SLT but do not encode whether UTC-7 or UTC-8
+    // applied. Either exact minute may identify the authoritative service row.
+    for (const F64 offset : { 7.0 * 3600.0, 8.0 * 3600.0 })
+    {
+        const F64 minute = wall_epoch + offset;
+        if (utc_epoch >= minute && utc_epoch < minute + 60.0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+S64 utcMinute(F64 epoch)
+{
+    return static_cast<S64>(epoch) / 60;
+}
+
+bool sameHistoryLiveOccurrence(const LLSD& history, const LLSD& live)
+{
+    if (!sameSenderAndText(history, live) ||
+        !live["timestamp"].isInteger() || live["timestamp"].asInteger() <= 0)
+    {
+        return false;
+    }
+
+    const F64 live_epoch = static_cast<U32>(live["timestamp"].asInteger());
+    if (history["chat_service_msg_id"].isString() &&
+        history["timestamp"].isInteger() && history["timestamp"].asInteger() > 0)
+    {
+        const U32 history_epoch = static_cast<U32>(history["timestamp"].asInteger());
+        return history_epoch / 60 == static_cast<U32>(live_epoch) / 60;
+    }
+
+    return history[LEGACY_WALL_TIME].isReal() &&
+           sameLegacyMinute(history[LEGACY_WALL_TIME].asReal(), live_epoch);
+}
+
 LLSD serviceMessage(const Row& row)
 {
     LLSD message;
@@ -2571,6 +2640,7 @@ LLSD serviceMessage(const Row& row)
     message[LL_IM_FROM] = row.from_name;
     message[LL_IM_FROM_ID] = row.from_id;
     message[LL_IM_TEXT] = row.message;
+    message["timestamp"] = static_cast<S32>(timestamp);
     message["is_history"] = true;
     message["chat_service_msg_id"] = row.msg_id;
     return message;
@@ -2611,6 +2681,36 @@ LLChatServiceHistory::HistoryResult readStitched(
         LLChatServiceHistoryAccess::loadLegacy(path, legacy, parameters);
     }
 
+    // Canonical rows win exact identity over preview rows, then all service rows
+    // share one stable TimeUUID order for seam reconciliation and final display.
+    std::set<std::string> canonical_ids;
+    std::vector<Row> service = archive.display_rows;
+    for (const Row& row : service)
+    {
+        canonical_ids.insert(row.msg_id);
+    }
+    for (const Row& row : preview)
+    {
+        if (!canonical_ids.count(row.msg_id))
+        {
+            service.push_back(row);
+        }
+    }
+    std::sort(service.begin(), service.end(), [](const Row& left, const Row& right)
+    {
+        return left.key < right.key;
+    });
+    std::vector<bool> service_placed(service.size(), false);
+    std::multimap<S64, size_t> canonical_minutes;
+    for (size_t pos = 0; pos < service.size(); ++pos)
+    {
+        if (canonical_ids.count(service[pos].msg_id))
+        {
+            canonical_minutes.emplace(
+                utcMinute(LLDate(service[pos].created_at).secondsSinceEpoch()), pos);
+        }
+    }
+
     const F64 service_epoch = archive.has_oldest
         ? static_cast<F64>(archive.oldest.ticks - UUID_EPOCH) / 10000000.0 : 0.0;
     std::vector<std::pair<F64, LLSD>> dated;
@@ -2628,7 +2728,36 @@ LLChatServiceHistory::HistoryResult readStitched(
         }
         else if (!archive.has_oldest || wall + 7.0 * 3600.0 < service_epoch)
         {
-            dated.emplace_back(wall, message);
+            LLSD stitched = message;
+            stitched[LEGACY_WALL_TIME] = wall;
+
+            // Replace an exact legacy occurrence in place with its canonical row.
+            // This keeps local ordering around same-minute system messages while
+            // consuming only one occurrence from each source.
+            size_t match = service.size();
+            for (const F64 offset : { 7.0 * 3600.0, 8.0 * 3600.0 })
+            {
+                const auto range = canonical_minutes.equal_range(utcMinute(wall + offset));
+                for (auto candidate = range.first; candidate != range.second; ++candidate)
+                {
+                    const size_t pos = candidate->second;
+                    if (!service_placed[pos] && sameSenderAndText(message, service[pos]))
+                    {
+                        match = pos;
+                        break;
+                    }
+                }
+                if (match != service.size())
+                {
+                    break;
+                }
+            }
+            if (match != service.size())
+            {
+                stitched = serviceMessage(service[match]);
+                service_placed[match] = true;
+            }
+            dated.emplace_back(wall, stitched);
         }
     }
     std::stable_sort(dated.begin(), dated.end(),
@@ -2647,30 +2776,13 @@ LLChatServiceHistory::HistoryResult readStitched(
         result.messages.push_back(message);
     }
 
-    // Merge the transient first page by exact service identity. It may improve
-    // presentation but never changes the durable seam or archive summary.
-    std::set<std::string> canonical_ids;
-    std::vector<Row> service = archive.display_rows;
-    for (const Row& row : service)
+    // Append service rows that did not replace their exact legacy occurrence.
+    for (size_t pos = 0; pos < service.size(); ++pos)
     {
-        canonical_ids.insert(row.msg_id);
-    }
-    for (const Row& row : preview)
-    {
-        if (!canonical_ids.count(row.msg_id))
+        if (!service_placed[pos])
         {
-            service.push_back(row);
+            result.messages.push_back(serviceMessage(service[pos]));
         }
-    }
-
-    std::sort(service.begin(), service.end(), [](const Row& left, const Row& right)
-    {
-        return left.key < right.key;
-    });
-
-    for (const Row& row : service)
-    {
-        result.messages.push_back(serviceMessage(row));
     }
 
     while (limit && result.messages.size() > limit)
@@ -2939,6 +3051,39 @@ boost::signals2::connection LLChatServiceHistory::setSnapshotChanged(
     const snapshot_callback_t& callback)
 {
     return sSnapshotSignal.connect(callback);
+}
+
+std::list<LLSD> LLChatServiceHistory::filterLiveDuplicates(
+    const std::list<LLSD>& history, const std::list<LLSD>& live)
+{
+    std::vector<const LLSD*> live_rows;
+    for (const LLSD& message : live)
+    {
+        live_rows.push_back(&message);
+    }
+    std::vector<bool> consumed(live_rows.size(), false);
+
+    // Matching is occurrence-aware: repeated identical messages consume repeated
+    // rows one-for-one instead of collapsing to one value.
+    std::list<LLSD> filtered;
+    for (const LLSD& message : history)
+    {
+        bool duplicate = false;
+        for (size_t pos = 0; pos < live_rows.size(); ++pos)
+        {
+            if (!consumed[pos] && sameHistoryLiveOccurrence(message, *live_rows[pos]))
+            {
+                consumed[pos] = true;
+                duplicate = true;
+                break;
+            }
+        }
+        if (!duplicate)
+        {
+            filtered.push_back(message);
+        }
+    }
+    return filtered;
 }
 
 std::list<LLSD> LLChatServiceHistory::mergeHeadPreview(

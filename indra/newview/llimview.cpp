@@ -1468,10 +1468,15 @@ void LLIMModel::LLIMSession::replaceHistoricalMessages(const chat_message_list_t
         }
     }
 
+    // An authoritative refresh may contain rows that this open session already
+    // displays live. Consume those exact occurrences before rebuilding the overlay.
+    const chat_message_list_t filtered = isP2P()
+        ? LLChatServiceHistory::filterLiveDuplicates(history, live) : history;
+
     // Normalize stitched LLLogChat fields into the IM model shape and reverse the
     // ascending input into the model's newest-first historical order.
     chat_message_list_t historical;
-    for (const LLSD& source : history)
+    for (const LLSD& source : filtered)
     {
         const std::string from = source[LL_IM_FROM].asString();
         LLUUID from_id;
@@ -1493,7 +1498,7 @@ void LLIMModel::LLIMSession::replaceHistoricalMessages(const chat_message_list_t
         message["from_id"] = from_id;
         message["message"] = source[LL_IM_TEXT];
         message["time"] = source[LL_IM_TIME];
-        message["timestamp"] = 0;
+        message["timestamp"] = source["timestamp"].asInteger();
         message["is_history"] = true;
         message["is_region_msg"] = false;
         historical.push_front(message);
@@ -1953,8 +1958,19 @@ bool LLIMModel::addToHistory(const LLUUID& session_id,
         return false;
     }
 
-    // This is where a normal arriving message is added to the session.   Note that the time string created here is without the full date
-    session->addMessage(from, from_id, utf8_text, LLLogChat::timestamp2LogString(timestamp, false), false, is_region_msg, timestamp);
+    // P2P live rows keep their actual arrival/send time so a later asynchronous
+    // history refresh can reconcile the same logged occurrence exactly by minute.
+    U32 model_timestamp = timestamp;
+    if (!model_timestamp && session->isP2PSessionType())
+    {
+        model_timestamp = static_cast<U32>(time_corrected());
+    }
+
+    // This is where a normal arriving message is added to the session. The time
+    // string created here omits the full date.
+    session->addMessage(from, from_id, utf8_text,
+                        LLLogChat::timestamp2LogString(model_timestamp, false),
+                        false, is_region_msg, model_timestamp);
 
     return true;
 }
@@ -3440,7 +3456,14 @@ void LLIMMgr::addMessage(
 {
     LLUUID other_participant_id = target_id;
     std::string message_display_name = (display_name.empty()) ? from : std::string(display_name);
-    if (display_id.isNull() && (display_name.empty()))
+
+    // System notices use the participant UUID for session routing only; their model
+    // identity stays null so they render and reconcile as system rows.
+    if (message_display_name == SYSTEM_FROM)
+    {
+        display_id = LLUUID::null;
+    }
+    else if (display_id.isNull() && display_name.empty())
     {
         display_id = other_participant_id;
     }

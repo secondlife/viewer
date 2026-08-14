@@ -87,6 +87,10 @@ namespace LLChatServiceHistory
     std::list<LLSD> mergeHeadPreview(const std::list<LLSD>& loaded,
                                      const Snapshot& snapshot, U32 limit);
 
+    // Remove one historical occurrence for each exact same-minute live occurrence.
+    std::list<LLSD> filterLiveDuplicates(const std::list<LLSD>& history,
+                                         const std::list<LLSD>& live);
+
     // The callback runs on the main queue after legacy and service storage are read.
     bool loadStitchedHistory(const LLUUID& resident_id, const std::string& legacy_stem,
                              U32 limit, const history_callback_t& callback);
