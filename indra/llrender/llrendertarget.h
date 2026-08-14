@@ -42,7 +42,7 @@
     ...
 
     //allocate a 256x256 RGBA render target with depth buffer
-    target.allocate(256,256,GL_RGBA,TRUE);
+    target.allocate(256,256,GL_RGBA,true);
 
     //render to contents of offscreen buffer
     target.bindTarget();

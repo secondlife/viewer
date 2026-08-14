@@ -29,6 +29,8 @@
 
 #include "../llversioninfo.h"
 
+#include "llversioninfovars.h"
+
  #include <iostream>
 
 // LL_VIEWER_CHANNEL is a macro defined on the compiler command line. The

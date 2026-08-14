@@ -364,7 +364,7 @@ bool LLSettingsVOBase::exportFile(const LLSettingsBase::ptr_t &settings, const s
 {
     try
     {
-        std::ofstream file(filename, std::ios::out | std::ios::trunc);
+        llofstream file(filename, std::ios::out | std::ios::trunc);
         file.exceptions(std::ios_base::failbit | std::ios_base::badbit);
 
         if (!file)
@@ -390,7 +390,7 @@ LLSettingsBase::ptr_t LLSettingsVOBase::importFile(const std::string &filename)
 
     try
     {
-        std::ifstream file(filename, std::ios::in);
+        llifstream file(filename, std::ios::in);
         file.exceptions(std::ios_base::failbit | std::ios_base::badbit);
 
         if (!file)

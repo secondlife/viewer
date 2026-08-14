@@ -36,10 +36,6 @@
 namespace LLCore
 {
 
-const HttpStatus::type_enum_t HttpStatus::EXT_CURL_EASY;
-const HttpStatus::type_enum_t HttpStatus::EXT_CURL_MULTI;
-const HttpStatus::type_enum_t HttpStatus::LLCORE;
-
 HttpStatus::operator U32() const
 {
     // Effectively, concatenate mType (high) with mStatus (low).

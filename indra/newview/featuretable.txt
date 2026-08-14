@@ -1,4 +1,4 @@
-version 74
+version 76
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -27,7 +27,7 @@ version 74
 // NOTE: All settings are set to the MIN of applied values, including 'all'!
 //
 list all
-RenderAnisotropic			1	1
+RenderAnisotropicLevel			1	16
 RenderAvatarLODFactor		1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxNonImpostors 1   16
@@ -56,7 +56,6 @@ RenderVolumeLODFactor		1	2.0
 UseStartScreen				1	1
 UseOcclusion				1	1
 WindLightUseAtmosShaders	1	1
-WLSkyDetail					1	128
 Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 RenderCompressTextures		1	1
@@ -87,12 +86,13 @@ RenderTonemapMix			1   1
 RenderDisableVintageMode           1   1
 RenderMaxTextureResolution         1   2048
 RenderReflectionProbeCount  1   256
+RenderHighPrecisionPostProcess 1 1
 
 //
 // Low Graphics Settings
 //
 list Low
-RenderAnisotropic			1	0
+RenderAnisotropicLevel			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
 RenderAvatarMaxNonImpostors 1   3
@@ -113,7 +113,6 @@ RenderTreeLODFactor			1	0
 RenderVolumeLODFactor		1	1.125
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-WLSkyDetail					1	96
 RenderFSAAType  			1	0
 RenderFSAASamples			1	0
 RenderScreenSpaceReflections 1  0
@@ -130,12 +129,13 @@ RenderTonemapMix			1   0.7
 RenderDisableVintageMode           1   0
 RenderMaxTextureResolution         1   512
 RenderReflectionProbeCount  1   1
+RenderHighPrecisionPostProcess 1 0
 
 //
 // Medium Low Graphics Settings
 //
 list LowMid
-RenderAnisotropic			1	0
+RenderAnisotropicLevel			1	2
 RenderAvatarLODFactor		1	0.5
 RenderAvatarMaxComplexity   1	100000
 RenderAvatarPhysicsLODFactor 1	0.75
@@ -156,7 +156,6 @@ RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-WLSkyDetail					1	96
 RenderFSAAType  			1	0
 RenderFSAASamples			1	0
 RenderScreenSpaceReflections 1  0
@@ -173,12 +172,13 @@ RenderTonemapMix			1   0.7
 RenderDisableVintageMode           1   0
 RenderMaxTextureResolution         1   1024
 RenderReflectionProbeCount  1   32
+RenderHighPrecisionPostProcess 1 0
 
 //
 // Medium Graphics Settings (standard)
 //
 list Mid
-RenderAnisotropic			1	1
+RenderAnisotropicLevel			1	2
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	200000
 RenderAvatarPhysicsLODFactor 1	1.0
@@ -197,7 +197,6 @@ RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.25
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-WLSkyDetail					1	96
 RenderFSAAType  			1	1
 RenderFSAASamples			1	1
 RenderReflectionsEnabled    1   1
@@ -215,12 +214,13 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
 RenderReflectionProbeCount  1   64
+RenderHighPrecisionPostProcess 1 0
 
 //
 // Medium High Graphics Settings
 //
 list MidHigh
-RenderAnisotropic			1	1
+RenderAnisotropicLevel			1	4
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	250000
 RenderAvatarPhysicsLODFactor 1	1.0
@@ -239,7 +239,6 @@ RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.375
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-WLSkyDetail					1	96
 RenderFSAAType  			1	1
 RenderFSAASamples			1	1
 RenderReflectionsEnabled    1   1
@@ -257,12 +256,13 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
 RenderReflectionProbeCount  1   64
+RenderHighPrecisionPostProcess 1 0
 
 //
 // High Graphics Settings (SSAO + sun shadows)
 //
 list High
-RenderAnisotropic			1	1
+RenderAnisotropicLevel			1	4
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	300000
 RenderAvatarPhysicsLODFactor 1	1.0
@@ -281,7 +281,6 @@ RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.5
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	1
-WLSkyDetail					1	96
 RenderFSAAType  			1	2
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
@@ -299,12 +298,13 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
 RenderReflectionProbeCount  1   128
+RenderHighPrecisionPostProcess 1 0
 
 //
-// High Ultra Graphics Settings (deferred + SSAO + all shadows)
+// High Ultra Graphics Settings (SSAO + all shadows)
 //
 list HighUltra
-RenderAnisotropic			1	1
+RenderAnisotropicLevel			1	4
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	350000
 RenderAvatarPhysicsLODFactor 1	1.0
@@ -323,7 +323,6 @@ RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.75
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
-WLSkyDetail					1	96
 RenderFSAAType  			1	2
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
@@ -341,12 +340,13 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
 RenderReflectionProbeCount  1   256
+RenderHighPrecisionPostProcess 1 1
 
 //
 // Ultra graphics (REALLY PURTY!)
 //
 list Ultra
-RenderAnisotropic			1	1
+RenderAnisotropicLevel			1	8
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxNonImpostors 1   16
 RenderAvatarPhysicsLODFactor 1	1.0
@@ -363,7 +363,6 @@ RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderVolumeLODFactor		1	2.0
 WindLightUseAtmosShaders	1	1
-WLSkyDetail					1	128
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 RenderFSAAType  			1	2
@@ -383,6 +382,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderMaxTextureResolution  1   2048
 RenderReflectionProbeCount  1   256
+RenderHighPrecisionPostProcess 1 1
 
 //
 // Class Unknown Hardware (unknown)
@@ -400,10 +400,16 @@ list VRAMGT512
 RenderCompressTextures		1	0
 
 //
+// AF Missing or AF < 2
+//
+list AnisotropicMissing
+RenderAnisotropicLevel		0	0
+
+//
 // "Default" setups for safe, low, medium, high
 //
 list safe
-RenderAnisotropic			1	0
+RenderAnisotropicLevel			1	0
 RenderAvatarMaxNonImpostors 1	16
 RenderAvatarMaxComplexity          1	80000
 RenderLocalLightCount		1	0
@@ -419,7 +425,7 @@ RenderMaxTextureResolution         1   2048
 RenderReflectionProbeCount  0   0
 
 list Intel
-RenderAnisotropic			1	0
+RenderAnisotropicLevel			1	0
 RenderFSAAType  			1	0
 RenderFSAASamples			1	0
 RenderGLContextCoreProfile  1   0

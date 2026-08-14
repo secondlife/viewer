@@ -36,7 +36,7 @@
 #include <cmath>
 
 extern LLControlGroup gSavedSettings;
-#if LL_DARWIN
+#if LL_DARWIN || LL_LINUX
 extern bool gHiDPISupport;
 #endif
 
@@ -378,7 +378,7 @@ void LLPluginClassMedia::setSizeInternal(void)
         mRequestedMediaHeight = nextPowerOf2(mRequestedMediaHeight);
     }
 
-#if LL_DARWIN
+#if LL_DARWIN || LL_LINUX
     if (!gHiDPISupport)
 #endif
     {
@@ -1052,6 +1052,15 @@ void LLPluginClassMedia::enableMediaPluginDebugging( bool enable )
     message.setValueBoolean( "enable", enable );
     sendMessage( message );
 }
+
+#if LL_LINUX
+void LLPluginClassMedia::enablePipeWireVolumeCatcher( bool enable )
+{
+    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "enable_pipewire_volume_catcher");
+    message.setValueBoolean( "enable", enable );
+    sendMessage( message );
+}
+#endif
 
 void LLPluginClassMedia::setTarget(const std::string &target)
 {

@@ -73,11 +73,8 @@ public:
 protected:
     void boostTerrainDetailTextures();
 
-    void renderSimple();
     void renderOwnership();
 
-    void renderFull2TU();
-    void renderFull4TU();
     void renderFullShader();
     void renderFullShaderTextures();
     void renderFullShaderPBR(bool use_local_materials = false);

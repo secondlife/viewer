@@ -124,6 +124,11 @@ public:
     virtual bool        isDirty()   const;      // Returns true if the user has modified this control.
     virtual void        resetDirty();           // Clear dirty state
 
+    LLTextBox* getTextBox() // Provide direct access to label textbox control
+    {
+        return mLabel;
+    }
+
 protected:
     virtual std::string _getSearchText() const
     {
