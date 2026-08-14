@@ -127,6 +127,36 @@ LLSurface::~LLSurface()
     }
     else
     {
+        // Pools are unique and can't be shared (unless two regions somehow have same coordinates)
+
+        // Which patch VOs were not cleaned up?
+        // Does mRegionp matches this surface's region?
+        LL_WARNS() << "Terrain pool not empty on destruction! "
+            << poolp->mReferences.size() << " face(s) still registered. "
+            << "Surface region: " << (mRegionp ? mRegionp->getName() : "NULL")
+            << " (" << (void*)mRegionp << ")"
+            << LL_ENDL;
+
+        // If there are dangling pointers, this is going to crash.
+        // Set an error message and state early.
+
+        for (LLFace* facep : poolp->mReferences)
+        {
+            LLDrawable* drawable = facep ? facep->getDrawable() : nullptr;
+            LLViewerObject* vobj = drawable ? drawable->getVObj().get() : nullptr;
+            LLViewerRegion* face_region = vobj ? vobj->getRegion() : nullptr;
+
+            LL_WARNS() << "  Remaining face " << (void*)facep
+                << " drawable=" << (void*)drawable
+                << " vobj=" << (void*)vobj
+                << " vobj.type=" << (vobj ? (S32)vobj->getPCode() : -1)
+                << " vobj.dead=" << (vobj ? vobj->isDead() : -1)
+                << " face_region=" << (face_region ? face_region->getName() : "NULL")
+                << " (" << (void*)face_region << ")"
+                << " region_matches=" << (face_region == mRegionp)
+                << LL_ENDL;
+        }
+
         LL_ERRS() << "Terrain pool not empty!" << LL_ENDL;
     }
 }
@@ -137,6 +167,16 @@ void LLSurface::initClasses()
 
 void LLSurface::setRegion(LLViewerRegion *regionp)
 {
+    if (mPatchList && mRegionp && mRegionp != regionp)
+    {
+        // surface patches can't cross regions
+        LL_WARNS() << "LLSurface::setRegion called with region already set and patches existing!"
+            << " old_region=" << mRegionp->getName() << " (" << (void*)mRegionp << ")"
+            << " new_region=" << (regionp ? regionp->getName() : "NULL") << " (" << (void*)regionp << ")"
+            << LL_ENDL;
+        llassert(false);
+    }
+
     mRegionp = regionp;
     mWaterObjp = nullptr; // depends on regionp, needs recreating
 }
