@@ -3820,7 +3820,7 @@ function="World.EnvPreset"
            shortcut="control|alt|shift|Z">
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
-             parameter="http://duckduckgo.com"/>
+             parameter="https://sl-viewer-media-system.s3.amazonaws.com/index.html"/>
           </menu_item_call>
             <menu_item_call
              label="Inventory Thumbnails Helper"
