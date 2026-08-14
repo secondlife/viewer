@@ -65,6 +65,7 @@
 #include "llmediactrl.h"
 #include "llrootview.h"
 
+#include "llfloaterjoin.h"
 #include "llfloatertos.h"
 #include "lltrans.h"
 #include "llglheaders.h"
@@ -1057,10 +1058,7 @@ void LLPanelLogin::onClickForgotPassword(void*)
 //static
 void LLPanelLogin::onClickSignUp(void*)
 {
-    if (sInstance)
-    {
-        LLWeb::loadURLExternal(sInstance->getString("sign_up_url"));
-    }
+    LLFloaterReg::showInstance("join");
 }
 
 // static
