@@ -682,8 +682,10 @@ U32 LLVertexBuffer::sGLRenderIndices = 0;
 U32 LLVertexBuffer::sLastMask = 0;
 U32 LLVertexBuffer::sVertexCount = 0;
 
-// Attribute pointer state belongs to the currently bound array buffer. Keep
-// enough state to avoid resubmitting identical formats to OpenGL-on-Metal.
+// The viewer keeps a single VAO bound. Attribute pointer calls store state in
+// that VAO and capture the current array buffer. Track the formats configured
+// for sGLRenderBuffer to avoid resubmitting identical state to OpenGL-on-Metal.
+// If VAO switching is introduced, invalidate this cache when the VAO changes.
 static U32 sVertexAttribsConfigured = 0;
 static U32 sColorPointerSource = 0;
 static constexpr U32 COLOR_POINTER_COLOR = 1;
@@ -1946,6 +1948,5 @@ void LLVertexBuffer::setIndexData(const U32* data, U32 offset, U32 count)
     }
     flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)data, mMappedIndexData);
 }
-
 
 
