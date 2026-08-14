@@ -34,6 +34,8 @@
 #include "llcommandhandler.h"
 #include "llviewercontrol.h"
 #include "llstatusbar.h"
+#include "llcorehttputil.h"
+#include "llcoros.h"
 
 // support for secondlife:///app/buycurrencyhtml/{ACTION}/{NEXT_ACTION}/{RETURN_CODE} SLapps
 class LLBuyCurrencyHTMLHandler :
@@ -86,6 +88,35 @@ public:
 };
 LLBuyCurrencyHTMLHandler gBuyCurrencyHTMLHandler;
 
+bool LLBuyCurrencyHTML::sWebFloaterEnabled = false;
+
+////////////////////////////////////////////////////////////////////////////////
+// static
+static void checkFeatureFlag_coro(std::string check_url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("CheckBuyCurrencyURL", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+
+    LLCore::HttpOptions::ptr_t httpOptions = std::make_shared<LLCore::HttpOptions>();
+    httpOptions->setRetries(0);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, check_url, httpOptions);
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    LLBuyCurrencyHTML::sWebFloaterEnabled = !(status.isHttpStatus() && status.getType() == 501);
+}
+
+// static
+void LLBuyCurrencyHTML::checkFeatureFlag()
+{
+    std::string check_url = LLFloaterBuyCurrencyHTML::buildURL();
+    LLCoros::instance().launch("checkFeatureFlag_coro",
+        [check_url]() { checkFeatureFlag_coro(check_url); });
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // static
 // Opens the legacy XUI based floater or new HTML based one based on
@@ -93,16 +124,15 @@ LLBuyCurrencyHTMLHandler gBuyCurrencyHTMLHandler;
 // the case where the amount is not requested.
 void LLBuyCurrencyHTML::openCurrencyFloater()
 {
-    if ( gSavedSettings.getBOOL( "BuyCurrencyHTML" ) )
+    if (gSavedSettings.getBOOL("BuyCurrencyHTML") && sWebFloaterEnabled)
     {
-        // HTML version
         LLBuyCurrencyHTML::showDialog();
     }
     else
     {
         // legacy version
         LLFloaterBuyCurrency::buyCurrency();
-    };
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +142,7 @@ void LLBuyCurrencyHTML::openCurrencyFloater()
 // the case where the amount and a string to display are requested.
 void LLBuyCurrencyHTML::openCurrencyFloater( const std::string& message, S32 sum )
 {
-    if ( gSavedSettings.getBOOL( "BuyCurrencyHTML" ) )
+    if (gSavedSettings.getBOOL("BuyCurrencyHTML") && sWebFloaterEnabled)
     {
         LLBuyCurrencyHTML::showDialog(sum - gStatusBar->getBalance());
     }
@@ -120,7 +150,7 @@ void LLBuyCurrencyHTML::openCurrencyFloater( const std::string& message, S32 sum
     {
         // legacy version
         LLFloaterBuyCurrency::buyCurrency( message, sum );
-    };
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

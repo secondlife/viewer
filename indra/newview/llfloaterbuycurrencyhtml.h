@@ -44,6 +44,7 @@ public:
 
     void navigateToFinalURL();
     void setShortfall(S32 shortfall) { mShortfall = shortfall; }
+    static std::string buildURL(S32 shortfall = 0);
 
 private:
     LLMediaCtrl* mBrowser;

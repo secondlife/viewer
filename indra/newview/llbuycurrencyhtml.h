@@ -44,6 +44,11 @@ class LLBuyCurrencyHTML
 
         // close (and destroy) the currency floater
         static void closeDialog();
+
+        // probe BuyCurrencyPacksURL once at login; clears sWebFloaterEnabled if 501
+        static void checkFeatureFlag();
+
+        static bool sWebFloaterEnabled;
 };
 
 #endif  // LL_LLBUYCURRENCYHTML_H

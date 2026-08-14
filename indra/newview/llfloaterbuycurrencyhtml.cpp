@@ -60,25 +60,27 @@ bool LLFloaterBuyCurrencyHTML::postBuild()
     return true;
 }
 
-void LLFloaterBuyCurrencyHTML::navigateToFinalURL()
+// static
+std::string LLFloaterBuyCurrencyHTML::buildURL(S32 shortfall)
 {
-    std::string buy_currency_url = gSavedSettings.getString("BuyCurrencyPacksURL");
-
+    std::string url = gSavedSettings.getString("BuyCurrencyPacksURL");
     LLStringUtil::format_map_t replace;
     replace["[LANGUAGE]"] = LLUI::getLanguage();
-    if (mShortfall > 0)
+    if (shortfall > 0)
     {
-        replace["[SHORTFALL]"] = std::to_string(mShortfall);
+        replace["[SHORTFALL]"] = std::to_string(shortfall);
     }
-
-    LLStringUtil::format(buy_currency_url, replace);
-
-    if (mShortfall <= 0)
+    LLStringUtil::format(url, replace);
+    if (shortfall <= 0)
     {
-        LLStringUtil::replaceString(buy_currency_url, "&shortfall=[SHORTFALL]", "");
+        LLStringUtil::replaceString(url, "&shortfall=[SHORTFALL]", "");
     }
+    return url;
+}
 
-    mBrowser->navigateTo(buy_currency_url, HTTP_CONTENT_TEXT_HTML);
+void LLFloaterBuyCurrencyHTML::navigateToFinalURL()
+{
+    mBrowser->navigateTo(buildURL(mShortfall), HTTP_CONTENT_TEXT_HTML);
 }
 
 void LLFloaterBuyCurrencyHTML::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
