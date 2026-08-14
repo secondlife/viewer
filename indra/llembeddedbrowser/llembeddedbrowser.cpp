@@ -470,17 +470,17 @@ unsigned int LLEmbeddedBrowserTab::getHeight() const
 
 LLEmbeddedBrowser::LLEmbeddedBrowser()
 {
-    std::cout << "LLEmbeddedBrowser created" << std::endl;
+    //std::cout << "LLEmbeddedBrowser created" << std::endl;
 }
 
 LLEmbeddedBrowser::~LLEmbeddedBrowser()
 {
-    std::cout << "LLEmbeddedBrowser destroyed" << std::endl;
+    //std::cout << "LLEmbeddedBrowser destroyed" << std::endl;
 }
 
 void LLEmbeddedBrowser::init()
 {
-    std::cout << "Initializing LLEmbeddedBrowser" << std::endl;
+    //std::cout << "Initializing LLEmbeddedBrowser" << std::endl;
 
     if (!gSavedSettings.getBOOL("UseEmbeddedBrowser"))
     {
@@ -499,8 +499,19 @@ void LLEmbeddedBrowser::reset()
         mProducerProcess.reset();
     }
 
-    LLMutexLock lock(&mTabsMutex);
-    mTabs.clear();
+    // Same deadlock hazard as destroy() above (see its own comment): extract
+    // every tab under the lock, then let their actual destruction -- each
+    // one's blocking mUpdateThread->shutdown() join -- happen after
+    // releasing mTabsMutex, so each tab's own background thread can still
+    // reach findTab() to notice it should quit. Holding the lock across
+    // clear() here would deadlock on exit the same way destroy() used to on
+    // an individual floater close, just for every still-open tab at once.
+    std::map<unsigned int, std::shared_ptr<LLEmbeddedBrowserTab>> tabs;
+    {
+        LLMutexLock lock(&mTabsMutex);
+        tabs.swap(mTabs);
+    }
+    // tabs' destructors run here, unlocked.
 }
 
 bool LLEmbeddedBrowser::launchProducer()
