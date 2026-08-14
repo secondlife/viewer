@@ -28,7 +28,7 @@ set_target_properties(llembeddedbrowser PROPERTIES PUBLIC_HEADER llembeddedbrows
 
 target_include_directories(llembeddedbrowser INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(llembeddedbrowser llcommon)
+target_link_libraries(llembeddedbrowser llcommon ll::shmframe)
 
 ADD_CUSTOM_COMMAND(TARGET llembeddedbrowser POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different

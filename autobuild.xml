@@ -1514,6 +1514,40 @@
         <key>version</key>
         <string>202407221423.0</string>
       </map>
+      <key>llcefbrowser</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/llcefbrowser</string>
+        <key>copyright</key>
+        <string>Copyright (C) 2023, Linden Research, Inc.</string>
+        <key>description</key>
+        <string>A CEF (Chromium Embedded Framework) wrapper library for hosting one or more windowless/offscreen browser instances, rendering to memory buffers rather than a native window, with mouse/keyboard input injection and a JavaScript bridge.</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>license_file</key>
+        <string>LICENSES/llcefbrowser_LICENSE.txt</string>
+        <key>name</key>
+        <string>llcefbrowser</string>
+        <key>platforms</key>
+        <map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>da7900fc3293680c303eb2c88203f2b2f5ddd5dc</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>file:///C:/work/llcefbrowser/llcefbrowser-0.13.0-windows64-262252351.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.13.0</string>
+      </map>
       <key>llphysicsextensions_source</key>
       <map>
         <key>copyright</key>
@@ -1597,6 +1631,40 @@
         </map>
         <key>version</key>
         <string>1.0.561752</string>
+      </map>
+      <key>llshmframe</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://github.com/callumlinden/llshmframe</string>
+        <key>copyright</key>
+        <string>Copyright (C) 2023, Linden Research, Inc.</string>
+        <key>description</key>
+        <string>Real-time frame and command transport over shared memory, for exchanging pixel buffers and commands between processes with no mutex on the data path.</string>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>license_file</key>
+        <string>LICENSES/LICENSE</string>
+        <key>name</key>
+        <string>llshmframe</string>
+        <key>platforms</key>
+        <map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c0d1748ea26d6463abdb6324d96022b3cdc5b628</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>file:///C:/Work/llshmframe/llshmframe-1.0.0-windows64-262252327.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0.0</string>
       </map>
       <key>mesa</key>
       <map>
