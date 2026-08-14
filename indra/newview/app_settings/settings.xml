@@ -13300,6 +13300,17 @@
       <key>Value</key>
       <integer>4096</integer>
     </map>
+    <key>CefProducerShowConsole</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, SLCefProducer allocates a debug console showing its diagnostic output; takes effect on next launch</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>UseEnergy</key>
     <map>
       <key>Comment</key>

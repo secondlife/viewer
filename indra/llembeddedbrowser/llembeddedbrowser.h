@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <deque>
 #include <map>
 #include <memory>
@@ -38,6 +39,7 @@
 class LLEmbeddedBrowser;
 class LLEmbeddedBrowserTab;
 class LLSubscriber;
+class LLProcess;
 
 // Mirrors a subset of cefshm_demo::Opcode's kEvent* commands -- see
 // cefshm_protocol.h. Deliberately not the full LLPluginClassMediaOwner::
@@ -222,7 +224,27 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // other callers.
         void setCefBrowserVersion(const std::string& version);
 
+        // Called by LLEmbeddedBrowserTab::connectToProducer() on its one failure branch
+        // that means "no producer process reachable at all" (as opposed to one that's
+        // merely busy/racing another consumer, where relaunching would just kill a
+        // perfectly healthy producer). A no-op if SLCefProducer is already running, if
+        // UseEmbeddedBrowser is off, or if a relaunch was already attempted recently or
+        // too many times this session -- see the constants in llembeddedbrowser.cpp.
+        void maybeRelaunchProducer();
+
+        // Called by LLEmbeddedBrowserTab::connectToProducer() on every successful
+        // connect -- a real connection means whatever relaunch attempts led to it (if
+        // any) worked, so a later, unrelated crash should get its own fresh budget
+        // rather than inheriting an already-exhausted one.
+        void resetRelaunchAttempts();
+
     private:
+        // Launches SLCefProducer via LLProcess, storing the result in mProducerProcess.
+        // Returns false (leaving mProducerProcess untouched) if SLCefProducer isn't
+        // available on this platform (see LLDir::getSLCefProducerLauncher()) or the
+        // launch itself failed. Caller must hold mProducerMutex.
+        bool launchProducer();
+
         // Looks up a tab under mTabsMutex and returns a shared_ptr copy rather than a
         // reference into the map, so callers can safely call (potentially slow) methods
         // on the returned tab with mTabsMutex already released -- a concurrent destroy()
@@ -241,4 +263,12 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
 
         mutable LLMutex mCefVersionMutex;
         std::string mCefBrowserVersion;
+
+        // Guards mProducerProcess and the relaunch bookkeeping below -- touched from
+        // init()/reset() on the main thread and from maybeRelaunchProducer()/
+        // resetRelaunchAttempts() on any tab's own background update thread.
+        mutable LLMutex mProducerMutex;
+        std::shared_ptr<LLProcess> mProducerProcess;
+        int mProducerRelaunchAttempts = 0;
+        std::chrono::steady_clock::time_point mLastRelaunchAttempt;
 };

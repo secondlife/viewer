@@ -1653,18 +1653,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ce86bbe4e86e8a0e66f6af776266ae1e1f9af94c</string>
+              <string>6350533ab02d481abf2a019927728f8fd9f8a28b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>file:///C:/Work/llshmframe/llshmframe-1.0.0-windows64-262252327.tar.bz2</string>
+              <string>file:///C:/Work/llshmframe/llshmframe-1.18.0-windows64-262261855.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.0</string>
+        <string>1.18.0</string>
       </map>
       <key>mesa</key>
       <map>

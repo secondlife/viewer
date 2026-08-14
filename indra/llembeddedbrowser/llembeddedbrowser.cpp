@@ -41,6 +41,16 @@
 #include <shmframe/llShmFrameVersion.h>
 #include "cefshm_protocol.h"
 
+#include "llcontrol.h"
+#include "lldir.h"
+#include "llprocess.h"
+
+// llembeddedbrowser sits below newview in the link graph, so gSavedSettings
+// (defined in llviewercontrol.cpp) is only reachable via extern -- resolved
+// at final-link time, matching the same pattern llplugin/llpluginclassmedia.cpp
+// already uses for the same reason.
+extern LLControlGroup gSavedSettings;
+
 using namespace cefshm_demo;
 
 namespace {
@@ -52,6 +62,18 @@ namespace {
     constexpr auto kControlClaimTimeout       = std::chrono::seconds(3);
     constexpr auto kSlotRequestTimeout        = std::chrono::seconds(2);
     constexpr auto kSlotReplyPollInterval     = std::chrono::milliseconds(5);
+
+    // Bounds how aggressively LLEmbeddedBrowser::maybeRelaunchProducer() will
+    // respawn SLCefProducer: multiple tabs' background threads can all notice
+    // "not running" within milliseconds of each other (debounced by the backoff
+    // below), and a second concurrent Viewer instance racing for the same
+    // control-channel name would otherwise tight-loop respawning a process that
+    // dies almost immediately every time (its own control-channel LLPublisher::
+    // create() fails against the first instance's live one) -- capping total
+    // attempts bounds that worst case at a few wasted process launches rather
+    // than an unbounded spin.
+    constexpr int  kMaxRelaunchAttempts = 3;
+    constexpr auto kRelaunchBackoff     = std::chrono::seconds(5);
 }
 
 LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height) :
@@ -98,6 +120,10 @@ bool LLEmbeddedBrowserTab::connectToProducer()
         ctrl = LLSubscriber::open(kControlChannelName);
         if (!ctrl->connected())
         {
+            // The one failure branch in this method that means "no producer
+            // process at all," as opposed to one that's merely busy/racing
+            // -- see LLEmbeddedBrowser::maybeRelaunchProducer().
+            LLEmbeddedBrowser::instance().maybeRelaunchProducer();
             return false; // no cefshm_producer reachable right now
         }
         if (ctrl->owns_command_channel()) break;
@@ -163,6 +189,11 @@ bool LLEmbeddedBrowserTab::connectToProducer()
         event.type = LLEmbeddedBrowserEventType::ProducerReconnected;
         mEvents.push_back(event);
     }
+
+    // A real connection just succeeded, so any earlier relaunch attempts
+    // (this episode or a prior one) are no longer relevant -- give a later,
+    // unrelated crash its own fresh attempt budget.
+    LLEmbeddedBrowser::instance().resetRelaunchAttempts();
 
     return true;
 }
@@ -450,12 +481,94 @@ LLEmbeddedBrowser::~LLEmbeddedBrowser()
 void LLEmbeddedBrowser::init()
 {
     std::cout << "Initializing LLEmbeddedBrowser" << std::endl;
+
+    if (!gSavedSettings.getBOOL("UseEmbeddedBrowser"))
+    {
+        return; // nothing to launch -- the legacy plugin path handles all media instead
+    }
+
+    LLMutexLock lock(&mProducerMutex);
+    launchProducer();
 }
 
 void LLEmbeddedBrowser::reset()
 {
+    {
+        LLMutexLock lock(&mProducerMutex);
+        LLProcess::kill(mProducerProcess); // null-safe -- harmless if init() never launched one
+        mProducerProcess.reset();
+    }
+
     LLMutexLock lock(&mTabsMutex);
     mTabs.clear();
+}
+
+bool LLEmbeddedBrowser::launchProducer()
+{
+    const std::string exe_path = gDirUtilp->getSLCefProducerLauncher();
+    if (exe_path.empty())
+    {
+        LL_WARNS() << "SLCefProducer is not available on this platform" << LL_ENDL;
+        return false;
+    }
+
+    LLProcess::Params params;
+    params.executable = exe_path;
+    params.cwd        = gDirUtilp->getLLPluginDir(); // SLCefProducer.exe's own directory -- see getSLCefProducerLauncher()
+    if (gSavedSettings.getBOOL("CefProducerShowConsole"))
+    {
+        params.args.add("--console");
+    }
+
+    LLProcessPtr proc = LLProcess::create(params);
+    if (!proc)
+    {
+        LL_WARNS() << "Failed to launch SLCefProducer (" << exe_path << ")" << LL_ENDL;
+        return false;
+    }
+
+    LL_INFOS() << "Launched SLCefProducer, pid " << proc->getProcessID() << LL_ENDL;
+    mProducerProcess = proc;
+    return true;
+}
+
+void LLEmbeddedBrowser::maybeRelaunchProducer()
+{
+    if (!gSavedSettings.getBOOL("UseEmbeddedBrowser"))
+    {
+        return;
+    }
+
+    LLMutexLock lock(&mProducerMutex);
+
+    if (mProducerProcess && LLProcess::isRunning(mProducerProcess))
+    {
+        return; // still alive -- this was a transient shm hiccup, not a real crash
+    }
+
+    if (mProducerRelaunchAttempts >= kMaxRelaunchAttempts)
+    {
+        return; // gave up already this episode -- see the constant's own comment
+    }
+
+    const auto now = std::chrono::steady_clock::now();
+    if (mProducerRelaunchAttempts > 0 && now - mLastRelaunchAttempt < kRelaunchBackoff)
+    {
+        return; // debounce: another tab's thread likely just tried this
+    }
+
+    mLastRelaunchAttempt = now;
+    ++mProducerRelaunchAttempts;
+
+    LL_WARNS() << "SLCefProducer is not running (relaunch attempt " << mProducerRelaunchAttempts
+               << "/" << kMaxRelaunchAttempts << ")" << LL_ENDL;
+    launchProducer();
+}
+
+void LLEmbeddedBrowser::resetRelaunchAttempts()
+{
+    LLMutexLock lock(&mProducerMutex);
+    mProducerRelaunchAttempts = 0;
 }
 
 std::shared_ptr<LLEmbeddedBrowserTab> LLEmbeddedBrowser::findTab(unsigned int id)

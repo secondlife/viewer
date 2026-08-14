@@ -403,6 +403,18 @@ bool LLDir_Win32::fileExists(const std::string &filename) const
         base_name + ".dll";
 }
 
+/*virtual*/ std::string LLDir_Win32::getSLCefProducerLauncher()
+{
+    // Lives in llplugin/ alongside libcef.dll and its other CEF runtime
+    // files (see viewer_manifest.py), not next to secondlife-bin.exe --
+    // unlike a DLL loaded from there (media_plugin_cef.dll), a standalone
+    // .exe only checks its own directory in the default DLL search order,
+    // so it needs to actually live where those files are rather than just
+    // depend on them being nearby.
+    return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
+        "SLCefProducer.exe";
+}
+
 
 #if 0
 // Utility function to get version number of a DLL

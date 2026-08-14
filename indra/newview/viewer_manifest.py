@@ -608,6 +608,14 @@ class Windows_x86_64_Manifest(ViewerManifest):
                     with self.prefix(src=os.path.join('example', self.args['configuration'])):
                         self.path("media_plugin_example.dll")
 
+            # Embedded-browser CEF producer, launched/monitored by the Viewer itself --
+            # lives here (not next to secondlife-bin.exe) so it sits alongside the same
+            # libcef.dll and CEF runtime files below that it needs, matching how
+            # media_plugin_cef.dll resolves them.
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                              'llcefproducer', self.args['configuration'])):
+                self.path("SLCefProducer.exe")
+
             # CEF runtime files - debug
             # CEF runtime files - not debug (release, relwithdebinfo etc.)
             config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'

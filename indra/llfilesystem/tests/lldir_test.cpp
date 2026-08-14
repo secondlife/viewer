@@ -143,6 +143,12 @@ struct LLDir_Dummy: public LLDir
         return "";
     }
 
+    virtual std::string getSLCefProducerLauncher()
+    {
+        // Implement this when we write a test that needs it
+        return "";
+    }
+
     /*----------------------------- Dummy data -----------------------------*/
     void clearFilesystem() { mFilesystem.clear(); }
     void buildFilesystem(const std::string& path)

@@ -1246,6 +1246,12 @@ bool LLAppViewer::init()
     LLViewerCamera::createInstance();
     LL::GLTFSceneManager::createInstance();
 
+    // Launch SLCefProducer now, eagerly -- the login screen itself is rendered
+    // through this same embedded-browser path (it's "slot 0" of the producer),
+    // so it needs to be available before idle_startup() can reach
+    // STATE_LOGIN_SHOW, not lazily on first unrelated media use.
+    LLEmbeddedBrowser::getInstance()->init();
+
     gSavedSettings.setU32("DebugQualityPerformance", gSavedSettings.getU32("RenderQualityPerformance"));
 
 #if LL_WINDOWS
@@ -1748,6 +1754,9 @@ bool LLAppViewer::cleanup()
 
     // Give any remaining SLPlugin instances a chance to exit cleanly.
     LLPluginProcessParent::shutdown();
+
+    // Stop SLCefProducer, if init() launched one.
+    LLEmbeddedBrowser::getInstance()->reset();
 
     disconnectViewer();
     LLViewerCamera::deleteSingleton();
