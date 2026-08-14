@@ -207,6 +207,19 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // creating tabs. Defaults to 4096x4096 if never called.
         void setMaxDimensions(unsigned int max_width, unsigned int max_height);
 
+        // The llshmframe library this Viewer was built against -- a build-time constant,
+        // always available regardless of whether any producer is connected.
+        static std::string getShmFrameVersion();
+
+        // The CEF/Chromium version the most recently connected cefshm_producer reported
+        // over the wire (see kEventVersionInfo in cefshm_protocol.h). Empty until at
+        // least one tab has completed its connection handshake.
+        std::string getCefVersion() const;
+
+        // Called by LLEmbeddedBrowserTab on receiving kEventVersionInfo -- not meant for
+        // other callers.
+        void setCefVersion(const std::string& version);
+
     private:
         // Looks up a tab under mTabsMutex and returns a shared_ptr copy rather than a
         // reference into the map, so callers can safely call (potentially slow) methods
@@ -223,4 +236,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         unsigned int mNextTabId = 0;
         unsigned int mMaxWidth = 4096;
         unsigned int mMaxHeight = 4096;
+
+        mutable LLMutex mCefVersionMutex;
+        std::string mCefVersion;
 };

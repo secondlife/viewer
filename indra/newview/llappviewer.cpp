@@ -137,6 +137,7 @@
 #include "stringize.h"
 #include "llcoros.h"
 #include "llexception.h"
+#include "llembeddedbrowser.h"
 #if !LL_LINUX
 #include "cef/dullahan_version.h"
 #include "vlc/libvlc_version.h"
@@ -3661,6 +3662,15 @@ LLSD LLAppViewer::getViewerInfo() const
 #else
     info["LIBCEF_VERSION"] = "Undefined";
 #endif
+
+    // The (still-experimental, separate from the Dullahan-based plugin above)
+    // llshmframe/cefshm_producer embedded browser path. llshmframe's own version is a
+    // build-time constant; the CEF/Chromium version is reported live by whatever
+    // producer last connected, since the Viewer itself doesn't link CEF for this path.
+    info["SHMFRAME_VERSION"] = LLEmbeddedBrowser::getShmFrameVersion();
+    std::string embedded_cef_version = LLEmbeddedBrowser::instance().getCefVersion();
+    info["EMBEDDED_CEF_VERSION"] = embedded_cef_version.empty() ?
+        LLSD(LLTrans::getString("NotConnected")) : LLSD(embedded_cef_version);
 
 #if !LL_LINUX
     std::ostringstream vlc_ver_codec;

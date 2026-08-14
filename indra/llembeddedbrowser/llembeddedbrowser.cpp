@@ -38,6 +38,7 @@
 #include "llthread.h"
 
 #include <shmframe/llshmframe.h>
+#include <shmframe/llShmFrameVersion.h>
 #include "cefshm_protocol.h"
 
 using namespace cefshm_demo;
@@ -226,6 +227,11 @@ void LLEmbeddedBrowserTab::update()
                 event.mValue = static_cast<unsigned int>(line);
                 break;
             }
+            case kEventVersionInfo:
+                // Global info about whatever producer is connected, not a per-tab UI
+                // event -- doesn't go through mEvents.
+                LLEmbeddedBrowser::instance().setCefVersion(std::string(cmd.text()));
+                continue;
             default:
                 continue; // not an event opcode this tab understands
         }
@@ -474,6 +480,25 @@ void LLEmbeddedBrowser::setMaxDimensions(unsigned int max_width, unsigned int ma
 {
     mMaxWidth = max_width;
     mMaxHeight = max_height;
+}
+
+/*static*/
+std::string LLEmbeddedBrowser::getShmFrameVersion()
+{
+    return "llshmframe " + std::to_string(LLSHMFRAME_VERSION_MAJOR) + "." +
+           std::to_string(LLSHMFRAME_VERSION_MINOR) + " (" + LLSHMFRAME_VERSION_GITHASH + ")";
+}
+
+std::string LLEmbeddedBrowser::getCefVersion() const
+{
+    LLMutexLock lock(&mCefVersionMutex);
+    return mCefVersion;
+}
+
+void LLEmbeddedBrowser::setCefVersion(const std::string& version)
+{
+    LLMutexLock lock(&mCefVersionMutex);
+    mCefVersion = version;
 }
 
 void LLEmbeddedBrowser::destroy(unsigned int id)
