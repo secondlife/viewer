@@ -252,6 +252,7 @@ set(viewer_SOURCE_FILES
     llfloaterinspect.cpp
     llfloaterinventorysettings.cpp
     llfloaterinventorythumbnailshelper.cpp
+    llfloaterjoin.cpp
     llfloaterjoystick.cpp
     llfloaterlagmeter.cpp
     llfloaterland.cpp
@@ -936,6 +937,7 @@ set(viewer_HEADER_FILES
     llfloaterinspect.h
     llfloaterinventorysettings.h
     llfloaterinventorythumbnailshelper.h
+    llfloaterjoin.h
     llfloaterjoystick.h
     llfloaterlagmeter.h
     llfloaterland.h

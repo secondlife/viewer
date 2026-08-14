@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater
+ height="768"
+ width="1024"
+ layout="topleft"
+ name="floater_join"
+ single_instance="true"
+ show_title="false"
+ legacy_header_height="0"
+ header_height="0"
+ background_visible="false"
+ can_resize="false"
+ can_drag_on_left="false"
+ can_minimize="false"
+ can_close="false">
+  <web_browser
+   follows="all"
+   left="0"
+   top="0"
+   right="-1"
+   bottom="-1"
+   name="join_browser"
+   trusted_content="false"
+   border_visible="false" />
+  <view_border
+   follows="all"
+   left="0"
+   top="0"
+   right="-1"
+   bottom="-1"
+   border_thickness="1"
+   bevel_style="none"
+   highlight_light_color="White"
+   mouse_opaque="false"
+   name="floater_outline" />
+  <!-- TODO: remove when actual Join page URL is set -->
+  <text
+   follows="right|bottom"
+   name="test_close_link"
+   parse_urls="true"
+   font="SansSerifSmall"
+   text_color="White"
+   left="758"
+   top="748"
+   width="262"
+   height="16">
+    secondlife:///app/floaterjoin/close
+  </text>
+</floater>
