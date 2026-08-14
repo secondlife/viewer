@@ -1535,18 +1535,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>da7900fc3293680c303eb2c88203f2b2f5ddd5dc</string>
+              <string>f685d7f21e11b4feeefa13729dee92ce868dbbf4</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>file:///C:/work/llcefbrowser/llcefbrowser-0.13.0-windows64-262252351.tar.bz2</string>
+              <string>file:///C:/work/llcefbrowser/llcefbrowser-0.15.0-windows64-262260223.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.13.0</string>
+        <string>0.15.0</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -1635,7 +1635,7 @@
       <key>llshmframe</key>
       <map>
         <key>canonical_repo</key>
-        <string>https://github.com/callumlinden/llshmframe</string>
+        <string>https://github.com/secondlife/llshmframe</string>
         <key>copyright</key>
         <string>Copyright (C) 2023, Linden Research, Inc.</string>
         <key>description</key>
@@ -1653,7 +1653,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c0d1748ea26d6463abdb6324d96022b3cdc5b628</string>
+              <string>ce86bbe4e86e8a0e66f6af776266ae1e1f9af94c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
