@@ -93,6 +93,11 @@ public:
     LLWatchdog();
     ~LLWatchdog();
 
+    LLWatchdog(const LLWatchdog&) = delete;
+    LLWatchdog(LLWatchdog&&) = delete;
+    LLWatchdog& operator=(const LLWatchdog&) = delete;
+    LLWatchdog& operator=(LLWatchdog&&) = delete;
+
     // Add an entry to the watchdog.
     void add(LLWatchdogEntry* e);
     void remove(LLWatchdogEntry* e);

@@ -2178,6 +2178,7 @@ bool LLAppViewer::cleanup()
     LLWorld::deleteSingleton();
     LLVoiceClient::deleteSingleton();
     LLUI::deleteSingleton();
+    LLGridManager::deleteSingleton();
     LLWatchdog::deleteSingleton();
 
     // It's not at first obvious where, in this long sequence, a generic cleanup
@@ -3012,6 +3013,8 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
+    LLGridManager::createInstance();
+
     LLSLURL start_slurl;
     if (!starting_location.empty())
     {
@@ -3060,6 +3063,7 @@ bool LLAppViewer::initConfiguration()
             // Do not save settings.
             // Might be smarter to have an exit code for a more reliable
             // "early exit, needs cleanup" case.
+            LLGridManager::deleteSingleton();
             LLSingletonBase::deleteAll();
             cleanupConsole();
             delete mSettingsLocationList;
@@ -3120,6 +3124,7 @@ bool LLAppViewer::initConfiguration()
 
         // Since returning 'false' is basically an error without cleanup,
         // do cleanup here. No need to worry about marker files here.
+        LLGridManager::deleteSingleton();
         LLSingletonBase::deleteAll();
         cleanupConsole();
         return false;
@@ -3885,8 +3890,12 @@ void LLAppViewer::writeSystemInfo()
     gDebugInfo["CPUInfo"]["CPUFamily"] = gSysCPU.getFamily();
     gDebugInfo["CPUInfo"]["CPUMhz"] = (S32)gSysCPU.getMHz();
     gDebugInfo["CPUInfo"]["CPUAltivec"] = gSysCPU.hasAltivec();
-    gDebugInfo["CPUInfo"]["CPUSSE"] = gSysCPU.hasSSE();
-    gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
+    gDebugInfo["CPUInfo"]["CPUSSE42"] = gSysCPU.hasSSE42();
+    gDebugInfo["CPUInfo"]["CPUSSE4a"] = gSysCPU.hasSSE4a();
+    gDebugInfo["CPUInfo"]["CPUAVX"] = gSysCPU.hasAVX();
+    gDebugInfo["CPUInfo"]["CPUAVX2"] = gSysCPU.hasAVX2();
+    gDebugInfo["CPUInfo"]["CPUAVX512F"] = gSysCPU.hasAVX512F();
+
 
     gDebugInfo["RAMInfo"]["Physical"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().value());
     gDebugInfo["RAMInfo"]["Allocated"] = LLSD::Integer(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
