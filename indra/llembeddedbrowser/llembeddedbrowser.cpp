@@ -604,20 +604,38 @@ std::string LLEmbeddedBrowser::getShmFrameVersion()
 
 std::string LLEmbeddedBrowser::getCefBrowserVersion() const
 {
-    LLMutexLock lock(&mCefVersionMutex);
+    std::lock_guard<std::mutex> lock(mCefVersionMutex);
     return mCefBrowserVersion;
 }
 
 void LLEmbeddedBrowser::setCefBrowserVersion(const std::string& version)
 {
-    LLMutexLock lock(&mCefVersionMutex);
+    std::lock_guard<std::mutex> lock(mCefVersionMutex);
     mCefBrowserVersion = version;
 }
 
 void LLEmbeddedBrowser::destroy(unsigned int id)
 {
-    LLMutexLock lock(&mTabsMutex);
-    mTabs.erase(id);
+    // Extract the tab and erase it from the map under the lock, but let its
+    // actual destruction happen after releasing mTabsMutex. ~LLEmbeddedBrowserTab()
+    // blocks on mUpdateThread->shutdown(), which waits for that tab's own
+    // background thread to notice isQuitting() -- but that thread can only get
+    // there via LLEmbeddedBrowser::update(id), which itself needs mTabsMutex
+    // (through findTab()). Holding the lock across the blocking join here would
+    // deadlock the background thread against itself: it could never re-acquire
+    // the mutex to reach the point where it checks isQuitting(), so shutdown()
+    // would never see isStopped() until its own 60s force-kill fallback.
+    std::shared_ptr<LLEmbeddedBrowserTab> tab;
+    {
+        LLMutexLock lock(&mTabsMutex);
+        auto it = mTabs.find(id);
+        if (it != mTabs.end())
+        {
+            tab = it->second;
+            mTabs.erase(it);
+        }
+    }
+    // tab's destructor (if this was the last reference) runs here, unlocked.
 }
 
 void LLEmbeddedBrowser::resize(unsigned int id, unsigned int width, unsigned int height)

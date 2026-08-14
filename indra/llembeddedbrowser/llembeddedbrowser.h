@@ -30,6 +30,7 @@
 #include <deque>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -261,7 +262,15 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         unsigned int mMaxWidth = 4096;
         unsigned int mMaxHeight = 4096;
 
-        mutable LLMutex mCefVersionMutex;
+        // A plain std::mutex, not LLMutex: this is read from LLFloaterAbout's
+        // fetchServerReleaseNotesCoro coroutine (via getCefBrowserVersion(), see
+        // llappviewer.cpp's getViewerInfo()) as well as from ordinary code, and
+        // LLMutex asserts it is never locked from within a coroutine. A real
+        // OS-level mutex is still correct here -- the actual writer is a genuine
+        // background OS thread (LLEmbeddedBrowserTab's update thread), not another
+        // coroutine, so there's no cooperative-scheduling deadlock risk to guard
+        // against, just a short-lived std::string read/write to protect.
+        mutable std::mutex mCefVersionMutex;
         std::string mCefBrowserVersion;
 
         // Guards mProducerProcess and the relaunch bookkeeping below -- touched from
