@@ -527,6 +527,14 @@ int run_producer(int argc, char** argv)
                 }
             }
 
+            // Request a fresh composite right now, reflecting whatever input this
+            // slot just received above -- rather than waiting on CEF's own
+            // windowless_frame_rate-paced internal timer (see the
+            // external_begin_frame_enabled comment in llCefBrowserManagerImpl::
+            // CreateBrowser()). Cheap to call even when nothing changed: Chromium's
+            // own compositor already skips real work if there's nothing new to paint.
+            manager->SendExternalBeginFrame(s.cefHandle);
+
             int fw = 0, fh = 0;
             if (manager->CopyLatestFrame(s.cefHandle, s.frameBuf, fw, fh)) {
                 s.pub->publish(s.frameBuf.data(), std::uint32_t(fw), std::uint32_t(fh));
