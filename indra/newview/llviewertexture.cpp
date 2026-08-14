@@ -688,7 +688,7 @@ F32 LLViewerTexture::getSystemMemoryBudgetFactor()
         // Leave some padding, otherwise we will crash out of memory before hitting factor 2.
         const S32Megabytes PAD_BUFFER(32);
         // Result should range from 1 at 0 free budget to 2 at -224 free budget, 2.14 at -256MB
-        return 1.f - free_budget / (MIN_FREE_MAIN_MEMORY - PAD_BUFFER);
+        return 1.f - (F32)free_budget / (MIN_FREE_MAIN_MEMORY - PAD_BUFFER);
     }
     return 1.f;
 }
