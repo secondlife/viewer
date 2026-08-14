@@ -997,10 +997,38 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
         coords_opengl = mMediaSource->getMediaTextureCoordsOpenGL();
     }
 
-    x = ll_round((F32)x * LLUI::getScaleFactor().mV[VX]);
+    F32 scale_x = LLUI::getScaleFactor().mV[VX];
+    F32 scale_y = LLUI::getScaleFactor().mV[VY];
+
+    // The embedded-browser backend's displayed content is always stretched to fill
+    // (width, height) regardless of the browser's own actual current render size (see
+    // calcOffsetsAndSize(), which skips aspect-ratio letterboxing for this backend) --
+    // getMediaWidth()/getMediaHeight() there is "the size of the last frame that
+    // happened to arrive," which can genuinely differ from the widget's current rect
+    // for as long as an in-flight resize hasn't caught up yet (see
+    // LLEmbeddedBrowserTab::resize()'s own comment: it doesn't update the reported
+    // size until a frame published at the new size actually arrives). Scale by the
+    // real ratio between the browser's own size and the displayed rect, not just the
+    // UI scale factor, so a click at the edge of the DISPLAYED image lands at the edge
+    // of the browser's ACTUAL content instead of drifting short of/past it by however
+    // stale that gap currently is. The drift grows with distance from the origin,
+    // which is why this shows up as "increasingly wrong toward the bottom" of a widget
+    // rather than a constant, easily-dismissed offset.
+    if (mMediaSource && mMediaSource->isUsingEmbeddedBrowser() && width > 0 && height > 0)
+    {
+        const S32 media_width  = mMediaSource->getMediaWidth();
+        const S32 media_height = mMediaSource->getMediaHeight();
+        if (media_width > 0 && media_height > 0)
+        {
+            scale_x = (F32)media_width  / (F32)width;
+            scale_y = (F32)media_height / (F32)height;
+        }
+    }
+
+    x = ll_round((F32)x * scale_x);
     if ( ! coords_opengl )
     {
-        y = ll_round((F32)(y) * LLUI::getScaleFactor().mV[VY]);
+        y = ll_round((F32)(y) * scale_y);
     }
     else
     {
@@ -1011,7 +1039,7 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
         // (larger) height here throws Y off by exactly the centering offset -- invisible
         // when the widget's aspect ratio happens to match the media's (no centering), and
         // growing right along with the letterbox band otherwise.
-        y = ll_round((F32)(height - y) * LLUI::getScaleFactor().mV[VY]);
+        y = ll_round((F32)(height - y) * scale_y);
     };
 }
 
