@@ -53,6 +53,7 @@
 #include <filesystem>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
@@ -64,6 +65,25 @@ namespace {
 
 volatile std::sig_atomic_t g_run = 1;
 void on_signal(int) { g_run = 0; }
+
+// Set once a console is actually attached (see show_debug_console()) --
+// gates whether log_*() below emit ANSI color codes at all, so output
+// stays plain if it's ever redirected somewhere colors don't make sense
+// (a log file, say) rather than filling it with raw escape sequences.
+bool g_console_enabled = false;
+
+// A small, deliberately ad hoc set of colored loggers -- info/connect/
+// disconnect today, more as needed later. Not a general logging
+// framework; just enough structure that adding another call site is a
+// one-line thing rather than reinventing formatting each time.
+void log_line(const char* color, const std::string& msg)
+{
+    if (g_console_enabled) std::cout << color << msg << "\x1b[0m\n";
+    else                    std::cout << msg << "\n";
+}
+void log_info(const std::string& msg)       { log_line("\x1b[33m", msg); } // yellow
+void log_connect(const std::string& msg)    { log_line("\x1b[32m", msg); } // green
+void log_disconnect(const std::string& msg) { log_line("\x1b[31m", msg); } // red
 
 // How long a slot may sit with nobody attached before its browser is
 // destroyed and the index freed for reuse. Deliberately longer, and a
@@ -125,6 +145,8 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     s.height         = kDefaultHeight;
     s.had_subscriber = false;
     s.last_active    = now;
+
+    log_connect("slot " + std::to_string(index) + " connected");
 
     // One-shot, sent before any frames: lets the consumer show which
     // llCefBrowser/CEF/Chromium build is actually in play without needing to
@@ -216,8 +238,9 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
 // then discards the Slot, which is what actually releases the llshmframe
 // segment. Not the other order: clearing the Slot first would lose the
 // handle needed to destroy the browser at all.
-void free_slot(Slot& s, llCefBrowserManager& manager)
+void free_slot(Slot& s, int index, llCefBrowserManager& manager, const std::string& reason)
 {
+    log_disconnect("slot " + std::to_string(index) + " disconnected (" + reason + ")");
     manager.DestroyBrowser(s.cefHandle);
     s = Slot{};
 }
@@ -248,6 +271,18 @@ void show_debug_console()
     freopen_s(&fp, "CONOUT$", "w", stdout);
     freopen_s(&fp, "CONOUT$", "w", stderr);
     freopen_s(&fp, "CONIN$",  "r", stdin);
+
+    // A freshly allocated Windows console does not interpret ANSI escape
+    // codes by default, even on a VT100-capable build of Windows -- has to
+    // be turned on explicitly per console.
+    HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode = 0;
+    if (GetConsoleMode(out, &mode))
+    {
+        SetConsoleMode(out, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    }
+
+    g_console_enabled = true;
 }
 
 } // namespace
@@ -295,9 +330,9 @@ int run_producer(int argc, char** argv)
         return 1;
     }
 
-    std::cout << "SLCefProducer: llCefBrowser " << llCefBrowserLib::GetVersion()
-              << ", CEF " << llCefBrowserLib::GetCefVersion()
-              << ", Chromium " << llCefBrowserLib::GetChromiumVersion() << "\n";
+    log_info("SLCefProducer: llCefBrowser " + llCefBrowserLib::GetVersion() +
+             ", CEF " + llCefBrowserLib::GetCefVersion() +
+             ", Chromium " + llCefBrowserLib::GetChromiumVersion());
 
     // One shared browser-context cache for every browser this process
     // creates -- a subdirectory of rootCachePath, matching llCefBrowser's
@@ -327,11 +362,15 @@ int run_producer(int argc, char** argv)
         return 1;
     }
 
-    std::cout << "SLCefProducer: control channel ready, up to " << slot_count
-              << " concurrent view(s) (" << kChannelPrefix << "0.." << (slot_count - 1) << "), "
-              << (worst_case_bytes / (1024 * 1024)) << " MiB ceiling if all " << slot_count
-              << " were active at once at " << kMaxWidth << "x" << kMaxHeight << " each -- "
-              << "0 committed until requested\n";
+    {
+        std::ostringstream banner;
+        banner << "SLCefProducer: control channel ready, up to " << slot_count
+               << " concurrent view(s) (" << kChannelPrefix << "0.." << (slot_count - 1) << "), "
+               << (worst_case_bytes / (1024 * 1024)) << " MiB ceiling if all " << slot_count
+               << " were active at once at " << kMaxWidth << "x" << kMaxHeight << " each -- "
+               << "0 committed until requested";
+        log_info(banner.str());
+    }
 
     LLCommand cmd;
 
@@ -372,8 +411,9 @@ int run_producer(int argc, char** argv)
         llCefBrowserLib::DoMessageLoopWork();
         manager->Tick();
 
-        for (auto& s : slots)
+        for (std::size_t i = 0; i < slots.size(); ++i)
         {
+            Slot& s = slots[i];
             if (!s.pub) continue;
 
             const bool has_sub = s.pub->has_subscriber();
@@ -383,7 +423,7 @@ int run_producer(int argc, char** argv)
                 // Almost certainly a crashed consumer, not a merely-idle
                 // one: reclaim now rather than waiting out the softer idle
                 // grace period below.
-                free_slot(s, *manager);
+                free_slot(s, int(i), *manager, "crashed consumer");
                 continue;
             }
 
@@ -392,19 +432,37 @@ int run_producer(int argc, char** argv)
                 s.had_subscriber = true;
                 s.last_active    = now;
             }
-            else if (now - s.last_active >= kIdleGracePeriod)
+            else
             {
-                free_slot(s, *manager);
-                continue;
+                if (s.had_subscriber)
+                {
+                    // Edge-triggered, logged the moment the viewer's own subscriber
+                    // cleanly detaches -- separate from (and well before) the actual
+                    // teardown below, which deliberately waits out kIdleGracePeriod
+                    // in case the same consumer reconnects shortly (closing and
+                    // reopening the same floater quickly reuses this browser instead
+                    // of forcing a fresh navigate/reload).
+                    log_disconnect("slot " + std::to_string(i) + " viewer detached (grace period running)");
+                    s.had_subscriber = false;
+                }
+
+                if (now - s.last_active >= kIdleGracePeriod)
+                {
+                    free_slot(s, int(i), *manager, "idle timeout");
+                    continue;
+                }
             }
 
             while (s.pub->receive(cmd))
             {
                 switch (cmd.type)
                 {
-                case kSetUrl:
-                    manager->Navigate(s.cefHandle, std::string(cmd.text()));
+                case kSetUrl: {
+                    const std::string url(cmd.text());
+                    log_connect("slot " + std::to_string(i) + " -> " + url);
+                    manager->Navigate(s.cefHandle, url);
                     break;
+                }
 
                 case kExecuteJavaScript:
                     manager->ExecuteJavaScript(s.cefHandle, std::string(cmd.text()));
@@ -486,7 +544,7 @@ int run_producer(int argc, char** argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    std::cout << "SLCefProducer: shutting down\n";
+    log_info("SLCefProducer: shutting down");
 
     manager->DestroyAll();
     // Pump a few more turns so each async close handshake finishes before
