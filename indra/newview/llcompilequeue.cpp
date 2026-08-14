@@ -52,7 +52,6 @@
 #include "lldir.h"
 #include "llnotificationsutil.h"
 #include "llviewerstats.h"
-#include "llfilesystem.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
 
@@ -61,7 +60,6 @@
 
 #include "llviewerassetupload.h"
 #include "llcorehttputil.h"
-#include "llpreviewscript.h"
 
 namespace
 {
@@ -463,31 +461,22 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
 
     LLUUID assetId = result["asset_id"];
 
-    // Check if this is a SLua script that shouldn't be recompiled to Mono/LSL
-    if (compile_target == "mono" || compile_target == "lsl2")
-    {
-        // Read the script from cache to check its type
-        LLFileSystem file(assetId, LLAssetType::AT_LSL_TEXT, LLFileSystem::READ);
-        if (file.getSize() > 0)
-        {
-            S32 file_length = file.getSize();
-            std::vector<char> buffer(file_length + 1);
-            file.read((U8*)&buffer[0], file_length);
-            buffer[file_length] = 0;
-            std::string script_text(&buffer[0]);
+    const bool script_is_lua = item->getInventorySubType() == SST_LUA;
+    const bool target_is_lua = compile_target == "luau";
+    const bool incompatible_language = target_is_lua != script_is_lua;
 
-            if (is_lua_script(script_text))
-            {
-                // This is a SLua script - skip it with a warning
-                LLStringUtil::format_map_t args;
-                args["[SCRIPT_NAME]"] = inventory->getName();
-                args["[TARGET]"] = (compile_target == "mono") ? "Mono" : "LSL";
-                std::string buffer = floater->getString("SkippingSluaScript", args);
-                floater->addStringMessage(buffer);
-                LL_INFOS("SCRIPTQ") << "Skipping SLua script: " << inventory->getName() << LL_ENDL;
-                return true;
-            }
-        }
+    // Lua and LSL use different source languages, so do not send an incompatible
+    // script to the compiler. The inventory subtype identifies the source language.
+    if (incompatible_language)
+    {
+        LLStringUtil::format_map_t args;
+        args["[SCRIPT_NAME]"] = inventory->getName();
+        args["[TARGET]"] = compile_target;
+        std::string buffer = floater->getString("SkippingIncompatibleScript", args);
+        floater->addStringMessage(buffer);
+        LL_INFOS("SCRIPTQ") << "Skipping incompatible script: " << inventory->getName()
+            << " (target " << compile_target << ")" << LL_ENDL;
+        return true;
     }
 
     std::string url = object->getRegion()->getCapability("UpdateScriptTask");

@@ -1392,6 +1392,24 @@ function="World.EnvPreset"
                function="EditableSelected" />
           </menu_item_call>
           <menu_item_call
+             label="Recompile Scripts (Lua)"
+             name="Lua">
+            <menu_item_call.on_click
+               function="Tools.SelectedScriptAction"
+               parameter="compile lua" />
+            <menu_item_call.on_enable
+               function="EditableSelectedLua" />
+          </menu_item_call>
+          <menu_item_call
+             label="Recompile Scripts (LSL on Luau)"
+             name="LSL on Luau">
+            <menu_item_call.on_click
+               function="Tools.SelectedScriptAction"
+               parameter="compile lsl-luau" />
+            <menu_item_call.on_enable
+               function="EditableSelectedLua" />
+          </menu_item_call>
+          <menu_item_call
              label="Reset Scripts"
              name="Reset Scripts">
             <menu_item_call.on_click
