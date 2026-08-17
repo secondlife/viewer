@@ -1535,11 +1535,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f685d7f21e11b4feeefa13729dee92ce868dbbf4</string>
+              <string>e68978fa70bba9a3d709283859ec2e8779982352</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>file:///C:/work/llcefbrowser/llcefbrowser-0.15.0-windows64-262260223.tar.bz2</string>
+              <string>file:///C:/work/llcefbrowser/llcefbrowser-0.17.0-windows64-262270013.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
