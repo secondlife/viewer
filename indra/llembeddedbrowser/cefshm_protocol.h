@@ -67,6 +67,12 @@ namespace cefshm_demo
         kExecuteJavaScript = 21, // text payload: JS source, straight into
                           // llCefBrowserManager::ExecuteJavaScript() -- fire-and-forget, no result
                           // is returned (matching LLPluginClassMedia::executeJavaScript() itself)
+        kSetPageZoom = 24, // data = {float32 zoomFactor} -- a plain 1.0-centered scale factor,
+                          // straight into llCefBrowserManager::SetPageZoom(). Mirrors the legacy
+                          // plugin's set_page_zoom_factor: zooms the page's rendered content
+                          // without changing the pixel buffer size (see LLMediaCtrl::reshape()'s
+                          // embedded-browser special case, which keeps the requested width/height
+                          // unscaled and routes LLUI::getScaleFactor() through here instead).
 
         // consumer -> producer, control channel only
         kRequestSlot     = 5, // empty payload
@@ -156,6 +162,21 @@ namespace cefshm_demo
     {
         if (n < 4) return false;
         v = std::uint32_t(d[0]) | (std::uint32_t(d[1])<<8) | (std::uint32_t(d[2])<<16) | (std::uint32_t(d[3])<<24);
+        return true;
+    }
+
+    inline std::uint32_t pack_f32(std::uint8_t* d, float v)
+    {
+        std::uint32_t bits;
+        std::memcpy(&bits, &v, sizeof(bits));
+        return pack_u32(d, bits);
+    }
+
+    inline bool unpack_f32(const std::uint8_t* d, std::size_t n, float& v)
+    {
+        std::uint32_t bits;
+        if (!unpack_u32(d, n, bits)) return false;
+        std::memcpy(&v, &bits, sizeof(v));
         return true;
     }
 

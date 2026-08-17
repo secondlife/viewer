@@ -542,8 +542,18 @@ void LLMediaCtrl::reshape( S32 width, S32 height, bool called_from_parent )
 {
     if(!getDecoupleTextureSize())
     {
-        S32 screen_width = ll_round((F32)width * LLUI::getScaleFactor().mV[VX]);
-        S32 screen_height = ll_round((F32)height * LLUI::getScaleFactor().mV[VY]);
+        // The embedded-browser backend keeps its pixel buffer at the widget's raw,
+        // unscaled size -- UI scaling is applied as a page zoom instead (see
+        // ensureMediaSourceExists()/draw()'s setPageZoomFactor() calls), not as a
+        // resize. Baking LLUI::getScaleFactor() into the requested buffer size here
+        // (as the legacy plugin path still does, below) would ask CEF to actually
+        // resize its browser every time the scale changes, which is real, disruptive
+        // work rather than a cheap re-render -- and see llCefBrowser::
+        // CheckResizeWatchdog(), whose exact-match resize confirmation makes a
+        // never-quite-settling resize show up as a persistent flicker.
+        bool use_embedded = mMediaSource && mMediaSource->isUsingEmbeddedBrowser();
+        S32 screen_width = use_embedded ? width : ll_round((F32)width * LLUI::getScaleFactor().mV[VX]);
+        S32 screen_height = use_embedded ? height : ll_round((F32)height * LLUI::getScaleFactor().mV[VY]);
 
         // when floater is minimized, these sizes are negative
         if ( screen_height > 0 && screen_width > 0 )

@@ -514,6 +514,13 @@ int run_producer(int argc, char** argv)
                     }
                     break;
                 }
+                case kSetPageZoom: {
+                    float zoom;
+                    if (unpack_f32(cmd.data.data(), cmd.data.size(), zoom)) {
+                        manager->SetPageZoom(s.cefHandle, zoom);
+                    }
+                    break;
+                }
                 case kFileDialogResponse: {
                     std::int64_t dialogId;
                     std::vector<std::string> filePaths;

@@ -1783,6 +1783,14 @@ void LLViewerMediaImpl::createMediaSource()
         // re-escaped (see LLURI::escapePathAndData()'s dedicated data: handling) to parse
         // correctly -- plain http(s) URLs pass through this unchanged either way.
         mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height);
+        // setPageZoomFactor() may have already updated mZoomFactor before this tab
+        // existed (e.g. ensureMediaSourceExists()'s own call, which runs right before
+        // this) -- apply whatever it currently is now that there's a real tab to send
+        // it to, rather than relying on that earlier call having reached anything.
+        if (mZoomFactor != 1.0)
+        {
+            LLEmbeddedBrowser::getInstance()->setPageZoom(mEmbeddedBrowserId, (float)mZoomFactor);
+        }
         return;
     }
 
@@ -2347,9 +2355,21 @@ void LLViewerMediaImpl::clearCache()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::setPageZoomFactor( double factor )
 {
-    if(mMediaSource && factor != mZoomFactor)
+    if (factor == mZoomFactor)
     {
-        mZoomFactor = factor;
+        return;
+    }
+    mZoomFactor = factor;
+
+    if (mUseEmbeddedBrowser)
+    {
+        // Applied live if the tab already exists; otherwise a no-op here, picked up
+        // by the current mZoomFactor applied right after tab creation in
+        // createMediaSource() below.
+        LLEmbeddedBrowser::getInstance()->setPageZoom(mEmbeddedBrowserId, (float)factor);
+    }
+    else if (mMediaSource)
+    {
         mMediaSource->set_page_zoom_factor( factor );
     }
 }

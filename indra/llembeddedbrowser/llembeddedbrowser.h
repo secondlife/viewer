@@ -117,6 +117,9 @@ class LLEmbeddedBrowserTab
         bool copyPixels(std::vector<unsigned char>& out_pixels, unsigned int& out_width, unsigned int& out_height);
         void navigate(const std::string& url);
         void resize(unsigned int width, unsigned int height);
+        // Zooms the page's rendered content (CSS-pixel-level, like a browser's Ctrl+/Ctrl-)
+        // without touching the pixel buffer size -- see LLViewerMediaImpl::setPageZoomFactor().
+        void setPageZoom(float zoom);
         // Fire-and-forget, matching LLPluginClassMedia::executeJavaScript() -- no result is
         // returned to the caller.
         void executeJavaScript(const std::string& code);
@@ -195,6 +198,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         unsigned int getHeight(unsigned int id);
         void navigate(unsigned int id, const std::string& url);
         void resize(unsigned int id, unsigned int width, unsigned int height);
+        void setPageZoom(unsigned int id, float zoom);
         void executeJavaScript(unsigned int id, const std::string& code);
 
         void mouseMove(unsigned int id, int x, int y);

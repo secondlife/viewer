@@ -373,6 +373,17 @@ void LLEmbeddedBrowserTab::resize(unsigned int width, unsigned int height)
     }
 }
 
+void LLEmbeddedBrowserTab::setPageZoom(float zoom)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::uint8_t payload[4];
+        pack_f32(payload, zoom);
+        mSub->send(kSetPageZoom, payload, 4);
+    }
+}
+
 void LLEmbeddedBrowserTab::mouseMove(int x, int y)
 {
     LLMutexLock lock(&mPixelMutex);
@@ -657,6 +668,14 @@ void LLEmbeddedBrowser::resize(unsigned int id, unsigned int width, unsigned int
     if (auto tab = findTab(id))
     {
         tab->resize(width, height);
+    }
+}
+
+void LLEmbeddedBrowser::setPageZoom(unsigned int id, float zoom)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->setPageZoom(zoom);
     }
 }
 
