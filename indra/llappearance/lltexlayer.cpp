@@ -1430,6 +1430,15 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
                 // We should only be doing this when we believe something has changed with respect to the user's appearance.
         {
             LL_DEBUGS("Morph") << "gl alpha cache of morph mask not found, doing readback: " << getName() << LL_ENDL;
+
+            // Replace the cached mask without leaking its old allocation.
+            alpha_cache_t::iterator cached = mAlphaCache.find(cache_index);
+            if (cached != mAlphaCache.end())
+            {
+                ll_aligned_free_32(cached->second);
+                mAlphaCache.erase(cached);
+            }
+
             // clear out a slot if we have filled our cache
             S32 max_cache_entries = getTexLayerSet()->getAvatarAppearance()->isSelf() ? 4 : 1;
             while ((S32)mAlphaCache.size() >= max_cache_entries)
@@ -1466,6 +1475,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
                     U8* temp = (U8*)ll_aligned_malloc_32(mem_size << 2); // allocate same size, but RGBA
                     if (!temp)
                     {
+                        ll_aligned_free_32(alpha_data);
                         LLError::LLUserWarningMsg::showOutOfMemory();
                         LL_ERRS() << "Failed to allocate temporary memory for morph texture readback: " << (S32)(mem_size << 2) << LL_ENDL;
                         return;
@@ -1508,6 +1518,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
                     U8* temp_data = (U8*)ll_aligned_malloc_32(mem_size * TEMP_BYTES_PER_PIXEL);
                     if (!temp_data)
                     {
+                        ll_aligned_free_32(alpha_data);
                         LLError::LLUserWarningMsg::showOutOfMemory();
                         LL_ERRS() << "Failed to allocate temporary memory for morph texture: " << (S32)(mem_size * TEMP_BYTES_PER_PIXEL) << LL_ENDL;
                         return;
