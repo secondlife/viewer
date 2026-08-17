@@ -145,6 +145,11 @@ void LLBuyCurrencyHTML::openCurrencyFloater( const std::string& message, S32 sum
     if (gSavedSettings.getBOOL("BuyCurrencyHTML") && sWebFloaterEnabled)
     {
         LLBuyCurrencyHTML::showDialog(sum - gStatusBar->getBalance());
+        LLFloaterBuyCurrencyHTML* floater = dynamic_cast<LLFloaterBuyCurrencyHTML*>(LLFloaterReg::getInstance("buy_currency_html"));
+        if (floater)
+        {
+            floater->setFallbackContext(message, sum);
+        }
     }
     else
     {

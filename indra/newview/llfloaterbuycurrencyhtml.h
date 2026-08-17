@@ -44,10 +44,16 @@ public:
 
     void navigateToFinalURL();
     void setShortfall(S32 shortfall) { mShortfall = shortfall; }
+    void setFallbackContext(const std::string& message, S32 sum);
     static std::string buildURL(S32 shortfall = 0);
 
 private:
+    void fallbackToLegacy();
+
     LLMediaCtrl* mBrowser;
     S32 mShortfall{0};
+    bool mHasFallbackTarget{false};
+    std::string mFallbackMessage;
+    S32 mFallbackSum{0};
 };
 

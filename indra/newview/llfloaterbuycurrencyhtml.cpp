@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterbuycurrencyhtml.h"
+#include "llfloaterbuycurrency.h"
 #include "llmediactrl.h"
 #include "llstatusbar.h"
 #include "llviewercontrol.h"
@@ -83,11 +84,48 @@ void LLFloaterBuyCurrencyHTML::navigateToFinalURL()
     mBrowser->navigateTo(buildURL(mShortfall), HTTP_CONTENT_TEXT_HTML);
 }
 
+void LLFloaterBuyCurrencyHTML::setFallbackContext(const std::string& message, S32 sum)
+{
+    mFallbackMessage = message;
+    mFallbackSum = sum;
+    mHasFallbackTarget = true;
+}
+
+void LLFloaterBuyCurrencyHTML::fallbackToLegacy()
+{
+    LL_WARNS() << "Buy Currency HTML page failed to load, falling back to legacy floater" << LL_ENDL;
+    closeFloater();
+    if (mHasFallbackTarget)
+    {
+        LLFloaterBuyCurrency::buyCurrency(mFallbackMessage, mFallbackSum);
+    }
+    else
+    {
+        LLFloaterBuyCurrency::buyCurrency();
+    }
+}
+
 void LLFloaterBuyCurrencyHTML::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 {
-    if ((LLPluginClassMediaOwner::MEDIA_EVENT_NAVIGATE_COMPLETE == event) &&
-        (self->getNavigateURI().find("done=success") != std::string::npos))
+    if (LLPluginClassMediaOwner::MEDIA_EVENT_NAVIGATE_COMPLETE == event)
     {
-        LLStatusBar::sendMoneyBalanceRequest();
+        if (self->getNavigateURI().find("done=success") != std::string::npos)
+        {
+            LLStatusBar::sendMoneyBalanceRequest();
+        }
+        else
+        {
+            // HTTP 4xx/5xx: fall back to legacy floater
+            if (self->getNavigateResultCode() >= 400)
+            {
+                fallbackToLegacy();
+            }
+        }
+    }
+    else if (event == LLPluginClassMediaOwner::MEDIA_EVENT_NAVIGATE_ERROR_PAGE ||
+             event == LLPluginClassMediaOwner::MEDIA_EVENT_PLUGIN_FAILED_LAUNCH ||
+             event == LLPluginClassMediaOwner::MEDIA_EVENT_PLUGIN_FAILED)
+    {
+        fallbackToLegacy();
     }
 }
