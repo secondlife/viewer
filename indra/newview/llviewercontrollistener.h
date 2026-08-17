@@ -41,6 +41,7 @@ public:
 
 private:
     static void set(LLSD const & event_data);
+    static void set_notation(LLSD const & event_data);
     static void toggle(LLSD const & event_data);
     static void get(LLSD const & event_data);
     static void groups(LLSD const & event_data);
