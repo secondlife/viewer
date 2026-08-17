@@ -4794,6 +4794,16 @@ void LLAppViewer::loadKeyBindings()
 void LLAppViewer::purgeCefStaleCaches()
 {
     LL_PROFILE_ZONE_SCOPED;
+    if (gSavedSettings.getBOOL("UseEmbeddedBrowser"))
+    {
+        // "cef_cache" is only ever created by the legacy media_plugin_cef path (one
+        // throwaway per-process-id folder per plugin instance, hence this cleanup);
+        // the embedded-browser backend's own persistent profile lives at a sibling
+        // "cef_profile" path specifically so this purge never touches it (see
+        // LLEmbeddedBrowser::launchProducer()). Skip the work entirely once the
+        // legacy plugin path is never taken.
+        return;
+    }
     // TODO: we really shouldn't use a hard coded name for the cache folder here...
     const std::string browser_parent_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
     if (!LLFile::isdir(browser_parent_cache))
