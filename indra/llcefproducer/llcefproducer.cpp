@@ -121,7 +121,7 @@ struct Slot
 // segment. Leaves s untouched on failure, cleaning up whichever half of the
 // pair (if either) already succeeded.
 bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manager,
-                    std::chrono::steady_clock::time_point now)
+                    std::chrono::steady_clock::time_point now, bool isUI)
 {
     cfg.name              = kChannelPrefix + std::to_string(index);
     cfg.max_command_bytes = kMaxCommandBytes;
@@ -133,7 +133,7 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
         return false;
     }
 
-    llCefBrowserHandle handle = manager.CreateBrowser("about:blank", int(kDefaultWidth), int(kDefaultHeight));
+    llCefBrowserHandle handle = manager.CreateBrowser("about:blank", int(kDefaultWidth), int(kDefaultHeight), isUI);
     if (!handle.IsValid()) {
         std::cerr << "slot " << index << ": CreateBrowser failed\n";
         return false; // pub destructs here, cleanly unlinking the segment we just made
@@ -351,7 +351,11 @@ int run_producer(int argc, char** argv)
     // before llCefBrowserLib::Shutdown() runs, not merely by the time
     // run_producer() returns -- a plain local's destructor would run too
     // late, after Shutdown() rather than before it.
-    auto manager = std::make_unique<llCefBrowserManager>((cache_dir / "Default").string());
+    // Two separate cache/cookie contexts -- "Default" for 2D floater/UI media, "Prim"
+    // for in-world/prim media -- so a cookie set on one (see kSetOpenIDCookie) is never
+    // visible to the other. See llCefBrowserManager::CreateBrowser()'s own isUI param.
+    auto manager = std::make_unique<llCefBrowserManager>((cache_dir / "Default").string(),
+                                                          (cache_dir / "Prim").string());
 
     LLConfig view_cfg; // template for whichever index gets allocated on demand
     view_cfg.max_width  = kMaxWidth;
@@ -393,13 +397,26 @@ int run_producer(int argc, char** argv)
         while (control->receive(cmd))
         {
             if (cmd.type == kShutdownProducer) { g_run = 0; continue; }
+            if (cmd.type == kSetOpenIDCookie)
+            {
+                std::string url, name, value, domain, path;
+                bool httpOnly, secure, alsoPrimContext;
+                if (unpack_openid_cookie(cmd.data.data(), cmd.data.size(), url, name, value, domain, path,
+                                         httpOnly, secure, alsoPrimContext))
+                {
+                    manager->SetCookie(url, name, value, domain, path, httpOnly, secure, nullptr, alsoPrimContext);
+                }
+                continue;
+            }
             if (cmd.type != kRequestSlot) continue;
+
+            const bool isUI = cmd.data.empty() || cmd.data[0] != 0;
 
             int free_index = -1;
             for (int i = 0; i < slot_count; ++i)
                 if (!slots[std::size_t(i)].pub) { free_index = i; break; }
 
-            if (free_index < 0 || !allocate_slot(slots[std::size_t(free_index)], free_index, view_cfg, *manager, now))
+            if (free_index < 0 || !allocate_slot(slots[std::size_t(free_index)], free_index, view_cfg, *manager, now, isUI))
             {
                 control->send(kSlotUnavailable, nullptr, 0, cmd.id);
                 continue;

@@ -1387,6 +1387,26 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
                             }
                         }
                     }
+
+                    // Embedded-browser equivalent of the legacy per-instance
+                    // injectOpenIDCookie() mechanism above: unlike the legacy plugin's one-
+                    // isolated-cache-per-process model, every embedded-browser tab within a
+                    // context already shares one cookie store (see llCefBrowserManagerImpl's
+                    // UI/prim CefRequestContext split), so setting it once here covers every
+                    // current and future tab in that context -- no per-instance loop needed.
+                    //
+                    // ==========================================================================
+                    // POLICY SWITCH: whether prim/in-world media also gets the OpenID login
+                    // cookie. Isolating it to 2D floater/UI media only (kShareOpenIDCookieWithPrimMedia
+                    // = false) is the more secure default -- prim content may be controlled by an
+                    // untrusted third party -- but some users/creators rely on the legacy
+                    // Viewer's behavior (which shares it with everything) for content that
+                    // expects the logged-in user's identity. Flip this one line to change policy
+                    // viewer-wide; no other code needs to change.
+                    static const bool kShareOpenIDCookieWithPrimMedia = true;
+                    // ==========================================================================
+                    LLEmbeddedBrowser::getInstance()->setOpenIDCookie(cefUrl, cookie_name, cookie_value,
+                        cookie_host, cookie_path, httponly, secure, kShareOpenIDCookieWithPrimMedia);
                 }
             });
     }
@@ -1782,7 +1802,7 @@ void LLViewerMediaImpl::createMediaSource()
         // Matches loadURI()'s legacy-plugin behavior: data: URIs need their payload
         // re-escaped (see LLURI::escapePathAndData()'s dedicated data: handling) to parse
         // correctly -- plain http(s) URLs pass through this unchanged either way.
-        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height);
+        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI);
         // setPageZoomFactor() may have already updated mZoomFactor before this tab
         // existed (e.g. ensureMediaSourceExists()'s own call, which runs right before
         // this) -- apply whatever it currently is now that there's a real tab to send

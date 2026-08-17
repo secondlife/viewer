@@ -78,7 +78,19 @@ namespace cefshm_demo
                           // unscaled and routes LLUI::getScaleFactor() through here instead).
 
         // consumer -> producer, control channel only
-        kRequestSlot     = 5, // empty payload
+        kRequestSlot     = 5, // data = {uint8 isUI} -- isUI selects which of the producer's two
+                          // CefRequestContexts (and therefore which cookie store) the new
+                          // browser is created in: true for 2D floater/UI media, false for
+                          // in-world/prim media. See llCefBrowserManager::CreateBrowser()'s own
+                          // isUI parameter and kSetOpenIDCookie below.
+        kSetOpenIDCookie = 26, // data = {5x (uint32 len, bytes): url, name, value, domain, path;
+                          // uint8 httpOnly; uint8 secure; uint8 alsoPrimContext} -- straight
+                          // into llCefBrowserManager::SetCookie(), which always targets the UI
+                          // context (see CreateBrowser's isUI) and mirrors into the prim
+                          // context too if alsoPrimContext is set. This carries the Viewer's
+                          // OpenID login cookie (see LLViewerMedia::getOpenIDCookieCoro()) --
+                          // alsoPrimContext is that call site's own static policy switch for
+                          // whether prim-hosted content should get it too.
         kShutdownProducer = 25, // empty payload -- asks the producer to exit its main loop and
                           // run its own graceful shutdown (llCefBrowserLib::Shutdown(), which
                           // flushes CEF's on-disk cookie/history/etc. stores) instead of being
@@ -389,6 +401,45 @@ namespace cefshm_demo
         line = std::int32_t(line_u);
         message.assign(reinterpret_cast<const char*>(d + 8), msg_len);
         source.assign(reinterpret_cast<const char*>(d + 8 + msg_len), n - 8 - msg_len);
+        return true;
+    }
+
+    inline std::uint32_t pack_openid_cookie(std::uint8_t* d, const std::string& url, const std::string& name,
+                                             const std::string& value, const std::string& domain,
+                                             const std::string& path, bool httpOnly, bool secure,
+                                             bool alsoPrimContext)
+    {
+        std::uint32_t n = 0;
+        for (const std::string* s : {&url, &name, &value, &domain, &path})
+        {
+            n += pack_u32(d + n, std::uint32_t(s->size()));
+            std::memcpy(d + n, s->data(), s->size());
+            n += std::uint32_t(s->size());
+        }
+        d[n++] = httpOnly ? 1 : 0;
+        d[n++] = secure ? 1 : 0;
+        d[n++] = alsoPrimContext ? 1 : 0;
+        return n;
+    }
+
+    inline bool unpack_openid_cookie(const std::uint8_t* d, std::size_t n, std::string& url, std::string& name,
+                                      std::string& value, std::string& domain, std::string& path,
+                                      bool& httpOnly, bool& secure, bool& alsoPrimContext)
+    {
+        std::size_t off = 0;
+        for (std::string* s : {&url, &name, &value, &domain, &path})
+        {
+            std::uint32_t len;
+            if (off + 4 > n || !unpack_u32(d + off, n - off, len)) return false;
+            off += 4;
+            if (off + len > n) return false;
+            s->assign(reinterpret_cast<const char*>(d + off), len);
+            off += len;
+        }
+        if (off + 3 > n) return false;
+        httpOnly        = d[off] != 0;
+        secure          = d[off + 1] != 0;
+        alsoPrimContext = d[off + 2] != 0;
         return true;
     }
 }

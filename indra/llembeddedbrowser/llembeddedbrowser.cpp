@@ -63,10 +63,13 @@ namespace {
     constexpr auto kSlotRequestTimeout        = std::chrono::seconds(2);
     constexpr auto kSlotReplyPollInterval     = std::chrono::milliseconds(5);
 
+    // How long a one-shot, best-effort control-channel broadcast (kShutdownProducer,
+    // kSetOpenIDCookie) will retry claiming the channel before giving up silently.
+    constexpr auto kControlBroadcastTimeout = std::chrono::milliseconds(500);
+
     // How long LLEmbeddedBrowser::reset() waits for a graceful kShutdownProducer
     // request to actually exit the producer before giving up and falling back to
     // LLProcess::kill() (a hard TerminateProcess() on Windows, no cleanup at all).
-    constexpr auto kShutdownClaimTimeout = std::chrono::milliseconds(500);
     constexpr auto kShutdownGracePeriod  = std::chrono::seconds(2);
     constexpr auto kShutdownPollInterval = std::chrono::milliseconds(50);
 
@@ -83,7 +86,8 @@ namespace {
     constexpr auto kRelaunchBackoff     = std::chrono::seconds(5);
 }
 
-LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height) :
+LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI) :
+    mIsUI(isUI),
     mWidth(width),
     mHeight(height),
     mRequestedWidth(width),
@@ -146,7 +150,8 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     }
 
     std::uint64_t req_id = 0;
-    if (!ctrl->send(kRequestSlot, nullptr, 0, 0, &req_id))
+    const std::uint8_t isUIByte = mIsUI ? 1 : 0;
+    if (!ctrl->send(kRequestSlot, &isUIByte, 1, 0, &req_id))
     {
         return false;
     }
@@ -498,34 +503,60 @@ unsigned int LLEmbeddedBrowserTab::getHeight() const
 }
 
 namespace {
-    // Asks a running producer to shut down gracefully (kShutdownProducer) rather than
-    // being killed outright -- see that opcode's own comment in cefshm_protocol.h.
-    // Best-effort: returns immediately, without sending anything, if no producer is
-    // reachable or the control channel can't be claimed quickly -- LLEmbeddedBrowser::
-    // reset()'s own kill() fallback handles both of those cases either way. Does not
-    // itself wait for the producer to actually exit; the caller does that.
-    void requestGracefulShutdown()
+    // Claims the control channel for a single fire-and-forget broadcast, retrying for
+    // up to timeout. Returns a connected, owning LLSubscriber, or nullptr if no
+    // producer is reachable right now or the channel couldn't be claimed in time --
+    // both are silently-fine outcomes for every caller below (a best-effort broadcast
+    // to a producer that isn't running, or isn't running yet, has nothing to reach).
+    std::unique_ptr<LLSubscriber> claimControlChannel(std::chrono::milliseconds timeout)
     {
-        std::unique_ptr<LLSubscriber> ctrl;
-        const auto claim_deadline = std::chrono::steady_clock::now() + kShutdownClaimTimeout;
+        const auto claim_deadline = std::chrono::steady_clock::now() + timeout;
         for (;;)
         {
-            ctrl = LLSubscriber::open(kControlChannelName);
+            auto ctrl = LLSubscriber::open(kControlChannelName);
             if (!ctrl->connected())
             {
-                return;
+                return nullptr;
             }
-            if (ctrl->owns_command_channel()) break;
-
+            if (ctrl->owns_command_channel())
+            {
+                return ctrl;
+            }
             if (std::chrono::steady_clock::now() >= claim_deadline)
             {
-                return;
+                return nullptr;
             }
-            ctrl.reset();
             std::this_thread::sleep_for(kControlClaimRetryInterval);
         }
+    }
 
-        ctrl->send(kShutdownProducer);
+    // Asks a running producer to shut down gracefully (kShutdownProducer) rather than
+    // being killed outright -- see that opcode's own comment in cefshm_protocol.h.
+    // Does not itself wait for the producer to actually exit; the caller does that.
+    void requestGracefulShutdown()
+    {
+        if (auto ctrl = claimControlChannel(kControlBroadcastTimeout))
+        {
+            ctrl->send(kShutdownProducer);
+        }
+    }
+
+    // See LLEmbeddedBrowser::setOpenIDCookie()'s own comment.
+    void broadcastOpenIDCookie(const std::string& url, const std::string& name, const std::string& value,
+                               const std::string& domain, const std::string& path, bool httpOnly, bool secure,
+                               bool alsoPrimContext)
+    {
+        auto ctrl = claimControlChannel(kControlBroadcastTimeout);
+        if (!ctrl)
+        {
+            return;
+        }
+
+        std::vector<std::uint8_t> payload(url.size() + name.size() + value.size() + domain.size() +
+                                           path.size() + 5 * 4 + 3);
+        const std::uint32_t n = pack_openid_cookie(payload.data(), url, name, value, domain, path, httpOnly, secure,
+                                                    alsoPrimContext);
+        ctrl->send(kSetOpenIDCookie, payload.data(), n);
     }
 }
 
@@ -683,15 +714,22 @@ std::shared_ptr<LLEmbeddedBrowserTab> LLEmbeddedBrowser::findTab(unsigned int id
     return (it != mTabs.end()) ? it->second : nullptr;
 }
 
-unsigned int LLEmbeddedBrowser::create(const std::string& url, unsigned int width, unsigned int height)
+unsigned int LLEmbeddedBrowser::create(const std::string& url, unsigned int width, unsigned int height, bool isUI)
 {
     width = llmin(width, mMaxWidth);
     height = llmin(height, mMaxHeight);
 
     LLMutexLock lock(&mTabsMutex);
     unsigned int id = mNextTabId++;
-    mTabs[id] = std::make_shared<LLEmbeddedBrowserTab>(this, id, url, width, height);
+    mTabs[id] = std::make_shared<LLEmbeddedBrowserTab>(this, id, url, width, height, isUI);
     return id;
+}
+
+void LLEmbeddedBrowser::setOpenIDCookie(const std::string& url, const std::string& name, const std::string& value,
+                                        const std::string& domain, const std::string& path, bool httpOnly, bool secure,
+                                        bool alsoPrimContext)
+{
+    broadcastOpenIDCookie(url, name, value, domain, path, httpOnly, secure, alsoPrimContext);
 }
 
 void LLEmbeddedBrowser::setMaxDimensions(unsigned int max_width, unsigned int max_height)

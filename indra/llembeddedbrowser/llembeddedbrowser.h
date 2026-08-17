@@ -103,7 +103,10 @@ class LLEmbeddedBrowserUpdateThread :
 class LLEmbeddedBrowserTab
 {
     public:
-        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height);
+        // isUI: true for 2D floater/UI media, false for in-world/prim media -- selects
+        // which of the producer's two cookie-store contexts this tab's browser is
+        // created in (see kRequestSlot's own comment in cefshm_protocol.h).
+        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI);
         ~LLEmbeddedBrowserTab();
 
         void update();
@@ -171,6 +174,7 @@ class LLEmbeddedBrowserTab
         // events edge-triggered on the connected/disconnected transition rather than firing on
         // every poll/retry.
         bool mHadDisconnected = false;
+        const bool mIsUI;
         unsigned char* mPixels = nullptr;
         unsigned int mWidth = 0;
         unsigned int mHeight = 0;
@@ -196,9 +200,27 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void init();
         void reset();
 
-        unsigned int create(const std::string& url, unsigned int width, unsigned int height);
+        // isUI: true for 2D floater/UI media, false for in-world/prim media -- see
+        // LLEmbeddedBrowserTab's own constructor comment.
+        unsigned int create(const std::string& url, unsigned int width, unsigned int height, bool isUI);
         void destroy(unsigned int id);
         void update(unsigned int id);
+
+        // Broadcasts a cookie to the (currently or eventually) running producer's UI
+        // context, and -- only if alsoPrimContext is also true -- the prim context too
+        // (see kSetOpenIDCookie's own comment in cefshm_protocol.h; the caller's own
+        // static policy switch for this lives in LLViewerMedia::getOpenIDCookieCoro()).
+        // Not tied to any particular tab: this is the embedded-browser equivalent of
+        // LLPluginClassMedia::injectOpenIDCookie(), except CEF's cookie store is already
+        // shared by every tab within a context (unlike the legacy plugin's one-
+        // isolated-cache-per-process model), so setting it once here is sufficient for
+        // every current and future tab in that context -- no per-instance injection
+        // needed. Best-effort/fire-and-forget: silently does nothing if no producer is
+        // reachable right now (matches the legacy plugin's own "no OpenID cookie yet"
+        // no-op case, e.g. before login completes).
+        void setOpenIDCookie(const std::string& url, const std::string& name, const std::string& value,
+                              const std::string& domain, const std::string& path, bool httpOnly, bool secure,
+                              bool alsoPrimContext);
         void updateAll();
         const unsigned char* getPixels(unsigned int id);
         bool copyPixels(unsigned int id, std::vector<unsigned char>& out_pixels, unsigned int& out_width, unsigned int& out_height);
