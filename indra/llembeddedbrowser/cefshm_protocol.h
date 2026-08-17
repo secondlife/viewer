@@ -76,6 +76,14 @@ namespace cefshm_demo
 
         // consumer -> producer, control channel only
         kRequestSlot     = 5, // empty payload
+        kShutdownProducer = 25, // empty payload -- asks the producer to exit its main loop and
+                          // run its own graceful shutdown (llCefBrowserLib::Shutdown(), which
+                          // flushes CEF's on-disk cookie/history/etc. stores) instead of being
+                          // killed outright. See LLEmbeddedBrowser::reset(): a hard
+                          // TerminateProcess() (what LLProcess::kill() does on Windows) gives CEF
+                          // no chance to run any cleanup at all, which can lose cookies set only
+                          // moments earlier -- this is sent first, with kill() as a fallback only
+                          // if the producer doesn't exit on its own within a short grace period.
 
         // producer -> consumer, control channel only; reply_to = request id
         kSlotAssigned    = 6, // data = {uint32 slot index}

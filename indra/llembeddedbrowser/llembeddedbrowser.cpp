@@ -63,6 +63,13 @@ namespace {
     constexpr auto kSlotRequestTimeout        = std::chrono::seconds(2);
     constexpr auto kSlotReplyPollInterval     = std::chrono::milliseconds(5);
 
+    // How long LLEmbeddedBrowser::reset() waits for a graceful kShutdownProducer
+    // request to actually exit the producer before giving up and falling back to
+    // LLProcess::kill() (a hard TerminateProcess() on Windows, no cleanup at all).
+    constexpr auto kShutdownClaimTimeout = std::chrono::milliseconds(500);
+    constexpr auto kShutdownGracePeriod  = std::chrono::seconds(2);
+    constexpr auto kShutdownPollInterval = std::chrono::milliseconds(50);
+
     // Bounds how aggressively LLEmbeddedBrowser::maybeRelaunchProducer() will
     // respawn SLCefProducer: multiple tabs' background threads can all notice
     // "not running" within milliseconds of each other (debounced by the backoff
@@ -490,6 +497,38 @@ unsigned int LLEmbeddedBrowserTab::getHeight() const
     return mHeight;
 }
 
+namespace {
+    // Asks a running producer to shut down gracefully (kShutdownProducer) rather than
+    // being killed outright -- see that opcode's own comment in cefshm_protocol.h.
+    // Best-effort: returns immediately, without sending anything, if no producer is
+    // reachable or the control channel can't be claimed quickly -- LLEmbeddedBrowser::
+    // reset()'s own kill() fallback handles both of those cases either way. Does not
+    // itself wait for the producer to actually exit; the caller does that.
+    void requestGracefulShutdown()
+    {
+        std::unique_ptr<LLSubscriber> ctrl;
+        const auto claim_deadline = std::chrono::steady_clock::now() + kShutdownClaimTimeout;
+        for (;;)
+        {
+            ctrl = LLSubscriber::open(kControlChannelName);
+            if (!ctrl->connected())
+            {
+                return;
+            }
+            if (ctrl->owns_command_channel()) break;
+
+            if (std::chrono::steady_clock::now() >= claim_deadline)
+            {
+                return;
+            }
+            ctrl.reset();
+            std::this_thread::sleep_for(kControlClaimRetryInterval);
+        }
+
+        ctrl->send(kShutdownProducer);
+    }
+}
+
 LLEmbeddedBrowser::LLEmbeddedBrowser()
 {
     //std::cout << "LLEmbeddedBrowser created" << std::endl;
@@ -517,7 +556,25 @@ void LLEmbeddedBrowser::reset()
 {
     {
         LLMutexLock lock(&mProducerMutex);
-        LLProcess::kill(mProducerProcess); // null-safe -- harmless if init() never launched one
+        if (LLProcess::isRunning(mProducerProcess))
+        {
+            // Ask nicely first: LLProcess::kill() is a hard TerminateProcess() on
+            // Windows (see its own implementation -- apr_proc_kill() with sig = -1),
+            // which gives CEF's on-disk cookie/history/etc. stores no chance to flush
+            // whatever they haven't yet committed. Wait out a short grace period for
+            // the producer to exit on its own before falling back to the hard kill
+            // below, which still runs unconditionally as a safety net (a hung/
+            // unresponsive producer, or one that never got the request at all,
+            // must not block Viewer shutdown).
+            requestGracefulShutdown();
+
+            const auto deadline = std::chrono::steady_clock::now() + kShutdownGracePeriod;
+            while (LLProcess::isRunning(mProducerProcess) && std::chrono::steady_clock::now() < deadline)
+            {
+                std::this_thread::sleep_for(kShutdownPollInterval);
+            }
+        }
+        LLProcess::kill(mProducerProcess); // null-safe -- also a no-op if it already exited above
         mProducerProcess.reset();
     }
 
@@ -552,6 +609,21 @@ bool LLEmbeddedBrowser::launchProducer()
     {
         params.args.add("--console");
     }
+    // SLCefProducer.exe is a standalone process with no gDirUtilp of its own, so it
+    // can't compute the per-user cache location itself -- pass it explicitly, under
+    // the same parent directory the legacy CEF plugin uses for its own cache
+    // (gDirUtilp->getCacheDir(false), see LLViewerMediaImpl::newSourceFromMediaType()'s
+    // "cef_cache" -- see media_plugin_cef.cpp's set_user_data_path handler), rather
+    // than under the application/install folder.
+    //
+    // Deliberately a SIBLING of "cef_cache", not nested inside it: unlike the legacy
+    // plugin's own per-process-id throwaway caches, this producer's profile is a single
+    // persistent one for the whole Viewer session/across sessions (cookies, local
+    // storage, login state, not just disposable cache), and LLAppViewer::
+    // purgeCefStaleCaches() unconditionally wipes "cef_cache" and everything under it
+    // on every single startup -- nesting our persistent profile inside it would get it
+    // deleted every time the Viewer launches.
+    params.args.add("--cache-dir=" + gDirUtilp->add(gDirUtilp->getCacheDir(false), "cef_profile"));
 
     LLProcessPtr proc = LLProcess::create(params);
     if (!proc)

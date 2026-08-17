@@ -295,10 +295,13 @@ int run_producer(int argc, char** argv)
 {
     int slot_count = kSlotCount;
     bool show_console = false;
+    std::string cache_dir_arg;
+    const std::string kCacheDirPrefix = "--cache-dir=";
     for (int i = 1; i < argc; ++i)
     {
         const std::string arg = argv[i];
         if (arg == "--console") { show_console = true; continue; }
+        if (arg.rfind(kCacheDirPrefix, 0) == 0) { cache_dir_arg = arg.substr(kCacheDirPrefix.size()); continue; }
         slot_count = std::atoi(argv[i]);
     }
     if (slot_count <= 0) slot_count = 1;
@@ -321,8 +324,15 @@ int run_producer(int argc, char** argv)
     GetModuleFileNameA(nullptr, exe_path, MAX_PATH);
     const std::filesystem::path exe_dir = std::filesystem::path(exe_path).parent_path();
 
+    // The Viewer passes --cache-dir (see LLEmbeddedBrowser::launchProducer()) pointing
+    // at the same per-user cache location the legacy CEF plugin uses, since this
+    // process has no gDirUtilp of its own to compute that itself. Falls back to the
+    // old exe-relative location only for a manual/dev launch with no such argument.
+    const std::filesystem::path cache_dir = cache_dir_arg.empty() ? (exe_dir / "cef_profile")
+                                                                   : std::filesystem::path(cache_dir_arg);
+
     llCefBrowserLibInitOptions init_options;
-    init_options.rootCachePath    = (exe_dir / "cef_profile").string();
+    init_options.rootCachePath    = cache_dir.string();
     init_options.logFile          = (exe_dir / "cefshm_producer_log.txt").string();
     init_options.userAgentProduct = "SLCefProducer/1.0";
     if (!llCefBrowserLib::Initialize(init_options)) {
@@ -341,7 +351,7 @@ int run_producer(int argc, char** argv)
     // before llCefBrowserLib::Shutdown() runs, not merely by the time
     // run_producer() returns -- a plain local's destructor would run too
     // late, after Shutdown() rather than before it.
-    auto manager = std::make_unique<llCefBrowserManager>((exe_dir / "cef_profile" / "Default").string());
+    auto manager = std::make_unique<llCefBrowserManager>((cache_dir / "Default").string());
 
     LLConfig view_cfg; // template for whichever index gets allocated on demand
     view_cfg.max_width  = kMaxWidth;
@@ -382,6 +392,7 @@ int run_producer(int argc, char** argv)
         // chance to paint/publish within this same tick.
         while (control->receive(cmd))
         {
+            if (cmd.type == kShutdownProducer) { g_run = 0; continue; }
             if (cmd.type != kRequestSlot) continue;
 
             int free_index = -1;
