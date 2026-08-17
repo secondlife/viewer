@@ -174,6 +174,14 @@ class LLEmbeddedBrowserTab
         unsigned char* mPixels = nullptr;
         unsigned int mWidth = 0;
         unsigned int mHeight = 0;
+        // The most recently requested size, tracked separately from mWidth/mHeight
+        // (which only advance once a frame published at that size actually arrives -
+        // see update()). resize() updates this unconditionally, even before mSub is
+        // connected, so a resize requested during the connection handshake (which can
+        // take up to a few seconds) isn't silently dropped -- connectToProducer() uses
+        // this, not mWidth/mHeight, for its own initial resize.
+        unsigned int mRequestedWidth = 0;
+        unsigned int mRequestedHeight = 0;
         const unsigned int mDepth = 4;
         std::string mCurrentUrl;
         std::deque<LLEmbeddedBrowserEvent> mEvents;

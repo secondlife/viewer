@@ -79,6 +79,8 @@ namespace {
 LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height) :
     mWidth(width),
     mHeight(height),
+    mRequestedWidth(width),
+    mRequestedHeight(height),
     mCurrentUrl(url)
 {
     // Zero-initialized: this shows as black until connectToProducer() succeeds and the
@@ -178,8 +180,11 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     // The producer always starts a fresh view at its own default (960x540), regardless
     // of what this tab's create()/resize() actually asked for -- ask it to match right
     // away rather than sitting at the wrong size until some later, unrelated resize().
+    // Uses mRequestedWidth/mRequestedHeight, not mWidth/mHeight: this handshake can take
+    // up to a few seconds (see mUpdateThread's own comment), and a resize() requested by
+    // the caller anytime during that window only ever updates the former (see resize()).
     std::uint8_t payload[8];
-    pack_size(payload, mWidth, mHeight);
+    pack_size(payload, mRequestedWidth, mRequestedHeight);
     mSub->send(kResize, payload, 8);
 
     if (mHadDisconnected)
@@ -357,14 +362,20 @@ void LLEmbeddedBrowserTab::resize(unsigned int width, unsigned int height)
 {
     LLMutexLock lock(&mPixelMutex);
 
-    if (width == mWidth && height == mHeight)
+    if (width == mRequestedWidth && height == mRequestedHeight)
     {
         return;
     }
+    mRequestedWidth = width;
+    mRequestedHeight = height;
 
     // Just a hint to the producer -- the local buffer is reconciled in update() once a
     // frame published at the new size actually arrives, same as llcefshm-example's own
-    // consumer does, rather than resizing mPixels ahead of that round trip.
+    // consumer does, rather than resizing mPixels ahead of that round trip. If mSub isn't
+    // connected yet, mRequestedWidth/mRequestedHeight above is what connectToProducer()
+    // sends as its own initial resize once it does connect -- this call itself is a
+    // no-op rather than lost, unlike relying on mWidth/mHeight (which don't advance until
+    // a frame actually arrives at the new size).
     if (mSub)
     {
         std::uint8_t payload[8];
