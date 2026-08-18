@@ -7625,7 +7625,22 @@ Please re-install the plugin or contact the vendor if you continue to experience
        text="A Media Plugin fails to run"/>
     </form>
   </notification>
-  <notification
+    <notification
+     icon="alertmodal.tga"
+     name="EmbeddedBrowserFailed"
+     type="alertmodal">
+The embedded browser system has failed:
+
+Message: [REASON]
+
+Please contact support if if you continue to experience problems.
+        <tag>fail</tag>
+        <form name="form">
+            <ignore name="ignore"
+             text="The embedded browser failed"/>
+        </form>
+    </notification>
+    <notification
    icon="notify.tga"
    name="OwnedObjectsReturned"
    persist="true"

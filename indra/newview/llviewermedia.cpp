@@ -3818,8 +3818,8 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                     // is actively wrong for this backend: there's no such plugin process
                     // behind an embedded-browser failure, just a dead cefshm_producer.
                     LLSD args;
-                    args["PLUGIN"] = "Embedded Browser Provider";
-                    LLNotificationsUtil::add("MediaPluginFailed", args);
+                    args["REASON"] = "Media Provider failed";
+                    LLNotificationsUtil::add("EmbeddedBrowserFailed", args);
                 }
                 emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_PLUGIN_FAILED);
                 break;
