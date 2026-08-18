@@ -371,9 +371,13 @@ void LLViewerCamera::setPerspective(bool for_selection,
 
     proj_mat *= glm::perspective(fov_y, aspect, z_near, z_far);
 
-    if (LLPipeline::sT2xJitterEnabled && !for_selection && !gCubeSnapshot)
+    if (LLPipeline::sT2xJitterEnabled && !for_selection && !gCubeSnapshot && mZoomFactor <= 1.f)
     {
-        // SMAA T2x subpixel jitter (alternating ±0.25 pixels)
+        // SMAA T2x subpixel jitter (alternating ±0.25 pixels).
+        // Skipped for tiled snapshots (mZoomFactor > 1) — jitter has no value
+        // in a still capture and interacts badly with the tile transform.
+        // NOTE: applied after calcProjection() on purpose — the cached
+        // mProjectionMatrix stays unjittered for selection/projector math.
         static const float jitters[2][2] = {
             { 0.25f, -0.25f},   // Frame 0
             {-0.25f,  0.25f},   // Frame 1

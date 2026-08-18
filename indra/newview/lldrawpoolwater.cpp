@@ -321,6 +321,51 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     gGL.setColorMask(true, false);
 }
 
+S32 LLDrawPoolWater::getNumVelocityPasses()
+{
+    // water planes are static world geometry; camera reprojection is exact.
+    // without this, water reprojects with v=0 and ghosts under camera motion
+    return mDrawFace.empty() ? 0 : 1;
+}
+
+void LLDrawPoolWater::beginVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityProgram.bind();
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+    gVelocityProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+
+    // water faces draw directly under the world modelview — no object transform
+    static const F32 identity_mat[16] = { 1.f, 0.f, 0.f, 0.f,
+                                          0.f, 1.f, 0.f, 0.f,
+                                          0.f, 0.f, 1.f, 0.f,
+                                          0.f, 0.f, 0.f, 1.f };
+    gVelocityProgram.uniformMatrix4fv(LLShaderMgr::LAST_OBJECT_MATRIX, 1, GL_FALSE, identity_mat);
+}
+
+void LLDrawPoolWater::renderVelocity(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+
+    // reset to camera-only modelview — earlier pools' velocity batches leave a
+    // stale object transform on the stack and renderGeomVelocity has no
+    // per-pool reset
+    LLRenderPass::applyModelMatrix(nullptr);
+
+    LLGLDisable cullface(GL_CULL_FACE);
+    for (LLFace* const& face : mDrawFace)
+    {
+        face->renderIndexed();
+    }
+}
+
+void LLDrawPoolWater::endVelocityPass(S32 pass)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    gVelocityProgram.unbind();
+}
+
 void LLDrawPoolWater::pushWaterPlanes(int pass)
 {
     LLVOWater* water = nullptr;

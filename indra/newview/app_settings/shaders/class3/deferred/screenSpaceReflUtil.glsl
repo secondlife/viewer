@@ -181,7 +181,8 @@ vec4 hiZTrace(vec3 origin, vec3 dir, int maxIterations)
             if ((z0 - z1) > maxThickness)
             {
                 hit = false;
-                mipOffset = 0;  // Stay at mip 0, march cell-by-cell.
+                mipOffset = 1;  // skip cell and re-coarsen; Hi-Z re-descends if the surface continues
+
             }
         }
 

@@ -1059,8 +1059,10 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         if (LLPipeline::sRenderDeferred)
         {
             gPipeline.renderSSRTrace();
-            gPipeline.renderSSRAlpha();
+            // water first: draw order decides texel ownership (opaque-depth test only)
             gPipeline.renderSSRWater();
+            gPipeline.renderSSRAlpha();
+            gPipeline.renderSSRResolveTemporal();
             gPipeline.filterSSRBuffer();
 
             gPipeline.renderDeferredLighting();

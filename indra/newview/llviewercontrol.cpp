@@ -942,6 +942,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderAppleUseMultGL", handleAppleUseMultGLChanged);
 #endif
     setting_setup_signal_listener(gSavedSettings, "RenderScreenSpaceReflections", handleReflectionProbeDetailChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderScreenSpaceReflectionTemporal", handleWindowResized);
     setting_setup_signal_listener(gSavedSettings, "RenderScreenSpaceReflectionsResolutionMultiplier", handleWindowResized);
     setting_setup_signal_listener(gSavedSettings, "RenderMirrors", handleReflectionProbeDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderHeroProbeResolution", handleHeroProbeResolutionChanged);

@@ -36,8 +36,13 @@ uniform float max_probe_lod;
 uniform bool transparent_surface;
 
 uniform float ssrMipScale;
+uniform float ssrResScale; // ssr buffer width / screen width; >= 1.0 disables the bilateral upsample path
 
 float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness);
+
+// deferredUtil.glsl
+float getDepth(vec2 pos_screen);
+vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
 uniform int classic_mode;
 
@@ -907,7 +912,60 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
 
 #endif
 
+#if defined(SSR)
+// raise to 1.0 if dither speckle survives temporal convergence on glossy glass
+const float SSR_TRANSPARENT_MIN_LOD = 0.0;
 
+// depth-aware 4-tap upsample of the reduced-res SSR buffer at mip 0
+vec4 sampleSSRBilateral(vec2 tc, float refZ)
+{
+    vec2 ssrSize = vec2(textureSize(sceneMap, 0));
+    vec2 p    = tc * ssrSize - 0.5;
+    vec2 base = floor(p);
+    vec2 f    = p - base;
+    ivec2 ibase = ivec2(base);
+    ivec2 imax  = ivec2(ssrSize) - 1;
+
+    // bilinear weights: 00, 10, 01, 11
+    vec4 wB = vec4((1.0 - f.x) * (1.0 - f.y), f.x * (1.0 - f.y), (1.0 - f.x) * f.y, f.x * f.y);
+
+    vec4 sum = vec4(0.0);
+    float wSum = 0.0;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        ivec2 offset = ivec2(i & 1, i >> 1);
+        ivec2 tci = clamp(ibase + offset, ivec2(0), imax);
+        vec2 uv = (vec2(tci) + 0.5) / ssrSize;
+
+        // full-res depth at the low-res texel center = the depth this texel was traced from
+        float tapZ = -getPositionWithDepth(uv, getDepth(uv)).z;
+        float relDiff = abs(tapZ - refZ) / max(refZ, 0.5);
+
+        // 1e-3 floor renormalizes to plain bilinear when every tap fails
+        float w = (i == 0 ? wB.x : i == 1 ? wB.y : i == 2 ? wB.z : wB.w) * (exp2(-24.0 * relDiff) + 1e-3);
+
+        sum  += texelFetch(sceneMap, tci, 0) * w;
+        wSum += w;
+    }
+
+    return sum / wSum; // wSum >= 1e-3 by construction
+}
+
+// shared opaque-composite SSR tap; the lod curve stays in the callers
+vec4 sampleSSRComposite(vec2 tc, vec3 pos, float lod)
+{
+    if (ssrResScale > 0.999 || lod >= 1.0)
+    {
+        return textureLod(sceneMap, tc, lod);   // full-res / blurry mips: unchanged path
+    }
+
+    vec4 sharp = sampleSSRBilateral(tc, -pos.z);
+
+    // replace only the mip-0 term of the trilinear footprint
+    return (lod > 0.0) ? mix(sharp, textureLod(sceneMap, tc, 1.0), lod) : sharp;
+}
+#endif
 
 void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit)
@@ -935,11 +993,12 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
 
             if (transparent)
             {
-                tapScreenSpaceReflection(1, tc, pos.xyz, norm, ssr, sceneMap, glossiness);
+                // dither-recorded in the SSR buffer; bilateral weights by opaque depth, skip it
+                ssr = textureLod(sceneMap, tc, max(roughness * ssrMipScale, SSR_TRANSPARENT_MIN_LOD));
             }
             else
             {
-                ssr = textureLod(sceneMap, tc, roughness * ssrMipScale);
+                ssr = sampleSSRComposite(tc, pos, roughness * ssrMipScale);
             }
 
             if (ssr.a > 0.001)
@@ -947,7 +1006,7 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
                 ssr.rgb /= ssr.a;
 
                 float l = dot(ssr.rgb, vec3(0.2126, 0.7152, 0.0722));
-                ssr.rgb /= max(1.0 - l, 0.001);
+                ssr.rgb /= max(1.0 - l, 0.02); // cap recovery; emissive hits blow out otherwise
 
                 ssr.a *= 1.0 - smoothstep(0.6, 0.7, roughness);
 
@@ -1064,21 +1123,21 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
         {
             vec4 ssr = vec4(0.0);
 
+            float ssrLod = clamp(log2(1.0 + roughness * roughness * ssrMipScale * 4.0), 0.0, ssrMipScale);
             if (transparent)
             {
-                tapScreenSpaceReflection(1, tc, pos.xyz, norm, ssr, sceneMap, glossiness);
+                ssr = textureLod(sceneMap, tc, max(ssrLod, SSR_TRANSPARENT_MIN_LOD));
             }
             else
             {
-                float ssrLod = clamp(log2(1.0 + roughness * roughness * ssrMipScale * 4.0), 0.0, ssrMipScale);
-                ssr = textureLod(sceneMap, tc, ssrLod);
+                ssr = sampleSSRComposite(tc, pos, ssrLod);
             }
 
             if (ssr.a > 0.001)
             {
                 ssr.rgb /= ssr.a;
                 float l = dot(ssr.rgb, vec3(0.2126, 0.7152, 0.0722));
-                ssr.rgb /= max(1.0 - l, 0.001);
+                ssr.rgb /= max(1.0 - l, 0.02); // cap recovery; emissive hits blow out otherwise
 
                 ssr.a *= 1.0 - smoothstep(0.6, 0.7, roughness);
 

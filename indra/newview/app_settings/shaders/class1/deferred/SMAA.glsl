@@ -1446,12 +1446,18 @@ float4 SMAAResolvePS(float2 texcoord,
     float weight = 0.5 * saturate(1.0 - sqrt(delta) * SMAA_REPROJECTION_WEIGHT_SCALE);
 
     // Blend the pixels according to the calculated weight:
-    return lerp(current, previous, weight);
+    // viewer: blend color in linear light to match the neighborhood-blend
+    // stage; alpha (packed velocity magnitude) blends untransformed
+    float4 blended = lerp(current, previous, weight);
+    blended.rgb = linear_to_srgb(lerp(srgb_to_linear(current.rgb), srgb_to_linear(previous.rgb), weight));
+    return blended;
     #else
     // Just blend the pixels:
     float4 current = SMAASamplePoint(currentColorTex, texcoord);
     float4 previous = SMAASamplePoint(previousColorTex, texcoord);
-    return lerp(current, previous, 0.5);
+    float4 blended = lerp(current, previous, 0.5);
+    blended.rgb = linear_to_srgb(lerp(srgb_to_linear(current.rgb), srgb_to_linear(previous.rgb), 0.5));
+    return blended;
     #endif
 }
 

@@ -139,6 +139,7 @@ LLGLSLShader            gScreenSpaceReflTraceProgram;
 LLGLSLShader            gSSRAlphaProgram;
 LLGLSLShader            gSkinnedSSRAlphaProgram;
 LLGLSLShader            gSSRWaterProgram;
+LLGLSLShader            gSSRResolveProgram;
 
 // Deferred rendering shaders
 LLGLSLShader            gDeferredImpostorProgram;
@@ -250,6 +251,7 @@ LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
 LLGLSLShader            gDeferredPBRTerrainProgram[TERRAIN_PAINT_TYPE_COUNT];
 
 LLGLSLShader            gVelocityProgram;
+LLGLSLShader            gVelocityBackgroundProgram;
 LLGLSLShader            gVelocitySkinnedProgram;
 LLGLSLShader            gVelocityAlphaProgram;
 LLGLSLShader            gVelocityAlphaSkinnedProgram;
@@ -1212,6 +1214,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
         gVelocityProgram.unload();
         gVelocitySkinnedProgram.unload();
+        gVelocityBackgroundProgram.unload();
         gVelocityAlphaProgram.unload();
         gVelocityAlphaSkinnedProgram.unload();
         gAvatarVelocityProgram.unload();
@@ -3205,6 +3208,20 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         success = gSSRWaterProgram.createShader();
     }
 
+    if (success)
+    {
+        gSSRResolveProgram.mName = "SSR Temporal Resolve";
+        gSSRResolveProgram.mShaderFiles.clear();
+        gSSRResolveProgram.mShaderFiles.push_back(make_pair("deferred/screenSpaceReflPostV.glsl", GL_VERTEX_SHADER));
+        gSSRResolveProgram.mShaderFiles.push_back(make_pair("deferred/screenSpaceReflResolveF.glsl", GL_FRAGMENT_SHADER));
+        // isDeferred only — deliberately NOT hasScreenSpaceReflections, so the
+        // program has no SCENE_MAP sampler and bindReflectionProbes cannot
+        // feedback-bind mSSRBuffer while it is the render target
+        gSSRResolveProgram.mFeatures.isDeferred = true;
+        gSSRResolveProgram.mShaderLevel = 3;
+        success = gSSRResolveProgram.createShader();
+    }
+
     if (success) {
         gDeferredBufferVisualProgram.mName = "Deferred Buffer Visualization Shader";
         gDeferredBufferVisualProgram.mShaderFiles.clear();
@@ -3227,6 +3244,16 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gVelocityProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = make_rigged_variant(gVelocityProgram, gVelocitySkinnedProgram);
         success = success && gVelocityProgram.createShader();
+    }
+
+    if (success)
+    {
+        gVelocityBackgroundProgram.mName = "Velocity Background Shader";
+        gVelocityBackgroundProgram.mShaderFiles.clear();
+        gVelocityBackgroundProgram.mShaderFiles.push_back(make_pair("deferred/velocityBackgroundV.glsl", GL_VERTEX_SHADER));
+        gVelocityBackgroundProgram.mShaderFiles.push_back(make_pair("deferred/velocityBackgroundF.glsl", GL_FRAGMENT_SHADER));
+        gVelocityBackgroundProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gVelocityBackgroundProgram.createShader();
     }
 
     if (success)

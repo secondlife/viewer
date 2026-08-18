@@ -7892,6 +7892,39 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
+  <key>RenderScreenSpaceReflectionTemporal</key>
+  <map>
+    <key>Comment</key>
+    <string>Accumulate screen space reflections temporally: one ray per frame combined with reprojected history. Off restores multi-ray single-frame tracing.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>RenderScreenSpaceReflectionTemporalBlend</key>
+  <map>
+    <key>Comment</key>
+    <string>History weight for temporal SSR accumulation (clamped 0.5 to 0.98). Higher converges smoother but smears more; lower is sharper but noisier.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.9</real>
+  </map>
+  <key>RenderScreenSpaceReflectionsBilateralUpsample</key>
+  <map>
+    <key>Comment</key>
+    <string>Depth-aware upsample of the reduced-resolution SSR buffer for sharp reflections. No effect at resolution multiplier 1.0.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>RenderBumpmapMinDistanceSquared</key>
     <map>
       <key>Comment</key>

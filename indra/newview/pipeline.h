@@ -157,7 +157,15 @@ public:
     void renderSSRTrace();
     void renderSSRAlpha();
     void renderSSRWater();
+    void renderSSRResolveTemporal();
     void filterSSRBuffer();
+
+    // target the trace/alpha/water SSR passes render into: the raw trace buffer
+    // under temporal accumulation, mSSRBuffer directly otherwise
+    LLRenderTarget& ssrTraceTarget();
+
+    // SMAA T2x jitter delta between previous and current frame, in UV units
+    void getSSRJitterOffset(F32& jitter_x, F32& jitter_y);
     void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
     void generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history = true);
     void tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_correct);
@@ -742,6 +750,12 @@ public:
     LLRenderTarget          mSSRBuffer;
     std::vector<LLRenderTarget> mSSRMipTemp;  // Per-mip temp targets for SSR Gaussian ping-pong
 
+    // temporal SSR accumulation: raw 1-ray trace target + reprojected history
+    LLRenderTarget          mSSRTraceBuffer;
+    LLRenderTarget          mSSRHistory;
+    bool                    mSSRHistoryValid = false;
+    U32                     mSSRResolveFrame = 0;
+
     bool mInForwardAlphaPass = false;
 
     // exposure map for getting average color in scene
@@ -1101,6 +1115,7 @@ public:
     static F32 CameraDoFResScale;
     static F32 RenderAutoHideSurfaceAreaLimit;
     static bool RenderScreenSpaceReflections;
+    static bool RenderScreenSpaceReflectionTemporal;
     static S32 RenderScreenSpaceReflectionIterations;
     static S32 RenderScreenSpaceReflectionGlossySamples;
     static S32 RenderBufferVisualization;

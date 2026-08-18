@@ -75,6 +75,10 @@ bool LLFloaterPreferenceGraphicsAdvanced::postBuild()
         if (!gSMAAEdgeDetectProgram[0].isComplete())
             combo->remove("SMAA");
 
+        // T2x additionally needs the resolve program
+        if (!gSMAAEdgeDetectProgram[0].isComplete() || !gSMAAResolveProgram[0].isComplete())
+            combo->remove("SMAA T2x");
+
         if (!gFXAAProgram[0].isComplete() && !gSMAAEdgeDetectProgram[0].isComplete())
         {
             combo->setEnabled(false);

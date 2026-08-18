@@ -219,6 +219,7 @@ extern LLGLSLShader         gScreenSpaceReflTraceProgram;
 extern LLGLSLShader         gSSRAlphaProgram;
 extern LLGLSLShader         gSkinnedSSRAlphaProgram;
 extern LLGLSLShader         gSSRWaterProgram;
+extern LLGLSLShader         gSSRResolveProgram;
 
 // Deferred rendering shaders
 extern LLGLSLShader         gDeferredImpostorProgram;
@@ -340,6 +341,7 @@ extern LLGLSLShader         gDeferredPBRTerrainProgram[TERRAIN_PAINT_TYPE_COUNT]
 
 extern LLGLSLShader         gVelocityProgram;
 extern LLGLSLShader         gVelocitySkinnedProgram;
+extern LLGLSLShader         gVelocityBackgroundProgram;
 extern LLGLSLShader         gVelocityAlphaProgram;
 extern LLGLSLShader         gVelocityAlphaSkinnedProgram;
 extern LLGLSLShader         gAvatarVelocityProgram;
