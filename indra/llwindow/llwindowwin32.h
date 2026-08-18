@@ -40,6 +40,12 @@
 
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
+// For requesting shutdown on uninstall,
+// make sure it does not conflict with messages like WM_DUMMY_
+inline constexpr UINT WM_POST_UNINSTALL_ = WM_USER + 0x0019;
+inline constexpr DWORD WM_POST_UNINSTALL_MSG_SHUTDOWN = 1;
+inline constexpr DWORD WM_POST_UNINSTALL_MSG_UPDATE = 2;
+
 typedef void (*LLW32MsgCallback)(const MSG &msg);
 
 class LLWindowWin32 : public LLWindow
@@ -124,6 +130,7 @@ public:
 
     LLWindowCallbacks::DragNDropResult completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, LLWindowCallbacks::DragNDropAction action, const std::string url );
 
+    static PROC WINAPI getProcAddress(const char* func);
     static std::vector<std::string> getDisplaysResolutionList();
     static std::vector<std::string> getDynamicFallbackFontList();
     static void setDPIAwareness();
@@ -232,6 +239,7 @@ protected:
     LPWSTR      mIconResource;
     LPWSTR      mIconSmallResource;
     bool        mInputProcessingPaused;
+    bool        mReceivedSCClose; // received SC_CLOSE and expecting WM_CLOSE
 
     // The following variables are for Language Text Input control.
     // They are all static, since one context is shared by all LLWindowWin32
@@ -257,6 +265,8 @@ protected:
     U32             mRawLParam;
 
     bool            mMouseVanish;
+
+    static HMODULE sGLDLLHandle;
 
     // Cached values of GetWindowRect and GetClientRect to be used by app thread
     void updateWindowRect();

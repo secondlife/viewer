@@ -326,7 +326,7 @@ public:
     {
         if(!group.controlExists(name))
         {
-            LL_ERRS() << "Control named " << name << "not found." << LL_ENDL;
+            LL_ERRS() << "Control named " << name << " not found." << LL_ENDL;
         }
 
         bindToControl(group, name);

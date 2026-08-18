@@ -129,9 +129,9 @@ public:
     // Load state accessors.
     bool isLoaded() const { return mLoadState == ML_LOADED; } // Loaded, but not necessarily from server.
     bool isFailed() const { return mLoadState == ML_FAILED; } // Unable to load any mute list. Server did not reply.
-    // Loaded from server, which is the only source we consider authoritative.
-    bool isLoadedFromServer() const { return isLoaded() && (mLoadSource == MLS_SERVER || mLoadSource == MLS_SERVER_EMPTY); }
-    // Loaded, but from cache. Would be nice to upgrade to a server load from here if possible.
+    // Loaded from an authoritative server response, including when the server directs us to use our cached copy.
+    bool isLoadedFromServer() const { return isLoaded() && (mLoadSource == MLS_SERVER || mLoadSource == MLS_SERVER_EMPTY || mLoadSource == MLS_SERVER_CACHE); }
+    // Loaded without an authoritative server response. Would be nice to upgrade to a server load from here if possible.
     bool isLoadedDegraded() const { return isLoaded() && !isLoadedFromServer(); }
 
     // Advance the load state machine, trying cache fallback if necessary.

@@ -1479,7 +1479,8 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
         imagep->postCreateTexture();
         imagep->mCreatePending = false;
 
-        if (imagep->hasGLTexture() && imagep->getDiscardLevel() < imagep->getDesiredDiscardLevel())
+        if (imagep->hasGLTexture() && imagep->getDiscardLevel() < imagep->getDesiredDiscardLevel() &&
+            imagep->getDesiredDiscardLevel() < S8_MAX) // S8_MAX = "no cap" sentinel, not a real target
         {
             // NOTE: this may happen if the desired discard reduces while a decode is in progress and does not
             // necessarily indicate a problem, but if log occurrences excede that of dsiplay_stats: FPS,
@@ -1968,6 +1969,7 @@ void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **
 // guaranteed.
 void LLUIImageList::cleanUp()
 {
+    LLUIImage::cleanupClass();
     mUIImages.clear();
     mUITextureList.clear() ;
 }

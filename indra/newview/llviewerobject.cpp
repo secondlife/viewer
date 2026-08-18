@@ -4034,6 +4034,11 @@ U32 LLViewerObject::getTriangleCount(S32* vcount) const
     return 0;
 }
 
+U32 LLViewerObject::getLODTriangleCount(S32 lod)
+{
+    return 0;
+}
+
 U32 LLViewerObject::getHighLODTriangleCount()
 {
     return 0;
@@ -4053,6 +4058,27 @@ U32 LLViewerObject::recursiveGetTriangleCount(S32* vcount) const
         }
     }
     return total_tris;
+}
+
+void LLViewerObject::recursiveGetLODTriangleCount(S32& high_lod, S32& medium_lod, S32& low_lod, S32& lowest_lod)
+{
+    high_lod = (S32)getLODTriangleCount(LLModel::LOD_HIGH);
+    medium_lod = (S32)getLODTriangleCount(LLModel::LOD_MEDIUM);
+    low_lod = (S32)getLODTriangleCount(LLModel::LOD_LOW);
+    lowest_lod = (S32)getLODTriangleCount(LLModel::LOD_IMPOSTOR);
+    LLViewerObject::const_child_list_t& child_list = getChildren();
+    for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+        iter != child_list.end(); ++iter)
+    {
+        LLViewerObject* childp = *iter;
+        if (childp)
+        {
+            high_lod += (S32)childp->getLODTriangleCount(LLModel::LOD_HIGH);
+            medium_lod += (S32)childp->getLODTriangleCount(LLModel::LOD_MEDIUM);
+            low_lod += (S32)childp->getLODTriangleCount(LLModel::LOD_LOW);
+            lowest_lod += (S32)childp->getLODTriangleCount(LLModel::LOD_IMPOSTOR);
+        }
+    }
 }
 
 // This is using the stored surface area for each volume (which

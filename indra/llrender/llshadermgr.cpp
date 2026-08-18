@@ -509,7 +509,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
             open_file_name = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "shaders/errorF.glsl");
         }
 
-        file = LLFile::fopen(open_file_name, "r");
+        file = LLFile::fopen(open_file_name, LLFILE_MODE("r"));
     }
     else
 #endif
@@ -537,7 +537,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
             */
 
             LL_DEBUGS("ShaderLoading") << "Looking in " << open_file_name << LL_ENDL;
-            file = LLFile::fopen(open_file_name, "r");      /* Flawfinder: ignore */
+            file = LLFile::fopen(open_file_name, LLFILE_MODE("r")); /* Flawfinder: ignore */
             if (file)
             {
                 LL_DEBUGS("ShaderLoading") << "Loading file: " << open_file_name << " (Want class " << gpu_class << ")" << LL_ENDL;
@@ -1022,7 +1022,6 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
 
     mShaderCacheDir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "shader_cache");
     LLFile::mkdir(mShaderCacheDir);
-
     {
         std::string meta_out_path = gDirUtilp->add(mShaderCacheDir, "shaderdata.llsd");
         if (gDirUtilp->fileExists(meta_out_path))
@@ -1082,7 +1081,6 @@ void LLShaderMgr::clearShaderCache()
     LL_INFOS("ShaderMgr") << "Removing shader cache at " << shader_cache << LL_ENDL;
     const std::string mask = "*";
     gDirUtilp->deleteFilesInDir(shader_cache, mask);
-    LLFile::rmdir(shader_cache);
     mShaderBinaryCache.clear();
 }
 
@@ -1095,16 +1093,25 @@ void LLShaderMgr::persistShaderCacheMetadata()
         return;
     }
 
-    LL_INFOS("ShaderMgr") << "Persisting shader cache metadata to disk" << LL_ENDL;
+    if (mShaderCacheDir.empty() || !LLFile::isdir(mShaderCacheDir))
+    {
+        LL_WARNS("ShaderMgr") << "Invalid shader cache directory: " << mShaderCacheDir << LL_ENDL;
+        return;
+    }
+
+    size_t total_entries = mShaderBinaryCache.size();
+    LL_INFOS("ShaderMgr") << "Persisting shader " << (S32)total_entries << " cache metadata entries to disk" << LL_ENDL;
 
     LLSD out;
     // Settings and shader cache get saved at different time, thus making
     // RenderShaderCacheVersion unreliable when running multiple viewer
     // instances, or for cases where viewer crashes before saving settings.
-    // Dupplicate version to the cache itself.
+    // Duplicate version to the cache itself.
     out["version"] = mShaderCacheVersion;
     out["shaders"] = LLSD::emptyMap();
     LLSD &shaders = out["shaders"];
+
+    size_t removed = 0;
 
     static const F32 LRU_TIME = (60.f * 60.f) * 24.f * 7.f; // 14 days
     const F32 current_time = (F32)LLTimer::getTotalSeconds();
@@ -1114,8 +1121,9 @@ void LLShaderMgr::persistShaderCacheMetadata()
         if ((shader_metadata.mLastUsedTime + LRU_TIME) < current_time)
         {
             std::string shader_path = gDirUtilp->add(mShaderCacheDir, it->first.asString() + ".shaderbin");
-            LLFile::remove(shader_path);
+            LLFile::remove(shader_path, ENOENT);
             it = mShaderBinaryCache.erase(it);
+            removed++;
         }
         else
         {
@@ -1129,14 +1137,32 @@ void LLShaderMgr::persistShaderCacheMetadata()
     }
 
     std::string meta_out_path = gDirUtilp->add(mShaderCacheDir, "shaderdata.llsd");
+    if (shaders.size() == 0)
+    {
+        LL_WARNS("ShaderMgr") << "No shader cache entries to persist, removing cache metadata file" << LL_ENDL;
+        LLFile::remove(meta_out_path);
+        return;
+    }
+
     llofstream outstream(meta_out_path, std::ios_base::out | std::ios_base::binary);
     if (!outstream.is_open())
     {
         LL_WARNS("ShaderMgr") << "Failed to open file. Unable to save shader cache to: " << mShaderCacheDir << LL_ENDL;
         return;
     }
+
     LLSDSerialize::toBinary(out, outstream);
+    if (outstream.fail())
+    {
+        LL_WARNS("ShaderMgr") << "Failed to serialize shader cache metadata" << LL_ENDL;
+        outstream.close();
+        LLFile::remove(meta_out_path); // Clean up partial write
+        return;
+    }
     outstream.close();
+
+    LL_INFOS("ShaderMgr") << "Persisted " << (S32)shaders.size()
+        << " entries. Removed " << (S32)removed << " entries." << LL_ENDL;
 }
 
 bool LLShaderMgr::loadCachedProgramBinary(LLGLSLShader* shader)
@@ -1150,34 +1176,56 @@ bool LLShaderMgr::loadCachedProgramBinary(LLGLSLShader* shader)
     {
         std::string in_path = gDirUtilp->add(mShaderCacheDir, shader->mShaderHash.asString() + ".shaderbin");
         auto& shader_info = binary_iter->second;
-        if (shader_info.mBinaryLength > 0)
+
+        try
         {
-            std::vector<U8> in_data;
-            in_data.resize(shader_info.mBinaryLength);
-
-            LLUniqueFile filep = LLFile::fopen(in_path, "rb");
-            if (filep)
+            constexpr GLsizei MAX_SHADER_BINARY_SIZE = 1024 * 1024; // 1 MB, normally around 10KB
+            if (shader_info.mBinaryLength > 0 && shader_info.mBinaryLength <= MAX_SHADER_BINARY_SIZE)
             {
-                size_t result = fread(in_data.data(), sizeof(U8), in_data.size(), filep);
-                filep.close();
+                std::vector<U8> in_data;
+                in_data.resize(shader_info.mBinaryLength);
 
-                if (result == in_data.size())
+                std::error_code ec;
+                LLFile filep = LLFile(in_path, LLFile::in | LLFile::binary, ec);
+                if (!ec && (bool)filep)
                 {
-                    GLenum error = glGetError(); // Clear current error
-                    glProgramBinary(shader->mProgramObject, shader_info.mBinaryFormat, in_data.data(), shader_info.mBinaryLength);
+                    size_t result = filep.read(in_data.data(), in_data.size(), ec);
+                    filep.close();
 
-                    error = glGetError();
-                    GLint success = GL_TRUE;
-                    glGetProgramiv(shader->mProgramObject, GL_LINK_STATUS, &success);
-                    if (error == GL_NO_ERROR && success == GL_TRUE)
+                    if (result == in_data.size())
                     {
-                        binary_iter->second.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
-                        LL_INFOS() << "Loaded cached binary for shader: " << shader->mName << LL_ENDL;
-                        return true;
+                        GLenum error = glGetError(); // Clear current error
+                        glProgramBinary(shader->mProgramObject, shader_info.mBinaryFormat, in_data.data(), shader_info.mBinaryLength);
+
+                        error = glGetError();
+                        GLint success = GL_TRUE;
+                        glGetProgramiv(shader->mProgramObject, GL_LINK_STATUS, &success);
+                        if (error == GL_NO_ERROR && success == GL_TRUE)
+                        {
+                            binary_iter->second.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
+                            LL_INFOS() << "Loaded cached binary for shader: " << shader->mName << LL_ENDL;
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        LL_WARNS("ShaderMgr") << "Incomplete read of shader binary. Expected: "
+                            << in_data.size() << ", read: " << result << LL_ENDL;
                     }
                 }
             }
         }
+        catch (const std::bad_alloc&)
+        {
+            LL_WARNS("ShaderMgr") << "Failed to allocate memory for shader binary ("
+                << shader_info.mBinaryLength << " bytes) for: "
+                << shader->mName << LL_ENDL;
+        }
+        catch (const std::exception& err)
+        {
+            LL_WARNS("ShaderMgr") << "Caught exception " << err.what() << " while loading shader binary for: " << shader->mName << LL_ENDL;
+        }
+
         //an error occured, normally we would print log but in this case it means the shader needs recompiling.
         LL_INFOS() << "Failed to load cached binary for shader: " << shader->mName << " falling back to compilation" << LL_ENDL;
         LLFile::remove(in_path);
@@ -1203,11 +1251,12 @@ bool LLShaderMgr::saveCachedProgramBinary(LLGLSLShader* shader)
         if (error == GL_NO_ERROR)
         {
             std::string out_path = gDirUtilp->add(mShaderCacheDir, shader->mShaderHash.asString() + ".shaderbin");
-            LLUniqueFile outfile = LLFile::fopen(out_path, "wb");
-            if (outfile)
+            std::error_code ec;
+            LLFile filep = LLFile(out_path, LLFile::out | LLFile::binary, ec);
+            if (filep)
             {
-                fwrite(program_binary.data(), sizeof(U8), program_binary.size(), outfile);
-                outfile.close();
+                filep.write(program_binary.data(), program_binary.size(), ec);
+                filep.close();
 
                 binary_info.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
 

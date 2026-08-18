@@ -663,7 +663,15 @@ void LLDrawPoolAvatar::beginSkinned()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
-    // used for preview only
+    // Used for preview only, like LLVisualParamHint
+    // Uses deprecated logic!!!
+    if (!gAvatarProgram.isComplete())
+    {
+        llassert(false); // Avatar shader shouldn't have failed if deferred shader loaded
+        sVertexProgram = nullptr;
+        LLGLSLShader::unbind();
+        return;
+    }
 
     sVertexProgram = &gAvatarProgram;
 
@@ -671,30 +679,25 @@ void LLDrawPoolAvatar::beginSkinned()
 
     sVertexProgram->bind();
     sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
+    sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 }
 
 void LLDrawPoolAvatar::endSkinned()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
+    if (sVertexProgram == nullptr)
+    {
+        return;
+    }
+
     // if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
-    if (sShaderLevel > 0)
-    {
-        sRenderingSkinned = false;
-        sVertexProgram->disableTexture(LLViewerShaderMgr::BUMP_MAP);
-        gGL.getTexUnit(0)->activate();
-        sVertexProgram->unbind();
-        sShaderLevel = mShaderLevel;
-    }
-    else
-    {
-        if(gPipeline.shadersLoaded())
-        {
-            // software skinning, use a basic shader for windlight.
-            // TODO: find a better fallback method for software skinning.
-            sVertexProgram->unbind();
-        }
-    }
+    sRenderingSkinned = false;
+    sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+    sVertexProgram->disableTexture(LLViewerShaderMgr::BUMP_MAP);
+    gGL.getTexUnit(0)->activate();
+    sVertexProgram->unbind();
+    sShaderLevel = mShaderLevel;
 
     gGL.getTexUnit(0)->activate();
 }

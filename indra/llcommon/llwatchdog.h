@@ -47,6 +47,8 @@ public:
     // This may mean that resources used by
     // isAlive and other method may need synchronization.
     virtual bool isAlive() const = 0;
+    virtual bool hasExpired() const = 0;
+    virtual bool started() const = 0;
     virtual void reset() = 0;
     virtual void start();
     virtual void stop();
@@ -66,6 +68,8 @@ public:
     virtual ~LLWatchdogTimeout();
 
     bool isAlive() const override;
+    bool hasExpired() const override;
+    bool started() const override;
     void reset() override;
     void start() override { start(""); }
     void stop() override;
@@ -89,6 +93,11 @@ public:
     LLWatchdog();
     ~LLWatchdog();
 
+    LLWatchdog(const LLWatchdog&) = delete;
+    LLWatchdog(LLWatchdog&&) = delete;
+    LLWatchdog& operator=(const LLWatchdog&) = delete;
+    LLWatchdog& operator=(LLWatchdog&&) = delete;
+
     // Add an entry to the watchdog.
     void add(LLWatchdogEntry* e);
     void remove(LLWatchdogEntry* e);
@@ -105,6 +114,7 @@ public:
         bool crash_on_freeze);
     void run();
     void cleanup();
+    void shutdown();
 
 
 private:

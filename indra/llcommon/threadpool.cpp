@@ -78,6 +78,7 @@ void LL::ThreadPoolBase::start()
         std::string tname{ stringize(mName, ':', (i+1), '/', mThreadCount) };
         mThreads.emplace_back(tname, [this, tname]()
             {
+                set_thread_name(tname.c_str());
                 LL_PROFILER_SET_THREAD_NAME(tname.c_str());
                 run(tname);
             });

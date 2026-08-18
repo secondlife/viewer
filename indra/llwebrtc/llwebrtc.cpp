@@ -26,6 +26,9 @@
 
 #include "llwebrtc_impl.h"
 #include <algorithm>
+#include <chrono>
+#include <future>
+#include <thread>
 #include <string.h>
 #include "api/audio/create_audio_device_module.h"
 #include "api/audio_codecs/audio_decoder_factory.h"
@@ -42,8 +45,8 @@
 namespace llwebrtc
 {
 #if WEBRTC_WIN
-static int16_t PLAYOUT_DEVICE_DEFAULT = webrtc::AudioDeviceModule::kDefaultDevice;
-static int16_t RECORD_DEVICE_DEFAULT  = webrtc::AudioDeviceModule::kDefaultDevice;
+static int16_t PLAYOUT_DEVICE_DEFAULT = webrtc::AudioDeviceModule::kDefaultCommunicationDevice;
+static int16_t RECORD_DEVICE_DEFAULT  = webrtc::AudioDeviceModule::kDefaultCommunicationDevice;
 #else
 static int16_t PLAYOUT_DEVICE_DEFAULT = 0;
 static int16_t RECORD_DEVICE_DEFAULT  = 0;
@@ -395,8 +398,23 @@ void LLWebRTCImpl::init()
 
 void LLWebRTCImpl::terminate()
 {
-    mWorkerThread->BlockingCall(
-        [this]()
+    // Run all blocking WebRTC shutdown calls on a separate thread so that a
+    // hung BlockingCall cannot block the viewer shutdown indefinitely.
+    // Webrtc is not mission critical, we need to save personal data.
+    auto done_promise = std::make_shared<std::promise<void> >();
+    std::future<void> done_future = done_promise->get_future();
+
+    // Hand ownership of the connections to the shutdown thread.  Nothing on
+    // this thread may touch them afterwards -- in the timeout case below the
+    // shutdown thread is detached and may still be working through them.
+    std::vector<webrtc::scoped_refptr<LLWebRTCPeerConnectionImpl>> connections;
+    connections.swap(mPeerConnections);
+
+    std::thread shutdown_thread(
+        [this, connections = std::move(connections), done_promise]() mutable
+    {
+        mWorkerThread->BlockingCall(
+            [this]()
         {
             if (mDeviceModule)
             {
@@ -405,34 +423,79 @@ void LLWebRTCImpl::terminate()
             }
         });
 
-    for (auto &connection : mPeerConnections)
-    {
-        connection->terminate();
-    }
+        // Close the connections inline on the signaling thread.  This can't be
+        // connection->terminate(), which only *posts* the close: that queues the
+        // real work behind everything below, so the connections would be closed
+        // after the factory and the device module are gone -- or not at all, if
+        // the thread is destroyed with the task still queued.
+        //
+        // It matters that the close completes here because closing a peer
+        // connection flushes any in-flight GetStats request and runs its
+        // callback inline, and that callback calls back into the viewer's
+        // signaling observers.  Those observers are only valid until
+        // llwebrtc::terminate() returns.
+        mSignalingThread->BlockingCall(
+            [&connections]()
+            {
+                for (auto& connection : connections)
+                {
+                    connection->closeOnSignalingThread();
+                }
+                // Destroy the connections here, on the signaling thread, while
+                // it's still running.
+                connections.clear();
+            });
 
-    // connection->terminate() above spawns a number of Signaling thread calls to
-    // shut down the connection.  The following Blocking Call will wait
-    // until they're done before it's executed, allowing time to clean up.
+        // Drain anything the closes posted before dropping the factory.
+        mSignalingThread->BlockingCall([]() {});
 
-    mSignalingThread->BlockingCall([this]() { mPeerConnectionFactory = nullptr; });
+        mSignalingThread->BlockingCall([this]() {
+            mPeerConnectionFactory = nullptr;
+        });
 
-    mWorkerThread->BlockingCall(
-        [this]()
+        mWorkerThread->BlockingCall(
+            [this]()
         {
             if (mDeviceModule)
             {
                 mDeviceModule->ForceTerminate();
             }
-            mDeviceModule     = nullptr;
+            mDeviceModule = nullptr;
         });
 
-    // In case peer connections still somehow have jobs in workers,
-    // only clear connections up after clearing workers.
+        done_promise->set_value();
+    });
+
+    constexpr auto WEBRTC_TERMINATE_TIMEOUT = std::chrono::seconds(10);
+    if (done_future.wait_for(WEBRTC_TERMINATE_TIMEOUT) == std::future_status::timeout)
+    {
+        RTC_LOG(LS_WARNING) << __FUNCTION__
+            << ": timed out waiting for WebRTC thread shutdown."
+            " Detaching — some WebRTC resources will be leaked.";
+        shutdown_thread.detach();
+
+        // Release the unique_ptrs WITHOUT joining/deleting: the detached thread
+        // may still be using these thread objects.
+        // The raw pointers are intentionally leaked — the process is exiting anyway
+        // and our priority is saving cache and personal data.
+        (void)mNetworkThread.release();
+        (void)mWorkerThread.release();
+        (void)mSignalingThread.release();
+
+        // mPeerConnections is already empty -- the detached thread owns the
+        // connections now and must be left to finish with them.
+        webrtc::LogMessage::RemoveLogToStream(mLogSink);
+        return;
+    }
+
+    shutdown_thread.join();
+
+    // The connections were closed and destroyed on the signaling thread before
+    // the shutdown thread finished, so it's safe to drop the threads now.
     mNetworkThread = nullptr;
     mWorkerThread = nullptr;
     mSignalingThread = nullptr;
 
-    mPeerConnections.clear();
     webrtc::LogMessage::RemoveLogToStream(mLogSink);
 }
 
@@ -748,6 +811,7 @@ void LLWebRTCImpl::updateDevices()
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
         mDeviceModule->PlayoutDeviceName(index, name, guid);
+        RTC_LOG(LS_VERBOSE) << "updateDevices: playout device [" << index << "] name='" << name << "' guid='" << guid << "'";
         mPlayoutDeviceList.emplace_back(name, guid);
     }
 
@@ -766,8 +830,11 @@ void LLWebRTCImpl::updateDevices()
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
         mDeviceModule->RecordingDeviceName(index, name, guid);
+        RTC_LOG(LS_VERBOSE) << "updateDevices: recording device [" << index << "] name='" << name << "' guid='" << guid << "'";
         mRecordingDeviceList.emplace_back(name, guid);
     }
+
+    RTC_LOG(LS_INFO) << "updateDevices, playout count: " << renderDeviceCount << "; capture count: " << captureDeviceCount;
 
     for (auto &observer : mVoiceDevicesObserverList)
     {
@@ -978,6 +1045,8 @@ LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl(const webrtc::Environment
     mAnswerReceived(false),
     mPeerConnectionState(webrtc::PeerConnectionInterface::PeerConnectionState::kNew),
     mDisconnectCount(0),
+    mStatsRequestPending(false),
+    mShuttingDown(false),
     mPendingJobs(0)
 {
 }
@@ -1010,47 +1079,64 @@ void LLWebRTCPeerConnectionImpl::terminate()
     mWebRTCImpl->PostSignalingTask(
         [self]()
         {
-            if (self->mPeerConnection)
-            {
-                if (self->mDataChannel)
-                {
-                    {
-                        self->mDataChannel->Close();
-                        self->mDataChannel = nullptr;
-                    }
-                }
-
-                // to remove 'Secondlife is recording' icon from taskbar
-                // if user was speaking
-                auto senders = self->mPeerConnection->GetSenders();
-                for (auto& sender : senders)
-                {
-                    auto track = sender->track();
-                    if (track)
-                    {
-                        track->set_enabled(false);
-                    }
-                }
-
-                self->mPeerConnection->Close();
-                if (self->mLocalStream)
-                {
-                    auto tracks = self->mLocalStream->GetAudioTracks();
-                    for (auto& track : tracks)
-                    {
-                        self->mLocalStream->RemoveTrack(track);
-                    }
-                    self->mLocalStream = nullptr;
-                }
-                self->mPeerConnection = nullptr;
-
-                for (auto &observer : self->mSignalingObserverList)
-                {
-                    observer->OnPeerConnectionClosed();
-                }
-            }
+            self->closeOnSignalingThread();
             self->mPendingJobs--;
         });
+}
+
+// Signaling thread only.
+void LLWebRTCPeerConnectionImpl::closeOnSignalingThread()
+{
+    // Stop issuing stats requests; one may already be in flight, and
+    // Close() below will flush it.
+    mShuttingDown = true;
+
+    if (mPeerConnection)
+    {
+        if (mDataChannel)
+        {
+            mDataChannel->Close();
+            mDataChannel = nullptr;
+        }
+
+        // to remove 'Secondlife is recording' icon from taskbar
+        // if user was speaking
+        auto senders = mPeerConnection->GetSenders();
+        for (auto& sender : senders)
+        {
+            auto track = sender->track();
+            if (track)
+            {
+                track->set_enabled(false);
+            }
+        }
+
+        // NOTE: Close() delivers any pending GetStats report inline, before it
+        // returns, so the observer list below must still be valid here.
+        mPeerConnection->Close();
+        if (mLocalStream)
+        {
+            auto tracks = mLocalStream->GetAudioTracks();
+            for (auto& track : tracks)
+            {
+                mLocalStream->RemoveTrack(track);
+            }
+            mLocalStream = nullptr;
+        }
+        mPeerConnection = nullptr;
+
+        for (auto &observer : mSignalingObserverList)
+        {
+            observer->OnPeerConnectionClosed();
+        }
+    }
+
+    // Nothing may call back into the viewer past this point.  On shutdown the
+    // viewer's connection objects are torn down as soon as llwebrtc::terminate()
+    // returns and they deliberately don't unset themselves as observers, so any
+    // late callback would be reaching into freed memory.
+    mSignalingObserverList.clear();
+    mDataObserverList.clear();
 }
 
 void LLWebRTCPeerConnectionImpl::setSignalingObserver(LLWebRTCSignalingObserver *observer) { mSignalingObserverList.emplace_back(observer); }
@@ -1777,16 +1863,41 @@ void LLWebRTCPeerConnectionImpl::gatherConnectionStats()
         return;
     }
 
-    auto stats_callback = webrtc::make_ref_counted<LLStatsCollectorCallback>(
-        [this](const LLWebRTCStatsMap& generic_stats)
+    webrtc::scoped_refptr<LLWebRTCPeerConnectionImpl> self(this);
+    mWebRTCImpl->PostSignalingTask(
+        [self]()
+    {
+        if (!self->mPeerConnection
+            || self->mShuttingDown
+            || self->mPeerConnectionState != webrtc::PeerConnectionInterface::PeerConnectionState::kConnected
+            || self->mStatsRequestPending) // signaling thread only
         {
-            for (auto& observer : mSignalingObserverList)
+            return;
+        }
+
+        self->mStatsRequestPending = true;
+
+        auto stats_callback = webrtc::make_ref_counted<LLStatsCollectorCallback>(
+            [self](const LLWebRTCStatsMap& generic_stats)
+        {
+            self->mStatsRequestPending = false;
+
+            // This can be delivered inline from PeerConnection::Close(), which
+            // flushes pending stats requests as it tears down.  Don't call out
+            // to the observers in that case -- we're on our way out.
+            if (!self->mPeerConnection || self->mShuttingDown)
+            {
+                return;
+            }
+
+            for (auto& observer : self->mSignalingObserverList)
             {
                 observer->OnStatsDelivered(generic_stats);
             }
         });
 
-     mPeerConnection->GetStats(stats_callback.get());
+        self->mPeerConnection->GetStats(stats_callback.get());
+    });
 }
 
 LLWebRTCImpl * gWebRTCImpl = nullptr;

@@ -31,6 +31,7 @@
 #include "llstring.h"
 #include "llcorehttputil.h"
 #include "llversioninfo.h"
+#include "llversioninfovars.h" // LL_VIEWER_CHANNEL
 
 #include <boost/json.hpp>
 #include <fstream>
@@ -43,15 +44,19 @@
 #include "Velopack.h"
 
 #if LL_WINDOWS
+#include "llappviewerwin32.h"
 #include <windows.h>
 #include <shlobj.h>
 #include <shobjidl.h>
 #include <shlwapi.h>
 #include <objbase.h>
 #include <filesystem>
+#include <propkey.h>
+#include <propvarutil.h>
 
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "propsys.lib")
 #pragma comment(lib, "shell32.lib")
 #endif // LL_WINDOWS
 
@@ -238,7 +243,7 @@ static bool custom_download_asset(void* user_data,
 {
     // The asset has already been downloaded at the coroutine level (before vpkc_download_updates).
     // This callback just copies the pre-downloaded file to where Velopack expects it.
-    // We cannot use getRawAndSuspend here — coroutine context is lost through the Rust FFI boundary.
+    // We cannot use getRawAndSuspend here - coroutine context is lost through the Rust FFI boundary.
     if (sPreDownloadedAssetPath.empty())
     {
         LL_WARNS("Velopack") << "No pre-downloaded asset available" << LL_ENDL;
@@ -330,6 +335,17 @@ static std::wstring get_desktop_path()
     return L"";
 }
 
+static std::wstring get_app_user_model_id()
+{
+    // Format: CompanyName.ProductName
+    // This ID is used for:
+    // 1. Registry registration (HKCU\Software\Classes\Applications\{exe}\AppUserModelID)
+    // 2. Shortcut property (IPropertyStore::SetValue with PKEY_AppUserModel_ID)
+    // 3. Runtime process ID (SetCurrentProcessExplicitAppUserModelID if needed)
+    // Must be consistent across all uses for proper taskbar grouping.
+    return L"LindenLab." + get_app_name_oneword();
+}
+
 static HRESULT create_shortcut(const std::wstring& shortcut_path,
                             const std::wstring& target_path,
                             const std::wstring& arguments,
@@ -353,6 +369,28 @@ static HRESULT create_shortcut(const std::wstring& shortcut_path,
         wcscpy_s(work_dir, target_path.c_str());
         PathRemoveFileSpecW(work_dir);
         shell_link->SetWorkingDirectory(work_dir);
+
+        // Set AppUserModelID on the shortcut
+        IPropertyStore* prop_store = nullptr;
+        hr = shell_link->QueryInterface(IID_IPropertyStore, (void**)&prop_store);
+        if (SUCCEEDED(hr))
+        {
+            PROPVARIANT pv;
+            PropVariantInit(&pv);
+            std::wstring app_id = get_app_user_model_id();
+            hr = InitPropVariantFromString(app_id.c_str(), &pv);
+            if (SUCCEEDED(hr))
+            {
+                hr = prop_store->SetValue(PKEY_AppUserModel_ID, pv);
+                PropVariantClear(&pv);
+                if (SUCCEEDED(hr))
+                {
+                    HRESULT hr_commit = prop_store->Commit();
+                    if (FAILED(hr_commit)) hr = hr_commit;
+                }
+            }
+            prop_store->Release();
+        }
 
         IPersistFile* persist_file = nullptr;
         hr = shell_link->QueryInterface(IID_IPersistFile, (void**)&persist_file);
@@ -402,6 +440,42 @@ static void register_protocol_handler(const std::wstring& protocol,
         RegSetValueExW(hkey, NULL, 0, REG_EXPAND_SZ,
                       (BYTE*)cmd_value.c_str(), (DWORD)((cmd_value.size() + 1) * sizeof(wchar_t)));
         RegCloseKey(hkey);
+    }
+}
+
+static void register_app_user_model_id(const std::wstring& exe_name)
+{
+    // Register AppUserModelID for the executable
+    // This allows Windows to properly group taskbar items when users drag-and-drop
+    // the exe to pin it, without requiring runtime calls to SetCurrentProcessExplicitAppUserModelID
+    std::wstring key_path = L"SOFTWARE\\Classes\\Applications\\" + exe_name;
+    HKEY hkey;
+
+    if (RegCreateKeyExW(HKEY_CURRENT_USER, key_path.c_str(), 0, NULL,
+        REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, NULL) == ERROR_SUCCESS)
+    {
+        std::wstring app_user_model_id = get_app_user_model_id();
+        LSTATUS status = RegSetValueExW(hkey, L"AppUserModelID", 0, REG_SZ,
+            (BYTE*)app_user_model_id.c_str(),
+            (DWORD)((app_user_model_id.size() + 1) * sizeof(wchar_t)));
+        RegCloseKey(hkey);
+
+        if (status == ERROR_SUCCESS)
+        {
+            LL_DEBUGS("Velopack") << "Registered AppUserModelID: "
+                << ll_convert_wide_to_string(app_user_model_id)
+                << " for " << ll_convert_wide_to_string(exe_name) << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS("Velopack") << "Failed to set AppUserModelID (error " << status << ") for "
+                << ll_convert_wide_to_string(exe_name) << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_WARNS("Velopack") << "Failed to register AppUserModelID for "
+            << ll_convert_wide_to_string(exe_name) << LL_ENDL;
     }
 }
 
@@ -717,6 +791,12 @@ static void unregister_protocol_handler(const std::wstring& protocol)
     RegDeleteTreeW(HKEY_CURRENT_USER, key_path.c_str());
 }
 
+static void unregister_app_user_model_id(const std::wstring& exe_name)
+{
+    std::wstring key_path = L"SOFTWARE\\Classes\\Applications\\" + exe_name;
+    RegDeleteTreeW(HKEY_CURRENT_USER, key_path.c_str());
+}
+
 static void register_uninstall_info(const std::wstring& install_dir,
                                     const std::wstring& app_name,
                                     const std::wstring& version)
@@ -793,7 +873,9 @@ static void unregister_uninstall_info()
     RegDeleteTreeW(HKEY_CURRENT_USER, key_path.c_str());
 }
 
-static void create_shortcuts(const std::wstring& install_dir, const std::wstring& app_name)
+static void create_shortcuts(
+    const std::wstring& install_dir,
+    const std::wstring& app_name)
 {
     std::wstring exe_path = install_dir + L"\\" + get_viewer_exe_name();
     std::wstring start_menu_dir = get_start_menu_path() + L"\\" + app_name;
@@ -865,21 +947,32 @@ static void on_after_install(void* user_data, const char* app_version)
 {
     std::wstring install_dir = get_install_dir();
     std::wstring app_name = get_app_name();
-    std::wstring exe_path = install_dir + L"\\" + get_viewer_exe_name();
+    std::wstring exe_name = get_viewer_exe_name();
+    std::wstring exe_path = install_dir + L"\\" + exe_name;
 
     register_protocol_handler(PROTOCOL_SECONDLIFE, L"URL:Second Life", exe_path);
     register_protocol_handler(PROTOCOL_GRID_INFO, L"URL:Second Life", exe_path);
+
+    // Register AppUserModelID for taskbar pinning support
+    register_app_user_model_id(exe_name);
+
     create_shortcuts(install_dir, app_name);
 }
 
 static void on_before_uninstall(void* user_data, const char* app_version)
 {
     std::wstring app_name = get_app_name();
+    std::wstring exe_name = get_viewer_exe_name();
 
     unregister_protocol_handler(PROTOCOL_SECONDLIFE);
     unregister_protocol_handler(PROTOCOL_GRID_INFO);
-    unregister_uninstall_info();
+    unregister_app_user_model_id(exe_name);
     remove_shortcuts(app_name);
+
+    std::wstring install_dir = get_install_dir();
+    LLAppViewerWin32::sendShutdownToOtherInstances(install_dir);
+
+    unregister_uninstall_info();
 }
 
 static void on_log_message(void* user_data, const char* level, const char* message)
@@ -998,7 +1091,7 @@ static void ensure_update_manager(bool allow_downgrade)
         LL_INFOS("Velopack") << "Auto-detect failed (" << ll_safe_string(err)
                              << "), falling back to explicit locator" << LL_ENDL;
 
-        // Auto-detection failed — construct an explicit locator.
+        // Auto-detection failed - construct an explicit locator.
         // This handles legacy DMG installs that don't have Velopack's
         // install state (UpdateMac, sq.version) in the bundle.
         vpkc_locator_config_t locator = {};
@@ -1166,7 +1259,7 @@ static void on_downloading_closed(const LLSD& notification, const LLSD& response
     sDownloadingNotification = nullptr;
     if (sIsRequired)
     {
-        // User closed the downloading dialog during a required update — re-show it
+        // User closed the downloading dialog during a required update - re-show it
         show_downloading_notification(sTargetVersion);
     }
 }
@@ -1255,12 +1348,12 @@ void velopack_check_for_updates(const std::string& required_version, const std::
     // strictly lower than what we're running (e.g., a retracted build).
     bool has_required = !required_version.empty();
     int ver_cmp = has_required ? compare_running_version(required_version) : 0;
-    bool allow_downgrade = ver_cmp > 0; // running > required → rollback scenario
+    bool allow_downgrade = ver_cmp > 0; // running > required -> rollback scenario
     ensure_update_manager(allow_downgrade);
     if (!sUpdateManager)
         return;
 
-    // Ask Velopack to check its feed — this is the source of truth
+    // Ask Velopack to check its feed - this is the source of truth
     vpkc_update_info_t* update_info = nullptr;
     vpkc_update_check_t result = vpkc_check_for_updates(sUpdateManager, &update_info);
 
@@ -1286,7 +1379,7 @@ void velopack_check_for_updates(const std::string& required_version, const std::
     sPendingCheckInfo = update_info;
 
     // Determine if this is mandatory: running version is below VVM's required floor
-    bool is_required = ver_cmp < 0; // running < required → must update
+    bool is_required = ver_cmp < 0; // running < required -> must update
     sIsRequired = is_required;
 
     if (is_required)
@@ -1297,12 +1390,12 @@ void velopack_check_for_updates(const std::string& required_version, const std::
         return;
     }
 
-    // Optional update — check user preference
+    // Optional update - check user preference
     U32 updater_setting = gSavedSettings.getU32("UpdaterServiceSetting");
 
     if (updater_setting == 3)
     {
-        // "Install each update automatically" — download silently, apply on quit
+        // "Install each update automatically" - download silently, apply on quit
         LL_INFOS("Velopack") << "Optional update to " << target_version
                              << ", downloading automatically (UpdaterServiceSetting=3)" << LL_ENDL;
         velopack_download_pending_update();

@@ -68,6 +68,18 @@ void LLWindowCallbacks::handleMouseLeave(LLWindow *window)
     return;
 }
 
+void LLWindowCallbacks::handlePreCloseRequest()
+{
+}
+
+void LLWindowCallbacks::handleCloseRequestCanceled()
+{
+}
+
+void LLWindowCallbacks::handleSuspendRequest()
+{
+}
+
 bool LLWindowCallbacks::handleCloseRequest(LLWindow *window, bool from_user)
 {
     //allow the window to close
@@ -190,7 +202,7 @@ bool LLWindowCallbacks::handleTimerEvent(LLWindow *window)
     return false;
 }
 
-bool LLWindowCallbacks::handleDeviceChange(LLWindow *window)
+bool LLWindowCallbacks::handleDeviceChange(LLWindow *window, const std::string& change_type)
 {
     return false;
 }

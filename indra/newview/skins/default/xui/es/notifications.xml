@@ -1119,7 +1119,6 @@ Puedes revisar tu conexión a Internet y volver a intentarlo en unos minutos, pu
 		Tu personaje aparecerá en un momento.
 
 Para caminar, usa las teclas del cursor.
-En cualquier momento, puedes pulsar la tecla F1 para conseguir ayuda o para aprender más acerca de [SECOND_LIFE].
 Por favor, elige el avatar masculino o femenino.
 Puedes cambiar más adelante tu elección.
 		<usetemplate name="okcancelbuttons" notext="Mujer" yestext="Varón"/>

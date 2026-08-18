@@ -45,8 +45,8 @@ using namespace LLOldEvents;
 const F32 MAX_FRACTIONAL = 1.5f;
 const F32 MIN_FRACTIONAL = 0.2f;
 
-const F32 MIN_BANDWIDTH = 50.f;
-const F32 MAX_BANDWIDTH = 6000.f;
+const F32 MIN_BANDWIDTH = 50.f;   // Kbps
+const F32 MAX_BANDWIDTH = 6000.f; // Kbps
 const F32 STEP_FRACTIONAL = 0.1f;
 const F32 HIGH_BUFFER_LOAD_TRESHOLD = 1.f;
 const F32 LOW_BUFFER_LOAD_TRESHOLD = 0.8f;
@@ -244,6 +244,8 @@ void LLViewerThrottle::sendToSim() const
 
 F32 LLViewerThrottle::getMaxBandwidthKbps()
 {
+    // Why are thse different than the constants with the same names higher up?
+    // Anybody know? -- Leviathan
     constexpr F32 MIN_BANDWIDTH = 100.0f; // 100 Kbps
     constexpr F32 MAX_BANDWIDTH = 10000.0f; // 10 Mbps
 
@@ -309,6 +311,21 @@ void LLViewerThrottle::resetDynamicThrottle()
 
 void LLViewerThrottle::updateDynamicThrottle()
 {
+    // User configurable bandwidth settings are merely vague aspirations.  Translating those
+    // to what should be sent to the servers is complicated.  Servers will tend to spike data
+    // transmission upon arrival, packets will arrive faster than we can process them, and this
+    // can overflow the buffer, which causes packet loss.
+    //
+    // In an attempt to avoid catastrophe we periodically measure buffer load and packet loss
+    // and then transmit a modified desired bandwidth to the server.  Unfortunately, this system
+    // does not work well for spikey data bursts because:
+    //   (1) the response takes too long (up to 5 seconds) to kick in
+    //   (2) once it starts it tends to ramp up too slowly
+    //   (3) it doesn't know which region is providing the flood; it just assumes it is
+    //       all from the main region
+    //
+    // TODO: fix those ^^^ problems
+
     if (mUpdateTimer.getElapsedTimeF32() < DYNAMIC_UPDATE_DURATION)
     {
         return;
@@ -347,5 +364,7 @@ void LLViewerThrottle::updateDynamicThrottle()
         LL_INFOS() << "Easing network throttle to " << mCurrentBandwidth << LL_ENDL;
     }
 
+    // Now that we've used mBufferLoadRate we reset it to zero because otherwise it only
+    // increases (see clamping behavior in setBufferLoadRate()).
     mBufferLoadRate = 0;
 }

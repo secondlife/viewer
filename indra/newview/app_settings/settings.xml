@@ -492,7 +492,7 @@
     <key>RecentJumpThresholdSecs</key>
     <map>
       <key>Comment</key>
-      <string>Seconds after a jump input during which finish-anim is suppressed to avoid interrupting rapid successive jumps.</string>
+      <string>Seconds after jump input during which landing finish-anim is suppressed to avoid interrupting rapid successive jumps.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3445,17 +3445,6 @@
       <key>Value</key>
       <string>https://viewer-help.secondlife.com/[LANGUAGE]/[CHANNEL]/[VERSION]/[TOPIC][DEBUG_MODE]</string>
     </map>
-    <key>HowToHelpURL</key>
-    <map>
-      <key>Comment</key>
-      <string>URL for How To help content</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>https://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/howto/index.html</string>
-    </map>
     <key>HomeSidePanelURL</key>
     <map>
       <key>Comment</key>
@@ -3477,17 +3466,6 @@
       <string>String</string>
       <key>Value</key>
       <string>https://search.[GRID]/viewer/?query_term=[QUERY]&amp;search_type=[TYPE][COLLECTION]&amp;maturity=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
-    </map>
-    <key>GuidebookURL</key>
-    <map>
-      <key>Comment</key>
-      <string>URL for Guidebook content</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://guidebooks.secondlife.io/welcome/index.html</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
@@ -5122,6 +5100,28 @@
   <map>
     <key>Comment</key>
     <string>Turn on debugging messages that may help diagnosing media issues (WARNING: May reduce performance).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MediaPluginPipeWireVolumeCatcher</key>
+  <map>
+    <key>Comment</key>
+    <string>Use PipeWire instead of PulseAudio for controlling web media volume.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MediaPluginForceVLC</key>
+  <map>
+    <key>Comment</key>
+    <string>Force use of VLC based media plugin. (Linux Only)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -7339,13 +7339,24 @@
     <key>RenderAnisotropic</key>
     <map>
       <key>Comment</key>
-      <string>Render textures using anisotropic filtering</string>
+      <string>[OBSOLETE] Render textures using anisotropic filtering</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>RenderAnisotropicLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Anisotropic filtering strength(0(Disable), 2x, 4x, 8x, 16x</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <real>0</real>
     </map>
     <key>RenderAppleUseMultGL</key>
     <map>
@@ -7563,7 +7574,7 @@
    <key>RenderHiDPI</key>
   <map>
     <key>Comment</key>
-    <string>Enable support for HiDPI displays, like Retina (macOS ONLY, requires restart)</string>
+    <string>Enable support for HiDPI displays, like Retina (macOS and Linux ONLY, requires restart)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -8068,6 +8079,17 @@
       <key>Value</key>
       <integer>1</integer>
   </map>
+  <key>RenderMinFreeMainMemoryThreshold</key>
+  <map>
+    <key>Comment</key>
+    <string>If available free physical memory is below this value textures get agresively scaled down</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>512</integer>
+  </map>
   <key>RenderLowMemMinDiscardIncrement</key>
   <map>
     <key>Comment</key>
@@ -8090,10 +8112,21 @@
     <key>Value</key>
     <real>0.1</real>
   </map>
+  <key>RenderMaxTextureIndex</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum texture index to use for indexed texture rendering.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>16</integer>
+  </map>
   <key>RenderMaxTextureResolution</key>
   <map>
     <key>Comment</key>
-    <string>Maximum texture resolution to download for non-boosted textures. Driven by RenderTextureQuality.</string>
+    <string>Maximum texture resolution to download for non-boosted textures.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -8122,6 +8155,17 @@
         <string>U32</string>
         <key>Value</key>
         <integer>0</integer>
+    </map>
+    <key>RenderDebugTextureBind</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable texture bind performance test.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
   <key>RenderDelayCreation</key>
   <map>
@@ -9107,6 +9151,17 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
+    <key>NametagOverWater</key>
+    <map>
+        <key>Comment</key>
+        <string>Render name tag over the transparent water while camera is above the water</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
     <key>RenderInitError</key>
     <map>
       <key>Comment</key>
@@ -9298,7 +9353,7 @@
   <key>RenderReflectionDetail</key>
     <map>
       <key>Comment</key>
-      <string>DEPRECATED - use RenderTransparentWater and RenderReflectionProbeDetail - Detail of reflection render pass.</string>
+      <string>DEPRECATED -- use RenderTransparentWater and RenderReflectionProbeDetail -- Detail of reflection render pass.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9449,6 +9504,17 @@
     <string>S32</string>
     <key>Value</key>
     <integer>64</integer>
+  </map>
+  <key>RenderReservedTextureIndices</key>
+  <map>
+    <key>Comment</key>
+    <string>Count of texture indices to reserve for shadow and reflection maps when using indexed texture rendering.  Probably only want to set from the login screen.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>14</integer>
   </map>
   <key>RenderResolutionDivisor</key>
   <map>
@@ -9959,6 +10025,17 @@
     <key>Value</key>
     <real>1</real>
   </map>
+  <key>CollectUIImageVertexBuffers</key>
+  <map>
+    <key>Comment</key>
+    <string>When enabled, images will cache vertex buffers and reuse them. When disabled, the general cache will be used with significant hash-lookup overhead, but vertices are regenerated each frame so they are always up to date.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <real>1</real>
+  </map>
   <key>ShowMyComplexityChanges</key>
   <map>
     <key>Comment</key>
@@ -10264,6 +10341,17 @@
     <map>
         <key>Comment</key>
         <string>When enabled, HDR settings (tonemapper, tonemap mix, HDR min/max/offset) are driven by environment settings instead of debug settings.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
+    <key>RenderHighPrecisionPostProcess</key>
+    <map>
+        <key>Comment</key>
+        <string>Use 16-bit floating point buffers for post process rendering</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
@@ -12157,6 +12245,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureDiscardBackgroundedTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Specify how long to wait before discarding texture data after viewer is backgrounded.  (zero or negative to disable)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>60.0</real>
+    </map>
+    <key>TextureDiscardMinimizedTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Specify how long to wait before discarding texture data after viewer is minimized.  (zero or negative to disable)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>1.0</real>
+    </map>
     <key>TextureFetchConcurrency</key>
     <map>
       <key>Comment</key>
@@ -12245,27 +12355,27 @@
       <key>Value</key>
       <string />
     </map>
-    <key>TextureAvatarBoost</key>
+    <key>TextureScaleMinAreaFactor</key>
     <map>
         <key>Comment</key>
-        <string>Coverage multiplier for avatar textures: worn attachments (rigged extents make their measurement unreliable) and baked system-avatar textures. 4.0 = one mip finer than measured. A bonus, not a pin - nearby avatars gain headroom while distant avatars still downrez with their measured coverage. 1.0 disables.</string>
+        <string>Limits how texture scale affects area calculation.</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>4.0</real>
+        <real>0.0095</real>
     </map>
-    <key>TextureDownrezCoverageBias</key>
+    <key>TextureScaleMaxAreaFactor</key>
     <map>
         <key>Comment</key>
-        <string>Which end of a texture's texels-per-pixel spread sizes it. Each texture tracks the screen coverage of its most demanding use (lowest texels per pixel) and least demanding use (highest texels per pixel, most oversampled). 0 = size to the most demanding use (best quality); 1 = size to the least demanding use (frees the most memory). Interpolation is geometric (log-space), so the resulting discard level moves linearly with this value - 0.5 sits halfway between the two ends in mip levels. Default 0.25 is the best universal balance.</string>
+        <string>Limits how texture scale affects area calculation.</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>0.25</real>
+        <real>25.0</real>
     </map>
     <key>TextureOffscreenUnloadBias</key>
     <map>
@@ -13559,6 +13669,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SwitchToSharedEnvAfterTeleport</key>
+    <map>
+      <key>Comment</key>
+      <string>Switch to Shared Environment after teleport</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PreferredBrowserBehavior</key>
     <map>
       <key>Comment</key>
@@ -14058,7 +14179,7 @@
     <key>WLSkyDetail</key>
     <map>
       <key>Comment</key>
-      <string>Controls vertex detail on the WindLight sky.  Lower numbers will give better performance and uglier skies.</string>
+      <string>[OBSOLETE]</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -14675,7 +14796,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>OutfitOperationsTimeout</key>
     <map>
@@ -14687,6 +14808,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>180</integer>
+    </map>
+    <key>OSHibernationMode</key>
+    <map>
+        <key>Comment</key>
+        <string>Whether to prevent OS from hibernating. 0 - can hibernate; 1 - can't hibernate, can turn screen off; 2 - can't hibernate, can't turn screen off </string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>0</integer>
     </map>
     <key>HeightUnits</key>
     <map>
@@ -16407,6 +16539,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CEFRemoteDebuggingPort</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable CEF remote debugging on the specified base port (1024 to 65535, 0 to disable). Each new SLPlugin gets base+N.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>360CaptureJPEGEncodeQuality</key>
   <map>
     <key>Comment</key>
@@ -16509,7 +16652,7 @@
   <key>EmulateCoreCount</key>
   <map>
     <key>Comment</key>
-    <string>For debugging - number of cores to restrict the main process to, or 0 for no limit.  Requires restart.</string>
+    <string>For debugging -- number of cores to restrict the main process to, or 0 for no limit.  Requires restart.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -16663,7 +16806,7 @@
 <key>MultiModeDoubleClickFolder</key>
 <map>
   <key>Comment</key>
-  <string>Sets the action for Double-click on folder in multi-folder view (0 - expands and collapses folder, 1 - opens a new window, 2 - stays in current floater but switches to SFV)</string>
+  <string>Sets the action for Double-click on folder in multi-folder view (0 - expands and collapses folder, 1 - opens a new window, 2 – stays in current floater but switches to SFV)</string>
   <key>Persist</key>
   <integer>1</integer>
   <key>Type</key>

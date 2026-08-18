@@ -192,8 +192,8 @@ void main()
     vec3  radiance  = vec3(0);
     sampleReflectionProbes(irradiance, radiance, frag, pos.xyz, norm.xyz, gloss, true, amblit);
 
-    vec3 diffuseColor;
-    vec3 specularColor;
+    vec3 diffuseColor = vec3(0.0);
+    vec3 specularColor = vec3(0.0);
     float specWeight = 1.0;
     calcDiffuseSpecular(col.rgb, metallic, specularFactor, specularColorFactor, ior, diffuseColor, specularColor, specWeight);
 

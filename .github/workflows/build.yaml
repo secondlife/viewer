@@ -51,8 +51,9 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        runner: ${{ fromJson((github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge"]' || '["windows-2022","macos-15-xlarge"]') }}
+        runner: ${{ fromJson((github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge","linux-large"]' || '["windows-2022","macos-15-xlarge","ubuntu-22.04"]') }}
         configuration: ${{ fromJson(needs.setup.outputs.configurations) }}
+        build_variant: [Viewer, Tests]
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
@@ -90,9 +91,9 @@ jobs:
       DEVELOPER_DIR: "/Applications/Xcode_16.4.app/Contents/Developer"
       # Ensure that Linden viewer builds engage Bugsplat.
       BUGSPLAT_DB: ${{ needs.setup.outputs.bugsplat_db }}
-      build_coverity: false
       build_log_dir: ${{ github.workspace }}/.logs
-      build_viewer: true
+      build_viewer: ${{ matrix.build_variant == 'Viewer' }}
+      build_tests: ${{ matrix.build_variant == 'Tests' }}
       BUILDSCRIPTS_SHARED: ${{ github.workspace }}/.shared
       # extracted and committed to viewer repo
       BUILDSCRIPTS_SUPPORT_FUNCTIONS: ${{ github.workspace }}/buildscripts_support_functions
@@ -110,23 +111,37 @@ jobs:
       autobuild_configure_parameters: ${{ (contains(matrix.runner, 'windows') || contains(matrix.runner, 'macos')) && (github.event.inputs.installer_type || 'velopack') == 'velopack' && '-- -DUSE_VELOPACK:BOOL=ON' || '' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      - name: Linux Disk Cleanup
+        if: matrix.build_variant == 'Viewer' && runner.os == 'Linux'
+        run: |
+          # Prune various unused files from linux builder for Viewer build to fix runner disk space exhaustion
+          df -h
+          sudo docker container prune -f
+          sudo docker image prune -a -f
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/.ghcup
+          df -h
+
       - name: Setup python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
       - name: Checkout build variables
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: secondlife/build-variables
           ref: master
           path: .build-variables
 
       - name: Checkout master-message-template
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: secondlife/master-message-template
           path: .master-message-template
@@ -136,13 +151,29 @@ jobs:
 
       - name: Cache autobuild packages
         id: cache-installables
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: .autobuild-installables
-          key: ${{ runner.os }}-64-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
+          key: ${{ runner.os }}-64-${{ matrix.configuration }}-${{ matrix.build_variant }}-${{ hashFiles('autobuild.xml') }}
           restore-keys: |
+            ${{ runner.os }}-64-${{ matrix.configuration }}-${{ matrix.build_variant }}-
             ${{ runner.os }}-64-${{ matrix.configuration }}-
             ${{ runner.os }}-64-
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            libpulse-dev libunwind-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
+            libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
+            libpipewire-0.3-dev libdbus-1-dev libvlc-dev \
+            libosmesa6-dev
+          sudo locale-gen en_US.UTF-8
+          sudo locale-gen en_GB.UTF-8
+          sudo locale-gen fr_FR.UTF-8
 
       - name: Determine source branch
         id: which-branch
@@ -299,7 +330,7 @@ jobs:
           echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
 
       - name: Upload executable
-        if: steps.build.outputs.viewer_app
+        if: matrix.build_variant == 'Viewer' && steps.build.outputs.viewer_app
         uses: actions/upload-artifact@v7
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
@@ -309,7 +340,7 @@ jobs:
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
       - name: Upload symbol file
-        if: steps.build.outputs.symbolfile
+        if: matrix.build_variant == 'Viewer' && steps.build.outputs.symbolfile
         uses: actions/upload-artifact@v7
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
@@ -317,6 +348,7 @@ jobs:
 
       - name: Upload metadata
         uses: actions/upload-artifact@v7
+        if: matrix.build_variant == 'Viewer'
         with:
           name: "${{ steps.build.outputs.artifact }}-metadata"
           # emitted by build.sh, possibly multiple lines
@@ -326,12 +358,22 @@ jobs:
       - name: Upload physics package
         uses: actions/upload-artifact@v7
         # should only be set for viewer-private
-        if: matrix.configuration == 'Release' && steps.build.outputs.physicstpv
+        if: matrix.build_variant == 'Viewer' && matrix.configuration == 'Release' && steps.build.outputs.physicstpv
         with:
           name: "${{ steps.build.outputs.artifact }}-physics"
           # emitted by build.sh, zero or one lines
           path: |
             ${{ steps.build.outputs.physicstpv }}
+
+      - name: Upload appearance utility package
+        uses: actions/upload-artifact@v7
+        if: matrix.build_variant == 'Viewer' && steps.build.outputs.appearanceutility
+        with:
+          name: "${{ steps.build.outputs.artifact }}-appearanceutility"
+          # emitted by build.sh, zero or one lines
+          path: |
+            ${{ steps.build.outputs.appearanceutility }}
+
 
   sign-and-package-windows:
     env:
@@ -434,7 +476,7 @@ jobs:
           tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
       - name: Post Windows symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: BugSplat-Git/symbol-upload@095d163ae9ceb006d286a731dcd35cf6a1b458c8
+        uses: BugSplat-Git/symbol-upload@3857759bd957dadb075509a4e951f04f9baa5ea3
         with:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"
@@ -462,7 +504,7 @@ jobs:
           name: macOS-symbols
       - name: Post Mac symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: BugSplat-Git/symbol-upload@095d163ae9ceb006d286a731dcd35cf6a1b458c8
+        uses: BugSplat-Git/symbol-upload@3857759bd957dadb075509a4e951f04f9baa5ea3
         with:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"
@@ -487,9 +529,13 @@ jobs:
         with:
           pattern: "*-metadata"
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: "*-releases"
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: "Linux-app"
 
       - name: Rename metadata
         run: |
@@ -497,6 +543,8 @@ jobs:
           cp Windows-metadata/newview/viewer_version.txt Windows-viewer_version.txt
           cp macOS-metadata/autobuild-package.xml macOS-autobuild-package.xml
           cp macOS-metadata/newview/viewer_version.txt macOS-viewer_version.txt
+          cp Linux-metadata/autobuild-package.xml Linux-autobuild-package.xml
+          cp Linux-metadata/newview/viewer_version.txt Linux-viewer_version.txt
 
       # forked from softprops/action-gh-release
       - name: Create GitHub release
@@ -520,6 +568,7 @@ jobs:
           files: |
             macOS-installer/*.dmg
             Windows-installer/*.exe
+            *.tar.xz
             *-autobuild-package.xml
             *-viewer_version.txt
             Windows-releases/*

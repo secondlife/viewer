@@ -108,6 +108,12 @@
          help_topic="preferences_audio_tab"
          name="audio" />
         <panel
+         class="panel_preference"
+         filename="panel_preferences_voice.xml"
+         label="Voice"
+         layout="topleft"
+         name="voice" />
+        <panel
 		 class="panel_preference"
          filename="panel_preferences_chat.xml"
          label="Chat"

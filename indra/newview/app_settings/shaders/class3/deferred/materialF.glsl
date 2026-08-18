@@ -262,7 +262,7 @@ void alphaMask(float alpha)
 #endif
 }
 
-void waterClip()
+void applyWaterClip()
 {
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
     waterClip(vary_position.xyz);
@@ -284,17 +284,17 @@ float getShadow(vec3 pos, vec3 norm)
     #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
         return sampleDirectionalShadow(pos, norm, vary_texcoord0.xy);
     #else
-        return 1;
+        return 1.0;
     #endif
 #else
-    return 1;
+    return 1.0;
 #endif
 }
 
 void main()
 {
     mirrorClip(vary_position);
-    waterClip();
+    applyWaterClip();
 
     // diffcol == diffuse map combined with vertex color
     vec4 diffcol = texture(diffuseMap, vary_texcoord0.xy);
@@ -337,8 +337,8 @@ void main()
     vec3 amblit_linear = amblit;
 
     vec3 ambenv = amblit;
-    vec3 glossenv;
-    vec3 legacyenv;
+    vec3 glossenv = vec3(0.0);
+    vec3 legacyenv = vec3(0.0);
     sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, gl_FragCoord.xy / screen_res, pos.xyz, norm.xyz, glossiness, env, true, amblit_linear);
 
     color = ambenv;
@@ -441,5 +441,3 @@ void main()
 
 #endif
 }
-
-

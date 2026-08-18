@@ -1298,7 +1298,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
                 else
                 {
                     mCanUseCapability = false;
-                    if (gDisconnected)
+                    if (gDisconnected || LLAppViewer::isExiting())
                     {
                         // We lost connection or are shutting down.
                         mCanUseHTTP = false;
@@ -1316,6 +1316,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
             else
             {
                 mCanUseCapability = false;
+                if (gDisconnected || LLAppViewer::isExiting())
+                {
+                    // We lost connection or are shutting down.
+                    mCanUseHTTP = false;
+                    return true; // abort
+                }
                 mRegionRetryAttempt++;
                 mRegionRetryTimer.setTimerExpirySec(CAP_MISSING_EXPIRATION_DELAY);
                 // This will happen if not logged in or if a region deoes not have HTTP Texture enabled
@@ -2526,18 +2532,26 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
     {
         LL_DEBUGS("Avatar") << " requesting " << id << " " << w << "x" << h << " discard " << desired_discard << " type " << f_type << LL_ENDL;
     }
-    LLTextureFetchWorker* worker = getWorker(id);
+
+    // Potentially we might remove a request, lock queue here instead
+    // of getWorker to make sure request will persist till removeRequest
+    lockQueue();
+    LLTextureFetchWorker* worker = getWorkerAfterLock(id);
     if (worker)
     {
         if (worker->mHost != host)
         {
             LL_WARNS(LOG_TXT) << "LLTextureFetch::createRequest " << id << " called with multiple hosts: "
                 << host << " != " << worker->mHost << LL_ENDL;
-            removeRequest(worker, true);
+            size_t erased_1 = mRequestMap.erase(worker->mID);
+            llassert_always(erased_1 > 0);
+            unlockQueue();
+            worker->scheduleDelete();
             worker = NULL;
             return CREATE_REQUEST_ERROR_MHOSTS;
         }
     }
+    unlockQueue();
 
     S32 desired_size;
     std::string exten = gDirUtilp->getExtension(url);
@@ -2716,9 +2730,11 @@ void LLTextureFetch::deleteAllRequests()
         }
 
         LLTextureFetchWorker* worker = mRequestMap.begin()->second;
-        unlockQueue() ;
+        size_t erased_1 = mRequestMap.erase(worker->mID);
+        llassert_always(erased_1 > 0);
+        unlockQueue();
 
-        removeRequest(worker, true);
+        worker->scheduleDelete();
     }
 }
 

@@ -28,6 +28,14 @@
          parameter="not_blocked" />
     </menu_item_call>
     <menu_item_call
+     label="Report Abuse..."
+     layout="topleft"
+     name="Report Abuse">
+        <menu_item_call.on_click
+         function="ObjectIcon.Action"
+         parameter="report_abuse" />
+    </menu_item_call>
+    <menu_item_call
      label="Unblock"
      layout="topleft"
      name="Unblock">

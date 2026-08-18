@@ -44,6 +44,7 @@
 #include "llchicletbar.h"
 #include "llconsole.h"
 #include "lldonotdisturbnotificationstorage.h"
+#include "llenvironment.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloaterimcontainer.h"
@@ -1551,6 +1552,8 @@ void LLAgent::setAFK()
         setControlFlags(AGENT_CONTROL_AWAY | AGENT_CONTROL_STOP);
         gAwayTimer.start();
     }
+
+    LLAppViewer::instance()->setPermitOSHibernation(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -1568,6 +1571,13 @@ void LLAgent::clearAFK()
     {
         sendAnimationRequest(ANIM_AGENT_AWAY, ANIM_REQUEST_STOP);
         clearControlFlags(AGENT_CONTROL_AWAY);
+    }
+
+    if (isAgentAvatarValid())
+    {
+        // Only set this if agent is inworld, login screen
+        // shouldn't prevent hibernation.
+        LLAppViewer::instance()->setPermitOSHibernation(false);
     }
 }
 
@@ -2669,17 +2679,20 @@ void LLAgent::onAnimStop(const LLUUID& id)
     else if (id == ANIM_AGENT_PRE_JUMP || id == ANIM_AGENT_LAND || id == ANIM_AGENT_MEDIUM_LAND)
     {
         // FIRE-34049/FIRE-34273/https://github.com/secondlife/viewer/issues/4218
-        // Avoid forcing AGENT_CONTROL_FINISH_ANIM, which can short-circuit the next pre-jump
-        // during rapid successive jumps.
+        // Avoid forcing AGENT_CONTROL_FINISH_ANIM on landing, which can short-circuit the
+        // next pre-jump during rapid successive jumps.
+        // Do not suppress pre-jump finish, otherwise a quick tap from standing can stall.
         // TODO: a more robust fix would require knowing which specific animation finished,
         // information that is not currently provided by the simulator.
+        const bool is_landing_anim = (id == ANIM_AGENT_LAND || id == ANIM_AGENT_MEDIUM_LAND);
         const bool up_pos = (mControlFlags & AGENT_CONTROL_UP_POS) != 0;
         const F64 now = LLTimer::getTotalSeconds();
         const F64 elapsed = now - mLastJumpInputTime;
-        static LLCachedControl<F32> recent_jump_threshold_secs(gSavedSettings, "RecentJumpThresholdSecs");
+        static LLCachedControl<F32> recent_jump_threshold_secs(gSavedSettings, "RecentJumpThresholdSecs", 1.0);
         const bool recent_jump = (mLastJumpInputTime > 0.0) && (elapsed < recent_jump_threshold_secs);
+        const bool suppress_finish = is_landing_anim && recent_jump;
 
-        if (!up_pos && !recent_jump)
+        if (!up_pos && !suppress_finish)
         {
             setControlFlags(AGENT_CONTROL_FINISH_ANIM);
         }
@@ -4138,6 +4151,7 @@ void LLAgent::handleTeleportFinished()
     }
     clearTeleportRequest();
     mTeleportCanceled.reset();
+    LLVOAvatar::resetEarlyAppearanceList();
     if (mIsMaturityRatingChangingDuringTeleport)
     {
         // notify user that the maturity preference has been changed
@@ -4168,6 +4182,11 @@ void LLAgent::handleTeleportFinished()
                                   << LL_ENDL;
             mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::onCapabilitiesReceivedAfterTeleport));
         }
+    }
+    static LLCachedControl<bool> shared_env_on_teleport(gSavedSettings, "SwitchToSharedEnvAfterTeleport", true);
+    if (shared_env_on_teleport)
+    {
+        LLEnvironment::instance().setSharedEnvironment();
     }
     LLPerfStats::tunables.autoTuneTimeout = true;
 }

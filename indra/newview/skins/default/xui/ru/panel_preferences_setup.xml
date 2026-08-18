@@ -36,4 +36,12 @@
 		Настройки прокси-сервера:
 	</text>
 	<button label="Задать настройки" label_selected="Обзор" name="set_proxy"/>
+	<text name="os_hibernation_mode">
+		Предотвращать гибернацию ОС, если пользователь не отошел:
+	</text>
+	<combo_box name="os_hibernation_combobox" tool_tip="Предотвращает переход ОС в сон, только если пользователь не отошел">
+		<combo_box.item label="Гибернация разрешена" name="can_hibernate"/>
+		<combo_box.item label="Гибернация запрещена, экран можно выключать" name="cant_hibernate"/>
+		<combo_box.item label="Гибернация запрещена, экран нельзя выключать" name="cant_hibernate_screen"/>
+	</combo_box>
 </panel>

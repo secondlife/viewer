@@ -727,17 +727,22 @@ void LLWearable::writeToAvatar(LLAvatarAppearance* avatarp)
     if (!avatarp) return;
 
     // Pull params
-    for( const LLVisualParam* param = avatarp->getFirstVisualParam(); param; param = avatarp->getNextVisualParam() )
+    // Iterate over wearable's params first since they should be fewer than avatar params.
+    // Wearables are cloned from avatar params by mType, so they should be always be a
+    // subset of the avatar's params and a situation where mType param doesn't exist in
+    // a wearable yet exist in the avatar should not happen.
+    for (const visual_param_index_map_t::value_type& vp_pair : mVisualParamIndexMap)
     {
+        LLVisualParam* wearable_param = vp_pair.second;
+
         // cross-wearable parameters are not authoritative, as they are driven by a different wearable. So don't copy the values to the
         // avatar object if cross wearable. Cross wearable params get their values from the avatar, they shouldn't write the other way.
-        if( (((LLViewerVisualParam*)param)->getWearableType() == mType) && (!((LLViewerVisualParam*)param)->getCrossWearable()) )
-        {
-            S32 param_id = param->getID();
-            F32 weight = getVisualParamWeight(param_id);
+        if (((LLViewerVisualParam*)wearable_param)->getCrossWearable())
+            continue;
 
-            avatarp->setVisualParamWeight( param_id, weight);
-        }
+        F32 weight = wearable_param->getWeight();
+        // Silently fails if param was not found
+        avatarp->setVisualParamWeight(vp_pair.first, mType, weight);
     }
 }
 

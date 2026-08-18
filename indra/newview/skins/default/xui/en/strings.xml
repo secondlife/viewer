@@ -206,6 +206,8 @@ If you feel this is an error, please contact support@secondlife.com</string>
 	<string name="AgentLostConnection">This region may be experiencing trouble.  Please check your connection to the Internet.</string>
 	<string name="SavingSettings">Saving your settings...</string>
 	<string name="LoggingOut">Logging out...</string>
+	<string name="CompressingInventoryCache">Compressing inventory cache...</string>
+	<string name="ShutdownCleanup">Releasing resources...</string>
 	<string name="ShuttingDown">Shutting down...</string>
 	<string name="YouHaveBeenDisconnected">You have been disconnected from the region you were in.</string>
 	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
@@ -225,6 +227,7 @@ If you feel this is an error, please contact support@secondlife.com</string>
     <string name="Toycamera">Toy Camera</string>
 	
     <!-- Tooltip -->
+	<string name="ReorderClothingTooltip">Drag to reorder layers, or use the arrows</string> <!-- Hint shown on clothing rows that can be dragged to reorder -->
 	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
 	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
 	<string name="TooltipOwner">Owner:</string> <!-- Owner name follows -->
@@ -598,7 +601,7 @@ http://secondlife.com/support for help fixing this problem.
     <string name="Validator_ShouldBeDigitOrAlphaOrPunctNotSpace">Invalid character [NR]: '[CH]' (should only be a digit or an alpha-numeric ASCII character or a punctuation with no space)</string>
     <string name="Validator_ShouldBeDigitNotSpace">Invalid character [NR]: '[CH]' (should only be a digit with no space)</string>
     <string name="Validator_ShouldBeASCII">Invalid character [NR]: '[CH]' (should only be an ASCII character)</string>
-    <string name="Validator_ShouldBeNewLineOrASCII">Invalid character [NR]: '[CH]' (should only be an ASCII character or a new line)</string>
+    <string name="Validator_ShouldBeNewLineOrASCIINoPipe">Character [CH] at position [NR] should be printable ASCII (excluding pipe) or newline</string>
 
     <!-- LSL Usage Hover Tips -->
   <!-- NOTE: For now these are set as translate="false", until DEV-40761 is implemented (to internationalize the rest of tooltips in the same window).
@@ -2325,7 +2328,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="LeaveMouselook">Press ESC to return to World View</string>
 
 	<!-- inventory -->
-	<string name="InventoryNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].</string>
+	<string name="InventoryNoMatchingItems">No matching items.</string>
 	<string name="InventoryNoMatchingRecentItems">Didn't find what you're looking for? Try [secondlife:///app/inventory/filters Show filters].</string>	
   <string name="InventoryNoMatchingFavorites">You haven't marked any items as favorites.</string>
 	<string name="PlacesNoMatchingItems">To add a place to your landmarks, click the star to the right of the location name.</string>
@@ -4207,7 +4210,6 @@ name="Command_360_Capture_Label">360 snapshot</string>
   <string name="Command_Environments_Label">My Environments</string>
   <string name="Command_Gestures_Label">Gestures</string>
   <string name="Command_Grid_Status_Label">Grid status</string>
-  <string name="Command_HowTo_Label">Guidebook</string>
   <string name="Command_Inventory_Label">Inventory</string>
   <string name="Command_Map_Label">Map</string>
   <string name="Command_Marketplace_Label">Marketplace</string>
@@ -4240,7 +4242,6 @@ name="Command_360_Capture_Tooltip">Capture a 360 equirectangular image</string>
   <string name="Command_Environments_Tooltip">My Environments</string>
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
   <string name="Command_Grid_Status_Tooltip">Show current Grid status</string>
-  <string name="Command_HowTo_Tooltip">How to do common tasks</string>
   <string name="Command_Inventory_Tooltip">View and use your belongings</string>
   <string name="Command_Map_Tooltip">Map of the world</string>
   <string name="Command_Marketplace_Tooltip">Go shopping</string>

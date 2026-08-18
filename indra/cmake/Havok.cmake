@@ -27,26 +27,26 @@ else (LL_DEBUG_HAVOK)
 endif (LL_DEBUG_HAVOK)
 
 set(HAVOK_LIBS
-    hkBase
-    hkCompat
+    hkgpConvexDecomposition
     hkGeometryUtilities
-    hkInternal
     hkSerialize
     hkSceneData
     hkpCollide
     hkpUtilities
     hkpConstraintSolver
     hkpDynamics
-    hkpInternal
-    hkaiInternal
     hkaiPathfinding
     hkaiAiPhysicsBridge
-    hkcdInternal
     hkcdCollide
     hkpVehicle
     hkVisualize
     hkaiVisualize
-    hkgpConvexDecomposition
+    hkaiInternal
+    hkcdInternal
+    hkpInternal
+    hkInternal
+    hkCompat
+    hkBase
 )
 
 unset(HK_DEBUG_LIBRARIES)
@@ -60,16 +60,22 @@ if (DEBUG_PREBUILT)
     # but making it pretty is a lot more work
     message(STATUS "${ARGN}")
   endfunction(DEBUG_MESSAGE)
+  function(DEBUG_EXEC_FUNC)
+    execute_process(COMMAND ${ARGN})
+  endfunction(DEBUG_EXEC_FUNC)
 else (DEBUG_PREBUILT)
   # without DEBUG_PREBUILT, DEBUG_MESSAGE() is a no-op
   function(DEBUG_MESSAGE)
   endfunction(DEBUG_MESSAGE)
+  function(DEBUG_EXEC_FUNC)
+    execute_process(COMMAND ${ARGN} OUTPUT_QUIET)
+  endfunction(DEBUG_EXEC_FUNC)
 endif (DEBUG_PREBUILT)
 
 # DEBUG_EXEC() reports each execute_process() before invoking
 function(DEBUG_EXEC)
   DEBUG_MESSAGE(${ARGN})
-  execute_process(COMMAND ${ARGN})
+  DEBUG_EXEC_FUNC(${ARGN})
 endfunction(DEBUG_EXEC)
 
 # *TODO: Figure out why we need to extract like this...
@@ -79,9 +85,7 @@ foreach(HAVOK_LIB ${HAVOK_LIBS})
   find_library(HAVOK_RELWITHDEBINFO_LIB_${HAVOK_LIB} ${HAVOK_LIB} PATHS ${HAVOK_RELWITHDEBINFO_LIBRARY_PATH})
 
   if(LINUX)
-    set(debug_dir "${HAVOK_DEBUG_LIBRARY_PATH}/${HAVOK_LIB}")
     set(release_dir "${HAVOK_RELEASE_LIBRARY_PATH}/${HAVOK_LIB}")
-    set(relwithdebinfo_dir "${HAVOK_RELWITHDEBINFO_LIBRARY_PATH}/${HAVOK_LIB}")
 
     # Try to avoid extracting havok library each time we run cmake.
     if("${havok_${HAVOK_LIB}_extracted}" STREQUAL "" AND EXISTS "${PREBUILD_TRACKING_DIR}/havok_${HAVOK_LIB}_extracted")
@@ -92,8 +96,8 @@ foreach(HAVOK_LIB ${HAVOK_LIBS})
     if(${PREBUILD_TRACKING_DIR}/havok_source_installed IS_NEWER_THAN ${PREBUILD_TRACKING_DIR}/havok_${HAVOK_LIB}_extracted OR NOT ${havok_${HAVOK_LIB}_extracted} EQUAL 0)
       DEBUG_MESSAGE("Extracting ${HAVOK_LIB}...")
 
-      foreach(lib ${debug_dir} ${release_dir} ${relwithdebinfo_dir})
-        DEBUG_EXEC("mkdir" ${lib})
+      foreach(lib ${release_dir})
+        DEBUG_EXEC("mkdir" "-p" ${lib})
         DEBUG_EXEC("ar" "-xv" "../lib${HAVOK_LIB}.a"
           WORKING_DIRECTORY ${lib})
       endforeach(lib)
@@ -104,17 +108,12 @@ foreach(HAVOK_LIB ${HAVOK_LIBS})
 
     endif()
 
-    file(GLOB extracted_debug "${debug_dir}/*.o")
     file(GLOB extracted_release "${release_dir}/*.o")
-    file(GLOB extracted_relwithdebinfo "${relwithdebinfo_dir}/*.o")
-
-    DEBUG_MESSAGE("extracted_debug ${debug_dir}/*.o")
     DEBUG_MESSAGE("extracted_release ${release_dir}/*.o")
-    DEBUG_MESSAGE("extracted_relwithdebinfo ${relwithdebinfo_dir}/*.o")
 
-    list(APPEND HK_DEBUG_LIBRARIES ${extracted_debug})
+    list(APPEND HK_DEBUG_LIBRARIES ${extracted_release})
     list(APPEND HK_RELEASE_LIBRARIES ${extracted_release})
-    list(APPEND HK_RELWITHDEBINFO_LIBRARIES ${extracted_relwithdebinfo})
+    list(APPEND HK_RELWITHDEBINFO_LIBRARIES ${extracted_release})
   else(LINUX)
     # Win32
     list(APPEND HK_DEBUG_LIBRARIES   ${HAVOK_DEBUG_LIB_${HAVOK_LIB}})

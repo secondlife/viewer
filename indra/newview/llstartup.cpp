@@ -24,6 +24,72 @@
  * $/LicenseInfo$
  */
 
+//
+// LOGIN AND CONNECTION SEQUENCE OVERVIEW
+// ======================================
+// The Viewer connects to the SL service in two phases: HTTP authentication
+// followed by UDP "Circuit" establishment to the first Simulator.
+//
+// PHASE 1: HTTP LOGIN (see lllogin.cpp, process_login_success_response())
+// -----------------------------------------------------------------------
+// Viewer sends an XMLRPC HTTP POST to LoginServer containing:
+//   - Credentials (first name, last name, password)
+//   - Client version, channel, MAC address, machine ID
+//   - Start location preferences
+//
+// Login-server responds with critical connection data:
+//   - agent_id, session_id, secure_session_id (authentication tokens)
+//   - Circuit_code (used to establish UDP Circuit with Simulator)
+//   - sim_ip, sim_port (Simulator address to connect to)
+//   - seed_capability (base URL for HTTP capability requests)
+//   - region_x, region_y (region grid coordinates)
+//
+// PHASE 2: UDP CIRCUIT ESTABLISHMENT (see idle_startup() state machine below)
+// ---------------------------------------------------------------------------
+// After HTTP login succeeds, Viewer establishes a UDP Circuit with the
+// simulator. This also happens whenever the Viewer connects to new Simulators
+// in the same session. The following UDP messages are exchanged:
+//
+//   1. UseCircuitCode (Viewer -> Simulator)
+//      - Sent in STATE_WORLD_INIT
+//      - Contains: Circuit_code, session_id, agent_id
+//      - Establishes the UDP Circuit with the Simulator
+//
+//   2. RegionHandshake (Simulator -> Viewer)
+//      - Handled by process_region_handshake() in llworld.cpp
+//      - Contains: region name, terrain textures, water height, region flags
+//      - Viewer responds with RegionHandshakeReply
+//
+//   3. CompleteAgentMovement (Viewer -> Simulator)
+//      - Sent in STATE_AGENT_SEND via send_complete_agent_movement()
+//      - Signals the Viewer is ready to enter the world
+//
+//   4. AgentMovementComplete (Simulator -> Viewer)
+//      - Handled by process_agent_movement_complete() in llviewermessage.cpp
+//      - Contains: final agent position, look_at direction, region handle
+//      - Sets gAgentMovementCompleted = true
+//      - Agent is now fully connected to the region
+//
+// STARTUP STATE MACHINE
+// ---------------------
+// The connection sequence is managed by idle_startup() which progresses
+// through these key states:
+//
+//   STATE_LOGIN_WAIT             - Waiting for HTTP login response
+//   STATE_LOGIN_PROCESS_RESPONSE - Processing login response data
+//   STATE_WORLD_INIT             - Send UseCircuitCode, enable UDP Circuit
+//   STATE_WORLD_WAIT             - Wait for Circuit acknowledgment
+//   STATE_AGENT_SEND             - Send CompleteAgentMovement
+//   STATE_AGENT_WAIT             - Wait for AgentMovementComplete
+//   STATE_INVENTORY_SEND         - Agent connected, begin loading inventory
+//
+// HTTP CAPABILITIES
+// -----------------
+// After UDP connection, Viewer fetches "capability" URLs from the
+// seed_capability endpoint. These provide HTTP endpoints for various
+// services (inventory, textures, etc.) that supplement the UDP protocol.
+//
+
 #include "llviewerprecompiledheaders.h"
 
 #include "llappviewer.h"
@@ -188,7 +254,6 @@
 #include "llnamelistctrl.h"
 #include "llnamebox.h"
 #include "llnameeditor.h"
-#include "llpostprocess.h"
 #include "llagentlanguage.h"
 #include "llwearable.h"
 #include "llinventorybridge.h"
@@ -277,7 +342,6 @@ void show_first_run_dialog();
 bool first_run_dialog_callback(const LLSD& notification, const LLSD& response);
 void set_startup_status(const F32 frac, const std::string& string, const std::string& msg);
 bool login_alert_status(const LLSD& notification, const LLSD& response);
-void use_circuit_callback(void**, S32 result);
 void register_viewer_callbacks(LLMessageSystem* msg);
 void asset_callback_nothing(const LLUUID&, LLAssetType::EType, void*, S32);
 bool callback_choose_gender(const LLSD& notification, const LLSD& response);
@@ -336,7 +400,7 @@ void do_startup_frame()
                 break;
             }
         }
-        if (needs_drain || gMessageSystem->mPacketRing.getNumBufferedPackets() > 0)
+        if (needs_drain || gMessageSystem->getNumBufferedPackets() > 0)
         {
              gMessageSystem->drainUdpSocket();
         }
@@ -594,7 +658,7 @@ bool idle_startup()
         std::string message_template_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"message_template.msg");
 
         LLFILE* found_template = NULL;
-        found_template = LLFile::fopen(message_template_path, "r");     /* Flawfinder: ignore */
+        found_template = LLFile::fopen(message_template_path, LLFILE_MODE("r"));     /* Flawfinder: ignore */
 
         #if LL_WINDOWS
             // On the windows dev builds, unpackaged, the message_template.msg
@@ -603,7 +667,7 @@ bool idle_startup()
             if (!found_template)
             {
                 message_template_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings", "message_template.msg");
-                found_template = LLFile::fopen(message_template_path.c_str(), "r");     /* Flawfinder: ignore */
+                found_template = LLFile::fopen(message_template_path.c_str(), LLFILE_MODE("r"));     /* Flawfinder: ignore */
             }
         #elif LL_DARWIN
             // On Mac dev builds, message_template.msg lives in:
@@ -613,7 +677,7 @@ bool idle_startup()
                 message_template_path =
                     gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,
                                                    "message_template.msg");
-                found_template = LLFile::fopen(message_template_path.c_str(), "r");     /* Flawfinder: ignore */
+                found_template = LLFile::fopen(message_template_path.c_str(), LLFILE_MODE("r"));     /* Flawfinder: ignore */
             }
         #endif
 
@@ -720,7 +784,7 @@ bool idle_startup()
 
 
             F32 dropPercent = gSavedSettings.getF32("PacketDropPercentage");
-            msg->mPacketRing.setDropPercentage(dropPercent);
+            msg->setDropPercentage(dropPercent);
         }
 
         LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
@@ -832,6 +896,7 @@ bool idle_startup()
         set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
         do_startup_frame();
         // LLViewerMedia::initBrowser();
+        LLAppViewer::instance()->createInitedMarker();
         LLStartUp::setStartupState( STATE_LOGIN_SHOW );
         return false;
     }
@@ -1385,10 +1450,6 @@ bool idle_startup()
         LLDrawable::initClass();
         do_startup_frame();
 
-        // init the shader managers
-        LLPostProcess::initClass();
-        do_startup_frame();
-
         LLAvatarAppearance::initClass("avatar_lad.xml","avatar_skeleton.xml");
         do_startup_frame();
 
@@ -1718,13 +1779,48 @@ bool idle_startup()
         gUseCircuitCallbackCalled = false;
 
         msg->enableCircuit(gFirstSim, true);
-        // now, use the circuit info to tell simulator about us!
+
+        // UDP CONNECTION STEP 1: Send UseCircuitCode
+        // This is the first UDP message sent to Simulator after HTTP login.
+        // It establishes the UDP circuit using the circuit_code received from
+        // LoginServer. Simulator will respond with an ACK, then send
+        // RegionHandshake message with region details.
         LL_INFOS("AppInit") << "viewer: UserLoginLocationReply() Enabling " << gFirstSim << " with code " << msg->mOurCircuitCode << LL_ENDL;
         msg->newMessageFast(_PREHASH_UseCircuitCode);
         msg->nextBlockFast(_PREHASH_CircuitCode);
         msg->addU32Fast(_PREHASH_Code, msg->mOurCircuitCode);
         msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
         msg->addUUIDFast(_PREHASH_ID, gAgent.getID());
+
+        // build a lambda to be used as callback on ACK or timeout
+        void (*use_circuit_callback)(void**, S32) = [](void**, S32 result)
+        {
+            // bail if we're quitting.
+            if(LLApp::isExiting()) return;
+            if( !gUseCircuitCallbackCalled )
+            {
+                gUseCircuitCallbackCalled = true;
+                if (result != LL_ERR_NOERR)
+                {
+                    // Make sure user knows something bad happened. JC
+                    LL_WARNS("AppInit") << "Backing up to login screen!" << LL_ENDL;
+                    if (gRememberPassword)
+                    {
+                        LLNotificationsUtil::add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
+                    }
+                    else
+                    {
+                        LLNotificationsUtil::add("LoginPacketNeverReceivedNoTP", LLSD(), LLSD(), login_alert_status);
+                    }
+                    reset_login();
+                }
+                else
+                {
+                    gGotUseCircuitCodeAck = true;
+                }
+            }
+        };
+
         msg->sendReliable(
             gFirstSim,
             gSavedSettings.getS32("UseCircuitCodeMaxRetries"),
@@ -1742,6 +1838,9 @@ bool idle_startup()
     //---------------------------------------------------------------------
     // World Wait
     //---------------------------------------------------------------------
+    // UDP CONNECTION STEP 2: Wait for UseCircuitCode acknowledgment
+    // While waiting, Simulator also sends RegionHandshake (handled by
+    // process_region_handshake() in llworld.cpp) containing region info.
     if(STATE_WORLD_WAIT == LLStartUp::getStartupState())
     {
         LL_DEBUGS("AppInit") << "Waiting for simulator ack...." << LL_ENDL;
@@ -1757,13 +1856,16 @@ bool idle_startup()
     //---------------------------------------------------------------------
     // Agent Send
     //---------------------------------------------------------------------
+    // UDP CONNECTION STEP 3: Send CompleteAgentMovement
+    // After the circuit is established and RegionHandshake received, we signal
+    // to Simulator the Viewer is ready to enter the world.
     if (STATE_AGENT_SEND == LLStartUp::getStartupState())
     {
         LL_DEBUGS("AppInit") << "Connecting to region..." << LL_ENDL;
         set_startup_status(0.60f, LLTrans::getString("LoginConnectingToRegion"), gAgent.mMOTD);
         do_startup_frame();
-        // register with the message system so it knows we're
-        // expecting this message
+        // Register handler process_agent_movement_complete for AgentMovementComplete -
+        // the final UDP message confirming the agent is connected.
         LLMessageSystem* msg = gMessageSystem;
         msg->setHandlerFuncFast(
             _PREHASH_AgentMovementComplete,
@@ -1806,12 +1908,17 @@ bool idle_startup()
     //---------------------------------------------------------------------
     // Agent Wait
     //---------------------------------------------------------------------
+    // UDP CONNECTION STEP 4: Wait for AgentMovementComplete
+    // Simulator responds with the agent's confirmed position and look_at
+    // direction. Once received, gAgentMovementCompleted is set true and the
+    // agent is fully connected to the region.
     if (STATE_AGENT_WAIT == LLStartUp::getStartupState())
     {
         do_startup_frame();
 
         if (gAgentMovementCompleted)
         {
+            // Connection complete - agent is now in-world
             LLStartUp::setStartupState( STATE_INVENTORY_SEND );
         }
         do_startup_frame();
@@ -2810,34 +2917,6 @@ bool login_alert_status(const LLSD& notification, const LLSD& response)
 }
 
 
-void use_circuit_callback(void**, S32 result)
-{
-    // bail if we're quitting.
-    if(LLApp::isExiting()) return;
-    if( !gUseCircuitCallbackCalled )
-    {
-        gUseCircuitCallbackCalled = true;
-        if (result)
-        {
-            // Make sure user knows something bad happened. JC
-            LL_WARNS("AppInit") << "Backing up to login screen!" << LL_ENDL;
-            if (gRememberPassword)
-            {
-                LLNotificationsUtil::add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
-            }
-            else
-            {
-                LLNotificationsUtil::add("LoginPacketNeverReceivedNoTP", LLSD(), LLSD(), login_alert_status);
-            }
-            reset_login();
-        }
-        else
-        {
-            gGotUseCircuitCodeAck = true;
-        }
-    }
-}
-
 void register_viewer_callbacks(LLMessageSystem* msg)
 {
     msg->setHandlerFuncFast(_PREHASH_LayerData,             process_layer_data );
@@ -3730,6 +3809,14 @@ bool init_benefits(LLSD& response)
     return succ;
 }
 
+// HTTP LOGIN RESPONSE PROCESSING
+// Called after successful HTTP XMLRPC authentication. Extracts critical data
+// from LoginServer response needed to establish the UDP connection:
+//   - agent_id, session_id, secure_session_id (authentication tokens)
+//   - circuit_code (used in UseCircuitCode UDP message)
+//   - sim_ip, sim_port (simulator address for UDP circuit)
+//   - seed_capability (URL for fetching HTTP capability endpoints)
+//
 bool process_login_success_response()
 {
     LLSD response = LLLoginInstance::getInstance()->getResponse();
@@ -3852,6 +3939,8 @@ bool process_login_success_response()
         gAgentStartLocation.assign(text);
     }
 
+    // Extract UDP circuit parameters from login response.
+    // These are used in STATE_WORLD_INIT to establish the UDP circuit.
     text = response["circuit_code"].asString();
     if(!text.empty())
     {

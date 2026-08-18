@@ -145,6 +145,7 @@ U32 LLViewerJoint::render( F32 pixelArea, bool first_pass, bool is_dummy )
     {
         // LLViewerJoint is derived from LLAvatarJoint,
         // all children of LLAvatarJoint are assumed to be LLAvatarJoint
+        // LLJoint is not used directly and is always LLAvatarJoint
         LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(j);
         F32 jointLOD = joint->getLOD();
         if (pixelArea >= jointLOD || sDisableLOD)
