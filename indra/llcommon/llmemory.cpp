@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -52,6 +52,9 @@
 
 //static
 
+// On windows commit charge information is vital for OOM diagnosis.
+U32Megabytes LLMemory::sAvailCommitMemInMB(U32_MAX);
+
 // most important memory metric for texture streaming
 //  On Windows, this should agree with resource monitor -> performance -> memory -> available
 //  On OS X, this should be activity monitor -> memory -> (physical memory - memory used)
@@ -69,6 +72,12 @@ U32Kilobytes LLMemory::sMaxHeapSizeInKB(U32_MAX);
 U32Kilobytes LLMemory::sAllocatedMemInKB(0);
 
 U32Kilobytes LLMemory::sAllocatedPageSizeInKB(0);
+
+LLFrameTimer LLMemory::sMemoryCheckTimer;
+F32 LLMemory::sSysMemoryFactor = 1.f;
+U32 LLMemory::sFactorLastFrameCount = 0;
+
+static const S32Megabytes MEM_LOW_THRESHOLD = S32Megabytes(256);
 
 
 static LLTrace::SampleStatHandle<F64Megabytes> sAllocatedMem("allocated_mem", "active memory in use by application");
@@ -102,23 +111,14 @@ void LLMemory::updateMemoryInfo()
 {
     LL_PROFILE_ZONE_SCOPED;
 
+    sMemoryCheckTimer.reset();
     sMaxPhysicalMemInKB = gSysMemory.getPhysicalMemoryKB();
 
-    U32Kilobytes avail_mem;
-    LLMemoryInfo::getAvailableMemoryKB(avail_mem);
-    sAvailPhysicalMemInKB = avail_mem;
+    LLMemoryInfo::updateAvailableMemory();
 
 #if LL_WINDOWS
-    PROCESS_MEMORY_COUNTERS counters;
-
-    if (!GetProcessMemoryInfo(GetCurrentProcess(), &counters, sizeof(counters)))
-    {
-        LL_WARNS() << "GetProcessMemoryInfo failed" << LL_ENDL;
-        return ;
-    }
-
-    sAllocatedMemInKB = U32Kilobytes::convert(U64Bytes(counters.WorkingSetSize));
-    sAllocatedPageSizeInKB = U32Kilobytes::convert(U64Bytes(counters.PagefileUsage));
+    // On windows updateAvailableMemory fills sAvailPhysicalMemInKB,
+    //sAllocatedMemInKB and sAllocatedPageSizeInKB
     sample(sVirtualMem, sAllocatedPageSizeInKB);
 
 #elif defined(LL_DARWIN)
@@ -200,6 +200,97 @@ void LLMemory::logMemoryInfo(bool update)
     LL_INFOS() << llformat("Current available physical memory: %.2f MB", sAvailPhysicalMemInKB / 1024.0) << LL_ENDL;
     LL_INFOS() << llformat("Current max usable memory: %.2f MB", sMaxPhysicalMemInKB / 1024.0) << LL_ENDL;
 }
+
+void LLMemory::updateFreeSystemMemory()
+{
+    if (sMemoryCheckTimer.getElapsedTimeF32() >= 1.f) //once per second.
+    {
+        LLMemory::updateMemoryInfo(); // resets the timer
+    }
+}
+
+F32 LLMemory::getSystemMemoryBudgetFactor()
+{
+    // Only update once per frame
+    U32 current_frame = LLFrameTimer::getFrameCount();
+    if (sFactorLastFrameCount == current_frame)
+    {
+        return sSysMemoryFactor;
+    }
+    sFactorLastFrameCount = current_frame;
+
+    updateFreeSystemMemory();
+#if LL_WINDOWS
+    S32Megabytes free_sys_mem = getAvailableCommitMemMB();
+#else
+    S32Megabytes free_sys_mem = getAvailableMemKB();
+#endif
+    bool is_sys_low = free_sys_mem < MEM_LOW_THRESHOLD;
+    static bool was_low = false;
+
+    // sSysMemoryFactor affects draw distance
+    //
+    // We only decrement when more than 406MB is free, but increment
+    // when below 256MB free. This should provide a stable value
+    // in the 256-406MB range to avoid draw range fluctuations.
+    //
+    // Draw range reduction is a last resort, texture bias is supposed
+    // to free at least some memory before we get here.
+    // Note: textures were mostly moved to vram, we might want to
+    // detach texture bias from system memory.
+    if (is_sys_low)
+    {
+        // debt is a negative value since MIN_FREE_MAIN_MEMORY > free memory.
+        S32Megabytes sys_budget_debt = free_sys_mem - MEM_LOW_THRESHOLD;
+
+        // Leave some padding, otherwise we will crash out of memory before hitting factor 2.
+        const S32Megabytes PAD_BUFFER(32);
+        S32Megabytes budget_target = MEM_LOW_THRESHOLD - PAD_BUFFER;
+        if (!was_low)
+        {
+            // Result should range from 1 at 0 debt to 2 at -224 debt, 2.14 at -256MB
+            F32 new_factor = 1.f - (F32)sys_budget_debt.value() / (F32)budget_target.value();
+            sSysMemoryFactor = llmax(sSysMemoryFactor, new_factor);
+        }
+        else
+        {
+            // Slowly ramp up factor to free memory (increasing factor decreases draw range)
+            constexpr F32 MAX_INCREMENT = 0.05f;
+            F32 increment = MAX_INCREMENT * llmax(-(F32)sys_budget_debt.value() / (F32)budget_target.value(), 0.f);
+            sSysMemoryFactor += increment * LLFrameTimer::getFrameDeltaTimeF32();
+        }
+        sSysMemoryFactor = llclamp(sSysMemoryFactor, 1.f, 2.f);
+    }
+    else
+    {
+        // Only start ramping down when we have breathing room.
+        // This should be under the value of isSystemMemoryLow to not throw texture
+        // bias into 1.5+ territory each time we fluctuate around isSystemMemoryLow's
+        // threshold.
+        const S32Megabytes MEM_THRESHOLD = MEM_LOW_THRESHOLD + S32Megabytes(150);
+        if (free_sys_mem > MEM_THRESHOLD && sSysMemoryFactor > 1.f)
+        {
+            // Ramp down factor over time.
+            constexpr F32 DECREMENT = 0.02f;
+            sSysMemoryFactor -= DECREMENT * LLFrameTimer::getFrameDeltaTimeF32();
+            sSysMemoryFactor = llclamp(sSysMemoryFactor, 1.f, 2.f);
+        }
+    }
+    was_low = is_sys_low;
+
+    return sSysMemoryFactor;
+}
+
+#if LL_WINDOWS
+//static
+U32Megabytes LLMemory::getAvailableCommitMemMB()
+{
+    // Commit charge combines page file and ram,
+    // theoretical limit is 128TB on 64bit windows.
+    // Store as MB instead of KB to prevent overflow.
+    return sAvailCommitMemInMB;
+}
+#endif
 
 //static
 U32Kilobytes LLMemory::getAvailableMemKB()

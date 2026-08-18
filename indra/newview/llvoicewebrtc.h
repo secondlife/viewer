@@ -80,13 +80,13 @@ public:
     static bool isShuttingDown() { return sShuttingDown; }
 
     const LLVoiceVersionInfo& getVersion() override;
+    void                      updateVersion();
 
     void updateSettings() override; // call after loading settings and whenever they change
 
     // Returns true if WebRTC has successfully logged in and is not in error state
     bool isVoiceWorking() const override;
 
-    std::string sipURIFromID(const LLUUID &id) const override;
     LLSD getP2PChannelInfoTemplate(const LLUUID& id) const override;
 
     void setHidden(bool hidden) override;  // virtual
@@ -285,6 +285,7 @@ public:
 
         void shutdownAllConnections();
         void revive();
+        const std::string getVersion() const;
 
         static void processSessionStates();
 
@@ -613,6 +614,7 @@ class LLVoiceWebRTCConnection :
 
     void sendJoin();
     void sendData(const std::string &data);
+    const std::string& getVersion();
 
     void processIceUpdates();
 
@@ -627,6 +629,7 @@ class LLVoiceWebRTCConnection :
     bool connectionStateMachine();
 
     virtual bool isSpatial() { return false; }
+    bool         isPrimary() const { return mPrimary; }
 
     LLUUID getRegionID() { return mRegionID; }
 
@@ -700,6 +703,7 @@ class LLVoiceWebRTCConnection :
     bool   mPrimary;
     LLUUID mViewerSession;
     std::string mChannelID;
+    std::string mServerVersion;
 
     std::string mChannelSDP;
     std::string mRemoteChannelSDP;

@@ -1,12 +1,10 @@
 /**
- * @file   lluilistener.h
- * @author Nat Goodspeed
- * @date   2009-08-18
- * @brief  Engage named functions as specified by XUI
+ * @file llstatslistener.h
+ * @brief EventAPI interface for querying performance statistics
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,23 +24,18 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_LLUILISTENER_H)
-#define LL_LLUILISTENER_H
+#ifndef LL_LLSTATSLISTENER_H
+#define LL_LLSTATSLISTENER_H
 
 #include "lleventapi.h"
-#include <string>
 
-class LLSD;
-
-class LLUIListener: public LLEventAPI
+class LLStatsListener : public LLEventAPI
 {
 public:
-    LLUIListener();
+    LLStatsListener();
 
 private:
-    void call(const LLSD& event) const;
-    void getValue(const LLSD&event) const;
-    void setSelectedByValue(const LLSD& event) const;
+    void getPerfData(LLSD const & evt);
 };
 
-#endif /* ! defined(LL_LLUILISTENER_H) */
+#endif // LL_LLSTATSLISTENER_H

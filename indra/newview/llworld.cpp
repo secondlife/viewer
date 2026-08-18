@@ -1217,6 +1217,7 @@ void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
 
 void process_region_handshake(LLMessageSystem* msg, void** user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLHost host = msg->getSender();
     LLViewerRegion* regionp = LLWorld::getInstance()->getRegion(host);
     if (!regionp)

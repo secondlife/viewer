@@ -1858,7 +1858,7 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
     LLGLint is_compressed = 0;
     if (compressed_ok)
     {
-        glGetTexLevelParameteriv(mTarget, is_compressed, GL_TEXTURE_COMPRESSED, (GLint*)&is_compressed);
+        glGetTexLevelParameteriv(mTarget, gl_discard, GL_TEXTURE_COMPRESSED, (GLint*)&is_compressed);
     }
 
     //-----------------------------------------------------------------------------------------------

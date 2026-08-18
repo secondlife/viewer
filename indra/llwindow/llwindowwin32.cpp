@@ -65,6 +65,7 @@
 #include <utility>                  // std::pair
 
 #include <d3d9.h>
+#include <d3d11.h>
 #include <dxgi1_4.h>
 #include <timeapi.h>
 
@@ -115,7 +116,15 @@ static std::thread::id sMainThreadId;
 
 LPWSTR gIconResource = IDI_APPLICATION;
 LPWSTR gIconSmallResource = IDI_APPLICATION;
-LPDIRECTINPUT8 gDirectInput8;
+
+namespace
+{
+    LPDIRECTINPUT8 gDirectInput8;
+    ID3D11Device* gD3D11Device = nullptr;
+    ID3D11DeviceContext* gD3D11Context = nullptr;
+    LUID gExpectedAdapterLUID;
+    HMODULE gD3D11Library;
+}
 
 LLW32MsgCallback gAsyncMsgCallback = NULL;
 
@@ -443,6 +452,16 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
             }
         });
     }
+
+    // For mainWindowProc, it should not unpause watchdog if it was paused
+    void pingWindowTimeout(std::string_view state)
+    {
+        if (mWindowTimeout && mWindowTimeout->started())
+        {
+            mWindowTimeout->setTimeout(WINDOW_TIMEOUT_SEC);
+            mWindowTimeout->ping(state);
+        }
+    }
 private:
     // These timeout related functions are strictly for the thread.
     void resumeTimeout(std::string_view state)
@@ -508,6 +527,10 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     //MAINT-516 -- force a load of opengl32.dll just in case windows went sideways
     LoadLibrary(L"opengl32.dll");
 
+    // Request high-performance GPU before creating OpenGL context
+    // This increases probability of discrete GPU being used when
+    // the context is created.
+    requestHighPerformanceGPU();
 
     if (mMaxCores != 0)
     {
@@ -522,6 +545,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
         SetProcessAffinityMask(hProcess, mask);
     }
+
+    setThreadPriorityHigh();
 
 #if 0 // this is probably a bad idea, but keep it in your back pocket if you see what looks like
         // process deprioritization during profiles
@@ -544,41 +569,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
         }
     }
 #endif
-
-#if 0  // this is also probably a bad idea, but keep it in your back pocket for getting main thread off of background thread cores (see also LLThread::threadRun)
-    HANDLE hThread = GetCurrentThread();
-
-    SYSTEM_INFO sysInfo;
-
-    GetSystemInfo(&sysInfo);
-    U32 core_count = sysInfo.dwNumberOfProcessors;
-
-    if (max_cores != 0)
-    {
-        core_count = llmin(core_count, max_cores);
-    }
-
-    if (hThread)
-    {
-        int priority = GetThreadPriority(hThread);
-
-        if (priority < THREAD_PRIORITY_TIME_CRITICAL)
-        {
-            if (SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL))
-            {
-                LL_INFOS() << "Set thread priority to THREAD_PRIORITY_TIME_CRITICAL" << LL_ENDL;
-            }
-            else
-            {
-                LL_INFOS() << "Failed to set thread priority: " << std::hex << GetLastError() << LL_ENDL;
-            }
-
-            // tell main thread to prefer core 0
-            SetThreadIdealProcessor(hThread, 0);
-        }
-    }
-#endif
-
 
     mFSAASamples = fsaa_samples;
     mIconResource = gIconResource;
@@ -1007,6 +997,7 @@ void LLWindowWin32::close()
     }
 
     mDragDrop->reset();
+    clearHighPerformanceGPURequest();
 
 
     // Go back to screen mode written in the registry.
@@ -1069,6 +1060,52 @@ void LLWindowWin32::close()
 bool LLWindowWin32::isValid()
 {
     return (mWindowHandle != NULL);
+}
+
+void LLWindowWin32::setThreadPriorityHigh()
+{
+    // Threads start at normal priority. But this is our main window/rendering thread,
+    // even if window handle belongs to another thread. So we can raise its priority
+    // to ensure better responsiveness and less blocking by lack of resources.
+    HANDLE hThread = GetCurrentThread();
+    if (hThread)
+    {
+        int priority = GetThreadPriority(hThread);
+
+        if (priority == THREAD_PRIORITY_ERROR_RETURN)
+        {
+            LL_WARNS_ONCE("Window") << "Failed to get thread priority: " << std::hex << GetLastError() << LL_ENDL;
+        }
+        else if (priority > THREAD_PRIORITY_HIGHEST)
+        {
+            // At the moment nothing should be setting 'critical' priority,
+            // but if that happens for some reason, we don't want to mess with it.
+            LL_WARNS("Window") << "setThreadPriorityHigh ignored, priority was " << (S32)priority << LL_ENDL;
+        }
+        else if (priority != THREAD_PRIORITY_HIGHEST)
+        {
+            if (SetThreadPriority(hThread, THREAD_PRIORITY_HIGHEST))
+            {
+                LL_DEBUGS("Window") << "Set thread priority to THREAD_PRIORITY_HIGHEST" << LL_ENDL;
+            }
+            else
+            {
+                LL_WARNS("Window") << "Failed to set thread priority: " << std::hex << GetLastError() << LL_ENDL;
+            }
+        }
+    }
+}
+
+void LLWindowWin32::setThreadPriorityNormal()
+{
+    HANDLE hThread = GetCurrentThread();
+    if (hThread)
+    {
+        if (!SetThreadPriority(hThread, THREAD_PRIORITY_NORMAL))
+        {
+            LL_WARNS_ONCE("Window") << "Failed to set thread priority: " << std::hex << GetLastError() << LL_ENDL;
+        }
+    }
 }
 
 bool LLWindowWin32::getVisible()
@@ -2386,11 +2423,37 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_DEVICECHANGE:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_DEVICECHANGE");
+            window_imp->mWindowThread->pingWindowTimeout("WM_DEVICECHANGE");
+
+            // Log detailed device change information
+            std::string change_type = "UNKNOWN";
+            switch (w_param)
+            {
+            case DBT_DEVICEARRIVAL:           change_type = "DBT_DEVICEARRIVAL"; break;
+            case DBT_DEVICEREMOVECOMPLETE:    change_type = "DBT_DEVICEREMOVECOMPLETE"; break;
+            case DBT_DEVNODES_CHANGED:        change_type = "DBT_DEVNODES_CHANGED"; break;
+            case DBT_DEVICEQUERYREMOVE:       change_type = "DBT_DEVICEQUERYREMOVE"; break;
+            case DBT_DEVICEQUERYREMOVEFAILED: change_type = "DBT_DEVICEQUERYREMOVEFAILED"; break;
+            case DBT_DEVICEREMOVEPENDING:     change_type = "DBT_DEVICEREMOVEPENDING"; break;
+            case DBT_CONFIGCHANGED:           change_type = "DBT_CONFIGCHANGED"; break;
+            }
+
             if (w_param == DBT_DEVNODES_CHANGED || w_param == DBT_DEVICEARRIVAL)
             {
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleDeviceChange(window_imp));
+                WINDOW_IMP_POST(window_imp->mCallbacks->handleDeviceChange(window_imp, change_type));
 
                 return 1;
+            }
+            else if (l_param)
+            {
+                const auto* hdr = reinterpret_cast<const DEV_BROADCAST_HDR*>(l_param);
+                if (hdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
+                {
+                    // Might need to register for monitor device notifications
+                    // to get this message when monitor is suspended or resumed.
+                    // TODO: log monitor suspending and resuming.
+                    LL_INFOS("Window") << "DEVICEINTERFACE: " << change_type << LL_ENDL;
+                }
             }
             break;
         }
@@ -2398,6 +2461,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_PAINT:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_PAINT");
+            window_imp->mWindowThread->pingWindowTimeout("WM_PAINT");
             GetUpdateRect(window_imp->mWindowHandle, &update_rect, FALSE);
             update_width = update_rect.right - update_rect.left + 1;
             update_height = update_rect.bottom - update_rect.top + 1;
@@ -2437,6 +2501,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_EXITMENULOOP");
             WINDOW_IMP_POST(window_imp->mCallbacks->handleWindowUnblock(window_imp));
+            break;
+        }
+
+        case WM_POWERBROADCAST:
+        {
+            // Might need to register for power broadcast interface
+            // Todo: log monitor suspending and resuming.
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_POWERBROADCAST");
+            LL_INFOS("Window") << "Received WM_POWERBROADCAST with wParam: 0x" << std::hex << (uintptr_t)w_param << " lParam: 0x" << (uintptr_t)l_param << std::dec << LL_ENDL;
             break;
         }
 
@@ -2513,6 +2586,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_CLOSE:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_CLOSE");
+            window_imp->mWindowThread->pingWindowTimeout("WM_CLOSE");
             // todo: WM_CLOSE can be caused by user and by task manager,
             // distinguish these cases.
             // For now assume it is always user.
@@ -2550,6 +2624,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // Comes after WM_QUERYENDSESSION
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_ENDSESSION");
             LL_INFOS("Window") << "Received WM_ENDSESSION with wParam: " << (U32)w_param << " lParam: " << (U32)l_param << LL_ENDL;
+            window_imp->mWindowThread->pingWindowTimeout("WM_ENDSESSION");
             unsigned int end_session_flags = (U32)l_param;
 
             if (w_param == TRUE // if true, session is ending
@@ -3041,19 +3116,31 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // means that the window was un-minimized.
             if (w_param == SIZE_RESTORED && window_imp->mLastSizeWParam != SIZE_RESTORED)
             {
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, true));
+                window_imp->post([=]()
+                {
+                    window_imp->setThreadPriorityHigh();
+                    window_imp->mCallbacks->handleActivate(window_imp, true);
+                });
             }
 
             // handle case of window being maximized from fully minimized state
             if (w_param == SIZE_MAXIMIZED && window_imp->mLastSizeWParam != SIZE_MAXIMIZED)
             {
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, true));
+                window_imp->post([=]()
+                {
+                    window_imp->setThreadPriorityHigh();
+                    window_imp->mCallbacks->handleActivate(window_imp, true);
+                });
             }
 
             // Also handle the minimization case
             if (w_param == SIZE_MINIMIZED && window_imp->mLastSizeWParam != SIZE_MINIMIZED)
             {
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, false));
+                window_imp->post([=]()
+                {
+                    window_imp->setThreadPriorityNormal();
+                    window_imp->mCallbacks->handleActivate(window_imp, false);
+                });
             }
 
             // Actually resize all of our views
@@ -3073,6 +3160,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_DPICHANGED:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_DPICHANGED");
+            window_imp->mWindowThread->pingWindowTimeout("WM_DPICHANGED");
             LPRECT lprc_new_scale;
             F32 new_scale = F32(LOWORD(w_param)) / F32(USER_DEFAULT_SCREEN_DPI);
             lprc_new_scale = (LPRECT)l_param;
@@ -3093,7 +3181,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_DISPLAYCHANGE:
         {
+            window_imp->mWindowThread->pingWindowTimeout("WM_DISPLAYCHANGE");
             WINDOW_IMP_POST(window_imp->mCallbacks->handleDisplayChanged());
+            break;
         }
 
         case WM_SETFOCUS:
@@ -3131,6 +3221,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_SETTINGCHANGE:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SETTINGCHANGE");
+            // Can be called on OS user switching
+            LL_INFOS("Window") << "WM_SETTINGCHANGE, with wParam: 0x" << std::hex << (uintptr_t)w_param << " lParam: 0x" << (uintptr_t)l_param << std::dec << LL_ENDL;
+            window_imp->mWindowThread->pingWindowTimeout("WM_SETTINGCHANGE");
             if (w_param == SPI_SETMOUSEVANISH)
             {
                 if (!SystemParametersInfo(SPI_GETMOUSEVANISH, 0, &window_imp->mMouseVanish, 0))
@@ -4618,6 +4711,248 @@ void LLWindowWin32::setDPIAwareness()
     }
 }
 
+void LLWindowWin32::requestHighPerformanceGPU() const
+{
+    // Try to load d3d11.dll and request high performance adapter
+    gD3D11Library = LoadLibraryA("d3d11.dll");
+    if (gD3D11Library)
+    {
+        typedef HRESULT(WINAPI* PFN_D3D11_CREATE_DEVICE)(
+            IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT,
+            const D3D_FEATURE_LEVEL*, UINT, UINT, ID3D11Device**,
+            D3D_FEATURE_LEVEL*, ID3D11DeviceContext**);
+
+        PFN_D3D11_CREATE_DEVICE pD3D11CreateDevice =
+            (PFN_D3D11_CREATE_DEVICE)GetProcAddress(gD3D11Library, "D3D11CreateDevice");
+
+        if (pD3D11CreateDevice)
+        {
+            // Try to enumerate adapters and select the best one
+            IDXGIFactory1* pFactory = nullptr;
+            IDXGIAdapter1* pSelectedAdapter = nullptr;
+            std::string selected_descr;
+            HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&pFactory);
+
+            if (SUCCEEDED(hr) && pFactory)
+            {
+                IDXGIAdapter1* pAdapter = nullptr;
+                SIZE_T maxDedicatedMemory = 0;
+                UINT adapterIndex = 0;
+                S32 adapter_count = 0;
+
+                // Enumerate all adapters and find the one with the most dedicated video memory
+                while (pFactory->EnumAdapters1(adapterIndex, &pAdapter) != DXGI_ERROR_NOT_FOUND)
+                {
+                    DXGI_ADAPTER_DESC1 desc;
+                    pAdapter->GetDesc1(&desc);
+
+                    std::wstring description_w(desc.Description);
+                    std::string description = ll_convert_wide_to_string(description_w);
+
+
+                    // Skip software adapters
+                    if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+                    {
+                        LL_DEBUGS("Window") << "Adapter " << adapterIndex << ": " << description
+                            << ", Dedicated VRAM: " << (desc.DedicatedVideoMemory / 1024 / 1024) << " MB"
+                            << ", Vendor: 0x" << std::hex << desc.VendorId << std::dec
+                            << ", Flags: " << desc.Flags << LL_ENDL;
+                    }
+                    // Skip Microsoft Basic Render Driver, it's a placeholder for missing drivers
+                    else if (description.find("Microsoft Basic Render Driver") != std::string::npos)
+                    {
+                        // User is likely missing drivers, so log a warning.
+                        // Don't consider this adapter as a valid selection.
+                        LL_WARNS("Window") << "Adapter " << adapterIndex << ": " << description
+                            << ", Dedicated VRAM: " << (desc.DedicatedVideoMemory / 1024 / 1024) << " MB"
+                            << ", Vendor: 0x" << std::hex << desc.VendorId << std::dec
+                            << ", Flags: " << desc.Flags << LL_ENDL;
+                    }
+                    else
+                    {
+                        LL_INFOS("Window") << "Adapter " << adapterIndex << ": " << description
+                            << ", Dedicated VRAM: " << (desc.DedicatedVideoMemory / 1024 / 1024) << " MB"
+                            << ", Vendor: 0x" << std::hex << desc.VendorId << std::dec
+                            << ", Flags: " << desc.Flags << LL_ENDL;
+
+                        adapter_count++;
+                        // Select adapter with most dedicated video memory (typically the discrete GPU)
+                        if (desc.DedicatedVideoMemory > maxDedicatedMemory)
+                        {
+                            if (pSelectedAdapter)
+                            {
+                                pSelectedAdapter->Release();
+                            }
+                            pSelectedAdapter = pAdapter;
+                            pSelectedAdapter->AddRef();
+                            maxDedicatedMemory = desc.DedicatedVideoMemory;
+                            gExpectedAdapterLUID = desc.AdapterLuid;
+                            selected_descr = description;
+                        }
+                    }
+
+                    pAdapter->Release();
+                    adapterIndex++;
+                }
+                pFactory->Release();
+
+                if (adapter_count < 2)
+                {
+                    // Only one adapter, no need to request high-performance GPU
+                    if (pSelectedAdapter)
+                    {
+                        pSelectedAdapter->Release();
+                    }
+                    gExpectedAdapterLUID = { 0, 0 };
+                    FreeLibrary(gD3D11Library);
+                    gD3D11Library = nullptr;
+                    return;
+                }
+
+                LL_INFOS("Window") << "Selected as preferred adapter (highest VRAM): " << selected_descr << LL_ENDL;
+            }
+
+            // Create a temporary device to ensure high-performance GPU is selected
+            // This initialization can help "wake up" the discrete GPU
+            D3D_FEATURE_LEVEL featureLevel;
+            D3D_FEATURE_LEVEL requestedLevels[] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_11_1 };
+
+            bool adapterSelected = (pSelectedAdapter != nullptr);
+            if (adapterSelected)
+            {
+                hr = pD3D11CreateDevice(
+                    pSelectedAdapter,
+                    D3D_DRIVER_TYPE_UNKNOWN,
+                    nullptr,
+                    0,
+                    requestedLevels,
+                    _countof(requestedLevels),
+                    D3D11_SDK_VERSION,
+                    &gD3D11Device,
+                    &featureLevel,
+                    &gD3D11Context
+                );
+                pSelectedAdapter->Release();
+
+                if (!SUCCEEDED(hr))
+                {
+                    LL_WARNS("Window") << "D3D11 failed to use preffered adapter " << selected_descr << LL_ENDL;
+                    gExpectedAdapterLUID = { 0, 0 };
+                    adapterSelected = false;
+                }
+            }
+
+            if (!adapterSelected)
+            {
+                // Either failed to select or didn't find an adapter.
+                hr = pD3D11CreateDevice(
+                    nullptr,
+                    D3D_DRIVER_TYPE_HARDWARE,
+                    nullptr,
+                    0,
+                    requestedLevels,
+                    _countof(requestedLevels),
+                    D3D11_SDK_VERSION,
+                    &gD3D11Device,
+                    &featureLevel,
+                    &gD3D11Context
+                );
+                if (!SUCCEEDED(hr))
+                {
+                    LL_WARNS("Window") << "D3D11 failed to use hardware adapter" << LL_ENDL;
+                    FreeLibrary(gD3D11Library);
+                    gD3D11Library = nullptr;
+                    // These shouldn't be set, but make sure they are null.
+                    gD3D11Device = nullptr;
+                    gD3D11Context = nullptr;
+                }
+            }
+        }
+        else
+        {
+            LL_WARNS("Window") << "Failed to get D3D11CreateDevice function from d3d11.dll. High-performance GPU request failed." << LL_ENDL;
+            FreeLibrary(gD3D11Library);
+            gD3D11Library = nullptr;
+        }
+    }
+}
+
+bool LLWindowWin32::detectGPUChange() const
+{
+    if (!gD3D11Device)
+    {
+        // Can't detect without D3D11 device
+        return false;
+    }
+
+    if (gExpectedAdapterLUID.LowPart == 0 && gExpectedAdapterLUID.HighPart == 0)
+    {
+        // No specific adapter was selected, can't detect changes.
+        return false;
+    }
+
+    IDXGIDevice* pDXGIDevice = nullptr;
+    HRESULT hr = gD3D11Device->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice);
+
+    if (SUCCEEDED(hr) && pDXGIDevice)
+    {
+        IDXGIAdapter* pCurrentAdapter = nullptr;
+        hr = pDXGIDevice->GetAdapter(&pCurrentAdapter);
+
+        if (SUCCEEDED(hr) && pCurrentAdapter)
+        {
+            DXGI_ADAPTER_DESC desc;
+            pCurrentAdapter->GetDesc(&desc);
+
+            std::wstring description_w(desc.Description);
+
+            bool changed = false;
+
+            // Check if LUID has changed
+            if (desc.AdapterLuid.LowPart != gExpectedAdapterLUID.LowPart ||
+                desc.AdapterLuid.HighPart != gExpectedAdapterLUID.HighPart)
+            {
+                changed = true;
+                std::string current_gpu_name = ll_convert_wide_to_string(description_w);
+                LL_WARNS("Window") << "GPU change detected! Current adapter: " << current_gpu_name << LL_ENDL;
+            }
+
+            pCurrentAdapter->Release();
+            pDXGIDevice->Release();
+
+            return changed;
+        }
+
+        if (pDXGIDevice)
+        {
+            pDXGIDevice->Release();
+        }
+    }
+
+    return false;
+}
+
+void LLWindowWin32::clearHighPerformanceGPURequest() const
+{
+    detectGPUChange();
+    gExpectedAdapterLUID = { 0, 0 };
+    if (gD3D11Context)
+    {
+        gD3D11Context->Release();
+        gD3D11Context = nullptr;
+    }
+    if (gD3D11Device)
+    {
+        gD3D11Device->Release();
+        gD3D11Device = nullptr;
+    }
+    if (gD3D11Library)
+    {
+        FreeLibrary(gD3D11Library);
+        gD3D11Library = nullptr;
+    }
+}
+
 void* LLWindowWin32::getDirectInput8()
 {
     return &gDirectInput8;
@@ -4646,6 +4981,12 @@ bool LLWindowWin32::getInputDevices(U32 device_type_filter,
 void LLWindowWin32::initWatchdog()
 {
     mWindowThread->initTimeout();
+
+    // Watchdog is effectively a 'login complete event', as the
+    // 'unstable' part is done and from now on we are tracking
+    // performance.
+    // No need to hold D3D11 context/device any more.
+    clearHighPerformanceGPURequest();
 }
 
 F32 LLWindowWin32::getSystemUISize()
@@ -4727,6 +5068,13 @@ inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
     : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, false)
 {
     LL::ThreadPool::start();
+
+    // Set thread name for the window thread
+    // This will make it distinguishable in Visual Studio debugger
+    post([this]()
+    {
+        SetThreadDescription(GetCurrentThread(), L"LLWindowWin32 Thread");
+    });
 }
 
 /**
@@ -4908,7 +5256,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
     }
 
     // Normally won't exist yet, but in case of re-init, make sure it's cleaned up
-    resumeTimeout("WindowThread");
+    resumeTimeout("Window:WindowThread");
 
     while (! getQueue().done())
     {
@@ -4919,23 +5267,25 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 
         if (mWindowHandleThrd != 0)
         {
-            pingTimeout("messages");
             MSG msg;
             BOOL status;
             if (mhDCThrd == 0)
             {
+                pingTimeout("Window:PeekMessage");
                 LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - PeekMessage");
                 logger.onChange("PeekMessage(", std::hex, mWindowHandleThrd, ")");
                 status = PeekMessage(&msg, mWindowHandleThrd, 0, 0, PM_REMOVE);
             }
             else
             {
+                pingTimeout("Window:GetMessage");
                 LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - GetMessage");
                 logger.always("GetMessage(", std::hex, mWindowHandleThrd, ")");
                 status = GetMessage(&msg, NULL, 0, 0);
             }
             if (status > 0)
             {
+                pingTimeout("Window:TranslateMessage");
                 logger.always("got MSG (", std::hex, msg.hwnd, ", ", msg.message,
                               ", ", msg.wParam, ")");
                 TranslateMessage(&msg);
@@ -4947,7 +5297,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - Function Queue");
-            pingTimeout("queue");
+            pingTimeout("Window:Queue");
             logger.onChange("runPending()");
             //process any pending functions
             getQueue().runPending();

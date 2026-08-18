@@ -237,3 +237,80 @@ void LLFontVertexBuffer::renderBuffers()
     gGL.popUIMatrix();
 }
 
+// LLFontWidthBuffer
+bool LLFontWidthBuffer::sEnableBufferCollection = true;
+
+LLFontWidthBuffer::LLFontWidthBuffer()
+{
+}
+
+LLFontWidthBuffer::~LLFontWidthBuffer()
+{
+}
+
+void LLFontWidthBuffer::reset()
+{
+    mLastFont = nullptr;
+    mLastOffset = 0;
+    mLastMaxChars = 0;
+    mLastNoPadding = false;
+    mWidth = -1.f;
+    mLastScaleX = 1.f;
+    mLastScaleY = 1.f;
+    mLastVertDPI = 0.f;
+    mLastHorizDPI = 0.f;
+    mLastResGeneration = 0;
+    mLastFontCacheGen = 0;
+}
+
+F32 LLFontWidthBuffer::getWidth(
+    const LLFontGL* fontp,
+    const llwchar* wchars,
+    S32 begin_offset,
+    S32 max_chars,
+    bool no_padding)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+    if (!fontp || !wchars)
+    {
+        return 0.f;
+    }
+
+    if (!sEnableBufferCollection)
+    {
+        return fontp->getWidthF32(wchars, begin_offset, max_chars, no_padding);
+    }
+
+    // Check if we can use cached width
+    bool needs_recalc = (mWidth < 0.f)
+        || (mLastFont != fontp)
+        || (mLastOffset != begin_offset)
+        || (mLastMaxChars != max_chars)
+        || (mLastNoPadding != no_padding)
+        || (mLastScaleX != LLFontGL::sScaleX)
+        || (mLastScaleY != LLFontGL::sScaleY)
+        || (mLastVertDPI != LLFontGL::sVertDPI)
+        || (mLastHorizDPI != LLFontGL::sHorizDPI)
+        || (mLastResGeneration != LLFontGL::sResolutionGeneration)
+        || (mLastFontCacheGen != fontp->getCacheGeneration());
+
+    if (needs_recalc)
+    {
+        // Calculate width using the font
+        mWidth = fontp->getWidthF32(wchars, begin_offset, max_chars, no_padding);
+
+        // Cache the parameters
+        mLastFont = fontp;
+        mLastOffset = begin_offset;
+        mLastMaxChars = max_chars;
+        mLastNoPadding = no_padding;
+        mLastScaleX = LLFontGL::sScaleX;
+        mLastScaleY = LLFontGL::sScaleY;
+        mLastVertDPI = LLFontGL::sVertDPI;
+        mLastHorizDPI = LLFontGL::sHorizDPI;
+        mLastResGeneration = LLFontGL::sResolutionGeneration;
+        mLastFontCacheGen = fontp->getCacheGeneration();
+    }
+
+    return mWidth;
+}

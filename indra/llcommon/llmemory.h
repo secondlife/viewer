@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,7 @@
 #define LLMEMORY_H
 
 #include "linden_common.h"
+#include "llframetimer.h"
 #include "llunits.h"
 #include "stdtypes.h"
 #if !LL_WINDOWS
@@ -428,17 +429,31 @@ public:
     static void initMaxHeapSizeGB(F32Gigabytes max_heap_size);
     static void updateMemoryInfo() ;
     static void logMemoryInfo(bool update = false);
+    static F32 getSystemMemoryBudgetFactor();
 
+#if LL_WINDOWS
+    // Commit charge is a Windows-only concept, combines page file and ram
+    static U32Megabytes getAvailableCommitMemMB();
+#endif
     static U32Kilobytes getAvailableMemKB() ;
     static U32Kilobytes getMaxMemKB() ;
     static U32Kilobytes getAllocatedMemKB() ;
 private:
+    static void updateFreeSystemMemory();
+    // LLMemoryInfo directly updates memory stats
+    friend class LLMemoryInfo;
+
+    static U32Megabytes sAvailCommitMemInMB;
     static U32Kilobytes sAvailPhysicalMemInKB ;
     static U32Kilobytes sMaxPhysicalMemInKB ;
     static U32Kilobytes sAllocatedMemInKB;
     static U32Kilobytes sAllocatedPageSizeInKB ;
 
     static U32Kilobytes sMaxHeapSizeInKB;
+
+    static LLFrameTimer sMemoryCheckTimer;
+    static F32 sSysMemoryFactor;
+    static U32 sFactorLastFrameCount;
 };
 
 // LLRefCount moved to llrefcount.h

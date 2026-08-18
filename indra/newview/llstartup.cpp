@@ -1353,6 +1353,10 @@ bool idle_startup()
     {
         set_startup_status(0.30f, LLTrans::getString("LoginInitializingWorld"), gAgent.mMOTD);
         do_startup_frame();
+
+        // close login UI before world UI is initialized, if it is still visible
+        LLPanelLogin::closePanel();
+
         // We should have an agent id by this point.
         llassert(!(gAgentID == LLUUID::null));
 
@@ -3242,14 +3246,22 @@ void reset_login()
     if ( gViewerWindow )
     {   // Hide menus and normal buttons
         gViewerWindow->setNormalControlsVisible( false );
-        gLoginMenuBarView->setVisible( true );
-        gLoginMenuBarView->setEnabled( true );
+
+        if (gLoginMenuBarView)
+        {
+            gLoginMenuBarView->setVisible(true);
+            gLoginMenuBarView->setEnabled(true);
+        }
+        else
+        {
+            LL_WARNS("AppInit") << "gLoginMenuBarView not initialized" << LL_ENDL;
+        }
     }
 
     // Hide any other stuff
     LLFloaterReg::hideVisibleInstances();
 
-    if (LLStartUp::getStartupState() > STATE_WORLD_INIT)
+    if (LLStartUp::getStartupState() > STATE_WORLD_INIT && gViewerWindow)
     {
         gViewerWindow->resetStatusBarContainer();
     }

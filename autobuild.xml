@@ -2192,64 +2192,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>description</key>
         <string>Generated headers and sources for OpenXR loader.</string>
       </map>
-      <key>slvoice</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>1e70b06fe6eb9796097010871b32d8e95167e373</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/gh/secondlife/3p-slvoice/slvoice-4.10.0000.32327.5fc3fe7c.5942f08-darwin64-5942f08.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>92b0ae08832bd0e99c34ef8f3e6346ad</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/613/1289/slvoice-3.2.0002.10426.500605-linux64-500605.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ddfb7c30d9756915e8b26f44e2ee3a69ee87fb9a</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/gh/secondlife/3p-slvoice/slvoice-4.10.0000.32327.5fc3fe7c.5942f08-windows64-5942f08.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>Mixed</string>
-        <key>license_file</key>
-        <string>LICENSES/vivox_licenses.txt</string>
-        <key>copyright</key>
-        <string>2010 Vivox, including audio coding using Polycom¨ Siren14TM (ITU-T Rec. G.722.1 Annex C)</string>
-        <key>version</key>
-        <string>4.10.0000.32327.5fc3fe7c.5942f08</string>
-        <key>name</key>
-        <string>slvoice</string>
-        <key>description</key>
-        <string>Vivox SDK components</string>
-      </map>
       <key>sse2neon</key>
       <map>
         <key>platforms</key>
@@ -2665,11 +2607,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>72ed1f6d469a8ffaffd69be39b7af186d7c3b1d7</string>
+              <string>9622dbeb12d1c9592de3ea3f83c2c1a95b3c0822</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.22/webrtc-m137.7151.04.22.21966754211-darwin64-21966754211.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.19.hot-mic/webrtc-m144.7559.06.19.hot-mic.29761579711-darwin64-29761579711.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2679,11 +2621,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b4d0c836d99491841c3816ff93bb2655a2817bd3</string>
+              <string>9113fdfafca5ca750e415abafaf080540346e068</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.22/webrtc-m137.7151.04.22.21966754211-linux64-21966754211.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.19.hot-mic/webrtc-m144.7559.06.19.hot-mic.29761579711-linux64-29761579711.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2693,11 +2635,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ab2bddd77b1568b22b50ead13c1c33da94f4d59a</string>
+              <string>1d8a82b72887abfb1c5014fcca4337703dfdcd25</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m137.7151.04.22/webrtc-m137.7151.04.22.21966754211-windows64-21966754211.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.19.hot-mic/webrtc-m144.7559.06.19.hot-mic.29761579711-windows64-29761579711.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2710,7 +2652,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2011, The WebRTC project authors. All rights reserved.</string>
         <key>version</key>
-        <string>m137.7151.04.22.21966754211</string>
+        <string>m144.7559.06.19.hot-mic.29761579711</string>
         <key>name</key>
         <string>webrtc</string>
         <key>vcs_branch</key>
@@ -2954,14 +2896,12 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>91abbc360640b5b2e0a4c001a36ad411a9a42602</string>
+              <string>df2260187110aa51c20101183e18a55f86e71090</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife-3p/3p-velopack/releases/assets/380583560</string>
+              <string>https://github.com/secondlife-3p/3p-velopack/releases/download/v0.0.1535-r2/velopack-40232ef.24685318450-windows64-24685318450.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2970,14 +2910,12 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>05563a79bdeb83d66a72ac1e97587dc2a8f64511</string>
+              <string>ead94386d7b9a143824d7ccedc86433127028a91</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife-3p/3p-velopack/releases/assets/380583554</string>
+              <string>https://github.com/secondlife-3p/3p-velopack/releases/download/v0.0.1535-r2/velopack-40232ef.24685318450-darwin64-24685318450.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2990,7 +2928,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Velopack Ltd.</string>
         <key>version</key>
-        <string>40232ef.23500976684</string>
+        <string>40232ef.24685318450</string>
         <key>name</key>
         <string>velopack</string>
         <key>description</key>
@@ -3448,7 +3386,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       <key>license_file</key>
       <string>docs/LICENSE-source.txt</string>
       <key>copyright</key>
-      <string>Copyright (c) 2020, Linden Research, Inc.</string>
+      <string>Copyright (c) 2026, Linden Research, Inc.</string>
       <key>version_file</key>
       <string>newview/viewer_version.txt</string>
       <key>name</key>

@@ -168,6 +168,7 @@ void LLPluginClassMedia::reset()
 
 void LLPluginClassMedia::idle(void)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     if(mPlugin)
     {
         mPlugin->idle();

@@ -203,6 +203,7 @@
 
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
+#include "llstatslistener.h"
 #include "llcleanup.h"
 
 #if LL_WINDOWS
@@ -1776,13 +1777,17 @@ bool LLViewerWindow::handleTimerEvent(LLWindow *window)
     return false;
 }
 
-bool LLViewerWindow::handleDeviceChange(LLWindow *window)
+bool LLViewerWindow::handleDeviceChange(LLWindow *window, const std::string& change_type)
 {
     // give a chance to use a joystick after startup (hot-plugging)
     if (!LLViewerJoystick::getInstance()->isJoystickInitialized() )
     {
         LLViewerJoystick::getInstance()->init(true);
         return true;
+    }
+    else
+    {
+        LL_INFOS("Window") << "Device change event: " << change_type << LL_ENDL;
     }
     return false;
 }
@@ -1805,6 +1810,7 @@ bool LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32
 
 bool LLViewerWindow::handleDisplayChanged()
 {
+    LL_INFOS("Window") << "Display change event" << LL_ENDL;
     LLFontGL::sResolutionGeneration++;
     return false;
 }
@@ -1886,6 +1892,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     LLWindowListener::KeyboardGetter getter = [](){ return gKeyboard; };
     mWindowListener = std::make_unique<LLWindowListener>(this, getter);
     mViewerWindowListener = std::make_unique<LLViewerWindowListener>(this);
+    mStatsListener = std::make_unique<LLStatsListener>();
 
     mSystemChannel.reset(new LLNotificationChannel("System", "Visible", LLNotificationFilters::includeEverything));
     mCommunicationChannel.reset(new LLCommunicationChannel("Communication", "Visible"));

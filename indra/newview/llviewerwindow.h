@@ -66,6 +66,7 @@ class LLWindow;
 class LLRootView;
 class LLWindowListener;
 class LLViewerWindowListener;
+class LLStatsListener;
 class LLVOPartGroup;
 class LLPopupView;
 class LLCubeMap;
@@ -230,7 +231,7 @@ public:
     /*virtual*/ void handleWindowUnblock(LLWindow *window);
     /*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);
     /*virtual*/ bool handleTimerEvent(LLWindow *window);
-    /*virtual*/ bool handleDeviceChange(LLWindow *window);
+    /*virtual*/ bool handleDeviceChange(LLWindow *window, const std::string& change_type);
     /*virtual*/ bool handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
     /*virtual*/ bool handleDisplayChanged();
     /*virtual*/ bool handleWindowDidChangeScreen(LLWindow *window);
@@ -563,6 +564,7 @@ private:
 
     std::unique_ptr<LLWindowListener> mWindowListener;
     std::unique_ptr<LLViewerWindowListener> mViewerWindowListener;
+    std::unique_ptr<LLStatsListener> mStatsListener;
 
     // Object temporarily hovered over while dragging
     LLPointer<LLViewerObject>   mDragHoveredObject;

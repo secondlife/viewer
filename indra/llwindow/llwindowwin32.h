@@ -148,6 +148,8 @@ protected:
     void    initCursors();
     HCURSOR loadColorCursor(LPCTSTR name);
     bool    isValid();
+    void    setThreadPriorityHigh();
+    void    setThreadPriorityNormal();
     void    moveWindow(const LLCoordScreen& position,const LLCoordScreen& size);
     virtual LLSD    getNativeKeyData();
 
@@ -169,6 +171,17 @@ protected:
     void    handleStartCompositionMessage();
     void    handleCompositionMessage(U32 indexes);
     bool    handleImeRequests(WPARAM request, LPARAM param, LRESULT *result);
+
+    // Additional function to request and hold a high-performance GPU on Windows 10+
+    //
+    // Laptops can dynamically switch between integrated and discrete GPUs.
+    // The Viewer has gpu-specific optimizations, and this switching can cause problems and crashes.
+    // The login screen requires low performance, which can lead to the OS deciding to switch to the integrated GPU.
+    // To avoid this, we request and hold a high-performance GPU using A D3D11 context until login.
+    // For diagnostics, we also log GPU changes.
+    void    requestHighPerformanceGPU() const;
+    bool    detectGPUChange() const;
+    void    clearHighPerformanceGPURequest() const;
 
 protected:
     //
