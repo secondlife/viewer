@@ -338,6 +338,7 @@ protected:
     // Builds the UI.  Call this once the inventory is usable.
     void                initializeViews(F64 max_time);
     virtual void        initRootContent();
+    void                buildEssentialChildViews(const LLUUID& root_id);
     virtual void        findAndInitRootContent(const LLUUID& root_id) {};
 
     // Specific inventory colors

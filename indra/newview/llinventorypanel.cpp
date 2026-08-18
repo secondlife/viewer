@@ -1044,17 +1044,63 @@ void LLInventoryPanel::initializeViews(F64 max_time)
 
 void LLInventoryPanel::initRootContent()
 {
+    // Optimization: Build root folder and its immediate children (system folders)
+    // but not grandchildren. Essential system folders (Calling Cards, My Outfits,
+    // Marketplace, etc.) also get their immediate children built so that nested
+    // system content (e.g. Friends subfolder, outfit folders) is available at init.
+    // Everything deeper is built lazily when folders are expanded.
     LLUUID root_id = getRootFolderID();
     if (root_id.notNull())
     {
-        buildNewViews(getRootFolderID());
+        LLInventoryObject const* objectp = mInventory->getObject(root_id);
+        buildNewViews(root_id, objectp, nullptr, BUILD_ONE_FOLDER);
+        buildEssentialChildViews(root_id);
     }
     else
     {
         // Default case: always add "My Inventory" root first, "Library" root second
-        // If we run out of time, this still should create root folders
-        buildNewViews(gInventory.getRootFolderID());        // My Inventory
-        buildNewViews(gInventory.getLibraryRootFolderID()); // Library
+        LLInventoryObject const* my_inv = mInventory->getObject(gInventory.getRootFolderID());
+        buildNewViews(gInventory.getRootFolderID(), my_inv, nullptr, BUILD_ONE_FOLDER);
+        buildEssentialChildViews(gInventory.getRootFolderID());
+
+        LLInventoryObject const* library = mInventory->getObject(gInventory.getLibraryRootFolderID());
+        buildNewViews(gInventory.getLibraryRootFolderID(), library, nullptr, BUILD_ONE_FOLDER);
+    }
+}
+
+void LLInventoryPanel::buildEssentialChildViews(const LLUUID& root_id)
+{
+    // After building root + immediate children, also build one level deeper
+    // for essential system folders so their content is available at startup.
+    LLInventoryModel::cat_array_t* categories = nullptr;
+    LLInventoryModel::item_array_t* items = nullptr;
+    mInventory->getDirectDescendentsOf(root_id, categories, items);
+    if (!categories)
+    {
+        return;
+    }
+
+    for (const auto& cat : *categories)
+    {
+        if (!cat)
+        {
+            continue;
+        }
+        const LLFolderType::EType pref_type = cat->getPreferredType();
+        if (pref_type == LLFolderType::FT_NONE)
+        {
+            continue;
+        }
+        // Build immediate children for essential system folders
+        if (LLFolderType::lookupIsEssentialType(pref_type))
+        {
+            const LLUUID& cat_id = cat->getUUID();
+            LLInventoryObject const* objectp = mInventory->getObject(cat_id);
+            if (objectp)
+            {
+                buildNewViews(cat_id, objectp, getItemByID(cat_id), BUILD_ONE_FOLDER);
+            }
+        }
     }
 }
 
@@ -1335,18 +1381,17 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                 const LLViewerInventoryCategory* cat = (*cat_iter);
                 if (typedViewsFilter(cat->getUUID(), cat))
                 {
+                    LLFolderViewItem* view_itemp = nullptr;
                     if (has_folders)
                     {
-                        // This can be optimized: we don't need to call getItemByID()
-                        // each time, especially since content is growing, we can just
-                        // iter over copy of mItemMap in some way
-                        LLFolderViewItem* view_itemp = getItemByID(cat->getUUID());
-                        buildViewsTree(cat->getUUID(), id, cat, view_itemp, parentp, (mode == BUILD_ONE_FOLDER ? BUILD_NO_CHILDREN : mode), depth);
+                        // Optimized: only lookup if we know folders exist, otherwise nullptr is correct
+                        auto map_it = mItemMap.find(cat->getUUID());
+                        if (map_it != mItemMap.end())
+                        {
+                            view_itemp = map_it->second;
+                        }
                     }
-                    else
-                    {
-                        buildViewsTree(cat->getUUID(), id, cat, NULL, parentp, (mode == BUILD_ONE_FOLDER ? BUILD_NO_CHILDREN : mode), depth);
-                    }
+                    buildViewsTree(cat->getUUID(), id, cat, view_itemp, parentp, (mode == BUILD_ONE_FOLDER ? BUILD_NO_CHILDREN : mode), depth);
                 }
 
                 if (!mBuildChildrenViews
@@ -1378,10 +1423,13 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                 const LLViewerInventoryItem* item = (*item_iter);
                 if (typedViewsFilter(item->getUUID(), item))
                 {
-                    // This can be optimized: we don't need to call getItemByID()
-                    // each time, especially since content is growing, we can just
-                    // iter over copy of mItemMap in some way
-                    LLFolderViewItem* view_itemp = getItemByID(item->getUUID());
+                    // Optimized: direct map lookup instead of getItemByID() function call
+                    LLFolderViewItem* view_itemp = nullptr;
+                    auto map_it = mItemMap.find(item->getUUID());
+                    if (map_it != mItemMap.end())
+                    {
+                        view_itemp = map_it->second;
+                    }
                     buildViewsTree(item->getUUID(), id, item, view_itemp, parentp, mode, depth);
                 }
 
