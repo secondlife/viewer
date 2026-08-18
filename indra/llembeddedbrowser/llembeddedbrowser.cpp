@@ -185,19 +185,24 @@ bool LLEmbeddedBrowserTab::connectToProducer()
 
     LLMutexLock lock(&mPixelMutex);
     mSub = std::move(sub);
+    // The producer always starts a fresh view at its own default (960x540), regardless
+    // of what this tab's create()/resize() actually asked for -- ask it to match right
+    // away, and BEFORE the initial navigate below, rather than sitting at the wrong size
+    // until some later, unrelated resize(). Sending kSetUrl first (as this used to) let
+    // the real page start loading/laying itself out at 960x540 -- if the page decides its
+    // responsive layout via its own JS rather than pure CSS media queries, that wrong-size
+    // decision can stick even once the buffer is resized correctly a moment later, which
+    // is exactly what an intermittently mis-sized login page looks like. Uses
+    // mRequestedWidth/mRequestedHeight, not mWidth/mHeight: this handshake can take up to
+    // a few seconds (see mUpdateThread's own comment), and a resize() requested by the
+    // caller anytime during that window only ever updates the former (see resize()).
+    std::uint8_t payload[8];
+    pack_size(payload, mRequestedWidth, mRequestedHeight);
+    mSub->send(kResize, payload, 8);
     if (!mCurrentUrl.empty())
     {
         mSub->send_text(kSetUrl, mCurrentUrl);
     }
-    // The producer always starts a fresh view at its own default (960x540), regardless
-    // of what this tab's create()/resize() actually asked for -- ask it to match right
-    // away rather than sitting at the wrong size until some later, unrelated resize().
-    // Uses mRequestedWidth/mRequestedHeight, not mWidth/mHeight: this handshake can take
-    // up to a few seconds (see mUpdateThread's own comment), and a resize() requested by
-    // the caller anytime during that window only ever updates the former (see resize()).
-    std::uint8_t payload[8];
-    pack_size(payload, mRequestedWidth, mRequestedHeight);
-    mSub->send(kResize, payload, 8);
 
     if (mHadDisconnected)
     {
