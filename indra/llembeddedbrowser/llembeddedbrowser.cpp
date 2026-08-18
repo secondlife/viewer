@@ -462,6 +462,33 @@ void LLEmbeddedBrowserTab::setFocus(bool focus)
     }
 }
 
+void LLEmbeddedBrowserTab::cut()
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        mSub->send(kCut);
+    }
+}
+
+void LLEmbeddedBrowserTab::copy()
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        mSub->send(kCopy);
+    }
+}
+
+void LLEmbeddedBrowserTab::paste()
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        mSub->send(kPaste);
+    }
+}
+
 void LLEmbeddedBrowserTab::respondToFileDialog(long long dialogId, const std::vector<std::string>& filePaths)
 {
     LLMutexLock lock(&mPixelMutex);
@@ -930,6 +957,30 @@ void LLEmbeddedBrowser::setFocus(unsigned int id, bool focus)
     if (auto tab = findTab(id))
     {
         tab->setFocus(focus);
+    }
+}
+
+void LLEmbeddedBrowser::cut(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->cut();
+    }
+}
+
+void LLEmbeddedBrowser::copy(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->copy();
+    }
+}
+
+void LLEmbeddedBrowser::paste(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->paste();
     }
 }
 

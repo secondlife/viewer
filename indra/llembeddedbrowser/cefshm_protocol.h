@@ -73,6 +73,10 @@ namespace cefshm_demo
                           // without changing the pixel buffer size (see LLMediaCtrl::reshape()'s
                           // embedded-browser special case, which keeps the requested width/height
                           // unscaled and routes LLUI::getScaleFactor() through here instead).
+        kCut   = 27, // empty payload -- straight into llCefBrowserManager::Cut(). Fire-and-forget,
+                          // matching kExecuteJavaScript; there's no completion/result to report.
+        kCopy  = 28, // empty payload -- straight into llCefBrowserManager::Copy().
+        kPaste = 29, // empty payload -- straight into llCefBrowserManager::Paste().
 
         // consumer -> producer, control channel only
         kRequestSlot     = 5, // data = {uint8 isUI} -- isUI selects which of the producer's two

@@ -599,6 +599,15 @@ int run_producer(int argc, char** argv)
                     }
                     break;
                 }
+                case kCut:
+                    manager->Cut(s.cefHandle);
+                    break;
+                case kCopy:
+                    manager->Copy(s.cefHandle);
+                    break;
+                case kPaste:
+                    manager->Paste(s.cefHandle);
+                    break;
                 case kFileDialogResponse: {
                     std::int64_t dialogId;
                     std::vector<std::string> filePaths;

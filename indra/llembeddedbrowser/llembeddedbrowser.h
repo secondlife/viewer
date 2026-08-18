@@ -126,6 +126,12 @@ class LLEmbeddedBrowserTab
         // Fire-and-forget, matching LLPluginClassMedia::executeJavaScript() -- no result is
         // returned to the caller.
         void executeJavaScript(const std::string& code);
+        // Cut/copy/paste the current selection/clipboard, straight into
+        // llCefBrowserManager::Cut()/Copy()/Paste(). Fire-and-forget, same as
+        // executeJavaScript() -- no completion is reported.
+        void cut();
+        void copy();
+        void paste();
         unsigned int getWidth() const;
         unsigned int getHeight() const;
 
@@ -230,6 +236,9 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void resize(unsigned int id, unsigned int width, unsigned int height);
         void setPageZoom(unsigned int id, float zoom);
         void executeJavaScript(unsigned int id, const std::string& code);
+        void cut(unsigned int id);
+        void copy(unsigned int id);
+        void paste(unsigned int id);
 
         void mouseMove(unsigned int id, int x, int y);
         void mouseButton(unsigned int id, int x, int y, unsigned char button, bool is_down);

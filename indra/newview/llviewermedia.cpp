@@ -4212,7 +4212,9 @@ LLViewerMediaImpl::canRedo() const
 void
 LLViewerMediaImpl::cut()
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+        LLEmbeddedBrowser::getInstance()->cut(mEmbeddedBrowserId);
+    else if (mMediaSource)
         mMediaSource->cut();
 }
 
@@ -4221,7 +4223,12 @@ LLViewerMediaImpl::cut()
 bool
 LLViewerMediaImpl::canCut() const
 {
-    if (mMediaSource)
+    // CEF exposes no real edit-capability query (see llCefBrowserManager::CanCut(),
+    // always true, matching the legacy plugin's own editCanCut() -- see dullahan_impl.cpp)
+    // -- unconditionally enabled, same as the legacy-plugin path below.
+    if (mUseEmbeddedBrowser)
+        return true;
+    else if (mMediaSource)
         return mMediaSource->canCut();
     else
         return false;
@@ -4232,7 +4239,9 @@ LLViewerMediaImpl::canCut() const
 void
 LLViewerMediaImpl::copy()
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+        LLEmbeddedBrowser::getInstance()->copy(mEmbeddedBrowserId);
+    else if (mMediaSource)
         mMediaSource->copy();
 }
 
@@ -4241,7 +4250,9 @@ LLViewerMediaImpl::copy()
 bool
 LLViewerMediaImpl::canCopy() const
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+        return true;
+    else if (mMediaSource)
         return mMediaSource->canCopy();
     else
         return false;
@@ -4252,7 +4263,9 @@ LLViewerMediaImpl::canCopy() const
 void
 LLViewerMediaImpl::paste()
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+        LLEmbeddedBrowser::getInstance()->paste(mEmbeddedBrowserId);
+    else if (mMediaSource)
         mMediaSource->paste();
 }
 
@@ -4261,7 +4274,9 @@ LLViewerMediaImpl::paste()
 bool
 LLViewerMediaImpl::canPaste() const
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+        return true;
+    else if (mMediaSource)
         return mMediaSource->canPaste();
     else
         return false;
