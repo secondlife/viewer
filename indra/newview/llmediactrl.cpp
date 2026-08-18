@@ -556,7 +556,22 @@ void LLMediaCtrl::reshape( S32 width, S32 height, bool called_from_parent )
         // work rather than a cheap re-render -- and see llCefBrowser::
         // CheckResizeWatchdog(), whose exact-match resize confirmation makes a
         // never-quite-settling resize show up as a persistent flicker.
-        bool use_embedded = mMediaSource && mMediaSource->isUsingEmbeddedBrowser();
+        //
+        // Deliberately NOT mMediaSource->isUsingEmbeddedBrowser(): that flag only
+        // flips true once LLViewerMediaImpl::createMediaSource() has actually run,
+        // which happens lazily on first navigate -- but reshape() can fire earlier
+        // than that (e.g. XUI's own follows="all" auto-layout reshaping a freshly
+        // built LLMediaCtrl before its owning panel's constructor gets around to
+        // calling navigateTo()/navigateToLocalPage(), as LLPanelLogin's does). Using
+        // the lazy flag there meant this reshape() call would still take the legacy-
+        // plugin (scaled) branch, bake that wrong size into setTextureSize(), and
+        // hand it straight to LLEmbeddedBrowser::create() as the tab's initial
+        // buffer size once navigateTo() ran moments later -- an intermittent
+        // mis-sized/mis-laid-out login page (only visible when UIScaleFactor != 1.0,
+        // which is why it wasn't every time). This setting is read the same way, and
+        // decides the same thing, in createMediaSource() itself -- it doesn't change
+        // mid-session, so there's no equivalent race in checking it directly here.
+        bool use_embedded = gSavedSettings.getBOOL("UseEmbeddedBrowser");
         S32 screen_width = use_embedded ? width : ll_round((F32)width * LLUI::getScaleFactor().mV[VX]);
         S32 screen_height = use_embedded ? height : ll_round((F32)height * LLUI::getScaleFactor().mV[VY]);
 
