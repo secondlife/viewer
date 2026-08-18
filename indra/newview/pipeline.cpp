@@ -10836,14 +10836,35 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
             LLVector3 min, max;
 
             //construct 8 corners of split frustum section
-            for (U32 i = 0; i < 4; i++)
+            if (gCubeSnapshot && mHeroProbeManager.isMirrorPass())
             {
-                LLVector3 delta = frust[i+4]-eye;
-                delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
-                delta.normVec();
-                F32 dp = delta*pn;
-                frust[i] = eye + (delta*dist[j]*0.75f)/dp;
-                frust[i+4] = eye + (delta*dist[j+1]*1.25f)/dp;
+                // Hero probes render shadows once per probe and reuse them for all
+                // six cube faces, so fit each split to a probe-centered box covering
+                // every direction instead of this face's frustum. 1.75 >= sqrt(3), the
+                // max radial distance of a fragment that selects this split from any face.
+                LLVector3 left = shadow_cam.getLeftAxis();
+                LLVector3 up_axis = shadow_cam.getUpAxis();
+                F32 r = dist[j+1] * 1.75f;
+                for (U32 i = 0; i < 4; i++)
+                {
+                    LLVector3 delta = frust[i+4]-eye;
+                    LLVector3 transverse = left * ((delta * left) > 0.f ? 1.f : -1.f)
+                                         + up_axis * ((delta * up_axis) > 0.f ? 1.f : -1.f);
+                    frust[i] = eye + (transverse - pn) * r;
+                    frust[i+4] = eye + (transverse + pn) * r;
+                }
+            }
+            else
+            {
+                for (U32 i = 0; i < 4; i++)
+                {
+                    LLVector3 delta = frust[i+4]-eye;
+                    delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
+                    delta.normVec();
+                    F32 dp = delta*pn;
+                    frust[i] = eye + (delta*dist[j]*0.75f)/dp;
+                    frust[i+4] = eye + (delta*dist[j+1]*1.25f)/dp;
+                }
             }
 
             shadow_cam.calcAgentFrustumPlanes(frust);
@@ -11354,6 +11375,24 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     if (!skip_avatar_update)
     {
         gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
+    }
+}
+
+void LLPipeline::refreshSunShadowMatrices()
+{
+    // The shadow maps and light view/proj are world-space; only the
+    // inv(modelview) factor in mSunShadowMatrix is render-camera-dependent.
+    glm::mat4 inv_view = glm::inverse(get_current_modelview());
+
+    //translate and scale to from [-1, 1] to [0, 1]
+    glm::mat4 trans(0.5f, 0.0f, 0.0f, 0.0f,
+                    0.0f, 0.5f, 0.0f, 0.0f,
+                    0.0f, 0.0f, 0.5f, 0.0f,
+                    0.5f, 0.5f, 0.5f, 1.0f);
+
+    for (U32 j = 0; j < 6; ++j)
+    {
+        mSunShadowMatrix[j] = trans * mShadowProjection[j] * mShadowModelview[j] * inv_view;
     }
 }
 

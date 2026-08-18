@@ -5545,7 +5545,7 @@ bool LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
 void display_cube_face();
 
 bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 cubeIndex, S32 face, F32 near_clip, bool dynamic_render, bool useCustomClipPlane, LLPlane clipPlane,
-    const LLVector3* overrideLookDir, const LLVector3* overrideUpDir)
+    const LLVector3* overrideLookDir, const LLVector3* overrideUpDir, F32 overrideFov)
 {
     // NOTE: implementation derived from LLFloater360Capture::capture360Images() and simpleSnapshot
     LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
@@ -5571,7 +5571,7 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
 
     // camera constants for the square, cube map capture image
     camera->setAspect(1.0); // must set aspect ratio first to avoid undesirable clamping of vertical FoV
-    camera->setViewNoBroadcast(F_PI_BY_TWO);
+    camera->setViewNoBroadcast(overrideFov > 0.f ? overrideFov : F_PI_BY_TWO);
     camera->yaw(0.0);
     camera->setOrigin(origin);
     camera->setNear(near_clip);

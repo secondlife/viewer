@@ -766,9 +766,10 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
             vec3 corrected = mat3(heroPlaneMatrix[pi]) * worldDir;
             vec3 cubemapDir = corrected;
 
-            // Angular fade: attenuate for directions near face edges
-            float cosAngle = cubemapDir.x / max(length(cubemapDir), 0.001);
-            w *= smoothstep(0.0, 0.1, cosAngle);
+            // Fade out at the capture image border; the matrix already scales
+            // the capture FOV onto face 0, so valid data spans |y|,|z| <= x
+            float maxc = max(abs(cubemapDir.y), abs(cubemapDir.z)) / max(cubemapDir.x, 0.001);
+            w *= (cubemapDir.x > 0.0) ? (1.0 - smoothstep(0.95, 1.0, maxc)) : 0.0;
 
             // Ensure face 0 is sampled
             cubemapDir.x = max(cubemapDir.x, 0.001);

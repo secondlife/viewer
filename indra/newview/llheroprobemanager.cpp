@@ -130,6 +130,14 @@ void LLHeroProbeManager::update()
 
     S32 probeCount = (S32)mReflectionProbeCount;
 
+    // Size the planar capture FOV to reach the mirrored camera frustum's corners,
+    // with margin so screen edges stay inside the shader's border fade.
+    {
+        F32 vTan = tanf(LLViewerCamera::instance().getView() * 0.5f);
+        F32 hTan = vTan * LLViewerCamera::instance().getAspect();
+        mPlanarCaptureFovTanHalf = llmax(1.f, sqrtf(hTan * hTan + vTan * vTan) * 1.05f);
+    }
+
     // --- Probe 0: System water mirror probe ---
     {
         F32 waterHeight = LLEnvironment::instance().getWaterHeight();
@@ -218,23 +226,14 @@ void LLHeroProbeManager::update()
             face_normal *= hero->mDrawable->getWorldRotation();
             face_normal.normalize();
 
-            bool isPlanar = hero->getScale().mV[VZ] < 0.02f;
-
+            // All probes capture from the reflected camera position; direction-only
+            // sampling in the shader assumes the mirrored eye as the capture origin.
             LLVector4a probe_pos;
-            if (isPlanar)
-            {
-                // Planar mirrors render from reflected camera position
-                LLVector3 offset = camera_pos - hero_pos;
-                LLVector3 project = face_normal * (offset * face_normal);
-                LLVector3 reject  = offset - project;
-                LLVector3 point   = (reject - project) + hero_pos;
-                probe_pos.load3(point.mV);
-            }
-            else
-            {
-                // Non-planar probes render from the hero object's center
-                probe_pos.load3(hero_pos.mV);
-            }
+            LLVector3 offset = camera_pos - hero_pos;
+            LLVector3 project = face_normal * (offset * face_normal);
+            LLVector3 reject  = offset - project;
+            LLVector3 point   = (reject - project) + hero_pos;
+            probe_pos.load3(point.mV);
 
             mProbes[probeIdx]->mOrigin = probe_pos;
             mProbes[probeIdx]->mRadius = hero->getScale().magVec() * 0.5f;
@@ -375,9 +374,6 @@ void LLHeroProbeManager::renderProbes()
             }
             else
             {
-                // Non-planar probes capture full environment from object center.
-                // Disable mirror clipping so mirrorClip() doesn't discard geometry.
-                mRenderingMirror = false;
                 for (U32 i = 0; i < 6; ++i)
                 {
                     if ((gFrameCount % rate) == (i % rate))
@@ -385,7 +381,6 @@ void LLHeroProbeManager::renderProbes()
                         updateProbeFace(mProbes[probeIdx], i, dynamic, near_clip);
                     }
                 }
-                mRenderingMirror = true;
             }
 
             generateRadiance(mProbes[probeIdx]);
@@ -417,7 +412,8 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
     if (mIsPlanar)
     {
         probe->update(mRenderTarget.getWidth(), face, is_dynamic, near_clip,
-                      true, mCurrentClipPlane, &mPlanarLookDir, &mPlanarUpDir);
+                      true, mCurrentClipPlane, &mPlanarLookDir, &mPlanarUpDir,
+                      2.f * atanf(mPlanarCaptureFovTanHalf));
     }
     else
     {
@@ -657,6 +653,10 @@ void LLHeroProbeManager::updateUniforms()
             LLVector3 reflRight = lookDir % upDir;
             reflRight.normalize();
 
+            // scale transverse axes by 1/tan(fov/2) so the widened capture maps onto face 0's +/-45 degree range
+            upDir /= mPlanarCaptureFovTanHalf;
+            reflRight /= mPlanarCaptureFovTanHalf;
+
             mHeroData.heroPlaneMatrix[pi].initRows(
                 LLVector4(lookDir.mV[VX], -upDir.mV[VX], -reflRight.mV[VX], 0),
                 LLVector4(lookDir.mV[VY], -upDir.mV[VY], -reflRight.mV[VY], 0),
@@ -731,6 +731,10 @@ void LLHeroProbeManager::updateUniforms()
 
                 LLVector3 reflRight = lookDir % upDir;
                 reflRight.normalize();
+
+                // scale transverse axes by 1/tan(fov/2) so the widened capture maps onto face 0's +/-45 degree range
+                upDir /= mPlanarCaptureFovTanHalf;
+                reflRight /= mPlanarCaptureFovTanHalf;
 
                 mHeroData.heroPlaneMatrix[pi].initRows(
                     LLVector4(lookDir.mV[VX], -upDir.mV[VX], -reflRight.mV[VX], 0),

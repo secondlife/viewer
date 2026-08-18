@@ -1787,7 +1787,7 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
             translated_joint = glm::inverse(parent_support_rest) * gltf_joint_rest_pose;
         }
 
-        glm::vec3 translation_override;
+        glm::vec3 translation_override(0.f);
         glm::vec3 skew;
         glm::vec3 scale;
         glm::vec4 perspective;

@@ -1221,16 +1221,11 @@ void display_cube_face()
     display_update_camera();
 
     {
-        S32 probeIdx = gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx;
-        bool heroSkipEnv = gPipeline.mHeroProbeManager.isMirrorPass()
-                        && probeIdx >= 0
-                        && gPipeline.mHeroProbeManager.mHeroShadowsComplete[probeIdx];
-        if (!heroSkipEnv)
-        {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Env Update");
-            // update all the sky/atmospheric/water settings
-            LLEnvironment::instance().update(LLViewerCamera::getInstance());
-        }
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Env Update");
+        // update all the sky/atmospheric/water settings
+        // NOTE: must run for every face — CLIP_PLANE and WATER_WATERPLANE are baked
+        // into eye space from the current modelview, which changes per cube face
+        LLEnvironment::instance().update(LLViewerCamera::getInstance());
     }
 
     LLSpatialGroup::sNoDelete = true;
@@ -1267,6 +1262,12 @@ void display_cube_face()
             gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
             if (gPipeline.mHeroProbeManager.isMirrorPass() && probeIdx >= 0)
                 gPipeline.mHeroProbeManager.mHeroShadowsComplete[probeIdx] = true;
+        }
+        else
+        {
+            // Reusing this probe's shadow maps — the maps are world-space and valid,
+            // but mSunShadowMatrix bakes in inv(modelview), which changes per face.
+            gPipeline.refreshSunShadowMatrices();
         }
     }
 

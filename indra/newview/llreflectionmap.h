@@ -53,7 +53,7 @@ public:
     // update this environment map
     // resolution - size of cube map to generate
     void update(U32 resolution, U32 face, bool force_dynamic = false, F32 near_clip = -1.f, bool useClipPlane = false, LLPlane clipPlane = LLPlane(LLVector3(0, 0, 0), LLVector3(0, 0, 1)),
-                const LLVector3* overrideLookDir = nullptr, const LLVector3* overrideUpDir = nullptr);
+                const LLVector3* overrideLookDir = nullptr, const LLVector3* overrideUpDir = nullptr, F32 overrideFov = 0.f);
 
     // for volume partition probes, try to place this probe in the best spot
     void autoAdjustOrigin();

@@ -125,6 +125,9 @@ private:
     LLVector3 mPlanarLookDir;
     LLVector3 mPlanarUpDir;
 
+    // tan(fov/2) of the planar capture; sized to cover the mirrored camera frustum
+    F32 mPlanarCaptureFovTanHalf = 1.f;
+
 
     // update the specified face of the specified probe
     void updateProbeFace(LLReflectionMap* probe, U32 face, bool is_dynamic, F32 near_clip);

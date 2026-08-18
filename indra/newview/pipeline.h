@@ -351,6 +351,9 @@ public:
     void postDeferredGammaCorrect(LLRenderTarget* screen_target);
 
     void generateSunShadow(LLCamera& camera);
+    // rebuild mSunShadowMatrix for the current modelview so shadow maps
+    // rendered once per hero probe can be reused across cube faces
+    void refreshSunShadowMatrices();
     LLRenderTarget* getSunShadowTarget(U32 i);
     LLRenderTarget* getSpotShadowTarget(U32 i);
 

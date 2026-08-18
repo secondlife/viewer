@@ -51,7 +51,7 @@ LLReflectionMap::~LLReflectionMap()
 }
 
 void LLReflectionMap::update(U32 resolution, U32 face, bool force_dynamic, F32 near_clip, bool useClipPlane, LLPlane clipPlane,
-    const LLVector3* overrideLookDir, const LLVector3* overrideUpDir)
+    const LLVector3* overrideLookDir, const LLVector3* overrideUpDir, F32 overrideFov)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     if (!mCubeArray.notNull())
@@ -73,7 +73,7 @@ void LLReflectionMap::update(U32 resolution, U32 face, bool force_dynamic, F32 n
     bool dynamic = force_dynamic || getIsDynamic();
 
     gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, clip, dynamic, useClipPlane, clipPlane,
-        overrideLookDir, overrideUpDir);
+        overrideLookDir, overrideUpDir, overrideFov);
 }
 
 void LLReflectionMap::autoAdjustOrigin()
