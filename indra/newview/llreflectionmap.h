@@ -61,6 +61,10 @@ public:
     // return true if given Reflection Map's influence volume intersect's with this one's
     bool intersects(LLReflectionMap* other) const;
 
+    // return true if the given Reflection Map nests inside this one
+    // (bounding-sphere test; strictly smaller radius with origin inside this volume)
+    bool contains(const LLReflectionMap* other) const;
+
     // Get the ambiance value to use for this probe
     F32 getAmbiance() const;
 
@@ -128,9 +132,9 @@ public:
     LLPointer<LLViewerObject> mViewerObject;
 
     // what priority should this probe have (higher is higher priority)
-    // currently only 0 or 1
     // 0 - automatic probe
-    // 1 - manual probe
+    // 1..3 - manual probe: 1 + containment nesting depth, clamped
+    //        (derived in LLReflectionMapManager::updateUniforms)
     U32 mPriority = 0;
 
     // occlusion culling state

@@ -9494,6 +9494,17 @@
     <key>Value</key>
     <integer>3</integer>
   </map>
+  <key>RenderReflectionProbeNestingPriority</key>
+  <map>
+    <key>Comment</key>
+    <string>Derive reflection probe priority from manual probe nesting (smaller probes inside bigger ones win). When off, all manual probes share one priority level.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>RenderReflectionRes</key>
   <map>
     <key>Comment</key>

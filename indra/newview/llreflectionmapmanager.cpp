@@ -1162,6 +1162,53 @@ void LLReflectionMapManager::updateUniforms()
     radscale *= mResetFade;
     radscale = llmax(0, radscale);
 
+    { // derive manual probe priority from containment nesting; automatic probes stay 0
+        static LLCachedControl<bool> nesting_priority(gSavedSettings, "RenderReflectionProbeNestingPriority", true);
+
+        std::vector<LLReflectionMap*> manual;
+        for (auto* refmap : mReflectionMaps)
+        {
+            if (refmap == nullptr)
+            {
+                break;
+            }
+            if (refmap->mViewerObject)
+            {
+                refmap->mPriority = 1;
+                manual.push_back(refmap);
+            }
+        }
+
+        if (nesting_priority && manual.size() > 1)
+        {
+            // containers have strictly larger radii, so processing largest-first
+            // guarantees a container's priority is final before its contents
+            std::sort(manual.begin(), manual.end(),
+                [](const LLReflectionMap* a, const LLReflectionMap* b) { return a->mRadius > b->mRadius; });
+
+            for (auto* probe : manual)
+            {
+                U32 depth = 0;
+                for (auto* other : probe->mNeighbors)
+                {
+                    // containment implies intersection, so only neighbors need testing.
+                    // mProbeIndex alone can be stale (occluded/incomplete probes keep it);
+                    // the identity check guarantees the neighbor was packed this frame
+                    // and its mPriority is fresh
+                    if (other->mViewerObject &&
+                        other->mProbeIndex >= 0 &&
+                        other->mProbeIndex < (S32)mReflectionMaps.size() &&
+                        mReflectionMaps[other->mProbeIndex] == other &&
+                        other->contains(probe))
+                    {
+                        depth = llmax(depth, other->mPriority);
+                    }
+                }
+                probe->mPriority = llmin(1 + depth, 3u);
+            }
+        }
+    }
+
     for (auto* refmap : mReflectionMaps)
     {
         if (refmap == nullptr)

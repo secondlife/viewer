@@ -371,19 +371,19 @@ void LLHeroProbeManager::renderProbes()
             if (mIsPlanar)
             {
                 updateProbeFace(mProbes[probeIdx], 0, dynamic, near_clip);
+                generateRadiance(mProbes[probeIdx]);
             }
-            else
+            else if (((U32)(gFrameCount + probeIdx)) % (U32)rate == 0)
             {
+                // stagger whole probes, not faces: the radiance-gen scratch cubemap is
+                // shared across probes, so a partial face update hands generateRadiance
+                // a mix of different probes' faces and the result flickers
                 for (U32 i = 0; i < 6; ++i)
                 {
-                    if ((gFrameCount % rate) == (i % rate))
-                    {
-                        updateProbeFace(mProbes[probeIdx], i, dynamic, near_clip);
-                    }
+                    updateProbeFace(mProbes[probeIdx], i, dynamic, near_clip);
                 }
+                generateRadiance(mProbes[probeIdx]);
             }
-
-            generateRadiance(mProbes[probeIdx]);
         }
 
         mCurrentRenderingProbeIdx = -1;

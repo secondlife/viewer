@@ -206,6 +206,21 @@ bool LLReflectionMap::intersects(LLReflectionMap* other) const
     return dist < r2;
 }
 
+bool LLReflectionMap::contains(const LLReflectionMap* other) const
+{
+    // bounding-sphere containment; box probes use their bounding radius
+    // (OBB-exact containment is a possible refinement)
+    if (other->mRadius >= mRadius)
+    {
+        return false;
+    }
+
+    LLVector4a delta;
+    delta.setSub(other->mOrigin, mOrigin);
+
+    return delta.dot3(delta).getF32() < mRadius * mRadius;
+}
+
 extern LLControlGroup gSavedSettings;
 
 F32 LLReflectionMap::getAmbiance() const

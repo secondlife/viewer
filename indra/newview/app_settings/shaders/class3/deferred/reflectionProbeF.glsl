@@ -91,6 +91,11 @@ layout (std140) uniform ReflectionProbes
 // Inputs
 uniform mat3 env_mat;
 
+// number of priority levels in the probe cascade
+// level = clamp(abs(refIndex.w), 0, PROBE_PRIORITY_LEVELS-1)
+// 0 = automatic probes, 1..3 = manual probes by containment nesting depth
+#define PROBE_PRIORITY_LEVELS 4
+
 // list of probeIndexes shader will actually use after "getRefIndex" is called
 // (stores refIndex/refSphere indices, NOT rerflectionProbes layer)
 int probeIndex[REF_SAMPLE_COUNT];
@@ -98,12 +103,35 @@ int probeIndex[REF_SAMPLE_COUNT];
 // number of probes stored in probeIndex
 int probeInfluences = 0;
 
+// lowest priority level still visible after higher levels saturate coverage;
+// levels below this are skipped at tap time (set in preProbeSample)
+int probeMinLevel = 0;
+
 bool isAbove(vec3 pos, vec4 plane)
 {
     return (dot(plane.xyz, pos) + plane.w) > 0;
 }
 
 bool sample_automatic = true;
+
+// distance-only saturation weight for the priority cascade pre-pass
+// must match the dw computed in tapRefMap/tapIrradianceMap
+float probeSaturationWeight(vec3 pos, int i)
+{
+    if (refIndex[i].w < 0)
+    { // box probe — wall distance in unit-box space
+        vec4 v = refBox[i] * vec4(pos, 1.0);
+        float d = 1.0 - max(max(abs(v.x), abs(v.y)), abs(v.z));
+        return min(d * 10.0, 1.0) * refParams[i].z;
+    }
+
+    // sphere probe — mirrors sphereWeight's dw
+    float r = refSphere[i].w;
+    float r1 = r * 0.5;
+    float d2 = max(length(pos - refSphere[i].xyz), 0.001);
+    float atten = 1.0 - max(d2 - r1, 0.0) / max(r - r1, 0.001);
+    return (refParams[i].z / d2) * atten * max(r, 1.0) * 4.0;
+}
 
 // return true if probe at index i influences position pos
 bool shouldSampleProbe(int i, vec3 pos)
@@ -250,6 +278,39 @@ void preProbeSample(vec3 pos)
     if (sample_automatic)
     { // probe at index 0 is a special probe for smoothing out automatic probes
         probeIndex[probeInfluences++] = 0;
+    }
+
+    { // find the lowest priority level still visible once higher levels
+      // saturate coverage; taps skip levels below probeMinLevel entirely
+        float ksum[PROBE_PRIORITY_LEVELS];
+        for (int p = 0; p < PROBE_PRIORITY_LEVELS; ++p)
+        {
+            ksum[p] = 0;
+        }
+
+        for (int idx = 0; idx < probeInfluences; ++idx)
+        {
+            int i = probeIndex[idx];
+            int p = clamp(abs(refIndex[i].w), 0, PROBE_PRIORITY_LEVELS - 1);
+            if (p > 0)
+            { // level 0 never occludes anything below it
+                ksum[p] += probeSaturationWeight(pos, i);
+            }
+        }
+
+        float rem = 1.0;
+        for (int p = PROBE_PRIORITY_LEVELS - 1; p >= 0; --p)
+        {
+            if (rem < 0.01)
+            {
+                probeMinLevel = p + 1;
+                break;
+            }
+            if (p > 0)
+            {
+                rem *= 1.0 - min(ksum[p], 1.0);
+            }
+        }
     }
 #else
     probeIndex[probeInfluences++] = 0;
@@ -516,6 +577,10 @@ vec4 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
         v = boxIntersect(pos, dir, refBox[i], d);
 
         w = max(d, 0.001);
+        // boxes have no sphere-style distance-only weight; derive the cascade's
+        // saturation term from the wall-distance falloff and fade-in
+        // (must match probeSaturationWeight)
+        dw = min(d * 10.0, 1.0) * refParams[i].z;
     }
     else
     { // sphere probe
@@ -530,8 +595,14 @@ vec4 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
         w = sphereWeight(pos, dir, refSphere[i].xyz, r, refParams[i], dw);
     }
 
+    if (w < 0.001)
+    { // skip the fetch for negligible influences; dw stays — zeroing it
+      // would step the cascade coverage at the cutoff shell of large spheres
+        w = 0;
+        return vec4(0);
+    }
+
     v -= c;
-    vec3 d = normalize(v);
 
     v = env_mat * v;
 
@@ -556,6 +627,10 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
         float d = 0.0;
         v = boxIntersect(pos, dir, refBox[i], d, 3.0);
         w = max(d, 0.001);
+        // boxes have no sphere-style distance-only weight; derive the cascade's
+        // saturation term from the wall-distance falloff and fade-in
+        // (must match probeSaturationWeight)
+        dw = min(d * 10.0, 1.0) * refParams[i].z;
     }
     else
     {
@@ -569,6 +644,13 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
                 rr);
 
         w = sphereWeight(pos, dir, refSphere[i].xyz, r, refParams[i], dw);
+    }
+
+    if (w < 0.001)
+    { // skip the fetch for negligible influences; dw stays — zeroing it
+      // would step the cascade coverage at the cutoff shell of large spheres
+        w = 0;
+        return amblit;
     }
 
     v -= c;
@@ -590,25 +672,28 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod)
     vec3 voidColor = voidSample.rgb * refParams[0].y;
 #endif
 
-    float wsum[2];
-    wsum[0] = 0;
-    wsum[1] = 0;
-
-    float dwsum[2];
-    dwsum[0] = 0;
-    dwsum[1] = 0;
-
-    vec3 col[2];
-    col[0] = vec3(0);
-    col[1] = vec3(0);
+    float wsum[PROBE_PRIORITY_LEVELS];
+    float dwsum[PROBE_PRIORITY_LEVELS];
+    vec3 col[PROBE_PRIORITY_LEVELS];
+    for (int p = 0; p < PROBE_PRIORITY_LEVELS; ++p)
+    {
+        wsum[p] = 0;
+        dwsum[p] = 0;
+        col[p] = vec3(0);
+    }
 
     for (int idx = 0; idx < probeInfluences; ++idx)
     {
         int i = probeIndex[idx];
-        int p = clamp(abs(refIndex[i].w), 0, 1);
+        int p = clamp(abs(refIndex[i].w), 0, PROBE_PRIORITY_LEVELS - 1);
 
         if (p == 0 && !sample_automatic)
         {
+            continue;
+        }
+
+        if (p < probeMinLevel)
+        { // occluded by saturated higher-priority levels
             continue;
         }
 
@@ -635,50 +720,67 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod)
         }
     }
 
-    // mix automatic and manual probes
-    if (sample_automatic && wsum[0] > 0.0)
-    { // some automatic probes were sampled
-        col[0] *= 1.0/wsum[0];
-        if (wsum[1] > 0.0)
-        { //some manual probes were sampled, mix between the two
-            col[1] *= 1.0/wsum[1];
-            col[1] = mix(col[0], col[1], min(dwsum[1], 1.0));
-            col[0] = vec3(0);
+    // priority cascade: composite levels front-to-back (highest priority first),
+    // each level covering min(dwsum, 1) of what remains, then renormalize.
+    // with priorities {0,1} this is identical to the old manual-over-automatic mix
+    vec3 result = vec3(0);
+    float alphaTotal = 0.0;
+    float rem = 1.0;
+    for (int p = PROBE_PRIORITY_LEVELS - 1; p >= 1; --p)
+    {
+        if (wsum[p] > 0.0)
+        {
+            float k = min(dwsum[p], 1.0);
+            result += (col[p] / wsum[p]) * k * rem;
+            alphaTotal += k * rem;
+            rem *= 1.0 - k;
         }
     }
-    else if (wsum[1] > 0.0)
-    {
-        // manual probes were sampled but no automatic probes were
-        col[1] *= 1.0/wsum[1];
-        col[0] = vec3(0);
+
+    if (sample_automatic && wsum[0] > 0.0)
+    { // automatic probes fill whatever coverage remains
+        result += (col[0] / wsum[0]) * rem;
+        alphaTotal += rem;
     }
 
-    return col[1]+col[0];
+    if (alphaTotal < 0.001)
+    { // no coverage — fall back to the void probe rather than black
+#ifdef REFLECTION_PROBE_MED_QUALITY
+        return voidColor;
+#else
+        return textureLod(reflectionProbes, vec4(env_mat * dir, 0), lod).rgb * refParams[0].y;
+#endif
+    }
+
+    return result / alphaTotal;
 }
 
 vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
 {
     // modified copy/paste of sampleProbes follows, will likely diverge from sampleProbes further
     // as irradiance map mixing is tuned independently of radiance map mixing
-    float wsum[2];
-    wsum[0] = 0;
-    wsum[1] = 0;
-
-    float dwsum[2];
-    dwsum[0] = 0;
-    dwsum[1] = 0;
-
-    vec3 col[2];
-    col[0] = vec3(0);
-    col[1] = vec3(0);
+    float wsum[PROBE_PRIORITY_LEVELS];
+    float dwsum[PROBE_PRIORITY_LEVELS];
+    vec3 col[PROBE_PRIORITY_LEVELS];
+    for (int p = 0; p < PROBE_PRIORITY_LEVELS; ++p)
+    {
+        wsum[p] = 0;
+        dwsum[p] = 0;
+        col[p] = vec3(0);
+    }
 
     for (int idx = 0; idx < probeInfluences; ++idx)
     {
         int i = probeIndex[idx];
-        int p = clamp(abs(refIndex[i].w), 0, 1);
+        int p = clamp(abs(refIndex[i].w), 0, PROBE_PRIORITY_LEVELS - 1);
 
         if (p == 0 && !sample_automatic)
         {
+            continue;
+        }
+
+        if (p < probeMinLevel)
+        { // occluded by saturated higher-priority levels
             continue;
         }
 
@@ -694,25 +796,35 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
         }
     }
 
-    // mix automatic and manual probes
-    if (sample_automatic && wsum[0] > 0.0)
-    { // some automatic probes were sampled
-        col[0] *= 1.0/wsum[0];
-        if (wsum[1] > 0.0)
-        { //some manual probes were sampled, mix between the two
-            col[1] *= 1.0/wsum[1];
-            col[1] = mix(col[0], col[1], min(dwsum[1], 1.0));
-            col[0] = vec3(0);
+    // priority cascade: composite levels front-to-back (highest priority first),
+    // each level covering min(dwsum, 1) of what remains, then renormalize.
+    // with priorities {0,1} this is identical to the old manual-over-automatic mix
+    vec3 result = vec3(0);
+    float alphaTotal = 0.0;
+    float rem = 1.0;
+    for (int p = PROBE_PRIORITY_LEVELS - 1; p >= 1; --p)
+    {
+        if (wsum[p] > 0.0)
+        {
+            float k = min(dwsum[p], 1.0);
+            result += (col[p] / wsum[p]) * k * rem;
+            alphaTotal += k * rem;
+            rem *= 1.0 - k;
         }
     }
-    else if (wsum[1] > 0.0)
-    {
-        // manual probes were sampled but no automatic probes were
-        col[1] *= 1.0/wsum[1];
-        col[0] = vec3(0);
+
+    if (sample_automatic && wsum[0] > 0.0)
+    { // automatic probes fill whatever coverage remains
+        result += (col[0] / wsum[0]) * rem;
+        alphaTotal += rem;
     }
 
-    return col[1]+col[0];
+    if (alphaTotal < 0.001)
+    { // no coverage — fall back to legacy ambient rather than black
+        return amblit;
+    }
+
+    return result / alphaTotal;
 }
 
 #if defined(HERO_PROBES)
