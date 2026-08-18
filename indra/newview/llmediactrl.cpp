@@ -370,11 +370,16 @@ bool LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
     if (menu)
     {
-        // hide/show debugging options
-        bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
-        menu->setItemVisible("debug_separator", media_plugin_debugging_enabled);
-        menu->setItemVisible("open_webinspector", media_plugin_debugging_enabled );
-        menu->setItemVisible("show_page_source", media_plugin_debugging_enabled);
+        // The "Open Web Inspector"/"Show Source" debug items are permanently hidden here
+        // (never shown regardless of MediaPluginDebugging) rather than removed from
+        // menu_media_ctrl.xml -- removing them outright was found to somehow break the
+        // whole menu's display (no visible menu at all, despite this same code
+        // successfully creating it and calling show()/showPopup() every time, per
+        // direct log verification -- root cause not confirmed, not worth chasing
+        // further given this workaround is low-risk and fully effective).
+        menu->setItemVisible("debug_separator", false);
+        menu->setItemVisible("open_webinspector", false);
+        menu->setItemVisible("show_page_source", false);
 
         menu->show(x, y);
         LLMenuGL::showPopup(this, menu, x, y);
