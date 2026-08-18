@@ -614,8 +614,7 @@ void LLHeroProbeManager::updateUniforms()
     LLVector4a oa;
     oa.set(0, 0, 0, 0);
 
-    // Zero out the hero data
-    memset(&mHeroData, 0, sizeof(mHeroData));
+    memset((void*)&mHeroData, 0, sizeof(mHeroData));
 
     S32 activeCount = 1 + (S32)mActiveHeroes.size(); // water + user probes
     mHeroData.heroProbeCount = activeCount;
