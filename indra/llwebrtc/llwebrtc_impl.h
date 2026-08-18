@@ -413,7 +413,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     }
 
     void init();
-    void terminate();
+    // Returns true if shutdown completed cleanly and this object may be
+    // destroyed.  Returns false if it timed out: a detached thread is still
+    // using this object and its webrtc threads, so it must be leaked, not
+    // deleted.
+    bool terminate();
 
     //
     // LLWebRTCDeviceInterface
