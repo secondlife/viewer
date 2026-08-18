@@ -1535,18 +1535,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>951c8d1820fd3f70a0fd7b284461f2c66da308ba</string>
+              <string>fc01eda89dc8c1cd661278e701264a9d5adf721c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>file:///C:/work/llcefbrowser/llcefbrowser-0.20.0-windows64-262292118.tar.bz2</string>
+              <string>file:///C:/work/llcefbrowser/llcefbrowser-0.27.0-windows64-262292321.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.20.0</string>
+        <string>0.27.0</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>

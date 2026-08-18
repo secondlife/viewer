@@ -640,6 +640,22 @@ bool LLEmbeddedBrowser::launchProducer()
     {
         params.args.add("--console");
     }
+    if (gSavedSettings.getBOOL("EmbeddedBrowserDebugging"))
+    {
+        // No in-process DevTools popup (CefBrowserHost::ShowDevTools) -- that opens a
+        // real, GPU-composited native window, which reliably crashed/hung the renderer
+        // on at least one real machine tested (see git history for the investigation).
+        // Chrome's remote-debugging protocol serves the same DevTools UI over HTTP
+        // instead, with no native window in this process at all -- open
+        // http://localhost:<port> (see the producer's own log line) in any desktop
+        // browser. 0 (the setting's own default) means disabled, matching CEF's own
+        // remote_debugging_port convention.
+        const unsigned int remote_debugging_port = gSavedSettings.getU32("EmbeddedBrowserRemoteDebuggingPort");
+        if (remote_debugging_port > 0)
+        {
+            params.args.add("--remote-debugging-port=" + std::to_string(remote_debugging_port));
+        }
+    }
     // SLCefProducer.exe is a standalone process with no gDirUtilp of its own, so it
     // can't compute the per-user cache location itself -- pass it explicitly, under
     // the same parent directory the legacy CEF plugin uses for its own cache

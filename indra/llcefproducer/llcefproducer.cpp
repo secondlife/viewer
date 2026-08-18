@@ -296,12 +296,15 @@ int run_producer(int argc, char** argv)
     int slot_count = kSlotCount;
     bool show_console = false;
     std::string cache_dir_arg;
+    int remote_debugging_port = 0;
     const std::string kCacheDirPrefix = "--cache-dir=";
+    const std::string kRemoteDebuggingPortPrefix = "--remote-debugging-port=";
     for (int i = 1; i < argc; ++i)
     {
         const std::string arg = argv[i];
         if (arg == "--console") { show_console = true; continue; }
         if (arg.rfind(kCacheDirPrefix, 0) == 0) { cache_dir_arg = arg.substr(kCacheDirPrefix.size()); continue; }
+        if (arg.rfind(kRemoteDebuggingPortPrefix, 0) == 0) { remote_debugging_port = std::atoi(arg.c_str() + kRemoteDebuggingPortPrefix.size()); continue; }
         slot_count = std::atoi(argv[i]);
     }
     if (slot_count <= 0) slot_count = 1;
@@ -332,12 +335,25 @@ int run_producer(int argc, char** argv)
                                                                    : std::filesystem::path(cache_dir_arg);
 
     llCefBrowserLibInitOptions init_options;
-    init_options.rootCachePath    = cache_dir.string();
-    init_options.logFile          = (exe_dir / "cefshm_producer_log.txt").string();
-    init_options.userAgentProduct = "SLCefProducer/1.0";
+    init_options.rootCachePath       = cache_dir.string();
+    init_options.logFile             = (exe_dir / "cefshm_producer_log.txt").string();
+    init_options.userAgentProduct    = "SLCefProducer/1.0";
+    init_options.remoteDebuggingPort = remote_debugging_port;
     if (!llCefBrowserLib::Initialize(init_options)) {
         std::cerr << "llCefBrowserLib::Initialize failed\n";
         return 1;
+    }
+
+    if (remote_debugging_port > 0)
+    {
+        // Deliberately not an in-process DevTools popup (CefBrowserHost::ShowDevTools) --
+        // that opens a real, GPU-composited native window, which on at least one real
+        // machine tested reliably crashed/hung the renderer as soon as anything (e.g. a
+        // mouse move) needed the CEF UI thread to resolve its state, taking the whole
+        // producer down with it. Chrome's remote-debugging protocol serves the exact
+        // same DevTools UI over HTTP instead, with no native window in this process at
+        // all -- open the URL below in any desktop browser.
+        log_info("SLCefProducer: remote debugging on http://localhost:" + std::to_string(remote_debugging_port));
     }
 
     log_info("SLCefProducer: llCefBrowser " + llCefBrowserLib::GetVersion() +
@@ -435,6 +451,24 @@ int run_producer(int argc, char** argv)
             control->send(kSlotAssigned, payload, 4, cmd.id);
         }
 
+        // CefDoMessageLoopWork() below only pumps CEF's own internal scheduled work -
+        // it does NOT service the native Win32 message queue for any real (non-
+        // offscreen) window CEF creates, e.g. ShowDevTools()'s popup. Every one of our
+        // own browsers is windowless/OSR, so this was never needed until DevTools
+        // existed: without it, that popup's queued messages (WM_PAINT, WM_MOUSEMOVE,
+        // etc.) are never dispatched, and CEF's own window-creation/compositor
+        // bookkeeping for it can end up waiting on state that never arrives - which
+        // wedges the single CEF UI thread the next time anything else needs it (e.g.
+        // dispatching a mouse-move to a completely unrelated browser), stalling this
+        // whole loop, including the shm heartbeat, long enough for the consumer to
+        // conclude the connection died.
+        MSG msg;
+        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
         // Pumps every live browser and the resize-confirmation watchdog.
         llCefBrowserLib::DoMessageLoopWork();
         manager->Tick();
@@ -495,6 +529,7 @@ int run_producer(int argc, char** argv)
                 case kExecuteJavaScript:
                     manager->ExecuteJavaScript(s.cefHandle, std::string(cmd.text()));
                     break;
+
 
                 case kMouseMove: {
                     std::int32_t x, y;
