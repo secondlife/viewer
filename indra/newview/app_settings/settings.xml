@@ -7862,13 +7862,13 @@
   <key>RenderScreenSpaceReflectionMaxRoughness</key>
   <map>
     <key>Comment</key>
-    <string>Maximum permitted roughness for screen space reflections.</string>
+    <string>Maximum permitted roughness for screen space reflections. Compositing fades SSR to zero at 0.7; values above that trace pixels whose SSR is discarded.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1</real>
+    <real>0.7</real>
   </map>
   <key>RenderScreenSpaceReflectionsFilterScale</key>
   <map>

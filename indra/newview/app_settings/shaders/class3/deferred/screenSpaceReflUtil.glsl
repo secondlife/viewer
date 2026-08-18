@@ -269,6 +269,10 @@ float tapScreenSpaceReflection(
     vec3 perfectReflDir = normalize(reflect(viewDir, normal));
 
     int numSamples = max(1, int(glossySampleCount));
+    if (roughness <= 0.001)
+    { // jitter is skipped below this roughness, so extra rays are identical — trace once
+        numSamples = 1;
+    }
     vec3 accumColor = vec3(0.0);
     float accumFade = 0.0;
     int hits = 0;

@@ -938,7 +938,9 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
 
         if(RenderScreenSpaceReflections)
         {
-            mSceneMap.allocate(resX, resY, screenFormat, true, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_AUTO);
+            // TMG_MANUAL: color mips are never sampled (the SSR march reads LOD 0);
+            // the depth mip chain is built manually by buildHiZBuffer
+            mSceneMap.allocate(resX, resY, screenFormat, true, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_MANUAL);
 
             static LLCachedControl<F32> ssrScale(gSavedSettings, "RenderScreenSpaceReflectionsResolutionMultiplier", 1.0f);
             F32 scale = llclamp((F32)ssrScale, 0.25f, 1.0f);
@@ -947,7 +949,9 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
             bool fullRes = (ssrW == resX && ssrH == resY);
             // At full res: no own depth, share from deferred (zero-copy).
             // At reduced res: allocate own depth, blit from deferred before alpha/water passes.
-            mSSRBuffer.allocate(ssrW, ssrH, GL_RGBA16F, !fullRes, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_AUTO);
+            // TMG_MANUAL: mips 1..N are written by filterSSRBuffer's blur chain;
+            // flush-time automip after the trace/alpha/water passes was wasted work
+            mSSRBuffer.allocate(ssrW, ssrH, GL_RGBA16F, !fullRes, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_MANUAL);
 
             // Allocate per-mip temp targets for Gaussian ping-pong (one per mip level > 0)
             U32 ssrMipLevels = mSSRBuffer.getMipLevels();
@@ -7716,10 +7720,12 @@ void LLPipeline::filterSSRBuffer()
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
     }
 
-    // Restore SSR buffer state
+    // Restore SSR buffer state; set trilinear here (once per frame) so the
+    // lighting-pass roughness->mip taps filter across the freshly built chain
     gGL.getTexUnit(diffuseChannel)->bind(&mSSRBuffer);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipLevels - 1);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     mSSRBuffer.resetColorMipLevel();
 
     // bindColorMipLevel bypasses the RT stack (direct glBindFramebuffer),
@@ -9982,9 +9988,10 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
             }
             else if (mSSRBuffer.isComplete() && !gCubeSnapshot)
             {
-                // Lighting pass: bind pre-computed SSR buffer with trilinear for mip sampling
+                // Lighting pass: bind pre-computed SSR buffer for roughness->mip
+                // sampling; trilinear filtering is set once per frame at the end
+                // of filterSSRBuffer, not per bind
                 gGL.getTexUnit(channel)->bind(&mSSRBuffer);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
                 // Pass mip scale for roughness -> mip level mapping
                 static LLStaticHashedString sSsrMipScale("ssrMipScale");

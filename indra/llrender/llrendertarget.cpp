@@ -89,6 +89,23 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
         gGL.getTexUnit(0)->bindManual(mUsage, mTex[i]);
         LLImageGL::setManualImage(LLTexUnit::getInternalType(mUsage), 0, mInternalFormat[i], mResX, mResY, GL_RGBA, GL_UNSIGNED_BYTE, NULL, false);
         sBytesAllocated += pix_diff*4;
+
+        if (mGenerateMipMaps != LLTexUnit::TMG_NONE && mMipLevels > 1)
+        {
+            // keep the explicit color mip chain in sync with the new resolution
+            mMipLevels = 1 + (U32)floor(log10((float)llmax(mResX, mResY)) / log10(2.0));
+
+            U32 internal_type = LLTexUnit::getInternalType(mUsage);
+            for (U32 level = 1; level < mMipLevels; level++)
+            {
+                U32 w = llmax(1U, mResX >> level);
+                U32 h = llmax(1U, mResY >> level);
+                glTexImage2D(internal_type, level, mInternalFormat[i], w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+            }
+            glTexParameteri(internal_type, GL_TEXTURE_MAX_LEVEL, mMipLevels - 1);
+
+            sBytesAllocated += (S32)(pix_diff * 4 * 0.33f);
+        }
     }
 
     if (mDepth)
@@ -259,6 +276,24 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
     }
 
     sBytesAllocated += mResX*mResY*4;
+
+    if (mGenerateMipMaps != LLTexUnit::TMG_NONE && mMipLevels > 1)
+    {
+        // allocate the full color mip chain up front — glGenerateMipmap only
+        // creates storage for TMG_AUTO targets; TMG_MANUAL targets render into
+        // mip levels directly (e.g. via bindColorMipLevel) and need it to exist
+        U32 internal_type = LLTexUnit::getInternalType(mUsage);
+        for (U32 level = 1; level < mMipLevels; level++)
+        {
+            U32 w = llmax(1U, mResX >> level);
+            U32 h = llmax(1U, mResY >> level);
+            glTexImage2D(internal_type, level, color_fmt, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        }
+        glTexParameteri(internal_type, GL_TEXTURE_MAX_LEVEL, mMipLevels - 1);
+
+        // ~33% extra for mip chain
+        sBytesAllocated += (U32)(mResX * mResY * 4 * 0.33f);
+    }
 
     stop_glerror();
 
