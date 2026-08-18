@@ -51,6 +51,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -72,6 +73,14 @@ void on_signal(int) { g_run = 0; }
 // (a log file, say) rather than filling it with raw escape sequences.
 bool g_console_enabled = false;
 
+// Plain-text file for these same messages -- std::cout alone goes nowhere unless
+// --console is also on (a windowless process's stdio has no console to write to by
+// default), so without this, slot connects/disconnects/etc. would only ever be
+// visible during a session where a console happened to be up. Opened once in
+// run_producer(), right after exe_dir is known. Kept separate from CEF's own much
+// larger, much more verbose cefshm_producer_log.txt so this stays easy to skim.
+std::ofstream g_log_file;
+
 // A small, deliberately ad hoc set of colored loggers -- info/connect/
 // disconnect today, more as needed later. Not a general logging
 // framework; just enough structure that adding another call site is a
@@ -80,6 +89,7 @@ void log_line(const char* color, const std::string& msg)
 {
     if (g_console_enabled) std::cout << color << msg << "\x1b[0m\n";
     else                    std::cout << msg << "\n";
+    if (g_log_file) g_log_file << msg << std::endl;
 }
 void log_info(const std::string& msg)       { log_line("\x1b[33m", msg); } // yellow
 void log_connect(const std::string& msg)    { log_line("\x1b[32m", msg); } // green
@@ -326,6 +336,11 @@ int run_producer(int argc, char** argv)
     char exe_path[MAX_PATH + 1];
     GetModuleFileNameA(nullptr, exe_path, MAX_PATH);
     const std::filesystem::path exe_dir = std::filesystem::path(exe_path).parent_path();
+
+    // Truncates on each launch rather than appending -- this producer runs for the
+    // whole Viewer session, so one run's worth of slot connects/disconnects is already
+    // plenty; nobody wants this growing unbounded across every session forever.
+    g_log_file.open(exe_dir / "slcefproducer_log.txt", std::ios::trunc);
 
     // The Viewer passes --cache-dir (see LLEmbeddedBrowser::launchProducer()) pointing
     // at the same per-user cache location the legacy CEF plugin uses, since this
