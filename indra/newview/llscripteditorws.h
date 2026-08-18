@@ -36,6 +36,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include <map>
 #include <set>
 #include <atomic>
@@ -157,6 +158,14 @@ private:
 class LLScriptEditorWSServer : public LLJSONRPCServer
 {
 public:
+    struct ItemRef
+    {
+        LLUUID      mRootID;
+        LLUUID      mPrimID;
+        LLUUID      mItemID;
+        std::string mScriptName;
+    };
+
     static constexpr U32 ALL_CONNECTIONS = 0xFFFFFFFF;
     enum class SubscriptionError
     {
@@ -179,6 +188,8 @@ public:
 
     static LLScriptEditorWSServer::ptr_t getServer();
     static LLScriptEditorWSServer::ptr_t ensureServerRunning();
+    static std::string                   buildScriptSubscriptionId(const LLUUID& object_id,
+                                                                   const LLUUID& item_id);
     static std::string                   buildVSCodeURI(const LLUUID& object_id = LLUUID::null,
                                                         const LLUUID& script_id = LLUUID::null);
     static bool                          launchVSCode(const LLUUID& object_id = LLUUID::null,
@@ -199,7 +210,9 @@ public:
 
     LLHandle<LLPanel> findEditorForScript(const std::string& script_id) const;
 
-    void forwardChatToIDE(const LLChat& chat_msg) const;
+    void forwardChatToIDE(
+        const LLChat& chat_msg,
+        LLPublishedObjectMgr::RuntimeEventAggregator::Channel channel) const;
 
     std::set<std::string> getActiveScripts() const;
 
@@ -268,7 +281,6 @@ protected:
     void scheduleLinksetFlush(const LLUUID& root_id, F32 delay);
     void cancelLinksetFlushTimer(const LLUUID& root_id);
     void flushLinksetUpdate(const LLUUID& root_id);
-    static LLSD errorResponse(const std::string& message);
 
     /// Wraps `fn` in a MethodHandler with a weak-ptr guard on this server,
     /// so the handler safely no-ops after server shutdown. `fn` is called
@@ -291,18 +303,18 @@ protected:
     }
 
 private:
+    void sendRuntimeEvent(
+        const LLPublishedObjectMgr::RuntimeChatEvent& event) const;
+
     struct EditorSubscription
     {
-        EditorSubscription(const LLUUID &object_id, const LLUUID &item_id, std::string_view script_name, LLHandle<LLPanel> editor_handle):
-            mObjectID(object_id),
-            mItemID(item_id),
-            mScriptName(script_name),
+        EditorSubscription(const ItemRef& item_ref, LLHandle<LLPanel> editor_handle):
+            mItemRef(item_ref),
             mEditorHandle(editor_handle)
-        {}
+        {
+        }
         U32 mConnectionID{ 0 };
-        LLUUID mObjectID;
-        LLUUID mItemID;
-        std::string mScriptName;
+        ItemRef mItemRef;
         LLScriptEditorWSConnection::wptr_t mConnection;
         LLHandle<LLPanel> mEditorHandle;
     };
@@ -312,10 +324,6 @@ private:
     void                unsubscribeConnection(U32 connection_id);
 
     subscriptions_t mSubscriptions;
-    // Per-connection subscription count. Invariant: for c != 0,
-    // mConnectionSubscriptionCounts[c] == count of entries in mSubscriptions
-    // whose mConnectionID == c. Maintained transactionally at every site that
-    // mutates SubscriptionInfo::mConnectionID.
     std::unordered_map<U32, S32> mConnectionSubscriptionCounts;
     std::map<U32, LLScriptEditorWSConnection::wptr_t> mActiveConnections;
 
@@ -340,10 +348,5 @@ private:
 
     boost::signals2::connection mLanguageChangeSignal;
     LLUUID mLastSyntaxId;
-
-
-    LLTimer mCleanupTimer;
-    static constexpr F32 CLEANUP_INTERVAL = 60.0f; // seconds
-    static constexpr F32 CONNECTION_TIMEOUT = 300.0f; // 5 minutes
 
 };

@@ -40,7 +40,6 @@
 #include "llinventorymodel.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
-#include "llmd5.h"
 #include "llhelp.h"
 #include "llnotificationsutil.h"
 #include "llresmgr.h"
@@ -1613,14 +1612,7 @@ std::string LLScriptEdContainer::getUniqueHash() const
     // Take script inventory item id (within the object inventory)
     // to consideration so that it's possible to edit multiple scripts
     // in the same object inventory simultaneously (STORM-781).
-    std::string script_id = mObjectUUID.asString() + "_" + mItemUUID.asString();
-
-    // Use MD5 sum to make the file name shorter and not exceed maximum path length.
-    char  script_id_hash_str[33]; /* Flawfinder: ignore */
-    LLMD5 script_id_hash((const U8*)script_id.c_str());
-    script_id_hash.hex_digest(script_id_hash_str);
-
-    return std::string(script_id_hash_str);
+    return LLScriptEditorWSServer::buildScriptSubscriptionId(mObjectUUID, mItemUUID);
 }
 
 std::string LLScriptEdContainer::getErrorLogFileName(const std::string& script_path)
