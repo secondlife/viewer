@@ -91,9 +91,9 @@ void log_line(const char* color, const std::string& msg)
     else                    std::cout << msg << "\n";
     if (g_log_file) g_log_file << msg << std::endl;
 }
-void log_info(const std::string& msg)       { log_line("\x1b[33m", msg); } // yellow
-void log_connect(const std::string& msg)    { log_line("\x1b[32m", msg); } // green
-void log_disconnect(const std::string& msg) { log_line("\x1b[31m", msg); } // red
+void log_info(const std::string& msg)       { log_line("\x1b[38;5;103m", msg); } // blue
+void log_connect(const std::string& msg)    { log_line("\x1b[38;5;120m", msg); } // green
+void log_disconnect(const std::string& msg) { log_line("\x1b[38;5;124m", msg); } // red
 
 // How long a slot may sit with nobody attached before its browser is
 // destroyed and the index freed for reuse. Deliberately longer, and a
