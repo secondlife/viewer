@@ -111,8 +111,13 @@ constexpr auto kIdleGracePeriod = std::chrono::seconds(5);
 // if the departing consumer's own mapping hasn't quite let go yet, this
 // producer's own create()/reclaim (which already correctly sees the
 // clean-shutdown marker it wrote) can still lose the race against that
-// lingering handle. A few retries a few ms apart gives it time to
-// actually go away rather than failing the whole request outright.
+// lingering handle. Retried at the kRequestSlot handler's level (one full
+// pass over every free index per attempt), not per-index inside
+// allocate_slot() itself: a per-index retry loop pays its own wait cost
+// for every stuck index encountered along the way even when some other
+// index is actually free right now, which can itself add up past a
+// caller's own patience (e.g. LLViewerMediaImpl's disconnect-alert grace
+// period) when more than one index happens to be stuck at once.
 constexpr int kAllocateSlotRetries = 10;
 constexpr auto kAllocateSlotRetryInterval = std::chrono::milliseconds(10);
 
@@ -150,13 +155,7 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     cfg.max_command_bytes = kMaxCommandBytes;
 
     LLStatus st{};
-    std::unique_ptr<LLPublisher> pub;
-    for (int attempt = 0; attempt < kAllocateSlotRetries; ++attempt)
-    {
-        pub = LLPublisher::create(cfg, &st);
-        if (pub || st != LLStatus::AlreadyExists) break;
-        std::this_thread::sleep_for(kAllocateSlotRetryInterval);
-    }
+    auto pub = LLPublisher::create(cfg, &st);
     if (!pub) {
         log_error("slot " + std::to_string(index) + " (" + cfg.name + "): " + to_string(st));
         return false;
@@ -462,11 +461,41 @@ int run_producer(int argc, char** argv)
 
             const bool isUI = cmd.data.empty() || cmd.data[0] != 0;
 
+            // Try every currently-free index, not just the lowest one: allocate_slot()
+            // can fail for a specific index (e.g. its just-reclaimed segment hasn't
+            // actually released its OS-level handle yet) without any other free index
+            // being similarly stuck. Only trying the lowest free index and giving up
+            // would let one bad slot jam every subsequent request in the whole
+            // producer, not just requests that happen to land on that exact index.
+            //
+            // One full pass over every free index per attempt, not a per-index retry
+            // loop: a stuck index should cost nothing beyond moving on to the next one
+            // within the same pass. Only retry the whole pass, with a brief wait, if
+            // every free index failed on it -- kAllocateSlotRetries/RetryInterval's own
+            // comment explains why this is at this level rather than inside
+            // allocate_slot() itself.
             int free_index = -1;
-            for (int i = 0; i < slot_count; ++i)
-                if (!slots[std::size_t(i)].pub) { free_index = i; break; }
+            for (int outer = 0; outer < kAllocateSlotRetries && free_index < 0; ++outer)
+            {
+                bool any_free = false;
+                for (int i = 0; i < slot_count; ++i)
+                {
+                    if (slots[std::size_t(i)].pub) continue; // not free
+                    any_free = true;
+                    if (allocate_slot(slots[std::size_t(i)], i, view_cfg, *manager, now, isUI))
+                    {
+                        free_index = i;
+                        break;
+                    }
+                }
+                if (free_index < 0)
+                {
+                    if (!any_free) break; // no free index at all right now -- retrying won't help
+                    std::this_thread::sleep_for(kAllocateSlotRetryInterval);
+                }
+            }
 
-            if (free_index < 0 || !allocate_slot(slots[std::size_t(free_index)], free_index, view_cfg, *manager, now, isUI))
+            if (free_index < 0)
             {
                 control->send(kSlotUnavailable, nullptr, 0, cmd.id);
                 continue;
