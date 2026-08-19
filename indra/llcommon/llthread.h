@@ -30,6 +30,7 @@
 #include "llapr.h"
 #include "boost/intrusive_ptr.hpp"
 #include "llrefcount.h"
+#include <atomic>
 #include <thread>
 
 namespace LLTrace
@@ -109,7 +110,17 @@ protected:
     LLMutex*            mDataLock;
 
     std::thread        *mThreadp;
-    EThreadStatus       mStatus;
+    // A plain (non-atomic) EThreadStatus here is a real cross-thread data race: the
+    // worker thread writes STOPPED as its very last act before returning, while
+    // shutdown() polls isStopped() from the destroying thread with no memory
+    // barrier between them. Without one, the destroying thread has no real
+    // guarantee it's seeing a fully-synchronized view of the worker's last writes
+    // when it decides it's safe to free the LLThread subclass's own memory --
+    // narrow, but real, and exactly the kind of race that only shows up under
+    // enough create/destroy volume (e.g. embedded-browser tabs unloading and
+    // reloading constantly) to actually hit the window. std::atomic costs nothing
+    // here (a plain enum load/store is already lock-free) and closes it properly.
+    std::atomic<EThreadStatus> mStatus;
     id_t                mID;
     LLTrace::ThreadRecorder* mRecorder;
 
