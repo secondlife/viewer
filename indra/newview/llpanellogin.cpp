@@ -536,6 +536,19 @@ void LLPanelLogin::reshapePanel()
 }
 
 //static
+void LLPanelLogin::setCredentialFields(const std::string& username, const std::string& password)
+{
+    if (!sInstance)
+        return;
+    sInstance->getChild<LLComboBox>("username_combo")->setLabel(username);
+    sInstance->mUsernameLength = static_cast<unsigned int>(username.length());
+    sInstance->getChild<LLUICtrl>("password_edit")->setValue(password);
+    sInstance->mPasswordLength = static_cast<unsigned int>(password.length());
+    sInstance->mPasswordModified = true;
+    sInstance->updateLoginButtons();
+}
+
+//static
 void LLPanelLogin::populateFields(LLPointer<LLCredential> credential, bool remember_user, bool remember_psswrd)
 {
     if (!sInstance)

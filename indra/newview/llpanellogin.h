@@ -60,6 +60,7 @@ public:
     static void populateFields(LLPointer<LLCredential> credential, bool remember_user, bool remember_psswrd);
     static void resetFields();
     static void getFields(LLPointer<LLCredential>& credential, bool& remember_user, bool& remember_psswrd);
+    static void setCredentialFields(const std::string& username, const std::string& password);
 
     static bool isCredentialSet() { return sCredentialSet; }
 
