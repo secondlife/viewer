@@ -187,7 +187,7 @@ void export_test_floaters()
         LLXMLNodePtr output_node = new LLXMLNode();
         LLFloater* floater = new LLFloater(LLSD());
         floater->buildFromFile( filename,
-                                //   FALSE, // don't open floater
+                                //   false, // don't open floater
                                 output_node);
         std::string out_filename = gDirUtilp->add(xui_dir, filename);
         std::string::size_type extension_pos = out_filename.rfind(".xml");

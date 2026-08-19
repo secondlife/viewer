@@ -128,6 +128,12 @@ void LLVoiceChannel::onChange(EStatusType type, const LLSD& channelInfo, bool pr
     {
         mChannelInfo = channelInfo;
     }
+
+    if (!LLVoiceClient::instanceExists())
+    {
+        return;
+    }
+
     if (!LLVoiceClient::getInstance()->compareChannels(mChannelInfo, channelInfo))
     {
         return;

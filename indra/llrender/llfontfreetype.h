@@ -76,6 +76,8 @@ struct LLFontGlyphInfo
 
     U32 mGlyphIndex;
     EFontGlyphType mGlyphType;
+    llwchar mChar;
+
 
     // Metrics
     S32 mWidth;         // In pixels
@@ -147,6 +149,9 @@ public:
     F32 getXKerning(llwchar char_left, llwchar char_right) const; // Get the kerning between the two characters
     F32 getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info) const; // Get the kerning between the two characters
 
+    F32 getMaxDigitWidth() const { return mMaxDigitWidth; }
+    S32 getFontWeight() const { return mWeight; }
+
     LLFontGlyphInfo* getGlyphInfo(llwchar wch, EFontGlyphType glyph_type) const;
 
     void reset(F32 vert_dpi, F32 horz_dpi);
@@ -184,6 +189,7 @@ private:
     F32 mAscender;
     F32 mDescender;
     F32 mLineHeight;
+    mutable F32 mMaxDigitWidth;
 
     LLFT_Face mFTFace;
 

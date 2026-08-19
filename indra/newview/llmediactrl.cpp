@@ -1038,10 +1038,6 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
         case MEDIA_EVENT_NAVIGATE_COMPLETE:
         {
             LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << self->getNavigateResultString() << LL_ENDL;
-            if(mHidingInitialLoad)
-            {
-                mHidingInitialLoad = false;
-            }
             mLoadingState = LOADING_STATE_LOADED;
         };
         break;
@@ -1370,6 +1366,7 @@ public:
 private:
     void getMediaInfo(const LLSD& request);
     void getMediaText(const LLSD& request);
+    void getPluginsList(const LLSD& request);
     void replyError(const LLSD& request, const std::string& error);
     LLMediaCtrl* findMediaCtrl(const std::string& path);
 };
@@ -1388,6 +1385,12 @@ LLMediaCtrlListener::LLMediaCtrlListener():
         "Returns the text content of the page or a portion of it.",
         &LLMediaCtrlListener::getMediaText,
         llsd::map("path", LLSD(), "reply", LLSD()));
+
+    add("getPluginsList",
+        "Enumerate the active media plugin (SLPlugin) instances.\n"
+        "Reply contains [\"plugins\"] an array of { pid, url, mime_type, remote_debugging_port } entries.",
+        &LLMediaCtrlListener::getPluginsList,
+        llsd::map("reply", LLSD()));
 }
 
 LLMediaCtrl* LLMediaCtrlListener::findMediaCtrl(const std::string& path)
@@ -1455,6 +1458,33 @@ void LLMediaCtrlListener::getMediaText(const LLSD& request)
     {
         replyError(request, "Failed to execute JavaScript for text extraction");
     }
+}
+
+void LLMediaCtrlListener::getPluginsList(const LLSD& request)
+{
+    Response reply(LLSD(), request);
+
+    LLSD plugins;
+
+    LLViewerMedia::impl_list& impls = LLViewerMedia::getInstance()->getPriorityList();
+    for (LLViewerMedia::impl_list::iterator it = impls.begin(); it != impls.end(); ++it)
+    {
+        LLViewerMediaImpl* impl = *it;
+        if (!impl)
+        {
+            continue;
+        }
+        LLPluginClassMedia* plugin = impl->getMediaPlugin();
+
+        LLSD entry;
+        entry["url"] = impl->getCurrentMediaURL();
+        entry["mime_type"] = impl->getMimeType();
+        entry["pid"] = plugin ? plugin->getProcessID() : 0;
+        entry["remote_debugging_port"] = plugin ? (S32)plugin->getCefRemoteDebuggingPort() : 0;
+
+        plugins.append(entry);
+    }
+    reply["plugins"] = plugins;
 }
 
 static LLMediaCtrlListener sMediaCtrlListener;

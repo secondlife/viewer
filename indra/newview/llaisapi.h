@@ -109,6 +109,7 @@ private:
 
 class AISUpdate
 {
+    LOG_CLASS(AISUpdate);
 public:
     AISUpdate(const LLSD& update, AISAPI::COMMAND_TYPE type, const LLSD& request_body);
     void parseUpdate(const LLSD& update);
@@ -158,6 +159,7 @@ private:
     uuid_list_t mCategoryIds;
     bool mFetch;
     S32 mFetchDepth;
+    bool mUseTimeout;
     LLTimer mTaskTimer;
     static LLTimer sBatchTimer;
     static U32 sBatchFrameCount;

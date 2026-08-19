@@ -4136,6 +4136,17 @@ void LLFolderBridge::perform_pasteFromClipboard()
         }
         else
         {
+            // Check that no folder is being pasted into itself or into one of its descendants
+            for (const LLUUID& item_id : objects)
+            {
+                LLInventoryCategory* cat = model->getCategory(item_id);
+                if (cat && (item_id == mUUID || model->isObjectDescendentOf(mUUID, item_id)))
+                {
+                    LLNotificationsUtil::add("CannotPasteFolderIntoSelf");
+                    return;
+                }
+            }
+
             // Check that all items can be moved into that folder : for the moment, only stock folder mismatch is checked
             for (std::vector<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
             {

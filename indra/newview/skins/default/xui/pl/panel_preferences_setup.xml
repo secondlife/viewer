@@ -33,4 +33,12 @@
 		Ustawienia proxy:
 	</text>
 	<button label="Dostosuj ustawienia" label_selected="Przeglądaj" name="set_proxy" />
+	<text name="os_hibernation_mode">
+		Zapobiegaj hibernacji systemu, gdy użytkownik nie jest AFK:
+	</text>
+	<combo_box name="os_hibernation_combobox" tool_tip="Zapobiega usypianiu systemu tylko wtedy, gdy użytkownik nie jest AFK">
+		<combo_box.item label="Może hibernować" name="can_hibernate"/>
+		<combo_box.item label="Nie może hibernować, może wyłączyć ekran" name="cant_hibernate"/>
+		<combo_box.item label="Nie może hibernować, nie może wyłączyć ekranu" name="cant_hibernate_screen"/>
+	</combo_box>
 </panel>

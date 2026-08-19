@@ -664,10 +664,15 @@ F32 LLDrawable::updateXform(bool undamped)
             // snap to final position (only if no target omega is applied)
             dist_squared = 0.0f;
             //set target scale here, because of dist_squared = 0.0f remove object from move list
-            mCurrentScale = target_scale;
-
-            if (getVOVolume() && !isRoot())
-            { //child prim snapping to some position, needs a rebuild
+            if (mCurrentScale != target_scale)
+            {
+                mCurrentScale = target_scale;
+                // Final scale change needs a rebuild
+                gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
+            }
+            else if (getVOVolume() && !isRoot())
+            {
+                //child prim snapping to some position, needs a rebuild
                 gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
             }
         }

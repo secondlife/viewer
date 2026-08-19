@@ -600,6 +600,8 @@ bool LLVOAvatar::sLimitNonImpostors = false; // True unless RenderAvatarMaxNonIm
 F32 LLVOAvatar::sRenderDistance = 256.f;
 S32 LLVOAvatar::sNumVisibleAvatars = 0;
 S32 LLVOAvatar::sNumLODChangesThisFrame = 0;
+bool LLVOAvatar::sAvatarCullNeedsUpdate = true;
+F64 LLVOAvatar::sLastCullUpdateTime = 0.0;
 
 const LLUUID LLVOAvatar::sStepSoundOnLand("e8af4a28-aa83-4310-a7c4-c047e15ea0df");
 const LLUUID LLVOAvatar::sStepSounds[LL_MCODE_END] =
@@ -612,6 +614,8 @@ const LLUUID LLVOAvatar::sStepSounds[LL_MCODE_END] =
     SND_RUBBER_PLASTIC,
     SND_RUBBER_RUBBER
 };
+
+uuid_list_t LLVOAvatar::sEarlyAppearanceList;
 
 S32 LLVOAvatar::sRenderName = RENDER_NAME_ALWAYS;
 S32 LLVOAvatar::sRenderGroupTitles = RENDER_GROUP_TITLE_ALWAYS;
@@ -695,7 +699,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
     mLoadedCallbacksPaused(false),
     mLoadedCallbackTextures(0),
-    mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
     mLastRezzedStatus(-1),
     mIsEditingAppearance(false),
     mUseLocalAppearance(false),
@@ -777,6 +780,20 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mVisuallyMuteSetting = LLVOAvatar::VisualMuteSettings(LLRenderMuteList::getInstance()->getSavedVisualMuteSetting(getID()));
 
     sInstances.push_back(this);
+
+    uuid_list_t::iterator it = sEarlyAppearanceList.find(id);
+    if (it != sEarlyAppearanceList.end())
+    {
+        // Note: aside from LLVOAvatar::resetEarlyAppearanceList() (called on
+        // teleport), this is the only place where we remove from
+        // sEarlyAppearanceList, which means any agent who receives an
+        // AvatarAppearance message but is never actually instantiated will
+        // remain on the list until the next teleport. This is a resource leak
+        // but we expect it to be small enough per-session to not cause problems.
+        sEarlyAppearanceList.erase(it);
+        LL_INFOS("Avatar") << "Re-requesting AvatarAppearance for new avatar " << id << LL_ENDL;
+        LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
+    }
 }
 
 std::string LLVOAvatar::avString() const
@@ -2565,6 +2582,10 @@ void LLVOAvatar::updateMeshData()
                 f_num++ ;
             }
         }
+
+        mDirtyMesh = 0;
+        mNeedsSkin = true;
+        mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
     }
 }
 
@@ -2766,6 +2787,28 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 
     // force immediate pixel area update on avatars using last frames data (before drawable or camera updates)
     setPixelAreaAndAngle(gAgent);
+
+    if (!isSelf())
+    {
+        F32 current_pixel_area = getPixelArea();
+        if (mLastCulledPixelArea >= 0.f)
+        {
+            // Avoid rapidly switching two avatars back and forth between ranks.
+            // And update frequency reduction
+            F32 pixel_area_change = fabsf(current_pixel_area - mLastCulledPixelArea) / mLastCulledPixelArea;
+            if (pixel_area_change > 0.1f) // 10% threshold
+            {
+                sAvatarCullNeedsUpdate = true;
+                mLastCulledPixelArea = current_pixel_area;
+            }
+        }
+        else
+        {
+            // First frame
+            sAvatarCullNeedsUpdate = true;
+            mLastCulledPixelArea = current_pixel_area;
+        }
+    }
 
     // force asynchronous drawable update
     if(mDrawable.notNull())
@@ -3081,7 +3124,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 
     if (isImpostor() && !mNeedsImpostorUpdate)
     {
-        LL_ALIGN_16(LLVector4a ext[2]);
+        LLVector4a ext[2];
         F32 distance;
         LLVector3 angle;
 
@@ -5132,9 +5175,11 @@ void LLVOAvatar::updateVisibility()
         LL_DEBUGS("AvatarRender") << "visible was " << mVisible << " now " << visible << LL_ENDL;
     }
 
+    if (mVisible != visible)
+    {
+        setCullNeedsUpdate();
+    }
     mVisible = visible;
-
-    mVisibilityPreference = visible ? getPixelArea() : 0;
 }
 
 // private
@@ -5175,9 +5220,6 @@ U32 LLVOAvatar::renderSkinned()
         if (needs_rebuild || mDirtyMesh >= 2 || mVisibilityRank <= 4)
         {
             updateMeshData();
-            mDirtyMesh = 0;
-            mNeedsSkin = true;
-            mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
         }
     }
 
@@ -5446,7 +5488,7 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
         gGL.begin(LLRender::LINES);
         gGL.color4f(1.f,1.f,1.f,1.f);
         F32 thickness = llmax(F32(5.0f-5.0f*(gFrameTimeSeconds-mLastImpostorUpdateFrameTime)),1.0f);
-        glLineWidth(thickness);
+        gGL.setLineWidth(thickness);
         gGL.vertex3fv((pos+left-up).mV);
         gGL.vertex3fv((pos-left-up).mV);
         gGL.vertex3fv((pos-left-up).mV);
@@ -8575,6 +8617,10 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 
     if (changed && isSelf())
     {
+        // Agent's own avatar doesn't track bakes the same way as other avatars.
+        // So just update here, on cloud removal.
+        markBodyPartsComplexityDirty();
+
         // to know about outfit switching
         LLAvatarRenderNotifier::getInstance()->updateNotificationState();
     }
@@ -8591,7 +8637,8 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 
 bool LLVOAvatar::isFullyLoaded() const
 {
-    return (mRenderUnloadedAvatar && !isSelf()) || mFullyLoaded;
+    static LLCachedControl<bool> render_unloaded_avatar(gSavedSettings, "RenderUnloadedAvatar", false);
+    return (render_unloaded_avatar && !isSelf()) || mFullyLoaded;
 }
 
 bool LLVOAvatar::hasFirstFullAttachmentData() const
@@ -9911,7 +9958,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
         if (visualParamWeightsAreDefault() && mRuthTimer.getElapsedTimeF32() > LOADING_TIMEOUT_SECONDS)
         {
             // re-request appearance, hoping that it comes back with a shape next time
-            LL_INFOS() << "Re-requesting AvatarAppearance for object: "  << getID() << LL_ENDL;
+            LL_INFOS() << "Re-requesting AvatarAppearance for agent: "  << getID() << LL_ENDL;
             LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
             mRuthTimer.reset();
         }
@@ -9941,7 +9988,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
     setCompositeUpdatesEnabled( true );
 
     // If all of the avatars are completely baked, release the global image caches to conserve memory.
-    cullAvatarsByPixelArea();
+    setCullNeedsUpdate();
 
     if (isSelf())
     {
@@ -10170,6 +10217,10 @@ void LLVOAvatar::onInitialBakedTextureLoaded( bool success, LLViewerFetchedTextu
     }
     if (final || !success )
     {
+        if (selfp)
+        {
+            selfp->markBodyPartsComplexityDirty();
+        }
         delete avatar_idp;
     }
 }
@@ -10601,39 +10652,71 @@ S32 LLVOAvatar::getUnbakedPixelAreaRank()
     return 0;
 }
 
-// static
+// static, gets called once per frame from updateApparentAngles.
 void LLVOAvatar::cullAvatarsByPixelArea()
 {
-    LLCharacter::sInstances.sort([](LLCharacter* lhs, LLCharacter* rhs)
+    F64 current_time = LLFrameTimer::getElapsedSeconds();
+    bool needs_resort = sAvatarCullNeedsUpdate || ((current_time - sLastCullUpdateTime) >= 1.0);
+
+    if (needs_resort)
+    {
+        LLCharacter::sInstances.sort([](LLCharacter* lhs, LLCharacter* rhs)
         {
-            return ((LLVOAvatar*)lhs)->mVisibilityPreference > ((LLVOAvatar*)rhs)->mVisibilityPreference;
+            LLVOAvatar* lhs_av = (LLVOAvatar*)lhs;
+            LLVOAvatar* rhs_av = (LLVOAvatar*)rhs;
+            if (lhs_av->mVisible != rhs_av->mVisible)
+            {
+                return lhs_av->mVisible;
+            }
+            // Sort by pixel area in descending order (larger pixel area = higher priority)
+            return lhs_av->getPixelArea() > rhs_av->getPixelArea();
         });
 
-    // Update the avatars that have changed status
-    U32 rank = 2; // Rank 1 is reserved for self.
-    for (LLCharacter* character : LLCharacter::sInstances)
+        // Update the avatars that have changed status
+        U32 rank = 2; // Rank 1 is reserved for self.
+        for (LLCharacter* character : LLCharacter::sInstances)
+        {
+            LLVOAvatar* inst = (LLVOAvatar*)character;
+            bool culled = !inst->isSelf() && !inst->isFullyBaked();
+
+            if (inst->mCulled != culled)
+            {
+                inst->mCulled = culled;
+                LL_DEBUGS() << "avatar " << inst->getID() << (culled ? " start culled" : " start not culled" ) << LL_ENDL;
+                inst->updateMeshTextures();
+            }
+
+            if (inst->isSelf())
+            {
+                inst->setVisibilityRank(1);
+            }
+            else if (inst->mDrawable.notNull() && inst->mDrawable->isVisible())
+            {
+                inst->setVisibilityRank(rank++);
+            }
+            else
+            {
+                inst->setVisibilityRank(sMaxNonImpostors * 5);
+            }
+            inst->mLastCulledPixelArea = inst->getPixelArea();
+        }
+        sAvatarCullNeedsUpdate = false;
+        sLastCullUpdateTime = current_time;
+    }
+    else
     {
-        LLVOAvatar* inst = (LLVOAvatar*)character;
-        bool culled = !inst->isSelf() && !inst->isFullyBaked();
+        for (LLCharacter* character : LLCharacter::sInstances)
+        {
+            // Todo: this can be optimized by tracking baked's callbacks
+            LLVOAvatar* inst = (LLVOAvatar*)character;
+            bool culled = !inst->isSelf() && !inst->isFullyBaked();
 
-        if (inst->mCulled != culled)
-        {
-            inst->mCulled = culled;
-            LL_DEBUGS() << "avatar " << inst->getID() << (culled ? " start culled" : " start not culled" ) << LL_ENDL;
-            inst->updateMeshTextures();
-        }
-
-        if (inst->isSelf())
-        {
-            inst->setVisibilityRank(1);
-        }
-        else if (inst->mDrawable.notNull() && inst->mDrawable->isVisible())
-        {
-            inst->setVisibilityRank(rank++);
-        }
-        else
-        {
-            inst->setVisibilityRank(sMaxNonImpostors * 5);
+            if (inst->mCulled != culled)
+            {
+                inst->mCulled = culled;
+                LL_DEBUGS() << "avatar " << inst->getID() << (culled ? " start culled" : " start not culled") << LL_ENDL;
+                inst->updateMeshTextures();
+            }
         }
     }
 
@@ -10729,9 +10812,6 @@ bool LLVOAvatar::updateLOD()
     if (mDirtyMesh >= 2 || mDrawable->isState(LLDrawable::REBUILD_GEOMETRY))
     {   //LOD changed or new mesh created, allocate new vertex buffer if needed
         updateMeshData();
-        mDirtyMesh = 0;
-        mNeedsSkin = true;
-        mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
     }
     updateVisibility();
 
@@ -11458,7 +11538,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
     // Store results
     mVisualComplexity = total_cost;
 
-    // Call the existing reporting function with the aggregated lists
+    // Call the reporting function with the aggregated lists
     processComplexityCostChange(hud_complexity_list, object_complexity_list);
 
     // Stop processing until something changes

@@ -38,7 +38,7 @@
 			<text name="LabelItemDescTitle">
 				Descrição:
 			</text>
-			<line_editor name="LabelItemDesc" tool_tip="Quando as pessoas selecionam &apos;Passe o mouse em todos os objetos’ na configuração de visualização, eles verão a descrição dos objetos em uma janela pop-up sempre que passar o mouse por cima. A descrição prim é limitada em 127 bytes, qualquer string maior ficará truncada."/>
+            <text_editor name="LabelItemDesc" tool_tip="Quando as pessoas selecionam &apos;Passe o mouse em todos os objetos’ na configuração de visualização, eles verão a descrição dos objetos em uma janela pop-up sempre que passar o mouse por cima. A descrição prim é limitada em 127 bytes, qualquer string maior ficará truncada."/>
 			<text name="LabelCreatorTitle">
 				Criador:
 			</text>

@@ -47,6 +47,7 @@ public:
 protected:
     virtual bool restoreErrorTrap();
     virtual bool initSLURLHandler();
+    virtual void setOSHibernationMode(eHibernationMode mode);
 
     std::string generateSerialNumber();
     virtual bool initParseCommandLine(LLCommandLineParser& clp);

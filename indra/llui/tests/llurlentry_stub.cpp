@@ -50,16 +50,16 @@ LLAvatarNameCache::callback_connection_t LLAvatarNameCache::get(const LLUUID& ag
 //
 // Stub implementation for LLCacheName
 //
-BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
+bool LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 {
     fullname = "Lynx Linden";
-    return TRUE;
+    return true;
 }
 
-BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
+bool LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {
     group = "My Group";
-    return TRUE;
+    return true;
 }
 
 boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, const LLCacheNameCallback& callback)

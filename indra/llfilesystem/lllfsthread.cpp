@@ -51,6 +51,7 @@ S32 LLLFSThread::updateClass(U32 ms_elapsed)
 //static
 void LLLFSThread::cleanupClass()
 {
+    LL_PROFILE_ZONE_SCOPED;
     llassert(sLocal != NULL);
     sLocal->setQuitting();
     while (sLocal->getPending())

@@ -4269,77 +4269,110 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
 {
     if (!item || !item->isWearableType()) return false;
     if (item->getType() != LLAssetType::AT_CLOTHING) return false;
-    if (!gInventory.isObjectDescendentOf(item->getUUID(), getCOF())) return false;
 
     S32 pos = gAgentWearables.getWearableIdxFromItem(item);
     if (pos < 0) return false; // Not found
+    if (closer_to_body && pos == 0) return false; // already closest to the body
 
-    U32 count = gAgentWearables.getWearableCount(item->getWearableType());
-    if (count < 2) return false; // Nothing to swap with
-    if (closer_to_body)
+    return reorderWearable(item, closer_to_body ? (U32)(pos - 1) : (U32)(pos + 1));
+}
+
+bool LLAppearanceMgr::reorderWearable(LLViewerInventoryItem* item, U32 new_index)
+{
+    if (!item || !item->isWearableType()) return false;
+    if (item->getType() != LLAssetType::AT_CLOTHING) return false;
+    if (!gInventory.isObjectDescendentOf(item->getUUID(), getCOF())) return false;
+
+    LLWearableType::EType type = item->getWearableType();
+    U32 count = gAgentWearables.getWearableCount(type);
+    if (count < 2) return false; // nothing to reorder against
+
+    if (new_index >= count) new_index = count - 1;
+
+    S32 cur = gAgentWearables.getWearableIdxFromItem(item);
+    if (cur < 0) return false;
+    if ((U32)cur == new_index) return false; // already in place
+
+    // Update the live layer order first; bail before touching inventory if it fails.
+    if (!gAgentWearables.moveWearableToIndex(item, new_index)) return false;
+
+    persistWearableOrder(type);
+    return true;
+}
+
+bool LLAppearanceMgr::reorderWearableGroup(LLWearableType::EType type, const uuid_vec_t& ordered_link_ids)
+{
+    U32 count = gAgentWearables.getWearableCount(type);
+    if (count < 2) return false;
+    if (ordered_link_ids.size() != count) return false; // order must cover the whole group
+
+    // Validate everything before mutating, so a bad link can't leave it half-reordered.
+    for (const LLUUID& link_id : ordered_link_ids)
     {
-        if (pos == 0) return false; // already first
+        LLViewerInventoryItem* link = gInventory.getItem(link_id);
+        if (!link || link->getWearableType() != type) return false;
     }
-    else
+
+    // ordered_link_ids runs furthest-to-closest; body index 0 is closest to the body.
+    // Place each target at its body index, leaving already-placed lower indices untouched.
+    for (U32 body_index = 0; body_index < count; ++body_index)
     {
-        if (pos == count - 1)  return false; // already last
+        const LLUUID& link_id = ordered_link_ids[count - 1 - body_index];
+        LLViewerInventoryItem* link = gInventory.getItem(link_id);
+        if (!link || link->getWearableType() != type) return false;
+        if (!gAgentWearables.moveWearableToIndex(link, body_index)) return false;
     }
 
-    U32 old_pos = (U32)pos;
-    U32 swap_with = closer_to_body ? old_pos - 1 : old_pos + 1;
-    LLUUID swap_item_id = gAgentWearables.getWearableItemID(item->getWearableType(), swap_with);
+    persistWearableOrder(type);
+    return true;
+}
 
-    // Find link item from item id.
+void LLAppearanceMgr::persistWearableOrder(LLWearableType::EType type)
+{
+    U32 count = gAgentWearables.getWearableCount(type);
+
+    // Rewrite the sort-index descriptions for the whole type group in one pass so
+    // the order survives relog, trusting gAgentWearables over existing descriptions.
     LLInventoryModel::cat_array_t cats;
     LLInventoryModel::item_array_t items;
-    LLFindWearablesOfType filter_wearables_of_type(item->getWearableType());
+    LLFindWearablesOfType filter_wearables_of_type(type);
     gInventory.collectDescendentsIf(getCOF(), cats, items, true, filter_wearables_of_type);
-    if (items.empty()) return false;
 
-    LLViewerInventoryItem* swap_item = nullptr;
-    for (auto iter : items)
+    for (U32 i = 0; i < count; ++i)
     {
-        if (iter->getLinkedUUID() == swap_item_id)
+        LLUUID linked_id = gAgentWearables.getWearableItemID(type, i);
+        if (linked_id.isNull()) continue;
+
+        LLViewerInventoryItem* link = nullptr;
+        for (auto iter : items)
         {
-            swap_item = iter.get();
-            break;
+            if (iter->getLinkedUUID() == linked_id)
+            {
+                link = iter.get();
+                break;
+            }
         }
+        if (!link) continue;
+
+        std::string new_desc = build_order_string(type, i);
+        if (new_desc == link->getActualDescription()) continue;
+
+        // Keep the local cache consistent immediately (so the COF list does not
+        // flicker back on a refresh), and persist durably via AISv3, matching
+        // updateClothingOrderingInfo() rather than the legacy UDP updateServer().
+        link->setDescription(new_desc);
+        LLSD updates;
+        updates["desc"] = new_desc;
+        update_inventory_item(link->getUUID(), updates, NULL);
     }
-    if (!swap_item)
+
+    if (isAgentAvatarValid())
     {
-        return false;
-    }
-
-    // Description is supposed to hold sort index, but user could have changed
-    // order rapidly and there might be a state mismatch between description
-    // and gAgentWearables, trust gAgentWearables over description.
-    // Generate new description.
-    std::string new_desc = build_order_string(item->getWearableType(), old_pos);
-    swap_item->setDescription(new_desc);
-    new_desc = build_order_string(item->getWearableType(), swap_with);
-    item->setDescription(new_desc);
-
-    item->setComplete(true);
-    item->updateServer(false);
-    gInventory.updateItem(item);
-
-    swap_item->setComplete(true);
-    swap_item->updateServer(false);
-    gInventory.updateItem(swap_item);
-
-    //to cause appearance of the agent to be updated
-    bool result = false;
-    if ((result = gAgentWearables.moveWearable(item, closer_to_body)))
-    {
-        gAgentAvatarp->wearableUpdated(item->getWearableType());
+        gAgentAvatarp->wearableUpdated(type);
     }
 
     setOutfitDirty(true);
-
-    //*TODO do we need to notify observers here in such a way?
     gInventory.notifyObservers();
-
-    return result;
 }
 
 //static

@@ -76,12 +76,14 @@
 #if LL_VELOPACK
 #include "llvelopack.h"
 #endif
+#include "llversioninfovars.h"
 
 // Bugsplat (http://bugsplat.com) crash reporting tool
 #ifdef LL_BUGSPLAT
 #include "BugSplat.h"
 #include "boost/json.hpp"                 // Boost.Json
 #include "llagent.h"                // for agent location
+#include "llmemory.h"
 #include "llstartup.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"         // for agent name
@@ -181,6 +183,16 @@ namespace
             sBugSplatSender->setAttribute(WCSTR(L"VRAM"), WCSTR(STRINGIZE(gGLManager.mVRAM)));
             sBugSplatSender->setAttribute(WCSTR(L"RAM"), WCSTR(STRINGIZE(gSysMemory.getPhysicalMemoryKB().value())));
 
+            const U32 avail_kb = LLMemory::getAvailableMemKB().value();
+            if (avail_kb != U32_MAX) // filter out initial values, if one is not set, all are not set
+            {
+                // Memory usage at crash time (can be 1s obsolete)
+                sBugSplatSender->setAttribute(WCSTR(L"MemAllocatedKB"), WCSTR(std::to_string(LLMemory::getAllocatedMemKB().value())));
+                sBugSplatSender->setAttribute(WCSTR(L"MemAvailableKB"), WCSTR(std::to_string(LLMemory::getAvailableMemKB().value())));
+                sBugSplatSender->setAttribute(WCSTR(L"MemMaxPhysicalKB"), WCSTR(std::to_string(LLMemory::getMaxMemKB().value())));
+                sBugSplatSender->setAttribute(WCSTR(L"MemAvailCommitMB"), WCSTR(std::to_string(LLMemory::getAvailableCommitMemMB().value())));
+            }
+
             if (gAgent.getRegion())
             {
                 // region location, when we have it
@@ -193,6 +205,14 @@ namespace
             }
 
             LLAppViewer* app = LLAppViewer::instance();
+
+            // Include mainloop watchdog state if available
+            std::string watchdog_state = app->getMainloopWatchdogState();
+            if (!watchdog_state.empty())
+            {
+                sBugSplatSender->setAttribute(WCSTR(L"WatchdogState"), WCSTR(watchdog_state));
+            }
+
             if (!app->isSecondInstance() && !app->errorMarkerExists())
             {
                 // If marker doesn't exist, create a marker with 'other' or 'logout' code for next launch
@@ -1018,6 +1038,56 @@ bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
         return true;
     }
     return false;
+}
+
+void LLAppViewerWin32::setOSHibernationMode(eHibernationMode mode)
+{
+    // ES_CONTINUOUS tells Windows to reset the idle timer
+    // and restore normal operation
+    // ES_SYSTEM_REQUIRED prevents system sleep/hibernation
+    // ES_DISPLAY_REQUIRED prevents display sleep
+
+    if (mode == LL_HIBERNATE_MODE_DEFAULT)
+    {
+        // Allow OS to hibernate - clear the previous execution state flags
+        // ES_CONTINUOUS without other flags allows the system to idle normally
+        SetThreadExecutionState(ES_CONTINUOUS);
+        LL_INFOS("OS") << "Permitted OS hibernation/sleep" << LL_ENDL;
+    }
+    else if (mode == LL_HIBERNATE_MODE_PREVENT)
+    {
+        // Prevent OS from hibernating while viewer is running
+        // ES_CONTINUOUS | ES_SYSTEM_REQUIRED keeps the system awake
+        EXECUTION_STATE result = SetThreadExecutionState(
+            ES_CONTINUOUS | ES_SYSTEM_REQUIRED
+        );
+        if (result == NULL)
+        {
+            LL_WARNS("OS") << "Failed to prevent OS hibernation, error: " << GetLastError() << LL_ENDL;
+        }
+        else
+        {
+            LL_INFOS("OS") << "Prevented OS hibernation, but allowed display sleep" << LL_ENDL;
+        }
+    }
+    else if (mode == LL_HIBERNATE_MODE_PREVENT_SCREEN)
+    {
+        // Prevent OS from hibernating or turning screen off while viewer is running
+        // ES_CONTINUOUS | ES_SYSTEM_REQUIRED keeps the system awake
+        // ES_DISPLAY_REQUIRED keeps the display on
+        EXECUTION_STATE result = SetThreadExecutionState(
+            ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED
+        );
+
+        if (result == NULL)
+        {
+            LL_WARNS("OS") << "Failed to prevent OS hibernation and display sleep, error: " << GetLastError() << LL_ENDL;
+        }
+        else
+        {
+            LL_INFOS("OS") << "Prevented OS hibernation/sleep" << LL_ENDL;
+        }
+    }
 }
 
 bool LLAppViewerWin32::sendShutdownToOtherInstances(const std::wstring& install_dir)
