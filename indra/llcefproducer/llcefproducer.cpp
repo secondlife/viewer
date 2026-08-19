@@ -94,6 +94,7 @@ void log_line(const char* color, const std::string& msg)
 void log_info(const std::string& msg)       { log_line("\x1b[38;5;103m", msg); } // blue
 void log_connect(const std::string& msg)    { log_line("\x1b[38;5;120m", msg); } // green
 void log_disconnect(const std::string& msg) { log_line("\x1b[38;5;124m", msg); } // red
+void log_error(const std::string& msg)      { log_line("\x1b[38;5;178m", msg); } // amber
 
 // How long a slot may sit with nobody attached before its browser is
 // destroyed and the index freed for reuse. Deliberately longer, and a
@@ -102,6 +103,18 @@ void log_disconnect(const std::string& msg) { log_line("\x1b[38;5;124m", msg); }
 // "nobody wants this right now" -- a slot whose owner crashed is reclaimed
 // immediately (see the main loop) rather than waiting out this grace period.
 constexpr auto kIdleGracePeriod = std::chrono::seconds(5);
+
+// A slot this producer itself just freed can still briefly look
+// "already exists" to a fresh create() for the same name: on Windows, a
+// named segment only actually disappears once every process's handle to
+// it is released (see LLSegment::unlink()'s own comment in llshmframe) --
+// if the departing consumer's own mapping hasn't quite let go yet, this
+// producer's own create()/reclaim (which already correctly sees the
+// clean-shutdown marker it wrote) can still lose the race against that
+// lingering handle. A few retries a few ms apart gives it time to
+// actually go away rather than failing the whole request outright.
+constexpr int kAllocateSlotRetries = 10;
+constexpr auto kAllocateSlotRetryInterval = std::chrono::milliseconds(10);
 
 // The default 512-byte LLConfig::max_command_bytes was sized for llshmframe's
 // own demo's 3-5 byte color-name tokens; a real URL needs more headroom.
@@ -137,15 +150,21 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     cfg.max_command_bytes = kMaxCommandBytes;
 
     LLStatus st{};
-    auto pub = LLPublisher::create(cfg, &st);
+    std::unique_ptr<LLPublisher> pub;
+    for (int attempt = 0; attempt < kAllocateSlotRetries; ++attempt)
+    {
+        pub = LLPublisher::create(cfg, &st);
+        if (pub || st != LLStatus::AlreadyExists) break;
+        std::this_thread::sleep_for(kAllocateSlotRetryInterval);
+    }
     if (!pub) {
-        std::cerr << "slot " << index << " (" << cfg.name << "): " << to_string(st) << "\n";
+        log_error("slot " + std::to_string(index) + " (" + cfg.name + "): " + to_string(st));
         return false;
     }
 
     llCefBrowserHandle handle = manager.CreateBrowser("about:blank", int(kDefaultWidth), int(kDefaultHeight), isUI);
     if (!handle.IsValid()) {
-        std::cerr << "slot " << index << ": CreateBrowser failed\n";
+        log_error("slot " + std::to_string(index) + ": CreateBrowser failed");
         return false; // pub destructs here, cleanly unlinking the segment we just made
     }
 
