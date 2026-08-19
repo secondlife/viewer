@@ -16392,7 +16392,7 @@
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>Boolean</string>
+    <string>U32</string>
     <key>Value</key>
     <integer>0</integer>
   </map>
