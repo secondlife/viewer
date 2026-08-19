@@ -25,7 +25,7 @@ This document describes all the message interfaces defined for WebSocket communi
   - [ScriptUnsubscribe](#scriptunsubscribe)
   - [ScriptList](#scriptlist)
 - [Compilation Interfaces](#compilation-interfaces)
-  - [CompilationError](#compilationerror)
+  - [Diagnostic](#diagnostic)
   - [CompilationResult](#compilationresult)
 - [Runtime Event Interfaces](#runtime-event-interfaces)
   - [RuntimeDebug](#runtimedebug)
@@ -601,12 +601,12 @@ interface ScriptList {
 
 ## Compilation Interfaces
 
-### CompilationError
+### Diagnostic
 
 Individual compilation error record.
 
 ```typescript
-interface CompilationError {
+interface Diagnostic {
   row: number;
   column: number;
   level: string;
@@ -631,10 +631,11 @@ Result of a compilation operation in the viewer.
 
 ```typescript
 interface CompilationResult {
+  /** Deprecated: retained during migration to item-based routing. */
   script_id: string;
   success: boolean;
   running: boolean;
-  errors?: CompilationError[];
+  diagnostics?: Diagnostic[];
 }
 ```
 
@@ -643,7 +644,7 @@ interface CompilationResult {
 - `script_id`: Unique identifier for the script that was compiled
 - `success`: Whether the compilation was successful
 - `running`: Whether the compiled script is currently running
-- `errors` (optional): Array of compilation errors if any occurred
+- `diagnostics` (optional): Array of `Diagnostic` records if any occurred
 
 ## Runtime Event Interfaces
 
@@ -655,10 +656,15 @@ Debug message notification sent by the viewer during script execution.
 
 ```typescript
 interface RuntimeDebug {
+  /** Deprecated: use item.item_id when available. */
   script_id: string;
   object_id: string;
+  prim_id?: string;
+  item_id?: string;
   object_name: string;
   message: string;
+  channel?: "debug" | "owner_say";
+  item?: ItemRef;
 }
 ```
 
@@ -677,13 +683,27 @@ Runtime error notification sent by the viewer when a script encounters an error 
 
 ```typescript
 interface RuntimeError {
+  /** Deprecated: use item.item_id when available. */
   script_id: string;
   object_id: string;
+  prim_id?: string;
+  item_id?: string;
   object_name: string;
   message: string;
   error: string;
   line: number;
+  column?: number;
   stack?: string[];
+  channel?: "debug" | "owner_say";
+  item?: ItemRef;
+}
+
+interface ItemRef {
+  root_id: string;
+  prim_id?: string;
+  item_id?: string;
+  name?: string;
+  language?: "lsl" | "luau";
 }
 ```
 
@@ -693,8 +713,8 @@ interface RuntimeError {
 - `object_id`: Unique identifier for the object containing the script
 - `object_name`: Human-readable name of the object
 - `message`: The full raw chat text of the runtime error message as received from the simulator
-- `error`: Extracted error description. Currently always an empty string - runtime error extraction from the simulator's multi-message format is not yet fully implemented.
-- `line`: Line number where the error occurred. Currently always `0` for the same reason.
+- `error`: Extracted runtime error description. This remains a top-level compatibility field while the protocol stays on version `1.0`.
+- `line`: Line number where the error occurred when the runtime format can be parsed; otherwise `0`.
 - `stack` (optional): Stack trace lines if they could be extracted from the error message
 
 ## Handler and Configuration Interfaces
@@ -973,7 +993,7 @@ interface ObjectContentSaveResponse {
   prim_id?: string;
   item_id?: string;
   compiled?: boolean;
-  errors?: string[];
+  diagnostics?: Diagnostic[];
   message?: string;
 }
 ```
@@ -986,7 +1006,7 @@ interface ObjectContentSaveResponse {
 - `vm` (optional): Scripts only compile target. Accepted values are `"mono"`, `"lsl2"`, `"luau"`. When `"luau"` is specified for an LSL script (as opposed to a native Luau script), the viewer automatically selects the correct LSL-on-Luau compile path. If omitted, inferred from item metadata or content analysis.
 - `success`: Whether the upload/save operation succeeded.
 - `compiled` (optional): Scripts only. `true` when compilation succeeded, `false` when source saved but compile failed.
-- `errors` (optional): Scripts only. Compiler diagnostics when `compiled` is `false`.
+- `diagnostics` (optional): Scripts only. Array of `Diagnostic` records when `compiled` is `false`.
 - `message` (optional): Error description on failure.
 
 ---

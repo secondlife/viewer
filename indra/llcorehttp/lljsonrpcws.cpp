@@ -457,6 +457,24 @@ void LLJSONRPCConnection::sweepTimeouts()
     }
 }
 
+void LLJSONRPCConnection::testInjectPendingRequest(const std::string& id, F64 deadline, ResponseCallback callback)
+{
+    LLMutexLock lock(&mMutex);
+    mPendingRequests[id] = std::move(callback);
+    mPendingDeadlines.push({ deadline, id });
+}
+
+void LLJSONRPCConnection::testSweepTimeouts()
+{
+    sweepTimeouts();
+}
+
+size_t LLJSONRPCConnection::testPendingRequestCount() const
+{
+    LLMutexLock lock(&mMutex);
+    return mPendingRequests.size();
+}
+
 LLSD LLJSONRPCConnection::generateId()
 {
     // Server-wide atomic counter for efficient unique ID generation.

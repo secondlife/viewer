@@ -29,7 +29,9 @@
 
 #include "llscripteditorws.h"
 
+#include "llchat.h"
 #include "llinventorydefines.h"
+#include "llregex.h"
 #include "llselectmgr.h"
 #include "llviewerinventory.h"
 #include "llviewerobject.h"
@@ -39,6 +41,12 @@
 
 namespace
 {
+    static const boost::regex LUAU_LOCATION_PATTERN(
+        R"(^([^:]*):([0-9]+):\s*(.*)$)");
+
+    static const boost::regex LSL_LOCATION_PATTERN(
+        R"(\((\d+), (\d+)\) : ([^:]+) : (.+))");
+
     std::string nv_string(LLViewerObject* obj, const char* key)
     {
         if (!obj)
@@ -122,12 +130,381 @@ private:
     LLUUID                  mPrimID;
 };
 
-LLPublishedObjectMgr::LLPublishedObjectMgr(LLScriptEditorWSServer* server)
-    : mServer(server)
+LLPublishedObjectMgr::LLPublishedObjectMgr(
+    LLScriptEditorWSServer* server,
+    RuntimeEventCallback runtime_event_callback):
+    mServer(server),
+    mRuntimeEventCallback(std::move(runtime_event_callback)),
+      mRuntimeEventAggregator(std::make_unique<RuntimeEventAggregator>(
+          [this](const RuntimeEventAggregator::RuntimeEvent& runtime_event)
+          {
+              std::optional<RuntimeChatEvent> event =
+                  buildRuntimeChatEvent(runtime_event);
+              if (event && mRuntimeEventCallback)
+              {
+                  mRuntimeEventCallback(*event);
+              }
+          })),
+      mRuntimeFlushTimer(
+          std::unique_ptr<LLEventTimer>(
+              LLEventTimer::run_every(
+                  RUNTIME_FLUSH_INTERVAL,
+                  [this]()
+                  {
+                      flushExpiredRuntimeFragments();
+                  })))
 {
 }
 
 LLPublishedObjectMgr::~LLPublishedObjectMgr() = default;
+
+void LLPublishedObjectMgr::ingestRuntimeChat(
+    const LLChat& chat_msg,
+    RuntimeEventAggregator::Channel channel)
+{
+    static const boost::regex runtime_error_header(
+        R"(^(.+?)\s+\[script:([^\]]+)\]\s+Script run-time error)");
+
+    std::vector<std::string> lines =
+        LLStringUtil::getTokens(chat_msg.mText, "\n");
+    boost::smatch match;
+    bool is_error_header =
+        !lines.empty() &&
+        boost::regex_match(lines.front(), match, runtime_error_header);
+
+    if (!is_error_header && !mRuntimeEventAggregator->hasPending())
+    {
+        RuntimeEventAggregator::RuntimeEvent runtime_event;
+        runtime_event.mVM = RuntimeEventAggregator::VM::LSL2;
+        runtime_event.mChannel = channel;
+
+        RuntimeEventAggregator::Fragment fragment;
+        fragment.mFromID = chat_msg.mFromID;
+        fragment.mFromName = chat_msg.mFromName;
+        fragment.mText = chat_msg.mText;
+        runtime_event.mFragments.push_back(std::move(fragment));
+
+        std::optional<RuntimeChatEvent> event =
+            buildRuntimeChatEvent(runtime_event);
+        if (event && mRuntimeEventCallback)
+        {
+            mRuntimeEventCallback(*event);
+        }
+        return;
+    }
+
+    RuntimeEventAggregator::VM vm = RuntimeEventAggregator::VM::LSL2;
+    LLViewerObject* prim = gObjectList.findObject(chat_msg.mFromID);
+    if (prim)
+    {
+        std::vector<std::string> lines =
+            LLStringUtil::getTokens(chat_msg.mText, "\n");
+        static const boost::regex runtime_error_header(
+            R"(^(.+?)\s+\[script:([^\]]+)\]\s+Script run-time error)");
+        boost::smatch match;
+
+        if (!lines.empty() &&
+            boost::regex_match(lines.front(), match, runtime_error_header))
+        {
+            const std::string script_name = match[2].str();
+            LLInventoryObject::object_list_t inventory;
+            prim->getInventoryContents(inventory);
+            for (const auto& inventory_object : inventory)
+            {
+                LLInventoryItem* item =
+                    dynamic_cast<LLInventoryItem*>(inventory_object.get());
+                if (item && item->getName() == script_name &&
+                    item->getRuntime() == "luau")
+                {
+                    vm = RuntimeEventAggregator::VM::LUAU;
+                    break;
+                }
+            }
+        }
+    }
+
+    mRuntimeEventAggregator->ingest(
+        chat_msg.mFromID,
+        chat_msg.mFromName,
+        chat_msg.mText,
+        vm,
+        channel);
+}
+
+void LLPublishedObjectMgr::flushExpiredRuntimeFragments()
+{
+    mRuntimeEventAggregator->flushExpired();
+}
+
+std::optional<LLPublishedObjectMgr::RuntimeChatEvent>
+LLPublishedObjectMgr::buildRuntimeChatEvent(
+    const RuntimeEventAggregator::RuntimeEvent& runtime_event) const
+{
+    if (runtime_event.mFragments.empty())
+    {
+        return std::nullopt;
+    }
+
+    const RuntimeEventAggregator::Fragment& source =
+        runtime_event.mFragments.front();
+    LLViewerObject* prim = gObjectList.findObject(source.mFromID);
+    if (!prim)
+    {
+        return std::nullopt;
+    }
+
+    LLViewerObject* root = prim->getRootEdit();
+    if (!root)
+    {
+        return std::nullopt;
+    }
+
+    RuntimeChatEvent event;
+    event.mChannel = runtime_event.mChannel;
+    event.mVM = runtime_event.mVM;
+    event.mRootID = root->getID();
+    event.mPrimID = prim->getID();
+    event.mObjectName = source.mFromName;
+    for (const auto& fragment : runtime_event.mFragments)
+    {
+        if (!event.mMessage.empty())
+        {
+            event.mMessage += "\n";
+        }
+        event.mMessage += fragment.mText;
+    }
+
+    std::vector<std::string> lines =
+        LLStringUtil::getTokens(event.mMessage, "\n");
+    static const std::string runtime_error_marker = "Script run-time error";
+    static const boost::regex runtime_error_header(
+        R"(^(.+?)\s+\[script:([^\]]+)\]\s+Script run-time error)");
+
+    auto ends_with = [](const std::string& value, const std::string& suffix)
+    {
+        return value.size() >= suffix.size() &&
+               std::equal(suffix.rbegin(), suffix.rend(), value.rbegin());
+    };
+
+    if (!lines.empty() && ends_with(lines.front(), runtime_error_marker))
+    {
+        event.mIsError = true;
+        boost::smatch match;
+        if (boost::regex_match(lines.front(), match, runtime_error_header))
+        {
+            event.mObjectName = match[1].str();
+            event.mScriptName = match[2].str();
+            lines.erase(lines.begin());
+        }
+        else
+        {
+            lines.clear();
+        }
+    }
+
+    LLInventoryObject::object_list_t inventory;
+    prim->getInventoryContents(inventory);
+    for (const auto& inventory_object : inventory)
+    {
+        LLInventoryItem* item =
+            dynamic_cast<LLInventoryItem*>(inventory_object.get());
+        if (item && !event.mScriptName.empty() &&
+            item->getName() == event.mScriptName)
+        {
+            event.mItemID = item->getUUID();
+            break;
+        }
+    }
+
+    if (event.mIsError && !lines.empty())
+    {
+        RuntimeEventAggregator::VM vm = runtime_event.mVM;
+        if (event.mItemID.notNull())
+        {
+            LLInventoryItem* item =
+                dynamic_cast<LLInventoryItem*>(prim->getInventoryObject(event.mItemID));
+            if (item && item->getRuntime() == "luau")
+            {
+                vm = RuntimeEventAggregator::VM::LUAU;
+            }
+        }
+
+        RuntimeEventAggregator::ParsedError parsed =
+            mRuntimeEventAggregator->parseError(vm, runtime_event.mFragments);
+        event.mError = parsed.mError;
+        event.mLine = parsed.mLine;
+        event.mColumn = parsed.mColumn;
+        event.mStack = lines;
+    }
+
+    return event;
+}
+
+LLPublishedObjectMgr::RuntimeEventAggregator::RuntimeEventAggregator(
+    FlushCallback flush_callback):
+    mFlushCallback(std::move(flush_callback))
+{
+}
+
+void LLPublishedObjectMgr::RuntimeEventAggregator::ingest(
+    const LLUUID& from_id,
+    const std::string& from_name,
+    const std::string& text,
+    VM vm,
+    Channel channel)
+{
+    if (mPending &&
+        isNewBurst(from_id, from_name, vm, channel))
+    {
+        flushPending();
+    }
+
+    if (!mPending)
+    {
+        mPending = std::make_unique<PendingBurst>();
+        mPending->mFromID = from_id;
+        mPending->mFromName = from_name;
+        mPending->mVM = vm;
+        mPending->mChannel = channel;
+    }
+
+    Fragment fragment;
+    fragment.mFromID = from_id;
+    fragment.mFromName = from_name;
+    fragment.mText = text;
+    mPending->mFragments.push_back(std::move(fragment));
+    mPending->mTimer.setTimerExpirySec(FRAGMENT_TIMEOUT);
+}
+
+void LLPublishedObjectMgr::RuntimeEventAggregator::flushExpired()
+{
+    if (mPending && mPending->mTimer.hasExpired())
+    {
+        flushPending();
+    }
+}
+
+void LLPublishedObjectMgr::RuntimeEventAggregator::flush()
+{
+    flushPending();
+}
+
+bool LLPublishedObjectMgr::RuntimeEventAggregator::hasPending() const
+{
+    return mPending != nullptr;
+}
+
+LLPublishedObjectMgr::RuntimeEventAggregator::ParsedError
+LLPublishedObjectMgr::RuntimeEventAggregator::parseError(
+    VM vm,
+    const fragments_t& fragments) const
+{
+    ParsedError parsed;
+    const boost::regex* location_pattern = nullptr;
+    bool lsl_coordinates = false;
+
+    switch (vm)
+    {
+    case VM::LUAU:
+        location_pattern = &LUAU_LOCATION_PATTERN;
+        break;
+    case VM::LSL2:
+        location_pattern = &LSL_LOCATION_PATTERN;
+        lsl_coordinates = true;
+        break;
+    }
+
+    for (const auto& fragment : fragments)
+    {
+        std::vector<std::string> lines =
+            LLStringUtil::getTokens(fragment.mText, "\n");
+        for (const auto& line : lines)
+        {
+            boost::smatch match;
+            if (!boost::regex_match(line, match, *location_pattern))
+            {
+                continue;
+            }
+
+            if (lsl_coordinates)
+            {
+                parsed.mLine = static_cast<S32>(
+                    std::strtol(match[1].str().c_str(), nullptr, 10)) + 1;
+                parsed.mColumn = static_cast<S32>(
+                    std::strtol(match[2].str().c_str(), nullptr, 10)) + 1;
+                parsed.mError = match[4].str();
+            }
+            else
+            {
+                parsed.mSource = match[1].str();
+                parsed.mLine = static_cast<S32>(
+                    std::strtol(match[2].str().c_str(), nullptr, 10));
+                parsed.mColumn = 0;
+                parsed.mError = match[3].str();
+            }
+            return parsed;
+        }
+    }
+
+    // LSL runtime errors commonly arrive as plain text without source
+    // location metadata, for example: "Math Error".
+    if (vm == VM::LSL2)
+    {
+        for (const auto& fragment : fragments)
+        {
+            const std::vector<std::string> lines =
+                LLStringUtil::getTokens(fragment.mText, "\n");
+            for (const auto& line : lines)
+            {
+                if (line.empty() ||
+                    line.find("Script run-time error") != std::string::npos)
+                {
+                    continue;
+                }
+
+                parsed.mError = line;
+                return parsed;
+            }
+        }
+    }
+
+    return parsed;
+}
+
+void LLPublishedObjectMgr::RuntimeEventAggregator::flushPending()
+{
+    if (!mPending)
+    {
+        return;
+    }
+
+    if (!mFlushCallback)
+    {
+        mPending.reset();
+        return;
+    }
+
+    RuntimeEvent event;
+    event.mVM = mPending->mVM;
+    event.mChannel = mPending->mChannel;
+    event.mFragments = mPending->mFragments;
+    event.mError = parseError(mPending->mVM, mPending->mFragments);
+    mFlushCallback(event);
+
+    mPending.reset();
+}
+
+bool LLPublishedObjectMgr::RuntimeEventAggregator::isNewBurst(
+    const LLUUID& from_id,
+    const std::string& from_name,
+    VM vm,
+    Channel channel) const
+{
+    return mPending->mFromID != from_id ||
+           mPending->mFromName != from_name ||
+           mPending->mVM != vm ||
+           mPending->mChannel != channel;
+}
 
 LLPublishedObjectMgr::PublishedObjectInfo::PublishedObjectInfo() = default;
 LLPublishedObjectMgr::PublishedObjectInfo::~PublishedObjectInfo() = default;

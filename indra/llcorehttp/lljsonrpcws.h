@@ -401,6 +401,11 @@ private:
     /// Invoked by the sweep timer; fires the timeout callback for any
     /// request whose deadline has passed. Safe to call from the main thread.
     void sweepTimeouts();
+
+public:
+    void testInjectPendingRequest(const std::string& id, F64 deadline, ResponseCallback callback);
+    void testSweepTimeouts();
+    size_t testPendingRequestCount() const;
 };
 
 /**
