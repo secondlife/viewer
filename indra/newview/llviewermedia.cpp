@@ -4510,6 +4510,19 @@ void LLViewerMediaImpl::setPriority(LLPluginClassMedia::EPriority priority)
 
             destroyMediaSource();
         }
+        else if (mUseEmbeddedBrowser)
+        {
+            // Embedded-browser media has no play/pause state to preserve across a
+            // reload, but still needs tearing down here just the same -- without
+            // this, an out-of-view/low-priority embedded-browser media instance
+            // was never actually unloaded: its LLEmbeddedBrowserTab (pixel buffer,
+            // GL texture, and the producer-side CEF browser/shm slot it holds)
+            // stayed alive for the rest of the session regardless of priority,
+            // leaking one of only 32 concurrent producer slots and a chunk of
+            // memory per instance ever encountered -- exactly what a region with
+            // many media sources would run into over time.
+            destroyMediaSource();
+        }
     }
 
     if(mMediaSource)
