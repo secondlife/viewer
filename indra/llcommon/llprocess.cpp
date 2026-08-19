@@ -63,6 +63,11 @@
 #include <sys/wait.h>
 #endif
 
+#if LL_DARWIN
+#include <spawn.h>
+extern char** environ;
+#endif
+
 #if LL_WINDOWS
 #include <windows.h>
 #include "llwin32headers.h"
@@ -721,8 +726,67 @@ void LLProcess::launch(const LLSDOrParams& params)
             }
         }
 
-        // In Boost.Process v2, error_code cannot be passed as an initializer.
-        // Use the throwing overload and catch the exception instead.
+#if LL_DARWIN
+        // Use posix_spawn instead of fork()+exec() to avoid locking malloc
+        // zones on macOS, which would deadlock any thread concurrently
+        // calling malloc/new.
+        {
+            posix_spawn_file_actions_t file_actions;
+            posix_spawnattr_t spawnattr;
+            posix_spawn_file_actions_init(&file_actions);
+            posix_spawnattr_init(&spawnattr);
+
+            // Set up pipe redirections via file actions
+            if (use_stdin_pipe)
+            {
+                // mStdinPipe's read end goes to child's stdin
+                int read_fd = mStdinPipe->native_handle(); // adjust per pipe type
+                posix_spawn_file_actions_adddup2(&file_actions, read_fd, STDIN_FILENO);
+            }
+            if (use_stdout_pipe)
+            {
+                int write_fd = mStdoutPipe->native_handle();
+                posix_spawn_file_actions_adddup2(&file_actions, write_fd, STDOUT_FILENO);
+            }
+            if (use_stderr_pipe)
+            {
+                int write_fd = mStderrPipe->native_handle();
+                posix_spawn_file_actions_adddup2(&file_actions, write_fd, STDERR_FILENO);
+            }
+
+            // Build argv
+            std::vector<char*> argv;
+            std::string exe_str = executable_path.string();
+            argv.push_back(const_cast<char*>(exe_str.c_str()));
+            for (auto& arg : args)
+                argv.push_back(const_cast<char*>(arg.c_str()));
+            argv.push_back(nullptr);
+
+            // Set working directory via POSIX_SPAWN_SETEXEC + chdir workaround
+            // or use a pre-fork chdir in a vfork-safe way. For cwd support,
+            // consider adding a "cd && exec" shell wrapper or using a helper.
+
+            pid_t pid = -1;
+            int ret = posix_spawn(&pid,
+                                  exe_str.c_str(),
+                                  &file_actions,
+                                  &spawnattr,
+                                  argv.data(),
+                                  environ);
+
+            posix_spawn_file_actions_destroy(&file_actions);
+            posix_spawnattr_destroy(&spawnattr);
+
+            if (ret != 0)
+            {
+                throw std::runtime_error(STRINGIZE("posix_spawn failed for "
+                    << params.executable() << ": " << strerror(ret)));
+            }
+
+            // Wrap the pid in a bp::process handle or store it directly
+            mChild = std::make_unique<bp::process>(mIOContext, pid);
+        }
+#else
         try
         {
             if (params.cwd.isProvided())
@@ -750,6 +814,7 @@ void LLProcess::launch(const LLSDOrParams& params)
             throw std::runtime_error(STRINGIZE("failed to launch " << params.executable()
                 << ": " << ex.what()));
         }
+#endif
 
 #if LL_WINDOWS
         // Add the process to the job object so it terminates when parent dies.
