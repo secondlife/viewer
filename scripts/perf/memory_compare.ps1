@@ -9,7 +9,7 @@
     across the right set for each side rather than looking at secondlife-bin
     alone:
       - legacy (media plugin):   secondlifeviewer, SLPlugin
-      - this build (embedded):   secondlife-bin, cefshm_producer
+      - this build (embedded):   secondlife-bin, SLCefProducer
 
     Logs one row per process name per sample (Count/WorkingSetMB/PrivateMB),
     plus one "TOTAL" row per sample summing across every name passed in.
@@ -50,7 +50,7 @@
     .\memory_compare.ps1 -ProcessNames secondlifeviewer,SLPlugin -Label legacy -OutFile mem.csv -DurationMinutes 5
 
 .EXAMPLE
-    .\memory_compare.ps1 -ProcessNames secondlife-bin,cefshm_producer -Label embedded -OutFile mem.csv -DurationMinutes 5
+    .\memory_compare.ps1 -ProcessNames secondlife-bin,SLCefProducer -Label embedded -OutFile mem.csv -DurationMinutes 5
 #>
 param(
     [Parameter(Mandatory = $true)]
