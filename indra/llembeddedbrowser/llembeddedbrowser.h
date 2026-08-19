@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <deque>
 #include <map>
@@ -92,9 +93,22 @@ class LLEmbeddedBrowserUpdateThread :
 
         void run() override;
 
+        // Diagnostic only (added 2026-08-19 to prove or disprove whether shutdown()'s
+        // caller can ever conclude this thread is done while run()'s loop body is
+        // still actually executing on the detached OS thread -- LLThread::start()
+        // calls mThreadp->detach() immediately, so there is no real join() anywhere
+        // in this lifecycle; isStopped() becoming true is the *only* signal the
+        // destroying thread ever gets). true for the entire duration of each loop
+        // iteration's real work, false only while sleeping between iterations or
+        // after the loop has actually exited. Check this immediately after
+        // shutdown() returns, before actually freeing anything -- remove once the
+        // actual root cause of the LLEmbeddedBrowser::findTab() crash is confirmed.
+        bool isInsideRunLoop() const { return mInsideRunLoop.load(); }
+
     private:
         LLEmbeddedBrowser* mBrowser;
         unsigned int mBrowserId;
+        std::atomic<bool> mInsideRunLoop{false};
 };
 
 // All state for a single browser instance (one per floater or prim face
@@ -108,6 +122,20 @@ class LLEmbeddedBrowserTab
         // created in (see kRequestSlot's own comment in cefshm_protocol.h).
         LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI);
         ~LLEmbeddedBrowserTab();
+
+        // Stops this tab's own update thread, blocking until it has genuinely exited
+        // run() -- safe to call more than once (a no-op if already stopped). Exists
+        // as its own method, called explicitly by LLEmbeddedBrowser::destroy() before
+        // its own shared_ptr copy can possibly go out of scope, because relying solely
+        // on the destructor's own call to this isn't enough: a concurrent findTab()
+        // on this tab's own update thread can end up holding the very last reference,
+        // meaning the destructor -- and this same shutdown -- could otherwise run *on
+        // that update thread itself*, which then blocks waiting for itself to stop.
+        // Calling this first, from the thread that's actually dropping the map's own
+        // reference, guarantees the update thread has already exited by the time any
+        // shared_ptr copy's destructor can run, regardless of which one ends up being
+        // last.
+        void stopUpdateThread();
 
         void update();
         const unsigned char* getPixels();
@@ -299,6 +327,22 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // each tab its own thread and buffer.
         std::shared_ptr<LLEmbeddedBrowserTab> findTab(unsigned int id);
 
+        // Diagnostic only (added 2026-08-19 while chasing a crash inside LLMutex::
+        // lock(), reached via findTab() on a per-tab background update thread, under
+        // heavy concurrent-media load): a crash that specific means `this` (or
+        // something it points at) was invalid at the moment of the call, but static
+        // code reading alone couldn't confirm whether that's a genuine use-after-free/
+        // heap corruption or something else. A plain member read here can't be made
+        // any safer than the mutex lock itself was if `this` is fully unmapped -- but
+        // if the real cause is heap corruption or a stale pointer into a still-mapped,
+        // reused block (the more likely case on Windows' default heap, which doesn't
+        // unmap small freed blocks immediately), checking this turns a raw,
+        // uninformative access violation into a clear, actionable diagnosis instead.
+        // Remove once the actual root cause is confirmed and fixed.
+        static constexpr std::uint32_t kAliveCanary = 0x8bb1a91e;
+        static constexpr std::uint32_t kDeadCanary  = 0xdeadc0de;
+        std::uint32_t mAliveCanary = kAliveCanary;
+
         mutable LLMutex mTabsMutex;
         std::map<unsigned int, std::shared_ptr<LLEmbeddedBrowserTab>> mTabs;
         unsigned int mNextTabId = 0;
@@ -323,4 +367,11 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         std::shared_ptr<LLProcess> mProducerProcess;
         int mProducerRelaunchAttempts = 0;
         std::chrono::steady_clock::time_point mLastRelaunchAttempt;
+
+        // Brackets the other end of the object from mAliveCanary above -- diagnostic
+        // only, same removal note applies. A hit on this one but not the leading one
+        // (or vice versa) narrows a stray write to one side of the object; both
+        // hit together, or with very different values, suggests something broader
+        // (e.g. an oversized copy) rather than a single stray pointer-sized write.
+        std::uint32_t mTrailingCanary = kAliveCanary;
 };

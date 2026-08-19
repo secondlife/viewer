@@ -104,13 +104,31 @@ LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned 
     mUpdateThread->start();
 }
 
+void LLEmbeddedBrowserTab::stopUpdateThread()
+{
+    if (!mUpdateThread) return;
+
+    mUpdateThread->shutdown();
+
+    // Diagnostic only -- see isInsideRunLoop()'s own comment. If this ever fires,
+    // it proves shutdown() concluded the thread was done while its detached OS
+    // thread was still genuinely inside run()'s loop body. Confirmed to fire in
+    // practice (2026-08-19) for exactly the self-referential-destruction case
+    // LLEmbeddedBrowser::destroy()'s own call to this method now prevents --
+    // safe to remove once that fix has had a real soak test.
+    if (mUpdateThread->isInsideRunLoop())
+    {
+        LL_ERRS("EmbeddedBrowser") << "LLEmbeddedBrowserTab::stopUpdateThread(): "
+            "shutdown() returned but the update thread is still inside its run() loop "
+            "body -- this proves the thread-lifecycle race, not corrupted memory "
+            "contents after the fact." << LL_ENDL;
+    }
+}
+
 LLEmbeddedBrowserTab::~LLEmbeddedBrowserTab()
 {
-    if (mUpdateThread)
-    {
-        mUpdateThread->shutdown();
-        mUpdateThread.reset();
-    }
+    stopUpdateThread();
+    mUpdateThread.reset();
 
     {
         LLMutexLock lock(&mPixelMutex);
@@ -600,6 +618,8 @@ LLEmbeddedBrowser::LLEmbeddedBrowser()
 LLEmbeddedBrowser::~LLEmbeddedBrowser()
 {
     //std::cout << "LLEmbeddedBrowser destroyed" << std::endl;
+    mAliveCanary = kDeadCanary;
+    mTrailingCanary = kDeadCanary;
 }
 
 void LLEmbeddedBrowser::init()
@@ -653,7 +673,18 @@ void LLEmbeddedBrowser::reset()
         LLMutexLock lock(&mTabsMutex);
         tabs.swap(mTabs);
     }
-    // tabs' destructors run here, unlocked.
+
+    // Same reasoning as destroy()'s own call to this: stop every update thread
+    // explicitly, here, before any of these shared_ptr copies can go out of
+    // scope below -- a concurrent findTab() on one of these tabs' own update
+    // threads could otherwise end up holding the last reference to it, running
+    // that tab's destructor (and its own shutdown() call) on its own thread.
+    for (auto& [id, tab] : tabs)
+    {
+        if (tab) tab->stopUpdateThread();
+    }
+    // tabs' destructors run here, unlocked -- safe now regardless of which
+    // thread ends up holding each one's last reference.
 }
 
 bool LLEmbeddedBrowser::launchProducer()
@@ -757,6 +788,17 @@ void LLEmbeddedBrowser::resetRelaunchAttempts()
 
 std::shared_ptr<LLEmbeddedBrowserTab> LLEmbeddedBrowser::findTab(unsigned int id)
 {
+    if (mAliveCanary != kAliveCanary || mTrailingCanary != kAliveCanary)
+    {
+        LL_ERRS("EmbeddedBrowser") << "LLEmbeddedBrowser::findTab(" << id << ") called on a singleton whose "
+            "memory doesn't match what its own constructor left it as (leading canary = 0x"
+            << std::hex << mAliveCanary << (mAliveCanary == kDeadCanary ? " [destructed]" : "")
+            << ", trailing canary = 0x" << mTrailingCanary << (mTrailingCanary == kDeadCanary ? " [destructed]" : "")
+            << ", expected 0x" << kAliveCanary << " for both" << std::dec
+            << ") -- this points at heap corruption or a stale/dangling pointer, not a logic bug in this "
+            "function itself." << LL_ENDL;
+    }
+
     LLMutexLock lock(&mTabsMutex);
     auto it = mTabs.find(id);
     return (it != mTabs.end()) ? it->second : nullptr;
@@ -826,7 +868,29 @@ void LLEmbeddedBrowser::destroy(unsigned int id)
             mTabs.erase(it);
         }
     }
-    // tab's destructor (if this was the last reference) runs here, unlocked.
+
+    if (tab)
+    {
+        // Stop this tab's own update thread here, explicitly, on the calling
+        // (main) thread, BEFORE letting our local `tab` shared_ptr go out of
+        // scope below. This is not redundant with ~LLEmbeddedBrowserTab()'s own
+        // shutdown() call: findTab() (called from that same background thread's
+        // own LLEmbeddedBrowser::update(id)) can race this erase() above and end
+        // up holding the very last reference to this tab -- meaning the tab's
+        // destructor, and the shutdown() call inside it, can otherwise run *on
+        // that tab's own update thread*, which then blocks waiting for itself to
+        // stop and eventually self-terminates via LLThread::shutdown()'s 60s
+        // force-kill fallback, corrupting the process heap on the way out (this
+        // is the actual, confirmed cause of a run of hard-to-diagnose crashes --
+        // see LLEmbeddedBrowserUpdateThread::isInsideRunLoop()'s own comment).
+        // Stopping the thread here first guarantees it has already, genuinely
+        // exited run() by the time anyone's shared_ptr copy can possibly trigger
+        // the destructor, regardless of which thread ends up holding that last
+        // reference.
+        tab->stopUpdateThread();
+    }
+    // tab's destructor (if this was the last reference) runs here, unlocked --
+    // safe now no matter which thread it happens to run on.
 }
 
 void LLEmbeddedBrowser::resize(unsigned int id, unsigned int width, unsigned int height)
@@ -1026,6 +1090,8 @@ void LLEmbeddedBrowserUpdateThread::run()
 
     while (! isQuitting())
     {
+        mInsideRunLoop.store(true);
+
         mBrowser->update(mBrowserId);
 
         unsigned long long pixels = (unsigned long long)mBrowser->getWidth(mBrowserId) * (unsigned long long)mBrowser->getHeight(mBrowserId);
@@ -1036,6 +1102,8 @@ void LLEmbeddedBrowserUpdateThread::run()
             unsigned long long computed_fps = llclamp(budget_pixels_per_sec / pixels, (unsigned long long)min_fps, (unsigned long long)max_fps);
             fps = (unsigned int)computed_fps;
         }
+
+        mInsideRunLoop.store(false);
 
         ms_sleep(1000 / fps);
     }
