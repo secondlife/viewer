@@ -170,6 +170,15 @@ static LLViewerMedia::impl_list sViewerMediaImplList;
 static LLViewerMedia::impl_id_map sViewerMediaTextureIDMap;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
+
+// How long to wait, after an embedded-browser tab reports ProducerDisconnected,
+// before actually treating it as a real outage and alerting the user (see
+// LLViewerMediaImpl::updateEmbeddedBrowserEvents()). A brief disconnect that
+// reconnects on its own within this window (e.g. the producer wrongly
+// concluding this tab's own background thread had crashed under heavy system
+// load, when it was merely starved for a moment) is treated as if it never
+// happened, matching what actually occurred from the user's point of view.
+static const F32 EMBEDDED_BROWSER_DISCONNECT_GRACE_PERIOD = 2.0f;
 static F32 sGlobalVolume = 1.0f;
 static bool sForceUpdate = false;
 static LLUUID sOnlyAudibleTextureID = LLUUID::null;
@@ -3803,35 +3812,49 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                 break;
 
             case LLEmbeddedBrowserEventType::ProducerDisconnected:
-                // Mirrors this class's own MEDIA_EVENT_PLUGIN_FAILED handling further below
-                // (mMediaSourceFailed/resetPreviousMediaState), except that one's own
-                // notification is deliberately left disabled (see the "getting called every
-                // frame" comment there) because that path can re-fire every frame while the
-                // plugin is stuck failing to load. This one is safe to actually show: popEvent()
-                // only ever delivers it once per outage (see mHadDisconnected in
-                // LLEmbeddedBrowserTab::update()/connectToProducer()), not once per retry.
-                mMediaSourceFailed = true;
-                resetPreviousMediaState();
-                {
-                    // Not LLMIMETypes::implType(mCurrentMimeType) here -- that maps to
-                    // "media_plugin_cef", which names the legacy plugin backend's DLL and
-                    // is actively wrong for this backend: there's no such plugin process
-                    // behind an embedded-browser failure, just a dead cefshm_producer.
-                    LLSD args;
-                    args["REASON"] = "Media Provider failed";
-                    LLNotificationsUtil::add("EmbeddedBrowserFailed", args);
-                }
-                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_PLUGIN_FAILED);
+                // Don't act (or alert) immediately -- see
+                // EMBEDDED_BROWSER_DISCONNECT_GRACE_PERIOD's own comment. Only becomes a
+                // real MEDIA_EVENT_PLUGIN_FAILED/alert if the grace-period check below
+                // still finds us disconnected once it expires.
+                mEmbeddedDisconnectPending = true;
+                mEmbeddedDisconnectTimer.setTimerExpirySec(EMBEDDED_BROWSER_DISCONNECT_GRACE_PERIOD);
                 break;
 
             case LLEmbeddedBrowserEventType::ProducerReconnected:
                 // connectToProducer() already re-sent the last URL, so a fresh LoadStart/
                 // LoadEnd pair (and the usual NAVIGATE_BEGIN/COMPLETE they drive) is on its way
                 // through the normal event path once the page reloads -- nothing else to redo
-                // here beyond letting this media be considered live again.
+                // here beyond letting this media be considered live again. Also cancels any
+                // still-pending disconnect from the grace-period check below, so a disconnect
+                // that reconnected within the window never turns into an alert at all.
+                mEmbeddedDisconnectPending = false;
                 mMediaSourceFailed = false;
                 break;
         }
+    }
+
+    if (mEmbeddedDisconnectPending && mEmbeddedDisconnectTimer.hasExpired())
+    {
+        // Mirrors this class's own MEDIA_EVENT_PLUGIN_FAILED handling further below
+        // (mMediaSourceFailed/resetPreviousMediaState), except that one's own
+        // notification is deliberately left disabled (see the "getting called every
+        // frame" comment there) because that path can re-fire every frame while the
+        // plugin is stuck failing to load. This one is safe to actually show: it only
+        // fires once per outage, right here, when the grace period elapses without a
+        // ProducerReconnected having cancelled it above.
+        mEmbeddedDisconnectPending = false;
+        mMediaSourceFailed = true;
+        resetPreviousMediaState();
+        {
+            // Not LLMIMETypes::implType(mCurrentMimeType) here -- that maps to
+            // "media_plugin_cef", which names the legacy plugin backend's DLL and
+            // is actively wrong for this backend: there's no such plugin process
+            // behind an embedded-browser failure, just a dead cefshm_producer.
+            LLSD args;
+            args["REASON"] = "Media Provider failed";
+            LLNotificationsUtil::add("EmbeddedBrowserFailed", args);
+        }
+        emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_PLUGIN_FAILED);
     }
 }
 

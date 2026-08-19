@@ -38,6 +38,7 @@
 #include "llpluginclassmedia.h"
 #include "v4color.h"
 #include "llnotificationptr.h"
+#include "lltimer.h"
 
 #include "llurl.h"
 #include "lleventcoro.h"
@@ -566,6 +567,10 @@ private:
     bool mNavigateRediscoverType;
     bool mNavigateServerRequest;
     bool mMediaSourceFailed;
+    // Debounces LLEmbeddedBrowserEventType::ProducerDisconnected -- see
+    // EMBEDDED_BROWSER_DISCONNECT_GRACE_PERIOD's own comment in llviewermedia.cpp.
+    bool mEmbeddedDisconnectPending = false;
+    LLTimer mEmbeddedDisconnectTimer;
     F32 mRequestedVolume;
     F32 mPreviousVolume;
     bool mIsMuted;
