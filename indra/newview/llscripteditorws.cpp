@@ -1542,13 +1542,48 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
     if (!cb_result["compiled"].asBoolean() && cb_result.has("errors"))
     {
         response["diagnostics"] = LLSD::emptyArray();
+
+        const bool is_lua =
+            compile_target == "luau" ||
+            compile_target == "lsl-luau";
+
         for (const auto& error : llsd::inArray(cb_result["errors"]))
         {
+            boost::smatch match;
             LLSD diagnostic;
-            diagnostic["row"] = 0;
-            diagnostic["column"] = 0;
             diagnostic["level"] = "ERROR";
-            diagnostic["message"] = error.asString();
+
+            if (is_lua &&
+                boost::regex_match(
+                    error.asString(),
+                    match,
+                    LUAU_LOCATION_PATTERN))
+            {
+                diagnostic["row"] = std::stoi(match[2].str());
+                diagnostic["column"] = 0;
+                diagnostic["message"] = match[3].str();
+            }
+            else if (!is_lua &&
+                     boost::regex_match(
+                         error.asString(),
+                         match,
+                         LSL_LOCATION_PATTERN))
+            {
+                diagnostic["row"] =
+                    std::stoi(match[1].str()) + 1;
+                diagnostic["column"] =
+                    std::stoi(match[2].str()) + 1;
+                diagnostic["level"] = match[3].str();
+                diagnostic["message"] = match[4].str();
+                diagnostic["format"] = "lsl";
+            }
+            else
+            {
+                diagnostic["row"] = 0;
+                diagnostic["column"] = 0;
+                diagnostic["message"] = error.asString();
+            }
+
             response["diagnostics"].append(diagnostic);
         }
     }
@@ -2043,7 +2078,6 @@ void LLScriptEditorWSServer::sendRuntimeEvent(
     }
 
     LLSD message;
-    message["script_id"] = script_id;
     message["object_id"] = event.mRootID;
     message["prim_id"] = event.mPrimID;
     message["item_id"] = event.mItemID;
