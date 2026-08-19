@@ -46,4 +46,17 @@
    height="16">
     secondlife:///app/floaterjoin/close
   </text>
+  <!-- TODO: remove when actual Join page URL is set -->
+  <text
+   follows="left|bottom"
+   name="test_join_link"
+   parse_urls="true"
+   font="SansSerifSmall"
+   text_color="White"
+   left="4"
+   top="748"
+   width="430"
+   height="16">
+    secondlife:///app/floaterjoin/join/testuser/testpassword
+  </text>
 </floater>

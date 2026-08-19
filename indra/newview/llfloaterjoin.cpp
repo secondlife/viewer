@@ -31,6 +31,7 @@
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"
 #include "llmediactrl.h"
+#include "llpanellogin.h"
 #include "llui.h"
 #include "llviewercontrol.h"
 
@@ -47,8 +48,16 @@ public:
         if (params.size() < 1)
             return false;
 
-        if (params[0].asString() == "close")
+        const std::string action = params[0].asString();
+
+        if (action == "close")
         {
+            LLFloaterReg::hideInstance("join");
+        }
+        else if (action == "join" && params.size() >= 3)
+        {
+            LLPanelLogin::setCredentialFields(LLURI::unescape(params[1].asString()),
+                                              LLURI::unescape(params[2].asString()));
             LLFloaterReg::hideInstance("join");
         }
 
@@ -94,4 +103,6 @@ void LLFloaterJoin::onOpen(const LLSD& key)
     {
         mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
     }
+
+    centerOnScreen();
 }
