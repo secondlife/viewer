@@ -1429,6 +1429,8 @@ void requestList(const CapabilityContext& context, U32 epoch)
     // passes strict validation. A pending outbound hint remains visible across the
     // HTTP suspension and is consumed by processList rather than this request latch.
     const HttpResult response = request(context.list_url, NULL);
+    LL_INFOS("ChatServiceHistory")
+        << "Conversation-list response: status=" << response.status << LL_ENDL;
     if (!ownsRuntime(epoch) || sampleContext() != context || sRuntime.delete_requested ||
         !baseNetworkEligible(context))
     {
@@ -1610,6 +1612,9 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         }
 
         const HttpResult response = request(context.history_url, &post);
+        LL_INFOS("ChatServiceHistory")
+            << "History response: resident_id=" << id << ", status=" << response.status
+            << ", cursor=" << (cursor.empty() ? "head" : "continuation") << LL_ENDL;
         Page page;
         found = sRuntime.residents.find(id);
         if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
@@ -1853,6 +1858,10 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
             {
                 return publishRows(path, staged, append, resulting);
             });
+        LL_INFOS("ChatServiceHistory")
+            << "Archive publication: resident_id=" << id << ", rows=" << staged.size()
+            << ", mode=" << (append ? "append" : "replace")
+            << ", success=" << changed << LL_ENDL;
 
         found = sRuntime.residents.find(id);
         if (!ownsRuntime(epoch) || sRuntime.account_dir != account_dir ||
@@ -2481,6 +2490,20 @@ void manager(U32 epoch)
         // Discovery precedes resident paging; the queue itself preserves open,
         // inbound, and due outbound priority without creating a second worker.
         const bool base_network = baseNetworkEligible(context);
+        LLMuteList* mute = LLMuteList::getInstance();
+        // Once all external inputs are available, record why synchronization stayed gated.
+        if (!base_network && context.complete() && mute && mute->isLoaded())
+        {
+            LL_INFOS_ONCE("ChatServiceHistory")
+                << "Network sync blocked: rollout=" << sRuntime.rollout
+                << ", consent=" << transcriptConsent()
+                << ", state_safe=" << (sRuntime.state_safety == STATE_SAFE)
+                << ", cleanup_pending=" << sRuntime.cleanup_pending
+                << ", delete_requested=" << sRuntime.delete_requested
+                << ", mute_source=" << mute->getLoadSourceName()
+                << ", mute_authoritative=" << mute->isLoadedFromServer()
+                << LL_ENDL;
+        }
         if (base_network)
         {
             if (F64(LLTimer::getTotalSeconds()) >= sRuntime.next_list)

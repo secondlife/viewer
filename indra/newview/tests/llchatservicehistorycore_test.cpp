@@ -8,9 +8,31 @@
  * $/LicenseInfo$
  */
 #include "linden_common.h"
+#include "llsingleton.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "../llchatservicehistorycore.h"
+#include "../llmutelist.h"
+
+struct LLMuteListTestAccess
+{
+    static bool server()
+    {
+        return LLMuteList::isServerAuthoritativeSource(LLMuteList::MLS_SERVER);
+    }
+    static bool serverEmpty()
+    {
+        return LLMuteList::isServerAuthoritativeSource(LLMuteList::MLS_SERVER_EMPTY);
+    }
+    static bool serverCache()
+    {
+        return LLMuteList::isServerAuthoritativeSource(LLMuteList::MLS_SERVER_CACHE);
+    }
+    static bool fallbackCache()
+    {
+        return LLMuteList::isServerAuthoritativeSource(LLMuteList::MLS_FALLBACK_CACHE);
+    }
+};
 
 namespace tut
 {
@@ -244,5 +266,17 @@ template<> template<> void object_t::test<11>()
     ensure("complete malformed row rejected", !scanArchive(
         file.getPath().string(), AGENT, RESIDENT, 0, 0, scan));
     ensure_equals("corrupt distinguished", scan.state, ARCHIVE_CORRUPT);
+}
+
+template<> template<> void object_t::test<12>()
+{
+    // A full server response on the first login and a server-validated cache on
+    // the next login must satisfy the same ChatService network prerequisite.
+    ensure("full server response is authoritative", LLMuteListTestAccess::server());
+    ensure("empty server response is authoritative", LLMuteListTestAccess::serverEmpty());
+    ensure("warm-cache relog remains authoritative", LLMuteListTestAccess::serverCache());
+
+    // A timeout fallback has not been validated by the server and remains closed.
+    ensure("fallback cache remains degraded", !LLMuteListTestAccess::fallbackCache());
 }
 }
