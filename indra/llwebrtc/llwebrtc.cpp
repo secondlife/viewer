@@ -410,8 +410,27 @@ bool LLWebRTCImpl::terminate()
     std::vector<webrtc::scoped_refptr<LLWebRTCPeerConnectionImpl>> connections;
     connections.swap(mPeerConnections);
 
+    // Explicitely unregister observers before shutting down the threads.
+    // shutdown_thread, if detached, can outlive observer.
+    mWorkerThread->BlockingCall([this]()
+    {
+        if (mDeviceModule)
+        {
+            mDeviceModule->SetObserver(nullptr);
+        }
+    });
+    mVoiceDevicesObserverList.clear();
+
+    // shutdown_thread can be detached, then LLWebRTCImpl will be nulled out.
+    // Capture what's needed in lambda, don't rely on [this].
     std::thread shutdown_thread(
-        [this, connections = std::move(connections), done_promise]() mutable
+        [networkThread = std::move(mNetworkThread),
+        workerThread = std::move(mWorkerThread),
+        signalingThread = std::move(mSignalingThread),
+        deviceModule = std::move(mDeviceModule),
+        factory = std::move(mPeerConnectionFactory),
+        connections = std::move(connections),
+        done_promise]() mutable
     {
         // Stop the capture/render devices alongside the connection teardown
         // below rather than ahead of it.  Both of these calls end in a
@@ -433,13 +452,13 @@ bool LLWebRTCImpl::terminate()
         // of this lambda can't run until this task has finished.  Any
         // worker-thread work the signaling close does is likewise ordered
         // after it, so nothing sees the device module half torn down.
-        mWorkerThread->PostTask(
-            [this]()
+        workerThread->PostTask(
+            [&deviceModule]()
         {
-            if (mDeviceModule)
+            if (deviceModule)
             {
-                mDeviceModule->ForceStopRecording();
-                mDeviceModule->StopPlayout();
+                deviceModule->ForceStopRecording();
+                deviceModule->StopPlayout();
             }
         });
 
@@ -454,7 +473,7 @@ bool LLWebRTCImpl::terminate()
         // callback inline, and that callback calls back into the viewer's
         // signaling observers.  Those observers are only valid until
         // llwebrtc::terminate() returns.
-        mSignalingThread->BlockingCall(
+        signalingThread->BlockingCall(
             [&connections]()
             {
                 for (auto& connection : connections)
@@ -467,21 +486,28 @@ bool LLWebRTCImpl::terminate()
             });
 
         // Drain anything the closes posted before dropping the factory.
-        mSignalingThread->BlockingCall([]() {});
+        signalingThread->BlockingCall([]() {});
 
-        mSignalingThread->BlockingCall([this]() {
-            mPeerConnectionFactory = nullptr;
+        signalingThread->BlockingCall([&factory]() {
+            factory = nullptr;
         });
 
-        mWorkerThread->BlockingCall(
-            [this]()
+        workerThread->BlockingCall(
+            [&deviceModule]()
         {
-            if (mDeviceModule)
+            if (deviceModule)
             {
-                mDeviceModule->ForceTerminate();
+                deviceModule->ForceTerminate();
             }
-            mDeviceModule = nullptr;
+            deviceModule = nullptr;
         });
+
+        // Explicitly clean WebRTC threads in dependency order before signalling completion.
+        // The connections were closed and destroyed on the signaling thread, so it's safe
+        // to clean.
+        signalingThread.reset();
+        workerThread.reset();
+        networkThread.reset();
 
         done_promise->set_value();
     });
@@ -514,12 +540,6 @@ bool LLWebRTCImpl::terminate()
     }
 
     shutdown_thread.join();
-
-    // The connections were closed and destroyed on the signaling thread before
-    // the shutdown thread finished, so it's safe to drop the threads now.
-    mNetworkThread = nullptr;
-    mWorkerThread = nullptr;
-    mSignalingThread = nullptr;
 
     webrtc::LogMessage::RemoveLogToStream(mLogSink);
     return true;
