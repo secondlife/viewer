@@ -313,7 +313,18 @@ bool LLDirPicker::getDirModeless(std::string* filename,
     void (*callback)(bool, std::string&, void*),
     void* userdata)
 {
-    return false;
+    struct Bridge {
+        void (*cb)(bool, std::string&, void*);
+        void* ud;
+    };
+    Bridge* bridge = new Bridge{callback, userdata};
+    auto vectorCb = [](bool success, std::vector<std::string>& files, void* data) {
+        Bridge* b = static_cast<Bridge*>(data);
+        std::string path = (!files.empty()) ? files[0] : std::string();
+        b->cb(success && !path.empty(), path, b->ud);
+        delete b;
+    };
+    return mFilePicker->getOpenFileModeless(LLFilePicker::FFLOAD_DIRECTORY, vectorCb, bridge);
 }
 
 std::string LLDirPicker::getDirName()
@@ -413,7 +424,7 @@ std::queue<LLDirPickerThread*> LLDirPickerThread::sDeadQ;
 
 void LLDirPickerThread::getFile()
 {
-#if LL_SDL_WINDOW
+#if LL_SDL_WINDOW || LL_DARWIN
     runModeless();
 #elif LL_WINDOWS
     start();

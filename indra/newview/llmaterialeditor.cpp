@@ -2029,7 +2029,8 @@ void LLMaterialEditor::uploadMaterialFromModel(
     const std::string& filename,
     tinygltf::Model& model_in,
     S32 index,
-    const LLUUID& dest)
+    const LLUUID& dest,
+    const LLUUID& texture_dest)
 {
     if (index < 0 || !LLMaterialEditor::capabilitiesAvailable())
     {
@@ -2052,11 +2053,12 @@ void LLMaterialEditor::uploadMaterialFromModel(
     // This uses 'filename' to make sure multiple bulk uploads work
     // instead of fighting for a single instance.
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD().with("filename", filename).with("index", LLSD::Integer(index)));
+    if (!me) return;
     me->mUploadFolder = dest;
+    me->mTextureUploadFolder = texture_dest;
     me->loadMaterial(model_in, filename, index, false);
     me->saveIfNeeded();
 }
-
 
 void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 index, const LLUUID& dest_folder)
 {
@@ -3702,7 +3704,7 @@ void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, con
         LLFloaterPerms::getGroupPerms("Uploads"),
         LLFloaterPerms::getEveryonePerms("Uploads"),
         expected_upload_cost,
-        mUploadFolder,
+        mTextureUploadFolder.notNull() ? mTextureUploadFolder : mUploadFolder,
         false,
         cb,
         failed_upload));

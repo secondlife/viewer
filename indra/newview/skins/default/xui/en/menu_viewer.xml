@@ -1786,17 +1786,30 @@ function="World.EnvPreset"
             <menu_item_call.on_enable
              function="File.EnableUploadMaterial" />
           </menu_item_call>
-	   <menu_item_call
-             label="Bulk..."
+           <menu
+             label="Bulk"
              layout="topleft"
-             name="Bulk Upload">
+             name="Bulk Upload &gt;">
+              <menu_item_call
+               label="Files..."
+               layout="topleft"
+               name="Bulk Upload Files">
                 <menu_item_call.on_visible
                  function="Upload.CalculateCosts"
                  parameter="Bulk Upload,texture" />
                 <menu_item_call.on_click
                  function="File.UploadBulk"
                  parameter="" />
-            </menu_item_call>
+              </menu_item_call>
+              <menu_item_call
+               label="Folder..."
+               layout="topleft"
+               name="Bulk Upload Folder">
+                <menu_item_call.on_click
+                 function="File.UploadBulkFolder"
+                 parameter="" />
+              </menu_item_call>
+            </menu>
         </menu>
 
       <menu_item_separator/>

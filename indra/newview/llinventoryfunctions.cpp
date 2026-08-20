@@ -3878,6 +3878,10 @@ void LLInventoryAction::fileUploadLocation(const LLUUID& dest_id, const std::str
     {
         LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true, dest_id), LLFilePicker::FFLOAD_ALL, true);
     }
+    else if (action == "upload_bulk_folder")
+    {
+        (new LLDirPickerThread(boost::bind(&start_bulk_folder_upload_after_pick, _1, _2, dest_id), ""))->getFile();
+    }
 }
 
 bool LLInventoryAction::isFileUploadLocation(const LLUUID& dest_id, const std::string& action)
