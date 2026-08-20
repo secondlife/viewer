@@ -46,6 +46,8 @@ namespace
     const std::string SYNTAX_ID_SIMULATOR_FEATURE = "LSLSyntaxId";
     const std::string FILENAME_INTERNAL_LSL        = "lsl_keywords.xml";
     const std::string FILENAME_INTERNAL_LUA        = "lua_keywords.xml";
+    const std::string FILENAME_DEFAULT_LSL         = "keywords_lsl_default.xml";
+    const std::string FILENAME_DEFAULT_LUA         = "keywords_lua_default.xml";
 
     constexpr U32     LLSD_SYNTAX_LSL_VERSION_EXPECTED = 2;
     const std::string LLSD_SYNTAX_LSL_VERSION_KEY("llsd-lsl-syntax-version");
@@ -285,7 +287,10 @@ void LLSyntaxDefCache::fetchKeywordsDefsCoro(std::string url, LLUUID syntax_id)
     // Now we need to walk through the returned LLSD.  It consists of a map keyed on the file name containing a binary
     // blob of the actual file contents.
     LLSD files = result["files"];
-    LLSD memcached_keywords;
+    // A region may omit definitions for languages it does not support. Keep
+    // the defaults/current definitions for any omitted file.
+    LLSD lsl_keywords = mLSLKeywords;
+    LLSD lua_keywords = mLuaKeywords;
     if (files.isMap())
     {
         std::string path = buildCacheDirectoryName(syntax_id);
@@ -306,9 +311,13 @@ void LLSyntaxDefCache::fetchKeywordsDefsCoro(std::string url, LLUUID syntax_id)
         {
             std::string full_path = gDirUtilp->add(path, filename);
 
-            if (MEMCACHED_LLSD.find(filename) != MEMCACHED_LLSD.end())
-            {   // Maintain some keyword LLSDs internally, LSL and Lua
-                memcached_keywords[filename] = contents;
+            if (filename == FILENAME_INTERNAL_LSL)
+            {
+                lsl_keywords = contents;
+            }
+            else if (filename == FILENAME_INTERNAL_LUA)
+            {
+                lua_keywords = contents;
             }
 
             if (writeCacheFile(full_path, contents))
@@ -324,7 +333,7 @@ void LLSyntaxDefCache::fetchKeywordsDefsCoro(std::string url, LLUUID syntax_id)
 
     result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
 
-    setKeywords(memcached_keywords[FILENAME_INTERNAL_LSL], memcached_keywords[FILENAME_INTERNAL_LUA]);
+    setKeywords(lsl_keywords, lua_keywords);
     LLAppViewer::instance()->postToMainCoro(
         [this]()
         {
@@ -345,6 +354,13 @@ void LLSyntaxDefCache::buildCachePaths(const LLUUID &syntax_id)
     else
     {
         mFileCachePaths.clear();
+        mFileCachePaths.addNamePath(
+            FILENAME_INTERNAL_LSL,
+            gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, FILENAME_DEFAULT_LSL));
+        mFileCachePaths.addNamePath(
+            FILENAME_INTERNAL_LUA,
+            gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, FILENAME_DEFAULT_LUA));
+        return;
     }
 
     std::string cache_dir = buildCacheDirectoryName(syntax_id);
