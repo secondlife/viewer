@@ -699,7 +699,7 @@ bool LLEmbeddedBrowser::launchProducer()
     LLProcess::Params params;
     params.executable = exe_path;
     params.cwd        = gDirUtilp->getLLPluginDir(); // SLCefProducer.exe's own directory -- see getSLCefProducerLauncher()
-    if (gSavedSettings.getBOOL("CefProducerShowConsole"))
+    if (gSavedSettings.getBOOL("EmbeddedBrowserProducerConsole"))
     {
         params.args.add("--console");
     }
