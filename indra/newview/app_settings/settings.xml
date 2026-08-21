@@ -6580,7 +6580,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>8</integer>
+      <integer>12</integer>
     </map>
 
    <key>PluginUseReadThread</key>

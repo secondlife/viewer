@@ -623,7 +623,26 @@ bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLView
     }
     else if(i1->getInterest() == i2->getInterest())
     {
-        // Generally this will mean both objects have zero interest.  In this case, sort on distance.
+        // Generally this will mean both objects have zero interest -- exactly
+        // the situation right after a region change, when a whole crowd of
+        // stale (not-yet-culled) impls from the old region and freshly-
+        // noticed impls from the new one are all tied at zero. Sorting that
+        // tie purely on distance treats an embedded-browser tab that's
+        // already mid-load as fully interchangeable with one that hasn't
+        // started at all -- the "closest N" rotation kept reshuffling which
+        // 8ish candidates counted as loadable every time distances shifted
+        // slightly, bumping a tab out before its page ever finished
+        // rendering even with setPriority()'s own debounce in place (that
+        // debounce only delays a *specific* impl's own destruction, it can't
+        // stop a *different* impl from winning its slot instead). Prefer
+        // whichever side already holds a live embedded-browser resource, so
+        // a tab that's already loading keeps its slot instead of losing it
+        // to a same-interest rival that hasn't even started -- only fall
+        // through to distance when neither (or both) already has one.
+        if (i1->getUseEmbeddedBrowser() != i2->getUseEmbeddedBrowser())
+        {
+            return i1->getUseEmbeddedBrowser();
+        }
         return (i1->getProximityDistance() < i2->getProximityDistance());
     }
     else
@@ -666,6 +685,12 @@ static bool wouldUnloadEmbeddedBrowserMedia(LLPluginClassMedia::EPriority priori
     return (priority == LLPluginClassMedia::PRIORITY_SLIDESHOW) ||
            (priority == LLPluginClassMedia::PRIORITY_HIDDEN && gViewerWindow && gViewerWindow->getActive());
 }
+
+// How long an embedded-browser impl must continuously stay unload-worthy
+// (see wouldUnloadEmbeddedBrowserMedia()) before setPriority() actually
+// destroys its CEF tab -- see mEmbeddedBrowserUnloadPending's own comment
+// for why this needs to be debounced rather than instant.
+static const F32 EMBEDDED_BROWSER_UNLOAD_GRACE_PERIOD = 3.0f;
 
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SPARE_IDLE("Spare Idle");
@@ -1888,6 +1913,11 @@ void LLViewerMediaImpl::destroyMediaSource()
         // "already muted" record doesn't suppress the first setMuted() call a
         // future createMediaSource() actually needs (see updateVolume()).
         mEmbeddedBrowserMuted = false;
+        // A freshly created tab has no pending-unload grace period running
+        // yet either -- clear this so a stale timer from a previous life
+        // doesn't cause an immediate destroy the moment this new tab's own
+        // priority first dips, before it ever gets its own fair grace period.
+        mEmbeddedBrowserUnloadPending = false;
         return;
     }
 
@@ -4580,57 +4610,75 @@ void LLViewerMediaImpl::setPriority(LLPluginClassMedia::EPriority priority)
 
     mPriority = priority;
 
-    if(priority == LLPluginClassMedia::PRIORITY_UNLOADED)
+    // Non-UI, non-parcel embedded-browser media is where the "closest N"
+    // churn actually happens (a region's ordinary prim media), so it's the
+    // only case that needs debouncing below -- see mEmbeddedBrowserUnloadPending's
+    // own comment. UI and parcel media keep the plain, immediate handling
+    // further down (they aren't part of that churn).
+    const bool is_debounced_embedded_browser = mUseEmbeddedBrowser && !mUsedInUI && !mIsParcelMedia;
+
+    // A debounced embedded-browser impl must react the same way to EITHER
+    // route that says "don't keep this loaded": literal PRIORITY_UNLOADED
+    // (the hard PluginInstancesTotal cap below, or muted/failed) or
+    // PRIORITY_SLIDESHOW/HIDDEN (lost the "closest N" cut -- see
+    // wouldUnloadEmbeddedBrowserMedia()'s own comment). These used to be two
+    // separate branches, and only the second was debounced -- but
+    // LLViewerMedia::updateMedia()'s cap-accounting fix excludes an already-
+    // SLIDESHOW impl from impl_count_total, which lets other candidates fill
+    // the cap and can then push that same impl into literal UNLOADED on a
+    // later frame, silently bypassing the debounce meant to protect it.
+    // Unifying both routes into one check closes that hole.
+    if (is_debounced_embedded_browser &&
+        ((priority == LLPluginClassMedia::PRIORITY_UNLOADED) || wouldUnloadEmbeddedBrowserMedia(priority)))
     {
-        if(mMediaSource)
+        // Debounced, not instant: right after a region change, many impls'
+        // interest values are still settling, and a freshly-created tab can
+        // flicker across the loadable/not-loadable boundary for a frame or
+        // two purely from sort-order noise among many competing candidates.
+        // Reacting to a single frame's demotion tore the tab down before its
+        // page ever finished rendering -- restarting it from scratch on
+        // every flicker, which is what actually made a region transition
+        // look like it took forever to load anything. Require the demotion
+        // to hold for a short, continuous grace period before actually
+        // destroying it; recovering back to a loadable priority before then
+        // cancels the pending unload with no destroy at all.
+        if (!mEmbeddedBrowserUnloadPending)
         {
-            // Need to unload the media source
-
-            // First, save off previous media state
-            mPreviousMediaState = mMediaSource->getStatus();
-            mPreviousMediaTime = mMediaSource->getCurrentTime();
-
-            destroyMediaSource();
+            mEmbeddedBrowserUnloadPending = true;
+            mEmbeddedBrowserUnloadTimer.reset();
         }
-        else if (mUseEmbeddedBrowser)
+        else if (mEmbeddedBrowserUnloadTimer.getElapsedTimeF32() >= EMBEDDED_BROWSER_UNLOAD_GRACE_PERIOD)
         {
-            // Embedded-browser media has no play/pause state to preserve across a
-            // reload, but still needs tearing down here just the same -- without
-            // this, an out-of-view/low-priority embedded-browser media instance
-            // was never actually unloaded: its LLEmbeddedBrowserTab (pixel buffer,
-            // GL texture, and the producer-side CEF browser/shm slot it holds)
-            // stayed alive for the rest of the session regardless of priority,
-            // leaking one of only 32 concurrent producer slots and a chunk of
-            // memory per instance ever encountered -- exactly what a region with
-            // many media sources would run into over time.
             destroyMediaSource();
         }
     }
-    else if (mUseEmbeddedBrowser && !mUsedInUI && !mIsParcelMedia)
+    else
     {
-        // The legacy plugin backend can genuinely throttle itself at HIDDEN/LOW/
-        // SLIDESHOW (telling the real plugin process to slow its own frame rate),
-        // so leaving it running at those tiers is cheap. Embedded-browser has no
-        // equivalent -- a CEF tab runs at full cost regardless of priority until
-        // it's actually torn down -- so for this backend, anything that didn't
-        // make the "closest N" cut (PRIORITY_SLIDESHOW, assigned once both
-        // PluginInstancesNormal and PluginInstancesLow are full) gets unloaded
-        // outright rather than left running indefinitely at full cost while
-        // marked down. PRIORITY_LOW itself is left alone -- it's part of that
-        // same "closest N" tier (N = normal + low), not the overflow.
-        //
-        // PRIORITY_HIDDEN is handled separately from SLIDESHOW: it's also what
-        // every impl gets forced to when the whole Viewer window is minimized
-        // (see the override further up in LLViewerMedia::updateMedia()), which
-        // is a temporary, whole-app condition that must NOT unload every open
-        // floater's media -- checking gViewerWindow->getActive() distinguishes
-        // "this specific media has zero interest right now" (out of view/range,
-        // e.g. having just left a region or parcel) from "the whole app is
-        // merely minimized".
-        bool should_unload = wouldUnloadEmbeddedBrowserMedia(priority);
-        if (should_unload)
+        if (is_debounced_embedded_browser)
         {
-            destroyMediaSource();
+            mEmbeddedBrowserUnloadPending = false;
+        }
+
+        if(priority == LLPluginClassMedia::PRIORITY_UNLOADED)
+        {
+            if(mMediaSource)
+            {
+                // Need to unload the media source
+
+                // First, save off previous media state
+                mPreviousMediaState = mMediaSource->getStatus();
+                mPreviousMediaTime = mMediaSource->getCurrentTime();
+
+                destroyMediaSource();
+            }
+            else if (mUseEmbeddedBrowser)
+            {
+                // Only UI/parcel embedded-browser media reaches here (the debounced
+                // case above handles everything else) -- unconditional, matching
+                // the legacy branch just above: neither is part of the "closest N"
+                // churn this file is otherwise debouncing against.
+                destroyMediaSource();
+            }
         }
     }
 

@@ -518,6 +518,17 @@ private:
     // recomputed every frame. See updateVolume()'s own comment for why embedded-
     // browser media gets a mute decision instead of legacy's continuous volume.
     bool mEmbeddedBrowserMuted = false;
+    // Debounces the SLIDESHOW/HIDDEN auto-unload in setPriority(): true from
+    // the first frame this impl is found unload-worthy until either the
+    // grace period in mEmbeddedBrowserUnloadTimer expires (destroy for real)
+    // or its priority recovers first (cancelled). Right after a region
+    // change, many impls' interest values are still settling and can flicker
+    // a freshly-created tab across the SLIDESHOW boundary for a frame or two
+    // -- reacting to a single frame's demotion tore the tab down before its
+    // page ever finished rendering, forcing it to restart from scratch on
+    // every flicker. See setPriority()'s own comment.
+    bool mEmbeddedBrowserUnloadPending = false;
+    LLTimer mEmbeddedBrowserUnloadTimer;
     // Owns the most recent embedded-browser frame snapshot handed to doMediaTexUpdate().
     // preMediaTexUpdate() replaces this with a fresh copy every frame; update()'s async
     // GL-upload lambda captures a local copy of the shared_ptr (not just the raw data
