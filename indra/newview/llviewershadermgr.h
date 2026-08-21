@@ -220,6 +220,7 @@ extern LLGLSLShader         gSSRAlphaProgram;
 extern LLGLSLShader         gSkinnedSSRAlphaProgram;
 extern LLGLSLShader         gSSRWaterProgram;
 extern LLGLSLShader         gSSRResolveProgram;
+extern LLGLSLShader         gSSRDownsampleProgram;
 
 // Deferred rendering shaders
 extern LLGLSLShader         gDeferredImpostorProgram;

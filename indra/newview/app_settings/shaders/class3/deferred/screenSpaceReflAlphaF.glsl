@@ -42,7 +42,7 @@ uniform float roughnessFactor;
 uniform float minimum_alpha;
 
 float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness);
-void bayerDitherDiscard(float alpha, float threshold);
+void bayerBlueDitherDiscard(float alpha, float threshold);
 
 void main()
 {
@@ -53,7 +53,7 @@ void main()
     if (minimum_alpha >= 0.0 && alpha < minimum_alpha)
         discard;
 
-    bayerDitherDiscard(alpha, 1.0);
+    bayerBlueDitherDiscard(alpha, 1.0);
 
     // Per-pixel roughness from ORM green channel, scaled by material factor
     float roughness = texture(specularMap, metallic_roughness_texcoord).g * roughnessFactor;

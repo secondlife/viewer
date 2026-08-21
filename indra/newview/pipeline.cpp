@@ -967,19 +967,31 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
                 // trace target takes over the depth role; partial allocation would
                 // desync the trace/override/resolve gates, so degrade to non-temporal
                 if (!mSSRTraceBuffer.allocate(ssrW, ssrH, GL_RGBA16F, !fullRes) ||
-                    !mSSRHistory.allocate(ssrW, ssrH, GL_RGBA16F, false))
+                    !mSSRResolved[1].allocate(ssrW, ssrH, GL_RGBA16F, false, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_MANUAL))
                 {
                     LL_WARNS() << "Failed to allocate SSR temporal buffers, disabling temporal accumulation." << LL_ENDL;
                     mSSRTraceBuffer.release();
-                    mSSRHistory.release();
+                    mSSRResolved[1].release();
                     temporal = false;
                 }
                 mSSRHistoryValid = false;
+                mSSRResolvedIndex = 0;
             }
 
             if (temporal)
             {
-                mSSRBuffer.allocate(ssrW, ssrH, GL_RGBA16F, false, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_MANUAL);
+                mSSRResolved[0].allocate(ssrW, ssrH, GL_RGBA16F, false, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_MANUAL);
+
+                // uninitialized fp16 NaNs would persist through the history feedback
+                for (U32 i = 0; i < 2; ++i)
+                {
+                    if (mSSRResolved[i].isComplete())
+                    {
+                        mSSRResolved[i].bindTarget();
+                        mSSRResolved[i].clear(GL_COLOR_BUFFER_BIT);
+                        mSSRResolved[i].flush();
+                    }
+                }
 
                 if (fullRes)
                 {
@@ -989,36 +1001,22 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
             else
             {
                 mSSRTraceBuffer.release();
-                mSSRHistory.release();
-                mSSRBuffer.allocate(ssrW, ssrH, GL_RGBA16F, !fullRes, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_MANUAL);
+                mSSRResolved[1].release();
+                mSSRResolvedIndex = 0;
+                mSSRResolved[0].allocate(ssrW, ssrH, GL_RGBA16F, !fullRes, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_MANUAL);
 
                 if (fullRes)
                 {
-                    mRT->deferredScreen.shareDepthBuffer(mSSRBuffer);
-                }
-            }
-
-            // Allocate per-mip temp targets for Gaussian ping-pong (one per mip level > 0)
-            U32 ssrMipLevels = mSSRBuffer.getMipLevels();
-            if (ssrMipLevels > 1 && mSSRMipTemp.empty())
-            {
-                mSSRMipTemp.resize(ssrMipLevels - 1);
-                for (U32 i = 0; i < mSSRMipTemp.size(); ++i)
-                {
-                    U32 mip = i + 1;
-                    U32 w = llmax(1U, ssrW >> mip);
-                    U32 h = llmax(1U, ssrH >> mip);
-                    mSSRMipTemp[i].allocate(w, h, GL_RGBA16F);
+                    mRT->deferredScreen.shareDepthBuffer(mSSRResolved[0]);
                 }
             }
         }
         else
         {
             mSceneMap.release();
-            mSSRBuffer.release();
+            mSSRResolved[0].release();
+            mSSRResolved[1].release();
             mSSRTraceBuffer.release();
-            mSSRHistory.release();
-            mSSRMipTemp.clear();
         }
 
         mPostPingMap.allocate(resX, resY, post_color_fmt);
@@ -1367,10 +1365,9 @@ void LLPipeline::releaseScreenBuffers()
     mHeroProbeRT.deferredScreen.release();
     mHeroProbeRT.deferredLight.release();
 
-    mSSRBuffer.release();
+    mSSRResolved[0].release();
+    mSSRResolved[1].release();
     mSSRTraceBuffer.release();
-    mSSRHistory.release();
-    mSSRMipTemp.clear();
 }
 
 void LLPipeline::releaseSunShadowTarget(U32 index)
@@ -7498,8 +7495,18 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst)
 LLRenderTarget& LLPipeline::ssrTraceTarget()
 {
     // temporal accumulation traces into a separate raw buffer that the resolve
-    // pass combines with history into mSSRBuffer; otherwise trace directly
-    return (RenderScreenSpaceReflectionTemporal && mSSRTraceBuffer.isComplete()) ? mSSRTraceBuffer : mSSRBuffer;
+    // pass combines with history into the resolved buffer; otherwise trace directly
+    return (RenderScreenSpaceReflectionTemporal && mSSRTraceBuffer.isComplete()) ? mSSRTraceBuffer : ssrResolvedTarget();
+}
+
+LLRenderTarget& LLPipeline::ssrResolvedTarget()
+{
+    return mSSRResolved[mSSRResolvedIndex];
+}
+
+LLRenderTarget& LLPipeline::ssrResolvedPrev()
+{
+    return mSSRResolved[mSSRResolvedIndex ^ 1];
 }
 
 void LLPipeline::renderSSRTrace()
@@ -7551,6 +7558,8 @@ void LLPipeline::renderSSRAlpha()
     // Read-only depth test: discard alpha fragments behind opaque geometry
     LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
     LLGLDisable blend(GL_BLEND);
+    // back/interior faces would dither-record over the front face's texels
+    LLGLEnable cull(GL_CULL_FACE);
 
     // Identity texture transform for legacy materials
     static const F32 sIdentityTransform[8] = { 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f };
@@ -7767,18 +7776,18 @@ void LLPipeline::renderSSRResolveTemporal()
 {
     if (!RenderScreenSpaceReflections || !RenderScreenSpaceReflectionTemporal || gCubeSnapshot) return;
     if (!gSSRResolveProgram.isComplete()) return;
-    if (!mSSRBuffer.isComplete() || !mSSRTraceBuffer.isComplete() || !mSSRHistory.isComplete()) return;
+    if (!mSSRResolved[0].isComplete() || !mSSRResolved[1].isComplete() || !mSSRTraceBuffer.isComplete()) return;
 
     LL_PROFILE_GPU_ZONE("SSR temporal resolve");
 
-    // a gFrameCount gap means skipped world frames (teleport, login, minimized);
-    // equality covers same-frame re-renders (snapshot warmup), which keep history
+    // a gFrameCount gap means skipped world frames (teleport, login, minimized)
     bool history_valid = mSSRHistoryValid && (gFrameCount <= mSSRResolveFrame + 1);
+    mSSRResolvedIndex ^= 1; // prev frame's resolve becomes this frame's history
     mSSRResolveFrame = gFrameCount;
     mSSRHistoryValid = true;
 
     gGL.setColorMask(true, true);
-    mSSRBuffer.bindTarget();    // mip 0
+    ssrResolvedTarget().bindTarget();    // mip 0
 
     LLGLDepthTest depth(GL_FALSE, GL_FALSE);
     LLGLDisable blend(GL_BLEND);
@@ -7794,7 +7803,8 @@ void LLPipeline::renderSSRResolveTemporal()
     channel = gSSRResolveProgram.enableTexture(LLShaderMgr::SMAA_PREVIOUS_COLOR_TEX);
     if (channel > -1)
     {
-        mSSRHistory.bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
+        // plain bind; bindTexture would clobber prev's trilinear state
+        gGL.getTexUnit(channel)->bind(&ssrResolvedPrev());
     }
 
     static LLStaticHashedString sHistBlend("ssrHistoryBlend");
@@ -7810,34 +7820,24 @@ void LLPipeline::renderSSRResolveTemporal()
     mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
     unbindDeferredShader(gSSRResolveProgram);
-    mSSRBuffer.flush();
-
-    // resolved output becomes next frame's history (plain passthrough copy;
-    // gCopyProgram is color-only and the history target has no depth)
-    mSSRHistory.bindTarget();
-    gCopyProgram.bind();
-
-    S32 diff_map = gCopyProgram.getTextureChannel(LLShaderMgr::DIFFUSE_MAP);
-    gGL.getTexUnit(diff_map)->bind(&mSSRBuffer);
-
-    mScreenTriangleVB->setBuffer();
-    mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-
-    gCopyProgram.unbind();
-    mSSRHistory.flush();
+    ssrResolvedTarget().flush();
 }
 
 void LLPipeline::filterSSRBuffer()
 {
     if (!RenderScreenSpaceReflections || gCubeSnapshot) return;
-    if (!mSSRBuffer.isComplete()) return;
-    if (!gGaussianProgram.isComplete()) return;
+    if (!gSSRDownsampleProgram.isComplete()) return;
+
+    LLRenderTarget& target = ssrResolvedTarget();
+    if (!target.isComplete()) return;
 
     LL_PROFILE_GPU_ZONE("SSR mip chain");
 
-    U32 mipLevels = mSSRBuffer.getMipLevels();
+    U32 mipLevels = target.getMipLevels();
     if (mipLevels <= 1) return;
-    if (mSSRMipTemp.empty()) return;
+
+    // compositing fades SSR out at roughness 0.7, so higher mips are never sampled
+    U32 built = llmin(mipLevels, (U32)ceilf(0.7f * (mipLevels - 1)) + 2);
 
     LLGLDisable blend(GL_BLEND);
     LLGLDepthTest depth(GL_FALSE, GL_FALSE);
@@ -7853,53 +7853,40 @@ void LLPipeline::filterSSRBuffer()
 
     gGL.flush();
 
-    static LLStaticHashedString resScale("resScale");
-    static LLStaticHashedString direction("direction");
+    static LLStaticHashedString texelStep("texelStep");
 
     static LLCachedControl<F32> ssrFilterScale(gSavedSettings, "RenderScreenSpaceReflectionsFilterScale", 2.0f);
 
-    gGaussianProgram.bind();
-    S32 diffuseChannel = gGaussianProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+    gSSRDownsampleProgram.bind();
+    S32 diffuseChannel = gSSRDownsampleProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
 
-    for (U32 m = 1; m < mipLevels && (m - 1) < mSSRMipTemp.size(); m++)
+    for (U32 m = 1; m < built; m++)
     {
         LL_PROFILE_GPU_ZONE("SSR mip blur");
 
-        LLRenderTarget& temp = mSSRMipTemp[m - 1];
-        S32 srcW = llmax(1, (S32)(mSSRBuffer.getWidth() >> (m - 1)));
-        S32 srcH = llmax(1, (S32)(mSSRBuffer.getHeight() >> (m - 1)));
+        F32 srcW = (F32)llmax(1, (S32)(target.getWidth() >> (m - 1)));
+        F32 srcH = (F32)llmax(1, (S32)(target.getHeight() >> (m - 1)));
 
-        // Horizontal pass: read SSR mip m-1, write to temp (at mip m resolution)
-        gGaussianProgram.uniform1f(resScale, (F32)ssrFilterScale / (F32)srcW);
-        gGaussianProgram.uniform2f(direction, 1.f, 0.f);
+        // full-texel offsets approximate the old separable gaussian's footprint
+        gSSRDownsampleProgram.uniform2f(texelStep,
+            (F32)ssrFilterScale / srcW,
+            (F32)ssrFilterScale / srcH);
 
-        gGL.getTexUnit(diffuseChannel)->bind(&mSSRBuffer);
+        gGL.getTexUnit(diffuseChannel)->bind(&target);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, m - 1);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, m - 1);
 
-        temp.bindTarget();
-        mScreenTriangleVB->setBuffer();
-        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-        temp.flush();
-
-        // Vertical pass: read temp, write to SSR mip m (same resolution as temp)
-        gGaussianProgram.uniform1f(resScale, (F32)ssrFilterScale / (F32)temp.getHeight());
-        gGaussianProgram.uniform2f(direction, 0.f, 1.f);
-
-        gGL.getTexUnit(diffuseChannel)->bind(&temp);
-
-        mSSRBuffer.bindColorMipLevel(m);
+        target.bindColorMipLevel(m);
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
     }
 
-    // Restore SSR buffer state; set trilinear here (once per frame) so the
-    // lighting-pass roughness->mip taps filter across the freshly built chain
-    gGL.getTexUnit(diffuseChannel)->bind(&mSSRBuffer);
+    // Restore state; trilinear set here (once per frame) for the roughness->mip taps
+    gGL.getTexUnit(diffuseChannel)->bind(&target);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipLevels - 1);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, built - 1);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    mSSRBuffer.resetColorMipLevel();
+    target.resetColorMipLevel();
 
     // bindColorMipLevel bypasses the RT stack (direct glBindFramebuffer),
     // so we must manually unbind the FBO here to avoid corrupting GL state
@@ -7907,7 +7894,7 @@ void LLPipeline::filterSSRBuffer()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     LLRenderTarget::sCurFBO = 0;
 
-    gGaussianProgram.unbind();
+    gSSRDownsampleProgram.unbind();
 
     gGL.matrixMode(gGL.MM_PROJECTION);
     gGL.popMatrix();
@@ -8897,9 +8884,9 @@ void LLPipeline::renderFinalize()
         }
         case 8:
         {
-            if (mSSRBuffer.isComplete())
+            if (ssrResolvedTarget().isComplete())
             {
-                visualizeBuffers(&mSSRBuffer, sourceBuffer, 0);
+                visualizeBuffers(&ssrResolvedTarget(), sourceBuffer, 0);
             }
             break;
         }
@@ -8997,6 +8984,8 @@ void LLPipeline::bindDeferredShaderFast(LLGLSLShader& shader)
     if (shader.mCanBindFast)
     { // was previously fully bound, use fast path
         shader.bind();
+        // value-cached; a first-full-bind inside a probe capture would otherwise freeze this at 1
+        shader.uniform1i(LLShaderMgr::CUBE_SNAPSHOT, gCubeSnapshot ? 1 : 0);
         bindLightFunc(shader);
         bindShadowMaps(shader);
         bindReflectionProbes(shader);
@@ -10180,16 +10169,17 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
                 static LLStaticHashedString sSsrResScale("ssrResScale");
                 shader.uniform1f(sSsrResScale, 1.f);
             }
-            else if (mSSRBuffer.isComplete() && !gCubeSnapshot)
+            else if (ssrResolvedTarget().isComplete() && !gCubeSnapshot)
             {
                 // Lighting pass: bind pre-computed SSR buffer for roughness->mip
                 // sampling; trilinear filtering is set once per frame at the end
                 // of filterSSRBuffer, not per bind
-                gGL.getTexUnit(channel)->bind(&mSSRBuffer);
+                LLRenderTarget& resolved = ssrResolvedTarget();
+                gGL.getTexUnit(channel)->bind(&resolved);
 
                 // Pass mip scale for roughness -> mip level mapping
                 static LLStaticHashedString sSsrMipScale("ssrMipScale");
-                shader.uniform1f(sSsrMipScale, (float)(mSSRBuffer.getMipLevels() - 1));
+                shader.uniform1f(sSsrMipScale, (float)(resolved.getMipLevels() - 1));
 
                 // water excluded: distorted UVs + possibly stale depthMap (mWaterDis)
                 static LLStaticHashedString sSsrResScale("ssrResScale");
@@ -10197,7 +10187,7 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
                 F32 res_scale = 1.f;
                 if (ssr_bilateral && &shader != &gWaterProgram)
                 {
-                    res_scale = (F32)mSSRBuffer.getWidth() / llmax((F32)mRT->deferredScreen.getWidth(), 1.f);
+                    res_scale = (F32)resolved.getWidth() / llmax((F32)mRT->deferredScreen.getWidth(), 1.f);
                 }
                 shader.uniform1f(sSsrResScale, res_scale);
             }
@@ -10226,24 +10216,16 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
                                   || (&shader == &gSkinnedSSRAlphaProgram)
                                   || (&shader == &gSSRWaterProgram);
 
-            // 1 ray + half the march budget when temporal accumulation is
-            // actually active (buffer state, not just the setting)
-            bool temporal_trace = RenderScreenSpaceReflectionTemporal && mSSRTraceBuffer.isComplete() && isSSRTraceProgram;
-
-            shader.uniform1i(LLShaderMgr::DEFERRED_SSR_ITR_COUNT,
-                temporal_trace ? llmax((S32)traceIterations / 2, 16) : (S32)traceIterations);
+            shader.uniform1i(LLShaderMgr::DEFERRED_SSR_ITR_COUNT, traceIterations);
             shader.uniform1f(LLShaderMgr::DEFERRED_SSR_MAX_THICKNESS, traceMaxThickness);
             shader.uniform1f(LLShaderMgr::DEFERRED_SSR_DEPTH_BIAS, traceDepthBias);
-            shader.uniform1f(LLShaderMgr::DEFERRED_SSR_GLOSSY_SAMPLES,
-                temporal_trace ? 1.f : (GLfloat)RenderScreenSpaceReflectionGlossySamples);
+            shader.uniform1f(LLShaderMgr::DEFERRED_SSR_GLOSSY_SAMPLES, (GLfloat)RenderScreenSpaceReflectionGlossySamples);
 
-            // Only advance the Poisson noise offset for the dedicated SSR trace
-            // programs — not for every forward alpha bind.  Otherwise the offset
-            // increments hundreds of times per frame (once per alpha draw call),
-            // with the count varying by what's visible, destabilizing the noise
-            // seed between frames and causing SSR to flicker.
-            if (isSSRTraceProgram)
+            // advance once per frame — the alpha prepass binds per draw, and a
+            // per-bind advance makes the noise/dither phase depend on draw count
+            if (isSSRTraceProgram && mPoissonFrame != gFrameCount)
             {
+                mPoissonFrame = gFrameCount;
                 mPoissonOffset++;
                 if (mPoissonOffset > 128 - RenderScreenSpaceReflectionGlossySamples)
                     mPoissonOffset = 0;

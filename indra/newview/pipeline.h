@@ -161,8 +161,12 @@ public:
     void filterSSRBuffer();
 
     // target the trace/alpha/water SSR passes render into: the raw trace buffer
-    // under temporal accumulation, mSSRBuffer directly otherwise
+    // under temporal accumulation, the resolved buffer directly otherwise
     LLRenderTarget& ssrTraceTarget();
+
+    // resolved SSR buffer consumers sample; prev = last frame's (temporal history)
+    LLRenderTarget& ssrResolvedTarget();
+    LLRenderTarget& ssrResolvedPrev();
 
     // SMAA T2x jitter delta between previous and current frame, in UV units
     void getSSRJitterOffset(F32& jitter_x, F32& jitter_y);
@@ -674,6 +678,7 @@ public:
     S32                      mNumVisibleFaces;
 
     S32                     mPoissonOffset;
+    U32                     mPoissonFrame = 0;
 
     static S32              sCompiles;
 
@@ -746,13 +751,13 @@ public:
     // for use by SSR
     LLRenderTarget          mSceneMap;
 
-    // Pre-computed SSR: RGB=reflection, A=fade
-    LLRenderTarget          mSSRBuffer;
-    std::vector<LLRenderTarget> mSSRMipTemp;  // Per-mip temp targets for SSR Gaussian ping-pong
+    // Pre-computed SSR (RGB=reflection, A=fade); ping-ponged pair under
+    // temporal accumulation (prev frame's resolve doubles as history)
+    LLRenderTarget          mSSRResolved[2];
+    U32                     mSSRResolvedIndex = 0;
 
-    // temporal SSR accumulation: raw 1-ray trace target + reprojected history
+    // temporal SSR accumulation: raw 1-ray trace target
     LLRenderTarget          mSSRTraceBuffer;
-    LLRenderTarget          mSSRHistory;
     bool                    mSSRHistoryValid = false;
     U32                     mSSRResolveFrame = 0;
 

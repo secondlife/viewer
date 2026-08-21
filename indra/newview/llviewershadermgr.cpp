@@ -140,6 +140,7 @@ LLGLSLShader            gSSRAlphaProgram;
 LLGLSLShader            gSkinnedSSRAlphaProgram;
 LLGLSLShader            gSSRWaterProgram;
 LLGLSLShader            gSSRResolveProgram;
+LLGLSLShader            gSSRDownsampleProgram;
 
 // Deferred rendering shaders
 LLGLSLShader            gDeferredImpostorProgram;
@@ -3214,12 +3215,21 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gSSRResolveProgram.mShaderFiles.clear();
         gSSRResolveProgram.mShaderFiles.push_back(make_pair("deferred/screenSpaceReflPostV.glsl", GL_VERTEX_SHADER));
         gSSRResolveProgram.mShaderFiles.push_back(make_pair("deferred/screenSpaceReflResolveF.glsl", GL_FRAGMENT_SHADER));
-        // isDeferred only — deliberately NOT hasScreenSpaceReflections, so the
-        // program has no SCENE_MAP sampler and bindReflectionProbes cannot
-        // feedback-bind mSSRBuffer while it is the render target
+        // no hasScreenSpaceReflections: keeps SCENE_MAP out so the render target can't feedback-bind
         gSSRResolveProgram.mFeatures.isDeferred = true;
+        gSSRResolveProgram.mFeatures.hasFullGBuffer = true;
         gSSRResolveProgram.mShaderLevel = 3;
         success = gSSRResolveProgram.createShader();
+    }
+
+    if (success)
+    {
+        gSSRDownsampleProgram.mName = "SSR Downsample";
+        gSSRDownsampleProgram.mShaderFiles.clear();
+        gSSRDownsampleProgram.mShaderFiles.push_back(make_pair("interface/splattexturerectV.glsl", GL_VERTEX_SHADER));
+        gSSRDownsampleProgram.mShaderFiles.push_back(make_pair("interface/ssrDownsampleF.glsl", GL_FRAGMENT_SHADER));
+        gSSRDownsampleProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+        success = gSSRDownsampleProgram.createShader();
     }
 
     if (success) {

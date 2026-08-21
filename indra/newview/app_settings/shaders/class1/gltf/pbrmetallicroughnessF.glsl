@@ -295,7 +295,7 @@ void main()
 #ifndef UNLIT
     vec3 sunlit_linear = srgb_to_linear(sunlit);
 
-    vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
+    vec2 frag = gl_FragCoord.xy / screen_res;
 
 #ifdef HAS_SUN_SHADOW
     scol = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);

@@ -43,6 +43,7 @@ uniform float ssrHistoryBlend;       // 0.9, or 0.0 when history is invalid
 // deferredUtil.glsl
 float getDepth(vec2 pos_screen);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
+GBufferInfo getGBuffer(vec2 screenpos);
 
 // single-scalar clip; per-channel clamps break premultiplied rgb/a ratios
 vec4 clipToAABB(vec4 v, vec4 mn, vec4 mx)
@@ -97,24 +98,43 @@ void main()
     vec4 cur = texelFetch(currentColorTex, px, 0);
 
     float depth = getDepth(vary_fragcoord);
-    if (depth >= 1.0 || ssrHistoryBlend <= 0.0)
-    { // sky, or no valid history
+    if (depth >= 1.0)
+    { // sky
         frag_color = cur;
         return;
     }
 
-    // 3x3 AABB of the current trace bounds what history may claim
-    vec4 mn = cur;
-    vec4 mx = cur;
+    GBufferInfo gb = getGBuffer(vary_fragcoord);
+    float glossiness;
+    if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
+        glossiness = 1.0 - gb.specular.a;
+    else
+        glossiness = gb.specular.a;
+    float roughness = 1.0 - glossiness;
+
+    // 3x3 moments: mean doubles as spatial ray reuse, variance bounds history
+    vec4 m1 = vec4(0.0);
+    vec4 m2 = vec4(0.0);
     ivec2 sz = textureSize(currentColorTex, 0);
     for (int y = -1; y <= 1; ++y)
     {
         for (int x = -1; x <= 1; ++x)
         {
             vec4 s = texelFetch(currentColorTex, clamp(px + ivec2(x, y), ivec2(0), sz - 1), 0);
-            mn = min(mn, s);
-            mx = max(mx, s);
+            m1 += s;
+            m2 += s * s;
         }
+    }
+    vec4 mu = m1 / 9.0;
+    vec4 sigma = sqrt(max(m2 / 9.0 - mu * mu, vec4(0.0)));
+
+    // reuse neighbors' rays where the GGX lobe is wide; mirrors keep their own sample
+    vec4 filtered = mix(cur, mu, smoothstep(0.0, 0.2, roughness));
+
+    if (ssrHistoryBlend <= 0.0)
+    {
+        frag_color = filtered;
+        return;
     }
 
     // camera-only reprojection into last frame's screen space
@@ -123,7 +143,7 @@ void main()
     vec4 prevClip = projection_matrix * vec4(prevPos, 1.0);
     if (prevClip.w <= 0.0)
     {
-        frag_color = cur;
+        frag_color = filtered;
         return;
     }
     vec2 prevUV = (prevClip.xy / prevClip.w) * 0.5 + 0.5 + ssrJitterOffset;
@@ -134,8 +154,10 @@ void main()
         w = 0.0;
     }
 
-    vec4 hist = clipToAABB(sampleHistoryCatmullRom(prevUV, vec2(textureSize(previousColorTex, 0))), mn, mx);
+    // Salvi variance bound; min/max would clamp accumulation to the noise extremes
+    vec4 hist = clipToAABB(sampleHistoryCatmullRom(prevUV, vec2(textureSize(previousColorTex, 0))),
+                           mu - sigma * 1.25, mu + sigma * 1.25);
 
     // alpha blends too, so accumulated confidence stays coherent with color
-    frag_color = mix(cur, hist, w);
+    frag_color = mix(filtered, hist, w);
 }

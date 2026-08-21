@@ -88,3 +88,33 @@ void bayerDitherDiscard(float alpha, float threshold)
         }
     }
 }
+
+// interleaved gradient noise (Jimenez) — blue-noise-like without a texture
+float ignNoise(vec2 px)
+{
+    return fract(52.9829189 * fract(0.06711056 * px.x + 0.00583715 * px.y));
+}
+
+uniform float noiseSine; // frame counter, set only on the SSR trace programs
+
+// blue-noise-perturbed bayer, phase-animated so temporal accumulation
+// averages the dither instead of locking a static survivor pattern
+void bayerBlueDitherDiscard(float alpha, float threshold)
+{
+    if (alpha < 0.05)
+    {
+        discard;
+    }
+
+    if (alpha < threshold)
+    {
+        int frame = int(noiseSine);
+        ivec2 ipos = (ivec2(gl_FragCoord.xy) + ivec2(frame, frame / 4)) & 3;
+        float blue = fract(ignNoise(gl_FragCoord.xy) + noiseSine * 0.61803398875);
+        float t = mix(BAYER_PATTERN[ipos.y * 4 + ipos.x], blue, 0.0525) * 1.0525;
+        if (alpha < t)
+        {
+            discard;
+        }
+    }
+}

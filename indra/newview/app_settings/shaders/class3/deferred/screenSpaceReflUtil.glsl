@@ -46,9 +46,17 @@ uniform int hizMipCount;
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
-float random(vec2 uv)
+// sin-hash breaks down at pixel-scale args and correlates across seeds
+uvec2 pcg2d(uvec2 v)
 {
-    return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123);
+    v = v * 1664525u + 1013904223u;
+    v.x += v.y * 1664525u;
+    v.y += v.x * 1664525u;
+    v ^= v >> 16u;
+    v.x += v.y * 1664525u;
+    v.y += v.x * 1664525u;
+    v ^= v >> 16u;
+    return v;
 }
 
 vec2 generateProjectedPosition(vec3 pos)
@@ -286,8 +294,11 @@ float tapScreenSpaceReflection(
         if (roughness > 0.001)
         {
             float alpha = roughness * roughness;
-            float u1 = random(tc * screen_res + noiseSine + float(s) * 0.123);
-            float u2 = random(tc * screen_res * 1.7 + noiseSine + float(s) * 0.456 + 0.5);
+            uvec2 hash = pcg2d(uvec2(gl_FragCoord.xy)
+                             + uvec2(uint(noiseSine) * 7919u + uint(s) * 104729u,
+                                     uint(noiseSine) * 6271u + uint(s) * 15013u));
+            float u1 = float(hash.x) * 2.3283064365386963e-10;
+            float u2 = float(hash.y) * 2.3283064365386963e-10;
 
             float theta = atan(alpha * sqrt(u1) / sqrt(1.0 - u1));
             float phi = 2.0 * 3.14159265 * u2;

@@ -53,9 +53,7 @@ out vec4 frag_color;
 
 in vec3 vary_fragcoord;
 
-#ifdef HAS_SUN_SHADOW
-  uniform vec2 screen_res;
-#endif
+uniform vec2 screen_res;
 
 in vec3 vary_position;
 
@@ -169,7 +167,8 @@ void main()
         sunlit *= 1.35;
     vec3 sunlit_linear = sunlit;
 
-    vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
+    // vary_fragcoord divides clip.xy by clip.z (w was discarded) — radially wrong UV
+    vec2 frag = gl_FragCoord.xy / screen_res;
 
 #ifdef HAS_SUN_SHADOW
     scol = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
