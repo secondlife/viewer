@@ -116,7 +116,6 @@ protected:
         void *mUserData;
     };
 
-    std::string mViewerAssetUrl;
     S32 mCountRequests;
     S32 mCountStarted;
     S32 mCountCompleted;
