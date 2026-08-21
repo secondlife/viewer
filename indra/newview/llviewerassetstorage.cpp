@@ -418,10 +418,6 @@ void LLViewerAssetStorage::capsRecvForRegion(const LLUUID& region_id, std::strin
     {
         LL_WARNS("ViewerAsset") << "region not found for region_id " << region_id << LL_ENDL;
     }
-    else
-    {
-        mViewerAssetUrl = regionp->getViewerAssetUrl();
-    }
 
     LLEventPumps::instance().obtain(pumpname).post(LLSD());
 }
@@ -534,13 +530,14 @@ void LLViewerAssetStorage::assetRequestCoro(
         }
 
         LL_WARNS_ONCE("ViewerAsset") << "capsRecv got event" << LL_ENDL;
-        LL_WARNS_ONCE("ViewerAsset") << "region " << gAgent.getRegion() << " mViewerAssetUrl " << mViewerAssetUrl << LL_ENDL;
     }
-    if (mViewerAssetUrl.empty() && gAgent.getRegion())
+
+    std::string viewerAssetUrl;
+    if (gAgent.getRegion())
     {
-        mViewerAssetUrl = gAgent.getRegion()->getViewerAssetUrl();
+        viewerAssetUrl = gAgent.getRegion()->getViewerAssetUrl();
     }
-    if (mViewerAssetUrl.empty())
+    if (viewerAssetUrl.empty())
     {
         LL_WARNS_ONCE("ViewerAsset") << "asset request fails: caps received but no viewer asset cap found" << LL_ENDL;
         result_code = LL_ERR_NO_CAP;
@@ -548,7 +545,7 @@ void LLViewerAssetStorage::assetRequestCoro(
         removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status, 0);
         return;
     }
-    std::string url = getAssetURL(mViewerAssetUrl, uuid,atype);
+    std::string url = getAssetURL(viewerAssetUrl, uuid, atype);
     LL_DEBUGS("ViewerAsset") << "request url: " << url << LL_ENDL;
 
     LLCore::HttpRequest::policy_t httpPolicy(LLAppCoreHttp::AP_TEXTURE);
