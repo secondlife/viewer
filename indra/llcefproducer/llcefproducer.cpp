@@ -145,11 +145,26 @@ struct Slot
     std::chrono::steady_clock::time_point last_active;
 };
 
+// How many slots are currently allocated (pub != null), out of the fixed
+// total -- appended to every connect/disconnect log line so a human watching
+// the console doesn't have to count colored lines by eye to see how close
+// this producer is to its concurrent-instance ceiling.
+std::string active_slot_suffix(const std::vector<Slot>& slots)
+{
+    int active = 0;
+    for (const auto& s : slots)
+    {
+        if (s.pub) ++active;
+    }
+    return " (" + std::to_string(active) + "/" + std::to_string(slots.size()) + " active)";
+}
+
 // Spins up this slot's real instance: a CEF browser plus its llshmframe
 // segment. Leaves s untouched on failure, cleaning up whichever half of the
 // pair (if either) already succeeded.
 bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manager,
-                    std::chrono::steady_clock::time_point now, bool isUI)
+                    std::chrono::steady_clock::time_point now, bool isUI,
+                    const std::vector<Slot>& slots)
 {
     cfg.name              = kChannelPrefix + std::to_string(index);
     cfg.max_command_bytes = kMaxCommandBytes;
@@ -174,7 +189,7 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     s.had_subscriber = false;
     s.last_active    = now;
 
-    log_connect("slot " + std::to_string(index) + " connected");
+    log_connect("slot " + std::to_string(index) + " connected" + active_slot_suffix(slots));
 
     // One-shot, sent before any frames: lets the consumer show which
     // llCefBrowser/CEF/Chromium build is actually in play without needing to
@@ -266,11 +281,14 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
 // then discards the Slot, which is what actually releases the llshmframe
 // segment. Not the other order: clearing the Slot first would lose the
 // handle needed to destroy the browser at all.
-void free_slot(Slot& s, int index, llCefBrowserManager& manager, const std::string& reason)
+void free_slot(Slot& s, int index, llCefBrowserManager& manager, const std::string& reason,
+                std::vector<Slot>& slots)
 {
-    log_disconnect("slot " + std::to_string(index) + " disconnected (" + reason + ")");
     manager.DestroyBrowser(s.cefHandle);
     s = Slot{};
+    // Logged after clearing s (which is slots[index]) so the count already
+    // reflects this slot's release, matching allocate_slot()'s own log.
+    log_disconnect("slot " + std::to_string(index) + " disconnected (" + reason + ")" + active_slot_suffix(slots));
 }
 
 // action == GLFW_RELEASE (0) means button-up; anything else (GLFW_PRESS=1,
@@ -482,7 +500,7 @@ int run_producer(int argc, char** argv)
                 {
                     if (slots[std::size_t(i)].pub) continue; // not free
                     any_free = true;
-                    if (allocate_slot(slots[std::size_t(i)], i, view_cfg, *manager, now, isUI))
+                    if (allocate_slot(slots[std::size_t(i)], i, view_cfg, *manager, now, isUI, slots))
                     {
                         free_index = i;
                         break;
@@ -548,7 +566,7 @@ int run_producer(int argc, char** argv)
                 // Almost certainly a crashed consumer, not a merely-idle
                 // one: reclaim now rather than waiting out the softer idle
                 // grace period below.
-                free_slot(s, int(i), *manager, "crashed consumer");
+                free_slot(s, int(i), *manager, "crashed consumer", slots);
                 continue;
             }
 
@@ -567,13 +585,13 @@ int run_producer(int argc, char** argv)
                     // in case the same consumer reconnects shortly (closing and
                     // reopening the same floater quickly reuses this browser instead
                     // of forcing a fresh navigate/reload).
-                    log_disconnect("slot " + std::to_string(i) + " viewer detached (grace period running)");
+                    log_disconnect("slot " + std::to_string(i) + " viewer detached (grace period running)" + active_slot_suffix(slots));
                     s.had_subscriber = false;
                 }
 
                 if (now - s.last_active >= kIdleGracePeriod)
                 {
-                    free_slot(s, int(i), *manager, "idle timeout");
+                    free_slot(s, int(i), *manager, "idle timeout", slots);
                     continue;
                 }
             }
@@ -584,7 +602,7 @@ int run_producer(int argc, char** argv)
                 {
                 case kSetUrl: {
                     const std::string url(cmd.text());
-                    log_connect("slot " + std::to_string(i) + " -> " + url);
+                    log_connect("slot " + std::to_string(i) + " -> " + url + active_slot_suffix(slots));
                     manager->Navigate(s.cefHandle, url);
                     break;
                 }
