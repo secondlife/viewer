@@ -47,17 +47,23 @@ namespace LLCore
 
         void    recordDataDown(size_t bytes)
         {
+            std::lock_guard<std::mutex> lock(mStatsMutex);
             mDataDown.push((F32)bytes);
         }
 
         void    recordDataUp(size_t bytes)
         {
+            std::lock_guard<std::mutex> lock(mStatsMutex);
             mDataUp.push((F32)bytes);
         }
 
-        void    recordHTTPRequest() { ++mRequests; }
+        void    recordHTTPRequest()
+        {
+            std::lock_guard<std::mutex> lock(mStatsMutex);
+            ++mRequests;
+        }
 
-        void    recordResultCode(S32 code);
+        void    recordResultCode(S32 code); // http thread
 
         void    dumpStats();
     private:
@@ -67,6 +73,8 @@ namespace LLCore
         S32              mRequests;
 
         std::map<S32, S32> mResutCodes;
+
+        std::mutex mStatsMutex;
     };
 
 
