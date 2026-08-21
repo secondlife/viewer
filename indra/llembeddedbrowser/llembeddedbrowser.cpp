@@ -41,6 +41,7 @@
 #include <shmframe/llShmFrameVersion.h>
 #include "cefshm_protocol.h"
 
+#include "llapp.h"
 #include "llcontrol.h"
 #include "lldir.h"
 #include "llprocess.h"
@@ -485,6 +486,16 @@ void LLEmbeddedBrowserTab::setFocus(bool focus)
     }
 }
 
+void LLEmbeddedBrowserTab::setMuted(bool muted)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::uint8_t payload[1] = { muted ? std::uint8_t(1) : std::uint8_t(0) };
+        mSub->send(kSetMuted, payload, 1);
+    }
+}
+
 void LLEmbeddedBrowserTab::cut()
 {
     LLMutexLock lock(&mPixelMutex);
@@ -751,6 +762,19 @@ void LLEmbeddedBrowser::maybeRelaunchProducer()
 {
     if (!gSavedSettings.getBOOL("UseEmbeddedBrowser"))
     {
+        return;
+    }
+
+    if (LLApp::isExiting())
+    {
+        // reset() (called from LLAppViewer::cleanup()) kills the producer and
+        // only *afterwards* stops every tab's update thread -- see its own
+        // comment. A tab thread that's still alive in that window can notice
+        // the producer is gone and land here, right as the Viewer is on its
+        // way out. Relaunching a brand new SLCefProducer.exe at that point
+        // just races reset()'s own teardown: this is exactly what produced a
+        // second, orphaned-looking producer process observed right as the
+        // Viewer exits.
         return;
     }
 
@@ -1026,6 +1050,14 @@ void LLEmbeddedBrowser::setFocus(unsigned int id, bool focus)
     if (auto tab = findTab(id))
     {
         tab->setFocus(focus);
+    }
+}
+
+void LLEmbeddedBrowser::setMuted(unsigned int id, bool muted)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->setMuted(muted);
     }
 }
 

@@ -653,6 +653,20 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
     }
 }
 
+// Whether an embedded-browser impl at this priority is one that
+// LLViewerMediaImpl::setPriority() will actually tear the media source down
+// for outright (see that function's own comment for why: unlike the legacy
+// plugin backend, embedded browser has no cheap "throttled but still
+// resident" state). Shared with LLViewerMedia::updateMedia()'s own instance-
+// cap accounting below -- a deliberately-unloaded impl must stop counting
+// against PluginInstancesTotal, or the cap stays permanently exhausted by
+// media that no longer holds any real resource at all.
+static bool wouldUnloadEmbeddedBrowserMedia(LLPluginClassMedia::EPriority priority)
+{
+    return (priority == LLPluginClassMedia::PRIORITY_SLIDESHOW) ||
+           (priority == LLPluginClassMedia::PRIORITY_HIDDEN && gViewerWindow && gViewerWindow->getActive());
+}
+
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SPARE_IDLE("Spare Idle");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE_INTEREST("Update/Interest");
@@ -832,7 +846,21 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
                 }
             }
 
-            if(!pimpl->getUsedInUI() && (new_priority != LLPluginClassMedia::PRIORITY_UNLOADED))
+            // An embedded-browser impl this pass is about to unload outright
+            // (see wouldUnloadEmbeddedBrowserMedia()'s own comment) holds no
+            // real resource by the time this frame's setPriority() call
+            // below returns -- despite new_priority itself still reading
+            // SLIDESHOW/HIDDEN rather than UNLOADED, it must not keep
+            // occupying a counted slot, or the cap can never actually free
+            // up once every slot has ever been touched by "closest N" churn.
+            bool counts_toward_instance_cap = (new_priority != LLPluginClassMedia::PRIORITY_UNLOADED);
+            if (counts_toward_instance_cap && pimpl->getUseEmbeddedBrowser() && !pimpl->getUsedInUI()
+                && !pimpl->isParcelMedia() && wouldUnloadEmbeddedBrowserMedia(new_priority))
+            {
+                counts_toward_instance_cap = false;
+            }
+
+            if(!pimpl->getUsedInUI() && counts_toward_instance_cap)
             {
                 // This is a loadable inworld impl -- the last one in the list in this class defines the lowest loadable interest.
                 lowest_interest_loadable = pimpl;
@@ -1856,6 +1884,10 @@ void LLViewerMediaImpl::destroyMediaSource()
     {
         LLEmbeddedBrowser::getInstance()->destroy(mEmbeddedBrowserId);
         mUseEmbeddedBrowser = false;
+        // A freshly created tab always starts unmuted -- reset this so a stale
+        // "already muted" record doesn't suppress the first setMuted() call a
+        // future createMediaSource() actually needs (see updateVolume()).
+        mEmbeddedBrowserMuted = false;
         return;
     }
 
@@ -2284,7 +2316,7 @@ void LLViewerMediaImpl::setMute(bool mute)
 void LLViewerMediaImpl::updateVolume()
 {
     LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE_VOLUME);
-    if(mMediaSource)
+    if(mMediaSource || mUseEmbeddedBrowser)
     {
         // always scale the volume by the global media volume
         F32 volume = mRequestedVolume * LLViewerMedia::getInstance()->getVolume();
@@ -2310,13 +2342,34 @@ void LLViewerMediaImpl::updateVolume()
             }
         }
 
-        if (sOnlyAudibleTextureID == LLUUID::null || sOnlyAudibleTextureID == mTextureId)
+        bool audible = (sOnlyAudibleTextureID == LLUUID::null || sOnlyAudibleTextureID == mTextureId);
+        if (!audible)
+        {
+            volume = 0.0f;
+        }
+
+        if (mMediaSource)
         {
             mMediaSource->setVolume(volume);
         }
-        else
+        else if (mUseEmbeddedBrowser)
         {
-            mMediaSource->setVolume(0.0f);
+            // CEF's public API has no continuous per-browser volume level (audio
+            // mixing happens inside Chromium's own audio service, not exposed to
+            // the embedder as a gain multiplier -- see kSetMuted's own comment in
+            // cefshm_protocol.h), so the same computed volume that would otherwise
+            // drive a smooth fade collapses to a mute/unmute decision instead. This
+            // is what actually silences embedded-browser media once it's out of
+            // rolloff range (e.g. after a teleport, where mProximityCamera becomes
+            // enormous) -- previously nothing here ever called into the embedded
+            // browser at all, so its audio just kept playing regardless of distance
+            // until the underlying tab was fully torn down.
+            bool should_mute = (volume <= 0.0f);
+            if (should_mute != mEmbeddedBrowserMuted)
+            {
+                mEmbeddedBrowserMuted = should_mute;
+                LLEmbeddedBrowser::getInstance()->setMuted(mEmbeddedBrowserId, should_mute);
+            }
         }
     }
 }
@@ -3193,6 +3246,12 @@ void LLViewerMediaImpl::update()
         // IPC event from the plugin process is never gated on the viewer's own idle-time
         // suspend flags either -- those only guard the texture-copy step below.
         updateEmbeddedBrowserEvents();
+
+        // Also unconditional, matching the legacy branch's own updateVolume() call
+        // above (before its suspend/visible checks) -- audio should mute/unmute
+        // based on distance and priority regardless of whether the texture itself
+        // is currently being copied.
+        updateVolume();
 
         if (mSuspendUpdates || !mVisible)
         {
@@ -4547,6 +4606,33 @@ void LLViewerMediaImpl::setPriority(LLPluginClassMedia::EPriority priority)
             destroyMediaSource();
         }
     }
+    else if (mUseEmbeddedBrowser && !mUsedInUI && !mIsParcelMedia)
+    {
+        // The legacy plugin backend can genuinely throttle itself at HIDDEN/LOW/
+        // SLIDESHOW (telling the real plugin process to slow its own frame rate),
+        // so leaving it running at those tiers is cheap. Embedded-browser has no
+        // equivalent -- a CEF tab runs at full cost regardless of priority until
+        // it's actually torn down -- so for this backend, anything that didn't
+        // make the "closest N" cut (PRIORITY_SLIDESHOW, assigned once both
+        // PluginInstancesNormal and PluginInstancesLow are full) gets unloaded
+        // outright rather than left running indefinitely at full cost while
+        // marked down. PRIORITY_LOW itself is left alone -- it's part of that
+        // same "closest N" tier (N = normal + low), not the overflow.
+        //
+        // PRIORITY_HIDDEN is handled separately from SLIDESHOW: it's also what
+        // every impl gets forced to when the whole Viewer window is minimized
+        // (see the override further up in LLViewerMedia::updateMedia()), which
+        // is a temporary, whole-app condition that must NOT unload every open
+        // floater's media -- checking gViewerWindow->getActive() distinguishes
+        // "this specific media has zero interest right now" (out of view/range,
+        // e.g. having just left a region or parcel) from "the whole app is
+        // merely minimized".
+        bool should_unload = wouldUnloadEmbeddedBrowserMedia(priority);
+        if (should_unload)
+        {
+            destroyMediaSource();
+        }
+    }
 
     if(mMediaSource)
     {
@@ -4628,6 +4714,24 @@ void LLViewerMediaImpl::removeObject(LLVOVolume* obj)
 {
     mObjectList.remove(obj) ;
     mNeedsMuteCheck = true;
+
+    // For embedded-browser prim media, don't wait for the generic priority
+    // system to notice this impl is no longer wanted -- LLViewerMediaImpl::
+    // calculateInterest()'s mInterest comes from LLViewerTexture::
+    // getMaxVirtualSize(), a "how big did this texture render recently" stat
+    // that decays gradually over many seconds rather than dropping to zero
+    // the instant the last owning object is gone (it was never designed for
+    // an instant region change, just normal same-region visibility changes).
+    // That gradual decay is cheap to just ride out for the legacy plugin
+    // backend, but for embedded browser it means a torn-down region's tabs
+    // keep contesting the fixed PluginInstancesTotal cap against the new
+    // region's own media for a long tail after a teleport (observed: tens of
+    // seconds). mObjectList going empty is a precise, immediate signal that
+    // this impl's last reason to exist just disappeared -- act on it directly.
+    if (mObjectList.empty() && mUseEmbeddedBrowser && !mUsedInUI && !mIsParcelMedia)
+    {
+        destroyMediaSource();
+    }
 }
 
 const std::list< LLVOVolume* >* LLViewerMediaImpl::getObjectList() const

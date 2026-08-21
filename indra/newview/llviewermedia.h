@@ -444,6 +444,11 @@ public:
     void setUsedInUI(bool used_in_ui);
     bool getUsedInUI() const { return mUsedInUI; };
 
+    // True only while a live embedded-browser tab actually backs this impl --
+    // see createMediaSource()/destroyMediaSource(), which flip it on creation
+    // and back off on teardown.
+    bool getUseEmbeddedBrowser() const { return mUseEmbeddedBrowser; };
+
     void setBackgroundColor(LLColor4 color);
 
     F64 getCPUUsage() const;
@@ -508,6 +513,11 @@ private:
     // mMediaSource/CEF -- see LLViewerMediaImpl::createMediaSource().
     bool mUseEmbeddedBrowser = false;
     unsigned int mEmbeddedBrowserId = 0;
+    // Last mute/unmute state actually sent to LLEmbeddedBrowser::setMuted() -- lets
+    // updateVolume() only send the opcode when the decision flips, since it's
+    // recomputed every frame. See updateVolume()'s own comment for why embedded-
+    // browser media gets a mute decision instead of legacy's continuous volume.
+    bool mEmbeddedBrowserMuted = false;
     // Owns the most recent embedded-browser frame snapshot handed to doMediaTexUpdate().
     // preMediaTexUpdate() replaces this with a fresh copy every frame; update()'s async
     // GL-upload lambda captures a local copy of the shared_ptr (not just the raw data

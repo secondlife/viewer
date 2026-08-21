@@ -179,6 +179,9 @@ class LLEmbeddedBrowserTab
         // Drives CEF's own caret blink and focus/blur page JS -- call with true when the
         // LLMediaCtrl hosting this tab gains keyboard focus, false when it loses it.
         void setFocus(bool focus);
+        // Binary mute/unmute of this tab's audio -- see kSetMuted's own comment in
+        // cefshm_protocol.h for why this can't be a continuous volume level.
+        void setMuted(bool muted);
         // Completes a pending FileDialogRequest event -- dialogId must be the value from
         // that event's mDialogId; pass an empty filePaths to indicate the user canceled.
         void respondToFileDialog(long long dialogId, const std::vector<std::string>& filePaths);
@@ -273,6 +276,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void scrollWheel(unsigned int id, int x, int y, int deltaY);
         void keyEvent(unsigned int id, unsigned int msg, unsigned int wParam, unsigned int lParam);
         void setFocus(unsigned int id, bool focus);
+        void setMuted(unsigned int id, bool muted);
         void respondToFileDialog(unsigned int id, long long dialogId, const std::vector<std::string>& filePaths);
         bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
 

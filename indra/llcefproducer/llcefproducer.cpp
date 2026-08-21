@@ -658,6 +658,12 @@ int run_producer(int argc, char** argv)
                     }
                     break;
                 }
+                case kSetMuted: {
+                    if (!cmd.data.empty()) {
+                        manager->SetAudioMuted(s.cefHandle, cmd.data[0] != 0);
+                    }
+                    break;
+                }
                 case kSetPageZoom: {
                     float zoom;
                     if (unpack_f32(cmd.data.data(), cmd.data.size(), zoom)) {

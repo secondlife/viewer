@@ -77,6 +77,13 @@ namespace cefshm_demo
                           // matching kExecuteJavaScript; there's no completion/result to report.
         kCopy  = 28, // empty payload -- straight into llCefBrowserManager::Copy().
         kPaste = 29, // empty payload -- straight into llCefBrowserManager::Paste().
+        kSetMuted = 30, // data = {uint8 muted} -- straight into llCefBrowserManager::SetAudioMuted().
+                          // Binary on/off only: CEF's public API has no continuous per-browser
+                          // volume level (audio mixing happens inside Chromium's own audio
+                          // service), so this can't replicate the legacy plugin's smooth
+                          // distance-rolloff curve -- see LLViewerMediaImpl::updateVolume(),
+                          // which collapses that same computed volume to a mute/unmute decision
+                          // for embedded-browser media instead of a graded multiplier.
 
         // consumer -> producer, control channel only
         kRequestSlot     = 5, // data = {uint8 isUI} -- isUI selects which of the producer's two
