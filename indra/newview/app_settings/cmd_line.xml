@@ -416,5 +416,13 @@
       <string>CmdLineSkipUpdater</string>
     </map>
 
+    <key>veloapp-install</key>
+    <map>
+        <key>desc</key>
+        <string>Dummy skip velopack install.</string>
+        <key>map-to</key>
+        <string>VeloappInstall</string>
+    </map>
+
   </map>
 </llsd>
