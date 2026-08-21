@@ -444,11 +444,6 @@ public:
     void setUsedInUI(bool used_in_ui);
     bool getUsedInUI() const { return mUsedInUI; };
 
-    // True only while a live embedded-browser tab actually backs this impl --
-    // see createMediaSource()/destroyMediaSource(), which flip it on creation
-    // and back off on teardown.
-    bool getUseEmbeddedBrowser() const { return mUseEmbeddedBrowser; };
-
     void setBackgroundColor(LLColor4 color);
 
     F64 getCPUUsage() const;

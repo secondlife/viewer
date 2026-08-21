@@ -639,9 +639,9 @@ bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLView
         // a tab that's already loading keeps its slot instead of losing it
         // to a same-interest rival that hasn't even started -- only fall
         // through to distance when neither (or both) already has one.
-        if (i1->getUseEmbeddedBrowser() != i2->getUseEmbeddedBrowser())
+        if (i1->isUsingEmbeddedBrowser() != i2->isUsingEmbeddedBrowser())
         {
-            return i1->getUseEmbeddedBrowser();
+            return i1->isUsingEmbeddedBrowser();
         }
         return (i1->getProximityDistance() < i2->getProximityDistance());
     }
@@ -879,7 +879,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
             // occupying a counted slot, or the cap can never actually free
             // up once every slot has ever been touched by "closest N" churn.
             bool counts_toward_instance_cap = (new_priority != LLPluginClassMedia::PRIORITY_UNLOADED);
-            if (counts_toward_instance_cap && pimpl->getUseEmbeddedBrowser() && !pimpl->getUsedInUI()
+            if (counts_toward_instance_cap && pimpl->isUsingEmbeddedBrowser() && !pimpl->getUsedInUI()
                 && !pimpl->isParcelMedia() && wouldUnloadEmbeddedBrowserMedia(new_priority))
             {
                 counts_toward_instance_cap = false;
@@ -1907,6 +1907,15 @@ void LLViewerMediaImpl::destroyMediaSource()
 
     if (mUseEmbeddedBrowser)
     {
+        // Mute first, before asking for the real teardown: destroy() below
+        // tears down the CEF tab and releases its producer slot, but that's
+        // not instant (closing the browser, then the producer's own idle/
+        // close handling) -- audio kept audibly playing for a few seconds
+        // after e.g. closing the media debug floater even though the tab was
+        // already on its way out. Muting is a single cheap opcode that takes
+        // effect immediately, so silence it right away regardless of how
+        // long the actual teardown takes.
+        LLEmbeddedBrowser::getInstance()->setMuted(mEmbeddedBrowserId, true);
         LLEmbeddedBrowser::getInstance()->destroy(mEmbeddedBrowserId);
         mUseEmbeddedBrowser = false;
         // A freshly created tab always starts unmuted -- reset this so a stale
