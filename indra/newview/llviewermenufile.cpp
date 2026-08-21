@@ -1498,9 +1498,12 @@ static void collect_files_recursive(const std::string& local_dir, std::vector<st
     boost::system::error_code ec;
     for (bfs::directory_iterator it(local_dir, ec), end; !ec && it != end; ++it)
     {
-        if (bfs::is_regular_file(it->status()))
+        boost::system::error_code ec2;
+        bfs::file_status st = it->status(ec2);
+        if (ec2) continue;
+        if (bfs::is_regular_file(st))
             files.push_back(it->path().string());
-        else if (bfs::is_directory(it->status()))
+        else if (bfs::is_directory(st))
             collect_files_recursive(it->path().string(), files);
     }
 }
@@ -1540,7 +1543,10 @@ static void upload_folder_recursive_impl(const std::string& local_dir, const LLU
 
     for (bfs::directory_iterator it(local_dir, ec), end; !ec && it != end; ++it)
     {
-        if (bfs::is_regular_file(it->status()))
+        boost::system::error_code ec2;
+        bfs::file_status st = it->status(ec2);
+        if (ec2) continue;
+        if (bfs::is_regular_file(st))
         {
             std::string path_str = it->path().string();
             std::string ext = gDirUtilp->getExtension(path_str);
@@ -1549,7 +1555,7 @@ static void upload_folder_recursive_impl(const std::string& local_dir, const LLU
             else
                 regular_files.push_back(path_str);
         }
-        else if (bfs::is_directory(it->status()))
+        else if (bfs::is_directory(st))
             subdirs.emplace_back(it->path().string(), it->path().filename().string());
     }
 

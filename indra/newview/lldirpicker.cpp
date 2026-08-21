@@ -324,7 +324,10 @@ bool LLDirPicker::getDirModeless(std::string* filename,
         b->cb(success && !path.empty(), path, b->ud);
         delete b;
     };
-    return mFilePicker->getOpenFileModeless(LLFilePicker::FFLOAD_DIRECTORY, vectorCb, bridge);
+    bool result = mFilePicker->getOpenFileModeless(LLFilePicker::FFLOAD_DIRECTORY, vectorCb, bridge);
+    if (!result)
+        delete bridge;
+    return result;
 }
 
 std::string LLDirPicker::getDirName()
