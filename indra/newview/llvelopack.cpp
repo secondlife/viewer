@@ -24,7 +24,7 @@
  * $/LicenseInfo$
  */
 
-#if LL_VELOPACK
+#if 0
 
 #include "llviewerprecompiledheaders.h"
 #include "llvelopack.h"
@@ -1086,6 +1086,8 @@ static void ensure_update_manager(bool allow_downgrade)
 
 bool velopack_initialize()
 {
+    return false;
+    /*
     vpkc_set_logger(on_log_message, nullptr);
     vpkc_app_set_auto_apply_on_startup(false);
 
@@ -1097,12 +1099,15 @@ bool velopack_initialize()
 
     vpkc_app_run(nullptr);
     return true;
+    */
 }
 
 // Downloads the update that was found during the check phase.
 // Operates on sPendingCheckInfo which was set by velopack_check_for_updates.
 static void velopack_download_pending_update()
 {
+    return;
+    /*
     if (!sUpdateManager || !sPendingCheckInfo)
     {
         LL_WARNS("Velopack") << "No pending check info to download" << LL_ENDL;
@@ -1160,6 +1165,7 @@ static void velopack_download_pending_update()
         vpkc_get_last_error(descr, sizeof(descr));
         LL_WARNS("Velopack") << "Failed to download update: " << ll_safe_string((const char*)descr) << LL_ENDL;
     }
+    */
 }
 
 static void on_downloading_closed(const LLSD& notification, const LLSD& response)
@@ -1238,14 +1244,19 @@ static void on_optional_update_response(const LLSD& notification, const LLSD& re
 
 static void show_required_update_prompt()
 {
+    return;
+    /*
     LLSD args;
     args["VERSION"] = sTargetVersion;
     args["URL"] = sReleaseNotesUrl;
     LLNotificationsUtil::add("PauseForUpdate", args, LLSD(), on_required_update_response);
+    */
 }
 
 void velopack_check_for_updates(const std::string& required_version, const std::string& relnotes_url)
 {
+    return;
+    /*
     if (sUpdateUrl.empty())
     {
         LL_DEBUGS("Velopack") << "No update URL set, skipping update check" << LL_ENDL;
@@ -1316,6 +1327,7 @@ void velopack_check_for_updates(const std::string& required_version, const std::
     args["VERSION"] = target_version;
     args["URL"] = relnotes_url;
     LLNotificationsUtil::add("PromptOptionalUpdate", args, LLSD(), on_optional_update_response);
+    */
 }
 
 std::string velopack_get_current_version()
@@ -1336,12 +1348,14 @@ std::string velopack_get_current_version()
 
 bool velopack_is_update_pending()
 {
-    return sPendingUpdate != nullptr;
+    return false;
+    //return sPendingUpdate != nullptr;
 }
 
 bool velopack_is_required_update_in_progress()
 {
-    return sIsRequired && sPendingCheckInfo != nullptr;
+    return false;
+    //return sIsRequired && sPendingCheckInfo != nullptr;
 }
 
 std::string velopack_get_required_update_version()

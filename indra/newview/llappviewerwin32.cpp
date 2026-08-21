@@ -73,7 +73,7 @@
 #include <exception>
 
 // Velopack installer and update framework
-#if LL_VELOPACK
+#if 0
 #include "llvelopack.h"
 #endif
 
@@ -442,15 +442,15 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
                      PWSTR     pCmdLine,
                      int       nCmdShow)
 {
-#if LL_VELOPACK
+#if 0
     // Velopack MUST be initialized first - it may handle install/uninstall
     // commands and exit the process before we do anything else.
-    if (!velopack_initialize())
-    {
+    //if (!velopack_initialize())
+    //{
         // Obsolete? Always return true
         // Velopack handled the invocation (install/uninstall hook)
-        return 0;
-    }
+        //return 0;
+    //}
 #endif
 
     // Call Tracy first thing to have it allocate memory

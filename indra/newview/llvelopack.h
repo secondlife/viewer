@@ -27,7 +27,7 @@
 #ifndef LL_LLVELOPACK_H
 #define LL_LLVELOPACK_H
 
-#if LL_VELOPACK
+#if 0
 
 #include <string>
 #include <functional>

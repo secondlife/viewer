@@ -37,7 +37,7 @@
 #include "lluri.h"
 #include "llsys.h"
 
-#if LL_VELOPACK
+#if 0
 #include "llvelopack.h"
 #endif
 
@@ -140,7 +140,7 @@ namespace
         if (platforms.has(platform))
         {
             std::string update_url = platforms[platform]["url"].asString();
-#if LL_VELOPACK
+#if 0
             std::string velopack_url = platforms[platform]["velopack_url"].asString();
             U32 updater_service = gSavedSettings.getU32("UpdaterServiceSetting");
             std::string required_version = update_required ? result["version"].asString() : "";

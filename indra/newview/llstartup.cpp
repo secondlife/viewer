@@ -2618,7 +2618,7 @@ void release_notes_coro(const std::string url)
 */
 void uninstall_nsis_if_required()
 {
-#if LL_VELOPACK && LL_WINDOWS
+#if 0
     bool checked_for_legacy_install = gSavedSettings.getBOOL("PreviousInstallChecked");
     if (checked_for_legacy_install)
     {

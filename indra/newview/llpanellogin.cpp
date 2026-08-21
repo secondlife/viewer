@@ -37,7 +37,7 @@
 
 #include "llappviewer.h"
 #include "llbutton.h"
-#if LL_VELOPACK
+#if 0
 #include "llvelopack.h"
 #endif
 #include "llcheckboxctrl.h"
@@ -950,7 +950,7 @@ void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 // static
 void LLPanelLogin::onClickConnect(bool commit_fields)
 {
-#if LL_VELOPACK
+#if 0
     // In theory, you should never be able to get here.
     // If there's a required update, try as you might you're not supposed to actually close the downloading update dialog.
     // But just in case...

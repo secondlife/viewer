@@ -100,7 +100,7 @@
 #include "lllogininstance.h"
 #include "llvvmquery.h"
 
-#if LL_VELOPACK
+#if 0
 #include "llvelopack.h"
 #endif
 #include "llprogressview.h"
@@ -1666,7 +1666,7 @@ void LLAppViewer::flushLFSIO()
 
 bool LLAppViewer::cleanup()
 {
-#if LL_VELOPACK
+#if 0
     // Apply any pending Velopack update before shutdown
     if (velopack_is_update_pending())
     {

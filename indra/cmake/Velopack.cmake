@@ -34,7 +34,7 @@ if (WINDOWS)
         ntdll
     )
 
-    target_compile_definitions(ll::velopack INTERFACE LL_VELOPACK=1)
+    # target_compile_definitions(ll::velopack INTERFACE LL_VELOPACK=1)
 
 elseif (DARWIN)
     include(Prebuilt)
@@ -63,6 +63,6 @@ elseif (DARWIN)
         "-lresolv"
     )
 
-    target_compile_definitions(ll::velopack INTERFACE LL_VELOPACK=1)
+    # target_compile_definitions(ll::velopack INTERFACE LL_VELOPACK=1)
 
 endif()
