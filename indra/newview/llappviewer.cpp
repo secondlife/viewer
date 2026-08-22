@@ -1120,11 +1120,13 @@ bool LLAppViewer::init()
 
 //#if LL_RELEASE_FOR_DOWNLOAD
     // Launch VVM update check
+#ifdef 0
     if (!gSavedSettings.getBOOL("CmdLineSkipUpdater") && !gNonInteractive)
     {
         initVVMUpdateCheck();
     }
     else
+#endif
     {
         LL_WARNS("InitInfo") << "Skipping updater check." << LL_ENDL;
     }
