@@ -154,10 +154,10 @@ public:
 
 protected:
     // verify the certificate and if it is valid and not expired add it to this certificate vector
-    bool verify_and_add(const unsigned char* cert_bytes, long length, bool suppress_expire_warning = false);
-    bool verify_and_add(X509* cert, bool suppress_expire_warning = false);
+    int verify_and_add(const unsigned char* cert_bytes, long length, bool suppress_expire_warning = false);
+    int verify_and_add(X509* cert, bool suppress_expire_warning = false);
     // load certificates from a file or directory
-    bool load_from(const std::string& path, bool suppress_expire_warning = false);
+    int load_from(const std::string& path, bool suppress_expire_warning = false);
 
     int mLoaded;
     int mRejected;
@@ -172,12 +172,12 @@ private:
 class LLSystemCertificateVector : public LLBasicCertificateVector
 {
 public:
-    LLSystemCertificateVector(const std::string& store = "", bool suppress_expire_warning = true);
+    LLSystemCertificateVector(bool suppress_expire_warning = true);
 
     virtual ~LLSystemCertificateVector() {}
 
 protected:
-    bool load_from_system(const std::string& store, bool suppress_expire_warning = true);
+    int load_from_system(bool suppress_expire_warning = true);
 };
 
 // class LLCertificateStore
