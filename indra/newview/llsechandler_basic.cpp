@@ -598,7 +598,8 @@ int LLBasicCertificateVector::load_from(const std::string& filepath, bool suppre
         }
         else
         {
-            LL_WARNS("SECAPI") << "Could not allocate a file BIO" << LL_ENDL;
+            LL_WARNS("SECAPI") << "Could not open certificate file '" << filepath
+                               << "' with BIO_new_file()" << LL_ENDL;
         }
     }
     else if (LLFile::isdir(filepath))
@@ -606,9 +607,9 @@ int LLBasicCertificateVector::load_from(const std::string& filepath, bool suppre
         typedef std::vector<std::string> vec;
 
         vec vec_files = gDirUtilp->getFilesInDir(filepath);
-        for (std::string& filename : vec_files)
+        for (const std::string& filename : vec_files)
         {
-            std::string fullname = gDirUtilp->add(filepath, filename);
+            const std::string fullname = gDirUtilp->add(filepath, filename);
             loaded += load_from(fullname, suppress_expire_warning);
         }
     }
