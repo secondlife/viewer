@@ -119,8 +119,12 @@ class LLEmbeddedBrowserTab
     public:
         // isUI: true for 2D floater/UI media, false for in-world/prim media -- selects
         // which of the producer's two cookie-store contexts this tab's browser is
-        // created in (see kRequestSlot's own comment in cefshm_protocol.h).
-        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI);
+        // created in (see kRequestSlot's own comment in cefshm_protocol.h). maxWidth/
+        // maxHeight are LLEmbeddedBrowser's own current ceiling (EmbeddedBrowserMaxWidth/
+        // Height), sent to the producer in kRequestSlot so it can size this slot's own
+        // shared-memory segment to it instead of always reserving the producer's
+        // absolute maximum -- see that opcode's own comment in cefshm_protocol.h.
+        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, unsigned int maxWidth, unsigned int maxHeight);
         ~LLEmbeddedBrowserTab();
 
         // Stops this tab's own update thread, blocking until it has genuinely exited
@@ -242,6 +246,12 @@ class LLEmbeddedBrowserTab
         // this, not mWidth/mHeight, for its own initial resize.
         unsigned int mRequestedWidth = 0;
         unsigned int mRequestedHeight = 0;
+        // LLEmbeddedBrowser's own max-dimension ceiling at the moment this tab was
+        // created (a snapshot, not live -- see the constructor's own comment), sent
+        // to the producer via kRequestSlot so it can size this slot's shared-memory
+        // segment accordingly.
+        const unsigned int mMaxWidth;
+        const unsigned int mMaxHeight;
         const unsigned int mDepth = 4;
         std::string mCurrentUrl;
         // Latest state reported by the producer's kEventNavStateChanged, under

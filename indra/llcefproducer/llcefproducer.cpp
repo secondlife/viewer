@@ -135,6 +135,13 @@ struct Slot
     std::vector<std::uint8_t>    frameBuf; // reused across ticks -- CopyLatestFrame leaves it untouched when there's nothing new
     std::uint32_t                width  = kDefaultWidth;
     std::uint32_t                height = kDefaultHeight;
+    // The actual ceiling this slot's shared-memory segment was sized to (see
+    // kRequestSlot's own comment) -- may be smaller than kMaxWidth/kMaxHeight if
+    // the consumer's own EmbeddedBrowserMaxWidth/Height was lower. kResize must
+    // clamp against these, not the global constants, or a resize request bigger
+    // than what this slot's segment actually holds would write past its end.
+    std::uint32_t                max_width  = kMaxWidth;
+    std::uint32_t                max_height = kMaxHeight;
     bool                          had_subscriber = false; // edge-detects a new consumer claiming this slot
 
     // Seeded when the slot is allocated and refreshed every tick a
@@ -207,10 +214,13 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     s.cefHandle      = handle;
     s.width          = kDefaultWidth;
     s.height         = kDefaultHeight;
+    s.max_width      = cfg.max_width;
+    s.max_height     = cfg.max_height;
     s.had_subscriber = false;
     s.last_active    = now;
 
-    log_connect("slot " + std::to_string(index) + " connected" + active_slot_suffix(slots));
+    log_connect("slot " + std::to_string(index) + " connected, ceiling " + std::to_string(cfg.max_width) +
+                "x" + std::to_string(cfg.max_height) + active_slot_suffix(slots));
 
     // One-shot, sent before any frames: lets the consumer show which
     // llCefBrowser/CEF/Chromium build is actually in play without needing to
@@ -507,7 +517,21 @@ int run_producer(int argc, char** argv)
             }
             if (cmd.type != kRequestSlot) continue;
 
-            const bool isUI = cmd.data.empty() || cmd.data[0] != 0;
+            // Defaults match the old, isUI-only payload's fallback (see
+            // unpack_request_slot's own comment) -- untouched if the consumer sent
+            // a short/old-format payload, or clamp-adjusted below if it sent a real
+            // ceiling. Clamped to this producer's own absolute maximum (never more)
+            // and its default browser size (never less -- CreateBrowser() below
+            // always starts a fresh view at kDefaultWidth/kDefaultHeight regardless
+            // of what was requested, so a segment smaller than that would never fit
+            // even the first frame).
+            bool isUI = true;
+            std::uint32_t requested_max_width = kMaxWidth;
+            std::uint32_t requested_max_height = kMaxHeight;
+            unpack_request_slot(cmd.data.data(), cmd.data.size(), isUI, requested_max_width, requested_max_height);
+            LLConfig slot_cfg = view_cfg;
+            slot_cfg.max_width  = std::clamp(requested_max_width,  kDefaultWidth,  kMaxWidth);
+            slot_cfg.max_height = std::clamp(requested_max_height, kDefaultHeight, kMaxHeight);
 
             // Try every currently-free index, not just the lowest one: allocate_slot()
             // can fail for a specific index (e.g. its just-reclaimed segment hasn't
@@ -530,7 +554,7 @@ int run_producer(int argc, char** argv)
                 {
                     if (slots[std::size_t(i)].pub) continue; // not free
                     any_free = true;
-                    if (allocate_slot(slots[std::size_t(i)], i, view_cfg, *manager, now, isUI, slots))
+                    if (allocate_slot(slots[std::size_t(i)], i, slot_cfg, *manager, now, isUI, slots))
                     {
                         free_index = i;
                         break;
@@ -659,8 +683,12 @@ int run_producer(int argc, char** argv)
                 case kResize: {
                     std::uint32_t w, h;
                     if (unpack_size(cmd.data.data(), cmd.data.size(), w, h) && w && h) {
-                        w = std::min(w, kMaxWidth);
-                        h = std::min(h, kMaxHeight);
+                        // s.max_width/max_height, not kMaxWidth/kMaxHeight -- this slot's own
+                        // segment may have been sized smaller (see kRequestSlot's own comment);
+                        // clamping against the global constants here would let a resize request
+                        // write past the end of what was actually allocated for it.
+                        w = std::min(w, s.max_width);
+                        h = std::min(h, s.max_height);
                         if (w != s.width || h != s.height) {
                             s.width  = w;
                             s.height = h;

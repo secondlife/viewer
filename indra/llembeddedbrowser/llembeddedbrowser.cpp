@@ -87,12 +87,14 @@ namespace {
     constexpr auto kRelaunchBackoff     = std::chrono::seconds(5);
 }
 
-LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI) :
+LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, unsigned int maxWidth, unsigned int maxHeight) :
     mIsUI(isUI),
     mWidth(width),
     mHeight(height),
     mRequestedWidth(width),
     mRequestedHeight(height),
+    mMaxWidth(maxWidth),
+    mMaxHeight(maxHeight),
     mCurrentUrl(url)
 {
     // Zero-initialized: this shows as black until connectToProducer() succeeds and the
@@ -169,8 +171,9 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     }
 
     std::uint64_t req_id = 0;
-    const std::uint8_t isUIByte = mIsUI ? 1 : 0;
-    if (!ctrl->send(kRequestSlot, &isUIByte, 1, 0, &req_id))
+    std::uint8_t request_payload[9];
+    const std::uint32_t request_len = pack_request_slot(request_payload, mIsUI, mMaxWidth, mMaxHeight);
+    if (!ctrl->send(kRequestSlot, request_payload, request_len, 0, &req_id))
     {
         return false;
     }
@@ -910,7 +913,7 @@ unsigned int LLEmbeddedBrowser::create(const std::string& url, unsigned int widt
 
     LLMutexLock lock(&mTabsMutex);
     unsigned int id = mNextTabId++;
-    mTabs[id] = std::make_shared<LLEmbeddedBrowserTab>(this, id, url, width, height, isUI);
+    mTabs[id] = std::make_shared<LLEmbeddedBrowserTab>(this, id, url, width, height, isUI, mMaxWidth, mMaxHeight);
     return id;
 }
 

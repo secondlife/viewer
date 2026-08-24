@@ -101,11 +101,19 @@ namespace cefshm_demo
                           // on the producer side branches on either.
 
         // consumer -> producer, control channel only
-        kRequestSlot     = 5, // data = {uint8 isUI} -- isUI selects which of the producer's two
-                          // CefRequestContexts (and therefore which cookie store) the new
-                          // browser is created in: true for 2D floater/UI media, false for
-                          // in-world/prim media. See llCefBrowserManager::CreateBrowser()'s own
-                          // isUI parameter and kSetOpenIDCookie below.
+        kRequestSlot     = 5, // data = {uint8 isUI, uint32 maxWidth, uint32 maxHeight} -- isUI
+                          // selects which of the producer's two CefRequestContexts (and
+                          // therefore which cookie store) the new browser is created in: true
+                          // for 2D floater/UI media, false for in-world/prim media. See
+                          // llCefBrowserManager::CreateBrowser()'s own isUI parameter and
+                          // kSetOpenIDCookie below. maxWidth/maxHeight are the consumer's own
+                          // current ceiling (EmbeddedBrowserMaxWidth/Height) -- the producer
+                          // clamps them to its own absolute maximum and sizes this slot's
+                          // shared-memory segment to the result, rather than always reserving
+                          // its absolute maximum for every slot regardless of what the consumer
+                          // will ever actually request. A payload shorter than 9 bytes (the old,
+                          // isUI-only format) falls back to the producer's own absolute maximum,
+                          // for safety.
         kSetOpenIDCookie = 26, // data = {5x (uint32 len, bytes): url, name, value, domain, path;
                           // uint8 httpOnly; uint8 secure; uint8 alsoPrimContext} -- straight
                           // into llCefBrowserManager::SetCookie(), which always targets the UI
@@ -319,6 +327,24 @@ namespace cefshm_demo
         message.assign(reinterpret_cast<const char*>(d + 8), msg_len);
         source.assign(reinterpret_cast<const char*>(d + 8 + msg_len), n - 8 - msg_len);
         return true;
+    }
+
+    inline std::uint32_t pack_request_slot(std::uint8_t* d, bool isUI, std::uint32_t maxWidth, std::uint32_t maxHeight)
+    {
+        d[0] = isUI ? 1 : 0;
+        std::uint32_t n = 1 + pack_u32(d + 1, maxWidth);
+        n += pack_u32(d + n, maxHeight);
+        return n;
+    }
+
+    // false (only isUI populated) for the old, isUI-only payload -- see kRequestSlot's
+    // own comment on why that's a safe, deliberate fallback rather than an error.
+    inline bool unpack_request_slot(const std::uint8_t* d, std::size_t n, bool& isUI,
+                                     std::uint32_t& maxWidth, std::uint32_t& maxHeight)
+    {
+        isUI = (n == 0) || (d[0] != 0);
+        if (n < 9) return false;
+        return unpack_u32(d + 1, n - 1, maxWidth) && unpack_u32(d + 5, n - 5, maxHeight);
     }
 
     inline std::uint32_t pack_render_rate(std::uint8_t* d, std::uint32_t targetFps, std::uint8_t priorityTier,

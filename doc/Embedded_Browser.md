@@ -197,6 +197,31 @@ assigned - the same population split already used elsewhere in
 `setPriority()` for the auto-unload debounce. Only ordinary in-world prim
 media, the same population the legacy plugin throttled, is ever affected.
 
+## Shared-memory footprint and EmbeddedBrowserMaxWidth/EmbeddedBrowserMaxHeight
+
+Each media tab's shared-memory segment is a lock-free triple buffer
+(`llshmframe`'s own design - see its header comment), sized once, up front,
+to whatever pixel ceiling that tab might ever be resized to. That ceiling
+used to be a single hardcoded producer-side constant (1920x1080) applied to
+every tab regardless of what the Viewer actually needed, which meant a
+resident who lowered `EmbeddedBrowserMaxWidth`/`EmbeddedBrowserMaxHeight`
+(already an existing setting, clamping what size the Viewer *requests*) got
+no shared-memory savings at all - the producer still reserved the same
+1920x1080x3-buffers segment either way, on every low-end machine and every
+high-end one alike.
+
+`kRequestSlot` now carries the Viewer's own current
+`EmbeddedBrowserMaxWidth`/`Height` alongside the existing UI/prim flag, and
+the producer sizes that specific tab's shared-memory segment to
+`min(what the Viewer asked for, the producer's own absolute maximum)`
+instead of always reserving the absolute maximum. Raising the setting above
+the producer's own ceiling changes nothing (that ceiling still wins), but
+lowering it now genuinely shrinks the memory each tab reserves, not just
+what resolution it's allowed to request. This is a real, additional lever
+for constrained machines, on top of (not a replacement for) the render-rate
+throttling above - one shrinks how much memory a tab reserves, the other
+shrinks how much CPU it costs to keep painting.
+
 ## Debugging
 
 Two separate log files are written next to `SLCefProducer.exe`:
