@@ -576,8 +576,7 @@ void LLPreviewNotecard::syncExternal()
 {
     // Sync with external editor.
     std::string tmp_file = getTmpFileName();
-    llstat s;
-    if (LLFile::stat(tmp_file, &s) == 0) // file exists
+    if (LLFile::isfile(tmp_file)) // file exists
     {
         if (mLiveFile) mLiveFile->ignoreNextUpdate();
         writeToFile(tmp_file);
@@ -803,7 +802,7 @@ bool LLPreviewNotecard::loadNotecardText(const std::string& filename)
         return false;
     }
 
-    LLFILE* file = LLFile::fopen(filename, "rb");       /*Flawfinder: ignore*/
+    LLFILE* file = LLFile::fopen(filename, LLFILE_MODE("rb"));       /*Flawfinder: ignore*/
     if (!file)
     {
         LL_WARNS() << "Error opening " << filename << LL_ENDL;
@@ -834,7 +833,7 @@ bool LLPreviewNotecard::loadNotecardText(const std::string& filename)
 
 bool LLPreviewNotecard::writeToFile(const std::string& filename)
 {
-    LLFILE* fp = LLFile::fopen(filename, "wb");
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("wb"));
     if (!fp)
     {
         LL_WARNS() << "Unable to write to " << filename << LL_ENDL;

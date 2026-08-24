@@ -25,6 +25,7 @@
 * $/LicenseInfo$
 */
 
+#include "linden_common.h"
 
 #include "lldeadmantimer.h"
 

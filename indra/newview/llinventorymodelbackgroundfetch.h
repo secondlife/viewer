@@ -70,6 +70,7 @@ public:
     bool inventoryFetchStarted() const;
     bool inventoryFetchCompleted() const;
     bool inventoryFetchInProgress() const;
+    F32 getInitialFetchDuration() const { return mInitialFetchDuration; }
 
     void findLostItems();
     void incrFetchCount(S32 fetching);
@@ -120,6 +121,8 @@ protected:
     bool fetchQueueContainsNoDescendentsOf(const LLUUID& cat_id) const;
 
 private:
+    void markFetchStarted();
+
     bool mRecursiveInventoryFetchStarted;
     bool mRecursiveLibraryFetchStarted;
     bool mRecursiveMarketplaceFetchStarted; // AIS3 specific
@@ -133,6 +136,9 @@ private:
     S32 mLastFetchCount; // for debug
     S32 mFetchFolderCount;
 
+    LLFrameTimer mFetchStartTimer;
+    F32 mInitialFetchDuration;
+    bool mInitialFetchDurationCaptured;
     LLFrameTimer mFetchTimer;
     F32 mMinTimeBetweenFetches;
     fetch_queue_t mFetchFolderQueue;

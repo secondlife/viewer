@@ -699,7 +699,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
     mLoadedCallbacksPaused(false),
     mLoadedCallbackTextures(0),
-    mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
     mLastRezzedStatus(-1),
     mIsEditingAppearance(false),
     mUseLocalAppearance(false),
@@ -2583,6 +2582,10 @@ void LLVOAvatar::updateMeshData()
                 f_num++ ;
             }
         }
+
+        mDirtyMesh = 0;
+        mNeedsSkin = true;
+        mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
     }
 }
 
@@ -3121,7 +3124,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 
     if (isImpostor() && !mNeedsImpostorUpdate)
     {
-        LL_ALIGN_16(LLVector4a ext[2]);
+        LLVector4a ext[2];
         F32 distance;
         LLVector3 angle;
 
@@ -5217,9 +5220,6 @@ U32 LLVOAvatar::renderSkinned()
         if (needs_rebuild || mDirtyMesh >= 2 || mVisibilityRank <= 4)
         {
             updateMeshData();
-            mDirtyMesh = 0;
-            mNeedsSkin = true;
-            mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
         }
     }
 
@@ -5488,7 +5488,7 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
         gGL.begin(LLRender::LINES);
         gGL.color4f(1.f,1.f,1.f,1.f);
         F32 thickness = llmax(F32(5.0f-5.0f*(gFrameTimeSeconds-mLastImpostorUpdateFrameTime)),1.0f);
-        glLineWidth(thickness);
+        gGL.setLineWidth(thickness);
         gGL.vertex3fv((pos+left-up).mV);
         gGL.vertex3fv((pos-left-up).mV);
         gGL.vertex3fv((pos-left-up).mV);
@@ -8617,6 +8617,10 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 
     if (changed && isSelf())
     {
+        // Agent's own avatar doesn't track bakes the same way as other avatars.
+        // So just update here, on cloud removal.
+        markBodyPartsComplexityDirty();
+
         // to know about outfit switching
         LLAvatarRenderNotifier::getInstance()->updateNotificationState();
     }
@@ -8633,7 +8637,8 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 
 bool LLVOAvatar::isFullyLoaded() const
 {
-    return (mRenderUnloadedAvatar && !isSelf()) || mFullyLoaded;
+    static LLCachedControl<bool> render_unloaded_avatar(gSavedSettings, "RenderUnloadedAvatar", false);
+    return (render_unloaded_avatar && !isSelf()) || mFullyLoaded;
 }
 
 bool LLVOAvatar::hasFirstFullAttachmentData() const
@@ -10212,6 +10217,10 @@ void LLVOAvatar::onInitialBakedTextureLoaded( bool success, LLViewerFetchedTextu
     }
     if (final || !success )
     {
+        if (selfp)
+        {
+            selfp->markBodyPartsComplexityDirty();
+        }
         delete avatar_idp;
     }
 }
@@ -10803,9 +10812,6 @@ bool LLVOAvatar::updateLOD()
     if (mDirtyMesh >= 2 || mDrawable->isState(LLDrawable::REBUILD_GEOMETRY))
     {   //LOD changed or new mesh created, allocate new vertex buffer if needed
         updateMeshData();
-        mDirtyMesh = 0;
-        mNeedsSkin = true;
-        mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
     }
     updateVisibility();
 
@@ -11532,7 +11538,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
     // Store results
     mVisualComplexity = total_cost;
 
-    // Call the existing reporting function with the aggregated lists
+    // Call the reporting function with the aggregated lists
     processComplexityCostChange(hud_complexity_list, object_complexity_list);
 
     // Stop processing until something changes

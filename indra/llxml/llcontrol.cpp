@@ -37,7 +37,6 @@
 #include "llstring.h"
 #include "v3math.h"
 #include "v3dmath.h"
-#include "v4math.h"
 #include "v4coloru.h"
 #include "v4color.h"
 #include "v3color.h"
@@ -64,7 +63,6 @@ template <> eControlType get_control_type<std::string>();
 
 template <> eControlType get_control_type<LLVector3>();
 template <> eControlType get_control_type<LLVector3d>();
-template <> eControlType get_control_type<LLVector4>();
 template <> eControlType get_control_type<LLRect>();
 template <> eControlType get_control_type<LLColor4>();
 template <> eControlType get_control_type<LLColor3>();
@@ -74,7 +72,6 @@ template <> eControlType get_control_type<LLSD>();
 template <> LLSD convert_to_llsd<U32>(const U32& in);
 template <> LLSD convert_to_llsd<LLVector3>(const LLVector3& in);
 template <> LLSD convert_to_llsd<LLVector3d>(const LLVector3d& in);
-template <> LLSD convert_to_llsd<LLVector4>(const LLVector4& in);
 template <> LLSD convert_to_llsd<LLRect>(const LLRect& in);
 template <> LLSD convert_to_llsd<LLColor4>(const LLColor4& in);
 template <> LLSD convert_to_llsd<LLColor3>(const LLColor3& in);
@@ -88,7 +85,6 @@ template <> std::string convert_from_llsd<std::string>(const LLSD& sd, eControlT
 template <> LLWString convert_from_llsd<LLWString>(const LLSD& sd, eControlType type, std::string_view control_name);
 template <> LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, std::string_view control_name);
 template <> LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, std::string_view control_name);
-template <> LLVector4 convert_from_llsd<LLVector4>(const LLSD& sd, eControlType type, std::string_view control_name);
 template <> LLRect convert_from_llsd<LLRect>(const LLSD& sd, eControlType type, std::string_view control_name);
 template <> LLColor4 convert_from_llsd<LLColor4>(const LLSD& sd, eControlType type, std::string_view control_name);
 template <> LLColor4U convert_from_llsd<LLColor4U>(const LLSD& sd, eControlType type, std::string_view control_name);
@@ -127,9 +123,6 @@ bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
     case TYPE_VEC3:
     case TYPE_VEC3D:
         result = LLVector3d(a) == LLVector3d(b);
-        break;
-    case TYPE_VEC4:
-        result = LLVector4(a) == LLVector4(b);
         break;
     case TYPE_QUAT:
         result = LLQuaternion(a) == LLQuaternion(b);
@@ -197,20 +190,6 @@ LLSD LLControlVariable::getComparableValue(const LLSD& value)
         else
         {
             storable_value = false;
-        }
-    }
-    else if (TYPE_LLSD == type() && value.isString())
-    {
-        LLPointer<LLSDNotationParser> parser = new LLSDNotationParser;
-        LLSD result;
-        std::stringstream value_stream(value.asString());
-        if (parser->parse(value_stream, result, LLSDSerialize::SIZE_UNLIMITED) != LLSDParser::PARSE_FAILURE)
-        {
-            storable_value = result;
-        }
-        else
-        {
-            storable_value = value;
         }
     }
     else
@@ -380,7 +359,6 @@ const std::string LLControlGroup::mTypeString[TYPE_COUNT] = { "U32"
                                                              ,"Rect"
                                                              ,"Color4"
                                                              ,"Color3"
-                                                             ,"Vector4"
                                                              ,"LLSD"
                                                              };
 
@@ -411,7 +389,7 @@ void LLControlGroup::cleanup()
     if(mSettingsProfile && getCount.size() != 0)
     {
         std::string file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, SETTINGS_PROFILE);
-        LLFILE* out = LLFile::fopen(file, "w"); /* Flawfinder: ignore */
+        LLFILE* out = LLFile::fopen(file, LLFILE_MODE("w")); /* Flawfinder: ignore */
         if(!out)
         {
             LL_WARNS("SettingsProfile") << "Error opening " << SETTINGS_PROFILE << LL_ENDL;
@@ -541,11 +519,6 @@ LLControlVariable* LLControlGroup::declareVec3d(const std::string& name, const L
     return declareControl(name, TYPE_VEC3D, initial_val.getValue(), comment, persist);
 }
 
-LLControlVariable* LLControlGroup::declareVec4(const std::string& name, const LLVector4 &initial_val, const std::string& comment, LLControlVariable::ePersist persist)
-{
-    return declareControl(name, TYPE_VEC4, initial_val.getValue(), comment, persist);
-}
-
 LLControlVariable* LLControlGroup::declareQuat(const std::string& name, const LLQuaternion &initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
     return declareControl(name, TYPE_QUAT, initial_val.getValue(), comment, persist);
@@ -626,11 +599,6 @@ LLVector3 LLControlGroup::getVector3(std::string_view name)
 LLVector3d LLControlGroup::getVector3d(std::string_view name)
 {
     return get<LLVector3d>(name);
-}
-
-LLVector4 LLControlGroup::getVector4(std::string_view name)
-{
-    return get<LLVector4>(name);
 }
 
 LLQuaternion LLControlGroup::getQuaternion(std::string_view name)
@@ -733,11 +701,6 @@ void LLControlGroup::setVector3d(std::string_view name, const LLVector3d &val)
     set(name, val);
 }
 
-void LLControlGroup::setVector4(std::string_view name, const LLVector4 &val)
-{
-    set(name, val);
-}
-
 void LLControlGroup::setQuaternion(std::string_view name, const LLQuaternion &val)
 {
     set(name, val);
@@ -756,6 +719,30 @@ void LLControlGroup::setColor4(std::string_view name, const LLColor4 &val)
 void LLControlGroup::setLLSD(std::string_view name, const LLSD& val)
 {
     set(name, val);
+}
+
+bool LLControlVariable::setValueFromNotation(const std::string& notation, bool saved_value)
+{
+    if (mType == TYPE_LLSD)
+    {
+        LLPointer<LLSDNotationParser> parser = new LLSDNotationParser;
+        LLSD result;
+        std::stringstream value_stream(notation);
+        S32 parse_count = parser->parse(value_stream, result, LLSDSerialize::SIZE_UNLIMITED);
+        if (parse_count != LLSDParser::PARSE_FAILURE)
+        {
+            setValue(result, saved_value);
+            return true;
+        }
+        LL_WARNS("Controls") << "Failed to parse LLSD notation for control '"
+            << mName << "': " << notation << LL_ENDL;
+    }
+    else
+    {
+        LL_WARNS("Controls") << "setValueFromNotation() called on non-LLSD control '"
+            << mName << "' (type " << LLControlGroup::typeEnumToString(mType) << "); ignoring." << LL_ENDL;
+    }
+    return false;
 }
 
 void LLControlGroup::setUntypedValue(std::string_view name, const LLSD& val)
@@ -1287,11 +1274,6 @@ template <> eControlType get_control_type<LLVector3d>()
     return TYPE_VEC3D;
 }
 
-template <> eControlType get_control_type<LLVector4>()
-{
-    return TYPE_VEC4;
-}
-
 template <> eControlType get_control_type<LLQuaternion>()
 {
     return TYPE_QUAT;
@@ -1332,11 +1314,6 @@ template <> LLSD convert_to_llsd<LLVector3d>(const LLVector3d& in)
 {
     return in.getValue();
 }
-template <> LLSD convert_to_llsd<LLVector4>(const LLVector4& in)
-{
-    return in.getValue();
-}
-
 template <> LLSD convert_to_llsd<LLQuaternion>(const LLQuaternion& in)
 {
     return in.getValue();
@@ -1450,18 +1427,6 @@ LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, std:
     {
         CONTROL_ERRS << "Invalid LLVector3d value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
         return LLVector3d::zero;
-    }
-}
-
-template<>
-LLVector4 convert_from_llsd<LLVector4>(const LLSD& sd, eControlType type, std::string_view control_name)
-{
-    if (type == TYPE_VEC4)
-        return LLVector4(sd);
-    else
-    {
-        CONTROL_ERRS << "Invalid LLVector4 value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
-        return LLVector4();
     }
 }
 

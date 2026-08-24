@@ -33,8 +33,6 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <boost/filesystem.hpp>
-#include <boost/regex.hpp>
 
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -189,7 +187,6 @@
 #include "llviewerjoystick.h"
 #include "llviewermenufile.h" // LLFilePickerReplyThread
 #include "llviewernetwork.h"
-#include "llpostprocess.h"
 #include "llfloaterimnearbychat.h"
 #include "llagentui.h"
 #include "llwearablelist.h"
@@ -204,6 +201,7 @@
 
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
+#include "llstatslistener.h"
 #include "llcleanup.h"
 
 #if LL_WINDOWS
@@ -782,14 +780,14 @@ public:
             addText(xpos, ypos, "Projection Matrix");
             ypos += y_inc;
 
-#if LL_DARWIN
+#if LL_CLANG
 // For sprintf deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
             // View last column is always <0,0,0,1>
             MATRIX_ROW_F32_TO_STR(gGLModelView, 12,camera_lines[3]); addText(xpos, ypos, std::string(camera_lines[3])); ypos += y_inc;
-#if LL_DARWIN
+#if LL_CLANG
 #pragma clang diagnostic pop
 #endif
             MATRIX_ROW_N32_TO_STR(gGLModelView,  8,camera_lines[2]); addText(xpos, ypos, std::string(camera_lines[2])); ypos += y_inc;
@@ -1836,13 +1834,17 @@ bool LLViewerWindow::handleTimerEvent(LLWindow *window)
     return false;
 }
 
-bool LLViewerWindow::handleDeviceChange(LLWindow *window)
+bool LLViewerWindow::handleDeviceChange(LLWindow *window, const std::string& change_type)
 {
     // give a chance to use a joystick after startup (hot-plugging)
     if (!LLViewerJoystick::getInstance()->isJoystickInitialized() )
     {
         LLViewerJoystick::getInstance()->init(true);
         return true;
+    }
+    else
+    {
+        LL_INFOS("Window") << "Device change event: " << change_type << LL_ENDL;
     }
     return false;
 }
@@ -1865,6 +1867,7 @@ bool LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32
 
 bool LLViewerWindow::handleDisplayChanged()
 {
+    LL_INFOS("Window") << "Display change event" << LL_ENDL;
     LLFontGL::sResolutionGeneration++;
     return false;
 }
@@ -1946,6 +1949,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     LLWindowListener::KeyboardGetter getter = [](){ return gKeyboard; };
     mWindowListener = std::make_unique<LLWindowListener>(this, getter);
     mViewerWindowListener = std::make_unique<LLViewerWindowListener>(this);
+    mStatsListener = std::make_unique<LLStatsListener>();
 
     mSystemChannel.reset(new LLNotificationChannel("System", "Visible", LLNotificationFilters::includeEverything));
     mCommunicationChannel.reset(new LLCommunicationChannel("Communication", "Visible"));
@@ -1994,13 +1998,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
         ms_sleep(5000) ; //wait for 5 seconds.
 
         LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
-#if LL_LINUX
-        LL_WARNS() << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt for further information."
-                << LL_ENDL;
-#else
         LL_WARNS("Window") << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
                 << LL_ENDL;
-#endif
         LLAppViewer::instance()->fastQuit(1);
     }
     else if (!LLViewerShaderMgr::sInitialized)
@@ -3122,7 +3121,7 @@ bool LLViewerWindow::handleKey(KEY key, MASK mask)
     {
         if ((focusedFloaterName == "nearby_chat") || (focusedFloaterName == "im_container") || (focusedFloaterName == "impanel"))
         {
-            LLCachedControl<bool> key_move(gSavedSettings, "ArrowKeysAlwaysMove");
+            static LLCachedControl<bool> key_move(gSavedSettings, "ArrowKeysAlwaysMove");
             if (key_move())
             {
                 // let Control-Up and Control-Down through for chat line history,
@@ -4910,14 +4909,10 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
         return;
     }
 
-// Check if there is enough free space to save snapshot
-#ifdef LL_WINDOWS
-    boost::filesystem::path b_path(ll_convert<std::wstring>(lastSnapshotDir));
-#else
-    boost::filesystem::path b_path(lastSnapshotDir);
-#endif
-    boost::system::error_code ec;
-    if (!boost::filesystem::is_directory(b_path, ec) || ec.failed())
+    // Check if there is enough free space to save snapshot
+    std::filesystem::path b_path = fsyspath(lastSnapshotDir);
+    std::error_code ec;
+    if (!std::filesystem::is_directory(b_path, ec) || ec)
     {
         LLSD args;
         args["PATH"] = lastSnapshotDir;
@@ -4926,8 +4921,8 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
         failure_cb();
         return;
     }
-    boost::filesystem::space_info b_space = boost::filesystem::space(b_path, ec);
-    if (ec.failed())
+    std::filesystem::space_info b_space = std::filesystem::space(b_path, ec);
+    if (ec)
     {
         LLSD args;
         args["PATH"] = lastSnapshotDir;
@@ -5728,11 +5723,6 @@ void* LLViewerWindow::getPlatformWindow() const
     return mWindow->getPlatformWindow();
 }
 
-void* LLViewerWindow::getMediaWindow()  const
-{
-    return mWindow->getMediaWindow();
-}
-
 void LLViewerWindow::focusClient()      const
 {
     return mWindow->focusClient();
@@ -5953,11 +5943,6 @@ void LLViewerWindow::stopGL()
         }
 
         gBox.cleanupGL();
-
-        if(gPostProcess)
-        {
-            gPostProcess->invalidate();
-        }
 
         gTextureList.destroyGL();
         stop_glerror();

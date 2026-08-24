@@ -632,7 +632,7 @@ bool LLScriptEdCore::loadScriptText(const std::string& filename)
         return false;
     }
 
-    LLFILE* file = LLFile::fopen(filename, "rb");       /*Flawfinder: ignore*/
+    LLFILE* file = LLFile::fopen(filename, LLFILE_MODE("rb"));       /*Flawfinder: ignore*/
     if (!file)
     {
         LL_WARNS() << "Error opening " << filename << LL_ENDL;
@@ -663,7 +663,7 @@ bool LLScriptEdCore::loadScriptText(const std::string& filename)
 
 bool LLScriptEdCore::writeToFile(const std::string& filename)
 {
-    LLFILE* fp = LLFile::fopen(filename, "wb");
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("wb"));
     if (!fp)
     {
         LL_WARNS() << "Unable to write to " << filename << LL_ENDL;
@@ -694,8 +694,7 @@ void LLScriptEdCore::sync()
     if (mLiveFile)
     {
         std::string tmp_file = mLiveFile->filename();
-        llstat s;
-        if (LLFile::stat(tmp_file, &s) == 0) // file exists
+        if (LLFile::isfile(tmp_file)) // file exists
         {
             mLiveFile->ignoreNextUpdate();
             writeToFile(tmp_file);

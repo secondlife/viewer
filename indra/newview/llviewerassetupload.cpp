@@ -45,11 +45,7 @@
 #include "llappviewer.h"
 #include "llviewerstats.h"
 #include "llfilesystem.h"
-#include "llgesturemgr.h"
-#include "llpreviewnotecard.h"
-#include "llpreviewgesture.h"
 #include "llcoproceduremanager.h"
-#include "llthread.h"
 #include "llkeyframemotion.h"
 #include "lldatapacker.h"
 #include "llvoavatarself.h"
@@ -405,6 +401,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
 
     std::string errorMessage;
     std::string errorLabel;
+    std::error_code ec;
 
     bool error = false;
 
@@ -475,30 +472,38 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         error = true;
 
         // read from getFileName()
-        LLAPRFile infile;
-        infile.open(getFileName(),LL_APR_RB);
-        if (!infile.getFileHandle())
+        LLFile infile(getFileName(), LLFile::in | LLFile::binary, ec);
+        if (ec || !infile)
         {
             LL_WARNS() << "Couldn't open file for reading: " << getFileName() << LL_ENDL;
             errorMessage = llformat("Failed to open animation file %s\n", getFileName().c_str());
         }
         else
         {
-            S32 size = LLAPRFile::size(getFileName());
+            S64 size = infile.size(ec);
+            if (ec || size <= 0)
+            {
+                LLError::LLUserWarningMsg::showMissingFiles();
+                LL_ERRS() << "Invalid file" << LL_ENDL;
+            }
+            else if (size > INT_MAX)
+            {
+                LL_ERRS() << "File " << getFileName() << " is too big, size: " << size << LL_ENDL;
+            }
             U8* buffer = new(std::nothrow) U8[size];
             if (!buffer)
             {
                 LLError::LLUserWarningMsg::showOutOfMemory();
                 LL_ERRS() << "Bad memory allocation for buffer, size: " << size << LL_ENDL;
             }
-            S32 size_read = infile.read(buffer,size);
-            if (size_read != size)
+            S64 size_read = infile.read(buffer, size, ec);
+            if (ec || size_read != size)
             {
                 errorMessage = llformat("Failed to read animation file %s: wanted %d bytes, got %d\n", getFileName().c_str(), size, size_read);
             }
             else
             {
-                LLDataPackerBinaryBuffer dp(buffer, size);
+                LLDataPackerBinaryBuffer dp(buffer, (S32)size);
                 LLKeyframeMotion *motionp = new LLKeyframeMotion(getAssetId());
                 motionp->setCharacter(gAgentAvatarp);
                 if (motionp->deserialize(dp, getAssetId(), false))
@@ -544,18 +549,17 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     setAssetType(assetType);
 
     // copy this file into the cache for upload
-    S32 file_size;
-    LLAPRFile infile;
-    infile.open(filename, LL_APR_RB, NULL, &file_size);
-    if (infile.getFileHandle())
+    LLFile infile(filename, LLFile::in | LLFile::binary, ec);
+    if (!ec && infile.size(ec) > 0)
     {
         LLFileSystem file(getAssetId(), assetType, LLFileSystem::APPEND);
 
+        S64 read_bytes;
         const S32 buf_size = 65536;
         U8 copy_buf[buf_size];
-        while ((file_size = infile.read(copy_buf, buf_size)))
+        while (((read_bytes = infile.read(copy_buf, buf_size, ec))) > 0)
         {
-            file.write(copy_buf, file_size);
+            file.write(copy_buf, (S32)read_bytes);
         }
     }
     else
@@ -569,7 +573,6 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     }
 
     return LLSD();
-
 }
 
 //=========================================================================
@@ -881,6 +884,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
     if (uploadInfo->showUploadDialog())
     {
+        // todo: localize this string
         std::string uploadMessage = "Uploading...\n\n";
         uploadMessage.append(uploadInfo->getDisplayName());
         LLUploadDialog::modalUploadDialog(uploadMessage);
@@ -888,24 +892,35 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
     LLSD body = uploadInfo->generatePostBody();
 
-    result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOptions);
+    // Retry stage-2 upload by re-requesting a fresh one-time uploader capability (up to 3 attempts total)
+    const S32 MAX_UPLOAD_RETRIES = 2;
+    S32 upload_retry_count = 0;
+    LLCore::HttpStatus status;
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if ((!status) || (result.has("error")))
+    while (upload_retry_count <= MAX_UPLOAD_RETRIES)
     {
-        HandleUploadError(status, result, uploadInfo);
-        if (uploadInfo->showUploadDialog())
-            LLUploadDialog::modalUploadFinished();
-        return;
-    }
+        // Stage 1: Request uploader URL
+        result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOptions);
 
-    std::string uploader = result["uploader"].asString();
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    bool success = false;
-    if (!uploader.empty() && uploadInfo->getAssetId().notNull())
-    {
+        if ((!status) || (result.has("error")))
+        {
+            HandleUploadError(status, result, uploadInfo);
+            if (uploadInfo->showUploadDialog())
+                LLUploadDialog::modalUploadFinished();
+            return;
+        }
+
+        std::string uploader = result["uploader"].asString();
+        if (uploader.empty() || uploadInfo->getAssetId().isNull())
+        {
+            LL_WARNS() << "No upload url provided. Nothing uploaded, responding with previous result." << LL_ENDL;
+            break;
+        }
+
+        // Stage 2: Upload to the uploader URL
         result = httpAdapter->postFileAndSuspend(httpRequest, uploader, uploadInfo->getAssetId(), uploadInfo->getAssetType(), httpOptions);
         httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -914,40 +929,53 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
         if ((!status) || (ulstate != "complete"))
         {
-            HandleUploadError(status, result, uploadInfo);
-            if (uploadInfo->showUploadDialog())
-                LLUploadDialog::modalUploadFinished();
-            return;
-        }
-        if (!result.has("success"))
-        {
-            result["success"] = LLSD::Boolean((ulstate == "complete") && status);
+            if (upload_retry_count < MAX_UPLOAD_RETRIES)
+            {
+                upload_retry_count++;
+                LL_WARNS() << "Upload to uploader failed (attempt " << upload_retry_count
+                          << " of " << (MAX_UPLOAD_RETRIES + 1) << "), re-requesting uploader..." << LL_ENDL;
+                llcoro::suspendUntilTimeout(1.0f);
+                continue;
+            }
+            else
+            {
+                HandleUploadError(status, result, uploadInfo);
+                if (uploadInfo->showUploadDialog())
+                    LLUploadDialog::modalUploadFinished();
+                return;
+            }
         }
 
-        S32 uploadPrice = result["upload_price"].asInteger();
-
-        if (uploadPrice > 0)
-        {
-            // this upload costed us L$, update our balance
-            // and display something saying that it cost L$
-            LLStatusBar::sendMoneyBalanceRequest();
-
-            LLSD args;
-            args["AMOUNT"] = llformat("%d", uploadPrice);
-            LLNotificationsUtil::add("UploadPayment", args);
-        }
+        // Success!
+        break;
     }
-    else
+
+    if (!result.has("success"))
     {
-        LL_WARNS() << "No upload url provided.  Nothing uploaded, responding with previous result." << LL_ENDL;
+        result["success"] = LLSD::Boolean((result["state"].asString() == "complete") && status);
     }
+
+    S32 uploadPrice = result["upload_price"].asInteger();
+
+    if (uploadPrice > 0)
+    {
+        // this upload costed us L$, update our balance
+        // and display something saying that it cost L$
+        LLStatusBar::sendMoneyBalanceRequest();
+
+        LLSD args;
+        args["AMOUNT"] = llformat("%d", uploadPrice);
+        LLNotificationsUtil::add("UploadPayment", args);
+    }
+
     LLUUID serverInventoryItem = uploadInfo->finishUpload(result);
 
+    bool succeeded = false;
     if (uploadInfo->showInventoryPanel())
     {
         if (serverInventoryItem.notNull())
         {
-            success = true;
+            succeeded = true;
 
             LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
 
@@ -973,7 +1001,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
     LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
     if (uploadInfo->getAssetType() == LLAssetType::AT_TEXTURE && floater_snapshot && floater_snapshot->isShown())
     {
-        floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
+        floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", succeeded).with("msg", "inventory")));
     }
 }
 

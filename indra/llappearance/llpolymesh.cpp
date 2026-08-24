@@ -280,7 +280,7 @@ bool LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 LL_ERRS() << "Filename is Empty!" << LL_ENDL;
                 return false;
         }
-        LLFILE* fp = LLFile::fopen(fileName, "rb");                     /*Flawfinder: ignore*/
+        LLFILE* fp = LLFile::fopen(fileName, LLFILE_MODE("rb")); /*Flawfinder: ignore*/
         if (!fp)
         {
                 LLError::LLUserWarningMsg::showMissingFiles();
