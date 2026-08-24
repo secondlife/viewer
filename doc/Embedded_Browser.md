@@ -184,6 +184,32 @@ To use it:
    embedded-browser tab, UI floater or prim media, and opens a full DevTools
    session against whichever one you pick.
 
+## Known limitations, as of this writing
+
+- **Volume is all-or-nothing.** CEF only exposes a binary
+  `SetAudioMuted()`/`IsAudioMuted()` per browser instance, not a continuous
+  0-100% volume control, and `SLCefProducer.exe` hosts every tab in one
+  shared OS process (confirmed via Windows' own Volume Mixer, which shows a
+  single `SLCefProducer` session even with two tabs playing audio at the
+  same time). A per-tab volume slider is not possible with this
+  architecture today; each tab can only be fully muted or fully unmuted.
+- **Media codec coverage versus LibVLC is still an open question.** The
+  internally-built, codec-enabled CEF distribution plays a good range of
+  formats, but not as many as LibVLC, which the legacy media plugin can
+  fall back to. Whether CEF's coverage is sufficient for the vast majority
+  of real-world content, making a LibVLC re-integration unnecessary, is
+  under discussion with the product team and not yet decided.
+- **Windows only, for now.** This first version of the embedded-browser
+  system targets Windows exclusively. macOS and Linux support is planned to
+  follow.
+- **The legacy media plugin has not been removed.** `media_plugins/cef`,
+  Dullahan, and `SLPlugin.exe` remain in the codebase alongside the
+  embedded-browser system. Removing them now would not be a clean, isolated
+  deletion (that plugin framework also backs non-CEF streaming-audio
+  plugins, and a few files have CEF-specific calls not yet ported to the
+  new backend), so the legacy code stays in place until the embedded-browser
+  system is closer to feature-complete.
+
 ## Notes on AI-assisted development
 
 This system was developed with substantial help from Claude (Anthropic's
