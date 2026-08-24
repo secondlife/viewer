@@ -2127,6 +2127,17 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::openxr
         )
 
+if (NOT LINUX)
+  # llappviewer.cpp reads LIBVLC_VERSION_MAJOR/MINOR/REVISION from vlc/libvlc_version.h
+  # (guarded by the same !LL_LINUX there) purely to report the LibVLC version in the
+  # About-box info dump -- unrelated to whether media_plugin_libvlc itself gets built.
+  # That header's include path used to only exist as a side effect of
+  # media_plugin_libvlc's own CMakeLists.txt running (include(LibVLCPlugin)), which
+  # ENABLE_MEDIA_PLUGINS=OFF now skips -- needed here unconditionally instead.
+  include(LibVLCPlugin)
+  target_link_libraries(${VIEWER_BINARY_NAME} ll::libvlc)
+endif ()
+
 if (USE_DISCORD)
    target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
 endif ()
