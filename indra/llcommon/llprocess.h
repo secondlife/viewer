@@ -235,7 +235,7 @@ public:
     static bool kill(const LLProcessPtr& p, const std::string& who = "");
 
     /// Manually drive pending I/O and check process state.
-    /// If mainloop is not yet running or was terminated.
+    /// Use this when the mainloop is not yet running or was terminated.
     void pump();
 
 #if LL_WINDOWS

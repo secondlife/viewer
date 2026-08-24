@@ -67,12 +67,6 @@ const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
 const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
 #endif
 
-#if LL_WINDOWS
-// Defined in llprocess.cpp -- assigns hProcess to the viewer's job object
-// so it is killed automatically if the parent process exits.
-LL_COMMON_API void LLProcess_assignToJobObject(HANDLE hProcess, const std::string& desc);
-#endif
-
 #if 0                               // consuming code in #if 0 below
 #endif
 LLFeatureInfo::LLFeatureInfo(const std::string& name, const bool available, const F32 level)
