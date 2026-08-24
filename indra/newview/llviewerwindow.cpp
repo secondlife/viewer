@@ -1960,7 +1960,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     LLNotifications::instance().setIgnoreAllNotifications(ignore);
     if (ignore)
     {
-    LL_INFOS() << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << LL_ENDL;
+        LL_INFOS("Window") << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << LL_ENDL;
     }
 
 
@@ -2028,6 +2028,23 @@ LLViewerWindow::LLViewerWindow(const Params& p)
             gSavedSettings.setF32("UIScaleFactor", 1.f);
         }
         gSavedSettings.setBOOL("ResetUIScaleOnFirstRun", false);
+        LL_DEBUGS("Window") << "ResetUIScaleOnFirstRun fired:"
+            << " system_ui_size=" << mWindow->getSystemUISize()
+            << " UIScaleFactor_after_reset=" << gSavedSettings.getF32("UIScaleFactor")
+            << " screen_size=" << scr.mX << "x" << scr.mY
+            << " pixel_aspect_ratio=" << mWindow->getPixelAspectRatio()
+            << " ResetUIScaleOnFirstRun=" << gSavedSettings.getBOOL("ResetUIScaleOnFirstRun")
+            << LL_ENDL;
+    }
+    else
+    {
+        LL_DEBUGS("Window") << "Display init diagnostics:"
+            << " screen_size=" << scr.mX << "x" << scr.mY
+            << " system_ui_size=" << mWindow->getSystemUISize()
+            << " pixel_aspect_ratio=" << mWindow->getPixelAspectRatio()
+            << " saved_UIScaleFactor=" << gSavedSettings.getF32("UIScaleFactor")
+            << " ResetUIScaleOnFirstRun=" << gSavedSettings.getBOOL("ResetUIScaleOnFirstRun")
+            << LL_ENDL;
     }
 
     // Get the real window rect the window was created with (since there are various OS-dependent reasons why
@@ -2036,6 +2053,12 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
     mDisplayScale.setVec(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
     mDisplayScale *= ui_scale_factor;
+    LL_DEBUGS("Window") << "Display scale computed:"
+        << " ui_scale_factor=" << ui_scale_factor
+        << " mDisplayScale=" << mDisplayScale
+        << " (clamped_to=[" << MIN_UI_SCALE << ", " << MAX_UI_SCALE << "])"
+        << LL_ENDL;
+
     LLUI::setScaleFactor(mDisplayScale);
     LLFontGL::sResolutionGeneration++;
 
