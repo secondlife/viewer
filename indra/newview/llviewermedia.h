@@ -513,6 +513,13 @@ private:
     // recomputed every frame. See updateVolume()'s own comment for why embedded-
     // browser media gets a mute decision instead of legacy's continuous volume.
     bool mEmbeddedBrowserMuted = false;
+    // Last render-rate hint actually sent to LLEmbeddedBrowser::setRenderRate() --
+    // lets setPriority() only send the opcode when the target fps actually
+    // changes, since setPriority() itself is called every frame regardless of
+    // whether priority changed. 0 = unthrottled/full rate (always the value for
+    // UI/parcel media -- see setPriority()'s own comment on why that's not just
+    // whatever the shared priority computation happens to produce).
+    unsigned int mEmbeddedBrowserTargetFps = 0;
     // Debounces the SLIDESHOW/HIDDEN auto-unload in setPriority(): true from
     // the first frame this impl is found unload-worthy until either the
     // grace period in mEmbeddedBrowserUnloadTimer expires (destroy for real)

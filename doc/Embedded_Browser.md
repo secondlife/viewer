@@ -136,6 +136,44 @@ To add another floater to this preload set, add another
 `LLFloaterReg::getInstance("floater_name")` call alongside the existing ones
 in that same block.
 
+## Distance/priority-based render throttling
+
+The legacy CEF plugin throttled a media instance's own render rate and
+resolution once it fell far enough away or out of interest
+(`LLPluginClassMedia::setPriority()`/`setLowPrioritySizeLimit()`). Embedded
+browser had no equivalent for a while: every CEF instance the producer held
+rendered and published frames at full rate no matter how far away or
+uninteresting it was, which wasted CPU on busy, media-heavy regions.
+
+This is now fixed with a producer-side render throttle. `SLCefProducer.exe`
+drives CEF manually via `SendExternalBeginFrame()`, called once per tab per
+tick; a new wire command, `kSetRenderRate`, lets the Viewer cap how often
+that call actually fires for a given tab (0 means unthrottled, the
+default). `LLViewerMediaImpl::setPriority()` maps the same priority value
+`LLViewerMedia::updateMedia()` already computes for every media instance
+(distance, screen size, focus, CPU budget, and so on) to a target frame
+rate for non-UI, non-parcel prim media only:
+
+| Priority               | Target rate |
+|-------------------------|-------------|
+| `PRIORITY_NORMAL`/`HIGH` | unthrottled |
+| `PRIORITY_LOW`           | 15 fps      |
+| `PRIORITY_SLIDESHOW`     | 2 fps       |
+| `PRIORITY_HIDDEN`        | 1 fps       |
+
+**UI and parcel media are structurally exempt, not just usually fine.**
+This project's whole reason for existing is partly that the legacy CEF
+plugin was widely felt to be slow and clumsy, and priority mis-assignment
+was suspected as a possible cause (UI elements should always run at full
+speed, no exceptions). The same shared priority computation above can push
+even a UI floater down to `HIDDEN`/`LOW` when the Viewer window is
+minimized or loses focus, so the throttle deliberately does not key off the
+raw priority value alone. UI (`mUsedInUI`) and parcel media always send a
+target rate of 0, unconditionally, regardless of what priority they're
+assigned - the same population split already used elsewhere in
+`setPriority()` for the auto-unload debounce. Only ordinary in-world prim
+media, the same population the legacy plugin throttled, is ever affected.
+
 ## Debugging
 
 Two separate log files are written next to `SLCefProducer.exe`:

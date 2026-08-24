@@ -87,6 +87,14 @@ namespace cefshm_demo
         kGoBack    = 31, // empty payload -- straight into llCefBrowserManager::GoBack().
         kGoForward = 32, // empty payload -- straight into llCefBrowserManager::GoForward().
         kStopLoad  = 33, // empty payload -- straight into llCefBrowserManager::StopLoad().
+        kSetRenderRate = 35, // data = {uint32 targetFps} -- caps how often the producer calls
+                          // SendExternalBeginFrame() for this handle (0 = unthrottled/full
+                          // rate, the default). Distance/priority-based render throttling,
+                          // the embedded-browser equivalent of the legacy plugin's own
+                          // setPriority()/setLowPrioritySizeLimit() -- see
+                          // LLViewerMediaImpl::setPriority()'s own EMBEDDED_BROWSER_FPS_*
+                          // constants for the tiers this is actually driven from. Never sent
+                          // as anything but 0 for UI/parcel media -- see that same comment.
 
         // consumer -> producer, control channel only
         kRequestSlot     = 5, // data = {uint8 isUI} -- isUI selects which of the producer's two

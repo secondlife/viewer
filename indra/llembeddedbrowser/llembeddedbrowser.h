@@ -193,6 +193,9 @@ class LLEmbeddedBrowserTab
         // Binary mute/unmute of this tab's audio -- see kSetMuted's own comment in
         // cefshm_protocol.h for why this can't be a continuous volume level.
         void setMuted(bool muted);
+        // Caps how often the producer paints this tab (0 = unthrottled/full rate) --
+        // see kSetRenderRate's own comment in cefshm_protocol.h.
+        void setRenderRate(unsigned int targetFps);
         // Completes a pending FileDialogRequest event -- dialogId must be the value from
         // that event's mDialogId; pass an empty filePaths to indicate the user canceled.
         void respondToFileDialog(long long dialogId, const std::vector<std::string>& filePaths);
@@ -297,6 +300,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void keyEvent(unsigned int id, unsigned int msg, unsigned int wParam, unsigned int lParam);
         void setFocus(unsigned int id, bool focus);
         void setMuted(unsigned int id, bool muted);
+        void setRenderRate(unsigned int id, unsigned int targetFps);
         void respondToFileDialog(unsigned int id, long long dialogId, const std::vector<std::string>& filePaths);
         bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
 

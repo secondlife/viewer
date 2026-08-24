@@ -692,6 +692,21 @@ static bool wouldUnloadEmbeddedBrowserMedia(LLPluginClassMedia::EPriority priori
 // for why this needs to be debounced rather than instant.
 static const F32 EMBEDDED_BROWSER_UNLOAD_GRACE_PERIOD = 3.0f;
 
+// Producer-side render throttle for non-UI, non-parcel embedded-browser media
+// (see setPriority()'s own is_debounced_embedded_browser split) -- maps the
+// same priority tier the legacy plugin used to throttle its own render rate/
+// resolution to a target begin-frame rate the producer actually paints at,
+// instead of every tab painting at full rate regardless of distance/interest
+// the way embedded-browser media did before this. 0 means unthrottled/full
+// rate. Deliberately NOT applied to UI or parcel media at all (see
+// setPriority()): the legacy CEF plugin was widely felt to be slow/janky,
+// and mis-assigned priority was suspected as a possible cause -- UI's render
+// rate must stay structurally independent of this shared priority signal,
+// not just happen to come out right.
+static const unsigned int EMBEDDED_BROWSER_FPS_LOW       = 15; // PRIORITY_LOW
+static const unsigned int EMBEDDED_BROWSER_FPS_SLIDESHOW = 2;  // PRIORITY_SLIDESHOW
+static const unsigned int EMBEDDED_BROWSER_FPS_HIDDEN    = 1;  // PRIORITY_HIDDEN
+
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SPARE_IDLE("Spare Idle");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE_INTEREST("Update/Interest");
@@ -1922,6 +1937,10 @@ void LLViewerMediaImpl::destroyMediaSource()
         // "already muted" record doesn't suppress the first setMuted() call a
         // future createMediaSource() actually needs (see updateVolume()).
         mEmbeddedBrowserMuted = false;
+        // Likewise for the render-rate hint -- a freshly created tab always
+        // starts unthrottled on the producer side, so this must not skip the
+        // first real setRenderRate() call a future createMediaSource() needs.
+        mEmbeddedBrowserTargetFps = 0;
         // A freshly created tab has no pending-unload grace period running
         // yet either -- clear this so a stale timer from a previous life
         // doesn't cause an immediate destroy the moment this new tab's own
@@ -4714,6 +4733,35 @@ void LLViewerMediaImpl::setPriority(LLPluginClassMedia::EPriority priority)
     if(mMediaSource)
     {
         mMediaSource->setPriority(mPriority);
+    }
+    else if (mUseEmbeddedBrowser)
+    {
+        // target_fps stays 0 (unthrottled) for UI and parcel media unconditionally --
+        // only the debounced, non-UI/non-parcel population's render rate is ever
+        // reduced. See EMBEDDED_BROWSER_FPS_* and this function's own comment above.
+        unsigned int target_fps = 0;
+        if (is_debounced_embedded_browser)
+        {
+            switch (mPriority)
+            {
+                case LLPluginClassMedia::PRIORITY_LOW:
+                    target_fps = EMBEDDED_BROWSER_FPS_LOW;
+                    break;
+                case LLPluginClassMedia::PRIORITY_SLIDESHOW:
+                    target_fps = EMBEDDED_BROWSER_FPS_SLIDESHOW;
+                    break;
+                case LLPluginClassMedia::PRIORITY_HIDDEN:
+                    target_fps = EMBEDDED_BROWSER_FPS_HIDDEN;
+                    break;
+                default:
+                    break; // NORMAL/HIGH (and UNLOADED/STOPPED, moot -- about to be torn down)
+            }
+        }
+        if (target_fps != mEmbeddedBrowserTargetFps)
+        {
+            mEmbeddedBrowserTargetFps = target_fps;
+            LLEmbeddedBrowser::getInstance()->setRenderRate(mEmbeddedBrowserId, target_fps);
+        }
     }
 
     // NOTE: loading (or reloading) media sources whose priority has risen above PRIORITY_UNLOADED is done in update().

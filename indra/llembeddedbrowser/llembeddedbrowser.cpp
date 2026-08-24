@@ -507,6 +507,17 @@ void LLEmbeddedBrowserTab::setMuted(bool muted)
     }
 }
 
+void LLEmbeddedBrowserTab::setRenderRate(unsigned int targetFps)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::uint8_t payload[4];
+        pack_u32(payload, std::uint32_t(targetFps));
+        mSub->send(kSetRenderRate, payload, 4);
+    }
+}
+
 void LLEmbeddedBrowserTab::cut()
 {
     LLMutexLock lock(&mPixelMutex);
@@ -1150,6 +1161,14 @@ void LLEmbeddedBrowser::setMuted(unsigned int id, bool muted)
     if (auto tab = findTab(id))
     {
         tab->setMuted(muted);
+    }
+}
+
+void LLEmbeddedBrowser::setRenderRate(unsigned int id, unsigned int targetFps)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->setRenderRate(targetFps);
     }
 }
 

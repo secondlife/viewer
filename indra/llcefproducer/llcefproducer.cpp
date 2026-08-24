@@ -143,6 +143,14 @@ struct Slot
     // timeout) has no true->false edge to time from, but does have an
     // allocation time to time from.
     std::chrono::steady_clock::time_point last_active;
+
+    // Distance/priority-based render throttle -- see kSetRenderRate's own
+    // comment in cefshm_protocol.h. 0 = unthrottled: SendExternalBeginFrame()
+    // fires every tick, same as before this existed. last_begin_frame default-
+    // constructs to the epoch, so a freshly throttled slot's very first check
+    // always finds itself due rather than waiting a full interval first.
+    std::uint32_t                 target_fps = 0;
+    std::chrono::steady_clock::time_point last_begin_frame;
 };
 
 // How many slots are currently allocated (pub != null), out of the fixed
@@ -698,6 +706,13 @@ int run_producer(int argc, char** argv)
                 case kStopLoad:
                     manager->StopLoad(s.cefHandle);
                     break;
+                case kSetRenderRate: {
+                    std::uint32_t fps;
+                    if (unpack_u32(cmd.data.data(), cmd.data.size(), fps)) {
+                        s.target_fps = fps;
+                    }
+                    break;
+                }
                 case kFileDialogResponse: {
                     std::int64_t dialogId;
                     std::vector<std::string> filePaths;
@@ -717,7 +732,16 @@ int run_producer(int argc, char** argv)
             // external_begin_frame_enabled comment in llCefBrowserManagerImpl::
             // CreateBrowser()). Cheap to call even when nothing changed: Chromium's
             // own compositor already skips real work if there's nothing new to paint.
-            manager->SendExternalBeginFrame(s.cefHandle);
+            // Throttled to s.target_fps when set (see kSetRenderRate) -- distance/
+            // priority-based media (far away, out of view, etc.) doesn't need this
+            // slot's CEF instance painting at full rate; UI/parcel media never sets
+            // target_fps at all, so it's unaffected.
+            const bool begin_frame_due = (s.target_fps == 0) ||
+                (now - s.last_begin_frame >= std::chrono::duration<double>(1.0 / s.target_fps));
+            if (begin_frame_due) {
+                s.last_begin_frame = now;
+                manager->SendExternalBeginFrame(s.cefHandle);
+            }
 
             int fw = 0, fh = 0;
             if (manager->CopyLatestFrame(s.cefHandle, s.frameBuf, fw, fh)) {
