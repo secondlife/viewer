@@ -540,9 +540,12 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                                 '*.bat',
                                                 '*.tar.xz')))
 
-        # Plugin host application
-        self.path2basename(os.path.join(os.pardir,
-                                        'llplugin', 'slplugin', self.args['configuration']),
+        # Plugin host application -- gated behind ENABLE_MEDIA_PLUGINS in CMake, off by
+        # default (see the media plugin block below); path_optional() is a no-op rather
+        # than a build error when that build didn't produce it.
+        self.path_optional(os.path.join(os.pardir,
+                                        'llplugin', 'slplugin', self.args['configuration'],
+                                        "slplugin.exe"),
                            "slplugin.exe")
 
         # Get shared libs from the shared libs staging directory
@@ -593,25 +596,28 @@ class Windows_x86_64_Manifest(ViewerManifest):
         with self.prefix(src=pkgdir):
             self.path("ca-bundle.crt")
 
-        # Media plugins - CEF
+        # media_plugin_cef/libvlc/example (and the SLPlugin.exe that hosts them) are gated
+        # behind ENABLE_MEDIA_PLUGINS in CMake -- off by default, since embedded-browser
+        # media replaces them. path_optional() (rather than path()) means this stays a
+        # no-op, not a build error, when that build produced none of these.
         with self.prefix(dst="llplugin"):
             with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
                 with self.prefix(src=os.path.join('cef', self.args['configuration'])):
-                    self.path("media_plugin_cef.dll")
+                    self.path_optional("media_plugin_cef.dll")
 
                 # Media plugins - LibVLC
                 with self.prefix(src=os.path.join('libvlc', self.args['configuration'])):
-                    self.path("media_plugin_libvlc.dll")
+                    self.path_optional("media_plugin_libvlc.dll")
 
                 # Media plugins - Example (useful for debugging - not shipped with release viewer)
                 if self.channel_type() != 'release':
                     with self.prefix(src=os.path.join('example', self.args['configuration'])):
-                        self.path("media_plugin_example.dll")
+                        self.path_optional("media_plugin_example.dll")
 
+        with self.prefix(dst="SLCefProducer"):
             # Embedded-browser CEF producer, launched/monitored by the Viewer itself --
-            # lives here (not next to secondlife-bin.exe) so it sits alongside the same
-            # libcef.dll and CEF runtime files below that it needs, matching how
-            # media_plugin_cef.dll resolves them.
+            # lives in its own directory (not next to secondlife-bin.exe) so it sits
+            # alongside the CEF runtime files below that it needs.
             with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                               'llcefproducer', self.args['configuration'])):
                 self.path("SLCefProducer.exe")
@@ -631,7 +637,14 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("vk_swiftshader.dll")
                 self.path("vk_swiftshader_icd.json")
                 self.path("vulkan-1.dll")
-                self.path("dullahan_host.exe")
+                # dullahan_host.exe (the legacy media_plugin_cef's own CEF subprocess
+                # helper) is deliberately not copied here -- SLCefProducer.exe re-execs
+                # itself for that instead (llCefBrowserLib::ExecuteSubProcess()). Not
+                # path_optional(): dullahan_host.exe ships inside the CEF package itself,
+                # so it always exists on disk regardless of ENABLE_MEDIA_PLUGINS -- only
+                # an unconditional skip actually omits it. Uncomment if
+                # ENABLE_MEDIA_PLUGINS is ever turned back on.
+                #self.path("dullahan_host.exe")
 
             # MSVC DLLs needed for CEF and have to be in same directory as plugin
             with self.prefix(src=os.path.join(self.args['build'], os.pardir,
@@ -702,10 +715,16 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("zh-CN.pak")
                 self.path("zh-TW.pak")
 
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                self.path("libvlc.dll")
-                self.path("libvlccore.dll")
-                self.path("plugins/")
+            # LibVLC runtime deliberately not copied: unlike the CEF runtime above, this
+            # package is fetched unconditionally by autobuild regardless of
+            # ENABLE_MEDIA_PLUGINS, so it always exists on disk -- path_optional() would
+            # never actually skip it. Only media_plugin_libvlc.dll needs it, and that
+            # isn't built by default; re-add this block if ENABLE_MEDIA_PLUGINS is ever
+            # turned back on.
+            #with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+            #    self.path("libvlc.dll")
+            #    self.path("libvlccore.dll")
+            #    self.path("plugins/")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"

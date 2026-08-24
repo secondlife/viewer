@@ -1861,12 +1861,17 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${viewer_APPSETTINGS_FILES}
-      SLPlugin
       SLCefProducer
-      media_plugin_cef
-      media_plugin_libvlc
-      media_plugin_example
       )
+
+    if (ENABLE_MEDIA_PLUGINS)
+      list(APPEND COPY_INPUT_DEPENDENCIES
+           SLPlugin
+           media_plugin_cef
+           media_plugin_libvlc
+           media_plugin_example
+           )
+    endif (ENABLE_MEDIA_PLUGINS)
 
     if (TARGET ll::discord_sdk)
         list(APPEND COPY_INPUT_DEPENDENCIES
@@ -1961,7 +1966,9 @@ if (WINDOWS)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
 
-    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
+    if (ENABLE_MEDIA_PLUGINS)
+      add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
+    endif (ENABLE_MEDIA_PLUGINS)
     add_dependencies(${VIEWER_BINARY_NAME} SLCefProducer)
 
     # sets the 'working directory' for debugging from visual studio.

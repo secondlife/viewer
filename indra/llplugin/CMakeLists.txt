@@ -36,5 +36,11 @@ list(APPEND llplugin_SOURCE_FILES ${llplugin_HEADER_FILES})
 add_library (llplugin ${llplugin_SOURCE_FILES})
 target_include_directories( llplugin  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries( llplugin llcommon llmath llmessage llxml )
-add_subdirectory(slplugin)
+
+# SLPlugin.exe only ever hosts media_plugin_cef/libvlc/example (confirmed: the
+# only caller of LLPluginProcessParent::create() in the whole codebase is
+# LLPluginClassMedia::init()) -- nothing to host once those aren't built either.
+if (ENABLE_MEDIA_PLUGINS)
+  add_subdirectory(slplugin)
+endif (ENABLE_MEDIA_PLUGINS)
 
