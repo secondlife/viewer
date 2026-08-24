@@ -234,6 +234,10 @@ public:
     bool kill(const std::string& who = "");
     static bool kill(const LLProcessPtr& p, const std::string& who = "");
 
+    /// Manually drive pending I/O and check process state.
+    /// If mainloop is not yet running or was terminated.
+    void pump();
+
 #if LL_WINDOWS
     typedef int id;
     typedef HANDLE handle;
