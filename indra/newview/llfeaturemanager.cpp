@@ -597,7 +597,6 @@ bool LLFeatureManager::loadGPUClass()
                 // We ARE the benchmark subprocess; run directly in-process.
                 // logExceptionBenchmark wraps with SEH so structured exceptions
                 // (e.g. access violations inside the driver) are still caught.
-                //ms_sleep(10000);
                 gbps = logExceptionBenchmark();
             }
             else

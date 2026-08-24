@@ -2386,8 +2386,8 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 
             LLUUID uid;
             uid.generate();
-            // Is this even usefull?
-            // Originally this wa used to store states but I don't think it spractical with bugsplat attributes.
+            // Is this even useful?
+            // Originally this wa used to store states, but I don't think it's practical with bugsplat attributes.
             // So it just spams files now.
             LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
         }
