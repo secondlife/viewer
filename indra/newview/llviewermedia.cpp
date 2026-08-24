@@ -703,9 +703,29 @@ static const F32 EMBEDDED_BROWSER_UNLOAD_GRACE_PERIOD = 3.0f;
 // and mis-assigned priority was suspected as a possible cause -- UI's render
 // rate must stay structurally independent of this shared priority signal,
 // not just happen to come out right.
-static const unsigned int EMBEDDED_BROWSER_FPS_LOW       = 15; // PRIORITY_LOW
+// PRIORITY_LOW is reachable just by losing focus, not just by real distance --
+// LLViewerMediaFocus's own auto-zoom moves the camera in on focus and back out
+// on defocus, so clicking off a media face genuinely shrinks its on-screen
+// footprint (see the media_is_small heuristic above) even standing in the same
+// spot still watching it. 30fps (versus a harsher 15) keeps that specific,
+// very common case looking closer to full rate -- tune this against
+// EMBEDDED_BROWSER_FPS_SLIDESHOW/HIDDEN below, which stay much lower since
+// those tiers require either real distance/CPU pressure or actually being out
+// of view, not just a momentary defocus.
+static const unsigned int EMBEDDED_BROWSER_FPS_LOW       = 30; // PRIORITY_LOW
 static const unsigned int EMBEDDED_BROWSER_FPS_SLIDESHOW = 2;  // PRIORITY_SLIDESHOW
 static const unsigned int EMBEDDED_BROWSER_FPS_HIDDEN    = 1;  // PRIORITY_HIDDEN
+
+// Grace period before a render-rate DEMOTION (to a worse/lower tier) is
+// actually applied -- promotions (back to a better tier) always apply
+// instantly, only demotions wait. Exists for the same reason as
+// EMBEDDED_BROWSER_UNLOAD_GRACE_PERIOD above: clicking off a media face's
+// focus (see LLViewerMediaFocus's auto-zoom) demotes it from PRIORITY_HIGH
+// straight to PRIORITY_LOW for a purely camera-position reason, not because
+// the resident actually moved away or stopped watching -- debouncing that
+// specific, extremely common transition avoids a visible, jarring frame-rate
+// drop for someone who is still standing right there.
+static const F32 EMBEDDED_BROWSER_RENDER_RATE_DEMOTION_GRACE_PERIOD = 2.0f;
 
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SPARE_IDLE("Spare Idle");
@@ -1941,6 +1961,8 @@ void LLViewerMediaImpl::destroyMediaSource()
         // starts unthrottled on the producer side, so this must not skip the
         // first real setRenderRate() call a future createMediaSource() needs.
         mEmbeddedBrowserTargetFps = 0;
+        mEmbeddedBrowserAppliedTier = 0;
+        mEmbeddedBrowserRenderRateDemotionPending = false;
         // A freshly created tab has no pending-unload grace period running
         // yet either -- clear this so a stale timer from a previous life
         // doesn't cause an immediate destroy the moment this new tab's own
@@ -4739,28 +4761,76 @@ void LLViewerMediaImpl::setPriority(LLPluginClassMedia::EPriority priority)
         // target_fps stays 0 (unthrottled) for UI and parcel media unconditionally --
         // only the debounced, non-UI/non-parcel population's render rate is ever
         // reduced. See EMBEDDED_BROWSER_FPS_* and this function's own comment above.
+        // priority_tier is the same tier as a small, wire-friendly number (0=Normal/
+        // High, 1=Low, 2=Slideshow, 3=Hidden) -- see kSetRenderRate's own comment.
         unsigned int target_fps = 0;
+        unsigned int priority_tier = 0;
         if (is_debounced_embedded_browser)
         {
             switch (mPriority)
             {
                 case LLPluginClassMedia::PRIORITY_LOW:
                     target_fps = EMBEDDED_BROWSER_FPS_LOW;
+                    priority_tier = 1;
                     break;
                 case LLPluginClassMedia::PRIORITY_SLIDESHOW:
                     target_fps = EMBEDDED_BROWSER_FPS_SLIDESHOW;
+                    priority_tier = 2;
                     break;
                 case LLPluginClassMedia::PRIORITY_HIDDEN:
                     target_fps = EMBEDDED_BROWSER_FPS_HIDDEN;
+                    priority_tier = 3;
                     break;
                 default:
                     break; // NORMAL/HIGH (and UNLOADED/STOPPED, moot -- about to be torn down)
             }
         }
-        if (target_fps != mEmbeddedBrowserTargetFps)
+        // priority_tier doubles as an ordinal rank here: 0 is always the best
+        // (unthrottled), 3 the worst -- a tier numerically higher than what's
+        // currently applied is a demotion and gets debounced below; anything
+        // else (an improvement, or no real change) applies right away.
+        auto apply_render_rate = [this, target_fps, priority_tier]()
         {
             mEmbeddedBrowserTargetFps = target_fps;
-            LLEmbeddedBrowser::getInstance()->setRenderRate(mEmbeddedBrowserId, target_fps);
+            mEmbeddedBrowserAppliedTier = priority_tier;
+            const std::string url = getCurrentMediaURL();
+            LLEmbeddedBrowser::getInstance()->setRenderRate(mEmbeddedBrowserId, target_fps, priority_tier, url);
+
+            unsigned int slot_index = 0;
+            const bool has_slot = LLEmbeddedBrowser::getInstance()->getSlotIndex(mEmbeddedBrowserId, slot_index);
+            LL_INFOS("PluginPriority") << "embedded-browser render rate for slot "
+                << (has_slot ? std::to_string(slot_index) : std::string("?"))
+                << ": " << LLPluginClassMedia::priorityToString(mPriority)
+                << " (" << (target_fps == 0 ? std::string("unthrottled") : (std::to_string(target_fps) + "fps"))
+                << ") - " << url << LL_ENDL;
+        };
+
+        if (priority_tier > mEmbeddedBrowserAppliedTier)
+        {
+            // Demotion -- see EMBEDDED_BROWSER_RENDER_RATE_DEMOTION_GRACE_PERIOD's
+            // own comment for why this specifically (and only this direction)
+            // needs debouncing rather than applying instantly.
+            if (!mEmbeddedBrowserRenderRateDemotionPending)
+            {
+                mEmbeddedBrowserRenderRateDemotionPending = true;
+                mEmbeddedBrowserRenderRateDemotionTimer.reset();
+            }
+            else if (mEmbeddedBrowserRenderRateDemotionTimer.getElapsedTimeF32() >=
+                     EMBEDDED_BROWSER_RENDER_RATE_DEMOTION_GRACE_PERIOD)
+            {
+                mEmbeddedBrowserRenderRateDemotionPending = false;
+                apply_render_rate();
+            }
+        }
+        else
+        {
+            // An improvement (or no change) always applies immediately, and
+            // cancels any demotion that was still waiting out its grace period.
+            mEmbeddedBrowserRenderRateDemotionPending = false;
+            if (priority_tier != mEmbeddedBrowserAppliedTier)
+            {
+                apply_render_rate();
+            }
         }
     }
 

@@ -90,14 +90,18 @@ namespace cefshm_demo
         kGoBack    = 31, // empty payload -- straight into llCefBrowserManager::GoBack().
         kGoForward = 32, // empty payload -- straight into llCefBrowserManager::GoForward().
         kStopLoad  = 33, // empty payload -- straight into llCefBrowserManager::StopLoad().
-        kSetRenderRate = 35, // data = {uint32 targetFps} -- caps how often the producer calls
-                          // SendExternalBeginFrame() for this handle (0 = unthrottled/full
-                          // rate, the default). Distance/priority-based render throttling,
-                          // the embedded-browser equivalent of the legacy plugin's own
-                          // setPriority()/setLowPrioritySizeLimit() -- see
-                          // LLViewerMediaImpl::setPriority()'s own EMBEDDED_BROWSER_FPS_*
-                          // constants for the tiers this is actually driven from. Never sent
-                          // as anything but 0 for UI/parcel media -- see that same comment.
+        kSetRenderRate = 35, // data = {uint32 targetFps, uint8 priorityTier, url bytes (remainder)}
+                          // -- caps how often the producer calls SendExternalBeginFrame() for
+                          // this handle (0 = unthrottled/full rate, the default). Distance/
+                          // priority-based render throttling, the embedded-browser equivalent
+                          // of the legacy plugin's own setPriority()/setLowPrioritySizeLimit()
+                          // -- see LLViewerMediaImpl::setPriority()'s own EMBEDDED_BROWSER_FPS_*
+                          // constants for the tiers this is actually driven from. Never sent as
+                          // anything but 0/tier-0 for UI/parcel media -- see that same comment.
+                          // priorityTier (0=Normal/High, 1=Low, 2=Slideshow, 3=Hidden) and url
+                          // are for the producer's own console/log output only (see
+                          // log_priority() in llcefproducer.cpp) -- purely diagnostic, nothing
+                          // on the producer side branches on either.
 
         // consumer -> producer, control channel only
         kRequestSlot     = 5, // data = {uint8 isUI} -- isUI selects which of the producer's two
@@ -427,6 +431,25 @@ namespace cefshm_demo
         line = std::int32_t(line_u);
         message.assign(reinterpret_cast<const char*>(d + 8), msg_len);
         source.assign(reinterpret_cast<const char*>(d + 8 + msg_len), n - 8 - msg_len);
+        return true;
+    }
+
+    inline std::uint32_t pack_render_rate(std::uint8_t* d, std::uint32_t targetFps, std::uint8_t priorityTier,
+                                           const std::string& url)
+    {
+        std::uint32_t n = pack_u32(d, targetFps);
+        d[n++] = priorityTier;
+        std::memcpy(d + n, url.data(), url.size());
+        n += std::uint32_t(url.size());
+        return n;
+    }
+
+    inline bool unpack_render_rate(const std::uint8_t* d, std::size_t n, std::uint32_t& targetFps,
+                                    std::uint8_t& priorityTier, std::string& url)
+    {
+        if (n < 5 || !unpack_u32(d, n, targetFps)) return false;
+        priorityTier = d[4];
+        url.assign(reinterpret_cast<const char*>(d + 5), n - 5);
         return true;
     }
 

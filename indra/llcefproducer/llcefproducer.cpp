@@ -95,6 +95,7 @@ void log_info(const std::string& msg)       { log_line("\x1b[38;5;103m", msg); }
 void log_connect(const std::string& msg)    { log_line("\x1b[38;5;120m", msg); } // green
 void log_disconnect(const std::string& msg) { log_line("\x1b[38;5;124m", msg); } // red
 void log_error(const std::string& msg)      { log_line("\x1b[38;5;178m", msg); } // amber
+void log_priority(const std::string& msg)   { log_line("\x1b[38;5;141m", msg); } // purple -- distance/priority render-rate changes (kSetRenderRate)
 
 // How long a slot may sit with nobody attached before its browser is
 // destroyed and the index freed for reuse. Deliberately longer, and a
@@ -165,6 +166,18 @@ std::string active_slot_suffix(const std::vector<Slot>& slots)
         if (s.pub) ++active;
     }
     return " (" + std::to_string(active) + "/" + std::to_string(slots.size()) + " active)";
+}
+
+// Labels for kSetRenderRate's priorityTier byte -- purely for log_priority()'s
+// own output, see cefshm_protocol.h's own comment on kSetRenderRate.
+std::string priority_tier_label(std::uint8_t tier)
+{
+    switch (tier) {
+        case 1:  return "LOW";
+        case 2:  return "SLIDESHOW";
+        case 3:  return "HIDDEN";
+        default: return "NORMAL";
+    }
 }
 
 // Spins up this slot's real instance: a CEF browser plus its llshmframe
@@ -708,8 +721,13 @@ int run_producer(int argc, char** argv)
                     break;
                 case kSetRenderRate: {
                     std::uint32_t fps;
-                    if (unpack_u32(cmd.data.data(), cmd.data.size(), fps)) {
+                    std::uint8_t tier;
+                    std::string url;
+                    if (unpack_render_rate(cmd.data.data(), cmd.data.size(), fps, tier, url)) {
                         s.target_fps = fps;
+                        log_priority("slot " + std::to_string(i) + " render rate: " + priority_tier_label(tier) +
+                                     " (" + (fps == 0 ? std::string("unthrottled") : (std::to_string(fps) + "fps")) +
+                                     ") - " + url + active_slot_suffix(slots));
                     }
                     break;
                 }

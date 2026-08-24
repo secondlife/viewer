@@ -157,9 +157,32 @@ rate for non-UI, non-parcel prim media only:
 | Priority               | Target rate |
 |-------------------------|-------------|
 | `PRIORITY_NORMAL`/`HIGH` | unthrottled |
-| `PRIORITY_LOW`           | 15 fps      |
+| `PRIORITY_LOW`           | 30 fps      |
 | `PRIORITY_SLIDESHOW`     | 2 fps       |
 | `PRIORITY_HIDDEN`        | 1 fps       |
+
+These specific numbers (`EMBEDDED_BROWSER_FPS_LOW`/`SLIDESHOW`/`HIDDEN` in
+`llviewermedia.cpp`) are a starting point for the product team to tune
+further, not a final answer. `PRIORITY_LOW` in particular is reachable just
+by losing focus, not only by real distance: `LLViewerMediaFocus`'s own
+auto-zoom moves the camera in when a media face is clicked and back out
+again when it's clicked off, so defocusing genuinely shrinks that media's
+on-screen footprint (see the `media_is_small` heuristic in
+`LLViewerMedia::updateMedia()`) even for a resident standing in the exact
+same spot, still watching it. `PRIORITY_LOW`'s rate is set relatively high
+(30fps, not a harsher number) specifically so that very common case doesn't
+look like a jarring quality drop.
+
+**Demotions are debounced, promotions are not.** A newly computed render
+rate that is *worse* than the one currently applied only takes effect after
+it holds for `EMBEDDED_BROWSER_RENDER_RATE_DEMOTION_GRACE_PERIOD` (2
+seconds) - recovering to a better tier before that cancels the pending
+demotion with nothing applied at all. This exists for the same click-off/
+auto-zoom case above: instantly dropping frame rate the moment focus is
+lost, before the resident has actually moved anywhere, is exactly the kind
+of visible, unnecessary quality hit this whole project is trying to avoid.
+A rate that gets *better* always applies immediately - there's no reason to
+delay giving media its full rate back.
 
 **UI and parcel media are structurally exempt, not just usually fine.**
 This project's whole reason for existing is partly that the legacy CEF

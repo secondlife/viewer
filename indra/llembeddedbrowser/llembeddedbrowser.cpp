@@ -204,6 +204,8 @@ bool LLEmbeddedBrowserTab::connectToProducer()
 
     LLMutexLock lock(&mPixelMutex);
     mSub = std::move(sub);
+    mSlotIndex = index;
+    mHasSlotIndex = true;
     // The producer always starts a fresh view at its own default (960x540), regardless
     // of what this tab's create()/resize() actually asked for -- ask it to match right
     // away, and BEFORE the initial navigate below, rather than sitting at the wrong size
@@ -331,6 +333,7 @@ void LLEmbeddedBrowserTab::update()
     {
         LLMutexLock lock(&mPixelMutex);
         mSub.reset(); // producer went away -- connectToProducer() retries on a later tick
+        mHasSlotIndex = false; // stale once disconnected -- a reconnect may land on a different slot
         if (!mHadDisconnected)
         {
             mHadDisconnected = true;
@@ -507,15 +510,26 @@ void LLEmbeddedBrowserTab::setMuted(bool muted)
     }
 }
 
-void LLEmbeddedBrowserTab::setRenderRate(unsigned int targetFps)
+void LLEmbeddedBrowserTab::setRenderRate(unsigned int targetFps, unsigned int priorityTier, const std::string& url)
 {
     LLMutexLock lock(&mPixelMutex);
     if (mSub)
     {
-        std::uint8_t payload[4];
-        pack_u32(payload, std::uint32_t(targetFps));
-        mSub->send(kSetRenderRate, payload, 4);
+        std::vector<std::uint8_t> payload(5 + url.size());
+        const std::uint32_t n = pack_render_rate(payload.data(), std::uint32_t(targetFps),
+                                                  std::uint8_t(priorityTier), url);
+        mSub->send(kSetRenderRate, payload.data(), n);
     }
+}
+
+bool LLEmbeddedBrowserTab::getSlotIndex(unsigned int& out_index) const
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mHasSlotIndex)
+    {
+        out_index = mSlotIndex;
+    }
+    return mHasSlotIndex;
 }
 
 void LLEmbeddedBrowserTab::cut()
@@ -1164,12 +1178,22 @@ void LLEmbeddedBrowser::setMuted(unsigned int id, bool muted)
     }
 }
 
-void LLEmbeddedBrowser::setRenderRate(unsigned int id, unsigned int targetFps)
+void LLEmbeddedBrowser::setRenderRate(unsigned int id, unsigned int targetFps, unsigned int priorityTier,
+                                       const std::string& url)
 {
     if (auto tab = findTab(id))
     {
-        tab->setRenderRate(targetFps);
+        tab->setRenderRate(targetFps, priorityTier, url);
     }
+}
+
+bool LLEmbeddedBrowser::getSlotIndex(unsigned int id, unsigned int& out_index)
+{
+    if (auto tab = findTab(id))
+    {
+        return tab->getSlotIndex(out_index);
+    }
+    return false;
 }
 
 void LLEmbeddedBrowser::cut(unsigned int id)

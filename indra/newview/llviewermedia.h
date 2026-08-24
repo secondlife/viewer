@@ -520,6 +520,18 @@ private:
     // UI/parcel media -- see setPriority()'s own comment on why that's not just
     // whatever the shared priority computation happens to produce).
     unsigned int mEmbeddedBrowserTargetFps = 0;
+    // The render-rate tier actually applied/sent so far (0=Normal/High i.e.
+    // unthrottled, 1=Low, 2=Slideshow, 3=Hidden -- see kSetRenderRate's own
+    // comment in cefshm_protocol.h). A newly computed tier numerically higher
+    // than this is a demotion and goes through mEmbeddedBrowserRenderRateDemotion*
+    // below; anything else (an improvement, or no change) applies immediately.
+    unsigned int mEmbeddedBrowserAppliedTier = 0;
+    // Debounces a render-rate DEMOTION only (see EMBEDDED_BROWSER_RENDER_RATE_
+    // DEMOTION_GRACE_PERIOD's own comment) -- same true-from-first-frame-until-
+    // grace-period-elapses-or-cancelled pattern as mEmbeddedBrowserUnloadPending
+    // below, just for a softer consequence (a lower render rate, not a teardown).
+    bool mEmbeddedBrowserRenderRateDemotionPending = false;
+    LLTimer mEmbeddedBrowserRenderRateDemotionTimer;
     // Debounces the SLIDESHOW/HIDDEN auto-unload in setPriority(): true from
     // the first frame this impl is found unload-worthy until either the
     // grace period in mEmbeddedBrowserUnloadTimer expires (destroy for real)

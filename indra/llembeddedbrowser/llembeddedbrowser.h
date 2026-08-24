@@ -194,8 +194,13 @@ class LLEmbeddedBrowserTab
         // cefshm_protocol.h for why this can't be a continuous volume level.
         void setMuted(bool muted);
         // Caps how often the producer paints this tab (0 = unthrottled/full rate) --
-        // see kSetRenderRate's own comment in cefshm_protocol.h.
-        void setRenderRate(unsigned int targetFps);
+        // see kSetRenderRate's own comment in cefshm_protocol.h. priorityTier and url
+        // are diagnostic only, echoed in the producer's own console/log output.
+        void setRenderRate(unsigned int targetFps, unsigned int priorityTier, const std::string& url);
+        // The real producer slot index this tab is connected to (see kSlotAssigned),
+        // for correlating a consumer-side log line with the producer's own console
+        // output -- false if not yet connected (or disconnected again).
+        bool getSlotIndex(unsigned int& out_index) const;
         // Completes a pending FileDialogRequest event -- dialogId must be the value from
         // that event's mDialogId; pass an empty filePaths to indicate the user canceled.
         void respondToFileDialog(long long dialogId, const std::vector<std::string>& filePaths);
@@ -243,6 +248,12 @@ class LLEmbeddedBrowserTab
         // mPixelMutex like mCurrentUrl -- see canGoBack()/canGoForward().
         bool mCanGoBack = false;
         bool mCanGoForward = false;
+        // The real producer slot index from the most recent kSlotAssigned -- see
+        // getSlotIndex(). Cleared back to "unknown" on disconnect (see
+        // mHadDisconnected) so a stale index from a previous connection episode
+        // can't be reported after this tab moves to a different slot.
+        bool mHasSlotIndex = false;
+        unsigned int mSlotIndex = 0;
         std::deque<LLEmbeddedBrowserEvent> mEvents;
 };
 
@@ -300,7 +311,8 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void keyEvent(unsigned int id, unsigned int msg, unsigned int wParam, unsigned int lParam);
         void setFocus(unsigned int id, bool focus);
         void setMuted(unsigned int id, bool muted);
-        void setRenderRate(unsigned int id, unsigned int targetFps);
+        void setRenderRate(unsigned int id, unsigned int targetFps, unsigned int priorityTier, const std::string& url);
+        bool getSlotIndex(unsigned int id, unsigned int& out_index);
         void respondToFileDialog(unsigned int id, long long dialogId, const std::vector<std::string>& filePaths);
         bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
 
