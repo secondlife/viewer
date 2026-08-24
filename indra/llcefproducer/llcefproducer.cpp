@@ -214,15 +214,24 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     // goes null the instant free_slot() runs, so every callback re-checks it
     // rather than capturing the LLPublisher directly.
     Slot* slot = &s;
-    manager.SetOnLoadStartCallback(handle, [slot]() {
+    auto send_nav_state = [slot, &manager, handle]() {
+        if (slot->pub) {
+            std::uint8_t payload[2] = { manager.CanGoBack(handle)    ? std::uint8_t(1) : std::uint8_t(0),
+                                         manager.CanGoForward(handle) ? std::uint8_t(1) : std::uint8_t(0) };
+            slot->pub->send(kEventNavStateChanged, payload, 2);
+        }
+    };
+    manager.SetOnLoadStartCallback(handle, [slot, send_nav_state]() {
         if (slot->pub) slot->pub->send(kEventLoadStart);
+        send_nav_state();
     });
-    manager.SetOnLoadEndCallback(handle, [slot](int httpStatusCode) {
+    manager.SetOnLoadEndCallback(handle, [slot, send_nav_state](int httpStatusCode) {
         if (slot->pub) {
             std::uint8_t payload[4];
             pack_u32(payload, std::uint32_t(httpStatusCode));
             slot->pub->send(kEventLoadEnd, payload, 4);
         }
+        send_nav_state();
     });
     manager.SetOnTitleChangeCallback(handle, [slot](const std::string& title) {
         if (slot->pub) slot->pub->send_text(kEventTitleChanged, title);
@@ -679,6 +688,15 @@ int run_producer(int argc, char** argv)
                     break;
                 case kPaste:
                     manager->Paste(s.cefHandle);
+                    break;
+                case kGoBack:
+                    manager->GoBack(s.cefHandle);
+                    break;
+                case kGoForward:
+                    manager->GoForward(s.cefHandle);
+                    break;
+                case kStopLoad:
+                    manager->StopLoad(s.cefHandle);
                     break;
                 case kFileDialogResponse: {
                     std::int64_t dialogId;

@@ -589,9 +589,12 @@ void LLMediaCtrl::reshape( S32 width, S32 height, bool called_from_parent )
 //
 void LLMediaCtrl::navigateBack()
 {
-    if (mMediaSource && mMediaSource->hasMedia())
+    // Route through LLViewerMediaImpl's own navigateBack() rather than reaching
+    // into the plugin directly -- that has an embedded-browser branch too, and
+    // getMediaPlugin() is always null for embedded-browser media.
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
-        mMediaSource->getMediaPlugin()->browse_back();
+        mMediaSource->navigateBack();
     }
 }
 
@@ -599,9 +602,9 @@ void LLMediaCtrl::navigateBack()
 //
 void LLMediaCtrl::navigateForward()
 {
-    if (mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
-        mMediaSource->getMediaPlugin()->browse_forward();
+        mMediaSource->navigateForward();
     }
 }
 
@@ -609,9 +612,9 @@ void LLMediaCtrl::navigateForward()
 //
 void LLMediaCtrl::navigateStop()
 {
-    if (mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
-        mMediaSource->getMediaPlugin()->browse_stop();
+        mMediaSource->navigateStop();
     }
 }
 

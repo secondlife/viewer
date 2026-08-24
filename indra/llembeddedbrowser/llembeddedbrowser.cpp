@@ -304,6 +304,17 @@ void LLEmbeddedBrowserTab::update()
                 // event -- doesn't go through mEvents.
                 LLEmbeddedBrowser::instance().setCefBrowserVersion(std::string(cmd.text()));
                 continue;
+            case kEventNavStateChanged:
+                // Cached state, polled every frame via canGoBack()/canGoForward() (to
+                // enable/disable a back/forward button) -- not a discrete occurrence,
+                // so doesn't go through mEvents either.
+                if (cmd.data.size() >= 2)
+                {
+                    LLMutexLock lock(&mPixelMutex);
+                    mCanGoBack    = cmd.data[0] != 0;
+                    mCanGoForward = cmd.data[1] != 0;
+                }
+                continue;
             default:
                 continue; // not an event opcode this tab understands
         }
@@ -521,6 +532,45 @@ void LLEmbeddedBrowserTab::paste()
     {
         mSub->send(kPaste);
     }
+}
+
+void LLEmbeddedBrowserTab::goBack()
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        mSub->send(kGoBack);
+    }
+}
+
+void LLEmbeddedBrowserTab::goForward()
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        mSub->send(kGoForward);
+    }
+}
+
+void LLEmbeddedBrowserTab::stopLoad()
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        mSub->send(kStopLoad);
+    }
+}
+
+bool LLEmbeddedBrowserTab::canGoBack() const
+{
+    LLMutexLock lock(&mPixelMutex);
+    return mCanGoBack;
+}
+
+bool LLEmbeddedBrowserTab::canGoForward() const
+{
+    LLMutexLock lock(&mPixelMutex);
+    return mCanGoForward;
 }
 
 void LLEmbeddedBrowserTab::respondToFileDialog(long long dialogId, const std::vector<std::string>& filePaths)
@@ -1003,6 +1053,48 @@ void LLEmbeddedBrowser::navigate(unsigned int id, const std::string& url)
     {
         tab->navigate(url);
     }
+}
+
+void LLEmbeddedBrowser::goBack(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->goBack();
+    }
+}
+
+void LLEmbeddedBrowser::goForward(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->goForward();
+    }
+}
+
+void LLEmbeddedBrowser::stopLoad(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->stopLoad();
+    }
+}
+
+bool LLEmbeddedBrowser::canGoBack(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        return tab->canGoBack();
+    }
+    return false;
+}
+
+bool LLEmbeddedBrowser::canGoForward(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        return tab->canGoForward();
+    }
+    return false;
 }
 
 void LLEmbeddedBrowser::executeJavaScript(unsigned int id, const std::string& code)

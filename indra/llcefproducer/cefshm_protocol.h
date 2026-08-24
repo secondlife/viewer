@@ -87,6 +87,9 @@ namespace cefshm_demo
                           // distance-rolloff curve -- see LLViewerMediaImpl::updateVolume(),
                           // which collapses that same computed volume to a mute/unmute decision
                           // for embedded-browser media instead of a graded multiplier.
+        kGoBack    = 31, // empty payload -- straight into llCefBrowserManager::GoBack().
+        kGoForward = 32, // empty payload -- straight into llCefBrowserManager::GoForward().
+        kStopLoad  = 33, // empty payload -- straight into llCefBrowserManager::StopLoad().
 
         // consumer -> producer, control channel only
         kRequestSlot     = 5, // data = {uint8 isUI} -- isUI selects which of the producer's two
@@ -158,6 +161,10 @@ namespace cefshm_demo
                                   // "0.15 (9f3f886)\n  CEF: 150.0.11\n  Chromium: 150.0.7871.115" --
                                   // sent once per slot right after it's allocated, before any
                                   // frames. See llCefBrowserVersion.h.
+        kEventNavStateChanged = 34, // data = {uint8 canGoBack, uint8 canGoForward} -- llCefBrowserManager's
+                                  // CanGoBack()/CanGoForward(), sampled and re-sent alongside
+                                  // kEventLoadStart/kEventLoadEnd, since back/forward availability
+                                  // only ever changes as a result of navigation.
     };
 
     inline std::uint32_t pack_i32x2(std::uint8_t* d, std::int32_t x, std::int32_t y)

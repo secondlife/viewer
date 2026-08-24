@@ -2802,6 +2802,10 @@ void LLViewerMediaImpl::navigateBack()
     {
         mMediaSource->browse_back();
     }
+    else if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->goBack(mEmbeddedBrowserId);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2810,6 +2814,10 @@ void LLViewerMediaImpl::navigateForward()
     if (mMediaSource)
     {
         mMediaSource->browse_forward();
+    }
+    else if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->goForward(mEmbeddedBrowserId);
     }
 }
 
@@ -3102,6 +3110,10 @@ void LLViewerMediaImpl::navigateStop()
     {
         mMediaSource->browse_stop();
     }
+    else if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->stopLoad(mEmbeddedBrowserId);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -3210,6 +3222,10 @@ bool LLViewerMediaImpl::canNavigateForward()
     {
         result = mMediaSource->getHistoryForwardAvailable();
     }
+    else if (mUseEmbeddedBrowser)
+    {
+        result = LLEmbeddedBrowser::getInstance()->canGoForward(mEmbeddedBrowserId);
+    }
     return result;
 }
 
@@ -3220,6 +3236,10 @@ bool LLViewerMediaImpl::canNavigateBack()
     if (mMediaSource)
     {
         result = mMediaSource->getHistoryBackAvailable();
+    }
+    else if (mUseEmbeddedBrowser)
+    {
+        result = LLEmbeddedBrowser::getInstance()->canGoBack(mEmbeddedBrowserId);
     }
     return result;
 }

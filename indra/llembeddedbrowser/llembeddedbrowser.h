@@ -147,6 +147,17 @@ class LLEmbeddedBrowserTab
         // when handed off to an async GL upload on another thread).
         bool copyPixels(std::vector<unsigned char>& out_pixels, unsigned int& out_width, unsigned int& out_height);
         void navigate(const std::string& url);
+        // Back/forward/stop, straight into llCefBrowserManager::GoBack()/GoForward()/
+        // StopLoad(). Fire-and-forget, same as cut()/copy()/paste().
+        void goBack();
+        void goForward();
+        void stopLoad();
+        // Cached from the producer's own kEventNavStateChanged (sent alongside every
+        // load-start/load-end -- see cefshm_protocol.h), not a live round-trip query --
+        // this is safe to call every frame (e.g. to enable/disable a back/forward
+        // button), the same way LLPluginClassMedia::getHistoryBackAvailable() is.
+        bool canGoBack() const;
+        bool canGoForward() const;
         void resize(unsigned int width, unsigned int height);
         // Zooms the page's rendered content (CSS-pixel-level, like a browser's Ctrl+/Ctrl-)
         // without touching the pixel buffer size -- see LLViewerMediaImpl::setPageZoomFactor().
@@ -225,6 +236,10 @@ class LLEmbeddedBrowserTab
         unsigned int mRequestedHeight = 0;
         const unsigned int mDepth = 4;
         std::string mCurrentUrl;
+        // Latest state reported by the producer's kEventNavStateChanged, under
+        // mPixelMutex like mCurrentUrl -- see canGoBack()/canGoForward().
+        bool mCanGoBack = false;
+        bool mCanGoForward = false;
         std::deque<LLEmbeddedBrowserEvent> mEvents;
 };
 
@@ -264,6 +279,11 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         unsigned int getWidth(unsigned int id);
         unsigned int getHeight(unsigned int id);
         void navigate(unsigned int id, const std::string& url);
+        void goBack(unsigned int id);
+        void goForward(unsigned int id);
+        void stopLoad(unsigned int id);
+        bool canGoBack(unsigned int id);
+        bool canGoForward(unsigned int id);
         void resize(unsigned int id, unsigned int width, unsigned int height);
         void setPageZoom(unsigned int id, float zoom);
         void executeJavaScript(unsigned int id, const std::string& code);
