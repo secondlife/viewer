@@ -302,6 +302,8 @@ extern bool gHiDPISupport;
 
 #if LL_WINDOWS
 extern bool gGPUBenchmarkMode;
+#else
+static constexpr bool gGPUBenchmarkMode = false;
 #endif // LL_WINDOWS
 
 
