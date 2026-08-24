@@ -67,6 +67,12 @@ const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
 const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
 #endif
 
+#if LL_WINDOWS
+// Defined in llprocess.cpp -- assigns hProcess to the viewer's job object
+// so it is killed automatically if the parent process exits.
+LL_COMMON_API void LLProcess_assignToJobObject(HANDLE hProcess, const std::string& desc);
+#endif
+
 #if 0                               // consuming code in #if 0 below
 #endif
 LLFeatureInfo::LLFeatureInfo(const std::string& name, const bool available, const F32 level)
@@ -377,6 +383,135 @@ F32 gpu_benchmark();
 
 #if LL_WINDOWS
 
+bool gGPUBenchmarkMode = false;
+
+// Runs gpu_benchmark() in a subprocess (exe with --gpubenchmark).
+static F32 subprocess_gpu_benchmark()
+{
+    std::string exe = gDirUtilp->getExecutablePathAndName();
+    std::wstring cmd = L"\"" + ll_convert_string_to_wide(exe) + L"\" --gpubenchmark";
+
+    SECURITY_ATTRIBUTES sa = {};
+    sa.nLength = sizeof(sa);
+    sa.bInheritHandle = TRUE;
+
+    HANDLE hReadPipe = NULL, hWritePipe = NULL;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0))
+    {
+        LL_WARNS("RenderInit") << "subprocess_gpu_benchmark: CreatePipe failed, error "
+            << GetLastError() << LL_ENDL;
+        return -1.f;
+    }
+    SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0);
+
+    STARTUPINFOW si = {};
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;
+    si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    si.hStdOutput = hWritePipe;
+    si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+
+    PROCESS_INFORMATION pi = {};
+    BOOL launched = CreateProcessW(
+        NULL, cmd.data(),
+        NULL, NULL,
+        TRUE, 0, NULL, NULL,
+        &si, &pi);
+
+    CloseHandle(hWritePipe); // close parent's write end so we see EOF when child exits
+
+    if (!launched)
+    {
+        LL_WARNS("RenderInit") << "subprocess_gpu_benchmark: CreateProcessW failed, error "
+            << GetLastError() << LL_ENDL;
+        CloseHandle(hReadPipe);
+        return -1.f;
+    }
+    CloseHandle(pi.hThread);
+    LLProcess_assignToJobObject(pi.hProcess, "GPU benchmark subprocess");
+
+    // Wait for data on the pipe with a generous timeout.
+    // The subprocess must go through full viewer init before running the benchmark,
+    // so we poll for pipe data rather than waiting for process exit, which lets us
+    // read the result the moment it's written without waiting for full teardown.
+    const DWORD POLL_INTERVAL_MS  = 250;
+    const DWORD TOTAL_TIMEOUT_MS  = 90000; // 1.5 minutes; we have to wait for the init and for benchmark
+    DWORD elapsed = 0;
+
+    char buf[128] = {};
+    DWORD bytesRead = 0;
+    bool gotData = false;
+
+    while (elapsed < TOTAL_TIMEOUT_MS)
+    {
+        DWORD bytesAvail = 0;
+        if (PeekNamedPipe(hReadPipe, NULL, 0, NULL, &bytesAvail, NULL) && bytesAvail > 0)
+        {
+            if (ReadFile(hReadPipe, buf, sizeof(buf) - 1, &bytesRead, NULL) && bytesRead > 0)
+            {
+                gotData = true;
+            }
+            break;
+        }
+
+        // Check if the child died without writing anything
+        if (WaitForSingleObject(pi.hProcess, 0) == WAIT_OBJECT_0)
+        {
+            // Process exited; try one final read in case data was buffered
+            DWORD finalBytes = 0;
+            if (PeekNamedPipe(hReadPipe, NULL, 0, NULL, &finalBytes, NULL) && finalBytes > 0)
+            {
+                if (ReadFile(hReadPipe, buf, sizeof(buf) - 1, &bytesRead, NULL) && bytesRead > 0)
+                {
+                    gotData = true;
+                }
+            }
+            break;
+        }
+
+        Sleep(POLL_INTERVAL_MS);
+        elapsed += POLL_INTERVAL_MS;
+    }
+
+    F32 result = -1.f;
+
+    if (elapsed >= TOTAL_TIMEOUT_MS)
+    {
+        LL_WARNS("RenderInit") << "GPU benchmark subprocess timed out after "
+            << (TOTAL_TIMEOUT_MS / 1000) << " seconds; killing." << LL_ENDL;
+        TerminateProcess(pi.hProcess, 1);
+        WaitForSingleObject(pi.hProcess, 3000);
+    }
+    else if (gotData)
+    {
+        buf[bytesRead] = '\0';
+        float parsed = 0.f;
+        if (sscanf_s(buf, "%f", &parsed) == 1 && parsed > 0.f)
+        {
+            result = parsed;
+        }
+        else
+        {
+            LL_WARNS("RenderInit") << "subprocess_gpu_benchmark: unparseable output: '"
+                << buf << "'" << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_WARNS("RenderInit") << "subprocess_gpu_benchmark: process exited without writing result." << LL_ENDL;
+    }
+
+    // Now wait for clean process exit (it should call ExitProcess right after writing)
+    WaitForSingleObject(pi.hProcess, 5000);
+
+    CloseHandle(hReadPipe);
+    CloseHandle(pi.hProcess);
+
+    LL_INFOS("RenderInit") << "subprocess_gpu_benchmark: result = " << result << " GB/sec" << LL_ENDL;
+    return result;
+}
+
 F32 logExceptionBenchmark()
 {
     // FIXME: gpu_benchmark uses many C++ classes on the stack to control state.
@@ -457,7 +592,29 @@ bool LLFeatureManager::loadGPUClass()
         try
         {
 #if LL_WINDOWS
-            gbps = logExceptionBenchmark();
+            if (gGPUBenchmarkMode)
+            {
+                // We ARE the benchmark subprocess; run directly in-process.
+                // logExceptionBenchmark wraps with SEH so structured exceptions
+                // (e.g. access violations inside the driver) are still caught.
+                //ms_sleep(10000);
+                gbps = logExceptionBenchmark();
+            }
+            else
+            {
+                // Normal path: run benchmark in an isolated subprocess so a
+                // driver hang can be killed without freezing the main viewer.
+                gbps = subprocess_gpu_benchmark();
+                LL_INFOS("Benchmark") << "Memory bandwidth, process run is " << llformat("%.3f", gbps) << LL_ENDL;
+                if (gbps == -1.f
+                    && gGLManager.getRawGLString().find("Radeon") != std::string::npos
+                    && checkRDNA35())
+                {
+                    // Certain AMD GPUs have known issues with shader profiling and occlusion queries that can lead to hangs.
+                    // If test returned -1, we are likely on a bad driver.
+                    gSavedSettings.setBOOL("UseOcclusion", false);
+                }
+            }
 #else
             gbps = gpu_benchmark();
 #endif
@@ -467,6 +624,21 @@ bool LLFeatureManager::loadGPUClass()
             gbps = -1.f;
             LL_WARNS("RenderInit") << "GPU benchmark failed: " << e.what() << LL_ENDL;
         }
+
+#if LL_WINDOWS
+        // If we are the benchmark subprocess, write the raw result to stdout
+        // so the parent process can read it, then exit immediately.
+        if (gGPUBenchmarkMode)
+        {
+            LL_WARNS("RenderInit") << "Passing " << gbps << " to parent" << LL_ENDL;
+            char buf[64];
+            int len = snprintf(buf, sizeof(buf), "%.6f\n", gbps);
+            DWORD written = 0;
+            WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buf, (DWORD)len, &written, NULL);
+            FlushFileBuffers(GetStdHandle(STD_OUTPUT_HANDLE));
+            ExitProcess(0);
+        }
+#endif
 
         mGPUMemoryBandwidth = gbps;
 

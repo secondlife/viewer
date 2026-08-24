@@ -143,6 +143,11 @@ namespace {
         }
     }
 }
+
+LL_COMMON_API void LLProcess_assignToJobObject(HANDLE hProcess, const std::string& desc)
+{
+    AssignProcessToJob(hProcess, desc);
+}
 #endif
 
 namespace bp = boost::process::v2;
