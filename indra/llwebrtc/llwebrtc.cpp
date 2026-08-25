@@ -892,7 +892,9 @@ void LLWebRTCImpl::updateDevices()
 
 void LLWebRTCImpl::OnDevicesUpdated()
 {
-    updateDevices();
+    // OnDevicesUpdated() is called on macOS CoreAudio's device-change callback
+    // thread.  Calling updateDevices() on that thread causes a deadlock.
+    mWorkerThread->PostTask([this] { updateDevices(); });
 }
 
 
