@@ -388,6 +388,14 @@ jobs:
       AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
     needs: build
+    # Deliberate divergence from develop's own workflow, matching the
+    # fail-fast:false change above: `needs: build` reads as failed for a
+    # matrix job if ANY leg (including the macOS/Linux ones this project
+    # isn't chasing right now) fails, which by default skips this job even
+    # when the Windows leg specifically succeeded. Run whenever the Windows
+    # build actually produced its Velopack output, regardless of what the
+    # other platforms did.
+    if: always() && needs.build.outputs.velopack_main_exe != ''
     runs-on: windows-2022
     steps:
       - name: Sign and package Windows viewer
