@@ -60,7 +60,7 @@ namespace
     // List of command-line switches that can't map-to settings variables.
     // Going forward, we want every new command-line switch to map-to some
     // settings variable. This list is used to validate that.
-    const std::set<std::string> unmapped_options = { "help", "set", "setdefault", "settings", "sessionsettings", "usersessionsettings" };
+    const std::set<std::string> unmapped_options = { "help", "set", "setdefault", "settings", "sessionsettings", "usersessionsettings", "gpubenchmark" };
 
     po::options_description gOptionsDesc;
     po::positional_options_description gPositionalOptions;

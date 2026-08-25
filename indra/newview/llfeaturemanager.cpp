@@ -377,6 +377,83 @@ F32 gpu_benchmark();
 
 #if LL_WINDOWS
 
+bool gGPUBenchmarkMode = false;
+
+// Runs gpu_benchmark() in a subprocess (exe with --gpubenchmark).
+static F32 subprocess_gpu_benchmark()
+{
+    LLProcess::Params params;
+    params.executable = gDirUtilp->getExecutablePathAndName();
+    params.args.add("--gpubenchmark");
+    params.desc       = "GPU benchmark";
+    params.autokill   = true;   // killed via job object if parent crashes
+    params.attached   = true;   // killed on LLProcessPtr destruction (timeout)
+    params.files.add(LLProcess::FileParam());                    // stdin:  default
+    params.files.add(LLProcess::FileParam().type("pipe"));       // stdout: pipe
+    params.files.add(LLProcess::FileParam());                    // stderr: default
+
+    LLProcessPtr child;
+    try
+    {
+        child = LLProcess::create(params);
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS("RenderInit") << "subprocess_gpu_benchmark: failed to launch: "
+                               << e.what() << LL_ENDL;
+        return -1.f;
+    }
+
+    if (!child)
+    {
+        LL_WARNS("RenderInit") << "subprocess_gpu_benchmark: LLProcess::create returned null." << LL_ENDL;
+        return -1.f;
+    }
+
+    LLProcess::ReadPipe& out = child->getReadPipe(LLProcess::STDOUT);
+
+    const F32 POLL_INTERVAL_S  = 0.25f;
+    const F32 TOTAL_TIMEOUT_S  = 120.f; // covers full viewer init + benchmark
+    LLTimer timer;
+    timer.start();
+
+    while (timer.getElapsedTimeF32() < TOTAL_TIMEOUT_S)
+    {
+        child->pump();
+
+        // Result is a single float followed by '\n'
+        if (out.contains('\n'))
+        {
+            std::string line = out.getline();
+            float parsed = 0.f;
+            if (sscanf_s(line.c_str(), "%f", &parsed) == 1 && parsed > 0.f)
+            {
+                LL_INFOS("RenderInit") << "subprocess_gpu_benchmark: result = "
+                                       << parsed << " GB/sec" << LL_ENDL;
+                // Let LLProcessPtr destructor handle cleanup
+                return parsed;
+            }
+            LL_WARNS("RenderInit") << "subprocess_gpu_benchmark: unparseable output: '"
+                                   << line << "'" << LL_ENDL;
+            return -1.f;
+        }
+
+        // If child already exited without writing anything, bail
+        if (!child->isRunning())
+        {
+            LL_WARNS("RenderInit") << "subprocess_gpu_benchmark: process exited without result." << LL_ENDL;
+            return -1.f;
+        }
+
+        ms_sleep((U32)(POLL_INTERVAL_S * 1000));
+    }
+
+    // Timeout: attached=true means LLProcessPtr destructor kills it
+    LL_WARNS("RenderInit") << "GPU benchmark subprocess timed out after "
+                           << (int)TOTAL_TIMEOUT_S << " seconds; killing." << LL_ENDL;
+    return -1.f;
+}
+
 F32 logExceptionBenchmark()
 {
     // FIXME: gpu_benchmark uses many C++ classes on the stack to control state.
@@ -457,7 +534,27 @@ bool LLFeatureManager::loadGPUClass()
         try
         {
 #if LL_WINDOWS
-            gbps = logExceptionBenchmark();
+            if (gGPUBenchmarkMode)
+            {
+                // We ARE the benchmark subprocess; run directly in-process.
+                // logExceptionBenchmark wraps with SEH so structured exceptions
+                // (e.g. access violations inside the driver) are still caught.
+                gbps = logExceptionBenchmark();
+            }
+            else
+            {
+                // Normal path: run benchmark in an isolated subprocess so a
+                // driver hang can be killed without freezing the main viewer.
+                gbps = subprocess_gpu_benchmark();
+                if (gbps == -1.f
+                    && gGLManager.getRawGLString().find("Radeon") != std::string::npos
+                    && checkRDNA35())
+                {
+                    // Certain AMD GPUs have known issues with shader profiling and occlusion queries that can lead to hangs.
+                    // If test returned -1, we are likely on a bad driver.
+                    gSavedSettings.setBOOL("UseOcclusion", false);
+                }
+            }
 #else
             gbps = gpu_benchmark();
 #endif
@@ -467,6 +564,21 @@ bool LLFeatureManager::loadGPUClass()
             gbps = -1.f;
             LL_WARNS("RenderInit") << "GPU benchmark failed: " << e.what() << LL_ENDL;
         }
+
+#if LL_WINDOWS
+        // If we are the benchmark subprocess, write the raw result to stdout
+        // so the parent process can read it, then exit immediately.
+        if (gGPUBenchmarkMode)
+        {
+            LL_WARNS("RenderInit") << "Passing " << gbps << " to parent" << LL_ENDL;
+            char buf[64];
+            int len = snprintf(buf, sizeof(buf), "%.6f\n", gbps);
+            DWORD written = 0;
+            WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buf, (DWORD)len, &written, NULL);
+            FlushFileBuffers(GetStdHandle(STD_OUTPUT_HANDLE));
+            ExitProcess(0);
+        }
+#endif
 
         mGPUMemoryBandwidth = gbps;
 
