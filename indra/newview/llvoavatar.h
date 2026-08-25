@@ -849,7 +849,13 @@ private:
     //--------------------------------------------------------------------
 protected:
     void            deleteLayerSetCaches(bool clearAll = true);
-    void            addBakedTextureStats(LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level);
+    void            addBakedTextureStats(LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level,
+                                         LLAvatarAppearanceDefines::EBakedTextureIndex baked_index);
+    // sqrt(UVArea/WorldArea) per baked region from the system body meshes
+    void            updateBakedDensities();
+    F32             mBakedDensity[LLAvatarAppearanceDefines::BAKED_NUM_INDICES] = {};
+    F32             mBakedWorldArea[LLAvatarAppearanceDefines::BAKED_NUM_INDICES] = {};
+    U32             mBakedDensityFrame = 0;
 
     //--------------------------------------------------------------------
     // Composites

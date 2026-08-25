@@ -5462,6 +5462,20 @@ void LLViewerObject::changeTEImage(S32 index, LLViewerTexture* new_image)
     {
         return ;
     }
+    // keep faces registered on the live texture (re-bakes swap the pointer)
+    if (new_image && mTEImages[index] != new_image && mDrawable.notNull())
+    {
+        for (S32 i = 0; i < mDrawable->getNumFaces(); ++i)
+        {
+            LLFace* facep = mDrawable->getFace(i);
+            if (facep && facep->getTEOffset() == index
+                && facep->getTexture(LLRender::DIFFUSE_MAP) == mTEImages[index].get())
+            {
+                facep->setTexture(LLRender::DIFFUSE_MAP, new_image);
+                facep->dirtyTexture();
+            }
+        }
+    }
     mTEImages[index] = new_image ;
 }
 

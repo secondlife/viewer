@@ -100,7 +100,9 @@ void LLGLTexture::setBoostLevel(S32 level)
         if(mBoostLevel != LLGLTexture::BOOST_NONE
            && mBoostLevel != LLGLTexture::BOOST_ICON
            && mBoostLevel != LLGLTexture::BOOST_THUMBNAIL
-           && mBoostLevel != LLGLTexture::BOOST_TERRAIN)
+           && mBoostLevel != LLGLTexture::BOOST_TERRAIN
+           && mBoostLevel != LLGLTexture::BOOST_AVATAR
+           && mBoostLevel != LLGLTexture::BOOST_AVATAR_BAKED)
         {
             setNoDelete() ;
         }

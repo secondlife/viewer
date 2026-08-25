@@ -1383,27 +1383,28 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
             F32 near_frac = llclampf(1.f - nearest / draw_distance);
             max_coverage = LLViewerTexture::sWindowPixelArea * llmax(near_frac, 0.05f);
         }
-        // Baked avatar textures render on system-avatar body meshes whose
-        // joint meshes never register faces with the texture list
-        // (LLAvatarJointMesh::setTexture just stores the pointer).
-        // LLVOAvatar::updateTextures feeds their on-screen pixel area through
-        // addTextureStats every frame - use that as BaseColor coverage, with
-        // the same avatar bonus attachments get above.
-        else if (face_count == 0
-                 && (imagep->getFTType() == FTT_SERVER_BAKE || imagep->getFTType() == FTT_HOST_BAKE))
+        // Avatar-stamped inputs (system bakes, self locals) fold in like a
+        // face; mixed use with BoM faces resolves by most-demanding-wins.
+        if (imagep->mBakeUVDensity > 0.f)
         {
             static LLCachedControl<F32> avatar_boost(gSavedSettings, "TextureAvatarBoost", 2.f);
-            // addBakedTextureStats feeds pixel_area/texel_area_ratio - i.e.
-            // screen pixels per unit tile - so 1/sqrt of it IS tiles per
-            // pixel. The avatar boost divides linearly (2.0 = 1 mip).
-            F32 px_per_tile = imagep->getMaxVirtualSize();
-            if (px_per_tile > 0.f)
+            const S32 bc = imagep->mBakeIsSelf ? (S32)LLViewerTexture::PRIORITY_SELF
+                                               : (S32)LLViewerTexture::PRIORITY_AVATAR;
+            prio = llmax(prio, (U8)bc);
+            F32 ppm = LLDrawable::sCurPixelAngle / llmax(imagep->mBakeDistance, 0.01f);
+            F32 tpp = imagep->mBakeUVDensity * sqrtf(llmax(imagep->mBakeRepeat, 1.f / 65536.f))
+                      / ppm / llmax((F32)avatar_boost, 1.f);
+            if (falloff_active_c[bc])
             {
-                F32 tpp = 1.f / sqrtf(px_per_tile) / llmax((F32)avatar_boost, 1.f);
-                channel_tpp_low[1] = tpp;
-                channel_tpp_high[1] = tpp;
-                max_coverage = llmin(px_per_tile, LLViewerTexture::sWindowPixelArea);
+                F32 t = llclampf(imagep->mBakeDistance * inv_draw_distance);
+                F32 r_dist = r_near_c[bc] + (r_far_c[bc] - r_near_c[bc]) * powf(t, falloff_exp_c[bc]);
+                tpp *= r_near_c[bc] / llmax(r_dist, 0.0001f);
             }
+            channel_tpp_low[1] = llmin(channel_tpp_low[1], tpp);
+            channel_tpp_high[1] = llmax(channel_tpp_high[1], tpp);
+            F32 footprint = sqrtf(imagep->mBakeArea) * ppm;
+            max_coverage = llmax(max_coverage,
+                                 llmin(footprint * footprint, LLViewerTexture::sWindowPixelArea));
         }
 
         // Light projector textures register as LIGHT_TEX volumes, not faces.
@@ -1426,10 +1427,8 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
             }
         }
 
-        // Reset-then-accumulate (the addBakedTextureStats idiom) so fetch
-        // priority tracks current coverage, not the session peak. Must stay
-        // below the bake branch's getMaxVirtualSize() read above, which
-        // round-trips the avatar's per-frame value through max_coverage.
+        // Reset-then-accumulate so fetch priority tracks current coverage,
+        // not the session peak.
         imagep->resetTextureStats();
         imagep->addTextureStats(max_coverage);
 

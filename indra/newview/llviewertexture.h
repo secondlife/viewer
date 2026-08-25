@@ -150,6 +150,16 @@ public:
     F32 getChannelTppLow(S32 bucket) const { return (bucket >= 0 && bucket < 4) ? mChannelTppLow[bucket] : 0.f; }
     F32 getChannelTppHigh(S32 bucket) const { return (bucket >= 0 && bucket < 4) ? mChannelTppHigh[bucket] : 0.f; }
 
+    // avatars stamp face-equivalent streaming inputs for zero-face textures
+    void setBakeStreamInputs(F32 uv_density, F32 repeat, F32 area, F32 distance, bool is_self)
+    {
+        mBakeUVDensity = uv_density;
+        mBakeRepeat = repeat;
+        mBakeArea = area;
+        mBakeDistance = distance;
+        mBakeIsSelf = is_self;
+    }
+
     LLFrameTimer* getLastReferencedTimer() { return &mLastReferencedTimer; }
 
     S32 getFullWidth() const { return mFullWidth; }
@@ -215,16 +225,22 @@ protected:
     F32 mChannelTppLow[4] = { 0.f, 0.f, 0.f, 0.f };
     F32 mChannelTppHigh[4] = { 0.f, 0.f, 0.f, 0.f };
 
+    // Face-equivalent inputs for zero-face avatar textures, stamped by the
+    // owning avatar; density 0 = unstamped.
+    F32 mBakeUVDensity = 0.f;
+    F32 mBakeRepeat = 1.f;
+    F32 mBakeArea = 0.f;
+    F32 mBakeDistance = 0.f;
+    bool mBakeIsSelf = false;
+
     // Any face using this texture projects onto the screen (published alongside
     // the coverage above). Selects the fetch-priority band in updateFetch.
     // Defaults true so unmeasured textures (fresh objects, no-face users) are
     // never starved.
     bool mOnScreen = true;
 
-    // Streaming priority class (EPriorityClass), max-wins across the faces
-    // using this texture; bakes classify as avatar by fetch type. Published
-    // by the sweep; selects the per-class effective cascade values and the
-    // fetch-priority sub-band.
+    // Streaming priority class (EPriorityClass), max-wins across faces and
+    // avatar stamps. Selects the per-class cascade values and fetch band.
     U8 mPriorityClass = PRIORITY_ENV;
 
     // Least-behind use across the faces using this texture, angular: 0 = something
@@ -382,16 +398,6 @@ public:
     LLViewerFetchedTexture(const LLUUID& id, FTType f_type, const LLHost& host = LLHost(), bool usemipmaps = true);
     LLViewerFetchedTexture(const LLImageRaw* raw, FTType f_type, bool usemipmaps);
     LLViewerFetchedTexture(const std::string& url, FTType f_type, const LLUUID& id, bool usemipmaps = true);
-
-    // Avatar bake/skin textures - exempt from non-visibility-driven discard
-    // (staleness, background, pressure) to avoid the universal-cloud bug.
-    static bool isAgentAvatarBoost(S32 boost_level)
-    {
-        return boost_level == BOOST_AVATAR
-            || boost_level == BOOST_AVATAR_BAKED
-            || boost_level == BOOST_AVATAR_SELF
-            || boost_level == BOOST_AVATAR_BAKED_SELF;
-    }
 
 public:
     /*virtual*/ S8 getType() const override;
@@ -658,9 +664,8 @@ private:
     // requirement across buckets wins (one GL image serves all its channels).
     // A per-mip hysteresis dead-band against the current discard level prevents
     // fetch/scaleDown thrash. Ratios come from the texture's priority class
-    // (env/avatar/self cascade lag); avatar_bake only exempts the unload ramps
-    // (anti cloud-bug).
-    S32 computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) const;
+    // (env/avatar/self cascade lag).
+    S32 computeDesiredDiscard(S32 dim_max_i) const;
 };
 
 //

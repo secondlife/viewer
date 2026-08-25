@@ -2502,21 +2502,21 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
     {
         if (imagep->getID() != IMG_DEFAULT_AVATAR)
         {
-            imagep->setNoDelete();
-            if (imagep->getDiscardLevel() != 0)
+            // compositing inputs stream like the region they bake onto
+            const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearance::getDictionary()->getTexture(type);
+            const EBakedTextureIndex baked_index = texture_dict ? texture_dict->mBakedTextureIndex : EBakedTextureIndex::BAKED_NUM_INDICES;
+            updateBakedDensities();
+            const S32 bi = (S32)baked_index;
+            const bool valid = bi >= 0 && bi < (S32)BAKED_NUM_INDICES;
+            imagep->setBakeStreamInputs(valid ? mBakedDensity[bi] : 0.f,
+                                        llmax(texel_area_ratio, 0.f),
+                                        valid ? mBakedWorldArea[bi] : 0.f,
+                                        mDrawable ? mDrawable->mDistanceWRTCamera : 0.f,
+                                        true);
+            imagep->setBoostLevel(getAvatarBoostLevel());
+            if (imagep->getDiscardLevel() < 0)
             {
-                F32 desired_pixels;
-                desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
-
-                imagep->setBoostLevel(getAvatarBoostLevel());
-                imagep->resetTextureStats();
-                imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL);
-                imagep->addTextureStats( desired_pixels / texel_area_ratio );
-                imagep->forceUpdateBindStats() ;
-                if (imagep->getDiscardLevel() < 0)
-                {
-                    mHasGrey = true; // for statistics gathering
-                }
+                mHasGrey = true; // for statistics gathering
             }
         }
         else

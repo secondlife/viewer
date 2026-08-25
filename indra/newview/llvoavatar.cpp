@@ -5794,8 +5794,10 @@ void LLVOAvatar::updateTextures()
         if (isIndexBakedTexture((ETextureIndex) texture_index) && render_avatar)
         {
             const S32 boost_level = getAvatarBakedBoostLevel();
+            const LLAvatarAppearanceDictionary::TextureEntry *baked_dict = LLAvatarAppearance::getDictionary()->getTexture((ETextureIndex)texture_index);
+            const EBakedTextureIndex baked_index = baked_dict ? baked_dict->mBakedTextureIndex : EBakedTextureIndex::BAKED_NUM_INDICES;
             imagep = LLViewerTextureManager::staticCastToFetchedTexture(getImage(texture_index,0), true);
-            addBakedTextureStats( imagep, mPixelArea, texel_area_ratio, boost_level );
+            addBakedTextureStats( imagep, mPixelArea, texel_area_ratio, boost_level, baked_index );
         }
     }
 
@@ -5896,21 +5898,90 @@ void LLVOAvatar::checkTextureLoading()
     return ;
 }
 
-const F32  SELF_ADDITIONAL_PRI = 0.75f ;
-void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level)
+// Stamps the face-equivalent streaming inputs; the texture-list sweep owns
+// the actual measurement and stats.
+void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level,
+                                       EBakedTextureIndex baked_index)
 {
-    //Note:
-    //if this function is not called for the last MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL frames,
-    //the texture pipeline will stop fetching this texture.
-
-    imagep->resetTextureStats();
-    imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL);
-    imagep->resetMaxVirtualSizeResetCounter() ;
-
     mMaxPixelArea = llmax(pixel_area, mMaxPixelArea);
     mMinPixelArea = llmin(pixel_area, mMinPixelArea);
-    imagep->addTextureStats(pixel_area / texel_area_ratio);
+
+    updateBakedDensities();
+    const S32 bi = (S32)baked_index;
+    const bool valid = bi >= 0 && bi < (S32)BAKED_NUM_INDICES;
+    imagep->setBakeStreamInputs(valid ? mBakedDensity[bi] : 0.f,
+                                llmax(texel_area_ratio, 0.f),
+                                valid ? mBakedWorldArea[bi] : 0.f,
+                                mDrawable ? mDrawable->mDistanceWRTCamera : 0.f,
+                                isSelf());
     imagep->setBoostLevel(boost_level);
+}
+
+void LLVOAvatar::updateBakedDensities()
+{
+    const U32 now = LLFrameTimer::getFrameCount();
+    if (mBakedDensityFrame != 0 && now - mBakedDensityFrame < 128)
+    {
+        return;
+    }
+    mBakedDensityFrame = now;
+
+    F32 min_z = F32_MAX;
+    F32 max_z = -F32_MAX;
+    F32 uv_area[BAKED_NUM_INDICES] = {};
+    F32 world_area[BAKED_NUM_INDICES] = {};
+    for (U32 i = 0; i < mBakedTextureDatas.size() && i < (U32)BAKED_NUM_INDICES; ++i)
+    {
+        for (LLAvatarJointMesh* jm : mBakedTextureDatas[i].mJointMeshes)
+        {
+            LLPolyMesh* mesh = jm ? jm->getMesh() : nullptr;
+            if (!mesh || !mesh->getCoords() || !mesh->getTexCoords())
+            {
+                continue;
+            }
+            const LLVector4a* coords = mesh->getCoords();
+            const LLVector2* uvs = mesh->getTexCoords();
+            const U32 num_verts = mesh->getNumVertices();
+            LLPolyFace* faces = mesh->getFaces();
+            const S32 num_faces = mesh->getNumFaces();
+            for (S32 f = 0; f < num_faces; ++f)
+            {
+                const S32 i0 = faces[f][0];
+                const S32 i1 = faces[f][1];
+                const S32 i2 = faces[f][2];
+                if ((U32)i0 >= num_verts || (U32)i1 >= num_verts || (U32)i2 >= num_verts)
+                {
+                    continue;
+                }
+                LLVector4a e1; e1.setSub(coords[i1], coords[i0]);
+                LLVector4a e2; e2.setSub(coords[i2], coords[i0]);
+                LLVector4a c;  c.setCross3(e1, e2);
+                const F32 wa = 0.5f * c.getLength3().getF32();
+                const LLVector2 u1 = uvs[i1] - uvs[i0];
+                const LLVector2 u2 = uvs[i2] - uvs[i0];
+                const F32 ua = 0.5f * fabsf(u1.mV[0] * u2.mV[1] - u1.mV[1] * u2.mV[0]);
+                // degenerate in either space: skip the pair together
+                if (wa > F32_MIN && ua > F32_MIN)
+                {
+                    world_area[i] += wa;
+                    uv_area[i] += ua;
+                }
+                min_z = llmin(min_z, coords[i0][2]);
+                max_z = llmax(max_z, coords[i0][2]);
+            }
+        }
+    }
+
+    // coords are morph-applied but exclude joint scaling; fold the actual
+    // body height against the mesh's own span
+    const F32 span_z = max_z - min_z;
+    const F32 scale = (span_z > 0.01f && mBodySize.mV[VZ] > 0.01f) ? mBodySize.mV[VZ] / span_z : 1.f;
+    for (S32 i = 0; i < (S32)BAKED_NUM_INDICES; ++i)
+    {
+        const F32 wa = world_area[i] * scale * scale;
+        mBakedWorldArea[i] = wa;
+        mBakedDensity[i] = (wa > F32_MIN && uv_area[i] > F32_MIN) ? sqrtf(uv_area[i] / wa) : 0.f;
+    }
 }
 
 //virtual

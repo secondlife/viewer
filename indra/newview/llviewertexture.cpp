@@ -796,7 +796,9 @@ void LLViewerTexture::setBoostLevel(S32 level)
         if(mBoostLevel != LLViewerTexture::BOOST_NONE &&
             mBoostLevel != LLViewerTexture::BOOST_SELECTED &&
             mBoostLevel != LLViewerTexture::BOOST_ICON &&
-            mBoostLevel != LLViewerTexture::BOOST_THUMBNAIL)
+            mBoostLevel != LLViewerTexture::BOOST_THUMBNAIL &&
+            mBoostLevel != LLViewerTexture::BOOST_AVATAR &&
+            mBoostLevel != LLViewerTexture::BOOST_AVATAR_BAKED)
         {
             setNoDelete();
         }
@@ -1577,8 +1579,7 @@ bool LLViewerFetchedTexture::preCreateTexture(S32 usename/*= 0*/)
         };
 
         const bool degrade_ok = mBoostLevel < LLGLTexture::BOOST_HIGH
-                                && !mDontDiscard && mUseMipMaps
-                                && mFTType != FTT_SERVER_BAKE && mFTType != FTT_HOST_BAKE;
+                                && !mDontDiscard && mUseMipMaps;
         if (degrade_ok)
         {
             // never degrade below this; the OOM backoff is the true last resort
@@ -2204,8 +2205,7 @@ bool LLViewerFetchedTexture::updateFetch()
         && desired_discard < (S32)mBestDiscardEver
         && mBoostLevel < LLGLTexture::BOOST_HIGH
         && mUseMipMaps
-        && !mDontDiscard
-        && !isAgentAvatarBoost(mBoostLevel))
+        && !mDontDiscard)
     {
         // Re-clamp: current can sit past codec max after scaleDown (GL
         // pyramid goes deeper than the codestream) - a stepped request
@@ -2787,6 +2787,8 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
         }
     }
 
+    bool entries_erased = false;
+
     //
     // Run raw/auxiliary data callbacks
     //
@@ -2821,6 +2823,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
                 {
                     iter = mLoadedCallbackList.erase(curiter);
                     delete entryp;
+                    entries_erased = true;
                 }
                 res = true;
             }
@@ -2850,10 +2853,23 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
                 {
                     iter = mLoadedCallbackList.erase(curiter);
                     delete entryp;
+                    entries_erased = true;
                 }
                 res = true;
             }
         }
+    }
+
+    // Recompute the callback discard floor from surviving entries - a fired
+    // one-shot entry (e.g. the morph-mask's discard 0) must not pin it forever.
+    if (entries_erased)
+    {
+        S32 desired_discard = S8_MAX;
+        for (LLLoadedCallbackEntry* entryp : mLoadedCallbackList)
+        {
+            desired_discard = llmin(desired_discard, entryp->mDesiredDiscard);
+        }
+        mLoadedCallbackDesiredDiscardLevel = (S8)desired_discard;
     }
 
     // Done with any raw image data at this point (will be re-created if we still have callbacks)
@@ -3143,7 +3159,7 @@ S8 LLViewerLODTexture::getType() const
 // hard cap that downrezzes anything slightly oversampled. A per-mip
 // hysteresis dead-band against the current discard level prevents
 // fetch/scaleDown thrash as an object slowly crosses a mip boundary.
-S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) const
+S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i) const
 {
     static const F64 log_4 = log(4.0);
     static const F64 log_2 = log(2.0);
@@ -3160,11 +3176,7 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) c
     }
 
     // Priority class selects which lagged view of the cascade this texture
-    // sizes against: environment feels pressure first; avatars (bakes and
-    // attachments alike - the class replaces the old absolute bake
-    // exemption) only degrade once the environment is already deep; self
-    // deeper still. Bakes keep their mid-bake anti-cloud protections via the
-    // avatar_bake ramp/scaleDown exemptions below.
+    // sizes against: environment degrades first, avatars next, self last.
     const S32 cls = llclamp((S32)mPriorityClass, 0, (S32)PRIORITY_CLASS_COUNT - 1);
     const F32 r_global = sEffNearRatio[cls];
 
@@ -3246,13 +3258,8 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) c
     mLastMeasuredFrame = LLFrameTimer::getFrameCount();
     mDbgIdealPolicy = ideal;
 
-    // Unload lifecycle (avatar bakes exempt): two independent signals, deeper
-    // one wins (max, not sum). Angular = out-of-frustum, ramping to full
-    // unload at behindness == bias. Occlusion GC = in-frustum staleness only
-    // (the sweep stamps the clock for out-of-frustum faces). Both dwell, then
-    // step per GC period, folded into ideal so the dead-band below damps all
-    // movement.
-    if (!avatar_bake)
+    // Unload lifecycle: angular (out-of-frustum) and GC staleness ramps,
+    // deeper one wins.
     {
         static LLCachedControl<F32> unload_bias(gSavedSettings, "TextureOffscreenUnloadBias", 1.0f);
         static LLCachedControl<F32> gc_step_seconds(gSavedSettings, "TextureGCStepSeconds", 2.f);
@@ -3355,14 +3362,6 @@ void LLViewerLODTexture::processTextureStats()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     updateVirtualSize();
 
-    // Hoisted once: avatar bake textures are exempt from several pressure
-    // mechanisms below (anti-cloud-bug protection). Reads of `avatar_bake`
-    // replace inline isAgentAvatarBoost(mBoostLevel) calls; each site keeps
-    // its own intent comment explaining *why* the exemption applies. See
-    // also LLViewerFetchedTexture::isAgentAvatarBoost() in the header for
-    // the canonical list of exemption sites.
-    const bool avatar_bake = isAgentAvatarBoost(mBoostLevel);
-
     static LLCachedControl<bool> textures_fullres(gSavedSettings,"TextureLoadFullRes", false);
 
     F32 max_tex_res = MAX_IMAGE_SIZE_DEFAULT;
@@ -3407,7 +3406,7 @@ void LLViewerLODTexture::processTextureStats()
             : (S32)mCodecMaxDiscardLevel;
 
         // The whole policy: pixel:texel ratio at the most-demanding face.
-        S32 discard = computeDesiredDiscard(dim_max_for_image_i, avatar_bake);
+        S32 discard = computeDesiredDiscard(dim_max_for_image_i);
 
         // Per-texture caps: force >=1 for sources over the resolution cap;
         // bound by the debug override or the dim-derived max.
@@ -3426,10 +3425,8 @@ void LLViewerLODTexture::processTextureStats()
         mDesiredDiscardLevel = (S8)discard;
 
         // If the GPU already holds finer data than we now want, evict it.
-        // Avatar bakes exempt: shrinking mid-bake can leave the avatar stuck
-        // as a cloud until the next bake completes.
         S32 current_discard = getDiscardLevel();
-        if (!avatar_bake && current_discard >= 0 && current_discard < mDesiredDiscardLevel && !mForceToSaveRawImage)
+        if (current_discard >= 0 && current_discard < mDesiredDiscardLevel && !mForceToSaveRawImage)
         {
             scaleDown();
         }
@@ -3461,11 +3458,6 @@ bool LLViewerLODTexture::scaleDown()
 
     // Structural blocks only; per-texture policy lives in processTextureStats.
     if (!mUseMipMaps || mDontDiscard || mBoostLevel >= LLGLTexture::BOOST_HIGH)
-    {
-        return false;
-    }
-    // Avatar bakes are exempt from mid-bake eviction (cloud avatar risk).
-    if (isAgentAvatarBoost(mBoostLevel))
     {
         return false;
     }
