@@ -115,6 +115,7 @@
 #include "lllocalbitmaps.h"
 #include "llperfstats.h"
 #include "llgltfmateriallist.h"
+#include "llwebsocketmgr.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -1879,6 +1880,9 @@ bool LLAppViewer::cleanup()
     // Destroy the UI
     if( gViewerWindow)
         gViewerWindow->shutdownViews();
+
+    // Model previews release their decomposition handles while the UI is destroyed.
+    gMeshRepo.shutdownDecomposition();
 
     LL_INFOS() << "Cleaning up Inventory" << LL_ENDL;
 
@@ -5226,6 +5230,11 @@ void LLAppViewer::idle()
     LLMortician::updateClass();
     LLFilePickerThread::clearDead();  //calls LLFilePickerThread::notify()
     LLDirPickerThread::clearDead();
+
+    if (LLWebsocketMgr::instanceExists())
+    {
+        LLWebsocketMgr::instance().update();
+    }
     F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();
 
     LLGLTFMaterialList::flushUpdates();

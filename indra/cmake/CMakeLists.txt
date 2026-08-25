@@ -70,6 +70,7 @@ set(cmake_SOURCE_FILES
         VisualLeakDetector.cmake
         LibVLCPlugin.cmake
         WebRTC.cmake
+        websocketpp.cmake
         xxHash.cmake
         ZLIBNG.cmake
         )

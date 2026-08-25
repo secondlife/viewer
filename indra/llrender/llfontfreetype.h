@@ -34,6 +34,7 @@
 #include "llfontbitmapcache.h"
 
 #include <unordered_map>
+#include <unordered_set>
 
 // Hack.  FT_Face is just a typedef for a pointer to a struct,
 // but there's no simple forward declarations file for FreeType,
@@ -110,7 +111,7 @@ public:
     S32 getNumFaces(const std::string& filename);
 
     typedef std::function<bool(llwchar)> char_functor_t;
-    void addFallbackFont(const LLPointer<LLFontFreetype>& fallback_font, const char_functor_t& functor = nullptr);
+    void addFallbackFont(const LLPointer<LLFontFreetype>& fallback_font, const char_functor_t& functor = nullptr) const;
 
     // Global font metrics - in units of pixels
     F32 getLineHeight() const;
@@ -172,6 +173,7 @@ private:
     bool setSubImageBGRA(U32 x, U32 y, U32 bitmap_num, U16 width, U16 height, const U8* data, U32 stride) const;
     bool setVariationAxis(const std::string& axis_tag, F32 value);
     bool hasGlyph(llwchar wch) const;       // Has a glyph for this character
+    bool hasFallbackPath(const std::string& path) const; // Is a fallback font with this file path already attached?
     LLFontGlyphInfo* addGlyph(llwchar wch, EFontGlyphType glyph_type) const;        // Add a new character to the font if necessary
     LLFontGlyphInfo* addGlyphFromFont(
         const LLFontFreetype *fontp,
@@ -197,9 +199,15 @@ private:
     EFontHinting mHinting;
     S32 mFontFlags;
     S32 mWeight = -1;
+    S32 mFaceIndex = 0; // Face index within the (possibly collection) font file
+    F32 mVertDPI = 0.f; // Kept so lazily-discovered fallback faces can be
+    F32 mHorzDPI = 0.f; // opened at this font's size (see addGlyph)
     typedef std::pair<LLPointer<LLFontFreetype>, char_functor_t> fallback_font_t;
     typedef std::vector<fallback_font_t> fallback_font_vector_t;
-    fallback_font_vector_t mFallbackFonts; // A list of fallback fonts to look for glyphs in (for Unicode chars)
+    // mutable: fallback fonts are also discovered lazily in addGlyph (const)
+    mutable fallback_font_vector_t mFallbackFonts; // A list of fallback fonts to look for glyphs in (for Unicode chars)
+    // Codepoints we've already asked the OS about, so we only query once each
+    mutable std::unordered_set<llwchar> mAttemptedFallbackChars;
 
     // *NOTE: the same glyph can be present with multiple representations (but the pointer is always unique)
     typedef std::unordered_multimap<llwchar, LLFontGlyphInfo*> char_glyph_info_map_t;

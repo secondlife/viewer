@@ -630,7 +630,7 @@ bool LLFeatureManager::loadGPUClass()
             // reduce quality on systems that don't have enough memory
             mGPUClass = (EGPUClass)(mGPUClass - 1);
         }
-    #endif //LL_WINDOWS
+    #endif //LL_WINDOWS || LL_LINUX
     } //end if benchmark
     else
     {

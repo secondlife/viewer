@@ -63,7 +63,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define MATERIAL_FILTER L"GLTF Files (*.gltf; *.glb)\0*.gltf;*.glb\0"
 #define HDRI_FILTER L"HDRI Files (*.exr)\0*.exr\0"
 #define MATERIAL_TEXTURES_FILTER L"GLTF Import (*.gltf; *.glb; *.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.gltf;*.glb;*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
-#define SCRIPT_FILTER L"Script files (*.lsl)\0*.lsl\0"
+#define SCRIPT_FILTER L"Script files (*.lsl; *.lua; *.luau)\0*.lsl;*.lua;*.luau\0"
 #define DICTIONARY_FILTER L"Dictionary files (*.dic; *.xcu)\0*.dic;*.xcu\0"
 #endif
 
@@ -226,7 +226,7 @@ namespace
             filter_vec.push_back({ "HDRI Files (*.exr)", "exr" });
             break;
         case LLFilePicker::FFLOAD_SCRIPT:
-            filter_vec.push_back({ "Script files (*.lsl)", "lsl" });
+            filter_vec.push_back({ "Script files (*.lsl; *.lua; *.luau)", "lsl;lua;luau" });
             break;
         case LLFilePicker::FFLOAD_DICTIONARY:
             filter_vec.push_back({ "Dictionary files (*.dic; *.xcu)", "dic;xcu" });
@@ -543,7 +543,7 @@ bool LLFilePicker::getSaveFileModeless(ESaveFilter filter,
         {
             default_filename = "untitled.lsl";
         }
-        file_filters.push_back({ "LSL Files (*.lsl)", "lsl" });
+        file_filters.push_back({ "Script files (*.lsl; *.lua; *.luau)", "lsl;lua;luau" });
         break;
     default:
         return false;
@@ -1132,6 +1132,8 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
             break;
         case FFLOAD_SCRIPT:
             allowedv->push_back("lsl");
+            allowedv->push_back("lua");
+            allowedv->push_back("luau");
             break;
         case FFLOAD_DICTIONARY:
             allowedv->push_back("dic");
@@ -1265,7 +1267,7 @@ void set_nav_save_data(LLFilePicker::ESaveFilter filter, std::string &extension,
         case LLFilePicker::FFSAVE_SCRIPT:
             type = "LSL ";
             creator = "\?\?\?\?";
-            extension = "lsl";
+            extension = "lsl;lua;luau";
             break;
 
         case LLFilePicker::FFSAVE_ALL:

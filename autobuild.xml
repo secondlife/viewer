@@ -1324,6 +1324,50 @@
         <key>name</key>
         <string>llphysicsextensions_tpv</string>
       </map>
+      <key>lsl_definitions</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c9928095cf40377e901458f5240305a7af2c554d</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/lsl-definitions/releases/download/v0.6.12/lsl_definitions-0.6.12-common-29281156609.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/lsl_definitions.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2026, Linden Research, Inc.</string>
+        <key>version</key>
+        <string>0.6.12</string>
+        <key>use_scm_version</key>
+        <boolean>true</boolean>
+        <key>name</key>
+        <string>lsl_definitions</string>
+        <key>vcs_branch</key>
+        <string>refs/tags/v0.4.1</string>
+        <key>vcs_revision</key>
+        <string>03006fb488cba2bae502e9baed051bfc8d00144d</string>
+        <key>vcs_url</key>
+        <string>git://github.com/secondlife/lsl-definitions.git</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/lsl-definitions</string>
+        <key>description</key>
+        <string>LSL definitions</string>
+        <key>source_type</key>
+        <string>git</string>
+      </map>
       <key>meshoptimizer</key>
       <map>
         <key>platforms</key>
@@ -2736,6 +2780,46 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>velopack</string>
         <key>description</key>
         <string>Velopack C/C++ Library</string>
+      </map>
+      <key>websocketpp</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>abaea02a43487c07dbeaa2b22a1efcc8b26090d6</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-websocketpp/releases/download/v0.8.2-r3/websocketpp-0.8.2.24525603568-common-24525603568.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>websocketpp</string>
+        <key>license_file</key>
+        <string>LICENSES/websocketpp.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2014, Peter Thorson</string>
+        <key>version</key>
+        <string>0.8.2.24525603568</string>
+        <key>name</key>
+        <string>websocketpp</string>
+        <key>vcs_branch</key>
+        <string>refs/tags/v0.8.2</string>
+        <key>vcs_revision</key>
+        <string>bdcf1453101976fc4dc26a62c87bc98c12e9c6dc</string>
+        <key>vcs_url</key>
+        <string>git://github.com/secondlife/3p-websocketpp.git</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-websocketpp</string>
+        <key>description</key>
+        <string>WebSocket++ is a C++ header only library for interacting with WebSocket servers and clients.</string>
       </map>
     </map>
     <key>package_description</key>

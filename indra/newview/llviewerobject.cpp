@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llviewerobject.h"
+#include "llscripteditorws.h"
 
 #include "llaudioengine.h"
 #include "indra_constants.h"
@@ -419,6 +420,13 @@ void LLViewerObject::markDead()
         LL_PROFILE_ZONE_SCOPED;
         //LL_INFOS() << "Marking self " << mLocalID << " as dead." << LL_ENDL;
 
+        // If this is a published root prim, notify the WS extension before teardown.
+        auto ws_server = LLScriptEditorWSServer::getServer();
+        if (ws_server && ws_server->isObjectPublished(mID))
+        {
+            ws_server->unpublishObject(mID, "deleted");
+        }
+
         // Root object of this hierarchy unlinks itself.
         if (getParent())
         {
@@ -743,6 +751,18 @@ void LLViewerObject::setNameValueList(const std::string& name_value_list)
         }
         start = end+1;
     }
+
+    if (auto ws_server = LLScriptEditorWSServer::getServer())
+    {
+        LLNameValue* nv_name = getNVPair("Name");
+        LLNameValue* nv_desc = getNVPair("Desc");
+        if (nv_name || nv_desc)
+        {
+            std::string obj_name = nv_name ? nv_name->getString() : "";
+            std::string obj_desc = nv_desc ? nv_desc->getString() : "";
+            ws_server->onObjectPropertyChanged(mID, obj_name, obj_desc);
+        }
+    }
 }
 
 bool LLViewerObject::isAnySelected() const
@@ -935,6 +955,24 @@ void LLViewerObject::addChild(LLViewerObject *childp)
         {
             mSeatCount++;
         }
+        else
+        {
+            if (auto ws_server = LLScriptEditorWSServer::getServer())
+            {
+                // If the child was itself a published root, unpublish it — it is now a child prim
+                if (ws_server->isObjectPublished(childp->getID()))
+                {
+                    ws_server->unpublishObject(childp->getID(), "linked");
+                }
+
+                // If our root is a published object, notify of the structural change
+                LLUUID root_id = getRootEdit()->getID();
+                if (ws_server->isObjectPublished(root_id))
+                {
+                    ws_server->onLinksetChildAdded(root_id, childp);
+                }
+            }
+        }
     }
 }
 
@@ -977,6 +1015,18 @@ void LLViewerObject::removeChild(LLViewerObject *childp)
         LLSelectMgr::getInstance()->deselectObjectAndFamily(childp);
         bool add_to_end = true;
         LLSelectMgr::getInstance()->selectObjectAndFamily(childp, add_to_end);
+    }
+
+    // Notify WS server of linkset structure change
+    if (!isDead() && !childp->isDead() && !childp->isAvatar())
+    {
+        if (auto ws_server = LLScriptEditorWSServer::getServer())
+        {
+            if (ws_server->isObjectPublished(getID()))
+            {
+                ws_server->onLinksetChildRemoved(getID(), childp->getID());
+            }
+        }
     }
 }
 
@@ -2765,10 +2815,15 @@ void LLViewerObject::doUpdateInventory(
 // save a script, which involves removing the old one, and rezzing
 // in the new one. This method should be called with the asset id
 // of the new and old script AFTER the bytecode has been saved.
-void LLViewerObject::saveScript(
-    const LLViewerInventoryItem* item,
-    bool active,
-    bool is_new)
+// When creating a new script, the asset should be null.  The server
+// will create the new script based on the script_language (LSL or Lua)
+// If a template_id is provided, the new script will be a copy of that item.
+//
+// *IMPORTANT* If template_id is provided, it must be the ITEM ID of a
+// copy/mod-able script in the user's inventory. The simulator will verify
+// permissions.
+void LLViewerObject::saveScript(const LLViewerInventoryItem* item,
+    bool active, bool is_new, const LLUUID& template_id)
 {
     /*
      * XXXPAM Investigate not making this copy.  Seems unecessary, but I'm unsure about the
@@ -2797,10 +2852,102 @@ void LLViewerObject::saveScript(
     msg->addBOOLFast(_PREHASH_Enabled, enabled);
     msg->nextBlockFast(_PREHASH_InventoryBlock);
     task_item->packMessage(msg);
+
+    // This is a completely new script (no asset id) and we've provided a template.
+    // Note that the script subtype on the template will override any subtype on the item.
+    if (task_item->getAssetUUID().isNull() && template_id.notNull())
+    {
+        msg->nextBlock("NewScriptInfo");
+        msg->addUUID("TemplateID", template_id);
+    }
+
     msg->sendReliable(mRegionp->getHost());
 
     // do the internal logic
     doUpdateInventory(task_item, TASK_INVENTORY_ITEM_KEY, is_new);
+}
+
+void LLViewerObject::createInventoryItem(
+    LLAssetType::EType asset_type,
+    LLInventoryType::EType inventory_type,
+    U8 sub_type,
+    const std::string& name,
+    const std::string& description,
+    const LLPermissions& permissions,
+    const LLSD& params,
+    std::function<void(bool, const LLSD&)> callback)
+{
+    if (!mRegionp)
+    {
+        if (callback) callback(false, LLSD().with("message", "No region"));
+        return;
+    }
+
+    std::string cap_url = mRegionp->getCapability("CreateTaskInventoryItem");
+    if (cap_url.empty())
+    {
+        if (callback) callback(false, LLSD().with("message", "Capability not available"));
+        return;
+    }
+
+    LLSD body;
+    body["object_id"]      = mID;
+    body["inventory_type"] = (S32)inventory_type;
+    body["asset_type"]     = (S32)asset_type;
+    body["sub_type"]       = (S32)sub_type;
+    body["name"]           = name;
+    body["description"]    = description;
+
+    LLSD perm_llsd;
+    perm_llsd["base"]       = (S32)permissions.getMaskBase();
+    perm_llsd["owner"]      = (S32)permissions.getMaskOwner();
+    perm_llsd["everyone"]   = (S32)permissions.getMaskEveryone();
+    perm_llsd["group"]      = (S32)permissions.getMaskGroup();
+    perm_llsd["next_owner"] = (S32)permissions.getMaskNextOwner();
+    body["permissions"]     = perm_llsd;
+
+    if (params.isDefined())
+    {
+        body["params"] = params;
+    }
+
+    LLCoros::instance().launch("LLViewerObject::createInventoryItemCoro",
+        boost::bind(&LLViewerObject::createInventoryItemCoro, cap_url, body, callback));
+}
+
+// static
+void LLViewerObject::createInventoryItemCoro(
+    const std::string cap_url, const LLSD body,
+    std::function<void(bool, const LLSD&)> callback)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter =
+        std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("CreateTaskInventoryItem", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, body);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    bool success = static_cast<bool>(status) && result["success"].asBoolean();
+
+    if (success)
+    {
+        LLUUID object_id = body["object_id"].asUUID();
+        LLViewerObject* obj = gObjectList.findObject(object_id);
+        if (obj)
+        {
+            ++obj->mExpectedInventorySerialNum;
+            obj->dirtyInventory();
+            obj->requestInventory();
+        }
+    }
+
+    if (callback)
+    {
+        callback(success, result);
+    }
 }
 
 void LLViewerObject::moveInventory(const LLUUID& folder_id,

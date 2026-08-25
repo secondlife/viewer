@@ -205,7 +205,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     mPasswordLength(0),
     mLocationLength(0),
     mShowFavorites(false),
-    mAlertNotif(false)
+    mAlertNotif(false),
+    mLoginBtn(nullptr)
 {
     setBackgroundVisible(false);
     setBackgroundOpaque(true);
@@ -1221,6 +1222,10 @@ void LLPanelLogin::updateServer()
 
 void LLPanelLogin::updateLoginButtons()
 {
+    if (!mLoginBtn)
+    {
+        return;
+    }
     mLoginBtn->setEnabled(mUsernameLength != 0 && mPasswordLength != 0 && !mAlertNotif);
 
     LLComboBox* user_combo = getChild<LLComboBox>("username_combo");
