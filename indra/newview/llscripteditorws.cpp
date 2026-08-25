@@ -1523,7 +1523,11 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
         [&, prim_id, item_id](const std::string& pump_name)
         {
             auto [on_success, on_failure] = make_asset_upload_callbacks(pump_name);
-            bool is_running = params.has("running") ? params["running"].asBoolean() : false;
+            bool is_running = item->getIsRunning();
+            if (params.has("running"))
+            {
+                is_running = params["running"].asBoolean();
+            }
             LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
                 prim_id, item_id,
                 compile_target, is_running, LLUUID::null, content,

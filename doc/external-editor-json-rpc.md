@@ -1220,7 +1220,7 @@ interface ObjectContentSaveParams {
   item_id: string;
   content: string;
   vm?: "mono" | "lsl2" | "luau";
-  running?: boolean;  // Scripts only: run state applied after compilation. Defaults to false.
+  running?: boolean;  // Scripts only: run state applied after compilation when supplied.
 }
 
 interface ObjectContentSaveResponse {
@@ -1238,12 +1238,12 @@ interface ObjectContentSaveResponse {
 - `item_id`: UUID of the saved inventory item.
 - `content`: Raw script/notecard source text to store.
 - `vm` (optional): Scripts only compile target. Accepted values are `"mono"`, `"lsl2"`, `"luau"`. When `"luau"` is specified for an LSL script (as opposed to a native Luau script), the viewer automatically selects the correct LSL-on-Luau compile path. If omitted, inferred from item metadata or content analysis.
-- `running` (optional): Scripts only. The run state the viewer applies to the script once the upload and compilation complete. Defaults to `false` when omitted. To preserve a script's current run state across a save, echo the `running` value from the corresponding `ObjectInventoryItem` in the most recent `object.publish` or `object.update`.
+- `running` (optional): Scripts only. When provided, the viewer applies that run state after upload and compilation. When omitted, the viewer preserves the script's current run state and does not force it off.
 - `success`: Whether the upload/save operation succeeded.
 - `compiled` (optional): Scripts only. `true` when compilation succeeded, `false` when source saved but compile failed.
 - `diagnostics` (optional): Scripts only. Compiler diagnostics when `compiled` is `false`.
 
-> **Warning:** Omitting `running` does not leave the script's run state unchanged — it stops the script. A client that saves a running script without sending `running: true` will silently stop it.
+> **Note:** Omitting `running` leaves the script's existing run state unchanged. Only an explicit `true` or `false` changes the post-save state.
 
 **Permissions.** Requires `PERM_MODIFY` on the item and modify permission on the containing prim.
 See [Common preconditions](#common-preconditions) for the shared checks and errors.
