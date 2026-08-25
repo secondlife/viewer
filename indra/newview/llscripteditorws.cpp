@@ -2082,6 +2082,10 @@ void LLScriptEditorWSServer::sendRuntimeEvent(
     }
 
     LLSD message;
+    if (!script_id.empty())
+    {
+        message["script_id"] = script_id;
+    }
     message["object_id"] = event.mRootID;
     message["prim_id"] = event.mPrimID;
     message["item_id"] = event.mItemID;

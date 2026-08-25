@@ -779,7 +779,7 @@ Debug message notification sent by the viewer during script execution.
 
 ```typescript
 interface RuntimeDebug {
-  script_id: string;   // Not currently sent — see note below
+  script_id?: string;  // Present when the viewer can resolve a script subscription id
   object_id: string;
   prim_id: string;
   item_id: string;
@@ -809,7 +809,7 @@ Runtime error notification sent by the viewer when a script encounters an error 
 
 ```typescript
 interface RuntimeError {
-  script_id: string;   // Not currently sent — see note below
+  script_id?: string;  // Present when the viewer can resolve a script subscription id
   object_id: string;
   prim_id: string;
   item_id: string;
@@ -852,8 +852,9 @@ interface ItemRef {
   - `name`: Script name as it appears in the prim's inventory.
   - `language`: The script's source language. Independent of the compile target; the VM is not carried in runtime messages.
 
-**Note on `script_id`:** this field is part of the contract but is **not currently sent** by the
-viewer for either `runtime.debug` or `runtime.error`. Implementation is tracked separately.
+**Note on `script_id`:** this field is optional. It is included when the viewer can resolve the
+originating script inventory item and construct a subscription id from `prim_id` + `item_id`.
+When that resolution is not possible, the field is omitted.
 
 **Delivery:** `runtime.debug` and `runtime.error` are broadcast to all connections. An event is
 emitted when the originating object is published or its script is subscribed.
