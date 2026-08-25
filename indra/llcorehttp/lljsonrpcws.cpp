@@ -207,16 +207,17 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
         // Async handler — launched as a coroutine, response sent by the lambda.
         if (is_notification)
         {
-            LL_WARNS("JSONRPC") << "Async method " << method
-                                << " called as notification; ignoring" << LL_ENDL;
-            return;
+            LL_WARNS("JSONRPC") << "Method " << method
+                                << " called as notification; rejecting request" << LL_ENDL;
+            throw InvalidRequest("Method " + method + " cannot be called as a notification");
         }
         ptr_t conn = std::static_pointer_cast<LLJSONRPCConnection>(getSelfPtr());
         if (!conn)
         {
-            LL_WARNS("JSONRPC") << "Connection expired before async method " << method
-                                << " could be launched" << LL_ENDL;
-            return;
+            LL_WARNS("JSONRPC") << "Connection expired before method " << method
+                                << " could be launched; failing request" << LL_ENDL;
+            throw InternalError("Connection expired before method " + method
+                                + " could be launched");
         }
         LLMainThreadTask::dispatch(
             [handler, method, id, params, conn]()
