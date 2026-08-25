@@ -787,7 +787,12 @@ bool LLEmbeddedBrowser::launchProducer()
 
     LLProcess::Params params;
     params.executable = exe_path;
-    params.cwd        = gDirUtilp->getLLPluginDir(); // SLCefProducer.exe's own directory -- see getSLCefProducerLauncher()
+    // Derived from exe_path itself, not a second independent call to whatever
+    // getSLCefProducerLauncher() builds its path from -- that stayed in sync with
+    // getLLPluginDir() by convention only, and drifted out of sync (still pointing
+    // at llplugin/ instead of SLCefProducer/'s own directory) the moment
+    // viewer_manifest.py moved where SLCefProducer.exe actually gets deployed.
+    params.cwd        = gDirUtilp->getDirName(exe_path);
     if (gSavedSettings.getBOOL("EmbeddedBrowserProducerConsole"))
     {
         params.args.add("--console");
