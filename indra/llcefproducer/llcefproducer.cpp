@@ -361,12 +361,23 @@ void show_debug_console()
     // A freshly allocated Windows console does not interpret ANSI escape
     // codes by default, even on a VT100-capable build of Windows -- has to
     // be turned on explicitly per console.
-    HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+    //
+    // Can't use GetStdHandle(STD_OUTPUT_HANDLE) here: this process is
+    // launched by the Viewer via LLProcess with stdout/stderr explicitly
+    // redirected to a pipe (STARTF_USESTDHANDLES), and AllocConsole() does
+    // not retarget an explicitly-provided standard handle to the new
+    // console -- it stays pointing at that pipe, so GetConsoleMode on it
+    // fails with ERROR_ACCESS_DENIED. Open the console device by name
+    // instead, same as the freopen_s calls above do for stdio.
+    HANDLE out = CreateFileW(L"CONOUT$", GENERIC_READ | GENERIC_WRITE,
+                              FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                              OPEN_EXISTING, 0, nullptr);
     DWORD mode = 0;
-    if (GetConsoleMode(out, &mode))
+    if (out != INVALID_HANDLE_VALUE && GetConsoleMode(out, &mode))
     {
         SetConsoleMode(out, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
     }
+    if (out != INVALID_HANDLE_VALUE) CloseHandle(out);
 
     g_console_enabled = true;
 }
