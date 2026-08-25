@@ -1615,10 +1615,17 @@ The invoked command's own handler may raise further errors — `-32602` for bad 
 `-32003` when the action is not permitted, `-32603` on internal failure. Clients must handle any
 error code, not only the two above.
 
-**Capability gate:** A side MUST NOT send `command.execute` unless the peer advertised
-`commands: true` in the handshake. A receiver that receives the call without having negotiated the
-feature should respond with a JSON-RPC error. **Not currently enforced on receive by the viewer**
-— the gate is applied only when sending. Implementation is tracked separately.
+**Capability gate (directional):**
+
+- A sender MUST NOT call `command.execute` on a peer that did not advertise `commands: true`.
+- A receiver MAY accept `command.execute` whenever it advertised `commands: true`, regardless of
+  whether the sender advertised `commands`.
+- In practice this means:
+  - Extension → Viewer calls are allowed when the viewer advertised `commands: true`.
+  - Viewer → Extension calls are allowed only when the extension advertised `commands: true`.
+
+This treats `commands` as a receiver capability per direction, not as a symmetric "both sides or
+nothing" toggle.
 
 **Example — extension asks viewer to teleport:**
 
