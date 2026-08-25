@@ -701,8 +701,25 @@ void LLProcess::launch(const LLSDOrParams& params)
         else
             stdio.err = nullptr; // inherit
 
-        // Build executable path
+        // Build executable path.
+        // Resolve bare executable names (i.e. "outleap-agent") through the
+        // environment's PATH
         boost::filesystem::path executable_path(params.executable());
+        if (!executable_path.has_parent_path())
+        {
+            boost::filesystem::path resolved =
+                bp::environment::find_executable(executable_path);
+            if (!resolved.empty())
+            {
+                executable_path = resolved;
+            }
+            else
+            {
+                LL_WARNS("LLProcess") << "Could not locate '" << params.executable()
+                    << "' on PATH -- launch will likely fail" << LL_ENDL;
+                // Let bp::process try to produce an error.
+            }
+        }
 
         // In Boost.Process v2, error_code cannot be passed as an initializer.
         // Use the throwing overload and catch the exception instead.

@@ -4054,17 +4054,6 @@ void handle_avatar_eject(const LLSD& avatar_id)
         }
 }
 
-bool my_profile_visible()
-{
-    LLFloater* floaterp = LLAvatarActions::getProfileFloater(gAgentID);
-    return floaterp && floaterp->isInVisibleChain();
-}
-
-bool picks_tab_visible()
-{
-    return my_profile_visible() && LLAvatarActions::isPickTabSelected(gAgentID);
-}
-
 bool enable_freeze_eject(const LLSD& avatar_id)
 {
     // Use avatar_id if available, otherwise default to right-click avatar
@@ -6820,7 +6809,7 @@ class LLAvatarTogglePicks : public view_listener_t
             instance->setFocus(true);
             LLAvatarActions::showPicks(gAgent.getID());
         }
-        else if (picks_tab_visible())
+        else if (LLAvatarActions::myPicksTabVisible())
         {
             instance->closeFloater();
         }
@@ -9898,6 +9887,23 @@ void show_topinfobar_context_menu(LLView* ctrl, S32 x, S32 y)
     LLMenuGL::showPopup(ctrl, show_topbarinfo_context_menu, x, y);
 }
 
+static void register_agent_ui_callbacks()
+{
+    // These functions are used by menu and commands, they need to persist for the lifetime of the application
+    // Note: executes before LLToolBar::createButton and before menu builds
+    LLUICtrl::EnableCallbackRegistry::Registrar& global_enable = LLUICtrl::EnableCallbackRegistry::defaultRegistrar();
+    LLUICtrl::CommitCallbackRegistry::Registrar& global_commit = LLUICtrl::CommitCallbackRegistry::defaultRegistrar();
+    global_commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
+    global_enable.add("Agent.enableFlyLand", boost::bind(&enable_fly_land));
+    global_commit.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
+    global_commit.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
+    global_commit.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
+    global_enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
+    global_enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
+    global_enable.add("Avatar.IsMyProfileOpen", boost::bind(&LLAvatarActions::myProfileVisible));
+    global_enable.add("Avatar.IsPicksTabOpen", boost::bind(&LLAvatarActions::myPicksTabVisible));
+}
+
 void initialize_edit_menu()
 {
     view_listener_t::addMenu(new LLEditUndo(), "Edit.Undo");
@@ -9955,6 +9961,8 @@ void initialize_menus()
         bool mMult;
     };
 
+    register_agent_ui_callbacks();
+
     LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
     LLUICtrl::CommitCallbackRegistry::Registrar& commit = LLUICtrl::CommitCallbackRegistry::currentRegistrar();
 
@@ -9969,15 +9977,6 @@ void initialize_menus()
     view_listener_t::addEnable(new LLUpdateMembershipLabel(), "Membership.UpdateLabel");
 
     enable.add("Conversation.IsConversationLoggingAllowed", boost::bind(&LLFloaterIMContainer::isConversationLoggingAllowed));
-
-    // Agent
-    commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
-    enable.add("Agent.enableFlyLand", boost::bind(&enable_fly_land));
-    commit.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
-    commit.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
-    commit.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
-    enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
-    enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
 
     // File menu
     init_menu_file();
@@ -10346,8 +10345,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
     view_listener_t::addMenu(new LLAvatarResetSelfSkeleton(), "Avatar.ResetSelfSkeleton");
     view_listener_t::addMenu(new LLAvatarResetSelfSkeletonAndAnimations(), "Avatar.ResetSelfSkeletonAndAnimations");
-    enable.add("Avatar.IsMyProfileOpen", boost::bind(&my_profile_visible));
-    enable.add("Avatar.IsPicksTabOpen", boost::bind(&picks_tab_visible));
 
     commit.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
 

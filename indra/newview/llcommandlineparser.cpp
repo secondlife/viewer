@@ -611,6 +611,11 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
 
                     ctrl->setValue(llsdArray, false);
                 }
+                else if (ctrl->isType(TYPE_LLSD))
+                {
+                    // Command-line LLSD should support a notation format string
+                    ctrl->setValueFromNotation(onevalue(option, value), false);
+                }
                 else
                 {
                     ctrl->setValue(onevalue(option, value), false);
