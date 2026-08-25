@@ -1126,10 +1126,6 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
             // own comment) -- develop's own version of this line assumes a real
             // LLPluginClassMedia* and crashes for that backend.
             LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << (self ? self->getNavigateResultString() : "(embedded browser)") << LL_ENDL;
-            if(mHidingInitialLoad)
-            {
-                mHidingInitialLoad = false;
-            }
             mLoadingState = LOADING_STATE_LOADED;
         };
         break;

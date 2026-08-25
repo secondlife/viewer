@@ -140,7 +140,6 @@
 #include "llexception.h"
 #include "llembeddedbrowser.h"
 #include "cef/dullahan_version.h"
-#if !LL_LINUX
 #include "vlc/libvlc_version.h"
 
 #if LL_DARWIN
