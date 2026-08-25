@@ -1523,7 +1523,9 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
         [&, prim_id, item_id](const std::string& pump_name)
         {
             auto [on_success, on_failure] = make_asset_upload_callbacks(pump_name);
-            bool is_running = item->getIsRunning();
+            const LLViewerInventoryItem* viewer_item =
+                dynamic_cast<const LLViewerInventoryItem*>(item);
+            bool is_running = viewer_item ? viewer_item->getIsRunning() : false;
             if (params.has("running"))
             {
                 is_running = params["running"].asBoolean();
