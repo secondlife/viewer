@@ -74,7 +74,7 @@ public:
     void showConversation(const LLUUID& session_id);
     void selectConversation(const LLUUID& session_id);
     void selectNextConversationByID(const LLUUID& session_id);
-    bool selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater = true);
+    bool selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater = true, bool force_select_widget = false);
     void clearAllFlashStates();
     bool selectAdjacentConversation(bool focus_selected);
     bool selectNextorPreviousConversation(bool select_next, bool focus_selected = true);

@@ -139,11 +139,11 @@ std::queue<LLFilePickerThread*> LLFilePickerThread::sDeadQ;
 
 void LLFilePickerThread::getFile()
 {
-#if LL_WINDOWS
+#if LL_DARWIN || LL_SDL_WINDOW
+    runModeless();
+#elif LL_WINDOWS
     // Todo: get rid of LLFilePickerThread and make this modeless
     start();
-#elif LL_DARWIN
-    runModeless();
 #else
     run();
 #endif
@@ -336,7 +336,9 @@ void LLFilePickerReplyThread::startPicker(const file_picked_signal_t::slot_type 
 
 void LLFilePickerReplyThread::startPicker(const file_picked_signal_t::slot_type & cb, LLFilePicker::ESaveFilter filter, const std::string & proposed_name, const file_picked_signal_t::slot_type & failure_cb)
 {
-    (new LLFilePickerReplyThread(cb, filter, proposed_name, failure_cb))->getFile();
+    // Remove invalid characters
+    std::string sanitized_name = LLDir::getScrubbedFileName(proposed_name);
+    (new LLFilePickerReplyThread(cb, filter, sanitized_name, failure_cb))->getFile();
 }
 
 void LLFilePickerReplyThread::notify(const std::vector<std::string>& filenames)
@@ -1180,7 +1182,7 @@ void handle_compress_image()
 // so doing dirty, but OS independent fopen and fseek
 size_t get_file_size(std::string &filename)
 {
-    LLFILE* file = LLFile::fopen(filename, "rb");       /*Flawfinder: ignore*/
+    LLFILE* file = LLFile::fopen(filename, LLFILE_MODE("rb"));       /*Flawfinder: ignore*/
     if (!file)
     {
         LL_WARNS() << "Error opening " << filename << LL_ENDL;

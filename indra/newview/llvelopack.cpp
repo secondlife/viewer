@@ -31,6 +31,7 @@
 #include "llstring.h"
 #include "llcorehttputil.h"
 #include "llversioninfo.h"
+#include "llversioninfovars.h" // LL_VIEWER_CHANNEL
 
 #include <boost/json.hpp>
 #include <fstream>

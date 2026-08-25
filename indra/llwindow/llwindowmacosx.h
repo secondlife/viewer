@@ -36,11 +36,6 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <OpenGL/OpenGL.h>
 
-// AssertMacros.h does bad things.
-#include "fix_macros.h"
-#undef verify
-#undef require
-
 class LLWindowMacOSX : public LLWindow
 {
 public:
@@ -122,6 +117,7 @@ public:
     static std::vector<std::string> getDisplaysResolutionList();
 
     static std::vector<std::string> getDynamicFallbackFontList();
+    static LLFontFallbackMatch findFallbackFontForChar(llwchar wch);
 
     // Provide native key event data
     LLSD getNativeKeyData() override;

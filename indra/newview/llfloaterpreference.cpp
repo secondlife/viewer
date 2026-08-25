@@ -346,6 +346,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
     mCommitCallbackRegistrar.add("Pref.RememberedUsernames",    boost::bind(&LLFloaterPreference::onClickRememberedUsernames, this));
     mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
     mCommitCallbackRegistrar.add("Pref.Advanced",               boost::bind(&LLFloaterPreference::onClickAdvanced, this));
+    mCommitCallbackRegistrar.add("Pref.Scripting",              boost::bind(&LLFloaterPreference::onClickScriptingPerfs, this));
 
     sSkin = gSavedSettings.getString("SkinCurrent");
 
@@ -774,8 +775,8 @@ void LLFloaterPreference::onOpen(const LLSD& key)
     updateClickActionViews();
 
 #if LL_LINUX
-    // Lixux doesn't support automatic mode
-    LLComboBox* combo = getChild<LLComboBox>("double_click_action_combo");
+    // Lixux doesn't support automatic maose warp mode
+    LLComboBox* combo = getChild<LLComboBox>("mouse_warp_combo");
     S32 mode = gSavedSettings.getS32("MouseWarpMode");
     if (mode == 0)
     {
@@ -1359,7 +1360,7 @@ void LLFloaterPreference::onChangeQuality(const LLSD& data)
     if (level >= LVL_HIGH && mLastQualityLevel < level)
     {
         constexpr U32 LOW_MEM_THRESHOLD = 4097;
-        U32 total_mem = (U32Megabytes)LLMemory::getMaxMemKB();
+        U32 total_mem = U32Megabytes(LLMemory::getMaxMemKB());
         if (total_mem < LOW_MEM_THRESHOLD)
         {
             LLSD args;
@@ -1505,7 +1506,7 @@ bool LLFloaterPreference::moveTranscriptsAndLog()
         //Couldn't move the log and created a new directory so remove the new directory
         if(madeDirectory)
         {
-            LLFile::rmdir(chatLogPath);
+            LLFile::remove(chatLogPath);
         }
         return false;
     }
@@ -1531,7 +1532,7 @@ bool LLFloaterPreference::moveTranscriptsAndLog()
 
         if(madeDirectory)
         {
-            LLFile::rmdir(chatLogPath);
+            LLFile::remove(chatLogPath);
         }
 
         return false;
@@ -1869,6 +1870,11 @@ void LLFloaterPreference::onClickAdvanced()
     }
 }
 
+void LLFloaterPreference::onClickScriptingPerfs()
+{
+    LLFloaterReg::showInstance("scripting_settings");
+}
+
 void LLFloaterPreference::onClickActionChange()
 {
     updateClickActionControls();
@@ -2052,17 +2058,19 @@ void LLFloaterPreference::changed()
 {
     if (LLConversationLog::instance().getIsLoggingEnabled())
     {
-    getChild<LLButton>("clear_log")->setEnabled(LLConversationLog::instance().getConversations().size() > 0);
+        getChild<LLButton>("clear_log")->setEnabled(LLConversationLog::instance().getConversations().size() > 0);
     }
     else
     {
         // onClearLog clears list, then notifies changed() and only then clears file,
         // so check presence of conversations before checking file, file will cleared later.
-        llstat st;
-        bool has_logs = LLConversationLog::instance().getConversations().size() > 0
-                        && LLFile::stat(LLConversationLog::instance().getFileName(), &st) == 0
-                        && S_ISREG(st.st_mode)
-                        && st.st_size > 0;
+        bool has_logs = false;
+        if (LLConversationLog::instance().getConversations().size() > 0)
+        {
+            std::filesystem::path file_path = fsyspath(LLConversationLog::instance().getFileName());
+            has_logs = LLFile::isfile(file_path)
+                        && LLFile::size(file_path) > 0;
+        }
         getChild<LLButton>("clear_log")->setEnabled(has_logs);
     }
 

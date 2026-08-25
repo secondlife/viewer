@@ -604,7 +604,6 @@ public:
     //void  buildMessage();
 
     S32     zeroCodeExpand(U8 **data, S32 *data_size);
-    S32     zeroCodeAdjustCurrentSendTotal();
 
     // Uses ping-based retry
     S32 sendReliable(const LLHost &host);
@@ -910,7 +909,7 @@ private:
 
     void        logMsgFromInvalidCircuit( const LLHost& sender, bool recv_reliable );
     void        logTrustedMsgFromUntrustedCircuit( const LLHost& sender );
-    void        logValidMsg(LLCircuitData *cdp, const LLHost& sender, bool recv_reliable, bool recv_resent, bool recv_acks );
+    void        logValidMsg(LLCircuitData *cdp, const LLHost& sender, bool recv_reliable, bool recv_resent, bool recv_acks, bool skip_packet_id_check );
 
     class LLMessageCountInfo
     {
@@ -967,8 +966,10 @@ private:
 
     // Receive one packet: pop from ring if buffered, else read from mSocket.
     // Sets mLastSender and mLastReceivingIF.
+    // Sets packet_id_already_checked to whether checkPacketInID() was already
+    // run for this packet back when it was buffered (see bufferInboundPacket()).
     // Returns packet_size, or 0 if no packet or packet was dropped.
-    S32  receivePacketOrDrop(char* datap);
+    S32  receivePacketOrDrop(char* datap, bool& packet_id_already_checked);
 
     // Read one raw packet from mSocket into inbound message queues
     // Returns packet_size (0 if no packet was available).

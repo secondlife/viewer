@@ -207,6 +207,8 @@ If you feel this is an error, please contact support@secondlife.com</string>
 	<string name="AgentLostConnection">This region may be experiencing trouble.  Please check your connection to the Internet.</string>
 	<string name="SavingSettings">Saving your settings...</string>
 	<string name="LoggingOut">Logging out...</string>
+	<string name="CompressingInventoryCache">Compressing inventory cache...</string>
+	<string name="ShutdownCleanup">Releasing resources...</string>
 	<string name="ShuttingDown">Shutting down...</string>
 	<string name="YouHaveBeenDisconnected">You have been disconnected from the region you were in.</string>
 	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
@@ -4054,6 +4056,8 @@ Try enclosing path to the editor with double quotes.
 (e.g. "/path to my/editor" "%s")</string>
  <string name="ExternalEditorCommandParseError">Error parsing the external editor command.</string>
  <string name="ExternalEditorFailedToRun">External editor failed to run.</string>
+ <string name="ExternalEditorFailedToStart">Failed to start the WebSocket server. Ensure the ExternalWebsocketSyncEnable setting is on.</string>
+ <string name="VSCodeLaunchFailed">Failed to launch VS Code. Ensure the 'code' command is available on your PATH.</string>
 
  <!--  Machine translation of chat messahes -->
  <string name="TranslationFailed">Translation failed: [REASON]</string>

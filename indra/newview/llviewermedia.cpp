@@ -571,55 +571,34 @@ LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
 // This is the predicate function used to sort sViewerMediaImplList by priority.
 bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
 {
-    if(i1->isForcedUnloaded() && !i2->isForcedUnloaded())
+    // isForcedUnloaded can be pricey, avoid a repeat,
+    // note that this one is specifically i2, when everything else is i1
+    // Consider making isForcedUnloaded cache the value temporarily?
+    bool i2_forced_unloaded = i2->isForcedUnloaded();
+    if (i1->isForcedUnloaded() != i2_forced_unloaded)
     {
         // Muted or failed items always go to the end of the list, period.
-        return false;
+        return i2_forced_unloaded;
     }
-    else if(i2->isForcedUnloaded() && !i1->isForcedUnloaded())
-    {
-        // Muted or failed items always go to the end of the list, period.
-        return true;
-    }
-    else if(i1->hasFocus())
+    else if(i1->hasFocus() != i2->hasFocus())
     {
         // The item with user focus always comes to the front of the list, period.
-        return true;
+        return i1->hasFocus();
     }
-    else if(i2->hasFocus())
-    {
-        // The item with user focus always comes to the front of the list, period.
-        return false;
-    }
-    else if(i1->isParcelMedia())
+    else if(i1->isParcelMedia() != i2->isParcelMedia())
     {
         // The parcel media impl sorts above all other inworld media, unless one has focus.
-        return true;
+        return i1->isParcelMedia();
     }
-    else if(i2->isParcelMedia())
+    else if (i1->getUsedInUI() != i2->getUsedInUI())
     {
-        // The parcel media impl sorts above all other inworld media, unless one has focus.
-        return false;
+        // UI elements sort above inworld media.
+        return i1->getUsedInUI();
     }
-    else if(i1->getUsedInUI() && !i2->getUsedInUI())
-    {
-        // i1 is a UI element, i2 is not.  This makes i1 "less than" i2, so it sorts earlier in our list.
-        return true;
-    }
-    else if(i2->getUsedInUI() && !i1->getUsedInUI())
-    {
-        // i2 is a UI element, i1 is not.  This makes i2 "less than" i1, so it sorts earlier in our list.
-        return false;
-    }
-    else if(i1->isPlayable() && !i2->isPlayable())
+    else if (i1->isPlayable() != i2->isPlayable())
     {
         // Playable items sort above ones that wouldn't play even if they got high enough priority
-        return true;
-    }
-    else if(!i1->isPlayable() && i2->isPlayable())
-    {
-        // Playable items sort above ones that wouldn't play even if they got high enough priority
-        return false;
+        return i1->isPlayable();
     }
     else if(i1->getInterest() == i2->getInterest())
     {
@@ -2022,6 +2001,13 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
     }
     else
     {
+#if LL_LINUX
+        if(plugin_basename == "media_plugin_gstreamer10" && gSavedSettings.getBOOL("MediaPluginForceVLC"))
+        {
+            plugin_basename = "media_plugin_libvlc";
+        }
+#endif
+
         std::string launcher_name = gDirUtilp->getLLPluginLauncher();
         std::string plugin_name = gDirUtilp->getLLPluginFilename(plugin_basename);
 
@@ -2029,16 +2015,13 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
         user_data_path_cache += gDirUtilp->getDirDelimiter();
 
         // See if the plugin executable exists
-        llstat s;
-        if(LLFile::stat(launcher_name, &s))
+        if (!LLFile::isfile(launcher_name))
         {
             LL_WARNS_ONCE("Media") << "Couldn't find launcher at " << launcher_name << LL_ENDL;
         }
-        else if(LLFile::stat(plugin_name, &s))
+        else if (!LLFile::isfile(plugin_name))
         {
-#if !LL_LINUX
             LL_WARNS_ONCE("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;
-#endif
         }
         else
         {
@@ -2070,6 +2053,11 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
             media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled  || clean_browser);
 
+#if LL_LINUX
+            bool media_plugin_pipewire_volume_catcher = gSavedSettings.getBOOL("MediaPluginPipeWireVolumeCatcher");
+            media_source->enablePipeWireVolumeCatcher( media_plugin_pipewire_volume_catcher );
+#endif
+
             // need to set agent string here before instance created
             media_source->setBrowserUserAgent(LLViewerMedia::getInstance()->getCurrentUserAgent());
 
@@ -2091,9 +2079,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             }
         }
     }
-#if !LL_LINUX
     LL_WARNS_ONCE("Plugin") << "plugin initialization failed for mime type: " << media_type << LL_ENDL;
-#endif
 
     if(gAgent.isInitialized())
     {
@@ -4366,7 +4352,7 @@ LLViewerMediaImpl::canUndo() const
     if (mMediaSource)
         return mMediaSource->canUndo();
     else
-        return FALSE;
+        return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4386,7 +4372,7 @@ LLViewerMediaImpl::canRedo() const
     if (mMediaSource)
         return mMediaSource->canRedo();
     else
-        return FALSE;
+        return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4481,7 +4467,7 @@ LLViewerMediaImpl::canDoDelete() const
     if (mMediaSource)
         return mMediaSource->canDoDelete();
     else
-        return FALSE;
+        return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4501,7 +4487,7 @@ LLViewerMediaImpl::canSelectAll() const
     if (mMediaSource)
         return mMediaSource->canSelectAll();
     else
-        return FALSE;
+        return false;
 }
 
 void LLViewerMediaImpl::setUpdated(bool updated)

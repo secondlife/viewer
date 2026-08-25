@@ -127,11 +127,12 @@ protected:
     // Packed key for identifying unique display list configurations
     struct PackedKey
     {
-        uint64_t position;    // x and y coordinates
-        uint64_t color_flags; // RGBA color + solid_color flag
-        uint64_t dimensions;  // width and height
-        uint64_t translate;   // UI offset
-        uint64_t scale;       // UI scale
+        uint64_t position;    // x and y coordinates (32 bits each)
+        uint64_t color_flags; // RGBA color (8 bits each) + solid_color flag (1 bit)
+        uint64_t dimensions;  // width and height (32 bits each)
+        uint64_t translate;   // UI translation (32 bits each for X and Y)
+        uint64_t scale;       // UI scale (32 bits each for X and Y)
+        uint64_t tex_name;    // OpenGL texture name (32 bits) + padding
 
         constexpr bool operator==(const PackedKey& other) const
         {
@@ -139,7 +140,8 @@ protected:
                 color_flags == other.color_flags &&
                 dimensions == other.dimensions &&
                 translate == other.translate &&
-                scale == other.scale;
+                scale == other.scale &&
+                tex_name == other.tex_name;
         }
 
         struct Hash
@@ -147,14 +149,16 @@ protected:
             std::size_t operator()(const PackedKey& key) const
             {
                 return static_cast<std::size_t>(key.position ^ key.color_flags ^
-                                               key.dimensions ^ key.translate ^ key.scale);
+                                               key.dimensions ^ key.translate ^
+                                               key.scale ^ key.tex_name);
             }
         };
 
         // Static factory function to create PackedKey from parameters
         static constexpr PackedKey create(S32 x, S32 y, S32 width, S32 height,
                                          const LLColor4& color, bool solid_color,
-                                         const LLVector3& translate, const LLVector3& scale)
+                                         const LLVector3& translate, const LLVector3& scale,
+                                         LLGLuint texture_name)
         {
             auto float_to_u8 = [](F32 f) -> uint8_t {
                 return static_cast<uint8_t>(llclamp(f * 255.0f, 0.0f, 255.0f));
@@ -187,7 +191,10 @@ protected:
             uint64_t scl = (static_cast<uint64_t>(float_to_bits(scale.mV[VX])) << 32) |
                 static_cast<uint64_t>(float_to_bits(scale.mV[VY]));
 
-            return PackedKey{ pos, col, dim, trns, scl };
+            // Store full 32-bit texture name in lower 32 bits (upper 32 bits unused/zero)
+            uint64_t tex = static_cast<uint64_t>(texture_name);
+
+            return PackedKey{ pos, col, dim, trns, scl, tex };
         }
     };
 

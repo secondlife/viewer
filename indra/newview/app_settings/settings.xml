@@ -5096,6 +5096,28 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>MediaPluginPipeWireVolumeCatcher</key>
+  <map>
+    <key>Comment</key>
+    <string>Use PipeWire instead of PulseAudio for controlling web media volume.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MediaPluginForceVLC</key>
+  <map>
+    <key>Comment</key>
+    <string>Force use of VLC based media plugin. (Linux Only)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>MediaControlFadeTime</key>
   <map>
     <key>Comment</key>
@@ -5881,7 +5903,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>110</integer>
+      <integer>127</integer>
     </map>
     <key>NotificationChannelRightMargin</key>
     <map>
@@ -7306,13 +7328,24 @@
     <key>RenderAnisotropic</key>
     <map>
       <key>Comment</key>
-      <string>Render textures using anisotropic filtering</string>
+      <string>[OBSOLETE] Render textures using anisotropic filtering</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>RenderAnisotropicLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Anisotropic filtering strength(0(Disable), 2x, 4x, 8x, 16x</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <real>0</real>
     </map>
     <key>RenderAppleUseMultGL</key>
     <map>
@@ -7530,7 +7563,7 @@
    <key>RenderHiDPI</key>
   <map>
     <key>Comment</key>
-    <string>Enable support for HiDPI displays, like Retina (macOS ONLY, requires restart)</string>
+    <string>Enable support for HiDPI displays, like Retina (macOS and Linux ONLY, requires restart)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -10205,6 +10238,17 @@
         <key>Value</key>
         <integer>1</integer>
     </map>
+    <key>RenderHighPrecisionPostProcess</key>
+    <map>
+        <key>Comment</key>
+        <string>Use 16-bit floating point buffers for post process rendering</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>ReplaySession</key>
     <map>
       <key>Comment</key>
@@ -11859,22 +11903,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>20.0</real>
-    </map>
-    <key>TextureChannelPriority</key>
-    <map>
-      <key>Comment</key>
-      <string>Per-channel texture streaming aggressiveness. X=normals, Y=diffuse, Z=specular/metallic, W=emissive. 1.0=baseline, higher=more aggressive downrez.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector4</string>
-      <key>Value</key>
-      <array>
-        <real>5</real>
-        <real>7.5</real>
-        <real>20</real>
-        <real>7.5</real>
-      </array>
     </map>
     <key>TextureCameraBoost</key>
     <map>
@@ -13876,7 +13904,7 @@
     <key>WLSkyDetail</key>
     <map>
       <key>Comment</key>
-      <string>Controls vertex detail on the WindLight sky.  Lower numbers will give better performance and uglier skies.</string>
+      <string>[OBSOLETE]</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -14070,6 +14098,61 @@
       <string>String</string>
       <key>Value</key>
       <string />
+    </map>
+    <key>ExternalWebsocketSyncEnable</key>
+    <map>
+        <key>Comment</key>
+        <string>Enables the Websocket JSONRPC server when doing external script editing.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
+    <key>ExternalWebsocketSyncPort</key>
+    <map>
+        <key>Comment</key>
+        <string>Port that the JSONRPC server listens on when editing</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>9020</integer>
+    </map>
+    <key>ExternalWebsocketSyncLocal</key>
+    <map>
+        <key>Comment</key>
+        <string>Should the JSONRPC server listen only for local connections.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
+    <key>ExternalEditorTightIntegration</key>
+    <map>
+        <key>Comment</key>
+        <string>When true, Edit in External Editor launches VS Code via the code CLI with a vscode:// URI instead of using the configured external editor.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
+    <key>ExternalWebsocketForwardDebug</key>
+    <map>
+        <key>Comment</key>
+        <string>Forward messages and runtime errors for a script to JSONRPC client.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
     </map>
     <key>YawFromMousePosition</key>
     <map>
@@ -16236,6 +16319,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CEFRemoteDebuggingPort</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable CEF remote debugging on the specified base port (1024 to 65535, 0 to disable). Each new SLPlugin gets base+N.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>360CaptureJPEGEncodeQuality</key>
   <map>
     <key>Comment</key>
@@ -16419,7 +16513,7 @@
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>Boolean</string>
+    <string>U32</string>
     <key>Value</key>
     <integer>0</integer>
   </map>
@@ -16614,6 +16708,17 @@
     <map>
       <key>Comment</key>
       <string>Whether or not to LRU purge the disk cache during startup on main thread</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ScriptEditorDisableSyntaxHighlight</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable syntax highlighting in script editor for performance testing</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

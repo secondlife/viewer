@@ -250,6 +250,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
     mShortTitle(p.short_title),
     mSingleInstance(p.single_instance),
     mReuseInstance(p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance), // reuse single-instance floaters by default
+    mIsReuseInitialized(p.reuse_instance.isProvided()),
     mKey(key),
     mCanTearOff(p.can_tear_off),
     mCanMinimize(p.can_minimize),
@@ -569,6 +570,8 @@ void LLFloater::storeRectControl()
 
 void LLFloater::storeVisibilityControl()
 {
+    // Todo: this is a bit pricey, gets called each frame
+    // on LLAppViewer::idle(), optimize!
     if( !sQuitting && mVisibilityControl.size() > 1 )
     {
         getControlGroup()->setBOOL( mVisibilityControl, getVisible() );
@@ -3357,6 +3360,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
     mLegacyHeaderHeight = p.legacy_header_height;
     mSingleInstance = p.single_instance;
     mReuseInstance = p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance;
+    mIsReuseInitialized = p.reuse_instance.isProvided();
 
     mDefaultRelativeX = p.rel_x;
     mDefaultRelativeY = p.rel_y;

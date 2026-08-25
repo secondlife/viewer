@@ -80,8 +80,7 @@ public:
 
 const S32 JSB_NUM_JOINT_STATES = 6;
 
-LL_ALIGN_PREFIX(16)
-class LLJointStateBlender
+class alignas(16) LLJointStateBlender
 {
     LL_ALIGN_NEW
 protected:
@@ -98,8 +97,8 @@ public:
     void resetCachedJoint();
 
 public:
-    LL_ALIGN_16(LLJoint mJointCache);
-} LL_ALIGN_POSTFIX(16);
+    LLJoint mJointCache;
+};
 
 class LLMotion;
 

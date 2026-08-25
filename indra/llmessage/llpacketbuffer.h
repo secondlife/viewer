@@ -49,11 +49,18 @@ public:
     void init(S32 hSocket);
     void init(const char* buffer, S32 data_size, const LLHost& host);
 
+    // Whether LLCircuitData::checkPacketInID() has already been run for this
+    // packet (done at socket-read time, before this packet was sorted into
+    // the high/low priority inbound queue).
+    bool    getPacketIDChecked() const          { return mPacketIDChecked; }
+    void    setPacketIDChecked(bool checked)    { mPacketIDChecked = checked; }
+
 protected:
     char    mData[NET_BUFFER_SIZE]; // packet data       /* Flawfinder : ignore */
     S32     mSize;                  // size of buffer in bytes
     LLHost  mHost;                  // source/dest IP and port
     LLHost  mReceivingIF;           // source/dest IP and port
+    bool    mPacketIDChecked = false;
 };
 
 #endif

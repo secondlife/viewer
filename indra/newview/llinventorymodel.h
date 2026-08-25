@@ -158,8 +158,12 @@ protected:
 public:
     // The inventory model usage is sensitive to the initial construction of the model
     bool isInventoryUsable() const;
+    F32 getLibrarySkeletonLoadTime() const { return mLibrarySkeletonLoadTime; }
+    F32 getAgentSkeletonLoadTime() const { return mAgentSkeletonLoadTime; }
 private:
     bool mIsAgentInvUsable; // used to handle an invalid inventory state
+    F32 mLibrarySkeletonLoadTime;
+    F32 mAgentSkeletonLoadTime;
 
     // One-time initialization of HTTP system.
     void initHttpRequest();
@@ -195,6 +199,9 @@ public:
 
     // Call on logout to save a terse representation.
     void cache(const LLUUID& parent_folder_id, const LLUUID& agent_id);
+
+    // Wait for any pending async cache operations to complete
+    static void waitForPendingCacheWrites();
 private:
     // Information for tracking the actual inventory. We index this
     // information in a lot of different ways so we can access
