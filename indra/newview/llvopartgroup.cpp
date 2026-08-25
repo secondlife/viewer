@@ -39,6 +39,7 @@
 #include "llface.h"
 #include "llsky.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"
 #include "llviewerpartsim.h"
 #include "llviewerregion.h"
 #include "pipeline.h"
@@ -355,6 +356,14 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
         facep->mCenterLocal = part->mPosAgent;
         facep->setFaceColor(part->mColor);
         facep->setTexture(part->mImagep);
+
+        // Particle faces never pass through genVolumeBBoxes, so the streaming
+        // metric has no density for them (they read as unmeasured). A particle
+        // quad carries the whole image across mScale meters - publish that,
+        // behind a default-off toggle so its VRAM cost is attributable.
+        static LLCachedControl<bool> stream_particles(gSavedSettings, "TextureStreamParticles", false);
+        F32 pscale = llmax(part->mScale.mV[0], part->mScale.mV[1]);
+        facep->mUVDensity = (stream_particles && pscale > 0.f) ? 1.f / pscale : 0.f;
 
         //check if this particle texture is replaced by a parcel media texture.
         if(part->mImagep.notNull() && part->mImagep->hasParcelMedia())

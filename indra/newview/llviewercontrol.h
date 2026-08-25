@@ -43,6 +43,9 @@ bool toggle_show_favorites_panel(const LLSD& newvalue);
 // These functions found in llcontroldef.cpp *TODO: clean this up!
 //setting variables are declared in this function
 void settings_setup_listeners();
+// re-apply the active RenderTextureQuality preset (startup sync so persisted
+// settings can't disagree with the preset table)
+void applyRenderTextureQualityPreset();
 
 // for the graphics settings
 void create_graphics_group(LLControlGroup& group);

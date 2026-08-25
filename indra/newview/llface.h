@@ -42,6 +42,7 @@
 
 class LLFacePool;
 class LLVolume;
+class LLMatrix4a;
 class LLViewerTexture;
 class LLTextureEntry;
 class LLVertexProgram;
@@ -180,6 +181,10 @@ public:
     bool        genVolumeBBoxes(const LLVolume &volume, S32 f,
                                     const LLMatrix4& mat_vert_in, bool global_volume = false);
 
+    // refresh mUVDensity from the volume face's build-time area accumulators;
+    // mat_vert = nullptr marks the face unmeasured (invalid face index)
+    void        updateStreamDensity(const LLVolume& volume, S32 f, const LLMatrix4a* mat_vert);
+
     void        init(LLDrawable* drawablep, LLViewerObject* objp);
     void        destroy();
     void        update();
@@ -280,11 +285,21 @@ public:
     F32 mBehindness = 0.f;
     // value of gFrameCount the last time the face was touched by LLViewerTextureList::updateImageDecodePriority
     U32 mLastTextureUpdate = 0;
-    // Cached per-channel streaming coverage (repeat-adjusted screen pixels),
+    // Streaming texel-density basis: UV units per world meter for this face,
+    // from the volume's build-time area accumulators; refreshed in
+    // genVolumeBBoxes on geometry rebuilds. 0 = unmeasured (sweep falls back
+    // to the AABB longest-axis basis).
+    F32 mUVDensity = 0.f;
+    // Streaming priority class of this face's object
+    // (LLViewerTexture::EPriorityClass): attachments classify as avatar,
+    // the wearer's own as self. Refreshed with mStreamTPP.
+    U8 mPriorityClass = 0;
+    // Cached per-channel streaming demand in image-widths per screen pixel
+    // (dimensionless - texture dimensions fold in at computeDesiredDiscard),
     // refreshed at the mLastTextureUpdate cadence and shared by every texture
-    // on this face. 0 = degenerate / not yet measured. See
+    // on this face. 0 = degenerate / not measured. See
     // update_face_stream_vsize in llviewertexturelist.cpp.
-    F32 mStreamVSize[LLRender::NUM_TEXTURE_CHANNELS] = {};
+    F32 mStreamTPP[LLRender::NUM_TEXTURE_CHANNELS] = {};
 
 private:
     LLPointer<LLVertexBuffer> mVertexBuffer;

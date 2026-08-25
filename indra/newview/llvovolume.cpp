@@ -31,6 +31,7 @@
 #include "llvovolume.h"
 
 #include <sstream>
+#include <iomanip>
 
 #include "llviewercontrol.h"
 #include "lldir.h"
@@ -834,7 +835,16 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
         {
             F32 area = (F32) camera->getScreenPixelArea();
             vsize = area;
-            imagep->setBoostLevel(LLGLTexture::BOOST_HUD);
+            // Boost EVERY channel's texture, not just the first non-null one:
+            // HUD is orthographic (no meters), so any channel left unboosted
+            // would fall into the world-space streaming metric and blur.
+            for (U32 ch = ch_min; ch <= ch_max; ++ch)
+            {
+                if (LLViewerTexture* chimg = face->getTexture(ch))
+                {
+                    chimg->setBoostLevel(LLGLTexture::BOOST_HUD);
+                }
+            }
             face->setPixelArea(area); // treat as full screen
             face->setVirtualSize(vsize);
         }
@@ -878,14 +888,18 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
             LLViewerFetchedTexture* img = LLViewerTextureManager::staticCastToFetchedTexture(imagep) ;
             if(img)
             {
-                // cur:desired:width  then per-bucket coverage bounds
-                // (N/BC/S/E, sqrt so values read as pixel dimensions,
-                // max~min) - the exact inputs computeDesiredDiscard sees.
+                // cur:desired:width, per-bucket texels-per-pixel bounds at
+                // native res (N/BC/S/E, low~high, 1.0 = 1:1 on screen), and
+                // the face's texels/m - the exact inputs
+                // computeDesiredDiscard sees, in physical units.
+                F32 dim = sqrtf((F32)llmax(img->getFullWidth() * img->getFullHeight(), 1));
                 debug_text << img->getDiscardLevel() << ":" << img->getDesiredDiscardLevel() << ":" << img->getWidth()
-                           << " N" << (S32)sqrtf(img->getChannelCoverage(0)) << "~" << (S32)sqrtf(img->getChannelCoverageMin(0))
-                           << " BC" << (S32)sqrtf(img->getChannelCoverage(1)) << "~" << (S32)sqrtf(img->getChannelCoverageMin(1))
-                           << " S" << (S32)sqrtf(img->getChannelCoverage(2)) << "~" << (S32)sqrtf(img->getChannelCoverageMin(2))
-                           << " E" << (S32)sqrtf(img->getChannelCoverage(3)) << "~" << (S32)sqrtf(img->getChannelCoverageMin(3))
+                           << std::setprecision(2) << std::fixed
+                           << " N" << dim * img->getChannelTppLow(0) << "~" << dim * img->getChannelTppHigh(0)
+                           << " BC" << dim * img->getChannelTppLow(1) << "~" << dim * img->getChannelTppHigh(1)
+                           << " S" << dim * img->getChannelTppLow(2) << "~" << dim * img->getChannelTppHigh(2)
+                           << " E" << dim * img->getChannelTppLow(3) << "~" << dim * img->getChannelTppHigh(3)
+                           << " t/m:" << (S32)(dim * face->mUVDensity)
                            << "\n";
             }
         }
@@ -2235,6 +2249,22 @@ bool LLVOVolume::updateGeometry(LLDrawable *drawable)
     {
         compiled = true;
         // All it did was move or we changed the texture coordinate offset
+    }
+
+    if (mFaceMappingChanged)
+    {
+        // TE / UV-transform change: flag it and expire the faces' streaming
+        // cache so the metric refreshes on the sweep's next visit instead of
+        // waiting out the 10-frame cadence. REBUILD_STREAM clears with
+        // REBUILD_ALL when the group rebuild completes.
+        drawable->setState(LLDrawable::REBUILD_STREAM);
+        for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+        {
+            if (LLFace* facep = drawable->getFace(i))
+            {
+                facep->mLastTextureUpdate = 0;
+            }
+        }
     }
 
     // Generate bounding boxes if needed, and update the object's size in the
@@ -6220,7 +6250,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
             LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
             if(drawablep)
             {
-                drawablep->clearState(LLDrawable::REBUILD_ALL);
+                drawablep->clearState(LLDrawable::REBUILD_ALL | LLDrawable::REBUILD_STREAM);
             }
         }
     }
@@ -6296,7 +6326,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
                         vobj->updateRelativeXform();
                     }
 
-                    drawablep->clearState(LLDrawable::REBUILD_ALL);
+                    drawablep->clearState(LLDrawable::REBUILD_ALL | LLDrawable::REBUILD_STREAM);
                 }
             }
 

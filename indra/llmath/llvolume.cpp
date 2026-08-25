@@ -2856,6 +2856,12 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
         return false;
     }
 
+    // streaming density from the FINAL (post remap/optimize) triangle lists
+    for (auto& face : mVolumeFaces)
+    {
+        face.accumulateStreamDensity();
+    }
+
     mSculptLevel = 0;  // success!
 
     return true;
@@ -5348,8 +5354,63 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
     mOptimized = src.mOptimized;
     mNormalizedScale = src.mNormalizedScale;
 
+    mUVArea = src.mUVArea;
+    mAreaTotal = src.mAreaTotal;
+    mAreaN[0] = src.mAreaN[0];
+    mAreaN[1] = src.mAreaN[1];
+    mAreaN[2] = src.mAreaN[2];
+
     //delete
     return *this;
+}
+
+void LLVolumeFace::accumulateStreamDensity()
+{
+    mUVArea = 0.f;
+    mAreaTotal = 0.f;
+    mAreaN[0] = mAreaN[1] = mAreaN[2] = 0.f;
+
+    if (!mPositions || !mTexCoords || !mIndices || mNumIndices < 3)
+    {
+        return;
+    }
+
+    for (S32 i = 0; i + 2 < mNumIndices; i += 3)
+    {
+        const LLVector4a& pa = mPositions[mIndices[i]];
+        const LLVector4a& pb = mPositions[mIndices[i + 1]];
+        const LLVector4a& pc = mPositions[mIndices[i + 2]];
+
+        LLVector4a e1, e2, n;
+        e1.setSub(pb, pa);
+        e2.setSub(pc, pa);
+        n.setCross3(e1, e2);
+        F32 twice_area = n.getLength3().getF32();
+
+        const LLVector2& ta = mTexCoords[mIndices[i]];
+        const LLVector2& tb = mTexCoords[mIndices[i + 1]];
+        const LLVector2& tc = mTexCoords[mIndices[i + 2]];
+        F32 uv_twice_area = fabsf((tb.mV[0] - ta.mV[0]) * (tc.mV[1] - ta.mV[1])
+                                - (tc.mV[0] - ta.mV[0]) * (tb.mV[1] - ta.mV[1]));
+
+        // degenerate in either space: skip area and UV together so the
+        // UV/world ratio stays honest
+        if (twice_area <= F_APPROXIMATELY_ZERO || uv_twice_area <= F_APPROXIMATELY_ZERO)
+        {
+            continue;
+        }
+
+        F32 area = 0.5f * twice_area;
+        mAreaTotal += area;
+        mUVArea += 0.5f * uv_twice_area;
+
+        F32 inv_ta = 1.f / twice_area; // n * inv_ta = unit normal
+        for (S32 k = 0; k < 3; ++k)
+        {
+            F32 nk = n[k] * inv_ta;
+            mAreaN[k] += area * nk * nk;
+        }
+    }
 }
 
 LLVolumeFace::~LLVolumeFace()
@@ -6422,6 +6483,7 @@ bool LLVolumeFace::createUnCutCubeCap(LLVolume* volume, bool partial_build)
     }
 
     LL_CHECK_MEMORY
+    accumulateStreamDensity();
     return true;
 }
 
@@ -6861,6 +6923,7 @@ bool LLVolumeFace::createCap(LLVolume* volume, bool partial_build)
         norm[i].load4a(normal.getF32ptr());
     }
 
+    accumulateStreamDensity();
     return true;
 }
 
@@ -7539,6 +7602,10 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
     }
 
     LL_CHECK_MEMORY
+
+    // positions change even on partial builds, so this runs outside the
+    // partial_build gates above
+    accumulateStreamDensity();
 
     return true;
 }

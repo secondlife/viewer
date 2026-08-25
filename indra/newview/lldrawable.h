@@ -277,6 +277,7 @@ public:
         ACTIVE_CHILD    = 0x02000000,
         FOR_UNLOAD      = 0x04000000, //should be unload from memory
         MIRROR          = 0x08000000, // Used as a mirror, needs a hero probe position to be calculated.
+        REBUILD_STREAM  = 0x10000000, // texture entry / UV transform changed; streaming metric needs refresh (no VB rebuild implied)
     } EDrawableFlags;
 
 public:

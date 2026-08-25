@@ -145,10 +145,10 @@ public:
 
     virtual F32  getMaxVirtualSize() ;
 
-    // Read-only debug access to the per-bucket coverage bounds (see
-    // mChannelCoverage) - used by the RENDER_DEBUG_TEXTURE_PRIORITY overlay.
-    F32 getChannelCoverage(S32 bucket) const { return (bucket >= 0 && bucket < 4) ? mChannelCoverage[bucket] : 0.f; }
-    F32 getChannelCoverageMin(S32 bucket) const { return (bucket >= 0 && bucket < 4) ? mChannelCoverageMin[bucket] : 0.f; }
+    // Read-only debug access to the per-bucket texels-per-pixel bounds (see
+    // mChannelTppLow/High) - used by the RENDER_DEBUG_TEXTURE_PRIORITY overlay.
+    F32 getChannelTppLow(S32 bucket) const { return (bucket >= 0 && bucket < 4) ? mChannelTppLow[bucket] : 0.f; }
+    F32 getChannelTppHigh(S32 bucket) const { return (bucket >= 0 && bucket < 4) ? mChannelTppHigh[bucket] : 0.f; }
 
     LLFrameTimer* getLastReferencedTimer() { return &mLastReferencedTimer; }
 
@@ -203,23 +203,29 @@ protected:
     mutable S32  mMaxVirtualSizeResetInterval;
     LLFrameTimer mLastReferencedTimer;
 
-    // Screen-space pixel coverage bounds among the texture's faces, per
-    // priority bucket (0=Normal, 1=BaseColor, 2=Specular, 3=Emissive). 0 = the
-    // texture is not used in that channel (or hasn't been measured yet).
-    // Populated by LLViewerTextureList::updateImageDecodePriority; consumed by
-    // LLViewerLODTexture::computeDesiredDiscard. This is the only view-dependent
-    // streaming signal - distance, size, tiling, and channel role all collapse
-    // into it. Max = the most demanding use (lowest texels-per-pixel variant,
-    // the quality bound); Min = the least demanding positive use (highest
-    // texels-per-pixel, most oversampled - the downrez-bias end).
-    F32 mChannelCoverage[4] = { 0.f, 0.f, 0.f, 0.f };
-    F32 mChannelCoverageMin[4] = { 0.f, 0.f, 0.f, 0.f };
+    // Texels-per-pixel bounds among the texture's faces, per priority bucket
+    // (0=Normal, 1=BaseColor, 2=Specular, 3=Emissive), in image-widths per
+    // screen pixel (dimensionless - the texture's own dimensions fold in at
+    // computeDesiredDiscard). 0 in the LOW slot = not used in that channel /
+    // not measured yet. Populated by
+    // LLViewerTextureList::updateImageDecodePriority; consumed by
+    // LLViewerLODTexture::computeDesiredDiscard. Low = the most demanding use
+    // (most magnified, the quality bound); High = the most oversampled use
+    // (the downrez-bias headroom).
+    F32 mChannelTppLow[4] = { 0.f, 0.f, 0.f, 0.f };
+    F32 mChannelTppHigh[4] = { 0.f, 0.f, 0.f, 0.f };
 
     // Any face using this texture projects onto the screen (published alongside
     // the coverage above). Selects the fetch-priority band in updateFetch.
     // Defaults true so unmeasured textures (fresh objects, no-face users) are
     // never starved.
     bool mOnScreen = true;
+
+    // Streaming priority class (EPriorityClass), max-wins across the faces
+    // using this texture; bakes classify as avatar by fetch type. Published
+    // by the sweep; selects the per-class effective cascade values and the
+    // fetch-priority sub-band.
+    U8 mPriorityClass = PRIORITY_ENV;
 
     // Least-behind use across the faces using this texture, angular: 0 = something
     // on screen, up to 1 = every use directly behind the camera. Drives the
@@ -273,10 +279,47 @@ public:
     static S32 sAuxCount;
     static LLFrameTimer sEvaluationTimer;
 
-    // The global max pixel:texel ratio (texels per screen pixel, the "R" in 1:R).
-    // The watermark controller in updateClass walks it between TexturePixelToTexelRatio
-    // and 0 as VRAM pressure changes; lower means coarser desired discards.
+    // Streaming priority class: environment evicts first / loads last,
+    // avatars (bakes, attachments, rigged mesh) last / first, the user's own
+    // avatar above other people's. Implemented as a per-class LAG on the
+    // pressure cascade plus a fetch-priority band. Order matters: higher
+    // value = higher priority (max-wins aggregation).
+    enum EPriorityClass : U8
+    {
+        PRIORITY_ENV    = 0,
+        PRIORITY_AVATAR = 1,
+        PRIORITY_SELF   = 2,
+        PRIORITY_CLASS_COUNT = 3,
+    };
+
+    // Staged VRAM pressure cascade. sTexturePressure is ONE scalar in [0,5]
+    // walked by the watermark controller in updateClass; each whole stage
+    // degrades one knob geometrically from its configured (zero-pressure)
+    // value to its floor, in order: far density -> falloff exponent ->
+    // specular channel -> normal channel -> near ratio. The sEff* arrays are
+    // the derived EFFECTIVE values per priority class (avatar/self classes
+    // read the cascade at a lagged, lower pressure); the settings remain the
+    // endpoints. Written only by updateClass; main-thread readers only.
+    static F32 sTexturePressure;
+    static F32 sEffFarRatio[PRIORITY_CLASS_COUNT];
+    static F32 sEffFalloffExponent[PRIORITY_CLASS_COUNT];
+    static F32 sEffChannelSpecular[PRIORITY_CLASS_COUNT];
+    static F32 sEffChannelNormal[PRIORITY_CLASS_COUNT];
+    static F32 sEffNearRatio[PRIORITY_CLASS_COUNT];
+
+    // The ENVIRONMENT-class near ratio (LINEAR texels per screen pixel),
+    // mirrored from sEffNearRatio[PRIORITY_ENV] for debug displays.
     static F32 sPixelToTexelRatio;
+
+    // VRAM target (MB) cached from updateClass for the pre-emptive admission
+    // check in preCreateTexture; bytes of GL texture allocations projected by
+    // preCreateTexture since the last updateClass (main-thread only).
+    static F32 sVRAMTargetMB;
+    static U64 sPendingCreateBytes;
+    // Bytes already committed to be freed (queued for scaleDown, not yet
+    // executed). The tighten predictor subtracts these so pressure never
+    // tightens for bytes that are already being freed (main-thread only).
+    static U64 sPendingFreeBytes;
 
     // Frame index the GC was last suspended (kept current while backgrounded).
     // The foreground GC only runs once getFrameCount() is a grace window past
@@ -614,8 +657,9 @@ private:
     // floor(log4(texels / (R_global * channelRatio[b] * coverage))); the sharpest
     // requirement across buckets wins (one GL image serves all its channels).
     // A per-mip hysteresis dead-band against the current discard level prevents
-    // fetch/scaleDown thrash. avatar_bake textures use the configured max ratio
-    // instead of the pressure-driven sPixelToTexelRatio (anti cloud-bug).
+    // fetch/scaleDown thrash. Ratios come from the texture's priority class
+    // (env/avatar/self cascade lag); avatar_bake only exempts the unload ramps
+    // (anti cloud-bug).
     S32 computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) const;
 };
 

@@ -992,6 +992,21 @@ public:
     //whether or not face has been cache optimized
     bool mOptimized;
 
+    // Texture-streaming density accumulators, computed once per (volume
+    // params, LOD) from the final triangle list and shared by every instance
+    // of this shape. mUVArea = sum of triangle areas in UV space (unitless);
+    // mAreaTotal = sum of triangle areas in local space; mAreaN[k] = sum of
+    // area * unit_normal[k]^2 per local axis, which lets an instance recover
+    // world area under non-uniform scale (exact for planar faces, an upper
+    // bound on curved ones). Face is measurable only when mAreaTotal > 0 and
+    // mUVArea > 0.
+    F32 mUVArea = 0.f;
+    F32 mAreaTotal = 0.f;
+    F32 mAreaN[3] = { 0.f, 0.f, 0.f };
+
+    // fill the accumulators above from mPositions/mTexCoords/mIndices
+    void accumulateStreamDensity();
+
     // if this is a mesh asset, scale and translation that were applied
     // when encoding the source mesh into a unit cube
     // used for regenerating tangents

@@ -87,7 +87,16 @@ S32 LLViewerTexture::sImageCount = 0;
 S32 LLViewerTexture::sRawCount = 0;
 S32 LLViewerTexture::sAuxCount = 0;
 LLFrameTimer LLViewerTexture::sEvaluationTimer;
+F32 LLViewerTexture::sTexturePressure = 0.f;
+F32 LLViewerTexture::sEffFarRatio[LLViewerTexture::PRIORITY_CLASS_COUNT] = { 1.f, 1.f, 1.f };
+F32 LLViewerTexture::sEffFalloffExponent[LLViewerTexture::PRIORITY_CLASS_COUNT] = { 1.f, 1.f, 1.f };
+F32 LLViewerTexture::sEffChannelSpecular[LLViewerTexture::PRIORITY_CLASS_COUNT] = { 1.f, 1.f, 1.f };
+F32 LLViewerTexture::sEffChannelNormal[LLViewerTexture::PRIORITY_CLASS_COUNT] = { 1.f, 1.f, 1.f };
+F32 LLViewerTexture::sEffNearRatio[LLViewerTexture::PRIORITY_CLASS_COUNT] = { 1.f, 1.f, 1.f };
 F32 LLViewerTexture::sPixelToTexelRatio = 1.f;
+F32 LLViewerTexture::sVRAMTargetMB = 768.f;
+U64 LLViewerTexture::sPendingCreateBytes = 0;
+U64 LLViewerTexture::sPendingFreeBytes = 0;
 U32 LLViewerTexture::sGCSuspendedFrame = 0;
 
 S32 LLViewerTexture::sMaxSculptRez = 128; //max sculpt image size
@@ -529,70 +538,145 @@ void LLViewerTexture::updateClass()
     F32 vram_target = llmax(vram_budget - 512.f, MIN_VRAM_BUDGET);
     sFreeVRAMMegabytes = vram_target - vram_used;
 
-    // VRAM pressure controller for the global pixel:texel ratio. Tightens above
-    // the high watermark, relaxes below the low one, holds in the band (the band
-    // stops sawtooth). Rates are slow so eviction frees bytes before the next step.
+    // Staged VRAM pressure cascade. ONE scalar (sTexturePressure, 0..5)
+    // walked by the watermark controller; each whole stage degrades one knob
+    // geometrically from its configured value to its floor, in order:
+    // far density -> falloff exponent -> specular -> normal -> near ratio -
+    // spending pressure where players notice least. Pre-emptive first
+    // (projected creates collected by preCreateTexture tighten the dial
+    // before the batch allocates), reactive second (actual usage past the
+    // watermark). Tighten is PREDICTIVE (sized by the uncovered overage in
+    // mips, net of bytes already committed to be freed); release is
+    // metric-gated and immediate. The only time in the controller is the
+    // background climb's pacing.
     {
         static LLCachedControl<F32> ratio_max(gSavedSettings, "TexturePixelToTexelRatio", 1.0f);
-        static LLCachedControl<F32> bg_min_ratio(gSavedSettings, "TextureBackgroundMinRatio", 0.001f);
         static LLCachedControl<F32> wm_high(gSavedSettings, "TexturePressureHighWater", 0.90f);
         static LLCachedControl<F32> wm_low(gSavedSettings, "TexturePressureLowWater", 0.70f);
-        static LLCachedControl<F32> tighten_rate(gSavedSettings, "TexturePressureTightenRate", 0.30f);
-        static LLCachedControl<F32> relax_rate(gSavedSettings, "TexturePressureRelaxRate", 0.10f);
         static LLCachedControl<F32> cooldown_step(gSavedSettings, "TextureCooldownStepSeconds", 5.f);
+        // Stage-5 floor: the near ratio's terminal state under full pressure.
+        // 0.05 linear = ~4.3 mips on point-blank content.
+        static LLCachedControl<F32> ratio_floor(gSavedSettings, "TexturePixelToTexelRatioFloor", 0.05f);
+        // Zero-pressure endpoints for stages 1-4 (the configured values).
+        static LLCachedControl<F32> cfg_far(gSavedSettings, "TexturePixelToTexelRatioFar", 1.0f);
+        static LLCachedControl<F32> cfg_exp(gSavedSettings, "TexturePixelToTexelRatioExponent", 1.0f);
+        static LLCachedControl<F32> cfg_spec(gSavedSettings, "TextureChannelRatioSpecular", 0.70710678f);
+        static LLCachedControl<F32> cfg_norm(gSavedSettings, "TextureChannelRatioNormal", 1.0f);
 
-        // No lower bound: pressure can drive the ratio to 0 (deepest mip for
-        // everything). Only the top is capped, by the configured max.
+        constexpr F32 P_MAX = 5.f;
+        constexpr F32 STAGE_FLOOR = 0.0001f;
+
         F32 r_max = llmax((F32)ratio_max, 0.f);
         F32 high_frac = llclamp((F32)wm_high, 0.1f, 1.f);
         F32 high = vram_budget * high_frac;
         F32 low  = vram_budget * llclamp((F32)wm_low, 0.05f, high_frac);
         F32 dt   = (F32)gFrameIntervalSeconds;
 
+        // Backgrounded = hidden OR unfocused: either way the user isn't
+        // interacting, and texture usage must tank to free VRAM for other
+        // apps. The cost of doing this is bounded by recovery being
+        // IMMEDIATE on return, not by being shy about tanking.
         bool in_background = (gViewerWindow && !gViewerWindow->getWindow()->getVisible()) || !gFocusMgr.getAppHasFocus();
+
+        // Accounting on BOTH sides of the ledger: bytes creates are about to
+        // spend count as used (collected by preCreateTexture); bytes already
+        // committed to be freed (queued for scaleDown) do not count against
+        // tightening - never tighten for bytes that are already on their way
+        // out. This ledger, not a time rate, is what prevents overshoot.
+        F32 pending_create_mb = (F32)((F64)sPendingCreateBytes / (1024.0 * 1024.0));
+        sPendingCreateBytes = 0;
+        if (gTextureList.mDownScaleQueue.empty())
+        {
+            sPendingFreeBytes = 0;   // kill any accounting drift when idle
+        }
+        F32 pending_free_mb = (F32)((F64)sPendingFreeBytes / (1024.0 * 1024.0));
+        F32 effective_used = vram_used + pending_create_mb - pending_free_mb;
+
+        F32 near_floor = llclamp((F32)ratio_floor, STAGE_FLOOR, llmax(r_max, STAGE_FLOOR));
 
         if (in_background)
         {
-            // Backgrounded: decay toward bg_min to free VRAM for other apps, one
-            // mip per cooldown_step seconds (multiplicative). Don't relax back up
-            // until we're focused again. Pressure can still push below bg_min.
-            F32 bg_min = llclamp((F32)bg_min_ratio, 0.f, r_max);
-            if (sPixelToTexelRatio > bg_min)
-            {
-                const F32 step = llmax((F32)cooldown_step, 0.01f);
-                sPixelToTexelRatio = llmax(sPixelToTexelRatio * powf(0.25f, dt / step), bg_min);
-            }
+            // Backgrounded: walk the full cascade, one stage per
+            // cooldown_step seconds, to free VRAM for other apps.
+            const F32 step = llmax((F32)cooldown_step, 0.01f);
+            sTexturePressure += dt / step;
         }
-        else if (vram_used > high)
+        else if (effective_used > high)
         {
-            // Proportional, not constant-rate: full speed only when far past
-            // the watermark, tapering to 0 at the band edge. The constant-rate
-            // relay + lagging actuator (instant quantized evict, seconds-slow
-            // refetch) limit-cycled the whole scene between r~0 and r~1.
-            F32 p = llclamp((vram_used - high) / llmax(vram_budget * 0.1f, 1.f), 0.f, 1.f);
-            sPixelToTexelRatio -= llmax((F32)tighten_rate, 0.f) * p * dt;
+            // Predictive, not rate-based: bytes scale ~4^-mips, so the
+            // UNCOVERED overage directly names the mip shrink still needed -
+            // mips = log4(effective_used / high) - converted to pressure via
+            // the active stage's mip span. The per-stage byte model is
+            // approximate (channel stages only touch their buckets, the
+            // exponent stage is distance-shaped), but effective_used is
+            // re-measured every frame with pending frees subtracted, so
+            // estimation error corrects instead of compounding.
+            F32 mips_needed = (F32)(log((F64)effective_used / (F64)llmax(high, 1.f)) / log(4.0));
+            const F32 stage_span[5] = {
+                log2f(llmax((F32)cfg_far,  STAGE_FLOOR) / STAGE_FLOOR),
+                log2f(llmax((F32)cfg_exp,  STAGE_FLOOR) / STAGE_FLOOR),
+                log2f(llmax((F32)cfg_spec, STAGE_FLOOR) / STAGE_FLOOR),
+                log2f(llmax((F32)cfg_norm, STAGE_FLOOR) / STAGE_FLOOR),
+                log2f(llmax(r_max, near_floor) / near_floor),
+            };
+            S32 k = llclamp((S32)sTexturePressure, 0, 4);
+            sTexturePressure += mips_needed / llmax(stage_span[k], 1.f);
         }
-        else if (vram_used < low)
+        else
         {
-            F32 p = llclamp((low - vram_used) / llmax(vram_budget * 0.1f, 1.f), 0.f, 1.f);
-            sPixelToTexelRatio += llmax((F32)relax_rate, 0.f) * p * dt;
+            // Release is metric-gated and IMMEDIATE: pressure never sits
+            // above what current usage justifies (0 below the low water,
+            // proportional through the band - which also releases a
+            // background peg the instant the user returns).
+            F32 justified = P_MAX * llclamp((effective_used - low) / llmax(high - low, 1.f), 0.f, 1.f);
+            sTexturePressure = llmin(sTexturePressure, justified);
         }
-        // else: hold in the hysteresis band.
 
         // Allocation failures outrank the byte estimate: if setManualImage hit
-        // GL_OUT_OF_MEMORY since last frame, the CPU-side vram_used estimate has
-        // diverged from reality, so step the ratio down now regardless of the band.
+        // GL_OUT_OF_MEMORY since last frame, the CPU-side estimate has
+        // diverged from reality - jump a full stage regardless of the band.
         static U32 last_oom_count = 0;
         U32 oom_count = LLImageGL::sOOMErrorCount.load();
         if (oom_count > last_oom_count)
         {
-            U32 new_events = llmin(oom_count - last_oom_count, (U32)5);
-            sPixelToTexelRatio -= llmax((F32)tighten_rate, 0.f) * 1.0f * (F32)new_events;
+            sTexturePressure += 1.f;
             last_oom_count = oom_count;
-            LL_WARNS_ONCE("Texture") << "GL out-of-memory during texture upload triggered a pixel:texel ratio backoff." << LL_ENDL;
+            LL_WARNS_ONCE("Texture") << "GL out-of-memory during texture upload triggered a pressure cascade backoff." << LL_ENDL;
         }
 
-        sPixelToTexelRatio = llclamp(sPixelToTexelRatio, 0.f, r_max);
+        sTexturePressure = llclamp(sTexturePressure, 0.f, P_MAX);
+
+        // Derive the effective values per priority class: the avatar and
+        // self classes read the cascade at a LAGGED pressure, so the
+        // environment degrades first and recovers last (self recovers first
+        // of all). Geometric per-stage lerp (constant mips across a stage;
+        // a linear lerp would dump nearly all the mips in the stage's last
+        // few percent).
+        static LLCachedControl<F32> avatar_lag(gSavedSettings, "TexturePriorityAvatarLag", 2.0f);
+        static LLCachedControl<F32> self_lag(gSavedSettings, "TexturePrioritySelfLag", 3.5f);
+        auto stage = [](F32 pressure, S32 k) { return llclamp(pressure - (F32)k, 0.f, 1.f); };
+        auto geo = [](F32 cfg, F32 floor_v, F32 s) {
+            cfg = llmax(cfg, floor_v);
+            return cfg * powf(floor_v / cfg, s);
+        };
+        const F32 class_lag[PRIORITY_CLASS_COUNT] = {
+            0.f,
+            llmax((F32)avatar_lag, 0.f),
+            llmax((F32)self_lag, 0.f),
+        };
+        for (S32 c = 0; c < PRIORITY_CLASS_COUNT; ++c)
+        {
+            F32 p_c = llmax(sTexturePressure - class_lag[c], 0.f);
+            sEffFarRatio[c]        = geo((F32)cfg_far,  STAGE_FLOOR, stage(p_c, 0));
+            sEffFalloffExponent[c] = geo((F32)cfg_exp,  STAGE_FLOOR, stage(p_c, 1));
+            sEffChannelSpecular[c] = geo((F32)cfg_spec, STAGE_FLOOR, stage(p_c, 2));
+            sEffChannelNormal[c]   = geo((F32)cfg_norm, STAGE_FLOOR, stage(p_c, 3));
+            sEffNearRatio[c]       = geo(r_max,         near_floor,  stage(p_c, 4));
+        }
+        sPixelToTexelRatio = sEffNearRatio[PRIORITY_ENV];
+
+        // cached for preCreateTexture's live admission check
+        sVRAMTargetMB = vram_target;
 
         // Keep the GC-suspend frame current while backgrounded. This suppresses
         // the foreground GC now, and gives it a grace window after we come back so
@@ -1476,6 +1560,44 @@ bool LLViewerFetchedTexture::preCreateTexture(S32 usename/*= 0*/)
         }
     }
 
+    // Pre-emptive VRAM admission (pressure cascade). Project this create's
+    // full-pyramid cost: (a) tally it so the next updateClass pass tightens
+    // the cascade BEFORE the batch allocates; (b) if headroom is already
+    // short, degrade THIS create in place - halve the raw and bump the
+    // discard (createGLTexture derives full dims as raw << discard, so the
+    // bookkeeping stays consistent) - so something always materializes
+    // instead of failing in the driver. Main thread, before the sync/async
+    // dispatch fork, so both create paths are covered. Headroom deliberately
+    // ignores vertex-buffer bytes; the batch-level tighten uses the full
+    // estimate.
+    {
+        // uncompressed 8-bit upload (the default path); x4/3 for the mip pyramid
+        auto pyramid_bytes = [](const LLImageRaw* raw) {
+            return ((U64)raw->getWidth() * raw->getHeight() * raw->getComponents() * 4) / 3;
+        };
+
+        const bool degrade_ok = mBoostLevel < LLGLTexture::BOOST_HIGH
+                                && !mDontDiscard && mUseMipMaps
+                                && mFTType != FTT_SERVER_BAKE && mFTType != FTT_HOST_BAKE;
+        if (degrade_ok)
+        {
+            // never degrade below this; the OOM backoff is the true last resort
+            constexpr S32 MIN_ADMIT_DIM = 64;
+            F32 used_mb = (F32)((F64)LLImageGL::getTextureBytesAllocated() / (1024.0 * 1024.0));
+            F32 headroom_mb = LLViewerTexture::sVRAMTargetMB - used_mb;
+            F32 need_mb = (F32)((F64)pyramid_bytes(mRawImage) / (1024.0 * 1024.0));
+            while (need_mb > headroom_mb
+                   && llmax(mRawImage->getWidth(), mRawImage->getHeight()) > MIN_ADMIT_DIM)
+            {
+                mRawImage->scale(llmax(mRawImage->getWidth() / 2, 1), llmax(mRawImage->getHeight() / 2, 1));
+                ++mRawDiscardLevel;
+                need_mb = (F32)((F64)pyramid_bytes(mRawImage) / (1024.0 * 1024.0));
+            }
+        }
+
+        LLViewerTexture::sPendingCreateBytes += pyramid_bytes(mRawImage);
+    }
+
     return res;
 }
 
@@ -1694,6 +1816,8 @@ void LLViewerFetchedTexture::processTextureStats()
             static LLCachedControl<U32> max_texture_resolution(gSavedSettings, "RenderMaxTextureResolution", 2048);
             // sanity clamp debug setting to avoid settings hack shenanigans
             max_tex_res = (U32)llclamp((U32)max_texture_resolution, 512, MAX_IMAGE_SIZE_DEFAULT);
+            // NOTE: mMaxVirtualSize is the px^2 fetch-ORDERING key only and
+            // no longer bounds resolution (computeDesiredDiscard does).
             mMaxVirtualSize = llmin(mMaxVirtualSize, (F32)(max_tex_res * max_tex_res));
         }
 
@@ -1986,13 +2110,21 @@ bool LLViewerFetchedTexture::updateFetch()
     S32 current_discard = getCurrentDiscardLevelForFetching();
     S32 desired_discard = getDesiredDiscardLevel();
 
-    // Two-tier fetch priority, constantly drained by the fetch worker (it
-    // sorts HTTP dispatch by this value): any on-screen texture outranks every
-    // off-screen one. Within the visible tier, coverage orders by size on
-    // screen; within the off-screen tier the same geometric coverage
-    // (area/dist^2) orders by proximity. addTextureStats clamps
-    // mMaxVirtualSize to sMaxVirtualSize, so the band offset is strict.
-    F32 decode_priority = mMaxVirtualSize + (mOnScreen ? sMaxVirtualSize : 0.f);
+    // Fetch priority, constantly drained by the fetch worker (it sorts HTTP
+    // dispatch by this value). Strictly banded, high to low: on-screen,
+    // priority class (self > avatar > env), wanted-vs-resident discard gap,
+    // geometric footprint as tiebreak. The footprint is window-clamped at
+    // the sweep so bands never collide.
+    F32 gap_mips = 0.f;
+    if (desired_discard >= 0)
+    {
+        S32 cur = (current_discard >= 0) ? current_discard : (S32)mCodecMaxDiscardLevel;
+        gap_mips = (F32)llclamp(cur - desired_discard, 0, 15);
+    }
+    F32 decode_priority = llmin(mMaxVirtualSize, sMaxVirtualSize * 0.03125f)
+                          + gap_mips * (sMaxVirtualSize * 0.0625f)
+                          + (F32)mPriorityClass * sMaxVirtualSize
+                          + (mOnScreen ? 3.f * sMaxVirtualSize : 0.f);
 
     if (mIsFetching)
     {
@@ -3002,17 +3134,19 @@ S8 LLViewerLODTexture::getType() const
 }
 
 // Desired discard from the pixel:texel ratio - this is the entire streaming
-// policy. For each channel bucket the texture is used in, the most-demanding
-// (largest screen coverage) face sets that bucket's requirement at
-// floor(log4(texels / (R_global * channelRatio[b] * coverage))); the sharpest
-// requirement across buckets wins, since one GL image serves every channel it
-// is used in. floor (not ceil) keeps content native up close - "1:1" is a
-// target, not a hard cap that downrezzes anything slightly oversampled. A
-// per-mip hysteresis dead-band against the current discard level prevents
+// policy, in LINEAR texels-per-pixel units. For each channel bucket the
+// texture is used in, the most-demanding (lowest texels-per-pixel) face sets
+// that bucket's requirement at floor(log2(tpp / (R_global * channelRatio[b])))
+// where tpp = linear_dim * image-widths-per-pixel; the sharpest requirement
+// across buckets wins, since one GL image serves every channel it is used in.
+// floor (not ceil) keeps content native up close - "1:1" is a target, not a
+// hard cap that downrezzes anything slightly oversampled. A per-mip
+// hysteresis dead-band against the current discard level prevents
 // fetch/scaleDown thrash as an object slowly crosses a mip boundary.
 S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) const
 {
     static const F64 log_4 = log(4.0);
+    static const F64 log_2 = log(2.0);
 
     // UI-pinned (icons / thumbnails): size against the known draw size, with no
     // ratio or pressure - these want exact native-for-their-slot resolution.
@@ -3025,16 +3159,22 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) c
         return llclamp(d, 0, dim_max_i);
     }
 
-    // Avatar bakes ignore the global pressure ramp (a blurred bake reads as a
-    // cloud avatar); they always size against the configured max ratio.
-    static LLCachedControl<F32> ratio_max(gSavedSettings, "TexturePixelToTexelRatio", 1.0f);
-    const F32 r_global = avatar_bake ? llmax((F32)ratio_max, 0.01f) : sPixelToTexelRatio;
+    // Priority class selects which lagged view of the cascade this texture
+    // sizes against: environment feels pressure first; avatars (bakes and
+    // attachments alike - the class replaces the old absolute bake
+    // exemption) only degrade once the environment is already deep; self
+    // deeper still. Bakes keep their mid-bake anti-cloud protections via the
+    // avatar_bake ramp/scaleDown exemptions below.
+    const S32 cls = llclamp((S32)mPriorityClass, 0, (S32)PRIORITY_CLASS_COUNT - 1);
+    const F32 r_global = sEffNearRatio[cls];
 
-    static LLCachedControl<F32> ch_normal   (gSavedSettings, "TextureChannelRatioNormal",    1.0f);
+    // Normal and specular/metallic come from the pressure cascade's
+    // EFFECTIVE values (stages 3-4 degrade them under VRAM pressure);
+    // basecolor and emissive read their configured settings directly - they
+    // only degrade through the near ratio, the cascade's last stage.
     static LLCachedControl<F32> ch_basecolor(gSavedSettings, "TextureChannelRatioBaseColor", 1.0f);
-    static LLCachedControl<F32> ch_specular (gSavedSettings, "TextureChannelRatioSpecular",  0.5f);
-    static LLCachedControl<F32> ch_emissive (gSavedSettings, "TextureChannelRatioEmissive",  0.5f);
-    const F32 channel_ratio[4] = { (F32)ch_normal, (F32)ch_basecolor, (F32)ch_specular, (F32)ch_emissive };
+    static LLCachedControl<F32> ch_emissive (gSavedSettings, "TextureChannelRatioEmissive",  0.70710678f);
+    const F32 channel_ratio[4] = { sEffChannelNormal[cls], (F32)ch_basecolor, sEffChannelSpecular[cls], (F32)ch_emissive };
 
     // Downrez bias: 0 sizes each bucket to its most demanding use (the lowest
     // texels-per-pixel variant - the quality bound); 1 sizes to its least
@@ -3044,36 +3184,41 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) c
     const F32 cov_bias = llclampf((F32)downrez_bias);
 
     // Continuous ideal discard = sharpest (smallest) requirement across the
-    // channels this texture is actually used in.
+    // channels this texture is actually used in. Texture dimensions fold in
+    // HERE, not at the sweep - they're 0 until the first decode, and this
+    // function is only reached once dims are known (the !mFullWidth guard in
+    // processTextureStats is load-bearing).
+    const F32 dim_linear = sqrtf((F32)llmax((S32)mTexelsPerImage, 1));
     F32 ideal = (F32)dim_max_i;   // default: coarsest, until a measurement arrives
     bool measured = false;
     for (S32 b = 0; b < 4; ++b)
     {
-        F32 coverage = mChannelCoverage[b];
-        if (coverage <= 0.f)
+        F32 tpp_low = mChannelTppLow[b];
+        if (tpp_low <= 0.f)
         {
             continue;
         }
-        if (cov_bias > 0.f && mChannelCoverageMin[b] > 0.f && mChannelCoverageMin[b] < coverage)
-        {
-            // Geometric (log-space) lerp between the coverage bounds. The
-            // consumer below is log4(coverage), and min/max are routinely
-            // orders of magnitude apart - a linear pixel-area lerp barely
-            // moves the resulting discard until bias approaches 1, then
-            // plunges (reads as binary). Interpolating the RATIO instead
-            // moves the discard linearly with bias: 0.5 = halfway between
-            // the two ends in mip levels.
-            coverage *= powf(mChannelCoverageMin[b] / coverage, cov_bias);
-        }
         measured = true;
-        F32 allowed_texels = coverage * r_global * llmax(channel_ratio[b], 0.01f);
+        F32 tpp_use = tpp_low;
+        F32 tpp_high = mChannelTppHigh[b];
+        if (cov_bias > 0.f && tpp_high > tpp_low)
+        {
+            // Geometric (log-space) lerp between the demand bounds: 0 sizes
+            // to the most demanding use, 1 to the most oversampled one. The
+            // consumer below is a log2, so this moves the resulting discard
+            // linearly with bias: 0.5 = halfway between the two ends in mips.
+            tpp_use = tpp_low * powf(tpp_high / tpp_low, cov_bias);
+        }
+        // texels per pixel at native resolution vs the allowed density.
+        // Floored at 0 per bucket: an unclamped negative would inflate the
+        // unload ramps' range below.
+        F32 tpp = dim_linear * tpp_use;
+        F32 target = r_global * llmax(channel_ratio[b], 0.01f);
         F32 d;
-        if (allowed_texels <= 0.f)              // ratio driven to 0 -> deepest mip
+        if (target <= 0.f)                      // ratio driven to 0 -> deepest mip
             d = (F32)dim_max_i;
-        else if (allowed_texels >= (F32)mTexelsPerImage)
-            d = 0.f;
         else
-            d = (F32)(log((F64)mTexelsPerImage / (F64)allowed_texels) / log_4);
+            d = llmax((F32)(log((F64)tpp / (F64)target) / log_2), 0.f);
         ideal = llmin(ideal, d);
     }
     // Dwell before any unload step so glances/flaps/rebuilds don't cycle
@@ -3125,11 +3270,20 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i, bool avatar_bake) c
             {
                 mOffScreenEnterFrame = now;   // dwell starts at the on->off transition
             }
-            // bias = the behindness at which unload reaches full depth;
-            // <= 0 disables angular unload.
+            // bias = the behindness at which unload reaches full depth. A
+            // monotonic dial: bias -> 0 is the LIMIT of aggressive (full
+            // depth for any behindness at all), never a disable switch;
+            // bias > 1 caps even dead-behind at partial depth (warm).
             const F32 bias = (F32)unload_bias;
-            const F32 unload_frac = (bias > 0.f) ? llclamp(mBehindness / bias, 0.f, 1.f) : 0.f;
-            const F32 target_mips = unload_frac * range;
+            const F32 unload_frac = (bias > 0.f) ? llclamp(mBehindness / bias, 0.f, 1.f)
+                                                 : 1.f;
+            // A saturated target gets margin slack so the final eviction
+            // step can actually fire (target_mips == range lands ideal on
+            // exactly dim_max_i, which never clears the current+1+margin
+            // test from dim_max_i-1); the final llclamp on desired bounds
+            // the result.
+            const F32 target_mips = (unload_frac >= 1.f) ? range + 2.f
+                                                         : unload_frac * range;
             const U32 off_frames = now - mOffScreenEnterFrame;
             const S32 periods = (off_frames > dwell) ? (S32)((off_frames - dwell) / cooldown) + 1 : 0;
             angular_mips = llclamp((F32)(periods * step_mips), 0.f, target_mips);
@@ -3218,6 +3372,8 @@ void LLViewerLODTexture::processTextureStats()
         static LLCachedControl<U32> max_texture_resolution(gSavedSettings, "RenderMaxTextureResolution", 2048);
         // sanity clamp debug setting to avoid settings hack shenanigans
         max_tex_res = (F32)llclamp((S32)max_texture_resolution, 512, MAX_IMAGE_SIZE_DEFAULT);
+        // NOTE: mMaxVirtualSize is the px^2 fetch-ORDERING key only; the
+        // resolution cap is min_discard below, not this clamp.
         mMaxVirtualSize = llmin(mMaxVirtualSize, max_tex_res * max_tex_res);
     }
 
@@ -3237,6 +3393,9 @@ void LLViewerLODTexture::processTextureStats()
     }
     else if (!mFullWidth  || !mFullHeight)
     {
+        // LOAD-BEARING: keeps computeDesiredDiscard (which folds real dims
+        // into the texels-per-pixel decision) out of the pre-first-decode
+        // path. Coarsest-available is the correct first request.
         mDesiredDiscardLevel =  getMaxDiscardLevel();
         mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
     }
@@ -3315,6 +3474,15 @@ bool LLViewerLODTexture::scaleDown()
     {
         mDownScalePending = true;
         gTextureList.mDownScaleQueue.push(this);
+
+        // commit the projected savings so the tighten predictor doesn't
+        // double-count bytes that are already on their way out
+        S64 freed = mGLTexturep->getMipBytes(getDiscardLevel())
+                  - mGLTexturep->getMipBytes(getDesiredDiscardLevel());
+        if (freed > 0)
+        {
+            sPendingFreeBytes += (U64)freed;
+        }
     }
 
     return true;

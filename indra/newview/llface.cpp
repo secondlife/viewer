@@ -168,6 +168,18 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
     mTexExtents[1].set(1, 1);
     mHasMedia = false ;
     mIsMediaAllowed = true;
+
+    // faces that never pass through genVolumeBBoxes (particles) must read as
+    // unmeasured, not as stack garbage
+    mExtents[0].splat(0.f);
+    mExtents[1].splat(0.f);
+    mUVDensity = 0.f;
+    for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
+    {
+        mStreamTPP[i] = 0.f;
+    }
+    mPriorityClass = 0;
+    mLastTextureUpdate = 0;
 }
 
 void LLFace::destroy()
@@ -814,10 +826,12 @@ bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
     //get bounding box
     if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED))
     {
+        bool face_index_valid = true;
         if (f >= volume.getNumVolumeFaces())
         {
             LL_WARNS() << "Generating bounding box for invalid face index!" << LL_ENDL;
             f = 0;
+            face_index_valid = false;
         }
 
         const LLVolumeFace &face = volume.getVolumeFace(f);
@@ -838,6 +852,8 @@ bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
         llassert(less_than_max_mag(face.mExtents[1]));
 
         matMulBoundBox(mat_vert, face.mExtents, mExtents);
+
+        updateStreamDensity(volume, f, face_index_valid ? &mat_vert : nullptr);
 
         if (!mDrawablep->isActive())
         {   // Shift position for region
@@ -860,6 +876,73 @@ bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
     }
 
     return true;
+}
+
+// Refresh mUVDensity (UV units per world meter) from the volume face's
+// build-time area accumulators. Scale comes from the row lengths of the
+// vertex transform - valid in every mRelativeXform branch including the
+// scale-free flexi/global form; rigged faces use the bind shape matrix
+// instead, since prim scale never enters the rigged transform and the
+// passed matrix is an inverse render matrix there.
+void LLFace::updateStreamDensity(const LLVolume& volume, S32 f, const LLMatrix4a* mat_vert)
+{
+    mUVDensity = 0.f;
+    if (!mat_vert)
+    {
+        return;
+    }
+
+    const LLTextureEntry* te = getTextureEntry();
+    if (te && te->getTexGen() == LLTextureEntry::TEX_GEN_PLANAR)
+    {
+        // planarProjection generates tc = 2*(axis . scaled_position) in both
+        // the plain and material paths: exactly 2 UV units per world meter,
+        // independent of prim size and of the asset's own UVs.
+        mUVDensity = 2.f;
+        return;
+    }
+
+    const LLVolumeFace& face = volume.getVolumeFace(f);
+    if (face.mAreaTotal <= 0.f || face.mUVArea <= 0.f)
+    {
+        return; // no UVs or all triangles degenerate: unmeasured
+    }
+
+    const LLMatrix4a* basis = mat_vert;
+    if (isState(LLFace::RIGGED)
+        || (mDrawablep && mDrawablep->isState(LLDrawable::RIGGED)))
+    {
+        // bind-pose meters: prim scale never enters the rigged transform,
+        // and the passed matrix can be an inverse render matrix here
+        LLVOVolume* vobj = mDrawablep ? mDrawablep->getVOVolume() : nullptr;
+        const LLMeshSkinInfo* skin = vobj ? vobj->getSkinInfo() : nullptr;
+        if (!skin)
+        {
+            return;
+        }
+        basis = &skin->mBindShapeMatrix;
+    }
+
+    F32 s2[3];
+    for (S32 k = 0; k < 3; ++k)
+    {
+        s2[k] = basis->mMatrix[k].dot3(basis->mMatrix[k]).getF32();
+        if (s2[k] <= F_APPROXIMATELY_ZERO)
+        {
+            return;
+        }
+    }
+
+    // world area under (possibly non-uniform) scale:
+    // det(S) * sqrt(A_total * sum(A_n[k]/s2[k]))
+    // exact for planar faces, an upper bound on curved ones
+    F32 det = sqrtf(s2[0] * s2[1] * s2[2]);
+    F32 sum = face.mAreaN[0] / s2[0] + face.mAreaN[1] / s2[1] + face.mAreaN[2] / s2[2];
+    F32 world_area = det * sqrtf(face.mAreaTotal * sum);
+    if (world_area > 0.f)
+    {
+        mUVDensity = sqrtf(face.mUVArea / world_area);
+    }
 }
 
 
@@ -2465,7 +2548,14 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
         F32 h = (F32)gViewerWindow->getWindowHeightRaw();
         F32 screen_half_diag = 0.5f * sqrtf(w * w + h * h);
         F32 ang = acosf(llclamp(cos_angle_to_view_dir, -1.f, 1.f));
-        F32 edge_ang = (radius + screen_half_diag + 5.f) / LLDrawable::sCurPixelAngle;
+        // True focal rate (px per unit tan): inverting via the linear px/rad
+        // rate over-rotates the edge by up to ~30 deg at wide FOV for
+        // large/near faces (badly enough to freeze them at full res).
+        F32 focal = h * 0.5f / tanf(0.5f * camera->getView());
+        // True screen corner + 12 deg jitter margin. Turn tolerance is
+        // temporal (dwell + GC cooldown), not geometric.
+        constexpr F32 EDGE_MARGIN_RAD = 0.2094f;   // 12 degrees
+        F32 edge_ang = atanf((radius + screen_half_diag + 5.f) / llmax(focal, 1.f)) + EDGE_MARGIN_RAD;
         mBehindness = llclamp((ang - edge_ang) / llmax(F_PI - edge_ang, 0.001f), 0.f, 1.f);
     }
 

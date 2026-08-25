@@ -8145,17 +8145,6 @@
     <key>Value</key>
     <real>0.1</real>
   </map>
-  <key>RenderMaxTextureIndex</key>
-  <map>
-    <key>Comment</key>
-    <string>Maximum texture index to use for indexed texture rendering.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>16</integer>
-  </map>
   <key>RenderMaxTextureResolution</key>
   <map>
     <key>Comment</key>
@@ -8170,7 +8159,7 @@
   <key>RenderTextureQuality</key>
   <map>
     <key>Comment</key>
-    <string>Texture quality preset: 0=Low, 1=Medium, 2=High, 3=Ultra. Drives RenderMaxTextureResolution, TexturePixelToTexelRatio, TexturePressureTightenRate, TexturePressureRelaxRate, TextureChannelRatio* (Normal/BaseColor/Specular/Emissive), TextureOffscreenUnloadBias, TextureGCStepSeconds, TextureCooldownStepSeconds, and TextureUpRezMargin. The pressure water marks (TexturePressureHighWater/LowWater) are constant across tiers.</string>
+    <string>Texture quality preset: 0=Low, 1=Medium, 2=High, 3=Ultra. Drives RenderMaxTextureResolution, TexturePixelToTexelRatio, TexturePixelToTexelRatioFar, TexturePixelToTexelRatioExponent, TextureChannelRatio* (Normal/BaseColor/Specular/Emissive), TextureOffscreenUnloadBias, TextureGCStepSeconds, TextureCooldownStepSeconds, TextureUpRezMargin, TextureAvatarBoost, TextureDownrezCoverageBias, TextureGCStepMips, and TextureUnloadDwellSeconds. The pressure water marks (TexturePressureHighWater/LowWater) are constant across tiers; no pressure rates exist - tighten is predictive and release is metric-gated.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -8188,17 +8177,6 @@
         <string>U32</string>
         <key>Value</key>
         <integer>0</integer>
-    </map>
-    <key>RenderDebugTextureBind</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable texture bind performance test.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
   <key>RenderDelayCreation</key>
   <map>
@@ -9548,17 +9526,6 @@
     <string>S32</string>
     <key>Value</key>
     <integer>64</integer>
-  </map>
-  <key>RenderReservedTextureIndices</key>
-  <map>
-    <key>Comment</key>
-    <string>Count of texture indices to reserve for shadow and reflection maps when using indexed texture rendering.  Probably only want to set from the login screen.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>S32</string>
-    <key>Value</key>
-    <integer>14</integer>
   </map>
   <key>RenderResolutionDivisor</key>
   <map>
@@ -12083,24 +12050,46 @@
     <key>TextureChannelRatioSpecular</key>
     <map>
       <key>Comment</key>
-      <string>Per-channel pixel:texel ratio multiplier for specular / metallic-roughness (texels per pixel, applied on top of the global TexturePixelToTexelRatio). 0.5 = half resolution (specular detail is usually less perceptible than diffuse). Driven by the RenderTextureQuality preset.</string>
+      <string>Per-channel pixel:texel ratio multiplier for specular / metallic-roughness (LINEAR texels per pixel, applied on top of the global TexturePixelToTexelRatio). 0.7071 = half a mip coarser (specular detail is usually less perceptible than diffuse). Driven by the RenderTextureQuality preset.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.5</real>
+      <real>0.70710678</real>
     </map>
     <key>TextureChannelRatioEmissive</key>
     <map>
       <key>Comment</key>
-      <string>Per-channel pixel:texel ratio multiplier for emissive (texels per pixel, applied on top of the global TexturePixelToTexelRatio). 0.5 = half resolution. Driven by the RenderTextureQuality preset.</string>
+      <string>Per-channel pixel:texel ratio multiplier for emissive (LINEAR texels per pixel, applied on top of the global TexturePixelToTexelRatio). 0.7071 = half a mip coarser. Driven by the RenderTextureQuality preset.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.5</real>
+      <real>0.70710678</real>
+    </map>
+    <key>TextureDownrezCoverageBias</key>
+    <map>
+      <key>Comment</key>
+      <string>How far a texture's resolution sizes toward its least-demanding use: 0 = strictly the most demanding use (exact quality), 1 = the most oversampled use (frees the most memory). Log-space lerp, so 0.5 = halfway in mips. Driven by the RenderTextureQuality preset (0 at Ultra).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.25</real>
+    </map>
+    <key>TextureAvatarBoost</key>
+    <map>
+      <key>Comment</key>
+      <string>Linear texels-per-pixel divisor for worn attachment textures (avatars are what people look at). 2.0 = one mip sharper. Driven by the RenderTextureQuality preset.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>2.0</real>
     </map>
     <key>TextureMaxDiscardOverride</key>
     <map>
@@ -12116,7 +12105,7 @@
     <key>TexturePixelToTexelRatio</key>
     <map>
       <key>Comment</key>
-      <string>Max texels per screen pixel the streamer will allocate (the "R" in a 1:R pixel:texel ratio). 1.0 = one texel per pixel. VRAM pressure walks the effective ratio down from here.</string>
+      <string>Max LINEAR texels per screen pixel the streamer will allocate (a factor of 2 = one mip). 1.0 = one texel per pixel. VRAM pressure walks the effective ratio down from here, never below TexturePixelToTexelRatioFloor. TexturePixelToTexelRatioFar/Exponent grade the target down with distance.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12124,21 +12113,76 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>TextureBackgroundMinRatio</key>
+    <key>TexturePixelToTexelRatioFloor</key>
     <map>
       <key>Comment</key>
-      <string>Lowest pixel:texel ratio the streamer decays to while the viewer is backgrounded, to free VRAM for other apps. Lower frees more but re-rezzes slower on return. Restored when focus comes back.</string>
+      <string>Floor on the near (stage 5) pixel:texel ratio at full cascade pressure - the terminal state for point-blank content under sustained VRAM pressure or repeated GL OOM. 0.05 linear = ~4.3 mips of maximum degradation.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.001</real>
+      <real>0.05</real>
+    </map>
+    <key>TexturePixelToTexelRatioFar</key>
+    <map>
+      <key>Comment</key>
+      <string>Target LINEAR texels per screen pixel at draw distance. The effective target slides from the live global ratio up close to this value far away, shaped by TexturePixelToTexelRatioExponent. Clamped to the live ratio. Driven by the RenderTextureQuality preset.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>TexturePixelToTexelRatioExponent</key>
+    <map>
+      <key>Comment</key>
+      <string>Shape of the distance falloff between TexturePixelToTexelRatio and TexturePixelToTexelRatioFar: 1.0 = linear in distance; higher holds near quality longer and drops late; lower drops early. Clamped to [0.1, 8]. Driven by the RenderTextureQuality preset.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>TextureStreamParticles</key>
+    <map>
+      <key>Comment</key>
+      <string>Publish a streaming density for particle textures (whole image across the particle scale). Off = particles stay unmeasured, matching prior behavior. Default off so the VRAM cost is measurable in isolation.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TexturePriorityAvatarLag</key>
+    <map>
+      <key>Comment</key>
+      <string>Pressure stages by which avatar-worn textures (attachments, bakes, bake-on-mesh) lag the environment cascade. They degrade this many stages after the environment and recover first.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>2.0</real>
+    </map>
+    <key>TexturePrioritySelfLag</key>
+    <map>
+      <key>Comment</key>
+      <string>Pressure stages by which the user's own avatar textures lag the environment cascade. Should be at least TexturePriorityAvatarLag.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>3.5</real>
     </map>
     <key>TexturePressureHighWater</key>
     <map>
       <key>Comment</key>
-      <string>High water mark as a fraction of the VRAM budget. When used VRAM crosses this, the global pixel:texel ratio tightens (backs off detail) at TexturePressureTightenRate. Held at 0.90 - it's a physical "crossed the budget" threshold, not a tier preference.</string>
+      <string>High water mark as a fraction of the VRAM budget. When effective use (live bytes plus pending creates minus committed frees) crosses this, texture pressure tightens PREDICTIVELY - the jump is sized by the uncovered overage in mips (log4 of the ratio), not walked at a time rate. Held at 0.90 - it's a physical "crossed the budget" threshold, not a tier preference.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12149,35 +12193,13 @@
     <key>TexturePressureLowWater</key>
     <map>
       <key>Comment</key>
-      <string>Low water mark as a fraction of the VRAM budget. When used VRAM drops below this, the global pixel:texel ratio relaxes (restores detail) at TexturePressureRelaxRate. The band between low and high is the hysteresis zone where the ratio holds steady - wide enough to prevent sawtooth.</string>
+      <string>Low water mark as a fraction of the VRAM budget. Texture pressure releases IMMEDIATELY to the level current usage justifies: zero at or below this mark, proportional through the band to the high water. Recovery is metric-gated, never time-gated - the fetch/create pipeline paces the refill on its own.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
       <real>0.70</real>
-    </map>
-    <key>TexturePressureTightenRate</key>
-    <map>
-      <key>Comment</key>
-      <string>Rate (ratio units/sec) at which the global pixel:texel ratio drops while used VRAM is above the high watermark. Deliberately slow so eviction (scaleDown draining) frees bytes before the next step - prevents over-shoot / thrash.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.30</real>
-    </map>
-    <key>TexturePressureRelaxRate</key>
-    <map>
-      <key>Comment</key>
-      <string>Rate (ratio units/sec) at which the global pixel:texel ratio climbs back toward TexturePixelToTexelRatio while used VRAM is below the low watermark. Typically slower than the tighten rate so detail returns gradually as headroom appears.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.10</real>
     </map>
     <key>TextureUpRezMargin</key>
     <map>
@@ -12193,7 +12215,7 @@
     <key>TextureCooldownStepSeconds</key>
     <map>
       <key>Comment</key>
-      <string>While backgrounded, the pixel:texel ratio drops one mip toward TextureBackgroundMinRatio every this many seconds.</string>
+      <string>While backgrounded, the pressure cascade advances one full stage every this many seconds (far density, then falloff exponent, then specular, then normal, then the near ratio), freeing VRAM for other apps. Recovery begins when focus returns.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12215,7 +12237,7 @@
     <key>TextureGCStepMips</key>
     <map>
       <key>Comment</key>
-      <string>Mip levels dropped each time a TextureGCStepSeconds cooldown elapses. 1 is gentlest; higher sheds VRAM faster in coarser jumps.</string>
+      <string>Mip levels dropped each time a TextureGCStepSeconds cooldown elapses. 1 is gentlest; higher sheds VRAM faster in coarser jumps. Driven by the RenderTextureQuality preset.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12288,28 +12310,6 @@
       <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>TextureDiscardBackgroundedTime</key>
-    <map>
-        <key>Comment</key>
-        <string>Specify how long to wait before discarding texture data after viewer is backgrounded.  (zero or negative to disable)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>F32</string>
-        <key>Value</key>
-        <real>60.0</real>
-    </map>
-    <key>TextureDiscardMinimizedTime</key>
-    <map>
-        <key>Comment</key>
-        <string>Specify how long to wait before discarding texture data after viewer is minimized.  (zero or negative to disable)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>F32</string>
-        <key>Value</key>
-        <real>1.0</real>
     </map>
     <key>TextureFetchConcurrency</key>
     <map>
@@ -12399,32 +12399,10 @@
       <key>Value</key>
       <string />
     </map>
-    <key>TextureScaleMinAreaFactor</key>
-    <map>
-        <key>Comment</key>
-        <string>Limits how texture scale affects area calculation.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>F32</string>
-        <key>Value</key>
-        <real>0.0095</real>
-    </map>
-    <key>TextureScaleMaxAreaFactor</key>
-    <map>
-        <key>Comment</key>
-        <string>Limits how texture scale affects area calculation.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>F32</string>
-        <key>Value</key>
-        <real>25.0</real>
-    </map>
     <key>TextureOffscreenUnloadBias</key>
     <map>
         <key>Comment</key>
-        <string>How far out of frustum content must be before angle-driven unload reaches full depth, in behindness units (0 = frustum edge, 1 = directly behind). Unload fraction ramps linearly from the frustum edge to this point. Below 1 = full unload nearer the frustum edge (aggressive); above 1 = even directly-behind content never fully unloads (protective); 0 disables angle-driven unload.</string>
+        <string>How far out of frustum content must be before angle-driven unload reaches full depth, in behindness units (0 = frustum edge, 1 = directly behind). Unload fraction ramps linearly from the frustum edge to this point. A monotonic dial: below 1 = full unload nearer the frustum edge (aggressive), with 0 the limit (full depth the moment anything is off-screen); above 1 = even directly-behind content never fully unloads (protective).</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
@@ -12446,7 +12424,7 @@
     <key>TextureUnloadDwellSeconds</key>
     <map>
       <key>Comment</key>
-      <string>Seconds a texture must be continuously off-screen, occlusion-stale, or unmeasured before its first unload step; later steps follow TextureGCStepSeconds. Wall-clock, independent of frame rate. Damps evict/refetch cycling from glances away, occlusion flap, and geometry rebuilds.</string>
+      <string>Seconds a texture must be continuously off-screen, occlusion-stale, or unmeasured before its first unload step; later steps follow TextureGCStepSeconds. Wall-clock, independent of frame rate. Damps evict/refetch cycling from glances away, occlusion flap, and geometry rebuilds. Driven by the RenderTextureQuality preset.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

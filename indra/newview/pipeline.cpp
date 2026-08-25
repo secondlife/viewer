@@ -7517,6 +7517,7 @@ void LLPipeline::renderSSRTrace()
     LLRenderTarget& trace_target = ssrTraceTarget();
     if (!trace_target.isComplete()) return;
 
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("SSR trace");
 
     gGL.setColorMask(true, true);
@@ -7550,6 +7551,7 @@ void LLPipeline::renderSSRAlpha()
     LLRenderTarget& trace_target = ssrTraceTarget();
     if (!trace_target.isComplete()) return;
 
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("SSR alpha");
 
     gGL.setColorMask(true, true);
@@ -7732,6 +7734,7 @@ void LLPipeline::renderSSRWater()
     LLDrawPool* pool = findPool(LLDrawPool::POOL_WATER);
     if (!pool) return;
 
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("SSR water");
 
     gGL.setColorMask(true, true);
@@ -7778,6 +7781,7 @@ void LLPipeline::renderSSRResolveTemporal()
     if (!gSSRResolveProgram.isComplete()) return;
     if (!mSSRResolved[0].isComplete() || !mSSRResolved[1].isComplete() || !mSSRTraceBuffer.isComplete()) return;
 
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("SSR temporal resolve");
 
     // a gFrameCount gap means skipped world frames (teleport, login, minimized)
@@ -7831,6 +7835,7 @@ void LLPipeline::filterSSRBuffer()
     LLRenderTarget& target = ssrResolvedTarget();
     if (!target.isComplete()) return;
 
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("SSR mip chain");
 
     U32 mipLevels = target.getMipLevels();
@@ -7908,6 +7913,7 @@ void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget*
 
     if (RenderScreenSpaceReflections && !gCubeSnapshot)
     {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
         LL_PROFILE_GPU_ZONE("ssr copy");
         LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
 

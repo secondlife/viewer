@@ -121,9 +121,9 @@ namespace
     {
         const char* name;
         U32 max_resolution;
-        F32 pixel_to_texel_ratio;       // TexturePixelToTexelRatio   (R_max, texels per pixel)
-        F32 pressure_tighten_rate;      // TexturePressureTightenRate  (ratio units/sec)
-        F32 pressure_relax_rate;        // TexturePressureRelaxRate    (ratio units/sec)
+        F32 pixel_to_texel_ratio;       // TexturePixelToTexelRatio   (R_max, LINEAR texels per pixel)
+        F32 pixel_to_texel_ratio_far;   // TexturePixelToTexelRatioFar (target at draw distance)
+        F32 falloff_exponent;           // TexturePixelToTexelRatioExponent (lower = drops earlier)
         F32 channel_ratio_normal;       // TextureChannelRatioNormal
         F32 channel_ratio_basecolor;    // TextureChannelRatioBaseColor
         F32 channel_ratio_specular;     // TextureChannelRatioSpecular
@@ -132,29 +132,40 @@ namespace
         F32 gc_step_seconds;            // TextureGCStepSeconds  (wall-clock)
         F32 cooldown_step_seconds;      // TextureCooldownStepSeconds
         F32 uprez_margin;               // TextureUpRezMargin
+        F32 avatar_boost;               // TextureAvatarBoost (linear tpp divisor; 2.0 = 1 mip)
+        F32 downrez_bias;               // TextureDownrezCoverageBias (0 = most demanding use wins)
+        U32 gc_step_mips;               // TextureGCStepMips (mips shed per decay step)
+        F32 unload_dwell_seconds;       // TextureUnloadDwellSeconds (grace before any decay)
     };
 
     // Tier values: Low (2-4GB), Medium (4-8GB), High (8-16GB), Ultra (16+GB).
-    // Quality ladder, expressed in pixel:texel (texels per pixel):
-    //  - pixel_to_texel_ratio is the baseline quality: how many texels per
-    //    screen pixel the tier allocates when VRAM is comfortable (1.0 = 1:1).
-    //    Under pressure the runtime drives the global ratio below this with no
-    //    floor (down to 0 = deepest mips), so there is no per-tier minimum.
+    // Quality ladder, expressed in LINEAR pixel:texel (texels per pixel; a
+    // factor of 2 = one mip). Values are the square roots of the old
+    // area-ratio table, so every tier keeps its exact previous mip behavior.
+    //  - pixel_to_texel_ratio is the baseline quality: how many native texels
+    //    per screen pixel the tier allows when VRAM is comfortable (1.0=1:1).
+    //    Under pressure the runtime drives the global ratio down to the
+    //    unconditional floor (TexturePixelToTexelRatioFloor).
     //  - the channel ratios coarsen specular/emissive/normal relative to base
-    //    color (each is a multiplier on the global ratio).
+    //    color (linear multipliers on the global ratio: 0.7071 = half a mip).
     //  - offscreen_unload_bias (UB) is the behindness (0 = frustum edge,
     //    1 = directly behind) at which out-of-frustum content reaches full
     //    unload: lower tiers slam sooner; High/Ultra (1.0) only reach full
     //    unload directly behind the camera.
+    //  - downrez_bias 0 at Ultra sizes strictly to the most demanding use
+    //    (exact baseline); lower tiers trade toward the oversampled end.
     // The pressure water marks (TexturePressureHighWater/LowWater) are NOT tiered - they're a
     // physical "crossed the budget" threshold (0.90 / 0.70), constant across
     // tiers. Lower tiers start blurrier (lower R_max) and tighten faster.
-    //                            max_res  Rmax   tight  relax  N      BC     S      E       UB     GC     CD     UR
+    // No pressure rates: tighten is predictive (sized by the measured
+    // overage, net of committed frees) and release is metric-gated and
+    // immediate - neither is time-based.
+    // column order matches the TexturePreset fields above
     static constexpr TexturePreset TEXTURE_PRESETS[4] = {
-        /* 0 Low    */ { "Low",    1024,   0.10f, 0.50f, 0.05f, 0.50f, 1.00f, 0.25f, 0.25f,  0.25f,  1.0f,  5.0f,  0.2f },
-        /* 1 Medium */ { "Medium", 2048,   0.40f, 0.35f, 0.08f, 1.00f, 1.00f, 0.50f, 0.50f,  0.50f,  1.0f,  5.0f,  0.2f },
-        /* 2 High   */ { "High",   2048,   0.80f, 0.25f, 0.10f, 1.00f, 1.00f, 0.50f, 1.00f,  1.00f,  2.0f,  5.0f,  0.2f },
-        /* 3 Ultra  */ { "Ultra",  2048,   1.00f, 0.15f, 0.12f, 1.00f, 1.00f, 1.00f, 1.00f,  1.00f,  2.0f,  5.0f,  0.2f },
+        /* 0 Low    */ { "Low",    1024,   0.3162f, 0.01f, 0.1f, 0.7071f, 1.00f, 0.50f,   0.50f,    0.25f,  1.0f,  5.0f,  0.2f, 2.0f,  0.50f, 2u,  0.5f },
+        /* 1 Medium */ { "Medium", 2048,   0.6325f, 0.10f, 0.1f, 1.00f,   1.00f, 0.7071f, 0.7071f,  0.50f,  1.0f,  5.0f,  0.2f, 2.0f,  0.35f, 1u,  1.0f },
+        /* 2 High   */ { "High",   2048,   0.8944f, 0.50f, 0.7f, 1.00f,   1.00f, 0.7071f, 1.00f,    1.00f,  2.0f,  5.0f,  0.2f, 2.0f,  0.25f, 1u,  1.0f },
+        /* 3 Ultra  */ { "Ultra",  2048,   1.00f,   0.75f, 1.0f, 1.00f,   1.00f, 1.00f,   1.00f,    1.00f,  2.0f,  5.0f,  0.2f, 2.0f,  0.00f, 1u,  1.0f },
     };
 }
 
@@ -166,8 +177,8 @@ static bool handleRenderTextureQualityChanged(const LLSD& newvalue)
 
     gSavedSettings.setU32("RenderMaxTextureResolution",     p.max_resolution);
     gSavedSettings.setF32("TexturePixelToTexelRatio",       p.pixel_to_texel_ratio);
-    gSavedSettings.setF32("TexturePressureTightenRate",     p.pressure_tighten_rate);
-    gSavedSettings.setF32("TexturePressureRelaxRate",       p.pressure_relax_rate);
+    gSavedSettings.setF32("TexturePixelToTexelRatioFar",    p.pixel_to_texel_ratio_far);
+    gSavedSettings.setF32("TexturePixelToTexelRatioExponent", p.falloff_exponent);
     gSavedSettings.setF32("TextureChannelRatioNormal",      p.channel_ratio_normal);
     gSavedSettings.setF32("TextureChannelRatioBaseColor",   p.channel_ratio_basecolor);
     gSavedSettings.setF32("TextureChannelRatioSpecular",    p.channel_ratio_specular);
@@ -176,9 +187,21 @@ static bool handleRenderTextureQualityChanged(const LLSD& newvalue)
     gSavedSettings.setF32("TextureGCStepSeconds",           p.gc_step_seconds);
     gSavedSettings.setF32("TextureCooldownStepSeconds",     p.cooldown_step_seconds);
     gSavedSettings.setF32("TextureUpRezMargin",             p.uprez_margin);
+    gSavedSettings.setF32("TextureAvatarBoost",             p.avatar_boost);
+    gSavedSettings.setF32("TextureDownrezCoverageBias",     p.downrez_bias);
+    gSavedSettings.setU32("TextureGCStepMips",              p.gc_step_mips);
+    gSavedSettings.setF32("TextureUnloadDwellSeconds",      p.unload_dwell_seconds);
 
     LL_INFOS("TextureStream") << "Applied texture quality preset: " << p.name << LL_ENDL;
     return true;
+}
+
+// Force the active tier's preset once at startup so persisted settings.xml
+// values can't silently disagree with the table after the linear-units
+// migration (the change-listener never fires when the value is unchanged).
+void applyRenderTextureQualityPreset()
+{
+    handleRenderTextureQualityChanged(LLSD((S32)gSavedSettings.getU32("RenderTextureQuality")));
 }
 
 static bool handleRenderFarClipChanged(const LLSD& newvalue)
@@ -897,7 +920,6 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "OctreeMaxNodeCapacity", handleRepartition);
     setting_setup_signal_listener(gSavedSettings, "OctreeAlphaDistanceFactor", handleRepartition);
     setting_setup_signal_listener(gSavedSettings, "OctreeAttachmentSizeFactor", handleRepartition);
-    setting_setup_signal_listener(gSavedSettings, "RenderMaxTextureIndex", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderUIBuffer", handleWindowResized);
     setting_setup_signal_listener(gSavedSettings, "RenderDepthOfField", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderFSAAType", handleReleaseGLBufferChanged);

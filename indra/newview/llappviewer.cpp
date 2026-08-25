@@ -941,6 +941,9 @@ bool LLAppViewer::init()
     settings_to_globals();
     // Setup settings listeners
     settings_setup_listeners();
+    // Sync the persisted texture-quality settings to the active preset tier
+    // (the change-listener never fires when the stored value is unchanged)
+    applyRenderTextureQualityPreset();
     // Modify settings based on system configuration and compile options
     settings_modify();
 
