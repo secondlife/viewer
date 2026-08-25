@@ -50,6 +50,11 @@ jobs:
   build:
     needs: setup
     strategy:
+      # Deliberate divergence from develop's own workflow: a macOS/Linux failure
+      # shouldn't cancel the Windows job via GitHub's default fail-fast behavior --
+      # this project is Windows-only for now, and Windows results are what actually
+      # matter while macOS/Linux CI isn't a priority.
+      fail-fast: false
       matrix:
         runner: ${{ fromJson((github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge","linux-large"]' || '["windows-2022","macos-15-xlarge","ubuntu-22.04"]') }}
         configuration: ${{ fromJson(needs.setup.outputs.configurations) }}
