@@ -1,14 +1,16 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "cold-streaming-v1",
   "description": "Isolated empty-cache load exposing decode, upload, allocation, and synchronization work.",
   "cache_mode": "cold",
   "capture": {"warmup_seconds": 5, "duration_seconds": 120, "repeats": 5, "poll_interval_seconds": 0.5},
   "settings": {
     "AutoTuneFPS": false,
+    "RenderBenchmarkUIScale": 1.0,
     "RenderDeferred": true,
     "RenderFarClip": 128.0,
     "RenderGLContextCoreProfile": true,
+    "RenderHiDPI": true,
     "RenderReflectionsEnabled": true,
     "RenderShadowDetail": 2,
     "RenderVSyncEnable": false,

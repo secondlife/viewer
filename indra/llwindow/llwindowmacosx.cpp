@@ -1058,6 +1058,24 @@ bool LLWindowMacOSX::getSize(LLCoordWindow *size)
     return (err == noErr);
 }
 
+bool LLWindowMacOSX::getNativeContentSize(LLCoordWindow* size)
+{
+    if (!size || !mWindow)
+    {
+        return false;
+    }
+
+    CGSize native_size = getContentViewRect(mWindow).size;
+    size->mX = ll_round(native_size.width);
+    size->mY = ll_round(native_size.height);
+    return true;
+}
+
+void LLWindowMacOSX::getBackingScale(F32& scale_x, F32& scale_y)
+{
+    ::getBackingScale(mGLView, &scale_x, &scale_y);
+}
+
 bool LLWindowMacOSX::setPosition(const LLCoordScreen position)
 {
     if(mWindow)

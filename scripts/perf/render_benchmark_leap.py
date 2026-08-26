@@ -12,7 +12,13 @@ from typing import Any, Mapping
 
 import llsd
 
-from render_benchmark import SCHEMA_VERSION, canonical_hash, sanitize, summarize_result
+from render_benchmark import (
+    SCHEMA_VERSION,
+    canonical_hash,
+    display_contract_mismatches,
+    sanitize,
+    summarize_result,
+)
 
 
 class ProtocolError(RuntimeError):
@@ -82,6 +88,34 @@ def apply_requested_settings(settings: Mapping[str, Any], api: ViewerAPI) -> Non
             raise ProtocolError(f"could not apply setting {name}: {detail}")
 
 
+def normalize_renderer_display(api: ViewerAPI) -> None:
+    response = api.request("LLStats", {"op": "normalizeRendererDisplay"})
+    if not isinstance(response, Mapping) or response.get("error") or not response.get("accepted"):
+        detail = response.get("error") if isinstance(response, Mapping) else "no response map"
+        raise ProtocolError(f"could not normalize renderer display: {detail}")
+
+
+def wait_for_display_contract(
+    settings: Mapping[str, Any],
+    api: ViewerAPI,
+    timeout_seconds: float,
+    poll_interval: float,
+) -> Mapping[str, Any]:
+    deadline = time.monotonic() + timeout_seconds
+    mismatches: list[str] = []
+    while time.monotonic() < deadline:
+        stats = api.perf_data()
+        context = stats.get("renderer_context", {})
+        if isinstance(context, Mapping):
+            mismatches = display_contract_mismatches(
+                context, settings.get("RenderBenchmarkUIScale")
+            )
+            if not mismatches:
+                return stats
+        time.sleep(poll_interval)
+    raise ProtocolError("renderer display contract did not settle: " + "; ".join(mismatches))
+
+
 def _merge_frames(target: dict[int, dict[str, Any]], stats: Mapping[str, Any], after: int) -> None:
     for raw_frame in stats.get("renderer_frames", []):
         if not isinstance(raw_frame, Mapping) or not isinstance(raw_frame.get("frame_number"), (int, float)):
@@ -140,6 +174,13 @@ def collect(config: Mapping[str, Any], api: ViewerAPI) -> dict[str, Any]:
     if not isinstance(requested_settings, Mapping):
         raise ProtocolError("requested_settings is not a map")
     apply_requested_settings(requested_settings, api)
+    normalize_renderer_display(api)
+    latest_stats = wait_for_display_contract(
+        requested_settings,
+        api,
+        min(10.0, float(config["startup_timeout_seconds"])),
+        poll_interval,
+    )
 
     warmup_deadline = time.monotonic() + float(run["warmup_seconds"])
     while time.monotonic() < warmup_deadline:

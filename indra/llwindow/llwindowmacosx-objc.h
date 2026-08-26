@@ -112,6 +112,7 @@ void glSwapBuffers(void* context);
 CGLContextObj getCGLContextObj(GLViewRef view);
 unsigned long getVramSize(GLViewRef view);
 float getDeviceUnitSize(GLViewRef view);
+void getBackingScale(GLViewRef view, float* scale_x, float* scale_y);
 CGRect getContentViewRect(NSWindowRef window);
 CGRect getBackingViewRect(NSWindowRef window, GLViewRef view);
 void getWindowSize(NSWindowRef window, float* size);

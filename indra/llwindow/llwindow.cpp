@@ -125,6 +125,33 @@ LLWindow::LLWindow(LLWindowCallbacks* callbacks, bool fullscreen, U32 flags)
 {
 }
 
+bool LLWindow::getNativeContentSize(LLCoordWindow* size)
+{
+    LLCoordWindow backing_size;
+    if (!size || !getSize(&backing_size))
+    {
+        return false;
+    }
+
+    F32 scale_x;
+    F32 scale_y;
+    getBackingScale(scale_x, scale_y);
+    if (scale_x <= 0.f || scale_y <= 0.f)
+    {
+        return false;
+    }
+
+    size->mX = ll_round((F32)backing_size.mX / scale_x);
+    size->mY = ll_round((F32)backing_size.mY / scale_y);
+    return true;
+}
+
+void LLWindow::getBackingScale(F32& scale_x, F32& scale_y)
+{
+    scale_x = getSystemUISize();
+    scale_y = scale_x;
+}
+
 LLWindow::~LLWindow()
 {
 }

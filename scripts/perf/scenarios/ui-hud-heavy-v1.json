@@ -1,14 +1,16 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "ui-hud-heavy-v1",
   "description": "Repeatable UI, text, HUD attachment, and media composition workload.",
   "cache_mode": "warm",
   "capture": {"warmup_seconds": 30, "duration_seconds": 120, "repeats": 5, "poll_interval_seconds": 0.5},
   "settings": {
     "AutoTuneFPS": false,
+    "RenderBenchmarkUIScale": 1.0,
     "RenderDeferred": true,
     "RenderFarClip": 128.0,
     "RenderGLContextCoreProfile": true,
+    "RenderHiDPI": true,
     "RenderReflectionsEnabled": true,
     "RenderShadowDetail": 2,
     "RenderVSyncEnable": false,

@@ -34,10 +34,13 @@
 #if defined(LL_RENDER_BENCHMARK)
 #include "llappviewer.h"
 #include "llgl.h"
+#include "llpanel.h"
 #include "llrender.h"
 #include "llstartup.h"
 #include "llviewercontrol.h"
 #include "llviewershadermgr.h"
+#include "llviewerwindow.h"
+#include "llwindow.h"
 #include "pipeline.h"
 
 #include <thread>
@@ -192,8 +195,29 @@ LLSD getRendererContext()
     {
         context["opengl_profile"] = LLRender::sGLCoreProfile ? "core" : "compatibility";
     }
-    context["width"] = viewer_info["WINDOW_WIDTH"];
-    context["height"] = viewer_info["WINDOW_HEIGHT"];
+    LLCoordWindow backing_size;
+    LLCoordWindow logical_size;
+    F32 backing_scale_x = 0.f;
+    F32 backing_scale_y = 0.f;
+    LLWindow* window = gViewerWindow ? gViewerWindow->getWindow() : nullptr;
+    if (window)
+    {
+        window->getSize(&backing_size);
+        window->getNativeContentSize(&logical_size);
+        window->getBackingScale(backing_scale_x, backing_scale_y);
+    }
+    context["width"] = backing_size.mX;
+    context["height"] = backing_size.mY;
+    context["backing_width"] = backing_size.mX;
+    context["backing_height"] = backing_size.mY;
+    context["logical_width"] = logical_size.mX;
+    context["logical_height"] = logical_size.mY;
+    context["backing_scale_x"] = backing_scale_x;
+    context["backing_scale_y"] = backing_scale_y;
+    context["configured_ui_scale"] = gSavedSettings.getF32("UIScaleFactor");
+    const LLVector2 display_scale = gViewerWindow ? gViewerWindow->getDisplayScale() : LLVector2::zero;
+    context["effective_display_scale_x"] = display_scale.mV[VX];
+    context["effective_display_scale_y"] = display_scale.mV[VY];
     context["gpu_vram_mb"] = (LLSD::Integer)gGLManager.mVRAM;
     context["shader_level"] = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED);
 
@@ -227,6 +251,8 @@ LLSD getRendererContext()
     settings["RenderVolumeLODFactor"] = gSavedSettings.getF32("RenderVolumeLODFactor");
     settings["RenderQualityPerformance"] = (LLSD::Integer)gSavedSettings.getU32("RenderQualityPerformance");
     settings["RenderGLContextCoreProfile"] = LLRender::sGLCoreProfile;
+    settings["RenderBenchmarkUIScale"] = gSavedSettings.getF32("RenderBenchmarkUIScale");
+    settings["RenderHiDPI"] = gSavedSettings.getBOOL("RenderHiDPI");
     settings["WindowHeight"] = (LLSD::Integer)gSavedSettings.getU32("WindowHeight");
     settings["WindowMaximized"] = gSavedSettings.getBOOL("WindowMaximized");
     settings["WindowWidth"] = (LLSD::Integer)gSavedSettings.getU32("WindowWidth");
@@ -248,7 +274,47 @@ LLStatsListener::LLStatsListener()
         "Reply contains [\"stats\"] with nested group maps.",
         &LLStatsListener::getPerfData,
         llsd::map("reply", LLSD()));
+#if defined(LL_RENDER_BENCHMARK)
+    add("normalizeRendererDisplay",
+        "Apply the renderer benchmark display scale after native window attachment.",
+        &LLStatsListener::normalizeRendererDisplay,
+        llsd::map("reply", LLSD()));
+#endif
 }
+
+#if defined(LL_RENDER_BENCHMARK)
+void LLStatsListener::normalizeRendererDisplay(LLSD const& evt)
+{
+    LLEventAPI::Response response(LLSD(), evt);
+    if (!gViewerWindow || !gViewerWindow->getWindow())
+    {
+        return response.error("renderer window is not available");
+    }
+
+    // The factual Cocoa backing scale is only stable after the native window
+    // is attached. Reflow with the window's backing dimensions because the
+    // viewer's cached raw rectangle can still contain Cocoa logical points.
+    LLCoordWindow backing_size;
+    if (!gViewerWindow->getWindow()->getSize(&backing_size))
+    {
+        return response.error("renderer backing size is not available");
+    }
+    const LLCoordWindow requested_size(
+        gSavedSettings.getU32("WindowWidth"),
+        gSavedSettings.getU32("WindowHeight"));
+    if ((backing_size.mX != requested_size.mX || backing_size.mY != requested_size.mY) &&
+        !gViewerWindow->getWindow()->setSize(requested_size))
+    {
+        return response.error("renderer backing size could not be applied");
+    }
+    if (!gViewerWindow->getWindow()->getSize(&backing_size))
+    {
+        return response.error("renderer backing size is not available after resize");
+    }
+    gViewerWindow->reshape(backing_size.mX, backing_size.mY);
+    response["accepted"] = true;
+}
+#endif
 
 void LLStatsListener::getPerfData(LLSD const & evt)
 {
@@ -265,7 +331,7 @@ void LLStatsListener::getPerfData(LLSD const & evt)
     stats["total_periods_duration"] = total_duration;
     stats["num_periods"] = (LLSD::Integer)num_periods;
 #if defined(LL_RENDER_BENCHMARK)
-    stats["renderer_schema_version"] = 1;
+    stats["renderer_schema_version"] = 2;
     stats["renderer_ready"] = LLStartUp::getStartupState() == STATE_STARTED;
     stats["renderer_context"] = getRendererContext();
     stats["renderer_frames"] = collectRendererFrames(recording, num_periods);

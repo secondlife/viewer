@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llviewerwindow.h"
+#include "llbenchmarkdisplay.h"
 
 
 // system library includes
@@ -261,6 +262,26 @@ static const F32 MIN_DISPLAY_SCALE = 0.75f;
 static const char KEY_MOUSELOOK = 'M';
 
 LLTrace::SampleStatHandle<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
+
+#if defined(LL_RENDER_BENCHMARK)
+namespace
+{
+void applyBenchmarkUIScale(LLWindow* window)
+{
+    const F32 target_scale = gSavedSettings.getF32("RenderBenchmarkUIScale");
+    const F32 current_scale = gSavedSettings.getF32("UIScaleFactor");
+    F32 backing_scale_x = 0.f;
+    F32 backing_scale_y = 0.f;
+    window->getBackingScale(backing_scale_x, backing_scale_y);
+    const F32 configured_scale = LLBenchmarkDisplay::configuredUIScale(
+        current_scale, target_scale, backing_scale_x);
+    if (configured_scale != current_scale)
+    {
+        gSavedSettings.setF32("UIScaleFactor", configured_scale);
+    }
+}
+}
+#endif
 
 
 class RecordToChatConsoleRecorder : public LLError::Recorder
@@ -2046,6 +2067,10 @@ LLViewerWindow::LLViewerWindow(const Params& p)
             << " ResetUIScaleOnFirstRun=" << gSavedSettings.getBOOL("ResetUIScaleOnFirstRun")
             << LL_ENDL;
     }
+
+#if defined(LL_RENDER_BENCHMARK)
+    applyBenchmarkUIScale(mWindow);
+#endif
 
     // Get the real window rect the window was created with (since there are various OS-dependent reasons why
     // the size of a window or fullscreen context may have been adjusted slightly...)
@@ -6087,6 +6112,9 @@ F32 LLViewerWindow::getWorldViewAspectRatio() const
 
 void LLViewerWindow::calcDisplayScale()
 {
+#if defined(LL_RENDER_BENCHMARK)
+    applyBenchmarkUIScale(mWindow);
+#endif
     F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor") * mWindow->getSystemUISize(), MIN_UI_SCALE, MAX_UI_SCALE);
     LLVector2 display_scale;
     display_scale.setVec(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));

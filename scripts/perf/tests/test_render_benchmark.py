@@ -22,7 +22,7 @@ import render_benchmark_leap as collector
 
 class RendererBenchmarkTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.fixture = benchmark.load_json(PERF_DIR / "fixtures" / "renderer-result-v1.json")
+        self.fixture = benchmark.load_json(PERF_DIR / "fixtures" / "renderer-result-v2.json")
 
     def test_all_scenario_manifests_validate(self) -> None:
         manifests = sorted((PERF_DIR / "scenarios").glob("*.json"))
@@ -44,6 +44,22 @@ class RendererBenchmarkTests(unittest.TestCase):
         manifest = benchmark.load_json(PERF_DIR / "scenarios" / "steady-warm-v1.json")
         del manifest["capture"]["duration_seconds"]
         with self.assertRaisesRegex(benchmark.BenchmarkError, "duration_seconds"):
+            benchmark.validate_manifest(manifest)
+
+    def test_manifest_requires_normalized_display_contract(self) -> None:
+        manifest = benchmark.load_json(PERF_DIR / "scenarios" / "steady-warm-v1.json")
+        manifest["settings"]["WindowWidth"] = 1920
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "display contract mismatch"):
+            benchmark.validate_manifest(manifest)
+
+        manifest["settings"]["WindowWidth"] = benchmark.BENCHMARK_BACKING_WIDTH
+        manifest["settings"]["UIScaleFactor"] = 0.5
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "must be derived"):
+            benchmark.validate_manifest(manifest)
+
+        del manifest["settings"]["UIScaleFactor"]
+        manifest["settings"]["RenderHiDPI"] = False
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "RenderHiDPI"):
             benchmark.validate_manifest(manifest)
 
     def test_percentile_uses_linear_interpolation(self) -> None:
@@ -89,6 +105,22 @@ class RendererBenchmarkTests(unittest.TestCase):
             api.requests,
         )
 
+    def test_collector_requests_display_normalization_after_startup(self) -> None:
+        class FakeAPI:
+            def __init__(self) -> None:
+                self.requests: list[tuple[str, dict[str, object]]] = []
+
+            def request(self, pump: str, data: dict[str, object]) -> dict[str, object]:
+                self.requests.append((pump, data))
+                return {"accepted": True}
+
+        api = FakeAPI()
+        collector.normalize_renderer_display(api)
+        self.assertEqual(
+            [("LLStats", {"op": "normalizeRendererDisplay"})],
+            api.requests,
+        )
+
     def test_runner_rejects_zero_repeats(self) -> None:
         parser = benchmark.build_parser()
         with tempfile.TemporaryDirectory() as temp_name:
@@ -124,6 +156,23 @@ class RendererBenchmarkTests(unittest.TestCase):
             benchmark.validate_result(invalid)
         benchmark.validate_result(invalid, require_valid=False)
 
+    def test_old_result_schema_is_rejected(self) -> None:
+        old = copy.deepcopy(self.fixture)
+        old["schema_version"] = 1
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "unsupported result schema 1"):
+            benchmark.validate_result(old)
+
+    def test_result_requires_display_geometry(self) -> None:
+        missing = copy.deepcopy(self.fixture)
+        del missing["context"]["backing_scale_x"]
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "backing_scale_x"):
+            benchmark.validate_result(missing)
+
+        malformed = copy.deepcopy(self.fixture)
+        malformed["context"]["logical_width"] = "640"
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "logical_width"):
+            benchmark.validate_result(malformed)
+
     def test_result_must_match_requested_settings_and_resolution(self) -> None:
         manifest = benchmark.load_json(PERF_DIR / "scenarios" / "steady-warm-v1.json")
         result = copy.deepcopy(self.fixture)
@@ -139,6 +188,33 @@ class RendererBenchmarkTests(unittest.TestCase):
         with self.assertRaisesRegex(benchmark.BenchmarkError, "RenderFarClip=64.0"):
             benchmark.validate_result_against_manifest(result, manifest)
 
+    def test_display_contract_accepts_1x_and_2x_geometry(self) -> None:
+        manifest = benchmark.load_json(PERF_DIR / "scenarios" / "steady-warm-v1.json")
+        retina = copy.deepcopy(self.fixture)
+        retina["context"]["effective_settings"] = copy.deepcopy(manifest["settings"])
+        benchmark.validate_result_against_manifest(retina, manifest)
+
+        standard = copy.deepcopy(retina)
+        standard["context"].update({
+            "backing_scale_x": 1.0,
+            "backing_scale_y": 1.0,
+            "configured_ui_scale": 1.0,
+            "logical_width": 1280,
+            "logical_height": 720,
+        })
+        benchmark.validate_result_against_manifest(standard, manifest)
+
+    def test_display_contract_rejects_scale_and_geometry_mismatches(self) -> None:
+        manifest = benchmark.load_json(PERF_DIR / "scenarios" / "steady-warm-v1.json")
+        result = copy.deepcopy(self.fixture)
+        result["context"]["effective_settings"] = copy.deepcopy(manifest["settings"])
+        result["context"]["effective_display_scale_x"] = 2.0
+        result["context"]["logical_height"] = 720
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "effective_display_scale_x"):
+            benchmark.validate_result_against_manifest(result, manifest)
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "logical y geometry"):
+            benchmark.validate_result_against_manifest(result, manifest)
+
     def test_comparison_rejects_changed_context(self) -> None:
         changed = copy.deepcopy(self.fixture)
         changed["context"]["width"] = 1920
@@ -146,6 +222,11 @@ class RendererBenchmarkTests(unittest.TestCase):
         mismatches = benchmark.comparison_mismatches([self.fixture, changed])
         self.assertIn("context.width", mismatches)
         self.assertIn("run.settings_hash", mismatches)
+
+        changed_scale = copy.deepcopy(self.fixture)
+        changed_scale["context"]["backing_scale_x"] = 1.0
+        mismatches = benchmark.comparison_mismatches([self.fixture, changed_scale])
+        self.assertIn("context.backing_scale_x", mismatches)
 
     def test_comparison_allows_extension_difference_between_backends_only(self) -> None:
         zink = copy.deepcopy(self.fixture)

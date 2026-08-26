@@ -800,6 +800,7 @@ set(viewer_HEADER_FILES
     llavatarpropertiesprocessor.h
     llavatarrenderinfoaccountant.h
     llavatarrendernotifier.h
+    llbenchmarkdisplay.h
     llblockedlistitem.h
     llblocklist.h
     llbox.h
@@ -1810,12 +1811,14 @@ if (LL_RENDER_BENCHMARK)
       llappviewer.cpp
       llstatslistener.cpp
       llviewerdisplay.cpp
+      llviewerwindow.cpp
       llviewerstats.cpp
       APPEND PROPERTY COMPILE_DEFINITIONS LL_RENDER_BENCHMARK=1)
   set_property(SOURCE
       llappviewer.cpp
       llstatslistener.cpp
       llviewerdisplay.cpp
+      llviewerwindow.cpp
       PROPERTY SKIP_PRECOMPILE_HEADERS ON)
 endif()
 
@@ -2486,6 +2489,11 @@ if (LL_TESTS)
 
   #set(TEST_DEBUG on)
   LL_ADD_INTEGRATION_TEST(cppfeatures
+    ""
+    "${test_libs}"
+  )
+
+  LL_ADD_INTEGRATION_TEST(llbenchmarkdisplay
     ""
     "${test_libs}"
   )

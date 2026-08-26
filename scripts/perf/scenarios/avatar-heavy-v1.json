@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "avatar-heavy-v1",
   "description": "Controlled crowd view stressing avatar updates, skinning, attachments, and impostors.",
   "cache_mode": "warm",
@@ -7,9 +7,11 @@
   "settings": {
     "AutoTuneFPS": false,
     "RenderAvatarMaxNonImpostors": 16,
+    "RenderBenchmarkUIScale": 1.0,
     "RenderDeferred": true,
     "RenderFarClip": 128.0,
     "RenderGLContextCoreProfile": true,
+    "RenderHiDPI": true,
     "RenderReflectionsEnabled": true,
     "RenderShadowDetail": 2,
     "RenderVSyncEnable": false,

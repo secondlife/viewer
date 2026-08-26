@@ -1,22 +1,24 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "id": "gpu-pass-heavy-v1",
   "description": "High-fill view for shadows, reflection probes, deferred lighting, and bandwidth pressure.",
   "cache_mode": "warm",
   "capture": {"warmup_seconds": 30, "duration_seconds": 120, "repeats": 5, "poll_interval_seconds": 0.5},
   "settings": {
     "AutoTuneFPS": false,
+    "RenderBenchmarkUIScale": 1.0,
     "RenderDeferred": true,
     "RenderFarClip": 256.0,
     "RenderGLContextCoreProfile": true,
+    "RenderHiDPI": true,
     "RenderReflectionProbeDetail": 2,
     "RenderReflectionsEnabled": true,
     "RenderShadowDetail": 2,
     "RenderVSyncEnable": false,
     "RenderVolumeLODFactor": 2.0,
-    "WindowHeight": 1080,
+    "WindowHeight": 720,
     "WindowMaximized": false,
-    "WindowWidth": 1920,
+    "WindowWidth": 1280,
     "YieldTime": -1
   },
   "workload": {

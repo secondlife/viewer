@@ -264,6 +264,13 @@ float getDeviceUnitSize(GLViewRef view)
     return [(LLOpenGLView*)view convertSizeToBacking:NSMakeSize(1, 1)].width;
 }
 
+void getBackingScale(GLViewRef view, float* scale_x, float* scale_y)
+{
+    NSSize backing_size = [(LLOpenGLView*)view convertSizeToBacking:NSMakeSize(1, 1)];
+    *scale_x = backing_size.width;
+    *scale_y = backing_size.height;
+}
+
 CGRect getContentViewRect(NSWindowRef window)
 {
     return [[(LLNSWindow*)window contentView] bounds];

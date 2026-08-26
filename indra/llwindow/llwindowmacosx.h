@@ -52,6 +52,8 @@ public:
     bool getPosition(LLCoordScreen *position) override;
     bool getSize(LLCoordScreen *size) override;
     bool getSize(LLCoordWindow *size) override;
+    bool getNativeContentSize(LLCoordWindow *size) override;
+    void getBackingScale(F32& scale_x, F32& scale_y) override;
     bool setPosition(LLCoordScreen position) override;
     bool setSizeImpl(LLCoordScreen size) override;
     bool setSizeImpl(LLCoordWindow size) override;

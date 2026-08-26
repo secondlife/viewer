@@ -14,6 +14,16 @@ This benchmark classifies frame-time regressions before renderer fixes or a Vulk
 
 The six versioned manifests under `scripts/perf/scenarios/` cover steady warm cache, cold streaming, avatars, draw and alpha pressure, GPU-heavy passes, and UI/HUD composition. A location is supplied with `--slurl`; it is never copied into the output.
 
+### Display contract
+
+Schema version 2 fixes the benchmark render surface at 1280×720 backing pixels and the effective viewer UI scale at 1.0. Every checked-in scenario declares `RenderHiDPI: true`, `RenderBenchmarkUIScale: 1.0`, `WindowWidth: 1280`, `WindowHeight: 720`, and `WindowMaximized: false`. A scenario must not declare `UIScaleFactor`; the viewer derives that configured factor from the backing scale detected after window creation. Making HiDPI explicit ensures a fresh isolated profile exercises Retina backing on supported hardware instead of inheriting a local default.
+
+On a 1× display, the configured UI factor is 1.0. On a 2× Retina display, it is 0.5. Both produce an effective display scale of 1.0 without changing the existing meaning of `context.width` and `context.height`, which remain backing pixels. The result also records explicit backing and logical dimensions, backing scale on both axes, the configured UI factor, and the final effective display scale on both axes.
+
+The runner rejects a result when any explicit backing dimension differs from the legacy backing dimension or manifest, when logical size multiplied by backing scale does not reconstruct the backing size, when the configured factor does not produce the requested scale, or when the final display scale differs from the request. These fields must also match across repeated results. Schema version 1 results are not accepted by the version 2 runner or reporter.
+
+`RenderBenchmarkUIScale` defaults to zero, is not persisted, and has an effect only in a build compiled with `LL_RENDER_BENCHMARK`. Ordinary builds and non-benchmark launches retain the normal platform UI-scale behavior.
+
 ## Running
 
 Configure the viewer with `-DLL_RENDER_BENCHMARK:BOOL=ON`. The option defaults to `OFF`; ordinary builds therefore compile out the added phase timers, resource-counter updates, and benchmark LLLeap payload. The collector is an LLLeap child process. Do not use `--noninteractive`: that viewer mode intentionally skips world rendering.
@@ -114,7 +124,7 @@ rm -r -- "$isolated_root"
 
 Snapshot the normal profile and cache metadata before and after this check. The isolated profile should contain `data`, `logs`, `user_settings`, `browser_profile`, and `cache`, and the temporary root should be removed afterward.
 
-For an authenticated launch and export smoke, create a short manifest outside the repository from `steady-warm-v1.json`. Use a short warm-up, a short capture, and one measured repeat. Validate it before launching. Supply the credential file and controlled destination separately.
+For an authenticated launch and export smoke, create a short manifest outside the repository from `steady-warm-v1.json`. Change only the capture duration and repeat count. Keep the version 2 display settings unchanged. Use a short warm-up, a short capture, and one measured repeat. The warm scenario runs one unmeasured prime followed by the measured capture. Validate the temporary manifest before launching. Supply the credential file and controlled destination separately.
 
 ```zsh
 chmod 600 /secure/path/benchmark-account.txt
@@ -136,20 +146,20 @@ python3 scripts/perf/render_benchmark.py validate \
   result /private/tmp/renderer-smoke/RESULT.json
 ```
 
-The smoke validates app launch, native OpenGL selection, and schema export only. It is not performance evidence. First-use UI, an unresolved destination, asset streaming, focus changes, or an unsettled scene invalidate its timing data.
+The smoke validates app launch, native OpenGL selection, version 2 geometry export, and ordinary-looking UI coverage only. It is not performance evidence and its timing fields must be discarded. First-use UI, an unresolved destination, asset streaming, focus changes, or an unsettled scene invalidate any timing interpretation.
 
 The runner sets `SECONDLIFE_USER_DIR` and creates session settings, cache, logs, and account data inside a private per-invocation temporary directory. It does not read or alter the normal viewer profile, and the isolated data is removed after the sequence exits. Cold-cache repeats receive separate state and purge before startup. Warm-cache sequences first run one unmeasured full-duration prime, then reuse that isolated profile and cache for all measured repeats. The prime is validated but its artifact is discarded. First-install UI, notifications, audio, and voice are disabled for benchmark sessions so they cannot cover the workload or crash a headless test host.
 
-After the viewer reaches its started state, the LLLeap collector reapplies the requested scenario settings. This ordering prevents hardware feature-table initialization from replacing explicit benchmark controls. Every prime and measured result is rejected if an effective setting differs from the manifest. A non-maximized result is also rejected unless its actual backing-pixel width and height exactly match the requested resolution. On macOS, the XIB-owned app window converts requested backing pixels to Cocoa content dimensions so Retina scaling does not change the rendered resolution.
+After the viewer reaches its started state, the LLLeap collector reapplies the requested scenario settings. This ordering prevents hardware feature-table initialization from replacing explicit benchmark controls. Every prime and measured result is rejected if an effective setting differs from the manifest. A non-maximized result is also rejected unless its actual backing-pixel width and height exactly match the requested resolution. On macOS, the XIB-owned app window converts requested backing pixels to Cocoa content dimensions so Retina scaling does not change the rendered resolution. The benchmark-only display target then normalizes the viewer UI scale from the detected backing scale.
 
 ## Result and comparison rules
 
-Raw artifacts use `renderer-benchmark-result.schema.json`, schema version 1. Each valid result contains:
+Raw artifacts use `renderer-benchmark-result.schema.json`, schema version 2. Each valid result contains:
 
 - scenario, repeat, cache mode, requested settings hash, and manifest hash;
 - viewer version, source commit, tracked-diff hash/dirty state, build type, OS, CPU and logical-core count;
 - operator hardware label, GPU, driver, reported VRAM, requested and detected backend;
-- OpenGL version/profile, limits, extension set and hash, shader level, feature flags, actual settings and hash, and resolution;
+- OpenGL version/profile, limits, extension set and hash, shader level, feature flags, actual settings and hash, backing resolution, logical content size, backing scale, configured UI factor, and effective display scale;
 - per-frame median inputs plus p95, p99, worst frame and 1 percent low FPS;
 - geometry creation, partition, geometry update, culling, shadows/impostors, texture work, state sort, rebuild, GL submission, deferred lighting, UI/HUD, swap, idle, and unclassified CPU time;
 - draw count, batch size, triangles, shader program changes, texture uploads, texture readbacks, explicit texture synchronization, shader compilation, and tracked texture memory.
@@ -197,7 +207,7 @@ The C++ event API selects safe fields from viewer information rather than export
 ```bash
 python3 -m unittest discover -s scripts/perf/tests -v
 python3 scripts/perf/render_benchmark.py validate manifest scripts/perf/scenarios/steady-warm-v1.json
-python3 scripts/perf/render_benchmark.py validate result scripts/perf/fixtures/renderer-result-v1.json
+python3 scripts/perf/render_benchmark.py validate result scripts/perf/fixtures/renderer-result-v2.json
 ```
 
-The tests cover all manifests, missing contract fields, percentile calculations, resource deltas, invalid data, comparison mismatches, recursive privacy filtering, the checked-in fixture, and the no-secret dry-run path.
+The tests cover all manifests, the 1× and 2× scale contract, missing geometry, schema version rejection, scale and resolution mismatches, comparison drift, percentile calculations, resource deltas, invalid data, recursive privacy filtering, the checked-in fixture, and the no-secret dry-run path. A focused C++ integration test proves the scale derivation and the disabled normal-launch path.

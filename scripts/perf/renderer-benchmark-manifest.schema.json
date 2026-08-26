@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://secondlife.com/schemas/renderer-benchmark-manifest-v1.json",
+  "$id": "https://secondlife.com/schemas/renderer-benchmark-manifest-v2.json",
   "title": "Second Life renderer benchmark manifest",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "id", "description", "cache_mode", "capture", "settings", "workload"],
   "properties": {
-    "schema_version": {"const": 1},
+    "schema_version": {"const": 2},
     "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]+$"},
     "description": {"type": "string", "minLength": 1},
     "cache_mode": {"enum": ["warm", "cold"]},
@@ -21,7 +21,18 @@
         "poll_interval_seconds": {"type": "number", "exclusiveMinimum": 0}
       }
     },
-    "settings": {"type": "object"},
+    "settings": {
+      "type": "object",
+      "required": ["RenderBenchmarkUIScale", "RenderHiDPI", "WindowHeight", "WindowMaximized", "WindowWidth"],
+      "properties": {
+        "RenderBenchmarkUIScale": {"const": 1.0},
+        "RenderHiDPI": {"const": true},
+        "UIScaleFactor": false,
+        "WindowHeight": {"const": 720},
+        "WindowMaximized": {"const": false},
+        "WindowWidth": {"const": 1280}
+      }
+    },
     "workload": {
       "type": "object",
       "additionalProperties": false,

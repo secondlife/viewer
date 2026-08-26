@@ -36,6 +36,7 @@ public:
 
 private:
     void getPerfData(LLSD const & evt);
+    void normalizeRendererDisplay(LLSD const& evt);
 };
 
 #endif // LL_LLSTATSLISTENER_H

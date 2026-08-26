@@ -12712,6 +12712,17 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <key>RenderBenchmarkUIScale</key>
+    <map>
+      <key>Comment</key>
+      <string>Effective UI scale required by a benchmark session; zero disables benchmark normalization</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
     <key>UIScrollbarSize</key>
     <map>
       <key>Comment</key>

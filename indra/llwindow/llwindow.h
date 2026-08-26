@@ -80,6 +80,10 @@ public:
     virtual bool getPosition(LLCoordScreen *position) = 0;
     virtual bool getSize(LLCoordScreen *size) = 0;
     virtual bool getSize(LLCoordWindow *size) = 0;
+    // Native content dimensions are logical display units. getSize() remains
+    // the backing-pixel size used by the renderer.
+    virtual bool getNativeContentSize(LLCoordWindow *size);
+    virtual void getBackingScale(F32& scale_x, F32& scale_y);
     virtual bool setPosition(LLCoordScreen position) = 0;
     bool setSize(LLCoordScreen size);
     bool setSize(LLCoordWindow size);

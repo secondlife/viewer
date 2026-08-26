@@ -20,9 +20,13 @@ from typing import Any, Iterable, Mapping, Sequence
 import xml.etree.ElementTree as ET
 
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 DEFAULT_STARTUP_TIMEOUT_SECONDS = 180
 MIN_COMPARISON_REPEATS = 5
+BENCHMARK_BACKING_WIDTH = 1280
+BENCHMARK_BACKING_HEIGHT = 720
+BENCHMARK_EFFECTIVE_UI_SCALE = 1.0
+DISPLAY_SCALE_TOLERANCE = 1e-4
 OPERATIONAL_SETTINGS = {
     "AllowMultipleViewers": True,
     "FirstLoginThisInstall": False,
@@ -37,10 +41,17 @@ OPERATIONAL_SWITCHES = (
 )
 REQUIRED_CONTEXT_FIELDS = {
     "backend_label",
+    "backing_height",
+    "backing_scale_x",
+    "backing_scale_y",
+    "backing_width",
     "build_type",
+    "configured_ui_scale",
     "cpu",
     "detected_backend",
     "driver",
+    "effective_display_scale_x",
+    "effective_display_scale_y",
     "effective_settings",
     "git_commit",
     "git_diff_hash",
@@ -50,6 +61,8 @@ REQUIRED_CONTEXT_FIELDS = {
     "hardware_label",
     "height",
     "logical_core_count",
+    "logical_height",
+    "logical_width",
     "opengl_profile",
     "opengl_version",
     "os",
@@ -68,6 +81,15 @@ COMPARISON_FIELDS = (
     ("context", "build_type"),
     ("context", "width"),
     ("context", "height"),
+    ("context", "backing_width"),
+    ("context", "backing_height"),
+    ("context", "logical_width"),
+    ("context", "logical_height"),
+    ("context", "backing_scale_x"),
+    ("context", "backing_scale_y"),
+    ("context", "configured_ui_scale"),
+    ("context", "effective_display_scale_x"),
+    ("context", "effective_display_scale_y"),
     ("instrumentation", "mode"),
 )
 PRIVATE_KEYS = {
@@ -172,6 +194,23 @@ def validate_manifest(manifest: Mapping[str, Any]) -> None:
             raise BenchmarkError(f"capture.{field} must be positive")
     if not isinstance(manifest["settings"], Mapping):
         raise BenchmarkError("settings must be an object")
+    settings = manifest["settings"]
+    expected_settings = {
+        "WindowWidth": BENCHMARK_BACKING_WIDTH,
+        "WindowHeight": BENCHMARK_BACKING_HEIGHT,
+        "WindowMaximized": False,
+        "RenderBenchmarkUIScale": BENCHMARK_EFFECTIVE_UI_SCALE,
+        "RenderHiDPI": True,
+    }
+    display_mismatches = [
+        f"{name}={settings.get(name)!r}, required {expected!r}"
+        for name, expected in expected_settings.items()
+        if settings.get(name) != expected
+    ]
+    if "UIScaleFactor" in settings:
+        display_mismatches.append("UIScaleFactor must be derived from the detected backing scale")
+    if display_mismatches:
+        raise BenchmarkError("manifest display contract mismatch: " + "; ".join(display_mismatches))
     if find_private_paths(manifest):
         raise BenchmarkError("manifest contains a private field; locations and credentials are operator input")
 
@@ -242,6 +281,83 @@ def summarize_result(result: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def _is_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def display_contract_mismatches(context: Mapping[str, Any], target_scale: Any) -> list[str]:
+    mismatches: list[str] = []
+    dimension_fields = (
+        "width",
+        "height",
+        "backing_width",
+        "backing_height",
+        "logical_width",
+        "logical_height",
+    )
+    for field in dimension_fields:
+        value = context.get(field)
+        if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+            mismatches.append(f"actual {field}={value!r}, required a positive integer")
+
+    for explicit, legacy in (("backing_width", "width"), ("backing_height", "height")):
+        if context.get(explicit) != context.get(legacy):
+            mismatches.append(f"{explicit}={context.get(explicit)!r}, {legacy}={context.get(legacy)!r}")
+    for field, expected in (
+        ("backing_width", BENCHMARK_BACKING_WIDTH),
+        ("backing_height", BENCHMARK_BACKING_HEIGHT),
+    ):
+        if context.get(field) != expected:
+            mismatches.append(f"actual {field}={context.get(field)!r}, required {expected!r}")
+
+    numeric_fields = (
+        "backing_scale_x",
+        "backing_scale_y",
+        "configured_ui_scale",
+        "effective_display_scale_x",
+        "effective_display_scale_y",
+    )
+    for field in numeric_fields:
+        value = context.get(field)
+        if not _is_number(value) or value <= 0:
+            mismatches.append(f"actual {field}={value!r}, required a positive number")
+
+    if not _is_number(target_scale) or target_scale <= 0:
+        mismatches.append(f"effective RenderBenchmarkUIScale={target_scale!r}, required a positive number")
+    else:
+        for axis in ("x", "y"):
+            backing_scale = context.get(f"backing_scale_{axis}")
+            configured_scale = context.get("configured_ui_scale")
+            effective_scale = context.get(f"effective_display_scale_{axis}")
+            if _is_number(backing_scale) and _is_number(configured_scale):
+                derived_scale = float(backing_scale) * float(configured_scale)
+                if not math.isclose(derived_scale, float(target_scale), abs_tol=DISPLAY_SCALE_TOLERANCE):
+                    mismatches.append(
+                        f"configured UI scale produces {derived_scale!r} on {axis}, requested {target_scale!r}"
+                    )
+            if _is_number(effective_scale) and not math.isclose(
+                float(effective_scale), float(target_scale), abs_tol=DISPLAY_SCALE_TOLERANCE
+            ):
+                mismatches.append(
+                    f"actual effective_display_scale_{axis}={effective_scale!r}, requested {target_scale!r}"
+                )
+
+    for axis, backing_field, logical_field in (
+        ("x", "backing_width", "logical_width"),
+        ("y", "backing_height", "logical_height"),
+    ):
+        backing_size = context.get(backing_field)
+        logical_size = context.get(logical_field)
+        backing_scale = context.get(f"backing_scale_{axis}")
+        if all(_is_number(value) for value in (backing_size, logical_size, backing_scale)):
+            reconstructed = float(logical_size) * float(backing_scale)
+            if not math.isclose(reconstructed, float(backing_size), abs_tol=1.0):
+                mismatches.append(
+                    f"logical {axis} geometry reconstructs {reconstructed!r} backing pixels, actual {backing_size!r}"
+                )
+    return mismatches
+
+
 def validate_result(result: Mapping[str, Any], require_valid: bool = True) -> None:
     if result.get("schema_version") != SCHEMA_VERSION:
         raise BenchmarkError(f"unsupported result schema {result.get('schema_version')!r}")
@@ -257,6 +373,13 @@ def validate_result(result: Mapping[str, Any], require_valid: bool = True) -> No
     missing_context = sorted(REQUIRED_CONTEXT_FIELDS - result["context"].keys())
     if missing_context:
         raise BenchmarkError(f"result context is missing: {', '.join(missing_context)}")
+    effective_settings = result["context"].get("effective_settings")
+    target_scale = effective_settings.get("RenderBenchmarkUIScale") if isinstance(effective_settings, Mapping) else None
+    display_mismatches = display_contract_mismatches(result["context"], target_scale)
+    if not isinstance(effective_settings, Mapping) or effective_settings.get("RenderHiDPI") is not True:
+        display_mismatches.append("effective RenderHiDPI must be true")
+    if display_mismatches:
+        raise BenchmarkError("result display contract mismatch: " + "; ".join(display_mismatches))
     private_paths = find_private_paths(result)
     if private_paths:
         raise BenchmarkError(f"result contains private fields: {', '.join(private_paths)}")
@@ -279,12 +402,19 @@ def validate_result_against_manifest(result: Mapping[str, Any], manifest: Mappin
         if effective_settings.get(name) != requested
     ]
     if requested_settings.get("WindowMaximized") is False:
-        for context_name, setting_name in (("width", "WindowWidth"), ("height", "WindowHeight")):
+        for context_name, setting_name in (
+            ("width", "WindowWidth"),
+            ("height", "WindowHeight"),
+            ("backing_width", "WindowWidth"),
+            ("backing_height", "WindowHeight"),
+        ):
             requested = requested_settings.get(setting_name)
             if requested is not None and context.get(context_name) != requested:
                 mismatches.append(
                     f"actual {context_name}={context.get(context_name)!r}, requested {requested!r}"
                 )
+
+    mismatches.extend(display_contract_mismatches(context, requested_settings.get("RenderBenchmarkUIScale")))
     if mismatches:
         raise BenchmarkError("result does not match manifest: " + "; ".join(mismatches))
 
