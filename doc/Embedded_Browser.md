@@ -100,6 +100,53 @@ the difference here is the transport (shared-memory frames, one producer
 hosting many tabs) rather than the older `LLPlugin` socket protocol with one
 process per instance.
 
+## CEF process architecture: legacy versus embedded
+
+The "one producer hosting many tabs" phrase above understates how different
+the two backends' process trees actually are, confirmed by inspecting real
+process command lines during a matched test (login, four preloaded UI
+floaters, three prim media surfaces).
+
+**Legacy (`media_plugin_cef`/Dullahan): one fully independent CEF stack per
+media instance.** Each active media surface gets its own `SLPlugin.exe`,
+launched separately via `LLPluginProcessParent` with no shared state with
+any other instance. Each `SLPlugin.exe` hosts a complete Dullahan/CEF
+instance internally, and CEF's own multi-process model re-execs that
+instance's helper roles as a *different* binary, `dullahan_host.exe`: one
+GPU process, one `network.mojom.NetworkService` utility process, one
+`storage.mojom.StorageService` utility process, and one renderer process,
+all per instance, none shared with any sibling instance. One active media
+surface therefore costs up to 5 OS processes; N surfaces cost roughly 5xN.
+In the test scenario above (8 active instances), this was 8 `SLPlugin.exe`
++ 40 `dullahan_host.exe` = 49 total processes.
+
+**Embedded (`llembeddedbrowser`/`SLCefProducer`): one shared CEF browser
+process family for the whole session.** `SLCefProducer.exe` hosts
+`llCefBrowserManager`, which manages every tab (every UI floater and every
+prim media surface) as separate CEF "browser" handles within *one shared
+browser-process context*. CEF's multi-process model still applies, but the
+shared layers are amortized across all tabs: one GPU process and one
+utility-process pair (network + storage) total, regardless of tab count,
+with only the renderer count scaling roughly per active tab (CEF's own
+site-isolation still applies at that layer). Unlike legacy, these helper
+roles re-exec under the *same* binary name, `SLCefProducer.exe` -- a single
+process-name filter catches everything on this side, while legacy needs
+both `SLPlugin` and `dullahan_host` (see `scripts/perf/memory_compare.ps1`,
+which got this wrong at first for exactly this reason). Same 8-instance
+scenario: 1 producer + 12 children (9 renderer, 1 GPU, 2 utility) = 13
+total processes.
+
+**The tradeoff.** Legacy's full per-instance isolation means one instance's
+GPU/utility/browser-layer crash can't touch any other instance at all --
+maximally isolated, but the most expensive model per additional tab.
+Embedded's shared model is dramatically cheaper per additional tab
+(confirmed: roughly 27% less WorkingSet in a matched test despite embedded
+having more active tabs' worth of renderers than legacy had media
+instances), at the cost of a shared GPU/utility layer -- a crash there is a
+session-wide event rather than a single-tab one, though Chromium's
+renderer-level crash isolation (one bad page does not take down the browser
+process) still holds either way.
+
 ## Cookies: UI and prim media are isolated by default
 
 Embedded-browser content uses two separate `CefRequestContext` instances:
