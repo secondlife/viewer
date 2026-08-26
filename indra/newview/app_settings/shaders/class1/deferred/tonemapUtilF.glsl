@@ -25,9 +25,11 @@
 
 /*[EXTRA_CODE_HERE]*/
 
+#ifndef LL_VULKAN_SHADER
 uniform sampler2D exposureMap;
 uniform vec2 screen_res;
 in vec2 vary_fragcoord;
+#endif
 
 //===============================================================
 // tone mapping taken from Khronos sample implementation
@@ -113,9 +115,11 @@ vec3 PBRNeutralToneMapping( vec3 color )
   return mix(color, newPeak * vec3(1, 1, 1), g);
 }
 
+#ifndef LL_VULKAN_SHADER
 uniform float exposure;
 uniform float tonemap_mix;
 uniform int tonemap_type;
+#endif
 
 
 vec3 toneMap(vec3 color)

@@ -18,6 +18,7 @@
 
 #include "llrendercontract.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 
@@ -45,6 +46,10 @@ struct TonemapParameters
 };
 
 static_assert(sizeof(TonemapParameters) == 16, "tonemap parameters must remain a four-word packet");
+static_assert(offsetof(TonemapParameters, mExposure) == 0);
+static_assert(offsetof(TonemapParameters, mTonemapMix) == 4);
+static_assert(offsetof(TonemapParameters, mTonemapType) == 8);
+static_assert(offsetof(TonemapParameters, mGamma) == 12);
 
 struct TonemapHandles
 {

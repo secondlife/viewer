@@ -25,6 +25,7 @@
 
 /*[EXTRA_CODE_HERE]*/
 
+#ifndef LL_VULKAN_SHADER
 out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
@@ -33,6 +34,7 @@ in vec2 vary_fragcoord;
 
 #ifdef GAMMA_CORRECT
 uniform float gamma;
+#endif
 #endif
 
 vec3 linear_to_srgb(vec3 cl);
@@ -75,4 +77,3 @@ void main()
     //debugExposure(diff.rgb);
     frag_color = diff;
 }
-

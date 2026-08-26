@@ -401,6 +401,16 @@
       <string>RenderTonemapContractParityTest</string>
     </map>
 
+    <key>tonemapartifact</key>
+    <map>
+      <key>desc</key>
+      <string>Write the successful tonemap parity reference to this new artifact file.</string>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>RenderTonemapArtifactPath</string>
+    </map>
+
     <key>url</key>
     <map>
       <key>desc</key>

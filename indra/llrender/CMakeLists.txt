@@ -75,6 +75,8 @@ set(llrendercontract_SOURCE_FILES
     llrendercontract.h
     lltonemapcontract.cpp
     lltonemapcontract.h
+    lltonemapdiagnostic.cpp
+    lltonemapdiagnostic.h
     )
 
 # Keep the backend-neutral contract independently linkable. In particular,
@@ -150,9 +152,243 @@ if (LL_TESTS)
   set_source_files_properties(
     tests/llrendercontract_test.cpp
     tests/llrendergltonemapregistry_test.cpp
+    tests/lltonemapdiagnostic_test.cpp
     PROPERTIES
     SKIP_PRECOMPILE_HEADERS TRUE
   )
   LL_ADD_INTEGRATION_TEST(llrendercontract "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrendergltonemapregistry "" "llrendercontract;llcommon")
+  LL_ADD_INTEGRATION_TEST(lltonemapdiagnostic "" "llrendercontract;llcommon")
+endif ()
+
+if (LL_VULKAN_TONEMAP_TEST)
+  if (NOT LL_TESTS)
+    message(FATAL_ERROR "LL_VULKAN_TONEMAP_TEST requires LL_TESTS=ON")
+  endif ()
+
+  if (NOT LINUX AND NOT DARWIN)
+    message(FATAL_ERROR "LL_VULKAN_TONEMAP_TEST is supported only on Linux and macOS")
+  endif ()
+
+  find_package(Vulkan REQUIRED)
+  find_program(LL_VULKAN_GLSLANG_VALIDATOR
+      NAMES glslangValidator
+      DOC "Path to glslangValidator for the Vulkan tonemap diagnostic")
+  find_program(LL_VULKAN_SPIRV_VAL
+      NAMES spirv-val
+      DOC "Path to spirv-val for the Vulkan tonemap diagnostic")
+
+  if (NOT LL_VULKAN_GLSLANG_VALIDATOR OR
+      NOT EXISTS "${LL_VULKAN_GLSLANG_VALIDATOR}")
+    message(FATAL_ERROR
+        "LL_VULKAN_TONEMAP_TEST requires glslangValidator; add it to PATH or set LL_VULKAN_GLSLANG_VALIDATOR")
+  endif ()
+  if (NOT LL_VULKAN_SPIRV_VAL OR NOT EXISTS "${LL_VULKAN_SPIRV_VAL}")
+    message(FATAL_ERROR
+        "LL_VULKAN_TONEMAP_TEST requires spirv-val; add it to PATH or set LL_VULKAN_SPIRV_VAL")
+  endif ()
+  if (NOT LL_VULKAN_VALIDATION_LAYER_DIR OR
+      NOT IS_DIRECTORY "${LL_VULKAN_VALIDATION_LAYER_DIR}" OR
+      NOT EXISTS "${LL_VULKAN_VALIDATION_LAYER_DIR}/VkLayer_khronos_validation.json")
+    message(FATAL_ERROR
+        "LL_VULKAN_TONEMAP_TEST requires LL_VULKAN_VALIDATION_LAYER_DIR to contain VkLayer_khronos_validation.json")
+  endif ()
+
+  set(llvulkan_shader_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/vulkan/shaders")
+  set(llvulkan_shader_binary_dir "${CMAKE_CURRENT_BINARY_DIR}/vulkan/shaders")
+  set(llvulkan_vertex_source "${llvulkan_shader_source_dir}/tonemap.vert.glsl")
+  set(llvulkan_fragment_source "${llvulkan_shader_source_dir}/tonemap.frag.glsl")
+  set(llvulkan_vertex_spv "${llvulkan_shader_binary_dir}/tonemap.vert.spv")
+
+  add_custom_command(
+      OUTPUT "${llvulkan_vertex_spv}"
+      COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_shader_binary_dir}"
+      COMMAND "${CMAKE_COMMAND}" -E remove -f "${llvulkan_vertex_spv}.tmp"
+      COMMAND "${LL_VULKAN_GLSLANG_VALIDATOR}"
+              -V --target-env vulkan1.1 -S vert
+              "-I${llvulkan_shader_source_dir}"
+              -o "${llvulkan_vertex_spv}.tmp"
+              "${llvulkan_vertex_source}"
+      COMMAND "${LL_VULKAN_SPIRV_VAL}"
+              --target-env vulkan1.1 "${llvulkan_vertex_spv}.tmp"
+      COMMAND "${CMAKE_COMMAND}" -E rename
+              "${llvulkan_vertex_spv}.tmp" "${llvulkan_vertex_spv}"
+      DEPENDS
+              "${llvulkan_vertex_source}"
+              "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/deferred/postDeferredNoTCV.glsl"
+      COMMENT "Compiling and validating Vulkan tonemap vertex shader"
+      VERBATIM
+  )
+
+  set(llvulkan_fragment_spv_files)
+  foreach (llvulkan_variant IN ITEMS 0 1 2 3 6 7)
+    set(llvulkan_variant_defines)
+    if (llvulkan_variant EQUAL 1 OR llvulkan_variant EQUAL 3 OR
+        llvulkan_variant EQUAL 7)
+      list(APPEND llvulkan_variant_defines -DLL_TONEMAP_NO_POST=1)
+    endif ()
+    if (llvulkan_variant EQUAL 2 OR llvulkan_variant EQUAL 3 OR
+        llvulkan_variant EQUAL 6 OR llvulkan_variant EQUAL 7)
+      list(APPEND llvulkan_variant_defines -DLL_TONEMAP_GAMMA_CORRECT=1)
+    endif ()
+    if (llvulkan_variant EQUAL 6 OR llvulkan_variant EQUAL 7)
+      list(APPEND llvulkan_variant_defines -DLL_TONEMAP_LEGACY_GAMMA=1)
+    endif ()
+
+    set(llvulkan_fragment_spv
+        "${llvulkan_shader_binary_dir}/tonemap.frag.${llvulkan_variant}.spv")
+    add_custom_command(
+        OUTPUT "${llvulkan_fragment_spv}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_shader_binary_dir}"
+        COMMAND "${CMAKE_COMMAND}" -E remove -f "${llvulkan_fragment_spv}.tmp"
+        COMMAND "${LL_VULKAN_GLSLANG_VALIDATOR}"
+                -V --target-env vulkan1.1 -S frag
+                "-I${llvulkan_shader_source_dir}"
+                ${llvulkan_variant_defines}
+                -o "${llvulkan_fragment_spv}.tmp"
+                "${llvulkan_fragment_source}"
+        COMMAND "${LL_VULKAN_SPIRV_VAL}"
+                --target-env vulkan1.1 "${llvulkan_fragment_spv}.tmp"
+        COMMAND "${CMAKE_COMMAND}" -E rename
+                "${llvulkan_fragment_spv}.tmp" "${llvulkan_fragment_spv}"
+        DEPENDS
+                "${llvulkan_fragment_source}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/environment/srgbF.glsl"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/deferred/tonemapUtilF.glsl"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/deferred/postDeferredTonemap.glsl"
+        COMMENT "Compiling and validating Vulkan tonemap fragment shader variant ${llvulkan_variant}"
+        VERBATIM
+    )
+    list(APPEND llvulkan_fragment_spv_files "${llvulkan_fragment_spv}")
+  endforeach ()
+
+  add_custom_target(llvulkantonemap_shaders
+      DEPENDS "${llvulkan_vertex_spv}" ${llvulkan_fragment_spv_files})
+  set_target_properties(llvulkantonemap_shaders PROPERTIES FOLDER "Tests")
+
+  set(llvulkan_link_library Vulkan::Vulkan)
+  set(llvulkan_universal_macos OFF)
+  if (DARWIN)
+    if (NOT LL_VULKAN_MOLTENVK_ICD OR
+        NOT EXISTS "${LL_VULKAN_MOLTENVK_ICD}")
+      message(FATAL_ERROR
+          "LL_VULKAN_TONEMAP_TEST on macOS requires LL_VULKAN_MOLTENVK_ICD to name a MoltenVK ICD manifest")
+    endif ()
+
+    list(FIND CMAKE_OSX_ARCHITECTURES "arm64" llvulkan_arm64_index)
+    list(FIND CMAKE_OSX_ARCHITECTURES "x86_64" llvulkan_x86_64_index)
+    if (NOT llvulkan_arm64_index EQUAL -1 AND
+        NOT llvulkan_x86_64_index EQUAL -1)
+      if (NOT LL_VULKAN_MACOS_X86_64_LOADER OR
+          NOT EXISTS "${LL_VULKAN_MACOS_X86_64_LOADER}")
+        message(FATAL_ERROR
+            "A universal LL_VULKAN_TONEMAP_TEST requires LL_VULKAN_MACOS_X86_64_LOADER")
+      endif ()
+      if (NOT Vulkan_LIBRARY OR NOT EXISTS "${Vulkan_LIBRARY}")
+        message(FATAL_ERROR
+            "A universal LL_VULKAN_TONEMAP_TEST requires Vulkan_LIBRARY to name the host Vulkan loader dylib")
+      endif ()
+      find_program(LL_VULKAN_LIPO NAMES lipo DOC "Path to Apple's lipo tool")
+      if (NOT LL_VULKAN_LIPO OR NOT EXISTS "${LL_VULKAN_LIPO}")
+        message(FATAL_ERROR "A universal LL_VULKAN_TONEMAP_TEST requires lipo")
+      endif ()
+      find_program(LL_VULKAN_INSTALL_NAME_TOOL
+          NAMES install_name_tool
+          DOC "Path to Apple's install_name_tool")
+      if (NOT LL_VULKAN_INSTALL_NAME_TOOL OR
+          NOT EXISTS "${LL_VULKAN_INSTALL_NAME_TOOL}")
+        message(FATAL_ERROR
+            "A universal LL_VULKAN_TONEMAP_TEST requires install_name_tool")
+      endif ()
+      find_program(LL_VULKAN_CODESIGN
+          NAMES codesign
+          DOC "Path to Apple's codesign tool")
+      if (NOT LL_VULKAN_CODESIGN OR NOT EXISTS "${LL_VULKAN_CODESIGN}")
+        message(FATAL_ERROR
+            "A universal LL_VULKAN_TONEMAP_TEST requires codesign")
+      endif ()
+
+      set(llvulkan_fat_loader_dir "${CMAKE_CURRENT_BINARY_DIR}/vulkan/lib")
+      set(llvulkan_fat_loader "${llvulkan_fat_loader_dir}/libvulkan.1.dylib")
+      add_custom_command(
+          OUTPUT "${llvulkan_fat_loader}"
+          COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_fat_loader_dir}"
+          COMMAND "${CMAKE_COMMAND}" -E remove -f "${llvulkan_fat_loader}.tmp"
+          COMMAND "${LL_VULKAN_LIPO}" -create
+                  "${Vulkan_LIBRARY}"
+                  "${LL_VULKAN_MACOS_X86_64_LOADER}"
+                  -output "${llvulkan_fat_loader}.tmp"
+          COMMAND "${LL_VULKAN_INSTALL_NAME_TOOL}"
+                  -id "@rpath/libvulkan.1.dylib"
+                  "${llvulkan_fat_loader}.tmp"
+          COMMAND "${LL_VULKAN_CODESIGN}" --force --sign -
+                  "${llvulkan_fat_loader}.tmp"
+          COMMAND "${CMAKE_COMMAND}" -E rename
+                  "${llvulkan_fat_loader}.tmp" "${llvulkan_fat_loader}"
+          DEPENDS "${Vulkan_LIBRARY}" "${LL_VULKAN_MACOS_X86_64_LOADER}"
+          COMMENT "Creating universal Vulkan loader for the tonemap diagnostic"
+          VERBATIM
+      )
+      add_custom_target(llvulkantonemap_loader DEPENDS "${llvulkan_fat_loader}")
+      set_target_properties(llvulkantonemap_loader PROPERTIES FOLDER "Tests")
+      set(llvulkan_link_library "${llvulkan_fat_loader}")
+      set(llvulkan_universal_macos ON)
+    endif ()
+  endif ()
+
+  add_library(llrendervulkantonemap STATIC
+      vulkan/llrendervulkantonemap.cpp
+      vulkan/llrendervulkantonemap.h
+  )
+  target_include_directories(llrendervulkantonemap
+      PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/vulkan")
+  target_include_directories(llrendervulkantonemap SYSTEM
+      PUBLIC "${Vulkan_INCLUDE_DIR}")
+  if (llvulkan_universal_macos)
+    add_dependencies(llrendervulkantonemap llvulkantonemap_loader)
+  endif ()
+  target_link_libraries(llrendervulkantonemap
+      PUBLIC
+      llrendercontract
+      "${llvulkan_link_library}")
+  set_target_properties(llrendervulkantonemap PROPERTIES FOLDER "Tests")
+
+  add_executable(llvulkantonemap vulkan/llvulkantonemap_main.cpp)
+  target_link_libraries(llvulkantonemap PRIVATE llrendervulkantonemap)
+  add_dependencies(llvulkantonemap llvulkantonemap_shaders)
+
+  add_executable(lltonemapcompare vulkan/lltonemapcompare_main.cpp)
+  target_link_libraries(lltonemapcompare PRIVATE llrendercontract)
+
+  if (DARWIN)
+    set_target_properties(llvulkantonemap lltonemapcompare PROPERTIES
+        OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}"
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"
+        XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "YES"
+        FOLDER "Tests")
+    if (llvulkan_universal_macos)
+      set_target_properties(llvulkantonemap PROPERTIES
+          BUILD_RPATH "${llvulkan_fat_loader_dir}")
+    endif ()
+  else ()
+    set_target_properties(llvulkantonemap lltonemapcompare PROPERTIES
+        FOLDER "Tests")
+  endif ()
+
+  set_source_files_properties(
+      tests/llrendervulkantonemapregistry_test.cpp
+      PROPERTIES
+      SKIP_PRECOMPILE_HEADERS TRUE
+  )
+  LL_ADD_INTEGRATION_TEST(
+      llrendervulkantonemapregistry
+      ""
+      "llrendervulkantonemap;${llvulkan_link_library};llrendercontract;llcommon")
+  if (llvulkan_universal_macos)
+    set_target_properties(INTEGRATION_TEST_llrendervulkantonemapregistry PROPERTIES
+        BUILD_WITH_INSTALL_RPATH OFF
+        BUILD_RPATH "${llvulkan_fat_loader_dir}")
+  endif ()
+
+  add_dependencies(BUILD_TESTS llvulkantonemap lltonemapcompare)
 endif ()

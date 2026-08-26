@@ -10238,6 +10238,17 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
+    <key>RenderTonemapArtifactPath</key>
+    <map>
+        <key>Comment</key>
+        <string>New output path for an account-free tonemap reference artifact</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+    </map>
     <key>RenderTonemapType</key>
     <map>
         <key>Comment</key>

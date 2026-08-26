@@ -190,7 +190,7 @@ enum class Filter
 
 enum class MipFilter
 {
-    None,
+    Disabled,
     Nearest,
     Linear
 };
@@ -209,7 +209,7 @@ enum class PrimitiveTopology
 
 enum class CullMode
 {
-    None,
+    Disabled,
     Back
 };
 
@@ -221,7 +221,7 @@ enum class FrontFace
 
 enum class CompareOp
 {
-    Always,
+    AlwaysPass,
     LessOrEqual
 };
 
@@ -258,7 +258,7 @@ enum class RowOrigin
 
 enum class MipGeneration
 {
-    None,
+    Disabled,
     GenerateRemaining
 };
 
@@ -285,7 +285,7 @@ struct SamplerResource
     SamplerHandle    mHandle;
     Filter           mMinFilter     = Filter::Linear;
     Filter           mMagFilter     = Filter::Linear;
-    MipFilter        mMipFilter     = MipFilter::None;
+    MipFilter        mMipFilter     = MipFilter::Disabled;
     AddressMode      mAddressU      = AddressMode::Clamp;
     AddressMode      mAddressV      = AddressMode::Clamp;
     float            mMaxAnisotropy = 1.f;
@@ -330,11 +330,11 @@ struct PipelineResource
     PipelineHandle                   mHandle;
     ShaderProgramKey                 mProgram;
     PrimitiveTopology                mTopology          = PrimitiveTopology::TriangleList;
-    CullMode                         mCullMode          = CullMode::None;
+    CullMode                         mCullMode          = CullMode::Disabled;
     FrontFace                        mFrontFace         = FrontFace::CounterClockwise;
     bool                             mDepthTestEnabled  = false;
     bool                             mDepthWriteEnabled = false;
-    CompareOp                        mDepthCompare      = CompareOp::Always;
+    CompareOp                        mDepthCompare      = CompareOp::AlwaysPass;
     std::uint32_t                    mSamples           = 1;
     std::vector<ColorTargetState>    mColorTargets;
     std::optional<PixelFormat>       mDepthFormat;
@@ -466,7 +466,7 @@ struct TextureUpload
     PixelFormat      mSourceFormat    = PixelFormat::RGBA8Unorm;
     std::uint32_t    mRowPitch        = 0;
     RowOrigin        mRowOrigin       = RowOrigin::TopLeft;
-    MipGeneration    mMipGeneration   = MipGeneration::None;
+    MipGeneration    mMipGeneration   = MipGeneration::Disabled;
     ByteRange        mPixels;
     ImageState       mBefore = ImageState::Undefined;
     ImageState       mDuring = ImageState::TransferDestination;

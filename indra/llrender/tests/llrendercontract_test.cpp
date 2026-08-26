@@ -70,7 +70,7 @@ ImageResource image(ImageHandle handle, std::uint32_t width, std::uint32_t heigh
     return resource;
 }
 
-SamplerResource sampler(SamplerHandle handle, Filter filter, MipFilter mip_filter = MipFilter::None, float max_anisotropy = 1.f,
+SamplerResource sampler(SamplerHandle handle, Filter filter, MipFilter mip_filter = MipFilter::Disabled, float max_anisotropy = 1.f,
                         AddressMode address = AddressMode::Clamp)
 {
     SamplerResource resource;

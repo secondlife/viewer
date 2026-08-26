@@ -46,6 +46,7 @@
 #include "llglheaders.h"
 #include "llrender.h"
 #include "llrendergltonemap.h"
+#include "lltonemapdiagnostic.h"
 #include "llstartup.h"
 #include "llwindow.h"   // swapBuffers()
 
@@ -523,14 +524,18 @@ void LLPipeline::init()
     mDeferredVB->allocateBuffer(8, 0);
 
     {
+        const LLRenderContract::TonemapFixture fixture = LLRenderContract::makeTonemapFixture();
         mScreenTriangleVB = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX);
         mScreenTriangleVB->allocateBuffer(3, 0);
         LLStrider<LLVector3> vert;
         mScreenTriangleVB->getVertexStrider(vert);
 
-        vert[0].set(-1, 1, 0);
-        vert[1].set(-1, -3, 0);
-        vert[2].set(3, 1, 0);
+        for (std::size_t vertex = 0; vertex < 3; ++vertex)
+        {
+            const std::size_t component = vertex * 4;
+            vert[vertex].set(fixture.mScreenTriangle[component], fixture.mScreenTriangle[component + 1],
+                             fixture.mScreenTriangle[component + 2]);
+        }
 
         mScreenTriangleVB->unmapBuffer();
     }
@@ -7432,6 +7437,15 @@ bool uploadTonemapPixels(LLRenderTarget& target, GLenum format, U32 width, U32 h
     return glGetError() == GL_NO_ERROR;
 }
 
+bool uploadTonemapHalfPixels(LLRenderTarget& target, GLenum format, U32 width, U32 height, const std::uint16_t* pixels)
+{
+    clear_glerror();
+    gGL.getTexUnit(0)->bindManual(target.getUsage(), target.getTexture());
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, static_cast<GLsizei>(width), static_cast<GLsizei>(height), format,
+                    GL_HALF_FLOAT, pixels);
+    return glGetError() == GL_NO_ERROR;
+}
+
 bool readTonemapPixels(LLRenderTarget& target, U32 width, U32 height, std::vector<GLfloat>& pixels)
 {
     clear_glerror();
@@ -7440,6 +7454,30 @@ bool readTonemapPixels(LLRenderTarget& target, U32 width, U32 height, std::vecto
     const bool success = glGetError() == GL_NO_ERROR;
     target.flush();
     return success;
+}
+
+std::vector<float> canonicalTonemapReadback(PixelFormat format, const std::vector<GLfloat>& pixels)
+{
+    std::vector<float> canonical;
+    canonical.reserve(pixels.size());
+    for (GLfloat value : pixels)
+    {
+        if (!std::isfinite(value))
+        {
+            canonical.push_back(value);
+        }
+        else if (format == PixelFormat::RGBA8Unorm)
+        {
+            const long code = std::lround(llclamp(value, 0.f, 1.f) * 255.f);
+            canonical.push_back(static_cast<float>(code) / 255.f);
+        }
+        else
+        {
+            canonical.push_back(LLRenderContract::halfBitsToFloat(
+                LLRenderContract::floatToHalfBits(value)));
+        }
+    }
+    return canonical;
 }
 
 }
@@ -7492,13 +7530,9 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
 
 bool LLPipeline::runTonemapContractParity()
 {
-    constexpr U32 WIDTH = 8;
-    constexpr U32 HEIGHT = 8;
     constexpr F32 TOLERANCE = 0.f;
-    constexpr std::array<F32, 8> levels{ 0.f, 0.04f, 0.08f, 0.2f, 0.76f, 1.f, 2.f, 8.f };
-    constexpr std::array variants{ TonemapVariant::Deferred, TonemapVariant::NoPost, TonemapVariant::GammaCorrect,
-                                   TonemapVariant::NoPostGammaCorrect, TonemapVariant::LegacyGammaCorrect,
-                                   TonemapVariant::NoPostLegacyGammaCorrect };
+    constexpr U32 WIDTH = LLRenderContract::TONEMAP_DIAGNOSTIC_WIDTH;
+    constexpr U32 HEIGHT = LLRenderContract::TONEMAP_DIAGNOSTIC_HEIGHT;
     struct OutputFormat
     {
         U32         mGLFormat;
@@ -7507,17 +7541,10 @@ bool LLPipeline::runTonemapContractParity()
     };
     constexpr std::array output_formats{ OutputFormat{ GL_RGBA, PixelFormat::RGBA8Unorm, "rgba8" },
                                          OutputFormat{ GL_RGBA16F, PixelFormat::RGBA16Float, "rgba16f" } };
-    constexpr std::array<U32, 2> tonemap_types{ 0, 1 };
 
-    std::vector<GLfloat> source_pixels(WIDTH * HEIGHT * 4);
-    for (U32 pixel = 0; pixel < WIDTH * HEIGHT; ++pixel)
-    {
-        source_pixels[pixel * 4] = levels[pixel % levels.size()];
-        source_pixels[pixel * 4 + 1] = levels[(pixel * 3 + 1) % levels.size()] * 0.75f;
-        source_pixels[pixel * 4 + 2] = levels[(pixel * 5 + 2) % levels.size()] * 1.25f;
-        source_pixels[pixel * 4 + 3] = static_cast<F32>(pixel % 7) / 6.f;
-    }
-    const GLfloat exposure_pixel = 0.85f;
+    const LLRenderContract::TonemapFixture fixture = LLRenderContract::makeTonemapFixture();
+    const LLRenderContract::TonemapCases diagnostic_cases = LLRenderContract::makeTonemapCases();
+    LLRenderContract::TonemapArtifact artifact = LLRenderContract::makeTonemapArtifact();
     std::vector<GLfloat> poison_pixels(WIDTH * HEIGHT * 4, 0.25f);
     const GLfloat poison_exposure_pixel = 0.2f;
 
@@ -7527,8 +7554,8 @@ bool LLPipeline::runTonemapContractParity()
     LLRenderTarget poison_exposure_map;
     if (!scene.allocate(WIDTH, HEIGHT, GL_RGBA16F) || !exposure_map.allocate(1, 1, GL_R16F) ||
         !poison_scene.allocate(WIDTH, HEIGHT, GL_RGBA16F) || !poison_exposure_map.allocate(1, 1, GL_R16F) ||
-        !uploadTonemapPixels(scene, GL_RGBA, WIDTH, HEIGHT, source_pixels.data()) ||
-        !uploadTonemapPixels(exposure_map, GL_RED, 1, 1, &exposure_pixel) ||
+        !uploadTonemapHalfPixels(scene, GL_RGBA, WIDTH, HEIGHT, fixture.mSceneRGBA16F.data()) ||
+        !uploadTonemapHalfPixels(exposure_map, GL_RED, 1, 1, &fixture.mExposureR16F) ||
         !uploadTonemapPixels(poison_scene, GL_RGBA, WIDTH, HEIGHT, poison_pixels.data()) ||
         !uploadTonemapPixels(poison_exposure_map, GL_RED, 1, 1, &poison_exposure_pixel))
     {
@@ -7541,7 +7568,7 @@ bool LLPipeline::runTonemapContractParity()
     LLGLDisable scissor(GL_SCISSOR_TEST);
     gGL.setColorMask(true, true);
 
-    U32 cases = 0;
+    U32 case_count = 0;
     U64 mismatches = 0;
     U32 execution_failures = 0;
     F32 worst_delta = 0.f;
@@ -7562,107 +7589,104 @@ bool LLPipeline::runTonemapContractParity()
             return false;
         }
 
-        for (TonemapVariant variant : variants)
+        for (const LLRenderContract::TonemapCase& diagnostic_case : diagnostic_cases)
         {
-            for (U32 tonemap_type : tonemap_types)
+            if (diagnostic_case.mInputs.mDestinationFormat != output_format.mContractFormat)
             {
-                ++cases;
-                const TonemapParameters parameters{ 1.25f, 0.65f, tonemap_type, 1.8f };
-                LLGLSLShader* shader = tonemapShader(variant);
-                const F32 legacy_sentinel_value = 0.04f * static_cast<F32>(1 + cases % 7);
-                const F32 contract_sentinel_value = 0.96f - 0.04f * static_cast<F32>(1 + cases % 7);
-                std::fill(legacy_sentinel.begin(), legacy_sentinel.end(), legacy_sentinel_value);
-                std::fill(contract_sentinel.begin(), contract_sentinel.end(), contract_sentinel_value);
-                const bool outputs_seeded = uploadTonemapPixels(legacy_output, GL_RGBA, WIDTH, HEIGHT, legacy_sentinel.data()) &&
-                                            uploadTonemapPixels(contract_output, GL_RGBA, WIDTH, HEIGHT, contract_sentinel.data());
-                if (!poisonTonemapState(shader, variant, &poison_scene, &poison_exposure_map))
+                continue;
+            }
+
+            ++case_count;
+            const TonemapInputs& inputs = diagnostic_case.mInputs;
+            const TonemapParameters& parameters = inputs.mParameters;
+            LLGLSLShader* shader = tonemapShader(inputs.mVariant);
+            const F32 legacy_sentinel_value = 0.04f * static_cast<F32>(1 + case_count % 7);
+            const F32 contract_sentinel_value = 0.96f - 0.04f * static_cast<F32>(1 + case_count % 7);
+            std::fill(legacy_sentinel.begin(), legacy_sentinel.end(), legacy_sentinel_value);
+            std::fill(contract_sentinel.begin(), contract_sentinel.end(), contract_sentinel_value);
+            const bool outputs_seeded = uploadTonemapPixels(legacy_output, GL_RGBA, WIDTH, HEIGHT, legacy_sentinel.data()) &&
+                                        uploadTonemapPixels(contract_output, GL_RGBA, WIDTH, HEIGHT, contract_sentinel.data());
+            if (!poisonTonemapState(shader, inputs.mVariant, &poison_scene, &poison_exposure_map))
+            {
+                ++execution_failures;
+                if (first_failure.empty())
                 {
-                    ++execution_failures;
-                    if (first_failure.empty())
-                    {
-                        std::ostringstream failure;
-                        failure << "format=" << output_format.mLabel << " variant=" << static_cast<U64>(variant)
-                                << " tonemap_type=" << tonemap_type << " reason=legacy_state_poison";
-                        first_failure = failure.str();
-                    }
-                    continue;
+                    std::ostringstream failure;
+                    failure << "format=" << output_format.mLabel << " variant=" << static_cast<U64>(inputs.mVariant)
+                            << " tonemap_type=" << inputs.mParameters.mTonemapType << " reason=legacy_state_poison";
+                    first_failure = failure.str();
                 }
+                continue;
+            }
+            clear_glerror();
+            submitTonemapLegacy(&scene, &exposure_map, &legacy_output, mScreenTriangleVB, shader,
+                                parameters.mExposure, parameters.mTonemapType, parameters.mTonemapMix,
+                                parameters.mGamma);
+            const bool legacy_gl_ok = glGetError() == GL_NO_ERROR;
+
+            LLRenderGLTonemap::Registry registry;
+            const auto& handles = inputs.mHandles;
+            const LLRenderContract::ShaderProgramKey program{ "deferred.tonemap", static_cast<U64>(inputs.mVariant) };
+            const bool registered = registry.addBuffer(handles.mScreenTriangle, mScreenTriangleVB) &&
+                                    registry.addImage(handles.mScene, &scene) && registry.addImage(handles.mExposure, &exposure_map) &&
+                                    registry.addImage(handles.mDestination, &contract_output) &&
+                                    registry.addSampler(handles.mPointSampler, LLRenderGLTonemap::Sampler::Point) &&
+                                    registry.addSampler(handles.mLinearSampler, LLRenderGLTonemap::Sampler::Linear) &&
+                                    registry.addPipeline(handles.mPipeline, program, shader);
+            poisonTonemapSamplerState(&scene, &exposure_map);
+            const bool poisoned = poisonTonemapState(shader, inputs.mVariant, &poison_scene, &poison_exposure_map);
+            bool executed = false;
+            if (registered && poisoned)
+            {
+                LLGLEnable wrong_blend(GL_BLEND);
+                LLGLEnable wrong_cull(GL_CULL_FACE);
+                LLGLEnable wrong_scissor(GL_SCISSOR_TEST);
+                gGL.setColorMask(false, false);
+                glScissor(0, 0, 1, 1);
                 clear_glerror();
-                submitTonemapLegacy(&scene, &exposure_map, &legacy_output, mScreenTriangleVB, shader,
-                                    parameters.mExposure, parameters.mTonemapType, parameters.mTonemapMix,
-                                    parameters.mGamma);
-                const bool legacy_gl_ok = glGetError() == GL_NO_ERROR;
-
-                TonemapInputs inputs;
-                inputs.mFrame = cases;
-                inputs.mSourceExtent = { WIDTH, HEIGHT };
-                inputs.mDestinationExtent = { WIDTH, HEIGHT };
-                inputs.mDestinationFormat = output_format.mContractFormat;
-                inputs.mVariant = variant;
-                inputs.mParameters = parameters;
-                auto frame = LLRenderContract::buildTonemapFrame(inputs);
-
-                LLRenderGLTonemap::Registry registry;
-                const auto& handles = inputs.mHandles;
-                const LLRenderContract::ShaderProgramKey program{ "deferred.tonemap", static_cast<U64>(variant) };
-                const bool registered = registry.addBuffer(handles.mScreenTriangle, mScreenTriangleVB) &&
-                                        registry.addImage(handles.mScene, &scene) && registry.addImage(handles.mExposure, &exposure_map) &&
-                                        registry.addImage(handles.mDestination, &contract_output) &&
-                                        registry.addSampler(handles.mPointSampler, LLRenderGLTonemap::Sampler::Point) &&
-                                        registry.addSampler(handles.mLinearSampler, LLRenderGLTonemap::Sampler::Linear) &&
-                                        registry.addPipeline(handles.mPipeline, program, shader);
-                poisonTonemapSamplerState(&scene, &exposure_map);
-                const bool poisoned = poisonTonemapState(shader, variant, &poison_scene, &poison_exposure_map);
-                bool executed = false;
-                if (frame && registered && poisoned)
+                executed = LLRenderGLTonemap::execute(diagnostic_case.mFrame, registry);
+                executed = executed && glGetError() == GL_NO_ERROR;
+                gGL.setColorMask(true, true);
+            }
+            const bool readback = outputs_seeded && legacy_gl_ok && executed &&
+                                  readTonemapPixels(legacy_output, WIDTH, HEIGHT, legacy_pixels) &&
+                                  readTonemapPixels(contract_output, WIDTH, HEIGHT, contract_pixels);
+            if (!readback)
+            {
+                ++execution_failures;
+                if (first_failure.empty())
                 {
-                    LLGLEnable wrong_blend(GL_BLEND);
-                    LLGLEnable wrong_cull(GL_CULL_FACE);
-                    LLGLEnable wrong_scissor(GL_SCISSOR_TEST);
-                    gGL.setColorMask(false, false);
-                    glScissor(0, 0, 1, 1);
-                    clear_glerror();
-                    executed = LLRenderGLTonemap::execute(*frame, registry);
-                    executed = executed && glGetError() == GL_NO_ERROR;
-                    gGL.setColorMask(true, true);
+                    std::ostringstream failure;
+                    failure << "format=" << output_format.mLabel << " variant=" << static_cast<U64>(inputs.mVariant)
+                            << " tonemap_type=" << inputs.mParameters.mTonemapType << " reason=execution_or_readback";
+                    first_failure = failure.str();
                 }
-                const bool readback = outputs_seeded && legacy_gl_ok && executed &&
-                                      readTonemapPixels(legacy_output, WIDTH, HEIGHT, legacy_pixels) &&
-                                      readTonemapPixels(contract_output, WIDTH, HEIGHT, contract_pixels);
-                if (!readback)
+                continue;
+            }
+
+            artifact.mCases[diagnostic_case.mKey.mIndex - 1].mPixels =
+                canonicalTonemapReadback(output_format.mContractFormat, legacy_pixels);
+            for (U32 component = 0; component < legacy_pixels.size(); ++component)
+            {
+                const F32 delta = std::abs(legacy_pixels[component] - contract_pixels[component]);
+                const bool finite = std::isfinite(legacy_pixels[component]) && std::isfinite(contract_pixels[component]);
+                if (finite)
                 {
-                    ++execution_failures;
+                    worst_delta = llmax(worst_delta, delta);
+                }
+                if (!finite || delta > TOLERANCE)
+                {
+                    ++mismatches;
                     if (first_failure.empty())
                     {
+                        const U32 pixel = component / 4;
                         std::ostringstream failure;
-                        failure << "format=" << output_format.mLabel << " variant=" << static_cast<U64>(variant)
-                                << " tonemap_type=" << tonemap_type << " reason=execution_or_readback";
+                        failure << "format=" << output_format.mLabel << " variant=" << static_cast<U64>(inputs.mVariant)
+                                << " tonemap_type=" << inputs.mParameters.mTonemapType << " x=" << pixel % WIDTH
+                                << " y=" << pixel / WIDTH << " channel=" << component % 4
+                                << " legacy=" << legacy_pixels[component] << " contract=" << contract_pixels[component]
+                                << " delta=" << delta;
                         first_failure = failure.str();
-                    }
-                    continue;
-                }
-
-                for (U32 component = 0; component < legacy_pixels.size(); ++component)
-                {
-                    const F32 delta = std::abs(legacy_pixels[component] - contract_pixels[component]);
-                    const bool finite = std::isfinite(legacy_pixels[component]) && std::isfinite(contract_pixels[component]);
-                    if (finite)
-                    {
-                        worst_delta = llmax(worst_delta, delta);
-                    }
-                    if (!finite || delta > TOLERANCE)
-                    {
-                        ++mismatches;
-                        if (first_failure.empty())
-                        {
-                            const U32 pixel = component / 4;
-                            std::ostringstream failure;
-                            failure << "format=" << output_format.mLabel << " variant=" << static_cast<U64>(variant)
-                                    << " tonemap_type=" << tonemap_type << " x=" << pixel % WIDTH << " y=" << pixel / WIDTH
-                                    << " channel=" << component % 4 << " legacy=" << legacy_pixels[component]
-                                    << " contract=" << contract_pixels[component] << " delta=" << delta;
-                            first_failure = failure.str();
-                        }
                     }
                 }
             }
@@ -7677,13 +7701,8 @@ bool LLPipeline::runTonemapContractParity()
         sentinel_pixels[component] = component % 3 == 0 ? 1.f : 0.f;
     }
     std::vector<GLfloat> rejected_pixels(WIDTH * HEIGHT * 4);
-    TonemapInputs rejected_inputs;
-    rejected_inputs.mFrame = cases + 1;
-    rejected_inputs.mSourceExtent = { WIDTH, HEIGHT };
-    rejected_inputs.mDestinationExtent = { WIDTH, HEIGHT };
-    rejected_inputs.mDestinationFormat = PixelFormat::RGBA8Unorm;
-    rejected_inputs.mParameters = { 1.25f, 0.65f, 1, 1.8f };
-    auto rejected_frame = LLRenderContract::buildTonemapFrame(rejected_inputs);
+    const LLRenderContract::TonemapCase& rejected_case = diagnostic_cases.front();
+    const TonemapInputs& rejected_inputs = rejected_case.mInputs;
     LLRenderGLTonemap::Registry rejected_registry;
     const auto& rejected_handles = rejected_inputs.mHandles;
     const LLRenderContract::ShaderProgramKey rejected_program{ "deferred.tonemap", 0 };
@@ -7697,8 +7716,8 @@ bool LLPipeline::runTonemapContractParity()
         rejected_registry.addPipeline(rejected_handles.mPipeline, rejected_program, tonemapShader(TonemapVariant::Deferred));
     const bool rejection_setup = rejection_output.allocate(WIDTH, HEIGHT, GL_RGBA) &&
                                  uploadTonemapPixels(rejection_output, GL_RGBA, WIDTH, HEIGHT, sentinel_pixels.data());
-    const bool rejected = rejection_setup && rejected_frame && rejection_registered &&
-                          !LLRenderGLTonemap::execute(*rejected_frame, rejected_registry) &&
+    const bool rejected = rejection_setup && rejection_registered &&
+                          !LLRenderGLTonemap::execute(rejected_case.mFrame, rejected_registry) &&
                           readTonemapPixels(rejection_output, WIDTH, HEIGHT, rejected_pixels) && rejected_pixels == sentinel_pixels;
     if (!rejected)
     {
@@ -7709,12 +7728,33 @@ bool LLPipeline::runTonemapContractParity()
         }
     }
 
-    const bool success = mismatches == 0 && execution_failures == 0 && rejection_failures == 0;
+    bool success = mismatches == 0 && execution_failures == 0 && rejection_failures == 0;
+    const std::string artifact_path = gSavedSettings.getString("RenderTonemapArtifactPath");
+    bool artifact_written = false;
+    if (success && !artifact_path.empty())
+    {
+        std::string artifact_error;
+        if (!LLRenderContract::validateTonemapArtifact(artifact, &artifact_error))
+        {
+            success = false;
+            first_failure = "reason=artifact_validation detail=" + artifact_error;
+        }
+        else
+        {
+            artifact_written = LLRenderContract::writeTonemapArtifact(artifact_path, artifact, &artifact_error);
+            if (!artifact_written)
+            {
+                success = false;
+                first_failure = "reason=artifact_write detail=" + artifact_error;
+            }
+        }
+    }
     std::ostringstream result;
     result << std::setprecision(9) << "TONEMAP_CONTRACT_PARITY result=" << (success ? "pass" : "fail")
-           << " cases=" << cases << " tolerance=" << TOLERANCE << " max_abs_error=" << worst_delta
+           << " cases=" << case_count << " tolerance=" << TOLERANCE << " max_abs_error=" << worst_delta
            << " mismatches=" << mismatches << " execution_failures=" << execution_failures
-           << " rejection_failures=" << rejection_failures;
+           << " rejection_failures=" << rejection_failures
+           << " artifact=" << (artifact_path.empty() ? "disabled" : artifact_written ? "written" : "failed");
     if (!first_failure.empty())
     {
         result << " first_failure={" << first_failure << "}";

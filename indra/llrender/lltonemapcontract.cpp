@@ -89,7 +89,7 @@ SamplerResource sampler(SamplerHandle handle, Filter filter)
     result.mHandle = handle;
     result.mMinFilter = filter;
     result.mMagFilter = filter;
-    result.mMipFilter = MipFilter::None;
+    result.mMipFilter = MipFilter::Disabled;
     result.mAddressU = AddressMode::Mirror;
     result.mAddressV = AddressMode::Mirror;
     return result;
@@ -98,7 +98,7 @@ SamplerResource sampler(SamplerHandle handle, Filter filter)
 bool canonicalSampler(const SamplerResource& sampler_resource, SamplerHandle handle, Filter filter)
 {
     return sampler_resource.mHandle == handle && sampler_resource.mMinFilter == filter && sampler_resource.mMagFilter == filter &&
-           sampler_resource.mMipFilter == MipFilter::None && sampler_resource.mAddressU == AddressMode::Mirror &&
+           sampler_resource.mMipFilter == MipFilter::Disabled && sampler_resource.mAddressU == AddressMode::Mirror &&
            sampler_resource.mAddressV == AddressMode::Mirror && sampler_resource.mMaxAnisotropy == 1.f &&
            sampler_resource.mLifetime == ResourceLifetime::Persistent;
 }
@@ -165,7 +165,7 @@ std::optional<FrameSnapshot> buildTonemapFrame(const TonemapInputs& inputs)
     PipelineResource pipeline;
     pipeline.mHandle = handles.mPipeline;
     pipeline.mProgram = { TONEMAP_PROGRAM, static_cast<std::uint64_t>(inputs.mVariant) };
-    pipeline.mCullMode = CullMode::None;
+    pipeline.mCullMode = CullMode::Disabled;
     pipeline.mDepthTestEnabled = false;
     pipeline.mDepthWriteEnabled = false;
     pipeline.mDepthCompare = CompareOp::LessOrEqual;
@@ -244,7 +244,7 @@ std::optional<TonemapInputs> decodeTonemapFrame(const FrameSnapshot& frame)
     }
 
     if (pipeline.mProgram.mName != TONEMAP_PROGRAM || pipeline.mTopology != PrimitiveTopology::TriangleList ||
-        pipeline.mCullMode != CullMode::None || pipeline.mFrontFace != FrontFace::CounterClockwise || pipeline.mDepthTestEnabled ||
+        pipeline.mCullMode != CullMode::Disabled || pipeline.mFrontFace != FrontFace::CounterClockwise || pipeline.mDepthTestEnabled ||
         pipeline.mDepthWriteEnabled || pipeline.mDepthCompare != CompareOp::LessOrEqual || pipeline.mSamples != 1 || pipeline.mDepthFormat ||
         pipeline.mLifetime != ResourceLifetime::Persistent || pipeline.mColorTargets.size() != 1 ||
         pipeline.mColorTargets[0].mFormat != result.mDestinationFormat || pipeline.mColorTargets[0].mBlendEnabled ||

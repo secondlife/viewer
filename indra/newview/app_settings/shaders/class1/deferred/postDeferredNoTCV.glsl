@@ -23,11 +23,13 @@
  * $/LicenseInfo$
  */
 
+#ifndef LL_VULKAN_SHADER
 in vec3 position;
 
 out vec2 vary_fragcoord;
 
 uniform vec2 screen_res;
+#endif
 
 void main()
 {
