@@ -333,6 +333,7 @@ private:
     {
         std::string command;
         std::string description;
+        LLSD params;
     };
     enum WSCommandError
     {

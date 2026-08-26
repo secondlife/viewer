@@ -169,6 +169,14 @@ namespace
         return std::string(s);
     }
 
+    LLSD object_id_command_params()
+    {
+        LLSD params(LLSD::emptyMap());
+        params["object_id"]["type"] = "string";
+        params["object_id"]["required"] = true;
+        return params;
+    }
+
 }
 
 //========================================================================
@@ -184,7 +192,8 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
     LL_INFOS("ScriptEditorWS") << "Created JSON-RPC script editor server: " << name
                                << " on port " << port << LL_ENDL;
 
-    registerCommand({ "viewer.teleport", "Teleport agent to an in-world object" },
+    registerCommand({ "viewer.teleport", "Teleport agent to an in-world object",
+                      object_id_command_params() },
         [](U32, const LLSD& p) -> LLSD
         {
             LLUUID object_id = p["object_id"].asUUID();
@@ -203,7 +212,9 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
             return response;
         });
 
-    registerCommand({ "viewer.camera.focus", "Zoom camera to an in-world object (same behavior as context menu Zoom In)" },
+    registerCommand({ "viewer.camera.focus",
+                      "Zoom camera to an in-world object (same behavior as context menu Zoom In)",
+                      object_id_command_params() },
         [](U32, const LLSD& p) -> LLSD
         {
             LLUUID object_id = p["object_id"].asUUID();
@@ -221,7 +232,9 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
             return response;
         });
 
-    registerCommand({ "viewer.object.save_back_to_contents", "Save an in-world object back to source object contents" },
+    registerCommand({ "viewer.object.save_back_to_contents",
+                      "Save an in-world object back to source object contents",
+                      object_id_command_params() },
         [this](U32 connection_id, const LLSD& p) -> LLSD
         {
             return this->handleSaveBackToObjectContents(connection_id, p);
@@ -1019,6 +1032,10 @@ LLSD LLScriptEditorWSServer::handleCommandList()
         LLSD info;
         info["command"]     = entry.first.command;
         info["description"] = entry.first.description;
+        if (!entry.first.params.isUndefined())
+        {
+            info["params"] = entry.first.params;
+        }
         commands.append(info);
     }
     LLSD response;
