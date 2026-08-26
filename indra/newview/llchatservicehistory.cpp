@@ -2678,13 +2678,14 @@ bool sameSenderAndText(const LLSD& left, const LLSD& right)
         return false;
     }
 
-    // Prefer exact resident identity when both sources carry it; otherwise require
-    // the transcript names to agree exactly.
+    // Prefer exact resident identity when both sources carry it; otherwise compare
+    // their canonical resident usernames.
     const bool left_has_id = left[LL_IM_FROM_ID].isDefined();
     const bool right_has_id = right[LL_IM_FROM_ID].isDefined();
     return left_has_id && right_has_id
         ? left[LL_IM_FROM_ID].asUUID() == right[LL_IM_FROM_ID].asUUID()
-        : left[LL_IM_FROM].asString() == right[LL_IM_FROM].asString();
+        : sameDirectSenderName(left[LL_IM_FROM].asString(),
+                               right[LL_IM_FROM].asString());
 }
 
 bool sameSenderAndText(const LLSD& legacy, const Row& service)
@@ -2696,7 +2697,7 @@ bool sameSenderAndText(const LLSD& legacy, const Row& service)
 
     return legacy[LL_IM_FROM_ID].isDefined()
         ? legacy[LL_IM_FROM_ID].asUUID() == service.from_id
-        : legacy[LL_IM_FROM].asString() == service.from_name;
+        : sameDirectSenderName(legacy[LL_IM_FROM].asString(), service.from_name);
 }
 
 bool sameLegacyMinute(F64 wall_epoch, F64 utc_epoch)

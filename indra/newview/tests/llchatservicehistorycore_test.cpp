@@ -279,4 +279,13 @@ template<> template<> void object_t::test<12>()
     // A timeout fallback has not been validated by the server and remains closed.
     ensure("fallback cache remains degraded", !LLMuteListTestAccess::fallbackCache());
 }
+
+template<> template<> void object_t::test<13>()
+{
+    // Chat service legacy names and viewer resident names identify the same direct sender.
+    ensure("legacy and resident names match",
+           sameDirectSenderName("Bridie Linden", "bridie.linden"));
+    ensure("different residents stay distinct",
+           !sameDirectSenderName("bridie.linden", "beanie.tester"));
+}
 }
