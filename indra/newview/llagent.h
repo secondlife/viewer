@@ -552,7 +552,7 @@ private:
     std::array<F32, LLGameControl::FLYCAM_NUM_CHANNELS> mFlycamKeyInput {};
     bool mFlycamKeyResetRequested { false };
 
-    // CONTROL_MODE_MOUSE: toggled by AVATAR_ACTION_TOGGLE_MOUSE_CURSOR, same pattern
+    // CONTROL_MODE_CURSOR: toggled by AVATAR_ACTION_TOGGLE_MOUSE_CURSOR, same pattern
     // as mUsingFlycam/toggleFlycam(). mLastMouseCursorUpdate is the previous frame's
     // timestamp used to compute the cursor's per-frame movement delta; reset to 0
     // whenever the mode isn't active so re-entering doesn't jump the cursor.

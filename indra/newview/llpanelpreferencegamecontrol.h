@@ -43,7 +43,7 @@ class LLTextBox;
 // Preference panel for configuring game controller (gamepad) input.
 //
 // Two visible sub-tabs:
-//   - Actions (global, per mode Avatar/Mouselook/FlyCam/Captive): one table binding
+//   - Actions (global, per mode Avatar/Mouselook/FlyCam/Captive/Cursor): one table binding
 //     each mode's axis and button actions to a canonical input.  Independent of device.
 //   - Devices (per device): normalizes physical hardware to canonical inputs --
 //     an axis-channels table and a button-channels table, each mapping the physical
@@ -134,7 +134,7 @@ private:
     void clearSelectionState();  // Hide editors and clear selection tracking
 
     // Actions-tab helpers
-    std::string currentEditMode();   // mode string ("Avatar"/"Mouselook"/"FlyCam"/"Captive") from mActionMode
+    std::string currentEditMode();   // mode string ("Avatar"/"Mouselook"/"FlyCam"/"Captive"/"Cursor") from mActionMode
     void onActionModeChanged();      // rebuild the action table when the edit-mode selector changes
     void onModeEnabledToggled(bool enabled);  // toggle conversion for the currently-selected mode
     void updateActionModeEnabledUI();    // sync the Enabled checkbox and lock/unlock the tables
@@ -247,8 +247,8 @@ private:
     LLComboBox* mFlycamAnalogActionSelector { nullptr };  // FlyCam axis actions
     LLComboBox* mFlycamBinaryActionSelector { nullptr };  // FlyCam button actions
     LLComboBox* mCaptiveBinaryActionSelector { nullptr }; // Captive (sitting) button actions
-    LLComboBox* mMouseAnalogActionSelector { nullptr };   // Mouse-cursor-mode axis actions
-    LLComboBox* mMouseBinaryActionSelector { nullptr };   // Mouse-cursor-mode button actions
+    LLComboBox* mCursorAnalogActionSelector { nullptr };   // Cursor-mode axis actions
+    LLComboBox* mCursorBinaryActionSelector { nullptr };   // Cursor-mode button actions
 
     // Per-device options storage
     struct DeviceOptions

@@ -53,7 +53,7 @@
                     value="3"/>
                 <combo_box.item
                     label="When using mouse cursor"
-                    name="mouse"
+                    name="cursor"
                     value="4"/>
             </combo_box>
             <check_box
@@ -544,6 +544,9 @@
             label="Fly ↕"
             value="Fly up/down"/>
         <combo_box.item
+            label="Zoom -/+"
+            value="Zoom +/-"/>
+        <combo_box.item
             label="None"
             value="None"/>
     </combo_box>
@@ -773,6 +776,12 @@
             label="Turn →"
             value="Turn right"/>
         <combo_box.item
+            label="Zoom +"
+            value="Zoom +"/>
+        <combo_box.item
+            label="Zoom -"
+            value="Zoom -"/>
+        <combo_box.item
             label="None"
             value="None"/>
     </combo_box>
@@ -798,6 +807,9 @@
         <combo_box.item
             label="Fly ↕"
             value="Fly up/down"/>
+        <combo_box.item
+            label="Zoom -/+"
+            value="Zoom +/-"/>
         <combo_box.item
             label="None"
             value="None"/>
@@ -858,6 +870,12 @@
             label="Turn →"
             value="Turn right"/>
         <combo_box.item
+            label="Zoom +"
+            value="Zoom +"/>
+        <combo_box.item
+            label="Zoom -"
+            value="Zoom -"/>
+        <combo_box.item
             label="None"
             value="None"/>
     </combo_box>
@@ -886,16 +904,26 @@
             label="Mouse cursor"
             value="Toggle mouse cursor"/>
         <combo_box.item
+            label="Zoom +"
+            value="Zoom +"/>
+        <combo_box.item
+            label="Zoom -"
+            value="Zoom -"/>
+        <combo_box.item
             label="None"
             value="None"/>
     </combo_box>
-    <!-- Mouse-mode action selectors: initialized as independent copies of the
+    <!-- Cursor-mode action selectors: initialized as independent copies of the
          Avatar selectors above, with the left-stick axis actions replaced by
          "Mouse left/right"/"Mouse up/down" (which drive the on-screen cursor;
          see LLGameControllerManager::computeAgentActions()) and "Mouse click
-         left/right" added to the button set (shoulder buttons by default). -->
+         left/right" added to the button set (shoulder buttons by default).
+         "Cursor up/down/left/right" are a digital (button-only) alternative or
+         addition to "Mouse left/right"/"Mouse up/down" for nudging the cursor,
+         e.g. rebind the D-Pad to these instead of Advance/Strafe. Unbound by
+         default. -->
     <combo_box
-        name="mouse_analog_action_selector"
+        name="cursor_analog_action_selector"
         width="380"
         height="18">
         <combo_box.item
@@ -924,7 +952,7 @@
             value="None"/>
     </combo_box>
     <combo_box
-        name="mouse_binary_action_selector"
+        name="cursor_binary_action_selector"
         width="380"
         height="18">
         <combo_box.item
@@ -978,6 +1006,18 @@
         <combo_box.item
             label="Turn →"
             value="Turn right"/>
+        <combo_box.item
+            label="Cursor ↑"
+            value="Cursor up"/>
+        <combo_box.item
+            label="Cursor ↓"
+            value="Cursor down"/>
+        <combo_box.item
+            label="Cursor ←"
+            value="Cursor left"/>
+        <combo_box.item
+            label="Cursor →"
+            value="Cursor right"/>
         <combo_box.item
             label="None"
             value="None"/>
@@ -1033,9 +1073,6 @@
         <combo_box.item
             label="AltZoom"
             value="Toggle AltZoom"/>
-        <combo_box.item
-            label="Follow"
-            value="Toggle follow"/>
         <combo_box.item
             label="Leave flycam"
             value="Toggle flycam"/>
