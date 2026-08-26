@@ -179,9 +179,9 @@ python3 scripts/perf/render_benchmark.py validate \
 
 The smoke validates app launch, native OpenGL selection, version 3 export, geometry, and scene-gate behavior only. It is not performance evidence and its timing fields must be discarded. A failed scene gate is useful smoke evidence but is not a benchmark result.
 
-### Asset-readiness-only prime
+### Asset and appearance readiness prime
 
-Use the prime-only mode to investigate a warm isolated profile before collecting a baseline. It runs the unchanged warm scenario twice against one disposable cache, emits no measured result, and reduces each private viewer log to known cache or avatar blocker categories. The second launch exists to prove that the first launch's cache survives and remains writable. Other scene-gate failures, including placement and focus, remain explicit but do not prevent the asset and avatar readiness check from succeeding.
+Use the prime-only mode to investigate a warm isolated profile before collecting a baseline. It runs the unchanged warm scenario twice against one disposable cache, emits no measured result, and reduces each launch to privacy-safe cache, asset, and appearance facts. The second launch exists to prove that the first launch's cache survives and remains writable. Other scene-gate failures, including placement and focus, remain explicit but do not prevent the asset and avatar readiness check from succeeding.
 
 ```zsh
 readiness_root="$(mktemp -d /private/tmp/renderer-readiness.XXXXXX)"
@@ -210,9 +210,22 @@ python3 scripts/perf/render_benchmark.py run \
 python3 -m json.tool "$readiness_root/readiness.json"
 ```
 
-A Stage 6 pass has `readiness_passed: true`, `cache_reuse_passed: true`, two attempts, zero valid measured repeats, and `retained_timing: false`. On the second attempt, the requested cache root and nested asset root must remain writable, the fixed disposable asset sentinel must be `ready` before and after launch, the fallback asset root must remain absent, and `first_cache_failure` must be `none`. Both target gates must be true. Report any remaining names in `failed_gates` separately. Asset readiness includes separate settlement and queue booleans; avatar readiness separates appearance completion from unintended movement. If appearance remains incomplete after cache readiness passes, use only the emitted blocker category to choose the next investigation; do not change the account outfit without authorization.
+A readiness pass has `readiness_passed: true`, `cache_reuse_passed: true`, two attempts, zero valid measured repeats, and `retained_timing: false`. On the second attempt, the requested cache root and nested asset root must remain writable, the fixed disposable asset sentinel must be `ready` before and after launch, the fallback asset root must remain absent, and `first_cache_failure` must be `none`. Both target gates must be true. Report any remaining names in `failed_gates` separately. Asset readiness includes separate settlement and queue booleans; avatar readiness separates appearance completion from unintended movement.
 
-The readiness file contains aggregate counts, booleans, and allow-listed categories only. It contains no frames, timing summary, account, destination, raw log line, or filesystem path. Report those safe fields, then remove the readiness root, any temporary credential file, private logs, and isolated state. Do not publish terminal output or raw prime artifacts.
+In prime-only mode, each guarded poll also requests a benchmark-only paired scene and appearance snapshot. Those two diagnostic facts come from the same main-thread response; the collector rejects a response if their avatar-ready booleans disagree. It retains the last snapshot paired with a failed `self_avatar_loaded` sample, or the final snapshot when every guarded sample passed. The viewer exposes only fixed booleans for self-avatar validity, COF presence and completeness, COF-change context, resolved required links, delivered required wearables, and final avatar readiness. The four fixed required parts are shape, skin, hair, and eyes.
+
+The appearance category has this precedence:
+
+- `avatar-unavailable`
+- `cof-incomplete`
+- `required-link-missing-or-unresolved`
+- `wearable-delivery-pending-or-failed`
+- `avatar-later-blocker`
+- `ready`
+
+`required-link-missing-or-unresolved` is deliberately combined because a link whose target is absent from the local inventory cannot reveal its intended wearable type. `wearable-delivery-pending-or-failed` is also combined because the stable public appearance APIs do not distinguish an outstanding asset request from a terminal failure. `cof_change_in_progress` is context, not proof of either condition. The runner recomputes the category from the projected booleans and rejects contradictory facts. If appearance remains incomplete after cache readiness passes, use only these facts to choose the next investigation; do not change the account outfit without authorization.
+
+The readiness file contains aggregate counts, booleans, and allow-listed categories only. It contains no frames, timing summary, account, destination, inventory or asset identifiers, item names, raw log line, or filesystem path. Appearance facts are optional in schema-3 results and do not participate in a gate, policy hash, manifest hash, comparison field, or summary. Normal primes and measured runs never request the diagnostic operation. Report the safe readiness fields, then remove the readiness root, any temporary credential file, private logs, isolated state, and raw prime artifacts.
 
 The runner sets `SECONDLIFE_USER_DIR` and creates session settings, cache, logs, and account data inside a private per-invocation temporary directory. It precreates the user and cache roots once, never repairs them between warm launches, selects the same explicit path in both cache-location settings, and disables legacy cache migration for the isolated session. The viewer also skips migration when its normalized source and destination are identical while preserving migration between different locations. The runner does not read or alter the normal viewer profile, and the isolated data is removed after the sequence exits. Cold-cache repeats receive separate state and purge before startup. Warm-cache sequences first run one unmeasured full-duration prime, then reuse that isolated profile and cache for all measured repeats. The prime is validated but its artifact is discarded. Cache probes and the sentinel are active only in prime-only diagnosis; measured benchmark launches never execute them. First-install UI, notifications, audio, and voice are disabled for benchmark sessions so they cannot cover the workload or crash a headless test host.
 

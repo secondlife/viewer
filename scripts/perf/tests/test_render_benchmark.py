@@ -40,6 +40,43 @@ class RendererBenchmarkTests(unittest.TestCase):
         result["validity"]["policy"] = copy.deepcopy(manifest["validity"])
         result["validity"]["policy_hash"] = benchmark.canonical_hash(manifest["validity"])
 
+    def appearance_attribution(self, classification: str = "ready") -> dict[str, object]:
+        attribution: dict[str, object] = {
+            "classification": classification,
+            "avatar_valid": True,
+            "cof_present": True,
+            "cof_complete": True,
+            "cof_change_in_progress": False,
+            "required_links_resolved": {
+                "shape": True,
+                "skin": True,
+                "hair": True,
+                "eyes": True,
+            },
+            "required_wearables_delivered": {
+                "shape": True,
+                "skin": True,
+                "hair": True,
+                "eyes": True,
+            },
+            "avatar_loaded": True,
+        }
+        if classification == "avatar-unavailable":
+            attribution["avatar_valid"] = False
+            attribution["avatar_loaded"] = False
+        elif classification == "cof-incomplete":
+            attribution["cof_complete"] = False
+            attribution["avatar_loaded"] = False
+        elif classification == "required-link-missing-or-unresolved":
+            attribution["required_links_resolved"]["shape"] = False
+            attribution["avatar_loaded"] = False
+        elif classification == "wearable-delivery-pending-or-failed":
+            attribution["required_wearables_delivered"]["hair"] = False
+            attribution["avatar_loaded"] = False
+        elif classification == "avatar-later-blocker":
+            attribution["avatar_loaded"] = False
+        return attribution
+
     def test_all_scenario_manifests_validate(self) -> None:
         manifests = sorted((PERF_DIR / "scenarios").glob("*.json"))
         self.assertEqual(6, len(manifests))
@@ -185,6 +222,42 @@ class RendererBenchmarkTests(unittest.TestCase):
             [("LLStats", {"op": "normalizeRendererDisplay"})],
             api.requests,
         )
+
+    def test_appearance_sampling_is_prime_only_and_retains_the_last_blocker(self) -> None:
+        classifications = [
+            "cof-incomplete",
+            "wearable-delivery-pending-or-failed",
+            "ready",
+        ]
+        diagnostics = [
+            {
+                "scene_state": {
+                    "self_avatar_loaded": classification == "ready",
+                },
+                "appearance": self.appearance_attribution(classification),
+            }
+            for classification in classifications
+        ]
+        class FakeAPI:
+            def __init__(self, values: list[dict[str, object]]) -> None:
+                self.values = values
+
+            def renderer_diagnostic_state(self) -> dict[str, object]:
+                return self.values.pop(0)
+
+        api = FakeAPI(copy.deepcopy(diagnostics))
+        samples = [collector.sample_appearance_attribution(api) for _ in diagnostics]
+        summary = collector.summarize_appearance_attribution(
+            [scene for scene, _ in samples],
+            [appearance for _, appearance in samples],
+        )
+        self.assertIsNotNone(summary)
+        self.assertEqual("wearable-delivery-pending-or-failed", summary["classification"])
+
+        inconsistent = copy.deepcopy(diagnostics[-1])
+        inconsistent["scene_state"]["self_avatar_loaded"] = False
+        with self.assertRaisesRegex(collector.ProtocolError, "does not match"):
+            collector.sample_appearance_attribution(FakeAPI([inconsistent]))
 
     def test_runner_rejects_zero_repeats(self) -> None:
         parser = benchmark.build_parser()
@@ -447,6 +520,77 @@ class RendererBenchmarkTests(unittest.TestCase):
         unsafe = {"destination": "private-place", "view": {"origin": [1, 2, 3]}, "safe": True}
         self.assertEqual({"safe": True}, benchmark.sanitize(unsafe))
 
+    def test_appearance_projection_is_fixed_and_fails_closed(self) -> None:
+        private_text = "secret account inventory and /private/path"
+        projected = benchmark.safe_appearance_attribution({
+            "classification": private_text,
+            "avatar_valid": 1,
+            "cof_present": True,
+            "cof_complete": private_text,
+            "cof_change_in_progress": False,
+            "required_links_resolved": {
+                "shape": True,
+                "skin": private_text,
+                "extra-private-part": private_text,
+            },
+            "required_wearables_delivered": private_text,
+            "avatar_loaded": True,
+            "raw_log": private_text,
+        })
+        serialized = json.dumps(projected)
+        self.assertEqual("unknown", projected["classification"])
+        self.assertFalse(projected["avatar_valid"])
+        self.assertFalse(projected["cof_complete"])
+        self.assertEqual(
+            {"shape": True, "skin": False, "hair": False, "eyes": False},
+            projected["required_links_resolved"],
+        )
+        self.assertNotIn(private_text, serialized)
+        self.assertNotIn("extra-private-part", serialized)
+        self.assertNotIn("raw_log", serialized)
+
+        for classification in sorted(benchmark.APPEARANCE_CLASSIFICATIONS - {"unknown"}):
+            with self.subTest(classification=classification):
+                facts = self.appearance_attribution(classification)
+                self.assertEqual(
+                    classification,
+                    benchmark.safe_appearance_attribution(facts)["classification"],
+                )
+
+        contradictory = self.appearance_attribution("ready")
+        contradictory["classification"] = "cof-incomplete"
+        self.assertEqual(
+            "unknown",
+            benchmark.safe_appearance_attribution(contradictory)["classification"],
+        )
+        malformed_classification = self.appearance_attribution()
+        malformed_classification["classification"] = [private_text]
+        self.assertEqual(
+            "unknown",
+            benchmark.safe_appearance_attribution(malformed_classification)["classification"],
+        )
+
+    def test_optional_appearance_does_not_change_gates_or_policy_hash(self) -> None:
+        result = copy.deepcopy(self.fixture)
+        original_gates = copy.deepcopy(result["validity"]["gates"])
+        original_policy_hash = result["validity"]["policy_hash"]
+        result["validity"]["observed"]["appearance"] = self.appearance_attribution()
+        benchmark.validate_result(result)
+        self.assertEqual(original_gates, result["validity"]["gates"])
+        self.assertEqual(original_policy_hash, result["validity"]["policy_hash"])
+
+        result["validity"]["observed"]["appearance"]["inventory_id"] = "private"
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "privacy-safe contract"):
+            benchmark.validate_result(result)
+
+        numeric_boolean = copy.deepcopy(self.fixture)
+        numeric_boolean["validity"]["observed"]["appearance"] = self.appearance_attribution(
+            "unknown"
+        )
+        numeric_boolean["validity"]["observed"]["appearance"]["avatar_valid"] = 0
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "privacy-safe contract"):
+            benchmark.validate_result(numeric_boolean)
+
     def test_result_rejects_tampered_scene_gates(self) -> None:
         tampered = copy.deepcopy(self.fixture)
         tampered["validity"]["observed"]["destination_ready"] = False
@@ -617,6 +761,45 @@ class RendererBenchmarkTests(unittest.TestCase):
                 report["attempts"][0]["assets"]["observed"]["texture_fetch_requests_max"]
             )
 
+    def test_readiness_prefers_fixed_appearance_attribution_over_log_text(self) -> None:
+        result = copy.deepcopy(self.fixture)
+        result["validity"]["observed"]["self_avatar_loaded"] = False
+        appearance = self.appearance_attribution("wearable-delivery-pending-or-failed")
+        appearance["required_wearables_delivered"]["hair"] = False
+        result["validity"]["observed"]["appearance"] = appearance
+        result["validity"]["gates"] = benchmark.validity_gate_results(
+            result["validity"]["workload_id"],
+            result["validity"]["operator"],
+            result["validity"]["observed"],
+            result["validity"]["policy"],
+        )
+        with tempfile.TemporaryDirectory() as temp_name:
+            state = Path(temp_name) / "state"
+            benchmark.benchmark_state_settings({}, state, "warm")
+            log_root = state / "user" / "logs"
+            log_root.mkdir(parents=True)
+            (log_root / "SecondLife.log").write_text(
+                "Self is clouded because lower textures not baked\n",
+                encoding="utf-8",
+            )
+            attempts = [
+                benchmark.readiness_attempt(index, "rejected", result, {}, state)
+                for index in (1, 2)
+            ]
+            output = Path(temp_name) / "readiness.json"
+            benchmark.write_readiness_report(output, attempts)
+            report = benchmark.load_json(output)
+            self.assertEqual(
+                "wearable-delivery-pending-or-failed",
+                report["attempts"][0]["avatar"]["blocker"],
+            )
+            self.assertEqual(
+                "wearable-delivery-pending-or-failed",
+                report["attempts"][1]["avatar"]["appearance"]["classification"],
+            )
+            self.assertFalse(report["retained_timing"])
+            self.assertEqual(0, report["valid_measured_repeats"])
+
     def test_readiness_can_pass_while_other_scene_gates_remain_explicit(self) -> None:
         rejected = copy.deepcopy(self.fixture)
         rejected["validity"]["observed"]["background_frame_count"] = 1
@@ -697,6 +880,7 @@ class RendererBenchmarkTests(unittest.TestCase):
                 leap = json.loads(command[command.index("--leap") + 1])
                 leap_args = benchmark.shlex.split(leap)
                 config = benchmark.load_json(Path(leap_args[leap_args.index("--config") + 1]))
+                self.assertTrue(config["appearance_diagnostics"])
                 result = results[launch - 1]
                 result["context"]["effective_settings"] = copy.deepcopy(
                     config["requested_settings"]
@@ -938,6 +1122,49 @@ class RendererBenchmarkTests(unittest.TestCase):
             ):
                 with redirect_stdout(StringIO()):
                     self.assertEqual(0, args.handler(args))
+
+    def test_normal_warm_launches_disable_appearance_diagnostics(self) -> None:
+        manifest_path = PERF_DIR / "scenarios" / "steady-warm-v1.json"
+        manifest = benchmark.load_json(manifest_path)
+        result = copy.deepcopy(self.fixture)
+        self.match_result_to_manifest(result, manifest)
+        flags: list[bool] = []
+
+        with tempfile.TemporaryDirectory() as temp_name:
+            parser = benchmark.build_parser()
+            args = parser.parse_args([
+                "run",
+                "--viewer", "/viewer/SecondLife",
+                "--manifest", str(manifest_path),
+                "--credential-file", str(Path(temp_name) / "account.txt"),
+                "--slurl", "secondlife://example/128/128/25",
+                "--hardware-label", "fixture-hardware",
+                *self.operator_args,
+                "--output-dir", str(Path(temp_name) / "results"),
+                "--repeats", "1",
+            ])
+
+            def fake_viewer_run(command: list[str], **_kwargs: object) -> object:
+                leap = json.loads(command[command.index("--leap") + 1])
+                leap_args = benchmark.shlex.split(leap)
+                config = benchmark.load_json(Path(leap_args[leap_args.index("--config") + 1]))
+                flags.append(config["appearance_diagnostics"])
+                launch_result = copy.deepcopy(result)
+                launch_result["context"]["effective_settings"] = copy.deepcopy(
+                    config["requested_settings"]
+                )
+                Path(config["output"]).write_text(json.dumps(launch_result), encoding="utf-8")
+                return benchmark.subprocess.CompletedProcess(command, 0)
+
+            with (
+                patch.object(benchmark, "_read_credentials", return_value=("first", "last", "pw")),
+                patch.object(benchmark, "_git_source", return_value={}),
+                patch.object(benchmark.subprocess, "run", side_effect=fake_viewer_run),
+                redirect_stdout(StringIO()),
+            ):
+                self.assertEqual(0, args.handler(args))
+
+        self.assertEqual([False, False], flags)
 
     @unittest.skipIf(os.name == "nt", "POSIX credential modes do not apply on Windows")
     def test_credentials_must_be_private(self) -> None:

@@ -37,6 +37,43 @@
   "$defs": {
     "nonNegativeNumber": {"type": "number", "minimum": 0},
     "positiveNumber": {"type": "number", "exclusiveMinimum": 0},
+    "appearanceRequiredParts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shape", "skin", "hair", "eyes"],
+      "properties": {
+        "shape": {"type": "boolean"},
+        "skin": {"type": "boolean"},
+        "hair": {"type": "boolean"},
+        "eyes": {"type": "boolean"}
+      }
+    },
+    "appearanceAttribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification", "avatar_valid", "cof_present", "cof_complete",
+        "cof_change_in_progress", "required_links_resolved",
+        "required_wearables_delivered", "avatar_loaded"
+      ],
+      "properties": {
+        "classification": {
+          "enum": [
+            "avatar-unavailable", "cof-incomplete",
+            "required-link-missing-or-unresolved",
+            "wearable-delivery-pending-or-failed",
+            "avatar-later-blocker", "ready", "unknown"
+          ]
+        },
+        "avatar_valid": {"type": "boolean"},
+        "cof_present": {"type": "boolean"},
+        "cof_complete": {"type": "boolean"},
+        "cof_change_in_progress": {"type": "boolean"},
+        "required_links_resolved": {"$ref": "#/$defs/appearanceRequiredParts"},
+        "required_wearables_delivered": {"$ref": "#/$defs/appearanceRequiredParts"},
+        "avatar_loaded": {"type": "boolean"}
+      }
+    },
     "run": {
       "type": "object",
       "additionalProperties": false,
@@ -215,6 +252,7 @@
             "mesh_lod_unresolved_max": {"type": "integer", "minimum": -1},
             "mesh_skin_unresolved_max": {"type": "integer", "minimum": -1},
             "self_avatar_loaded": {"type": "boolean"},
+            "appearance": {"$ref": "#/$defs/appearanceAttribution"},
             "visible_avatars_min": {"type": "integer", "minimum": -1},
             "visible_avatars_max": {"type": "integer", "minimum": -1},
             "active_objects_min": {"type": "integer", "minimum": -1},

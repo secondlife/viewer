@@ -34,7 +34,10 @@
 #if defined(LL_RENDER_BENCHMARK)
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llagentwearables.h"
 #include "llappviewer.h"
+#include "llappearancemgr.h"
+#include "llbenchmarkappearance.h"
 #include "llcircuit.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
@@ -55,6 +58,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewershadermgr.h"
+#include "llviewerinventory.h"
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
@@ -377,6 +381,87 @@ LLSD getRendererSceneState()
     state["packets_lost_total"] = circuit ? (F64)circuit->getPacketsLost() : 0.0;
     return state;
 }
+
+constexpr std::array<LLWearableType::EType, 4> REQUIRED_WEARABLE_TYPES = {
+    LLWearableType::WT_SHAPE,
+    LLWearableType::WT_SKIN,
+    LLWearableType::WT_HAIR,
+    LLWearableType::WT_EYES,
+};
+
+constexpr std::array<const char*, 4> REQUIRED_WEARABLE_NAMES = {
+    "shape",
+    "skin",
+    "hair",
+    "eyes",
+};
+
+LLSD requiredPartsToLLSD(const LLBenchmarkAppearance::RequiredParts& parts)
+{
+    LLSD result;
+    for (size_t index = 0; index < parts.size(); ++index)
+    {
+        result[REQUIRED_WEARABLE_NAMES[index]] = parts[index];
+    }
+    return result;
+}
+
+LLSD getRendererAppearanceState()
+{
+    LLBenchmarkAppearance::Facts facts;
+    facts.avatar_valid = isAgentAvatarValid();
+
+    const LLUUID cof_id = LLAppearanceMgr::instance().getCOF();
+    facts.cof_present = !cof_id.isNull() && gInventory.getCategory(cof_id);
+    facts.cof_complete = facts.cof_present && gInventory.isCategoryComplete(cof_id);
+    facts.cof_change_in_progress = gAgentWearables.isCOFChangeInProgress();
+
+    if (facts.cof_present)
+    {
+        LLInventoryModel::cat_array_t* categories = nullptr;
+        LLInventoryModel::item_array_t* items = nullptr;
+        gInventory.getDirectDescendentsOf(cof_id, categories, items);
+        if (items)
+        {
+            for (const LLPointer<LLViewerInventoryItem>& item : *items)
+            {
+                const LLViewerInventoryItem* linked_item =
+                    item && item->getIsLinkType() ? item->getLinkedItem() : nullptr;
+                if (!linked_item || !linked_item->isWearableType())
+                {
+                    continue;
+                }
+                const LLWearableType::EType type = linked_item->getWearableType();
+                for (size_t index = 0; index < REQUIRED_WEARABLE_TYPES.size(); ++index)
+                {
+                    if (type == REQUIRED_WEARABLE_TYPES[index])
+                    {
+                        facts.required_links_resolved[index] = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    for (size_t index = 0; index < REQUIRED_WEARABLE_TYPES.size(); ++index)
+    {
+        facts.required_wearables_delivered[index] =
+            gAgentWearables.getWearableCount(REQUIRED_WEARABLE_TYPES[index]) > 0;
+    }
+    facts.avatar_loaded = facts.avatar_valid && gAgentAvatarp->isFullyLoaded();
+
+    LLSD result;
+    result["classification"] = LLBenchmarkAppearance::classify(facts);
+    result["avatar_valid"] = facts.avatar_valid;
+    result["cof_present"] = facts.cof_present;
+    result["cof_complete"] = facts.cof_complete;
+    result["cof_change_in_progress"] = facts.cof_change_in_progress;
+    result["required_links_resolved"] = requiredPartsToLLSD(facts.required_links_resolved);
+    result["required_wearables_delivered"] = requiredPartsToLLSD(facts.required_wearables_delivered);
+    result["avatar_loaded"] = facts.avatar_loaded;
+    return result;
+}
 #endif
 }
 
@@ -390,6 +475,10 @@ LLStatsListener::LLStatsListener()
         &LLStatsListener::getPerfData,
         llsd::map("reply", LLSD()));
 #if defined(LL_RENDER_BENCHMARK)
+    add("getRendererDiagnosticState",
+        "Return paired scene and appearance facts for a diagnostic prime.",
+        &LLStatsListener::getRendererDiagnosticState,
+        llsd::map("reply", LLSD()));
     add("normalizeRendererDisplay",
         "Apply the renderer benchmark display scale after native window attachment.",
         &LLStatsListener::normalizeRendererDisplay,
@@ -398,6 +487,18 @@ LLStatsListener::LLStatsListener()
 }
 
 #if defined(LL_RENDER_BENCHMARK)
+void LLStatsListener::getRendererDiagnosticState(LLSD const& evt)
+{
+    LLEventAPI::Response response(LLSD(), evt);
+    LLSD scene_state = getRendererSceneState();
+    LLSD appearance = getRendererAppearanceState();
+    // Keep the diagnostic and the conservative scene gate on the same
+    // main-thread snapshot even at the fully-loaded transition.
+    scene_state["self_avatar_loaded"] = appearance["avatar_loaded"];
+    response["scene_state"] = scene_state;
+    response["appearance"] = appearance;
+}
+
 void LLStatsListener::normalizeRendererDisplay(LLSD const& evt)
 {
     LLEventAPI::Response response(LLSD(), evt);

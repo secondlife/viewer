@@ -16,6 +16,7 @@ from render_benchmark import (
     SCHEMA_VERSION,
     canonical_hash,
     display_contract_mismatches,
+    safe_appearance_attribution,
     sanitize,
     summarize_result,
     validity_gate_results,
@@ -73,6 +74,12 @@ class ViewerAPI:
         if not isinstance(response, Mapping) or not isinstance(response.get("stats"), Mapping):
             raise ProtocolError("LLStats.getPerfData returned no stats map")
         return response["stats"]
+
+    def renderer_diagnostic_state(self) -> Mapping[str, Any]:
+        response = self.request("LLStats", {"op": "getRendererDiagnosticState"})
+        if not isinstance(response, Mapping):
+            raise ProtocolError("LLStats.getRendererDiagnosticState returned no map")
+        return response
 
     def request_quit(self) -> None:
         write_packet("LLAppViewer", {"op": "requestQuit"})
@@ -161,6 +168,42 @@ def _add_unclassified_time(frames: list[dict[str, Any]]) -> None:
 def _scene_state(stats: Mapping[str, Any]) -> dict[str, Any]:
     state = stats.get("renderer_scene_state", {})
     return dict(state) if isinstance(state, Mapping) else {}
+
+
+def sample_appearance_attribution(
+    api: ViewerAPI,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    diagnostic = api.renderer_diagnostic_state()
+    scene_state = diagnostic.get("scene_state")
+    if not isinstance(scene_state, Mapping) or "appearance" not in diagnostic:
+        raise ProtocolError("diagnostic renderer response is incomplete")
+    scene = dict(scene_state)
+    appearance = safe_appearance_attribution(diagnostic["appearance"])
+    if scene.get("self_avatar_loaded") is not appearance["avatar_loaded"]:
+        raise ProtocolError("appearance attribution does not match its scene observation")
+    return scene, appearance
+
+
+def sample_scene_and_appearance(
+    stats: Mapping[str, Any], api: ViewerAPI, enabled: bool
+) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    if not enabled:
+        return _scene_state(stats), None
+    return sample_appearance_attribution(api)
+
+
+def summarize_appearance_attribution(
+    scene_states: Sequence[Mapping[str, Any]],
+    observations: Sequence[Mapping[str, Any]],
+) -> dict[str, Any] | None:
+    """Retain attribution for the last avatar failure in the guarded window."""
+    if len(scene_states) != len(observations):
+        raise ProtocolError("appearance observations do not match scene observations")
+    projected = [safe_appearance_attribution(value) for value in observations]
+    for state, value in reversed(list(zip(scene_states, projected))):
+        if state.get("self_avatar_loaded") is not True:
+            return value
+    return projected[-1] if projected else None
 
 
 def _numeric_values(states: Sequence[Mapping[str, Any]], field: str) -> list[float]:
@@ -298,6 +341,9 @@ def collect(config: Mapping[str, Any], api: ViewerAPI) -> dict[str, Any]:
     workload_id = validity_config.get("workload_id")
     if not isinstance(policy, Mapping) or not isinstance(operator, Mapping):
         raise ProtocolError("validity policy or operator state is not a map")
+    appearance_diagnostics = config.get("appearance_diagnostics", False)
+    if not isinstance(appearance_diagnostics, bool):
+        raise ProtocolError("appearance_diagnostics is not a boolean")
     startup_deadline = time.monotonic() + float(config["startup_timeout_seconds"])
     latest_stats: Mapping[str, Any] | None = None
     while time.monotonic() < startup_deadline:
@@ -319,18 +365,35 @@ def collect(config: Mapping[str, Any], api: ViewerAPI) -> dict[str, Any]:
         min(10.0, float(config["startup_timeout_seconds"])),
         poll_interval,
     )
-
     warmup_started = time.monotonic()
     warmup_deadline = warmup_started + float(run["warmup_seconds"])
+    initial_scene, initial_appearance = sample_scene_and_appearance(
+        latest_stats, api, appearance_diagnostics
+    )
     warmup_observations: list[tuple[float, dict[str, Any]]] = [
-        (0.0, _scene_state(latest_stats))
+        (0.0, initial_scene)
     ]
+    warmup_appearance = (
+        [initial_appearance]
+        if initial_appearance is not None
+        else []
+    )
     while time.monotonic() < warmup_deadline:
         latest_stats = api.perf_data()
-        warmup_observations.append((time.monotonic() - warmup_started, _scene_state(latest_stats)))
+        scene_state, appearance = sample_scene_and_appearance(
+            latest_stats, api, appearance_diagnostics
+        )
+        warmup_observations.append((time.monotonic() - warmup_started, scene_state))
+        if appearance is not None:
+            warmup_appearance.append(appearance)
         time.sleep(poll_interval)
     latest_stats = api.perf_data()
-    warmup_observations.append((time.monotonic() - warmup_started, _scene_state(latest_stats)))
+    scene_state, appearance = sample_scene_and_appearance(
+        latest_stats, api, appearance_diagnostics
+    )
+    warmup_observations.append((time.monotonic() - warmup_started, scene_state))
+    if appearance is not None:
+        warmup_appearance.append(appearance)
 
     settle_cutoff = warmup_observations[-1][0] - float(policy["settle_seconds"])
     settle_start = 0
@@ -341,21 +404,33 @@ def collect(config: Mapping[str, Any], api: ViewerAPI) -> dict[str, Any]:
             break
     settle_observations = warmup_observations[settle_start:]
     settle_states = [state for _, state in settle_observations]
+    settle_appearance = warmup_appearance[settle_start:] if appearance_diagnostics else []
     settle_seconds_observed = settle_observations[-1][0] - settle_observations[0][0]
 
     assert latest_stats is not None
     first_frame = _latest_frame_number(latest_stats)
     captured: dict[int, dict[str, Any]] = {}
     capture_states = [_scene_state(latest_stats)]
+    capture_appearance = [warmup_appearance[-1]] if appearance_diagnostics else []
     capture_deadline = time.monotonic() + float(run["duration_seconds"])
     while time.monotonic() < capture_deadline:
         latest_stats = api.perf_data()
         _merge_frames(captured, latest_stats, first_frame)
-        capture_states.append(_scene_state(latest_stats))
+        scene_state, appearance = sample_scene_and_appearance(
+            latest_stats, api, appearance_diagnostics
+        )
+        capture_states.append(scene_state)
+        if appearance is not None:
+            capture_appearance.append(appearance)
         time.sleep(poll_interval)
     latest_stats = api.perf_data()
     _merge_frames(captured, latest_stats, first_frame)
-    capture_states.append(_scene_state(latest_stats))
+    scene_state, appearance = sample_scene_and_appearance(
+        latest_stats, api, appearance_diagnostics
+    )
+    capture_states.append(scene_state)
+    if appearance is not None:
+        capture_appearance.append(appearance)
 
     context = sanitize({**latest_stats.get("renderer_context", {}), **config["context"]})
     context["effective_settings_hash"] = canonical_hash(context.get("effective_settings", {}))
@@ -373,6 +448,16 @@ def collect(config: Mapping[str, Any], api: ViewerAPI) -> dict[str, Any]:
         settle_seconds_observed,
     )
     gates = validity_gate_results(workload_id, operator, observed, policy)
+    appearance = (
+        summarize_appearance_attribution(
+            [*settle_states, *capture_states],
+            [*settle_appearance, *capture_appearance],
+        )
+        if appearance_diagnostics
+        else None
+    )
+    if appearance is not None:
+        observed["appearance"] = appearance
     validity = {
         "workload_id": workload_id,
         "policy": dict(policy),

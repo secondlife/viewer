@@ -59,6 +59,16 @@ AVATAR_BLOCKER_SIGNATURES = (
     ("Self is clouded because upper textures not baked", "upper-bake-missing"),
     ("Self is clouded because texture at index", "baked-texture-not-renderable"),
 )
+REQUIRED_APPEARANCE_PARTS = ("shape", "skin", "hair", "eyes")
+APPEARANCE_CLASSIFICATIONS = frozenset({
+    "avatar-unavailable",
+    "cof-incomplete",
+    "required-link-missing-or-unresolved",
+    "wearable-delivery-pending-or-failed",
+    "avatar-later-blocker",
+    "ready",
+    "unknown",
+})
 READINESS_ASSET_FIELDS = (
     "mesh_lod_unresolved_max",
     "mesh_skin_unresolved_max",
@@ -238,6 +248,66 @@ def sanitize(value: Any) -> Any:
     if isinstance(value, list):
         return [sanitize(item) for item in value]
     return value
+
+
+def safe_appearance_attribution(value: Any) -> dict[str, Any]:
+    """Project live appearance data into the fixed privacy-safe contract."""
+    source = value if isinstance(value, Mapping) else {}
+    scalar_fields = (
+        "avatar_valid",
+        "cof_present",
+        "cof_complete",
+        "cof_change_in_progress",
+        "avatar_loaded",
+    )
+
+    def required_parts(field: str) -> dict[str, bool]:
+        parts = source.get(field, {})
+        if not isinstance(parts, Mapping):
+            parts = {}
+        return {name: parts.get(name) is True for name in REQUIRED_APPEARANCE_PARTS}
+
+    projected = {
+        "avatar_valid": source.get("avatar_valid") is True,
+        "cof_present": source.get("cof_present") is True,
+        "cof_complete": source.get("cof_complete") is True,
+        "cof_change_in_progress": source.get("cof_change_in_progress") is True,
+        "required_links_resolved": required_parts("required_links_resolved"),
+        "required_wearables_delivered": required_parts("required_wearables_delivered"),
+        "avatar_loaded": source.get("avatar_loaded") is True,
+    }
+    parts_are_typed = all(
+        isinstance(source.get(field), Mapping)
+        and all(type(source[field].get(name)) is bool for name in REQUIRED_APPEARANCE_PARTS)
+        for field in ("required_links_resolved", "required_wearables_delivered")
+    )
+    facts_are_typed = all(type(source.get(field)) is bool for field in scalar_fields)
+    expected_classification = (
+        "avatar-unavailable"
+        if not projected["avatar_valid"]
+        else "cof-incomplete"
+        if not projected["cof_present"] or not projected["cof_complete"]
+        else "required-link-missing-or-unresolved"
+        if not all(projected["required_links_resolved"].values())
+        else "wearable-delivery-pending-or-failed"
+        if not all(projected["required_wearables_delivered"].values())
+        else "avatar-later-blocker"
+        if not projected["avatar_loaded"]
+        else "ready"
+    )
+    classification = source.get("classification")
+    classification_is_known = (
+        isinstance(classification, str)
+        and classification in APPEARANCE_CLASSIFICATIONS
+    )
+    if (
+        not facts_are_typed
+        or not parts_are_typed
+        or not classification_is_known
+        or classification not in {expected_classification, "unknown"}
+    ):
+        classification = "unknown"
+    return {"classification": classification, **projected}
 
 
 def find_private_paths(value: Any, prefix: str = "$") -> list[str]:
@@ -628,6 +698,13 @@ def validate_result(result: Mapping[str, Any], require_valid: bool = True) -> No
     policy = validity["policy"]
     if not isinstance(policy, Mapping) or canonical_hash(policy) != validity["policy_hash"]:
         raise BenchmarkError("result validity policy hash does not match its policy")
+    observed = validity["observed"]
+    if not isinstance(observed, Mapping):
+        raise BenchmarkError("result validity observations must be an object")
+    if "appearance" in observed:
+        safe_appearance = safe_appearance_attribution(observed["appearance"])
+        if canonical_hash(observed["appearance"]) != canonical_hash(safe_appearance):
+            raise BenchmarkError("result appearance attribution is outside the privacy-safe contract")
     validate_operator_state(validity["workload_id"], validity["operator"])
     expected_gates = validity_gate_results(
         validity["workload_id"], validity["operator"], validity["observed"], policy
@@ -1038,11 +1115,19 @@ def readiness_attempt(
     log_avatar_blocker = _first_log_category(
         state / "user" / "logs", AVATAR_BLOCKER_SIGNATURES, log_cursor
     )
+    appearance = (
+        safe_appearance_attribution(observed["appearance"])
+        if "appearance" in observed
+        else None
+    )
+    appearance_classification = appearance["classification"] if appearance else "unknown"
     avatar_blocker = (
         "none"
         if self_avatar_loaded and agent_stationary
         else "avatar-moved"
         if self_avatar_loaded
+        else appearance_classification
+        if appearance_classification not in {"ready", "unknown"}
         else log_avatar_blocker or "unknown"
     )
     attempt_record = sanitize({
@@ -1072,6 +1157,7 @@ def readiness_attempt(
             "self_avatar_loaded": self_avatar_loaded,
             "stationary": agent_stationary,
             "blocker": avatar_blocker,
+            **({"appearance": appearance} if appearance else {}),
         },
     })
     before = attempt_record["cache_before_launch"]
@@ -1126,7 +1212,7 @@ def write_readiness_report(path: Path, attempts: Sequence[Mapping[str, Any]]) ->
     report = sanitize({
         "schema_version": 1,
         "kind": "renderer-readiness",
-        "scene_contract": "schema-3-unchanged",
+        "scene_contract": "schema-3-gates-unchanged",
         "target_gates": list(READINESS_TARGET_GATES),
         "readiness_passed": bool(attempts)
         and last_attempt.get("outcome") == "readiness-passed"
@@ -1244,6 +1330,7 @@ def _run_command(args: argparse.Namespace) -> int:
             plugin_config = {
                 "schema_version": SCHEMA_VERSION,
                 "output": str(output),
+                "appearance_diagnostics": bool(is_prime and args.prime_only),
                 "run": {
                     "scenario": manifest["id"],
                     # The prime is a complete, schema-valid capture whose
