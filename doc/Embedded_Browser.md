@@ -55,17 +55,17 @@ forever).
 
 ## Repo locations
 
-- **`llcefbrowser`** - `https://github.com/secondlife/llcefbrowser` (public)
-- **`llshmframe`** - `https://github.com/secondlife/llshmframe` (public)
+- **`llcefbrowser`** - [`https://github.com/secondlife/llcefbrowser`](https://github.com/secondlife/llcefbrowser) (public)
+- **`llshmframe`** - [`https://github.com/secondlife/llshmframe`](https://github.com/secondlife/llshmframe) (public)
 - **`llcefshm-example`** - a personal testbed/example repo used during
   early development of `llcefbrowser`/`llshmframe` as standalone libraries,
   before either was integrated into the Viewer. Not part of the shipped
   product.
-- **This Viewer repo** - `https://github.com/secondlife/viewer-embedded-browser`,
-  branch `callum/viewer-embedded-browser`. Private for now, while the
-  embedded-browser integration itself is still being proven out; `llcefbrowser`
-  and `llshmframe` are already public since they carry no Viewer-specific
-  code.
+- **This Viewer repo** - [`https://github.com/secondlife/viewer`](https://github.com/secondlife/viewer),
+  branch `callum/embedded-browser`. This work started in a separate private
+  repo while the embedded-browser integration was still being proven out,
+  then moved to a branch directly on the public Viewer repo once it was
+  ready.
 
 ## CEF version used
 
@@ -296,6 +296,14 @@ To use it:
    embedded-browser tab, UI floater or prim media, and opens a full DevTools
    session against whichever one you pick.
 
+For performance debugging, DevTools' FPS meter is useful here: with a
+session open, press Ctrl+Shift+P (Command+Shift+P on macOS) to open the
+Command Menu, type "Rendering", and select "Show Rendering". In the
+Rendering panel that opens, check "Frame Rendering Stats". This overlays a
+real-time FPS/dropped-frames/GPU-raster readout directly on the page,
+useful for checking the distance/priority render-throttling tiers above
+are actually taking effect on a given tab.
+
 ## Known limitations, as of this writing
 
 - **Volume is all-or-nothing.** CEF only exposes a binary
@@ -321,6 +329,34 @@ To use it:
   plugins, and a few files have CEF-specific calls not yet ported to the
   new backend), so the legacy code stays in place until the embedded-browser
   system is closer to feature-complete.
+
+## Future work
+
+- **GPU texture handles instead of CPU memory-buffer copies.** Today, every
+  frame CEF renders is delivered via its `OnPaint` callback as a raw BGRA
+  pixel buffer in CPU memory, which `SLCefProducer.exe` then copies into an
+  `llshmframe` shared-memory ring buffer for the Viewer to read back out
+  and upload to a GL texture, a full-frame CPU copy (and a GPU readback
+  before that) on every update. CEF also exposes `OnAcceleratedPaint`,
+  which instead hands back a GPU-side shared texture handle (a DXGI/D3D11
+  shared resource on Windows) with no CPU copy involved at all. Switching
+  to that path would let `llshmframe` pass a texture handle across the
+  process boundary instead of raw pixels, but requires the Viewer to
+  import that shared resource into its own D3D/GL context
+  (`ID3D11Device::OpenSharedResource` or equivalent), a real transport
+  redesign rather than a small change, not started.
+- **Reintroduce LibVLC support, for parcel audio and additional video
+  format support.** Likely essential before a first release, in the same
+  category as macOS/Linux support above rather than a true nice-to-have.
+  Parcel music streaming (`LLStreamingAudio_MediaPlugins`, see
+  `indra/newview/llviewermedia_streamingaudio.h`) plays through the
+  plugin architecture, and routes pure audio streams to
+  `media_plugin_libvlc` specifically, not CEF. Since `ENABLE_MEDIA_PLUGINS`
+  now defaults off (see "The legacy media plugin has not been removed"
+  above), that plugin no longer builds or deploys, so parcel audio
+  streaming does not currently work in this branch. This is separate
+  from the "Media codec coverage versus LibVLC" question above, which is
+  about video formats embedded in web pages, not parcel audio.
 
 ## Notes on AI-assisted development
 
