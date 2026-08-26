@@ -68,6 +68,16 @@ set(llrender_HEADER_FILES
 
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
+set(llrendercontract_SOURCE_FILES
+    llrendercontract.cpp
+    llrendercontract.h
+    )
+
+# Keep the backend-neutral contract independently linkable. In particular,
+# this target must not inherit llrender's OpenGL or window dependencies.
+add_library(llrendercontract ${llrendercontract_SOURCE_FILES})
+target_include_directories(llrendercontract PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
 if (BUILD_HEADLESS)
   add_library (llrenderheadless
     ${llrender_SOURCE_FILES}
@@ -75,6 +85,7 @@ if (BUILD_HEADLESS)
   target_include_directories(llrenderheadless INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
   target_link_libraries(llrenderheadless
+          llrendercontract
           llcommon
           llimage
           llmath
@@ -109,6 +120,7 @@ target_include_directories(llrender INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llrender
+        llrendercontract
         llcommon
         llimage
         llmath
@@ -127,4 +139,14 @@ endif()
 
 if (USE_PRECOMPILED_HEADERS)
  target_precompile_headers(llrender REUSE_FROM llprecompiled)
+endif ()
+
+if (LL_TESTS)
+  include(LLAddBuildTest)
+  set_source_files_properties(
+    tests/llrendercontract_test.cpp
+    PROPERTIES
+    SKIP_PRECOMPILE_HEADERS TRUE
+  )
+  LL_ADD_INTEGRATION_TEST(llrendercontract "" "llrendercontract;llcommon")
 endif ()
