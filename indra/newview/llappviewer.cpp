@@ -156,6 +156,8 @@
 #include <boost/regex.hpp>
 #include <boost/throw_exception.hpp>
 #include <chrono>
+#include <cstdio>
+#include <cstdlib>
 
 #if LL_WINDOWS
 #   include <share.h> // For _SH_DENYWR in processMarkerFiles
@@ -3478,6 +3480,14 @@ bool LLAppViewer::initWindow()
 
     gSavedSettings.setBOOL("RenderInitError", false);
     gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), true );
+
+    if (gSavedSettings.getBOOL("RenderTonemapContractParityTest"))
+    {
+        const bool success = gPipeline.runTonemapContractParity();
+        removeMarkerFiles();
+        std::fflush(nullptr);
+        std::_Exit(success ? EXIT_SUCCESS : EXIT_FAILURE);
+    }
 
     // If we have a startup crash, it's usually near GL initialization, so simulate that.
     if (gCrashOnStartup)

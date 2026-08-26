@@ -211,7 +211,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
     // Create the GL context and set it up for windowed or fullscreen, as appropriate.
     if(createContext(x, y, width, height, 32, fullscreen, enable_vsync))
     {
-        if(mWindow != NULL)
+        if (mWindow != NULL && !(flags & LLWindow::FLAG_CREATE_HIDDEN))
         {
             makeWindowOrderFront(mWindow);
         }

@@ -23,6 +23,7 @@ set(llrender_SOURCE_FILES
     llgltexture.cpp
     llimagegl.cpp
     llrender.cpp
+    llrendergltonemap.cpp
     llrender2dutils.cpp
     llrendernavprim.cpp
     llrendersphere.cpp
@@ -54,6 +55,7 @@ set(llrender_HEADER_FILES
     llgltypes.h
     llimagegl.h
     llrender.h
+    llrendergltonemap.h
     llrender2dutils.h
     llrendernavprim.h
     llrendersphere.h
@@ -71,6 +73,8 @@ list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 set(llrendercontract_SOURCE_FILES
     llrendercontract.cpp
     llrendercontract.h
+    lltonemapcontract.cpp
+    lltonemapcontract.h
     )
 
 # Keep the backend-neutral contract independently linkable. In particular,
@@ -145,8 +149,10 @@ if (LL_TESTS)
   include(LLAddBuildTest)
   set_source_files_properties(
     tests/llrendercontract_test.cpp
+    tests/llrendergltonemapregistry_test.cpp
     PROPERTIES
     SKIP_PRECOMPILE_HEADERS TRUE
   )
   LL_ADD_INTEGRATION_TEST(llrendercontract "" "llrendercontract;llcommon")
+  LL_ADD_INTEGRATION_TEST(llrendergltonemapregistry "" "llrendercontract;llcommon")
 endif ()

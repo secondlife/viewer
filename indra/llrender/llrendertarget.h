@@ -146,6 +146,7 @@ public:
 
     U32 getTexture(U32 attachment = 0) const;
     U32 getNumTextures() const;
+    U32 getColorFormat(U32 attachment = 0) const;
 
     U32 getDepth(void) const { return mDepth; }
 
@@ -191,4 +192,3 @@ protected:
 };
 
 #endif
-

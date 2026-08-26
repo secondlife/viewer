@@ -137,7 +137,7 @@
                 <outlet property="window" destination="828" id="850"/>
             </connections>
         </customObject>
-        <window title="Second Life" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" deferred="NO" frameAutosaveName="Second Life" animationBehavior="default" id="828" customClass="LLNSWindow">
+        <window title="Second Life" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" deferred="NO" visibleAtLaunch="NO" frameAutosaveName="Second Life" animationBehavior="default" id="828" customClass="LLNSWindow">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <rect key="contentRect" x="196" y="240" width="1024" height="600"/>

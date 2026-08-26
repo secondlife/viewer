@@ -64,7 +64,7 @@ public:
     };
     enum EFlags
     {
-        // currently unused
+        FLAG_CREATE_HIDDEN = 1 << 0
     };
 public:
     virtual void show() = 0;

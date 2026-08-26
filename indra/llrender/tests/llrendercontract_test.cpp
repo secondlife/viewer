@@ -16,9 +16,11 @@
 #include "linden_common.h"
 
 #include "llrendercontract.h"
+#include "lltonemapcontract.h"
 #include "lltut.h"
 
 #include <algorithm>
+#include <array>
 #include <limits>
 #include <type_traits>
 
@@ -94,47 +96,14 @@ RenderPass pass(PassId id, std::uint32_t width, std::uint32_t height)
 
 FrameSnapshot fullScreenFrame()
 {
-    FrameSnapshot frame;
-    frame.mFrame    = 17;
-    frame.mBuffers  = { { SCREEN_TRIANGLE_BUFFER, 48, ResourceLifetime::Persistent } };
-    frame.mImages   = { image(SCENE_IMAGE, 1280, 720, PixelFormat::RGBA16Float), image(EXPOSURE_IMAGE, 1, 1, PixelFormat::R16Float),
-                        image(OUTPUT_IMAGE, 1280, 720, PixelFormat::RGBA16Float) };
-    frame.mSamplers = { sampler(POINT_SAMPLER, Filter::Nearest), sampler(LINEAR_SAMPLER, Filter::Linear) };
-
-    PipelineResource pipeline;
-    pipeline.mHandle  = TONEMAP_PIPELINE;
-    pipeline.mProgram = { "deferred.tonemap", 0 };
-    pipeline.mColorTargets.push_back({ PixelFormat::RGBA16Float, false, 0xf });
-    pipeline.mVertexBindings.push_back({ 0, 16 });
-    pipeline.mVertexAttributes.push_back({ VertexSemantic::Position, VertexFormat::Float3, 0, 0 });
-    pipeline.mSampledImageBindings = { 0, 1 };
-    pipeline.mParameterBindings    = { { 0, 16 } };
-    frame.mPipelines.push_back(pipeline);
-
-    RenderPass tonemap      = pass({ 1 }, 1280, 720);
-    tonemap.mLabel          = "tonemap";
-    tonemap.mBufferAccesses = { { SCREEN_TRIANGLE_BUFFER, BufferAccessKind::VertexRead } };
-    tonemap.mImageAccesses  = {
-        { SCENE_IMAGE, {}, ImageAccessKind::SampledRead, ImageState::ShaderRead, ImageState::ShaderRead, ImageState::ShaderRead },
-        { EXPOSURE_IMAGE, {}, ImageAccessKind::SampledRead, ImageState::ShaderRead, ImageState::ShaderRead, ImageState::ShaderRead },
-        { OUTPUT_IMAGE,
-           {},
-           ImageAccessKind::ColorAttachmentWrite,
-           ImageState::Undefined,
-           ImageState::ColorAttachment,
-           ImageState::ShaderRead }
-    };
-    tonemap.mColorAttachments.push_back({ OUTPUT_IMAGE, {}, LoadOp::DontCare, StoreOp::Store, {} });
-
-    Draw draw;
-    draw.mResources.mPipeline      = TONEMAP_PIPELINE;
-    draw.mResources.mVertexBuffers = { { 0, SCREEN_TRIANGLE_BUFFER, 0 } };
-    draw.mResources.mSampledImages = { { 0, SCENE_IMAGE, {}, POINT_SAMPLER }, { 1, EXPOSURE_IMAGE, {}, LINEAR_SAMPLER } };
-    draw.mResources.mParameters.push_back({ 0, bytes(16) });
-    draw.mVertexCount = 3;
-    tonemap.mDraws.emplace_back(std::move(draw));
-    frame.mPasses.push_back(std::move(tonemap));
-    return frame;
+    TonemapInputs inputs;
+    inputs.mFrame = 17;
+    inputs.mHandles = { SCREEN_TRIANGLE_BUFFER, SCENE_IMAGE, EXPOSURE_IMAGE, OUTPUT_IMAGE,
+                        POINT_SAMPLER, LINEAR_SAMPLER, TONEMAP_PIPELINE, { 1 } };
+    inputs.mSourceExtent = { 1280, 720 };
+    inputs.mDestinationExtent = { 1280, 720 };
+    inputs.mParameters = { 1.25f, 0.7f, 1, 1.8f };
+    return *buildTonemapFrame(inputs);
 }
 
 FrameSnapshot materialFrame()
@@ -473,6 +442,83 @@ void render_contract_test_object::test<15>()
     frame.mPasses[0].mDependencies.push_back({ 2 });
     const ValidationResult result = validate(frame);
     ensure("pass dependencies must name earlier passes", hasError(result, ValidationCode::InvalidDependency));
+}
+
+template<>
+template<>
+void render_contract_test_object::test<16>()
+{
+    constexpr std::array variants{ TonemapVariant::Deferred, TonemapVariant::NoPost, TonemapVariant::GammaCorrect,
+                                   TonemapVariant::NoPostGammaCorrect, TonemapVariant::LegacyGammaCorrect,
+                                   TonemapVariant::NoPostLegacyGammaCorrect };
+    constexpr std::array formats{ PixelFormat::RGBA8Unorm, PixelFormat::RGBA16Float };
+
+    for (TonemapVariant variant : variants)
+    {
+        for (PixelFormat format : formats)
+        {
+            TonemapInputs inputs;
+            inputs.mFrame = 91;
+            inputs.mSourceExtent = { 17, 9 };
+            inputs.mDestinationExtent = { 13, 7 };
+            inputs.mDestinationFormat = format;
+            inputs.mVariant = variant;
+            inputs.mParameters = { 1.25f, 0.65f, 1, 1.8f };
+
+            auto frame = buildTonemapFrame(inputs);
+            ensure("every compiled tonemap variant and output format builds", frame.has_value());
+            inputs.mParameters.mExposure = 3.f;
+            auto decoded = decodeTonemapFrame(*frame);
+            ensure("canonical tonemap packet decodes", decoded.has_value());
+            ensure("builder owns parameter bytes", decoded->mParameters.mExposure == 1.25f);
+            ensure("source extent survives", decoded->mSourceExtent.mWidth == 17 && decoded->mSourceExtent.mHeight == 9);
+            ensure("destination extent survives", decoded->mDestinationExtent.mWidth == 13 && decoded->mDestinationExtent.mHeight == 7);
+            ensure("variant survives", decoded->mVariant == variant);
+            ensure("output format survives", decoded->mDestinationFormat == format);
+            ensure("gamma survives", decoded->mParameters.mGamma == 1.8f);
+            ensure("trace uses mirrored addressing", frame->mSamplers[0].mAddressU == AddressMode::Mirror &&
+                                                     frame->mSamplers[1].mAddressV == AddressMode::Mirror);
+            ensure("trace keeps disabled depth compare", frame->mPipelines[0].mDepthCompare == CompareOp::LessOrEqual);
+        }
+    }
+}
+
+template<>
+template<>
+void render_contract_test_object::test<17>()
+{
+    TonemapInputs inputs;
+    inputs.mFrame = 1;
+    inputs.mSourceExtent = { 4, 4 };
+    inputs.mDestinationExtent = { 4, 4 };
+
+    inputs.mVariant = static_cast<TonemapVariant>(4);
+    ensure("legacy gamma without gamma correction is rejected", !buildTonemapFrame(inputs));
+
+    inputs.mVariant = TonemapVariant::Deferred;
+    inputs.mDestinationFormat = PixelFormat::RGB8Unorm;
+    ensure("unsupported output format is rejected", !buildTonemapFrame(inputs));
+
+    inputs.mDestinationFormat = PixelFormat::RGBA16Float;
+    inputs.mParameters.mGamma = std::numeric_limits<float>::quiet_NaN();
+    ensure("non-finite parameters are rejected", !buildTonemapFrame(inputs));
+}
+
+template<>
+template<>
+void render_contract_test_object::test<18>()
+{
+    FrameSnapshot frame = fullScreenFrame();
+    frame.mPipelines[0].mProgram.mName = "unknown.tonemap";
+    ensure("decoder rejects an unknown program", !decodeTonemapFrame(frame));
+
+    frame = fullScreenFrame();
+    frame.mPasses[0].mScissor.mWidth--;
+    ensure("decoder rejects a partial scissor", !decodeTonemapFrame(frame));
+
+    frame = fullScreenFrame();
+    frame.mSamplers[0].mAddressU = AddressMode::Clamp;
+    ensure("decoder rejects state that diverges from the trace", !decodeTonemapFrame(frame));
 }
 
 } // namespace tut

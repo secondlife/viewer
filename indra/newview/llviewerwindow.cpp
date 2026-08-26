@@ -1998,9 +1998,12 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
     U32 max_core_count = gSavedSettings.getU32("EmulateCoreCount");
     F32 max_gl_version = gSavedSettings.getF32("RenderMaxOpenGLVersion");
+    U32 window_flags = gSavedSettings.getBOOL("RenderTonemapContractParityTest")
+        ? LLWindow::FLAG_CREATE_HIDDEN
+        : 0;
 
     mWindow = LLWindowManager::createWindow(this,
-        p.title, p.name, p.x, p.y, p.width, p.height, 0,
+        p.title, p.name, p.x, p.y, p.width, p.height, window_flags,
         p.fullscreen,
         gHeadlessClient,
         gSavedSettings.getBOOL("RenderVSyncEnable"),

@@ -489,6 +489,15 @@ U32 LLRenderTarget::getNumTextures() const
     return static_cast<U32>(mTex.size());
 }
 
+U32 LLRenderTarget::getColorFormat(U32 attachment) const
+{
+    if (attachment >= mInternalFormat.size())
+    {
+        return 0;
+    }
+    return mInternalFormat[attachment];
+}
+
 void LLRenderTarget::bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilterOptions filter_options)
 {
     gGL.getTexUnit(channel)->bindManual(mUsage, getTexture(index), filter_options == LLTexUnit::TFO_TRILINEAR || filter_options == LLTexUnit::TFO_ANISOTROPIC);

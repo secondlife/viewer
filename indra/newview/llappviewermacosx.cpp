@@ -56,6 +56,9 @@
 #include <vector>
 #include <exception>
 #include <fstream>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "lldir.h"
 #include "lldiriterator.h"
@@ -71,6 +74,18 @@ namespace
     char** gArgV;
     LLAppViewerMacOSX* gViewerAppPtr = NULL;
     std::string gHandleSLURL;
+
+    bool hasRawArgument(int argc, char* const* argv, const char* argument)
+    {
+        for (int index = 1; index < argc; ++index)
+        {
+            if (std::strcmp(argv[index], argument) == 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 void constructViewer()
@@ -274,6 +289,17 @@ int main( int argc, char **argv )
     // https://github.com/wolfpld/tracy/issues/196
     LL_PROFILER_FRAME_END;
     LL_PROFILER_SET_THREAD_NAME("App");
+
+    const char* isolated_user_dir = std::getenv("SECONDLIFE_USER_DIR");
+    if (hasRawArgument(argc, argv, "--tonemapparity")
+        && (!isolated_user_dir || isolated_user_dir[0] == '\0'))
+    {
+        std::fputs(
+            "TONEMAP_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n",
+            stderr);
+        std::fflush(stderr);
+        return EXIT_FAILURE;
+    }
 
     // Store off the command line args for use later.
     gArgC = argc;

@@ -393,6 +393,14 @@
       <string>CmdLineLoginLocation</string>
     </map>
 
+    <key>tonemapparity</key>
+    <map>
+      <key>desc</key>
+      <string>Run the fixed-input legacy/contract tonemap parity check and exit.</string>
+      <key>map-to</key>
+      <string>RenderTonemapContractParityTest</string>
+    </map>
+
     <key>url</key>
     <map>
       <key>desc</key>
