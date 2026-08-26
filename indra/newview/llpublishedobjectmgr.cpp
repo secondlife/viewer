@@ -737,6 +737,11 @@ LLSD LLPublishedObjectMgr::buildPublishedObjectLLSD(LLViewerObject* root) const
     {
         pub["region"] = root->getRegion()->getName();
     }
+    const PublishedObjectInfo* published_info = getPublished(root->getID());
+    if (published_info)
+    {
+        pub["can_save_back"] = published_info->mCanSaveBackToContents;
+    }
     pub["inventory"] = buildPrimInventoryLLSD(root);
 
     LLSD linked_objects = LLSD::emptyArray();
