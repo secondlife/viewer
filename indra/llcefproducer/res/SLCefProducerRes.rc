@@ -1,0 +1,54 @@
+// Microsoft Visual C++ generated resource script.
+//
+// SLCefProducer had no VERSIONINFO resource at all until this file was added --
+// Task Manager, Explorer's file Properties, and (per investigation) Windows'
+// own security UI all showed a blank/"Unknown" identity for this exe as a
+// result. See doc/Embedded_Browser.md for what this process is.
+
+#include <windows.h>
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION ${VIEWER_VERSION_MAJOR},${VIEWER_VERSION_MINOR},${VIEWER_VERSION_PATCH},${VIEWER_VERSION_REVISION}
+ PRODUCTVERSION ${VIEWER_VERSION_MAJOR},${VIEWER_VERSION_MINOR},${VIEWER_VERSION_PATCH},${VIEWER_VERSION_REVISION}
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Linden Lab"
+            VALUE "FileDescription", "Second Life CEF Media Producer"
+            VALUE "FileVersion", "${VIEWER_VERSION_MAJOR}.${VIEWER_VERSION_MINOR}.${VIEWER_VERSION_PATCH}.${VIEWER_VERSION_REVISION}"
+            VALUE "InternalName", "SLCefProducer"
+            VALUE "LegalCopyright", "Copyright (c) 2026, Linden Research, Inc."
+            VALUE "OriginalFilename", "SLCefProducer.exe"
+            VALUE "ProductName", "Second Life"
+            VALUE "ProductVersion", "${VIEWER_VERSION_MAJOR}.${VIEWER_VERSION_MINOR}.${VIEWER_VERSION_PATCH}.${VIEWER_VERSION_REVISION}"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
