@@ -716,4 +716,51 @@ namespace tut
         ensure_equals("path trailing slash", lldir.add("a/", "b"), "a/b");
         ensure_equals("both bring slashes", lldir.add("a/", "/b"), "a/b");
     }
+
+#if LL_DARWIN
+    template<> template<>
+    void LLDirTest_object_t::test<8>()
+    {
+        set_test_name("macOS application profile paths");
+
+        auto mode = LLStringUtil::getoptenv("LLDIR_TEST_MODE");
+        auto root = LLStringUtil::getoptenv("LLDIR_TEST_ROOT");
+        ensure("LLDIR_TEST_MODE is set", mode.has_value());
+        ensure("LLDIR_TEST_ROOT is set", root.has_value());
+
+        if (*mode == "override")
+        {
+            const std::string profile = gDirUtilp->add(*root, "user");
+            ensure_equals("override OS user directory", gDirUtilp->getOSUserDir(), profile);
+            ensure_equals("override application directory", gDirUtilp->getOSUserAppDir(), profile);
+            ensure_equals("override leaves the system cache root unused", gDirUtilp->getOSCacheDir(), "");
+            ensure_equals("override default cache", gDirUtilp->getCacheDir(), gDirUtilp->add(profile, "cache"));
+
+            for (const std::string& child : { "data", "logs", "user_settings", "browser_profile", "cache" })
+            {
+                ensure(child + " is inside the override", std::filesystem::is_directory(gDirUtilp->add(profile, child)));
+            }
+
+            gDirUtilp->setLindenUserDir("Fixture Resident");
+            ensure_equals("account data is inside the override",
+                          gDirUtilp->getLindenUserDir(),
+                          gDirUtilp->add(profile, "fixture_resident"));
+        }
+        else if (*mode == "standard")
+        {
+            const std::string home = gDirUtilp->add(*root, "home");
+            const std::string profile = gDirUtilp->add(home, "Library", "Application Support", "SecondLife");
+            const std::string cache_root = gDirUtilp->add(home, "Library", "Caches");
+
+            ensure_equals("standard OS user directory", gDirUtilp->getOSUserDir(), profile);
+            ensure_equals("standard application directory", gDirUtilp->getOSUserAppDir(), profile);
+            ensure_equals("standard system cache root", gDirUtilp->getOSCacheDir(), cache_root);
+            ensure_equals("standard default cache", gDirUtilp->getCacheDir(), gDirUtilp->add(cache_root, "SecondLife"));
+        }
+        else
+        {
+            fail("unknown LLDIR_TEST_MODE");
+        }
+    }
+#endif
 }

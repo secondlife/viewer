@@ -56,7 +56,91 @@ python3 scripts/perf/render_benchmark.py run \
   --dry-run
 ```
 
-The runner sets `SECONDLIFE_USER_DIR` and creates session settings, cache, logs, and account data inside a private per-invocation temporary directory. It does not read or alter the normal viewer profile, and the isolated data is removed after the sequence exits. Cold-cache repeats receive separate state and purge before startup. Warm-cache sequences first run one unmeasured full-duration prime, then reuse that isolated profile and cache for all measured repeats. The prime is validated but its artifact is discarded. First-use notifications, audio, and voice are disabled for benchmark sessions so they cannot cover the workload or crash a headless test host.
+### macOS local build and smoke
+
+The macOS benchmark uses the native OpenGL backend. Configure a local ReleaseOS app with benchmark instrumentation and tests enabled, but signing and crash reporting disabled. The following route was verified with a disposable Python virtual environment and a Nix-provided CMake executable. Run CMake directly from its Nix output instead of entering a Nix shell so the build continues to use Xcode's compiler and SDK environment.
+
+```zsh
+viewer_root=/path/to/viewer
+build_variables=/path/to/secondlife-build-variables
+build_venv=/private/tmp/renderer-mac-build/venv
+cmake_root="$(nix build --no-link --print-out-paths nixpkgs#cmake)"
+
+python3 -m venv "$build_venv"
+"$build_venv/bin/python" -m pip install autobuild llsd
+
+cd "$build_variables"
+set -a
+source ./convenience Release
+set +a
+
+cd "$viewer_root"
+env \
+  PATH="$cmake_root/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin" \
+  PYTHON="$build_venv" \
+  "$build_venv/bin/autobuild" configure -c ReleaseOS -- \
+    -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/clang \
+    -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++ \
+    -DCMAKE_OSX_SYSROOT:PATH=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
+    -DPython3_EXECUTABLE:FILEPATH="$build_venv/bin/python" \
+    -DPYTHON_EXECUTABLE:FILEPATH="$build_venv/bin/python" \
+    -DLL_RENDER_BENCHMARK:BOOL=ON \
+    -DLL_TESTS:BOOL=ON \
+    -DPACKAGE:BOOL=ON \
+    -DRELEASE_CRASH_REPORTING:BOOL=OFF \
+    -DNON_RELEASE_CRASH_REPORTING:BOOL=OFF \
+    -DENABLE_SIGNING:BOOL=OFF
+
+env \
+  PATH="$cmake_root/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin" \
+  "$build_venv/bin/autobuild" build -c ReleaseOS --no-configure
+
+"$cmake_root/bin/ctest" \
+  --test-dir "$viewer_root/build-darwin-universal" \
+  -C Release \
+  -R INTEGRATION_TEST_RUNNER_lldir \
+  --output-on-failure
+```
+
+The app executable is at `build-darwin-universal/newview/Release/Second Life Test.app/Contents/MacOS/Second Life Test`. A first local launch can exercise bundle resource lookup without credentials or login:
+
+```zsh
+isolated_root="$(mktemp -d /private/tmp/secondlife-help.XXXXXX)"
+SECONDLIFE_USER_DIR="$isolated_root/profile" \
+  "$viewer_root/build-darwin-universal/newview/Release/Second Life Test.app/Contents/MacOS/Second Life Test" \
+  --help
+rm -r -- "$isolated_root"
+```
+
+Snapshot the normal profile and cache metadata before and after this check. The isolated profile should contain `data`, `logs`, `user_settings`, `browser_profile`, and `cache`, and the temporary root should be removed afterward.
+
+For an authenticated launch and export smoke, create a short manifest outside the repository from `steady-warm-v1.json`. Use a short warm-up, a short capture, and one measured repeat. Validate it before launching. Supply the credential file and controlled destination separately.
+
+```zsh
+chmod 600 /secure/path/benchmark-account.txt
+
+python3 scripts/perf/render_benchmark.py validate \
+  manifest /private/tmp/steady-warm-smoke.json
+
+python3 scripts/perf/render_benchmark.py run \
+  --viewer "$viewer_root/build-darwin-universal/newview/Release/Second Life Test.app/Contents/MacOS/Second Life Test" \
+  --manifest /private/tmp/steady-warm-smoke.json \
+  --credential-file /secure/path/benchmark-account.txt \
+  --slurl secondlife://operator-supplied-location \
+  --hardware-label mac-apple-silicon-smoke \
+  --expect-gpu-substring Apple \
+  --backend native-gl \
+  --output-dir /private/tmp/renderer-smoke
+
+python3 scripts/perf/render_benchmark.py validate \
+  result /private/tmp/renderer-smoke/RESULT.json
+```
+
+The smoke validates app launch, native OpenGL selection, and schema export only. It is not performance evidence. First-use UI, an unresolved destination, asset streaming, focus changes, or an unsettled scene invalidate its timing data.
+
+The runner sets `SECONDLIFE_USER_DIR` and creates session settings, cache, logs, and account data inside a private per-invocation temporary directory. It does not read or alter the normal viewer profile, and the isolated data is removed after the sequence exits. Cold-cache repeats receive separate state and purge before startup. Warm-cache sequences first run one unmeasured full-duration prime, then reuse that isolated profile and cache for all measured repeats. The prime is validated but its artifact is discarded. First-install UI, notifications, audio, and voice are disabled for benchmark sessions so they cannot cover the workload or crash a headless test host.
+
+After the viewer reaches its started state, the LLLeap collector reapplies the requested scenario settings. This ordering prevents hardware feature-table initialization from replacing explicit benchmark controls. Every prime and measured result is rejected if an effective setting differs from the manifest. A non-maximized result is also rejected unless its actual backing-pixel width and height exactly match the requested resolution. On macOS, the XIB-owned app window converts requested backing pixels to Cocoa content dimensions so Retina scaling does not change the rendered resolution.
 
 ## Result and comparison rules
 

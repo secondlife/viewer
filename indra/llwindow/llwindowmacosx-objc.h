@@ -116,6 +116,7 @@ CGRect getContentViewRect(NSWindowRef window);
 CGRect getBackingViewRect(NSWindowRef window, GLViewRef view);
 void getWindowSize(NSWindowRef window, float* size);
 void setWindowSize(NSWindowRef window, int width, int height);
+void setWindowContentSize(NSWindowRef window, GLViewRef view, int width, int height);
 void getCursorPos(NSWindowRef window, float* pos);
 void makeWindowOrderFront(NSWindowRef window);
 void convertScreenToWindow(NSWindowRef window, float *coord);

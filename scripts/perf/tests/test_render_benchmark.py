@@ -17,6 +17,7 @@ import sys
 sys.path.insert(0, str(PERF_DIR))
 
 import render_benchmark as benchmark
+import render_benchmark_leap as collector
 
 
 class RendererBenchmarkTests(unittest.TestCase):
@@ -57,6 +58,7 @@ class RendererBenchmarkTests(unittest.TestCase):
 
     def test_operational_settings_disable_slurl_handoff(self) -> None:
         self.assertTrue(benchmark.OPERATIONAL_SETTINGS["AllowMultipleViewers"])
+        self.assertFalse(benchmark.OPERATIONAL_SETTINGS["FirstLoginThisInstall"])
         self.assertFalse(benchmark.OPERATIONAL_SETTINGS["SLURLPassToOtherInstance"])
         self.assertIn("--noaudio", benchmark.OPERATIONAL_SWITCHES)
         self.assertIn("--nonotifications", benchmark.OPERATIONAL_SWITCHES)
@@ -65,6 +67,27 @@ class RendererBenchmarkTests(unittest.TestCase):
     def test_warm_runs_have_an_unmeasured_prime(self) -> None:
         self.assertEqual([0, 1, 2, 3], benchmark.benchmark_run_numbers("warm", 3))
         self.assertEqual([1, 2, 3], benchmark.benchmark_run_numbers("cold", 3))
+
+    def test_collector_reapplies_requested_settings_at_runtime(self) -> None:
+        class FakeAPI:
+            def __init__(self) -> None:
+                self.requests: list[tuple[str, dict[str, object]]] = []
+
+            def request(self, pump: str, data: dict[str, object]) -> dict[str, object]:
+                self.requests.append((pump, data))
+                return {"value": data["value"]}
+
+        api = FakeAPI()
+        collector.apply_requested_settings({"RenderShadowDetail": 2}, api)
+        self.assertEqual(
+            [("LLViewerControl", {
+                "op": "set",
+                "group": "Global",
+                "key": "RenderShadowDetail",
+                "value": 2,
+            })],
+            api.requests,
+        )
 
     def test_runner_rejects_zero_repeats(self) -> None:
         parser = benchmark.build_parser()
@@ -100,6 +123,21 @@ class RendererBenchmarkTests(unittest.TestCase):
         with self.assertRaisesRegex(benchmark.BenchmarkError, "asset load incomplete"):
             benchmark.validate_result(invalid)
         benchmark.validate_result(invalid, require_valid=False)
+
+    def test_result_must_match_requested_settings_and_resolution(self) -> None:
+        manifest = benchmark.load_json(PERF_DIR / "scenarios" / "steady-warm-v1.json")
+        result = copy.deepcopy(self.fixture)
+        result["context"]["effective_settings"] = copy.deepcopy(manifest["settings"])
+        benchmark.validate_result_against_manifest(result, manifest)
+
+        result["context"]["width"] = 1920
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "actual width=1920"):
+            benchmark.validate_result_against_manifest(result, manifest)
+
+        result["context"]["width"] = manifest["settings"]["WindowWidth"]
+        result["context"]["effective_settings"]["RenderFarClip"] = 64.0
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "RenderFarClip=64.0"):
+            benchmark.validate_result_against_manifest(result, manifest)
 
     def test_comparison_rejects_changed_context(self) -> None:
         changed = copy.deepcopy(self.fixture)

@@ -25,6 +25,7 @@ DEFAULT_STARTUP_TIMEOUT_SECONDS = 180
 MIN_COMPARISON_REPEATS = 5
 OPERATIONAL_SETTINGS = {
     "AllowMultipleViewers": True,
+    "FirstLoginThisInstall": False,
     "SLURLPassToOtherInstance": False,
 }
 OPERATIONAL_SWITCHES = (
@@ -263,6 +264,31 @@ def validate_result(result: Mapping[str, Any], require_valid: bool = True) -> No
         summarize_result(result)
 
 
+def validate_result_against_manifest(result: Mapping[str, Any], manifest: Mapping[str, Any]) -> None:
+    context = result.get("context")
+    requested_settings = manifest.get("settings")
+    if not isinstance(context, Mapping) or not isinstance(requested_settings, Mapping):
+        raise BenchmarkError("result or manifest has no settings context")
+    effective_settings = context.get("effective_settings")
+    if not isinstance(effective_settings, Mapping):
+        raise BenchmarkError("result context has no effective settings")
+
+    mismatches = [
+        f"{name}={effective_settings.get(name)!r}, requested {requested!r}"
+        for name, requested in requested_settings.items()
+        if effective_settings.get(name) != requested
+    ]
+    if requested_settings.get("WindowMaximized") is False:
+        for context_name, setting_name in (("width", "WindowWidth"), ("height", "WindowHeight")):
+            requested = requested_settings.get(setting_name)
+            if requested is not None and context.get(context_name) != requested:
+                mismatches.append(
+                    f"actual {context_name}={context.get(context_name)!r}, requested {requested!r}"
+                )
+    if mismatches:
+        raise BenchmarkError("result does not match manifest: " + "; ".join(mismatches))
+
+
 def _nested(result: Mapping[str, Any], path: Sequence[str]) -> Any:
     value: Any = result
     for key in path:
@@ -435,6 +461,7 @@ def _run_command(args: argparse.Namespace) -> int:
                     "hardware_label": args.hardware_label,
                     **_git_source(repo),
                 },
+                "requested_settings": settings,
                 "startup_timeout_seconds": args.startup_timeout,
                 "expected_gpu_substring": args.expect_gpu_substring,
             }
@@ -481,6 +508,7 @@ def _run_command(args: argparse.Namespace) -> int:
                 raise BenchmarkError(f"viewer produced no artifact for {run_label}")
             result = load_json(output)
             validate_result(result)
+            validate_result_against_manifest(result, manifest)
             if not is_prime:
                 output.write_text(json.dumps(sanitize(result), indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 0

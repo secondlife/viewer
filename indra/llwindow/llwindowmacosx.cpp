@@ -747,6 +747,10 @@ bool LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
         mContext = getCGLContextObj(mGLView);
         gGLManager.mVRAM = getVramSize(mGLView);
 
+        // The app window comes from the bundle's xib, so apply the requested
+        // backing-pixel size after attaching the OpenGL view.
+        setWindowContentSize(mWindow, mGLView, width, height);
+
         if(!mPixelFormat)
         {
             CGLPixelFormatAttribute attribs[] =
@@ -1082,8 +1086,7 @@ bool LLWindowMacOSX::setSizeImpl(const LLCoordWindow size)
 {
     if (mWindow)
     {
-        const int titlePadding = 22;
-        setWindowSize(mWindow, size.mX, size.mY + titlePadding);
+        setWindowContentSize(mWindow, mGLView, size.mX, size.mY);
         return true;
     }
 

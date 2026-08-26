@@ -291,6 +291,13 @@ void setWindowSize(NSWindowRef window, int width, int height)
     [(LLNSWindow*)window setFrame:frame display:TRUE];
 }
 
+void setWindowContentSize(NSWindowRef window, GLViewRef view, int width, int height)
+{
+    NSSize backing_size = NSMakeSize(width, height);
+    NSSize content_size = [(NSOpenGLView*)view convertSizeFromBacking:backing_size];
+    [(LLNSWindow*)window setContentSize:content_size];
+}
+
 void setWindowPos(NSWindowRef window, float* pos)
 {
     NSPoint point;

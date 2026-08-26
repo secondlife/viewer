@@ -71,6 +71,17 @@ class ViewerAPI:
         write_packet("LLAppViewer", {"op": "requestQuit"})
 
 
+def apply_requested_settings(settings: Mapping[str, Any], api: ViewerAPI) -> None:
+    for name, value in settings.items():
+        response = api.request(
+            "LLViewerControl",
+            {"op": "set", "group": "Global", "key": name, "value": value},
+        )
+        if not isinstance(response, Mapping) or response.get("error"):
+            detail = response.get("error") if isinstance(response, Mapping) else "no response map"
+            raise ProtocolError(f"could not apply setting {name}: {detail}")
+
+
 def _merge_frames(target: dict[int, dict[str, Any]], stats: Mapping[str, Any], after: int) -> None:
     for raw_frame in stats.get("renderer_frames", []):
         if not isinstance(raw_frame, Mapping) or not isinstance(raw_frame.get("frame_number"), (int, float)):
@@ -124,6 +135,11 @@ def collect(config: Mapping[str, Any], api: ViewerAPI) -> dict[str, Any]:
         time.sleep(poll_interval)
     else:
         raise ProtocolError("viewer did not reach the started state before the startup timeout")
+
+    requested_settings = config.get("requested_settings", {})
+    if not isinstance(requested_settings, Mapping):
+        raise ProtocolError("requested_settings is not a map")
+    apply_requested_settings(requested_settings, api)
 
     warmup_deadline = time.monotonic() + float(run["warmup_seconds"])
     while time.monotonic() < warmup_deadline:
