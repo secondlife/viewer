@@ -41,6 +41,11 @@
 #include "llrender.h"
 #include "llwindow.h"
 #include "llframetimer.h"
+
+#include <atomic>
+#if defined(LL_RENDER_BENCHMARK)
+#include <chrono>
+#endif
 #include <unordered_set>
 
 extern LL_COMMON_API bool on_main_thread();
@@ -65,6 +70,14 @@ U32 LLImageGL::sFrameCount = 0;
 static LLMutex sTexMemMutex;
 static std::unordered_map<U32, U64> sTextureAllocs;
 static U64 sTextureBytes = 0;
+#if defined(LL_RENDER_BENCHMARK)
+static std::atomic<U64> sTextureUploadCount{0};
+static std::atomic<U64> sTextureUploadBytes{0};
+static std::atomic<U64> sTextureReadbackCount{0};
+static std::atomic<U64> sTextureReadbackTimeUS{0};
+static std::atomic<U64> sTextureWaitCount{0};
+static std::atomic<U64> sTextureWaitTimeUS{0};
+#endif
 
 // track a texture alloc on the currently bound texture.
 // asserts that no currently tracked alloc exists
@@ -130,6 +143,60 @@ using namespace LLImageGLMemory;
 U64 LLImageGL::getTextureBytesAllocated()
 {
     return sTextureBytes;
+}
+
+U64 LLImageGL::getTextureUploadCount()
+{
+#if defined(LL_RENDER_BENCHMARK)
+    return sTextureUploadCount.load(std::memory_order_relaxed);
+#else
+    return 0;
+#endif
+}
+
+U64 LLImageGL::getTextureUploadBytes()
+{
+#if defined(LL_RENDER_BENCHMARK)
+    return sTextureUploadBytes.load(std::memory_order_relaxed);
+#else
+    return 0;
+#endif
+}
+
+U64 LLImageGL::getTextureReadbackCount()
+{
+#if defined(LL_RENDER_BENCHMARK)
+    return sTextureReadbackCount.load(std::memory_order_relaxed);
+#else
+    return 0;
+#endif
+}
+
+U64 LLImageGL::getTextureReadbackTimeUS()
+{
+#if defined(LL_RENDER_BENCHMARK)
+    return sTextureReadbackTimeUS.load(std::memory_order_relaxed);
+#else
+    return 0;
+#endif
+}
+
+U64 LLImageGL::getTextureWaitCount()
+{
+#if defined(LL_RENDER_BENCHMARK)
+    return sTextureWaitCount.load(std::memory_order_relaxed);
+#else
+    return 0;
+#endif
+}
+
+U64 LLImageGL::getTextureWaitTimeUS()
+{
+#if defined(LL_RENDER_BENCHMARK)
+    return sTextureWaitTimeUS.load(std::memory_order_relaxed);
+#else
+    return 0;
+#endif
 }
 
 //statics
@@ -744,6 +811,18 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
+#if defined(LL_RENDER_BENCHMARK)
+    U64 upload_bytes = 0;
+    if (data_in)
+    {
+        const S32 last_discard = data_hasmips ? mMaxDiscardLevel : mCurrentDiscardLevel;
+        for (S32 discard = mCurrentDiscardLevel; discard <= last_discard; ++discard)
+        {
+            upload_bytes += dataFormatBytes(mFormatPrimary, getWidth(discard), getHeight(discard));
+        }
+    }
+#endif
+
     const bool is_compressed = isCompressed();
 
     if (mUseMipMaps)
@@ -1014,6 +1093,13 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
     }
     stop_glerror();
     mGLTextureCreated = true;
+#if defined(LL_RENDER_BENCHMARK)
+    if (data_in)
+    {
+        sTextureUploadCount.fetch_add(1, std::memory_order_relaxed);
+        sTextureUploadBytes.fetch_add(upload_bytes, std::memory_order_relaxed);
+    }
+#endif
     return true;
 }
 
@@ -1216,6 +1302,11 @@ bool LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         stop_glerror();
         mGLTextureCreated = true;
+
+#if defined(LL_RENDER_BENCHMARK)
+        sTextureUploadCount.fetch_add(1, std::memory_order_relaxed);
+        sTextureUploadBytes.fetch_add(dataFormatBytes(mFormatPrimary, width, height), std::memory_order_relaxed);
+#endif
     }
     return true;
 }
@@ -1745,7 +1836,17 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
             // upload is complete
             auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
             glFlush();
+#if defined(LL_RENDER_BENCHMARK)
+            const auto wait_start = std::chrono::steady_clock::now();
+#endif
             glClientWaitSync(sync, 0, GL_TIMEOUT_IGNORED);
+#if defined(LL_RENDER_BENCHMARK)
+            const auto wait_end = std::chrono::steady_clock::now();
+            sTextureWaitCount.fetch_add(1, std::memory_order_relaxed);
+            sTextureWaitTimeUS.fetch_add(
+                std::chrono::duration_cast<std::chrono::microseconds>(wait_end - wait_start).count(),
+                std::memory_order_relaxed);
+#endif
             glDeleteSync(sync);
         }
         else
@@ -1763,7 +1864,17 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
                     LL_PROFILE_ZONE_NAMED("cglt - wait sync");
                     {
                         LL_PROFILE_ZONE_NAMED("glWaitSync");
+#if defined(LL_RENDER_BENCHMARK)
+                        const auto wait_start = std::chrono::steady_clock::now();
+#endif
                         glWaitSync(sync, 0, GL_TIMEOUT_IGNORED);
+#if defined(LL_RENDER_BENCHMARK)
+                        const auto wait_end = std::chrono::steady_clock::now();
+                        sTextureWaitCount.fetch_add(1, std::memory_order_relaxed);
+                        sTextureWaitTimeUS.fetch_add(
+                            std::chrono::duration_cast<std::chrono::microseconds>(wait_end - wait_start).count(),
+                            std::memory_order_relaxed);
+#endif
                     }
                     {
                         LL_PROFILE_ZONE_NAMED("glDeleteSync");
@@ -1866,6 +1977,9 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 
     LLImageDataLock lock(imageraw);
 
+#if defined(LL_RENDER_BENCHMARK)
+    const auto readback_start = std::chrono::steady_clock::now();
+#endif
     if (is_compressed)
     {
         LLGLint glbytes;
@@ -1911,6 +2025,14 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
         glGetTexImage(GL_TEXTURE_2D, gl_discard, mFormatPrimary, mFormatType, (GLvoid*)(imageraw->getData()));
         //stop_glerror();
     }
+
+#if defined(LL_RENDER_BENCHMARK)
+    const auto readback_end = std::chrono::steady_clock::now();
+    sTextureReadbackCount.fetch_add(1, std::memory_order_relaxed);
+    sTextureReadbackTimeUS.fetch_add(
+        std::chrono::duration_cast<std::chrono::microseconds>(readback_end - readback_start).count(),
+        std::memory_order_relaxed);
+#endif
 
     //-----------------------------------------------------------------------------------------------
     if((error = glGetError()) != GL_NO_ERROR)
@@ -2741,4 +2863,3 @@ void LLImageGLThread::run()
     gGL.shutdown();
     mWindow->destroySharedContext(mContext);
 }
-

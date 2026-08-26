@@ -225,6 +225,38 @@ extern LLTrace::SampleStatHandle<U32>               FRAMETIME_JITTER_EVENTS,
 
 extern LLTrace::SampleStatHandle<U64>               DOFRAME_TIME_US;
 
+#if defined(LL_RENDER_BENCHMARK)
+// Renderer benchmark samples. Resource values are monotonically increasing
+// counters; consumers derive per-frame deltas after de-duplicating frames.
+extern LLTrace::SampleStatHandle<U64>               FRAME_NUMBER,
+                                                    TEXTURE_UPLOAD_COUNT,
+                                                    TEXTURE_UPLOAD_BYTES,
+                                                    TEXTURE_READBACK_COUNT,
+                                                    TEXTURE_READBACK_TIME_US,
+                                                    TEXTURE_WAIT_COUNT,
+                                                    TEXTURE_WAIT_TIME_US,
+                                                    SHADER_COMPILE_COUNT,
+                                                    SHADER_COMPILE_TIME_US,
+                                                    SHADER_BIND_COUNT;
+
+// These scopes intentionally describe CPU work. GPU pass timings are gathered
+// in a separate diagnostic capture so the steady benchmark never blocks on a
+// timer-query result.
+extern LLTrace::BlockTimerStatHandle                RENDER_GEOMETRY_CREATE,
+                                                    RENDER_PARTITION,
+                                                    RENDER_GEOMETRY_UPDATE,
+                                                    RENDER_CULL,
+                                                    RENDER_SHADOWS,
+                                                    RENDER_TEXTURE_WORK,
+                                                    RENDER_STATE_SORT,
+                                                    RENDER_REBUILD,
+                                                    RENDER_SUBMISSION,
+                                                    RENDER_LIGHTING,
+                                                    RENDER_UI,
+                                                    RENDER_SWAP,
+                                                    RENDER_IDLE;
+#endif
+
 extern LLTrace::SampleStatHandle<F64> NOTRMALIZED_FRAMETIME_JITTER_SESSION;
 extern LLTrace::SampleStatHandle<F64> NFTV;
 extern LLTrace::SampleStatHandle<F64> NORMALIZED_FRAMTIME_JITTER_PERIOD;

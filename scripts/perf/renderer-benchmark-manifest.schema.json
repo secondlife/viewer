@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://secondlife.com/schemas/renderer-benchmark-manifest-v1.json",
+  "title": "Second Life renderer benchmark manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "description", "cache_mode", "capture", "settings", "workload"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]+$"},
+    "description": {"type": "string", "minLength": 1},
+    "cache_mode": {"enum": ["warm", "cold"]},
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["warmup_seconds", "duration_seconds", "repeats", "poll_interval_seconds"],
+      "properties": {
+        "warmup_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "repeats": {"type": "integer", "minimum": 1},
+        "poll_interval_seconds": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "settings": {"type": "object"},
+    "workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operator_setup", "camera", "observations", "invalid_if"],
+      "properties": {
+        "operator_setup": {"type": "string"},
+        "camera": {"type": "string"},
+        "observations": {"type": "array", "items": {"type": "string"}},
+        "invalid_if": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

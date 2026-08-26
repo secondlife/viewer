@@ -90,6 +90,19 @@ if (BUILD_HEADLESS)
   endif()
 endif (BUILD_HEADLESS)
 
+if (LL_RENDER_BENCHMARK)
+  set_property(SOURCE
+      llglslshader.cpp
+      llimagegl.cpp
+      llshadermgr.cpp
+      APPEND PROPERTY COMPILE_DEFINITIONS LL_RENDER_BENCHMARK=1)
+  set_property(SOURCE
+      llglslshader.cpp
+      llimagegl.cpp
+      llshadermgr.cpp
+      PROPERTY SKIP_PRECOMPILE_HEADERS ON)
+endif()
+
 add_library (llrender ${llrender_SOURCE_FILES})
 target_include_directories(llrender INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 

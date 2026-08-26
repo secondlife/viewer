@@ -33,6 +33,11 @@
 #include "llsdserialize.h"
 #include "hbxxh.h"
 
+#include <atomic>
+#if defined(LL_RENDER_BENCHMARK)
+#include <chrono>
+#endif
+
 #if LL_DARWIN
 #include "OpenGL/OpenGL.h"
 #endif
@@ -44,6 +49,14 @@ using std::make_pair;
 using std::string;
 
 LLShaderMgr * LLShaderMgr::sInstance = NULL;
+
+namespace
+{
+#if defined(LL_RENDER_BENCHMARK)
+std::atomic<U64> sShaderCompileCount{0};
+std::atomic<U64> sShaderCompileTimeUS{0};
+#endif
+}
 
 LLShaderMgr::LLShaderMgr()
 {
@@ -63,6 +76,24 @@ LLShaderMgr * LLShaderMgr::instance()
     }
 
     return sInstance;
+}
+
+U64 LLShaderMgr::getShaderCompileCount()
+{
+#if defined(LL_RENDER_BENCHMARK)
+    return sShaderCompileCount.load(std::memory_order_relaxed);
+#else
+    return 0;
+#endif
+}
+
+U64 LLShaderMgr::getShaderCompileTimeUS()
+{
+#if defined(LL_RENDER_BENCHMARK)
+    return sShaderCompileTimeUS.load(std::memory_order_relaxed);
+#else
+    return 0;
+#endif
 }
 
 bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
@@ -880,7 +911,17 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     if (ret)
     {
         LL_DEBUGS("ShaderLoading") << "glShaderSource done" << U32(ret) << LL_ENDL;
+#if defined(LL_RENDER_BENCHMARK)
+        const auto compile_start = std::chrono::steady_clock::now();
+#endif
         glCompileShader(ret);
+#if defined(LL_RENDER_BENCHMARK)
+        const auto compile_end = std::chrono::steady_clock::now();
+        sShaderCompileCount.fetch_add(1, std::memory_order_relaxed);
+        sShaderCompileTimeUS.fetch_add(
+            std::chrono::duration_cast<std::chrono::microseconds>(compile_end - compile_start).count(),
+            std::memory_order_relaxed);
+#endif
 
         error = glGetError();
         if (error != GL_NO_ERROR)
@@ -896,7 +937,16 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         //check for errors
         LL_DEBUGS("ShaderLoading") << "glCompileShader done" << U32(ret) << LL_ENDL;
         GLint success = GL_TRUE;
+#if defined(LL_RENDER_BENCHMARK)
+        const auto status_start = std::chrono::steady_clock::now();
+#endif
         glGetShaderiv(ret, GL_COMPILE_STATUS, &success);
+#if defined(LL_RENDER_BENCHMARK)
+        const auto status_end = std::chrono::steady_clock::now();
+        sShaderCompileTimeUS.fetch_add(
+            std::chrono::duration_cast<std::chrono::microseconds>(status_end - status_start).count(),
+            std::memory_order_relaxed);
+#endif
 
         error = glGetError();
         if (error != GL_NO_ERROR || success == GL_FALSE)
@@ -1615,4 +1665,3 @@ void LLShaderMgr::initAttribsAndUniforms()
         dupe_check.insert(mReservedUniforms[i]);
     }
 }
-

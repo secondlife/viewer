@@ -71,6 +71,15 @@ public:
     // video memory usage based on testing in lagland against an NVIDIA GPU.
     static U64 getTextureBytesAllocated();
 
+    // Cumulative, process-local counters used by the renderer benchmark. They
+    // are cheap enough to sample once per frame and never contain image data.
+    static U64 getTextureUploadCount();
+    static U64 getTextureUploadBytes();
+    static U64 getTextureReadbackCount();
+    static U64 getTextureReadbackTimeUS();
+    static U64 getTextureWaitCount();
+    static U64 getTextureWaitTimeUS();
+
     // These 2 functions replace glGenTextures() and glDeleteTextures()
     static void generateTextures(S32 numTextures, U32 *textures);
     static void deleteTextures(S32 numTextures, const U32 *textures);

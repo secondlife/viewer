@@ -31,6 +31,18 @@
 #include "llimagegl.h"
 #include "llviewerstats.h"
 
+#if defined(LL_RENDER_BENCHMARK)
+#include "llappviewer.h"
+#include "llgl.h"
+#include "llrender.h"
+#include "llstartup.h"
+#include "llviewercontrol.h"
+#include "llviewershadermgr.h"
+#include "pipeline.h"
+
+#include <thread>
+#endif
+
 namespace
 {
 template <typename STAT, typename EXTRACTOR>
@@ -65,6 +77,166 @@ void setPeriodArray(LLSD& out,
         out[key] = collectPeriodArray(recording, num_periods, stat, extractor);
     }
 }
+
+#if defined(LL_RENDER_BENCHMARK)
+template <typename STAT>
+void setFrameSample(LLSD& frame,
+                    const char* key,
+                    LLTrace::Recording& period,
+                    const STAT& stat)
+{
+    if (period.hasValue(stat))
+    {
+        frame[key] = (F64)period.getLastValue(stat);
+    }
+}
+
+void setFrameBlockTime(LLSD& frame,
+                       const char* key,
+                       LLTrace::Recording& period,
+                       const LLTrace::BlockTimerStatHandle& stat)
+{
+    if (period.hasValue(stat))
+    {
+        frame[key] = F64Milliseconds(period.getSum(stat)).value();
+    }
+}
+
+LLSD collectRendererFrames(LLTrace::PeriodicRecording& recording, size_t num_periods)
+{
+    LLSD frames = LLSD::emptyArray();
+
+    // Emit oldest-to-newest so cumulative resource counters can be differenced
+    // directly. FRAME_NUMBER lets polling clients de-duplicate the rolling
+    // recording window without relying on array position.
+    for (size_t offset = num_periods; offset > 0; --offset)
+    {
+        LLTrace::Recording& period = recording.getPrevRecording(offset);
+        if (!period.hasValue(LLStatViewer::FRAME_NUMBER))
+        {
+            continue;
+        }
+
+        LLSD frame;
+        setFrameSample(frame, "frame_number", period, LLStatViewer::FRAME_NUMBER);
+        setFrameSample(frame, "frame_time_ms", period, LLStatViewer::FRAMETIME);
+        setFrameSample(frame, "do_frame_time_us", period, LLStatViewer::DOFRAME_TIME_US);
+        setFrameSample(frame, "sim_ping_ms", period, LLStatViewer::SIM_PING);
+
+        setFrameBlockTime(frame, "geometry_create_ms", period, LLStatViewer::RENDER_GEOMETRY_CREATE);
+        setFrameBlockTime(frame, "partition_ms", period, LLStatViewer::RENDER_PARTITION);
+        setFrameBlockTime(frame, "geometry_update_ms", period, LLStatViewer::RENDER_GEOMETRY_UPDATE);
+        setFrameBlockTime(frame, "cull_ms", period, LLStatViewer::RENDER_CULL);
+        setFrameBlockTime(frame, "shadows_ms", period, LLStatViewer::RENDER_SHADOWS);
+        setFrameBlockTime(frame, "texture_work_ms", period, LLStatViewer::RENDER_TEXTURE_WORK);
+        setFrameBlockTime(frame, "state_sort_ms", period, LLStatViewer::RENDER_STATE_SORT);
+        setFrameBlockTime(frame, "rebuild_ms", period, LLStatViewer::RENDER_REBUILD);
+        setFrameBlockTime(frame, "submission_ms", period, LLStatViewer::RENDER_SUBMISSION);
+        setFrameBlockTime(frame, "lighting_ms", period, LLStatViewer::RENDER_LIGHTING);
+        setFrameBlockTime(frame, "ui_ms", period, LLStatViewer::RENDER_UI);
+        setFrameBlockTime(frame, "swap_ms", period, LLStatViewer::RENDER_SWAP);
+        setFrameBlockTime(frame, "idle_ms", period, LLStatViewer::RENDER_IDLE);
+
+        if (period.hasValue(LLPipeline::sStatBatchSize))
+        {
+            frame["draw_calls"] = (LLSD::Integer)period.getSampleCount(LLPipeline::sStatBatchSize);
+            frame["batch_size_min"] = (F64)period.getMin(LLPipeline::sStatBatchSize);
+            frame["batch_size_max"] = (F64)period.getMax(LLPipeline::sStatBatchSize);
+            frame["batch_size_mean"] = (F64)period.getMean(LLPipeline::sStatBatchSize);
+        }
+        if (period.hasValue(LLStatViewer::TRIANGLES_DRAWN))
+        {
+            frame["ktriangles"] = (F64)period.getSum(LLStatViewer::TRIANGLES_DRAWN);
+        }
+
+        setFrameSample(frame, "texture_upload_count_total", period, LLStatViewer::TEXTURE_UPLOAD_COUNT);
+        setFrameSample(frame, "texture_upload_bytes_total", period, LLStatViewer::TEXTURE_UPLOAD_BYTES);
+        setFrameSample(frame, "texture_readback_count_total", period, LLStatViewer::TEXTURE_READBACK_COUNT);
+        setFrameSample(frame, "texture_readback_time_us_total", period, LLStatViewer::TEXTURE_READBACK_TIME_US);
+        setFrameSample(frame, "texture_wait_count_total", period, LLStatViewer::TEXTURE_WAIT_COUNT);
+        setFrameSample(frame, "texture_wait_time_us_total", period, LLStatViewer::TEXTURE_WAIT_TIME_US);
+        setFrameSample(frame, "shader_compile_count_total", period, LLStatViewer::SHADER_COMPILE_COUNT);
+        setFrameSample(frame, "shader_compile_time_us_total", period, LLStatViewer::SHADER_COMPILE_TIME_US);
+        setFrameSample(frame, "shader_bind_count_total", period, LLStatViewer::SHADER_BIND_COUNT);
+
+        frames.append(frame);
+    }
+    return frames;
+}
+
+LLSD getRendererContext()
+{
+    LLSD viewer_info = LLAppViewer::instance()->getViewerInfo();
+    LLSD context;
+
+    context["viewer_version"] = viewer_info["VIEWER_VERSION_STR"];
+    context["viewer_channel"] = viewer_info["CHANNEL"];
+    context["build_type"] = viewer_info.has("BUILD_CONFIG") ? viewer_info["BUILD_CONFIG"] : LLSD("Release");
+    context["os"] = viewer_info["OS_VERSION"];
+    context["cpu"] = viewer_info["CPU"];
+    context["logical_core_count"] = (LLSD::Integer)std::thread::hardware_concurrency();
+    context["gpu_vendor"] = viewer_info["GRAPHICS_CARD_VENDOR"];
+    context["gpu"] = viewer_info["GRAPHICS_CARD"];
+    context["driver"] = gGLManager.mDriverVersionVendorString;
+    const std::string opengl_version = viewer_info["OPENGL_VERSION"].asString();
+    context["opengl_version"] = opengl_version;
+    if (opengl_version.find("Core Profile") != std::string::npos)
+    {
+        context["opengl_profile"] = "core";
+    }
+    else if (opengl_version.find("Compatibility Profile") != std::string::npos)
+    {
+        context["opengl_profile"] = "compatibility";
+    }
+    else
+    {
+        context["opengl_profile"] = LLRender::sGLCoreProfile ? "core" : "compatibility";
+    }
+    context["width"] = viewer_info["WINDOW_WIDTH"];
+    context["height"] = viewer_info["WINDOW_HEIGHT"];
+    context["gpu_vram_mb"] = (LLSD::Integer)gGLManager.mVRAM;
+    context["shader_level"] = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED);
+
+    LLSD limits;
+    limits["max_texture_size"] = gGLManager.mGLMaxTextureSize;
+    limits["max_texture_image_units"] = gGLManager.mNumTextureImageUnits;
+    limits["max_samples"] = gGLManager.mMaxSamples;
+    limits["max_uniform_block_size"] = gGLManager.mMaxUniformBlockSize;
+    context["gl_limits"] = limits;
+
+    LLSD extensions = LLSD::emptyArray();
+    for (const std::string& extension : gGLManager.mGLExtensions)
+    {
+        extensions.append(extension);
+    }
+    context["gl_extensions"] = extensions;
+
+    std::string renderer = context["gpu"].asString();
+    LLStringUtil::toLower(renderer);
+    context["detected_backend"] = renderer.find("zink") == std::string::npos ? "native-gl" : "zink";
+
+    LLSD settings;
+    settings["AutoTuneFPS"] = gSavedSettings.getBOOL("AutoTuneFPS");
+    settings["RenderAvatarMaxNonImpostors"] = (LLSD::Integer)gSavedSettings.getU32("RenderAvatarMaxNonImpostors");
+    settings["RenderVSyncEnable"] = gSavedSettings.getBOOL("RenderVSyncEnable");
+    settings["RenderDeferred"] = gSavedSettings.getBOOL("RenderDeferred");
+    settings["RenderShadowDetail"] = gSavedSettings.getS32("RenderShadowDetail");
+    settings["RenderReflectionProbeDetail"] = gSavedSettings.getS32("RenderReflectionProbeDetail");
+    settings["RenderReflectionsEnabled"] = gSavedSettings.getBOOL("RenderReflectionsEnabled");
+    settings["RenderFarClip"] = gSavedSettings.getF32("RenderFarClip");
+    settings["RenderVolumeLODFactor"] = gSavedSettings.getF32("RenderVolumeLODFactor");
+    settings["RenderQualityPerformance"] = (LLSD::Integer)gSavedSettings.getU32("RenderQualityPerformance");
+    settings["RenderGLContextCoreProfile"] = LLRender::sGLCoreProfile;
+    settings["WindowHeight"] = (LLSD::Integer)gSavedSettings.getU32("WindowHeight");
+    settings["WindowMaximized"] = gSavedSettings.getBOOL("WindowMaximized");
+    settings["WindowWidth"] = (LLSD::Integer)gSavedSettings.getU32("WindowWidth");
+    settings["YieldTime"] = gSavedSettings.getS32("YieldTime");
+    context["effective_settings"] = settings;
+    context["feature_flags"] = settings;
+
+    return context;
+}
+#endif
 }
 
 LLStatsListener::LLStatsListener()
@@ -92,6 +264,20 @@ void LLStatsListener::getPerfData(LLSD const & evt)
     LLSD stats;
     stats["total_periods_duration"] = total_duration;
     stats["num_periods"] = (LLSD::Integer)num_periods;
+#if defined(LL_RENDER_BENCHMARK)
+    stats["renderer_schema_version"] = 1;
+    stats["renderer_ready"] = LLStartUp::getStartupState() == STATE_STARTED;
+    stats["renderer_context"] = getRendererContext();
+    stats["renderer_frames"] = collectRendererFrames(recording, num_periods);
+
+    LLSD instrumentation;
+    instrumentation["compile_time_enabled"] = true;
+    instrumentation["cpu_phase_timing"] = true;
+    instrumentation["resource_counters"] = true;
+    instrumentation["gpu_pass_timing"] = "external-diagnostic";
+    instrumentation["gpu_query_readback_in_steady_loop"] = false;
+    stats["renderer_instrumentation"] = instrumentation;
+#endif
 
     LLSD frametime;
 

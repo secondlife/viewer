@@ -66,6 +66,13 @@ U64 LLGLSLShader::sTotalSamplesDrawn = 0;
 U32 LLGLSLShader::sTotalBinds = 0;
 boost::json::value LLGLSLShader::sDefaultStats;
 
+namespace
+{
+#if defined(LL_RENDER_BENCHMARK)
+U64 sShaderBindCount = 0;
+#endif
+}
+
 //UI shader -- declared here so llui_libtest will link properly
 LLGLSLShader    gUIProgram;
 LLGLSLShader    gSolidColorProgram;
@@ -243,6 +250,15 @@ void LLGLSLShader::stopProfile()
     {
         sCurBoundShaderPtr->unbind();
     }
+}
+
+U64 LLGLSLShader::getShaderBindCount()
+{
+#if defined(LL_RENDER_BENCHMARK)
+    return sShaderBindCount;
+#else
+    return 0;
+#endif
 }
 
 void LLGLSLShader::placeProfileQuery(bool for_runtime)
@@ -1062,6 +1078,9 @@ void LLGLSLShader::bind()
         }
         LLVertexBuffer::unbind();
         glUseProgram(mProgramObject);
+#if defined(LL_RENDER_BENCHMARK)
+        ++sShaderBindCount;
+#endif
         sCurBoundShader = mProgramObject;
         sCurBoundShaderPtr = this;
         placeProfileQuery();

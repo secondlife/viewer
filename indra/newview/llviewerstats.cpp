@@ -234,6 +234,33 @@ LLTrace::SampleStatHandle<U32> FRAMETIME_JITTER_EVENTS("frametimeevents", "Numbe
 
 LLTrace::SampleStatHandle<U64> DOFRAME_TIME_US("doframetimeus", "doFrame wall time in microseconds.");
 
+#if defined(LL_RENDER_BENCHMARK)
+LLTrace::SampleStatHandle<U64> FRAME_NUMBER("rendererframenumber", "Rendered frame sequence number"),
+                               TEXTURE_UPLOAD_COUNT("renderertextureuploadcount", "Cumulative texture upload count"),
+                               TEXTURE_UPLOAD_BYTES("renderertextureuploadbytes", "Cumulative texture upload bytes"),
+                               TEXTURE_READBACK_COUNT("renderertexturereadbackcount", "Cumulative texture readback count"),
+                               TEXTURE_READBACK_TIME_US("renderertexturereadbacktimeus", "Cumulative CPU time in texture readbacks"),
+                               TEXTURE_WAIT_COUNT("renderertexturewaitcount", "Cumulative explicit texture synchronization count"),
+                               TEXTURE_WAIT_TIME_US("renderertexturewaittimeus", "Cumulative CPU time in explicit texture synchronization"),
+                               SHADER_COMPILE_COUNT("renderershadercompilecount", "Cumulative shader compile count"),
+                               SHADER_COMPILE_TIME_US("renderershadercompiletimeus", "Cumulative CPU time in shader compilation"),
+                               SHADER_BIND_COUNT("renderershaderbindcount", "Cumulative shader program change count");
+
+LLTrace::BlockTimerStatHandle RENDER_GEOMETRY_CREATE("Renderer geometry create"),
+                              RENDER_PARTITION("Renderer partition processing"),
+                              RENDER_GEOMETRY_UPDATE("Renderer geometry update"),
+                              RENDER_CULL("Renderer cull"),
+                              RENDER_SHADOWS("Renderer shadows and impostors"),
+                              RENDER_TEXTURE_WORK("Renderer texture work"),
+                              RENDER_STATE_SORT("Renderer state sort"),
+                              RENDER_REBUILD("Renderer pool rebuild"),
+                              RENDER_SUBMISSION("Renderer GL submission"),
+                              RENDER_LIGHTING("Renderer deferred lighting"),
+                              RENDER_UI("Renderer UI and HUD"),
+                              RENDER_SWAP("Renderer present"),
+                              RENDER_IDLE("Renderer idle update");
+#endif
+
 LLTrace::SampleStatHandle<F64> NOTRMALIZED_FRAMETIME_JITTER_SESSION("normalizedframetimejitter", "Normalized frametime jitter over the session.");
 LLTrace::SampleStatHandle<F64> NFTV("nftv", "Normalized frametime variation.");
 LLTrace::SampleStatHandle<F64> NORMALIZED_FRAMTIME_JITTER_PERIOD("normalizedframetimejitterperiod", "Normalized frametime jitter over the last 5 seconds.");

@@ -1805,6 +1805,20 @@ endif (WINDOWS)
 
 list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
 
+if (LL_RENDER_BENCHMARK)
+  set_property(SOURCE
+      llappviewer.cpp
+      llstatslistener.cpp
+      llviewerdisplay.cpp
+      llviewerstats.cpp
+      APPEND PROPERTY COMPILE_DEFINITIONS LL_RENDER_BENCHMARK=1)
+  set_property(SOURCE
+      llappviewer.cpp
+      llstatslistener.cpp
+      llviewerdisplay.cpp
+      PROPERTY SKIP_PRECOMPILE_HEADERS ON)
+endif()
+
 add_executable(${VIEWER_BINARY_NAME}
     WIN32
     MACOSX_BUNDLE

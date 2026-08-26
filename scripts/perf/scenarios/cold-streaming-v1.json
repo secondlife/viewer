@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "cold-streaming-v1",
+  "description": "Isolated empty-cache load exposing decode, upload, allocation, and synchronization work.",
+  "cache_mode": "cold",
+  "capture": {"warmup_seconds": 5, "duration_seconds": 120, "repeats": 5, "poll_interval_seconds": 0.5},
+  "settings": {
+    "AutoTuneFPS": false,
+    "RenderDeferred": true,
+    "RenderFarClip": 128.0,
+    "RenderGLContextCoreProfile": true,
+    "RenderReflectionsEnabled": true,
+    "RenderShadowDetail": 2,
+    "RenderVSyncEnable": false,
+    "RenderVolumeLODFactor": 1.0,
+    "WindowHeight": 720,
+    "WindowMaximized": false,
+    "WindowWidth": 1280,
+    "YieldTime": -1
+  },
+  "workload": {
+    "operator_setup": "Start with the runner's isolated empty cache and use the same scene entry point for every repeat.",
+    "camera": "Fixed camera from login through capture.",
+    "observations": ["time until scene settles", "texture upload bytes", "texture waits", "active objects", "simulator ping"],
+    "invalid_if": ["the temporary cache was reused", "network service is degraded", "scene population changes materially", "camera moves", "graphics features differ"]
+  }
+}

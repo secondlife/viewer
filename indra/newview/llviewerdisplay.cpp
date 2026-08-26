@@ -50,6 +50,7 @@
 #include "llglheaders.h"
 #include "llgltfmateriallist.h"
 #include "llhudmanager.h"
+#include "llimagegl.h"
 #include "llimagepng.h"
 #include "llmachineid.h"
 #include "llmemory.h"
@@ -58,6 +59,7 @@
 #include "llrender.h"
 #include "llscenemonitor.h"
 #include "llsdjson.h"
+#include "llshadermgr.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llspatialpartition.h"
@@ -80,6 +82,7 @@
 #include "llviewerregion.h"
 #include "llviewershadermgr.h"
 #include "llviewertexturelist.h"
+#include "llviewerstats.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llvograss.h"
@@ -582,6 +585,9 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     gPipeline.mBackfaceCull = true;
     gFrameCount++;
+#if defined(LL_RENDER_BENCHMARK)
+    LLTrace::sample(LLStatViewer::FRAME_NUMBER, (U64)gFrameCount);
+#endif
     gRecentFrameCount++;
     if (gFocusMgr.getAppHasFocus())
     {
@@ -756,13 +762,41 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update Geom");
             const F32 max_geom_update_time = 0.005f*10.f*gFrameIntervalSeconds.value(); // 50 ms/second update time
-            gPipeline.createObjects(max_geom_update_time);
-            gPipeline.processPartitionQ();
-            gPipeline.updateGeom(max_geom_update_time);
+            {
+#if defined(LL_RENDER_BENCHMARK)
+                const LLTrace::BlockTimer& renderer_geometry_create_timer(
+                    LLTrace::timeThisBlock(LLStatViewer::RENDER_GEOMETRY_CREATE));
+                (void)renderer_geometry_create_timer;
+#endif
+                gPipeline.createObjects(max_geom_update_time);
+            }
+            {
+#if defined(LL_RENDER_BENCHMARK)
+                const LLTrace::BlockTimer& renderer_partition_timer(
+                    LLTrace::timeThisBlock(LLStatViewer::RENDER_PARTITION));
+                (void)renderer_partition_timer;
+#endif
+                gPipeline.processPartitionQ();
+            }
+            {
+#if defined(LL_RENDER_BENCHMARK)
+                const LLTrace::BlockTimer& renderer_geometry_update_timer(
+                    LLTrace::timeThisBlock(LLStatViewer::RENDER_GEOMETRY_UPDATE));
+                (void)renderer_geometry_update_timer;
+#endif
+                gPipeline.updateGeom(max_geom_update_time);
+            }
             stop_glerror();
         }
 
-        gPipeline.updateGL();
+        {
+#if defined(LL_RENDER_BENCHMARK)
+            const LLTrace::BlockTimer& renderer_gl_update_timer(
+                LLTrace::timeThisBlock(LLStatViewer::RENDER_GEOMETRY_UPDATE));
+            (void)renderer_gl_update_timer;
+#endif
+            gPipeline.updateGL();
+        }
 
         stop_glerror();
 
@@ -786,7 +820,14 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         static LLCullResult result;
         LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
         LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater();
-        gPipeline.updateCull(*LLViewerCamera::getInstance(), result);
+        {
+#if defined(LL_RENDER_BENCHMARK)
+            const LLTrace::BlockTimer& renderer_cull_timer(
+                LLTrace::timeThisBlock(LLStatViewer::RENDER_CULL));
+            (void)renderer_cull_timer;
+#endif
+            gPipeline.updateCull(*LLViewerCamera::getInstance(), result);
+        }
         stop_glerror();
 
         LLGLState::checkStates();
@@ -808,6 +849,11 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
             if (!for_snapshot)
             {
+#if defined(LL_RENDER_BENCHMARK)
+                const LLTrace::BlockTimer& renderer_shadow_timer(
+                    LLTrace::timeThisBlock(LLStatViewer::RENDER_SHADOWS));
+                (void)renderer_shadow_timer;
+#endif
                 if (gFrameCount > 1 && !for_snapshot)
                 { //for some reason, ATI 4800 series will error out if you
                   //try to generate a shadow before the first frame is through
@@ -848,6 +894,11 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
         {
             LL_PROFILE_ZONE_NAMED("Update Images");
+#if defined(LL_RENDER_BENCHMARK)
+            const LLTrace::BlockTimer& renderer_texture_timer(
+                LLTrace::timeThisBlock(LLStatViewer::RENDER_TEXTURE_WORK));
+            (void)renderer_texture_timer;
+#endif
 
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Class");
@@ -886,12 +937,22 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         LLAppViewer::instance()->pingMainloopTimeout("Display:StateSort");
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 4")
+#if defined(LL_RENDER_BENCHMARK)
+            const LLTrace::BlockTimer& renderer_state_sort_timer(
+                LLTrace::timeThisBlock(LLStatViewer::RENDER_STATE_SORT));
+            (void)renderer_state_sort_timer;
+#endif
             LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
             gPipeline.stateSort(*LLViewerCamera::getInstance(), result);
             stop_glerror();
 
             if (rebuild)
             {
+#if defined(LL_RENDER_BENCHMARK)
+                const LLTrace::BlockTimer& renderer_rebuild_timer(
+                    LLTrace::timeThisBlock(LLStatViewer::RENDER_REBUILD));
+                (void)renderer_rebuild_timer;
+#endif
                 //////////////////////////////////////
                 //
                 // rebuildPools
@@ -987,6 +1048,11 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
                 && !gRestoreGL)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 5")
+#if defined(LL_RENDER_BENCHMARK)
+            const LLTrace::BlockTimer& renderer_submission_timer(
+                LLTrace::timeThisBlock(LLStatViewer::RENDER_SUBMISSION));
+            (void)renderer_submission_timer;
+#endif
             LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
             static LLCachedControl<bool> render_depth_pre_pass(gSavedSettings, "RenderDepthPrePass", false);
@@ -1034,6 +1100,11 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
         if (LLPipeline::sRenderDeferred)
         {
+#if defined(LL_RENDER_BENCHMARK)
+            const LLTrace::BlockTimer& renderer_lighting_timer(
+                LLTrace::timeThisBlock(LLStatViewer::RENDER_LIGHTING));
+            (void)renderer_lighting_timer;
+#endif
             gPipeline.renderDeferredLighting();
         }
 
@@ -1061,6 +1132,18 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     stop_glerror();
 
     display_stats();
+
+#if defined(LL_RENDER_BENCHMARK)
+    LLTrace::sample(LLStatViewer::TEXTURE_UPLOAD_COUNT, LLImageGL::getTextureUploadCount());
+    LLTrace::sample(LLStatViewer::TEXTURE_UPLOAD_BYTES, LLImageGL::getTextureUploadBytes());
+    LLTrace::sample(LLStatViewer::TEXTURE_READBACK_COUNT, LLImageGL::getTextureReadbackCount());
+    LLTrace::sample(LLStatViewer::TEXTURE_READBACK_TIME_US, LLImageGL::getTextureReadbackTimeUS());
+    LLTrace::sample(LLStatViewer::TEXTURE_WAIT_COUNT, LLImageGL::getTextureWaitCount());
+    LLTrace::sample(LLStatViewer::TEXTURE_WAIT_TIME_US, LLImageGL::getTextureWaitTimeUS());
+    LLTrace::sample(LLStatViewer::SHADER_COMPILE_COUNT, LLShaderMgr::getShaderCompileCount());
+    LLTrace::sample(LLStatViewer::SHADER_COMPILE_TIME_US, LLShaderMgr::getShaderCompileTimeUS());
+    LLTrace::sample(LLStatViewer::SHADER_BIND_COUNT, LLGLSLShader::getShaderBindCount());
+#endif
 
     LLAppViewer::instance()->pingMainloopTimeout("Display:Done");
 
@@ -1467,6 +1550,11 @@ bool setup_hud_matrices(const LLRect& screen_region)
 void render_ui(F32 zoom_factor, int subfield)
 {
     LLPerfStats::RecordSceneTime T ( LLPerfStats::StatType_t::RENDER_UI ); // render time capture - Primary UI stat can have HUD time overlap (TODO)
+#if defined(LL_RENDER_BENCHMARK)
+    const LLTrace::BlockTimer& renderer_ui_timer(
+        LLTrace::timeThisBlock(LLStatViewer::RENDER_UI));
+    (void)renderer_ui_timer;
+#endif
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI; //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
     LL_PROFILE_GPU_ZONE("ui");
     LLGLState::checkStates();
@@ -1552,6 +1640,11 @@ void render_ui(F32 zoom_factor, int subfield)
 void swap()
 {
     LLPerfStats::RecordSceneTime T ( LLPerfStats::StatType_t::RENDER_SWAP ); // render time capture - Swap buffer time - can signify excessive data transfer to/from GPU
+#if defined(LL_RENDER_BENCHMARK)
+    const LLTrace::BlockTimer& renderer_swap_timer(
+        LLTrace::timeThisBlock(LLStatViewer::RENDER_SWAP));
+    (void)renderer_swap_timer;
+#endif
     LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Swap");
     LL_PROFILE_GPU_ZONE("swap");
     if (gDisplaySwapBuffers)

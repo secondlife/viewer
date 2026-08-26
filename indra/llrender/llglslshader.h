@@ -177,6 +177,7 @@ public:
 
     static void startProfile();
     static void stopProfile();
+    static U64 getShaderBindCount();
 
     void unload();
     void clearStats();

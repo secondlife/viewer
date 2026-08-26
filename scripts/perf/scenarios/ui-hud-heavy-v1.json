@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "ui-hud-heavy-v1",
+  "description": "Repeatable UI, text, HUD attachment, and media composition workload.",
+  "cache_mode": "warm",
+  "capture": {"warmup_seconds": 30, "duration_seconds": 120, "repeats": 5, "poll_interval_seconds": 0.5},
+  "settings": {
+    "AutoTuneFPS": false,
+    "RenderDeferred": true,
+    "RenderFarClip": 128.0,
+    "RenderGLContextCoreProfile": true,
+    "RenderReflectionsEnabled": true,
+    "RenderShadowDetail": 2,
+    "RenderVSyncEnable": false,
+    "RenderVolumeLODFactor": 1.0,
+    "WindowHeight": 720,
+    "WindowMaximized": false,
+    "WindowWidth": 1280,
+    "YieldTime": -1
+  },
+  "workload": {
+    "operator_setup": "Open the recorded floater layout and HUD set; use deterministic local media or disable media consistently.",
+    "camera": "Fixed world camera behind an unchanged UI and HUD layout.",
+    "observations": ["open floaters", "visible text", "HUD attachments", "media playback state"],
+    "invalid_if": ["floater layout changes", "HUD attachment set changes", "media state differs", "window loses focus", "graphics features differ"]
+  }
+}

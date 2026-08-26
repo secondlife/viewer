@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "steady-warm-v1",
+  "description": "Settled static view for the lowest-noise CPU and submission baseline.",
+  "cache_mode": "warm",
+  "capture": {"warmup_seconds": 30, "duration_seconds": 120, "repeats": 5, "poll_interval_seconds": 0.5},
+  "settings": {
+    "AutoTuneFPS": false,
+    "RenderDeferred": true,
+    "RenderFarClip": 128.0,
+    "RenderGLContextCoreProfile": true,
+    "RenderReflectionsEnabled": true,
+    "RenderShadowDetail": 2,
+    "RenderVSyncEnable": false,
+    "RenderVolumeLODFactor": 1.0,
+    "WindowHeight": 720,
+    "WindowMaximized": false,
+    "WindowWidth": 1280,
+    "YieldTime": -1
+  },
+  "workload": {
+    "operator_setup": "Use a repeatable public or captured scene, wait for visible texture and mesh loading to settle, then leave the avatar stationary.",
+    "camera": "Fixed camera transform recorded in the run notes; do not move during capture.",
+    "observations": ["visible avatars", "active objects", "simulator ping", "asset-loading indicator"],
+    "invalid_if": ["asset loading is incomplete after warm-up", "camera or avatar moves", "window loses focus", "power or thermal throttling occurs", "graphics features differ"]
+  }
+}

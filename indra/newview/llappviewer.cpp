@@ -1474,6 +1474,11 @@ bool LLAppViewer::doFrame()
 
                 {
                     LLPerfStats::RecordSceneTime T (LLPerfStats::StatType_t::RENDER_IDLE);
+#if defined(LL_RENDER_BENCHMARK)
+                    const LLTrace::BlockTimer& renderer_idle_timer(
+                        LLTrace::timeThisBlock(LLStatViewer::RENDER_IDLE));
+                    (void)renderer_idle_timer;
+#endif
                     LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df idle");
                     idle();
                 }

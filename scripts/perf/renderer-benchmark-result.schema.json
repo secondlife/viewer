@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://secondlife.com/schemas/renderer-benchmark-result-v1.json",
+  "title": "Second Life renderer benchmark result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "failure_reason", "run", "context", "instrumentation", "frames"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "status": {"enum": ["valid", "invalid"]},
+    "failure_reason": {"type": ["string", "null"]},
+    "run": {"$ref": "#/$defs/run"},
+    "context": {"type": "object"},
+    "instrumentation": {"type": "object"},
+    "frames": {"type": "array", "items": {"$ref": "#/$defs/frame"}},
+    "summary": {"$ref": "#/$defs/summary"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "valid"}}},
+      "then": {
+        "required": ["summary"],
+        "properties": {
+          "failure_reason": {"type": "null"},
+          "context": {"$ref": "#/$defs/context"},
+          "instrumentation": {"$ref": "#/$defs/instrumentation"},
+          "frames": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/frame"}}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "invalid"}}},
+      "then": {"properties": {"failure_reason": {"type": "string", "minLength": 1}}}
+    }
+  ],
+  "$defs": {
+    "nonNegativeNumber": {"type": "number", "minimum": 0},
+    "positiveNumber": {"type": "number", "exclusiveMinimum": 0},
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scenario", "run_number", "cache_mode", "manifest_hash", "settings_hash",
+        "warmup_seconds", "duration_seconds", "poll_interval_seconds"
+      ],
+      "properties": {
+        "scenario": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]+$"},
+        "run_number": {"type": "integer", "minimum": 1},
+        "cache_mode": {"enum": ["warm", "cold"]},
+        "manifest_hash": {"type": "string", "minLength": 1},
+        "settings_hash": {"type": "string", "minLength": 1},
+        "warmup_seconds": {"$ref": "#/$defs/positiveNumber"},
+        "duration_seconds": {"$ref": "#/$defs/positiveNumber"},
+        "poll_interval_seconds": {"$ref": "#/$defs/positiveNumber"}
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "backend_label", "build_type", "cpu", "detected_backend", "driver",
+        "effective_settings", "effective_settings_hash", "feature_flags", "feature_flags_hash",
+        "git_commit", "git_diff_hash", "git_dirty", "gl_extensions", "gl_extensions_hash", "gl_limits", "gpu", "gpu_vendor",
+        "hardware_label", "height", "logical_core_count", "opengl_profile", "opengl_version",
+        "os", "shader_level", "viewer_channel", "viewer_version", "width"
+      ],
+      "properties": {
+        "backend_label": {"enum": ["native-gl", "zink"]},
+        "build_type": {"type": "string", "minLength": 1},
+        "cpu": {"type": "string", "minLength": 1},
+        "detected_backend": {"enum": ["native-gl", "zink"]},
+        "driver": {"type": "string"},
+        "effective_settings": {"type": "object"},
+        "effective_settings_hash": {"type": "string", "minLength": 1},
+        "feature_flags": {"type": "object"},
+        "feature_flags_hash": {"type": "string", "minLength": 1},
+        "git_commit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+        "git_diff_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "git_dirty": {"type": "boolean"},
+        "gl_extensions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "gl_extensions_hash": {"type": "string", "minLength": 1},
+        "gl_limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["max_samples", "max_texture_image_units", "max_texture_size", "max_uniform_block_size"],
+          "properties": {
+            "max_samples": {"type": "integer", "minimum": 0},
+            "max_texture_image_units": {"type": "integer", "minimum": 0},
+            "max_texture_size": {"type": "integer", "minimum": 0},
+            "max_uniform_block_size": {"type": "integer", "minimum": 0}
+          }
+        },
+        "gpu": {"type": "string", "minLength": 1},
+        "gpu_vendor": {"type": "string"},
+        "gpu_vram_mb": {"type": "integer", "minimum": 0},
+        "hardware_label": {"type": "string", "minLength": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "logical_core_count": {"type": "integer", "minimum": 0},
+        "opengl_profile": {"enum": ["core", "compatibility"]},
+        "opengl_version": {"type": "string", "minLength": 1},
+        "os": {"type": "string", "minLength": 1},
+        "shader_level": {"type": "integer", "minimum": 0},
+        "viewer_channel": {"type": "string", "minLength": 1},
+        "viewer_version": {"type": "string", "minLength": 1},
+        "width": {"type": "integer", "minimum": 1}
+      }
+    },
+    "instrumentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode", "compile_time_enabled", "cpu_phase_timing", "resource_counters", "gpu_pass_timing",
+        "gpu_query_readback_in_steady_loop"
+      ],
+      "properties": {
+        "mode": {"const": "steady-low-overhead"},
+        "compile_time_enabled": {"const": true},
+        "cpu_phase_timing": {"const": true},
+        "resource_counters": {"const": true},
+        "gpu_pass_timing": {"const": "external-diagnostic"},
+        "gpu_query_readback_in_steady_loop": {"const": false}
+      }
+    },
+    "frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frame_number", "frame_time_ms"],
+      "properties": {
+        "frame_number": {"type": "number", "minimum": 0},
+        "frame_time_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "do_frame_time_us": {"$ref": "#/$defs/nonNegativeNumber"},
+        "sim_ping_ms": {"type": "number"},
+        "geometry_create_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "partition_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "geometry_update_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "cull_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "shadows_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "texture_work_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "state_sort_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "rebuild_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "submission_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "lighting_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "ui_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "swap_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "idle_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "unclassified_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "draw_calls": {"type": "integer", "minimum": 0},
+        "batch_size_min": {"$ref": "#/$defs/nonNegativeNumber"},
+        "batch_size_max": {"$ref": "#/$defs/nonNegativeNumber"},
+        "batch_size_mean": {"$ref": "#/$defs/nonNegativeNumber"},
+        "ktriangles": {"$ref": "#/$defs/nonNegativeNumber"},
+        "texture_upload_count_total": {"$ref": "#/$defs/nonNegativeNumber"},
+        "texture_upload_bytes_total": {"$ref": "#/$defs/nonNegativeNumber"},
+        "texture_readback_count_total": {"$ref": "#/$defs/nonNegativeNumber"},
+        "texture_readback_time_us_total": {"$ref": "#/$defs/nonNegativeNumber"},
+        "texture_wait_count_total": {"$ref": "#/$defs/nonNegativeNumber"},
+        "texture_wait_time_us_total": {"$ref": "#/$defs/nonNegativeNumber"},
+        "shader_compile_count_total": {"$ref": "#/$defs/nonNegativeNumber"},
+        "shader_compile_time_us_total": {"$ref": "#/$defs/nonNegativeNumber"},
+        "shader_bind_count_total": {"$ref": "#/$defs/nonNegativeNumber"}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sample_count", "frame_time_ms", "one_percent_low_fps", "phase_p95_ms", "counter_deltas"],
+      "properties": {
+        "sample_count": {"type": "integer", "minimum": 1},
+        "frame_time_ms": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["median", "p95", "p99", "worst"],
+          "properties": {
+            "median": {"$ref": "#/$defs/nonNegativeNumber"},
+            "p95": {"$ref": "#/$defs/nonNegativeNumber"},
+            "p99": {"$ref": "#/$defs/nonNegativeNumber"},
+            "worst": {"$ref": "#/$defs/nonNegativeNumber"}
+          }
+        },
+        "one_percent_low_fps": {"$ref": "#/$defs/nonNegativeNumber"},
+        "phase_p95_ms": {"type": "object", "additionalProperties": {"$ref": "#/$defs/nonNegativeNumber"}},
+        "counter_deltas": {"type": "object", "additionalProperties": {"$ref": "#/$defs/nonNegativeNumber"}}
+      }
+    }
+  }
+}
