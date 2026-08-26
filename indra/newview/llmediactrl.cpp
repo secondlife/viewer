@@ -620,6 +620,16 @@ void LLMediaCtrl::navigateStop()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+void LLMediaCtrl::navigateReload()
+{
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
+    {
+        mMediaSource->navigateReload();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 bool LLMediaCtrl::canNavigateBack()
 {
     if (mMediaSource)
@@ -1351,6 +1361,18 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 //
 std::string LLMediaCtrl::getCurrentNavUrl()
 {
+    // Backend-agnostic, mirroring getMediaName()/getStatusText() just below --
+    // LLViewerMediaImpl::getCurrentMediaURL() tracks the live location for both backends
+    // (kept current via MEDIA_EVENT_LOCATION_CHANGED for the legacy plugin, AddressChanged
+    // for embedded browser), unlike mCurrentNavUrl below, which is only ever set at
+    // navigateTo()/navigateToLocalPage() time and goes stale as soon as the page navigates
+    // on its own (a clicked link, a redirect, JS navigation).
+    if (mMediaSource)
+    {
+        const std::string live_url = mMediaSource->getCurrentMediaURL();
+        if (!live_url.empty())
+            return live_url;
+    }
     return mCurrentNavUrl;
 }
 

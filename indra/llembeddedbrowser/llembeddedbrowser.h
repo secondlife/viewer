@@ -156,6 +156,9 @@ class LLEmbeddedBrowserTab
         void goBack();
         void goForward();
         void stopLoad();
+        // Straight into llCefBrowserManager::Reload(). ignoreCache mirrors the legacy
+        // plugin's own browse_reload(bool) -- see LLViewerMediaImpl::navigateReload().
+        void reload(bool ignoreCache);
         // Cached from the producer's own kEventNavStateChanged (sent alongside every
         // load-start/load-end -- see cefshm_protocol.h), not a live round-trip query --
         // this is safe to call every frame (e.g. to enable/disable a back/forward
@@ -306,6 +309,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void goBack(unsigned int id);
         void goForward(unsigned int id);
         void stopLoad(unsigned int id);
+        void reload(unsigned int id, bool ignoreCache);
         bool canGoBack(unsigned int id);
         bool canGoForward(unsigned int id);
         void resize(unsigned int id, unsigned int width, unsigned int height);

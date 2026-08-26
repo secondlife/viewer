@@ -758,6 +758,12 @@ int run_producer(int argc, char** argv)
                 case kStopLoad:
                     manager->StopLoad(s.cefHandle);
                     break;
+                case kReload: {
+                    if (!cmd.data.empty()) {
+                        manager->Reload(s.cefHandle, cmd.data[0] != 0);
+                    }
+                    break;
+                }
                 case kSetRenderRate: {
                     std::uint32_t fps;
                     std::uint8_t tier;

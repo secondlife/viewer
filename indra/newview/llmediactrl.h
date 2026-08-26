@@ -110,6 +110,7 @@ public:
         void navigateHome();
         void navigateForward();
         void navigateStop();
+        void navigateReload();
         void navigateToLocalPage( const std::string& subdir, const std::string& filename_in );
         bool canNavigateBack();
         bool canNavigateForward();

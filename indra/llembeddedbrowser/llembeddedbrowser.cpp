@@ -589,6 +589,16 @@ void LLEmbeddedBrowserTab::stopLoad()
     }
 }
 
+void LLEmbeddedBrowserTab::reload(bool ignoreCache)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::uint8_t payload[1] = { ignoreCache ? std::uint8_t(1) : std::uint8_t(0) };
+        mSub->send(kReload, payload, 1);
+    }
+}
+
 bool LLEmbeddedBrowserTab::canGoBack() const
 {
     LLMutexLock lock(&mPixelMutex);
@@ -1109,6 +1119,14 @@ void LLEmbeddedBrowser::stopLoad(unsigned int id)
     if (auto tab = findTab(id))
     {
         tab->stopLoad();
+    }
+}
+
+void LLEmbeddedBrowser::reload(unsigned int id, bool ignoreCache)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->reload(ignoreCache);
     }
 }
 

@@ -305,10 +305,11 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 {
     // self is nullptr for an embedded-browser-originated event (see
     // LLViewerMediaImpl::updateEmbeddedBrowserEvents()) -- it has no LLPluginClassMedia to
-    // ask, so fall back to what LLMediaCtrl itself tracks. Embedded-browser tabs don't
-    // support back/forward navigation yet, so both report unavailable rather than guessing.
-    const bool history_back_available = self ? self->getHistoryBackAvailable() : false;
-    const bool history_forward_available = self ? self->getHistoryForwardAvailable() : false;
+    // ask, so fall back to mWebBrowser's own backend-agnostic canNavigateBack()/Forward(),
+    // which for embedded browser reflects the producer's real CanGoBack()/CanGoForward()
+    // state (kEventNavStateChanged).
+    const bool history_back_available = self ? self->getHistoryBackAvailable() : mWebBrowser->canNavigateBack();
+    const bool history_forward_available = self ? self->getHistoryForwardAvailable() : mWebBrowser->canNavigateForward();
 
     if(event == MEDIA_EVENT_LOCATION_CHANGED)
     {
@@ -435,22 +436,18 @@ void LLFloaterWebContent::onClickBack()
 
 void LLFloaterWebContent::onClickReload()
 {
-
-    if( mWebBrowser->getMediaPlugin() )
-    {
-        bool ignore_cache = true;
-        mWebBrowser->getMediaPlugin()->browse_reload( ignore_cache );
-    }
-    else
-    {
-        mWebBrowser->navigateTo(mCurrentURL);
-    }
+    // Routes through LLViewerMediaImpl::navigateReload() rather than reaching into the
+    // plugin directly -- that has an embedded-browser branch too (and getMediaPlugin() is
+    // always null for embedded-browser media), and does a real ignore-cache reload for
+    // either backend.
+    mWebBrowser->navigateReload();
 }
 
 void LLFloaterWebContent::onClickStop()
 {
-    if( mWebBrowser->getMediaPlugin() )
-        mWebBrowser->getMediaPlugin()->browse_stop();
+    // See onClickReload() -- same reasoning, mWebBrowser->navigateStop() covers both
+    // backends instead of only ever acting when a legacy plugin is present.
+    mWebBrowser->navigateStop();
 
     // still should happen when we catch the navigate complete event
     // but sometimes (don't know why) that event isn't sent from Qt

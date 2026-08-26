@@ -90,6 +90,10 @@ namespace cefshm_demo
         kGoBack    = 31, // empty payload -- straight into llCefBrowserManager::GoBack().
         kGoForward = 32, // empty payload -- straight into llCefBrowserManager::GoForward().
         kStopLoad  = 33, // empty payload -- straight into llCefBrowserManager::StopLoad().
+        kReload    = 36, // data = {uint8 ignoreCache} -- straight into llCefBrowserManager::Reload().
+                          // ignoreCache true matches the legacy plugin's own browse_reload(true)
+                          // (a hard refresh, bypassing HTTP cache), which every reload call site
+                          // in the Viewer already requests.
         kSetRenderRate = 35, // data = {uint32 targetFps, uint8 priorityTier, url bytes (remainder)}
                           // -- caps how often the producer calls SendExternalBeginFrame() for
                           // this handle (0 = unthrottled/full rate, the default). Distance/

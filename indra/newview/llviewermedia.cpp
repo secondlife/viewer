@@ -2851,7 +2851,20 @@ void LLViewerMediaImpl::navigateForward()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateReload()
 {
-    navigateTo(getCurrentMediaURL(), "", true, false);
+    if (mMediaSource)
+    {
+        // ignore_cache = true: a hard refresh, matching what every reload call site in the
+        // Viewer actually wants (the "Reload" button, not a plain re-navigate).
+        mMediaSource->browse_reload(true);
+    }
+    else if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->reload(mEmbeddedBrowserId, true);
+    }
+    else
+    {
+        navigateTo(getCurrentMediaURL(), "", true, false);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
