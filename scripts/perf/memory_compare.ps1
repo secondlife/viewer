@@ -6,10 +6,30 @@
 
 .DESCRIPTION
     Neither build's memory usage lives in a single process, so this sums
-    across the right set for each side rather than looking at secondlife-bin
+    across the right set for each side rather than looking at secondlifeviewer
     alone:
-      - legacy (media plugin):   secondlifeviewer, SLPlugin
-      - this build (embedded):   secondlife-bin, SLCefProducer
+      - legacy (media plugin):   secondlifeviewer, SLPlugin, dullahan_host
+      - this build (embedded):   secondlifeviewer, SLCefProducer
+
+    The two sides' helper-process naming is NOT symmetric -- easy to miss and
+    invalidates the comparison if you do (confirmed the hard way: an earlier
+    comparison run omitted dullahan_host and undercounted legacy by roughly
+    3x). SLCefProducer re-execs itself for every CEF subprocess (renderer,
+    GPU, network/storage utility), so a single -ProcessNames SLCefProducer
+    entry already catches all of them. The legacy media plugin's CEF
+    subprocesses run under a DIFFERENT binary name, dullahan_host.exe, not
+    SLPlugin.exe -- SLPlugin.exe is only the thin per-instance coordinator,
+    and each of its own dullahan_host.exe children again spawns its own full,
+    independent GPU + 2 utility + renderer set (no sharing across instances,
+    unlike the embedded side's one shared SLCefProducer family). Both
+    dullahan_host and SLPlugin must be passed for a legacy run to be complete.
+
+    Note the process name to pass for the Viewer's own main process is
+    secondlifeviewer (not secondlife-bin) when testing an installed/packaged
+    build (the CI installer, or anything under %LocalAppData%) -- that's the
+    name viewer_manifest.py ships it under for both legacy and embedded
+    builds alike. secondlife-bin is only the raw build-output name for a
+    local, unpackaged dev build.
 
     Logs one row per process name per sample (Count/WorkingSetMB/PrivateMB),
     plus one "TOTAL" row per sample summing across every name passed in.
@@ -29,7 +49,8 @@
     VMMap if you need the precise shared-vs-private split.
 
 .PARAMETER ProcessNames
-    Process names to sample (no .exe suffix), e.g. secondlifeviewer,SLPlugin
+    Process names to sample (no .exe suffix). For a complete legacy run this
+    must include dullahan_host, not just SLPlugin -- see .DESCRIPTION.
 
 .PARAMETER Label
     Free-text tag written into every row (e.g. "legacy" or "embedded") so
@@ -47,10 +68,10 @@
     Stop after this many minutes. Default 0 (run until Ctrl+C).
 
 .EXAMPLE
-    .\memory_compare.ps1 -ProcessNames secondlifeviewer,SLPlugin -Label legacy -OutFile mem.csv -DurationMinutes 5
+    .\memory_compare.ps1 -ProcessNames secondlifeviewer,SLPlugin,dullahan_host -Label legacy -OutFile mem.csv -DurationMinutes 5
 
 .EXAMPLE
-    .\memory_compare.ps1 -ProcessNames secondlife-bin,SLCefProducer -Label embedded -OutFile mem.csv -DurationMinutes 5
+    .\memory_compare.ps1 -ProcessNames secondlifeviewer,SLCefProducer -Label embedded -OutFile mem.csv -DurationMinutes 5
 #>
 param(
     [Parameter(Mandatory = $true)]
