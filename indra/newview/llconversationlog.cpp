@@ -388,6 +388,33 @@ void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string
     logConversation(session_id, has_offline_msg);
 }
 
+void LLConversationLog::addServiceConversation(const LLUUID& session_id,
+                                               const std::string& conversation_name,
+                                               const std::string& history_filename,
+                                               const LLUUID& participant_id,
+                                               const U64Seconds& archived_time)
+{
+    // Service publication is idempotent and follows the Conversation Log privacy setting.
+    if (!mLoggingEnabled || getConversation(session_id))
+    {
+        return;
+    }
+
+    // A durable archive supplies the P2P metadata normally obtained from a live session.
+    ConversationParams params;
+    params.time(archived_time)
+        .conversation_type(LLIMModel::LLIMSession::P2P_SESSION)
+        .has_offline_ims(false)
+        .conversation_name(conversation_name)
+        .participant_id(participant_id)
+        .session_id(session_id)
+        .history_filename(history_filename);
+
+    mConversations.emplace_back(params);
+    notifyObservers();
+    cache();
+}
+
 void LLConversationLog::cache()
 {
     if (gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0)

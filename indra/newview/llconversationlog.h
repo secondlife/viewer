@@ -126,6 +126,14 @@ public:
 
     // LLIMSessionObserver triggers
     virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg) override;
+
+    // Publish metadata for durable service history that has no live IM session.
+    void addServiceConversation(const LLUUID& session_id,
+                                const std::string& conversation_name,
+                                const std::string& history_filename,
+                                const LLUUID& participant_id,
+                                const U64Seconds& archived_time);
+
     virtual void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) override {}; // Stub
     virtual void sessionRemoved(const LLUUID& session_id) override{}                                            // Stub
     virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) override{};                              // Stub
@@ -199,6 +207,9 @@ private:
     boost::signals2::connection mAvatarNameCacheConnection;
 
     bool mLoggingEnabled;
+
+    // Test-only peer: model enabled/empty startup without filesystem or observer setup.
+    friend struct LLConversationLogTestAccess;
 };
 
 class LLConversationLogObserver

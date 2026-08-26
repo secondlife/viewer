@@ -13,6 +13,8 @@
 
 #include "llagent.h"
 #include "llavatarnamecache.h"
+#include "llcachename.h"
+#include "llconversationlog.h"
 #include "llcorehttputil.h"
 #include "llcoros.h"
 #include "lldate.h"
@@ -1877,6 +1879,25 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
             ++after_publish.archive_serial;
             sRuntime.index_dirty = true;
             sRuntime.local_content_exists = true;
+
+            // The first durable service archive makes a cross-device conversation
+            // discoverable without creating a live IM session. Later appends leave
+            // explicit Conversation Log dismissals intact.
+            if (!append && after_publish.summary.has_rows &&
+                after_publish.metadata.state == META_RESOLVED)
+            {
+                const F64 archived_seconds = after_publish.summary.newest.ticks >= UUID_EPOCH
+                    ? static_cast<F64>(after_publish.summary.newest.ticks - UUID_EPOCH) / 10000000.0
+                    : static_cast<F64>(time_corrected());
+                const LLAvatarName& name = after_publish.metadata.name;
+                LLConversationLog::instance().addServiceConversation(
+                    LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, id),
+                    name.getCompleteName(),
+                    LLCacheName::buildUsername(name.getUserName()),
+                    id,
+                    U64Seconds(LLUnits::Seconds::fromValue(archived_seconds)));
+            }
+
             LLLogChat::notifyTranscriptCreated();
         }
         else

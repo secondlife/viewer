@@ -2410,6 +2410,7 @@ if (LL_TESTS)
   SET(viewer_TEST_SOURCE_FILES
     llagentaccess.cpp
     llchatservicehistorycore.cpp
+    llconversationlog.cpp
     lldateutil.cpp
 #    llmediadataclient.cpp
     lllogininstance.cpp
