@@ -515,7 +515,7 @@ namespace
 
     constexpr F32 DEFAULT_SERVER_FRAME_RATE = 45.f; // Hz
     constexpr F32 MIN_SERVER_FRAME_RATE = 1.f; // Hz: clamp against div-by-near-zero on a stalled/lagged sim
-    constexpr U64 MIN_RESEND_PERIOD = USEC_PER_SEC / DEFAULT_SERVER_FRAME_RATE;
+    constexpr U64 MIN_RESEND_PERIOD = (U64)(USEC_PER_SEC / DEFAULT_SERVER_FRAME_RATE);
     F32 g_serverFrameRate = DEFAULT_SERVER_FRAME_RATE;
 
     U64 getMinSendPeriod()
