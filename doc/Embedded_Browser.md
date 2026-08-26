@@ -249,6 +249,32 @@ take effect on the next `SLCefProducer.exe` launch, not immediately:
   `SLCefProducer.exe` serves Chrome's remote-debugging-protocol DevTools UI
   on that port.
 
+## Windows Firewall prompt on the first WebRTC connection
+
+The first time any page loaded through the embedded browser negotiates a
+WebRTC connection (voice or video chat, for example), Windows may show a
+one-time "Windows Security - Do you want to allow public and private
+networks to access this app?" prompt for `SLCefProducer.exe`. This is not
+a code-signing problem and not related to `EmbeddedBrowserDebugging` or
+the remote-debugging port below. It is a known, common Chromium/CEF-wide
+behavior: WebRTC's local-IP-hiding privacy feature obfuscates a page's
+real local IP address during ICE candidate gathering by minting a random
+`.local` mDNS hostname and binding a UDP socket to answer queries for it,
+and that bind is exactly what triggers this Windows Firewall dialog.
+
+As of `llcefbrowser` 1.32.0, this is disabled (`--disable-features
+WebRtcHideLocalIpsWithMdns` in `llCefBrowserLib.cpp`), so this prompt
+should no longer appear. The tradeoff: real local IPs are exposed to the
+remote peer during WebRTC ICE negotiation instead of mDNS-obfuscated, an
+acceptable one for a windowless embedded browser with no user-facing
+privacy UI of its own to explain the prompt otherwise.
+
+Two earlier hypotheses were investigated and ruled out before finding the
+real cause, in case this ever needs revisiting: `SLCefProducer.exe`'s code
+signature (confirmed valid via `Get-AuthenticodeSignature`) and its
+embedded manifest's execution level (confirmed `asInvoker`, no elevation
+requested). Neither was the issue.
+
 ## Developer console
 
 An earlier attempt used CEF's own in-process DevTools popup
