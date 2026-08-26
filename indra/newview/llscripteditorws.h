@@ -257,6 +257,8 @@ protected:
     LLSD handleObjectList() const;
     LLSD handleObjectScriptSetRunning(U32 connection_id, const LLSD& params);
     LLSD handleObjectScriptReset(U32 connection_id, const LLSD& params);
+    LLSD handleObjectScriptResetAll(U32 connection_id, const LLSD& params);
+    LLSD handleObjectScriptRecompileAll(U32 connection_id, const LLSD& params);
     LLSD handleObjectModify(U32 connection_id, const LLSD& params);
     LLSD handleObjectItemModify(U32 connection_id, const LLSD& params);
     LLSD handleCommandExecute(U32 connection_id, const LLSD& params);

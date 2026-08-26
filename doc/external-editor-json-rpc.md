@@ -1721,9 +1721,8 @@ interface CommandParamInfo {
 - `commands`: Array of commands the responder supports. Each entry describes one command.
   - `command`: The namespaced command identifier.
   - `description` (optional): Human-readable description of what the command does.
-  - `params` (optional): Map of parameter names to their type descriptors. **Not currently
-    populated** — the viewer returns only `command` and `description`, so parameter discovery
-    does not work. Implementation is tracked separately.
+  - `params` (optional): Map of parameter names to their type descriptors. The viewer populates
+    this field for its registered commands.
 
 **Known viewer commands:**
 
@@ -1732,6 +1731,8 @@ interface CommandParamInfo {
 | `viewer.teleport` | `object_id: string` | Teleport agent to an in-world object. |
 | `viewer.camera.focus` | `object_id: string` | Zoom camera to an in-world object (same behavior as context menu Zoom In). |
 | `viewer.object.save_back_to_contents` | `object_id: string` | Save an in-world object back to source object contents. |
+| `viewer.script.reset_all` | `object_id: string` | Open the viewer's reset queue and reset all scripts in an in-world object. |
+| `viewer.script.recompile_all` | `object_id: string`, `target: "luau" \| "lsl2" \| "mono" \| "auto"` | Open the viewer's compile queue and recompile scripts in an in-world object using the selected target. `luau` automatically selects Luau for native Luau scripts and LSL-Luau for LSL scripts. `auto` uses each script's previously registered VM. |
 
 **Known extension commands:**
 
