@@ -74,13 +74,11 @@ set(macosx_HEADER_FILES
     )
 
 set(linux_SOURCE_FILES
-    llsdl.cpp
     llkeyboardsdl.cpp
     llwindowsdl.cpp
     )
 
 set(linux_HEADER_FILES
-    llsdl.h
     llkeyboardsdl.h
     llwindowsdl.h
     )
