@@ -31,6 +31,7 @@ DISPLAY_SCALE_TOLERANCE = 1e-4
 OPERATIONAL_SETTINGS = {
     "AllowMultipleViewers": True,
     "FirstLoginThisInstall": False,
+    "MigrateCacheDirectory": False,
     "SLURLPassToOtherInstance": False,
 }
 OPERATIONAL_SWITCHES = (
@@ -39,6 +40,33 @@ OPERATIONAL_SWITCHES = (
     "--noaudio",
     "--nonotifications",
     "--novoice",
+)
+CACHE_FAILURE_SIGNATURES = (
+    ("Failure in vf.write()", "asset-cache-write"),
+    ("Unable to set cache location", "cache-location"),
+    ("Unable to write header entry!", "texture-cache-header-write"),
+    ("writeToFastCache failed", "texture-fast-cache-write"),
+    ("Failed to write cache to disk", "object-cache-write"),
+    ("Failed to write cache entry to disk", "object-cache-entry-write"),
+    ("Failed to write cache. Unable to save inventory", "inventory-cache-write"),
+    ("Couldn't mkdir", "cache-directory-create"),
+)
+AVATAR_BLOCKER_SIGNATURES = (
+    ("COF info is not complete", "cof-incomplete"),
+    ("Self is clouded due to missing one or more required body parts", "required-bodyparts-missing"),
+    ("Self is clouded because of no hair texture", "hair-texture-missing"),
+    ("Self is clouded because lower textures not baked", "lower-bake-missing"),
+    ("Self is clouded because upper textures not baked", "upper-bake-missing"),
+    ("Self is clouded because texture at index", "baked-texture-not-renderable"),
+)
+READINESS_ASSET_FIELDS = (
+    "mesh_lod_unresolved_max",
+    "mesh_skin_unresolved_max",
+    "texture_create_queue_max",
+    "texture_fast_cache_max",
+    "texture_fetch_requests_max",
+    "texture_http_requests_max",
+    "texture_upload_count_delta",
 )
 REQUIRED_CONTEXT_FIELDS = {
     "backend_label",
@@ -165,6 +193,9 @@ VALIDITY_GATE_NAMES = (
     "power",
     "thermal",
 )
+READINESS_TARGET_GATES = ("assets", "avatar")
+CACHE_SENTINEL_NAME = "sl_cache_renderer_benchmark_sentinel.asset"
+CACHE_SENTINEL_CONTENT = b"renderer-benchmark-cache-sentinel"
 
 
 class BenchmarkError(ValueError):
@@ -619,11 +650,14 @@ def validate_result(result: Mapping[str, Any], require_valid: bool = True) -> No
     private_paths = find_private_paths(result)
     if private_paths:
         raise BenchmarkError(f"result contains private fields: {', '.join(private_paths)}")
-    if require_valid:
-        summarize_result(result)
+    summarize_result(result)
 
 
-def validate_result_against_manifest(result: Mapping[str, Any], manifest: Mapping[str, Any]) -> None:
+def validate_result_against_manifest(
+    result: Mapping[str, Any],
+    manifest: Mapping[str, Any],
+    require_all_gates: bool = True,
+) -> None:
     context = result.get("context")
     requested_settings = manifest.get("settings")
     if not isinstance(context, Mapping) or not isinstance(requested_settings, Mapping):
@@ -666,7 +700,9 @@ def validate_result_against_manifest(result: Mapping[str, Any], manifest: Mappin
             validity.get("observed", {}),
             requested_policy,
         )
-        if validity.get("gates") != gates or not all(gates.values()):
+        if validity.get("gates") != gates:
+            mismatches.append("scene validity gates do not match the manifest policy")
+        elif require_all_gates and not all(gates.values()):
             mismatches.append("scene validity gates do not pass the manifest policy")
     if requested_settings.get("WindowMaximized") is False:
         for context_name, setting_name in (
@@ -784,10 +820,17 @@ def _redacted_command(command: Sequence[str], private_indices: Iterable[int]) ->
     return shlex.join(redacted)
 
 
-def benchmark_run_numbers(cache_mode: str, repeats: int) -> list[int]:
-    """Return measured repeat numbers, preceded by an unmeasured warm-cache prime."""
+def benchmark_run_numbers(
+    cache_mode: str,
+    repeats: int,
+    warm_prime_attempts: int = 1,
+    prime_only: bool = False,
+) -> list[int]:
+    """Return measured repeats, optionally preceded by bounded warm-cache primes."""
     measured = list(range(1, repeats + 1))
-    return [0, *measured] if cache_mode == "warm" else measured
+    if cache_mode != "warm":
+        return measured
+    return [0] * warm_prime_attempts + ([] if prime_only else measured)
 
 
 def failed_validity_gate_names(result: Any) -> list[str]:
@@ -799,6 +842,308 @@ def failed_validity_gate_names(result: Any) -> list[str]:
     if not isinstance(gates, Mapping):
         return []
     return [name for name in VALIDITY_GATE_NAMES if gates.get(name) is False]
+
+
+def benchmark_state_settings(
+    manifest_settings: Mapping[str, Any],
+    state: Path,
+    cache_mode: str,
+    initialize: bool = True,
+) -> dict[str, Any]:
+    """Create the disposable state roots and return a complete cache selection."""
+    user_dir = state / "user"
+    cache_dir = state / "cache"
+    if initialize:
+        user_dir.mkdir(parents=True, exist_ok=True)
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+    settings = dict(manifest_settings)
+    settings.update(OPERATIONAL_SETTINGS)
+    settings["PurgeCacheOnStartup"] = cache_mode == "cold"
+    settings["CacheLocation"] = str(cache_dir)
+    settings["NewCacheLocation"] = str(cache_dir)
+    return settings
+
+
+def _cache_probe(directory: Path) -> str:
+    """Exercise create, write, rename, read, and cleanup without exposing a path."""
+    source = directory / ".renderer-benchmark-cache-probe"
+    renamed = directory / ".renderer-benchmark-cache-probe-renamed"
+    if not directory.is_dir():
+        return "root-missing"
+    cleanup_failed = False
+    for entry in (source, renamed):
+        try:
+            entry.unlink(missing_ok=True)
+        except OSError:
+            cleanup_failed = True
+    if cleanup_failed:
+        return "cleanup-failed"
+    try:
+        source.write_bytes(b"renderer-cache-probe")
+    except OSError:
+        return "write-failed"
+
+    status = "ready"
+    try:
+        source.replace(renamed)
+    except OSError:
+        status = "rename-failed"
+    else:
+        try:
+            if renamed.read_bytes() != b"renderer-cache-probe":
+                status = "readback-failed"
+        except OSError:
+            status = "readback-failed"
+
+    cleanup_failed = False
+    for entry in (source, renamed):
+        try:
+            entry.unlink(missing_ok=True)
+        except OSError:
+            cleanup_failed = True
+    return "cleanup-failed" if status == "ready" and cleanup_failed else status
+
+
+def _file_count(directory: Path) -> int:
+    try:
+        return sum(1 for entry in directory.rglob("*") if entry.is_file())
+    except OSError:
+        return -1
+
+
+def _safe_finite_number(value: Any) -> int | float | None:
+    if not _is_number(value):
+        return None
+    try:
+        return value if math.isfinite(value) else None
+    except OverflowError:
+        return None
+
+
+def _cache_sentinel_status(state: Path) -> str:
+    sentinel = state / "cache" / "cache" / CACHE_SENTINEL_NAME
+    try:
+        return "ready" if sentinel.read_bytes() == CACHE_SENTINEL_CONTENT else "content-mismatch"
+    except FileNotFoundError:
+        return "missing"
+    except OSError:
+        return "read-failed"
+
+
+def _install_cache_sentinel(state: Path) -> str:
+    sentinel = state / "cache" / "cache" / CACHE_SENTINEL_NAME
+    if not sentinel.parent.is_dir():
+        return "asset-root-missing"
+    try:
+        sentinel.write_bytes(CACHE_SENTINEL_CONTENT)
+    except OSError:
+        return "write-failed"
+    return _cache_sentinel_status(state)
+
+
+def cache_lifecycle_facts(state: Path) -> dict[str, Any]:
+    """Return aggregate facts for the requested and fallback cache roots."""
+    requested = state / "cache"
+    fallback = state / "user" / "cache"
+    asset_dir_name = "cache"
+    return {
+        "requested_root_present": requested.is_dir(),
+        "requested_write_probe": _cache_probe(requested),
+        "requested_asset_root_present": (requested / asset_dir_name).is_dir(),
+        "requested_asset_write_probe": _cache_probe(requested / asset_dir_name),
+        "requested_texture_root_present": (requested / "texturecache").is_dir(),
+        "requested_object_root_present": (requested / "objectcache").is_dir(),
+        "requested_sentinel": _cache_sentinel_status(state),
+        "requested_file_count": _file_count(requested),
+        "fallback_root_present": fallback.is_dir(),
+        "fallback_asset_root_present": (fallback / asset_dir_name).is_dir(),
+        "fallback_file_count": _file_count(fallback),
+    }
+
+
+def _viewer_log_cursor(log_root: Path) -> tuple[int, int, int] | None:
+    """Capture an internal identity and byte offset for the active viewer log."""
+    try:
+        status = (log_root / "SecondLife.log").stat()
+    except OSError:
+        return None
+    return status.st_dev, status.st_ino, status.st_size
+
+
+def _first_log_category(
+    log_root: Path,
+    signatures: Sequence[tuple[str, str]],
+    cursor: tuple[int, int, int] | None = None,
+) -> str | None:
+    """Reduce new bytes from the active viewer log to one known category."""
+    viewer_log = log_root / "SecondLife.log"
+    try:
+        status = viewer_log.stat()
+    except OSError:
+        return None
+    offset = 0
+    if cursor is not None:
+        device, inode, previous_size = cursor
+        if (status.st_dev, status.st_ino) == (device, inode) and status.st_size >= previous_size:
+            offset = previous_size
+    try:
+        with viewer_log.open("rb") as stream:
+            stream.seek(offset)
+            for raw_line in stream:
+                line = raw_line.decode("utf-8", errors="replace")
+                for signature, category in signatures:
+                    if signature in line:
+                        return category
+    except OSError:
+        return None
+    return None
+
+
+def readiness_attempt(
+    attempt: int,
+    outcome: str,
+    result: Any,
+    cache_before: Mapping[str, Any],
+    state: Path,
+    log_cursor: tuple[int, int, int] | None = None,
+    prepare_reuse: bool = False,
+) -> dict[str, Any]:
+    """Reduce one prime to privacy-safe readiness facts with no frame timing."""
+    validity = result.get("validity", {}) if isinstance(result, Mapping) else {}
+    observed = validity.get("observed", {}) if isinstance(validity, Mapping) else {}
+    if not isinstance(observed, Mapping):
+        observed = {}
+    gates = validity.get("gates", {}) if isinstance(validity, Mapping) else {}
+    if not isinstance(gates, Mapping):
+        gates = {}
+    policy = validity.get("policy", {}) if isinstance(validity, Mapping) else {}
+    if not isinstance(policy, Mapping):
+        policy = {}
+    self_avatar_loaded = observed.get("self_avatar_loaded") is True
+    agent_stationary = (
+        _is_number(observed.get("agent_travel_m"))
+        and _is_number(policy.get("max_agent_travel_m"))
+        and observed["agent_travel_m"] <= policy["max_agent_travel_m"]
+    )
+    settlement_complete = (
+        _is_number(observed.get("settle_seconds_observed"))
+        and _is_number(policy.get("settle_seconds"))
+        and observed["settle_seconds_observed"] >= policy["settle_seconds"]
+    )
+    asset_queues_settled = all(
+        _is_number(observed.get(field)) and observed[field] == 0
+        for field in READINESS_ASSET_FIELDS
+    )
+    log_avatar_blocker = _first_log_category(
+        state / "user" / "logs", AVATAR_BLOCKER_SIGNATURES, log_cursor
+    )
+    avatar_blocker = (
+        "none"
+        if self_avatar_loaded and agent_stationary
+        else "avatar-moved"
+        if self_avatar_loaded
+        else log_avatar_blocker or "unknown"
+    )
+    attempt_record = sanitize({
+        "attempt": attempt,
+        "outcome": outcome,
+        "failed_gates": failed_validity_gate_names(result),
+        "target_gates": {
+            name: gates.get(name) if isinstance(gates.get(name), bool) else None
+            for name in READINESS_TARGET_GATES
+        },
+        "all_scene_gates_passed": all(gates.get(name) is True for name in VALIDITY_GATE_NAMES),
+        "cache_before_launch": dict(cache_before),
+        "cache_after_launch": cache_lifecycle_facts(state),
+        "first_cache_failure": _first_log_category(
+            state / "user" / "logs", CACHE_FAILURE_SIGNATURES, log_cursor
+        ) or "none",
+        "assets": {
+            "settlement_complete": settlement_complete,
+            "queues_settled": asset_queues_settled,
+            "observed": {
+                field: _safe_finite_number(observed.get(field))
+                for field in READINESS_ASSET_FIELDS
+                if field in observed
+            },
+        },
+        "avatar": {
+            "self_avatar_loaded": self_avatar_loaded,
+            "stationary": agent_stationary,
+            "blocker": avatar_blocker,
+        },
+    })
+    before = attempt_record["cache_before_launch"]
+    after = attempt_record["cache_after_launch"]
+    cache_failures: list[str] = []
+    if before.get("requested_root_present") is not True:
+        cache_failures.append("requested-root-missing-before")
+    if before.get("requested_write_probe") != "ready":
+        cache_failures.append("write-probe-failed-before")
+    if attempt > 1 and before.get("requested_asset_root_present") is not True:
+        cache_failures.append("asset-root-missing-before-reuse")
+    if attempt > 1 and before.get("requested_asset_write_probe") != "ready":
+        cache_failures.append("asset-write-probe-failed-before-reuse")
+    if attempt > 1 and before.get("requested_sentinel") != "ready":
+        cache_failures.append("sentinel-missing-before-reuse")
+    if attempt > 1 and before.get("fallback_asset_root_present") is True:
+        cache_failures.append("fallback-asset-root-present-before-reuse")
+    if after.get("requested_root_present") is not True:
+        cache_failures.append("requested-root-missing-after")
+    if after.get("requested_write_probe") != "ready":
+        cache_failures.append("write-probe-failed-after")
+    if after.get("requested_asset_root_present") is not True:
+        cache_failures.append("asset-root-missing-after")
+    if after.get("requested_asset_write_probe") != "ready":
+        cache_failures.append("asset-write-probe-failed-after")
+    if attempt > 1 and after.get("requested_sentinel") != "ready":
+        cache_failures.append("sentinel-missing-after-reuse")
+    if after.get("fallback_asset_root_present") is True:
+        cache_failures.append("fallback-asset-root-present-after")
+    if attempt_record["first_cache_failure"] != "none":
+        cache_failures.append("cache-log-failure")
+    if prepare_reuse:
+        sentinel_install = _install_cache_sentinel(state)
+        attempt_record["sentinel_install"] = sentinel_install
+        if sentinel_install != "ready":
+            cache_failures.append("sentinel-install-failed")
+    attempt_record["cache_failures"] = cache_failures
+    attempt_record["cache_ready"] = not cache_failures
+    return attempt_record
+
+
+def write_readiness_report(path: Path, attempts: Sequence[Mapping[str, Any]]) -> None:
+    """Write a no-timing diagnostic artifact after a bounded prime-only run."""
+    last_attempt = attempts[-1] if attempts else {}
+    last_targets = last_attempt.get("target_gates", {})
+    readiness_passed = isinstance(last_targets, Mapping) and all(
+        last_targets.get(name) is True for name in READINESS_TARGET_GATES
+    )
+    cache_reuse_passed = len(attempts) >= 2 and all(
+        attempt.get("cache_ready") is True for attempt in attempts
+    )
+    report = sanitize({
+        "schema_version": 1,
+        "kind": "renderer-readiness",
+        "scene_contract": "schema-3-unchanged",
+        "target_gates": list(READINESS_TARGET_GATES),
+        "readiness_passed": bool(attempts)
+        and last_attempt.get("outcome") == "readiness-passed"
+        and cache_reuse_passed
+        and readiness_passed,
+        "cache_reuse_passed": cache_reuse_passed,
+        "all_scene_gates_passed": bool(attempts)
+        and last_attempt.get("all_scene_gates_passed") is True,
+        "valid_measured_repeats": 0,
+        "retained_timing": False,
+        "attempts": list(attempts),
+    })
+    private = find_private_paths(report)
+    if private:
+        raise BenchmarkError("readiness report contains a private field")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def _run_command(args: argparse.Namespace) -> int:
@@ -828,7 +1173,18 @@ def _run_command(args: argparse.Namespace) -> int:
         raise BenchmarkError("repeats must be positive")
     if args.startup_timeout < 1:
         raise BenchmarkError("startup timeout must be positive")
+    if args.warm_prime_attempts < 1:
+        raise BenchmarkError("warm prime attempts must be positive")
+    if manifest["cache_mode"] != "warm" and (args.prime_only or args.warm_prime_attempts != 1):
+        raise BenchmarkError("prime-only controls require a warm-cache manifest")
+    if args.warm_prime_attempts != 1 and not args.prime_only:
+        raise BenchmarkError("multiple warm primes require --prime-only")
+    if args.readiness_output and not args.prime_only:
+        raise BenchmarkError("readiness output requires --prime-only")
+    if args.readiness_output and args.warm_prime_attempts < 2:
+        raise BenchmarkError("readiness output requires at least two warm primes")
     output_dir.mkdir(parents=True, exist_ok=True)
+    readiness_output = Path(args.readiness_output).resolve() if args.readiness_output else None
     backend = args.backend
     settings_hash = canonical_hash(manifest["settings"])
     manifest_hash = canonical_hash(manifest)
@@ -841,10 +1197,29 @@ def _run_command(args: argparse.Namespace) -> int:
     with tempfile.TemporaryDirectory(prefix="sl-render-benchmark-") as batch_name:
         batch = Path(batch_name)
         warm_state = batch / "warm-state"
-        for run_number in benchmark_run_numbers(str(manifest["cache_mode"]), repeats):
+        initialized_states: set[Path] = set()
+        readiness_attempts: list[dict[str, Any]] = []
+        prime_attempt = 0
+        run_numbers = benchmark_run_numbers(
+            str(manifest["cache_mode"]),
+            repeats,
+            args.warm_prime_attempts,
+            args.prime_only,
+        )
+        for run_number in run_numbers:
             is_prime = run_number == 0
-            run_label = "warm-cache prime" if is_prime else f"run {run_number}"
-            temp = batch / ("prime" if is_prime else f"run-{run_number:02d}")
+            if is_prime:
+                prime_attempt += 1
+            run_label = (
+                f"warm-cache prime {prime_attempt}/{args.warm_prime_attempts}"
+                if is_prime and args.warm_prime_attempts > 1
+                else "warm-cache prime"
+                if is_prime
+                else f"run {run_number}"
+            )
+            temp = batch / (
+                f"prime-{prime_attempt:02d}" if is_prime else f"run-{run_number:02d}"
+            )
             temp.mkdir()
             output = (
                 temp / "warm-prime.json"
@@ -852,10 +1227,17 @@ def _run_command(args: argparse.Namespace) -> int:
                 else output_dir / f"{manifest['id']}-{backend}-run-{run_number:02d}.json"
             )
             state = warm_state if manifest["cache_mode"] == "warm" else temp
-            settings = dict(manifest["settings"])
-            settings.update(OPERATIONAL_SETTINGS)
-            settings["PurgeCacheOnStartup"] = manifest["cache_mode"] == "cold"
-            settings["CacheLocation"] = str(state / "cache")
+            settings = benchmark_state_settings(
+                manifest["settings"],
+                state,
+                manifest["cache_mode"],
+                initialize=state not in initialized_states,
+            )
+            initialized_states.add(state)
+            cache_before = cache_lifecycle_facts(state) if args.prime_only else {}
+            log_cursor = (
+                _viewer_log_cursor(state / "user" / "logs") if args.prime_only else None
+            )
             settings_file = temp / "session.xml"
             _settings_xml(settings, settings_file)
 
@@ -926,21 +1308,169 @@ def _run_command(args: argparse.Namespace) -> int:
                     check=False,
                 )
             except subprocess.TimeoutExpired as error:
+                if is_prime and args.prime_only:
+                    readiness_attempts.append(
+                        readiness_attempt(
+                            prime_attempt, "timeout", {}, cache_before, state, log_cursor
+                        )
+                    )
+                if readiness_output:
+                    write_readiness_report(readiness_output, readiness_attempts)
                 raise BenchmarkError(f"viewer timed out during {run_label}") from error
             if not output.exists():
-                raise BenchmarkError(f"viewer produced no artifact for {run_label}")
-            result = load_json(output)
-            if completed.returncode != 0:
-                failed_gates = failed_validity_gate_names(result)
-                if failed_gates:
-                    raise BenchmarkError(
-                        f"{run_label} rejected by scene validity gates: {', '.join(failed_gates)}"
+                if is_prime and args.prime_only:
+                    readiness_attempts.append(
+                        readiness_attempt(
+                            prime_attempt, "no-artifact", {}, cache_before, state, log_cursor
+                        )
                     )
+                if readiness_output:
+                    write_readiness_report(readiness_output, readiness_attempts)
+                raise BenchmarkError(f"viewer produced no artifact for {run_label}")
+            try:
+                result = load_json(output)
+            except BenchmarkError:
+                if is_prime and args.prime_only:
+                    readiness_attempts.append(
+                        readiness_attempt(
+                            prime_attempt,
+                            "invalid-artifact",
+                            {},
+                            cache_before,
+                            state,
+                            log_cursor,
+                        )
+                    )
+                if readiness_output:
+                    write_readiness_report(readiness_output, readiness_attempts)
+                raise
+            failed_gates = failed_validity_gate_names(result)
+            if completed.returncode != 0:
+                if is_prime and args.prime_only:
+                    readiness_attempts.append(
+                        readiness_attempt(
+                            prime_attempt,
+                            "viewer-error",
+                            result,
+                            cache_before,
+                            state,
+                            log_cursor,
+                        )
+                    )
+                if readiness_output:
+                    write_readiness_report(readiness_output, readiness_attempts)
                 raise BenchmarkError(f"viewer exited with {completed.returncode} during {run_label}")
-            validate_result(result)
-            validate_result_against_manifest(result, manifest)
+            try:
+                validate_result(result, require_valid=False)
+                validate_result_against_manifest(result, manifest, require_all_gates=False)
+            except BenchmarkError:
+                if is_prime and args.prime_only:
+                    readiness_attempts.append(
+                        readiness_attempt(
+                            prime_attempt,
+                            "invalid-artifact",
+                            result,
+                            cache_before,
+                            state,
+                            log_cursor,
+                        )
+                    )
+                if readiness_output:
+                    write_readiness_report(readiness_output, readiness_attempts)
+                raise
+            if result.get("status") == "invalid":
+                expected_reason = f"scene validity gates failed: {', '.join(failed_gates)}"
+                if result.get("failure_reason") != expected_reason:
+                    if is_prime and args.prime_only:
+                        readiness_attempts.append(
+                            readiness_attempt(
+                                prime_attempt,
+                                "invalid-run",
+                                result,
+                                cache_before,
+                                state,
+                                log_cursor,
+                            )
+                        )
+                    if readiness_output:
+                        write_readiness_report(readiness_output, readiness_attempts)
+                    raise BenchmarkError(f"{run_label} failed outside the scene validity gates")
+            gates = result["validity"]["gates"]
+            gates_to_retry = (
+                [name for name in READINESS_TARGET_GATES if gates.get(name) is not True]
+                if args.prime_only
+                else failed_gates
+            )
+            if gates_to_retry:
+                gate_family = "readiness gates" if args.prime_only else "scene validity gates"
+                if is_prime and args.prime_only:
+                    readiness_attempts.append(
+                        readiness_attempt(
+                            prime_attempt,
+                            "rejected",
+                            result,
+                            cache_before,
+                            state,
+                            log_cursor,
+                            prepare_reuse=prime_attempt == 1
+                            and prime_attempt < args.warm_prime_attempts,
+                        )
+                    )
+                if is_prime and prime_attempt < args.warm_prime_attempts:
+                    print(
+                        f"{run_label} rejected by {gate_family}: {', '.join(gates_to_retry)}; "
+                        "retrying with the same disposable warm cache"
+                    )
+                    continue
+                if readiness_output:
+                    write_readiness_report(readiness_output, readiness_attempts)
+                raise BenchmarkError(
+                    f"{run_label} rejected by {gate_family}: {', '.join(gates_to_retry)}"
+                )
+            if not args.prime_only:
+                validate_result(result)
+                validate_result_against_manifest(result, manifest)
+            if is_prime and args.prime_only:
+                attempt_record = readiness_attempt(
+                    prime_attempt,
+                    "readiness-passed",
+                    result,
+                    cache_before,
+                    state,
+                    log_cursor,
+                    prepare_reuse=prime_attempt == 1
+                    and prime_attempt < args.warm_prime_attempts,
+                )
+                if not attempt_record["cache_ready"]:
+                    attempt_record["outcome"] = "cache-rejected"
+                readiness_attempts.append(attempt_record)
+                if prime_attempt < args.warm_prime_attempts:
+                    status = (
+                        "passed the readiness gates"
+                        if attempt_record["cache_ready"]
+                        else "failed the cache lifecycle check"
+                    )
+                    print(
+                        f"{run_label} {status}; "
+                        "validating the same disposable warm cache again"
+                    )
+                    continue
+                cache_lifecycle_passed = bool(readiness_attempts) and all(
+                    attempt.get("cache_ready") is True for attempt in readiness_attempts
+                )
+                if not cache_lifecycle_passed:
+                    attempt_record["outcome"] = "cache-rejected"
+                    if readiness_output:
+                        write_readiness_report(readiness_output, readiness_attempts)
+                    raise BenchmarkError(f"{run_label} rejected by the cache lifecycle check")
+                if readiness_output:
+                    write_readiness_report(readiness_output, readiness_attempts)
+                return 0
             if not is_prime:
-                output.write_text(json.dumps(sanitize(result), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+                output.write_text(
+                    json.dumps(sanitize(result), indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
     return 0
 
 
@@ -1098,6 +1628,21 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--expect-gpu-substring", help="invalidate a run if a different GPU is selected")
     run.add_argument("--backend", choices=("native-gl", "zink"), default="native-gl")
     run.add_argument("--repeats", type=int)
+    run.add_argument(
+        "--warm-prime-attempts",
+        type=int,
+        default=1,
+        help="number of unmeasured prime-only launches sharing one warm cache",
+    )
+    run.add_argument(
+        "--prime-only",
+        action="store_true",
+        help="stop after one schema-valid warm prime; never run a measured repeat",
+    )
+    run.add_argument(
+        "--readiness-output",
+        help="write privacy-safe no-timing facts for a prime-only investigation",
+    )
     run.add_argument("--startup-timeout", type=int, default=DEFAULT_STARTUP_TIMEOUT_SECONDS)
     run.add_argument("--output-dir", required=True)
     run.add_argument("--dry-run", action="store_true")

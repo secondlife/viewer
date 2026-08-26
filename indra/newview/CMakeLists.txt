@@ -801,6 +801,7 @@ set(viewer_HEADER_FILES
     llavatarrenderinfoaccountant.h
     llavatarrendernotifier.h
     llbenchmarkdisplay.h
+    llcachemigration.h
     llblockedlistitem.h
     llblocklist.h
     llbox.h
@@ -2494,6 +2495,11 @@ if (LL_TESTS)
   )
 
   LL_ADD_INTEGRATION_TEST(llbenchmarkdisplay
+    ""
+    "${test_libs}"
+  )
+
+  LL_ADD_INTEGRATION_TEST(llcachemigration
     ""
     "${test_libs}"
   )

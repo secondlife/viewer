@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 import xml.etree.ElementTree as ET
 
 
@@ -101,6 +102,7 @@ class RendererBenchmarkTests(unittest.TestCase):
     def test_operational_settings_disable_slurl_handoff(self) -> None:
         self.assertTrue(benchmark.OPERATIONAL_SETTINGS["AllowMultipleViewers"])
         self.assertFalse(benchmark.OPERATIONAL_SETTINGS["FirstLoginThisInstall"])
+        self.assertFalse(benchmark.OPERATIONAL_SETTINGS["MigrateCacheDirectory"])
         self.assertFalse(benchmark.OPERATIONAL_SETTINGS["SLURLPassToOtherInstance"])
         self.assertIn("--noaudio", benchmark.OPERATIONAL_SWITCHES)
         self.assertIn("--nonotifications", benchmark.OPERATIONAL_SWITCHES)
@@ -109,6 +111,43 @@ class RendererBenchmarkTests(unittest.TestCase):
     def test_warm_runs_have_an_unmeasured_prime(self) -> None:
         self.assertEqual([0, 1, 2, 3], benchmark.benchmark_run_numbers("warm", 3))
         self.assertEqual([1, 2, 3], benchmark.benchmark_run_numbers("cold", 3))
+        self.assertEqual(
+            [0, 0],
+            benchmark.benchmark_run_numbers("warm", 5, warm_prime_attempts=2, prime_only=True),
+        )
+
+    def test_disposable_cache_selection_is_complete_and_precreated(self) -> None:
+        manifest = benchmark.load_json(PERF_DIR / "scenarios" / "steady-warm-v1.json")
+        with tempfile.TemporaryDirectory() as temp_name:
+            state = Path(temp_name) / "state"
+            settings = benchmark.benchmark_state_settings(manifest["settings"], state, "warm")
+            self.assertTrue((state / "user").is_dir())
+            self.assertTrue((state / "cache").is_dir())
+            self.assertEqual(str(state / "cache"), settings["CacheLocation"])
+            self.assertEqual(settings["CacheLocation"], settings["NewCacheLocation"])
+            self.assertFalse(settings["MigrateCacheDirectory"])
+            self.assertFalse(settings["PurgeCacheOnStartup"])
+            self.assertEqual("ready", benchmark._cache_probe(state / "cache"))
+
+            (state / "cache").rmdir()
+            benchmark.benchmark_state_settings(manifest["settings"], state, "warm", initialize=False)
+            self.assertFalse((state / "cache").exists())
+            self.assertEqual("root-missing", benchmark._cache_probe(state / "cache"))
+
+    def test_cache_probe_reports_cleanup_failure(self) -> None:
+        original_unlink = Path.unlink
+        unlink_calls = 0
+
+        def fail_final_cleanup(path: Path, *args: object, **kwargs: object) -> None:
+            nonlocal unlink_calls
+            unlink_calls += 1
+            if unlink_calls == 3:
+                raise OSError("simulated cleanup failure")
+            original_unlink(path, *args, **kwargs)
+
+        with tempfile.TemporaryDirectory() as temp_name:
+            with patch.object(Path, "unlink", new=fail_final_cleanup):
+                self.assertEqual("cleanup-failed", benchmark._cache_probe(Path(temp_name)))
 
     def test_collector_reapplies_requested_settings_at_runtime(self) -> None:
         class FakeAPI:
@@ -167,6 +206,67 @@ class RendererBenchmarkTests(unittest.TestCase):
                 args.handler(args)
             self.assertFalse(output_dir.exists())
 
+    def test_prime_only_rejects_a_cold_cache_manifest(self) -> None:
+        parser = benchmark.build_parser()
+        with tempfile.TemporaryDirectory() as temp_name:
+            output_dir = Path(temp_name) / "results"
+            args = parser.parse_args([
+                "run",
+                "--viewer", "/viewer/SecondLife",
+                "--manifest", str(PERF_DIR / "scenarios" / "cold-streaming-v1.json"),
+                "--credential-file", str(Path(temp_name) / "does-not-exist"),
+                "--slurl", "secondlife://example/128/128/25",
+                "--hardware-label", "fixture-hardware",
+                *self.operator_args,
+                "--output-dir", str(output_dir),
+                "--prime-only",
+                "--dry-run",
+            ])
+            with self.assertRaisesRegex(benchmark.BenchmarkError, "require a warm-cache manifest"):
+                args.handler(args)
+            self.assertFalse(output_dir.exists())
+
+    def test_multiple_warm_primes_require_prime_only_mode(self) -> None:
+        parser = benchmark.build_parser()
+        with tempfile.TemporaryDirectory() as temp_name:
+            output_dir = Path(temp_name) / "results"
+            args = parser.parse_args([
+                "run",
+                "--viewer", "/viewer/SecondLife",
+                "--manifest", str(PERF_DIR / "scenarios" / "steady-warm-v1.json"),
+                "--credential-file", str(Path(temp_name) / "does-not-exist"),
+                "--slurl", "secondlife://example/128/128/25",
+                "--hardware-label", "fixture-hardware",
+                *self.operator_args,
+                "--output-dir", str(output_dir),
+                "--warm-prime-attempts", "2",
+                "--dry-run",
+            ])
+            with self.assertRaisesRegex(benchmark.BenchmarkError, "require --prime-only"):
+                args.handler(args)
+            self.assertFalse(output_dir.exists())
+
+    def test_readiness_output_requires_two_shared_cache_launches(self) -> None:
+        parser = benchmark.build_parser()
+        with tempfile.TemporaryDirectory() as temp_name:
+            output_dir = Path(temp_name) / "results"
+            args = parser.parse_args([
+                "run",
+                "--viewer", "/viewer/SecondLife",
+                "--manifest", str(PERF_DIR / "scenarios" / "steady-warm-v1.json"),
+                "--credential-file", str(Path(temp_name) / "does-not-exist"),
+                "--slurl", "secondlife://example/128/128/25",
+                "--hardware-label", "fixture-hardware",
+                *self.operator_args,
+                "--output-dir", str(output_dir),
+                "--prime-only",
+                "--readiness-output", str(Path(temp_name) / "readiness.json"),
+                "--dry-run",
+            ])
+            with self.assertRaisesRegex(benchmark.BenchmarkError, "at least two warm primes"):
+                args.handler(args)
+            self.assertFalse(output_dir.exists())
+
     def test_summary_includes_tail_and_resource_deltas(self) -> None:
         summary = benchmark.summarize_result(self.fixture)
         self.assertEqual(4, summary["sample_count"])
@@ -215,6 +315,34 @@ class RendererBenchmarkTests(unittest.TestCase):
         result["context"]["effective_settings"]["RenderFarClip"] = 64.0
         with self.assertRaisesRegex(benchmark.BenchmarkError, "RenderFarClip=64.0"):
             benchmark.validate_result_against_manifest(result, manifest)
+
+    def test_diagnostic_validation_allows_only_failed_scene_gates(self) -> None:
+        manifest = benchmark.load_json(PERF_DIR / "scenarios" / "steady-warm-v1.json")
+        result = copy.deepcopy(self.fixture)
+        self.match_result_to_manifest(result, manifest)
+        result["context"]["effective_settings"] = copy.deepcopy(manifest["settings"])
+        result["validity"]["observed"]["background_frame_count"] = 1
+        result["validity"]["gates"] = benchmark.validity_gate_results(
+            result["validity"]["workload_id"],
+            result["validity"]["operator"],
+            result["validity"]["observed"],
+            result["validity"]["policy"],
+        )
+        result["status"] = "invalid"
+        result["failure_reason"] = "scene validity gates failed: focus"
+        result.pop("summary")
+        benchmark.validate_result(result, require_valid=False)
+        benchmark.validate_result_against_manifest(result, manifest, require_all_gates=False)
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "do not pass"):
+            benchmark.validate_result_against_manifest(result, manifest)
+
+    def test_diagnostic_validation_still_requires_frame_samples(self) -> None:
+        invalid = copy.deepcopy(self.fixture)
+        invalid["status"] = "invalid"
+        invalid["failure_reason"] = "scene validity gates failed: assets"
+        invalid["frames"] = []
+        with self.assertRaisesRegex(benchmark.BenchmarkError, "no numeric frame_time_ms"):
+            benchmark.validate_result(invalid, require_valid=False)
 
     def test_display_contract_accepts_1x_and_2x_geometry(self) -> None:
         manifest = benchmark.load_json(PERF_DIR / "scenarios" / "steady-warm-v1.json")
@@ -374,6 +502,317 @@ class RendererBenchmarkTests(unittest.TestCase):
         rejected["validity"]["gates"]["private-location"] = False
         self.assertEqual(["focus"], benchmark.failed_validity_gate_names(rejected))
 
+    def test_private_logs_reduce_to_readiness_categories(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_name:
+            log_root = Path(temp_name) / "user" / "logs"
+            log_root.mkdir(parents=True)
+            (log_root / "SecondLife.log").write_text(
+                "private account and destination Failure in vf.write()\n"
+                "Self is clouded due to missing one or more required body parts: SHAPE\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                "asset-cache-write",
+                benchmark._first_log_category(log_root, benchmark.CACHE_FAILURE_SIGNATURES),
+            )
+            self.assertEqual(
+                "required-bodyparts-missing",
+                benchmark._first_log_category(log_root, benchmark.AVATAR_BLOCKER_SIGNATURES),
+            )
+
+    def test_readiness_does_not_reuse_a_failure_from_an_older_log(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_name:
+            log_root = Path(temp_name) / "logs"
+            log_root.mkdir(parents=True)
+            viewer_log = log_root / "SecondLife.log"
+            viewer_log.write_text("Failure in vf.write()\n", encoding="utf-8")
+            cursor = benchmark._viewer_log_cursor(log_root)
+            with viewer_log.open("a", encoding="utf-8") as stream:
+                stream.write("clean second launch\n")
+            self.assertIsNone(
+                benchmark._first_log_category(
+                    log_root, benchmark.CACHE_FAILURE_SIGNATURES, cursor
+                )
+            )
+            viewer_log.rename(log_root / "SecondLife.old")
+            viewer_log.write_text("clean rotated launch\n", encoding="utf-8")
+            self.assertIsNone(
+                benchmark._first_log_category(
+                    log_root, benchmark.CACHE_FAILURE_SIGNATURES, cursor
+                )
+            )
+            with viewer_log.open("a", encoding="utf-8") as stream:
+                stream.write("Failure in vf.write()\n")
+            self.assertEqual(
+                "asset-cache-write",
+                benchmark._first_log_category(
+                    log_root, benchmark.CACHE_FAILURE_SIGNATURES, cursor
+                ),
+            )
+
+    def test_readiness_report_contains_no_timing_or_private_log_text(self) -> None:
+        rejected = copy.deepcopy(self.fixture)
+        rejected["validity"]["observed"]["self_avatar_loaded"] = False
+        rejected["validity"]["observed"]["texture_fetch_requests_max"] = 1
+        rejected["validity"]["gates"] = benchmark.validity_gate_results(
+            rejected["validity"]["workload_id"],
+            rejected["validity"]["operator"],
+            rejected["validity"]["observed"],
+            rejected["validity"]["policy"],
+        )
+        with tempfile.TemporaryDirectory() as temp_name:
+            state = Path(temp_name) / "state"
+            benchmark.benchmark_state_settings({}, state, "warm")
+            log_root = state / "user" / "logs"
+            log_root.mkdir(parents=True)
+            (log_root / "SecondLife.log").write_text(
+                "secret-user at secret-place Failure in vf.write()\n"
+                "Self is clouded because lower textures not baked\n",
+                encoding="utf-8",
+            )
+            before = benchmark.cache_lifecycle_facts(state)
+            attempt = benchmark.readiness_attempt(1, "rejected", rejected, before, state)
+            output = Path(temp_name) / "readiness.json"
+            benchmark.write_readiness_report(output, [attempt])
+            report = benchmark.load_json(output)
+            serialized = json.dumps(report)
+            self.assertFalse(report["readiness_passed"])
+            self.assertFalse(report["cache_reuse_passed"])
+            self.assertFalse(report["all_scene_gates_passed"])
+            self.assertEqual(["assets", "avatar"], report["target_gates"])
+            self.assertFalse(report["retained_timing"])
+            self.assertEqual(0, report["valid_measured_repeats"])
+            self.assertNotIn("frames", serialized)
+            self.assertNotIn("summary", serialized)
+            self.assertNotIn("secret-user", serialized)
+            self.assertNotIn("secret-place", serialized)
+            self.assertNotIn(temp_name, serialized)
+            self.assertEqual(
+                "asset-cache-write",
+                report["attempts"][0]["first_cache_failure"],
+            )
+            self.assertEqual(
+                {"assets": False, "avatar": False},
+                report["attempts"][0]["target_gates"],
+            )
+            self.assertFalse(report["attempts"][0]["assets"]["queues_settled"])
+            self.assertEqual("lower-bake-missing", report["attempts"][0]["avatar"]["blocker"])
+
+    def test_readiness_report_projects_malformed_scalars_to_safe_types(self) -> None:
+        malformed = copy.deepcopy(self.fixture)
+        private_text = "private-account at /private/location from raw log"
+        malformed["validity"]["observed"]["texture_fetch_requests_max"] = private_text
+        malformed["validity"]["gates"]["assets"] = private_text
+        with tempfile.TemporaryDirectory() as temp_name:
+            state = Path(temp_name) / "state"
+            benchmark.benchmark_state_settings({}, state, "warm")
+            attempt = benchmark.readiness_attempt(1, "invalid-artifact", malformed, {}, state)
+            output = Path(temp_name) / "readiness.json"
+            benchmark.write_readiness_report(output, [attempt])
+            report = benchmark.load_json(output)
+            serialized = json.dumps(report)
+            self.assertNotIn(private_text, serialized)
+            self.assertIsNone(report["attempts"][0]["target_gates"]["assets"])
+            self.assertIsNone(
+                report["attempts"][0]["assets"]["observed"]["texture_fetch_requests_max"]
+            )
+
+    def test_readiness_can_pass_while_other_scene_gates_remain_explicit(self) -> None:
+        rejected = copy.deepcopy(self.fixture)
+        rejected["validity"]["observed"]["background_frame_count"] = 1
+        rejected["validity"]["gates"] = benchmark.validity_gate_results(
+            rejected["validity"]["workload_id"],
+            rejected["validity"]["operator"],
+            rejected["validity"]["observed"],
+            rejected["validity"]["policy"],
+        )
+        with tempfile.TemporaryDirectory() as temp_name:
+            state = Path(temp_name) / "state"
+            benchmark.benchmark_state_settings({}, state, "warm")
+            before_first = benchmark.cache_lifecycle_facts(state)
+            asset_root = state / "cache" / "cache"
+            asset_root.mkdir()
+            (asset_root / "asset").write_bytes(b"cached")
+            first = benchmark.readiness_attempt(
+                1,
+                "readiness-passed",
+                rejected,
+                before_first,
+                state,
+                prepare_reuse=True,
+            )
+            self.assertEqual("ready", first["sentinel_install"])
+            before_second = benchmark.cache_lifecycle_facts(state)
+            self.assertEqual("ready", before_second["requested_sentinel"])
+            second = benchmark.readiness_attempt(
+                2, "readiness-passed", rejected, before_second, state
+            )
+            self.assertTrue(second["cache_ready"])
+            output = Path(temp_name) / "readiness.json"
+            benchmark.write_readiness_report(output, [first, second])
+            report = benchmark.load_json(output)
+            self.assertTrue(report["readiness_passed"])
+            self.assertTrue(report["cache_reuse_passed"])
+            self.assertFalse(report["all_scene_gates_passed"])
+            self.assertEqual(["focus"], report["attempts"][1]["failed_gates"])
+
+    def test_rejected_first_prime_prepares_cache_reuse(self) -> None:
+        manifest = benchmark.load_json(PERF_DIR / "scenarios" / "steady-warm-v1.json")
+        results = [copy.deepcopy(self.fixture), copy.deepcopy(self.fixture)]
+        self.match_result_to_manifest(results[0], manifest)
+        self.match_result_to_manifest(results[1], manifest)
+        results[0]["validity"]["observed"]["texture_fetch_requests_max"] = 1
+        results[0]["validity"]["observed"]["self_avatar_loaded"] = False
+        results[0]["validity"]["gates"] = benchmark.validity_gate_results(
+            results[0]["validity"]["workload_id"],
+            results[0]["validity"]["operator"],
+            results[0]["validity"]["observed"],
+            results[0]["validity"]["policy"],
+        )
+        results[0]["status"] = "invalid"
+        results[0]["failure_reason"] = "scene validity gates failed: avatar, assets"
+        results[0].pop("summary")
+
+        with tempfile.TemporaryDirectory() as temp_name:
+            readiness = Path(temp_name) / "readiness.json"
+            parser = benchmark.build_parser()
+            args = parser.parse_args([
+                "run",
+                "--viewer", "/viewer/SecondLife",
+                "--manifest", str(PERF_DIR / "scenarios" / "steady-warm-v1.json"),
+                "--credential-file", str(Path(temp_name) / "account.txt"),
+                "--slurl", "secondlife://example/128/128/25",
+                "--hardware-label", "fixture-hardware",
+                *self.operator_args,
+                "--output-dir", str(Path(temp_name) / "results"),
+                "--warm-prime-attempts", "2",
+                "--prime-only",
+                "--readiness-output", str(readiness),
+            ])
+            launch = 0
+
+            def fake_viewer_run(command: list[str], **kwargs: object) -> object:
+                nonlocal launch
+                launch += 1
+                leap = json.loads(command[command.index("--leap") + 1])
+                leap_args = benchmark.shlex.split(leap)
+                config = benchmark.load_json(Path(leap_args[leap_args.index("--config") + 1]))
+                result = results[launch - 1]
+                result["context"]["effective_settings"] = copy.deepcopy(
+                    config["requested_settings"]
+                )
+                user_dir = Path(str(kwargs["env"]["SECONDLIFE_USER_DIR"]))
+                asset_root = user_dir.parent / "cache" / "cache"
+                asset_root.mkdir(parents=True, exist_ok=True)
+                (asset_root / "asset").write_bytes(b"cached")
+                Path(config["output"]).write_text(json.dumps(result), encoding="utf-8")
+                return benchmark.subprocess.CompletedProcess(command, 0)
+
+            with (
+                patch.object(benchmark, "_read_credentials", return_value=("first", "last", "pw")),
+                patch.object(benchmark, "_git_source", return_value={}),
+                patch.object(benchmark.subprocess, "run", side_effect=fake_viewer_run),
+                redirect_stdout(StringIO()),
+            ):
+                self.assertEqual(0, args.handler(args))
+
+            report = benchmark.load_json(readiness)
+            self.assertEqual(2, launch)
+            self.assertEqual(["rejected", "readiness-passed"], [
+                attempt["outcome"] for attempt in report["attempts"]
+            ])
+            self.assertEqual("ready", report["attempts"][0]["sentinel_install"])
+            self.assertEqual("ready", report["attempts"][1]["cache_before_launch"]["requested_sentinel"])
+            self.assertTrue(report["readiness_passed"])
+            self.assertTrue(report["cache_reuse_passed"])
+            self.assertEqual(0, report["valid_measured_repeats"])
+            self.assertFalse(report["retained_timing"])
+
+    def test_prime_only_without_report_rejects_failed_cache_lifecycle(self) -> None:
+        manifest_path = PERF_DIR / "scenarios" / "steady-warm-v1.json"
+        manifest = benchmark.load_json(manifest_path)
+        result = copy.deepcopy(self.fixture)
+        self.match_result_to_manifest(result, manifest)
+        result["context"]["effective_settings"] = copy.deepcopy(manifest["settings"])
+
+        with tempfile.TemporaryDirectory() as temp_name:
+            parser = benchmark.build_parser()
+            args = parser.parse_args([
+                "run",
+                "--viewer", "/viewer/SecondLife",
+                "--manifest", str(manifest_path),
+                "--credential-file", str(Path(temp_name) / "account.txt"),
+                "--slurl", "secondlife://example/128/128/25",
+                "--hardware-label", "fixture-hardware",
+                *self.operator_args,
+                "--output-dir", str(Path(temp_name) / "results"),
+                "--warm-prime-attempts", "2",
+                "--prime-only",
+            ])
+            original_load_json = benchmark.load_json
+
+            def load_fixture(path: Path) -> object:
+                return copy.deepcopy(result) if path.name == "warm-prime.json" else original_load_json(path)
+
+            def fake_viewer_run(command: list[str], **_kwargs: object) -> object:
+                leap = json.loads(command[command.index("--leap") + 1])
+                leap_args = benchmark.shlex.split(leap)
+                config = original_load_json(Path(leap_args[leap_args.index("--config") + 1]))
+                Path(config["output"]).write_text("{}", encoding="utf-8")
+                return benchmark.subprocess.CompletedProcess(command, 0)
+
+            def fake_readiness_attempt(attempt: int, *_args: object, **_kwargs: object) -> dict[str, object]:
+                return {"cache_ready": attempt == 1, "outcome": "readiness-passed"}
+
+            with (
+                patch.object(benchmark, "_read_credentials", return_value=("first", "last", "pw")),
+                patch.object(benchmark, "_git_source", return_value={}),
+                patch.object(benchmark, "load_json", side_effect=load_fixture),
+                patch.object(benchmark, "cache_lifecycle_facts", return_value={}),
+                patch.object(benchmark, "readiness_attempt", side_effect=fake_readiness_attempt),
+                patch.object(benchmark.subprocess, "run", side_effect=fake_viewer_run),
+                redirect_stdout(StringIO()),
+            ):
+                with self.assertRaisesRegex(benchmark.BenchmarkError, "cache lifecycle check"):
+                    args.handler(args)
+
+    def test_readiness_rejects_fallback_cache_use(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_name:
+            state = Path(temp_name) / "state"
+            benchmark.benchmark_state_settings({}, state, "warm")
+            (state / "cache" / "cache").mkdir()
+            self.assertEqual("ready", benchmark._install_cache_sentinel(state))
+            (state / "user" / "cache" / "cache").mkdir(parents=True)
+            before = benchmark.cache_lifecycle_facts(state)
+            attempt = benchmark.readiness_attempt(2, "readiness-passed", self.fixture, before, state)
+            self.assertFalse(attempt["cache_ready"])
+            self.assertIn(
+                "fallback-asset-root-present-before-reuse", attempt["cache_failures"]
+            )
+            self.assertIn("fallback-asset-root-present-after", attempt["cache_failures"])
+
+    def test_readiness_explains_target_gate_failures_without_timing(self) -> None:
+        result = copy.deepcopy(self.fixture)
+        result["validity"]["observed"]["agent_travel_m"] = 1.0
+        result["validity"]["observed"]["settle_seconds_observed"] = 0.0
+        result["validity"]["gates"] = benchmark.validity_gate_results(
+            result["validity"]["workload_id"],
+            result["validity"]["operator"],
+            result["validity"]["observed"],
+            result["validity"]["policy"],
+        )
+        with tempfile.TemporaryDirectory() as temp_name:
+            state = Path(temp_name) / "state"
+            benchmark.benchmark_state_settings({}, state, "warm")
+            (state / "cache" / "cache").mkdir()
+            attempt = benchmark.readiness_attempt(1, "rejected", result, {}, state)
+            self.assertFalse(attempt["target_gates"]["assets"])
+            self.assertFalse(attempt["assets"]["settlement_complete"])
+            self.assertTrue(attempt["assets"]["queues_settled"])
+            self.assertFalse(attempt["target_gates"]["avatar"])
+            self.assertFalse(attempt["avatar"]["stationary"])
+            self.assertEqual("avatar-moved", attempt["avatar"]["blocker"])
+
     def test_scene_summary_contains_only_relative_view_fingerprint(self) -> None:
         state = {
             "destination_matches": True,
@@ -450,6 +889,55 @@ class RendererBenchmarkTests(unittest.TestCase):
             self.assertIn("<redacted>", rendered)
             self.assertNotIn("does-not-exist", rendered)
             self.assertNotIn("secondlife://example/128/128/25", rendered)
+
+    def test_prime_only_dry_run_has_no_measured_repeat(self) -> None:
+        parser = benchmark.build_parser()
+        with tempfile.TemporaryDirectory() as temp_name:
+            readiness = Path(temp_name) / "readiness.json"
+            args = parser.parse_args([
+                "run",
+                "--viewer", "/viewer/SecondLife",
+                "--manifest", str(PERF_DIR / "scenarios" / "steady-warm-v1.json"),
+                "--credential-file", str(Path(temp_name) / "does-not-exist"),
+                "--slurl", "secondlife://example/128/128/25",
+                "--hardware-label", "fixture-hardware",
+                *self.operator_args,
+                "--output-dir", str(Path(temp_name) / "results"),
+                "--warm-prime-attempts", "2",
+                "--prime-only",
+                "--readiness-output", str(readiness),
+                "--dry-run",
+            ])
+            output = StringIO()
+            with redirect_stdout(output):
+                self.assertEqual(0, args.handler(args))
+            rendered = output.getvalue()
+            self.assertEqual(2, rendered.count("--login"))
+            self.assertNotIn("run-01", rendered)
+            self.assertFalse(readiness.exists())
+
+    def test_normal_benchmark_path_does_not_probe_the_cache(self) -> None:
+        parser = benchmark.build_parser()
+        with tempfile.TemporaryDirectory() as temp_name:
+            args = parser.parse_args([
+                "run",
+                "--viewer", "/viewer/SecondLife",
+                "--manifest", str(PERF_DIR / "scenarios" / "steady-warm-v1.json"),
+                "--credential-file", str(Path(temp_name) / "does-not-exist"),
+                "--slurl", "secondlife://example/128/128/25",
+                "--hardware-label", "fixture-hardware",
+                *self.operator_args,
+                "--output-dir", str(Path(temp_name) / "results"),
+                "--repeats", "1",
+                "--dry-run",
+            ])
+            with patch.object(
+                benchmark,
+                "cache_lifecycle_facts",
+                side_effect=AssertionError("measurement path probed the cache"),
+            ):
+                with redirect_stdout(StringIO()):
+                    self.assertEqual(0, args.handler(args))
 
     @unittest.skipIf(os.name == "nt", "POSIX credential modes do not apply on Windows")
     def test_credentials_must_be_private(self) -> None:

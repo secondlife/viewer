@@ -179,7 +179,42 @@ python3 scripts/perf/render_benchmark.py validate \
 
 The smoke validates app launch, native OpenGL selection, version 3 export, geometry, and scene-gate behavior only. It is not performance evidence and its timing fields must be discarded. A failed scene gate is useful smoke evidence but is not a benchmark result.
 
-The runner sets `SECONDLIFE_USER_DIR` and creates session settings, cache, logs, and account data inside a private per-invocation temporary directory. It does not read or alter the normal viewer profile, and the isolated data is removed after the sequence exits. Cold-cache repeats receive separate state and purge before startup. Warm-cache sequences first run one unmeasured full-duration prime, then reuse that isolated profile and cache for all measured repeats. The prime is validated but its artifact is discarded. First-install UI, notifications, audio, and voice are disabled for benchmark sessions so they cannot cover the workload or crash a headless test host.
+### Asset-readiness-only prime
+
+Use the prime-only mode to investigate a warm isolated profile before collecting a baseline. It runs the unchanged warm scenario twice against one disposable cache, emits no measured result, and reduces each private viewer log to known cache or avatar blocker categories. The second launch exists to prove that the first launch's cache survives and remains writable. Other scene-gate failures, including placement and focus, remain explicit but do not prevent the asset and avatar readiness check from succeeding.
+
+```zsh
+readiness_root="$(mktemp -d /private/tmp/renderer-readiness.XXXXXX)"
+
+python3 scripts/perf/render_benchmark.py run \
+  --viewer "$viewer_root/build-darwin-universal/newview/Release/Second Life Test.app/Contents/MacOS/Second Life Test" \
+  --manifest scripts/perf/scenarios/steady-warm-v1.json \
+  --credential-file /secure/path/benchmark-account.txt \
+  --slurl secondlife://operator-supplied-location \
+  --hardware-label mac-apple-silicon-readiness \
+  --workload-id controlled-steady-scene \
+  --power-source ac \
+  --low-power-mode off \
+  --thermal-state nominal \
+  --scene-events none \
+  --ui-state approved \
+  --camera-state approved \
+  --expect-gpu-substring Apple \
+  --backend native-gl \
+  --output-dir "$readiness_root/results" \
+  --repeats 1 \
+  --warm-prime-attempts 2 \
+  --prime-only \
+  --readiness-output "$readiness_root/readiness.json"
+
+python3 -m json.tool "$readiness_root/readiness.json"
+```
+
+A Stage 6 pass has `readiness_passed: true`, `cache_reuse_passed: true`, two attempts, zero valid measured repeats, and `retained_timing: false`. On the second attempt, the requested cache root and nested asset root must remain writable, the fixed disposable asset sentinel must be `ready` before and after launch, the fallback asset root must remain absent, and `first_cache_failure` must be `none`. Both target gates must be true. Report any remaining names in `failed_gates` separately. Asset readiness includes separate settlement and queue booleans; avatar readiness separates appearance completion from unintended movement. If appearance remains incomplete after cache readiness passes, use only the emitted blocker category to choose the next investigation; do not change the account outfit without authorization.
+
+The readiness file contains aggregate counts, booleans, and allow-listed categories only. It contains no frames, timing summary, account, destination, raw log line, or filesystem path. Report those safe fields, then remove the readiness root, any temporary credential file, private logs, and isolated state. Do not publish terminal output or raw prime artifacts.
+
+The runner sets `SECONDLIFE_USER_DIR` and creates session settings, cache, logs, and account data inside a private per-invocation temporary directory. It precreates the user and cache roots once, never repairs them between warm launches, selects the same explicit path in both cache-location settings, and disables legacy cache migration for the isolated session. The viewer also skips migration when its normalized source and destination are identical while preserving migration between different locations. The runner does not read or alter the normal viewer profile, and the isolated data is removed after the sequence exits. Cold-cache repeats receive separate state and purge before startup. Warm-cache sequences first run one unmeasured full-duration prime, then reuse that isolated profile and cache for all measured repeats. The prime is validated but its artifact is discarded. Cache probes and the sentinel are active only in prime-only diagnosis; measured benchmark launches never execute them. First-install UI, notifications, audio, and voice are disabled for benchmark sessions so they cannot cover the workload or crash a headless test host.
 
 After the viewer reaches its started state, the LLLeap collector reapplies the requested scenario settings. This ordering prevents hardware feature-table initialization from replacing explicit benchmark controls. Every prime and measured result is rejected if an effective setting differs from the manifest. A non-maximized result is also rejected unless its actual backing-pixel width and height exactly match the requested resolution. On macOS, the XIB-owned app window converts requested backing pixels to Cocoa content dimensions so Retina scaling does not change the rendered resolution. The benchmark-only display target then normalizes the viewer UI scale from the detected backing scale.
 
@@ -245,4 +280,4 @@ python3 scripts/perf/render_benchmark.py validate manifest scripts/perf/scenario
 python3 scripts/perf/render_benchmark.py validate result scripts/perf/fixtures/renderer-result-v3.json
 ```
 
-The tests cover all manifests, the 1× and 2× scale contract, scene policy, wrong placement, focus loss, unsettled assets, population drift, unexpected UI, gate tampering, scale and resolution mismatches, comparison drift, percentile calculations, resource deltas, recursive privacy filtering, the checked-in fixture, and the no-secret dry-run path. Focused C++ integration tests cover scale derivation and the disabled normal-launch path.
+The tests cover all manifests, the 1× and 2× scale contract, scene policy, wrong placement, focus loss, unsettled assets, population drift, unexpected UI, gate tampering, cache survival, launch-bounded log categories, scale and resolution mismatches, comparison drift, percentile calculations, resource deltas, recursive privacy filtering, the checked-in fixture, and the no-secret dry-run path. Focused C++ integration tests cover scale derivation, the disabled normal-launch path, and the cache self-migration guard.

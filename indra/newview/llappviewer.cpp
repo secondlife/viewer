@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llappviewer.h"
+#include "llcachemigration.h"
 
 // Viewer includes
 #include "llversioninfo.h"
@@ -4638,7 +4639,8 @@ void LLAppViewer::migrateCacheDirectory()
         std::string old_cache_dir = gDirUtilp->add(gDirUtilp->getOSUserAppDir(), "cache");
         std::string new_cache_dir = gDirUtilp->getCacheDir(true);
 
-        if (gDirUtilp->fileExists(old_cache_dir))
+        if (gDirUtilp->fileExists(old_cache_dir)
+            && LLCacheMigration::required(old_cache_dir, new_cache_dir))
         {
             LL_INFOS() << "Migrating cache from " << old_cache_dir << " to " << new_cache_dir << LL_ENDL;
 
