@@ -424,6 +424,7 @@ public:
     LLGameControl::AgentActions computeAgentActions();
     void getFlycamInputs(std::vector<F32>& inputs_out, U32& misc_actions_out);
     void setExternalInput(U32 action_flags, U32 buttons, bool is_running);
+    void setMouseCursorPosition(S32 pixel_x, S32 pixel_y, S32 rect_width, S32 rect_height);
 
     // Rebuild mAxisActionBindings/mButtonActionLabels from the global ModeMappings
     // for the currently-active AgentControlMode.  Cheap; called on settings change
@@ -459,6 +460,14 @@ private:
     // mExternalServerState's already-reduced (and mapping-order-agnostic) axes/buttons.
     U32 mExternalActionFlags { 0 };
     bool mExternalIsRunning { false };
+
+    // Fed in via setMouseCursorPosition(); consumed by computeSemanticState() to fill
+    // CONTROL_MODE_CURSOR's CURSOR_PX/PY/NX/NY slots. See setMouseCursorPosition()'s
+    // header comment for the coordinate convention.
+    S32 mMouseCursorPixelX { 0 };
+    S32 mMouseCursorPixelY { 0 };
+    S32 mMouseCursorRectWidth { 0 };
+    S32 mMouseCursorRectHeight { 0 };
 
     // Runtime action lookup for the active AgentControlMode, rebuilt from the
     // global ModeMappings whenever settings or the active mode change.  Each entry
@@ -589,7 +598,7 @@ namespace
     const std::string GC_MODE_MOUSELOOK("Mouselook");
     const std::string GC_MODE_FLYCAM("FlyCam");
     const std::string GC_MODE_CAPTIVE("Captive");
-    const std::string GC_MODE_MOUSE("Mouse");
+    const std::string GC_MODE_CURSOR("Cursor");
 
     // Symbolic input name for the combined trigger pair, used both as an axis-action
     // The two triggers form a single bidirectional axis: left trigger drives the
@@ -637,7 +646,7 @@ namespace
             case LLGameControl::CONTROL_MODE_MOUSELOOK: return GC_MODE_MOUSELOOK;
             case LLGameControl::CONTROL_MODE_FLYCAM:    return GC_MODE_FLYCAM;
             case LLGameControl::CONTROL_MODE_CAPTIVE:   return GC_MODE_CAPTIVE;
-            case LLGameControl::CONTROL_MODE_MOUSE:     return GC_MODE_MOUSE;
+            case LLGameControl::CONTROL_MODE_CURSOR:    return GC_MODE_CURSOR;
             default:                                    return LLStringUtil::null;
         }
     }
@@ -655,6 +664,9 @@ namespace
         avatar_axes["Turn left/right"]      = "AXIS_RIGHTX";
         avatar_axes["Look up/down"]         = "AXIS_RIGHTY";
         avatar_axes["Fly up/down"]          = "AXIS_TRIGGERS";
+        // Unbound by default: every physical axis is already claimed above (the
+        // trigger pair covers Fly up/down), same as FlyCam's Roll axis below.
+        avatar_axes["Zoom +/-"]             = "AXIS_NONE";
 
         // Buttons: action label -> button input
         LLSD avatar_buttons;
@@ -687,6 +699,7 @@ namespace
         mouselook_axes["Turn left/right"]      = "AXIS_RIGHTX";
         mouselook_axes["Look up/down"]         = "AXIS_RIGHTY";
         mouselook_axes["Fly up/down"]          = "AXIS_TRIGGERS";
+        mouselook_axes["Zoom +/-"]             = "AXIS_NONE";
 
         LLSD mouselook_buttons;
         mouselook_buttons["Jump"]                   = "BUTTON_SOUTH";
@@ -708,37 +721,37 @@ namespace
         mouselook_axes_invert["Advance forward/back"] = true;
         mouselook_axes_invert["Turn left/right"] = true;
 
-        // Mouse mode default are the same as Avatar mode but with the left
+        // Cursor mode defaults are the same as Avatar mode but with the left
         // stick repurposed to move the on-screen cursor, and shoulder buttons
         // mapped to mouse clicks left and right.
-        LLSD mouse_axes;
-        mouse_axes["Mouse left/right"] = "AXIS_LEFTX";
-        mouse_axes["Mouse up/down"]    = "AXIS_LEFTY";
-        mouse_axes["Turn left/right"]  = "AXIS_RIGHTX";
-        mouse_axes["Look up/down"]     = "AXIS_RIGHTY";
-        mouse_axes["Fly up/down"]      = "AXIS_TRIGGERS";
+        LLSD cursor_axes;
+        cursor_axes["Mouse left/right"] = "AXIS_LEFTX";
+        cursor_axes["Mouse up/down"]    = "AXIS_LEFTY";
+        cursor_axes["Turn left/right"]  = "AXIS_RIGHTX";
+        cursor_axes["Look up/down"]     = "AXIS_RIGHTY";
+        cursor_axes["Fly up/down"]      = "AXIS_TRIGGERS";
 
-        LLSD mouse_buttons;
-        mouse_buttons["Jump"]                   = "BUTTON_SOUTH";
-        mouse_buttons["Crouch"]                 = "BUTTON_EAST";
-        mouse_buttons["Toggle sit"]             = "BUTTON_WEST";
-        mouse_buttons["Toggle mouse cursor"]    = "BUTTON_SELECT";
-        mouse_buttons["Toggle speak"]           = "BUTTON_HOME";
-        mouse_buttons["Toggle mouselook"]       = "BUTTON_START";
-        mouse_buttons["Toggle flycam"]          = "BUTTON_RIGHT_STICK";
-        mouse_buttons["Mouse click left"]       = "BUTTON_LEFT_SHOULDER";
-        mouse_buttons["Mouse click right"]      = "BUTTON_RIGHT_SHOULDER";
-        mouse_buttons["Advance forward"]        = "BUTTON_DPAD_UP";
-        mouse_buttons["Advance back"]           = "BUTTON_DPAD_DOWN";
-        mouse_buttons["Strafe left"]            = "BUTTON_DPAD_LEFT";
-        mouse_buttons["Strafe right"]           = "BUTTON_DPAD_RIGHT";
+        LLSD cursor_buttons;
+        cursor_buttons["Jump"]                   = "BUTTON_SOUTH";
+        cursor_buttons["Crouch"]                 = "BUTTON_EAST";
+        cursor_buttons["Toggle sit"]             = "BUTTON_WEST";
+        cursor_buttons["Toggle mouse cursor"]    = "BUTTON_SELECT";
+        cursor_buttons["Toggle speak"]           = "BUTTON_HOME";
+        cursor_buttons["Toggle mouselook"]       = "BUTTON_START";
+        cursor_buttons["Toggle flycam"]          = "BUTTON_RIGHT_STICK";
+        cursor_buttons["Mouse click left"]       = "BUTTON_LEFT_SHOULDER";
+        cursor_buttons["Mouse click right"]      = "BUTTON_RIGHT_SHOULDER";
+        cursor_buttons["Advance forward"]        = "BUTTON_DPAD_UP";
+        cursor_buttons["Advance back"]           = "BUTTON_DPAD_DOWN";
+        cursor_buttons["Strafe left"]            = "BUTTON_DPAD_LEFT";
+        cursor_buttons["Strafe right"]           = "BUTTON_DPAD_RIGHT";
 
-        LLSD mouse_axes_invert;
+        LLSD cursor_axes_invert;
         // Kept in case the user re-binds Strafe/Advance back onto an axis; matches
         // the Avatar/Mouselook default so re-binding doesn't silently feel different.
-        mouse_axes_invert["Strafe left/right"] = true;
-        mouse_axes_invert["Advance forward/back"] = true;
-        mouse_axes_invert["Turn left/right"] = true;
+        cursor_axes_invert["Strafe left/right"] = true;
+        cursor_axes_invert["Advance forward/back"] = true;
+        cursor_axes_invert["Turn left/right"] = true;
         // "Mouse up/down": by the same raw-hardware-vs-target-sign reasoning as
         // "Advance forward/back" above (push-up reads as a negative raw deflection,
         // same physical axis/convention), invert so pushing the stick up moves the
@@ -748,7 +761,7 @@ namespace
         // hardware already gives uninverted. NOTE: not yet verified in-world --
         // flip this (or the other axis) if the cursor moves the wrong way on a
         // real controller.
-        mouse_axes_invert["Mouse up/down"] = true;
+        cursor_axes_invert["Mouse up/down"] = true;
 
         // FlyCam adds a Roll axis and uses a distinct button set.
         LLSD flycam_axes;
@@ -765,7 +778,6 @@ namespace
         flycam_buttons["Pan left"]        = "BUTTON_WEST";
         flycam_buttons["Zoom in"]         = "BUTTON_NORTH";
         flycam_buttons["Toggle AltZoom"]  = "BUTTON_SELECT";
-        flycam_buttons["Toggle follow" ]  = "BUTTON_START";
         flycam_buttons["Toggle flycam" ]  = "BUTTON_RIGHT_STICK";
         flycam_buttons["Reset"]           = "BUTTON_LEFT_STICK";
         flycam_buttons["Roll CCW"]        = "BUTTON_LEFT_SHOULDER";
@@ -796,7 +808,7 @@ namespace
         mappings[GC_MODE_MOUSELOOK] = makeMode(mouselook_axes, mouselook_buttons, mouselook_axes_invert);
         mappings[GC_MODE_FLYCAM]    = makeMode(flycam_axes, flycam_buttons, flycam_axes_invert);
         mappings[GC_MODE_CAPTIVE]   = makeMode(avatar_axes, avatar_buttons, avatar_axes_invert);
-        mappings[GC_MODE_MOUSE]     = makeMode(mouse_axes, mouse_buttons, mouse_axes_invert);
+        mappings[GC_MODE_CURSOR]    = makeMode(cursor_axes, cursor_buttons, cursor_axes_invert);
         return mappings;
     }
 
@@ -1850,7 +1862,7 @@ namespace
         return bridge;
     }
 
-    // Avatar/Mouselook/Captive/Mouse-mode button label -> one-shot AvatarMiscAction bit.
+    // Avatar/Mouselook/Captive/Cursor-mode button label -> one-shot AvatarMiscAction bit.
     // These don't correspond to an AGENT_CONTROL_* flag, so they're kept in a bridge
     // separate from avatarButtonBridge() and edge-triggered (not-pressed ->
     // pressed) by computeAgentActions() into AgentActions::mMiscActionBits,
@@ -1878,6 +1890,39 @@ namespace
         static const std::map<std::string, U32> bridge = {
             { "Mouse click left",  LLGameControl::AVATAR_MOUSE_BUTTON_LEFT },
             { "Mouse click right", LLGameControl::AVATAR_MOUSE_BUTTON_RIGHT },
+        };
+        return bridge;
+    }
+
+    // Avatar/Mouselook/Captive-mode button label -> full-deflection contribution to
+    // the same zoom accumulator as the "Zoom +/-" axis (see computeAgentActions()).
+    // Mirrors mouseCursorButtonBridge()'s "only override if stronger" pattern rather
+    // than avatarButtonBridge()'s OR-into-mControlFlags, since zoom has no
+    // AGENT_CONTROL_* bit of its own.
+    const std::map<std::string, F32>& avatarZoomButtonBridge()
+    {
+        static const std::map<std::string, F32> bridge = {
+            { "Zoom +", 1.f },
+            { "Zoom -", -1.f },
+        };
+        return bridge;
+    }
+
+    // Cursor mode's digital (button) equivalent of "Mouse left/right"/"Mouse up/down":
+    // a discrete alternative/addition to the analog stick for driving the on-screen
+    // cursor, e.g. so the D-Pad can be rebound to nudge the cursor instead of moving
+    // the avatar. Not part of Cursor mode's default button map (see cursor_buttons in
+    // buildDefaultModeMappings()) -- purely opt-in via rebinding. A pressed button
+    // contributes full deflection into computeAgentActions()'s mouse_dx/mouse_dy,
+    // same "only override if stronger" pattern as Turn/Look's button contribution.
+    struct MouseCursorButtonEffect { bool isX; F32 sign; };
+    const std::map<std::string, MouseCursorButtonEffect>& mouseCursorButtonBridge()
+    {
+        static const std::map<std::string, MouseCursorButtonEffect> bridge = {
+            { "Cursor up",    { false,  1.f } },
+            { "Cursor down",  { false, -1.f } },
+            { "Cursor left",  { true,  -1.f } },
+            { "Cursor right", { true,   1.f } },
         };
         return bridge;
     }
@@ -1924,43 +1969,15 @@ namespace
         return bridge;
     }
 
-    // Mouse mode's ModeAxes slot order: reuses the same 5 SemanticAxis slots
-    // internally as avatarSemanticAxisSlots(), but the STRAFE/ADVANCE slots now carry
-    // "Mouse left/right"/"Mouse up/down" (on-screen cursor movement) -- the receiver
-    // must disambiguate via AgentData.ActionMode, same as for Avatar vs FlyCam. Only
-    // the first NUM_MOUSE_SEMANTIC_AXES slots (no RISE) are ever packed onto the wire
-    // for this mode -- see numSemanticAxesForMode().
-    const std::map<std::string, LLGameControl::SemanticAxis>& mouseSemanticAxisSlots()
+    // Cursor mode's ModeAxes slots 0-1 (CURSOR_DX/CURSOR_DY): reuses SemanticAxis's
+    // STRAFE/ADVANCE slots purely as storage, but they carry "Mouse left/right"/"Mouse
+    // up/down" (on-screen cursor movement). Slots 2-5 carry cursor position, filled
+    // separately in computeSemanticState() from setMouseCursorPosition().
+    const std::map<std::string, LLGameControl::SemanticAxis>& cursorSemanticAxisSlots()
     {
         static const std::map<std::string, LLGameControl::SemanticAxis> bridge = {
             { "Mouse left/right", LLGameControl::SEMANTIC_AXIS_STRAFE },
             { "Mouse up/down",    LLGameControl::SEMANTIC_AXIS_ADVANCE },
-            { "Turn left/right",  LLGameControl::SEMANTIC_AXIS_TURN },
-            { "Look up/down",     LLGameControl::SEMANTIC_AXIS_LOOK },
-            { "Fly up/down",      LLGameControl::SEMANTIC_AXIS_RISE },
-        };
-        return bridge;
-    }
-
-    // Mouse mode's digital-button equivalent of mouseSemanticAxisSlots(). Deliberately
-    // omits "Strafe left/right"/"Advance forward/back" (unlike
-    // avatarSemanticButtonAxisSlots()): those still work as real avatar movement (via
-    // avatarButtonBridge(), unaffected by mode) but have no valid ModeAxes slot
-    // in Mouse mode -- STRAFE/ADVANCE mean cursor movement here, and there is no keyboard-
-    // or-D-Pad equivalent of "nudge the mouse". So a D-Pad Strafe/Advance press in Mouse
-    // mode moves the avatar locally and is invisible to ModeAxes, but -- like any other
-    // pressed button -- still sets its own ModeButtons bit.
-    const std::map<std::string, SemanticButtonAxisEffect>& mouseSemanticButtonAxisSlots()
-    {
-        static const std::map<std::string, SemanticButtonAxisEffect> bridge = {
-            { "Turn left",  { LLGameControl::SEMANTIC_AXIS_TURN,  1.f } },
-            { "Turn right", { LLGameControl::SEMANTIC_AXIS_TURN, -1.f } },
-            { "Look up",    { LLGameControl::SEMANTIC_AXIS_LOOK,  1.f } },
-            { "Look down",  { LLGameControl::SEMANTIC_AXIS_LOOK, -1.f } },
-            { "Jump",       { LLGameControl::SEMANTIC_AXIS_RISE,  1.f } },
-            { "Crouch",     { LLGameControl::SEMANTIC_AXIS_RISE, -1.f } },
-            { "Fly up",     { LLGameControl::SEMANTIC_AXIS_RISE,  1.f } },
-            { "Fly down",   { LLGameControl::SEMANTIC_AXIS_RISE, -1.f } },
         };
         return bridge;
     }
@@ -2063,6 +2080,7 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     S32 pitch_value = 0;
     S32 mouse_dx = 0;
     S32 mouse_dy = 0;
+    S32 zoom_value = 0;
     for (U8 axis = 0; axis < LLGameControl::NUM_AXES; ++axis)
     {
         const AxisActionBinding& binding = mAxisActionBindings[axis];
@@ -2071,7 +2089,7 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
             continue;
         }
 
-        // "Mouse left/right"/"Mouse up/down" (Mouse mode only) drive the on-screen
+        // "Mouse left/right"/"Mouse up/down" (Cursor mode only) drive the on-screen
         // cursor rather than an AGENT_CONTROL_* flag, so they're captured here
         // separately from avatarAxisBridge() below.
         bool is_mouse_x = binding.label == "Mouse left/right";
@@ -2088,6 +2106,24 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
             if (std::abs(value) > std::abs(mouse_axis_value))
             {
                 mouse_axis_value = value;
+            }
+            continue;
+        }
+
+        // "Zoom +/-" (Avatar/Mouselook/Captive only) drives the camera zoom rate
+        // rather than an AGENT_CONTROL_* bit, so it's captured here separately from
+        // avatarAxisBridge() below, same reasoning as the mouse-cursor axes above.
+        if (binding.label == "Zoom +/-")
+        {
+            S32 deflection = (S32)g_innerState.mAxes[axis * 2] - (S32)g_innerState.mAxes[axis * 2 + 1];
+            S32 value = binding.half == HALF_NEGATIVE ? -deflection : deflection;
+            if (binding.invert)
+            {
+                value = -value;
+            }
+            if (std::abs(value) > std::abs(zoom_value))
+            {
+                zoom_value = value;
             }
             continue;
         }
@@ -2175,6 +2211,8 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     const auto& button_bridge = avatarButtonBridge();
     const auto& mouse_button_bridge = avatarMouseButtonBridge();
     const auto& misc_button_bridge = avatarMiscButtonBridge();
+    const auto& mouse_cursor_button_bridge = mouseCursorButtonBridge();
+    const auto& zoom_button_bridge = avatarZoomButtonBridge();
     U32 pressed_edges = g_innerState.mButtons & ~g_innerState.mPrevButtons;
     for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
     {
@@ -2224,6 +2262,27 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
             result.mMouseButtonBits |= bit->second;
             continue;
         }
+        auto cursor_it = mouse_cursor_button_bridge.find(label);
+        if (cursor_it != mouse_cursor_button_bridge.end())
+        {
+            S32 full = (S32)(cursor_it->second.sign * 32767.f);
+            S32& mouse_axis_value = cursor_it->second.isX ? mouse_dx : mouse_dy;
+            if (std::abs(full) > std::abs(mouse_axis_value))
+            {
+                mouse_axis_value = full;
+            }
+            continue;
+        }
+        auto zoom_it = zoom_button_bridge.find(label);
+        if (zoom_it != zoom_button_bridge.end())
+        {
+            S32 full = (S32)(zoom_it->second * 32767.f);
+            if (std::abs(full) > std::abs(zoom_value))
+            {
+                zoom_value = full;
+            }
+            continue;
+        }
         auto mit = misc_button_bridge.find(label);
         if (mit != misc_button_bridge.end() && (pressed_edges & (1U << btn)))
         {
@@ -2237,6 +2296,7 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     result.mPitchAmplitude = std::clamp((F32)pitch_value / 32767.f, -1.f, 1.f);
     result.mMouseCursorDX = std::clamp((F32)mouse_dx / 32767.f, -1.f, 1.f);
     result.mMouseCursorDY = std::clamp((F32)mouse_dy / 32767.f, -1.f, 1.f);
+    result.mZoomAmplitude = std::clamp((F32)zoom_value / 32767.f, -1.f, 1.f);
 
     return result;
 }
@@ -2344,15 +2404,16 @@ namespace
         {
             return flycamAxisBridge().count(label) > 0;
         }
-        if (mode == LLGameControl::CONTROL_MODE_MOUSE)
+        if (mode == LLGameControl::CONTROL_MODE_CURSOR)
         {
             // Shares the avatar axis actions (Turn/Look/Fly, plus Strafe/Advance if the
             // user re-binds them) and adds the two cursor-movement axes.
             return avatarAxisBridge().count(label) > 0
                 || label == "Mouse left/right" || label == "Mouse up/down";
         }
-        // Avatar, Mouselook, and Captive share the avatar axis actions.
-        return avatarAxisBridge().count(label) > 0;
+        // Avatar, Mouselook, and Captive share the avatar axis actions,
+        // and "Zoom +/-" (camera zoom rate; see computeAgentActions()).
+        return avatarAxisBridge().count(label) > 0 || label == "Zoom +/-";
     }
 
     std::string defaultAxisActionForInput(LLGameControl::AgentControlMode mode, const std::string& input)
@@ -2402,14 +2463,15 @@ void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& s
     if (g_agentControlMode == LLGameControl::CONTROL_MODE_AVATAR
         || g_agentControlMode == LLGameControl::CONTROL_MODE_MOUSELOOK
         || g_agentControlMode == LLGameControl::CONTROL_MODE_CAPTIVE
-        || g_agentControlMode == LLGameControl::CONTROL_MODE_MOUSE)
+        || g_agentControlMode == LLGameControl::CONTROL_MODE_CURSOR)
     {
-        // In Mouse mode the STRAFE/ADVANCE wire slots carry "Mouse left/right"/"Mouse
+        // In Cursor mode the STRAFE/ADVANCE wire slots carry "Mouse left/right"/"Mouse
         // up/down" (cursor movement) instead of Strafe/Advance -- see
-        // mouseSemanticAxisSlots()/mouseSemanticButtonAxisSlots().
-        bool is_mouse_mode = (g_agentControlMode == LLGameControl::CONTROL_MODE_MOUSE);
+        // cursorSemanticAxisSlots(). Slots 2-5 (Turn/Look in every other mode) instead
+        // carry cursor position, filled in below.
+        bool is_cursor_mode = (g_agentControlMode == LLGameControl::CONTROL_MODE_CURSOR);
 
-        const auto& axis_slots = is_mouse_mode ? mouseSemanticAxisSlots() : avatarSemanticAxisSlots();
+        const auto& axis_slots = is_cursor_mode ? cursorSemanticAxisSlots() : avatarSemanticAxisSlots();
         for (U8 axis = 0; axis < LLGameControl::NUM_AXES; ++axis)
         {
             const AxisActionBinding& binding = mAxisActionBindings[axis];
@@ -2438,75 +2500,49 @@ void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& s
             }
         }
 
-        // Movement buttons (real controller only -- keyboard's contribution to these
-        // same actions is folded in below via mExternalActionFlags, and double-counting
-        // it here too would sum the same keypress twice) contribute full deflection to
-        // their axis, same as computeAgentActions() does for Turn/Look; they never
-        // reach ModeButtons.
-        const auto& button_axis_slots = is_mouse_mode ? mouseSemanticButtonAxisSlots() : avatarSemanticButtonAxisSlots();
-        for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
+        if (!is_cursor_mode)
         {
-            if (!(g_innerState.mButtons & (1U << btn)))
+            // Movement buttons (real controller only -- keyboard's contribution to these
+            // same actions is folded in below via mExternalActionFlags.
+            const auto& button_axis_slots = avatarSemanticButtonAxisSlots();
+            for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
             {
-                continue;
+                if (!(g_innerState.mButtons & (1U << btn)))
+                {
+                    continue;
+                }
+                const std::string& label = mButtonActionLabels[btn];
+                if (label.empty())
+                {
+                    continue;
+                }
+                auto it = button_axis_slots.find(label);
+                if (it == button_axis_slots.end())
+                {
+                    continue;
+                }
+                S32 full = (S32)(it->second.sign * 32767.f);
+                if (std::abs(full) > std::abs(semantic_values[it->second.slot]))
+                {
+                    semantic_values[it->second.slot] = full;
+                }
             }
-            const std::string& label = mButtonActionLabels[btn];
-            if (label.empty())
-            {
-                continue;
-            }
-            auto it = button_axis_slots.find(label);
-            if (it == button_axis_slots.end())
-            {
-                continue;
-            }
-            S32 full = (S32)(it->second.sign * 32767.f);
-            if (std::abs(full) > std::abs(semantic_values[it->second.slot]))
-            {
-                semantic_values[it->second.slot] = full;
-            }
-        }
 
-        // Keyboard-only contribution: setExternalInput()'s AGENT_CONTROL_* bits map
-        // directly onto the TURN/LOOK/RISE semantic slots (YAW->TURN, PITCH->LOOK,
-        // UP->RISE), which mean the same thing in every avatar-family mode including
-        // Mouse. This is more direct/robust than the legacy raw-AxisData/ButtonData
-        // keyboard path (mExternalServerState), which only surfaces a keypress at all
-        // if some digital button happens to be bound to the matching
-        // avatarButtonBridge() action -- e.g. Turn/Look have no default button
-        // binding, so keyboard turning/looking would otherwise be invisible here.
-        // Summed on top of the controller-only value above, mirroring how
-        // accumulateFinalState() sums keyboard + controller for the raw axes, so a
-        // keyboard-only user still produces meaningful ModeAxes.
-        static const struct { U32 posFlag; U32 negFlag; LLGameControl::SemanticAxis slot; } KEY_AXIS_BITS[] = {
-            { AGENT_CONTROL_YAW_POS,   AGENT_CONTROL_YAW_NEG,   LLGameControl::SEMANTIC_AXIS_TURN },
-            { AGENT_CONTROL_PITCH_POS, AGENT_CONTROL_PITCH_NEG, LLGameControl::SEMANTIC_AXIS_LOOK },
-            { AGENT_CONTROL_UP_POS,    AGENT_CONTROL_UP_NEG,    LLGameControl::SEMANTIC_AXIS_RISE },
-        };
-        // LEFT->STRAFE, AT->ADVANCE: only applies outside Mouse mode. In Mouse mode
-        // those wire slots mean "Mouse left/right"/"Mouse up/down", and keyboard has no
-        // notion of moving the mouse cursor, so this contribution must not apply there.
-        static const struct { U32 posFlag; U32 negFlag; LLGameControl::SemanticAxis slot; } KEY_MOVEMENT_AXIS_BITS[] = {
-            { AGENT_CONTROL_LEFT_POS, AGENT_CONTROL_LEFT_NEG, LLGameControl::SEMANTIC_AXIS_STRAFE },
-            { AGENT_CONTROL_AT_POS,   AGENT_CONTROL_AT_NEG,   LLGameControl::SEMANTIC_AXIS_ADVANCE },
-        };
-        const S32 key_magnitude = mExternalIsRunning ? 32767 : 32767 / 2;
-        for (const auto& bit : KEY_AXIS_BITS)
-        {
-            S32 kb_value = 0;
-            if (mExternalActionFlags & bit.posFlag)
-            {
-                kb_value += key_magnitude;
-            }
-            if (mExternalActionFlags & bit.negFlag)
-            {
-                kb_value -= key_magnitude;
-            }
-            semantic_values[bit.slot] += kb_value;
-        }
-        if (!is_mouse_mode)
-        {
-            for (const auto& bit : KEY_MOVEMENT_AXIS_BITS)
+            // Keyboard-only contribution: setExternalInput()'s AGENT_CONTROL_* bits map
+            // directly onto the TURN/LOOK/RISE/STRAFE/ADVANCE semantic slots (YAW->TURN,
+            // PITCH->LOOK, UP->RISE, LEFT->STRAFE, AT->ADVANCE). Summed on top of the
+            // controller-only value above, mirroring how accumulateFinalState() sums
+            // keyboard + controller for the raw axes, so a keyboard-only user still
+            // produces meaningful ModeAxes.
+            static const struct { U32 posFlag; U32 negFlag; LLGameControl::SemanticAxis slot; } KEY_AXIS_BITS[] = {
+                { AGENT_CONTROL_YAW_POS,   AGENT_CONTROL_YAW_NEG,   LLGameControl::SEMANTIC_AXIS_TURN },
+                { AGENT_CONTROL_PITCH_POS, AGENT_CONTROL_PITCH_NEG, LLGameControl::SEMANTIC_AXIS_LOOK },
+                { AGENT_CONTROL_UP_POS,    AGENT_CONTROL_UP_NEG,    LLGameControl::SEMANTIC_AXIS_RISE },
+                { AGENT_CONTROL_LEFT_POS,  AGENT_CONTROL_LEFT_NEG,  LLGameControl::SEMANTIC_AXIS_STRAFE },
+                { AGENT_CONTROL_AT_POS,    AGENT_CONTROL_AT_NEG,    LLGameControl::SEMANTIC_AXIS_ADVANCE },
+            };
+            const S32 key_magnitude = mExternalIsRunning ? 32767 : 32767 / 2;
+            for (const auto& bit : KEY_AXIS_BITS)
             {
                 S32 kb_value = 0;
                 if (mExternalActionFlags & bit.posFlag)
@@ -2519,6 +2555,27 @@ void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& s
                 }
                 semantic_values[bit.slot] += kb_value;
             }
+        }
+        else
+        {
+            // CURSOR_PX/PY/NX/NY (slots 2-5): the actual on-screen cursor position
+            // within the rect available to a gamepad-driven cursor, fed in externally
+            // via setMouseCursorPosition() since this module has no notion of window
+            // geometry -- unlike every other semantic axis, these don't come from any
+            // bound controller/keyboard input at all.
+            S32 px = std::clamp(mMouseCursorPixelX, 0, mMouseCursorRectWidth);
+            S32 py = std::clamp(mMouseCursorPixelY, 0, mMouseCursorRectHeight);
+            semantic_values[2] = px;
+            semantic_values[3] = py;
+            // NX/NY: [0.0, 1.0] normalized position mapped onto the S16 wire range,
+            // rounded to nearest and clamped to 32767 (S16_MAX -- 1.0 would otherwise
+            // map to the unrepresentable 32768).
+            semantic_values[4] = mMouseCursorRectWidth > 0
+                ? std::clamp((px * 32767 + mMouseCursorRectWidth / 2) / mMouseCursorRectWidth, 0, 32767)
+                : 0;
+            semantic_values[5] = mMouseCursorRectHeight > 0
+                ? std::clamp((py * 32767 + mMouseCursorRectHeight / 2) / mMouseCursorRectHeight, 0, 32767)
+                : 0;
         }
     }
     else if (g_agentControlMode == LLGameControl::CONTROL_MODE_FLYCAM)
@@ -2802,6 +2859,14 @@ void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons, bo
     }
 
     mExternalServerState.mButtons |= buttons;
+}
+
+void LLGameControllerManager::setMouseCursorPosition(S32 pixel_x, S32 pixel_y, S32 rect_width, S32 rect_height)
+{
+    mMouseCursorPixelX = pixel_x;
+    mMouseCursorPixelY = pixel_y;
+    mMouseCursorRectWidth = rect_width;
+    mMouseCursorRectHeight = rect_height;
 }
 
 void LLGameControllerManager::clear()
@@ -3383,7 +3448,7 @@ bool LLGameControl::willControlAvatar()
         && (g_agentControlMode == CONTROL_MODE_AVATAR
             || g_agentControlMode == CONTROL_MODE_MOUSELOOK
             || g_agentControlMode == CONTROL_MODE_CAPTIVE
-            || g_agentControlMode == CONTROL_MODE_MOUSE)
+            || g_agentControlMode == CONTROL_MODE_CURSOR)
         && isModeEnabled(modeToString(g_agentControlMode));
 }
 
@@ -3595,6 +3660,12 @@ void LLGameControl::setExternalInput(U32 action_flags, U32 buttons, bool is_runn
     g_manager.setExternalInput(action_flags, buttons, is_running);
 }
 
+// static
+void LLGameControl::setMouseCursorPosition(S32 pixel_x, S32 pixel_y, S32 rect_width, S32 rect_height)
+{
+    g_manager.setMouseCursorPosition(pixel_x, pixel_y, rect_width, rect_height);
+}
+
 //static
 void LLGameControl::updateResendPeriod()
 {
@@ -3628,8 +3699,8 @@ U8 LLGameControl::numSemanticAxesForMode(AgentControlMode mode)
         case CONTROL_MODE_MOUSELOOK:
         case CONTROL_MODE_CAPTIVE:
             return NUM_SEMANTIC_AXES;
-        case CONTROL_MODE_MOUSE:
-            return NUM_MOUSE_SEMANTIC_AXES;
+        case CONTROL_MODE_CURSOR:
+            return NUM_CURSOR_SEMANTIC_AXES;
         case CONTROL_MODE_FLYCAM:
             return FLYCAM_NUM_CHANNELS;
         case CONTROL_MODE_NONE:
@@ -3662,8 +3733,8 @@ std::string LLGameControl::semanticAxisName(AgentControlMode mode, U8 slot)
 {
     static const char* const AVATAR_FAMILY_NAMES[NUM_SEMANTIC_AXES] =
         { "AXIS_STRAFE", "AXIS_ADVANCE", "AXIS_TURN", "AXIS_LOOK", "AXIS_RISE" };
-    static const char* const MOUSE_NAMES[NUM_MOUSE_SEMANTIC_AXES] =
-        { "MOUSE_DX", "MOUSE_DY", "AXIS_TURN", "AXIS_LOOK" };
+    static const char* const CURSOR_NAMES[NUM_CURSOR_SEMANTIC_AXES] =
+        { "CURSOR_DX", "CURSOR_DY", "CURSOR_PX", "CURSOR_PY", "CURSOR_NX", "CURSOR_NY" };
     static const char* const FLYCAM_NAMES[FLYCAM_NUM_CHANNELS] =
         { "FLYCAM_AXIS_TRUCK", "FLYCAM_AXIS_DOLLY", "FLYCAM_AXIS_PAN", "FLYCAM_AXIS_TILT",
           "FLYCAM_AXIS_BOOM", "FLYCAM_AXIS_ROLL", "FLYCAM_AXIS_ZOOM" };
@@ -3678,10 +3749,10 @@ std::string LLGameControl::semanticAxisName(AgentControlMode mode, U8 slot)
                 return AVATAR_FAMILY_NAMES[slot];
             }
             break;
-        case CONTROL_MODE_MOUSE:
-            if (slot < NUM_MOUSE_SEMANTIC_AXES)
+        case CONTROL_MODE_CURSOR:
+            if (slot < NUM_CURSOR_SEMANTIC_AXES)
             {
-                return MOUSE_NAMES[slot];
+                return CURSOR_NAMES[slot];
             }
             break;
         case CONTROL_MODE_FLYCAM:

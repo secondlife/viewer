@@ -787,8 +787,8 @@ bool LLPanelPreferenceGameControl::postBuild()
     mFlycamAnalogActionSelector = getChild<LLComboBox>("flycam_analog_action_selector");
     mFlycamBinaryActionSelector = getChild<LLComboBox>("flycam_binary_action_selector");
     mCaptiveBinaryActionSelector = getChild<LLComboBox>("sit_binary_action_selector");
-    mMouseAnalogActionSelector = getChild<LLComboBox>("mouse_analog_action_selector");
-    mMouseBinaryActionSelector = getChild<LLComboBox>("mouse_binary_action_selector");
+    mCursorAnalogActionSelector = getChild<LLComboBox>("cursor_analog_action_selector");
+    mCursorBinaryActionSelector = getChild<LLComboBox>("cursor_binary_action_selector");
 
     // Canonical input selectors, shown inline when editing an Input/Output cell.
     // The Actions tab binds an axis action to a canonical input (sticks or the
@@ -1046,24 +1046,24 @@ LLComboBox* LLPanelPreferenceGameControl::actionSelectorForMode(bool axis, const
 {
     bool flycam = (mode == "FlyCam");
     bool mouselook = (mode == "Mouselook");
-    bool mouse = (mode == "Mouse");
+    bool cursor = (mode == "Cursor");
     // Avatar and Captive share the same axis actions (see llgamecontrol.cpp);
-    // Mouselook and Mouse each have their own axis-action selector too, since
-    // Mouse swaps in "Mouse left/right"/"Mouse up/down" for Strafe/Advance.
+    // Mouselook and Cursor each have their own axis-action selector too, since
+    // Cursor swaps in "Mouse left/right"/"Mouse up/down" for Strafe/Advance.
     // Each mode has its own button-action selector so their button sets can
-    // diverge (e.g. Captive swaps in "Stand" for "Jump", Mouse adds "Mouse
+    // diverge (e.g. Captive swaps in "Stand" for "Jump", Cursor adds "Mouse
     // click left/right").
     if (axis)
         return flycam ? mFlycamAnalogActionSelector
             : mouselook ? mMouselookAnalogActionSelector
-            : mouse ? mMouseAnalogActionSelector
+            : cursor ? mCursorAnalogActionSelector
             : mAnalogActionSelector;
     if (mouselook)
         return mMouselookBinaryActionSelector;
     if (flycam)
         return mFlycamBinaryActionSelector;
-    if (mouse)
-        return mMouseBinaryActionSelector;
+    if (cursor)
+        return mCursorBinaryActionSelector;
     return (mode == "Captive") ? mCaptiveBinaryActionSelector : mBinaryActionSelector;
 }
 

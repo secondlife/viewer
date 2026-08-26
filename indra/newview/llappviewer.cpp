@@ -5438,6 +5438,20 @@ void LLAppViewer::idle()
 
         // apply to GameControl
         LLGameControl::setExternalInput(control_flags, gAgent.getGameControlButtonsFromKeys(), gAgent.getRunning());
+
+        // Feed the actual on-screen cursor position to GameControl
+        // Matches the same world-view-rect clamp LLViewerWindow::moveCursorTo()
+        // uses to keep a gamepad-driven cursor on-screen.
+        if (LLGameControl::getAgentControlMode() == LLGameControl::CONTROL_MODE_CURSOR)
+        {
+            LLCoordGL cursor_pos = gViewerWindow->getCurrentMouse();
+            S32 rect_width = gViewerWindow->getWorldViewWidthScaled();
+            S32 rect_height = gViewerWindow->getWorldViewHeightScaled();
+            S32 pixel_x = llclamp(cursor_pos.mX, 0, rect_width);
+            S32 pixel_y = llclamp(rect_height - cursor_pos.mY, 0, rect_height);
+            LLGameControl::setMouseCursorPosition(pixel_x, pixel_y, rect_width, rect_height);
+        }
+
         if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
         {
             LLPanelPreferenceGameControl::applyGameControlInput();

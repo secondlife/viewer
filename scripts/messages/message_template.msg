@@ -9351,7 +9351,7 @@ version 2.0
 //   1 CONTROL_MODE_MOUSELOOK
 //   2 CONTROL_MODE_FLYCAM
 //   3 CONTROL_MODE_CAPTIVE (sitting)
-//   4 CONTROL_MODE_MOUSE (mouse cursor)
+//   4 CONTROL_MODE_CURSOR (mouse cursor)
 //
 // For AVATAR, MOUSELOOK, and CAPTIVE modes the axis semantics are:
 //   0 AXIS_STRAFE
@@ -9369,11 +9369,27 @@ version 2.0
 //   5 FLYCAM_AXIS_ROLL
 //   6 FLYCAM_AXIS_ZOOM
 //
-// For MOUSE mode the axis semantics are:
-//   0 MOUSE_DX
-//   1 MOUSE_DY
-//   2 AXIS_TURN
-//   3 AXIS_LOOK
+// For CURSOR mode the axis semantics are:
+//   0 CURSOR_DX (value driving mouse horizontal motion)
+//   1 CURSOR_DY (value driving mouse vertical motion)
+//   2 CURSOR_PX (cursor position, pixels, X)
+//   3 CURSOR_PY (cursor position, pixels, Y)
+//   4 CURSOR_NX (cursor position, normalized, X)
+//   5 CURSOR_NY (cursor position, normalized, Y)
+//
+// CURSOR_PX/CURSOR_PY are the mouse cursor's position, in pixels, within the
+// rectangular area available to the cursor while it is being driven by the game
+// controller: <0,0> is the upper-left corner of that rectangle and <WIDTH,HEIGHT>
+// is its lower-right corner.
+//
+// CURSOR_NX/CURSOR_NY are the same position normalized to that rectangle: <0.0,0.0>
+// is the upper-left corner and <1.0,1.0> is the lower-right corner. Since axis
+// Values are S16, the floating point range [0.0, 1.0] is mapped onto [0, 32767]
+// (not 32768, which does not fit in an S16).
+//
+// CURSOR mode has no AXIS_TURN/AXIS_LOOK slot: turning/looking still work in Cursor
+// mode (bindable to the right stick, same as any other mode) but are no longer
+// mirrored here now that these slots carry cursor position instead.
 //
 // Similarly for semantic ModeButtons the meaning of the Flags depend on the mode.
 // A ModeButtons bit index is always identical to the canonical Button index to which
@@ -9463,7 +9479,7 @@ version 2.0
 //  14  BUTTON_DPAD_RIGHT      Strafe right (also folded into ModeAxes AXIS_STRAFE)
 //  15-31                       (unbound)
 //
-// For MOUSE mode (left stick drives the on-screen cursor instead of avatar
+// For CURSOR mode (left stick drives the on-screen cursor instead of avatar
 // movement) the ModeButtons bit meanings are:
 //   0  BUTTON_SOUTH           Jump
 //   1  BUTTON_EAST            Crouch
@@ -9476,10 +9492,11 @@ version 2.0
 //   8  BUTTON_RIGHT_STICK     Toggle flycam
 //   9  BUTTON_LEFT_SHOULDER   Mouse click left
 //  10  BUTTON_RIGHT_SHOULDER  Mouse click right
-//  11  BUTTON_DPAD_UP         Advance forward (also folded into ModeAxes AXIS_ADVANCE)
-//  12  BUTTON_DPAD_DOWN       Advance back (also folded into ModeAxes AXIS_ADVANCE)
-//  13  BUTTON_DPAD_LEFT       Strafe left (also folded into ModeAxes AXIS_STRAFE)
-//  14  BUTTON_DPAD_RIGHT      Strafe right (also folded into ModeAxes AXIS_STRAFE)
+//  11  BUTTON_DPAD_UP         Advance forward (moves avatar locally; NOT folded into
+//                             ModeAxes -- CURSOR_DX/CURSOR_DY carry cursor motion instead)
+//  12  BUTTON_DPAD_DOWN       Advance back (not folded into ModeAxes; see above)
+//  13  BUTTON_DPAD_LEFT       Strafe left (not folded into ModeAxes; see above)
+//  14  BUTTON_DPAD_RIGHT      Strafe right (not folded into ModeAxes; see above)
 //  15-31                     (unbound)
 //
 {

@@ -89,7 +89,7 @@ public:
         CONTROL_MODE_MOUSELOOK, // Avatar camera is in mouselook
         CONTROL_MODE_FLYCAM,
         CONTROL_MODE_CAPTIVE, // Avatar is sitting, or controls have been taken
-        CONTROL_MODE_MOUSE, // Left stick drives the on-screen cursor instead of avatar movement
+        CONTROL_MODE_CURSOR, // Left stick drives the on-screen cursor instead of avatar movement
         CONTROL_MODE_NONE
     };
 
@@ -136,11 +136,10 @@ public:
         NUM_AXES
     };
 
-    // Fixed order of the GameControlData message's ModeAxes block (for Avatar/
-    // Mouselook/Captive; Mouse packs only the first NUM_MOUSE_SEMANTIC_AXES of these,
-    // see numSemanticAxesForMode()): the avatar-movement intent an axis (or button) is
-    // currently bound to, independent of which physical canonical axis/button that
-    // happens to be for the active mapping.
+    // Fixed order of the GameControlData message's ModeAxes block for Avatar/
+    // Mouselook/Captive: the avatar-movement intent an axis (or button) is currently
+    // bound to, independent of which physical canonical axis/button that happens to be
+    // for the active mapping.
     enum SemanticAxis : U8
     {
         SEMANTIC_AXIS_STRAFE, // STRAFE_LEFT_RIGHT
@@ -151,10 +150,17 @@ public:
         NUM_SEMANTIC_AXES
     };
 
-    // CONTROL_MODE_MOUSE's ModeAxes block omits SEMANTIC_AXIS_RISE (there is no "fly
-    // up/down" concept while driving the on-screen cursor) -- see message_template.msg's
-    // GameControlData doc and numSemanticAxesForMode().
-    static constexpr U8 NUM_MOUSE_SEMANTIC_AXES = NUM_SEMANTIC_AXES - 1;
+    // CONTROL_MODE_CURSOR's ModeAxes block does NOT reuse SemanticAxis's Turn/Look/Rise
+    // slots, despite the fact turning/looking still work in Cursor mode (via the ordinary
+    // Turn/Look axis bridge in computeAgentActions(), independent of this wire mirror),
+    // they're just no longer reported here.
+    //   0 CURSOR_DX     // input driving mouse horizontal movement
+    //   1 CURSOR_DY     // input driving mouse vertical movement
+    //   2 CURSOR_PX     // mouse horizontal position in pixels from upper-left corner
+    //   3 CURSOR_PY     // mouse vertical position in pixels from upper-left corner
+    //   4 CURSOR_NX     // mouse normalized horizontal position [0,1] from left-edge
+    //   5 CURSOR_NY     // mouse normalized vertical position [0,1] from upper-edge
+    static constexpr U8 NUM_CURSOR_SEMANTIC_AXES = 6;
 
     // Sentinel stored in a semantic-button index table for a physical button that has
     // no ModeButtons index -- only true in CONTROL_MODE_NONE, which has no ModeButtons
@@ -219,19 +225,20 @@ public:
 
     // GameControlData's ModeAxes/ModeButtons blocks use whichever mode-specific slot
     // order matches the sender's ActionMode: Avatar/Mouselook/Captive use SemanticAxis
-    // (NUM_SEMANTIC_AXES slots, in that order; Mouse packs only the first
-    // NUM_MOUSE_SEMANTIC_AXES of them); FlyCam uses FlycamChannel (FLYCAM_NUM_CHANNELS
-    // slots, in that order); CONTROL_MODE_NONE uses none (always zero/empty).
-    // ServerState reserves enough slots for the largest of these so any mode's data
-    // fits without resizing per-frame -- see numSemanticAxesForMode().
+    // (NUM_SEMANTIC_AXES slots, in that order); Cursor uses its own unrelated
+    // NUM_CURSOR_SEMANTIC_AXES-slot layout (CURSOR_DX/DY/PX/PY/NX/NY, see
+    // NUM_CURSOR_SEMANTIC_AXES); FlyCam uses FlycamChannel (FLYCAM_NUM_CHANNELS slots,
+    // in that order); CONTROL_MODE_NONE uses none (always zero/empty). ServerState
+    // reserves enough slots for the largest of these so any mode's data fits without
+    // resizing per-frame -- see numSemanticAxesForMode().
     static constexpr U8 NUM_SEMANTIC_SLOTS =
         (U8)FLYCAM_NUM_CHANNELS > (U8)NUM_SEMANTIC_AXES ? (U8)FLYCAM_NUM_CHANNELS : (U8)NUM_SEMANTIC_AXES;
 
     // Number of leading elements of ServerState::mSemanticAxes that are valid/packed
     // into GameControlData's ModeAxes block for 'mode' (see message_template.msg's
     // GameControlData doc): NUM_SEMANTIC_AXES for Avatar/Mouselook/Captive,
-    // NUM_MOUSE_SEMANTIC_AXES for Mouse (no RISE axis), FLYCAM_NUM_CHANNELS for FlyCam,
-    // 0 for CONTROL_MODE_NONE.
+    // NUM_CURSOR_SEMANTIC_AXES for Cursor (CURSOR_DX/DY/PX/PY/NX/NY), FLYCAM_NUM_CHANNELS
+    // for FlyCam, 0 for CONTROL_MODE_NONE.
     static U8 numSemanticAxesForMode(AgentControlMode mode);
 
     // Number of leading bits of ServerState::mSemanticButtons that are ever set for
@@ -243,7 +250,7 @@ public:
 
     // Display name for ServerState::mSemanticAxes[slot] under 'mode', matching the
     // per-mode axis tables documented in message_template.msg's GameControlData doc
-    // (e.g. "AXIS_STRAFE", "FLYCAM_AXIS_TRUCK", "MOUSE_DX"). Empty if slot >=
+    // (e.g. "AXIS_STRAFE", "FLYCAM_AXIS_TRUCK", "CURSOR_DX"). Empty if slot >=
     // numSemanticAxesForMode(mode).
     static std::string semanticAxisName(AgentControlMode mode, U8 slot);
 
@@ -557,10 +564,17 @@ public:
         F32 mPitchAmplitude { 0.f };
 
         // Signed magnitudes ([-1, 1]) of "Mouse left/right"/"Mouse up/down"
-        // (CONTROL_MODE_MOUSE only) -- drive the on-screen cursor rather than an
+        // (CONTROL_MODE_CURSOR only) -- drive the on-screen cursor rather than an
         // AGENT_CONTROL_* bit; consumed by LLAgent::applyExternalActions().
         F32 mMouseCursorDX { 0.f };
         F32 mMouseCursorDY { 0.f };
+
+        // Signed magnitude ([-1, 1]) of "Zoom +/-" (Avatar/Mouselook/Captive only),
+        // combined with the full-deflection contribution of "Zoom +"/"Zoom -" --
+        // drives the camera zoom rate rather than an AGENT_CONTROL_* bit; consumed
+        // by LLAgent::applyExternalActions() via LLAgentCamera::setOrbitInKey/
+        // setOrbitOutKey(). Positive zooms in (camera moves closer).
+        F32 mZoomAmplitude { 0.f };
     };
 
     // Keyboard presses produce action_flags which can be translated into State
@@ -574,6 +588,12 @@ public:
     // half deflection when walking -- approximating the walk/run threshold as a
     // 50% stick tilt, per LLGameControllerManager::computeAgentActions().
     static void setExternalInput(U32 action_flags, U32 buttons_from_keys, bool is_running);
+
+    // Feeds the actual on-screen cursor position into CONTROL_MODE_CURSOR's
+    // CURSOR_PX/CURSOR_PY/CURSOR_NX/CURSOR_NY semantic axes (see NUM_CURSOR_SEMANTIC_AXES).
+    // Only consumed while the mode is CONTROL_MODE_CURSOR; harmless to call unconditionally
+    // otherwise.
+    static void setMouseCursorPosition(S32 pixel_x, S32 pixel_y, S32 rect_width, S32 rect_height);
 
     // call this after putting a GameControlData packet on the wire
     static void updateResendPeriod();
@@ -609,7 +629,7 @@ public:
     // GameControl settings, stored under the single "GameControl" setting key:
     //   ModeMappings/<Mode>/Axes|Buttons  -- GLOBAL action -> canonical-input maps
     //   Devices/<guid>/Config             -- per-device serialized hardware options
-    // 'mode' is "Avatar"/"Mouselook"/"FlyCam"/"Captive"/"Mouse"; 'kind' is "Axes"/"Buttons".
+    // 'mode' is "Avatar"/"Mouselook"/"FlyCam"/"Captive"/"Cursor"; 'kind' is "Axes"/"Buttons".
     static LLSD getDefaultModeMappings();        // { <Mode> : { Axes, Buttons } }
     static LLSD getDefaultGameControlSettings(); // full default GameControl map
     static const LLSD& getGameControlSettings();
@@ -632,13 +652,13 @@ public:
 
     // Per-mode enable flag: when false, game-control input is not converted to the
     // mode's actions and its mappings are treated as locked.  Defaults to true when
-    // the flag is absent.  'mode' is "Avatar"/"Mouselook"/"FlyCam"/"Captive"/"Mouse".
+    // the flag is absent.  'mode' is "Avatar"/"Mouselook"/"FlyCam"/"Captive"/"Cursor".
     static bool isModeEnabled(const std::string& mode);
     static void setModeEnabled(const std::string& mode, bool enabled);
     static std::string getDeviceConfig(const std::string& guid);
     static void setDeviceConfig(const std::string& guid, const std::string& config);
 
-    // "Avatar"/"Mouselook"/"FlyCam"/"Captive"/"Mouse" for the given mode (empty for CONTROL_MODE_NONE).
+    // "Avatar"/"Mouselook"/"FlyCam"/"Captive"/"Cursor" for the given mode (empty for CONTROL_MODE_NONE).
     static std::string getModeName(AgentControlMode mode);
 
     static void setDeviceOptions(const std::string& guid, const Options& options);

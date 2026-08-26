@@ -5009,7 +5009,7 @@ static S32 g_deltaFrame { 0 };
 void LLAgent::updateGameControlMode()
 {
     // Auto-derive the active mode from avatar/camera state.  Flycam takes
-    // precedence (it is toggled via a game-control binding), then Mouse-cursor
+    // precedence (it is toggled via a game-control binding), then Cursor
     // mode (also an explicit toggle -- see mUsingMouseCursor/toggleMouseCursorMode()),
     // then mouselook (the camera mode can be entered while sitting too, so it is
     // checked ahead of Captive), then sitting/controls-taken maps to Captive,
@@ -5021,7 +5021,7 @@ void LLAgent::updateGameControlMode()
     }
     else if (mUsingMouseCursor)
     {
-        mode = LLGameControl::CONTROL_MODE_MOUSE;
+        mode = LLGameControl::CONTROL_MODE_CURSOR;
     }
     else if (gAgentCamera.cameraMouselook())
     {
@@ -5098,11 +5098,11 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
         toggleMouseCursorMode();
     }
 
-    // CONTROL_MODE_MOUSE: drive the actual on-screen cursor from
+    // CONTROL_MODE_CURSOR: drive the actual on-screen cursor from
     // actions.mMouseCursorDX/DY (the analog deflection of whatever's bound to "Mouse
     // left/right"/"Mouse up/down") BEFORE the click dispatch below, so a synthesized
     // click lands wherever the stick just moved the cursor to, in the same frame.
-    if (LLGameControl::getAgentControlMode() == LLGameControl::CONTROL_MODE_MOUSE)
+    if (LLGameControl::getAgentControlMode() == LLGameControl::CONTROL_MODE_CURSOR)
     {
         constexpr F32 MOUSE_CURSOR_PIXELS_PER_SEC = 1200.f;
         U64 mouse_cursor_now = LLFrameTimer::getTotalTime();
@@ -5257,6 +5257,17 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
             - ((mExternalActionFlags & AGENT_CONTROL_PITCH_NEG) > 0 ? 1.0f : 0.0f);
         // Same analog modulation as yaw above, via actions.mPitchAmplitude.
         movePitch(pitch_sign * fabs(actions.mPitchAmplitude));
+    }
+
+    // actions.mZoomAmplitude ([-1, 1], from "Zoom +/-"/"Zoom +"/"Zoom -") drives the
+    // camera's field-of-view zoom. Positive amplitude zooms in (narrows the FOV);
+    if (actions.mZoomAmplitude != 0.f)
+    {
+        constexpr F32 FOV_ZOOM_RATE = 1.2f;
+        F32 fov_scale = powf(FOV_ZOOM_RATE, -actions.mZoomAmplitude * g_deltaTime);
+        LLViewerCamera* camera = LLViewerCamera::getInstance();
+        camera->setDefaultFOV(camera->getDefaultFOV() * fov_scale);
+        gSavedSettings.setF32("CameraAngle", camera->getView());
     }
 
     if (mExternalActionFlags & AGENT_CONTROL_STOP)
