@@ -57,15 +57,15 @@ The scale factor is derived only in a benchmark-enabled viewer with a positive b
 
 The remaining uncertainty is scene state, not display state. Asset completion, fixed camera, stable visible population, simulator events, focus, power, and thermal state still need an auditable gate before frame times become evidence.
 
-## Mac Stage 3: controlled Apple Silicon baseline
+## Superseded Mac Stage 3 boundary
 
 ### Objective
 
-Collect one controlled native OpenGL baseline on Apple Silicon using the normalized version 2 display contract. Stage 3 characterizes the current renderer only. It does not compare hardware classes or add a Vulkan implementation.
+This decision originally combined scene-validity implementation and a controlled Apple Silicon baseline in Mac Stage 3. The later Stage 4 reanalysis splits those tasks so every result is collected from a clean build of an already committed validity definition.
 
-### Smallest remaining implementation
+### Scene-validity contract
 
-Add only the scene-state facts needed to reject an unstable steady capture:
+The first new commit adds only the scene-state facts needed to reject an unstable steady capture:
 
 - a stable workload identifier supplied without a private location;
 - fixed camera and avatar movement state;
@@ -77,9 +77,11 @@ Add only the scene-state facts needed to reject an unstable steady capture:
 
 Prefer existing viewer facts and runner-side equality checks. Do not add a general telemetry system, screenshot pipeline, renderer abstraction, or platform comparison framework.
 
-### Capture protocol
+### Deferred capture protocol
 
-1. Use the checked-in steady warm scenario without editing its settings.
+The following work moves to Renderer Stage 5 and remains dependent on the committed schema-3 contract:
+
+1. Use the checked-in steady warm scenario without editing its settings or validity policy.
 2. Use a controlled destination and fixed camera supplied outside Git.
 3. Run native Apple OpenGL only with the expected Apple GPU.
 4. Prime the isolated warm state once without retaining its timing.
@@ -90,12 +92,12 @@ Prefer existing viewer facts and runner-side equality checks. Do not add a gener
 
 ### Exit evidence
 
-Stage 3 is complete only when five repeats pass every gate, run-to-run p95 range is reported, major CPU phase and resource-counter behavior is summarized, and no timing claim exceeds the existing greater-than-1-ms and greater-than-three-times-noise threshold without matching evidence.
+The baseline stage is complete only when five repeats pass every gate, run-to-run p95 range is reported, major CPU phase and resource-counter behavior is summarized, and no timing claim exceeds the existing greater-than-1-ms and greater-than-three-times-noise threshold without matching evidence.
 
-The Stage 3 decision must choose one of these outcomes:
+The baseline decision must choose one of these outcomes:
 
 - identify a bounded current-OpenGL investigation target supported by the controlled data;
 - record that the baseline is stable but does not isolate a renderer bottleneck, then specify the next diagnostic trace; or
 - keep the baseline blocked because the scene cannot yet be controlled.
 
-Stage 4 remains a locked hardware-class comparison. Do not detail or execute it during Stage 3.
+The matched hardware-class comparison remains locked until the baseline is complete. The detailed current boundary is in `renderer-stage-4-decision.md`.

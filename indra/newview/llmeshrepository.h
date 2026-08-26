@@ -904,6 +904,7 @@ public:
                      LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 
     S32 getMeshSize(const LLUUID& mesh_id, S32 lod) const;
+    void getLoadingMeshCounts(U32& lod_count, U32& skin_count);
 
     // Quiescent timer management, main thread only.
     static void metricsStart();

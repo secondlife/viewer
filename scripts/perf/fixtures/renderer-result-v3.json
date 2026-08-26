@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "status": "valid",
   "failure_reason": null,
   "run": {
@@ -63,6 +63,81 @@
     "resource_counters": true,
     "gpu_pass_timing": "external-diagnostic",
     "gpu_query_readback_in_steady_loop": false
+  },
+  "validity": {
+    "workload_id": "fixture-steady-scene",
+    "policy": {
+      "asset_mode": "settled",
+      "population_mode": "stable",
+      "ui_mode": "clear",
+      "settle_seconds": 15,
+      "max_camera_translation_m": 0.1,
+      "max_camera_rotation_rad": 0.05,
+      "max_agent_travel_m": 0.0,
+      "max_visible_avatar_delta": 0,
+      "max_active_object_delta": 0,
+      "max_new_objects": 0,
+      "max_sim_ping_ms": 600
+    },
+    "policy_hash": "0e33a3ef67a1c209d564ec66757b04832ef6ac3a04c404d485140e6f3dafc0b0",
+    "operator": {
+      "power_source": "ac",
+      "low_power_mode": "off",
+      "thermal_state": "nominal",
+      "scene_events": "none",
+      "ui_state": "approved",
+      "camera_state": "approved"
+    },
+    "observed": {
+      "settle_seconds_observed": 15.5,
+      "destination_ready": true,
+      "teleport_seen": false,
+      "progress_seen": false,
+      "background_frame_count": 0,
+      "camera_animating_seen": false,
+      "camera_translation_m": 0.01,
+      "camera_rotation_rad": 0.001,
+      "agent_travel_m": 0.0,
+      "agent_speed_mps_max": 0.0,
+      "view_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "modal_dialog_max": 0,
+      "alert_toast_seen": false,
+      "welcome_pack_seen": false,
+      "hint_seen": false,
+      "closeable_floaters_closed": true,
+      "texture_fetch_requests_max": 0,
+      "texture_http_requests_max": 0,
+      "texture_create_queue_max": 0,
+      "texture_fast_cache_max": 0,
+      "texture_upload_count_delta": 0.0,
+      "mesh_lod_unresolved_max": 0,
+      "mesh_skin_unresolved_max": 0,
+      "self_avatar_loaded": true,
+      "visible_avatars_min": 1,
+      "visible_avatars_max": 1,
+      "active_objects_min": 100,
+      "active_objects_max": 100,
+      "new_objects_total": 0.0,
+      "sim_ping_ms_max": 45.0,
+      "circuit_healthy": true,
+      "pings_in_transit_max": 0,
+      "packets_in_delta": 240.0,
+      "packets_lost_delta": 0.0
+    },
+    "gates": {
+      "workload": true,
+      "placement": true,
+      "focus": true,
+      "camera": true,
+      "avatar": true,
+      "ui": true,
+      "assets": true,
+      "population": true,
+      "network": true,
+      "scene_events": true,
+      "power": true,
+      "thermal": true
+    }
   },
   "frames": [
     {

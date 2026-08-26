@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "id": "steady-warm-v1",
   "description": "Settled static view for the lowest-noise CPU and submission baseline.",
   "cache_mode": "warm",
@@ -19,6 +19,19 @@
     "WindowMaximized": false,
     "WindowWidth": 1280,
     "YieldTime": -1
+  },
+  "validity": {
+    "asset_mode": "settled",
+    "population_mode": "stable",
+    "ui_mode": "clear",
+    "settle_seconds": 15,
+    "max_camera_translation_m": 0.1,
+    "max_camera_rotation_rad": 0.05,
+    "max_agent_travel_m": 0.0,
+    "max_visible_avatar_delta": 0,
+    "max_active_object_delta": 0,
+    "max_new_objects": 0,
+    "max_sim_ping_ms": 600
   },
   "workload": {
     "operator_setup": "Use a repeatable public or captured scene, wait for visible texture and mesh loading to settle, then leave the avatar stationary.",

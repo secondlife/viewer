@@ -433,11 +433,11 @@
     <div class="wrap">
       <p class="eyebrow">Rolling renderer plan</p>
       <h1>One stage. One commit. Then replan.</h1>
-      <p class="lede">Stage 1 delivered the measurement suite and exposed an uncontrolled live-world baseline. Stage 2 now makes the reported newer-hardware regression reproducible before any OpenGL fix, compatibility layer, or Vulkan implementation is selected.</p>
+      <p class="lede">Stages 1 through 4 now provide a reproducible, isolated, display-normalized, fail-closed benchmark contract. Stage 5 has the only detailed checklist: collect the first controlled Apple Silicon native OpenGL baseline from that committed contract.</p>
       <div class="meta">
         <span>Second Life viewer</span>
-        <span>Plan v2</span>
-        <span>Repository snapshot 4ef9f8f</span>
+        <span>Plan v3</span>
+        <span>Repository snapshot through Stage 4</span>
         <span>26 August 2026</span>
       </div>
     </div>
@@ -447,13 +447,11 @@
     <div class="wrap">
       <a href="#rules">Rules</a>
       <a href="#roadmap">Roadmap</a>
-      <a href="#stage-1">Stage 1 actuals</a>
-      <a href="#stage-2">Stage 2</a>
-      <a href="#matrix">Coverage</a>
-      <a href="#stage-2-gates">Exit gates</a>
+      <a href="#stage-5">Stage 5</a>
+      <a href="#stage-5-gates">Exit gates</a>
       <a href="#reanalysis">Reanalysis</a>
-      <a href="#risks">Risks</a>
-      <a href="#commit">Commit</a>
+      <a href="#stage-5-risks">Risks</a>
+      <a href="#stage-5-commit">Commit</a>
     </div>
   </nav>
 
@@ -464,11 +462,11 @@
         <div class="status-line">
           <div>
             <strong>Current stage</strong>
-            <span>Stage 2</span>
+            <span>Stage 5</span>
           </div>
           <div>
             <strong>Plan state</strong>
-            <p>Stage 1 is complete. Stage 2 has the only active implementation checklist. Stages 3 through 16 retain intent, dependency, and provisional commit boundaries only.</p>
+            <p>Stages 1 through 4 are complete. Stage 5 has the only active implementation checklist. Stage 6 and all renderer implementation stages remain locked and deliberately coarse.</p>
           </div>
         </div>
 
@@ -488,161 +486,114 @@
     <section id="roadmap">
       <div class="wrap">
         <h2>Sequential roadmap</h2>
-        <p class="section-intro">The roadmap covers diagnosis, a measured current-path correction, API separation, shaders, platform work, every major rendering family, lifecycle behavior, and rollout. Only Stage 2 is a current todo list. Later commit titles remain placeholders until the preceding reanalysis confirms their scope.</p>
+        <p class="section-intro">The evidence work is now split into reviewable commits. Only Stage 5 is detailed. Every later boundary remains provisional until the preceding stage updates this plan.</p>
 
         <div class="overview">
           <div class="stage-row completed">
             <div class="id">Stage 1</div>
-            <div><h3>Measure the renderer</h3><p>Produce a repeatable benchmark suite and identify the dominant causes of bad frame time.</p></div>
-            <div><p>Delivered the suite and Linux native/Zink launch path. The attempted live workload was invalid, so it selected controlled reproduction rather than a renderer fix.</p></div>
-            <div class="commit"><span>Commit</span><code>perf(renderer): add reproducible benchmark suite</code><span>Outcome</span>Harness complete; diagnosis deliberately deferred</div>
+            <div><h3>Build the benchmark suite</h3><p>Low-overhead phases, resources, manifests, runner, reporter, privacy, and native GL/Zink launch paths.</p></div>
+            <div><p>The first live matrix was invalid because destination, UI, cache, and asset work differed. No performance conclusion survived.</p></div>
+            <div class="commit"><span>Commit</span><code>771b86ba5e</code><span>Outcome</span>Measure first; require a controlled workload</div>
+          </div>
+
+          <div class="stage-row completed">
+            <div class="id">Stage 2</div>
+            <div><h3>Isolate macOS benchmark state</h3><p>Disposable profile, cache, settings, and first-use UI controls.</p></div>
+            <div><p>Benchmark launches no longer read or mutate the normal viewer profile. Smoke timings were explicitly discarded.</p></div>
+            <div class="commit"><span>Commit</span><code>cb376087bc</code><span>Outcome</span>Private, reproducible launch state</div>
+          </div>
+
+          <div class="stage-row completed">
+            <div class="id">Stage 3</div>
+            <div><h3>Normalize macOS display geometry</h3><p>1280×720 backing pixels and effective UI scale 1.0 on 1× and 2× displays.</p></div>
+            <div><p>A native Retina smoke proved the geometry contract. Its timing was discarded because display proof is not a baseline.</p></div>
+            <div class="commit"><span>Commit</span><code>6f726d9985</code><span>Outcome</span>Display contract complete</div>
+          </div>
+
+          <div class="stage-row completed">
+            <div class="id">Stage 4</div>
+            <div><h3>Make scene validity fail closed</h3><p>Schema 3, viewer facts, typed operator assertions, independent gate validation, and privacy.</p></div>
+            <div><p>This new reanalysis split supersedes the former combined Mac Stage 3. The contract landed without retained performance evidence.</p></div>
+            <div class="commit"><span>Commit</span><code>perf(renderer): enforce controlled scene validity</code><span>Outcome</span>Baseline may now run from a committed definition</div>
           </div>
 
           <div class="stage-row current">
-            <div class="id">Stage 2</div>
-            <div><h3>Capture the affected-hardware regression</h3><p>Controlled scene, validity gates, and external traces.</p></div>
-            <div><p>Obtain matched, stable measurements on an affected newer system and an older control. Identify the actual GL context and the limiting CPU, driver, or GPU path.</p></div>
-            <div class="commit"><span>Depends on</span>Stage 1 benchmark suite<span>Proposed commit</span><code>perf(renderer): capture affected-hardware regression</code></div>
-          </div>
-
-          <div class="stage-row">
-            <div class="id">Stage 3</div>
-            <div><h3>Prove a dual-API contract</h3><p>Three representative slices only.</p></div>
-            <div><p>Provisional. Render one full-screen pass, one indexed material draw, and one streaming texture upload through OpenGL and an isolated Vulkan test path only if Stage 2 evidence justifies this boundary.</p></div>
-            <div class="commit"><span>Depends on</span>Stage 2 architecture decision<span>Commit intent</span><code>refactor(render): prove explicit dual-backend contract</code></div>
-          </div>
-
-          <div class="stage-row">
-            <div class="id">Stage 4</div>
-            <div><h3>Add immutable frame data and resources</h3><p>Keep OpenGL output unchanged.</p></div>
-            <div><p>Translate scene-side draw data into frame-owned packets. Add typed resources, pass access declarations, upload rings, descriptor arenas, pipeline keys, and deferred destruction.</p></div>
-            <div class="commit"><span>Depends on</span>Validated contract from Stage 3<span>Commit intent</span><code>refactor(render): add immutable frame packets</code></div>
-          </div>
-
-          <div class="stage-row">
             <div class="id">Stage 5</div>
-            <div><h3>Define shader variants</h3><p>Choose one source-of-truth policy.</p></div>
-            <div><p>Add explicit locations and bindings, a variant manifest, SPIR-V builds, legacy GLSL output or transition rules, reflection checks, and cache tests.</p></div>
-            <div class="commit"><span>Depends on</span>Resource layouts from Stage 4<span>Commit intent</span><code>build(shaders): add explicit variant pipeline</code></div>
+            <div><h3>Capture Apple Silicon native OpenGL baseline</h3><p>One clean build, one warm prime, five valid measured repeats.</p></div>
+            <div><p>Characterize the current renderer on Apple Silicon. Stop if the controlled scene cannot pass every schema-3 gate. Keep raw results private.</p></div>
+            <div class="commit"><span>Depends on</span>Committed Stage 4 contract<span>Proposed commit</span><code>perf(renderer): capture Apple Silicon OpenGL baseline</code></div>
           </div>
 
           <div class="stage-row">
             <div class="id">Stage 6</div>
-            <div><h3>Add the Vulkan platform shell</h3><p>No production renderer switch yet.</p></div>
-            <div><p>Create devices and surfaces on Windows, SDL3/Linux, and MoltenVK/macOS. Handle capability tiers, swapchain creation, validation, capture, and clean shutdown.</p></div>
-            <div class="commit"><span>Depends on</span>Shader and resource contract<span>Commit intent</span><code>feat(render): add Vulkan platform shell</code></div>
+            <div><h3>Match an older hardware control</h3><p>Same platform, workload, commit, settings, and validity contract.</p></div>
+            <div><p>Provisional. Determine whether the report is a hardware-generation regression rather than a demanding scene or platform-wide behavior.</p></div>
+            <div class="commit"><span>Depends on</span>Stable Stage 5 baseline<span>Intent</span>Matched control evidence only</div>
           </div>
 
           <div class="stage-row">
             <div class="id">Stage 7</div>
-            <div><h3>Present a basic Vulkan frame</h3><p>Feature-reduced and end to end.</p></div>
-            <div><p>Connect uploads, frame contexts, a simple pass schedule, presentation, timestamps, readback, resize, and swapchain recreation.</p></div>
-            <div class="commit"><span>Depends on</span>Platform shell from Stage 6<span>Commit intent</span><code>feat(render): present basic Vulkan frame</code></div>
+            <div><h3>Trace the dominant slow-frame path</h3><p>Separate diagnostic capture, per-thread CPU, API waits, present, and GPU passes.</p></div>
+            <div><p>Provisional. Select one bounded current-path correction or one architecture experiment. Do not infer a Vulkan benefit from utilization alone.</p></div>
+            <div class="commit"><span>Depends on</span>Matched affected/control evidence<span>Intent</span>Diagnosis and next decision</div>
           </div>
 
           <div class="stage-row">
             <div class="id">Stage 8</div>
-            <div><h3>Port opaque G-buffer passes</h3><p>First real world geometry.</p></div>
-            <div><p>Move depth, opaque, masked, GLTF, material, and batching paths while preserving pass-order semantics and visual reference captures.</p></div>
-            <div class="commit"><span>Depends on</span>Basic Vulkan frame<span>Commit intent</span><code>feat(render): port opaque G-buffer passes</code></div>
+            <div><h3>Correct the measured path or prove a dual-API seam</h3><p>The Stage 7 evidence chooses exactly one.</p></div>
+            <div><p>Provisional. Prefer a bounded OpenGL fix when scene preparation or one current-path defect dominates. Use a tiny Vulkan spike only when the trace or a separately approved platform-longevity goal justifies it.</p></div>
+            <div class="commit"><span>Depends on</span>Stage 7 decision<span>Intent</span>One measured intervention</div>
           </div>
 
           <div class="stage-row">
-            <div class="id">Stage 9</div>
-            <div><h3>Port lighting and shadows</h3><p>Deferred light composition.</p></div>
-            <div><p>Move sun and local lighting, SSAO, shadow cameras, shadow maps, blur, exposure, tone mapping, antialiasing, and related full-screen passes.</p></div>
-            <div class="commit"><span>Depends on</span>Opaque G-buffer<span>Commit intent</span><code>feat(render): port deferred lighting and shadows</code></div>
-          </div>
-
-          <div class="stage-row">
-            <div class="id">Stage 10</div>
-            <div><h3>Port alpha and material edge cases</h3><p>Ordering-sensitive content.</p></div>
-            <div><p>Move alpha, PBR alpha, emissive and fullbright paths, rigged variants, particles, and blend/depth combinations with scene-specific comparisons.</p></div>
-            <div class="commit"><span>Depends on</span>Lighting output<span>Commit intent</span><code>feat(render): port alpha material passes</code></div>
-          </div>
-
-          <div class="stage-row">
-            <div class="id">Stage 11</div>
-            <div><h3>Port environment and probes</h3><p>Shared render-target work.</p></div>
-            <div><p>Move water, sky, atmosphere, reflection probes, mirrors, cube maps, SSR, glow, haze, and their update scheduling.</p></div>
-            <div class="commit"><span>Depends on</span>Alpha and materials<span>Commit intent</span><code>feat(render): port environment and probes</code></div>
-          </div>
-
-          <div class="stage-row">
-            <div class="id">Stage 12</div>
-            <div><h3>Port avatars</h3><p>Skinning and alternate views.</p></div>
-            <div><p>Move skinning, avatar materials, impostors, HUD attachments, name tags, rigged attachments, and avatar-specific performance counters.</p></div>
-            <div class="commit"><span>Depends on</span>World material paths<span>Commit intent</span><code>feat(render): port avatar passes</code></div>
-          </div>
-
-          <div class="stage-row">
-            <div class="id">Stage 13</div>
-            <div><h3>Port UI, HUD, and fonts</h3><p>Replace immediate-mode emulation.</p></div>
-            <div><p>Move UI geometry caching, clipping, text, icons, cursors, debug rendering, selection overlays, and HUD composition.</p></div>
-            <div class="commit"><span>Depends on</span>Complete scene composition<span>Commit intent</span><code>feat(render): port UI and HUD</code></div>
-          </div>
-
-          <div class="stage-row">
-            <div class="id">Stage 14</div>
-            <div><h3>Port dynamic and external content</h3><p>Uploads and readbacks.</p></div>
-            <div><p>Move media textures, dynamic textures, snapshots, scene capture, texture compression paths, asynchronous upload, and readback behavior.</p></div>
-            <div class="commit"><span>Depends on</span>UI composition<span>Commit intent</span><code>feat(render): port dynamic texture paths</code></div>
-          </div>
-
-          <div class="stage-row">
-            <div class="id">Stage 15</div>
-            <div><h3>Harden lifecycle and platform behavior</h3><p>Everything around a normal frame.</p></div>
-            <div><p>Cover fullscreen, DPI, multi-monitor, alt-tab, minimize, suspend, device loss, memory pressure, long sessions, region crossings, shutdown, and the OSMesa/headless decision.</p></div>
-            <div class="commit"><span>Depends on</span>Feature-complete Vulkan path<span>Commit intent</span><code>fix(render): harden Vulkan lifecycle</code></div>
-          </div>
-
-          <div class="stage-row">
-            <div class="id">Stage 16</div>
-            <div><h3>Optimize and roll out</h3><p>Backend selected at startup.</p></div>
-            <div><p>Tune command recording and caches only where traces justify it. Ship hidden opt-in, beta, and per-hardware defaults with crash, memory, and frame-time gates. Keep OpenGL fallback until removal has its own approved plan.</p></div>
-            <div class="commit"><span>Depends on</span>Lifecycle and parity gates<span>Commit intent</span><code>feat(render): roll out Vulkan backend</code></div>
+            <div class="id">Later</div>
+            <div><h3>Native backend migration, if approved</h3><p>Frame data, resources, shaders, platform shell, then rendering families.</p></div>
+            <div><p>Coarse sequence: immutable frame packets; typed resource lifetime and synchronization; shader variants and SPIR-V; Windows, Linux, and MoltenVK surfaces; basic presentation; opaque/PBR; shadows and lighting; alpha and particles; water and sky; avatars; UI/HUD; streaming, media, snapshots, readback; device loss; rollout and OpenGL retirement.</p></div>
+            <div class="commit"><span>Depends on</span>Evidence-backed approval and per-stage reanalysis<span>Rule</span>No big-bang rewrite or permanent translation layer by assumption</div>
           </div>
         </div>
 
         <div class="rule">
-          <strong>Stop condition.</strong> Stage 2 may show that scene preparation, content churn, context selection, or one GPU pass dominates the regression. In that case, Stage 3 becomes the detailed current-path correction and the Vulkan performance claim pauses. Vulkan may continue later for platform longevity, but that requires a separate justification, owner, and budget.
+          <strong>Architecture decision remains open.</strong> Zink is useful Linux evidence and a possible bridge, not a cross-platform conclusion. MoltenVK is a Vulkan platform layer, not OpenGL compatibility. A native Vulkan backend should grow beside OpenGL through a narrow seam only after the measurements identify a benefit or a separate platform-support mandate funds it.
         </div>
       </div>
     </section>
 
-    <section id="stage-1" class="completed-stage">
+
+
+
+
+
+    <section id="stage-5">
       <div class="wrap">
-        <p class="eyebrow">Completed stage archive</p>
-        <h2>Stage 1: measurement suite delivered</h2>
-        <p class="section-intro">The commit makes renderer runs self-describing and comparable without changing renderer output or adding Vulkan. Its live reference exercise found that the chosen world path was not deterministic enough to diagnose performance, so the stage correctly stopped before selecting a fix.</p>
+        <p class="eyebrow">Only detailed next stage</p>
+        <h2>Stage 5: controlled Apple Silicon native OpenGL baseline</h2>
+        <p class="section-intro">Collect five valid measurements from a clean build of the committed schema-3 contract. This stage characterizes the current path. It does not compare hardware classes, trace a diagnosis, change renderer code, or choose Vulkan.</p>
 
-        <div class="status-line" style="margin-bottom: 32px">
-          <div><strong>Verification</strong><span>18 unit tests; schemas valid; Release build and native/Zink export complete</span></div>
-          <div><strong>Decision</strong><p>The 5 × 5 live matrix is diagnostic-only because destination, first-use UI, asset state, and initial cache state differed. The repository record is <code>doc/performance/renderer-stage-1-decision.md</code>.</p></div>
-        </div>
-
-        <div class="in-out">
+        <div class="scope-grid">
           <div>
-            <h3>Delivered</h3>
-            <ul>
-              <li>A versioned benchmark manifest and runner</li>
-              <li>Stable frame-phase timing and renderer counters</li>
-              <li>Context metadata needed to compare runs</li>
-              <li>A workload suite and hardware matrix</li>
-              <li>Native GL versus Zink on Linux</li>
-              <li>A checked-in summary and decision record</li>
-            </ul>
+            <h3>Objective</h3>
+            <p>Answer two questions: can the controlled scene pass every gate without changing the contract, and what is the run-to-run shape of the current Apple Silicon OpenGL baseline?</p>
           </div>
-          <div class="out">
-            <h3>Kept out</h3>
-            <ul>
-              <li>Vulkan libraries, surfaces, or shader conversion</li>
-              <li>Renderer restructuring or GL-call wrappers</li>
-              <li>Production telemetry or live database changes</li>
-              <li>Performance fixes mixed into the measurement commit</li>
-              <li>Credentials, account IDs, raw machine IDs, or parcel names</li>
-              <li>Claims based on average FPS alone</li>
-            </ul>
+          <div class="in-out">
+            <div>
+              <h3>In scope</h3>
+              <ul>
+                <li>Clean universal ReleaseOS build</li>
+                <li>One unmeasured warm prime</li>
+                <li>Five valid native OpenGL repeats</li>
+                <li>Sanitized aggregate and decision</li>
+              </ul>
+            </div>
+            <div class="out">
+              <h3>Out of scope</h3>
+              <ul>
+                <li>Older-hardware comparison</li>
+                <li>External GPU trace</li>
+                <li>OpenGL or Vulkan changes</li>
+                <li>Threshold tuning after seeing timing</li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -650,357 +601,144 @@
           <div class="work-item">
             <div class="box" aria-hidden="true">&nbsp;</div>
             <div>
-              <h3>Write the benchmark contract</h3>
-              <p>Add a short specification under <code>doc/performance/</code>. Define scenario identity, viewer build, graphics settings, resolution, present mode, cache state, camera timing, warm-up, capture duration, repeat count, invalid-run rules, output schema, and privacy rules.</p>
+              <h3>Start from the committed contract</h3>
+              <p>Pull the Stage 4 commit into a clean macOS checkout. Confirm no local renderer or benchmark edits and record the source revision.</p>
               <ul>
-                <li>Start with 30 seconds of warm-up, 120 seconds of capture, and five repeats per configuration.</li>
-                <li>Record cold-cache and warm-cache runs separately. Never average them together.</li>
-                <li>Disable VSync and frame caps for throughput runs. Test frame pacing separately with the normal present settings.</li>
-                <li>Reject runs with incomplete asset loading, unexpected simulator events, power throttling, wrong GPU selection, or changed visual features.</li>
-                <li>Predeclare the meaningful-change threshold. It must exceed both 1 ms at p95 and three times the run-to-run noise measured for that scenario.</li>
+                <li>Do not run from an uncommitted gate definition.</li>
+                <li>Do not reuse results produced by schema 1 or 2.</li>
+                <li>Do not carry a temporary smoke manifest into the baseline.</li>
               </ul>
             </div>
-            <div class="proof"><strong>Proof</strong>A reviewer can reproduce the exact protocol without asking the author which settings or samples count.</div>
+            <div class="proof"><strong>Proof</strong>Every result reports the Stage 4 commit, an empty tracked-diff hash, <code>git_dirty: false</code>, schema 3, and the checked-in manifest hash.</div>
           </div>
 
           <div class="work-item">
             <div class="box" aria-hidden="true">&nbsp;</div>
             <div>
-              <h3>Add versioned scenario manifests</h3>
-              <p>Add machine-readable scenario files under <code>scripts/perf/scenarios/</code>. Use session settings or existing command-line options so benchmark runs do not alter a normal user profile.</p>
+              <h3>Build and verify the Mac viewer</h3>
+              <p>Use the documented Xcode compiler and SDK route with a Nix-provided CMake executable. Configure ReleaseOS with benchmark instrumentation and tests on, signing and crash reporting off.</p>
               <ul>
-                <li>Store region or captured-workload identity, camera position and path, duration, cache mode, graphics settings, and expected feature flags.</li>
-                <li>Record environmental observations that the viewer cannot control, including avatar count, active objects, simulator ping, and asset completeness.</li>
-                <li>Do not store login credentials. Keep using an operator-supplied credentials file where noninteractive login is required.</li>
-                <li>Hash the effective settings and manifest into every result so unlike runs cannot compare silently.</li>
+                <li>Run the complete Python benchmark suite.</li>
+                <li>Validate both schemas, all six manifests, and the schema-3 fixture.</li>
+                <li>Run the focused display and macOS directory integration tests.</li>
+                <li>Compile and package the universal benchmark-enabled app.</li>
               </ul>
             </div>
-            <div class="proof"><strong>Proof</strong>A dry run prints the complete viewer command and effective settings without launching or reading secrets into output.</div>
+            <div class="proof"><strong>Proof</strong>The build and tests pass before login. A normal daily-driver profile, signing identity, and production channel are not touched.</div>
           </div>
 
           <div class="work-item">
             <div class="box" aria-hidden="true">&nbsp;</div>
             <div>
-              <h3>Split CPU frame time into useful phases</h3>
-              <p>Extend the existing <code>LLPerfStats</code> and frame recording path. Capture geometry creation and rebuild, partition processing, culling, state sorting, render submission, UI/HUD, swap, texture work, shader compilation, idle work, and the total frame.</p>
+              <h3>Prepare private inputs</h3>
+              <p>Keep credentials, SLURL, raw output, and any visual reference outside Git. Use <code>steady-warm-v1.json</code> unchanged and assign one stable, non-identifying workload slug.</p>
               <ul>
-                <li>Keep scopes mutually understandable. Document known nesting so totals are not added twice.</li>
-                <li>Record per-thread traces when Tracy is available. Always capture per-core utilization outside the viewer.</li>
-                <li>Separate CPU time spent issuing GL work from CPU time blocked inside queries, uploads, fences, readbacks, or present.</li>
-                <li>Make counters benchmark-only or cheap enough to leave disabled in normal builds.</li>
+                <li>Set the credential file to mode <code>0600</code>.</li>
+                <li>Confirm the chosen SLURL reaches the controlled scene and intended fixed view.</li>
+                <li>Record truthful power source, low-power mode, thermal state, scene-event, UI, and camera assertions immediately before the batch.</li>
+                <li>Use the same power source for all five repeats. Stop on low-power mode, unknown state, or throttling.</li>
               </ul>
             </div>
-            <div class="proof"><strong>Proof</strong>Every bad p95 frame can be assigned to scene preparation, API submission, a blocking wait, UI, present, or an explicit unclassified remainder.</div>
+            <div class="proof"><strong>Proof</strong>A dry run prints neither login identity nor SLURL. No private input is inside the repository or plan.</div>
           </div>
 
           <div class="work-item">
             <div class="box" aria-hidden="true">&nbsp;</div>
             <div>
-              <h3>Add GPU and resource evidence without creating stalls</h3>
-              <p>Use GPU timestamps or external captures for pass time. Record draw calls, batch size, triangles, shader and pipeline changes, texture uploads, upload bytes, readbacks, fence waits, shader compile time, allocated texture memory, and available memory where the platform reports it.</p>
-              <ul>
-                <li>Do not force blocking query results in the normal benchmark loop.</li>
-                <li>Keep the existing per-shader Frame Profile as a separate diagnostic run because query collection can perturb timing.</li>
-                <li>Preserve the current AMD driver safeguards that disable problematic benchmark and occlusion queries.</li>
-                <li>Correlate CPU and GPU traces. A long GL call may be waiting on earlier GPU work.</li>
-              </ul>
+              <h3>Run one prime and five measured repeats</h3>
+              <p>Use native Apple OpenGL with the expected Apple GPU. The runner performs a full unmeasured warm prime, then five 30-second warm-up and 120-second capture repeats in the same isolated warm state.</p>
+              <div class="commit-card" style="margin-top: 18px">
+                <pre>python3 scripts/perf/render_benchmark.py run \
+  --viewer "/path/to/Second Life Test.app/Contents/MacOS/Second Life Test" \
+  --manifest scripts/perf/scenarios/steady-warm-v1.json \
+  --credential-file /private/path/benchmark-account.txt \
+  --slurl secondlife://operator-supplied-location \
+  --hardware-label mac-apple-silicon-current \
+  --workload-id controlled-steady-scene \
+  --power-source ac \
+  --low-power-mode off \
+  --thermal-state nominal \
+  --scene-events none \
+  --ui-state approved \
+  --camera-state approved \
+  --expect-gpu-substring Apple \
+  --backend native-gl \
+  --output-dir /private/path/renderer-results</pre>
+              </div>
+              <p style="margin-top: 16px">The shown power and thermal values are examples, not defaults. Supply the truthful state. Do not touch the avatar, camera, focus, or controlled UI after the prime begins.</p>
             </div>
-            <div class="proof"><strong>Proof</strong>The result distinguishes GPU pass cost, submission overhead, present wait, shader work, resource churn, and explicit synchronization.</div>
+            <div class="proof"><strong>Proof</strong>Exactly five measured artifacts validate. Any rejected run is excluded and its failed-gate names are counted separately.</div>
           </div>
 
           <div class="work-item">
             <div class="box" aria-hidden="true">&nbsp;</div>
             <div>
-              <h3>Complete the result context and remove identifying data</h3>
-              <p>Extend benchmark output with commit, build type, OS, CPU model, logical core count, GPU, driver, OpenGL vendor/renderer/version, context profile, resolution, backend label, feature flags, settings hash, cache state, scenario, and run number.</p>
+              <h3>Analyze without broadening the claim</h3>
+              <p>Generate the standard report without <code>--allow-mismatch</code>. Summarize distribution and existing phase/resource facts. A single baseline has no backend or hardware delta.</p>
               <ul>
-                <li>Do not copy the current raw machine identifier, account identity, parcel name, or private region data into checked-in results.</li>
-                <li>Use an operator-assigned hardware label for repeated measurements.</li>
-                <li>Version the JSON schema and reject incompatible comparisons.</li>
+                <li>Report median, p95, p99, worst frame, 1 percent low FPS, and run-to-run p95 range.</li>
+                <li>Summarize dominant CPU phases and resource-counter deltas.</li>
+                <li>List rejected-run counts and gate names without rejected timing.</li>
+                <li>Keep raw results and any image private; check in only a sanitized aggregate.</li>
               </ul>
             </div>
-            <div class="proof"><strong>Proof</strong>A checked-in fixture contains enough context for comparison and no account, machine, or location identifier that should remain private.</div>
+            <div class="proof"><strong>Proof</strong>The report passes comparison guards and contains no location, account, absolute camera, host, or machine identifier.</div>
           </div>
 
           <div class="work-item">
             <div class="box" aria-hidden="true">&nbsp;</div>
             <div>
-              <h3>Build the runner and reporter</h3>
-              <p>Add a small runner and report tool under <code>scripts/perf/</code>. Reuse the existing frame-profile utilities and <code>perfbot_run.py</code> where their behavior fits. Keep the new result format separate from the one-frame shader profile.</p>
+              <h3>Decide and replan</h3>
+              <p>Write the Stage 5 decision, update this same URL, and detail exactly one next stage.</p>
               <ul>
-                <li>Support manifest validation, dry run, repeated runs, timeout, result collection, and a failure reason.</li>
-                <li>Emit raw versioned JSON plus a compact CSV or Markdown summary.</li>
-                <li>Report median, p95, p99, worst frame, 1 percent low, run-to-run range, and counter totals.</li>
-                <li>Compare only matching scenario, settings hash, cache mode, resolution, feature set, and build type unless the operator overrides the guard explicitly.</li>
+                <li>If five valid runs are stable, select the matched older-hardware control as Stage 6.</li>
+                <li>If the scene cannot pass without changing the contract, record the blocking gates and detail one gate investigation instead.</li>
+                <li>If the data is stable but an unexpected existing phase dominates, record it without implementing a fix.</li>
               </ul>
             </div>
-            <div class="proof"><strong>Proof</strong>Unit fixtures cover valid data, mismatched contexts, missing samples, invalid runs, percentile calculations, and privacy filtering.</div>
-          </div>
-
-          <div class="work-item">
-            <div class="box" aria-hidden="true">&nbsp;</div>
-            <div>
-              <h3>Run the workload suite</h3>
-              <p>Collect the minimum matrix below. Run release builds without validation for performance. Collect separate diagnostic traces with profiling or GPU validation enabled.</p>
-              <ul>
-                <li>Randomize comparison order when practical so temperature and background activity do not favor one configuration.</li>
-                <li>Use the same viewer commit and scenario manifest for native GL and Zink.</li>
-                <li>Record advertised extensions, limits, feature masks, shader level, and screenshot hashes before interpreting a Zink result.</li>
-                <li>Repeat any result that crosses the meaningful-change threshold on a second machine or driver version from the same class.</li>
-              </ul>
-            </div>
-            <div class="proof"><strong>Proof</strong>Every reported delta links to five valid raw runs and a visual/settings equivalence check.</div>
-          </div>
-
-          <div class="work-item">
-            <div class="box" aria-hidden="true">&nbsp;</div>
-            <div>
-              <h3>Write the Stage 1 decision record</h3>
-              <p>Check in a concise report under <code>doc/performance/</code>. Rank the dominant p95 and p99 contributors per hardware class. State what the evidence supports, what it does not support, and which Stage 2 scope follows.</p>
-              <ul>
-                <li>Separate platform-modernization reasons from measured performance reasons.</li>
-                <li>List cheap current-OpenGL fixes even if the project continues toward Vulkan.</li>
-                <li>Record discarded runs and why they were invalid.</li>
-                <li>Keep raw heavyweight traces as build or test artifacts. Check in small summaries and representative fixtures only.</li>
-              </ul>
-            </div>
-            <div class="proof"><strong>Proof</strong>The record selects one Stage 2 outcome, expands its checklist in this plan, and names the evidence behind the choice.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="stage-2">
-      <div class="wrap">
-        <p class="eyebrow">Active and detailed</p>
-        <h2>Stage 2: capture the affected-hardware regression</h2>
-        <p class="section-intro">The next commit must turn the reported slowdown into controlled evidence. It adds workload validity and investigation artifacts, not a performance fix, renderer abstraction, compatibility-layer deployment, or Vulkan code.</p>
-
-        <div class="in-out">
-          <div>
-            <h3>In scope</h3>
-            <ul>
-              <li>A deterministic or tightly controlled benchmark workload</li>
-              <li>Automatic placement, camera, UI, asset, and environment validity gates</li>
-              <li>One affected newer system and a matched older control</li>
-              <li>Requested and actual OpenGL context negotiation evidence</li>
-              <li>Per-core CPU and external GPU/API diagnostic captures</li>
-              <li>A diagnosis that selects one Stage 3 scope</li>
-            </ul>
-          </div>
-          <div class="out">
-            <h3>Out of scope</h3>
-            <ul>
-              <li>Optimizing a suspected bottleneck before it is reproduced</li>
-              <li>Adding an RHI, Vulkan device, shader conversion, or MoltenVK</li>
-              <li>Shipping Zink or another compatibility layer to users</li>
-              <li>Expanding the full hardware matrix before the affected pair works</li>
-              <li>Committing raw captures, screenshots, credentials, or location identity</li>
-              <li>Changing a live region or production service</li>
-            </ul>
+            <div class="proof"><strong>Proof</strong>The stage ends with one privacy-safe commit and one detailed successor. No Stage 6 execution is included.</div>
           </div>
         </div>
 
-        <div class="rule">
-          <strong>Required input.</strong> Execution needs access to one machine that exhibits the newer-hardware regression and one older control on the same platform, or reproducible reports detailed enough to reserve those machines. If that pair is unavailable, Stage 2 remains uncommitted rather than substituting the RX 480 reference host.
-        </div>
-
-        <div class="workstream">
-          <div class="work-item">
-            <div class="box" aria-hidden="true">&nbsp;</div>
-            <div>
-              <h3>Choose and freeze one workload</h3>
-              <p>Use a team-controlled benchmark scene, a reproducible local/captured workload if the viewer supports one, or a tightly controlled parcel with a fixed camera. The choice must be reachable without mutating a normal profile and repeatable on both hardware classes.</p>
-              <ul>
-                <li>Give the workload a privacy-safe versioned identifier; keep the actual location operator-supplied.</li>
-                <li>Specify login flow, placement, camera transform, window size, graphics settings, cache preparation, warm-up, duration, and expected feature flags.</li>
-                <li>Define the expected object/avatar envelope and the asset-settled condition before collecting performance samples.</li>
-                <li>Capture one approved native-OpenGL visual reference outside Git and record only its non-reversible comparison fingerprint.</li>
-              </ul>
-            </div>
-            <div class="proof"><strong>Proof</strong>Two consecutive launches reach the same camera and accepted visual/environment fingerprint without manual cleanup.</div>
-          </div>
-
-          <div class="work-item">
-            <div class="box" aria-hidden="true">&nbsp;</div>
-            <div>
-              <h3>Make workload validity machine-checkable</h3>
-              <p>Extend the manifest, exporter, and runner only where the Stage 1 invalid runs showed a gap. A run must fail before reporting performance when placement, first-use UI, asset state, or scene population is wrong.</p>
-              <ul>
-                <li>Wait for the expected world/teleport state and camera checksum rather than assuming the startup URL succeeded.</li>
-                <li>Require benchmark UI state and reject unexpected modal or first-use floaters.</li>
-                <li>Require a stable texture/upload and pending-download window before warm capture; preserve a separate cold-streaming contract.</li>
-                <li>Record privacy-safe scene/environment fingerprints and rejection reasons in the result.</li>
-                <li>Add fixtures for wrong destination, unsettled assets, unexpected UI, changed population, and a valid settled run.</li>
-              </ul>
-            </div>
-            <div class="proof"><strong>Proof</strong>The failure modes observed in Stage 1 become rejected fixtures and cannot produce a comparison report.</div>
-          </div>
-
-          <div class="work-item">
-            <div class="box" aria-hidden="true">&nbsp;</div>
-            <div>
-              <h3>Trace OpenGL context negotiation</h3>
-              <p>Record the requested context attributes, creation attempts, fallback path, and final advertised profile on the affected platform. Keep requested settings distinct from driver-reported results.</p>
-              <ul>
-                <li>Test the viewer's normal context request and its existing core-profile option where the platform supports both.</li>
-                <li>Record GL version/profile, vendor, renderer, driver, limits, extension hash, feature mask, shader level, and context creation failures.</li>
-                <li>On Linux, retain native GL versus Zink as a secondary diagnostic only after native runs are stable and visually equivalent.</li>
-                <li>Do not infer a core or compatibility profile from a preference flag.</li>
-              </ul>
-            </div>
-            <div class="proof"><strong>Proof</strong>Logs and result metadata explain exactly which context was requested, which fallback occurred, and which context rendered every measured run.</div>
-          </div>
-
-          <div class="work-item">
-            <div class="box" aria-hidden="true">&nbsp;</div>
-            <div>
-              <h3>Run the affected pair</h3>
-              <p>Use the same commit, workload version, settings, resolution, and operating-system class on the affected newer hardware and older control. Prefer ReleaseOS builds and stable power/thermal conditions.</p>
-              <ul>
-                <li>Collect the full 30-second warm-up, 120-second capture, five-repeat matrix for the normal context on both machines.</li>
-                <li>Run alternate core/compatibility or Zink configurations only when capability and visual gates match.</li>
-                <li>Randomize comparison order where practical and record per-core utilization, clocks, power mode, and throttling observations.</li>
-                <li>Repeat a threshold-crossing result on a second driver or same-class machine before generalizing it.</li>
-              </ul>
-            </div>
-            <div class="proof"><strong>Proof</strong>Each reported delta links to five valid raw runs per configuration and separates regression evidence from machine-to-machine noise.</div>
-          </div>
-
-          <div class="work-item">
-            <div class="box" aria-hidden="true">&nbsp;</div>
-            <div>
-              <h3>Capture one CPU/API/GPU diagnostic set</h3>
-              <p>After the steady runs pass, collect separate perturbing traces for the most important affected and control configurations. Use the platform's established tools rather than adding synchronous profiling to the frame loop.</p>
-              <ul>
-                <li>Use Tracy or an equivalent thread trace plus operating-system per-core sampling to expose main-thread saturation and waits.</li>
-                <li>Use RenderDoc, Nsight Graphics, Radeon GPU Profiler, PIX, apitrace, or the closest vendor tool for GPU pass time, queue idle, GL-call stalls, resource churn, and present behavior.</li>
-                <li>Add one coarse CPU scope only if the external trace shows that the current unclassified bucket hides the deciding cost.</li>
-                <li>Keep large captures in investigation storage and record tool versions, artifact hashes, and a privacy-safe summary in Git.</li>
-              </ul>
-            </div>
-            <div class="proof"><strong>Proof</strong>The same slow frame can be followed from viewer phase through thread/API behavior to GPU or present cost without a profiling query in the steady run.</div>
-          </div>
-
-          <div class="work-item">
-            <div class="box" aria-hidden="true">&nbsp;</div>
-            <div>
-              <h3>Classify the regression and test the hypothesis</h3>
-              <p>Rank p95 and p99 contributors and correlate them with resource counters and traces. Use the Stage 1 threshold: a p95 change must exceed both 1 ms and three times measured run-to-run noise.</p>
-              <ul>
-                <li>Distinguish scene preparation, GL submission, driver synchronization, present, resource churn, and GPU pass cost.</li>
-                <li>State whether requested versus actual context selection changes the result.</li>
-                <li>Use a reversible diagnostic toggle or capture observation to test the leading explanation; do not ship the fix in this stage.</li>
-                <li>Report null or unstable results plainly and do not promote average FPS as a substitute.</li>
-              </ul>
-            </div>
-            <div class="proof"><strong>Proof</strong>The diagnosis identifies one bounded next action, or explicitly shows that the report cannot yet be reproduced.</div>
-          </div>
-
-          <div class="work-item">
-            <div class="box" aria-hidden="true">&nbsp;</div>
-            <div>
-              <h3>Write the decision and replan Stage 3</h3>
-              <p>Check in a small privacy-safe summary, update this same rolling plan, and expand exactly one Stage 3. Preserve raw runs and captures outside Git.</p>
-              <ul>
-                <li>Select a current-OpenGL correction when the trace identifies a bounded bottleneck.</li>
-                <li>Select the dual-backend contract spike only when evidence or a separately approved platform requirement justifies it.</li>
-                <li>Treat Zink as a production candidate only after native-equivalent visuals, features, stability, packaging, and support costs are measured.</li>
-                <li>Record unavailable matrix cells and limit the claim to tested hardware.</li>
-              </ul>
-            </div>
-            <div class="proof"><strong>Proof</strong>The updated plan names Stage 2 actuals, one evidence-backed Stage 3, its exit gates, and one reviewable commit boundary.</div>
-          </div>
-        </div>
-
-        <div id="stage-2-gates" style="margin-top: 54px">
-          <h3>Stage 2 exit gates</h3>
+        <div id="stage-5-gates" style="margin-top: 54px">
+          <h3>Stage 5 exit gates</h3>
           <div class="gate-list">
-            <div class="gate"><div class="mark">01</div><div><h3>Invalid workloads fail closed</h3><p>Placement, camera, UI, asset, feature, population, and visual mismatches prevent result comparison.</p></div></div>
-            <div class="gate"><div class="mark">02</div><div><h3>The affected pair is present</h3><p>Five valid steady runs exist for the affected newer hardware and a matched older control; substitutes are not generalized.</p></div></div>
-            <div class="gate"><div class="mark">03</div><div><h3>Context identity is factual</h3><p>Every run records requested attributes, creation/fallback behavior, and final driver-advertised profile separately.</p></div></div>
-            <div class="gate"><div class="mark">04</div><div><h3>Timing and visuals agree</h3><p>Compared configurations pass settings, feature, resolution, scene, and visual gates and exceed the predeclared noise threshold before a performance claim is made.</p></div></div>
-            <div class="gate"><div class="mark">05</div><div><h3>The bottleneck is traced end to end</h3><p>Per-core CPU evidence and an external API/GPU capture explain the dominant slow-frame path without contaminating steady measurements.</p></div></div>
-            <div class="gate"><div class="mark">06</div><div><h3>The next action is bounded</h3><p>The decision selects one correction or architecture spike, updates Stage 3 only, and keeps implementation out of the Stage 2 commit.</p></div></div>
-            <div class="gate"><div class="mark">07</div><div><h3>Artifacts are safe and reviewable</h3><p>Git contains schemas, gates, fixtures, and summaries only; raw captures, locations, account data, and machine identifiers remain outside it.</p></div></div>
+            <div class="gate"><div class="mark">01</div><div><h3>Clean source and build</h3><p>All five results identify the committed Stage 4 source, ReleaseOS build, native Apple OpenGL backend, expected GPU, and clean tracked tree.</p></div></div>
+            <div class="gate"><div class="mark">02</div><div><h3>Five results pass every contract</h3><p>Display, placement, focus, camera, avatar, UI, assets, population, circuit, ping, power, thermal, and scene-event gates all pass.</p></div></div>
+            <div class="gate"><div class="mark">03</div><div><h3>Comparison identity holds</h3><p>Manifest, settings, source, workload, operator assertions, view hash, stable population, build, and instrumentation match without an override.</p></div></div>
+            <div class="gate"><div class="mark">04</div><div><h3>Evidence is privacy-safe</h3><p>Only a sanitized aggregate and decision enter Git. Raw results, SLURL, credentials, and visual material remain private.</p></div></div>
+            <div class="gate"><div class="mark">05</div><div><h3>The conclusion stays narrow</h3><p>The record describes one Apple Silicon native OpenGL baseline and its noise. It claims no hardware regression or Vulkan benefit.</p></div></div>
+            <div class="gate"><div class="mark">06</div><div><h3>One next stage is selected</h3><p>The updated plan details either the matched control or one blocking-gate investigation, never both.</p></div></div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <section id="matrix">
-      <div class="wrap">
-        <h2>Workload suite and hardware coverage</h2>
-        <p class="section-intro">Stage 1 checked in all six scenario contracts but exercised only one invalid live-world matrix on an older Linux reference host. Stage 2 narrows execution to a valid steady workload on the affected pair before broadening coverage.</p>
-
-        <div class="scenario-grid">
-          <div><h3>Steady warm cache</h3><p>Static camera path after all assets and shaders settle. Establishes the lowest-noise comparison.</p></div>
-          <div><h3>Cold streaming</h3><p>Empty or reset cache with measured asset completeness. Exposes decode, upload, allocation, and synchronization.</p></div>
-          <div><h3>Avatar heavy</h3><p>Controlled avatar count with rigged attachments and impostors. Exposes skinning, avatar updates, and draw preparation.</p></div>
-          <div><h3>Draw and alpha heavy</h3><p>High object, material, and transparency count. Exposes culling, sorting, state changes, and submission pressure.</p></div>
-          <div><h3>GPU pass heavy</h3><p>High shadows, probes, reflections, resolution, and fill. Exposes lighting, overdraw, and bandwidth limits.</p></div>
-          <div><h3>UI and HUD heavy</h3><p>Representative floaters, text, HUD attachments, and media. Exposes immediate-mode emulation and composition.</p></div>
+        <div id="stage-5-risks" style="margin-top: 54px">
+          <h3>Stage 5 stop conditions</h3>
+          <div class="risk-list">
+            <div class="risk"><div><h3>The asset gate never settles</h3><p>The composite all-zero rule is intentionally stricter than the historical mesh-only horizon.</p></div><div class="control"><strong>Stop.</strong> Preserve failed sub-gate names and replan an asset-gate investigation. Do not loosen it after seeing timings.</div></div>
+            <div class="risk"><div><h3>The live scene changes</h3><p>Visitors, object updates, simulator events, or camera drift can invalidate the batch.</p></div><div class="control"><strong>Stop.</strong> Reject affected runs. Change the controlled scene only between complete batches and keep the workload slug honest.</div></div>
+            <div class="risk"><div><h3>Power or thermal state changes</h3><p>Battery/AC changes, low-power mode, or throttling can dominate a small frame-time delta.</p></div><div class="control"><strong>Stop.</strong> Do not mix states. Let the machine recover, start a new batch, and retain no rejected timing.</div></div>
+            <div class="risk"><div><h3>Five runs tempt a regression claim</h3><p>No older matched control exists yet.</p></div><div class="control"><strong>Limit.</strong> Publish baseline shape and noise only. Hardware-class comparison remains Stage 6.</div></div>
+          </div>
         </div>
 
-        <div class="table-wrap" style="margin-top: 32px">
-          <table>
-            <thead>
-              <tr><th>Platform class</th><th>Minimum coverage</th><th>Required comparison</th><th>Why it is present</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Windows</td><td>Current NVIDIA, AMD, and Intel drivers where hardware is available</td><td>Compatibility profile versus existing core-profile option; old versus new affected class</td><td>Official platform with WGL and the broadest vendor-driver spread</td></tr>
-              <tr><td>Linux</td><td>At least one current Mesa AMD or Intel system, plus an affected vendor path</td><td>Native desktop GL versus Zink with matched capabilities and output</td><td>Only practical near-term GL-over-Vulkan A/B</td></tr>
-              <tr><td>macOS</td><td>At least one Apple Silicon generation and any still-supported Intel baseline</td><td>Current OpenGL baseline only in Stage 1</td><td>Separates performance evidence from the independent OpenGL deprecation issue</td></tr>
-              <tr><td>Reference older hardware</td><td>One known-good machine for each relevant platform</td><td>Same commit and scenario manifests as newer hardware</td><td>Confirms whether the report is a regression or simply a demanding scene</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <div id="stage-5-commit" style="margin-top: 54px">
+          <h3>Stage 5 commit boundary</h3>
+          <div class="commit-card">
+            <h3><code>perf(renderer): capture Apple Silicon OpenGL baseline</code></h3>
+            <p>One commit contains a sanitized aggregate, the Stage 5 decision, and the replanned next stage. It contains no raw result, private location, threshold change, renderer fix, Vulkan dependency, external trace, or older-control execution.</p>
+            <pre>Before commit
 
-        <p style="margin-top: 22px; color: var(--dim); font-size: 13px">Stage 1 coverage: Linux native OpenGL and Zink on an RX 480 reference host. Missing: affected newer hardware, Windows current NVIDIA/AMD/Intel, Linux current Intel/NVIDIA, macOS Apple Silicon/Intel, and any same-class confirmation host. Stage 2 may not substitute the reference host and generalize the result.</p>
-      </div>
-    </section>
-
-    <section id="files">
-      <div class="wrap">
-        <h2>Likely Stage 1 touch points</h2>
-        <p class="section-intro">These are planning targets, not a mandate to edit every file. Prefer the smallest set that produces the required evidence.</p>
-
-        <div class="files">
-          <div><h3>Frame and phase timing</h3><p><code>indra/newview/llperfstats.h</code><br><code>indra/newview/llperfstats.cpp</code><br><code>indra/newview/llviewerdisplay.cpp</code><br><code>indra/newview/llappviewer.cpp</code></p></div>
-          <div><h3>Result export and context</h3><p><code>indra/newview/llstatslistener.cpp</code><br><code>indra/newview/llviewerstats.cpp</code><br><code>indra/newview/pipeline.cpp</code></p></div>
-          <div><h3>Wait and compile counters</h3><p><code>indra/llrender/llimagegl.cpp</code><br><code>indra/llrender/llglslshader.cpp</code><br><code>indra/llrender/llvertexbuffer.cpp</code></p></div>
-          <div><h3>Runner, fixtures, and documentation</h3><p><code>scripts/perf/</code><br><code>scripts/perf/scenarios/</code><br><code>doc/performance/</code><br><code>indra/newview/tests/</code> where a C++ unit boundary fits</p></div>
-        </div>
-
-        <div class="rule">
-          <strong>Instrumentation limit.</strong> Keep measurement code independent of renderer redesign. Do not add an RHI, Vulkan types, shader changes, or a new production telemetry upload in this commit.
-        </div>
-      </div>
-    </section>
-
-    <section id="gates">
-      <div class="wrap">
-        <h2>Stage 1 completion record</h2>
-        <p class="section-intro">The suite, schema, privacy, and fail-closed comparison gates passed locally. Platform CI and affected-hardware coverage remain explicit external gates; the invalid live workload is preserved as a Stage 2 input, not averaged into a result.</p>
-
-        <div class="gate-list">
-          <div class="gate"><div class="mark">01</div><div><h3>Local build and unit checks pass</h3><p>Benchmark-enabled Linux Release linked and launched; the default-off touched objects compiled; 18 runner/reporter tests and all schema fixtures passed. Windows and macOS CI remain required before merge.</p></div></div>
-          <div class="gate"><div class="mark">02</div><div><h3>Normal builds remain unchanged</h3><p>The added timers, counters, and export are compile-gated and default off. A benchmark native launch rendered without gross corruption; deterministic screenshot parity moves to Stage 2 because the live scene and UI could not be held fixed.</p></div></div>
-          <div class="gate"><div class="mark">03</div><div><h3>Runs identify themselves completely</h3><p>Every artifact records schema version, commit, build, platform, hardware, driver, GL context, feature set, settings hash, resolution, cache state, scenario, and repeat number.</p></div></div>
-          <div class="gate"><div class="mark">04</div><div><h3>Comparisons reject mismatches</h3><p>The reporter refuses unlike scenarios, settings, features, cache modes, resolutions, or build types unless the operator passes an explicit override that appears in the report.</p></div></div>
-          <div class="gate"><div class="mark">05</div><div><h3>Unstable runs fail closed</h3><p>The diagnostic matrix exceeded its noise budget and failed workload observations, so it supports no performance claim. The reporter also refuses significance with fewer than five repeats.</p></div></div>
-          <div class="gate"><div class="mark">06</div><div><h3>No profiling-induced driver regression</h3><p>Known AMD query safeguards remain effective. The main benchmark does not wait synchronously for per-frame query results. Diagnostic captures are labeled separately.</p></div></div>
-          <div class="gate"><div class="mark">07</div><div><h3>Checked-in data is safe</h3><p>Fixtures and summaries contain no credentials, account identity, raw machine identifier, private parcel name, or unapproved region identity.</p></div></div>
-          <div class="gate"><div class="mark">08</div><div><h3>The decision names a next action</h3><p>The decision record publishes the diagnostic phase data, documents why it is invalid for diagnosis, limits the hardware claim, and selects controlled affected-hardware reproduction.</p></div></div>
-          <div class="gate"><div class="mark">09</div><div><h3>The plan advances by one stage</h3><p>This v2 document marks Stage 1 complete, records actual tests and deviations, revises the dependency, and expands Stage 2 only.</p></div></div>
-          <div class="gate"><div class="mark">10</div><div><h3>The diff is one reviewable change</h3><p>The stage contains measurement, fixtures, documentation, and its updated plan. It contains no renderer fix or Vulkan implementation.</p></div></div>
-        </div>
-
-        <div class="decision-grid">
-          <div class="continue"><h3>Driver or submission path dominates</h3><p>Detail Stage 3 around the measured GL hot spot. A Zink gain remains Linux-specific evidence until equivalent platform results exist.</p></div>
-          <div class="pivot"><h3>Scene preparation dominates</h3><p>Detail Stage 3 around culling, geometry rebuild, sorting, batching, or threading. Pause the claim that Vulkan will resolve the report.</p></div>
-          <div class="pause"><h3>GPU pass cost dominates</h3><p>Detail Stage 3 around the expensive pass and its inputs. Re-run the controlled benchmark after that fix before approving native-backend work for speed.</p></div>
-          <div class="separate"><h3>Performance is neutral, platform risk remains</h3><p>Keep the regression work separate from an API-longevity decision. Continue the latter only with its own owner, support matrix, and budget.</p></div>
+[ ] Clean Stage 4 source and universal ReleaseOS build verified
+[ ] Python, schema, display, and macOS integration checks pass
+[ ] One unmeasured prime and exactly five valid measured runs complete
+[ ] Standard report passes without --allow-mismatch
+[ ] Rejected runs contribute no timing
+[ ] Sanitized aggregate contains no private input or absolute view
+[ ] Decision makes no hardware or Vulkan comparison
+[ ] This same plan details exactly one next stage
+[ ] Working tree contains no unrelated user changes</pre>
+          </div>
         </div>
       </div>
     </section>
@@ -1055,50 +793,12 @@
       </div>
     </section>
 
-    <section id="risks">
-      <div class="wrap">
-        <h2>Stage 2 risk register</h2>
-        <div class="risk-list">
-          <div class="risk"><div><h3>Affected hardware is unavailable</h3><p>The reference RX 480 does not exhibit the reported newer-hardware regression and cannot answer the question.</p></div><div class="control"><strong>Control.</strong> Make the affected/control pair an entry gate. Do not commit a diagnosis from substitute hardware.</div></div>
-          <div class="risk"><div><h3>The live world changes between runs</h3><p>Simulator activity, avatars, asset delivery, and occlusion history can swamp the renderer delta.</p></div><div class="control"><strong>Control.</strong> Prefer a controlled workload; otherwise fingerprint placement, scene, UI, and asset state and reject changed conditions automatically.</div></div>
-          <div class="risk"><div><h3>Instrumentation changes the result</h3><p>GL query reads and fine-grained logging can introduce the stalls being measured.</p></div><div class="control"><strong>Control.</strong> Separate low-overhead benchmark counters from diagnostic traces. Measure instrumentation overhead and preserve driver query guards.</div></div>
-          <div class="risk"><div><h3>Zink changes more than one variable</h3><p>Extensions, shader variants, feature masks, compiler behavior, and memory management may differ.</p></div><div class="control"><strong>Control.</strong> Compare capabilities and output before timing. Phrase the result as evidence about the broader driver/API path.</div></div>
-          <div class="risk"><div><h3>Aggregate CPU use hides the main thread</h3><p>A saturated core can look like low process utilization on a modern CPU.</p></div><div class="control"><strong>Control.</strong> Capture per-thread traces and per-core utilization. Correlate them with GPU idle and pass timestamps.</div></div>
-          <div class="risk"><div><h3>Benchmark artifacts leak identity</h3><p>The current profile context can include a machine identifier, region, and parcel information.</p></div><div class="control"><strong>Control.</strong> Define a benchmark-safe context, use operator-assigned labels, add redaction tests, and review fixtures before commit.</div></div>
-          <div class="risk"><div><h3>The stage becomes a renderer cleanup</h3><p>It will be tempting to fix the first suspicious wait or state transition found in a trace.</p></div><div class="control"><strong>Control.</strong> Record the correction as the Stage 3 candidate. Keep Stage 2 diagnostic so the baseline remains trustworthy.</div></div>
-          <div class="risk"><div><h3>Hardware gaps invite broad claims</h3><p>The team may not have every affected GPU and platform available.</p></div><div class="control"><strong>Control.</strong> Publish matrix gaps beside the conclusion. Do not infer Windows or macOS behavior from a Linux Zink result.</div></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="commit">
-      <div class="wrap">
-        <h2>Stage 2 commit boundary</h2>
-        <div class="commit-card">
-          <h3><code>perf(renderer): capture affected-hardware regression</code></h3>
-          <p>The commit adds the deterministic workload contract and fail-closed validity checks, privacy-safe affected/control summaries, context-negotiation evidence, trace references, the Stage 2 decision record, and the replanned Stage 3 checklist. It contains no renderer fix.</p>
-          <pre>Before commit
-
-[ ] Stage 2 exit gates 01 through 07 pass
-[ ] Five valid runs exist for affected newer hardware and an older control
-[ ] Context request, fallback, and advertised profile are independently recorded
-[ ] CPU, API, GPU, waits, and present evidence converge on one explanation
-[ ] No credentials, raw captures, locations, or stable machine identifiers are present
-[ ] No performance fix, RHI, Vulkan dependency, or compatibility-layer rollout slipped in
-[ ] This document contains Stage 2 actuals and a detailed Stage 3 only
-[ ] The working tree contains no unrelated user changes</pre>
-        </div>
-
-        <div class="rule">
-          <strong>Rollback.</strong> Reverting the Stage 2 commit removes workload validity checks and investigation summaries without changing renderer output, production services, or saved account data.
-        </div>
-      </div>
-    </section>
 
     <section id="history">
       <div class="wrap">
         <h2>Plan history</h2>
         <div class="change-log">
+          <div class="change"><time datetime="2026-08-26">2026-08-26</time><div class="version">v3 · Stage 4 complete</div><div>Recorded macOS profile isolation and display normalization, then split the former combined baseline stage. Added the schema-3 scene-validity actuals and detailed only the controlled Apple Silicon native OpenGL baseline.</div></div>
           <div class="change"><time datetime="2026-08-26">2026-08-26</time><div class="version">v2 · Stage 1 complete</div><div>Delivered the benchmark suite. Recorded the invalid live-world native/Zink matrix and limited Linux RX 480 coverage. Detailed Stage 2 around deterministic workload gates and affected-hardware traces.</div></div>
           <div class="change"><time datetime="2026-08-26">2026-08-26</time><div class="version">v1 · Stage 1 ready</div><div>Created the sequential roadmap. Detailed the measurement stage. Later stages remain provisional until the Stage 1 commit and reanalysis.</div></div>
         </div>
@@ -1108,7 +808,7 @@
   </main>
 
   <footer>
-    <div class="wrap">Rolling plan v2. Stage 1 added local, compile-gated benchmark instrumentation and changed no production service, normal viewer profile, renderer output, or Vulkan dependency.</div>
+    <div class="wrap">Rolling plan v3. Stage 4 adds a local, compile-gated scene-validity contract. It changes no renderer backend, production service, normal viewer profile, Vulkan dependency, or performance conclusion.</div>
   </footer>
 </body>
 </html>

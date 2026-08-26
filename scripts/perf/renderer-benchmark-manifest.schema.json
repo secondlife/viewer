@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://secondlife.com/schemas/renderer-benchmark-manifest-v2.json",
+  "$id": "https://secondlife.com/schemas/renderer-benchmark-manifest-v3.json",
   "title": "Second Life renderer benchmark manifest",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "id", "description", "cache_mode", "capture", "settings", "workload"],
+  "required": ["schema_version", "id", "description", "cache_mode", "capture", "settings", "validity", "workload"],
   "properties": {
-    "schema_version": {"const": 2},
+    "schema_version": {"const": 3},
     "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]+$"},
     "description": {"type": "string", "minLength": 1},
     "cache_mode": {"enum": ["warm", "cold"]},
@@ -31,6 +31,28 @@
         "WindowHeight": {"const": 720},
         "WindowMaximized": {"const": false},
         "WindowWidth": {"const": 1280}
+      }
+    },
+    "validity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_mode", "population_mode", "ui_mode", "settle_seconds",
+        "max_camera_translation_m", "max_camera_rotation_rad", "max_agent_travel_m",
+        "max_visible_avatar_delta", "max_active_object_delta", "max_new_objects", "max_sim_ping_ms"
+      ],
+      "properties": {
+        "asset_mode": {"enum": ["settled", "streaming"]},
+        "population_mode": {"enum": ["stable", "observed"]},
+        "ui_mode": {"enum": ["clear", "controlled"]},
+        "settle_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "max_camera_translation_m": {"type": "number", "exclusiveMinimum": 0},
+        "max_camera_rotation_rad": {"type": "number", "exclusiveMinimum": 0},
+        "max_agent_travel_m": {"type": "number", "minimum": 0},
+        "max_visible_avatar_delta": {"type": "integer", "minimum": 0},
+        "max_active_object_delta": {"type": "integer", "minimum": 0},
+        "max_new_objects": {"type": "integer", "minimum": 0},
+        "max_sim_ping_ms": {"type": "number", "exclusiveMinimum": 0}
       }
     },
     "workload": {

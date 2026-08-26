@@ -32,15 +32,35 @@
 #include "llviewerstats.h"
 
 #if defined(LL_RENDER_BENCHMARK)
+#include "llagent.h"
+#include "llagentcamera.h"
 #include "llappviewer.h"
+#include "llcircuit.h"
+#include "llfloater.h"
+#include "llfloaterreg.h"
+#include "llfocusmgr.h"
 #include "llgl.h"
+#include "llmeshrepository.h"
+#include "llmodaldialog.h"
 #include "llpanel.h"
 #include "llrender.h"
+#include "llsdutil_math.h"
+#include "llslurl.h"
 #include "llstartup.h"
+#include "lltexturefetch.h"
+#include "lltoast.h"
 #include "llviewercontrol.h"
+#include "llviewercamera.h"
+#include "llviewerobjectlist.h"
+#include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
 #include "llviewershadermgr.h"
+#include "llviewertexturelist.h"
 #include "llviewerwindow.h"
+#include "llvoavatar.h"
+#include "llvoavatarself.h"
 #include "llwindow.h"
+#include "message.h"
 #include "pipeline.h"
 
 #include <thread>
@@ -105,6 +125,17 @@ void setFrameBlockTime(LLSD& frame,
     }
 }
 
+void setFrameCountSum(LLSD& frame,
+                      const char* key,
+                      LLTrace::Recording& period,
+                      const LLTrace::CountStatHandle<>& stat)
+{
+    if (period.hasValue(stat))
+    {
+        frame[key] = (F64)period.getSum(stat);
+    }
+}
+
 LLSD collectRendererFrames(LLTrace::PeriodicRecording& recording, size_t num_periods)
 {
     LLSD frames = LLSD::emptyArray();
@@ -125,6 +156,11 @@ LLSD collectRendererFrames(LLTrace::PeriodicRecording& recording, size_t num_per
         setFrameSample(frame, "frame_time_ms", period, LLStatViewer::FRAMETIME);
         setFrameSample(frame, "do_frame_time_us", period, LLStatViewer::DOFRAME_TIME_US);
         setFrameSample(frame, "sim_ping_ms", period, LLStatViewer::SIM_PING);
+        setFrameSample(frame, "visible_avatars", period, LLStatViewer::VISIBLE_AVATARS);
+        setFrameSample(frame, "active_objects", period, LLStatViewer::NUM_ACTIVE_OBJECTS);
+        setFrameCountSum(frame, "new_objects", period, LLStatViewer::NUM_NEW_OBJECTS);
+        setFrameCountSum(frame, "camera_translation_m", period, *LLViewerCamera::getVelocityStat());
+        setFrameCountSum(frame, "camera_rotation_rad", period, *LLViewerCamera::getAngularVelocityStat());
 
         setFrameBlockTime(frame, "geometry_create_ms", period, LLStatViewer::RENDER_GEOMETRY_CREATE);
         setFrameBlockTime(frame, "partition_ms", period, LLStatViewer::RENDER_PARTITION);
@@ -262,6 +298,85 @@ LLSD getRendererContext()
 
     return context;
 }
+
+bool destinationMatchesStartLocation()
+{
+    const LLSLURL& destination = LLStartUp::getStartSLURL();
+    LLViewerRegion* region = gAgent.getRegion();
+    if (!destination.isValid() || destination.getType() != LLSLURL::LOCATION || !region)
+    {
+        return false;
+    }
+
+    const LLVector3 position = gAgent.getPositionAgent();
+    const LLVector3 destination_position = destination.getPosition();
+    const F32 delta_x = position.mV[VX] - destination_position.mV[VX];
+    const F32 delta_y = position.mV[VY] - destination_position.mV[VY];
+    constexpr F32 destination_slop_m = 2.f;
+    return destination.getRegion() == region->getName()
+        && delta_x * delta_x <= destination_slop_m * destination_slop_m
+        && delta_y * delta_y <= destination_slop_m * destination_slop_m;
+}
+
+LLSD getRendererSceneState()
+{
+    LLSD state;
+    state["destination_matches"] = destinationMatchesStartLocation();
+    state["teleport_in_progress"] = LLViewerParcelMgr::getInstance()->getTeleportInProgress();
+    state["progress_visible"] = gViewerWindow && gViewerWindow->getShowProgress();
+
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    LLSD view;
+    view["camera_offset"] = ll_sd_from_vector3(camera->getOrigin() - gAgent.getPositionAgent());
+    view["camera_at"] = ll_sd_from_vector3(camera->getAtAxis());
+    view["camera_left"] = ll_sd_from_vector3(camera->getLeftAxis());
+    view["camera_up"] = ll_sd_from_vector3(camera->getUpAxis());
+    view["agent_at"] = ll_sd_from_vector3(gAgent.getAtAxis());
+    view["field_of_view"] = camera->getView();
+    view["mode"] = (LLSD::Integer)gAgentCamera.getCameraMode();
+    state["view"] = view;
+    state["camera_animating"] = gAgentCamera.getCameraAnimating();
+    state["agent_distance_traveled_total"] = gAgent.getDistanceTraveled();
+    state["agent_speed_mps"] = gAgent.getVelocity().length();
+
+    state["app_focused"] = gFocusMgr.getAppHasFocus();
+    state["frame_count_total"] = (F64)gFrameCount;
+    state["foreground_frame_count_total"] = (F64)gForegroundFrameCount;
+    state["modal_dialog_count"] = LLModalDialog::activeCount();
+    state["alert_toast_visible"] = LLNotificationsUI::LLToast::isAlertToastShown();
+    state["welcome_pack_visible"] = LLFloaterReg::instanceVisible("avatar_welcome_pack");
+    state["closeable_floaters_closed"] = !gFloaterView || gFloaterView->allChildrenClosed();
+    LLView* hint_holder = gViewerWindow ? gViewerWindow->getHintHolder() : nullptr;
+    state["hint_visible"] = hint_holder && hint_holder->getVisible() && hint_holder->getChildCount() > 0;
+
+    LLTextureFetch* texture_fetch = LLAppViewer::getTextureFetch();
+    state["texture_fetch_requests"] = texture_fetch ? texture_fetch->getNumRequests() : -1;
+    state["texture_http_requests"] = texture_fetch ? texture_fetch->getNumHTTPRequests() : -1;
+    state["texture_create_queue"] = (LLSD::Integer)gTextureList.mCreateTextureList.size();
+    state["texture_fast_cache"] = (LLSD::Integer)gTextureList.mFastCacheList.size();
+    state["texture_upload_count_total"] = (F64)LLImageGL::getTextureUploadCount();
+    U32 loading_lods = 0;
+    U32 loading_skins = 0;
+    gMeshRepo.getLoadingMeshCounts(loading_lods, loading_skins);
+    state["mesh_lod_unresolved"] = (LLSD::Integer)loading_lods;
+    state["mesh_skin_unresolved"] = (LLSD::Integer)loading_skins;
+    state["self_avatar_loaded"] = isAgentAvatarValid() && gAgentAvatarp->isFullyLoaded();
+    state["visible_avatars"] = LLVOAvatar::sNumVisibleAvatars;
+    state["active_objects"] = gObjectList.getNumActiveObjects();
+
+    LLCircuitData* circuit = nullptr;
+    if (gMessageSystem && gAgent.getRegion())
+    {
+        circuit = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
+    }
+    state["circuit_present"] = circuit != nullptr;
+    state["circuit_alive"] = circuit && circuit->isAlive();
+    state["circuit_blocked"] = circuit && circuit->isBlocked();
+    state["pings_in_transit"] = circuit ? circuit->getPingsInTransit() : -1;
+    state["packets_in_total"] = circuit ? (F64)circuit->getPacketsIn() : 0.0;
+    state["packets_lost_total"] = circuit ? (F64)circuit->getPacketsLost() : 0.0;
+    return state;
+}
 #endif
 }
 
@@ -331,9 +446,10 @@ void LLStatsListener::getPerfData(LLSD const & evt)
     stats["total_periods_duration"] = total_duration;
     stats["num_periods"] = (LLSD::Integer)num_periods;
 #if defined(LL_RENDER_BENCHMARK)
-    stats["renderer_schema_version"] = 2;
+    stats["renderer_schema_version"] = 3;
     stats["renderer_ready"] = LLStartUp::getStartupState() == STATE_STARTED;
     stats["renderer_context"] = getRendererContext();
+    stats["renderer_scene_state"] = getRendererSceneState();
     stats["renderer_frames"] = collectRendererFrames(recording, num_periods);
 
     LLSD instrumentation;

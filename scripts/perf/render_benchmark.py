@@ -10,6 +10,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import shlex
 import stat
 import statistics
@@ -20,7 +21,7 @@ from typing import Any, Iterable, Mapping, Sequence
 import xml.etree.ElementTree as ET
 
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 DEFAULT_STARTUP_TIMEOUT_SECONDS = 180
 MIN_COMPARISON_REPEATS = 5
 BENCHMARK_BACKING_WIDTH = 1280
@@ -72,6 +73,7 @@ REQUIRED_CONTEXT_FIELDS = {
 COMPARISON_FIELDS = (
     ("run", "scenario"),
     ("run", "cache_mode"),
+    ("run", "manifest_hash"),
     ("run", "settings_hash"),
     ("context", "effective_settings_hash"),
     ("context", "feature_flags_hash"),
@@ -91,6 +93,17 @@ COMPARISON_FIELDS = (
     ("context", "effective_display_scale_x"),
     ("context", "effective_display_scale_y"),
     ("instrumentation", "mode"),
+    ("validity", "workload_id"),
+    ("validity", "policy_hash"),
+    ("validity", "operator", "power_source"),
+    ("validity", "operator", "low_power_mode"),
+    ("validity", "operator", "thermal_state"),
+    ("validity", "operator", "scene_events"),
+    ("validity", "operator", "ui_state"),
+    ("validity", "operator", "camera_state"),
+    ("validity", "observed", "view_hash"),
+    ("validity", "observed", "visible_avatars_min"),
+    ("validity", "observed", "active_objects_min"),
 )
 PRIVATE_KEYS = {
     "account",
@@ -98,6 +111,7 @@ PRIVATE_KEYS = {
     "agent_id",
     "credential",
     "credentials",
+    "destination",
     "hostname",
     "login",
     "machine",
@@ -106,12 +120,51 @@ PRIVATE_KEYS = {
     "parcel_id",
     "password",
     "position",
+    "orientation",
+    "origin",
     "region",
     "region_id",
     "serial_number",
     "slurl",
     "username",
+    "view",
 }
+WORKLOAD_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{2,63}$")
+VALIDITY_FIELDS = {
+    "asset_mode",
+    "max_active_object_delta",
+    "max_agent_travel_m",
+    "max_camera_rotation_rad",
+    "max_camera_translation_m",
+    "max_new_objects",
+    "max_sim_ping_ms",
+    "max_visible_avatar_delta",
+    "population_mode",
+    "settle_seconds",
+    "ui_mode",
+}
+OPERATOR_STATE_FIELDS = {
+    "power_source",
+    "low_power_mode",
+    "thermal_state",
+    "scene_events",
+    "ui_state",
+    "camera_state",
+}
+VALIDITY_GATE_NAMES = (
+    "workload",
+    "placement",
+    "focus",
+    "camera",
+    "avatar",
+    "ui",
+    "assets",
+    "population",
+    "network",
+    "scene_events",
+    "power",
+    "thermal",
+)
 
 
 class BenchmarkError(ValueError):
@@ -177,8 +230,42 @@ def load_json(path: Path) -> Any:
         raise BenchmarkError(f"cannot read JSON from {path}: {error}") from error
 
 
+def validate_validity_policy(validity: Any, warmup_seconds: Any | None = None) -> None:
+    if not isinstance(validity, Mapping):
+        raise BenchmarkError("validity must be an object")
+    validity_missing = sorted(VALIDITY_FIELDS - validity.keys())
+    validity_unknown = sorted(validity.keys() - VALIDITY_FIELDS)
+    if validity_missing:
+        raise BenchmarkError("validity is missing: " + ", ".join(validity_missing))
+    if validity_unknown:
+        raise BenchmarkError("validity has unknown fields: " + ", ".join(validity_unknown))
+    if validity["asset_mode"] not in {"settled", "streaming"}:
+        raise BenchmarkError("validity.asset_mode must be 'settled' or 'streaming'")
+    if validity["population_mode"] not in {"stable", "observed"}:
+        raise BenchmarkError("validity.population_mode must be 'stable' or 'observed'")
+    if validity["ui_mode"] not in {"clear", "controlled"}:
+        raise BenchmarkError("validity.ui_mode must be 'clear' or 'controlled'")
+    for field in (
+        "settle_seconds",
+        "max_camera_rotation_rad",
+        "max_camera_translation_m",
+        "max_sim_ping_ms",
+    ):
+        if not _is_number(validity[field]) or validity[field] <= 0:
+            raise BenchmarkError(f"validity.{field} must be positive")
+    if not _is_number(validity["max_agent_travel_m"]) or validity["max_agent_travel_m"] < 0:
+        raise BenchmarkError("validity.max_agent_travel_m must be non-negative")
+    if warmup_seconds is not None and validity["settle_seconds"] > warmup_seconds:
+        raise BenchmarkError("validity.settle_seconds must fit inside capture.warmup_seconds")
+    for field in ("max_active_object_delta", "max_new_objects", "max_visible_avatar_delta"):
+        if not isinstance(validity[field], int) or isinstance(validity[field], bool) or validity[field] < 0:
+            raise BenchmarkError(f"validity.{field} must be a non-negative integer")
+
+
 def validate_manifest(manifest: Mapping[str, Any]) -> None:
-    required = {"schema_version", "id", "description", "cache_mode", "capture", "settings", "workload"}
+    required = {
+        "schema_version", "id", "description", "cache_mode", "capture", "settings", "workload", "validity"
+    }
     missing = sorted(required - manifest.keys())
     if missing:
         raise BenchmarkError(f"manifest is missing: {', '.join(missing)}")
@@ -211,8 +298,139 @@ def validate_manifest(manifest: Mapping[str, Any]) -> None:
         display_mismatches.append("UIScaleFactor must be derived from the detected backing scale")
     if display_mismatches:
         raise BenchmarkError("manifest display contract mismatch: " + "; ".join(display_mismatches))
+    validate_validity_policy(manifest["validity"], capture["warmup_seconds"])
     if find_private_paths(manifest):
         raise BenchmarkError("manifest contains a private field; locations and credentials are operator input")
+
+
+def validate_operator_state(workload_id: Any, operator: Any) -> None:
+    if not isinstance(workload_id, str) or not WORKLOAD_ID_PATTERN.fullmatch(workload_id):
+        raise BenchmarkError("workload ID must be a 3-64 character lowercase slug")
+    if not isinstance(operator, Mapping):
+        raise BenchmarkError("operator state must be an object")
+    missing = sorted(OPERATOR_STATE_FIELDS - operator.keys())
+    unknown = sorted(operator.keys() - OPERATOR_STATE_FIELDS)
+    if missing:
+        raise BenchmarkError("operator state is missing: " + ", ".join(missing))
+    if unknown:
+        raise BenchmarkError("operator state has unknown fields: " + ", ".join(unknown))
+    allowed = {
+        "power_source": {"ac", "battery", "unknown"},
+        "low_power_mode": {"off", "on", "unknown"},
+        "thermal_state": {"nominal", "elevated", "throttled", "unknown"},
+        "scene_events": {"none", "observed", "unknown"},
+        "ui_state": {"approved", "unapproved", "unknown"},
+        "camera_state": {"approved", "unapproved", "unknown"},
+    }
+    for field, choices in allowed.items():
+        if operator[field] not in choices:
+            raise BenchmarkError(f"operator state {field}={operator[field]!r} is not supported")
+
+
+def validity_gate_results(
+    workload_id: Any,
+    operator: Mapping[str, Any],
+    observed: Mapping[str, Any],
+    policy: Mapping[str, Any],
+) -> dict[str, bool]:
+    """Derive fail-closed scene gates from a privacy-safe observation summary."""
+    validate_operator_state(workload_id, operator)
+    validate_validity_policy(policy)
+    required_observed = {
+        "active_objects_max",
+        "active_objects_min",
+        "agent_travel_m",
+        "alert_toast_seen",
+        "background_frame_count",
+        "camera_animating_seen",
+        "camera_rotation_rad",
+        "camera_translation_m",
+        "circuit_healthy",
+        "closeable_floaters_closed",
+        "destination_ready",
+        "hint_seen",
+        "mesh_lod_unresolved_max",
+        "mesh_skin_unresolved_max",
+        "modal_dialog_max",
+        "new_objects_total",
+        "progress_seen",
+        "self_avatar_loaded",
+        "settle_seconds_observed",
+        "sim_ping_ms_max",
+        "teleport_seen",
+        "texture_create_queue_max",
+        "texture_fast_cache_max",
+        "texture_fetch_requests_max",
+        "texture_http_requests_max",
+        "texture_upload_count_delta",
+        "visible_avatars_max",
+        "visible_avatars_min",
+        "view_hash",
+        "welcome_pack_seen",
+    }
+    if not isinstance(observed, Mapping) or required_observed - observed.keys():
+        return {name: False for name in VALIDITY_GATE_NAMES}
+
+    numeric = lambda name: observed[name] if _is_number(observed[name]) else math.inf
+    integer = lambda name: observed[name] if isinstance(observed[name], int) and not isinstance(observed[name], bool) else math.inf
+    valid_view_hash = (
+        isinstance(observed["view_hash"], str)
+        and re.fullmatch(r"[a-f0-9]{64}", observed["view_hash"]) is not None
+    )
+    assets_settled = all(
+        integer(field) == 0
+        for field in (
+            "texture_fetch_requests_max",
+            "texture_http_requests_max",
+            "texture_create_queue_max",
+            "texture_fast_cache_max",
+            "mesh_lod_unresolved_max",
+            "mesh_skin_unresolved_max",
+        )
+    ) and numeric("texture_upload_count_delta") == 0
+    population_stable = (
+        integer("visible_avatars_max") - integer("visible_avatars_min")
+        <= policy["max_visible_avatar_delta"]
+        and integer("active_objects_max") - integer("active_objects_min")
+        <= policy["max_active_object_delta"]
+        and numeric("new_objects_total") <= policy["max_new_objects"]
+    )
+    ui_clear = (
+        integer("modal_dialog_max") == 0
+        and observed["alert_toast_seen"] is False
+        and observed["welcome_pack_seen"] is False
+        and observed["hint_seen"] is False
+        and observed["progress_seen"] is False
+        and (policy["ui_mode"] == "controlled" or observed["closeable_floaters_closed"] is True)
+    )
+    return {
+        "workload": True,
+        "placement": observed["destination_ready"] is True and observed["teleport_seen"] is False,
+        "focus": integer("background_frame_count") == 0,
+        "camera": (
+            observed["camera_animating_seen"] is False
+            and valid_view_hash
+            and numeric("camera_translation_m") <= policy["max_camera_translation_m"]
+            and numeric("camera_rotation_rad") <= policy["max_camera_rotation_rad"]
+            and operator["camera_state"] == "approved"
+        ),
+        "avatar": (
+            observed["self_avatar_loaded"] is True
+            and numeric("agent_travel_m") <= policy["max_agent_travel_m"]
+        ),
+        "ui": ui_clear and operator["ui_state"] == "approved",
+        "assets": policy["asset_mode"] == "streaming" or (
+            numeric("settle_seconds_observed") >= policy["settle_seconds"] and assets_settled
+        ),
+        "population": policy["population_mode"] == "observed" or population_stable,
+        "network": (
+            observed["circuit_healthy"] is True
+            and 0 <= numeric("sim_ping_ms_max") <= policy["max_sim_ping_ms"]
+        ),
+        "scene_events": operator["scene_events"] == "none",
+        "power": operator["power_source"] in {"ac", "battery"} and operator["low_power_mode"] == "off",
+        "thermal": operator["thermal_state"] in {"nominal", "elevated"},
+    }
 
 
 def _frame_times(result: Mapping[str, Any]) -> list[float]:
@@ -361,7 +579,7 @@ def display_contract_mismatches(context: Mapping[str, Any], target_scale: Any) -
 def validate_result(result: Mapping[str, Any], require_valid: bool = True) -> None:
     if result.get("schema_version") != SCHEMA_VERSION:
         raise BenchmarkError(f"unsupported result schema {result.get('schema_version')!r}")
-    for field in ("status", "run", "context", "instrumentation", "frames"):
+    for field in ("status", "run", "context", "instrumentation", "frames", "validity"):
         if field not in result:
             raise BenchmarkError(f"result is missing {field}")
     if result["status"] not in {"valid", "invalid"}:
@@ -370,6 +588,24 @@ def validate_result(result: Mapping[str, Any], require_valid: bool = True) -> No
         raise BenchmarkError(f"invalid run: {result.get('failure_reason') or 'no reason supplied'}")
     if not isinstance(result["frames"], list):
         raise BenchmarkError("frames must be an array")
+    validity = result["validity"]
+    if not isinstance(validity, Mapping):
+        raise BenchmarkError("result validity must be an object")
+    for field in ("workload_id", "policy", "policy_hash", "operator", "observed", "gates"):
+        if field not in validity:
+            raise BenchmarkError(f"result validity is missing {field}")
+    policy = validity["policy"]
+    if not isinstance(policy, Mapping) or canonical_hash(policy) != validity["policy_hash"]:
+        raise BenchmarkError("result validity policy hash does not match its policy")
+    validate_operator_state(validity["workload_id"], validity["operator"])
+    expected_gates = validity_gate_results(
+        validity["workload_id"], validity["operator"], validity["observed"], policy
+    )
+    if validity["gates"] != expected_gates:
+        raise BenchmarkError("result validity gates do not match the observed facts")
+    if result["status"] == "valid" and not all(expected_gates.values()):
+        failed = ", ".join(name for name, passed in expected_gates.items() if not passed)
+        raise BenchmarkError(f"valid result has failed scene gates: {failed}")
     missing_context = sorted(REQUIRED_CONTEXT_FIELDS - result["context"].keys())
     if missing_context:
         raise BenchmarkError(f"result context is missing: {', '.join(missing_context)}")
@@ -401,6 +637,37 @@ def validate_result_against_manifest(result: Mapping[str, Any], manifest: Mappin
         for name, requested in requested_settings.items()
         if effective_settings.get(name) != requested
     ]
+    run = result.get("run", {})
+    if not isinstance(run, Mapping):
+        mismatches.append("result run is not an object")
+    else:
+        expected_manifest_hash = canonical_hash(manifest)
+        expected_settings_hash = canonical_hash(requested_settings)
+        if run.get("manifest_hash") != expected_manifest_hash:
+            mismatches.append(
+                f"manifest_hash={run.get('manifest_hash')!r}, requested {expected_manifest_hash!r}"
+            )
+        if run.get("settings_hash") != expected_settings_hash:
+            mismatches.append(
+                f"settings_hash={run.get('settings_hash')!r}, requested {expected_settings_hash!r}"
+            )
+    validity = result.get("validity")
+    if not isinstance(validity, Mapping):
+        mismatches.append("result validity is not an object")
+    else:
+        requested_policy = manifest.get("validity")
+        if validity.get("policy") != requested_policy:
+            mismatches.append("scene validity policy differs from the manifest")
+        if validity.get("policy_hash") != canonical_hash(requested_policy):
+            mismatches.append("scene validity policy hash differs from the manifest")
+        gates = validity_gate_results(
+            validity.get("workload_id"),
+            validity.get("operator", {}),
+            validity.get("observed", {}),
+            requested_policy,
+        )
+        if validity.get("gates") != gates or not all(gates.values()):
+            mismatches.append("scene validity gates do not pass the manifest policy")
     if requested_settings.get("WindowMaximized") is False:
         for context_name, setting_name in (
             ("width", "WindowWidth"),
@@ -510,9 +777,10 @@ def _git_source(repo: Path) -> dict[str, Any]:
     }
 
 
-def _redacted_command(command: Sequence[str], password_index: int) -> str:
+def _redacted_command(command: Sequence[str], private_indices: Iterable[int]) -> str:
     redacted = list(command)
-    redacted[password_index] = "<redacted>"
+    for index in private_indices:
+        redacted[index] = "<redacted>"
     return shlex.join(redacted)
 
 
@@ -522,12 +790,33 @@ def benchmark_run_numbers(cache_mode: str, repeats: int) -> list[int]:
     return [0, *measured] if cache_mode == "warm" else measured
 
 
+def failed_validity_gate_names(result: Any) -> list[str]:
+    """Extract only known failed gate names for a privacy-safe rejection message."""
+    if not isinstance(result, Mapping):
+        return []
+    validity = result.get("validity")
+    gates = validity.get("gates") if isinstance(validity, Mapping) else None
+    if not isinstance(gates, Mapping):
+        return []
+    return [name for name in VALIDITY_GATE_NAMES if gates.get(name) is False]
+
+
 def _run_command(args: argparse.Namespace) -> int:
     manifest_path = Path(args.manifest).resolve()
     manifest = load_json(manifest_path)
     if not isinstance(manifest, Mapping):
         raise BenchmarkError("manifest root must be an object")
     validate_manifest(manifest)
+
+    operator_state = {
+        "power_source": args.power_source,
+        "low_power_mode": args.low_power_mode,
+        "thermal_state": args.thermal_state,
+        "scene_events": args.scene_events,
+        "ui_state": args.ui_state,
+        "camera_state": args.camera_state,
+    }
+    validate_operator_state(args.workload_id, operator_state)
 
     viewer = Path(args.viewer).resolve()
     plugin = Path(__file__).with_name("render_benchmark_leap.py").resolve()
@@ -591,6 +880,11 @@ def _run_command(args: argparse.Namespace) -> int:
                     "hardware_label": args.hardware_label,
                     **_git_source(repo),
                 },
+                "validity": {
+                    "workload_id": args.workload_id,
+                    "operator": operator_state,
+                    "policy": manifest["validity"],
+                },
                 "requested_settings": settings,
                 "startup_timeout_seconds": args.startup_timeout,
                 "expected_gpu_substring": args.expect_gpu_substring,
@@ -612,8 +906,9 @@ def _run_command(args: argparse.Namespace) -> int:
                 "--slurl",
                 args.slurl,
             ]
-            password_index = command.index("--login") + 3
-            print(_redacted_command(command, password_index))
+            login_index = command.index("--login")
+            slurl_index = command.index("--slurl")
+            print(_redacted_command(command, (*range(login_index + 1, login_index + 4), slurl_index + 1)))
             if args.dry_run:
                 continue
 
@@ -632,11 +927,16 @@ def _run_command(args: argparse.Namespace) -> int:
                 )
             except subprocess.TimeoutExpired as error:
                 raise BenchmarkError(f"viewer timed out during {run_label}") from error
-            if completed.returncode != 0:
-                raise BenchmarkError(f"viewer exited with {completed.returncode} during {run_label}")
             if not output.exists():
                 raise BenchmarkError(f"viewer produced no artifact for {run_label}")
             result = load_json(output)
+            if completed.returncode != 0:
+                failed_gates = failed_validity_gate_names(result)
+                if failed_gates:
+                    raise BenchmarkError(
+                        f"{run_label} rejected by scene validity gates: {', '.join(failed_gates)}"
+                    )
+                raise BenchmarkError(f"viewer exited with {completed.returncode} during {run_label}")
             validate_result(result)
             validate_result_against_manifest(result, manifest)
             if not is_prime:
@@ -786,6 +1086,15 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--credential-file", required=True)
     run.add_argument("--slurl", required=True, help="operator-supplied location; omitted from results")
     run.add_argument("--hardware-label", required=True, help="non-identifying operator label")
+    run.add_argument("--workload-id", required=True, help="privacy-safe controlled-workload slug")
+    run.add_argument("--power-source", required=True, choices=("ac", "battery", "unknown"))
+    run.add_argument("--low-power-mode", required=True, choices=("off", "on", "unknown"))
+    run.add_argument(
+        "--thermal-state", required=True, choices=("nominal", "elevated", "throttled", "unknown")
+    )
+    run.add_argument("--scene-events", required=True, choices=("none", "observed", "unknown"))
+    run.add_argument("--ui-state", required=True, choices=("approved", "unapproved", "unknown"))
+    run.add_argument("--camera-state", required=True, choices=("approved", "unapproved", "unknown"))
     run.add_argument("--expect-gpu-substring", help="invalidate a run if a different GPU is selected")
     run.add_argument("--backend", choices=("native-gl", "zink"), default="native-gl")
     run.add_argument("--repeats", type=int)

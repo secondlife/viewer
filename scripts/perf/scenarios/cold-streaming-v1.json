@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "id": "cold-streaming-v1",
   "description": "Isolated empty-cache load exposing decode, upload, allocation, and synchronization work.",
   "cache_mode": "cold",
@@ -19,6 +19,19 @@
     "WindowMaximized": false,
     "WindowWidth": 1280,
     "YieldTime": -1
+  },
+  "validity": {
+    "asset_mode": "streaming",
+    "population_mode": "observed",
+    "ui_mode": "clear",
+    "settle_seconds": 5,
+    "max_camera_translation_m": 0.1,
+    "max_camera_rotation_rad": 0.05,
+    "max_agent_travel_m": 0.0,
+    "max_visible_avatar_delta": 0,
+    "max_active_object_delta": 0,
+    "max_new_objects": 0,
+    "max_sim_ping_ms": 600
   },
   "workload": {
     "operator_setup": "Start with the runner's isolated empty cache and use the same scene entry point for every repeat.",

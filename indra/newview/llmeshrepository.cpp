@@ -5113,6 +5113,17 @@ S32 LLMeshRepository::getMeshSize(const LLUUID& mesh_id, S32 lod) const
     return -1;
 }
 
+void LLMeshRepository::getLoadingMeshCounts(U32& lod_count, U32& skin_count)
+{
+    LLMutexLock lock(mMeshMutex);
+    lod_count = 0;
+    for (const mesh_load_map& loading_meshes : mLoadingMeshes)
+    {
+        lod_count += static_cast<U32>(loading_meshes.size());
+    }
+    skin_count = static_cast<U32>(mLoadingSkins.size());
+}
+
 void LLMeshUploadThread::decomposeMeshMatrix(LLMatrix4& transformation,
                                              LLVector3& result_pos,
                                              LLQuaternion& result_rot,

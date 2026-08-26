@@ -12,17 +12,27 @@ This benchmark classifies frame-time regressions before renderer fixes or a Vulk
 - Treat a change as meaningful only when its p95 delta exceeds both 1 ms and three times the run-to-run p95 range for that scenario.
 - Randomize A/B order where practical. Repeat a threshold-crossing result on a second GPU or driver of the same class before generalizing it.
 
-The six versioned manifests under `scripts/perf/scenarios/` cover steady warm cache, cold streaming, avatars, draw and alpha pressure, GPU-heavy passes, and UI/HUD composition. A location is supplied with `--slurl`; it is never copied into the output.
+The six versioned manifests under `scripts/perf/scenarios/` cover steady warm cache, cold streaming, avatars, draw and alpha pressure, GPU-heavy passes, and UI/HUD composition. A location is supplied with `--slurl`; it is never copied into the output or printed in a launch command.
 
 ### Display contract
 
-Schema version 2 fixes the benchmark render surface at 1280×720 backing pixels and the effective viewer UI scale at 1.0. Every checked-in scenario declares `RenderHiDPI: true`, `RenderBenchmarkUIScale: 1.0`, `WindowWidth: 1280`, `WindowHeight: 720`, and `WindowMaximized: false`. A scenario must not declare `UIScaleFactor`; the viewer derives that configured factor from the backing scale detected after window creation. Making HiDPI explicit ensures a fresh isolated profile exercises Retina backing on supported hardware instead of inheriting a local default.
+The display contract introduced in schema version 2 fixes the benchmark render surface at 1280×720 backing pixels and the effective viewer UI scale at 1.0. Every checked-in scenario declares `RenderHiDPI: true`, `RenderBenchmarkUIScale: 1.0`, `WindowWidth: 1280`, `WindowHeight: 720`, and `WindowMaximized: false`. A scenario must not declare `UIScaleFactor`; the viewer derives that configured factor from the backing scale detected after window creation. Making HiDPI explicit ensures a fresh isolated profile exercises Retina backing on supported hardware instead of inheriting a local default.
 
 On a 1× display, the configured UI factor is 1.0. On a 2× Retina display, it is 0.5. Both produce an effective display scale of 1.0 without changing the existing meaning of `context.width` and `context.height`, which remain backing pixels. The result also records explicit backing and logical dimensions, backing scale on both axes, the configured UI factor, and the final effective display scale on both axes.
 
-The runner rejects a result when any explicit backing dimension differs from the legacy backing dimension or manifest, when logical size multiplied by backing scale does not reconstruct the backing size, when the configured factor does not produce the requested scale, or when the final display scale differs from the request. These fields must also match across repeated results. Schema version 1 results are not accepted by the version 2 runner or reporter.
+The runner rejects a result when any explicit backing dimension differs from the legacy backing dimension or manifest, when logical size multiplied by backing scale does not reconstruct the backing size, when the configured factor does not produce the requested scale, or when the final display scale differs from the request. These fields must also match across repeated results. Schema versions 1 and 2 are not accepted by the version 3 runner or reporter because they do not carry the complete scene-validity proof.
 
 `RenderBenchmarkUIScale` defaults to zero, is not persisted, and has an effect only in a build compiled with `LL_RENDER_BENCHMARK`. Ordinary builds and non-benchmark launches retain the normal platform UI-scale behavior.
+
+### Scene-validity contract
+
+Schema version 3 turns the controlled-workload rules into a fail-closed contract. Each manifest declares an asset mode, population mode, UI mode, settlement window, motion limits, population limits, new-object limit, and simulator-ping limit. Each run also supplies a privacy-safe workload slug and typed operator assertions for power source, low-power mode, thermal state, material scene events, intended UI, and intended camera.
+
+The viewer exports only the live facts needed to evaluate those rules. During the end of warm-up and throughout capture, the collector checks placement, teleport and progress state, camera and avatar motion, focus, blocking UI, texture and mesh work, self-avatar completion, visible-avatar and active-object counts, new objects, circuit health, and simulator ping. Absolute location and camera coordinates are not retained. A rounded, agent-relative camera view is reduced to a hash before the raw view is discarded.
+
+The checked-in steady policy uses existing viewer semantics where they fit: the requested region with the existing 2 m X/Y placement tolerance, the scene-loading monitor's accumulated 0.1 m camera-translation and 0.05 rad camera-rotation limits, no population-count drift, and the mesh subsystem's 15-second no-progress horizon. Applying the 15-second window to the composite texture and mesh gate, requiring zero avatar travel and new objects, and rejecting any capture-wide ping above 600 ms are conservative benchmark policies. They are not universal definitions of viewer correctness. A strict gate may reject a usable-looking scene; it may not admit an ambiguous timing sample.
+
+Operator values are assertions, not platform telemetry. A valid run requires a known, repeatable power source, low-power mode off, a non-throttled thermal state, no material scene events, and approved UI and camera state. Power source and all operator fields must match across comparable repeats. AC power is not universally required.
 
 ## Running
 
@@ -35,7 +45,7 @@ username password
 first last password
 ```
 
-A one-word username is sent with the legacy last name `Resident`. The runner never prints the credential path or password. A dry run does not open the credential file.
+A one-word username is sent with the legacy last name `Resident`. The runner never prints the account name, credential path, password, or SLURL. A dry run does not open the credential file.
 
 ```bash
 python3 scripts/perf/render_benchmark.py run \
@@ -45,6 +55,13 @@ python3 scripts/perf/render_benchmark.py run \
   --credential-file /secure/path/demo-account.txt \
   --slurl secondlife://operator-supplied-location \
   --hardware-label linux-mesa-current \
+  --workload-id controlled-steady-scene \
+  --power-source ac \
+  --low-power-mode off \
+  --thermal-state nominal \
+  --scene-events none \
+  --ui-state approved \
+  --camera-state approved \
   --expect-gpu-substring 'expected renderer text' \
   --backend native-gl \
   --output-dir /path/to/results
@@ -61,6 +78,13 @@ python3 scripts/perf/render_benchmark.py run \
   --credential-file /path/that/need/not/exist \
   --slurl secondlife://operator-supplied-location \
   --hardware-label dry-run \
+  --workload-id controlled-steady-scene \
+  --power-source ac \
+  --low-power-mode off \
+  --thermal-state nominal \
+  --scene-events none \
+  --ui-state approved \
+  --camera-state approved \
   --output-dir /tmp/renderer-results \
   --repeats 1 \
   --dry-run
@@ -124,7 +148,7 @@ rm -r -- "$isolated_root"
 
 Snapshot the normal profile and cache metadata before and after this check. The isolated profile should contain `data`, `logs`, `user_settings`, `browser_profile`, and `cache`, and the temporary root should be removed afterward.
 
-For an authenticated launch and export smoke, create a short manifest outside the repository from `steady-warm-v1.json`. Change only the capture duration and repeat count. Keep the version 2 display settings unchanged. Use a short warm-up, a short capture, and one measured repeat. The warm scenario runs one unmeasured prime followed by the measured capture. Validate the temporary manifest before launching. Supply the credential file and controlled destination separately.
+For an authenticated launch and export smoke, create a short manifest outside the repository from `steady-warm-v1.json`. Keep the display and validity policy unchanged, shorten capture duration, and use one measured repeat. Keep the 30-second warm-up so the declared 15-second settlement window remains meaningful. The warm scenario runs one unmeasured prime followed by the measured capture. Validate the temporary manifest before launching. Supply the credential file and controlled destination separately.
 
 ```zsh
 chmod 600 /secure/path/benchmark-account.txt
@@ -138,6 +162,13 @@ python3 scripts/perf/render_benchmark.py run \
   --credential-file /secure/path/benchmark-account.txt \
   --slurl secondlife://operator-supplied-location \
   --hardware-label mac-apple-silicon-smoke \
+  --workload-id controlled-steady-scene \
+  --power-source ac \
+  --low-power-mode off \
+  --thermal-state nominal \
+  --scene-events none \
+  --ui-state approved \
+  --camera-state approved \
   --expect-gpu-substring Apple \
   --backend native-gl \
   --output-dir /private/tmp/renderer-smoke
@@ -146,7 +177,7 @@ python3 scripts/perf/render_benchmark.py validate \
   result /private/tmp/renderer-smoke/RESULT.json
 ```
 
-The smoke validates app launch, native OpenGL selection, version 2 geometry export, and ordinary-looking UI coverage only. It is not performance evidence and its timing fields must be discarded. First-use UI, an unresolved destination, asset streaming, focus changes, or an unsettled scene invalidate any timing interpretation.
+The smoke validates app launch, native OpenGL selection, version 3 export, geometry, and scene-gate behavior only. It is not performance evidence and its timing fields must be discarded. A failed scene gate is useful smoke evidence but is not a benchmark result.
 
 The runner sets `SECONDLIFE_USER_DIR` and creates session settings, cache, logs, and account data inside a private per-invocation temporary directory. It does not read or alter the normal viewer profile, and the isolated data is removed after the sequence exits. Cold-cache repeats receive separate state and purge before startup. Warm-cache sequences first run one unmeasured full-duration prime, then reuse that isolated profile and cache for all measured repeats. The prime is validated but its artifact is discarded. First-install UI, notifications, audio, and voice are disabled for benchmark sessions so they cannot cover the workload or crash a headless test host.
 
@@ -154,12 +185,13 @@ After the viewer reaches its started state, the LLLeap collector reapplies the r
 
 ## Result and comparison rules
 
-Raw artifacts use `renderer-benchmark-result.schema.json`, schema version 2. Each valid result contains:
+Raw artifacts use `renderer-benchmark-result.schema.json`, schema version 3. Each valid result contains:
 
 - scenario, repeat, cache mode, requested settings hash, and manifest hash;
 - viewer version, source commit, tracked-diff hash/dirty state, build type, OS, CPU and logical-core count;
 - operator hardware label, GPU, driver, reported VRAM, requested and detected backend;
 - OpenGL version/profile, limits, extension set and hash, shader level, feature flags, actual settings and hash, backing resolution, logical content size, backing scale, configured UI factor, and effective display scale;
+- the workload slug, policy and policy hash, typed operator assertions, privacy-safe scene observations, every derived gate, and a relative-view hash;
 - per-frame median inputs plus p95, p99, worst frame and 1 percent low FPS;
 - geometry creation, partition, geometry update, culling, shadows/impostors, texture work, state sort, rebuild, GL submission, deferred lighting, UI/HUD, swap, idle, and unclassified CPU time;
 - draw count, batch size, triangles, shader program changes, texture uploads, texture readbacks, explicit texture synchronization, shader compilation, and tracked texture memory.
@@ -174,7 +206,7 @@ python3 scripts/perf/render_benchmark.py report /path/to/results/*.json \
   --output summary.md
 ```
 
-The reporter rejects different scenarios, cache modes, requested or actual settings, feature sets, source commits, build types, resolutions, or instrumentation modes. Extension sets must match between repeats of one backend; native OpenGL and Zink extension differences are expected and their hashes remain visible in the cross-backend report. `--allow-mismatch` is an audit escape hatch; the mismatches are printed into the report.
+The reporter rejects different scenarios, manifest hashes, requested or actual settings, feature sets, source commits, build types, resolutions, instrumentation modes, workload slugs, validity policies, operator assertions, relative camera views, or stable population counts. Extension sets must match between repeats of one backend; native OpenGL and Zink extension differences are expected and their hashes remain visible in the cross-backend report. `--allow-mismatch` is an audit escape hatch; the mismatches are printed into the report.
 
 ## Invalid runs
 
@@ -184,13 +216,16 @@ Discard a run and preserve its reason when any of the following applies:
 - too few frames were captured;
 - requested and detected backends differ;
 - the selected GPU does not match `--expect-gpu-substring`;
-- asset loading is incomplete for a steady run;
-- scene population, camera, window focus, feature flags, or resolution changed;
-- simulator/network events dominate the sample;
-- the device power or thermal state throttled;
+- placement does not match the requested start location;
+- asset loading is incomplete for a settled run;
+- scene population, camera, avatar, window focus, feature flags, or resolution changed;
+- blocking UI, progress UI, or unapproved controlled UI is present;
+- the circuit is unhealthy or simulator ping exceeds the scenario policy;
+- a material scene event was observed;
+- power source is unknown, low-power mode is enabled, or thermal state is unknown or throttled;
 - visual comparison differs outside the project's accepted tolerance.
 
-The collector can detect the first four cases. The operator must record the remaining observations in the decision record. Never silently average invalid runs into a summary.
+The collector measures viewer facts and derives each gate. Power, thermal, scene-event, intended-UI, and intended-camera values remain typed operator assertions. The runner independently recalculates the gates, checks their policy and manifest hashes, and rejects tampering or drift. Never silently average invalid runs into a summary.
 
 ## GPU and system diagnostics
 
@@ -200,14 +235,14 @@ Do not enable the viewer's per-shader Frame Profile for steady runs: it reads qu
 
 ## Privacy
 
-The C++ event API selects safe fields from viewer information rather than exporting the full About/profile context. The runner removes account, credential, machine ID, serial, hostname, position, parcel, region, and location keys recursively before writing or reporting an artifact. Checked-in fixtures use synthetic hardware strings. Review `find_private_paths()` results before publishing a new fixture.
+The C++ event API selects safe fields from viewer information rather than exporting the full About/profile context. Absolute placement and an agent-relative camera view exist only in the private collector process long enough to derive a placement boolean and relative-view hash. The runner removes account, credential, machine ID, serial, hostname, position, camera origin/orientation, parcel, region, location, and raw-view keys recursively before writing or reporting an artifact. Checked-in fixtures use synthetic hardware strings. Review `find_private_paths()` results before publishing a new fixture.
 
 ## Validation
 
 ```bash
 python3 -m unittest discover -s scripts/perf/tests -v
 python3 scripts/perf/render_benchmark.py validate manifest scripts/perf/scenarios/steady-warm-v1.json
-python3 scripts/perf/render_benchmark.py validate result scripts/perf/fixtures/renderer-result-v2.json
+python3 scripts/perf/render_benchmark.py validate result scripts/perf/fixtures/renderer-result-v3.json
 ```
 
-The tests cover all manifests, the 1× and 2× scale contract, missing geometry, schema version rejection, scale and resolution mismatches, comparison drift, percentile calculations, resource deltas, invalid data, recursive privacy filtering, the checked-in fixture, and the no-secret dry-run path. A focused C++ integration test proves the scale derivation and the disabled normal-launch path.
+The tests cover all manifests, the 1× and 2× scale contract, scene policy, wrong placement, focus loss, unsettled assets, population drift, unexpected UI, gate tampering, scale and resolution mismatches, comparison drift, percentile calculations, resource deltas, recursive privacy filtering, the checked-in fixture, and the no-secret dry-run path. Focused C++ integration tests cover scale derivation and the disabled normal-launch path.

@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 import sys
 import time
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 import llsd
 
@@ -18,6 +18,7 @@ from render_benchmark import (
     display_contract_mismatches,
     sanitize,
     summarize_result,
+    validity_gate_results,
 )
 
 
@@ -157,9 +158,146 @@ def _add_unclassified_time(frames: list[dict[str, Any]]) -> None:
         frame["unclassified_ms"] = max(0.0, float(frame_time) - classified)
 
 
+def _scene_state(stats: Mapping[str, Any]) -> dict[str, Any]:
+    state = stats.get("renderer_scene_state", {})
+    return dict(state) if isinstance(state, Mapping) else {}
+
+
+def _numeric_values(states: Sequence[Mapping[str, Any]], field: str) -> list[float]:
+    return [
+        float(state[field])
+        for state in states
+        if isinstance(state.get(field), (int, float)) and not isinstance(state.get(field), bool)
+    ]
+
+
+def _frame_total(frames: Sequence[Mapping[str, Any]], field: str) -> float:
+    return sum(
+        max(0.0, float(frame[field]))
+        for frame in frames
+        if isinstance(frame.get(field), (int, float)) and not isinstance(frame.get(field), bool)
+    )
+
+
+def _counter_delta(states: Sequence[Mapping[str, Any]], field: str) -> float:
+    values = _numeric_values(states, field)
+    return max(0.0, max(values) - min(values)) if values else -1.0
+
+
+def _maximum(states: Sequence[Mapping[str, Any]], field: str, default: float = -1.0) -> float:
+    values = _numeric_values(states, field)
+    return max(values, default=default)
+
+
+def _minimum(states: Sequence[Mapping[str, Any]], field: str, default: float = -1.0) -> float:
+    values = _numeric_values(states, field)
+    return min(values, default=default)
+
+
+def _rounded_fingerprint(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {str(key): _rounded_fingerprint(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_rounded_fingerprint(item) for item in value]
+    if isinstance(value, float):
+        return round(value, 4)
+    return value
+
+
+def summarize_scene_validity(
+    policy: Mapping[str, Any],
+    settle_states: Sequence[Mapping[str, Any]],
+    capture_states: Sequence[Mapping[str, Any]],
+    frames: Sequence[Mapping[str, Any]],
+    settle_seconds_observed: float,
+) -> dict[str, Any]:
+    """Reduce private live scene state to facts that are safe to retain."""
+    guarded_states = [*settle_states, *capture_states]
+    first_state = capture_states[0] if capture_states else {}
+    view = first_state.get("view", {}) if isinstance(first_state, Mapping) else {}
+
+    frame_counts = _numeric_values(capture_states, "frame_count_total")
+    foreground_counts = _numeric_values(capture_states, "foreground_frame_count_total")
+    background_frames = -1
+    if frame_counts and foreground_counts:
+        background_frames = max(
+            0,
+            round((max(frame_counts) - min(frame_counts)) - (max(foreground_counts) - min(foreground_counts))),
+        )
+    if any(state.get("app_focused") is not True for state in capture_states):
+        background_frames = max(1, background_frames)
+
+    agent_distances = _numeric_values(capture_states, "agent_distance_traveled_total")
+    visible_min = _minimum(capture_states, "visible_avatars")
+    visible_max = _maximum(capture_states, "visible_avatars")
+    active_min = _minimum(capture_states, "active_objects")
+    active_max = _maximum(capture_states, "active_objects")
+    ping_values = [
+        float(frame["sim_ping_ms"])
+        for frame in frames
+        if isinstance(frame.get("sim_ping_ms"), (int, float)) and not isinstance(frame.get("sim_ping_ms"), bool)
+    ]
+
+    return {
+        "settle_seconds_observed": max(0.0, settle_seconds_observed),
+        "destination_ready": bool(guarded_states)
+        and all(state.get("destination_matches") is True for state in guarded_states),
+        "teleport_seen": any(state.get("teleport_in_progress") is True for state in guarded_states),
+        "progress_seen": any(state.get("progress_visible") is True for state in guarded_states),
+        "background_frame_count": background_frames,
+        "camera_animating_seen": any(state.get("camera_animating") is True for state in capture_states),
+        "camera_translation_m": _frame_total(frames, "camera_translation_m"),
+        "camera_rotation_rad": _frame_total(frames, "camera_rotation_rad"),
+        "agent_travel_m": (
+            max(0.0, max(agent_distances) - min(agent_distances)) if agent_distances else -1.0
+        ),
+        "agent_speed_mps_max": _maximum(capture_states, "agent_speed_mps"),
+        "view_hash": canonical_hash(_rounded_fingerprint(view)) if isinstance(view, Mapping) and view else "",
+        "modal_dialog_max": round(_maximum(guarded_states, "modal_dialog_count")),
+        "alert_toast_seen": any(state.get("alert_toast_visible") is True for state in guarded_states),
+        "welcome_pack_seen": any(state.get("welcome_pack_visible") is True for state in guarded_states),
+        "hint_seen": any(state.get("hint_visible") is True for state in guarded_states),
+        "closeable_floaters_closed": bool(guarded_states)
+        and all(state.get("closeable_floaters_closed") is True for state in guarded_states),
+        "texture_fetch_requests_max": round(_maximum(guarded_states, "texture_fetch_requests")),
+        "texture_http_requests_max": round(_maximum(guarded_states, "texture_http_requests")),
+        "texture_create_queue_max": round(_maximum(guarded_states, "texture_create_queue")),
+        "texture_fast_cache_max": round(_maximum(guarded_states, "texture_fast_cache")),
+        "texture_upload_count_delta": _counter_delta(guarded_states, "texture_upload_count_total"),
+        "mesh_lod_unresolved_max": round(_maximum(guarded_states, "mesh_lod_unresolved")),
+        "mesh_skin_unresolved_max": round(_maximum(guarded_states, "mesh_skin_unresolved")),
+        "self_avatar_loaded": bool(guarded_states)
+        and all(state.get("self_avatar_loaded") is True for state in guarded_states),
+        "visible_avatars_min": round(visible_min),
+        "visible_avatars_max": round(visible_max),
+        "active_objects_min": round(active_min),
+        "active_objects_max": round(active_max),
+        "new_objects_total": _frame_total(frames, "new_objects"),
+        "sim_ping_ms_max": max(ping_values, default=-1.0),
+        "circuit_healthy": bool(guarded_states)
+        and all(
+            state.get("circuit_present") is True
+            and state.get("circuit_alive") is True
+            and state.get("circuit_blocked") is False
+            for state in guarded_states
+        ),
+        "pings_in_transit_max": round(_maximum(guarded_states, "pings_in_transit")),
+        "packets_in_delta": _counter_delta(capture_states, "packets_in_total"),
+        "packets_lost_delta": _counter_delta(capture_states, "packets_lost_total"),
+    }
+
+
 def collect(config: Mapping[str, Any], api: ViewerAPI) -> dict[str, Any]:
     run = dict(config["run"])
     poll_interval = float(run["poll_interval_seconds"])
+    validity_config = config.get("validity", {})
+    if not isinstance(validity_config, Mapping):
+        raise ProtocolError("validity config is not a map")
+    policy = validity_config.get("policy", {})
+    operator = validity_config.get("operator", {})
+    workload_id = validity_config.get("workload_id")
+    if not isinstance(policy, Mapping) or not isinstance(operator, Mapping):
+        raise ProtocolError("validity policy or operator state is not a map")
     startup_deadline = time.monotonic() + float(config["startup_timeout_seconds"])
     latest_stats: Mapping[str, Any] | None = None
     while time.monotonic() < startup_deadline:
@@ -182,21 +320,42 @@ def collect(config: Mapping[str, Any], api: ViewerAPI) -> dict[str, Any]:
         poll_interval,
     )
 
-    warmup_deadline = time.monotonic() + float(run["warmup_seconds"])
+    warmup_started = time.monotonic()
+    warmup_deadline = warmup_started + float(run["warmup_seconds"])
+    warmup_observations: list[tuple[float, dict[str, Any]]] = [
+        (0.0, _scene_state(latest_stats))
+    ]
     while time.monotonic() < warmup_deadline:
         latest_stats = api.perf_data()
+        warmup_observations.append((time.monotonic() - warmup_started, _scene_state(latest_stats)))
         time.sleep(poll_interval)
+    latest_stats = api.perf_data()
+    warmup_observations.append((time.monotonic() - warmup_started, _scene_state(latest_stats)))
+
+    settle_cutoff = warmup_observations[-1][0] - float(policy["settle_seconds"])
+    settle_start = 0
+    for index, (elapsed, _) in enumerate(warmup_observations):
+        if elapsed <= settle_cutoff:
+            settle_start = index
+        else:
+            break
+    settle_observations = warmup_observations[settle_start:]
+    settle_states = [state for _, state in settle_observations]
+    settle_seconds_observed = settle_observations[-1][0] - settle_observations[0][0]
 
     assert latest_stats is not None
     first_frame = _latest_frame_number(latest_stats)
     captured: dict[int, dict[str, Any]] = {}
+    capture_states = [_scene_state(latest_stats)]
     capture_deadline = time.monotonic() + float(run["duration_seconds"])
     while time.monotonic() < capture_deadline:
         latest_stats = api.perf_data()
         _merge_frames(captured, latest_stats, first_frame)
+        capture_states.append(_scene_state(latest_stats))
         time.sleep(poll_interval)
     latest_stats = api.perf_data()
     _merge_frames(captured, latest_stats, first_frame)
+    capture_states.append(_scene_state(latest_stats))
 
     context = sanitize({**latest_stats.get("renderer_context", {}), **config["context"]})
     context["effective_settings_hash"] = canonical_hash(context.get("effective_settings", {}))
@@ -206,6 +365,22 @@ def collect(config: Mapping[str, Any], api: ViewerAPI) -> dict[str, Any]:
     _add_unclassified_time(frames)
     instrumentation = dict(latest_stats.get("renderer_instrumentation", {}))
     instrumentation["mode"] = "steady-low-overhead"
+    observed = summarize_scene_validity(
+        policy,
+        settle_states,
+        capture_states,
+        frames,
+        settle_seconds_observed,
+    )
+    gates = validity_gate_results(workload_id, operator, observed, policy)
+    validity = {
+        "workload_id": workload_id,
+        "policy": dict(policy),
+        "policy_hash": canonical_hash(policy),
+        "operator": dict(operator),
+        "observed": observed,
+        "gates": gates,
+    }
     result: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "status": "valid",
@@ -213,6 +388,7 @@ def collect(config: Mapping[str, Any], api: ViewerAPI) -> dict[str, Any]:
         "run": run,
         "context": context,
         "instrumentation": instrumentation,
+        "validity": validity,
         "frames": frames,
     }
     expected_gpu = config.get("expected_gpu_substring")
@@ -225,6 +401,10 @@ def collect(config: Mapping[str, Any], api: ViewerAPI) -> dict[str, Any]:
     elif len(frames) < max(10, int(float(run["duration_seconds"]))):
         result["status"] = "invalid"
         result["failure_reason"] = "too few rendered frames captured"
+    elif not all(gates.values()):
+        failed = ", ".join(name for name, passed in gates.items() if not passed)
+        result["status"] = "invalid"
+        result["failure_reason"] = f"scene validity gates failed: {failed}"
     else:
         result["summary"] = summarize_result(result)
     return sanitize(result)
