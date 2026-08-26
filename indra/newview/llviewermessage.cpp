@@ -4932,6 +4932,7 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock, const std::string & notific
         llsdBlock["REGIONMATURITY"] = regionMaturity;
 
         LLNotificationPtr tp_failure_notification;
+        bool skip_notif = false;
         std::string notifySuffix;
 
         if (notificationID == std::string("TeleportEntryAccessBlocked"))
@@ -5001,21 +5002,30 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock, const std::string & notific
             }
         }       // End of special handling for "TeleportEntryAccessBlocked"
         else
-        {   // Normal case, no message munging
-            gAgent.clearTeleportRequest();
-            if (LLNotifications::getInstance()->templateExists(notificationID))
+        {
+            if (notificationID == "RegionTPAccessBlocked")
             {
-                tp_failure_notification = LLNotificationsUtil::add(notificationID, llsdBlock, llsdBlock);
+                LLFloaterReg::showInstance("maturity_dialog", LLSD((S32)regionAccess));
+                skip_notif = true;
             }
             else
             {
-                llsdBlock["MESSAGE"] = defaultMessage;
-                tp_failure_notification = LLNotificationsUtil::add("GenericAlertOK", llsdBlock);
+                // Normal case, no message munging
+                gAgent.clearTeleportRequest();
+                if (LLNotifications::getInstance()->templateExists(notificationID))
+                {
+                    tp_failure_notification = LLNotificationsUtil::add(notificationID, llsdBlock, llsdBlock);
+                }
+                else
+                {
+                    llsdBlock["MESSAGE"] = defaultMessage;
+                    tp_failure_notification = LLNotificationsUtil::add("GenericAlertOK", llsdBlock);
+                }
             }
             returnValue = true;
         }
 
-        if ((tp_failure_notification == NULL) || tp_failure_notification->isIgnored())
+        if (((tp_failure_notification == NULL) || tp_failure_notification->isIgnored()) && !skip_notif)
         {
             // Given a simple notification if no tp_failure_notification is set or it is ignore
             LLNotificationsUtil::add(notificationID + notifySuffix, llsdBlock);

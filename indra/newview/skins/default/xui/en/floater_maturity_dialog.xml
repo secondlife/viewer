@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater
+ height="220"
+ width="430"
+ layout="topleft"
+ name="floater_maturity_dialog"
+ title="MATURITY"
+ show_title="false"
+ header_height="0"
+ bg_opaque_image="Window_NoTitle_Foreground"
+ bg_alpha_image="Window_NoTitle_Background"
+ can_resize="false"
+ can_drag_on_left="false"
+ can_minimize="false"
+ single_instance="true"
+ can_close="false">
+  <floater.string
+   name="location_rated_string"
+   value="The location you've chosen is rated [MATURITY]."/>
+  <floater.string
+   name="update_maturity_string"
+   value="Include [MATURITY] in your maturity preference to continue."/>
+  <text
+   type="string"
+   length="1"
+   follows="top|left|right"
+   font="SansSerifMediumBold"
+   text_color="White"
+   layout="topleft"
+   left="15"
+   height="18"
+   top="15"
+   right="-10"
+   name="location_rated_lbl"/>
+  <text
+   type="string"
+   length="1"
+   follows="top|left|right"
+   text_color="White"
+   layout="topleft"
+   left="15"
+   height="16"
+   top_pad="10"
+   right="-10"
+   name="current_maturity_lbl">
+Your current maturity preference:
+  </text>
+
+  <combo_box
+   control_name="PreferredMaturity"
+   follows="top|left"
+   height="23"
+   layout="topleft"
+   left="16"
+   top_pad="8"
+   name="maturity_combo"
+   width="192">
+    <combo_box.item
+     label="General, Moderate, Adult"
+     name="Desired_Adult"
+     value="42" />
+    <combo_box.item
+     label="General and Moderate"
+     name="Desired_Mature"
+     value="21" />
+    <combo_box.item
+     label="General"
+     name="Desired_PG"
+     value="13" />
+  </combo_box>
+
+  <text
+   type="string"
+   length="1"
+   follows="top|left|right"
+   text_color="White"
+   layout="topleft"
+   left="15"
+   height="16"
+   top_pad="18"
+   right="-10"
+   name="include_adult_lbl"/>
+
+  <button
+   follows="top|left"
+   layout="topleft"
+   height="23"
+   label="Continue to location"
+   left="65"
+   top_pad="20"
+   name="continue_btn"
+   width="155" />
+
+  <button
+   follows="top|left"
+   layout="topleft"
+   height="24"
+   label="Cancel"
+   left_pad="10"
+   name="cancel_btn"
+   width="155" />
+
+  <text
+   type="string"
+   length="1"
+   follows="top|left|right"
+   text_color="White"
+   link_color="White"
+   layout="topleft"
+   left="15"
+   height="16"
+   top_pad="28"
+   right="-10"
+   parse_urls="true"
+   name="learn_more_lbl">
+[https://lindenlab.freshdesk.com/support/solutions/articles/31000135220-i-can-t-access-adult-land-and-content- Learn more] about maturity ratings.
+  </text>
+
+</floater>
