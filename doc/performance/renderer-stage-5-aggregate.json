@@ -1,0 +1,50 @@
+{
+  "stage": 5,
+  "status": "blocked",
+  "source_commit": "fa875954c55780153510975a271023ab0e66e782",
+  "manifest": "steady-warm-v1",
+  "manifest_schema_version": 3,
+  "backend": "native-gl",
+  "hardware_class": "Apple Silicon",
+  "build": "ReleaseOS universal",
+  "workload_id": "controlled-steady-scene",
+  "planned_measured_repeats": 5,
+  "valid_measured_repeats": 0,
+  "retained_timing": false,
+  "operator_assertions": {
+    "power_source": "ac",
+    "low_power_mode": "off",
+    "thermal_state": "nominal",
+    "scene_events": "none",
+    "ui_state": "approved",
+    "camera_state": "approved"
+  },
+  "rejected_attempts": [
+    {
+      "attempt": 1,
+      "phase": "warm-prime",
+      "failed_gates": [
+        "placement",
+        "avatar",
+        "assets"
+      ]
+    },
+    {
+      "attempt": 2,
+      "phase": "warm-prime",
+      "failed_gates": [
+        "placement",
+        "focus",
+        "avatar",
+        "assets"
+      ]
+    }
+  ],
+  "failed_gate_counts": {
+    "placement": 2,
+    "focus": 1,
+    "avatar": 2,
+    "assets": 2
+  },
+  "next_stage": "isolated-asset-readiness-gate-investigation"
+}
