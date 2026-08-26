@@ -1456,6 +1456,7 @@ LLSD LLScriptEditorWSServer::handleObjectContentGet(const std::string& method, c
     response["prim_id"] = prim_id;
     response["item_id"] = item_id;
     response["content"] = text_content;
+    response["encoding"] = "utf-8";
     return response;
 }
 
