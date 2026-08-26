@@ -81,12 +81,13 @@ namespace
         return label.asString() == NONE_LABEL ? LLSD() : label;
     }
 
-    // PromptFont glyph(s) for a canonical controller input value.
-    // Codepoints are from the PromptFont package's promptfont.h, preferring the
-    // generic vendor-neutral "gamepad"/"dpad"/"analog" sets and falling back to
-    // the Xbox set for shoulders/triggers (no generic equivalents exist).
-    // Rendered with the "PromptFont" family declared in fonts.xml.  Inputs with
-    // no entry (e.g. BUTTON_21..31, *_NONE) return empty and keep their text label.
+    // SecondLife-game-control glyph(s) for a canonical controller input value.
+    // Codepoints are from the SecondLife-game-control package's promptfont.h,
+    // preferring the generic vendor-neutral "gamepad"/"dpad"/"analog" sets and
+    // falling back to the Xbox set for shoulders/triggers (no generic equivalents
+    // exist). Rendered with the "SecondLife-game-control" family declared in
+    // fonts.xml.  Inputs with no entry (e.g. BUTTON_21..31, *_NONE) return empty
+    // and keep their text label.
     std::string promptFontGlyph(const std::string& input_value)
     {
         static const std::map<std::string, LLWString> sGlyphs = {
@@ -134,12 +135,13 @@ namespace
         return wstring_to_utf8str(it->second);
     }
 
-    // The PromptFont glyphs live on real Unicode arrow codepoints, so they must be
-    // drawn with the dedicated PromptFont family rather than the default text font.
-    // Sized larger than the SansSerif rows so the icons read clearly.
+    // The SecondLife-game-control glyphs live on real Unicode arrow codepoints,
+    // so they must be drawn with the dedicated SecondLife-game-control family
+    // rather than the default text font. Sized larger than the SansSerif rows
+    // so the icons read clearly.
     const LLFontGL* promptFontForCell()
     {
-        return LLFontGL::getFont(LLFontDescriptor("PromptFont", "Huge", 0));
+        return LLFontGL::getFont(LLFontDescriptor("SecondLife-game-control", "Huge", 0));
     }
 }
 
@@ -264,10 +266,10 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
 
     if (grid == mActionMappingsAxes || grid == mActionMappingsButtons)
     {
-        // Two editable columns map to the same input: the PromptFont icon column
-        // (1) opens the glyph selector, the text description column (2) opens the
-        // text selector.  Both commit through onCommitInputChannel, which rebuilds
-        // the row so the icon and description update together.
+        // Two editable columns map to the same input: the SecondLife-game-control
+        // icon column (1) opens the glyph selector, the text description column
+        // (2) opens the text selector.  Both commit through onCommitInputChannel,
+        // which rebuilds the row so the icon and description update together.
         LLSD row_value = item->getValue();
         if (!row_value.isMap())
             return false;
@@ -289,11 +291,12 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
     }
     else if (grid == mAxisChannels)
     {
-        // Two editable columns map to the same output: the PromptFont icon column
-        // ("output") opens the glyph selector, the text column ("output_description")
-        // opens the text selector.  Both commit through onCommitInputChannel, which
-        // refreshes both cells so the icon and description stay in sync.  The Input
-        // columns are the fixed physical axis and are not editable.
+        // Two editable columns map to the same output: the SecondLife-game-control
+        // icon column ("output") opens the glyph selector, the text column
+        // ("output_description") opens the text selector.  Both commit through
+        // onCommitInputChannel, which refreshes both cells so the icon and
+        // description stay in sync.  The Input columns are the fixed physical axis
+        // and are not editable.
         S32 sel = item->getSelectedCell();
         S32 desc_col  = grid->getColumn("output_description")->mIndex;
         S32 glyph_col = grid->getColumn("output")->mIndex;
@@ -313,11 +316,12 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
     }
     else if (grid == mButtonChannels)
     {
-        // Two editable columns map to the same output: the PromptFont icon column
-        // ("output") opens the glyph selector, the text column ("output_description")
-        // opens the text selector.  Both commit through onCommitInputChannel, which
-        // refreshes both cells so the icon and description stay in sync.  The Input
-        // columns are the fixed physical button and are not editable.
+        // Two editable columns map to the same output: the SecondLife-game-control
+        // icon column ("output") opens the glyph selector, the text column
+        // ("output_description") opens the text selector.  Both commit through
+        // onCommitInputChannel, which refreshes both cells so the icon and
+        // description stay in sync.  The Input columns are the fixed physical
+        // button and are not editable.
         S32 sel = item->getSelectedCell();
         S32 desc_col  = grid->getColumn("output_description")->mIndex;
         S32 glyph_col = grid->getColumn("output")->mIndex;
@@ -409,8 +413,9 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
         return;
 
     // Editing an action mapping can change whether the input cell shows a text
-    // label or a PromptFont glyph, which means recreating the cell with the right
-    // font; remember to rebuild the action tables once the commit is applied.
+    // label or a SecondLife-game-control glyph, which means recreating the cell
+    // with the right font; remember to rebuild the action tables once the commit
+    // is applied.
     bool action_grid_edited = (sSelectedGrid == mActionMappingsAxes || sSelectedGrid == mActionMappingsButtons);
     // Editing an axis- or button-channels output likewise changes both its text and
     // icon cells, so both are refreshed from the device map once the commit is applied.
@@ -478,14 +483,15 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
     clearSelectionState();
 
     // Rebuild the action tables so a newly bound (or unbound) button action is
-    // re-rendered with the correct cell font -- text label vs PromptFont glyph.
+    // re-rendered with the correct cell font -- text label vs SecondLife-game-control
+    // glyph.
     if (action_grid_edited)
     {
         populateActionMappings();
     }
 
     // Refresh the axis-/button-channels output cells so the committed output's text
-    // label and PromptFont glyph are both re-rendered from the device map.
+    // label and SecondLife-game-control glyph are both re-rendered from the device map.
     if (axis_channels_edited)
     {
         populateAxisChannelsCells();
@@ -800,9 +806,10 @@ bool LLPanelPreferenceGameControl::postBuild()
     mAxisOutputSelector = getChild<LLComboBox>("axis_output_selector");
     mAxisOutputSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
 
-    // Glyph counterpart of mAxisOutputSelector, shown when editing the PromptFont
-    // "output" (icon) column of the axis-channels table.  Same values, rendered as
-    // PromptFont glyphs, so build it from the text selector's values.
+    // Glyph counterpart of mAxisOutputSelector, shown when editing the
+    // SecondLife-game-control "output" (icon) column of the axis-channels table.
+    // Same values, rendered as SecondLife-game-control glyphs, so build it from
+    // the text selector's values.
     mAxisOutputGlyphSelector = getChild<LLComboBox>("axis_output_glyph_selector");
     mAxisOutputGlyphSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
     buildInputGlyphSelector(mAxisOutputSelector, mAxisOutputGlyphSelector);
@@ -810,8 +817,9 @@ bool LLPanelPreferenceGameControl::postBuild()
     mButtonInputSelector = getChild<LLComboBox>("button_input_selector");
     mButtonInputSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
 
-    // Glyph selectors shown when editing the PromptFont "Axis"/"Button" column.
-    // Their items mirror the text selectors' values, so build them from those.
+    // Glyph selectors shown when editing the SecondLife-game-control
+    // "Axis"/"Button" column. Their items mirror the text selectors' values, so
+    // build them from those.
     mAxisInputGlyphSelector = getChild<LLComboBox>("axis_input_glyph_selector");
     mAxisInputGlyphSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
     buildInputGlyphSelector(mAxisInputSelector, mAxisInputGlyphSelector);
@@ -1093,8 +1101,8 @@ void LLPanelPreferenceGameControl::populateActionMappings()
             if (action == NONE_LABEL)   // skip the "None" sentinel; not an action row
                 continue;
 
-            // Current input bound to this action, and the PromptFont glyph to
-            // show instead of the text label, if this input has one.
+            // Current input bound to this action, and the SecondLife-game-control
+            // glyph to show instead of the text label, if this input has one.
             std::string input_value = mapping.has(action) ? mapping[action].asString() : LLStringUtil::null;
             std::string glyph = promptFontGlyph(input_value);
 
@@ -1104,9 +1112,10 @@ void LLPanelPreferenceGameControl::populateActionMappings()
                 LLScrollListCell::Params cell_params;
                 const std::string& col_name = grid->getColumn(c)->mName;
                 cell_params.column = col_name;
-                // The icon column (1) renders the controller glyph in PromptFont
-                // when this input has one; the action (0) and description (2)
-                // columns match the "Controls" preferences panel font.
+                // The icon column (1) renders the controller glyph in
+                // SecondLife-game-control font when this input has one; the action
+                // (0) and description (2) columns match the "Controls" preferences
+                // panel font.
                 cell_params.font = (c == 1 && !glyph.empty())
                     ? promptFontForCell()
                     : LLFontGL::getFontSansSerif();
@@ -1230,7 +1239,8 @@ void LLPanelPreferenceGameControl::populateAxisChannelsRows()
     {
         const std::string& name = mAxisChannels->getColumn(i)->mName;
         // The icon columns ("input"/"output") render the controller glyph in
-        // PromptFont; the description columns match the "Controls" panel font.
+        // SecondLife-game-control; the description columns match the "Controls"
+        // panel font.
         cell_params.font = (name == "input" || name == "output")
             ? promptFontForCell()
             : LLFontGL::getFontSansSerif();
@@ -1248,8 +1258,8 @@ void LLPanelPreferenceGameControl::populateAxisChannelsRows()
     }
 }
 
-// Fills the axis-channel Output cells (text description + PromptFont glyph) from
-// the current device's axis map.
+// Fills the axis-channel Output cells (text description + SecondLife-game-control
+// glyph) from the current device's axis map.
 void LLPanelPreferenceGameControl::populateAxisChannelsCells()
 {
     std::vector<LLScrollListItem*> rows = mAxisChannels->getAllData();
@@ -1287,7 +1297,8 @@ void LLPanelPreferenceGameControl::populateButtonChannelsRows()
     {
         const std::string& name = mButtonChannels->getColumn(i)->mName;
         // The icon columns ("input"/"output") render the controller glyph in
-        // PromptFont; the description columns match the "Controls" panel font.
+        // SecondLife-game-control; the description columns match the
+        // "Controls" panel font.
         cell_params.font = (name == "input" || name == "output")
             ? promptFontForCell()
             : LLFontGL::getFontSansSerif();
@@ -1306,8 +1317,8 @@ void LLPanelPreferenceGameControl::populateButtonChannelsRows()
     }
 }
 
-// Fills the button-channel Output cells (text description + PromptFont glyph) from
-// the current device's button map.
+// Fills the button-channel Output cells (text description +
+// SecondLife-game-control glyph) from the current device's button map.
 void LLPanelPreferenceGameControl::populateButtonChannelsCells()
 {
     std::vector<LLScrollListItem*> rows = mButtonChannels->getAllData();
@@ -1390,8 +1401,8 @@ void LLPanelPreferenceGameControl::populateAxisStateRows()
     for (S32 i = 0; i < (S32)(mAxisState->getNumColumns()); ++i)
     {
         const std::string& name = mAxisState->getColumn(i)->mName;
-        // The icon column ("input_glyph") renders the controller glyph in PromptFont;
-        // every other column uses the default text font.
+        // The icon column ("input_glyph") renders the controller glyph in
+        // SecondLife-game-control font; every other column uses the default text font.
         cell_params.font = (name == "input_glyph")
             ? promptFontForCell()
             : LLFontGL::getFontSansSerif();
@@ -1412,7 +1423,8 @@ void LLPanelPreferenceGameControl::populateAxisStateRows()
     for (size_t i = 0; i < LLGameControl::NUM_AXES; ++i)
     {
         LLScrollListItem* row = mAxisState->addRow(row_params);
-        // The physical axis is fixed: fill both its PromptFont glyph and its text label.
+        // The physical axis is fixed: fill both its SecondLife-game-control glyph
+        // and its text label.
         std::string glyph = promptFontGlyph(items[i]->getValue().asString());
         row->getColumn(input_glyph_col)->setValue(glyph.empty() ? LLSD() : LLSD(glyph));
         row->getColumn(input_col)->setValue(items[i]->getColumn(0)->getValue());  // physical axis label
@@ -1463,8 +1475,8 @@ void LLPanelPreferenceGameControl::populateButtonStateRows()
     for (S32 i = 0; i < (S32)(mButtonState->getNumColumns()); ++i)
     {
         const std::string& name = mButtonState->getColumn(i)->mName;
-        // The icon column ("input_glyph") renders the controller glyph in PromptFont;
-        // every other column uses the default text font.
+        // The icon column ("input_glyph") renders the controller glyph in
+        // SecondLife-game-control; every other column uses the default text font.
         cell_params.font = (name == "input_glyph")
             ? promptFontForCell()
             : LLFontGL::getFontSansSerif();
@@ -1476,7 +1488,8 @@ void LLPanelPreferenceGameControl::populateButtonStateRows()
     for (size_t i = 0; i < LLGameControl::NUM_BUTTONS; ++i)
     {
         LLScrollListItem* row = mButtonState->addRow(row_params);
-        // The physical button is fixed: fill both its PromptFont glyph and its text label.
+        // The physical button is fixed: fill both its SecondLife-game-control
+        // glyph and its text label.
         std::string glyph = promptFontGlyph(items[i]->getValue().asString());
         row->getColumn(input_glyph_col)->setValue(glyph.empty() ? LLSD() : LLSD(glyph));
         row->getColumn(input_col)->setValue(items[i]->getColumn(0)->getValue());  // physical button label
@@ -1734,10 +1747,10 @@ std::string LLPanelPreferenceGameControl::selectorLabelAt(const LLComboBox* sele
 }
 
 // Populates glyph_selector with one item per value in text_selector.  Each item
-// keeps the canonical value but is displayed as its PromptFont glyph, so the
-// dropdown shown over the icon column matches the icons in the table.  Inputs
-// with no glyph (e.g. "None", spare buttons) keep their text label in the normal
-// font so they remain readable and selectable.
+// keeps the canonical value but is displayed as its SecondLife-game-control
+// glyph, so the dropdown shown over the icon column matches the icons in the
+// table.  Inputs with no glyph (e.g. "None", spare buttons) keep their text
+// label in the normal font so they remain readable and selectable.
 void LLPanelPreferenceGameControl::buildInputGlyphSelector(const LLComboBox* text_selector, LLComboBox* glyph_selector)
 {
     glyph_selector->clearRows();
@@ -1759,7 +1772,7 @@ void LLPanelPreferenceGameControl::buildInputGlyphSelector(const LLComboBox* tex
         else
         {
             column["value"] = glyph;
-            column["font"]["name"] = "PromptFont";
+            column["font"]["name"] = "SecondLife-game-control";
             column["font"]["size"] = "Huge";
         }
         glyph_selector->addElement(element);

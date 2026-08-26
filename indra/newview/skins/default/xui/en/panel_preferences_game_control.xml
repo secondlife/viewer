@@ -468,9 +468,9 @@
             value="AXIS_NONE"/>
     </combo_box>
     <!-- axis_input_glyph_selector: the glyph counterpart of axis_input_selector,
-         shown when editing the PromptFont "Axis" (icon) column.  Items are built
+         shown when editing the "Axis" (icon) column.  Items are built
          in C++ from axis_input_selector's values so the value list stays in one
-         place; each item's label is the PromptFont glyph for that axis. -->
+         place; each item's label is the font glyph for that axis. -->
     <combo_box
         name="axis_input_glyph_selector"
         width="200"
@@ -517,9 +517,9 @@
             value="AXIS_NONE"/>
     </combo_box>
     <!-- axis_output_glyph_selector: the glyph counterpart of axis_output_selector,
-         shown when editing the PromptFont "output" (icon) column of the Devices-tab
+         shown when editing the "output" (icon) column of the Devices-tab
          axis-channels table.  Items are built in C++ from axis_output_selector's
-         values; each item's label is the PromptFont glyph for that canonical axis. -->
+         values; each item's label is the font glyph for that canonical axis. -->
     <combo_box
         name="axis_output_glyph_selector"
         width="200"
@@ -688,9 +688,9 @@
             value="BUTTON_NONE"/>
     </combo_box>
     <!-- button_input_glyph_selector: the glyph counterpart of button_input_selector,
-         shown when editing the PromptFont "Button" (icon) column.  Items are built
+         shown when editing the "Button" (icon) column.  Items are built
          in C++ from button_input_selector's values; each item's label is the
-         PromptFont glyph for that button (falling back to text where none exists). -->
+         fong glyph for that button (falling back to text where none exists). -->
     <combo_box
         name="button_input_glyph_selector"
         width="380"

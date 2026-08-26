@@ -337,38 +337,38 @@
      left="16">
         Helvetica size=Large style=BOLD|ITALIC
     </text>
-    <!-- PromptFont smoke test: gamepad glyphs (icon-only preview). Codepoints from promptfont.h. -->
+    <!-- SecondLife-game-control font smoke test: gamepad glyphs (icon-only preview). Codepoints from promptfont.h. -->
     <text
      type="string"
      length="1"
      bottom_delta="40"
      follows="left|top|right"
-     font="PromptFont"
+     font="SecondLife-game-control"
      font.size="Huge"
      height="32"
      layout="topleft"
      left="16">
-        PromptFont faces/dpad: &#x21A4;&#x21A5;&#x21A6;&#x21A7;  &#x219E;&#x219F;&#x21A0;&#x21A1;
+        SecondLife-game-control faces/dpad: &#x21A4;&#x21A5;&#x21A6;&#x21A7;  &#x219E;&#x219F;&#x21A0;&#x21A1;
     </text>
     <text
      type="string"
      length="1"
      bottom_delta="36"
      follows="left|top|right"
-     font="PromptFont"
+     font="SecondLife-game-control"
      font.size="Huge"
      height="32"
      layout="topleft"
      left="16">
-        PromptFont sticks/triggers: &#x21C4;&#x21C5;&#x21C6;&#x21F5;  &#x2196;&#x2197;&#x2198;&#x2199;
+        SecondLife-game-control sticks/triggers: &#x21C4;&#x21C5;&#x21C6;&#x21F5;  &#x2196;&#x2197;&#x2198;&#x2199;
     </text>
-    <!-- Same-cell text+icon preview: label text renders in PromptFont's own Latin letters. -->
+    <!-- Same-cell text+icon preview: label text renders in SecondLife-game-control's own Latin letters. -->
     <text
      type="string"
      length="1"
      bottom_delta="36"
      follows="left|top|right"
-     font="PromptFont"
+     font="SecondLife-game-control"
      font.size="Large"
      height="24"
      layout="topleft"
