@@ -958,6 +958,7 @@ interface LinkedObject {
   link_number: number;      // Link number (root=1, children≥2)
   link_name: string;
   link_description?: string;
+  permissions?: ObjectPermissions;   // Actual permissions for this linked prim
   inventory: ObjectInventoryItem[];
 }
 
@@ -973,7 +974,7 @@ interface PublishedObject {
   object_description?: string;
   region?: string;
   owner_id?: string;
-  permissions?: ObjectPermissions;
+  permissions?: ObjectPermissions;   // Actual permissions for this root prim
   can_save_back?: boolean;      // Whether Save Back to Contents is currently available for this object
   inventory: ObjectInventoryItem[];      // Root prim's scripts and notecards
   linked_objects?: LinkedObject[];       // Child prims

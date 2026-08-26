@@ -729,6 +729,11 @@ LLSD LLPublishedObjectMgr::buildPublishedObjectLLSD(LLViewerObject* root) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     LLSD pub;
+    const LLPermissions& root_perms = root->getPermissions();
+    LLSD root_perm_entry;
+    root_perm_entry["owner"]      = static_cast<S32>(root_perms.getMaskOwner());
+    root_perm_entry["next_owner"] = static_cast<S32>(root_perms.getMaskNextOwner());
+    pub["permissions"]            = root_perm_entry;
     pub["object_id"]          = root->getID();
     pub["object_name"]        = get_prim_name(root);
     pub["object_description"] = nv_string(root, "Desc");
@@ -753,6 +758,11 @@ LLSD LLPublishedObjectMgr::buildPublishedObjectLLSD(LLViewerObject* root) const
         link["link_number"]      = link_number++;
         link["link_name"]        = get_prim_name(child);
         link["link_description"] = nv_string(child, "Desc");
+        const LLPermissions& child_perms = child->getPermissions();
+        LLSD child_perm_entry;
+        child_perm_entry["owner"]      = static_cast<S32>(child_perms.getMaskOwner());
+        child_perm_entry["next_owner"] = static_cast<S32>(child_perms.getMaskNextOwner());
+        link["permissions"]            = child_perm_entry;
         link["inventory"]        = buildPrimInventoryLLSD(child);
         linked_objects.append(link);
     }
@@ -778,6 +788,11 @@ LLSD LLPublishedObjectMgr::buildObjectListLLSD() const
         }
 
         LLSD pub;
+        const LLPermissions& root_perms = root->getPermissions();
+        LLSD root_perm_entry;
+        root_perm_entry["owner"]      = static_cast<S32>(root_perms.getMaskOwner());
+        root_perm_entry["next_owner"] = static_cast<S32>(root_perms.getMaskNextOwner());
+        pub["permissions"]            = root_perm_entry;
         pub["object_id"]          = info.mObjectID;
         pub["object_name"]        = info.mObjectName;
         pub["object_description"] = info.mObjectDescription;
@@ -808,6 +823,11 @@ LLSD LLPublishedObjectMgr::buildObjectListLLSD() const
             link["link_number"] = prim_info.mLinkNumber;
             link["link_name"]   = prim_info.mPrimName;
             link["link_description"] = prim_info.mPrimDescription;
+            const LLPermissions& child_perms = child->getPermissions();
+            LLSD child_perm_entry;
+            child_perm_entry["owner"]      = static_cast<S32>(child_perms.getMaskOwner());
+            child_perm_entry["next_owner"] = static_cast<S32>(child_perms.getMaskNextOwner());
+            link["permissions"]            = child_perm_entry;
             link["inventory"]   = buildPrimInventoryLLSD(child);
             linked_objects.append(link);
         }
