@@ -183,6 +183,49 @@ To add another floater to this preload set, add another
 `LLFloaterReg::getInstance("floater_name")` call alongside the existing ones
 in that same block.
 
+## MediaMaxInstances: the hard cap on concurrent media
+
+There are two separate limits on how many media instances can be active at
+once, and they are easy to confuse:
+
+- **`SLCefProducer.exe`'s own hard ceiling is 32 concurrent shared-memory
+  channels** (`kSlotCount` in `cefshm_protocol.h`/`llcefproducer.cpp`). This
+  is a structural limit on the transport itself, not something normally
+  worth tuning.
+- **`MediaMaxInstances`** (a saved setting, debug settings search "Media",
+  default `12`) is the real, practically-relevant limit: `LLViewerMedia`'s
+  own hard cap on how many media instances (UI floaters and in-world prim
+  media together) it will actually keep loaded at once, comfortably inside
+  the 32-slot ceiling above. On a machine with less than 8 GB of RAM this
+  is reduced by 2.
+
+This setting is **not embedded-browser-specific**, despite living in this
+document - `LLViewerMedia::updateMedia()`'s priority/cap-accounting loop
+iterates every media instance regardless of backend, so it counts
+legacy-plugin and embedded-browser instances against the same combined
+total. It was renamed from the older `PluginInstancesTotal` since that name
+no longer described what it does (media plugins are not built or shipped by
+default any more - see "Known limitations" below), but the cap itself
+remains shared code, not new to this project.
+
+The four preloaded floaters above always count against this cap once
+constructed. With the default of 12, that leaves 8 slots free for
+everything else (in-world prim media plus any other UI media a resident has
+open) before the cap starts refusing new instances (they show as
+unloaded/blank rather than failing outright).
+
+One easy-to-misread symptom worth knowing about: a media instance a
+resident has just walked away from does **not** free its cap slot
+immediately. `mInterest` (the signal driving unload decisions) is a
+"how large did this render recently" stat that fades gradually over several
+seconds, deliberately, to avoid loading/unloading media on every small
+movement. A resident who walks briskly past several media-bearing prims
+toward more media can see the newer prims briefly lose the cap contest to
+the ones they just left, for up to several seconds until the older
+instances' interest actually decays out - a real but temporary effect, not
+a bug, and not something a resident who deletes or stops actively passing
+stale media will ever encounter.
+
 ## Distance/priority-based render throttling
 
 The legacy CEF plugin throttled a media instance's own render rate and
