@@ -180,7 +180,7 @@ private:
 
     bool mAnyMediaShowing;
     bool mAnyMediaPlaying;
-    S32 mMaxIntances = 8;
+    S32 mMaxInstances = 12; // overwritten by the constructor's real default anyway (see MAX_MEDIA_INSTANCES_DEFAULT)
     LLURL mOpenIDURL;
     std::string mOpenIDCookie;
     LLPluginClassMedia* mSpareBrowserMediaSource;

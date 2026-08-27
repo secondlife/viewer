@@ -6593,10 +6593,10 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    <key>PluginInstancesTotal</key>
+    <key>MediaMaxInstances</key>
     <map>
       <key>Comment</key>
-      <string>Hard limit on the number of plugins that will be instantiated at once for inworld media</string>
+      <string>Hard limit on the number of media instances (in-world and UI) that will be active at once, across both the embedded browser and the legacy media plugin</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

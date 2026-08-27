@@ -1627,7 +1627,7 @@
   <string>Limite do número de plugins de mídia no mundo que rodarão com prioridade "baixa".</string>
   <key>PluginInstancesNormal</key>
   <string>Limite do número de plugins de mídia no mundo que rodarão com prioridade "normal" ou superior.</string>
-  <key>PluginInstancesTotal</key>
+  <key>MediaMaxInstances</key>
   <string>Limite rígido do número de plugins que serão instanciados ao mesmo tempo para mídia no mundo.</string>
   <key>PluginUseReadThread</key>
   <string>Usar uma thread separada para ler mensagens recebidas dos plugins.</string>

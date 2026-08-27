@@ -85,7 +85,13 @@ extern bool gCubeSnapshot;
 
 // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
 constexpr bool USE_MIPMAPS = false;
-constexpr S32 MAX_MEDIA_INSTANCES_DEFAULT = 8;
+// This is only a fallback, used if MediaMaxInstances's control variable
+// can't be found in gSavedSettings at all -- settings.xml's own shipped
+// default (12) is what actually governs normal operation. Kept in sync with
+// that value deliberately (raised from CEF's original 8 to give embedded-
+// browser media enough headroom for the UI's own always-loaded floaters
+// alongside in-world media).
+constexpr S32 MAX_MEDIA_INSTANCES_DEFAULT = 12;
 constexpr S32 MEDIA_INSTANCES_MIN_LIMIT = 6; // 4 'permanent' floaters plus reserve for dynamic ones
 
 void init_threaded_picker_load_dialog(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
@@ -227,7 +233,7 @@ static bool sViewerMediaMuteListObserverInitialized = false;
 LLViewerMedia::LLViewerMedia():
 mAnyMediaShowing(false),
 mAnyMediaPlaying(false),
-mMaxIntances(MAX_MEDIA_INSTANCES_DEFAULT),
+mMaxInstances(MAX_MEDIA_INSTANCES_DEFAULT),
 mSpareBrowserMediaSource(NULL)
 {
 }
@@ -251,7 +257,7 @@ void LLViewerMedia::initSingleton()
     mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
         setTeleportFinishedCallback(boost::bind(&LLViewerMedia::onTeleportFinished, this));
 
-    LLControlVariable* ctrl = gSavedSettings.getControl("PluginInstancesTotal");
+    LLControlVariable* ctrl = gSavedSettings.getControl("MediaMaxInstances");
     if (ctrl)
     {
         setMaxInstances(ctrl->getValue().asInteger());
@@ -273,11 +279,11 @@ void LLViewerMedia::setMaxInstances(S32 max_instances)
     F32Gigabytes physical_mem = LLMemory::getMaxMemKB();
     if (MIN_PHYSICAL_MEMORY > physical_mem)
     {
-        mMaxIntances = llmax(max_instances - 2, MEDIA_INSTANCES_MIN_LIMIT);
+        mMaxInstances = llmax(max_instances - 2, MEDIA_INSTANCES_MIN_LIMIT);
     }
     else
     {
-        mMaxIntances = llmax(max_instances, MEDIA_INSTANCES_MIN_LIMIT);
+        mMaxInstances = llmax(max_instances, MEDIA_INSTANCES_MIN_LIMIT);
     }
 }
 
@@ -657,7 +663,7 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 // plugin backend, embedded browser has no cheap "throttled but still
 // resident" state). Shared with LLViewerMedia::updateMedia()'s own instance-
 // cap accounting below -- a deliberately-unloaded impl must stop counting
-// against PluginInstancesTotal, or the cap stays permanently exhausted by
+// against MediaMaxInstances, or the cap stays permanently exhausted by
 // media that no longer holds any real resource at all.
 static bool wouldUnloadEmbeddedBrowserMedia(LLPluginClassMedia::EPriority priority)
 {
@@ -806,7 +812,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
             LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-            if(pimpl->isForcedUnloaded() || (impl_count_total >= mMaxIntances))
+            if(pimpl->isForcedUnloaded() || (impl_count_total >= mMaxInstances))
             {
                 // Never load muted or failed impls.
                 // Hard limit on the number of instances that will be loaded at one time
@@ -980,7 +986,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
     sLowestLoadableImplInterest = 0.0f;
 
     // Only do this calculation if we've hit the impl count limit -- up until that point we always need to load media data.
-    if(lowest_interest_loadable && (impl_count_total >= mMaxIntances))
+    if(lowest_interest_loadable && (impl_count_total >= mMaxInstances))
     {
         // Get the interest value of this impl's object for use by isInterestingEnough
         LLVOVolume *object = lowest_interest_loadable->getSomeObject();
@@ -4688,7 +4694,7 @@ void LLViewerMediaImpl::setPriority(LLPluginClassMedia::EPriority priority)
 
     // A debounced embedded-browser impl must react the same way to EITHER
     // route that says "don't keep this loaded": literal PRIORITY_UNLOADED
-    // (the hard PluginInstancesTotal cap below, or muted/failed) or
+    // (the hard MediaMaxInstances cap below, or muted/failed) or
     // PRIORITY_SLIDESHOW/HIDDEN (lost the "closest N" cut -- see
     // wouldUnloadEmbeddedBrowserMedia()'s own comment). These used to be two
     // separate branches, and only the second was debounced -- but
@@ -4918,7 +4924,7 @@ void LLViewerMediaImpl::removeObject(LLVOVolume* obj)
     // an instant region change, just normal same-region visibility changes).
     // That gradual decay is cheap to just ride out for the legacy plugin
     // backend, but for embedded browser it means a torn-down region's tabs
-    // keep contesting the fixed PluginInstancesTotal cap against the new
+    // keep contesting the fixed MediaMaxInstances cap against the new
     // region's own media for a long tail after a teleport (observed: tens of
     // seconds). mObjectList going empty is a precise, immediate signal that
     // this impl's last reason to exist just disappeared -- act on it directly.
