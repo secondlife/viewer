@@ -17,7 +17,10 @@ This document describes all the message interfaces defined for WebSocket communi
   - [SessionHandshakeResponse](#sessionhandshakeresponse)
   - [Session OK](#session-ok)
   - [SessionDisconnect](#sessiondisconnect)
-  - [SessionPing](#sessionping)
+  - [SystemPing](#systemping)
+  - [SystemVersion](#systemversion)
+  - [SystemStatus](#systemstatus)
+  - [SystemListMethods](#systemlistmethods)
 - [Language and Syntax Interfaces](#language-and-syntax-interfaces)
   - [SyntaxChange](#syntaxchange)
   - [Language Syntax ID Request](#language-syntax-id-request)
@@ -165,8 +168,14 @@ WebSocket connects → session.handshake → session.ok
 | `session.handshake` (response)  | Extension → Viewer | Response     | `SessionHandshakeResponse` |
 | `session.ok`                    | Viewer → Extension | Notification | _(no interface)_           |
 | `session.disconnect`            | Bidirectional      | Notification | `SessionDisconnect`        |
-| `session.ping`                  | Bidirectional      | Call         | `SessionPing`              |
-| `session.ping` (response)       | Bidirectional      | Response     | `SessionPingResponse`      |
+| `system.ping`                   | Bidirectional      | Call         | `SystemPing`               |
+| `system.ping` (response)        | Bidirectional      | Response     | `SystemPingResponse`       |
+| `system.getVersion`             | Bidirectional      | Call         | _(no parameters)_          |
+| `system.getVersion` (response)  | Bidirectional      | Response     | `SystemVersionResponse`    |
+| `system.status`                 | Bidirectional      | Call         | _(no parameters)_          |
+| `system.status` (response)      | Bidirectional      | Response     | `SystemStatusResponse`     |
+| `system.listMethods`            | Bidirectional      | Call         | _(no parameters)_          |
+| `system.listMethods` (response) | Bidirectional      | Response     | `SystemListMethodsResponse`|
 | `script.subscribe`              | Extension → Viewer | Call         | `ScriptSubscribe`          |
 | `script.subscribe` (response)   | Viewer → Extension | Response     | `ScriptSubscribeResponse`  |
 | `script.unsubscribe`            | Viewer → Extension | Notification | `ScriptUnsubscribe`        |
@@ -373,18 +382,19 @@ interface SessionDisconnect {
   - `4`: Internal server error
 - `message`: Human-readable description of the disconnect reason
 
-### SessionPing
+### SystemPing
 
-**JSON-RPC Method:** `session.ping` (call, bidirectional)
+**JSON-RPC Method:** `system.ping` (call, bidirectional)
 
-Heartbeat call used to verify the connection is alive and measure latency. Either side can initiate a ping; the recipient responds with the original timestamp plus its own server time.
+Ping call used to verify that the connection is alive and measure latency. Either side can
+initiate a ping.
 
-In practice the extension initiates and the viewer only answers — the viewer never sends
-`session.ping` itself. The extension pings every 30 seconds and tears the connection down after
-two consecutive failures.
+The generic JSON-RPC server responds with the simple result `"pong"`. The editor server extends
+that response with the original timestamp and its current server time. The extension uses the
+extended response for its periodic connection-health check.
 
 ```typescript
-interface SessionPing {
+interface SystemPing {
   timestamp: number;
 }
 ```
@@ -396,7 +406,8 @@ interface SessionPing {
 **Response:**
 
 ```typescript
-interface SessionPingResponse {
+interface SystemPingResponse {
+  pong: string;
   timestamp: number;
   server_time: number;
 }
@@ -404,18 +415,66 @@ interface SessionPingResponse {
 
 **Response Fields:**
 
-- `timestamp`: The original timestamp from the request. Echoed back only when the request supplied one.
+- `pong`: Acknowledgement that the ping was received.
+- `timestamp`: The original timestamp from the request, echoed by the editor server.
 - `server_time`: Unix timestamp in milliseconds when the response was generated
+
+The extension sends a `system.ping` request every 30 seconds and tears the connection down
+after two consecutive failures.
 
 **Example Request:**
 
 ```json
 {
   "jsonrpc": "2.0",
-  "method": "session.ping",
+  "method": "system.ping",
   "id": 42,
   "params": {
     "timestamp": 1721145600000
+  }
+}
+```
+
+### SystemVersion
+
+**JSON-RPC Method:** `system.getVersion` (call, bidirectional)
+
+Requests the identity and version of the peer. The response uses the same field names in both
+directions:
+
+```typescript
+interface SystemVersionResponse {
+  client_name: string;
+  client_version: string;
+}
+```
+
+The viewer returns its viewer channel as `client_name` and its full viewer version as
+`client_version`. The extension returns its package name as `client_name` and its package version
+as `client_version`.
+
+**Example viewer response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 43,
+  "result": {
+    "client_name": "Second Life",
+    "client_version": "7.1.0.123456"
+  }
+}
+```
+
+**Example extension response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 43,
+  "result": {
+    "client_name": "sl-vscode-plugin",
+    "client_version": "1.0.6"
   }
 }
 ```
@@ -427,9 +486,70 @@ interface SessionPingResponse {
   "jsonrpc": "2.0",
   "id": 42,
   "result": {
+    "pong": "pong",
     "timestamp": 1721145600000,
     "server_time": 1721145600015
   }
+}
+```
+
+### SystemStatus
+
+**JSON-RPC Method:** `system.status` (call, bidirectional)
+
+Requests the current status of the peer. The default response is:
+
+```typescript
+interface SystemStatusResponse {
+  status: "OK";
+}
+```
+
+Both the viewer and the extension currently return `status: "OK"`. The response may be extended
+with additional status information in the future.
+
+**Example response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 44,
+  "result": {
+    "status": "OK"
+  }
+}
+```
+
+### SystemListMethods
+
+**JSON-RPC Method:** `system.listMethods` (call, bidirectional)
+
+Requests the names of the methods available on the receiving peer. The response contains an
+alphabetically ordered list of unique method names. Sync versus async dispatch is an internal
+implementation detail and is not exposed by this interface.
+
+```typescript
+type SystemListMethodsResponse = string[];
+```
+
+The viewer returns all methods registered on the connection, including methods registered by the
+base JSON-RPC server and the editor server. The extension returns its built-in system methods
+together with dynamically registered handlers.
+
+**Example response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 45,
+  "result": [
+    "command.execute",
+    "command.list",
+    "system.getVersion",
+    "system.listMethods",
+    "system.ping",
+    "system.status"
+  ]
 }
 ```
 

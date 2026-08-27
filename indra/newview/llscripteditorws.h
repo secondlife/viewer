@@ -236,6 +236,10 @@ protected:
                                                          LLWebsocketMgr::connection_h handle) override;
 
     void setupConnectionMethods(LLJSONRPCConnection::ptr_t connection) override;
+    LLSD handlePing(const LLJSONRPCConnection::ptr_t& connection,
+                    const LLSD& params) const override;
+    LLSD handleGetVersion(const LLJSONRPCConnection::ptr_t& connection,
+                          const LLSD& params) const override;
 
     void broadcastLanguageChange();
 

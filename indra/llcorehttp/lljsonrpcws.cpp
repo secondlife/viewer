@@ -516,6 +516,24 @@ void LLJSONRPCConnection::unregisterMethod(const std::string& method)
     LL_DEBUGS("JSONRPC") << "Unregistered method: " << method << LL_ENDL;
 }
 
+std::set<std::string> LLJSONRPCConnection::getMethods() const
+{
+    LLMutexLock lock(&mMutex);
+    std::set<std::string> methods;
+
+    for (const auto& [method, handler] : mMethodHandlers)
+    {
+        methods.insert(method);
+    }
+
+    for (const auto& [method, handler] : mAsyncMethodHandlers)
+    {
+        methods.insert(method);
+    }
+
+    return methods;
+}
+
 LLSD LLJSONRPCConnection::makeEnvelope(const LLSD& id,
                                        const std::string& method,
                                        const LLSD& params,
@@ -670,23 +688,11 @@ LLJSONRPCServer::LLJSONRPCServer(const std::string& name, U16 port, bool local_o
                         << " on port " << port << LL_ENDL;
 
     // Register standard JSON-RPC methods
-    registerGlobalMethod("system.listMethods", [this](const std::string& method, const LLSD& id, const LLSD& params) -> LLSD {
-        LL_DEBUGS("JSONRPC") << "System method " << method << " called" << LL_ENDL;
-        return getMethodList();
-    });
-
     registerGlobalMethod("system.getStats", [this](const std::string& method, const LLSD& id, const LLSD& params) -> LLSD {
         LL_DEBUGS("JSONRPC") << "System method " << method << " called" << LL_ENDL;
         return getServerStats();
     });
 
-    registerGlobalMethod("system.ping", [](const std::string& method, const LLSD& id, const LLSD& params) -> LLSD {
-        LL_DEBUGS("JSONRPC") << "System method " << method << " called" << LL_ENDL;
-        LLSD result;
-        result["pong"] = LLDate::now().asString();
-        result["params"] = params;
-        return result;
-    });
 }
 
 LLWebsocketMgr::WSConnection::ptr_t LLJSONRPCServer::connectionFactory(LLWebsocketMgr::WSServer::ptr_t server,
@@ -719,21 +725,80 @@ void LLJSONRPCServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t connecti
         connection->registerMethod(method, handler);
     }
 
-    // Register session.ping handler for connection health monitoring
-    connection->registerMethod("session.ping",
-        [](const std::string&, const LLSD&, const LLSD& params) -> LLSD
+    std::weak_ptr<LLJSONRPCConnection> weak_connection = connection;
+    connection->registerMethod(
+        "system.listMethods",
+        [weak_connection](
+            const std::string&,
+            const LLSD&,
+            const LLSD&) -> LLSD
         {
-            LLSD result;
-            // Echo back the original timestamp
-            if (params.has("timestamp"))
+            LLSD methods(LLSD::emptyArray());
+            auto connection = weak_connection.lock();
+            if (!connection)
             {
-                result["timestamp"] = params["timestamp"];
+                return methods;
             }
-            // Add server's current time in milliseconds
-            result["server_time"] = static_cast<LLSD::Integer>(
-                LLDate::now().secondsSinceEpoch() * 1000.0);
-            return result;
+
+            for (const std::string& method : connection->getMethods())
+            {
+                methods.append(method);
+            }
+
+            return methods;
         });
+
+    connection->registerMethod(
+        "system.ping",
+        [this, weak_connection](
+            const std::string& method,
+            const LLSD& id,
+            const LLSD& params) -> LLSD
+        {
+            LL_DEBUGS("JSONRPC") << "System method " << method
+                                 << " called" << LL_ENDL;
+            return handlePing(weak_connection.lock(), params);
+        });
+
+    connection->registerMethod(
+        "system.getVersion",
+        [this, weak_connection](
+            const std::string& method,
+            const LLSD& id,
+            const LLSD& params) -> LLSD
+        {
+            LL_DEBUGS("JSONRPC") << "System method " << method
+                                 << " called" << LL_ENDL;
+            return handleGetVersion(weak_connection.lock(), params);
+        });
+
+    connection->registerMethod(
+        "system.status",
+        [this, weak_connection](
+            const std::string& method,
+            const LLSD& id,
+            const LLSD& params) -> LLSD
+        {
+            LL_DEBUGS("JSONRPC") << "System method " << method
+                                 << " called" << LL_ENDL;
+            return handleStatus(weak_connection.lock(), params);
+        });
+}
+
+LLSD LLJSONRPCServer::handlePing(
+    const LLJSONRPCConnection::ptr_t& connection,
+    const LLSD& params) const
+{
+    return LLSD("pong");
+}
+
+LLSD LLJSONRPCServer::handleStatus(
+    const LLJSONRPCConnection::ptr_t& connection,
+    const LLSD& params) const
+{
+    LLSD result;
+    result["status"] = "OK";
+    return result;
 }
 
 void LLJSONRPCServer::registerGlobalMethod(const std::string& method, MethodHandler handler)

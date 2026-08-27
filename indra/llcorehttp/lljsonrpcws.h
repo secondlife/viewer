@@ -275,6 +275,12 @@ public:
     void unregisterMethod(const std::string& method);
 
     /**
+     * @brief Get the names of all registered methods
+     * @return Ordered set containing sync and async method names
+     */
+    virtual std::set<std::string> getMethods() const;
+
+    /**
      * @brief Make an asynchronous JSON-RPC call
      * @param method The method name to call
      * @param params The parameters to pass
@@ -494,6 +500,13 @@ public:
 protected:
     LLWebsocketMgr::WSConnection::ptr_t connectionFactory(LLWebsocketMgr::WSServer::ptr_t server,
                                                          LLWebsocketMgr::connection_h handle) override;
+
+    virtual LLSD handlePing(const LLJSONRPCConnection::ptr_t& connection,
+                            const LLSD& params) const;
+    virtual LLSD handleGetVersion(const LLJSONRPCConnection::ptr_t& connection,
+                                  const LLSD& params) const = 0;
+    virtual LLSD handleStatus(const LLJSONRPCConnection::ptr_t& connection,
+                              const LLSD& params) const;
 
     /**
      * @brief Apply global method handlers to a new connection

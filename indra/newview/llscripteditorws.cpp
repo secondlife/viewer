@@ -1251,6 +1251,33 @@ void LLScriptEditorWSServer::broadcastLanguageChange()
     }
 }
 
+LLSD LLScriptEditorWSServer::handlePing(
+    const LLJSONRPCConnection::ptr_t& connection,
+    const LLSD& params) const
+{
+    LLSD result;
+    result["pong"] = "pong";
+
+    if (params.has("timestamp"))
+    {
+        result["timestamp"] = params["timestamp"];
+    }
+
+    result["server_time"] = static_cast<LLSD::Integer>(
+        LLDate::now().secondsSinceEpoch() * 1000.0);
+    return result;
+}
+
+LLSD LLScriptEditorWSServer::handleGetVersion(
+    const LLJSONRPCConnection::ptr_t& connection,
+    const LLSD& params) const
+{
+    LLSD result;
+    result["client_name"] = LLVersionInfo::instance().getChannel();
+    result["client_version"] = LLVersionInfo::instance().getVersion();
+    return result;
+}
+
 LLSD LLScriptEditorWSServer::handleLanguageIdRequest() const
 {
     LLSD response;
