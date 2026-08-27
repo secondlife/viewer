@@ -24,8 +24,10 @@
  */
 
 
+#ifndef LL_VULKAN_SHADER
 in vec3 position;
 out vec2 tc;
+#endif
 
 void main()
 {

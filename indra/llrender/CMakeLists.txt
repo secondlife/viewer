@@ -346,6 +346,63 @@ if (LL_VULKAN_TONEMAP_TEST)
       "${llvulkan_material_fragment_spv}")
   set_target_properties(llvulkanmaterial_shaders PROPERTIES FOLDER "Tests")
 
+  set(llvulkan_texture_upload_vertex_source
+      "${llvulkan_shader_source_dir}/textureupload.vert.glsl")
+  set(llvulkan_texture_upload_fragment_source
+      "${llvulkan_shader_source_dir}/textureupload.frag.glsl")
+  set(llvulkan_texture_upload_vertex_spv
+      "${llvulkan_shader_binary_dir}/textureupload.vert.spv")
+  set(llvulkan_texture_upload_fragment_spv
+      "${llvulkan_shader_binary_dir}/textureupload.frag.spv")
+
+  add_custom_command(
+      OUTPUT "${llvulkan_texture_upload_vertex_spv}"
+      COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_shader_binary_dir}"
+      COMMAND "${CMAKE_COMMAND}" -E remove -f "${llvulkan_texture_upload_vertex_spv}.tmp"
+      COMMAND "${LL_VULKAN_GLSLANG_VALIDATOR}"
+              -V --target-env vulkan1.1 -S vert
+              "-I${llvulkan_shader_source_dir}"
+              -o "${llvulkan_texture_upload_vertex_spv}.tmp"
+              "${llvulkan_texture_upload_vertex_source}"
+      COMMAND "${LL_VULKAN_SPIRV_VAL}"
+              --target-env vulkan1.1 "${llvulkan_texture_upload_vertex_spv}.tmp"
+      COMMAND "${CMAKE_COMMAND}" -E rename
+              "${llvulkan_texture_upload_vertex_spv}.tmp"
+              "${llvulkan_texture_upload_vertex_spv}"
+      DEPENDS
+              "${llvulkan_texture_upload_vertex_source}"
+              "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/interface/copyV.glsl"
+      COMMENT "Compiling and validating Vulkan texture upload vertex shader"
+      VERBATIM
+  )
+
+  add_custom_command(
+      OUTPUT "${llvulkan_texture_upload_fragment_spv}"
+      COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_shader_binary_dir}"
+      COMMAND "${CMAKE_COMMAND}" -E remove -f "${llvulkan_texture_upload_fragment_spv}.tmp"
+      COMMAND "${LL_VULKAN_GLSLANG_VALIDATOR}"
+              -V --target-env vulkan1.1 -S frag
+              "-I${llvulkan_shader_source_dir}"
+              -o "${llvulkan_texture_upload_fragment_spv}.tmp"
+              "${llvulkan_texture_upload_fragment_source}"
+      COMMAND "${LL_VULKAN_SPIRV_VAL}"
+              --target-env vulkan1.1 "${llvulkan_texture_upload_fragment_spv}.tmp"
+      COMMAND "${CMAKE_COMMAND}" -E rename
+              "${llvulkan_texture_upload_fragment_spv}.tmp"
+              "${llvulkan_texture_upload_fragment_spv}"
+      DEPENDS
+              "${llvulkan_texture_upload_fragment_source}"
+              "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/interface/copyF.glsl"
+      COMMENT "Compiling and validating Vulkan texture upload fragment shader"
+      VERBATIM
+  )
+
+  add_custom_target(llvulkantextureupload_shaders
+      DEPENDS
+      "${llvulkan_texture_upload_vertex_spv}"
+      "${llvulkan_texture_upload_fragment_spv}")
+  set_target_properties(llvulkantextureupload_shaders PROPERTIES FOLDER "Tests")
+
   set(llvulkan_link_library Vulkan::Vulkan)
   set(llvulkan_universal_macos OFF)
   if (DARWIN)
@@ -464,27 +521,54 @@ if (LL_VULKAN_TONEMAP_TEST)
   add_executable(llmaterialcompare vulkan/llmaterialcompare_main.cpp)
   target_link_libraries(llmaterialcompare PRIVATE llrendercontract)
 
+  add_library(llrendervulkantextureupload STATIC
+      vulkan/llrendervulkantextureupload.cpp
+      vulkan/llrendervulkantextureupload.h
+  )
+  target_include_directories(llrendervulkantextureupload
+      PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/vulkan")
+  target_include_directories(llrendervulkantextureupload SYSTEM
+      PUBLIC "${Vulkan_INCLUDE_DIR}")
+  if (llvulkan_universal_macos)
+    add_dependencies(llrendervulkantextureupload llvulkantonemap_loader)
+  endif ()
+  target_link_libraries(llrendervulkantextureupload
+      PUBLIC
+      llrendercontract
+      "${llvulkan_link_library}")
+  set_target_properties(llrendervulkantextureupload PROPERTIES FOLDER "Tests")
+
+  add_executable(llvulkantextureupload vulkan/llvulkantextureupload_main.cpp)
+  target_link_libraries(llvulkantextureupload PRIVATE llrendervulkantextureupload)
+  add_dependencies(llvulkantextureupload llvulkantextureupload_shaders)
+
+  add_executable(lltextureuploadcompare vulkan/lltextureuploadcompare_main.cpp)
+  target_link_libraries(lltextureuploadcompare PRIVATE llrendercontract)
+
   if (DARWIN)
     set_target_properties(
         llvulkantonemap lltonemapcompare llvulkanmaterial llmaterialcompare
+        llvulkantextureupload lltextureuploadcompare
         PROPERTIES
         OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}"
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"
         XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "YES"
         FOLDER "Tests")
     if (llvulkan_universal_macos)
-      set_target_properties(llvulkantonemap llvulkanmaterial PROPERTIES
+      set_target_properties(llvulkantonemap llvulkanmaterial llvulkantextureupload PROPERTIES
           BUILD_RPATH "${llvulkan_fat_loader_dir}")
     endif ()
   else ()
     set_target_properties(
         llvulkantonemap lltonemapcompare llvulkanmaterial llmaterialcompare
+        llvulkantextureupload lltextureuploadcompare
         PROPERTIES
         FOLDER "Tests")
   endif ()
 
   set_source_files_properties(
       tests/llrendervulkanmaterialregistry_test.cpp
+      tests/llrendervulkantextureuploadregistry_test.cpp
       tests/llrendervulkantonemapregistry_test.cpp
       PROPERTIES
       SKIP_PRECOMPILE_HEADERS TRUE
@@ -497,10 +581,15 @@ if (LL_VULKAN_TONEMAP_TEST)
       llrendervulkanmaterialregistry
       ""
       "llrendervulkanmaterial;${llvulkan_link_library};llrendercontract;llcommon")
+  LL_ADD_INTEGRATION_TEST(
+      llrendervulkantextureuploadregistry
+      ""
+      "llrendervulkantextureupload;${llvulkan_link_library};llrendercontract;llcommon")
   if (llvulkan_universal_macos)
     set_target_properties(
         INTEGRATION_TEST_llrendervulkantonemapregistry
         INTEGRATION_TEST_llrendervulkanmaterialregistry
+        INTEGRATION_TEST_llrendervulkantextureuploadregistry
         PROPERTIES
         BUILD_WITH_INSTALL_RPATH OFF
         BUILD_RPATH "${llvulkan_fat_loader_dir}")
@@ -511,5 +600,7 @@ if (LL_VULKAN_TONEMAP_TEST)
       llvulkantonemap
       lltonemapcompare
       llvulkanmaterial
-      llmaterialcompare)
+      llmaterialcompare
+      llvulkantextureupload
+      lltextureuploadcompare)
 endif ()

@@ -82,6 +82,26 @@ struct StreamingUploadInputs
     ImageState            mAfter  = ImageState::ShaderRead;
 };
 
+// Backend-neutral publication state for one streamed image generation. A
+// backend may keep the retired physical object alive after this ledger changes.
+struct StreamingUploadLifecycle
+{
+    ImageHandle   mCurrentImage;
+    std::uint64_t mLastRevision = 0;
+    bool          mCompletionPending = false;
+
+    std::uint32_t mCompletionCount = 0;
+    ImageHandle   mCompletedDestination;
+    std::uint64_t mCompletedRevision = 0;
+    std::uint64_t mCompletedFrame = 0;
+
+    std::uint32_t mRetirementCount = 0;
+    ImageHandle   mRetiredResource;
+    std::uint64_t mRetirementFrame = 0;
+
+    friend constexpr bool operator==(const StreamingUploadLifecycle&, const StreamingUploadLifecycle&) = default;
+};
+
 // Copies the caller's pixels into storage owned by the returned frame.
 std::optional<FrameSnapshot> buildStreamingUploadFrame(const StreamingUploadInputs& inputs);
 

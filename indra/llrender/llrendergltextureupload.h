@@ -42,25 +42,9 @@ struct Sampler
     friend constexpr bool operator==(const Sampler&, const Sampler&) = default;
 };
 
-// The ledger represents backend-neutral publication. GL object destruction may
-// happen later through LLImageGL's normal deferred deletion path.
-struct LifecycleLedger
-{
-    LLRenderContract::ImageHandle mCurrentImage;
-    std::uint64_t                 mLastRevision = 0;
-    bool                          mCompletionPending = false;
-
-    std::uint32_t                 mCompletionCount = 0;
-    LLRenderContract::ImageHandle mCompletedDestination;
-    std::uint64_t                 mCompletedRevision = 0;
-    std::uint64_t                 mCompletedFrame = 0;
-
-    std::uint32_t                 mRetirementCount = 0;
-    LLRenderContract::ImageHandle mRetiredResource;
-    std::uint64_t                 mRetirementFrame = 0;
-
-    friend constexpr bool operator==(const LifecycleLedger&, const LifecycleLedger&) = default;
-};
+// GL object destruction may happen later through LLImageGL's normal deferred
+// deletion path. Publication itself uses the backend-neutral ledger.
+using LifecycleLedger = LLRenderContract::StreamingUploadLifecycle;
 
 using ExecutionResult = LLRenderContract::TextureUploadArtifact;
 

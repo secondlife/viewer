@@ -23,6 +23,7 @@
  * $/LicenseInfo$
  */
 
+#ifndef LL_VULKAN_SHADER
 in vec2 tc;
 
 #if defined(COPY_DEPTH)
@@ -32,6 +33,7 @@ uniform sampler2D depthMap;
 uniform sampler2D diffuseMap;
 
 out vec4 frag_color;
+#endif
 
 void main()
 {
@@ -40,4 +42,3 @@ void main()
     gl_FragDepth = texture(depthMap, tc).r;
 #endif
 }
-
