@@ -797,7 +797,7 @@ LLSD LLPublishedObjectMgr::buildObjectListLLSD() const
         }
 
         LLSD pub;
-    add_object_permissions(pub, root);
+        add_object_permissions(pub, root);
         pub["object_id"]          = info.mObjectID;
         pub["object_name"]        = info.mObjectName;
         pub["object_description"] = info.mObjectDescription;
