@@ -117,6 +117,7 @@ public:
     static std::vector<std::string> getDisplaysResolutionList();
 
     static std::vector<std::string> getDynamicFallbackFontList();
+    static LLFontFallbackMatch findFallbackFontForChar(llwchar wch);
 
     // Provide native key event data
     LLSD getNativeKeyData() override;

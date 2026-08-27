@@ -3271,6 +3271,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("FetchInventory2");
     capabilityNames.append("FetchInventoryDescendents2");
     capabilityNames.append("IncrementCOFVersion");
+    capabilityNames.append("CreateTaskInventoryItem");
     capabilityNames.append("RequestTaskInventory");
     AISAPI::getCapNames(capabilityNames);
 
@@ -3324,6 +3325,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("RequestTextureDownload");
     capabilityNames.append("ResourceCostSelected");
     capabilityNames.append("RetrieveNavMeshSrc");
+    capabilityNames.append("ScriptDefinitions");
     capabilityNames.append("SearchStatRequest");
     capabilityNames.append("SearchStatTracking");
     capabilityNames.append("SendPostcard");

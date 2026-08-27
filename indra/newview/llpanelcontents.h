@@ -33,6 +33,7 @@
 #include "lluuid.h"
 #include "llviewerobject.h"
 #include "llvoinventorylistener.h"
+#include "llscripteditorws.h"
 #include "v3math.h"
 
 class LLButton;
@@ -52,8 +53,17 @@ public:
     void            clearContents();
 
 
-    static void     onClickNewScript(void*);
+    void            onNewScriptFlyoutCommit(LLUICtrl* ctrl);
+    void            onNewNotecardCommit();
     static void     onClickPermissions(void*);
+    void            onClickPublish();
+
+    void            createTaskInventoryItemHelper(LLViewerObject* object,
+                        LLAssetType::EType asset_type,
+                        LLInventoryType::EType inventory_type,
+                        U8 sub_type,
+                        const std::string& name,
+                        const LLSD& params);
 
     // Key suffix for "tentative" fields
     static const char* TENTATIVE_SUFFIX;
@@ -76,6 +86,7 @@ public:
     class LLFilterEditor* mFilterEditor;
     LLSaveFolderState mSavedFolderState;
     LLPanelObjectInventory* mPanelInventoryObject;
+    LLButton* mPublishButton { nullptr };
 };
 
 #endif // LL_LLPANELCONTENTS_H

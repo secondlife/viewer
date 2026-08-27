@@ -42,6 +42,8 @@ class LLViewerInventoryCategory;
 class LLInventoryCallback;
 class LLAvatarName;
 
+constexpr U8 NO_INV_SUBTYPE{ 0 };
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLViewerInventoryItem
 //
@@ -149,6 +151,10 @@ public:
     };
     LLTransactionID getTransactionID() const { return mTransactionID; }
 
+    // Script runtime state (from task inventory cap)
+    bool getIsRunning() const { return mIsRunning; }
+    bool getIsFaulted() const { return mIsFaulted; }
+
     bool getIsBrokenLink() const; // true if the baseitem this points to doesn't exist in memory.
     LLViewerInventoryItem *getLinkedItem() const;
     LLViewerInventoryCategory *getLinkedCategory() const;
@@ -166,6 +172,10 @@ public:
 public:
     bool mIsComplete;
     LLTransactionID mTransactionID;
+
+    // Script runtime state (only valid for task inventory scripts)
+    bool mIsRunning = false;
+    bool mIsFaulted = false;
 };
 
 
@@ -378,8 +388,6 @@ public:
 };
 extern LLInventoryCallbackManager gInventoryCallbacks;
 
-
-const U8 NO_INV_SUBTYPE{ 0 };
 
 // *TODO: Find a home for these
 void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,

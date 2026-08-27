@@ -897,8 +897,20 @@ public:
                        const std::string& name) :
         LLTaskInvFVBridge(panel, uuid, name) {}
 
+    LLUIImagePtr getIcon() const override;
+
     //static bool enableIfCopyable( void* userdata );
 };
+
+// virtual
+LLUIImagePtr LLTaskScriptBridge::getIcon() const
+{
+    // Pass the item's flags so the script subtype (e.g. SST_LUA) is honored
+    // and the correct icon (Inv_Script vs Inv_Script_Luau) is selected.
+    LLInventoryItem* item = findItem();
+    U32 misc_flag = item ? item->getFlags() : 0;
+    return LLInventoryIcon::getIcon(mAssetType, mInventoryType, misc_flag, false);
+}
 
 class LLTaskLSLBridge : public LLTaskScriptBridge
 {
