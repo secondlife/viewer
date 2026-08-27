@@ -1318,6 +1318,11 @@ void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env,
         return;
     }
     LL_DEBUGS("ENVIRONMENT") << "Loaded asset: " << asset_id << LL_ENDL;
+    if (LLApp::isQuitting())
+    {
+        // Probably unreachable, but just in case.
+        return;
+    }
 
     setEnvironment(env, settings);
     updateEnvironment(transition);
@@ -2540,6 +2545,11 @@ void LLEnvironment::onSetExperienceEnvAssetLoaded(LLUUID experience_id, LLSettin
         return;
     }
 
+    if (LLApp::isQuitting())
+    {
+        return;
+    }
+
     if (!environment)
     {
         environment = std::dynamic_pointer_cast<DayInjection>(getEnvironmentInstance(ENV_PUSH, true));
@@ -3057,6 +3067,10 @@ bool LLEnvironment::loadFromSettings()
         LLSettingsVOBase::getSettingsAsset(assetId,
             [this, env_data](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
         {
+            if (LLApp::isQuitting())
+            {
+                return;
+            }
             // Day should be always applied first,
             // otherwise it will override sky or water that was set earlier
             // so wait for asset to load before applying sky/water
