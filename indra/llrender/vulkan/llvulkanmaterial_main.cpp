@@ -14,6 +14,7 @@
  */
 
 #include "llmaterialdiagnostic.h"
+#include "llrendervulkanglobaldispatch.h"
 #include "llrendervulkanmaterial.h"
 
 #include <vulkan/vulkan.h>
@@ -551,6 +552,7 @@ private:
     ShaderIdentityToken mVertexIdentity{};
     ShaderIdentityToken mFragmentIdentity{};
 
+    std::optional<LLRenderVulkan::VulkanGlobalDispatchGeneration> mGlobalDispatch;
     VkInstance               mInstance = VK_NULL_HANDLE;
     VkDebugUtilsMessengerEXT mDebugMessenger = VK_NULL_HANDLE;
     VkPhysicalDevice         mPhysicalDevice = VK_NULL_HANDLE;
@@ -625,10 +627,31 @@ void VulkanMaterialRun::loadShaderFiles()
 
 void VulkanMaterialRun::createInstance()
 {
-    const auto layers = enumerate<VkLayerProperties>(
-        [](std::uint32_t* count, VkLayerProperties* values)
+    LLRenderVulkan::VulkanGlobalDispatchResolutionResult dispatch_result =
+        LLRenderVulkan::resolveVulkanGlobalDispatchGeneration(vkGetInstanceProcAddr);
+    if (const auto* error = std::get_if<LLRenderVulkan::VulkanGlobalDispatchResolutionError>(&dispatch_result))
+    {
+        if (error->mCode == LLRenderVulkan::VulkanGlobalDispatchResolutionCode::VersionQueryFailure)
         {
-            return vkEnumerateInstanceLayerProperties(count, values);
+            check(error->mResult, "vkEnumerateInstanceVersion");
+        }
+        if (error->mCode == LLRenderVulkan::VulkanGlobalDispatchResolutionCode::UnsupportedApiVariant)
+        {
+            throw CapabilityFailure("the Vulkan loader reported an unsupported API variant");
+        }
+        if (error->mCode == LLRenderVulkan::VulkanGlobalDispatchResolutionCode::InsufficientApiVersion)
+        {
+            throw CapabilityFailure("the Vulkan 1.1 loader required by the shader target is unavailable");
+        }
+        throw CapabilityFailure("the Vulkan global command set required by the shader target is unavailable");
+    }
+    mGlobalDispatch.emplace(std::get<LLRenderVulkan::VulkanGlobalDispatchGeneration>(std::move(dispatch_result)));
+    const LLRenderVulkan::VulkanGlobalDispatchGeneration& global_dispatch = *mGlobalDispatch;
+
+    const auto layers = enumerate<VkLayerProperties>(
+        [&global_dispatch](std::uint32_t* count, VkLayerProperties* values)
+        {
+            return global_dispatch.enumerateInstanceLayerProperties()(count, values);
         },
         "vkEnumerateInstanceLayerProperties");
     if (!hasName(layers, "VK_LAYER_KHRONOS_validation"))
@@ -637,26 +660,14 @@ void VulkanMaterialRun::createInstance()
     }
 
     const auto extensions = enumerate<VkExtensionProperties>(
-        [](std::uint32_t* count, VkExtensionProperties* values)
+        [&global_dispatch](std::uint32_t* count, VkExtensionProperties* values)
         {
-            return vkEnumerateInstanceExtensionProperties(nullptr, count, values);
+            return global_dispatch.enumerateInstanceExtensionProperties()(nullptr, count, values);
         },
         "vkEnumerateInstanceExtensionProperties");
     if (!hasName(extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
     {
         throw CapabilityFailure("VK_EXT_debug_utils is required but unavailable");
-    }
-
-    std::uint32_t loader_version = VK_API_VERSION_1_0;
-    const auto enumerate_version = reinterpret_cast<PFN_vkEnumerateInstanceVersion>(
-        vkGetInstanceProcAddr(VK_NULL_HANDLE, "vkEnumerateInstanceVersion"));
-    if (enumerate_version)
-    {
-        check(enumerate_version(&loader_version), "vkEnumerateInstanceVersion");
-    }
-    if (loader_version < VK_API_VERSION_1_1)
-    {
-        throw CapabilityFailure("the Vulkan 1.1 loader required by the shader target is unavailable");
     }
 
     std::vector<const char*> enabled_extensions{ VK_EXT_DEBUG_UTILS_EXTENSION_NAME };
@@ -684,7 +695,7 @@ void VulkanMaterialRun::createInstance()
     application.applicationVersion = 1;
     application.pEngineName        = "Second Life material diagnostic";
     application.engineVersion      = 1;
-    application.apiVersion         = VK_API_VERSION_1_1;
+    application.apiVersion         = LLRenderVulkan::RENDERER_VULKAN_API_VERSION;
 
     const char* validation_layer = "VK_LAYER_KHRONOS_validation";
     VkInstanceCreateInfo create_info{};
@@ -696,15 +707,29 @@ void VulkanMaterialRun::createInstance()
     create_info.ppEnabledLayerNames     = &validation_layer;
     create_info.enabledExtensionCount   = static_cast<std::uint32_t>(enabled_extensions.size());
     create_info.ppEnabledExtensionNames = enabled_extensions.data();
-    check(vkCreateInstance(&create_info, nullptr, &mInstance), "vkCreateInstance");
+    VkInstance     instance        = VK_NULL_HANDLE;
+    const VkResult instance_result = global_dispatch.createInstance()(&create_info, nullptr, &instance);
+    check(instance_result, "vkCreateInstance");
+    if (instance == VK_NULL_HANDLE)
+    {
+        throw Failure("vkCreateInstance returned success with a null instance");
+    }
+    mInstance = instance;
 
     const auto create_debug = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
-        vkGetInstanceProcAddr(mInstance, "vkCreateDebugUtilsMessengerEXT"));
+        global_dispatch.getInstanceProcAddr()(mInstance, "vkCreateDebugUtilsMessengerEXT"));
     if (!create_debug)
     {
         throw Failure("vkCreateDebugUtilsMessengerEXT is unavailable after enabling VK_EXT_debug_utils");
     }
-    check(create_debug(mInstance, &debug_info, nullptr, &mDebugMessenger), "vkCreateDebugUtilsMessengerEXT");
+    VkDebugUtilsMessengerEXT debug_messenger = VK_NULL_HANDLE;
+    const VkResult debug_result = create_debug(mInstance, &debug_info, nullptr, &debug_messenger);
+    check(debug_result, "vkCreateDebugUtilsMessengerEXT");
+    if (debug_messenger == VK_NULL_HANDLE)
+    {
+        throw Failure("vkCreateDebugUtilsMessengerEXT returned success with a null messenger");
+    }
+    mDebugMessenger = debug_messenger;
 }
 
 bool VulkanMaterialRun::hasRequiredFormats(VkPhysicalDevice physical_device) const
@@ -2637,10 +2662,10 @@ void VulkanMaterialRun::shutdown() noexcept
     mDevice = VK_NULL_HANDLE;
     mPhysicalDevice = VK_NULL_HANDLE;
 
-    if (mDebugMessenger != VK_NULL_HANDLE && mInstance != VK_NULL_HANDLE)
+    if (mDebugMessenger != VK_NULL_HANDLE && mInstance != VK_NULL_HANDLE && mGlobalDispatch)
     {
         const auto destroy_debug = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
-            vkGetInstanceProcAddr(mInstance, "vkDestroyDebugUtilsMessengerEXT"));
+            mGlobalDispatch->getInstanceProcAddr()(mInstance, "vkDestroyDebugUtilsMessengerEXT"));
         if (destroy_debug)
             destroy_debug(mInstance, mDebugMessenger, nullptr);
     }
@@ -2648,6 +2673,7 @@ void VulkanMaterialRun::shutdown() noexcept
         vkDestroyInstance(mInstance, nullptr);
     mDebugMessenger = VK_NULL_HANDLE;
     mInstance = VK_NULL_HANDLE;
+    mGlobalDispatch.reset();
 }
 
 int fail(const std::string& reason, const std::string& detail)

@@ -195,16 +195,54 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(lltonemapdiagnostic "" "llrendercontract;llcommon")
 endif ()
 
-if (LL_VULKAN_TONEMAP_TEST)
-  if (NOT LL_TESTS)
-    message(FATAL_ERROR "LL_VULKAN_TONEMAP_TEST requires LL_TESTS=ON")
-  endif ()
+if ((LL_VULKAN_RUNTIME_TEST OR LL_VULKAN_TONEMAP_TEST) AND NOT LL_TESTS)
+  message(FATAL_ERROR "Vulkan runtime tests require LL_TESTS=ON")
+endif ()
 
+if (LL_VULKAN_TONEMAP_TEST)
   if (NOT LINUX AND NOT DARWIN)
     message(FATAL_ERROR "LL_VULKAN_TONEMAP_TEST is supported only on Linux and macOS")
   endif ()
 
   find_package(Vulkan REQUIRED)
+  set(llvulkan_headers_include_dir "${Vulkan_INCLUDE_DIR}")
+elseif (LL_VULKAN_RUNTIME_TEST)
+  find_path(LL_VULKAN_HEADERS_INCLUDE_DIR
+      NAMES vulkan/vulkan.h
+      HINTS ENV VULKAN_SDK
+      PATH_SUFFIXES include Include)
+  if (NOT LL_VULKAN_HEADERS_INCLUDE_DIR)
+    message(FATAL_ERROR
+        "LL_VULKAN_RUNTIME_TEST requires Vulkan headers; add them to the include search path or set LL_VULKAN_HEADERS_INCLUDE_DIR")
+  endif ()
+  set(llvulkan_headers_include_dir "${LL_VULKAN_HEADERS_INCLUDE_DIR}")
+endif ()
+
+if (LL_VULKAN_RUNTIME_TEST OR LL_VULKAN_TONEMAP_TEST)
+  add_library(llrendervulkanglobaldispatch STATIC
+      vulkan/llrendervulkanglobaldispatch.cpp
+      vulkan/llrendervulkanglobaldispatch.h)
+  target_include_directories(llrendervulkanglobaldispatch
+      PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/vulkan")
+  target_include_directories(llrendervulkanglobaldispatch SYSTEM
+      PUBLIC "${llvulkan_headers_include_dir}")
+  target_compile_definitions(llrendervulkanglobaldispatch
+      PRIVATE VK_NO_PROTOTYPES)
+  set_target_properties(llrendervulkanglobaldispatch PROPERTIES FOLDER "Tests")
+
+  set_source_files_properties(
+      tests/llrendervulkanglobaldispatch_test.cpp
+      PROPERTIES SKIP_PRECOMPILE_HEADERS TRUE)
+  LL_ADD_INTEGRATION_TEST(
+      llrendervulkanglobaldispatch
+      ""
+      "llrendervulkanglobaldispatch;llcommon")
+  target_compile_definitions(
+      INTEGRATION_TEST_llrendervulkanglobaldispatch
+      PRIVATE VK_NO_PROTOTYPES)
+endif ()
+
+if (LL_VULKAN_TONEMAP_TEST)
   find_program(LL_VULKAN_GLSLANG_VALIDATOR
       NAMES glslangValidator
       DOC "Path to glslangValidator for the Vulkan tonemap diagnostic")
@@ -849,7 +887,8 @@ if (LL_VULKAN_TONEMAP_TEST)
   set_target_properties(llrendervulkanmaterial PROPERTIES FOLDER "Tests")
 
   add_executable(llvulkanmaterial vulkan/llvulkanmaterial_main.cpp)
-  target_link_libraries(llvulkanmaterial PRIVATE llrendervulkanmaterial)
+  target_link_libraries(llvulkanmaterial
+      PRIVATE llrendervulkanmaterial llrendervulkanglobaldispatch)
   add_dependencies(llvulkanmaterial llvulkanmaterial_shaders)
 
   add_executable(llmaterialcompare vulkan/llmaterialcompare_main.cpp)
