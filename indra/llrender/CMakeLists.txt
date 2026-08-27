@@ -610,6 +610,30 @@ if (LL_VULKAN_TONEMAP_TEST)
       INTEGRATION_TEST_llrendervulkanmaterialattachment
       PRIVATE VK_NO_PROTOTYPES)
 
+  add_library(llrendervulkanmaterialrenderpass STATIC
+      vulkan/llrendervulkanmaterialrenderpass.cpp
+      vulkan/llrendervulkanmaterialrenderpass.h)
+  target_include_directories(llrendervulkanmaterialrenderpass
+      PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/vulkan")
+  target_include_directories(llrendervulkanmaterialrenderpass SYSTEM
+      PUBLIC "${Vulkan_INCLUDE_DIR}")
+  target_compile_definitions(llrendervulkanmaterialrenderpass
+      PRIVATE VK_NO_PROTOTYPES)
+  target_link_libraries(llrendervulkanmaterialrenderpass
+      PUBLIC llrendervulkanmaterialattachment)
+  set_target_properties(llrendervulkanmaterialrenderpass PROPERTIES FOLDER "Tests")
+
+  set_source_files_properties(
+      tests/llrendervulkanmaterialrenderpass_test.cpp
+      PROPERTIES SKIP_PRECOMPILE_HEADERS TRUE)
+  LL_ADD_INTEGRATION_TEST(
+      llrendervulkanmaterialrenderpass
+      ""
+      "llrendervulkanmaterialrenderpass;llrendervulkanmaterialattachment;llrendercontract;llcommon")
+  target_compile_definitions(
+      INTEGRATION_TEST_llrendervulkanmaterialrenderpass
+      PRIVATE VK_NO_PROTOTYPES)
+
   set(llvulkan_texture_upload_vertex_source
       "${llvulkan_shader_source_dir}/textureupload.vert.glsl")
   set(llvulkan_texture_upload_fragment_source
