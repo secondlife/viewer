@@ -71,6 +71,7 @@
 #include "llhudnametag.h"
 #include "llhudtext.h"
 #include "lllightconstants.h"
+#include "llmaterialparity.h"
 #include "llmeshrepository.h"
 #include "llpipelinelistener.h"
 #include "llresmgr.h"
@@ -7762,6 +7763,11 @@ bool LLPipeline::runTonemapContractParity()
     std::cout << result.str() << std::endl;
     LL_INFOS("RenderContractParity") << result.str() << LL_ENDL;
     return success;
+}
+
+bool LLPipeline::runMaterialContractParity()
+{
+    return LLMaterialParity::run();
 }
 
 void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst)

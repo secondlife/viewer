@@ -106,6 +106,7 @@ set(viewer_SOURCE_FILES
     llappearancemgr.cpp
     llappviewer.cpp
     llappviewerlistener.cpp
+    llcontractparityargs.cpp
     llattachmentsmgr.cpp
     llaudiosourcevo.cpp
     llautoreplace.cpp
@@ -402,6 +403,7 @@ set(viewer_SOURCE_FILES
     llmarketplacenotifications.cpp
     llmaterialeditor.cpp
     llmaterialmgr.cpp
+    llmaterialparity.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
     llmenuoptionpathfindingrebakenavmesh.cpp
@@ -790,6 +792,7 @@ set(viewer_HEADER_FILES
     llappearancemgr.h
     llappviewer.h
     llappviewerlistener.h
+    llcontractparityargs.h
     llattachmentsmgr.h
     llaudiosourcevo.h
     llautoreplace.h
@@ -1090,6 +1093,7 @@ set(viewer_HEADER_FILES
     llmarketplacenotifications.h
     llmaterialeditor.h
     llmaterialmgr.h
+    llmaterialparity.h
     llmediactrl.h
     llmediadataclient.h
     llmenuoptionpathfindingrebakenavmesh.h
@@ -2507,6 +2511,11 @@ if (LL_TESTS)
 
   LL_ADD_INTEGRATION_TEST(llcachemigration
     ""
+    "${test_libs}"
+  )
+
+  LL_ADD_INTEGRATION_TEST(llcontractparityargs
+    llcontractparityargs.cpp
     "${test_libs}"
   )
 

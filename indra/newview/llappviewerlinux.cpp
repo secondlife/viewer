@@ -29,6 +29,7 @@
 #include "llappviewerlinux.h"
 
 #include "llcommandlineparser.h"
+#include "llcontractparityargs.h"
 
 #include "lldiriterator.h"
 #include "llurldispatcher.h"        // SLURL from other app instance
@@ -38,7 +39,13 @@
 #include "llfindlocale.h"
 #include "llversioninfo.h"
 
+#include <cstdio>
+#include <cstdlib>
 #include <exception>
+#include <filesystem>
+#include <vector>
+
+#include <unistd.h>
 
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL_main.h>
@@ -77,6 +84,30 @@ namespace
     char **gArgV = NULL;
     LLAppViewerLinux* gViewerAppPtr = NULL;
     void (*gOldTerminateHandler)() = NULL;
+
+    bool prepareContractParityUserDir(const char* path)
+    {
+        std::error_code error;
+        const std::filesystem::path root(path);
+        std::filesystem::create_directories(root, error);
+        if (error || !std::filesystem::is_directory(root, error) || error)
+        {
+            return false;
+        }
+
+        std::string probe = (root / ".render-contract-isolation.XXXXXX").string();
+        std::vector<char> probe_name(probe.begin(), probe.end());
+        probe_name.push_back('\0');
+        const int descriptor = mkstemp(probe_name.data());
+        if (descriptor == -1)
+        {
+            return false;
+        }
+
+        const bool closed = close(descriptor) == 0;
+        const bool removed = unlink(probe_name.data()) == 0;
+        return closed && removed;
+    }
 }
 
 // Initialize static members
@@ -194,6 +225,31 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
     LL_PROFILER_FRAME_END;
     LL_PROFILER_SET_THREAD_NAME("App");
 
+    const LLContractParitySelection parity = getRawContractParitySelection(argc, argv);
+    const char* isolated_user_dir = std::getenv("SECONDLIFE_USER_DIR");
+    if ((parity.mTonemap || parity.mMaterial)
+        && (!isolated_user_dir || isolated_user_dir[0] == '\0'))
+    {
+        std::fputs(
+            parity.mTonemap
+                ? "TONEMAP_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n"
+                : "MATERIAL_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n",
+            stderr);
+        std::fflush(stderr);
+        return SDL_APP_FAILURE;
+    }
+    if ((parity.mTonemap || parity.mMaterial)
+        && !prepareContractParityUserDir(isolated_user_dir))
+    {
+        std::fputs(
+            parity.mTonemap
+                ? "TONEMAP_CONTRACT_PARITY result=fail reason=invalid_SECONDLIFE_USER_DIR\n"
+                : "MATERIAL_CONTRACT_PARITY result=fail reason=invalid_SECONDLIFE_USER_DIR\n",
+            stderr);
+        std::fflush(stderr);
+        return SDL_APP_FAILURE;
+    }
+
     gSDLMainHandled = true;
 
     gArgC = argc;
@@ -266,7 +322,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    if (!LLApp::isError())
+    if (gViewerAppPtr && !LLApp::isError())
     {
         //
         // We don't want to do cleanup here if the error handler got called -

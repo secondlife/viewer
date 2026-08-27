@@ -393,6 +393,24 @@
       <string>CmdLineLoginLocation</string>
     </map>
 
+    <key>materialparity</key>
+    <map>
+      <key>desc</key>
+      <string>Run the fixed-input material contract parity check and exit.</string>
+      <key>map-to</key>
+      <string>RenderMaterialContractParityTest</string>
+    </map>
+
+    <key>materialartifact</key>
+    <map>
+      <key>desc</key>
+      <string>Write the successful material parity reference to this new artifact file.</string>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>RenderMaterialArtifactPath</string>
+    </map>
+
     <key>tonemapparity</key>
     <map>
       <key>desc</key>

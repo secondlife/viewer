@@ -10205,6 +10205,28 @@
       <key>Value</key>
       <string>00000000-0000-0000-0000-000000000000</string>
     </map>
+    <key>RenderMaterialContractParityTest</key>
+    <map>
+        <key>Comment</key>
+        <string>Run the account-free fixed-input material contract parity check and exit</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
+    <key>RenderMaterialArtifactPath</key>
+    <map>
+        <key>Comment</key>
+        <string>New output path for an account-free material reference artifact</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+    </map>
     <key>RenderCASSharpness</key>
     <map>
         <key>Comment</key>

@@ -37,6 +37,7 @@
 
 #include "llappviewermacosx.h"
 #include "llappviewermacosx-for-objc.h"
+#include "llcontractparityargs.h"
 #include "llwindowmacosx-objc.h"
 #include "llcommandlineparser.h"
 #include "llsdserialize.h"
@@ -58,7 +59,6 @@
 #include <fstream>
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 
 #include "lldir.h"
 #include "lldiriterator.h"
@@ -75,17 +75,6 @@ namespace
     LLAppViewerMacOSX* gViewerAppPtr = NULL;
     std::string gHandleSLURL;
 
-    bool hasRawArgument(int argc, char* const* argv, const char* argument)
-    {
-        for (int index = 1; index < argc; ++index)
-        {
-            if (std::strcmp(argv[index], argument) == 0)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 }
 
 void constructViewer()
@@ -290,12 +279,15 @@ int main( int argc, char **argv )
     LL_PROFILER_FRAME_END;
     LL_PROFILER_SET_THREAD_NAME("App");
 
+    const LLContractParitySelection parity = getRawContractParitySelection(argc, argv);
     const char* isolated_user_dir = std::getenv("SECONDLIFE_USER_DIR");
-    if (hasRawArgument(argc, argv, "--tonemapparity")
+    if ((parity.mTonemap || parity.mMaterial)
         && (!isolated_user_dir || isolated_user_dir[0] == '\0'))
     {
         std::fputs(
-            "TONEMAP_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n",
+            parity.mTonemap
+                ? "TONEMAP_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n"
+                : "MATERIAL_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n",
             stderr);
         std::fflush(stderr);
         return EXIT_FAILURE;

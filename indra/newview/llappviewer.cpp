@@ -798,6 +798,21 @@ bool LLAppViewer::init()
         return false;
     }
 
+    const bool tonemap_parity = gSavedSettings.getBOOL("RenderTonemapContractParityTest");
+    const bool material_parity = gSavedSettings.getBOOL("RenderMaterialContractParityTest");
+    const char* isolated_user_dir = std::getenv("SECONDLIFE_USER_DIR");
+    if ((tonemap_parity || material_parity)
+        && (!isolated_user_dir || isolated_user_dir[0] == '\0'))
+    {
+        std::fputs(
+            tonemap_parity
+                ? "TONEMAP_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n"
+                : "MATERIAL_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n",
+            stderr);
+        std::fflush(stderr);
+        std::_Exit(EXIT_FAILURE);
+    }
+
     LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
 
     //set the max heap size.
@@ -3472,6 +3487,15 @@ bool LLAppViewer::initWindow()
     gSavedSettings.setBOOL("RenderInitError", true);
     gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), true );
 
+    if (gSavedSettings.getBOOL("RenderMaterialContractParityTest"))
+    {
+        // Pin the diagnostic shader permutation without changing the isolated profile.
+        gSavedSettings.getControl("RenderShaderCacheEnabled")->setValue(false, false);
+        gSavedSettings.getControl("RenderEnableEmissiveBuffer")->setValue(false, false);
+        gSavedSettings.getControl("RenderShadowDetail")->setValue(LLSD::Integer(0), false);
+        gSavedSettings.getControl("RenderHDREnabled")->setValue(true, false);
+    }
+
     gPipeline.init();
     LL_INFOS("AppInit") << "gPipeline Initialized" << LL_ENDL;
 
@@ -3484,6 +3508,14 @@ bool LLAppViewer::initWindow()
     if (gSavedSettings.getBOOL("RenderTonemapContractParityTest"))
     {
         const bool success = gPipeline.runTonemapContractParity();
+        removeMarkerFiles();
+        std::fflush(nullptr);
+        std::_Exit(success ? EXIT_SUCCESS : EXIT_FAILURE);
+    }
+
+    if (gSavedSettings.getBOOL("RenderMaterialContractParityTest"))
+    {
+        const bool success = gPipeline.runMaterialContractParity();
         removeMarkerFiles();
         std::fflush(nullptr);
         std::_Exit(success ? EXIT_SUCCESS : EXIT_FAILURE);

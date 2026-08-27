@@ -1998,7 +1998,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
     U32 max_core_count = gSavedSettings.getU32("EmulateCoreCount");
     F32 max_gl_version = gSavedSettings.getF32("RenderMaxOpenGLVersion");
-    U32 window_flags = gSavedSettings.getBOOL("RenderTonemapContractParityTest")
+    U32 window_flags = (gSavedSettings.getBOOL("RenderTonemapContractParityTest")
+                        || gSavedSettings.getBOOL("RenderMaterialContractParityTest"))
         ? LLWindow::FLAG_CREATE_HIDDEN
         : 0;
 

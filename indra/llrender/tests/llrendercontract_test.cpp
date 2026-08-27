@@ -15,6 +15,7 @@
 
 #include "linden_common.h"
 
+#include "llmaterialcontract.h"
 #include "llrendercontract.h"
 #include "lltonemapcontract.h"
 #include "lltut.h"
@@ -31,25 +32,15 @@ using namespace LLRenderContract;
 constexpr ImageHandle SCENE_IMAGE{ 1, 1 };
 constexpr ImageHandle EXPOSURE_IMAGE{ 2, 1 };
 constexpr ImageHandle OUTPUT_IMAGE{ 3, 1 };
-constexpr ImageHandle DIFFUSE_IMAGE{ 4, 1 };
-constexpr ImageHandle NORMAL_IMAGE{ 5, 1 };
-constexpr ImageHandle SPECULAR_IMAGE{ 6, 1 };
-constexpr ImageHandle GBUFFER0_IMAGE{ 7, 1 };
-constexpr ImageHandle GBUFFER1_IMAGE{ 8, 1 };
-constexpr ImageHandle GBUFFER2_IMAGE{ 9, 1 };
-constexpr ImageHandle DEPTH_IMAGE{ 10, 1 };
 constexpr ImageHandle OLD_STREAMED_IMAGE{ 11, 1 };
 constexpr ImageHandle STREAMED_IMAGE{ 11, 2 };
 
-constexpr BufferHandle VERTEX_BUFFER{ 1, 1 };
-constexpr BufferHandle INDEX_BUFFER{ 2, 1 };
 constexpr BufferHandle SCREEN_TRIANGLE_BUFFER{ 3, 1 };
 
 constexpr SamplerHandle POINT_SAMPLER{ 1, 1 };
 constexpr SamplerHandle LINEAR_SAMPLER{ 2, 1 };
 
 constexpr PipelineHandle TONEMAP_PIPELINE{ 1, 1 };
-constexpr PipelineHandle MATERIAL_PIPELINE{ 2, 1 };
 constexpr PipelineHandle TEXTURE_PIPELINE{ 3, 1 };
 
 ByteRange bytes(std::size_t size)
@@ -97,117 +88,21 @@ RenderPass pass(PassId id, std::uint32_t width, std::uint32_t height)
 FrameSnapshot fullScreenFrame()
 {
     TonemapInputs inputs;
-    inputs.mFrame = 17;
-    inputs.mHandles = { SCREEN_TRIANGLE_BUFFER, SCENE_IMAGE, EXPOSURE_IMAGE, OUTPUT_IMAGE,
-                        POINT_SAMPLER, LINEAR_SAMPLER, TONEMAP_PIPELINE, { 1 } };
-    inputs.mSourceExtent = { 1280, 720 };
+    inputs.mFrame             = 17;
+    inputs.mHandles           = { SCREEN_TRIANGLE_BUFFER, SCENE_IMAGE,    EXPOSURE_IMAGE,   OUTPUT_IMAGE,
+                                  POINT_SAMPLER,          LINEAR_SAMPLER, TONEMAP_PIPELINE, { 1 } };
+    inputs.mSourceExtent      = { 1280, 720 };
     inputs.mDestinationExtent = { 1280, 720 };
-    inputs.mParameters = { 1.25f, 0.7f, 1, 1.8f };
+    inputs.mParameters        = { 1.25f, 0.7f, 1, 1.8f };
     return *buildTonemapFrame(inputs);
 }
 
 FrameSnapshot materialFrame()
 {
-    FrameSnapshot frame;
-    frame.mFrame   = 23;
-    frame.mBuffers = { { VERTEX_BUFFER, 4096, ResourceLifetime::Persistent }, { INDEX_BUFFER, 128, ResourceLifetime::Persistent } };
-    frame.mImages  = { image(DIFFUSE_IMAGE, 64, 64, PixelFormat::RGBA8Unorm, ResourceLifetime::Persistent, 7),
-                       image(NORMAL_IMAGE, 64, 64, PixelFormat::RGBA8Unorm, ResourceLifetime::Persistent, 7),
-                       image(SPECULAR_IMAGE, 64, 64, PixelFormat::RGBA8Unorm, ResourceLifetime::Persistent, 7),
-                       image(GBUFFER0_IMAGE, 64, 64, PixelFormat::RGBA8Unorm),
-                       image(GBUFFER1_IMAGE, 64, 64, PixelFormat::RGBA8Unorm),
-                       image(GBUFFER2_IMAGE, 64, 64, PixelFormat::RGBA16Unorm),
-                       image(DEPTH_IMAGE, 64, 64, PixelFormat::Depth24Unorm) };
-    frame.mSamplers.push_back(sampler(LINEAR_SAMPLER, Filter::Linear, MipFilter::Linear, 8.f, AddressMode::Repeat));
-
-    PipelineResource pipeline;
-    pipeline.mHandle            = MATERIAL_PIPELINE;
-    pipeline.mProgram           = { "deferred.material.normspec", 0 };
-    pipeline.mCullMode          = CullMode::Back;
-    pipeline.mDepthTestEnabled  = true;
-    pipeline.mDepthWriteEnabled = true;
-    pipeline.mDepthCompare      = CompareOp::LessOrEqual;
-    pipeline.mDepthFormat       = PixelFormat::Depth24Unorm;
-    pipeline.mColorTargets      = { { PixelFormat::RGBA8Unorm, false, 0xf },
-                                    { PixelFormat::RGBA8Unorm, false, 0xf },
-                                    { PixelFormat::RGBA16Unorm, false, 0xf } };
-    pipeline.mVertexBindings    = { { 0, 16 }, { 1, 16 }, { 2, 8 }, { 3, 4 }, { 4, 16 }, { 5, 8 }, { 6, 8 } };
-    pipeline.mVertexAttributes  = {
-        { VertexSemantic::Position, VertexFormat::Float3, 0, 0 },  { VertexSemantic::Normal, VertexFormat::Float3, 1, 0 },
-        { VertexSemantic::TexCoord0, VertexFormat::Float2, 2, 0 }, { VertexSemantic::Color, VertexFormat::UNorm8x4, 3, 0 },
-        { VertexSemantic::Tangent, VertexFormat::Float4, 4, 0 },   { VertexSemantic::TexCoord1, VertexFormat::Float2, 5, 0 },
-        { VertexSemantic::TexCoord2, VertexFormat::Float2, 6, 0 }
-    };
-    pipeline.mSampledImageBindings = { 0, 1, 2 };
-    pipeline.mParameterBindings    = { { 0, 160 } };
-    frame.mPipelines.push_back(pipeline);
-
-    RenderPass material        = pass({ 1 }, 64, 64);
-    material.mLabel            = "indexed material";
-    material.mBufferAccesses   = { { VERTEX_BUFFER, BufferAccessKind::VertexRead }, { INDEX_BUFFER, BufferAccessKind::IndexRead } };
-    material.mImageAccesses    = { { DIFFUSE_IMAGE,
-                                     { 0, 7, 0, 1 },
-                                     ImageAccessKind::SampledRead,
-                                     ImageState::ShaderRead,
-                                     ImageState::ShaderRead,
-                                     ImageState::ShaderRead },
-                                   { NORMAL_IMAGE,
-                                     { 0, 7, 0, 1 },
-                                     ImageAccessKind::SampledRead,
-                                     ImageState::ShaderRead,
-                                     ImageState::ShaderRead,
-                                     ImageState::ShaderRead },
-                                   { SPECULAR_IMAGE,
-                                     { 0, 7, 0, 1 },
-                                     ImageAccessKind::SampledRead,
-                                     ImageState::ShaderRead,
-                                     ImageState::ShaderRead,
-                                     ImageState::ShaderRead },
-                                   { GBUFFER0_IMAGE,
-                                     {},
-                                     ImageAccessKind::ColorAttachmentWrite,
-                                     ImageState::Undefined,
-                                     ImageState::ColorAttachment,
-                                     ImageState::ShaderRead },
-                                   { GBUFFER1_IMAGE,
-                                     {},
-                                     ImageAccessKind::ColorAttachmentWrite,
-                                     ImageState::Undefined,
-                                     ImageState::ColorAttachment,
-                                     ImageState::ShaderRead },
-                                   { GBUFFER2_IMAGE,
-                                     {},
-                                     ImageAccessKind::ColorAttachmentWrite,
-                                     ImageState::Undefined,
-                                     ImageState::ColorAttachment,
-                                     ImageState::ShaderRead },
-                                   { DEPTH_IMAGE,
-                                     {},
-                                     ImageAccessKind::DepthAttachmentReadWrite,
-                                     ImageState::DepthAttachment,
-                                     ImageState::DepthAttachment,
-                                     ImageState::DepthAttachment } };
-    material.mColorAttachments = { { GBUFFER0_IMAGE, {}, LoadOp::Clear, StoreOp::Store, {} },
-                                   { GBUFFER1_IMAGE, {}, LoadOp::Clear, StoreOp::Store, {} },
-                                   { GBUFFER2_IMAGE, {}, LoadOp::Clear, StoreOp::Store, {} } };
-    material.mDepthAttachment  = DepthAttachment{ DEPTH_IMAGE, {}, LoadOp::Load, StoreOp::Store, 1.f };
-
-    DrawIndexed draw;
-    draw.mResources.mPipeline      = MATERIAL_PIPELINE;
-    draw.mResources.mVertexBuffers = { { 0, VERTEX_BUFFER, 0 },   { 1, VERTEX_BUFFER, 256 },  { 2, VERTEX_BUFFER, 512 },
-                                       { 3, VERTEX_BUFFER, 768 }, { 4, VERTEX_BUFFER, 1024 }, { 5, VERTEX_BUFFER, 1280 },
-                                       { 6, VERTEX_BUFFER, 1536 } };
-    draw.mResources.mSampledImages = { { 0, DIFFUSE_IMAGE, { 0, 7, 0, 1 }, LINEAR_SAMPLER },
-                                       { 1, NORMAL_IMAGE, { 0, 7, 0, 1 }, LINEAR_SAMPLER },
-                                       { 2, SPECULAR_IMAGE, { 0, 7, 0, 1 }, LINEAR_SAMPLER } };
-    draw.mResources.mParameters.push_back({ 0, bytes(160) });
-    draw.mIndexBuffer = { INDEX_BUFFER, 0, IndexType::UInt16 };
-    draw.mIndexCount  = 6;
-    draw.mMinVertex   = 0;
-    draw.mMaxVertex   = 3;
-    material.mDraws.emplace_back(std::move(draw));
-    frame.mPasses.push_back(std::move(material));
-    return frame;
+    MaterialInputs inputs;
+    inputs.mFrame                            = 23;
+    inputs.mParameters.mEnvironmentIntensity = 0.625f;
+    return *buildMaterialFrame(inputs);
 }
 
 FrameSnapshot streamingUploadFrame()
@@ -448,9 +343,9 @@ template<>
 template<>
 void render_contract_test_object::test<16>()
 {
-    constexpr std::array variants{ TonemapVariant::Deferred, TonemapVariant::NoPost, TonemapVariant::GammaCorrect,
-                                   TonemapVariant::NoPostGammaCorrect, TonemapVariant::LegacyGammaCorrect,
-                                   TonemapVariant::NoPostLegacyGammaCorrect };
+    constexpr std::array variants{ TonemapVariant::Deferred,           TonemapVariant::NoPost,
+                                   TonemapVariant::GammaCorrect,       TonemapVariant::NoPostGammaCorrect,
+                                   TonemapVariant::LegacyGammaCorrect, TonemapVariant::NoPostLegacyGammaCorrect };
     constexpr std::array formats{ PixelFormat::RGBA8Unorm, PixelFormat::RGBA16Float };
 
     for (TonemapVariant variant : variants)
@@ -458,17 +353,17 @@ void render_contract_test_object::test<16>()
         for (PixelFormat format : formats)
         {
             TonemapInputs inputs;
-            inputs.mFrame = 91;
-            inputs.mSourceExtent = { 17, 9 };
+            inputs.mFrame             = 91;
+            inputs.mSourceExtent      = { 17, 9 };
             inputs.mDestinationExtent = { 13, 7 };
             inputs.mDestinationFormat = format;
-            inputs.mVariant = variant;
-            inputs.mParameters = { 1.25f, 0.65f, 1, 1.8f };
+            inputs.mVariant           = variant;
+            inputs.mParameters        = { 1.25f, 0.65f, 1, 1.8f };
 
             auto frame = buildTonemapFrame(inputs);
             ensure("every compiled tonemap variant and output format builds", frame.has_value());
             inputs.mParameters.mExposure = 3.f;
-            auto decoded = decodeTonemapFrame(*frame);
+            auto decoded                 = decodeTonemapFrame(*frame);
             ensure("canonical tonemap packet decodes", decoded.has_value());
             ensure("builder owns parameter bytes", decoded->mParameters.mExposure == 1.25f);
             ensure("source extent survives", decoded->mSourceExtent.mWidth == 17 && decoded->mSourceExtent.mHeight == 9);
@@ -476,8 +371,8 @@ void render_contract_test_object::test<16>()
             ensure("variant survives", decoded->mVariant == variant);
             ensure("output format survives", decoded->mDestinationFormat == format);
             ensure("gamma survives", decoded->mParameters.mGamma == 1.8f);
-            ensure("trace uses mirrored addressing", frame->mSamplers[0].mAddressU == AddressMode::Mirror &&
-                                                     frame->mSamplers[1].mAddressV == AddressMode::Mirror);
+            ensure("trace uses mirrored addressing",
+                   frame->mSamplers[0].mAddressU == AddressMode::Mirror && frame->mSamplers[1].mAddressV == AddressMode::Mirror);
             ensure("trace keeps disabled depth compare", frame->mPipelines[0].mDepthCompare == CompareOp::LessOrEqual);
         }
     }
@@ -488,14 +383,14 @@ template<>
 void render_contract_test_object::test<17>()
 {
     TonemapInputs inputs;
-    inputs.mFrame = 1;
-    inputs.mSourceExtent = { 4, 4 };
+    inputs.mFrame             = 1;
+    inputs.mSourceExtent      = { 4, 4 };
     inputs.mDestinationExtent = { 4, 4 };
 
     inputs.mVariant = static_cast<TonemapVariant>(4);
     ensure("legacy gamma without gamma correction is rejected", !buildTonemapFrame(inputs));
 
-    inputs.mVariant = TonemapVariant::Deferred;
+    inputs.mVariant           = TonemapVariant::Deferred;
     inputs.mDestinationFormat = PixelFormat::RGB8Unorm;
     ensure("unsupported output format is rejected", !buildTonemapFrame(inputs));
 
@@ -508,7 +403,7 @@ template<>
 template<>
 void render_contract_test_object::test<18>()
 {
-    FrameSnapshot frame = fullScreenFrame();
+    FrameSnapshot frame                = fullScreenFrame();
     frame.mPipelines[0].mProgram.mName = "unknown.tonemap";
     ensure("decoder rejects an unknown program", !decodeTonemapFrame(frame));
 
@@ -516,9 +411,301 @@ void render_contract_test_object::test<18>()
     frame.mPasses[0].mScissor.mWidth--;
     ensure("decoder rejects a partial scissor", !decodeTonemapFrame(frame));
 
-    frame = fullScreenFrame();
+    frame                        = fullScreenFrame();
     frame.mSamplers[0].mAddressU = AddressMode::Clamp;
     ensure("decoder rejects state that diverges from the trace", !decodeTonemapFrame(frame));
+}
+
+template<>
+template<>
+void render_contract_test_object::test<19>()
+{
+    MaterialInputs inputs;
+    inputs.mFrame                     = 41;
+    inputs.mParameters.mSpecularColor = { 0.2f, 0.4f, 0.6f, 0.8f };
+    inputs.mParameters.mMirror        = 1.f;
+
+    auto frame = buildMaterialFrame(inputs);
+    ensure("canonical material packet builds", frame.has_value());
+    inputs.mParameters.mMirror = 0.f;
+    auto decoded               = decodeMaterialFrame(*frame);
+    ensure("canonical material packet decodes", decoded.has_value());
+    ensure("material builder owns the complete parameter block",
+           decoded->mParameters.mMirror == 1.f && decoded->mParameters.mSpecularColor == std::array<float, 4>{ 0.2f, 0.4f, 0.6f, 0.8f });
+    ensure("material packet uses the complete 272-byte parameter layout",
+           frame->mPipelines[0].mParameterBindings[0].mSize == sizeof(MaterialParameters) &&
+               std::get<DrawIndexed>(frame->mPasses[0].mDraws[0]).mResources.mParameters[0].mBytes.mSize == sizeof(MaterialParameters));
+    ensure("material packet uses packed viewer buffer sizes",
+           frame->mBuffers[0].mSize == MATERIAL_VERTEX_BUFFER_SIZE && frame->mBuffers[1].mSize == MATERIAL_INDEX_BUFFER_SIZE);
+    const auto& bindings = std::get<DrawIndexed>(frame->mPasses[0].mDraws[0]).mResources.mVertexBuffers;
+    ensure("material packet uses packed color and tangent offsets",
+           bindings[3].mOffset == MATERIAL_COLOR_OFFSET && bindings[4].mOffset == MATERIAL_TANGENT_OFFSET);
+    ensure("material packet fixes an 8 by 8 target and three input mips",
+           frame->mPasses[0].mExtent.mWidth == 8 && frame->mPasses[0].mExtent.mHeight == 8 && frame->mImages[0].mExtent.mWidth == 4 &&
+               frame->mImages[0].mMipLevels == 3);
+}
+
+template<>
+template<>
+void render_contract_test_object::test<20>()
+{
+    FrameSnapshot frame                   = materialFrame();
+    frame.mPipelines[0].mProgram.mVariant = 1;
+    ensure("material decoder rejects another shader variant", !decodeMaterialFrame(frame));
+
+    frame = materialFrame();
+    std::swap(frame.mImages[0], frame.mImages[1]);
+    ensure("material decoder rejects reordered image declarations", !decodeMaterialFrame(frame));
+
+    frame             = materialFrame();
+    DrawIndexed& draw = std::get<DrawIndexed>(frame.mPasses[0].mDraws[0]);
+    std::swap(draw.mResources.mVertexBuffers[0], draw.mResources.mVertexBuffers[1]);
+    ensure("material decoder rejects reordered vertex bindings", !decodeMaterialFrame(frame));
+
+    frame                                    = materialFrame();
+    frame.mPasses[0].mDepthAttachment->mLoad = LoadOp::Clear;
+    ensure("material decoder rejects another depth load operation", !decodeMaterialFrame(frame));
+
+    frame = materialFrame();
+    frame.mPasses.push_back(frame.mPasses.front());
+    frame.mPasses.back().mId = { 2 };
+    ensure("material decoder rejects an extra pass", !decodeMaterialFrame(frame));
+}
+
+template<>
+template<>
+void render_contract_test_object::test<21>()
+{
+    MaterialInputs inputs;
+    inputs.mFrame                    = 1;
+    inputs.mParameters.mClipPlane[2] = std::numeric_limits<float>::quiet_NaN();
+    ensure("material builder rejects non-finite parameters", !buildMaterialFrame(inputs));
+
+    inputs.mParameters                   = {};
+    inputs.mParameters.mSpecularColor[1] = 1.01f;
+    ensure("material builder rejects a specular component outside [0, 1]", !buildMaterialFrame(inputs));
+
+    inputs.mParameters                   = {};
+    inputs.mParameters.mSpecularColor[3] = -0.01f;
+    ensure("material builder rejects a negative specular component", !buildMaterialFrame(inputs));
+
+    inputs.mParameters                       = {};
+    inputs.mParameters.mEnvironmentIntensity = -0.01f;
+    ensure("material builder rejects environment intensity outside [0, 1]", !buildMaterialFrame(inputs));
+
+    inputs.mParameters                       = {};
+    inputs.mParameters.mEnvironmentIntensity = 1.01f;
+    ensure("material builder rejects environment intensity above one", !buildMaterialFrame(inputs));
+
+    inputs.mParameters                     = {};
+    inputs.mParameters.mEmissiveBrightness = 0.5f;
+    ensure("material builder requires binary emissive state", !buildMaterialFrame(inputs));
+
+    inputs.mParameters         = {};
+    inputs.mParameters.mMirror = 0.5f;
+    ensure("material builder requires binary mirror state", !buildMaterialFrame(inputs));
+
+    MaterialInputs aliased_buffers;
+    aliased_buffers.mFrame                = 1;
+    aliased_buffers.mHandles.mIndexBuffer = { aliased_buffers.mHandles.mVertexBuffer.mIndex,
+                                              aliased_buffers.mHandles.mVertexBuffer.mGeneration + 1 };
+    ensure("material builder rejects buffer indices aliased across generations", !buildMaterialFrame(aliased_buffers));
+
+    constexpr std::array image_handles{ &MaterialHandles::mDiffuse,  &MaterialHandles::mNormal,   &MaterialHandles::mSpecular,
+                                        &MaterialHandles::mGBuffer0, &MaterialHandles::mGBuffer1, &MaterialHandles::mGBuffer2,
+                                        &MaterialHandles::mDepth };
+    for (std::size_t image = 1; image < image_handles.size(); ++image)
+    {
+        MaterialInputs aliased_images;
+        aliased_images.mFrame = 1;
+        aliased_images.mHandles.*
+            image_handles[image] = { aliased_images.mHandles.mDiffuse.mIndex,
+                                     aliased_images.mHandles.mDiffuse.mGeneration + static_cast<std::uint32_t>(image) };
+        ensure("material builder rejects image indices aliased across generations", !buildMaterialFrame(aliased_images));
+    }
+
+    FrameSnapshot aliased_buffer_frame = materialFrame();
+    BufferHandle aliased_index{ aliased_buffer_frame.mBuffers[0].mHandle.mIndex, aliased_buffer_frame.mBuffers[0].mHandle.mGeneration + 1 };
+    aliased_buffer_frame.mBuffers[1].mHandle                                              = aliased_index;
+    aliased_buffer_frame.mPasses[0].mBufferAccesses[1].mBuffer                            = aliased_index;
+    std::get<DrawIndexed>(aliased_buffer_frame.mPasses[0].mDraws[0]).mIndexBuffer.mBuffer = aliased_index;
+    ensure("material decoder rejects buffer indices aliased across generations", !decodeMaterialFrame(aliased_buffer_frame));
+
+    FrameSnapshot aliased_image_frame = materialFrame();
+    ImageHandle   aliased_normal{ aliased_image_frame.mImages[0].mHandle.mIndex, aliased_image_frame.mImages[0].mHandle.mGeneration + 1 };
+    aliased_image_frame.mImages[1].mHandle                                                              = aliased_normal;
+    aliased_image_frame.mPasses[0].mImageAccesses[1].mImage                                             = aliased_normal;
+    std::get<DrawIndexed>(aliased_image_frame.mPasses[0].mDraws[0]).mResources.mSampledImages[1].mImage = aliased_normal;
+    ensure("material decoder rejects image indices aliased across generations", !decodeMaterialFrame(aliased_image_frame));
+
+    FrameSnapshot frame                             = materialFrame();
+    frame.mPipelines[0].mParameterBindings[0].mSize = 160;
+    DrawIndexed& draw                               = std::get<DrawIndexed>(frame.mPasses[0].mDraws[0]);
+    draw.mResources.mParameters[0].mBytes           = bytes(160);
+    ensure("material decoder rejects the old 160-byte placeholder", !decodeMaterialFrame(frame));
+}
+
+template<>
+template<>
+void render_contract_test_object::test<22>()
+{
+    for (std::size_t binding = 0; binding < 7; ++binding)
+    {
+        FrameSnapshot frame = materialFrame();
+        DrawIndexed&  draw  = std::get<DrawIndexed>(frame.mPasses[0].mDraws[0]);
+        ++draw.mResources.mVertexBuffers[binding].mOffset;
+        ensure("each packed vertex offset is canonical", !decodeMaterialFrame(frame));
+
+        frame = materialFrame();
+        ++frame.mPipelines[0].mVertexBindings[binding].mStride;
+        ensure("each planar vertex stride is canonical", !decodeMaterialFrame(frame));
+
+        frame                                                   = materialFrame();
+        frame.mPipelines[0].mVertexAttributes[binding].mBinding = static_cast<std::uint32_t>((binding + 1) % 7);
+        ensure("each material vertex attribute binding is canonical", !decodeMaterialFrame(frame));
+    }
+}
+
+template<>
+template<>
+void render_contract_test_object::test<23>()
+{
+    FrameSnapshot frame = materialFrame();
+    frame.mBuffers.pop_back();
+    ensure("material decoder rejects a missing resource declaration", !decodeMaterialFrame(frame));
+
+    frame = materialFrame();
+    std::swap(frame.mBuffers[0], frame.mBuffers[1]);
+    ensure("material decoder rejects reordered buffer declarations", !decodeMaterialFrame(frame));
+
+    frame                       = materialFrame();
+    frame.mImages[0].mMipLevels = 2;
+    ensure("material decoder rejects a shorter texture mip chain", !decodeMaterialFrame(frame));
+
+    frame                           = materialFrame();
+    frame.mImages[1].mExtent.mWidth = 8;
+    ensure("material decoder rejects another sampled texture extent", !decodeMaterialFrame(frame));
+
+    frame                             = materialFrame();
+    frame.mSamplers[0].mMaxAnisotropy = 4.f;
+    ensure("material decoder rejects another anisotropy", !decodeMaterialFrame(frame));
+
+    frame                        = materialFrame();
+    frame.mSamplers[0].mAddressV = AddressMode::Clamp;
+    ensure("material decoder rejects another texture address mode", !decodeMaterialFrame(frame));
+
+    frame             = materialFrame();
+    DrawIndexed& draw = std::get<DrawIndexed>(frame.mPasses[0].mDraws[0]);
+    std::swap(draw.mResources.mSampledImages[0], draw.mResources.mSampledImages[1]);
+    ensure("material decoder rejects reordered sampled bindings", !decodeMaterialFrame(frame));
+}
+
+template<>
+template<>
+void render_contract_test_object::test<24>()
+{
+    constexpr std::array<std::size_t, 3> COLOR_IMAGES{ 3, 4, 5 };
+    for (std::size_t image_index : COLOR_IMAGES)
+    {
+        FrameSnapshot frame                = materialFrame();
+        frame.mImages[image_index].mFormat = PixelFormat::RGB8Unorm;
+        ensure("every G-buffer storage format is canonical", !decodeMaterialFrame(frame));
+    }
+
+    for (std::size_t attachment = 0; attachment < 3; ++attachment)
+    {
+        FrameSnapshot frame                                  = materialFrame();
+        frame.mPasses[0].mColorAttachments[attachment].mLoad = LoadOp::DontCare;
+        ensure("every G-buffer load operation is canonical", !decodeMaterialFrame(frame));
+
+        frame                                                 = materialFrame();
+        frame.mPasses[0].mColorAttachments[attachment].mStore = StoreOp::DontCare;
+        ensure("every G-buffer store operation is canonical", !decodeMaterialFrame(frame));
+    }
+
+    FrameSnapshot frame              = materialFrame();
+    frame.mImages[6].mFormat         = PixelFormat::Depth32Float;
+    frame.mPipelines[0].mDepthFormat = PixelFormat::Depth32Float;
+    ensure("material decoder rejects another depth format", !decodeMaterialFrame(frame));
+
+    frame                                     = materialFrame();
+    frame.mPasses[0].mDepthAttachment->mStore = StoreOp::DontCare;
+    ensure("material decoder rejects another depth store operation", !decodeMaterialFrame(frame));
+}
+
+template<>
+template<>
+void render_contract_test_object::test<25>()
+{
+    FrameSnapshot frame      = materialFrame();
+    DrawIndexed&  first_draw = std::get<DrawIndexed>(frame.mPasses[0].mDraws[0]);
+    first_draw.mIndexCount   = 5;
+    ensure("material decoder rejects another index count", !decodeMaterialFrame(frame));
+
+    frame                    = materialFrame();
+    DrawIndexed& second_draw = std::get<DrawIndexed>(frame.mPasses[0].mDraws[0]);
+    second_draw.mFirstIndex  = 1;
+    second_draw.mIndexCount  = 5;
+    ensure("material decoder rejects another first index", !decodeMaterialFrame(frame));
+
+    frame                   = materialFrame();
+    DrawIndexed& third_draw = std::get<DrawIndexed>(frame.mPasses[0].mDraws[0]);
+    third_draw.mMaxVertex   = 2;
+    ensure("material decoder rejects another declared vertex range", !decodeMaterialFrame(frame));
+
+    frame                      = materialFrame();
+    DrawIndexed& fourth_draw   = std::get<DrawIndexed>(frame.mPasses[0].mDraws[0]);
+    fourth_draw.mFirstInstance = 1;
+    ensure("material decoder rejects another instance range", !decodeMaterialFrame(frame));
+
+    frame                                       = materialFrame();
+    DrawIndexed& fifth_draw                     = std::get<DrawIndexed>(frame.mPasses[0].mDraws[0]);
+    auto         larger_storage                 = std::make_shared<std::vector<std::uint8_t>>(sizeof(MaterialParameters) + 1, 0);
+    fifth_draw.mResources.mParameters[0].mBytes = { larger_storage, 1, sizeof(MaterialParameters) };
+    ensure("material decoder rejects a non-canonical parameter byte range", !decodeMaterialFrame(frame));
+
+    frame                                              = materialFrame();
+    DrawIndexed& sixth_draw                            = std::get<DrawIndexed>(frame.mPasses[0].mDraws[0]);
+    sixth_draw.mResources.mParameters[0].mBinding      = 1;
+    frame.mPipelines[0].mParameterBindings[0].mBinding = 1;
+    ensure("material decoder rejects another parameter binding", !decodeMaterialFrame(frame));
+
+    frame = materialFrame();
+    frame.mPasses[0].mDraws.push_back(frame.mPasses[0].mDraws.front());
+    ensure("material decoder rejects an extra indexed draw", !decodeMaterialFrame(frame));
+}
+
+template<>
+template<>
+void render_contract_test_object::test<26>()
+{
+    FrameSnapshot frame           = materialFrame();
+    frame.mPasses[0].mViewport.mX = 1.f;
+    ensure("material decoder rejects another viewport", !decodeMaterialFrame(frame));
+
+    frame = materialFrame();
+    --frame.mPasses[0].mScissor.mWidth;
+    ensure("material decoder rejects another scissor", !decodeMaterialFrame(frame));
+
+    frame                         = materialFrame();
+    frame.mPipelines[0].mCullMode = CullMode::Disabled;
+    ensure("material decoder rejects disabled culling", !decodeMaterialFrame(frame));
+
+    frame                          = materialFrame();
+    frame.mPipelines[0].mFrontFace = FrontFace::Clockwise;
+    ensure("material decoder rejects another front face", !decodeMaterialFrame(frame));
+
+    frame                             = materialFrame();
+    frame.mPipelines[0].mDepthCompare = CompareOp::AlwaysPass;
+    ensure("material decoder rejects another depth comparison", !decodeMaterialFrame(frame));
+
+    frame                                           = materialFrame();
+    frame.mPipelines[0].mColorTargets[1].mWriteMask = 0x7;
+    ensure("material decoder rejects a partial G-buffer write mask", !decodeMaterialFrame(frame));
+
+    frame                   = materialFrame();
+    frame.mPasses[0].mLabel = "other material";
+    ensure("material decoder rejects another pass identity", !decodeMaterialFrame(frame));
 }
 
 } // namespace tut
