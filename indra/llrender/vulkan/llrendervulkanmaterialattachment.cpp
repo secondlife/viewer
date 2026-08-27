@@ -72,6 +72,14 @@ namespace
         return error;
     }
 
+    MaterialAttachmentResolutionError deviceFeatureFailure(MaterialAttachmentFeature feature) noexcept
+    {
+        MaterialAttachmentResolutionError error = failure(MaterialAttachmentResolutionCode::MissingDeviceFeature);
+        error.mQuery                            = MaterialAttachmentQuery::PhysicalDeviceFeatures;
+        error.mFeature                          = feature;
+        return error;
+    }
+
     MaterialAttachmentResolutionError attachmentFailure(MaterialAttachmentResolutionCode code, MaterialAttachmentKind kind,
                                                         std::optional<std::uint32_t> color_slot, PixelFormat logical_format,
                                                         VkFormat native_format, VkFormatFeatureFlags required,
@@ -166,8 +174,8 @@ MaterialAttachmentResolutionResult resolveLegacyNormSpecAttachmentProfile(const 
     {
         return failure(MaterialAttachmentResolutionCode::InvalidPhysicalDevice);
     }
-    if (!device.mDispatch.mGetPhysicalDeviceProperties || !device.mDispatch.mGetPhysicalDeviceFormatProperties ||
-        !device.mDispatch.mGetPhysicalDeviceImageFormatProperties)
+    if (!device.mDispatch.mGetPhysicalDeviceFeatures || !device.mDispatch.mGetPhysicalDeviceProperties ||
+        !device.mDispatch.mGetPhysicalDeviceFormatProperties || !device.mDispatch.mGetPhysicalDeviceImageFormatProperties)
     {
         return failure(MaterialAttachmentResolutionCode::InvalidDispatch);
     }
@@ -179,6 +187,13 @@ MaterialAttachmentResolutionResult resolveLegacyNormSpecAttachmentProfile(const 
         pipeline_key.mTargetProfile != LegacyNormSpecTargetProfile::Compatibility)
     {
         return failure(MaterialAttachmentResolutionCode::UnsupportedTargetProfile);
+    }
+
+    VkPhysicalDeviceFeatures features{};
+    device.mDispatch.mGetPhysicalDeviceFeatures(device.mPhysicalDevice, &features);
+    if (features.independentBlend != VK_TRUE)
+    {
+        return deviceFeatureFailure(MaterialAttachmentFeature::IndependentBlend);
     }
 
     VkPhysicalDeviceProperties properties{};

@@ -6,7 +6,9 @@ Accept one opt-in, backend-private resolver that turns the canonical legacy
 normal/specular pipeline key into an immutable, physical-device-specific
 attachment profile. The profile fixes the native formats, image roles,
 required capabilities, load and clear contract, color write masks, and alpha
-semantics needed by a later render-pass and graphics-pipeline owner.
+semantics needed by a later render-pass and graphics-pipeline owner. Stage 27
+later strengthened this profile with the physical-device feature check and
+logical-device requirement needed to make the unequal write masks valid.
 
 This is the tenth committable slice of master Stage 2. The library and its
 integration test remain behind `LL_VULKAN_TONEMAP_TEST`. They use injected
@@ -55,12 +57,19 @@ load operation, and clear value form one invariant. A later render-pass and
 pipeline implementation must consume them together. Depth likewise requires a
 clear load with depth 1 and stencil 0.
 
+The fourth color attachment state differs from the first three, even though
+blending is disabled for every slot. Vulkan therefore requires the optional
+`independentBlend` feature to be enabled on the logical device. Using an RGBA
+write mask for slot 3 is not an alternative because the production fragment
+shader writes zero to that alpha component.
+
 ## Capability and provenance boundary
 
-Before resolving a profile, the physical device must advertise at least four
-color attachments and four fragment outputs. Each ordered attachment slot is
-queried for the exact optimal-tiling format features and image role that will
-be published. Repeated native formats are intentionally queried per slot so a
+Before resolving a profile, the resolver queries physical-device features once
+and requires `independentBlend`. It then requires at least four color
+attachments and four fragment outputs. Each ordered attachment slot is queried
+for the exact optimal-tiling format features and image role that will be
+published. Repeated native formats are intentionally queried per slot so a
 failure retains exact slot and logical-format context; deduplicating these few
 queries is deferred until measurement shows a need.
 
@@ -68,22 +77,30 @@ The result copies the returned `VkImageFormatProperties` envelope and records
 the physical device used for selection. Only the resolver can construct or
 mutate the profile; it is neither an aggregate nor default-constructible.
 `selectedFor()` provides the narrow provenance check needed by later owners.
+The profile also retains an immutable typed device requirement whose
+`independentBlendRequired()` accessor returns true. The successful feature
+query proves support on the selected physical device. It does not prove that
+an existing `VkDevice` enabled the feature. A future logical-device owner must
+enable the retained requirement and provide its own authenticated capability
+view to native pipeline creation.
 
 These capability records are maxima, not permission for an arbitrary
 allocation. The future image and framebuffer owner must validate its concrete
 extent, layers, mip count, sample count, and resource size before publishing
-resources. The caller owns the physical device and guarantees that its three
+resources. The caller owns the physical device and guarantees that its four
 query callbacks address the same Vulkan implementation for the duration of
 the call.
 
 ## Failure contract
 
 Invalid device, missing dispatch, malformed production key, and unsupported
-diagnostic-profile inputs fail before a callback. Limit failures identify the
-exact physical-device limit and required versus available value. Format and
-image-role failures identify the query, attachment kind, color slot when
-applicable, logical and native formats, required and available feature bits,
-native `VkResult`, or the exact missing capability and values.
+diagnostic-profile inputs fail before a callback. Missing
+`independentBlend` support fails after the sole feature query with exact query
+and feature context, before properties or attachment queries. Limit failures
+identify the exact physical-device limit and required versus available value.
+Format and image-role failures identify the query, attachment kind, color slot
+when applicable, logical and native formats, required and available feature
+bits, native `VkResult`, or the exact missing capability and values.
 
 Resolution stops at the first failed ordered role. A Modern HDR failure does
 not silently fall back to compatibility. The function is `noexcept`, owns no
@@ -92,7 +109,7 @@ typed error.
 
 ## Focused tests and review
 
-Eight fake-dispatch cases cover:
+The original Stage 25 commit had eight fake-dispatch cases covering:
 
 - result type, `noexcept`, fixed attachment count, and the profile's
   construction and immutability boundary;
@@ -108,12 +125,21 @@ Eight fake-dispatch cases cover:
 - each separate image capability dimension plus a depth failure with exact
   typed context.
 
-Two independent adversarial reviews found no remaining medium-or-higher issue.
-Review made the result non-aggregate and non-default-constructible, clarified
-that its capabilities are not a concrete allocation guarantee, coupled the
-widened RGB alpha semantic to its clear and write mask, split width, height,
-and depth failures, and added direct proof that every queried format is the one
-published. Repeated per-slot queries remain a deliberate diagnostic tradeoff.
+Stage 27 adds a ninth case, supplies the feature callback to every existing
+fixture, and extends the two success cases. The suite now checks missing
+feature dispatch before every callback, unsupported physical support with exact
+typed context, one early feature query, full callback order, retained logical
+enablement requirements for both profiles, and zero later queries after
+feature rejection. The Stage 26 render-pass fixture also checks that its owner
+retains the strengthened profile unchanged.
+
+The Stage 25 reviews made the result non-aggregate and
+non-default-constructible, clarified that its capabilities are not a concrete
+allocation guarantee, coupled the widened RGB alpha semantic to its clear and
+write mask, split width, height, and depth failures, and added direct proof that
+every queried format is the one published. Stage 27 reanalysis found and closed
+the missing optional-feature prerequisite. Repeated per-slot queries remain a
+deliberate diagnostic tradeoff.
 
 ## Linux evidence
 
@@ -189,6 +215,11 @@ framebuffer, render pass, or graphics pipeline, establish a layout transition,
 record or submit commands, synchronize completion, retain shader modules,
 connect a viewer call site, select a backend, present or compare pixels, or
 measure performance.
+
+Stage 27's injected feature callback does not change those runtime limits. It
+proves physical support only in the supplied query transaction and publishes a
+future enablement requirement. It neither creates nor authenticates a logical
+device.
 
 The profile is descriptive and non-executable until later owners consume its
 load, clear, format, usage, and write-mask contract. The next-stage choice

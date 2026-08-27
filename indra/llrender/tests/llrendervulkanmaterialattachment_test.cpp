@@ -56,10 +56,12 @@ struct ImageQueryObservation
 
 struct FakeState
 {
-    static constexpr std::size_t QUERY_COUNT = LEGACY_NORMSPEC_COLOR_ATTACHMENT_COUNT + 1;
+    static constexpr std::size_t QUERY_COUNT    = LEGACY_NORMSPEC_COLOR_ATTACHMENT_COUNT + 1;
+    static constexpr std::size_t CALLBACK_COUNT = 2 + 2 * QUERY_COUNT;
 
     FakeState()
     {
+        mFeatures.independentBlend                      = VK_TRUE;
         mProperties.limits.maxColorAttachments          = LEGACY_NORMSPEC_COLOR_ATTACHMENT_COUNT;
         mProperties.limits.maxFragmentOutputAttachments = LEGACY_NORMSPEC_COLOR_ATTACHMENT_COUNT;
         for (std::size_t index = 0; index < QUERY_COUNT; ++index)
@@ -76,17 +78,45 @@ struct FakeState
         }
     }
 
-    VkPhysicalDeviceProperties                       mProperties{};
-    std::array<VkFormatProperties, QUERY_COUNT>      mFormatOutputs{};
-    std::array<VkResult, QUERY_COUNT>                mImageResults{};
-    std::array<VkImageFormatProperties, QUERY_COUNT> mImageOutputs{};
-    std::array<VkFormat, QUERY_COUNT>                mFormatQueries{};
-    std::array<ImageQueryObservation, QUERY_COUNT>   mImageQueries{};
-    std::size_t                                      mPropertiesCallCount = 0;
-    std::size_t                                      mFormatCallCount     = 0;
-    std::size_t                                      mImageCallCount      = 0;
-    bool                                             mOverflow            = false;
+    VkPhysicalDeviceFeatures                            mFeatures{};
+    VkPhysicalDeviceProperties                          mProperties{};
+    std::array<VkFormatProperties, QUERY_COUNT>         mFormatOutputs{};
+    std::array<VkResult, QUERY_COUNT>                   mImageResults{};
+    std::array<VkImageFormatProperties, QUERY_COUNT>    mImageOutputs{};
+    std::array<VkFormat, QUERY_COUNT>                   mFormatQueries{};
+    std::array<ImageQueryObservation, QUERY_COUNT>      mImageQueries{};
+    std::array<MaterialAttachmentQuery, CALLBACK_COUNT> mCallbackOrder{};
+    VkPhysicalDevice                                    mFeaturesPhysicalDevice = VK_NULL_HANDLE;
+    std::size_t                                         mFeaturesCallCount      = 0;
+    std::size_t                                         mPropertiesCallCount    = 0;
+    std::size_t                                         mFormatCallCount        = 0;
+    std::size_t                                         mImageCallCount         = 0;
+    std::size_t                                         mCallbackCount          = 0;
+    bool                                                mOverflow               = false;
 };
+
+void recordCallback(FakeState& state, MaterialAttachmentQuery query) noexcept
+{
+    if (state.mCallbackCount >= state.mCallbackOrder.size())
+    {
+        state.mOverflow = true;
+        return;
+    }
+    state.mCallbackOrder[state.mCallbackCount++] = query;
+}
+
+VKAPI_ATTR void VKAPI_CALL fakeGetPhysicalDeviceFeatures(VkPhysicalDevice physical_device, VkPhysicalDeviceFeatures* features) noexcept
+{
+    auto* state = reinterpret_cast<FakeState*>(physical_device);
+    if (!state || !features)
+    {
+        return;
+    }
+    recordCallback(*state, MaterialAttachmentQuery::PhysicalDeviceFeatures);
+    state->mFeaturesPhysicalDevice = physical_device;
+    ++state->mFeaturesCallCount;
+    *features = state->mFeatures;
+}
 
 VKAPI_ATTR void VKAPI_CALL fakeGetPhysicalDeviceProperties(VkPhysicalDevice            physical_device,
                                                            VkPhysicalDeviceProperties* properties) noexcept
@@ -96,6 +126,7 @@ VKAPI_ATTR void VKAPI_CALL fakeGetPhysicalDeviceProperties(VkPhysicalDevice     
     {
         return;
     }
+    recordCallback(*state, MaterialAttachmentQuery::PhysicalDeviceProperties);
     ++state->mPropertiesCallCount;
     *properties = state->mProperties;
 }
@@ -112,6 +143,7 @@ VKAPI_ATTR void VKAPI_CALL fakeGetPhysicalDeviceFormatProperties(VkPhysicalDevic
         }
         return;
     }
+    recordCallback(*state, MaterialAttachmentQuery::FormatProperties);
     const std::size_t index      = state->mFormatCallCount++;
     state->mFormatQueries[index] = format;
     *properties                  = state->mFormatOutputs[index];
@@ -131,6 +163,7 @@ VKAPI_ATTR VkResult VKAPI_CALL fakeGetPhysicalDeviceImageFormatProperties(VkPhys
         }
         return VK_ERROR_INITIALIZATION_FAILED;
     }
+    recordCallback(*state, MaterialAttachmentQuery::ImageFormatProperties);
     const std::size_t index     = state->mImageCallCount++;
     state->mImageQueries[index] = { physical_device, format, type, tiling, usage, flags };
     *properties                 = state->mImageOutputs[index];
@@ -140,7 +173,8 @@ VKAPI_ATTR VkResult VKAPI_CALL fakeGetPhysicalDeviceImageFormatProperties(VkPhys
 MaterialAttachmentDevice fakeDevice(FakeState& state) noexcept
 {
     return { reinterpret_cast<VkPhysicalDevice>(&state),
-             { fakeGetPhysicalDeviceProperties, fakeGetPhysicalDeviceFormatProperties, fakeGetPhysicalDeviceImageFormatProperties } };
+             { fakeGetPhysicalDeviceFeatures, fakeGetPhysicalDeviceProperties, fakeGetPhysicalDeviceFormatProperties,
+               fakeGetPhysicalDeviceImageFormatProperties } };
 }
 
 const MaterialAttachmentResolutionError* resolutionError(const MaterialAttachmentResolutionResult& result) noexcept
@@ -156,16 +190,17 @@ const LegacyNormSpecAttachmentProfile* resolvedProfile(const MaterialAttachmentR
 void ensureInputError(const char* message, const MaterialAttachmentResolutionResult& result, MaterialAttachmentResolutionCode code)
 {
     const auto* error = resolutionError(result);
-    tut::ensure(message, error && error->mCode == code && !error->mQuery && !error->mLimit && !error->mCapability && !error->mAttachment &&
-                             !error->mColorSlot && !error->mLogicalFormat && error->mNativeFormat == VK_FORMAT_UNDEFINED &&
-                             error->mRequiredFeatures == 0 && error->mAvailableFeatures == 0 && error->mRequiredLimit == 0 &&
-                             error->mAvailableLimit == 0 && error->mRequiredCapability == 0 && error->mAvailableCapability == 0 &&
-                             error->mResult == VK_SUCCESS);
+    tut::ensure(message,
+                error && error->mCode == code && !error->mQuery && !error->mFeature && !error->mLimit && !error->mCapability &&
+                    !error->mAttachment && !error->mColorSlot && !error->mLogicalFormat && error->mNativeFormat == VK_FORMAT_UNDEFINED &&
+                    error->mRequiredFeatures == 0 && error->mAvailableFeatures == 0 && error->mRequiredLimit == 0 &&
+                    error->mAvailableLimit == 0 && error->mRequiredCapability == 0 && error->mAvailableCapability == 0 &&
+                    error->mResult == VK_SUCCESS);
 }
 
 std::size_t callbackCount(const FakeState& state) noexcept
 {
-    return state.mPropertiesCallCount + state.mFormatCallCount + state.mImageCallCount;
+    return state.mFeaturesCallCount + state.mPropertiesCallCount + state.mFormatCallCount + state.mImageCallCount;
 }
 
 bool sameCapabilities(const VkImageFormatProperties& left, const VkImageFormatProperties& right) noexcept
@@ -199,6 +234,9 @@ void render_vulkan_material_attachment_test_object::test<1>()
     static_assert(std::is_same_v<std::variant_alternative_t<1, MaterialAttachmentResolutionResult>, LegacyNormSpecAttachmentProfile>);
     static_assert(!std::is_aggregate_v<LegacyNormSpecAttachmentProfile>);
     static_assert(!std::is_default_constructible_v<LegacyNormSpecAttachmentProfile>);
+    static_assert(!std::is_aggregate_v<MaterialAttachmentDeviceRequirements>);
+    static_assert(!std::is_default_constructible_v<MaterialAttachmentDeviceRequirements>);
+    static_assert(std::is_trivially_copyable_v<MaterialAttachmentDeviceRequirements>);
     static_assert(std::is_nothrow_move_constructible_v<MaterialAttachmentResolutionResult>);
     static_assert(noexcept(resolveLegacyNormSpecAttachmentProfile(std::declval<const MaterialAttachmentDevice&>(),
                                                                   std::declval<const LegacyNormSpecPipelineKey&>())));
@@ -212,7 +250,12 @@ void render_vulkan_material_attachment_test_object::test<2>()
     auto      result = resolveLegacyNormSpecAttachmentProfile({}, legacyNormSpecModernHDRPipelineKey());
     ensureInputError("a null physical device is rejected", result, MaterialAttachmentResolutionCode::InvalidPhysicalDevice);
 
-    MaterialAttachmentDevice device               = fakeDevice(state);
+    MaterialAttachmentDevice device             = fakeDevice(state);
+    device.mDispatch.mGetPhysicalDeviceFeatures = nullptr;
+    result                                      = resolveLegacyNormSpecAttachmentProfile(device, legacyNormSpecModernHDRPipelineKey());
+    ensureInputError("missing physical-device features is rejected", result, MaterialAttachmentResolutionCode::InvalidDispatch);
+
+    device                                        = fakeDevice(state);
     device.mDispatch.mGetPhysicalDeviceProperties = nullptr;
     result                                        = resolveLegacyNormSpecAttachmentProfile(device, legacyNormSpecModernHDRPipelineKey());
     ensureInputError("missing physical-device properties is rejected", result, MaterialAttachmentResolutionCode::InvalidDispatch);
@@ -259,6 +302,7 @@ void render_vulkan_material_attachment_test_object::test<3>()
     ensure("the result retains canonical identity and physical-device provenance",
            profile->targetProfile() == LegacyNormSpecTargetProfile::ModernHDR && profile->selectedFor(device.mPhysicalDevice) &&
                !profile->selectedFor(fakeHandle<VkPhysicalDevice>(0x5eedU)));
+    ensure("the supported profile retains the required logical-device feature", profile->deviceRequirements().independentBlendRequired());
     for (std::size_t slot = 0; slot < expected_formats.size(); ++slot)
     {
         const auto& color = profile->colors()[slot];
@@ -283,15 +327,24 @@ void render_vulkan_material_attachment_test_object::test<3>()
                profile->depth().mRequiredLoadOp == VK_ATTACHMENT_LOAD_OP_CLEAR && profile->depth().mClearDepth == 1.f &&
                profile->depth().mClearStencil == 0 && sameCapabilities(profile->depth().mCapabilities, state.mImageOutputs[4]));
 
+    ensure_equals("physical features are queried once", state.mFeaturesCallCount, std::size_t{ 1 });
+    ensure("physical features are queried from the profile's exact device", state.mFeaturesPhysicalDevice == device.mPhysicalDevice);
     ensure_equals("physical limits are queried once", state.mPropertiesCallCount, std::size_t{ 1 });
     ensure_equals("all five formats are queried", state.mFormatCallCount, FakeState::QUERY_COUNT);
     ensure_equals("all five exact image roles are queried", state.mImageCallCount, FakeState::QUERY_COUNT);
     ensure("the fake query recorder did not overflow", !state.mOverflow);
+    ensure_equals("the complete query order is recorded", state.mCallbackCount, FakeState::CALLBACK_COUNT);
+    ensure("features precede physical properties",
+           state.mCallbackOrder[0] == MaterialAttachmentQuery::PhysicalDeviceFeatures &&
+               state.mCallbackOrder[1] == MaterialAttachmentQuery::PhysicalDeviceProperties);
     for (std::size_t index = 0; index < FakeState::QUERY_COUNT; ++index)
     {
         const auto& query = state.mImageQueries[index];
         const bool  color = index < LEGACY_NORMSPEC_COLOR_ATTACHMENT_COUNT;
         ensure("format and image queries retain exact order", state.mFormatQueries[index] == query.mFormat);
+        ensure("each ordered role queries format support before image capabilities",
+               state.mCallbackOrder[2 + 2 * index] == MaterialAttachmentQuery::FormatProperties &&
+                   state.mCallbackOrder[3 + 2 * index] == MaterialAttachmentQuery::ImageFormatProperties);
         ensure("the queried format is the one published for that attachment",
                query.mFormat == (color ? profile->colors()[index].mNativeFormat : profile->depth().mNativeFormat));
         ensure("every image query is exact 2D optimal tiling with no flags",
@@ -309,13 +362,16 @@ void render_vulkan_material_attachment_test_object::test<4>()
 {
     FakeState   state;
     const auto  key     = legacyNormSpecCompatibilityPipelineKey();
-    const auto  result  = resolveLegacyNormSpecAttachmentProfile(fakeDevice(state), key);
+    const auto  device  = fakeDevice(state);
+    const auto  result  = resolveLegacyNormSpecAttachmentProfile(device, key);
     const auto* profile = resolvedProfile(result);
     ensure("the compatibility profile resolves", profile != nullptr);
 
     const std::array<VkFormat, 4> expected_formats{ VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_A2B10G10R10_UNORM_PACK32,
                                                     VK_FORMAT_R8G8B8A8_UNORM };
-    ensure("the result retains compatibility identity", profile->targetProfile() == LegacyNormSpecTargetProfile::Compatibility);
+    ensure("the result retains compatibility identity and the required logical-device feature",
+           profile->targetProfile() == LegacyNormSpecTargetProfile::Compatibility &&
+               profile->deviceRequirements().independentBlendRequired());
     for (std::size_t slot = 0; slot < expected_formats.size(); ++slot)
     {
         ensure("every compatibility target maps exactly",
@@ -330,6 +386,11 @@ void render_vulkan_material_attachment_test_object::test<4>()
                profile->colors()[3].mClearColor == std::array<float, 4>{ 0.f, 0.f, 0.f, 1.f });
     ensure("compatibility selection never queries a three-channel Vulkan image",
            state.mFormatQueries[3] != VK_FORMAT_R8G8B8_UNORM && state.mFormatQueries[3] != VK_FORMAT_R16G16B16_SFLOAT);
+    ensure_equals("compatibility queries physical feature support once", state.mFeaturesCallCount, std::size_t{ 1 });
+    ensure("compatibility queries the exact physical device before every later callback",
+           state.mFeaturesPhysicalDevice == device.mPhysicalDevice && state.mCallbackCount == FakeState::CALLBACK_COUNT &&
+               state.mCallbackOrder[0] == MaterialAttachmentQuery::PhysicalDeviceFeatures &&
+               state.mCallbackOrder[1] == MaterialAttachmentQuery::PhysicalDeviceProperties);
     ensure_equals("compatibility still proves all five roles", state.mImageCallCount, FakeState::QUERY_COUNT);
 }
 
@@ -346,7 +407,7 @@ void render_vulkan_material_attachment_test_object::test<5>()
                error->mQuery == MaterialAttachmentQuery::PhysicalDeviceProperties &&
                error->mLimit == MaterialAttachmentLimit::ColorAttachments && error->mRequiredLimit == 4 && error->mAvailableLimit == 3 &&
                !error->mAttachment);
-    ensure_equals("a color limit failure stops after physical properties", callbackCount(color_state), std::size_t{ 1 });
+    ensure_equals("a color limit failure stops after features and physical properties", callbackCount(color_state), std::size_t{ 2 });
 
     FakeState output_state;
     output_state.mProperties.limits.maxFragmentOutputAttachments = 3;
@@ -357,7 +418,7 @@ void render_vulkan_material_attachment_test_object::test<5>()
                error->mQuery == MaterialAttachmentQuery::PhysicalDeviceProperties &&
                error->mLimit == MaterialAttachmentLimit::FragmentOutputs && error->mRequiredLimit == 4 && error->mAvailableLimit == 3 &&
                !error->mAttachment);
-    ensure_equals("an output limit failure stops after physical properties", callbackCount(output_state), std::size_t{ 1 });
+    ensure_equals("an output limit failure stops after features and physical properties", callbackCount(output_state), std::size_t{ 2 });
 }
 
 template<>
@@ -482,6 +543,34 @@ void render_vulkan_material_attachment_test_object::test<8>()
                !error->mColorSlot && error->mLogicalFormat == PixelFormat::Depth24Unorm && error->mNativeFormat == VK_FORMAT_D32_SFLOAT &&
                error->mRequiredCapability == VK_SAMPLE_COUNT_1_BIT && error->mAvailableCapability == VK_SAMPLE_COUNT_4_BIT);
     ensure_equals("depth capability failure follows four complete color queries", depth_state.mImageCallCount, FakeState::QUERY_COUNT);
+}
+
+template<>
+template<>
+void render_vulkan_material_attachment_test_object::test<9>()
+{
+    FakeState state;
+    state.mFeatures.independentBlend = VK_FALSE;
+
+    const auto  result = resolveLegacyNormSpecAttachmentProfile(fakeDevice(state), legacyNormSpecModernHDRPipelineKey());
+    const auto* error  = resolutionError(result);
+    ensure("missing independent-blend support retains exact typed context",
+           error && error->mCode == MaterialAttachmentResolutionCode::MissingDeviceFeature &&
+               error->mQuery == MaterialAttachmentQuery::PhysicalDeviceFeatures &&
+               error->mFeature == MaterialAttachmentFeature::IndependentBlend && !error->mLimit && !error->mCapability &&
+               !error->mAttachment && !error->mColorSlot && !error->mLogicalFormat && error->mNativeFormat == VK_FORMAT_UNDEFINED &&
+               error->mRequiredFeatures == 0 && error->mAvailableFeatures == 0 && error->mRequiredLimit == 0 &&
+               error->mAvailableLimit == 0 && error->mRequiredCapability == 0 && error->mAvailableCapability == 0 &&
+               error->mResult == VK_SUCCESS && !resolvedProfile(result));
+    ensure_equals("unsupported hardware performs exactly one feature query", state.mFeaturesCallCount, std::size_t{ 1 });
+    ensure("unsupported hardware queries the supplied physical device",
+           state.mFeaturesPhysicalDevice == reinterpret_cast<VkPhysicalDevice>(&state));
+    ensure_equals("unsupported hardware performs no properties query", state.mPropertiesCallCount, std::size_t{ 0 });
+    ensure_equals("unsupported hardware performs no format query", state.mFormatCallCount, std::size_t{ 0 });
+    ensure_equals("unsupported hardware performs no image-format query", state.mImageCallCount, std::size_t{ 0 });
+    ensure_equals("feature rejection records one callback", state.mCallbackCount, std::size_t{ 1 });
+    ensure("the sole callback has physical-feature context",
+           state.mCallbackOrder[0] == MaterialAttachmentQuery::PhysicalDeviceFeatures && !state.mOverflow);
 }
 
 } // namespace tut

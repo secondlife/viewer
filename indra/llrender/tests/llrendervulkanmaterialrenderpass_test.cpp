@@ -48,6 +48,7 @@ struct ProfileState
 {
     ProfileState()
     {
+        mFeatures.independentBlend                      = VK_TRUE;
         mProperties.limits.maxColorAttachments          = LEGACY_NORMSPEC_COLOR_ATTACHMENT_COUNT;
         mProperties.limits.maxFragmentOutputAttachments = LEGACY_NORMSPEC_COLOR_ATTACHMENT_COUNT;
         for (std::size_t index = 0; index < LEGACY_NORMSPEC_RENDER_PASS_ATTACHMENT_COUNT; ++index)
@@ -64,12 +65,24 @@ struct ProfileState
         }
     }
 
+    VkPhysicalDeviceFeatures                                                          mFeatures{};
     VkPhysicalDeviceProperties                                                        mProperties{};
     std::array<VkFormatProperties, LEGACY_NORMSPEC_RENDER_PASS_ATTACHMENT_COUNT>      mFormats{};
     std::array<VkImageFormatProperties, LEGACY_NORMSPEC_RENDER_PASS_ATTACHMENT_COUNT> mImages{};
-    std::size_t                                                                       mFormatCount = 0;
-    std::size_t                                                                       mImageCount  = 0;
+    std::size_t                                                                       mFeaturesCount = 0;
+    std::size_t                                                                       mFormatCount   = 0;
+    std::size_t                                                                       mImageCount    = 0;
 };
+
+VKAPI_ATTR void VKAPI_CALL fakeGetPhysicalDeviceFeatures(VkPhysicalDevice physical_device, VkPhysicalDeviceFeatures* features) noexcept
+{
+    auto* state = reinterpret_cast<ProfileState*>(physical_device);
+    if (state && features)
+    {
+        ++state->mFeaturesCount;
+        *features = state->mFeatures;
+    }
+}
 
 VKAPI_ATTR void VKAPI_CALL fakeGetPhysicalDeviceProperties(VkPhysicalDevice            physical_device,
                                                            VkPhysicalDeviceProperties* properties) noexcept
@@ -108,8 +121,8 @@ VKAPI_ATTR VkResult VKAPI_CALL fakeGetPhysicalDeviceImageFormatProperties(VkPhys
 MaterialAttachmentResolutionResult resolveProfile(ProfileState& state, const LegacyNormSpecPipelineKey& key) noexcept
 {
     MaterialAttachmentDevice device{ reinterpret_cast<VkPhysicalDevice>(&state),
-                                     { fakeGetPhysicalDeviceProperties, fakeGetPhysicalDeviceFormatProperties,
-                                       fakeGetPhysicalDeviceImageFormatProperties } };
+                                     { fakeGetPhysicalDeviceFeatures, fakeGetPhysicalDeviceProperties,
+                                       fakeGetPhysicalDeviceFormatProperties, fakeGetPhysicalDeviceImageFormatProperties } };
     return resolveLegacyNormSpecAttachmentProfile(device, key);
 }
 
@@ -380,6 +393,7 @@ void render_vulkan_material_render_pass_test_object::test<3>()
     auto         profile_result = resolveProfile(profile_state, legacyNormSpecModernHDRPipelineKey());
     const auto*  profile        = resolvedProfile(profile_result);
     ensure("the Modern HDR profile resolves", profile != nullptr);
+    ensure_equals("the Modern HDR fixture queries physical features once", profile_state.mFeaturesCount, std::size_t{ 1 });
 
     RenderPassState render_state;
     auto            device = fakeDevice(profile_state, render_state);
@@ -398,6 +412,7 @@ void render_vulkan_material_render_pass_test_object::test<3>()
                owner->depthAttachmentLayout() == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
     ensure("the owner retains a distinct immutable copy of the complete profile",
            &owner->attachmentProfile() != profile && owner->attachmentProfile().targetProfile() == LegacyNormSpecTargetProfile::ModernHDR &&
+               owner->attachmentProfile().deviceRequirements().independentBlendRequired() &&
                owner->attachmentProfile().colors()[3].mWriteMask ==
                    (VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT) &&
                owner->attachmentProfile().colors()[3].mAlphaSemantic == MaterialAttachmentAlphaSemantic::ImplicitOneAfterClear);
@@ -417,6 +432,7 @@ void render_vulkan_material_render_pass_test_object::test<3>()
     profile_result = MaterialAttachmentResolutionError{};
     ensure("destroying the source value does not change the retained profile",
            owner->attachmentProfile().targetProfile() == LegacyNormSpecTargetProfile::ModernHDR &&
+               owner->attachmentProfile().deviceRequirements().independentBlendRequired() &&
                owner->attachmentProfile().colors()[3].mNativeFormat == VK_FORMAT_R16G16B16A16_SFLOAT);
 
     std::get<std::unique_ptr<LegacyNormSpecRenderPass>>(result).reset();
@@ -434,6 +450,7 @@ void render_vulkan_material_render_pass_test_object::test<4>()
     auto         profile_result = resolveProfile(profile_state, legacyNormSpecCompatibilityPipelineKey());
     const auto*  profile        = resolvedProfile(profile_result);
     ensure("the Compatibility profile resolves", profile != nullptr);
+    ensure_equals("the Compatibility fixture queries physical features once", profile_state.mFeaturesCount, std::size_t{ 1 });
 
     RenderPassState render_state;
     auto            result = createLegacyNormSpecRenderPass(fakeDevice(profile_state, render_state), *profile);
@@ -450,6 +467,7 @@ void render_vulkan_material_render_pass_test_object::test<4>()
     }
     ensure("the retained Compatibility alpha contract stays coupled",
            owner->attachmentProfile().targetProfile() == LegacyNormSpecTargetProfile::Compatibility &&
+               owner->attachmentProfile().deviceRequirements().independentBlendRequired() &&
                owner->attachmentProfile().colors()[3].mNativeFormat == VK_FORMAT_R8G8B8A8_UNORM &&
                owner->attachmentProfile().colors()[3].mWriteMask ==
                    (VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT) &&
