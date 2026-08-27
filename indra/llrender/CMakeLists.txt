@@ -81,6 +81,8 @@ set(llrendercontract_SOURCE_FILES
     llmaterialcontract.h
     llmaterialdiagnostic.cpp
     llmaterialdiagnostic.h
+    llmaterialparametercontract.cpp
+    llmaterialparametercontract.h
     llrendercontract.cpp
     llrendercontract.h
     llshadermanifest.cpp
@@ -168,6 +170,7 @@ if (LL_TESTS)
   set_source_files_properties(
     tests/lldrawpacketcontract_test.cpp
     tests/llmaterialdiagnostic_test.cpp
+    tests/llmaterialparametercontract_test.cpp
     tests/llrendercontract_test.cpp
     tests/llshadermanifest_test.cpp
     tests/llrenderglmaterialregistry_test.cpp
@@ -181,6 +184,7 @@ if (LL_TESTS)
   )
   LL_ADD_INTEGRATION_TEST(lldrawpacketcontract "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llmaterialdiagnostic "" "llrendercontract;llcommon")
+  LL_ADD_INTEGRATION_TEST(llmaterialparametercontract "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrendercontract "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llshadermanifest "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrenderglmaterialregistry "" "llrendercontract;llcommon")
