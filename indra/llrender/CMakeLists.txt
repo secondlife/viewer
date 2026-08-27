@@ -83,6 +83,8 @@ set(llrendercontract_SOURCE_FILES
     llmaterialdiagnostic.h
     llrendercontract.cpp
     llrendercontract.h
+    llshadermanifest.cpp
+    llshadermanifest.h
     lltextureuploadcontract.cpp
     lltextureuploadcontract.h
     lltextureuploaddiagnostic.cpp
@@ -167,6 +169,7 @@ if (LL_TESTS)
     tests/lldrawpacketcontract_test.cpp
     tests/llmaterialdiagnostic_test.cpp
     tests/llrendercontract_test.cpp
+    tests/llshadermanifest_test.cpp
     tests/llrenderglmaterialregistry_test.cpp
     tests/llrendergltextureuploadregistry_test.cpp
     tests/llrendergltonemapregistry_test.cpp
@@ -179,6 +182,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(lldrawpacketcontract "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llmaterialdiagnostic "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrendercontract "" "llrendercontract;llcommon")
+  LL_ADD_INTEGRATION_TEST(llshadermanifest "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrenderglmaterialregistry "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrendergltextureuploadregistry "" "llrender;llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrendergltonemapregistry "" "llrendercontract;llcommon")
@@ -203,6 +207,12 @@ if (LL_VULKAN_TONEMAP_TEST)
   find_program(LL_VULKAN_SPIRV_VAL
       NAMES spirv-val
       DOC "Path to spirv-val for the Vulkan tonemap diagnostic")
+  find_program(LL_VULKAN_SPIRV_CROSS
+      NAMES spirv-cross
+      DOC "Path to spirv-cross for Vulkan shader reflection")
+  find_program(LL_VULKAN_SPIRV_DIS
+      NAMES spirv-dis
+      DOC "Path to spirv-dis for Vulkan shader decoration validation")
 
   if (NOT LL_VULKAN_GLSLANG_VALIDATOR OR
       NOT EXISTS "${LL_VULKAN_GLSLANG_VALIDATOR}")
@@ -212,6 +222,14 @@ if (LL_VULKAN_TONEMAP_TEST)
   if (NOT LL_VULKAN_SPIRV_VAL OR NOT EXISTS "${LL_VULKAN_SPIRV_VAL}")
     message(FATAL_ERROR
         "LL_VULKAN_TONEMAP_TEST requires spirv-val; add it to PATH or set LL_VULKAN_SPIRV_VAL")
+  endif ()
+  if (NOT LL_VULKAN_SPIRV_CROSS OR NOT EXISTS "${LL_VULKAN_SPIRV_CROSS}")
+    message(FATAL_ERROR
+        "LL_VULKAN_TONEMAP_TEST requires spirv-cross; add it to PATH or set LL_VULKAN_SPIRV_CROSS")
+  endif ()
+  if (NOT LL_VULKAN_SPIRV_DIS OR NOT EXISTS "${LL_VULKAN_SPIRV_DIS}")
+    message(FATAL_ERROR
+        "LL_VULKAN_TONEMAP_TEST requires spirv-dis; add it to PATH or set LL_VULKAN_SPIRV_DIS")
   endif ()
   if (NOT LL_VULKAN_VALIDATION_LAYER_DIR OR
       NOT IS_DIRECTORY "${LL_VULKAN_VALIDATION_LAYER_DIR}" OR
@@ -301,6 +319,11 @@ if (LL_VULKAN_TONEMAP_TEST)
   set(llvulkan_material_fragment_spv
       "${llvulkan_shader_binary_dir}/material.frag.spv")
 
+  add_executable(llshadermanifest_dump
+      vulkan/llshadermanifest_dump.cpp)
+  target_link_libraries(llshadermanifest_dump PRIVATE llrendercontract)
+  set_target_properties(llshadermanifest_dump PROPERTIES FOLDER "Tests")
+
   add_custom_command(
       OUTPUT "${llvulkan_material_vertex_spv}"
       COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_shader_binary_dir}"
@@ -344,10 +367,92 @@ if (LL_VULKAN_TONEMAP_TEST)
       VERBATIM
   )
 
+  set(llvulkan_material_vertex_reflection
+      "${llvulkan_shader_binary_dir}/material.vert.reflect.json")
+  set(llvulkan_material_fragment_reflection
+      "${llvulkan_shader_binary_dir}/material.frag.reflect.json")
+  set(llvulkan_material_vertex_disassembly
+      "${llvulkan_shader_binary_dir}/material.vert.spvasm")
+  set(llvulkan_material_fragment_disassembly
+      "${llvulkan_shader_binary_dir}/material.frag.spvasm")
+  set(llvulkan_material_manifest_expectation
+      "${llvulkan_shader_binary_dir}/material.manifest.json")
+  set(llvulkan_material_module_hashes
+      "${llvulkan_shader_binary_dir}/material.modules.sha256")
+  set(llvulkan_material_manifest_stamp
+      "${llvulkan_shader_binary_dir}/material.manifest.verified")
+  set(llvulkan_material_reflection_verifier
+      "${CMAKE_CURRENT_SOURCE_DIR}/vulkan/verify_material_reflection.py")
+  set(llvulkan_material_reflection_verifier_test
+      "${CMAKE_CURRENT_SOURCE_DIR}/vulkan/test_verify_material_reflection.py")
+  set(llvulkan_material_hash_writer
+      "${CMAKE_CURRENT_SOURCE_DIR}/vulkan/write_shader_hashes.cmake")
+
+  add_custom_command(
+      OUTPUT
+      "${llvulkan_material_manifest_stamp}"
+      "${llvulkan_material_module_hashes}"
+      BYPRODUCTS
+      "${llvulkan_material_vertex_reflection}"
+      "${llvulkan_material_fragment_reflection}"
+      "${llvulkan_material_vertex_disassembly}"
+      "${llvulkan_material_fragment_disassembly}"
+      "${llvulkan_material_manifest_expectation}"
+      COMMAND "${CMAKE_COMMAND}" -E remove -f
+              "${llvulkan_material_manifest_stamp}"
+              "${llvulkan_material_module_hashes}"
+              "${llvulkan_material_vertex_reflection}"
+              "${llvulkan_material_fragment_reflection}"
+              "${llvulkan_material_vertex_disassembly}"
+              "${llvulkan_material_fragment_disassembly}"
+              "${llvulkan_material_manifest_expectation}"
+      COMMAND "${LL_VULKAN_SPIRV_CROSS}"
+              "${llvulkan_material_vertex_spv}"
+              --reflect --output "${llvulkan_material_vertex_reflection}"
+      COMMAND "${LL_VULKAN_SPIRV_CROSS}"
+              "${llvulkan_material_fragment_spv}"
+              --reflect --output "${llvulkan_material_fragment_reflection}"
+      COMMAND "${LL_VULKAN_SPIRV_DIS}"
+              "${llvulkan_material_vertex_spv}"
+              -o "${llvulkan_material_vertex_disassembly}"
+      COMMAND "${LL_VULKAN_SPIRV_DIS}"
+              "${llvulkan_material_fragment_spv}"
+              -o "${llvulkan_material_fragment_disassembly}"
+      COMMAND "$<TARGET_FILE:llshadermanifest_dump>"
+              --output "${llvulkan_material_manifest_expectation}"
+      COMMAND "${PYTHON_EXECUTABLE}" -B
+              "${llvulkan_material_reflection_verifier_test}"
+      COMMAND "${PYTHON_EXECUTABLE}"
+              "${llvulkan_material_reflection_verifier}"
+              --expectation "${llvulkan_material_manifest_expectation}"
+              --vertex-reflection "${llvulkan_material_vertex_reflection}"
+              --fragment-reflection "${llvulkan_material_fragment_reflection}"
+              --vertex-disassembly "${llvulkan_material_vertex_disassembly}"
+              --fragment-disassembly "${llvulkan_material_fragment_disassembly}"
+      COMMAND "${CMAKE_COMMAND}"
+              "-DVERTEX_MODULE=${llvulkan_material_vertex_spv}"
+              "-DFRAGMENT_MODULE=${llvulkan_material_fragment_spv}"
+              "-DOUTPUT_FILE=${llvulkan_material_module_hashes}"
+              -P "${llvulkan_material_hash_writer}"
+      COMMAND "${CMAKE_COMMAND}" -E touch
+              "${llvulkan_material_manifest_stamp}"
+      DEPENDS
+      "${llvulkan_material_vertex_spv}"
+      "${llvulkan_material_fragment_spv}"
+      llshadermanifest_dump
+      "${llvulkan_material_reflection_verifier}"
+      "${llvulkan_material_reflection_verifier_test}"
+      "${llvulkan_material_hash_writer}"
+      COMMENT "Reflecting and validating the diagnostic Vulkan material manifest"
+      VERBATIM
+  )
+
   add_custom_target(llvulkanmaterial_shaders
       DEPENDS
       "${llvulkan_material_vertex_spv}"
-      "${llvulkan_material_fragment_spv}")
+      "${llvulkan_material_fragment_spv}"
+      "${llvulkan_material_manifest_stamp}"
+      "${llvulkan_material_module_hashes}")
   set_target_properties(llvulkanmaterial_shaders PROPERTIES FOLDER "Tests")
 
   set(llvulkan_texture_upload_vertex_source

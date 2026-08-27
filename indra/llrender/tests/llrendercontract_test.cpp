@@ -725,8 +725,7 @@ void render_contract_test_object::test<27>()
     next.mMipGeneration = MipGeneration::Disabled;
     next.mBefore        = ImageState::ShaderRead;
     equal.mUploads.push_back(next);
-    ensure("equal upload revisions are rejected for one exact destination",
-           hasError(validate(equal), ValidationCode::InvalidUpload));
+    ensure("equal upload revisions are rejected for one exact destination", hasError(validate(equal), ValidationCode::InvalidUpload));
 
     FrameSnapshot decreasing = streamingUploadFrame();
     next                     = decreasing.mUploads.front();
@@ -742,6 +741,25 @@ void render_contract_test_object::test<27>()
     next.mDestination                = OLD_STREAMED_IMAGE;
     another_generation.mUploads.push_back(next);
     ensure("upload revisions are independent across image generations", static_cast<bool>(validate(another_generation)));
+}
+
+template<>
+template<>
+void render_contract_test_object::test<28>()
+{
+    FrameSnapshot frame = streamingUploadFrame();
+    for (ImageResource& image_resource : frame.mImages)
+    {
+        image_resource.mFormat = PixelFormat::RGB16Float;
+    }
+    frame.mPipelines[0].mColorTargets[0].mFormat = PixelFormat::RGB16Float;
+    frame.mUploads[0].mSourceFormat              = PixelFormat::RGB16Float;
+    frame.mUploads[0].mRowPitch                  = 24;
+    frame.mUploads[0].mPixels                    = bytes(96);
+    ensure("RGB16Float is a valid color target and six-byte upload format", static_cast<bool>(validate(frame)));
+
+    frame.mUploads[0].mRowPitch = 23;
+    ensure("RGB16Float upload rows require six bytes per pixel", hasError(validate(frame), ValidationCode::InvalidUpload));
 }
 
 } // namespace tut

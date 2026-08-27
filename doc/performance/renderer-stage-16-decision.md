@@ -15,6 +15,17 @@ It does not provide a production resource registry, pin resource lifetime,
 compile a shader variant, submit a draw, select Vulkan, or make a performance
 claim.
 
+## Stage 17 profile erratum
+
+Post-commit shader inventory found that variant 0 and its three color targets
+describe the Stage 12 parity diagnostic, where emissive output and shadow
+assembly are disabled. They are not the viewer's normal production defaults.
+Production enables a fourth emissive target and uses a distinct shader variant
+and one of two platform target profiles. Stage 16 has no adapter call site, so
+the mistaken label had no runtime effect. Stage 17 corrects the key taxonomy
+and retains this section as a historical erratum rather than rewriting the
+Stage 16 implementation result.
+
 ## Supported production source
 
 Capture receives the external render-map type, one `LLDrawInfo`, explicit

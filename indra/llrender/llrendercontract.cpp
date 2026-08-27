@@ -66,6 +66,9 @@ namespace
             case PixelFormat::Depth32Float:
                 return 4;
             case PixelFormat::RGBA16Unorm:
+                return 8;
+            case PixelFormat::RGB16Float:
+                return 6;
             case PixelFormat::RGBA16Float:
                 return 8;
         }
@@ -296,7 +299,7 @@ namespace
                 const ImageResource& image = mFrame.mImages[index];
                 if (image.mExtent.mWidth == 0 || image.mExtent.mHeight == 0 || image.mMipLevels == 0 || image.mArrayLayers == 0 ||
                     image.mSamples == 0 || image.mMipLevels > maxMipLevels(image.mExtent) ||
-                    !validEnum(image.mFormat, PixelFormat::Depth32Float) || !validEnum(image.mLifetime, ResourceLifetime::Frame))
+                    !validEnum(image.mFormat, PixelFormat::RGB16Float) || !validEnum(image.mLifetime, ResourceLifetime::Frame))
                 {
                     error(ValidationCode::InvalidResource, "images[" + std::to_string(index) + "]",
                           "image dimensions, subresource counts, and samples must be non-zero");
@@ -341,13 +344,13 @@ namespace
                 error(ValidationCode::InvalidResource, path, "depth state requires a depth format");
             }
             if (pipeline.mDepthFormat &&
-                (!validEnum(*pipeline.mDepthFormat, PixelFormat::Depth32Float) || !isDepthFormat(*pipeline.mDepthFormat)))
+                (!validEnum(*pipeline.mDepthFormat, PixelFormat::RGB16Float) || !isDepthFormat(*pipeline.mDepthFormat)))
             {
                 error(ValidationCode::InvalidResource, path, "pipeline depth format is not a depth format");
             }
             for (const ColorTargetState& target : pipeline.mColorTargets)
             {
-                if (!validEnum(target.mFormat, PixelFormat::Depth32Float) || isDepthFormat(target.mFormat) ||
+                if (!validEnum(target.mFormat, PixelFormat::RGB16Float) || isDepthFormat(target.mFormat) ||
                     (target.mWriteMask & ~0xfu) != 0)
                 {
                     error(ValidationCode::InvalidResource, path, "color target format or write mask is invalid");
@@ -422,7 +425,7 @@ namespace
                 {
                     error(ValidationCode::InvalidUpload, path, "upload revision must be non-zero");
                 }
-                if (!validEnum(upload.mSourceFormat, PixelFormat::Depth32Float) || !validEnum(upload.mRowOrigin, RowOrigin::BottomLeft) ||
+                if (!validEnum(upload.mSourceFormat, PixelFormat::RGB16Float) || !validEnum(upload.mRowOrigin, RowOrigin::BottomLeft) ||
                     !validEnum(upload.mMipGeneration, MipGeneration::GenerateRemaining) ||
                     !validEnum(upload.mBefore, ImageState::DepthAttachment) || !validEnum(upload.mDuring, ImageState::DepthAttachment) ||
                     !validEnum(upload.mAfter, ImageState::DepthAttachment))
@@ -485,8 +488,7 @@ namespace
 
                 for (std::size_t prior = 0; prior < index; ++prior)
                 {
-                    if (mFrame.mUploads[prior].mDestination == upload.mDestination &&
-                        mFrame.mUploads[prior].mRevision >= upload.mRevision)
+                    if (mFrame.mUploads[prior].mDestination == upload.mDestination && mFrame.mUploads[prior].mRevision >= upload.mRevision)
                     {
                         error(ValidationCode::InvalidUpload, path,
                               "upload revisions for one destination must increase in declaration order");

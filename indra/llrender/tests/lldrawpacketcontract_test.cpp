@@ -33,7 +33,7 @@ LegacyNormSpecDrawInputs completeInputs()
     inputs.mDescriptors              = { { ImageHandle{ 3, 4 }, SamplerHandle{ 5, 2 }, { 0, 3, 0, 1 } },
                                          { ImageHandle{ 4, 5 }, SamplerHandle{ 7, 3 }, { 0, 3, 0, 1 } },
                                          { ImageHandle{ 4, 5 }, SamplerHandle{ 8, 6 }, { 1, 2, 0, 1 } } };
-    inputs.mPipelineKey              = legacyNormSpecPipelineKey();
+    inputs.mPipelineKey              = legacyNormSpecModernHDRPipelineKey();
     inputs.mFirstIndex               = 18;
     inputs.mIndexCount               = 6;
     inputs.mMinVertex                = 11;
@@ -70,13 +70,17 @@ void draw_packet_contract_test_object::test<1>()
     ensure("complete packet validates", validLegacyNormSpecDrawPacket(*packet));
     ensure("frame and pass identities survive preparation", packet->mFrame == 91 && packet->mPass == PassId{ 12 });
     ensure("logical pipeline key is named and deterministic",
-           packet->mPipelineKey == legacyNormSpecPipelineKey() && packet->mPipelineKey.mProgram.mName == "deferred.material.normspec" &&
-               packet->mPipelineKey.mProgram.mVariant == 0);
+           packet->mPipelineKey == legacyNormSpecModernHDRPipelineKey() &&
+               packet->mPipelineKey.mProgram.mName == "deferred.material.normspec" &&
+               packet->mPipelineKey.mProgram.mVariant == LEGACY_NORMSPEC_PRODUCTION_VARIANT &&
+               packet->mPipelineKey.mShaderVariant == LEGACY_NORMSPEC_PRODUCTION_SHADER_VARIANT &&
+               packet->mPipelineKey.mTargetProfile == LegacyNormSpecTargetProfile::ModernHDR);
     ensure("pipeline state is copied from explicit context",
            packet->mPipelineKey.mVertexLayout == DrawVertexLayout::LegacyMaterialNormSpec &&
                packet->mPipelineKey.mTopology == PrimitiveTopology::TriangleList && packet->mPipelineKey.mDepthTestEnabled &&
-               packet->mPipelineKey.mDepthWriteEnabled && packet->mPipelineKey.mColorTargets.size() == 3 &&
+               packet->mPipelineKey.mDepthWriteEnabled && packet->mPipelineKey.mColorTargets.size() == 4 &&
                packet->mPipelineKey.mColorTargets[2].mFormat == PixelFormat::RGBA16Unorm &&
+               packet->mPipelineKey.mColorTargets[3].mFormat == PixelFormat::RGB16Float &&
                packet->mPipelineKey.mColorTargets[2].mWriteMask == 0xf && packet->mPipelineKey.mDepthFormat == PixelFormat::Depth24Unorm);
     ensure("indexed draw range maps without changing units",
            packet->mFirstIndex == 18 && packet->mIndexCount == 6 && packet->mMinVertex == 11 && packet->mMaxVertex == 14);
@@ -223,6 +227,112 @@ void draw_packet_contract_test_object::test<4>()
     invalid                           = completeInputs();
     invalid.mPipelineKey.mDepthFormat = PixelFormat::RGBA8Unorm;
     ensure("color formats cannot be depth targets", !buildLegacyNormSpecDrawPacket(invalid));
+}
+
+template<>
+template<>
+void draw_packet_contract_test_object::test<5>()
+{
+    const LegacyNormSpecPipelineKey diagnostic    = legacyNormSpecDiagnosticPipelineKey();
+    const LegacyNormSpecPipelineKey modern_hdr    = legacyNormSpecModernHDRPipelineKey();
+    const LegacyNormSpecPipelineKey compatibility = legacyNormSpecCompatibilityPipelineKey();
+
+    ensure("the diagnostic profile is an explicit three-target variant",
+           validLegacyNormSpecPipelineKey(diagnostic) && diagnostic.mTargetProfile == LegacyNormSpecTargetProfile::DiagnosticThreeTarget &&
+               diagnostic.mShaderVariant == LEGACY_NORMSPEC_DIAGNOSTIC_SHADER_VARIANT &&
+               diagnostic.mProgram.mVariant == LEGACY_NORMSPEC_DIAGNOSTIC_VARIANT && diagnostic.mColorTargets.size() == 3 &&
+               diagnostic.mColorTargets[0].mFormat == PixelFormat::RGBA8Unorm &&
+               diagnostic.mColorTargets[1].mFormat == PixelFormat::RGBA8Unorm &&
+               diagnostic.mColorTargets[2].mFormat == PixelFormat::RGBA16Unorm);
+    ensure("the modern HDR production profile is exact",
+           validLegacyNormSpecPipelineKey(modern_hdr) && modern_hdr.mTargetProfile == LegacyNormSpecTargetProfile::ModernHDR &&
+               modern_hdr.mShaderVariant == LEGACY_NORMSPEC_PRODUCTION_SHADER_VARIANT &&
+               modern_hdr.mProgram.mVariant == LEGACY_NORMSPEC_PRODUCTION_VARIANT && modern_hdr.mColorTargets.size() == 4 &&
+               modern_hdr.mColorTargets[0].mFormat == PixelFormat::RGBA8Unorm &&
+               modern_hdr.mColorTargets[1].mFormat == PixelFormat::RGBA8Unorm &&
+               modern_hdr.mColorTargets[2].mFormat == PixelFormat::RGBA16Unorm &&
+               modern_hdr.mColorTargets[3].mFormat == PixelFormat::RGB16Float);
+    ensure("the compatibility production profile is exact",
+           validLegacyNormSpecPipelineKey(compatibility) && compatibility.mTargetProfile == LegacyNormSpecTargetProfile::Compatibility &&
+               compatibility.mShaderVariant == LEGACY_NORMSPEC_PRODUCTION_SHADER_VARIANT &&
+               compatibility.mProgram.mVariant == LEGACY_NORMSPEC_PRODUCTION_VARIANT && compatibility.mColorTargets.size() == 4 &&
+               compatibility.mColorTargets[0].mFormat == PixelFormat::RGBA8Unorm &&
+               compatibility.mColorTargets[1].mFormat == PixelFormat::RGBA8Unorm &&
+               compatibility.mColorTargets[2].mFormat == PixelFormat::RGB10A2Unorm &&
+               compatibility.mColorTargets[3].mFormat == PixelFormat::RGB8Unorm);
+    ensure("all normspec profiles retain the canonical depth target",
+           diagnostic.mDepthFormat == PixelFormat::Depth24Unorm && modern_hdr.mDepthFormat == PixelFormat::Depth24Unorm &&
+               compatibility.mDepthFormat == PixelFormat::Depth24Unorm);
+}
+
+template<>
+template<>
+void draw_packet_contract_test_object::test<6>()
+{
+    constexpr LegacyNormSpecEmissive emissive_values[]{ LegacyNormSpecEmissive::Disabled, LegacyNormSpecEmissive::Enabled };
+    constexpr ShadowAssembly         shadow_values[]{ ShadowAssembly::Disabled, ShadowAssembly::Sun, ShadowAssembly::SunAndSpot };
+
+    for (LegacyNormSpecEmissive emissive : emissive_values)
+    {
+        for (ShadowAssembly shadow : shadow_values)
+        {
+            const LegacyNormSpecShaderVariant variant{ emissive, shadow };
+            const auto                        encoded = encodeLegacyNormSpecShaderVariant(variant);
+            ensure("every known typed combination encodes", encoded.has_value());
+            ensure("every known encoding round-trips", decodeLegacyNormSpecShaderVariant(*encoded) == variant);
+        }
+    }
+
+    ensure("the diagnostic variant has the stable zero encoding",
+           encodeLegacyNormSpecShaderVariant(LEGACY_NORMSPEC_DIAGNOSTIC_SHADER_VARIANT) == LEGACY_NORMSPEC_DIAGNOSTIC_VARIANT);
+    ensure("the production default has the stable emissive and Sun-plus-spot encoding",
+           encodeLegacyNormSpecShaderVariant(LEGACY_NORMSPEC_PRODUCTION_SHADER_VARIANT) == LEGACY_NORMSPEC_PRODUCTION_VARIANT);
+    ensure("unknown emissive values cannot encode",
+           !encodeLegacyNormSpecShaderVariant({ static_cast<LegacyNormSpecEmissive>(2), ShadowAssembly::Disabled }));
+    ensure("unknown shadow assemblies cannot encode",
+           !encodeLegacyNormSpecShaderVariant({ LegacyNormSpecEmissive::Enabled, static_cast<ShadowAssembly>(3) }));
+    ensure("the reserved shadow combination cannot decode", !decodeLegacyNormSpecShaderVariant(6) && !decodeLegacyNormSpecShaderVariant(7));
+    ensure("unknown high bits cannot decode",
+           !decodeLegacyNormSpecShaderVariant(8) && !decodeLegacyNormSpecShaderVariant(std::numeric_limits<std::uint64_t>::max()));
+}
+
+template<>
+template<>
+void draw_packet_contract_test_object::test<7>()
+{
+    LegacyNormSpecPipelineKey mixed = legacyNormSpecDiagnosticPipelineKey();
+    mixed.mTargetProfile            = LegacyNormSpecTargetProfile::ModernHDR;
+    ensure("diagnostic variants cannot claim a production target profile", !validLegacyNormSpecPipelineKey(mixed));
+
+    mixed                   = legacyNormSpecModernHDRPipelineKey();
+    mixed.mProgram.mVariant = LEGACY_NORMSPEC_DIAGNOSTIC_VARIANT;
+    mixed.mShaderVariant    = LEGACY_NORMSPEC_DIAGNOSTIC_SHADER_VARIANT;
+    ensure("diagnostic variants cannot use production targets", !validLegacyNormSpecPipelineKey(mixed));
+
+    mixed                   = legacyNormSpecModernHDRPipelineKey();
+    mixed.mShaderVariant    = { LegacyNormSpecEmissive::Enabled, ShadowAssembly::Sun };
+    mixed.mProgram.mVariant = *encodeLegacyNormSpecShaderVariant(mixed.mShaderVariant);
+    ensure("non-default known shader combinations are not production descriptions", !validLegacyNormSpecPipelineKey(mixed));
+
+    mixed                   = legacyNormSpecModernHDRPipelineKey();
+    mixed.mProgram.mVariant = 8;
+    ensure("unknown program bits are rejected", !validLegacyNormSpecPipelineKey(mixed));
+
+    mixed                = legacyNormSpecModernHDRPipelineKey();
+    mixed.mTargetProfile = LegacyNormSpecTargetProfile::Compatibility;
+    ensure("target profile labels cannot be mixed with another exact target list", !validLegacyNormSpecPipelineKey(mixed));
+
+    mixed = legacyNormSpecModernHDRPipelineKey();
+    std::swap(mixed.mColorTargets[2], mixed.mColorTargets[3]);
+    ensure("production target order is part of the profile", !validLegacyNormSpecPipelineKey(mixed));
+
+    mixed = legacyNormSpecCompatibilityPipelineKey();
+    mixed.mColorTargets.pop_back();
+    ensure("partial production target lists are rejected", !validLegacyNormSpecPipelineKey(mixed));
+
+    mixed                = legacyNormSpecCompatibilityPipelineKey();
+    mixed.mTargetProfile = static_cast<LegacyNormSpecTargetProfile>(255);
+    ensure("unknown target profiles are rejected", !validLegacyNormSpecPipelineKey(mixed));
 }
 
 } // namespace tut

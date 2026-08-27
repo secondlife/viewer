@@ -33,10 +33,11 @@ namespace
                                                    LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TANGENT;
     constexpr std::uint32_t KNOWN_VERTEX_MASK = (1u << LLVertexBuffer::TYPE_MAX) - 1u;
 
-    const LLRenderContract::LegacyNormSpecPipelineKey& canonicalPipelineKey()
+    bool productionPipelineKey(const LLRenderContract::LegacyNormSpecPipelineKey& key)
     {
-        static const LLRenderContract::LegacyNormSpecPipelineKey key = LLRenderContract::legacyNormSpecPipelineKey();
-        return key;
+        static const LLRenderContract::LegacyNormSpecPipelineKey modern        = LLRenderContract::legacyNormSpecModernHDRPipelineKey();
+        static const LLRenderContract::LegacyNormSpecPipelineKey compatibility = LLRenderContract::legacyNormSpecCompatibilityPipelineKey();
+        return key == modern || key == compatibility;
     }
 
     LLRenderContract::DrawMatrix4 copyMatrix(const LLMatrix4* matrix)
@@ -139,7 +140,7 @@ std::optional<LLRenderContract::LegacyNormSpecDrawPacket> translateNonRiggedNorm
 {
     if (render_type != static_cast<std::uint32_t>(LLRenderPass::PASS_NORMSPEC) || context.mSubmission != SubmissionKind::DeferredMaterial ||
         context.mRenderDomain != RenderDomain::World || context.mFrame == 0 || !context.mPass ||
-        context.mPipelineKey != canonicalPipelineKey() || !supportedSource(draw_info))
+        !productionPipelineKey(context.mPipelineKey) || !supportedSource(draw_info))
     {
         return std::nullopt;
     }

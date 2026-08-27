@@ -26,8 +26,7 @@
 namespace LLRenderContract
 {
 
-inline constexpr char          LEGACY_NORMSPEC_PIPELINE_NAME[]  = "deferred.material.normspec";
-inline constexpr std::uint64_t LEGACY_NORMSPEC_PIPELINE_VARIANT = 0;
+inline constexpr char LEGACY_NORMSPEC_PIPELINE_NAME[] = "deferred.material.normspec";
 
 using DrawMatrix4 = std::array<float, 16>;
 
@@ -65,9 +64,48 @@ enum class DrawVertexLayout : std::uint8_t
     LegacyMaterialNormSpec
 };
 
+enum class LegacyNormSpecEmissive : std::uint8_t
+{
+    Disabled = 0,
+    Enabled  = 1
+};
+
+enum class ShadowAssembly : std::uint8_t
+{
+    Disabled   = 0,
+    Sun        = 1,
+    SunAndSpot = 2
+};
+
+struct LegacyNormSpecShaderVariant
+{
+    LegacyNormSpecEmissive mEmissive       = LegacyNormSpecEmissive::Disabled;
+    ShadowAssembly         mShadowAssembly = ShadowAssembly::Disabled;
+
+    friend constexpr bool operator==(const LegacyNormSpecShaderVariant&, const LegacyNormSpecShaderVariant&) = default;
+};
+
+inline constexpr LegacyNormSpecShaderVariant LEGACY_NORMSPEC_DIAGNOSTIC_SHADER_VARIANT{ LegacyNormSpecEmissive::Disabled,
+                                                                                        ShadowAssembly::Disabled };
+inline constexpr LegacyNormSpecShaderVariant LEGACY_NORMSPEC_PRODUCTION_SHADER_VARIANT{ LegacyNormSpecEmissive::Enabled,
+                                                                                        ShadowAssembly::SunAndSpot };
+inline constexpr std::uint64_t               LEGACY_NORMSPEC_DIAGNOSTIC_VARIANT =
+    static_cast<std::uint64_t>(LegacyNormSpecEmissive::Disabled) | (static_cast<std::uint64_t>(ShadowAssembly::Disabled) << 1);
+inline constexpr std::uint64_t LEGACY_NORMSPEC_PRODUCTION_VARIANT =
+    static_cast<std::uint64_t>(LegacyNormSpecEmissive::Enabled) | (static_cast<std::uint64_t>(ShadowAssembly::SunAndSpot) << 1);
+
+enum class LegacyNormSpecTargetProfile : std::uint8_t
+{
+    DiagnosticThreeTarget,
+    ModernHDR,
+    Compatibility
+};
+
 struct LegacyNormSpecPipelineKey
 {
-    ShaderProgramKey              mProgram{ LEGACY_NORMSPEC_PIPELINE_NAME, LEGACY_NORMSPEC_PIPELINE_VARIANT };
+    ShaderProgramKey              mProgram{ LEGACY_NORMSPEC_PIPELINE_NAME, LEGACY_NORMSPEC_DIAGNOSTIC_VARIANT };
+    LegacyNormSpecShaderVariant   mShaderVariant     = LEGACY_NORMSPEC_DIAGNOSTIC_SHADER_VARIANT;
+    LegacyNormSpecTargetProfile   mTargetProfile     = LegacyNormSpecTargetProfile::DiagnosticThreeTarget;
     DrawVertexLayout              mVertexLayout      = DrawVertexLayout::LegacyMaterialNormSpec;
     PrimitiveTopology             mTopology          = PrimitiveTopology::TriangleList;
     CullMode                      mCullMode          = CullMode::Back;
@@ -126,8 +164,19 @@ struct LegacyNormSpecDrawPacket
     friend bool operator!=(const LegacyNormSpecDrawPacket& left, const LegacyNormSpecDrawPacket& right) { return !(left == right); }
 };
 
-ShaderProgramKey          legacyNormSpecProgramKey();
-LegacyNormSpecPipelineKey legacyNormSpecPipelineKey();
+bool validLegacyNormSpecShaderVariant(LegacyNormSpecShaderVariant variant) noexcept;
+
+std::optional<std::uint64_t>               encodeLegacyNormSpecShaderVariant(LegacyNormSpecShaderVariant variant) noexcept;
+std::optional<LegacyNormSpecShaderVariant> decodeLegacyNormSpecShaderVariant(std::uint64_t encoded) noexcept;
+
+ShaderProgramKey legacyNormSpecDiagnosticProgramKey();
+ShaderProgramKey legacyNormSpecProductionProgramKey();
+
+LegacyNormSpecPipelineKey legacyNormSpecDiagnosticPipelineKey();
+LegacyNormSpecPipelineKey legacyNormSpecModernHDRPipelineKey();
+LegacyNormSpecPipelineKey legacyNormSpecCompatibilityPipelineKey();
+
+bool validLegacyNormSpecPipelineKey(const LegacyNormSpecPipelineKey& key) noexcept;
 
 bool validLegacyNormSpecDrawPacket(const LegacyNormSpecDrawPacket& packet) noexcept;
 

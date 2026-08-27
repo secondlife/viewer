@@ -144,7 +144,8 @@ enum class PixelFormat
     R16Float,
     RGBA16Float,
     Depth24Unorm,
-    Depth32Float
+    Depth32Float,
+    RGB16Float
 };
 
 enum class ImageState

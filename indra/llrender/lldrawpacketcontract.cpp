@@ -17,6 +17,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <initializer_list>
+#include <iterator>
 #include <limits>
 
 namespace LLRenderContract
@@ -52,16 +54,38 @@ namespace
         return left.mFormat == right.mFormat && left.mBlendEnabled == right.mBlendEnabled && left.mWriteMask == right.mWriteMask;
     }
 
-    bool validPipelineKey(const LegacyNormSpecPipelineKey& key) noexcept
+    bool sameColorTargets(const std::vector<ColorTargetState>& targets, std::initializer_list<PixelFormat> formats) noexcept
     {
-        return key.mProgram.mName == LEGACY_NORMSPEC_PIPELINE_NAME && key.mProgram.mVariant == LEGACY_NORMSPEC_PIPELINE_VARIANT &&
-               key.mVertexLayout == DrawVertexLayout::LegacyMaterialNormSpec && key.mTopology == PrimitiveTopology::TriangleList &&
-               key.mCullMode == CullMode::Back && key.mFrontFace == FrontFace::CounterClockwise && key.mDepthTestEnabled &&
-               key.mDepthWriteEnabled && key.mDepthCompare == CompareOp::LessOrEqual && key.mSamples == 1 &&
-               key.mColorTargets.size() == 3 && sameColorTarget(key.mColorTargets[0], { PixelFormat::RGBA8Unorm, false, 0xf }) &&
-               sameColorTarget(key.mColorTargets[1], { PixelFormat::RGBA8Unorm, false, 0xf }) &&
-               sameColorTarget(key.mColorTargets[2], { PixelFormat::RGBA16Unorm, false, 0xf }) &&
-               key.mDepthFormat == PixelFormat::Depth24Unorm;
+        if (targets.size() != formats.size())
+        {
+            return false;
+        }
+
+        return std::equal(targets.begin(), targets.end(), formats.begin(), [](const ColorTargetState& target, PixelFormat format)
+                          { return sameColorTarget(target, { format, false, 0xf }); });
+    }
+
+    LegacyNormSpecPipelineKey pipelineKey(LegacyNormSpecShaderVariant variant, LegacyNormSpecTargetProfile profile,
+                                          std::initializer_list<PixelFormat> formats)
+    {
+        LegacyNormSpecPipelineKey key;
+        key.mProgram           = variant == LEGACY_NORMSPEC_DIAGNOSTIC_SHADER_VARIANT ? legacyNormSpecDiagnosticProgramKey()
+                                                                                      : legacyNormSpecProductionProgramKey();
+        key.mShaderVariant     = variant;
+        key.mTargetProfile     = profile;
+        key.mVertexLayout      = DrawVertexLayout::LegacyMaterialNormSpec;
+        key.mTopology          = PrimitiveTopology::TriangleList;
+        key.mCullMode          = CullMode::Back;
+        key.mFrontFace         = FrontFace::CounterClockwise;
+        key.mDepthTestEnabled  = true;
+        key.mDepthWriteEnabled = true;
+        key.mDepthCompare      = CompareOp::LessOrEqual;
+        key.mSamples           = 1;
+        key.mColorTargets.reserve(formats.size());
+        std::transform(formats.begin(), formats.end(), std::back_inserter(key.mColorTargets),
+                       [](PixelFormat format) { return ColorTargetState{ format, false, 0xf }; });
+        key.mDepthFormat = PixelFormat::Depth24Unorm;
+        return key;
     }
 
     bool finite(const DrawMatrix4& matrix) noexcept
@@ -96,33 +120,115 @@ namespace
 
 } // namespace
 
-ShaderProgramKey legacyNormSpecProgramKey()
+bool validLegacyNormSpecShaderVariant(LegacyNormSpecShaderVariant variant) noexcept
 {
-    return { LEGACY_NORMSPEC_PIPELINE_NAME, LEGACY_NORMSPEC_PIPELINE_VARIANT };
+    switch (variant.mEmissive)
+    {
+        case LegacyNormSpecEmissive::Disabled:
+        case LegacyNormSpecEmissive::Enabled:
+            break;
+        default:
+            return false;
+    }
+
+    switch (variant.mShadowAssembly)
+    {
+        case ShadowAssembly::Disabled:
+        case ShadowAssembly::Sun:
+        case ShadowAssembly::SunAndSpot:
+            return true;
+    }
+    return false;
 }
 
-LegacyNormSpecPipelineKey legacyNormSpecPipelineKey()
+std::optional<std::uint64_t> encodeLegacyNormSpecShaderVariant(LegacyNormSpecShaderVariant variant) noexcept
 {
-    LegacyNormSpecPipelineKey key;
-    key.mProgram           = legacyNormSpecProgramKey();
-    key.mVertexLayout      = DrawVertexLayout::LegacyMaterialNormSpec;
-    key.mTopology          = PrimitiveTopology::TriangleList;
-    key.mCullMode          = CullMode::Back;
-    key.mFrontFace         = FrontFace::CounterClockwise;
-    key.mDepthTestEnabled  = true;
-    key.mDepthWriteEnabled = true;
-    key.mDepthCompare      = CompareOp::LessOrEqual;
-    key.mSamples           = 1;
-    key.mColorTargets      = { { PixelFormat::RGBA8Unorm, false, 0xf },
-                               { PixelFormat::RGBA8Unorm, false, 0xf },
-                               { PixelFormat::RGBA16Unorm, false, 0xf } };
-    key.mDepthFormat       = PixelFormat::Depth24Unorm;
-    return key;
+    if (!validLegacyNormSpecShaderVariant(variant))
+    {
+        return std::nullopt;
+    }
+
+    return static_cast<std::uint64_t>(variant.mEmissive) | (static_cast<std::uint64_t>(variant.mShadowAssembly) << 1);
+}
+
+std::optional<LegacyNormSpecShaderVariant> decodeLegacyNormSpecShaderVariant(std::uint64_t encoded) noexcept
+{
+    constexpr std::uint64_t KNOWN_BITS = 0x7;
+    if ((encoded & ~KNOWN_BITS) != 0)
+    {
+        return std::nullopt;
+    }
+
+    const auto variant = LegacyNormSpecShaderVariant{ static_cast<LegacyNormSpecEmissive>(encoded & 0x1),
+                                                      static_cast<ShadowAssembly>((encoded >> 1) & 0x3) };
+    if (!validLegacyNormSpecShaderVariant(variant))
+    {
+        return std::nullopt;
+    }
+    return variant;
+}
+
+ShaderProgramKey legacyNormSpecDiagnosticProgramKey()
+{
+    return { LEGACY_NORMSPEC_PIPELINE_NAME, LEGACY_NORMSPEC_DIAGNOSTIC_VARIANT };
+}
+
+ShaderProgramKey legacyNormSpecProductionProgramKey()
+{
+    return { LEGACY_NORMSPEC_PIPELINE_NAME, LEGACY_NORMSPEC_PRODUCTION_VARIANT };
+}
+
+LegacyNormSpecPipelineKey legacyNormSpecDiagnosticPipelineKey()
+{
+    return pipelineKey(LEGACY_NORMSPEC_DIAGNOSTIC_SHADER_VARIANT, LegacyNormSpecTargetProfile::DiagnosticThreeTarget,
+                       { PixelFormat::RGBA8Unorm, PixelFormat::RGBA8Unorm, PixelFormat::RGBA16Unorm });
+}
+
+LegacyNormSpecPipelineKey legacyNormSpecModernHDRPipelineKey()
+{
+    return pipelineKey(LEGACY_NORMSPEC_PRODUCTION_SHADER_VARIANT, LegacyNormSpecTargetProfile::ModernHDR,
+                       { PixelFormat::RGBA8Unorm, PixelFormat::RGBA8Unorm, PixelFormat::RGBA16Unorm, PixelFormat::RGB16Float });
+}
+
+LegacyNormSpecPipelineKey legacyNormSpecCompatibilityPipelineKey()
+{
+    return pipelineKey(LEGACY_NORMSPEC_PRODUCTION_SHADER_VARIANT, LegacyNormSpecTargetProfile::Compatibility,
+                       { PixelFormat::RGBA8Unorm, PixelFormat::RGBA8Unorm, PixelFormat::RGB10A2Unorm, PixelFormat::RGB8Unorm });
+}
+
+bool validLegacyNormSpecPipelineKey(const LegacyNormSpecPipelineKey& key) noexcept
+{
+    const auto decoded_variant = decodeLegacyNormSpecShaderVariant(key.mProgram.mVariant);
+    if (key.mProgram.mName != LEGACY_NORMSPEC_PIPELINE_NAME || !decoded_variant || *decoded_variant != key.mShaderVariant ||
+        key.mVertexLayout != DrawVertexLayout::LegacyMaterialNormSpec || key.mTopology != PrimitiveTopology::TriangleList ||
+        key.mCullMode != CullMode::Back || key.mFrontFace != FrontFace::CounterClockwise || !key.mDepthTestEnabled ||
+        !key.mDepthWriteEnabled || key.mDepthCompare != CompareOp::LessOrEqual || key.mSamples != 1 ||
+        key.mDepthFormat != PixelFormat::Depth24Unorm)
+    {
+        return false;
+    }
+
+    switch (key.mTargetProfile)
+    {
+        case LegacyNormSpecTargetProfile::DiagnosticThreeTarget:
+            return key.mShaderVariant == LEGACY_NORMSPEC_DIAGNOSTIC_SHADER_VARIANT &&
+                   sameColorTargets(key.mColorTargets, { PixelFormat::RGBA8Unorm, PixelFormat::RGBA8Unorm, PixelFormat::RGBA16Unorm });
+        case LegacyNormSpecTargetProfile::ModernHDR:
+            return key.mShaderVariant == LEGACY_NORMSPEC_PRODUCTION_SHADER_VARIANT &&
+                   sameColorTargets(key.mColorTargets, { PixelFormat::RGBA8Unorm, PixelFormat::RGBA8Unorm, PixelFormat::RGBA16Unorm,
+                                                         PixelFormat::RGB16Float });
+        case LegacyNormSpecTargetProfile::Compatibility:
+            return key.mShaderVariant == LEGACY_NORMSPEC_PRODUCTION_SHADER_VARIANT &&
+                   sameColorTargets(key.mColorTargets, { PixelFormat::RGBA8Unorm, PixelFormat::RGBA8Unorm, PixelFormat::RGB10A2Unorm,
+                                                         PixelFormat::RGB8Unorm });
+    }
+    return false;
 }
 
 bool operator==(const LegacyNormSpecPipelineKey& left, const LegacyNormSpecPipelineKey& right)
 {
     return left.mProgram.mName == right.mProgram.mName && left.mProgram.mVariant == right.mProgram.mVariant &&
+           left.mShaderVariant == right.mShaderVariant && left.mTargetProfile == right.mTargetProfile &&
            left.mVertexLayout == right.mVertexLayout && left.mTopology == right.mTopology && left.mCullMode == right.mCullMode &&
            left.mFrontFace == right.mFrontFace && left.mDepthTestEnabled == right.mDepthTestEnabled &&
            left.mDepthWriteEnabled == right.mDepthWriteEnabled && left.mDepthCompare == right.mDepthCompare &&
@@ -146,8 +252,8 @@ bool validLegacyNormSpecDrawPacket(const LegacyNormSpecDrawPacket& packet) noexc
 {
     return packet.mFrame != 0 && static_cast<bool>(packet.mPass) && validHandles(packet.mHandles) &&
            validDescriptor(packet.mDescriptors.mDiffuse) && validDescriptor(packet.mDescriptors.mNormal) &&
-           validDescriptor(packet.mDescriptors.mSpecular) && validPipelineKey(packet.mPipelineKey) && validIndexType(packet.mIndexType) &&
-           validRanges(packet) && validConstants(packet);
+           validDescriptor(packet.mDescriptors.mSpecular) && validLegacyNormSpecPipelineKey(packet.mPipelineKey) &&
+           validIndexType(packet.mIndexType) && validRanges(packet) && validConstants(packet);
 }
 
 std::optional<LegacyNormSpecDrawPacket> buildLegacyNormSpecDrawPacket(const LegacyNormSpecDrawInputs& inputs)

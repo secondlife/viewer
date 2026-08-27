@@ -151,7 +151,7 @@ struct DrawInfoFixture
 
         mContext.mFrame        = 91;
         mContext.mPass         = { 73 };
-        mContext.mPipelineKey  = legacyNormSpecPipelineKey();
+        mContext.mPipelineKey  = legacyNormSpecModernHDRPipelineKey();
         mContext.mRenderDomain = RenderDomain::World;
         mContext.mSubmission   = SubmissionKind::DeferredMaterial;
 
@@ -220,7 +220,8 @@ void draw_info_translator_test_object::test<1>()
     ensure("shader constants map exactly",
            packet->mSpecularRGBA == std::array<float, 4>{ 0.2f, 0.4f, 0.8f, 0.6f } && packet->mEnvironmentIntensity == 0.625f &&
                packet->mAlphaCutoff == 0.375f && packet->mEmissiveBrightness == 1.f);
-    ensure("the complete logical pipeline key is canonical", packet->mPipelineKey == legacyNormSpecPipelineKey());
+    ensure("the complete logical pipeline key is the modern production profile",
+           packet->mPipelineKey == legacyNormSpecModernHDRPipelineKey());
 
     const auto repeated = fixture.translate();
     ensure("translation is deterministic", repeated.has_value() && *repeated == *packet);
@@ -319,7 +320,18 @@ void draw_info_translator_test_object::test<4>()
 
     fixture.mContext.mPipelineKey.mCullMode = CullMode::Disabled;
     ensure("a non-canonical logical pipeline key is rejected", !fixture.translate());
-    fixture.mContext.mPipelineKey = legacyNormSpecPipelineKey();
+    fixture.mContext.mPipelineKey = legacyNormSpecModernHDRPipelineKey();
+
+    fixture.mContext.mPipelineKey          = legacyNormSpecCompatibilityPipelineKey();
+    fixture.mResolver.mExpectedPipelineKey = fixture.mContext.mPipelineKey;
+    ensure("the compatibility production target profile is accepted", fixture.translate().has_value());
+
+    fixture.mContext.mPipelineKey          = legacyNormSpecDiagnosticPipelineKey();
+    fixture.mResolver.mExpectedPipelineKey = fixture.mContext.mPipelineKey;
+    ensure("the three-target diagnostic profile cannot masquerade as production", !fixture.translate());
+
+    fixture.mContext.mPipelineKey          = legacyNormSpecModernHDRPipelineKey();
+    fixture.mResolver.mExpectedPipelineKey = fixture.mContext.mPipelineKey;
 
     LLPointer<LLMaterial> material = fixture.mDraw->mMaterial;
     fixture.mDraw->mMaterial       = nullptr;
