@@ -29,7 +29,7 @@
 
 #include "llfloatergltfasseteditor.h"
 
-#include "gltf/asset.h"
+#include "gltfprimitive/asset.h"
 #include "llcallbacklist.h"
 #include "llmenubutton.h"
 #include "llselectmgr.h"
