@@ -192,7 +192,7 @@ namespace
         return left.mName == right.mName && left.mVariant == right.mVariant;
     }
 
-    bool validDefines(const std::vector<ShaderDefine>& defines) noexcept
+    bool validDefines(const std::vector<ShaderDefine>& defines)
     {
         std::set<std::string> vertex_names;
         std::set<std::string> fragment_names;
@@ -208,7 +208,7 @@ namespace
         return true;
     }
 
-    bool validVertexInputs(const std::vector<ShaderVertexInput>& inputs) noexcept
+    bool validVertexInputs(const std::vector<ShaderVertexInput>& inputs)
     {
         std::set<std::string>    names;
         std::set<VertexSemantic> semantics;
@@ -224,7 +224,7 @@ namespace
         return !inputs.empty();
     }
 
-    bool validInterstage(const std::vector<ShaderInterstageVariable>& variables) noexcept
+    bool validInterstage(const std::vector<ShaderInterstageVariable>& variables)
     {
         std::set<std::string>   names;
         std::set<std::uint32_t> locations;
@@ -239,7 +239,7 @@ namespace
         return true;
     }
 
-    bool validSampledImages(const std::vector<ShaderSampledImage>& images) noexcept
+    bool validSampledImages(const std::vector<ShaderSampledImage>& images)
     {
         std::set<std::string>                             names;
         std::set<SampledImageRole>                        roles;
@@ -256,7 +256,7 @@ namespace
         return !images.empty();
     }
 
-    bool validParameters(const std::vector<ShaderLogicalParameter>& parameters) noexcept
+    bool validParameters(const std::vector<ShaderLogicalParameter>& parameters)
     {
         std::set<std::string> names;
         std::set<std::string> shader_names;
@@ -277,7 +277,7 @@ namespace
         return next_offset != 0;
     }
 
-    bool validOutputs(const ShaderManifest& manifest) noexcept
+    bool validOutputs(const ShaderManifest& manifest)
     {
         constexpr std::uint32_t            MAX_INTERFACE_LOCATIONS = 32;
         std::set<ShaderFragmentOutputRole> roles;
@@ -335,7 +335,7 @@ namespace
                            });
     }
 
-    bool validBaggage(const std::vector<ShaderLinkedBlockBaggage>& blocks) noexcept
+    bool validBaggage(const std::vector<ShaderLinkedBlockBaggage>& blocks)
     {
         std::set<std::string>   block_names;
         std::set<std::uint32_t> bindings;
@@ -539,7 +539,10 @@ bool operator==(const ShaderManifest& left, const ShaderManifest& right)
            left.mPushConstantRanges == right.mPushConstantRanges;
 }
 
+// Structural validation uses temporary sets. Preserve the public fail-closed
+// noexcept contract if those allocations or canonical construction fail.
 bool validShaderManifest(const ShaderManifest& manifest) noexcept
+try
 {
     if (manifest.mProgram.mName.empty() || !valid(manifest.mBackend) || manifest.mEntryPoints.size() != 2 ||
         manifest.mEntryPoints[0].mStage != ShaderStage::Vertex || manifest.mEntryPoints[1].mStage != ShaderStage::Fragment ||
@@ -587,15 +590,29 @@ bool validShaderManifest(const ShaderManifest& manifest) noexcept
     }
     return true;
 }
+catch (...)
+{
+    return false;
+}
 
 bool validLegacyNormSpecDiagnosticShaderManifest(const ShaderManifest& manifest) noexcept
+try
 {
     return validShaderManifest(manifest) && manifest == canonicalManifest(manifest.mBackend);
 }
+catch (...)
+{
+    return false;
+}
 
 bool validLegacyNormSpecProductionShaderManifest(const ShaderManifest& manifest) noexcept
+try
 {
     return validShaderManifest(manifest) && manifest == productionVulkanManifest();
+}
+catch (...)
+{
+    return false;
 }
 
 ShaderManifest legacyNormSpecDiagnosticShaderManifest(ShaderBackend backend)

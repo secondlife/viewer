@@ -72,6 +72,8 @@ struct LoadedShaderProgram
 // corruption, but are not a hostile-filesystem sandbox.
 using ShaderArtifactLoadResult = std::variant<ShaderArtifactLoadError, LoadedShaderProgram>;
 
+bool validLegacyNormSpecProductionShaderProgram(const LoadedShaderProgram& program) noexcept;
+
 ShaderArtifactLoadResult loadLegacyNormSpecProductionArtifacts(const std::filesystem::path& app_settings_root) noexcept;
 
 } // namespace LLRenderContract

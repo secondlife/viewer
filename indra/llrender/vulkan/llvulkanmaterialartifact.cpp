@@ -241,7 +241,7 @@ namespace
     std::optional<ShaderArtifactLoadCode> validateModule(const std::vector<std::uint32_t>& words,
                                                          const ModuleExpectation&          expected) noexcept
     {
-        if (words.size() < 5 || words[0] != SPIRV_MAGIC)
+        if (words.size() < 5 || words.size() > MAX_MODULE_BYTES / sizeof(std::uint32_t) || words[0] != SPIRV_MAGIC)
         {
             return ShaderArtifactLoadCode::InvalidSpirv;
         }
@@ -312,6 +312,39 @@ bool operator==(const LoadedShaderProgram& left, const LoadedShaderProgram& righ
            left.mVertex == right.mVertex && left.mFragment == right.mFragment;
 }
 
+bool validLegacyNormSpecProductionShaderProgram(const LoadedShaderProgram& program) noexcept
+{
+    try
+    {
+        const auto manifest = legacyNormSpecShaderManifest(legacyNormSpecModernHDRPipelineKey(), ShaderBackend::Vulkan);
+        if (!manifest || !validLegacyNormSpecProductionShaderManifest(*manifest) || program.mProgram.mName != manifest->mProgram.mName ||
+            program.mProgram.mVariant != manifest->mProgram.mVariant)
+        {
+            return false;
+        }
+
+        const ShaderEntryPoint* vertex_entry   = entryPoint(*manifest, ShaderStage::Vertex);
+        const ShaderEntryPoint* fragment_entry = entryPoint(*manifest, ShaderStage::Fragment);
+        const auto              vertex_model   = executionModel(ShaderStage::Vertex);
+        const auto              fragment_model = executionModel(ShaderStage::Fragment);
+        if (!vertex_entry || !fragment_entry || !vertex_model || !fragment_model)
+        {
+            return false;
+        }
+
+        const ModuleExpectation vertex_expected{ ShaderStage::Vertex, vertex_entry->mName, *vertex_model, VERTEX_MODULE_NAME };
+        const ModuleExpectation fragment_expected{ ShaderStage::Fragment, fragment_entry->mName, *fragment_model, FRAGMENT_MODULE_NAME };
+        return program.mVertex.mStage == vertex_expected.mStage && program.mVertex.mEntryPoint == vertex_expected.mEntryPoint &&
+               !validateModule(program.mVertex.mWords, vertex_expected) && program.mFragment.mStage == fragment_expected.mStage &&
+               program.mFragment.mEntryPoint == fragment_expected.mEntryPoint &&
+               !validateModule(program.mFragment.mWords, fragment_expected);
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
 ShaderArtifactLoadResult loadLegacyNormSpecProductionArtifacts(const std::filesystem::path& app_settings_root) noexcept
 {
     try
@@ -351,8 +384,13 @@ ShaderArtifactLoadResult loadLegacyNormSpecProductionArtifacts(const std::filesy
             return *error;
         }
 
-        return LoadedShaderProgram{ manifest->mProgram, std::move(std::get<LoadedShaderModule>(vertex)),
+        LoadedShaderProgram loaded{ manifest->mProgram, std::move(std::get<LoadedShaderModule>(vertex)),
                                     std::move(std::get<LoadedShaderModule>(fragment)) };
+        if (!validLegacyNormSpecProductionShaderProgram(loaded))
+        {
+            return failure(ShaderArtifactLoadCode::InvalidManifest);
+        }
+        return loaded;
     }
     catch (...)
     {

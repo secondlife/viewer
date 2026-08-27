@@ -499,6 +499,23 @@ if (LL_VULKAN_TONEMAP_TEST)
       ""
       "llvulkanmaterialartifact;llrendercontract;llcommon")
 
+  add_library(llvulkanmaterialpublication STATIC
+      vulkan/llvulkanmaterialpublication.cpp
+      vulkan/llvulkanmaterialpublication.h)
+  target_include_directories(llvulkanmaterialpublication
+      PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/vulkan")
+  target_link_libraries(llvulkanmaterialpublication
+      PUBLIC llvulkanmaterialartifact)
+  set_target_properties(llvulkanmaterialpublication PROPERTIES FOLDER "Tests")
+
+  set_source_files_properties(
+      tests/llvulkanmaterialpublication_test.cpp
+      PROPERTIES SKIP_PRECOMPILE_HEADERS TRUE)
+  LL_ADD_INTEGRATION_TEST(
+      llvulkanmaterialpublication
+      ""
+      "llvulkanmaterialpublication;llcommon")
+
   set(llvulkan_texture_upload_vertex_source
       "${llvulkan_shader_source_dir}/textureupload.vert.glsl")
   set(llvulkan_texture_upload_fragment_source

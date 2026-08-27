@@ -23,6 +23,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <string>
@@ -43,15 +44,27 @@ struct Handle
     friend constexpr bool operator==(const Handle&, const Handle&) = default;
 };
 
+template<typename Tag>
+constexpr std::optional<Handle<Tag>> nextHandleGeneration(Handle<Tag> current) noexcept
+{
+    if (!current || current.mGeneration == std::numeric_limits<std::uint32_t>::max())
+    {
+        return std::nullopt;
+    }
+    return Handle<Tag>{ current.mIndex, current.mGeneration + 1 };
+}
+
 struct BufferTag;
 struct ImageTag;
 struct SamplerTag;
 struct PipelineTag;
+struct ShaderTag;
 
 using BufferHandle   = Handle<BufferTag>;
 using ImageHandle    = Handle<ImageTag>;
 using SamplerHandle  = Handle<SamplerTag>;
 using PipelineHandle = Handle<PipelineTag>;
+using ShaderHandle   = Handle<ShaderTag>;
 using ResourceHandle = std::variant<BufferHandle, ImageHandle, SamplerHandle, PipelineHandle>;
 
 struct PassId
