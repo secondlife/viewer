@@ -28,6 +28,7 @@
 #define DIFFUSE_ALPHA_MODE_MASK 2
 #define DIFFUSE_ALPHA_MODE_EMISSIVE 3
 
+#ifndef LL_VULKAN_SHADER
 uniform mat4 modelview_matrix;
 uniform mat4 projection_matrix;
 uniform mat4 modelview_projection_matrix;
@@ -68,6 +69,7 @@ out vec2 vary_texcoord2;
 
 out vec4 vertex_color;
 out vec2 vary_texcoord0;
+#endif
 
 void main()
 {
@@ -128,4 +130,3 @@ void main()
     vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
 #endif
 }
-

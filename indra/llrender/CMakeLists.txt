@@ -276,6 +276,64 @@ if (LL_VULKAN_TONEMAP_TEST)
       DEPENDS "${llvulkan_vertex_spv}" ${llvulkan_fragment_spv_files})
   set_target_properties(llvulkantonemap_shaders PROPERTIES FOLDER "Tests")
 
+  set(llvulkan_material_vertex_source
+      "${llvulkan_shader_source_dir}/material.vert.glsl")
+  set(llvulkan_material_fragment_source
+      "${llvulkan_shader_source_dir}/material.frag.glsl")
+  set(llvulkan_material_vertex_spv
+      "${llvulkan_shader_binary_dir}/material.vert.spv")
+  set(llvulkan_material_fragment_spv
+      "${llvulkan_shader_binary_dir}/material.frag.spv")
+
+  add_custom_command(
+      OUTPUT "${llvulkan_material_vertex_spv}"
+      COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_shader_binary_dir}"
+      COMMAND "${CMAKE_COMMAND}" -E remove -f "${llvulkan_material_vertex_spv}.tmp"
+      COMMAND "${LL_VULKAN_GLSLANG_VALIDATOR}"
+              -V --target-env vulkan1.1 -S vert
+              "-I${llvulkan_shader_source_dir}"
+              -o "${llvulkan_material_vertex_spv}.tmp"
+              "${llvulkan_material_vertex_source}"
+      COMMAND "${LL_VULKAN_SPIRV_VAL}"
+              --target-env vulkan1.1 "${llvulkan_material_vertex_spv}.tmp"
+      COMMAND "${CMAKE_COMMAND}" -E rename
+              "${llvulkan_material_vertex_spv}.tmp"
+              "${llvulkan_material_vertex_spv}"
+      DEPENDS
+              "${llvulkan_material_vertex_source}"
+              "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/deferred/materialV.glsl"
+      COMMENT "Compiling and validating Vulkan material vertex shader"
+      VERBATIM
+  )
+
+  add_custom_command(
+      OUTPUT "${llvulkan_material_fragment_spv}"
+      COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_shader_binary_dir}"
+      COMMAND "${CMAKE_COMMAND}" -E remove -f "${llvulkan_material_fragment_spv}.tmp"
+      COMMAND "${LL_VULKAN_GLSLANG_VALIDATOR}"
+              -V --target-env vulkan1.1 -S frag
+              "-I${llvulkan_shader_source_dir}"
+              -o "${llvulkan_material_fragment_spv}.tmp"
+              "${llvulkan_material_fragment_source}"
+      COMMAND "${LL_VULKAN_SPIRV_VAL}"
+              --target-env vulkan1.1 "${llvulkan_material_fragment_spv}.tmp"
+      COMMAND "${CMAKE_COMMAND}" -E rename
+              "${llvulkan_material_fragment_spv}.tmp"
+              "${llvulkan_material_fragment_spv}"
+      DEPENDS
+              "${llvulkan_material_fragment_source}"
+              "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/deferred/globalF.glsl"
+              "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class3/deferred/materialF.glsl"
+      COMMENT "Compiling and validating Vulkan material fragment shader"
+      VERBATIM
+  )
+
+  add_custom_target(llvulkanmaterial_shaders
+      DEPENDS
+      "${llvulkan_material_vertex_spv}"
+      "${llvulkan_material_fragment_spv}")
+  set_target_properties(llvulkanmaterial_shaders PROPERTIES FOLDER "Tests")
+
   set(llvulkan_link_library Vulkan::Vulkan)
   set(llvulkan_universal_macos OFF)
   if (DARWIN)
@@ -370,22 +428,51 @@ if (LL_VULKAN_TONEMAP_TEST)
   add_executable(lltonemapcompare vulkan/lltonemapcompare_main.cpp)
   target_link_libraries(lltonemapcompare PRIVATE llrendercontract)
 
+  add_library(llrendervulkanmaterial STATIC
+      vulkan/llrendervulkanmaterial.cpp
+      vulkan/llrendervulkanmaterial.h
+  )
+  target_include_directories(llrendervulkanmaterial
+      PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/vulkan")
+  target_include_directories(llrendervulkanmaterial SYSTEM
+      PUBLIC "${Vulkan_INCLUDE_DIR}")
+  if (llvulkan_universal_macos)
+    add_dependencies(llrendervulkanmaterial llvulkantonemap_loader)
+  endif ()
+  target_link_libraries(llrendervulkanmaterial
+      PUBLIC
+      llrendercontract
+      "${llvulkan_link_library}")
+  set_target_properties(llrendervulkanmaterial PROPERTIES FOLDER "Tests")
+
+  add_executable(llvulkanmaterial vulkan/llvulkanmaterial_main.cpp)
+  target_link_libraries(llvulkanmaterial PRIVATE llrendervulkanmaterial)
+  add_dependencies(llvulkanmaterial llvulkanmaterial_shaders)
+
+  add_executable(llmaterialcompare vulkan/llmaterialcompare_main.cpp)
+  target_link_libraries(llmaterialcompare PRIVATE llrendercontract)
+
   if (DARWIN)
-    set_target_properties(llvulkantonemap lltonemapcompare PROPERTIES
+    set_target_properties(
+        llvulkantonemap lltonemapcompare llvulkanmaterial llmaterialcompare
+        PROPERTIES
         OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}"
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"
         XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "YES"
         FOLDER "Tests")
     if (llvulkan_universal_macos)
-      set_target_properties(llvulkantonemap PROPERTIES
+      set_target_properties(llvulkantonemap llvulkanmaterial PROPERTIES
           BUILD_RPATH "${llvulkan_fat_loader_dir}")
     endif ()
   else ()
-    set_target_properties(llvulkantonemap lltonemapcompare PROPERTIES
+    set_target_properties(
+        llvulkantonemap lltonemapcompare llvulkanmaterial llmaterialcompare
+        PROPERTIES
         FOLDER "Tests")
   endif ()
 
   set_source_files_properties(
+      tests/llrendervulkanmaterialregistry_test.cpp
       tests/llrendervulkantonemapregistry_test.cpp
       PROPERTIES
       SKIP_PRECOMPILE_HEADERS TRUE
@@ -394,11 +481,23 @@ if (LL_VULKAN_TONEMAP_TEST)
       llrendervulkantonemapregistry
       ""
       "llrendervulkantonemap;${llvulkan_link_library};llrendercontract;llcommon")
+  LL_ADD_INTEGRATION_TEST(
+      llrendervulkanmaterialregistry
+      ""
+      "llrendervulkanmaterial;${llvulkan_link_library};llrendercontract;llcommon")
   if (llvulkan_universal_macos)
-    set_target_properties(INTEGRATION_TEST_llrendervulkantonemapregistry PROPERTIES
+    set_target_properties(
+        INTEGRATION_TEST_llrendervulkantonemapregistry
+        INTEGRATION_TEST_llrendervulkanmaterialregistry
+        PROPERTIES
         BUILD_WITH_INSTALL_RPATH OFF
         BUILD_RPATH "${llvulkan_fat_loader_dir}")
   endif ()
 
-  add_dependencies(BUILD_TESTS llvulkantonemap lltonemapcompare)
+  add_dependencies(
+      BUILD_TESTS
+      llvulkantonemap
+      lltonemapcompare
+      llvulkanmaterial
+      llmaterialcompare)
 endif ()

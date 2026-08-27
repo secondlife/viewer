@@ -28,9 +28,11 @@
  // DO NOT declare sampler uniforms here as OS X doesn't compile
  // them out
 
+#ifndef LL_VULKAN_SHADER
 uniform float mirror_flag;
 uniform vec4 clipPlane;
 uniform float clipSign;
+#endif
 
 void mirrorClip(vec3 pos)
 {

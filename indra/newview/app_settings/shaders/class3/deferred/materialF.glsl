@@ -34,9 +34,11 @@
 #define DIFFUSE_ALPHA_MODE_MASK     2
 #define DIFFUSE_ALPHA_MODE_EMISSIVE 3
 
+#ifndef LL_VULKAN_SHADER
 uniform float emissive_brightness;  // fullbright flag, 1.0 == fullbright, 0.0 otherwise
 uniform int sun_up_factor;
 uniform int classic_mode;
+#endif
 
 vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
 vec3 scaleSoftClipFragLinear(vec3 l);
@@ -46,10 +48,12 @@ void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
 
+#ifndef LL_VULKAN_SHADER
 uniform mat4 modelview_matrix;
 uniform mat3 normal_matrix;
 
 in vec3 vary_position;
+#endif
 
 void mirrorClip(vec3 pos);
 vec4 encodeNormal(vec3 n, float env, float gbuffer_flag);
@@ -185,9 +189,12 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 }
 
 #else
+#ifndef LL_VULKAN_SHADER
 out vec4 frag_data[4];
 #endif
+#endif
 
+#ifndef LL_VULKAN_SHADER
 uniform sampler2D diffuseMap;  //always in sRGB space
 
 #ifdef HAS_NORMAL_MAP
@@ -218,6 +225,7 @@ in vec3 vary_normal;
 
 in vec4 vertex_color;
 in vec2 vary_texcoord0;
+#endif
 
 // get the transformed normal and apply glossiness component from normal map
 vec3 getNormal(inout float glossiness)
