@@ -1377,11 +1377,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dd4dba032552348eb345e2e9c7d1167bef2688fc</string>
+              <string>4be6e4b94424237b3e4349cbf0f297ab8ce33a9a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.35.0/llcefbrowser-1.35.0-windows64-33011437307.tar.zst</string>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.36.0/llcefbrowser-1.36.0-windows64-33125118168.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
