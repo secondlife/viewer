@@ -75,6 +75,8 @@ set(llrender_HEADER_FILES
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
 set(llrendercontract_SOURCE_FILES
+    lldrawpacketcontract.cpp
+    lldrawpacketcontract.h
     llmaterialcontract.cpp
     llmaterialcontract.h
     llmaterialdiagnostic.cpp
@@ -162,6 +164,7 @@ endif ()
 if (LL_TESTS)
   include(LLAddBuildTest)
   set_source_files_properties(
+    tests/lldrawpacketcontract_test.cpp
     tests/llmaterialdiagnostic_test.cpp
     tests/llrendercontract_test.cpp
     tests/llrenderglmaterialregistry_test.cpp
@@ -173,6 +176,7 @@ if (LL_TESTS)
     PROPERTIES
     SKIP_PRECOMPILE_HEADERS TRUE
   )
+  LL_ADD_INTEGRATION_TEST(lldrawpacketcontract "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llmaterialdiagnostic "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrendercontract "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrenderglmaterialregistry "" "llrendercontract;llcommon")

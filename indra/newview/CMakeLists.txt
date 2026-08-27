@@ -156,6 +156,8 @@ set(viewer_SOURCE_FILES
     lldonotdisturbnotificationstorage.cpp
     lldndbutton.cpp
     lldrawable.cpp
+    lldrawinfo.cpp
+    lldrawinfotranslator.cpp
     lldrawpool.cpp
     lldrawpoolalpha.cpp
     lldrawpoolavatar.cpp
@@ -846,6 +848,7 @@ set(viewer_HEADER_FILES
     lldonotdisturbnotificationstorage.h
     lldndbutton.h
     lldrawable.h
+    lldrawinfotranslator.h
     lldrawpool.h
     lldrawpoolalpha.h
     lldrawpoolavatar.h
@@ -2510,6 +2513,23 @@ if (LL_TESTS)
     ""
     "${test_libs}"
   )
+
+  set(lldrawinfotranslator_test_sources
+    lldrawinfo.cpp
+    lldrawinfotranslator.cpp
+    tests/lldrawinfotranslator_texture_stub.cpp
+  )
+  LL_ADD_INTEGRATION_TEST(lldrawinfotranslator
+    "${lldrawinfotranslator_test_sources}"
+    "${test_libs};llrender;llrendercontract;OpenGL::GL"
+  )
+  target_include_directories(INTEGRATION_TEST_lldrawinfotranslator PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  if (LINUX)
+    target_include_directories(INTEGRATION_TEST_lldrawinfotranslator PRIVATE
+      ${X11_X11_INCLUDE_PATH}
+      ${X11_Xlib_INCLUDE_PATH}
+    )
+  endif ()
 
   LL_ADD_INTEGRATION_TEST(llcachemigration
     ""

@@ -3816,56 +3816,12 @@ LLDrawable* LLSpatialGroup::lineSegmentIntersect(const LLVector4a& start, const 
     return drawable;
 }
 
-LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
-                       LLViewerTexture* texture, LLVertexBuffer* buffer,
-                       bool fullbright, U8 bump)
-:   mVertexBuffer(buffer),
-    mTexture(texture),
-    mStart(start),
-    mEnd(end),
-    mCount(count),
-    mOffset(offset),
-    mFullbright(fullbright),
-    mBump(bump),
-    mBlendFuncSrc(LLRender::BF_SOURCE_ALPHA),
-    mBlendFuncDst(LLRender::BF_ONE_MINUS_SOURCE_ALPHA),
-    mHasGlow(false),
-    mEnvIntensity(0.0f),
-    mAlphaMaskCutoff(0.5f)
-{
-    mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
-}
-
 LLDrawInfo::~LLDrawInfo()
 {
     if (gDebugGL)
     {
         gPipeline.checkReferences(this);
     }
-}
-
-LLColor4U LLDrawInfo::getDebugColor() const
-{
-    LLColor4U color;
-
-    LLCRC hash;
-    hash.update((U8*)this + sizeof(S32), sizeof(LLDrawInfo) - sizeof(S32));
-
-    *((U32*) color.mV) = hash.getCRC();
-
-    color.mV[3] = 200;
-
-    return color;
-}
-
-void LLDrawInfo::validate()
-{
-    mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
-}
-
-U64 LLDrawInfo::getSkinHash()
-{
-    return mSkinInfo ? mSkinInfo->mHash : 0;
 }
 
 LLCullResult::LLCullResult()
@@ -4168,4 +4124,3 @@ void LLCullResult::assertDrawMapsEmpty()
         }
     }
 }
-
