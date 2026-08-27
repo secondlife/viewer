@@ -126,6 +126,7 @@ namespace
             case ShaderFragmentOutputRole::DiffuseEmissive:
             case ShaderFragmentOutputRole::SpecularGloss:
             case ShaderFragmentOutputRole::NormalEnvironment:
+            case ShaderFragmentOutputRole::EmissiveBuffer:
                 return true;
         }
         return false;
@@ -483,6 +484,34 @@ namespace
         return manifest;
     }
 
+    ShaderManifest productionVulkanManifest()
+    {
+        ShaderManifest manifest = vulkanManifest();
+        manifest.mProgram       = legacyNormSpecProductionProgramKey();
+        manifest.mDefines       = { { "LL_VULKAN_MATERIAL_PRODUCTION", "1", VERTEX_STAGE },
+                                    { "LL_VULKAN_SHADER", "1", VERTEX_STAGE },
+                                    { "DIFFUSE_ALPHA_MODE", "0", VERTEX_STAGE },
+                                    { "HAS_NORMAL_MAP", "1", VERTEX_STAGE },
+                                    { "HAS_SPECULAR_MAP", "1", VERTEX_STAGE },
+                                    { "HAS_EMISSIVE", "1", VERTEX_STAGE },
+                                    { "HAS_SUN_SHADOW", "1", VERTEX_STAGE },
+                                    { "SUN_SHADOW", "1", VERTEX_STAGE },
+                                    { "SPOT_SHADOW", "1", VERTEX_STAGE },
+                                    { "LL_VULKAN_MATERIAL_PRODUCTION", "1", FRAGMENT_STAGE },
+                                    { "LL_VULKAN_SHADER", "1", FRAGMENT_STAGE },
+                                    { "DIFFUSE_ALPHA_MODE", "0", FRAGMENT_STAGE },
+                                    { "HAS_NORMAL_MAP", "1", FRAGMENT_STAGE },
+                                    { "HAS_SPECULAR_MAP", "1", FRAGMENT_STAGE },
+                                    { "GBUFFER_FLAG_HAS_ATMOS", "0.34", FRAGMENT_STAGE },
+                                    { "HAS_EMISSIVE", "1", FRAGMENT_STAGE },
+                                    { "HAS_SUN_SHADOW", "1", FRAGMENT_STAGE },
+                                    { "SUN_SHADOW", "1", FRAGMENT_STAGE },
+                                    { "SPOT_SHADOW", "1", FRAGMENT_STAGE } };
+        manifest.mLogicalFragmentOutputs.push_back({ ShaderFragmentOutputRole::EmissiveBuffer, 3, ShaderValueType::Float4 });
+        manifest.mFragmentOutputDeclarations = { { "frag_data", 0, 4, ShaderValueType::Float4, 4, false } };
+        return manifest;
+    }
+
     ShaderManifest canonicalManifest(ShaderBackend backend)
     {
         switch (backend)
@@ -564,6 +593,11 @@ bool validLegacyNormSpecDiagnosticShaderManifest(const ShaderManifest& manifest)
     return validShaderManifest(manifest) && manifest == canonicalManifest(manifest.mBackend);
 }
 
+bool validLegacyNormSpecProductionShaderManifest(const ShaderManifest& manifest) noexcept
+{
+    return validShaderManifest(manifest) && manifest == productionVulkanManifest();
+}
+
 ShaderManifest legacyNormSpecDiagnosticShaderManifest(ShaderBackend backend)
 {
     return canonicalManifest(backend);
@@ -571,11 +605,20 @@ ShaderManifest legacyNormSpecDiagnosticShaderManifest(ShaderBackend backend)
 
 std::optional<ShaderManifest> legacyNormSpecShaderManifest(const LegacyNormSpecPipelineKey& pipeline_key, ShaderBackend backend)
 {
-    if (!valid(backend) || !validLegacyNormSpecPipelineKey(pipeline_key) || pipeline_key != legacyNormSpecDiagnosticPipelineKey())
+    if (!valid(backend) || !validLegacyNormSpecPipelineKey(pipeline_key))
     {
         return std::nullopt;
     }
-    return canonicalManifest(backend);
+    if (pipeline_key == legacyNormSpecDiagnosticPipelineKey())
+    {
+        return canonicalManifest(backend);
+    }
+    if (backend == ShaderBackend::Vulkan &&
+        (pipeline_key == legacyNormSpecModernHDRPipelineKey() || pipeline_key == legacyNormSpecCompatibilityPipelineKey()))
+    {
+        return productionVulkanManifest();
+    }
+    return std::nullopt;
 }
 
 } // namespace LLRenderContract

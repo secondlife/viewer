@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the diagnostic material SPIR-V interface against its manifest dump."""
+"""Verify a material SPIR-V interface against its profile manifest dump."""
 
 from __future__ import annotations
 
@@ -181,6 +181,19 @@ def _reflection_io(
                 _fail(
                     f"{module} reflection.{field}[{index}] has an unsupported array shape"
                 )
+            literal_context = (
+                f"{module} reflection.{field}[{index}].array_size_is_literal"
+            )
+            literal_dimensions = _array(
+                item.get("array_size_is_literal"), literal_context
+            )
+            if len(literal_dimensions) != len(dimensions):
+                _fail(f"{literal_context} must match the array dimensions")
+            for dimension, literal in enumerate(literal_dimensions):
+                if not isinstance(literal, bool):
+                    _fail(f"{literal_context}[{dimension}] must be a boolean")
+                if not literal:
+                    _fail(f"{literal_context}[{dimension}] must be true")
             count = _integer(
                 dimensions[0], f"{module} reflection.{field}[{index}].array[0]"
             )
@@ -454,7 +467,7 @@ def verify(
         expectation.get("push_constant_ranges"), "expectation.push_constant_ranges"
     )
     if push_constants:
-        _fail("the diagnostic expectation must not contain push constants")
+        _fail("the material profile expectation must not contain push constants")
     _reject_unexpected_resource_categories(reflections)
     _verify_interpolation_decorations(
         expectation,
@@ -464,7 +477,7 @@ def verify(
 
 def _arguments(argv: Sequence[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Compare diagnostic material SPIR-V reflection with a manifest-derived expectation."
+        description="Compare material SPIR-V reflection with a profile manifest-derived expectation."
     )
     parser.add_argument(
         "--expectation",

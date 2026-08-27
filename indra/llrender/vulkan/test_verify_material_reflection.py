@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Focused regression tests for diagnostic material reflection validation."""
+"""Focused regression tests for material profile reflection validation."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ def _fixture() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], str]:
         "vertex_inputs": [{"name": "position", "location": 0, "type": "vec3"}],
         "interstage_variables": [
             {"name": "vary_position", "location": 0, "type": "vec3"},
-            {"name": "vary_sign", "location": 2, "type": "float"}
+            {"name": "vary_sign", "location": 2, "type": "float"},
         ],
         "uniform_blocks": [
             {
@@ -40,9 +40,7 @@ def _fixture() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], str]:
                 "stages": ["fragment"],
             }
         ],
-        "fragment_outputs": [
-            {"name": "frag_data", "location": 0, "type": "vec4"}
-        ],
+        "fragment_outputs": [{"name": "frag_data", "location": 0, "type": "vec4"}],
         "push_constant_ranges": [],
         "flat_interfaces": [
             {
@@ -84,13 +82,13 @@ def _fixture() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], str]:
             }
         ],
     }
-    disassembly = '\n'.join(
+    disassembly = "\n".join(
         (
             'OpName %smooth "vary_position"',
-            'OpDecorate %smooth Location 0',
+            "OpDecorate %smooth Location 0",
             'OpName %vary "vary_sign"',
-            'OpDecorate %vary Flat',
-            'OpDecorate %vary Location 2',
+            "OpDecorate %vary Flat",
+            "OpDecorate %vary Location 2",
         )
     )
     return expectation, vertex, fragment, disassembly
@@ -137,10 +135,10 @@ class ReflectionGateTests(unittest.TestCase):
             self.verify()
 
     def test_missing_flat_decoration_is_rejected(self) -> None:
-        self.disassembly = '\n'.join(
+        self.disassembly = "\n".join(
             (
                 'OpName %vary "vary_sign"',
-                'OpDecorate %vary Location 2',
+                "OpDecorate %vary Location 2",
             )
         )
 
@@ -163,7 +161,7 @@ class ReflectionGateTests(unittest.TestCase):
                     )
 
     def test_interpolation_on_unlocated_data_is_rejected(self) -> None:
-        self.disassembly += '\n'.join(
+        self.disassembly += "\n".join(
             (
                 "",
                 'OpName %internal "internal"',
@@ -172,6 +170,69 @@ class ReflectionGateTests(unittest.TestCase):
         )
 
         with self.assertRaisesRegex(VerificationError, "without Location"):
+            self.verify()
+
+    def test_diagnostic_outputs_cannot_satisfy_production_expectation(self) -> None:
+        output_prototype = self.expectation["fragment_outputs"][0]
+        diagnostic_outputs = [
+            {**output_prototype, "location": output_prototype["location"] + offset}
+            for offset in range(3)
+        ]
+        self.expectation["fragment_outputs"] = diagnostic_outputs
+        self.fragment["outputs"] = [
+            {
+                **output_prototype,
+                "array": [len(diagnostic_outputs)],
+                "array_size_is_literal": [True],
+            }
+        ]
+        self.verify()
+
+        production_expectation = copy.deepcopy(self.expectation)
+        last_output = production_expectation["fragment_outputs"][-1]
+        production_expectation["fragment_outputs"].append(
+            {**last_output, "location": last_output["location"] + 1}
+        )
+
+        with self.assertRaisesRegex(VerificationError, "fragment outputs"):
+            verify(
+                production_expectation,
+                self.vertex,
+                self.fragment,
+                self.disassembly,
+                self.disassembly,
+            )
+
+    def test_output_array_requires_literal_metadata(self) -> None:
+        self.fragment["outputs"][0]["array"] = [1]
+
+        with self.assertRaisesRegex(
+            VerificationError, "array_size_is_literal must be a JSON array"
+        ):
+            self.verify()
+
+    def test_output_array_rejects_malformed_literal_metadata(self) -> None:
+        self.fragment["outputs"][0].update(
+            {"array": [1], "array_size_is_literal": "true"}
+        )
+
+        with self.assertRaisesRegex(
+            VerificationError, "array_size_is_literal must be a JSON array"
+        ):
+            self.verify()
+
+    def test_output_array_rejects_mismatched_literal_metadata(self) -> None:
+        self.fragment["outputs"][0].update({"array": [1], "array_size_is_literal": []})
+
+        with self.assertRaisesRegex(VerificationError, "must match"):
+            self.verify()
+
+    def test_output_array_rejects_nonliteral_dimension(self) -> None:
+        self.fragment["outputs"][0].update(
+            {"array": [1], "array_size_is_literal": [False]}
+        )
+
+        with self.assertRaisesRegex(VerificationError, "must be true"):
             self.verify()
 
 

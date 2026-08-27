@@ -18,12 +18,56 @@
 #include <cstdio>
 #include <exception>
 #include <iostream>
+#include <optional>
 #include <stdexcept>
 #include <string_view>
 
 namespace
 {
 using namespace LLRenderContract;
+
+enum class MaterialProfile
+{
+    Diagnostic,
+    Production
+};
+
+std::optional<MaterialProfile> materialProfile(std::string_view name)
+{
+    if (name == "diagnostic")
+    {
+        return MaterialProfile::Diagnostic;
+    }
+    if (name == "production")
+    {
+        return MaterialProfile::Production;
+    }
+    return std::nullopt;
+}
+
+LegacyNormSpecPipelineKey pipelineKey(MaterialProfile profile)
+{
+    switch (profile)
+    {
+        case MaterialProfile::Diagnostic:
+            return legacyNormSpecDiagnosticPipelineKey();
+        case MaterialProfile::Production:
+            return legacyNormSpecModernHDRPipelineKey();
+    }
+    throw std::invalid_argument("unknown material profile");
+}
+
+bool validProfileManifest(MaterialProfile profile, const ShaderManifest& manifest) noexcept
+{
+    switch (profile)
+    {
+        case MaterialProfile::Diagnostic:
+            return validLegacyNormSpecDiagnosticShaderManifest(manifest);
+        case MaterialProfile::Production:
+            return validLegacyNormSpecProductionShaderManifest(manifest);
+    }
+    return false;
+}
 
 void writeJsonString(std::string_view value)
 {
@@ -323,38 +367,44 @@ void writeExpectation(const ShaderManifest& manifest)
 
 int main(int argc, char** argv)
 {
-    if (argc != 1 && (argc != 3 || std::string_view(argv[1]) != "--output"))
+    if (argc != 5 || std::string_view(argv[1]) != "--profile" || std::string_view(argv[3]) != "--output")
     {
-        std::cerr << "usage: " << argv[0] << " [--output PATH]\n";
+        std::cerr << "usage: " << argv[0] << " --profile diagnostic|production --output PATH\n";
         return 2;
     }
-    if (argc == 3 && std::freopen(argv[2], "wb", stdout) == nullptr)
+
+    const std::optional<MaterialProfile> profile = materialProfile(argv[2]);
+    if (!profile)
     {
-        std::cerr << "cannot open shader-manifest output " << argv[2] << '\n';
-        return 1;
+        std::cerr << "usage: " << argv[0] << " --profile diagnostic|production --output PATH\n";
+        return 2;
     }
 
     try
     {
-        const LLRenderContract::ShaderManifest manifest =
-            LLRenderContract::legacyNormSpecDiagnosticShaderManifest(LLRenderContract::ShaderBackend::Vulkan);
-        if (!LLRenderContract::validLegacyNormSpecDiagnosticShaderManifest(manifest) ||
-            manifest.mBackend != LLRenderContract::ShaderBackend::Vulkan)
+        const std::optional<LLRenderContract::ShaderManifest> manifest =
+            LLRenderContract::legacyNormSpecShaderManifest(pipelineKey(*profile), LLRenderContract::ShaderBackend::Vulkan);
+        if (!manifest || !validProfileManifest(*profile, *manifest) || manifest->mBackend != LLRenderContract::ShaderBackend::Vulkan)
         {
-            std::cerr << "cannot dump an invalid Vulkan diagnostic shader manifest\n";
+            std::cerr << "cannot dump an invalid Vulkan material profile manifest\n";
             return 1;
         }
-        writeExpectation(manifest);
+        if (std::freopen(argv[4], "wb", stdout) == nullptr)
+        {
+            std::cerr << "cannot open shader-manifest output " << argv[4] << '\n';
+            return 1;
+        }
+        writeExpectation(*manifest);
         std::cout.flush();
         if (!std::cout)
         {
-            std::cerr << "cannot write Vulkan diagnostic shader manifest\n";
+            std::cerr << "cannot write Vulkan material profile manifest\n";
             return 1;
         }
     }
     catch (const std::exception& error)
     {
-        std::cerr << "cannot dump Vulkan diagnostic shader manifest: " << error.what() << '\n';
+        std::cerr << "cannot dump Vulkan material profile manifest: " << error.what() << '\n';
         return 1;
     }
     return 0;

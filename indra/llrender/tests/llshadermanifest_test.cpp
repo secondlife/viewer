@@ -157,9 +157,7 @@ void shader_manifest_test_object::test<3>()
 
     ensure("both production profiles are valid descriptions", validLegacyNormSpecPipelineKey(legacyNormSpecModernHDRPipelineKey()) &&
                                                                   validLegacyNormSpecPipelineKey(legacyNormSpecCompatibilityPipelineKey()));
-    ensure("production HDR has no diagnostic artifact",
-           !legacyNormSpecShaderManifest(legacyNormSpecModernHDRPipelineKey(), ShaderBackend::Vulkan));
-    ensure("production compatibility has no diagnostic artifact",
+    ensure("production compatibility has no OpenGL artifact",
            !legacyNormSpecShaderManifest(legacyNormSpecCompatibilityPipelineKey(), ShaderBackend::OpenGL));
 
     LegacyNormSpecPipelineKey changed = legacyNormSpecDiagnosticPipelineKey();
@@ -304,6 +302,133 @@ void shader_manifest_test_object::test<5>()
     changed.mFragmentOutputDeclarations[0].mElementCount  = std::numeric_limits<std::uint32_t>::max();
     changed.mFragmentOutputDeclarations[0].mFirstLocation = 1;
     ensure("overflowing output declarations are rejected", !validShaderManifest(changed));
+}
+
+template<>
+template<>
+void shader_manifest_test_object::test<6>()
+{
+    const auto modern        = legacyNormSpecShaderManifest(legacyNormSpecModernHDRPipelineKey(), ShaderBackend::Vulkan);
+    const auto compatibility = legacyNormSpecShaderManifest(legacyNormSpecCompatibilityPipelineKey(), ShaderBackend::Vulkan);
+    ensure("both production profiles resolve a Vulkan shader contract", modern.has_value() && compatibility.has_value());
+    ensure("target formats do not fork the production shader contract", *modern == *compatibility);
+
+    const ShaderManifest& manifest   = *modern;
+    const ShaderManifest  diagnostic = legacyNormSpecDiagnosticShaderManifest(ShaderBackend::Vulkan);
+    ensure("the production shader contract is structurally and exactly valid",
+           validShaderManifest(manifest) && validLegacyNormSpecProductionShaderManifest(manifest) &&
+               !validLegacyNormSpecDiagnosticShaderManifest(manifest));
+    ensure("the production semantic program variant is explicit",
+           manifest.mProgram.mName == LEGACY_NORMSPEC_PIPELINE_NAME && manifest.mProgram.mVariant == LEGACY_NORMSPEC_PRODUCTION_VARIANT);
+    ensure("production retains the proven source and vertex-stage contracts",
+           manifest.mSourceUnits == diagnostic.mSourceUnits && manifest.mVertexInputs == diagnostic.mVertexInputs &&
+               manifest.mInterstageVariables == diagnostic.mInterstageVariables);
+    ensure("production retains the proven material resources",
+           manifest.mSampledImages == diagnostic.mSampledImages && manifest.mLogicalParameters == diagnostic.mLogicalParameters &&
+               manifest.mParameterBlock == diagnostic.mParameterBlock && manifest.mLinkedBlockBaggage.empty() &&
+               manifest.mPushConstantRanges.empty());
+
+    ensure("the ordered production compile and effective macro recipe is complete",
+           manifest.mDefines.size() == 19 && manifest.mDefines[0].mName == "LL_VULKAN_MATERIAL_PRODUCTION" &&
+               manifest.mDefines[0].mVisibility.mVertex && !manifest.mDefines[0].mVisibility.mFragment &&
+               manifest.mDefines[5].mName == "HAS_EMISSIVE" && manifest.mDefines[8].mName == "SPOT_SHADOW" &&
+               manifest.mDefines[9].mName == "LL_VULKAN_MATERIAL_PRODUCTION" && !manifest.mDefines[9].mVisibility.mVertex &&
+               manifest.mDefines[9].mVisibility.mFragment && manifest.mDefines[14].mName == "GBUFFER_FLAG_HAS_ATMOS" &&
+               manifest.mDefines[15].mName == "HAS_EMISSIVE" && manifest.mDefines[16].mName == "HAS_SUN_SHADOW" &&
+               manifest.mDefines[17].mName == "SUN_SHADOW" && manifest.mDefines[18].mName == "SPOT_SHADOW");
+    ensure("production exposes a fourth logical emissive output",
+           manifest.mLogicalFragmentOutputs.size() == 4 &&
+               manifest.mLogicalFragmentOutputs[3].mRole == ShaderFragmentOutputRole::EmissiveBuffer &&
+               manifest.mLogicalFragmentOutputs[3].mLocation == 3 && manifest.mLogicalFragmentOutputs[3].mType == ShaderValueType::Float4);
+    ensure("production declares exactly four backend outputs",
+           manifest.mFragmentOutputDeclarations.size() == 1 && manifest.mFragmentOutputDeclarations[0].mFirstLocation == 0 &&
+               manifest.mFragmentOutputDeclarations[0].mElementCount == 4 &&
+               manifest.mFragmentOutputDeclarations[0].mLogicalElementCount == 4 &&
+               !manifest.mFragmentOutputDeclarations[0].mExtraElementsInert);
+
+    ensure("production profiles have no OpenGL shader contract",
+           !legacyNormSpecShaderManifest(legacyNormSpecModernHDRPipelineKey(), ShaderBackend::OpenGL) &&
+               !legacyNormSpecShaderManifest(legacyNormSpecCompatibilityPipelineKey(), ShaderBackend::OpenGL));
+    ensure("production lookup leaves the diagnostic factory exact",
+           diagnostic == legacyNormSpecDiagnosticShaderManifest(ShaderBackend::Vulkan) &&
+               validLegacyNormSpecDiagnosticShaderManifest(diagnostic));
+}
+
+template<>
+template<>
+void shader_manifest_test_object::test<7>()
+{
+    const auto resolved = legacyNormSpecShaderManifest(legacyNormSpecModernHDRPipelineKey(), ShaderBackend::Vulkan);
+    ensure("the production mutation fixture resolves", resolved.has_value());
+    const ShaderManifest canonical = *resolved;
+    ShaderManifest       changed   = canonical;
+
+    std::swap(changed.mDefines[0], changed.mDefines[1]);
+    ensure("production compile-selector order is exact",
+           validShaderManifest(changed) && !validLegacyNormSpecProductionShaderManifest(changed));
+
+    changed = canonical;
+    changed.mDefines.erase(changed.mDefines.begin());
+    ensure("the production compile selector is required",
+           validShaderManifest(changed) && !validLegacyNormSpecProductionShaderManifest(changed));
+
+    changed                   = canonical;
+    changed.mProgram.mVariant = LEGACY_NORMSPEC_DIAGNOSTIC_VARIANT;
+    ensure("production program identity is exact",
+           validShaderManifest(changed) && !validLegacyNormSpecProductionShaderManifest(changed) &&
+               !validLegacyNormSpecDiagnosticShaderManifest(changed));
+
+    changed = canonical;
+    std::swap(changed.mSourceUnits[0], changed.mSourceUnits[1]);
+    ensure("production source order is exact", validShaderManifest(changed) && !validLegacyNormSpecProductionShaderManifest(changed));
+
+    changed          = canonical;
+    changed.mBackend = ShaderBackend::OpenGL;
+    ensure("production backend identity is exact",
+           validShaderManifest(changed) && !validLegacyNormSpecProductionShaderManifest(changed) &&
+               !validLegacyNormSpecDiagnosticShaderManifest(changed));
+
+    changed                            = canonical;
+    changed.mSampledImages[0].mBinding = 3;
+    ensure("production descriptor coordinates are exact",
+           validShaderManifest(changed) && !validLegacyNormSpecProductionShaderManifest(changed));
+
+    changed                     = canonical;
+    changed.mDefines[15].mValue = "0";
+    changed.mProgram.mVariant   = LEGACY_NORMSPEC_DIAGNOSTIC_VARIANT;
+    ensure("mixed production macros and diagnostic program identity match no exact recipe",
+           validShaderManifest(changed) && !validLegacyNormSpecProductionShaderManifest(changed) &&
+               !validLegacyNormSpecDiagnosticShaderManifest(changed));
+
+    changed = canonical;
+    changed.mLogicalFragmentOutputs.pop_back();
+    changed.mFragmentOutputDeclarations[0].mElementCount        = 3;
+    changed.mFragmentOutputDeclarations[0].mLogicalElementCount = 3;
+    ensure("a three-output production variant is not canonical",
+           validShaderManifest(changed) && !validLegacyNormSpecProductionShaderManifest(changed));
+
+    changed                                  = canonical;
+    changed.mLogicalFragmentOutputs[3].mRole = ShaderFragmentOutputRole::NormalEnvironment;
+    ensure("duplicate logical output roles are structurally invalid", !validShaderManifest(changed));
+
+    changed                                  = canonical;
+    changed.mLogicalFragmentOutputs[3].mRole = static_cast<ShaderFragmentOutputRole>(255);
+    ensure("unknown logical output roles are structurally invalid", !validShaderManifest(changed));
+
+    changed                                      = canonical;
+    changed.mLogicalFragmentOutputs[3].mLocation = 4;
+    changed.mFragmentOutputDeclarations          = { { "frag_data", 0, 3, ShaderValueType::Float4, 3, false },
+                                                     { "emissive_output", 4, 1, ShaderValueType::Float4, 1, false } };
+    ensure("the production output declaration shape is exact",
+           validShaderManifest(changed) && !validLegacyNormSpecProductionShaderManifest(changed));
+
+    LegacyNormSpecPipelineKey mixed_key = legacyNormSpecModernHDRPipelineKey();
+    mixed_key.mTargetProfile            = LegacyNormSpecTargetProfile::Compatibility;
+    ensure("mixed production profile dimensions do not resolve", !legacyNormSpecShaderManifest(mixed_key, ShaderBackend::Vulkan));
+
+    mixed_key                          = legacyNormSpecCompatibilityPipelineKey();
+    mixed_key.mShaderVariant.mEmissive = LegacyNormSpecEmissive::Disabled;
+    ensure("mixed production shader dimensions do not resolve", !legacyNormSpecShaderManifest(mixed_key, ShaderBackend::Vulkan));
 }
 
 } // namespace tut

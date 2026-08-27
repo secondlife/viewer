@@ -314,73 +314,12 @@ if (LL_VULKAN_TONEMAP_TEST)
       "${llvulkan_shader_source_dir}/material.vert.glsl")
   set(llvulkan_material_fragment_source
       "${llvulkan_shader_source_dir}/material.frag.glsl")
-  set(llvulkan_material_vertex_spv
-      "${llvulkan_shader_binary_dir}/material.vert.spv")
-  set(llvulkan_material_fragment_spv
-      "${llvulkan_shader_binary_dir}/material.frag.spv")
 
   add_executable(llshadermanifest_dump
       vulkan/llshadermanifest_dump.cpp)
   target_link_libraries(llshadermanifest_dump PRIVATE llrendercontract)
   set_target_properties(llshadermanifest_dump PROPERTIES FOLDER "Tests")
 
-  add_custom_command(
-      OUTPUT "${llvulkan_material_vertex_spv}"
-      COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_shader_binary_dir}"
-      COMMAND "${CMAKE_COMMAND}" -E remove -f "${llvulkan_material_vertex_spv}.tmp"
-      COMMAND "${LL_VULKAN_GLSLANG_VALIDATOR}"
-              -V --target-env vulkan1.1 -S vert
-              "-I${llvulkan_shader_source_dir}"
-              -o "${llvulkan_material_vertex_spv}.tmp"
-              "${llvulkan_material_vertex_source}"
-      COMMAND "${LL_VULKAN_SPIRV_VAL}"
-              --target-env vulkan1.1 "${llvulkan_material_vertex_spv}.tmp"
-      COMMAND "${CMAKE_COMMAND}" -E rename
-              "${llvulkan_material_vertex_spv}.tmp"
-              "${llvulkan_material_vertex_spv}"
-      DEPENDS
-              "${llvulkan_material_vertex_source}"
-              "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/deferred/materialV.glsl"
-      COMMENT "Compiling and validating Vulkan material vertex shader"
-      VERBATIM
-  )
-
-  add_custom_command(
-      OUTPUT "${llvulkan_material_fragment_spv}"
-      COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_shader_binary_dir}"
-      COMMAND "${CMAKE_COMMAND}" -E remove -f "${llvulkan_material_fragment_spv}.tmp"
-      COMMAND "${LL_VULKAN_GLSLANG_VALIDATOR}"
-              -V --target-env vulkan1.1 -S frag
-              "-I${llvulkan_shader_source_dir}"
-              -o "${llvulkan_material_fragment_spv}.tmp"
-              "${llvulkan_material_fragment_source}"
-      COMMAND "${LL_VULKAN_SPIRV_VAL}"
-              --target-env vulkan1.1 "${llvulkan_material_fragment_spv}.tmp"
-      COMMAND "${CMAKE_COMMAND}" -E rename
-              "${llvulkan_material_fragment_spv}.tmp"
-              "${llvulkan_material_fragment_spv}"
-      DEPENDS
-              "${llvulkan_material_fragment_source}"
-              "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/deferred/globalF.glsl"
-              "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class3/deferred/materialF.glsl"
-      COMMENT "Compiling and validating Vulkan material fragment shader"
-      VERBATIM
-  )
-
-  set(llvulkan_material_vertex_reflection
-      "${llvulkan_shader_binary_dir}/material.vert.reflect.json")
-  set(llvulkan_material_fragment_reflection
-      "${llvulkan_shader_binary_dir}/material.frag.reflect.json")
-  set(llvulkan_material_vertex_disassembly
-      "${llvulkan_shader_binary_dir}/material.vert.spvasm")
-  set(llvulkan_material_fragment_disassembly
-      "${llvulkan_shader_binary_dir}/material.frag.spvasm")
-  set(llvulkan_material_manifest_expectation
-      "${llvulkan_shader_binary_dir}/material.manifest.json")
-  set(llvulkan_material_module_hashes
-      "${llvulkan_shader_binary_dir}/material.modules.sha256")
-  set(llvulkan_material_manifest_stamp
-      "${llvulkan_shader_binary_dir}/material.manifest.verified")
   set(llvulkan_material_reflection_verifier
       "${CMAKE_CURRENT_SOURCE_DIR}/vulkan/verify_material_reflection.py")
   set(llvulkan_material_reflection_verifier_test
@@ -388,72 +327,138 @@ if (LL_VULKAN_TONEMAP_TEST)
   set(llvulkan_material_hash_writer
       "${CMAKE_CURRENT_SOURCE_DIR}/vulkan/write_shader_hashes.cmake")
 
-  add_custom_command(
-      OUTPUT
-      "${llvulkan_material_manifest_stamp}"
-      "${llvulkan_material_module_hashes}"
-      BYPRODUCTS
-      "${llvulkan_material_vertex_reflection}"
-      "${llvulkan_material_fragment_reflection}"
-      "${llvulkan_material_vertex_disassembly}"
-      "${llvulkan_material_fragment_disassembly}"
-      "${llvulkan_material_manifest_expectation}"
-      COMMAND "${CMAKE_COMMAND}" -E remove -f
-              "${llvulkan_material_manifest_stamp}"
-              "${llvulkan_material_module_hashes}"
-              "${llvulkan_material_vertex_reflection}"
-              "${llvulkan_material_fragment_reflection}"
-              "${llvulkan_material_vertex_disassembly}"
-              "${llvulkan_material_fragment_disassembly}"
-              "${llvulkan_material_manifest_expectation}"
-      COMMAND "${LL_VULKAN_SPIRV_CROSS}"
-              "${llvulkan_material_vertex_spv}"
-              --reflect --output "${llvulkan_material_vertex_reflection}"
-      COMMAND "${LL_VULKAN_SPIRV_CROSS}"
-              "${llvulkan_material_fragment_spv}"
-              --reflect --output "${llvulkan_material_fragment_reflection}"
-      COMMAND "${LL_VULKAN_SPIRV_DIS}"
-              "${llvulkan_material_vertex_spv}"
-              -o "${llvulkan_material_vertex_disassembly}"
-      COMMAND "${LL_VULKAN_SPIRV_DIS}"
-              "${llvulkan_material_fragment_spv}"
-              -o "${llvulkan_material_fragment_disassembly}"
-      COMMAND "$<TARGET_FILE:llshadermanifest_dump>"
-              --output "${llvulkan_material_manifest_expectation}"
-      COMMAND "${PYTHON_EXECUTABLE}" -B
-              "${llvulkan_material_reflection_verifier_test}"
-      COMMAND "${PYTHON_EXECUTABLE}"
-              "${llvulkan_material_reflection_verifier}"
-              --expectation "${llvulkan_material_manifest_expectation}"
-              --vertex-reflection "${llvulkan_material_vertex_reflection}"
-              --fragment-reflection "${llvulkan_material_fragment_reflection}"
-              --vertex-disassembly "${llvulkan_material_vertex_disassembly}"
-              --fragment-disassembly "${llvulkan_material_fragment_disassembly}"
-      COMMAND "${CMAKE_COMMAND}"
-              "-DVERTEX_MODULE=${llvulkan_material_vertex_spv}"
-              "-DFRAGMENT_MODULE=${llvulkan_material_fragment_spv}"
-              "-DOUTPUT_FILE=${llvulkan_material_module_hashes}"
-              -P "${llvulkan_material_hash_writer}"
-      COMMAND "${CMAKE_COMMAND}" -E touch
-              "${llvulkan_material_manifest_stamp}"
-      DEPENDS
-      "${llvulkan_material_vertex_spv}"
-      "${llvulkan_material_fragment_spv}"
-      llshadermanifest_dump
-      "${llvulkan_material_reflection_verifier}"
-      "${llvulkan_material_reflection_verifier_test}"
-      "${llvulkan_material_hash_writer}"
-      COMMENT "Reflecting and validating the diagnostic Vulkan material manifest"
-      VERBATIM
-  )
+  function(ll_add_vulkan_material_shader_profile profile artifact_stem target_name)
+    set(profile_defines ${ARGN})
+    set(artifact_path "${llvulkan_shader_binary_dir}/${artifact_stem}")
+    set(vertex_spv "${artifact_path}.vert.spv")
+    set(fragment_spv "${artifact_path}.frag.spv")
+    set(vertex_reflection "${artifact_path}.vert.reflect.json")
+    set(fragment_reflection "${artifact_path}.frag.reflect.json")
+    set(vertex_disassembly "${artifact_path}.vert.spvasm")
+    set(fragment_disassembly "${artifact_path}.frag.spvasm")
+    set(manifest_expectation "${artifact_path}.manifest.json")
+    set(module_hashes "${artifact_path}.modules.sha256")
+    set(manifest_stamp "${artifact_path}.manifest.verified")
 
-  add_custom_target(llvulkanmaterial_shaders
-      DEPENDS
-      "${llvulkan_material_vertex_spv}"
-      "${llvulkan_material_fragment_spv}"
-      "${llvulkan_material_manifest_stamp}"
-      "${llvulkan_material_module_hashes}")
-  set_target_properties(llvulkanmaterial_shaders PROPERTIES FOLDER "Tests")
+    add_custom_command(
+        OUTPUT "${vertex_spv}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_shader_binary_dir}"
+        COMMAND "${CMAKE_COMMAND}" -E remove -f "${vertex_spv}.tmp"
+        COMMAND "${LL_VULKAN_GLSLANG_VALIDATOR}"
+                -V --target-env vulkan1.1 -S vert
+                "-I${llvulkan_shader_source_dir}"
+                ${profile_defines}
+                -o "${vertex_spv}.tmp"
+                "${llvulkan_material_vertex_source}"
+        COMMAND "${LL_VULKAN_SPIRV_VAL}"
+                --target-env vulkan1.1 "${vertex_spv}.tmp"
+        COMMAND "${CMAKE_COMMAND}" -E rename
+                "${vertex_spv}.tmp"
+                "${vertex_spv}"
+        DEPENDS
+                "${llvulkan_material_vertex_source}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/deferred/materialV.glsl"
+        COMMENT "Compiling and validating ${profile} Vulkan material vertex shader"
+        VERBATIM
+    )
+
+    add_custom_command(
+        OUTPUT "${fragment_spv}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${llvulkan_shader_binary_dir}"
+        COMMAND "${CMAKE_COMMAND}" -E remove -f "${fragment_spv}.tmp"
+        COMMAND "${LL_VULKAN_GLSLANG_VALIDATOR}"
+                -V --target-env vulkan1.1 -S frag
+                "-I${llvulkan_shader_source_dir}"
+                ${profile_defines}
+                -o "${fragment_spv}.tmp"
+                "${llvulkan_material_fragment_source}"
+        COMMAND "${LL_VULKAN_SPIRV_VAL}"
+                --target-env vulkan1.1 "${fragment_spv}.tmp"
+        COMMAND "${CMAKE_COMMAND}" -E rename
+                "${fragment_spv}.tmp"
+                "${fragment_spv}"
+        DEPENDS
+                "${llvulkan_material_fragment_source}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class1/deferred/globalF.glsl"
+                "${CMAKE_CURRENT_SOURCE_DIR}/../newview/app_settings/shaders/class3/deferred/materialF.glsl"
+        COMMENT "Compiling and validating ${profile} Vulkan material fragment shader"
+        VERBATIM
+    )
+
+    add_custom_command(
+        OUTPUT
+        "${manifest_stamp}"
+        "${module_hashes}"
+        BYPRODUCTS
+        "${vertex_reflection}"
+        "${fragment_reflection}"
+        "${vertex_disassembly}"
+        "${fragment_disassembly}"
+        "${manifest_expectation}"
+        COMMAND "${CMAKE_COMMAND}" -E remove -f
+                "${manifest_stamp}"
+                "${module_hashes}"
+                "${vertex_reflection}"
+                "${fragment_reflection}"
+                "${vertex_disassembly}"
+                "${fragment_disassembly}"
+                "${manifest_expectation}"
+        COMMAND "${LL_VULKAN_SPIRV_CROSS}"
+                "${vertex_spv}"
+                --reflect --output "${vertex_reflection}"
+        COMMAND "${LL_VULKAN_SPIRV_CROSS}"
+                "${fragment_spv}"
+                --reflect --output "${fragment_reflection}"
+        COMMAND "${LL_VULKAN_SPIRV_DIS}"
+                "${vertex_spv}"
+                -o "${vertex_disassembly}"
+        COMMAND "${LL_VULKAN_SPIRV_DIS}"
+                "${fragment_spv}"
+                -o "${fragment_disassembly}"
+        COMMAND "$<TARGET_FILE:llshadermanifest_dump>"
+                --profile "${profile}"
+                --output "${manifest_expectation}"
+        COMMAND "${PYTHON_EXECUTABLE}" -B
+                "${llvulkan_material_reflection_verifier_test}"
+        COMMAND "${PYTHON_EXECUTABLE}"
+                "${llvulkan_material_reflection_verifier}"
+                --expectation "${manifest_expectation}"
+                --vertex-reflection "${vertex_reflection}"
+                --fragment-reflection "${fragment_reflection}"
+                --vertex-disassembly "${vertex_disassembly}"
+                --fragment-disassembly "${fragment_disassembly}"
+        COMMAND "${CMAKE_COMMAND}"
+                "-DVERTEX_MODULE=${vertex_spv}"
+                "-DFRAGMENT_MODULE=${fragment_spv}"
+                "-DOUTPUT_FILE=${module_hashes}"
+                -P "${llvulkan_material_hash_writer}"
+        COMMAND "${CMAKE_COMMAND}" -E touch
+                "${manifest_stamp}"
+        DEPENDS
+        "${vertex_spv}"
+        "${fragment_spv}"
+        llshadermanifest_dump
+        "${llvulkan_material_reflection_verifier}"
+        "${llvulkan_material_reflection_verifier_test}"
+        "${llvulkan_material_hash_writer}"
+        COMMENT "Reflecting and validating the ${profile} Vulkan material manifest"
+        VERBATIM
+    )
+
+    add_custom_target(${target_name}
+        DEPENDS
+        "${vertex_spv}"
+        "${fragment_spv}"
+        "${manifest_stamp}"
+        "${module_hashes}")
+    set_target_properties(${target_name} PROPERTIES FOLDER "Tests")
+  endfunction()
+
+  ll_add_vulkan_material_shader_profile(
+      diagnostic material llvulkanmaterial_shaders)
+  ll_add_vulkan_material_shader_profile(
+      production material.production llvulkanmaterialproduction_shaders
+      -DLL_VULKAN_MATERIAL_PRODUCTION=1)
 
   set(llvulkan_texture_upload_vertex_source
       "${llvulkan_shader_source_dir}/textureupload.vert.glsl")

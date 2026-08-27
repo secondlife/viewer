@@ -6,6 +6,13 @@
 #define HAS_NORMAL_MAP 1
 #define HAS_SPECULAR_MAP 1
 
+#if defined(LL_VULKAN_MATERIAL_PRODUCTION) && LL_VULKAN_MATERIAL_PRODUCTION == 1
+#define HAS_EMISSIVE 1
+#define HAS_SUN_SHADOW 1
+#define SUN_SHADOW 1
+#define SPOT_SHADOW 1
+#endif
+
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texcoord0;

@@ -7,6 +7,13 @@
 #define HAS_SPECULAR_MAP 1
 #define GBUFFER_FLAG_HAS_ATMOS 0.34
 
+#if defined(LL_VULKAN_MATERIAL_PRODUCTION) && LL_VULKAN_MATERIAL_PRODUCTION == 1
+#define HAS_EMISSIVE 1
+#define HAS_SUN_SHADOW 1
+#define SUN_SHADOW 1
+#define SPOT_SHADOW 1
+#endif
+
 layout(location = 0) in vec3 vary_position;
 layout(location = 1) in vec3 vary_tangent;
 layout(location = 2) flat in float vary_sign;
@@ -16,7 +23,11 @@ layout(location = 5) in vec2 vary_texcoord2;
 layout(location = 6) in vec4 vertex_color;
 layout(location = 7) in vec2 vary_texcoord0;
 
+#if defined(LL_VULKAN_MATERIAL_PRODUCTION) && LL_VULKAN_MATERIAL_PRODUCTION == 1
+layout(location = 0) out vec4 frag_data[4];
+#else
 layout(location = 0) out vec4 frag_data[3];
+#endif
 
 layout(set = 1, binding = 0) uniform sampler2D diffuseMap;
 layout(set = 1, binding = 1) uniform sampler2D bumpMap;

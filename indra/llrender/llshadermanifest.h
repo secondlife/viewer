@@ -177,7 +177,8 @@ enum class ShaderFragmentOutputRole : std::uint8_t
 {
     DiffuseEmissive,
     SpecularGloss,
-    NormalEnvironment
+    NormalEnvironment,
+    EmissiveBuffer
 };
 
 struct ShaderLogicalFragmentOutput
@@ -243,6 +244,7 @@ struct ShaderManifest
 
 bool validShaderManifest(const ShaderManifest& manifest) noexcept;
 bool validLegacyNormSpecDiagnosticShaderManifest(const ShaderManifest& manifest) noexcept;
+bool validLegacyNormSpecProductionShaderManifest(const ShaderManifest& manifest) noexcept;
 
 ShaderManifest legacyNormSpecDiagnosticShaderManifest(ShaderBackend backend);
 
