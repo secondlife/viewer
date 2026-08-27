@@ -456,6 +456,10 @@ if (LL_VULKAN_TONEMAP_TEST)
         "${manifest_stamp}"
         "${module_hashes}")
     set_target_properties(${target_name} PROPERTIES FOLDER "Tests")
+
+    set(${target_name}_VERTEX_SPV "${vertex_spv}" PARENT_SCOPE)
+    set(${target_name}_FRAGMENT_SPV "${fragment_spv}" PARENT_SCOPE)
+    set(${target_name}_VERIFIED_STAMP "${manifest_stamp}" PARENT_SCOPE)
   endfunction()
 
   ll_add_vulkan_material_shader_profile(
@@ -463,6 +467,37 @@ if (LL_VULKAN_TONEMAP_TEST)
   ll_add_vulkan_material_shader_profile(
       production material.production llvulkanmaterialproduction_shaders
       -DLL_VULKAN_MATERIAL_PRODUCTION=1)
+
+  # The viewer manifest is configured later from a sibling directory. Pass
+  # the exact validated-output directory through the common parent scope.
+  set(LL_VULKAN_MATERIAL_PRODUCTION_ARTIFACT_DIR
+      "${llvulkan_shader_binary_dir}"
+      PARENT_SCOPE)
+  set(LL_VULKAN_MATERIAL_PRODUCTION_VERTEX_SPV
+      "${llvulkanmaterialproduction_shaders_VERTEX_SPV}"
+      PARENT_SCOPE)
+  set(LL_VULKAN_MATERIAL_PRODUCTION_FRAGMENT_SPV
+      "${llvulkanmaterialproduction_shaders_FRAGMENT_SPV}"
+      PARENT_SCOPE)
+  set(LL_VULKAN_MATERIAL_PRODUCTION_VERIFIED_STAMP
+      "${llvulkanmaterialproduction_shaders_VERIFIED_STAMP}"
+      PARENT_SCOPE)
+
+  add_library(llvulkanmaterialartifact STATIC
+      vulkan/llvulkanmaterialartifact.cpp
+      vulkan/llvulkanmaterialartifact.h)
+  target_include_directories(llvulkanmaterialartifact
+      PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/vulkan")
+  target_link_libraries(llvulkanmaterialartifact PUBLIC llrendercontract)
+  set_target_properties(llvulkanmaterialartifact PROPERTIES FOLDER "Tests")
+
+  set_source_files_properties(
+      tests/llvulkanmaterialartifact_test.cpp
+      PROPERTIES SKIP_PRECOMPILE_HEADERS TRUE)
+  LL_ADD_INTEGRATION_TEST(
+      llvulkanmaterialartifact
+      ""
+      "llvulkanmaterialartifact;llrendercontract;llcommon")
 
   set(llvulkan_texture_upload_vertex_source
       "${llvulkan_shader_source_dir}/textureupload.vert.glsl")

@@ -50,6 +50,10 @@ viewer_dir = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(viewer_dir, os.pardir, "lib", "python"))
 from indra.util.llmanifest import LLManifest, main, path_ancestors, CHANNEL_VENDOR_BASE, RELEASE_CHANNEL, ManifestError, MissingError
 import llsd
+from vulkan_material_artifact_delivery import (
+    ArtifactDeliveryError,
+    deliver_production_material_artifacts,
+)
 
 class ViewerManifest(LLManifest):
     def is_packaging_viewer(self):
@@ -196,6 +200,13 @@ class ViewerManifest(LLManifest):
             #return code for free.
             if not self.path2basename(os.pardir, "build_data.json"):
                 print("No build_data.json file")
+
+        try:
+            deliver_production_material_artifacts(
+                self, self.args.get('vulkan_material_artifact_dir', '')
+            )
+        except ArtifactDeliveryError as error:
+            raise ManifestError(str(error)) from error
 
     def finish_build_data_dict(self, build_data_dict):
         return build_data_dict
@@ -1537,6 +1548,9 @@ if __name__ == "__main__":
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
         dict(name='tracy', description="""Indication tracy profiler is enabled""", default='OFF'),
         dict(name='velopack', description="""Use Velopack installer instead of NSIS""", default='OFF'),
+        dict(name='vulkan_material_artifact_dir',
+             description="""Directory containing the validated production material SPIR-V pair""",
+             default=''),
         ]
     try:
         main(extra=extra_arguments)

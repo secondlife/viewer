@@ -1796,13 +1796,55 @@ set_source_files_properties(${viewer_CHARACTER_FILES}
 list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
 
 set(viewer_MISC_FILES
+    clean_vulkan_material_install.cmake
     viewer_manifest.py
+    vulkan_material_artifact_delivery.py
+    tests/test_vulkan_material_artifact_delivery.py
     )
 
 set_source_files_properties(${viewer_MISC_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
 list(APPEND viewer_SOURCE_FILES ${viewer_MISC_FILES})
+
+set(VULKAN_MATERIAL_ARTIFACT_MANIFEST_ARGS)
+set(VULKAN_MATERIAL_ARTIFACT_DEPENDENCIES)
+set(VULKAN_MATERIAL_ARTIFACT_STATE_FILE
+    "${CMAKE_CURRENT_BINARY_DIR}/vulkan_material_artifact_delivery.state")
+file(GENERATE
+    OUTPUT "${VULKAN_MATERIAL_ARTIFACT_STATE_FILE}"
+    CONTENT "${LL_VULKAN_TONEMAP_TEST}\n")
+set(VULKAN_MATERIAL_ARTIFACT_FILE_DEPENDENCIES
+    "${VULKAN_MATERIAL_ARTIFACT_STATE_FILE}")
+if (LL_VULKAN_TONEMAP_TEST)
+  if (NOT LL_VULKAN_MATERIAL_PRODUCTION_ARTIFACT_DIR OR
+      NOT LL_VULKAN_MATERIAL_PRODUCTION_VERTEX_SPV OR
+      NOT LL_VULKAN_MATERIAL_PRODUCTION_FRAGMENT_SPV OR
+      NOT LL_VULKAN_MATERIAL_PRODUCTION_VERIFIED_STAMP OR
+      NOT TARGET llvulkanmaterialproduction_shaders)
+    message(FATAL_ERROR
+        "The Vulkan material artifact directory and validation target must come from llrender")
+  endif ()
+  list(APPEND VULKAN_MATERIAL_ARTIFACT_MANIFEST_ARGS
+      "--vulkan_material_artifact_dir=${LL_VULKAN_MATERIAL_PRODUCTION_ARTIFACT_DIR}")
+  list(APPEND VULKAN_MATERIAL_ARTIFACT_DEPENDENCIES
+      llvulkanmaterialproduction_shaders)
+  list(APPEND VULKAN_MATERIAL_ARTIFACT_FILE_DEPENDENCIES
+      "${LL_VULKAN_MATERIAL_PRODUCTION_VERTEX_SPV}"
+      "${LL_VULKAN_MATERIAL_PRODUCTION_FRAGMENT_SPV}"
+      "${LL_VULKAN_MATERIAL_PRODUCTION_VERIFIED_STAMP}")
+
+  add_test(
+      NAME VULKAN_MATERIAL_ARTIFACT_DELIVERY
+      COMMAND "${PYTHON_EXECUTABLE}" -B
+              "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_vulkan_material_artifact_delivery.py")
+  add_test(
+      NAME VULKAN_MATERIAL_ARTIFACT_MANIFEST_ARGUMENT
+      COMMAND "${PYTHON_EXECUTABLE}" -B
+              "${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py"
+              --help
+              "--vulkan_material_artifact_dir=${LL_VULKAN_MATERIAL_PRODUCTION_ARTIFACT_DIR}")
+endif ()
 
 if (WINDOWS)
   file(GLOB viewer_INSTALLER_FILES installers/windows/*.nsi)
@@ -1838,6 +1880,12 @@ add_executable(${VIEWER_BINARY_NAME}
     MACOSX_BUNDLE
     ${viewer_SOURCE_FILES}
     )
+
+if (VULKAN_MATERIAL_ARTIFACT_DEPENDENCIES)
+  add_dependencies(
+      ${VIEWER_BINARY_NAME}
+      ${VULKAN_MATERIAL_ARTIFACT_DEPENDENCIES})
+endif ()
 
 target_include_directories(${VIEWER_BINARY_NAME} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -2225,9 +2273,13 @@ if (LINUX)
         --source=${CMAKE_CURRENT_SOURCE_DIR}
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
         --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+        ${VULKAN_MATERIAL_ARTIFACT_MANIFEST_ARGS}
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/vulkan_material_artifact_delivery.py
         ${COPY_INPUT_DEPENDENCIES}
+        ${VULKAN_MATERIAL_ARTIFACT_DEPENDENCIES}
+        ${VULKAN_MATERIAL_ARTIFACT_FILE_DEPENDENCIES}
       )
 
   if (PACKAGE)
@@ -2253,9 +2305,13 @@ if (LINUX)
       --grid=${GRID}
       --source=${CMAKE_CURRENT_SOURCE_DIR}
       --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+      ${VULKAN_MATERIAL_ARTIFACT_MANIFEST_ARGS}
     DEPENDS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/vulkan_material_artifact_delivery.py
       ${COPY_INPUT_DEPENDENCIES}
+      ${VULKAN_MATERIAL_ARTIFACT_DEPENDENCIES}
+      ${VULKAN_MATERIAL_ARTIFACT_FILE_DEPENDENCIES}
     COMMENT "Performing viewer_manifest copy"
     )
 
@@ -2308,10 +2364,7 @@ if (DARWIN)
      "${VIEWER_APP_BUNDLE}/Contents/Info.plist"
     )
 
-  add_custom_command(
-    TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-    COMMAND ${PYTHON_EXECUTABLE}
-    ARGS
+  set(MAC_VIEWER_MANIFEST_COPY_ARGS
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       --actions=copy
       --arch=${ARCH}
@@ -2329,7 +2382,32 @@ if (DARWIN)
       --grid=${GRID}
       --source=${CMAKE_CURRENT_SOURCE_DIR}
       --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+      ${VULKAN_MATERIAL_ARTIFACT_MANIFEST_ARGS})
+
+  add_custom_command(
+    TARGET ${VIEWER_BINARY_NAME} POST_BUILD
+    COMMAND ${PYTHON_EXECUTABLE}
+    ARGS ${MAC_VIEWER_MANIFEST_COPY_ARGS}
     )
+
+  set(MAC_VULKAN_MATERIAL_ARTIFACT_COPY_STAMP
+      "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.vulkan_material_artifacts.touched")
+  add_custom_command(
+      OUTPUT "${MAC_VULKAN_MATERIAL_ARTIFACT_COPY_STAMP}"
+      COMMAND ${PYTHON_EXECUTABLE}
+      ARGS ${MAC_VIEWER_MANIFEST_COPY_ARGS}
+      COMMAND "${CMAKE_COMMAND}" -E touch
+              "${MAC_VULKAN_MATERIAL_ARTIFACT_COPY_STAMP}"
+      DEPENDS
+      ${VIEWER_BINARY_NAME}
+      ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/vulkan_material_artifact_delivery.py
+      ${VULKAN_MATERIAL_ARTIFACT_DEPENDENCIES}
+      ${VULKAN_MATERIAL_ARTIFACT_FILE_DEPENDENCIES}
+      COMMENT "Refreshing packaged Vulkan material artifacts"
+      VERBATIM)
+  add_custom_target(copy_m_vulkan_material_artifacts ALL
+      DEPENDS "${MAC_VULKAN_MATERIAL_ARTIFACT_COPY_STAMP}")
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
 
@@ -2341,6 +2419,7 @@ if (DARWIN)
 
   if (PACKAGE)
       add_custom_target(llpackage ALL DEPENDS ${VIEWER_BINARY_NAME})
+      add_dependencies(llpackage copy_m_vulkan_material_artifacts)
 
       add_custom_command(
         TARGET llpackage POST_BUILD
@@ -2365,6 +2444,7 @@ if (DARWIN)
               --touch=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/.${product}.bat
               --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
               ${SIGNING_SETTING}
+              ${VULKAN_MATERIAL_ARTIFACT_MANIFEST_ARGS}
       )
   endif (PACKAGE)
 endif (DARWIN)
