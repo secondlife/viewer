@@ -62,7 +62,7 @@
 #include "llfloaterperms.h"
 
 #include "llgltfhelper.h"
-#include "gltf/asset.h"
+#include "gltfprimitive/asset.h"
 
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>

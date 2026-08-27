@@ -27,7 +27,7 @@
 #ifndef LL_LLGLTFLoader_H
 #define LL_LLGLTFLoader_H
 
-#include "gltf/asset.h"
+#include "gltfprimitive/asset.h"
 
 #include "llglheaders.h"
 #include "lljointdata.h"

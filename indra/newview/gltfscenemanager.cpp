@@ -35,7 +35,7 @@
 #include "llnotificationsutil.h"
 #include "llvoavatarself.h"
 #include "llvolumeoctree.h"
-#include "gltf/asset.h"
+#include "gltfprimitive/asset.h"
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 #include "llviewertexturelist.h"
