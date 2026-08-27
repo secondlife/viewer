@@ -50,6 +50,7 @@ void contract_parity_args_test_object_t::test<1>()
     const auto ordinary = parse({ "viewer", "--materialartifact", "RenderMaterialContractParityTest" });
     ensure("artifact value is not a material selection", !ordinary.mMaterial);
     ensure("ordinary launch is not a tonemap selection", !ordinary.mTonemap);
+    ensure("ordinary launch is not a texture upload selection", !ordinary.mTextureUpload);
 }
 
 template<>
@@ -60,6 +61,8 @@ void contract_parity_args_test_object_t::test<2>()
     ensure("short material flag", parse({ "viewer", "-materialparity" }).mMaterial);
     ensure("long tonemap flag", parse({ "viewer", "--tonemapparity" }).mTonemap);
     ensure("short tonemap flag", parse({ "viewer", "-tonemapparity" }).mTonemap);
+    ensure("long texture upload flag", parse({ "viewer", "--textureuploadparity" }).mTextureUpload);
+    ensure("short texture upload flag", parse({ "viewer", "-textureuploadparity" }).mTextureUpload);
 }
 
 template<>
@@ -70,6 +73,8 @@ void contract_parity_args_test_object_t::test<3>()
     ensure("qualified set pair", parse({ "viewer", "-set", "Global.RenderMaterialContractParityTest", "1" }).mMaterial);
     ensure("long attached set name", parse({ "viewer", "--set=RenderTonemapContractParityTest", "T" }).mTonemap);
     ensure("short attached set name", parse({ "viewer", "-set=Global.RenderTonemapContractParityTest", " True " }).mTonemap);
+    ensure("texture upload set pair",
+           parse({ "viewer", "--set", "RenderTextureUploadContractParityTest", "true" }).mTextureUpload);
 }
 
 template<>
@@ -93,5 +98,7 @@ void contract_parity_args_test_object_t::test<5>()
            !parse({ "viewer", "--tonemapparity", "--set", "RenderTonemapContractParityTest", "yes" }).mTonemap);
     ensure("another control group is ignored", !parse({ "viewer", "--set", "Session.RenderMaterialContractParityTest", "true" }).mMaterial);
     ensure("tokens after option terminator are ignored", !parse({ "viewer", "--", "--materialparity" }).mMaterial);
+    ensure("texture upload tokens after option terminator are ignored",
+           !parse({ "viewer", "--", "--textureuploadparity" }).mTextureUpload);
 }
 } // namespace tut

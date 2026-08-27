@@ -225,6 +225,8 @@ public:
 
     eTextureType getCurrType(void) { return mCurrTexType; }
 
+    bool getHasMipMaps(void) const { return mHasMipMaps; }
+
     void setHasMipMaps(bool hasMips) { mHasMipMaps = hasMips; }
 
 protected:

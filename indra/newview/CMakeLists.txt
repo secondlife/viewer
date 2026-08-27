@@ -404,6 +404,7 @@ set(viewer_SOURCE_FILES
     llmaterialeditor.cpp
     llmaterialmgr.cpp
     llmaterialparity.cpp
+    lltextureuploadparity.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
     llmenuoptionpathfindingrebakenavmesh.cpp
@@ -1094,6 +1095,7 @@ set(viewer_HEADER_FILES
     llmaterialeditor.h
     llmaterialmgr.h
     llmaterialparity.h
+    lltextureuploadparity.h
     llmediactrl.h
     llmediadataclient.h
     llmenuoptionpathfindingrebakenavmesh.h

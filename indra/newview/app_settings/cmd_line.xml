@@ -411,6 +411,24 @@
       <string>RenderMaterialArtifactPath</string>
     </map>
 
+    <key>textureuploadparity</key>
+    <map>
+      <key>desc</key>
+      <string>Run the fixed-input texture upload contract parity check and exit.</string>
+      <key>map-to</key>
+      <string>RenderTextureUploadContractParityTest</string>
+    </map>
+
+    <key>textureuploadartifact</key>
+    <map>
+      <key>desc</key>
+      <string>Write the successful texture upload parity reference to this new artifact file.</string>
+      <key>count</key>
+      <integer>1</integer>
+      <key>map-to</key>
+      <string>RenderTextureUploadArtifactPath</string>
+    </map>
+
     <key>tonemapparity</key>
     <map>
       <key>desc</key>

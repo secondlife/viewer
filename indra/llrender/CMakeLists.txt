@@ -24,6 +24,7 @@ set(llrender_SOURCE_FILES
     llimagegl.cpp
     llrender.cpp
     llrenderglmaterial.cpp
+    llrendergltextureupload.cpp
     llrendergltonemap.cpp
     llrender2dutils.cpp
     llrendernavprim.cpp
@@ -57,6 +58,7 @@ set(llrender_HEADER_FILES
     llimagegl.h
     llrender.h
     llrenderglmaterial.h
+    llrendergltextureupload.h
     llrendergltonemap.h
     llrender2dutils.h
     llrendernavprim.h
@@ -79,6 +81,10 @@ set(llrendercontract_SOURCE_FILES
     llmaterialdiagnostic.h
     llrendercontract.cpp
     llrendercontract.h
+    lltextureuploadcontract.cpp
+    lltextureuploadcontract.h
+    lltextureuploaddiagnostic.cpp
+    lltextureuploaddiagnostic.h
     lltonemapcontract.cpp
     lltonemapcontract.h
     lltonemapdiagnostic.cpp
@@ -159,7 +165,10 @@ if (LL_TESTS)
     tests/llmaterialdiagnostic_test.cpp
     tests/llrendercontract_test.cpp
     tests/llrenderglmaterialregistry_test.cpp
+    tests/llrendergltextureuploadregistry_test.cpp
     tests/llrendergltonemapregistry_test.cpp
+    tests/lltextureuploadcontract_test.cpp
+    tests/lltextureuploaddiagnostic_test.cpp
     tests/lltonemapdiagnostic_test.cpp
     PROPERTIES
     SKIP_PRECOMPILE_HEADERS TRUE
@@ -167,7 +176,10 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llmaterialdiagnostic "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrendercontract "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrenderglmaterialregistry "" "llrendercontract;llcommon")
+  LL_ADD_INTEGRATION_TEST(llrendergltextureuploadregistry "" "llrender;llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(llrendergltonemapregistry "" "llrendercontract;llcommon")
+  LL_ADD_INTEGRATION_TEST(lltextureuploadcontract "" "llrendercontract;llcommon")
+  LL_ADD_INTEGRATION_TEST(lltextureuploaddiagnostic "" "llrendercontract;llcommon")
   LL_ADD_INTEGRATION_TEST(lltonemapdiagnostic "" "llrendercontract;llcommon")
 endif ()
 

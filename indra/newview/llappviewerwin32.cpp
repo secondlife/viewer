@@ -59,6 +59,9 @@
 #include "llfindlocale.h"
 
 #include "llcommandlineparser.h"
+#include "llcontractparityargs.h"
+#include "fsyspath.h"
+#include "llstring.h"
 #include "lltrans.h"
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -71,6 +74,7 @@
 
 #include <fstream>
 #include <exception>
+#include <filesystem>
 
 // Velopack installer and update framework
 #if LL_VELOPACK
@@ -479,6 +483,58 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
     // https://github.com/wolfpld/tracy/issues/196
     LL_PROFILER_FRAME_END;
     LL_PROFILER_SET_THREAD_NAME("App");
+
+    const LLContractParitySelection parity = getRawContractParitySelection(__argc, __argv);
+    const bool parity_selected = parity.mTonemap || parity.mMaterial || parity.mTextureUpload;
+    const auto isolated_user_dir = LLStringUtil::getoptenv("SECONDLIFE_USER_DIR");
+    if (parity_selected && (!isolated_user_dir || isolated_user_dir->empty()))
+    {
+        std::fputs(
+            parity.mTonemap
+                ? "TONEMAP_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n"
+                : parity.mMaterial
+                    ? "MATERIAL_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n"
+                    : "TEXTURE_UPLOAD_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n",
+            stderr);
+        std::fflush(stderr);
+        return -1;
+    }
+    if (parity_selected)
+    {
+        std::error_code error;
+        const fsyspath root(*isolated_user_dir);
+        std::filesystem::create_directories(root, error);
+        bool root_valid = !error && std::filesystem::is_directory(root, error) && !error;
+        if (root_valid)
+        {
+            const std::filesystem::path probe =
+                root / (".render-contract-isolation." + std::to_string(GetCurrentProcessId()));
+            HANDLE probe_handle = CreateFileW(probe.c_str(), GENERIC_WRITE | DELETE, FILE_SHARE_DELETE, nullptr,
+                                              CREATE_NEW, FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE,
+                                              nullptr);
+            DWORD bytes_written = 0;
+            const char byte = 0;
+            const bool wrote = probe_handle != INVALID_HANDLE_VALUE &&
+                               WriteFile(probe_handle, &byte, sizeof(byte), &bytes_written, nullptr) &&
+                               bytes_written == sizeof(byte);
+            const bool closed = probe_handle != INVALID_HANDLE_VALUE && CloseHandle(probe_handle);
+            std::error_code exists_error;
+            const bool removed = !std::filesystem::exists(probe, exists_error) && !exists_error;
+            root_valid = wrote && closed && removed;
+        }
+        if (!root_valid)
+        {
+            std::fputs(
+                parity.mTonemap
+                    ? "TONEMAP_CONTRACT_PARITY result=fail reason=invalid_SECONDLIFE_USER_DIR\n"
+                    : parity.mMaterial
+                        ? "MATERIAL_CONTRACT_PARITY result=fail reason=invalid_SECONDLIFE_USER_DIR\n"
+                        : "TEXTURE_UPLOAD_CONTRACT_PARITY result=fail reason=invalid_SECONDLIFE_USER_DIR\n",
+                stderr);
+            std::fflush(stderr);
+            return -1;
+        }
+    }
 
     const S32 MAX_HEAPS = 255;
     DWORD heap_enable_lfh_error[MAX_HEAPS];

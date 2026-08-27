@@ -41,24 +41,6 @@
 
 // --------------------------------------------------------------------------------
 
-static bool CreateDirectory(const std::string &parent,
-                            const std::string &child,
-                            std::string *fullname)
-{
-
-    std::filesystem::path p(parent);
-    p /= child;
-
-    if (fullname)
-        *fullname = std::string(p.string());
-
-    if (! std::filesystem::create_directory(p))
-    {
-        return (std::filesystem::is_directory(p));
-    }
-    return true;
-}
-
 static bool CreateDirectories(const std::string &path)
 {
     std::error_code error;
@@ -121,44 +103,16 @@ LLDir_Mac::LLDir_Mac()
             mOSUserDir = *app_home_env;
             mOSUserAppDir = *app_home_env;
             mOSCacheDir.clear();
-
-            CreateDirectories(mOSUserAppDir);
-            CreateDirectories(add(mOSUserAppDir, "data"));
-            CreateDirectories(add(mOSUserAppDir, "logs"));
-            CreateDirectories(add(mOSUserAppDir, "user_settings"));
-            CreateDirectories(add(mOSUserAppDir, "browser_profile"));
-            CreateDirectories(buildSLOSCacheDir());
         }
         else
         {
-            // mOSUserDir
-            std::string appdir = getSystemApplicationSupportFolder();
-            std::string rootdir;
-
-            //Create root directory
-            if (CreateDirectory(appdir, secondLifeString, &rootdir))
+            const std::string appdir = getSystemApplicationSupportFolder();
+            if (!appdir.empty())
             {
-
-                // Save the full path to the folder
-                mOSUserDir = rootdir;
-
-                // Create our sub-dirs
-                CreateDirectory(rootdir, std::string("data"), NULL);
-                CreateDirectory(rootdir, std::string("logs"), NULL);
-                CreateDirectory(rootdir, std::string("user_settings"), NULL);
-                CreateDirectory(rootdir, std::string("browser_profile"), NULL);
+                mOSUserDir = (std::filesystem::path(appdir) / secondLifeString).string();
             }
 
-            //mOSCacheDir
-            std::string cachedir =  getSystemCacheFolder();
-            if (!cachedir.empty())
-            {
-                mOSCacheDir = cachedir;
-                //TODO:  This changes from ~/Library/Cache/Secondlife to ~/Library/Cache/com.app.secondlife/Secondlife.  Last dir level could go away.
-                CreateDirectory(mOSCacheDir, secondLifeString, NULL);
-            }
-
-            // mOSUserAppDir
+            mOSCacheDir = getSystemCacheFolder();
             mOSUserAppDir = mOSUserDir;
         }
 
@@ -167,7 +121,7 @@ LLDir_Mac::LLDir_Mac()
         std::string tmpdir = getSystemTempFolder();
         if (!tmpdir.empty())
         {
-            CreateDirectory(tmpdir, secondLifeString, &mTempDir);
+            mTempDir = (std::filesystem::path(tmpdir) / secondLifeString).string();
         }
 
         mWorkingDir = getCurPath();
@@ -192,6 +146,14 @@ void LLDir_Mac::initAppDirs(const std::string &app_name,
         mAppRODataDir = app_read_only_data_dir;
         mSkinBaseDir = add(mAppRODataDir, "skins");
     }
+    mAppName = app_name;
+    CreateDirectories(mOSUserAppDir);
+    CreateDirectories(add(mOSUserAppDir, "data"));
+    CreateDirectories(add(mOSUserAppDir, "logs"));
+    CreateDirectories(add(mOSUserAppDir, "user_settings"));
+    CreateDirectories(add(mOSUserAppDir, "browser_profile"));
+    CreateDirectories(buildSLOSCacheDir());
+    CreateDirectories(mTempDir);
     mCAFile = add(mAppRODataDir, "ca-bundle.crt");
 }
 

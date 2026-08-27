@@ -25,6 +25,7 @@
 namespace
 {
 constexpr std::string_view MATERIAL_SETTING = "RenderMaterialContractParityTest";
+constexpr std::string_view TEXTURE_UPLOAD_SETTING = "RenderTextureUploadContractParityTest";
 constexpr std::string_view TONEMAP_SETTING  = "RenderTonemapContractParityTest";
 constexpr std::string_view GLOBAL_PREFIX    = "Global.";
 
@@ -66,7 +67,7 @@ std::string_view unqualifiedName(std::string_view name)
 void applySetPair(std::string_view name, std::string_view value, LLContractParitySelection& selection)
 {
     name = unqualifiedName(name);
-    if (name != MATERIAL_SETTING && name != TONEMAP_SETTING)
+    if (name != MATERIAL_SETTING && name != TEXTURE_UPLOAD_SETTING && name != TONEMAP_SETTING)
     {
         return;
     }
@@ -76,6 +77,10 @@ void applySetPair(std::string_view name, std::string_view value, LLContractParit
     if (name == MATERIAL_SETTING)
     {
         selection.mMaterial = enabled;
+    }
+    else if (name == TEXTURE_UPLOAD_SETTING)
+    {
+        selection.mTextureUpload = enabled;
     }
     else
     {
@@ -102,6 +107,10 @@ LLContractParitySelection getRawContractParitySelection(int argc, char* const* a
         else if (isDirectFlag(argument, "materialparity"))
         {
             selection.mMaterial = true;
+        }
+        else if (isDirectFlag(argument, "textureuploadparity"))
+        {
+            selection.mTextureUpload = true;
         }
     }
 

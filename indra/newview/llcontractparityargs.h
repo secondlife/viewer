@@ -18,8 +18,9 @@
 
 struct LLContractParitySelection
 {
-    bool mTonemap  = false;
-    bool mMaterial = false;
+    bool mTonemap       = false;
+    bool mMaterial      = false;
+    bool mTextureUpload = false;
 };
 
 LLContractParitySelection getRawContractParitySelection(int argc, char* const* argv);

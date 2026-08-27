@@ -728,6 +728,25 @@ namespace tut
         ensure("LLDIR_TEST_MODE is set", mode.has_value());
         ensure("LLDIR_TEST_ROOT is set", root.has_value());
 
+        // The global constructor only resolves paths. Prove it did not create
+        // even the system base directories before the application entry-point
+        // isolation gate would run.
+        if (*mode == "override")
+        {
+            ensure("override profile creation is deferred",
+                   !std::filesystem::exists(gDirUtilp->add(*root, "user")));
+        }
+        else if (*mode == "standard")
+        {
+            const std::string home = gDirUtilp->add(*root, "home");
+            ensure("Application Support creation is deferred",
+                   !std::filesystem::exists(gDirUtilp->add(home, "Library", "Application Support")));
+            ensure("Caches creation is deferred",
+                   !std::filesystem::exists(gDirUtilp->add(home, "Library", "Caches")));
+        }
+
+        gDirUtilp->initAppDirs("SecondLife");
+
         if (*mode == "override")
         {
             const std::string profile = gDirUtilp->add(*root, "user");

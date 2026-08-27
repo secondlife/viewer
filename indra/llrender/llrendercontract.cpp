@@ -485,9 +485,11 @@ namespace
 
                 for (std::size_t prior = 0; prior < index; ++prior)
                 {
-                    if (mFrame.mUploads[prior].mDestination == upload.mDestination && mFrame.mUploads[prior].mRevision == upload.mRevision)
+                    if (mFrame.mUploads[prior].mDestination == upload.mDestination &&
+                        mFrame.mUploads[prior].mRevision >= upload.mRevision)
                     {
-                        error(ValidationCode::InvalidUpload, path, "destination and revision identify a duplicate upload");
+                        error(ValidationCode::InvalidUpload, path,
+                              "upload revisions for one destination must increase in declaration order");
                         break;
                     }
                 }

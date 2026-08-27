@@ -281,13 +281,15 @@ int main( int argc, char **argv )
 
     const LLContractParitySelection parity = getRawContractParitySelection(argc, argv);
     const char* isolated_user_dir = std::getenv("SECONDLIFE_USER_DIR");
-    if ((parity.mTonemap || parity.mMaterial)
+    if ((parity.mTonemap || parity.mMaterial || parity.mTextureUpload)
         && (!isolated_user_dir || isolated_user_dir[0] == '\0'))
     {
         std::fputs(
             parity.mTonemap
                 ? "TONEMAP_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n"
-                : "MATERIAL_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n",
+                : parity.mMaterial
+                    ? "MATERIAL_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n"
+                    : "TEXTURE_UPLOAD_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n",
             stderr);
         std::fflush(stderr);
         return EXIT_FAILURE;

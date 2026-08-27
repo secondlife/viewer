@@ -43,7 +43,8 @@ std::string getSystemTempFolder()
     return result;
 }
 
-//findSystemDirectory scoped exclusively to this file.
+// Resolve a system directory without creating it. LLDir_Mac::initAppDirs()
+// performs creation after the application entry-point isolation gates.
 std::string findSystemDirectory(NSSearchPathDirectory searchPathDirectory,
                                    NSSearchPathDomainMask domainMask)
 {
@@ -58,12 +59,6 @@ std::string findSystemDirectory(NSSearchPathDirectory searchPathDirectory,
         if ([paths count])
         {
             path = [paths objectAtIndex:0];
-            //HACK:  Always attempt to create directory, ignore errors.
-            NSError *error = nil;
-
-            [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
-
-
             result = std::string([path UTF8String]);
         }
     }

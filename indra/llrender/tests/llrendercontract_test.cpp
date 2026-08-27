@@ -708,4 +708,40 @@ void render_contract_test_object::test<26>()
     ensure("material decoder rejects another pass identity", !decodeMaterialFrame(frame));
 }
 
+template<>
+template<>
+void render_contract_test_object::test<27>()
+{
+    FrameSnapshot increasing = streamingUploadFrame();
+    TextureUpload next       = increasing.mUploads.front();
+    next.mRevision           = 8;
+    next.mMipGeneration      = MipGeneration::Disabled;
+    next.mBefore             = ImageState::ShaderRead;
+    increasing.mUploads.push_back(next);
+    ensure("upload revisions may increase for one exact destination", static_cast<bool>(validate(increasing)));
+
+    FrameSnapshot equal = streamingUploadFrame();
+    next                = equal.mUploads.front();
+    next.mMipGeneration = MipGeneration::Disabled;
+    next.mBefore        = ImageState::ShaderRead;
+    equal.mUploads.push_back(next);
+    ensure("equal upload revisions are rejected for one exact destination",
+           hasError(validate(equal), ValidationCode::InvalidUpload));
+
+    FrameSnapshot decreasing = streamingUploadFrame();
+    next                     = decreasing.mUploads.front();
+    next.mRevision           = 6;
+    next.mMipGeneration      = MipGeneration::Disabled;
+    next.mBefore             = ImageState::ShaderRead;
+    decreasing.mUploads.push_back(next);
+    ensure("decreasing upload revisions are rejected for one exact destination",
+           hasError(validate(decreasing), ValidationCode::InvalidUpload));
+
+    FrameSnapshot another_generation = streamingUploadFrame();
+    next                             = another_generation.mUploads.front();
+    next.mDestination                = OLD_STREAMED_IMAGE;
+    another_generation.mUploads.push_back(next);
+    ensure("upload revisions are independent across image generations", static_cast<bool>(validate(another_generation)));
+}
+
 } // namespace tut

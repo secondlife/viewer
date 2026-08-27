@@ -72,6 +72,7 @@
 #include "llhudtext.h"
 #include "lllightconstants.h"
 #include "llmaterialparity.h"
+#include "lltextureuploadparity.h"
 #include "llmeshrepository.h"
 #include "llpipelinelistener.h"
 #include "llresmgr.h"
@@ -7768,6 +7769,11 @@ bool LLPipeline::runTonemapContractParity()
 bool LLPipeline::runMaterialContractParity()
 {
     return LLMaterialParity::run();
+}
+
+bool LLPipeline::runTextureUploadContractParity()
+{
+    return LLTextureUploadParity::run();
 }
 
 void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst)

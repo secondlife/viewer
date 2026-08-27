@@ -189,6 +189,17 @@ LLDir_Win32::LLDir_Win32()
         mTempDir = mOSUserDir;
     }
 
+    // Renderer parity diagnostics must never inherit the daily viewer
+    // profile. Honor the same isolated root as Linux and macOS before the
+    // constructor resolves its default cache path.
+    auto isolated_user_dir = LLStringUtil::getoptenv("SECONDLIFE_USER_DIR");
+    if (isolated_user_dir && !isolated_user_dir->empty())
+    {
+        mOSUserDir = *isolated_user_dir;
+        mOSUserAppDir = *isolated_user_dir;
+        mOSCacheDir.clear();
+    }
+
 /*==========================================================================*|
     // Now that we've got mOSUserDir, one way or another, let's see how we did
     // with our environment variables.
@@ -280,12 +291,9 @@ LLDir_Win32::LLDir_Win32()
     // Build the default cache directory
     mDefaultCacheDir = buildSLOSCacheDir();
 
-    // Make sure it exists
-    int res = LLFile::mkdir(mDefaultCacheDir);
-    if (res == -1)
-    {
-        LL_WARNS() << "Couldn't create LL_PATH_CACHE dir " << mDefaultCacheDir << LL_ENDL;
-    }
+    // initAppDirs() creates this after platform entry-point gates have run.
+    // Keeping the global constructor read-only prevents a rejected diagnostic
+    // invocation from creating the daily viewer cache before WinMain.
 
     mLLPluginDir = add(mExecutableDir, "llplugin");
 }
@@ -306,7 +314,18 @@ void LLDir_Win32::initAppDirs(const std::string &app_name,
         mSkinBaseDir = add(mAppRODataDir, "skins");
     }
     mAppName = app_name;
-    mOSUserAppDir = add(mOSUserDir, app_name);
+    auto isolated_user_dir = LLStringUtil::getoptenv("SECONDLIFE_USER_DIR");
+    if (isolated_user_dir && !isolated_user_dir->empty())
+    {
+        mOSUserDir = *isolated_user_dir;
+        mOSUserAppDir = *isolated_user_dir;
+        mOSCacheDir.clear();
+        mDefaultCacheDir = buildSLOSCacheDir();
+    }
+    else
+    {
+        mOSUserAppDir = add(mOSUserDir, app_name);
+    }
 
     int res = LLFile::mkdir(mOSUserAppDir);
     if (res == -1)
@@ -433,5 +452,3 @@ DWORD GetDllVersion(LPCTSTR lpszDllName)
 #endif
 
 #endif
-
-

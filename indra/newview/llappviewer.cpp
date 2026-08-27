@@ -800,14 +800,17 @@ bool LLAppViewer::init()
 
     const bool tonemap_parity = gSavedSettings.getBOOL("RenderTonemapContractParityTest");
     const bool material_parity = gSavedSettings.getBOOL("RenderMaterialContractParityTest");
+    const bool texture_upload_parity = gSavedSettings.getBOOL("RenderTextureUploadContractParityTest");
     const char* isolated_user_dir = std::getenv("SECONDLIFE_USER_DIR");
-    if ((tonemap_parity || material_parity)
+    if ((tonemap_parity || material_parity || texture_upload_parity)
         && (!isolated_user_dir || isolated_user_dir[0] == '\0'))
     {
         std::fputs(
             tonemap_parity
                 ? "TONEMAP_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n"
-                : "MATERIAL_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n",
+                : material_parity
+                    ? "MATERIAL_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n"
+                    : "TEXTURE_UPLOAD_CONTRACT_PARITY result=fail reason=missing_SECONDLIFE_USER_DIR\n",
             stderr);
         std::fflush(stderr);
         std::_Exit(EXIT_FAILURE);
@@ -3496,6 +3499,11 @@ bool LLAppViewer::initWindow()
         gSavedSettings.getControl("RenderHDREnabled")->setValue(true, false);
     }
 
+    if (gSavedSettings.getBOOL("RenderTextureUploadContractParityTest"))
+    {
+        gSavedSettings.getControl("RenderShaderCacheEnabled")->setValue(false, false);
+    }
+
     gPipeline.init();
     LL_INFOS("AppInit") << "gPipeline Initialized" << LL_ENDL;
 
@@ -3516,6 +3524,14 @@ bool LLAppViewer::initWindow()
     if (gSavedSettings.getBOOL("RenderMaterialContractParityTest"))
     {
         const bool success = gPipeline.runMaterialContractParity();
+        removeMarkerFiles();
+        std::fflush(nullptr);
+        std::_Exit(success ? EXIT_SUCCESS : EXIT_FAILURE);
+    }
+
+    if (gSavedSettings.getBOOL("RenderTextureUploadContractParityTest"))
+    {
+        const bool success = gPipeline.runTextureUploadContractParity();
         removeMarkerFiles();
         std::fflush(nullptr);
         std::_Exit(success ? EXIT_SUCCESS : EXIT_FAILURE);
