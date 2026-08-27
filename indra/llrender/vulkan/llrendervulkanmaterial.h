@@ -243,6 +243,10 @@ struct PipelineBinding
     std::string                               mFragmentEntryPoint = "main";
 };
 
+// Vulkan non-dispatchable handle values are opaque and may compare equal.
+// A canonical pair requires two non-null values, not two distinct values.
+bool validMaterialDescriptorSetPair(const std::array<VkDescriptorSet, 2>& descriptor_sets) noexcept;
+
 // The registry borrows immutable objects owned by one synchronous offscreen run.
 class Registry
 {

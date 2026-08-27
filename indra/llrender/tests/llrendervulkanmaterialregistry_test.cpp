@@ -163,6 +163,18 @@ void render_vulkan_material_registry_object::test<2>()
     incomplete_pipeline.mVertexShaderIdentity = {};
     ensure("pipeline without immutable shader identity is rejected",
            !registry.addPipeline({ 9, 1 }, incomplete_pipeline));
+
+    std::array<VkDescriptorSet, 2> equal_descriptor_sets{
+        pipeline.mDescriptorSets[0], pipeline.mDescriptorSets[0]
+    };
+    ensure("equal non-null opaque descriptor set values form a valid pair",
+           validMaterialDescriptorSetPair(equal_descriptor_sets));
+    equal_descriptor_sets[0] = VK_NULL_HANDLE;
+    ensure("a null parameter set is rejected",
+           !validMaterialDescriptorSetPair(equal_descriptor_sets));
+    equal_descriptor_sets = { pipeline.mDescriptorSets[0], VK_NULL_HANDLE };
+    ensure("a null sampled-image set is rejected",
+           !validMaterialDescriptorSetPair(equal_descriptor_sets));
 }
 
 template<>

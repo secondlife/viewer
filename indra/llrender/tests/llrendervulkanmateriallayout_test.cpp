@@ -367,6 +367,8 @@ void render_vulkan_material_layout_test_object::test<3>()
     ensure("the owner exposes exact native handles",
            (*owner)->parameterSetLayout() == state.mDescriptorOutputs[0] &&
                (*owner)->sampledImageSetLayout() == state.mDescriptorOutputs[1] && (*owner)->pipelineLayout() == state.mPipelineOutputs[0]);
+    ensure("the owner reports only its creating device",
+           (*owner)->createdOn(device.mDevice) && !(*owner)->createdOn(fakeHandle<VkDevice>(0x5eedU)));
     ensure("creation order is parameter set, sampled-image set, then pipeline",
            state.mEvents[0].mKind == EventKind::CreateDescriptorSetLayout &&
                state.mEvents[0].mDescriptorLayout == state.mDescriptorOutputs[0] &&

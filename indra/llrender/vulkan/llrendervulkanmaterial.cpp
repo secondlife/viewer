@@ -24,6 +24,12 @@
 
 namespace LLRenderVulkanMaterial
 {
+
+bool validMaterialDescriptorSetPair(const std::array<VkDescriptorSet, 2>& descriptor_sets) noexcept
+{
+    return descriptor_sets[0] != VK_NULL_HANDLE && descriptor_sets[1] != VK_NULL_HANDLE;
+}
+
 namespace
 {
 
@@ -97,8 +103,8 @@ bool completePipeline(const PipelineBinding& binding)
 {
     return !binding.mProgram.mName.empty() && binding.mPipeline != VK_NULL_HANDLE &&
            binding.mLayout != VK_NULL_HANDLE && binding.mRenderPass != VK_NULL_HANDLE &&
-           binding.mFramebuffer != VK_NULL_HANDLE && binding.mDescriptorSets[0] != VK_NULL_HANDLE &&
-           binding.mDescriptorSets[1] != VK_NULL_HANDLE && binding.mParameters.mBuffer != VK_NULL_HANDLE &&
+           binding.mFramebuffer != VK_NULL_HANDLE && validMaterialDescriptorSetPair(binding.mDescriptorSets) &&
+           binding.mParameters.mBuffer != VK_NULL_HANDLE &&
            binding.mParameters.mSize != 0 &&
            binding.mParameters.mMemory != VK_NULL_HANDLE && binding.mParameters.mMapped != nullptr &&
            binding.mParameters.mAllocationSize != 0 && nonzeroIdentity(binding.mVertexShaderIdentity) &&
@@ -256,7 +262,7 @@ bool canonicalPipelineResources(const PipelineBinding& pipeline,
 {
     if (!sameExtent(pipeline.mExtent,
                     { LLRenderContract::MATERIAL_FRAME_WIDTH, LLRenderContract::MATERIAL_FRAME_HEIGHT }) ||
-        pipeline.mDescriptorSets[0] == pipeline.mDescriptorSets[1] ||
+        !validMaterialDescriptorSetPair(pipeline.mDescriptorSets) ||
         pipeline.mVertexShaderIdentity != context.mRequiredVertexShaderIdentity ||
         pipeline.mFragmentShaderIdentity != context.mRequiredFragmentShaderIdentity ||
         pipeline.mVertexEntryPoint != "main" || pipeline.mFragmentEntryPoint != "main" ||

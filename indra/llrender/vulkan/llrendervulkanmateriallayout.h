@@ -87,6 +87,7 @@ public:
     VkDescriptorSetLayout                sampledImageSetLayout() const noexcept { return mDescriptorSetLayouts[1]; }
     std::array<VkDescriptorSetLayout, 2> descriptorSetLayouts() const noexcept { return mDescriptorSetLayouts; }
     VkPipelineLayout                     pipelineLayout() const noexcept { return mPipelineLayout; }
+    bool                                 createdOn(VkDevice device) const noexcept { return mDevice == device; }
 
 private:
     friend struct MaterialLayoutFactory;
