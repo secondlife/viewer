@@ -52,7 +52,7 @@
    name="preview_media"
    width="128"
    height="128"
-   start_url="about:blank"
+   start_url=""
    decouple_texture_size="true" />
   
   <text
