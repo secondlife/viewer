@@ -6054,10 +6054,10 @@ void LLViewerWindow::checkSettings()
         mStatesDirty = false;
     }
 
-    // We want to update the resolution AFTER the states getting refreshed not before.
     if (mResDirty)
     {
-        LLCoordScreen window_size;
+        // Deferred resolution update after states have been refreshed.
+        LLCoordWindow window_size;
         if (mWindow->getSize(&window_size))
         {
             reshape(window_size.mX, window_size.mY);
