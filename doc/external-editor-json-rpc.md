@@ -17,7 +17,10 @@ This document describes all the message interfaces defined for WebSocket communi
   - [SessionHandshakeResponse](#sessionhandshakeresponse)
   - [Session OK](#session-ok)
   - [SessionDisconnect](#sessiondisconnect)
-  - [SessionPing](#sessionping)
+  - [SystemPing](#systemping)
+  - [SystemVersion](#systemversion)
+  - [SystemStatus](#systemstatus)
+  - [SystemListMethods](#systemlistmethods)
 - [Language and Syntax Interfaces](#language-and-syntax-interfaces)
   - [SyntaxChange](#syntaxchange)
   - [Language Syntax ID Request](#language-syntax-id-request)
@@ -165,8 +168,14 @@ WebSocket connects → session.handshake → session.ok
 | `session.handshake` (response)  | Extension → Viewer | Response     | `SessionHandshakeResponse` |
 | `session.ok`                    | Viewer → Extension | Notification | _(no interface)_           |
 | `session.disconnect`            | Bidirectional      | Notification | `SessionDisconnect`        |
-| `session.ping`                  | Bidirectional      | Call         | `SessionPing`              |
-| `session.ping` (response)       | Bidirectional      | Response     | `SessionPingResponse`      |
+| `system.ping`                   | Bidirectional      | Call         | `SystemPing`               |
+| `system.ping` (response)        | Bidirectional      | Response     | `SystemPingResponse`       |
+| `system.getVersion`             | Bidirectional      | Call         | _(no parameters)_          |
+| `system.getVersion` (response)  | Bidirectional      | Response     | `SystemVersionResponse`    |
+| `system.status`                 | Bidirectional      | Call         | _(no parameters)_          |
+| `system.status` (response)      | Bidirectional      | Response     | `SystemStatusResponse`     |
+| `system.listMethods`            | Bidirectional      | Call         | _(no parameters)_          |
+| `system.listMethods` (response) | Bidirectional      | Response     | `SystemListMethodsResponse`|
 | `script.subscribe`              | Extension → Viewer | Call         | `ScriptSubscribe`          |
 | `script.subscribe` (response)   | Viewer → Extension | Response     | `ScriptSubscribeResponse`  |
 | `script.unsubscribe`            | Viewer → Extension | Notification | `ScriptUnsubscribe`        |
@@ -373,18 +382,19 @@ interface SessionDisconnect {
   - `4`: Internal server error
 - `message`: Human-readable description of the disconnect reason
 
-### SessionPing
+### SystemPing
 
-**JSON-RPC Method:** `session.ping` (call, bidirectional)
+**JSON-RPC Method:** `system.ping` (call, bidirectional)
 
-Heartbeat call used to verify the connection is alive and measure latency. Either side can initiate a ping; the recipient responds with the original timestamp plus its own server time.
+Ping call used to verify that the connection is alive and measure latency. Either side can
+initiate a ping.
 
-In practice the extension initiates and the viewer only answers — the viewer never sends
-`session.ping` itself. The extension pings every 30 seconds and tears the connection down after
-two consecutive failures.
+The generic JSON-RPC server responds with the simple result `"pong"`. The editor server extends
+that response with the original timestamp and its current server time. The extension uses the
+extended response for its periodic connection-health check.
 
 ```typescript
-interface SessionPing {
+interface SystemPing {
   timestamp: number;
 }
 ```
@@ -396,7 +406,8 @@ interface SessionPing {
 **Response:**
 
 ```typescript
-interface SessionPingResponse {
+interface SystemPingResponse {
+  pong: string;
   timestamp: number;
   server_time: number;
 }
@@ -404,18 +415,66 @@ interface SessionPingResponse {
 
 **Response Fields:**
 
-- `timestamp`: The original timestamp from the request. Echoed back only when the request supplied one.
+- `pong`: Acknowledgement that the ping was received.
+- `timestamp`: The original timestamp from the request, echoed by the editor server.
 - `server_time`: Unix timestamp in milliseconds when the response was generated
+
+The extension sends a `system.ping` request every 30 seconds and tears the connection down
+after two consecutive failures.
 
 **Example Request:**
 
 ```json
 {
   "jsonrpc": "2.0",
-  "method": "session.ping",
+  "method": "system.ping",
   "id": 42,
   "params": {
     "timestamp": 1721145600000
+  }
+}
+```
+
+### SystemVersion
+
+**JSON-RPC Method:** `system.getVersion` (call, bidirectional)
+
+Requests the identity and version of the peer. The response uses the same field names in both
+directions:
+
+```typescript
+interface SystemVersionResponse {
+  client_name: string;
+  client_version: string;
+}
+```
+
+The viewer returns its viewer channel as `client_name` and its full viewer version as
+`client_version`. The extension returns its package name as `client_name` and its package version
+as `client_version`.
+
+**Example viewer response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 43,
+  "result": {
+    "client_name": "Second Life",
+    "client_version": "7.1.0.123456"
+  }
+}
+```
+
+**Example extension response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 43,
+  "result": {
+    "client_name": "sl-vscode-plugin",
+    "client_version": "1.0.6"
   }
 }
 ```
@@ -427,9 +486,70 @@ interface SessionPingResponse {
   "jsonrpc": "2.0",
   "id": 42,
   "result": {
+    "pong": "pong",
     "timestamp": 1721145600000,
     "server_time": 1721145600015
   }
+}
+```
+
+### SystemStatus
+
+**JSON-RPC Method:** `system.status` (call, bidirectional)
+
+Requests the current status of the peer. The default response is:
+
+```typescript
+interface SystemStatusResponse {
+  status: "OK";
+}
+```
+
+Both the viewer and the extension currently return `status: "OK"`. The response may be extended
+with additional status information in the future.
+
+**Example response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 44,
+  "result": {
+    "status": "OK"
+  }
+}
+```
+
+### SystemListMethods
+
+**JSON-RPC Method:** `system.listMethods` (call, bidirectional)
+
+Requests the names of the methods available on the receiving peer. The response contains an
+alphabetically ordered list of unique method names. Sync versus async dispatch is an internal
+implementation detail and is not exposed by this interface.
+
+```typescript
+type SystemListMethodsResponse = string[];
+```
+
+The viewer returns all methods registered on the connection, including methods registered by the
+base JSON-RPC server and the editor server. The extension returns its built-in system methods
+together with dynamically registered handlers.
+
+**Example response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 45,
+  "result": [
+    "command.execute",
+    "command.list",
+    "system.getVersion",
+    "system.listMethods",
+    "system.ping",
+    "system.status"
+  ]
 }
 ```
 
@@ -779,7 +899,7 @@ Debug message notification sent by the viewer during script execution.
 
 ```typescript
 interface RuntimeDebug {
-  script_id: string;   // Not currently sent — see note below
+  script_id?: string;  // Present when the viewer can resolve a script subscription id
   object_id: string;
   prim_id: string;
   item_id: string;
@@ -809,7 +929,7 @@ Runtime error notification sent by the viewer when a script encounters an error 
 
 ```typescript
 interface RuntimeError {
-  script_id: string;   // Not currently sent — see note below
+  script_id?: string;  // Present when the viewer can resolve a script subscription id
   object_id: string;
   prim_id: string;
   item_id: string;
@@ -852,8 +972,9 @@ interface ItemRef {
   - `name`: Script name as it appears in the prim's inventory.
   - `language`: The script's source language. Independent of the compile target; the VM is not carried in runtime messages.
 
-**Note on `script_id`:** this field is part of the contract but is **not currently sent** by the
-viewer for either `runtime.debug` or `runtime.error`. Implementation is tracked separately.
+**Note on `script_id`:** this field is optional. It is included when the viewer can resolve the
+originating script inventory item and construct a subscription id from `prim_id` + `item_id`.
+When that resolution is not possible, the field is omitted.
 
 **Delivery:** `runtime.debug` and `runtime.error` are broadcast to all connections. An event is
 emitted when the originating object is published or its script is subscribed.
@@ -957,6 +1078,7 @@ interface LinkedObject {
   link_number: number;      // Link number (root=1, children≥2)
   link_name: string;
   link_description?: string;
+  permissions?: ObjectPermissions;   // Actual permissions for this linked prim
   inventory: ObjectInventoryItem[];
 }
 
@@ -972,7 +1094,7 @@ interface PublishedObject {
   object_description?: string;
   region?: string;
   owner_id?: string;
-  permissions?: ObjectPermissions;
+  permissions?: ObjectPermissions;   // Actual permissions for this root prim
   can_save_back?: boolean;      // Whether Save Back to Contents is currently available for this object
   inventory: ObjectInventoryItem[];      // Root prim's scripts and notecards
   linked_objects?: LinkedObject[];       // Child prims
@@ -1220,7 +1342,7 @@ interface ObjectContentSaveParams {
   item_id: string;
   content: string;
   vm?: "mono" | "lsl2" | "luau";
-  running?: boolean;  // Scripts only: run state applied after compilation. Defaults to false.
+  running?: boolean;  // Scripts only: run state applied after compilation when supplied.
 }
 
 interface ObjectContentSaveResponse {
@@ -1238,12 +1360,12 @@ interface ObjectContentSaveResponse {
 - `item_id`: UUID of the saved inventory item.
 - `content`: Raw script/notecard source text to store.
 - `vm` (optional): Scripts only compile target. Accepted values are `"mono"`, `"lsl2"`, `"luau"`. When `"luau"` is specified for an LSL script (as opposed to a native Luau script), the viewer automatically selects the correct LSL-on-Luau compile path. If omitted, inferred from item metadata or content analysis.
-- `running` (optional): Scripts only. The run state the viewer applies to the script once the upload and compilation complete. Defaults to `false` when omitted. To preserve a script's current run state across a save, echo the `running` value from the corresponding `ObjectInventoryItem` in the most recent `object.publish` or `object.update`.
+- `running` (optional): Scripts only. When provided, the viewer applies that run state after upload and compilation. When omitted, the viewer preserves the script's current run state and does not force it off.
 - `success`: Whether the upload/save operation succeeded.
 - `compiled` (optional): Scripts only. `true` when compilation succeeded, `false` when source saved but compile failed.
 - `diagnostics` (optional): Scripts only. Compiler diagnostics when `compiled` is `false`.
 
-> **Warning:** Omitting `running` does not leave the script's run state unchanged — it stops the script. A client that saves a running script without sending `running: true` will silently stop it.
+> **Note:** Omitting `running` leaves the script's existing run state unchanged. Only an explicit `true` or `false` changes the post-save state.
 
 **Permissions.** Requires `PERM_MODIFY` on the item and modify permission on the containing prim.
 See [Common preconditions](#common-preconditions) for the shared checks and errors.
@@ -1614,10 +1736,17 @@ The invoked command's own handler may raise further errors — `-32602` for bad 
 `-32003` when the action is not permitted, `-32603` on internal failure. Clients must handle any
 error code, not only the two above.
 
-**Capability gate:** A side MUST NOT send `command.execute` unless the peer advertised
-`commands: true` in the handshake. A receiver that receives the call without having negotiated the
-feature should respond with a JSON-RPC error. **Not currently enforced on receive by the viewer**
-— the gate is applied only when sending. Implementation is tracked separately.
+**Capability gate (directional):**
+
+- A sender MUST NOT call `command.execute` on a peer that did not advertise `commands: true`.
+- A receiver MAY accept `command.execute` whenever it advertised `commands: true`, regardless of
+  whether the sender advertised `commands`.
+- In practice this means:
+  - Extension → Viewer calls are allowed when the viewer advertised `commands: true`.
+  - Viewer → Extension calls are allowed only when the extension advertised `commands: true`.
+
+This treats `commands` as a receiver capability per direction, not as a symmetric "both sides or
+nothing" toggle.
 
 **Example — extension asks viewer to teleport:**
 
@@ -1712,9 +1841,8 @@ interface CommandParamInfo {
 - `commands`: Array of commands the responder supports. Each entry describes one command.
   - `command`: The namespaced command identifier.
   - `description` (optional): Human-readable description of what the command does.
-  - `params` (optional): Map of parameter names to their type descriptors. **Not currently
-    populated** — the viewer returns only `command` and `description`, so parameter discovery
-    does not work. Implementation is tracked separately.
+  - `params` (optional): Map of parameter names to their type descriptors. The viewer populates
+    this field for its registered commands.
 
 **Known viewer commands:**
 
@@ -1723,6 +1851,8 @@ interface CommandParamInfo {
 | `viewer.teleport` | `object_id: string` | Teleport agent to an in-world object. |
 | `viewer.camera.focus` | `object_id: string` | Zoom camera to an in-world object (same behavior as context menu Zoom In). |
 | `viewer.object.save_back_to_contents` | `object_id: string` | Save an in-world object back to source object contents. |
+| `viewer.script.reset_all` | `object_id: string` | Open the viewer's reset queue and reset all scripts in an in-world object. |
+| `viewer.script.recompile_all` | `object_id: string`, `target: "luau" \| "lsl2" \| "mono" \| "auto"` | Open the viewer's compile queue and recompile scripts in an in-world object using the selected target. `luau` automatically selects Luau for native Luau scripts and LSL-Luau for LSL scripts. `auto` uses each script's previously registered VM. |
 
 **Known extension commands:**
 
