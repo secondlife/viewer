@@ -58,6 +58,10 @@
 
 #include "meshoptimizer/meshoptimizer.h"
 
+#if LL_WINDOWS
+#include <llexception.h> //SEH
+#endif
+
 #define DEBUG_SILHOUETTE_BINORMALS 0
 #define DEBUG_SILHOUETTE_NORMALS 0 // TomY: Use this to display normals using the silhouette
 #define DEBUG_SILHOUETTE_EDGE_MAP 0 // DaveP: Use this to display edge map using the silhouette
@@ -6024,6 +6028,28 @@ struct MikktData
     }
 };
 
+#if LL_WINDOWS
+static void genTangSpaceCPP(mikk::Mikktspace<MikktData>& ctx)
+{
+    ctx.genTangSpace();
+}
+static bool genTangSpaceSEH(mikk::Mikktspace<MikktData>& ctx)
+{
+    __try
+    {
+        genTangSpaceCPP(ctx);
+        return true;
+    }
+    __except (msc_exception_filter(GetExceptionCode(), GetExceptionInformation()))
+    {
+        // Likely low memory or bad input; abort tangent generation for this
+        // mesh and let the caller decide how to proceed.
+        // (C++ exceptions like std::bad_alloc are not handled here)
+        return false;
+    }
+}
+#endif
+
 bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 { //optimize for vertex cache according to Forsyth method:
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
@@ -6069,9 +6095,19 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
         // and is executed on a background thread
         MikktData data(this);
         mikk::Mikktspace ctx(data);
+        bool tangent_ok = false;
         try
         {
+#if LL_WINDOWS
+            tangent_ok = genTangSpaceSEH(ctx);
+            if (!tangent_ok)
+            {
+                LL_WARNS_ONCE("LLVolume") << "SEH exception in Mikktspace::genTangSpace()" << LL_ENDL;
+            }
+#else
             ctx.genTangSpace();
+            tangent_ok = true;
+#endif
         }
         catch (std::bad_alloc&)
         {
@@ -6081,6 +6117,10 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
         catch (...)
         {
             LL_WARNS_ONCE("LLVolume") << "Mikktspace::genTangSpace() failed" << LL_ENDL;
+        }
+
+        if (!tangent_ok)
+        {
             return false;
         }
 

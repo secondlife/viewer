@@ -2683,6 +2683,12 @@ bool LLImageGL::scaleDown(S32 desired_discard)
         {
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
+#if LL_DARWIN
+            // On mac OS, flush before freeing, otherwise the texture may be
+            // freed before Metal's 'lazy' evaluation/restoration behavior triggers.
+            glFlush();
+#endif
+
             free_tex_image(mTexName);
             glTexImage2D(mTarget, 0, mFormatInternal, desired_width, desired_height, 0, mFormatPrimary, mFormatType, nullptr);
             glCopyTexSubImage2D(mTarget, 0, 0, 0, 0, 0, desired_width, desired_height);

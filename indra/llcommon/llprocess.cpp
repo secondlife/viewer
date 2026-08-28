@@ -1109,6 +1109,11 @@ bool LLProcess::kill(const LLProcessPtr& ptr, const std::string& who)
     return !ptr || ptr->kill(who);
 }
 
+void LLProcess::pump()
+{
+    tick();
+}
+
 LLProcess::id LLProcess::getProcessID() const
 {
     if (!mChild)

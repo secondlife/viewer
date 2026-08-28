@@ -97,6 +97,7 @@
 #include "llpanelface.h"
 #include "llglheaders.h"
 #include "llinventoryobserver.h"
+#include "llscripteditorws.h"
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -6109,6 +6110,11 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
             node->mInventorySerial = inv_serial;
             node->mSitName.assign(sit_name);
             node->mTouchName.assign(touch_name);
+
+            if (auto ws_server = LLScriptEditorWSServer::getServer())
+            {
+                ws_server->onObjectPropertyChanged(id, name, desc, inv_serial);
+            }
         }
     }
 
@@ -6205,6 +6211,11 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
     }
 
     dialog_refresh_all();
+
+    if (auto ws_server = LLScriptEditorWSServer::getServer())
+    {
+        ws_server->onObjectPropertyChanged(id, name, desc);
+    }
 }
 
 

@@ -346,6 +346,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
     mCommitCallbackRegistrar.add("Pref.RememberedUsernames",    boost::bind(&LLFloaterPreference::onClickRememberedUsernames, this));
     mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
     mCommitCallbackRegistrar.add("Pref.Advanced",               boost::bind(&LLFloaterPreference::onClickAdvanced, this));
+    mCommitCallbackRegistrar.add("Pref.Scripting",              boost::bind(&LLFloaterPreference::onClickScriptingPerfs, this));
 
     sSkin = gSavedSettings.getString("SkinCurrent");
 
@@ -774,8 +775,8 @@ void LLFloaterPreference::onOpen(const LLSD& key)
     updateClickActionViews();
 
 #if LL_LINUX
-    // Lixux doesn't support automatic mode
-    LLComboBox* combo = getChild<LLComboBox>("double_click_action_combo");
+    // Lixux doesn't support automatic maose warp mode
+    LLComboBox* combo = getChild<LLComboBox>("mouse_warp_combo");
     S32 mode = gSavedSettings.getS32("MouseWarpMode");
     if (mode == 0)
     {
@@ -1867,6 +1868,11 @@ void LLFloaterPreference::onClickAdvanced()
             panel->resetDirtyChilds();
         }
     }
+}
+
+void LLFloaterPreference::onClickScriptingPerfs()
+{
+    LLFloaterReg::showInstance("scripting_settings");
 }
 
 void LLFloaterPreference::onClickActionChange()

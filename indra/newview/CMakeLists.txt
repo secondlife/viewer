@@ -291,6 +291,7 @@ set(viewer_SOURCE_FILES
     llfloatersceneloadstats.cpp
     llfloaterscriptdebug.cpp
     llfloaterscriptedprefs.cpp
+    llfloaterscripting.cpp
     llfloaterscriptlimits.cpp
     llfloatersearch.cpp
     llfloatersellland.cpp
@@ -541,6 +542,7 @@ set(viewer_SOURCE_FILES
     llpreview.cpp
     llpreviewanim.cpp
     llpreviewgesture.cpp
+    llpublishedobjectmgr.cpp
     llpreviewnotecard.cpp
     llpreviewscript.cpp
     llpreviewsound.cpp
@@ -559,6 +561,7 @@ set(viewer_SOURCE_FILES
     llsceneview.cpp
     llscreenchannel.cpp
     llscripteditor.cpp
+    llscripteditorws.cpp
     llscriptfloater.cpp
     llscrollingpanelparam.cpp
     llscrollingpanelparambase.cpp
@@ -970,6 +973,7 @@ set(viewer_HEADER_FILES
     llfloatersceneloadstats.h
     llfloaterscriptdebug.h
     llfloaterscriptedprefs.h
+    llfloaterscripting.h
     llfloaterscriptlimits.h
     llfloatersearch.h
     llfloatersellland.h
@@ -1204,6 +1208,7 @@ set(viewer_HEADER_FILES
     llpreview.h
     llpreviewanim.h
     llpreviewgesture.h
+    llpublishedobjectmgr.h
     llpreviewnotecard.h
     llpreviewscript.h
     llpreviewsound.h
@@ -1224,6 +1229,7 @@ set(viewer_HEADER_FILES
     llsceneview.h
     llscreenchannel.h
     llscripteditor.h
+    llscripteditorws.h
     llscriptfloater.h
     llscriptruntimeperms.h
     llscrollingpanelparam.h
@@ -1523,6 +1529,12 @@ if (WINDOWS)
          llvelopack.cpp
          llwindebug.cpp
          )
+    set_source_files_properties(
+      llappviewerwin32.cpp
+      llvelopack.cpp
+      PROPERTIES
+      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+      )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
@@ -1710,7 +1722,8 @@ set_source_files_properties(${viewer_SHADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 list(APPEND viewer_SOURCE_FILES ${viewer_SHADER_FILES})
 
-
+# note that the scripts which publish these files are sensitive to the file 
+# extensions. Be cautious about adding new file types here.
 set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
     app_settings/autoreplace.xml
@@ -1721,7 +1734,6 @@ set(viewer_APPSETTINGS_FILES
     app_settings/grass.xml
     app_settings/ignorable_dialogs.xml
     app_settings/key_bindings.xml
-    app_settings/keywords_lsl_default.xml
     app_settings/logcontrol.xml
     app_settings/settings.xml
     app_settings/settings_crash_behavior.xml

@@ -38,6 +38,13 @@ class LLSplashScreen;
 class LLPreeditor;
 class LLWindowCallbacks;
 
+// Result of an OS font-fallback query; empty mPath means no font was found.
+struct LLFontFallbackMatch
+{
+    std::string mPath;
+    S32 mFaceIndex = 0;
+};
+
 // Refer to llwindow_test in test/common/llwindow for usage example
 
 class LLWindow : public LLInstanceTracker<LLWindow>
@@ -182,6 +189,9 @@ public:
     virtual void spawnWebBrowser(const std::string& escaped_url, bool async) {};
 
     static std::vector<std::string> getDynamicFallbackFontList();
+
+    // Ask the OS for a font file covering the given codepoint (lazy fallback).
+    static LLFontFallbackMatch findFallbackFontForChar(llwchar wch);
 
     // Provide native key event data
     virtual LLSD getNativeKeyData() { return LLSD::emptyMap(); }

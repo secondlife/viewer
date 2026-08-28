@@ -70,10 +70,16 @@ LLPreviewNotecard::LLPreviewNotecard(const LLSD& key) //const LLUUID& item_id,
     : LLPreview( key )
 {
     const LLInventoryItem *item = getItem();
+    std::string note_name = "New Note";
     if (item)
     {
         mAssetID = item->getAssetUUID();
+        if (!item->getName().empty())
+        {
+            note_name = item->getName();
+        }
     }
+    mNoteName = note_name;
 }
 
 LLPreviewNotecard::~LLPreviewNotecard()
@@ -102,15 +108,21 @@ bool LLPreviewNotecard::postBuild()
     mEditBtn->setCommitCallback(boost::bind(&LLPreviewNotecard::openInExternalEditor, this));
 
     const LLInventoryItem* item = getItem();
+    std::string note_name = mNoteName;
 
     mDescEditor = getChild<LLLineEditor>("desc");
     mDescEditor->setCommitCallback(boost::bind(&LLPreview::onText, mDescEditor, this));
     if (item)
     {
+        if (!item->getName().empty())
+        {
+            note_name = item->getName();
+        }
         mDescEditor->setValue(item->getDescription());
         bool source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(item->getUUID(), gInventory.getLibraryRootFolderID());
         mDeleteBtn->setEnabled(!source_library);
     }
+    mNoteName = note_name;
     mDescEditor->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 
     return LLPreview::postBuild();
@@ -231,6 +243,7 @@ void LLPreviewNotecard::loadAsset()
     // request the asset.
     const LLInventoryItem* item = getItem();
     bool fail = false;
+    std::string note_name = mNoteName;
 
     if(item)
     {
@@ -239,6 +252,10 @@ void LLPreviewNotecard::loadAsset()
         bool allow_copy = gAgent.allowOperation(PERM_COPY, perm, GP_OBJECT_MANIPULATE);
         bool allow_modify = canModify(mObjectUUID, item);
         bool source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(mItemUUID, gInventory.getLibraryRootFolderID());
+        if(!item->getName().empty())
+        {
+            note_name = item->getName();
+        }
 
         if (allow_copy || gAgent.isGodlike())
         {
@@ -338,6 +355,8 @@ void LLPreviewNotecard::loadAsset()
     {
         fail = true;
     }
+
+    mNoteName = note_name;
 
     if (fail)
     {
@@ -575,12 +594,23 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
 void LLPreviewNotecard::syncExternal()
 {
     // Sync with external editor.
-    std::string tmp_file = getTmpFileName();
-    if (LLFile::isfile(tmp_file)) // file exists
+    std::string note_name = getCleanNameForTmpFile();
+    std::string tmp_file = getTmpFileName(note_name);
+    llstat s;
+    if (LLFile::stat(tmp_file, &s) != 0)
     {
-        if (mLiveFile) mLiveFile->ignoreNextUpdate();
-        writeToFile(tmp_file);
+        // file doesn't exist, try with empty name
+        note_name.clear();
+        tmp_file = getTmpFileName(note_name);
+        if (LLFile::stat(tmp_file, &s) != 0)
+        {
+            // file doesn't exist, with either name, give up
+            return;
+        }
     }
+
+    if (mLiveFile) mLiveFile->ignoreNextUpdate();
+    writeToFile(tmp_file);
 }
 
 /*virtual*/
@@ -743,8 +773,16 @@ void LLPreviewNotecard::openInExternalEditor()
     delete mLiveFile; // deletes file
 
     // Save the notecard to a temporary file.
-    std::string filename = getTmpFileName();
-    writeToFile(filename);
+    std::string note_name = getCleanNameForTmpFile();
+    std::string filename = getTmpFileName(note_name);
+    if(!writeToFile(filename)) {
+        // In case some characters from notecard name are forbidden
+        // and not accounted for, name is too long or some other issue,
+        // try file that doesn't include notecard name
+        note_name.clear();
+        filename = getTmpFileName(note_name);
+        writeToFile(filename);
+    }
 
     // Start watching file changes.
     mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLPreviewNotecard::onExternalChange, this, _1));
@@ -852,8 +890,21 @@ bool LLPreviewNotecard::writeToFile(const std::string& filename)
     return true;
 }
 
+std::string LLPreviewNotecard::getCleanNameForTmpFile() const
+{
+    std::string note_name = mNoteName;
+    if(note_name.empty()) {
+        note_name = "New note";
+    }
+    static const std::set<char> forbidden_chars{ '<', '>', ':', '"', '\\', '/', '|', '?', '*' };
+    note_name.erase(
+        std::remove_if(note_name.begin(), note_name.end(), [](char c) {
+            return forbidden_chars.contains(c);
+        }), note_name.end());
+    return note_name;
+}
 
-std::string LLPreviewNotecard::getTmpFileName()
+std::string LLPreviewNotecard::getTmpFileName(const std::string& note_name) const
 {
     std::string notecard_id = mObjectID.asString() + "_" + mItemUUID.asString();
 
@@ -862,7 +913,11 @@ std::string LLPreviewNotecard::getTmpFileName()
     LLMD5 notecard_id_hash((const U8 *)notecard_id.c_str());
     notecard_id_hash.hex_digest(notecard_id_hash_str);
 
-    return std::string(LLFile::tmpdir()) + "sl_notecard_" + notecard_id_hash_str + ".txt";
+    if(note_name.empty()) {
+        return std::string(LLFile::tmpdir()) + "sl_notecard_" + notecard_id_hash_str + ".txt";
+    } else {
+        return std::string(LLFile::tmpdir()) + "sl_notecard_" + note_name + "_" + notecard_id_hash_str + ".txt";
+    }
 }
 
 

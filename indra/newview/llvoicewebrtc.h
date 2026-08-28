@@ -79,6 +79,12 @@ public:
 
     static bool isShuttingDown() { return sShuttingDown; }
 
+    // True once llwebrtc::terminate() has been entered.  Between
+    // isShuttingDown() and this, the webrtc library is still fully alive and
+    // connections must still release their peer connections normally --  see
+    // drainConnections() and ~LLVoiceWebRTCConnection().
+    static bool isWebRTCTerminated() { return sWebRTCTerminated; }
+
     const LLVoiceVersionInfo& getVersion() override;
     void                      updateVersion();
 
@@ -306,6 +312,9 @@ public:
 
         bool isEmpty() { return mWebRTCConnections.empty(); }
 
+        bool allConnectionsClosed() const;
+        static bool allSessionsClosed();
+
         virtual bool isSpatial() = 0;
         virtual bool isEstate()  = 0;
         virtual bool isCallbackPossible() = 0;
@@ -455,6 +464,10 @@ private:
     /// Clean up objects created during a voice session.
     void cleanUp();
 
+    /// Close the live peer connections before handing off to
+    /// llwebrtc::terminate().  Bounded and best effort.
+    void drainConnections();
+
     LL::WorkQueue::weak_t mMainQueue;
 
     F32 mTuningMicGain;
@@ -539,6 +552,7 @@ private:
 
     // These variables can last longer than WebRTC in coroutines so we need them as static
     static bool sShuttingDown;
+    static bool sWebRTCTerminated;
 
     LLEventMailDrop mWebRTCPump;
 
@@ -642,6 +656,12 @@ class LLVoiceWebRTCConnection :
     {
         return mShutDown;
     }
+
+    // True once the webrtc peer connection has finished closing.  The
+    // connection object can outlive this while it waits for outstanding
+    // requests to unwind, so this -- not reaping -- is what drainConnections()
+    // waits on.
+    bool isClosed() const { return mVoiceConnectionState == VOICE_STATE_CLOSED; }
 
     void OnVoiceConnectionRequestSuccess(const LLSD &body);
 
