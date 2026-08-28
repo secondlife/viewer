@@ -970,6 +970,7 @@ LLSD LLScriptEditorWSServer::handleObjectScriptRecompileAll(
 
     queue->setTitle(LLTrans::getString("CompileQueueTitle"));
 
+    LLSD response;
     response["success"] = true;
     response["object_id"] = root->getID();
     response["target"] = (target == "auto-luau") ? "luau" : target;
