@@ -158,6 +158,7 @@ LLTextBase::Params::Params()
     track_end("track_end", false),
     read_only("read_only", false),
     skip_link_underline("skip_link_underline", false),
+    link_color("link_color"),
     spellcheck("spellcheck", false),
     v_pad("v_pad", 0),
     h_pad("h_pad", 0),
@@ -196,6 +197,8 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
     mReadOnly(p.read_only),
     mSkipTripleClick(false),
     mSkipLinkUnderline(p.skip_link_underline),
+    mHasLinkColor(p.link_color.isProvided()),
+    mLinkColor(p.link_color.isProvided() ? p.link_color() : LLUIColor()),
     mSpellCheck(p.spellcheck),
     mSpellCheckStart(-1),
     mSpellCheckEnd(-1),
@@ -2426,6 +2429,11 @@ void LLTextBase::appendTextImpl(const std::string& new_text, const LLStyle::Para
 
             LLStyle::Params link_params(style_params);
             link_params.overwriteFrom(match.getStyle());
+            if (mHasLinkColor)
+            {
+                link_params.color = mLinkColor;
+                link_params.readonly_color = mLinkColor;
+            }
 
             // output the text before the Url
             if (start > 0)
