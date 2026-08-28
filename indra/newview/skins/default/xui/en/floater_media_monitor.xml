@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+  legacy_header_height="18"
+  can_resize="true"
+  height="600"
+  layout="topleft"
+  min_height="175"
+  min_width="500"
+  name="media_monitor"
+  help_topic="contents"
+  title="Media Monitor"
+  width="800">
+    <scroll_list
+       top="20"
+       height="540"
+       draw_stripes="true"
+       bg_stripe_color="0.25 0.25 0.25 0.5"
+       draw_heading="true"
+       follows="all"
+       layout="topleft"
+       left="8"
+       multi_select="true"
+       name="active_media_list"
+       right="-8"
+       tool_tip="Active Media Sources -- double-click a URL or Location to open it">
+        <scroll_list.columns
+             dynamic_width="true"
+             label="Slot"
+             name="slot"
+             relative_width="0.06" />
+        <scroll_list.columns
+             dynamic_width="true"
+             label="Priority"
+             name="priority"
+             relative_width="0.1" />
+        <scroll_list.columns
+             dynamic_width="true"
+             label="Media Type"
+             name="media_type"
+             relative_width="0.12" />
+        <scroll_list.columns
+             dynamic_width="true"
+             label="URL"
+             name="url"
+             relative_width="0.42" />
+        <scroll_list.columns
+             dynamic_width="true"
+             label="Location"
+             name="location"
+             relative_width="0.3" />
+    </scroll_list>
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Refresh"
+      layout="bottomleft"
+      left="10"
+      name="refresh_btn"
+      bottom="10"
+      width="70" />
+    <button
+      follows="right|bottom"
+      height="20"
+      label="Close"
+      layout="bottomleft"
+      right="-10"
+      name="close_btn"
+      bottom="10"
+      width="70" />
+</floater>

@@ -131,6 +131,19 @@ public:
     // This is the comparitor used to sort the list.
     static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);
 
+    // One row per active embedded-browser LLViewerMediaImpl, for the media debug floater.
+    // Each row: {"slot", "url", "priority", "priority_label", "kind" ("ui"/"prim"/"parcel"), "slurl"}.
+    // "slurl" is only ever populated for "prim" rows -- "ui" and "parcel" media have no single
+    // object a location can be derived from.
+    LLSD getEmbeddedBrowserDebugInfo();
+
+    // The effective MediaMaxInstances cap (already adjusted for low physical memory --
+    // see setMaxInstances()), for the media debug floater's "N/max instances" title.
+    // Note this cap is shared across both media backends -- it is not embedded-browser-
+    // specific -- so on a build where the legacy media plugin is also active, this max
+    // is being contested by more than just the rows getEmbeddedBrowserDebugInfo() lists.
+    S32 getMaxInstances() const { return mMaxInstances; }
+
     // These are just helper functions for the convenience of others working with media
     bool hasInWorldMedia();
     std::string getParcelAudioURL();
@@ -457,6 +470,10 @@ public:
 
     bool isTrustedBrowser() { return mTrustedBrowser; }
     void setTrustedBrowser(bool trusted) { mTrustedBrowser = trusted; }
+
+    // Only meaningful when isUsingEmbeddedBrowser() is true; returns false (leaving
+    // out_index untouched) if this impl has no connected producer slot right now.
+    bool getEmbeddedBrowserSlotIndex(unsigned int& out_index) const;
 
     typedef enum
     {

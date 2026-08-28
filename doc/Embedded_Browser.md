@@ -339,6 +339,55 @@ take effect on the next `SLCefProducer.exe` launch, not immediately:
   `SLCefProducer.exe` serves Chrome's remote-debugging-protocol DevTools UI
   on that port.
 
+## Media Monitor: a live list of active media
+
+`LLFloaterMediaMonitor` (`indra/newview/llfloatermediamonitor.{h,cpp}`,
+XUI name `media_monitor`) is a debug/QA floater listing every currently
+active embedded-browser media instance in one sortable table: slot,
+priority, media type (UI, Prim, or Parcel), URL, and in-world location.
+URL and Location cells are hot-linked - double-clicking a URL opens it in
+the desktop browser, and double-clicking a Location teleports there. The
+list refreshes automatically every two seconds while the floater is open,
+and the title bar shows a live "N/max instances" count alongside it (`N`
+active right now, `max` the current `MediaMaxInstances` cap) - a count at
+or near the cap is an immediate, visible explanation for "why didn't this
+render."
+
+Open it from **Develop > UI > Media Monitor** (post-login) or **Debug >
+Media Monitor** (login screen), or press `Ctrl+Alt+Shift+Y` in either
+context - both menus are gated behind the `UseDebugMenus` setting, same as
+every other item under them.
+
+A couple of things worth knowing about what it shows:
+
+- **URL clicks always open externally**, via
+  `LLUrlAction::openURLExternal()`, deliberately bypassing the Viewer's
+  normal internal-versus-external browser routing
+  (`LLWeb::useExternalBrowser()`, keyed off the `PreferredBrowserBehavior`
+  setting and each URL's domain) that every other link click in the Viewer
+  goes through. For a QA tool, one URL always opening in one predictable
+  window matters more than matching that routing.
+- **Location is only ever populated for Prim media.** UI and Parcel media
+  do not resolve to a single object a location can be derived from - a
+  Parcel media row does have a real location (the parcel/region it is
+  playing in) but not one this floater currently surfaces; it shows `-`
+  there rather than a fabricated one.
+- **The list reflects the Viewer's own bookkeeping, not a live producer
+  query.** `LLViewerMedia::getEmbeddedBrowserDebugInfo()` reads
+  `LLViewerMediaImpl`'s already-tracked state (the same priority list and
+  per-instance fields `LLViewerMedia::updateMedia()` already maintains),
+  not a round-trip to `SLCefProducer.exe`. This is sufficient for the
+  "what's showing and where" QA use case, but would not by itself catch a
+  producer-side desync (a slot the Viewer has lost track of) - a genuine
+  future extension if that ever becomes a real debugging need.
+- **The `max` in the title is the shared `MediaMaxInstances` cap, not an
+  embedded-browser-specific one.** `LLViewerMedia`'s cap-accounting counts
+  legacy-plugin and embedded-browser instances together against the same
+  total (see "MediaMaxInstances" above), but this floater's `N` only
+  counts embedded-browser rows. Not a live discrepancy today, since the
+  legacy media plugin is not built by default in this branch, but worth
+  knowing if that ever changes.
+
 ## Windows Firewall prompt on the first WebRTC connection
 
 The first time any page loaded through the embedded browser negotiates a

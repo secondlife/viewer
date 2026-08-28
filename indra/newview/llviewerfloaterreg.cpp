@@ -101,6 +101,7 @@
 #include "llfloatermap.h"
 #include "llfloatermarketplace.h"
 #include "llfloatermarketplacelistings.h"
+#include "llfloatermediamonitor.h"
 #include "llfloatermediasettings.h"
 #include "llfloatermemleak.h"
 #include "llfloatermodelpreview.h"
@@ -420,6 +421,7 @@ void LLViewerFloaterReg::registerFloaters()
 
     LLFloaterReg::add("mem_leaking", "floater_mem_leaking.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMemLeak>);
 
+    LLFloaterReg::add("media_monitor", "floater_media_monitor.xml", (LLFloaterBuildFunc) &LLFloaterReg::build<LLFloaterMediaMonitor>);
     LLFloaterReg::add("media_settings", "floater_media_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMediaSettings>);
     LLFloaterReg::add("marketplace", "floater_marketplace.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplace>);
     LLFloaterReg::add("marketplace_listings", "floater_marketplace_listings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplaceListings>);

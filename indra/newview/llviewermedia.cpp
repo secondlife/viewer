@@ -43,6 +43,7 @@
 #include "llimagegl.h"
 #include "llsdutil.h"
 #include "llkeyboard.h"
+#include "llslurl.h"
 #include "lllogininstance.h"
 #include "llmarketplacefunctions.h"
 #include "llmediaentry.h"
@@ -571,6 +572,58 @@ bool LLViewerMedia::isInterestingEnough(const LLVOVolume *object, const F64 &obj
 LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
 {
     return sViewerMediaImplList;
+}
+
+LLSD LLViewerMedia::getEmbeddedBrowserDebugInfo()
+{
+    LLSD result = LLSD::emptyArray();
+
+    for (LLViewerMediaImpl* impl : sViewerMediaImplList)
+    {
+        if (!impl || !impl->isUsingEmbeddedBrowser())
+        {
+            continue;
+        }
+
+        LLSD row;
+
+        unsigned int slot_index = 0;
+        row["slot"] = impl->getEmbeddedBrowserSlotIndex(slot_index) ? (LLSD::Integer)slot_index : LLSD::Integer(-1);
+
+        row["url"] = impl->getCurrentMediaURL();
+
+        LLPluginClassMedia::EPriority priority = impl->getPriority();
+        row["priority"] = (LLSD::Integer)priority;
+        row["priority_label"] = LLPluginClassMedia::priorityToString(priority);
+
+        if (impl->getUsedInUI())
+        {
+            row["kind"] = "ui";
+        }
+        else if (impl->isParcelMedia())
+        {
+            row["kind"] = "parcel";
+        }
+        else
+        {
+            row["kind"] = "prim";
+        }
+
+        // Only prim media resolves to a single object a location can be derived
+        // from -- UI and parcel media are deliberately left with an empty slurl
+        // rather than a fabricated/misleading one.
+        row["slurl"] = "";
+        LLVOVolume* object = impl->getSomeObject();
+        if (object && object->getRegion())
+        {
+            LLSLURL slurl(object->getRegion()->getName(), object->getPositionRegion());
+            row["slurl"] = slurl.getSLURLString();
+        }
+
+        result.append(row);
+    }
+
+    return result;
 }
 
 // static
@@ -4950,6 +5003,16 @@ LLVOVolume *LLViewerMediaImpl::getSomeObject()
     }
 
     return result;
+}
+
+bool LLViewerMediaImpl::getEmbeddedBrowserSlotIndex(unsigned int& out_index) const
+{
+    if (!mUseEmbeddedBrowser)
+    {
+        return false;
+    }
+
+    return LLEmbeddedBrowser::getInstance()->getSlotIndex(mEmbeddedBrowserId, out_index);
 }
 
 void LLViewerMediaImpl::setTextureID(LLUUID id)
