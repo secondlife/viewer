@@ -7870,6 +7870,28 @@
     <key>Value</key>
     <real>0.7</real>
   </map>
+  <key>RenderScreenSpaceReflectionsConeMips</key>
+  <map>
+    <key>Comment</key>
+    <string>Experimental: blur SSR at hit time from a prefiltered scene pyramid instead of post-filtering the SSR buffer.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderScreenSpaceReflectionsConeScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Roughness-to-cone-angle scale for SSR cone mips (default 1.0).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
   <key>RenderScreenSpaceReflectionsFilterScale</key>
   <map>
     <key>Comment</key>

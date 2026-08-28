@@ -7832,6 +7832,10 @@ void LLPipeline::filterSSRBuffer()
     if (!RenderScreenSpaceReflections || gCubeSnapshot) return;
     if (!gSSRDownsampleProgram.isComplete()) return;
 
+    // cone mips bake blur into the trace; the SSR buffer is read at mip 0
+    static LLCachedControl<bool> cone_mips(gSavedSettings, "RenderScreenSpaceReflectionsConeMips", false);
+    if (cone_mips) return;
+
     LLRenderTarget& target = ssrResolvedTarget();
     if (!target.isComplete()) return;
 
@@ -7863,6 +7867,8 @@ void LLPipeline::filterSSRBuffer()
     static LLCachedControl<F32> ssrFilterScale(gSavedSettings, "RenderScreenSpaceReflectionsFilterScale", 2.0f);
 
     gSSRDownsampleProgram.bind();
+    static LLStaticHashedString sKarisWeight("karisWeight");
+    gSSRDownsampleProgram.uniform1i(sKarisWeight, 0);
     S32 diffuseChannel = gSSRDownsampleProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
 
     for (U32 m = 1; m < built; m++)
@@ -7941,6 +7947,7 @@ void LLPipeline::buildHiZBuffer()
 {
     if (!RenderScreenSpaceReflections || gCubeSnapshot) return;
 
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("build Hi-Z");
 
     S32 mipLevels = mSceneMap.getMipLevels();
@@ -7980,6 +7987,80 @@ void LLPipeline::buildHiZBuffer()
     LLRenderTarget::sCurFBO = 0;
 
     gHiZReduceProgram.unbind();
+}
+
+// cone-mip lookups never reach past this; deeper mips stay unbuilt
+constexpr U32 SCENE_COLOR_PYRAMID_MAX_MIP = 6;
+
+void LLPipeline::buildSceneColorPyramid()
+{
+    static LLCachedControl<bool> cone_mips(gSavedSettings, "RenderScreenSpaceReflectionsConeMips", false);
+    if (!RenderScreenSpaceReflections || !cone_mips || gCubeSnapshot) return;
+    if (!gSSRDownsampleProgram.isComplete()) return;
+
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+    LL_PROFILE_GPU_ZONE("scene color pyramid");
+
+    U32 mipLevels = mSceneMap.getMipLevels();
+    if (mipLevels <= 1) return;
+
+    U32 builtMip = llmin(mipLevels - 1, SCENE_COLOR_PYRAMID_MAX_MIP);
+
+    LLGLDisable blend(GL_BLEND);
+    LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+
+    gGL.matrixMode(gGL.MM_MODELVIEW);
+    gGL.pushMatrix();
+    gGL.loadIdentity();
+
+    gGL.matrixMode(gGL.MM_PROJECTION);
+    gGL.pushMatrix();
+    gGL.loadIdentity();
+
+    gGL.flush();
+
+    static LLStaticHashedString texelStep("texelStep");
+    static LLStaticHashedString sKarisWeight("karisWeight");
+
+    gSSRDownsampleProgram.bind();
+    gSSRDownsampleProgram.uniform1i(sKarisWeight, 1);
+    S32 diffuseChannel = gSSRDownsampleProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+
+    for (U32 m = 1; m <= builtMip; m++)
+    {
+        F32 srcW = (F32)llmax(1, (S32)(mSceneMap.getWidth() >> (m - 1)));
+        F32 srcH = (F32)llmax(1, (S32)(mSceneMap.getHeight() >> (m - 1)));
+
+        // half-texel diagonals: plain dual-filter downsample
+        gSSRDownsampleProgram.uniform2f(texelStep, 0.5f / srcW, 0.5f / srcH);
+
+        gGL.getTexUnit(diffuseChannel)->bind(&mSceneMap);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, m - 1);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, m - 1);
+
+        mSceneMap.bindColorMipLevel(m);
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+    }
+
+    // Restore state; trilinear set here (once per frame) for the cone-mip taps
+    gGL.getTexUnit(diffuseChannel)->bind(&mSceneMap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, builtMip);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    mSceneMap.resetColorMipLevel();
+
+    // bindColorMipLevel bypasses the RT stack (direct glBindFramebuffer)
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    LLRenderTarget::sCurFBO = 0;
+
+    gSSRDownsampleProgram.unbind();
+
+    gGL.matrixMode(gGL.MM_PROJECTION);
+    gGL.popMatrix();
+
+    gGL.matrixMode(gGL.MM_MODELVIEW);
+    gGL.popMatrix();
 }
 
 void LLPipeline::generateGlow(LLRenderTarget* src)
@@ -10183,9 +10264,11 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
                 LLRenderTarget& resolved = ssrResolvedTarget();
                 gGL.getTexUnit(channel)->bind(&resolved);
 
-                // Pass mip scale for roughness -> mip level mapping
+                // Pass mip scale for roughness -> mip level mapping.
+                // 0 = cone mips baked blur into the trace; buffer is read at mip 0
                 static LLStaticHashedString sSsrMipScale("ssrMipScale");
-                shader.uniform1f(sSsrMipScale, (float)(resolved.getMipLevels() - 1));
+                static LLCachedControl<bool> cone_mips(gSavedSettings, "RenderScreenSpaceReflectionsConeMips", false);
+                shader.uniform1f(sSsrMipScale, cone_mips ? 0.f : (float)(resolved.getMipLevels() - 1));
 
                 // water excluded: distorted UVs + possibly stale depthMap (mWaterDis)
                 static LLStaticHashedString sSsrResScale("ssrResScale");
@@ -10258,6 +10341,15 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
 
             static LLStaticHashedString sHiZMipCount("hizMipCount");
             shader.uniform1i(sHiZMipCount, (GLint)mSceneMap.getMipLevels());
+
+            static LLStaticHashedString sSsrConeMips("ssrConeMips");
+            static LLStaticHashedString sSsrConeScale("ssrConeScale");
+            static LLStaticHashedString sSceneColorMipCount("sceneColorMipCount");
+            static LLCachedControl<bool> cone_mips(gSavedSettings, "RenderScreenSpaceReflectionsConeMips", false);
+            static LLCachedControl<F32> cone_scale(gSavedSettings, "RenderScreenSpaceReflectionsConeScale", 1.0f);
+            shader.uniform1i(sSsrConeMips, cone_mips ? 1 : 0);
+            shader.uniform1f(sSsrConeScale, cone_scale);
+            shader.uniform1i(sSceneColorMipCount, (GLint)llmin(mSceneMap.getMipLevels(), SCENE_COLOR_PYRAMID_MAX_MIP + 1));
         }
     }
 }

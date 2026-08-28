@@ -1071,6 +1071,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
             // Must happen after deferred lighting so the lit scene is available.
             gPipeline.copyScreenSpaceReflections(&gPipeline.mRT->screen, &gPipeline.mSceneMap);
             gPipeline.buildHiZBuffer();
+            gPipeline.buildSceneColorPyramid();
         }
 
         LLPipeline::sUnderWaterRender = false;

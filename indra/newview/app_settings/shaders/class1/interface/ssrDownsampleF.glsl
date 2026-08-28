@@ -31,15 +31,39 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
 uniform vec2 texelStep;
+uniform int karisWeight;
 
 in vec2 vary_texcoord0;
 
+float karis(vec4 c)
+{
+    return 1.0 / (1.0 + dot(c.rgb, vec3(0.2126, 0.7152, 0.0722)));
+}
+
 void main()
 {
-    vec4 sum = texture(diffuseRect, vary_texcoord0) * 4.0;
-    sum += texture(diffuseRect, vary_texcoord0 + vec2(-texelStep.x, -texelStep.y));
-    sum += texture(diffuseRect, vary_texcoord0 + vec2( texelStep.x, -texelStep.y));
-    sum += texture(diffuseRect, vary_texcoord0 + vec2(-texelStep.x,  texelStep.y));
-    sum += texture(diffuseRect, vary_texcoord0 + vec2( texelStep.x,  texelStep.y));
-    frag_color = sum * 0.125;
+    vec4 taps[5];
+    taps[0] = texture(diffuseRect, vary_texcoord0);
+    taps[1] = texture(diffuseRect, vary_texcoord0 + vec2(-texelStep.x, -texelStep.y));
+    taps[2] = texture(diffuseRect, vary_texcoord0 + vec2( texelStep.x, -texelStep.y));
+    taps[3] = texture(diffuseRect, vary_texcoord0 + vec2(-texelStep.x,  texelStep.y));
+    taps[4] = texture(diffuseRect, vary_texcoord0 + vec2( texelStep.x,  texelStep.y));
+
+    if (karisWeight > 0)
+    {
+        // luma-weighted average kills fireflies in the prefiltered pyramid
+        vec4 sum = vec4(0.0);
+        float wsum = 0.0;
+        for (int i = 0; i < 5; i++)
+        {
+            float w = (i == 0 ? 4.0 : 1.0) * karis(taps[i]);
+            sum += taps[i] * w;
+            wsum += w;
+        }
+        frag_color = sum / wsum;
+    }
+    else
+    {
+        frag_color = (taps[0] * 4.0 + taps[1] + taps[2] + taps[3] + taps[4]) * 0.125;
+    }
 }

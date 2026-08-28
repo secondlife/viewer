@@ -43,6 +43,9 @@ uniform float maxZDepth;
 uniform float maxRoughness;
 uniform vec2 ssrJitterOffset;
 uniform int hizMipCount;
+uniform int ssrConeMips;
+uniform float ssrConeScale;
+uniform int sceneColorMipCount;
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
@@ -57,6 +60,12 @@ uvec2 pcg2d(uvec2 v)
     v.y += v.x * 1664525u;
     v ^= v >> 16u;
     return v;
+}
+
+// interleaved gradient noise, temporally rotated by golden-ratio phase
+float ssrIGN(vec2 p)
+{
+    return fract(52.9829189 * fract(dot(p, vec2(0.06711056, 0.00583715))) + noiseSine * 0.61803398875);
 }
 
 vec2 generateProjectedPosition(vec3 pos)
@@ -131,6 +140,9 @@ vec4 hiZTrace(vec3 origin, vec3 dir, int maxIterations)
     vec2 cellStep = vec2(rayDir.x < 0.0 ? -1.0 : 1.0,
                          rayDir.y < 0.0 ? -1.0 : 1.0);
 
+    const int SSR_MAX_TUNNEL = 2;
+    int tunnels = 0;
+
     int curLevel = 0;
     float t = 0.0;
 
@@ -148,6 +160,10 @@ vec4 hiZTrace(vec3 origin, vec3 dir, int maxIterations)
         vec2 newCellPos = (newCellIndex / screen_res) + cellStep * 0.000001;
         vec2 posT = (newCellPos - origin.xy) / rayDir.xy;
         t = min(posT.x, posT.y);
+
+        // IGN-jittered start: stair-step banding becomes noise the temporal resolve eats
+        vec2 cellT = 1.0 / (screen_res * max(abs(rayDir.xy), vec2(1e-6)));
+        t += ssrIGN(gl_FragCoord.xy) * min(cellT.x, cellT.y);
     }
 
     for (int i = 0; i < maxIterations && curLevel >= 0 && t < tMax; i++)
@@ -188,6 +204,10 @@ vec4 hiZTrace(vec3 origin, vec3 dir, int maxIterations)
             float z1 = getPositionWithDepth(pos.xy, pos.z).z;
             if ((z0 - z1) > maxThickness)
             {
+                // unsure hit: budget lets rays pass behind thin objects, then miss to probes
+                tunnels++;
+                if (tunnels > SSR_MAX_TUNNEL)
+                    return vec4(-1.0);
                 hit = false;
                 mipOffset = 1;  // skip cell and re-coarsen; Hi-Z re-descends if the surface continues
 
@@ -401,7 +421,18 @@ float tapScreenSpaceReflection(
         float zFadeStart = maxZDepth * 0.8;
         float zFade = 1.0 - smoothstep(zFadeStart, maxZDepth, hitDepth);
 
-        vec4 sampledColor = textureLod(source, hitTC, 0.0);
+        // Cone-matched blur: prefiltered-pyramid mip from the GGX cone footprint at the hit
+        float coneMip = 0.0;
+        if (ssrConeMips > 0)
+        {
+            float hitDist = length(viewSpaceSurface - transformedPos);
+            float coneTan = roughness * roughness * ssrConeScale;
+            float footprint = coneTan * hitDist / max(-viewSpaceSurface.z, 0.01)
+                            * screen_res.y * 0.5 * projection_matrix[1][1];
+            coneMip = clamp(log2(max(footprint, 1.0)), 0.0, float(sceneColorMipCount - 1));
+        }
+
+        vec4 sampledColor = textureLod(source, hitTC, coneMip);
 
         // Tone map hit color (Reinhard on luminance) to compress brights
         // before mip chain averaging — prevents fireflies.

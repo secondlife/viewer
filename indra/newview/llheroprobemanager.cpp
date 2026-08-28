@@ -41,6 +41,7 @@
 #include "llviewerwindow.h"
 #include "llviewerjoystick.h"
 #include "llviewermediafocus.h"
+#include "llvoavatarself.h"
 
 extern bool gCubeSnapshot;
 extern bool gTeleportDisplay;
@@ -284,6 +285,13 @@ void LLHeroProbeManager::renderProbes()
         gPipeline.mReflectionMapManager.mRadiancePass = true;
         mRenderingMirror = true;
 
+        bool restore_first_person = !LLVOAvatar::sVisibleInFirstPerson;
+        LLVOAvatar::sVisibleInFirstPerson = true;
+        if (isAgentAvatarValid())
+        {
+            gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
+        }
+
         // Reset shadow tracking for all probes
         for (S32 i = 0; i < LL_MAX_HERO_PROBE_COUNT; ++i)
         {
@@ -388,6 +396,16 @@ void LLHeroProbeManager::renderProbes()
 
         mCurrentRenderingProbeIdx = -1;
         mRenderingMirror = false;
+
+        if (restore_first_person)
+        {
+            LLVOAvatar::sVisibleInFirstPerson = false;
+        }
+        // must run after mRenderingMirror = false and the flag restore
+        if (isAgentAvatarValid())
+        {
+            gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
+        }
 
         gPipeline.mReflectionMapManager.mRadiancePass = radiance_pass;
     }

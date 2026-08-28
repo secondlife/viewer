@@ -154,6 +154,7 @@ public:
     void renderFinalize();
     void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
     void buildHiZBuffer();
+    void buildSceneColorPyramid();
     void renderSSRTrace();
     void renderSSRAlpha();
     void renderSSRWater();
