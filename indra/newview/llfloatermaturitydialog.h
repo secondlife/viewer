@@ -34,6 +34,7 @@ class LLFloaterMaturityDialog : public LLModalDialog
 public:
     bool postBuild() override;
     void onOpen(const LLSD& key) override;
+    void draw() override;
 
 private:
     LLFloaterMaturityDialog(const LLSD& key);
@@ -41,8 +42,6 @@ private:
 
     void onContinue();
     void onCancel();
-    void updateContinueButton();
 
     U8 mRegionAccess = SIM_ACCESS_ADULT;
-    U32 mPreviousMaturity = SIM_ACCESS_PG;
 };

@@ -29,7 +29,6 @@
 #include "llfloatermaturitydialog.h"
 
 #include "llbutton.h"
-#include "llcombobox.h"
 #include "llagent.h"
 #include "lltextbox.h"
 #include "llviewercontrol.h"
@@ -43,10 +42,6 @@ LLFloaterMaturityDialog::LLFloaterMaturityDialog(const LLSD& key)
 bool LLFloaterMaturityDialog::postBuild()
 {
     setCanDrag(false);
-    LLComboBox* combo = getChild<LLComboBox>("maturity_combo");
-    combo->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateContinueButton(); });
-    // Ensure the dropdown list renders on top of buttons and labels below the combo
-    sendChildToFront(combo);
     getChild<LLButton>("continue_btn")->setCommitCallback(
         [this](LLUICtrl*, const LLSD&) { onContinue(); });
     getChild<LLButton>("cancel_btn")->setCommitCallback(
@@ -59,33 +54,33 @@ void LLFloaterMaturityDialog::onOpen(const LLSD& key)
 {
     LLModalDialog::onOpen(key);
 
-    mPreviousMaturity = gSavedSettings.getU32("PreferredMaturity");
     mRegionAccess = static_cast<U8>(key.asInteger());
 
     LLStringUtil::format_map_t args;
     args["[MATURITY]"] = LLViewerRegion::accessToString(mRegionAccess);
     getChild<LLTextBox>("location_rated_lbl")->setText(getString("location_rated_string", args));
-    getChild<LLTextBox>("include_adult_lbl")->setText(getString("update_maturity_string", args));
+    getChild<LLTextBox>("current_maturity_lbl")->setText(getString("update_maturity_string", args));
+    getChild<LLButton>("continue_btn")->setLabel(getString("allow_maturity_string", args));
 
-    updateContinueButton();
     centerOnScreen();
+}
+
+void LLFloaterMaturityDialog::draw()
+{
+    // Skip floater shadow/background; icon child provides the visual background
+    LLView::draw();
 }
 
 void LLFloaterMaturityDialog::onContinue()
 {
+    gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(mRegionAccess));
     gAgent.restartFailedTeleportRequest();
     closeFloater();
 }
 
 void LLFloaterMaturityDialog::onCancel()
 {
-    gSavedSettings.setU32("PreferredMaturity", mPreviousMaturity);
     gAgent.clearTeleportRequest();
     closeFloater();
 }
 
-void LLFloaterMaturityDialog::updateContinueButton()
-{
-    U32 current = gSavedSettings.getU32("PreferredMaturity");
-    getChild<LLButton>("continue_btn")->setEnabled(current >= mRegionAccess);
-}
