@@ -50,7 +50,11 @@ public:
     void restore() override;
     bool getFullscreen();
     bool getPosition(LLCoordScreen *position) override;
+
+    // Content view size in backing pixels (excludes title bar).
+    // Note: on Windows, getSize(LLCoordScreen) returns the outer window frame size (includes title bar and borders).
     bool getSize(LLCoordScreen *size) override;
+
     bool getSize(LLCoordWindow *size) override;
     bool setPosition(LLCoordScreen position) override;
     bool setSizeImpl(LLCoordScreen size) override;
