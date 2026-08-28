@@ -1581,6 +1581,12 @@ void LLViewerWindow::handleResize(LLWindow *window,  S32 width,  S32 height)
     LL_DEBUGS("Window") << "handleResize, new width: " << width << " height: " << height << LL_ENDL;
 }
 
+void LLViewerWindow::handleRequestResolutionUpdate(LLWindow* window)
+{
+    requestResolutionUpdate();
+    LL_DEBUGS("Window") << "handleRequestResolutionUpdate: mResDirty set" << LL_ENDL;
+}
+
 // The top-level window has gained focus (e.g. via ALT-TAB)
 void LLViewerWindow::handleFocus(LLWindow *window)
 {
@@ -2043,7 +2049,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     }
     else
     {
-        LL_DEBUGS("Window") << "Display init diagnostics:"
+        LL_DEBUGS("Window") << "Display init:"
             << " screen_size=" << scr.mX << "x" << scr.mY
             << " system_ui_size=" << mWindow->getSystemUISize()
             << " pixel_aspect_ratio=" << mWindow->getPixelAspectRatio()
@@ -6091,7 +6097,18 @@ void LLViewerWindow::checkSettings()
     // We want to update the resolution AFTER the states getting refreshed not before.
     if (mResDirty)
     {
-        reshape(getWindowWidthRaw(), getWindowHeightRaw());
+        LLCoordScreen window_size;
+        if (mWindow->getSize(&window_size))
+        {
+            reshape(window_size.mX, window_size.mY);
+        }
+        else
+        {
+            S32 width = getWindowWidthRaw();
+            S32 height = getWindowHeightRaw();
+            LL_WARNS() << "Failed to get window size, using raw window size " << width << "x" << height << "  instead" << LL_ENDL;
+            reshape(width, height);
+        }
         mResDirty = false;
     }
 }

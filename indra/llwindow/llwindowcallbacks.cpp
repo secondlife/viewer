@@ -156,6 +156,10 @@ void LLWindowCallbacks::handleResize(LLWindow *window, const S32 width, const S3
 {
 }
 
+void LLWindowCallbacks::handleRequestResolutionUpdate(LLWindow* window)
+{
+}
+
 void LLWindowCallbacks::handleFocus(LLWindow *window)
 {
      LL_WARNS("COCOA") << "Called handleFocus proto" << LL_ENDL;
