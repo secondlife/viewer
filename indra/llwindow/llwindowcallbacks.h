@@ -63,6 +63,7 @@ public:
     virtual void handleScrollWheel(LLWindow *window,  S32 clicks);
     virtual void handleScrollHWheel(LLWindow *window,  S32 clicks);
     virtual void handleResize(LLWindow *window,  S32 width,  S32 height);
+    virtual void handleRequestResolutionUpdate(LLWindow* window);
     virtual void handleFocus(LLWindow *window);
     virtual void handleFocusLost(LLWindow *window);
     virtual void handleMenuSelect(LLWindow *window,  S32 menu_item);
