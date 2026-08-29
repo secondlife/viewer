@@ -1016,7 +1016,7 @@ S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 
     ((LLViewerOctreeGroup*)mOctree->getListener(0))->rebound();
 
-    if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
+    if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD || gCubeSnapshot)
     {
         return 0; //no need for those cameras.
     }
