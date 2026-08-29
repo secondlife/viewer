@@ -26,6 +26,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llavatarnamecache.h"
+#include "llchatservicehistory.h"
 #include "llconversationlog.h"
 #include "llfloaterconversationpreview.h"
 #include "llimview.h"
@@ -34,15 +35,21 @@
 #include "llspinctrl.h"
 #include "lltrans.h"
 #include "llnotificationsutil.h"
+#include "llloadingindicator.h"
+#include "workqueue.h"
+
+#include <limits>
 
 const std::string LL_FCP_COMPLETE_NAME("complete_name");
 const std::string LL_FCP_ACCOUNT_NAME("user_name");
+const std::string LL_FCP_PARTICIPANT_ID("participant_id");
 const S32 CONVERSATION_HISTORY_PAGE_SIZE = 100;
 
 LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_id)
 :   LLFloater(session_id),
     mChatHistory(NULL),
     mSessionID(session_id.asUUID()),
+    mParticipantID(session_id[LL_FCP_PARTICIPANT_ID].asUUID()),
     mCurrentPage(0),
     mPageSize(CONVERSATION_HISTORY_PAGE_SIZE),
     mAccountName(session_id[LL_FCP_ACCOUNT_NAME]),
@@ -52,12 +59,23 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
     mMessages(NULL),
     mHistoryThreadsBusy(false),
     mIsGroup(false),
+    mIsP2P(false),
+    mServiceLocalLoading(false),
+    mServiceReloadPending(false),
+    mLoadingIndicatorVisible(false),
+    mServiceNameReloaded(false),
+    mServicePresentationAllowed(false),
+    mServiceToken(0),
+    mServiceAppliedSerial(std::numeric_limits<U32>::max()),
     mOpened(false)
 {
 }
 
 LLFloaterConversationPreview::~LLFloaterConversationPreview()
 {
+    mHistoryContentConnection.disconnect();
+    mServiceSnapshotConnection.disconnect();
+    delete mMessages;
 }
 
 bool LLFloaterConversationPreview::postBuild()
@@ -68,7 +86,14 @@ bool LLFloaterConversationPreview::postBuild()
     std::string name;
     std::string file;
 
-    if (mAccountName != "")
+    if (mParticipantID.notNull())
+    {
+        // A direct-conversation key stays direct while its shared name is unresolved.
+        mIsP2P = true;
+        name = mCompleteName;
+        file = mAccountName;
+    }
+    else if (mAccountName != "")
     {
         name = mCompleteName;
         file = mAccountName;
@@ -78,21 +103,30 @@ bool LLFloaterConversationPreview::postBuild()
         name = conv->getConversationName();
         file = conv->getHistoryFileName();
         mIsGroup = (LLIMModel::LLIMSession::GROUP_SESSION == conv->getConversationType());
+        mIsP2P = (LLIMModel::LLIMSession::P2P_SESSION == conv->getConversationType());
+        if (mIsP2P)
+        {
+            mParticipantID = conv->getParticipantID();
+        }
     }
     else
     {
         name = LLTrans::getString("NearbyChatTitle");
         file = "chat";
     }
+
     mChatHistoryFileName = file;
     if (mIsGroup && !LLStringUtil::endsWith(mChatHistoryFileName, GROUP_CHAT_SUFFIX))
     {
         mChatHistoryFileName += GROUP_CHAT_SUFFIX;
     }
+
     LLStringUtil::format_map_t args;
     args["[NAME]"] = name;
     std::string title = getString("Title", args);
     setTitle(title);
+    getChild<LLTextBox>("chat_service_loading_text")->setValue(
+        LLTrans::getString("loading_chat_logs"));
 
     return LLFloater::postBuild();
 }
@@ -103,18 +137,27 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>* messages, const std
     {
         // additional protection to avoid changes of mMessages in setPages()
         LLMutexLock lock(&mMutex);
+
+        // Preserve the reader's distance from the newest page while asynchronous
+        // reloads replace the backing list.
+        const S32 old_last_page = mMessages && !mMessages->empty()
+            ? (static_cast<S32>(mMessages->size()) - 1) / mPageSize : 0;
+        const S32 distance_from_newest = llmax(0, old_last_page - mCurrentPage);
         if (mMessages)
         {
             delete mMessages; // Clean up temporary message list with "Loading..." text
         }
         mMessages = messages;
-        mCurrentPage = (mMessages->size() ? (static_cast<int>(mMessages->size()) - 1) / mPageSize : 0);
+        const S32 last_page = mMessages->empty()
+            ? 0 : (static_cast<S32>(mMessages->size()) - 1) / mPageSize;
+        mCurrentPage = llmax(0, last_page - distance_from_newest);
 
+        // Publish the new page range together so draw() never renders stale bounds.
         mPageSpinner->setEnabled(true);
-        mPageSpinner->setMaxValue((F32)(mCurrentPage+1));
+        mPageSpinner->setMaxValue((F32)(last_page+1));
         mPageSpinner->set((F32)(mCurrentPage+1));
 
-        std::string total_page_num = llformat("/ %d", mCurrentPage+1);
+        std::string total_page_num = llformat("/ %d", last_page+1);
         getChild<LLTextBox>("page_num_label")->setValue(total_page_num);
         mShowHistory = true;
     }
@@ -127,11 +170,32 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>* messages, const std
 
 void LLFloaterConversationPreview::draw()
 {
+    // Local reads and account-scoped service work share one nonmodal status panel.
+    const bool loading = mIsP2P &&
+        (mServiceLocalLoading ||
+         LLChatServiceHistory::getSnapshot(mParticipantID).service_work_active);
+    if (loading != mLoadingIndicatorVisible)
+    {
+        mLoadingIndicatorVisible = loading;
+        getChildView("chat_service_loading")->setVisible(loading);
+        LLLoadingIndicator* indicator =
+            getChild<LLLoadingIndicator>("chat_service_loading_wheel");
+        if (loading)
+        {
+            indicator->start();
+        }
+        else
+        {
+            indicator->stop();
+        }
+    }
+
     if(mShowHistory)
     {
         showHistory();
         mShowHistory = false;
     }
+
     LLFloater::draw();
 }
 
@@ -141,7 +205,76 @@ void LLFloaterConversationPreview::onOpen(const LLSD& key)
     {
         return;
     }
+
     mOpened = true;
+    ++mServiceToken;
+    mPageSpinner = getChild<LLSpinCtrl>("history_page_spin");
+    mPageSpinner->setCommitCallback(
+        boost::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
+    mPageSpinner->setMinValue(1);
+    mPageSpinner->set(1);
+    mPageSpinner->setEnabled(false);
+
+    if (mIsP2P)
+    {
+        // Connect before querying the snapshot so an active-work transition cannot
+        // be missed between Preview opening and its first local read.
+        LLHandle<LLFloaterConversationPreview> handle =
+            getDerivedHandle<LLFloaterConversationPreview>();
+        mServiceSnapshotConnection = LLChatServiceHistory::setSnapshotChanged(
+            [handle, participant = mParticipantID](
+                const LLUUID& changed, const LLChatServiceHistory::Snapshot& snapshot)
+            {
+                LLFloaterConversationPreview* floater = handle.get();
+                if (floater && changed == participant)
+                {
+                    floater->onServiceSnapshot(snapshot);
+                }
+            });
+
+        const LLChatServiceHistory::Snapshot snapshot =
+            LLChatServiceHistory::getSnapshot(mParticipantID);
+        mServicePresentationAllowed = snapshot.service_presentation_allowed;
+        mServiceAppliedSerial = snapshot.archive_serial;
+        LLChatServiceHistory::prioritizeResident(mParticipantID);
+        onServiceSnapshot(snapshot);
+        startServiceLoad();
+
+        return;
+    }
+
+    // Legacy Preview reloads after plaintext writes, using a weak handle so a closed
+    // floater is never re-entered by the content signal.
+    LLHandle<LLFloaterConversationPreview> handle =
+        getDerivedHandle<LLFloaterConversationPreview>();
+    mHistoryContentConnection = LLLogChat::getInstance()->setSaveHistorySignal([handle]()
+    {
+        LLFloaterConversationPreview* floater = handle.get();
+        if (floater && floater->mOpened && !LLChatServiceHistory::historySuppressed())
+        {
+            floater->startLegacyLoad();
+        }
+    });
+
+    startLegacyLoad();
+}
+
+void LLFloaterConversationPreview::startLegacyLoad()
+{
+    if (!mOpened || mIsP2P)
+    {
+        return;
+    }
+
+    if (LLChatServiceHistory::historySuppressed())
+    {
+        return;
+    }
+
+    // Each save signal schedules at most one loader; completion reconnects through
+    // the normal Preview lifecycle rather than overlapping worker threads.
+    mHistoryContentConnection.disconnect();
+
     if (!LLLogChat::getInstance()->historyThreadsFinished(mSessionID))
     {
         LLNotificationsUtil::add("ChatHistoryIsBusyAlert");
@@ -149,6 +282,9 @@ void LLFloaterConversationPreview::onOpen(const LLSD& key)
         closeFloater();
         return;
     }
+
+    const U64 load_token = ++mServiceToken;
+
     LLSD load_params;
     load_params["load_all_history"] = true;
     load_params["cut_off_todays_date"] = false;
@@ -156,17 +292,13 @@ void LLFloaterConversationPreview::onOpen(const LLSD& key)
 
     // The temporary message list with "Loading..." text
     // Will be deleted upon loading completion in setPages() method
+    delete mMessages;
     mMessages = new std::list<LLSD>();
 
 
     LLSD loading;
     loading[LL_IM_TEXT] = LLTrans::getString("loading_chat_logs");
     mMessages->push_back(loading);
-    mPageSpinner = getChild<LLSpinCtrl>("history_page_spin");
-    mPageSpinner->setCommitCallback(boost::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
-    mPageSpinner->setMinValue(1);
-    mPageSpinner->set(1);
-    mPageSpinner->setEnabled(false);
 
     // The actual message list to load from file
     // Will be deleted in a separate thread LLDeleteHistoryThread not to freeze UI
@@ -177,7 +309,30 @@ void LLFloaterConversationPreview::onOpen(const LLSD& key)
     log_chat_inst->cleanupHistoryThreads();
 
     LLLoadHistoryThread* loadThread = new LLLoadHistoryThread(mChatHistoryFileName, messages, load_params);
-    loadThread->setLoadEndSignal(boost::bind(&LLFloaterConversationPreview::setPages, this, _1, _2));
+    LLHandle<LLFloaterConversationPreview> handle =
+        getDerivedHandle<LLFloaterConversationPreview>();
+    LL::WorkQueue::ptr_t main = LL::WorkQueue::getInstance("mainloop");
+    loadThread->setLoadEndSignal(
+        [handle, load_token, main](std::list<LLSD>* loaded, const std::string& file_name)
+        {
+            // Copy before the delete thread reclaims loader-owned data, then fence
+            // the main-thread apply with the current open token and privacy gate.
+            std::shared_ptr<std::list<LLSD>> copy =
+                std::make_shared<std::list<LLSD>>(*loaded);
+            if (main)
+            {
+                main->post([handle, load_token, copy, file_name]()
+                {
+                    LLFloaterConversationPreview* floater = handle.get();
+                    if (floater && floater->mOpened &&
+                        load_token == floater->mServiceToken &&
+                        !LLChatServiceHistory::historySuppressed())
+                    {
+                        floater->setPages(new std::list<LLSD>(*copy), file_name);
+                    }
+                });
+            }
+        });
     loadThread->start();
     log_chat_inst->addLoadHistoryThread(mSessionID, loadThread);
 
@@ -189,7 +344,18 @@ void LLFloaterConversationPreview::onOpen(const LLSD& key)
 
 void LLFloaterConversationPreview::onClose(bool app_quitting)
 {
+    // Close is a lifecycle fence for callbacks, not a request to cancel shared service work.
     mOpened = false;
+    ++mServiceToken;
+    mServiceLocalLoading = false;
+    mServiceReloadPending = false;
+    mHistoryContentConnection.disconnect();
+    mServiceSnapshotConnection.disconnect();
+
+    if (mIsP2P)
+    {
+        return;
+    }
     if (!mHistoryThreadsBusy)
     {
         LLDeleteHistoryThread* deleteThread = LLLogChat::getInstance()->getDeleteHistoryThread(mSessionID);
@@ -200,16 +366,179 @@ void LLFloaterConversationPreview::onClose(bool app_quitting)
     }
 }
 
-void LLFloaterConversationPreview::showHistory()
+void LLFloaterConversationPreview::invalidateHistory()
 {
-    // additional protection to avoid changes of mMessages in setPages
-    LLMutexLock lock(&mMutex);
-    if(mMessages == NULL || !mMessages->size() || mCurrentPage * mPageSize >= mMessages->size())
+    // Advancing the token invalidates every outstanding legacy or stitched completion
+    // before deletion clears the visible backing lists.
+    ++mServiceToken;
+    mServiceLocalLoading = false;
+    mServiceReloadPending = false;
+
+    if (mMessages)
+    {
+        mMessages->clear();
+    }
+
+    if (mChatHistory)
+    {
+        mChatHistory->clear();
+    }
+}
+
+void LLFloaterConversationPreview::startServiceLoad()
+{
+    if (!mOpened || mServiceLocalLoading || mParticipantID.isNull())
     {
         return;
     }
 
+    // One local stitched read may be active per Preview. Snapshot changes set a
+    // follow-up flag instead of starting overlapping archive scans.
+    const U64 token = ++mServiceToken;
+    mServiceLocalLoading = true;
+
+    LLHandle<LLFloaterConversationPreview> handle =
+        getDerivedHandle<LLFloaterConversationPreview>();
+    if (!LLChatServiceHistory::loadStitchedHistory(
+            mParticipantID, mChatHistoryFileName, 10000,
+            [handle, token](const LLChatServiceHistory::HistoryResult& result)
+            {
+                if (LLFloaterConversationPreview* floater = handle.get())
+                {
+                    floater->onServiceLoaded(token, result);
+                }
+            }))
+    {
+        mServiceLocalLoading = false;
+    }
+}
+
+void LLFloaterConversationPreview::onServiceLoaded(
+    U64 token, const LLChatServiceHistory::HistoryResult& result)
+{
+    if (!mOpened || token != mServiceToken)
+    {
+        return;
+    }
+
+    mServiceLocalLoading = false;
+    const LLChatServiceHistory::Snapshot snapshot =
+        LLChatServiceHistory::getSnapshot(mParticipantID);
+
+    // Account transitions and the common privacy gate invalidate the captured read
+    // before any result reaches the backing list.
+    if (result.account_epoch != LLChatServiceHistory::accountEpoch() ||
+        LLChatServiceHistory::historySuppressed())
+    {
+        return;
+    }
+
+    const bool reload_pending = mServiceReloadPending;
+    mServiceReloadPending = false;
+
+    // A changed archive serial or presentation gate requires a fresh read from the
+    // current source set.
+    if (result.archive_serial != snapshot.archive_serial)
+    {
+        startServiceLoad();
+        return;
+    }
+
+    if (result.included_service != snapshot.service_presentation_allowed)
+    {
+        startServiceLoad();
+        return;
+    }
+
+    mServiceAppliedSerial = result.archive_serial;
+
+    // Merge the bounded transient head only after the durable read matches the
+    // current snapshot, then preserve the reader's relative page position.
+    std::list<LLSD> merged = LLChatServiceHistory::mergeHeadPreview(
+        result.messages, snapshot, 10000);
+    setPages(new std::list<LLSD>(merged), mChatHistoryFileName);
+
+    if (reload_pending)
+    {
+        startServiceLoad();
+    }
+}
+
+void LLFloaterConversationPreview::onServiceSnapshot(
+    const LLChatServiceHistory::Snapshot& snapshot)
+{
+    if (!mOpened)
+    {
+        return;
+    }
+
+    // Presentation revocation removes only service-tagged rows immediately; legacy
+    // rows remain available under the common account history gate.
+    const bool presentation_changed =
+        snapshot.service_presentation_allowed != mServicePresentationAllowed;
+    mServicePresentationAllowed = snapshot.service_presentation_allowed;
+
+    if (presentation_changed && mServiceLocalLoading)
+    {
+        mServiceReloadPending = true;
+    }
+    if (presentation_changed && !snapshot.service_presentation_allowed && mMessages)
+    {
+        std::list<LLSD>* legacy_only = new std::list<LLSD>();
+        for (const LLSD& message : *mMessages)
+        {
+            if (!message["chat_service_msg_id"].isString())
+            {
+                legacy_only->push_back(message);
+            }
+        }
+
+        setPages(legacy_only, mChatHistoryFileName);
+    }
+
+    // A CSV-only cold-cache Preview performs one extra read when shared metadata
+    // supplies the legacy transcript stem.
+    if (mChatHistoryFileName.empty() && !mServiceNameReloaded &&
+        snapshot.metadata_resolved)
+    {
+        mChatHistoryFileName = LLCacheName::buildUsername(snapshot.metadata.getUserName());
+        mServiceNameReloaded = true;
+        if (mServiceLocalLoading)
+        {
+            mServiceReloadPending = true;
+        }
+        else
+        {
+            startServiceLoad();
+        }
+    }
+
+    // The first validated service page may update the open Preview before archive
+    // preparation and older paging complete.
+    if (snapshot.service_presentation_allowed && !snapshot.head_preview.empty())
+    {
+        std::list<LLSD> merged = LLChatServiceHistory::mergeHeadPreview(
+            mMessages ? *mMessages : std::list<LLSD>(), snapshot, 10000);
+        setPages(new std::list<LLSD>(merged), mChatHistoryFileName);
+    }
+
+    // A serial or presentation transition needs one fresh durable stitched read.
+    if (!mServiceLocalLoading &&
+        (presentation_changed || snapshot.archive_serial != mServiceAppliedSerial))
+    {
+        startServiceLoad();
+    }
+}
+
+void LLFloaterConversationPreview::showHistory()
+{
+    // additional protection to avoid changes of mMessages in setPages
+    LLMutexLock lock(&mMutex);
     mChatHistory->clear();
+    if(mMessages == NULL || !mMessages->size() || mCurrentPage * mPageSize >= mMessages->size())
+    {
+        return;
+    }
     std::ostringstream message;
     std::list<LLSD>::const_iterator iter = mMessages->begin();
     std::advance(iter, mCurrentPage * mPageSize);

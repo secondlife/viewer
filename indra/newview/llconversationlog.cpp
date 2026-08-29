@@ -614,7 +614,9 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
         // CHUI-325
         // The conversation log should be capped to the last 30 days. Conversations with the last utterance
         // being over 30 days old should be purged from the conversation log text file on login.
-        if (conversation.isOlderThan(CONVERSATION_LIFETIME))
+        // P2P conversations are retained so accumulated local/service history remains discoverable.
+        if (conversation.getConversationType() != LLIMModel::LLIMSession::P2P_SESSION &&
+            conversation.isOlderThan(CONVERSATION_LIFETIME))
         {
             purge_required = true;
             continue;

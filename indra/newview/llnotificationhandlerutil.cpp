@@ -327,11 +327,12 @@ void LLHandlerUtil::decIMMesageCounter(const LLNotificationPtr& notification)
     {
     LLSD arg;
     arg["session_id"] = session_id;
-    session->mNumUnread--;
+    // Keep the decrements clamped if notification dismissal follows session cleanup.
+    session->mNumUnread = llmax(0, session->mNumUnread - 1);
     arg["num_unread"] = session->mNumUnread;
-    session->mParticipantUnreadMessageCount--;
+    session->mParticipantUnreadMessageCount =
+        llmax(0, session->mParticipantUnreadMessageCount - 1);
     arg["participant_unread"] = session->mParticipantUnreadMessageCount;
     LLIMModel::getInstance()->mNewMsgSignal(arg);
 }
 }
-
