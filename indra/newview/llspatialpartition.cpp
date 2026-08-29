@@ -380,6 +380,24 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
                         << index_count << " indices" << LL_ENDL;
                     group->mVertexBuffer = NULL;
                     group->mBufferMap.clear();
+
+                    // faces were already resized for the new buffer; don't let them draw the old one
+                    for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
+                    {
+                        LLDrawable* drawablep = (LLDrawable*)(*i)->getDrawable();
+                        if (!drawablep)
+                        {
+                            continue;
+                        }
+                        for (S32 j = 0; j < drawablep->getNumFaces(); ++j)
+                        {
+                            LLFace* facep = drawablep->getFace(j);
+                            if (facep)
+                            {
+                                facep->clearVertexBuffer();
+                            }
+                        }
+                    }
                 }
             }
         }

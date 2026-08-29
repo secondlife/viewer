@@ -783,11 +783,6 @@ void LLVOSurfacePatch::dirtyGeom()
     if (mDrawable)
     {
         gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
-        LLFace* facep = mDrawable->getFace(0);
-        if (facep)
-        {
-            facep->setVertexBuffer(NULL);
-        }
         mDrawable->movePartition();
     }
 }
