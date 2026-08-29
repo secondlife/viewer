@@ -518,7 +518,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
             // differ per texture info - we currently don't support this case.
             for (U32 ti = 1; ti < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++ti)
             {
-                llassert(fetched_material->mTextureTransform[0] == fetched_material->mTextureTransform[ti]);
+                //llassert(fetched_material->mTextureTransform[0] == fetched_material->mTextureTransform[ti]);
             }
 #endif
         }

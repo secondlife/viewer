@@ -37,6 +37,13 @@ uniform mat4 projection_matrix;
 uniform mat4 modelview_matrix;
 #endif
 
+#ifdef PARTICLE_BILLBOARD
+in vec3 normal;
+uniform mat4 projection_matrix;
+uniform mat4 modelview_matrix;
+vec4 particleBillboardEye(mat4 mv, vec3 position, vec3 center, vec2 corner);
+#endif
+
 void main()
 {
     //transform vertex
@@ -45,6 +52,8 @@ void main()
     mat = modelview_matrix * mat;
     vec4 pos = mat * vec4(position.xyz,1.0);
     gl_Position = projection_matrix * pos;
+#elif defined(PARTICLE_BILLBOARD)
+    gl_Position = projection_matrix * particleBillboardEye(modelview_matrix, position.xyz, normal, texcoord0 * 2.0 - 1.0);
 #else
     gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 #endif

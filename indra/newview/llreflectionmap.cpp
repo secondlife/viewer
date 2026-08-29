@@ -333,6 +333,12 @@ bool LLReflectionMap::isRelevant() const
 
 void LLReflectionMap::doOcclusion(const LLVector4a& eye)
 {
+    LLVector4a half_size(mRadius, mRadius, mRadius);
+    doOcclusion(eye, mOrigin, half_size);
+}
+
+void LLReflectionMap::doOcclusion(const LLVector4a& eye, const LLVector4a& center, const LLVector4a& half_size)
+{
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     if (LLGLSLShader::sProfileEnabled)
     {
@@ -343,10 +349,10 @@ void LLReflectionMap::doOcclusion(const LLVector4a& eye)
     // super sloppy, but we're doing an occlusion cull against a bounding cube of
     // a bounding sphere, pad radius so we assume if the eye is within
     // the bounding sphere of the bounding cube, the node is not culled
-    F32 dist = mRadius * F_SQRT3 + 1.f;
+    F32 dist = half_size.getLength3().getF32() + 1.f;
 
     LLVector4a o;
-    o.setSub(mOrigin, eye);
+    o.setSub(center, eye);
 
     bool do_query = false;
 
@@ -389,10 +395,10 @@ void LLReflectionMap::doOcclusion(const LLVector4a& eye)
 
         LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
-        shader->uniform3fv(LLShaderMgr::BOX_CENTER, 1, mOrigin.getF32ptr());
-        shader->uniform3f(LLShaderMgr::BOX_SIZE, mRadius, mRadius, mRadius);
+        shader->uniform3fv(LLShaderMgr::BOX_CENTER, 1, center.getF32ptr());
+        shader->uniform3fv(LLShaderMgr::BOX_SIZE, 1, half_size.getF32ptr());
 
-        gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(LLViewerCamera::getInstance(), mOrigin));
+        gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(LLViewerCamera::getInstance(), center));
 
         glEndQuery(GL_ANY_SAMPLES_PASSED);
     }

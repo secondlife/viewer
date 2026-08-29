@@ -33,6 +33,12 @@ void passTextureIndex();
 in vec4 diffuse_color;
 in vec2 texcoord0;
 
+#ifdef PARTICLE_BILLBOARD
+in vec3 normal;
+uniform mat4 projection_matrix;
+vec4 particleBillboardEye(mat4 mv, vec3 position, vec3 center, vec2 corner);
+#endif
+
 void calcAtmospherics(vec3 inPositionEye);
 
 vec3 atmosAmbient();
@@ -58,6 +64,9 @@ void main()
     mat4 mat = getObjectSkinnedTransform();
     mat = modelview_matrix * mat;
     vec4 pos = mat * vert;
+    gl_Position = projection_matrix * pos;
+#elif defined(PARTICLE_BILLBOARD)
+    vec4 pos = particleBillboardEye(modelview_matrix, position.xyz, normal, texcoord0 * 2.0 - 1.0);
     gl_Position = projection_matrix * pos;
 #else
     vec4 pos = (modelview_matrix * vert);

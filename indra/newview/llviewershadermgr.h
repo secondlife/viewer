@@ -199,6 +199,7 @@ extern LLGLSLShader         gGlowExtractProgram;
 
 //interface shaders
 extern LLGLSLShader         gHighlightProgram;
+extern LLGLSLShader         gHighlightParticleProgram;
 extern LLGLSLShader         gHighlightNormalProgram;
 extern LLGLSLShader         gHighlightSpecularProgram;
 
@@ -281,15 +282,19 @@ extern LLGLSLShader         gDeferredAvatarShadowProgram;
 extern LLGLSLShader         gDeferredAvatarAlphaShadowProgram;
 extern LLGLSLShader         gDeferredAvatarAlphaMaskShadowProgram;
 extern LLGLSLShader         gDeferredAlphaProgram;
+extern LLGLSLShader         gDeferredAlphaParticleProgram;
 extern LLGLSLShader         gHUDAlphaProgram;
 extern LLGLSLShader         gDeferredAlphaImpostorProgram;
 extern LLGLSLShader         gDeferredFullbrightProgram;
 extern LLGLSLShader         gHUDFullbrightProgram;
 extern LLGLSLShader         gDeferredFullbrightAlphaMaskProgram;
+extern LLGLSLShader         gDeferredFullbrightAlphaMaskParticleProgram;
 extern LLGLSLShader         gHUDFullbrightAlphaMaskProgram;
 extern LLGLSLShader         gDeferredFullbrightAlphaMaskAlphaProgram;
+extern LLGLSLShader         gDeferredFullbrightAlphaMaskAlphaParticleProgram;
 extern LLGLSLShader         gHUDFullbrightAlphaMaskAlphaProgram;
 extern LLGLSLShader         gDeferredEmissiveProgram;
+extern LLGLSLShader         gDeferredEmissiveParticleProgram;
 extern LLGLSLShader         gDeferredAvatarEyesProgram;
 extern LLGLSLShader         gDeferredAvatarAlphaProgram;
 extern LLGLSLShader         gEnvironmentMapProgram;
@@ -344,6 +349,7 @@ extern LLGLSLShader         gVelocityProgram;
 extern LLGLSLShader         gVelocitySkinnedProgram;
 extern LLGLSLShader         gVelocityBackgroundProgram;
 extern LLGLSLShader         gVelocityAlphaProgram;
+extern LLGLSLShader         gVelocityAlphaParticleProgram;
 extern LLGLSLShader         gVelocityAlphaSkinnedProgram;
 extern LLGLSLShader         gAvatarVelocityProgram;
 #endif

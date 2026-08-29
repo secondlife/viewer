@@ -55,6 +55,10 @@ mat4 getSkinnedTransform();
 #endif
 #endif
 
+#ifdef PARTICLE_BILLBOARD
+vec4 particleBillboardEye(mat4 mv, vec3 position, vec3 center, vec2 corner);
+#endif
+
 out vec3 vary_fragcoord;
 out vec3 vary_position;
 
@@ -101,10 +105,17 @@ void main()
     vec4 frag_pos = projection_matrix * pos;
     gl_Position = frag_pos;
 #else
+#ifdef PARTICLE_BILLBOARD
+    pos = particleBillboardEye(modelview_matrix, position.xyz, normal, texcoord0 * 2.0 - 1.0);
+    norm = -normalize(pos.xyz);
+    vec4 frag_pos = projection_matrix * pos;
+    gl_Position = frag_pos;
+#else
     norm = normalize(normal_matrix * normal);
     vec4 vert = vec4(position.xyz, 1.0);
     pos = (modelview_matrix * vert);
     gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+#endif // PARTICLE_BILLBOARD
 #endif //IS_AVATAR_SKIN
 
 #endif // HAS_SKIN
@@ -129,8 +140,12 @@ void main()
 #ifdef IS_AVATAR_SKIN
     vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 #else
+#ifdef PARTICLE_BILLBOARD
+    vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
+#else
     pos = modelview_projection_matrix * vert;
     vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
+#endif
 #endif
 
 #endif

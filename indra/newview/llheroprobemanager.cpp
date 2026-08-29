@@ -50,6 +50,10 @@ extern bool gTeleportDisplay;
 //defined in llvertexbuffer.cpp
 extern U32 nhpo2(U32 v);
 
+constexpr F32 kMirrorSelectMargin   = 1.5f;
+constexpr S32 kMirrorSelectHoldFrames = 10;
+constexpr F32 kMirrorMinDist        = 0.25f;
+
 static void touch_default_probe(LLReflectionMap* probe)
 {
     if (LLViewerCamera::getInstance())
@@ -129,8 +133,6 @@ void LLHeroProbeManager::update()
     LLQuaternion cameraOrientation = LLViewerCamera::instance().getQuaternion();
     LLVector3    cameraDirection   = LLVector3::z_axis * cameraOrientation;
 
-    S32 probeCount = (S32)mReflectionProbeCount;
-
     // Size the planar capture FOV to reach the mirrored camera frustum's corners,
     // with margin so screen edges stay inside the shader's border fade.
     {
@@ -168,84 +170,304 @@ void LLHeroProbeManager::update()
     }
 
     // --- User probes (indices 1..N-1) ---
-    mActiveHeroes.clear();
+    static LLCachedControl<F32> fade_time(gSavedSettings, "RenderMirrorFadeTime", 0.5f);
 
-    if (mHeroVOList.size() > 0 && probeCount > 1)
+    struct HeroCandidate
     {
-        // Build sorted candidate list by distance
-        struct HeroCandidate
-        {
-            LLPointer<LLVOVolume> vo;
-            float distance;
-        };
-        std::vector<HeroCandidate> candidates;
+        LLPointer<LLVOVolume> vo;
+        F32 score;
+    };
+    std::vector<HeroCandidate> candidates;
 
-        for (auto vo : mHeroVOList)
+    if (!mSlots.empty())
+    {
+        std::vector<LLPointer<LLVOVolume>> dead;
+        F32 far_clip = LLViewerCamera::instance().getFar();
+
+        for (auto& vo : mHeroVOList)
         {
-            if (vo && !vo->isDead() && vo->mDrawable.notNull() && vo->isReflectionProbe() && vo->getReflectionProbeIsBox())
+            if (vo.isNull() || vo->isDead())
             {
-                float distance = (camera_pos - vo->getPositionAgent()).magVec();
+                dead.push_back(vo);
+                continue;
+            }
+            if (vo->mDrawable.isNull() || !vo->isReflectionProbe() || !vo->getReflectionProbeIsBox())
+            {
+                continue;
+            }
 
-                if (distance > LLViewerCamera::instance().getFar())
-                    continue;
+            LLBBox bb = vo->getBoundingBoxAgent();
+            LLVector3 h = vo->getScale() * 0.5f;
+            LLVector3 l = bb.agentToLocal(camera_pos);
+            LLVector3 q(llmax(fabsf(l.mV[VX]) - h.mV[VX], 0.f),
+                        llmax(fabsf(l.mV[VY]) - h.mV[VY], 0.f),
+                        llmax(fabsf(l.mV[VZ]) - h.mV[VZ], 0.f));
+            F32 d = q.magVec();
+            F32 r = h.magVec();
+            bool inside = d <= 0.f;
 
-                LLVector4a center;
-                center.load3(vo->getPositionAgent().mV);
-                LLVector4a size;
-                size.load3(vo->getScale().mV);
+            LLVector3 face_normal = LLVector3::z_axis * vo->mDrawable->getWorldRotation();
+            if ((camera_pos - vo->getPositionAgent()) * face_normal <= 0.f)
+            {
+                continue;
+            }
 
-                if (!LLViewerCamera::instance().AABBInFrustum(center, size))
-                    continue;
-
-                candidates.push_back({ vo, distance });
+            LLVector3 to_mirror;
+            if (inside)
+            {
+                to_mirror = vo->getPositionAgent() - camera_pos;
             }
             else
             {
-                unregisterViewerObject(vo);
+                if (d > far_clip)
+                {
+                    continue;
+                }
+                const LLVector4a* ext = vo->mDrawable->getSpatialExtents();
+                LLVector4a center;
+                center.setAdd(ext[0], ext[1]);
+                center.mul(0.5f);
+                LLVector4a half;
+                half.setSub(ext[1], ext[0]);
+                half.mul(0.5f);
+                if (!LLViewerCamera::instance().AABBInFrustum(center, half))
+                {
+                    continue;
+                }
+                LLVector3 nearest_local(llclamp(l.mV[VX], -h.mV[VX], h.mV[VX]),
+                                        llclamp(l.mV[VY], -h.mV[VY], h.mV[VY]),
+                                        llclamp(l.mV[VZ], -h.mV[VZ], h.mV[VZ]));
+                to_mirror = bb.localToAgent(nearest_local) - camera_pos;
+            }
+            to_mirror.normalize();
+            F32 look = llmax(to_mirror * LLViewerCamera::instance().getAtAxis(), 0.f);
+
+            F32 dist_sq = inside ? kMirrorMinDist * kMirrorMinDist : llmax(d * d, kMirrorMinDist * kMirrorMinDist);
+            F32 score = (r * r) / dist_sq * look * look;
+            candidates.push_back({ vo, score });
+        }
+
+        for (auto& vo : dead)
+        {
+            unregisterViewerObject(vo);
+        }
+
+        std::sort(candidates.begin(), candidates.end(),
+            [](const HeroCandidate& a, const HeroCandidate& b) { return a.score > b.score; });
+    }
+
+    auto find_candidate = [&](const LLVOVolume* vo) -> const HeroCandidate*
+    {
+        for (const HeroCandidate& c : candidates)
+        {
+            if (c.vo == vo) return &c;
+        }
+        return nullptr;
+    };
+    auto is_held = [&](const LLVOVolume* vo)
+    {
+        for (const HeroSlot& s : mSlots)
+        {
+            if (s.mCurrent == vo || s.mPending == vo) return true;
+        }
+        return false;
+    };
+    auto best_unheld = [&]() -> const HeroCandidate*
+    {
+        for (const HeroCandidate& c : candidates)
+        {
+            if (!is_held(c.vo)) return &c;
+        }
+        return nullptr;
+    };
+    auto in_desired = [&](const LLVOVolume* vo)
+    {
+        for (size_t i = 0; i < candidates.size() && i < mSlots.size(); ++i)
+        {
+            if (candidates[i].vo == vo) return true;
+        }
+        return false;
+    };
+    auto challenge_wins = [](const HeroCandidate& c, const HeroCandidate& inc)
+    {
+        return c.score > inc.score * kMirrorSelectMargin;
+    };
+
+    F32 fade_step = fade_time > 0.f ? (F32)gFrameIntervalSeconds / (F32)fade_time : 1.f;
+
+    for (S32 i = 0; i < (S32)mSlots.size(); ++i)
+    {
+        HeroSlot& slot = mSlots[i];
+        LLReflectionMap* probe = mProbes[i + 1];
+
+        if (slot.mPending.notNull() && !find_candidate(slot.mPending))
+        {
+            slot.mPending = nullptr;
+        }
+
+        const HeroCandidate* incumbent = slot.mCurrent.notNull() ? find_candidate(slot.mCurrent) : nullptr;
+        bool lost = slot.mCurrent.notNull() && !incumbent;
+
+        if (slot.mCurrent.isNull())
+        {
+            slot.mChallenger = nullptr;
+            slot.mChallengeFrames = 0;
+            const HeroCandidate* best = best_unheld();
+            if (best)
+            {
+                slot.mCurrent = best->vo;
+                slot.mFade = 0.f;
+                probe->mComplete = false;
+                probe->mOccluded = false;
+                slot.mForceRender = true;
+                slot.mPhase = HeroSlot::FADE_IN;
+            }
+            else
+            {
+                slot.mPhase = HeroSlot::STABLE;
+            }
+        }
+        else if (slot.mPhase != HeroSlot::FADE_OUT)
+        {
+            if (lost)
+            {
+                const HeroCandidate* best = best_unheld();
+                slot.mPending = best ? best->vo : nullptr;
+                slot.mChallenger = nullptr;
+                slot.mChallengeFrames = 0;
+                slot.mPhase = HeroSlot::FADE_OUT;
+            }
+            else if (!in_desired(slot.mCurrent))
+            {
+                const HeroCandidate* best = best_unheld();
+                if (best && challenge_wins(*best, *incumbent))
+                {
+                    if (slot.mChallenger == best->vo)
+                    {
+                        ++slot.mChallengeFrames;
+                    }
+                    else
+                    {
+                        slot.mChallenger = best->vo;
+                        slot.mChallengeFrames = 1;
+                    }
+                    if (slot.mChallengeFrames >= kMirrorSelectHoldFrames)
+                    {
+                        slot.mPending = best->vo;
+                        slot.mChallenger = nullptr;
+                        slot.mChallengeFrames = 0;
+                        slot.mPhase = HeroSlot::FADE_OUT;
+                    }
+                }
+                else
+                {
+                    slot.mChallenger = nullptr;
+                    slot.mChallengeFrames = 0;
+                }
+            }
+            else
+            {
+                slot.mChallenger = nullptr;
+                slot.mChallengeFrames = 0;
             }
         }
 
-        // Sort by distance, nearest first
-        std::sort(candidates.begin(), candidates.end(),
-            [](const HeroCandidate& a, const HeroCandidate& b) { return a.distance < b.distance; });
-
-        // Pick up to N-1 nearest user probes
-        S32 maxUserProbes = probeCount - 1;
-        for (S32 i = 0; i < (S32)candidates.size() && i < maxUserProbes; ++i)
+        if (slot.mCurrent.notNull() && probe->mOccluded)
         {
-            mActiveHeroes.push_back(candidates[i].vo);
+            slot.mFade = 0.f;
+            probe->mComplete = false;
+            slot.mForceRender = true;
+            if (slot.mPhase == HeroSlot::STABLE)
+            {
+                slot.mPhase = HeroSlot::FADE_IN;
+            }
         }
 
-        // Set up each user probe
-        for (S32 i = 0; i < (S32)mActiveHeroes.size(); ++i)
+        switch (slot.mPhase)
         {
-            S32 probeIdx = i + 1; // probe 0 is water
-            LLVOVolume* hero = mActiveHeroes[i];
-
-            LLVector3 hero_pos = hero->getPositionAgent();
-            LLVector3 face_normal = LLVector3(0, 0, 1);
-            face_normal *= hero->mDrawable->getWorldRotation();
-            face_normal.normalize();
-
-            // All probes capture from the reflected camera position; direction-only
-            // sampling in the shader assumes the mirrored eye as the capture origin.
-            LLVector4a probe_pos;
-            LLVector3 offset = camera_pos - hero_pos;
-            LLVector3 project = face_normal * (offset * face_normal);
-            LLVector3 reject  = offset - project;
-            LLVector3 point   = (reject - project) + hero_pos;
-            probe_pos.load3(point.mV);
-
-            mProbes[probeIdx]->mOrigin = probe_pos;
-            mProbes[probeIdx]->mRadius = hero->getScale().magVec() * 0.5f;
-            mProbes[probeIdx]->mViewerObject = hero;
+        case HeroSlot::FADE_OUT:
+            if (slot.mPending.isNull() && incumbent && in_desired(slot.mCurrent))
+            {
+                slot.mPhase = HeroSlot::FADE_IN;
+                break;
+            }
+            slot.mFade -= fade_step;
+            if (slot.mFade <= 0.f)
+            {
+                slot.mFade = 0.f;
+                slot.mCurrent = slot.mPending;
+                slot.mPending = nullptr;
+                probe->mComplete = false;
+                probe->mOccluded = false;
+                slot.mForceRender = slot.mCurrent.notNull();
+                slot.mPhase = slot.mCurrent.notNull() ? HeroSlot::FADE_IN : HeroSlot::STABLE;
+            }
+            break;
+        case HeroSlot::FADE_IN:
+            // the cube slot still holds the previous occupant until its first capture lands
+            if (probe->mComplete)
+            {
+                slot.mFade = llmin(slot.mFade + fade_step, 1.f);
+                if (slot.mFade >= 1.f)
+                {
+                    slot.mPhase = HeroSlot::STABLE;
+                }
+            }
+            break;
+        case HeroSlot::STABLE:
+            break;
         }
     }
 
-    // Set backward compat mMirrorPosition/mMirrorNormal from nearest user probe (for clipPlane uniform)
-    if (!mActiveHeroes.empty())
+    mActiveHeroes.assign(mSlots.size(), nullptr);
+    for (S32 i = 0; i < (S32)mSlots.size(); ++i)
     {
-        LLVOVolume* nearest = mActiveHeroes[0];
+        mActiveHeroes[i] = mSlots[i].mCurrent;
+    }
+
+    for (S32 i = 0; i < (S32)mActiveHeroes.size(); ++i)
+    {
+        LLVOVolume* hero = mActiveHeroes[i];
+        if (!hero || hero->isDead() || hero->mDrawable.isNull())
+        {
+            continue;
+        }
+
+        S32 probeIdx = i + 1; // probe 0 is water
+
+        LLVector3 hero_pos = hero->getPositionAgent();
+        LLVector3 face_normal = LLVector3(0, 0, 1);
+        face_normal *= hero->mDrawable->getWorldRotation();
+        face_normal.normalize();
+
+        // All probes capture from the reflected camera position; direction-only
+        // sampling in the shader assumes the mirrored eye as the capture origin.
+        LLVector4a probe_pos;
+        LLVector3 offset = camera_pos - hero_pos;
+        LLVector3 project = face_normal * (offset * face_normal);
+        LLVector3 reject  = offset - project;
+        LLVector3 point   = (reject - project) + hero_pos;
+        probe_pos.load3(point.mV);
+
+        mProbes[probeIdx]->mOrigin = probe_pos;
+        mProbes[probeIdx]->mRadius = hero->getScale().magVec() * 0.5f;
+        mProbes[probeIdx]->mViewerObject = hero;
+    }
+
+    // Set backward compat mMirrorPosition/mMirrorNormal from nearest user probe (for clipPlane uniform)
+    LLVOVolume* nearest = nullptr;
+    for (S32 i = 0; i < (S32)mActiveHeroes.size(); ++i)
+    {
+        LLVOVolume* hero = mActiveHeroes[i];
+        if (hero && !hero->isDead() && hero->mDrawable.notNull())
+        {
+            nearest = hero;
+            break;
+        }
+    }
+
+    if (nearest)
+    {
         LLVector3 face_normal = LLVector3(0, 0, 1);
         face_normal *= nearest->mDrawable->getWorldRotation();
         face_normal.normalize();
@@ -259,8 +481,6 @@ void LLHeroProbeManager::update()
         mMirrorPosition = LLVector3(camera_pos.mV[VX], camera_pos.mV[VY], waterHeight);
         mMirrorNormal   = LLVector3(0.f, 0.f, 1.f);
     }
-
-    mHeroProbeStrength = 1;
 }
 
 void LLHeroProbeManager::renderProbes()
@@ -316,6 +536,15 @@ void LLHeroProbeManager::renderProbes()
         {
             if (probeIdx >= (S32)mProbes.size() || mProbes[probeIdx].isNull() || mProbes[probeIdx]->mOccluded)
                 continue;
+
+            if (probeIdx > 0)
+            {
+                LLVOVolume* hero = mActiveHeroes[probeIdx - 1];
+                if (!hero || hero->isDead() || hero->mDrawable.isNull())
+                {
+                    continue;
+                }
+            }
 
             mCurrentRenderingProbeIdx = probeIdx;
 
@@ -376,12 +605,15 @@ void LLHeroProbeManager::renderProbes()
                 dynamic = mActiveHeroes[probeIdx - 1]->getReflectionProbeIsDynamic() && sDetail() > 0;
             }
 
+            bool rendered = false;
+
             if (mIsPlanar)
             {
                 updateProbeFace(mProbes[probeIdx], 0, dynamic, near_clip);
                 generateRadiance(mProbes[probeIdx]);
+                rendered = true;
             }
-            else if (((U32)(gFrameCount + probeIdx)) % (U32)rate == 0)
+            else if ((probeIdx > 0 && mSlots[probeIdx - 1].mForceRender) || ((U32)(gFrameCount + probeIdx)) % (U32)rate == 0)
             {
                 // stagger whole probes, not faces: the radiance-gen scratch cubemap is
                 // shared across probes, so a partial face update hands generateRadiance
@@ -391,6 +623,16 @@ void LLHeroProbeManager::renderProbes()
                     updateProbeFace(mProbes[probeIdx], i, dynamic, near_clip);
                 }
                 generateRadiance(mProbes[probeIdx]);
+                rendered = true;
+            }
+
+            if (rendered)
+            {
+                mProbes[probeIdx]->mComplete = true;
+                if (probeIdx > 0)
+                {
+                    mSlots[probeIdx - 1].mForceRender = false;
+                }
             }
         }
 
@@ -572,7 +814,6 @@ void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
             mTexture->bind(channel);
             gHeroRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gHeroRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
-            gHeroRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_STRENGTH, mHeroProbeStrength);
 
             U32 res = mMipChain[0].getWidth();
 
@@ -635,7 +876,8 @@ void LLHeroProbeManager::updateUniforms()
     memset((void*)&mHeroData, 0, sizeof(mHeroData));
 
     S32 activeCount = 1 + (S32)mActiveHeroes.size(); // water + user probes
-    mHeroData.heroProbeCount = activeCount;
+    // captures are camera-locked; never sample one hero while rendering another
+    mHeroData.heroProbeCount = gCubeSnapshot ? 0 : activeCount;
 
     LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
 
@@ -656,6 +898,7 @@ void LLHeroProbeManager::updateUniforms()
 
             // Water probe — always planar
             mHeroData.heroParams[pi][0] = 2; // planar shape
+            mHeroData.heroFade[pi].mV[0] = 1.f;
 
             F32 waterHeight = LLEnvironment::instance().getWaterHeight();
             LLVector3 waterNormal(0.f, 0.f, 1.f);
@@ -703,6 +946,10 @@ void LLHeroProbeManager::updateUniforms()
         {
             // User probe
             LLVOVolume* hero = mActiveHeroes[pi - 1];
+            if (!hero || hero->isDead() || hero->mDrawable.isNull())
+            {
+                continue;
+            }
 
             if (hero->getReflectionProbeIsBox())
             {
@@ -769,6 +1016,8 @@ void LLHeroProbeManager::updateUniforms()
             glm::vec3 ep = glm::vec3(mat * glm::vec4(hero_pos.mV[VX], hero_pos.mV[VY], hero_pos.mV[VZ], 1.f));
 
             mHeroData.heroClipPlane[pi].set(enorm.x, enorm.y, enorm.z, -glm::dot(ep, enorm));
+
+            mHeroData.heroFade[pi].mV[0] = mSlots[pi - 1].mFade;
         }
     }
 
@@ -826,6 +1075,9 @@ void LLHeroProbeManager::initReflectionMaps()
         }
 
         mDefaultProbe = mProbes[0];
+
+        mSlots.assign(count - 1, HeroSlot());
+        mActiveHeroes.assign(count - 1, nullptr);
     }
 
     if (mVertexBuffer.isNull())
@@ -861,6 +1113,9 @@ void LLHeroProbeManager::cleanup()
     mProbes.clear();
 
     mDefaultProbe = nullptr;
+
+    mSlots.clear();
+    mActiveHeroes.clear();
 }
 
 void LLHeroProbeManager::doOcclusion()
@@ -868,12 +1123,35 @@ void LLHeroProbeManager::doOcclusion()
     LLVector4a eye;
     eye.load3(LLViewerCamera::instance().getOrigin().mV);
 
-    for (auto& probe : mProbes)
+    for (S32 i = 0; i < (S32)mProbes.size(); ++i)
     {
-        if (probe != nullptr)
+        LLReflectionMap* probe = mProbes[i];
+        if (!probe)
+        {
+            continue;
+        }
+        if (i == 0)
         {
             probe->doOcclusion(eye);
+            continue;
         }
+        LLVOVolume* hero = (i - 1 < (S32)mActiveHeroes.size()) ? mActiveHeroes[i - 1].get() : nullptr;
+        if (!hero || hero->isDead() || hero->mDrawable.isNull())
+        {
+            probe->mOccluded = false;
+            continue;
+        }
+        const LLVector4a* ext = hero->mDrawable->getSpatialExtents();
+        LLVector4a center;
+        center.setAdd(ext[0], ext[1]);
+        center.mul(0.5f);
+        LLVector4a half_size;
+        half_size.setSub(ext[1], ext[0]);
+        half_size.mul(0.5f);
+        // bounding-sphere cube, as regular probes use: a thin mirror's own face must not occlude its query
+        F32 r = half_size.getLength3().getF32();
+        half_size.set(r, r, r, 0.f);
+        probe->doOcclusion(eye, center, half_size);
     }
 }
 
@@ -898,6 +1176,11 @@ bool LLHeroProbeManager::registerViewerObject(LLVOVolume* drawablep)
 
 void LLHeroProbeManager::unregisterViewerObject(LLVOVolume* drawablep)
 {
+    if (drawablep)
+    {
+        drawablep->mIsHeroProbe = false;
+    }
+
     std::vector<LLPointer<LLVOVolume>>::iterator found_itr = std::find(mHeroVOList.begin(), mHeroVOList.end(), drawablep);
     if (found_itr != mHeroVOList.end())
     {

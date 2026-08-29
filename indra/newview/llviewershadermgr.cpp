@@ -118,6 +118,7 @@ LLGLSLShader        gUnderWaterProgram;
 
 //interface shaders
 LLGLSLShader        gHighlightProgram;
+LLGLSLShader        gHighlightParticleProgram;
 LLGLSLShader        gSkinnedHighlightProgram;
 LLGLSLShader        gHighlightNormalProgram;
 LLGLSLShader        gHighlightSpecularProgram;
@@ -185,6 +186,7 @@ LLGLSLShader            gDeferredAvatarShadowProgram;
 LLGLSLShader            gDeferredAvatarAlphaShadowProgram;
 LLGLSLShader            gDeferredAvatarAlphaMaskShadowProgram;
 LLGLSLShader            gDeferredAlphaProgram;
+LLGLSLShader            gDeferredAlphaParticleProgram;
 LLGLSLShader            gHUDAlphaProgram;
 LLGLSLShader            gDeferredSkinnedAlphaProgram;
 LLGLSLShader            gDeferredAlphaImpostorProgram;
@@ -193,10 +195,13 @@ LLGLSLShader            gDeferredAvatarEyesProgram;
 LLGLSLShader            gDeferredFullbrightProgram;
 LLGLSLShader            gHUDFullbrightProgram;
 LLGLSLShader            gDeferredFullbrightAlphaMaskProgram;
+LLGLSLShader            gDeferredFullbrightAlphaMaskParticleProgram;
 LLGLSLShader            gHUDFullbrightAlphaMaskProgram;
 LLGLSLShader            gDeferredFullbrightAlphaMaskAlphaProgram;
+LLGLSLShader            gDeferredFullbrightAlphaMaskAlphaParticleProgram;
 LLGLSLShader            gHUDFullbrightAlphaMaskAlphaProgram;
 LLGLSLShader            gDeferredEmissiveProgram;
+LLGLSLShader            gDeferredEmissiveParticleProgram;
 LLGLSLShader            gDeferredSkinnedEmissiveProgram;
 LLGLSLShader            gDeferredPostProgram;
 LLGLSLShader            gDeferredCoFProgram;
@@ -255,6 +260,7 @@ LLGLSLShader            gVelocityProgram;
 LLGLSLShader            gVelocityBackgroundProgram;
 LLGLSLShader            gVelocitySkinnedProgram;
 LLGLSLShader            gVelocityAlphaProgram;
+LLGLSLShader            gVelocityAlphaParticleProgram;
 LLGLSLShader            gVelocityAlphaSkinnedProgram;
 LLGLSLShader            gAvatarVelocityProgram;
 
@@ -443,17 +449,21 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gDeferredSoftenProgram);
     mShaderList.push_back(&gDeferredSoftenCubeProgram);
     mShaderList.push_back(&gDeferredAlphaProgram);
+    mShaderList.push_back(&gDeferredAlphaParticleProgram);
     mShaderList.push_back(&gHUDAlphaProgram);
     mShaderList.push_back(&gDeferredAlphaImpostorProgram);
     mShaderList.push_back(&gDeferredFullbrightProgram);
     mShaderList.push_back(&gHUDFullbrightProgram);
     mShaderList.push_back(&gDeferredFullbrightAlphaMaskProgram);
+    mShaderList.push_back(&gDeferredFullbrightAlphaMaskParticleProgram);
     mShaderList.push_back(&gHUDFullbrightAlphaMaskProgram);
     mShaderList.push_back(&gDeferredFullbrightAlphaMaskAlphaProgram);
+    mShaderList.push_back(&gDeferredFullbrightAlphaMaskAlphaParticleProgram);
     mShaderList.push_back(&gHUDFullbrightAlphaMaskAlphaProgram);
     mShaderList.push_back(&gDeferredFullbrightShinyProgram);
     mShaderList.push_back(&gHUDFullbrightShinyProgram);
     mShaderList.push_back(&gDeferredEmissiveProgram);
+    mShaderList.push_back(&gDeferredEmissiveParticleProgram);
     mShaderList.push_back(&gDeferredAvatarEyesProgram);
     mShaderList.push_back(&gDeferredAvatarAlphaProgram);
     mShaderList.push_back(&gEnvironmentMapProgram);
@@ -1140,15 +1150,19 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredAvatarProgram.unload();
         gDeferredAvatarAlphaProgram.unload();
         gDeferredAlphaProgram.unload();
+        gDeferredAlphaParticleProgram.unload();
         gHUDAlphaProgram.unload();
         gDeferredSkinnedAlphaProgram.unload();
         gDeferredFullbrightProgram.unload();
         gHUDFullbrightProgram.unload();
         gDeferredFullbrightAlphaMaskProgram.unload();
+        gDeferredFullbrightAlphaMaskParticleProgram.unload();
         gHUDFullbrightAlphaMaskProgram.unload();
         gDeferredFullbrightAlphaMaskAlphaProgram.unload();
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.unload();
         gHUDFullbrightAlphaMaskAlphaProgram.unload();
         gDeferredEmissiveProgram.unload();
+        gDeferredEmissiveParticleProgram.unload();
         gDeferredSkinnedEmissiveProgram.unload();
         gDeferredAvatarEyesProgram.unload();
         gDeferredPostProgram.unload();
@@ -1217,6 +1231,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gVelocitySkinnedProgram.unload();
         gVelocityBackgroundProgram.unload();
         gVelocityAlphaProgram.unload();
+        gVelocityAlphaParticleProgram.unload();
         gVelocityAlphaSkinnedProgram.unload();
         gAvatarVelocityProgram.unload();
         gDeferredMotionBlurProgram.unload();
@@ -1877,6 +1892,49 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
     if (success)
     {
+        LLGLSLShader* shader = &gDeferredAlphaParticleProgram;
+        shader->mName = "Deferred Alpha Particle Shader";
+
+        shader->mFeatures.calculatesLighting = false;
+        shader->mFeatures.hasLighting = false;
+        shader->mFeatures.isAlphaLighting = true;
+        shader->mFeatures.hasSrgb = true;
+        shader->mFeatures.calculatesAtmospherics = true;
+        shader->mFeatures.hasAtmospherics = true;
+        shader->mFeatures.hasGamma = true;
+        shader->mFeatures.hasShadows = use_sun_shadow;
+        shader->mFeatures.hasReflectionProbes = true;
+        shader->mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+
+        shader->mShaderFiles.clear();
+        shader->mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
+        shader->mShaderFiles.push_back(make_pair("deferred/particleBillboardV.glsl", GL_VERTEX_SHADER));
+        shader->mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
+
+        shader->clearPermutations();
+        shader->addPermutation("USE_VERTEX_COLOR", "1");
+        shader->addPermutation("HAS_ALPHA_MASK", "1");
+        shader->addPermutation("USE_INDEXED_TEX", "1");
+        shader->addPermutation("PARTICLE_BILLBOARD", "1");
+        if (use_sun_shadow)
+        {
+            shader->addPermutation("HAS_SUN_SHADOW", "1");
+        }
+
+        add_common_permutations(shader);
+
+        shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        success = shader->createShader();
+        llassert(success);
+
+        // Hack
+        shader->mFeatures.calculatesLighting = true;
+        shader->mFeatures.hasLighting = true;
+    }
+
+    if (success)
+    {
         LLGLSLShader* shaders[] = {
             &gDeferredAlphaImpostorProgram,
             &gDeferredSkinnedAlphaImpostorProgram
@@ -2021,6 +2079,29 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
     if (success)
     {
+        gDeferredFullbrightAlphaMaskParticleProgram.mName = "Deferred Fullbright Alpha Masking Particle Shader";
+        gDeferredFullbrightAlphaMaskParticleProgram.mFeatures.calculatesAtmospherics = true;
+        gDeferredFullbrightAlphaMaskParticleProgram.mFeatures.hasGamma = true;
+        gDeferredFullbrightAlphaMaskParticleProgram.mFeatures.hasAtmospherics = true;
+        gDeferredFullbrightAlphaMaskParticleProgram.mFeatures.hasSrgb = true;
+        gDeferredFullbrightAlphaMaskParticleProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+        gDeferredFullbrightAlphaMaskParticleProgram.mShaderFiles.clear();
+        gDeferredFullbrightAlphaMaskParticleProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER));
+        gDeferredFullbrightAlphaMaskParticleProgram.mShaderFiles.push_back(make_pair("deferred/particleBillboardV.glsl", GL_VERTEX_SHADER));
+        gDeferredFullbrightAlphaMaskParticleProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightF.glsl", GL_FRAGMENT_SHADER));
+        gDeferredFullbrightAlphaMaskParticleProgram.clearPermutations();
+        gDeferredFullbrightAlphaMaskParticleProgram.addPermutation("HAS_ALPHA_MASK","1");
+        gDeferredFullbrightAlphaMaskParticleProgram.addPermutation("PARTICLE_BILLBOARD","1");
+        gDeferredFullbrightAlphaMaskParticleProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        add_common_permutations(&gDeferredFullbrightAlphaMaskParticleProgram);
+
+        success = gDeferredFullbrightAlphaMaskParticleProgram.createShader();
+        llassert(success);
+    }
+
+    if (success)
+    {
         gHUDFullbrightAlphaMaskProgram.mName = "HUD Fullbright Alpha Masking Shader";
         gHUDFullbrightAlphaMaskProgram.mFeatures.calculatesAtmospherics = true;
         gHUDFullbrightAlphaMaskProgram.mFeatures.hasGamma = true;
@@ -2062,6 +2143,31 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredFullbrightAlphaMaskAlphaProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = make_rigged_variant(gDeferredFullbrightAlphaMaskAlphaProgram, gDeferredSkinnedFullbrightAlphaMaskAlphaProgram);
         success = success && gDeferredFullbrightAlphaMaskAlphaProgram.createShader();
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mName = "Deferred Fullbright Alpha Masking Alpha Particle Shader";
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mFeatures.calculatesAtmospherics = true;
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mFeatures.hasGamma = true;
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mFeatures.hasAtmospherics = true;
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mFeatures.hasSrgb = true;
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mFeatures.isDeferred = true;
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mShaderFiles.clear();
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightV.glsl", GL_VERTEX_SHADER));
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mShaderFiles.push_back(make_pair("deferred/particleBillboardV.glsl", GL_VERTEX_SHADER));
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightF.glsl", GL_FRAGMENT_SHADER));
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.clearPermutations();
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.addPermutation("HAS_ALPHA_MASK", "1");
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.addPermutation("IS_ALPHA", "1");
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.addPermutation("PARTICLE_BILLBOARD", "1");
+
+        add_common_permutations(&gDeferredFullbrightAlphaMaskAlphaParticleProgram);
+
+        gDeferredFullbrightAlphaMaskAlphaParticleProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gDeferredFullbrightAlphaMaskAlphaParticleProgram.createShader();
         llassert(success);
     }
 
@@ -2148,6 +2254,28 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
         success = make_rigged_variant(gDeferredEmissiveProgram, gDeferredSkinnedEmissiveProgram);
         success = success && gDeferredEmissiveProgram.createShader();
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gDeferredEmissiveParticleProgram.mName = "Deferred Emissive Particle Shader";
+        gDeferredEmissiveParticleProgram.mFeatures.calculatesAtmospherics = true;
+        gDeferredEmissiveParticleProgram.mFeatures.hasGamma = true;
+        gDeferredEmissiveParticleProgram.mFeatures.hasAtmospherics = true;
+        gDeferredEmissiveParticleProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+        gDeferredEmissiveParticleProgram.mShaderFiles.clear();
+        gDeferredEmissiveParticleProgram.mShaderFiles.push_back(make_pair("deferred/emissiveV.glsl", GL_VERTEX_SHADER));
+        gDeferredEmissiveParticleProgram.mShaderFiles.push_back(make_pair("deferred/particleBillboardV.glsl", GL_VERTEX_SHADER));
+        gDeferredEmissiveParticleProgram.mShaderFiles.push_back(make_pair("deferred/emissiveF.glsl", GL_FRAGMENT_SHADER));
+        gDeferredEmissiveParticleProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        gDeferredEmissiveParticleProgram.clearPermutations();
+        gDeferredEmissiveParticleProgram.addPermutation("PARTICLE_BILLBOARD", "1");
+
+        add_common_permutations(&gDeferredEmissiveParticleProgram);
+
+        success = gDeferredEmissiveParticleProgram.createShader();
         llassert(success);
     }
 
@@ -3282,6 +3410,22 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
     if (success)
     {
+        gVelocityAlphaParticleProgram.mName = "Velocity Alpha Particle Shader";
+        gVelocityAlphaParticleProgram.mFeatures.hasMotionBlur = true;
+        gVelocityAlphaParticleProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+        gVelocityAlphaParticleProgram.mShaderFiles.clear();
+        gVelocityAlphaParticleProgram.mShaderFiles.push_back(make_pair("deferred/velocityAlphaV.glsl", GL_VERTEX_SHADER));
+        gVelocityAlphaParticleProgram.mShaderFiles.push_back(make_pair("deferred/particleBillboardV.glsl", GL_VERTEX_SHADER));
+        gVelocityAlphaParticleProgram.mShaderFiles.push_back(make_pair("deferred/velocityAlphaF.glsl", GL_FRAGMENT_SHADER));
+        gVelocityAlphaParticleProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gVelocityAlphaParticleProgram.clearPermutations();
+        gVelocityAlphaParticleProgram.addPermutation("PARTICLE_BILLBOARD","1");
+        add_common_permutations(&gVelocityAlphaParticleProgram);
+        success = gVelocityAlphaParticleProgram.createShader();
+    }
+
+    if (success)
+    {
         gAvatarVelocityProgram.mName = "Avatar Velocity Shader";
         gAvatarVelocityProgram.mFeatures.hasSkinning = true;
         gAvatarVelocityProgram.mFeatures.hasMotionBlur = true;
@@ -3442,6 +3586,19 @@ bool LLViewerShaderMgr::loadShadersInterface()
         gHighlightProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
         success = make_rigged_variant(gHighlightProgram, gSkinnedHighlightProgram);
         success = success && gHighlightProgram.createShader();
+    }
+
+    if (success)
+    {
+        gHighlightParticleProgram.mName = "Highlight Particle Shader";
+        gHighlightParticleProgram.mShaderFiles.clear();
+        gHighlightParticleProgram.mShaderFiles.push_back(make_pair("interface/highlightV.glsl", GL_VERTEX_SHADER));
+        gHighlightParticleProgram.mShaderFiles.push_back(make_pair("deferred/particleBillboardV.glsl", GL_VERTEX_SHADER));
+        gHighlightParticleProgram.mShaderFiles.push_back(make_pair("interface/highlightF.glsl", GL_FRAGMENT_SHADER));
+        gHighlightParticleProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+        gHighlightParticleProgram.clearPermutations();
+        gHighlightParticleProgram.addPermutation("PARTICLE_BILLBOARD","1");
+        success = gHighlightParticleProgram.createShader();
     }
 
     if (success)

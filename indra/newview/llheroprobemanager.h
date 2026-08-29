@@ -48,6 +48,7 @@ struct HeroProbeData
     GLint     heroParams[LL_MAX_HERO_PROBE_COUNT][4];
     LLMatrix4 heroPlaneMatrix[LL_MAX_HERO_PROBE_COUNT];
     LLVector4 heroClipPlane[LL_MAX_HERO_PROBE_COUNT];
+    LLVector4 heroFade[LL_MAX_HERO_PROBE_COUNT];
 };
 
 class alignas(16) LLHeroProbeManager
@@ -147,9 +148,6 @@ private:
     // maximum LoD of reflection probes (mip levels - 1)
     F32 mMaxProbeLOD = 6.f;
 
-    F32 mHeroProbeStrength = 1.f;
-    bool mIsInTransition = false;
-
     // if true, reset all probe render state on the next update (for teleports and sky changes)
     bool mReset = false;
 
@@ -157,6 +155,18 @@ private:
 
     std::vector<LLPointer<LLVOVolume>>                       mHeroVOList;
     std::vector<LLPointer<LLVOVolume>>                       mActiveHeroes;
+
+    struct HeroSlot
+    {
+        LLPointer<LLVOVolume> mCurrent;
+        LLPointer<LLVOVolume> mPending;
+        LLPointer<LLVOVolume> mChallenger;
+        S32  mChallengeFrames = 0;
+        F32  mFade = 0.f;
+        bool mForceRender = false;
+        enum EPhase { STABLE, FADE_OUT, FADE_IN } mPhase = STABLE;
+    };
+    std::vector<HeroSlot> mSlots;
 
     // Part of a hacky workaround to fix #3331.
     bool mInitialized = false;

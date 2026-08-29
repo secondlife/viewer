@@ -7760,6 +7760,17 @@
     <key>Value</key>
     <integer>2</integer>
   </map>
+  <key>RenderMirrorFadeTime</key>
+  <map>
+    <key>Comment</key>
+    <string>Seconds for a mirror to fade in or out when the active mirror changes.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
   <key>RenderMirrors</key>
   <map>
     <key>Comment</key>
@@ -8050,6 +8061,17 @@
   <map>
     <key>Comment</key>
     <string>Enable emissive buffer in gbuffer.  Should only be disabled in GL3 mode.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>RenderGPUParticleBillboards</key>
+  <map>
+    <key>Comment</key>
+    <string>Expand particle billboards in the vertex shader. Off falls back to CPU expansion.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

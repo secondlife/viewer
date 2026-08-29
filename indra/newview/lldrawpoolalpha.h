@@ -83,9 +83,12 @@ private:
     LLGLSLShader* emissive_shader = nullptr;
     LLGLSLShader* pbr_emissive_shader = nullptr;
     LLGLSLShader* pbr_shader = nullptr;
+    LLGLSLShader* particle_shader = nullptr;
+    LLGLSLShader* particle_fullbright_shader = nullptr;
+    LLGLSLShader* particle_emissive_shader = nullptr;
 
     void drawEmissive(LLDrawInfo* draw);
-    void renderEmissives(std::vector<LLDrawInfo*>& emissives);
+    void renderEmissives(std::vector<LLDrawInfo*>& emissives, LLGLSLShader* shader);
     void renderRiggedEmissives(std::vector<LLDrawInfo*>& emissives);
     void renderPbrEmissives(std::vector<LLDrawInfo*>& emissives);
     void renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissives);

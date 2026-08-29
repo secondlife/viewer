@@ -85,6 +85,7 @@ public:
 
     // perform occlusion query/readback
     void doOcclusion(const LLVector4a& eye);
+    void doOcclusion(const LLVector4a& eye, const LLVector4a& center, const LLVector4a& half_size);
 
     // return false if this probe isn't currently relevant (for example, disabled due to graphics preferences)
     bool isRelevant() const;

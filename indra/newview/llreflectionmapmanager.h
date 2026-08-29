@@ -106,6 +106,7 @@ public:
         alignas(16) GLint heroParams[LL_MAX_HERO_PROBE_COUNT][4];
         LLMatrix4 heroPlaneMatrix[LL_MAX_HERO_PROBE_COUNT];
         LLVector4 heroClipPlane[LL_MAX_HERO_PROBE_COUNT];
+        LLVector4 heroFade[LL_MAX_HERO_PROBE_COUNT];
     };
 
     // allocate an environment map of the given resolution

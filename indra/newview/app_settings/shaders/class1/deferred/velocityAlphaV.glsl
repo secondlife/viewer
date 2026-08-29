@@ -34,6 +34,11 @@ in vec3 position;
 in vec4 diffuse_color;
 in vec2 texcoord0;
 
+#ifdef PARTICLE_BILLBOARD
+in vec3 normal;
+vec4 particleBillboardEye(mat4 mv, vec3 position, vec3 center, vec2 corner);
+#endif
+
 out vec2 vary_texcoord0;
 out vec4 vertex_color;
 
@@ -59,6 +64,12 @@ void main()
 
     mat4 last_mat = getLastObjectSkinnedTransform();
     vec4 last_pos = projection_matrix * last_modelview_matrix * last_mat * vec4(position.xyz, 1.0);
+#elif defined(PARTICLE_BILLBOARD)
+    vec2 corner = texcoord0 * 2.0 - 1.0;
+    vec4 pos = projection_matrix * particleBillboardEye(modelview_matrix, position.xyz, normal, corner);
+    gl_Position = pos;
+
+    vec4 last_pos = projection_matrix * particleBillboardEye(last_modelview_matrix * last_object_matrix, position.xyz, normal, corner);
 #else
     vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
     gl_Position = pos;

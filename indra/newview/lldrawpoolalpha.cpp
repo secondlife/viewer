@@ -49,6 +49,7 @@
 #include "llspatialpartition.h"
 #include "llglcommonfunc.h"
 #include "llvoavatar.h"
+#include "llvopartgroup.h"
 #include "gltfscenemanager.h"
 
 #include "llenvironment.h"
@@ -168,6 +169,9 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     pbr_emissive_shader = &gPBRGlowProgram;
     prepare_alpha_shader(pbr_emissive_shader, false, water_sign);
 
+    particle_emissive_shader = &gDeferredEmissiveParticleProgram;
+    prepare_alpha_shader(particle_emissive_shader, false, water_sign);
+
 
     fullbright_shader   =
         (LLPipeline::sImpostorRender) ? &gDeferredFullbrightAlphaMaskProgram :
@@ -175,12 +179,18 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         &gDeferredFullbrightAlphaMaskAlphaProgram;
     prepare_alpha_shader(fullbright_shader, true, water_sign);
 
+    particle_fullbright_shader = &gDeferredFullbrightAlphaMaskAlphaParticleProgram;
+    prepare_alpha_shader(particle_fullbright_shader, true, water_sign);
+
     simple_shader   =
         (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
         (LLPipeline::sRenderingHUDs) ? &gHUDAlphaProgram :
         &gDeferredAlphaProgram;
 
     prepare_alpha_shader(simple_shader, true, water_sign); //prime simple shader (loads shadow relevant uniforms)
+
+    particle_shader = &gDeferredAlphaParticleProgram;
+    prepare_alpha_shader(particle_shader, true, water_sign);
 
     LLGLSLShader* materialShader = gDeferredMaterialProgram;
     for (int i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
@@ -211,6 +221,10 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     if (!LLPipeline::sImpostorRender && LLPipeline::RenderDepthOfField && !gCubeSnapshot && !LLPipeline::sRenderingHUDs && getType() == LLDrawPool::POOL_ALPHA_POST_WATER)
     {
         //update depth buffer sampler
+        particle_shader = particle_fullbright_shader = &gDeferredFullbrightAlphaMaskParticleProgram;
+        particle_shader->bind();
+        particle_shader->setMinimumAlpha(0.33f);
+
         simple_shader = fullbright_shader = &gDeferredFullbrightAlphaMaskProgram;
 
         simple_shader->bind();
@@ -340,6 +354,8 @@ void LLDrawPoolAlpha::renderAlphaHighlight()
             if (group->getSpatialPartition()->mRenderByGroup &&
                 !group->isDead())
             {
+                bool particle = group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_PARTICLE;
+
                 LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA+pass]; // <-- hacky + pass to use PASS_ALPHA_RIGGED on second pass
 
                 for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)
@@ -347,7 +363,7 @@ void LLDrawPoolAlpha::renderAlphaHighlight()
                     LLDrawInfo& params = **k;
 
                     bool rigged = (params.mAvatar != nullptr);
-                    gHighlightProgram.bind(rigged);
+                    (particle ? gHighlightParticleProgram : gHighlightProgram).bind(rigged);
 
                     if (rigged)
                     {
@@ -487,10 +503,10 @@ void LLDrawPoolAlpha::drawEmissive(LLDrawInfo* draw)
 }
 
 
-void LLDrawPoolAlpha::renderEmissives(std::vector<LLDrawInfo*>& emissives)
+void LLDrawPoolAlpha::renderEmissives(std::vector<LLDrawInfo*>& emissives, LLGLSLShader* shader)
 {
-    emissive_shader->bind();
-    emissive_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
+    shader->bind();
+    shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
 
     for (LLDrawInfo* draw : emissives)
     {
@@ -722,6 +738,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         target_shader = fullbright_shader;
                     }
 
+                    if (is_particle_or_hud_particle && !LLPipeline::sRenderingHUDs)
+                    {
+                        target_shader = params.mFullbright ? particle_fullbright_shader : particle_shader;
+                    }
+
                     if (params.mAvatar != nullptr)
                     {
                         llassert(target_shader->mRiggedVariant != nullptr);
@@ -843,7 +864,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                 if (!emissives.empty())
                 {
                     light_enabled = true;
-                    renderEmissives(emissives);
+                    renderEmissives(emissives, (is_particle_or_hud_particle && !LLPipeline::sRenderingHUDs) ? particle_emissive_shader : emissive_shader);
                     rebind = true;
                 }
 
@@ -917,6 +938,44 @@ void LLDrawPoolAlpha::renderVelocity(S32 pass)
     LL_PROFILE_ZONE_SCOPED;
     LLGLEnable cull(GL_CULL_FACE);
     pushVelocityBatchesTextured(LLRenderPass::PASS_ALPHA);
+
+    if (LLVOPartGroup::gpuBillboardsEnabled())
+    {
+        static const LLMatrix4 identity;
+        gVelocityAlphaParticleProgram.bind();
+        gVelocityAlphaParticleProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+        gVelocityAlphaParticleProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+        gVelocityAlphaParticleProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32)gGLViewport[0], (F32)gGLViewport[1], (F32)gGLViewport[2], (F32)gGLViewport[3]);
+        gVelocityAlphaParticleProgram.uniformMatrix4fv(LLShaderMgr::LAST_OBJECT_MATRIX, 1, GL_FALSE, (GLfloat*) identity.mMatrix);
+
+        LLGLDisable no_cull(GL_CULL_FACE);
+        for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
+        {
+            LLSpatialGroup* group = *i;
+            if (group->isDead() || group->getSpatialPartition()->mPartitionType != LLViewerRegion::PARTITION_PARTICLE)
+            {
+                continue;
+            }
+
+            LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];
+            for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)
+            {
+                LLDrawInfo& params = **k;
+                if (params.mVertexBuffer.isNull())
+                {
+                    continue;
+                }
+
+                LLRenderPass::applyModelMatrix(params);
+                if (params.mTexture.notNull())
+                {
+                    gGL.getTexUnit(0)->bindFast(params.mTexture);
+                }
+                params.mVertexBuffer->setBuffer();
+                params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+            }
+        }
+    }
 
     gVelocityAlphaProgram.bind(true);
     LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);

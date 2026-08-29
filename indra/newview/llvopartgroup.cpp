@@ -199,6 +199,16 @@ F32 LLVOPartGroup::getPartSize(S32 idx)
     return 0.f;
 }
 
+const LLViewerPart* LLVOPartGroup::getPart(S32 idx) const
+{
+    if (idx < (S32) mViewerPartGroupp->mParticles.size())
+    {
+        return mViewerPartGroupp->mParticles[idx];
+    }
+
+    return nullptr;
+}
+
 void LLVOPartGroup::getBlendFunc(S32 idx, LLRender::eBlendFactor& src, LLRender::eBlendFactor& dst)
 {
     if (idx < (S32) mViewerPartGroupp->mParticles.size())
@@ -212,6 +222,17 @@ void LLVOPartGroup::getBlendFunc(S32 idx, LLRender::eBlendFactor& src, LLRender:
 LLVector3 LLVOPartGroup::getCameraPosition() const
 {
     return gAgentCamera.getCameraPositionAgent();
+}
+
+bool LLVOPartGroup::gpuBillboardsEnabled()
+{
+    static LLCachedControl<bool> gpu_billboards(gSavedSettings, "RenderGPUParticleBillboards", true);
+    return gpu_billboards;
+}
+
+bool LLVOPartGroup::useGPUBillboards() const
+{
+    return gpuBillboardsEnabled();
 }
 
 bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
@@ -598,7 +619,19 @@ void LLVOPartGroup::getGeometry(S32 idx,
 
     const LLViewerPart &part = *((LLViewerPart*) (mViewerPartGroupp->mParticles[idx]));
 
-    getGeometry(part, verticesp);
+    if (useGPUBillboards() && !(part.mFlags & LLPartData::LL_PART_RIBBON_MASK))
+    {
+        LLVector4a center;
+        center.load3(part.mPosAgent.mV);
+        *verticesp++ = center;
+        *verticesp++ = center;
+        *verticesp++ = center;
+        *verticesp++ = center;
+    }
+    else
+    {
+        getGeometry(part, verticesp);
+    }
 
     LLColor4U pcolor;
     LLColor4U color = part.mColor;
@@ -638,14 +671,10 @@ void LLVOPartGroup::getGeometry(S32 idx,
     }
 
 
-    if (!(part.mFlags & LLPartData::LL_PART_EMISSIVE_MASK))
-    { //not fullbright, needs normal
-        LLVector3 normal = -LLViewerCamera::getInstance()->getXAxis();
-        *normalsp++   = normal;
-        *normalsp++   = normal;
-        *normalsp++   = normal;
-        *normalsp++   = normal;
-    }
+    *normalsp++ = part.mPosAgent;
+    *normalsp++ = part.mPosAgent;
+    *normalsp++ = part.mPosAgent;
+    *normalsp++ = part.mPosAgent;
 }
 
 U32 LLVOPartGroup::getPartitionType() const
@@ -811,6 +840,12 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
     buffer->getColorStrider(colorsp);
     buffer->getEmissiveStrider(emissivep);
 
+    LLStrider<LLVector2> texcoord1p;
+    LLStrider<LLVector4a> tangentp;
+
+    buffer->getTexCoord1Strider(texcoord1p);
+    buffer->getTangentStrider(tangentp);
+
     S32 geom_idx = 0;
     S32 indices_idx = 0;
 
@@ -828,6 +863,8 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
         LLStrider<LLVector3> cur_norm = normalsp + geom_idx;
         LLStrider<LLColor4U> cur_col = colorsp + geom_idx;
         LLStrider<LLColor4U> cur_glow = emissivep + geom_idx;
+        LLStrider<LLVector2> cur_tc1 = texcoord1p + geom_idx;
+        LLStrider<LLVector4a> cur_tan = tangentp + geom_idx;
 
         // not actually used
         LLStrider<LLVector2> cur_tc;
@@ -840,6 +877,25 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
         LLColor4U* start_glow = cur_glow.get();
 
         object->getGeometry(facep->getTEOffset(), cur_vert, cur_norm, cur_tc, cur_col, cur_glow, cur_idx);
+
+        // (0,0) half-scale marks a quad the shader must leave as the CPU expanded it
+        LLVector2 half_scale(0.f, 0.f);
+        LLVector4a velocity(0.f, 0.f, 0.f, 0.f);
+        LLVOPartGroup* pg = (LLVOPartGroup*) object;
+        const LLViewerPart* part = pg->useGPUBillboards() ? pg->getPart(facep->getTEOffset()) : nullptr;
+        if (part && !(part->mFlags & LLPartData::LL_PART_RIBBON_MASK))
+        {
+            half_scale.set(0.5f * part->mScale.mV[0], 0.5f * part->mScale.mV[1]);
+            if ((part->mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK) && !part->mVelocity.isExactlyZero())
+            {
+                velocity.set(part->mVelocity.mV[0], part->mVelocity.mV[1], part->mVelocity.mV[2], 1.f);
+            }
+        }
+        for (S32 v = 0; v < 4; ++v)
+        {
+            *cur_tc1++ = half_scale;
+            *cur_tan++ = velocity;
+        }
 
         bool has_glow = false;
 
@@ -931,5 +987,10 @@ LLDrawable* LLVOHUDPartGroup::createDrawable(LLPipeline *pipeline)
 LLVector3 LLVOHUDPartGroup::getCameraPosition() const
 {
     return LLVector3(-1,0,0);
+}
+
+bool LLVOHUDPartGroup::useGPUBillboards() const
+{
+    return false;
 }
 

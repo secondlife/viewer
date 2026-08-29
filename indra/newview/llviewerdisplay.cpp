@@ -736,6 +736,9 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     if (!gDisconnected && !LLApp::isExiting())
     {
+        // Increment drawable frame counter before the frame's first cull (the hero probes)
+        LLDrawable::incrementVisible();
+
         // Render mirrors and associated hero probes before we render the rest of the scene.
         // This ensures the scene state in the hero probes are exactly the same as the rest of the scene before we render it.
         if (gPipeline.RenderMirrors && !gSnapshot)
@@ -790,9 +793,6 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         stop_glerror();
 
         LLAppViewer::instance()->pingMainloopTimeout("Display:Cull");
-
-        //Increment drawable frame counter
-        LLDrawable::incrementVisible();
 
         LLSpatialGroup::sNoDelete = true;
         LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();

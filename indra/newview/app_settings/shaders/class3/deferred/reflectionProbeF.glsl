@@ -91,6 +91,7 @@ layout (std140) uniform ReflectionProbes
     ivec4 heroParams[MAX_HERO_PROBE_COUNT];
     mat4 heroPlaneMatrix[MAX_HERO_PROBE_COUNT];
     vec4 heroClipPlane[MAX_HERO_PROBE_COUNT];
+    vec4 heroFade[MAX_HERO_PROBE_COUNT];
 };
 
 // Inputs
@@ -872,6 +873,7 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
         clipDist = clamp(clipDist * falloffMult, 0, 1);
         w = clamp(w * falloffMult * clipDist, 0, 1);
         w = mix(0, w, clamp(glossiness - 0.75, 0, 1) * 4);
+        w *= heroFade[pi].x;
 
         if (w < 0.001)
             continue;

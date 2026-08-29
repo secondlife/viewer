@@ -43,12 +43,15 @@ public:
     static void initClass();
     static void restoreGL();
     static void destroyGL();
+    static bool gpuBillboardsEnabled();
 
     enum
     {
         VERTEX_DATA_MASK =  LLVertexBuffer::MAP_VERTEX |
                             LLVertexBuffer::MAP_NORMAL |
                             LLVertexBuffer::MAP_TEXCOORD0 |
+                            LLVertexBuffer::MAP_TEXCOORD1 |
+                            LLVertexBuffer::MAP_TANGENT |
                             LLVertexBuffer::MAP_COLOR |
                             LLVertexBuffer::MAP_EMISSIVE |
                             LLVertexBuffer::MAP_TEXTURE_INDEX
@@ -92,6 +95,8 @@ public:
 
     void updateFaceSize(S32 idx) { }
     F32 getPartSize(S32 idx);
+    const LLViewerPart* getPart(S32 idx) const;
+    virtual bool useGPUBillboards() const;
     void getBlendFunc(S32 idx, LLRender::eBlendFactor& src, LLRender::eBlendFactor& dst);
     LLUUID getPartOwner(S32 idx);
     LLUUID getPartSource(S32 idx);
@@ -120,6 +125,7 @@ protected:
     LLDrawable* createDrawable(LLPipeline *pipeline);
     U32 getPartitionType() const;
     virtual LLVector3 getCameraPosition() const;
+    virtual bool useGPUBillboards() const;
 };
 
 #endif // LL_LLVOPARTGROUP_H
