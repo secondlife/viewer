@@ -146,6 +146,8 @@ public:
 
     void initWatchdog() override;
 
+    bool getGPUMemInfo(LLGPUMemInfo& info) override;
+
 protected:
     LLWindowWin32(LLWindowCallbacks* callbacks,
         const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
@@ -190,6 +192,13 @@ protected:
     void    requestHighPerformanceGPU() const;
     bool    detectGPUChange() const;
     void    clearHighPerformanceGPURequest() const;
+
+    // DXGI process GPU-memory poll state (see getGPUMemInfo); adapter is
+    // IDXGIAdapter3*, kept as void* so dxgi types stay out of this header.
+    void*        mDXGIAdapter = nullptr;
+    F64          mGPUMemLastQuery = 0.0;
+    LLGPUMemInfo mGPUMemInfo;
+    bool         mGPUMemQueryFailed = false;
 
 protected:
     //

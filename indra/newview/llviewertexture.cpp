@@ -111,6 +111,8 @@ F32 LLViewerTexture::sCurrentTime = 0.0f;
 
 constexpr F32 MIN_VRAM_BUDGET = 768.f;
 F32 LLViewerTexture::sFreeVRAMMegabytes = MIN_VRAM_BUDGET;
+F32 LLViewerTexture::sVRAMUsedMB = 0.f;
+bool LLViewerTexture::sVRAMSystemMetrics = false;
 F32 LLViewerTexture::sWindowPixelArea = 1.f;
 
 LLViewerTexture::EDebugTexels LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_OFF;
@@ -509,6 +511,7 @@ void LLViewerTexture::updateClass()
 
     LLViewerMediaTexture::updateClass();
     // This is a divisor used to determine how much VRAM from our overall VRAM budget to use.
+    // Applies only to the estimated fallback path; ignored when system metrics provide the budget.
     // This is **cumulative** on whatever the detected or manually set VRAM budget is.
     // If we detect 2048MB of VRAM, this will, by default, only use 1024.
     // If you set 1024MB of VRAM, this will, by default, use 512.
@@ -523,20 +526,58 @@ void LLViewerTexture::updateClass()
 
     F32 vram_used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc);
 
-    // For debugging purposes, it's useful to be able to set the VRAM budget manually.
-    // But when manual control is not enabled, use the VRAM divisor.
-    // While we're at it, assume we have 1024 to play with at minimum when the divisor is in use.  Works more elegantly with the logic below this.
-    // -Geenz 2025-03-21
-    F32 vram_budget = max_vram_budget == 0 ? llmax(1024, (F32)gGLManager.mVRAM / tex_vram_divisor) : (F32)max_vram_budget;
+    // Driver/OS truth where the platform provides it: per-process usage and
+    // OS-granted budget. The ledger and divisor/reserve estimate otherwise.
+    LLWindow::LLGPUMemInfo sys;
+    bool have_sys = gViewerWindow && gViewerWindow->getWindow()
+                 && gViewerWindow->getWindow()->getGPUMemInfo(sys);
 
-    // Leave VRAM in reserve for other applications. Applied before the
-    // watermarks.
-    static LLCachedControl<F32> vram_reserve(gSavedSettings, "TextureVRAMReserve", 0.2f);
-    vram_budget *= 1.f - llclamp((F32)vram_reserve, 0.f, 0.9f);
+    F32 vram_budget;
+    if (max_vram_budget != 0)
+    { // manual debug override wins over everything
+        vram_budget = (F32)max_vram_budget;
+    }
+    else if (have_sys && sys.mBudgetMB > 0)
+    { // OS-granted budget already nets out other processes; no divisor, no reserve
+        vram_budget = (F32)sys.mBudgetMB;
+    }
+    else
+    {
+        // For debugging purposes, it's useful to be able to set the VRAM budget manually.
+        // But when manual control is not enabled, use the VRAM divisor.
+        // While we're at it, assume we have 1024 to play with at minimum when the divisor is in use.  Works more elegantly with the logic below this.
+        // -Geenz 2025-03-21
+        vram_budget = llmax(1024, (F32)gGLManager.mVRAM / tex_vram_divisor);
+
+        // Leave VRAM in reserve for other applications. Applied before the
+        // watermarks.
+        static LLCachedControl<F32> vram_reserve(gSavedSettings, "TextureVRAMReserve", 0.2f);
+        vram_budget *= 1.f - llclamp((F32)vram_reserve, 0.f, 0.9f);
+    }
+
+    F32 base_used = (have_sys && sys.mUsedMB > 0) ? (F32)sys.mUsedMB : vram_used;
+    sVRAMSystemMetrics = have_sys && sys.mUsedMB > 0;
+    sVRAMUsedMB = base_used;
+
+    if (sVRAMSystemMetrics)
+    { // ledger-drift canary: a growing gap means the ledger is rotting again
+        static LLTimer drift_timer;
+        if (drift_timer.getElapsedTimeF32() > 10.f)
+        {
+            drift_timer.reset();
+            LL_DEBUGS("TextureStream") << "GPU mem: ledger " << vram_used << " MB, system "
+                                       << sys.mUsedMB << " MB, budget " << sys.mBudgetMB << " MB" << LL_ENDL;
+        }
+    }
 
     // Keep at least half a GB for everyone else, but at least 768MB for us.
     F32 vram_target = llmax(vram_budget - 512.f, MIN_VRAM_BUDGET);
-    sFreeVRAMMegabytes = vram_target - vram_used;
+    // Free = what the OS says is actually available to us right now
+    // (DXGI AvailableForReservation) - NOT budget minus our usage, which is
+    // just card size minus us. Fallback: estimate vs our own target.
+    sFreeVRAMMegabytes = (have_sys && sys.mAvailableMB > 0)
+        ? (F32)sys.mAvailableMB
+        : vram_target - base_used;
 
     // Staged VRAM pressure cascade. ONE scalar (sTexturePressure, 0..5)
     // walked by the watermark controller; each whole stage degrades one knob
@@ -590,7 +631,7 @@ void LLViewerTexture::updateClass()
             sPendingFreeBytes = 0;   // kill any accounting drift when idle
         }
         F32 pending_free_mb = (F32)((F64)sPendingFreeBytes / (1024.0 * 1024.0));
-        F32 effective_used = vram_used + pending_create_mb - pending_free_mb;
+        F32 effective_used = base_used + pending_create_mb - pending_free_mb;
 
         F32 near_floor = llclamp((F32)ratio_floor, STAGE_FLOOR, llmax(r_max, STAGE_FLOOR));
 

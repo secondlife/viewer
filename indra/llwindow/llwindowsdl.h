@@ -70,6 +70,8 @@ public:
     bool getSize(LLCoordScreen *size) override;
     bool getSize(LLCoordWindow *size) override;
 
+    bool getGPUMemInfo(LLGPUMemInfo& info) override;
+
     bool setPosition(LLCoordScreen position) override;
 
     bool setSizeImpl(LLCoordScreen size) override;
@@ -224,6 +226,9 @@ protected:
 private:
     bool mFlashing = false;
     LLTimer mFlashTimer;
+    LLTimer mGPUMemTimer;
+    LLGPUMemInfo mGPUMemInfo;
+    bool mGPUMemValid = false;
     U32 mKeyVirtualKey = 0;
     U32 mKeyModifiers = SDL_KMOD_NONE;
 

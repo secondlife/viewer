@@ -560,8 +560,10 @@ void LLGLTexMemBar::draw()
     gGL.color4f(0.f, 0.f, 0.f, 0.25f);
     gl_rect_2d(-10, getRect().getHeight() + line_height*2 + 1, getRect().getWidth()+2, getRect().getHeight()+2);
 
-    text = llformat("Est. Free: %d MB Sys Free: %d MB FBO: %d MB Probe#: %d Probe Mem: %d MB P: %.2f 1:%.2f Far %.4f Exp %.4f S %.3f N %.3f Cache: %.1f/%.1f MB",
+    text = llformat("VRAM Free: %d MB VRAM Used: %d MB (%s) Heap Free: %d MB FBO: %d MB Probe#: %d Probe Mem: %d MB P: %.2f 1:%.2f Far %.4f Exp %.4f S %.3f N %.3f Cache: %.1f/%.1f MB",
                     (S32)LLViewerTexture::sFreeVRAMMegabytes,
+                    (S32)LLViewerTexture::sVRAMUsedMB,
+                    LLViewerTexture::sVRAMSystemMetrics ? "sys" : "est",
                     LLMemory::getAvailableMemKB()/1024,
                     LLRenderTarget::sBytesAllocated/(1024*1024),
                     gPipeline.mReflectionMapManager.probeCount(),

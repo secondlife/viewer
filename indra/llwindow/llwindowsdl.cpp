@@ -56,6 +56,11 @@ extern "C" {
 #include <sys/wait.h>
 #include <stdio.h>
 
+// for the DRM fdinfo scan in getGPUMemInfo
+#include <dirent.h>
+#include <fstream>
+#include <set>
+
 #if LL_X11
 LLWindowSDL::X11_DATA LLWindowSDL::sX11Data = {};
 #endif
@@ -781,6 +786,75 @@ void LLWindowSDL::setFSAASamples(const U32 samples)
 F32 LLWindowSDL::getGamma()
 {
     return 1.f / mGamma;
+}
+
+bool LLWindowSDL::getGPUMemInfo(LLGPUMemInfo& info)
+{
+#if LL_LINUX
+    // Per-process VRAM from DRM fdinfo (amdgpu/i915 export drm-memory-vram,
+    // deduped by drm-client-id). No per-process budget exists on this path;
+    // NVIDIA-proprietary exports nothing - consumers fall back to the ledger.
+    if (mGPUMemTimer.getElapsedTimeF32() < 1.f)
+    {
+        if (!mGPUMemValid)
+        {
+            return false;
+        }
+        info = mGPUMemInfo;
+        return true;
+    }
+    mGPUMemTimer.reset();
+
+    U64 total_kib = 0;
+    std::set<std::string> seen_clients;
+    DIR* dir = opendir("/proc/self/fdinfo");
+    if (dir)
+    {
+        while (struct dirent* entry = readdir(dir))
+        {
+            if (entry->d_name[0] == '.')
+            {
+                continue;
+            }
+            std::ifstream fdinfo(std::string("/proc/self/fdinfo/") + entry->d_name);
+            std::string line;
+            std::string client_id;
+            U64 vram_kib = 0;
+            bool is_drm = false;
+            while (std::getline(fdinfo, line))
+            {
+                if (line.rfind("drm-driver:", 0) == 0)
+                {
+                    is_drm = true;
+                }
+                else if (line.rfind("drm-client-id:", 0) == 0)
+                {
+                    client_id = line.substr(14);
+                }
+                else if (line.rfind("drm-memory-vram:", 0) == 0)
+                {
+                    vram_kib = strtoull(line.c_str() + 16, nullptr, 10);
+                }
+            }
+            if (is_drm && !client_id.empty() && seen_clients.insert(client_id).second)
+            {
+                total_kib += vram_kib;
+            }
+        }
+        closedir(dir);
+    }
+
+    mGPUMemValid = total_kib > 0;
+    if (!mGPUMemValid)
+    {
+        return false;
+    }
+    mGPUMemInfo.mUsedMB = (U32)(total_kib / 1024);
+    info = mGPUMemInfo;
+    return true;
+#else
+    return false;
+#endif
 }
 
 bool LLWindowSDL::restoreGamma()

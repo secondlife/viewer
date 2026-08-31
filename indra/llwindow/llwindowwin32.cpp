@@ -946,6 +946,61 @@ LLWindowWin32::~LLWindowWin32()
 
     delete mWindowThread;
     mWindowThread = NULL;
+
+    if (mDXGIAdapter)
+    {
+        ((IDXGIAdapter3*)mDXGIAdapter)->Release();
+        mDXGIAdapter = NULL;
+    }
+}
+
+bool LLWindowWin32::getGPUMemInfo(LLGPUMemInfo& info)
+{
+    if (mGPUMemQueryFailed)
+    {
+        return false;
+    }
+
+    F64 now = LLTimer::getTotalSeconds();
+    if (mDXGIAdapter && now - mGPUMemLastQuery < 1.0)
+    {
+        info = mGPUMemInfo;
+        return true;
+    }
+
+    if (!mDXGIAdapter)
+    {
+        IDXGIFactory4* factory = nullptr;
+        IDXGIAdapter3* adapter = nullptr;
+        if (SUCCEEDED(CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&factory)))
+        {
+            factory->EnumAdapters(0, reinterpret_cast<IDXGIAdapter**>(&adapter));
+            factory->Release();
+        }
+        if (!adapter)
+        {
+            LL_WARNS("Window") << "DXGI adapter unavailable, system GPU memory metrics disabled" << LL_ENDL;
+            mGPUMemQueryFailed = true;
+            return false;
+        }
+        mDXGIAdapter = adapter;
+    }
+
+    DXGI_QUERY_VIDEO_MEMORY_INFO dx_info;
+    if (FAILED(((IDXGIAdapter3*)mDXGIAdapter)->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &dx_info)))
+    {
+        LL_WARNS("Window") << "QueryVideoMemoryInfo failed, system GPU memory metrics disabled" << LL_ENDL;
+        mGPUMemQueryFailed = true;
+        return false;
+    }
+
+    mGPUMemInfo.mBudgetMB = (U32)(dx_info.Budget >> 20);
+    mGPUMemInfo.mUsedMB = (U32)(dx_info.CurrentUsage >> 20);
+    mGPUMemInfo.mAvailableMB = (U32)(dx_info.AvailableForReservation >> 20);
+    mGPUMemLastQuery = now;
+
+    info = mGPUMemInfo;
+    return true;
 }
 
 void LLWindowWin32::show()

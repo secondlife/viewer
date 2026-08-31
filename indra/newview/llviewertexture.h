@@ -349,6 +349,11 @@ public:
     // estimated free memory for textures, by bias calculation
     static F32 sFreeVRAMMegabytes;
 
+    // Budget-side usage published by updateClass: the system (driver) figure
+    // when available, else the ledger sum; sVRAMSystemMetrics says which.
+    static F32 sVRAMUsedMB;
+    static bool sVRAMSystemMetrics;
+
     // Viewport pixel area, refreshed once per frame. Hoisted to keep the
     // per-texture hot path out of gViewerWindow.
     static F32 sWindowPixelArea;

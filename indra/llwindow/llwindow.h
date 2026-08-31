@@ -148,6 +148,16 @@ public:
     virtual void setFSAASamples(const U32 fsaa_samples) = 0; //set number of FSAA samples
     virtual U32  getFSAASamples() = 0;
     virtual bool restoreGamma() = 0;            // Restore original gamma table (before updating gamma)
+
+    // Driver/OS-truth GPU memory query; fields are independently optional (0 = unknown).
+    struct LLGPUMemInfo
+    {
+        U32 mBudgetMB = 0;      // OS-granted process budget
+        U32 mUsedMB = 0;        // process's current GPU memory usage
+        U32 mAvailableMB = 0;   // memory actually available to this process right now
+    };
+    virtual bool getGPUMemInfo(LLGPUMemInfo& info) { return false; }
+
     virtual ESwapMethod getSwapMethod() { return mSwapMethod; }
     virtual void processMiscNativeEvents();
     virtual void gatherInput() = 0;
