@@ -34,6 +34,7 @@
 #include "llagentcamera.h"
 #include "llappviewer.h"
 #include "llchat.h"
+#include "llcompilequeue.h"
 #include "lldate.h"
 #include "llerror.h"
 #include "lleventcoro.h"
@@ -169,6 +170,14 @@ namespace
         return std::string(s);
     }
 
+    LLSD object_id_command_params()
+    {
+        LLSD params(LLSD::emptyMap());
+        params["object_id"]["type"] = "string";
+        params["object_id"]["required"] = true;
+        return params;
+    }
+
 }
 
 //========================================================================
@@ -184,7 +193,8 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
     LL_INFOS("ScriptEditorWS") << "Created JSON-RPC script editor server: " << name
                                << " on port " << port << LL_ENDL;
 
-    registerCommand({ "viewer.teleport", "Teleport agent to an in-world object" },
+    registerCommand({ "viewer.teleport", "Teleport agent to an in-world object",
+                      object_id_command_params() },
         [](U32, const LLSD& p) -> LLSD
         {
             LLUUID object_id = p["object_id"].asUUID();
@@ -203,7 +213,9 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
             return response;
         });
 
-    registerCommand({ "viewer.camera.focus", "Zoom camera to an in-world object (same behavior as context menu Zoom In)" },
+    registerCommand({ "viewer.camera.focus",
+                      "Zoom camera to an in-world object (same behavior as context menu Zoom In)",
+                      object_id_command_params() },
         [](U32, const LLSD& p) -> LLSD
         {
             LLUUID object_id = p["object_id"].asUUID();
@@ -221,10 +233,35 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
             return response;
         });
 
-    registerCommand({ "viewer.object.save_back_to_contents", "Save an in-world object back to source object contents" },
+    registerCommand({ "viewer.object.save_back_to_contents",
+                      "Save an in-world object back to source object contents",
+                      object_id_command_params() },
         [this](U32 connection_id, const LLSD& p) -> LLSD
         {
             return this->handleSaveBackToObjectContents(connection_id, p);
+        });
+
+    registerCommand({ "viewer.script.reset_all",
+                      "Reset all scripts in an in-world object",
+                      object_id_command_params() },
+        [this](U32 connection_id, const LLSD& p) -> LLSD
+        {
+            return this->handleObjectScriptResetAll(connection_id, p);
+        });
+
+    registerCommand({ "viewer.script.recompile_all",
+                      "Recompile all scripts in an in-world object",
+                      LLSDMap("object_id",
+                              LLSDMap("type", "string")
+                                  ("required", true))
+                          ("target",
+                              LLSDMap("type", "string")
+                                  ("required", true)
+                                  ("description",
+                                      "Compilation target: luau, lsl2, mono, or auto")) },
+        [this](U32 connection_id, const LLSD& p) -> LLSD
+        {
+            return this->handleObjectScriptRecompileAll(connection_id, p);
         });
 }
 
@@ -801,6 +838,146 @@ LLSD LLScriptEditorWSServer::handleObjectScriptReset(U32 connection_id, const LL
     return response;
 }
 
+LLSD LLScriptEditorWSServer::handleObjectScriptResetAll(U32 connection_id, const LLSD& params)
+{
+    LLUUID prim_id = params["object_id"].asUUID();
+    if (prim_id.isNull())
+    {
+        throw LLJSONRPCConnection::InvalidParams("object_id is required");
+    }
+
+    LLViewerObject* prim = gObjectList.findObject(prim_id);
+    if (!prim)
+    {
+        throw LLJSONRPCConnection::InvalidParams("Object not found");
+    }
+
+    LLViewerObject* root = prim->getRootEdit();
+    if (!root || !isObjectPublished(root->getID()))
+    {
+        throw LLJSONRPCConnection::ForbiddenError("Object is not published");
+    }
+
+    if (!prim->flagScripted())
+    {
+        throw LLJSONRPCConnection::InvalidParams(
+            "Prim contains no scripts");
+    }
+
+    if (!prim->permModify())
+    {
+        throw LLJSONRPCConnection::ForbiddenError(
+            "No modify permission on prim");
+    }
+
+    LLUUID queue_id;
+    queue_id.generate();
+
+    LLFloaterScriptQueue* queue =
+        LLFloaterReg::getTypedInstance<LLFloaterScriptQueue>(
+            "reset_queue", LLSD(queue_id));
+    if (!queue)
+    {
+        throw LLJSONRPCConnection::InternalError(
+            "Unable to open reset queue");
+    }
+
+    queue->addObject(prim->getID(), prim->getID().asString());
+    if (!queue->start())
+    {
+        queue->closeFloater();
+        throw LLJSONRPCConnection::InternalError(
+            "Unable to start reset queue");
+    }
+
+    queue->setTitle(LLTrans::getString("ResetQueueTitle"));
+
+    LLSD response;
+    response["success"] = true;
+    response["object_id"] = prim->getID();
+    response["queued"] = true;
+    return response;
+}
+
+LLSD LLScriptEditorWSServer::handleObjectScriptRecompileAll(
+    U32 connection_id, const LLSD& params)
+{
+    LLUUID object_id = params["object_id"].asUUID();
+    if (object_id.isNull())
+    {
+        throw LLJSONRPCConnection::InvalidParams("object_id is required");
+    }
+
+    std::string target = params["target"].asString();
+    if (target != "luau" &&
+        target != "lsl2" &&
+        target != "mono" &&
+        target != "auto")
+    {
+        throw LLJSONRPCConnection::InvalidParams(
+            "target must be 'luau', 'lsl2', 'mono', or 'auto'");
+    }
+
+    LLViewerObject* object = gObjectList.findObject(object_id);
+    if (!object)
+    {
+        throw LLJSONRPCConnection::InvalidParams("Object not found");
+    }
+
+    LLViewerObject* root = object->getRootEdit();
+    if (!root || root->getID() != object_id || !isObjectPublished(root->getID()))
+    {
+        throw LLJSONRPCConnection::ForbiddenError("Object is not published");
+    }
+
+    if (!root->flagScripted())
+    {
+        throw LLJSONRPCConnection::InvalidParams(
+            "Object contains no scripts");
+    }
+
+    if (!root->permModify())
+    {
+        throw LLJSONRPCConnection::ForbiddenError(
+            "No modify permission on object");
+    }
+
+    if (target == "luau")
+    {
+        target = "auto-luau";
+    }
+
+    LLUUID queue_id;
+    queue_id.generate();
+
+    LLFloaterCompileQueue* queue =
+        LLFloaterReg::getTypedInstance<LLFloaterCompileQueue>(
+            "compile_queue", LLSD(queue_id));
+    if (!queue)
+    {
+        throw LLJSONRPCConnection::InternalError(
+            "Unable to open compile queue");
+    }
+
+    queue->setCompileTarget(target);
+    queue->addObject(root->getID(), root->getID().asString());
+    if (!queue->start())
+    {
+        queue->closeFloater();
+        throw LLJSONRPCConnection::InternalError(
+            "Unable to start compile queue");
+    }
+
+    queue->setTitle(LLTrans::getString("CompileQueueTitle"));
+
+    LLSD response;
+    response["success"] = true;
+    response["object_id"] = root->getID();
+    response["target"] = (target == "auto-luau") ? "luau" : target;
+    response["queued"] = true;
+    return response;
+}
+
 LLSD LLScriptEditorWSServer::handleObjectModify(U32 connection_id, const LLSD& params)
 {
     // Step 1: Parameter Validation
@@ -1019,6 +1196,10 @@ LLSD LLScriptEditorWSServer::handleCommandList()
         LLSD info;
         info["command"]     = entry.first.command;
         info["description"] = entry.first.description;
+        if (!entry.first.params.isUndefined())
+        {
+            info["params"] = entry.first.params;
+        }
         commands.append(info);
     }
     LLSD response;
@@ -1068,6 +1249,33 @@ void LLScriptEditorWSServer::broadcastLanguageChange()
             broadcastNotification("language.syntax.change", params);
         }
     }
+}
+
+LLSD LLScriptEditorWSServer::handlePing(
+    const LLJSONRPCConnection::ptr_t& connection,
+    const LLSD& params) const
+{
+    LLSD result;
+    result["pong"] = "pong";
+
+    if (params.has("timestamp"))
+    {
+        result["timestamp"] = params["timestamp"];
+    }
+
+    result["server_time"] = static_cast<LLSD::Integer>(
+        LLDate::now().secondsSinceEpoch() * 1000.0);
+    return result;
+}
+
+LLSD LLScriptEditorWSServer::handleGetVersion(
+    const LLJSONRPCConnection::ptr_t& connection,
+    const LLSD& params) const
+{
+    LLSD result;
+    result["client_name"] = LLVersionInfo::instance().getChannel();
+    result["client_version"] = LLVersionInfo::instance().getVersion();
+    return result;
 }
 
 LLSD LLScriptEditorWSServer::handleLanguageIdRequest() const
@@ -1456,6 +1664,7 @@ LLSD LLScriptEditorWSServer::handleObjectContentGet(const std::string& method, c
     response["prim_id"] = prim_id;
     response["item_id"] = item_id;
     response["content"] = text_content;
+    response["encoding"] = "utf-8";
     return response;
 }
 
@@ -1523,7 +1732,13 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
         [&, prim_id, item_id](const std::string& pump_name)
         {
             auto [on_success, on_failure] = make_asset_upload_callbacks(pump_name);
-            bool is_running = params.has("running") ? params["running"].asBoolean() : false;
+            const LLViewerInventoryItem* viewer_item =
+                dynamic_cast<const LLViewerInventoryItem*>(item);
+            bool is_running = viewer_item ? viewer_item->getIsRunning() : false;
+            if (params.has("running"))
+            {
+                is_running = params["running"].asBoolean();
+            }
             LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
                 prim_id, item_id,
                 compile_target, is_running, LLUUID::null, content,
@@ -2078,6 +2293,10 @@ void LLScriptEditorWSServer::sendRuntimeEvent(
     }
 
     LLSD message;
+    if (!script_id.empty())
+    {
+        message["script_id"] = script_id;
+    }
     message["object_id"] = event.mRootID;
     message["prim_id"] = event.mPrimID;
     message["item_id"] = event.mItemID;
