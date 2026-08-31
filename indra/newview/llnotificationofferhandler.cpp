@@ -171,22 +171,29 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification, 
 
 /*virtual*/ void LLOfferHandler::onChange(LLNotificationPtr p)
 {
-    auto panelp = LLToastNotifyPanel::getInstance(p->getID());
-    if (panelp)
+    bool has_toast_panel = false;
+
+    // Deferred panel deletion can briefly overlap old and replacement views.
+    // Prefer the live IM projection for this notification; otherwise close its toast.
+    for (LLToastNotifyPanel& panel : LLToastNotifyPanel::instance_snapshot())
     {
-        //
-        // HACK: if we're dealing with a notification embedded in IM, update it
-        // otherwise remove its toast
-        //
-        if (dynamic_cast<LLIMToastNotifyPanel*>(panelp.get()))
+        if (panel.isDead() || panel.getID() != p->getID())
         {
-            panelp->updateNotification();
+            continue;
         }
-        else
+
+        if (LLIMToastNotifyPanel* im_panel = dynamic_cast<LLIMToastNotifyPanel*>(&panel))
         {
-            // if notification has changed, hide it
-            mChannel.get()->removeToastByNotificationID(p->getID());
+            im_panel->updateNotification();
+            return;
         }
+
+        has_toast_panel = true;
+    }
+
+    if (has_toast_panel)
+    {
+        mChannel.get()->removeToastByNotificationID(p->getID());
     }
 }
 

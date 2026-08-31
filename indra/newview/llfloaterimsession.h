@@ -173,8 +173,6 @@ private:
     static void confirmLeaveCallCallback(const LLSD& notification, const LLSD& response);
 
     S32 mLastMessageIndex;
-    bool mHistoryReplayPending;
-    U32 mHistoryReplayFrame;
 
     EInstantMessage mDialog;
     LLUUID mOtherParticipantUUID;

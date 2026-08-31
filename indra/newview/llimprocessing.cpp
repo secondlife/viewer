@@ -1453,7 +1453,10 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             for (auto& panel : LLToastNotifyPanel::instance_snapshot())
             {
                 const std::string& notification_name = panel.getNotificationName();
-                if (notification_name == "OfferFriendship" && panel.isControlPanelEnabled())
+                // Panels pending deferred deletion no longer suppress a live offer.
+                if (!panel.isDead()
+                    && notification_name == "OfferFriendship"
+                    && panel.isControlPanelEnabled())
                 {
                     add_notification = false;
                     break;

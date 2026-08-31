@@ -73,8 +73,6 @@ floater_showed_signal_t LLFloaterIMSession::sIMFloaterShowedSignal;
 LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
   : LLFloaterIMSessionTab(session_id),
     mLastMessageIndex(-1),
-    mHistoryReplayPending(false),
-    mHistoryReplayFrame(0),
     mDialog(IM_NOTHING_SPECIAL),
     mTypingStart(),
     mShouldSendTypingState(false),
@@ -831,11 +829,6 @@ void LLFloaterIMSession::sessionInitReplyReceived(const LLUUID& im_session_id)
 
 void LLFloaterIMSession::updateMessages()
 {
-    if (mHistoryReplayPending)
-    {
-        return;
-    }
-
     std::list<LLSD> messages;
 
     // we shouldn't reset unread message counters if IM floater doesn't have focus
@@ -930,10 +923,11 @@ void LLFloaterIMSession::reloadMessages(bool clean_messages/* = false*/)
         }
     }
 
+    // Clear and replay in one turn so the transcript never presents an empty frame.
+    // LLChatHistory detaches old inline widgets before replacements are registered.
     mChatHistory->clear();
     mLastMessageIndex = -1;
-    mHistoryReplayPending = true;
-    mHistoryReplayFrame = LLFrameTimer::getFrameCount();
+    updateMessages();
     mInputEditor->setFont(LLViewerChat::getChatFont());
 }
 
@@ -1132,14 +1126,6 @@ void LLFloaterIMSession::processSessionUpdate(const LLSD& session_update)
 // virtual
 void LLFloaterIMSession::draw()
 {
-    // Replay after the next mortician pass has destroyed the old inline panels.
-    if (mHistoryReplayPending &&
-        mHistoryReplayFrame != LLFrameTimer::getFrameCount())
-    {
-        mHistoryReplayPending = false;
-        updateMessages();
-    }
-
     // The floater presents both model-owned local reads and account-scoped service
     // work without scheduling either source from draw().
     const bool loading =

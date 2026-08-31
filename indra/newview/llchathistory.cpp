@@ -1272,6 +1272,16 @@ void LLChatHistory::onClickMoreText()
 void LLChatHistory::clear()
 {
     mLastFromName.clear();
+
+    // Inline views die on the mortician pass. Detach this transcript's current
+    // views now so a synchronous replay cannot draw old and replacement panels together.
+    const LLView* document_view = mEditor->getDocumentView();
+    const LLView::child_list_t document_children = *document_view->getChildList();
+    for (LLView* child : document_children)
+    {
+        mEditor->removeDocumentChild(child);
+    }
+
     mEditor->clear();
     mLastFromID = LLUUID::null;
 }
@@ -1530,7 +1540,9 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
                 {
                     LLIMToastNotifyPanel * imtoastp = dynamic_cast<LLIMToastNotifyPanel *>(&panel);
                     const std::string& notification_name = panel.getNotificationName();
-                    if (notification_name == "OfferFriendship"
+                    // A synchronous transcript replay replaces panels already queued for deletion.
+                    if (!panel.isDead()
+                        && notification_name == "OfferFriendship"
                         && panel.isControlPanelEnabled()
                         && imtoastp)
                     {
