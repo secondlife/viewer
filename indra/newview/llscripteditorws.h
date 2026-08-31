@@ -236,6 +236,10 @@ protected:
                                                          LLWebsocketMgr::connection_h handle) override;
 
     void setupConnectionMethods(LLJSONRPCConnection::ptr_t connection) override;
+    LLSD handlePing(const LLJSONRPCConnection::ptr_t& connection,
+                    const LLSD& params) const override;
+    LLSD handleGetVersion(const LLJSONRPCConnection::ptr_t& connection,
+                          const LLSD& params) const override;
 
     void broadcastLanguageChange();
 
@@ -257,6 +261,8 @@ protected:
     LLSD handleObjectList() const;
     LLSD handleObjectScriptSetRunning(U32 connection_id, const LLSD& params);
     LLSD handleObjectScriptReset(U32 connection_id, const LLSD& params);
+    LLSD handleObjectScriptResetAll(U32 connection_id, const LLSD& params);
+    LLSD handleObjectScriptRecompileAll(U32 connection_id, const LLSD& params);
     LLSD handleObjectModify(U32 connection_id, const LLSD& params);
     LLSD handleObjectItemModify(U32 connection_id, const LLSD& params);
     LLSD handleCommandExecute(U32 connection_id, const LLSD& params);
@@ -333,6 +339,7 @@ private:
     {
         std::string command;
         std::string description;
+        LLSD params;
     };
     enum WSCommandError
     {
