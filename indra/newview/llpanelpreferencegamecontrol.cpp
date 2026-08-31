@@ -1869,6 +1869,11 @@ void LLPanelPreferenceGameControl::clearSelectionState()
     }
     sSelectedCellValue = LLSD();
 
+    if (sSelectedGrid)
+    {
+        sSelectedGrid->deselectAllItems(true);
+    }
+
     sSelectedGrid = nullptr;
     sSelectedItem = nullptr;
     sSelectedCell = nullptr;
