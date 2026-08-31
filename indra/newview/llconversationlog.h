@@ -64,9 +64,10 @@ public:
     bool isOlderThan(U32Days days) const;
 
     /*
-     * updates last interaction time
+     * Updates last interaction time to now or an explicit UTC archive time.
      */
     void updateTimestamp();
+    void updateTimestamp(const U64Seconds& utc_time);
 
     void updateHistoryFileName(const std::string &new_name) { mHistoryFileName = new_name; }
 
@@ -127,7 +128,7 @@ public:
     // LLIMSessionObserver triggers
     virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg) override;
 
-    // Publish metadata for durable service history that has no live IM session.
+    // Publish or advance metadata for durable service history that has no live IM session.
     void addServiceConversation(const LLUUID& session_id,
                                 const std::string& conversation_name,
                                 const std::string& history_filename,

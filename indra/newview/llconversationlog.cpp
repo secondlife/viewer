@@ -99,7 +99,12 @@ LLConversation::~LLConversation()
 
 void LLConversation::updateTimestamp()
 {
-    mTime = (U64Seconds)time_corrected();
+    updateTimestamp((U64Seconds)time_corrected());
+}
+
+void LLConversation::updateTimestamp(const U64Seconds& utc_time)
+{
+    mTime = utc_time;
     mTimestamp = createTimestamp(mTime);
 }
 
@@ -394,9 +399,29 @@ void LLConversationLog::addServiceConversation(const LLUUID& session_id,
                                                const LLUUID& participant_id,
                                                const U64Seconds& archived_time)
 {
-    // Service publication is idempotent and follows the Conversation Log privacy setting.
-    if (!mLoggingEnabled || getConversation(session_id))
+    // Service publication follows the Conversation Log privacy setting.
+    if (!mLoggingEnabled)
     {
+        return;
+    }
+
+    // Durable service activity advances one matching row but never regresses its
+    // timestamp or replaces retained metadata. Notify and cache only when its
+    // visible timestamp changes.
+    for (LLConversation& conversation : mConversations)
+    {
+        if (conversation.getSessionID() != session_id)
+        {
+            continue;
+        }
+
+        if (archived_time > conversation.getTime())
+        {
+            conversation.updateTimestamp(archived_time);
+            notifyParticularConversationObservers(
+                session_id, LLConversationLogObserver::CHANGED_TIME);
+            cache();
+        }
         return;
     }
 

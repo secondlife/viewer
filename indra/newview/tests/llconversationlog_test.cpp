@@ -96,6 +96,40 @@ struct LLConversationLogTestAccess
         log.mConversations.clear();
         log.mLoggingEnabled = logging_enabled;
     }
+
+    static void setOfflineMessages(const LLUUID& session_id, bool has_offline_messages)
+    {
+        LLConversationLog& log = LLConversationLog::instance();
+        for (LLConversation& conversation : log.mConversations)
+        {
+            if (conversation.getSessionID() == session_id)
+            {
+                conversation.setOfflineMessages(has_offline_messages);
+                return;
+            }
+        }
+    }
+};
+
+// Capture both observer contracts so timestamp updates stay targeted to one row.
+struct ConversationLogObserver : public LLConversationLogObserver
+{
+    void changed() override
+    {
+        ++mRefreshes;
+    }
+
+    void changed(const LLUUID& session_id, U32 mask) override
+    {
+        ++mParticularChanges;
+        mSessionID = session_id;
+        mMask = mask;
+    }
+
+    S32 mRefreshes = 0;
+    S32 mParticularChanges = 0;
+    LLUUID mSessionID;
+    U32 mMask = 0;
 };
 
 namespace tut
@@ -122,6 +156,7 @@ template<> template<> void object_t::test<1>()
 {
     const LLUUID resident_id("00000000-0000-0000-0000-000000000002");
     const LLUUID session_id = gAgentID ^ resident_id;
+    const U64Seconds archived_time(LLUnits::Seconds::fromValue(1787756400.0));
 
     // A durable service archive has resident metadata but no live IM session.
     LLConversationLog& log = LLConversationLog::instance();
@@ -130,7 +165,7 @@ template<> template<> void object_t::test<1>()
         "Bridie Linden",
         "bridie.linden",
         resident_id,
-        U64Seconds(LLUnits::Seconds::fromValue(1787756400.0)));
+        archived_time);
 
     // Repeated archive publication must not duplicate the Conversation Log row.
     log.addServiceConversation(
@@ -138,13 +173,14 @@ template<> template<> void object_t::test<1>()
         "Bridie Linden",
         "bridie.linden",
         resident_id,
-        U64Seconds(LLUnits::Seconds::fromValue(1787756400.0)));
+        archived_time);
 
     const LLConversation* discovered = log.getConversation(session_id);
     ensure("remote direct conversation is discoverable", discovered != NULL);
     ensure_equals("remote conversation is unique", log.getConversations().size(), size_t(1));
     ensure("remote conversation is P2P",
            discovered->getConversationType() == LLIMModel::LLIMSession::P2P_SESSION);
+    ensure("remote archive time retained", discovered->getTime() == archived_time);
     ensure_equals("remote participant retained", discovered->getParticipantID(), resident_id);
     ensure_equals("remote name retained", discovered->getConversationName(),
                   std::string("Bridie Linden"));
@@ -153,6 +189,67 @@ template<> template<> void object_t::test<1>()
 }
 
 template<> template<> void object_t::test<2>()
+{
+    const LLUUID resident_id("00000000-0000-0000-0000-000000000002");
+    const LLUUID changed_resident_id("00000000-0000-0000-0000-000000000003");
+    const LLUUID session_id = gAgentID ^ resident_id;
+    const U64Seconds original_time(LLUnits::Seconds::fromValue(1787756400.0));
+    const U64Seconds newer_time(LLUnits::Seconds::fromValue(1787929200.0));
+    const U64Seconds older_time(LLUnits::Seconds::fromValue(1787666400.0));
+
+    LLConversationLog& log = LLConversationLog::instance();
+    log.addServiceConversation(
+        session_id,
+        "Bridie Linden",
+        "bridie.linden",
+        resident_id,
+        original_time);
+    LLConversationLogTestAccess::setOfflineMessages(session_id, true);
+
+    // A newer archive advances only the timestamp. Equal and older publications
+    // remain silent so stale service data cannot regress or duplicate the row.
+    ConversationLogObserver observer;
+    log.addObserver(&observer);
+    log.addServiceConversation(
+        session_id,
+        "Changed Name",
+        "changed.filename",
+        changed_resident_id,
+        newer_time);
+    log.addServiceConversation(
+        session_id,
+        "Changed Again",
+        "changed.again",
+        changed_resident_id,
+        newer_time);
+    log.addServiceConversation(
+        session_id,
+        "Older Name",
+        "older.filename",
+        changed_resident_id,
+        older_time);
+    log.removeObserver(&observer);
+
+    const LLConversation* updated = log.getConversation(session_id);
+    ensure("updated conversation remains present", updated != NULL);
+    ensure_equals("updated conversation remains unique", log.getConversations().size(), size_t(1));
+    ensure("newer archive time applied", updated->getTime() == newer_time);
+    ensure_equals("formatted archive time refreshed", updated->getTimestamp(),
+                  LLConversation::createTimestamp(newer_time));
+    ensure_equals("existing participant preserved", updated->getParticipantID(), resident_id);
+    ensure_equals("existing name preserved", updated->getConversationName(),
+                  std::string("Bridie Linden"));
+    ensure_equals("existing transcript stem preserved", updated->getHistoryFileName(),
+                  std::string("bridie.linden"));
+    ensure("existing offline state preserved", updated->hasOfflineMessages());
+    ensure_equals("timestamp update avoids full refresh", observer.mRefreshes, S32(0));
+    ensure_equals("only newer time notifies", observer.mParticularChanges, S32(1));
+    ensure_equals("timestamp update identifies session", observer.mSessionID, session_id);
+    ensure_equals("timestamp update identifies change", observer.mMask,
+                  U32(LLConversationLogObserver::CHANGED_TIME));
+}
+
+template<> template<> void object_t::test<3>()
 {
     LLConversationLogTestAccess::reset(false);
 

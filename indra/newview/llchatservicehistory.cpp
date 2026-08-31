@@ -1880,10 +1880,9 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
             sRuntime.index_dirty = true;
             sRuntime.local_content_exists = true;
 
-            // The first durable service archive makes a cross-device conversation
-            // discoverable without creating a live IM session. Later appends leave
-            // explicit Conversation Log dismissals intact.
-            if (!append && after_publish.summary.has_rows &&
+            // Every durable archive change can create or advance Conversation Log
+            // metadata without creating a live IM session.
+            if (after_publish.summary.has_rows &&
                 after_publish.metadata.state == META_RESOLVED)
             {
                 const F64 archived_seconds = after_publish.summary.newest.ticks >= UUID_EPOCH
