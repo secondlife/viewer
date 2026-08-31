@@ -183,7 +183,7 @@ void LLStatsListener::getPerfData(LLSD const & evt)
 
     // texture memory usage
     LLSD memory;
-    memory["texture_bytes_alloc_mb"] = (F64)LLImageGL::getTextureBytesAllocated() / 1024.0 / 512.0;
+    memory["texture_bytes_alloc_mb"] = (F64)LLImageGL::getTextureBytesAllocated() / 1024.0 / 1024.0;
     stats["memory"] = memory;
 
     LLSD inventory;

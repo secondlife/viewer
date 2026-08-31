@@ -29,6 +29,7 @@
 #include "llrendertarget.h"
 #include "llrender.h"
 #include "llgl.h"
+#include "llimagegl.h"
 
 LLRenderTarget* LLRenderTarget::sBoundTarget = NULL;
 U32 LLRenderTarget::sBytesAllocated = 0;
@@ -368,6 +369,8 @@ bool LLRenderTarget::allocateDepth()
     {
         glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT24, mResX, mResY, mLayers, 0,
                      GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+        // texture ledger too, matching the 2D path's setManualImage accounting
+        LLImageGLMemory::alloc_tex_image(mResX, mResY, GL_DEPTH_COMPONENT24, mLayers);
         sBytesAllocated += mResX * mResY * 4 * mLayers;
     }
     else if (mGenerateMipMaps != LLTexUnit::TMG_NONE && mMipLevels > 1)

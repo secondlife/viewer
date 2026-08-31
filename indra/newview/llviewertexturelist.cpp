@@ -1210,6 +1210,11 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         bool any_face = false;
         F32 min_behindness = FLT_MAX; // least-behind (most on-screen) use across faces
         bool any_visible = false; // any measured face's object is visible or merely frustum-culled (only occlusion stalls the GC clock)
+        F32 unload_rate = FLT_MAX;    // min across faces: most protective use paces the unload ramp
+        static LLCachedControl<F32> unload_bias(gSavedSettings, "TextureOffscreenUnloadBias", 1.0f);
+        static LLCachedControl<F32> edge_slowdown(gSavedSettings, "TextureUnloadEdgeSlowdown", 4.0f);
+        static LLCachedControl<F32> occl_boost(gSavedSettings, "TextureOcclusionUnloadBoost", 2.0f);
+        const F32 rate_floor = 1.f / llmax((F32)edge_slowdown, 1.f);
 
 
         U32 face_count = 0;
@@ -1305,12 +1310,18 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     // (shadow/probe culls write it too) and must not drive
                     // residency; the occlusion slot is world-pure. Out of
                     // frustum the flag is frozen, so those faces always count
-                    // visible - the angular ramp owns them.
+                    // visible - the unload ramp owns them.
                     LLDrawable* drawablep = face->getDrawable();
                     bool visible;
+                    F32 face_rate;
                     if (face->mBehindness > 0.f)
                     {
-                        visible = true;   // out of frustum - angular policy territory
+                        visible = true;   // out of frustum - unload ramp territory
+                        // frustum-cull tier: rate tapers from base (dead behind)
+                        // down to the edge floor
+                        F32 behind_norm = ((F32)unload_bias > 0.f)
+                            ? llclamp(face->mBehindness / (F32)unload_bias, 0.f, 1.f) : 1.f;
+                        face_rate = rate_floor + (1.f - rate_floor) * behind_norm;
                     }
                     else
                     {
@@ -1318,8 +1329,12 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                         bool occluded = LLPipeline::sUseOcclusion > 1 && group &&
                                         group->isOcclusionState(LLSpatialGroup::OCCLUDED);
                         visible = !occluded;
+                        // occlusion-cull tier is the fastest; a drawn face's floor
+                        // rate is moot - its binds reset the ramp clock every frame
+                        face_rate = occluded ? llmax((F32)occl_boost, rate_floor) : rate_floor;
                     }
                     any_visible = any_visible || visible;
+                    unload_rate = llmin(unload_rate, face_rate);
 
                     if (bucket >= 0 && bucket < 4)
                     {
@@ -1451,6 +1466,10 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         // (no penalty), same reasoning as mOnScreen.
         imagep->mBehindness = any_face ? min_behindness : 0.f;
 
+        // Unload ramp rate: 0 = protected (no measured faces, or the >1024-face
+        // pin) - same never-starve rule as mOnScreen/mLastVisibleFrame.
+        imagep->mUnloadRate = (any_face && unload_rate != FLT_MAX) ? unload_rate : 0.f;
+
         // Stamp the occlusion GC's staleness clock whenever a measured face
         // passed the cull verdict this sweep. Textures with no scannable faces
         // (bakes, spotlights, terrain, not-yet-built geometry) count as visible
@@ -1464,14 +1483,14 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 
         // In-world streaming diagnostics: current/desired discard, held/full
         // dims, per-bucket texels-per-pixel bounds at native res (low~high,
-        // 1.0 = 1:1 on screen), behindness, off-screen flag, frames since
-        // last confirmed visible.
+        // 1.0 = 1:1 on screen), behindness, unload rate, off-screen flag,
+        // frames since last confirmed visible.
         static LLCachedControl<bool> stream_debug(gSavedSettings, "TextureStreamDebugText", false);
         if (stream_debug)
         {
             F32 dim = sqrtf((F32)llmax(imagep->getFullWidth() * imagep->getFullHeight(), 1));
             const char* cls_tag[LLViewerTexture::PRIORITY_CLASS_COUNT] = { "env", "av", "self" };
-            imagep->setDebugText(llformat("%s d%d>%d %d/%d r %.3f ord %.0f [N %.2f~%.2f BC %.2f~%.2f S %.2f~%.2f E %.2f~%.2f] i %.1f>%.1f b %.2f%s v %d",
+            imagep->setDebugText(llformat("%s d%d>%d %d/%d r %.3f ord %.0f [N %.2f~%.2f BC %.2f~%.2f S %.2f~%.2f E %.2f~%.2f] i %.1f>%.1f b %.2f u %.2f%s v %d",
                 cls_tag[llclamp((S32)imagep->mPriorityClass, 0, (S32)LLViewerTexture::PRIORITY_CLASS_COUNT - 1)],
                 imagep->getDiscardLevel(),
                 imagep->getDesiredDiscardLevel(),
@@ -1486,6 +1505,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                 imagep->mDbgIdealPolicy,
                 imagep->mDbgIdealFinal,
                 imagep->mBehindness,
+                imagep->mUnloadRate,
                 imagep->mOnScreen ? "" : " OFF",
                 (S32)(LLFrameTimer::getFrameCount() - imagep->mLastVisibleFrame)));
         }

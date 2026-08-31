@@ -248,16 +248,15 @@ protected:
     // off-screen unload falloff in computeDesiredDiscard.
     F32 mBehindness = 0.f;
 
+    // Unload ramp rate multiplier published by the sweep from cull reason
+    // (occluded = fastest, behindness taper otherwise); 0 = protected.
+    F32 mUnloadRate = 0.f;
+
     // Last frame any measured face's object reported visible per the renderer's
     // cull verdict (frustum + occlusion queries); stamped by the coverage sweep
     // and anchored at GL-texture creation; the staleness clock for the occlusion
     // GC. 0 = never.
     mutable U32 mLastVisibleFrame = 0;
-
-    // Frame the texture's aggregate behindness last transitioned onto >0
-    // (0 = currently on screen); the dwell clock for the progressive
-    // off-screen unload.
-    mutable U32 mOffScreenEnterFrame = 0;
 
     // Last frame the coverage sweep produced a real measurement for this
     // texture (some face had usable extents). Distinguishes a transient

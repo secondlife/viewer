@@ -171,6 +171,9 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool us
         glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, format, mip_resolution, mip_resolution, count * 6, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
+        // per-mip so the ledger carries the whole pyramid, not just the base
+        alloc_tex_image(mip_resolution, mip_resolution, format, count * 6);
+
         if (!use_mips)
         {
             break;
@@ -178,8 +181,6 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool us
         mip_resolution /= 2;
         ++mip;
     }
-
-    alloc_tex_image(resolution, resolution, format, count * 6);
 
     mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 

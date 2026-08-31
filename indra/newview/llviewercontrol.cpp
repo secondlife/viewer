@@ -149,9 +149,9 @@ namespace
     //  - the channel ratios coarsen specular/emissive/normal relative to base
     //    color (linear multipliers on the global ratio: 0.7071 = half a mip).
     //  - offscreen_unload_bias (UB) is the behindness (0 = frustum edge,
-    //    1 = directly behind) at which out-of-frustum content reaches full
-    //    unload: lower tiers slam sooner; High/Ultra (1.0) only reach full
-    //    unload directly behind the camera.
+    //    1 = directly behind) at which the frustum-cull unload tier reaches
+    //    its full base rate: lower tiers collect at full rate nearer the
+    //    edge; High/Ultra (1.0) taper all the way to directly behind.
     //  - downrez_bias 0 at Ultra sizes strictly to the most demanding use
     //    (exact baseline); lower tiers trade toward the oversampled end.
     // The pressure water marks (TexturePressureHighWater/LowWater) are NOT tiered - they're a

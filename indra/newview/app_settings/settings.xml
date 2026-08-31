@@ -12454,10 +12454,21 @@
       <key>Value</key>
       <string />
     </map>
+    <key>TextureOcclusionUnloadBoost</key>
+    <map>
+        <key>Comment</key>
+        <string>Unload rate multiplier for occlusion-culled content, the fastest tier (1 = same rate as directly-behind).</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>2.0</real>
+    </map>
     <key>TextureOffscreenUnloadBias</key>
     <map>
         <key>Comment</key>
-        <string>How far out of frustum content must be before angle-driven unload reaches full depth, in behindness units (0 = frustum edge, 1 = directly behind). Unload fraction ramps linearly from the frustum edge to this point. A monotonic dial: below 1 = full unload nearer the frustum edge (aggressive), with 0 the limit (full depth the moment anything is off-screen); above 1 = even directly-behind content never fully unloads (protective).</string>
+        <string>Behindness (0 = frustum edge, 1 = directly behind) at which the frustum-cull unload tier reaches its full base rate; the rate tapers linearly down to the TextureUnloadEdgeSlowdown floor at the frustum edge. Monotonic dial: lower = full rate nearer the edge (aggressive), higher = only deeply-behind content collects at full rate (protective).</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
@@ -12486,6 +12497,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.0</real>
+    </map>
+    <key>TextureUnloadEdgeSlowdown</key>
+    <map>
+        <key>Comment</key>
+        <string>Unload rate divisor at the frustum edge: unbound content at the edge collects this many times slower than directly behind the camera (1 = no taper).</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>4.0</real>
     </map>
     <key>TextureVRAMReserve</key>
     <map>

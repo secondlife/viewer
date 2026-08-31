@@ -516,11 +516,11 @@ void LLViewerTexture::updateClass()
     static LLCachedControl<U32> tex_vram_divisor(gSavedSettings, "RenderTextureVRAMDivisor", 2);
     static LLCachedControl<U32> max_vram_budget(gSavedSettings, "RenderMaxVRAMBudget", 0);
 
-    F64 texture_bytes_alloc = LLImageGL::getTextureBytesAllocated() / 1024.0 / 512.0;
-    F64 vertex_bytes_alloc = LLVertexBuffer::getBytesAllocated() / 1024.0 / 512.0;
+    // Real MB. The ledger is full-pyramid and includes render targets and cube
+    // map arrays; the old x2 "metrics miss half" fudge predates that and is gone.
+    F64 texture_bytes_alloc = LLImageGL::getTextureBytesAllocated() / 1024.0 / 1024.0;
+    F64 vertex_bytes_alloc = LLVertexBuffer::getBytesAllocated() / 1024.0 / 1024.0;
 
-    // get an estimate of how much video memory we're using
-    // NOTE: our metrics miss about half the vram we use, so this biases high but turns out to typically be within 5% of the real number
     F32 vram_used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc);
 
     // For debugging purposes, it's useful to be able to set the VRAM budget manually.
@@ -1631,9 +1631,8 @@ void LLViewerFetchedTexture::postCreateTexture()
     // drawn (occluded, or the camera moved on) would otherwise keep its clock at
     // 0 forever, and the GC skips a 0 clock (the > 0 gate) - it would hold
     // residency indefinitely. Anchoring here means it ages out on the normal GC
-    // cooldown unless a real sweep stamps it first. mLastVisibleFrame is the live
-    // cull-visibility clock the GC now reads; mLastBindFrame is the dormant bind
-    // clock, kept anchored pending its removal.
+    // cooldown unless a real sweep stamps it first. mLastVisibleFrame is the
+    // occlusion GC's clock; mLastBindFrame is the unload ramp's clock.
     if (mGLTexturep.notNull() && mGLTexturep->mLastBindFrame == 0)
     {
         mGLTexturep->mLastBindFrame = LLFrameTimer::getFrameCount();
@@ -3258,10 +3257,9 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i) const
     mLastMeasuredFrame = LLFrameTimer::getFrameCount();
     mDbgIdealPolicy = ideal;
 
-    // Unload lifecycle: angular (out-of-frustum) and GC staleness ramps,
-    // deeper one wins.
+    // Unload lifecycle: bind-staleness ramp (paced by the sweep's cull-reason
+    // rate) and the occlusion GC's staleness ramp, deeper one wins.
     {
-        static LLCachedControl<F32> unload_bias(gSavedSettings, "TextureOffscreenUnloadBias", 1.0f);
         static LLCachedControl<F32> gc_step_seconds(gSavedSettings, "TextureGCStepSeconds", 2.f);
         static LLCachedControl<U32> gc_step_mips(gSavedSettings, "TextureGCStepMips", 1);
         const U32 now = LLFrameTimer::getFrameCount();
@@ -3270,34 +3268,22 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i) const
         // Both signals measure depth from the same policy ideal.
         const F32 range = llmax((F32)dim_max_i - ideal, 0.f);
 
-        F32 angular_mips = 0.f;
-        if (mBehindness > 0.f)
+        // Unload ramp: bindness is the clock (camera-pass draws reset it; probe/
+        // shadow/impostor binds don't count), the sweep's cull-reason rate is the
+        // pace. Depth is uncapped - nearness to the frustum buys time, not permanence.
+        F32 unload_mips = 0.f;
+        const U32 bind_frame = mGLTexturep.notNull() ? mGLTexturep->mLastBindFrame : 0;
+        if (bind_frame > 0 && mUnloadRate > 0.f)
         {
-            if (mOffScreenEnterFrame == 0)
+            const U32 unbound = (now >= bind_frame) ? now - bind_frame : 0;
+            if (unbound > dwell)
             {
-                mOffScreenEnterFrame = now;   // dwell starts at the on->off transition
+                const U32 eff_cooldown = llmax((U32)((F32)cooldown / mUnloadRate), 1u);
+                const S32 periods = (S32)((unbound - dwell) / eff_cooldown) + 1;
+                // range + 2 slack so the final eviction step clears the
+                // current+1+margin test; the final llclamp on desired bounds it.
+                unload_mips = llclamp((F32)(periods * step_mips), 0.f, range + 2.f);
             }
-            // bias = the behindness at which unload reaches full depth. A
-            // monotonic dial: bias -> 0 is the LIMIT of aggressive (full
-            // depth for any behindness at all), never a disable switch;
-            // bias > 1 caps even dead-behind at partial depth (warm).
-            const F32 bias = (F32)unload_bias;
-            const F32 unload_frac = (bias > 0.f) ? llclamp(mBehindness / bias, 0.f, 1.f)
-                                                 : 1.f;
-            // A saturated target gets margin slack so the final eviction
-            // step can actually fire (target_mips == range lands ideal on
-            // exactly dim_max_i, which never clears the current+1+margin
-            // test from dim_max_i-1); the final llclamp on desired bounds
-            // the result.
-            const F32 target_mips = (unload_frac >= 1.f) ? range + 2.f
-                                                         : unload_frac * range;
-            const U32 off_frames = now - mOffScreenEnterFrame;
-            const S32 periods = (off_frames > dwell) ? (S32)((off_frames - dwell) / cooldown) + 1 : 0;
-            angular_mips = llclamp((F32)(periods * step_mips), 0.f, target_mips);
-        }
-        else
-        {
-            mOffScreenEnterFrame = 0;   // in frustum - reset the dwell clock
         }
 
         F32 gc_mips = 0.f;
@@ -3313,7 +3299,7 @@ S32 LLViewerLODTexture::computeDesiredDiscard(S32 dim_max_i) const
             }
         }
 
-        ideal += llmax(angular_mips, gc_mips);
+        ideal += llmax(unload_mips, gc_mips);
     }
 
     // Round toward sharper (floor): a texture stays at a mip level until its
