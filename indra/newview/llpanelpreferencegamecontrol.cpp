@@ -52,6 +52,9 @@ namespace
     static LLScrollListCtrl* sSelectedGrid { nullptr };
     static LLScrollListItem* sSelectedItem { nullptr };
     static LLScrollListCell* sSelectedCell { nullptr };
+    static S32 sSelectedRow { -1 };
+    static S32 sSelectedCol { -1 };
+    static LLRect sSelectedOpenRect;
 
     // The combobox popup currently overlaying sSelectedCell (one of the four
     // action-mapping/output selectors below).  Stashed so applyGameControlInput()
@@ -144,6 +147,8 @@ namespace
         return LLFontGL::getFont(LLFontDescriptor("SecondLife-game-control", "Huge", 0));
     }
 }
+
+  static LLRect computeCellScreenRect(LLScrollListCtrl* grid, LLView* relative_to, S32 row_index, S32 col_index);
 
 // Static entry point called when device list changes (device connected/disconnected).
 // Delegates to the singleton instance if it exists.
@@ -350,6 +355,10 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
     // compute new rect for combobox
     S32 row_index = grid->getItemIndex(item);
     fitInRect(combobox, grid, row_index, col);
+    sSelectedRow = row_index;
+    sSelectedCol = col;
+    sSelectedOpenRect = computeCellScreenRect(grid, combobox->getParent(), row_index, col);
+
 
     // Pre-select the item matching the cell's current input.
     std::string value;
@@ -899,6 +908,18 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
     mOrigSettings = LLSD::emptyMap();
 }
 
+  static LLRect computeCellScreenRect(LLScrollListCtrl* grid, LLView* relative_to, S32 row_index, S32 col_index)
+  {
+     LLRect rect(grid->getCellRect(row_index, col_index));
+     LLView* parent = grid->getParent();
+     while (parent && parent != relative_to)
+     {
+       rect.translate(parent->getRect().mLeft, parent->getRect().mBottom);
+         parent = parent->getParent();
+     }
+    return rect;
+  }
+
 // Per-frame refresh of the Device State tab.  Only touches the tables while that
 // tab is actually the visible one, so it costs nothing on the other tabs.
 void LLPanelPreferenceGameControl::draw()
@@ -911,6 +932,15 @@ void LLPanelPreferenceGameControl::draw()
             updateAutoCalibration();
         }
     }
+    if (sSelectedCombobox && sSelectedGrid && sSelectedRow >= 0 && sSelectedCol >= 0)
+    {
+        LLRect current_rect = computeCellScreenRect(sSelectedGrid, sSelectedCombobox->getParent(), sSelectedRow, sSelectedCol);
+        if (current_rect != sSelectedOpenRect)
+        {
+            clearSelectionState();
+        }
+    }
+         
     LLPanelPreference::draw();
 }
 
@@ -1843,6 +1873,8 @@ void LLPanelPreferenceGameControl::clearSelectionState()
     sSelectedItem = nullptr;
     sSelectedCell = nullptr;
     sSelectedCombobox = nullptr;
+    sSelectedRow = -1;
+    sSelectedCol = -1;
     mNumericValueEditor->setVisible(false);
     mAxisInputSelector->setVisible(false);
     mAxisOutputSelector->setVisible(false);
