@@ -940,7 +940,7 @@ void LLPanelPreferenceGameControl::draw()
             clearSelectionState();
         }
     }
-         
+
     LLPanelPreference::draw();
 }
 
