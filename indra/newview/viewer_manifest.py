@@ -575,6 +575,16 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("OpenAL32.dll")
                 self.path("alut.dll")
 
+            # LibVLC runtime for parcel audio/music streaming (LLStreamingAudio_LibVLC,
+            # indra/newview/llstreamingaudio_libvlc.cpp) -- linked directly into
+            # secondlife-bin.exe itself, independent of ENABLE_MEDIA_PLUGINS and the
+            # (unbuilt-by-default) media_plugin_libvlc.dll below. plugins/ is libvlc's own
+            # dynamically loaded demux/codec/access plugins, required for it to decode
+            # anything at all; process_directory() recurses through it automatically.
+            self.path("libvlc.dll")
+            self.path("libvlccore.dll")
+            self.path("plugins")
+
             # For textures
             self.path("openjp2.dll")
 
@@ -724,17 +734,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("vi.pak")
                 self.path("zh-CN.pak")
                 self.path("zh-TW.pak")
-
-            # LibVLC runtime deliberately not copied: unlike the CEF runtime above, this
-            # package is fetched unconditionally by autobuild regardless of
-            # ENABLE_MEDIA_PLUGINS, so it always exists on disk -- path_optional() would
-            # never actually skip it. Only media_plugin_libvlc.dll needs it, and that
-            # isn't built by default; re-add this block if ENABLE_MEDIA_PLUGINS is ever
-            # turned back on.
-            #with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-            #    self.path("libvlc.dll")
-            #    self.path("libvlccore.dll")
-            #    self.path("plugins/")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"

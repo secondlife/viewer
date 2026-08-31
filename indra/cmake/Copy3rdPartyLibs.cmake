@@ -10,6 +10,13 @@ if (USE_DISCORD)
   include(Discord)
 endif ()
 include(OPENAL)
+if (NOT LINUX)
+  # ll::libvlc is otherwise only defined later, from newview/CMakeLists.txt -- this file is
+  # included from llcommon/CMakeLists.txt, processed well before newview, so without this the
+  # if (TARGET ll::libvlc) check below would always be false. LibVLCPlugin.cmake has its own
+  # include_guard(), so including it again from newview later is a safe no-op.
+  include(LibVLCPlugin)
+endif ()
 
 # When we copy our dependent libraries, we almost always want to copy them to
 # both the Release and the RelWithDebInfo staging directories. This has
@@ -57,6 +64,7 @@ if(WINDOWS)
     if (TARGET ll::openal)
         list(APPEND release_files openal32.dll alut.dll)
     endif ()
+
 
     #*******************************
     # Copy MS C runtime dlls, required for packaging.
@@ -212,10 +220,36 @@ to_staging_dirs(
     ${release_files}
     )
 
+if (WINDOWS AND TARGET ll::libvlc)
+    # Unlike every other package used above, vlc-bin's runtime .dll files (and its plugins/
+    # directory, below) live under bin/release, not lib/release -- ARCH_PREBUILT_DIRS_RELEASE
+    # (release_src_dir above) points at lib/release, which for this package holds only the
+    # .lib import libraries, so these two need their own to_staging_dirs() call with the
+    # correct source directory.
+    to_staging_dirs(
+        "${AUTOBUILD_INSTALL_DIR}/bin/release"
+        third_party_targets
+        libvlc.dll
+        libvlccore.dll
+        )
+endif ()
+
 add_custom_target(
         stage_third_party_libs ALL
         DEPENDS ${third_party_targets}
 )
+
+if (WINDOWS AND TARGET ll::libvlc)
+    # libvlc dynamically loads its demux/codec/access plugins from this directory at runtime
+    # (367 files as of this writing) -- without it libvlc.dll loads fine but can't actually
+    # decode anything. copy_directory_if_different, not copy_if_different, since the latter
+    # only handles individual files, not a whole tree.
+    add_custom_command( TARGET stage_third_party_libs POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+                "${AUTOBUILD_INSTALL_DIR}/bin/release/plugins" "${SHARED_LIB_STAGING_DIR}/plugins"
+            COMMENT "Copying libvlc plugins/ to ${SHARED_LIB_STAGING_DIR}/plugins"
+            )
+endif ()
 
 if(DARWIN)
     # Support our "@executable_path/../Resources" load path for executables
