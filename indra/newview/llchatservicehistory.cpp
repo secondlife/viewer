@@ -2848,9 +2848,9 @@ LLChatServiceHistory::HistoryResult readStitched(
     std::vector<std::pair<F64, LLSD>> dated;
     std::list<LLSD> undated;
 
-    // Only the durable archive's oldest key controls the legacy/service seam. Keep
-    // ambiguous rows conservatively and require dated legacy rows to precede the
-    // service boundary by the existing seven-hour tolerance.
+    // Exact canonical overlaps keep their legacy position. For unmatched rows, the
+    // durable archive's oldest key controls the seam; retain undated rows and dated
+    // rows whose earliest possible SLT interpretation predates that boundary.
     for (const LLSD& message : legacy)
     {
         F64 wall = 0.0;
@@ -2858,7 +2858,7 @@ LLChatServiceHistory::HistoryResult readStitched(
         {
             undated.push_back(message);
         }
-        else if (!archive.has_oldest || wall + 7.0 * 3600.0 < service_epoch)
+        else
         {
             LLSD stitched = message;
             stitched[LEGACY_WALL_TIME] = wall;
@@ -2889,7 +2889,11 @@ LLChatServiceHistory::HistoryResult readStitched(
                 stitched = serviceMessage(service[match]);
                 service_placed[match] = true;
             }
-            dated.emplace_back(wall, stitched);
+            if (match != service.size() || !archive.has_oldest ||
+                wall + 7.0 * 3600.0 < service_epoch)
+            {
+                dated.emplace_back(wall, stitched);
+            }
         }
     }
     std::stable_sort(dated.begin(), dated.end(),
