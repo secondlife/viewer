@@ -54,7 +54,11 @@ namespace cefshm_demo
         // consumer -> producer, per-view channel
         kSetUrl      = 1, // text payload: a URL, e.g. "https://example.com"
         kMouseMove   = 2, // data = {int32 x, int32 y}, canvas-space, little-endian
-        kMouseButton = 3, // data = {int32 x, int32 y, uint8 button, uint8 action}
+        kMouseButton = 3, // data = {int32 x, int32 y, uint8 button, uint8 action, uint8 click_count}
+                          // click_count matches CEF's own SendMouseClickEvent() semantics (1 for a
+                          // normal click, 2 for the down half of a double-click) -- CEF is windowless
+                          // here, so it has no real OS window to infer a double-click's timing from
+                          // on its own; the embedder (us) must say so explicitly on every call.
         kResize      = 4, // data = {uint32 width, uint32 height}
         kScrollWheel = 8, // data = {int32 x, int32 y, int32 deltaY} -- deltaY in CEF's own wheel-delta
                           // units (a multiple of ~30-120 per notch), see SendMouseWheelEvent
@@ -199,12 +203,14 @@ namespace cefshm_demo
     }
 
     inline std::uint32_t pack_mouse_button(std::uint8_t* d, std::int32_t x, std::int32_t y,
-                                           std::uint8_t button, std::uint8_t action)
+                                           std::uint8_t button, std::uint8_t action,
+                                           std::uint8_t click_count)
     {
         const std::uint32_t n = pack_i32x2(d, x, y);
         d[n + 0] = button;
         d[n + 1] = action;
-        return n + 2;
+        d[n + 2] = click_count;
+        return n + 3;
     }
 
     inline std::uint32_t pack_size(std::uint8_t* d, std::uint32_t w, std::uint32_t h)

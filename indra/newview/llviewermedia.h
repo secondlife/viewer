@@ -600,6 +600,14 @@ private:
     std::string mCurrentMimeType;   // The MIME type that caused the currently loaded plugin to be loaded.
     S32 mLastMouseX;    // save the last mouse coord we get, so when we lose capture we can simulate a mouseup at that point.
     S32 mLastMouseY;
+
+    // Set by mouseDoubleClick() (embedded-browser only), consumed by whichever of mouseUp()/
+    // onMouseCaptureLost() actually sends the matching up for that double-click's second press
+    // -- both check it since callers vary (LLMediaCtrl fires both in sequence on every click;
+    // LLToolPie's prim-media path relies on onMouseCaptureLost() alone). CEF's SendMouseClickEvent()
+    // needs the up half of a double-click tagged click_count=2 too, not just the down half, or its
+    // internal click-sequence tracking ends up mismatched for the click after this one.
+    bool mPendingDoubleClickUp = false;
     S32 mMediaWidth;
     S32 mMediaHeight;
     bool mMediaAutoScale;

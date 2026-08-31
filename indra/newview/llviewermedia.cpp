@@ -2590,7 +2590,11 @@ void LLViewerMediaImpl::mouseDown(S32 x, S32 y, MASK mask, S32 button)
 //  LL_INFOS() << "mouse down (" << x << ", " << y << ")" << LL_ENDL;
     if (mUseEmbeddedBrowser)
     {
-        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, true);
+        // A fresh down means any earlier double-click's up-half was already handled (or the
+        // sequence was interrupted some other way) -- either way, stale pending state here
+        // would wrongly tag some future, unrelated up as click_count=2.
+        mPendingDoubleClickUp = false;
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, true, 1);
     }
     else if (mMediaSource)
     {
@@ -2607,7 +2611,9 @@ void LLViewerMediaImpl::mouseUp(S32 x, S32 y, MASK mask, S32 button)
 //  LL_INFOS() << "mouse up (" << x << ", " << y << ")" << LL_ENDL;
     if (mUseEmbeddedBrowser)
     {
-        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, false);
+        const unsigned char click_count = mPendingDoubleClickUp ? 2 : 1;
+        mPendingDoubleClickUp = false;
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, false, click_count);
     }
     else if (mMediaSource)
     {
@@ -2720,10 +2726,14 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
     mLastMouseY = y;
     if (mUseEmbeddedBrowser)
     {
-        // No double-click distinction on the wire yet (see cefshm_protocol.h's kMouseButton)
-        // -- sent as a plain click; CEF's own renderer infers double-click from timing on
-        // consecutive clicks the same way a real browser window would.
-        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, true);
+        // Sent as a real click_count=2 down, matching CEF's SendMouseClickEvent() semantics --
+        // CEF is windowless here, so unlike a real browser window it has no OS-level double-click
+        // timing to infer this from on its own; the embedder (us) must say so explicitly. The
+        // matching up (fired separately, via mouseUp()/onMouseCaptureLost() when this object
+        // loses mouse capture) also needs click_count=2 to close the sequence out correctly,
+        // hence mPendingDoubleClickUp.
+        mPendingDoubleClickUp = true;
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, true, 2);
     }
     else if (mMediaSource)
     {
@@ -2775,7 +2785,13 @@ void LLViewerMediaImpl::onMouseCaptureLost()
 {
     if (mUseEmbeddedBrowser)
     {
-        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, mLastMouseX, mLastMouseY, 0, false);
+        // See mPendingDoubleClickUp's own comment -- this is the other place a double-click's
+        // matching up can arrive from, depending on the caller (prim media via LLToolPie relies
+        // on this path alone; LLMediaCtrl fires mouseUp() first, so by the time this runs the
+        // flag's already been consumed there and this correctly falls back to click_count=1).
+        const unsigned char click_count = mPendingDoubleClickUp ? 2 : 1;
+        mPendingDoubleClickUp = false;
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, mLastMouseX, mLastMouseY, 0, false, click_count);
     }
     else if (mMediaSource)
     {

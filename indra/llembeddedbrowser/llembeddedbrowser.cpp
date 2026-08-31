@@ -459,14 +459,14 @@ void LLEmbeddedBrowserTab::mouseMove(int x, int y)
     }
 }
 
-void LLEmbeddedBrowserTab::mouseButton(int x, int y, unsigned char button, bool is_down)
+void LLEmbeddedBrowserTab::mouseButton(int x, int y, unsigned char button, bool is_down, unsigned char click_count)
 {
     LLMutexLock lock(&mPixelMutex);
     if (mSub)
     {
         // action: 0 = up, 1 = down, matching cef_mouse_up()'s convention in cefshm_producer.cpp.
-        std::uint8_t payload[10];
-        const std::uint32_t n = pack_mouse_button(payload, x, y, button, is_down ? 1 : 0);
+        std::uint8_t payload[11];
+        const std::uint32_t n = pack_mouse_button(payload, x, y, button, is_down ? 1 : 0, click_count);
         mSub->send(kMouseButton, payload, n);
     }
 }
@@ -1164,11 +1164,11 @@ void LLEmbeddedBrowser::mouseMove(unsigned int id, int x, int y)
     }
 }
 
-void LLEmbeddedBrowser::mouseButton(unsigned int id, int x, int y, unsigned char button, bool is_down)
+void LLEmbeddedBrowser::mouseButton(unsigned int id, int x, int y, unsigned char button, bool is_down, unsigned char click_count)
 {
     if (auto tab = findTab(id))
     {
-        tab->mouseButton(x, y, button, is_down);
+        tab->mouseButton(x, y, button, is_down, click_count);
     }
 }
 

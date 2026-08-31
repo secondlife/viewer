@@ -187,8 +187,11 @@ class LLEmbeddedBrowserTab
         // anyway). x/y are canvas-space pixels, matching this tab's current width/height.
         void mouseMove(int x, int y);
         // button matches LLViewerMediaImpl's own convention (0 = left, the only value any
-        // current caller passes); is_down false = button-up.
-        void mouseButton(int x, int y, unsigned char button, bool is_down);
+        // current caller passes); is_down false = button-up. click_count matches CEF's own
+        // SendMouseClickEvent() semantics (2 for the down half of a double-click, 1 otherwise,
+        // including the up half of a double-click's second press -- see LLViewerMediaImpl's
+        // mPendingDoubleClickUp for why that up also needs 2, not 1).
+        void mouseButton(int x, int y, unsigned char button, bool is_down, unsigned char click_count = 1);
         void scrollWheel(int x, int y, int deltaY);
         // msg/wParam/lParam: a raw Win32 keyboard message triple, straight from
         // LLWindowWin32::getNativeKeyData(). Windows-only, matching the producer's own
@@ -320,7 +323,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void paste(unsigned int id);
 
         void mouseMove(unsigned int id, int x, int y);
-        void mouseButton(unsigned int id, int x, int y, unsigned char button, bool is_down);
+        void mouseButton(unsigned int id, int x, int y, unsigned char button, bool is_down, unsigned char click_count = 1);
         void scrollWheel(unsigned int id, int x, int y, int deltaY);
         void keyEvent(unsigned int id, unsigned int msg, unsigned int wParam, unsigned int lParam);
         void setFocus(unsigned int id, bool focus);

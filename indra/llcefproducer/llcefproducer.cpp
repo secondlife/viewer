@@ -684,11 +684,11 @@ int run_producer(int argc, char** argv)
                     break;
                 }
                 case kMouseButton: {
-                    std::int32_t x, y; std::uint8_t button, action;
+                    std::int32_t x, y; std::uint8_t button, action, click_count;
                     llCefMouseButton mapped;
-                    if (unpack_mouse_button(cmd.data.data(), cmd.data.size(), x, y, button, action) &&
+                    if (unpack_mouse_button(cmd.data.data(), cmd.data.size(), x, y, button, action, click_count) &&
                         map_mouse_button(button, mapped))
-                        manager->SendMouseClickEvent(s.cefHandle, int(x), int(y), mapped, cef_mouse_up(action));
+                        manager->SendMouseClickEvent(s.cefHandle, int(x), int(y), mapped, cef_mouse_up(action), int(click_count));
                     break;
                 }
                 case kResize: {
