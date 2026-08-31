@@ -65,6 +65,9 @@ public:
     bool loadShadersWater();
     bool loadShadersInterface();
 
+    bool loadSpotLightShaders();
+    S32  getSpotShadowShaderCount() const { return mSpotShadowShaderCount; }
+
     std::vector<S32> mShaderLevel;
     S32 mMaxAvatarShaderLevel;
 
@@ -135,6 +138,8 @@ public:
 private:
     // the list of shaders we need to propagate parameters to.
     std::vector<LLGLSLShader *> mShaderList;
+
+    S32 mSpotShadowShaderCount = 0;
 
 }; //LLViewerShaderMgr
 

@@ -639,6 +639,10 @@ void LLHeroProbeManager::renderProbes()
         mCurrentRenderingProbeIdx = -1;
         mRenderingMirror = false;
 
+        // cube faces baked CLIP_PLANE/WATER_WATERPLANE/MIRROR_FLAG in probe eye space;
+        // re-bake for the main camera (modelview was restored by cubeSnapshot)
+        LLEnvironment::instance().update(LLViewerCamera::getInstance());
+
         if (restore_first_person)
         {
             LLVOAvatar::sVisibleInFirstPerson = false;

@@ -368,7 +368,7 @@ public:
     // rendered once per hero probe can be reused across cube faces
     void refreshSunShadowMatrices();
     LLRenderTarget* getSunShadowTarget(U32 i);
-    LLRenderTarget* getSpotShadowTarget(U32 i);
+    LLRenderTarget* getSpotShadowTarget();
 
     void renderHighlight(const LLViewerObject* obj, F32 fade);
 
@@ -508,6 +508,7 @@ private:
     void hideDrawable( LLDrawable *pDrawable );
     void unhideDrawable( LLDrawable *pDrawable );
     void skipRenderingShadows();
+    void resizeSpotShadowSlots(U32 count);
 public:
     enum {GPU_CLASS_MAX = 3 };
 
@@ -743,7 +744,7 @@ public:
     // currently used render target pack
     RenderTargetPack* mRT;
 
-    LLRenderTarget          mSpotShadow[2];
+    LLRenderTarget          mSpotShadow;
 
     LLRenderTarget          mPbrBrdfLut;
     LLRenderTarget          mWaterExclusionMask;
@@ -812,15 +813,19 @@ public:
     LLVector3               mShadowFrustOrigin[4];
     LLCamera                mShadowCamera[8];
     LLVector3               mShadowExtents[4][2];
-    // TODO : separate Sun Shadow and Spot Shadow matrices
-    glm::mat4               mSunShadowMatrix[6];
-    glm::mat4               mShadowModelview[6];
-    glm::mat4               mShadowProjection[6];
+    glm::mat4               mSunShadowMatrix[4];
+    glm::mat4               mShadowModelview[4];
+    glm::mat4               mShadowProjection[4];
     glm::mat4               mReflectionModelView;
 
-    LLPointer<LLDrawable>   mShadowSpotLight[2];
-    F32                     mSpotLightFade[2];
-    LLPointer<LLDrawable>   mTargetShadowSpotLight[2];
+    std::vector<glm::mat4>  mSpotShadowMatrix;
+    std::vector<glm::mat4>  mSpotShadowModelview;
+    std::vector<glm::mat4>  mSpotShadowProjection;
+
+    std::vector<LLPointer<LLDrawable> > mShadowSpotLight;
+    std::vector<LLPointer<LLDrawable> > mTargetShadowSpotLight;
+    std::vector<LLVector4>  mSpotShadowLight;
+    std::vector<F32>        mSpotLightFade;
 
     LLVector4               mSunClipPlanes;
     LLVector4               mSunOrthoClipPlanes;
@@ -1056,6 +1061,7 @@ public:
     static U32 RenderResolutionDivisor;
     static bool RenderUIBuffer;
     static S32 RenderShadowDetail;
+    static S32 RenderSpotShadowCount;
     static S32 RenderShadowSplits;
     static bool RenderDeferredSSAO;
     static F32 RenderShadowResolutionScale;

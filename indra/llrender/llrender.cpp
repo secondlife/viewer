@@ -84,7 +84,8 @@ static const GLenum sGLTextureType[] =
     GL_TEXTURE_CUBE_MAP,
     GL_TEXTURE_CUBE_MAP_ARRAY,
     GL_TEXTURE_2D_MULTISAMPLE,
-    GL_TEXTURE_3D
+    GL_TEXTURE_3D,
+    GL_TEXTURE_2D_ARRAY
 };
 
 static const GLint sGLAddressMode[] =

@@ -1102,6 +1102,68 @@ bool LLViewerShaderMgr::loadShadersEffects()
 
 }
 
+bool LLViewerShaderMgr::loadSpotLightShaders()
+{
+    LL_PROFILE_ZONE_SCOPED;
+
+    S32 spot_shadow_count = llmax(1, gSavedSettings.getS32("RenderSpotShadowCount"));
+    std::string spot_shadows = std::to_string(spot_shadow_count);
+
+    if (gDeferredSpotLightProgram.mProgramObject)
+    {
+        gDeferredSpotLightProgram.unload();
+    }
+
+    gDeferredSpotLightProgram.mName = "Deferred SpotLight Shader";
+    gDeferredSpotLightProgram.mShaderFiles.clear();
+    gDeferredSpotLightProgram.mFeatures.hasSrgb = true;
+    gDeferredSpotLightProgram.mFeatures.isDeferred = true;
+    gDeferredSpotLightProgram.mFeatures.hasFullGBuffer = true;
+    gDeferredSpotLightProgram.mFeatures.hasShadows = true;
+
+    gDeferredSpotLightProgram.clearPermutations();
+    gDeferredSpotLightProgram.addPermutation("MAX_SPOT_SHADOWS", spot_shadows);
+    gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER));
+    gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/spotLightF.glsl", GL_FRAGMENT_SHADER));
+    gDeferredSpotLightProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+    add_common_permutations(&gDeferredSpotLightProgram);
+
+    bool success = gDeferredSpotLightProgram.createShader();
+    llassert(success);
+
+    if (success)
+    {
+        if (gDeferredMultiSpotLightProgram.mProgramObject)
+        {
+            gDeferredMultiSpotLightProgram.unload();
+        }
+
+        gDeferredMultiSpotLightProgram.mName = "Deferred MultiSpotLight Shader";
+        gDeferredMultiSpotLightProgram.mFeatures.hasSrgb = true;
+        gDeferredMultiSpotLightProgram.mFeatures.isDeferred = true;
+        gDeferredMultiSpotLightProgram.mFeatures.hasFullGBuffer = true;
+        gDeferredMultiSpotLightProgram.mFeatures.hasShadows = true;
+
+        gDeferredMultiSpotLightProgram.clearPermutations();
+        gDeferredMultiSpotLightProgram.addPermutation("MAX_SPOT_SHADOWS", spot_shadows);
+        gDeferredMultiSpotLightProgram.addPermutation("MULTI_SPOTLIGHT", "1");
+        gDeferredMultiSpotLightProgram.mShaderFiles.clear();
+        gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER));
+        gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/spotLightF.glsl", GL_FRAGMENT_SHADER));
+        gDeferredMultiSpotLightProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        add_common_permutations(&gDeferredMultiSpotLightProgram);
+
+        success = gDeferredMultiSpotLightProgram.createShader();
+        llassert(success);
+    }
+
+    mSpotShadowShaderCount = spot_shadow_count;
+
+    return success;
+}
+
 bool LLViewerShaderMgr::loadShadersDeferred()
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -1704,43 +1766,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
     if (success)
     {
-        gDeferredSpotLightProgram.mName = "Deferred SpotLight Shader";
-        gDeferredSpotLightProgram.mShaderFiles.clear();
-        gDeferredSpotLightProgram.mFeatures.hasSrgb = true;
-        gDeferredSpotLightProgram.mFeatures.isDeferred = true;
-        gDeferredSpotLightProgram.mFeatures.hasFullGBuffer = true;
-        gDeferredSpotLightProgram.mFeatures.hasShadows = true;
-
-        gDeferredSpotLightProgram.clearPermutations();
-        gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER));
-        gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/spotLightF.glsl", GL_FRAGMENT_SHADER));
-        gDeferredSpotLightProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-
-        add_common_permutations(&gDeferredSpotLightProgram);
-
-        success = gDeferredSpotLightProgram.createShader();
-        llassert(success);
-    }
-
-    if (success)
-    {
-        gDeferredMultiSpotLightProgram.mName = "Deferred MultiSpotLight Shader";
-        gDeferredMultiSpotLightProgram.mFeatures.hasSrgb = true;
-        gDeferredMultiSpotLightProgram.mFeatures.isDeferred = true;
-        gDeferredMultiSpotLightProgram.mFeatures.hasFullGBuffer = true;
-        gDeferredMultiSpotLightProgram.mFeatures.hasShadows = true;
-
-        gDeferredMultiSpotLightProgram.clearPermutations();
-        gDeferredMultiSpotLightProgram.addPermutation("MULTI_SPOTLIGHT", "1");
-        gDeferredMultiSpotLightProgram.mShaderFiles.clear();
-        gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER));
-        gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/spotLightF.glsl", GL_FRAGMENT_SHADER));
-        gDeferredMultiSpotLightProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-
-        add_common_permutations(&gDeferredMultiSpotLightProgram);
-
-        success = gDeferredMultiSpotLightProgram.createShader();
-        llassert(success);
+        success = loadSpotLightShaders();
     }
 
     if (success)

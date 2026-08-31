@@ -1426,6 +1426,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 
     // Deferred
     mReservedUniforms.push_back("shadow_matrix");
+    mReservedUniforms.push_back("spot_shadow_matrix");
     mReservedUniforms.push_back("env_mat");
     mReservedUniforms.push_back("shadow_clip");
     mReservedUniforms.push_back("sun_wash");
@@ -1442,6 +1443,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("shadow_bias");
     mReservedUniforms.push_back("spot_shadow_bias");
     mReservedUniforms.push_back("spot_shadow_offset");
+    mReservedUniforms.push_back("spot_shadow_light");
     mReservedUniforms.push_back("sun_dir");
     mReservedUniforms.push_back("moon_dir");
     mReservedUniforms.push_back("shadow_res");
@@ -1485,10 +1487,9 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("shadowMap1");
     mReservedUniforms.push_back("shadowMap2");
     mReservedUniforms.push_back("shadowMap3");
-    mReservedUniforms.push_back("shadowMap4");
-    mReservedUniforms.push_back("shadowMap5");
+    mReservedUniforms.push_back("spotShadowMap");
 
-    llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW5+1);
+    llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SPOT_SHADOW_MAP+1);
 
     mReservedUniforms.push_back("positionMap");
     mReservedUniforms.push_back("diffuseRect");

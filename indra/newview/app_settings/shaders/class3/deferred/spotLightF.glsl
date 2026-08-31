@@ -28,7 +28,6 @@
 out vec4 frag_color;
 
 uniform samplerCube environmentMap;
-uniform sampler2D lightMap;
 uniform sampler2D lightFunc;
 
 uniform mat4 proj_mat; //screen space to light space
@@ -63,6 +62,50 @@ in vec4 vary_fragcoord;
 uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
+
+uniform sampler2DArrayShadow spotShadowMap;
+uniform mat4 spot_shadow_matrix[MAX_SPOT_SHADOWS];
+uniform vec4 spot_shadow_light[MAX_SPOT_SHADOWS]; // xyz: light apex, view space; w: shadow texel size per meter of distance
+uniform vec4 shadow_clip;
+uniform float spot_shadow_offset;
+
+float pcfSpotShadow(sampler2DArrayShadow shadowMap, float layer, vec4 stc, float bias_scale, vec2 pos_screen);
+
+float sampleSpotShadow(vec3 pos, vec3 norm, int index)
+{
+    float shadow = 0.0f;
+    vec3 to_light = spot_shadow_light[index].xyz - pos;
+    float light_dist = max(length(to_light), 0.001);
+    float ndotl = clamp(dot(norm, to_light / light_dist), 0.0, 1.0);
+    pos += norm * spot_shadow_offset * spot_shadow_light[index].w * light_dist * (1.0 - ndotl);
+
+    vec4 spos = vec4(pos,1.0);
+    if (spos.z > -shadow_clip.w)
+    {
+        vec4 near_split = shadow_clip*-0.75;
+        vec4 far_split = shadow_clip*-1.25;
+        vec4 transition_domain = near_split-far_split;
+        float weight = 0.0;
+
+        {
+            float w = 1.0;
+            w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
+
+            vec4 lpos = spot_shadow_matrix[index]*spos;
+            shadow += pcfSpotShadow(spotShadowMap, float(index), lpos, 0.8, spos.xy)*w;
+
+            weight += w;
+            shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
+        }
+
+        shadow /= weight;
+    }
+    else
+    {
+        shadow = 1.0f;
+    }
+    return shadow;
+}
 
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
@@ -113,15 +156,14 @@ void main()
 
     float shadow = 1.0;
 
+    GBufferInfo gb = getGBuffer(tc);
+
     if (proj_shadow_idx >= 0)
     {
-        vec4 shd = texture(lightMap, tc);
-        shadow = (proj_shadow_idx==0)?shd.b:shd.a;
+        shadow = sampleSpotShadow(pos, gb.normal, proj_shadow_idx);
         shadow += shadow_fade;
         shadow = clamp(shadow, 0.0, 1.0);
     }
-
-    GBufferInfo gb = getGBuffer(tc);
 
     vec3 n = gb.normal;
 

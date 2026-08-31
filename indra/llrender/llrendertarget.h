@@ -79,8 +79,9 @@ public:
     // resY - height
     // color_fmt - GL color format (e.g. GL_RGB)
     // depth - if true, allocate a depth buffer
-    // usage - deprecated, should always be TT_TEXTURE
-    bool allocate(U32 resx, U32 resy, U32 color_fmt, bool depth = false, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureMipGeneration generateMipMaps = LLTexUnit::TMG_NONE);
+    // usage - TT_TEXTURE, or TT_TEXTURE_2D_ARRAY for a layered depth-only target
+    // layers - array layers, only meaningful for TT_TEXTURE_2D_ARRAY
+    bool allocate(U32 resx, U32 resy, U32 color_fmt, bool depth = false, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureMipGeneration generateMipMaps = LLTexUnit::TMG_NONE, U32 layers = 1);
 
     //resize existing attachments to use new resolution and color format
     // CAUTION: if the GL runs out of memory attempting to resize, this render target will be undefined
@@ -162,6 +163,9 @@ public:
     // Restore FBO depth attachment to mip level 0 and full viewport.
     void resetDepthMipLevel();
 
+    // Rebind FBO depth attachment to a specific layer of an array depth texture.
+    void bindDepthLayer(U32 layer);
+
     // Rebind FBO color attachment at a specific mip level and set viewport.
     // Used for per-mip SSR filter. Caller must call resetColorMipLevel() when done.
     void bindColorMipLevel(S32 level, U32 attachment = 0);
@@ -206,6 +210,7 @@ protected:
     bool mUseDepth;
     LLTexUnit::eTextureMipGeneration mGenerateMipMaps;
     U32 mMipLevels;
+    U32 mLayers = 1;
 
     LLTexUnit::eTextureType mUsage;
 };

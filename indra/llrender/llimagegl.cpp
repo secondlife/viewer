@@ -1499,11 +1499,6 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             free_cur_tex_image();
         }
 
-        // Drain stale GL errors so an OOM detected below belongs to this alloc.
-        // Otherwise a failed glTexImage2D is swallowed in release while
-        // alloc_tex_image still counts the bytes, inflating the used-VRAM figure.
-        drain_glerror();
-
         const bool use_sub_image = should_stagger_image_set(compress);
         if (!use_sub_image)
         {
@@ -1513,30 +1508,19 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         else
         {
             // break up calls to a manageable size for the GL command buffer
-            LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
-            glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
-        }
-
-        if (glGetError() == GL_OUT_OF_MEMORY)
-        {
-            ++sOOMErrorCount;
-            LL_WARNS_ONCE("Texture") << "glTexImage2D failed with GL_OUT_OF_MEMORY ("
-                                     << width << "x" << height << " mip " << miplevel
-                                     << ") - not counting bytes" << LL_ENDL;
-        }
-        else
-        {
-            if (use_sub_image)
             {
-                U8* src = (U8*)(pixels);
-                if (src)
-                {
-                    LL_PROFILE_ZONE_NAMED("glTexImage2D copy");
-                    sub_image_lines(target, miplevel, 0, 0, width, height, pixformat, pixtype, src, width);
-                }
+                LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
+                glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
             }
-            alloc_tex_image(width, height, intformat, 1);
+
+            U8* src = (U8*)(pixels);
+            if (src)
+            {
+                LL_PROFILE_ZONE_NAMED("glTexImage2D copy");
+                sub_image_lines(target, miplevel, 0, 0, width, height, pixformat, pixtype, src, width);
+            }
         }
+        alloc_tex_image(width, height, intformat, 1);
     }
     stop_glerror();
 }

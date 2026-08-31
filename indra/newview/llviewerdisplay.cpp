@@ -736,19 +736,6 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     if (!gDisconnected && !LLApp::isExiting())
     {
-        // Increment drawable frame counter before the frame's first cull (the hero probes)
-        LLDrawable::incrementVisible();
-
-        // Render mirrors and associated hero probes before we render the rest of the scene.
-        // This ensures the scene state in the hero probes are exactly the same as the rest of the scene before we render it.
-        if (gPipeline.RenderMirrors && !gSnapshot)
-        {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update hero probes");
-            LL_PROFILE_GPU_ZONE("hero manager")
-            gPipeline.mHeroProbeManager.update();
-            gPipeline.mHeroProbeManager.renderProbes();
-        }
-
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 1");
         LLAppViewer::instance()->pingMainloopTimeout("Display:Update");
         if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
@@ -791,6 +778,19 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         gPipeline.updateGL();
 
         stop_glerror();
+
+        //Increment drawable frame counter
+        LLDrawable::incrementVisible();
+
+        // Render mirrors and associated hero probes before we render the rest of the scene.
+        // Must follow incrementVisible so the hero cull stamps this frame's visibility.
+        if (gPipeline.RenderMirrors && !gSnapshot)
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update hero probes");
+            LL_PROFILE_GPU_ZONE("hero manager")
+            gPipeline.mHeroProbeManager.update();
+            gPipeline.mHeroProbeManager.renderProbes();
+        }
 
         LLAppViewer::instance()->pingMainloopTimeout("Display:Cull");
 

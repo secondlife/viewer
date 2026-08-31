@@ -8466,16 +8466,27 @@
     <key>Value</key>
     <real>-0.0002</real>
   </map>
+  <key>RenderSpotShadowCount</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of projector shadow maps. Requires RenderShadowDetail 2.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>2</integer>
+  </map>
   <key>RenderSpotShadowOffset</key>
   <map>
     <key>Comment</key>
-    <string>Offset value for shadows (prevent shadow acne).</string>
+    <string>Normal offset for spot shadows, in shadow map texels at the receiver (slope scaled; prevent shadow acne).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.04</real>
+    <real>1.5</real>
   </map>
 
   <key>RenderShadowResolutionScale</key>

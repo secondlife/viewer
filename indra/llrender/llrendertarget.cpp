@@ -138,10 +138,11 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
 }
 
 
-bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLTexUnit::eTextureType usage, LLTexUnit::eTextureMipGeneration generateMipMaps)
+bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLTexUnit::eTextureType usage, LLTexUnit::eTextureMipGeneration generateMipMaps, U32 layers)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
-    llassert(usage == LLTexUnit::TT_TEXTURE);
+    llassert(usage == LLTexUnit::TT_TEXTURE || usage == LLTexUnit::TT_TEXTURE_2D_ARRAY);
+    llassert(layers == 1 || generateMipMaps == LLTexUnit::TMG_NONE);
     llassert(!isBoundInStack());
 
     resx = llmin(resx, (U32) gGLManager.mGLMaxTextureSize);
@@ -154,6 +155,7 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
 
     mUsage = usage;
     mUseDepth = depth;
+    mLayers = layers;
 
     mGenerateMipMaps = generateMipMaps;
 
@@ -177,7 +179,14 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
     {
         glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
+        if (mUsage == LLTexUnit::TT_TEXTURE_2D_ARRAY)
+        {
+            glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDepth, 0, 0);
+        }
+        else
+        {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
+        }
 
         glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
     }
@@ -355,7 +364,13 @@ bool LLRenderTarget::allocateDepth()
     stop_glerror();
     clear_glerror();
 
-    if (mGenerateMipMaps != LLTexUnit::TMG_NONE && mMipLevels > 1)
+    if (mUsage == LLTexUnit::TT_TEXTURE_2D_ARRAY)
+    {
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT24, mResX, mResY, mLayers, 0,
+                     GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+        sBytesAllocated += mResX * mResY * 4 * mLayers;
+    }
+    else if (mGenerateMipMaps != LLTexUnit::TMG_NONE && mMipLevels > 1)
     {
         // Allocate depth mip chain for Hi-Z pyramid generation.
         for (U32 level = 0; level < mMipLevels; level++)
@@ -402,6 +417,17 @@ void LLRenderTarget::bindDepthMipLevel(S32 level)
     S32 w = llmax(1, (S32)(mResX >> level));
     S32 h = llmax(1, (S32)(mResY >> level));
     glViewport(0, 0, w, h);
+}
+
+void LLRenderTarget::bindDepthLayer(U32 layer)
+{
+    llassert(mUsage == LLTexUnit::TT_TEXTURE_2D_ARRAY);
+    llassert(mFBO);
+    llassert(mDepth);
+    llassert(sCurFBO == mFBO);
+    llassert(layer < mLayers);
+
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDepth, 0, layer);
 }
 
 void LLRenderTarget::resetDepthMipLevel()
@@ -503,7 +529,7 @@ void LLRenderTarget::release()
 
         mDepth = 0;
 
-        sBytesAllocated -= mResX*mResY*4;
+        sBytesAllocated -= mResX*mResY*4*mLayers;
     }
     else if (mFBO)
     {
@@ -555,6 +581,7 @@ void LLRenderTarget::release()
     mInternalFormat.clear();
 
     mResX = mResY = 0;
+    mLayers = 1;
 }
 
 void LLRenderTarget::bindTarget()

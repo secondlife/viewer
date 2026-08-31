@@ -75,6 +75,7 @@ public:
         TT_CUBE_MAP_ARRAY,      // Array of cube maps
         TT_MULTISAMPLE_TEXTURE, // see GL_ARB_texture_multisample
         TT_TEXTURE_3D,          // standard 3D Texture
+        TT_TEXTURE_2D_ARRAY,    // Array of 2D textures
         TT_NONE,                // No texture type is currently enabled
     } eTextureType;
 

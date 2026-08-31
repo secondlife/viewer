@@ -599,6 +599,16 @@ static bool handleHeroProbeResolutionChanged(const LLSD &newvalue)
     return true;
 }
 
+static bool handleSpotShadowCountChanged(const LLSD& newvalue)
+{
+    if (gPipeline.isInit())
+    {
+        LLPipeline::refreshCachedSettings();
+        gPipeline.requestResizeShadowTexture();
+    }
+    return true;
+}
+
 static bool handleRenderDebugPipelineChanged(const LLSD& newvalue)
 {
     gDebugPipeline = newvalue.asBoolean();
@@ -969,6 +979,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderMirrors", handleReflectionProbeDetailChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderHeroProbeResolution", handleHeroProbeResolutionChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderShadowDetail", handleSetShaderChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderSpotShadowCount", handleSpotShadowCountChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderDeferredSSAO", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderPerformanceTest", handleRenderPerfTestChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderAvatarCloth", handleSetShaderChanged);

@@ -32,16 +32,11 @@ uniform sampler2DShadow shadowMap2;
 uniform sampler2DShadow shadowMap3;
 #endif
 
-#if defined(SPOT_SHADOW)
-uniform sampler2DShadow shadowMap4;
-uniform sampler2DShadow shadowMap5;
-#endif
-
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
 uniform vec2 shadow_res;
 uniform vec2 proj_shadow_res;
-uniform mat4 shadow_matrix[6];
+uniform mat4 shadow_matrix[4];
 uniform vec4 shadow_clip;
 uniform float shadow_bias;
 uniform float shadow_offset;
@@ -120,15 +115,17 @@ float pcfShadow(sampler2DShadow shadowMap, vec3 norm, vec4 stc, float bias_mul, 
 #endif
 }
 
+#if defined(SPOT_SHADOW)
 // Helper function for spot shadow PCF sampling
-float sampleSpotShadowMap(sampler2DShadow shadowMap, vec2 base_uv, float u, float v, vec2 shadowMapSizeInv, float lightDepth)
+float sampleSpotShadowMap(sampler2DArrayShadow shadowMap, float layer, vec2 base_uv, float u, float v, vec2 shadowMapSizeInv, float lightDepth)
 {
     vec2 uv = base_uv + vec2(u, v) * shadowMapSizeInv;
-    return texture(shadowMap, vec3(uv, lightDepth));
+    return texture(shadowMap, vec4(uv, layer, lightDepth));
 }
+#endif
 
 // Optimized 4x4 PCF sampling for spot shadows
-float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float bias_scale, vec2 pos_screen)
+float pcfSpotShadow(sampler2DArrayShadow shadowMap, float layer, vec4 stc, float bias_scale, vec2 pos_screen)
 {
 #if defined(SPOT_SHADOW)
     stc.xyz /= stc.w;
@@ -170,17 +167,17 @@ float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float bias_scale, vec2 
 
     float sum = 0.0;
 
-    sum += uw0 * vw0 * sampleSpotShadowMap(shadowMap, base_uv, u0, v0, shadowMapSizeInv, lightDepth);
-    sum += uw1 * vw0 * sampleSpotShadowMap(shadowMap, base_uv, u1, v0, shadowMapSizeInv, lightDepth);
-    sum += uw2 * vw0 * sampleSpotShadowMap(shadowMap, base_uv, u2, v0, shadowMapSizeInv, lightDepth);
+    sum += uw0 * vw0 * sampleSpotShadowMap(shadowMap, layer, base_uv, u0, v0, shadowMapSizeInv, lightDepth);
+    sum += uw1 * vw0 * sampleSpotShadowMap(shadowMap, layer, base_uv, u1, v0, shadowMapSizeInv, lightDepth);
+    sum += uw2 * vw0 * sampleSpotShadowMap(shadowMap, layer, base_uv, u2, v0, shadowMapSizeInv, lightDepth);
 
-    sum += uw0 * vw1 * sampleSpotShadowMap(shadowMap, base_uv, u0, v1, shadowMapSizeInv, lightDepth);
-    sum += uw1 * vw1 * sampleSpotShadowMap(shadowMap, base_uv, u1, v1, shadowMapSizeInv, lightDepth);
-    sum += uw2 * vw1 * sampleSpotShadowMap(shadowMap, base_uv, u2, v1, shadowMapSizeInv, lightDepth);
+    sum += uw0 * vw1 * sampleSpotShadowMap(shadowMap, layer, base_uv, u0, v1, shadowMapSizeInv, lightDepth);
+    sum += uw1 * vw1 * sampleSpotShadowMap(shadowMap, layer, base_uv, u1, v1, shadowMapSizeInv, lightDepth);
+    sum += uw2 * vw1 * sampleSpotShadowMap(shadowMap, layer, base_uv, u2, v1, shadowMapSizeInv, lightDepth);
 
-    sum += uw0 * vw2 * sampleSpotShadowMap(shadowMap, base_uv, u0, v2, shadowMapSizeInv, lightDepth);
-    sum += uw1 * vw2 * sampleSpotShadowMap(shadowMap, base_uv, u1, v2, shadowMapSizeInv, lightDepth);
-    sum += uw2 * vw2 * sampleSpotShadowMap(shadowMap, base_uv, u2, v2, shadowMapSizeInv, lightDepth);
+    sum += uw0 * vw2 * sampleSpotShadowMap(shadowMap, layer, base_uv, u0, v2, shadowMapSizeInv, lightDepth);
+    sum += uw1 * vw2 * sampleSpotShadowMap(shadowMap, layer, base_uv, u1, v2, shadowMapSizeInv, lightDepth);
+    sum += uw2 * vw2 * sampleSpotShadowMap(shadowMap, layer, base_uv, u2, v2, shadowMapSizeInv, lightDepth);
 
     return sum / 144.0;
 #else
@@ -283,52 +280,6 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
         return 1.0f; // lit beyond the far split...
     }
     //shadow = min(dp_directional_light,shadow);
-    return shadow;
-#else
-    return 1.0;
-#endif
-}
-
-float sampleSpotShadow(vec3 pos, vec3 norm, int index, vec2 pos_screen)
-{
-#if defined(SPOT_SHADOW)
-    float shadow = 0.0f;
-    pos += norm * spot_shadow_offset;
-
-    vec4 spos = vec4(pos,1.0);
-    if (spos.z > -shadow_clip.w)
-    {
-        vec4 lpos;
-
-        vec4 near_split = shadow_clip*-0.75;
-        vec4 far_split = shadow_clip*-1.25;
-        vec4 transition_domain = near_split-far_split;
-        float weight = 0.0;
-
-        {
-            float w = 1.0;
-            w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
-
-            if (index == 0)
-            {
-                lpos = shadow_matrix[4]*spos;
-                shadow += pcfSpotShadow(shadowMap4, lpos, 0.8, spos.xy)*w;
-            }
-            else
-            {
-                lpos = shadow_matrix[5]*spos;
-                shadow += pcfSpotShadow(shadowMap5, lpos, 0.8, spos.xy)*w;
-            }
-            weight += w;
-            shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
-        }
-
-        shadow /= weight;
-    }
-    else
-    {
-        shadow = 1.0f;
-    }
     return shadow;
 #else
     return 1.0;

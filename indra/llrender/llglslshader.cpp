@@ -821,7 +821,8 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type, GLint 
 
     if ((type >= GL_SAMPLER_1D && type <= GL_SAMPLER_2D_RECT_SHADOW) ||
         type == GL_SAMPLER_2D_MULTISAMPLE ||
-        type == GL_SAMPLER_CUBE_MAP_ARRAY)
+        type == GL_SAMPLER_CUBE_MAP_ARRAY ||
+        type == GL_SAMPLER_2D_ARRAY_SHADOW)
     {   //this here is a texture
         GLint ret = mActiveTextureChannels;
         if (size == 1)
