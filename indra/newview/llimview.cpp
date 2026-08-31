@@ -38,6 +38,7 @@
 #include "llrect.h"
 #include "llerror.h"
 #include "llbutton.h"
+#include "llsdutil.h"
 #include "llsdutil_math.h"
 #include "llstring.h"
 #include "lltextutil.h"
@@ -88,6 +89,31 @@ const S32 XL8_PADDING = 3;  // XL8_START_TAG.size() + XL8_END_TAG.size()
 
 // Tokens are process-unique so a stale completion cannot match a recreated P2P session.
 static U64 sChatHistoryLoadToken = 0;
+
+namespace
+{
+bool sameHistoryRow(LLSD left, LLSD right)
+{
+    // Positional indexes are rebuilt with the overlay and do not change presentation.
+    left.erase("index");
+    right.erase("index");
+    return llsd_equals(left, right);
+}
+
+bool sameHistory(const LLIMModel::chat_message_list_t& left,
+                 const LLIMModel::chat_message_list_t& right)
+{
+    return left.size() == right.size() &&
+        std::equal(left.begin(), left.end(), right.begin(), sameHistoryRow);
+}
+
+bool isStrictHistoryPrefix(const LLIMModel::chat_message_list_t& prefix,
+                           const LLIMModel::chat_message_list_t& complete)
+{
+    return prefix.size() < complete.size() &&
+        std::equal(prefix.begin(), prefix.end(), complete.begin(), sameHistoryRow);
+}
+}
 
 /** Timeout of outgoing session initialization (in seconds) */
 const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
@@ -1458,17 +1484,22 @@ void LLIMModel::LLIMSession::loadHistory()
 
 void LLIMModel::LLIMSession::replaceHistoricalMessages(const chat_message_list_t& history)
 {
-    // Preserve every live row in its current order, replacing only rows tagged historical.
+    // Separate the append-only live tail from the currently presented historical baseline.
     chat_message_list_t live;
+    chat_message_list_t current_historical;
     for (const LLSD& message : mMsgs)
     {
         if (!message["is_history"].asBoolean())
         {
             live.push_back(message);
         }
+        else
+        {
+            current_historical.push_back(message);
+        }
     }
 
-    // An authoritative refresh may contain rows that this open session already
+    // A refresh may contain rows that this open session already
     // displays live. Consume those exact occurrences before rebuilding the overlay.
     const chat_message_list_t filtered = isP2P()
         ? LLChatServiceHistory::filterLiveDuplicates(history, live) : history;
@@ -1504,6 +1535,22 @@ void LLIMModel::LLIMSession::replaceHistoricalMessages(const chat_message_list_t
         historical.push_front(message);
     }
 
+    const bool consumed_live = filtered.size() < history.size();
+    LLFloaterIMSession* floater = LLFloaterIMSession::findInstance(mSessionID);
+    const bool capped_live_rollover =
+        floater && floater->isInVisibleChain() &&
+        consumed_live &&
+        !historical.empty() &&
+        history.size() == current_historical.size() &&
+        isStrictHistoryPrefix(historical, current_historical);
+
+    // Re-publishing the same bounded history, including eviction of its oldest
+    // rows after live messages become durable, must not reconstruct a visible transcript.
+    if (sameHistory(current_historical, historical) || capped_live_rollover)
+    {
+        return;
+    }
+
     live.insert(live.end(), historical.begin(), historical.end());
     mMsgs.swap(live);
 
@@ -1514,7 +1561,7 @@ void LLIMModel::LLIMSession::replaceHistoricalMessages(const chat_message_list_t
         message["index"] = --index;
     }
 
-    if (LLFloaterIMSession* floater = LLFloaterIMSession::findInstance(mSessionID))
+    if (floater)
     {
         floater->reloadMessages(false);
     }
@@ -1589,7 +1636,10 @@ void LLIMModel::LLIMSession::applyChatServiceSnapshot(
         replaceHistoricalMessages(mChatServiceHistoricalValue);
     }
 
-    if (presentation_changed || snapshot.archive_serial != mChatHistoryArchiveSerial)
+    // The active read will restart itself if its captured presentation or archive
+    // generation is stale, so status snapshots do not need to supersede it.
+    if (!mChatHistoryLocalLoading &&
+        (presentation_changed || snapshot.archive_serial != mChatHistoryArchiveSerial))
     {
         loadHistory();
     }
