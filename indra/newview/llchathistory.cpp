@@ -1533,16 +1533,18 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
             bool create_toast = true;
             if (notification->getName() == "OfferFriendship")
             {
-                // We don't want multiple friendship offers to appear, this code checks if there are previous offers
-                // by iterating though all panels.
-                // Note: it might be better to simply add a "pending offer" flag somewhere
+                // Keep one actionable offer per sender without hiding requests from other residents.
+                const LLUUID from_id = notification->getPayload()["from_id"].asUUID();
                 for (auto& panel : LLToastNotifyPanel::instance_snapshot())
                 {
                     LLIMToastNotifyPanel * imtoastp = dynamic_cast<LLIMToastNotifyPanel *>(&panel);
                     const std::string& notification_name = panel.getNotificationName();
+                    LLNotificationPtr panel_notification = LLNotificationsUtil::find(panel.getID());
                     // A synchronous transcript replay replaces panels already queued for deletion.
                     if (!panel.isDead()
                         && notification_name == "OfferFriendship"
+                        && panel_notification
+                        && panel_notification->getPayload()["from_id"].asUUID() == from_id
                         && panel.isControlPanelEnabled()
                         && imtoastp)
                     {
