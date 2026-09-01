@@ -923,6 +923,8 @@ void LLFloaterIMSession::reloadMessages(bool clean_messages/* = false*/)
         }
     }
 
+    // Clear and replay in one turn so the transcript never presents an empty frame.
+    // LLChatHistory detaches old inline widgets before replacements are registered.
     mChatHistory->clear();
     mLastMessageIndex = -1;
     updateMessages();

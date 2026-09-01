@@ -11,6 +11,7 @@
 
 #include "llchatservicehistorycore.h"
 
+#include "llcachename.h"
 #include "lldate.h"
 #include "llfile.h"
 #include "llstring.h"
@@ -281,6 +282,24 @@ bool persistedDirectDialog(S32 dialog)
         default:
             return false;
     }
+}
+
+bool sameDirectSenderName(const std::string& left, const std::string& right)
+{
+    if (left == right)
+    {
+        return true;
+    }
+
+    // Compare resident usernames even when the chat service supplies a legacy name.
+    const std::string left_resident = LLCacheName::buildUsername(left);
+    const std::string right_resident = LLCacheName::buildUsername(right);
+    return !left_resident.empty() && left_resident == right_resident;
+}
+
+bool legacyWallMayPrecedeService(F64 wall_epoch, F64 service_epoch)
+{
+    return wall_epoch + 7.0 * 3600.0 < service_epoch;
 }
 
 bool parseCreatedAt(const std::string& text, std::string& normalized)

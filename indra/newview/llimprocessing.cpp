@@ -1453,7 +1453,13 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             for (auto& panel : LLToastNotifyPanel::instance_snapshot())
             {
                 const std::string& notification_name = panel.getNotificationName();
-                if (notification_name == "OfferFriendship" && panel.isControlPanelEnabled())
+                LLNotificationPtr panel_notification = LLNotificationsUtil::find(panel.getID());
+                // Only a live actionable offer from this sender makes the packet a duplicate.
+                if (!panel.isDead()
+                    && notification_name == "OfferFriendship"
+                    && panel_notification
+                    && panel_notification->getPayload()["from_id"].asUUID() == from_id
+                    && panel.isControlPanelEnabled())
                 {
                     add_notification = false;
                     break;

@@ -13,6 +13,8 @@
 
 #include "llagent.h"
 #include "llavatarnamecache.h"
+#include "llcachename.h"
+#include "llconversationlog.h"
 #include "llcorehttputil.h"
 #include "llcoros.h"
 #include "lldate.h"
@@ -1429,6 +1431,8 @@ void requestList(const CapabilityContext& context, U32 epoch)
     // passes strict validation. A pending outbound hint remains visible across the
     // HTTP suspension and is consumed by processList rather than this request latch.
     const HttpResult response = request(context.list_url, NULL);
+    LL_INFOS("ChatServiceHistory")
+        << "Conversation-list response: status=" << response.status << LL_ENDL;
     if (!ownsRuntime(epoch) || sampleContext() != context || sRuntime.delete_requested ||
         !baseNetworkEligible(context))
     {
@@ -1610,6 +1614,9 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         }
 
         const HttpResult response = request(context.history_url, &post);
+        LL_INFOS("ChatServiceHistory")
+            << "History response: resident_id=" << id << ", status=" << response.status
+            << ", cursor=" << (cursor.empty() ? "head" : "continuation") << LL_ENDL;
         Page page;
         found = sRuntime.residents.find(id);
         if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
@@ -1853,6 +1860,10 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
             {
                 return publishRows(path, staged, append, resulting);
             });
+        LL_INFOS("ChatServiceHistory")
+            << "Archive publication: resident_id=" << id << ", rows=" << staged.size()
+            << ", mode=" << (append ? "append" : "replace")
+            << ", success=" << changed << LL_ENDL;
 
         found = sRuntime.residents.find(id);
         if (!ownsRuntime(epoch) || sRuntime.account_dir != account_dir ||
@@ -1868,6 +1879,24 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
             ++after_publish.archive_serial;
             sRuntime.index_dirty = true;
             sRuntime.local_content_exists = true;
+
+            // Every durable archive change can create or advance Conversation Log
+            // metadata without creating a live IM session.
+            if (after_publish.summary.has_rows &&
+                after_publish.metadata.state == META_RESOLVED)
+            {
+                const F64 archived_seconds = after_publish.summary.newest.ticks >= UUID_EPOCH
+                    ? static_cast<F64>(after_publish.summary.newest.ticks - UUID_EPOCH) / 10000000.0
+                    : static_cast<F64>(time_corrected());
+                const LLAvatarName& name = after_publish.metadata.name;
+                LLConversationLog::instance().addServiceConversation(
+                    LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, id),
+                    name.getCompleteName(),
+                    LLCacheName::buildUsername(name.getUserName()),
+                    id,
+                    U64Seconds(LLUnits::Seconds::fromValue(archived_seconds)));
+            }
+
             LLLogChat::notifyTranscriptCreated();
         }
         else
@@ -2481,6 +2510,20 @@ void manager(U32 epoch)
         // Discovery precedes resident paging; the queue itself preserves open,
         // inbound, and due outbound priority without creating a second worker.
         const bool base_network = baseNetworkEligible(context);
+        LLMuteList* mute = LLMuteList::getInstance();
+        // Once all external inputs are available, record why synchronization stayed gated.
+        if (!base_network && context.complete() && mute && mute->isLoaded())
+        {
+            LL_INFOS_ONCE("ChatServiceHistory")
+                << "Network sync blocked: rollout=" << sRuntime.rollout
+                << ", consent=" << transcriptConsent()
+                << ", state_safe=" << (sRuntime.state_safety == STATE_SAFE)
+                << ", cleanup_pending=" << sRuntime.cleanup_pending
+                << ", delete_requested=" << sRuntime.delete_requested
+                << ", mute_source=" << mute->getLoadSourceName()
+                << ", mute_authoritative=" << mute->isLoadedFromServer()
+                << LL_ENDL;
+        }
         if (base_network)
         {
             if (F64(LLTimer::getTotalSeconds()) >= sRuntime.next_list)
@@ -2655,13 +2698,14 @@ bool sameSenderAndText(const LLSD& left, const LLSD& right)
         return false;
     }
 
-    // Prefer exact resident identity when both sources carry it; otherwise require
-    // the transcript names to agree exactly.
+    // Prefer exact resident identity when both sources carry it; otherwise compare
+    // their canonical resident usernames.
     const bool left_has_id = left[LL_IM_FROM_ID].isDefined();
     const bool right_has_id = right[LL_IM_FROM_ID].isDefined();
     return left_has_id && right_has_id
         ? left[LL_IM_FROM_ID].asUUID() == right[LL_IM_FROM_ID].asUUID()
-        : left[LL_IM_FROM].asString() == right[LL_IM_FROM].asString();
+        : sameDirectSenderName(left[LL_IM_FROM].asString(),
+                               right[LL_IM_FROM].asString());
 }
 
 bool sameSenderAndText(const LLSD& legacy, const Row& service)
@@ -2673,7 +2717,7 @@ bool sameSenderAndText(const LLSD& legacy, const Row& service)
 
     return legacy[LL_IM_FROM_ID].isDefined()
         ? legacy[LL_IM_FROM_ID].asUUID() == service.from_id
-        : legacy[LL_IM_FROM].asString() == service.from_name;
+        : sameDirectSenderName(legacy[LL_IM_FROM].asString(), service.from_name);
 }
 
 bool sameLegacyMinute(F64 wall_epoch, F64 utc_epoch)
@@ -2804,9 +2848,8 @@ LLChatServiceHistory::HistoryResult readStitched(
     std::vector<std::pair<F64, LLSD>> dated;
     std::list<LLSD> undated;
 
-    // Only the durable archive's oldest key controls the legacy/service seam. Keep
-    // ambiguous rows conservatively and require dated legacy rows to precede the
-    // service boundary by the existing seven-hour tolerance.
+    // Admit only the legacy prefix that may predate the durable service boundary.
+    // Offset-less SLT timestamps use their earliest UTC interpretation (UTC-7).
     for (const LLSD& message : legacy)
     {
         F64 wall = 0.0;
@@ -2814,14 +2857,13 @@ LLChatServiceHistory::HistoryResult readStitched(
         {
             undated.push_back(message);
         }
-        else if (!archive.has_oldest || wall + 7.0 * 3600.0 < service_epoch)
+        else if (!archive.has_oldest || legacyWallMayPrecedeService(wall, service_epoch))
         {
             LLSD stitched = message;
             stitched[LEGACY_WALL_TIME] = wall;
 
-            // Replace an exact legacy occurrence in place with its canonical row.
-            // This keeps local ordering around same-minute system messages while
-            // consuming only one occurrence from each source.
+            // Reconcile exact overlaps only inside the admitted legacy prefix,
+            // consuming one occurrence from each source.
             size_t match = service.size();
             for (const F64 offset : { 7.0 * 3600.0, 8.0 * 3600.0 })
             {
@@ -2873,6 +2915,7 @@ LLChatServiceHistory::HistoryResult readStitched(
         }
     }
 
+    // Apply the consumer limit to the complete seam order, retaining the service tail.
     while (limit && result.messages.size() > limit)
     {
         result.messages.pop_front();

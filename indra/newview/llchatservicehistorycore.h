@@ -108,6 +108,11 @@ namespace LLChatServiceHistoryCore
     bool parseTimeUuid(const std::string& text, TimeUuidKey& key);
     bool persistedDirectDialog(S32 dialog);
     bool parseCreatedAt(const std::string& text, std::string& normalized);
+    bool sameDirectSenderName(const std::string& left, const std::string& right);
+
+    // Legacy SLT wall times carry no UTC offset; UTC-7 is their earliest possible
+    // interpretation at the durable service boundary.
+    bool legacyWallMayPrecedeService(F64 wall_epoch, F64 service_epoch);
 
     // Both wire validators are all-or-nothing and clear their output before parsing.
     bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
