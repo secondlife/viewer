@@ -349,8 +349,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         F32 x_offset = 0.0f;
         if (mFontFreetype->getFontWeight() > 0 && fgi->mChar >= '0' && fgi->mChar <= '9' && mFontFreetype->getMaxDigitWidth() > 0.0f)
         {
-            // use mXAdvance directly here, since we don't want to get max width instead.
-            x_offset = (mFontFreetype->getMaxDigitWidth() - fgi->mXAdvance) * 0.5f;
+            // getXAdvance will return max digit width.
+            // use mXAdvanceRaw directly here, since we don't want to get max width instead.
+            x_offset = (mFontFreetype->getMaxDigitWidth() - fgi->mXAdvanceRaw) * 0.5f;
         }
 
         // Draw the text at the appropriate location
@@ -673,12 +674,14 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
             }
         }
 
+        F32 advance = mFontFreetype->getXAdvance(fgi);
+
         // account for glyphs that run beyond the starting point for the next glyphs
         width_padding = llmax(  0.f,                                                    // always use positive padding amount
-                                width_padding - fgi->mXAdvance,                         // previous padding left over after advance of current character
-                                (F32)(fgi->mWidth + fgi->mXBearing) - fgi->mXAdvance);  // difference between width of this character and advance to next character
+                                width_padding - advance,                         // previous padding left over after advance of current character
+                                (F32)(fgi->mWidth + fgi->mXBearing) - advance);  // difference between width of this character and advance to next character
 
-        cur_x += fgi->mXAdvance;
+        cur_x += advance;
 
         // clip if current character runs past scaled_max_pixels (using width_padding)
         if (scaled_max_pixels < cur_x + width_padding)
@@ -743,7 +746,7 @@ S32 LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
         // other characters just use advance
         F32 width = (i == start)
             ? (F32)(fgi->mWidth + fgi->mXBearing)   // use actual width for last character
-            : fgi->mXAdvance;                       // use advance for all other characters
+            : mFontFreetype->getXAdvance(fgi);      // use advance for all other characters
 
         if( scaled_max_pixels < (total_width + width) )
         {
