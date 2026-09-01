@@ -297,6 +297,11 @@ bool sameDirectSenderName(const std::string& left, const std::string& right)
     return !left_resident.empty() && left_resident == right_resident;
 }
 
+bool legacyWallMayPrecedeService(F64 wall_epoch, F64 service_epoch)
+{
+    return wall_epoch + 7.0 * 3600.0 < service_epoch;
+}
+
 bool parseCreatedAt(const std::string& text, std::string& normalized)
 {
     // Validate the complete wire shape before LLDate performs calendar conversion.

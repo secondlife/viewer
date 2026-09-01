@@ -233,9 +233,12 @@ template<> template<> void object_t::test<9>()
 {
     NamedTempFile file("chatservice", validArchive());
     ArchiveScan scan;
+    TimeUuidKey oldest;
+    parseTimeUuid(FIRST, oldest);
 
     ensure("valid archive", scanArchive(file.getPath().string(), AGENT, RESIDENT, 0, 1, scan));
     ensure_equals("two summarized", scan.row_count, U32(2));
+    ensure("display cap preserves durable oldest", scan.oldest == oldest);
     ensure_equals("newest display cap", scan.display_rows.size(), size_t(1));
     ensure_equals("newest retained", scan.display_rows.front().msg_id, std::string(SECOND));
 }
@@ -287,5 +290,23 @@ template<> template<> void object_t::test<13>()
            sameDirectSenderName("Bridie Linden", "bridie.linden"));
     ensure("different residents stay distinct",
            !sameDirectSenderName("bridie.linden", "beanie.tester"));
+}
+
+template<> template<> void object_t::test<14>()
+{
+    const F64 wall = 1000.0;
+    const F64 daylight_utc = wall + 7.0 * 3600.0;
+
+    // The earlier UTC-7 interpretation controls conservative seam admission.
+    ensure("possible pre-boundary row retained",
+           legacyWallMayPrecedeService(wall, daylight_utc + 1.0));
+    ensure("row at boundary excluded",
+           !legacyWallMayPrecedeService(wall, daylight_utc));
+    ensure("post-boundary row excluded",
+           !legacyWallMayPrecedeService(wall, daylight_utc - 1.0));
+
+    // A boundary between the UTC-7 and UTC-8 interpretations remains ambiguous.
+    ensure("ambiguous DST row retained",
+           legacyWallMayPrecedeService(wall, daylight_utc + 30.0 * 60.0));
 }
 }

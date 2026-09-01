@@ -2848,9 +2848,8 @@ LLChatServiceHistory::HistoryResult readStitched(
     std::vector<std::pair<F64, LLSD>> dated;
     std::list<LLSD> undated;
 
-    // Exact canonical overlaps keep their legacy position. For unmatched rows, the
-    // durable archive's oldest key controls the seam; retain undated rows and dated
-    // rows whose earliest possible SLT interpretation predates that boundary.
+    // Admit only the legacy prefix that may predate the durable service boundary.
+    // Offset-less SLT timestamps use their earliest UTC interpretation (UTC-7).
     for (const LLSD& message : legacy)
     {
         F64 wall = 0.0;
@@ -2858,14 +2857,13 @@ LLChatServiceHistory::HistoryResult readStitched(
         {
             undated.push_back(message);
         }
-        else
+        else if (!archive.has_oldest || legacyWallMayPrecedeService(wall, service_epoch))
         {
             LLSD stitched = message;
             stitched[LEGACY_WALL_TIME] = wall;
 
-            // Replace an exact legacy occurrence in place with its canonical row.
-            // This keeps local ordering around same-minute system messages while
-            // consuming only one occurrence from each source.
+            // Reconcile exact overlaps only inside the admitted legacy prefix,
+            // consuming one occurrence from each source.
             size_t match = service.size();
             for (const F64 offset : { 7.0 * 3600.0, 8.0 * 3600.0 })
             {
@@ -2889,11 +2887,7 @@ LLChatServiceHistory::HistoryResult readStitched(
                 stitched = serviceMessage(service[match]);
                 service_placed[match] = true;
             }
-            if (match != service.size() || !archive.has_oldest ||
-                wall + 7.0 * 3600.0 < service_epoch)
-            {
-                dated.emplace_back(wall, stitched);
-            }
+            dated.emplace_back(wall, stitched);
         }
     }
     std::stable_sort(dated.begin(), dated.end(),
@@ -2921,6 +2915,7 @@ LLChatServiceHistory::HistoryResult readStitched(
         }
     }
 
+    // Apply the consumer limit to the complete seam order, retaining the service tail.
     while (limit && result.messages.size() > limit)
     {
         result.messages.pop_front();
