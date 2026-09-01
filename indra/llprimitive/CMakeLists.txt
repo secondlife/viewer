@@ -11,12 +11,7 @@ include(GLM)
 include(Mikktspace)
 
 set(llprimitive_SOURCE_FILES
-    gltf/accessor.cpp
-    gltf/animation.cpp
-    gltf/asset.cpp
-    gltf/primitive.cpp
     lldaeloader.cpp
-    llgltfloader.cpp
     llgltfmaterial.cpp
     llmaterialid.cpp
     llmaterial.cpp
@@ -35,14 +30,7 @@ set(llprimitive_SOURCE_FILES
 
 set(llprimitive_HEADER_FILES
     CMakeLists.txt
-    gltf/accessor.h
-    gltf/animation.h
-    gltf/asset.h
-    gltf/buffer_util.h
-    gltf/common.h
-    gltf/primitive.h
     lldaeloader.h
-    llgltfloader.h
     llgltfmaterial.h
     legacy_object_types.h
     llmaterial.h

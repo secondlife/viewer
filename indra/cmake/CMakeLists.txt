@@ -36,6 +36,7 @@ set(cmake_SOURCE_FILES
         LLAudio.cmake
         LLCommon.cmake
         LLImage.cmake
+        LLGLTF.cmake
         LLKDU.cmake
         LLPhysicsExtensions.cmake
         LLPrimitive.cmake
