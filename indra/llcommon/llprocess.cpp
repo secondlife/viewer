@@ -186,7 +186,9 @@ public:
         std::shared_ptr<asio::writable_pipe> pipe) :
         mDesc(desc),
         mPipe(pipe),
-        mStream(&mStreambuf),
+        mFill(&mBufA),
+        mFlush(&mBufB),
+        mStream(mFill),
         mWritePending(false)
     {}
 
@@ -196,7 +198,9 @@ public:
 
     virtual size_type size() const override
     {
-        return mStreambuf.size();
+        // Bytes not yet handed to the OS: whatever is queued in the fill
+        // buffer plus whatever is still draining from the flush buffer.
+        return mFill->size() + mFlush->size();
     }
 
     // Called from LLProcess::tick() to initiate writing buffered data.
@@ -210,18 +214,24 @@ public:
 private:
     void startAsyncWrite()
     {
-        if (mWritePending || !mPipe || !mPipe->is_open() || mStreambuf.size() == 0)
+        if (mWritePending || !mPipe || !mPipe->is_open() || mFill->size() == 0)
             return;
 
         mWritePending = true;
 
-        // Snapshot the number of bytes currently buffered so the async_write
-        // operates on a fixed-size, stable view. Any data written to
-        // get_ostream() while this write is in flight lands in the streambuf's
-        // put area and is excluded from the current operation; it will be sent
-        // on the next tick(). Without this snapshot, a concurrent write to
-        // get_ostream() could reallocate/invalidate the buffer sequence.
-        std::size_t writeSize = mStreambuf.size();
+        // Zero-copy double buffering. async_write must reference storage that
+        // stays valid AND immovable for the entire operation, but get_ostream()
+        // writes arriving while a write is in flight can grow the streambuf's
+        // put area and REALLOCATE its storage -- which would invalidate the
+        // buffer sequence mid-write and corrupt the data sent to the child.
+        //
+        // So we keep two buffers: get_ostream() always fills mFill; async_write
+        // always drains mFlush. Swapping them here, and rebinding mStream to the
+        // new (empty) mFill, means the in-flight write owns mFlush exclusively --
+        // no subsequent get_ostream() write can touch it until this write
+        // completes and mWritePending goes false again. No copy, no aliasing.
+        std::swap(mFill, mFlush);
+        mStream.rdbuf(mFill);
 
         // Write all buffered data asynchronously. Do NOT self-chain in the
         // completion handler: sending the next buffer immediately can cause
@@ -230,14 +240,16 @@ private:
         // was the root cause of test 18 "more than 3 events" and test 9
         // "many small messages" failures. tick() calls mWritePipe->tick() on
         // every mainloop frame, so any newly-queued data will be sent then.
-        asio::async_write(*mPipe, asio::buffer(mStreambuf.data(), writeSize),
+        asio::async_write(*mPipe, mFlush->data(),
             [this](const boost::system::error_code& ec, std::size_t bytes_transferred)
         {
             mWritePending = false;
 
             if (!ec)
             {
-                mStreambuf.consume(bytes_transferred);
+                // Drain the bytes we just sent, leaving mFlush empty and ready
+                // to serve as the next fill buffer after a future swap.
+                mFlush->consume(bytes_transferred);
                 LL_DEBUGS("LLProcess") << "Wrote " << bytes_transferred
                     << " bytes to " << mDesc << LL_ENDL;
             }
@@ -251,7 +263,13 @@ private:
 
     std::string mDesc;
     std::shared_ptr<asio::writable_pipe> mPipe;
-    asio::streambuf mStreambuf;
+    // Double buffering: get_ostream() fills one buffer while async_write drains
+    // the other. mFill/mFlush point at mBufA/mBufB and swap on each write; see
+    // startAsyncWrite(). mStream is always bound to *mFill.
+    asio::streambuf mBufA;
+    asio::streambuf mBufB;
+    asio::streambuf* mFill;
+    asio::streambuf* mFlush;
     std::ostream mStream;
     bool mWritePending;
 };
