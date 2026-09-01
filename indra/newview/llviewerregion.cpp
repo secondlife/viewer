@@ -780,6 +780,7 @@ void LLViewerRegion::setRegionID(const LLUUID& region_id)
 
 void LLViewerRegion::loadObjectCache()
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (mCacheLoaded)
     {
         return;
@@ -805,6 +806,7 @@ void LLViewerRegion::loadObjectCache()
 
 void LLViewerRegion::saveObjectCache()
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (!mCacheLoaded)
     {
         return;
@@ -1397,6 +1399,7 @@ void LLViewerRegion::addVisibleChildCacheEntry(LLVOCacheEntry* parent, LLVOCache
 
 void LLViewerRegion::updateVisibleEntries(F32 max_time)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if(mDead)
     {
         return;
@@ -1495,6 +1498,7 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
 
 void LLViewerRegion::createVisibleObjects(F32 max_time)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if(mDead)
     {
         return;
@@ -1666,6 +1670,9 @@ void LLViewerRegion::idleUpdate(F32 max_update_time)
     updateVisibleEntries(max_time);
     max_time = max_update_time - update_timer.getElapsedTimeF32();
 
+    LL_PROFILE_PLOT("VOCache active set", (S64)mImpl->mActiveSet.size());
+    LL_PROFILE_PLOT("VOCache waiting list", (S64)mImpl->mWaitingList.size());
+
     createVisibleObjects(max_time);
 
     mImpl->mWaitingList.clear();
@@ -1678,6 +1685,7 @@ void LLViewerRegion::idleUpdate(F32 max_update_time)
 // static
 void LLViewerRegion::idleCleanup(F32 max_update_time)
 {
+    LL_PROFILE_PLOT("VOCache pending cleanup", (S64)sRegionCacheCleanup.size());
     LLTimer update_timer;
     while (!sRegionCacheCleanup.empty() && (max_update_time - update_timer.getElapsedTimeF32() > 0))
     {
@@ -1728,6 +1736,7 @@ bool LLViewerRegion::isViewerCameraStatic()
 
 void LLViewerRegion::killInvisibleObjects(F32 max_time)
 {
+    LL_PROFILE_ZONE_SCOPED;
 #if 1 // TODO: kill this.  This is ill-conceived, objects that aren't in the camera frustum should not be deleted from memory.
         // because of this, every time you turn around the simulator sends a swarm of full object update messages from cache
     // probe misses and objects have to be reloaded from scratch.  From some reason, disabling this causes holes to

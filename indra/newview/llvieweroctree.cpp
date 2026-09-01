@@ -798,7 +798,7 @@ static std::queue<GLuint> sFreeQueries;
 
 U32 LLOcclusionCullingGroup::getNewOcclusionQueryObjectName()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_OCTREE;
 
     if (sFreeQueries.empty())
     {
@@ -821,7 +821,6 @@ void LLOcclusionCullingGroup::releaseOcclusionQueryObjectName(GLuint name)
 {
     if (name != 0)
     {
-        LL_PROFILE_ZONE_SCOPED;
         sFreeQueries.push(name);
     }
 }
@@ -1233,7 +1232,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
                         mOcclusionIssued[LLViewerCamera::sCurCameraID] = gFrameCount;
 
                         {
-                            LL_PROFILE_ZONE_NAMED("glBeginQuery");
+                            LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("glBeginQuery");
 
                             //get an occlusion query that hasn't been used in awhile
                             releaseOcclusionQueryObjectName(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
@@ -1279,7 +1278,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
                         }
 
                         {
-                            LL_PROFILE_ZONE_NAMED("glEndQuery");
+                            LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("glEndQuery");
                             glEndQuery(mode);
                         }
                     }

@@ -969,6 +969,7 @@ private:
 
 void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 pixel_threshold, bool use_occlusion)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_OCTREE;
     if(LLViewerCamera::sCurCameraID != LLViewerCamera::CAMERA_WORLD)
     {
         return;
@@ -1003,6 +1004,7 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 pixel_threshold
 #ifndef LL_TEST
 S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_OCTREE;
     static LLCachedControl<bool> use_object_cache_occlusion(gSavedSettings,"UseObjectCacheOcclusion");
 
     if(!LLViewerRegion::sVOCacheCullingEnabled)
@@ -1088,6 +1090,9 @@ void LLVOCachePartition::addOccluders(LLViewerOctreeGroup* gp)
 
 void LLVOCachePartition::processOccluders(LLCamera* camera)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_OCTREE;
+    LL_PROFILE_ZONE_NUM((S64)mOccludedGroups.size());
+    LL_PROFILE_PLOT("VOCache occluded groups", (S64)mOccludedGroups.size());
     if(mOccludedGroups.empty())
     {
         return;
@@ -1531,6 +1536,7 @@ bool LLVOCache::updateEntry(const HeaderEntryInfo* entry)
 // this in turn forces a rewrite after a partial read due to corruption.
 bool LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if(!mEnabled)
     {
         LL_WARNS() << "Not reading cache for handle " << handle << "): Cache is currently disabled." << LL_ENDL;
@@ -1593,6 +1599,7 @@ bool LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
         }
     }
 
+    LL_PROFILE_ZONE_NUM(num_entries);
     LL_DEBUGS("GLTF", "VOCache") << "Read " << cache_entry_map.size() << " entries from object cache " << filename << ", expected " << num_entries << ", success=" << (success?"True":"False") << LL_ENDL;
     return success;
 }
@@ -1600,6 +1607,7 @@ bool LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 // We now pass in the cache entry map, so that we can remove entries from extras that are no longer in the primary cache.
 void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_gltf_overrides_map_t& cache_extras_entry_map, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map)
 {
+    LL_PROFILE_ZONE_SCOPED;
     int loaded= 0;
     int discarded = 0;
     // get ViewerRegion pointer from handle
@@ -1745,6 +1753,8 @@ void LLVOCache::purgeEntries(U32 size)
 
 void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, bool dirty_cache, bool removal_enabled)
 {
+    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_NUM((S64)cache_entry_map.size());
     std::string filename;
     getObjectCacheFilename(handle, filename);
     if(!mEnabled)
@@ -1902,6 +1912,8 @@ void LLVOCache::removeGenericExtrasForHandle(U64 handle)
 
 void LLVOCache::writeGenericExtrasToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_gltf_overrides_map_t& cache_extras_entry_map, bool dirty_cache, bool removal_enabled)
 {
+    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_NUM((S64)cache_extras_entry_map.size());
     if(!mEnabled)
     {
         LL_WARNS() << "Not writing extras cache for handle " << handle << "): Cache is currently disabled." << LL_ENDL;
