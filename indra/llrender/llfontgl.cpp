@@ -614,10 +614,15 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
     S32 start_of_last_word = 0;
     bool in_word = false;
 
-    // avoid S32 overflow when max_pixels == S32_MAX by staying in floating point
     F32 scaled_max_pixels = max_pixels * sScaleX;
+    if (scaled_max_pixels >= (F32)S32_MAX)
+    {
+        scaled_max_pixels = (F32)S32_MAX;
+    }
+
     F32 width_padding = 0.f;
 
+    const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
     LLFontGlyphInfo* next_glyph = NULL;
 
     S32 i;
@@ -683,14 +688,16 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 
         cur_x += advance;
 
-        // clip if current character runs past scaled_max_pixels (using width_padding)
+        // Clip if current character runs past scaled_max_pixels (using width_padding)
         if (scaled_max_pixels < cur_x + width_padding)
         {
             clip = true;
             break;
         }
 
-        if (((i+1) < max_chars) && wchars[i+1])
+        if (((i+1) < max_chars)
+            && wchars[i+1]
+            && (wchars[i + 1] < LAST_CHARACTER))
         {
             // Kern this puppy.
             next_glyph = mFontFreetype->getGlyphInfo(wchars[i+1], EFontGlyphType::Unspecified);
