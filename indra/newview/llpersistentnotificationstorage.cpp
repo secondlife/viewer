@@ -61,9 +61,9 @@ void LLPersistentNotificationStorage::saveNotifications()
         return;
     }
 
-    const S32 max_to_save = llmax(1, gSavedSettings.getS32("MaxPersistentNotifications"));
-    std::vector<LLNotificationPtr> selected_notifications;
-    selected_notifications.reserve(max_to_save);
+const S32 max_to_save = llmax(1, gSavedSettings.getS32("MaxPersistentNotifications"));
+std::vector<LLNotificationPtr> selected_notifications;
+selected_notifications.reserve(std::min<size_t>(static_cast<size_t>(max_to_save), history_channel->size()));
 
     auto history_begin = history_channel->beginHistory();
     auto history_it = history_channel->endHistory();
