@@ -1651,6 +1651,73 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
                             gPipeline.updateMoveDampedAsync(drawablep);
                         }
                     }
+
+                    // Updating only a moving linkset root leaves its children on the normal
+                    // update pass, which makes them appear dislocated from the root every few
+                    // frames when the root was updated first.
+                    // This is particularly noticeable on moving children or avatars (and avatar attachments).
+                    if (mFocusObject->isRoot())
+                    {
+                        for (LLViewerObject* childp : mFocusObject->getChildren())
+                        {
+                            LLDrawable* child_drawablep = childp ? childp->mDrawable.get() : nullptr;
+                            if (!child_drawablep || child_drawablep->isDead() || !child_drawablep->isActive())
+                            {
+                                continue;
+                            }
+
+                            child_drawablep->clearState(LLDrawable::EARLY_MOVE);
+
+                            if (childp->isSelected() ||
+                                child_drawablep->isState(LLDrawable::MOVE_UNDAMPED) ||
+                                !childp->getAngularVelocity().isExactlyZero())
+                            {
+                                gPipeline.updateMoveNormalAsync(child_drawablep);
+                            }
+                            else
+                            {
+                                gPipeline.updateMoveDampedAsync(child_drawablep);
+                            }
+
+                            // Also apply transform to any seated avatars
+                            if (LLVOAvatar* avatarp = childp->asAvatar())
+                            {
+                                if (LLJoint* root_jointp = avatarp->getRootJoint())
+                                {
+                                    root_jointp->touch();
+                                    root_jointp->updateWorldMatrixChildren();
+                                    const LLVector3 hud_name_pos =
+                                        avatarp->idleCalcNameTagPosition(root_jointp->getWorldPosition());
+                                    avatarp->idleUpdateNameTag(hud_name_pos);
+                                    avatarp->idleUpdateVoiceVisualizerPosition(hud_name_pos);
+                                }
+
+                                // ... and also the avatar's unrigged attachments (those are not
+                                // children of the vehicle, they are children of the avatar)
+                                for (const auto& attachment_entry : avatarp->mAttachmentPoints)
+                                {
+                                    LLViewerJointAttachment* attachment = attachment_entry.second;
+                                    if (!attachment)
+                                    {
+                                        continue;
+                                    }
+
+                                    for (const auto& attached_objectp : attachment->mAttachedObjects)
+                                    {
+                                        LLViewerObject* attached_object = attached_objectp.get();
+                                        if (!attached_object || attached_object->isDead() || attached_object->mDrawable.isNull())
+                                        {
+                                            continue;
+                                        }
+
+                                        attached_object->mDrawable->clearState(LLDrawable::EARLY_MOVE);
+                                        gPipeline.updateMoveNormalAsync(attached_object->mDrawable);
+                                        attached_object->updateText();
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             // if not tracking object, update offset based on new object position
@@ -2948,4 +3015,3 @@ S32 LLAgentCamera::directionToKey(S32 direction)
 
 
 // EOF
-
