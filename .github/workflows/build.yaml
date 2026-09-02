@@ -488,6 +488,8 @@ jobs:
           node-version: "22"
           dumpSyms: false
 
+  # Upload can be failure prone and we might need to reupload in some cases,
+  # Keep upload as a separate job, to not require full rebuild on upload failure.
   post-mac-symbols:
     env:
       BUGSPLAT_DATABASE: "${{ secrets.BUGSPLAT_DATABASE }}"
@@ -502,6 +504,20 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: macOS-symbols
+      - name: Extract dSYM bundles
+        if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
+        shell: bash
+        run: |
+          mkdir -p _mac_symbols
+          shopt -s nullglob
+          archives=( *.xcarchive.zip )
+          if [ ${#archives[@]} -eq 0 ]; then
+            echo "No .xcarchive.zip archives found in downloaded macOS-symbols artifact"
+            exit 1
+          fi
+          for archive in "${archives[@]}"; do
+            unzip -q "$archive" -d _mac_symbols
+          done
       - name: Post Mac symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
         uses: BugSplat-Git/symbol-upload@3857759bd957dadb075509a4e951f04f9baa5ea3
@@ -511,8 +527,8 @@ jobs:
           database: "${{ env.BUGSPLAT_DATABASE }}"
           application: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }} (${{ needs.build.outputs.viewer_version }})
-          directory: .
-          files: "**/*.xcarchive.zip"
+          directory: _mac_symbols
+          files: "**/*.dSYM"
           node-version: "22"
           dumpSyms: false
 
