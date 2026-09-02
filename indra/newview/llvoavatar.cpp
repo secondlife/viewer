@@ -3015,8 +3015,16 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled, const LLVector3 &
                 }
             }
         }
-        mVoiceVisualizer->setPositionAgent(position);
+        idleUpdateVoiceVisualizerPosition(position);
     }//if ( voiceEnabled )
+}
+
+void LLVOAvatar::idleUpdateVoiceVisualizerPosition(const LLVector3 &position)
+{
+    if (mVoiceVisualizer)
+    {
+        mVoiceVisualizer->setPositionAgent(position);
+    }
 }
 
 static void override_bbox(LLDrawable* drawable, LLVector4a* extents)
