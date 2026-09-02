@@ -170,6 +170,24 @@ void LLThread::threadRun()
     // this is the first point at which we're actually running in the new thread
     mID = currentID();
 
+#if !LL_WINDOWS
+    // On Unix platforms, make sure this thread's signal mask does not block
+    // crash signals. Signal dispositions are process-wide, but the signal mask
+    // is maintained per-thread, explicitly unblock these signals.
+    // This is critical on ARM64 macOS where thread crashes may not be properly
+    // captured by BugSplat if crash signals remain blocked in the thread mask.
+    // The signal handlers were installed process-wide in setupErrorHandling().
+    sigset_t signals;
+    sigemptyset(&signals);
+    sigaddset(&signals, SIGSEGV);
+    sigaddset(&signals, SIGBUS);
+    sigaddset(&signals, SIGILL);
+    sigaddset(&signals, SIGFPE);
+    sigaddset(&signals, SIGSYS);
+    // Unblock crash signals for this thread
+    pthread_sigmask(SIG_UNBLOCK, &signals, nullptr);
+#endif
+
     // for now, hard code all LLThreads to report to single master thread recorder, which is known to be running on main thread
     mRecorder = new LLTrace::ThreadRecorder(*LLTrace::get_master_thread_recorder());
 

@@ -318,7 +318,6 @@ void LLApp::setupErrorHandling(bool second_instance)
 
 #else  // ! LL_WINDOWS
 
-#if ! defined(LL_BUGSPLAT)
     //
     // Start up signal handling.
     //
@@ -326,7 +325,6 @@ void LLApp::setupErrorHandling(bool second_instance)
     // thread, asynchronous signals can be delivered to any thread (in theory)
     //
     setup_signals();
-#endif // ! LL_BUGSPLAT
 
 #endif // ! LL_WINDOWS
 }
@@ -502,7 +500,9 @@ void setup_signals()
 {
     //
     // Set up signal handlers that may result in program termination
+    // Related: restoreErrorTrap
     //
+    // TODO: add tests that generate signals
     struct sigaction act;
     act.sa_sigaction = default_unix_signal_handler;
     sigemptyset( &act.sa_mask );
