@@ -157,7 +157,12 @@ protected:
     int verify_and_add(const unsigned char* cert_bytes, long length, bool suppress_expire_warning = false);
     int verify_and_add(X509* cert, bool suppress_expire_warning = false);
     // load certificates from a file or directory
-    int load_from(const std::string& path, bool suppress_expire_warning = false);
+    int load_from(const std::filesystem::path& path, bool suppress_expire_warning = false);
+    int load_from(const std::string& path, bool suppress_expire_warning = false)
+    {
+        const std::filesystem::path file_path = fsyspath(path);
+        return load_from(file_path, suppress_expire_warning);
+    }
 
     int mLoaded;
     int mRejected;

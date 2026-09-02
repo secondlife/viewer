@@ -578,13 +578,14 @@ LLPointer<LLCertificate> LLBasicCertificateVector::erase(iterator _iter)
 }
 
 // load a certificate from a file or directory and add all found certificates to the store if valid
-int LLBasicCertificateVector::load_from(const std::string& filepath, bool suppress_expire_warning)
+int LLBasicCertificateVector::load_from(const std::filesystem::path& file_path, bool suppress_expire_warning)
 {
     int loaded = 0;
+
     // scan the PEM file extracting each certificate
-    if (LLFile::isfile(filepath))
+    if (LLFile::isfile(file_path))
     {
-        BIO* file_bio = BIO_new_file(filepath.c_str(), "rt");
+        BIO* file_bio = BIO_new_file(file_path.string().c_str(), "rt");
         if (file_bio)
         {
             X509* cert_x509 = NULL;
@@ -598,25 +599,24 @@ int LLBasicCertificateVector::load_from(const std::string& filepath, bool suppre
         }
         else
         {
-            LL_WARNS("SECAPI") << "Could not open certificate file '" << filepath
+            LL_WARNS("SECAPI") << "Could not open certificate file '" << file_path
                                << "' with BIO_new_file()" << LL_ENDL;
         }
     }
-    else if (LLFile::isdir(filepath))
+    else if (LLFile::isdir(file_path))
     {
-        typedef std::vector<std::string> vec;
-
-        vec vec_files = gDirUtilp->getFilesInDir(filepath);
+        // Some systems store the certificates elsewhere and populate the system certificate directory
+        // with symlinks to them, so include symlinks unless they point to an entry in the same directory
+        std::vector<std::string> vec_files = gDirUtilp->getFilesInDir(file_path, true);
         for (const std::string& filename : vec_files)
         {
-            const std::string fullname = gDirUtilp->add(filepath, filename);
-            loaded += load_from(fullname, suppress_expire_warning);
+            loaded += load_from(file_path / filename, suppress_expire_warning);
         }
     }
     else
     {
         // since the user certificate store may not be there, this is not a warning
-        LL_INFOS("SECAPI") << "Certificate store not found at " << filepath << LL_ENDL;
+        LL_INFOS("SECAPI") << "Certificate store not found at " << file_path << LL_ENDL;
     }
     return loaded;
 }
@@ -698,6 +698,56 @@ LLSystemCertificateVector::LLSystemCertificateVector(bool suppress_expire_warnin
     }
 }
 
+#if LL_DARWIN
+static CFDataRef validate_certificate(SecPolicyRef policy, SecCertificateRef certRef)
+{
+    SecTrustRef trustRef = nullptr;
+    OSStatus status = SecTrustCreateWithCertificates(certRef, policy, &trustRef);
+    if (status)
+    {
+        LL_WARNS("SECAPI") << "Failed to create trust evaluation context." << LL_ENDL;
+        return nullptr;
+    }
+
+    status = SecTrustSetNetworkFetchAllowed(trustRef, false);
+    if (status)
+    {
+        CFRelease(trustRef);
+        return nullptr;
+    }
+
+    SecTrustResultType resultType;
+    CFErrorRef errorRef = nullptr;
+    CFDataRef derRef = nullptr;
+
+    (void)SecTrustEvaluateWithError(trustRef, &errorRef);
+    status = SecTrustGetTrustResult(trustRef, &resultType);
+    if (status == errSecSuccess)
+    {
+        switch (resultType)
+        {
+            case kSecTrustResultUnspecified:
+                /* cert chain valid, no special UserTrust assignments */
+            case kSecTrustResultProceed:
+                /* cert chain valid AND user explicitly trusts this */
+                derRef = SecCertificateCopyData(certRef);
+                break;
+            case kSecTrustResultDeny:
+                /* The user specified that the certificate should not be trusted. */
+            default:
+                /* Some other error when evaluating the trust */
+                break;
+        }
+    }
+    if (errorRef)
+    {
+        CFRelease(errorRef);
+    }
+    CFRelease(trustRef);
+    return derRef;
+}
+#endif
+
 // Enumerate the certificates in the system store
 int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
 {
@@ -717,8 +767,8 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
             LL_WARNS("SECAPI") << "System Certificate store '" << domain << "' could not be opened. error = " << GetLastError() << LL_ENDL;
             continue;
         }
-        int            certificates = 0;
-        PCCERT_CONTEXT cert_ctxt    = CertEnumCertificatesInStore(cert_store, nullptr);
+        int certificates = 0;
+        PCCERT_CONTEXT cert_ctxt = CertEnumCertificatesInStore(cert_store, nullptr);
         for (; cert_ctxt; cert_ctxt = CertEnumCertificatesInStore(cert_store, cert_ctxt))
         {
             const unsigned char* cert = reinterpret_cast<unsigned char*>(cert_ctxt->pbCertEncoded);
@@ -742,39 +792,64 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
         "User", "Admin", "System",
     };
 
-    for (SecTrustSettingsDomain domain : domains)
+    SecPolicyRef policyRef = SecPolicyCreateBasicX509();
+    if (policyRef)
     {
-        CFArrayRef cfCerts;
-        OSStatus status = SecTrustSettingsCopyCertificates(domain, &cfCerts);
-        if (status == errSecSuccess)
+        for (SecTrustSettingsDomain domain : domains)
         {
-            CFIndex idx, count = CFArrayGetCount(cfCerts);
-            int certificates = 0;
-            for (idx = 0; idx < count; idx++)
+            CFArrayRef certArrayRef = nullptr;
+            OSStatus status = SecTrustSettingsCopyCertificates(domain, &certArrayRef);
+            if (status == noErr)
             {
-                SecCertificateRef cfCert = (SecCertificateRef)CFArrayGetValueAtIndex(cfCerts, idx);
-                CFDataRef der = SecCertificateCopyData(cfCert);
-                if (der)
+                CFIndex idx, count = CFArrayGetCount(certArrayRef);
+                int certificates = 0;
+                for (idx = 0; idx < count; idx++)
                 {
-                    const unsigned char* cert = reinterpret_cast<const unsigned char*>(CFDataGetBytePtr(der));
-                    certificates += verify_and_add(cert, CFDataGetLength(der), suppress_expire_warning);
-                    CFRelease(der);
+                    SecCertificateRef certRef = (SecCertificateRef)CFArrayGetValueAtIndex(certArrayRef, idx);
+                    CFDataRef derRef = validate_certificate(policyRef, certRef);
+                    if (derRef)
+                    {
+                        const unsigned char* cert = reinterpret_cast<const unsigned char*>(CFDataGetBytePtr(derRef));
+                        certificates += verify_and_add(cert, CFDataGetLength(derRef), suppress_expire_warning);
+                        CFRelease(derRef);
+                    }
+                    else
+                    {
+                        CFStringRef nameRef = nullptr;
+                        if (!SecCertificateCopyCommonName(certRef, &nameRef))
+                        {
+                            LL_WARNS("SECAPI") << "Certificate '" << CFStringGetCStringPtr(nameRef, CFStringGetSystemEncoding())
+                                               << "' rejected. Ignore it." << LL_ENDL;
+                            if (nameRef != nullptr)
+                            {
+                                CFRelease(nameRef);
+                            }
+                        }
+                        else
+                        {
+                            LL_WARNS("SECAPI") << "Certificate rejected. Ignore it." << LL_ENDL;
+                        }
+                        mRejected++;
+                    }
+                    // wo don't own the certRef reference, as CFArrayGetValueAtIndex() only returns the
+                    // pointer in the array
                 }
+                CFRelease(certArrayRef);
+                LL_INFOS("SECAPI") << "System Certificate store '" << domainNames[domain] << "': loaded "
+                                   << certificates << " certificates" << LL_ENDL;
+                loaded += certificates;
             }
-            CFRelease(cfCerts);
-            LL_INFOS("SECAPI") << "System Certificate store '" << domainNames[domain] << "': loaded "
-                               << certificates << " certificates" << LL_ENDL;
-            loaded += certificates;
+            else if (status != errSecNoTrustSettings)
+            {
+                LL_WARNS("SECAPI") << "Could not open certificate trust settings for '" << domainNames[domain]
+                                   << "' error = " << status << LL_ENDL;
+            }
         }
-        else if (status != errSecNoTrustSettings)
-        {
-            LL_WARNS("SECAPI") << "Could not open certificate trust settings for '" << domain
-                               << "' error = " << status << LL_ENDL;
-        }
+        CFRelease(policyRef);
     }
 #elif LL_LINUX
     // FM: These are from the Go certificate store implementation: https://go.dev/src/crypto/x509/root_linux.go
-    // Possible certificate files; stop after finding one.
+    // Possible certificate store files; stop after finding one with valid certificates.
     const static std::string certFiles[] =
     {
         "/etc/ssl/certs/ca-certificates.crt",                // Debian/Ubuntu/Gentoo etc.
@@ -785,25 +860,28 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
         "/etc/ssl/cert.pem",                                 // Alpine Linux
     };
 
-    // Possible directories with certificate files; all will be read if they exist
+    // Possible directories with certificate files; all certificates in a directory will be read
+    // but it will stop after the first directory entry that produces valid certificates.
     const static std::string certDirs[] =
     {
-        "/etc/ssl/certs",     // SLES10/SLES11
+        "/etc/ssl/certs",     ///SLES11
         "/etc/pki/tls/certs", // Fedora/RHEL
     };
 
+    // first check for the SSL environment variable for a cert bundle
     const char* env_val = getenv("SSL_CERT_FILE");
-    if (env_val && *env_val)
+    if (env_val && LLFile::exists(env_val))
     {
-        if (loaded)
-        {
-            LL_INFOS("SECAPI") << "System Certificate store '" << env_val << "': loaded "
-                               << loaded << " certificates " << LL_ENDL;
-            loaded += load_from(env_val, suppress_expire_warning);
-        }
+        loaded += load_from(env_val, suppress_expire_warning);
+        LL_INFOS("SECAPI") << "System Certificate store '" << env_val << "': loaded "
+                           << loaded << " certificates " << LL_ENDL;
     }
-    else
+
+    if (!loaded)
     {
+        // if we didn't have an existing cert bundle defined from the environment variable, try
+        // to look through above list of cert bundle paths. Only try until we found at least one
+        // valid cert bundle
         for (const std::string& certFile : certFiles)
         {
             loaded += load_from(certFile, suppress_expire_warning);
@@ -815,8 +893,11 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
             }
         }
     }
+
+    // Only try to load from directories if we did not have a valid cert bundle to read
     if (!loaded)
     {
+        // first check for the SSL environment variable for a list of cert directories
         env_val = getenv("SSL_CERT_DIR");
         if (env_val && *env_val)
         {
@@ -834,12 +915,14 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
                 {
                     LL_INFOS("SECAPI") << "System Certificate store '" << certDir << "': loaded "
                                        << loaded << " certificates " << LL_ENDL;
-                    break;
                 }
             }
         }
-        else
+
+        if (!loaded)
         {
+            // If we had no valid environment variable entry, we try above predefined directories until
+            // we found one that contains any valid certificates
             for (const std::string& certDir : certDirs)
             {
                 loaded += load_from(certDir, suppress_expire_warning);
@@ -1116,17 +1199,18 @@ void _validateCert(int validation_policy,
     if (validation_policy & VALIDATION_POLICY_TIME)
     {
         LLDate validation_date((double)time(NULL));
-        if(validation_params.has(CERT_VALIDATION_DATE))
+        if (validation_params.has(CERT_VALIDATION_DATE))
         {
             validation_date = validation_params[CERT_VALIDATION_DATE];
         }
 
-        if((validation_date < current_cert_info[CERT_VALID_FROM].asDate()) ||
+        if ((validation_date < current_cert_info[CERT_VALID_FROM].asDate()) ||
            (validation_date > current_cert_info[CERT_VALID_TO].asDate()))
         {
             LLTHROW(LLCertValidationExpirationException(current_cert_info, validation_date, suppress_expire_warning));
         }
     }
+
     if (validation_policy & VALIDATION_POLICY_SSL_KU)
     {
         // This stanza of code was changed 2021-06-09 as per details in SL-15370.
