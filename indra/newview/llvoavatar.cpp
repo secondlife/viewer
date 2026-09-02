@@ -4868,7 +4868,8 @@ bool LLVOAvatar::updateCharacter(LLAgent &agent)
         LLMotion *motionp = mMotionController.findMotion(ANIM_AGENT_SIT_GROUND_CONSTRAINED);
         if (!motionp || !mMotionController.isMotionLoading(motionp))
         {
-            getOffObject();
+            // Route through setParent(NULL) so self also resets its camera.
+            setParent(NULL);
         }
     }
 
@@ -8055,6 +8056,11 @@ void LLVOAvatar::getOffObject()
             stopMotionFromSource(child_objectp->getID());
             LLFollowCamMgr::getInstance()->setCameraActive(child_objectp->getID(), false);
         }
+    }
+    else if (isSelf())
+    {
+        // Recover from a missing seat parent without retaining a stale followcam.
+        LLFollowCamMgr::getInstance()->clearActiveFollowCamParams();
     }
 
     // assumes that transform will not be updated with drawable still having a parent
@@ -12230,4 +12236,3 @@ bool LLVOAvatar::isBuddy() const
     }
     return is_friend;
 }
-
