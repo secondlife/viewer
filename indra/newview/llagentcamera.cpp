@@ -1694,25 +1694,27 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
 
                                 // ... and also the avatar's unrigged attachments (those are not
                                 // children of the vehicle, they are children of the avatar)
-                                for (const auto& attachment_entry : avatarp->mAttachmentPoints)
+                                for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin();
+                                     iter != avatarp->mAttachmentPoints.end(); )
                                 {
-                                    LLViewerJointAttachment* attachment = attachment_entry.second;
+                                    LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+                                    LLViewerJointAttachment* attachment = curiter->second;
                                     if (!attachment)
                                     {
                                         continue;
                                     }
 
-                                    for (const auto& attached_objectp : attachment->mAttachedObjects)
+                                    for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                                         attachment_iter != attachment->mAttachedObjects.end();
+                                         ++attachment_iter)
                                     {
-                                        LLViewerObject* attached_object = attached_objectp.get();
-                                        if (!attached_object || attached_object->isDead() || attached_object->mDrawable.isNull())
+                                        LLViewerObject* attached_object = attachment_iter->get();
+                                        if (attached_object && !attached_object->isDead() && attached_object->mDrawable.notNull())
                                         {
-                                            continue;
+                                            attached_object->mDrawable->clearState(LLDrawable::EARLY_MOVE);
+                                            gPipeline.updateMoveNormalAsync(attached_object->mDrawable);
+                                            attached_object->updateText();
                                         }
-
-                                        attached_object->mDrawable->clearState(LLDrawable::EARLY_MOVE);
-                                        gPipeline.updateMoveNormalAsync(attached_object->mDrawable);
-                                        attached_object->updateText();
                                     }
                                 }
                             }
