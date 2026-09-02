@@ -8043,6 +8043,11 @@ void LLVOAvatar::getOffObject()
 
     if (sit_object)
     {
+        if (isSelf() && !sit_object->isDead())
+        {
+            gAgentCamera.notifyFollowCamParamsCleared();
+        }
+
         stopMotionFromSource(sit_object->getID());
         LLFollowCamMgr::getInstance()->setCameraActive(sit_object->getID(), false);
 
@@ -12230,4 +12235,3 @@ bool LLVOAvatar::isBuddy() const
     }
     return is_friend;
 }
-
