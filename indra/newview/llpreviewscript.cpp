@@ -188,7 +188,6 @@ public:
 
     virtual bool hasAccelerators() const;
     virtual bool handleKeyHere(KEY key, MASK mask);
-    void closeFloater(bool app_quitting = false) override;
 
 private:
 
@@ -210,6 +209,7 @@ LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
     mEditorCore(editor_core)
 {
     buildFromFile("floater_script_search.xml");
+    setCanMinimize(false);
 
     sInstance = this;
 
@@ -269,21 +269,6 @@ void LLFloaterScriptSearch::show(LLScriptEdCore* editor_core)
 LLFloaterScriptSearch::~LLFloaterScriptSearch()
 {
     sInstance = NULL;
-}
-
-void LLFloaterScriptSearch::closeFloater(bool app_quitting)
-{
-    // If this floater is minimized while dependent on another window,
-    // closing it should not restore the dependee.
-    if (isMinimized())
-    {
-        if (LLFloater* dependee = getDependee())
-        {
-            dependee->removeDependentFloater(this);
-        }
-    }
-
-    LLFloater::closeFloater(app_quitting);
 }
 
 // static
