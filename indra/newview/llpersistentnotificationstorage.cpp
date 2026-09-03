@@ -65,29 +65,30 @@ void LLPersistentNotificationStorage::saveNotifications()
     std::vector<LLNotificationPtr> selected_notifications;
     selected_notifications.reserve(std::min<size_t>(static_cast<size_t>(max_to_save), history_channel->size()));
 
-    auto history_begin = history_channel->beginHistory();
-    auto history_it = history_channel->endHistory();
-    while (history_it != history_begin)
+    for (auto history_it = history_channel->rBeginHistory(), history_end = history_channel->rEndHistory();
+        history_it != history_end;
+        ++history_it)
     {
-        --history_it;
         LLNotificationPtr notification = *history_it;
 
         // After a notification was placed in Persist channel, it can become
         // responded, expired or canceled - in this case we should not save it
-        if (!(notification->isRespondedTo() || notification->isCancelled() || notification->isExpired()))
+        if (notification->isRespondedTo() || notification->isCancelled() || notification->isExpired())
         {
-            if (static_cast<S32>(selected_notifications.size()) < max_to_save)
-            {
-                selected_notifications.push_back(notification);
-            }
-            else
-            {
-                LL_WARNS() << "Too many persistent notifications."
-                        << " Saved the " << selected_notifications.size() << " newest notifications;"
-                        << " older notifications were omitted."
-                        << LL_ENDL;
-                break;
-            }
+            continue;
+        }
+
+        if (static_cast<S32>(selected_notifications.size()) < max_to_save)
+        {
+            selected_notifications.push_back(notification);
+        }
+        else
+        {
+            LL_WARNS() << "Too many persistent notifications."
+                    << " Saved the " << selected_notifications.size() << " newest notifications;"
+                    << " older notifications were omitted."
+                    << LL_ENDL;
+            break;
         }
     }
 
