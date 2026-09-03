@@ -6580,7 +6580,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>4</integer>
+      <integer>8</integer>
     </map>
     <key>PluginInstancesNormal</key>
     <map>
