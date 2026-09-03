@@ -7881,6 +7881,17 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
+    <key>RenderInterleavedAlpha</key>
+    <map>
+      <key>Comment</key>
+      <string>Depth-interleave rigged attachment alpha with the distance-sorted world alpha so transparent objects composite correctly both in front of and behind avatars. Disable to restore two-pass (all rigged first) order.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RenderDebugGLSession</key>
     <map>
       <key>Comment</key>
