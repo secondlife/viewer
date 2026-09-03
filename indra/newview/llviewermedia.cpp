@@ -2078,6 +2078,24 @@ void LLViewerMediaImpl::createMediaSource()
         return;
     }
 
+    if (mMediaURL.empty() && mMimeType.empty())
+    {
+        // Nothing to load yet -- the legacy-plugin branch below effectively already
+        // guards against this (if(!mMediaURL.empty())/else if(!mMimeType.empty()),
+        // both empty means it does nothing), but the embedded-browser branch has no
+        // such check and would otherwise unconditionally create a real CEF tab from
+        // whatever mMediaURL currently holds. Confirmed via a real race: setDisabled(
+        // true)'s unload() clears mMediaURL, but mPriority isn't synchronously
+        // recomputed to PRIORITY_UNLOADED at the same instant -- so update()'s own
+        // deferred-load timer can still slip through the check just above and call
+        // this function again with a stale (not-yet-UNLOADED) priority, moments after
+        // the URL was wiped. Without this guard that created a real, permanently
+        // blank ("about:blank") CEF tab that never gets a real navigate, since
+        // nothing here ever retries loading it. See LLPanelNearByMedia's Stop/Play
+        // controls, where this was found.
+        return;
+    }
+
     if (gSavedSettings.getBOOL("UseEmbeddedBrowser"))
     {
         S32 width = (mMediaWidth > 0) ? mMediaWidth : DEFAULT_EMBEDDED_BROWSER_WIDTH;
@@ -3112,6 +3130,16 @@ void LLViewerMediaImpl::updateJavascriptObject()
 //////////////////////////////////////////////////////////////////////////////////////////
 const std::string& LLViewerMediaImpl::getName() const
 {
+    // Mirrors getMediaName()'s own embedded-browser handling -- this is a separate,
+    // older accessor that predates the embedded-browser backend and was never updated
+    // to check it, so callers using this one (e.g. LLPanelNearByMedia) always saw an
+    // empty title for embedded-browser media and fell back to displaying the URL
+    // instead, even while playing normally.
+    if (mUseEmbeddedBrowser)
+    {
+        return mEmbeddedBrowserTitle;
+    }
+
     if (mMediaSource)
     {
         return mMediaSource->getMediaName();
