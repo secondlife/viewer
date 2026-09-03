@@ -2601,7 +2601,17 @@ LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
             result.add(face.mNormals[i]);
         }
 
-        LLVector3 ret(result.getF32ptr());
+        // Was "LLVector3 ret(...)" here, shadowing the outer ret -- every real
+        // computation below landed on that inner, scope-local copy, discarded the
+        // moment the block ended, so this function always returned a zero vector
+        // regardless of face validity. Confirmed via a real repro: any caller relying
+        // on this for a proper face-aligned camera zoom (LLViewerMediaFocus::
+        // focusZoomOnMedia(), used by both LLPanelNearByMedia's and
+        // LLFloaterMediaMonitor's own zoom buttons) silently fell back to its
+        // "no real pick normal available" path -- dollying the camera straight in
+        // along whatever direction it already happened to be facing, never
+        // reorienting to actually face the media -- on every single call.
+        ret = LLVector3(result.getF32ptr());
         ret = volumeDirectionToAgent(ret);
         ret.normVec();
     }
