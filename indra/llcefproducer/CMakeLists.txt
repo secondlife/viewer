@@ -8,16 +8,19 @@ include(00-Common)
 include(LLCommon)
 include(Linking)
 include(EmbeddedBrowser)
+include(LibVLCPlugin)
 
 project(llcefproducer)
 
 set(llcefproducer_SOURCE_FILES
     llcefproducer.cpp
+    libvlctabmanager.cpp
     )
 
 set(llcefproducer_HEADER_FILES
     CMakeLists.txt
     cefshm_protocol.h
+    libvlctabmanager.h
     )
 
 list(APPEND llcefproducer_SOURCE_FILES ${llcefproducer_HEADER_FILES})
@@ -45,4 +48,5 @@ target_link_libraries(SLCefProducer
     llcommon
     ll::shmframe
     ll::cefbrowser
+    ll::libvlc
     )

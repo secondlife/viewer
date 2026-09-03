@@ -44,6 +44,7 @@
 #include "lleventcoro.h"
 #include "llcoros.h"
 #include "llcorehttputil.h"
+#include "llembeddedbrowser.h"
 
 #include <vector>
 
@@ -353,6 +354,8 @@ public:
     // Use `hasMedia() || isUsingEmbeddedBrowser()` at call sites that don't touch the
     // plugin object directly (e.g. forwarding input).
     bool isUsingEmbeddedBrowser() const { return mUseEmbeddedBrowser; }
+    // Only meaningful when isUsingEmbeddedBrowser() is true; returns Cef otherwise.
+    LLEmbeddedBrowserBackend getEmbeddedBrowserBackend() const { return mEmbeddedBrowserBackend; }
     bool isMediaFailed() const { return mMediaSourceFailed; }
     void setMediaFailed(bool val) { mMediaSourceFailed = val; }
     void resetPreviousMediaState();
@@ -530,6 +533,22 @@ private:
     // recomputed every frame. See updateVolume()'s own comment for why embedded-
     // browser media gets a mute decision instead of legacy's continuous volume.
     bool mEmbeddedBrowserMuted = false;
+    // Which producer-side backend this impl's slot was created with -- decided once,
+    // in createMediaSource(), by chooseEmbeddedBrowserBackend() (URL scheme plus
+    // mUsedInUI). Remembered rather than recomputed because it is a property of the
+    // *slot*, fixed at kRequestSlot time and not changeable afterwards: the producer
+    // picks a CEF browser or a LibVLC player when it allocates the slot. Later
+    // per-frame calls (see updateVolume()) must route on what the slot actually is,
+    // not on what the current URL would ask for today.
+    LLEmbeddedBrowserBackend mEmbeddedBrowserBackend = LLEmbeddedBrowserBackend::Cef;
+    // Last continuous volume actually sent to LLEmbeddedBrowser::setVolume(), for
+    // LibVLC-backed slots only -- lets updateVolume() only send the opcode when the
+    // level meaningfully changes, since it's recomputed every frame and
+    // mProximityCamera jitters constantly as the camera moves. -1.f is a sentinel that
+    // no real (clamped 0..1) volume can equal, so the first updateVolume() after a tab
+    // is created always sends, even if the computed level happens to match the
+    // producer's own default.
+    F32 mEmbeddedBrowserVolume = -1.f;
     // Last render-rate hint actually sent to LLEmbeddedBrowser::setRenderRate() --
     // lets setPriority() only send the opcode when the target fps actually
     // changes, since setPriority() itself is called every frame regardless of
@@ -664,7 +683,11 @@ private:
     bool mCanceling;
 
 private:
-    LLViewerMediaTexture *updateMediaImage();
+    // embedded_browser_width/height: for the embedded-browser branch only, the exact
+    // size to size the GL texture for -- see the caller (preMediaTexUpdate()) for why
+    // this must be the SAME snapshot used for the pixel data itself, not a second,
+    // independent query of the tab's current size.
+    LLViewerMediaTexture *updateMediaImage(S32 embedded_browser_width = -1, S32 embedded_browser_height = -1);
     LL::WorkQueue::weak_t mMainQueue;
     LL::WorkQueue::weak_t mTexUpdateQueue;
 

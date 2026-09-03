@@ -673,6 +673,19 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("vcruntime140.dll")
                 self.path_optional("vcruntime140_1.dll")
 
+                # LibVLC runtime -- SLCefProducer.exe itself is the process that actually
+                # links and calls into libvlc (LibVlcTabManager, for RTSP/etc playback),
+                # not secondlife-bin.exe, so it needs its own copy here, same reasoning
+                # as the MSVC DLLs just above. This is a SEPARATE copy from the one in
+                # the top-level sharedlibs block above (that one is for
+                # LLStreamingAudio_LibVLC, parcel audio, which links libvlc directly
+                # into secondlife-bin.exe instead) -- both processes link libvlc
+                # independently and each needs the runtime sitting next to it.
+                # process_directory() recurses through plugins/ automatically.
+                self.path("libvlc.dll")
+                self.path("libvlccore.dll")
+                self.path("plugins")
+
             # CEF files common to all configurations
             with self.prefix(src=os.path.join(pkgdir, 'resources')):
                 self.path("chrome_100_percent.pak")

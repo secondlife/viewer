@@ -90,7 +90,10 @@ namespace cefshm_demo
                           // service), so this can't replicate the legacy plugin's smooth
                           // distance-rolloff curve -- see LLViewerMediaImpl::updateVolume(),
                           // which collapses that same computed volume to a mute/unmute decision
-                          // for embedded-browser media instead of a graded multiplier.
+                          // for embedded-browser media instead of a graded multiplier. Also
+                          // honoured for a LibVLC-backed slot (maps to volume 0/100 -- see
+                          // kSetVolume), so teardown-time silencing works identically for both
+                          // backends regardless of which opcode a given call site uses.
         kGoBack    = 31, // empty payload -- straight into llCefBrowserManager::GoBack().
         kGoForward = 32, // empty payload -- straight into llCefBrowserManager::GoForward().
         kStopLoad  = 33, // empty payload -- straight into llCefBrowserManager::StopLoad().
@@ -98,6 +101,14 @@ namespace cefshm_demo
                           // ignoreCache true matches the legacy plugin's own browse_reload(true)
                           // (a hard refresh, bypassing HTTP cache), which every reload call site
                           // in the Viewer already requests.
+        kSetVolume = 37, // data = {uint8 volume} -- 0-100, matching libvlc_audio_set_volume()'s own
+                          // native range directly. ONE opcode, both backends (see kRequestSlot's
+                          // backend byte): a LibVLC-backed slot calls libvlc_audio_set_volume() with
+                          // the value as-is, giving it the real distance-rolloff curve kSetMuted
+                          // above can't. A CEF-backed slot collapses it to CEF's existing binary
+                          // capability (0 -> SetAudioMuted(true), >0 -> SetAudioMuted(false)) --
+                          // does not replace kSetMuted, which remains the explicit "silence
+                          // immediately" signal used at teardown, independent of slider position.
         kSetRenderRate = 35, // data = {uint32 targetFps, uint8 priorityTier, url bytes (remainder)}
                           // -- caps how often the producer calls SendExternalBeginFrame() for
                           // this handle (0 = unthrottled/full rate, the default). Distance/
@@ -112,8 +123,8 @@ namespace cefshm_demo
                           // on the producer side branches on either.
 
         // consumer -> producer, control channel only
-        kRequestSlot     = 5, // data = {uint8 isUI, uint32 maxWidth, uint32 maxHeight} -- isUI
-                          // selects which of the producer's two CefRequestContexts (and
+        kRequestSlot     = 5, // data = {uint8 isUI, uint32 maxWidth, uint32 maxHeight, uint8 backend}
+                          // -- isUI selects which of the producer's two CefRequestContexts (and
                           // therefore which cookie store) the new browser is created in: true
                           // for 2D floater/UI media, false for in-world/prim media. See
                           // llCefBrowserManager::CreateBrowser()'s own isUI parameter and
@@ -124,7 +135,14 @@ namespace cefshm_demo
                           // its absolute maximum for every slot regardless of what the consumer
                           // will ever actually request. A payload shorter than 9 bytes (the old,
                           // isUI-only format) falls back to the producer's own absolute maximum,
-                          // for safety.
+                          // for safety. backend (0=Cef, 1=LibVlc, appended as a 10th byte) picks
+                          // which producer-side implementation renders this slot -- chosen once,
+                          // consumer-side, from the URL's scheme (see
+                          // LLViewerMediaImpl::createMediaSource()'s chooseEmbeddedBrowserBackend()),
+                          // and fixed for the slot's whole lifetime: the producer must commit to a
+                          // backend here, before it has ever seen a URL at all (kSetUrl is a later,
+                          // separate command). A payload shorter than 10 bytes defaults to 0/Cef,
+                          // for the same backward-compatibility reason as the 9-byte fallback above.
         kSetOpenIDCookie = 26, // data = {5x (uint32 len, bytes): url, name, value, domain, path;
                           // uint8 httpOnly; uint8 secure; uint8 alsoPrimContext} -- straight
                           // into llCefBrowserManager::SetCookie(), which always targets the UI
@@ -193,6 +211,18 @@ namespace cefshm_demo
                                   // CanGoBack()/CanGoForward(), sampled and re-sent alongside
                                   // kEventLoadStart/kEventLoadEnd, since back/forward availability
                                   // only ever changes as a result of navigation.
+        kEventLoadError = 38, // data = {uint32 errorCode, url bytes (remainder)} -- the main frame's
+                                  // navigation failed, see llCefBrowserManager::SetOnLoadErrorCallback.
+                                  // Distinct from kEventClickLinkNoFollow: that one only fires for a
+                                  // small, hardcoded "custom scheme" set (effectively just
+                                  // "secondlife://"), so a scheme CEF's own URL parser recognizes but
+                                  // has no protocol handler for (e.g. "rtsp://") is NOT caught by it --
+                                  // CEF just attempts (and fails) a normal navigation, landing here
+                                  // instead, with its own built-in error page already rendered in the
+                                  // browser. This is purely a signal for the consumer to react to (e.g.
+                                  // recognizing a stream-only scheme in the failed URL and switching
+                                  // this slot's backend via a fresh navigate) -- it does not suppress or
+                                  // replace CEF's own error page.
     };
 
     inline std::uint32_t pack_i32x2(std::uint8_t* d, std::int32_t x, std::int32_t y)
@@ -358,6 +388,20 @@ namespace cefshm_demo
         return true;
     }
 
+    inline std::uint32_t pack_load_error(std::uint8_t* d, std::uint32_t errorCode, const std::string& failedUrl)
+    {
+        std::uint32_t n = pack_u32(d, errorCode);
+        std::memcpy(d + n, failedUrl.data(), failedUrl.size());
+        return n + std::uint32_t(failedUrl.size());
+    }
+
+    inline bool unpack_load_error(const std::uint8_t* d, std::size_t n, std::uint32_t& errorCode, std::string& failedUrl)
+    {
+        if (!unpack_u32(d, n, errorCode)) return false;
+        failedUrl.assign(reinterpret_cast<const char*>(d + 4), n - 4);
+        return true;
+    }
+
     inline std::uint32_t pack_i64(std::uint8_t* d, std::int64_t v)
     {
         for (int i = 0; i < 8; ++i) d[i] = std::uint8_t(std::uint64_t(v) >> (8 * i));
@@ -453,20 +497,26 @@ namespace cefshm_demo
         return true;
     }
 
-    inline std::uint32_t pack_request_slot(std::uint8_t* d, bool isUI, std::uint32_t maxWidth, std::uint32_t maxHeight)
+    inline std::uint32_t pack_request_slot(std::uint8_t* d, bool isUI, std::uint32_t maxWidth,
+                                            std::uint32_t maxHeight, std::uint8_t backend)
     {
         d[0] = isUI ? 1 : 0;
         std::uint32_t n = 1 + pack_u32(d + 1, maxWidth);
         n += pack_u32(d + n, maxHeight);
+        d[n++] = backend;
         return n;
     }
 
     // false (only isUI populated) for the old, isUI-only payload -- see kRequestSlot's
-    // own comment on why that's a safe, deliberate fallback rather than an error.
+    // own comment on why that's a safe, deliberate fallback rather than an error. backend
+    // defaults to 0 (Cef) for any payload shorter than 10 bytes, for the same reason --
+    // assigned before the n<9 early return, so that fallback still leaves it initialized.
     inline bool unpack_request_slot(const std::uint8_t* d, std::size_t n, bool& isUI,
-                                     std::uint32_t& maxWidth, std::uint32_t& maxHeight)
+                                     std::uint32_t& maxWidth, std::uint32_t& maxHeight,
+                                     std::uint8_t& backend)
     {
         isUI = (n == 0) || (d[0] != 0);
+        backend = (n >= 10) ? d[9] : 0;
         if (n < 9) return false;
         return unpack_u32(d + 1, n - 1, maxWidth) && unpack_u32(d + 5, n - 5, maxHeight);
     }

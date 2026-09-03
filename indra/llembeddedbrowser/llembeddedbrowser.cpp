@@ -87,8 +87,9 @@ namespace {
     constexpr auto kRelaunchBackoff     = std::chrono::seconds(5);
 }
 
-LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, unsigned int maxWidth, unsigned int maxHeight) :
+LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight) :
     mIsUI(isUI),
+    mBackend(backend),
     mWidth(width),
     mHeight(height),
     mRequestedWidth(width),
@@ -171,8 +172,9 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     }
 
     std::uint64_t req_id = 0;
-    std::uint8_t request_payload[9];
-    const std::uint32_t request_len = pack_request_slot(request_payload, mIsUI, mMaxWidth, mMaxHeight);
+    std::uint8_t request_payload[10];
+    const std::uint32_t request_len = pack_request_slot(request_payload, mIsUI, mMaxWidth, mMaxHeight,
+                                                          static_cast<std::uint8_t>(mBackend));
     if (!ctrl->send(kRequestSlot, request_payload, request_len, 0, &req_id))
     {
         return false;
@@ -223,6 +225,19 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     std::uint8_t payload[8];
     pack_size(payload, mRequestedWidth, mRequestedHeight);
     mSub->send(kResize, payload, 8);
+
+    // Replay the current gain BEFORE kSetUrl, for the same reason kResize goes before
+    // it: on a LibVLC-backed slot kSetUrl starts playback immediately (the stream
+    // equivalent of CEF navigating and painting -- there's no separate "play" step), so
+    // sending the level only afterward would let an out-of-rolloff-range stream play at
+    // the producer's default volume for the first fraction of a second. Sent
+    // unconditionally rather than only for LibVLC slots -- a CEF-backed producer just
+    // collapses it to its existing mute/unmute capability (see kSetVolume's own comment
+    // in cefshm_protocol.h), so this tab never has to reason about which backend it got.
+    std::uint8_t vol_payload[1];
+    vol_payload[0] = static_cast<std::uint8_t>(llclamp(mVolume, 0.0f, 1.0f) * 100.0f + 0.5f);
+    mSub->send(kSetVolume, vol_payload, 1);
+
     if (!mCurrentUrl.empty())
     {
         mSub->send_text(kSetUrl, mCurrentUrl);
@@ -285,6 +300,10 @@ void LLEmbeddedBrowserTab::update()
                 event.type = LLEmbeddedBrowserEventType::ClickLinkNoFollow;
                 unpack_click_nofollow(cmd.data.data(), cmd.data.size(), event.mText,
                                       event.mUserGesture, event.mIsRedirect);
+                break;
+            case kEventLoadError:
+                event.type = LLEmbeddedBrowserEventType::LoadError;
+                unpack_load_error(cmd.data.data(), cmd.data.size(), event.mValue, event.mText);
                 break;
             case kEventFileDialogRequest: {
                 event.type = LLEmbeddedBrowserEventType::FileDialogRequest;
@@ -510,6 +529,22 @@ void LLEmbeddedBrowserTab::setMuted(bool muted)
     {
         std::uint8_t payload[1] = { muted ? std::uint8_t(1) : std::uint8_t(0) };
         mSub->send(kSetMuted, payload, 1);
+    }
+}
+
+void LLEmbeddedBrowserTab::setVolume(float volume)
+{
+    LLMutexLock lock(&mPixelMutex);
+    // Recorded unconditionally, outside the mSub check below -- unlike mouseButton()/
+    // scrollWheel()/setMuted(), a dropped input event has nothing useful to hit anyway,
+    // but a dropped volume level is sticky state that would otherwise leave this tab
+    // stuck at the producer's default forever. See mVolume.
+    mVolume = llclamp(volume, 0.0f, 1.0f);
+    if (mSub)
+    {
+        std::uint8_t payload[1];
+        payload[0] = static_cast<std::uint8_t>(mVolume * 100.0f + 0.5f);
+        mSub->send(kSetVolume, payload, 1);
     }
 }
 
@@ -921,14 +956,15 @@ std::shared_ptr<LLEmbeddedBrowserTab> LLEmbeddedBrowser::findTab(unsigned int id
     return (it != mTabs.end()) ? it->second : nullptr;
 }
 
-unsigned int LLEmbeddedBrowser::create(const std::string& url, unsigned int width, unsigned int height, bool isUI)
+unsigned int LLEmbeddedBrowser::create(const std::string& url, unsigned int width, unsigned int height, bool isUI,
+                                       LLEmbeddedBrowserBackend backend)
 {
     width = llmin(width, mMaxWidth);
     height = llmin(height, mMaxHeight);
 
     LLMutexLock lock(&mTabsMutex);
     unsigned int id = mNextTabId++;
-    mTabs[id] = std::make_shared<LLEmbeddedBrowserTab>(this, id, url, width, height, isUI, mMaxWidth, mMaxHeight);
+    mTabs[id] = std::make_shared<LLEmbeddedBrowserTab>(this, id, url, width, height, isUI, backend, mMaxWidth, mMaxHeight);
     return id;
 }
 
@@ -1201,6 +1237,14 @@ void LLEmbeddedBrowser::setMuted(unsigned int id, bool muted)
     if (auto tab = findTab(id))
     {
         tab->setMuted(muted);
+    }
+}
+
+void LLEmbeddedBrowser::setVolume(unsigned int id, float volume)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->setVolume(volume);
     }
 }
 

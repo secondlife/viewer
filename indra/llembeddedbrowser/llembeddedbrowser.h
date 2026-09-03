@@ -58,6 +58,11 @@ enum class LLEmbeddedBrowserEventType
                       // open in a new window/tab (target="_blank", window.open(), etc.)
     ClickLinkNoFollow, // mText = url, mUserGesture/mIsRedirect describe how navigation to
                        // this recognized custom URL scheme (e.g. "secondlife://") was triggered
+    LoadError,         // mText = the URL that failed to load, mValue = CEF/Chromium net error code.
+                       // Fires for a scheme CEF's parser recognizes but has no protocol handler for
+                       // (e.g. "rtsp://") -- NOT caught by ClickLinkNoFollow's custom-scheme set.
+                       // CEF has already rendered its own built-in error page by the time this
+                       // arrives; see LLViewerMediaImpl::updateEmbeddedBrowserEvents().
     FileDialogRequest, // mDialogId = an opaque id to echo back to respondToFileDialog(); mValue =
                        // an llCefFileDialogMode ordinal (Open=0, OpenMultiple=1, OpenFolder=2,
                        // Save=3); mText = the dialog's suggested/default file path
@@ -69,6 +74,18 @@ enum class LLEmbeddedBrowserEventType
                            // never once per retry, so it's safe to notify the user from this
     ProducerReconnected    // the connection came back after a ProducerDisconnected -- also
                            // edge-triggered, fires exactly once per recovery
+};
+
+// Which producer-side implementation backs a slot. Fixed at kRequestSlot time and
+// not changeable afterwards -- the producer creates either a CEF browser or a
+// LibVLC player when it allocates the slot, before it has ever seen a URL (see
+// kRequestSlot's own comment in cefshm_protocol.h). Values are wire values: Cef is
+// deliberately 0 so that a producer or consumer predating this field defaults to
+// today's behavior.
+enum class LLEmbeddedBrowserBackend : unsigned char
+{
+    Cef    = 0,
+    LibVlc = 1
 };
 
 struct LLEmbeddedBrowserEvent
@@ -119,12 +136,15 @@ class LLEmbeddedBrowserTab
     public:
         // isUI: true for 2D floater/UI media, false for in-world/prim media -- selects
         // which of the producer's two cookie-store contexts this tab's browser is
-        // created in (see kRequestSlot's own comment in cefshm_protocol.h). maxWidth/
+        // created in (see kRequestSlot's own comment in cefshm_protocol.h). backend
+        // selects the producer-side implementation for this slot (see
+        // LLEmbeddedBrowserBackend) -- fixed for this tab's whole lifetime, the same
+        // property as isUI, and packed into the same kRequestSlot call. maxWidth/
         // maxHeight are LLEmbeddedBrowser's own current ceiling (EmbeddedBrowserMaxWidth/
         // Height), sent to the producer in kRequestSlot so it can size this slot's own
         // shared-memory segment to it instead of always reserving the producer's
         // absolute maximum -- see that opcode's own comment in cefshm_protocol.h.
-        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, unsigned int maxWidth, unsigned int maxHeight);
+        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight);
         ~LLEmbeddedBrowserTab();
 
         // Stops this tab's own update thread, blocking until it has genuinely exited
@@ -203,6 +223,16 @@ class LLEmbeddedBrowserTab
         // Binary mute/unmute of this tab's audio -- see kSetMuted's own comment in
         // cefshm_protocol.h for why this can't be a continuous volume level.
         void setMuted(bool muted);
+        // Continuous 0.0-1.0 linear output gain for this tab's audio, clamped. Only
+        // meaningful on a LibVLC-backed slot (see LLEmbeddedBrowserBackend): libvlc
+        // exposes a real per-player gain, so unlike setMuted() this can carry the
+        // Viewer's full distance-rolloff curve rather than collapsing it to a
+        // mute/unmute decision -- see LLViewerMediaImpl::updateVolume(). A CEF-backed
+        // slot's producer collapses this to its existing binary capability instead, so
+        // calling this on one is harmless, just less precise than setMuted(). Unlike
+        // its sibling input methods, the requested level is recorded even when not yet
+        // connected and replayed by connectToProducer() -- see mVolume.
+        void setVolume(float volume);
         // Caps how often the producer paints this tab (0 = unthrottled/full rate) --
         // see kSetRenderRate's own comment in cefshm_protocol.h. priorityTier and url
         // are diagnostic only, echoed in the producer's own console/log output.
@@ -241,6 +271,10 @@ class LLEmbeddedBrowserTab
         // every poll/retry.
         bool mHadDisconnected = false;
         const bool mIsUI;
+        // Which backend this tab's slot was requested with -- const for the tab's whole
+        // lifetime, since the producer fixes it at kRequestSlot time (see mIsUI, same
+        // property). Read by connectToProducer() when packing that request.
+        const LLEmbeddedBrowserBackend mBackend;
         unsigned char* mPixels = nullptr;
         unsigned int mWidth = 0;
         unsigned int mHeight = 0;
@@ -252,6 +286,12 @@ class LLEmbeddedBrowserTab
         // this, not mWidth/mHeight, for its own initial resize.
         unsigned int mRequestedWidth = 0;
         unsigned int mRequestedHeight = 0;
+        // The most recently requested output gain, tracked the same way and for the
+        // same reason as mRequestedWidth/mRequestedHeight above: setVolume() records it
+        // unconditionally, even before mSub is connected, so a level requested during
+        // the connection handshake isn't silently dropped -- connectToProducer() replays
+        // it as part of its own initial send burst.
+        float mVolume = 1.0f;
         // LLEmbeddedBrowser's own max-dimension ceiling at the moment this tab was
         // created (a snapshot, not live -- see the constructor's own comment), sent
         // to the producer via kRequestSlot so it can size this slot's shared-memory
@@ -283,8 +323,11 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void reset();
 
         // isUI: true for 2D floater/UI media, false for in-world/prim media -- see
-        // LLEmbeddedBrowserTab's own constructor comment.
-        unsigned int create(const std::string& url, unsigned int width, unsigned int height, bool isUI);
+        // LLEmbeddedBrowserTab's own constructor comment. backend selects the
+        // producer-side implementation for this slot (see LLEmbeddedBrowserBackend); it
+        // defaults to Cef so this stays a drop-in for any caller that doesn't care.
+        unsigned int create(const std::string& url, unsigned int width, unsigned int height, bool isUI,
+                             LLEmbeddedBrowserBackend backend = LLEmbeddedBrowserBackend::Cef);
         void destroy(unsigned int id);
         void update(unsigned int id);
 
@@ -328,6 +371,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void keyEvent(unsigned int id, unsigned int msg, unsigned int wParam, unsigned int lParam);
         void setFocus(unsigned int id, bool focus);
         void setMuted(unsigned int id, bool muted);
+        void setVolume(unsigned int id, float volume);
         void setRenderRate(unsigned int id, unsigned int targetFps, unsigned int priorityTier, const std::string& url);
         bool getSlotIndex(unsigned int id, unsigned int& out_index);
         void respondToFileDialog(unsigned int id, long long dialogId, const std::vector<std::string>& filePaths);

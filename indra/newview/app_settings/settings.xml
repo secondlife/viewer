@@ -13361,6 +13361,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>EmbeddedBrowserUseLibVLC</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, in-world media whose URL uses a streaming scheme CEF cannot play (rtsp/rtsps/rtmp/rtmps/mms/mmsh) is routed to SLCefProducer's LibVLC backend instead of CEF; UI/floater media is always CEF regardless</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>UseEnergy</key>
     <map>
       <key>Comment</key>

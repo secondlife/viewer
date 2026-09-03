@@ -809,6 +809,15 @@ static const unsigned int EMBEDDED_BROWSER_FPS_HIDDEN    = 1;  // PRIORITY_HIDDE
 // drop for someone who is still standing right there.
 static const F32 EMBEDDED_BROWSER_RENDER_RATE_DEMOTION_GRACE_PERIOD = 2.0f;
 
+// Minimum change in computed volume that's worth sending as a kSetVolume opcode (see
+// updateVolume()). updateVolume() runs every frame and mProximityCamera changes
+// continuously as the camera moves, so without a deadband this would send one opcode
+// per LibVLC-backed media per frame. 1% of full scale is well below audible for a
+// single gain step, and doubles as the "close enough to silent" threshold in
+// updateVolume() -- without that snap, a level drifting to e.g. 0.004f would stop
+// sending (below the deadband) and leave a permanent faint trickle of audio.
+static const F32 EMBEDDED_BROWSER_VOLUME_EPSILON = 0.01f;
+
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SPARE_IDLE("Spare Idle");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE_INTEREST("Update/Interest");
@@ -1951,6 +1960,48 @@ static S32 nextPowerOfTwoEmbeddedBrowser(S32 dim)
     return result;
 }
 
+// Decides which producer-side backend a new embedded-browser slot should be created
+// with. Ordered deliberately:
+//   1. The EmbeddedBrowserUseLibVLC kill switch -- off means always CEF, exactly
+//      today's behavior for every URL, a safe and well-understood off-state.
+//   2. A stream scheme CEF genuinely cannot play routes to LibVLC -- even in a UI
+//      context (e.g. the Media Browser floater). These schemes never had DOM/JS/input
+//      handling to begin with (they're pure AV streams, not web pages), so LibVLC's
+//      total lack of that isn't an actual loss here, and it's the only way such a URL
+//      ever renders anything at all instead of a guaranteed CEF error page -- this is
+//      what makes it possible to open a stream in a 2D floater at all, e.g. to test
+//      resize behavior without needing an in-world prim.
+//   3. used_in_ui, for everything else: LibVLC has no DOM, no JS, no scripting and no
+//      input handling at all -- it can only ever paint decoded video frames -- so it
+//      could never render a real interactive (non-stream) floater.
+//   4. Everything else stays on CEF, exactly as before this existed.
+static LLEmbeddedBrowserBackend chooseEmbeddedBrowserBackend(const std::string& url, bool used_in_ui)
+{
+    if (!gSavedSettings.getBOOL("EmbeddedBrowserUseLibVLC"))
+    {
+        return LLEmbeddedBrowserBackend::Cef;
+    }
+
+    // LLURI::scheme() is the raw, case-preserving text before the first ':' -- lowercase
+    // before comparing, since "RTSP://..." is a perfectly legal spelling and a scheme
+    // comparison is case-insensitive per RFC 3986.
+    std::string scheme = LLURI(url).scheme();
+    LLStringUtil::toLower(scheme);
+
+    if (scheme == "rtsp"  || scheme == "rtsps" ||
+        scheme == "rtmp"  || scheme == "rtmps" ||
+        scheme == "mms"   || scheme == "mmsh")
+    {
+        return LLEmbeddedBrowserBackend::LibVlc;
+    }
+
+    // used_in_ui is otherwise moot: a non-stream URL already stays on CEF regardless
+    // (used_in_ui or not), and a stream URL already returned LibVlc above regardless
+    // of used_in_ui too. Kept as a parameter -- every call site already has it handy,
+    // and it documents why point 2 above needed calling out explicitly.
+    return LLEmbeddedBrowserBackend::Cef;
+}
+
 void LLViewerMediaImpl::createMediaSource()
 {
     if (mMediaSource || mUseEmbeddedBrowser)
@@ -1978,10 +2029,28 @@ void LLViewerMediaImpl::createMediaSource()
             gSavedSettings.getU32("EmbeddedBrowserMaxHeight"));
 
         mUseEmbeddedBrowser = true;
+
+        // Decided once, here, and remembered for this slot's whole lifetime -- the
+        // producer fixes the backend when it allocates the slot in response to
+        // kRequestSlot, before any URL has been sent, so this can't be deferred or
+        // recomputed later. See mEmbeddedBrowserBackend.
+        mEmbeddedBrowserBackend = chooseEmbeddedBrowserBackend(mMediaURL, mUsedInUI);
+
+        // Do not log the query parts
+        LLURI backend_log_uri(mMediaURL);
+        std::string backend_log_url = (backend_log_uri.query().empty() ? mMediaURL :
+            backend_log_uri.scheme() + "://" + backend_log_uri.authority() + backend_log_uri.path());
+        LL_INFOS("Media") << "Creating embedded-browser media source, backend="
+            << (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc ? "LibVLC" : "CEF")
+            << ", usedInUI=" << mUsedInUI
+            << ", id=" << mTextureId
+            << ", url=" << backend_log_url
+            << LL_ENDL;
+
         // Matches loadURI()'s legacy-plugin behavior: data: URIs need their payload
         // re-escaped (see LLURI::escapePathAndData()'s dedicated data: handling) to parse
         // correctly -- plain http(s) URLs pass through this unchanged either way.
-        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI);
+        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI, mEmbeddedBrowserBackend);
         // setPageZoomFactor() may have already updated mZoomFactor before this tab
         // existed (e.g. ensureMediaSourceExists()'s own call, which runs right before
         // this) -- apply whatever it currently is now that there's a real tab to send
@@ -2032,6 +2101,13 @@ void LLViewerMediaImpl::destroyMediaSource()
         // already on its way out. Muting is a single cheap opcode that takes
         // effect immediately, so silence it right away regardless of how
         // long the actual teardown takes.
+        if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
+        {
+            // Belt and braces alongside the setMuted() below: silencing on teardown
+            // must not depend on which of the two opcodes the producer's LibVLC path
+            // happens to implement. Both are single cheap fire-and-forget sends.
+            LLEmbeddedBrowser::getInstance()->setVolume(mEmbeddedBrowserId, 0.0f);
+        }
         LLEmbeddedBrowser::getInstance()->setMuted(mEmbeddedBrowserId, true);
         LLEmbeddedBrowser::getInstance()->destroy(mEmbeddedBrowserId);
         mUseEmbeddedBrowser = false;
@@ -2039,6 +2115,10 @@ void LLViewerMediaImpl::destroyMediaSource()
         // "already muted" record doesn't suppress the first setMuted() call a
         // future createMediaSource() actually needs (see updateVolume()).
         mEmbeddedBrowserMuted = false;
+        // Likewise a freshly created tab's backend/volume state must not carry over --
+        // see mEmbeddedBrowserBackend's/mEmbeddedBrowserVolume's own comments.
+        mEmbeddedBrowserBackend = LLEmbeddedBrowserBackend::Cef;
+        mEmbeddedBrowserVolume = -1.f;
         // Likewise for the render-rate hint -- a freshly created tab always
         // starts unthrottled on the producer side, so this must not skip the
         // first real setRenderRate() call a future createMediaSource() needs.
@@ -2523,21 +2603,47 @@ void LLViewerMediaImpl::updateVolume()
         }
         else if (mUseEmbeddedBrowser)
         {
-            // CEF's public API has no continuous per-browser volume level (audio
-            // mixing happens inside Chromium's own audio service, not exposed to
-            // the embedder as a gain multiplier -- see kSetMuted's own comment in
-            // cefshm_protocol.h), so the same computed volume that would otherwise
-            // drive a smooth fade collapses to a mute/unmute decision instead. This
-            // is what actually silences embedded-browser media once it's out of
-            // rolloff range (e.g. after a teleport, where mProximityCamera becomes
-            // enormous) -- previously nothing here ever called into the embedded
-            // browser at all, so its audio just kept playing regardless of distance
-            // until the underlying tab was fully torn down.
-            bool should_mute = (volume <= 0.0f);
-            if (should_mute != mEmbeddedBrowserMuted)
+            if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
             {
-                mEmbeddedBrowserMuted = should_mute;
-                LLEmbeddedBrowser::getInstance()->setMuted(mEmbeddedBrowserId, should_mute);
+                // Unlike CEF, libvlc exposes a real per-player output gain, so a
+                // LibVLC-backed slot gets the same smooth distance-rolloff curve the
+                // legacy plugin had -- the volume computed above goes through as-is
+                // rather than collapsing to the mute decision below.
+                //
+                // Snapped to exact silence below the epsilon so "out of range" is
+                // genuinely silent rather than merely very quiet, and so the dedupe
+                // below can never leave a residual trickle of audio.
+                F32 send_volume = (volume < EMBEDDED_BROWSER_VOLUME_EPSILON) ? 0.0f : volume;
+
+                // Recomputed every frame, and mProximityCamera jitters continuously as
+                // the camera moves -- only send when the level actually changes by an
+                // audible amount, the same way mEmbeddedBrowserMuted gates the CEF
+                // path below. mEmbeddedBrowserVolume starts at -1.f, which no clamped
+                // level can equal, so the first call after tab creation always sends.
+                if (fabsf(send_volume - mEmbeddedBrowserVolume) >= EMBEDDED_BROWSER_VOLUME_EPSILON)
+                {
+                    mEmbeddedBrowserVolume = send_volume;
+                    LLEmbeddedBrowser::getInstance()->setVolume(mEmbeddedBrowserId, send_volume);
+                }
+            }
+            else
+            {
+                // CEF's public API has no continuous per-browser volume level (audio
+                // mixing happens inside Chromium's own audio service, not exposed to
+                // the embedder as a gain multiplier -- see kSetMuted's own comment in
+                // cefshm_protocol.h), so the same computed volume that would otherwise
+                // drive a smooth fade collapses to a mute/unmute decision instead. This
+                // is what actually silences embedded-browser media once it's out of
+                // rolloff range (e.g. after a teleport, where mProximityCamera becomes
+                // enormous) -- previously nothing here ever called into the embedded
+                // browser at all, so its audio just kept playing regardless of distance
+                // until the underlying tab was fully torn down.
+                bool should_mute = (volume <= 0.0f);
+                if (should_mute != mEmbeddedBrowserMuted)
+                {
+                    mEmbeddedBrowserMuted = should_mute;
+                    LLEmbeddedBrowser::getInstance()->setMuted(mEmbeddedBrowserId, should_mute);
+                }
             }
         }
     }
@@ -3010,14 +3116,23 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 {
     cancelMimeTypeProbe();
 
-    if(mMediaURL != url)
+    // trim whitespace from front and back of URL -- fixes EXT-5363; loadURI() already does
+    // this for the legacy plugin path, but the embedded-browser path (createMediaSource()/
+    // chooseEmbeddedBrowserBackend(), below) reads mMediaURL directly and never goes through
+    // loadURI(), so a pasted leading/trailing space survived untouched -- silently breaking
+    // LLURI's scheme detection (a leading space means "rtmp://..." no longer starts with
+    // "rtmp"), falling back to CEF, which then fails to navigate at all.
+    std::string trimmed_url = url;
+    LLStringUtil::trim(trimmed_url);
+
+    if(mMediaURL != trimmed_url)
     {
         // Don't carry media play state across distinct URLs.
         resetPreviousMediaState();
     }
 
     // Always set the current URL and MIME type.
-    mMediaURL = url;
+    mMediaURL = trimmed_url;
     mMimeType = mime_type;
     mCleanBrowser = clean_browser;
 
@@ -3038,8 +3153,8 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
         // Helpful to have media urls in log file. Shouldn't be spammy.
         {
             // Do not log the query parts
-            LLURI u(url);
-            std::string sanitized_url = (u.query().empty() ? url : u.scheme() + "://" + u.authority() + u.path());
+            LLURI u(mMediaURL);
+            std::string sanitized_url = (u.query().empty() ? mMediaURL : u.scheme() + "://" + u.authority() + u.path());
             LL_INFOS() << "NOT LOADING media id= " << mTextureId << " url=" << sanitized_url << ", mime_type=" << mime_type << LL_ENDL;
         }
 
@@ -3065,7 +3180,23 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 
     if (mUseEmbeddedBrowser)
     {
-        LLEmbeddedBrowser::getInstance()->navigate(mEmbeddedBrowserId, LLURI::escapePathAndData(url));
+        // A slot's backend is fixed when the producer allocates it (see kRequestSlot),
+        // so a URL change that crosses the CEF/LibVLC boundary -- e.g. a script
+        // swapping a web page for an rtsp:// stream via llSetPrimMediaParams, or vice
+        // versa -- can't be served by navigating the existing tab in place. Tear it
+        // down and let createMediaSource() request a correctly-backed one; mMediaURL
+        // was already updated above, so it will pick up the new URL and issue the
+        // initial navigate/play itself, exactly as on a first load.
+        if (chooseEmbeddedBrowserBackend(mMediaURL, mUsedInUI) != mEmbeddedBrowserBackend)
+        {
+            LL_INFOS("Media") << "Embedded-browser backend change on navigate (id=" << mTextureId
+                << ") -- recreating media source." << LL_ENDL;
+            destroyMediaSource();
+            createMediaSource();
+            return;
+        }
+
+        LLEmbeddedBrowser::getInstance()->navigate(mEmbeddedBrowserId, LLURI::escapePathAndData(mMediaURL));
         return;
     }
 
@@ -3566,72 +3697,90 @@ bool LLViewerMediaImpl::preMediaTexUpdate(LLViewerMediaTexture*& media_tex, U8*&
 
     if (!mTextureUpdatePending)
     {
-        media_tex = updateMediaImage();
-
-        if (media_tex && mUseEmbeddedBrowser)
+        if (mUseEmbeddedBrowser)
         {
-            // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
-            media_tex->setPlaying(true);
-
-            // Take an owned copy of the tab's current pixel buffer (plus the width/height
-            // it was produced at, atomically with the copy) rather than a live pointer
-            // into LLEmbeddedBrowser's internal storage: the caller in update() may hand
-            // `data` off to an async GL-upload task on another thread, and the source tab
-            // can be resized (reallocating its buffer) or destroyed in the meantime. This
-            // snapshot is kept alive via mEmbeddedBrowserFrameSnapshot -- see update().
+            // Snapshot the tab's pixel buffer AND the width/height it was produced at
+            // in one single locked call, BEFORE deciding the GL texture's size below --
+            // rather than a live pointer into LLEmbeddedBrowser's internal storage,
+            // since the caller in update() may hand `data` off to an async GL-upload
+            // task on another thread, and the source tab can be resized (reallocating
+            // its buffer) or destroyed in the meantime. This snapshot is kept alive via
+            // mEmbeddedBrowserFrameSnapshot -- see update().
+            //
+            // Deliberately fed into updateMediaImage() below as its own explicit size,
+            // rather than letting it independently re-query getMediaWidth()/
+            // getMediaHeight() (which separately re-locks the tab): a resize landing on
+            // the embedded-browser update thread between two such independent reads
+            // used to size the GL texture for a different resolution than the pixel
+            // data actually snapshotted moments later -- a real race, confirmed by
+            // testing, that only ever showed up while continuously dragging a floater's
+            // resize handle and produced severe, non-recovering pixel corruption.
             auto snapshot = std::make_shared<std::vector<U8>>();
             unsigned int media_width = 0;
             unsigned int media_height = 0;
             bool copied = LLEmbeddedBrowser::getInstance()->copyPixels(mEmbeddedBrowserId, *snapshot, media_width, media_height);
 
-            // The placeholder redraws its entire buffer every frame, so treat
-            // the whole buffer as the dirty rect rather than tracking partial updates.
-            x_pos = 0;
-            y_pos = 0;
-            width = (S32)media_width;
-            height = (S32)media_height;
-            data_width = (S32)media_width;
-            data_height = (S32)media_height;
+            media_tex = updateMediaImage((S32)media_width, (S32)media_height);
 
-            if (copied && width > 0 && height > 0)
+            if (media_tex)
             {
-                mEmbeddedBrowserFrameSnapshot = snapshot;
-                data = mEmbeddedBrowserFrameSnapshot->data();
-                retval = true;
+                // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
+                media_tex->setPlaying(true);
+
+                // The placeholder redraws its entire buffer every frame, so treat
+                // the whole buffer as the dirty rect rather than tracking partial updates.
+                x_pos = 0;
+                y_pos = 0;
+                width = (S32)media_width;
+                height = (S32)media_height;
+                data_width = (S32)media_width;
+                data_height = (S32)media_height;
+
+                if (copied && width > 0 && height > 0)
+                {
+                    mEmbeddedBrowserFrameSnapshot = snapshot;
+                    data = mEmbeddedBrowserFrameSnapshot->data();
+                    retval = true;
+                }
             }
         }
-        else if (media_tex && mMediaSource)
+        else
         {
-            LLRect dirty_rect;
-            S32 media_width = mMediaSource->getTextureWidth();
-            S32 media_height = mMediaSource->getTextureHeight();
-            //S32 media_depth = mMediaSource->getTextureDepth();
+            media_tex = updateMediaImage();
 
-            // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
-            media_tex->setPlaying(true);
-
-            if (mMediaSource->getDirty(&dirty_rect))
+            if (media_tex && mMediaSource)
             {
-                // Constrain the dirty rect to be inside the texture
-                x_pos = llmax(dirty_rect.mLeft, 0);
-                y_pos = llmax(dirty_rect.mBottom, 0);
-                width = llmin(dirty_rect.mRight, media_width) - x_pos;
-                height = llmin(dirty_rect.mTop, media_height) - y_pos;
+                LLRect dirty_rect;
+                S32 media_width = mMediaSource->getTextureWidth();
+                S32 media_height = mMediaSource->getTextureHeight();
+                //S32 media_depth = mMediaSource->getTextureDepth();
 
-                if (width > 0 && height > 0)
+                // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
+                media_tex->setPlaying(true);
+
+                if (mMediaSource->getDirty(&dirty_rect))
                 {
-                    data = mMediaSource->getBitsData();
-                    data_width = mMediaSource->getWidth();
-                    data_height = mMediaSource->getHeight();
+                    // Constrain the dirty rect to be inside the texture
+                    x_pos = llmax(dirty_rect.mLeft, 0);
+                    y_pos = llmax(dirty_rect.mBottom, 0);
+                    width = llmin(dirty_rect.mRight, media_width) - x_pos;
+                    height = llmin(dirty_rect.mTop, media_height) - y_pos;
 
-                    if (data != NULL)
+                    if (width > 0 && height > 0)
                     {
-                        // data is ready to be copied to GL
-                        retval = true;
-                    }
-                }
+                        data = mMediaSource->getBitsData();
+                        data_width = mMediaSource->getWidth();
+                        data_height = mMediaSource->getHeight();
 
-                mMediaSource->resetDirty();
+                        if (data != NULL)
+                        {
+                            // data is ready to be copied to GL
+                            retval = true;
+                        }
+                    }
+
+                    mMediaSource->resetDirty();
+                }
             }
         }
     }
@@ -3683,7 +3832,7 @@ void LLViewerMediaImpl::updateImagesMediaStreams()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
+LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage(S32 embedded_browser_width, S32 embedded_browser_height)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     llassert(!gCubeSnapshot);
@@ -3701,10 +3850,28 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
         // LLImageGL::setSize() requires power-of-two dimensions, so the GL texture is
         // allocated at the padded size and the actual (non-power-of-two) media content
         // is copied into its top-left corner by doMediaTexUpdate()'s setSubImage() call.
-        S32 media_width = getMediaWidth();
-        S32 media_height = getMediaHeight();
-        S32 texture_width = getMediaTextureWidth();
-        S32 texture_height = getMediaTextureHeight();
+        //
+        // media_width/media_height MUST come from the caller's own snapshot
+        // (embedded_browser_width/height), not a fresh getMediaWidth()/getMediaHeight()
+        // query here -- those separately re-lock the tab and can return a DIFFERENT size
+        // than whatever preMediaTexUpdate() is about to hand to copyPixels() moments
+        // later, if a resize lands on the embedded-browser update thread in between the
+        // two calls. That's a genuine race, confirmed by real testing: it only ever
+        // showed up while continuously dragging a floater's resize handle (which fires
+        // many resize requests in rapid succession), never for an occasional in-world
+        // prim resize, and produced severe, non-recovering pixel corruption -- the GL
+        // texture ends up sized for one resolution while the actual pixel data snapshot
+        // is for a different one. Falling back to a fresh query here only when the
+        // caller has no snapshot yet (embedded_browser_width < 0) keeps this safe to
+        // call from anywhere else in the future without a snapshot on hand.
+        S32 media_width = (embedded_browser_width >= 0) ? embedded_browser_width : getMediaWidth();
+        S32 media_height = (embedded_browser_height >= 0) ? embedded_browser_height : getMediaHeight();
+        // Derived from the SAME media_width/media_height above, not via
+        // getMediaTextureWidth()/getMediaTextureHeight() -- those compute
+        // nextPowerOfTwoEmbeddedBrowser(getMediaWidth()) internally, which is exactly
+        // the same kind of independent re-query this fix exists to avoid.
+        S32 texture_width = nextPowerOfTwoEmbeddedBrowser(media_width);
+        S32 texture_height = nextPowerOfTwoEmbeddedBrowser(media_height);
         const S32 texture_depth = 4;
 
         if ( mNeedsNewTexture
@@ -4033,10 +4200,36 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                 // LLPluginClassMediaOwner callback, never invoked for embedded browser), so
                 // the actual SLURL dispatch needs doing here too rather than relying on
                 // LLMediaCtrl's copy of this case, which is log-only.
+                //
+                // This event only ever fires for a scheme CEF itself refused to navigate to
+                // (see SetOnCustomSchemeURLCallback in llcefproducer.cpp) -- e.g. a clicked
+                // rtsp:// link inside an otherwise-CEF page. dispatch() returns false for
+                // anything that isn't a secondlife:// SLURL, so fall back to navigateTo() in
+                // that case: it re-evaluates chooseEmbeddedBrowserBackend() and will recreate
+                // this slot as LibVLC-backed if the scheme demands it, exactly as typing the
+                // same URL into an address bar already does.
                 mEmbeddedClickURL     = event.mText;
                 mEmbeddedClickNavType = event.mUserGesture ? "clicked" : "navigated";
-                LLURLDispatcher::dispatch(mEmbeddedClickURL, mEmbeddedClickNavType, NULL, mTrustedBrowser);
+                if (!LLURLDispatcher::dispatch(mEmbeddedClickURL, mEmbeddedClickNavType, NULL, mTrustedBrowser))
+                {
+                    navigateTo(mEmbeddedClickURL);
+                }
                 emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_CLICK_LINK_NOFOLLOW);
+                break;
+
+            case LLEmbeddedBrowserEventType::LoadError:
+                // CEF failed to navigate here and has already rendered its own built-in
+                // error page -- e.g. a clicked-in-page "rtsp://" link, a scheme CEF's own
+                // URL parser recognizes but has no protocol handler for. That case isn't
+                // caught by ClickLinkNoFollow above (its custom-scheme set is effectively
+                // just "secondlife://"), so it lands here instead. Only act when the failed
+                // URL is one chooseEmbeddedBrowserBackend() would route to a different
+                // backend than this slot's current one -- an ordinary load failure (bad
+                // DNS, 404, etc.) keeps the same backend, so this is a no-op for those.
+                if (chooseEmbeddedBrowserBackend(event.mText, mUsedInUI) != mEmbeddedBrowserBackend)
+                {
+                    navigateTo(event.mText);
+                }
                 break;
 
             case LLEmbeddedBrowserEventType::FileDialogRequest:
