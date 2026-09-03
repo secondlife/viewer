@@ -40,13 +40,13 @@ Four pieces make up the system:
 - **`llcefbrowser`** (separate repo) - a CEF wrapper library. Owns the actual
   CEF browser instances, page navigation, input injection, and now audio
   muting (`SetAudioMuted`), independent of any Viewer-specific code.
-- **`llcefproducer`** (`indra/llcefproducer`, builds to `SLCefProducer.exe`)
+- **`llmediaproducer`** (`indra/llmediaproducer`, builds to `SLMediaProducer.exe`)
   - the producer. A single helper process, launched and stopped by the
   Viewer itself, that hosts every embedded-browser tab's CEF instance in one
   process and publishes rendered frames into shared memory for
   `llembeddedbrowser` to read.
 
-`SLCefProducer.exe` is launched early in `LLAppViewer::init()` (gated on the
+`SLMediaProducer.exe` is launched early in `LLAppViewer::init()` (gated on the
 `UseEmbeddedBrowser` setting) and stopped again in `LLAppViewer::cleanup()`.
 If it crashes or is killed mid-session, `llembeddedbrowser` detects the dead
 heartbeat and relaunches it automatically (with a backoff limit, so two
@@ -92,7 +92,7 @@ entire Chromium instance's stability and memory footprint inside
 `secondlife-bin.exe` itself, so a CEF renderer crash could take the whole
 Viewer down with it.
 
-Instead, `SLCefProducer.exe` runs as its own separate OS process, and
+Instead, `SLMediaProducer.exe` runs as its own separate OS process, and
 rendered frames are handed to the Viewer through `llshmframe`'s shared
 memory ring buffers rather than a socket. This is the same process
 isolation principle the legacy `SLPlugin.exe`/Dullahan plugin already used;
@@ -120,8 +120,8 @@ surface therefore costs up to 5 OS processes; N surfaces cost roughly 5xN.
 In the test scenario above (8 active instances), this was 8 `SLPlugin.exe`
 + 40 `dullahan_host.exe` = 49 total processes.
 
-**Embedded (`llembeddedbrowser`/`SLCefProducer`): one shared CEF browser
-process family for the whole session.** `SLCefProducer.exe` hosts
+**Embedded (`llembeddedbrowser`/`SLMediaProducer`): one shared CEF browser
+process family for the whole session.** `SLMediaProducer.exe` hosts
 `llCefBrowserManager`, which manages every tab (every UI floater and every
 prim media surface) as separate CEF "browser" handles within *one shared
 browser-process context*. CEF's multi-process model still applies, but the
@@ -129,7 +129,7 @@ shared layers are amortized across all tabs: one GPU process and one
 utility-process pair (network + storage) total, regardless of tab count,
 with only the renderer count scaling roughly per active tab (CEF's own
 site-isolation still applies at that layer). Unlike legacy, these helper
-roles re-exec under the *same* binary name, `SLCefProducer.exe` -- a single
+roles re-exec under the *same* binary name, `SLMediaProducer.exe` -- a single
 process-name filter catches everything on this side, while legacy needs
 both `SLPlugin` and `dullahan_host` (see `scripts/perf/memory_compare.ps1`,
 which got this wrong at first for exactly this reason). Same 8-instance
@@ -188,8 +188,8 @@ in that same block.
 There are two separate limits on how many media instances can be active at
 once, and they are easy to confuse:
 
-- **`SLCefProducer.exe`'s own hard ceiling is 32 concurrent shared-memory
-  channels** (`kSlotCount` in `cefshm_protocol.h`/`llcefproducer.cpp`). This
+- **`SLMediaProducer.exe`'s own hard ceiling is 32 concurrent shared-memory
+  channels** (`kSlotCount` in `cefshm_protocol.h`/`llmediaproducer.cpp`). This
   is a structural limit on the transport itself, not something normally
   worth tuning.
 - **`MediaMaxInstances`** (a saved setting, debug settings search "Media",
@@ -235,7 +235,7 @@ browser had no equivalent for a while: every CEF instance the producer held
 rendered and published frames at full rate no matter how far away or
 uninteresting it was, which wasted CPU on busy, media-heavy regions.
 
-This is now fixed with a producer-side render throttle. `SLCefProducer.exe`
+This is now fixed with a producer-side render throttle. `SLMediaProducer.exe`
 drives CEF manually via `SendExternalBeginFrame()`, called once per tab per
 tick; a new wire command, `kSetRenderRate`, lets the Viewer cap how often
 that call actually fires for a given tab (0 means unthrottled, the
@@ -314,29 +314,29 @@ shrinks how much CPU it costs to keep painting.
 
 ## Debugging
 
-Two separate log files are written next to `SLCefProducer.exe`:
+Two separate log files are written next to `SLMediaProducer.exe`:
 
 - **`cefshm_producer_log.txt`** - CEF's own internal log. Larger and much
   more verbose than the producer's own log; this is the one to check for a
   CEF-level crash or renderer problem.
-- **`slcefproducer_log.txt`** - the producer's own console-mirroring log.
+- **`slmediaproducer_log.txt`** - the producer's own console-mirroring log.
   The same lines you would see in a visible console window if
   `EmbeddedBrowserProducerConsole` is turned on, written to disk regardless
   of whether that console is showing.
 
 A few debug settings (Advanced > Show Debug Settings, or Preferences, search
 for "Embedded" or "Cef") control embedded-browser diagnostics. All of them
-take effect on the next `SLCefProducer.exe` launch, not immediately:
+take effect on the next `SLMediaProducer.exe` launch, not immediately:
 
 - **`EmbeddedBrowserProducerConsole`** (boolean, default off) - if true,
-  `SLCefProducer.exe` allocates a visible console window showing its
+  `SLMediaProducer.exe` allocates a visible console window showing its
   diagnostic output.
 - **`EmbeddedBrowserDebugging`** (boolean, default off) - enables
-  `llembeddedbrowser`/`SLCefProducer` debugging features. Currently this
+  `llembeddedbrowser`/`SLMediaProducer` debugging features. Currently this
   just gates the remote-debugging port setting below.
 - **`EmbeddedBrowserRemoteDebuggingPort`** (unsigned integer, default 0) -
   when non-zero and `EmbeddedBrowserDebugging` is also true,
-  `SLCefProducer.exe` serves Chrome's remote-debugging-protocol DevTools UI
+  `SLMediaProducer.exe` serves Chrome's remote-debugging-protocol DevTools UI
   on that port.
 
 ## Media Monitor: a live list of active media
@@ -376,7 +376,7 @@ A couple of things worth knowing about what it shows:
   query.** `LLViewerMedia::getEmbeddedBrowserDebugInfo()` reads
   `LLViewerMediaImpl`'s already-tracked state (the same priority list and
   per-instance fields `LLViewerMedia::updateMedia()` already maintains),
-  not a round-trip to `SLCefProducer.exe`. This is sufficient for the
+  not a round-trip to `SLMediaProducer.exe`. This is sufficient for the
   "what's showing and where" QA use case, but would not by itself catch a
   producer-side desync (a slot the Viewer has lost track of) - a genuine
   future extension if that ever becomes a real debugging need.
@@ -393,7 +393,7 @@ A couple of things worth knowing about what it shows:
 The first time any page loaded through the embedded browser negotiates a
 WebRTC connection (voice or video chat, for example), Windows may show a
 one-time "Windows Security - Do you want to allow public and private
-networks to access this app?" prompt for `SLCefProducer.exe`. This is not
+networks to access this app?" prompt for `SLMediaProducer.exe`. This is not
 a code-signing problem and not related to `EmbeddedBrowserDebugging` or
 the remote-debugging port below. It is a known, common Chromium/CEF-wide
 behavior: WebRTC's local-IP-hiding privacy feature obfuscates a page's
@@ -409,7 +409,7 @@ acceptable one for a windowless embedded browser with no user-facing
 privacy UI of its own to explain the prompt otherwise.
 
 Two earlier hypotheses were investigated and ruled out before finding the
-real cause, in case this ever needs revisiting: `SLCefProducer.exe`'s code
+real cause, in case this ever needs revisiting: `SLMediaProducer.exe`'s code
 signature (confirmed valid via `Get-AuthenticodeSignature`) and its
 embedded manifest's execution level (confirmed `asInvoker`, no elevation
 requested). Neither was the issue.
@@ -428,7 +428,7 @@ To use it:
 1. Turn on `EmbeddedBrowserDebugging`.
 2. Set `EmbeddedBrowserRemoteDebuggingPort` to a non-zero port (for example,
    `9222`).
-3. Relaunch the Viewer, so `SLCefProducer.exe` starts fresh with the new
+3. Relaunch the Viewer, so `SLMediaProducer.exe` starts fresh with the new
    settings.
 4. Open `http://localhost:<port>` (or `chrome://inspect` configured to that
    port) in any desktop Chromium-based browser. This lists every live
@@ -443,21 +443,112 @@ real-time FPS/dropped-frames/GPU-raster readout directly on the page,
 useful for checking the distance/priority render-throttling tiers above
 are actually taking effect on a given tab.
 
+## LibVLC: a second producer backend for streaming media
+
+CEF is a web engine, and however complete its codec support, it can only ever
+play a *web page's* content, not decode a raw network stream on its own.
+Product confirmed a real requirement this could never satisfy: RTSP (and its
+siblings) needed for some in-world media, and CEF has no code path for
+playing one at all, codecs or not - typing an RTSP URL into it just gets a
+"site can't be reached" style error. Rather than reviving the old standalone
+`media_plugin_libvlc`/`SLPlugin.exe` architecture, LibVLC was reintroduced as
+a *second backend inside `SLMediaProducer.exe` itself*, alongside the
+existing `llCefBrowserManager`. A new `LibVlcTabManager`
+(`indra/llmediaproducer/libvlctabmanager.{h,cpp}`) hosts one shared
+`libvlc_instance_t` for the whole process and publishes decoded frames
+through the exact same `llshmframe` shared-memory path CEF tabs already use -
+the Viewer's own texture-upload and prim-rendering code has no idea, and
+needs no idea, which backend produced a given frame.
+
+Which backend a media instance gets is decided once, when its slot is first
+requested, by `chooseEmbeddedBrowserBackend()`
+(`indra/newview/llviewermedia.cpp`), purely from the URL's scheme:
+
+- **Routed to LibVLC:** `rtsp`, `rtsps`, `rtmp`, `rtmps`, `mms`, `mmsh` -
+  genuine streaming-media schemes CEF has no protocol handler for at all.
+- **Stays on CEF, including plain video files:** everything else, notably
+  `.mp4` and similar file extensions. This was tried deliberately (routing
+  every `.mp4` URL to LibVLC, to compare resource usage against CEF) and
+  reverted after real playback failures: some HTTP-hosted MP4s fail in this
+  vendored libvlc build because its own stream layer can't seek on them, and
+  the `avformat`/`avcodec` demuxer's fallback path (having ffmpeg open the
+  URL itself) mangles the URL into a bogus Windows UNC path, which can't
+  resolve. CEF already plays ordinary web-hosted video correctly, so there
+  was no upside worth chasing further for now; MP4 stays CEF-only.
+
+A `used_in_ui` context (a 2D floater, not a prim) no longer forces CEF
+unconditionally either: a stream-only scheme routes to LibVLC even there,
+which is what makes it possible to open an RTSP stream directly in the Media
+Browser floater to test it, rather than only ever in-world.
+
+**Resize was broken, and not for the reason it looked like.** LibVLC media
+playing in a floater corrupted badly when the floater was resized - pixels
+displaced and never recovering. Several timing-shaped fixes (debounce,
+coalescing, a settle delay, width alignment, a post-apply grace period) were
+each tried and each failed to help. The real cause, confirmed by closing and
+reopening the stream at the new size instead of reconfiguring the live
+player: `libvlc_video_set_format()`'s mid-stream reconfiguration of an
+already-running player is unreliable in this vendored libvlc build,
+independent of timing. The fix is a coalesced stop-and-reopen instead of a
+live reconfigure, with the playback position captured before closing and
+restored after reopening, so a seekable file (unlike a live stream) does not
+restart from the beginning on every resize.
+
+**Click-to-pause/resume.** Clicking a LibVLC-backed media surface (prim or
+floater) now toggles play/pause, using the same `kMouseButton` wire message
+the Viewer already sends uniformly for both backends - the producer
+previously just dropped it for LibVLC tabs.
+`LibVlcTabManager::TogglePlayPause()` reads the player's actual current
+state and sets the opposite, rather than relying on
+`libvlc_media_player_pause()`'s own toggle semantics, which have drifted
+across libvlc versions.
+
+**Clicking a streaming-scheme link inside a CEF page now works too.** A web
+page rendered by CEF that itself links to an `rtsp://` URL used to just show
+CEF's own inline "can't be reached" page when clicked - a different, and
+initially non-obvious, code path from typing the same URL into an address
+bar. `rtsp://` is a scheme Chromium's own URL parser recognizes fine, it
+only lacks a network handler for it, so CEF attempts (and fails) an ordinary
+navigation rather than treating it as an unrecognized custom protocol; the
+callback that exists for the latter case (`SetOnCustomSchemeURLCallback`,
+used for schemes like `secondlife://`) never fires for it. The fix wires up
+`SetOnLoadErrorCallback` (not used anywhere previously), forwarded to the
+Viewer over a new `kEventLoadError` wire opcode; on a load failure, if the
+failed URL's scheme is one `chooseEmbeddedBrowserBackend()` would route to a
+different backend than the slot's current one, the Viewer recreates the slot
+and navigates there properly instead of leaving CEF's error page showing.
+
+**Volume is no longer all-or-nothing for LibVLC-backed media.** `kSetVolume`
+carries a real 0-100 value straight into `libvlc_audio_set_volume()`, so
+distance-based rolloff is smooth for RTSP/etc. media the way it never can be
+for CEF (see "Known limitations" below - that limitation is CEF-specific
+now, not system-wide).
+
+**Deferred:** skip-forward/skip-back by N seconds was considered and set
+aside. It has no meaning against a live stream with no seekable timeline; if
+picked up later, it should be gated on `libvlc_media_player_is_seekable()`
+so it only appears, or only does anything, for genuinely seekable content.
+
 ## Known limitations, as of this writing
 
-- **Volume is all-or-nothing.** CEF only exposes a binary
-  `SetAudioMuted()`/`IsAudioMuted()` per browser instance, not a continuous
-  0-100% volume control, and `SLCefProducer.exe` hosts every tab in one
-  shared OS process (confirmed via Windows' own Volume Mixer, which shows a
-  single `SLCefProducer` session even with two tabs playing audio at the
-  same time). A per-tab volume slider is not possible with this
-  architecture today; each tab can only be fully muted or fully unmuted.
-- **Media codec coverage versus LibVLC is still an open question.** The
-  internally-built, codec-enabled CEF distribution plays a good range of
-  formats, but not as many as LibVLC, which the legacy media plugin can
-  fall back to. Whether CEF's coverage is sufficient for the vast majority
-  of real-world content, making a LibVLC re-integration unnecessary, is
-  under discussion with the product team and not yet decided.
+- **Volume is all-or-nothing, for CEF-backed media specifically.** CEF only
+  exposes a binary `SetAudioMuted()`/`IsAudioMuted()` per browser instance,
+  not a continuous 0-100% volume control, and `SLMediaProducer.exe` hosts
+  every CEF tab in one shared OS process (confirmed via Windows' own Volume
+  Mixer, which shows a single `SLMediaProducer` session even with two tabs
+  playing audio at the same time). A per-tab volume slider is not possible
+  for CEF media with this architecture; each CEF tab can only be fully muted
+  or fully unmuted. LibVLC-backed media (see "LibVLC" above) does not share
+  this limitation - it gets a real, continuous volume level.
+- **CEF's own codec coverage for ordinary web-embedded video, versus
+  LibVLC, remains an open question - but a narrower one than it used to
+  be.** Whether the vast majority of real-world web video needs LibVLC as a
+  fallback, or whether the internally-built, codec-enabled CEF distribution
+  already covers it, is still undecided. What is decided: LibVLC is needed
+  regardless, for streaming schemes CEF can never play at all (RTSP and
+  friends - see "LibVLC" above), so this question no longer blocks anything;
+  it is now purely about whether to widen LibVLC's role further, not
+  whether to have it at all.
 - **Windows only, for now.** This first version of the embedded-browser
   system targets Windows exclusively. macOS and Linux support is planned to
   follow.
@@ -473,7 +564,7 @@ are actually taking effect on a given tab.
 
 - **GPU texture handles instead of CPU memory-buffer copies.** Today, every
   frame CEF renders is delivered via its `OnPaint` callback as a raw BGRA
-  pixel buffer in CPU memory, which `SLCefProducer.exe` then copies into an
+  pixel buffer in CPU memory, which `SLMediaProducer.exe` then copies into an
   `llshmframe` shared-memory ring buffer for the Viewer to read back out
   and upload to a GL texture, a full-frame CPU copy (and a GPU readback
   before that) on every update. CEF also exposes `OnAcceleratedPaint`,
@@ -484,18 +575,17 @@ are actually taking effect on a given tab.
   import that shared resource into its own D3D/GL context
   (`ID3D11Device::OpenSharedResource` or equivalent), a real transport
   redesign rather than a small change, not started.
-- **Reintroduce LibVLC support, for parcel audio and additional video
-  format support.** Likely essential before a first release, in the same
-  category as macOS/Linux support above rather than a true nice-to-have.
-  Parcel music streaming (`LLStreamingAudio_MediaPlugins`, see
-  `indra/newview/llviewermedia_streamingaudio.h`) plays through the
-  plugin architecture, and routes pure audio streams to
-  `media_plugin_libvlc` specifically, not CEF. Since `ENABLE_MEDIA_PLUGINS`
-  now defaults off (see "The legacy media plugin has not been removed"
-  above), that plugin no longer builds or deploys, so parcel audio
-  streaming does not currently work in this branch. This is separate
-  from the "Media codec coverage versus LibVLC" question above, which is
-  about video formats embedded in web pages, not parcel audio.
+- **Both LibVLC gaps this section used to describe are closed.** Parcel
+  audio no longer goes through the plugin architecture or
+  `media_plugin_libvlc` at all - `LLStreamingAudio_LibVLC`
+  (`indra/newview/llstreamingaudio_libvlc.h/.cpp`) links libvlc directly
+  into `secondlife-bin.exe` itself, independent of `SLMediaProducer.exe` and
+  `ENABLE_MEDIA_PLUGINS` entirely. And LibVLC video/stream support inside
+  `SLMediaProducer.exe` is described in its own section above, not deferred
+  any more. What remains open is narrower: whether to widen LibVLC's role
+  to ordinary web-embedded video formats CEF might not cover (see "Known
+  limitations" above), and skip-forward/skip-back transport controls for
+  genuinely seekable LibVLC media (see "LibVLC" above).
 
 ## Notes on AI-assisted development
 
