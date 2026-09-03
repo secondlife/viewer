@@ -518,28 +518,91 @@ failed URL's scheme is one `chooseEmbeddedBrowserBackend()` would route to a
 different backend than the slot's current one, the Viewer recreates the slot
 and navigates there properly instead of leaving CEF's error page showing.
 
-**Volume is no longer all-or-nothing for LibVLC-backed media.** `kSetVolume`
-carries a real 0-100 value straight into `libvlc_audio_set_volume()`, so
-distance-based rolloff is smooth for RTSP/etc. media the way it never can be
-for CEF (see "Known limitations" below - that limitation is CEF-specific
-now, not system-wide).
+**Volume** works differently for each backend - see the "Volume" section
+below for the full picture (LibVLC gets the real thing; CEF gets a
+best-effort JS-injected workaround with real, documented gaps).
 
 **Deferred:** skip-forward/skip-back by N seconds was considered and set
 aside. It has no meaning against a live stream with no seekable timeline; if
 picked up later, it should be gated on `libvlc_media_player_is_seekable()`
 so it only appears, or only does anything, for genuinely seekable content.
 
+## Volume
+
+`LLViewerMediaImpl::updateVolume()` (`indra/newview/llviewermedia.cpp`)
+computes one real volume level for every media instance, embedded-browser or
+legacy, before either backend ever sees it: the resident's own overall media
+volume (Preferences > Sound & Media, combined with master/mute state in
+`llvieweraudio.cpp`) times a distance-based rolloff curve driven by
+`MediaRollOffMin`/`MediaRollOffMax`/`MediaRollOffRate`, snapped to exactly 0
+once out of range or if a resident has isolated audio to a single instance
+via "Play only this" (`sOnlyAudibleTextureID`). This part is shared,
+unrelated to CEF or LibVLC, and already worked before either backend
+existed. What differs is what each backend can actually *do* with that
+number once computed.
+
+**LibVLC gets the real thing.** `kSetVolume` carries the computed level
+straight into `libvlc_audio_set_volume()` (a genuine 0-100 per-player gain),
+so distance-based rolloff is smooth end to end, exactly like the legacy
+plugin's own audio ever was. No known gaps.
+
+**CEF gets a best-effort JS-injected workaround, not a native one.** CEF's
+own public API only exposes a binary `SetAudioMuted()`/`IsAudioMuted()` per
+browser instance - there's no continuous per-browser gain to call into at
+all. Two OS-level alternatives were investigated and ruled out before
+settling on this approach:
+- A per-process audio-session trick (WASAPI-style, the same idea the legacy
+  plugin's `VolumeCatcher` used) can't work here regardless of
+  implementation quality: every CEF tab's audio funnels through
+  `SLMediaProducer.exe`'s one shared Chromium audio-service process
+  (confirmed via Windows' own Volume Mixer, which shows a single
+  `SLMediaProducer` session even with two tabs playing audio at the same
+  time), so no per-process control could ever distinguish one tab's volume
+  from another's.
+- The legacy plugin's own `VolumeCatcher` turned out not to even be a good
+  model regardless: its Windows implementation
+  (`indra/media_plugins/cef/windows_volume_catcher.cpp`) is a bare
+  `waveOutSetVolume(NULL, ...)` call, which sets the *entire machine's*
+  default audio device volume, not even per-process.
+
+Instead, `updateVolume()` injects a small script into the page itself (via
+the existing `kExecuteJavaScript`) that sets `.volume` directly on the
+page's own `<video>`/`<audio>` elements, deliberately never touching the
+`.muted` attribute (an earlier version forced `muted=true` below a volume
+threshold and never cleared it again, which left media permanently silent
+after the first mute - `.volume=0` alone already fully silences a native
+media element via zero gain, so there's nothing to get stuck). A
+`MutationObserver`, registered alongside it and re-injected fresh on every
+navigation (a new page means a fresh JS global scope), catches elements
+added to the page after load, a common pattern for players that build their
+own markup via JS. `kSetMuted`/CEF's own binary mute stays in place
+underneath as a guaranteed hard cutoff regardless of whether the JS
+injection actually worked for a given page - confirmed by teleporting away
+(immediate silence) and back (audio and volume control both resume
+correctly).
+
+Confirmed working directly on both youtube.com and vimeo.com's own watch
+pages. Known, accepted gaps, inherent to the approach rather than bugs to
+fix:
+- **A player rendered inside an `<iframe>` (same-origin or cross-origin) is
+  not reached at all** - the injected script only ever queries the top
+  document, never descends into frames.
+- **Audio driven by the Web Audio API or a WASM-based player is invisible
+  to it** - there's no `<video>`/`<audio>` element for the script to find.
+- **A page's own JS can in principle win** - the `MutationObserver` only
+  reacts to DOM mutations, not every possible script-driven property write,
+  so a page that resets `.volume` from its own controls after ours runs can
+  simply override it.
+
+Diagnostic logging for this path goes to the **Viewer's own log**, not
+`SLMediaProducer.exe`'s console - `ExecuteJavaScript()` is fire-and-forget
+with no return value, so the producer has no visibility into whether an
+injected script actually ran or what it did. Look for the `MediaVolume` tag
+in the Viewer log for the mute decision and JS-injected volume value on
+every real change.
+
 ## Known limitations, as of this writing
 
-- **Volume is all-or-nothing, for CEF-backed media specifically.** CEF only
-  exposes a binary `SetAudioMuted()`/`IsAudioMuted()` per browser instance,
-  not a continuous 0-100% volume control, and `SLMediaProducer.exe` hosts
-  every CEF tab in one shared OS process (confirmed via Windows' own Volume
-  Mixer, which shows a single `SLMediaProducer` session even with two tabs
-  playing audio at the same time). A per-tab volume slider is not possible
-  for CEF media with this architecture; each CEF tab can only be fully muted
-  or fully unmuted. LibVLC-backed media (see "LibVLC" above) does not share
-  this limitation - it gets a real, continuous volume level.
 - **CEF's own codec coverage for ordinary web-embedded video, versus
   LibVLC, remains an open question - but a narrower one than it used to
   be.** Whether the vast majority of real-world web video needs LibVLC as a
