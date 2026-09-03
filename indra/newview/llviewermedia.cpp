@@ -331,7 +331,17 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 
     if(media_impl)
     {
-        was_loaded = media_impl->hasMedia();
+        // hasMedia() alone is always false for the embedded-browser backend (mMediaSource
+        // is never assigned there -- see hasMedia()'s own comment on why it deliberately
+        // stays that way). Without isUsingEmbeddedBrowser() here, was_loaded is always
+        // false for embedded-browser media, so needs_navigate below never gets set --
+        // this is why a prim's real media URL, fetched fresh from the sim on login,
+        // never actually reached navigateTo(): the impl already existed (created earlier
+        // with an empty URL, the normal first pass before real media data arrives) but
+        // looked permanently "not loaded," and isAutoPlayable() is false unless the media
+        // entry explicitly has autoplay set. Manually re-entering the same URL worked
+        // because that calls navigateTo() directly, bypassing this gate entirely.
+        was_loaded = media_impl->hasMedia() || media_impl->isUsingEmbeddedBrowser();
 
         media_impl->setHomeURL(media_entry->getHomeURL());
 
@@ -341,6 +351,23 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
         media_impl->mMediaHeight = media_entry->getHeightPixels();
         media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
         media_impl->mMediaEntryURL = media_entry->getCurrentURL();
+        if (media_impl->mMediaEntryURL.empty() && media_impl->isAutoPlayable())
+        {
+            // current_url legitimately stays empty until something actually navigates
+            // within the media (or explicitly sets it) -- a media entry configured with
+            // only a home_url (e.g. PRIM_MEDIA_HOME_URL from a script, or a face whose
+            // media was only ever set via its Home URL field) is a normal, common setup,
+            // not "no media." With autoplay on, this should still auto-load home_url,
+            // the same way a real browser's home page works -- without this fallback,
+            // an empty mMediaEntryURL either skips navigating entirely (existing-impl
+            // branch, just below) or navigates to an empty string (new-impl branch,
+            // just below), so it can never auto-play regardless of the autoplay flag.
+            // Confirmed via a real prim: current_url was empty, home_url held the real
+            // media URL, auto_play was true, and it silently never loaded on login --
+            // manually re-entering the same URL always worked because that sets
+            // mMediaURL directly, bypassing this whole path.
+            media_impl->mMediaEntryURL = media_entry->getHomeURL();
+        }
         if (media_impl->mMediaSource)
         {
             media_impl->mMediaSource->setAutoScale(media_impl->mMediaAutoScale);
@@ -387,6 +414,23 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
         media_impl->setHomeURL(media_entry->getHomeURL());
         media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
         media_impl->mMediaEntryURL = media_entry->getCurrentURL();
+        if (media_impl->mMediaEntryURL.empty() && media_impl->isAutoPlayable())
+        {
+            // current_url legitimately stays empty until something actually navigates
+            // within the media (or explicitly sets it) -- a media entry configured with
+            // only a home_url (e.g. PRIM_MEDIA_HOME_URL from a script, or a face whose
+            // media was only ever set via its Home URL field) is a normal, common setup,
+            // not "no media." With autoplay on, this should still auto-load home_url,
+            // the same way a real browser's home page works -- without this fallback,
+            // an empty mMediaEntryURL either skips navigating entirely (existing-impl
+            // branch, just below) or navigates to an empty string (new-impl branch,
+            // just below), so it can never auto-play regardless of the autoplay flag.
+            // Confirmed via a real prim: current_url was empty, home_url held the real
+            // media URL, auto_play was true, and it silently never loaded on login --
+            // manually re-entering the same URL always worked because that sets
+            // mMediaURL directly, bypassing this whole path.
+            media_impl->mMediaEntryURL = media_entry->getHomeURL();
+        }
         if(media_impl->isAutoPlayable())
         {
             needs_navigate = true;
