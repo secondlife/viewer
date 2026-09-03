@@ -36,7 +36,7 @@ mat4 getObjectSkinnedTransform()
     int i2 = int(index.y);
     int i3 = int(index.z);
     int i4 = int(index.w);
-     
+
     mat4 ret;
     ret = ((matrixPalette[i1] * w.x)
           + (matrixPalette[i2] * w.y)
@@ -47,7 +47,7 @@ mat4 getObjectSkinnedTransform()
      // If it's AMD make sure the GLSL compiler sees the arrays referenced once by static index. Otherwise it seems to optimise the storage away which leads to unfun crashes and artifacts.
      mat4 dummy1 = matrixPalette[0];
      mat4 dummy2 = matrixPalette[MAX_JOINTS_PER_MESH_OBJECT-1];
-#endif  
+#endif
 }
 
 

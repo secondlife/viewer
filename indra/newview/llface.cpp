@@ -2103,7 +2103,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
         // precompute normalized weights to avoid having to recompute for every vertex at runtime.
         float wint[4];
         float wfract[4];
-        
+
         for (S32 i = 0; i<num_vertices; i++)
         {
             wfract[0]         = std::modf(vf.mWeights[i][0], &wint[0]);

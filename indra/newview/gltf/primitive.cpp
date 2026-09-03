@@ -559,7 +559,7 @@ void Primitive::upload(LLVertexBuffer* buffer)
         mVertexBuffer->setTangentData(mTangents.data(), offset, count);
     }
 
-    
+
     if (!mWeights.empty())
     {
         auto weightsCopy = std::vector(mWeights);
