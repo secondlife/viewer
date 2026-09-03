@@ -209,6 +209,7 @@ LLFloaterScriptSearch::LLFloaterScriptSearch(LLScriptEdCore* editor_core)
     mEditorCore(editor_core)
 {
     buildFromFile("floater_script_search.xml");
+    setCanMinimize(false);
 
     sInstance = this;
 
