@@ -509,8 +509,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p _mac_symbols
-          shopt -s nullglob
-          archives=( *.xcarchive.zip )
+          shopt -s nullglob globstar
+          archives=( **/*.xcarchive.zip )
           if [ ${#archives[@]} -eq 0 ]; then
             echo "No .xcarchive.zip archives found in downloaded macOS-symbols artifact"
             exit 1
