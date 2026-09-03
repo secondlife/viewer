@@ -631,10 +631,27 @@ LLSD LLViewerMedia::getEmbeddedBrowserDebugInfo()
 
         LLSD row;
 
+        // Stable identity for consumers (e.g. LLFloaterMediaMonitor) that need to act on
+        // a specific selected row -- this LLSD array is rebuilt from scratch on every
+        // call, so nothing here persists a row-to-impl mapping on its own.
+        row["id"] = impl->getMediaTextureID();
+
         unsigned int slot_index = 0;
         row["slot"] = impl->getEmbeddedBrowserSlotIndex(slot_index) ? (LLSD::Integer)slot_index : LLSD::Integer(-1);
 
         row["url"] = impl->getCurrentMediaURL();
+
+        // Display name -- the page <title>, matching LLPanelNearByMedia's own
+        // getNameAndUrlHelper(), falling back to the URL itself when there's no title
+        // (e.g. nothing has loaded yet). getName() already knows to check the embedded-
+        // browser's own cached title rather than always returning empty for it.
+        row["name"] = impl->getName();
+        if (row["name"].asString().empty())
+        {
+            row["name"] = row["url"];
+        }
+
+        row["backend"] = (impl->getEmbeddedBrowserBackend() == LLEmbeddedBrowserBackend::LibVlc) ? "LibVLC" : "CEF";
 
         LLPluginClassMedia::EPriority priority = impl->getPriority();
         row["priority"] = (LLSD::Integer)priority;
@@ -653,15 +670,17 @@ LLSD LLViewerMedia::getEmbeddedBrowserDebugInfo()
             row["kind"] = "prim";
         }
 
-        // Only prim media resolves to a single object a location can be derived
-        // from -- UI and parcel media are deliberately left with an empty slurl
-        // rather than a fabricated/misleading one.
+        // Only prim media resolves to a single object a location (or distance) can be
+        // derived from -- UI and parcel media are deliberately left without an slurl/
+        // distance rather than a fabricated/misleading one. getProximityDistance()
+        // returns distance *squared* (see its own comment in llviewermedia.h).
         row["slurl"] = "";
         LLVOVolume* object = impl->getSomeObject();
         if (object && object->getRegion())
         {
             LLSLURL slurl(object->getRegion()->getName(), object->getPositionRegion());
             row["slurl"] = slurl.getSLURLString();
+            row["distance"] = (LLSD::Real)sqrt(impl->getProximityDistance());
         }
 
         result.append(row);

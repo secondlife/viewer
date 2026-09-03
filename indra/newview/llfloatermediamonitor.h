@@ -29,10 +29,13 @@
 #pragma once
 
 #include "llfloater.h"
+#include "lluuid.h"
 
 class LLEventTimer;
 class LLScrollListCtrl;
-class LLUUID;
+class LLButton;
+class LLSlider;
+class LLToggleableMenu;
 
 class LLFloaterMediaMonitor:
     public LLFloater
@@ -47,11 +50,35 @@ class LLFloaterMediaMonitor:
 
         void updateDisplayList();
 
+        // Refreshes mZoomBtn/mUnzoomBtn/mVolumeSlider to match whatever's currently
+        // selected (or resets them to a disabled/default state if nothing is), and
+        // disables Zoom for non-Prim rows (no single object for the camera to zoom
+        // onto). Called both on selection change and after each updateDisplayList()
+        // refresh, since the list fully rebuilds itself every tick -- see selectByID()
+        // in updateDisplayList() for how the selection itself survives that rebuild.
+        void updateSelectedMediaControls();
+
         void onRefreshBtn();
         void onCloseBtn();
-        void onDoubleClickItem();
+        void onZoomBtn();
+        void onUnzoomBtn();
+        void onVolumeChange();
+        void onRightClickItem(LLUICtrl* ctrl, S32 x, S32 y);
+        void onMenuAction(const LLSD& userdata);
 
         LLScrollListCtrl* mActiveMediaList;
+        LLButton* mZoomBtn;
+        LLButton* mUnzoomBtn;
+        LLSlider* mVolumeSlider;
+        LLToggleableMenu* mContextMenu;
+
+        // Which media (if any) our own Zoom button last zoomed the camera onto --
+        // deliberately NOT LLViewerMediaFocus::isZoomedOnMedia()/mCurrentZoom, since
+        // that's the shared EZoomLevel state machine NMP and the in-world media
+        // controls also drive. Tracking our own zoomed-media id keeps Media Monitor's
+        // exact-fit zoom (see onZoomBtn()) fully self-contained -- it can't perturb,
+        // and isn't perturbed by, zoom state set from those other UIs.
+        LLUUID mZoomedMediaId;
 
         // Started in onOpen(), stopped in onClose() -- no point re-scanning the
         // media list on a timer while the floater isn't even visible.

@@ -12,7 +12,7 @@
   width="800">
     <scroll_list
        top="20"
-       height="540"
+       height="510"
        draw_stripes="true"
        bg_stripe_color="0.25 0.25 0.25 0.5"
        draw_heading="true"
@@ -22,33 +22,85 @@
        multi_select="true"
        name="active_media_list"
        right="-8"
-       tool_tip="Active Media Sources -- double-click a URL or Location to open it">
+       tool_tip="Active Media Sources -- right-click a row for more options">
         <scroll_list.columns
              dynamic_width="true"
              label="Slot"
              name="slot"
-             relative_width="0.06" />
+             relative_width="0.05" />
         <scroll_list.columns
              dynamic_width="true"
              label="Priority"
              name="priority"
-             relative_width="0.1" />
+             relative_width="0.08" />
         <scroll_list.columns
              dynamic_width="true"
              label="Media Type"
              name="media_type"
-             relative_width="0.12" />
+             relative_width="0.10" />
         <scroll_list.columns
              dynamic_width="true"
-             label="URL"
+             label="Backend"
+             name="backend"
+             relative_width="0.08" />
+        <scroll_list.columns
+             dynamic_width="true"
+             label="Title"
              name="url"
-             relative_width="0.42" />
+             relative_width="0.34" />
         <scroll_list.columns
              dynamic_width="true"
              label="Location"
              name="location"
-             relative_width="0.3" />
+             relative_width="0.25" />
+        <scroll_list.columns
+             dynamic_width="true"
+             label="Distance"
+             name="distance"
+             relative_width="0.10" />
     </scroll_list>
+    <button
+      follows="left|bottom"
+      height="22"
+      image_overlay="Zoom_Off"
+      image_disabled="PushButton_Disabled"
+      image_disabled_selected="PushButton_Disabled"
+      image_selected="PushButton_Selected"
+      image_unselected="PushButton_Off"
+      hover_glow_amount="0.15"
+      layout="bottomleft"
+      left="10"
+      name="zoom_btn"
+      bottom="34"
+      tool_tip="Zoom into selected media"
+      width="22" />
+    <button
+      follows="left|bottom"
+      height="22"
+      image_overlay="UnZoom_Off"
+      image_disabled="PushButton_Disabled"
+      image_disabled_selected="PushButton_Disabled"
+      image_selected="PushButton_Selected"
+      image_unselected="PushButton_Off"
+      hover_glow_amount="0.15"
+      layout="bottomleft"
+      left="10"
+      name="unzoom_btn"
+      bottom="34"
+      tool_tip="Zoom back from selected media"
+      visible="false"
+      width="22" />
+    <slider_bar
+      name="volume_slider"
+      follows="left|bottom"
+      layout="bottomleft"
+      left="44"
+      bottom="35"
+      height="20"
+      increment="0.01"
+      initial_value="1.0"
+      tool_tip="Audio volume for the selected media"
+      width="200" />
     <button
       follows="left|bottom"
       height="20"
