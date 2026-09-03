@@ -549,6 +549,13 @@ private:
     // is created always sends, even if the computed level happens to match the
     // producer's own default.
     F32 mEmbeddedBrowserVolume = -1.f;
+    // Same dedup role as mEmbeddedBrowserVolume above, but for CEF-backed slots: the
+    // last volume level actually injected via executeJavaScript() (see updateVolume()
+    // and injectEmbeddedBrowserVolumeScript()). CEF has no native continuous
+    // per-browser volume, so this drives a JS-injected page-level workaround instead
+    // of a producer opcode -- same -1.f "always send once" sentinel and epsilon-dedup
+    // reasoning as mEmbeddedBrowserVolume.
+    F32 mEmbeddedBrowserCefVolume = -1.f;
     // Last render-rate hint actually sent to LLEmbeddedBrowser::setRenderRate() --
     // lets setPriority() only send the opcode when the target fps actually
     // changes, since setPriority() itself is called every frame regardless of

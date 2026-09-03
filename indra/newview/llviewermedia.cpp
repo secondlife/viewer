@@ -2002,6 +2002,65 @@ static LLEmbeddedBrowserBackend chooseEmbeddedBrowserBackend(const std::string& 
     return LLEmbeddedBrowserBackend::Cef;
 }
 
+// CEF has no native continuous per-browser volume (see kSetMuted's own comment in
+// cefshm_protocol.h), so distance-rolloff volume for CEF-backed media is approximated
+// by setting .volume directly on the page's own <video>/<audio> elements via
+// executeJavaScript() -- a best-effort workaround, not a clean solution (ruled out
+// first: an OS-level per-process audio trick, like the legacy plugin's own
+// VolumeCatcher, can't work here at all, since every CEF tab's audio funnels through
+// SLMediaProducer.exe's one shared audio-service process -- confirmed via Windows'
+// own Volume Mixer showing a single SLMediaProducer session across simultaneously
+// playing tabs). Known gaps, accepted going in: a page's actual player living inside
+// a cross-origin <iframe> (e.g. a YouTube-style embed) is not reached at all --
+// ExecuteJavaScript() only targets the main frame, and cross-origin same-origin-policy
+// would block it even if it didn't; neither is Web Audio API/WASM-based audio, which
+// has no <video>/<audio> element for this to find; and a page's own JS resetting
+// .volume/.muted after ours runs can simply win, since this only reacts to DOM
+// mutations, not every possible script-driven property write.
+//
+// Only ever touches .volume, deliberately never .muted: setting .volume=0 already
+// silences a native <video>/<audio> element on its own (zero gain), so there is no
+// need to also force el.muted=true for our own silencing to work. An earlier version
+// of this did force el.muted=true below the epsilon -- and never cleared it again on
+// the way back up (matching the intent of leaving a page's own autoplay-compliance
+// muting alone otherwise), which left media permanently silent after the first mute:
+// once WE set muted=true, WE were the only thing that could ever clear it again, and
+// nothing here did. Not touching .muted at all avoids that bug at the root, and still
+// doesn't fight a page's own autoplay-mute in either direction.
+static std::string buildEmbeddedBrowserVolumeApplyFn()
+{
+    return "function(v){document.querySelectorAll('video,audio').forEach("
+           "function(el){el.volume=v;});}";
+}
+
+// Injected once per navigation (see kEventLoadEnd handling in
+// updateEmbeddedBrowserEvents()) -- registers a MutationObserver so a <video>/<audio>
+// element added to the page after this runs (a common pattern for players that build
+// their own markup via JS) still picks up the current volume, not just elements
+// present at the moment of injection. The initial volume is baked directly into the
+// script's own source rather than left to a stale global, so there's no gap between
+// injection and the first real level.
+static std::string buildEmbeddedBrowserVolumeSetupScript(F32 volume)
+{
+    return "(function(){var apply=" + buildEmbeddedBrowserVolumeApplyFn() +
+           ";window.__slVolume=" + std::to_string(volume) + ";apply(window.__slVolume);"
+           "if(!window.__slVolumeObserver){"
+           "window.__slVolumeObserver=new MutationObserver(function(){apply(window.__slVolume);});"
+           "window.__slVolumeObserver.observe(document.documentElement,"
+           "{childList:true,subtree:true,attributes:true,attributeFilter:['src']});"
+           "}})();";
+}
+
+// Sent on every dedup-gated volume change (see updateVolume()) -- much smaller than
+// the setup script above since the MutationObserver it registered is still alive for
+// the lifetime of the current page; this just updates the remembered level and
+// re-applies it to whatever elements exist right now.
+static std::string buildEmbeddedBrowserVolumeUpdateScript(F32 volume)
+{
+    return "window.__slVolume=" + std::to_string(volume) + ";(" +
+           buildEmbeddedBrowserVolumeApplyFn() + ")(window.__slVolume);";
+}
+
 void LLViewerMediaImpl::createMediaSource()
 {
     if (mMediaSource || mUseEmbeddedBrowser)
@@ -2119,6 +2178,7 @@ void LLViewerMediaImpl::destroyMediaSource()
         // see mEmbeddedBrowserBackend's/mEmbeddedBrowserVolume's own comments.
         mEmbeddedBrowserBackend = LLEmbeddedBrowserBackend::Cef;
         mEmbeddedBrowserVolume = -1.f;
+        mEmbeddedBrowserCefVolume = -1.f;
         // Likewise for the render-rate hint -- a freshly created tab always
         // starts unthrottled on the producer side, so this must not skip the
         // first real setRenderRate() call a future createMediaSource() needs.
@@ -2631,18 +2691,31 @@ void LLViewerMediaImpl::updateVolume()
                 // CEF's public API has no continuous per-browser volume level (audio
                 // mixing happens inside Chromium's own audio service, not exposed to
                 // the embedder as a gain multiplier -- see kSetMuted's own comment in
-                // cefshm_protocol.h), so the same computed volume that would otherwise
-                // drive a smooth fade collapses to a mute/unmute decision instead. This
-                // is what actually silences embedded-browser media once it's out of
-                // rolloff range (e.g. after a teleport, where mProximityCamera becomes
-                // enormous) -- previously nothing here ever called into the embedded
-                // browser at all, so its audio just kept playing regardless of distance
-                // until the underlying tab was fully torn down.
+                // cefshm_protocol.h). kSetMuted/setMuted() stays as the immediate,
+                // guaranteed-to-work hard cutoff -- this is what actually silences
+                // embedded-browser media once it's out of rolloff range (e.g. after a
+                // teleport, where mProximityCamera becomes enormous), independent of
+                // whether the JS injection below has taken effect on this particular
+                // page. On top of that, a JS-injected best-effort approximation of the
+                // real computed volume (see buildEmbeddedBrowserVolumeUpdateScript()'s
+                // own comment for what this can't reach) gives a smooth fade for pages
+                // it does work on, rather than the previous flat mute/unmute jump.
                 bool should_mute = (volume <= 0.0f);
                 if (should_mute != mEmbeddedBrowserMuted)
                 {
                     mEmbeddedBrowserMuted = should_mute;
                     LLEmbeddedBrowser::getInstance()->setMuted(mEmbeddedBrowserId, should_mute);
+                    LL_INFOS("MediaVolume") << "CEF media (id=" << mTextureId << ") setMuted("
+                        << (should_mute ? "true" : "false") << ")" << LL_ENDL;
+                }
+
+                F32 send_volume = (volume < EMBEDDED_BROWSER_VOLUME_EPSILON) ? 0.0f : volume;
+                if (fabsf(send_volume - mEmbeddedBrowserCefVolume) >= EMBEDDED_BROWSER_VOLUME_EPSILON)
+                {
+                    mEmbeddedBrowserCefVolume = send_volume;
+                    LL_INFOS("MediaVolume") << "CEF media (id=" << mTextureId
+                        << ") JS-injected volume=" << send_volume << LL_ENDL;
+                    executeJavaScript(buildEmbeddedBrowserVolumeUpdateScript(send_volume));
                 }
             }
         }
@@ -4161,6 +4234,18 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                 break;
 
             case LLEmbeddedBrowserEventType::LoadEnd:
+                if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef)
+                {
+                    // A fresh page has a fresh DOM/JS global scope -- any earlier
+                    // MutationObserver this tab registered is gone with it, so the
+                    // setup script (see its own comment) needs re-injecting on every
+                    // navigation, not just the first. mEmbeddedBrowserCefVolume is the
+                    // last real volume updateVolume() computed; -1.f only if this
+                    // fires before that has ever run once (unlikely in practice, but
+                    // possible), in which case default to full volume rather than 0.
+                    F32 current_volume = (mEmbeddedBrowserCefVolume >= 0.0f) ? mEmbeddedBrowserCefVolume : 1.0f;
+                    executeJavaScript(buildEmbeddedBrowserVolumeSetupScript(current_volume));
+                }
                 emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_COMPLETE);
                 break;
 
