@@ -2096,13 +2096,34 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             }
         }
 
-        if (rebuild_weights && vf.mWeights)
+    if (rebuild_weights && vf.mWeights)
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - weight");
+        auto weightsCopy = std::vector<F32>(num_vertices*4);
+        // precompute normalized weights to avoid having to recompute for every vertex at runtime.
+        float wint[4];
+        float wfract[4];
+        
+        for (S32 i = 0; i<num_vertices; i++)
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - weight");
-            mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount);
-            F32* weights = (F32*) wght.get();
-            LLVector4a::memcpyNonAliased16(weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
+            wfract[0]         = std::modf(vf.mWeights[i][0], &wint[0]);
+            wfract[1]         = std::modf(vf.mWeights[i][1], &wint[1]);
+            wfract[2]         = std::modf(vf.mWeights[i][2], &wint[2]);
+            wfract[3]         = std::modf(vf.mWeights[i][3], &wint[3]);
+            float norm_factor = (0.5f) / (wfract[0] + wfract[1] + wfract[2] + wfract[3]);
+            wfract[0] *= norm_factor;
+            wfract[1] *= norm_factor;
+            wfract[2] *= norm_factor;
+            wfract[3] *= norm_factor;
+            weightsCopy[i * 4 + 0] = wint[0] + wfract[0];
+            weightsCopy[i * 4 + 1] = wint[1] + wfract[1];
+            weightsCopy[i * 4 + 2] = wint[2] + wfract[2];
+            weightsCopy[i * 4 + 3] = wint[3] + wfract[3];
         }
+        mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount);
+        F32* weights = (F32*) wght.get();
+        LLVector4a::memcpyNonAliased16(weights, (F32*) weightsCopy.data(), num_vertices*4*sizeof(F32));
+    }
 
         if (rebuild_color && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_COLOR) )
         {
