@@ -48,7 +48,7 @@ public:
     /*virtual*/ std::string getLLPluginLauncher();
     /*virtual*/ std::string getLLPluginFilename(std::string base_name);
 
-    /*virtual*/ std::string getSLCefProducerLauncher();
+    /*virtual*/ std::string getSLMediaProducerLauncher();
 
 private:
     void* mDirSearch_h{ nullptr };

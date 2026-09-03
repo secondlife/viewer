@@ -111,7 +111,7 @@ namespace
         // CopyLatestFrame() (main thread). This is the actual cross-thread handoff:
         // nothing from a libvlc callback may ever call into llshmframe's publish()
         // directly, since the producer's whole main loop assumes it owns that call
-        // exclusively (see llcefproducer.cpp's own "single-threaded" comment) --
+        // exclusively (see llmediaproducer.cpp's own "single-threaded" comment) --
         // CopyLatestFrame() is polled from there instead.
         std::mutex mutex;
         std::vector<std::uint8_t> pixels; // sized to maxWidth*maxHeight*kBytesPerPixel once, in CreateTab() -- never reallocated by Resize(), see CreateTab()'s own comment in the header
@@ -311,7 +311,7 @@ public:
     // MaybeApplyPendingResize() to actually recreate the player at a new size (seeing
     // the identical URL is exactly what a resize-triggered reopen looks like, and is
     // NOT the redundant-kSetUrl case that guard exists for). Real kSetUrl handling
-    // (llcefproducer.cpp) always calls with the default false.
+    // (llmediaproducer.cpp) always calls with the default false.
     void Open(VlcTabHandle handle, const std::string& url, bool force_reopen = false)
     {
         Tab* t = find(handle);
@@ -380,7 +380,7 @@ public:
         if (!t) return;
 
         // width/height are already clamped to this slot's ceiling by the caller
-        // (llcefproducer.cpp's kResize handler), but clamp again here too -- t->pixels'
+        // (llmediaproducer.cpp's kResize handler), but clamp again here too -- t->pixels'
         // fixed size (see CreateTab()) depends on it absolutely, not just on every
         // caller remembering to. Width is additionally rounded up to kWidthAlignment --
         // see its own comment for why -- applied here, at request time, rather than

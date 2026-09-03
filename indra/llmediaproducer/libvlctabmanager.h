@@ -2,9 +2,9 @@
  *
  * @file libvlctabmanager.h
  * @brief LibVlcTabManager: hosts LibVLC-backed media tabs (RTSP/RTMP/MMS -- media CEF
- *        cannot play) inside SLCefProducer, alongside llCefBrowserManager's CEF tabs.
+ *        cannot play) inside SLMediaProducer, alongside llCefBrowserManager's CEF tabs.
  *        Publishes frames through the exact same llshmframe path CEF tabs already use --
- *        see llcefproducer.cpp's per-slot dispatch loop for how the two are picked between.
+ *        see llmediaproducer.cpp's per-slot dispatch loop for how the two are picked between.
  *
  * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -61,7 +61,7 @@ public:
     // log_file_path: if non-empty, libvlc's own internal diagnostic log (network/demux/
     // decode errors -- the actual detail behind "why didn't this play") is written there
     // via libvlc_log_set_file(), the same way this producer's other logs
-    // (slcefproducer_log.txt, cefshm_producer_log.txt) already work. Empty is a valid,
+    // (slmediaproducer_log.txt, cefshm_producer_log.txt) already work. Empty is a valid,
     // silent no-op for callers that don't need it (e.g. a future standalone test).
     explicit LibVlcTabManager(const std::string& log_file_path = {});
     ~LibVlcTabManager();
@@ -71,7 +71,7 @@ public:
 
     // No media/player yet -- mirrors llCefBrowserManager::CreateBrowser("about:blank", ...):
     // the slot exists and has a sized frame buffer immediately, playback only starts once
-    // Open() is called (see kSetUrl in llcefproducer.cpp). width/height are this tab's
+    // Open() is called (see kSetUrl in llmediaproducer.cpp). width/height are this tab's
     // starting/current buffer size -- a kResize that arrives before Open() (legitimate;
     // CEF always has a live "about:blank" browser to resize immediately, libvlc doesn't)
     // is remembered here and read back by Open() when it actually creates the player.
@@ -84,7 +84,7 @@ public:
     // dimensions can still land in the lock/unlock/display callbacks after Resize() has
     // already shrunk the buffer to the new, smaller size, overrunning it in libvlc's own
     // picture_CopyPixels(). A buffer sized to the ceiling up front is large enough for
-    // every width/height Resize() will ever be asked for (llcefproducer.cpp already
+    // every width/height Resize() will ever be asked for (llmediaproducer.cpp already
     // clamps every resize request to this same ceiling), so no in-flight picture at any
     // prior size can ever overrun it.
     VlcTabHandle CreateTab(int width, int height, int maxWidth, int maxHeight);
@@ -113,7 +113,7 @@ public:
     // pixel corruption at the new size, regardless of timing (coalescing the requests,
     // a settle delay, or a grace period afterward all made no difference) -- closing
     // and reopening the identical URL at the identical size always rendered correctly.
-    // See llcefproducer.cpp's kResize handling.
+    // See llmediaproducer.cpp's kResize handling.
     void Resize(VlcTabHandle handle, int width, int height);
 
     // volume0to100: matches libvlc_audio_set_volume()'s own native range directly, no
@@ -123,7 +123,7 @@ public:
     // Play/pause toggle -- there's no separate "play" trigger for a LibVLC tab (Open()
     // already starts playback immediately, see its own comment), so this is the only
     // transport control needed for a basic click-to-pause/resume. A no-op before the
-    // player exists. See kMouseButton's LibVLC handling in llcefproducer.cpp.
+    // player exists. See kMouseButton's LibVLC handling in llmediaproducer.cpp.
     void TogglePlayPause(VlcTabHandle handle);
 
     // Same contract as llCefBrowserManager::CopyLatestFrame: returns false (dst

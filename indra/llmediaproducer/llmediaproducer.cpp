@@ -1,7 +1,7 @@
 /**
  *
- * @file llcefproducer.cpp
- * @brief SLCefProducer: hosts real CEF browser instances and LibVLC media players on demand for
+ * @file llmediaproducer.cpp
+ * @brief SLMediaProducer: hosts real CEF browser instances and LibVLC media players on demand for
  *        the viewer's own llembeddedbrowser consumer, over llshmframe
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
@@ -26,7 +26,7 @@
  * $/LicenseInfo$
  */
 
-// llcefproducer.cpp
+// llmediaproducer.cpp
 //
 // Adapted directly from llcefshm-example's own src/cefshm_producer.cpp --
 // same control-channel + on-demand-allocate + idle-teardown skeleton, same
@@ -480,7 +480,7 @@ int run_producer(int argc, char** argv)
     // Truncates on each launch rather than appending -- this producer runs for the
     // whole Viewer session, so one run's worth of slot connects/disconnects is already
     // plenty; nobody wants this growing unbounded across every session forever.
-    g_log_file.open(exe_dir / "slcefproducer_log.txt", std::ios::trunc);
+    g_log_file.open(exe_dir / "slmediaproducer_log.txt", std::ios::trunc);
 
     // The Viewer passes --cache-dir (see LLEmbeddedBrowser::launchProducer()) pointing
     // at the same per-user cache location the legacy CEF plugin uses, since this
@@ -492,7 +492,7 @@ int run_producer(int argc, char** argv)
     llCefBrowserLibInitOptions init_options;
     init_options.rootCachePath       = cache_dir.string();
     init_options.logFile             = (exe_dir / "cefshm_producer_log.txt").string();
-    init_options.userAgentProduct    = "SLCefProducer/1.0";
+    init_options.userAgentProduct    = "SLMediaProducer/1.0";
     init_options.remoteDebuggingPort = remote_debugging_port;
     if (!llCefBrowserLib::Initialize(init_options)) {
         std::cerr << "llCefBrowserLib::Initialize failed\n";
@@ -508,10 +508,10 @@ int run_producer(int argc, char** argv)
         // producer down with it. Chrome's remote-debugging protocol serves the exact
         // same DevTools UI over HTTP instead, with no native window in this process at
         // all -- open the URL below in any desktop browser.
-        log_info("SLCefProducer: remote debugging on http://localhost:" + std::to_string(remote_debugging_port));
+        log_info("SLMediaProducer: remote debugging on http://localhost:" + std::to_string(remote_debugging_port));
     }
 
-    log_info("SLCefProducer: llCefBrowser " + llCefBrowserLib::GetVersion() +
+    log_info("SLMediaProducer: llCefBrowser " + llCefBrowserLib::GetVersion() +
              ", CEF " + llCefBrowserLib::GetCefVersion() +
              ", Chromium " + llCefBrowserLib::GetChromiumVersion());
 
@@ -530,7 +530,7 @@ int run_producer(int argc, char** argv)
     // Hosts LibVLC-backed slots (RTSP/RTMP/MMS -- media CEF cannot play) alongside the
     // CEF manager above, in this same process, publishing through the same llshmframe
     // path -- see libvlctabmanager.h. Its own log file, separate from
-    // slcefproducer_log.txt/cefshm_producer_log.txt above, captures libvlc's own
+    // slmediaproducer_log.txt/cefshm_producer_log.txt above, captures libvlc's own
     // internal network/demux/decode diagnostics -- the actual detail behind "why
     // didn't this play," which nothing else here surfaces.
     auto vlcMgr = std::make_unique<LibVlcTabManager>((exe_dir / "libvlc_log.txt").string());
@@ -556,7 +556,7 @@ int run_producer(int argc, char** argv)
 
     {
         std::ostringstream banner;
-        banner << "SLCefProducer: control channel ready, up to " << slot_count
+        banner << "SLMediaProducer: control channel ready, up to " << slot_count
                << " concurrent view(s) (" << kChannelPrefix << "0.." << (slot_count - 1) << "), "
                << (worst_case_bytes / (1024 * 1024)) << " MiB ceiling if all " << slot_count
                << " were active at once at " << kMaxWidth << "x" << kMaxHeight << " each -- "
@@ -1007,7 +1007,7 @@ int run_producer(int argc, char** argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    log_info("SLCefProducer: shutting down");
+    log_info("SLMediaProducer: shutting down");
 
     vlcMgr->DestroyAll();
     vlcMgr.reset(); // no CEF-style async close handshake to wait out -- libvlc_media_player_stop() is synchronous

@@ -1862,7 +1862,7 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${viewer_APPSETTINGS_FILES}
-      SLCefProducer
+      SLMediaProducer
       )
 
     if (ENABLE_MEDIA_PLUGINS)
@@ -1970,7 +1970,7 @@ if (WINDOWS)
     if (ENABLE_MEDIA_PLUGINS)
       add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
     endif (ENABLE_MEDIA_PLUGINS)
-    add_dependencies(${VIEWER_BINARY_NAME} SLCefProducer)
+    add_dependencies(${VIEWER_BINARY_NAME} SLMediaProducer)
 
     # sets the 'working directory' for debugging from visual studio.
     # Condition for version can be moved to requirements once build agents will be updated (see TOOL-3865)

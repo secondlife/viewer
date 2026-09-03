@@ -79,7 +79,7 @@ class LLDir
     virtual std::string getLLPluginLauncher() = 0; // full path and name for the plugin shell
     virtual std::string getLLPluginFilename(std::string base_name) = 0; // full path and name to the plugin DSO for this base_name (i.e. 'FOO' -> '/bar/baz/libFOO.so')
 
-    virtual std::string getSLCefProducerLauncher() = 0; // full path and name for SLCefProducer; empty if unsupported on this platform
+    virtual std::string getSLMediaProducerLauncher() = 0; // full path and name for SLMediaProducer; empty if unsupported on this platform
 
     const std::string &getExecutablePathAndName() const;    // Full pathname of the executable
     const std::string &getAppName() const;          // install directory under progams/ ie "SecondLife"

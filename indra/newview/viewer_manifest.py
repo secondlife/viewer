@@ -634,13 +634,13 @@ class Windows_x86_64_Manifest(ViewerManifest):
                     with self.prefix(src=os.path.join('example', self.args['configuration'])):
                         self.path_optional("media_plugin_example.dll")
 
-        with self.prefix(dst="SLCefProducer"):
+        with self.prefix(dst="SLMediaProducer"):
             # Embedded-browser CEF producer, launched/monitored by the Viewer itself --
             # lives in its own directory (not next to secondlife-bin.exe) so it sits
             # alongside the CEF runtime files below that it needs.
             with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                              'llcefproducer', self.args['configuration'])):
-                self.path("SLCefProducer.exe")
+                                              'llmediaproducer', self.args['configuration'])):
+                self.path("SLMediaProducer.exe")
 
             # CEF runtime files - debug
             # CEF runtime files - not debug (release, relwithdebinfo etc.)
@@ -658,7 +658,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("vk_swiftshader_icd.json")
                 self.path("vulkan-1.dll")
                 # dullahan_host.exe (the legacy media_plugin_cef's own CEF subprocess
-                # helper) is deliberately not copied here -- SLCefProducer.exe re-execs
+                # helper) is deliberately not copied here -- SLMediaProducer.exe re-execs
                 # itself for that instead (llCefBrowserLib::ExecuteSubProcess()). Not
                 # path_optional(): dullahan_host.exe ships inside the CEF package itself,
                 # so it always exists on disk regardless of ENABLE_MEDIA_PLUGINS -- only
@@ -673,7 +673,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("vcruntime140.dll")
                 self.path_optional("vcruntime140_1.dll")
 
-                # LibVLC runtime -- SLCefProducer.exe itself is the process that actually
+                # LibVLC runtime -- SLMediaProducer.exe itself is the process that actually
                 # links and calls into libvlc (LibVlcTabManager, for RTSP/etc playback),
                 # not secondlife-bin.exe, so it needs its own copy here, same reasoning
                 # as the MSVC DLLs just above. This is a SEPARATE copy from the one in

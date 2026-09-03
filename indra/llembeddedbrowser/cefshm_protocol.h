@@ -116,7 +116,7 @@ namespace cefshm_demo
                           // anything but 0/tier-0 for UI/parcel media -- see that same comment.
                           // priorityTier (0=Normal/High, 1=Low, 2=Slideshow, 3=Hidden) and url
                           // are for the producer's own console/log output only (see
-                          // log_priority() in llcefproducer.cpp) -- purely diagnostic, nothing
+                          // log_priority() in llmediaproducer.cpp) -- purely diagnostic, nothing
                           // on the producer side branches on either.
 
         // consumer -> producer, control channel only

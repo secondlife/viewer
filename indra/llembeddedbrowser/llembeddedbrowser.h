@@ -400,7 +400,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // Called by LLEmbeddedBrowserTab::connectToProducer() on its one failure branch
         // that means "no producer process reachable at all" (as opposed to one that's
         // merely busy/racing another consumer, where relaunching would just kill a
-        // perfectly healthy producer). A no-op if SLCefProducer is already running, if
+        // perfectly healthy producer). A no-op if SLMediaProducer is already running, if
         // UseEmbeddedBrowser is off, or if a relaunch was already attempted recently or
         // too many times this session -- see the constants in llembeddedbrowser.cpp.
         void maybeRelaunchProducer();
@@ -412,9 +412,9 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void resetRelaunchAttempts();
 
     private:
-        // Launches SLCefProducer via LLProcess, storing the result in mProducerProcess.
-        // Returns false (leaving mProducerProcess untouched) if SLCefProducer isn't
-        // available on this platform (see LLDir::getSLCefProducerLauncher()) or the
+        // Launches SLMediaProducer via LLProcess, storing the result in mProducerProcess.
+        // Returns false (leaving mProducerProcess untouched) if SLMediaProducer isn't
+        // available on this platform (see LLDir::getSLMediaProducerLauncher()) or the
         // launch itself failed. Caller must hold mProducerMutex.
         bool launchProducer();
 

@@ -75,7 +75,7 @@ namespace {
     constexpr auto kShutdownPollInterval = std::chrono::milliseconds(50);
 
     // Bounds how aggressively LLEmbeddedBrowser::maybeRelaunchProducer() will
-    // respawn SLCefProducer: multiple tabs' background threads can all notice
+    // respawn SLMediaProducer: multiple tabs' background threads can all notice
     // "not running" within milliseconds of each other (debounced by the backoff
     // below), and a second concurrent Viewer instance racing for the same
     // control-channel name would otherwise tight-loop respawning a process that
@@ -823,20 +823,20 @@ void LLEmbeddedBrowser::reset()
 
 bool LLEmbeddedBrowser::launchProducer()
 {
-    const std::string exe_path = gDirUtilp->getSLCefProducerLauncher();
+    const std::string exe_path = gDirUtilp->getSLMediaProducerLauncher();
     if (exe_path.empty())
     {
-        LL_WARNS() << "SLCefProducer is not available on this platform" << LL_ENDL;
+        LL_WARNS() << "SLMediaProducer is not available on this platform" << LL_ENDL;
         return false;
     }
 
     LLProcess::Params params;
     params.executable = exe_path;
     // Derived from exe_path itself, not a second independent call to whatever
-    // getSLCefProducerLauncher() builds its path from -- that stayed in sync with
+    // getSLMediaProducerLauncher() builds its path from -- that stayed in sync with
     // getLLPluginDir() by convention only, and drifted out of sync (still pointing
-    // at llplugin/ instead of SLCefProducer/'s own directory) the moment
-    // viewer_manifest.py moved where SLCefProducer.exe actually gets deployed.
+    // at llplugin/ instead of SLMediaProducer/'s own directory) the moment
+    // viewer_manifest.py moved where SLMediaProducer.exe actually gets deployed.
     params.cwd        = gDirUtilp->getDirName(exe_path);
     if (gSavedSettings.getBOOL("EmbeddedBrowserProducerConsole"))
     {
@@ -858,7 +858,7 @@ bool LLEmbeddedBrowser::launchProducer()
             params.args.add("--remote-debugging-port=" + std::to_string(remote_debugging_port));
         }
     }
-    // SLCefProducer.exe is a standalone process with no gDirUtilp of its own, so it
+    // SLMediaProducer.exe is a standalone process with no gDirUtilp of its own, so it
     // can't compute the per-user cache location itself -- pass it explicitly, under
     // the same parent directory the legacy CEF plugin uses for its own cache
     // (gDirUtilp->getCacheDir(false), see LLViewerMediaImpl::newSourceFromMediaType()'s
@@ -877,11 +877,11 @@ bool LLEmbeddedBrowser::launchProducer()
     LLProcessPtr proc = LLProcess::create(params);
     if (!proc)
     {
-        LL_WARNS() << "Failed to launch SLCefProducer (" << exe_path << ")" << LL_ENDL;
+        LL_WARNS() << "Failed to launch SLMediaProducer (" << exe_path << ")" << LL_ENDL;
         return false;
     }
 
-    LL_INFOS() << "Launched SLCefProducer, pid " << proc->getProcessID() << LL_ENDL;
+    LL_INFOS() << "Launched SLMediaProducer, pid " << proc->getProcessID() << LL_ENDL;
     mProducerProcess = proc;
     return true;
 }
@@ -899,7 +899,7 @@ void LLEmbeddedBrowser::maybeRelaunchProducer()
         // only *afterwards* stops every tab's update thread -- see its own
         // comment. A tab thread that's still alive in that window can notice
         // the producer is gone and land here, right as the Viewer is on its
-        // way out. Relaunching a brand new SLCefProducer.exe at that point
+        // way out. Relaunching a brand new SLMediaProducer.exe at that point
         // just races reset()'s own teardown: this is exactly what produced a
         // second, orphaned-looking producer process observed right as the
         // Viewer exits.
@@ -927,7 +927,7 @@ void LLEmbeddedBrowser::maybeRelaunchProducer()
     mLastRelaunchAttempt = now;
     ++mProducerRelaunchAttempts;
 
-    LL_WARNS() << "SLCefProducer is not running (relaunch attempt " << mProducerRelaunchAttempts
+    LL_WARNS() << "SLMediaProducer is not running (relaunch attempt " << mProducerRelaunchAttempts
                << "/" << kMaxRelaunchAttempts << ")" << LL_ENDL;
     launchProducer();
 }

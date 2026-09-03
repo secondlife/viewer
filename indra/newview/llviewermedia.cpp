@@ -4202,7 +4202,7 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                 // LLMediaCtrl's copy of this case, which is log-only.
                 //
                 // This event only ever fires for a scheme CEF itself refused to navigate to
-                // (see SetOnCustomSchemeURLCallback in llcefproducer.cpp) -- e.g. a clicked
+                // (see SetOnCustomSchemeURLCallback in llmediaproducer.cpp) -- e.g. a clicked
                 // rtsp:// link inside an otherwise-CEF page. dispatch() returns false for
                 // anything that isn't a secondlife:// SLURL, so fall back to navigateTo() in
                 // that case: it re-evaluates chooseEmbeddedBrowserBackend() and will recreate

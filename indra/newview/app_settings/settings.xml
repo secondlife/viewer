@@ -13331,7 +13331,7 @@
     <key>EmbeddedBrowserDebugging</key>
     <map>
       <key>Comment</key>
-      <string>If true, enables llembeddedbrowser/SLCefProducer debugging features (currently: EmbeddedBrowserRemoteDebuggingPort); takes effect on next SLCefProducer launch</string>
+      <string>If true, enables llembeddedbrowser/SLMediaProducer debugging features (currently: EmbeddedBrowserRemoteDebuggingPort); takes effect on next SLMediaProducer launch</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13342,7 +13342,7 @@
     <key>EmbeddedBrowserRemoteDebuggingPort</key>
     <map>
       <key>Comment</key>
-      <string>If non-zero (and EmbeddedBrowserDebugging is true), SLCefProducer serves Chrome's remote-debugging-protocol DevTools UI at http://localhost:&lt;this port&gt; -- open that URL in any desktop browser; takes effect on next SLCefProducer launch</string>
+      <string>If non-zero (and EmbeddedBrowserDebugging is true), SLMediaProducer serves Chrome's remote-debugging-protocol DevTools UI at http://localhost:&lt;this port&gt; -- open that URL in any desktop browser; takes effect on next SLMediaProducer launch</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13353,7 +13353,7 @@
     <key>EmbeddedBrowserProducerConsole</key>
     <map>
       <key>Comment</key>
-      <string>If true, SLCefProducer allocates a debug console showing its diagnostic output; takes effect on next launch</string>
+      <string>If true, SLMediaProducer allocates a debug console showing its diagnostic output; takes effect on next launch</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13364,7 +13364,7 @@
     <key>EmbeddedBrowserUseLibVLC</key>
     <map>
       <key>Comment</key>
-      <string>If true, in-world media whose URL uses a streaming scheme CEF cannot play (rtsp/rtsps/rtmp/rtmps/mms/mmsh) is routed to SLCefProducer's LibVLC backend instead of CEF; UI/floater media is always CEF regardless</string>
+      <string>If true, in-world media whose URL uses a streaming scheme CEF cannot play (rtsp/rtsps/rtmp/rtmps/mms/mmsh) is routed to SLMediaProducer's LibVLC backend instead of CEF; UI/floater media is always CEF regardless</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
