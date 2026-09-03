@@ -95,8 +95,8 @@ void log_line(const char* color, const std::string& msg)
 }
 void log_info(const std::string& msg)       { log_line("\x1b[38;5;103m", msg); } // blue
 void log_connect(const std::string& msg)    { log_line("\x1b[38;5;120m", msg); } // green
-void log_disconnect(const std::string& msg) { log_line("\x1b[38;5;124m", msg); } // red
-void log_error(const std::string& msg)      { log_line("\x1b[38;5;178m", msg); } // amber
+void log_disconnect(const std::string& msg) { log_line("\x1b[38;5;178m", msg); } // amber
+void log_error(const std::string& msg)      { log_line("\x1b[38;5;124m", msg); } // red
 void log_priority(const std::string& msg)   { log_line("\x1b[38;5;141m", msg); } // purple -- distance/priority render-rate changes (kSetRenderRate)
 
 // How long a slot may sit with nobody attached before its browser is
