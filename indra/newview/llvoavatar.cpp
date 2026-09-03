@@ -10055,30 +10055,34 @@ const LLVOAvatar::MatrixPaletteCache& LLVOAvatar::updateSkinInfoMatrixPalette(co
 
         const LLMatrix4a* mat = &(entry.mMatrixPalette[0]);
 
-        entry.mGLMp.resize(count * 12);
+        entry.mGLMp.resize(count * 16);
 
         F32* mp = &(entry.mGLMp[0]);
-
         for (U32 i = 0; i < count; ++i)
         {
             F32* m = (F32*)mat[i].mMatrix[0].getF32ptr();
 
-            U32 idx = i * 12;
+            U32 idx = i * 16;
 
             mp[idx + 0] = m[0];
             mp[idx + 1] = m[1];
             mp[idx + 2] = m[2];
-            mp[idx + 3] = m[12];
+            mp[idx + 3] = 0.0f;
 
             mp[idx + 4] = m[4];
             mp[idx + 5] = m[5];
             mp[idx + 6] = m[6];
-            mp[idx + 7] = m[13];
+            mp[idx + 7] = 0.0f;
 
             mp[idx + 8] = m[8];
             mp[idx + 9] = m[9];
             mp[idx + 10] = m[10];
-            mp[idx + 11] = m[14];
+            mp[idx + 11] = 0.0f;
+
+            mp[idx + 12] = m[12];
+            mp[idx + 13] = m[13];
+            mp[idx + 14] = m[14];
+            mp[idx + 15] = 1.0f;
         }
     }
 

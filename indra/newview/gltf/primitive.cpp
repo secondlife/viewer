@@ -559,9 +559,27 @@ void Primitive::upload(LLVertexBuffer* buffer)
         mVertexBuffer->setTangentData(mTangents.data(), offset, count);
     }
 
+
     if (!mWeights.empty())
     {
-        mVertexBuffer->setWeight4Data(mWeights.data(), offset, count);
+        auto weightsCopy = std::vector(mWeights);
+        // precompute normalized weights to avoid having to recompute for every vertex at runtime.
+        float wint[4];
+        float wfract[4];
+        for (auto& w : weightsCopy)
+        {
+            wfract[0] = std::modf(w[0], &wint[0]);
+            wfract[1] = std::modf(w[1], &wint[1]);
+            wfract[2] = std::modf(w[2], &wint[2]);
+            wfract[3] = std::modf(w[3], &wint[3]);
+            float norm_factor = (0.5f) / (wfract[0] + wfract[1] + wfract[2] + wfract[3]);
+            wfract[0] *= norm_factor;
+            wfract[1] *= norm_factor;
+            wfract[2] *= norm_factor;
+            wfract[3] *= norm_factor;
+            w.set(wint[0] + wfract[0], wint[1] + wfract[1], wint[2] + wfract[2], wint[3] + wfract[3]);
+        }
+        mVertexBuffer->setWeight4Data(weightsCopy.data(), offset, count);
         mVertexBuffer->setJointData(mJoints.data(), offset, count);
     }
 
