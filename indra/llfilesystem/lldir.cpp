@@ -89,10 +89,9 @@ LLDir::~LLDir()
 {
 }
 
-std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
+std::vector<std::string> LLDir::getFilesInDir(const std::filesystem::path &dir_path, bool includeExternalSymlinks) const
 {
     // Returns a vector of filenames in the directory.
-    fsyspath dir_path(dirname);
     std::vector<std::string> v;
     std::error_code ec;
     if (std::filesystem::is_directory(dir_path, ec))
@@ -102,14 +101,26 @@ std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
              dir_itr != end_iter;
              ++dir_itr)
         {
-            if (std::filesystem::is_regular_file(dir_itr->status()))
+            if (std::filesystem::is_regular_file(dir_itr->status(ec)))
             {
                 v.push_back(dir_itr->path().filename().string());
+            }
+            else if (includeExternalSymlinks && std::filesystem::is_symlink(dir_itr->status(ec)))
+            {
+                if (dir_path != std::filesystem::read_symlink(dir_itr->path(), ec).parent_path())
+                {
+                    v.push_back(dir_itr->path().filename().string());
+                }
             }
         }
     }
     return v;
 }
+
+std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname, bool includeExternalSymlinks) const
+{
+    return getFilesInDir(fsyspath(dirname), includeExternalSymlinks);
+};
 
 S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 {
