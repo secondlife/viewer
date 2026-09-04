@@ -3426,6 +3426,11 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
         }
         break;
 
+        case MEDIA_EVENT_FILE_DOWNLOAD_PROGRESS:
+        {
+        }
+        break;
+
         case LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_BEGIN:
         {
             LL_DEBUGS("Media") << "MEDIA_EVENT_NAVIGATE_BEGIN, uri is: " << plugin->getNavigateURI() << LL_ENDL;
