@@ -5008,20 +5008,29 @@ static S32 g_deltaFrame { 0 };
 
 void LLAgent::updateGameControlMode()
 {
-    // Auto-derive the active mode from avatar/camera state.  Flycam takes
-    // precedence (it is toggled via a game-control binding), then Cursor
-    // mode (also an explicit toggle -- see mUsingMouseCursor/toggleMouseCursorMode()),
-    // then mouselook (the camera mode can be entered while sitting too, so it is
+    // Auto-derive the active mode from avatar/camera state.  Cursor mode takes
+    // precedence over Flycam: toggling the mouse cursor on while Flycam is engaged
+    // reports CONTROL_MODE_CURSOR (so the left stick drives the on-screen cursor)
+    // while mUsingFlycam stays true underneath -- LLAgent::updateFlycam() keeps
+    // driving the camera every frame regardless of the reported mode (it is gated
+    // on mUsingFlycam directly, not on AgentControlMode), and
+    // LLGameControl::setFlycamEngaged() below tells the input-mapping lookup to
+    // let Flycam's own axis/button config (Pan/Tilt/Boom/...) keep driving
+    // whatever physical inputs Cursor mode's own mouse-cursor actions don't claim.
+    // This is how a single Cursor mode ends up with two flavors -- "other axes"
+    // control the avatar/camera depending on whether Flycam is concurrently
+    // engaged -- without needing a distinct mode of its own.
+    // Next: mouselook (the camera mode can be entered while sitting too, so it is
     // checked ahead of Captive), then sitting/controls-taken maps to Captive,
     // otherwise the normal Avatar mode.
     LLGameControl::AgentControlMode mode;
-    if (mUsingFlycam)
-    {
-        mode = LLGameControl::CONTROL_MODE_FLYCAM;
-    }
-    else if (mUsingMouseCursor)
+    if (mUsingMouseCursor)
     {
         mode = LLGameControl::CONTROL_MODE_CURSOR;
+    }
+    else if (mUsingFlycam)
+    {
+        mode = LLGameControl::CONTROL_MODE_FLYCAM;
     }
     else if (gAgentCamera.cameraMouselook())
     {
@@ -5035,6 +5044,7 @@ void LLAgent::updateGameControlMode()
     {
         mode = LLGameControl::CONTROL_MODE_AVATAR;
     }
+    LLGameControl::setFlycamEngaged(mUsingFlycam);
     LLGameControl::setAgentControlMode(mode);
 }
 

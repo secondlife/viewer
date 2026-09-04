@@ -1071,8 +1071,8 @@
             label="Zoom +"
             value="Zoom in"/>
         <combo_box.item
-            label="AltZoom"
-            value="Toggle AltZoom"/>
+            label="Mouse cursor"
+            value="Toggle mouse cursor"/>
         <combo_box.item
             label="Leave flycam"
             value="Toggle flycam"/>

@@ -495,6 +495,16 @@ public:
     static void setSendToServer(bool enable);
     static void setAgentControlMode(AgentControlMode mode);
 
+    // Whether FlyCam is concurrently engaged underneath the reported
+    // AgentControlMode.  Normally that's implied by mode == CONTROL_MODE_FLYCAM,
+    // but Cursor mode takes precedence over FlyCam for reporting purposes (see
+    // LLAgent::updateGameControlMode()), so this is how the input-mapping lookup
+    // still finds out FlyCam is active while mode reports CONTROL_MODE_CURSOR --
+    // in that case, axes/buttons not claimed by Cursor mode's own mouse-cursor
+    // actions fall back to FlyCam mode's own configured mappings instead of
+    // Avatar's Turn/Look/Fly. Call every frame alongside setAgentControlMode().
+    static void setFlycamEngaged(bool engaged);
+
     // Called whenever a fresh SimStats report gives us the simulator's current
     // frame rate, so the GameControlData outgoing throttle (see
     // computeFinalStateAndCheckForChanges() above) can track it instead of
