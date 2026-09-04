@@ -80,7 +80,12 @@
 #include "message.h"
 
 // system libraries
+#include <atomic>
+#include <thread>
+#include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
+#include "lldirpicker.h"
+#include "llcallbacklist.h"
 
 class LLFileEnableUpload : public view_listener_t
 {
@@ -532,7 +537,8 @@ void upload_single_file(
     return;
 }
 
-void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLUUID& dest)
+void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLUUID& dest,
+                    const LLUUID& material_dest, const LLUUID& texture_dest)
 {
     for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
     {
@@ -690,7 +696,10 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLU
                     // Todo:
                     // 1. Decouple bulk upload from material editor
                     // 2. Take into account possiblity of identical textures
-                    LLMaterialEditor::uploadMaterialFromModel(filename, model, i, dest);
+                    if (material_dest.notNull())
+                        LLMaterialEditor::uploadMaterialFromModel(filename, model, i, material_dest, texture_dest.notNull() ? texture_dest : material_dest);
+                    else
+                        LLMaterialEditor::uploadMaterialFromModel(filename, model, i, dest);
                 }
             }
         }
@@ -827,7 +836,7 @@ bool get_bulk_upload_expected_cost(
     return file_count > 0;
 }
 
-void upload_bulk(const std::vector<std::string>& filtered_filenames, bool allow_2k, const LLUUID& dest)
+void upload_bulk(const std::vector<std::string>& filtered_filenames, bool allow_2k, const LLUUID& dest, const std::string& local_dir = "")
 {
     S32 expected_upload_cost;
     S32 expected_upload_count;
@@ -840,6 +849,8 @@ void upload_bulk(const std::vector<std::string>& filtered_filenames, bool allow_
         key["upload_count"] = expected_upload_count;
         key["has_2k_textures"] = (textures_2k_count > 0);
         key["dest"] = dest;
+        if (!local_dir.empty())
+            key["local_dir"] = local_dir;
 
         LLSD array;
         for (const std::string& str : filtered_filenames)
@@ -979,7 +990,20 @@ class LLFileUploadBulk : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true, LLUUID::null), LLFilePicker::FFLOAD_ALL, true);
+        LLFilePickerReplyThread::startPicker(boost::bind(static_cast<void(*)(const std::vector<std::string>&, LLFilePicker::ELoadFilter, bool, const LLUUID&)>(&upload_bulk), _1, _2, true, LLUUID::null), LLFilePicker::FFLOAD_ALL, true);
+        return true;
+    }
+};
+
+class LLFileUploadBulkFolder : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        if (gAgentCamera.cameraMouselook())
+        {
+            gAgentCamera.changeCameraToDefault();
+        }
+        (new LLDirPickerThread(boost::bind(&start_bulk_folder_upload_after_pick, _1, _2, LLUUID::null), ""))->getFile();
         return true;
     }
 };
@@ -1468,6 +1492,144 @@ void upload_new_resource(
 }
 
 
+static void collect_files_recursive(const std::string& local_dir, std::vector<std::string>& files)
+{
+    namespace bfs = boost::filesystem;
+    boost::system::error_code ec;
+    for (bfs::directory_iterator it(local_dir, ec), end; !ec && it != end; ++it)
+    {
+        boost::system::error_code ec2;
+        bfs::file_status st = it->status(ec2);
+        if (ec2) continue;
+        if (bfs::is_regular_file(st))
+            files.push_back(it->path().string());
+        else if (bfs::is_directory(st))
+            collect_files_recursive(it->path().string(), files);
+    }
+}
+
+// Upload GLB/GLTF files into "Materials" and "Textures" subfolders of dest.
+// Both subfolders are created first; then delegates to do_bulk_upload with
+// material_dest / texture_dest so textures don't land in the system folder.
+static void upload_gltf_files_to_subfolders(std::vector<std::string> gltf_files, const LLUUID& dest, bool allow_2k)
+{
+    gInventory.createNewCategory(dest, LLFolderType::FT_NONE, "Materials",
+        [gltf_files, dest, allow_2k](const LLUUID& mat_id)
+        {
+            LLUUID effective_mat = mat_id.notNull() ? mat_id : dest;
+            doOnIdleOneTime([gltf_files, dest, allow_2k, effective_mat]()
+            {
+                gInventory.createNewCategory(dest, LLFolderType::FT_NONE, "Textures",
+                    [gltf_files, allow_2k, effective_mat](const LLUUID& tex_id)
+                    {
+                        LLUUID effective_tex = tex_id.notNull() ? tex_id : effective_mat;
+                        doOnIdleOneTime([gltf_files, allow_2k, effective_mat, effective_tex]()
+                        {
+                            do_bulk_upload(gltf_files, allow_2k, effective_mat, effective_mat, effective_tex);
+                        });
+                    });
+            });
+        });
+}
+
+// Must only be called from the main coroutine.
+static void upload_folder_recursive_impl(const std::string& local_dir, const LLUUID& inv_parent_id, bool allow_2k)
+{
+    namespace bfs = boost::filesystem;
+    boost::system::error_code ec;
+    std::vector<std::string> regular_files;
+    std::vector<std::string> gltf_files;
+    std::vector<std::pair<std::string, std::string>> subdirs;
+
+    for (bfs::directory_iterator it(local_dir, ec), end; !ec && it != end; ++it)
+    {
+        boost::system::error_code ec2;
+        bfs::file_status st = it->status(ec2);
+        if (ec2) continue;
+        if (bfs::is_regular_file(st))
+        {
+            std::string path_str = it->path().string();
+            std::string ext = gDirUtilp->getExtension(path_str);
+            if (ext == "gltf" || ext == "glb")
+                gltf_files.push_back(path_str);
+            else
+                regular_files.push_back(path_str);
+        }
+        else if (bfs::is_directory(st))
+            subdirs.emplace_back(it->path().string(), it->path().filename().string());
+    }
+
+    if (!regular_files.empty())
+        do_bulk_upload(regular_files, allow_2k, inv_parent_id);
+
+    if (!gltf_files.empty())
+        upload_gltf_files_to_subfolders(gltf_files, inv_parent_id, allow_2k);
+
+    for (const auto& [sub_path, sub_name] : subdirs)
+    {
+        gInventory.createNewCategory(inv_parent_id, LLFolderType::FT_NONE, sub_name,
+            [sub_path, allow_2k](const LLUUID& new_cat_id)
+            {
+                if (new_cat_id.isNull())
+                    return;
+                doOnIdleOneTime([sub_path, new_cat_id, allow_2k]()
+                {
+                    upload_folder_recursive_impl(sub_path, new_cat_id, allow_2k);
+                });
+            });
+    }
+}
+
+void start_folder_recursive_upload(const std::string& local_dir, const LLUUID& dest, bool allow_2k)
+{
+    std::string folder_name = gDirUtilp->getBaseFileName(local_dir);
+    if (folder_name.empty())
+        folder_name = "Uploaded Folder";
+    // AIS rejects null parent; fall back to root inventory when no dest given
+    LLUUID parent = dest.notNull() ? dest : gInventory.getRootFolderID();
+    gInventory.createNewCategory(parent, LLFolderType::FT_NONE, folder_name,
+        [local_dir, allow_2k](const LLUUID& new_cat_id)
+        {
+            if (new_cat_id.isNull())
+                return;
+            doOnIdleOneTime([local_dir, new_cat_id, allow_2k]()
+            {
+                upload_folder_recursive_impl(local_dir, new_cat_id, allow_2k);
+            });
+        });
+}
+
+void start_bulk_folder_upload_after_pick(const std::vector<std::string>& dirs, const std::string& /*proposed_name*/, const LLUUID& dest)
+{
+    if (dirs.empty()) return;
+    const std::string local_dir = dirs[0];
+
+    struct ScanResult
+    {
+        std::vector<std::string> all_files;
+        std::atomic<bool> done { false };
+    };
+
+    auto result = std::make_shared<ScanResult>();
+
+    // Run the directory scan off the main thread to avoid freezing the viewer
+    // (especially on Mac where the dir picker also runs on the main thread).
+    std::thread([result, local_dir]()
+    {
+        collect_files_recursive(local_dir, result->all_files);
+        result->done.store(true, std::memory_order_release);
+    }).detach();
+
+    // Poll each frame until scan completes, then hand off to upload_bulk.
+    doOnIdleRepeating([result, local_dir, dest]() -> bool
+    {
+        if (!result->done.load(std::memory_order_acquire))
+            return false;
+        upload_bulk(result->all_files, true, dest, local_dir);
+        return true;
+    });
+}
+
 void init_menu_file()
 {
     view_listener_t::addCommit(new LLFileUploadImage(), "File.UploadImage");
@@ -1476,6 +1638,7 @@ void init_menu_file()
     view_listener_t::addCommit(new LLFileUploadModel(), "File.UploadModel");
     view_listener_t::addCommit(new LLFileUploadMaterial(), "File.UploadMaterial");
     view_listener_t::addCommit(new LLFileUploadBulk(), "File.UploadBulk");
+    view_listener_t::addCommit(new LLFileUploadBulkFolder(), "File.UploadBulkFolder");
     view_listener_t::addCommit(new LLFileCloseWindow(), "File.CloseWindow");
     view_listener_t::addCommit(new LLFileCloseAllWindows(), "File.CloseAllWindows");
     view_listener_t::addEnable(new LLFileEnableCloseWindow(), "File.EnableCloseWindow");
