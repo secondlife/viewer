@@ -38,11 +38,14 @@
 #include "llpluginclassmedia.h"
 #include "v4color.h"
 #include "llnotificationptr.h"
+#include "lltimer.h"
 
 #include "llurl.h"
 #include "lleventcoro.h"
 #include "llcoros.h"
 #include "llcorehttputil.h"
+
+#include <vector>
 
 class LLViewerMediaImpl;
 class LLUUID;
@@ -276,6 +279,51 @@ public:
     void updateImagesMediaStreams();
     LLUUID getMediaTextureID() const;
 
+    // Backend-agnostic accessors used by consumers (e.g. LLMediaCtrl) that need to draw
+    // the media texture directly without caring whether it's backed by the CEF plugin
+    // or LLEmbeddedBrowser.
+    bool isTextureReady() const;
+    S32 getMediaWidth() const;
+    S32 getMediaHeight() const;
+    S32 getMediaTextureWidth() const;
+    S32 getMediaTextureHeight() const;
+    bool getMediaTextureCoordsOpenGL() const;
+    // Backend-agnostic (see above) -- the plugin path has always let observers pull this
+    // straight from LLPluginClassMedia at event time; the embedded-browser path has no such
+    // object, so its title is cached here instead (see updateEmbeddedBrowserEvents()).
+    std::string getMediaName() const;
+
+    // Embedded-browser-only equivalents of LLPluginClassMedia's own mClick* accessors,
+    // populated from updateEmbeddedBrowserEvents() just before MEDIA_EVENT_CLICK_LINK_HREF/
+    // MEDIA_EVENT_CLICK_LINK_NOFOLLOW fires (self is null for those, so observers read these
+    // instead -- see the handleMediaEvent patches in llmediactrl.cpp).
+    std::string getClickURL() const { return mEmbeddedClickURL; }
+    std::string getClickTarget() const { return mEmbeddedClickTarget; }
+    std::string getClickUUID() const { return mEmbeddedClickUUID; }
+    std::string getClickNavType() const { return mEmbeddedClickNavType; }
+
+    // Embedded-browser-only equivalent of LLPluginClassMedia::getStatusText(), populated just
+    // before MEDIA_EVENT_STATUS_TEXT_CHANGED fires -- see the handleMediaEvent patches in
+    // llmediactrl.cpp/llfloaterwebcontent.cpp/llpaneldirweb.cpp/llpanelprofile.cpp, and
+    // LLMediaCtrl::getStatusText(), the widget-level passthrough those actually call.
+    std::string getStatusText() const { return mEmbeddedStatusText; }
+
+    // Embedded-browser-only equivalent of LLPluginClassMedia::getFileDownloadFilename(),
+    // populated just before MEDIA_EVENT_FILE_DOWNLOAD fires -- see handleMediaEvent in
+    // llmediactrl.cpp, which is what LLEmbeddedMediaFilePicker (llviewermenufile.h) is
+    // constructed from.
+    std::string getFileDownloadFilename() const { return mEmbeddedFileDownloadFilename; }
+    // Completes the file dialog request that most recently fired MEDIA_EVENT_PICK_FILE_REQUEST
+    // or MEDIA_EVENT_FILE_DOWNLOAD -- pass an empty vector to indicate the user canceled.
+    void respondToFileDialog(const std::vector<std::string>& filePaths);
+
+    // Embedded-browser-only equivalent of LLPluginClassMedia::getDebugMessageText(), populated
+    // just before MEDIA_EVENT_DEBUG_MESSAGE fires from a page's console.log/warn/error call --
+    // see the handleMediaEvent patch in llmediactrl.cpp. Pre-formatted to match that plugin
+    // accessor's own text exactly ("Console message: <msg> in file(<source>) at line <n>"), since
+    // that's the string LLMediaCtrlListener::getMediaText() searches for its extraction marker in.
+    std::string getDebugMessageText() const { return mEmbeddedDebugMessageText; }
+
     void suspendUpdates(bool suspend) { mSuspendUpdates = suspend; }
     void setVisible(bool visible);
     bool getVisible() const { return mVisible; }
@@ -285,6 +333,13 @@ public:
     bool isMediaPlaying();
     bool isMediaPaused();
     bool hasMedia() const;
+    // Narrow, explicit alternative to hasMedia() for the embedded-browser case -- hasMedia()
+    // itself deliberately stays plugin-only (mMediaSource != NULL): it gates real callers
+    // elsewhere that immediately follow it with an unchecked getMediaPlugin()->someCall(),
+    // which would crash if hasMedia() started reporting true for embedded-browser media.
+    // Use `hasMedia() || isUsingEmbeddedBrowser()` at call sites that don't touch the
+    // plugin object directly (e.g. forwarding input).
+    bool isUsingEmbeddedBrowser() const { return mUseEmbeddedBrowser; }
     bool isMediaFailed() const { return mMediaSourceFailed; }
     void setMediaFailed(bool val) { mMediaSourceFailed = val; }
     void resetPreviousMediaState();
@@ -449,6 +504,73 @@ private:
 private:
     // a single media url with some data and an impl.
     std::shared_ptr<LLPluginClassMedia> mMediaSource;
+    // When true, this media impl is backed by LLEmbeddedBrowser instead of
+    // mMediaSource/CEF -- see LLViewerMediaImpl::createMediaSource().
+    bool mUseEmbeddedBrowser = false;
+    unsigned int mEmbeddedBrowserId = 0;
+    // Last mute/unmute state actually sent to LLEmbeddedBrowser::setMuted() -- lets
+    // updateVolume() only send the opcode when the decision flips, since it's
+    // recomputed every frame. See updateVolume()'s own comment for why embedded-
+    // browser media gets a mute decision instead of legacy's continuous volume.
+    bool mEmbeddedBrowserMuted = false;
+    // Last render-rate hint actually sent to LLEmbeddedBrowser::setRenderRate() --
+    // lets setPriority() only send the opcode when the target fps actually
+    // changes, since setPriority() itself is called every frame regardless of
+    // whether priority changed. 0 = unthrottled/full rate (always the value for
+    // UI/parcel media -- see setPriority()'s own comment on why that's not just
+    // whatever the shared priority computation happens to produce).
+    unsigned int mEmbeddedBrowserTargetFps = 0;
+    // The render-rate tier actually applied/sent so far (0=Normal/High i.e.
+    // unthrottled, 1=Low, 2=Slideshow, 3=Hidden -- see kSetRenderRate's own
+    // comment in cefshm_protocol.h). A newly computed tier numerically higher
+    // than this is a demotion and goes through mEmbeddedBrowserRenderRateDemotion*
+    // below; anything else (an improvement, or no change) applies immediately.
+    unsigned int mEmbeddedBrowserAppliedTier = 0;
+    // Debounces a render-rate DEMOTION only (see EMBEDDED_BROWSER_RENDER_RATE_
+    // DEMOTION_GRACE_PERIOD's own comment) -- same true-from-first-frame-until-
+    // grace-period-elapses-or-cancelled pattern as mEmbeddedBrowserUnloadPending
+    // below, just for a softer consequence (a lower render rate, not a teardown).
+    bool mEmbeddedBrowserRenderRateDemotionPending = false;
+    LLTimer mEmbeddedBrowserRenderRateDemotionTimer;
+    // Debounces the SLIDESHOW/HIDDEN auto-unload in setPriority(): true from
+    // the first frame this impl is found unload-worthy until either the
+    // grace period in mEmbeddedBrowserUnloadTimer expires (destroy for real)
+    // or its priority recovers first (cancelled). Right after a region
+    // change, many impls' interest values are still settling and can flicker
+    // a freshly-created tab across the SLIDESHOW boundary for a frame or two
+    // -- reacting to a single frame's demotion tore the tab down before its
+    // page ever finished rendering, forcing it to restart from scratch on
+    // every flicker. See setPriority()'s own comment.
+    bool mEmbeddedBrowserUnloadPending = false;
+    LLTimer mEmbeddedBrowserUnloadTimer;
+    // Owns the most recent embedded-browser frame snapshot handed to doMediaTexUpdate().
+    // preMediaTexUpdate() replaces this with a fresh copy every frame; update()'s async
+    // GL-upload lambda captures a local copy of the shared_ptr (not just the raw data
+    // pointer) so the buffer it reads from stays alive for the lambda's lifetime even
+    // if this member is reassigned or the underlying LLEmbeddedBrowser tab is resized
+    // or destroyed before the worker thread gets around to running it.
+    std::shared_ptr<std::vector<U8>> mEmbeddedBrowserFrameSnapshot;
+    std::string mEmbeddedBrowserTitle;
+    // See getClickURL()/getClickTarget()/getClickUUID()/getClickNavType() above.
+    std::string mEmbeddedClickURL;
+    std::string mEmbeddedClickTarget;
+    std::string mEmbeddedClickUUID;
+    std::string mEmbeddedClickNavType;
+    // See getFileDownloadFilename()/respondToFileDialog() above.
+    std::string mEmbeddedFileDownloadFilename;
+    long long mEmbeddedFileDialogId = 0;
+    // See getStatusText() above.
+    std::string mEmbeddedStatusText;
+    // See getDebugMessageText() above.
+    std::string mEmbeddedDebugMessageText;
+
+    // Drains LLEmbeddedBrowser::popEvent() for mEmbeddedBrowserId, updating the cached
+    // state below and calling emitEvent(nullptr, ...) for each one -- nullptr is a safe,
+    // unambiguous signal to observers that this event has no real LLPluginClassMedia
+    // behind it (a genuine plugin callback never passes nullptr), see LLMediaCtrl and the
+    // other LLViewerMediaObserver overrides patched alongside this for the specific
+    // handful of events this can fire. Called once per update().
+    void updateEmbeddedBrowserEvents();
     LLCoros::Mutex mLock;
     F64     mZoomFactor;
     LLUUID mTextureId;
@@ -480,6 +602,10 @@ private:
     bool mNavigateRediscoverType;
     bool mNavigateServerRequest;
     bool mMediaSourceFailed;
+    // Debounces LLEmbeddedBrowserEventType::ProducerDisconnected -- see
+    // EMBEDDED_BROWSER_DISCONNECT_GRACE_PERIOD's own comment in llviewermedia.cpp.
+    bool mEmbeddedDisconnectPending = false;
+    LLTimer mEmbeddedDisconnectTimer;
     F32 mRequestedVolume;
     F32 mPreviousVolume;
     bool mIsMuted;

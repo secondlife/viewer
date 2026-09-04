@@ -6602,7 +6602,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>8</integer>
+      <integer>12</integer>
     </map>
 
    <key>PluginUseReadThread</key>
@@ -13295,6 +13295,72 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+    <key>UseEmbeddedBrowser</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, use the in-viewer llembeddedbrowser media backend instead of the CEF media plugin for new media sources</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EmbeddedBrowserMaxWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum pixel width of an llembeddedbrowser media source; requested sizes above this are clamped</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4096</integer>
+    </map>
+    <key>EmbeddedBrowserMaxHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum pixel height of an llembeddedbrowser media source; requested sizes above this are clamped</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4096</integer>
+    </map>
+    <key>EmbeddedBrowserDebugging</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, enables llembeddedbrowser/SLCefProducer debugging features (currently: EmbeddedBrowserRemoteDebuggingPort); takes effect on next SLCefProducer launch</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EmbeddedBrowserRemoteDebuggingPort</key>
+    <map>
+      <key>Comment</key>
+      <string>If non-zero (and EmbeddedBrowserDebugging is true), SLCefProducer serves Chrome's remote-debugging-protocol DevTools UI at http://localhost:&lt;this port&gt; -- open that URL in any desktop browser; takes effect on next SLCefProducer launch</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EmbeddedBrowserProducerConsole</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, SLCefProducer allocates a debug console showing its diagnostic output; takes effect on next launch</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>UseEnergy</key>
     <map>
       <key>Comment</key>

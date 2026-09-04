@@ -100,7 +100,14 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
         {
             LLMediaEntry* mep = tep->getMediaData();
             face_auto_zoom = mep->getAutoZoom();
-            if(!media_impl->hasMedia())
+            // hasMedia() alone is always false for embedded-browser media (it's
+            // deliberately plugin-only -- see its own comment), so without the
+            // isUsingEmbeddedBrowser() check every click on an already-loaded
+            // embedded-browser face re-navigated to the same URL from scratch,
+            // restarting it (losing scroll position, replaying video, etc.)
+            // instead of just taking focus like it does for the legacy plugin
+            // backend.
+            if(!media_impl->hasMedia() && !media_impl->isUsingEmbeddedBrowser())
             {
                 std::string url = mep->getCurrentURL().empty() ? mep->getHomeURL() : mep->getCurrentURL();
                 media_impl->navigateTo(url, "", true);

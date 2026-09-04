@@ -98,3 +98,6 @@ indra/newview/app_settings/keywords_lua_default.xml
 
 .env
 .vscode
+
+# memory_compare.ps1 output (see scripts/perf)
+mem.csv

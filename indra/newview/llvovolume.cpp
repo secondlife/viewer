@@ -2934,9 +2934,23 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
         case LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD:
         {
             // Media might be blocked, waiting for a file,
-            // send an empty response to unblock it
+            // send an empty response to unblock it. plugin is null for
+            // embedded-browser media -- this event is broadcast with a null
+            // plugin there (see LLViewerMediaImpl::updateEmbeddedBrowserEvents()'s
+            // own FileDialogRequest/Save case), so unblock via
+            // LLViewerMediaImpl::respondToFileDialog() instead, which routes to
+            // that backend's own pending dialog. Calling plugin->sendPickFileResponse()
+            // unconditionally here crashed the whole viewer on a null plugin
+            // whenever embedded-browser prim media tried to save/download a file.
             const std::vector<std::string> empty_response;
-            plugin->sendPickFileResponse(empty_response);
+            if (plugin)
+            {
+                plugin->sendPickFileResponse(empty_response);
+            }
+            else
+            {
+                impl->respondToFileDialog(empty_response);
+            }
 
             LLNotificationsUtil::add("MediaFileDownloadUnsupported");
         }

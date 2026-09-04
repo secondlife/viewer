@@ -502,7 +502,8 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 
         case MEDIA_EVENT_CURSOR_CHANGED:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << self->getCursorName() << LL_ENDL;
+            // self is nullptr for an embedded-browser-originated event.
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << (self ? self->getCursorName() : "(embedded browser)") << LL_ENDL;
         };
         break;
 
@@ -514,7 +515,7 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 
         case MEDIA_EVENT_NAVIGATE_COMPLETE:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << self->getNavigateResultString() << LL_ENDL;
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << (self ? self->getNavigateResultString() : "(embedded browser)") << LL_ENDL;
         };
         break;
 
@@ -526,13 +527,14 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 
         case MEDIA_EVENT_STATUS_TEXT_CHANGED:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << self->getStatusText() << LL_ENDL;
+            // self is nullptr for an embedded-browser-originated event.
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << (self ? self->getStatusText() : "(embedded browser)") << LL_ENDL;
         };
         break;
 
         case MEDIA_EVENT_LOCATION_CHANGED:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << self->getLocation() << LL_ENDL;
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << (self ? self->getLocation() : "(embedded browser)") << LL_ENDL;
         };
         break;
 
@@ -544,13 +546,15 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 
         case MEDIA_EVENT_CLICK_LINK_HREF:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << self->getClickTarget() << "\", uri is " << self->getClickURL() << LL_ENDL;
+            // self is nullptr for an embedded-browser-originated event.
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << (self ? self->getClickTarget() : "(embedded browser)") << "\", uri is " << (self ? self->getClickURL() : "(embedded browser)") << LL_ENDL;
         };
         break;
 
         case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << self->getClickURL() << LL_ENDL;
+            // self is nullptr for an embedded-browser-originated event.
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << (self ? self->getClickURL() : "(embedded browser)") << LL_ENDL;
         };
         break;
 

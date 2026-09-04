@@ -656,7 +656,9 @@ void LLFloater360Capture::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
             // Confirm that the navigation event does indeed apply to the
             // page we are looking for. At the moment, this is the only
             // one we care about so the test is superfluous but that might change.
-            std::string navigate_url = self->getNavigateURI();
+            // self is nullptr for an embedded-browser-originated event -- fall back to
+            // what LLMediaCtrl itself tracks rather than dereferencing a null plugin.
+            std::string navigate_url = self ? self->getNavigateURI() : mWebBrowser->getCurrentNavUrl();
             if (navigate_url.find(mEqrGenHTML) != std::string::npos)
             {
                 // this string is being passed across to the web so replace all the windows backslash
@@ -692,13 +694,9 @@ void LLFloater360Capture::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
                                             << ")"
                                         );
 
-                // execute the command on the page
-                LLPluginClassMedia* plugin = mWebBrowser->getMediaPlugin();
-                if (plugin)
-                {
-                    plugin->executeJavaScript(cmd);
-                }
-                else
+                // execute the command on the page -- backend-agnostic (works whether
+                // mWebBrowser is backed by the CEF plugin or the embedded browser)
+                if (!mWebBrowser->executeJavaScript(cmd))
                 {
                     LL_WARNS("360Capture") << "No media plugin found" << LL_ENDL;
                 }
@@ -781,13 +779,9 @@ void LLFloater360Capture::onSaveLocalBtn()
     const std::string cmd = "saveAsEqrImage(\"" + suggested_filename + "\", " + xmp_details + ")";
 
     // send it to the browser instance, triggering the equirectangular capture
-    // process and complimentary offer to save the image
-    LLPluginClassMedia* plugin = mWebBrowser->getMediaPlugin();
-    if (plugin)
-    {
-        plugin->executeJavaScript(cmd);
-    }
-    else
+    // process and complimentary offer to save the image -- backend-agnostic (works
+    // whether mWebBrowser is backed by the CEF plugin or the embedded browser)
+    if (!mWebBrowser->executeJavaScript(cmd))
     {
         LL_WARNS("360Capture") << "No media plugin found" << LL_ENDL;
     }

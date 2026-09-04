@@ -249,3 +249,10 @@ std::string LLDir_Linux::getCurPath()
     return gDirUtilp->getLLPluginDir() + gDirUtilp->getDirDelimiter() +
         "lib" + base_name + ".so";
 }
+
+/*virtual*/ std::string LLDir_Linux::getSLCefProducerLauncher()
+{
+    // Not yet built/tested on this platform -- see EmbeddedBrowser.cmake's
+    // windows64-only ll::shmframe/ll::cefbrowser linking.
+    return "";
+}

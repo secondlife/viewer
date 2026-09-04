@@ -187,5 +187,12 @@ std::string LLDir_Mac::getCurPath()
         base_name + ".dylib";
 }
 
+/*virtual*/ std::string LLDir_Mac::getSLCefProducerLauncher()
+{
+    // Not yet built/tested on this platform -- see EmbeddedBrowser.cmake's
+    // windows64-only ll::shmframe/ll::cefbrowser linking.
+    return "";
+}
+
 
 #endif // LL_DARWIN

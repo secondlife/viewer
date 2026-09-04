@@ -303,9 +303,16 @@ void LLFloaterWebContent::draw()
 // virtual
 void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 {
+    // self is nullptr for an embedded-browser-originated event (see
+    // LLViewerMediaImpl::updateEmbeddedBrowserEvents()) -- it has no LLPluginClassMedia to
+    // ask, so fall back to what LLMediaCtrl itself tracks. Embedded-browser tabs don't
+    // support back/forward navigation yet, so both report unavailable rather than guessing.
+    const bool history_back_available = self ? self->getHistoryBackAvailable() : false;
+    const bool history_forward_available = self ? self->getHistoryForwardAvailable() : false;
+
     if(event == MEDIA_EVENT_LOCATION_CHANGED)
     {
-        const std::string url = self->getLocation();
+        const std::string url = self ? self->getLocation() : mWebBrowser->getCurrentNavUrl();
 
         if ( url.length() )
             mStatusBarText->setText( url );
@@ -315,8 +322,8 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
     else if(event == MEDIA_EVENT_NAVIGATE_BEGIN)
     {
         // flags are sent with this event
-        mBtnBack->setEnabled( self->getHistoryBackAvailable() );
-        mBtnForward->setEnabled( self->getHistoryForwardAvailable() );
+        mBtnBack->setEnabled( history_back_available );
+        mBtnForward->setEnabled( history_forward_available );
 
         // toggle visibility of these buttons based on browser state
         mBtnReload->setVisible( false );
@@ -328,8 +335,8 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
     else if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
     {
         // flags are sent with this event
-        mBtnBack->setEnabled( self->getHistoryBackAvailable() );
-        mBtnForward->setEnabled( self->getHistoryForwardAvailable() );
+        mBtnBack->setEnabled( history_back_available );
+        mBtnForward->setEnabled( history_forward_available );
 
         // toggle visibility of these buttons based on browser state
         mBtnReload->setVisible( true );
@@ -349,7 +356,8 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
     }
     else if(event == MEDIA_EVENT_STATUS_TEXT_CHANGED )
     {
-        const std::string text = self->getStatusText();
+        // self is nullptr for an embedded-browser-originated event.
+        const std::string text = self ? self->getStatusText() : mWebBrowser->getStatusText();
         if ( text.length() )
             mStatusBarText->setText( text );
     }
@@ -361,9 +369,9 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
     else if(event == MEDIA_EVENT_NAME_CHANGED )
     {
         // flags are sent with this event
-        mBtnBack->setEnabled(self->getHistoryBackAvailable());
-        mBtnForward->setEnabled(self->getHistoryForwardAvailable());
-        std::string page_title = self->getMediaName();
+        mBtnBack->setEnabled(history_back_available);
+        mBtnForward->setEnabled(history_forward_available);
+        std::string page_title = self ? self->getMediaName() : mWebBrowser->getMediaName();
         // simulate browser behavior - title is empty, use the current URL
         if (mShowPageTitle)
         {

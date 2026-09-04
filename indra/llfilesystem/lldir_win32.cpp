@@ -385,6 +385,21 @@ std::string LLDir_Win32::getCurPath()
         base_name + ".dll";
 }
 
+/*virtual*/ std::string LLDir_Win32::getSLCefProducerLauncher()
+{
+    // Lives in its own SLCefProducer/ directory (see viewer_manifest.py),
+    // alongside libcef.dll and its other CEF runtime files, not next to
+    // secondlife-bin.exe and not in llplugin/ (the legacy media plugins'
+    // own directory, no longer built by default -- see ENABLE_MEDIA_PLUGINS)
+    // -- unlike a DLL loaded from there (media_plugin_cef.dll), a standalone
+    // .exe only checks its own directory in the default DLL search order,
+    // so it needs to actually live where those files are rather than just
+    // depend on them being nearby.
+    return gDirUtilp->getExecutableDir() + gDirUtilp->getDirDelimiter() +
+        "SLCefProducer" + gDirUtilp->getDirDelimiter() +
+        "SLCefProducer.exe";
+}
+
 
 #if 0
 // Utility function to get version number of a DLL

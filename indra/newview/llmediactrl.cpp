@@ -216,7 +216,7 @@ bool LLMediaCtrl::handleHover( S32 x, S32 y, MASK mask )
 bool LLMediaCtrl::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
     if (LLPanel::handleScrollWheel(x, y, clicks)) return true;
-    if (mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
         convertInputCoords(x, y);
         mMediaSource->scrollWheel(x, y, 0, clicks, gKeyboard->currentMask(true));
@@ -230,7 +230,7 @@ bool LLMediaCtrl::handleScrollWheel( S32 x, S32 y, S32 clicks )
 bool LLMediaCtrl::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
     if (LLPanel::handleScrollHWheel(x, y, clicks)) return true;
-    if (mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
         convertInputCoords(x, y);
         mMediaSource->scrollWheel(x, y, clicks, 0, gKeyboard->currentMask(true));
@@ -370,11 +370,16 @@ bool LLMediaCtrl::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
     if (menu)
     {
-        // hide/show debugging options
-        bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
-        menu->setItemVisible("debug_separator", media_plugin_debugging_enabled);
-        menu->setItemVisible("open_webinspector", media_plugin_debugging_enabled );
-        menu->setItemVisible("show_page_source", media_plugin_debugging_enabled);
+        // The "Open Web Inspector"/"Show Source" debug items are permanently hidden here
+        // (never shown regardless of MediaPluginDebugging) rather than removed from
+        // menu_media_ctrl.xml -- removing them outright was found to somehow break the
+        // whole menu's display (no visible menu at all, despite this same code
+        // successfully creating it and calling show()/showPopup() every time, per
+        // direct log verification -- root cause not confirmed, not worth chasing
+        // further given this workaround is low-risk and fully effective).
+        menu->setItemVisible("debug_separator", false);
+        menu->setItemVisible("open_webinspector", false);
+        menu->setItemVisible("show_page_source", false);
 
         menu->show(x, y);
         LLMenuGL::showPopup(this, menu, x, y);
@@ -542,8 +547,33 @@ void LLMediaCtrl::reshape( S32 width, S32 height, bool called_from_parent )
 {
     if(!getDecoupleTextureSize())
     {
-        S32 screen_width = ll_round((F32)width * LLUI::getScaleFactor().mV[VX]);
-        S32 screen_height = ll_round((F32)height * LLUI::getScaleFactor().mV[VY]);
+        // The embedded-browser backend keeps its pixel buffer at the widget's raw,
+        // unscaled size -- UI scaling is applied as a page zoom instead (see
+        // ensureMediaSourceExists()/draw()'s setPageZoomFactor() calls), not as a
+        // resize. Baking LLUI::getScaleFactor() into the requested buffer size here
+        // (as the legacy plugin path still does, below) would ask CEF to actually
+        // resize its browser every time the scale changes, which is real, disruptive
+        // work rather than a cheap re-render -- and see llCefBrowser::
+        // CheckResizeWatchdog(), whose exact-match resize confirmation makes a
+        // never-quite-settling resize show up as a persistent flicker.
+        //
+        // Deliberately NOT mMediaSource->isUsingEmbeddedBrowser(): that flag only
+        // flips true once LLViewerMediaImpl::createMediaSource() has actually run,
+        // which happens lazily on first navigate -- but reshape() can fire earlier
+        // than that (e.g. XUI's own follows="all" auto-layout reshaping a freshly
+        // built LLMediaCtrl before its owning panel's constructor gets around to
+        // calling navigateTo()/navigateToLocalPage(), as LLPanelLogin's does). Using
+        // the lazy flag there meant this reshape() call would still take the legacy-
+        // plugin (scaled) branch, bake that wrong size into setTextureSize(), and
+        // hand it straight to LLEmbeddedBrowser::create() as the tab's initial
+        // buffer size once navigateTo() ran moments later -- an intermittent
+        // mis-sized/mis-laid-out login page (only visible when UIScaleFactor != 1.0,
+        // which is why it wasn't every time). This setting is read the same way, and
+        // decides the same thing, in createMediaSource() itself -- it doesn't change
+        // mid-session, so there's no equivalent race in checking it directly here.
+        bool use_embedded = gSavedSettings.getBOOL("UseEmbeddedBrowser");
+        S32 screen_width = use_embedded ? width : ll_round((F32)width * LLUI::getScaleFactor().mV[VX]);
+        S32 screen_height = use_embedded ? height : ll_round((F32)height * LLUI::getScaleFactor().mV[VY]);
 
         // when floater is minimized, these sizes are negative
         if ( screen_height > 0 && screen_width > 0 )
@@ -559,9 +589,12 @@ void LLMediaCtrl::reshape( S32 width, S32 height, bool called_from_parent )
 //
 void LLMediaCtrl::navigateBack()
 {
-    if (mMediaSource && mMediaSource->hasMedia())
+    // Route through LLViewerMediaImpl's own navigateBack() rather than reaching
+    // into the plugin directly -- that has an embedded-browser branch too, and
+    // getMediaPlugin() is always null for embedded-browser media.
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
-        mMediaSource->getMediaPlugin()->browse_back();
+        mMediaSource->navigateBack();
     }
 }
 
@@ -569,9 +602,9 @@ void LLMediaCtrl::navigateBack()
 //
 void LLMediaCtrl::navigateForward()
 {
-    if (mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
-        mMediaSource->getMediaPlugin()->browse_forward();
+        mMediaSource->navigateForward();
     }
 }
 
@@ -579,9 +612,9 @@ void LLMediaCtrl::navigateForward()
 //
 void LLMediaCtrl::navigateStop()
 {
-    if (mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
-        mMediaSource->getMediaPlugin()->browse_stop();
+        mMediaSource->navigateStop();
     }
 }
 
@@ -816,20 +849,14 @@ void LLMediaCtrl::draw()
 
     bool draw_media = false;
 
-    LLPluginClassMedia* media_plugin = NULL;
     LLViewerMediaTexture* media_texture = NULL;
 
-    if(mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && mMediaSource->isTextureReady())
     {
-        media_plugin = mMediaSource->getMediaPlugin();
-
-        if(media_plugin && (media_plugin->textureValid()))
+        media_texture = LLViewerTextureManager::findMediaTexture(mMediaTextureID);
+        if(media_texture)
         {
-            media_texture = LLViewerTextureManager::findMediaTexture(mMediaTextureID);
-            if(media_texture)
-            {
-                draw_media = true;
-            }
+            draw_media = true;
         }
     }
 
@@ -851,15 +878,15 @@ void LLMediaCtrl::draw()
             gGL.getTexUnit(0)->bind(media_texture);
             LLColor4 media_color = LLColor4::white % alpha;
             gGL.color4fv( media_color.mV );
-            F32 max_u = ( F32 )media_plugin->getWidth() / ( F32 )media_plugin->getTextureWidth();
-            F32 max_v = ( F32 )media_plugin->getHeight() / ( F32 )media_plugin->getTextureHeight();
+            F32 max_u = ( F32 )mMediaSource->getMediaWidth() / ( F32 )mMediaSource->getMediaTextureWidth();
+            F32 max_v = ( F32 )mMediaSource->getMediaHeight() / ( F32 )mMediaSource->getMediaTextureHeight();
 
             S32 x_offset, y_offset, width, height;
             calcOffsetsAndSize(&x_offset, &y_offset, &width, &height);
 
             // draw the browser
             gGL.begin(LLRender::TRIANGLES);
-            if (! media_plugin->getTextureCoordsOpenGL())
+            if (! mMediaSource->getMediaTextureCoordsOpenGL())
             {
                 // render using web browser reported width and height, instead of trying to invert GL scale
                 gGL.texCoord2f( max_u, 0.f );
@@ -933,9 +960,19 @@ void LLMediaCtrl::calcOffsetsAndSize(S32 *x_offset, S32 *y_offset, S32 *width, S
 
     if (mStretchToFill)
     {
-        if (mMaintainAspectRatio && mMediaSource && mMediaSource->getMediaPlugin())
+        // The embedded-browser backend has no intrinsic aspect ratio to preserve --
+        // unlike a video plugin's fixed source resolution, a CEF browser always renders
+        // at exactly the size it was last told to (see setSize()/resize()), so
+        // getMediaWidth()/getMediaHeight() here is really "the size of the last frame
+        // that happened to arrive," not a property of the content itself. Letterboxing
+        // against it is not just unnecessary for this backend, it's actively wrong
+        // whenever that value is momentarily stale relative to a just-requested resize
+        // (e.g. the producer hasn't caught up yet) -- always fill the rect instead and
+        // let the already-in-flight resize converge the actual browser size to match.
+        if (mMaintainAspectRatio && mMediaSource && !mMediaSource->isUsingEmbeddedBrowser() &&
+            mMediaSource->getMediaWidth() > 0 && mMediaSource->getMediaHeight() > 0)
         {
-            F32 media_aspect = (F32)(mMediaSource->getMediaPlugin()->getWidth()) / (F32)(mMediaSource->getMediaPlugin()->getHeight());
+            F32 media_aspect = (F32)(mMediaSource->getMediaWidth()) / (F32)(mMediaSource->getMediaHeight());
             F32 view_aspect = (F32)(r.getWidth()) / (F32)(r.getHeight());
             if (media_aspect > view_aspect)
             {
@@ -956,10 +993,15 @@ void LLMediaCtrl::calcOffsetsAndSize(S32 *x_offset, S32 *y_offset, S32 *width, S
             *height = r.getHeight();
         }
     }
+    else if (mMediaSource)
+    {
+        *width = llmin(mMediaSource->getMediaWidth(), r.getWidth());
+        *height = llmin(mMediaSource->getMediaHeight(), r.getHeight());
+    }
     else
     {
-        *width = llmin(mMediaSource->getMediaPlugin()->getWidth(), r.getWidth());
-        *height = llmin(mMediaSource->getMediaPlugin()->getHeight(), r.getHeight());
+        *width = r.getWidth();
+        *height = r.getHeight();
     }
 
     *x_offset = (r.getWidth() - *width) / 2;
@@ -976,21 +1018,61 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
     x -= x_offset;
     y -= y_offset;
 
+    // Backend-agnostic (see LLViewerMediaImpl::getMediaTextureCoordsOpenGL()) -- going
+    // through getMediaPlugin() directly (as this used to) always reads false for the
+    // embedded-browser backend, since mMediaSource->getMediaPlugin() is null there by
+    // construction (there's no real LLPluginClassMedia), taking the wrong branch below
+    // and inverting mouse Y for every embedded-browser click/move/scroll.
     bool coords_opengl = false;
 
-    if(mMediaSource && mMediaSource->hasMedia())
+    if(mMediaSource)
     {
-        coords_opengl = mMediaSource->getMediaPlugin()->getTextureCoordsOpenGL();
+        coords_opengl = mMediaSource->getMediaTextureCoordsOpenGL();
     }
 
-    x = ll_round((F32)x * LLUI::getScaleFactor().mV[VX]);
+    F32 scale_x = LLUI::getScaleFactor().mV[VX];
+    F32 scale_y = LLUI::getScaleFactor().mV[VY];
+
+    // The embedded-browser backend's displayed content is always stretched to fill
+    // (width, height) regardless of the browser's own actual current render size (see
+    // calcOffsetsAndSize(), which skips aspect-ratio letterboxing for this backend) --
+    // getMediaWidth()/getMediaHeight() there is "the size of the last frame that
+    // happened to arrive," which can genuinely differ from the widget's current rect
+    // for as long as an in-flight resize hasn't caught up yet (see
+    // LLEmbeddedBrowserTab::resize()'s own comment: it doesn't update the reported
+    // size until a frame published at the new size actually arrives). Scale by the
+    // real ratio between the browser's own size and the displayed rect, not just the
+    // UI scale factor, so a click at the edge of the DISPLAYED image lands at the edge
+    // of the browser's ACTUAL content instead of drifting short of/past it by however
+    // stale that gap currently is. The drift grows with distance from the origin,
+    // which is why this shows up as "increasingly wrong toward the bottom" of a widget
+    // rather than a constant, easily-dismissed offset.
+    if (mMediaSource && mMediaSource->isUsingEmbeddedBrowser() && width > 0 && height > 0)
+    {
+        const S32 media_width  = mMediaSource->getMediaWidth();
+        const S32 media_height = mMediaSource->getMediaHeight();
+        if (media_width > 0 && media_height > 0)
+        {
+            scale_x = (F32)media_width  / (F32)width;
+            scale_y = (F32)media_height / (F32)height;
+        }
+    }
+
+    x = ll_round((F32)x * scale_x);
     if ( ! coords_opengl )
     {
-        y = ll_round((F32)(y) * LLUI::getScaleFactor().mV[VY]);
+        y = ll_round((F32)(y) * scale_y);
     }
     else
     {
-        y = ll_round((F32)(getRect().getHeight() - y) * LLUI::getScaleFactor().mV[VY]);
+        // height, not getRect().getHeight(): y was already shifted onto the aspect-
+        // corrected content rect above (y -= y_offset), which is smaller than the full
+        // widget rect whenever mMaintainAspectRatio (on by default -- see the ctor) is
+        // actually centering letterboxed/pillarboxed content. Flipping against the wrong
+        // (larger) height here throws Y off by exactly the centering offset -- invisible
+        // when the widget's aspect ratio happens to match the media's (no centering), and
+        // growing right along with the letterbox band otherwise.
+        y = ll_round((F32)(height - y) * scale_y);
     };
 }
 
@@ -1023,13 +1105,16 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_CURSOR_CHANGED:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << self->getCursorName() << LL_ENDL;
+            // self is nullptr for an embedded-browser-originated event (see
+            // LLViewerMediaImpl::updateEmbeddedBrowserEvents()) -- it has no
+            // LLPluginClassMedia to ask for a cursor name.
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << (self ? self->getCursorName() : "(embedded browser)") << LL_ENDL;
         }
         break;
 
         case MEDIA_EVENT_NAVIGATE_BEGIN:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN, url is " << self->getNavigateURI() << LL_ENDL;
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_BEGIN, url is " << (self ? self->getNavigateURI() : mMediaSource->getCurrentMediaURL()) << LL_ENDL;
             hideNotification();
             mLoadingState = LOADING_STATE_LOADING;
         };
@@ -1037,7 +1122,10 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_NAVIGATE_COMPLETE:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << self->getNavigateResultString() << LL_ENDL;
+            // self can be null for embedded-browser media (see isUsingEmbeddedBrowser()'s
+            // own comment) -- develop's own version of this line assumes a real
+            // LLPluginClassMedia* and crashes for that backend.
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_NAVIGATE_COMPLETE, result string is: " << (self ? self->getNavigateResultString() : "(embedded browser)") << LL_ENDL;
             mLoadingState = LOADING_STATE_LOADED;
         };
         break;
@@ -1050,13 +1138,13 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_STATUS_TEXT_CHANGED:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << self->getStatusText() << LL_ENDL;
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_STATUS_TEXT_CHANGED, new status text is: " << (self ? self->getStatusText() : mMediaSource->getStatusText()) << LL_ENDL;
         };
         break;
 
         case MEDIA_EVENT_LOCATION_CHANGED:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << self->getLocation() << LL_ENDL;
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_LOCATION_CHANGED, new uri is: " << (self ? self->getLocation() : mMediaSource->getCurrentMediaURL()) << LL_ENDL;
         };
         break;
 
@@ -1073,10 +1161,15 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_CLICK_LINK_HREF:
         {
-            // retrieve the event parameters
-            std::string url = self->getClickURL();
-            std::string target = self->isOverrideClickTarget() ? self->getOverrideClickTarget() : self->getClickTarget();
-            std::string uuid = self->getClickUUID();
+            // retrieve the event parameters. self is null for an embedded-browser-originated
+            // event (see LLViewerMediaImpl::updateEmbeddedBrowserEvents()) -- it has no
+            // isOverrideClickTarget()/getOverrideClickTarget() override state (that's only
+            // ever set on a real LLPluginClassMedia, see llfloatertos.cpp), so embedded just
+            // uses its own plain click target.
+            std::string url = self ? self->getClickURL() : mMediaSource->getClickURL();
+            std::string target = self ? (self->isOverrideClickTarget() ? self->getOverrideClickTarget() : self->getClickTarget())
+                                       : mMediaSource->getClickTarget();
+            std::string uuid = self ? self->getClickUUID() : mMediaSource->getClickUUID();
             LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_CLICK_LINK_HREF, target is \"" << target << "\", uri is " << url << LL_ENDL;
 
             // try as slurl first
@@ -1105,7 +1198,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_CLICK_LINK_NOFOLLOW:
         {
-            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << self->getClickURL() << LL_ENDL;
+            LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CLICK_LINK_NOFOLLOW, uri is " << (self ? self->getClickURL() : mMediaSource->getClickURL()) << LL_ENDL;
         };
         break;
 
@@ -1174,25 +1267,41 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_FILE_DOWNLOAD:
         {
+            // self is nullptr for an embedded-browser-originated event -- see
+            // LLViewerMediaImpl::getFileDownloadFilename()/respondToFileDialog().
             if (mAllowFileDownload)
             {
                 // pick a file from SAVE FILE dialog
                 // for now the only thing that should be allowed to save is 360s
-                std::string suggested_filename = self->getFileDownloadFilename();
+                std::string suggested_filename = self ? self->getFileDownloadFilename() : mMediaSource->getFileDownloadFilename();
                 LLFilePicker::ESaveFilter filter = LLFilePicker::FFSAVE_ALL;
                 if (suggested_filename.find(".jpg") != std::string::npos || suggested_filename.find(".jpeg") != std::string::npos)
                     filter = LLFilePicker::FFSAVE_JPEG;
                 if (suggested_filename.find(".png") != std::string::npos)
                     filter = LLFilePicker::FFSAVE_PNG;
 
-                (new LLMediaFilePicker(self, filter, suggested_filename))->getFile();
+                if (self)
+                {
+                    (new LLMediaFilePicker(self, filter, suggested_filename))->getFile();
+                }
+                else
+                {
+                    (new LLEmbeddedMediaFilePicker(mMediaSource, filter, suggested_filename))->getFile();
+                }
             }
             else
             {
                 // Media might be blocked, waiting for a file,
                 // send an empty response to unblock it
                 const std::vector<std::string> empty_response;
-                self->sendPickFileResponse(empty_response);
+                if (self)
+                {
+                    self->sendPickFileResponse(empty_response);
+                }
+                else
+                {
+                    mMediaSource->respondToFileDialog(empty_response);
+                }
 
                 LLNotificationsUtil::add("MediaFileDownloadUnsupported");
             }
@@ -1201,10 +1310,11 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
         case MEDIA_EVENT_DEBUG_MESSAGE:
         {
-            LL_INFOS("media") << self->getDebugMessageText() << LL_ENDL;
+            // self is nullptr for an embedded-browser-originated event.
+            std::string debug_text = self ? self->getDebugMessageText() : mMediaSource->getDebugMessageText();
+            LL_INFOS("media") << debug_text << LL_ENDL;
 
             // Handle text extraction responses
-            std::string debug_text = self->getDebugMessageText();
             if (debug_text.find(PAGE_TEXT_EXTRACT_MARKER) != std::string::npos)
             {
                 if (LLPluginClassMedia* plugin = getMediaPlugin())
@@ -1242,6 +1352,22 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 std::string LLMediaCtrl::getCurrentNavUrl()
 {
     return mCurrentNavUrl;
+}
+
+std::string LLMediaCtrl::getMediaName()
+{
+    if (mMediaSource)
+        return mMediaSource->getMediaName();
+    else
+        return LLStringUtil::null;
+}
+
+std::string LLMediaCtrl::getStatusText()
+{
+    if (mMediaSource)
+        return mMediaSource->getStatusText();
+    else
+        return LLStringUtil::null;
 }
 
 void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)
@@ -1350,7 +1476,7 @@ std::string LLMediaCtrl::getMediaTitle()
 
 bool LLMediaCtrl::executeJavaScript(const std::string& script)
 {
-    if (mMediaSource && mMediaSource->hasMedia())
+    if (mMediaSource && (mMediaSource->hasMedia() || mMediaSource->isUsingEmbeddedBrowser()))
     {
         mMediaSource->executeJavaScript(script);
         return true;
@@ -1438,15 +1564,14 @@ void LLMediaCtrlListener::getMediaText(const LLSD& request)
         return;
     }
 
-    LLPluginClassMedia* plugin = media_ctrl->getMediaPlugin();
-    if (!plugin)
+    // Enable plugin debugging to capture console messages -- embedded browser has no
+    // equivalent toggle (its console-message callback always forwards), so this only
+    // applies to the legacy plugin path; executeJavaScript() below is what actually
+    // gates on whether there's any media to run this against, for either backend.
+    if (LLPluginClassMedia* plugin = media_ctrl->getMediaPlugin())
     {
-        replyError(request, "Media plugin is not available for widget at path: " + path);
-        return;
+        plugin->enableMediaPluginDebugging(true);
     }
-
-    // Enable plugin debugging to capture console messages
-    plugin->enableMediaPluginDebugging(true);
     std::string pump_name = request["reply"].asString();
 
     // Execute JavaScript to extract page text, embedding pump name in the marker

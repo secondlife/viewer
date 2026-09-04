@@ -138,6 +138,7 @@
 #include "stringize.h"
 #include "llcoros.h"
 #include "llexception.h"
+#include "llembeddedbrowser.h"
 #include "cef/dullahan_version.h"
 #include "vlc/libvlc_version.h"
 
@@ -1255,6 +1256,12 @@ bool LLAppViewer::init()
     LLViewerCamera::createInstance();
     LL::GLTFSceneManager::createInstance();
 
+    // Launch SLCefProducer now, eagerly -- the login screen itself is rendered
+    // through this same embedded-browser path (it's "slot 0" of the producer),
+    // so it needs to be available before idle_startup() can reach
+    // STATE_LOGIN_SHOW, not lazily on first unrelated media use.
+    LLEmbeddedBrowser::getInstance()->init();
+
     gSavedSettings.setU32("DebugQualityPerformance", gSavedSettings.getU32("RenderQualityPerformance"));
 
 #if LL_WINDOWS
@@ -1768,6 +1775,9 @@ bool LLAppViewer::cleanup()
         // of 1s sleep loop by the time we get to clean it.
         LLWatchdog::getInstance()->shutdown();
     }
+
+    // Stop SLCefProducer, if init() launched one.
+    LLEmbeddedBrowser::getInstance()->reset();
 
     disconnectViewer();
 
@@ -3680,6 +3690,20 @@ LLSD LLAppViewer::getViewerInfo() const
         info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
     }
 
+    // The llshmframe/cefshm_producer embedded browser path, which is this Viewer's
+    // default media path now (see ENABLE_MEDIA_PLUGINS). llshmframe's own version is a
+    // build-time constant; the llCefBrowser/CEF/Chromium version is reported live by
+    // whatever producer last connected, since the Viewer itself doesn't link CEF for
+    // this path.
+    info["SHMFRAME_VERSION"] = LLEmbeddedBrowser::getShmFrameVersion();
+    std::string embedded_cefbrowser_version = LLEmbeddedBrowser::instance().getCefBrowserVersion();
+    info["EMBEDDED_LLCEFBROWSER_VERSION"] = embedded_cefbrowser_version.empty() ?
+        LLSD(LLTrans::getString("NotConnected")) : LLSD(embedded_cefbrowser_version);
+
+    // The legacy Dullahan-based CEF plugin's own version info. Reported unconditionally
+    // alongside the embedded-browser info above, not gated on ENABLE_MEDIA_PLUGINS --
+    // dullahan_version.h's macros are available either way, and this stays meaningful
+    // if that flag is ever turned back on for the legacy media_plugin_cef path.
     std::ostringstream cef_ver_codec;
     cef_ver_codec << "Dullahan: ";
     cef_ver_codec << DULLAHAN_VERSION_MAJOR;
@@ -4863,6 +4887,16 @@ void LLAppViewer::loadKeyBindings()
 void LLAppViewer::purgeCefStaleCaches()
 {
     LL_PROFILE_ZONE_SCOPED;
+    if (gSavedSettings.getBOOL("UseEmbeddedBrowser"))
+    {
+        // "cef_cache" is only ever created by the legacy media_plugin_cef path (one
+        // throwaway per-process-id folder per plugin instance, hence this cleanup);
+        // the embedded-browser backend's own persistent profile lives at a sibling
+        // "cef_profile" path specifically so this purge never touches it (see
+        // LLEmbeddedBrowser::launchProducer()). Skip the work entirely once the
+        // legacy plugin path is never taken.
+        return;
+    }
     // TODO: we really shouldn't use a hard coded name for the cache folder here...
     const std::string browser_parent_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
     if (!LLFile::isdir(browser_parent_cache))

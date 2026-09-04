@@ -51,6 +51,7 @@
 #include "llpluginclassmedia.h"
 #include "llresourcedata.h"
 #include "llstatusbar.h"
+#include "llviewermedia.h"
 #include "lltinygltfhelper.h"
 #include "lltoast.h"
 #include "llviewercontrol.h"    // gSavedSettings
@@ -375,6 +376,24 @@ void LLMediaFilePicker::notify(const std::vector<std::string>& filenames)
 {
     mPlugin->sendPickFileResponse(mResponses);
     mPlugin = NULL;
+}
+
+LLEmbeddedMediaFilePicker::LLEmbeddedMediaFilePicker(LLViewerMediaImpl* media, LLFilePicker::ELoadFilter filter, bool get_multiple)
+    : LLFilePickerThread(filter, get_multiple),
+    mMediaImpl(media)
+{
+}
+
+LLEmbeddedMediaFilePicker::LLEmbeddedMediaFilePicker(LLViewerMediaImpl* media, LLFilePicker::ESaveFilter filter, const std::string &proposed_name)
+    : LLFilePickerThread(filter, proposed_name),
+    mMediaImpl(media)
+{
+}
+
+void LLEmbeddedMediaFilePicker::notify(const std::vector<std::string>& filenames)
+{
+    mMediaImpl->respondToFileDialog(mResponses);
+    mMediaImpl = NULL;
 }
 
 //============================================================================

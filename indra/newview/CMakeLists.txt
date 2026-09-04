@@ -1858,11 +1858,17 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${viewer_APPSETTINGS_FILES}
-      SLPlugin
-      media_plugin_cef
-      media_plugin_libvlc
-      media_plugin_example
+      SLCefProducer
       )
+
+    if (ENABLE_MEDIA_PLUGINS)
+      list(APPEND COPY_INPUT_DEPENDENCIES
+           SLPlugin
+           media_plugin_cef
+           media_plugin_libvlc
+           media_plugin_example
+           )
+    endif (ENABLE_MEDIA_PLUGINS)
 
     if (TARGET ll::discord_sdk)
         list(APPEND COPY_INPUT_DEPENDENCIES
@@ -1902,13 +1908,14 @@ if (WINDOWS)
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         stage_third_party_libs
         llwebrtc
+        llembeddedbrowser
         ${COPY_INPUT_DEPENDENCIES}
       COMMENT "Performing viewer_manifest copy"
       )
 
     add_custom_target(copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat)
 
-    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon llwebrtc copy_w_viewer_manifest)
+    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon llwebrtc llembeddedbrowser copy_w_viewer_manifest)
 
     # Useful for remote debugging or profiling if set to target a shared drive. for example, brad sets it to "dist/secondlife" to deploy under
     # the build tree (and then I share that directory) or "f:/dist/secondlife" to deploy to a network mounted drive (although this can be slow).
@@ -1956,7 +1963,10 @@ if (WINDOWS)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
 
-    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
+    if (ENABLE_MEDIA_PLUGINS)
+      add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
+    endif (ENABLE_MEDIA_PLUGINS)
+    add_dependencies(${VIEWER_BINARY_NAME} SLCefProducer)
 
     # sets the 'working directory' for debugging from visual studio.
     # Condition for version can be moved to requirements once build agents will be updated (see TOOL-3865)
@@ -2090,6 +2100,7 @@ endif (WINDOWS)
 target_link_libraries(${VIEWER_BINARY_NAME}
         llaudio
         llcharacter
+        llembeddedbrowser
         llimage
         llinventory
         llmessage
@@ -2117,6 +2128,17 @@ target_link_libraries(${VIEWER_BINARY_NAME}
 if (NOT DISABLE_WEBRTC)
     target_link_libraries(${VIEWER_BINARY_NAME} llwebrtc )
 endif()
+
+if (NOT LINUX)
+  # llappviewer.cpp reads LIBVLC_VERSION_MAJOR/MINOR/REVISION from vlc/libvlc_version.h
+  # (guarded by the same !LL_LINUX there) purely to report the LibVLC version in the
+  # About-box info dump -- unrelated to whether media_plugin_libvlc itself gets built.
+  # That header's include path used to only exist as a side effect of
+  # media_plugin_libvlc's own CMakeLists.txt running (include(LibVLCPlugin)), which
+  # ENABLE_MEDIA_PLUGINS=OFF now skips -- needed here unconditionally instead.
+  include(LibVLCPlugin)
+  target_link_libraries(${VIEWER_BINARY_NAME} ll::libvlc)
+endif ()
 
 if (USE_DISCORD)
     target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
@@ -2384,7 +2406,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
           "${VIEWER_APP_XCARCHIVE}"
             "${VIEWER_CHANNEL}"
           WORKING_DIRECTORY "${SYMBOLS_STAGING_DIR}/.."
-          DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc
+          DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc llembeddedbrowser
           COMMENT "Generating ${VIEWER_APP_XCARCHIVE} for upload to BugSplat"
         )
       add_custom_target(generate_symbols DEPENDS

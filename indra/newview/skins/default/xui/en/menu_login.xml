@@ -262,7 +262,7 @@
        name="Media Browser">
         <menu_item_call.on_click
          function="Advanced.WebContentTest"
-         parameter="http://duckduckgo.com"/>
+         parameter="https://sl-viewer-media-system.s3.amazonaws.com/index.html"/>
       </menu_item_call>
       <menu
        create_jump_keys="true"
