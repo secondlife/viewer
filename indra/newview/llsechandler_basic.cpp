@@ -746,6 +746,21 @@ static CFDataRef validate_certificate(SecPolicyRef policy, SecCertificateRef cer
     CFRelease(trustRef);
     return derRef;
 }
+
+static std::string stringFromCFString(CFStringRef stringRef)
+{
+    std::string nameStr;
+    CFIndex usedBufferLength;
+    CFStringEncoding enc = CFStringGetSystemEncoding();
+    CFRange rangeToProcess = CFRangeMake(0, CFStringGetLength(stringRef));
+    CFIndex numChars = CFStringGetBytes(stringRef, rangeToProcess, enc, 0, FALSE, nullptr, 0, &usedBufferLength);
+    if (numChars > 0)
+    {
+        nameStr.resize(usedBufferLength);
+        numChars = CFStringGetBytes(stringRef, rangeToProcess, enc, 0, FALSE, (UInt8*)nameStr.data(), usedBufferLength, &usedBufferLength);
+    }
+    return nameStr;
+}
 #endif
 
 // Enumerate the certificates in the system store
@@ -753,8 +768,10 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
 {
     int loaded = 0;
 #if LL_WINDOWS
+    // There is also the "MY" store which can contain end-entity/user certs. Pulling in "MY" broadens
+    // trust unnecessarily and could allow trusting a leaf cert if it matches a chain cert.
     const static LPCSTR domains[] = {
-        "MY",
+//      "MY",
         "CA",
         "ROOT",
     };
@@ -780,16 +797,18 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
     }
 #elif LL_DARWIN
     // FM: Quite some googling led eventually to some old MacOS Open Source repository that showed the
-    // implementation for SecTrustSettingsCopyCertificates() and that eventually led to this code
+    // implementation for SecTrustSettingsCopyCertificates() and that eventually led to this code.
     const static SecTrustSettingsDomain domains[] = {
-        kSecTrustSettingsDomainUser,
+//      kSecTrustSettingsDomainUser,   see above comment about not adding the "MY" user store on Windows
         kSecTrustSettingsDomainAdmin,
         kSecTrustSettingsDomainSystem,
     };
 
     const static char* domainNames[] =
     {
-        "User", "Admin", "System",
+        "User",
+        "Admin",
+        "System",
     };
 
     SecPolicyRef policyRef = SecPolicyCreateBasicX509();
@@ -818,20 +837,19 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
                         CFStringRef nameRef = nullptr;
                         if (!SecCertificateCopyCommonName(certRef, &nameRef))
                         {
-                            LL_WARNS("SECAPI") << "Certificate '" << CFStringGetCStringPtr(nameRef, CFStringGetSystemEncoding())
-                                               << "' rejected. Ignore it." << LL_ENDL;
-                            if (nameRef != nullptr)
-                            {
-                                CFRelease(nameRef);
-                            }
+                            LL_WARNS("SECAPI") << "Certificate '" << stringFromCFString(nameRef) << "' rejected. Ignore it." << LL_ENDL;
                         }
                         else
                         {
-                            LL_WARNS("SECAPI") << "Certificate rejected. Ignore it." << LL_ENDL;
+                            LL_WARNS("SECAPI") << "Unnamed certificate rejected. Ignore it." << LL_ENDL;
+                        }
+                        if (nameRef != nullptr)
+                        {
+                            CFRelease(nameRef);
                         }
                         mRejected++;
                     }
-                    // wo don't own the certRef reference, as CFArrayGetValueAtIndex() only returns the
+                    // we don't own the certRef reference, as CFArrayGetValueAtIndex() only returns the
                     // pointer in the array
                 }
                 CFRelease(certArrayRef);
@@ -872,7 +890,7 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
     const char* env_val = getenv("SSL_CERT_FILE");
     if (env_val && LLFile::exists(env_val))
     {
-        loaded += load_from(env_val, suppress_expire_warning);
+        loaded += load_from(fsyspath(env_val), suppress_expire_warning);
         LL_INFOS("SECAPI") << "System Certificate store '" << env_val << "': loaded "
                            << loaded << " certificates " << LL_ENDL;
     }

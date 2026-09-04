@@ -35,6 +35,7 @@
 
 #include "llsecapi.h"
 #include <vector>
+#include <filesystem>
 #include <openssl/x509.h>
 
 // helpers
