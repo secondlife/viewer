@@ -233,6 +233,23 @@ class LLEmbeddedBrowserTab
         // its sibling input methods, the requested level is recorded even when not yet
         // connected and replayed by connectToProducer() -- see mVolume.
         void setVolume(float volume);
+        // Explicit, non-toggling Play/Pause/Stop -- back LLPanelPrimMediaControls' own
+        // buttons for a LibVLC-backed tab (meaningless, and a no-op, on a CEF-backed one --
+        // see kSetPlaybackAction's own comment in cefshm_protocol.h). Fire-and-forget, same
+        // as the other input methods -- not recorded/replayed on reconnect, unlike
+        // setVolume()/mVolume, since a dropped transport command has nothing useful to
+        // apply once a new connection exists (the producer's own Open() already starts
+        // a fresh player playing).
+        void play();
+        void pause();
+        void stop();
+        // Cached from the producer's own kEventPlaybackStateChanged -- see that opcode's
+        // own comment for why this can't just be inferred from the last play()/pause()/
+        // stop() call: TogglePlayPause() (the click-to-pause gesture, via mouseButton())
+        // changes it independently. Only meaningful for a LibVLC-backed tab; defaults to
+        // true (matching a CEF-backed tab's own always-effectively-playing-once-loaded
+        // status, and a LibVLC tab's own Open()-starts-playback-immediately behavior).
+        bool isPlaying() const;
         // Caps how often the producer paints this tab (0 = unthrottled/full rate) --
         // see kSetRenderRate's own comment in cefshm_protocol.h. priorityTier and url
         // are diagnostic only, echoed in the producer's own console/log output.
@@ -310,6 +327,9 @@ class LLEmbeddedBrowserTab
         // can't be reported after this tab moves to a different slot.
         bool mHasSlotIndex = false;
         unsigned int mSlotIndex = 0;
+        // Latest state reported by the producer's kEventPlaybackStateChanged, under
+        // mPixelMutex like mCanGoBack/mCanGoForward -- see isPlaying().
+        bool mIsPlaying = true;
         std::deque<LLEmbeddedBrowserEvent> mEvents;
 };
 
@@ -372,6 +392,10 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void setFocus(unsigned int id, bool focus);
         void setMuted(unsigned int id, bool muted);
         void setVolume(unsigned int id, float volume);
+        void play(unsigned int id);
+        void pause(unsigned int id);
+        void stop(unsigned int id);
+        bool isPlaying(unsigned int id);
         void setRenderRate(unsigned int id, unsigned int targetFps, unsigned int priorityTier, const std::string& url);
         bool getSlotIndex(unsigned int id, unsigned int& out_index);
         void respondToFileDialog(unsigned int id, long long dialogId, const std::vector<std::string>& filePaths);

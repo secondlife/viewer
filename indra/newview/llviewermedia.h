@@ -356,6 +356,16 @@ public:
     bool isUsingEmbeddedBrowser() const { return mUseEmbeddedBrowser; }
     // Only meaningful when isUsingEmbeddedBrowser() is true; returns Cef otherwise.
     LLEmbeddedBrowserBackend getEmbeddedBrowserBackend() const { return mEmbeddedBrowserBackend; }
+    // Only meaningful for a LibVLC-backed embedded-browser slot (see
+    // getEmbeddedBrowserBackend()) -- used by LLPanelPrimMediaControls to pick which of
+    // its Play/Pause buttons to show. Backed by the producer's own
+    // kEventPlaybackStateChanged, not just this impl's own last play()/pause()/stop()
+    // call, because the existing click-to-pause gesture (mouseDown/mouseUp's
+    // kMouseButton) can change actual playback state independently of those calls.
+    bool isEmbeddedBrowserPlaying() const
+    {
+        return !mUseEmbeddedBrowser || LLEmbeddedBrowser::getInstance()->isPlaying(mEmbeddedBrowserId);
+    }
     bool isMediaFailed() const { return mMediaSourceFailed; }
     void setMediaFailed(bool val) { mMediaSourceFailed = val; }
     void resetPreviousMediaState();

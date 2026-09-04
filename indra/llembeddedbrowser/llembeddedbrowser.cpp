@@ -339,6 +339,17 @@ void LLEmbeddedBrowserTab::update()
                     mCanGoForward = cmd.data[1] != 0;
                 }
                 continue;
+            case kEventPlaybackStateChanged:
+                // Cached state, polled every frame via isPlaying() (to pick which of
+                // LLPanelPrimMediaControls' Play/Pause buttons to show) -- not a discrete
+                // occurrence, so doesn't go through mEvents either. See that opcode's own
+                // comment in cefshm_protocol.h.
+                if (!cmd.data.empty())
+                {
+                    LLMutexLock lock(&mPixelMutex);
+                    mIsPlaying = cmd.data[0] != 0;
+                }
+                continue;
             default:
                 continue; // not an event opcode this tab understands
         }
@@ -546,6 +557,42 @@ void LLEmbeddedBrowserTab::setVolume(float volume)
         payload[0] = static_cast<std::uint8_t>(mVolume * 100.0f + 0.5f);
         mSub->send(kSetVolume, payload, 1);
     }
+}
+
+void LLEmbeddedBrowserTab::play()
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::uint8_t payload[1] = { 0 };
+        mSub->send(kSetPlaybackAction, payload, 1);
+    }
+}
+
+void LLEmbeddedBrowserTab::pause()
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::uint8_t payload[1] = { 1 };
+        mSub->send(kSetPlaybackAction, payload, 1);
+    }
+}
+
+void LLEmbeddedBrowserTab::stop()
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::uint8_t payload[1] = { 2 };
+        mSub->send(kSetPlaybackAction, payload, 1);
+    }
+}
+
+bool LLEmbeddedBrowserTab::isPlaying() const
+{
+    LLMutexLock lock(&mPixelMutex);
+    return mIsPlaying;
 }
 
 void LLEmbeddedBrowserTab::setRenderRate(unsigned int targetFps, unsigned int priorityTier, const std::string& url)
@@ -1246,6 +1293,39 @@ void LLEmbeddedBrowser::setVolume(unsigned int id, float volume)
     {
         tab->setVolume(volume);
     }
+}
+
+void LLEmbeddedBrowser::play(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->play();
+    }
+}
+
+void LLEmbeddedBrowser::pause(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->pause();
+    }
+}
+
+void LLEmbeddedBrowser::stop(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->stop();
+    }
+}
+
+bool LLEmbeddedBrowser::isPlaying(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        return tab->isPlaying();
+    }
+    return true;
 }
 
 void LLEmbeddedBrowser::setRenderRate(unsigned int id, unsigned int targetFps, unsigned int priorityTier,

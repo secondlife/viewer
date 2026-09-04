@@ -368,7 +368,16 @@ void LLPanelPrimMediaControls::updateShape()
         mVolumeSliderCtrl->setEnabled(has_focus && shouldVolumeSliderBeVisible());
         mVolumeSliderCtrl->setVisible(has_focus && shouldVolumeSliderBeVisible());
 
-        if(media_plugin && media_plugin->pluginSupportsMediaTime())
+        // media_plugin is always NULL for embedded-browser media (hasMedia() -- see its
+        // own comment in llviewermedia.h -- deliberately stays plugin-only), so a
+        // LibVLC-backed slot needs its own, separate route into the "time based" control
+        // set (stop/pause/play + duration slider) the legacy media_plugin_libvlc.cpp used
+        // to get via pluginSupportsMediaTime(). A CEF-backed slot has no equivalent --
+        // it always falls to the "web based" branch below, same as before this fix.
+        const bool media_time_based = (media_plugin && media_plugin->pluginSupportsMediaTime())
+            || (media_impl->isUsingEmbeddedBrowser()
+                && media_impl->getEmbeddedBrowserBackend() == LLEmbeddedBrowserBackend::LibVlc);
+        if(media_time_based)
         {
             mReloadCtrl->setEnabled(false);
             mReloadCtrl->setVisible(false);
@@ -403,15 +412,23 @@ void LLPanelPrimMediaControls::updateShape()
 
             F32 volume = media_impl->getVolume();
             // movie's url changed
+            //
+            // media_plugin is NULL for a LibVLC-backed embedded-browser slot (see this
+            // branch's own comment above) -- duration/current-time have no wire-protocol
+            // equivalent there yet, so they stay 0, which is also the practically correct
+            // answer today: every current LibVLC use case (RTSP/RTMP) is a live,
+            // non-seekable stream, exactly the case the block below already disables the
+            // slider for. Matches the legacy Viewer's own behavior against the same
+            // content (a real, non-seekable stream reports duration 0 there too).
             if(mCurrentURL!=mPreviousURL)
             {
-                mMovieDuration = media_plugin->getDuration();
+                mMovieDuration = media_plugin ? media_plugin->getDuration() : 0.0;
                 mPreviousURL = mCurrentURL;
             }
 
             if(mMovieDuration == 0)
             {
-                mMovieDuration = media_plugin->getDuration();
+                mMovieDuration = media_plugin ? media_plugin->getDuration() : 0.0;
                 mMediaPlaySliderCtrl->setValue(0);
                 mMediaPlaySliderCtrl->setEnabled(false);
             }
@@ -419,6 +436,9 @@ void LLPanelPrimMediaControls::updateShape()
 
             if(mUpdateSlider && mMovieDuration!= 0)
             {
+                // media_plugin is guaranteed non-NULL here: mMovieDuration can only be
+                // non-zero via media_plugin->getDuration() just above, never for the
+                // LibVLC branch (which always leaves it 0 -- see this block's own comment).
                 F64 current_time =  media_plugin->getCurrentTime();
                 F32 percent = (F32)(current_time / mMovieDuration);
                 mMediaPlaySliderCtrl->setValue(percent);
@@ -439,22 +459,29 @@ void LLPanelPrimMediaControls::updateShape()
                 mMuteBtn->setToggleState(false);
             }
 
-            switch(result)
-            {
-                case LLPluginClassMediaOwner::MEDIA_PLAYING:
-                    mPlayCtrl->setEnabled(false);
-                    mPlayCtrl->setVisible(false);
-                    mPauseCtrl->setEnabled(true);
-                    mPauseCtrl->setVisible(has_focus);
+            // result (media_plugin->getStatus()) is always MEDIA_NONE for embedded-browser
+            // media -- see its own comment above -- so a LibVLC-backed slot needs its own
+            // route to the real playing/paused state, fed back from the producer (see
+            // isEmbeddedBrowserPlaying()'s own comment on why this can't just be inferred
+            // from the last button clicked: click-to-pause-on-the-media-itself changes it
+            // independently of this panel's own buttons).
+            const bool media_is_playing = media_plugin
+                ? (result == LLPluginClassMediaOwner::MEDIA_PLAYING)
+                : media_impl->isEmbeddedBrowserPlaying();
 
-                    break;
-                case LLPluginClassMediaOwner::MEDIA_PAUSED:
-                default:
-                    mPauseCtrl->setEnabled(false);
-                    mPauseCtrl->setVisible(false);
-                    mPlayCtrl->setEnabled(true);
-                    mPlayCtrl->setVisible(has_focus);
-                    break;
+            if (media_is_playing)
+            {
+                mPlayCtrl->setEnabled(false);
+                mPlayCtrl->setVisible(false);
+                mPauseCtrl->setEnabled(true);
+                mPauseCtrl->setVisible(has_focus);
+            }
+            else
+            {
+                mPauseCtrl->setEnabled(false);
+                mPauseCtrl->setVisible(false);
+                mPlayCtrl->setEnabled(true);
+                mPlayCtrl->setVisible(has_focus);
             }
         }
         else   // web based

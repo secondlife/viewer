@@ -120,11 +120,21 @@ public:
     // scaling. See kSetVolume/kSetMuted in cefshm_protocol.h.
     void SetVolume(VlcTabHandle handle, int volume0to100);
 
-    // Play/pause toggle -- there's no separate "play" trigger for a LibVLC tab (Open()
-    // already starts playback immediately, see its own comment), so this is the only
-    // transport control needed for a basic click-to-pause/resume. A no-op before the
+    // Play/pause toggle -- used for click-to-pause/resume (there's only one gesture --
+    // a click -- to map, so a toggle is the right shape there). A no-op before the
     // player exists. See kMouseButton's LibVLC handling in llmediaproducer.cpp.
     void TogglePlayPause(VlcTabHandle handle);
+
+    // Explicit, non-toggling transport controls -- back LLPanelPrimMediaControls' own
+    // Play/Pause/Stop buttons, which (unlike a single click gesture) are two separate
+    // controls that must each do one specific thing regardless of current state. See
+    // kSetPlaybackAction in cefshm_protocol.h. Mirror the old media_plugin_libvlc.cpp's
+    // own MEDIA_TIME message handling exactly -- Play() restarts a player that already
+    // reached end-of-stream (a bare libvlc_media_player_play() is a no-op once
+    // libvlc_Ended, per libvlc's own documented behavior) rather than just resuming.
+    void Play(VlcTabHandle handle);
+    void Pause(VlcTabHandle handle);
+    void Stop(VlcTabHandle handle);
 
     // Same contract as llCefBrowserManager::CopyLatestFrame: returns false (dst
     // untouched) if there's no new frame since the last call. Thread-safe against the
@@ -141,6 +151,13 @@ public:
     // libvlc_MediaPlayerEncounteredError -- mirrors the "0 means network/load failure"
     // convention kEventLoadEnd's HTTP-status payload already carries for CEF tabs.
     bool ConsumeLoadEnd(VlcTabHandle handle, int& pseudoHttpStatus);
+
+    // Same coalesced/edge-triggered/once-per-tick-drained shape as ConsumeLoadStart/End
+    // above, but for play/pause/stop transitions -- see kEventPlaybackStateChanged's own
+    // comment in cefshm_protocol.h for why the consumer needs this fed back at all
+    // (rather than just trusting its own last-sent Play/Pause/Stop command), namely that
+    // TogglePlayPause() (the click-to-pause gesture) can also change this independently.
+    bool ConsumePlaybackStateChange(VlcTabHandle handle, bool& out_playing);
 
 private:
     class Impl;

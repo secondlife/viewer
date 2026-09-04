@@ -145,6 +145,14 @@ namespace
         std::atomic<bool> loadStartPending{ false };
         std::atomic<bool> loadEndPending{ false };
         std::atomic<int>  loadEndStatus{ 0 };
+
+        // Same coalesced/edge-triggered/atomic shape as the load-state pair above, but
+        // for play/pause/stop transitions -- see kEventPlaybackStateChanged's own
+        // comment in cefshm_protocol.h for why this needs to be fed back to the
+        // consumer at all, rather than the consumer just trusting its own last-sent
+        // Play/Pause/Stop command.
+        std::atomic<bool> playStateChangedPending{ false };
+        std::atomic<bool> playStateIsPlaying{ false };
     };
 
     void* lock_cb(void* opaque, void** planes)
@@ -174,10 +182,20 @@ namespace
             case libvlc_MediaPlayerPlaying:
                 t->loadEndPending = true;
                 t->loadEndStatus = 200;
+                t->playStateChangedPending = true;
+                t->playStateIsPlaying = true;
                 break;
             case libvlc_MediaPlayerEncounteredError:
                 t->loadEndPending = true;
                 t->loadEndStatus = 0; // mirrors kEventLoadEnd's own "0 = network/load failure" convention
+                t->playStateChangedPending = true;
+                t->playStateIsPlaying = false;
+                break;
+            case libvlc_MediaPlayerPaused:
+            case libvlc_MediaPlayerStopped:
+            case libvlc_MediaPlayerEndReached:
+                t->playStateChangedPending = true;
+                t->playStateIsPlaying = false;
                 break;
             default:
                 break;
@@ -253,6 +271,8 @@ public:
         t.loadStartPending = false;
         t.loadEndPending = false;
         t.loadEndStatus = 0;
+        t.playStateChangedPending = false;
+        t.playStateIsPlaying = false;
         // See kWidthAlignment's own comment -- the width libvlc is actually told to
         // decode into is rounded up to a safe row-stride alignment; height is not.
         t.width = clampAndAlignWidth(std::uint32_t(width), std::uint32_t(maxWidth));
@@ -369,6 +389,10 @@ public:
             libvlc_event_attach(em, libvlc_MediaPlayerOpening, &event_cb, t);
             libvlc_event_attach(em, libvlc_MediaPlayerPlaying, &event_cb, t);
             libvlc_event_attach(em, libvlc_MediaPlayerEncounteredError, &event_cb, t);
+            // Playback-state feedback only -- see kEventPlaybackStateChanged's own comment.
+            libvlc_event_attach(em, libvlc_MediaPlayerPaused, &event_cb, t);
+            libvlc_event_attach(em, libvlc_MediaPlayerStopped, &event_cb, t);
+            libvlc_event_attach(em, libvlc_MediaPlayerEndReached, &event_cb, t);
         }
 
         libvlc_media_player_play(t->player);
@@ -502,6 +526,34 @@ public:
         libvlc_media_player_set_pause(t->player, playing ? 1 : 0);
     }
 
+    // See this method's own comment in the header -- mirrors media_plugin_libvlc.cpp's
+    // "start" message handling exactly, including the Ended-state special case.
+    void Play(VlcTabHandle handle)
+    {
+        Tab* t = find(handle);
+        if (!t || !t->player) return;
+        if (libvlc_media_player_get_state(t->player) == libvlc_Ended &&
+            !libvlc_media_player_is_playing(t->player))
+        {
+            libvlc_media_player_stop(t->player);
+        }
+        libvlc_media_player_play(t->player);
+    }
+
+    void Pause(VlcTabHandle handle)
+    {
+        Tab* t = find(handle);
+        if (!t || !t->player) return;
+        libvlc_media_player_set_pause(t->player, 1);
+    }
+
+    void Stop(VlcTabHandle handle)
+    {
+        Tab* t = find(handle);
+        if (!t || !t->player) return;
+        libvlc_media_player_stop(t->player);
+    }
+
     bool CopyLatestFrame(VlcTabHandle handle, std::vector<std::uint8_t>& dst, int& w, int& h)
     {
         Tab* t = find(handle);
@@ -554,6 +606,15 @@ public:
         return true;
     }
 
+    bool ConsumePlaybackStateChange(VlcTabHandle handle, bool& out_playing)
+    {
+        Tab* t = find(handle);
+        if (!t) return false;
+        if (!t->playStateChangedPending.exchange(false)) return false;
+        out_playing = t->playStateIsPlaying.load();
+        return true;
+    }
+
 private:
     Tab* find(VlcTabHandle handle)
     {
@@ -582,6 +643,8 @@ private:
         }
         t.loadStartPending = false;
         t.loadEndPending = false;
+        t.playStateChangedPending = false;
+        t.playStateIsPlaying = false;
         // A frame already marked dirty from the closed player's last picture must not
         // get published under the NEW player's (possibly different, post-resize-reopen)
         // dimensions -- t.pixels itself is untouched here (still the old player's last
@@ -615,6 +678,9 @@ void LibVlcTabManager::Open(VlcTabHandle handle, const std::string& url) { mImpl
 void LibVlcTabManager::Resize(VlcTabHandle handle, int width, int height) { mImpl->Resize(handle, width, height); }
 void LibVlcTabManager::SetVolume(VlcTabHandle handle, int volume0to100) { mImpl->SetVolume(handle, volume0to100); }
 void LibVlcTabManager::TogglePlayPause(VlcTabHandle handle) { mImpl->TogglePlayPause(handle); }
+void LibVlcTabManager::Play(VlcTabHandle handle) { mImpl->Play(handle); }
+void LibVlcTabManager::Pause(VlcTabHandle handle) { mImpl->Pause(handle); }
+void LibVlcTabManager::Stop(VlcTabHandle handle) { mImpl->Stop(handle); }
 bool LibVlcTabManager::CopyLatestFrame(VlcTabHandle handle, std::vector<std::uint8_t>& dst, int& w, int& h)
 {
     return mImpl->CopyLatestFrame(handle, dst, w, h);
@@ -623,4 +689,8 @@ bool LibVlcTabManager::ConsumeLoadStart(VlcTabHandle handle) { return mImpl->Con
 bool LibVlcTabManager::ConsumeLoadEnd(VlcTabHandle handle, int& pseudoHttpStatus)
 {
     return mImpl->ConsumeLoadEnd(handle, pseudoHttpStatus);
+}
+bool LibVlcTabManager::ConsumePlaybackStateChange(VlcTabHandle handle, bool& out_playing)
+{
+    return mImpl->ConsumePlaybackStateChange(handle, out_playing);
 }

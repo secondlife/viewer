@@ -2536,6 +2536,19 @@ void LLViewerMediaImpl::hideNotification()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::play()
 {
+    // Only meaningful for a LibVLC-backed embedded-browser slot -- see
+    // isEmbeddedBrowserPlaying()'s own comment. A CEF-backed slot has no separate play
+    // step (kSetUrl already autoplays), so this is a no-op there, matching how
+    // LLPanelPrimMediaControls never shows a Play button for CEF media in the first place.
+    if (mUseEmbeddedBrowser)
+    {
+        if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
+        {
+            LLEmbeddedBrowser::getInstance()->play(mEmbeddedBrowserId);
+        }
+        return;
+    }
+
     // If the media source isn't there, try to initialize it and load an URL.
     if(mMediaSource == NULL)
     {
@@ -2556,6 +2569,15 @@ void LLViewerMediaImpl::play()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::stop()
 {
+    if (mUseEmbeddedBrowser)
+    {
+        if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
+        {
+            LLEmbeddedBrowser::getInstance()->stop(mEmbeddedBrowserId);
+        }
+        return;
+    }
+
     if(mMediaSource)
     {
         mMediaSource->stop();
@@ -2566,6 +2588,15 @@ void LLViewerMediaImpl::stop()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::pause()
 {
+    if (mUseEmbeddedBrowser)
+    {
+        if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
+        {
+            LLEmbeddedBrowser::getInstance()->pause(mEmbeddedBrowserId);
+        }
+        return;
+    }
+
     if(mMediaSource)
     {
         mMediaSource->pause();

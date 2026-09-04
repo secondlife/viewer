@@ -795,6 +795,20 @@ int run_producer(int argc, char** argv)
                         }
                         break;
                     }
+                    case kSetPlaybackAction: {
+                        // Explicit Play/Pause/Stop from LLPanelPrimMediaControls' own buttons --
+                        // see kSetPlaybackAction's own comment in cefshm_protocol.h for why this
+                        // is separate from kMouseButton's click-to-pause toggle above.
+                        if (!cmd.data.empty()) {
+                            switch (cmd.data[0]) {
+                            case 0: vlcMgr->Play(s.vlcHandle); break;
+                            case 1: vlcMgr->Pause(s.vlcHandle); break;
+                            case 2: vlcMgr->Stop(s.vlcHandle); break;
+                            default: break;
+                            }
+                        }
+                        break;
+                    }
                     default:
                         // No LibVLC equivalent: kExecuteJavaScript, kMouseMove,
                         // kScrollWheel, kKeyEvent, kSetFocus, kCut/Copy/Paste,
@@ -968,6 +982,11 @@ int run_producer(int argc, char** argv)
                     std::uint8_t payload[4];
                     pack_u32(payload, std::uint32_t(load_end_status));
                     s.pub->send(kEventLoadEnd, payload, 4);
+                }
+                bool now_playing = false;
+                if (vlcMgr->ConsumePlaybackStateChange(s.vlcHandle, now_playing)) {
+                    std::uint8_t payload[1] = { now_playing ? std::uint8_t(1) : std::uint8_t(0) };
+                    s.pub->send(kEventPlaybackStateChanged, payload, 1);
                 }
             }
             else

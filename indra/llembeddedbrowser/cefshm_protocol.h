@@ -220,6 +220,32 @@ namespace cefshm_demo
                                   // recognizing a stream-only scheme in the failed URL and switching
                                   // this slot's backend via a fresh navigate) -- it does not suppress or
                                   // replace CEF's own error page.
+
+        // consumer -> producer, per-view channel -- LibVLC-backed slots only. A CEF-backed
+        // slot silently ignores this (falls through to the CEF switch's own default case in
+        // llmediaproducer.cpp) -- there's no CEF equivalent, matching how kSetUrl-triggered
+        // autoplay already means CEF media never needed a separate play button either.
+        kSetPlaybackAction = 39, // data = {uint8 action} -- 0=Play, 1=Pause, 2=Stop. Explicit,
+                                  // not a toggle (unlike kMouseButton's click-to-pause handling,
+                                  // which IS a toggle -- there's only one gesture to map there),
+                                  // because this backs two separate UI buttons
+                                  // (LLPanelPrimMediaControls' Play/Pause) that must each do one
+                                  // specific thing regardless of current state. Mirrors the old
+                                  // media_plugin_libvlc.cpp's own MEDIA_TIME message handling
+                                  // exactly: Play -> libvlc_media_player_play() (stopping first if
+                                  // the previous playback already ended, so a replay after Ended
+                                  // isn't ignored), Pause -> libvlc_media_player_set_pause(1) (not
+                                  // the version-inconsistent toggle), Stop ->
+                                  // libvlc_media_player_stop().
+        // producer -> consumer, per-view channel -- LibVLC-backed slots only, never sent for a
+        // CEF-backed slot. Needed because LLPanelPrimMediaControls' Play/Pause buttons must show
+        // the ACTUAL current state, which can change from more than just this opcode's own
+        // commands -- the existing kMouseButton click-to-pause/resume gesture changes it too,
+        // independently, so the consumer can't just assume its own last-sent action is still
+        // current. Cached state, not a discrete event -- see kEventNavStateChanged's own comment
+        // for the identical reasoning.
+        kEventPlaybackStateChanged = 40, // data = {uint8 playing} -- 1 if libvlc is actually
+                                  // decoding/playing right now, 0 for paused/stopped/ended/error.
     };
 
     inline std::uint32_t pack_i32x2(std::uint8_t* d, std::int32_t x, std::int32_t y)
