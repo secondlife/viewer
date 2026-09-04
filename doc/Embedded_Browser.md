@@ -610,6 +610,34 @@ failed URL's scheme is one `chooseEmbeddedBrowserBackend()` would route to a
 different backend than the slot's current one, the Viewer recreates the slot
 and navigates there properly instead of leaving CEF's error page showing.
 
+**The prim media bar now matches the backend, too.** Clicking the media bar
+above a prim shows a different control set depending on backend, matching
+the legacy Viewer exactly: CEF gets the URL-entry/back/forward/reload bar,
+while LibVLC gets Stop/Pause/Play and a duration slider - the same switch
+the retired `media_plugin_libvlc` made via
+`LLPluginClassMedia::pluginSupportsMediaTime()`. That mechanism doesn't
+exist for embedded-browser media at all (`LLViewerMediaImpl::hasMedia()`
+deliberately stays `mMediaSource != NULL`, always false here - see
+`LLPluginClassMedia* media_plugin` never being set for either backend), so
+`LLPanelPrimMediaControls::updateShape()`
+(`indra/newview/llpanelprimmediacontrols.cpp`) picks the "time based"
+control set for a LibVLC-backed slot directly, via
+`getEmbeddedBrowserBackend() == LLEmbeddedBrowserBackend::LibVlc`, alongside
+the legacy check. The duration slider shows as disabled: every LibVLC use
+case today (RTSP/RTMP) is a live, non-seekable stream, so duration reports
+0 - the same thing the legacy Viewer shows for the same content, not a bug.
+
+Play/Pause/Stop are explicit, non-toggling commands (`kSetPlaybackAction`,
+LibVLC-only), distinct from click-to-pause's toggle above - two separate
+buttons need to each do one specific thing regardless of current state,
+where a click has only one gesture to map. The panel also needs to know the
+*actual* playback state to decide which of Play/Pause to show, and that
+state can change independently of these buttons - clicking directly on the
+media (the click-to-pause gesture above) changes it too - so a new
+`kEventPlaybackStateChanged` feedback opcode reports the real state back
+from the producer rather than the Viewer just trusting its own last-sent
+command.
+
 **Volume** works differently for each backend - see the "Volume" section
 below for the full picture (LibVLC gets the real thing; CEF gets a
 best-effort JS-injected workaround with real, documented gaps).
