@@ -226,6 +226,61 @@ instances' interest actually decays out - a real but temporary effect, not
 a bug, and not something a resident who deletes or stops actively passing
 stale media will ever encounter.
 
+### The real limit is often smaller than 12: `PluginInstancesNormal`/`PluginInstancesLow`
+
+`MediaMaxInstances` (12) is the hard ceiling, but two much smaller,
+pre-existing settings decide who gets to stay genuinely loaded before
+that ceiling is even approached: `PluginInstancesNormal` (default `2`)
+and `PluginInstancesLow` (default `8` as of this writing, raised from `4`
+- see the worked example below) - together, how many *non-UI* media
+instances (in-world prim media, plus parcel media) can hold `NORMAL` or
+`LOW` priority at once, sorted by interest/distance. Anything beyond that
+combined total gets `PRIORITY_SLIDESHOW`.
+
+For the legacy plugin, falling to `PRIORITY_SLIDESHOW` was always a soft
+degradation - render less often, stay loaded. For embedded-browser media
+it's not: `wouldUnloadEmbeddedBrowserMedia()` (`llviewermedia.cpp`) treats
+`PRIORITY_SLIDESHOW` as grounds to actually tear the tab down (after a
+short debounce, so a one-frame sort flicker doesn't destroy it
+prematurely). That debounce logic itself is deliberate and correct - it
+closes a real hole where a `SLIDESHOW`-priority impl's exclusion from the
+cap count could otherwise let it get silently pushed straight to
+`PRIORITY_UNLOADED` later, bypassing the protection the debounce is meant
+to provide. The one lever actually worth tuning is `PluginInstancesLow`
+itself, not that debounce.
+
+**Worked example**, since this exact shape is very likely to come up
+again: a resident has 2 media prims near their login point (left behind,
+not deleted), then teleports to a test region with 6 more media prims,
+while 4 of the Viewer's own preloaded UI floaters (destinations, search,
+etc. - see "Preloading pages" above) also happen to be holding embedded-
+browser tabs. Media Monitor's title shows "10/12 instances" - which
+*looks* close to the cap, but isn't the actual constraint:
+
+- Of those 10, 4 are UI rows - `MediaMaxInstances`'s own accounting
+  (`llviewermedia.cpp:1033`, `if (!pimpl->getUsedInUI() && ...)`)
+  explicitly excludes UI media from the count it checks against the
+  cap, so those 4 were never contesting the 12-slot ceiling at all.
+- That leaves 6 real non-UI instances (the 2 old prims + however many
+  of the 6 new ones already won a slot) contesting `PluginInstancesNormal
+  + PluginInstancesLow` - at the old default (2+4=6), that combined
+  total was already full, so the remaining new prims got `PRIORITY_
+  SLIDESHOW` and were torn down after the debounce, every time they
+  briefly won a spot back (e.g. from a momentary focus/interest boost on
+  click) before losing it again to the sort - the "loads briefly, then
+  unloads again" symptom.
+- With only 6 real non-UI instances total, the actual `MediaMaxInstances`
+  cap (12) had 6 slots of headroom the whole time. Raising
+  `PluginInstancesLow` to 8 (normal+low=10) let all 8 legitimate non-UI
+  instances stay loaded, still comfortably under 12.
+
+The general diagnostic habit worth taking from this: when "some media
+won't load," check Media Monitor's actual row breakdown by Media Type
+(how many UI vs. Prim/Parcel) before assuming the 12-slot cap is the
+constraint - UI rows count toward what Media Monitor *displays*, but not
+toward what `MediaMaxInstances` actually *enforces*, so a title that looks
+close to the ceiling can still have plenty of real headroom underneath it.
+
 ## Distance/priority-based render throttling
 
 The legacy CEF plugin throttled a media instance's own render rate and
@@ -344,34 +399,69 @@ take effect on the next `SLMediaProducer.exe` launch, not immediately:
 `LLFloaterMediaMonitor` (`indra/newview/llfloatermediamonitor.{h,cpp}`,
 XUI name `media_monitor`) is a debug/QA floater listing every currently
 active embedded-browser media instance in one sortable table: slot,
-priority, media type (UI, Prim, or Parcel), URL, and in-world location.
-URL and Location cells are hot-linked - double-clicking a URL opens it in
-the desktop browser, and double-clicking a Location teleports there. The
-list refreshes automatically every two seconds while the floater is open,
-and the title bar shows a live "N/max instances" count alongside it (`N`
-active right now, `max` the current `MediaMaxInstances` cap) - a count at
-or near the cap is an immediate, visible explanation for "why didn't this
-render."
+priority, media type (UI, Prim, or Parcel), backend (CEF or LibVLC),
+title, in-world location, and distance from the resident (Prim media
+only - see below). It shares a fair amount of functionality with the
+older, resident-facing Nearby Media panel ("NMP", `LLPanelNearByMedia`)
+by design - reusing NMP's own already-working implementations rather
+than inventing new ones - while Product decides whether the two should
+eventually be consolidated into one UI.
+
+The list refreshes automatically every two seconds while the floater is
+open, and the title bar shows a live "N/max instances" count alongside it
+(`N` active right now, `max` the current `MediaMaxInstances` cap) - see
+the worked example under "MediaMaxInstances" above before reading that
+number as "close to the ceiling," since `N` and `max` don't measure
+quite the same population (more below).
 
 Open it from **Develop > UI > Media Monitor** (post-login) or **Debug >
 Media Monitor** (login screen), or press `Ctrl+Alt+Shift+Y` in either
 context - both menus are gated behind the `UseDebugMenus` setting, same as
 every other item under them.
 
-A couple of things worth knowing about what it shows:
+**Selecting a row** enables a small control bar at the bottom for that
+media instance, sorted ascending by Distance by default (nearest first):
 
-- **URL clicks always open externally**, via
-  `LLUrlAction::openURLExternal()`, deliberately bypassing the Viewer's
-  normal internal-versus-external browser routing
-  (`LLWeb::useExternalBrowser()`, keyed off the `PreferredBrowserBehavior`
-  setting and each URL's domain) that every other link click in the Viewer
-  goes through. For a QA tool, one URL always opening in one predictable
-  window matters more than matching that routing.
-- **Location is only ever populated for Prim media.** UI and Parcel media
-  do not resolve to a single object a location can be derived from - a
-  Parcel media row does have a real location (the parcel/region it is
-  playing in) but not one this floater currently surfaces; it shows `-`
-  there rather than a fabricated one.
+- **Zoom / Unzoom** (the magnifying-glass icon, swapping to a second icon
+  once zoomed) moves the camera to frame the selected Prim media face,
+  and back again - only enabled for Prim media, since UI and Parcel media
+  have no single object for the camera to zoom onto. Deliberately
+  self-contained to this floater (its own `padding_factor`/animation-
+  duration tuning, calling `LLViewerMediaFocus::setCameraZoom()` directly)
+  rather than reusing NMP's/the in-world media controls' own shared
+  `EZoomLevel` zoom-level machinery, so this button's own tuning can't
+  perturb - and isn't perturbed by - zoom state set from those other UIs.
+  Finding this control's own right tightness surfaced a real, unrelated,
+  now-fixed base-Viewer bug: `LLVOVolume::getApproximateFaceNormal()` had
+  a variable-shadowing bug that made it always return a zero vector,
+  silently breaking face-aligned camera zoom everywhere (NMP's own zoom
+  button included) for who knows how long.
+- **Volume slider** sets the selected media's `LLViewerMediaImpl::
+  setVolume()` level directly - a ceiling the usual distance-rolloff
+  computation still multiplies against every frame, not a value that
+  fights it. Meaningful for both backends now that CEF media has real
+  continuous volume too (see "Volume" below).
+- **Right-click a row** for a **Copy URL** context menu item, copying the
+  real underlying URL to the clipboard (resolved from the media impl
+  itself, not read from the displayed title text below). This replaces
+  what used to be double-click-to-open-in-the-desktop-browser and
+  double-click-to-teleport entirely - a security consideration: opening
+  an arbitrary URL from a QA list, or teleporting from one, shouldn't be
+  one accidental double-click away.
+
+A couple more things worth knowing about what it shows:
+
+- **The Title/URL column shows the page `<title>`, falling back to the
+  raw URL** when there's no title yet (nothing loaded, or the page never
+  set one) - matching NMP's own display convention, and reading from the
+  same `getName()` accessor (fixed this session to actually check the
+  embedded-browser's own cached title instead of always falling through
+  to the URL).
+- **Location and Distance are only ever populated for Prim media.** UI
+  and Parcel media do not resolve to a single object either can be
+  derived from - a Parcel media row does have a real location (the
+  parcel/region it is playing in) but not one this floater currently
+  surfaces; both show `-` there rather than a fabricated value.
 - **The list reflects the Viewer's own bookkeeping, not a live producer
   query.** `LLViewerMedia::getEmbeddedBrowserDebugInfo()` reads
   `LLViewerMediaImpl`'s already-tracked state (the same priority list and
@@ -380,13 +470,15 @@ A couple of things worth knowing about what it shows:
   "what's showing and where" QA use case, but would not by itself catch a
   producer-side desync (a slot the Viewer has lost track of) - a genuine
   future extension if that ever becomes a real debugging need.
-- **The `max` in the title is the shared `MediaMaxInstances` cap, not an
-  embedded-browser-specific one.** `LLViewerMedia`'s cap-accounting counts
-  legacy-plugin and embedded-browser instances together against the same
-  total (see "MediaMaxInstances" above), but this floater's `N` only
-  counts embedded-browser rows. Not a live discrepancy today, since the
-  legacy media plugin is not built by default in this branch, but worth
-  knowing if that ever changes.
+- **The `N` in the title counts every embedded-browser row, including UI
+  - but the `max` next to it (`MediaMaxInstances`) is a cap that
+  structurally excludes UI media entirely.** These are not quite the same
+  population: a title showing "10/12," for example, can still have most
+  of that 12-slot cap unused if several of those 10 rows are UI floaters
+  (which never counted against the cap in the first place). See the
+  worked example under "MediaMaxInstances" above for a real case this
+  caused - don't read this title as "how close to the ceiling," check the
+  actual Media Type breakdown by row instead.
 
 ## Windows Firewall prompt on the first WebRTC connection
 
