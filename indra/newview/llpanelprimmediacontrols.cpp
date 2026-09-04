@@ -490,10 +490,17 @@ void LLPanelPrimMediaControls::updateShape()
             {
                 mCurrentURL = media_plugin->getLocation();
             }
-            else
-            {
-                mCurrentURL.clear();
-            }
+            // else: mCurrentURL already holds the right value -- set above, at the top of
+            // updateShape(), to media_impl->getCurrentMediaURL() -- for embedded-browser
+            // CEF media (media_plugin is always NULL there, see this branch's own
+            // comment above). Previously this unconditionally cleared it to empty,
+            // discarding the real per-object URL. Since this panel is a single shared
+            // "hover controls" instance reused across whichever prim is targeted, and
+            // mCurrentURL/mPreviousURL below persist across target switches, that made
+            // the mCurrentURL != mPreviousURL check below spuriously see "no change" when
+            // switching to a DIFFERENT prim (both computed to the same "") -- leaving the
+            // address bar showing a stale URL left over from whichever prim's text was
+            // last genuinely set, instead of the newly-selected prim's real one.
 
             mPlayCtrl->setVisible(false);
             mPauseCtrl->setVisible(false);
