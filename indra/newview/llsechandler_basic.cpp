@@ -771,7 +771,7 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
         PCCERT_CONTEXT cert_ctxt = CertEnumCertificatesInStore(cert_store, nullptr);
         for (; cert_ctxt; cert_ctxt = CertEnumCertificatesInStore(cert_store, cert_ctxt))
         {
-            const unsigned char* cert = reinterpret_cast<unsigned char*>(cert_ctxt->pbCertEncoded);
+            const unsigned char* cert = reinterpret_cast<const unsigned char*>(cert_ctxt->pbCertEncoded);
             certificates += verify_and_add(cert, cert_ctxt->cbCertEncoded, suppress_expire_warning);
         }
         CertCloseStore(cert_store, 0);
