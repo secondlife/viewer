@@ -300,6 +300,13 @@ LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::ensureServerRunning()
     ptr_t server = std::static_pointer_cast<LLScriptEditorWSServer>(
         wsmgr.findServerByName(DEFAULT_SERVER_NAME));
 
+    if (server && !server->isRunning())
+    {
+        // thread stopped/was joined
+        wsmgr.removeServer(DEFAULT_SERVER_NAME);
+        server.reset();
+    }
+
     if (!server)
     {
         U16  port       = static_cast<U16>(gSavedSettings.getS32("ExternalWebsocketSyncPort"));
