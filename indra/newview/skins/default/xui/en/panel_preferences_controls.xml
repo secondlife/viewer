@@ -6,7 +6,7 @@
  label="Controls"
  layout="topleft"
  left="102"
- name="controls"
+ name="controls_panel"
  top="1"
  width="517">
   <combo_box
@@ -33,6 +33,10 @@
      label="When sitting"
      name="sitting"
      value="3"/>
+    <combo_box.item
+     label="When using flycam"
+     name="flycam"
+     value="4"/>
   </combo_box>
 
   <button

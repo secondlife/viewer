@@ -454,7 +454,7 @@ LLAgent::LLAgent() :
     mCurrentFidget(0),
     mFirstLogin(false),
     mOutfitChosen(false),
-
+    mCrouch(false),
     mVoiceConnected(false),
 
     mMouselookModeInSignal(nullptr),
@@ -787,13 +787,17 @@ void LLAgent::moveUp(S32 direction)
             mLastJumpInputTime = LLTimer::getTotalSeconds();
         }
         setControlFlags(AGENT_CONTROL_UP_POS | AGENT_CONTROL_FAST_UP);
+        mCrouch = false;
     }
     else if (direction < 0)
     {
         setControlFlags(AGENT_CONTROL_UP_NEG | AGENT_CONTROL_FAST_UP);
     }
 
-    gAgentCamera.resetView();
+    if (!mCrouch)
+    {
+        gAgentCamera.resetView();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -842,6 +846,11 @@ void LLAgent::movePitch(F32 mag)
     {
         setControlFlags(AGENT_CONTROL_PITCH_NEG);
     }
+}
+
+bool LLAgent::isCrouching() const
+{
+    return mCrouch && !getFlying();
 }
 
 // Does this parcel allow you to fly?
@@ -911,6 +920,7 @@ void LLAgent::setFlying(bool fly, bool fail_sound)
         {
             add(LLStatViewer::FLY, 1);
         }
+        mCrouch = false;
         setControlFlags(AGENT_CONTROL_FLY);
     }
     else
@@ -1430,7 +1440,7 @@ LLVector3 LLAgent::getReferenceUpVector()
     return up_vector;
 }
 
-// Radians, positive is forward into ground
+// Radians, positive is downward toward ground
 //-----------------------------------------------------------------------------
 // pitch()
 //-----------------------------------------------------------------------------
@@ -1444,27 +1454,23 @@ void LLAgent::pitch(F32 angle)
 
     LLVector3 skyward = getReferenceUpVector();
 
+    // SL-19286 Avatar is upside down when viewed from below
+    // after left-clicking the mouse on the avatar and dragging down
+    //
+    // The issue is observed on angle below 10 degrees
+    const F32 look_down_limit = 179.f * DEG_TO_RAD;
+    const F32 look_up_limit = 10.f * DEG_TO_RAD;
+
+    F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
+
     // clamp pitch to limits
-    if (angle >= 0.f)
+    if ((angle >= 0.f) && (angle_from_skyward + angle > look_down_limit))
     {
-        const F32 look_down_limit = 179.f * DEG_TO_RAD;
-        F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
-        if (angle_from_skyward + angle > look_down_limit)
-        {
-            angle = look_down_limit - angle_from_skyward;
-        }
+        angle = look_down_limit - angle_from_skyward;
     }
-    else if (angle < 0.f)
+    else if ((angle < 0.f) && (angle_from_skyward + angle < look_up_limit))
     {
-        const F32 look_up_limit = 5.f * DEG_TO_RAD;
-        const LLVector3& viewer_camera_pos = LLViewerCamera::getInstance()->getOrigin();
-        LLVector3 agent_focus_pos = getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal());
-        LLVector3 look_dir = agent_focus_pos - viewer_camera_pos;
-        F32 angle_from_skyward = angle_between(look_dir, skyward);
-        if (angle_from_skyward + angle < look_up_limit)
-        {
-            angle = look_up_limit - angle_from_skyward;
-        }
+        angle = look_up_limit - angle_from_skyward;
     }
 
     if (fabs(angle) > 1e-4)
@@ -4993,6 +4999,439 @@ void LLAgent::renderAutoPilotTarget()
 
         gGL.popMatrix();
     }
+}
+
+static U64 g_lastUpdateTime { 0 };
+static F32 g_deltaTime { 0.0f };
+static S32 g_lastUpdateFrame { 0 };
+static S32 g_deltaFrame { 0 };
+
+void LLAgent::updateGameControlMode()
+{
+    // Auto-derive the active mode from avatar/camera state.  Cursor mode takes
+    // precedence over Flycam: toggling the mouse cursor on while Flycam is engaged
+    // reports CONTROL_MODE_CURSOR (so the left stick drives the on-screen cursor)
+    // while mUsingFlycam stays true underneath -- LLAgent::updateFlycam() keeps
+    // driving the camera every frame regardless of the reported mode (it is gated
+    // on mUsingFlycam directly, not on AgentControlMode), and
+    // LLGameControl::setFlycamEngaged() below tells the input-mapping lookup to
+    // let Flycam's own axis/button config (Pan/Tilt/Boom/...) keep driving
+    // whatever physical inputs Cursor mode's own mouse-cursor actions don't claim.
+    // This is how a single Cursor mode ends up with two flavors -- "other axes"
+    // control the avatar/camera depending on whether Flycam is concurrently
+    // engaged -- without needing a distinct mode of its own.
+    // Next: mouselook (the camera mode can be entered while sitting too, so it is
+    // checked ahead of Captive), then sitting/controls-taken maps to Captive,
+    // otherwise the normal Avatar mode.
+    LLGameControl::AgentControlMode mode;
+    if (mUsingMouseCursor)
+    {
+        mode = LLGameControl::CONTROL_MODE_CURSOR;
+    }
+    else if (mUsingFlycam)
+    {
+        mode = LLGameControl::CONTROL_MODE_FLYCAM;
+    }
+    else if (gAgentCamera.cameraMouselook())
+    {
+        mode = LLGameControl::CONTROL_MODE_MOUSELOOK;
+    }
+    else if (isSitting())
+    {
+        mode = LLGameControl::CONTROL_MODE_CAPTIVE;
+    }
+    else
+    {
+        mode = LLGameControl::CONTROL_MODE_AVATAR;
+    }
+    LLGameControl::setFlycamEngaged(mUsingFlycam);
+    LLGameControl::setAgentControlMode(mode);
+}
+
+void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
+{
+    llassert(LLCoros::on_main_thread_main_coro());
+    // Valid whenever game control is driving avatar or flycam: in FlyCam mode this
+    // only services the flycam on/off toggle (movement bits are ignored below).
+    assert(LLGameControl::isEnabled()
+        && (LLGameControl::willControlAvatar() || LLGameControl::willControlFlycam()));
+
+    // Process the non-flag actions first (see AgentActions comment in
+    // llgamecontrol.h).  Each bit in mMiscActionBits is already edge-triggered
+    // by LLGameControllerManager::computeAgentActions() (set only on the
+    // frame the bound button transitions from not-pressed to pressed), so no
+    // further debouncing is needed here -- just react to the bit directly.
+    const U32 misc_actions = actions.mMiscActionBits;
+
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_FLY)
+    {
+        setFlying(!getFlying());
+    }
+
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_FLYCAM)
+    {
+        toggleFlycam();
+    }
+
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_SIT)
+    {
+        if (isSitting())
+        {
+            standUp();
+        }
+        else
+        {
+            sitDown();
+        }
+    }
+
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_SPEAK)
+    {
+        LLVoiceClient::getInstance()->toggleUserPTTState();
+    }
+
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_MOUSELOOK)
+    {
+        // Mirrors LLViewMouselook's "View.Mouselook" toggle.
+        if (!gAgentCamera.cameraMouselook())
+        {
+            gAgentCamera.changeCameraToMouselook();
+        }
+        else
+        {
+            gAgentCamera.changeCameraToDefault();
+        }
+    }
+
+    if (misc_actions & LLGameControl::AVATAR_ACTION_TOGGLE_MOUSE_CURSOR)
+    {
+        toggleMouseCursorMode();
+    }
+
+    // CONTROL_MODE_CURSOR: drive the actual on-screen cursor from
+    // actions.mMouseCursorDX/DY (the analog deflection of whatever's bound to "Mouse
+    // left/right"/"Mouse up/down") BEFORE the click dispatch below, so a synthesized
+    // click lands wherever the stick just moved the cursor to, in the same frame.
+    if (LLGameControl::getAgentControlMode() == LLGameControl::CONTROL_MODE_CURSOR)
+    {
+        constexpr F32 MOUSE_CURSOR_PIXELS_PER_SEC = 1200.f;
+        U64 mouse_cursor_now = LLFrameTimer::getTotalTime();
+        F32 mouse_cursor_dt = (mLastMouseCursorUpdate == 0)
+            ? 0.f : F32(mouse_cursor_now - mLastMouseCursorUpdate) / (F32)(USEC_PER_SEC);
+        mLastMouseCursorUpdate = mouse_cursor_now;
+
+        if (actions.mMouseCursorDX != 0.f || actions.mMouseCursorDY != 0.f)
+        {
+            LLCoordGL cursor_pos = gViewerWindow->getCurrentMouse();
+            S32 new_x = cursor_pos.mX + ll_round(actions.mMouseCursorDX * MOUSE_CURSOR_PIXELS_PER_SEC * mouse_cursor_dt);
+            S32 new_y = cursor_pos.mY + ll_round(actions.mMouseCursorDY * MOUSE_CURSOR_PIXELS_PER_SEC * mouse_cursor_dt);
+            gViewerWindow->moveCursorTo(new_x, new_y);
+        }
+    }
+    else
+    {
+        mLastMouseCursorUpdate = 0;
+    }
+
+    // Simulated mouse buttons (see llgamecontrol.h's AvatarMouseButton) are
+    // level-triggered: actions.mMouseButtonBits reflects which buttons are
+    // currently held, so the press/release edges are found here by diffing
+    // against last frame's value. Each edge is dispatched through
+    // LLViewerWindow exactly like a real mouse click, at the current cursor
+    // position, so it drives hover/pick/pie-menu/tool-manager the same way a
+    // hardware click would (e.g. touching/grabbing objects, walk-to-clicked,
+    // pie menu on right click).
+    U32 mouse_pressed_edges  = actions.mMouseButtonBits & ~mPrevMouseButtonBits;
+    U32 mouse_released_edges = ~actions.mMouseButtonBits & mPrevMouseButtonBits;
+    mPrevMouseButtonBits = actions.mMouseButtonBits;
+
+    if (mouse_pressed_edges & LLGameControl::AVATAR_MOUSE_BUTTON_LEFT)
+    {
+        gViewerWindow->handleMouseDown(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
+    }
+    if (mouse_released_edges & LLGameControl::AVATAR_MOUSE_BUTTON_LEFT)
+    {
+        gViewerWindow->handleMouseUp(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
+    }
+    if (mouse_pressed_edges & LLGameControl::AVATAR_MOUSE_BUTTON_RIGHT)
+    {
+        gViewerWindow->handleRightMouseDown(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
+    }
+    if (mouse_released_edges & LLGameControl::AVATAR_MOUSE_BUTTON_RIGHT)
+    {
+        gViewerWindow->handleRightMouseUp(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
+    }
+
+    // actions.mIsRunning is the final walk/run decision computed by
+    // LLGameControllerManager::computeAgentActions() (button toggle OR analog
+    // axis deflection); just mirror it onto the agent's running state.
+    if (actions.mIsRunning != getRunning())
+    {
+        if (actions.mIsRunning)
+        {
+            setRunning();
+        }
+        else
+        {
+            clearRunning();
+        }
+        sendWalkRun(actions.mIsRunning);
+    }
+
+    mExternalActionFlags = actions.mControlFlags;
+
+    // measure delta time and frame
+    // Note: it is possible for the deltas to be very large
+    // and it is the duty of the code that uses them to clamp as necessary
+    U64 now = LLFrameTimer::getTotalTime();
+    g_deltaTime = F32(now - g_lastUpdateTime) / (F32)(USEC_PER_SEC);
+    g_lastUpdateTime = now;
+
+    S32 frame_count = LLFrameTimer::getFrameCount();
+    g_deltaFrame = frame_count - g_lastUpdateFrame;
+    g_lastUpdateFrame = frame_count;
+
+    if (mUsingFlycam)
+    {
+        // Flycam will be updated later by exernal context
+        return;
+    }
+
+    S32 direction = (S32)(mExternalActionFlags & AGENT_CONTROL_AT_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_AT_NEG) >> 1);
+    if (direction != 0)
+    {
+        moveAt(direction);
+    }
+
+    static U32 last_non_fly_frame = 0;
+    static U64 last_non_fly_time = 0;
+    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_UP_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_UP_NEG) >> 1);
+    if (direction != 0)
+    {
+        // HACK: this auto-fly logic based on original code still extant in llviewerinput.cpp::agent_jump()
+        // but has been cleaned up.
+        // TODO?: DRY this logic
+        if (direction > 0)
+        {
+            if (!getFlying()
+                && !upGrabbed()
+                && gSavedSettings.getBOOL("AutomaticFly"))
+            {
+                constexpr F32 FLY_TIME = 0.5f;
+                constexpr U32 FLY_FRAMES = 4;
+                F32 delta_time = (F32)(now - last_non_fly_time) / (F32)(USEC_PER_SEC);
+                U32 delta_frames = frame_count - last_non_fly_frame;
+                if( delta_time > FLY_TIME
+                    && delta_frames > FLY_FRAMES)
+                {
+                    setFlying(TRUE);
+                }
+            }
+        }
+        else
+        {
+            last_non_fly_frame = frame_count;
+            last_non_fly_time = now;
+        }
+
+        moveUp(direction);
+    }
+    else if (!getFlying())
+    {
+        last_non_fly_frame = frame_count;
+        last_non_fly_time = now;
+    }
+
+    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_LEFT_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_LEFT_NEG) >> 1);
+    if (direction != 0)
+    {
+        moveLeft(direction);
+    }
+
+    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_YAW_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_YAW_NEG) >> 1);
+    if (direction != 0)
+    {
+        F32 sign = (direction < 0 ? -1.0f : 1.0f);
+        // actions.mYawAmplitude is the analog stick deflection ([-1, 1]) that
+        // set this flag; use its magnitude to modulate turn speed instead of
+        // always snapping to full rate
+        moveYaw(sign * fabs(actions.mYawAmplitude));
+    }
+
+    {
+        F32 pitch_sign = ((mExternalActionFlags & AGENT_CONTROL_PITCH_POS) > 0 ? 1.0f : 0.0f)
+            - ((mExternalActionFlags & AGENT_CONTROL_PITCH_NEG) > 0 ? 1.0f : 0.0f);
+        // Same analog modulation as yaw above, via actions.mPitchAmplitude.
+        movePitch(pitch_sign * fabs(actions.mPitchAmplitude));
+    }
+
+    // actions.mZoomAmplitude ([-1, 1], from "Zoom +/-"/"Zoom +"/"Zoom -") drives the
+    // camera's field-of-view zoom. Positive amplitude zooms in (narrows the FOV);
+    if (actions.mZoomAmplitude != 0.f)
+    {
+        constexpr F32 FOV_ZOOM_RATE = 1.2f;
+        F32 fov_scale = powf(FOV_ZOOM_RATE, -actions.mZoomAmplitude * g_deltaTime);
+        LLViewerCamera* camera = LLViewerCamera::getInstance();
+        camera->setDefaultFOV(camera->getDefaultFOV() * fov_scale);
+        gSavedSettings.setF32("CameraAngle", camera->getView());
+    }
+
+    if (mExternalActionFlags & AGENT_CONTROL_STOP)
+    {
+        setControlFlags(AGENT_CONTROL_STOP);
+    }
+
+    // HACK: AGENT_CONTROL_NUDGE_AT_POS is used to toggle running
+    if ((mExternalActionFlags & AGENT_CONTROL_NUDGE_AT_POS) > 0)
+    {
+        if (mToggleRun)
+        {
+            if (getRunning())
+            {
+                clearRunning();
+                sendWalkRun(false);
+            }
+            else
+            {
+                setRunning();
+                sendWalkRun(true);
+            }
+        }
+        mToggleRun = false;
+    }
+    else
+    {
+        mToggleRun = true;
+    }
+
+    if ((mExternalActionFlags & AGENT_CONTROL_SIT_ON_GROUND) > 0
+        && isAgentAvatarValid() && !isSitting() && !getFlying() && !gAgentAvatarp->mInAir)
+    {
+        // "Sit": only sit if currently standing; a no-op otherwise
+        // (already sitting, flying, or airborne).
+        sitDown();
+    }
+    else if ((mExternalActionFlags & AGENT_CONTROL_STAND_UP) > 0 && isSitting())
+    {
+        // "Stand up": only stand if currently sitting.
+        standUp();
+    }
+}
+
+void LLAgent::toggleFlycam()
+{
+    mUsingFlycam = !mUsingFlycam;
+    if (mUsingFlycam)
+    {
+        // copy main camera transform to flycam
+        LLViewerCamera* camera = LLViewerCamera::getInstance();
+        mFlycam.setTransform(camera->getOrigin(), camera->getQuaternion());
+        mFlycam.setView(camera->getView());
+        mLastFlycamUpdate = LLFrameTimer::getTotalTime();
+    }
+}
+
+void LLAgent::toggleMouseCursorMode()
+{
+    mUsingMouseCursor = !mUsingMouseCursor;
+    mLastMouseCursorUpdate = 0; // avoid a jump from a stale delta-time baseline
+}
+
+void LLAgent::pressGameControlButton(U8 button_index)
+{
+    mGameControlButtonsFromKeys |= (1U << button_index);
+}
+
+void LLAgent::releaseGameControlButton(U8 button_index)
+{
+    mGameControlButtonsFromKeys &= ~(1U << button_index);
+}
+
+void LLAgent::updateFlycam()
+{
+    // Note: flycam_inputs arrive in range [-1,1]
+    std::vector<F32> flycam_inputs;
+    U32 flycam_misc_actions = 0;
+    LLGameControl::getFlycamInputs(flycam_inputs, flycam_misc_actions);
+
+    // The channel order is defined by LLGameControl::FlycamChannel.
+
+    // Defensive: getFlycamInputs() should return one value per channel.
+    if ((S32)flycam_inputs.size() < LLGameControl::FLYCAM_NUM_CHANNELS)
+    {
+        return;
+    }
+
+    // Blend in keyboard-driven flycam input (independent of LLGameControl,
+    // which only sees a physical controller).  mFlycamKeyInput is
+    // level-triggered by flycam_axis_key<> in llviewerinput.cpp -- it must be
+    // re-set every frame a key is held, so clear it here once consumed.
+    for (U8 i = 0; i < LLGameControl::FLYCAM_NUM_CHANNELS; ++i)
+    {
+        flycam_inputs[i] = llclamp(flycam_inputs[i] + mFlycamKeyInput[i], -1.f, 1.f);
+    }
+    mFlycamKeyInput.fill(0.f);
+    bool flycam_key_reset_requested = mFlycamKeyResetRequested;
+    mFlycamKeyResetRequested = false;
+
+    if (((flycam_misc_actions & LLGameControl::FLYCAM_ACTION_RESET) || flycam_key_reset_requested) && isAgentAvatarValid())
+    {
+        // Reorient the flycam as if it were the 3rd-person camera: above and
+        // behind the avatar, looking down.  mFlycam.startReset() smoothly
+        // lerps into this transform (see LLFlycam::integrate()); flycam
+        // input has no effect until the lerp completes.
+        constexpr F32 FLYCAM_RESET_DURATION = 1.0f; // seconds; may be tuned later
+        constexpr F32 FLYCAM_RESET_FOCUS_HEIGHT = 1.0f; // meters above avatar root
+
+        LLQuaternion avatar_rot = gAgentAvatarp->isSitting()
+            ? gAgentAvatarp->getRenderRotation()
+            : mFrameAgent.getQuaternion();
+        LLVector3 avatar_pos = getPositionAgent();
+
+        // Reuse the same behind/above offset the real 3rd-person camera uses,
+        // rotated into the avatar's current facing.
+        F32 camera_offset_scale = gSavedSettings.getF32("CameraOffsetScale");
+        LLVector3 local_offset = gAgentCamera.getCameraOffsetInitial() * camera_offset_scale;
+        LLVector3 target_position = avatar_pos + local_offset * avatar_rot;
+
+        // Look toward the avatar (roughly torso height); since the camera
+        // sits above and behind, this naturally tilts the view down and
+        // toward the avatar's facing direction.
+        LLVector3 focus_point = avatar_pos + LLVector3(0.f, 0.f, FLYCAM_RESET_FOCUS_HEIGHT);
+        LLCoordFrame target_frame;
+        target_frame.lookAt(target_position, focus_point, LLVector3::z_axis);
+
+        mFlycam.startReset(target_position, target_frame.getQuaternion(), FLYCAM_RESET_DURATION);
+    }
+
+    LLVector3 linear_velocity(
+            flycam_inputs[LLGameControl::FLYCAM_DOLLY],
+            flycam_inputs[LLGameControl::FLYCAM_TRUCK],
+            flycam_inputs[LLGameControl::FLYCAM_BOOM]);
+    constexpr F32 MAX_FLYCAM_SPEED = 10.0f;
+    mFlycam.setLinearVelocity(MAX_FLYCAM_SPEED * linear_velocity);
+
+    mFlycam.setPitchRate(flycam_inputs[LLGameControl::FLYCAM_TILT]);
+    mFlycam.setYawRate(flycam_inputs[LLGameControl::FLYCAM_PAN]);
+    mFlycam.setRollRate(flycam_inputs[LLGameControl::FLYCAM_ROLL]);
+    mFlycam.setZoomRate(flycam_inputs[LLGameControl::FLYCAM_ZOOM]);
+
+    mFlycam.integrate(g_deltaTime);
+
+    LLVector3 pos;
+    LLQuaternion rot;
+    mFlycam.getTransform(pos, rot);
+    LLMatrix3 mat(rot);
+    LLViewerCamera::getInstance()->setOrigin(pos);
+    LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
+    LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
+    LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
+
+    LLViewerCamera::getInstance()->setView(mFlycam.getView());
 }
 
 /********************************************************************************/

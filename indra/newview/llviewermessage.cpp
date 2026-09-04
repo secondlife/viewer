@@ -66,6 +66,7 @@
 #include "llfloaterpreference.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloatersnapshot.h"
+#include "llgamecontrol.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llimprocessing.h"
@@ -3190,8 +3191,8 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 }
 
 
-// sends an AgentUpdate message to the server... or not:
-// only when force_send is 'true' OR
+// sends an AgentUpdate message to the server... or not
+// e.g. only when force_send is 'true' OR
 // something changed AND the update is not being throttled
 void send_agent_update(bool force_send, bool send_reliable)
 {
@@ -3260,8 +3261,6 @@ void send_agent_update(bool force_send, bool send_reliable)
         return;
     }
 
-    bool send_update = force_send || sec_since_last_send > MAX_AGENT_UPDATE_PERIOD;
-
     LLVector3 camera_pos_agent = gAgentCamera.getCameraPositionAgent(); // local to avatar's region
     LLVector3 camera_at = LLViewerCamera::getInstance()->getAtAxis();
     LLQuaternion body_rotation = gAgent.getFrameAgent().getQuaternion();
@@ -3278,6 +3277,7 @@ void send_agent_update(bool force_send, bool send_reliable)
         flags |= AU_FLAGS_CLIENT_AUTOPILOT;
     }
 
+    bool send_update = force_send || sec_since_last_send > MAX_AGENT_UPDATE_PERIOD;
     if (!send_update)
     {
         // check to see if anything changed
@@ -3951,6 +3951,11 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
         if (measurementp )
         {
             measurementp->sample(stat_value);
+            if (stat_id == LL_SIM_STAT_FPS)
+            {
+                // let GameControlData's outgoing throttle track the sim's actual rate
+                LLGameControl::setServerFrameRate(stat_value);
+            }
         }
         else
         {

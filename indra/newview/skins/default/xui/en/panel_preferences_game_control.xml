@@ -1,0 +1,1110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel
+    border="true"
+    follows="all"
+    height="408"
+    label="Game Controls"
+    layout="topleft"
+    left="102"
+    name="game_control_panel"
+    top="1"
+    width="517">
+    <tab_container
+        name="game_control_tabs"
+        layout="topleft"
+        follows="all"
+        top="2"
+        left="2"
+        right="-2"
+        bottom="-2">
+        <!-- ACTIONS: global, per-mode.  Binds canonical inputs to logical actions. -->
+        <panel
+            name="tab_action_mappings"
+            label="Action Mappings">
+            <!-- Mode selector: picks which mode's mappings are edited below; only
+                 one mode is shown at a time.  The "Enabled" checkbox toggles
+                 whether game-control input is converted to that mode's actions
+                 (when off, the mode's mappings are locked), and tracks whichever
+                 mode is currently selected in the combo box. -->
+            <combo_box
+                name="action_mode"
+                layout="topleft"
+                follows="top|left"
+                top="6"
+                left="1"
+                height="23"
+                width="210"
+                tool_tip="Select a mode to edit its mappings.">
+                <combo_box.item
+                    label="When moving avatar"
+                    name="avatar"
+                    value="0"/>
+                <combo_box.item
+                    label="When in mouselook"
+                    name="mouselook"
+                    value="1"/>
+                <combo_box.item
+                    label="When moving flycam"
+                    name="flycam"
+                    value="2"/>
+                <combo_box.item
+                    label="When sitting"
+                    name="captive"
+                    value="3"/>
+                <combo_box.item
+                    label="When using mouse cursor"
+                    name="cursor"
+                    value="4"/>
+            </combo_box>
+            <check_box
+                name="action_mode_enabled"
+                label="Mode enabled"
+                layout="topleft"
+                follows="top|left"
+                top="10"
+                left="217"
+                height="16"
+                width="70"
+                tool_tip="Uncheck to lock this mode's mappings and stop converting game-control input to this mode's actions."/>
+            <button
+                name="restore_actions_defaults"
+                layout="topleft"
+                follows="top|right"
+                top="6"
+                right="-8"
+                height="23"
+                width="140"
+                label="Restore Defaults"
+                tool_tip="Restores the default action mappings for the current mode."/>
+            <panel
+                name="action_mappings_panel"
+                layout="topleft"
+                follows="all"
+                top="36"
+                left="1"
+                right="-1"
+                bottom="-1">
+                <panel
+                    name="action_mappings_axes_panel"
+                    layout="topleft"
+                    follows="top|left|right"
+                    top="1"
+                    left="1"
+                    right="-1"
+                    height="146">
+                    <scroll_list
+                        name="action_mappings_axes"
+                        follows="all"
+                        top="1"
+                        left="1"
+                        right="-1"
+                        bottom="-1"
+                        can_sort="false"
+                        column_padding="0"
+                        draw_heading="true"
+                        multi_select="false"
+                        selection_type="header"
+                        fg_disable_color="ScrollUnselectedColor">
+                        <scroll_list.columns name="action" label="Action" relative_width="0.35"/>
+                        <scroll_list.columns name="input" label="Input" relative_width="0.15"/>
+                        <scroll_list.columns name="input_description" label="Axis" relative_width="0.35"/>
+                        <scroll_list.columns name="invert" label="Invert" type="checkbox" relative_width="0.15"/>
+                    </scroll_list>
+                </panel>
+                <panel
+                    name="action_mappings_buttons_panel"
+                    layout="topleft"
+                    follows="all"
+                    top="143"
+                    left="1"
+                    right="-1"
+                    bottom="-1">
+                    <scroll_list
+                        name="action_mappings_buttons"
+                        follows="all"
+                        top="1"
+                        left="1"
+                        right="-1"
+                        bottom="-1"
+                        can_sort="false"
+                        column_padding="0"
+                        draw_heading="true"
+                        multi_select="false"
+                        selection_type="header"
+                        fg_disable_color="ScrollUnselectedColor">
+                        <scroll_list.columns name="action" label="Action" relative_width="0.40"/>
+                        <scroll_list.columns name="input" label="Input" relative_width="0.20"/>
+                        <scroll_list.columns name="input_description" label="Button" relative_width="0.40"/>
+                    </scroll_list>
+                </panel>
+            </panel>
+        </panel>
+        <!-- DEVICES: per-device.  Normalizes physical hardware to canonical inputs. -->
+        <panel
+            name="tab_device_mappings"
+            label="Device Mappings">
+            <text
+                type="string"
+                name="nodevice_message"
+                layout="topleft"
+                follows="all"
+                halign="center"
+                valign="center"
+                top="26"
+                left="1"
+                right="-1"
+                bottom="-1">No device</text>
+            <check_box
+                name="show_all_known_devices"
+                label="Show all known devices"
+                layout="topleft"
+                follows="top|left"
+                top="38"
+                left="61"
+                height="16"
+                width="160"/>
+            <text
+                type="string"
+                name="device_prompt"
+                layout="topleft"
+                follows="top|left"
+                valign="center"
+                top="10"
+                left="9"
+                height="23"
+                width="48">Device:</text>
+            <combo_box
+                name="device_list"
+                layout="topleft"
+                follows="top|left"
+                top="10"
+                left="61"
+                height="23"
+                width="260"/>
+            <button
+                name="restore_device_defaults"
+                layout="topleft"
+                follows="top|right"
+                top="10"
+                right="-8"
+                height="23"
+                width="140"
+                label="Restore Defaults"
+                tool_tip="Restores default settings for the selected device."/>
+            <panel
+                name="device_settings"
+                layout="topleft"
+                follows="all"
+                top="66"
+                left="1"
+                right="-1"
+                bottom="-2">
+                <panel
+                    name="axis_channels_panel"
+                    layout="topleft"
+                    follows="top|left|right"
+                    top="1"
+                    left="1"
+                    right="-1"
+                    height="146">
+                    <scroll_list
+                        name="axis_channels"
+                        follows="all"
+                        top="1"
+                        left="1"
+                        right="-1"
+                        bottom="-1"
+                        can_sort="false"
+                        column_padding="0"
+                        draw_heading="true"
+                        multi_select="false"
+                        selection_type="header"
+                        fg_disable_color="ScrollUnselectedColor">
+                        <scroll_list.columns name="input"              label=""              relative_width="0.15"/>
+                        <scroll_list.columns name="input_description"  label="What you press" relative_width="0.35"/>
+                        <scroll_list.columns name="output_description" label="What you get"   relative_width="0.35"/>
+                        <scroll_list.columns name="output"             label=""              relative_width="0.15"/>
+                    </scroll_list>
+                </panel>
+                <panel
+                    name="button_channels_panel"
+                    layout="topleft"
+                    follows="all"
+                    top="143"
+                    left="1"
+                    right="-1"
+                    bottom="-1">
+                    <scroll_list
+                        name="button_channels"
+                        follows="all"
+                        top="1"
+                        left="1"
+                        right="-1"
+                        bottom="-1"
+                        can_sort="false"
+                        column_padding="0"
+                        draw_heading="true"
+                        multi_select="false"
+                        selection_type="header"
+                        fg_disable_color="ScrollUnselectedColor">
+                        <scroll_list.columns name="input"              label=""              relative_width="0.15"/>
+                        <scroll_list.columns name="input_description"  label="What you press" relative_width="0.35"/>
+                        <scroll_list.columns name="output_description" label="What you get"   relative_width="0.35"/>
+                        <scroll_list.columns name="output"             label=""              relative_width="0.15"/>
+                    </scroll_list>
+                </panel>
+            </panel>
+        </panel>
+        <!-- DEVICE STATE: live, read-only view of the raw input from the selected device. -->
+        <panel
+            name="tab_device_options"
+            label="Device Options">
+            <text
+                type="string"
+                name="state_nodevice_message"
+                layout="topleft"
+                follows="all"
+                halign="center"
+                valign="center"
+                top="26"
+                left="1"
+                right="-1"
+                bottom="-1">No device</text>
+            <text
+                type="string"
+                name="state_device_prompt"
+                layout="topleft"
+                follows="top|left"
+                valign="center"
+                top="10"
+                left="9"
+                height="23"
+                width="48">Device:</text>
+            <combo_box
+                name="options_device_list"
+                layout="topleft"
+                follows="top|left"
+                top="10"
+                left="61"
+                height="23"
+                width="260"/>
+            <button
+                name="restore_device_options_defaults"
+                layout="topleft"
+                follows="top|right"
+                top="10"
+                right="-8"
+                height="23"
+                width="140"
+                label="Restore Defaults"
+                tool_tip="Restores the default Offset, Invert, and Dead Zone for every axis of the selected device."/>
+            <button
+                name="auto_calibrate"
+                layout="topleft"
+                follows="top|right"
+                top="35"
+                right="-8"
+                height="23"
+                width="140"
+                label="Auto calibrate"
+                tool_tip="Samples the selected device's raw axes over 5 frames; any axis that doesn't move is assumed to be at rest, and its Offset and Dead Zone are set from that reading."/>
+            <panel
+                name="device_state_settings"
+                layout="topleft"
+                follows="all"
+                top="63"
+                left="1"
+                right="-1"
+                bottom="-2">
+                <panel
+                    name="axis_state_panel"
+                    layout="topleft"
+                    follows="top|left|right"
+                    top="1"
+                    left="1"
+                    right="-1"
+                    height="146">
+                    <scroll_list
+                        name="axis_state"
+                        follows="all"
+                        top="1"
+                        left="1"
+                        right="-1"
+                        bottom="-1"
+                        can_sort="false"
+                        column_padding="0"
+                        draw_heading="true"
+                        multi_select="false"
+                        selection_type="header"
+                        fg_disable_color="ScrollUnselectedColor">
+                        <scroll_list.columns name="input_glyph" label="Input"          relative_width="0.12"/>
+                        <scroll_list.columns name="input"       label="Axis"           relative_width="0.18"/>
+                        <scroll_list.columns name="raw_value"   label="Raw Value"      relative_width="0.14"/>
+                        <scroll_list.columns name="offset"      label="Offset"         relative_width="0.10"/>
+                        <scroll_list.columns name="invert"      label="Invert"         type="checkbox" relative_width="0.10"/>
+                        <scroll_list.columns name="dead_zone"   label="Dead Zone"      relative_width="0.15"/>
+                        <scroll_list.columns name="fixed_value" label="Adjusted Value" relative_width="0.21"/>
+                    </scroll_list>
+                </panel>
+                <panel
+                    name="button_state_panel"
+                    layout="topleft"
+                    follows="all"
+                    top="143"
+                    left="1"
+                    right="-1"
+                    bottom="-1">
+                    <scroll_list
+                        name="button_state"
+                        follows="all"
+                        top="1"
+                        left="1"
+                        right="-1"
+                        bottom="-1"
+                        can_sort="false"
+                        column_padding="0"
+                        draw_heading="true"
+                        multi_select="false"
+                        selection_type="header"
+                        fg_disable_color="ScrollUnselectedColor">
+                        <scroll_list.columns name="input_glyph" label="Input"  relative_width="0.15"/>
+                        <scroll_list.columns name="input"       label="Button" relative_width="0.45"/>
+                        <scroll_list.columns name="value"       label="Value"  relative_width="0.40"/>
+                    </scroll_list>
+                </panel>
+            </panel>
+        </panel>
+        <!-- DATA OUTPUT: live, read-only view of the channel values packed into the
+             most recent outgoing GameControlInput message. -->
+        <panel
+            name="tab_server_data"
+            label="Server Data">
+            <check_box
+                name="game_control_to_server"
+                label="Send GameControl Data to server"
+                layout="topleft"
+                follows="top|left"
+                height="16"
+                width="230"
+                top="8"
+                left="9"/>
+            <text
+                type="string"
+                name="data_note"
+                layout="topleft"
+                follows="top|left|right"
+                word_wrap="true"
+                top="30"
+                left="9"
+                right="-9"
+                height="28">Data sent to the server: canonical axes/buttons, then the semantic axes/buttons for the current mode.</text>
+            <panel
+                name="data_panel"
+                layout="topleft"
+                follows="all"
+                top="52"
+                left="1"
+                right="-1"
+                bottom="-1">
+                <scroll_list
+                    name="data_output"
+                    follows="all"
+                    top="1"
+                    left="1"
+                    right="-1"
+                    bottom="-1"
+                    can_sort="false"
+                    column_padding="0"
+                    draw_heading="true"
+                    multi_select="false"
+                    selection_type="header"
+                    fg_disable_color="ScrollUnselectedColor">
+                    <scroll_list.columns name="index"  label="#"      relative_width="0.1"/>
+                    <scroll_list.columns name="output" label="Name"   relative_width="0.5"/>
+                    <scroll_list.columns name="value"  label="Value"  relative_width="0.4"/>
+                </scroll_list>
+            </panel>
+        </panel>
+    </tab_container>
+    <spinner
+        name="numeric_value_editor"
+        decimal_digits="0"
+        increment="1"
+        width="100"
+        height="18"/>
+    <!-- axis_input_selector: the canonical axis INPUTS an axis action can be bound
+         to on the Actions tab.  The two triggers are offered only as the combined
+         "Triggers ↔" pair (value AXIS_TRIGGERS): each trigger is positive-
+         only, so the pair is treated as one bidirectional axis (left trigger drives
+         the negative direction, right trigger the positive).  See the trigger-pair
+         handling in llgamecontrol.cpp (rebuildActionLookup / avatarAxisBridge). -->
+    <combo_box
+        name="axis_input_selector"
+        width="200"
+        height="18">
+        <combo_box.item
+            label="L Stick ↔"
+            name="axis_leftx"
+            value="AXIS_LEFTX"/>
+        <combo_box.item
+            label="L Stick ↕"
+            name="axis_lefty"
+            value="AXIS_LEFTY"/>
+        <combo_box.item
+            label="R Stick ↔"
+            name="axis_rightx"
+            value="AXIS_RIGHTX"/>
+        <combo_box.item
+            label="R Stick ↕"
+            name="axis_righty"
+            value="AXIS_RIGHTY"/>
+        <combo_box.item
+            label="Triggers ↘↙"
+            name="axis_triggers"
+            value="AXIS_TRIGGERS"/>
+        <combo_box.item
+            label="None"
+            name="axis_none"
+            value="AXIS_NONE"/>
+    </combo_box>
+    <!-- axis_input_glyph_selector: the glyph counterpart of axis_input_selector,
+         shown when editing the "Axis" (icon) column.  Items are built
+         in C++ from axis_input_selector's values so the value list stays in one
+         place; each item's label is the font glyph for that axis. -->
+    <combo_box
+        name="axis_input_glyph_selector"
+        width="200"
+        height="18"/>
+    <!-- axis_output_selector: the canonical axis a physical device axis maps to on
+         the Devices tab.  This is strictly index-based (item N == canonical axis N,
+         matching LLGameControl::KeyboardAxis; the final "None" item == NUM_AXES), so
+         it lists every individual canonical axis, including each trigger separately. -->
+    <combo_box
+        name="axis_output_selector"
+        width="200"
+        height="18">
+        <combo_box.item
+            label="L Stick ↔"
+            name="axis_0"
+            value="AXIS_LEFTX"/>
+        <combo_box.item
+            label="L Stick ↕"
+            name="axis_1"
+            value="AXIS_LEFTY"/>
+        <combo_box.item
+            label="R Stick ↔"
+            name="axis_2"
+            value="AXIS_RIGHTX"/>
+        <combo_box.item
+            label="R Stick ↕"
+            name="axis_3"
+            value="AXIS_RIGHTY"/>
+        <combo_box.item
+            label="L Trigger ↘"
+            name="axis_4"
+            value="AXIS_LEFT_TRIGGER"/>
+        <combo_box.item
+            label="R Trigger ↙"
+            name="axis_5"
+            value="AXIS_RIGHT_TRIGGER"/>
+        <combo_box.item
+            label="Triggers ↘↙"
+            name="axis_output_triggers"
+            value="AXIS_TRIGGERS"/>
+        <combo_box.item
+            label="None"
+            name="axis_none"
+            value="AXIS_NONE"/>
+    </combo_box>
+    <!-- axis_output_glyph_selector: the glyph counterpart of axis_output_selector,
+         shown when editing the "output" (icon) column of the Devices-tab
+         axis-channels table.  Items are built in C++ from axis_output_selector's
+         values; each item's label is the font glyph for that canonical axis. -->
+    <combo_box
+        name="axis_output_glyph_selector"
+        width="200"
+        height="18"/>
+    <combo_box
+        name="analog_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Strafe ↔"
+            value="Strafe left/right"/>
+        <combo_box.item
+            label="Advance ↕"
+            value="Advance forward/back"/>
+        <combo_box.item
+            label="Turn ↔"
+            value="Turn left/right"/>
+        <combo_box.item
+            label="Look ↕"
+            value="Look up/down"/>
+        <combo_box.item
+            label="Fly ↕"
+            value="Fly up/down"/>
+        <combo_box.item
+            label="Zoom -/+"
+            value="Zoom +/-"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <combo_box
+        name="button_input_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="South"
+            name="BUTTON_0"
+            value="BUTTON_SOUTH"/>
+        <combo_box.item
+            label="East"
+            name="BUTTON_1"
+            value="BUTTON_EAST"/>
+        <combo_box.item
+            label="West"
+            name="BUTTON_2"
+            value="BUTTON_WEST"/>
+        <combo_box.item
+            label="North"
+            name="BUTTON_3"
+            value="BUTTON_NORTH"/>
+        <combo_box.item
+            label="Select"
+            name="BUTTON_4"
+            value="BUTTON_SELECT"/>
+        <combo_box.item
+            label="Home"
+            name="BUTTON_5"
+            value="BUTTON_HOME"/>
+        <combo_box.item
+            label="Start"
+            name="BUTTON_6"
+            value="BUTTON_START"/>
+        <combo_box.item
+            label="L Stick"
+            name="BUTTON_7"
+            value="BUTTON_LEFT_STICK"/>
+        <combo_box.item
+            label="R Stick"
+            name="BUTTON_8"
+            value="BUTTON_RIGHT_STICK"/>
+        <combo_box.item
+            label="L Shoulder"
+            name="BUTTON_9"
+            value="BUTTON_LEFT_SHOULDER"/>
+        <combo_box.item
+            label="R Shoulder"
+            name="BUTTON_10"
+            value="BUTTON_RIGHT_SHOULDER"/>
+        <combo_box.item
+            label="DPad Up"
+            name="BUTTON_11"
+            value="BUTTON_DPAD_UP"/>
+        <combo_box.item
+            label="DPad Down"
+            name="BUTTON_12"
+            value="BUTTON_DPAD_DOWN"/>
+        <combo_box.item
+            label="DPad Left"
+            name="BUTTON_13"
+            value="BUTTON_DPAD_LEFT"/>
+        <combo_box.item
+            label="DPad Right"
+            name="BUTTON_14"
+            value="BUTTON_DPAD_RIGHT"/>
+        <combo_box.item
+            label="Misc1"
+            name="BUTTON_15"
+            value="BUTTON_15"/>
+        <combo_box.item
+            label="Paddle 1"
+            name="BUTTON_16"
+            value="BUTTON_PADDLE1"/>
+        <combo_box.item
+            label="Paddle 2"
+            name="BUTTON_17"
+            value="BUTTON_PADDLE2"/>
+        <combo_box.item
+            label="Paddle 3"
+            name="BUTTON_18"
+            value="BUTTON_PADDLE3"/>
+        <combo_box.item
+            label="Paddle 4"
+            name="BUTTON_19"
+            value="BUTTON_PADDLE4"/>
+        <combo_box.item
+            label="Touchpad"
+            name="BUTTON_20"
+            value="BUTTON_TOUCHPAD"/>
+        <combo_box.item
+            label="BUTTON_21"
+            name="BUTTON_21"
+            value="BUTTON_21"/>
+        <combo_box.item
+            label="BUTTON_22"
+            name="BUTTON_22"
+            value="BUTTON_22"/>
+        <combo_box.item
+            label="BUTTON_23"
+            name="BUTTON_23"
+            value="BUTTON_23"/>
+        <combo_box.item
+            label="BUTTON_24"
+            name="BUTTON_24"
+            value="BUTTON_24"/>
+        <combo_box.item
+            label="BUTTON_25"
+            name="BUTTON_25"
+            value="BUTTON_25"/>
+        <combo_box.item
+            label="BUTTON_26"
+            name="BUTTON_26"
+            value="BUTTON_26"/>
+        <combo_box.item
+            label="BUTTON_27"
+            name="BUTTON_27"
+            value="BUTTON_27"/>
+        <combo_box.item
+            label="BUTTON_28"
+            name="BUTTON_28"
+            value="BUTTON_28"/>
+        <combo_box.item
+            label="BUTTON_29"
+            name="BUTTON_29"
+            value="BUTTON_29"/>
+        <combo_box.item
+            label="BUTTON_30"
+            name="BUTTON_30"
+            value="BUTTON_30"/>
+        <combo_box.item
+            label="BUTTON_31"
+            name="BUTTON_31"
+            value="BUTTON_31"/>
+        <combo_box.item
+            label="None"
+            name="BUTTON_NONE"
+            value="BUTTON_NONE"/>
+    </combo_box>
+    <!-- button_input_glyph_selector: the glyph counterpart of button_input_selector,
+         shown when editing the "Button" (icon) column.  Items are built
+         in C++ from button_input_selector's values; each item's label is the
+         fong glyph for that button (falling back to text where none exists). -->
+    <combo_box
+        name="button_input_glyph_selector"
+        width="380"
+        height="18"/>
+    <!--
+    For reference, here are the RAW indices of the various input channels
+    of a standard XBox controller.  Button (N) is numbered in parentheses,
+    whereas axisN has N+ and N- labels.
+
+                  leftpaddle                          rightpaddle
+                  _______                               _______
+                 /   4+  '-.                         .-'  5+   \.
+  leftshoulder _(9)_________'-.____           ____.-'_________(10) rightshoulder
+              /  _________         \_________/                   \.
+             /  /    1-   \                               (3)     \.
+             | |           |     (4)   (5)   (6)           N      |
+             | |0-  (7)  0+|               _________  (2)W   E(1) |
+             | |           |              /    3-   \      S      |
+             | |     1+    |             |           |    (0)     |
+             |  \_________/              |2-  (8)  2+|            |
+             |  leftstick     (11)       |           |            |
+             |             (13)  (14)    |     3+    |            |
+             |                (12)        \_________/             |
+             |               d-pad         rightstick             |
+             |                ____________________                |
+             |              /                      \              |
+             |             /                        \             |
+             |            /                          \            |
+              \__________/                            \__________/
+    -->
+    <combo_box
+        name="binary_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Jump"
+            value="Jump"/>
+        <combo_box.item
+            label="Crouch"
+            value="Crouch"/>
+        <combo_box.item
+            label="Sit"
+            value="Toggle sit"/>
+        <!-- TODO: implement Interact feature
+        <combo_box.item
+            label="Interact"
+            value="Interact"/>
+        -->
+        <combo_box.item
+            label="Toggle speak"
+            value="Toggle speak"/>
+        <combo_box.item
+            label="Toggle mouselook"
+            value="Toggle mouselook"/>
+        <combo_box.item
+            label="FlyCam"
+            value="Toggle flycam"/>
+        <combo_box.item
+            label="Mouse cursor"
+            value="Toggle mouse cursor"/>
+        <combo_box.item
+            label="Advance ↑"
+            value="Advance forward"/>
+        <combo_box.item
+            label="Retreat ↓"
+            value="Advance back"/>
+        <combo_box.item
+            label="Strafe ←"
+            value="Strafe left"/>
+        <combo_box.item
+            label="Strafe →"
+            value="Strafe right"/>
+        <combo_box.item
+            label="Fly ↑"
+            value="Fly up"/>
+        <combo_box.item
+            label="Fly ↓"
+            value="Fly down"/>
+        <combo_box.item
+            label="Turn ←"
+            value="Turn left"/>
+        <combo_box.item
+            label="Turn →"
+            value="Turn right"/>
+        <combo_box.item
+            label="Zoom +"
+            value="Zoom +"/>
+        <combo_box.item
+            label="Zoom -"
+            value="Zoom -"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <!-- Mouselook-mode action selectors: initialized as independent copies of the
+         Avatar selectors above (same items/defaults for now), so Mouselook's
+         action set can be tuned separately later without touching Avatar's. -->
+    <combo_box
+        name="mouselook_analog_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Strafe ↔"
+            value="Strafe left/right"/>
+        <combo_box.item
+            label="Advance ↕"
+            value="Advance forward/back"/>
+        <combo_box.item
+            label="Turn ↔"
+            value="Turn left/right"/>
+        <combo_box.item
+            label="Look ↕"
+            value="Look up/down"/>
+        <combo_box.item
+            label="Fly ↕"
+            value="Fly up/down"/>
+        <combo_box.item
+            label="Zoom -/+"
+            value="Zoom +/-"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <combo_box
+        name="mouselook_binary_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Jump"
+            value="Jump"/>
+        <combo_box.item
+            label="Crouch"
+            value="Crouch"/>
+        <combo_box.item
+            label="Sit"
+            value="Toggle sit"/>
+        <combo_box.item
+            label="Toggle speak"
+            value="Toggle speak"/>
+        <combo_box.item
+            label="Toggle mouselook"
+            value="Toggle mouselook"/>
+        <combo_box.item
+            label="FlyCam"
+            value="Toggle flycam"/>
+        <combo_box.item
+            label="Mouse cursor"
+            value="Toggle mouse cursor"/>
+        <combo_box.item
+            label="Mouse left"
+            value="Mouse click left"/>
+        <combo_box.item
+            label="Mouse right"
+            value="Mouse click right"/>
+        <combo_box.item
+            label="Advance ↑"
+            value="Advance forward"/>
+        <combo_box.item
+            label="Retreat ↓"
+            value="Advance back"/>
+        <combo_box.item
+            label="Strafe ←"
+            value="Strafe left"/>
+        <combo_box.item
+            label="Strafe →"
+            value="Strafe right"/>
+        <combo_box.item
+            label="Fly ↑"
+            value="Fly up"/>
+        <combo_box.item
+            label="Fly ↓"
+            value="Fly down"/>
+        <combo_box.item
+            label="Turn ←"
+            value="Turn left"/>
+        <combo_box.item
+            label="Turn →"
+            value="Turn right"/>
+        <combo_box.item
+            label="Zoom +"
+            value="Zoom +"/>
+        <combo_box.item
+            label="Zoom -"
+            value="Zoom -"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <combo_box
+        name="sit_binary_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Stand"
+            value="Toggle sit"/>
+        <!-- TODO: implement Interact feature
+        <combo_box.item
+            label="Interact"
+            value="Interact"/>
+        -->
+        <combo_box.item
+            label="Toggle speak"
+            value="Toggle speak"/>
+        <combo_box.item
+            label="Toggle mouselook"
+            value="Toggle mouselook"/>
+        <combo_box.item
+            label="FlyCam"
+            value="Toggle flycam"/>
+        <combo_box.item
+            label="Mouse cursor"
+            value="Toggle mouse cursor"/>
+        <combo_box.item
+            label="Zoom +"
+            value="Zoom +"/>
+        <combo_box.item
+            label="Zoom -"
+            value="Zoom -"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <!-- Cursor-mode action selectors: initialized as independent copies of the
+         Avatar selectors above, with the left-stick axis actions replaced by
+         "Mouse left/right"/"Mouse up/down" (which drive the on-screen cursor;
+         see LLGameControllerManager::computeAgentActions()) and "Mouse click
+         left/right" added to the button set (shoulder buttons by default).
+         "Cursor up/down/left/right" are a digital (button-only) alternative or
+         addition to "Mouse left/right"/"Mouse up/down" for nudging the cursor,
+         e.g. rebind the D-Pad to these instead of Advance/Strafe. Unbound by
+         default. -->
+    <combo_box
+        name="cursor_analog_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Mouse ↔"
+            value="Mouse left/right"/>
+        <combo_box.item
+            label="Mouse ↕"
+            value="Mouse up/down"/>
+        <combo_box.item
+            label="Turn ↔"
+            value="Turn left/right"/>
+        <combo_box.item
+            label="Look ↕"
+            value="Look up/down"/>
+        <combo_box.item
+            label="Fly ↕"
+            value="Fly up/down"/>
+        <combo_box.item
+            label="Strafe ↔"
+            value="Strafe left/right"/>
+        <combo_box.item
+            label="Advance ↕"
+            value="Advance forward/back"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <combo_box
+        name="cursor_binary_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Jump"
+            value="Jump"/>
+        <combo_box.item
+            label="Crouch"
+            value="Crouch"/>
+        <combo_box.item
+            label="Sit"
+            value="Toggle sit"/>
+        <combo_box.item
+            label="Toggle speak"
+            value="Toggle speak"/>
+        <combo_box.item
+            label="Toggle mouselook"
+            value="Toggle mouselook"/>
+        <combo_box.item
+            label="FlyCam"
+            value="Toggle flycam"/>
+        <combo_box.item
+            label="Toggle mouse cursor"
+            value="Toggle mouse cursor"/>
+        <combo_box.item
+            label="Mouse left"
+            value="Mouse click left"/>
+        <combo_box.item
+            label="Mouse right"
+            value="Mouse click right"/>
+        <combo_box.item
+            label="Advance ↑"
+            value="Advance forward"/>
+        <combo_box.item
+            label="Retreat ↓"
+            value="Advance back"/>
+        <combo_box.item
+            label="Strafe ←"
+            value="Strafe left"/>
+        <combo_box.item
+            label="Strafe →"
+            value="Strafe right"/>
+        <combo_box.item
+            label="Fly ↑"
+            value="Fly up"/>
+        <combo_box.item
+            label="Fly ↓"
+            value="Fly down"/>
+        <combo_box.item
+            label="Turn ←"
+            value="Turn left"/>
+        <combo_box.item
+            label="Turn →"
+            value="Turn right"/>
+        <combo_box.item
+            label="Cursor ↑"
+            value="Cursor up"/>
+        <combo_box.item
+            label="Cursor ↓"
+            value="Cursor down"/>
+        <combo_box.item
+            label="Cursor ←"
+            value="Cursor left"/>
+        <combo_box.item
+            label="Cursor →"
+            value="Cursor right"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <!-- FlyCam-mode action selectors: distinct action sets for the FlyCam mode.
+         Item value is the ASCII action key used in the GameControl settings (it must
+         match the hard-coded key in llgamecontrol.cpp); label is the display text. -->
+    <combo_box
+        name="flycam_analog_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Truck ↔"
+            value="Truck left/right"/>
+        <combo_box.item
+            label="Dolly ↕"
+            value="Dolly forward/back"/>
+        <combo_box.item
+            label="Pan ↔"
+            value="Pan left/right"/>
+        <combo_box.item
+            label="Tilt ↕"
+            value="Tilt up/down"/>
+        <combo_box.item
+            label="Boom ↕"
+            value="Boom up/down"/>
+        <combo_box.item
+            label="Roll ↻↺"
+            value="Roll CCW/CW"/>
+        <combo_box.item
+            label="Zoom -/+"
+            value="Zoom in/out"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+    <combo_box
+        name="flycam_binary_action_selector"
+        width="380"
+        height="18">
+        <combo_box.item
+            label="Zoom -"
+            value="Zoom out"/>
+        <combo_box.item
+            label="Pan →"
+            value="Pan right"/>
+        <combo_box.item
+            label="Pan ←"
+            value="Pan left"/>
+        <combo_box.item
+            label="Zoom +"
+            value="Zoom in"/>
+        <combo_box.item
+            label="Mouse cursor"
+            value="Toggle mouse cursor"/>
+        <combo_box.item
+            label="Leave flycam"
+            value="Toggle flycam"/>
+        <combo_box.item
+            label="Reset"
+            value="Reset"/>
+        <combo_box.item
+            label="Roll ↺"
+            value="Roll CCW"/>
+        <combo_box.item
+            label="Roll ↻"
+            value="Roll CW"/>
+        <combo_box.item
+            label="Dolly ↑"
+            value="Dolly forward"/>
+        <combo_box.item
+            label="Dolly ↓"
+            value="Dolly back"/>
+        <combo_box.item
+            label="Truck ←"
+            value="Truck left"/>
+        <combo_box.item
+            label="Truck →"
+            value="Truck right"/>
+        <combo_box.item
+            label="Boom ↑"
+            value="Boom up"/>
+        <combo_box.item
+            label="Boom ↓"
+            value="Boom down"/>
+        <combo_box.item
+            label="None"
+            value="None"/>
+    </combo_box>
+</panel>

@@ -34,6 +34,7 @@
 
 #include "llkeyconflict.h"
 
+#include "llgamecontrol.h"
 #include "llinitparam.h"
 #include "llkeyboard.h"
 #include "lltrans.h"
@@ -99,29 +100,34 @@ LLKeyConflictHandler::~LLKeyConflictHandler()
     // Note: does not reset bindings if temporary file was used
 }
 
-bool LLKeyConflictHandler::canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask)
+bool LLKeyConflictHandler::canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask) const
 {
-    return mControlsMap[control_name].canHandle(mouse_ind, key, mask);
+    control_map_t::const_iterator iter = mControlsMap.find(control_name);
+    if (iter != mControlsMap.end())
+    {
+        return iter->second.canHandle(mouse_ind, key, mask);
+    }
+    return false;
 }
 
-bool LLKeyConflictHandler::canHandleKey(const std::string &control_name, KEY key, MASK mask)
+bool LLKeyConflictHandler::canHandleKey(const std::string &control_name, KEY key, MASK mask) const
 {
     return canHandleControl(control_name, CLICK_NONE, key, mask);
 }
 
-bool LLKeyConflictHandler::canHandleMouse(const std::string &control_name, EMouseClickType mouse_ind, MASK mask)
+bool LLKeyConflictHandler::canHandleMouse(const std::string &control_name, EMouseClickType mouse_ind, MASK mask) const
 {
     return canHandleControl(control_name, mouse_ind, KEY_NONE, mask);
 }
 
-bool LLKeyConflictHandler::canHandleMouse(const std::string &control_name, S32 mouse_ind, MASK mask)
+bool LLKeyConflictHandler::canHandleMouse(const std::string &control_name, S32 mouse_ind, MASK mask) const
 {
     return canHandleControl(control_name, (EMouseClickType)mouse_ind, KEY_NONE, mask);
 }
 
-bool LLKeyConflictHandler::canAssignControl(const std::string &control_name)
+bool LLKeyConflictHandler::canAssignControl(const std::string &control_name) const
 {
-    control_map_t::iterator iter = mControlsMap.find(control_name);
+    control_map_t::const_iterator iter = mControlsMap.find(control_name);
     if (iter != mControlsMap.end())
     {
         return iter->second.mAssignable;
@@ -238,6 +244,8 @@ std::string LLKeyConflictHandler::getStringFromKeyData(const LLKeyData& keydata)
 
     result += LLKeyboard::stringFromMouse(keydata.mMouse);
 
+    result += LLGameControl::controllerInputStringFromAction((LLGameControl::ActionType)keydata.mControllerActionType, keydata.mControllerAction);
+
     return result;
 }
 
@@ -284,12 +292,25 @@ void LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymod
             LLKeyboard::keyFromString(it->key, &key);
         }
         LLKeyboard::maskFromString(it->mask, &mask);
-        // Note: it->command is also the name of UI element, howhever xml we are loading from
+        // Note: it->command is also the name of UI element, however xml we are loading from
         // might not know all the commands, so UI will have to know what to fill by its own
         // Assumes U32_MAX conflict mask, and is assignable by default,
         // but assignability might have been overriden by generatePlaceholders.
         LLKeyConflict &type_data = (*destination)[it->command];
-        type_data.mKeyBind.addKeyData(mouse, key, mask, true);
+
+        if (it->controller.isProvided() && !it->controller.getValue().empty())
+        {
+            LLGameControl::ActionType actionType = LLGameControl::ActionType::NONE;
+            U8 action = 0;
+            if(LLGameControl::actionFromString(it->controller.getValue(),actionType, action))
+            {
+                type_data.mKeyBind.addKeyData(LLKeyData((U8)actionType, action));
+            }
+        }
+        else
+        {
+            type_data.mKeyBind.addKeyData(mouse, key, mask, true);
+        }
     }
 }
 
@@ -335,6 +356,13 @@ bool LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const 
             if (keys.sitting.isProvided())
             {
                 loadFromSettings(keys.sitting, destination);
+                res = true;
+            }
+            break;
+        case MODE_FLYCAM:
+            if (keys.flycam.isProvided())
+            {
+                loadFromSettings(keys.flycam, destination);
                 res = true;
             }
             break;
@@ -513,6 +541,14 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                         // just copy old keys.xml and rename to key_bindings.xml, it should work
                         binding.mouse.set(LLKeyboard::stringFromMouse(data.mMouse, false), true);
                     }
+                    if(data.mControllerActionType > LLGameControl::ActionType::BUTTON)
+                    {
+                        binding.controller.setProvided(false);
+                    }
+                    else
+                    {
+                        binding.controller.set(LLGameControl::stringFromAction((LLGameControl::ActionType)(data.mControllerActionType), data.mControllerAction));
+                    }
                     binding.command = iter->first;
                     mode.bindings.add(binding);
                 }
@@ -543,6 +579,14 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                 {
                     keys.sitting.bindings.set(mode.bindings, true);
                 }
+                break;
+            case MODE_FLYCAM:
+                // Unlike the long-established modes above, 'flycam' is a new
+                // block: a key_bindings.xml written before this mode existed
+                // has no <flycam> tag at all, so isProvided() would be false
+                // forever and this mode's bindings would never get written
+                // back out. Therefore set it unconditionally.
+                keys.flycam.bindings.set(mode.bindings, true);
                 break;
             default:
                 LL_ERRS() << "Not implememted mode " << mLoadMode << LL_ENDL;

@@ -33,6 +33,9 @@
 #include "llcharacter.h"
 #include "llcoordframe.h"           // for mFrameAgent
 #include "llavatarappearancedefines.h"
+#include "llflycam.h"
+#include "llgamecontrol.h"
+#include "llkeyboard.h"
 #include "llpermissionsflags.h"
 #include "llevents.h"
 #include "v3dmath.h"
@@ -41,6 +44,7 @@
 
 #include <boost/signals2.hpp>
 
+#include <array>
 #include <functional>
 
 extern const bool   ANIMATE;
@@ -349,6 +353,15 @@ private:
     S32             mCurrentFidget;
 
     //--------------------------------------------------------------------
+    // Crouch
+    //--------------------------------------------------------------------
+public:
+    bool isCrouching() const;
+    void toggleCrouch() { mCrouch = !mCrouch; }
+private:
+    bool mCrouch;
+
+    //--------------------------------------------------------------------
     // Fly
     //--------------------------------------------------------------------
 public:
@@ -479,6 +492,10 @@ public:
     void            resetControlFlags();
     bool            anyControlGrabbed() const;      // True iff a script has taken over a control
     bool            isControlGrabbed(S32 control_index) const;
+    bool            isUsingFlycam() const { return mUsingFlycam; }
+    void            toggleFlycam();
+    bool            isUsingMouseCursor() const { return mUsingMouseCursor; }
+    void            toggleMouseCursorMode();
     // Send message to simulator to force grabbed controls to be
     // released, in case of a poorly written script.
     void            forceReleaseControls();
@@ -486,8 +503,61 @@ public:
 private:
     S32             mControlsTakenCount[TOTAL_CONTROLS];
     S32             mControlsTakenPassedOnCount[TOTAL_CONTROLS];
-    U32             mControlFlags;                  // Replacement for the mFooKey's
+    // mControlFlags is a bitmask of behavior instructions for compact
+    // transmission to the server.  It does NOT represent "input", rather
+    // the consequences of it, which will sometimes depend on "state".
+    U32             mControlFlags;
     F64             mLastJumpInputTime;             // Time of last jump input (key-down) in seconds from LLTimer::getTotalSeconds()
+
+    //--------------------------------------------------------------------
+    // GameControls
+    //--------------------------------------------------------------------
+public:
+    // ActionFlags are similar to, but not the same as, ControlFlags!
+    // An 'ActionFlags' bitmask stores 'simplified input' from key/button
+    // presses that correspond to avatar/camera movement actions
+    // whereas 'mControlFlags' are a more complicated set of behavior bits
+    // computed as a function of input and state, and are sent to the server
+    // to steer its character controller for the avatar.
+    //
+    void applyExternalActions(const LLGameControl::AgentActions& actions);
+    void updateFlycam();
+
+    // Auto-derive the active game-control AgentControlMode from current avatar
+    // state (flycam active -> FlyCam, else mouse-cursor mode active -> Mouse, else
+    // mouselook camera -> Mouselook, else sitting -> Captive, else Avatar) and push
+    // it to LLGameControl.  Called once per frame before game-control input is
+    // processed so the runtime mapping/gating tracks avatar state automatically.
+    void updateGameControlMode();
+
+    void pressGameControlButton(U8 button);
+    void releaseGameControlButton(U8 button);
+    U32 getGameControlButtonsFromKeys() const { return mGameControlButtonsFromKeys; }
+
+    void setFlycamKeyInput(U8 channel, F32 value) { mFlycamKeyInput[channel] = value; }
+    void setFlycamKeyReset(bool reset) { mFlycamKeyResetRequested = reset; }
+
+private:
+
+    U64 mLastFlycamUpdate { 0 };
+    U32 mExternalActionFlags { 0 };
+    U32 mGameControlButtonsFromKeys { 0 };
+    // Previous frame's LLGameControl::AgentActions::mMouseButtonBits, used by
+    // applyExternalActions() to find the press/release edges of the
+    // level-triggered simulated mouse buttons.
+    U32 mPrevMouseButtonBits { 0 };
+    LLFlycam mFlycam;
+    bool mToggleRun { true };
+    bool mUsingFlycam { false };
+    std::array<F32, LLGameControl::FLYCAM_NUM_CHANNELS> mFlycamKeyInput {};
+    bool mFlycamKeyResetRequested { false };
+
+    // CONTROL_MODE_CURSOR: toggled by AVATAR_ACTION_TOGGLE_MOUSE_CURSOR, same pattern
+    // as mUsingFlycam/toggleFlycam(). mLastMouseCursorUpdate is the previous frame's
+    // timestamp used to compute the cursor's per-frame movement delta; reset to 0
+    // whenever the mode isn't active so re-entering doesn't jump the cursor.
+    bool mUsingMouseCursor { false };
+    U64 mLastMouseCursorUpdate { 0 };
 
     //--------------------------------------------------------------------
     // Animations
