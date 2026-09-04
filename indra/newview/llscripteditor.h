@@ -29,6 +29,7 @@
 #define LL_SCRIPTEDITOR_H
 
 #include "lltexteditor.h"
+#include <cstddef>
 
 class LLScriptEditor : public LLTextEditor
 {
@@ -41,17 +42,22 @@ public:
         Params();
     };
 
-    virtual ~LLScriptEditor() {};
+    ~LLScriptEditor() override;
 
     // LLView override
-    virtual void    draw();
-    bool postBuild();
+    void    draw() override;
+    bool    postBuild() override;
 
-    void    initKeywords();
+    void    initKeywords(bool luau_language = false);
     void    loadKeywords();
-    /* virtual */ void  clearSegments();
-    LLKeywords::keyword_iterator_t keywordsBegin()  { return mKeywords.begin(); }
-    LLKeywords::keyword_iterator_t keywordsEnd()    { return mKeywords.end(); }
+    void    clearSegments();
+    LLKeywords::keyword_iterator_t keywordsBegin();
+    LLKeywords::keyword_iterator_t keywordsEnd();
+    LLKeywords& getKeywords();
+    bool    getIsLuauLanguage() { return mLuauLanguage; }
+    void    setLuauLanguage(bool luau_language) { mLuauLanguage = luau_language; }
+    U32     getKeywordsGeneration() const { return mKeywordsGeneration; }
+    void    applySyntaxSegments(const LLWString& text, const LLKeywords::segment_ops_t& ops);
 
     static std::string getScriptFontSize();
     LLFontGL* getScriptFont();
@@ -59,18 +65,54 @@ public:
 
   protected:
     friend class LLUICtrlFactory;
+    friend class LLScriptEditorSyntaxWorker;
     LLScriptEditor(const Params& p);
 
 private:
+    enum class SyntaxApplyState
+    {
+        Idle,
+        Building,
+        Inserting
+    };
     void    drawLineNumbers();
-    /* virtual */ void  updateSegments();
-    /* virtual */ void  drawSelectionBackground();
-    void    loadKeywords(const std::string& filename_keywords,
-                         const std::string& filename_colors);
+    void  updateSegments() override;
+    void  drawSelectionBackground() override;
+    void    ensureSyntaxWorker();
+    void    queueSyntaxParse();
+    void    queueSyntaxApply(LLWString text,
+                             LLKeywords::segment_ops_t ops,
+                             S32 text_generation,
+                             U32 keywords_generation,
+                             bool disable_highlight,
+                             LLKeywords* keywords);
+    void    processPendingSyntaxApply();
+    void    resetPendingSyntaxApply();
 
-    LLKeywords  mKeywords;
+    LLKeywords  mKeywordsLua;
+    LLKeywords  mKeywordsLSL;
+    bool        mLuauLanguage;
+
     bool        mShowLineNumbers;
     bool mUseDefaultFontSize;
+    U32         mKeywordsGeneration;
+    S32         mLastQueuedTextGeneration;
+    U32         mLastQueuedKeywordsGeneration;
+    bool        mLastQueuedDisableHighlight;
+    LLKeywords* mLastQueuedKeywords;
+    class LLScriptEditorSyntaxWorker* mSyntaxWorker;
+    SyntaxApplyState mSyntaxApplyState;
+    LLWString   mPendingApplyText;
+    LLKeywords::segment_ops_t mPendingApplyOps;
+    segment_vec_t mPendingApplySegments;
+    segment_set_t mPendingApplySegmentSet;
+    size_t      mPendingApplyOpIndex;
+    size_t      mPendingApplySegmentIndex;
+    LLStyleConstSP mPendingApplyStyle;
+    S32         mPendingApplyTextGeneration;
+    U32         mPendingApplyKeywordsGeneration;
+    bool        mPendingApplyDisableHighlight;
+    LLKeywords* mPendingApplyKeywords;
 };
 
 #endif // LL_SCRIPTEDITOR_H

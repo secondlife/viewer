@@ -38,7 +38,7 @@
 			<text name="LabelItemDescTitle">
 				描述：
 			</text>
-			<line_editor name="LabelItemDesc" tool_tip="當人們在瀏覽器設定中選擇了「針對所有物件懸置顯示提醒」時，他們滑鼠所指的物件將會彈出描述該物件的內容。 幾何元件的描述內容不得超過127位元組，否則會被截短。"/>
+            <text_editor name="LabelItemDesc" tool_tip="當人們在瀏覽器設定中選擇了「針對所有物件懸置顯示提醒」時，他們滑鼠所指的物件將會彈出描述該物件的內容。 幾何元件的描述內容不得超過127位元組，否則會被截短。"/>
 			<text name="LabelCreatorTitle">
 				創造者：
 			</text>

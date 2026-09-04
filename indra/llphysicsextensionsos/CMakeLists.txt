@@ -43,5 +43,9 @@ if(WINDOWS)
   target_compile_options(llphysicsextensionsos PRIVATE /bigobj)
 endif()
 
+if (USE_PRECOMPILED_HEADERS)
+  target_precompile_headers(llphysicsextensionsos REUSE_FROM llprecompiled)
+endif ()
+
 # Add tests
 

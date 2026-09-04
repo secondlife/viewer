@@ -60,7 +60,7 @@ namespace
     // List of command-line switches that can't map-to settings variables.
     // Going forward, we want every new command-line switch to map-to some
     // settings variable. This list is used to validate that.
-    const std::set<std::string> unmapped_options = { "help", "set", "setdefault", "settings", "sessionsettings", "usersessionsettings" };
+    const std::set<std::string> unmapped_options = { "help", "set", "setdefault", "settings", "sessionsettings", "usersessionsettings", "gpubenchmark" };
 
     po::options_description gOptionsDesc;
     po::positional_options_description gPositionalOptions;
@@ -610,6 +610,18 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
                     }
 
                     ctrl->setValue(llsdArray, false);
+                }
+                else if (ctrl->isType(TYPE_LLSD))
+                {
+                    // Command-line LLSD should support a notation format string
+                    // Note that LeapCommand is an TYPE_LLSD, but generaly is not a notation string,
+                    // so keep a fallback to saving value directly.
+                    // To preserve pre-setValueFromNotation, everything has a fallback.
+                    std::string strvalue = onevalue(option, value);
+                    if (!ctrl->setValueFromNotation(strvalue, false))
+                    {
+                        ctrl->setValue(LLSD::String(strvalue), false);
+                    }
                 }
                 else
                 {

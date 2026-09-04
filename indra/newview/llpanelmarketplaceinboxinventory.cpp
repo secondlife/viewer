@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -82,10 +82,20 @@ LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge
 
     LLInboxFolderViewFolder::Params params;
 
-    params.name = bridge->getDisplayName();
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+    // Only usable for debug and first call has a large
+    // overhead from search string construction.
+    // As inventory names aren't unique and can change,
+    // there is little we can use them for in release builds.
+    params.name = bridge->getName();
+#else
+    // We don't have a source of unique names and inventory
+    // items can reach millions in quantity, just use
+    // a short descriptor
+    params.name = "fld";
+#endif
     params.root = mFolderRoot.get();
     params.listener = bridge;
-    params.tool_tip = params.name;
     params.font_color = item_color;
     params.font_highlight_color = item_color;
     params.allow_drop = allow_drop;
@@ -99,12 +109,22 @@ LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * b
 
     LLInboxFolderViewItem::Params params;
 
-    params.name = bridge->getDisplayName();
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+    // Only usable for debug and first call has a large
+    // overhead from search string construction.
+    // As inventory names aren't unique and can change,
+    // there is little we can use them for in release builds.
+    params.name = bridge->getName();
+#else
+    // We don't have a source of unique names and inventory
+    // items can reach millions in quantity, just use
+    // a short descriptor
+    params.name = "itm";
+#endif
     params.creation_date = bridge->getCreationDate();
     params.root = mFolderRoot.get();
     params.listener = bridge;
     params.rect = LLRect (0, 0, 0, 0);
-    params.tool_tip = params.name;
     params.font_color = item_color;
     params.font_highlight_color = item_color;
 

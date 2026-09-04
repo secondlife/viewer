@@ -24,13 +24,14 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "lldiriterator.h"
 
-#include "fix_macros.h"
 #include "llregex.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 static std::string glob_to_regex(const std::string& glob);
 
@@ -51,11 +52,7 @@ private:
 LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
     : mIsValid(false)
 {
-#ifdef LL_WINDOWS // or BOOST_WINDOWS_API
-    fs::path dir_path(ll_convert<std::wstring>(dirname));
-#else
-    fs::path dir_path(dirname);
-#endif
+    fs::path dir_path = fsyspath(dirname);
 
     bool is_dir = false;
 

@@ -59,8 +59,9 @@ public:
 //-----------------------------------------------------------------------------
 // class LLViewerJointMesh
 //-----------------------------------------------------------------------------
-class LLAvatarJointMesh : public virtual LLAvatarJoint
+class alignas(16) LLAvatarJointMesh : public virtual LLAvatarJoint
 {
+    LL_ALIGN_NEW
 protected:
     LLColor4                    mColor;         // color value
 //  LLColor4                    mSpecular;      // specular color (always white for now)

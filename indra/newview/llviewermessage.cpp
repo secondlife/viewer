@@ -419,7 +419,26 @@ void send_complete_agent_movement(const LLHost& sim_host)
     msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
     msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
     msg->addU32Fast(_PREHASH_CircuitCode, msg->mOurCircuitCode);
-    msg->sendReliable(sim_host);
+
+    // build a lambda to be used as callback on ACK or timeout
+    void (*complete_agent_movement_callback)(void**, S32) = [](void**, S32 result)
+    {
+        if(LLApp::isExiting()) return;
+        if (result != LL_ERR_NOERR)
+        {
+            LL_WARNS("Messaging") << "CompleteAgentMovement failed with err=" << result << LL_ENDL;
+        }
+    };
+
+    // We use same retry strategy as UseCircuitCode because this is a crucial message
+    // that MUST arrive else we'll suffer a failed login/teleport/region-cross
+    msg->sendReliable(
+        sim_host,
+        gSavedSettings.getS32("UseCircuitCodeMaxRetries"),
+        false,
+        (F32Seconds)gSavedSettings.getF32("UseCircuitCodeTimeout"),
+        complete_agent_movement_callback,
+        NULL);
 }
 
 void process_logout_reply(LLMessageSystem* msg, void**)
@@ -2439,6 +2458,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
         color.setVec(1.f,1.f,1.f,1.f);
         msg->getStringFast(_PREHASH_ChatData, _PREHASH_Message, mesg);
+        // Preserve tabs from scripts by expanding them to spaces before any sanitization/formatting.
+        LLStringUtil::replaceTabsWithSpaces(mesg, 4);
 
         bool ircstyle = false;
 
@@ -3739,9 +3760,7 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 {
     if (!gAudiop)
     {
-#if !LL_LINUX
         LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
-#endif
         return;
     }
 
@@ -3813,9 +3832,7 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 {
     if (!gAudiop)
     {
-#if !LL_LINUX
         LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
-#endif
         return;
     }
 
@@ -4164,11 +4181,12 @@ void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data)
     if (avatarp)
     {
         avatarp->processAvatarAppearance( mesgsys );
+        return;
     }
-    else
-    {
-        LL_WARNS("Messaging") << "avatar_appearance sent for unknown avatar " << uuid << LL_ENDL;
-    }
+    // The avatar object doesn't exist yet.
+    // We will re-request its appearance data after it is created.
+    LLVOAvatar::registerEarlyAppearance(uuid);
+    LL_WARNS("Messaging") << "AvatarAppearance received for avatar " << uuid << " before object created" << LL_ENDL;
 }
 
 void process_camera_constraint(LLMessageSystem *mesgsys, void **user_data)
@@ -4910,10 +4928,12 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock, const std::string & notific
     {
         U8 regionAccess = static_cast<U8>(llsdBlock["_region_access"].asInteger());
         std::string regionMaturity = LLViewerRegion::accessToString(regionAccess);
+        llsdBlock["REGIONMATURITY_CAP"] = regionMaturity;
         LLStringUtil::toLower(regionMaturity);
         llsdBlock["REGIONMATURITY"] = regionMaturity;
 
         LLNotificationPtr tp_failure_notification;
+        bool skip_notif = false;
         std::string notifySuffix;
 
         if (notificationID == std::string("TeleportEntryAccessBlocked"))
@@ -4983,21 +5003,39 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock, const std::string & notific
             }
         }       // End of special handling for "TeleportEntryAccessBlocked"
         else
-        {   // Normal case, no message munging
-            gAgent.clearTeleportRequest();
-            if (LLNotifications::getInstance()->templateExists(notificationID))
+        {
+            if (notificationID == "RegionTPAccessBlocked")
             {
-                tp_failure_notification = LLNotificationsUtil::add(notificationID, llsdBlock, llsdBlock);
+                bool can_change_maturity = (regionAccess == SIM_ACCESS_MATURE) ? gAgent.isMature() : gAgent.isAdult();
+                if (can_change_maturity)
+                {
+                    LLFloaterReg::showInstance("maturity_dialog", LLSD((S32)regionAccess));
+                    skip_notif = true;
+                }
+                else
+                {
+                    gAgent.clearTeleportRequest();
+                    tp_failure_notification = LLNotificationsUtil::add("RegionTPAccessBlocked_NotifyAdultsOnly", llsdBlock);
+                }
             }
             else
             {
-                llsdBlock["MESSAGE"] = defaultMessage;
-                tp_failure_notification = LLNotificationsUtil::add("GenericAlertOK", llsdBlock);
+                // Normal case, no message munging
+                gAgent.clearTeleportRequest();
+                if (LLNotifications::getInstance()->templateExists(notificationID))
+                {
+                    tp_failure_notification = LLNotificationsUtil::add(notificationID, llsdBlock, llsdBlock);
+                }
+                else
+                {
+                    llsdBlock["MESSAGE"] = defaultMessage;
+                    tp_failure_notification = LLNotificationsUtil::add("GenericAlertOK", llsdBlock);
+                }
             }
             returnValue = true;
         }
 
-        if ((tp_failure_notification == NULL) || tp_failure_notification->isIgnored())
+        if (((tp_failure_notification == NULL) || tp_failure_notification->isIgnored()) && !skip_notif)
         {
             // Given a simple notification if no tp_failure_notification is set or it is ignore
             LLNotificationsUtil::add(notificationID + notifySuffix, llsdBlock);

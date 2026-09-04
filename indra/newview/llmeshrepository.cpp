@@ -4277,15 +4277,17 @@ void LLMeshRepository::shutdown()
     delete mMeshMutex;
     mMeshMutex = NULL;
 
-    LL_INFOS(LOG_MESH) << "Shutting down decomposition system." << LL_ENDL;
-
     if (mDecompThread)
     {
         mDecompThread->shutdown();
         delete mDecompThread;
         mDecompThread = NULL;
     }
+}
 
+void LLMeshRepository::shutdownDecomposition()
+{
+    LL_INFOS(LOG_MESH) << "Shutting down decomposition system." << LL_ENDL;
     LLConvexDecomposition::quitSystem();
 }
 
@@ -4580,7 +4582,7 @@ void LLMeshRepository::notifyLoadedMeshes()
             // erase from background thread
             mThread->mWorkQueue.post([=, this]()
                 {
-                    LLMutexLock(mThread->mSkinMapMutex);
+                    LLMutexLock skin_lock(mThread->mSkinMapMutex);
                     mThread->mSkinMap.erase(id);
                 });
         }

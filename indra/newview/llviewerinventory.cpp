@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2014, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -72,6 +72,7 @@
 #include "llhttpretrypolicy.h"
 #include "llsettingsvo.h"
 #include "llinventorylistener.h"
+#include "llviewerassetupload.h"
 
 LLInventoryListener sInventoryListener;
 
@@ -505,6 +506,16 @@ bool LLViewerInventoryItem::unpackMessage(const LLSD& item)
 
     LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
 
+    // Parse script runtime state from task inventory cap
+    if (item.has("running"))
+    {
+        mIsRunning = item["running"].asBoolean();
+    }
+    if (item.has("faulted"))
+    {
+        mIsFaulted = item["faulted"].asBoolean();
+    }
+
     mIsComplete = true;
     return rv;
 }
@@ -671,6 +682,25 @@ S32 LLViewerInventoryCategory::getVersion() const
 void LLViewerInventoryCategory::setVersion(S32 version)
 {
     mVersion = version;
+}
+
+const std::string& LLViewerInventoryCategory::getDisplayName() const
+{
+    if (mNeedsDisplayNameUpdate)
+    {
+        buildDisplayName();
+    }
+    if (!mDisplayName.empty())
+    {
+        return mDisplayName;
+    }
+    return getName();
+}
+
+void LLViewerInventoryCategory::invalidateDisplayName()
+{
+    mNeedsDisplayNameUpdate = true;
+    mDisplayName.clear();
 }
 
 bool LLViewerInventoryCategory::fetch(S32 expiry_seconds)
@@ -887,6 +917,34 @@ void LLViewerInventoryCategory::changeType(LLFolderType::EType new_folder_type)
 void LLViewerInventoryCategory::localizeName()
 {
     LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
+}
+
+void LLViewerInventoryCategory::buildDisplayName() const
+{
+    // Secure and library folders can't be renamed,
+    // so we only need to do this once.
+    mNeedsDisplayNameUpdate = false;
+
+    //"Accessories" inventory category has folder type FT_NONE. So, this folder
+    //can not be detected as protected with LLFolderType::lookupIsProtectedType
+    //
+    // HACK: EXT - 6028 ([HARD CODED]? Inventory > Library > "Accessories" folder)
+    // Translation of Accessories folder in Library inventory folder
+    LLFolderType::EType preferred_type = getPreferredType();
+
+    bool is_accessories = false;
+    if (getName() == "Accessories")
+    {
+        // To ensure that Accessories folder is in Library we have to check its parent folder.
+        const LLUUID& parent_folder_id = getParentUUID();
+        is_accessories = (parent_folder_id == gInventory.getLibraryRootFolderID());
+    }
+
+    if (is_accessories || LLFolderType::lookupIsProtectedType(preferred_type))
+    {
+        // All predefined folders have translations in strings.xml.
+        LLTrans::findString(mDisplayName, std::string("InvFolder ") + getName(), LLSD());
+    }
 }
 
 // virtual
@@ -1715,6 +1773,7 @@ void create_new_item(const std::string& name,
                    std::function<void(const LLUUID&)> created_cb = nullptr)
 {
     std::string desc;
+    U8 subtype = NO_INV_SUBTYPE;
     LLViewerAssetType::generateDescriptionFor(asset_type, desc);
     next_owner_perm = (next_owner_perm) ? next_owner_perm : PERM_MOVE | PERM_TRANSFER;
 
@@ -1726,6 +1785,20 @@ void create_new_item(const std::string& name,
         {
             cb = new LLBoostFuncInventoryCallback(create_script_cb);
             next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Scripts");
+
+            LLViewerRegion* region = gAgent.getRegion();
+            if (region && region->simulatorFeaturesReceived())
+            {
+                // *TODO* Setting the subtype for the script will cause the server to select
+                // either the LSL or Lua default script.  We should perhaps allow the user to
+                // select which type of script they want to create.
+                LLSD simulatorFeatures;
+                region->getSimulatorFeatures(simulatorFeatures);
+                if (simulatorFeatures["LuaScriptsEnabled"].asBoolean())
+                {
+                    subtype = SST_LUA;
+                }
+            }
             break;
         }
 
@@ -1768,7 +1841,7 @@ void create_new_item(const std::string& name,
                           desc,
                           asset_type,
                           inv_type,
-                          NO_INV_SUBTYPE,
+                          subtype,
                           next_owner_perm,
                           cb);
 }

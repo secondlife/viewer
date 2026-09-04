@@ -251,9 +251,24 @@ void    LLComboBox::resetDirty()
     }
 }
 
-bool LLComboBox::itemExists(const std::string& name)
+bool LLComboBox::itemExists(const std::string& name) const
 {
     return mList->getItemByLabel(name);
+}
+
+bool LLComboBox::valueExists(const std::string& value) const
+{
+    return mList->getItemByValue(value);
+}
+
+LLScrollListItem* LLComboBox::findItemByValue(const std::string& value) const
+{
+    return mList->getItemByValue(value);
+}
+
+std::vector<LLScrollListItem*> LLComboBox::getAllData() const
+{
+    return mList->getAllData();
 }
 
 // add item "name" to menu
@@ -521,7 +536,7 @@ bool LLComboBox::setCurrentByIndex(S32 index)
         if (item->getEnabled())
         {
             mList->selectItem(item, -1, true);
-            LLSD::String label = item->getColumn(0)->getValue().asString();
+            LLSD::String label = getSelectedItemLabel();
             if (mTextEntry)
             {
                 mTextEntry->setText(label);
