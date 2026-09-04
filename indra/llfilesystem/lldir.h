@@ -70,7 +70,6 @@ class LLDir
     U32 deleteDirAndContents(const std::string& dir_name);
     // get a list of file names inside the directory
     // includeExternalSymlinks also adds any symlinks to the list that refer to files in other locations.
-    // symlinks to files located in the same directory are excluded as that file is already added to the list.
     std::vector<std::string> getFilesInDir(const std::filesystem::path &dirname, bool includeExternalSymlinks = false) const;
     std::vector<std::string> getFilesInDir(const std::string &dirname, bool includeExternalSymlinks = false) const;
 // pure virtual functions

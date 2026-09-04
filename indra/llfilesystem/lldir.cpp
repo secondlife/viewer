@@ -101,11 +101,11 @@ std::vector<std::string> LLDir::getFilesInDir(const std::filesystem::path &dir_p
              dir_itr != end_iter;
              ++dir_itr)
         {
-            if (std::filesystem::is_regular_file(dir_itr->status()))
+            if (std::filesystem::is_regular_file(dir_itr->status(ec)))
             {
                 v.push_back(dir_itr->path().filename().string());
             }
-            else if (includeExternalSymlinks && std::filesystem::is_symlink(dir_itr->status()))
+            else if (includeExternalSymlinks && std::filesystem::is_symlink(dir_itr->status(ec)))
             {
                 if (dir_path != std::filesystem::read_symlink(dir_itr->path(), ec).parent_path())
                 {
