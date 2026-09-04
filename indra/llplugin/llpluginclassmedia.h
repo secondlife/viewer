@@ -237,6 +237,7 @@ public:
     void    setLanguageCode(const std::string &language_code);
     void    setPluginsEnabled(const bool enabled);
     void    setJavascriptEnabled(const bool enabled);
+    void    setTransparentBackground(const bool enabled);
     void    setWebSecurityDisabled(const bool disabled);
     void    setFileAccessFromFileUrlsEnabled(const bool enabled);
     void    setTarget(const std::string &target);

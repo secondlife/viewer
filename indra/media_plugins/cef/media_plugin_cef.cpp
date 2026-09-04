@@ -98,6 +98,7 @@ private:
     std::string mProxyHost;
     int mProxyPort;
     bool mDisableGPU;
+    bool mTransparentBackground;
     bool mDisableNetworkService;
     bool mUseMockKeyChain;
     bool mDisableWebSecurity;
@@ -141,6 +142,7 @@ MediaPluginBase(host_send_func, host_user_data)
     mProxyHost = "";
     mProxyPort = 0;
     mDisableGPU = false;
+    mTransparentBackground = false;
     mDisableNetworkService = true;
     mUseMockKeyChain = true;
     mDisableWebSecurity = false;
@@ -654,7 +656,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 // SL-15560: Product team overruled my change to set the default
                 // embedded background color to match the floater background
                 // and set it to white
-                settings.background_color = 0xffffffff; // white
+                settings.background_color = mTransparentBackground ? 0x00ffffff : 0xffffffff;
 
                 settings.root_cache_path = mRootCachePath;
                 settings.cookies_enabled = mCookiesEnabled;
@@ -738,7 +740,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 message.setValueS32("default_width", 1024);
                 message.setValueS32("default_height", 1024);
                 message.setValueS32("depth", mDepth);
-                message.setValueU32("internalformat", GL_RGB);
+                message.setValueU32("internalformat", GL_RGBA);
                 message.setValueU32("format", GL_BGRA);
                 message.setValueU32("type", GL_UNSIGNED_BYTE);
                 message.setValueBoolean("coords_opengl", true);
@@ -1044,6 +1046,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             else if (message_name == "javascript_enabled")
             {
                 mJavascriptEnabled = message_in.getValueBoolean("enable");
+            }
+            else if (message_name == "transparent_background")
+            {
+                mTransparentBackground = message_in.getValueBoolean("enable");
             }
             else if (message_name == "gpu_disabled")
             {
