@@ -88,6 +88,23 @@ namespace
         // Never emit an empty prim/object name to downstream tooling.
         return obj->getID().asString();
     }
+
+    void add_object_permissions(LLSD& object_data, LLViewerObject* object)
+    {
+        LLPermissions* permissions =
+            LLSelectMgr::getInstance()->findObjectPermissions(object);
+        if (!permissions)
+        {
+            return;
+        }
+
+        LLSD permission_entry;
+        permission_entry["owner"] =
+            static_cast<S32>(permissions->getMaskOwner());
+        permission_entry["next_owner"] =
+            static_cast<S32>(permissions->getMaskNextOwner());
+        object_data["permissions"] = permission_entry;
+    }
 }
 
 class LLPublishedPrimListener : public LLVOInventoryListener
@@ -729,6 +746,7 @@ LLSD LLPublishedObjectMgr::buildPublishedObjectLLSD(LLViewerObject* root) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     LLSD pub;
+    add_object_permissions(pub, root);
     pub["object_id"]          = root->getID();
     pub["object_name"]        = get_prim_name(root);
     pub["object_description"] = nv_string(root, "Desc");
@@ -736,6 +754,11 @@ LLSD LLPublishedObjectMgr::buildPublishedObjectLLSD(LLViewerObject* root) const
     if (root->getRegion())
     {
         pub["region"] = root->getRegion()->getName();
+    }
+    const PublishedObjectInfo* published_info = getPublished(root->getID());
+    if (published_info)
+    {
+        pub["can_save_back"] = published_info->mCanSaveBackToContents;
     }
     pub["inventory"] = buildPrimInventoryLLSD(root);
 
@@ -748,6 +771,7 @@ LLSD LLPublishedObjectMgr::buildPublishedObjectLLSD(LLViewerObject* root) const
         link["link_number"]      = link_number++;
         link["link_name"]        = get_prim_name(child);
         link["link_description"] = nv_string(child, "Desc");
+        add_object_permissions(link, child);
         link["inventory"]        = buildPrimInventoryLLSD(child);
         linked_objects.append(link);
     }
@@ -773,6 +797,7 @@ LLSD LLPublishedObjectMgr::buildObjectListLLSD() const
         }
 
         LLSD pub;
+        add_object_permissions(pub, root);
         pub["object_id"]          = info.mObjectID;
         pub["object_name"]        = info.mObjectName;
         pub["object_description"] = info.mObjectDescription;
@@ -803,6 +828,7 @@ LLSD LLPublishedObjectMgr::buildObjectListLLSD() const
             link["link_number"] = prim_info.mLinkNumber;
             link["link_name"]   = prim_info.mPrimName;
             link["link_description"] = prim_info.mPrimDescription;
+            add_object_permissions(link, child);
             link["inventory"]   = buildPrimInventoryLLSD(child);
             linked_objects.append(link);
         }
