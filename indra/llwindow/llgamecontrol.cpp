@@ -434,6 +434,16 @@ public:
     void clear();
 
 private:
+    // Invert one mode's ModeMappings[Axes|Buttons] (action label -> input name)
+    // into canonical input index -> action binding/label, merging into
+    // mAxisActionBindings/mButtonActionLabels ("last write wins" on collision).
+    // Shared by rebuildActionLookup()'s plain per-mode lookup and its FlyCam/Cursor
+    // merge (see there). 'mode' is used only for per-mode action validation/Invert
+    // lookup -- it need not equal g_agentControlMode.
+    void applyAxisMappings(LLGameControl::AgentControlMode mode, const LLSD& axes);
+    void applyButtonMappings(const LLSD& buttons);
+
+
     std::list<LLGameControl::Device> mDevices; // all connected devices
     using device_it = std::list<LLGameControl::Device>::iterator;
     device_it findDevice(SDL_JoystickID id)
@@ -479,10 +489,11 @@ private:
     std::vector<std::string> mButtonActionLabels;
     LLGameControl::AgentControlMode mLookupMode { LLGameControl::CONTROL_MODE_NONE };
 
-    // std::vector<S16> mAxesAccumulator;
-    // std::vector<S16> mAxesMappedAccumulator;
-    // LLGameControl::State mAccumulatedState;
-    // LLGameControl::State mMappedAccumulatedState;
+    // Whether the lookup currently in mAxisActionBindings/mButtonActionLabels is the
+    // FlyCam/Cursor merge (see rebuildActionLookup()) rather than mLookupMode's plain
+    // mapping; part of the "is this still current" check alongside mLookupMode.
+    bool mLookupCursorOverFlycam { false };
+
     U32 mLastActiveFlags { 0 };
     U32 mLastFlycamActionFlags { 0 };
     SDL_JoystickID mlastActiveControllerID { 0 };
@@ -562,6 +573,10 @@ namespace
 
     bool g_sendToServer = false;
     LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_AVATAR;
+
+    // Set alongside g_agentControlMode by LLAgent::updateGameControlMode(); see
+    // LLGameControl::setFlycamEngaged()'s header comment.
+    bool g_flycamEngaged = false;
 
     // g_gameControlSettings is the nested GameControl structure stored under the
     // single "GameControl" setting key: global per-mode action mappings plus
@@ -777,7 +792,7 @@ namespace
         flycam_buttons["Pan right"]       = "BUTTON_EAST";
         flycam_buttons["Pan left"]        = "BUTTON_WEST";
         flycam_buttons["Zoom in"]         = "BUTTON_NORTH";
-        flycam_buttons["Toggle AltZoom"]  = "BUTTON_SELECT";
+        flycam_buttons["Toggle mouse cursor"] = "BUTTON_SELECT";
         flycam_buttons["Toggle flycam" ]  = "BUTTON_RIGHT_STICK";
         flycam_buttons["Reset"]           = "BUTTON_LEFT_STICK";
         flycam_buttons["Roll CCW"]        = "BUTTON_LEFT_SHOULDER";
@@ -1982,6 +1997,23 @@ namespace
         return bridge;
     }
 
+    // Is 'label' one of Cursor mode's mouse-cursor-emulation actions -- the only
+    // Cursor-mode actions allowed to steal a physical input away from FlyCam's own
+    // mapping when FlyCam is concurrently engaged (see
+    // LLGameControllerManager::rebuildActionLookup()). Reuses the existing bridge
+    // tables that already enumerate these action labels rather than duplicating
+    // the literal strings.
+    bool isMouseCursorAxisAction(const std::string& label)
+    {
+        return cursorSemanticAxisSlots().count(label) > 0; // "Mouse left/right"/"Mouse up/down"
+    }
+    bool isMouseCursorButtonAction(const std::string& label)
+    {
+        // "Mouse click left/right" (avatarMouseButtonBridge) and the digital
+        // "Cursor up/down/left/right" equivalent (mouseCursorButtonBridge).
+        return avatarMouseButtonBridge().count(label) > 0 || mouseCursorButtonBridge().count(label) > 0;
+    }
+
     // Defensive-repair helpers for stale/renamed axis-action keys in saved settings
     // (e.g. a pre-merge "Rise up").  Defined below, after the flycam bridge.
     //   isKnownAnalogAxisAction - is 'label' a real axis action for this mode?
@@ -1990,26 +2022,12 @@ namespace
     std::string defaultAxisActionForInput(LLGameControl::AgentControlMode mode, const std::string& input);
 } // namespace
 
-void LLGameControllerManager::rebuildActionLookup(bool force)
+void LLGameControllerManager::applyAxisMappings(LLGameControl::AgentControlMode mode, const LLSD& axes)
 {
-    LLGameControl::AgentControlMode mode = g_agentControlMode;
-    if (!force && mode == mLookupMode && !mAxisActionBindings.empty())
-    {
-        return; // already current
-    }
-    mLookupMode = mode;
-    mAxisActionBindings.assign(LLGameControl::NUM_AXES, AxisActionBinding());
-    mButtonActionLabels.assign(LLGameControl::NUM_BUTTONS, std::string());
-
     const std::string& mode_name = modeToString(mode);
-    if (mode_name.empty())
-    {
-        return; // CONTROL_MODE_NONE has no mappings
-    }
 
-    // Invert ModeMappings[mode][Axes|Buttons] (action label -> input name) into
+    // Invert ModeMappings[mode][Axes] (action label -> input name) into
     // canonical input index -> action binding.  Last binding wins on collision.
-    LLSD axes = LLGameControl::getModeMapping(mode_name, GC_AXES);
     for (auto it = axes.beginMap(); it != axes.endMap(); ++it)
     {
         const std::string& action = it->first;
@@ -2051,7 +2069,10 @@ void LLGameControllerManager::rebuildActionLookup(bool force)
             mAxisActionBindings[channel.mIndex] = { bound_action, HALF_FULL, invert };
         }
     }
-    LLSD buttons = LLGameControl::getModeMapping(mode_name, GC_BUTTONS);
+}
+
+void LLGameControllerManager::applyButtonMappings(const LLSD& buttons)
+{
     for (auto it = buttons.beginMap(); it != buttons.endMap(); ++it)
     {
         LLGameControl::InputChannel channel = channelFromInputName(it->second.asString());
@@ -2060,6 +2081,74 @@ void LLGameControllerManager::rebuildActionLookup(bool force)
             mButtonActionLabels[channel.mIndex] = it->first;
         }
     }
+}
+
+void LLGameControllerManager::rebuildActionLookup(bool force)
+{
+    LLGameControl::AgentControlMode mode = g_agentControlMode;
+
+    // Cursor mode with FlyCam concurrently engaged underneath (see
+    // LLAgent::updateGameControlMode()/setFlycamEngaged()) is a merge of two modes'
+    // mappings rather than a plain per-mode lookup -- see below.
+    bool cursor_over_flycam = (mode == LLGameControl::CONTROL_MODE_CURSOR) && g_flycamEngaged;
+
+    if (!force && mode == mLookupMode && cursor_over_flycam == mLookupCursorOverFlycam
+        && !mAxisActionBindings.empty())
+    {
+        return; // already current
+    }
+    mLookupMode = mode;
+    mLookupCursorOverFlycam = cursor_over_flycam;
+    mAxisActionBindings.assign(LLGameControl::NUM_AXES, AxisActionBinding());
+    mButtonActionLabels.assign(LLGameControl::NUM_BUTTONS, std::string());
+
+    if (cursor_over_flycam)
+    {
+        // Base layer: FlyCam mode's own configured axes/buttons (Truck/Dolly/Pan/
+        // Tilt/Boom/Roll/Zoom/Reset/...), so whatever physical inputs FlyCam already
+        // owns keep driving the camera exactly as they do in plain FlyCam mode.
+        applyAxisMappings(LLGameControl::CONTROL_MODE_FLYCAM,
+                           LLGameControl::getModeMapping(GC_MODE_FLYCAM, GC_AXES));
+        applyButtonMappings(LLGameControl::getModeMapping(GC_MODE_FLYCAM, GC_BUTTONS));
+
+        // Overlay: only Cursor mode's own mouse-cursor-emulation actions (the on-
+        // screen cursor movement axes, simulated clicks, and the digital cursor-move
+        // buttons), so those -- and only those -- win any physical-input collision
+        // with the FlyCam base above (e.g. the default left stick: FlyCam's
+        // Truck/Dolly underneath, Cursor's Mouse left/right / up/down on top). Every
+        // other Cursor-mode action (Turn/Look/Fly/Jump/Strafe/...) is intentionally
+        // dropped here: it must not steal an input away from FlyCam's own mapping.
+        LLSD cursor_axes = LLGameControl::getModeMapping(GC_MODE_CURSOR, GC_AXES);
+        LLSD mouse_axes;
+        for (auto it = cursor_axes.beginMap(); it != cursor_axes.endMap(); ++it)
+        {
+            if (isMouseCursorAxisAction(it->first))
+            {
+                mouse_axes[it->first] = it->second;
+            }
+        }
+        applyAxisMappings(LLGameControl::CONTROL_MODE_CURSOR, mouse_axes);
+
+        LLSD cursor_buttons = LLGameControl::getModeMapping(GC_MODE_CURSOR, GC_BUTTONS);
+        LLSD mouse_buttons;
+        for (auto it = cursor_buttons.beginMap(); it != cursor_buttons.endMap(); ++it)
+        {
+            if (isMouseCursorButtonAction(it->first))
+            {
+                mouse_buttons[it->first] = it->second;
+            }
+        }
+        applyButtonMappings(mouse_buttons);
+        return;
+    }
+
+    const std::string& mode_name = modeToString(mode);
+    if (mode_name.empty())
+    {
+        return; // CONTROL_MODE_NONE has no mappings
+    }
+    applyAxisMappings(mode, LLGameControl::getModeMapping(mode_name, GC_AXES));
+    applyButtonMappings(LLGameControl::getModeMapping(mode_name, GC_BUTTONS));
 }
 
 LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
@@ -3425,6 +3514,12 @@ void LLGameControl::setAgentControlMode(AgentControlMode mode)
     // persisted: the panel's "action_mode" selector only chooses which mode's
     // mappings are shown for editing, not the live mode.
     g_agentControlMode = mode;
+}
+
+// static
+void LLGameControl::setFlycamEngaged(bool engaged)
+{
+    g_flycamEngaged = engaged;
 }
 
 // static
