@@ -415,10 +415,12 @@ void LLFollowCam::update()
         //--------------------------------------------------------------------
         // don't let the camera get farther than its official max distance
         //--------------------------------------------------------------------
-        if ( distanceFromCameraToSubject > mMaxCameraDistantFromSubject )
+        const F32 target_camera_distance = llmin(mSimulatedDistance, mMaxCameraDistantFromSubject);
+        const F32 updated_distance_from_camera_to_subject = (offsetSubjectPosition - simulated_pos_agent).magVec();
+        if ( updated_distance_from_camera_to_subject > target_camera_distance )
         {
-            LLVector3 directionFromCameraToSubject = vectorFromCameraToSubject / distanceFromCameraToSubject;
-            simulated_pos_agent = offsetSubjectPosition - directionFromCameraToSubject * mMaxCameraDistantFromSubject;
+            simulated_pos_agent = offsetSubjectPosition -
+                (positionOffsetFromSubject * (target_camera_distance / mSimulatedDistance));
         }
 
         ////-------------------------------------------------------------------------------------------------
@@ -880,4 +882,3 @@ void LLFollowCamMgr::dump()
             " pos_thresh: " << (*param_it)->getPositionThreshold() << LL_ENDL;
     }
 }
-
