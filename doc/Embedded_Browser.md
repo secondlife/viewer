@@ -69,14 +69,30 @@ forever).
 
 ## CEF version used
 
-The Viewer currently runs CEF `150.0.11+gb887805+chromium-150.0.7871.115`,
+The Viewer currently runs CEF `151.3.24+g2384915+chromium-151.0.7922.174`,
 built internally (not from the public Spotify Automated Builds project)
 with media codec support enabled, so formats like H.264 video play without
 the "codec not found" errors a stock CEF build would show on sites like
-Twitch. This is the same package `secondlife/dullahan` (the legacy plugin's
-CEF wrapper) already consumes, uploaded once to Second Life's own S3 build
-bucket since building it takes too long and too many resources to run in
-GitHub Actions CI.
+Twitch. It is uploaded once to Second Life's own S3 build bucket since
+building it takes too long and too many resources to run in GitHub Actions
+CI (typically a couple of days).
+
+As of the 151 update, `llcefbrowser` no longer shares this package with
+`secondlife/dullahan` (the legacy plugin's own CEF wrapper) the way it used
+to. `llcefbrowser`'s own autobuild package now bundles `libcef.lib`/
+`libcef_dll_wrapper.lib` and the full CEF runtime (the DLLs, `.pak`
+resources, and locale files `SLMediaProducer.exe` needs) directly, built
+from this same internal CEF distribution -- it no longer depends on
+`dullahan`/`CEFPlugin.cmake` for any of that. `dullahan` itself has been
+removed from this Viewer's own `autobuild.xml` entirely (not just unused):
+as long as it stayed declared there, autobuild's own dependency resolver
+refused to configure at all once `llcefbrowser` and `dullahan` pinned two
+different CEF versions of the shared `cef-bin` installable. One practical
+consequence: `media_plugins/cef` (the legacy plugin, already off by default
+via `ENABLE_MEDIA_PLUGINS`) can no longer be configured at all if that flag
+is ever turned back on, since its own `ll::cef` dependency no longer
+resolves -- accepted, matching this project's stated intent that the legacy
+plugin will not be resurrected (see "Known limitations" below).
 
 For a quick local build, `llcefbrowser`'s `tools/build.bat` points at this
 same internal URL by default. A public Spotify CEF package will also build
@@ -735,13 +751,20 @@ every real change.
 - **Windows only, for now.** This first version of the embedded-browser
   system targets Windows exclusively. macOS and Linux support is planned to
   follow.
-- **The legacy media plugin has not been removed.** `media_plugins/cef`,
-  Dullahan, and `SLPlugin.exe` remain in the codebase alongside the
-  embedded-browser system. Removing them now would not be a clean, isolated
-  deletion (that plugin framework also backs non-CEF streaming-audio
-  plugins, and a few files have CEF-specific calls not yet ported to the
-  new backend), so the legacy code stays in place until the embedded-browser
-  system is closer to feature-complete.
+- **The legacy media plugin has not been removed, but can no longer actually
+  be built.** `media_plugins/cef`, `llplugin/slplugin`, and the
+  `ENABLE_MEDIA_PLUGINS` build option (off by default) remain in the
+  codebase alongside the embedded-browser system. Removing them now would
+  not be a clean, isolated deletion (that plugin framework also backs
+  non-CEF streaming-audio plugins, and a few files have CEF-specific calls
+  not yet ported to the new backend), so the legacy code stays in place
+  until the embedded-browser system is closer to feature-complete. As of
+  the CEF 151 update, the `dullahan` package this plugin's own CEF wrapper
+  depended on has been removed from this Viewer's `autobuild.xml` entirely
+  (see "CEF version used" above) -- flipping `ENABLE_MEDIA_PLUGINS` back on
+  will now fail to configure rather than silently produce a working legacy
+  plugin, which is fine given this code is not expected to build again
+  before it is fully removed.
 
 ## Future work
 
