@@ -507,66 +507,6 @@
         <key>version</key>
         <string>1.4.9649.16733550144</string>
       </map>
-      <key>dullahan</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2017, Linden Research, Inc.</string>
-        <key>description</key>
-        <string>A headless browser SDK that uses the Chromium Embedded Framework (CEF). It is designed to make it easier to write applications that render modern web content directly to a memory buffer, inject synthesized mouse and keyboard events as well as interact with web based features like JavaScript or cookies.</string>
-        <key>license</key>
-        <string>MPL</string>
-        <key>license_file</key>
-        <string>LICENSES/LICENSE.txt</string>
-        <key>name</key>
-        <string>dullahan</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>eaffac4834b2ddaec1b2e23e3337337434b98073</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.40.0-CEF_150.0.11/dullahan-1.40.0.202607101917_150.0.11_gb887805_chromium-150.0.7871.115-darwin64-29117399143.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>8e06d060729250c5bfcb993c8f818f36ea17de16</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.26.0-CEF_139.0.40/dullahan-1.26.0.202510161627_139.0.40_g465474a_chromium-139.0.7258.139-linux64-18568015445.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>0b8b6b9f97f64faaf827acae6f04cd2fbe17bfb5</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.40.0-CEF_150.0.11/dullahan-1.40.0.202607101919_150.0.11_gb887805_chromium-150.0.7871.115-windows64-29117399143.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.40.0.202607101919_150.0.11_gb887805_chromium-150.0.7871.115</string>
-      </map>
       <key>emoji_shortcodes</key>
       <map>
         <key>canonical_repo</key>
@@ -1377,18 +1317,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4be6e4b94424237b3e4349cbf0f297ab8ce33a9a</string>
+              <string>372a54c47d30740112f2abd168009ec3cdecf6a7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.36.0/llcefbrowser-1.36.0-windows64-33125118168.tar.zst</string>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.37.0/llcefbrowser-1.37.0-windows64-33931549447.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.35.0</string>
+        <string>1.37.0</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>

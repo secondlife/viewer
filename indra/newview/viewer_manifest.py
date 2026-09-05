@@ -694,59 +694,22 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("icudtl.dat")
 
             with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
-                self.path("am.pak")
-                self.path("ar.pak")
-                self.path("bg.pak")
-                self.path("bn.pak")
-                self.path("ca.pak")
-                self.path("cs.pak")
-                self.path("da.pak")
-                self.path("de.pak")
-                self.path("el.pak")
-                self.path("en-GB.pak")
-                self.path("en-US.pak")
-                self.path("es-419.pak")
-                self.path("es.pak")
-                self.path("et.pak")
-                self.path("fa.pak")
-                self.path("fi.pak")
-                self.path("fil.pak")
-                self.path("fr.pak")
-                self.path("gu.pak")
-                self.path("he.pak")
-                self.path("hi.pak")
-                self.path("hr.pak")
-                self.path("hu.pak")
-                self.path("id.pak")
-                self.path("it.pak")
-                self.path("ja.pak")
-                self.path("kn.pak")
-                self.path("ko.pak")
-                self.path("lt.pak")
-                self.path("lv.pak")
-                self.path("ml.pak")
-                self.path("mr.pak")
-                self.path("ms.pak")
-                self.path("nb.pak")
-                self.path("nl.pak")
-                self.path("pl.pak")
-                self.path("pt-BR.pak")
-                self.path("pt-PT.pak")
-                self.path("ro.pak")
-                self.path("ru.pak")
-                self.path("sk.pak")
-                self.path("sl.pak")
-                self.path("sr.pak")
-                self.path("sv.pak")
-                self.path("sw.pak")
-                self.path("ta.pak")
-                self.path("te.pak")
-                self.path("th.pak")
-                self.path("tr.pak")
-                self.path("uk.pak")
-                self.path("vi.pak")
-                self.path("zh-CN.pak")
-                self.path("zh-TW.pak")
+                # Since CEF 151: each locale below also ships grammatical-gender
+                # variants (_FEMININE/_MASCULINE/_NEUTER, a newer Chromium ICU
+                # message-formatting feature) alongside the base .pak -- included
+                # here too for completeness, same locale set as before.
+                locales = [
+                    "am", "ar", "bg", "bn", "ca", "cs", "da", "de", "el",
+                    "en-GB", "en-US", "es-419", "es", "et", "fa", "fi", "fil",
+                    "fr", "gu", "he", "hi", "hr", "hu", "id", "it", "ja", "kn",
+                    "ko", "lt", "lv", "ml", "mr", "ms", "nb", "nl", "pl",
+                    "pt-BR", "pt-PT", "ro", "ru", "sk", "sl", "sr", "sv", "sw",
+                    "ta", "te", "th", "tr", "uk", "vi", "zh-CN", "zh-TW",
+                ]
+                for locale in locales:
+                    self.path("%s.pak" % locale)
+                    for gender in ("FEMININE", "MASCULINE", "NEUTER"):
+                        self.path("%s_%s.pak" % (locale, gender))
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"

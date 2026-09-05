@@ -30,37 +30,39 @@ else ()
 endif ()
 
 # ==============================================================================
-# ll::cefbrowser -- CEF wrapper library (llcefbrowser repo). Not linked by
-# anything in the viewer's own code yet -- this is groundwork for the future
-# in-viewer CEF producer process, mirrored on ll::shmframe above.
+# ll::cefbrowser -- CEF wrapper library (llcefbrowser repo), used by
+# llmediaproducer (the in-viewer CEF producer process).
 #
-# Its package deliberately ships only llcefbrowser.lib + its own headers --
-# not libcef.lib/libcef_dll_wrapper.lib or any CEF runtime files, since those
-# are the exact same CEF distribution the "dullahan" package (CEFPlugin.cmake)
-# already installs for the legacy media plugin, and autobuild refuses to
-# install two packages that write the same path. So ll::cefbrowser depends on
-# ll::cef for those shared pieces -- a consumer only needs to link
-# ll::cefbrowser and gets both.
+# Since 2026-09, this package is self-sufficient: it ships libcef.lib/
+# libcef_dll_wrapper.lib and the full CEF runtime (bin/release/*, resources/*)
+# alongside its own llcefbrowser.lib, rather than relying on the separate
+# "dullahan" package (CEFPlugin.cmake) for those shared pieces. That dullahan
+# dependency existed only to avoid two packages writing the same install
+# paths (autobuild refuses that); removing it here means a normal viewer
+# build no longer pulls in dullahan at all -- CEFPlugin.cmake/dullahan remain
+# only for media_plugins/cef (the legacy, disabled-by-default plugin), not
+# for this, the actually-shipping path.
 #
 # LLCEFBROWSER_LOCAL_BUILD_DIR: same idea as LLSHMFRAME_LOCAL_BUILD_DIR --
 # point this at llcefbrowser's own local `stage` directory (from running
 # `autobuild build` there) to skip the autobuild-package fetch.
-include(CEFPlugin)
-
 add_library(ll::cefbrowser INTERFACE IMPORTED)
 
 if (LLCEFBROWSER_LOCAL_BUILD_DIR)
     target_include_directories(ll::cefbrowser SYSTEM INTERFACE "${LLCEFBROWSER_LOCAL_BUILD_DIR}/include/llcefbrowser")
     if (WINDOWS)
-        target_link_libraries(ll::cefbrowser INTERFACE "${LLCEFBROWSER_LOCAL_BUILD_DIR}/lib/release/llcefbrowser.lib")
+        target_link_libraries(ll::cefbrowser INTERFACE
+            "${LLCEFBROWSER_LOCAL_BUILD_DIR}/lib/release/llcefbrowser.lib"
+            "${LLCEFBROWSER_LOCAL_BUILD_DIR}/lib/release/libcef.lib"
+            "${LLCEFBROWSER_LOCAL_BUILD_DIR}/lib/release/libcef_dll_wrapper.lib"
+            )
     endif ()
 else ()
     use_prebuilt_binary(llcefbrowser)
     target_include_directories(ll::cefbrowser SYSTEM INTERFACE "${LIBS_PREBUILT_DIR}/include/llcefbrowser")
     if (WINDOWS)
-        target_link_libraries(ll::cefbrowser INTERFACE llcefbrowser.lib)
+        target_link_libraries(ll::cefbrowser INTERFACE llcefbrowser.lib libcef.lib libcef_dll_wrapper.lib)
     endif ()
 endif ()
 
-target_link_libraries(ll::cefbrowser INTERFACE ll::cef)
 target_compile_definitions(ll::cefbrowser INTERFACE NOMINMAX)

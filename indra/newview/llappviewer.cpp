@@ -139,7 +139,6 @@
 #include "llcoros.h"
 #include "llexception.h"
 #include "llembeddedbrowser.h"
-#include "cef/dullahan_version.h"
 #include "vlc/libvlc_version.h"
 
 #if LL_DARWIN
@@ -3700,35 +3699,14 @@ LLSD LLAppViewer::getViewerInfo() const
     info["EMBEDDED_LLCEFBROWSER_VERSION"] = embedded_cefbrowser_version.empty() ?
         LLSD(LLTrans::getString("NotConnected")) : LLSD(embedded_cefbrowser_version);
 
-    // The legacy Dullahan-based CEF plugin's own version info. Reported unconditionally
-    // alongside the embedded-browser info above, not gated on ENABLE_MEDIA_PLUGINS --
-    // dullahan_version.h's macros are available either way, and this stays meaningful
-    // if that flag is ever turned back on for the legacy media_plugin_cef path.
-    std::ostringstream cef_ver_codec;
-    cef_ver_codec << "Dullahan: ";
-    cef_ver_codec << DULLAHAN_VERSION_MAJOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << DULLAHAN_VERSION_MINOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << DULLAHAN_VERSION_POINT;
-    cef_ver_codec << ".";
-    cef_ver_codec << DULLAHAN_VERSION_BUILD;
-
-    cef_ver_codec << std::endl;
-    cef_ver_codec << "  CEF: ";
-    cef_ver_codec << CEF_VERSION;
-
-    cef_ver_codec << std::endl;
-    cef_ver_codec << "  Chromium: ";
-    cef_ver_codec << CHROME_VERSION_MAJOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << CHROME_VERSION_MINOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << CHROME_VERSION_BUILD;
-    cef_ver_codec << ".";
-    cef_ver_codec << CHROME_VERSION_PATCH;
-
-    info["LIBCEF_VERSION"] = cef_ver_codec.str();
+    // LIBCEF_VERSION: only a handful of stale, not-yet-migrated locale translations of
+    // the About floater still reference this token (en/strings.xml itself moved to
+    // SHMFRAME_VERSION/EMBEDDED_LLCEFBROWSER_VERSION above already) -- kept populated,
+    // with the same real value as EMBEDDED_LLCEFBROWSER_VERSION, so those translations
+    // show real info instead of a raw, unsubstituted "[LIBCEF_VERSION]". Used to report
+    // the legacy Dullahan-based CEF plugin's own version instead, via dullahan_version.h
+    // -- removed along with the "dullahan" package itself (see EmbeddedBrowser.cmake).
+    info["LIBCEF_VERSION"] = info["EMBEDDED_LLCEFBROWSER_VERSION"];
 
     std::ostringstream vlc_ver_codec;
     vlc_ver_codec << LIBVLC_VERSION_MAJOR;
