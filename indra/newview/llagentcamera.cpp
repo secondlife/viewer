@@ -1628,33 +1628,8 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
     {
         if (mFocusObject.notNull() && !mFocusObject->isDead() && mFocusObject->mDrawable.notNull())
         {
-            LLDrawable* drawablep = mFocusObject->mDrawable;
-
-            if (mTrackFocusObject &&
-                drawablep &&
-                drawablep->isActive())
-            {
-                if (!mFocusObject->isAvatar())
-                {
-                    if (mFocusObject->isSelected())
-                    {
-                        gPipeline.updateMoveNormalAsync(drawablep);
-                    }
-                    else
-                    {
-                        if (drawablep->isState(LLDrawable::MOVE_UNDAMPED))
-                        {
-                            gPipeline.updateMoveNormalAsync(drawablep);
-                        }
-                        else
-                        {
-                            gPipeline.updateMoveDampedAsync(drawablep);
-                        }
-                    }
-                }
-            }
             // if not tracking object, update offset based on new object position
-            else
+            if (!mTrackFocusObject)
             {
                 updateFocusOffset();
             }
@@ -2948,4 +2923,3 @@ S32 LLAgentCamera::directionToKey(S32 direction)
 
 
 // EOF
-
