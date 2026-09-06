@@ -106,6 +106,100 @@ static bool isDisableCameraConstraints()
     return sDisableCameraConstraints;
 }
 
+// Keep the focused linkset's render state in step with the focused root without
+// replaying movement that the normal pipeline has already processed this frame.
+static void updateFocusedLinksetObject(LLViewerObject* objectp)
+{
+    if (!objectp || objectp->isDead())
+    {
+        return;
+    }
+
+    LLDrawable* drawablep = objectp->mDrawable.get();
+    bool movement_updated = false;
+    if (drawablep && drawablep->isActive())
+    {
+        if (!drawablep->isState(LLDrawable::EARLY_MOVE))
+        {
+            if (objectp->isSelected() ||
+                drawablep->isState(LLDrawable::MOVE_UNDAMPED) ||
+                !objectp->getAngularVelocity().isExactlyZero())
+            {
+                gPipeline.updateMoveNormalAsync(drawablep);
+            }
+            else
+            {
+                gPipeline.updateMoveDampedAsync(drawablep);
+            }
+            movement_updated = true;
+        }
+    }
+
+    if (LLVOAvatar* avatarp = objectp->asAvatar())
+    {
+        if (movement_updated)
+        {
+            if (LLJoint* root_jointp = avatarp->getRootJoint())
+            {
+                root_jointp->touch();
+                root_jointp->updateWorldMatrixChildren();
+                const LLVector3 hud_name_pos =
+                    avatarp->idleCalcNameTagPosition(root_jointp->getWorldPosition());
+                avatarp->idleUpdateNameTag(hud_name_pos);
+                avatarp->idleUpdateVoiceVisualizerPosition(hud_name_pos);
+            }
+
+            // Attachments have mixed movement sources. Preserve the same policy used by the normal avatar update path.
+            for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin();
+                 iter != avatarp->mAttachmentPoints.end(); )
+            {
+                LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+                LLViewerJointAttachment* attachment = curiter->second;
+                if (!attachment)
+                {
+                    continue;
+                }
+
+                for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                     attachment_iter != attachment->mAttachedObjects.end();
+                     ++attachment_iter)
+                {
+                    LLViewerObject* attached_object = attachment_iter->get();
+                    if (!attached_object || attached_object->isDead() ||
+                        attached_object->mDrawable.isNull())
+                    {
+                        continue;
+                    }
+
+                    LLDrawable* attached_drawablep = attached_object->mDrawable.get();
+                    if (!attached_drawablep->isActive())
+                    {
+                        continue;
+                    }
+
+                    if (!attached_drawablep->isState(LLDrawable::EARLY_MOVE))
+                    {
+                        if (attached_object->isSelected())
+                        {
+                            gPipeline.updateMoveNormalAsync(attached_drawablep);
+                        }
+                        else
+                        {
+                            gPipeline.updateMoveDampedAsync(attached_drawablep);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Seated avatars and sit-target children can be deeper than one level in the hierarchy.
+    for (LLViewerObject* childp : objectp->getChildren())
+    {
+        updateFocusedLinksetObject(childp);
+    }
+}
+
 // The agent instance.
 LLAgentCamera gAgentCamera;
 
@@ -1628,102 +1722,14 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
     {
         if (mFocusObject.notNull() && !mFocusObject->isDead() && mFocusObject->mDrawable.notNull())
         {
-            LLDrawable* drawablep = mFocusObject->mDrawable;
-
             if (mTrackFocusObject &&
-                drawablep &&
-                drawablep->isActive())
+                mFocusObject->mDrawable->isActive() &&
+                !mFocusObject->isAvatar())
             {
-                if (!mFocusObject->isAvatar())
-                {
-                    if (mFocusObject->isSelected())
-                    {
-                        gPipeline.updateMoveNormalAsync(drawablep);
-                    }
-                    else
-                    {
-                        if (drawablep->isState(LLDrawable::MOVE_UNDAMPED))
-                        {
-                            gPipeline.updateMoveNormalAsync(drawablep);
-                        }
-                        else
-                        {
-                            gPipeline.updateMoveDampedAsync(drawablep);
-                        }
-                    }
-
-                    // Updating only a moving linkset root leaves its children on the normal
-                    // update pass, which makes them appear dislocated from the root every few
-                    // frames when the root was updated first.
-                    // This is particularly noticeable on moving children or avatars (and avatar attachments).
-                    if (mFocusObject->isRoot())
-                    {
-                        for (LLViewerObject* childp : mFocusObject->getChildren())
-                        {
-                            LLDrawable* child_drawablep = childp ? childp->mDrawable.get() : nullptr;
-                            if (!child_drawablep || child_drawablep->isDead() || !child_drawablep->isActive())
-                            {
-                                continue;
-                            }
-
-                            child_drawablep->clearState(LLDrawable::EARLY_MOVE);
-
-                            if (childp->isSelected() ||
-                                child_drawablep->isState(LLDrawable::MOVE_UNDAMPED) ||
-                                !childp->getAngularVelocity().isExactlyZero())
-                            {
-                                gPipeline.updateMoveNormalAsync(child_drawablep);
-                            }
-                            else
-                            {
-                                gPipeline.updateMoveDampedAsync(child_drawablep);
-                            }
-
-                            // Also apply transform to any seated avatars
-                            if (LLVOAvatar* avatarp = childp->asAvatar())
-                            {
-                                if (LLJoint* root_jointp = avatarp->getRootJoint())
-                                {
-                                    root_jointp->touch();
-                                    root_jointp->updateWorldMatrixChildren();
-                                    const LLVector3 hud_name_pos =
-                                        avatarp->idleCalcNameTagPosition(root_jointp->getWorldPosition());
-                                    avatarp->idleUpdateNameTag(hud_name_pos);
-                                    avatarp->idleUpdateVoiceVisualizerPosition(hud_name_pos);
-                                }
-
-                                // ... and also the avatar's unrigged attachments (those are not
-                                // children of the vehicle, they are children of the avatar)
-                                for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin();
-                                     iter != avatarp->mAttachmentPoints.end(); )
-                                {
-                                    LLVOAvatar::attachment_map_t::iterator curiter = iter++;
-                                    LLViewerJointAttachment* attachment = curiter->second;
-                                    if (!attachment)
-                                    {
-                                        continue;
-                                    }
-
-                                    for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-                                         attachment_iter != attachment->mAttachedObjects.end();
-                                         ++attachment_iter)
-                                    {
-                                        LLViewerObject* attached_object = attachment_iter->get();
-                                        if (attached_object && !attached_object->isDead() && attached_object->mDrawable.notNull())
-                                        {
-                                            attached_object->mDrawable->clearState(LLDrawable::EARLY_MOVE);
-                                            gPipeline.updateMoveNormalAsync(attached_object->mDrawable);
-                                            attached_object->updateText();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                updateFocusedLinksetObject(mFocusObject.get());
             }
             // if not tracking object, update offset based on new object position
-            else
+            else if (!mTrackFocusObject)
             {
                 updateFocusOffset();
             }
