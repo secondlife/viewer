@@ -48,6 +48,7 @@
      layout="topleft"
      left_pad="0"
      name="history_page_spin"
+     reverse_buttons="true"
      top_delta="-3"
      width="50"/>
     <text
