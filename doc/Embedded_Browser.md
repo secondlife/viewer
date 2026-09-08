@@ -69,13 +69,16 @@ forever).
 
 ## CEF version used
 
-The Viewer currently runs CEF `151.3.24+g2384915+chromium-151.0.7922.174`,
+The Viewer currently runs CEF `152.0.6+g708dc14+chromium-152.0.7977.83`,
 built internally (not from the public Spotify Automated Builds project)
 with media codec support enabled, so formats like H.264 video play without
 the "codec not found" errors a stock CEF build would show on sites like
 Twitch. It is uploaded once to Second Life's own S3 build bucket since
 building it takes too long and too many resources to run in GitHub Actions
-CI (typically a couple of days).
+CI (typically a couple of days). This particular bump (from 151.3.24) was a
+security update, picking up an upstream CEF fix for a vulnerability
+disclosed in earlier versions -- otherwise a routine version-only change,
+no structural work needed on top of the 151 update below.
 
 As of the 151 update, `llcefbrowser` no longer shares this package with
 `secondlife/dullahan` (the legacy plugin's own CEF wrapper) the way it used

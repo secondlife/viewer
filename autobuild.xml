@@ -1317,18 +1317,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>372a54c47d30740112f2abd168009ec3cdecf6a7</string>
+              <string>b893393d063c0b177526a4f6f6b3499f336f7ec8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.37.0/llcefbrowser-1.37.0-windows64-33931549447.tar.zst</string>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.38.0/llcefbrowser-1.39.0-windows64-34275175750.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.37.0</string>
+        <string>1.38.0</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
