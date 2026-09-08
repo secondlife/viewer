@@ -47,6 +47,7 @@ class LLViewerObject;
 class LLPermissions;
 class LLTextBox;
 class LLTextEditor;
+class LLLineEditor;
 
 class LLSidepanelItemInfo : public LLPanel, public LLInventoryObserver
 {
@@ -76,7 +77,6 @@ public:
 
 protected:
     void refresh() override;
-    void save();
 
     LLViewerInventoryItem* findItem() const;
     LLViewerObject*  findObject() const;
@@ -106,7 +106,8 @@ private:
     LLIconCtrl* mItemTypeIcon;
     LLTextBox* mLabelOwnerName;
     LLTextBox* mLabelCreatorName;
-    LLTextEditor* mLabelItemDesc;
+    LLTextEditor* mLabelItemDescMultiLine;
+    LLLineEditor* mLabelItemDescSingleLine;
 
     //
     // UI Elements
