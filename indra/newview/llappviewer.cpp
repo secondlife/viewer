@@ -115,6 +115,7 @@
 #include "lllocalbitmaps.h"
 #include "llperfstats.h"
 #include "llgltfmateriallist.h"
+#include "llwebsocketmgr.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -137,13 +138,15 @@
 #include "stringize.h"
 #include "llcoros.h"
 #include "llexception.h"
-#if !LL_LINUX
 #include "cef/dullahan_version.h"
 #include "vlc/libvlc_version.h"
-#endif // LL_LINUX
 
 #if LL_DARWIN
 #include "llwindowmacosx.h"
+#endif
+
+#if LL_SDL_WINDOW
+#include "llwindowsdl.h"
 #endif
 
 // Third party library includes
@@ -151,6 +154,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/throw_exception.hpp>
+#include <chrono>
 
 #if LL_WINDOWS
 #   include <share.h> // For _SH_DENYWR in processMarkerFiles
@@ -186,7 +190,6 @@
 #include "lltracker.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmapview.h"
-#include "llpostprocess.h"
 
 #include "lldebugview.h"
 #include "llconsole.h"
@@ -269,10 +272,6 @@ using namespace LL;
 // define a self-registering event API object
 #include "llappviewerlistener.h"
 
-#if LL_LINUX && LL_GTK
-#include "glib.h"
-#endif // (LL_LINUX) && LL_GTK
-
 #ifdef LL_DISCORD
 #define DISCORDPP_IMPLEMENTATION
 #include <discordpp.h>
@@ -298,9 +297,16 @@ extern bool gRandomizeFramerate;
 extern bool gPeriodicSlowFrame;
 extern bool gDebugGL;
 
-#if LL_DARWIN
+#if LL_DARWIN || LL_SDL_WINDOW
 extern bool gHiDPISupport;
 #endif
+
+#if LL_WINDOWS
+extern bool gGPUBenchmarkMode;
+#else
+static constexpr bool gGPUBenchmarkMode = false;
+#endif // LL_WINDOWS
+
 
 ////////////////////////////////////////////////////////////
 // All from the last globals push...
@@ -552,7 +558,7 @@ static void settings_to_globals()
     LLRender::sGLCoreProfile = gSavedSettings.getBOOL("RenderGLContextCoreProfile");
 #endif
     LLRender::sNsightDebugSupport = gSavedSettings.getBOOL("RenderNsightDebugSupport");
-    LLImageGL::sGlobalUseAnisotropic    = gSavedSettings.getBOOL("RenderAnisotropic");
+    LLRender::sAnisotropicFilteringLevel = static_cast<F32>(gSavedSettings.getU32("RenderAnisotropicLevel"));
     LLImageGL::sCompressTextures        = gSavedSettings.getBOOL("RenderCompressTextures");
     LLVOVolume::sLODFactor              = llclamp(gSavedSettings.getF32("RenderVolumeLODFactor"), 0.01f, MAX_LOD_FACTOR);
     LLVOVolume::sDistanceFactor         = 1.f-LLVOVolume::sLODFactor * 0.1f;
@@ -578,6 +584,9 @@ static void settings_to_globals()
 
 #if LL_DARWIN
     LLWindowMacOSX::sUseMultGL = gSavedSettings.getBOOL("RenderAppleUseMultGL");
+#endif
+
+#if LL_DARWIN || LL_SDL_WINDOW
     gHiDPISupport = gSavedSettings.getBOOL("RenderHiDPI");
 #endif
 }
@@ -1145,17 +1154,17 @@ bool LLAppViewer::init()
 
     gGLActive = false;
 
-//#if LL_RELEASE_FOR_DOWNLOAD
-    // Launch VVM update check
+#if !LL_LINUX
+    // Launch VVM update check (Linux updater is future work: Velopack port)
     if (!gSavedSettings.getBOOL("CmdLineSkipUpdater") && !gNonInteractive)
     {
         initVVMUpdateCheck();
     }
     else
+#endif
     {
         LL_WARNS("InitInfo") << "Skipping updater check." << LL_ENDL;
     }
-//#endif //LL_RELEASE_FOR_DOWNLOAD
 
     {
         // Iterate over --leap command-line options. But this is a bit tricky: if
@@ -1315,7 +1324,11 @@ bool LLAppViewer::frame()
     {
         try
         {
+            const auto start = std::chrono::steady_clock::now();
             ret = doFrame();
+            const auto end = std::chrono::steady_clock::now();
+            const U64 doframe_time_us = (U64)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+            LLTrace::sample(LLStatViewer::DOFRAME_TIME_US, doframe_time_us);
         }
         catch (const LLContinueError&)
         {
@@ -1749,7 +1762,15 @@ bool LLAppViewer::cleanup()
     // Give any remaining SLPlugin instances a chance to exit cleanly.
     LLPluginProcessParent::shutdown();
 
+    if (LLWatchdog::instanceExists())
+    {
+        // Signal a stop early, so that it will be out
+        // of 1s sleep loop by the time we get to clean it.
+        LLWatchdog::getInstance()->shutdown();
+    }
+
     disconnectViewer();
+
     LLViewerCamera::deleteSingleton();
 
     LL_INFOS() << "Viewer disconnected" << LL_ENDL;
@@ -1860,6 +1881,9 @@ bool LLAppViewer::cleanup()
     if( gViewerWindow)
         gViewerWindow->shutdownViews();
 
+    // Model previews release their decomposition handles while the UI is destroyed.
+    gMeshRepo.shutdownDecomposition();
+
     LL_INFOS() << "Cleaning up Inventory" << LL_ENDL;
 
     // Cleanup Inventory after the UI since it will delete any remaining observers
@@ -1879,8 +1903,6 @@ bool LLAppViewer::cleanup()
     LLViewerObject::cleanupVOClasses();
 
     SUBSYSTEM_CLEANUP(LLAvatarAppearance);
-
-    SUBSYSTEM_CLEANUP(LLPostProcess);
 
     LLTracker::cleanupInstance();
 
@@ -2050,7 +2072,7 @@ bool LLAppViewer::cleanup()
     }
 
     LLSplashScreen::show();
-    LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
+    LLSplashScreen::update(LLTrans::getString("ShutdownCleanup"));
 
     LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
 
@@ -2079,7 +2101,7 @@ bool LLAppViewer::cleanup()
     if (sTextureFetch)
     {
         sTextureFetch->shutdown();
-        sTextureFetch->waitOnPending();
+        sTextureFetch->waitOnPending(10.f);
         delete sTextureFetch;
         sTextureFetch = NULL;
     }
@@ -2124,7 +2146,10 @@ bool LLAppViewer::cleanup()
     gSavedSettings.cleanup();
     LLUIColorTable::instance().clear();
 
-    LLWatchdog::getInstance()->cleanup();
+    if (LLWatchdog::instanceExists())
+    {
+        LLWatchdog::getInstance()->cleanup();
+    }
 
     LLViewerAssetStatsFF::cleanup();
 
@@ -2149,6 +2174,10 @@ bool LLAppViewer::cleanup()
     SUBSYSTEM_CLEANUP(LLProxy);
     LLCore::LLHttp::cleanup();
 
+    LLSplashScreen::update(LLTrans::getString("CompressingInventoryCache"));
+    LLInventoryModel::waitForPendingCacheWrites();
+    LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
+
     ll_close_fail_log();
 
     LLError::LLCallStacks::cleanup();
@@ -2160,6 +2189,7 @@ bool LLAppViewer::cleanup()
     LLWorld::deleteSingleton();
     LLVoiceClient::deleteSingleton();
     LLUI::deleteSingleton();
+    LLGridManager::deleteSingleton();
     LLWatchdog::deleteSingleton();
 
     // It's not at first obvious where, in this long sequence, a generic cleanup
@@ -2277,7 +2307,7 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
         LLAppViewer::instance()->writeDebugInfo();
 
         std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
-        if (!LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
+        if (!LLFile::isfile(error_marker_file))
         {
             // If marker doesn't exist, create a marker with llerror code for next launch
             // otherwise don't override existing file
@@ -2354,11 +2384,17 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 
     if (mSecondInstance)
     {
-        LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
+        if (!gGPUBenchmarkMode)
+        {
+            LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
 
-        LLUUID uid;
-        uid.generate();
-        LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
+            LLUUID uid;
+            uid.generate();
+            // Is this even useful?
+            // Originally this wa used to store states, but I don't think it's practical with bugsplat attributes.
+            // So it just spams files now.
+            LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
+        }
     }
     else
     {
@@ -2994,6 +3030,8 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
+    LLGridManager::createInstance();
+
     LLSLURL start_slurl;
     if (!starting_location.empty())
     {
@@ -3042,6 +3080,7 @@ bool LLAppViewer::initConfiguration()
             // Do not save settings.
             // Might be smarter to have an exit code for a more reliable
             // "early exit, needs cleanup" case.
+            LLGridManager::deleteSingleton();
             LLSingletonBase::deleteAll();
             cleanupConsole();
             delete mSettingsLocationList;
@@ -3059,12 +3098,15 @@ bool LLAppViewer::initConfiguration()
 
     // Display splash screen.  Must be after above check for previous
     // crash as this dialog is always frontmost.
-    std::string splash_msg;
-    LLStringUtil::format_map_t args;
-    args["[APP_NAME]"] = LLTrans::getString("SECOND_LIFE");
-    splash_msg = LLTrans::getString("StartupLoading", args);
-    LLSplashScreen::show();
-    LLSplashScreen::update(splash_msg);
+    if (!gGPUBenchmarkMode)
+    {
+        std::string splash_msg;
+        LLStringUtil::format_map_t args;
+        args["[APP_NAME]"] = LLTrans::getString("SECOND_LIFE");
+        splash_msg = LLTrans::getString("StartupLoading", args);
+        LLSplashScreen::show();
+        LLSplashScreen::update(splash_msg);
+    }
 
     //LLVolumeMgr::initClass();
     LLVolumeMgr* volume_manager = new LLVolumeMgr();
@@ -3102,6 +3144,7 @@ bool LLAppViewer::initConfiguration()
 
         // Since returning 'false' is basically an error without cleanup,
         // do cleanup here. No need to worry about marker files here.
+        LLGridManager::deleteSingleton();
         LLSingletonBase::deleteAll();
         cleanupConsole();
         return false;
@@ -3109,13 +3152,20 @@ bool LLAppViewer::initConfiguration()
 
     if (mSecondInstance)
     {
-        // This is the second instance of SL. Mute voice,
-        // but make sure the setting is *not* persisted.
+        // This is the second concurrent instance of SL.
+        // Disable voice for this session only, user should
+        // be able to enable voice manually, after that it
+        // works the same way as on primary instance.
         LLControlVariable* enable_voice = gSavedSettings.getControl("EnableVoiceChat");
-        if (enable_voice)
+        if (enable_voice && enable_voice->getValue().asBoolean())
         {
+            LL_DEBUGS("AppInit") << "Disabling voice for this session only" << LL_ENDL;
+            // Will be saved as mValues[2] which does not get written to the file.
+            // This feels like a hack, but otherwise way too many controls have to
+            // be tracked manually instead of using xmls' control_name.
             const bool DO_NOT_PERSIST = false;
-            enable_voice->setValue(LLSD(false), DO_NOT_PERSIST);
+            LLSD::Boolean new_value = false;
+            enable_voice->setValue(new_value, DO_NOT_PERSIST);
         }
     }
 
@@ -3207,13 +3257,11 @@ void LLAppViewer::initStrings()
         }
         else
         {
-            llstat st;
-            int rc = LLFile::stat(strings_path_full, &st);
-            if (rc != 0)
+            if (!LLFile::exists(strings_path_full))
             {
-                crash_reason = "The file '" + strings_path_full + "' failed to get status. Error code: " + std::to_string(rc);
+                crash_reason = "The file '" + strings_path_full + "' doesn't seem to exist";
             }
-            else if (S_ISDIR(st.st_mode))
+            else if (LLFile::isdir(strings_path_full))
             {
                 crash_reason = "The filename '" + strings_path_full + "' is a directory name";
             }
@@ -3602,7 +3650,7 @@ LLSD LLAppViewer::getViewerInfo() const
     info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
     info["TEXTURE_MEMORY"] = LLSD::Integer(gGLManager.mVRAM);
 
-#if LL_DARWIN
+#if LL_DARWIN || LL_SDL_WINDOW
     info["HIDPI"] = gHiDPISupport;
 #endif
 
@@ -3632,7 +3680,6 @@ LLSD LLAppViewer::getViewerInfo() const
         info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
     }
 
-#if !LL_LINUX
     std::ostringstream cef_ver_codec;
     cef_ver_codec << "Dullahan: ";
     cef_ver_codec << DULLAHAN_VERSION_MAJOR;
@@ -3658,11 +3705,7 @@ LLSD LLAppViewer::getViewerInfo() const
     cef_ver_codec << CHROME_VERSION_PATCH;
 
     info["LIBCEF_VERSION"] = cef_ver_codec.str();
-#else
-    info["LIBCEF_VERSION"] = "Undefined";
-#endif
 
-#if !LL_LINUX
     std::ostringstream vlc_ver_codec;
     vlc_ver_codec << LIBVLC_VERSION_MAJOR;
     vlc_ver_codec << ".";
@@ -3670,9 +3713,6 @@ LLSD LLAppViewer::getViewerInfo() const
     vlc_ver_codec << ".";
     vlc_ver_codec << LIBVLC_VERSION_REVISION;
     info["LIBVLC_VERSION"] = vlc_ver_codec.str();
-#else
-    info["LIBVLC_VERSION"] = "Undefined";
-#endif
 
     LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
     S32 packets_in = (S32)recording.getSum(LLStatViewer::PACKETS_IN);
@@ -3730,6 +3770,13 @@ std::string LLAppViewer::getViewerInfoString(bool default_string) const
             if (ii->second.isUndefined())
             {
                 args[ii->first] = LLTrans::getString("none_text", default_string);
+            }
+            else if (ii->second.isBoolean())
+            {
+                // LLSD intentionally renders false as an empty string to
+                // preserve string-to-boolean round trips. Viewer info is
+                // human-readable, so show both boolean states explicitly.
+                args[ii->first] = ii->second.asBoolean() ? "true" : "false";
             }
             else
             {
@@ -3863,8 +3910,12 @@ void LLAppViewer::writeSystemInfo()
     gDebugInfo["CPUInfo"]["CPUFamily"] = gSysCPU.getFamily();
     gDebugInfo["CPUInfo"]["CPUMhz"] = (S32)gSysCPU.getMHz();
     gDebugInfo["CPUInfo"]["CPUAltivec"] = gSysCPU.hasAltivec();
-    gDebugInfo["CPUInfo"]["CPUSSE"] = gSysCPU.hasSSE();
-    gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
+    gDebugInfo["CPUInfo"]["CPUSSE42"] = gSysCPU.hasSSE42();
+    gDebugInfo["CPUInfo"]["CPUSSE4a"] = gSysCPU.hasSSE4a();
+    gDebugInfo["CPUInfo"]["CPUAVX"] = gSysCPU.hasAVX();
+    gDebugInfo["CPUInfo"]["CPUAVX2"] = gSysCPU.hasAVX2();
+    gDebugInfo["CPUInfo"]["CPUAVX512F"] = gSysCPU.hasAVX512F();
+
 
     gDebugInfo["RAMInfo"]["Physical"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().value());
     gDebugInfo["RAMInfo"]["Allocated"] = LLSD::Integer(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
@@ -4108,6 +4159,13 @@ bool LLAppViewer::getMarkerData(const std::string& marker_name, std::string& dat
 
 void LLAppViewer::processMarkerFiles()
 {
+    if (gGPUBenchmarkMode)
+    {
+        // Skipping marker file processing in GPU benchmark mode
+        mSecondInstance = true;
+        initLoggingAndGetLastDuration();
+        return;
+    }
     //We've got 4 things to test for here
     // - Other Process Running (SecondLife.exec_marker present, locked)
     // - Freeze (SecondLife.exec_marker present, not locked)
@@ -4124,7 +4182,7 @@ void LLAppViewer::processMarkerFiles()
     bool marker_is_same_version = true;
     // first, look for the marker created at startup and deleted on a clean exit
     mMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,MARKER_FILE_NAME);
-    if (LLAPRFile::isExist(mMarkerFileName, NULL, LL_APR_RB))
+    if (LLFile::isfile(mMarkerFileName))
     {
         // File exists...
         // first, read it to see if it was created by the same version (we need this later)
@@ -4211,7 +4269,7 @@ void LLAppViewer::processMarkerFiles()
     // check for any last exec event report based on whether or not it happened during logout
     // (the logout marker is created when logout begins)
     std::string logout_marker_file =  gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LOGOUT_MARKER_FILE_NAME);
-    if(LLAPRFile::isExist(logout_marker_file, NULL, LL_APR_RB))
+    if(LLFile::isfile(logout_marker_file))
     {
         if (markerIsSameVersion(logout_marker_file))
         {
@@ -4223,7 +4281,7 @@ void LLAppViewer::processMarkerFiles()
         {
             LL_INFOS("MarkerFile") << "Logout crash marker '"<< logout_marker_file << "' found, but versions did not match" << LL_ENDL;
         }
-        LLAPRFile::remove(logout_marker_file);
+        LLFile::remove(logout_marker_file);
     }
     // Refine based on whether or not a marker created during
     // a crash is found or if wathdog caught a freeze.
@@ -4232,7 +4290,7 @@ void LLAppViewer::processMarkerFiles()
     std::string watchdog_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, WATCHDOG_MARKER_FILE_NAME);
     std::string inited_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, INITED_MARKER_FILE_NAME);
     std::string close_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, CLOSE_EVENT_MARKER_FILE_NAME);
-    if(LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
+    if(LLFile::isfile(error_marker_file))
     {
         S32 marker_code = getMarkerErrorCode(error_marker_file);
         if (marker_code >= 0)
@@ -4260,8 +4318,8 @@ void LLAppViewer::processMarkerFiles()
         {
             LL_INFOS("MarkerFile") << "Error marker '"<< error_marker_file << "' marker found, but versions did not match" << LL_ENDL;
         }
-        LLAPRFile::remove(error_marker_file);
-        if (LLAPRFile::isExist(watchdog_marker_file, NULL, LL_APR_RB))
+        LLFile::remove(error_marker_file);
+        if (LLFile::isfile(watchdog_marker_file))
         {
             // If viewer crashed after a freeze was detected,
             // crash still takes precendence. Just clear watchdog.
@@ -4276,7 +4334,7 @@ void LLAppViewer::processMarkerFiles()
             // If viewer crashed after a freeze was detected,
             // crash still takes precendence.
             // So only check watchdog marker if there is no error marker.
-            if (LLAPRFile::isExist(watchdog_marker_file, NULL, LL_APR_RB))
+            if (LLFile::isfile(watchdog_marker_file))
             {
                 // watchdog marker gets created if we detect a freeze,
                 // so if viwer did not stop gracefully, and we know it wasn't a crash,
@@ -4293,7 +4351,7 @@ void LLAppViewer::processMarkerFiles()
             // killed by task manager.
             // Marker does not indicate that viewer was closed or is closing,
             // just that 'close' was requested before viewer died.
-            else if (LLAPRFile::isExist(close_marker_file, NULL, LL_APR_RB))
+            else if (LLFile::isfile(close_marker_file))
             {
                 // Unfortunately we can't reliably distinguish
                 // task manager's case from genuine shutdown, so we
@@ -4308,7 +4366,7 @@ void LLAppViewer::processMarkerFiles()
                 }
             }
             else if ((LAST_EXEC_UNKNOWN == gLastExecEvent)
-                && !LLAPRFile::isExist(inited_marker_file, NULL, LL_APR_RB))
+                && !LLFile::isfile(inited_marker_file))
             {
                 // Viewer didn't get to a login screen.
                 gLastExecEvent = LAST_EXEC_INIT;
@@ -4319,15 +4377,15 @@ void LLAppViewer::processMarkerFiles()
             }
         }
     }
-    if (LLAPRFile::isExist(watchdog_marker_file, NULL, LL_APR_RB))
+    if (LLFile::isfile(watchdog_marker_file))
     {
         removeWatchdogMarker();
     }
-    if (LLAPRFile::isExist(inited_marker_file, NULL, LL_APR_RB))
+    if (LLFile::isfile(inited_marker_file))
     {
         removeInitedMarker();
     }
-    if (LLAPRFile::isExist(close_marker_file, NULL, LL_APR_RB))
+    if (LLFile::isfile(close_marker_file))
     {
         removeCloseRequestMarker();
     }
@@ -4356,7 +4414,7 @@ void LLAppViewer::removeMarkerFiles()
         if (mMarkerFile.getFileHandle())
         {
             mMarkerFile.close() ;
-            LLAPRFile::remove( mMarkerFileName );
+            LLFile::remove( mMarkerFileName );
             LL_DEBUGS("MarkerFile") << "removed exec marker '"<<mMarkerFileName<<"'"<< LL_ENDL;
         }
         else
@@ -4367,7 +4425,7 @@ void LLAppViewer::removeMarkerFiles()
         if (mLogoutMarkerFile.getFileHandle())
         {
             mLogoutMarkerFile.close();
-            LLAPRFile::remove( mLogoutMarkerFileName );
+            LLFile::remove( mLogoutMarkerFileName );
             LL_DEBUGS("MarkerFile") << "removed logout marker '"<<mLogoutMarkerFileName<<"'"<< LL_ENDL;
         }
         else
@@ -4610,7 +4668,7 @@ void LLAppViewer::migrateCacheDirectory()
                 LLFile::remove(ds_store);
             }
 #endif
-            if (LLFile::rmdir(old_cache_dir) != 0)
+            if (LLFile::remove(old_cache_dir) != 0)
             {
                 LL_WARNS() << "could not delete old cache directory " << old_cache_dir << LL_ENDL;
             }
@@ -4896,7 +4954,7 @@ void LLAppViewer::purgeCacheImmediate()
         std::string cache_dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "objectcache");
         LL_INFOS() << "Removing cache at " << cache_dir << LL_ENDL;
         gDirUtilp->deleteFilesInDir(cache_dir, mask); //delete all files
-        LLFile::rmdir(cache_dir);
+        LLFile::remove(cache_dir);
     }
 }
 
@@ -5172,6 +5230,11 @@ void LLAppViewer::idle()
     LLMortician::updateClass();
     LLFilePickerThread::clearDead();  //calls LLFilePickerThread::notify()
     LLDirPickerThread::clearDead();
+
+    if (LLWebsocketMgr::instanceExists())
+    {
+        LLWebsocketMgr::instance().update();
+    }
     F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();
 
     LLGLTFMaterialList::flushUpdates();
@@ -5179,6 +5242,7 @@ void LLAppViewer::idle()
     static LLCachedControl<U32> downscale_method(gSavedSettings, "RenderDownScaleMethod");
     gGLManager.mDownScaleMethod = downscale_method;
     LLImageGL::updateClass();
+    LLUIImage::updateClass();
 
     // Service the WorkQueue we use for replies from worker threads.
     // Use function statics for the timeslice setting so we only have to fetch
@@ -5828,7 +5892,7 @@ void LLAppViewer::createErrorMarker(eLastExecEvent error_code) const
 bool LLAppViewer::errorMarkerExists() const
 {
     std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
-    return LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB);
+    return LLFile::isfile(error_marker_file);
 }
 
 void LLAppViewer::createCloseRequestMarker() const

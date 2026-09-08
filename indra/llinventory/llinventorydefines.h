@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORYDEFINES_H
-#define LL_LLINVENTORYDEFINES_H
+#pragma once
 
 // Consts for "key" field in the task inventory update message
 extern const U8 TASK_INVENTORY_ITEM_KEY;
@@ -97,5 +96,3 @@ public:
             // on a pre-existing inventory item (DEV-28098 and DEV-30997)
     };
 };
-
-#endif // LL_LLINVENTORYDEFINES_H

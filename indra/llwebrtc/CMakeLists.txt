@@ -47,7 +47,14 @@ if (WINDOWS)
         set_target_properties(llwebrtc PROPERTIES PDB_OUTPUT_DIRECTORY "${SYMBOLS_STAGING_DIR}")
     endif (USE_BUGSPLAT)
 elseif (DARWIN)
-    target_link_libraries(llwebrtc PRIVATE ll::webrtc)
+    target_link_libraries(llwebrtc PRIVATE ll::webrtc
+                                   "-framework AVFoundation"
+                                   "-framework AudioToolbox"
+                                   "-framework CoreAudio"
+                                   "-framework CoreMedia"
+                                   "-framework CoreVideo"
+                                   "-framework Foundation"
+    )
     if (USE_BUGSPLAT)
         set_target_properties(llwebrtc PROPERTIES XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
                                                   XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH "${SYMBOLS_STAGING_DIR}/dSYMs")

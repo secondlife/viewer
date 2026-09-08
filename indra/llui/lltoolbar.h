@@ -213,6 +213,7 @@ public:
     };
 
     // virtuals
+    bool postBuild();
     void draw();
     void reshape(S32 width, S32 height, bool called_from_parent = true);
     bool handleRightMouseDown(S32 x, S32 y, MASK mask);

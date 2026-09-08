@@ -64,6 +64,7 @@ public:
         MEDIA_EVENT_AUTH_REQUEST,           // The plugin wants to display an auth dialog
 
         MEDIA_EVENT_FILE_DOWNLOAD,          // the plugin wants to download a file
+        MEDIA_EVENT_FILE_DOWNLOAD_PROGRESS, // file download progress/completion update
 
         MEDIA_EVENT_DEBUG_MESSAGE,          // plugin sending back debug information for host to process
 

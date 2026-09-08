@@ -25,8 +25,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#ifndef LL_SYNTAXID_H
-#define LL_SYNTAXID_H
+#pragma once
 
 #include "llviewerprecompiledheaders.h"
 
@@ -34,44 +33,117 @@
 #include "lleventcoro.h"
 #include "llcoros.h"
 
-class fetchKeywordsFileResponder;
-
-class LLSyntaxIdLSL : public LLSingleton<LLSyntaxIdLSL>
+class LLSyntaxDefCache : public LLSingleton<LLSyntaxDefCache>
 {
-    LLSINGLETON(LLSyntaxIdLSL);
-    friend class fetchKeywordsFileResponder;
-
-private:
-    std::set<std::string> mInflightFetches;
-    typedef boost::signals2::signal<void()> syntax_id_changed_signal_t;
-    syntax_id_changed_signal_t mSyntaxIDChangedSignal;
-    boost::signals2::connection mRegionChangedCallback;
-
-    bool    syntaxIdChanged();
-    bool    isSupportedVersion(const LLSD& content);
-    void    handleRegionChanged();
-    void    handleCapsReceived(const LLUUID& region_uuid);
-    void    setKeywordsXml(const LLSD& content) { mKeywordsXml = content; };
-    void    buildFullFileSpec();
-    void    fetchKeywordsFile(const std::string& filespec);
-    void    loadDefaultKeywordsIntoLLSD();
-    void    loadKeywordsIntoLLSD();
-
-    void    fetchKeywordsFileCoro(std::string url, std::string fileSpec);
-    void    cacheFile(const std::string &fileSpec, const LLSD& content_ref);
-
-    std::string     mCapabilityURL;
-    std::string     mFullFileSpec;
-    ELLPath         mFilePath;
-    LLUUID          mSyntaxId;
-    LLSD            mKeywordsXml;
-    bool            mInitialized;
+    LLSINGLETON(LLSyntaxDefCache) = default;
 
 public:
-    void initialize();
-    bool keywordFetchInProgress();
-    LLSD getKeywordsXML() const { return mKeywordsXml; };
-    boost::signals2::connection addSyntaxIDCallback(const syntax_id_changed_signal_t::slot_type& cb);
-};
+    using syntax_id_changed_signal_t = boost::signals2::signal<void()>;
+    using syntax_id_changed_h = boost::signals2::connection;
+    class cache_names_t
+    {
+    public:
+        using name_path_map_t = std::unordered_map<std::string, std::string>;
+        using iterator       = name_path_map_t::iterator;
+        using const_iterator = name_path_map_t::const_iterator;
 
-#endif // LLSYNTAXID_H
+        cache_names_t() = default;
+        ~cache_names_t() = default;
+
+        std::string getPath(const std::string &name) const
+        {
+            auto it = mNamePathMap.find(name);
+            if (it != mNamePathMap.end())
+            {
+                return it->second;
+            }
+            return std::string();
+        }
+
+        bool hasName(const std::string &name) const
+        {
+            return mNamePathMap.find(name) != mNamePathMap.end();
+        }
+
+        void addNamePath(const std::string &name, const std::string &path)
+        {
+            mNamePathMap[name] = path;
+        }
+
+        iterator        begin() { return mNamePathMap.begin(); }
+        const_iterator  begin() const { return mNamePathMap.begin(); }
+        iterator        end() { return mNamePathMap.end(); }
+        const_iterator  end() const { return mNamePathMap.end(); }
+
+        size_t          size() const { return mNamePathMap.size(); }
+        void            clear() { mNamePathMap.clear(); }
+        bool            empty() const { return mNamePathMap.empty(); }
+
+        iterator        find(const std::string &name) { return mNamePathMap.find(name); }
+        const_iterator  find(const std::string &name) const { return mNamePathMap.find(name); }
+
+    private:
+        name_path_map_t mNamePathMap;
+    };
+
+    bool                        keywordFetchInProgress() const { return !mInflightFetches.empty(); }
+    LLSD                        getLSLKeywords() const { return mLSLKeywords; };
+    LLSD                        getLuaKeywords() const { return mLuaKeywords; };
+    LLUUID                      getSyntaxID() const { return mSyntaxId; }
+    syntax_id_changed_h         addSyntaxIDCallback(const syntax_id_changed_signal_t::slot_type& cb);
+
+    bool                        checkCacheAndLoad(const LLUUID& syntax_id);
+
+    static std::string          buildCacheDirectoryName(const LLUUID& syntax_id);
+
+    using const_iterator = cache_names_t::const_iterator;
+
+    const_iterator  begin() const { return mFileCachePaths.begin(); }
+    const_iterator  end() const { return mFileCachePaths.end(); }
+
+    size_t          size() const { return mFileCachePaths.size(); }
+    bool            empty() const { return mFileCachePaths.empty(); }
+
+    const_iterator  find(const std::string& name) const { return mFileCachePaths.find(name); }
+
+    std::vector<std::string> getCacheFileNames() const;
+    bool                     hasCacheFile(const std::string& name) const { return mFileCachePaths.hasName(name); }
+    std::string              loadCacheFile(const std::string& name) const;
+    LLSD                     loadCacheFileAsLLSD(const std::string& name) const;
+
+protected:
+    void        initSingleton() override;
+    void        cleanupSingleton() override;
+
+private:
+
+    bool        updateSyntaxId();
+    static bool isSupportedVersion(const LLSD& content);
+    void        handleRegionChanged();
+    void        handleCapsReceived(const LLUUID& region_uuid);
+    void        setKeywords(const LLSD& lsl, const LLSD& lua) { mLSLKeywords = lsl; mLuaKeywords = lua; };
+
+    void        loadKeywordsIntoLLSD();
+
+    void        fetchKeywords();
+    void        fetchKeywordsFileCoro(std::string url, LLUUID syntax_id);
+    void        fetchKeywordsDefsCoro(std::string url, LLUUID syntax_id);
+
+    bool        checkLocalCache(const LLUUID& syntax_id) const;
+    void        buildDefaultCache() { buildCachePaths(LLUUID::null); }
+    void        buildCachePaths(const LLUUID &syntax_id);
+    bool        writeCacheFile(const std::string &fileSpec, const LLSD& content_ref);
+
+    static LLSD loadDeserializedCacheFile(const std::string& file_path);
+
+    std::set<LLUUID>            mInflightFetches;
+    syntax_id_changed_signal_t  mSyntaxIDChangedSignal;
+    syntax_id_changed_h         mRegionChangedCallback;
+
+    std::string                 mCapabilityURL;
+    cache_names_t               mFileCachePaths;
+    LLUUID                      mSyntaxId;
+    LLSD                        mLSLKeywords;
+    LLSD                        mLuaKeywords;
+    bool                        mUseDefsCap{ false };
+};

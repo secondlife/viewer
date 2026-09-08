@@ -119,6 +119,8 @@ public:
     bool getDisableTimeout() { return mDisableTimeout; };
     void setDisableTimeout(bool disable) { mDisableTimeout = disable; };
 
+    LLProcess::id getProcessID() const { return mProcess ? mProcess->getProcessID() : 0; }
+
     void setLaunchTimeout(F32 timeout) { mPluginLaunchTimeout = timeout; };
     void setLockupTimeout(F32 timeout) { mPluginLockupTimeout = timeout; };
 

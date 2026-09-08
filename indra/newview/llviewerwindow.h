@@ -66,6 +66,7 @@ class LLWindow;
 class LLRootView;
 class LLWindowListener;
 class LLViewerWindowListener;
+class LLStatsListener;
 class LLVOPartGroup;
 class LLPopupView;
 class LLCubeMap;
@@ -228,12 +229,14 @@ public:
     /*virtual*/ bool handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
     /*virtual*/ void handleScrollWheel(LLWindow *window,  S32 clicks);
     /*virtual*/ void handleScrollHWheel(LLWindow *window,  S32 clicks);
-    /*virtual*/ bool handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleLeftMouseDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleRightMouseDoubleClick(LLWindow* window, LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleMiddleMouseDoubleClick(LLWindow* window, LLCoordGL pos, MASK mask);
     /*virtual*/ void handleWindowBlock(LLWindow *window);
     /*virtual*/ void handleWindowUnblock(LLWindow *window);
     /*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);
     /*virtual*/ bool handleTimerEvent(LLWindow *window);
-    /*virtual*/ bool handleDeviceChange(LLWindow *window);
+    /*virtual*/ bool handleDeviceChange(LLWindow *window, const std::string& change_type);
     /*virtual*/ bool handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
     /*virtual*/ bool handleDisplayChanged();
     /*virtual*/ bool handleWindowDidChangeScreen(LLWindow *window);
@@ -279,7 +282,6 @@ public:
 
     LLWindow*       getWindow()         const   { return mWindow; }
     void*           getPlatformWindow() const;
-    void*           getMediaWindow()    const;
     void            focusClient()       const;
 
     LLCoordGL       getLastMouse()      const   { return mLastMousePoint; }
@@ -566,6 +568,7 @@ private:
 
     std::unique_ptr<LLWindowListener> mWindowListener;
     std::unique_ptr<LLViewerWindowListener> mViewerWindowListener;
+    std::unique_ptr<LLStatsListener> mStatsListener;
 
     // Object temporarily hovered over while dragging
     LLPointer<LLViewerObject>   mDragHoveredObject;

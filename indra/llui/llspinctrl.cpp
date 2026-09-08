@@ -54,6 +54,7 @@ LLSpinCtrl::Params::Params()
     allow_text_entry("allow_text_entry", true),
     allow_digits_only("allow_digits_only", false),
     label_wrap("label_wrap", false),
+    reverse_buttons("reverse_buttons", false),
     text_enabled_color("text_enabled_color"),
     text_disabled_color("text_disabled_color"),
     up_button("up_button"),
@@ -65,6 +66,7 @@ LLSpinCtrl::LLSpinCtrl(const LLSpinCtrl::Params& p)
     mLabelBox(NULL),
     mbHasBeenSet( false ),
     mPrecision(p.decimal_digits),
+    mReverseButtons(p.reverse_buttons),
     mTextEnabledColor(p.text_enabled_color()),
     mTextDisabledColor(p.text_disabled_color())
 {
@@ -170,6 +172,8 @@ F32 clamp_precision(F32 value, S32 decimal_precision)
 
 void LLSpinCtrl::onUpBtn( const LLSD& data )
 {
+    F32 step = mReverseButtons ? -mIncrement : mIncrement;
+
     if( getEnabled() )
     {
         std::string text = mEditor->getText();
@@ -180,9 +184,8 @@ void LLSpinCtrl::onUpBtn( const LLSD& data )
             F32 cur_val = (F32) atof(text.c_str());
 
             // use getValue()/setValue() to force reload from/to control
-            F32 val = cur_val + mIncrement;
+            F32 val = cur_val + step;
             val = clamp_precision(val, mPrecision);
-            val = llmin( val, mMaxValue );
             if (val < mMinValue) val = mMinValue;
             if (val > mMaxValue) val = mMaxValue;
 
@@ -204,6 +207,8 @@ void LLSpinCtrl::onUpBtn( const LLSD& data )
 
 void LLSpinCtrl::onDownBtn( const LLSD& data )
 {
+    F32 step = mReverseButtons ? mIncrement : -mIncrement;
+
     if( getEnabled() )
     {
         std::string text = mEditor->getText();
@@ -213,10 +218,8 @@ void LLSpinCtrl::onDownBtn( const LLSD& data )
             LLLocale locale(LLLocale::USER_LOCALE);
             F32 cur_val = (F32) atof(text.c_str());
 
-            F32 val = cur_val - mIncrement;
+            F32 val = cur_val + step;
             val = clamp_precision(val, mPrecision);
-            val = llmax( val, mMinValue );
-
             if (val < mMinValue) val = mMinValue;
             if (val > mMaxValue) val = mMaxValue;
 

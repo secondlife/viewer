@@ -25,6 +25,6 @@
 * $/LicenseInfo$
 */
 
-#include "linden_common.h"
+#include "llpreprocessor.h"
 
 #include "TracyClient.cpp"

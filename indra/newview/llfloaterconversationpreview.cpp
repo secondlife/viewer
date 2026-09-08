@@ -112,7 +112,9 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>* messages, const std
 
         mPageSpinner->setEnabled(true);
         mPageSpinner->setMaxValue((F32)(mCurrentPage+1));
-        mPageSpinner->set((F32)(mCurrentPage+1));
+        // set() won't refresh the displayed text while the editor has focus, unlike forceSetValue()
+        mPageSpinner->forceSetValue((F32)(mCurrentPage+1));
+        mPageSpinner->resetDirty();
 
         std::string total_page_num = llformat("/ %d", mCurrentPage+1);
         getChild<LLTextBox>("page_num_label")->setValue(total_page_num);

@@ -41,8 +41,9 @@ class LLViewerTexLayerSet;
 //-----------------------------------------------------------------------------
 // class LLViewerJointMesh
 //-----------------------------------------------------------------------------
-class LLViewerJointMesh : public LLAvatarJointMesh, public LLViewerJoint
+class alignas(16) LLViewerJointMesh : public LLAvatarJointMesh, public LLViewerJoint
 {
+    LL_ALIGN_NEW
 public:
     // Constructor
     LLViewerJointMesh();
@@ -67,11 +68,6 @@ public:
     void dump() override;
 
     bool isAnimatable() const override { return false; }
-
-private:
-
-    //copy mesh into given face's vertex buffer, applying current animation pose
-    static void updateGeometry(LLFace* face, LLPolyMesh* mesh);
 };
 
 #endif // LL_LLVIEWERJOINTMESH_H

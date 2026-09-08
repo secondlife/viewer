@@ -40,6 +40,7 @@
 #include "llinventorydefines.h"
 #include "lllslconstants.h"
 #include "llmaterialtable.h"
+#include "llmemory.h"
 #include "llregionhandle.h"
 #include "llsd.h"
 #include "llsdserialize.h"
@@ -2457,6 +2458,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
         color.setVec(1.f,1.f,1.f,1.f);
         msg->getStringFast(_PREHASH_ChatData, _PREHASH_Message, mesg);
+        // Preserve tabs from scripts by expanding them to spaces before any sanitization/formatting.
+        LLStringUtil::replaceTabsWithSpaces(mesg, 4);
 
         bool ircstyle = false;
 
@@ -3390,11 +3393,12 @@ void send_agent_update(bool force_send, bool send_reliable)
 
     static F32 last_draw_disatance_step = 1024;
     F32 memory_limited_draw_distance = gAgentCamera.mDrawDistance;
-
-    if (LLViewerTexture::isSystemMemoryCritical())
+    const F32 mem_factor = LLMemory::getSystemMemoryBudgetFactor();
+    if (mem_factor > 1.f)
     {
-        // If we are low on memory, reduce requested draw distance
-        memory_limited_draw_distance = llmax(gAgentCamera.mDrawDistance / LLViewerTexture::getSystemMemoryBudgetFactor(), gAgentCamera.mDrawDistance / 2.f);
+        // We are critically low on memory or recovering,
+        // limit requested draw distance
+        memory_limited_draw_distance = llmax(gAgentCamera.mDrawDistance / mem_factor, gAgentCamera.mDrawDistance / 2.f);
     }
 
     if (tp_state == LLAgent::TELEPORT_ARRIVING || LLStartUp::getStartupState() < STATE_MISC)
@@ -3756,9 +3760,7 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 {
     if (!gAudiop)
     {
-#if !LL_LINUX
         LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
-#endif
         return;
     }
 
@@ -3830,9 +3832,7 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 {
     if (!gAudiop)
     {
-#if !LL_LINUX
         LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
-#endif
         return;
     }
 
@@ -4181,11 +4181,12 @@ void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data)
     if (avatarp)
     {
         avatarp->processAvatarAppearance( mesgsys );
+        return;
     }
-    else
-    {
-        LL_WARNS("Messaging") << "avatar_appearance sent for unknown avatar " << uuid << LL_ENDL;
-    }
+    // The avatar object doesn't exist yet.
+    // We will re-request its appearance data after it is created.
+    LLVOAvatar::registerEarlyAppearance(uuid);
+    LL_WARNS("Messaging") << "AvatarAppearance received for avatar " << uuid << " before object created" << LL_ENDL;
 }
 
 void process_camera_constraint(LLMessageSystem *mesgsys, void **user_data)

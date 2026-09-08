@@ -95,6 +95,7 @@ protected:
     LLJoint*                mCamTargetJoint;    // joint to target with preview camera
 
     LLUIImagePtr mBackgroundp;
+    boost::signals2::scoped_connection mBackgroundLoadedConnection;
 
     typedef std::set< LLVisualParamHint* > instance_list_t;
     static instance_list_t sInstances;

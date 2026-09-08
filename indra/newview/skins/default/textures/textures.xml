@@ -331,6 +331,7 @@ with the same filename but different name
   <texture name="Inv_Object_Multi" file_name="icons/Inv_Object_Multi.png" preload="false" />
   <texture name="Inv_Pants" file_name="icons/Inv_Pants.png" preload="false" />
   <texture name="Inv_Script" file_name="icons/Inv_Script.png" preload="false" />
+  <texture name="Inv_Script_Luau" file_name="icons/Inv_Script_Luau.png" preload="false" />
   <texture name="Inv_Shirt" file_name="icons/Inv_Shirt.png" preload="false" />
   <texture name="Inv_Shoe" file_name="icons/Inv_Shoe.png" preload="false" />
   <texture name="Inv_Skin" file_name="icons/Inv_Skin.png" preload="false" />

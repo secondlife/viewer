@@ -151,7 +151,6 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
 {
     S32 num_output_sections = 1<<dest_sections;
     LLVector3 scale = mVO->mDrawable->getScale();
-    F32 source_section_length = scale.mV[VZ] / (F32)(1<<source_sections);
     F32 section_length = scale.mV[VZ] / (F32)num_output_sections;
     if (source_sections == -1)
     {
@@ -183,6 +182,7 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
         // Iterate from right to left since it may be an in-place computation
         S32 step_shift = dest_sections-source_sections;
         S32 num_steps = 1<<step_shift;
+        F32 source_section_length = scale.mV[VZ] / (F32)(1<<source_sections);
         for (S32 section=num_output_sections-num_steps; section>=0; section -= num_steps)
         {
             LLFlexibleObjectSection *last_source_section = &source[section>>step_shift];

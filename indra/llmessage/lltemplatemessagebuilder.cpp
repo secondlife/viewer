@@ -29,6 +29,7 @@
 #include "lltemplatemessagebuilder.h"
 
 #include "llmessagetemplate.h"
+#include "llzerocode.h"
 #include "llmath.h"
 #include "llquaternion.h"
 #include "u64.h"
@@ -492,93 +493,29 @@ void LLTemplateMessageBuilder::addUUID(const char *varname, const LLUUID& uuid)
     addData(varname, uuid.mData, MVT_LLUUID, sizeof(uuid.mData));
 }
 
-static S32 zero_code(U8 **data, U32 *data_size)
+void LLTemplateMessageBuilder::compressMessage(U8*& buf_ptr, U32& buffer_length)
 {
+    if(ME_ZEROCODED != mCurrentSMessageTemplate->getEncoding())
+    {
+        return;
+    }
+
     // Encoded send buffer needs to be slightly larger since the zero
     // coding can potentially increase the size of the send data.
     static U8 encodedSendBuffer[2 * MAX_BUFFER_SIZE];
 
-    S32 count = *data_size;
-
-    S32 net_gain = 0;
-    U8 num_zeroes = 0;
-
-    U8 *inptr = (U8 *)*data;
-    U8 *outptr = (U8 *)encodedSendBuffer;
-
-// skip the packet id field
-
-    for (U32 ii = 0; ii < LL_PACKET_ID_SIZE ; ++ii)
-    {
-        count--;
-        *outptr++ = *inptr++;
-    }
-
-// build encoded packet, keeping track of net size gain
-
-// sequential zero bytes are encoded as 0 [U8 count]
-// with 0 0 [count] representing wrap (>256 zeroes)
-
-    while (count--)
-    {
-        if (!(*inptr))   // in a zero count
-        {
-            if (num_zeroes)
-            {
-                if (++num_zeroes > 254)
-                {
-                    *outptr++ = num_zeroes;
-                    num_zeroes = 0;
-                }
-                net_gain--;   // subseqent zeroes save one
-            }
-            else
-            {
-                *outptr++ = 0;
-                net_gain++;  // starting a zero count adds one
-                num_zeroes = 1;
-            }
-            inptr++;
-        }
-        else
-        {
-            if (num_zeroes)
-            {
-                *outptr++ = num_zeroes;
-                num_zeroes = 0;
-            }
-            *outptr++ = *inptr++;
-        }
-    }
-
-    if (num_zeroes)
-    {
-        *outptr++ = num_zeroes;
-    }
-
-    if (net_gain < 0)
+    S32 encoded_size = LLZeroCode::encode(buf_ptr, buffer_length,
+                                           encodedSendBuffer, sizeof(encodedSendBuffer),
+                                           LL_PACKET_ID_SIZE);
+    if (encoded_size >= 0)
     {
         // TODO: babbage: reinstate stat collecting...
         //mCompressedPacketsOut++;
-        //mUncompressedBytesOut += *data_size;
+        //mUncompressedBytesOut += buffer_length;
+        //mCompressedBytesOut += encoded_size;
 
-        *data = encodedSendBuffer;
-        *data_size += net_gain;
-        encodedSendBuffer[0] |= LL_ZERO_CODE_FLAG;          // set the head bit to indicate zero coding
-
-        //mCompressedBytesOut += *data_size;
-
-    }
-    //mTotalBytesOut += *data_size;
-
-    return(net_gain);
-}
-
-void LLTemplateMessageBuilder::compressMessage(U8*& buf_ptr, U32& buffer_length)
-{
-    if(ME_ZEROCODED == mCurrentSMessageTemplate->getEncoding())
-    {
-        zero_code(&buf_ptr, &buffer_length);
+        buf_ptr = encodedSendBuffer;
+        buffer_length = (U32)encoded_size;
     }
 }
 

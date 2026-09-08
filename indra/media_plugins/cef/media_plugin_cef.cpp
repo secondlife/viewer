@@ -77,6 +77,7 @@ private:
     bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
     void onCursorChangedCallback(dullahan::ECursorType type);
     const std::vector<std::string> onFileDialog(dullahan::EFileDialogType dialog_type, const std::string dialog_title, const std::string default_file, const std::string dialog_accept_filter, bool& use_default);
+    void onFileDownloadProgressCallback(int percent, bool complete);
     bool onJSDialogCallback(const std::string origin_url, const std::string message_text, const std::string default_prompt_text);
     bool onJSBeforeUnloadCallback();
 
@@ -116,6 +117,7 @@ private:
     std::string mRootCachePath;
     std::string mCefLogFile;
     bool mCefLogVerbose;
+    U32 mCefRemoteDebuggingPort;
     std::vector<std::string> mPickedFiles;
     VolumeCatcher mVolumeCatcher;
     F32 mCurVolume;
@@ -157,6 +159,7 @@ MediaPluginBase(host_send_func, host_user_data)
     mCanSelectAll = false;
     mCefLogFile = "";
     mCefLogVerbose = false;
+    mCefRemoteDebuggingPort = 0;
     mPickedFiles.clear();
     mCurVolume = 0.0;
 
@@ -402,6 +405,16 @@ const std::vector<std::string> MediaPluginCEF::onFileDialog(dullahan::EFileDialo
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+void MediaPluginCEF::onFileDownloadProgressCallback(int percent, bool complete)
+{
+    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "file_download_progress");
+    message.setValueS32("percent", percent);
+    message.setValueBoolean("complete", complete);
+    sendMessage(message);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 bool MediaPluginCEF::onJSDialogCallback(const std::string origin_url, const std::string message_text, const std::string default_prompt_text)
 {
     // return true indicates we suppress the JavaScript alert UI entirely
@@ -631,6 +644,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 mCEFLib->setOnOpenPopupCallback(std::bind(&MediaPluginCEF::onOpenPopupCallback, this, std::placeholders::_1, std::placeholders::_2));
                 mCEFLib->setOnHTTPAuthCallback(std::bind(&MediaPluginCEF::onHTTPAuthCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
                 mCEFLib->setOnFileDialogCallback(std::bind(&MediaPluginCEF::onFileDialog, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
+                mCEFLib->setOnFileDownloadProgressCallback(std::bind(&MediaPluginCEF::onFileDownloadProgressCallback, this, std::placeholders::_1, std::placeholders::_2));
                 mCEFLib->setOnCursorChangedCallback(std::bind(&MediaPluginCEF::onCursorChangedCallback, this, std::placeholders::_1));
                 mCEFLib->setOnRequestExitCallback(std::bind(&MediaPluginCEF::onRequestExitCallback, this));
                 mCEFLib->setOnJSDialogCallback(std::bind(&MediaPluginCEF::onJSDialogCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
@@ -709,6 +723,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 settings.webgl_enabled = true;
                 settings.log_file = mCefLogFile;
                 settings.log_verbose = mCefLogVerbose;
+                settings.enable_remote_debug = (mCefRemoteDebuggingPort != 0);
+                settings.remote_debugging_port = mCefRemoteDebuggingPort;
                 settings.autoplay_without_gesture = true;
 
                 std::vector<std::string> custom_schemes(1, "secondlife");
@@ -773,6 +789,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
                 mCefLogFile = message_in.getValue("cef_log_file");
                 mCefLogVerbose = message_in.getValueBoolean("cef_verbose_log");
+                mCefRemoteDebuggingPort = message_in.getValueU32("cef_remote_debugging_port");
             }
             else if (message_name == "size_change")
             {
@@ -911,7 +928,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
                 keyEvent(key_event, native_key_data);
 
-#elif LL_WINDOWS
+#else
                 std::string event = message_in.getValue("event");
                 LLSD native_key_data = message_in.getValueLLSD("native_key_data");
 
@@ -933,6 +950,13 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             {
                 mEnableMediaPluginDebugging = message_in.getValueBoolean("enable");
             }
+#if LL_LINUX
+            else if (message_name == "enable_pipewire_volume_catcher")
+            {
+                bool enable = message_in.getValueBoolean("enable");
+                mVolumeCatcher.onEnablePipeWireVolumeCatcher(enable);
+            }
+#endif
             if (message_name == "pick_file_response")
             {
                 LLSD file_list_llsd = message_in.getValueLLSD("file_list");
@@ -1095,6 +1119,28 @@ void MediaPluginCEF::keyEvent(dullahan::EKeyEvent key_event, LLSD native_key_dat
 
     mCEFLib->nativeKeyboardEventWin(msg, wparam, lparam);
 #endif
+
+#if LL_LINUX
+
+    uint32_t native_virtual_key = (uint32_t)(native_key_data["virtual_key"].asInteger());       // this is actually the SDL event.key.keysym.sym;
+    uint32_t native_virtual_key_win = (uint32_t)(native_key_data["virtual_key_win"].asInteger());
+    uint32_t native_modifiers = (uint32_t)(native_key_data["modifiers"].asInteger());
+
+    // only for non-printable keysyms, the actual text input is done in unicodeInput() below
+    if (native_virtual_key <= 0x1b || native_virtual_key >= 0x7f)
+    {
+        // set keypad flag, not sure if this even does anything
+        bool keypad = false;
+        if (native_virtual_key_win >= 0x60 && native_virtual_key_win <= 0x6f)
+        {
+            keypad = true;
+        }
+
+        // yes, we send native_virtual_key_win twice because native_virtual_key breaks it
+        mCEFLib->nativeKeyboardEventSDL2(key_event, native_virtual_key, native_modifiers, keypad);
+    }
+
+#endif // LL_LINUX
 };
 
 void MediaPluginCEF::unicodeInput(std::string event, LLSD native_key_data = LLSD::emptyMap())
@@ -1125,6 +1171,16 @@ void MediaPluginCEF::unicodeInput(std::string event, LLSD native_key_data = LLSD
     U64 lparam = ll_U32_from_sd(native_key_data["l_param"]);
     mCEFLib->nativeKeyboardEventWin(msg, wparam, lparam);
 #endif
+
+#if LL_LINUX
+
+    uint32_t native_scan_code = (uint32_t)(native_key_data["sdl_sym"].asInteger());
+    uint32_t native_virtual_key = (uint32_t)(native_key_data["virtual_key"].asInteger());
+    uint32_t native_modifiers = (uint32_t)(native_key_data["modifiers"].asInteger());
+
+    mCEFLib->nativeKeyboardEvent(dullahan::KE_KEY_DOWN, native_scan_code, native_virtual_key, native_modifiers);
+
+#endif // LL_LINUX
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -175,9 +175,24 @@ bool LLWindowCallbacks::handlePaint(LLWindow *window, const S32 x, const S32 y,
     return false;
 }
 
-bool LLWindowCallbacks::handleDoubleClick(LLWindow *window, const LLCoordGL pos, MASK mask)
+bool LLWindowCallbacks::handleLeftMouseDoubleClick(LLWindow *window, const LLCoordGL pos, MASK mask)
 {
     return false;
+}
+
+bool LLWindowCallbacks::handleRightMouseDoubleClick(LLWindow* window, const LLCoordGL pos, MASK mask)
+{
+    // Fallback to right mouse events for double click in case
+    // some platforms don't support or implement double click events
+    handleMouseMove(window, pos, mask);
+    return handleRightMouseDown(window, pos, mask);
+}
+
+bool LLWindowCallbacks::handleMiddleMouseDoubleClick(LLWindow* window, const LLCoordGL pos, MASK mask)
+{
+    // Fallback to middle mouse events for double click in case
+    // some platforms don't support or implement double click events
+    return handleMiddleMouseDown(window, pos, mask);
 }
 
 void LLWindowCallbacks::handleWindowBlock(LLWindow *window)
@@ -202,7 +217,7 @@ bool LLWindowCallbacks::handleTimerEvent(LLWindow *window)
     return false;
 }
 
-bool LLWindowCallbacks::handleDeviceChange(LLWindow *window)
+bool LLWindowCallbacks::handleDeviceChange(LLWindow *window, const std::string& change_type)
 {
     return false;
 }

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -81,6 +81,7 @@ public:
 
     std::string getCPUString() const;
     const LLSD& getSSEVersions() const;
+    const LLSD& getSIMDVersions() const;
 
     bool hasAltivec() const;
     bool hasSSE() const;
@@ -90,6 +91,9 @@ public:
     bool hasSSE41() const;
     bool hasSSE42() const;
     bool hasSSE4a() const;
+    bool hasAVX() const;
+    bool hasAVX2() const;
+    bool hasAVX512F() const;
     F64 getMHz() const;
 
     // Family is "AMD Duron" or "Intel Pentium Pro"
@@ -103,11 +107,15 @@ private:
     bool mHasSSE41;
     bool mHasSSE42;
     bool mHasSSE4a;
+    bool mHasAVX;
+    bool mHasAVX2;
+    bool mHasAVX512F;
     bool mHasAltivec;
     F64 mCPUMHz;
     std::string mFamily;
     std::string mCPUString;
     LLSD mSSEVersions;
+    LLSD mSIMDVersions;
 };
 
 //=============================================================================
@@ -134,11 +142,12 @@ public:
     static U32Kilobytes getHardwareMemSize(); // Because some Mac linkers won't let us reference extern gSysMemory from a different lib.
 #endif
 
-    //get the available memory in KiloBytes.
-    static void getAvailableMemoryKB(U32Kilobytes& avail_mem_kb);
+    // Updates LLMemory's values.
+    static void updateAvailableMemory();
 
     // Retrieve a map of memory statistics. The keys of the map are platform-
-    // dependent. The values are in kilobytes to try to avoid integer overflow.
+    // dependent.
+    // On Windows updates LLMemory values.
     LLSD getStatsMap() const;
 
     // Re-fetch memory data (as reported by stream() and getStatsMap()) from the

@@ -4136,6 +4136,17 @@ void LLFolderBridge::perform_pasteFromClipboard()
         }
         else
         {
+            // Check that no folder is being pasted into itself or into one of its descendants
+            for (const LLUUID& item_id : objects)
+            {
+                LLInventoryCategory* cat = model->getCategory(item_id);
+                if (cat && (item_id == mUUID || model->isObjectDescendentOf(mUUID, item_id)))
+                {
+                    LLNotificationsUtil::add("CannotPasteFolderIntoSelf");
+                    return;
+                }
+            }
+
             // Check that all items can be moved into that folder : for the moment, only stock folder mismatch is checked
             for (std::vector<LLUUID>::const_iterator iter = objects.begin(); iter != objects.end(); ++iter)
             {
@@ -7203,8 +7214,8 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
         item = (LLViewerInventoryItem*)gInventory.getItem(object_id);
         if(item && gInventory.isObjectDescendentOf(object_id, gInventory.getRootFolderID()))
         {
-            static LLCachedControl<bool> replace_item(gSavedSettings, "InventoryAddAttachmentBehavior", false);
-            rez_attachment(item, NULL, ("attach" == action) ? replace_item() : true); // Replace if "Wear"ing.
+            static LLCachedControl<U32> add_attachment_behavior(gSavedSettings, "InventoryAddAttachmentBehavior", 0);
+            rez_attachment(item, NULL, ("attach" == action) ? (add_attachment_behavior() == 1) : true); // Replace if "Wear"ing.
         }
         else if(item && item->isFinished())
         {
@@ -7494,6 +7505,15 @@ bool LLObjectBridge::renameItem(const std::string& new_name)
 // +=================================================+
 // |        LLLSLTextBridge                          |
 // +=================================================+
+
+LLUIImagePtr LLLSLTextBridge::getIcon() const
+{
+    // Pass the item's flags so the script subtype (e.g. SST_LUA) is honored
+    // and the correct icon (Inv_Script vs Inv_Script_Luau) is selected.
+    LLInventoryItem* item = getItem();
+    U32 misc_flag = item ? item->getFlags() : 0;
+    return LLInventoryIcon::getIcon(LLAssetType::AT_LSL_TEXT, LLInventoryType::IT_LSL, misc_flag, false);
+}
 
 void LLLSLTextBridge::openItem()
 {
@@ -8352,8 +8372,8 @@ void LLObjectBridgeAction::attachOrDetach()
     }
     else
     {
-        static LLCachedControl<bool> inventory_linking(gSavedSettings, "InventoryAddAttachmentBehavior", false);
-        LLAppearanceMgr::instance().wearItemOnAvatar(mUUID, true, inventory_linking()); // Don't replace if adding.
+        static LLCachedControl<U32> add_attachment_behavior(gSavedSettings, "InventoryAddAttachmentBehavior", 0);
+        LLAppearanceMgr::instance().wearItemOnAvatar(mUUID, true, add_attachment_behavior() == 1); // Don't replace if adding.
     }
 }
 

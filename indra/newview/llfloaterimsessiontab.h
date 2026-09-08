@@ -38,7 +38,6 @@
 #include "llconversationview.h"
 #include "lltexteditor.h"
 
-class LLPanelChatControlPanel;
 class LLChatEntry;
 class LLChatHistory;
 class LLPanelEmojiComplete;

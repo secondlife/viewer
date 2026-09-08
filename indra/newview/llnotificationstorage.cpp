@@ -108,7 +108,10 @@ bool LLNotificationStorage::readNotifications(LLSD& pNotificationData, bool is_n
 {
     std::string filename = is_new_filename? mFileName : mOldFileName;
 
-    LL_INFOS("LLNotificationStorage") << "starting read '" << filename << "'" << LL_ENDL;
+    if (!filename.empty())
+    {
+        LL_INFOS("LLNotificationStorage") << "starting read '" << filename << "'" << LL_ENDL;
+    }
 
     bool didFileRead;
 
@@ -118,7 +121,17 @@ bool LLNotificationStorage::readNotifications(LLSD& pNotificationData, bool is_n
     didFileRead = notifyFile.is_open();
     if (!didFileRead)
     {
-        LL_WARNS("LLNotificationStorage") << "Failed to open file '" << filename << "'" << LL_ENDL;
+        if (!filename.empty())
+        {
+            if (LLFile::isfile(filename))
+            {
+                LL_WARNS("LLNotificationStorage") << "Failed to open file '" << filename << "'" << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS("LLNotificationStorage") << "File '" << filename << "' doesn't exist" << LL_ENDL;
+            }
+        }
     }
     else
     {
@@ -144,7 +157,10 @@ bool LLNotificationStorage::readNotifications(LLSD& pNotificationData, bool is_n
             if(didFileRead)
             {
                 writeNotifications(pNotificationData);
-                LLFile::remove(mOldFileName);
+                if (!mOldFileName.empty())
+                {
+                    LLFile::remove(mOldFileName, ENOENT);
+                }
             }
         }
     }

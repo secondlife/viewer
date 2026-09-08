@@ -192,12 +192,23 @@ LLInventoryModelBackgroundFetch::LLInventoryModelBackgroundFetch():
     mFetchCount(0),
     mLastFetchCount(0),
     mFetchFolderCount(0),
+    mInitialFetchDuration(0.f),
+    mInitialFetchDurationCaptured(false),
     mAllRecursiveFoldersFetched(false),
     mRecursiveInventoryFetchStarted(false),
     mRecursiveLibraryFetchStarted(false),
     mRecursiveMarketplaceFetchStarted(false),
     mMinTimeBetweenFetches(0.3f)
 {}
+
+void LLInventoryModelBackgroundFetch::markFetchStarted()
+{
+    if (!mBackgroundFetchActive)
+    {
+        mFetchStartTimer.reset();
+    }
+    mBackgroundFetchActive = true;
+}
 
 LLInventoryModelBackgroundFetch::~LLInventoryModelBackgroundFetch()
 {
@@ -289,7 +300,7 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& id, bool recursive)
         // it's a folder, do a bulk fetch
         LL_DEBUGS(LOG_INV) << "Start fetching category: " << id << ", recursive: " << recursive << LL_ENDL;
 
-        mBackgroundFetchActive = true;
+        markFetchStarted();
         mFolderFetchActive = true;
         EFetchType recursion_type = recursive ? FT_RECURSIVE : FT_DEFAULT;
         if (id.isNull())
@@ -376,7 +387,7 @@ void LLInventoryModelBackgroundFetch::scheduleFolderFetch(const LLUUID& cat_id, 
 {
     if (mFetchFolderQueue.empty() || mFetchFolderQueue.front().mUUID != cat_id)
     {
-        mBackgroundFetchActive = true;
+        markFetchStarted();
         mFolderFetchActive = true;
 
         if (forced)
@@ -403,7 +414,7 @@ void LLInventoryModelBackgroundFetch::scheduleItemFetch(const LLUUID& item_id, b
 {
     if (mFetchItemQueue.empty() || mFetchItemQueue.front().mUUID != item_id)
     {
-        mBackgroundFetchActive = true;
+        markFetchStarted();
         if (forced)
         {
             // check if already requested
@@ -447,7 +458,7 @@ void LLInventoryModelBackgroundFetch::fetchFolderAndLinks(const LLUUID& cat_id, 
                                });
 
     // start idle loop to track completion
-    mBackgroundFetchActive = true;
+    markFetchStarted();
     mFolderFetchActive = true;
     gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, nullptr);
 }
@@ -489,14 +500,14 @@ void LLInventoryModelBackgroundFetch::fetchCOF(nullary_func_t callback)
                      });
 
     // start idle loop to track completion
-    mBackgroundFetchActive = true;
+    markFetchStarted();
     mFolderFetchActive = true;
     gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, nullptr);
 }
 
 void LLInventoryModelBackgroundFetch::findLostItems()
 {
-    mBackgroundFetchActive = true;
+    markFetchStarted();
     mFolderFetchActive = true;
     mFetchFolderQueue.emplace_back(LLUUID::null, FT_RECURSIVE);
     gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, nullptr);
@@ -515,13 +526,18 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
     mFolderFetchActive = false;
     if (isBulkFetchProcessingComplete())
     {
+        if (mAllRecursiveFoldersFetched && !mInitialFetchDurationCaptured)
+        {
+            mInitialFetchDuration = mFetchStartTimer.getElapsedTimeF32();
+            mInitialFetchDurationCaptured = true;
+        }
         mBackgroundFetchActive = false;
     }
 
     // For now only informs about initial fetch being done
     mFoldersFetchedSignal();
 
-    LL_INFOS(LOG_INV) << "Inventory background fetch completed" << LL_ENDL;
+    LL_INFOS(LOG_INV) << "Inventory background fetch completed after: " << mFetchStartTimer.getElapsedTimeF32() << LL_ENDL;
 }
 
 boost::signals2::connection LLInventoryModelBackgroundFetch::setFetchCompletionCallback(folders_fetched_callback_t cb)
@@ -843,6 +859,11 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
 
     if (isBulkFetchProcessingComplete())
     {
+        if (mAllRecursiveFoldersFetched && !mInitialFetchDurationCaptured)
+        {
+            mInitialFetchDuration = mFetchStartTimer.getElapsedTimeF32();
+            mInitialFetchDurationCaptured = true;
+        }
         mBackgroundFetchActive = false;
     }
 }

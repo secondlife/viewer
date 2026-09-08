@@ -845,6 +845,11 @@ void LLFollowCamMgr::removeFollowCamParams(const LLUUID& source)
     delete params;
 }
 
+void LLFollowCamMgr::clearActiveFollowCamParams()
+{
+    mParamStack.clear();
+}
+
 bool LLFollowCamMgr::isScriptedCameraSource(const LLUUID& source)
 {
     param_map_t::iterator found_it = mParamMap.find(source);

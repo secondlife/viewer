@@ -177,6 +177,19 @@ void show_window_creation_error(const std::string& title)
     LL_WARNS("Window") << title << LL_ENDL;
 }
 
+static bool is_thread_from_current_process(DWORD thread_id)
+{
+    HANDLE thread_handle = OpenThread(THREAD_QUERY_LIMITED_INFORMATION, FALSE, thread_id);
+    if (!thread_handle)
+    {
+        return false;
+    }
+
+    const DWORD process_id = GetProcessIdOfThread(thread_handle);
+    CloseHandle(thread_handle);
+    return process_id == GetCurrentProcessId();
+}
+
 HGLRC SafeCreateContext(HDC &hdc)
 {
     __try
@@ -214,6 +227,7 @@ HKL     LLWindowWin32::sWinInputLocale = 0;
 DWORD   LLWindowWin32::sWinIMEConversionMode = IME_CMODE_NATIVE;
 DWORD   LLWindowWin32::sWinIMESentenceMode = IME_SMODE_AUTOMATIC;
 LLCoordWindow LLWindowWin32::sWinIMEWindowPosition(-1,-1);
+HMODULE LLWindowWin32::sGLDLLHandle = nullptr;
 
 static HWND sWindowHandleForMessageBox = NULL;
 
@@ -452,6 +466,16 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
             }
         });
     }
+
+    // For mainWindowProc, it should not unpause watchdog if it was paused
+    void pingWindowTimeout(std::string_view state)
+    {
+        if (mWindowTimeout && mWindowTimeout->started())
+        {
+            mWindowTimeout->setTimeout(WINDOW_TIMEOUT_SEC);
+            mWindowTimeout->ping(state);
+        }
+    }
 private:
     // These timeout related functions are strictly for the thread.
     void resumeTimeout(std::string_view state)
@@ -516,7 +540,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     mWindowThread = new LLWindowWin32Thread();
 
     //MAINT-516 -- force a load of opengl32.dll just in case windows went sideways
-    LoadLibrary(L"opengl32.dll");
+    sGLDLLHandle = LoadLibrary(L"opengl32.dll");
 
     // Request high-performance GPU before creating OpenGL context
     // This increases probability of discrete GPU being used when
@@ -1766,6 +1790,8 @@ const   S32   max_format  = (S32)num_formats - 1;
         return false;
     }
 
+    gGLManager.initWGL(); // Reinit WGL functions once we have our full context
+
     if (!gGLManager.initGL())
     {
         LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"), LLError::LLUserWarningMsg::ERROR_INIT_FAILED);
@@ -2414,11 +2440,37 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_DEVICECHANGE:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_DEVICECHANGE");
+            window_imp->mWindowThread->pingWindowTimeout("WM_DEVICECHANGE");
+
+            // Log detailed device change information
+            std::string change_type = "UNKNOWN";
+            switch (w_param)
+            {
+            case DBT_DEVICEARRIVAL:           change_type = "DBT_DEVICEARRIVAL"; break;
+            case DBT_DEVICEREMOVECOMPLETE:    change_type = "DBT_DEVICEREMOVECOMPLETE"; break;
+            case DBT_DEVNODES_CHANGED:        change_type = "DBT_DEVNODES_CHANGED"; break;
+            case DBT_DEVICEQUERYREMOVE:       change_type = "DBT_DEVICEQUERYREMOVE"; break;
+            case DBT_DEVICEQUERYREMOVEFAILED: change_type = "DBT_DEVICEQUERYREMOVEFAILED"; break;
+            case DBT_DEVICEREMOVEPENDING:     change_type = "DBT_DEVICEREMOVEPENDING"; break;
+            case DBT_CONFIGCHANGED:           change_type = "DBT_CONFIGCHANGED"; break;
+            }
+
             if (w_param == DBT_DEVNODES_CHANGED || w_param == DBT_DEVICEARRIVAL)
             {
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleDeviceChange(window_imp));
+                WINDOW_IMP_POST(window_imp->mCallbacks->handleDeviceChange(window_imp, change_type));
 
                 return 1;
+            }
+            else if (l_param)
+            {
+                const auto* hdr = reinterpret_cast<const DEV_BROADCAST_HDR*>(l_param);
+                if (hdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE)
+                {
+                    // Might need to register for monitor device notifications
+                    // to get this message when monitor is suspended or resumed.
+                    // TODO: log monitor suspending and resuming.
+                    LL_INFOS("Window") << "DEVICEINTERFACE: " << change_type << LL_ENDL;
+                }
             }
             break;
         }
@@ -2426,6 +2478,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_PAINT:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_PAINT");
+            window_imp->mWindowThread->pingWindowTimeout("WM_PAINT");
             GetUpdateRect(window_imp->mWindowHandle, &update_rect, FALSE);
             update_width = update_rect.right - update_rect.left + 1;
             update_height = update_rect.bottom - update_rect.top + 1;
@@ -2480,10 +2533,23 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_ACTIVATEAPP:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_ACTIVATEAPP");
+            // Resolve ownership before deferring the work because thread IDs can
+            // be reused after a thread exits.
+            const bool activating_same_process_thread =
+                !w_param && is_thread_from_current_process(static_cast<DWORD>(l_param));
             window_imp->post([=]()
                 {
                     // This message should be sent whenever the app gains or loses focus.
                     BOOL activating = (BOOL)w_param;
+
+                    // Native dialogs run on a worker thread. Moving focus between
+                    // the viewer and one of those dialogs must not be treated as
+                    // switching to another application: in fullscreen that would
+                    // minimize the viewer and hide its owned dialog.
+                    if (!activating && activating_same_process_thread)
+                    {
+                        activating = TRUE;
+                    }
 
                     if (window_imp->mFullscreen)
                     {
@@ -2557,6 +2623,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_CLOSE:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_CLOSE");
+            window_imp->mWindowThread->pingWindowTimeout("WM_CLOSE");
 
             window_imp->mCallbacks->handlePreCloseRequest(); // mark app as potentially closing
             if (!window_imp->mReceivedSCClose)
@@ -2625,6 +2692,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // Comes after WM_QUERYENDSESSION
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_ENDSESSION");
             LL_INFOS("Window") << "Received WM_ENDSESSION with wParam: " << (U32)w_param << " lParam: " << (U32)l_param << LL_ENDL;
+            window_imp->mWindowThread->pingWindowTimeout("WM_ENDSESSION");
             unsigned int end_session_flags = (U32)l_param;
 
             if (w_param == TRUE // if true, session is ending
@@ -2693,6 +2761,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 return TRUE;
 
             default:
+                LL_INFOS("Window") << "Received WM_POWERBROADCAST with wParam: 0x" << std::hex << (uintptr_t)w_param << " lParam: 0x" << (uintptr_t)l_param << std::dec << LL_ENDL;
                 break;
             }
             break;
@@ -3018,8 +3087,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_LBUTTONDBLCLK");
             window_imp->postMouseButtonEvent([=]()
                 {
-                    //RN: ignore right button double clicks for now
-                    //case WM_RBUTTONDBLCLK:
                     if (!sHandleDoubleClick)
                     {
                         sHandleDoubleClick = true;
@@ -3029,7 +3096,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
                     // generate move event to update mouse coordinates
                     window_imp->mCursorPosition = window_coord;
-                    window_imp->mCallbacks->handleDoubleClick(window_imp, window_imp->mCursorPosition.convert(), mask);
+                    window_imp->mCallbacks->handleLeftMouseDoubleClick(window_imp, window_imp->mCursorPosition.convert(), mask);
                 });
 
             return 0;
@@ -3058,6 +3125,24 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             return 0;
         }
         case WM_RBUTTONDBLCLK:
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_RBUTTONDBLCLK");
+            window_imp->postMouseButtonEvent([=]()
+            {
+                if (!sHandleDoubleClick)
+                {
+                    sHandleDoubleClick = true;
+                    return;
+                }
+                MASK mask = gKeyboard->currentMask(true);
+
+                // generate move event to update mouse coordinates
+                window_imp->mCursorPosition = window_coord;
+                window_imp->mCallbacks->handleRightMouseDoubleClick(window_imp, window_imp->mCursorPosition.convert(), mask);
+            });
+
+            return 0;
+        }
         case WM_RBUTTONDOWN:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_RBUTTONDOWN");
@@ -3095,6 +3180,25 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         break;
 
+        case WM_MBUTTONDBLCLK:
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_MBUTTONDBLCLK");
+            window_imp->postMouseButtonEvent([=]()
+            {
+                if (!sHandleDoubleClick)
+                {
+                    sHandleDoubleClick = true;
+                    return;
+                }
+                MASK mask = gKeyboard->currentMask(true);
+
+                // generate move event to update mouse coordinates
+                window_imp->mCursorPosition = window_coord;
+                window_imp->mCallbacks->handleMiddleMouseDoubleClick(window_imp, window_imp->mCursorPosition.convert(), mask);
+            });
+            return 0;
+        }
+
         case WM_MBUTTONDOWN:
             //      case WM_MBUTTONDBLCLK:
         {
@@ -3112,6 +3216,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                         window_imp->mCallbacks->handleMiddleMouseDown(window_imp, window_imp->mCursorPosition.convert(), mask);
                     });
             }
+            return 0;
         }
         break;
 
@@ -3128,6 +3233,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             }
         }
         break;
+        case WM_XBUTTONDBLCLK:
+            // TODO: not supported yet.
+            // Fall through to WM_XBUTTONDOWN for now.
         case WM_XBUTTONDOWN:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_XBUTTONDOWN");
@@ -3348,6 +3456,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_DPICHANGED:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_DPICHANGED");
+            window_imp->mWindowThread->pingWindowTimeout("WM_DPICHANGED");
             LPRECT lprc_new_scale;
             F32 new_scale = F32(LOWORD(w_param)) / F32(USER_DEFAULT_SCREEN_DPI);
             lprc_new_scale = (LPRECT)l_param;
@@ -3369,6 +3478,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_DISPLAYCHANGE:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_DISPLAYCHANGE");
+            window_imp->mWindowThread->pingWindowTimeout("WM_DISPLAYCHANGE");
             window_imp->post([=]() {
                 window_imp->mCallbacks->handleDisplayChanged();
                 // Note: WM_DISPLAYCHANGE was passing to WM_SETFOCUS
@@ -3417,6 +3527,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_SETTINGCHANGE:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SETTINGCHANGE");
+            // Can be called on OS user switching
+            LL_INFOS("Window") << "WM_SETTINGCHANGE, with wParam: 0x" << std::hex << (uintptr_t)w_param << " lParam: 0x" << (uintptr_t)l_param << std::dec << LL_ENDL;
+            window_imp->mWindowThread->pingWindowTimeout("WM_SETTINGCHANGE");
             if (w_param == SPI_SETMOUSEVANISH)
             {
                 if (!SystemParametersInfo(SPI_GETMOUSEVANISH, 0, &window_imp->mMouseVanish, 0))
@@ -4951,6 +5064,16 @@ void LLWindowWin32::requestHighPerformanceGPU() const
                             << ", Vendor: 0x" << std::hex << desc.VendorId << std::dec
                             << ", Flags: " << desc.Flags << LL_ENDL;
                     }
+                    // Skip Microsoft Basic Render Driver, it's a placeholder for missing drivers
+                    else if (description.find("Microsoft Basic Render Driver") != std::string::npos)
+                    {
+                        // User is likely missing drivers, so log a warning.
+                        // Don't consider this adapter as a valid selection.
+                        LL_WARNS("Window") << "Adapter " << adapterIndex << ": " << description
+                            << ", Dedicated VRAM: " << (desc.DedicatedVideoMemory / 1024 / 1024) << " MB"
+                            << ", Vendor: 0x" << std::hex << desc.VendorId << std::dec
+                            << ", Flags: " << desc.Flags << LL_ENDL;
+                    }
                     else
                     {
                         LL_INFOS("Window") << "Adapter " << adapterIndex << ": " << description
@@ -5234,6 +5357,18 @@ F32 LLWindowWin32::getSystemUISize()
 }
 
 //static
+PROC WINAPI LLWindowWin32::getProcAddress(const char* func)
+{
+    PROC ret_func = wglGetProcAddress(func);
+    if (!ret_func && sGLDLLHandle)
+    {
+        // Try to fallback to OpenGL32.dll
+        ret_func = GetProcAddress(sGLDLLHandle, func);
+    }
+    return ret_func;
+}
+
+//static
 std::vector<std::string> LLWindowWin32::getDisplaysResolutionList()
 {
     return sMonitorInfo.getResolutionsList();
@@ -5245,12 +5380,25 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
     // Fonts previously in getFontListSans() have moved to fonts.xml.
     return std::vector<std::string>();
 }
+
+LLFontFallbackMatch LLWindowWin32::findFallbackFontForChar(llwchar wch)
+{
+    // Not implemented on Windows; would use DirectWrite (IDWriteFontFallback::MapCharacters).
+    return LLFontFallbackMatch();
+}
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
     : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, false)
 {
     LL::ThreadPool::start();
+
+    // Set thread name for the window thread
+    // This will make it distinguishable in Visual Studio debugger
+    post([this]()
+    {
+        SetThreadDescription(GetCurrentThread(), L"LLWindowWin32 Thread");
+    });
 }
 
 /**
@@ -5432,7 +5580,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
     }
 
     // Normally won't exist yet, but in case of re-init, make sure it's cleaned up
-    resumeTimeout("WindowThread");
+    resumeTimeout("Window:WindowThread");
 
     while (! getQueue().done())
     {
@@ -5443,23 +5591,25 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 
         if (mWindowHandleThrd != 0)
         {
-            pingTimeout("messages");
             MSG msg;
             BOOL status;
             if (mhDCThrd == 0)
             {
+                pingTimeout("Window:PeekMessage");
                 LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - PeekMessage");
                 logger.onChange("PeekMessage(", std::hex, mWindowHandleThrd, ")");
                 status = PeekMessage(&msg, mWindowHandleThrd, 0, 0, PM_REMOVE);
             }
             else
             {
+                pingTimeout("Window:GetMessage");
                 LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - GetMessage");
                 logger.always("GetMessage(", std::hex, mWindowHandleThrd, ")");
                 status = GetMessage(&msg, NULL, 0, 0);
             }
             if (status > 0)
             {
+                pingTimeout("Window:TranslateMessage");
                 logger.always("got MSG (", std::hex, msg.hwnd, ", ", msg.message,
                               ", ", msg.wParam, ")");
                 TranslateMessage(&msg);
@@ -5471,7 +5621,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - Function Queue");
-            pingTimeout("queue");
+            pingTimeout("Window:Queue");
             logger.onChange("runPending()");
             //process any pending functions
             getQueue().runPending();

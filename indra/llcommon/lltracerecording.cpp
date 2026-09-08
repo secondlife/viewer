@@ -32,11 +32,6 @@
 #include "lltracethreadrecorder.h"
 #include "llthread.h"
 
-inline F64 lerp(F64 a, F64 b, F64 u)
-{
-    return a + ((b - a) * u);
-}
-
 namespace LLTrace
 {
 
@@ -302,7 +297,7 @@ F64 Recording::getMean( const StatType<SampleAccumulator>& stat )
         {
             t = (F64)active_accumulator->getSampleCount() / (F64)div;
         }
-        return lerp(accumulator.getMean(), active_accumulator->getMean(), t);
+        return std::lerp(accumulator.getMean(), active_accumulator->getMean(), t);
     }
     else
     {
@@ -388,7 +383,7 @@ F64 Recording::getMean( const StatType<EventAccumulator>& stat )
         {
             t = (F64)active_accumulator->getSampleCount() / (F64)div;
         }
-        return lerp(accumulator.getMean(), active_accumulator->getMean(), t);
+        return std::lerp(accumulator.getMean(), active_accumulator->getMean(), t);
     }
     else
     {

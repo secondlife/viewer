@@ -67,6 +67,7 @@
 #include "llsdmessagereader.h"
 #include "llsdserialize.h"
 #include "llstring.h"
+#include "llzerocode.h"
 #include "lltransfermanager.h"
 #include "lluuid.h"
 #include "llxfermanager.h"
@@ -519,10 +520,11 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
         bool recv_resent = false;
         S32 num_acks = 0;
         S32 true_rcv_size = 0;
+        bool recv_packet_id_checked = false;
 
         U8* buffer = mTrueReceiveBuffer;
 
-        mTrueReceiveSize = receivePacketOrDrop((char *)mTrueReceiveBuffer);
+        mTrueReceiveSize = receivePacketOrDrop((char *)mTrueReceiveBuffer, recv_packet_id_checked);
         // If you want to dump all received packets into SecondLife.log, uncomment this
         //dumpPacketToLog();
 
@@ -686,7 +688,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
 
             if ( valid_packet )
             {
-                logValidMsg(cdp, host, recv_reliable, recv_resent, num_acks>0 );
+                logValidMsg(cdp, host, recv_reliable, recv_resent, num_acks>0, recv_packet_id_checked );
                 valid_packet = mTemplateMessageReader->readMessage(buffer, host);
             }
 
@@ -866,19 +868,37 @@ bool LLMessageSystem::computeDrop()
 bool LLMessageSystem::isHighPriorityMessage(const LLPacketBuffer& pkt) const
 {
     S32 size = pkt.getSize();
-    if (size < LL_PACKET_ID_SIZE + 1)
+
+    // avoid stepping out of bounds
+    const S32 MIN_VALID_PACKET_SIZE = LL_PACKET_ID_SIZE + 4;
+    if (size < MIN_VALID_PACKET_SIZE)
     {
         return false;
     }
 
-    // We want to prioritize crucial messages use to establish viewer <--> simulator connection,
+    // We want to prioritize crucial messages used to establish viewer <--> simulator connection,
     // which are all low-frequency. A simple approximation is to just prioritize all non high-
     // frequency messages.
     //
-    // High frequency messages use a single byte for message_id whereas all low- and medium-
-    // frequency messages have 255 at the first byte of the message_id (which is after the
-    // LL_PACKET_ID_SIZE bytes of packet_id).
-    return *((const U8*)pkt.getData() + LL_PACKET_ID_SIZE) == 255;
+    // High frequency messages use a single byte for message_id whereas medium- and low-
+    // frequency messages have 255 at the first byte (which is after the LL_PACKET_ID_SIZE
+    // bytes of packet_id).
+    const U8* header = (const U8*)pkt.getData() + LL_PACKET_ID_SIZE;
+    if (header[0] != 255)
+    {
+        // high-frequency message
+        return false;
+    }
+
+    // BUG: The low-frequency AvatarAppearance message will be ignored if its agent is unknown
+    // and the agent is created upon receipt of its first high-frequency ObjectUpdate message.
+    // This race condition will be exacerbated by our default prioritization strategy.
+    //
+    // WORKAROUND: All middle- and low-frequency messages are high-priority except AvatarAppearance
+    //
+    // AvatarAppearance is "Low 158" which means it is stored in four bytes: 0xff 0xff 0x00 0x9E
+    // the last two bytes represent 158 in a BigEndian U16
+    return header[1] != 255 && header[2] != 0 && header[3] != 158;
 }
 
 void LLMessageSystem::dropPackets(U32 num_to_drop)
@@ -891,8 +911,10 @@ void LLMessageSystem::setDropPercentage(F32 percent_to_drop)
     mDropPercentage = percent_to_drop;
 }
 
-S32 LLMessageSystem::receivePacketOrDrop(char* datap)
+S32 LLMessageSystem::receivePacketOrDrop(char* datap, bool& packet_id_already_checked)
 {
+    packet_id_already_checked = false;
+
     if (getNumBufferedPackets() > 0)
     {
         LLHost invalid_host;
@@ -905,6 +927,7 @@ S32 LLMessageSystem::receivePacketOrDrop(char* datap)
         S32 packet_size = pkt.getSize();
         mLastSender      = pkt.getHost();
         mLastReceivingIF = pkt.getReceivingInterface();
+        packet_id_already_checked = pkt.getPacketIDChecked();
 
         if (packet_size > 0)
         {
@@ -913,7 +936,8 @@ S32 LLMessageSystem::receivePacketOrDrop(char* datap)
         return packet_size;
     }
 
-    // Read directly from the socket.
+    // Read directly from the socket. checkPacketInID() has not run yet for
+    // this packet.
     bool drop = computeDrop();
     S32 packet_size = 0;
     if (LLProxy::isSOCKSProxyEnabled())
@@ -1034,10 +1058,24 @@ S32 LLMessageSystem::bufferInboundPacket()
             }
         }
 
-        // ACK inbound reliable packet ASAP
-        if (cdp && (data[0] & LL_RELIABLE_FLAG))
+        if (cdp)
         {
-            cdp->collectRAck(recv_packet_id);
+            // ACK inbound reliable packet ASAP
+            if ((data[0] & LL_RELIABLE_FLAG))
+            {
+                cdp->collectRAck(recv_packet_id);
+            }
+
+            // Check packet sequencing here, in true socket-arrival order, before
+            // this packet is sorted into the high/low priority inbound queue.
+            // Skip genuine duplicate resends, same as checkMessages()/logValidMsg()
+            // would do further downstream.
+            bool recv_resent = (data[0] & LL_RESENT_FLAG) != 0;
+            if (!recv_resent || !cdp->isDuplicateResend(recv_packet_id))
+            {
+                cdp->checkPacketInID(recv_packet_id, recv_resent);
+                pkt.setPacketIDChecked(true);
+            }
         }
 
         if (isHighPriorityMessage(pkt))
@@ -1668,7 +1706,13 @@ void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
     }
 }
 
-void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, bool recv_reliable, bool recv_resent, bool recv_acks )
+void LLMessageSystem::logValidMsg(
+        LLCircuitData *cdp,
+        const LLHost& host,
+        bool recv_reliable,
+        bool recv_resent,
+        bool recv_acks,
+        bool skip_packet_id_check )
 {
     if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
     {
@@ -1685,8 +1729,13 @@ void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, bool r
 
     if (cdp)
     {
-        // update circuit packet ID tracking (missing/out of order packets)
-        cdp->checkPacketInID( mCurrentRecvPacketID, recv_resent );
+        if (!skip_packet_id_check)
+        {
+            // update circuit packet ID tracking (missing/out of order packets)
+            // Already done in bufferInboundPacket(), in true socket-arrival
+            // order, if this packet came off the high/low priority queues.
+            cdp->checkPacketInID( mCurrentRecvPacketID, recv_resent );
+        }
         cdp->addBytesIn( (S32Bytes)mTrueReceiveSize );
     }
 
@@ -2643,7 +2692,7 @@ void dump_prehash_files()
 {
     U32 i;
     std::string filename("../../indra/llmessage/message_prehash.h");
-    LLFILE* fp = LLFile::fopen(filename, "w");  /* Flawfinder: ignore */
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("w"));  /* Flawfinder: ignore */
     if (fp)
     {
         fprintf(
@@ -2674,7 +2723,7 @@ void dump_prehash_files()
         fclose(fp);
     }
     filename = std::string("../../indra/llmessage/message_prehash.cpp");
-    fp = LLFile::fopen(filename, "w");  /* Flawfinder: ignore */
+    fp = LLFile::fopen(filename, LLFILE_MODE("w"));  /* Flawfinder: ignore */
     if (fp)
     {
         fprintf(
@@ -2906,6 +2955,7 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
 
 void end_messaging_system(bool print_summary)
 {
+    LL_PROFILE_ZONE_SCOPED;
     gTransferManager.cleanup();
     LLTransferTargetVFile::updateQueue(true); // shutdown LLTransferTargetVFile
     if (gMessageSystem)
@@ -3011,85 +3061,6 @@ U32 LLMessageSystem::getListenPort( void ) const
     return mPort;
 }
 
-// TODO: babbage: remove this horror!
-S32 LLMessageSystem::zeroCodeAdjustCurrentSendTotal()
-{
-    if(mMessageBuilder == mLLSDMessageBuilder)
-    {
-        // babbage: don't compress LLSD messages, so delta is 0
-        return 0;
-    }
-
-    if (! mMessageBuilder->isBuilt())
-    {
-        mSendSize = mMessageBuilder->buildMessage(
-            mSendBuffer,
-            MAX_BUFFER_SIZE,
-            0);
-    }
-    // TODO: babbage: remove this horror
-    mMessageBuilder->setBuilt(false);
-
-    S32 count = mSendSize;
-
-    S32 net_gain = 0;
-    U8 num_zeroes = 0;
-
-    U8 *inptr = (U8 *)mSendBuffer;
-
-// skip the packet id field
-
-    for (U32 ii = 0; ii < LL_PACKET_ID_SIZE; ++ii)
-    {
-        count--;
-        inptr++;
-    }
-
-// don't actually build, just test
-
-// sequential zero bytes are encoded as 0 [U8 count]
-// with 0 0 [count] representing wrap (>256 zeroes)
-
-    while (count--)
-    {
-        if (!(*inptr))   // in a zero count
-        {
-            if (num_zeroes)
-            {
-                if (++num_zeroes > 254)
-                {
-                    num_zeroes = 0;
-                }
-                net_gain--;   // subseqent zeroes save one
-            }
-            else
-            {
-                net_gain++;  // starting a zero count adds one
-                num_zeroes = 1;
-            }
-            inptr++;
-        }
-        else
-        {
-            if (num_zeroes)
-            {
-                num_zeroes = 0;
-            }
-            inptr++;
-        }
-    }
-    if (net_gain < 0)
-    {
-        return net_gain;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-
-
 S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
 {
     if ((*data_size ) < LL_MINIMUM_VALID_PACKET_SIZE)
@@ -3110,74 +3081,18 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
     mCompressedPacketsIn++;
     mCompressedBytesIn += *data_size;
 
-    *data[0] &= (~LL_ZERO_CODE_FLAG);
-
-    S32 count = (*data_size);
-
-    U8 *inptr = (U8 *)*data;
-    U8 *outptr = (U8 *)mEncodedRecvBuffer;
-
-// skip the packet id field
-
-    for (U32 ii = 0; ii < LL_PACKET_ID_SIZE; ++ii)
+    bool overflow = false;
+    U32 decoded_size = LLZeroCode::decode(*data, (U32)*data_size,
+                                           mEncodedRecvBuffer, sizeof(mEncodedRecvBuffer),
+                                           LL_PACKET_ID_SIZE, overflow);
+    if (overflow)
     {
-        count--;
-        *outptr++ = *inptr++;
-    }
-
-// reconstruct encoded packet, keeping track of net size gain
-
-// sequential zero bytes are encoded as 0 [U8 count]
-// with 0 0 [count] representing wrap (>256 zeroes)
-
-    while (count--)
-    {
-        if (outptr > (&mEncodedRecvBuffer[MAX_BUFFER_SIZE-1]))
-        {
-            LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size 1" << LL_ENDL;
-            callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
-            outptr = mEncodedRecvBuffer;
-            break;
-        }
-        if (!((*outptr++ = *inptr++)))
-        {
-            while (((count--)) && (!(*inptr)))
-            {
-                *outptr++ = *inptr++;
-                if (outptr > (&mEncodedRecvBuffer[MAX_BUFFER_SIZE-256]))
-                {
-                    LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size 2" << LL_ENDL;
-                    callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
-                    outptr = mEncodedRecvBuffer;
-                    count = -1;
-                    break;
-                }
-                memset(outptr,0,255);
-                outptr += 255;
-            }
-
-            if (count < 0)
-            {
-                break;
-            }
-
-            else
-            {
-                if (outptr > (&mEncodedRecvBuffer[MAX_BUFFER_SIZE-(*inptr)]))
-                {
-                    LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size 3" << LL_ENDL;
-                    callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
-                    outptr = mEncodedRecvBuffer;
-                }
-                memset(outptr,0,(*inptr) - 1);
-                outptr += ((*inptr) - 1);
-                inptr++;
-            }
-        }
+        LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size" << LL_ENDL;
+        callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
     }
 
     *data = mEncodedRecvBuffer;
-    *data_size = (S32)(outptr - mEncodedRecvBuffer);
+    *data_size = (S32)decoded_size;
     mUncompressedBytesIn += *data_size;
 
     return(in_size);

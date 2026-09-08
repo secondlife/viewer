@@ -296,18 +296,21 @@ static void delete_buffers(S32 count, GLuint* buffers)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
     // wait a few frames before actually deleting the buffers to avoid
     // synchronization issues with the GPU
-    static std::vector<GLuint> sFreeList[4];
+    constexpr U32 BUCKET_COUNT = 4;
+    static std::vector<GLuint> sFreeList[BUCKET_COUNT];
 
     if (gGLManager.mInited)
     {
-        U32 idx = LLImageGL::sFrameCount % 4;
+        // Move current frame to free list
+        U32 idx = LLImageGL::sFrameCount % BUCKET_COUNT;
 
         for (S32 i = 0; i < count; ++i)
         {
             sFreeList[idx].push_back(buffers[i]);
         }
 
-        idx = (LLImageGL::sFrameCount + 3) % 4;
+        // Clear frame -3 (equals +1), this idx will be written over on the next call
+        idx = (LLImageGL::sFrameCount + 1) % BUCKET_COUNT;
 
         if (!sFreeList[idx].empty())
         {
