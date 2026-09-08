@@ -293,7 +293,7 @@ void LLFollowCam::update()
 
     LLVector3 simulated_pos_agent = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
     LLVector3 vectorFromCameraToSubject = offsetSubjectPosition - simulated_pos_agent;
-    F32 distanceFromCameraToSubject = vectorFromCameraToSubject.magVec();
+    // F32 distanceFromCameraToSubject = vectorFromCameraToSubject.magVec();
 
     LLVector3 whereFocusWantsToBe = mFocus;
     LLVector3 focus_pt_agent = gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal);
@@ -412,15 +412,20 @@ void LLFollowCam::update()
             simulated_pos_agent = lerp( simulated_pos_agent, whereCameraPositionWantsToBe, positionPullLerp );
         }
 
-        //--------------------------------------------------------------------
-        // don't let the camera get farther than its official max distance
-        //--------------------------------------------------------------------
-        const F32 target_camera_distance = llmin(mSimulatedDistance, mMaxCameraDistantFromSubject);
-        const F32 updated_distance_from_camera_to_subject = (offsetSubjectPosition - simulated_pos_agent).magVec();
-        if ( updated_distance_from_camera_to_subject > target_camera_distance )
+        // Keep the simulated camera within the effective follow distance:
+        // - Keep requested distance capped by the viewer's maximum.
+        // - Rebuild its position from the subject-relative offset so a moving
+        // avatar follows the intended camera geometry rather than the prior
+        // camera position.
+        // - Applied after position lag, which can move the simulated camera beyond
+        //  its distance limit.
+        const F32 camera_distance_limit = llmin(mSimulatedDistance, mMaxCameraDistantFromSubject);
+        const F32 distance_after_position_lag = (offsetSubjectPosition - simulated_pos_agent).magVec();
+        if ( distance_after_position_lag > camera_distance_limit )
         {
+            const F32 camera_distance_scale = camera_distance_limit / mSimulatedDistance;
             simulated_pos_agent = offsetSubjectPosition -
-                (positionOffsetFromSubject * (target_camera_distance / mSimulatedDistance));
+                (positionOffsetFromSubject * camera_distance_scale);
         }
 
         ////-------------------------------------------------------------------------------------------------
