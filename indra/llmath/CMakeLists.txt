@@ -132,4 +132,9 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(v3math v3math.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(v4math v4math.cpp "${test_libs}")
   LL_ADD_INTEGRATION_TEST(xform xform.cpp "${test_libs}")
+  # Parallel doctest migration target (Issue #4445). Coexists with TUT until cutover.
+  if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests_doctest/CMakeLists.txt")
+    add_subdirectory(tests_doctest)
+  endif()
+
 endif (LL_TESTS)

@@ -24,6 +24,9 @@ set(test_lib_HEADER_FILES
     llsdtraits.h
     lltestapp.h
     lltut.h
+    lltest_harness.h
+    ll_doctest_helpers.h
+    tut_compat_doctest.h
     namedtempfile.h
     print.h
     setenv.h

@@ -21,6 +21,7 @@ set(cmake_SOURCE_FILES
         DeploySharedLibs.cmake
         Discord.cmake
         DragDrop.cmake
+        Doctest.cmake
         EXPAT.cmake
         FindAutobuild.cmake
         FindPipeWire.cmake
