@@ -126,20 +126,27 @@ bool LLDirIterator::Impl::next(std::string &fname)
     {
         while (mIter != end_itr && !found)
         {
-            boost::smatch match;
-            std::string name = mIter->path().filename().string();
-            found = ll_regex_match(name, match, mFilterExp);
-            if (found)
+            try
             {
-                fname = name;
+                boost::smatch match;
+                std::string name = fsyspath(mIter->path().filename()).string();
+                found = ll_regex_match(name, match, mFilterExp);
+                if (found)
+                {
+                    fname = name;
+                }
+            }
+            catch (const std::system_error& e)
+            {
+                LL_WARNS() << "Exception accessing directory entry: " << e.what() << LL_ENDL;
             }
 
             ++mIter;
         }
     }
-    catch (const fs::filesystem_error& e)
+    catch (const std::system_error& e)
     {
-        LL_WARNS() << e.what() << LL_ENDL;
+        LL_WARNS() << "Exception iterating directory: " << e.what() << LL_ENDL;
     }
 
     return found;
