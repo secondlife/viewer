@@ -158,7 +158,7 @@ static void updateFocusedLinksetObject(LLViewerObject* objectp)
             {
                 LLVOAvatar::attachment_map_t::iterator curiter = iter++;
                 LLViewerJointAttachment* attachment = curiter->second;
-                if (!attachment)
+                if (!attachment || !attachment->getValid())
                 {
                     continue;
                 }
