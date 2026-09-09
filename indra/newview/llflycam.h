@@ -31,27 +31,11 @@
 #include "v3math.h"
 #include "v3dmath.h"
 
-// Modes the unified camera controller can be in. Only FREE_FLY is wired up
-// today (legacy joystick + game-control flycam); the rest are populated as
-// LLAgentCamera's other camera behaviors are migrated in.
-enum class CameraControllerMode
-{
-    THIRD_PERSON,      // avatar-anchored orbit; camera follows avatar body rotation
-    BUILD_FOCUS,       // free orbit around a focus point/object
-    APPEARANCE_EDITOR,  // orbit around avatar head
-    FOLLOW_CAM,        // LSL-driven Ventrella follow cam
-    MOUSELOOK,         // mouse-driven avatar/head look
-    FREE_FLY,          // legacy joystick + game-control flycam
-};
-
 class LLFlycam
 {
 public:
 
     LLFlycam() = default;
-
-    CameraControllerMode getMode() const { return mMode; }
-    void setMode(CameraControllerMode mode) { mMode = mode; }
 
     // Note: position is in global (region-independent) coordinates, since it
     // must remain valid across the region-origin rebases that happen when the
@@ -93,8 +77,6 @@ public:
                           bool direct_view, F32 direct_view_value);
 
 protected:
-    CameraControllerMode mMode { CameraControllerMode::FREE_FLY };
-
     LLVector3d mPosition;
     LLVector3 mLinearVelocity;
     LLQuaternion mRotation;

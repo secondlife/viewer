@@ -33,7 +33,6 @@
 #include "llcharacter.h"
 #include "llcoordframe.h"           // for mFrameAgent
 #include "llavatarappearancedefines.h"
-#include "llflycam.h"
 #include "llgamecontrol.h"
 #include "llkeyboard.h"
 #include "llpermissionsflags.h"
@@ -44,7 +43,6 @@
 
 #include <boost/signals2.hpp>
 
-#include <array>
 #include <functional>
 
 extern const bool   ANIMATE;
@@ -492,7 +490,10 @@ public:
     void            resetControlFlags();
     bool            anyControlGrabbed() const;      // True iff a script has taken over a control
     bool            isControlGrabbed(S32 control_index) const;
-    bool            isUsingFlycam() const { return mUsingFlycam; }
+    // Flycam's state now lives on LLAgentCamera (shared with LLViewerJoystick,
+    // which also drives it); these forward there so existing callers don't
+    // need to change.
+    bool            isUsingFlycam() const;
     void            toggleFlycam();
     // True while any flycam-like system (this one, or the legacy NDOF
     // joystick's own) is driving LLViewerCamera directly, for code that
@@ -539,26 +540,21 @@ public:
     void releaseGameControlButton(U8 button);
     U32 getGameControlButtonsFromKeys() const { return mGameControlButtonsFromKeys; }
 
-    void setFlycamKeyInput(U8 channel, F32 value) { mFlycamKeyInput[channel] = value; }
-    void setFlycamKeyReset(bool reset) { mFlycamKeyResetRequested = reset; }
+    void setFlycamKeyInput(U8 channel, F32 value);
+    void setFlycamKeyReset(bool reset);
 
 private:
 
-    U64 mLastFlycamUpdate { 0 };
     U32 mExternalActionFlags { 0 };
     U32 mGameControlButtonsFromKeys { 0 };
     // Previous frame's LLGameControl::AgentActions::mMouseButtonBits, used by
     // applyExternalActions() to find the press/release edges of the
     // level-triggered simulated mouse buttons.
     U32 mPrevMouseButtonBits { 0 };
-    LLFlycam mFlycam;
     bool mToggleRun { true };
-    bool mUsingFlycam { false };
-    std::array<F32, LLGameControl::FLYCAM_NUM_CHANNELS> mFlycamKeyInput {};
-    bool mFlycamKeyResetRequested { false };
 
     // CONTROL_MODE_CURSOR: toggled by AVATAR_ACTION_TOGGLE_MOUSE_CURSOR, same pattern
-    // as mUsingFlycam/toggleFlycam(). mLastMouseCursorUpdate is the previous frame's
+    // as LLAgentCamera's flycam toggle. mLastMouseCursorUpdate is the previous frame's
     // timestamp used to compute the cursor's per-frame movement delta; reset to 0
     // whenever the mode isn't active so re-entering doesn't jump the cursor.
     bool mUsingMouseCursor { false };

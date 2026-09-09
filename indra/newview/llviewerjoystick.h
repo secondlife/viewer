@@ -28,7 +28,6 @@
 #define LL_LLVIEWERJOYSTICK_H
 
 #include "stdtypes.h"
-#include "llflycam.h"
 
 #if LIB_NDOF
 #if LL_DARWIN
@@ -72,8 +71,9 @@ public:
     void setNeedsReset(bool reset = true) { mResetFlag = reset; }
     void setCameraNeedsUpdate(bool b)     { mCameraUpdated = b; }
     bool getCameraNeedsUpdate() const     { return mCameraUpdated; }
-    bool getOverrideCamera() { return mOverrideCamera; }
-    void setOverrideCamera(bool val);
+    // Flycam's state now lives on LLAgentCamera (shared with the game-control
+    // flycam); this just forwards.
+    bool getOverrideCamera();
     bool toggleFlycam();
     void setSNDefaults();
     bool isDeviceUUIDSet();
@@ -115,20 +115,18 @@ private:
     U32                     mJoystickRun { 0 };
     bool                    mResetFlag { false };
     bool                    mCameraUpdated { true };
-    bool                    mOverrideCamera { false };
     bool                    mDeviceIs3DConnexion { false };
 
     static F32              sLastDelta[7];
     static F32              sDelta[7];
 
-    // Flycam's transform now lives on LLFlycam (shared with the game-control
-    // flycam's engine); mFlycamDelta/mFlycamLastDelta are this device's own
-    // feathered-delta state feeding LLFlycam::applyFrameDelta(), kept
-    // separate from sDelta/sLastDelta above (which moveAvatar()/moveObjects()
-    // still use for non-flycam axis handling).
-    LLFlycam                mFlycam;
-    F32                     mFlycamDelta[7] { 0,0,0,0,0,0,0 };
-    F32                     mFlycamLastDelta[7] { 0,0,0,0,0,0,0 };
+    // This device's own feathered-delta state feeding
+    // LLAgentCamera::applyNdofFlycamFrameDelta() (which owns the shared flycam
+    // transform/engine, also used by the game-control flycam), kept separate
+    // from sDelta/sLastDelta above (which moveAvatar()/moveObjects() still
+    // use for non-flycam axis handling).
+    F32                     mJoystickFlycamDelta[7] { 0,0,0,0,0,0,0 };
+    F32                     mJoystickFlycamLastDelta[7] { 0,0,0,0,0,0,0 };
 };
 
 #endif
