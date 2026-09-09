@@ -196,6 +196,8 @@ static void updateFocusedLinksetObject(LLViewerObject* objectp)
                             gPipeline.updateMoveNormalAsync(bridgep);
                         }
                     }
+
+                    attached_object->updateText();
                 }
             }
         }
