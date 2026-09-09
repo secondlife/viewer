@@ -29,6 +29,20 @@
 #include "llcamera.h"
 #include "llquaternion.h"
 #include "v3math.h"
+#include "v3dmath.h"
+
+// Modes the unified camera controller can be in. Only FREE_FLY is wired up
+// today (legacy joystick + game-control flycam); the rest are populated as
+// LLAgentCamera's other camera behaviors are migrated in.
+enum class CameraControllerMode
+{
+    THIRD_PERSON,      // avatar-anchored orbit; camera follows avatar body rotation
+    BUILD_FOCUS,       // free orbit around a focus point/object
+    APPEARANCE_EDITOR,  // orbit around avatar head
+    FOLLOW_CAM,        // LSL-driven Ventrella follow cam
+    MOUSELOOK,         // mouse-driven avatar/head look
+    FREE_FLY,          // legacy joystick + game-control flycam
+};
 
 class LLFlycam
 {
@@ -36,8 +50,14 @@ public:
 
     LLFlycam() = default;
 
-    void setTransform(const LLVector3& position, const LLQuaternion& rotation);
-    void getTransform(LLVector3& position_out, LLQuaternion& rotation_out);
+    CameraControllerMode getMode() const { return mMode; }
+    void setMode(CameraControllerMode mode) { mMode = mode; }
+
+    // Note: position is in global (region-independent) coordinates, since it
+    // must remain valid across the region-origin rebases that happen when the
+    // agent crosses a region boundary while this transform is in use.
+    void setTransform(const LLVector3d& position, const LLQuaternion& rotation);
+    void getTransform(LLVector3d& position_out, LLQuaternion& rotation_out);
 
     void setView(F32 view);
     F32 getView() const { return mView; }
@@ -53,13 +73,29 @@ public:
     // the transition is in progress, integrate() ignores the rates set by
     // setLinearVelocity()/setPitchRate()/etc. and instead lerps toward the
     // target; normal input-driven integration resumes once it completes.
-    void startReset(const LLVector3& target_position, const LLQuaternion& target_rotation, F32 duration);
+    void startReset(const LLVector3d& target_position, const LLQuaternion& target_rotation, F32 duration);
     bool isResetting() const { return mResetTimeRemaining > 0.0f; }
 
     void integrate(F32 delta_time);
 
+    // Applies one frame of already-tuned deltas directly to the transform,
+    // bypassing the rate-based setPitchRate()/etc. + integrate() path. Used
+    // by input sources (the legacy NDOF joystick) that compute their own
+    // per-axis dead-zone/scale/feathering and only need this class to own
+    // the resulting transform update, so their feel is preserved exactly.
+    // 'local_delta' holds, in order: [0..2] local-frame translation delta
+    // (x,y,z); [3..5] rotation delta (roll,pitch,yaw, as fed to
+    // LLMatrix3(r,p,y)); [6] zoom delta added to the view angle (ignored if
+    // 'direct_view' is set, in which case 'direct_view_value' replaces the
+    // view angle outright).
+    void applyFrameDelta(const F32 local_delta[7],
+                          bool auto_level, F32 auto_level_fraction,
+                          bool direct_view, F32 direct_view_value);
+
 protected:
-    LLVector3 mPosition;
+    CameraControllerMode mMode { CameraControllerMode::FREE_FLY };
+
+    LLVector3d mPosition;
     LLVector3 mLinearVelocity;
     LLQuaternion mRotation;
     F32 mPitchRate { 0.0f };
@@ -71,9 +107,9 @@ protected:
     // Reset-in-progress state: integrate() lerps mPosition/mRotation from
     // mResetStart* to mResetTarget* as mResetTimeRemaining counts down from
     // mResetDuration to zero.
-    LLVector3 mResetStartPosition;
+    LLVector3d mResetStartPosition;
     LLQuaternion mResetStartRotation;
-    LLVector3 mResetTargetPosition;
+    LLVector3d mResetTargetPosition;
     LLQuaternion mResetTargetRotation;
     F32 mResetDuration { 0.0f };
     F32 mResetTimeRemaining { 0.0f };

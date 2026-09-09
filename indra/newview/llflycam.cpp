@@ -29,15 +29,16 @@
 #include <algorithm>
 #include "llcamera.h"
 #include "llcoordframe.h"
+#include "m3math.h"
 
-void LLFlycam::setTransform(const LLVector3& position, const LLQuaternion& rotation)
+void LLFlycam::setTransform(const LLVector3d& position, const LLQuaternion& rotation)
 {
     mPosition = position;
     mRotation = rotation;
     mRotation.normalize();
 }
 
-void LLFlycam::getTransform(LLVector3& position_out, LLQuaternion& rotation_out)
+void LLFlycam::getTransform(LLVector3d& position_out, LLQuaternion& rotation_out)
 {
     position_out = mPosition;
     rotation_out = mRotation;
@@ -90,7 +91,7 @@ void LLFlycam::setZoomRate(F32 zoom_rate)
 }
 
 
-void LLFlycam::startReset(const LLVector3& target_position, const LLQuaternion& target_rotation, F32 duration)
+void LLFlycam::startReset(const LLVector3d& target_position, const LLQuaternion& target_rotation, F32 duration)
 {
     mResetStartPosition = mPosition;
     mResetStartRotation = mRotation;
@@ -161,7 +162,7 @@ void LLFlycam::integrate(F32 delta_time)
 
     if (mLinearVelocity.lengthSquared() > 0.0f)
     {
-        mPosition += (delta_time * mLinearVelocity) * mRotation;
+        mPosition += LLVector3d((delta_time * mLinearVelocity) * mRotation);
     }
 
     if (mZoomRate != 0.0f)
@@ -174,5 +175,43 @@ void LLFlycam::integrate(F32 delta_time)
     if (needs_renormalization)
     {
         mRotation.normalize();
+    }
+}
+
+
+void LLFlycam::applyFrameDelta(const F32 local_delta[7],
+                                bool auto_level, F32 auto_level_fraction,
+                                bool direct_view, F32 direct_view_value)
+{
+    mPosition += LLVector3d(local_delta[VX], local_delta[VY], local_delta[VZ]) * mRotation;
+
+    LLMatrix3 rot_mat(local_delta[3], local_delta[4], local_delta[5]);
+    mRotation = LLQuaternion(rot_mat) * mRotation;
+
+    if (auto_level)
+    {
+        LLMatrix3 level(mRotation);
+
+        LLVector3 x = LLVector3(level.mMatrix[0]);
+        LLVector3 y = LLVector3(level.mMatrix[1]);
+        LLVector3 z = LLVector3(level.mMatrix[2]);
+
+        y.mV[2] = 0.f;
+        y.normVec();
+
+        level.setRows(x, y, z);
+        level.orthogonalize();
+
+        LLQuaternion quat(level);
+        mRotation = nlerp(auto_level_fraction, mRotation, quat);
+    }
+
+    if (direct_view)
+    {
+        setView(direct_view_value);
+    }
+    else
+    {
+        setView(mView + local_delta[6]);
     }
 }

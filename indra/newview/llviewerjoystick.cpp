@@ -1158,10 +1158,6 @@ void LLViewerJoystick::moveAvatar(bool reset)
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::moveFlycam(bool reset)
 {
-    static LLQuaternion         sFlycamRotation;
-    static LLVector3d           sFlycamPosition;
-    static F32                  sFlycamZoom;
-
     if (!gFocusMgr.getAppHasFocus() || mDriverState != JDS_INITIALIZED
         || !gSavedSettings.getBOOL("JoystickEnabled") || !gSavedSettings.getBOOL("JoystickFlycamEnabled"))
     {
@@ -1182,11 +1178,16 @@ void LLViewerJoystick::moveFlycam(bool reset)
     bool in_build_mode = LLToolMgr::getInstance()->inBuildMode();
     if (reset || mResetFlag)
     {
-        sFlycamPosition = gAgentCamera.getCameraPositionGlobal();
-        sFlycamRotation = LLViewerCamera::getInstance()->getQuaternion();
-        sFlycamZoom = LLViewerCamera::getInstance()->getView();
+        mFlycam.setTransform(gAgentCamera.getCameraPositionGlobal(), LLViewerCamera::getInstance()->getQuaternion());
+        mFlycam.setView(LLViewerCamera::getInstance()->getView());
 
-        resetDeltas(axis);
+        for (U32 i = 0; i < 6; i++)
+        {
+            mFlycamLastDelta[i] = -getJoystickAxis(axis[i]);
+            mFlycamDelta[i] = 0.f;
+        }
+        mFlycamLastDelta[6] = mFlycamDelta[6] = 0.f;
+        mResetFlag = false;
 
         return;
     }
@@ -1234,9 +1235,9 @@ void LLViewerJoystick::moveFlycam(bool reset)
         F32 tmp = cur_delta[i];
         if (absolute)
         {
-            cur_delta[i] = cur_delta[i] - sLastDelta[i];
+            cur_delta[i] = cur_delta[i] - mFlycamLastDelta[i];
         }
-        sLastDelta[i] = tmp;
+        mFlycamLastDelta[i] = tmp;
 
         if (cur_delta[i] > 0)
         {
@@ -1266,7 +1267,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
             cur_delta[i] *= time;
         }
 
-        sDelta[i] = sDelta[i] + (cur_delta[i]-sDelta[i])*time*feather;
+        mFlycamDelta[i] = mFlycamDelta[i] + (cur_delta[i]-mFlycamDelta[i])*time*feather;
 
         is_zero = is_zero && (cur_delta[i] == 0.f);
 
@@ -1285,43 +1286,20 @@ void LLViewerJoystick::moveFlycam(bool reset)
         }
     }
 
-    sFlycamPosition += LLVector3d(sDelta[VX], sDelta[VY], sDelta[VZ]) * sFlycamRotation;
+    bool auto_level = gSavedSettings.getBOOL("AutoLeveling");
+    F32 auto_level_fraction = llmin(feather*time, 1.f);
+    bool zoom_direct = gSavedSettings.getBOOL("ZoomDirect");
+    F32 direct_view_value = mFlycamLastDelta[6]*axis_scale[6]+dead_zone[6];
 
-    LLMatrix3 rot_mat(sDelta[3], sDelta[4], sDelta[5]);
-    sFlycamRotation = LLQuaternion(rot_mat)*sFlycamRotation;
+    mFlycam.applyFrameDelta(mFlycamDelta, auto_level, auto_level_fraction, zoom_direct, direct_view_value);
 
-    if (gSavedSettings.getBOOL("AutoLeveling"))
-    {
-        LLMatrix3 level(sFlycamRotation);
+    LLVector3d pos_global;
+    LLQuaternion rot;
+    mFlycam.getTransform(pos_global, rot);
+    LLMatrix3 mat(rot);
 
-        LLVector3 x = LLVector3(level.mMatrix[0]);
-        LLVector3 y = LLVector3(level.mMatrix[1]);
-        LLVector3 z = LLVector3(level.mMatrix[2]);
-
-        y.mV[2] = 0.f;
-        y.normVec();
-
-        level.setRows(x,y,z);
-        level.orthogonalize();
-
-        LLQuaternion quat(level);
-        sFlycamRotation = nlerp(llmin(feather*time,1.f), sFlycamRotation, quat);
-    }
-
-    if (gSavedSettings.getBOOL("ZoomDirect"))
-    {
-        sFlycamZoom = sLastDelta[6]*axis_scale[6]+dead_zone[6];
-    }
-    else
-    {
-        sFlycamZoom += sDelta[6];
-    }
-
-    LLMatrix3 mat(sFlycamRotation);
-
-    LLViewerCamera::getInstance()->setView(sFlycamZoom);
-    LLVector3 new_camera_pos = gAgent.getPosAgentFromGlobal(sFlycamPosition);
-    LLViewerCamera::getInstance()->setOrigin(new_camera_pos);
+    LLViewerCamera::getInstance()->setView(mFlycam.getView());
+    LLViewerCamera::getInstance()->setOrigin(gAgent.getPosAgentFromGlobal(pos_global));
     LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
     LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
     LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
