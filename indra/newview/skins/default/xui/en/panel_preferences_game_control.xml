@@ -76,11 +76,20 @@
                 width="140"
                 label="Restore Defaults"
                 tool_tip="Restores the default action mappings for the current mode."/>
+            <text
+                type="string"
+                name="current_mode_indicator"
+                layout="topleft"
+                follows="top|left|right"
+                top="32"
+                left="6"
+                right="-1"
+                height="16">Active mode: </text>
             <panel
                 name="action_mappings_panel"
                 layout="topleft"
                 follows="all"
-                top="36"
+                top="52"
                 left="1"
                 right="-1"
                 bottom="-1">
@@ -397,12 +406,12 @@
                 top="30"
                 left="9"
                 right="-9"
-                height="28">Data sent to the server: canonical axes/buttons, then the semantic axes/buttons for the current mode.</text>
+                height="42">Data sent to the server: canonical axes/buttons, then the semantic axes/buttons for the current mode.</text>
             <panel
                 name="data_panel"
                 layout="topleft"
                 follows="all"
-                top="52"
+                top="70"
                 left="1"
                 right="-1"
                 bottom="-1">
