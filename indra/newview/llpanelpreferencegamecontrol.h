@@ -138,6 +138,7 @@ private:
     void onActionModeChanged();      // rebuild the action table when the edit-mode selector changes
     void onModeEnabledToggled(bool enabled);  // toggle conversion for the currently-selected mode
     void updateActionModeEnabledUI();    // sync the Enabled checkbox and lock/unlock the tables
+    void updateCurrentModeIndicator();   //sync mode indicator
     LLComboBox* actionSelectorForMode(bool axis, const std::string& mode) const;  // default vs flycam selector
     void removeDuplicateActionInput(const std::string& mode, const std::string& kind,
         const std::string& keep_action, const std::string& input_value, const LLComboBox* input_selector);
@@ -175,6 +176,8 @@ private:
     LLComboBox* mActionMode { nullptr };            // selects which mode's mappings are edited
     LLCheckBoxCtrl* mCheckActionModeEnabled { nullptr };  // enables/disables the selected mode
     LLButton* mRestoreActionsDefaults { nullptr };
+    LLTextBox* mCurrentModeIndicator { nullptr };         //mode indicator
+    LLGameControl::AgentControlMode mLastDrawnControlMode { LLGameControl::CONTROL_MODE_NONE };
     LLScrollListCtrl* mActionMappingsAxes { nullptr };     // Action | Axis Input (axis action block)
     LLScrollListCtrl* mActionMappingsButtons { nullptr };  // Action | Buttons Input (button action block)
 
