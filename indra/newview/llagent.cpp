@@ -5335,6 +5335,11 @@ void LLAgent::toggleFlycam()
     }
 }
 
+bool LLAgent::isCameraExternallyDriven() const
+{
+    return mUsingFlycam || LLViewerJoystick::getInstance()->getOverrideCamera();
+}
+
 void LLAgent::toggleMouseCursorMode()
 {
     mUsingMouseCursor = !mUsingMouseCursor;
