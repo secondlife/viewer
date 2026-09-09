@@ -3564,26 +3564,32 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 
     if (mMediaSource || mUseEmbeddedBrowser)
     {
-        // FIXME: THIS IS SO WRONG.
-        // Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
-        if (MASK_CONTROL & mask && key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
+        // Previously swallowed every Ctrl+key combo here (other than
+        // Left/Right/Home/End) without forwarding it, on the theory that
+        // "menu keys should be handled by the menu system, not passed to UI
+        // elements." That's already true by construction well before this
+        // function is ever reached: LLViewerWindow::handleKey() checks
+        // gMenuBarView/gLoginMenuBarView/gEditMenu's own handleAcceleratorKey()
+        // for every Ctrl/Alt combo *before* dispatching to the focused
+        // widget's handleKey() (which is what eventually calls this). If a
+        // combo were actually bound to a real, enabled menu accelerator
+        // (e.g. Ctrl+A -> Edit > Select All), it would already have been
+        // consumed there and this function would never run at all -- so
+        // reaching this point already proves no menu accelerator claimed
+        // it. The blanket swallow was needlessly blocking every OTHER
+        // Ctrl+key combo (a page's own Ctrl+K/Ctrl+B/Ctrl+A-select-all-in-
+        // a-field, etc.) from ever reaching the browser, for embedded-
+        // browser media and the legacy plugin alike.
+        LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
+        if (mUseEmbeddedBrowser)
         {
+            LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
+                ll_U32_from_sd(native_key_data["msg"]), ll_U32_from_sd(native_key_data["w_param"]), ll_U32_from_sd(native_key_data["l_param"]));
             result = true;
         }
-
-        if (!result)
+        else
         {
-            LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
-            if (mUseEmbeddedBrowser)
-            {
-                LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
-                    ll_U32_from_sd(native_key_data["msg"]), ll_U32_from_sd(native_key_data["w_param"]), ll_U32_from_sd(native_key_data["l_param"]));
-                result = true;
-            }
-            else
-            {
-                result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN, key, mask, native_key_data);
-            }
+            result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN, key, mask, native_key_data);
         }
     }
 
@@ -3597,26 +3603,19 @@ bool LLViewerMediaImpl::handleKeyUpHere(KEY key, MASK mask)
 
     if (mMediaSource || mUseEmbeddedBrowser)
     {
-        // FIXME: THIS IS SO WRONG.
-        // Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
-        if (MASK_CONTROL & mask && key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
+        // See handleKeyHere()'s own comment -- the menu-accelerator system
+        // already had first crack at any Ctrl/Alt combo, upstream in
+        // LLViewerWindow::handleKey(), before this function is ever called.
+        LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
+        if (mUseEmbeddedBrowser)
         {
+            LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
+                ll_U32_from_sd(native_key_data["msg"]), ll_U32_from_sd(native_key_data["w_param"]), ll_U32_from_sd(native_key_data["l_param"]));
             result = true;
         }
-
-        if (!result)
+        else
         {
-            LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
-            if (mUseEmbeddedBrowser)
-            {
-                LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
-                    ll_U32_from_sd(native_key_data["msg"]), ll_U32_from_sd(native_key_data["w_param"]), ll_U32_from_sd(native_key_data["l_param"]));
-                result = true;
-            }
-            else
-            {
-                result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP, key, mask, native_key_data);
-            }
+            result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP, key, mask, native_key_data);
         }
     }
 
