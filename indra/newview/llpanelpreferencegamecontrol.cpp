@@ -734,6 +734,8 @@ bool LLPanelPreferenceGameControl::postBuild()
     mRestoreActionsDefaults = getChild<LLButton>("restore_actions_defaults");
     mRestoreActionsDefaults->setCommitCallback([this](LLUICtrl*, const LLSD&) { onResetActionsToDefaults(); });
 
+    mCurrentModeIndicator = getChild<LLTextBox>("current_mode_indicator");
+
     mActionMappingsAxes = getChild<LLScrollListCtrl>("action_mappings_axes");
     mActionMappingsAxes->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onGridSelect(ctrl); });
 
@@ -924,6 +926,7 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
 // tab is actually the visible one, so it costs nothing on the other tabs.
 void LLPanelPreferenceGameControl::draw()
 {
+    updateCurrentModeIndicator();
     if (mTabDeviceState && mTabDeviceState->getVisible())
     {
         populateDeviceStateValues();
@@ -1214,6 +1217,31 @@ void LLPanelPreferenceGameControl::updateActionModeEnabledUI()
     mActionMappingsAxes->setEnabled(enabled);
     mActionMappingsButtons->setEnabled(enabled);
     mRestoreActionsDefaults->setEnabled(enabled);
+}
+
+// Shows the live AgentControlMode independent of the mode being edited (mActionMode)
+void LLPanelPreferenceGameControl::updateCurrentModeIndicator()
+{
+    LLGameControl::AgentControlMode mode = LLGameControl::getAgentControlMode();
+    if (mode == mLastDrawnControlMode)
+    {
+        return; // no change, skip the string work
+    }
+    mLastDrawnControlMode = mode;
+
+    if (mCurrentModeIndicator)
+    {
+        static const std::map<LLGameControl::AgentControlMode, std::string> sDisplayNames = {
+            { LLGameControl::CONTROL_MODE_AVATAR,    "Moving Avatar" },
+            { LLGameControl::CONTROL_MODE_MOUSELOOK, "Mouselook" },
+            { LLGameControl::CONTROL_MODE_FLYCAM,    "FlyCam" },
+            { LLGameControl::CONTROL_MODE_CAPTIVE,   "Sitting" },
+            { LLGameControl::CONTROL_MODE_CURSOR,    "Mouse Cursor" },
+        };
+        auto it = sDisplayNames.find(mode);
+        std::string name = (it != sDisplayNames.end()) ? it->second : "None";
+        mCurrentModeIndicator->setText(std::string("Active mode: ") + name);
+    }
 }
 
 // Enforces that an input drives at most one action within a mode's block.  When a

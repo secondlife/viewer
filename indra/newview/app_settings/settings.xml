@@ -9968,7 +9968,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>10</integer>
+    <integer>0</integer>
   </map>
   <key>MaxAttachmentComplexity</key>
   <map>
