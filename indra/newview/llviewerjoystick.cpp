@@ -256,25 +256,16 @@ void LLViewerJoystick::updateEnabled(bool autoenable)
     }
     if (!gSavedSettings.getBOOL("JoystickEnabled"))
     {
-        mOverrideCamera = false;
+        if (gAgentCamera.isUsingFlycam())
+        {
+            gAgentCamera.toggleFlycam();
+        }
     }
 }
 
-void LLViewerJoystick::setOverrideCamera(bool val)
+bool LLViewerJoystick::getOverrideCamera()
 {
-    if (!gSavedSettings.getBOOL("JoystickEnabled"))
-    {
-        mOverrideCamera = false;
-    }
-    else
-    {
-        mOverrideCamera = val;
-    }
-
-    if (mOverrideCamera)
-    {
-        gAgentCamera.changeCameraToDefault();
-    }
+    return gAgentCamera.isUsingFlycam();
 }
 
 // -----------------------------------------------------------------------------
@@ -1178,15 +1169,14 @@ void LLViewerJoystick::moveFlycam(bool reset)
     bool in_build_mode = LLToolMgr::getInstance()->inBuildMode();
     if (reset || mResetFlag)
     {
-        mFlycam.setTransform(gAgentCamera.getCameraPositionGlobal(), LLViewerCamera::getInstance()->getQuaternion());
-        mFlycam.setView(LLViewerCamera::getInstance()->getView());
+        gAgentCamera.resetFlycamToCurrentView();
 
         for (U32 i = 0; i < 6; i++)
         {
-            mFlycamLastDelta[i] = -getJoystickAxis(axis[i]);
-            mFlycamDelta[i] = 0.f;
+            mJoystickFlycamLastDelta[i] = -getJoystickAxis(axis[i]);
+            mJoystickFlycamDelta[i] = 0.f;
         }
-        mFlycamLastDelta[6] = mFlycamDelta[6] = 0.f;
+        mJoystickFlycamLastDelta[6] = mJoystickFlycamDelta[6] = 0.f;
         mResetFlag = false;
 
         return;
@@ -1235,9 +1225,9 @@ void LLViewerJoystick::moveFlycam(bool reset)
         F32 tmp = cur_delta[i];
         if (absolute)
         {
-            cur_delta[i] = cur_delta[i] - mFlycamLastDelta[i];
+            cur_delta[i] = cur_delta[i] - mJoystickFlycamLastDelta[i];
         }
-        mFlycamLastDelta[i] = tmp;
+        mJoystickFlycamLastDelta[i] = tmp;
 
         if (cur_delta[i] > 0)
         {
@@ -1267,7 +1257,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
             cur_delta[i] *= time;
         }
 
-        mFlycamDelta[i] = mFlycamDelta[i] + (cur_delta[i]-mFlycamDelta[i])*time*feather;
+        mJoystickFlycamDelta[i] = mJoystickFlycamDelta[i] + (cur_delta[i]-mJoystickFlycamDelta[i])*time*feather;
 
         is_zero = is_zero && (cur_delta[i] == 0.f);
 
@@ -1289,20 +1279,9 @@ void LLViewerJoystick::moveFlycam(bool reset)
     bool auto_level = gSavedSettings.getBOOL("AutoLeveling");
     F32 auto_level_fraction = llmin(feather*time, 1.f);
     bool zoom_direct = gSavedSettings.getBOOL("ZoomDirect");
-    F32 direct_view_value = mFlycamLastDelta[6]*axis_scale[6]+dead_zone[6];
+    F32 direct_view_value = mJoystickFlycamLastDelta[6]*axis_scale[6]+dead_zone[6];
 
-    mFlycam.applyFrameDelta(mFlycamDelta, auto_level, auto_level_fraction, zoom_direct, direct_view_value);
-
-    LLVector3d pos_global;
-    LLQuaternion rot;
-    mFlycam.getTransform(pos_global, rot);
-    LLMatrix3 mat(rot);
-
-    LLViewerCamera::getInstance()->setView(mFlycam.getView());
-    LLViewerCamera::getInstance()->setOrigin(gAgent.getPosAgentFromGlobal(pos_global));
-    LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
-    LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
-    LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
+    gAgentCamera.applyNdofFlycamFrameDelta(mJoystickFlycamDelta, auto_level, auto_level_fraction, zoom_direct, direct_view_value);
 }
 
 // -----------------------------------------------------------------------------
@@ -1310,11 +1289,14 @@ bool LLViewerJoystick::toggleFlycam()
 {
     if (!gSavedSettings.getBOOL("JoystickEnabled") || !gSavedSettings.getBOOL("JoystickFlycamEnabled"))
     {
-        mOverrideCamera = false;
+        if (gAgentCamera.isUsingFlycam())
+        {
+            gAgentCamera.toggleFlycam();
+        }
         return false;
     }
 
-    if (!mOverrideCamera)
+    if (!gAgentCamera.isUsingFlycam())
     {
         gAgentCamera.changeCameraToDefault();
     }
@@ -1328,8 +1310,8 @@ bool LLViewerJoystick::toggleFlycam()
         gAwayTriggerTimer.reset();
     }
 
-    mOverrideCamera = !mOverrideCamera;
-    if (mOverrideCamera)
+    gAgentCamera.toggleFlycam();
+    if (gAgentCamera.isUsingFlycam())
     {
         moveFlycam(true);
 
@@ -1356,7 +1338,7 @@ void LLViewerJoystick::scanJoystick()
 #if LL_WINDOWS
     // On windows, the flycam is updated syncronously with a timer, so there is
     // no need to update the status of the joystick here.
-    if (!mOverrideCamera)
+    if (!getOverrideCamera())
 #endif
     updateStatus();
 
@@ -1381,7 +1363,7 @@ void LLViewerJoystick::scanJoystick()
         toggle_flycam = 0;
     }
 
-    if (!mOverrideCamera && !(LLToolMgr::getInstance()->inBuildMode() && gSavedSettings.getBOOL("JoystickBuildEnabled")))
+    if (!getOverrideCamera() && !(LLToolMgr::getInstance()->inBuildMode() && gSavedSettings.getBOOL("JoystickBuildEnabled")))
     {
         moveAvatar();
     }
