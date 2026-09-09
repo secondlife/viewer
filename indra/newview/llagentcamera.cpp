@@ -150,6 +150,9 @@ static void updateFocusedLinksetObject(LLViewerObject* objectp)
             }
 
             // Attachments have mixed movement sources. Preserve the same policy used by the normal avatar update path.
+            const bool attachment_selected =
+                LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 0 &&
+                LLSelectMgr::getInstance()->getSelection()->isAttachment();
             for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin();
                  iter != avatarp->mAttachmentPoints.end(); )
             {
@@ -179,7 +182,7 @@ static void updateFocusedLinksetObject(LLViewerObject* objectp)
 
                     if (!attached_drawablep->isState(LLDrawable::EARLY_MOVE))
                     {
-                        if (attached_object->isSelected())
+                        if (attachment_selected)
                         {
                             gPipeline.updateMoveNormalAsync(attached_drawablep);
                         }
