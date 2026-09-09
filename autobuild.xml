@@ -452,11 +452,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2c81fa7aa03b427088ab54ce3b71088a0003126b</string>
+              <string>08f1e0bdb1e58d900cd9e5b1503a53858315d515</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.26.0-CEF_139.0.40/dullahan-1.26.0.202510161627_139.0.40_g465474a_chromium-139.0.7258.139-darwin64-18568015445.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.42.0-CEF_152.0.6/dullahan-1.42.0.202609091842_152.0.6_g708dc14_chromium-152.0.7977.83-darwin64-34390368998.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -480,11 +480,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7ca6db37f019b47e230c0861607c546d45535367</string>
+              <string>5a8db00d07404f189427c98702da94ca0e3b326e</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.26.0-CEF_139.0.40/dullahan-1.26.0.202510161628_139.0.40_g465474a_chromium-139.0.7258.139-windows64-18568015445.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.42.0-CEF_152.0.6/dullahan-1.42.0.202609091842_152.0.6_g708dc14_chromium-152.0.7977.83-windows64-34390368998.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -497,7 +497,7 @@
         <key>copyright</key>
         <string>Copyright (c) 2017, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.26.0.202510161627_139.0.40_g465474a_chromium-139.0.7258.139</string>
+        <string>1.42.0.202609091842_152.0.6_g708dc14_chromium-152.0.7977.83</string>
         <key>name</key>
         <string>dullahan</string>
         <key>description</key>
