@@ -4645,7 +4645,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
     LLVector3 mouse_world_start = mouse_point_global;
     LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
 
-    if (!LLViewerJoystick::getInstance()->getOverrideCamera())
+    if (!gAgent.isCameraExternallyDriven())
     { //always set raycast intersection to mouse_world_end unless
         //flycam is on (for DoF effect)
         gDebugRaycastIntersection.load3(mouse_world_end.mV);

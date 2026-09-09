@@ -494,6 +494,11 @@ public:
     bool            isControlGrabbed(S32 control_index) const;
     bool            isUsingFlycam() const { return mUsingFlycam; }
     void            toggleFlycam();
+    // True while any flycam-like system (this one, or the legacy NDOF
+    // joystick's own) is driving LLViewerCamera directly, for code that
+    // needs to know the camera isn't under its usual control (e.g. tool
+    // selection, teleport look-at, camera-follow rendering).
+    bool            isCameraExternallyDriven() const;
     bool            isUsingMouseCursor() const { return mUsingMouseCursor; }
     void            toggleMouseCursorMode();
     // Send message to simulator to force grabbed controls to be
