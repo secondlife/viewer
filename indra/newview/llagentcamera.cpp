@@ -187,6 +187,11 @@ static void updateFocusedLinksetObject(LLViewerObject* objectp)
                         {
                             gPipeline.updateMoveDampedAsync(attached_drawablep);
                         }
+
+                        if (LLSpatialBridge* bridgep = attached_drawablep->getSpatialBridge())
+                        {
+                            gPipeline.updateMoveNormalAsync(bridgep);
+                        }
                     }
                 }
             }
