@@ -999,6 +999,11 @@ private:
 
     friend class LLMessageHandlerBridge;
     friend class LockMessageChecker;
+    // DEBUG/TESTING ONLY: lets LLMessageJsonBuilder (llmessagejsonbuilder.h)
+    // fabricate a message from a JSON description and, when simulating a
+    // received message, loop it back through the local decode path and
+    // invoke its registered handler -- see that class for details.
+    friend class LLMessageJsonBuilder;
 
     bool callHandler(const char *name, bool trustedSource,
                      LLMessageSystem* msg);

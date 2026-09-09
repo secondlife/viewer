@@ -2117,6 +2117,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>DebugInjectFakePackets</key>
+    <map>
+      <key>Comment</key>
+      <string>Testing only: let llOwnerSay chat starting with #PKT&lt; or #PKT&gt; fabricate a fake network message from JSON, either simulating receiving it or sending it to the region. Leave off outside of scripted test sessions.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DebugPermissions</key>
     <map>
       <key>Comment</key>

@@ -74,6 +74,7 @@
 #include "llinventorypanel.h"
 #include "llfloaterimnearbychat.h"
 #include "llmarketplacefunctions.h"
+#include "llmessagejsonbuilder.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llpanelgrouplandmoney.h"
@@ -2340,6 +2341,74 @@ void translateFailure(LLChat chat, LLSD toastArgs, int status, const std::string
 }
 
 
+// DEBUG/TESTING ONLY. Not used in production.
+//
+// Recognizes the "#PKT<"/"#PKT>" convention on llOwnerSay chat (see the
+// CHAT_TYPE_OWNER check at this function's only call site) that lets a
+// script fabricate a fake network packet for testing -- e.g. simulating the
+// viewer receiving a message the simulator can't send yet, or the viewer
+// sending one its UI has no builder for yet. Format:
+//   #PKT<{"Name":"MessageName", "SomeBlock":{...}, "SomeRepeatedBlock":[{...},{...}]}
+// "#PKT<" simulates *receiving* MessageName (built from the JSON, then run
+// through the message's real, already-registered handler). "#PKT>" builds
+// it the same way and actually *sends* it to the current region. Field
+// values need no wire-type tag -- see llmessagejsonbuilder.h/.cpp for the
+// per-field conversion rules, pulled from the message template. "@AGENTID@"
+// and "@SESSIONID@" anywhere in the JSON text are substituted with the
+// viewer's current agent/session UUID (as plain text, before parsing) so a
+// test payload can refer to "this session" without hardcoding a UUID.
+// Returns true if `mesg` matched the convention at all (so the caller
+// suppresses normal chat display even on a parse/build failure, which is
+// logged here).
+bool try_process_fake_packet_chat(const std::string& mesg)
+{
+    static const std::string RECEIVE_PREFIX("#PKT<");
+    static const std::string SEND_PREFIX("#PKT>");
+
+    bool is_receive = mesg.compare(0, RECEIVE_PREFIX.size(), RECEIVE_PREFIX) == 0;
+    bool is_send = !is_receive && mesg.compare(0, SEND_PREFIX.size(), SEND_PREFIX) == 0;
+    if (!is_receive && !is_send)
+    {
+        return false;
+    }
+
+    if (!gSavedSettings.getBOOL("DebugInjectFakePackets"))
+    {
+        return false;
+    }
+
+    std::string json_text = mesg.substr(RECEIVE_PREFIX.size());
+    LLStringUtil::replaceString(json_text, "@AGENTID@", gAgent.getID().asString());
+    LLStringUtil::replaceString(json_text, "@SESSIONID@", gAgent.getSessionID().asString());
+
+    boost::system::error_code ec;
+    boost::json::value body = boost::json::parse(json_text, ec);
+    if (ec.failed() || !body.is_object())
+    {
+        LL_WARNS("Messaging") << "Fake packet chat: invalid JSON: " << mesg << LL_ENDL;
+        return true;
+    }
+
+    const boost::json::value* name_val = body.as_object().if_contains("Name");
+    if (!name_val || !name_val->is_string())
+    {
+        LL_WARNS("Messaging") << "Fake packet chat: missing \"Name\": " << mesg << LL_ENDL;
+        return true;
+    }
+    std::string msg_name(name_val->get_string().c_str());
+
+    if (is_receive)
+    {
+        LLMessageJsonBuilder::simulateReceived(gMessageSystem, msg_name, body, gMessageSystem->getSender());
+    }
+    else if (LLMessageJsonBuilder::build(gMessageSystem, msg_name, body))
+    {
+        gMessageSystem->sendMessage(gAgent.getRegionHost());
+    }
+
+    return true;
+}
+
 void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 {
     if (gNonInteractive)
@@ -2458,6 +2527,12 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
         color.setVec(1.f,1.f,1.f,1.f);
         msg->getStringFast(_PREHASH_ChatData, _PREHASH_Message, mesg);
+
+        if (chat.mChatType == CHAT_TYPE_OWNER && try_process_fake_packet_chat(mesg))
+        {
+            return;
+        }
+
         // Preserve tabs from scripts by expanding them to spaces before any sanitization/formatting.
         LLStringUtil::replaceTabsWithSpaces(mesg, 4);
 

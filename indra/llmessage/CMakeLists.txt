@@ -38,6 +38,7 @@ set(llmessage_SOURCE_FILES
     llioutil.cpp
     llmessagebuilder.cpp
     llmessageconfig.cpp
+    llmessagejsonbuilder.cpp
     llmessagereader.cpp
     llmessagetemplate.cpp
     llmessagetemplateparser.cpp
@@ -122,6 +123,7 @@ set(llmessage_HEADER_FILES
     llloginflags.h
     llmessagebuilder.h
     llmessageconfig.h
+    llmessagejsonbuilder.h
     llmessagereader.h
     llmessagetemplate.h
     llmessagetemplateparser.h
