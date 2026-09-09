@@ -28,6 +28,7 @@
 #define LL_LLVIEWERJOYSTICK_H
 
 #include "stdtypes.h"
+#include "llflycam.h"
 
 #if LIB_NDOF
 #if LL_DARWIN
@@ -119,6 +120,15 @@ private:
 
     static F32              sLastDelta[7];
     static F32              sDelta[7];
+
+    // Flycam's transform now lives on LLFlycam (shared with the game-control
+    // flycam's engine); mFlycamDelta/mFlycamLastDelta are this device's own
+    // feathered-delta state feeding LLFlycam::applyFrameDelta(), kept
+    // separate from sDelta/sLastDelta above (which moveAvatar()/moveObjects()
+    // still use for non-flycam axis handling).
+    LLFlycam                mFlycam;
+    F32                     mFlycamDelta[7] { 0,0,0,0,0,0,0 };
+    F32                     mFlycamLastDelta[7] { 0,0,0,0,0,0,0 };
 };
 
 #endif

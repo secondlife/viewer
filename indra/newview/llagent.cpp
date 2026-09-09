@@ -5329,7 +5329,7 @@ void LLAgent::toggleFlycam()
     {
         // copy main camera transform to flycam
         LLViewerCamera* camera = LLViewerCamera::getInstance();
-        mFlycam.setTransform(camera->getOrigin(), camera->getQuaternion());
+        mFlycam.setTransform(getPosGlobalFromAgent(camera->getOrigin()), camera->getQuaternion());
         mFlycam.setView(camera->getView());
         mLastFlycamUpdate = LLFrameTimer::getTotalTime();
     }
@@ -5405,7 +5405,7 @@ void LLAgent::updateFlycam()
         LLCoordFrame target_frame;
         target_frame.lookAt(target_position, focus_point, LLVector3::z_axis);
 
-        mFlycam.startReset(target_position, target_frame.getQuaternion(), FLYCAM_RESET_DURATION);
+        mFlycam.startReset(getPosGlobalFromAgent(target_position), target_frame.getQuaternion(), FLYCAM_RESET_DURATION);
     }
 
     LLVector3 linear_velocity(
@@ -5422,9 +5422,10 @@ void LLAgent::updateFlycam()
 
     mFlycam.integrate(g_deltaTime);
 
-    LLVector3 pos;
+    LLVector3d pos_global;
     LLQuaternion rot;
-    mFlycam.getTransform(pos, rot);
+    mFlycam.getTransform(pos_global, rot);
+    LLVector3 pos = getPosAgentFromGlobal(pos_global);
     LLMatrix3 mat(rot);
     LLViewerCamera::getInstance()->setOrigin(pos);
     LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
