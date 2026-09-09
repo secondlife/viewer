@@ -5744,12 +5744,13 @@ void LLAppViewer::idle()
     {
         gAgentPilot.moveCamera();
     }
-    else if (LLViewerJoystick::getInstance()->getOverrideCamera())
-    {
-        LLViewerJoystick::getInstance()->moveFlycam();
-    }
     else if (gAgent.isUsingFlycam())
     {
+        // Flycam is now a single shared state (LLAgentCamera) driven by
+        // whichever input sources are actually present; each is a no-op
+        // when its device/mode isn't active, so it's safe to feed both
+        // every frame rather than picking one exclusively.
+        LLViewerJoystick::getInstance()->moveFlycam();
         gAgent.updateFlycam();
     }
     else

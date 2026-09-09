@@ -27,7 +27,11 @@
 #ifndef LL_LLAGENTCAMERA_H
 #define LL_LLAGENTCAMERA_H
 
+#include <array>
+
+#include "llflycam.h"
 #include "llfollowcam.h"            // Ventrella
+#include "llgamecontrol.h"          // LLGameControl::FLYCAM_NUM_CHANNELS
 #include "llhudeffectlookat.h"      // EPointAtType
 #include "llhudeffectpointat.h"     // ELookAtType
 
@@ -170,6 +174,51 @@ public:
     bool            isfollowCamLocked();
 private:
     LLFollowCam     mFollowCam;             // Ventrella
+
+    //--------------------------------------------------------------------
+    // Flycam
+    //--------------------------------------------------------------------
+    // Free-flying camera engine (mFlycam + toggle state below), shared by two
+    // independent input sources that each feed it differently:
+    //   - game-control/keyboard: updateFlycam() + mFlycamKeyboard* state here.
+    //   - legacy NDOF joystick: applyNdofFlycamFrameDelta() below, called
+    //     from LLViewerJoystick, whose OWN per-axis tuning state
+    //     (mJoystickFlycamDelta/mJoystickFlycamLastDelta) lives over there,
+    //     not on this class.
+    // Orthogonal to mCameraMode above: while active it preempts
+    // updateCamera() entirely (driven by updateFlycam()/
+    // applyNdofFlycamFrameDelta() instead, called directly from the main
+    // loop), rather than being a peer state in that mode's own
+    // animated-transition machinery.
+public:
+    bool            isUsingFlycam() const { return mUsingFlycam; }
+    void            toggleFlycam();
+    // Game-control/keyboard-driven update -- see LLViewerJoystick::moveFlycam()
+    // for the other (legacy NDOF joystick) input source, below.
+    void            updateFlycam(F32 delta_time);
+    void            setFlycamKeyInput(U8 channel, F32 value) { mFlycamKeyboardInput[channel] = value; }
+    void            setFlycamKeyReset(bool reset) { mFlycamKeyboardResetRequested = reset; }
+    // Snapshots the live LLViewerCamera transform into the flycam. Used both
+    // when entering flycam (see toggleFlycam()) and whenever an input source
+    // (e.g. the NDOF joystick regaining focus) needs to recalibrate its own
+    // axis-delta state against the camera's current position/orientation.
+    void            resetFlycamToCurrentView();
+    // Entry point for input sources (the legacy NDOF joystick) that compute
+    // their own per-axis dead-zone/scale/feathering deltas and only need this
+    // class to own the resulting transform update + push to LLViewerCamera --
+    // see LLFlycam::applyFrameDelta() for the delta format.
+    void            applyNdofFlycamFrameDelta(const F32 local_delta[7],
+                                               bool auto_level, F32 auto_level_fraction,
+                                               bool direct_view, F32 direct_view_value);
+private:
+    LLFlycam        mFlycam;
+    bool            mUsingFlycam { false };
+    // Keyboard's contribution to the shared/game-control flycam channels
+    // (blended with LLGameControl::getFlycamInputs() each frame in
+    // updateFlycam()) -- unrelated to the legacy joystick's own tuning state,
+    // which lives on LLViewerJoystick (mJoystickFlycamDelta/LastDelta).
+    std::array<F32, LLGameControl::FLYCAM_NUM_CHANNELS> mFlycamKeyboardInput {};
+    bool            mFlycamKeyboardResetRequested { false };
 
     //--------------------------------------------------------------------
     // Sit

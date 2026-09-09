@@ -2947,6 +2947,137 @@ bool LLAgentCamera::isfollowCamLocked()
     return mFollowCam.getPositionLocked();
 }
 
+//-----------------------------------------------------------------------------
+// resetFlycamToCurrentView()
+//-----------------------------------------------------------------------------
+void LLAgentCamera::resetFlycamToCurrentView()
+{
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    mFlycam.setTransform(gAgent.getPosGlobalFromAgent(camera->getOrigin()), camera->getQuaternion());
+    mFlycam.setView(camera->getView());
+}
+
+//-----------------------------------------------------------------------------
+// toggleFlycam()
+//-----------------------------------------------------------------------------
+void LLAgentCamera::toggleFlycam()
+{
+    mUsingFlycam = !mUsingFlycam;
+    if (mUsingFlycam)
+    {
+        resetFlycamToCurrentView();
+    }
+}
+
+//-----------------------------------------------------------------------------
+// applyNdofFlycamFrameDelta()
+//-----------------------------------------------------------------------------
+void LLAgentCamera::applyNdofFlycamFrameDelta(const F32 local_delta[7],
+                                               bool auto_level, F32 auto_level_fraction,
+                                               bool direct_view, F32 direct_view_value)
+{
+    mFlycam.applyFrameDelta(local_delta, auto_level, auto_level_fraction, direct_view, direct_view_value);
+
+    LLVector3d pos_global;
+    LLQuaternion rot;
+    mFlycam.getTransform(pos_global, rot);
+    LLVector3 pos = gAgent.getPosAgentFromGlobal(pos_global);
+    LLMatrix3 mat(rot);
+    LLViewerCamera::getInstance()->setOrigin(pos);
+    LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
+    LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
+    LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
+
+    LLViewerCamera::getInstance()->setView(mFlycam.getView());
+}
+
+//-----------------------------------------------------------------------------
+// updateFlycam()
+//-----------------------------------------------------------------------------
+void LLAgentCamera::updateFlycam(F32 delta_time)
+{
+    // Note: flycam_inputs arrive in range [-1,1]
+    std::vector<F32> flycam_inputs;
+    U32 flycam_misc_actions = 0;
+    LLGameControl::getFlycamInputs(flycam_inputs, flycam_misc_actions);
+
+    // The channel order is defined by LLGameControl::FlycamChannel.
+
+    // Defensive: getFlycamInputs() should return one value per channel.
+    if ((S32)flycam_inputs.size() < LLGameControl::FLYCAM_NUM_CHANNELS)
+    {
+        return;
+    }
+
+    // Blend in keyboard-driven flycam input (independent of LLGameControl,
+    // which only sees a physical controller).  mFlycamKeyboardInput is
+    // level-triggered by flycam_axis_key<> in llviewerinput.cpp -- it must be
+    // re-set every frame a key is held, so clear it here once consumed.
+    for (U8 i = 0; i < LLGameControl::FLYCAM_NUM_CHANNELS; ++i)
+    {
+        flycam_inputs[i] = llclamp(flycam_inputs[i] + mFlycamKeyboardInput[i], -1.f, 1.f);
+    }
+    mFlycamKeyboardInput.fill(0.f);
+    bool flycam_key_reset_requested = mFlycamKeyboardResetRequested;
+    mFlycamKeyboardResetRequested = false;
+
+    if (((flycam_misc_actions & LLGameControl::FLYCAM_ACTION_RESET) || flycam_key_reset_requested) && isAgentAvatarValid())
+    {
+        // Reorient the flycam as if it were the 3rd-person camera: above and
+        // behind the avatar, looking down.  mFlycam.startReset() smoothly
+        // lerps into this transform (see LLFlycam::integrate()); flycam
+        // input has no effect until the lerp completes.
+        constexpr F32 FLYCAM_RESET_DURATION = 1.0f; // seconds; may be tuned later
+        constexpr F32 FLYCAM_RESET_FOCUS_HEIGHT = 1.0f; // meters above avatar root
+
+        LLQuaternion avatar_rot = gAgentAvatarp->isSitting()
+            ? gAgentAvatarp->getRenderRotation()
+            : gAgent.getFrameAgent().getQuaternion();
+        LLVector3 avatar_pos = gAgent.getPositionAgent();
+
+        // Reuse the same behind/above offset the real 3rd-person camera uses,
+        // rotated into the avatar's current facing.
+        F32 camera_offset_scale = gSavedSettings.getF32("CameraOffsetScale");
+        LLVector3 local_offset = getCameraOffsetInitial() * camera_offset_scale;
+        LLVector3 target_position = avatar_pos + local_offset * avatar_rot;
+
+        // Look toward the avatar (roughly torso height); since the camera
+        // sits above and behind, this naturally tilts the view down and
+        // toward the avatar's facing direction.
+        LLVector3 focus_point = avatar_pos + LLVector3(0.f, 0.f, FLYCAM_RESET_FOCUS_HEIGHT);
+        LLCoordFrame target_frame;
+        target_frame.lookAt(target_position, focus_point, LLVector3::z_axis);
+
+        mFlycam.startReset(gAgent.getPosGlobalFromAgent(target_position), target_frame.getQuaternion(), FLYCAM_RESET_DURATION);
+    }
+
+    LLVector3 linear_velocity(
+            flycam_inputs[LLGameControl::FLYCAM_DOLLY],
+            flycam_inputs[LLGameControl::FLYCAM_TRUCK],
+            flycam_inputs[LLGameControl::FLYCAM_BOOM]);
+    constexpr F32 MAX_FLYCAM_SPEED = 10.0f;
+    mFlycam.setLinearVelocity(MAX_FLYCAM_SPEED * linear_velocity);
+
+    mFlycam.setPitchRate(flycam_inputs[LLGameControl::FLYCAM_TILT]);
+    mFlycam.setYawRate(flycam_inputs[LLGameControl::FLYCAM_PAN]);
+    mFlycam.setRollRate(flycam_inputs[LLGameControl::FLYCAM_ROLL]);
+    mFlycam.setZoomRate(flycam_inputs[LLGameControl::FLYCAM_ZOOM]);
+
+    mFlycam.integrate(delta_time);
+
+    LLVector3d pos_global;
+    LLQuaternion rot;
+    mFlycam.getTransform(pos_global, rot);
+    LLVector3 pos = gAgent.getPosAgentFromGlobal(pos_global);
+    LLMatrix3 mat(rot);
+    LLViewerCamera::getInstance()->setOrigin(pos);
+    LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
+    LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
+    LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
+
+    LLViewerCamera::getInstance()->setView(mFlycam.getView());
+}
+
 bool LLAgentCamera::setPointAt(EPointAtType target_type, LLViewerObject *object, LLVector3 position)
 {
     // disallow pointing at attachments and avatars

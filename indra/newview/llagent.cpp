@@ -84,7 +84,6 @@
 #include "llurlentry.h"
 #include "llviewercontrol.h"
 #include "llviewerdisplay.h"
-#include "llviewerjoystick.h"
 #include "llviewermediafocus.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
@@ -5011,9 +5010,9 @@ void LLAgent::updateGameControlMode()
     // Auto-derive the active mode from avatar/camera state.  Cursor mode takes
     // precedence over Flycam: toggling the mouse cursor on while Flycam is engaged
     // reports CONTROL_MODE_CURSOR (so the left stick drives the on-screen cursor)
-    // while mUsingFlycam stays true underneath -- LLAgent::updateFlycam() keeps
+    // while isUsingFlycam() stays true underneath -- LLAgent::updateFlycam() keeps
     // driving the camera every frame regardless of the reported mode (it is gated
-    // on mUsingFlycam directly, not on AgentControlMode), and
+    // on LLAgentCamera's own flycam state directly, not on AgentControlMode), and
     // LLGameControl::setFlycamEngaged() below tells the input-mapping lookup to
     // let Flycam's own axis/button config (Pan/Tilt/Boom/...) keep driving
     // whatever physical inputs Cursor mode's own mouse-cursor actions don't claim.
@@ -5028,7 +5027,7 @@ void LLAgent::updateGameControlMode()
     {
         mode = LLGameControl::CONTROL_MODE_CURSOR;
     }
-    else if (mUsingFlycam)
+    else if (isUsingFlycam())
     {
         mode = LLGameControl::CONTROL_MODE_FLYCAM;
     }
@@ -5044,7 +5043,7 @@ void LLAgent::updateGameControlMode()
     {
         mode = LLGameControl::CONTROL_MODE_AVATAR;
     }
-    LLGameControl::setFlycamEngaged(mUsingFlycam);
+    LLGameControl::setFlycamEngaged(isUsingFlycam());
     LLGameControl::setAgentControlMode(mode);
 }
 
@@ -5191,7 +5190,7 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
     g_deltaFrame = frame_count - g_lastUpdateFrame;
     g_lastUpdateFrame = frame_count;
 
-    if (mUsingFlycam)
+    if (isUsingFlycam())
     {
         // Flycam will be updated later by exernal context
         return;
@@ -5322,22 +5321,31 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
     }
 }
 
+bool LLAgent::isUsingFlycam() const
+{
+    return gAgentCamera.isUsingFlycam();
+}
+
 void LLAgent::toggleFlycam()
 {
-    mUsingFlycam = !mUsingFlycam;
-    if (mUsingFlycam)
-    {
-        // copy main camera transform to flycam
-        LLViewerCamera* camera = LLViewerCamera::getInstance();
-        mFlycam.setTransform(getPosGlobalFromAgent(camera->getOrigin()), camera->getQuaternion());
-        mFlycam.setView(camera->getView());
-        mLastFlycamUpdate = LLFrameTimer::getTotalTime();
-    }
+    gAgentCamera.toggleFlycam();
+}
+
+void LLAgent::setFlycamKeyInput(U8 channel, F32 value)
+{
+    gAgentCamera.setFlycamKeyInput(channel, value);
+}
+
+void LLAgent::setFlycamKeyReset(bool reset)
+{
+    gAgentCamera.setFlycamKeyReset(reset);
 }
 
 bool LLAgent::isCameraExternallyDriven() const
 {
-    return mUsingFlycam || LLViewerJoystick::getInstance()->getOverrideCamera();
+    // Both flycam input sources now share one toggle state on LLAgentCamera --
+    // LLViewerJoystick::getOverrideCamera() forwards to the same flag.
+    return gAgentCamera.isUsingFlycam();
 }
 
 void LLAgent::toggleMouseCursorMode()
@@ -5358,86 +5366,7 @@ void LLAgent::releaseGameControlButton(U8 button_index)
 
 void LLAgent::updateFlycam()
 {
-    // Note: flycam_inputs arrive in range [-1,1]
-    std::vector<F32> flycam_inputs;
-    U32 flycam_misc_actions = 0;
-    LLGameControl::getFlycamInputs(flycam_inputs, flycam_misc_actions);
-
-    // The channel order is defined by LLGameControl::FlycamChannel.
-
-    // Defensive: getFlycamInputs() should return one value per channel.
-    if ((S32)flycam_inputs.size() < LLGameControl::FLYCAM_NUM_CHANNELS)
-    {
-        return;
-    }
-
-    // Blend in keyboard-driven flycam input (independent of LLGameControl,
-    // which only sees a physical controller).  mFlycamKeyInput is
-    // level-triggered by flycam_axis_key<> in llviewerinput.cpp -- it must be
-    // re-set every frame a key is held, so clear it here once consumed.
-    for (U8 i = 0; i < LLGameControl::FLYCAM_NUM_CHANNELS; ++i)
-    {
-        flycam_inputs[i] = llclamp(flycam_inputs[i] + mFlycamKeyInput[i], -1.f, 1.f);
-    }
-    mFlycamKeyInput.fill(0.f);
-    bool flycam_key_reset_requested = mFlycamKeyResetRequested;
-    mFlycamKeyResetRequested = false;
-
-    if (((flycam_misc_actions & LLGameControl::FLYCAM_ACTION_RESET) || flycam_key_reset_requested) && isAgentAvatarValid())
-    {
-        // Reorient the flycam as if it were the 3rd-person camera: above and
-        // behind the avatar, looking down.  mFlycam.startReset() smoothly
-        // lerps into this transform (see LLFlycam::integrate()); flycam
-        // input has no effect until the lerp completes.
-        constexpr F32 FLYCAM_RESET_DURATION = 1.0f; // seconds; may be tuned later
-        constexpr F32 FLYCAM_RESET_FOCUS_HEIGHT = 1.0f; // meters above avatar root
-
-        LLQuaternion avatar_rot = gAgentAvatarp->isSitting()
-            ? gAgentAvatarp->getRenderRotation()
-            : mFrameAgent.getQuaternion();
-        LLVector3 avatar_pos = getPositionAgent();
-
-        // Reuse the same behind/above offset the real 3rd-person camera uses,
-        // rotated into the avatar's current facing.
-        F32 camera_offset_scale = gSavedSettings.getF32("CameraOffsetScale");
-        LLVector3 local_offset = gAgentCamera.getCameraOffsetInitial() * camera_offset_scale;
-        LLVector3 target_position = avatar_pos + local_offset * avatar_rot;
-
-        // Look toward the avatar (roughly torso height); since the camera
-        // sits above and behind, this naturally tilts the view down and
-        // toward the avatar's facing direction.
-        LLVector3 focus_point = avatar_pos + LLVector3(0.f, 0.f, FLYCAM_RESET_FOCUS_HEIGHT);
-        LLCoordFrame target_frame;
-        target_frame.lookAt(target_position, focus_point, LLVector3::z_axis);
-
-        mFlycam.startReset(getPosGlobalFromAgent(target_position), target_frame.getQuaternion(), FLYCAM_RESET_DURATION);
-    }
-
-    LLVector3 linear_velocity(
-            flycam_inputs[LLGameControl::FLYCAM_DOLLY],
-            flycam_inputs[LLGameControl::FLYCAM_TRUCK],
-            flycam_inputs[LLGameControl::FLYCAM_BOOM]);
-    constexpr F32 MAX_FLYCAM_SPEED = 10.0f;
-    mFlycam.setLinearVelocity(MAX_FLYCAM_SPEED * linear_velocity);
-
-    mFlycam.setPitchRate(flycam_inputs[LLGameControl::FLYCAM_TILT]);
-    mFlycam.setYawRate(flycam_inputs[LLGameControl::FLYCAM_PAN]);
-    mFlycam.setRollRate(flycam_inputs[LLGameControl::FLYCAM_ROLL]);
-    mFlycam.setZoomRate(flycam_inputs[LLGameControl::FLYCAM_ZOOM]);
-
-    mFlycam.integrate(g_deltaTime);
-
-    LLVector3d pos_global;
-    LLQuaternion rot;
-    mFlycam.getTransform(pos_global, rot);
-    LLVector3 pos = getPosAgentFromGlobal(pos_global);
-    LLMatrix3 mat(rot);
-    LLViewerCamera::getInstance()->setOrigin(pos);
-    LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
-    LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
-    LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
-
-    LLViewerCamera::getInstance()->setView(mFlycam.getView());
+    gAgentCamera.updateFlycam(g_deltaTime);
 }
 
 /********************************************************************************/
