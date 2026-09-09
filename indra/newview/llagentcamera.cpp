@@ -2264,7 +2264,7 @@ void LLAgentCamera::resetCamera()
 void LLAgentCamera::changeCameraToMouselook(bool animate)
 {
     if (!gSavedSettings.getBOOL("EnableMouselook")
-        || LLViewerJoystick::getInstance()->getOverrideCamera())
+        || gAgent.isCameraExternallyDriven())
     {
         return;
     }
@@ -2319,7 +2319,7 @@ void LLAgentCamera::changeCameraToMouselook(bool animate)
 //-----------------------------------------------------------------------------
 void LLAgentCamera::changeCameraToDefault()
 {
-    if (LLViewerJoystick::getInstance()->getOverrideCamera())
+    if (gAgent.isCameraExternallyDriven())
     {
         return;
     }
@@ -2345,7 +2345,7 @@ void LLAgentCamera::changeCameraToDefault()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::changeCameraToFollow(bool animate)
 {
-    if (LLViewerJoystick::getInstance()->getOverrideCamera())
+    if (gAgent.isCameraExternallyDriven())
     {
         return;
     }
@@ -2401,7 +2401,7 @@ void LLAgentCamera::changeCameraToFollow(bool animate)
 //-----------------------------------------------------------------------------
 void LLAgentCamera::changeCameraToThirdPerson(bool animate)
 {
-    if (LLViewerJoystick::getInstance()->getOverrideCamera())
+    if (gAgent.isCameraExternallyDriven())
     {
         return;
     }
@@ -2472,7 +2472,7 @@ void LLAgentCamera::changeCameraToThirdPerson(bool animate)
 //-----------------------------------------------------------------------------
 void LLAgentCamera::changeCameraToCustomizeAvatar()
 {
-    if (LLViewerJoystick::getInstance()->getOverrideCamera() || !isAgentAvatarValid())
+    if (gAgent.isCameraExternallyDriven() || !isAgentAvatarValid())
     {
         return;
     }
