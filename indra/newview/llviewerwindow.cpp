@@ -2894,6 +2894,12 @@ void LLViewerWindow::draw()
         LLView::sDirtyRect = getWindowRectScaled();
     }
 
+    // Draw all nested UI views.
+    // No translation needed, this view is glued to 0,0
+
+    gUIProgram.bind();
+    gGL.color4f(1, 1, 1, 1);
+
     // HACK for timecode debugging
     if (gSavedSettings.getBOOL("DisplayTimecode"))
     {
@@ -2910,12 +2916,6 @@ void LLViewerWindow::draw()
             LLColor4( 1.f, 1.f, 1.f, 1.f ),
             LLFontGL::LEFT, LLFontGL::TOP);
     }
-
-    // Draw all nested UI views.
-    // No translation needed, this view is glued to 0,0
-
-    gUIProgram.bind();
-    gGL.color4f(1, 1, 1, 1);
 
     gGL.pushMatrix();
     LLUI::pushMatrix();
