@@ -1,6 +1,6 @@
 /**
  * @file llchatservicehistorycore.cpp
- * @brief Strict ChatService wire, TimeUUID, and CSV primitives.
+ * @brief ChatService wire/storage primitives and direct history composition.
  *
  * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -15,6 +15,7 @@
 #include "lldate.h"
 #include "llfile.h"
 #include "llstring.h"
+#include "llsdutil.h"
 #include "fsyspath.h"
 
 #if LL_WINDOWS
@@ -27,6 +28,7 @@
 #include <cerrno>
 #include <cctype>
 #include <limits>
+#include <map>
 #include <set>
 
 namespace LLChatServiceHistoryCore
@@ -286,15 +288,370 @@ bool persistedDirectDialog(S32 dialog)
 
 bool sameDirectSenderName(const std::string& left, const std::string& right)
 {
-    if (left == right)
+    // Extract the resident name from complete transcript names before normalizing
+    // legacy and dotted forms; the display-name prefix is presentation only.
+    const std::string left_resident =
+        LLCacheName::buildUsername(LLCacheName::buildLegacyName(left));
+    const std::string right_resident =
+        LLCacheName::buildUsername(LLCacheName::buildLegacyName(right));
+    return !left_resident.empty() && left_resident == right_resident;
+}
+
+bool sameDirectHistoryOccurrence(const LLSD& history, const LLSD& timed)
+{
+    if (!timed["timestamp"].isInteger() || timed["timestamp"].asInteger() <= 0)
     {
-        return true;
+        return false;
     }
 
-    // Compare resident usernames even when the chat service supplies a legacy name.
-    const std::string left_resident = LLCacheName::buildUsername(left);
-    const std::string right_resident = LLCacheName::buildUsername(right);
-    return !left_resident.empty() && left_resident == right_resident;
+    // Service bodies omit offline notices and translations. Plaintext contains
+    // the rendered body, so compare it against the same displayed value.
+    const bool service = history["chat_service_msg_id"].isString();
+    const LLSD& text = service && timed["chat_service_original_text"].isString()
+        ? timed["chat_service_original_text"] : timed["message"];
+    if (history["message"].asString() != text.asString())
+    {
+        return false;
+    }
+
+    // UUIDs are authoritative when available; plaintext otherwise identifies
+    // its sender by the resident username, including complete-name spellings.
+    const bool same_sender = history["from_id"].isDefined() && timed["from_id"].isDefined()
+        ? history["from_id"].asUUID() == timed["from_id"].asUUID()
+        : sameDirectSenderName(history["from"].asString(), timed["from"].asString());
+    if (!same_sender)
+    {
+        return false;
+    }
+
+    const S32 timestamp = timed["timestamp"].asInteger();
+    if (service)
+    {
+        if (!history["timestamp"].isInteger() || history["timestamp"].asInteger() <= 0)
+        {
+            return false;
+        }
+
+        const S32 service_timestamp = history["timestamp"].asInteger();
+        // Online receipt can lag creation across minute, hour, or day boundaries.
+        // Use a rolling minute of delivery delay, including locally captured receipt times.
+        if (timed["chat_service_time_source"].asString() == "receipt")
+        {
+            constexpr S64 MAX_DELIVERY_DELAY = 60;
+            const S64 delay = static_cast<S64>(timestamp) - service_timestamp;
+            return delay >= 0 && delay <= MAX_DELIVERY_DELAY;
+        }
+
+        // Outgoing local echoes admit clock skew within their UTC minute. Saved
+        // offline send timestamps and unmarked callers retain exact seconds.
+        if (timed["chat_service_time_source"].asString() == "local")
+        {
+            return service_timestamp / 60 == timestamp / 60;
+        }
+
+        return service_timestamp == timestamp;
+    }
+
+    // Offline IMs are logged when delivered, potentially days after being sent.
+    // Legacy SLT minutes admit either UTC-7 or UTC-8 because no offset is stored.
+    if (!history["chat_service_legacy_wall_time"].isReal())
+    {
+        return false;
+    }
+    const S32 logged = timed["chat_service_log_timestamp"].isInteger()
+        ? timed["chat_service_log_timestamp"].asInteger() : timestamp;
+    for (const F64 offset : { 7.0 * 3600.0, 8.0 * 3600.0 })
+    {
+        const F64 minute = history["chat_service_legacy_wall_time"].asReal() + offset;
+        if (logged >= minute && logged < minute + 60.0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::list<LLSD> filterDirectHistoryDuplicates(
+    const std::list<LLSD>& history, const std::list<LLSD>& live)
+{
+    // Reserve known send times before receipt intervals and local-clock minutes.
+    // Within each kind, the earliest delivery takes the earliest eligible occurrence.
+    auto priority = [](const LLSD& message)
+    {
+        const std::string source = message["chat_service_time_source"].asString();
+        return source == "receipt" ? 1 : source == "local" ? 2 : 0;
+    };
+    std::vector<const LLSD*> deliveries;
+    for (const LLSD& message : live) deliveries.push_back(&message);
+    std::stable_sort(deliveries.begin(), deliveries.end(), [&](const LLSD* a, const LLSD* b)
+    {
+        return priority(*a) != priority(*b) ? priority(*a) < priority(*b)
+            : (*a)["timestamp"].asInteger() < (*b)["timestamp"].asInteger();
+    });
+
+    // Sorted iterators allow matching in time order while retaining the source order.
+    Messages result = history;
+    std::vector<Messages::const_iterator> service;
+    for (auto row = result.cbegin(); row != result.cend(); ++row)
+    {
+        if ((*row)["chat_service_msg_id"].isString()) service.push_back(row);
+    }
+    std::stable_sort(service.begin(), service.end(), [](auto a, auto b)
+    {
+        return (*a)["timestamp"].asInteger() < (*b)["timestamp"].asInteger();
+    });
+    std::vector<bool> matched(deliveries.size(), false);
+    for (size_t pos = 0; pos < deliveries.size(); ++pos)
+    {
+        const auto match = std::find_if(service.begin(), service.end(), [&](auto row)
+        {
+            return row != result.cend() && sameDirectHistoryOccurrence(*row, *deliveries[pos]);
+        });
+        if (match != service.end())
+        {
+            result.erase(*match);
+            *match = result.cend();
+            matched[pos] = true;
+        }
+    }
+
+    // Plaintext uses the remaining occurrences. Saved/translated deliveries can
+    // also identify a decorated log copy that could not match the raw service body.
+    for (size_t pos = 0; pos < deliveries.size(); ++pos)
+    {
+        const LLSD& delivery = *deliveries[pos];
+        if (matched[pos] && !(delivery["chat_service_original_text"].isString() &&
+            delivery["chat_service_original_text"].asString() != delivery["message"].asString()))
+        {
+            continue;
+        }
+        const auto match = std::find_if(result.begin(), result.end(), [&](const LLSD& row)
+        {
+            return !row["chat_service_msg_id"].isString() && sameDirectHistoryOccurrence(row, delivery);
+        });
+        if (match != result.end()) result.erase(match);
+    }
+    return result;
+}
+
+std::list<LLSD> interleaveDirectHistory(const std::list<LLSD>& history,
+                                      const std::list<LLSD>& live)
+{
+    std::list<LLSD> result = live;
+    auto position = result.begin();
+
+    // A service head may contain messages sent after live delivery began. Insert
+    // them by UTC time while retaining both sources' order and untimed live anchors.
+    for (const LLSD& message : history)
+    {
+        const S32 timestamp = message["timestamp"].asInteger();
+        while (position != result.end() &&
+               (timestamp <= 0 || (*position)["timestamp"].asInteger() <= 0 ||
+                (*position)["timestamp"].asInteger() >= timestamp))
+        {
+            ++position;
+        }
+        result.insert(position, message);
+    }
+    return result;
+}
+
+Messages mergeDirectHistory(const Messages& loaded, const Messages& incoming)
+{
+    // Each input is a seam already reconciled against its own service IDs.
+    // Reconcile only IDs missing from that input, then union legacy occurrences.
+    struct Seam
+    {
+        Messages legacy;
+        std::map<TimeUuidKey, LLSD> service;
+        explicit Seam(const Messages& messages)
+        {
+            for (const LLSD& row : messages)
+            {
+                TimeUuidKey key;
+                if (parseTimeUuid(row["chat_service_msg_id"].asString(), key))
+                    service.emplace(key, row);
+                else
+                    legacy.push_back(row);
+            }
+        }
+    } left(loaded), right(incoming);
+
+    auto reconcile = [](Seam& seam, const Seam& other)
+    {
+        // Index minutes so full transcript reads do not compare every pair.
+        std::multimap<S64, const LLSD*> added;
+        for (const auto& entry : other.service)
+        {
+            if (!seam.service.count(entry.first))
+                added.emplace(entry.second["timestamp"].asInteger() / 60, &entry.second);
+        }
+        seam.legacy.remove_if([&](const LLSD& row)
+        {
+            if (!row["chat_service_legacy_wall_time"].isReal()) return false;
+            for (S64 offset : {7 * 3600, 8 * 3600})
+            {
+                const S64 minute = (static_cast<S64>(row["chat_service_legacy_wall_time"].asReal()) + offset) / 60;
+                const auto range = added.equal_range(minute);
+                for (auto candidate = range.first; candidate != range.second; ++candidate)
+                {
+                    if (sameDirectHistoryOccurrence(row, *candidate->second))
+                    {
+                        added.erase(candidate);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        });
+    };
+    reconcile(left, right);
+    reconcile(right, left);
+
+    // Shared plaintext occurrences count once; distinct repeated lines retain
+    // the greater occurrence count from the two bounded source windows.
+    Messages unmatched = left.legacy;
+    for (const LLSD& row : right.legacy)
+    {
+        const auto match = std::find_if(unmatched.begin(), unmatched.end(),
+            [&](const LLSD& candidate) { return llsd_equals(candidate, row); });
+        if (match == unmatched.end()) left.legacy.push_back(row);
+        else unmatched.erase(match);
+    }
+    left.legacy.sort([](const LLSD& a, const LLSD& b)
+    {
+        const LLSD& at = a["chat_service_legacy_wall_time"];
+        const LLSD& bt = b["chat_service_legacy_wall_time"];
+        return at.isReal() && (!bt.isReal() || at.asReal() < bt.asReal());
+    });
+
+    // Loaded canonical values win preview identity; all service rows use TimeUUID order.
+    left.service.insert(right.service.begin(), right.service.end());
+    for (const auto& entry : left.service) left.legacy.push_back(entry.second);
+    return left.legacy;
+}
+
+void History::setLoaded(const Messages& messages)
+{
+    mLoaded = messages;
+    if (messages.empty())
+    {
+        mVisible.clear();
+    }
+}
+
+void History::clear()
+{
+    mLoaded.clear();
+    mVisible.clear();
+}
+
+void History::clearService()
+{
+    auto service = [](const LLSD& row) { return row["chat_service_msg_id"].isString(); };
+    mLoaded.remove_if(service);
+    mVisible.remove_if(service);
+}
+
+Messages History::compose(const Messages& preview, const Messages& live, U32 limit,
+                          bool retain_context)
+{
+    // Retain bounded visible context while open, including plaintext that has not
+    // acquired a service ID. Compose before filtering so live copies cannot evict it.
+    Messages result = mergeDirectHistory(mLoaded, preview);
+    if (retain_context)
+    {
+        result = mergeDirectHistory(result, mVisible);
+    }
+    result = filterDirectHistoryDuplicates(result, live);
+    while (limit && result.size() > limit)
+    {
+        result.pop_front();
+    }
+    mVisible = retain_context ? result : Messages();
+    return result;
+}
+
+bool replaceHistory(Messages& current, const Messages& history, bool direct)
+{
+    Messages live;
+    for (const LLSD& message : current)
+    {
+        if (!message["is_history"].asBoolean())
+        {
+            live.push_back(message);
+        }
+    }
+    Messages historical;
+    for (const LLSD& source : history)
+    {
+        LLSD message = source;
+        message["timestamp"] = source["timestamp"].asInteger();
+        message["is_history"] = true;
+        message["is_region_msg"] = false;
+        historical.push_front(message);
+    }
+    if (direct)
+    {
+        live = interleaveDirectHistory(historical, live);
+    }
+    else
+    {
+        live.insert(live.end(), historical.begin(), historical.end());
+    }
+
+    // Index changes alone do not require replaying inline notification widgets.
+    if (current.size() == live.size() &&
+        std::equal(current.begin(), current.end(), live.begin(), [](LLSD left, LLSD right)
+        {
+            left.erase("index");
+            right.erase("index");
+            return llsd_equals(left, right);
+        }))
+    {
+        return false;
+    }
+    current.swap(live);
+    S32 index = static_cast<S32>(current.size());
+    for (LLSD& message : current)
+    {
+        message["index"] = --index;
+    }
+    return true;
+}
+
+LLSD incomingContext(const LLSD& original_text, bool online)
+{
+    LLSD context;
+    context["chat_service_original_text"] = original_text;
+    context["chat_service_time_source"] = online ? "receipt" : "sent";
+    return context;
+}
+
+LLSD captureLiveMessage(const std::string& text, U32& timestamp, const LLSD& context, U32 now)
+{
+    LLSD captured = context;
+    if (!context["chat_service_original_text"].isString())
+    {
+        captured["chat_service_original_text"] = text;
+    }
+    if (!context["chat_service_time_source"].isString() ||
+        (!timestamp && context["chat_service_time_source"].asString() != "receipt"))
+    {
+        captured["chat_service_time_source"] = timestamp ? "sent" : "local";
+    }
+    if (!timestamp)
+    {
+        timestamp = now;
+    }
+    return captured;
+}
+
+void recordLiveMessage(LLSD& message, const LLSD& context, U32 logged_at)
+{
+    message["chat_service_original_text"] = context["chat_service_original_text"];
+    message["chat_service_time_source"] = context["chat_service_time_source"];
+    message["chat_service_log_timestamp"] = static_cast<S32>(logged_at);
 }
 
 bool legacyWallMayPrecedeService(F64 wall_epoch, F64 service_epoch)

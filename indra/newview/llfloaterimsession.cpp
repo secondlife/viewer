@@ -843,6 +843,16 @@ void LLFloaterIMSession::updateMessages()
         for (; iter != iter_end; ++iter)
         {
             LLSD msg = *iter;
+            // Consume hidden fallbacks and expired offer markers as well as visible rows.
+            mLastMessageIndex = msg["index"].asInteger();
+
+            // An active inline offer replaces only its explicitly linked text log.
+            // The fallback can be absent or arrive after unrelated chat messages.
+            const LLUUID notification_log_id = msg["notification_log_id"].asUUID();
+            if (notification_log_id.notNull() && LLNotificationsUtil::find(notification_log_id) != NULL)
+            {
+                continue;
+            }
 
             std::string time = msg["time"].asString();
             LLUUID from_id = msg["from_id"].asUUID();
@@ -879,7 +889,7 @@ void LLFloaterIMSession::updateMessages()
                         channel->hideToast(chat.mNotifId);
                     }
                 }
-                // if notification doesn't exist - try to use next message which should be log entry
+                // Expired offers leave their text fallback to render independently.
                 else
                 {
                     continue;
@@ -893,20 +903,6 @@ void LLFloaterIMSession::updateMessages()
 
             // Add the message to the chat log
             appendMessage(chat);
-            mLastMessageIndex = msg["index"].asInteger();
-
-            // if it is a notification - next message is a notification history log, so skip it
-            if (chat.mNotifId.notNull() && LLNotificationsUtil::find(chat.mNotifId) != NULL)
-            {
-                if (++iter == iter_end)
-                {
-                    break;
-                }
-                else
-                {
-                    mLastMessageIndex++;
-                }
-            }
         }
     }
 }

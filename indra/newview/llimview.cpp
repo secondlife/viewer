@@ -90,31 +90,6 @@ const S32 XL8_PADDING = 3;  // XL8_START_TAG.size() + XL8_END_TAG.size()
 // Tokens are process-unique so a stale completion cannot match a recreated P2P session.
 static U64 sChatHistoryLoadToken = 0;
 
-namespace
-{
-bool sameHistoryRow(LLSD left, LLSD right)
-{
-    // Positional indexes are rebuilt with the overlay and do not change presentation.
-    left.erase("index");
-    right.erase("index");
-    return llsd_equals(left, right);
-}
-
-bool sameHistory(const LLIMModel::chat_message_list_t& left,
-                 const LLIMModel::chat_message_list_t& right)
-{
-    return left.size() == right.size() &&
-        std::equal(left.begin(), left.end(), right.begin(), sameHistoryRow);
-}
-
-bool isStrictHistoryPrefix(const LLIMModel::chat_message_list_t& prefix,
-                           const LLIMModel::chat_message_list_t& complete)
-{
-    return prefix.size() < complete.size() &&
-        std::equal(prefix.begin(), prefix.end(), complete.begin(), sameHistoryRow);
-}
-}
-
 /** Timeout of outgoing session initialization (in seconds) */
 const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
 
@@ -626,39 +601,37 @@ void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvit
 }
 
 void translateSuccess(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text,
-                        U64 time_n_flags, std::string originalMsg, std::string expectLang, std::string translation, const std::string detected_language)
+                        U64 time_n_flags, LLSD history_context, std::string expectLang, std::string translation, const std::string detected_language)
 {
     std::string message_txt(utf8_text);
     // filter out non-interesting responses
     if (!translation.empty()
         && ((detected_language.empty()) || (expectLang != detected_language))
-        && (LLStringUtil::compareInsensitive(translation, originalMsg) != 0))
+        && (LLStringUtil::compareInsensitive(translation, utf8_text) != 0))
     {   // Note - if this format changes, also fix code in addMessagesFromServerHistory()
         message_txt += XL8_START_TAG + LLTranslate::removeNoTranslateTags(translation) + XL8_END_TAG;
     }
 
-    // Extract info packed in time_n_flags
     bool log2file =      (bool)(time_n_flags & (1LL << 32));
     bool is_region_msg = (bool)(time_n_flags & (1LL << 33));
     U32 time_stamp = (U32)(time_n_flags & 0x00000000ffffffff);
 
-    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp);
+    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp, history_context);
 }
 
 void translateFailure(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text,
-                        U64 time_n_flags, int status, const std::string err_msg)
+                        U64 time_n_flags, LLSD history_context, int status, const std::string err_msg)
 {
     std::string message_txt(utf8_text);
     std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
     LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
     message_txt += XL8_START_TAG + msg + XL8_END_TAG;
 
-    // Extract info packed in time_n_flags
     bool log2file = (bool)(time_n_flags & (1LL << 32));
     bool is_region_msg = (bool)(time_n_flags & (1LL << 33));
     U32 time_stamp = (U32)(time_n_flags & 0x00000000ffffffff);
 
-    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp);
+    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp, history_context);
 }
 
 void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp)
@@ -1394,8 +1367,8 @@ void LLIMModel::LLIMSession::loadHistory()
     {
         mChatHistoryLoadToken = ++sChatHistoryLoadToken;
         mChatHistoryLocalLoading = false;
-        mChatServiceHistoricalValue.clear();
-        replaceHistoricalMessages(mChatServiceHistoricalValue);
+        mChatServiceHistory.clear();
+        replaceHistoricalMessages({});
         return;
     }
 
@@ -1403,8 +1376,8 @@ void LLIMModel::LLIMSession::loadHistory()
     {
         mChatHistoryLoadToken = ++sChatHistoryLoadToken;
         mChatHistoryLocalLoading = false;
-        mChatServiceHistoricalValue.clear();
-        replaceHistoricalMessages(mChatServiceHistoricalValue);
+        mChatServiceHistory.clear();
+        replaceHistoricalMessages({});
         return;
     }
 
@@ -1463,9 +1436,9 @@ void LLIMModel::LLIMSession::loadHistory()
                 // current, then replace the historical overlay in one operation.
                 session->mChatHistoryArchiveSerial = result.archive_serial;
                 session->mChatHistoryLocalLoading = false;
-                session->mChatServiceHistoricalValue = LLChatServiceHistory::mergeHeadPreview(
-                    result.messages, snapshot, 200);
-                session->replaceHistoricalMessages(session->mChatServiceHistoricalValue);
+                session->mChatServiceHistory.setLoaded(result.messages);
+                session->replaceHistoricalMessages(LLChatServiceHistory::composeHistory(
+                    session->mChatServiceHistory, snapshot, 200, session_id));
             }))
     {
         // If dispatch infrastructure is unavailable, retain ordinary plaintext
@@ -1476,7 +1449,7 @@ void LLIMModel::LLIMSession::loadHistory()
         {
             chat_message_list_t legacy;
             LLLogChat::loadChatHistory(mHistoryFileName, legacy);
-            mChatServiceHistoricalValue = legacy;
+            mChatServiceHistory.setLoaded(legacy);
             replaceHistoricalMessages(legacy);
         }
     }
@@ -1484,86 +1457,12 @@ void LLIMModel::LLIMSession::loadHistory()
 
 void LLIMModel::LLIMSession::replaceHistoricalMessages(const chat_message_list_t& history)
 {
-    // Separate the append-only live tail from the currently presented historical baseline.
-    chat_message_list_t live;
-    chat_message_list_t current_historical;
-    for (const LLSD& message : mMsgs)
+    if (LLChatServiceHistory::replaceHistory(mMsgs, history, isP2P()))
     {
-        if (!message["is_history"].asBoolean())
+        if (LLFloaterIMSession* floater = LLFloaterIMSession::findInstance(mSessionID))
         {
-            live.push_back(message);
+            floater->reloadMessages(false);
         }
-        else
-        {
-            current_historical.push_back(message);
-        }
-    }
-
-    // A refresh may contain rows that this open session already
-    // displays live. Consume those exact occurrences before rebuilding the overlay.
-    const chat_message_list_t filtered = isP2P()
-        ? LLChatServiceHistory::filterLiveDuplicates(history, live) : history;
-
-    // Normalize stitched LLLogChat fields into the IM model shape and reverse the
-    // ascending input into the model's newest-first historical order.
-    chat_message_list_t historical;
-    for (const LLSD& source : filtered)
-    {
-        const std::string from = source[LL_IM_FROM].asString();
-        LLUUID from_id;
-
-        // Plaintext transcripts store sender names but usually omit UUIDs. Recover
-        // resident identity from local name caches without scheduling a lookup.
-        if (source[LL_IM_FROM_ID].isDefined())
-        {
-            from_id = source[LL_IM_FROM_ID].asUUID();
-        }
-        else
-        {
-            const std::string legacy_name = gCacheName->buildLegacyName(from);
-            from_id = LLAvatarNameCache::getInstance()->findIdByName(legacy_name);
-        }
-
-        LLSD message = source;
-        message["from"] = from;
-        message["from_id"] = from_id;
-        message["message"] = source[LL_IM_TEXT];
-        message["time"] = source[LL_IM_TIME];
-        message["timestamp"] = source["timestamp"].asInteger();
-        message["is_history"] = true;
-        message["is_region_msg"] = false;
-        historical.push_front(message);
-    }
-
-    const bool consumed_live = filtered.size() < history.size();
-    LLFloaterIMSession* floater = LLFloaterIMSession::findInstance(mSessionID);
-    const bool capped_live_rollover =
-        floater && floater->isInVisibleChain() &&
-        consumed_live &&
-        !historical.empty() &&
-        history.size() == current_historical.size() &&
-        isStrictHistoryPrefix(historical, current_historical);
-
-    // Re-publishing the same bounded history, including eviction of its oldest
-    // rows after live messages become durable, must not reconstruct a visible transcript.
-    if (sameHistory(current_historical, historical) || capped_live_rollover)
-    {
-        return;
-    }
-
-    live.insert(live.end(), historical.begin(), historical.end());
-    mMsgs.swap(live);
-
-    // Rebuild positional indexes only after the complete live/history overlay exists.
-    S32 index = static_cast<S32>(mMsgs.size());
-    for (LLSD& message : mMsgs)
-    {
-        message["index"] = --index;
-    }
-
-    if (floater)
-    {
-        floater->reloadMessages(false);
     }
 }
 
@@ -1573,8 +1472,8 @@ void LLIMModel::LLIMSession::clearHistoricalMessages()
     // after presentation has been cleared.
     mChatHistoryLoadToken = ++sChatHistoryLoadToken;
     mChatHistoryLocalLoading = false;
-    mChatServiceHistoricalValue.clear();
-    replaceHistoricalMessages(mChatServiceHistoricalValue);
+    mChatServiceHistory.clear();
+    replaceHistoricalMessages({});
 }
 
 void LLIMModel::LLIMSession::clearForHistoryDeletion()
@@ -1584,7 +1483,7 @@ void LLIMModel::LLIMSession::clearForHistoryDeletion()
     mChatHistoryLocalLoading = false;
     mChatHistoryArchiveSerial = 0;
     mChatServicePresentationAllowed = false;
-    mChatServiceHistoricalValue.clear();
+    mChatServiceHistory.clear();
     mLastHistoryCacheDateTime.clear();
     mLastHistoryCacheMsgs.clear();
     mMsgs.clear();
@@ -1607,33 +1506,15 @@ void LLIMModel::LLIMSession::applyChatServiceSnapshot(
         return;
     }
 
-    // Revoking service presentation strips only service-tagged historical rows;
-    // legacy rows and every live row remain intact.
     const bool presentation_changed =
         snapshot.service_presentation_allowed != mChatServicePresentationAllowed;
     mChatServicePresentationAllowed = snapshot.service_presentation_allowed;
 
-    if (presentation_changed && !snapshot.service_presentation_allowed)
+    // Apply previews and presentation changes through the shared history composer.
+    if (presentation_changed || !snapshot.head_preview.empty())
     {
-        chat_message_list_t legacy_only;
-        for (const LLSD& message : mChatServiceHistoricalValue)
-        {
-            if (!message["chat_service_msg_id"].isString())
-            {
-                legacy_only.push_back(message);
-            }
-        }
-
-        mChatServiceHistoricalValue.swap(legacy_only);
-        replaceHistoricalMessages(mChatServiceHistoricalValue);
-    }
-
-    // The bounded first page can update presentation before durable archive publication.
-    if (snapshot.service_presentation_allowed && !snapshot.head_preview.empty())
-    {
-        mChatServiceHistoricalValue = LLChatServiceHistory::mergeHeadPreview(
-            mChatServiceHistoricalValue, snapshot, 200);
-        replaceHistoricalMessages(mChatServiceHistoricalValue);
+        replaceHistoricalMessages(LLChatServiceHistory::composeHistory(
+            mChatServiceHistory, snapshot, 200, mSessionID));
     }
 
     // The active read will restart itself if its captured presentation or archive
@@ -2008,8 +1889,7 @@ bool LLIMModel::addToHistory(const LLUUID& session_id,
         return false;
     }
 
-    // P2P live rows keep their actual arrival/send time so a later asynchronous
-    // history refresh can reconcile the same logged occurrence exactly by minute.
+    // Fill missing direct timestamps for display and plaintext reconciliation.
     U32 model_timestamp = timestamp;
     if (!model_timestamp && session->isP2PSessionType())
     {
@@ -2060,27 +1940,34 @@ void LLIMModel::proccessOnlineOfflineNotification(
 }
 
 void LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
-                           const std::string& utf8_text, bool log2file /* = true */, bool is_region_msg, /* = false */ U32 time_stamp /* = 0 */)
+                           const std::string& utf8_text, bool log2file /* = true */, bool is_region_msg, /* = false */ U32 time_stamp /* = 0 */,
+                           LLSD history_context)
 {
+    // Capture direct-message timing before an asynchronous translation can delay it.
+    LLIMSession* session = findIMSession(session_id);
+    if (session && session->isP2P())
+    {
+        history_context = LLChatServiceHistory::prepareLiveMessage(utf8_text, time_stamp, history_context);
+    }
     if (gSavedSettings.getBOOL("TranslateChat") && (from != SYSTEM_FROM))
     {
         const std::string from_lang = ""; // leave empty to trigger autodetect
         const std::string to_lang = LLTranslate::getTranslateLanguage();
         U64 time_n_flags = ((U64) time_stamp) | (log2file ? (1LL << 32) : 0) | (is_region_msg ? (1LL << 33) : 0);   // boost::bind has limited parameters
         LLTranslate::translateMessage(from_lang, to_lang, utf8_text,
-            boost::bind(&translateSuccess, session_id, from, from_id, utf8_text, time_n_flags, utf8_text, from_lang, _1, _2),
-            boost::bind(&translateFailure, session_id, from, from_id, utf8_text, time_n_flags, _1, _2));
+            boost::bind(&translateSuccess, session_id, from, from_id, utf8_text, time_n_flags, history_context, from_lang, _1, _2),
+            boost::bind(&translateFailure, session_id, from, from_id, utf8_text, time_n_flags, history_context, _1, _2));
     }
     else
     {
-        processAddingMessage(session_id, from, from_id, utf8_text, log2file, is_region_msg, time_stamp);
+        processAddingMessage(session_id, from, from_id, utf8_text, log2file, is_region_msg, time_stamp, history_context);
     }
 }
 
 void LLIMModel::processAddingMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
-    const std::string& utf8_text, bool log2file, bool is_region_msg, U32 time_stamp)
+    const std::string& utf8_text, bool log2file, bool is_region_msg, U32 time_stamp, LLSD history_context)
 {
-    LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, log2file, is_region_msg, time_stamp);
+    LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, log2file, is_region_msg, time_stamp, history_context);
     if (!session)
         return;
 
@@ -2107,7 +1994,7 @@ void LLIMModel::processAddingMessage(const LLUUID& session_id, const std::string
 
 LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
                                                       const std::string& utf8_text, bool log2file /* = true */, bool is_region_msg, /* false */
-                                                      U32 timestamp /* = 0 */)
+                                                      U32 timestamp /* = 0 */, LLSD history_context)
 {
     LLIMSession* session = findIMSession(session_id);
 
@@ -2123,7 +2010,16 @@ LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, 
         from_name = SYSTEM_FROM;
     }
 
+    // Direct silent callers also capture provenance; live delivery always appends.
+    if (session->isP2P())
+    {
+        history_context = LLChatServiceHistory::prepareLiveMessage(utf8_text, timestamp, history_context);
+    }
     addToHistory(session_id, from_name, from_id, utf8_text, is_region_msg, timestamp);
+    if (session->isP2P())
+    {
+        LLChatServiceHistory::recordLiveMessage(session->mMsgs.front(), history_context);
+    }
     if (log2file)
     {
         logToFile(getHistoryFileName(session_id), from_name, from_id, utf8_text);
@@ -3502,7 +3398,8 @@ void LLIMMgr::addMessage(
     bool is_region_msg,
     U32 timestamp,  // May be zero
     LLUUID display_id,
-    std::string_view display_name)
+    std::string_view display_name,
+    const LLSD& original_text)
 {
     LLUUID other_participant_id = target_id;
     std::string message_display_name = (display_name.empty()) ? from : std::string(display_name);
@@ -3631,14 +3528,19 @@ void LLIMMgr::addMessage(
 
     if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !skip_message)
     {
-        // Accepted inbound direct rows share the same immediate priority path used by an opener.
-        if (LLChatServiceHistory::isPersistedDirectDialog(dialog) &&
+        // Online direct timestamps describe receipt after service creation; offline
+        // timestamps describe the saved send. Preserve that distinction through translation.
+        const bool incoming_direct = LLChatServiceHistory::isPersistedDirectDialog(dialog) &&
             !is_region_msg && message_display_name != SYSTEM_FROM &&
-            other_participant_id.notNull() && other_participant_id != gAgentID)
+            other_participant_id.notNull() && other_participant_id != gAgentID;
+        if (incoming_direct)
         {
             LLChatServiceHistory::prioritizeResident(other_participant_id, true);
         }
-        LLIMModel::instance().addMessage(new_session_id, message_display_name, display_id, msg, true, is_region_msg, timestamp);
+        LLIMModel::instance().addMessage(new_session_id, message_display_name, display_id, msg, true, is_region_msg, timestamp,
+                                       incoming_direct
+                                           ? LLChatServiceHistoryCore::incomingContext(original_text, !is_offline_msg)
+                                           : LLSD());
     }
 
     // Open conversation floater if offline messages are present
