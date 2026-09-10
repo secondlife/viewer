@@ -237,9 +237,9 @@
     <binding key="DOWN" mask="NONE" command="flycam_pitch_down"/>
 
     <binding key="Q" mask="NONE" command="flycam_roll_left"/>
-    <binding key="Q" mask="SHIFT" command="flycam_roll_right"/>
+    <binding key="R" mask="NONE" command="flycam_roll_right"/>
 
-    <binding key="HOME" mask="NONE" command="flycam_reset"/>
+    <binding key="HOME" mask="NONE" command="flycam_unroll"/>
 
     <binding key="Z" mask="NONE" command="toggle_flycam"/>
 

@@ -422,7 +422,7 @@ public:
     LLGameControl::ActionNameType getActionNameType(const std::string& action) const;
 
     LLGameControl::AgentActions computeAgentActions();
-    void getFlycamInputs(std::vector<F32>& inputs_out, U32& misc_actions_out);
+    void getFlycamInputs(std::vector<F32>& inputs_out, U32& misc_actions_out, U32& modifiers_out);
     void setExternalInput(U32 action_flags, U32 buttons, bool is_running);
     void setMouseCursorPosition(S32 pixel_x, S32 pixel_y, S32 rect_width, S32 rect_height);
 
@@ -789,18 +789,13 @@ namespace
 
         LLSD flycam_buttons;
         flycam_buttons["Zoom out"]        = "BUTTON_SOUTH";
-        flycam_buttons["Pan right"]       = "BUTTON_EAST";
-        flycam_buttons["Pan left"]        = "BUTTON_WEST";
         flycam_buttons["Zoom in"]         = "BUTTON_NORTH";
         flycam_buttons["Toggle mouse cursor"] = "BUTTON_SELECT";
         flycam_buttons["Toggle flycam" ]  = "BUTTON_RIGHT_STICK";
-        flycam_buttons["Reset"]           = "BUTTON_LEFT_STICK";
-        flycam_buttons["Roll CCW"]        = "BUTTON_LEFT_SHOULDER";
-        flycam_buttons["Roll CW"]         = "BUTTON_RIGHT_SHOULDER";
-        flycam_buttons["Dolly forward"]   = "BUTTON_DPAD_UP";
-        flycam_buttons["Dolly back"]      = "BUTTON_DPAD_DOWN";
-        flycam_buttons["Truck left"]      = "BUTTON_DPAD_LEFT";
-        flycam_buttons["Truck right"]     = "BUTTON_DPAD_RIGHT";
+        flycam_buttons["Unroll"]          = "BUTTON_LEFT_STICK";
+        flycam_buttons["Roll CCW"]        = "BUTTON_WEST";
+        flycam_buttons["Roll CW"]         = "BUTTON_EAST";
+        flycam_buttons["Orbit"]           = "BUTTON_RIGHT_SHOULDER";
 
         LLSD flycam_axes_invert;
         flycam_axes_invert["Truck left/right"] = true;
@@ -2262,11 +2257,11 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     }
 
     // Analog "is running" hysteresis: engage once a movement axis is pushed past
-    // 60% of full deflection, release once every movement axis drops back below
-    // 40%.  The dead zone between the two thresholds avoids flicker right at the
+    // 90% of full deflection, release once every movement axis drops back below
+    // 70%.  The dead zone between the two thresholds avoids flicker right at the
     // boundary.
-    constexpr F32 RUN_ENGAGE_FRACTION = 0.6f;
-    constexpr F32 RUN_RELEASE_FRACTION = 0.4f;
+    constexpr F32 RUN_ENGAGE_FRACTION = 0.9f;
+    constexpr F32 RUN_RELEASE_FRACTION = 0.7f;
     F32 movement_fraction = (F32)movement_magnitude / 32767.f;
     if (movement_fraction > RUN_ENGAGE_FRACTION)
     {
@@ -2447,7 +2442,19 @@ namespace
     const std::map<std::string, U32>& flycamMiscButtonBridge()
     {
         static const std::map<std::string, U32> bridge = {
-            { "Reset", LLGameControl::FLYCAM_ACTION_RESET },
+            { "Unroll", LLGameControl::FLYCAM_ACTION_UNROLL },
+        };
+        return bridge;
+    }
+
+    // FlyCam-mode button label -> level-triggered FlycamModifier bit. Unlike
+    // flycamMiscButtonBridge()'s one-shot commands, these are asserted every
+    // frame the bound button is held down, mirroring the plain (non-edge)
+    // button-held check flycamButtonBridge() itself uses.
+    const std::map<std::string, U32>& flycamModifierButtonBridge()
+    {
+        static const std::map<std::string, U32> bridge = {
+            { "Orbit", LLGameControl::FLYCAM_MODIFIER_ORBIT },
         };
         return bridge;
     }
@@ -2772,9 +2779,10 @@ void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& s
     }
 }
 
-void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs, U32& misc_actions)
+void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs, U32& misc_actions, U32& modifiers)
 {
     misc_actions = 0;
+    modifiers = 0;
 
     // When FlyCam-mode conversion is disabled, produce no motion.  This path
     // (LLAgent::updateFlycam) is not gated by willControlFlycam(), so gate it
@@ -2829,9 +2837,12 @@ void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs, U32& mis
     // deflection to its channel, every frame it's held (flycamButtonBridge()).
     // One-shot commands (flycamMiscButtonBridge()) fire only on the
     // not-pressed -> pressed edge instead, mirroring how computeAgentActions()
-    // splits avatarButtonBridge()/avatarMiscButtonBridge() above.
+    // splits avatarButtonBridge()/avatarMiscButtonBridge() above.  Modifiers
+    // (flycamModifierButtonBridge()) are level-triggered like the channel
+    // buttons, just reported in their own bitmask instead of a DOF channel.
     const auto& button_bridge = flycamButtonBridge();
     const auto& misc_button_bridge = flycamMiscButtonBridge();
+    const auto& modifier_button_bridge = flycamModifierButtonBridge();
     U32 pressed_edges = g_innerState.mButtons & ~g_innerState.mPrevButtons;
     for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
     {
@@ -2848,6 +2859,12 @@ void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs, U32& mis
         if (it != button_bridge.end())
         {
             dof[it->second.channel] += it->second.polarity;
+            continue;
+        }
+        auto mod_it = modifier_button_bridge.find(label);
+        if (mod_it != modifier_button_bridge.end())
+        {
+            modifiers |= mod_it->second;
             continue;
         }
         auto mit = misc_button_bridge.find(label);
@@ -3474,9 +3491,9 @@ LLGameControl::InputChannel LLGameControl::getActiveInputChannel()
 }
 
 // static
-void LLGameControl::getFlycamInputs(std::vector<F32>& inputs_out, U32& misc_actions_out)
+void LLGameControl::getFlycamInputs(std::vector<F32>& inputs_out, U32& misc_actions_out, U32& modifiers_out)
 {
-    return g_manager.getFlycamInputs(inputs_out, misc_actions_out);
+    return g_manager.getFlycamInputs(inputs_out, misc_actions_out, modifiers_out);
 }
 
 // static

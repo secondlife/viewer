@@ -541,7 +541,7 @@ public:
     U32 getGameControlButtonsFromKeys() const { return mGameControlButtonsFromKeys; }
 
     void setFlycamKeyInput(U8 channel, F32 value);
-    void setFlycamKeyReset(bool reset);
+    void setFlycamKeyUnroll(bool unroll);
 
 private:
 
