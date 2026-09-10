@@ -28,7 +28,7 @@
 
 #include "llsingleton.h"
 #include "llviewerobject.h"
-#include "gltf/common.h"
+#include "gltfprimitive/common.h"
 
 class LLVOVolume;
 class LLDrawable;

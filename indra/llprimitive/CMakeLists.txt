@@ -7,23 +7,15 @@ include(LLCommon)
 include(LLCoreHttp)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
-include(GLM)
+include(LLGLTF)
 include(Mikktspace)
 
 set(llprimitive_SOURCE_FILES
-    gltf/accessor.cpp
-    gltf/animation.cpp
-    gltf/asset.cpp
-    gltf/primitive.cpp
     lldaeloader.cpp
-    llgltfloader.cpp
-    llgltfmaterial.cpp
     llmaterialid.cpp
     llmaterial.cpp
     llmaterialtable.cpp
     llmediaentry.cpp
-    llmodel.cpp
-    llmodelloader.cpp
     llprimitive.cpp
     llprimtexturelist.cpp
     lltextureanim.cpp
@@ -35,22 +27,13 @@ set(llprimitive_SOURCE_FILES
 
 set(llprimitive_HEADER_FILES
     CMakeLists.txt
-    gltf/accessor.h
-    gltf/animation.h
-    gltf/asset.h
-    gltf/buffer_util.h
-    gltf/common.h
-    gltf/primitive.h
     lldaeloader.h
-    llgltfloader.h
     llgltfmaterial.h
     legacy_object_types.h
     llmaterial.h
     llmaterialid.h
     llmaterialtable.h
     llmediaentry.h
-    llmodel.h
-    llmodelloader.h
     llprimitive.h
     llprimtexturelist.h
     lllslconstants.h
@@ -78,8 +61,8 @@ target_link_libraries(llprimitive
         llrender
         llappearance
         llmeshoptimizer
+        llgltf
         ll::colladadom
-        ll::glm
         )
 
 if (HAVOK OR HAVOK_TPV)
@@ -102,7 +85,6 @@ if (LL_TESTS)
     SET(llprimitive_TEST_SOURCE_FILES
       llmediaentry.cpp
       llprimitive.cpp
-      llgltfmaterial.cpp
       )
 
     set_property(SOURCE llprimitive.cpp PROPERTY LL_TEST_ADDITIONAL_LIBRARIES llmessage)

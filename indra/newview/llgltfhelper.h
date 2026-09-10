@@ -29,7 +29,7 @@
 #include "llgltfmaterial.h"
 #include "llgltfmateriallist.h"
 #include "llpointer.h"
-#include "gltf/asset.h"
+#include "gltfprimitive/asset.h"
 
 class LLImageRaw;
 class LLViewerFetchedTexture;

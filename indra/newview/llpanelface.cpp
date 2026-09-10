@@ -5452,7 +5452,7 @@ void LLPanelFace::LLSelectedTE::getPbrMaterialId(LLUUID& id, bool& identical, bo
                 }
                 else
                 {
-                    mIdenticalOverride &= (mMaterialOverride == LLGLTFMaterial::sDefault);
+                    mIdenticalOverride &= (mMaterialOverride == LLGLTFMaterialCore::sDefault);
                 }
             }
             else

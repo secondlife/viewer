@@ -107,7 +107,7 @@
 #include "llmeshrepository.h"
 #include "llgltfmateriallist.h"
 #include "llgl.h"
-#include "gltf/asset.h"
+#include "gltfprimitive/asset.h"
 
 //#define DEBUG_UPDATE_TYPE
 

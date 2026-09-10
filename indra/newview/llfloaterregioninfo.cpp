@@ -1813,8 +1813,8 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
         for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
         {
             if (!mMaterialScaleUCtrl[i] || !mMaterialScaleVCtrl[i] || !mMaterialRotationCtrl[i] || !mMaterialOffsetUCtrl[i] || !mMaterialOffsetVCtrl[i]) { continue; }
-            const LLGLTFMaterial* mat_override = compp->getMaterialOverride(i);
-            if (!mat_override) { mat_override = &LLGLTFMaterial::sDefault; }
+            const LLGLTFMaterialCore* mat_override = compp->getMaterialOverride(i);
+            if (!mat_override) { mat_override = &LLGLTFMaterialCore::sDefault; }
 
             // Assume all texture transforms have the same value
             const LLGLTFMaterial::TextureTransform& transform = mat_override->mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR];

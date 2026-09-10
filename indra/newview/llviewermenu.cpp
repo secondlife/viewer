@@ -148,7 +148,7 @@
 #include "llcleanup.h"
 #include "llviewershadermgr.h"
 #include "gltfscenemanager.h"
-#include "gltf/asset.h"
+#include "gltfprimitive/asset.h"
 
 using namespace LLAvatarAppearanceDefines;
 
