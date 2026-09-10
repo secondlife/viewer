@@ -484,12 +484,15 @@ public:
     static InputChannel getActiveInputChannel();
 
     // Packs the FlyCam-mode DOF channels (order per FlycamChannel) into
-    // 'inputs_out'.  FlycamMiscAction commands (e.g. FLYCAM_ACTION_RESET) are
+    // 'inputs_out'.  FlycamMiscAction commands (e.g. FLYCAM_ACTION_UNROLL) are
     // discrete one-shot commands rather than per-frame DOF contributions, so
     // they are reported separately via 'misc_actions_out': the bitmask of
     // FlycamMiscAction values whose bound button transitioned from
-    // not-pressed to pressed this frame.
-    static void getFlycamInputs(std::vector<F32>& inputs_out, U32& misc_actions_out);
+    // not-pressed to pressed this frame.  FlycamModifier values (e.g.
+    // FLYCAM_MODIFIER_ORBIT) are level-triggered instead: 'modifiers_out' is
+    // the bitmask of FlycamModifier values whose bound button is held down
+    // this frame.
+    static void getFlycamInputs(std::vector<F32>& inputs_out, U32& misc_actions_out, U32& modifiers_out);
 
     // these methods for accepting input from keyboard
     static void setSendToServer(bool enable);
@@ -550,7 +553,16 @@ public:
 
     enum FlycamMiscAction : U32
     {
-        FLYCAM_ACTION_RESET = 1u << 0,
+        FLYCAM_ACTION_UNROLL = 1u << 0,
+    };
+
+    // Level-triggered (held == asserted) FlyCam-mode modifiers, reported via
+    // getFlycamInputs()'s 'modifiers_out'.  Unlike FlycamMiscAction these are
+    // not one-shot commands: they change the meaning of other flycam channels
+    // for as long as they're held (see LLAgentCamera::updateFlycam()).
+    enum FlycamModifier : U32
+    {
+        FLYCAM_MODIFIER_ORBIT = 1u << 0,
     };
 
     // Simulated mouse button actions (press-n-hold)

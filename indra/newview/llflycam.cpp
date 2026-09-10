@@ -91,6 +91,32 @@ void LLFlycam::setZoomRate(F32 zoom_rate)
 }
 
 
+void LLFlycam::setOrbitEngaged(bool engaged, F32 focal_distance)
+{
+    if (engaged && !mOrbitEngaged)
+    {
+        // Rising edge: fix the focal point 'focal_distance' meters in front of
+        // the camera's current forward axis. It stays put in world space for
+        // as long as orbit stays engaged, even as Pan/Truck/Tilt/Roll rotate
+        // the camera around it (see integrate()).
+        LLVector3 forward(LLMatrix3(mRotation).getFwdRow());
+        mOrbitFocalPoint = mPosition + LLVector3d(forward) * (F64)focal_distance;
+    }
+    mOrbitEngaged = engaged;
+}
+
+
+void LLFlycam::setOrbitRadialRate(F32 radial_rate)
+{
+    // Note: this math expects radial_rate to be in range [-1.0, 1.0]. The
+    // resulting rate is a FRACTION of the current distance-to-focal-point per
+    // second (not a fixed speed), so approach slows near the focal point and
+    // retreat speeds up far away from it.
+    constexpr F32 ORBIT_RADIAL_RATE_FACTOR = 1.0f; // fraction of distance/sec at full deflection; may be tuned later
+    mOrbitRadialRate = radial_rate * ORBIT_RADIAL_RATE_FACTOR;
+}
+
+
 void LLFlycam::startReset(const LLVector3d& target_position, const LLQuaternion& target_rotation, F32 duration)
 {
     mResetStartPosition = mPosition;
@@ -160,9 +186,39 @@ void LLFlycam::integrate(F32 delta_time)
         needs_renormalization = true;
     }
 
+    if (mOrbitEngaged)
+    {
+        // Re-derive position from the just-rotated forward axis, so the
+        // camera stays (radially adjusted) 'distance' meters from the fixed
+        // focal point, always facing it.  Pan/Truck (yaw, above) and Tilt
+        // (pitch, above) therefore sweep/swing the camera around the focal
+        // point as a side effect of simply rotating the camera; only the
+        // radius itself is orbit-specific here.
+        constexpr F32 MIN_ORBIT_DISTANCE = 0.1f; // meters
+        F32 distance = (F32)(mPosition - mOrbitFocalPoint).length();
+        distance = std::max(distance * (1.0f + delta_time * mOrbitRadialRate), MIN_ORBIT_DISTANCE);
+        // 'forward' points from the camera toward the focal point, so the
+        // camera itself sits behind the focal point along that axis.
+        LLVector3 forward(LLMatrix3(mRotation).getFwdRow());
+        mPosition = mOrbitFocalPoint - LLVector3d(forward) * (F64)distance;
+    }
+
     if (mLinearVelocity.lengthSquared() > 0.0f)
     {
-        mPosition += LLVector3d((delta_time * mLinearVelocity) * mRotation);
+        // Boom (local Z) still translates the camera directly here, on top of
+        // the orbit reposition above, regardless of mOrbitEngaged -- Truck/
+        // Dolly's contributions are zeroed out by LLAgentCamera::updateFlycam()
+        // while orbiting, since they're redirected into yaw/radial rate instead.
+        LLVector3d translation((delta_time * mLinearVelocity) * mRotation);
+        mPosition += translation;
+        if (mOrbitEngaged)
+        {
+            // Boom doesn't reorient the camera or change its distance from
+            // the focal point -- drag the focal point along with it instead,
+            // so the next frame's orbit reposition still measures 'distance'
+            // from wherever boom just moved it to.
+            mOrbitFocalPoint += translation;
+        }
     }
 
     if (mZoomRate != 0.0f)

@@ -2999,7 +2999,8 @@ void LLAgentCamera::updateFlycam(F32 delta_time)
     // Note: flycam_inputs arrive in range [-1,1]
     std::vector<F32> flycam_inputs;
     U32 flycam_misc_actions = 0;
-    LLGameControl::getFlycamInputs(flycam_inputs, flycam_misc_actions);
+    U32 flycam_modifiers = 0;
+    LLGameControl::getFlycamInputs(flycam_inputs, flycam_misc_actions, flycam_modifiers);
 
     // The channel order is defined by LLGameControl::FlycamChannel.
 
@@ -3018,48 +3019,110 @@ void LLAgentCamera::updateFlycam(F32 delta_time)
         flycam_inputs[i] = llclamp(flycam_inputs[i] + mFlycamKeyboardInput[i], -1.f, 1.f);
     }
     mFlycamKeyboardInput.fill(0.f);
-    bool flycam_key_reset_requested = mFlycamKeyboardResetRequested;
-    mFlycamKeyboardResetRequested = false;
+    bool flycam_key_unroll_requested = mFlycamKeyboardUnrollRequested;
+    mFlycamKeyboardUnrollRequested = false;
 
-    if (((flycam_misc_actions & LLGameControl::FLYCAM_ACTION_RESET) || flycam_key_reset_requested) && isAgentAvatarValid())
+    if ((flycam_misc_actions & LLGameControl::FLYCAM_ACTION_UNROLL) || flycam_key_unroll_requested)
     {
-        // Reorient the flycam as if it were the 3rd-person camera: above and
-        // behind the avatar, looking down.  mFlycam.startReset() smoothly
-        // lerps into this transform (see LLFlycam::integrate()); flycam
-        // input has no effect until the lerp completes.
-        constexpr F32 FLYCAM_RESET_DURATION = 1.0f; // seconds; may be tuned later
-        constexpr F32 FLYCAM_RESET_FOCUS_HEIGHT = 1.0f; // meters above avatar root
+        // Re-level the flycam in place: keep its current position and
+        // forward (local X) axis unchanged, but roll it around that forward
+        // axis so the left axis becomes horizontal (equivalently, the up
+        // axis moves into the forward/world-up plane).  mFlycam.startReset()
+        // smoothly lerps into this transform (see LLFlycam::integrate());
+        // flycam input has no effect until the lerp completes.
+        constexpr F32 FLYCAM_UNROLL_DURATION = 1.0f; // seconds; may be tuned later
 
-        LLQuaternion avatar_rot = gAgentAvatarp->isSitting()
-            ? gAgentAvatarp->getRenderRotation()
-            : gAgent.getFrameAgent().getQuaternion();
-        LLVector3 avatar_pos = gAgent.getPositionAgent();
+        LLVector3d current_position;
+        LLQuaternion current_rotation;
+        mFlycam.getTransform(current_position, current_rotation);
 
-        // Reuse the same behind/above offset the real 3rd-person camera uses,
-        // rotated into the avatar's current facing.
-        F32 camera_offset_scale = gSavedSettings.getF32("CameraOffsetScale");
-        LLVector3 local_offset = getCameraOffsetInitial() * camera_offset_scale;
-        LLVector3 target_position = avatar_pos + local_offset * avatar_rot;
+        LLMatrix3 level(current_rotation);
+        LLVector3 forward(level.getFwdRow());
+        LLVector3 left(level.getLeftRow());
+        LLVector3 up(level.getUpRow());
+        left.mV[VZ] = 0.f;
+        left.normVec();
+        level.setRows(forward, left, up);
+        level.orthogonalize();
 
-        // Look toward the avatar (roughly torso height); since the camera
-        // sits above and behind, this naturally tilts the view down and
-        // toward the avatar's facing direction.
-        LLVector3 focus_point = avatar_pos + LLVector3(0.f, 0.f, FLYCAM_RESET_FOCUS_HEIGHT);
-        LLCoordFrame target_frame;
-        target_frame.lookAt(target_position, focus_point, LLVector3::z_axis);
-
-        mFlycam.startReset(gAgent.getPosGlobalFromAgent(target_position), target_frame.getQuaternion(), FLYCAM_RESET_DURATION);
+        mFlycam.startReset(current_position, LLQuaternion(level), FLYCAM_UNROLL_DURATION);
     }
 
-    LLVector3 linear_velocity(
-            flycam_inputs[LLGameControl::FLYCAM_DOLLY],
-            flycam_inputs[LLGameControl::FLYCAM_TRUCK],
-            flycam_inputs[LLGameControl::FLYCAM_BOOM]);
+    // Orbit modifier: while held, Truck stops meaning strafe and instead adds
+    // into Pan's yaw (both sweep the camera left/right around the focal
+    // point), and Dolly stops meaning advance and instead adjusts the radius
+    // (see LLFlycam::setOrbitRadialRate()/integrate()).  Tilt, Roll, Boom,
+    // and Zoom keep their normal meaning either way: Tilt already rotates the
+    // camera about its own local left axis, which is exactly what swings it
+    // up/down around the focal point once position is derived from
+    // orientation; Roll still passes straight through (it just changes which
+    // region-frame axis Tilt's local axis happens to be next frame).
+    bool flycam_orbit_held = (flycam_modifiers & LLGameControl::FLYCAM_MODIFIER_ORBIT) != 0;
+    constexpr F32 FLYCAM_ORBIT_DEFAULT_FOCAL_DISTANCE = 20.0f; // meters; hard-coded for now, may be tuned later
+    constexpr F32 FLYCAM_ORBIT_MAX_TRACE_DISTANCE = 512.0f; // meters; matches the general world-raycast convention used elsewhere (e.g. LLViewerWindow::cursorIntersect)
+    F32 flycam_orbit_focal_distance = FLYCAM_ORBIT_DEFAULT_FOCAL_DISTANCE;
+    if (flycam_orbit_held && !mFlycam.isOrbitEngaged())
+    {
+        // Rising edge: ray-trace forward from the flycam to see what it's
+        // pointing at, so Orbit pivots around that instead of an arbitrary
+        // fixed distance whenever there's something in view; falls back to
+        // the default distance if nothing is hit within range.
+        LLVector3d camera_pos_global;
+        LLQuaternion camera_rot;
+        mFlycam.getTransform(camera_pos_global, camera_rot);
+        LLVector3 camera_pos = gAgent.getPosAgentFromGlobal(camera_pos_global);
+        LLVector3 forward(LLMatrix3(camera_rot).getFwdRow());
+        LLVector3 trace_end = camera_pos + forward * FLYCAM_ORBIT_MAX_TRACE_DISTANCE;
+
+        LLVector4a start, end;
+        start.load3(camera_pos.mV);
+        end.load3(trace_end.mV);
+
+        LLVector4a intersection;
+        S32 face_hit = -1;
+        LLViewerObject* hit_object = gPipeline.lineSegmentIntersectInWorld(
+            start, end,
+            /*pick_transparent=*/ false,
+            /*pick_rigged=*/ true,
+            /*pick_unselectable=*/ true,
+            /*pick_reflection_probe=*/ false,
+            &face_hit, nullptr, nullptr,
+            &intersection);
+        if (hit_object)
+        {
+            LLVector3 hit_pos;
+            hit_pos.set(intersection.getF32ptr());
+            flycam_orbit_focal_distance = (hit_pos - camera_pos).length();
+        }
+    }
+    mFlycam.setOrbitEngaged(flycam_orbit_held, flycam_orbit_focal_distance);
+
+    F32 yaw_input = flycam_inputs[LLGameControl::FLYCAM_PAN];
+    F32 truck_input = flycam_inputs[LLGameControl::FLYCAM_TRUCK];
+    F32 dolly_input = flycam_inputs[LLGameControl::FLYCAM_DOLLY];
+    if (flycam_orbit_held)
+    {
+        // Truck/Dolly are negated here (Pan/Tilt/Roll/Boom/Zoom are not) --
+        // determined empirically to match the expected orbit sweep/radial
+        // directions.
+        truck_input = -truck_input;
+        dolly_input = -dolly_input;
+        yaw_input = llclamp(yaw_input + truck_input, -1.f, 1.f);
+        truck_input = 0.f;
+        mFlycam.setOrbitRadialRate(dolly_input);
+        dolly_input = 0.f;
+    }
+    else
+    {
+        mFlycam.setOrbitRadialRate(0.f);
+    }
+
+    LLVector3 linear_velocity(dolly_input, truck_input, flycam_inputs[LLGameControl::FLYCAM_BOOM]);
     constexpr F32 MAX_FLYCAM_SPEED = 10.0f;
     mFlycam.setLinearVelocity(MAX_FLYCAM_SPEED * linear_velocity);
 
     mFlycam.setPitchRate(flycam_inputs[LLGameControl::FLYCAM_TILT]);
-    mFlycam.setYawRate(flycam_inputs[LLGameControl::FLYCAM_PAN]);
+    mFlycam.setYawRate(yaw_input);
     mFlycam.setRollRate(flycam_inputs[LLGameControl::FLYCAM_ROLL]);
     mFlycam.setZoomRate(flycam_inputs[LLGameControl::FLYCAM_ZOOM]);
 

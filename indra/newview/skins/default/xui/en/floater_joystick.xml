@@ -200,6 +200,7 @@
      layout="topleft"
      left="289"
      name="JoystickFlycamEnabled"
+     tool_tip="Lets this device fly the camera."
      width="60" />
     <stat_view
      height="270"

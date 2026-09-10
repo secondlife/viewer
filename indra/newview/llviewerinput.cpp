@@ -389,11 +389,11 @@ bool flycam_axis_key(const LLKeyPressState& s)
     return true;
 }
 
-bool flycam_reset_key(const LLKeyPressState& s)
+bool flycam_unroll_key(const LLKeyPressState& s)
 {
     if (KEYSTATE_DOWN == s.mState)
     {
-        gAgent.setFlycamKeyReset(true);
+        gAgent.setFlycamKeyUnroll(true);
     }
     return true;
 }
@@ -1121,7 +1121,7 @@ REGISTER_KEYBOARD_ACTION("flycam_pitch_up", (flycam_axis_key<LLGameControl::FLYC
 REGISTER_KEYBOARD_ACTION("flycam_pitch_down", (flycam_axis_key<LLGameControl::FLYCAM_TILT, -1>));
 REGISTER_KEYBOARD_ACTION("flycam_roll_left", (flycam_axis_key<LLGameControl::FLYCAM_ROLL, -1>));
 REGISTER_KEYBOARD_ACTION("flycam_roll_right", (flycam_axis_key<LLGameControl::FLYCAM_ROLL, 1>));
-REGISTER_KEYBOARD_ACTION("flycam_reset", flycam_reset_key);
+REGISTER_KEYBOARD_ACTION("flycam_unroll", flycam_unroll_key);
 REGISTER_KEYBOARD_ACTION("game_control_button_0", game_control_button<0>);
 REGISTER_KEYBOARD_ACTION("game_control_button_1", game_control_button<1>);
 REGISTER_KEYBOARD_ACTION("game_control_button_2", game_control_button<2>);
