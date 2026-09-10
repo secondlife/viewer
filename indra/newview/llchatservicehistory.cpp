@@ -26,6 +26,7 @@
 #include "llfloaterconversationpreview.h"
 #include "llfloaterreg.h"
 #include "llfloaterimsessiontab.h"
+#include "llfloaterimsession.h"
 #include "llimview.h"
 #include "lllogchat.h"
 #include "llmutelist.h"
@@ -270,6 +271,22 @@ bool ownsRuntime(U32 epoch)
     return sRuntime.running && sRuntime.epoch == epoch;
 }
 
+bool postPresentation(const LL::WorkQueue::Work& work)
+{
+    // Manager and name-cache coroutines may resume inside a yielding UI operation.
+    // Run presentation on the main-loop coroutine, after that operation unwinds.
+    const U32 epoch = sRuntime.epoch;
+    LL::WorkQueue::ptr_t main = LL::WorkQueue::getInstance("mainloop");
+    return main && main->post([epoch, work]()
+    {
+        // Queued UI work belongs only to the login that scheduled it.
+        if (ownsRuntime(epoch))
+        {
+            work();
+        }
+    });
+}
+
 std::string accountPath(const std::string& filename)
 {
     return gDirUtilp ? gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, filename)
@@ -343,7 +360,17 @@ void publishSnapshot(const LLUUID& id, Resident& resident)
         sRuntime.rollout && transcriptConsent() &&
         sRuntime.state_safety == STATE_SAFE && !sRuntime.cleanup_pending &&
         !sRuntime.delete_requested;
-    sSnapshotSignal(id, resident.snapshot);
+    postPresentation([id]()
+    {
+        // Deliver current state, not a captured preview that may have been revoked
+        // or replaced while this notification waited for the main loop.
+        auto found = sRuntime.residents.find(id);
+        if (found != sRuntime.residents.end())
+        {
+            const auto snapshot = found->second.snapshot;
+            sSnapshotSignal(id, snapshot);
+        }
+    });
 }
 
 void setWorkActive(const LLUUID& id, bool active)
@@ -1151,8 +1178,7 @@ U32 pendingMetadataCount()
 
 bool ensureMetadata(const LLUUID& id, Resident& resident)
 {
-    // A resolved record is stable for this login. Republishing it from a view load
-    // would synchronously re-enter that load through the resident snapshot signal.
+    // A resolved record is stable for this login; view loads need no new publication.
     if (resident.metadata.state == META_RESOLVED)
     {
         return true;
@@ -1888,16 +1914,22 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
                 const F64 archived_seconds = after_publish.summary.newest.ticks >= UUID_EPOCH
                     ? static_cast<F64>(after_publish.summary.newest.ticks - UUID_EPOCH) / 10000000.0
                     : static_cast<F64>(time_corrected());
-                const LLAvatarName& name = after_publish.metadata.name;
-                LLConversationLog::instance().addServiceConversation(
-                    LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, id),
-                    name.getCompleteName(),
-                    LLCacheName::buildUsername(name.getUserName()),
-                    id,
-                    U64Seconds(LLUnits::Seconds::fromValue(archived_seconds)));
+                const LLAvatarName name = after_publish.metadata.name;
+                postPresentation([id, name, archived_seconds]()
+                {
+                    if (!LLChatServiceHistory::historySuppressed())
+                    {
+                        LLConversationLog::instance().addServiceConversation(
+                            LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, id),
+                            name.getCompleteName(),
+                            LLCacheName::buildUsername(name.getUserName()),
+                            id,
+                            U64Seconds(LLUnits::Seconds::fromValue(archived_seconds)));
+                    }
+                });
             }
 
-            LLLogChat::notifyTranscriptCreated();
+            postPresentation(LLLogChat::notifyTranscriptCreated);
         }
         else
         {
@@ -1907,7 +1939,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
             after_publish.covered_token.clear();
             sRuntime.index_dirty = true;
             sRuntime.local_content_exists = true;
-            LLLogChat::notifyTranscriptCreated();
+            postPresentation(LLLogChat::notifyTranscriptCreated);
             publication_failed = true;
         }
     }
@@ -2021,14 +2053,20 @@ void finishDelete(bool success)
     else
     {
         sRuntime.delete_requested = true;
-        LLNotificationsUtil::add("ChatServiceHistoryDeleteFailed");
     }
 
-    if (callback)
+    postPresentation([success, callback]()
     {
-        callback(success);
-    }
-    LLLogChat::notifyTranscriptCreated();
+        if (!success)
+        {
+            LLNotificationsUtil::add("ChatServiceHistoryDeleteFailed");
+        }
+        if (callback)
+        {
+            callback(success);
+        }
+        LLLogChat::notifyTranscriptCreated();
+    });
 }
 
 void runDelete(U32 epoch)
@@ -2072,24 +2110,45 @@ void runDelete(U32 epoch)
         publishSnapshot(pair.first, pair.second);
     }
 
-    for (auto& pair : LLIMModel::instance().mId2SessionMap)
+    // Await invalidation on the main loop before sweeping files or accepting new
+    // history. A late clear must not discard messages received after deletion.
+    LL::WorkQueue::ptr_t main = LL::WorkQueue::getInstance("mainloop");
+    const bool cleared = main && main->waitForResult([epoch]()
     {
-        pair.second->clearForHistoryDeletion();
-    }
-
-    const LLFloaterReg::const_instance_list_t& previews =
-        LLFloaterReg::getFloaterList("preview_conversation");
-    for (LLFloater* floater : previews)
-    {
-        if (LLFloaterConversationPreview* preview =
-                dynamic_cast<LLFloaterConversationPreview*>(floater))
+        if (!ownsRuntime(epoch))
         {
-            preview->invalidateHistory();
-            preview->closeFloater();
+            return false;
         }
-    }
 
-    LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
+        for (auto& pair : LLIMModel::instance().mId2SessionMap)
+        {
+            pair.second->clearForHistoryDeletion();
+        }
+
+        const LLFloaterReg::const_instance_list_t& previews =
+            LLFloaterReg::getFloaterList("preview_conversation");
+        for (LLFloater* floater : previews)
+        {
+            if (LLFloaterConversationPreview* preview =
+                    dynamic_cast<LLFloaterConversationPreview*>(floater))
+            {
+                preview->invalidateHistory();
+                preview->closeFloater();
+            }
+        }
+
+        LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
+        return true;
+    });
+    if (!ownsRuntime(epoch))
+    {
+        return;
+    }
+    if (!cleared)
+    {
+        finishDelete(false);
+        return;
+    }
 
     // Sweep legacy transcripts first, then service-owned artifacts, through the
     // shared filesystem mutation boundaries on the General queue.
@@ -2225,7 +2284,7 @@ bool prepareOneArchive(U32 epoch)
                 ensureMetadata(id, current);
             }
             publishSnapshot(id, current);
-            LLLogChat::notifyTranscriptCreated();
+            postPresentation(LLLogChat::notifyTranscriptCreated);
         }
         return prepared;
     }
@@ -2452,11 +2511,14 @@ void manager(U32 epoch)
             sRuntime.state_safety = state.safety;
             sRuntime.deleted_before_ticks = state.boundary;
             sRuntime.cleanup_pending = state.cleanup_pending;
-            LLLogChat::notifyTranscriptCreated();
-            if (state.safety == STATE_SAFE && !state.cleanup_pending)
+            postPresentation([]()
             {
-                LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
-            }
+                LLLogChat::notifyTranscriptCreated();
+                if (!LLChatServiceHistory::historySuppressed())
+                {
+                    LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
+                }
+            });
             if (state.safety == STATE_SAFE && state.cleanup_pending)
             {
                 sRuntime.delete_active = true;
@@ -2691,75 +2753,6 @@ bool legacyWallEpoch(const std::string& text, F64& epoch)
     }
 }
 
-bool sameSenderAndText(const LLSD& left, const LLSD& right)
-{
-    if (left[LL_IM_TEXT].asString() != right[LL_IM_TEXT].asString())
-    {
-        return false;
-    }
-
-    // Prefer exact resident identity when both sources carry it; otherwise compare
-    // their canonical resident usernames.
-    const bool left_has_id = left[LL_IM_FROM_ID].isDefined();
-    const bool right_has_id = right[LL_IM_FROM_ID].isDefined();
-    return left_has_id && right_has_id
-        ? left[LL_IM_FROM_ID].asUUID() == right[LL_IM_FROM_ID].asUUID()
-        : sameDirectSenderName(left[LL_IM_FROM].asString(),
-                               right[LL_IM_FROM].asString());
-}
-
-bool sameSenderAndText(const LLSD& legacy, const Row& service)
-{
-    if (legacy[LL_IM_TEXT].asString() != service.message)
-    {
-        return false;
-    }
-
-    return legacy[LL_IM_FROM_ID].isDefined()
-        ? legacy[LL_IM_FROM_ID].asUUID() == service.from_id
-        : sameDirectSenderName(legacy[LL_IM_FROM].asString(), service.from_name);
-}
-
-bool sameLegacyMinute(F64 wall_epoch, F64 utc_epoch)
-{
-    // Legacy transcript minutes are SLT but do not encode whether UTC-7 or UTC-8
-    // applied. Either exact minute may identify the authoritative service row.
-    for (const F64 offset : { 7.0 * 3600.0, 8.0 * 3600.0 })
-    {
-        const F64 minute = wall_epoch + offset;
-        if (utc_epoch >= minute && utc_epoch < minute + 60.0)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-S64 utcMinute(F64 epoch)
-{
-    return static_cast<S64>(epoch) / 60;
-}
-
-bool sameHistoryLiveOccurrence(const LLSD& history, const LLSD& live)
-{
-    if (!sameSenderAndText(history, live) ||
-        !live["timestamp"].isInteger() || live["timestamp"].asInteger() <= 0)
-    {
-        return false;
-    }
-
-    const F64 live_epoch = static_cast<U32>(live["timestamp"].asInteger());
-    if (history["chat_service_msg_id"].isString() &&
-        history["timestamp"].isInteger() && history["timestamp"].asInteger() > 0)
-    {
-        const U32 history_epoch = static_cast<U32>(history["timestamp"].asInteger());
-        return history_epoch / 60 == static_cast<U32>(live_epoch) / 60;
-    }
-
-    return history[LEGACY_WALL_TIME].isReal() &&
-           sameLegacyMinute(history[LEGACY_WALL_TIME].asReal(), live_epoch);
-}
-
 LLSD serviceMessage(const Row& row)
 {
     LLSD message;
@@ -2781,7 +2774,7 @@ LLSD serviceMessage(const Row& row)
 LLChatServiceHistory::HistoryResult readStitched(
     const LLUUID& id, const LLUUID& agent_id, const std::string& archive_path,
     const std::vector<std::string>& legacy_paths, U32 limit, U32 epoch, U32 serial,
-    U64 boundary, bool include_service, std::vector<Row> preview)
+    U64 boundary, bool include_service, const std::vector<Row>& preview)
 {
     LLChatServiceHistory::HistoryResult result;
     result.account_epoch = epoch;
@@ -2813,40 +2806,8 @@ LLChatServiceHistory::HistoryResult readStitched(
         LLChatServiceHistoryAccess::loadLegacy(path, legacy, parameters);
     }
 
-    // Canonical rows win exact identity over preview rows, then all service rows
-    // share one stable TimeUUID order for seam reconciliation and final display.
-    std::set<std::string> canonical_ids;
-    std::vector<Row> service = archive.display_rows;
-    for (const Row& row : service)
-    {
-        canonical_ids.insert(row.msg_id);
-    }
-    for (const Row& row : preview)
-    {
-        if (!canonical_ids.count(row.msg_id))
-        {
-            service.push_back(row);
-        }
-    }
-    std::sort(service.begin(), service.end(), [](const Row& left, const Row& right)
-    {
-        return left.key < right.key;
-    });
-    std::vector<bool> service_placed(service.size(), false);
-    std::multimap<S64, size_t> canonical_minutes;
-    for (size_t pos = 0; pos < service.size(); ++pos)
-    {
-        if (canonical_ids.count(service[pos].msg_id))
-        {
-            canonical_minutes.emplace(
-                utcMinute(LLDate(service[pos].created_at).secondsSinceEpoch()), pos);
-        }
-    }
-
     const F64 service_epoch = archive.has_oldest
         ? static_cast<F64>(archive.oldest.ticks - UUID_EPOCH) / 10000000.0 : 0.0;
-    std::vector<std::pair<F64, LLSD>> dated;
-    std::list<LLSD> undated;
 
     // Admit only the legacy prefix that may predate the durable service boundary.
     // Offset-less SLT timestamps use their earliest UTC interpretation (UTC-7).
@@ -2855,65 +2816,26 @@ LLChatServiceHistory::HistoryResult readStitched(
         F64 wall = 0.0;
         if (!legacyWallEpoch(message[LL_IM_DATE_TIME].asString(), wall))
         {
-            undated.push_back(message);
+            result.messages.push_back(message);
         }
         else if (!archive.has_oldest || legacyWallMayPrecedeService(wall, service_epoch))
         {
             LLSD stitched = message;
             stitched[LEGACY_WALL_TIME] = wall;
-
-            // Reconcile exact overlaps only inside the admitted legacy prefix,
-            // consuming one occurrence from each source.
-            size_t match = service.size();
-            for (const F64 offset : { 7.0 * 3600.0, 8.0 * 3600.0 })
-            {
-                const auto range = canonical_minutes.equal_range(utcMinute(wall + offset));
-                for (auto candidate = range.first; candidate != range.second; ++candidate)
-                {
-                    const size_t pos = candidate->second;
-                    if (!service_placed[pos] && sameSenderAndText(message, service[pos]))
-                    {
-                        match = pos;
-                        break;
-                    }
-                }
-                if (match != service.size())
-                {
-                    break;
-                }
-            }
-            if (match != service.size())
-            {
-                stitched = serviceMessage(service[match]);
-                service_placed[match] = true;
-            }
-            dated.emplace_back(wall, stitched);
+            result.messages.push_back(stitched);
         }
     }
-    std::stable_sort(dated.begin(), dated.end(),
-        [](const auto& left, const auto& right)
-        {
-            return left.first < right.first;
-        });
-
-    for (const auto& item : dated)
+    // Storage reads and preview publications share the same occurrence-aware seam.
+    std::list<LLSD> service;
+    for (const Row& row : archive.display_rows)
     {
-        result.messages.push_back(item.second);
+        service.push_back(serviceMessage(row));
     }
-
-    for (const LLSD& message : undated)
+    for (const Row& row : preview)
     {
-        result.messages.push_back(message);
+        service.push_back(serviceMessage(row));
     }
-
-    // Append service rows that did not replace their exact legacy occurrence.
-    for (size_t pos = 0; pos < service.size(); ++pos)
-    {
-        if (!service_placed[pos])
-        {
-            result.messages.push_back(serviceMessage(service[pos]));
-        }
-    }
+    result.messages = mergeDirectHistory(result.messages, service);
 
     // Apply the consumer limit to the complete seam order, retaining the service tail.
     while (limit && result.messages.size() > limit)
@@ -2983,7 +2905,10 @@ void LLChatServiceHistory::start()
             .getControl("LogShowHistory")->getSignal()->connect(
                 [](LLControlVariable*, const LLSD&, const LLSD&)
                 {
-                    LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
+                    postPresentation([]()
+                    {
+                        LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
+                    });
                 });
     }
 
@@ -3189,79 +3114,72 @@ boost::signals2::connection LLChatServiceHistory::setSnapshotChanged(
     return sSnapshotSignal.connect(callback);
 }
 
-std::list<LLSD> LLChatServiceHistory::filterLiveDuplicates(
-    const std::list<LLSD>& history, const std::list<LLSD>& live)
+LLChatServiceHistory::Messages LLChatServiceHistory::composeHistory(
+    History& history, const Snapshot& snapshot, U32 limit, const LLUUID& session_id)
 {
-    std::vector<const LLSD*> live_rows;
-    for (const LLSD& message : live)
+    Messages preview;
+    if (snapshot.service_presentation_allowed)
     {
-        live_rows.push_back(&message);
-    }
-    std::vector<bool> consumed(live_rows.size(), false);
-
-    // Matching is occurrence-aware: repeated identical messages consume repeated
-    // rows one-for-one instead of collapsing to one value.
-    std::list<LLSD> filtered;
-    for (const LLSD& message : history)
-    {
-        bool duplicate = false;
-        for (size_t pos = 0; pos < live_rows.size(); ++pos)
+        for (const Row& row : snapshot.head_preview)
         {
-            if (!consumed[pos] && sameHistoryLiveOccurrence(message, *live_rows[pos]))
+            preview.push_back(serviceMessage(row));
+        }
+    }
+    else
+    {
+        history.clearService();
+    }
+
+    // Preview has no live rows. An IM session supplies only its append-only deliveries.
+    Messages live;
+    LLFloaterIMSession* floater = nullptr;
+    if (session_id.notNull())
+    {
+        floater = LLFloaterIMSession::findInstance(session_id);
+        if (const auto* session = LLIMModel::instance().findIMSession(session_id))
+        {
+            for (const LLSD& message : session->mMsgs)
             {
-                consumed[pos] = true;
-                duplicate = true;
-                break;
+                if (!message["is_history"].asBoolean())
+                {
+                    live.push_back(message);
+                }
             }
         }
-        if (!duplicate)
-        {
-            filtered.push_back(message);
-        }
     }
-    return filtered;
+    return history.compose(preview, live, limit, floater && floater->isInVisibleChain());
 }
 
-std::list<LLSD> LLChatServiceHistory::mergeHeadPreview(
-    const std::list<LLSD>& loaded, const Snapshot& snapshot, U32 limit)
+bool LLChatServiceHistory::replaceHistory(Messages& current, const Messages& history, bool direct)
 {
-    // Deduplicate transient preview rows against the loaded archive by exact message
-    // ID, then apply the consumer's ordinary newest-row limit.
-    std::list<LLSD> result = loaded;
-    std::set<std::string> ids;
-    for (const LLSD& message : result)
+    Messages resolved = history;
+    // Legacy names can acquire a UUID from local caches without starting a lookup.
+    // Leave unknown IDs absent so reconciliation can still use the resident name.
+    for (LLSD& message : resolved)
     {
-        if (message["chat_service_msg_id"].isString())
+        const LLSD& source = message;
+        if (!source[LL_IM_FROM_ID].isDefined())
         {
-            ids.insert(message["chat_service_msg_id"].asString());
+            const LLUUID id = LLAvatarNameCache::getInstance()->findIdByName(
+                LLCacheName::buildLegacyName(source[LL_IM_FROM].asString()));
+            if (id.notNull())
+            {
+                message[LL_IM_FROM_ID] = id;
+            }
         }
     }
+    return LLChatServiceHistoryCore::replaceHistory(current, resolved, direct);
+}
 
-    std::vector<Row> additions;
-    for (const Row& row : snapshot.head_preview)
-    {
-        if (!ids.count(row.msg_id))
-        {
-            additions.push_back(row);
-        }
-    }
+LLSD LLChatServiceHistory::prepareLiveMessage(
+    const std::string& text, U32& timestamp, const LLSD& context)
+{
+    return captureLiveMessage(text, timestamp, context, static_cast<U32>(time_corrected()));
+}
 
-    std::sort(additions.begin(), additions.end(), [](const Row& left, const Row& right)
-    {
-        return left.key < right.key;
-    });
-
-    for (const Row& row : additions)
-    {
-        result.push_back(serviceMessage(row));
-    }
-
-    while (limit && result.size() > limit)
-    {
-        result.pop_front();
-    }
-
-    return result;
+void LLChatServiceHistory::recordLiveMessage(LLSD& message, const LLSD& context)
+{
+    LLChatServiceHistoryCore::recordLiveMessage(message, context, static_cast<U32>(time_corrected()));
 }
 
 bool LLChatServiceHistory::loadStitchedHistory(

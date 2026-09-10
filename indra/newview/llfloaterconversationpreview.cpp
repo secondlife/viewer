@@ -208,6 +208,7 @@ void LLFloaterConversationPreview::onOpen(const LLSD& key)
 
     mOpened = true;
     ++mServiceToken;
+    mServiceHistory.clear();
     mPageSpinner = getChild<LLSpinCtrl>("history_page_spin");
     mPageSpinner->setCommitCallback(
         boost::bind(&LLFloaterConversationPreview::onMoreHistoryBtnClick, this));
@@ -347,6 +348,7 @@ void LLFloaterConversationPreview::onClose(bool app_quitting)
     // Close is a lifecycle fence for callbacks, not a request to cancel shared service work.
     mOpened = false;
     ++mServiceToken;
+    mServiceHistory.clear();
     mServiceLocalLoading = false;
     mServiceReloadPending = false;
     mHistoryContentConnection.disconnect();
@@ -371,6 +373,7 @@ void LLFloaterConversationPreview::invalidateHistory()
     // Advancing the token invalidates every outstanding legacy or stitched completion
     // before deletion clears the visible backing lists.
     ++mServiceToken;
+    mServiceHistory.clear();
     mServiceLocalLoading = false;
     mServiceReloadPending = false;
 
@@ -454,8 +457,9 @@ void LLFloaterConversationPreview::onServiceLoaded(
 
     // Merge the bounded transient head only after the durable read matches the
     // current snapshot, then preserve the reader's relative page position.
-    std::list<LLSD> merged = LLChatServiceHistory::mergeHeadPreview(
-        result.messages, snapshot, 10000);
+    mServiceHistory.setLoaded(result.messages);
+    std::list<LLSD> merged = LLChatServiceHistory::composeHistory(
+        mServiceHistory, snapshot, 10000);
     setPages(new std::list<LLSD>(merged), mChatHistoryFileName);
 
     if (reload_pending)
@@ -482,20 +486,6 @@ void LLFloaterConversationPreview::onServiceSnapshot(
     {
         mServiceReloadPending = true;
     }
-    if (presentation_changed && !snapshot.service_presentation_allowed && mMessages)
-    {
-        std::list<LLSD>* legacy_only = new std::list<LLSD>();
-        for (const LLSD& message : *mMessages)
-        {
-            if (!message["chat_service_msg_id"].isString())
-            {
-                legacy_only->push_back(message);
-            }
-        }
-
-        setPages(legacy_only, mChatHistoryFileName);
-    }
-
     // A CSV-only cold-cache Preview performs one extra read when shared metadata
     // supplies the legacy transcript stem.
     if (mChatHistoryFileName.empty() && !mServiceNameReloaded &&
@@ -515,10 +505,10 @@ void LLFloaterConversationPreview::onServiceSnapshot(
 
     // The first validated service page may update the open Preview before archive
     // preparation and older paging complete.
-    if (snapshot.service_presentation_allowed && !snapshot.head_preview.empty())
+    if (presentation_changed || !snapshot.head_preview.empty())
     {
-        std::list<LLSD> merged = LLChatServiceHistory::mergeHeadPreview(
-            mMessages ? *mMessages : std::list<LLSD>(), snapshot, 10000);
+        std::list<LLSD> merged = LLChatServiceHistory::composeHistory(
+            mServiceHistory, snapshot, 10000);
         setPages(new std::list<LLSD>(merged), mChatHistoryFileName);
     }
 
