@@ -1333,11 +1333,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c9928095cf40377e901458f5240305a7af2c554d</string>
+              <string>54bea6ca65c57eda548fb7f57a7eeb17e2cadf05</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/lsl-definitions/releases/download/v0.6.12/lsl_definitions-0.6.12-common-29281156609.tar.zst</string>
+              <string>https://github.com/secondlife/lsl-definitions/releases/download/v0.6.13.2/lsl_definitions-0.6.13-common-32865298211.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -1348,9 +1348,9 @@
         <key>license_file</key>
         <string>LICENSES/lsl_definitions.txt</string>
         <key>copyright</key>
-        <string>Copyright (c) 2026, Linden Research, Inc.</string>
+        <string>Copyright (c) 2026, Linden Lab</string>
         <key>version</key>
-        <string>0.6.12</string>
+        <string>0.6.13</string>
         <key>use_scm_version</key>
         <boolean>true</boolean>
         <key>name</key>
@@ -2248,11 +2248,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d1584b3a0011dbb741bc64d32e8bd28845ddd4da</string>
+              <string>64581484d87b5180465ab3957b5b98acddf39852</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-viewer-fonts/releases/download/v1.1.0-r2/viewer_fonts-1.0.0.25128287087-common-25128287087.tar.zst</string>
+              <string>https://github.com/secondlife/3p-viewer-fonts/releases/download/v1.1.1-pre-r1/viewer_fonts-1.0.0.32996553300-common-32996553300.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2263,9 +2263,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>license_file</key>
         <string>LICENSES/fonts.txt</string>
         <key>copyright</key>
-        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT, Copyright (c) 2003 by Bitstream, Inc., Copyright (c) 2006 by Tavmjong Bah.</string>
+        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT, Copyright (c) 2003 by Bitstream, Inc., Copyright (c) 2006 by Tavmjong Bah, Copyright Yukari Hafner (Shinmera) SIL-OFL-1.1.</string>
         <key>version</key>
-        <string>1.0.0.25128287087</string>
+        <string>1.0.0.32996553300</string>
         <key>name</key>
         <string>viewer-fonts</string>
         <key>description</key>

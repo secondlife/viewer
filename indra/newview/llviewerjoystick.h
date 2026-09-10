@@ -71,8 +71,9 @@ public:
     void setNeedsReset(bool reset = true) { mResetFlag = reset; }
     void setCameraNeedsUpdate(bool b)     { mCameraUpdated = b; }
     bool getCameraNeedsUpdate() const     { return mCameraUpdated; }
-    bool getOverrideCamera() { return mOverrideCamera; }
-    void setOverrideCamera(bool val);
+    // Flycam's state now lives on LLAgentCamera (shared with the game-control
+    // flycam); this just forwards.
+    bool getOverrideCamera();
     bool toggleFlycam();
     void setSNDefaults();
     bool isDeviceUUIDSet();
@@ -80,6 +81,8 @@ public:
     std::string getDeviceUUIDString(); // converted readable value for settings
     std::string getDescription();
     void saveDeviceIdToSettings();
+
+    static bool is3DConnexionDevice(const std::string& device_name);
 
 protected:
     void updateEnabled(bool autoenable);
@@ -100,21 +103,30 @@ protected:
 private:
     F32                     mAxes[6];
     long                    mBtn[16];
-    EJoystickDriverState    mDriverState;
-    NDOF_Device             *mNdofDev;
-    bool                    mResetFlag;
-    F32                     mPerfScale;
-    bool                    mCameraUpdated;
-    bool                    mOverrideCamera;
-    U32                     mJoystickRun;
+    EJoystickDriverState    mDriverState { JDS_UNINITIALIZED };
+    NDOF_Device             *mNdofDev { nullptr };
 
     // Windows: _GUID as U8 binary map
     // MacOS: long as an U8 binary map
     // Else: integer 1 for no device/ndof's default device
     LLSD                    mLastDeviceUUID;
 
+    F32                     mPerfScale;
+    U32                     mJoystickRun { 0 };
+    bool                    mResetFlag { false };
+    bool                    mCameraUpdated { true };
+    bool                    mDeviceIs3DConnexion { false };
+
     static F32              sLastDelta[7];
     static F32              sDelta[7];
+
+    // This device's own feathered-delta state feeding
+    // LLAgentCamera::applyNdofFlycamFrameDelta() (which owns the shared flycam
+    // transform/engine, also used by the game-control flycam), kept separate
+    // from sDelta/sLastDelta above (which moveAvatar()/moveObjects() still
+    // use for non-flycam axis handling).
+    F32                     mJoystickFlycamDelta[7] { 0,0,0,0,0,0,0 };
+    F32                     mJoystickFlycamLastDelta[7] { 0,0,0,0,0,0,0 };
 };
 
 #endif

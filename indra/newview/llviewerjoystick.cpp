@@ -40,6 +40,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llfocusmgr.h"
+#include "llgamecontrol.h"
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
 // Require DirectInput version 8
@@ -255,25 +256,16 @@ void LLViewerJoystick::updateEnabled(bool autoenable)
     }
     if (!gSavedSettings.getBOOL("JoystickEnabled"))
     {
-        mOverrideCamera = false;
+        if (gAgentCamera.isUsingFlycam())
+        {
+            gAgentCamera.toggleFlycam();
+        }
     }
 }
 
-void LLViewerJoystick::setOverrideCamera(bool val)
+bool LLViewerJoystick::getOverrideCamera()
 {
-    if (!gSavedSettings.getBOOL("JoystickEnabled"))
-    {
-        mOverrideCamera = false;
-    }
-    else
-    {
-        mOverrideCamera = val;
-    }
-
-    if (mOverrideCamera)
-    {
-        gAgentCamera.changeCameraToDefault();
-    }
+    return gAgentCamera.isUsingFlycam();
 }
 
 // -----------------------------------------------------------------------------
@@ -288,6 +280,7 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
         ndof_dump(stderr, dev);
         joystick->mNdofDev = dev;
         joystick->mDriverState = JDS_INITIALIZED;
+        joystick->mDeviceIs3DConnexion = is3DConnexionDevice(joystick->mNdofDev->product);
         res = NDOF_KEEP_HOTPLUGGED;
     }
     joystick->updateEnabled(true);
@@ -313,18 +306,11 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
 
 // -----------------------------------------------------------------------------
 LLViewerJoystick::LLViewerJoystick()
-:   mDriverState(JDS_UNINITIALIZED),
-    mNdofDev(NULL),
-    mResetFlag(false),
-    mCameraUpdated(true),
-    mOverrideCamera(false),
-    mJoystickRun(0)
 {
     for (int i = 0; i < 6; i++)
     {
         mAxes[i] = sDelta[i] = sLastDelta[i] = 0.0f;
     }
-
     memset(mBtn, 0, sizeof(mBtn));
 
     // factor in bandwidth? bandwidth = gViewerStats->mKBitStat
@@ -403,6 +389,7 @@ void LLViewerJoystick::init(bool autoenable)
                 else
                 {
                     mDriverState = JDS_INITIALIZED;
+                    mDeviceIs3DConnexion = is3DConnexionDevice(mNdofDev->product);
                 }
             }
 #endif
@@ -499,6 +486,7 @@ void LLViewerJoystick::initDevice(LLSD &guid)
         else
         {
             mDriverState = JDS_INITIALIZED;
+            mDeviceIs3DConnexion = is3DConnexionDevice(mNdofDev->product);
         }
     }
 #endif
@@ -583,6 +571,7 @@ bool LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE
     else
     {
         mDriverState = JDS_INITIALIZED;
+        mDeviceIs3DConnexion = is3DConnexionDevice(mNdofDev->product);
         return true;
     }
 #endif
@@ -598,6 +587,7 @@ void LLViewerJoystick::terminate()
         ndof_libcleanup(); // frees alocated memory in mNdofDev
         mDriverState = JDS_UNINITIALIZED;
         mNdofDev = NULL;
+        mDeviceIs3DConnexion = false;
         LL_INFOS("Joystick") << "Terminated connection with NDOF device." << LL_ENDL;
     }
 #endif
@@ -1159,10 +1149,6 @@ void LLViewerJoystick::moveAvatar(bool reset)
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::moveFlycam(bool reset)
 {
-    static LLQuaternion         sFlycamRotation;
-    static LLVector3d           sFlycamPosition;
-    static F32                  sFlycamZoom;
-
     if (!gFocusMgr.getAppHasFocus() || mDriverState != JDS_INITIALIZED
         || !gSavedSettings.getBOOL("JoystickEnabled") || !gSavedSettings.getBOOL("JoystickFlycamEnabled"))
     {
@@ -1183,11 +1169,15 @@ void LLViewerJoystick::moveFlycam(bool reset)
     bool in_build_mode = LLToolMgr::getInstance()->inBuildMode();
     if (reset || mResetFlag)
     {
-        sFlycamPosition = gAgentCamera.getCameraPositionGlobal();
-        sFlycamRotation = LLViewerCamera::getInstance()->getQuaternion();
-        sFlycamZoom = LLViewerCamera::getInstance()->getView();
+        gAgentCamera.resetFlycamToCurrentView();
 
-        resetDeltas(axis);
+        for (U32 i = 0; i < 6; i++)
+        {
+            mJoystickFlycamLastDelta[i] = -getJoystickAxis(axis[i]);
+            mJoystickFlycamDelta[i] = 0.f;
+        }
+        mJoystickFlycamLastDelta[6] = mJoystickFlycamDelta[6] = 0.f;
+        mResetFlag = false;
 
         return;
     }
@@ -1235,9 +1225,9 @@ void LLViewerJoystick::moveFlycam(bool reset)
         F32 tmp = cur_delta[i];
         if (absolute)
         {
-            cur_delta[i] = cur_delta[i] - sLastDelta[i];
+            cur_delta[i] = cur_delta[i] - mJoystickFlycamLastDelta[i];
         }
-        sLastDelta[i] = tmp;
+        mJoystickFlycamLastDelta[i] = tmp;
 
         if (cur_delta[i] > 0)
         {
@@ -1267,7 +1257,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
             cur_delta[i] *= time;
         }
 
-        sDelta[i] = sDelta[i] + (cur_delta[i]-sDelta[i])*time*feather;
+        mJoystickFlycamDelta[i] = mJoystickFlycamDelta[i] + (cur_delta[i]-mJoystickFlycamDelta[i])*time*feather;
 
         is_zero = is_zero && (cur_delta[i] == 0.f);
 
@@ -1286,46 +1276,12 @@ void LLViewerJoystick::moveFlycam(bool reset)
         }
     }
 
-    sFlycamPosition += LLVector3d(sDelta[VX], sDelta[VY], sDelta[VZ]) * sFlycamRotation;
+    bool auto_level = gSavedSettings.getBOOL("AutoLeveling");
+    F32 auto_level_fraction = llmin(feather*time, 1.f);
+    bool zoom_direct = gSavedSettings.getBOOL("ZoomDirect");
+    F32 direct_view_value = mJoystickFlycamLastDelta[6]*axis_scale[6]+dead_zone[6];
 
-    LLMatrix3 rot_mat(sDelta[3], sDelta[4], sDelta[5]);
-    sFlycamRotation = LLQuaternion(rot_mat)*sFlycamRotation;
-
-    if (gSavedSettings.getBOOL("AutoLeveling"))
-    {
-        LLMatrix3 level(sFlycamRotation);
-
-        LLVector3 x = LLVector3(level.mMatrix[0]);
-        LLVector3 y = LLVector3(level.mMatrix[1]);
-        LLVector3 z = LLVector3(level.mMatrix[2]);
-
-        y.mV[2] = 0.f;
-        y.normVec();
-
-        level.setRows(x,y,z);
-        level.orthogonalize();
-
-        LLQuaternion quat(level);
-        sFlycamRotation = nlerp(llmin(feather*time,1.f), sFlycamRotation, quat);
-    }
-
-    if (gSavedSettings.getBOOL("ZoomDirect"))
-    {
-        sFlycamZoom = sLastDelta[6]*axis_scale[6]+dead_zone[6];
-    }
-    else
-    {
-        sFlycamZoom += sDelta[6];
-    }
-
-    LLMatrix3 mat(sFlycamRotation);
-
-    LLViewerCamera::getInstance()->setView(sFlycamZoom);
-    LLVector3 new_camera_pos = gAgent.getPosAgentFromGlobal(sFlycamPosition);
-    LLViewerCamera::getInstance()->setOrigin(new_camera_pos);
-    LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
-    LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
-    LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
+    gAgentCamera.applyNdofFlycamFrameDelta(mJoystickFlycamDelta, auto_level, auto_level_fraction, zoom_direct, direct_view_value);
 }
 
 // -----------------------------------------------------------------------------
@@ -1333,11 +1289,14 @@ bool LLViewerJoystick::toggleFlycam()
 {
     if (!gSavedSettings.getBOOL("JoystickEnabled") || !gSavedSettings.getBOOL("JoystickFlycamEnabled"))
     {
-        mOverrideCamera = false;
+        if (gAgentCamera.isUsingFlycam())
+        {
+            gAgentCamera.toggleFlycam();
+        }
         return false;
     }
 
-    if (!mOverrideCamera)
+    if (!gAgentCamera.isUsingFlycam())
     {
         gAgentCamera.changeCameraToDefault();
     }
@@ -1351,8 +1310,8 @@ bool LLViewerJoystick::toggleFlycam()
         gAwayTriggerTimer.reset();
     }
 
-    mOverrideCamera = !mOverrideCamera;
-    if (mOverrideCamera)
+    gAgentCamera.toggleFlycam();
+    if (gAgentCamera.isUsingFlycam())
     {
         moveFlycam(true);
 
@@ -1369,7 +1328,9 @@ bool LLViewerJoystick::toggleFlycam()
 
 void LLViewerJoystick::scanJoystick()
 {
-    if (mDriverState != JDS_INITIALIZED || !gSavedSettings.getBOOL("JoystickEnabled"))
+    if (mDriverState != JDS_INITIALIZED
+            || !gSavedSettings.getBOOL("JoystickEnabled")
+            || !mDeviceIs3DConnexion)
     {
         return;
     }
@@ -1377,7 +1338,7 @@ void LLViewerJoystick::scanJoystick()
 #if LL_WINDOWS
     // On windows, the flycam is updated syncronously with a timer, so there is
     // no need to update the status of the joystick here.
-    if (!mOverrideCamera)
+    if (!getOverrideCamera())
 #endif
     updateStatus();
 
@@ -1402,7 +1363,7 @@ void LLViewerJoystick::scanJoystick()
         toggle_flycam = 0;
     }
 
-    if (!mOverrideCamera && !(LLToolMgr::getInstance()->inBuildMode() && gSavedSettings.getBOOL("JoystickBuildEnabled")))
+    if (!getOverrideCamera() && !(LLToolMgr::getInstance()->inBuildMode() && gSavedSettings.getBOOL("JoystickBuildEnabled")))
     {
         moveAvatar();
     }
@@ -1532,14 +1493,23 @@ std::string LLViewerJoystick::getDescription()
     return res;
 }
 
+// static
+bool LLViewerJoystick::is3DConnexionDevice(const std::string& device_name)
+{
+    bool answer = device_name.find("Space") == 0
+        && ( (device_name.find("SpaceNavigator") == 0)
+            || (device_name.find("SpaceExplorer") == 0)
+            || (device_name.find("SpaceTraveler") == 0)
+            || (device_name.find("SpacePilot") == 0)
+            || (device_name.find("SpaceMouse") == 0));
+    return answer;
+}
+
 bool LLViewerJoystick::isLikeSpaceNavigator() const
 {
 #if LIB_NDOF
     return (isJoystickInitialized()
-            && (strncmp(mNdofDev->product, "SpaceNavigator", 14) == 0
-                || strncmp(mNdofDev->product, "SpaceExplorer", 13) == 0
-                || strncmp(mNdofDev->product, "SpaceTraveler", 13) == 0
-                || strncmp(mNdofDev->product, "SpacePilot", 10) == 0));
+            && is3DConnexionDevice(mNdofDev->product));
 #else
     return false;
 #endif

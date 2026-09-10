@@ -40,7 +40,47 @@ enum EKeystate
     KEYSTATE_UP
 };
 
-typedef std::function<bool(EKeystate keystate)> LLKeyFunc;
+
+struct LLKeyPressState
+{
+    LLKeyPressState(EKeystate state, F32 value)
+        :
+        mState(state),
+        mValue(value),
+        mElapsedTime(0.0),
+        mElapsedFrames(0),
+        mRepeat(false),
+        mAnalog(false)
+    {
+        mUp = mState == KEYSTATE_UP;
+        mLevel = mState == KEYSTATE_LEVEL;
+        mDown = mState == KEYSTATE_DOWN;
+    }
+    LLKeyPressState(bool up, bool level, bool down, F32 value)
+        :
+        mUp(up),
+        mLevel(level),
+        mDown(down),
+        mValue(value),
+        mElapsedTime(0.0),
+        mElapsedFrames(0),
+        mRepeat(false),
+        mAnalog(false)
+    {
+        mState = mDown ? KEYSTATE_DOWN : ( mLevel ? KEYSTATE_LEVEL : KEYSTATE_UP );
+    }
+    EKeystate mState;
+    F32 mValue;
+    F32 mElapsedTime;
+    S32 mElapsedFrames;
+    bool mRepeat;
+    bool mUp;
+    bool mLevel;
+    bool mDown;
+    bool mAnalog;
+};
+
+typedef std::function<bool(const LLKeyPressState& keystate)> LLKeyFunc;
 typedef std::string (LLKeyStringTranslatorFunc)(std::string_view);
 
 enum EKeyboardInsertMode
@@ -69,7 +109,8 @@ public:
 
 
     F32             getCurKeyElapsedTime()  { return getKeyDown(mCurScanKey) ? getKeyElapsedTime( mCurScanKey ) : 0.f; }
-    F32             getCurKeyElapsedFrameCount()    { return getKeyDown(mCurScanKey) ? (F32)getKeyElapsedFrameCount( mCurScanKey ) : 0.f; }
+    S32             getCurKeyElapsedFrameCount()    { return getKeyDown(mCurScanKey) ? getKeyElapsedFrameCount( mCurScanKey ) : 0; }
+    KEY             getCurScanKey() { return mCurScanKey; }
     bool            getKeyDown(const KEY key) { return mKeyLevel[key]; }
     bool            getKeyRepeated(const KEY key) { return mKeyRepeated[key]; }
 
@@ -78,13 +119,10 @@ public:
     bool            handleTranslatedKeyUp(KEY translated_key, MASK translated_mask);     // Translated into "Linden" keycodes
     bool            handleTranslatedKeyDown(KEY translated_key, MASK translated_mask);   // Translated into "Linden" keycodes
 
-    virtual bool    handleKeyUp(const NATIVE_KEY_TYPE key, MASK mask) = 0;
-    virtual bool    handleKeyDown(const NATIVE_KEY_TYPE key, MASK mask) = 0;
+    virtual bool    handleKeyUp(const NATIVE_KEY_TYPE key, MASK mask);
+    virtual bool    handleKeyDown(const NATIVE_KEY_TYPE key, MASK mask);
 
-#if LL_DARWIN && !LL_SDL_WINDOW
-    // We only actually use this for macOS.
-    virtual void    handleModifier(MASK mask) = 0;
-#endif // LL_DARWIN
+    virtual void    handleModifier(MASK mask) { }
 
     // Asynchronously poll the control, alt, and shift keys and set the
     // appropriate internal key masks.
@@ -114,6 +152,7 @@ public:
 
 protected:
     void            addKeyName(KEY key, const std::string& name);
+    virtual MASK    updateModifiers(const MASK mask) { return mask; }
 
 protected:
     std::map<NATIVE_KEY_TYPE, KEY>  mTranslateKeyMap;       // Map of translations from OS keys to Linden KEYs

@@ -193,7 +193,7 @@ bool LLTool::handleKey(KEY key, MASK mask)
 LLTool* LLTool::getOverrideTool(MASK mask)
 {
     // NOTE: if in flycam mode, ALT-ZOOM camera should be disabled
-    if (LLViewerJoystick::getInstance()->getOverrideCamera())
+    if (gAgent.isCameraExternallyDriven())
     {
         return NULL;
     }
