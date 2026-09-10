@@ -5161,10 +5161,16 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
         gViewerWindow->handleRightMouseUp(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
     }
 
-    // actions.mIsRunning is the final walk/run decision computed by
-    // LLGameControllerManager::computeAgentActions() (button toggle OR analog
-    // axis deflection); just mirror it onto the agent's running state.
-    if (actions.mIsRunning != getRunning())
+    // actions.mIsRunning is derived purely from how hard the controller's own
+    // movement axes are pushed (see computeAgentActions()'s analog hysteresis).
+    // Only let it drive the agent's running state while the controller is
+    // actually supplying movement this frame -- otherwise an idle-but-connected
+    // controller would fight the keyboard (e.g. clobbering double-tap-to-run)
+    // every frame even though the player is moving with the keyboard instead.
+    constexpr U32 CONTROLLER_MOVEMENT_FLAGS = AGENT_CONTROL_AT_POS | AGENT_CONTROL_AT_NEG
+                                             | AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_LEFT_NEG;
+    if ((actions.mControlFlags & CONTROLLER_MOVEMENT_FLAGS)
+        && actions.mIsRunning != getRunning())
     {
         if (actions.mIsRunning)
         {
