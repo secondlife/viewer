@@ -5330,9 +5330,9 @@ void LLAgent::setFlycamKeyInput(U8 channel, F32 value)
     gAgentCamera.setFlycamKeyInput(channel, value);
 }
 
-void LLAgent::setFlycamKeyReset(bool reset)
+void LLAgent::setFlycamKeyUnroll(bool unroll)
 {
-    gAgentCamera.setFlycamKeyReset(reset);
+    gAgentCamera.setFlycamKeyUnroll(unroll);
 }
 
 bool LLAgent::isCameraExternallyDriven() const

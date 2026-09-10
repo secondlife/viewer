@@ -52,6 +52,19 @@ public:
     void setRollRate(F32 roll_rate);
     void setZoomRate(F32 zoom_rate);
 
+    // Orbit modifier: while engaged, position is re-derived every integrate()
+    // from the camera's own (pitch/yaw-rotated) forward axis so the camera
+    // stays 'focal_distance' meters from a focal point fixed in front of it
+    // the moment orbit engages -- Pan/Truck/Tilt/Roll keep rotating the
+    // camera exactly as they do outside orbit (see integrate()); only the
+    // radial (dolly) rate is orbit-specific. Boom still translates the camera
+    // directly (see integrate()), but doesn't reorient it or change its
+    // distance from the focal point: the same translation is applied to the
+    // focal point too, dragging it along with the camera.
+    void setOrbitEngaged(bool engaged, F32 focal_distance);
+    bool isOrbitEngaged() const { return mOrbitEngaged; }
+    void setOrbitRadialRate(F32 radial_rate);
+
     // Begins a smooth transition from the current transform to
     // 'target_position'/'target_rotation', taking 'duration' seconds.  While
     // the transition is in progress, integrate() ignores the rates set by
@@ -85,6 +98,12 @@ protected:
     F32 mRollRate { 0.0f };
     F32 mZoomRate { 0.0f };
     F32 mView { DEFAULT_FIELD_OF_VIEW };
+
+    // Orbit-in-progress state: see setOrbitEngaged()/setOrbitRadialRate() and
+    // the orbit branch in integrate().
+    bool mOrbitEngaged { false };
+    LLVector3d mOrbitFocalPoint;
+    F32 mOrbitRadialRate { 0.0f };
 
     // Reset-in-progress state: integrate() lerps mPosition/mRotation from
     // mResetStart* to mResetTarget* as mResetTimeRemaining counts down from
