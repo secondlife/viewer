@@ -3501,11 +3501,11 @@ void LLViewerWindow::moveCursorToCenter()
 
 void LLViewerWindow::moveCursorTo(S32 x, S32 y)
 {
-    // Clamp to the world view so a gamepad-driven cursor (see
-    // LLAgent::applyExternalActions()'s CONTROL_MODE_CURSOR handling) can't warp
-    // itself off-screen.
-    x = llclamp(x, 0, getWorldViewWidthScaled());
-    y = llclamp(y, 0, getWorldViewHeightScaled());
+    // Clamp to the whole window (not just the world view) so a gamepad-driven
+    // cursor (see LLAgent::applyExternalActions()'s CONTROL_MODE_CURSOR
+    // handling) can reach the menu bar and toolbars, but not escape the window.
+    x = llclamp(x, 0, getWindowWidthScaled());
+    y = llclamp(y, 0, getWindowHeightScaled());
 
     LLUI::getInstance()->setMousePositionScreen(x, y);
 
