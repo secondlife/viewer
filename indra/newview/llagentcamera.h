@@ -171,6 +171,7 @@ private:
     //--------------------------------------------------------------------
 public:
     bool            isfollowCamLocked();
+    void            notifyFollowCamParamsCleared();
 private:
     LLFollowCam     mFollowCam;             // Ventrella
 
@@ -230,6 +231,7 @@ private:
     LLVector3d      mCameraFocusOffsetTarget;       // Target towards which we are lerping the camera's focus offset
     bool            mFocusOnAvatar;
     bool            mAllowChangeToFollow;
+    F64             mLastValidFollowCamParamsTime;
     LLVector3d      mFocusGlobal;
     LLVector3d      mFocusTargetGlobal;
     LLPointer<LLViewerObject> mFocusObject;

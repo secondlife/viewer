@@ -387,7 +387,7 @@ void callLeftMouseUp(float *pos, MASK mask)
 
 }
 
-void callDoubleClick(float *pos, MASK mask)
+void callLeftDoubleClick(float* pos, MASK mask)
 {
     if (!gWindowImplementation)
     {
@@ -401,7 +401,41 @@ void callDoubleClick(float *pos, MASK mask)
     LLCoordGL   outCoords;
     outCoords.mX = ll_round(pos[0]);
     outCoords.mY = ll_round(pos[1]);
-    gWindowImplementation->getCallbacks()->handleDoubleClick(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
+    gWindowImplementation->getCallbacks()->handleLeftMouseDoubleClick(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
+}
+
+void callRightDoubleClick(float* pos, MASK mask)
+{
+    if (!gWindowImplementation)
+    {
+        return;
+    }
+    if (gWindowImplementation->allowsLanguageInput())
+    {
+        gWindowImplementation->interruptLanguageTextInput();
+    }
+
+    LLCoordGL   outCoords;
+    outCoords.mX = ll_round(pos[0]);
+    outCoords.mY = ll_round(pos[1]);
+    gWindowImplementation->getCallbacks()->handleRightMouseDoubleClick(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
+}
+
+void callMiddleDoubleClick(float* pos, MASK mask)
+{
+    if (!gWindowImplementation)
+    {
+        return;
+    }
+    if (gWindowImplementation->allowsLanguageInput())
+    {
+        gWindowImplementation->interruptLanguageTextInput();
+    }
+
+    LLCoordGL   outCoords;
+    outCoords.mX = ll_round(pos[0]);
+    outCoords.mY = ll_round(pos[1]);
+    gWindowImplementation->getCallbacks()->handleMiddleMouseDoubleClick(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
 }
 
 void callResize(unsigned int width, unsigned int height)
