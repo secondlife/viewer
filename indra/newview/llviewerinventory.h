@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -41,6 +41,8 @@ class LLFolderBridge;
 class LLViewerInventoryCategory;
 class LLInventoryCallback;
 class LLAvatarName;
+
+constexpr U8 NO_INV_SUBTYPE{ 0 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLViewerInventoryItem
@@ -149,6 +151,10 @@ public:
     };
     LLTransactionID getTransactionID() const { return mTransactionID; }
 
+    // Script runtime state (from task inventory cap)
+    bool getIsRunning() const { return mIsRunning; }
+    bool getIsFaulted() const { return mIsFaulted; }
+
     bool getIsBrokenLink() const; // true if the baseitem this points to doesn't exist in memory.
     LLViewerInventoryItem *getLinkedItem() const;
     LLViewerInventoryCategory *getLinkedCategory() const;
@@ -166,6 +172,10 @@ public:
 public:
     bool mIsComplete;
     LLTransactionID mTransactionID;
+
+    // Script runtime state (only valid for task inventory scripts)
+    bool mIsRunning = false;
+    bool mIsFaulted = false;
 };
 
 
@@ -208,6 +218,13 @@ public:
     enum { VERSION_UNKNOWN = -1, VERSION_INITIAL = 1 };
     S32 getVersion() const;
     void setVersion(S32 version);
+
+    const std::string& getDisplayName() const;
+    // The display name gets cached on demand, so needs a cleanup method.
+    // But in practice only secure folders' display name mismatches
+    // actual name, and those folders can't be renamed, so in practice
+    // this is useless unless we want to free memory.
+    void invalidateDisplayName();
 
     // Returns true if a fetch was issued (not nessesary in progress).
     // no requests will happen during expiry_seconds even if fetch completed
@@ -253,6 +270,19 @@ protected:
     S32 mDescendentCount;
     EFetchType mFetching;
     LLFrameTimer mDescendentsRequested;
+
+    // Display names are generated on demand and cached.
+    // buildDisplayName is essentially a way to localize
+    // system and library folders.
+    //
+    // TODO: This is on demand and mutable because that's how it
+    // worked in inventory bridge, before it was moved.
+    // But system folders always get loaded, it's likely better
+    // to just generate from the get go.
+    // Consider merging with localizeName.
+    void buildDisplayName() const;
+    mutable std::string mDisplayName;
+    mutable bool mNeedsDisplayNameUpdate = true;
 };
 
 class LLInventoryCallback : public LLRefCount
@@ -358,8 +388,6 @@ public:
 };
 extern LLInventoryCallbackManager gInventoryCallbacks;
 
-
-const U8 NO_INV_SUBTYPE{ 0 };
 
 // *TODO: Find a home for these
 void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,

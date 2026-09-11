@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="380"
+ height="460"
  layout="topleft"
  name="ColorPicker"
  help_topic="colorpicker"
@@ -153,6 +153,41 @@
      name="lspin"
      top_delta="0"
      width="50" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     top_pad="6"
+     left="10"
+     mouse_opaque="false"
+     name="hex_text"
+     width="413">
+        Hex:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left="60"
+     name="hash_text"
+     top_pad="-20"
+     width="20">
+        #
+    </text>
+    <line_editor
+     font="SansSerif"
+     max_length_bytes="16"
+     top_pad="-22"
+     follows="left"
+     height="20"
+     layout="topleft"
+     left_delta="13"
+     name="hex_color"
+     width="50" />
     <check_box
      follows="left|bottom"
      height="20"
@@ -160,7 +195,7 @@
      layout="topleft"
      left="10"
      name="apply_immediate"
-     top_pad="185"
+     top_pad="240"
      width="100" />
     <button
      follows="left|bottom"
@@ -168,19 +203,52 @@
      image_selected="eye_button_active.tga"
      image_unselected="eye_button_inactive.tga"
      layout="topleft"
-     left_pad="50"
+     left_pad="0"
      name="color_pipette"
      width="28" />
+    <combo_box
+     control_name="CopyColorDestination"
+     follows="right|bottom"
+     layout="topleft"
+     right="-197"
+     top_delta="8"
+     name="copy_color_combobox"
+     width="84">
+        <combo_box.item
+         label="Copy as..."
+         name="copy_as"
+         value="0" />
+        <combo_box.item
+         label="LSL"
+         name="lsl_color"
+         value="1" />
+        <combo_box.item
+         label="HEX"
+         name="hex_color"
+         value="2" />
+        <combo_box.item
+         label="RGB"
+         name="rgb_color"
+         value="3" />
+        <combo_box.item
+         label="HSL"
+         name="hsl_color"
+         value="4" />
+        <combo_box.item
+         label="CMYK"
+         name="cmyk_color"
+         value="5" />
+    </combo_box>
     <button
      follows="right|bottom"
      height="23"
      label="OK"
      label_selected="OK"
      layout="topleft"
-     right="-120"
-     top_delta="9"
+     right="-100"
+     top_delta="0"
      name="select_btn"
-     width="100" />
+     width="80" />
     <button
      follows="right|bottom"
      height="23"
@@ -190,7 +258,7 @@
      left_pad="5"
      right="-10"
      name="cancel_btn"
-     width="100" />
+     width="80" />
     <text
      type="string"
      length="1"
@@ -199,7 +267,7 @@
      layout="topleft"
      left="10"
      name="Current color:"
-     top="172"
+     top="194"
      width="110">
         Current color:
     </text>
@@ -211,7 +279,7 @@
      layout="topleft"
      left="10"
      name="(Drag below to save.)"
-     top_pad="66"
+     top_pad="62"
      width="130"
      wrap="true">
         (Drag below to save)

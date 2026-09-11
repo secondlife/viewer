@@ -589,7 +589,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
         }
         else
         {
-            LL_WARNS() << "Failed to allocate buffer: " << anim_file_size << mID << LL_ENDL;
+            LL_WARNS() << "Failed to allocate buffer: " << anim_file_size << " " << mID << LL_ENDL;
         }
         delete anim_file;
         anim_file = NULL;

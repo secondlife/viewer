@@ -492,7 +492,7 @@
     <key>RecentJumpThresholdSecs</key>
     <map>
       <key>Comment</key>
-      <string>Seconds after a jump input during which finish-anim is suppressed to avoid interrupting rapid successive jumps.</string>
+      <string>Seconds after jump input during which landing finish-anim is suppressed to avoid interrupting rapid successive jumps.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1171,6 +1171,28 @@
         <string>Boolean</string>
         <key>Value</key>
         <integer>1</integer>
+    </map>
+    <key>BuyCurrencyHTML</key>
+    <map>
+      <key>Comment</key>
+      <string>Use HTML based L$ packs floater instead of legacy XUI version</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BuyCurrencyPacksURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for the L$ packs purchase floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://accounts.secondlife.com/packs/floater?lang=[LANGUAGE]&amp;shortfall=[SHORTFALL]</string>
     </map>
     <key>EnableButtonFlashing</key>
     <map>
@@ -3445,17 +3467,6 @@
       <key>Value</key>
       <string>https://viewer-help.secondlife.com/[LANGUAGE]/[CHANNEL]/[VERSION]/[TOPIC][DEBUG_MODE]</string>
     </map>
-    <key>HowToHelpURL</key>
-    <map>
-      <key>Comment</key>
-      <string>URL for How To help content</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>https://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/howto/index.html</string>
-    </map>
     <key>HomeSidePanelURL</key>
     <map>
       <key>Comment</key>
@@ -3477,17 +3488,6 @@
       <string>String</string>
       <key>Value</key>
       <string>https://search.[GRID]/viewer/?query_term=[QUERY]&amp;search_type=[TYPE][COLLECTION]&amp;maturity=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
-    </map>
-    <key>GuidebookURL</key>
-    <map>
-      <key>Comment</key>
-      <string>URL for Guidebook content</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>http://guidebooks.secondlife.io/welcome/index.html</string>
     </map>
     <key>HighResSnapshot</key>
     <map>
@@ -5111,6 +5111,28 @@
   <map>
     <key>Comment</key>
     <string>Turn on debugging messages that may help diagnosing media issues (WARNING: May reduce performance).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>MediaPluginPipeWireVolumeCatcher</key>
+  <map>
+    <key>Comment</key>
+    <string>Use PipeWire instead of PulseAudio for controlling web media volume.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>MediaPluginForceVLC</key>
+  <map>
+    <key>Comment</key>
+    <string>Force use of VLC based media plugin. (Linux Only)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -7182,7 +7204,7 @@
     <key>QuickBuyCurrency</key>
     <map>
       <key>Comment</key>
-      <string>Toggle between HTML based currency purchase floater and legacy XUI version</string>
+      <string>(Deprecated) Use BuyCurrencyHTML instead</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -7328,13 +7350,24 @@
     <key>RenderAnisotropic</key>
     <map>
       <key>Comment</key>
-      <string>Render textures using anisotropic filtering</string>
+      <string>[OBSOLETE] Render textures using anisotropic filtering</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>RenderAnisotropicLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Anisotropic filtering strength(0(Disable), 2x, 4x, 8x, 16x</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <real>0</real>
     </map>
     <key>RenderAppleUseMultGL</key>
     <map>
@@ -7552,7 +7585,7 @@
    <key>RenderHiDPI</key>
   <map>
     <key>Comment</key>
-    <string>Enable support for HiDPI displays, like Retina (macOS ONLY, requires restart)</string>
+    <string>Enable support for HiDPI displays, like Retina (macOS and Linux ONLY, requires restart)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9063,6 +9096,17 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
+    <key>NametagOverWater</key>
+    <map>
+        <key>Comment</key>
+        <string>Render name tag over the transparent water while camera is above the water</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
     <key>RenderInitError</key>
     <map>
       <key>Comment</key>
@@ -9904,6 +9948,17 @@
     <key>Value</key>
     <real>1</real>
   </map>
+  <key>CollectUIImageVertexBuffers</key>
+  <map>
+    <key>Comment</key>
+    <string>When enabled, images will cache vertex buffers and reuse them. When disabled, the general cache will be used with significant hash-lookup overhead, but vertices are regenerated each frame so they are always up to date.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <real>1</real>
+  </map>
   <key>ShowMyComplexityChanges</key>
   <map>
     <key>Comment</key>
@@ -10204,6 +10259,17 @@
         <string>U32</string>
         <key>Value</key>
         <integer>1</integer>
+    </map>
+    <key>RenderHighPrecisionPostProcess</key>
+    <map>
+        <key>Comment</key>
+        <string>Use 16-bit floating point buffers for post process rendering</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
     </map>
     <key>ReplaySession</key>
     <map>
@@ -13284,6 +13350,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SwitchToSharedEnvAfterTeleport</key>
+    <map>
+      <key>Comment</key>
+      <string>Switch to Shared Environment after teleport</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PreferredBrowserBehavior</key>
     <map>
       <key>Comment</key>
@@ -13783,7 +13860,7 @@
     <key>WLSkyDetail</key>
     <map>
       <key>Comment</key>
-      <string>Controls vertex detail on the WindLight sky.  Lower numbers will give better performance and uglier skies.</string>
+      <string>[OBSOLETE]</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13977,6 +14054,61 @@
       <string>String</string>
       <key>Value</key>
       <string />
+    </map>
+    <key>ExternalWebsocketSyncEnable</key>
+    <map>
+        <key>Comment</key>
+        <string>Enables the Websocket JSONRPC server when doing external script editing.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
+    <key>ExternalWebsocketSyncPort</key>
+    <map>
+        <key>Comment</key>
+        <string>Port that the JSONRPC server listens on when editing</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>9020</integer>
+    </map>
+    <key>ExternalWebsocketSyncLocal</key>
+    <map>
+        <key>Comment</key>
+        <string>Should the JSONRPC server listen only for local connections.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
+    <key>ExternalEditorTightIntegration</key>
+    <map>
+        <key>Comment</key>
+        <string>When true, Edit in External Editor launches VS Code via the code CLI with a vscode:// URI instead of using the configured external editor.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
+    <key>ExternalWebsocketForwardDebug</key>
+    <map>
+        <key>Comment</key>
+        <string>Forward messages and runtime errors for a script to JSONRPC client.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
     </map>
     <key>YawFromMousePosition</key>
     <map>
@@ -14400,7 +14532,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>OutfitOperationsTimeout</key>
     <map>
@@ -14412,6 +14544,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>180</integer>
+    </map>
+    <key>OSHibernationMode</key>
+    <map>
+        <key>Comment</key>
+        <string>Whether to prevent OS from hibernating. 0 - can hibernate; 1 - can't hibernate, can turn screen off; 2 - can't hibernate, can't turn screen off </string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>0</integer>
     </map>
     <key>HeightUnits</key>
     <map>
@@ -16132,6 +16275,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>CEFRemoteDebuggingPort</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable CEF remote debugging on the specified base port (1024 to 65535, 0 to disable). Each new SLPlugin gets base+N.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>360CaptureJPEGEncodeQuality</key>
   <map>
     <key>Comment</key>
@@ -16315,7 +16469,7 @@
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>Boolean</string>
+    <string>U32</string>
     <key>Value</key>
     <integer>0</integer>
   </map>
@@ -16510,6 +16664,17 @@
     <map>
       <key>Comment</key>
       <string>Whether or not to LRU purge the disk cache during startup on main thread</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>ScriptEditorDisableSyntaxHighlight</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable syntax highlighting in script editor for performance testing</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

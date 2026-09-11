@@ -4,7 +4,7 @@
 *
 * $LicenseInfo:firstyear=2001&license=viewerlgpl$
 * Second Life Viewer Source Code
-* Copyright (C) 2010, Linden Research, Inc.
+* Copyright (C) 2026, Linden Research, Inc.
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -190,7 +190,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mItemHeight(p.item_height),
     mControlLabelRotation(0.f),
     mDragAndDropTarget(false),
-    mLabel(utf8str_to_wstring(p.name)),
+    mLabel(utf8str_to_wstring(p.name)), // will be immediately reset in postBuild()
     mRoot(p.root),
     mViewModelItem(p.listener),
     mIsMouseOverTitle(false),
@@ -244,21 +244,19 @@ bool LLFolderViewItem::postBuild()
     llassert(vmi); // not supposed to happen, if happens, find out why and fix
     if (vmi)
     {
-        // getDisplayName() is expensive (due to internal getLabelSuffix() and name building)
-        // it also sets search strings so it requires a filter reset
+        // First getDisplayName() is expensive due to internal
+        // lazy getLabelSuffix(), it is however needed as it sets
+        // search string, which can later determine visibility.
+        // Refreshing a search string also requires a filter reset.
         mLabel = utf8str_to_wstring(vmi->getDisplayName());
         mIsFavorite = vmi->isFavorite() && !vmi->isItemInTrash();
-        setToolTip(vmi->getName());
 
         // Dirty the filter flag of the model from the view (CHUI-849)
         vmi->dirtyFilter();
     }
 
-    // Don't do full refresh on constructor if it is possible to avoid
+    // Don't do full refresh on constructor if it is possible to avoid,
     // it significantly slows down bulk view creation.
-    // Todo: Ideally we need to move getDisplayName() out of constructor as well.
-    // Like: make a logic that will let filter update search string,
-    // while LLFolderViewItem::arrange() updates visual part
     mSuffixNeedsRefresh = true;
     mLabelWidthDirty = true;
     return true;
@@ -363,7 +361,6 @@ void LLFolderViewItem::refresh()
     mLabel = utf8str_to_wstring(vmi.getDisplayName());
     mLabelFontBuffer.reset();
     mIsFavorite = vmi.isFavorite() && !vmi.isItemInTrash();
-    setToolTip(vmi.getName());
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
     mIcon = vmi.getIcon();
@@ -621,6 +618,19 @@ const std::string& LLFolderViewItem::getName( void ) const
 {
     static const std::string noName("");
     return getViewModelItem() ? getViewModelItem()->getName() : noName;
+}
+
+const std::string LLFolderViewItem::getToolTip() const
+{
+    // Return the item name as tooltip without storing it
+    if (!LLView::sDebugUnicode)
+    {
+        if (const LLFolderViewModelItem* vmi = getViewModelItem())
+        {
+            return vmi->getName();
+        }
+    }
+    return LLView::getToolTip();
 }
 
 // LLView functionality

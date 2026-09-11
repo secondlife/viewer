@@ -177,6 +177,65 @@ void LLFloaterComboOptions::onCancel()
     closeFloater();
 }
 
+class LLMaterialEditorTaskMoveObserver : public LLInventoryAddItemByAssetObserver
+{
+public:
+    LLMaterialEditorTaskMoveObserver(
+        const LLUUID& asset_id,
+        const LLUUID& dest_folder_id,
+        LLPointer<LLInventoryCallback> cb)
+        : mDestFolderID(dest_folder_id),
+        mCallback(cb)
+    {
+        watchAsset(asset_id);
+    }
+
+    virtual ~LLMaterialEditorTaskMoveObserver()
+    {
+        gInventory.removeObserver(this);
+    }
+
+    virtual void changed(U32 mask) override
+    {
+        // Call base class to populate mAddedItems
+        LLInventoryAddItemByAssetObserver::changed(mask);
+
+        // If base class completed (which calls done() and clears mAddedItems),
+        // and we set mIsDirty, that means we're finished
+        if (mIsDirty)
+        {
+            gInventory.removeObserver(this);
+            delete this;
+        }
+    }
+
+protected:
+    virtual void done() override
+    {
+        // Find the moved item
+        // There must be only one since we are watching only one item,
+        // changed wouldn't fire otherwise. But just in case.
+        if (mAddedItems.size() == 1)
+        {
+            LLUUID item_id = mAddedItems[0];
+
+            // Fire the callback
+            if (mCallback)
+            {
+                mCallback->fire(item_id);
+            }
+        }
+
+        // Todo: gInventoryMoveObserver normally opens inventory
+        // on completion, should this do the same?
+    }
+
+private:
+    LLUUID mDestFolderID;
+    std::string mNewName;
+    LLPointer<LLInventoryCallback> mCallback;
+};
+
 class LLMaterialEditorCopiedCallback : public LLInventoryCallback
 {
 public:
@@ -190,6 +249,18 @@ public:
     {}
 
     LLMaterialEditorCopiedCallback(
+        const std::string & buffer,
+        const LLSD & old_key,
+        const std::string & new_name,
+        bool has_unsaved_changes)
+        : mBuffer(buffer),
+        mOldKey(old_key),
+        mNewName(new_name),
+        mHasUnsavedChanges(has_unsaved_changes)
+    {
+    }
+
+    LLMaterialEditorCopiedCallback(
         const LLSD &old_key,
         const std::string &new_name)
         : mOldKey(old_key),
@@ -201,7 +272,10 @@ public:
     {
         if (!mNewName.empty())
         {
-            // making a copy from a notecard doesn't change name, do it now
+            // making a copy from a task inventory (object, notecard)
+            // doesn't change name, do it now
+            // Todo: Can calling update_inventory_item and finishSaveAs
+            // cause a race condition?
             LLViewerInventoryItem* item = gInventory.getItem(inv_item_id);
             if (item->getName() != mNewName)
             {
@@ -1811,6 +1885,52 @@ void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD&
                         mNotecardInventoryID,
                         mAuxItem.get(),
                         gInventoryCallbacks.registerCB(cb));
+
+                    mAssetStatus = PREVIEW_ASSET_LOADING;
+                    setEnabled(false);
+                }
+                else if (mObjectUUID.notNull())
+                {
+                    // Item is in task (object) inventory - must move to agent
+                    // inventory first.
+                    // Note: If this is too flimsy, just disable the 'save as'
+                    // button when in object inventory and create a server ticket,
+                    // as we need a copy with callback variant.
+                    LLViewerObject* object = gObjectList.findObject(mObjectUUID);
+                    if (object)
+                    {
+                        LLPermissions perm(item->getPermissions());
+                        if (perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID())
+                            && perm.allowTransferTo(gAgent.getID()))
+                        {
+                            // Create a callback for after the item is copied/moved
+                            std::string buffer = getEncodedAsset();
+                            LLPointer<LLInventoryCallback> cb = new LLMaterialEditorCopiedCallback(
+                                buffer,
+                                getKey(),
+                                new_name,
+                                mUnsavedChanges);
+
+                            // Create observer to watch for the item arriving in inventory
+                            // The observer will fire our callback when the move completes
+                            LLMaterialEditorTaskMoveObserver* observer = new LLMaterialEditorTaskMoveObserver(
+                                item->getAssetUUID(),
+                                parent_id,
+                                cb
+                            );
+                            gInventory.addObserver(observer);
+
+                            // Copies(not moves) item from object to agent inventory
+                            object->moveInventory(parent_id, item->getUUID());
+
+                            mAssetStatus = PREVIEW_ASSET_LOADING;
+                            setEnabled(false);
+                        }
+                        else
+                        {
+                            LL_WARNS("MaterialEditor") << "Insufficient permissions to copy material from object inventory" << LL_ENDL;
+                        }
+                    }
                 }
                 else
                 {
@@ -1823,10 +1943,10 @@ void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD&
                         parent_id,
                         new_name,
                         cb);
-                }
 
-                mAssetStatus = PREVIEW_ASSET_LOADING;
-                setEnabled(false);
+                    mAssetStatus = PREVIEW_ASSET_LOADING;
+                    setEnabled(false);
+                }
             }
             else
             {

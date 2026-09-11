@@ -1115,7 +1115,6 @@ Controlla la tua connessione Internet e riprova fra qualche minuto, oppure clicc
 		Il tuo avatar apparirà fra un attimo.
 
 Usa le frecce per muoverti.
-Premi F1 in qualunque momento per la guida o per apprendere altre cose di [SECOND_LIFE].
 Scegli un avatar maschile o femminile. Puoi sempre cambiare idea più tardi.
 		<usetemplate name="okcancelbuttons" notext="Femminile" yestext="Maschile"/>
 	</notification>

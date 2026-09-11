@@ -81,6 +81,7 @@ public:
 
     std::string getCPUString() const;
     const LLSD& getSSEVersions() const;
+    const LLSD& getSIMDVersions() const;
 
     bool hasAltivec() const;
     bool hasSSE() const;
@@ -90,6 +91,9 @@ public:
     bool hasSSE41() const;
     bool hasSSE42() const;
     bool hasSSE4a() const;
+    bool hasAVX() const;
+    bool hasAVX2() const;
+    bool hasAVX512F() const;
     F64 getMHz() const;
 
     // Family is "AMD Duron" or "Intel Pentium Pro"
@@ -103,11 +107,15 @@ private:
     bool mHasSSE41;
     bool mHasSSE42;
     bool mHasSSE4a;
+    bool mHasAVX;
+    bool mHasAVX2;
+    bool mHasAVX512F;
     bool mHasAltivec;
     F64 mCPUMHz;
     std::string mFamily;
     std::string mCPUString;
     LLSD mSSEVersions;
+    LLSD mSIMDVersions;
 };
 
 //=============================================================================

@@ -71,9 +71,7 @@ private:
     S32 mCurrDetailTest;
 };
 
-LLMaterialID::LLMaterialID() {}
-LLMaterialID::LLMaterialID(LLMaterialID const &m) = default;
-LLMaterialID::~LLMaterialID() {}
+LLMaterialID::LLMaterialID() = default;
 void LLMaterialID::set(void const*) { }
 U8 const * LLMaterialID::get() const { return mID; }
 

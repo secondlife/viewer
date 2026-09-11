@@ -387,6 +387,11 @@ void BlockTimer::logStats()
 
 }
 
+#if defined(LL_GNUC) && GCC_VERSION >= 130000
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wnonnull"
+#endif
+
 //static
 void BlockTimer::dumpCurTimes()
 {
@@ -418,8 +423,12 @@ void BlockTimer::dumpCurTimes()
             << num_calls << " calls";
 
         LL_INFOS() << out_str.str() << LL_ENDL;
+    }
 }
-}
+
+#if defined(LL_GNUC) && GCC_VERSION >= 130000
+#   pragma GCC diagnostic push
+#endif
 
 //static
 void BlockTimer::writeLog(std::ostream& os)

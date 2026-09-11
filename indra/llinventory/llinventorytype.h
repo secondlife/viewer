@@ -123,6 +123,8 @@ public:
 
         ICONNAME_MATERIAL,
 
+        ICONNAME_SCRIPT_LUAU,
+
         ICONNAME_INVALID,
         ICONNAME_UNKNOWN,
         ICONNAME_COUNT,
@@ -148,6 +150,13 @@ private:
     // don't instantiate or derive one of these objects
     LLInventoryType( void );
     ~LLInventoryType( void );
+};
+
+// Subtypes for scripts, (inventory type IT_LSL).
+enum ScriptSubtype_t
+{
+    SST_LSL = 0,
+    SST_LUA = 1
 };
 
 // helper function that returns true if inventory type and asset type

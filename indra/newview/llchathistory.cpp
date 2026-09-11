@@ -175,6 +175,49 @@ public:
             LLFloaterSidePanelContainer::showPanel("people", "panel_people",
                 LLSD().with("people_panel_tab_name", "blocked_panel").with("blocked_to_select", getAvatarId()));
         }
+        else if (level == "report_abuse")
+        {
+            std::string time_string;
+            if (mTime > 0) // have frame time
+            {
+                time_t current_time = time_corrected();
+                time_t message_time = (time_t)(current_time - LLFrameTimer::getElapsedSeconds() + mTime);
+
+                // Report abuse shouldn't use AM/PM, use 24-hour time
+                time_string = "[" + LLTrans::getString("TimeMonth") + "]/["
+                    + LLTrans::getString("TimeDay") + "]/["
+                    + LLTrans::getString("TimeYear") + "] ["
+                    + LLTrans::getString("TimeHour") + "]:["
+                    + LLTrans::getString("TimeMin") + "]";
+
+                LLSD substitution;
+
+                substitution["datetime"] = (S32)message_time;
+                LLStringUtil::format(time_string, substitution);
+            }
+            else
+            {
+                // From history. This might be empty or not full.
+                // See LLChatLogParser::parse
+                time_string = getChild<LLTextBox>("time_box")->getValue().asString();
+
+                // Just add current date if not full.
+                // Should be fine since both times are supposed to be SLT.
+                if (!time_string.empty() && time_string.size() < 7)
+                {
+                    time_string = "[" + LLTrans::getString("TimeMonth") + "]/["
+                        + LLTrans::getString("TimeDay") + "]/["
+                        + LLTrans::getString("TimeYear") + "] " + time_string;
+
+                    LLSD substitution;
+                    // To avoid adding today's date to yesterday's timestamp,
+                    // use creation time instead of current time
+                    substitution["datetime"] = (S32)mCreationTime;
+                    LLStringUtil::format(time_string, substitution);
+                }
+            }
+            LLFloaterReporter::showFromChatObj(getAvatarId(), time_string, mText);
+        }
         else if (level == "unblock")
         {
             LLMuteList::getInstance()->remove(LLMute(getAvatarId(), mFrom, LLMute::OBJECT));
@@ -461,7 +504,7 @@ public:
                 time_string = getChild<LLTextBox>("time_box")->getValue().asString();
 
                 // Just add current date if not full.
-                // Should be fine since both times are supposed to be stl
+                // Should be fine since both times are supposed to be SLT.
                 if (!time_string.empty() && time_string.size() < 7)
                 {
                     time_string = "[" + LLTrans::getString("TimeMonth") + "]/["
@@ -475,7 +518,7 @@ public:
                     LLStringUtil::format(time_string, substitution);
                 }
             }
-            LLFloaterReporter::showFromChat(mAvatarID, mFrom, time_string, mText);
+            LLFloaterReporter::showFromChatAv(mAvatarID, mFrom, time_string, mText);
         }
         else if(level == "block_unblock")
         {

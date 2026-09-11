@@ -331,26 +331,51 @@ namespace Details
                         {
                             // LLSD is too smart for it's own good and may act like a smart
                             // pointer for the content of (*i), so instead of passing (*i)
-                            // pass a prepared name and move ownership of "body",
-                            // as we are not going to need "body" anywhere else.
+                            // pass a prepared name and copy the body
                             std::string msg_name = (*i)["message"].asString();
 
-                            // WARNING: This is a shallow copy!
-                            // If something still retains the data (like in httpAdapter?) this might still
-                            // result in a crash, if it does appear to be the case, make a deep copy or
-                            // convert data to string and pass that string.
-                            const LLSD body = (*i)["body"];
-                            (*i)["body"].clear();
-                            work = [this, msg_name, body]()
+                            // Create a deep copy using binary serialization
+                            try
                             {
-                                handleMessage(msg_name, body);
-                            };
+                                std::stringstream body_stream;
+                                LLSDSerialize::toBinary((*i)["body"], body_stream);
+                                std::string body_str = body_stream.str();
+                                (*i)["body"].clear();
+                                work = [this, msg_name, body_str]()
+                                {
+                                    try
+                                    {
+                                        LLSD body;
+                                        std::istringstream istr(body_str);
+                                        LLSDSerialize::fromBinary(body, istr, body_str.size());
+                                        handleMessage(msg_name, body);
+                                    }
+                                    catch (std::bad_alloc&)
+                                    {
+                                        LLError::LLUserWarningMsg::showOutOfMemory();
+                                        LL_ERRS("LLCoros") << "Bad memory allocation in handleMessage() for " << msg_name << LL_ENDL;
+                                    }
+                                };
+                            }
+                            catch (std::bad_alloc&)
+                            {
+                                LLError::LLUserWarningMsg::showOutOfMemory();
+                                LL_ERRS("LLCoros") << "Bad memory allocation in eventPollCoro for " << msg_name << LL_ENDL;
+                            }
                         }
                         main_queue->post(work);
                     }
                     else
                     {
-                        handleMessage(*i);
+                        try
+                        {
+                            handleMessage(*i);
+                        }
+                        catch (std::bad_alloc&)
+                        {
+                            LLError::LLUserWarningMsg::showOutOfMemory();
+                            LL_ERRS("LLCoros") << "Bad memory allocation in handleMessage() for " << (*i)["message"].asString() << LL_ENDL;
+                        }
                     }
                 }
             }

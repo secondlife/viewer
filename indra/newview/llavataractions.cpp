@@ -337,6 +337,17 @@ void LLAvatarActions::showProfile(const LLUUID& avatar_id)
     }
 }
 
+bool LLAvatarActions::myProfileVisible()
+{
+    LLFloater* floaterp = getProfileFloater(gAgentID);
+    return floaterp && floaterp->isInVisibleChain();
+}
+
+bool LLAvatarActions::myPicksTabVisible()
+{
+    return myProfileVisible() && isPickTabSelected(gAgentID);
+}
+
 // static
 void LLAvatarActions::showPicks(const LLUUID& avatar_id)
 {
@@ -853,6 +864,13 @@ namespace action_give_inventory
                     break;
                 }
                 LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
+                if (!inv_item)
+                {
+                    shared = false;
+                    LL_WARNS() << "Failed to share an item " << *it
+                        << ". Item was not found in inventory." << LL_ENDL;
+                    continue;
+                }
                 if (!inv_item->getPermissions().allowCopyBy(gAgentID))
                 {
                     if (!noncopy_item_names.empty())

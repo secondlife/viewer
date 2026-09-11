@@ -307,6 +307,31 @@ bool LLCharacter::setVisualParamWeight(S32 index, F32 weight)
 }
 
 //-----------------------------------------------------------------------------
+// setVisualParamWeight()
+//-----------------------------------------------------------------------------
+bool LLCharacter::setVisualParamWeight(S32 index, S32 type, F32 weight)
+{
+    visual_param_index_map_t::iterator index_iter = mVisualParamIndexMap.find(index);
+    if (index_iter != mVisualParamIndexMap.end())
+    {
+        LLVisualParam* param = index_iter->second;
+        if (param->getWearableType() == type)
+        {
+            param->setWeight(weight);
+            return true;
+        }
+        else
+        {
+            // setVisualParamWeight at the moment is only used in writeToAvatar.
+            // The type is supposed to match since wearable is a subset of avatar by type.
+            llassert(false);
+            LL_WARNS() << "Visual param index " << index << " is not of type " << type << LL_ENDL;
+        }
+    }
+    return false;
+}
+
+//-----------------------------------------------------------------------------
 // getVisualParamWeight()
 //-----------------------------------------------------------------------------
 F32 LLCharacter::getVisualParamWeight(LLVisualParam *which_param)

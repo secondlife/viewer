@@ -13,6 +13,7 @@
     border="false"
     bevel_style="none"
     show_item_link_overlays="true"
+    preinitialize_views="false"
     >
     <scroll reserve_scroll_corner="false" />
 </inbox_inventory_panel>

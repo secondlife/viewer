@@ -35,7 +35,7 @@
      name="System Volume"
      show_text="false"
      slider_label.halign="right"
-     top="10"
+     top="12"
      volume="true"
      width="300">
         <slider.commit_callback
@@ -316,7 +316,7 @@
    follows="left|top"
    layout="topleft"
    left="23"
-   top_delta="25"
+   top_delta="35"
    name="Listen media from"
    height="15"
    width="180"
@@ -346,6 +346,7 @@
    layout="topleft"
    height="15"
    left="23"
+   top_delta="32"
    width="180"
    name="media_autoplay_label"
    halign="right">
@@ -379,6 +380,7 @@
         layout="topleft"
         height="15"
         left="23"
+        top_delta="32"
         width="180"
         name="media_firstinteract_label"
         halign="right">
@@ -435,11 +437,12 @@
     enabled_control="AudioStreamingMedia"
     value="true"
     follows="left|top"
+    layout="topleft"
     tool_tip="Uncheck this to hide media attached to other avatars nearby"
     label="Play media attached to other avatars"
     left="23"
     width="15"
-    top_delta="30"
+    top_delta="35"
     height="15"/>
   <check_box
     name="media_huds_autoplay"
@@ -450,171 +453,7 @@
     layout="topleft"
     tool_tip="Uncheck this to make HUDs follow the standard media auto-play setting"
     label="Auto-play media attached to your HUD"
-    left="260"
-    top_pad="-15"
+    top_delta="25"
     width="15"
     height="15"/>
-  <text
-   layout="topleft"
-   follows="left"
-   height="15"
-   width="187"
-   name="noise_suppression_label"
-   left="23"
-   top_delta="22"
-   halign="right">
-     Microphone Noise Suppression
-  </text>
-  <combo_box
-   control_name="VoiceNoiseSuppressionLevel"
-   enabled_control="EnableVoiceChat"
-   follows="left|top"
-   layout="topleft"
-   left_delta="190"
-   top_delta="-6"
-   width="130"
-   height="23"
-   name="noise_suppression_combo">
-    <item
-     label="Off"
-     name="noise_suppression_none"
-     value="0"/>
-    <item
-     label="Low"
-     name="noise_suppression_low"
-     value="1"/>
-    <item
-     label="Moderate"
-     name="noise_suppression_moderate"
-     value="2"/>
-    <item
-     label="High"
-     name="noise_suppression_high"
-     value="3"/>
-    <item
-     label="Max"
-     name="noise_suppression_max"
-     value="4"/>
-  </combo_box>
-  <text
-   type="string"
-   length="1"
-   follows="left|top"
-   layout="topleft"
-   left="23"
-   top_delta="30"
-   name="Listen from"
-   width="180"
-   height="15"
-   halign="right">
-     Hear voice from
-  </text>
-  <combo_box
-   enabled_control="EnableVoiceChat"
-   control_name="VoiceEarLocation"
-   follows="left|top"
-   layout="topleft"
-   left_delta="190"
-   top_delta="-6"
-   width="130"
-   height="23"
-   name="ear_location_combo">
-   <item
-      label="Camera position"
-      name="camera_position"
-      value="0" />
-   <item
-      label="Avatar position"
-      name="avatar_position"
-      value="1" />
-</combo_box>
-  <check_box
-   control_name="LipSyncEnabled"
-   enabled_control="EnableVoiceChat"
-   follows="left|top"
-   height="15"
-   label="Move avatar lips when speaking"
-   layout="topleft"
-   left="20"
-   name="enable_lip_sync"
-   top_pad="8"
-   width="237"/>
-  <check_box
-   control_name="VoiceEchoCancellation"
-   enabled_control="EnableVoiceChat"
-   height="15"
-   tool_tip="Check to enable voice echo cancellation"
-   label="Echo Cancellation"
-   layout="topleft"
-   left="275"
-   name="enable_echo_cancellation"
-   top_pad="-15"
-   width="200"/>
-  <check_box
-   follows="top|left"
-   enabled_control="EnableVoiceChat"
-   control_name="PushToTalkToggle"
-   height="15"
-   label="Toggle speak on/off with toolbar button"
-   layout="topleft"
-   left="20"
-   name="push_to_talk_toggle_check"
-   width="245"
-   tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."
-   top_pad="5"/>
-  <check_box
-   control_name="VoiceAutomaticGainControl"
-   enabled_control="EnableVoiceChat"
-   height="15"
-   tool_tip="Check to enable automatic gain control"
-   label="Automatic Gain Control"
-   layout="topleft"
-   name="voice_automatic_gain_control"
-   left="275"
-   top_pad="-15"
-   width="200"/>
-  <check_box
-   name="gesture_audio_play_btn"
-   control_name="EnableGestureSounds"
-   disabled_control="MuteAudio"
-   value="true"
-   follows="left|bottom|right"
-   height="15"
-   tool_tip="Check this to hear sounds from gestures"
-   label="Play sounds from gestures"
-   top_pad="5"
-   left="20"/>
-  <check_box
-   control_name="VoiceVisualizerEnabled"
-   enabled_control="EnableVoiceChat"
-   height="15"
-   tool_tip="Check to show voice dot indicator above avatars"
-   label="Show voice dot above avatars"
-   layout="topleft"
-   name="voice_dot_visualizer"
-   left="275"
-   top_pad="-15"
-   width="200"/>
-  <button
-   control_name="ShowDeviceSettings"
-   enabled_control="EnableVoiceChat"
-   follows="left|top"
-   height="23"
-   is_toggle="true"
-   label="Voice Input/Output devices"
-   layout="topleft"
-   left="20"
-   top_pad="1"
-   name="device_settings_btn"
-   width="200">
-  </button>
-    <panel
-    layout="topleft"
-    filename="panel_sound_devices.xml"
-     visiblity_control="ShowDeviceSettings"
-     name="device_settings_panel"
-    top_pad="0"
-    width="480"
-    left="18"
-    class="panel_voice_device_settings"/>
     </panel>

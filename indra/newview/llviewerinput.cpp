@@ -1430,7 +1430,7 @@ S32 LLViewerInput::loadBindingsXML(const std::string& filename)
                 // file in app_settings is supposed to be up to date
                 // this is only for the file from user_settings
                 LL_INFOS("ViewerInput") << "Updating file " << filename << " to a newer version" << LL_ENDL;
-                LLFILE *fp = LLFile::fopen(filename, "w");
+                LLFILE *fp = LLFile::fopen(filename, LLFILE_MODE("w"));
                 if (fp != NULL)
                 {
                     LLXMLNode::writeHeaderToFile(fp);

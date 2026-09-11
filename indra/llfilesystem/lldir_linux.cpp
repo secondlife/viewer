@@ -238,24 +238,6 @@ std::string LLDir_Linux::getCurPath()
     return tmp_str;
 }
 
-
-bool LLDir_Linux::fileExists(const std::string &filename) const
-{
-    struct stat stat_data;
-    // Check the age of the file
-    // Now, we see if the files we've gathered are recent...
-    int res = stat(filename.c_str(), &stat_data);
-    if (!res)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-
 /*virtual*/ std::string LLDir_Linux::getLLPluginLauncher()
 {
     return gDirUtilp->getExecutableDir() + gDirUtilp->getDirDelimiter() +

@@ -63,15 +63,80 @@ S32 LLSDXMLFormatter::format(const LLSD& data, std::ostream& ostr,
                              EFormatterOptions options) const
 {
     std::streamsize old_precision = ostr.precision(25);
+    std::ios_base::iostate old_exceptions = ostr.exceptions();
+    // Merged exception mask: preserve the caller's bits and add failbit|badbit
+    // for I/O error detection, so we never drop bits the caller already enabled.
+    std::ios_base::iostate new_exceptions =
+        old_exceptions | std::ios_base::badbit | std::ios_base::failbit;
+    // Bits we are newly adding (not already in the caller's mask).
+    std::ios_base::iostate added_bits = new_exceptions & ~old_exceptions;
 
-    std::string post;
-    if (options & LLSDFormatter::OPTIONS_PRETTY)
+    // If the stream already has error-state bits that we would newly add to the
+    // exception mask, enabling those bits would throw immediately; bail out early.
+    if (added_bits && (ostr.rdstate() & added_bits))
     {
-        post = "\n";
+        LL_WARNS() << "LLSDXMLFormatter::format: Stream already in error state" << LL_ENDL;
+        ostr.precision(old_precision);
+        return -1;
     }
-    ostr << "<llsd>" << post;
-    S32 rv = format_impl(data, ostr, options, 1);
-    ostr << "</llsd>\n";
+
+    S32 rv = 0;
+
+    try
+    {
+        // Enable the merged exception mask to detect I/O errors during formatting.
+        if (added_bits)
+        {
+            ostr.exceptions(new_exceptions);
+        }
+
+        std::string post;
+        if (options & LLSDFormatter::OPTIONS_PRETTY)
+        {
+            post = "\n";
+        }
+        ostr << "<llsd>" << post;
+        rv = format_impl(data, ostr, options, 1);
+        ostr << "</llsd>\n";
+    }
+    catch (const std::ios_base::failure& e)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: Stream I/O exception: " << e.what()
+            << " - Stream state: good=" << ostr.good()
+            << " eof=" << ostr.eof()
+            << " fail=" << ostr.fail()
+            << " bad=" << ostr.bad() << LL_ENDL;
+        rv = -1;
+    }
+    catch (const std::bad_alloc&)
+    {
+        // we might be saving something massive, don't error or crash
+        LL_WARNS() << "LLSDXMLFormatter::format: Memory allocation failed during formatting" << LL_ENDL;
+        rv = -1;
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: Standard exception: " << e.what() << LL_ENDL;
+        rv = -1;
+    }
+    catch (...)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: Unknown exception during formatting" << LL_ENDL;
+        rv = -1;
+    }
+
+    // Restore original exception mask. First set to goodbit (never throws) so
+    // the subsequent restore call won't immediately throw if the stream is in
+    // error state for bits in old_exceptions.
+    try
+    {
+        ostr.exceptions(std::ios_base::goodbit);
+        ostr.exceptions(old_exceptions);
+    }
+    catch (...)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: failed to restore exceptions" << LL_ENDL;
+    }
 
     ostr.precision(old_precision);
     return rv;

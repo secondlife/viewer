@@ -4,7 +4,7 @@
 *
 * $LicenseInfo:firstyear=2001&license=viewerlgpl$
 * Second Life Viewer Source Code
-* Copyright (C) 2010, Linden Research, Inc.
+* Copyright (C) 2026, Linden Research, Inc.
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -252,6 +252,11 @@ public:
     // This method returns the actual name of the thing being
     // viewed. This method will ask the viewed object itself.
     const std::string& getName( void ) const;
+
+    // Override to provide lazy tooltip generation without memory overhead
+    // Inventory can consist of millions of items, yet most stay invisible,
+    // much less need to show a tooltip, so avoid storing tooltips.
+    virtual const std::string getToolTip() const;
 
     // This method returns the label displayed on the view. This
     // method was primarily added to allow sorting on the folder

@@ -52,7 +52,7 @@ typedef U32 uint32_t;
 #include "llformat.h"
 #include "llmemorystream.h"
 
-#include "../test/hexdump.h"
+#include "hexdump.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
@@ -241,6 +241,58 @@ namespace tut
         mSD = string_to_vector("6|6|asdfhappybox|60e44ec5-305c-43c2-9a19-b4b89b1ae2a6|60e44ec5-305c-43c2-9a19-b4b89b1ae2a6|60e44ec5-305c-43c2-9a19-b4b89b1ae2a6|00000000-0000-0000-0000-000000000000|7fffffff|7fffffff|0|0|82000|450fe394-2904-c9ad-214c-a07eb7feec29|(No Description)|0|10|0");
         expected = "<llsd><binary encoding=\"base64\">Nnw2fGFzZGZoYXBweWJveHw2MGU0NGVjNS0zMDVjLTQzYzItOWExOS1iNGI4OWIxYWUyYTZ8NjBlNDRlYzUtMzA1Yy00M2MyLTlhMTktYjRiODliMWFlMmE2fDYwZTQ0ZWM1LTMwNWMtNDNjMi05YTE5LWI0Yjg5YjFhZTJhNnwwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDB8N2ZmZmZmZmZ8N2ZmZmZmZmZ8MHwwfDgyMDAwfDQ1MGZlMzk0LTI5MDQtYzlhZC0yMTRjLWEwN2ViN2ZlZWMyOXwoTm8gRGVzY3JpcHRpb24pfDB8MTB8MA==</binary></llsd>\n";
         xml_test("binary", expected);
+    }
+
+    template<> template<>
+    void sd_xml_object::test<7>()
+    {
+        // Test that stream state (precision and exceptions) is correctly restored after format()
+        {
+            std::ostringstream ostr;
+
+            // Set custom precision
+            ostr.precision(10);
+
+            // Set some exception bits
+            ostr.exceptions(std::ios_base::badbit);
+            std::ios_base::iostate original_exceptions = ostr.exceptions();
+
+            // Format some LLSD data
+            mSD = 3.141592653589793;
+            S32 result = mFormatter->format(mSD, ostr);
+
+            // Verify formatting succeeded
+            ensure("format should succeed", result >= 0);
+
+            // Verify precision was restored
+            ensure_equals("precision should be restored",
+                ostr.precision(), 10);
+
+            // Verify exceptions were restored
+            ensure_equals("exception bits should be restored",
+                ostr.exceptions(), original_exceptions);
+        }
+
+        // Test with no bits set
+        {
+            std::ostringstream ostr;
+            ostr.precision(5);
+            std::ios_base::iostate original_exceptions = ostr.exceptions(); // 0
+
+            mSD = "test";
+            S32 result = mFormatter->format(mSD, ostr);
+
+            // Verify formatting succeeded
+            ensure("format should succeed", result >= 0);
+
+            // Verify exceptions were removed
+            ensure_equals("exception bits should remain unchanged",
+                ostr.exceptions(), original_exceptions);
+
+            // Verify precision was still restored even on failure
+            ensure_equals("precision should be restored even on stream failure",
+                ostr.precision(), (std::streamsize)5);
+        }
     }
 
     class TestLLSDSerializeData
@@ -1808,7 +1860,7 @@ namespace tut
 #if LL_WINDOWS
         std::string q("\"");
         std::string qPYTHON(q + PYTHON + q);
-        std::string qscript(q + scriptfile.getName() + q);
+        std::string qscript(q + scriptfile.getPath().string() + q);
         int rc = (int)_spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(),
                          std::forward<ARGS>(args)..., NULL);
         if (rc == -1)
@@ -1825,7 +1877,7 @@ namespace tut
 #else  // LL_DARWIN, LL_LINUX
         LLProcess::Params params;
         params.executable = PYTHON;
-        params.args.add(scriptfile.getName());
+        params.args.add(scriptfile.getPath().string());
         for (const std::string& arg : StringVec{ std::forward<ARGS>(args)... })
         {
             params.args.add(arg);
@@ -1921,12 +1973,12 @@ namespace tut
             int bufflen{ static_cast<int>(buffstr.length()) };
             out.write(reinterpret_cast<const char*>(&bufflen), sizeof(bufflen));
             LL_DEBUGS() << "Wrote length: "
-                        << hexdump(reinterpret_cast<const char*>(&bufflen),
+                        << LL::hexdump(reinterpret_cast<const char*>(&bufflen),
                                    sizeof(bufflen))
                         << LL_ENDL;
             out.write(buffstr.c_str(), buffstr.length());
             LL_DEBUGS() << "Wrote data:   "
-                        << hexmix(buffstr.c_str(), buffstr.length())
+                        << LL::hexmix(buffstr.c_str(), buffstr.length())
                         << LL_ENDL;
         }
     }
@@ -2002,8 +2054,8 @@ namespace tut
                    "        yield frombytes\n"
                    << pydata <<
                    // Don't forget raw-string syntax for Windows pathnames.
-                   "debug = open(r'" << debug.getName() << "', 'w')\n"
-                   "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n";});
+                   "debug = open(r'" << debug.getPath().string() << "', 'w')\n"
+                   "verify(parse_each(open(r'" << file.getPath().string() << "', 'rb')))\n";});
         }
         catch (const failure&)
         {
@@ -2111,13 +2163,13 @@ namespace tut
                "]\n"
                // Don't forget raw-string syntax for Windows pathnames.
                // N.B. Using 'print' implicitly adds newlines.
-               "with open(r'" << file.getName() << "', 'wb') as f:\n"
+               "with open(r'" << (const char*)file.getPath().u8string().c_str() << "', 'wb') as f:\n"
                "    for item in DATA:\n"
                "        serialized = llsd." << pyformatter << "(item)\n"
                "        f.write(lenformat.pack(len(serialized)))\n"
                "        f.write(serialized)\n";});
 
-        std::ifstream inf(file.getName().c_str());
+        llifstream inf(file.getPath());
         LLSD item;
         try
         {

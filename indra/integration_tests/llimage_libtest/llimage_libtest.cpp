@@ -329,7 +329,7 @@ public:
 
     void run()
     {
-        std::ofstream os(mFile.c_str());
+        llofstream os(mFile.c_str());
 
         while (!sAllDone)
         {
@@ -345,6 +345,11 @@ public:
 
 int main(int argc, char** argv)
 {
+    // Call Tracy first thing to have it allocate memory
+    // https://github.com/wolfpld/tracy/issues/196
+    LL_PROFILER_FRAME_END;
+    LL_PROFILER_SET_THREAD_NAME("App");
+
     // List of input and output files
     std::list<std::string> input_filenames;
     std::list<std::string> output_filenames;
@@ -525,7 +530,7 @@ int main(int argc, char** argv)
             }
             else
             {
-                LLFastTimer::sMetricLog = TRUE;
+                LLFastTimer::sMetricLog = true;
                 LLFastTimer::sLogName = test_name;
                 arg += 1;                   // Skip that arg now we know it's a valid test name
                 if ((arg + 1) == argc)      // Break out of the loop if we reach the end of the arg list

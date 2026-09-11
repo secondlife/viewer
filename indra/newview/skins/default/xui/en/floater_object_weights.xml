@@ -2,14 +2,14 @@
 <floater
  can_close="true"
  can_tear_off="false"
- height="372"
+ height="479"
  help_topic="object_weights"
  layout="topleft"
  name="object_weights"
  save_rect="true"
  single_instance="true"
  title="ADVANCED"
- width="200">
+ width="205">
     <floater.string
      name="nothing_selected"
      value="--"/>
@@ -48,7 +48,7 @@
      name="objects"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <text
      follows="left|top"
      height="16"
@@ -67,7 +67,7 @@
      name="prims"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <text
      follows="left|top"
      height="16"
@@ -85,7 +85,7 @@
      left="10"
      name="selected_text_border"
      top_pad="5"
-     width="180"/>
+     width="185"/>
 
 
     <text
@@ -107,7 +107,7 @@
      name="download"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <loading_indicator
      follows="left|top"
      height="16"
@@ -134,7 +134,7 @@
      name="physics"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <loading_indicator
      follows="left|top"
      height="16"
@@ -161,7 +161,7 @@
      name="server"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <loading_indicator
      follows="left|top"
      height="16"
@@ -188,7 +188,7 @@
      name="display"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <loading_indicator
      follows="left|top"
      height="16"
@@ -214,7 +214,7 @@
      left="10"
      name="weights_text_border"
      top_pad="5"
-     width="180"/>
+     width="185"/>
 
 
     <text
@@ -236,7 +236,7 @@
      name="selected"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <loading_indicator
      follows="left|top"
      height="16"
@@ -263,7 +263,7 @@
      name="rezzed_on_land"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <loading_indicator
      follows="left|top"
      height="16"
@@ -290,7 +290,7 @@
      name="remaining_capacity"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <loading_indicator
      follows="left|top"
      height="16"
@@ -317,7 +317,7 @@
      name="total_capacity"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <loading_indicator
      follows="left|top"
      height="16"
@@ -336,6 +336,15 @@
      value="Total capacity"
      width="130" />
 
+    <view_border
+     bevel_style="none"
+     follows="top|left"
+     height="0"
+     layout="topleft"
+     left="10"
+     name="rendering_text_border"
+     top_pad="5"
+     width="185"/>
 
     <text
      follows="left|top"
@@ -356,7 +365,7 @@
      name="lod_level"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <loading_indicator
      follows="left|top"
      height="16"
@@ -383,7 +392,7 @@
      name="triangles_shown"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <loading_indicator
      follows="left|top"
      height="16"
@@ -410,7 +419,7 @@
      name="pixel_area"
      top_pad="3"
      value="--"
-     width="40" />
+     width="45" />
     <loading_indicator
      follows="left|top"
      height="16"
@@ -427,5 +436,134 @@
      name="pixel_area_label"
      top_delta="0"
      value="Pixel Area"
+     width="130" />
+
+    <view_border
+     bevel_style="none"
+     follows="top|left"
+     height="0"
+     layout="topleft"
+     left="10"
+     name="lods_text_border"
+     top_pad="5"
+     width="185"/>
+
+    <text
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="lod_info_text"
+     text_color="EmphasisColor"
+     top_pad="10"
+     value="LOD INFO"
+     width="180" />
+    <text
+     follows="left|top"
+     halign="right"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="high_lod_tris"
+     top_pad="3"
+     value="--"
+     width="45" />
+    <loading_indicator
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="34"
+     name="high_lod_tris_loading_indicator"
+     top_delta="0"
+     width="16" />
+    <text
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="10"
+     name="high_lod_tris_label"
+     top_delta="0"
+     value="High triangles"
+     width="130" />
+    <text
+     follows="left|top"
+     halign="right"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="medium_lod_tris"
+     top_pad="3"
+     value="--"
+     width="45" />
+    <loading_indicator
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="34"
+     name="medium_lod_tris_loading_indicator"
+     top_delta="0"
+     width="16" />
+    <text
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="10"
+     name="medium_lod_tris_label"
+     top_delta="0"
+     value="Medium triangles"
+     width="130" />
+    <text
+     follows="left|top"
+     halign="right"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="low_lod_tris"
+     top_pad="3"
+     value="--"
+     width="45" />
+    <loading_indicator
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="34"
+     name="low_lod_tris_loading_indicator"
+     top_delta="0"
+     width="16" />
+    <text
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="10"
+     name="low_lod_tris_label"
+     top_delta="0"
+     value="Low triangles"
+     width="130" />
+    <text
+     follows="left|top"
+     halign="right"
+     height="16"
+     layout="topleft"
+     left="10"
+     name="lowest_lod_tris"
+     top_pad="3"
+     value="--"
+     width="45" />
+    <loading_indicator
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left="34"
+     name="lowest_lod_tris_loading_indicator"
+     top_delta="0"
+     width="16" />
+    <text
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="10"
+     name="lowest_lod_tris_label"
+     top_delta="0"
+     value="Lowest triangles"
      width="130" />
 </floater>

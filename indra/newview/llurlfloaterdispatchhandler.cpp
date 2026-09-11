@@ -29,15 +29,9 @@
 #include "llurlfloaterdispatchhandler.h"
 
 #include "llfloaterreg.h"
-#include "llfloaterhowto.h"
 #include "llfloaterwebcontent.h"
 #include "llsdserialize.h"
-#include "llviewercontrol.h"
 #include "llviewergenericmessage.h"
-#include "llweb.h"
-
-// Example:
-// llOpenFloater("guidebook", "http://page.com", []);
 
 // values specified by server side's dispatcher
 // for llopenfloater
@@ -50,19 +44,11 @@ const std::string KEY_URL("floater_url");
 const std::string KEY_PARAMS("floater_params");
 
 // Supported floaters
-const std::string FLOATER_GUIDEBOOK("guidebook");
-const std::string FLOATER_HOW_TO("how_to"); // alias for guidebook
 const std::string FLOATER_WEB_CONTENT("web_content");
 
 // All arguments are palceholders! Server side will need to add validation first.
 // Web content universal argument
 const std::string KEY_TRUSTED_CONTENT("trusted_content");
-
-// Guidebook specific arguments
-const std::string KEY_WIDTH("width");
-const std::string KEY_HEGHT("height");
-const std::string KEY_CAN_CLOSE("can_close");
-const std::string KEY_TITLE("title");
 
 // web_content specific arguments
 const std::string KEY_SHOW_PAGE_TITLE("show_page_title");
@@ -143,48 +129,7 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
     LLFloaterWebContent::Params params;
     params.url = url;
 
-    if (floater == FLOATER_GUIDEBOOK || floater == FLOATER_HOW_TO)
-    {
-        LL_DEBUGS("URLFloater") << "Opening how_to floater with parameters: " << message << LL_ENDL;
-        if (command_params.isMap()) // by default is undefines
-        {
-            params.trusted_content = command_params.has(KEY_TRUSTED_CONTENT) ? command_params[KEY_TRUSTED_CONTENT].asBoolean() : false;
-
-            // Script's side argument list can't include other lists, neither
-            // there is a LLRect type, so expect just width and height
-            if (command_params.has(KEY_WIDTH) && command_params.has(KEY_HEGHT))
-            {
-                LLRect rect(0, command_params[KEY_HEGHT].asInteger(), command_params[KEY_WIDTH].asInteger(), 0);
-                params.preferred_media_size.setValue(rect);
-            }
-        }
-
-        // Some locations will have customized guidebook, which this function easists for
-        // only one instance of guidebook can exist at a time, so if this command arrives,
-        // we need to close previous guidebook then reopen it.
-
-        LLFloater* instance = LLFloaterReg::findInstance("guidebook");
-        if (instance)
-        {
-            instance->closeHostedFloater();
-        }
-
-        LLFloaterReg::toggleInstanceOrBringToFront("guidebook", params);
-
-        if (command_params.isMap())
-        {
-            LLFloater* instance = LLFloaterReg::findInstance("guidebook");
-            if (command_params.has(KEY_CAN_CLOSE))
-            {
-                instance->setCanClose(command_params[KEY_CAN_CLOSE].asBoolean());
-            }
-            if (command_params.has(KEY_TITLE))
-            {
-                instance->setTitle(command_params[KEY_TITLE].asString());
-            }
-        }
-    }
-    else if (floater == FLOATER_WEB_CONTENT)
+    if (floater == FLOATER_WEB_CONTENT)
     {
         LL_DEBUGS("URLFloater") << "Opening web_content floater with parameters: " << message << LL_ENDL;
         if (command_params.isMap()) // by default is undefines, might be better idea to init params from command_params

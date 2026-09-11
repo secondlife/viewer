@@ -56,6 +56,8 @@ protected:
 public:
     void draw() override;
 
+    bool postBuild() override;
+
     void setToggleState(bool state);
 
     void onActionButtonClick(const LLSD& data);

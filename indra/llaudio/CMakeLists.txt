@@ -54,3 +54,7 @@ endif()
 if( TARGET ll::fmodstudio )
     target_link_libraries( llaudio ll::fmodstudio )
 endif()
+
+if (USE_PRECOMPILED_HEADERS)
+    target_precompile_headers(llaudio REUSE_FROM llprecompiled)
+endif ()

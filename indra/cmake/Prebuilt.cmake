@@ -2,9 +2,6 @@
 include_guard()
 
 include(FindAutobuild)
-if(INSTALL_PROPRIETARY)
-  include(FindSCP)
-endif(INSTALL_PROPRIETARY)
 
 set(PREBUILD_TRACKING_DIR ${AUTOBUILD_INSTALL_DIR}/cmake_tracking)
 # For the library installation process;
@@ -40,13 +37,37 @@ macro (use_prebuilt_binary _binary)
         --install-dir=${AUTOBUILD_INSTALL_DIR}
         ${_binary} ")
         endif(DEBUG_PREBUILT)
-        execute_process(COMMAND "${AUTOBUILD_EXECUTABLE}"
-                install
-                --install-dir=${AUTOBUILD_INSTALL_DIR}
-                ${_binary}
-                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-                RESULT_VARIABLE ${_binary}_installed
-                )
+        message(STATUS "Installing ${_binary}...")
+
+        # Retry transient download failures (e.g. remote disconnects) instead
+        # of failing the whole configure on the first attempt.
+        set(_max_retries 4)
+        set(_retry_delay 8)
+        set(${_binary}_installed 1)
+
+        foreach(_attempt RANGE 1 ${_max_retries})
+            if(DEBUG_PREBUILT)
+                message(STATUS "autobuild install ${_binary}: attempt ${_attempt}/${_max_retries}")
+            endif(DEBUG_PREBUILT)
+            execute_process(COMMAND "${AUTOBUILD_EXECUTABLE}"
+                    install
+                    --skip-source-environment
+                    --install-dir=${AUTOBUILD_INSTALL_DIR}
+                    ${_binary}
+                    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+                    RESULT_VARIABLE ${_binary}_installed
+                    )
+
+            if(${${_binary}_installed} EQUAL 0)
+                break()
+            endif()
+
+            if(_attempt LESS _max_retries)
+                message(WARNING "autobuild install ${_binary} failed (rc=${${_binary}_installed}); retrying in ${_retry_delay}s")
+                execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep ${_retry_delay})
+            endif()
+        endforeach()
+
         file(WRITE ${PREBUILD_TRACKING_DIR}/${_binary}_installed "${${_binary}_installed}")
     endif(${PREBUILD_TRACKING_DIR}/sentinel_installed IS_NEWER_THAN ${PREBUILD_TRACKING_DIR}/${_binary}_installed OR NOT ${${_binary}_installed} EQUAL 0)
 

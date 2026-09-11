@@ -36,4 +36,12 @@
 		プロキシ設定：
 	</text>
 	<button label="プロキシ設定を調整" label_selected="参照" name="set_proxy"/>
+	<text name="os_hibernation_mode">
+		離席中でない場合、OS の休止状態を防止:
+	</text>
+	<combo_box name="os_hibernation_combobox" tool_tip="ユーザーが離席中でない場合にのみ、OS のスリープを防止します">
+		<combo_box.item label="休止状態を許可" name="can_hibernate"/>
+		<combo_box.item label="休止状態を禁止（画面オフは可）" name="cant_hibernate"/>
+		<combo_box.item label="休止状態を禁止（画面オフも不可）" name="cant_hibernate_screen"/>
+	</combo_box>
 </panel>

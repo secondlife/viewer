@@ -36,11 +36,6 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <OpenGL/OpenGL.h>
 
-// AssertMacros.h does bad things.
-#include "fix_macros.h"
-#undef verify
-#undef require
-
 class LLWindowMacOSX : public LLWindow
 {
 public:
@@ -55,7 +50,11 @@ public:
     void restore() override;
     bool getFullscreen();
     bool getPosition(LLCoordScreen *position) override;
+
+    // Content view size in backing pixels (excludes title bar).
+    // Note: on Windows, getSize(LLCoordScreen) returns the outer window frame size (includes title bar and borders).
     bool getSize(LLCoordScreen *size) override;
+
     bool getSize(LLCoordWindow *size) override;
     bool setPosition(LLCoordScreen position) override;
     bool setSizeImpl(LLCoordScreen size) override;
@@ -122,6 +121,7 @@ public:
     static std::vector<std::string> getDisplaysResolutionList();
 
     static std::vector<std::string> getDynamicFallbackFontList();
+    static LLFontFallbackMatch findFallbackFontForChar(llwchar wch);
 
     // Provide native key event data
     LLSD getNativeKeyData() override;
@@ -150,6 +150,10 @@ public:
 
     // enable or disable multithreaded GL
     static void setUseMultGL(bool use_mult_gl);
+
+    // During construction null_callbacks are used,
+    // this is a way to determine when callbacks are ready.
+    bool isConstructing() const { return mIsConstructing; }
 
 protected:
     LLWindowMacOSX(LLWindowCallbacks* callbacks,
@@ -227,6 +231,7 @@ protected:
     bool        mMinimized;
     U32         mFSAASamples;
     bool        mForceRebuild;
+    bool        mIsConstructing = true;
 
     S32 mDragOverrideCursor;
 

@@ -68,6 +68,18 @@ void LLWindowCallbacks::handleMouseLeave(LLWindow *window)
     return;
 }
 
+void LLWindowCallbacks::handlePreCloseRequest()
+{
+}
+
+void LLWindowCallbacks::handleCloseRequestCanceled()
+{
+}
+
+void LLWindowCallbacks::handleSuspendRequest()
+{
+}
+
 bool LLWindowCallbacks::handleCloseRequest(LLWindow *window, bool from_user)
 {
     //allow the window to close
@@ -141,6 +153,10 @@ void LLWindowCallbacks::handleScrollHWheel(LLWindow *window, S32 clicks)
 }
 
 void LLWindowCallbacks::handleResize(LLWindow *window, const S32 width, const S32 height)
+{
+}
+
+void LLWindowCallbacks::handleRequestResolutionUpdate(LLWindow* window)
 {
 }
 

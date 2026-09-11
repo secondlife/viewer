@@ -773,7 +773,7 @@ namespace tut
         LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
         LLXORCipher cipher2(unique_id, sizeof(unique_id));
         cipher2.encrypt(&binary_data[0], 16);
-        std::ofstream temp_file("sechandler_settings.tmp", std::ofstream::binary);
+        llofstream temp_file("sechandler_settings.tmp", std::ofstream::binary);
         temp_file.write((const char *)&binary_data[0], binary_data.size());
         temp_file.close();
 
@@ -846,7 +846,7 @@ namespace tut
 
         // rewrite the initial file to verify reloads
         handler = NULL;
-        std::ofstream temp_file2("sechandler_settings.tmp", std::ofstream::binary);
+        llofstream temp_file2("sechandler_settings.tmp", std::ofstream::binary);
         temp_file2.write((const char *)&binary_data[0], binary_data.size());
         temp_file2.close();
 

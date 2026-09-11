@@ -29,6 +29,7 @@
 #include "llfloateraddpaymentmethod.h"
 #include "llnotificationsutil.h"
 #include "lluictrlfactory.h"
+#include "llviewernetwork.h"
 #include "llweb.h"
 
 
@@ -63,7 +64,9 @@ void LLFloaterAddPaymentMethod::onContinueBtn()
         S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
         if (opt == 0)
         {
-            LLWeb::loadURL(this->getString("continue_url"));
+            const std::string& grid_id = LLGridManager::getInstance()->getGridId();
+            const std::string& grid_id_lower = utf8str_tolower(grid_id);
+            LLWeb::loadURL(getString(grid_id_lower == "damballah" ? "continue_staging_url" : "continue_url"));
         }
     });
 }
