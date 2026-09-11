@@ -2459,32 +2459,38 @@ namespace
         return bridge;
     }
 
-    // Per-mode ModeButtons index table: canonical Button index -> semantic index, or
-    // LLGameControl::NO_SEMANTIC_BUTTON if this button has none.
-    //
-    // A button's semantic index is always identical to its default-mapped canonical Button
-    // index -- e.g. BUTTON_WEST (2) always sets ModeButtons bit 2 -- for every mode with a
-    // mapping (modeToString() non-empty); CONTROL_MODE_NONE has no ModeButtons concept
-    // at all, so every entry stays NO_SEMANTIC_BUTTON. This includes buttons whose
-    // current action is a movement action (e.g. D-Pad Strafe/Advance) -- those buttons
-    // set both their ModeAxes contribution (see avatarSemanticButtonAxisSlots() et al.,
-    // used by computeSemanticState()) and their own ModeButtons bit, same as a keyboard
-    // key mapped to the same action already does via mExternalServerState.
-    const std::vector<U8>& getSemanticButtonIndexTable(LLGameControl::AgentControlMode mode)
+    // Per-mode ModeButtons slot table: default-mapped action label -> semantic slot
+    // (the canonical Button index 'mode's DEFAULT mapping assigns that action), e.g.
+    // "Crouch" -> 1 (BUTTON_EAST) for Avatar mode. This is derived solely from the
+    // DEFAULT mapping (buildDefaultModeMappings()), so it stays fixed no matter how
+    // the user remaps buttons in Preferences: whichever physical button "Crouch" is
+    // currently bound to, pressing it must still set the same ModeButtons bit (see
+    // message_template.msg's GameControlData doc -- "a ModeButtons bit index is
+    // always identical to the canonical Button index to which it is mapped by
+    // default, no matter how it is actually mapped"). Actions the default mapping
+    // leaves unbound, and CONTROL_MODE_NONE (which has no ModeButtons concept at
+    // all), are simply absent from the map.
+    const std::map<std::string, U8>& getDefaultButtonSemanticSlots(LLGameControl::AgentControlMode mode)
     {
-        static std::map<LLGameControl::AgentControlMode, std::vector<U8>> cache;
+        static std::map<LLGameControl::AgentControlMode, std::map<std::string, U8>> cache;
         auto found = cache.find(mode);
         if (found != cache.end())
         {
             return found->second;
         }
 
-        std::vector<U8> table(LLGameControl::NUM_BUTTONS, LLGameControl::NO_SEMANTIC_BUTTON);
-        if (!modeToString(mode).empty())
+        std::map<std::string, U8> table;
+        const std::string& mode_name = modeToString(mode);
+        if (!mode_name.empty())
         {
-            for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
+            LLSD default_buttons = buildDefaultModeMappings()[mode_name][GC_BUTTONS];
+            for (auto it = default_buttons.beginMap(); it != default_buttons.endMap(); ++it)
             {
-                table[btn] = btn;
+                LLGameControl::InputChannel channel = channelFromInputName(it->second.asString());
+                if (channel.isButton() && channel.mIndex < LLGameControl::NUM_BUTTONS)
+                {
+                    table[it->first] = channel.mIndex;
+                }
             }
         }
 
@@ -2735,24 +2741,32 @@ void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& s
 
     // ModeButtons: every currently-pressed button -- real controller OR a
     // keyboard-simulated press folded in via setExternalInput() (mExternalServerState,
-    // e.g. a literal "simulate this GameControl button" keybind) -- sets its own bit,
-    // renumbered via the mode's default-mapped index table. This includes buttons whose
-    // current action is a movement action (e.g. D-Pad Strafe/Advance): those already
-    // fold into mSemanticAxes above too, so a movement button (or a keyboard key mapped
-    // to the same action) shows up in both ModeAxes and ModeButtons, whereas tilting the
-    // equivalent analog stick only ever shows up in ModeAxes.
+    // e.g. a literal "simulate this GameControl button" keybind) -- sets the bit for
+    // whichever action is CURRENTLY bound to it (mButtonActionLabels), looked up
+    // against the mode's default mapping to find that action's stable slot -- NOT the
+    // bit matching the button's own (possibly remapped) canonical index. This includes
+    // buttons whose current action is a movement action (e.g. D-Pad Strafe/Advance):
+    // those already fold into mSemanticAxes above too, so a movement button (or a
+    // keyboard key mapped to the same action) shows up in both ModeAxes and
+    // ModeButtons, whereas tilting the equivalent analog stick only ever shows up in
+    // ModeAxes.
     U32 combined_buttons = g_innerState.mButtons | mExternalServerState.mButtons;
-    const std::vector<U8>& index_table = getSemanticButtonIndexTable(g_agentControlMode);
+    const std::map<std::string, U8>& default_slots = getDefaultButtonSemanticSlots(g_agentControlMode);
     for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
     {
         if (!(combined_buttons & (1U << btn)))
         {
             continue;
         }
-        U8 semantic_index = index_table[btn];
-        if (semantic_index != LLGameControl::NO_SEMANTIC_BUTTON)
+        const std::string& label = mButtonActionLabels[btn];
+        if (label.empty())
         {
-            new_semantic_buttons |= (1U << semantic_index);
+            continue;
+        }
+        auto it = default_slots.find(label);
+        if (it != default_slots.end())
+        {
+            new_semantic_buttons |= (1U << it->second);
         }
     }
 
@@ -3828,13 +3842,13 @@ U8 LLGameControl::numSemanticButtonsForMode(AgentControlMode mode)
     {
         return 0;
     }
-    const std::vector<U8>& table = getSemanticButtonIndexTable(mode);
     U8 count = 0;
-    for (U8 semantic_index : table)
+    for (const auto& label_and_slot : getDefaultButtonSemanticSlots(mode))
     {
-        if (semantic_index != NO_SEMANTIC_BUTTON && (U8)(semantic_index + 1) > count)
+        U8 slot = label_and_slot.second;
+        if ((U8)(slot + 1) > count)
         {
-            count = (U8)(semantic_index + 1);
+            count = (U8)(slot + 1);
         }
     }
     return count;
@@ -3888,33 +3902,15 @@ std::string LLGameControl::semanticButtonName(AgentControlMode mode, U8 slot)
         return LLStringUtil::null;
     }
 
-    // Find the canonical button 'mode's default mapping assigned this semantic slot
-    // to (getSemanticButtonIndexTable() maps a button with a slot to itself, i.e.
-    // canonical_button == slot), then label it with that button's default action,
-    // e.g. "Toggle sit" for Avatar slot 2 (BUTTON_WEST). Buttons the default mapping
-    // leaves unassigned still get a slot (identical to their own canonical index) but
-    // have no descriptive name.
-    const std::vector<U8>& index_table = getSemanticButtonIndexTable(mode);
-    U8 canonical_button = NUM_BUTTONS;
-    for (U8 btn = 0; btn < NUM_BUTTONS; ++btn)
+    // Find the action 'mode's default mapping assigned this semantic slot to
+    // (getDefaultButtonSemanticSlots() maps each default-bound action label to its
+    // stable slot), e.g. "Toggle sit" for Avatar slot 2 (BUTTON_WEST). Slots the
+    // default mapping leaves unassigned fall back to a generic name.
+    for (const auto& label_and_slot : getDefaultButtonSemanticSlots(mode))
     {
-        if (index_table[btn] == slot)
+        if (label_and_slot.second == slot)
         {
-            canonical_button = btn;
-            break;
-        }
-    }
-    if (canonical_button < NUM_BUTTONS)
-    {
-        const std::string& mode_name = modeToString(mode);
-        LLSD default_buttons = buildDefaultModeMappings()[mode_name][GC_BUTTONS];
-        for (auto it = default_buttons.beginMap(); it != default_buttons.endMap(); ++it)
-        {
-            LLGameControl::InputChannel channel = channelFromInputName(it->second.asString());
-            if (channel.isButton() && channel.mIndex == canonical_button)
-            {
-                return it->first;
-            }
+            return label_and_slot.first;
         }
     }
     return llformat("MODE_BUTTON_%d", (S32)slot);

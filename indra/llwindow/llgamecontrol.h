@@ -162,16 +162,6 @@ public:
     //   5 CURSOR_NY     // mouse normalized vertical position [0,1] from upper-edge
     static constexpr U8 NUM_CURSOR_SEMANTIC_AXES = 6;
 
-    // Sentinel stored in a semantic-button index table for a physical button that has
-    // no ModeButtons index -- only true in CONTROL_MODE_NONE, which has no ModeButtons
-    // concept at all. Every button in every other mode gets a ModeButtons index
-    // identical to its own default-mapped canonical Button index -- including buttons
-    // whose current action is a movement action (e.g. D-Pad Strafe/Advance), which set
-    // both their ModeAxes contribution and their own ModeButtons bit (see
-    // LLGameControllerManager::computeSemanticState() / getSemanticButtonIndexTable()
-    // in llgamecontrol.cpp).
-    static constexpr U8 NO_SEMANTIC_BUTTON = 255;
-
     enum Button : U8
     {
         BUTTON_SOUTH,
@@ -234,18 +224,18 @@ public:
     static constexpr U8 NUM_SEMANTIC_SLOTS =
         (U8)FLYCAM_NUM_CHANNELS > (U8)NUM_SEMANTIC_AXES ? (U8)FLYCAM_NUM_CHANNELS : (U8)NUM_SEMANTIC_AXES;
 
-    // Number of leading elements of ServerState::mSemanticAxes that are valid/packed
+    // Number of axes that are ever packed for 'mode' (e.g. the number of known
+    // mappable axes for that mode).
     // into GameControlData's ModeAxes block for 'mode' (see message_template.msg's
-    // GameControlData doc): NUM_SEMANTIC_AXES for Avatar/Mouselook/Captive,
-    // NUM_CURSOR_SEMANTIC_AXES for Cursor (CURSOR_DX/DY/PX/PY/NX/NY), FLYCAM_NUM_CHANNELS
-    // for FlyCam, 0 for CONTROL_MODE_NONE.
+    // GameControlData doc):
+    //   NUM_SEMANTIC_AXES for Avatar/Mouselook/Captive,
+    //   NUM_CURSOR_SEMANTIC_AXES for Cursor (CURSOR_DX/DY/PX/PY/NX/NY),
+    //   FLYCAM_NUM_CHANNELS for FlyCam,
+    //   0 for CONTROL_MODE_NONE.
     static U8 numSemanticAxesForMode(AgentControlMode mode);
 
     // Number of leading bits of ServerState::mSemanticButtons that are ever set for
-    // 'mode': NUM_BUTTONS minus however many canonical buttons that mode's *default*
-    // button mapping assigns to a movement action (those are folded into
-    // mSemanticAxes instead -- see getSemanticButtonIndexTable() in llgamecontrol.cpp).
-    // 0 for CONTROL_MODE_NONE.
+    // 'mode' (e.g. the number of known mappable actions for that mode).
     static U8 numSemanticButtonsForMode(AgentControlMode mode);
 
     // Display name for ServerState::mSemanticAxes[slot] under 'mode', matching the
@@ -403,11 +393,13 @@ public:
         U32 mButtons;
         U32 mPrevButtons;
 
-        // Semantic re-encoding of the above (see NUM_SEMANTIC_SLOTS / NO_SEMANTIC_BUTTON):
+        // Semantic re-encoding of the above (see NUM_SEMANTIC_SLOTS):
         // mSemanticAxes is indexed by SemanticAxis or FlycamChannel, whichever matches
         // mActionMode (unused trailing slots are zero); mSemanticButtons is a bitmask
-        // of semantic button indices from the active mode's semantic button index
-        // table.  mActionMode mirrors LLGameControl::AgentControlMode.
+        // of the active mode's default-mapped action slots (see
+        // numSemanticButtonsForMode()/semanticButtonName()), each bit reflecting
+        // whether that action is currently active regardless of which physical button
+        // it's presently bound to.  mActionMode mirrors LLGameControl::AgentControlMode.
         std::vector<S16> mSemanticAxes;
         std::vector<S16> mPrevSemanticAxes;
         U32 mSemanticButtons;
