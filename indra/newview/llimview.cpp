@@ -2240,11 +2240,11 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
     if((dialog == IM_NOTHING_SPECIAL) &&
        (other_participant_id.notNull()))
     {
-        // The packet has been sent; direct outbound bursts share one quiet service
-        // refresh while first contact also starts bounded discovery immediately.
+        // The packet has been sent; incoming and outgoing IMs share one quiet
+        // service refresh while first contact starts bounded discovery immediately.
         if (session && session->isP2PSessionType())
         {
-            LLChatServiceHistory::noteOutboundDirectMessage(other_participant_id);
+            LLChatServiceHistory::noteDirectMessageActivity(other_participant_id);
         }
 
         // Do we have to replace the /me's here?
@@ -3535,7 +3535,8 @@ void LLIMMgr::addMessage(
             other_participant_id.notNull() && other_participant_id != gAgentID;
         if (incoming_direct)
         {
-            LLChatServiceHistory::prioritizeResident(other_participant_id, true);
+            // Incoming activity shares the outgoing quiet deadline before reconciliation.
+            LLChatServiceHistory::noteDirectMessageActivity(other_participant_id);
         }
         LLIMModel::instance().addMessage(new_session_id, message_display_name, display_id, msg, true, is_region_msg, timestamp,
                                        incoming_direct

@@ -79,7 +79,7 @@ const char* const PENDING_NAME = "(name pending)";
 const char* const LEGACY_WALL_TIME = "chat_service_legacy_wall_time";
 const F64 REQUEST_SPACING = 2.1;
 const F64 RETRY_DELAY = 5.0;
-const F64 OUTBOUND_REFRESH_DELAY = 15.0;
+const F64 ACTIVITY_REFRESH_DELAY = 15.0;
 const F64 RATE_LIMIT_DELAY = 120.0;
 const F64 LIST_INTERVAL = 3600.0;
 const F64 NAME_TIMEOUT = 30.0;
@@ -110,11 +110,11 @@ enum ESummary
     SUMMARY_VALID
 };
 
-enum EOutboundDiscovery
+enum EActivityDiscovery
 {
-    OUTBOUND_NONE,
-    OUTBOUND_PENDING,
-    OUTBOUND_CONFIRMING
+    DISCOVERY_NONE,
+    DISCOVERY_PENDING,
+    DISCOVERY_CONFIRMING
 };
 
 struct CapabilityContext
@@ -187,10 +187,10 @@ struct Resident
     bool metadata_waiting = false;
     bool priority_waiting = false;
 
-    // Outbound bursts share one quiet deadline; unknown conversations also retain
-    // one bounded discovery confirmation.
-    F64 outbound_refresh_due = 0.0;
-    EOutboundDiscovery outbound_discovery = OUTBOUND_NONE;
+    // Incoming and outgoing IM bursts share one quiet deadline; unknown
+    // conversations retain one bounded discovery confirmation.
+    F64 activity_refresh_due = 0.0;
+    EActivityDiscovery activity_discovery = DISCOVERY_NONE;
 
     LLChatServiceHistory::Snapshot snapshot;
 };
@@ -1260,7 +1260,7 @@ bool networkEligible(const LLUUID& id, const Resident& resident,
 }
 
 void expireMetadata();
-void activateDueOutboundRefreshes();
+void activateDueActivityRefreshes();
 
 bool waitForWake(F64 seconds, U32 epoch)
 {
@@ -1270,7 +1270,7 @@ bool waitForWake(F64 seconds, U32 epoch)
     }
 
     // Coalesce queued wake events, then sleep until either state changes or the
-    // nearest pacing, list, metadata, or outbound deadline arrives.
+    // nearest pacing, list, metadata, or activity deadline arrives.
     sRuntime.wake_pending = false;
     sWake->discard();
     llcoro::suspendUntilEventOnWithTimeout(*sWake, static_cast<F32>(llmax(0.01, seconds)),
@@ -1306,7 +1306,7 @@ bool pace(const CapabilityContext& context, U32 epoch,
 
         // Record quiet-expiry priority during a global cooldown without allowing it
         // to bypass that cooldown or create a separate request path.
-        activateDueOutboundRefreshes();
+        activateDueActivityRefreshes();
         const F64 now = F64(LLTimer::getTotalSeconds());
         const F64 remaining = sRuntime.network_not_before - now;
         if (remaining <= 0.0)
@@ -1320,9 +1320,9 @@ bool pace(const CapabilityContext& context, U32 epoch,
             {
                 wait = llmin(wait, llmax(0.01, pair.second.metadata.deadline - now));
             }
-            if (pair.second.outbound_refresh_due > now)
+            if (pair.second.activity_refresh_due > now)
             {
-                wait = llmin(wait, pair.second.outbound_refresh_due - now);
+                wait = llmin(wait, pair.second.activity_refresh_due - now);
             }
         }
         const U32 pending_before = pendingMetadataCount();
@@ -1371,9 +1371,9 @@ void handleRequestFailure(const LLUUID& id, Resident& resident, S32 status)
     }
 }
 
-bool processList(const LLSD& body, bool& confirm_outbound_discovery)
+bool processList(const LLSD& body, bool& confirm_activity_discovery)
 {
-    confirm_outbound_discovery = false;
+    confirm_activity_discovery = false;
     std::vector<ListEntry> entries;
     if (!validateConversationList(body, sRuntime.agent_id, entries))
     {
@@ -1386,21 +1386,21 @@ bool processList(const LLSD& body, bool& confirm_outbound_discovery)
     }
 
     // Validate the complete list before preserving priority placeholders and
-    // appending background work. The first miss after an outbound hint retains its
+    // appending background work. The first miss after an activity hint retains its
     // placeholder for one delayed confirmation; the next valid miss retires it.
     for (auto& pair : sRuntime.residents)
     {
         pair.second.listed = listed.count(pair.first) != 0;
         if (!pair.second.listed)
         {
-            if (pair.second.outbound_discovery == OUTBOUND_PENDING)
+            if (pair.second.activity_discovery == DISCOVERY_PENDING)
             {
-                pair.second.outbound_discovery = OUTBOUND_CONFIRMING;
-                confirm_outbound_discovery = true;
+                pair.second.activity_discovery = DISCOVERY_CONFIRMING;
+                confirm_activity_discovery = true;
                 continue;
             }
 
-            pair.second.outbound_discovery = OUTBOUND_NONE;
+            pair.second.activity_discovery = DISCOVERY_NONE;
             sRuntime.queue.erase(std::remove(sRuntime.queue.begin(), sRuntime.queue.end(), pair.first),
                                  sRuntime.queue.end());
             if (sRuntime.priority_resident == pair.first)
@@ -1422,7 +1422,7 @@ bool processList(const LLSD& body, bool& confirm_outbound_discovery)
         resident.conversation_id = entry.conversation_id;
         resident.advertised_token = entry.last_msg_id;
         resident.listed = true;
-        resident.outbound_discovery = OUTBOUND_NONE;
+        resident.activity_discovery = DISCOVERY_NONE;
         if (resident.metadata.state == META_FAILED)
         {
             resident.metadata.state = META_UNREQUESTED;
@@ -1454,7 +1454,7 @@ void requestList(const CapabilityContext& context, U32 epoch)
     }
 
     // Discovery mutates resident scheduling state only after the complete response
-    // passes strict validation. A pending outbound hint remains visible across the
+    // passes strict validation. A pending activity hint remains visible across the
     // HTTP suspension and is consumed by processList rather than this request latch.
     const HttpResult response = request(context.list_url, NULL);
     LL_INFOS("ChatServiceHistory")
@@ -1473,14 +1473,14 @@ void requestList(const CapabilityContext& context, U32 epoch)
     }
     if (!response.body.isUndefined() && response.status >= 200 && response.status < 300)
     {
-        bool confirm_outbound_discovery = false;
-        if (processList(response.body, confirm_outbound_discovery))
+        bool confirm_activity_discovery = false;
+        if (processList(response.body, confirm_activity_discovery))
         {
             const F64 now = F64(LLTimer::getTotalSeconds());
-            sRuntime.list_needed = confirm_outbound_discovery;
+            sRuntime.list_needed = confirm_activity_discovery;
             sRuntime.list_retry_used = false;
             sRuntime.next_list = now + LIST_INTERVAL;
-            if (confirm_outbound_discovery)
+            if (confirm_activity_discovery)
             {
                 sRuntime.network_not_before = llmax(sRuntime.network_not_before,
                                                      now + RETRY_DELAY);
@@ -1520,8 +1520,8 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         if (!resident.listed || resident.conversation_id.empty())
         {
             // A failed discovery remains dormant until a fresh open/list/region or
-            // due outbound trigger.
-            resident.outbound_discovery = OUTBOUND_NONE;
+            // due activity trigger.
+            resident.activity_discovery = DISCOVERY_NONE;
             resident.snapshot.head_preview.clear();
             setWorkActive(id, false);
             clearPriority(id);
@@ -1625,10 +1625,10 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
             // If the first head request begins just after quiet expiry, it already
             // covers that burst. Cursor pages never consume a newer deadline.
             if (!current.first_request_started && cursor.empty() &&
-                current.outbound_refresh_due > 0.0 &&
-                current.outbound_refresh_due <= F64(LLTimer::getTotalSeconds()))
+                current.activity_refresh_due > 0.0 &&
+                current.activity_refresh_due <= F64(LLTimer::getTotalSeconds()))
             {
-                current.outbound_refresh_due = 0.0;
+                current.activity_refresh_due = 0.0;
             }
             current.first_request_started = true;
             post["conversation_id"] = current.conversation_id;
@@ -1674,9 +1674,9 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
                 break;
             }
 
-            // A validated response is the yield boundary for outbound deadlines
+            // A validated response is the yield boundary for activity deadlines
             // that matured while this request was in flight.
-            activateDueOutboundRefreshes();
+            activateDueActivityRefreshes();
             if (!ownsRuntime(epoch))
             {
                 return;
@@ -1743,8 +1743,8 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
                 }
 
                 // Archive inspection is also an awaited page boundary; apply any
-                // outbound priority that matured while it ran before staging rows.
-                activateDueOutboundRefreshes();
+                // activity priority that matured while it ran before staging rows.
+                activateDueActivityRefreshes();
                 if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
                 {
                     queueResident(id, false);
@@ -2403,9 +2403,9 @@ void expireMetadata()
     }
 }
 
-void activateDueOutboundRefreshes()
+void activateDueActivityRefreshes()
 {
-    // Revoked account gates retire pending outbound activity before it can remain
+    // Revoked account gates retire pending activity before it can remain
     // a wake source or schedule service work.
     if (!sRuntime.rollout || !transcriptConsent() ||
         sRuntime.state_safety != STATE_SAFE || sRuntime.cleanup_pending ||
@@ -2413,7 +2413,7 @@ void activateDueOutboundRefreshes()
     {
         for (auto& pair : sRuntime.residents)
         {
-            pair.second.outbound_refresh_due = 0.0;
+            pair.second.activity_refresh_due = 0.0;
         }
         return;
     }
@@ -2422,14 +2422,14 @@ void activateDueOutboundRefreshes()
     for (auto& pair : sRuntime.residents)
     {
         Resident& resident = pair.second;
-        if (resident.outbound_refresh_due <= 0.0 || resident.outbound_refresh_due > now)
+        if (resident.activity_refresh_due <= 0.0 || resident.activity_refresh_due > now)
         {
             continue;
         }
 
         // Consume the deadline before reusing the existing priority/discovery path
         // so an expired value cannot create a rapid manager wake loop.
-        resident.outbound_refresh_due = 0.0;
+        resident.activity_refresh_due = 0.0;
         LLMuteList* mute = LLMuteList::getInstance();
         if (mute && mute->isLoadedFromServer() &&
             (mute->isMuted(pair.first) ||
@@ -2442,9 +2442,9 @@ void activateDueOutboundRefreshes()
         {
             LLChatServiceHistory::prioritizeResident(pair.first, true);
         }
-        else if (resident.outbound_discovery == OUTBOUND_NONE)
+        else if (resident.activity_discovery == DISCOVERY_NONE)
         {
-            resident.outbound_discovery = OUTBOUND_PENDING;
+            resident.activity_discovery = DISCOVERY_PENDING;
             LLChatServiceHistory::prioritizeResident(pair.first);
         }
     }
@@ -2452,7 +2452,7 @@ void activateDueOutboundRefreshes()
 
 F64 nearestWait()
 {
-    // Sleep until the earliest list, pacing, metadata, or outbound quiet deadline;
+    // Sleep until the earliest list, pacing, metadata, or activity quiet deadline;
     // explicit wake events interrupt this deadline when state changes sooner.
     const F64 now = LLTimer::getTotalSeconds();
     F64 deadline = sRuntime.next_list > now ? sRuntime.next_list : now + LIST_INTERVAL;
@@ -2468,9 +2468,9 @@ F64 nearestWait()
         }
         if (!sRuntime.delete_requested && !sRuntime.cleanup_pending &&
             sRuntime.state_safety == STATE_SAFE && sRuntime.rollout && transcriptConsent() &&
-            pair.second.outbound_refresh_due > 0.0)
+            pair.second.activity_refresh_due > 0.0)
         {
-            deadline = llmin(deadline, pair.second.outbound_refresh_due);
+            deadline = llmin(deadline, pair.second.activity_refresh_due);
         }
     }
     return llmax(0.01, deadline - now);
@@ -2536,10 +2536,10 @@ void manager(U32 epoch)
             continue;
         }
 
-        // Expire timers, activate due outbound bursts, and fill metadata slots before
+        // Expire timers, activate due activity bursts, and fill metadata slots before
         // choosing the next network occurrence.
         expireMetadata();
-        activateDueOutboundRefreshes();
+        activateDueActivityRefreshes();
         fillMetadataSlots();
 
         const CapabilityContext context = sampleContext();
@@ -2569,8 +2569,8 @@ void manager(U32 epoch)
             }
         }
 
-        // Discovery precedes resident paging; the queue itself preserves open,
-        // inbound, and due outbound priority without creating a second worker.
+        // Discovery precedes resident paging; opens and due activity share the
+        // resident priority queue.
         const bool base_network = baseNetworkEligible(context);
         LLMuteList* mute = LLMuteList::getInstance();
         // Once all external inputs are available, record why synchronization stayed gated.
@@ -2887,7 +2887,7 @@ void LLChatServiceHistory::start()
                     {
                         if (!allowed)
                         {
-                            pair.second.outbound_refresh_due = 0.0;
+                            pair.second.activity_refresh_due = 0.0;
                             pair.second.snapshot.head_preview.clear();
                             pair.second.snapshot.service_work_active = false;
                         }
@@ -3072,7 +3072,7 @@ void LLChatServiceHistory::prioritizeResident(const LLUUID& id, bool follow_acti
     wakeManager();
 }
 
-void LLChatServiceHistory::noteOutboundDirectMessage(const LLUUID& id)
+void LLChatServiceHistory::noteDirectMessageActivity(const LLUUID& id)
 {
     if (!sRuntime.running || !sRuntime.rollout || !transcriptConsent() ||
         sRuntime.delete_requested || id.isNull() || id == sRuntime.agent_id)
@@ -3080,14 +3080,14 @@ void LLChatServiceHistory::noteOutboundDirectMessage(const LLUUID& id)
         return;
     }
 
-    // Every send replaces one quiet deadline, while first contact keeps its
-    // immediate bounded discovery path.
+    // Each incoming or outgoing IM resets the quiet deadline. First contact
+    // also starts bounded discovery immediately.
     Resident& resident = sRuntime.residents[id];
-    resident.outbound_refresh_due =
-        F64(LLTimer::getTotalSeconds()) + OUTBOUND_REFRESH_DELAY;
-    if (!resident.listed && resident.outbound_discovery == OUTBOUND_NONE)
+    resident.activity_refresh_due =
+        F64(LLTimer::getTotalSeconds()) + ACTIVITY_REFRESH_DELAY;
+    if (!resident.listed && resident.activity_discovery == DISCOVERY_NONE)
     {
-        resident.outbound_discovery = OUTBOUND_PENDING;
+        resident.activity_discovery = DISCOVERY_PENDING;
         prioritizeResident(id);
     }
     else
@@ -3257,7 +3257,7 @@ bool LLChatServiceHistory::deleteTranscriptsAsync(const delete_callback_t& callb
         return false;
     }
 
-    // Latch deletion and retire outbound deadlines so no new request or view read can
+    // Latch deletion and retire activity deadlines so no new request or view read can
     // start, and no expired wake source remains before pending privacy state is durable.
     sRuntime.delete_click_ticks = ticks;
     sRuntime.delete_callback = callback;
@@ -3265,7 +3265,7 @@ bool LLChatServiceHistory::deleteTranscriptsAsync(const delete_callback_t& callb
     sRuntime.delete_requested = true;
     for (auto& pair : sRuntime.residents)
     {
-        pair.second.outbound_refresh_due = 0.0;
+        pair.second.activity_refresh_due = 0.0;
     }
 
     wakeManager();
