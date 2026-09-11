@@ -212,19 +212,6 @@ LLButton::LLButton(const LLButton::Params& p)
         mSelectedLabel = mUnselectedLabel;
     }
 
-    if (!p.label_color_selected.isProvided())
-    {
-        mSelectedLabelColor = mUnselectedLabelColor;
-    }
-    if (!p.label_color_disabled.isProvided())
-    {
-        mDisabledLabelColor = mUnselectedLabelColor;
-    }
-    if (!p.label_color_disabled_selected.isProvided())
-    {
-        mDisabledSelectedLabelColor = mDisabledLabelColor;
-    }
-
     // Hack to make sure there is space for at least one character
     if (getRect().mRight >= 0 && getRect().getWidth() > 0 &&
         getRect().getWidth() - (mRightHPad + mLeftHPad) < mGLFont->getWidth(std::string(" ")))
@@ -847,10 +834,6 @@ void LLButton::draw()
         if ( getToggleState() )
         {
             label_color = mDisabledSelectedLabelColor.get();
-            if (label_color == LLColor4::magenta)
-            {
-                label_color = mDisabledLabelColor.get();
-            }
         }
         else
         {

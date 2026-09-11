@@ -205,7 +205,19 @@ void LLUIColorTable::setColor(std::string_view name, const LLColor4& color)
     }
     else
     {
-        mUserSetColors.emplace(name, LLUIColor(color));
+        string_color_map_t::iterator base_iter = mLoadedColors.find(name);
+        if (base_iter != mLoadedColors.end())
+        {
+            LLColor4 original_color = base_iter->second.get();
+            auto color_handle = mLoadedColors.extract(base_iter);
+            auto new_color_pair = mUserSetColors.insert(std::move(color_handle));
+            new_color_pair.position->second = color;
+            mLoadedColors.emplace(name, LLUIColor(original_color));
+        }
+        else
+        {
+            mUserSetColors.insert(it, std::make_pair(name, color));
+        }
     }
 }
 
