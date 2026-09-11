@@ -12330,27 +12330,6 @@ Your system has [TOTAL_MEM]MB of memory, which might not be enough to run viewer
      yestext="OK"/>
   </notification>
 
-  <notification
-   icon="alertmodal.tga"
-   name="AddPaymentMethod"
-   type="alertmodal">
-On the following page, choose a L$ amount
-and click a place Order button. You will be
-able to add a payment method at checkout.
-    <tag>confirm</tag>
-    <form name="form">
-      <button
-       default="true"
-       index="0"
-       width="120"
-       name="Continue"
-       text="Continue"/>
-      <button
-       index="1"
-       name="Cancel"
-       text="Cancel"/>
-    </form>
-  </notification>
   
   <notification
    icon="alert.tga"

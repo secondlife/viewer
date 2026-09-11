@@ -43,6 +43,7 @@
 #include "llweb.h"
 #include "llwindow.h"
 #include "llappviewer.h"
+#include "llviewercontrol.h"
 
 static const S32 MINIMUM_BALANCE_AMOUNT = 0;
 
@@ -336,7 +337,9 @@ void LLFloaterBuyCurrency::handleBuyCurrency(bool has_piof, bool has_target, con
     }
     else
     {
-        LLFloaterReg::showInstance("add_payment_method");
+        // No payment method on file: send the resident straight to the LindeX
+        // buy page, which handles adding one.
+        LLWeb::loadURL(LLWeb::expandURLSubstitutions(gSavedSettings.getString("AddPaymentMethodURL"), LLSD()));
     }
 }
 

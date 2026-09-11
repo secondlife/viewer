@@ -4304,15 +4304,6 @@ Spróbuj zaznaczyć mniejszy obszar ziemi.
 	<notification name="ChatHistoryIsBusyAlert">
 		Plik historii czatu jest w tej chwili przetwarzany przez poprzednią operację. Spróbuj ponownie za kilka minut lub wybierz czat innej osoby.
 	</notification>
-	<notification name="AddPaymentMethod">
-		Na następnej stronie wybierz kwotę L$
-i kliknij przycisk składania zamówienia.
-Będziesz mógł/a dodać metodę płatności w kasie.
-		<form name="form">
-			<button name="Continue" text="Kontynuuj" />
-			<button name="Cancel" text="Anuluj" />
-		</form>
-	</notification>
 	<notification name="FailedToFindSettings">
 		Nie można załadować ustawień dla [NAME] z bazy danych.
 	</notification>
