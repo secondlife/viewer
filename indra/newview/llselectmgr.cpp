@@ -6108,11 +6108,13 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
             node->mInventorySerial = inv_serial;
             node->mSitName.assign(sit_name);
             node->mTouchName.assign(touch_name);
+        }
 
-            if (auto ws_server = LLScriptEditorWSServer::getServer())
-            {
-                ws_server->onObjectPropertyChanged(id, name, desc, inv_serial);
-            }
+        // Published objects need property updates even when not selected.
+        LLScriptEditorWSServer::ptr_t ws_server = LLScriptEditorWSServer::getServer();
+        if (ws_server)
+        {
+            ws_server->onObjectPropertyChanged(id, name, desc, inv_serial);
         }
     }
 
