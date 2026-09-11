@@ -41,6 +41,7 @@
 // Channel names: llcefshm_view_0 .. llcefshm_view_<slot_count - 1>.
 
 #include <shmframe/llshmframe.h>
+#include <llCefBrowserJavaScriptBridge.h>
 #include <llCefBrowserLib.h>
 #include <llCefBrowserManager.h>
 #include <llCefBrowserVersion.h>
@@ -194,6 +195,47 @@ std::string priority_tier_label(std::uint8_t tier)
         default: return "NORMAL";
     }
 }
+
+// Bridges window.cefQuery() calls (from any CEF-backed slot's page JS) back to the
+// consumer over kEventJSQuery -- see that opcode's own comment in cefshm_protocol.h.
+// llCefBrowserLib::SetJavaScriptBridge() registers exactly one of these, process-wide
+// (there's no per-handle registration for the full bridge, unlike the simpler
+// observation-only SetOnQueryCallback()), so OnQuery() has to find which slot a given
+// query actually arrived on itself, via its own `handle` parameter.
+class JsBridge : public llCefBrowserJavaScriptBridge
+{
+public:
+    explicit JsBridge(std::vector<Slot>& slots) : mSlots(slots) {}
+
+    bool OnQuery(llCefBrowserHandle handle, std::int64_t queryId, const std::string& request, bool persistent) override
+    {
+        Slot* slot = find_slot(handle);
+        // No connected consumer to forward this to -- return false so CEF reports
+        // failure straight back to the page immediately, rather than leaving its
+        // onSuccess/onFailure hanging forever waiting for a response that can never
+        // arrive.
+        if (!slot || !slot->pub) return false;
+
+        std::vector<std::uint8_t> payload(9 + request.size());
+        const std::uint32_t n = pack_js_query(payload.data(), queryId, persistent, request);
+        slot->pub->send(kEventJSQuery, payload.data(), n);
+        return true;
+    }
+
+private:
+    // Linear scan: this fires rarely compared to painting/input, and slot_count tops
+    // out in the dozens, so there's no need for a real handle->slot index.
+    Slot* find_slot(llCefBrowserHandle handle)
+    {
+        for (auto& s : mSlots)
+        {
+            if (s.pub && s.backend == SlotBackend::Cef && s.cefHandle == handle) return &s;
+        }
+        return nullptr;
+    }
+
+    std::vector<Slot>& mSlots;
+};
 
 // Spins up this slot's real instance: a CEF browser plus its llshmframe
 // segment. Leaves s untouched on failure, cleaning up whichever half of the
@@ -541,6 +583,11 @@ int run_producer(int argc, char** argv)
     const std::uint64_t worst_case_bytes = segment_bytes(view_cfg) * std::uint64_t(slot_count);
 
     std::vector<Slot> slots(static_cast<std::size_t>(slot_count)); // all start unallocated (pub == nullptr)
+
+    // See JsBridge's own comment. Registered once, process-wide, for the whole
+    // lifetime of the producer -- unregistered explicitly before Shutdown() below.
+    JsBridge jsBridge(slots);
+    llCefBrowserLib::SetJavaScriptBridge(&jsBridge);
 
     LLConfig control_cfg;
     control_cfg.name       = kControlChannelName;
@@ -938,6 +985,13 @@ int run_producer(int argc, char** argv)
                     }
                     break;
                 }
+                case kRespondToQuery: {
+                    std::int64_t queryId; bool success; std::int32_t errorCode; std::string response;
+                    if (unpack_query_response(cmd.data.data(), cmd.data.size(), queryId, success, errorCode, response)) {
+                        llCefBrowserLib::RespondToQuery(queryId, success, response, errorCode);
+                    }
+                    break;
+                }
                 default:
                     break;
                 }
@@ -1039,6 +1093,7 @@ int run_producer(int argc, char** argv)
         llCefBrowserLib::DoMessageLoopWork();
 
     manager.reset(); // must be destroyed before Shutdown(), not merely by the time run_producer() returns
+    llCefBrowserLib::SetJavaScriptBridge(nullptr); // jsBridge is about to go out of scope
     llCefBrowserLib::Shutdown();
     return 0;
 }

@@ -72,8 +72,14 @@ enum class LLEmbeddedBrowserEventType
     ProducerDisconnected,  // the shm connection to cefshm_producer was lost -- fires exactly once
                            // per outage (edge-triggered on the connected->disconnected transition),
                            // never once per retry, so it's safe to notify the user from this
-    ProducerReconnected    // the connection came back after a ProducerDisconnected -- also
+    ProducerReconnected,   // the connection came back after a ProducerDisconnected -- also
                            // edge-triggered, fires exactly once per recovery
+    JSQuery                // page JS called window.cefQuery({request: ..., onSuccess: ...,
+                           // onFailure: ...}). mText = the request string (often JSON, but
+                           // opaque to this layer -- CEF only ever hands it over as a plain
+                           // string); mDialogId = the query id to echo back to
+                           // respondToQuery(); mPersistent mirrors CEF's own cefQuery
+                           // persistent flag (see llCefBrowserJavaScriptBridge::OnQuery).
 };
 
 // Which producer-side implementation backs a slot. Fixed at kRequestSlot time and
@@ -97,6 +103,7 @@ struct LLEmbeddedBrowserEvent
     bool mUserGesture = false;
     bool mIsRedirect = false;
     long long mDialogId = 0;
+    bool mPersistent = false; // JSQuery only -- see its own comment above
 };
 
 class LLEmbeddedBrowserUpdateThread :
@@ -261,6 +268,12 @@ class LLEmbeddedBrowserTab
         // Completes a pending FileDialogRequest event -- dialogId must be the value from
         // that event's mDialogId; pass an empty filePaths to indicate the user canceled.
         void respondToFileDialog(long long dialogId, const std::vector<std::string>& filePaths);
+        // Completes a pending JSQuery event -- queryId must be the value from that
+        // event's mDialogId. response is handed to the page's onSuccess (success=true)
+        // or onFailure (success=false, response becomes the error message; errorCode is
+        // only meaningful in that case). A no-op if queryId is unknown to the producer
+        // any more (already responded to, or the page canceled by navigating away).
+        void respondToQuery(long long queryId, bool success, const std::string& response, int errorCode = 0);
 
         // Pops the oldest queued event (received from the producer since the last call),
         // false if none are pending. Call in a loop to drain all of them -- unlike
@@ -399,6 +412,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void setRenderRate(unsigned int id, unsigned int targetFps, unsigned int priorityTier, const std::string& url);
         bool getSlotIndex(unsigned int id, unsigned int& out_index);
         void respondToFileDialog(unsigned int id, long long dialogId, const std::vector<std::string>& filePaths);
+        void respondToQuery(unsigned int id, long long queryId, bool success, const std::string& response, int errorCode = 0);
         bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
 
         // Caps requested create() dimensions -- callers (e.g. newview, which knows about

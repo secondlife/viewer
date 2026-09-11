@@ -36,6 +36,7 @@
 #include "lldir.h"
 #include "lldiriterator.h"
 #include "llembeddedbrowser.h"
+#include "lljsbridge.h"
 #include "llevent.h"        // LLSimpleListener
 #include "llfilepicker.h"
 #include "llfloaterwebcontent.h"    // for handling window close requests and geometry change requests in media browser windows.
@@ -4442,6 +4443,16 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                                              event.mTarget + ") at line " + std::to_string(event.mValue);
                 emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_DEBUG_MESSAGE);
                 break;
+
+            case LLEmbeddedBrowserEventType::JSQuery:
+            {
+                // See LLJSBridge's own comment -- this class has no opinion about what
+                // any particular "cmd" means, it just parses/dispatches/serializes.
+                LLJSBridge::Result result = LLJSBridge::getInstance()->dispatch(event.mText);
+                LLEmbeddedBrowser::getInstance()->respondToQuery(mEmbeddedBrowserId, event.mDialogId,
+                                                                  result.success, result.body);
+                break;
+            }
 
             case LLEmbeddedBrowserEventType::ProducerDisconnected:
                 // Don't act (or alert) immediately -- see

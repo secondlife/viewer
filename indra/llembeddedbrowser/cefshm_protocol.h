@@ -246,6 +246,27 @@ namespace cefshm_demo
         // for the identical reasoning.
         kEventPlaybackStateChanged = 40, // data = {uint8 playing} -- 1 if libvlc is actually
                                   // decoding/playing right now, 0 for paused/stopped/ended/error.
+
+        // producer -> consumer, per-view channel -- CEF-backed slots only. Fired whenever
+        // page JS calls window.cefQuery({request: ..., onSuccess: ..., onFailure: ...}) --
+        // see llCefBrowserJavaScriptBridge::OnQuery() in llcefbrowser. A single
+        // process-wide bridge (registered once in llmediaproducer.cpp) forwards every
+        // query to whichever slot's cefHandle it actually arrived on. Not sent for a
+        // LibVLC-backed slot -- there's no JS/DOM there to call cefQuery from at all.
+        kEventJSQuery = 41, // data = {int64 queryId, uint8 persistent, request bytes
+                             // (remainder)} -- persistent mirrors CEF's own cefQuery
+                             // persistent flag (the page may expect more than one
+                             // response over time for the same queryId); most callers
+                             // can ignore it and just respond once.
+        // consumer -> producer, per-view channel -- CEF-backed slots only. Responds to a
+        // pending kEventJSQuery, straight into llCefBrowserLib::RespondToQuery(). A
+        // no-op if queryId is unknown (already responded to, or the page canceled the
+        // query by navigating away in the meantime).
+        kRespondToQuery = 42, // data = {int64 queryId, uint8 success, int32 errorCode,
+                               // response/error bytes (remainder)} -- errorCode is only
+                               // meaningful when success is false; response is the JSON
+                               // (or plain string) handed to the page's own onSuccess,
+                               // or the error message handed to onFailure.
     };
 
     inline std::uint32_t pack_i32x2(std::uint8_t* d, std::int32_t x, std::int32_t y)
@@ -392,6 +413,48 @@ namespace cefshm_demo
             n += std::uint32_t(path.size());
         }
         return n;
+    }
+
+    inline std::uint32_t pack_js_query(std::uint8_t* d, std::int64_t queryId, bool persistent,
+                                        const std::string& request)
+    {
+        std::uint32_t n = pack_i64(d, queryId);
+        d[n] = persistent ? 1 : 0;
+        n += 1;
+        std::memcpy(d + n, request.data(), request.size());
+        return n + std::uint32_t(request.size());
+    }
+
+    inline bool unpack_js_query(const std::uint8_t* d, std::size_t n, std::int64_t& queryId,
+                                bool& persistent, std::string& request)
+    {
+        if (n < 9 || !unpack_i64(d, n, queryId)) return false;
+        persistent = d[8] != 0;
+        request.assign(reinterpret_cast<const char*>(d + 9), n - 9);
+        return true;
+    }
+
+    inline std::uint32_t pack_query_response(std::uint8_t* d, std::int64_t queryId, bool success,
+                                              std::int32_t errorCode, const std::string& response)
+    {
+        std::uint32_t n = pack_i64(d, queryId);
+        d[n] = success ? 1 : 0;
+        n += 1;
+        n += pack_u32(d + n, std::uint32_t(errorCode));
+        std::memcpy(d + n, response.data(), response.size());
+        return n + std::uint32_t(response.size());
+    }
+
+    inline bool unpack_query_response(const std::uint8_t* d, std::size_t n, std::int64_t& queryId,
+                                      bool& success, std::int32_t& errorCode, std::string& response)
+    {
+        if (n < 13 || !unpack_i64(d, n, queryId)) return false;
+        success = d[8] != 0;
+        std::uint32_t err;
+        if (!unpack_u32(d + 9, n - 9, err)) return false;
+        errorCode = std::int32_t(err);
+        response.assign(reinterpret_cast<const char*>(d + 13), n - 13);
+        return true;
     }
 
     inline bool unpack_console_message(const std::uint8_t* d, std::size_t n, std::string& message,

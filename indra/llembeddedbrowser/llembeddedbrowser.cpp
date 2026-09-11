@@ -312,6 +312,13 @@ void LLEmbeddedBrowserTab::update()
                 event.mDialogId = dialogId;
                 break;
             }
+            case kEventJSQuery: {
+                event.type = LLEmbeddedBrowserEventType::JSQuery;
+                std::int64_t queryId = 0;
+                unpack_js_query(cmd.data.data(), cmd.data.size(), queryId, event.mPersistent, event.mText);
+                event.mDialogId = queryId;
+                break;
+            }
             case kEventStatusTextChanged:
                 event.type = LLEmbeddedBrowserEventType::StatusTextChanged;
                 event.mText = std::string(cmd.text());
@@ -706,6 +713,18 @@ void LLEmbeddedBrowserTab::respondToFileDialog(long long dialogId, const std::ve
         std::vector<std::uint8_t> payload(size);
         const std::uint32_t n = pack_file_dialog_response(payload.data(), dialogId, filePaths);
         mSub->send(kFileDialogResponse, payload.data(), n);
+    }
+}
+
+void LLEmbeddedBrowserTab::respondToQuery(long long queryId, bool success, const std::string& response, int errorCode)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::vector<std::uint8_t> payload(13 + response.size());
+        const std::uint32_t n = pack_query_response(payload.data(), queryId, success,
+                                                     std::int32_t(errorCode), response);
+        mSub->send(kRespondToQuery, payload.data(), n);
     }
 }
 
@@ -1375,6 +1394,14 @@ void LLEmbeddedBrowser::respondToFileDialog(unsigned int id, long long dialogId,
     if (auto tab = findTab(id))
     {
         tab->respondToFileDialog(dialogId, filePaths);
+    }
+}
+
+void LLEmbeddedBrowser::respondToQuery(unsigned int id, long long queryId, bool success, const std::string& response, int errorCode)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->respondToQuery(queryId, success, response, errorCode);
     }
 }
 
