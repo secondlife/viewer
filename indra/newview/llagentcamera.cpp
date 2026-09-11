@@ -107,6 +107,110 @@ static bool isDisableCameraConstraints()
     return sDisableCameraConstraints;
 }
 
+// Keep the focused linkset's render state in step with the focused root without
+// replaying movement that the normal pipeline has already processed this frame.
+static void updateFocusedLinksetObject(LLViewerObject* objectp)
+{
+    if (!objectp || objectp->isDead())
+    {
+        return;
+    }
+
+    LLDrawable* drawablep = objectp->mDrawable.get();
+    bool movement_updated = false;
+    if (drawablep && drawablep->isActive())
+    {
+        if (!drawablep->isState(LLDrawable::EARLY_MOVE))
+        {
+            if (objectp->isSelected() ||
+                drawablep->isState(LLDrawable::MOVE_UNDAMPED) ||
+                !objectp->getAngularVelocity().isExactlyZero())
+            {
+                gPipeline.updateMoveNormalAsync(drawablep);
+            }
+            else
+            {
+                gPipeline.updateMoveDampedAsync(drawablep);
+            }
+            movement_updated = true;
+        }
+    }
+
+    if (LLVOAvatar* avatarp = objectp->asAvatar())
+    {
+        if (movement_updated)
+        {
+            if (LLJoint* root_jointp = avatarp->getRootJoint())
+            {
+                root_jointp->touch();
+                root_jointp->updateWorldMatrixChildren();
+                const LLVector3 hud_name_pos =
+                    avatarp->idleCalcNameTagPosition(root_jointp->getWorldPosition());
+                avatarp->idleUpdateNameTag(hud_name_pos);
+                avatarp->idleUpdateVoiceVisualizerPosition(hud_name_pos);
+            }
+
+            // Attachments have mixed movement sources. Preserve the same policy used by the normal avatar update path.
+            const bool attachment_selected =
+                LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 0 &&
+                LLSelectMgr::getInstance()->getSelection()->isAttachment();
+            for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin();
+                 iter != avatarp->mAttachmentPoints.end(); )
+            {
+                LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+                LLViewerJointAttachment* attachment = curiter->second;
+                if (!attachment || !attachment->getValid())
+                {
+                    continue;
+                }
+
+                for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                     attachment_iter != attachment->mAttachedObjects.end();
+                     ++attachment_iter)
+                {
+                    LLViewerObject* attached_object = attachment_iter->get();
+                    if (!attached_object || attached_object->isDead() ||
+                        attached_object->mDrawable.isNull())
+                    {
+                        continue;
+                    }
+
+                    LLDrawable* attached_drawablep = attached_object->mDrawable.get();
+                    if (!attached_drawablep->isActive())
+                    {
+                        continue;
+                    }
+
+                    if (!attached_drawablep->isState(LLDrawable::EARLY_MOVE))
+                    {
+                        if (attachment_selected)
+                        {
+                            gPipeline.updateMoveNormalAsync(attached_drawablep);
+                        }
+                        else
+                        {
+                            gPipeline.updateMoveDampedAsync(attached_drawablep);
+                        }
+
+                        if (LLSpatialBridge* bridgep = attached_drawablep->getSpatialBridge())
+                        {
+                            gPipeline.updateMoveNormalAsync(bridgep);
+                        }
+                    }
+
+                    attached_object->updateText();
+                }
+            }
+        }
+    }
+
+    // Seated avatars and sit-target children can be deeper than one level in the hierarchy.
+    for (LLViewerObject* childp : objectp->getChildren())
+    {
+        updateFocusedLinksetObject(childp);
+    }
+}
+
 // The agent instance.
 LLAgentCamera gAgentCamera;
 
@@ -1645,33 +1749,14 @@ LLVector3d LLAgentCamera::calcFocusPositionTargetGlobal()
     {
         if (mFocusObject.notNull() && !mFocusObject->isDead() && mFocusObject->mDrawable.notNull())
         {
-            LLDrawable* drawablep = mFocusObject->mDrawable;
-
             if (mTrackFocusObject &&
-                drawablep &&
-                drawablep->isActive())
+                mFocusObject->mDrawable->isActive() &&
+                !mFocusObject->isAvatar())
             {
-                if (!mFocusObject->isAvatar())
-                {
-                    if (mFocusObject->isSelected())
-                    {
-                        gPipeline.updateMoveNormalAsync(drawablep);
-                    }
-                    else
-                    {
-                        if (drawablep->isState(LLDrawable::MOVE_UNDAMPED))
-                        {
-                            gPipeline.updateMoveNormalAsync(drawablep);
-                        }
-                        else
-                        {
-                            gPipeline.updateMoveDampedAsync(drawablep);
-                        }
-                    }
-                }
+                updateFocusedLinksetObject(mFocusObject.get());
             }
             // if not tracking object, update offset based on new object position
-            else
+            else if (!mTrackFocusObject)
             {
                 updateFocusOffset();
             }
