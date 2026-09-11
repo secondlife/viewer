@@ -799,15 +799,15 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
             continue;
         }
 
-        // Direct entries must identify one unique peer and use the deterministic
-        // account/resident conversation ID with a valid latest-message token.
+        // Direct entries use the deterministic account/participant conversation ID
+        // with a valid latest-message token and no duplicate participants.
         std::string resident_text;
         std::string token;
         LLUUID resident;
         TimeUuidKey token_key;
         if (!llsdString(*it, "other_participant_id", resident_text) ||
             !llsdString(*it, "last_msg_id", token) ||
-            !parseCanonicalUuid(resident_text, resident) || resident.isNull() ||
+            !parseCanonicalUuid(resident_text, resident) ||
             resident == agent_id ||
             !parseTimeUuid(token, token_key) ||
             conversation != directConversationId(agent_id, resident) ||
@@ -817,7 +817,12 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
             return false;
         }
 
-        entries.push_back({resident, conversation, token});
+        // The service also lists system traffic with a null participant; only
+        // resident conversations can have a local history archive.
+        if (resident.notNull())
+        {
+            entries.push_back({resident, conversation, token});
+        }
     }
 
     return true;

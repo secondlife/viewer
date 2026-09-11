@@ -144,7 +144,7 @@ template<> template<> void object_t::test<5>()
 
 template<> template<> void object_t::test<6>()
 {
-    // Discovery rejects duplicate or null direct peers after accepting one canonical row.
+    // Discovery rejects duplicate peers and ignores the null system participant.
     LLSD list = LLSD::emptyArray();
     LLSD entry;
     entry["conversation_type"] = "direct";
@@ -163,7 +163,8 @@ template<> template<> void object_t::test<6>()
     entry["other_participant_id"] = LLUUID::null.asString();
     entry["conversation_id"] = directConversationId(AGENT, LLUUID::null);
     null_list.append(entry);
-    ensure("null resident rejected", !validateConversationList(null_list, AGENT, entries));
+    ensure("null system participant ignored", validateConversationList(null_list, AGENT, entries));
+    ensure("system conversation has no resident history", entries.empty());
 }
 
 template<> template<> void object_t::test<7>()
@@ -994,6 +995,34 @@ template<> template<> void object_t::test<35>()
         {
             ensure_equals("reopening preserves message order", row["message"].asString(), (*expected++)["message"].asString());
         }
+    }
+}
+
+template<> template<> void object_t::test<36>()
+{
+    // System traffic may share a discovery response with ordinary resident history.
+    LLSD peer;
+    peer["conversation_type"] = "direct";
+    peer["conversation_id"] = directConversationId(AGENT, RESIDENT);
+    peer["other_participant_id"] = RESIDENT.asString();
+    peer["last_msg_id"] = SECOND;
+    LLSD system = peer;
+    system["conversation_id"] = directConversationId(AGENT, LLUUID::null);
+    system["other_participant_id"] = LLUUID::null.asString();
+
+    for (bool system_first : {true, false})
+    {
+        LLSD list = LLSD::emptyArray();
+        list.append(system_first ? system : peer);
+        list.append(system_first ? peer : system);
+        std::vector<ListEntry> entries;
+        ensure("system entry does not block resident discovery",
+               validateConversationList(list, AGENT, entries));
+        ensure_equals("only the resident is scheduled", entries.size(), size_t(1));
+        ensure_equals("resident identity preserved", entries.front().resident_id, RESIDENT);
+        ensure_equals("conversation identity preserved", entries.front().conversation_id,
+                      peer["conversation_id"].asString());
+        ensure_equals("history token preserved", entries.front().last_msg_id, std::string(SECOND));
     }
 }
 
