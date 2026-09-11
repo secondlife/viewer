@@ -29,8 +29,6 @@
 
 #include "llsingleton.h"
 
-class LLFloaterBuyCurrencyHTML;
-
 class LLBuyCurrencyHTML
 {
     public:
@@ -41,11 +39,16 @@ class LLBuyCurrencyHTML
         static void openCurrencyFloater( const std::string& message, S32 sum );
 
         // show and give focus to actual currency floater - this is used for both cases
-        // where the sum is required and where it is not
-        static void showDialog( bool specific_sum_requested, const std::string& message, S32 sum );
+        // where the shortfall is required and where it is not
+        static void showDialog( S32 shortfall = 0 );
 
         // close (and destroy) the currency floater
         static void closeDialog();
+
+        // probe BuyCurrencyPacksURL once at login; clears sWebFloaterEnabled if 501
+        static void checkFeatureFlag();
+
+        static bool sWebFloaterEnabled;
 };
 
 #endif  // LL_LLBUYCURRENCYHTML_H

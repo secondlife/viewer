@@ -300,6 +300,13 @@ LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::ensureServerRunning()
     ptr_t server = std::static_pointer_cast<LLScriptEditorWSServer>(
         wsmgr.findServerByName(DEFAULT_SERVER_NAME));
 
+    if (server && !server->isRunning())
+    {
+        // thread stopped/was joined
+        wsmgr.removeServer(DEFAULT_SERVER_NAME);
+        server.reset();
+    }
+
     if (!server)
     {
         U16  port       = static_cast<U16>(gSavedSettings.getS32("ExternalWebsocketSyncPort"));
@@ -1767,14 +1774,17 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
             boost::smatch match;
             LLSD diagnostic;
             diagnostic["level"] = "ERROR";
+            S32 line_number = 0;
+            S32 col_number = 0;
 
             if (is_lua &&
                 boost::regex_match(
                     error.asString(),
                     match,
-                    LUAU_LOCATION_PATTERN))
+                    LUAU_LOCATION_PATTERN) &&
+                LLStringUtil::convertToS32(match[2].str(), line_number))
             {
-                diagnostic["row"] = std::stoi(match[2].str());
+                diagnostic["row"] = line_number;
                 diagnostic["column"] = 0;
                 diagnostic["message"] = match[3].str();
             }
@@ -1782,12 +1792,14 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
                      boost::regex_match(
                          error.asString(),
                          match,
-                         LSL_LOCATION_PATTERN))
+                         LSL_LOCATION_PATTERN) &&
+                     LLStringUtil::convertToS32(match[1].str(), line_number) &&
+                     LLStringUtil::convertToS32(match[2].str(), col_number) &&
+                     line_number < S32_MAX &&
+                     col_number < S32_MAX)
             {
-                diagnostic["row"] =
-                    std::stoi(match[1].str()) + 1;
-                diagnostic["column"] =
-                    std::stoi(match[2].str()) + 1;
+                diagnostic["row"] = line_number + 1;
+                diagnostic["column"] = col_number + 1;
                 diagnostic["level"] = match[3].str();
                 diagnostic["message"] = match[4].str();
                 diagnostic["format"] = "lsl";
@@ -2215,9 +2227,10 @@ void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, co
                 err_entry["column"] = 0; // TODO: Lua compiler does not provide column info
                 err_entry["level"]  = "ERROR";
 
-                if (boost::regex_match(err.asString(), match, LUAU_LOCATION_PATTERN))
+                S32 line_number = 0;
+                if (boost::regex_match(err.asString(), match, LUAU_LOCATION_PATTERN) &&
+                    LLStringUtil::convertToS32(match[2].str(), line_number))
                 {
-                    S32 line_number = std::stoi(match[2].str());
                     std::string message = match[3].str();
 
                     err_entry["row"] = line_number;
@@ -2238,10 +2251,14 @@ void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, co
                 boost::smatch match;
                 LLSD err_entry;
 
-                if (boost::regex_match(err.asString(), match, LSL_LOCATION_PATTERN))
+                S32 line_number = 0;
+                S32 col_number = 0;
+                if (boost::regex_match(err.asString(), match, LSL_LOCATION_PATTERN) &&
+                    LLStringUtil::convertToS32(match[1].str(), line_number) &&
+                    LLStringUtil::convertToS32(match[2].str(), col_number) &&
+                    line_number < S32_MAX &&
+                    col_number < S32_MAX)
                 {
-                    S32         line_number = std::stoi(match[1].str());
-                    S32         col_number = std::stoi(match[2].str());
                     std::string severity = match[3].str();
                     std::string message = match[4].str();
 

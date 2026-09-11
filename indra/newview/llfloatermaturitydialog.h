@@ -1,8 +1,8 @@
 /**
- * @file llfloaterbuycurrencyhtml.h
- * @brief buy currency implemented in HTML floater - uses embedded media browser control
+ * @file llfloatermaturitydialog.h
+ * @brief LLFloaterMaturityDialog class definition
  *
- * $LicenseInfo:firstyear=2010&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2026, Linden Research, Inc.
  *
@@ -26,34 +26,22 @@
 
 #pragma once
 
-#include "llfloater.h"
-#include "llmediactrl.h"
+#include "llmodaldialog.h"
 
-class LLFloaterBuyCurrencyHTML:
-    public LLFloater,
-    public LLViewerMediaObserver
+class LLFloaterMaturityDialog : public LLModalDialog
 {
     friend class LLFloaterReg;
-
 public:
-    LLFloaterBuyCurrencyHTML(const LLSD& key);
-    ~LLFloaterBuyCurrencyHTML();
     bool postBuild() override;
-    void onClose(bool app_quitting) override;
-    void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
-
-    void navigateToFinalURL();
-    void setShortfall(S32 shortfall) { mShortfall = shortfall; }
-    void setFallbackContext(const std::string& message, S32 sum);
-    static std::string buildURL(S32 shortfall = 0);
+    void onOpen(const LLSD& key) override;
+    void draw() override;
 
 private:
-    void fallbackToLegacy();
+    LLFloaterMaturityDialog(const LLSD& key);
+    ~LLFloaterMaturityDialog() = default;
 
-    LLMediaCtrl* mBrowser;
-    S32 mShortfall{0};
-    bool mHasFallbackTarget{false};
-    std::string mFallbackMessage;
-    S32 mFallbackSum{0};
+    void onContinue();
+    void onCancel();
+
+    U8 mRegionAccess = SIM_ACCESS_ADULT;
 };
-
