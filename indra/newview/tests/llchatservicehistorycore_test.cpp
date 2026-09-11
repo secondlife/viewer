@@ -664,15 +664,15 @@ template<> template<> void object_t::test<26>()
     LLSD delivered = repeatedDelivery(1);
     delivered["chat_service_time_source"] = "receipt";
 
-    // Receipt times do not identify a particular repeated send. Allocate the earliest
-    // eligible occurrence, preserving the other occurrence even at the same second.
+    // Prefer the most recent eligible occurrence when a receipt can match repeated
+    // sends, preserving the earlier occurrence in history.
     for (bool reversed : {false, true})
     {
         std::list<LLSD> history{earlier, later};
         if (reversed) history.reverse();
         const auto filtered = filterDirectHistoryDuplicates(history, {delivered});
         ensure_equals("one live delivery consumes one service occurrence", filtered.size(), size_t(1));
-        ensure_equals("the later repeated send survives", filtered.front()["chat_service_msg_id"].asString(), std::string(SECOND));
+        ensure_equals("the earlier repeated send survives", filtered.front()["chat_service_msg_id"].asString(), std::string(FIRST));
     }
 }
 
@@ -947,6 +947,54 @@ template<> template<> void object_t::test<34>()
     ensure_equals("overlapping windows preserve three original occurrences", result.size(), size_t(3));
     ensure_equals("repeated seam publication is stable", mergeDirectHistory(result, right).size(), size_t(3));
     ensure_equals("source window order preserves counts", mergeDirectHistory(right, left).size(), size_t(3));
+}
+
+template<> template<> void object_t::test<35>()
+{
+    // Recreating a session leaves only the latest delivery live. An offline repeat
+    // within its receipt window must retain its earlier place in the transcript.
+    LLSD earlier = contextRow(1);
+    earlier["message"] = "hello";
+    earlier["timestamp"] = 1789092403;
+    LLSD between = contextRow(2);
+    between["message"] = "6";
+    between["timestamp"] = 1789092414;
+    LLSD later = contextRow(3);
+    later["message"] = "hello";
+    later["timestamp"] = 1789092446;
+    const Messages archive{earlier, between, later};
+
+    for (S32 delay : {0, 2, 15})
+    {
+        History history;
+        history.setLoaded({earlier, between});
+        LLSD delivery = liveCopy(later);
+        delivery["chat_service_time_source"] = "receipt";
+        delivery["timestamp"] = later["timestamp"].asInteger() + delay;
+        Messages current{delivery};
+
+        // The archive read can complete before the latest service head arrives.
+        replaceHistory(current, history.compose({}, {delivery}, 10, true), true);
+        for (int publication = 0; publication < 3; ++publication)
+        {
+            const auto composed = history.compose(archive, {delivery}, 10, true);
+            ensure_equals("one delivery replaces only one historical occurrence", composed.size(), size_t(2));
+            ensure_equals("the earlier hello retains its identity and position",
+                          composed.front()["chat_service_msg_id"].asString(), earlier["chat_service_msg_id"].asString());
+            const bool changed = replaceHistory(current, composed, true);
+            ensure_equals("unchanged publications do not replay the transcript", changed, publication == 0);
+            ensure_equals("both hellos and the intervening message remain", current.size(), size_t(3));
+        }
+
+        // Reopening with all rows historical preserves the same message order.
+        Messages reopened;
+        replaceHistory(reopened, archive, true);
+        auto expected = reopened.begin();
+        for (const LLSD& row : current)
+        {
+            ensure_equals("reopening preserves message order", row["message"].asString(), (*expected++)["message"].asString());
+        }
+    }
 }
 
 }

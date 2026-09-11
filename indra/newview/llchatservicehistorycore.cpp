@@ -375,7 +375,8 @@ std::list<LLSD> filterDirectHistoryDuplicates(
     const std::list<LLSD>& history, const std::list<LLSD>& live)
 {
     // Reserve known send times before receipt intervals and local-clock minutes.
-    // Within each kind, the earliest delivery takes the earliest eligible occurrence.
+    // Within each kind, match newest deliveries to newest eligible occurrences so
+    // earlier repeated messages retain their historical position.
     auto priority = [](const LLSD& message)
     {
         const std::string source = message["chat_service_time_source"].asString();
@@ -386,7 +387,7 @@ std::list<LLSD> filterDirectHistoryDuplicates(
     std::stable_sort(deliveries.begin(), deliveries.end(), [&](const LLSD* a, const LLSD* b)
     {
         return priority(*a) != priority(*b) ? priority(*a) < priority(*b)
-            : (*a)["timestamp"].asInteger() < (*b)["timestamp"].asInteger();
+            : (*a)["timestamp"].asInteger() > (*b)["timestamp"].asInteger();
     });
 
     // Sorted iterators allow matching in time order while retaining the source order.
@@ -398,7 +399,7 @@ std::list<LLSD> filterDirectHistoryDuplicates(
     }
     std::stable_sort(service.begin(), service.end(), [](auto a, auto b)
     {
-        return (*a)["timestamp"].asInteger() < (*b)["timestamp"].asInteger();
+        return (*a)["timestamp"].asInteger() > (*b)["timestamp"].asInteger();
     });
     std::vector<bool> matched(deliveries.size(), false);
     for (size_t pos = 0; pos < deliveries.size(); ++pos)
