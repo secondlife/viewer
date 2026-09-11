@@ -43,7 +43,6 @@
 #include "llweb.h"
 #include "llwindow.h"
 #include "llappviewer.h"
-#include "llviewercontrol.h"
 
 static const S32 MINIMUM_BALANCE_AMOUNT = 0;
 
@@ -292,81 +291,37 @@ void LLFloaterBuyCurrencyUI::onClickCancel()
     LLStatusBar::sendMoneyBalanceRequest();
 }
 
-LLFetchAvatarPaymentInfo* LLFloaterBuyCurrency::sPropertiesRequest = NULL;
-
 // static
 void LLFloaterBuyCurrency::buyCurrency()
 {
-    delete sPropertiesRequest;
-    sPropertiesRequest = new LLFetchAvatarPaymentInfo(false);
+    showFloater(false);
 }
 
 // static
 void LLFloaterBuyCurrency::buyCurrency(const std::string& name, S32 price)
 {
-    delete sPropertiesRequest;
-    sPropertiesRequest = new LLFetchAvatarPaymentInfo(true, name, price);
+    showFloater(true, name, price);
 }
 
 // static
-void LLFloaterBuyCurrency::handleBuyCurrency(bool has_piof, bool has_target, const std::string name, S32 price)
+void LLFloaterBuyCurrency::showFloater(bool has_target, const std::string& name, S32 price)
 {
-    delete sPropertiesRequest;
-    sPropertiesRequest = NULL;
-
-    if (has_piof)
+    LLFloaterBuyCurrencyUI* ui = LLFloaterReg::showTypedInstance<LLFloaterBuyCurrencyUI>("buy_currency");
+    if (ui)
     {
-        LLFloaterBuyCurrencyUI* ui = LLFloaterReg::showTypedInstance<LLFloaterBuyCurrencyUI>("buy_currency");
-        if (ui)
+        if (has_target)
         {
-            if (has_target)
-            {
-                ui->target(name, price);
-            }
-            else
-            {
-                ui->noTarget();
-            }
-            ui->updateUI();
-            ui->collapsePanels(!has_target);
+            ui->target(name, price);
         }
         else
         {
-            LL_WARNS() << "Cannot instantiate buy_currency floater" << LL_ENDL;
+            ui->noTarget();
         }
+        ui->updateUI();
+        ui->collapsePanels(!has_target);
     }
     else
     {
-        // No payment method on file: send the resident straight to the LindeX
-        // buy page, which handles adding one.
-        LLWeb::loadURL(LLWeb::expandURLSubstitutions(gSavedSettings.getString("AddPaymentMethodURL"), LLSD()));
-    }
-}
-
-LLFetchAvatarPaymentInfo::LLFetchAvatarPaymentInfo(bool has_target, const std::string& name, S32 price)
-:   mAvatarID(gAgent.getID()),
-    mHasTarget(has_target),
-    mPrice(price),
-    mName(name)
-{
-    LLAvatarPropertiesProcessor* processor = LLAvatarPropertiesProcessor::getInstance();
-    // register ourselves as an observer
-    processor->addObserver(mAvatarID, this);
-    // send a request (duplicates will be suppressed inside the avatar
-    // properties processor)
-    processor->sendAvatarPropertiesRequest(mAvatarID);
-}
-
-LLFetchAvatarPaymentInfo::~LLFetchAvatarPaymentInfo()
-{
-    LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarID, this);
-}
-
-void LLFetchAvatarPaymentInfo::processProperties(void* data, EAvatarProcessorType type)
-{
-    if (data && type == APT_PROPERTIES)
-    {
-        LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
-        LLFloaterBuyCurrency::handleBuyCurrency(LLAvatarPropertiesProcessor::hasPaymentInfoOnFile(avatar_data), mHasTarget, mName, mPrice);
+        LL_WARNS() << "Cannot instantiate buy_currency floater" << LL_ENDL;
     }
 }

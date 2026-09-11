@@ -148,17 +148,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>AddPaymentMethodURL</key>
-    <map>
-      <key>Comment</key>
-      <string>URL for adding a payment method when buying L$</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>https://[GRID]/my/lindex/buy.php?associate_for_viewer=1</string>
-    </map>
     <key>AgentPause</key>
     <map>
       <key>Comment</key>
