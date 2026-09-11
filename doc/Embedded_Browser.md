@@ -554,6 +554,77 @@ real-time FPS/dropped-frames/GPU-raster readout directly on the page,
 useful for checking the distance/priority render-throttling tiers above
 are actually taking effect on a given tab.
 
+## JS Bridge: page JS calling back into the Viewer
+
+`llcefbrowser` has always exposed `window.cefQuery(...)` (CEF's own JS bridge)
+as a way for a page's own JavaScript to call back into native code, but that
+capability was designed for an embedder linking CEF directly in its own
+process -- it was never threaded across the shared-memory producer/consumer
+boundary this Viewer's architecture introduces, so a page running inside
+embedded-browser media had no way to reach the Viewer at all until this was
+wired up.
+
+A page calls it like this:
+
+```javascript
+window.cefQuery({
+    request: JSON.stringify({op: "add", a: 3, b: 4}),
+    onSuccess: function(response) {
+        const result = JSON.parse(response); // {"sum": 7}
+    },
+    onFailure: function(errorCode, errorMessage) {
+        // no handler registered for that op, or the handler itself failed
+    }
+});
+```
+
+On the Viewer side, `LLJSBridge` (`indra/newview/lljsbridge.h`/`.cpp`) parses
+`request` as JSON, reads a top-level `"op"` string field, and dispatches to
+whichever handler was registered for that op:
+
+```cpp
+LLJSBridge::getInstance()->registerHandler("my_feature", [](const LLSD& request) -> LLSD
+{
+    // request is the full parsed JSON object, including "op" itself.
+    LLSD response;
+    response["result"] = "whatever the page needs back";
+    return response; // serialized straight back as the JSON body of onSuccess
+
+    // return LLSD() (the default-constructed, undefined LLSD) instead, to
+    // signal failure -- the page's onFailure gets a generic error message.
+});
+```
+
+`LLJSBridge` itself is pure dispatch plumbing with no opinion about what any
+particular op means -- register a handler from wherever the actual feature
+lives, no wire-protocol or producer changes are needed for a new op. A
+built-in `"add"` handler ships for parity with `llcefbrowser`'s own example
+apps (`{"op":"add","a":...,"b":...}` -> `{"sum":...}`), plus a `"ping"`
+(a bare string, not JSON at all) that always succeeds with `"pong"` -- a
+zero-configuration way to prove the whole round trip (page -> producer ->
+shared memory -> Viewer -> back) works at all before worrying about any real
+op's own logic. Both can be exercised directly against
+`https://sl-viewer-media-system.s3.amazonaws.com/apps/js-bridge-test.html` --
+the same test page llcefbrowser's own examples use, since the Viewer now
+implements an identical contract.
+
+**How it actually reaches the Viewer**: `llCefBrowserLib::SetJavaScriptBridge()`
+registers exactly one handler, process-wide, in `SLMediaProducer.exe` --
+there's no per-tab registration for the full bridge (only a simpler,
+response-less observation-only variant has that). Since a query's own
+`llCefBrowserHandle` is passed to the callback, the producer's own bridge
+implementation (`JsBridge` in `llmediaproducer.cpp`) looks up which slot it
+actually arrived on and forwards it over that slot's own shared-memory
+channel as a new `kEventJSQuery` opcode; the response travels back the same
+way via `kRespondToQuery`.
+
+**Known limitations**: only CEF-backed media can call this at all -- there's
+no DOM/JS for a LibVLC-backed RTSP/RTMP slot to call it from. CEF's own
+`persistent` query flag (letting a page's `onSuccess`/`onFailure` be invoked
+more than once for the same query, e.g. for a subscription-style feed) is
+carried across the wire but not given any special handling on the Viewer side
+yet -- every registered handler is expected to respond exactly once.
+
 ## LibVLC: a second producer backend for streaming media
 
 CEF is a web engine, and however complete its codec support, it can only ever
