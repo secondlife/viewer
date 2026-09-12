@@ -199,6 +199,9 @@ private:
     S32 mLastPacketsOut;
     S32 mLastPacketsLost;
     U32 mNumOfActiveCachedObjects;
+    
+    // Authoritative time source from the simulator
+    // Not currently used by viewer but might be in use by 3p branches
     U64MicrosecondsImplicit mSpaceTimeUSec;
 
     ////////////////////////////
