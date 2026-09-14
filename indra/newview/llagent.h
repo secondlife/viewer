@@ -502,6 +502,13 @@ public:
     bool            isCameraExternallyDriven() const;
     bool            isUsingMouseCursor() const { return mUsingMouseCursor; }
     void            toggleMouseCursorMode();
+
+    // Drops straight back to plain Avatar mode, unwinding whichever of
+    // Mouselook/FlyCam/Cursor mode is currently active (any combination --
+    // see updateGameControlMode()). Bound to the game-control "ESC" action
+    // in those modes (see AVATAR_ACTION_ESCAPE/FLYCAM_ACTION_ESCAPE).
+    void            resetToAvatarMode();
+
     // Send message to simulator to force grabbed controls to be
     // released, in case of a poorly written script.
     void            forceReleaseControls();

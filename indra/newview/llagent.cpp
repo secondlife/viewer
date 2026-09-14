@@ -5107,6 +5107,11 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
         toggleMouseCursorMode();
     }
 
+    if (misc_actions & LLGameControl::AVATAR_ACTION_ESCAPE)
+    {
+        resetToAvatarMode();
+    }
+
     // CONTROL_MODE_CURSOR: drive the actual on-screen cursor from
     // actions.mMouseCursorDX/DY (the analog deflection of whatever's bound to "Mouse
     // left/right"/"Mouse up/down") BEFORE the click dispatch below, so a synthesized
@@ -5358,6 +5363,22 @@ void LLAgent::toggleMouseCursorMode()
 {
     mUsingMouseCursor = !mUsingMouseCursor;
     mLastMouseCursorUpdate = 0; // avoid a jump from a stale delta-time baseline
+}
+
+void LLAgent::resetToAvatarMode()
+{
+    if (mUsingMouseCursor)
+    {
+        toggleMouseCursorMode();
+    }
+    if (isUsingFlycam())
+    {
+        toggleFlycam();
+    }
+    if (gAgentCamera.cameraMouselook())
+    {
+        gAgentCamera.changeCameraToDefault();
+    }
 }
 
 void LLAgent::pressGameControlButton(U8 button_index)

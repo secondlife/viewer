@@ -3010,6 +3010,14 @@ void LLAgentCamera::updateFlycam(F32 delta_time)
         return;
     }
 
+    if (flycam_misc_actions & LLGameControl::FLYCAM_ACTION_ESCAPE)
+    {
+        // Bail out of FlyCam mode immediately; no point applying this frame's
+        // (about to be abandoned) flycam deltas below.
+        gAgent.resetToAvatarMode();
+        return;
+    }
+
     // Blend in keyboard-driven flycam input (independent of LLGameControl,
     // which only sees a physical controller).  mFlycamKeyboardInput is
     // level-triggered by flycam_axis_key<> in llviewerinput.cpp -- it must be
