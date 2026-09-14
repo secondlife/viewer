@@ -424,6 +424,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         F32 descender = (F32)llfloor(mFontFreetype->getDescenderHeight());
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        // specify color, otherwise it will use last one (Ex: white for emojis)
+        gGL.color4ubv(text_color.mV);
         gGL.begin(LLRender::LINES);
         gGL.vertex2f(start_x, cur_y - descender);
         gGL.vertex2f(cur_x, cur_y - descender);
