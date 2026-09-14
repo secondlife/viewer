@@ -1060,6 +1060,9 @@ LLSD LLScriptEditorWSServer::handleObjectModify(U32 connection_id, const LLSD& p
         msg->sendReliable(host);
     }
 
+    // Force a properties reply so the editor sees the change without an in-world selection.
+    LLSelectMgr::instance().requestObjectPropertiesFamily(prim);
+
     // Step 4: Return Success Response
     LLSD response;
     response["success"] = true;
