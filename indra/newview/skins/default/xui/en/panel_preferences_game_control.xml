@@ -885,6 +885,9 @@
             label="Zoom -"
             value="Zoom -"/>
         <combo_box.item
+            label="ESC"
+            value="ESC"/>
+        <combo_box.item
             label="None"
             value="None"/>
     </combo_box>
@@ -1028,6 +1031,9 @@
             label="Cursor →"
             value="Cursor right"/>
         <combo_box.item
+            label="ESC"
+            value="ESC"/>
+        <combo_box.item
             label="None"
             value="None"/>
     </combo_box>
@@ -1115,6 +1121,9 @@
         <combo_box.item
             label="Boom ↓"
             value="Boom down"/>
+        <combo_box.item
+            label="ESC"
+            value="ESC"/>
         <combo_box.item
             label="None"
             value="None"/>
