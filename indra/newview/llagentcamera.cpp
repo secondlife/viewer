@@ -3032,12 +3032,13 @@ void LLAgentCamera::updateFlycam(F32 delta_time)
 
     if ((flycam_misc_actions & LLGameControl::FLYCAM_ACTION_UNROLL) || flycam_key_unroll_requested)
     {
-        // Re-level the flycam in place: keep its current position and
-        // forward (local X) axis unchanged, but roll it around that forward
-        // axis so the left axis becomes horizontal (equivalently, the up
-        // axis moves into the forward/world-up plane).  mFlycam.startReset()
-        // smoothly lerps into this transform (see LLFlycam::integrate());
-        // flycam input has no effect until the lerp completes.
+        // Re-orient the flycam in place: keep its current position and
+        // forward (local X) axis unchanged, but unroll it so its local vertical
+        // axis lies on the plane defined by forward axis and world-up, with positive
+        // dot-product with world-up.
+        // mFlycam.startReset() smoothly lerps into this transform (see
+        // LLFlycam::integrate()); flycam input has no effect until the lerp
+        // completes.
         constexpr F32 FLYCAM_UNROLL_DURATION = 1.0f; // seconds; may be tuned later
 
         LLVector3d current_position;
@@ -3046,14 +3047,22 @@ void LLAgentCamera::updateFlycam(F32 delta_time)
 
         LLMatrix3 level(current_rotation);
         LLVector3 forward(level.getFwdRow());
-        LLVector3 left(level.getLeftRow());
-        LLVector3 up(level.getUpRow());
-        left.mV[VZ] = 0.f;
-        left.normVec();
-        level.setRows(forward, left, up);
-        level.orthogonalize();
+        forward.normVec();
 
-        mFlycam.startReset(current_position, LLQuaternion(level), FLYCAM_UNROLL_DURATION);
+        LLVector3 world_up = LLVector3::z_axis;
+        LLVector3 new_up = world_up - (world_up * forward) * forward;
+        constexpr F32 MIN_UNROLL_SIN = 0.01f; // ~0.6 degrees off vertical
+        if (new_up.lengthSquared() > MIN_UNROLL_SIN * MIN_UNROLL_SIN)
+        {
+            new_up.normVec();
+            // Right-handed (forward, left, up) basis, per
+            // LLMatrix3::orthogonalize()'s up = forward % left: up % forward == left.
+            LLVector3 new_left = new_up % forward;
+            level.setRows(forward, new_left, new_up);
+            level.orthogonalize(); // numerical cleanup only; rows are already orthonormal by construction
+
+            mFlycam.startReset(current_position, LLQuaternion(level), FLYCAM_UNROLL_DURATION);
+        }
     }
 
     // Orbit modifier: while held, Truck stops meaning strafe and instead adds
