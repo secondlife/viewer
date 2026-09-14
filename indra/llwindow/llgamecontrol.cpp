@@ -1199,8 +1199,9 @@ void LLGameControl::Options::AxisOptions::loadFromString(std::string options)
     std::string dead_zone = pairs["dead_zone"];
     if (!dead_zone.empty())
     {
-        size_t number = std::stoull(dead_zone);
-        if (number <= MAX_AXIS_DEAD_ZONE && std::to_string(number) == dead_zone)
+        U32 number;
+        if (LLStringUtil::convertToU32(dead_zone, number) && number <= MAX_AXIS_DEAD_ZONE
+            && std::to_string(number) == dead_zone)
         {
             mDeadZone = (U16)number;
         }
@@ -1213,8 +1214,9 @@ void LLGameControl::Options::AxisOptions::loadFromString(std::string options)
     std::string offset = pairs["offset"];
     if (!offset.empty())
     {
-        S32 number = std::stoi(offset);
-        if (abs(number) > MAX_AXIS_OFFSET || std::to_string(number) != offset)
+        S32 number;
+        if (!LLStringUtil::convertToS32(offset, number) || abs(number) > MAX_AXIS_OFFSET
+            || std::to_string(number) != offset)
         {
             LL_WARNS("SDL3") << "Invalid offset value: '" << offset << "'" << LL_ENDL;
         }
@@ -3994,10 +3996,11 @@ bool LLGameControl::parseDeviceOptions(const std::string& options, std::string& 
         std::string value = axis_string_map[key];
         if (!value.empty())
         {
-            size_t number = std::stoull(value);
+            U32 number;
             // Output codes cover the canonical axes plus the None and trigger-pair
             // sentinels (see LLGameControl::AXIS_OUTPUT_*).
-            if (number >= NUM_AXIS_OUTPUTS || std::to_string(number) != value)
+            if (!LLStringUtil::convertToU32(value, number) || number >= NUM_AXIS_OUTPUTS
+                || std::to_string(number) != value)
             {
                 LL_WARNS("SDL3") << "Invalid axis mapping: " << i << "->" << value << LL_ENDL;
             }
@@ -4013,8 +4016,9 @@ bool LLGameControl::parseDeviceOptions(const std::string& options, std::string& 
         std::string value = button_string_map[std::to_string(i)];
         if (!value.empty())
         {
-            size_t number = std::stoull(value);
-            if (number >= NUM_BUTTONS || std::to_string(number) != value)
+            U32 number;
+            if (!LLStringUtil::convertToU32(value, number) || number >= NUM_BUTTONS
+                || std::to_string(number) != value)
             {
                 LL_WARNS("SDL3") << "Invalid button mapping: " << i << "->" << value << LL_ENDL;
             }
