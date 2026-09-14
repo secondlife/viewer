@@ -26,7 +26,6 @@
  * $/LicenseInfo$
  */
 
-#include "llvertexbuffer.h"
 #include "llvolumeoctree.h"
 #include "boost/json.hpp"
 
@@ -71,17 +70,8 @@ namespace LL
 
             S32 mMaterial = -1;
             Mode mMode = Mode::TRIANGLES; // default to triangles
-            LLRender::eGeomModes mGLMode = LLRender::TRIANGLES; // for use with LLRender
             S32 mIndices = -1;
 
-            // shader variant according to LLGLSLShader::GLTFVariant flags
-            U8 mShaderVariant = 0;
-
-            // vertex attribute mask
-            U32 mAttributeMask = 0;
-
-            // backpointer to vertex buffer (owned by Asset)
-            LLPointer<LLVertexBuffer> mVertexBuffer;
             U32 mVertexOffset = 0;
             U32 mIndexOffset = 0;
 
@@ -108,11 +98,6 @@ namespace LL
             const Primitive& operator=(const Value& src);
 
             bool prep(Asset& asset);
-
-            // upload geometry to given vertex buffer
-            // asserts that buffer is bound
-            // asserts that buffer is valid for this primitive
-            void upload(LLVertexBuffer* buffer);
         };
     }
 }

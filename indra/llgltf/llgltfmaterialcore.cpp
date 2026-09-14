@@ -1,10 +1,10 @@
 /**
- * @file llgltfmaterial.cpp
+ * @file LLGLTFMaterialCore.cpp
  * @brief Material definition
  *
- * $LicenseInfo:firstyear=2022&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2022, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,25 +27,25 @@
 
 #include "linden_common.h"
 
-#include "llgltfmaterial.h"
+#include "llgltfmaterialcore.h"
 
 #include "llsdserialize.h"
 
 #include <boost/json.hpp>
 
-const char* const LLGLTFMaterial::ASSET_VERSION = "1.1";
-const char* const LLGLTFMaterial::ASSET_TYPE = "GLTF 2.0";
-const std::array<std::string, 2> LLGLTFMaterial::ACCEPTED_ASSET_VERSIONS = { "1.0", "1.1" };
+const char* const LLGLTFMaterialCore::ASSET_VERSION = "1.1";
+const char* const LLGLTFMaterialCore::ASSET_TYPE = "GLTF 2.0";
+const std::array<std::string, 2> LLGLTFMaterialCore::ACCEPTED_ASSET_VERSIONS = { "1.0", "1.1" };
 
-const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM = "KHR_texture_transform";
-const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM_SCALE = "scale";
-const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM_OFFSET = "offset";
-const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rotation";
+const char* const LLGLTFMaterialCore::GLTF_FILE_EXTENSION_TRANSFORM = "KHR_texture_transform";
+const char* const LLGLTFMaterialCore::GLTF_FILE_EXTENSION_TRANSFORM_SCALE = "scale";
+const char* const LLGLTFMaterialCore::GLTF_FILE_EXTENSION_TRANSFORM_OFFSET = "offset";
+const char* const LLGLTFMaterialCore::GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rotation";
 
 // special UUID that indicates a null UUID in override data
-const LLUUID LLGLTFMaterial::GLTF_OVERRIDE_NULL_UUID = LLUUID("ffffffff-ffff-ffff-ffff-ffffffffffff");
+const LLUUID LLGLTFMaterialCore::GLTF_OVERRIDE_NULL_UUID = LLUUID("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
-LLGLTFMaterial::LLGLTFMaterial()
+LLGLTFMaterialCore::LLGLTFMaterialCore()
 {
     // IMPORTANT: since we use the hash of the member variables memory block of
     // this class to detect changes, we must ensure that all its padding bytes
@@ -83,7 +83,7 @@ LLGLTFMaterial::LLGLTFMaterial()
 #endif
 }
 
-void LLGLTFMaterial::TextureTransform::getPacked(Pack& packed) const
+void LLGLTFMaterialCore::TextureTransform::getPacked(Pack& packed) const
 {
     packed[0] = mScale.mV[VX];
     packed[1] = mScale.mV[VY];
@@ -94,7 +94,7 @@ void LLGLTFMaterial::TextureTransform::getPacked(Pack& packed) const
     packed[3] = packed[6] = packed[7] = 0.f;
 }
 
-void LLGLTFMaterial::TextureTransform::getPackedTight(PackTight& packed) const
+void LLGLTFMaterialCore::TextureTransform::getPackedTight(PackTight& packed) const
 {
     packed[0] = mScale.mV[VX];
     packed[1] = mScale.mV[VY];
@@ -103,17 +103,17 @@ void LLGLTFMaterial::TextureTransform::getPackedTight(PackTight& packed) const
     packed[4] = mOffset.mV[VY];
 }
 
-bool LLGLTFMaterial::TextureTransform::operator==(const TextureTransform& other) const
+bool LLGLTFMaterialCore::TextureTransform::operator==(const TextureTransform& other) const
 {
     return mOffset == other.mOffset && mScale == other.mScale && mRotation == other.mRotation;
 }
 
-LLGLTFMaterial::LLGLTFMaterial(const LLGLTFMaterial& rhs)
+LLGLTFMaterialCore::LLGLTFMaterialCore(const LLGLTFMaterialCore& rhs)
 {
     *this = rhs;
 }
 
-LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
+LLGLTFMaterialCore& LLGLTFMaterialCore::operator=(const LLGLTFMaterialCore& rhs)
 {
     //have to do a manual operator= because of LLRefCount
     mTextureId = rhs.mTextureId;
@@ -152,23 +152,23 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
     return *this;
 }
 
-void LLGLTFMaterial::updateLocalTexDataDigest()
+void LLGLTFMaterialCore::updateLocalTexDataDigest()
 {
     mLocalTexDataDigest = 0;
     if (!mTrackingIdToLocalTexture.empty())
     {
         for (local_tex_map_t::const_iterator
-                it = mTrackingIdToLocalTexture.begin(),
-                end = mTrackingIdToLocalTexture.end();
-             it != end; ++it)
+            it = mTrackingIdToLocalTexture.begin(),
+            end = mTrackingIdToLocalTexture.end();
+            it != end; ++it)
         {
             mLocalTexDataDigest ^= it->first.getDigest64() ^
-                                   it->second.getDigest64();
+                it->second.getDigest64();
         }
     }
 }
 
-bool LLGLTFMaterial::operator==(const LLGLTFMaterial& rhs) const
+bool LLGLTFMaterialCore::operator==(const LLGLTFMaterialCore& rhs) const
 {
     return mTextureId == rhs.mTextureId &&
 
@@ -192,7 +192,7 @@ bool LLGLTFMaterial::operator==(const LLGLTFMaterial& rhs) const
         mOverrideAlphaMode == rhs.mOverrideAlphaMode;
 }
 
-bool LLGLTFMaterial::fromJSON(const std::string& json, std::string& warn_msg, std::string& error_msg)
+bool LLGLTFMaterialCore::fromJSON(const std::string& json, std::string& warn_msg, std::string& error_msg)
 {
     LL_PROFILE_ZONE_SCOPED;
     try
@@ -207,7 +207,7 @@ bool LLGLTFMaterial::fromJSON(const std::string& json, std::string& warn_msg, st
     }
 }
 
-std::string LLGLTFMaterial::asJSON(bool prettyprint) const
+std::string LLGLTFMaterialCore::asJSON(bool prettyprint) const
 {
     LL_PROFILE_ZONE_SCOPED;
     boost::json::value doc = writeDocument();
@@ -215,7 +215,7 @@ std::string LLGLTFMaterial::asJSON(bool prettyprint) const
 }
 
 // static
-std::string LLGLTFMaterial::getTextureURI(const boost::json::value& doc, S32 texture_index)
+std::string LLGLTFMaterialCore::getTextureURI(const boost::json::value& doc, S32 texture_index)
 {
     if (texture_index < 0) return "";
 
@@ -250,7 +250,7 @@ std::string LLGLTFMaterial::getTextureURI(const boost::json::value& doc, S32 tex
 }
 
 // static
-void LLGLTFMaterial::readTextureInfo(const boost::json::value& doc, const boost::json::object& tex_info, LLUUID& texture_id, TextureTransform& transform)
+void LLGLTFMaterialCore::readTextureInfo(const boost::json::value& doc, const boost::json::object& tex_info, LLUUID& texture_id, TextureTransform& transform)
 {
     LL_PROFILE_ZONE_SCOPED;
     const auto* index_val = tex_info.if_contains("index");
@@ -275,12 +275,12 @@ void LLGLTFMaterial::readTextureInfo(const boost::json::value& doc, const boost:
     }
 }
 
-void LLGLTFMaterial::readTextureInfo(const boost::json::value& doc, const boost::json::object& tex_info, TextureInfo id)
+void LLGLTFMaterialCore::readTextureInfo(const boost::json::value& doc, const boost::json::object& tex_info, TextureInfo id)
 {
     readTextureInfo(doc, tex_info, mTextureId[id], mTextureTransform[id]);
 }
 
-bool LLGLTFMaterial::setFromDocument(const boost::json::value& doc, S32 mat_index)
+bool LLGLTFMaterialCore::setFromDocument(const boost::json::value& doc, S32 mat_index)
 {
     LL_PROFILE_ZONE_SCOPED;
     if (!doc.is_object()) return false;
@@ -482,7 +482,7 @@ bool LLGLTFMaterial::setFromDocument(const boost::json::value& doc, S32 mat_inde
 }
 
 // static
-LLVector2 LLGLTFMaterial::vec2FromJson(const boost::json::object& obj, const char* key, const LLVector2& default_value)
+LLVector2 LLGLTFMaterialCore::vec2FromJson(const boost::json::object& obj, const char* key, const LLVector2& default_value)
 {
     const auto* val = obj.if_contains(key);
     if (!val || !val->is_array()) return default_value;
@@ -500,7 +500,7 @@ LLVector2 LLGLTFMaterial::vec2FromJson(const boost::json::object& obj, const cha
 }
 
 // static
-F32 LLGLTFMaterial::floatFromJson(const boost::json::object& obj, const char* key, F32 default_value)
+F32 LLGLTFMaterialCore::floatFromJson(const boost::json::object& obj, const char* key, F32 default_value)
 {
     const auto* val = obj.if_contains(key);
     if (!val || !val->is_number()) return default_value;
@@ -508,7 +508,7 @@ F32 LLGLTFMaterial::floatFromJson(const boost::json::object& obj, const char* ke
 }
 
 // static
-void LLGLTFMaterial::writeTextureEntry(boost::json::array& images, boost::json::array& textures, boost::json::object& dst, const char* key, const LLUUID& texture_id, const TextureTransform& transform, bool force_write)
+void LLGLTFMaterialCore::writeTextureEntry(boost::json::array& images, boost::json::array& textures, boost::json::object& dst, const char* key, const LLUUID& texture_id, const TextureTransform& transform, bool force_write)
 {
     LL_PROFILE_ZONE_SCOPED;
     const bool is_blank_transform = transform == sDefault.mTextureTransform[0];
@@ -539,11 +539,11 @@ void LLGLTFMaterial::writeTextureEntry(boost::json::array& images, boost::json::
         transform_obj[GLTF_FILE_EXTENSION_TRANSFORM_OFFSET] = boost::json::array({
             boost::json::value(transform.mOffset.mV[VX]),
             boost::json::value(transform.mOffset.mV[VY])
-        });
+            });
         transform_obj[GLTF_FILE_EXTENSION_TRANSFORM_SCALE] = boost::json::array({
             boost::json::value(transform.mScale.mV[VX]),
             boost::json::value(transform.mScale.mV[VY])
-        });
+            });
         transform_obj[GLTF_FILE_EXTENSION_TRANSFORM_ROTATION] = transform.mRotation;
 
         boost::json::object extensions;
@@ -554,7 +554,7 @@ void LLGLTFMaterial::writeTextureEntry(boost::json::array& images, boost::json::
     dst[key] = tex_info;
 }
 
-boost::json::value LLGLTFMaterial::writeDocument() const
+boost::json::value LLGLTFMaterialCore::writeDocument() const
 {
     LL_PROFILE_ZONE_SCOPED;
     boost::json::object root;
@@ -664,7 +664,7 @@ boost::json::value LLGLTFMaterial::writeDocument() const
             boost::json::value((double)mEmissiveColor.mV[0]),
             boost::json::value((double)mEmissiveColor.mV[1]),
             boost::json::value((double)mEmissiveColor.mV[2])
-        });
+            });
     }
 
     // Extras
@@ -713,7 +713,7 @@ boost::json::value LLGLTFMaterial::writeDocument() const
                 boost::json::value((double)mSpecularColorFactor.mV[0]),
                 boost::json::value((double)mSpecularColorFactor.mV[1]),
                 boost::json::value((double)mSpecularColorFactor.mV[2])
-            });
+                });
             has_specular = true;
         }
 
@@ -762,35 +762,35 @@ boost::json::value LLGLTFMaterial::writeDocument() const
     return root;
 }
 
-void LLGLTFMaterial::sanitizeAssetMaterial()
+void LLGLTFMaterialCore::sanitizeAssetMaterial()
 {
     mTextureTransform = sDefault.mTextureTransform;
 }
 
-bool LLGLTFMaterial::setBaseMaterial()
+bool LLGLTFMaterialCore::setBaseMaterial()
 {
-    const LLGLTFMaterial old_override = *this;
+    const LLGLTFMaterialCore old_override = *this;
     *this = sDefault;
     setBaseMaterial(old_override);
     return *this != old_override;
 }
 
 // For material overrides only. Copies transforms from the old override.
-void LLGLTFMaterial::setBaseMaterial(const LLGLTFMaterial& old_override_mat)
+void LLGLTFMaterialCore::setBaseMaterial(const LLGLTFMaterialCore& old_override_mat)
 {
     mTextureTransform = old_override_mat.mTextureTransform;
 }
 
-bool LLGLTFMaterial::isClearedForBaseMaterial() const
+bool LLGLTFMaterialCore::isClearedForBaseMaterial() const
 {
-    LLGLTFMaterial cleared_override = sDefault;
+    LLGLTFMaterialCore cleared_override = sDefault;
     cleared_override.setBaseMaterial(*this);
     return *this == cleared_override;
 }
 
 
 // static
-void LLGLTFMaterial::hackOverrideUUID(LLUUID& id)
+void LLGLTFMaterialCore::hackOverrideUUID(LLUUID& id)
 {
     if (id == LLUUID::null)
     {
@@ -798,7 +798,7 @@ void LLGLTFMaterial::hackOverrideUUID(LLUUID& id)
     }
 }
 
-void LLGLTFMaterial::setTextureId(TextureInfo texture_info, const LLUUID& id, bool for_override)
+void LLGLTFMaterialCore::setTextureId(TextureInfo texture_info, const LLUUID& id, bool for_override)
 {
     mTextureId[texture_info] = id;
     if (for_override)
@@ -807,32 +807,32 @@ void LLGLTFMaterial::setTextureId(TextureInfo texture_info, const LLUUID& id, bo
     }
 }
 
-void LLGLTFMaterial::setBaseColorId(const LLUUID& id, bool for_override)
+void LLGLTFMaterialCore::setBaseColorId(const LLUUID& id, bool for_override)
 {
     setTextureId(GLTF_TEXTURE_INFO_BASE_COLOR, id, for_override);
 }
 
-void LLGLTFMaterial::setNormalId(const LLUUID& id, bool for_override)
+void LLGLTFMaterialCore::setNormalId(const LLUUID& id, bool for_override)
 {
     setTextureId(GLTF_TEXTURE_INFO_NORMAL, id, for_override);
 }
 
-void LLGLTFMaterial::setOcclusionRoughnessMetallicId(const LLUUID& id, bool for_override)
+void LLGLTFMaterialCore::setOcclusionRoughnessMetallicId(const LLUUID& id, bool for_override)
 {
     setTextureId(GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, id, for_override);
 }
 
-void LLGLTFMaterial::setEmissiveId(const LLUUID& id, bool for_override)
+void LLGLTFMaterialCore::setEmissiveId(const LLUUID& id, bool for_override)
 {
     setTextureId(GLTF_TEXTURE_INFO_EMISSIVE, id, for_override);
 }
 
-void LLGLTFMaterial::setSpecularId(const LLUUID& id, bool for_override)
+void LLGLTFMaterialCore::setSpecularId(const LLUUID& id, bool for_override)
 {
     setTextureId(GLTF_TEXTURE_INFO_SPECULAR, id, for_override);
 }
 
-void LLGLTFMaterial::setBaseColorFactor(const LLColor4& baseColor, bool for_override)
+void LLGLTFMaterialCore::setBaseColorFactor(const LLColor4& baseColor, bool for_override)
 {
     mBaseColor.set(baseColor);
     mBaseColor.clamp();
@@ -846,7 +846,7 @@ void LLGLTFMaterial::setBaseColorFactor(const LLColor4& baseColor, bool for_over
     }
 }
 
-void LLGLTFMaterial::setAlphaCutoff(F32 cutoff, bool for_override)
+void LLGLTFMaterialCore::setAlphaCutoff(F32 cutoff, bool for_override)
 {
     mAlphaCutoff = llclamp(cutoff, 0.f, 1.f);
     if (for_override)
@@ -858,7 +858,7 @@ void LLGLTFMaterial::setAlphaCutoff(F32 cutoff, bool for_override)
     }
 }
 
-void LLGLTFMaterial::setEmissiveColorFactor(const LLColor3& emissiveColor, bool for_override)
+void LLGLTFMaterialCore::setEmissiveColorFactor(const LLColor3& emissiveColor, bool for_override)
 {
     mEmissiveColor = emissiveColor;
     mEmissiveColor.clamp();
@@ -872,17 +872,17 @@ void LLGLTFMaterial::setEmissiveColorFactor(const LLColor3& emissiveColor, bool 
     }
 }
 
-void LLGLTFMaterial::setMetallicFactor(F32 metallic, bool for_override)
+void LLGLTFMaterialCore::setMetallicFactor(F32 metallic, bool for_override)
 {
     mMetallicFactor = llclamp(metallic, 0.f, for_override ? 1.f - FLT_EPSILON : 1.f);
 }
 
-void LLGLTFMaterial::setRoughnessFactor(F32 roughness, bool for_override)
+void LLGLTFMaterialCore::setRoughnessFactor(F32 roughness, bool for_override)
 {
     mRoughnessFactor = llclamp(roughness, 0.f, for_override ? 1.f - FLT_EPSILON : 1.f);
 }
 
-void LLGLTFMaterial::setAlphaMode(const std::string& mode, bool for_override)
+void LLGLTFMaterialCore::setAlphaMode(const std::string& mode, bool for_override)
 {
     S32 m = getDefaultAlphaMode();
     if (mode == "MASK")
@@ -897,7 +897,7 @@ void LLGLTFMaterial::setAlphaMode(const std::string& mode, bool for_override)
     setAlphaMode(m, for_override);
 }
 
-const char* LLGLTFMaterial::getAlphaMode() const
+const char* LLGLTFMaterialCore::getAlphaMode() const
 {
     switch (mAlphaMode)
     {
@@ -907,13 +907,13 @@ const char* LLGLTFMaterial::getAlphaMode() const
     }
 }
 
-void LLGLTFMaterial::setAlphaMode(S32 mode, bool for_override)
+void LLGLTFMaterialCore::setAlphaMode(S32 mode, bool for_override)
 {
-    mAlphaMode = (AlphaMode) llclamp(mode, (S32) ALPHA_MODE_OPAQUE, (S32) ALPHA_MODE_MASK);
+    mAlphaMode = (AlphaMode)llclamp(mode, (S32)ALPHA_MODE_OPAQUE, (S32)ALPHA_MODE_MASK);
     mOverrideAlphaMode = for_override && mAlphaMode == getDefaultAlphaMode();
 }
 
-void LLGLTFMaterial::setDoubleSided(bool double_sided, bool for_override)
+void LLGLTFMaterialCore::setDoubleSided(bool double_sided, bool for_override)
 {
     // sure, no clamping will ever be needed for a bool, but include the
     // setter for consistency with the clamping API
@@ -921,7 +921,7 @@ void LLGLTFMaterial::setDoubleSided(bool double_sided, bool for_override)
     mOverrideDoubleSided = for_override && mDoubleSided == getDefaultDoubleSided();
 }
 
-void LLGLTFMaterial::setEmissiveStrength(F32 strength, bool for_override)
+void LLGLTFMaterialCore::setEmissiveStrength(F32 strength, bool for_override)
 {
     mEmissiveStrength = llmax(strength, 0.f);
     if (for_override)
@@ -933,12 +933,12 @@ void LLGLTFMaterial::setEmissiveStrength(F32 strength, bool for_override)
     }
 }
 
-void LLGLTFMaterial::setSpecularFactor(F32 factor, bool for_override)
+void LLGLTFMaterialCore::setSpecularFactor(F32 factor, bool for_override)
 {
     mSpecularFactor = llclamp(factor, 0.f, for_override ? 1.f - FLT_EPSILON : 1.f);
 }
 
-void LLGLTFMaterial::setIOR(F32 ior, bool for_override)
+void LLGLTFMaterialCore::setIOR(F32 ior, bool for_override)
 {
     mIOR = llmax(ior, 0.f);
     if (for_override && mIOR == getDefaultIOR())
@@ -947,7 +947,7 @@ void LLGLTFMaterial::setIOR(F32 ior, bool for_override)
     }
 }
 
-void LLGLTFMaterial::setSpecularColorFactor(const LLColor3& color, bool for_override)
+void LLGLTFMaterialCore::setSpecularColorFactor(const LLColor3& color, bool for_override)
 {
     mSpecularColorFactor = color;
     mSpecularColorFactor.clamp();
@@ -961,17 +961,17 @@ void LLGLTFMaterial::setSpecularColorFactor(const LLColor3& color, bool for_over
     }
 }
 
-void LLGLTFMaterial::setTextureOffset(TextureInfo texture_info, const LLVector2& offset)
+void LLGLTFMaterialCore::setTextureOffset(TextureInfo texture_info, const LLVector2& offset)
 {
     mTextureTransform[texture_info].mOffset = offset;
 }
 
-void LLGLTFMaterial::setTextureScale(TextureInfo texture_info, const LLVector2& scale)
+void LLGLTFMaterialCore::setTextureScale(TextureInfo texture_info, const LLVector2& scale)
 {
     mTextureTransform[texture_info].mScale = scale;
 }
 
-void LLGLTFMaterial::setTextureRotation(TextureInfo texture_info, float rotation)
+void LLGLTFMaterialCore::setTextureRotation(TextureInfo texture_info, float rotation)
 {
     mTextureTransform[texture_info].mRotation = rotation;
 }
@@ -979,80 +979,80 @@ void LLGLTFMaterial::setTextureRotation(TextureInfo texture_info, float rotation
 // Default value accessors (NOTE: these MUST match the GLTF specification)
 
 // Make a static default material for accessors
-const LLGLTFMaterial LLGLTFMaterial::sDefault;
+const LLGLTFMaterialCore LLGLTFMaterialCore::sDefault;
 
-F32 LLGLTFMaterial::getDefaultAlphaCutoff()
+F32 LLGLTFMaterialCore::getDefaultAlphaCutoff()
 {
     return sDefault.mAlphaCutoff;
 }
 
-S32 LLGLTFMaterial::getDefaultAlphaMode()
+S32 LLGLTFMaterialCore::getDefaultAlphaMode()
 {
-    return (S32) sDefault.mAlphaMode;
+    return (S32)sDefault.mAlphaMode;
 }
 
-F32 LLGLTFMaterial::getDefaultMetallicFactor()
+F32 LLGLTFMaterialCore::getDefaultMetallicFactor()
 {
     return sDefault.mMetallicFactor;
 }
 
-F32 LLGLTFMaterial::getDefaultRoughnessFactor()
+F32 LLGLTFMaterialCore::getDefaultRoughnessFactor()
 {
     return sDefault.mRoughnessFactor;
 }
 
-LLColor4 LLGLTFMaterial::getDefaultBaseColor()
+LLColor4 LLGLTFMaterialCore::getDefaultBaseColor()
 {
     return sDefault.mBaseColor;
 }
 
-LLColor3 LLGLTFMaterial::getDefaultEmissiveColor()
+LLColor3 LLGLTFMaterialCore::getDefaultEmissiveColor()
 {
     return sDefault.mEmissiveColor;
 }
 
-bool LLGLTFMaterial::getDefaultDoubleSided()
+bool LLGLTFMaterialCore::getDefaultDoubleSided()
 {
     return sDefault.mDoubleSided;
 }
 
-F32 LLGLTFMaterial::getDefaultEmissiveStrength()
+F32 LLGLTFMaterialCore::getDefaultEmissiveStrength()
 {
     return sDefault.mEmissiveStrength;
 }
 
-F32 LLGLTFMaterial::getDefaultSpecularFactor()
+F32 LLGLTFMaterialCore::getDefaultSpecularFactor()
 {
     return sDefault.mSpecularFactor;
 }
 
-LLColor3 LLGLTFMaterial::getDefaultSpecularColorFactor()
+LLColor3 LLGLTFMaterialCore::getDefaultSpecularColorFactor()
 {
     return sDefault.mSpecularColorFactor;
 }
 
-F32 LLGLTFMaterial::getDefaultIOR()
+F32 LLGLTFMaterialCore::getDefaultIOR()
 {
     return sDefault.mIOR;
 }
 
-LLVector2 LLGLTFMaterial::getDefaultTextureOffset()
+LLVector2 LLGLTFMaterialCore::getDefaultTextureOffset()
 {
     return sDefault.mTextureTransform[0].mOffset;
 }
 
-LLVector2 LLGLTFMaterial::getDefaultTextureScale()
+LLVector2 LLGLTFMaterialCore::getDefaultTextureScale()
 {
     return sDefault.mTextureTransform[0].mScale;
 }
 
-F32 LLGLTFMaterial::getDefaultTextureRotation()
+F32 LLGLTFMaterialCore::getDefaultTextureRotation()
 {
     return sDefault.mTextureTransform[0].mRotation;
 }
 
 // static
-void LLGLTFMaterial::applyOverrideUUID(LLUUID& dst_id, const LLUUID& override_id)
+void LLGLTFMaterialCore::applyOverrideUUID(LLUUID& dst_id, const LLUUID& override_id)
 {
     if (override_id != GLTF_OVERRIDE_NULL_UUID)
     {
@@ -1067,7 +1067,7 @@ void LLGLTFMaterial::applyOverrideUUID(LLUUID& dst_id, const LLUUID& override_id
     }
 }
 
-void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
+void LLGLTFMaterialCore::applyOverride(const LLGLTFMaterialCore& override_mat)
 {
     LL_PROFILE_ZONE_SCOPED;
 
@@ -1159,7 +1159,7 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
     }
 }
 
-void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data) const
+void LLGLTFMaterialCore::getOverrideLLSD(const LLGLTFMaterialCore& override_mat, LLSD& data) const
 {
     LL_PROFILE_ZONE_SCOPED;
     llassert(data.isUndefined());
@@ -1251,7 +1251,7 @@ void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& d
 }
 
 
-void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
+void LLGLTFMaterialCore::applyOverrideLLSD(const LLSD& data)
 {
     const LLSD& tex = data["tex"];
 
@@ -1310,7 +1310,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     const LLSD& am = data["am"];
     if (am.isInteger())
     {
-        mAlphaMode = (AlphaMode) am.asInteger();
+        mAlphaMode = (AlphaMode)am.asInteger();
         mOverrideAlphaMode = true;
     }
 
@@ -1398,7 +1398,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     }
 }
 
-LLUUID LLGLTFMaterial::getHash() const
+LLUUID LLGLTFMaterialCore::getHash() const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
@@ -1441,19 +1441,19 @@ LLUUID LLGLTFMaterial::getHash() const
     return hash.digest();
 }
 
-void LLGLTFMaterial::addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id)
+void LLGLTFMaterialCore::addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id)
 {
     mTrackingIdToLocalTexture[tracking_id] = tex_id;
     updateLocalTexDataDigest();
 }
 
-void LLGLTFMaterial::removeLocalTextureTracking(const LLUUID& tracking_id)
+void LLGLTFMaterialCore::removeLocalTextureTracking(const LLUUID& tracking_id)
 {
     mTrackingIdToLocalTexture.erase(tracking_id);
     updateLocalTexDataDigest();
 }
 
-bool LLGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id)
+bool LLGLTFMaterialCore::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id)
 {
     bool res = false;
 
@@ -1483,7 +1483,7 @@ bool LLGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID
     return res;
 }
 
-void LLGLTFMaterial::updateTextureTracking()
+void LLGLTFMaterialCore::updateTextureTracking()
 {
     // setTEGLTFMaterialOverride is responsible for tracking
     // for material overrides editor will set it
@@ -1517,7 +1517,7 @@ void LLGLTFMaterial::updateTextureTracking()
 //
 // Legacy rotation is relative to face's center counter clockwise,
 // PBR rotation is relative to top-left corner, clockwise
-void LLGLTFMaterial::convertTextureTransformToPBR(
+void LLGLTFMaterialCore::convertTextureTransformToPBR(
     F32 tex_scale_s,
     F32 tex_scale_t,
     F32 tex_offset_s,
@@ -1570,7 +1570,7 @@ void LLGLTFMaterial::convertTextureTransformToPBR(
 
 // Convert PBR transform values back to legacy TE transform values.
 // This is the reverse of convertTextureTransformToPBR.
-void LLGLTFMaterial::convertPBRTransformToTexture(
+void LLGLTFMaterialCore::convertPBRTransformToTexture(
     const LLVector2& pbr_scale,
     const LLVector2& pbr_offset,
     F32 pbr_rotation,

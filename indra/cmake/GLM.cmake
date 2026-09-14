@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include_guard()
 include(Prebuilt)
 
 add_library( ll::glm INTERFACE IMPORTED )

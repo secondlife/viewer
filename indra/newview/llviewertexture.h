@@ -37,7 +37,7 @@
 #include "llmetricperformancetester.h"
 #include "httpcommon.h"
 #include "workqueue.h"
-#include "gltf/common.h"
+#include "gltfprimitive/common.h"
 
 #include <map>
 #include <list>

@@ -29,6 +29,7 @@ include(LLImage)
 include(LLKDU)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
+include(LLGLTF)
 include(LLWindow)
 include(NDOF)
 include(NVAPI)
@@ -47,7 +48,6 @@ include(ViewerMiscLibs)
 include(ViewerManager)
 include(VisualLeakDetector)
 include(ZLIBNG)
-include(LLPrimitive)
 
 if (HAVOK)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
@@ -2081,6 +2081,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcharacter
         llimage
         llinventory
+        llgltf
         llmessage
         llplugin
         llprimitive
@@ -2432,6 +2433,7 @@ if (LL_TESTS)
     llplugin
     llappearance
     llprimitive
+    llgltf
     lllogin
   )
 
@@ -2461,7 +2463,7 @@ if (LL_TESTS)
           llworldmap.cpp
           llworldmipmap.cpp
           APPEND PROPERTY
-          LL_TEST_ADDITIONAL_LIBRARIES llprimitive
+          LL_TEST_ADDITIONAL_LIBRARIES llprimitive llgltf
   )
 
   LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")

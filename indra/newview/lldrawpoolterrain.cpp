@@ -400,11 +400,11 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
         // Override region terrain with the global local override terrain
         fetched_materials = &gLocalTerrainMaterials.mDetailRenderMaterials;
     }
-    const LLGLTFMaterial* materials[terrain_material_count];
+    const LLGLTFMaterialCore* materials[terrain_material_count];
     for (U32 i = 0; i < terrain_material_count; ++i)
     {
         materials[i] = (*fetched_materials)[i].get();
-        if (!materials[i]) { materials[i] = &LLGLTFMaterial::sDefault; }
+        if (!materials[i]) { materials[i] = &LLGLTFMaterialCore::sDefault; }
     }
 
     U32 paint_type = use_local_materials ? gLocalTerrainMaterials.getPaintType() : compp->getPaintType();
@@ -577,7 +577,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
     F32 minimum_alphas[terrain_material_count];
     for (U32 i = 0; i < terrain_material_count; ++i)
     {
-        const LLGLTFMaterial* material = materials[i];
+        const LLGLTFMaterialCore* material = materials[i];
 
         base_color_factors[i] = material->mBaseColor;
         metallic_factors[i] = material->mMetallicFactor;
