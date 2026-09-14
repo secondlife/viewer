@@ -726,6 +726,8 @@ namespace
         mouselook_buttons["Mouse click right"]      = "BUTTON_RIGHT_SHOULDER";
         mouselook_buttons["Toggle mouselook"]       = "BUTTON_START";
         mouselook_buttons["Toggle flycam"]          = "BUTTON_RIGHT_STICK";
+        // Unbound by default; see the "ESC" entry under flycam_buttons below.
+        mouselook_buttons["ESC"]                    = "BUTTON_NONE";
         mouselook_buttons["Advance forward"]        = "BUTTON_DPAD_UP";
         mouselook_buttons["Advance back"]           = "BUTTON_DPAD_DOWN";
         mouselook_buttons["Strafe left"]            = "BUTTON_DPAD_LEFT";
@@ -754,6 +756,8 @@ namespace
         cursor_buttons["Toggle speak"]           = "BUTTON_HOME";
         cursor_buttons["Toggle mouselook"]       = "BUTTON_START";
         cursor_buttons["Toggle flycam"]          = "BUTTON_RIGHT_STICK";
+        // Unbound by default; see the "ESC" entry under flycam_buttons below.
+        cursor_buttons["ESC"]                    = "BUTTON_NONE";
         cursor_buttons["Mouse click left"]       = "BUTTON_LEFT_SHOULDER";
         cursor_buttons["Mouse click right"]      = "BUTTON_RIGHT_SHOULDER";
         cursor_buttons["Advance forward"]        = "BUTTON_DPAD_UP";
@@ -796,6 +800,11 @@ namespace
         flycam_buttons["Roll CCW"]        = "BUTTON_WEST";
         flycam_buttons["Roll CW"]         = "BUTTON_EAST";
         flycam_buttons["Orbit"]           = "BUTTON_RIGHT_SHOULDER";
+        // Unbound by default -- every physical button above is already claimed,
+        // same reasoning as "Zoom +/-"/"Roll left/right" being unbound axes.
+        // Resets straight back to Avatar mode (see AVATAR_ACTION_ESCAPE/
+        // FLYCAM_ACTION_ESCAPE and LLAgent::resetToAvatarMode()).
+        flycam_buttons["ESC"]             = "BUTTON_NONE";
 
         LLSD flycam_axes_invert;
         flycam_axes_invert["Truck left/right"] = true;
@@ -1886,6 +1895,7 @@ namespace
             { "Toggle flycam",       LLGameControl::AVATAR_ACTION_TOGGLE_FLYCAM },
             { "Toggle mouselook",    LLGameControl::AVATAR_ACTION_TOGGLE_MOUSELOOK },
             { "Toggle mouse cursor", LLGameControl::AVATAR_ACTION_TOGGLE_MOUSE_CURSOR },
+            { "ESC",                 LLGameControl::AVATAR_ACTION_ESCAPE },
         };
         return bridge;
     }
@@ -2443,6 +2453,7 @@ namespace
     {
         static const std::map<std::string, U32> bridge = {
             { "Unroll", LLGameControl::FLYCAM_ACTION_UNROLL },
+            { "ESC",    LLGameControl::FLYCAM_ACTION_ESCAPE },
         };
         return bridge;
     }

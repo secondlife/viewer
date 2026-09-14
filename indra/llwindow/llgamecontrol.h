@@ -541,11 +541,17 @@ public:
         AVATAR_ACTION_TOGGLE_FLYCAM       = 1u << 3,
         AVATAR_ACTION_TOGGLE_MOUSELOOK    = 1u << 4,
         AVATAR_ACTION_TOGGLE_MOUSE_CURSOR = 1u << 5,
+        // Mouselook/Cursor-mode only (see buildDefaultModeMappings()): drops
+        // straight back to plain Avatar mode, clearing whichever of Mouselook/
+        // Cursor (and FlyCam, via FLYCAM_ACTION_ESCAPE below) got it there.
+        AVATAR_ACTION_ESCAPE              = 1u << 6,
     };
 
     enum FlycamMiscAction : U32
     {
         FLYCAM_ACTION_UNROLL = 1u << 0,
+        // FlyCam-mode counterpart of AVATAR_ACTION_ESCAPE above.
+        FLYCAM_ACTION_ESCAPE = 1u << 1,
     };
 
     // Level-triggered (held == asserted) FlyCam-mode modifiers, reported via
