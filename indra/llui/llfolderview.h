@@ -196,8 +196,11 @@ public:
 
     LLFolderViewItem* getNextUnselectedItem();
 
-    // Public rename functionality - can only start the process
+    // Public rename functionality
     void startRenamingSelectedItem( void );
+    void cancelRenaming( void );
+    LLFolderViewItem* getRenameItem() const { return mRenameItem; }
+    bool isRenaming() const { return mRenameItem != NULL; }
 
     // LLView functionality
     ///*virtual*/ bool handleKey( KEY key, MASK mask, bool called_from_parent );

@@ -1349,6 +1349,14 @@ LLPanelObjectInventory::LLPanelObjectInventory(const LLPanelObjectInventory::Par
 // Destroys the object
 LLPanelObjectInventory::~LLPanelObjectInventory()
 {
+    if (mFolders)
+    {
+        mFolders->cancelRenaming();
+        if (LLEditMenuHandler::gEditMenuHandler == mFolders)
+        {
+            LLEditMenuHandler::gEditMenuHandler = NULL;
+        }
+    }
     if (!gIdleCallbacks.deleteFunction(idle, this))
     {
         LL_WARNS() << "LLPanelObjectInventory::~LLPanelObjectInventory() failed to delete callback" << LL_ENDL;
@@ -1397,6 +1405,15 @@ void LLPanelObjectInventory::clearContents()
     }
 
     clearItemIDs();
+
+    if (mFolders)
+    {
+        mFolders->cancelRenaming();
+        if (LLEditMenuHandler::gEditMenuHandler == mFolders)
+        {
+            LLEditMenuHandler::gEditMenuHandler = NULL;
+        }
+    }
 
     if( mScroller )
     {
@@ -1780,6 +1797,14 @@ void LLPanelObjectInventory::draw()
 
 void LLPanelObjectInventory::deleteAllChildren()
 {
+    if (mFolders)
+    {
+        mFolders->cancelRenaming();
+        if (LLEditMenuHandler::gEditMenuHandler == mFolders)
+        {
+            LLEditMenuHandler::gEditMenuHandler = NULL;
+        }
+    }
     mScroller = NULL;
     mFolders = NULL;
     LLView::deleteAllChildren();
@@ -1822,7 +1847,7 @@ void LLPanelObjectInventory::idle(void* user_data)
 void LLPanelObjectInventory::onFocusLost()
 {
     // inventory no longer handles cut/copy/paste/delete
-    if (LLEditMenuHandler::gEditMenuHandler == mFolders)
+    if (LLEditMenuHandler::gEditMenuHandler == mFolders || (mFolders == NULL && LLEditMenuHandler::gEditMenuHandler != NULL))
     {
         LLEditMenuHandler::gEditMenuHandler = NULL;
     }
