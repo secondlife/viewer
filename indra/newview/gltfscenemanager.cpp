@@ -54,6 +54,32 @@ using namespace LL;
 // temporary location of LL GLTF Implementation
 using namespace LL::GLTF;
 
+namespace
+{
+    LLRender::eGeomModes gltf_mode_to_gl_mode(Primitive::Mode mode)
+    {
+        switch (mode)
+        {
+        case Primitive::Mode::POINTS:
+            return LLRender::POINTS;
+        case Primitive::Mode::LINES:
+            return LLRender::LINES;
+        case Primitive::Mode::LINE_LOOP:
+            return LLRender::LINE_LOOP;
+        case Primitive::Mode::LINE_STRIP:
+            return LLRender::LINE_STRIP;
+        case Primitive::Mode::TRIANGLES:
+            return LLRender::TRIANGLES;
+        case Primitive::Mode::TRIANGLE_STRIP:
+            return LLRender::TRIANGLE_STRIP;
+        case Primitive::Mode::TRIANGLE_FAN:
+            return LLRender::TRIANGLE_FAN;
+        default:
+            return LLRender::TRIANGLES;
+        }
+    }
+}
+
 void GLTFSceneManager::load()
 {
     LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
@@ -673,10 +699,17 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
 
         for (U32 i = 0; i < batches.size(); ++i)
         {
-            if (batches[i].mPrimitives.empty() || batches[i].mVertexBuffer.isNull())
+            if (batches[i].mPrimitives.empty())
             {
                 continue;
             }
+            auto it = mRenderBatches.find(&batches[i]);
+            if (it == mRenderBatches.end() || it->second.isNull())
+            {
+                continue;
+            }
+
+            LLVertexBuffer* vb = it->second;
 
             if (!shader_bound)
             { // don't bind the shader until we know we have somthing to render
@@ -707,7 +740,7 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
 
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - set vb");
-                batches[i].mVertexBuffer->setBuffer();
+                vb->setBuffer();
             }
 
             S32 mat_idx = i - 1;
@@ -744,7 +777,8 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - push vb");
 
-                    primitive.mVertexBuffer->drawRangeFast(primitive.mGLMode, primitive.mVertexOffset, primitive.mVertexOffset + primitive.getVertexCount() - 1, primitive.getIndexCount(), primitive.mIndexOffset);
+                    LLRender::eGeomModes gl_mode = gltf_mode_to_gl_mode(primitive.mMode);
+                    vb->drawRangeFast(gl_mode, primitive.mVertexOffset, primitive.mVertexOffset + primitive.getVertexCount() - 1, primitive.getIndexCount(), primitive.mIndexOffset);
                 }
             }
         }
@@ -1206,6 +1240,3 @@ void GLTFSceneManager::renderDebug()
     gDebugProgram.unbind();
 
 }
-
-
-

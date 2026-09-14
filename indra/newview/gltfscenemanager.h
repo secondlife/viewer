@@ -27,6 +27,7 @@
  */
 
 #include "llsingleton.h"
+#include "llvertexbuffer.h"
 #include "llviewerobject.h"
 #include "gltfprimitive/common.h"
 
@@ -35,6 +36,16 @@ class LLDrawable;
 
 namespace LL
 {
+    namespace GLTF
+    {
+        // Forward declarations only -- full definitions live in gltfprimitive/asset.h,
+        // which we deliberately avoid pulling into this header.
+        class Asset;
+        class Material;
+        class TextureInfo;
+        class RenderBatch;
+    }
+
     class GLTFSceneManager : public LLSimpleton<GLTFSceneManager>
     {
     public:
@@ -99,6 +110,10 @@ namespace LL
         // render loop state
         S32 mLastTexture[GLTF::TEXTURE_TYPE_COUNT] = { -2, -2, -2, -2, -2 };
 
+    private:
+        // Per-asset render state, keyed by the same indices as Asset::mRenderData
+        // [0] = single sided, [1] = double sided
+        std::unordered_map<const GLTF::RenderBatch*, LLPointer<LLVertexBuffer>> mRenderBatches;
     };
 }
 

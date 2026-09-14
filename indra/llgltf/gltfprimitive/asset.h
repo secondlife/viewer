@@ -26,7 +26,6 @@
  * $/LicenseInfo$
  */
 
-#include "llvertexbuffer.h"
 #include "llvolumeoctree.h"
 #include "accessor.h"
 #include "primitive.h"
@@ -399,7 +398,6 @@ namespace LL
                 S32 mNodeIndex = INVALID_INDEX;
             };
 
-            LLPointer<LLVertexBuffer> mVertexBuffer;
             std::vector<PrimitiveData> mPrimitives;
         };
 

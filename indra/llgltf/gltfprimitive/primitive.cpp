@@ -268,8 +268,6 @@ struct MikktMesh
                 prim->mTexCoords1[dst_idx] = tc1[src_idx];
             }
         }
-
-        prim->mGLMode = LLRender::TRIANGLES;
     }
 
     uint32_t GetNumFaces()
@@ -306,16 +304,6 @@ struct MikktMesh
         t[i].set(T.x, T.y, T.z, orientation ? 1.0f : -1.0f);
     }
 };
-
-#if 0
-static void vertical_flip(std::vector<LLVector2>& texcoords)
-{
-    for (auto& tc : texcoords)
-    {
-        tc[1] = 1.f - tc[1];
-    }
-}
-#endif
 
 bool Primitive::prep(Asset& asset)
 {
@@ -390,35 +378,15 @@ bool Primitive::prep(Asset& asset)
         }
     }
 
-    U32 mask = LLVertexBuffer::MAP_VERTEX;
-
-    mShaderVariant = 0;
-
-    if (!mWeights.empty())
-    {
-        mShaderVariant |= LLGLSLShader::GLTFVariant::RIGGED;
-        mask |= LLVertexBuffer::MAP_WEIGHT4;
-        mask |= LLVertexBuffer::MAP_JOINT;
-    }
-
     if (mTexCoords0.empty())
     {
         mTexCoords0.resize(mPositions.size());
-    }
-
-    mask |= LLVertexBuffer::MAP_TEXCOORD0;
-
-    if (!mTexCoords1.empty())
-    {
-        mask |= LLVertexBuffer::MAP_TEXCOORD1;
     }
 
     if (mColors.empty())
     {
         mColors.resize(mPositions.size(), LLColor4U::white);
     }
-
-    mask |= LLVertexBuffer::MAP_COLOR;
 
     bool unlit = false;
 
@@ -431,17 +399,6 @@ bool Primitive::prep(Asset& asset)
         {
             dst = LLColor4U(baseColor * LLColor4(dst));
         }
-
-        if (material.mUnlit.mPresent)
-        { // material uses KHR_materials_unlit
-            mShaderVariant |= LLGLSLShader::GLTFVariant::UNLIT;
-            unlit = true;
-        }
-
-        if (material.isMultiUV())
-        {
-            mShaderVariant |= LLGLSLShader::GLTFVariant::MULTI_UV;
-        }
     }
 
     if (mNormals.empty() && !unlit)
@@ -451,7 +408,6 @@ bool Primitive::prep(Asset& asset)
         if (mMode == Mode::POINTS || mMode == Mode::LINES || mMode == Mode::LINE_LOOP || mMode == Mode::LINE_STRIP)
         { //no normals and no surfaces, this primitive is unlit
             mTangents.clear();
-            mShaderVariant |= LLGLSLShader::GLTFVariant::UNLIT;
             unlit = true;
         }
         else
@@ -505,91 +461,9 @@ bool Primitive::prep(Asset& asset)
         }
     }
 
-    if (!mNormals.empty())
-    {
-        mask |= LLVertexBuffer::MAP_NORMAL;
-    }
-
-    if (!mTangents.empty())
-    {
-        mask |= LLVertexBuffer::MAP_TANGENT;
-    }
-
-    mAttributeMask = mask;
-
-    if (mMaterial != INVALID_INDEX)
-    {
-        Material& material = asset.mMaterials[mMaterial];
-        if (material.mAlphaMode == Material::AlphaMode::BLEND)
-        {
-            mShaderVariant |= LLGLSLShader::GLTFVariant::ALPHA_BLEND;
-        }
-    }
-
     createOctree();
 
     return true;
-}
-
-void Primitive::upload(LLVertexBuffer* buffer)
-{
-#if 0 // viewer-side rendering code — needs LLVertexBuffer
-    mVertexBuffer = buffer;
-    // we store these buffer sizes as S32 elsewhere
-    llassert(mPositions.size() <= size_t(S32_MAX));
-    llassert(mIndexArray.size() <= size_t(S32_MAX / 2));
-
-    llassert(mVertexBuffer != nullptr);
-
-    // assert that buffer can hold this primitive
-    llassert(mVertexBuffer->getNumVerts() >= mPositions.size() + mVertexOffset);
-    llassert(mVertexBuffer->getNumIndices() >= mIndexArray.size() + mIndexOffset);
-    llassert(mVertexBuffer->getTypeMask() == mAttributeMask);
-
-    U32 offset = mVertexOffset;
-    U32 count = getVertexCount();
-
-    mVertexBuffer->setPositionData(mPositions.data(), offset, count);
-    mVertexBuffer->setColorData(mColors.data(), offset, count);
-
-    if (!mNormals.empty())
-    {
-        mVertexBuffer->setNormalData(mNormals.data(), offset, count);
-    }
-    if (!mTangents.empty())
-    {
-        mVertexBuffer->setTangentData(mTangents.data(), offset, count);
-    }
-
-    if (!mWeights.empty())
-    {
-        mVertexBuffer->setWeight4Data(mWeights.data(), offset, count);
-        mVertexBuffer->setJointData(mJoints.data(), offset, count);
-    }
-
-    // flip texcoord y, upload, then flip back (keep the off-spec data in vram only)
-    vertical_flip(mTexCoords0);
-    mVertexBuffer->setTexCoord0Data(mTexCoords0.data(), offset, count);
-    vertical_flip(mTexCoords0);
-
-    if (!mTexCoords1.empty())
-    {
-        vertical_flip(mTexCoords1);
-        mVertexBuffer->setTexCoord1Data(mTexCoords1.data(), offset, count);
-        vertical_flip(mTexCoords1);
-    }
-
-    if (!mIndexArray.empty())
-    {
-        std::vector<U32> index_array;
-        index_array.resize(mIndexArray.size());
-        for (U32 i = 0; i < mIndexArray.size(); ++i)
-        {
-            index_array[i] = mIndexArray[i] + mVertexOffset;
-        }
-        mVertexBuffer->setIndexData(index_array.data(), mIndexOffset, getIndexCount());
-    }
-#endif
 }
 
 void initOctreeTriangle(LLVolumeTriangle* tri, F32 scaler, S32 i0, S32 i1, S32 i2, const LLVector4a& v0, const LLVector4a& v1, const LLVector4a& v2)
@@ -768,29 +642,6 @@ Primitive::~Primitive()
     mOctree = nullptr;
 }
 
-LLRender::eGeomModes gltf_mode_to_gl_mode(Primitive::Mode mode)
-{
-    switch (mode)
-    {
-    case Primitive::Mode::POINTS:
-        return LLRender::POINTS;
-    case Primitive::Mode::LINES:
-        return LLRender::LINES;
-    case Primitive::Mode::LINE_LOOP:
-        return LLRender::LINE_LOOP;
-    case Primitive::Mode::LINE_STRIP:
-        return LLRender::LINE_STRIP;
-    case Primitive::Mode::TRIANGLES:
-        return LLRender::TRIANGLES;
-    case Primitive::Mode::TRIANGLE_STRIP:
-        return LLRender::TRIANGLE_STRIP;
-    case Primitive::Mode::TRIANGLE_FAN:
-        return LLRender::TRIANGLE_FAN;
-    default:
-        return LLRender::TRIANGLES;
-    }
-}
-
 void Primitive::serialize(boost::json::object& dst) const
 {
     write(mMaterial, "material", dst, -1);
@@ -807,8 +658,6 @@ const Primitive& Primitive::operator=(const Value& src)
         copy(src, "mode", mMode);
         copy(src, "indices", mIndices);
         copy(src, "attributes", mAttributes);
-
-        mGLMode = gltf_mode_to_gl_mode(mMode);
     }
     return *this;
 }

@@ -6,7 +6,6 @@ include(00-Common)
 include(LLCommon)
 include(LLMath)
 include(LLPhysicsExtensions)
-include(GLM)
 
 set(llgltf_SOURCE_FILES
     gltfprimitive/accessor.cpp
@@ -48,7 +47,6 @@ target_link_libraries(llgltf
     llcommon
     llmath
     llappearance
-    llrender
     )
 
 if (HAVOK OR HAVOK_TPV)
