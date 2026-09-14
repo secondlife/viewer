@@ -283,6 +283,7 @@ public:
     void            updateRootPositionAndRotation(LLAgent &agent, F32 speed, bool was_sit_ground_constrained);
 
     void            idleUpdateVoiceVisualizer(bool voice_enabled, const LLVector3 &position);
+    void            idleUpdateVoiceVisualizerPosition(const LLVector3 &position);
     void            idleUpdateMisc(bool detailed_update);
     virtual void    idleUpdateAppearanceAnimation();
     void            idleUpdateLipSync(bool voice_enabled);
@@ -1355,4 +1356,3 @@ void dump_sequential_xml(const std::string outprefix, const LLSD& content);
 void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value);
 
 #endif // LL_VOAVATAR_H
-
