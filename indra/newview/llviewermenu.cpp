@@ -5872,6 +5872,11 @@ class LLToolsToggleScriptEditorServer : public view_listener_t
                 LLScriptEditorWSServer::ensureServerRunning();
             }
         }
+
+        if (gFloaterTools)
+        {
+            gFloaterTools->dirty();
+        }
         return true;
     }
 };

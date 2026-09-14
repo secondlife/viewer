@@ -137,6 +137,18 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)viewDidMoveToWindow
 {
+    // viewDidMoveToWindow is called both when the view is attached to a window
+    // and when it is detached (window == nil).
+    [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                         selector:@selector(performDeferredResolutionUpdate)
+                                         object:nil];
+
+    if (![self window])
+    {
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+        return;
+    }
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(windowResized:) name:NSWindowDidResizeNotification
                                                object:[self window]];
@@ -157,11 +169,37 @@ attributedStringInfo getSegments(NSAttributedString *str)
                                                object:[self window]];
 
 
-    NSRect wnd_rect = [[self window] frame];
-    NSRect dev_rect = [self convertRectToBacking:wnd_rect];
-    if (!NSEqualSizes(wnd_rect.size,dev_rect.size))
+    if (windowCallbacksReady())
     {
-        callResize(dev_rect.size.width, dev_rect.size.height);
+        NSRect wnd_rect = [[self window] frame];
+        NSRect dev_rect = [self convertRectToBacking:wnd_rect];
+        if (!NSEqualSizes(wnd_rect.size,dev_rect.size))
+        {
+            // If window size actually changes, update size immediately
+            callResize(dev_rect.size.width, dev_rect.size.height);
+        }
+        else
+        {
+            // Defer size update to let the window settle on its final display
+            // before checkSettings() reads the live backing size.
+            callRequestResolutionUpdate();
+        }
+    }
+    else
+    {
+        // Defer so that mCallbacks is the real callbacks object,
+        // not the null_callbacks used during LLWindowMacOSX construction.
+        // afterDelay will fire on the next loop iteration.
+        NSLog(@"viewDidMoveToWindow triggered, but callbacks not ready, postponing resolution update", nil);
+        [self performSelector:@selector(performDeferredResolutionUpdate) withObject:nil afterDelay:0];
+    }
+}
+
+- (void)performDeferredResolutionUpdate
+{
+    if ([self window])
+    {
+        callRequestResolutionUpdate();
     }
 }
 
@@ -339,11 +377,15 @@ attributedStringInfo getSegments(NSAttributedString *str)
     {
         callRightMouseDown(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = true;
-    } else {
+    }
+    else
+    {
         if ([theEvent clickCount] == 2)
         {
-            callDoubleClick(mMousePos, [theEvent modifierFlags]);
-        } else if ([theEvent clickCount] >= 1) {
+            callLeftDoubleClick(mMousePos, [theEvent modifierFlags]);
+        }
+        else if ([theEvent clickCount] >= 1)
+        {
             callLeftMouseDown(mMousePos, [theEvent modifierFlags]);
         }
     }
@@ -365,7 +407,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) rightMouseDown:(NSEvent *)theEvent
 {
-    callRightMouseDown(mMousePos, [theEvent modifierFlags]);
+    if ([theEvent clickCount] == 2)
+    {
+        callRightDoubleClick(mMousePos, [theEvent modifierFlags]);
+    }
+    else
+    {
+        callRightMouseDown(mMousePos, [theEvent modifierFlags]);
+    }
 }
 
 - (void) rightMouseUp:(NSEvent *)theEvent
@@ -416,7 +465,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) otherMouseDown:(NSEvent *)theEvent
 {
-    callOtherMouseDown(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
+    if ([theEvent buttonNumber] == 2 && [theEvent clickCount] == 2)
+    {
+        callMiddleDoubleClick(mMousePos, [theEvent modifierFlags]);
+    }
+    else
+    {
+        callOtherMouseDown(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
+    }
 }
 
 - (void) otherMouseUp:(NSEvent *)theEvent

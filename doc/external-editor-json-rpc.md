@@ -1806,6 +1806,17 @@ nothing" toggle.
 }
 ```
 
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 8,
+  "result": { "success": true }
+}
+```
+
+The extension implements `editor.show_message`. It accepts `level` values of `"info"`,
+`"warn"`, or `"error"`; when omitted, `level` defaults to `"info"`.
+
 ---
 
 ### CommandList
@@ -1858,5 +1869,4 @@ interface CommandParamInfo {
 
 | Command | Required params | Description |
 |---------|----------------|-------------|
-| `editor.open_file` | `path: string` | Open a file in the editor. Optional `line: number`. |
 | `editor.show_message` | `message: string` | Show a notification. Optional `level: "info" \| "warn" \| "error"`. |
