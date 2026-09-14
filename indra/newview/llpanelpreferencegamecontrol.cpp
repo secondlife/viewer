@@ -986,11 +986,25 @@ void LLPanelPreferenceGameControl::updateDeviceListInternal()
 {
     mDeviceOptions.clear();
 
-    // Load saved device options from settings
+    // Load saved device options from settings.  Each device's saved Config is
+    // parsed independently -- one entry with a corrupted/hand-edited Config
+    // (loadFromString() returns false) falls back to default Options rather
+    // than being dropped or affecting any other device's entry in this loop.
     for (const auto& [guid, options] : LLGameControl::getDeviceOptions())
     {
         DeviceOptions deviceOptions = { LLStringUtil::null, options, LLGameControl::Options() };
-        deviceOptions.options.loadFromString(deviceOptions.name, deviceOptions.settings);
+        if (!deviceOptions.options.loadFromString(deviceOptions.name, deviceOptions.settings))
+        {
+            LL_WARNS("SDL3") << "Discarding invalid saved device options for '" << guid
+                              << "'; using defaults instead" << LL_ENDL;
+        }
+        if (deviceOptions.name.empty())
+        {
+            // Parsing failed before reaching the saved name, or the saved
+            // Config simply never recorded one -- fall back to the guid so
+            // the device list never shows a blank title.
+            deviceOptions.name = guid;
+        }
         mDeviceOptions.emplace(guid, deviceOptions);
     }
 
