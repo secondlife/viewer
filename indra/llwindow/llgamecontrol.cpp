@@ -612,6 +612,13 @@ namespace
     // FlyCam-only flag gating whether Roll input rotates the flycam about its
     // forward axis (see LLFlycam::mAllowRoll). Absent/false means Roll is ignored.
     const std::string GC_ALLOW_ROLL("AllowRoll");
+    // FlyCam-only camera move-speed multiplier (see LLFlycam::mSpeedFactor).
+    // Absent means the default (1.0, i.e. unscaled) is used.
+    const std::string GC_SPEED_FACTOR("SpeedFactor");
+    // FlyCam-only flag gating whether a centered crosshair is drawn over the
+    // 3D view while flycam is engaged (see LLViewerWindow::draw()).
+    // Absent/false means no crosshair is drawn.
+    const std::string GC_SHOW_CROSSHAIR("ShowCrosshair");
     const std::string GC_MODE_AVATAR("Avatar");
     const std::string GC_MODE_MOUSELOOK("Mouselook");
     const std::string GC_MODE_FLYCAM("FlyCam");
@@ -3727,6 +3734,48 @@ void LLGameControl::setFlycamRollAllowed(bool allowed)
     ensureGameControlSettings();
     g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM][GC_ALLOW_ROLL] = allowed;
     // The runtime reads this flag live each frame (LLAgentCamera::updateFlycam()),
+    // so no action-lookup rebuild is needed here.
+}
+
+// static
+F32 LLGameControl::getFlycamSpeedFactor()
+{
+    ensureGameControlSettings();
+    const LLSD& mode_map = g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM];
+    // Default to 1.0 (unscaled, i.e. LLFlycam::mSpeedFactor's own default) when
+    // the value is absent, e.g. settings saved before this flag existed.
+    if (mode_map.isMap() && mode_map.has(GC_SPEED_FACTOR))
+    {
+        return (F32)mode_map[GC_SPEED_FACTOR].asReal();
+    }
+    return 1.0f;
+}
+
+// static
+void LLGameControl::setFlycamSpeedFactor(F32 speed_factor)
+{
+    ensureGameControlSettings();
+    g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM][GC_SPEED_FACTOR] = speed_factor;
+    // The runtime reads this value live each frame (LLAgentCamera::updateFlycam()),
+    // so no action-lookup rebuild is needed here.
+}
+
+// static
+bool LLGameControl::isFlycamCrosshairEnabled()
+{
+    ensureGameControlSettings();
+    const LLSD& mode_map = g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM];
+    // Default to disabled when the flag is absent (e.g. settings saved before
+    // this flag existed).
+    return mode_map.isMap() && mode_map[GC_SHOW_CROSSHAIR].asBoolean();
+}
+
+// static
+void LLGameControl::setFlycamCrosshairEnabled(bool enabled)
+{
+    ensureGameControlSettings();
+    g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM][GC_SHOW_CROSSHAIR] = enabled;
+    // The runtime reads this flag live each frame (LLViewerWindow::draw()),
     // so no action-lookup rebuild is needed here.
 }
 

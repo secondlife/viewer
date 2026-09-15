@@ -31,6 +31,10 @@
 #include "v3math.h"
 #include "v3dmath.h"
 
+constexpr F32 MIN_FLYCAM_SPEED_FACTOR = 0.5f;
+constexpr F32 MAX_FLYCAM_SPEED_FACTOR = 2.0f;
+constexpr F32 DEFAULT_FLYCAM_SPEED_FACTOR = 1.0f;
+
 class LLFlycam
 {
 public:
@@ -58,6 +62,15 @@ public:
     // settings' AllowRoll flag (see LLGameControl::isFlycamRollAllowed()).
     void setAllowRoll(bool allow) { mAllowRoll = allow; }
     bool getAllowRoll() const { return mAllowRoll; }
+
+    // Multiplier applied to the Pitch/Yaw/Roll RATE_FACTOR coefficients in
+    // setPitchRate()/setYawRate()/setRollRate(), and to the Truck/Dolly/Boom
+    // velocity passed to setLinearVelocity() (e.g. "Slow" .. "Fast"). Clamped
+    // to [MIN_FLYCAM_SPEED_FACTOR, MAX_FLYCAM_SPEED_FACTOR]; defaults to
+    // DEFAULT_FLYCAM_SPEED_FACTOR. Driven by the "GameControl" FlyCam settings'
+    // SpeedFactor value (see LLGameControl::getFlycamSpeedFactor()).
+    void setSpeedFactor(F32 speed_factor);
+    F32 getSpeedFactor() const { return mSpeedFactor; }
 
     // Orbit modifier: while engaged, position is re-derived every integrate()
     // from the camera's own (pitch/yaw-rotated) forward axis so the camera
@@ -106,6 +119,7 @@ protected:
     F32 mZoomRate { 0.0f };
     F32 mView { DEFAULT_FIELD_OF_VIEW };
     bool mAllowRoll { false };
+    F32 mSpeedFactor { DEFAULT_FLYCAM_SPEED_FACTOR };
 
     // Orbit-in-progress state: see setOrbitEngaged()/setOrbitRadialRate() and
     // the orbit branch in integrate().

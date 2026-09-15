@@ -35,6 +35,7 @@ class LLButton;
 class LLCheckBoxCtrl;
 class LLComboBox;
 class LLPanel;
+class LLSliderCtrl;
 class LLSpinCtrl;
 class LLTextBox;
 
@@ -176,6 +177,8 @@ private:
     LLComboBox* mActionMode { nullptr };            // selects which mode's mappings are edited
     LLCheckBoxCtrl* mCheckActionModeEnabled { nullptr };  // enables/disables the selected mode
     LLCheckBoxCtrl* mCheckFlycamAllowRoll { nullptr };  // FlyCam-only: allows Roll input; hidden for other modes
+    LLSliderCtrl* mSliderFlycamSpeedFactor { nullptr };  // FlyCam-only: "Slow".."Fast" move-speed multiplier; hidden for other modes
+    LLCheckBoxCtrl* mCheckFlycamCrosshair { nullptr };  // FlyCam-only: draws a centered crosshair while flying; hidden for other modes
     LLButton* mRestoreActionsDefaults { nullptr };
     LLTextBox* mCurrentModeIndicator { nullptr };         //mode indicator
     LLGameControl::AgentControlMode mLastDrawnControlMode { LLGameControl::CONTROL_MODE_NONE };
