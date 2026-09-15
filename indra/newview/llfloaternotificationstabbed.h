@@ -162,7 +162,7 @@ private:
     LLNotificationListView* mGroupNoticeMessageList;
     LLNotificationListView* mTransactionMessageList;
     LLNotificationListView* mSystemMessageList;
-    LLNotificationSeparator* mNotificationsSeparator;
+    std::unique_ptr<LLNotificationSeparator> mNotificationsSeparator;
     LLTabContainer* mNotificationsTabContainer;
     LLButton*   mDeleteAllBtn;
     LLButton*   mCollapseAllBtn;

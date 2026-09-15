@@ -36,4 +36,12 @@
 		Proxy Ayarları:
 	</text>
 	<button label="Proxy ayarlarını yap" label_selected="Gözat" name="set_proxy"/>
+	<text name="os_hibernation_mode">
+		Uzakta değilse işletim sisteminin hazırda beklemesini engelle:
+	</text>
+	<combo_box name="os_hibernation_combobox" tool_tip="Yalnızca kullanıcı uzakta değilse işletim sisteminin uykuya geçmesini engeller">
+		<combo_box.item label="Hazırda bekleyebilir" name="can_hibernate"/>
+		<combo_box.item label="Hazırda bekleyemez, ekran kapanabilir" name="cant_hibernate"/>
+		<combo_box.item label="Hazırda bekleyemez, ekran kapanamaz" name="cant_hibernate_screen"/>
+	</combo_box>
 </panel>

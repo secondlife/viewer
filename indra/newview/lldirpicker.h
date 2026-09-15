@@ -58,6 +58,9 @@ class LLDirPicker
 {
 public:
     bool getDir(std::string* filename, bool blocking = true);
+    bool getDirModeless(std::string* filename,
+        void (*callback)(bool, std::string&, void*),
+        void* userdata);
     std::string getDirName();
 
     // clear any lists of buffers or whatever, and make sure the dir
@@ -115,6 +118,11 @@ public:
     void getFile();
 
     virtual void run();
+
+    void runModeless();
+    static void modelessStringCallback(bool success,
+        std::string& response,
+        void* user_data);
 
     virtual void notify(const std::vector<std::string>& filenames);
 

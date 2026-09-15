@@ -36,4 +36,12 @@
 		Configuración de proxy:
 	</text>
 	<button label="Ajustar la configuración de proxy" label_selected="Elegir" name="set_proxy"/>
+	<text name="os_hibernation_mode">
+		Evitar que el sistema entre en hibernación si no está Ausente:
+	</text>
+	<combo_box name="os_hibernation_combobox" tool_tip="Solo evita que el sistema entre en suspensión si el usuario no está ausente">
+		<combo_box.item label="Puede hibernar" name="can_hibernate"/>
+		<combo_box.item label="No puede hibernar, puede apagar la pantalla" name="cant_hibernate"/>
+		<combo_box.item label="No puede hibernar, no puede apagar la pantalla" name="cant_hibernate_screen"/>
+	</combo_box>
 </panel>

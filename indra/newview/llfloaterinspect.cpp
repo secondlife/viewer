@@ -78,18 +78,21 @@ LLFloaterInspect::~LLFloaterInspect(void)
     {
         mCreatorNameCacheConnection.disconnect();
     }
-    if(!LLFloaterReg::instanceVisible("build"))
+    if (!LLApp::isExiting())
     {
-        if(LLToolMgr::getInstance()->getBaseTool() == LLToolCompInspect::getInstance())
+        if (!LLFloaterReg::instanceVisible("build"))
         {
-            LLToolMgr::getInstance()->clearTransientTool();
+            if (LLToolMgr::getInstance()->getBaseTool() == LLToolCompInspect::getInstance())
+            {
+                LLToolMgr::getInstance()->clearTransientTool();
+            }
+            // Switch back to basic toolset
+            LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
         }
-        // Switch back to basic toolset
-        LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
-    }
-    else
-    {
-        LLFloaterReg::showInstance("build", LLSD(), true);
+        else
+        {
+            LLFloaterReg::showInstance("build", LLSD(), true);
+        }
     }
 }
 

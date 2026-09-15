@@ -97,6 +97,7 @@
 #include "llpanelface.h"
 #include "llglheaders.h"
 #include "llinventoryobserver.h"
+#include "llscripteditorws.h"
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -252,7 +253,6 @@ LLSelectMgr::LLSelectMgr()
 LLSelectMgr::~LLSelectMgr()
 {
     clearSelections();
-    mSlectionLodModChangedConnection.disconnect();
 }
 
 void LLSelectMgr::clearSelections()
@@ -6109,6 +6109,13 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
             node->mSitName.assign(sit_name);
             node->mTouchName.assign(touch_name);
         }
+
+        // Published objects need property updates even when not selected.
+        LLScriptEditorWSServer::ptr_t ws_server = LLScriptEditorWSServer::getServer();
+        if (ws_server)
+        {
+            ws_server->onObjectPropertyChanged(id, name, desc, inv_serial);
+        }
     }
 
     dialog_refresh_all();
@@ -6204,6 +6211,11 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
     }
 
     dialog_refresh_all();
+
+    if (auto ws_server = LLScriptEditorWSServer::getServer())
+    {
+        ws_server->onObjectPropertyChanged(id, name, desc);
+    }
 }
 
 
@@ -6622,7 +6634,7 @@ void LLSelectMgr::renderSilhouettes(bool for_hud)
         gGL.popMatrix();
         gGL.popMatrix();
 
-        glLineWidth(1.f);
+        gGL.setLineWidth(1.f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         if (shader)

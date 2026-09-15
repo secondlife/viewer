@@ -34,7 +34,7 @@
 #include <Wbemidl.h>
 #elif LL_DARWIN
 #include <CoreFoundation/CoreFoundation.h>
-#include <IOKit/IOKitLib.h>
+#include "llwindowmacosx_iokit.h"
 #endif
 unsigned char static_unique_id[] =  {0,0,0,0,0,0};
 unsigned char static_legacy_id[] =  {0,0,0,0,0,0};
@@ -350,7 +350,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
 bool getSerialNumber(unsigned char *unique_id, size_t len)
 {
     CFStringRef serial_cf_str = NULL;
-    io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
+    io_service_t platformExpert = IOServiceGetMatchingService(kLLIOMainPort,
                                                                  IOServiceMatching("IOPlatformExpertDevice"));
     if (platformExpert)
     {

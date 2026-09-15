@@ -208,6 +208,7 @@ public:
 
     void            setShowContextMenu(bool show) { mShowContextMenu = show; }
     bool            getShowContextMenu() const { return mShowContextMenu; }
+    void            showContextMenu(S32 x, S32 y);
 
     void            showEmojiHelper();
     void            hideEmojiHelper();
@@ -219,7 +220,6 @@ public:
     LLWString       getConvertedText() const;
 
 protected:
-    void            showContextMenu(S32 x, S32 y);
     void            drawPreeditMarker();
 
     void            removeCharOrTab();

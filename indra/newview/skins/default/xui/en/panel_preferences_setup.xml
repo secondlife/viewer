@@ -246,5 +246,41 @@
     <button.commit_callback
 		  function="Pref.Proxy" />
   </button>
+  <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="30"
+     name="os_hibernation_mode"
+     mouse_opaque="false"
+     top_pad="8"
+     width="300">
+    Prevent OS from hibernating if not Away:
+  </text>
+  <combo_box
+     control_name="OSHibernationMode"
+     follows="left|top"
+     height="23"
+     layout="topleft"
+     left_delta="50"
+     top_pad="10"
+     name="os_hibernation_combobox"
+     width="300"
+     tool_tip="Only prevents OS from sleeping if user is not away">
+        <combo_box.item
+         label="Can hibernate"
+         name="can_hibernate"
+         value="0" />
+        <combo_box.item
+         label="Can't hibernate, can turn screen off"
+         name="cant_hibernate"
+         value="1" />
+        <combo_box.item
+         label="Can't hibernate, can't turn screen off"
+         name="cant_hibernate_screen"
+         value="2" />
+  </combo_box>
 </panel>
 

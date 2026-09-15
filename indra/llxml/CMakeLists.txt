@@ -34,6 +34,9 @@ target_link_libraries( llxml
     )
 target_include_directories( llxml  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
+if (USE_PRECOMPILED_HEADERS)
+  target_precompile_headers(llxml REUSE_FROM llprecompiled)
+endif ()
 
 # tests
 

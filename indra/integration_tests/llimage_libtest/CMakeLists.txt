@@ -9,7 +9,6 @@ include(00-Common)
 include(LLCommon)
 include(LLImage)
 include(LLMath)
-include(LLKDU)
 
 set(llimage_libtest_SOURCE_FILES
     llimage_libtest.cpp
@@ -25,6 +24,18 @@ list(APPEND llimage_libtest_SOURCE_FILES ${llimage_libtest_HEADER_FILES})
 add_executable(llimage_libtest
     ${llimage_libtest_SOURCE_FILES}
     )
+
+set_target_properties(llimage_libtest
+                    PROPERTIES
+                    FOLDER "Tests"
+                    )
+
+if(DARWIN)
+    set_target_properties(llimage_libtest
+                        PROPERTIES
+                        OSX_ARCHITECTURES ${LL_MACOS_TEST_ARCHITECTURE}
+                        )
+endif()
 
 # Libraries on which this application depends on
 # Sort by high-level to low-level

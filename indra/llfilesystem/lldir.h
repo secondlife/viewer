@@ -71,7 +71,7 @@ class LLDir
     std::vector<std::string> getFilesInDir(const std::string &dirname);
 // pure virtual functions
     virtual std::string getCurPath() = 0;
-    virtual bool fileExists(const std::string &filename) const = 0;
+    virtual bool fileExists(const std::string &filename) const;
 
     const std::string findFile(const std::string& filename, const std::vector<std::string> filenames) const;
     const std::string findFile(const std::string& filename, const std::string& searchPath1 = "", const std::string& searchPath2 = "", const std::string& searchPath3 = "") const;

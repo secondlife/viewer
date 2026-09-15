@@ -316,16 +316,23 @@ void LLFloaterBuyCurrency::handleBuyCurrency(bool has_piof, bool has_target, con
     if (has_piof)
     {
         LLFloaterBuyCurrencyUI* ui = LLFloaterReg::showTypedInstance<LLFloaterBuyCurrencyUI>("buy_currency");
-        if (has_target)
+        if (ui)
         {
-            ui->target(name, price);
+            if (has_target)
+            {
+                ui->target(name, price);
+            }
+            else
+            {
+                ui->noTarget();
+            }
+            ui->updateUI();
+            ui->collapsePanels(!has_target);
         }
         else
         {
-            ui->noTarget();
+            LL_WARNS() << "Cannot instantiate buy_currency floater" << LL_ENDL;
         }
-        ui->updateUI();
-        ui->collapsePanels(!has_target);
     }
     else
     {

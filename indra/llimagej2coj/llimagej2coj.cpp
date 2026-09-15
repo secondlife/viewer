@@ -227,11 +227,11 @@ static void opj_free_user_data_write(void * user_data)
  */
 static U32 estimate_num_layers(U32 surface)
 {
-    if      (surface <= 1024)    return 2;  // Tiny (≤32×32)
-    else if (surface <= 16384)   return 3;  // Small (≤128×128)
-    else if (surface <= 262144)  return 4;  // Medium (≤512×512)
+    if      (surface <= 1024)    return 2;  // Tiny (<=32x32)
+    else if (surface <= 16384)   return 3;  // Small (<=128x128)
+    else if (surface <= 262144)  return 4;  // Medium (<=512x512)
     else if (surface <= 1048576) return 5;  // Up to ~1MP
-    else                         return 6;  // Up to ~1.5–2MP
+    else                         return 6;  // Up to ~1.5-2MP
 }
 
 /**

@@ -60,10 +60,10 @@ constexpr F32 MAX_FIELD_OF_VIEW = 175.f * DEG_TO_RAD;
 // roll(), pitch(), yaw()
 // etc...
 
-LL_ALIGN_PREFIX(16)
-class LLCamera
+class alignas(16) LLCamera
 :   public LLCoordFrame
 {
+    LL_ALIGN_NEW
 public:
     LLCamera(const LLCamera& rhs)
     {
@@ -120,9 +120,9 @@ public:
     };
 
 private:
-    LL_ALIGN_16(LLPlane mAgentPlanes[AGENT_PLANE_USER_CLIP_NUM]);  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
-    LL_ALIGN_16(LLPlane mRegionPlanes[AGENT_PLANE_USER_CLIP_NUM]);  //frustum planes in a local region space, derived from mAgentPlanes
-    LL_ALIGN_16(LLPlane mLastAgentPlanes[AGENT_PLANE_USER_CLIP_NUM]);
+    LLPlane mAgentPlanes[AGENT_PLANE_USER_CLIP_NUM];  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
+    LLPlane mRegionPlanes[AGENT_PLANE_USER_CLIP_NUM];  //frustum planes in a local region space, derived from mAgentPlanes
+    LLPlane mLastAgentPlanes[AGENT_PLANE_USER_CLIP_NUM];
     U8 mPlaneMask[PLANE_MASK_NUM];         // 8 for alignment
 
     F32 mView;                  // angle between top and bottom frustum planes in radians.
@@ -218,7 +218,7 @@ protected:
     void calculateFrustumPlanes();
     void calculateFrustumPlanes(F32 left, F32 right, F32 top, F32 bottom);
     void calculateFrustumPlanesFromWindow(F32 x1, F32 y1, F32 x2, F32 y2);
-} LL_ALIGN_POSTFIX(16);
+};
 
 
 #endif

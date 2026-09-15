@@ -69,5 +69,5 @@ private:
     boost::signals2::connection mHelperCommitConn;
     boost::signals2::connection mHelperCloseConn;
     std::function<void(llwchar)> mEmojiCommitCb;
-    bool mIsHideDisabled;
+    bool mIsHideDisabled = false;
 };

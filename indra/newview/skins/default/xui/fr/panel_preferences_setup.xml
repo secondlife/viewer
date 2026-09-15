@@ -36,4 +36,12 @@
 		Paramètres de proxy :
 	</text>
 	<button label="Définir" label_selected="Parcourir" name="set_proxy"/>
+	<text name="os_hibernation_mode">
+		Empêcher l’OS d’hiberner si vous n’êtes pas absent :
+	</text>
+	<combo_box name="os_hibernation_combobox" tool_tip="Empêche seulement la mise en veille de l’OS si l’utilisateur n’est pas absent">
+		<combo_box.item label="Peut hiberner" name="can_hibernate"/>
+		<combo_box.item label="Ne peut pas hiberner, peut éteindre l’écran" name="cant_hibernate"/>
+		<combo_box.item label="Ne peut pas hiberner, ne peut pas éteindre l’écran" name="cant_hibernate_screen"/>
+	</combo_box>
 </panel>

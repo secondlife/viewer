@@ -323,7 +323,7 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
 {
 #ifdef TRANSPARENT_SURFACE
 collectedColor = vec4(1, 0, 1, 1);
-    return 0;
+    return 0.0;
 #endif
     collectedColor = vec4(0);
     int hits = 0;

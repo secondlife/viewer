@@ -39,9 +39,7 @@ public:
     LLMaterialID(const LLSD& pMaterialID);
     LLMaterialID(const LLSD::Binary& pMaterialID);
     LLMaterialID(const void* pMemory);
-    LLMaterialID(const LLMaterialID& pOtherMaterialID);
     LLMaterialID(const LLUUID& lluid);
-    ~LLMaterialID();
 
     bool          operator == (const LLMaterialID& pOtherMaterialID) const;
     bool          operator != (const LLMaterialID& pOtherMaterialID) const;
@@ -50,8 +48,6 @@ public:
     bool          operator <= (const LLMaterialID& pOtherMaterialID) const;
     bool          operator > (const LLMaterialID& pOtherMaterialID) const;
     bool          operator >= (const LLMaterialID& pOtherMaterialID) const;
-
-    LLMaterialID& operator = (const LLMaterialID& pOtherMaterialID);
 
     bool          isNull() const;
 
@@ -73,7 +69,6 @@ private:
     friend size_t hash_value(const LLMaterialID&) noexcept;
 
     void parseFromBinary(const LLSD::Binary& pMaterialID);
-    void copyFromOtherMaterialID(const LLMaterialID& pOtherMaterialID);
     int  compareToOtherMaterialID(const LLMaterialID& pOtherMaterialID) const;
 
     U8 mID[MATERIAL_ID_SIZE];

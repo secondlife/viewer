@@ -1397,7 +1397,6 @@ Możesz sprawdzić swoje połączenie z Internetem i spróbować ponownie za kil
 		Twoja postać pojawi się za moment.
 
 Używaj strzałek żeby się poruszać.
-Naciśnij F1 w dowolnej chwili po pomoc albo żeby dowiedzieć się więcej o [SECOND_LIFE].
 Wybierz awatara właściwej płci. Ten wybór będzie można później zmienić.
 		<usetemplate name="okcancelbuttons" notext="Kobieta" yestext="Mężczyzna" />
 	</notification>

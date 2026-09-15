@@ -33,7 +33,7 @@
 #include "llviewertexture.h"
 #include "llcamera.h"
 
-class LLViewerDynamicTexture : public LLViewerTexture
+class alignas(16) LLViewerDynamicTexture : public LLViewerTexture
 {
     LL_ALIGN_NEW
 public:
@@ -90,7 +90,7 @@ protected:
 protected:
     bool mClamp;
     LLCoordGL mOrigin;
-    LL_ALIGN_16(LLCamera mCamera);
+    LLCamera mCamera;
 
     LLRenderTarget* mBoundTarget;
 

@@ -36,4 +36,12 @@
 		Impostazioni proxy:
 	</text>
 	<button label="Regola impostazioni proxy" label_selected="Sfoglia" name="set_proxy" width="160"/>
+	<text name="os_hibernation_mode">
+		Impedisci al sistema operativo di ibernarsi se non sei Assente:
+	</text>
+	<combo_box name="os_hibernation_combobox" tool_tip="Impedisce al sistema operativo di andare in sospensione solo se l'utente non è assente">
+		<combo_box.item label="Può ibernarsi" name="can_hibernate"/>
+		<combo_box.item label="Non può ibernarsi, può spegnere lo schermo" name="cant_hibernate"/>
+		<combo_box.item label="Non può ibernarsi, non può spegnere lo schermo" name="cant_hibernate_screen"/>
+	</combo_box>
 </panel>

@@ -300,7 +300,8 @@ void LLPreviewTexture::saveAs()
     if( mLoadingFullImage )
         return;
 
-    std::string filename = getItem() ? LLDir::getScrubbedFileName(getItem()->getName()) : LLStringUtil::null;
+    // startPicker will sanitize the name
+    std::string filename = getItem() ? getItem()->getName() : LLStringUtil::null;
     LLFilePickerReplyThread::startPicker(boost::bind(&LLPreviewTexture::saveTextureToFile, this, _1), LLFilePicker::FFSAVE_TGAPNG, filename);
 }
 

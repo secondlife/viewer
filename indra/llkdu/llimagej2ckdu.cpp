@@ -231,11 +231,11 @@ struct LLKDUMessageError : public LLKDUMessage
     {
         // According to the documentation nat found:
         // http://pirlwww.lpl.arizona.edu/resources/guide/software/Kakadu/html_pages/globals__kdu$mize_errors.html
-        // "If a kdu_error object is destroyed, handler→flush will be called with
+        // "If a kdu_error object is destroyed, handler->flush will be called with
         // an end_of_message argument equal to true and the process will
         // subsequently be terminated through exit. The termination may be
         // avoided, however, by throwing an exception from within the message
-        // terminating handler→flush call."
+        // terminating handler->flush call."
         // So throwing an exception here isn't arbitrary: we MUST throw an
         // exception if we want to recover from a KDU error.
         // Because this confused me: the above quote specifically refers to

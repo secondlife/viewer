@@ -1,0 +1,3019 @@
+<?xml version="1.0" encoding="utf-8"?>
+<llsd>
+<map>
+  <key>360CaptureCameraFOV</key>
+  <string>Campo de visão da câmera WebGL que converte o cubemap em uma imagem equirretangular.</string>
+  <key>360CaptureDebugSaveImage</key>
+  <string>Se ativado, salva cada cube map como imagem, bem como a URL de dados JavaScript, para fins de depuração.</string>
+  <key>360CaptureHideAvatars</key>
+  <string>Se ativado, remove todos os avatares da captura 360.</string>
+  <key>360CaptureJPEGEncodeQuality</key>
+  <string>Valor de qualidade usado no codificador JPEG (0..100).</string>
+  <key>360CaptureNumRenderPasses</key>
+  <string>Número de vezes que a cena é renderizada ao tirar uma captura.</string>
+  <key>360CaptureOutputImageWidth</key>
+  <string>Largura da imagem 360 equirretangular de saída.</string>
+  <key>AFKTimeout</key>
+  <string>Tempo antes de definir automaticamente o modo AFK (ausente do teclado) em segundos (0=nunca). Valores válidos: 0, 120, 300, 600, 1800.</string>
+  <key>AbuseReportScreenshotDelay</key>
+  <string>Atraso antes de tirar a captura de tela para evitar artefatos de interface.</string>
+  <key>AckCollectTime</key>
+  <string>Tempo de coleta e agrupamento de mensagens de confirmação (ack).</string>
+  <key>ActiveFloaterTransparency</key>
+  <string>Transparência de floaters ativos (floaters com foco).</string>
+  <key>AdminMenu</key>
+  <string>Ativa o menu de administrador de depuração no menu principal. Nota: apenas permite exibir o menu; não concede privilégios de administrador.</string>
+  <key>AdvanceSnapshot</key>
+  <string>Exibir configurações de parâmetros avançados na interface de captura.</string>
+  <key>AgentPause</key>
+  <string>Solicitar ao simulador que pare de atualizar o agente enquanto ativado.</string>
+  <key>AlertedUnsupportedHardware</key>
+  <string>Define se há hardware não suportado e já foi exibida uma notificação.</string>
+  <key>AllowMultipleViewers</key>
+  <string>Permitir múltiplos viewers.</string>
+  <key>AllowSelectAvatar</key>
+  <string>Permite ao usuário selecionar e mover avatares; o movimento é local ao viewer, não se propaga ao servidor e também suprime atualizações de posição do avatar enquanto avatares estão selecionados.</string>
+  <key>AllowSelfImpostor</key>
+  <string>Permite que seu próprio tempo de renderização transforme seu avatar em impostor.</string>
+  <key>AllowTapTapHoldRun</key>
+  <string>Tocar duas vezes em uma tecla de direção e mantê-la pressionada faz o avatar correr.</string>
+  <key>AnalyzePerformance</key>
+  <string>Solicitar análise de desempenho para uma execução específica do viewer.</string>
+  <key>AnimateTextures</key>
+  <string>Ativar animação de texturas (depuração).</string>
+  <key>AnimatedObjectsAllowLeftClick</key>
+  <string>Permite interação com clique esquerdo em objetos animados. Impacto de desempenho incerto.</string>
+  <key>AnimatedObjectsMaxLegalOffset</key>
+  <string>Deslocamento visual máximo entre a posição do objeto e a posição renderizada.</string>
+  <key>AnimatedObjectsMaxLegalSize</key>
+  <string>Tamanho máximo da caixa delimitadora para a posição renderizada de objetos animados.</string>
+  <key>AnimationUploadFolder</key>
+  <string>Todos os uploads de animações serão armazenados neste diretório (UUID).</string>
+  <key>AppearanceCameraMovement</key>
+  <string>Ao entrar no modo de edição de aparência, a câmera aproxima a parte do avatar selecionada no momento.</string>
+  <key>ApplyColorImmediately</key>
+  <string>Pré-visualizar seleções no seletor de cores imediatamente.</string>
+  <key>ArrowKeysAlwaysMove</key>
+  <string>Enquanto o cursor está na caixa de entrada de chat, as setas continuam controlando seu avatar.</string>
+  <key>AuctionShowFence</key>
+  <string>Ao leiloar terreno, incluir o marcador de limite da parcela na captura.</string>
+  <key>AudioLevelAmbient</key>
+  <string>Nível de áudio dos sons do ambiente.</string>
+  <key>AudioLevelMaster</key>
+  <string>Nível de áudio mestre, ou volume geral.</string>
+  <key>AudioLevelMedia</key>
+  <string>Nível de áudio de filmes Quicktime.</string>
+  <key>AudioLevelMic</key>
+  <string>Nível de áudio da entrada de microfone.</string>
+  <key>AudioLevelMusic</key>
+  <string>Nível de áudio de música em streaming.</string>
+  <key>AudioLevelSFX</key>
+  <string>Nível de áudio dos efeitos sonoros no mundo.</string>
+  <key>AudioLevelUI</key>
+  <string>Nível de áudio dos efeitos sonoros da interface.</string>
+  <key>AudioLevelVoice</key>
+  <string>Nível de áudio do chat de voz.</string>
+  <key>AudioLevelWind</key>
+  <string>Nível de áudio do ruído do vento ao ficar parado.</string>
+  <key>AudioStreamingMedia</key>
+  <string>Ativar streaming.</string>
+  <key>AudioStreamingMusic</key>
+  <string>Ativar áudio em streaming.</string>
+  <key>AutoAcceptNewInventory</key>
+  <string>Aceitar automaticamente novos notecards/texturas/landmarks.</string>
+  <key>AutoDisengageMic</key>
+  <string>Desligar o microfone automaticamente ao encerrar chamadas de IM.</string>
+  <key>AutoLeveling</key>
+  <string>Manter a Flycam nivelada.</string>
+  <key>AutoLogin</key>
+  <string>Fazer login automaticamente usando a última combinação de usuário/senha.</string>
+  <key>AutoMimeDiscovery</key>
+  <string>Ativar a descoberta de tipo MIME de URLs de mídia pelo viewer.</string>
+  <key>AutoPilotLocksCamera</key>
+  <string>Manter a posição da câmera travada enquanto o avatar caminha até a posição selecionada.</string>
+  <key>AutoReplace</key>
+  <string>Substitui palavras-chave por uma palavra ou frase configurada.</string>
+  <key>AutoSnapshot</key>
+  <string>Atualizar a captura quando a câmera para de se mover, ou quando qualquer parâmetro muda.</string>
+  <key>AutoTuneFPS</key>
+  <string>Permitir que o viewer ajuste suas configurações para alcançar o FPS desejado.</string>
+  <key>AutoTuneImpostorByDistEnabled</key>
+  <string>Ativar/desativar o uso de MaxNonImpostor para limitar a renderização de avatares por distância.</string>
+  <key>AutoTuneImpostorFarAwayDistance</key>
+  <string>Avatares além deste alcance serão otimizados automaticamente.</string>
+  <key>AutoTuneLock</key>
+  <string>Quando ativado, o viewer mudará dinamicamente as configurações até que o ajuste automático seja explicitamente desativado.</string>
+  <key>AutoTuneRenderFarClipMin</key>
+  <string>A menor distância de desenho que o ajuste automático pode usar.</string>
+  <key>AutoTuneRenderFarClipTarget</key>
+  <string>A distância de desenho que o ajuste automático tentará alcançar.</string>
+  <key>AutomaticFly</key>
+  <string>Voar segurando a tecla de pulo ou usando o comando "Voar" (FALSE = voar apenas pelo comando "Voar").</string>
+  <key>AvatarAxisDeadZone0</key>
+  <string>Zona morta do eixo Z (movimento vertical) do avatar.</string>
+  <key>AvatarAxisDeadZone1</key>
+  <string>Zona morta do eixo X (movimento lateral) do avatar.</string>
+  <key>AvatarAxisDeadZone2</key>
+  <string>Zona morta do eixo Y (movimento para frente/trás) do avatar.</string>
+  <key>AvatarAxisDeadZone3</key>
+  <string>Zona morta da rolagem (roll) do avatar.</string>
+  <key>AvatarAxisDeadZone4</key>
+  <string>Zona morta da elevação (pitch) do avatar.</string>
+  <key>AvatarAxisDeadZone5</key>
+  <string>Zona morta da guinada (yaw) do avatar.</string>
+  <key>AvatarAxisScale0</key>
+  <string>Fator de escala do eixo Z (movimento vertical) do avatar.</string>
+  <key>AvatarAxisScale1</key>
+  <string>Fator de escala do eixo X (movimento lateral) do avatar.</string>
+  <key>AvatarAxisScale2</key>
+  <string>Fator de escala do eixo Y (movimento para frente/trás) do avatar.</string>
+  <key>AvatarAxisScale3</key>
+  <string>Fator de escala da rolagem (roll) do avatar.</string>
+  <key>AvatarAxisScale4</key>
+  <string>Fator de escala da elevação (pitch) do avatar.</string>
+  <key>AvatarAxisScale5</key>
+  <string>Fator de escala da guinada (yaw) do avatar.</string>
+  <key>AvatarBakedTextureUploadTimeout</key>
+  <string>Especifica o tempo máximo em segundos a aguardar antes de enviar suas texturas assadas para a aparência do avatar. Defina 0 para desativar e aguardar até que todas as texturas assadas estejam na resolução máxima.</string>
+  <key>AvatarExtentRefreshMaxPerBatch</key>
+  <string>Quantos avatares queremos tratar no total por lote (padrão é 5).</string>
+  <key>AvatarExtentRefreshPeriodBatch</key>
+  <string>Em quantos quadros distribuímos por padrão ao atualizar extensões (padrão é 4).</string>
+  <key>AvatarFeathering</key>
+  <string>Suavização do avatar (menos é mais suave).</string>
+  <key>AvatarHoverOffsetZ</key>
+  <string>Ajuste final da posição Z do avatar após todas as outras correções.</string>
+  <key>AvatarNameTagMode</key>
+  <string>Selecionar o modo da etiqueta de nome do avatar.</string>
+  <key>AvatarPhysics</key>
+  <string>Ativar física do avatar.</string>
+  <key>AvatarRotateThresholdFast</key>
+  <string>Ângulo entre a direção do avatar e a da câmera no qual o avatar gira para a mesma direção da câmera, ao se mover rápido (graus).</string>
+  <key>AvatarRotateThresholdSlow</key>
+  <string>Ângulo entre a direção do avatar e a da câmera no qual o avatar gira para a mesma direção da câmera, ao se mover devagar (graus).</string>
+  <key>AvatarSex</key>
+  <string>Sexo do avatar usado na interface de edição de aparência (0 = feminino, 1 = masculino).</string>
+  <key>AvatarSitRotation</key>
+  <string>Rotação real do avatar sentado usada na predefinição.</string>
+  <key>AvatarWelcomePack</key>
+  <string>Conteúdo do pacote de boas-vindas do avatar.</string>
+  <key>AzureTranslateAPIKey</key>
+  <string>Dados do serviço de tradução Azure para uso com a API do MS Azure Translator.</string>
+  <key>BackgroundYieldTime</key>
+  <string>Tempo a ceder a cada quadro para outros aplicativos quando o SL não é a janela em primeiro plano (milissegundos).</string>
+  <key>BasicUITooltips</key>
+  <string>Mostrar dicas para vários elementos de interface 2D como botões ou caixas de seleção; não suprime dicas de arrastar e soltar, no mundo, links ou mídia.</string>
+  <key>BatchSizeAIS3</key>
+  <string>Quantidade de pastas que o AIS empacota por requisição de subconjunto de categoria.</string>
+  <key>BlockAvatarAppearanceMessages</key>
+  <string>Ignora mensagens de aparência (para simular a Ruth).</string>
+  <key>BlockPeopleSortOrder</key>
+  <string>Especifica a ordem de classificação para pessoas recentes (0 = por nome, 1 = por tipo).</string>
+  <key>BrowserEnableJSObject</key>
+  <string>(AVISO: recurso avançado. Use se estiver ciente das implicações). Ativar ou desativar o objeto de ponte entre o viewer e o Javascript.</string>
+  <key>BrowserFileAccessFromFileUrls</key>
+  <string>Permitir acesso a arquivos locais via URLs de arquivo no navegador embutido.</string>
+  <key>BrowserIgnoreSSLCertErrors</key>
+  <string>APENAS PARA TESTES: dizer ao navegador web embutido para ignorar erros de certificado SSL.</string>
+  <key>BrowserJavascriptEnabled</key>
+  <string>Ativar Javascript no navegador web embutido?</string>
+  <key>BrowserPluginsEnabled</key>
+  <string>Ativar plugins web no navegador web embutido?</string>
+  <key>BrowserProxyAddress</key>
+  <string>Endereço para o Proxy Web.</string>
+  <key>BrowserProxyEnabled</key>
+  <string>Usar Proxy Web.</string>
+  <key>BrowserProxyPort</key>
+  <string>Porta para o Proxy Web.</string>
+  <key>BuildAxisDeadZone0</key>
+  <string>Zona morta do eixo Z (movimento vertical) de construção.</string>
+  <key>BuildAxisDeadZone1</key>
+  <string>Zona morta do eixo X (movimento lateral) de construção.</string>
+  <key>BuildAxisDeadZone2</key>
+  <string>Zona morta do eixo Y (movimento para frente/trás) de construção.</string>
+  <key>BuildAxisDeadZone3</key>
+  <string>Zona morta da rolagem (roll) de construção.</string>
+  <key>BuildAxisDeadZone4</key>
+  <string>Zona morta da elevação (pitch) de construção.</string>
+  <key>BuildAxisDeadZone5</key>
+  <string>Zona morta da guinada (yaw) de construção.</string>
+  <key>BuildAxisScale0</key>
+  <string>Fator de escala do eixo Z (movimento vertical) de construção.</string>
+  <key>BuildAxisScale1</key>
+  <string>Fator de escala do eixo X (movimento lateral) de construção.</string>
+  <key>BuildAxisScale2</key>
+  <string>Fator de escala do eixo Y (movimento para frente/trás) de construção.</string>
+  <key>BuildAxisScale3</key>
+  <string>Fator de escala da rolagem (roll) de construção.</string>
+  <key>BuildAxisScale4</key>
+  <string>Fator de escala da elevação (pitch) de construção.</string>
+  <key>BuildAxisScale5</key>
+  <string>Fator de escala da guinada (yaw) de construção.</string>
+  <key>BuildFeathering</key>
+  <string>Suavização de construção (menos é mais suave).</string>
+  <key>BulkChangeEveryoneCopy</key>
+  <string>Objetos alterados em massa podem ser copiados por todos.</string>
+  <key>BulkChangeIncludeAnimations</key>
+  <string>Alterações de permissão em massa afetam animações.</string>
+  <key>BulkChangeIncludeBodyParts</key>
+  <string>Alterações de permissão em massa afetam partes do corpo.</string>
+  <key>BulkChangeIncludeClothing</key>
+  <string>Alterações de permissão em massa afetam roupas.</string>
+  <key>BulkChangeIncludeGestures</key>
+  <string>Alterações de permissão em massa afetam gestos.</string>
+  <key>BulkChangeIncludeMaterials</key>
+  <string>Alterações de permissão em massa afetam materiais.</string>
+  <key>BulkChangeIncludeNotecards</key>
+  <string>Alterações de permissão em massa afetam notecards.</string>
+  <key>BulkChangeIncludeObjects</key>
+  <string>Alterações de permissão em massa afetam objetos.</string>
+  <key>BulkChangeIncludeScripts</key>
+  <string>Alterações de permissão em massa afetam scripts.</string>
+  <key>BulkChangeIncludeSettings</key>
+  <string>Alterações de permissão em massa afetam configurações de ambiente.</string>
+  <key>BulkChangeIncludeSounds</key>
+  <string>Alterações de permissão em massa afetam sons.</string>
+  <key>BulkChangeIncludeTextures</key>
+  <string>Alterações de permissão em massa afetam texturas.</string>
+  <key>BulkChangeNextOwnerCopy</key>
+  <string>Objetos alterados em massa podem ser copiados pelo próximo proprietário.</string>
+  <key>BulkChangeNextOwnerModify</key>
+  <string>Objetos alterados em massa podem ser modificados pelo próximo proprietário.</string>
+  <key>BulkChangeNextOwnerTransfer</key>
+  <string>Objetos alterados em massa podem ser revendidos ou doados pelo próximo proprietário.</string>
+  <key>BulkChangeShareWithGroup</key>
+  <string>Objetos alterados em massa são compartilhados com o grupo ativo no momento.</string>
+  <key>BulkUpload2KTextures</key>
+  <string>Upload em massa redimensiona texturas para 2K se verdadeiro, ou para 1K se falso.</string>
+  <key>CacheLocation</key>
+  <string>Controla a localização do cache em disco local.</string>
+  <key>CacheLocationTopFolder</key>
+  <string>Controla a pasta raiz do cache em disco local.</string>
+  <key>CacheSize</key>
+  <string>Controla a quantidade de espaço em disco reservada para cache local de arquivos, em MB.</string>
+  <key>CacheValidateCounter</key>
+  <string>Usado para distribuir a validação do cache.</string>
+  <key>CallLogSortOrder</key>
+  <string>Especifica a ordem de classificação do registro de chamadas (0 = por nome, 1 = por data).</string>
+  <key>CameraAngle</key>
+  <string>Ângulo do campo de visão da câmera (radianos).</string>
+  <key>CameraDoFResScale</key>
+  <string>Quanto reduzir a resolução da profundidade de campo. Faixa válida de 0,25 (um quarto da resolução) a 1,0 (resolução total).</string>
+  <key>CameraFNumber</key>
+  <string>Valor do número f da câmera para o efeito de profundidade de campo.</string>
+  <key>CameraFieldOfView</key>
+  <string>Campo de visão vertical da câmera para o efeito de profundidade de campo (em graus).</string>
+  <key>CameraFocalLength</key>
+  <string>Distância focal da câmera para o efeito de profundidade de campo (em milímetros).</string>
+  <key>CameraFocusTransitionTime</key>
+  <string>Quantos segundos a câmera leva para transitar entre distâncias focais.</string>
+  <key>CameraMaxCoF</key>
+  <string>Círculo de confusão máximo da câmera para o efeito de profundidade de campo.</string>
+  <key>CameraMouseWheelZoom</key>
+  <string>A câmera aproxima e afasta com a roda do mouse.</string>
+  <key>CameraOffset</key>
+  <string>Renderizar com deslocamento da câmera em relação ao frustum de visão (depuração de renderização).</string>
+  <key>CameraOffsetBuild</key>
+  <string>Posição padrão da câmera em relação ao ponto de foco ao entrar no modo de construção.</string>
+  <key>CameraOffsetRearView</key>
+  <string>Deslocamento inicial da câmera em relação ao avatar na visão traseira.</string>
+  <key>CameraOffsetScale</key>
+  <string>Escala o deslocamento padrão.</string>
+  <key>CameraOpacity</key>
+  <string>Opacidade do floater de controles da câmera.</string>
+  <key>CameraPosOnLogout</key>
+  <string>Posição da câmera no último logout (coordenadas globais).</string>
+  <key>CameraPositionSmoothing</key>
+  <string>Suaviza a posição da câmera ao longo do tempo.</string>
+  <key>CameraPreset</key>
+  <string>(Obsoleto) Posição predefinida da câmera - visão (0 - traseira, 1 - frontal, 2 - grupo).</string>
+  <key>CameraPresetType</key>
+  <string>Posição predefinida da câmera - visão (0 - traseira, 1 - frontal, 2 - grupo, 3 - personalizada).</string>
+  <key>CameraZoomFraction</key>
+  <string>Fração de zoom controlada pela roda do mouse.</string>
+  <key>CefVerboseLog</key>
+  <string>Ativar/desativar log detalhado do CEF.</string>
+  <key>CertStore</key>
+  <string>Especifica o repositório de certificados para verificação de confiança de certificados.</string>
+  <key>ChatAutocompleteGestures</key>
+  <string>Autocompletar gestos no chat próximo.</string>
+  <key>ChatBubbleOpacity</key>
+  <string>Opacidade do fundo do balão de chat (0,0 = totalmente transparente, 1,0 = totalmente opaco).</string>
+  <key>ChatFontSize</key>
+  <string>Tamanho do texto no console de chat (0 = pequeno, 1 = grande).</string>
+  <key>ChatFullWidth</key>
+  <string>O console de chat ocupa toda a largura da janela do SL.</string>
+  <key>ChatLoadGroupMaxMembers</key>
+  <string>Número máximo de membros ativos que mostraremos para um grupo sem resposta.</string>
+  <key>ChatOnlineNotification</key>
+  <string>Fornecer notificações quando amigos entram e saem do SL.</string>
+  <key>CheesyBeacon</key>
+  <string>Ativar efeitos de marcador exagerados.</string>
+  <key>ClickToWalk</key>
+  <string>(obsoleto) Clicar no mundo para caminhar até o local.</string>
+  <key>ClientSettingsFile</key>
+  <string>Nome do arquivo de configurações do cliente (por instalação).</string>
+  <key>CloseChatOnReturn</key>
+  <string>Fechar o chat após pressionar Enter.</string>
+  <key>CmdLineChannel</key>
+  <string>Nome do canal especificado na linha de comando.</string>
+  <key>CmdLineDisableVoice</key>
+  <string>Desativar voz.</string>
+  <key>CmdLineGridChoice</key>
+  <string>A escolha de grade do usuário ou endereço IP.</string>
+  <key>CmdLineHelperURI</key>
+  <string>Prefixo CGI web auxiliar especificado na linha de comando a ser usado.</string>
+  <key>CmdLineLoginLocation</key>
+  <string>Destino de inicialização solicitado na linha de comando.</string>
+  <key>CmdLineLoginURI</key>
+  <string>Servidor de login e prefixo CGI especificados na linha de comando a serem usados.</string>
+  <key>CmdLineSkipUpdater</key>
+  <string>Pular verificação do atualizador via linha de comando.</string>
+  <key>CmdLineUpdateService</key>
+  <string>Substituir a URL base para a consulta de atualização.</string>
+  <key>CollectFontVertexBuffers</key>
+  <string>Quando ativado, alguns elementos de interface usam buffers de cache gerados por fontes e os reutilizam. Quando desativado, é usado um cache geral com sobrecarga significativa de hash, mas que regenera os vértices a cada quadro, ficando sempre atualizado.</string>
+  <key>ColorSettingsHideDefault</key>
+  <string>Mostrar apenas configurações não padrão na lista de Configurações de Cor.</string>
+  <key>ComplexityChangesPopUpDelay</key>
+  <string>Atraso antes de o viewer mostrar novamente o aviso de complexidade do avatar.</string>
+  <key>ConnectAsGod</key>
+  <string>Fazer login como god se você tiver acesso de god.</string>
+  <key>ConnectionPort</key>
+  <string>Número da porta de conexão personalizada.</string>
+  <key>ConnectionPortEnabled</key>
+  <string>Usar a porta de conexão personalizada?</string>
+  <key>ConsoleBackgroundOpacity</key>
+  <string>Opacidade do console de chat (0,0 = totalmente transparente, 1,0 = totalmente opaco).</string>
+  <key>ConsoleBufferSize</key>
+  <string>Tamanho do histórico do console de chat (linhas de chat).</string>
+  <key>ConsoleMaxLines</key>
+  <string>Número máximo de linhas de texto de chat visíveis no console.</string>
+  <key>ConversationSortOrder</key>
+  <string>Especifica a chave de classificação das conversas.</string>
+  <key>ConversationsExpandMessagePaneFirst</key>
+  <string>Expandir o painel de mensagens ou o de conversas ao sair do modo compacto de Conversas.</string>
+  <key>ConversationsListPaneCollapsed</key>
+  <string>Armazena o estado expandido/recolhido do painel de lista de conversas no floater Conversas.</string>
+  <key>ConversationsListPaneWidth</key>
+  <string>Largura do painel de lista no floater Conversas.</string>
+  <key>ConversationsMessagePaneCollapsed</key>
+  <string>Armazena o estado expandido/recolhido do painel de mensagens no floater Conversas.</string>
+  <key>ConversationsMessagePaneWidth</key>
+  <string>Largura do painel de mensagens no floater Conversas.</string>
+  <key>ConversationsParticipantListCollapsed</key>
+  <string>Armazena o estado expandido/recolhido da lista de participantes do chat próximo.</string>
+  <key>CookiesEnabled</key>
+  <string>Aceitar cookies de sites?</string>
+  <key>CoroutineStackSize</key>
+  <string>Tamanho (em bytes) de cada pilha de corrotina.</string>
+  <key>CrashHostUrl</key>
+  <string>URL apontando para um manipulador de relatórios de crash; substitui a negociação de cluster para localizar o manipulador de crash.</string>
+  <key>CrashOnStartup</key>
+  <string>Crash solicitado pelo usuário na inicialização do viewer.</string>
+  <key>CreateToolCopyCenters</key>
+  <string>Copiar mantendo os centros alinhados ao usar a ferramenta de criação.</string>
+  <key>CreateToolCopyRotates</key>
+  <string>Copiar mantendo as rotações ao usar a ferramenta de criação.</string>
+  <key>CreateToolCopySelection</key>
+  <string>Copiar a seleção ao usar a ferramenta de criação.</string>
+  <key>CreateToolKeepSelected</key>
+  <string>Após usar a ferramenta de criação, manter a ferramenta de criação ativa.</string>
+  <key>CurlRequestTimeOut</key>
+  <string>Tempo máximo de inatividade de uma requisição curl antes de ser encerrada (requer reinício).</string>
+  <key>CurrentGrid</key>
+  <string>Grade selecionada no momento.</string>
+  <key>CurrentMapServerURL</key>
+  <string>URL do mapa-múndi da sessão atual.</string>
+  <key>Cursor3D</key>
+  <string>Tratar os valores do joystick como posições absolutas (não deltas).</string>
+  <key>DebugAnimatedObjects</key>
+  <string>Mostrar informações relacionadas a objetos animados.</string>
+  <key>DebugAvatarAppearanceMessage</key>
+  <string>Despejar vários arquivos XML ao tratar mensagens de aparência.</string>
+  <key>DebugAvatarAppearanceServiceURLOverride</key>
+  <string>URL a usar para requisições de texturas assadas; substitui o valor retornado pelo servidor de login.</string>
+  <key>DebugAvatarCompositeBaked</key>
+  <string>Colorir as malhas do avatar com base no estado assado/composto.</string>
+  <key>DebugAvatarExperimentalServerAppearanceUpdate</key>
+  <string>Experimentar enviar o cof_contents completo em vez do cof_version.</string>
+  <key>DebugAvatarJoints</key>
+  <string>Lista de juntas sobre as quais emitir informações adicionais de depuração.</string>
+  <key>DebugAvatarLocalTexLoadedTime</key>
+  <string>Exibir o tempo de carregamento das texturas locais do avatar.</string>
+  <key>DebugAvatarRezTime</key>
+  <string>Exibir os tempos para os avatares carregarem.</string>
+  <key>DebugBeaconLineWidth</key>
+  <string>Tamanho das linhas dos marcadores de depuração.</string>
+  <key>DebugForceAppearanceRequestFailure</key>
+  <string>Solicitar a versão de cof errada para testar o caminho de falha das requisições de atualização de aparência do servidor.</string>
+  <key>DebugHideEmptySystemFolders</key>
+  <string>Ocultar pastas de sistema vazias quando ativado.</string>
+  <key>DebugObjectLODs</key>
+  <string>Mostrar informações relacionadas aos cálculos de LOD para objetos anexados ou animados.</string>
+  <key>DebugPermissions</key>
+  <string>Registrar permissões dos itens de inventário selecionados.</string>
+  <key>DebugPluginDisableTimeout</key>
+  <string>Desativar o código que monitora plugins travados ou que sofreram crash.</string>
+  <key>DebugQualityPerformance</key>
+  <string>Permite alterar a qualidade de desempenho diretamente pelas configurações de depuração.</string>
+  <key>DebugSelectionLODs</key>
+  <string>Forçar a seleção a mostrar um LOD específico, -1 para desligado, 0 - mais baixo, 4 - alto.</string>
+  <key>DebugSession</key>
+  <string>Solicitar depuração para uma sessão específica do viewer.</string>
+  <key>DebugSettingsHideDefault</key>
+  <string>Mostrar apenas configurações não padrão na lista de Debug Settings.</string>
+  <key>DebugShowAvatarRenderInfo</key>
+  <string>Mostrar informações de custo de renderização do avatar.</string>
+  <key>DebugShowColor</key>
+  <string>Mostrar a cor sob o cursor.</string>
+  <key>DebugShowMemory</key>
+  <string>Mostrar a memória total alocada.</string>
+  <key>DebugShowRenderInfo</key>
+  <string>Mostrar estatísticas sobre a cena atual.</string>
+  <key>DebugShowRenderMatrices</key>
+  <string>Exibir os valores das matrizes de visão e projeção atuais.</string>
+  <key>DebugShowTextureInfo</key>
+  <string>Mostrar informações da textura de interesse.</string>
+  <key>DebugShowTime</key>
+  <string>Mostrar informações de tempo.</string>
+  <key>DebugShowUploadCost</key>
+  <string>Mostrar o custo de upload de malha.</string>
+  <key>DebugShowXUINames</key>
+  <string>Mostrar dicas com o caminho XUI do widget.</string>
+  <key>DebugStatModeSimAgentMsec</key>
+  <string>Modo de exibição da estatística de tempo gasto pelo simulador com agentes (avatares) no painel de Estatísticas.</string>
+  <key>DebugStatModeSimFrameMsec</key>
+  <string>Modo de exibição da estatística de tempo total de quadro do simulador no painel de Estatísticas.</string>
+  <key>DebugStatModeSimImagesMsec</key>
+  <string>Modo de exibição da estatística de tempo gasto pelo simulador com imagens/texturas no painel de Estatísticas.</string>
+  <key>DebugStatModeSimNetMsec</key>
+  <string>Modo de exibição da estatística de tempo gasto pelo simulador com a rede no painel de Estatísticas.</string>
+  <key>DebugStatModeSimPumpIOMsec</key>
+  <string>Modo de exibição da estatística de tempo gasto pelo simulador com operações de E/S (pump I/O) no painel de Estatísticas.</string>
+  <key>DebugStatModeSimScriptMsec</key>
+  <string>Modo de exibição da estatística de tempo gasto pelo simulador executando scripts no painel de Estatísticas.</string>
+  <key>DebugStatModeSimSimOtherMsec</key>
+  <string>Modo de exibição da estatística de tempo gasto pelo simulador com outras tarefas no painel de Estatísticas.</string>
+  <key>DebugStatModeSimSimPhysicsMsec</key>
+  <string>Modo de exibição da estatística de tempo total de física do simulador no painel de Estatísticas.</string>
+  <key>DebugStatModeSimSimPhysicsOtherMsec</key>
+  <string>Modo de exibição da estatística de tempo gasto com outras tarefas de física no painel de Estatísticas.</string>
+  <key>DebugStatModeSimSimPhysicsShapeUpdateMsec</key>
+  <string>Modo de exibição da estatística de tempo gasto atualizando formas de colisão da física no painel de Estatísticas.</string>
+  <key>DebugStatModeSimSimPhysicsStepMsec</key>
+  <string>Modo de exibição da estatística de tempo gasto no passo de simulação da física no painel de Estatísticas.</string>
+  <key>DebugStatModeSimSleepMsec</key>
+  <string>Modo de exibição da estatística de tempo de espera (sleep) do simulador por quadro no painel de Estatísticas.</string>
+  <key>DebugStatModeSimSpareMsec</key>
+  <string>Modo de exibição da estatística de tempo ocioso (sobressalente) do simulador por quadro no painel de Estatísticas.</string>
+  <key>DebugStatModeSimTotalUnackedBytes</key>
+  <string>Modo de exibição da estatística de total de bytes não confirmados (unacked) na rede no painel de Estatísticas.</string>
+  <key>DebugViews</key>
+  <string>Exibir informações de depuração para as views.</string>
+  <key>DebugWindowProc</key>
+  <string>Registrar mensagens do Windows.</string>
+  <key>DeepLTranslateAPIKey</key>
+  <string>Dados do serviço de tradução DeepL para uso com a API do DeepL Translator.</string>
+  <key>DefaultFemaleAvatar</key>
+  <string>Avatar feminino padrão.</string>
+  <key>DefaultLoginLocation</key>
+  <string>Destino de inicialização padrão (se não especificado na linha de comando).</string>
+  <key>DefaultMaleAvatar</key>
+  <string>Avatar masculino padrão.</string>
+  <key>DefaultUploadPermissionsConverted</key>
+  <string>As permissões de upload padrão foram convertidas em permissões de criação padrão.</string>
+  <key>DestinationGuideURL</key>
+  <string>Conteúdo do guia de destinos.</string>
+  <key>DisableAllRenderFeatures</key>
+  <string>Desativa todos os recursos de renderização.</string>
+  <key>DisableAllRenderTypes</key>
+  <string>Desativa todos os tipos de renderização.</string>
+  <key>DisableCameraConstraints</key>
+  <string>Desativar os limites normais impostos à câmera pela posição do avatar.</string>
+  <key>DisableCrashLogger</key>
+  <string>Não enviar relatório de crash ao servidor da Linden.</string>
+  <key>DisableExternalBrowser</key>
+  <string>Desativar a abertura de um navegador externo.</string>
+  <key>DisableLookAtAnimation</key>
+  <string>O avatar segue o cursor com os olhos; quando desativado, o avatar olha para a frente.</string>
+  <key>DisableTextHyperlinkActions</key>
+  <string>Desativar destaque e criação de links de URLs em caixas de texto XUI.</string>
+  <key>DiskCacheDirName</key>
+  <string>Nome do cache em disco (dentro do diretório padrão de cache em disco do Viewer).</string>
+  <key>DiskCachePercentOfTotal</key>
+  <string>Percentual do tamanho total do cache (definido por CacheSize) a usar para o cache em disco (ex.: armazenamento de assets, exclui texturas).</string>
+  <key>DiskCacheVersion</key>
+  <string>Número da versão do cache em disco.</string>
+  <key>DisplayTimecode</key>
+  <string>Exibir o timecode na tela.</string>
+  <key>Disregard128DefaultDrawDistance</key>
+  <string>Se deve usar o padrão automático de 128 de distância de desenho.</string>
+  <key>Disregard96DefaultDrawDistance</key>
+  <string>Se deve usar o padrão automático de 96 de distância de desenho.</string>
+  <key>DoNotDisturbModeResponse</key>
+  <string>Resposta automática a mensagens instantâneas no modo Não Perturbe.</string>
+  <key>DoNotDisturbResponseChanged</key>
+  <string>A mensagem do modo Não Perturbe do usuário difere do padrão?</string>
+  <key>DoubleClickAutoPilot</key>
+  <string>(Obsoleto) Ativar piloto automático com duplo clique.</string>
+  <key>DoubleClickShowWorldMap</key>
+  <string>Ativar duplo clique para mostrar o mapa-múndi a partir do minimapa.</string>
+  <key>DoubleClickTeleport</key>
+  <string>Ativar duplo clique para teletransportar onde permitido (afeta o minimapa e o painel de pessoas).</string>
+  <key>DynamicCameraStrength</key>
+  <string>Quanto a câmera atrasa em relação ao movimento do avatar (0 = nenhum, 30 = velocidade do avatar).</string>
+  <key>EditCameraMovement</key>
+  <string>Ao entrar no modo de construção, a câmera sobe acima do avatar.</string>
+  <key>EditLinkedParts</key>
+  <string>Selecionar partes individuais de objetos vinculados.</string>
+  <key>EffectScriptChatParticles</key>
+  <string>1 = comportamento normal, 0 = desativar a exibição das luzes giratórias quando scripts se comunicam.</string>
+  <key>EmulateCoreCount</key>
+  <string>Para depuração -- número de núcleos aos quais restringir o processo principal, ou 0 para sem limite. Requer reinício.</string>
+  <key>EnableAltZoom</key>
+  <string>Usar Alt+mouse para olhar e aproximar objetos.</string>
+  <key>EnableAppearance</key>
+  <string>Ativar a abertura da aparência a partir de link web.</string>
+  <key>EnableAvatarPay</key>
+  <string>Ativar o pagamento a outros avatares a partir de link web.</string>
+  <key>EnableAvatarShare</key>
+  <string>Ativar compartilhamento a partir de link web.</string>
+  <key>EnableButtonFlashing</key>
+  <string>Permitir que a interface pisque botões para chamar sua atenção.</string>
+  <key>EnableClassifieds</key>
+  <string>Ativar a criação de novos anúncios classificados a partir de link web.</string>
+  <key>EnableCollisionSounds</key>
+  <string>Reproduzir sons em colisões.</string>
+  <key>EnableDiscord</key>
+  <string>Quando ativado, conecta ao Discord para habilitar o Rich Presence.</string>
+  <key>EnableDiskCacheDebugInfo</key>
+  <string>Quando ativado, exibir informações adicionais de depuração do cache.</string>
+  <key>EnableGestureSounds</key>
+  <string>Reproduzir sons de gestos.</string>
+  <key>EnableGrab</key>
+  <string>Usar Ctrl+mouse para agarrar e manipular objetos.</string>
+  <key>EnableGroupChatPopups</key>
+  <string>Ativar pop-ups de chat de grupo recebidos.</string>
+  <key>EnableInventory</key>
+  <string>Ativar a abertura do inventário a partir de link web.</string>
+  <key>EnableLookAtTarget</key>
+  <string>Se deve ou não animar a cabeça do avatar e enviar alvos de olhar ao mover o cursor ou focar em objetos.</string>
+  <key>EnableMouselook</key>
+  <string>Permitir perspectiva em primeira pessoa e controle da câmera pelo mouse.</string>
+  <key>EnablePlaceProfile</key>
+  <string>Ativar a visualização do perfil do lugar a partir de link web.</string>
+  <key>EnableSelectionHints</key>
+  <string>Se deve ou não enviar dicas de edição para animar o braço ao editar um objeto.</string>
+  <key>EnableUIHints</key>
+  <string>Alterna os pop-ups de dicas da interface.</string>
+  <key>EnableVisualLeakDetector</key>
+  <string>Ativar o Visual Leak Detector.</string>
+  <key>EnableVoiceChat</key>
+  <string>Ativar conversa com outros residentes usando microfone.</string>
+  <key>EnvironmentPersistAcrossLogin</key>
+  <string>Manter as configurações de ambiente consistentes entre sessões.</string>
+  <key>EventURL</key>
+  <string>URL do site de eventos, exibida no floater de eventos.</string>
+  <key>EveryoneCopy</key>
+  <string>(obsoleto) Todos podem copiar os objetos recém-criados.</string>
+  <key>ExperienceSearchMaturity</key>
+  <string>Classificação máxima de conteúdo preferida pelo usuário na busca de Experiências (padrão: General).</string>
+  <key>ExternalEditor</key>
+  <string>Caminho do programa usado para editar scripts LSL e arquivos XUI, ex.: /usr/bin/gedit --new-window "%s".</string>
+  <key>FMODExDecodeBufferSize</key>
+  <string>Define o tamanho do buffer de decodificação de streaming (em milissegundos) para o FMOD Ex ou FMOD Studio.</string>
+  <key>FMODExProfilerEnable</key>
+  <string>Ativar ferramenta de profiler ao usar FMOD Ex ou FMOD Studio.</string>
+  <key>FakeInitialOutfitName</key>
+  <string>Fingir que este é o primeiro login e que o nome especificado foi escolhido.</string>
+  <key>FetchGroupChatHistory</key>
+  <string>Buscar mensagens recentes dos servidores de chat de grupo ao abrir uma janela de grupo.</string>
+  <key>FindLandArea</key>
+  <string>Ativa a filtragem dos resultados de busca de terrenos por área.</string>
+  <key>FindLandPrice</key>
+  <string>Ativa a filtragem dos resultados de busca de terrenos por preço.</string>
+  <key>FindOriginalOpenWindow</key>
+  <string>Define a ação para 'Encontrar original' e 'Mostrar no Inventário' (0 - mostra o item no Inventário principal, 1 - abre uma nova janela de pasta única).</string>
+  <key>FirstLoginThisInstall</key>
+  <string>Especifica que você não fez login com o viewer desde que realizou uma instalação limpa.</string>
+  <key>FirstName</key>
+  <string>Primeiro nome de login.</string>
+  <key>FirstPersonAvatarVisible</key>
+  <string>Exibir avatar e anexos abaixo do pescoço enquanto em mouselook.</string>
+  <key>FirstRunThisInstall</key>
+  <string>Especifica que você não executou o viewer desde que realizou uma instalação limpa.</string>
+  <key>FirstSelectedDisabledPopups</key>
+  <string>Retorna falso se não houver pop-up desativado selecionado na lista de pop-ups das preferências de floaters.</string>
+  <key>FirstSelectedEnabledPopups</key>
+  <string>Retorna falso se não houver pop-up ativado selecionado na lista de pop-ups das preferências de floaters.</string>
+  <key>FixedWeather</key>
+  <string>Os efeitos climáticos não mudam ao longo do tempo.</string>
+  <key>FlashCount</key>
+  <string>Número de piscadas do item. Requer reinício.</string>
+  <key>FlashPeriod</key>
+  <string>Período em que o item pisca (segundos). Requer reinício.</string>
+  <key>FloaterActiveSpeakersSortAscending</key>
+  <string>Se deve classificar em ordem crescente ou decrescente.</string>
+  <key>FloaterActiveSpeakersSortColumn</key>
+  <string>Nome da coluna pela qual classificar.</string>
+  <key>FloaterMapEast</key>
+  <string>Rótulo Leste do floater do mapa.</string>
+  <key>FloaterMapNorth</key>
+  <string>Rótulo Norte do floater do mapa.</string>
+  <key>FloaterMapNorthEast</key>
+  <string>Rótulo Nordeste do floater do mapa.</string>
+  <key>FloaterMapNorthWest</key>
+  <string>Rótulo Noroeste do floater do mapa.</string>
+  <key>FloaterMapSouth</key>
+  <string>Rótulo Sul do floater do mapa.</string>
+  <key>FloaterMapSouthEast</key>
+  <string>Rótulo Sudeste do floater do mapa.</string>
+  <key>FloaterMapSouthWest</key>
+  <string>Rótulo Sudoeste do floater do mapa.</string>
+  <key>FloaterMapWest</key>
+  <string>Rótulo Oeste do floater do mapa.</string>
+  <key>FloaterStatisticsRect</key>
+  <string>Retângulo do histórico de chat.</string>
+  <key>FlycamAbsolute</key>
+  <string>Tratar os valores da Flycam como posições absolutas (não deltas).</string>
+  <key>FlycamAxisDeadZone0</key>
+  <string>Zona morta do eixo Z (movimento vertical) da Flycam.</string>
+  <key>FlycamAxisDeadZone1</key>
+  <string>Zona morta do eixo X (movimento lateral) da Flycam.</string>
+  <key>FlycamAxisDeadZone2</key>
+  <string>Zona morta do eixo Y (movimento para frente/trás) da Flycam.</string>
+  <key>FlycamAxisDeadZone3</key>
+  <string>Zona morta da rolagem (roll) da Flycam.</string>
+  <key>FlycamAxisDeadZone4</key>
+  <string>Zona morta da elevação (pitch) da Flycam.</string>
+  <key>FlycamAxisDeadZone5</key>
+  <string>Zona morta da guinada (yaw) da Flycam.</string>
+  <key>FlycamAxisDeadZone6</key>
+  <string>Zona morta do zoom da Flycam.</string>
+  <key>FlycamAxisScale0</key>
+  <string>Fator de escala do eixo Z (movimento vertical) da Flycam.</string>
+  <key>FlycamAxisScale1</key>
+  <string>Fator de escala do eixo X (movimento lateral) da Flycam.</string>
+  <key>FlycamAxisScale2</key>
+  <string>Fator de escala do eixo Y (movimento para frente/trás) da Flycam.</string>
+  <key>FlycamAxisScale3</key>
+  <string>Fator de escala da rolagem (roll) da Flycam.</string>
+  <key>FlycamAxisScale4</key>
+  <string>Fator de escala da elevação (pitch) da Flycam.</string>
+  <key>FlycamAxisScale5</key>
+  <string>Fator de escala da guinada (yaw) da Flycam.</string>
+  <key>FlycamAxisScale6</key>
+  <string>Fator de escala do zoom da Flycam.</string>
+  <key>FlycamBuildModeScale</key>
+  <string>Fator de escala a aplicar aos movimentos da Flycam no modo de construção.</string>
+  <key>FlycamFeathering</key>
+  <string>Suavização da Flycam (menos é mais suave).</string>
+  <key>FlyingAtExit</key>
+  <string>Estava voando no último logout, então voar ao fazer login.</string>
+  <key>FocusOffsetRearView</key>
+  <string>Deslocamento inicial do ponto de foco em relação ao avatar para a predefinição de câmera Visão Traseira (o eixo x é para frente).</string>
+  <key>FocusPosOnLogout</key>
+  <string>Ponto de foco da câmera no último logout (coordenadas globais).</string>
+  <key>FolderAutoOpenDelay</key>
+  <string>Segundos antes de expandir automaticamente a pasta sob o mouse ao arrastar e soltar itens no inventário.</string>
+  <key>FontScreenDPI</key>
+  <string>Resolução da fonte; maior é maior (pixels por polegada).</string>
+  <key>ForceAddressSize</key>
+  <string>Forçar a atualização do Windows para o viewer de 32 bits ou 64 bits.</string>
+  <key>ForceAssetFail</key>
+  <string>Forçar a falha das buscas de wearables para este tipo de asset.</string>
+  <key>ForceLoginURL</key>
+  <string>Forçar uma URL específica para o conteúdo da página de login - usada se existir.</string>
+  <key>ForceShowGrid</key>
+  <string>Sempre mostrar a lista suspensa de grades na tela de login.</string>
+  <key>FreezeTime</key>
+  <string>Congela o tempo de renderização (animações e atualizações de cena pausadas).</string>
+  <key>FriendsListHideUsernames</key>
+  <string>Mostrar tanto o nome de exibição quanto o nome de usuário na lista de amigos.</string>
+  <key>FriendsListShowIcons</key>
+  <string>Mostrar/ocultar ícones de online e de todos os amigos na lista de amigos.</string>
+  <key>FriendsListShowPermissions</key>
+  <string>Mostrar/ocultar ícones de permissão na lista de amigos.</string>
+  <key>FriendsSortOrder</key>
+  <string>Especifica a ordem de classificação dos amigos (0 = por nome, 1 = por status online).</string>
+  <key>FullScreen</key>
+  <string>Executar uma sessão em tela cheia. Não suportado no MacOS.</string>
+  <key>FullScreenAspectRatio</key>
+  <string>Proporção de tela da exibição em tela cheia (largura / altura).</string>
+  <key>FullScreenAutoDetectAspectRatio</key>
+  <string>Detectar automaticamente a proporção de tela correta para exibição em tela cheia.</string>
+  <key>GLTFEnabled</key>
+  <string>Ativar suporte a GLTF. Definido como verdadeiro pelo simulador se o simulador ao qual você está conectado suportar upload de assets GLTF. AVISO: definir manualmente como verdadeiro ativará botões que podem esgotar seu saldo de L$ ao fazer upload implícito de texturas sem perguntar.</string>
+  <key>GenericErrorPageURL</key>
+  <string>URL a definir como propriedade no LLMediaControl para navegar caso a página finalize com um status HTTP 400-499.</string>
+  <key>GesturesEveryoneCopy</key>
+  <string>Todos podem copiar o gesto recém-criado.</string>
+  <key>GesturesMarketplaceURL</key>
+  <string>URL do Marketplace de Gestos.</string>
+  <key>GesturesNextOwnerCopy</key>
+  <string>Gestos recém-criados podem ser copiados pelo próximo proprietário.</string>
+  <key>GesturesNextOwnerModify</key>
+  <string>Gestos recém-criados podem ser modificados pelo próximo proprietário.</string>
+  <key>GesturesNextOwnerTransfer</key>
+  <string>Gestos recém-criados podem ser revendidos ou doados pelo próximo proprietário.</string>
+  <key>GesturesShareWithGroup</key>
+  <string>Gestos recém-criados são compartilhados com o grupo ativo no momento.</string>
+  <key>GoogleTranslateAPIKey</key>
+  <string>Chave da API do Google Translate.</string>
+  <key>GridCrossSections</key>
+  <string>Destacar seções transversais de prims com o plano de manipulação da grade.</string>
+  <key>GridDrawSize</key>
+  <string>Extensão visível da grade de encaixe 2D (metros).</string>
+  <key>GridMode</key>
+  <string>Quadro de referência da grade de encaixe (0 = mundo, 1 = local, 2 = objeto de referência).</string>
+  <key>GridOpacity</key>
+  <string>Opacidade das linhas da grade (0,0 = totalmente transparente, 1,0 = totalmente opaco).</string>
+  <key>GridResolution</key>
+  <string>Tamanho de um único passo da grade (metros).</string>
+  <key>GridStatusFloaterRect</key>
+  <string>Dimensões do floater de perfil web.</string>
+  <key>GridStatusRSS</key>
+  <string>URL que aponta para o RSS de Status da Grade do SL.</string>
+  <key>GridStatusUpdateDelay</key>
+  <string>Atraso do temporizador para atualizar o RSS de Status da Grade.</string>
+  <key>GridSubUnit</key>
+  <string>Exibir passos fracionários da grade, relativos ao tamanho da grade.</string>
+  <key>GridSubdivision</key>
+  <string>Número máximo de vezes para dividir uma unidade da grade de encaixe quando GridSubUnit é verdadeiro.</string>
+  <key>GroupListShowIcons</key>
+  <string>Mostrar/ocultar ícones de grupo na lista de grupos.</string>
+  <key>GroupMembersSortOrder</key>
+  <string>A ordem pela qual os membros do grupo serão classificados (name|donated|online).</string>
+  <key>GroupTitlesTagMode</key>
+  <string>Selecionar o modo de etiqueta de títulos de grupo: 0 - sem etiquetas de grupo, 1 - apenas a etiqueta do meu grupo, 2 - todas as etiquetas de grupo.</string>
+  <key>HUDScaleFactor</key>
+  <string>Escala dos anexos de HUD.</string>
+  <key>HeadlessClient</key>
+  <string>Executar em modo headless desativando a renderização GL, o teclado, etc.</string>
+  <key>HeightUnits</key>
+  <string>Determina quais unidades métricas são usadas: 1(TRUE) para metro e 0(FALSE) para pé.</string>
+  <key>HelpFloaterOpen</key>
+  <string>Mostrar o floater de Ajuda no login?</string>
+  <key>HelpURLFormat</key>
+  <string>Padrão de URL para a página de ajuda; os argumentos serão codificados; veja llviewerhelp.cpp:buildHelpURL para os argumentos.</string>
+  <key>HideSelectedObjects</key>
+  <string>Ocultar objetos selecionados.</string>
+  <key>HideUIControls</key>
+  <string>Ocultar todos os itens de menu e botões.</string>
+  <key>HighResSnapshot</key>
+  <string>Dobrar a resolução da captura em relação à resolução atual da janela.</string>
+  <key>HomeSidePanelURL</key>
+  <string>URL da página web a exibir no painel lateral Início.</string>
+  <key>HostID</key>
+  <string>Identificador de máquina para instâncias hospedadas do Second Life.</string>
+  <key>HoverHeightAffectsCamera</key>
+  <string>A visão da câmera é afetada pela configuração de altura de flutuação.</string>
+  <key>HttpPipelining</key>
+  <string>Se verdadeiro, o viewer tentará usar pipelining nas requisições HTTP.</string>
+  <key>HttpProxyType</key>
+  <string>Tipo de proxy a usar nas operações HTTP.</string>
+  <key>HttpRangeRequestsDisable</key>
+  <string>Se verdadeiro, o viewer não emitirá requisições GET com cabeçalhos 'Range:' para malhas e texturas. Pode resolver problemas com certos provedores e equipamentos de rede.</string>
+  <key>IMShowControlPanel</key>
+  <string>Mostrar o painel de controle de IM.</string>
+  <key>IMShowNamesForP2PConv</key>
+  <string>Ativar/desativar exibição de nomes no chat.</string>
+  <key>IMShowTime</key>
+  <string>Ativar/desativar exibição de carimbo de data/hora no chat.</string>
+  <key>IgnoreAllNotifications</key>
+  <string>Ignorar todas as notificações para que nunca precisemos da entrada do usuário nelas.</string>
+  <key>IgnoreFOVZoomForLODs</key>
+  <string>Ignorar o efeito de zoom (CTRL+0) ao calcular os LODs.</string>
+  <key>IgnorePixelDepth</key>
+  <string>Ignorar as configurações de profundidade de pixel.</string>
+  <key>ImagePipelineUseHTTP</key>
+  <string>Se TRUE, usar HTTP GET para buscar texturas do servidor.</string>
+  <key>ImporterDebugMode</key>
+  <string>Em 0 não faz nada; em 1 exporta dados de skinning perto do arquivo original; em 2 exporta dados de skinning e posições/pesos dos 5 primeiros modelos; em 3 exporta dados de skinning e modelos como llsd.</string>
+  <key>ImporterDebugVerboseLogging</key>
+  <string>Ativa saída de depuração para identificar com mais precisão as fontes de erros de importação. Aviso: a saída pode deixar a importação lenta em muitas máquinas.</string>
+  <key>ImporterLegacyMatching</key>
+  <string>Ativa correspondência de modelos baseada em índice.</string>
+  <key>ImporterModelLimit</key>
+  <string>Limita a quantidade de modelos gerados pelo importador (quando há mais de 8 faces) para arquivos dae e gltf.</string>
+  <key>ImporterPreprocessDAE</key>
+  <string>Ativa pré-processamento de arquivos DAE para corrigir alguns problemas relacionados ao ColladaDOM (como suporte a espaços em nomes e ids).</string>
+  <key>InBandwidth</key>
+  <string>Limite de largura de banda de entrada (bps).</string>
+  <key>InactiveFloaterTransparency</key>
+  <string>Transparência de floaters inativos (floaters sem foco).</string>
+  <key>IndirectMaxComplexity</key>
+  <string>Controla RenderAvatarMaxComplexity de forma não linear (não defina este valor).</string>
+  <key>IndirectMaxNonImpostors</key>
+  <string>Controla RenderAvatarMaxNonImpostors de forma não linear (não defina este valor).</string>
+  <key>InstallLanguage</key>
+  <string>Idioma passado pelo instalador (para a interface).</string>
+  <key>InstantMessageLogPath</key>
+  <string>Caminho para seus arquivos de log.</string>
+  <key>InterpolationPhaseOut</key>
+  <string>Segundos para eliminar gradualmente o movimento interpolado.</string>
+  <key>InterpolationTime</key>
+  <string>Por quanto tempo extrapolar o movimento do objeto após o último pacote recebido.</string>
+  <key>InventoryAddAttachmentBehavior</key>
+  <string>Define o comportamento ao pressionar Enter em um item de inventário.</string>
+  <key>InventoryAutoOpenDelay</key>
+  <string>Segundos antes de abrir automaticamente o inventário quando o mouse está sobre o botão de inventário ao arrastar e soltar itens.</string>
+  <key>InventoryDebugSimulateLateOpRate</key>
+  <string>Taxa na qual simulamos requisições de cópia/link que se completam tarde em algumas operações.</string>
+  <key>InventoryDebugSimulateOpFailureRate</key>
+  <string>Taxa na qual simulamos falhas de requisições de cópia/link em algumas operações.</string>
+  <key>InventoryDisplayInbox</key>
+  <string>Substituir a exibição da caixa de entrada de itens recebidos do inventário.</string>
+  <key>InventoryExposeFolderID</key>
+  <string>Permite copiar o id da pasta pelo menu de contexto.</string>
+  <key>InventoryFavoritesColorText</key>
+  <string>Renderizar itens favoritos usando InventoryFavoriteText como cor.</string>
+  <key>InventoryFavoritesUseHollowStar</key>
+  <string>Mostrar estrela perto de pastas que contêm favoritos.</string>
+  <key>InventoryFavoritesUseStar</key>
+  <string>Mostrar estrela perto de itens favoritados no inventário.</string>
+  <key>InventoryInboxHeight</key>
+  <string>Altura do painel de caixa de entrada do inventário no floater Inventário.</string>
+  <key>InventoryInboxToggleState</key>
+  <string>Armazena o estado aberto/fechado do painel Itens Recebidos do inventário.</string>
+  <key>InventoryLinking</key>
+  <string>Ativar a capacidade de criar links para pastas e itens via "Colar como link".</string>
+  <key>InventoryOutboxLogging</key>
+  <string>Ativar saída de depuração associada à Caixa de Saída do Comerciante.</string>
+  <key>InventoryOutboxMakeVisible</key>
+  <string>Ativar a exibição da Caixa de Saída e de Entrada do Comerciante no inventário para fins de depuração.</string>
+  <key>InventoryOutboxMaxFolderCount</key>
+  <string>Número máximo de subpastas permitidas em uma listagem na caixa de saída do comerciante.</string>
+  <key>InventoryOutboxMaxFolderDepth</key>
+  <string>Número máximo de níveis aninhados de subpastas permitidos em uma listagem na caixa de saída do comerciante.</string>
+  <key>InventoryOutboxMaxItemCount</key>
+  <string>Número máximo de itens permitidos em uma listagem na caixa de saída do comerciante.</string>
+  <key>InventoryOutboxMaxStockItemCount</key>
+  <string>Número máximo de itens permitidos em uma pasta de estoque.</string>
+  <key>InventoryShowFavoritesTab</key>
+  <string>Mostrar/ocultar a aba Favoritos no floater de Inventário.</string>
+  <key>InventoryShowRecentTab</key>
+  <string>Mostrar/ocultar a aba Recentes no floater de Inventário.</string>
+  <key>InventoryShowWornTab</key>
+  <string>Mostrar/ocultar a aba Em uso no floater de Inventário.</string>
+  <key>InventorySortOrder</key>
+  <string>Especifica a chave de classificação dos itens de inventário (+0 = nome, +1 = data, +2 = pastas sempre por nome, +4 = pastas de sistema no topo).</string>
+  <key>InventoryTrashMaxCapacity</key>
+  <string>Capacidade máxima da pasta Lixeira. O usuário será convidado a esvaziá-la quando excedida.</string>
+  <key>InvertMouse</key>
+  <string>Em mouselook, mover o mouse para cima olha para baixo e vice-versa (FALSE = mover para cima olha para cima).</string>
+  <key>JoystickAvatarEnabled</key>
+  <string>Ativa o joystick para controlar o movimento do avatar.</string>
+  <key>JoystickAxis0</key>
+  <string>Mapeamento de eixo de hardware da Flycam para o eixo interno 0 ([0, 5]).</string>
+  <key>JoystickAxis1</key>
+  <string>Mapeamento de eixo de hardware da Flycam para o eixo interno 1 ([0, 5]).</string>
+  <key>JoystickAxis2</key>
+  <string>Mapeamento de eixo de hardware da Flycam para o eixo interno 2 ([0, 5]).</string>
+  <key>JoystickAxis3</key>
+  <string>Mapeamento de eixo de hardware da Flycam para o eixo interno 3 ([0, 5]).</string>
+  <key>JoystickAxis4</key>
+  <string>Mapeamento de eixo de hardware da Flycam para o eixo interno 4 ([0, 5]).</string>
+  <key>JoystickAxis5</key>
+  <string>Mapeamento de eixo de hardware da Flycam para o eixo interno 5 ([0, 5]).</string>
+  <key>JoystickAxis6</key>
+  <string>Mapeamento de eixo de hardware da Flycam para o eixo interno 6 ([0, 5]).</string>
+  <key>JoystickBuildEnabled</key>
+  <string>Ativa o joystick para mover objetos editados.</string>
+  <key>JoystickDeviceUUID</key>
+  <string>ID do dispositivo preferido.</string>
+  <key>JoystickEnabled</key>
+  <string>Ativa a entrada por joystick.</string>
+  <key>JoystickFlycamEnabled</key>
+  <string>Ativa o joystick para controlar a Flycam.</string>
+  <key>JoystickInitialized</key>
+  <string>Se um joystick foi ou não detectado e inicializado.</string>
+  <key>JoystickMouselookYaw</key>
+  <string>Passar o yaw do joystick para scripts no modo mouselook.</string>
+  <key>JoystickRunThreshold</key>
+  <string>Limiar de entrada para iniciar a corrida.</string>
+  <key>Jpeg2000AdvancedCompression</key>
+  <string>Usar opções avançadas de compressão Jpeg2000 (precincts, blocos, ordenação, marcadores).</string>
+  <key>Jpeg2000BlocksSize</key>
+  <string>Tamanho dos blocos de codificação. Assumidos quadrados e iguais para todos os níveis. Deve ser potência de 2. Máx 64, Mín 4.</string>
+  <key>Jpeg2000PrecinctsSize</key>
+  <string>Tamanho dos precincts da imagem. Assumidos quadrados e iguais para todos os níveis. Deve ser potência de 2.</string>
+  <key>KeepAspectForSnapshot</key>
+  <string>Usar a janela inteira ao tirar a captura, independentemente do tamanho de imagem solicitado.</string>
+  <key>KeepAutoTuneLock</key>
+  <string>Quando ativado, o AutoTuneLock será mantido em todas as sessões seguintes.</string>
+  <key>KeepConversationLogTranscripts</key>
+  <string>Manter log e transcrições de conversas: 2 - ambos, 1 - logs, 0 - nenhum.</string>
+  <key>LSLFindCaseInsensitivity</key>
+  <string>Usar busca sem distinção de maiúsculas/minúsculas no editor LSL.</string>
+  <key>LSLFontSizeName</key>
+  <string>Tamanho da fonte do texto no editor LSL.</string>
+  <key>LSLHelpURL</key>
+  <string>URL que aponta para os arquivos de ajuda do LSL, com [LSL_STRING] correspondendo à função ou palavra-chave LSL referenciada.</string>
+  <key>LagMeterShrunk</key>
+  <string>Último estado grande/pequeno do medidor de lag.</string>
+  <key>LandBrushForce</key>
+  <string>Multiplicador da força do pincel de modificação de terreno.</string>
+  <key>LandBrushSize</key>
+  <string>Tamanho da região afetada ao usar a ferramenta de terraformação.</string>
+  <key>LandmarksSortedByDate</key>
+  <string>Reflete a ordem de classificação do painel de landmarks.</string>
+  <key>Language</key>
+  <string>Idioma do viewer.</string>
+  <key>LanguageIsPublic</key>
+  <string>Deixar outros residentes verem as informações do nosso idioma.</string>
+  <key>LastAppearanceTab</key>
+  <string>Última aba selecionada no floater de aparência.</string>
+  <key>LastFeatureVersion</key>
+  <string>[NÃO MODIFICAR] Número da versão da tabela de recursos para rastrear mudanças no sistema de renderização.</string>
+  <key>LastFindPanel</key>
+  <string>Controla qual operação de busca aparece por padrão ao clicar no botão "Buscar".</string>
+  <key>LastGPUString</key>
+  <string>[NÃO MODIFICAR] string anterior de id da GPU para rastrear mudanças de hardware.</string>
+  <key>LastInventoryInboxActivity</key>
+  <string>Última vez que a caixa de entrada de itens recebidos foi acessada pelo usuário.</string>
+  <key>LastLogoff</key>
+  <string>Último logout.</string>
+  <key>LastMediaSettingsTab</key>
+  <string>Última aba selecionada na janela de configurações de mídia.</string>
+  <key>LastName</key>
+  <string>Sobrenome de login.</string>
+  <key>LastPostcardRecipient</key>
+  <string>Último destinatário de cartão postal.</string>
+  <key>LastPrefTab</key>
+  <string>Última aba selecionada na janela de preferências.</string>
+  <key>LastRunVersion</key>
+  <string>Número da versão da última instância do viewer que você executou.</string>
+  <key>LastUIFeatureVersion</key>
+  <string>Número da versão de recursos de interface para rastrear notificações de recursos entre builds do viewer.</string>
+  <key>LeapCommand</key>
+  <string>Zero ou mais linhas de comando para executar programas do LLSD Event API Plugin.</string>
+  <key>LeapPlaybackEventsCommand</key>
+  <string>Linha de comando para usar o leap para iniciar a reprodução de gravações de eventos.</string>
+  <key>LeaveMouselook</key>
+  <string>Sair do modo mouselook com as teclas S ou Seta para Baixo enquanto sentado.</string>
+  <key>LetterKeysFocusChatBar</key>
+  <string>Quando teclas de caracteres imprimíveis (possivelmente com Shift) são pressionadas, a barra de chat recebe o foco.</string>
+  <key>LimitDragDistance</key>
+  <string>Limitar a translação do objeto pela ferramenta de mover.</string>
+  <key>LimitLookAtTarget</key>
+  <string>Se deve ou não limitar os alvos de olhar ao redor da cabeça do avatar antes de enviar.</string>
+  <key>LimitLookAtTargetDistance</key>
+  <string>Distância para limitar o alvo de olhar.</string>
+  <key>LimitSelectDistance</key>
+  <string>Não permitir a seleção de objetos além da distância máxima de seleção.</string>
+  <key>LinkReplaceBatchPauseTime</key>
+  <string>O tempo em segundos entre dois lotes em uma operação de substituição de link.</string>
+  <key>LinkReplaceBatchSize</key>
+  <string>O tamanho máximo de um lote em uma operação de substituição de link.</string>
+  <key>LipSyncAah</key>
+  <string>Loop de balbucio Aah (abertura da mandíbula).</string>
+  <key>LipSyncAahPowerTransfer</key>
+  <string>Curva de transferência da potência da interface de voz para a amplitude de sincronia labial aah.</string>
+  <key>LipSyncEnabled</key>
+  <string>0 desativa a sincronia labial, 1 ativa o loop de balbucio.</string>
+  <key>LipSyncOoh</key>
+  <string>Loop de balbucio Ooh (largura da boca).</string>
+  <key>LipSyncOohAahRate</key>
+  <string>Taxa de balbucio de Ooh e Aah (/seg).</string>
+  <key>LipSyncOohPowerTransfer</key>
+  <string>Curva de transferência da potência da interface de voz para a amplitude de sincronia labial ooh.</string>
+  <key>LocalCacheVersion</key>
+  <string>Número da versão do cache.</string>
+  <key>LocalFileSystemBrowsingEnabled</key>
+  <string>Ativar/desativar o acesso ao sistema de arquivos local via seletor de arquivos.</string>
+  <key>LocalTerrainAsset1</key>
+  <string>Se definido como um UUID não nulo, substitui o asset de terreno localmente para todas as regiões com assets de material. Assets de terreno locais não são visíveis para os outros. Lembre-se de que esta configuração de depuração pode ser temporária. Não dependa de sua existência em builds futuros do viewer.</string>
+  <key>LocalTerrainAsset2</key>
+  <string>Se definido como um UUID não nulo, substitui o asset de terreno localmente para todas as regiões com assets de material. Assets de terreno locais não são visíveis para os outros. Lembre-se de que esta configuração de depuração pode ser temporária. Não dependa de sua existência em builds futuros do viewer.</string>
+  <key>LocalTerrainAsset3</key>
+  <string>Se definido como um UUID não nulo, substitui o asset de terreno localmente para todas as regiões com assets de material. Assets de terreno locais não são visíveis para os outros. Lembre-se de que esta configuração de depuração pode ser temporária. Não dependa de sua existência em builds futuros do viewer.</string>
+  <key>LocalTerrainAsset4</key>
+  <string>Se definido como um UUID não nulo, substitui o asset de terreno localmente para todas as regiões com assets de material. Assets de terreno locais não são visíveis para os outros. Lembre-se de que esta configuração de depuração pode ser temporária. Não dependa de sua existência em builds futuros do viewer.</string>
+  <key>LocalTerrainPaintEnabled</key>
+  <string>Ativa o paintmap local se LocalTerrainAsset1, etc. estiverem definidos.</string>
+  <key>LocalTerrainTransform1OffsetU</key>
+  <string>Deslocamento horizontal (coordenada U) da transformação de textura glTF KHR_texture_transform do terreno local (camada 1), quando LocalTerrainAsset1 estiver definido.</string>
+  <key>LocalTerrainTransform1OffsetV</key>
+  <string>Deslocamento vertical (coordenada V) da transformação de textura glTF KHR_texture_transform do terreno local (camada 1), quando LocalTerrainAsset1 estiver definido.</string>
+  <key>LocalTerrainTransform1Rotation</key>
+  <string>Rotação (em graus) da transformação de textura glTF KHR_texture_transform do terreno local (camada 1), quando LocalTerrainAsset1 estiver definido.</string>
+  <key>LocalTerrainTransform1ScaleU</key>
+  <string>Escala horizontal (coordenada U) da transformação de textura glTF KHR_texture_transform do terreno local (camada 1), quando LocalTerrainAsset1 estiver definido.</string>
+  <key>LocalTerrainTransform1ScaleV</key>
+  <string>Escala vertical (coordenada V) da transformação de textura glTF KHR_texture_transform do terreno local (camada 1), quando LocalTerrainAsset1 estiver definido.</string>
+  <key>LocalTerrainTransform2OffsetU</key>
+  <string>Deslocamento horizontal (coordenada U) da transformação de textura glTF KHR_texture_transform do terreno local (camada 2), quando LocalTerrainAsset2 estiver definido.</string>
+  <key>LocalTerrainTransform2OffsetV</key>
+  <string>Deslocamento vertical (coordenada V) da transformação de textura glTF KHR_texture_transform do terreno local (camada 2), quando LocalTerrainAsset2 estiver definido.</string>
+  <key>LocalTerrainTransform2Rotation</key>
+  <string>Rotação (em graus) da transformação de textura glTF KHR_texture_transform do terreno local (camada 2), quando LocalTerrainAsset2 estiver definido.</string>
+  <key>LocalTerrainTransform2ScaleU</key>
+  <string>Escala horizontal (coordenada U) da transformação de textura glTF KHR_texture_transform do terreno local (camada 2), quando LocalTerrainAsset2 estiver definido.</string>
+  <key>LocalTerrainTransform2ScaleV</key>
+  <string>Escala vertical (coordenada V) da transformação de textura glTF KHR_texture_transform do terreno local (camada 2), quando LocalTerrainAsset2 estiver definido.</string>
+  <key>LocalTerrainTransform3OffsetU</key>
+  <string>Deslocamento horizontal (coordenada U) da transformação de textura glTF KHR_texture_transform do terreno local (camada 3), quando LocalTerrainAsset3 estiver definido.</string>
+  <key>LocalTerrainTransform3OffsetV</key>
+  <string>Deslocamento vertical (coordenada V) da transformação de textura glTF KHR_texture_transform do terreno local (camada 3), quando LocalTerrainAsset3 estiver definido.</string>
+  <key>LocalTerrainTransform3Rotation</key>
+  <string>Rotação (em graus) da transformação de textura glTF KHR_texture_transform do terreno local (camada 3), quando LocalTerrainAsset3 estiver definido.</string>
+  <key>LocalTerrainTransform3ScaleU</key>
+  <string>Escala horizontal (coordenada U) da transformação de textura glTF KHR_texture_transform do terreno local (camada 3), quando LocalTerrainAsset3 estiver definido.</string>
+  <key>LocalTerrainTransform3ScaleV</key>
+  <string>Escala vertical (coordenada V) da transformação de textura glTF KHR_texture_transform do terreno local (camada 3), quando LocalTerrainAsset3 estiver definido.</string>
+  <key>LocalTerrainTransform4OffsetU</key>
+  <string>Deslocamento horizontal (coordenada U) da transformação de textura glTF KHR_texture_transform do terreno local (camada 4), quando LocalTerrainAsset4 estiver definido.</string>
+  <key>LocalTerrainTransform4OffsetV</key>
+  <string>Deslocamento vertical (coordenada V) da transformação de textura glTF KHR_texture_transform do terreno local (camada 4), quando LocalTerrainAsset4 estiver definido.</string>
+  <key>LocalTerrainTransform4Rotation</key>
+  <string>Rotação (em graus) da transformação de textura glTF KHR_texture_transform do terreno local (camada 4), quando LocalTerrainAsset4 estiver definido.</string>
+  <key>LocalTerrainTransform4ScaleU</key>
+  <string>Escala horizontal (coordenada U) da transformação de textura glTF KHR_texture_transform do terreno local (camada 4), quando LocalTerrainAsset4 estiver definido.</string>
+  <key>LocalTerrainTransform4ScaleV</key>
+  <string>Escala vertical (coordenada V) da transformação de textura glTF KHR_texture_transform do terreno local (camada 4), quando LocalTerrainAsset4 estiver definido.</string>
+  <key>LogChat</key>
+  <string>Obsoleto - esta configuração não é mais usada e não tem efeito.</string>
+  <key>LogChatIM</key>
+  <string>Obsoleto - esta configuração não é mais usada e não tem efeito.</string>
+  <key>LogChatTimestamp</key>
+  <string>Obsoleto - esta configuração não é mais usada e não tem efeito.</string>
+  <key>LogFileNamewithDate</key>
+  <string>Adicionar data aos logs de chat e IM no formato chat-AAAA-MM-DD e 'nome do arquivo IM'-AAAA-MM. Para ver logs antigos, vá em ..\Second Life\[nome de login].</string>
+  <key>LogInventoryDecline</key>
+  <string>Registrar no chat do sistema sempre que uma oferta de inventário for recusada.</string>
+  <key>LogMessages</key>
+  <string>Registrar tráfego de rede.</string>
+  <key>LogMetrics</key>
+  <string>Registrar métricas do viewer.</string>
+  <key>LogNearbyChat</key>
+  <string>Registrar mensagens do Chat Próximo em arquivo. Usado no lugar de LogChat, com valor padrão "1".</string>
+  <key>LogPerformance</key>
+  <string>Registrar análise de desempenho para uma execução específica do viewer.</string>
+  <key>LogShowHistory</key>
+  <string>Exibir histórico no log.</string>
+  <key>LogTextureDownloadsToSimulator</key>
+  <string>Enviar um resumo de informações de textura ao sim.</string>
+  <key>LogTextureDownloadsToViewerLog</key>
+  <string>Enviar detalhes de download de textura ao log do viewer.</string>
+  <key>LogTextureNetworkTraffic</key>
+  <string>Registrar tráfego de rede de texturas.</string>
+  <key>LogTimestamp</key>
+  <string>Carimbo de data/hora no log.</string>
+  <key>LogTimestampDate</key>
+  <string>Incluir data no carimbo de data/hora.</string>
+  <key>LogWearableAssetSave</key>
+  <string>Salvar cópia dos wearables salvos no diretório de log.</string>
+  <key>LoginContentVersion</key>
+  <string>Versão do conteúdo web da página de login a exibir.</string>
+  <key>LoginLocation</key>
+  <string>Preferência de local de login padrão ('last', 'home').</string>
+  <key>LoginPage</key>
+  <string>Página de autenticação de login.</string>
+  <key>LoginSRVTimeout</key>
+  <string>Duração em segundos do timeout da requisição SRV de login.</string>
+  <key>LosslessJ2CUpload</key>
+  <string>Usar compressão sem perdas para uploads de imagens pequenas.</string>
+  <key>MFAHash</key>
+  <string>Substituir o hash de estado MFA para autenticação.</string>
+  <key>MainWorkTime</key>
+  <string>Tempo máximo por quadro dedicado à fila de trabalho do loop principal (em milissegundos).</string>
+  <key>MainloopTimeoutDefault</key>
+  <string>Duração do timeout para detecção de travamento do loop principal durante teletransportes, login e logout, em segundos.</string>
+  <key>MainloopTimeoutStarted</key>
+  <string>Duração do timeout para detecção de travamento do loop principal quando logado e sem teletransportar, em segundos.</string>
+  <key>MapScale</key>
+  <string>Nível de zoom do mapa-múndi (pixels por região).</string>
+  <key>MapServerURL</key>
+  <string>Modelo de URL do mapa-múndi para localizar os ladrilhos do mapa.</string>
+  <key>MapShowEvents</key>
+  <string>Mostrar eventos no mapa-múndi.</string>
+  <key>MapShowGridCoords</key>
+  <string>Mostra/oculta as coordenadas da grade de cada região no mapa-múndi.</string>
+  <key>MapShowInfohubs</key>
+  <string>Mostrar infohubs no mapa-múndi.</string>
+  <key>MapShowLandForSale</key>
+  <string>Mostrar terrenos à venda no mapa-múndi.</string>
+  <key>MapShowPeople</key>
+  <string>Mostrar outros usuários no mapa-múndi.</string>
+  <key>MapShowTelehubs</key>
+  <string>Mostrar telehubs no mapa-múndi.</string>
+  <key>Marker</key>
+  <string>[NÃO USADO]</string>
+  <key>MarketplaceListingsLogging</key>
+  <string>Ativar saída de depuração associada à API de Listagens do Marketplace (SLM).</string>
+  <key>MarketplaceListingsSortOrder</key>
+  <string>Especifica a classificação das listagens do marketplace.</string>
+  <key>MarketplaceURL</key>
+  <string>URL do Marketplace.</string>
+  <key>MarketplaceURL_bodypartFemale</key>
+  <string>URL do Marketplace de Partes do Corpo Femininas.</string>
+  <key>MarketplaceURL_bodypartMale</key>
+  <string>URL do Marketplace de Partes do Corpo Masculinas.</string>
+  <key>MarketplaceURL_clothingFemale</key>
+  <string>URL do Marketplace de Roupas Femininas.</string>
+  <key>MarketplaceURL_clothingMale</key>
+  <string>URL do Marketplace de Roupas Masculinas.</string>
+  <key>MarketplaceURL_eyesFemale</key>
+  <string>URL do Marketplace de Olhos Femininos.</string>
+  <key>MarketplaceURL_eyesMale</key>
+  <string>URL do Marketplace de Olhos Masculinos.</string>
+  <key>MarketplaceURL_glovesFemale</key>
+  <string>URL do Marketplace de Luvas Femininas.</string>
+  <key>MarketplaceURL_glovesMale</key>
+  <string>URL do Marketplace de Luvas Masculinas.</string>
+  <key>MarketplaceURL_hairFemale</key>
+  <string>URL do Marketplace de Cabelos Femininos.</string>
+  <key>MarketplaceURL_hairMale</key>
+  <string>URL do Marketplace de Cabelos Masculinos.</string>
+  <key>MarketplaceURL_jacketFemale</key>
+  <string>URL do Marketplace de Jaquetas Femininas.</string>
+  <key>MarketplaceURL_jacketMale</key>
+  <string>URL do Marketplace de Jaquetas Masculinas.</string>
+  <key>MarketplaceURL_objectFemale</key>
+  <string>URL do Marketplace de Anexos Femininos.</string>
+  <key>MarketplaceURL_objectMale</key>
+  <string>URL do Marketplace de Anexos Masculinos.</string>
+  <key>MarketplaceURL_pantsFemale</key>
+  <string>URL do Marketplace de Calças Femininas.</string>
+  <key>MarketplaceURL_pantsMale</key>
+  <string>URL do Marketplace de Calças Masculinas.</string>
+  <key>MarketplaceURL_shapeFemale</key>
+  <string>URL do Marketplace de Formas Femininas.</string>
+  <key>MarketplaceURL_shapeMale</key>
+  <string>URL do Marketplace de Formas Masculinas.</string>
+  <key>MarketplaceURL_shirtFemale</key>
+  <string>URL do Marketplace de Camisas Femininas.</string>
+  <key>MarketplaceURL_shirtMale</key>
+  <string>URL do Marketplace de Camisas Masculinas.</string>
+  <key>MarketplaceURL_shoesFemale</key>
+  <string>URL do Marketplace de Sapatos Femininos.</string>
+  <key>MarketplaceURL_shoesMale</key>
+  <string>URL do Marketplace de Sapatos Masculinos.</string>
+  <key>MarketplaceURL_skinFemale</key>
+  <string>URL do Marketplace de Peles Femininas.</string>
+  <key>MarketplaceURL_skinMale</key>
+  <string>URL do Marketplace de Peles Masculinas.</string>
+  <key>MarketplaceURL_skirtFemale</key>
+  <string>URL do Marketplace de Saias Femininas.</string>
+  <key>MarketplaceURL_skirtMale</key>
+  <string>URL do Marketplace de Saias Masculinas.</string>
+  <key>MarketplaceURL_socksFemale</key>
+  <string>URL do Marketplace de Meias Femininas.</string>
+  <key>MarketplaceURL_socksMale</key>
+  <string>URL do Marketplace de Meias Masculinas.</string>
+  <key>MarketplaceURL_tattooFemale</key>
+  <string>URL do Marketplace de Tatuagens Femininas.</string>
+  <key>MarketplaceURL_tattooMale</key>
+  <string>URL do Marketplace de Tatuagens Masculinas.</string>
+  <key>MarketplaceURL_underpantsFemale</key>
+  <string>URL do Marketplace de Roupas Íntimas Femininas.</string>
+  <key>MarketplaceURL_underpantsMale</key>
+  <string>URL do Marketplace de Roupas Íntimas Masculinas.</string>
+  <key>MarketplaceURL_undershirtFemale</key>
+  <string>URL do Marketplace de Camisetas Íntimas Femininas.</string>
+  <key>MarketplaceURL_undershirtMale</key>
+  <string>URL do Marketplace de Camisetas Íntimas Masculinas.</string>
+  <key>MaterialsEveryoneCopy</key>
+  <string>Todos podem copiar o material GLTF recém-criado.</string>
+  <key>MaterialsNextOwnerCopy</key>
+  <string>O material GLTF recém-criado pode ser copiado pelo próximo proprietário.</string>
+  <key>MaterialsNextOwnerModify</key>
+  <string>O material GLTF recém-criado pode ser modificado pelo próximo proprietário.</string>
+  <key>MaterialsNextOwnerTransfer</key>
+  <string>O material GLTF recém-criado pode ser revendido ou doado pelo próximo proprietário.</string>
+  <key>MaterialsShareWithGroup</key>
+  <string>Materiais GLTF recém-criados são compartilhados com o grupo ativo no momento.</string>
+  <key>MaxAttachmentComplexity</key>
+  <string>Limite de peso de renderização do anexo.</string>
+  <key>MaxDragDistance</key>
+  <string>Distância máxima de translação permitida em uma única operação da ferramenta de mover (metros a partir do ponto inicial).</string>
+  <key>MaxFPS</key>
+  <string>Configuração OBSOLETA e NÃO UTILIZADA.</string>
+  <key>MaxHeapSize</key>
+  <string>Tamanho máximo do heap em builds de 32 bits (GB).</string>
+  <key>MaxHeapSize64</key>
+  <string>Tamanho máximo do heap em builds de 64 bits (GB).</string>
+  <key>MaxPersistentNotifications</key>
+  <string>Quantidade máxima de notificações persistentes.</string>
+  <key>MaxSelectDistance</key>
+  <string>Distância máxima de seleção permitida (metros a partir do avatar).</string>
+  <key>MaxWearableWaitTime</key>
+  <string>Máximo de segundos a aguardar a busca dos assets de wearables.</string>
+  <key>MePanelOpened</key>
+  <string>Indica que o painel Eu foi aberto pelo menos uma vez após a instalação do Viewer.</string>
+  <key>MediaAutoPlayHuds</key>
+  <string>Reproduzir automaticamente mídia de HUD.</string>
+  <key>MediaControlFadeTime</key>
+  <string>Tempo (em segundos) em que o controle de mídia desaparece.</string>
+  <key>MediaControlTimeout</key>
+  <string>Tempo (em segundos) para os controles de mídia desaparecerem sem atividade do mouse.</string>
+  <key>MediaEnablePopups</key>
+  <string>Se verdadeiro, ativa links direcionados e javascript na mídia para abrir novas janelas do navegador de mídia sem confirmação.</string>
+  <key>MediaFirstClickInteract</key>
+  <string>Esta configuração controla qual mídia (após carregada) não exige um primeiro clique para focar antes que a interação possa começar. Isso permite que cliques sejam passados diretamente à mídia, ignorando o requisito de clique de foco. É um campo de bits, com valores pré-calculados: Desativado=0; Apenas HUDs em uso=1; Objetos próprios=2; Objetos de amigos=4; Objetos de grupo=8; Objetos do dono do terreno=16; Qualquer objeto=32767; Todo MOAP=32768. Para detalhes completos, veja lltoolpie.h enum MediaFirstClickTypes.</string>
+  <key>MediaOnAPrimUI</key>
+  <string>Se deve ou não mostrar a interface de "compartilhamento de links".</string>
+  <key>MediaPerformanceManagerDebug</key>
+  <string>Se deve mostrar dados de depuração do gerenciador de desempenho de mídia na lista de mídia próxima.</string>
+  <key>MediaPluginDebugging</key>
+  <string>Ativar mensagens de depuração que podem ajudar a diagnosticar problemas de mídia (AVISO: pode reduzir o desempenho).</string>
+  <key>MediaRollOffMax</key>
+  <string>Distância na qual o volume da mídia é definido como 0.</string>
+  <key>MediaRollOffMin</key>
+  <string>Ajusta a distância na qual a atenuação da mídia começa.</string>
+  <key>MediaRollOffRate</key>
+  <string>Multiplicador para alterar a taxa de atenuação da mídia.</string>
+  <key>MediaShowOnOthers</key>
+  <string>Se deve ou não mostrar mídia em outros avatares.</string>
+  <key>MediaShowOutsideParcel</key>
+  <string>Se deve ou não mostrar mídia de fora da parcela atual.</string>
+  <key>MediaShowWithinParcel</key>
+  <string>Se deve ou não mostrar mídia dentro da parcela atual.</string>
+  <key>MediaSoundsEarLocation</key>
+  <string>Localização do ouvido virtual para mídia e sons.</string>
+  <key>MediaTentativeAutoPlay</key>
+  <string>Esta é uma flag tentativa que pode ser temporariamente desativada pelo usuário, até que ele se teletransporte.</string>
+  <key>MemoryLogFrequency</key>
+  <string>Segundos entre a exibição da memória no log (0 para nunca).</string>
+  <key>MemoryPrivatePoolEnabled</key>
+  <string>(Obsoleto) Ativar o gerenciamento de pool de memória privada.</string>
+  <key>MemoryPrivatePoolSize</key>
+  <string>(Obsoleto) Tamanho do pool de memória privada em MB (valor mínimo: 256).</string>
+  <key>MenuAccessKeyTime</key>
+  <string>Tempo (segundos) no qual a tecla de menu deve ser tocada para mover o foco para a barra de menu.</string>
+  <key>MenuSearch</key>
+  <string>Mostrar/ocultar o campo 'Buscar menus'.</string>
+  <key>Mesh2MaxConcurrentRequests</key>
+  <string>Número de conexões a usar para carregar malhas.</string>
+  <key>MeshBytesPerTriangle</key>
+  <string>Aproximação de bytes por triângulo a usar para determinar o custo de streaming de malha.</string>
+  <key>MeshEnabled</key>
+  <string>Expor a interface para a funcionalidade de malha (pode exigir reinício para ter efeito).</string>
+  <key>MeshImportUseSLM</key>
+  <string>Usar cópia em cache do último upload de um dae, se disponível, em vez de carregar o arquivo dae do zero.</string>
+  <key>MeshMaxConcurrentRequests</key>
+  <string>Número de conexões a usar para carregar malhas (sistema legado).</string>
+  <key>MeshMetaDataDiscount</key>
+  <string>Número de bytes a deduzir para metadados ao determinar o custo de streaming.</string>
+  <key>MeshMinimumByteSize</key>
+  <string>Número mínimo de bytes por bloco de LoD ao determinar o custo de streaming.</string>
+  <key>MeshTriangleBudget</key>
+  <string>Orçamento alvo de triângulos visíveis a usar ao estimar o custo de streaming.</string>
+  <key>MeshUploadFakeErrors</key>
+  <string>Forçar erros de upload (para testes).</string>
+  <key>MeshUploadLogXML</key>
+  <string>Log XML detalhado no upload de malha.</string>
+  <key>MeshUploadTimeOut</key>
+  <string>Tempo máximo em segundos para o llcurl executar uma requisição de upload de malha.</string>
+  <key>MeshUseGetMesh1</key>
+  <string>Se TRUE, usar a capacidade legada GetMesh para requisições de download de malha. Semidinâmico (lido nas travessias de região).</string>
+  <key>MeshUseHttpRetryAfter</key>
+  <string>Se TRUE, usar os cabeçalhos de resposta Retry-After ao reagendar uma requisição de malha que falha com status HTTP 503. Estático.</string>
+  <key>MigrateCacheDirectory</key>
+  <string>Verificar se há versão antiga do cache em disco para migrar para a localização atual.</string>
+  <key>MinObjectsForUnlinkConfirm</key>
+  <string>Quantidade mínima de objetos em um linkset para mostrar o diálogo de confirmação.</string>
+  <key>MinWindowHeight</key>
+  <string>Altura mínima da janela do viewer SL em pixels.</string>
+  <key>MinWindowWidth</key>
+  <string>Largura mínima da janela do viewer SL em pixels.</string>
+  <key>MiniMapAutoCenter</key>
+  <string>Centralizar o ponto focal do minimapa.</string>
+  <key>MiniMapPrimMaxRadius</key>
+  <string>Raio do maior prim a mostrar no minimapa. Aumentar além de 256 pode causar lag no cliente.</string>
+  <key>MiniMapRotate</key>
+  <string>Girar o mapa-múndi em miniatura na direção do avatar.</string>
+  <key>MiniMapScale</key>
+  <string>Nível de zoom do mapa-múndi em miniatura (pixels por região).</string>
+  <key>MiniMapShowPropertyLines</key>
+  <string>Se deve ou não mostrar os limites das parcelas no minimapa.</string>
+  <key>ModelUploadFolder</key>
+  <string>Todos os uploads de modelos serão armazenados neste diretório (UUID).</string>
+  <key>MouseMoon</key>
+  <string>Controlar a posição da lua com o mouse no modo mouselook (depuração do céu).</string>
+  <key>MouseSensitivity</key>
+  <string>Controla a responsividade do mouse no modo mouselook (fração ou múltiplo da sensibilidade padrão do mouse).</string>
+  <key>MouseSmooth</key>
+  <string>Suaviza o movimento do mouse no modo mouselook.</string>
+  <key>MouseSun</key>
+  <string>Controlar a posição do sol com o mouse no modo mouselook (depuração do céu).</string>
+  <key>MouseWarpMode</key>
+  <string>Controla o reposicionamento do mouse para o centro da tela durante o alt-zoom e o mouselook. Útil com certos dispositivos de entrada, programas de compartilhamento de mouse como Synergy ou ao rodar sob Parallels. 0 - automático, 1 - ligado, 2 - desligado.</string>
+  <key>MultiModeDoubleClickFolder</key>
+  <string>Define a ação do duplo clique em pasta na visão de múltiplas pastas (0 - expande e recolhe a pasta, 1 - abre uma nova janela, 2 - permanece no floater atual mas alterna para SFV).</string>
+  <key>MuteAmbient</key>
+  <string>Efeitos de som ambiente, como o ruído do vento, tocam em volume 0.</string>
+  <key>MuteAudio</key>
+  <string>Todo o áudio toca em volume 0 (o áudio em streaming ainda consome largura de banda, por exemplo).</string>
+  <key>MuteListLimit</key>
+  <string>Número máximo de entradas na lista de silenciados.</string>
+  <key>MuteMedia</key>
+  <string>A mídia toca em volume 0 (o áudio em streaming ainda consome largura de banda).</string>
+  <key>MuteMusic</key>
+  <string>A música toca em volume 0 (o áudio em streaming ainda consome largura de banda).</string>
+  <key>MuteSounds</key>
+  <string>Os efeitos sonoros tocam em volume 0.</string>
+  <key>MuteUI</key>
+  <string>Os efeitos sonoros da interface tocam em volume 0.</string>
+  <key>MuteVoice</key>
+  <string>A voz toca em volume 0 (o áudio em streaming ainda consome largura de banda).</string>
+  <key>MuteWhenMinimized</key>
+  <string>Silenciar o áudio quando a janela do SL está minimizada.</string>
+  <key>MyOutfitsAutofill</key>
+  <string>Sempre preencher automaticamente Minhas Roupas a partir da biblioteca quando vazias (caso contrário, acontece apenas uma vez).</string>
+  <key>NameTagDebugAVRezState</key>
+  <string>Mostrar o estado de carregamento do avatar na etiqueta de nome.</string>
+  <key>NameTagShowDisplayNames</key>
+  <string>Mostrar nomes de exibição nos rótulos de nome.</string>
+  <key>NameTagShowFriends</key>
+  <string>Destacar as etiquetas de nome dos seus amigos.</string>
+  <key>NameTagShowGroupTitles</key>
+  <string>Mostrar títulos de grupo nos rótulos de nome.</string>
+  <key>NameTagShowUsernames</key>
+  <string>Mostrar nomes de usuário nas etiquetas de nome dos avatares.</string>
+  <key>NametagOverWater</key>
+  <string>Renderizar a etiqueta de nome sobre a água transparente enquanto a câmera está acima da água.</string>
+  <key>NavBarShowCoordinates</key>
+  <string>Mostrar coordenadas na barra de navegação.</string>
+  <key>NavBarShowParcelProperties</key>
+  <string>Mostrar ícones de propriedade da parcela na barra de navegação.</string>
+  <key>NavigationBarRatio</key>
+  <string>Proporção entre a largura do painel de navegação e a largura total da pilha de navegação.</string>
+  <key>NearMeRange</key>
+  <string>Raio de busca para avatares próximos.</string>
+  <key>NearbyChatIsNotCollapsed</key>
+  <string>Salvar estado expandido/recolhido do chat próximo entre sessões.</string>
+  <key>NearbyChatIsNotTornOff</key>
+  <string>Salvar estado destacado do chat próximo entre sessões.</string>
+  <key>NearbyListHideUsernames</key>
+  <string>Mostrar tanto o nome de exibição quanto o nome de usuário na lista de pessoas próximas.</string>
+  <key>NearbyListShowIcons</key>
+  <string>Mostrar/ocultar ícones de pessoas na lista de pessoas próximas.</string>
+  <key>NearbyListShowMap</key>
+  <string>Mostrar/ocultar o mapa acima da lista de pessoas próximas.</string>
+  <key>NearbyPeopleSortOrder</key>
+  <string>Especifica a ordem de classificação de pessoas próximas (0 = por nome, 3 = por distância, 4 = mais recentes).</string>
+  <key>NearbyToastFadingTime</key>
+  <string>Número de segundos em que um toast de chat próximo desaparece.</string>
+  <key>NearbyToastLifeTime</key>
+  <string>Número de segundos em que um toast de chat próximo existe.</string>
+  <key>NewCacheLocation</key>
+  <string>Alterar a localização do cache em disco local para este.</string>
+  <key>NewCacheLocationTopFolder</key>
+  <string>Alterar a pasta raiz do cache em disco local para esta.</string>
+  <key>NewObjectCreationThrottle</key>
+  <string>Número máximo de novos objetos criados por quadro, -1 para desativar este limite.</string>
+  <key>NewObjectCreationThrottleDelayTime</key>
+  <string>Tempo em segundos para o NewObjectCreationThrottle entrar em vigor após a tela de progresso ser removida.</string>
+  <key>NextLoginLocation</key>
+  <string>Local para fazer login nesta sessão - definido pela linha de comando ou pelo painel de login, limpo após um login bem-sucedido.</string>
+  <key>NextOwnerCopy</key>
+  <string>(obsoleto) Objetos recém-criados podem ser copiados pelo próximo proprietário.</string>
+  <key>NextOwnerModify</key>
+  <string>(obsoleto) Objetos recém-criados podem ser modificados pelo próximo proprietário.</string>
+  <key>NextOwnerTransfer</key>
+  <string>(obsoleto) Objetos recém-criados podem ser revendidos ou doados pelo próximo proprietário.</string>
+  <key>NoAudio</key>
+  <string>Desativar reprodução de áudio.</string>
+  <key>NoHardwareProbe</key>
+  <string>Desativar a sondagem de hardware.</string>
+  <key>NoInventoryLibrary</key>
+  <string>(Obsoleto) Não solicitar a biblioteca de inventário.</string>
+  <key>NoPreload</key>
+  <string>Desativar o pré-carregamento de som e imagem.</string>
+  <key>NoQuickTime</key>
+  <string>Desativar o QuickTime para uma execução específica do viewer.</string>
+  <key>NoVerifySSLCert</key>
+  <string>Não verificar os pares SSL.</string>
+  <key>NonInteractive</key>
+  <string>Executar em um modo semi-headless em que apenas o login e o logout precisam funcionar.</string>
+  <key>NonvisibleObjectsInMemoryTime</key>
+  <string>Número de quadros que objetos não visíveis permanecem na memória antes de serem removidos. 0 significa máximo.</string>
+  <key>NotMovingHintTimeout</key>
+  <string>Número de segundos a aguardar o residente se mover antes de exibir a dica de movimento.</string>
+  <key>NotecardsEveryoneCopy</key>
+  <string>Todos podem copiar o notecard recém-criado.</string>
+  <key>NotecardsNextOwnerCopy</key>
+  <string>Notecards recém-criados podem ser copiados pelo próximo proprietário.</string>
+  <key>NotecardsNextOwnerModify</key>
+  <string>Notecards recém-criados podem ser modificados pelo próximo proprietário.</string>
+  <key>NotecardsNextOwnerTransfer</key>
+  <string>Notecards recém-criados podem ser revendidos ou doados pelo próximo proprietário.</string>
+  <key>NotecardsShareWithGroup</key>
+  <string>Notecards recém-criados são compartilhados com o grupo ativo no momento.</string>
+  <key>NotificationChannelHeightRatio</key>
+  <string>Proporção entre o canal de notificação e a visão do mundo (0,0 - sempre mostrar 1 notificação, 1,0 - proporção máxima).</string>
+  <key>NotificationChannelRightMargin</key>
+  <string>Espaço entre os toasts e a borda direita da área onde eles podem aparecer.</string>
+  <key>NotificationConferenceIMOptions</key>
+  <string>Especifica como a interface responde a notificações de IM de conferência. Valores permitidos: [openconversations,toast,flash,noaction].</string>
+  <key>NotificationFriendIMOptions</key>
+  <string>Especifica como a interface responde a notificações de IM de amigos. Valores permitidos: [openconversations,toast,flash,noaction].</string>
+  <key>NotificationGroupChatOptions</key>
+  <string>Especifica como a interface responde a notificações de chat de grupo. Valores permitidos: [openconversations,toast,flash,noaction].</string>
+  <key>NotificationNearbyChatOptions</key>
+  <string>Especifica como a interface responde a notificações de chat próximo. Valores permitidos: [openconversations,toast,flash,noaction].</string>
+  <key>NotificationNonFriendIMOptions</key>
+  <string>Especifica como a interface responde a notificações de IM de não amigos. Valores permitidos: [openconversations,toast,flash,noaction].</string>
+  <key>NotificationObjectIMOptions</key>
+  <string>Especifica como a interface responde a notificações de IM de objetos. Valores permitidos: [openconversations,toast,flash,noaction].</string>
+  <key>NotificationTipToastLifeTime</key>
+  <string>Número de segundos em que um toast de dica de notificação existe.</string>
+  <key>NotificationToastLifeTime</key>
+  <string>Número de segundos em que um toast de notificação existe.</string>
+  <key>NotifyMoneyChange</key>
+  <string>Exibir notificações pop-up para todas as transações de L$.</string>
+  <key>NotifyMoneyReceived</key>
+  <string>Exibir notificações pop-up ao receber L$.</string>
+  <key>NotifyMoneySpend</key>
+  <string>Exibir notificações pop-up ao gastar L$.</string>
+  <key>NotifyTipDuration</key>
+  <string>Tempo em que as dicas de notificação permanecem na tela (segundos).</string>
+  <key>NumSessions</key>
+  <string>Número de logins bem-sucedidos no Second Life.</string>
+  <key>NvAPICreateApplicationProfile</key>
+  <string>Criar perfil de aplicativo NVIDIA para configurações otimizadas.</string>
+  <key>OSHibernationMode</key>
+  <string>Se deve impedir que o SO hiberne. 0 - pode hibernar; 1 - não pode hibernar, pode desligar a tela; 2 - não pode hibernar, não pode desligar a tela.</string>
+  <key>ObjectCacheEnabled</key>
+  <string>Ativar o cache de objetos.</string>
+  <key>ObjectCostHighColor</key>
+  <string>Cor para objeto com alto custo de objeto.</string>
+  <key>ObjectCostHighThreshold</key>
+  <string>Limiar a partir do qual o custo do objeto é considerado alto (exibido em vermelho).</string>
+  <key>ObjectCostLowColor</key>
+  <string>Cor para objeto com baixo custo de objeto.</string>
+  <key>ObjectCostMidColor</key>
+  <string>Cor para objeto com custo de objeto médio.</string>
+  <key>ObjectInspectorTooltipDelay</key>
+  <string>Segundos antes de exibir a dica do inspetor de objetos.</string>
+  <key>ObjectsEveryoneCopy</key>
+  <string>Todos podem copiar o objeto recém-criado.</string>
+  <key>ObjectsNextOwnerCopy</key>
+  <string>Objetos recém-criados podem ser copiados pelo próximo proprietário.</string>
+  <key>ObjectsNextOwnerModify</key>
+  <string>Objetos recém-criados podem ser modificados pelo próximo proprietário.</string>
+  <key>ObjectsNextOwnerTransfer</key>
+  <string>Objetos recém-criados podem ser revendidos ou doados pelo próximo proprietário.</string>
+  <key>ObjectsShareWithGroup</key>
+  <string>Objetos recém-criados são compartilhados com o grupo ativo no momento.</string>
+  <key>ObscureBalanceInStatusBar</key>
+  <string>Se verdadeiro, o saldo será mostrado como '*'.</string>
+  <key>OctreeAlphaDistanceFactor</key>
+  <string>Multiplicador na distância de objetos alpha para determinar o tamanho do nó da octree. Os dois primeiros parâmetros estão atualmente sem uso. O terceiro é a distância na qual realizar a ordenação detalhada de alpha.</string>
+  <key>OctreeAttachmentSizeFactor</key>
+  <string>Multiplicador no tamanho do anexo para determinar o tamanho do nó da octree.</string>
+  <key>OctreeDistanceFactor</key>
+  <string>Multiplicador na distância para determinar o tamanho do nó da octree.</string>
+  <key>OctreeMaxNodeCapacity</key>
+  <string>Número máximo de elementos a armazenar em um único nó da octree.</string>
+  <key>OctreeMinimumNodeSize</key>
+  <string>Tamanho mínimo de qualquer nó da octree.</string>
+  <key>OctreeStaticObjectSizeFactor</key>
+  <string>Multiplicador no tamanho de objetos estáticos para determinar o tamanho do nó da octree.</string>
+  <key>OpenDebugStatAdvanced</key>
+  <string>Expandir a exibição de estatísticas avançadas de desempenho.</string>
+  <key>OpenDebugStatBasic</key>
+  <string>Expandir a exibição de estatísticas básicas de desempenho.</string>
+  <key>OpenDebugStatMemory</key>
+  <string>Expandir a exibição de estatísticas de uso de memória.</string>
+  <key>OpenDebugStatNet</key>
+  <string>Expandir a exibição de estatísticas de desempenho de rede.</string>
+  <key>OpenDebugStatPathfinding</key>
+  <string>Expandir a exibição de estatísticas de desempenho de pathfinding.</string>
+  <key>OpenDebugStatPhysicsDetails</key>
+  <string>Expandir a exibição de estatísticas de detalhes de física.</string>
+  <key>OpenDebugStatRender</key>
+  <string>Expandir a exibição de estatísticas de desempenho de renderização.</string>
+  <key>OpenDebugStatSim</key>
+  <string>Expandir a exibição de estatísticas de desempenho do simulador.</string>
+  <key>OpenDebugStatSimTime</key>
+  <string>Expandir a exibição de estatísticas de tempo do simulador.</string>
+  <key>OpenDebugStatSimTimeDetails</key>
+  <string>Expandir a exibição de estatísticas de detalhes de tempo do simulador.</string>
+  <key>OpenDebugStatTexture</key>
+  <string>Expandir a exibição de estatísticas de desempenho de textura.</string>
+  <key>OpenDebugStatVoice</key>
+  <string>Expandir a exibição de estatísticas de voz (WebRTC).</string>
+  <key>OpenDebugStatVoiceIncoming</key>
+  <string>Expandir a exibição de estatísticas de áudio recebido (voz).</string>
+  <key>OpenDebugStatVoiceOutgoing</key>
+  <string>Expandir a exibição de estatísticas de áudio enviado (voz).</string>
+  <key>OpenIMOnVoice</key>
+  <string>Abrir a janela de IM correspondente ao conectar a uma chamada de voz.</string>
+  <key>OpenSidePanelsInFloaters</key>
+  <string>Se verdadeiro, sempre abrirá o conteúdo do painel lateral em um floater.</string>
+  <key>OutBandwidth</key>
+  <string>Limite de largura de banda de saída (bps).</string>
+  <key>OutfitGallerySortOrder</key>
+  <string>Classificação da galeria: 0 - ordenar roupas por nome, 1 - imagens primeiro, 2 - favoritos primeiro.</string>
+  <key>OutfitListFilterFullList</key>
+  <string>0 - mostrar apenas correspondências. 1 - mostrar todos os itens da roupa desde que a roupa ou um item dentro dela corresponda.</string>
+  <key>OutfitListSortOrder</key>
+  <string>Como a lista de roupas no floater do avatar é classificada. 0 - por nome, 1 - favoritos no topo.</string>
+  <key>OutfitOperationsTimeout</key>
+  <string>Timeout para operações relacionadas a roupas.</string>
+  <key>OverflowToastHeight</key>
+  <string>Altura de um toast de transbordamento.</string>
+  <key>OverlayTitle</key>
+  <string>Controla a mensagem de marca d'água exibida na tela quando "ShowOverlayTitle" está ativado (uma palavra, sublinhados viram espaços).</string>
+  <key>PBRUploadFolder</key>
+  <string>Todos os uploads PBR serão armazenados neste diretório (UUID).</string>
+  <key>PTTCurrentlyEnabled</key>
+  <string>Usar o modo Push to Talk.</string>
+  <key>PacketDropPercentage</key>
+  <string>Percentual de pacotes descartados pelo cliente.</string>
+  <key>ParcelMediaAutoPlayEnable</key>
+  <string>Reproduzir automaticamente a mídia da parcela quando disponível. 0 - Não reproduzir; 1 - Reproduzir; 2 - Perguntar.</string>
+  <key>ParticipantListShowIcons</key>
+  <string>Mostrar/ocultar ícones de pessoas na lista de participantes.</string>
+  <key>PathfindingAmbiance</key>
+  <string>Ambiência das exibições iluminadas da navmesh de pathfinding.</string>
+  <key>PathfindingBoundaryEdge</key>
+  <string>Cor de uma borda limítrofe (não atravessável) ao exibir a navmesh de pathfinding.</string>
+  <key>PathfindingConnectedEdge</key>
+  <string>Cor de uma borda conectada (atravessável) ao exibir a navmesh de pathfinding.</string>
+  <key>PathfindingExclusion</key>
+  <string>Cor dos volumes de exclusão ao exibir os tipos de objeto da navmesh de pathfinding.</string>
+  <key>PathfindingFaceColor</key>
+  <string>Cor das faces ao exibir a visão padrão da navmesh de pathfinding.</string>
+  <key>PathfindingHeatColorBase</key>
+  <string>Cor do valor menos caminhável ao exibir a navmesh de pathfinding como mapa de calor.</string>
+  <key>PathfindingHeatColorMax</key>
+  <string>Cor do valor mais caminhável ao exibir a navmesh de pathfinding como mapa de calor.</string>
+  <key>PathfindingLineOffset</key>
+  <string>Deslocamento de profundidade dos contornos de volume na exibição de pathfinding.</string>
+  <key>PathfindingLineWidth</key>
+  <string>Largura dos contornos de volume na exibição da navmesh de pathfinding.</string>
+  <key>PathfindingMaterial</key>
+  <string>Cor dos volumes de material ao exibir os tipos de objeto da navmesh de pathfinding.</string>
+  <key>PathfindingNavMeshClear</key>
+  <string>Cor de fundo ao exibir a navmesh de pathfinding.</string>
+  <key>PathfindingObstacle</key>
+  <string>Cor dos objetos de obstáculo estático ao exibir os tipos de objeto da navmesh de pathfinding.</string>
+  <key>PathfindingRetrieveNeighboringRegion</key>
+  <string>Baixar uma região vizinha ao visualizar uma navmesh de pathfinding (o valor padrão 99 significa não baixar vizinhos).</string>
+  <key>PathfindingTestPathColor</key>
+  <string>Cor do caminho de teste de pathfinding quando o caminho é válido.</string>
+  <key>PathfindingTestPathInvalidEndColor</key>
+  <string>Cor do ponto final da ferramenta de teste de pathfinding quando o caminho é inválido.</string>
+  <key>PathfindingTestPathValidEndColor</key>
+  <string>Cor do ponto final da ferramenta de teste de pathfinding quando o caminho é válido.</string>
+  <key>PathfindingWalkable</key>
+  <string>Cor dos objetos caminháveis ao exibir os tipos de objeto da navmesh de pathfinding.</string>
+  <key>PathfindingWaterColor</key>
+  <string>Cor do plano de água ao exibir a navmesh de pathfinding.</string>
+  <key>PathfindingXRayOpacity</key>
+  <string>Opacidade das linhas de raio-x na exibição de pathfinding.</string>
+  <key>PathfindingXRayTint</key>
+  <string>Quanto escurecer/clarear as linhas de raio-x na exibição de pathfinding.</string>
+  <key>PathfindingXRayWireframe</key>
+  <string>Renderizar o raio-x da navmesh de pathfinding como wireframe.</string>
+  <key>PerAccountSettingsFile</key>
+  <string>Nome do arquivo de configurações persistidas do cliente (por usuário).</string>
+  <key>PerfStatsCaptureEnabled</key>
+  <string>Ativar/desativar dados de tempo de renderização para dar suporte ao autotune.</string>
+  <key>PermissionsCautionEnabled</key>
+  <string>Quando ativado, altera o tratamento de requisições de permissão de script para ajudar a evitar a concessão acidental de certas permissões, como a de débito.</string>
+  <key>PermissionsCautionNotifyBoxHeight</key>
+  <string>Altura das mensagens de notificação do estilo de cautela.</string>
+  <key>PickerContextOpacity</key>
+  <string>Controla a opacidade geral do frustum de contexto que conecta os seletores de cor e textura às suas amostras.</string>
+  <key>PicksPerSecondMouseMoving</key>
+  <string>Com que frequência realizar seleções de hover enquanto o mouse se move (seleções por segundo).</string>
+  <key>PicksPerSecondMouseStationary</key>
+  <string>Com que frequência realizar seleções de hover enquanto o mouse está parado (seleções por segundo).</string>
+  <key>PieMenuLineWidth</key>
+  <string>Largura das linhas na exibição do menu de pizza (pixels).</string>
+  <key>PingInterpolate</key>
+  <string>Extrapolar a posição do objeto ao longo do vetor de velocidade com base no atraso de ping.</string>
+  <key>PitchFromMousePosition</key>
+  <string>Faixa vertical na qual a cabeça do avatar acompanha a posição do mouse (graus de rotação da cabeça do topo da janela até a base).</string>
+  <key>PlainTextChatHistory</key>
+  <string>Ativar/desativar o estilo de histórico de chat em texto simples.</string>
+  <key>PlayChatAnim</key>
+  <string>Seu avatar reproduz a animação de fala sempre que você fala, grita ou sussurra algo no chat próximo.</string>
+  <key>PlaySoundChatMention</key>
+  <string>Reproduz um som quando você é mencionado em um chat.</string>
+  <key>PlaySoundConferenceIM</key>
+  <string>Reproduz um som quando um IM de conferência é recebido.</string>
+  <key>PlaySoundFriendIM</key>
+  <string>Reproduz um som quando o IM de um amigo é recebido.</string>
+  <key>PlaySoundGroupChatIM</key>
+  <string>Reproduz um som quando um IM de chat de grupo é recebido.</string>
+  <key>PlaySoundIncomingVoiceCall</key>
+  <string>Reproduz um som ao receber uma chamada de voz.</string>
+  <key>PlaySoundInventoryOffer</key>
+  <string>Reproduz um som ao receber uma oferta de inventário.</string>
+  <key>PlaySoundNearbyChatIM</key>
+  <string>Reproduz um som quando um IM de chat próximo é recebido.</string>
+  <key>PlaySoundNewConversation</key>
+  <string>Reproduz um som ao ter uma nova conversa.</string>
+  <key>PlaySoundNonFriendIM</key>
+  <string>Reproduz um som quando o IM de um não amigo é recebido.</string>
+  <key>PlaySoundObjectIM</key>
+  <string>Reproduz um som quando um IM de um objeto é recebido.</string>
+  <key>PlaySoundTeleportOffer</key>
+  <string>Reproduz um som ao receber uma oferta de teletransporte.</string>
+  <key>PlayTypingAnim</key>
+  <string>Seu avatar reproduz a animação de digitação sempre que você digita na barra de chat.</string>
+  <key>PluginAttachDebuggerToPlugins</key>
+  <string>Se verdadeiro, anexar uma sessão de depurador a cada processo de plugin ao ser iniciado.</string>
+  <key>PluginInstancesCPULimit</key>
+  <string>Quantidade total de uso de CPU dos plugins antes que os plugins no mundo comecem a ser rebaixados para a prioridade "slideshow". Defina 0 para desativar esta verificação.</string>
+  <key>PluginInstancesLow</key>
+  <string>Limite do número de plugins de mídia no mundo que rodarão com prioridade "baixa".</string>
+  <key>PluginInstancesNormal</key>
+  <string>Limite do número de plugins de mídia no mundo que rodarão com prioridade "normal" ou superior.</string>
+  <key>PluginInstancesTotal</key>
+  <string>Limite rígido do número de plugins que serão instanciados ao mesmo tempo para mídia no mundo.</string>
+  <key>PluginUseReadThread</key>
+  <string>Usar uma thread separada para ler mensagens recebidas dos plugins.</string>
+  <key>PoolSizeAIS</key>
+  <string>Tamanho do pool de corrotinas para o AIS.</string>
+  <key>PoolSizeAssetStorage</key>
+  <string>Tamanho do pool de corrotinas para requisições de AssetStorage.</string>
+  <key>PoolSizeUpload</key>
+  <string>Tamanho do pool de corrotinas para upload.</string>
+  <key>PostFirstLoginIntroURL</key>
+  <string>URL da apresentação de introdução após o primeiro login de novos usuários.</string>
+  <key>PostFirstLoginIntroViewed</key>
+  <string>Flag que indica se o usuário viu a apresentação de introdução após o primeiro login de novos usuários.</string>
+  <key>PrecachingDelay</key>
+  <string>Atraso ao fazer login para carregar o mundo antes de exibi-lo (segundos).</string>
+  <key>PreferredBrowserBehavior</key>
+  <string>Usar o navegador do sistema para qualquer link (0), usar o navegador embutido para links do SL e o do sistema para os demais (1) ou usar apenas o navegador embutido (2).</string>
+  <key>PreferredMaturity</key>
+  <string>Configuração do nível de maturidade preferido pelo usuário (constantes em indra_constants.h).</string>
+  <key>PresetCameraActive</key>
+  <string>Nome da preferência selecionada no momento.</string>
+  <key>PresetGraphicActive</key>
+  <string>Nome da preferência selecionada no momento.</string>
+  <key>PreviewAmbientColor</key>
+  <string>Cor ambiente da renderização de pré-visualização.</string>
+  <key>PreviewDiffuse0</key>
+  <string>Cor difusa da luz de pré-visualização 0.</string>
+  <key>PreviewDiffuse1</key>
+  <string>Cor difusa da luz de pré-visualização 1.</string>
+  <key>PreviewDiffuse2</key>
+  <string>Cor difusa da luz de pré-visualização 2.</string>
+  <key>PreviewDirection0</key>
+  <string>Direção da luz 0 para a renderização de pré-visualização.</string>
+  <key>PreviewDirection1</key>
+  <string>Direção da luz 1 para a renderização de pré-visualização.</string>
+  <key>PreviewDirection2</key>
+  <string>Direção da luz 2 para a renderização de pré-visualização.</string>
+  <key>PreviewSpecular0</key>
+  <string>Cor especular da luz de pré-visualização 0.</string>
+  <key>PreviewSpecular1</key>
+  <string>Cor especular da luz de pré-visualização 1.</string>
+  <key>PreviewSpecular2</key>
+  <string>Cor especular da luz de pré-visualização 2.</string>
+  <key>PreviousInstallChecked</key>
+  <string>Se o viewer verificou a instalação anterior no mesmo canal para o NSIS.</string>
+  <key>PreviousScreenshotForReport</key>
+  <string>Usar captura de tela anterior para denúncia de abuso.</string>
+  <key>PrimMediaControlsUseHoverControlSet</key>
+  <string>Se passar o mouse sobre a mídia de um prim usa os controles mínimos de "hover" ou o conjunto de controles definido.</string>
+  <key>PrimMediaDragNDrop</key>
+  <string>Ativar arrastar e soltar de URLs sobre faces de prim.</string>
+  <key>PrimMediaMasterEnabled</key>
+  <string>Se a Mídia em um Prim está ou não ativada.</string>
+  <key>PrimMediaMaxRetries</key>
+  <string>Número máximo de tentativas para consultas de mídia.</string>
+  <key>PrimMediaMaxRoundRobinQueueSize</key>
+  <string>Número máximo de objetos para os quais o viewer atualizará a mídia continuamente.</string>
+  <key>PrimMediaMaxSortedQueueSize</key>
+  <string>Número máximo de objetos para os quais o viewer carregará mídia inicialmente.</string>
+  <key>PrimMediaRequestQueueDelay</key>
+  <string>Atraso do temporizador para buscar mídia da fila (em segundos).</string>
+  <key>PrimMediaRetryTimerDelay</key>
+  <string>Atraso do temporizador para repetir consultas de mídia (em segundos).</string>
+  <key>PrimTextMaxDrawDistance</key>
+  <string>Distância máxima de desenho além da qual PRIM_TEXT não será renderizado.</string>
+  <key>ProbeHardwareOnStartup</key>
+  <string>Consultar a configuração de hardware atual na inicialização do aplicativo.</string>
+  <key>PurgeCacheOnNextStartup</key>
+  <string>Limpar o cache de arquivos local na próxima vez que o viewer for executado.</string>
+  <key>PurgeCacheOnStartup</key>
+  <string>Limpar o cache de arquivos local toda vez que o viewer for executado.</string>
+  <key>PurgeDiskCacheOnStartup</key>
+  <string>Se deve ou não limpar o cache em disco por LRU durante a inicialização na thread principal.</string>
+  <key>PushToTalkButton</key>
+  <string>(Obsoleto) Qual botão ou tecla é usado para push-to-talk.</string>
+  <key>PushToTalkToggle</key>
+  <string>Se o botão da barra de ferramentas de push-to-talk deve se comportar como alternância.</string>
+  <key>QAMode</key>
+  <string>Ativar recursos de teste.</string>
+  <key>QAModeEventHostPort</key>
+  <string>(Obsoleto) Porta na qual o lleventhost deve escutar.</string>
+  <key>QAModeFakeSystemFolderIssues</key>
+  <string>Simula problemas de pastas de sistema no inventário.</string>
+  <key>QAModeMetrics</key>
+  <string>Ativa recursos de QA (logging, ciclagem mais rápida) para o coletor de métricas.</string>
+  <key>QAModeTermCode</key>
+  <string>Em LL_ERRS, encerrar com este código em vez da caixa de mensagem do SO.</string>
+  <key>QuickBuyCurrency</key>
+  <string>Alternar entre o floater de compra de moeda baseado em HTML e a versão XUI legada.</string>
+  <key>QuietSnapshotsToDisk</key>
+  <string>Tirar capturas para o disco sem reproduzir animação ou som.</string>
+  <key>QuitAfterSeconds</key>
+  <string>A duração permitida antes de encerrar.</string>
+  <key>QuitOnLoginActivated</key>
+  <string>Encerrar se a página de login for ativada (usado quando o login automático está ligado e os usuários não devem poder fazer login manualmente).</string>
+  <key>RadioLandBrushAction</key>
+  <string>Última operação de modificação de terreno selecionada (0 = nivelar, 1 = elevar, 2 = baixar, 3 = suavizar, 4 = irregular, 5 = reverter).</string>
+  <key>RecentItemsSortOrder</key>
+  <string>Especifica a chave de classificação dos itens de inventário recentes (+0 = nome, +1 = data, +2 = pastas sempre por nome, +4 = pastas de sistema no topo).</string>
+  <key>RecentJumpThresholdSecs</key>
+  <string>Segundos após a entrada de pulo durante os quais a animação de finalização do pouso é suprimida para evitar interromper pulos sucessivos rápidos.</string>
+  <key>RecentListShowIcons</key>
+  <string>Mostrar/ocultar ícones de pessoas na lista de recentes.</string>
+  <key>RecentPeopleSortOrder</key>
+  <string>Especifica a ordem de classificação de pessoas recentes (0 = por nome, 2 = mais recentes).</string>
+  <key>RectangleSelectInclusive</key>
+  <string>Selecionar objetos que tenham ao menos um vértice dentro do retângulo de seleção.</string>
+  <key>RegInClient</key>
+  <string>Experimental: incorporar o registro na tela de login.</string>
+  <key>RegionCheckTextureHeights</key>
+  <string>Não permitir que o usuário defina alturas baixas maiores que as altas.</string>
+  <key>RegionCrossingInterpolationTime</key>
+  <string>Por quanto tempo extrapolar o movimento do objeto após cruzar regiões.</string>
+  <key>RegionTextureSize</key>
+  <string>Dimensões da textura de terreno (potência de 2).</string>
+  <key>RememberPassword</key>
+  <string>Manter a senha (de forma criptografada) para o próximo login.</string>
+  <key>RememberUser</key>
+  <string>Manter o nome de usuário para o próximo login.</string>
+  <key>RenderAnimateRes</key>
+  <string>Animar o surgimento (rez) de prims.</string>
+  <key>RenderAnisotropic</key>
+  <string>Renderizar texturas usando filtragem anisotrópica.</string>
+  <key>RenderAppleUseMultGL</key>
+  <string>Se queremos usar OpenGL multithread em hardware Apple (requer reinício do SL).</string>
+  <key>RenderAttachedLights</key>
+  <string>Renderizar prims com luz que estão anexados a avatares.</string>
+  <key>RenderAttachedParticles</key>
+  <string>Renderizar sistemas de partículas que estão anexados a avatares.</string>
+  <key>RenderAutoHideSurfaceAreaLimit</key>
+  <string>Área de superfície máxima de um conjunto de objetos próximos no mundo antes de ocultar geometria automaticamente para evitar sobrecarga do sistema.</string>
+  <key>RenderAutoMaskAlphaDeferred</key>
+  <string>Usar máscaras alpha onde apropriado no Modelo de Iluminação Avançada.</string>
+  <key>RenderAutoMaskAlphaNonDeferred</key>
+  <string>Usar máscaras alpha onde apropriado quando não estiver usando o Modelo de Iluminação Avançada.</string>
+  <key>RenderAutoMuteLogging</key>
+  <string>Mostrar informações extras nos logs do viewer sobre custos de renderização de avatares.</string>
+  <key>RenderAutoMuteRenderWeightLimit</key>
+  <string>OBSOLETO. Esta configuração foi renomeada para RenderAvatarMaxNonImpostors.</string>
+  <key>RenderAutoMuteSurfaceAreaLimit</key>
+  <string>Área de superfície máxima dos anexos antes que um avatar seja renderizado como um impostor simples (para não usar este limite, defina como zero ou defina RenderAvatarMaxComplexity como zero).</string>
+  <key>RenderAvatarCloth</key>
+  <string>Controla se as roupas do avatar de sistema usam tecido ondulante.</string>
+  <key>RenderAvatarComplexityMode</key>
+  <string>0 - o limite de complexidade se aplica a todos, 1 - sempre mostrar amigos, 2 - mostrar apenas amigos.</string>
+  <key>RenderAvatarFriendsOnly</key>
+  <string>Quando ativado, oculta todos os avatares que não sejam amigos. Não afeta avatares de controle no mundo (animeshes), nem você mesmo.</string>
+  <key>RenderAvatarLODFactor</key>
+  <string>Controla o nível de detalhe dos avatares (multiplicador para a área de tela atual ao calcular o nível de detalhe).</string>
+  <key>RenderAvatarMaxART</key>
+  <string>Limite de tempo de renderização em microssegundos (0,0 = sem limite).</string>
+  <key>RenderAvatarMaxComplexity</key>
+  <string>Complexidade máxima de renderização do avatar.</string>
+  <key>RenderAvatarMaxNonImpostors</key>
+  <string>Número máximo de avatares a renderizar totalmente de uma vez; acima deste limite, usa renderização por impostor (renderização simplificada com atualizações menos frequentes), reduzindo o lag do cliente.</string>
+  <key>RenderAvatarMaxVisible</key>
+  <string>OBSOLETO e NÃO UTILIZADO. Veja RenderAvatarMaxNonImpostors.</string>
+  <key>RenderAvatarPhysicsLODFactor</key>
+  <string>Controla o nível de detalhe da física do avatar (como a física dos seios).</string>
+  <key>RenderBakeSunlight</key>
+  <string>Assar a luz do sol nos vertex buffers para objetos estáticos.</string>
+  <key>RenderBalanceInSnapshot</key>
+  <string>Exibir o saldo de L$ na captura.</string>
+  <key>RenderBufferVisualization</key>
+  <string>Envia um buffer selecionado para a tela. -1 = buffer de renderização final. 0 = Albedo, 1 = Especular/ORM, 2 = Normal, 3 = Emissivo, 4 = Luminância do olho, 5 = Luminância FXAA/Textura de borda SMAA, 6 = Pesos de mistura SMAA.</string>
+  <key>RenderBumpmapMinDistanceSquared</key>
+  <string>Distância máxima na qual renderizar primitivas com bumpmap (distância em metros, ao quadrado).</string>
+  <key>RenderCASSharpness</key>
+  <string>Nível de nitidez a aplicar via Contrast Adaptive Sharpening (0,0 (desligado) - 1,0).</string>
+  <key>RenderCPUBasis</key>
+  <string>Velocidade de clock de CPU de referência a usar para enviesar a classe da GPU (em MHz).</string>
+  <key>RenderCanUseGLTFPBROpaqueShaders</key>
+  <string>O hardware tem suporte para shaders de cena GLTF.</string>
+  <key>RenderCanUseTerrainBakeShaders</key>
+  <string>O hardware tem suporte para shaders de Terrain Bake.</string>
+  <key>RenderClass1MemoryBandwidth</key>
+  <string>Largura de banda de memória na qual usar Classe 1 por padrão, em gigabytes por segundo. Usado como base para classes superiores.</string>
+  <key>RenderComplexityColorMax</key>
+  <string>Configuração obsoleta não utilizada.</string>
+  <key>RenderComplexityColorMid</key>
+  <string>Configuração obsoleta não utilizada.</string>
+  <key>RenderComplexityColorMin</key>
+  <string>Configuração obsoleta não utilizada.</string>
+  <key>RenderComplexityStaticMax</key>
+  <string>Configuração obsoleta não utilizada.</string>
+  <key>RenderComplexityThreshold</key>
+  <string>Configuração obsoleta não utilizada.</string>
+  <key>RenderCompressTextures</key>
+  <string>Ativar compressão de texturas em implementações OpenGL 3.0 e posteriores (EXPERIMENTAL, requer reinício).</string>
+  <key>RenderCubeMap</key>
+  <string>Se podemos ou não renderizar o cube map.</string>
+  <key>RenderDebugAlphaMask</key>
+  <string>Testar os cortes de máscara alpha.</string>
+  <key>RenderDebugGLSession</key>
+  <string>Ativar depuração GL estrita no início da próxima sessão.</string>
+  <key>RenderDebugNormalScale</key>
+  <string>Escala das normais na exibição de depuração.</string>
+  <key>RenderDebugPipeline</key>
+  <string>Ativar depuração estrita do pipeline.</string>
+  <key>RenderDebugTextureBind</key>
+  <string>Ativar teste de desempenho de bind de textura.</string>
+  <key>RenderDefaultProbeUpdatePeriod</key>
+  <string>Quando RenderReflectionProbeLevel é 0, tempo em segundos a aguardar entre atualizações do mapa de reflexão.</string>
+  <key>RenderDeferred</key>
+  <string>Renderização diferida.</string>
+  <key>RenderDeferredAlphaSoften</key>
+  <string>Escalar para suavizar superfícies alpha (para partículas suaves).</string>
+  <key>RenderDeferredAtmospheric</key>
+  <string>Executar o shader atmosférico no renderizador diferido.</string>
+  <key>RenderDeferredBlurLight</key>
+  <string>Executar o shader de suavização de sombras no renderizador diferido.</string>
+  <key>RenderDeferredDisplayGamma</key>
+  <string>Expoente da rampa de gama para correção final antes do gama de exibição.</string>
+  <key>RenderDeferredNoise</key>
+  <string>Escalar de ruído para esconder banding na renderização diferida.</string>
+  <key>RenderDeferredSSAO</key>
+  <string>Executar o shader de oclusão de ambiente em espaço de tela no renderizador diferido.</string>
+  <key>RenderDeferredSpotShadowBias</key>
+  <string>Valor de viés para sombras de spot (previne shadow acne).</string>
+  <key>RenderDeferredSpotShadowOffset</key>
+  <string>Valor de deslocamento para sombras de spot (previne shadow acne).</string>
+  <key>RenderDeferredSun</key>
+  <string>Executar o shader de luz solar no renderizador diferido.</string>
+  <key>RenderDeferredSunWash</key>
+  <string>Quanto as luzes locais são apagadas pelo sol.</string>
+  <key>RenderDeferredTreeShadowBias</key>
+  <string>Valor de viés para sombras de árvores (previne shadow acne).</string>
+  <key>RenderDeferredTreeShadowOffset</key>
+  <string>Valor de deslocamento para sombras de árvores (previne shadow acne).</string>
+  <key>RenderDelayCreation</key>
+  <string>Limitar a criação de drawables.</string>
+  <key>RenderDelayVBUpdate</key>
+  <string>Atrasar as atualizações dos vertex buffers até pouco antes de renderizar.</string>
+  <key>RenderDepthOfField</key>
+  <string>Se deve usar o efeito de profundidade de campo quando o Modelo de Iluminação Avançada está ativado.</string>
+  <key>RenderDepthOfFieldInEditMode</key>
+  <string>Se deve usar o efeito de profundidade de campo no modo de edição.</string>
+  <key>RenderDepthPrePass</key>
+  <string>EXPERIMENTAL: preparar o buffer de profundidade com geometria de prim simples antes de renderizar com texturas.</string>
+  <key>RenderDesaturateIrradiance</key>
+  <string>Dessaturar a irradiância para remover o tom azulado.</string>
+  <key>RenderDiffuseLuminanceScale</key>
+  <string>Ajuste de luminância para superfícies difusas para auxiliar o comportamento de autoexposição.</string>
+  <key>RenderDisablePostProcessing</key>
+  <string>Desativar mapeamento de tons e correção de exposição quando o floater de construção está aberto (para artistas desenvolvendo materiais).</string>
+  <key>RenderDisableVintageMode</key>
+  <string>Ativa recursos adicionais do pipeline de renderização em máquinas mais novas, como HDR e texturas emissivas em conteúdo PBR.</string>
+  <key>RenderDownScaleMethod</key>
+  <string>Método a usar para reduzir imagens. 0 - FBO, 1 - PBO.</string>
+  <key>RenderDynamicExposureCoefficient</key>
+  <string>Coeficiente de luminância para exposição dinâmica.</string>
+  <key>RenderDynamicLOD</key>
+  <string>Ajustar dinamicamente o nível de detalhe.</string>
+  <key>RenderEdgeDepthCutoff</key>
+  <string>Corte para a diferença de profundidade que constitui uma borda.</string>
+  <key>RenderEdgeNormCutoff</key>
+  <string>Corte para a diferença de normal que constitui uma borda.</string>
+  <key>RenderEnableEmissiveBuffer</key>
+  <string>Ativar o buffer emissivo no gbuffer. Só deve ser desativado no modo GL3.</string>
+  <key>RenderExposure</key>
+  <string>Valor de exposição a enviar ao mapeador de tons.</string>
+  <key>RenderFSAASamples</key>
+  <string>Qualidade do antialiasing: 0 = Baixa, 1 = Média, 2 = Alta, 3 = Ultra.</string>
+  <key>RenderFSAAType</key>
+  <string>Tipo de antialiasing a usar: 0 = Nenhum, 1 = FXAA, 2 = SMAA.</string>
+  <key>RenderFarClip</key>
+  <string>Clipe de distância de renderização.</string>
+  <key>RenderFlexTimeFactor</key>
+  <string>Controla o nível de detalhe de objetos flexíveis (multiplicador para o tempo gasto processando objetos flex).</string>
+  <key>RenderFogRatio</key>
+  <string>OBSOLETO - Distância da câmera onde a névoa atinge densidade máxima (fração ou múltiplo da distância de far clip).</string>
+  <key>RenderGLContextCoreProfile</key>
+  <string>Não usar um contexto OpenGL de perfil de compatibilidade. Requer reinício.</string>
+  <key>RenderGLMultiThreadedMedia</key>
+  <string>Permitir que o OpenGL use múltiplos contextos de renderização para reproduzir mídia (pode reduzir engasgos de quadros, não funciona bem com drivers Intel).</string>
+  <key>RenderGLMultiThreadedTextures</key>
+  <string>Permitir que o OpenGL use múltiplos contextos de renderização para carregar texturas (pode reduzir engasgos de quadros, não funciona bem com drivers Intel).</string>
+  <key>RenderGamma</key>
+  <string>OBSOLETO - Define o expoente de gama para o renderizador.</string>
+  <key>RenderGammaFull</key>
+  <string>Usar correção de gama totalmente controlável, em vez da correção de gama mais rápida e fixa de 2.</string>
+  <key>RenderGlow</key>
+  <string>Renderizar o efeito de pós-processamento de bloom.</string>
+  <key>RenderGlowHDR</key>
+  <string>Ativar HDR para o mapa de brilho.</string>
+  <key>RenderGlowIterations</key>
+  <string>Número de vezes para iterar o brilho (mais alto = mais largo e suave, porém mais lento).</string>
+  <key>RenderGlowLumWeights</key>
+  <string>Pesos de cada canal de cor a usar no cálculo da luminância (devem somar 1,0).</string>
+  <key>RenderGlowMaxExtractAlpha</key>
+  <string>Valor máximo de alpha do brilho para extração de brilho no auto-glow.</string>
+  <key>RenderGlowMinLuminance</key>
+  <string>Intensidade mínima de luminância necessária para considerar um objeto brilhante o suficiente para brilhar automaticamente.</string>
+  <key>RenderGlowNoise</key>
+  <string>Ativa o ruído de brilho (dithering). Reduz o banding do brilho em certos casos.</string>
+  <key>RenderGlowResolutionPow</key>
+  <string>Resolução do mapa de brilho em potência de dois.</string>
+  <key>RenderGlowStrength</key>
+  <string>Força aditiva do brilho.</string>
+  <key>RenderGlowWarmthAmount</key>
+  <string>Quantidade de extração de calor a usar (em vez de extração de luminância). 0 = luminância, 1,0 = calor.</string>
+  <key>RenderGlowWarmthWeights</key>
+  <string>Peso de cada canal de cor usado antes de encontrar o calor máximo.</string>
+  <key>RenderGlowWidth</key>
+  <string>Tamanho da amostra de brilho (mais alto = mais largo e suave, mas eventualmente mais pixelado).</string>
+  <key>RenderHDREnabled</key>
+  <string>Ativar renderização HDR.</string>
+  <key>RenderHDRIExposure</key>
+  <string>Ajuste de exposição do HDRI ao pré-visualizar um HDRI. As unidades são EV. Valores razoáveis seriam de -10 a 10.</string>
+  <key>RenderHDRIIrradianceOnly</key>
+  <string>Usar o céu HDRI apenas para o mapa de irradiância quando RenderHDRISplitScreen é 0.</string>
+  <key>RenderHDRIRotation</key>
+  <string>Rotação (em graus) do ambiente ao pré-visualizar um HDRI.</string>
+  <key>RenderHDRISplitScreen</key>
+  <string>Qual percentual da tela renderizar usando HDRI vs. céu EEP.</string>
+  <key>RenderHDRSkySunlightScale</key>
+  <string>Fator de ajuste da escala de luz solar para combinar com o viewer pré-PBR quando o HDR está ativado.</string>
+  <key>RenderHUDInSnapshot</key>
+  <string>Exibir anexos de HUD na captura.</string>
+  <key>RenderHUDObjectsWarning</key>
+  <string>O viewer avisará o usuário sobre HUDs contendo objetos demais se a contagem de objetos estiver acima deste valor.</string>
+  <key>RenderHUDOversizedTexturesWarning</key>
+  <string>Quantas texturas de tamanho 1024 * 1024 ou maior um HUD pode conter antes de notificar o usuário.</string>
+  <key>RenderHUDParticles</key>
+  <string>Exibir sistemas de partículas em anexos de HUD (experimental).</string>
+  <key>RenderHUDTexturesMemoryWarning</key>
+  <string>O viewer avisará o usuário sobre texturas de HUD usando memória acima deste valor (em bytes).</string>
+  <key>RenderHUDTexturesWarning</key>
+  <string>O viewer avisará o usuário sobre HUDs contendo texturas demais se a contagem de texturas estiver acima deste valor.</string>
+  <key>RenderHeroProbeConservativeUpdateMultiplier</key>
+  <string>Quantas atualizações de probe aguardar até atualizar as faces que não estão diretamente voltadas para a câmera. Atua como multiplicador. Ex.: quadros na periferia da câmera atualizam a cada 3 atualizações, vs. os diretamente voltados para a câmera, que atualizam a cada atualização.</string>
+  <key>RenderHeroProbeDistance</key>
+  <string>Distância em metros até a qual os hero probes renderizam.</string>
+  <key>RenderHeroProbeResolution</key>
+  <string>Resolução para renderizar os hero probes usados em espelhos, água, etc.</string>
+  <key>RenderHeroProbeUpdateRate</key>
+  <string>Quantos quadros aguardar até renderizar o probe. Ex.: quadro sim, quadro não (1), a cada dois quadros (2), a cada três quadros (3) etc.</string>
+  <key>RenderHiDPI</key>
+  <string>Ativar suporte para telas HiDPI, como Retina (APENAS macOS, requer reinício).</string>
+  <key>RenderHiddenSelections</key>
+  <string>Mostrar linhas de seleção em objetos que estão atrás de outros objetos.</string>
+  <key>RenderHideGroupTitle</key>
+  <string>Não mostrar meu título de grupo no meu rótulo de nome.</string>
+  <key>RenderHighMemMinDiscardDecrement</key>
+  <string>Decremento mínimo do viés de descarte se houver excesso de memória de textura disponível.</string>
+  <key>RenderHighlightBrightness</key>
+  <string>Brilho dos destaques de mouseover.</string>
+  <key>RenderHighlightColor</key>
+  <string>Cor dos destaques de mouseover.</string>
+  <key>RenderHighlightFadeTime</key>
+  <string>Tempo de transição dos destaques de mouseover.</string>
+  <key>RenderHighlightSelections</key>
+  <string>Mostrar contornos de seleção nos objetos.</string>
+  <key>RenderHighlightThickness</key>
+  <string>Espessura dos destaques de mouseover.</string>
+  <key>RenderHoverGlowEnable</key>
+  <string>OBSOLETO --- Mostrar efeito de brilho ao passar o mouse sobre objetos interativos.</string>
+  <key>RenderInitError</key>
+  <string>Ocorreu um erro ao inicializar o GL.</string>
+  <key>RenderLightRadius</key>
+  <string>Renderizar o raio das luzes selecionadas.</string>
+  <key>RenderLocalLightCount</key>
+  <string>Número de luzes locais a renderizar.</string>
+  <key>RenderLowMemMinDiscardIncrement</key>
+  <string>Incremento mínimo do viés de descarte se a memória de textura disponível ficar baixa.</string>
+  <key>RenderMaxNodeSize</key>
+  <string>Tamanho máximo dos dados de vértice de um único nó (em KB).</string>
+  <key>RenderMaxOpenGLVersion</key>
+  <string>Versão máxima do OpenGL a tentar usar (mínimo 3.1, máximo 4.6). Requer reinício. Apenas Windows.</string>
+  <key>RenderMaxPartCount</key>
+  <string>Número máximo de partículas a exibir na tela.</string>
+  <key>RenderMaxTextureIndex</key>
+  <string>Índice máximo de textura a usar para renderização de textura indexada.</string>
+  <key>RenderMaxTextureResolution</key>
+  <string>Resolução máxima de textura a baixar para texturas não impulsionadas.</string>
+  <key>RenderMaxVBOSize</key>
+  <string>Tamanho máximo de um vertex buffer (em KB).</string>
+  <key>RenderMaxVRAMBudget</key>
+  <string>Quantidade máxima de memória de textura a reservar (em MB), ou 0 para detecção automática.</string>
+  <key>RenderMinFreeMainMemoryThreshold</key>
+  <string>Se a memória física livre disponível estiver abaixo deste valor, as texturas são reduzidas agressivamente.</string>
+  <key>RenderMinimumLODTriangleCount</key>
+  <string>Limiar de contagem de triângulos no qual a geração automática de LOD para.</string>
+  <key>RenderMirrors</key>
+  <string>Renderiza espelhos em tempo real.</string>
+  <key>RenderNameFadeDuration</key>
+  <string>Intervalo de tempo durante o qual os nomes dos avatares desaparecem (segundos).</string>
+  <key>RenderNameShowSelf</key>
+  <string>Exibir o próprio nome acima do avatar.</string>
+  <key>RenderNameShowTime</key>
+  <string>Desaparecer os nomes dos avatares após o tempo especificado (segundos).</string>
+  <key>RenderNoAlpha</key>
+  <string>Desativar a renderização de objetos alpha (renderizar todos os objetos alpha como máscaras alpha).</string>
+  <key>RenderNormalMapScale</key>
+  <string>Escalar aplicado ao mapa de altura ao gerar mapas de normais.</string>
+  <key>RenderNsightDebugSupport</key>
+  <string>Desativar recursos que impedem o uso do nVidia nSight com o SL. Requer reinício.</string>
+  <key>RenderObjectBump</key>
+  <string>OBSOLETO (apenas TRUE é suportado) Mostrar bumpmapping em primitivas.</string>
+  <key>RenderOcclusionTimeout</key>
+  <string>Número máximo de quadros a aguardar em uma consulta de oclusão antes de lê-la de volta à força.</string>
+  <key>RenderParcelSelection</key>
+  <string>Exibir o contorno da parcela selecionada.</string>
+  <key>RenderPerformanceTest</key>
+  <string>Desativar a renderização de tudo, exceto o conteúdo no mundo, para testes de desempenho.</string>
+  <key>RenderPreferStreamDraw</key>
+  <string>Usar GL_STREAM_DRAW no lugar de GL_DYNAMIC_DRAW.</string>
+  <key>RenderQualityPerformance</key>
+  <string>Quais configurações gráficas você escolheu. Não use esta configuração para alterar a qualidade diretamente pelas configurações de depuração.</string>
+  <key>RenderReflectionDetail</key>
+  <string>OBSOLETO -- use RenderTransparentWater e RenderReflectionProbeDetail -- Detalhe do passe de renderização de reflexão.</string>
+  <key>RenderReflectionProbeAmbiance</key>
+  <string>Quanto os probes de reflexão contribuem para a luz ambiente.</string>
+  <key>RenderReflectionProbeCount</key>
+  <string>Número de probes a renderizar. Máximo de 256. Ajusta para a potência de 2 mais próxima.</string>
+  <key>RenderReflectionProbeDetail</key>
+  <string>Detalhe das reflexões. (-1 - Desativado, 0 - Apenas estático, 1 - Estático + Dinâmico, 2 - Tempo real).</string>
+  <key>RenderReflectionProbeDrawDistance</key>
+  <string>Far clip da câmera a usar ao atualizar os probes de reflexão.</string>
+  <key>RenderReflectionProbeDynamicAllocation</key>
+  <string>Ativar alocação dinâmica de probes de reflexão. -1 significa sem alocação dinâmica. Define um buffer a alocar quando ocorre uma alocação dinâmica.</string>
+  <key>RenderReflectionProbeLevel</key>
+  <string>Controle dos probes de reflexão. 0 - desativar (um probe para todos), 1 - apenas probes manuais, 2 - manual + terreno/água, 3 - Manual + Terreno/água + objetos.</string>
+  <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
+  <string>Ambiência efetiva máxima de probe para luzes locais.</string>
+  <key>RenderReflectionProbeResolution</key>
+  <string>Resolução dos mapas de radiância dos probes de reflexão (requer reinício). Será definida para a próxima potência de dois mais alta, limitada a [64, 512]. Note que alterar este valor pode consumir uma quantidade enorme de memória de vídeo.</string>
+  <key>RenderReflectionProbeShowTransparent</key>
+  <string>Mostrar probes de reflexão na visão de depuração de transparência.</string>
+  <key>RenderReflectionProbeVolumes</key>
+  <string>Renderizar os volumes de influência dos probes de reflexão.</string>
+  <key>RenderReflectionRes</key>
+  <string>Resolução do mapa de reflexão.</string>
+  <key>RenderReflectionsEnabled</key>
+  <string>Ativar/desativar probes de reflexão.</string>
+  <key>RenderReservedTextureIndices</key>
+  <string>Quantidade de índices de textura a reservar para mapas de sombra e reflexão ao usar renderização de textura indexada. Provavelmente só deve ser definido na tela de login.</string>
+  <key>RenderResolutionDivisor</key>
+  <string>Divisor para renderizar a cena 3D em resolução reduzida.</string>
+  <key>RenderSSAOEffect</key>
+  <string>Multiplicador para (1) valor e (2) saturação (definição HSV), para áreas totalmente ocluídas. Mistura com a cor original para áreas parcialmente ocluídas. (O terceiro componente não é utilizado).</string>
+  <key>RenderSSAOFactor</key>
+  <string>Fator de sensibilidade de oclusão para a oclusão de ambiente (maior é mais).</string>
+  <key>RenderSSAOIrradianceMax</key>
+  <string>Fator máximo para a entrada de irradiância no SSAO.</string>
+  <key>RenderSSAOIrradianceScale</key>
+  <string>Fator de escala para a entrada de irradiância no SSAO.</string>
+  <key>RenderSSAOMaxScale</key>
+  <string>Raio máximo de tela para amostragem (pixels).</string>
+  <key>RenderSSAOScale</key>
+  <string>Fator de escala para a área a amostrar em busca de oclusores (pixels a 1 metro de distância, variando inversamente com a distância).</string>
+  <key>RenderScreenSpaceReflectionAdaptiveStepMultiplier</key>
+  <string>Multiplicador para escalar o passo adaptativo.</string>
+  <key>RenderScreenSpaceReflectionDepthRejectBias</key>
+  <string>Viés contra o buffer de profundidade antes de rejeitar uma amostra.</string>
+  <key>RenderScreenSpaceReflectionDistanceBias</key>
+  <string>Viés de distância a aplicar ao rejeitar uma amostra potencial.</string>
+  <key>RenderScreenSpaceReflectionGlossySamples</key>
+  <string>Número máximo de amostras a aplicar para SSR brilhante.</string>
+  <key>RenderScreenSpaceReflectionIterations</key>
+  <string>Número de vezes que o algoritmo de ray march executa para encontrar um possível acerto.</string>
+  <key>RenderScreenSpaceReflectionRayStep</key>
+  <string>Quão grande é o passo entre cada execução.</string>
+  <key>RenderScreenSpaceReflections</key>
+  <string>Renderiza reflexões em espaço de tela para considerar melhor objetos dinâmicos com probes de reflexão.</string>
+  <key>RenderShaderCacheEnabled</key>
+  <string>Ativar cache de shaders binários.</string>
+  <key>RenderShaderCacheVersion</key>
+  <string>Hash de versão atual do cache de shaders.</string>
+  <key>RenderShaderLODThreshold</key>
+  <string>Fração da distância de desenho que define a troca para um LOD de shader diferente.</string>
+  <key>RenderShaderLightingMaxLevel</key>
+  <string>Nível máximo de iluminação a usar no shader (classe 3 é o padrão, 2 é menos luzes, 1 é apenas sol/lua. Contorna bugs do compilador de shaders em certas plataformas).</string>
+  <key>RenderShaderParticleThreshold</key>
+  <string>Fração da distância de desenho a partir da qual não usar shader em partículas.</string>
+  <key>RenderShadowBias</key>
+  <string>Valor de viés para sombras (previne shadow acne).</string>
+  <key>RenderShadowBiasError</key>
+  <string>Escala de erro para o viés de sombra (com base na altitude).</string>
+  <key>RenderShadowBlurDistFactor</key>
+  <string>Escalar de distância para o desfoque de sombra.</string>
+  <key>RenderShadowBlurSamples</key>
+  <string>Número de amostras a tomar em cada passe de desfoque de sombra (faixa de 1-16). O número real de amostras é valor * 2 - 1.</string>
+  <key>RenderShadowBlurSize</key>
+  <string>Escala do kernel de suavização de sombra.</string>
+  <key>RenderShadowDetail</key>
+  <string>Detalhe das sombras.</string>
+  <key>RenderShadowErrorCutoff</key>
+  <string>Valor de erro de corte para usar projeção ortográfica em vez de perspectiva.</string>
+  <key>RenderShadowFOVCutoff</key>
+  <string>FOV de corte para usar projeção ortográfica em vez de perspectiva.</string>
+  <key>RenderShadowGaussian</key>
+  <string>Coeficientes gaussianos para os dois passes de desfoque de sombra/SSAO (componente z não utilizado).</string>
+  <key>RenderShadowNoise</key>
+  <string>Magnitude do ruído nas amostras de sombra.</string>
+  <key>RenderShadowOffset</key>
+  <string>Valor de deslocamento para sombras (previne shadow acne).</string>
+  <key>RenderShadowOffsetError</key>
+  <string>Escala de erro para o deslocamento de sombra (com base na altitude).</string>
+  <key>RenderShadowProjExponent</key>
+  <string>Expoente aplicado à transição entre projeções de sombra ortográfica e em perspectiva com base no ângulo de visão e no vetor de luz.</string>
+  <key>RenderShadowProjOffset</key>
+  <string>Quanto escalar a distância até a origem virtual da projeção em perspectiva da sombra.</string>
+  <key>RenderShadowResolutionScale</key>
+  <string>Escala da resolução do mapa de sombra vs. resolução da tela (apenas valores positivos são permitidos).</string>
+  <key>RenderShadowSlopeThreshold</key>
+  <string>Valor de inclinação de corte para pontos que afetam a geração de sombra em perspectiva.</string>
+  <key>RenderShadowSplitExponent</key>
+  <string>Distâncias de divisão do plano de near clip para os frusta do mapa de sombra (x=perspectiva, y=ortográfica, z=taxa de transição).</string>
+  <key>RenderShadowSplits</key>
+  <string>Quantidade de divisões do mapa de sombra a renderizar (0 - 3).</string>
+  <key>RenderSkyAmbientScale</key>
+  <string>Fator de ajuste da escala de ambiente para combinar com o viewer pré-PBR.</string>
+  <key>RenderSkyAutoAdjustAmbientScale</key>
+  <string>Quanto escalar o ambiente ao autoajustar céus legados.</string>
+  <key>RenderSkyAutoAdjustBlueDensityScale</key>
+  <string>Valor de escala do Blue Horizon a usar ao autoajustar céus legados.</string>
+  <key>RenderSkyAutoAdjustBlueHorizonScale</key>
+  <string>Valor de escala do Blue Horizon a usar ao autoajustar céus legados.</string>
+  <key>RenderSkyAutoAdjustHDRScale</key>
+  <string>Valor de escala HDR a usar ao autoajustar céus legados.</string>
+  <key>RenderSkyAutoAdjustLegacy</key>
+  <string>Se verdadeiro, autoajustar céus legados (aqueles sem valor de ambiência de probe) para aproveitar os probes e o HDR. Este é o botão de "opt-out" para HDR e mapeamento de tons quando combinado com uma configuração de céu anterior ao PBR.</string>
+  <key>RenderSkyAutoAdjustProbeAmbiance</key>
+  <string>Valor de ambiência de probe ao autoajustar céus legados.</string>
+  <key>RenderSkyAutoAdjustSunColorScale</key>
+  <string>Escalar da cor do sol ao autoajustar céus legados.</string>
+  <key>RenderSkySunlightScale</key>
+  <string>Fator de ajuste da escala de luz solar para combinar com o viewer pré-PBR quando o HDR está desativado.</string>
+  <key>RenderSnapshotNoPost</key>
+  <string>Desativar mapeamento de tons e correção de exposição quando a captura está sendo renderizada.</string>
+  <key>RenderSpecularExponent</key>
+  <string>Expoente especular para gerar o mapa especular.</string>
+  <key>RenderSpecularPrecision</key>
+  <string>Forçar LUT de ponto flutuante de 32 bits.</string>
+  <key>RenderSpecularResX</key>
+  <string>Resolução do mapa especular.</string>
+  <key>RenderSpecularResY</key>
+  <string>Resolução do mapa especular.</string>
+  <key>RenderSpotLightsInNondeferred</key>
+  <string>Se deve suportar projetores como spotlights quando o Modelo de Iluminação Avançada está desativado.</string>
+  <key>RenderSpotShadowBias</key>
+  <string>Valor de viés para sombras (previne shadow acne).</string>
+  <key>RenderSpotShadowOffset</key>
+  <string>Valor de deslocamento para sombras (previne shadow acne).</string>
+  <key>RenderSunDynamicRange</key>
+  <string>Define quanto por cento o sol é mais brilhante que as luzes pontuais locais (1,0 = 100% mais brilhante. O valor não deve ser menor que 0).</string>
+  <key>RenderTerrainDetail</key>
+  <string>Detalhe aplicado à texturização do terreno (0 = nenhum, 1 = completo).</string>
+  <key>RenderTerrainLODFactor</key>
+  <string>Controla o nível de detalhe do terreno (multiplicador para a área de tela atual ao calcular o nível de detalhe).</string>
+  <key>RenderTerrainPBRDetail</key>
+  <string>Nível de detalhe para terreno PBR. 0 é o detalhe completo. Valores negativos removem recursos de renderização, de acordo com a especificação GLTF quando possível, o que reduz o número de binds de textura.</string>
+  <key>RenderTerrainPBREnabled</key>
+  <string>Ativar recursos de terreno PBR.</string>
+  <key>RenderTerrainPBRNormalsEnabled</key>
+  <string>EXPERIMENTAL: alterar a geração de normais para terreno PBR.</string>
+  <key>RenderTerrainPBRPlanarSampleCount</key>
+  <string>De quantos planos UV amostrar as texturas do terreno PBR. 1 é "plano", 3 é mapeamento triplanar (também conhecido como box mapping).</string>
+  <key>RenderTerrainPBRScale</key>
+  <string>Escala da textura de detalhe do terreno PBR (metros).</string>
+  <key>RenderTerrainPBRTransformsEnabled</key>
+  <string>EXPERIMENTAL: ativar transformações de textura do terreno PBR.</string>
+  <key>RenderTerrainPBRTriplanarBlendFactor</key>
+  <string>Valores mais altos criam transições mais nítidas, mas têm maior probabilidade de produzir artefatos.</string>
+  <key>RenderTerrainScale</key>
+  <string>Escala da textura de detalhe do terreno (metros).</string>
+  <key>RenderTextureVRAMDivisor</key>
+  <string>Divisor para a quantidade máxima de VRAM que o viewer usará para texturas. 1 = toda a VRAM. Usado em conjunto com RenderMaxVRAMBudget.</string>
+  <key>RenderTonemapMix</key>
+  <string>Mistura entre cores lineares e mapeadas por tom (0,0 (Linear) - 1,0 (Mapeado por tom)).</string>
+  <key>RenderTonemapType</key>
+  <string>Qual mapeador de tons usar: 0 = Khronos Neutral, 1 = ACES.</string>
+  <key>RenderTrackerBeacon</key>
+  <string>Exibir seta de rastreamento e marcador para o avatar alvo, destino de teletransporte.</string>
+  <key>RenderTransparentWater</key>
+  <string>Renderizar a água como transparente. Definir como falso renderiza a água como opaca com uma textura simples aplicada.</string>
+  <key>RenderTreeLODFactor</key>
+  <string>Controla o nível de detalhe da vegetação (multiplicador para a área de tela atual ao calcular o nível de detalhe).</string>
+  <key>RenderUIBuffer</key>
+  <string>Armazenar em cache a renderização da interface em um buffer alinhado à tela.</string>
+  <key>RenderUIInSnapshot</key>
+  <string>Exibir a interface do usuário na captura.</string>
+  <key>RenderUnloadedAvatar</key>
+  <string>Mostrar avatares que ainda não terminaram de carregar.</string>
+  <key>RenderUseAdvancedAtmospherics</key>
+  <string>Usar atmosféricos pré-computados sofisticados e afins.</string>
+  <key>RenderUseExposureSkySettings</key>
+  <string>Usar as configurações de exposição do céu em vez de derivar da escala HDR.</string>
+  <key>RenderUseFarClip</key>
+  <string>Se falso, o culling de frustum ignorará o plano de far clip.</string>
+  <key>RenderUseStreamVBO</key>
+  <string>Usar VBOs para buffers de stream.</string>
+  <key>RenderUseTriStrips</key>
+  <string>OBSOLETO - agora sempre assumido como falso - Usar tiras de triângulos para renderizar prims.</string>
+  <key>RenderUseVAO</key>
+  <string>[EXPERIMENTAL] Usar GL Vertex Array Objects.</string>
+  <key>RenderVBOEnable</key>
+  <string>Usar GL Vertex Buffer Objects.</string>
+  <key>RenderVBOMappingDisable</key>
+  <string>Desativar VBO glMapBufferARB.</string>
+  <key>RenderVSyncEnable</key>
+  <string>Atualizar quadros entre as varreduras de exibição (FALSE = atualizar quadros o mais rápido possível).</string>
+  <key>RenderVolumeLODFactor</key>
+  <string>Controla o nível de detalhe das primitivas (multiplicador para a área de tela atual ao calcular o nível de detalhe).</string>
+  <key>RenderWater</key>
+  <string>Renderizar água.</string>
+  <key>RenderWaterMaterials</key>
+  <string>As reflexões planares da água incluem a renderização de materiais.</string>
+  <key>RenderWaterMipNormal</key>
+  <string>Usar mip maps para o mapa de normais da água.</string>
+  <key>RenderWaterRefResolution</key>
+  <string>Resolução da reflexão planar da água.</string>
+  <key>ReplaySession</key>
+  <string>Solicitar a reprodução de um arquivo de piloto gravado anteriormente.</string>
+  <key>ReportBugURL</key>
+  <string>URL usada para registrar bugs a partir do viewer.</string>
+  <key>RequestFullRegionCache</key>
+  <string>Se definido, pedir ao sim para enviar o cache completo de objetos da região. Precisa reiniciar o viewer.</string>
+  <key>ResetUIScaleOnFirstRun</key>
+  <string>Redefine o fator de escala da interface na primeira execução devido à mudança no comportamento de escala da tela.</string>
+  <key>RestoreCameraPosOnLogin</key>
+  <string>Redefinir a posição da câmera para a localização no logout.</string>
+  <key>RevokePermsOnStopAnimation</key>
+  <string>Limpar as permissões de animação ao escolher "Parar de me animar".</string>
+  <key>RotateRight</key>
+  <string>Faz o agente girar para a direita.</string>
+  <key>RotationStep</key>
+  <string>Todas as rotações pela ferramenta de rotação são restritas a múltiplos desta unidade (graus).</string>
+  <key>RunMultipleThreads</key>
+  <string>Se TRUE, manter as threads de segundo plano ativas durante a renderização.</string>
+  <key>SLURLDragNDrop</key>
+  <string>Ativar arrastar e soltar de SLURLs no viewer.</string>
+  <key>SLURLPassToOtherInstance</key>
+  <string>Passar a execução para instâncias anteriores do viewer se houver uma slurl fornecida.</string>
+  <key>SLURLTeleportDirectly</key>
+  <string>Clicar em uma slurl teletransporta você diretamente em vez de abrir o painel de lugares.</string>
+  <key>SafeMode</key>
+  <string>Redefinir preferências, executar em modo de segurança.</string>
+  <key>SaveMinidump</key>
+  <string>Salvar minidump para depuração do desenvolvedor em caso de crash.</string>
+  <key>ScaleShowAxes</key>
+  <string>Mostrar o indicador do eixo de escala selecionado ao escalonar.</string>
+  <key>ScaleStretchTextures</key>
+  <string>Esticar as texturas junto com o objeto ao escalonar.</string>
+  <key>ScaleUniform</key>
+  <string>Escalonar os objetos selecionados uniformemente em torno do centro da seleção.</string>
+  <key>SceneLoadFrontPixelThreshold</key>
+  <string>em pixels, todos os objetos no frustum de visão cuja área de tela seja maior que este limiar serão carregados.</string>
+  <key>SceneLoadHighMemoryBound</key>
+  <string>em MB, quando o uso total de memória estiver acima deste limiar, um mínimo de objetos invisíveis é mantido na memória.</string>
+  <key>SceneLoadLowMemoryBound</key>
+  <string>em MB, quando o uso total de memória estiver acima deste limiar, começar a reduzir os objetos invisíveis mantidos na memória.</string>
+  <key>SceneLoadMinRadius</key>
+  <string>em metros, todos os objetos (visíveis ou invisíveis) dentro deste raio permanecerão carregados na memória.</string>
+  <key>SceneLoadRearMaxRadiusFraction</key>
+  <string>uma fração da distância de desenho além da qual todos os objetos fora do frustum de visão serão descarregados, independentemente do limiar de pixels.</string>
+  <key>SceneLoadRearPixelThreshold</key>
+  <string>em pixels, todos os objetos fora do frustum de visão cuja área de tela seja maior que este limiar permanecerão carregados.</string>
+  <key>SceneLoadingMonitorEnabled</key>
+  <string>Ativar o monitor de carregamento de cena se definido.</string>
+  <key>SceneLoadingMonitorPixelDiffThreshold</key>
+  <string>Quantidade de pixels alterados necessária para considerar a cena ainda em carregamento (raiz quadrada da fração de pixels na tela).</string>
+  <key>SceneLoadingMonitorSampleTime</key>
+  <string>Tempo entre amostras de tela ao monitorar o carregamento da cena (segundos).</string>
+  <key>ScriptDialogLimitations</key>
+  <string>Limita a quantidade de diálogos por script (0 - por objeto, 1 - por canal, 2 - por canal para anexos, 3 - por canal para HUDs, 4 - sem restrição para HUDs).</string>
+  <key>ScriptHelpFollowsCursor</key>
+  <string>A janela de ajuda de scripts atualiza o conteúdo com base no texto sob o cursor no editor de scripts.</string>
+  <key>ScriptToastButtonWidth</key>
+  <string>Largura padrão dos botões no toast de diálogo de script.</string>
+  <key>ScriptsCanShowUI</key>
+  <string>Permitir que chamadas LSL (como LLMapDestination) abram a interface do viewer.</string>
+  <key>ScriptsEveryoneCopy</key>
+  <string>Todos podem copiar o script recém-criado.</string>
+  <key>ScriptsNextOwnerCopy</key>
+  <string>Scripts recém-criados podem ser copiados pelo próximo proprietário.</string>
+  <key>ScriptsNextOwnerModify</key>
+  <string>Scripts recém-criados podem ser modificados pelo próximo proprietário.</string>
+  <key>ScriptsNextOwnerTransfer</key>
+  <string>Scripts recém-criados podem ser revendidos ou doados pelo próximo proprietário.</string>
+  <key>ScriptsShareWithGroup</key>
+  <string>Scripts recém-criados são compartilhados com o grupo ativo no momento.</string>
+  <key>SearchFromAddressBar</key>
+  <string>Permite inserir consultas de busca na barra de endereço de navegação.</string>
+  <key>SearchURL</key>
+  <string>URL do site de busca, exibida no floater Buscar.</string>
+  <key>SelectInvisibleObjects</key>
+  <string>Selecionar objetos invisíveis.</string>
+  <key>SelectMovableOnly</key>
+  <string>Selecionar apenas objetos que você pode mover.</string>
+  <key>SelectOwnedOnly</key>
+  <string>Selecionar apenas objetos que você possui.</string>
+  <key>SelectReflectionProbes</key>
+  <string>Selecionar probes de reflexão.</string>
+  <key>SelectionHighlightAlpha</key>
+  <string>Opacidade do destaque de seleção (0,0 = totalmente transparente, 1,0 = totalmente opaco).</string>
+  <key>SelectionHighlightAlphaTest</key>
+  <string>Valor de alpha abaixo do qual os pixels são exibidos na linha de destaque de seleção (0,0 = mostrar todos os pixels, 1,0 = não mostrar nenhum pixel).</string>
+  <key>SelectionHighlightThickness</key>
+  <string>Espessura da linha de destaque de seleção (fração da distância de visão).</string>
+  <key>SelectionHighlightUAnim</key>
+  <string>Taxa na qual a textura anima na direção U na linha de destaque de seleção (fração de textura por segundo).</string>
+  <key>SelectionHighlightUScale</key>
+  <string>Escala da exibição da textura na linha de destaque de seleção (fração do tamanho da textura).</string>
+  <key>SelectionHighlightVAnim</key>
+  <string>Taxa na qual a textura anima na direção V na linha de destaque de seleção (fração de textura por segundo).</string>
+  <key>SelectionHighlightVScale</key>
+  <string>Escala da exibição da textura na linha de destaque de seleção (fração do tamanho da textura).</string>
+  <key>ServerChoice</key>
+  <string>[NÃO MODIFICAR] Controla a qual grade você se conecta.</string>
+  <key>SessionSettingsFile</key>
+  <string>Configurações aplicadas por sessão (não salvas).</string>
+  <key>SettingsNextOwnerModify</key>
+  <string>A configuração de ambiente recém-criada pode ser modificada pelo próximo proprietário.</string>
+  <key>SettingsNextOwnerTransfer</key>
+  <string>A configuração de ambiente recém-criada pode ser revendida ou doada pelo próximo proprietário.</string>
+  <key>ShareWithGroup</key>
+  <string>(obsoleto) Objetos recém-criados são compartilhados com o grupo ativo no momento.</string>
+  <key>ShowAdultClassifieds</key>
+  <string>Exibir resultados de classificados marcados como adultos.</string>
+  <key>ShowAdultEvents</key>
+  <string>Exibir resultados de eventos marcados como adultos.</string>
+  <key>ShowAdultLand</key>
+  <string>Exibir resultados de vendas de terreno marcadas como adultas.</string>
+  <key>ShowAdultSims</key>
+  <string>Exibir resultados de buscar lugares ou populares que estejam em sims adultos.</string>
+  <key>ShowAllObjectHoverTip</key>
+  <string>Mostrar dica descritiva quando o mouse passa sobre objetos não interativos e interativos.</string>
+  <key>ShowAxes</key>
+  <string>Renderizar o sistema de coordenadas na sua posição.</string>
+  <key>ShowBanLines</key>
+  <string>Mostrar bordas de banimento/acesso no mundo, 0 - não mostrar, 1 - mostrar em colisão, 2 - mostrar por proximidade.</string>
+  <key>ShowBetaGrids</key>
+  <string>Exibir as grades beta no controle de seleção de grade.</string>
+  <key>ShowBlockedConvHistory</key>
+  <string>Especifica se agentes bloqueados serão mostrados no registro de chamadas.</string>
+  <key>ShowBuildButton</key>
+  <string>Mostra/oculta o botão de construir na bandeja inferior.</string>
+  <key>ShowCameraButton</key>
+  <string>Mostra/oculta o botão de visão na bandeja inferior.</string>
+  <key>ShowConsoleWindow</key>
+  <string>Mostrar o log em uma janela separada do SO.</string>
+  <key>ShowCrosshairs</key>
+  <string>Exibir a mira no modo mouselook.</string>
+  <key>ShowDebugConsole</key>
+  <string>Exibir console de depuração.</string>
+  <key>ShowDeviceSettings</key>
+  <string>Mostrar configurações de dispositivo.</string>
+  <key>ShowDiscordActivityDetails</key>
+  <string>Quando ativado, mostrar o nome do avatar no Discord Rich Presence.</string>
+  <key>ShowDiscordActivityState</key>
+  <string>Quando ativado, mostrar a localização no Discord Rich Presence.</string>
+  <key>ShowEventRecorderMenuItems</key>
+  <string>Se as opções de menu do Gravador de Eventos - Iniciar / Parar gravação - devem aparecer no menu Desenvolver (atualmente).</string>
+  <key>ShowFavoritesOnLogin</key>
+  <string>Define se os favoritos do último usuário logado serão salvos ao sair e exibidos na tela de login.</string>
+  <key>ShowGestureButton</key>
+  <string>Mostra/oculta o botão de gesto na bandeja inferior.</string>
+  <key>ShowHelpOnFirstLogin</key>
+  <string>Mostrar o floater de Ajuda no primeiro login.</string>
+  <key>ShowHoverTips</key>
+  <string>Mostrar dica descritiva quando o mouse passa sobre itens no mundo.</string>
+  <key>ShowInInventory</key>
+  <string>Abre automaticamente o inventário para mostrar os objetos aceitos.</string>
+  <key>ShowLandHoverTip</key>
+  <string>Mostrar dica descritiva quando o mouse passa sobre o terreno.</string>
+  <key>ShowMatureClassifieds</key>
+  <string>Exibir resultados de classificados marcados como moderados.</string>
+  <key>ShowMatureEvents</key>
+  <string>Exibir resultados de eventos marcados como moderados.</string>
+  <key>ShowMatureGroups</key>
+  <string>Incluir grupos marcados como maduros nos resultados de busca.</string>
+  <key>ShowMatureLand</key>
+  <string>Exibir resultados de vendas de terreno marcadas como moderadas.</string>
+  <key>ShowMatureSims</key>
+  <string>Exibir resultados de buscar lugares ou populares que estejam em sims moderados.</string>
+  <key>ShowMiniLocationPanel</key>
+  <string>Mostrar/ocultar o mini painel de localização.</string>
+  <key>ShowMiniMapButton</key>
+  <string>Mostra/oculta o botão de minimapa na bandeja inferior.</string>
+  <key>ShowMoveButton</key>
+  <string>Mostra/oculta o botão de mover na bandeja inferior.</string>
+  <key>ShowMyComplexityChanges</key>
+  <string>Por quanto tempo mostrar avisos sobre a complexidade do avatar (defina zero para desativar esses avisos).</string>
+  <key>ShowNavbarFavoritesPanel</key>
+  <string>Mostrar/ocultar o painel de favoritos da barra de navegação.</string>
+  <key>ShowNavbarNavigationPanel</key>
+  <string>Mostrar/ocultar o painel de navegação da barra de navegação.</string>
+  <key>ShowNearClip</key>
+  <string>Mostrar o plano de recorte próximo (near clip) na visualização.</string>
+  <key>ShowNetStats</key>
+  <string>Mostrar os indicadores de status de uso do viewer e da rede na sobreposição de status.</string>
+  <key>ShowNewInventory</key>
+  <string>Visualiza automaticamente novos notecards/texturas/landmarks.</string>
+  <key>ShowObjectRenderingCost</key>
+  <string>Mostrar o custo de renderização do objeto nas ferramentas de construção.</string>
+  <key>ShowObjectUpdates</key>
+  <string>Mostrar quando mensagens de atualização são recebidas para objetos individuais.</string>
+  <key>ShowOfferedInventory</key>
+  <string>Mostrar a janela de inventário com a última oferta de inventário selecionada ao receber inventário de outros usuários.</string>
+  <key>ShowOverlayTitle</key>
+  <string>Imprime uma mensagem de marca d'água na tela.</string>
+  <key>ShowPGClassifieds</key>
+  <string>Exibir resultados de classificados marcados como gerais.</string>
+  <key>ShowPGEvents</key>
+  <string>Exibir resultados de eventos marcados como gerais.</string>
+  <key>ShowPGLand</key>
+  <string>Exibir resultados de vendas de terreno marcadas como gerais.</string>
+  <key>ShowPGSims</key>
+  <string>Exibir resultados de buscar lugares ou populares que estejam em sims gerais.</string>
+  <key>ShowParcelOwners</key>
+  <string>Mostrar nomes dos proprietários das parcelas.</string>
+  <key>ShowPermissions</key>
+  <string>Mostrar permissões de objetos (configuração de depuração legada).</string>
+  <key>ShowPropertyLines</key>
+  <string>Mostrar sobreposição de linhas demarcando os limites de propriedade.</string>
+  <key>ShowScriptErrors</key>
+  <string>Mostrar erros de script.</string>
+  <key>ShowScriptErrorsLocation</key>
+  <string>Mostrar erro de script no chat (0) ou em janela (1).</string>
+  <key>ShowSearchButton</key>
+  <string>Mostra/oculta o botão de busca na bandeja inferior.</string>
+  <key>ShowSelectionBeam</key>
+  <string>Mostrar o feixe de partículas de seleção ao selecionar ou interagir com objetos.</string>
+  <key>ShowSnapshotButton</key>
+  <string>Mostra/oculta o botão de captura na bandeja inferior.</string>
+  <key>ShowStartLocation</key>
+  <string>Exibir o menu de local de início na tela de login.</string>
+  <key>ShowTangentBasis</key>
+  <string>Renderizar normal e binormal (depuração de bump mapping).</string>
+  <key>ShowTunedART</key>
+  <string>Mostrar o tempo de renderização atual, não o tempo pré-ajuste, na exibição do avatar.</string>
+  <key>ShowTutorial</key>
+  <string>Mostrar a janela de tutorial no login.</string>
+  <key>ShowVoiceChannelPopup</key>
+  <string>Controla a visibilidade do pop-up do canal de voz atual acima da aba de voz.</string>
+  <key>ShowVoiceVisualizersInCalls</key>
+  <string>Ativa visualizadores de voz no mundo, gestos de voz e sincronia labial durante chamadas em grupo ou P2P.</string>
+  <key>ShowVolumeSettingsPopup</key>
+  <string>Mostrar controle de volume individual para voz, efeitos sonoros, etc.</string>
+  <key>ShowWorldMapButton</key>
+  <string>Mostra/oculta o botão de mapa na bandeja inferior.</string>
+  <key>SimPendingUploads</key>
+  <string>Modo de estatística no painel de Estatísticas.</string>
+  <key>SimulateFBOFailure</key>
+  <string>[DEPURAÇÃO] Fazer allocateScreenBuffer retornar falso. Usado para testar o tratamento de erros.</string>
+  <key>SingleModeDoubleClickOpenWindow</key>
+  <string>Define a ação do duplo clique em pasta na visão de pasta única (0 - permanece na janela atual, 1 - abre uma nova janela).</string>
+  <key>SkinCurrent</key>
+  <string>O skin selecionado no momento.</string>
+  <key>SkinningSettingsFile</key>
+  <string>Nome do arquivo de configuração de cor do skin do cliente (por instalação).</string>
+  <key>SkipBenchmark</key>
+  <string>Se verdadeiro, desativa a execução do benchmark de GPU na inicialização (padrão para classe 1).</string>
+  <key>SkyAmbientScale</key>
+  <string>Controla a intensidade da luz ambiente, ou não direcional, do sol e da lua (fração ou múltiplo do nível de ambiente padrão).</string>
+  <key>SkyMoonDefaultPosition</key>
+  <string>Posição padrão do sol no céu (direção em coordenadas do mundo).</string>
+  <key>SkyNightColorShift</key>
+  <string>Controla a cor do luar (cor base aplicada à lua como fonte de luz).</string>
+  <key>SkyOverrideSimSunPosition</key>
+  <string>Substituir a posição do sol do simulador pela posição local definida.</string>
+  <key>SkySunDefaultPosition</key>
+  <string>Posição padrão do sol no céu (direção em coordenadas do mundo).</string>
+  <key>SnapEnabled</key>
+  <string>Ativar encaixe na grade.</string>
+  <key>SnapMargin</key>
+  <string>Controla a distância máxima entre janelas antes que elas se encaixem automaticamente (pixels).</string>
+  <key>SnapToMouseCursor</key>
+  <string>Ao encaixar na grade, centralizar o objeto no ponto de grade mais próximo do cursor do mouse.</string>
+  <key>SnapshotBaseDir</key>
+  <string>Caminho do último local de salvamento de capturas.</string>
+  <key>SnapshotBaseName</key>
+  <string>Padrão de nomenclatura das capturas.</string>
+  <key>SnapshotFormat</key>
+  <string>Salvar capturas neste formato (0 = PNG, 1 = JPEG, 2 = BMP).</string>
+  <key>SnapshotQuality</key>
+  <string>Configuração de qualidade dos JPEGs de cartão postal (0 = pior, 100 = melhor).</string>
+  <key>SocialPhotoResolution</key>
+  <string>Resolução padrão ao compartilhar foto usando os floaters sociais.</string>
+  <key>Socks5AuthType</key>
+  <string>Mecanismo de autenticação selecionado para o Socks5.</string>
+  <key>Socks5ProxyEnabled</key>
+  <string>Usar Proxy Socks5.</string>
+  <key>Socks5ProxyHost</key>
+  <string>Host do Proxy Socks 5.</string>
+  <key>Socks5ProxyPort</key>
+  <string>Porta do Proxy Socks 5.</string>
+  <key>SortFriendsFirst</key>
+  <string>Especifica se os amigos serão classificados primeiro no registro de chamadas.</string>
+  <key>SoundUploadFolder</key>
+  <string>Todos os uploads de sons serão armazenados neste diretório (UUID).</string>
+  <key>SpeakerParticipantRemoveDelay</key>
+  <string>Timeout para remover participantes que não estão no canal antes de removê-los da lista de oradores ativos (chat de texto/voz).</string>
+  <key>SpeedTest</key>
+  <string>Modo de teste de desempenho, sem rede.</string>
+  <key>SpellCheck</key>
+  <string>Verificação ortográfica.</string>
+  <key>SpellCheckDictionary</key>
+  <string>Dicionários primário e secundário atuais usados na verificação ortográfica.</string>
+  <key>StartUpToastLifeTime</key>
+  <string>Número de segundos em que um toast de inicialização existe.</string>
+  <key>StatsAutoRun</key>
+  <string>Reproduzir piloto automático.</string>
+  <key>StatsFile</key>
+  <string>Nome do arquivo de saída do log de estatísticas.</string>
+  <key>StatsFrametimeEventThreshold</key>
+  <string>O percentual que a diferença de frametime deve exceder para registrar um evento de frametime. 0,1 = 10%, 0,25 = 25%, etc.</string>
+  <key>StatsFrametimeSampleSeconds</key>
+  <string>O número de segundos para amostrar dados estendidos de frametime (percentis, desvio padrão).</string>
+  <key>StatsNumRuns</key>
+  <string>Repetir a reprodução do piloto automático este número de vezes.</string>
+  <key>StatsPilotFile</key>
+  <string>Nome do arquivo do caminho do piloto automático do log de estatísticas.</string>
+  <key>StatsPilotXMLFile</key>
+  <string>Nome do arquivo do caminho estendido do piloto automático do log de estatísticas.</string>
+  <key>StatsQuitAfterRuns</key>
+  <string>Encerrar o aplicativo após este número de execuções de reprodução do piloto automático.</string>
+  <key>StatsReportFileInterval</key>
+  <string>Intervalo para salvar os dados do arquivo de estatísticas do viewer.</string>
+  <key>StatsReportMaxDuration</key>
+  <string>Máximo de segundos para os dados do arquivo de estatísticas do viewer, evita arquivos enormes.</string>
+  <key>StatsReportSkipZeroDataSaves</key>
+  <string>No arquivo de dados de estatísticas do viewer, pular o salvamento da entrada se não houver dados.</string>
+  <key>StatsSessionTrackFrameStats</key>
+  <string>Rastrear estatísticas de renderização e de rede.</string>
+  <key>StatsSummaryFile</key>
+  <string>Nome do arquivo de resumo do log de estatísticas.</string>
+  <key>SwitchToSharedEnvAfterTeleport</key>
+  <string>Alternar para o ambiente compartilhado após o teletransporte.</string>
+  <key>SyncMaterialSettings</key>
+  <string>Sincronizar configurações de material.</string>
+  <key>SystemLanguage</key>
+  <string>Idioma indicado pelas configurações do sistema (para a interface).</string>
+  <key>TabToTextFieldsOnly</key>
+  <string>A tecla TAB leva você ao próximo campo de entrada de texto, em vez do próximo widget.</string>
+  <key>TargetFPS</key>
+  <string>FPS mínimo desejado.</string>
+  <key>TeleportArrivalDelay</key>
+  <string>Tempo a aguardar antes de exibir o mundo durante o teletransporte (segundos).</string>
+  <key>TeleportLocalDelay</key>
+  <string>Atraso para evitar teletransportes após iniciar um teletransporte dentro do sim (segundos).</string>
+  <key>TerrainColorHeightRange</key>
+  <string>Faixa de altitude na qual uma dada textura de terreno tem efeito (metros).</string>
+  <key>TerrainColorStartHeight</key>
+  <string>Altitude inicial para a texturização do terreno (metros).</string>
+  <key>TerrainPaintBitDepth</key>
+  <string>Profundidade de bits para futuras operações de paint map de terreno. Mín: 1. Máx: 8. Tem efeito quando o paint map é criado ou modificado. Modificações em um paintmap existente de profundidade de bits diferente terão precisão menor.</string>
+  <key>TerrainPaintResolution</key>
+  <string>Resolução do paint map do terreno em pixels. Arredondada para uma potência de dois. Mín: 16. Máx: RenderMaxTextureResolution. Tem efeito quando o paint map é criado.</string>
+  <key>TestGridStatusRSSFromFile</key>
+  <string>Apenas para testes: não atualizar o arquivo xml do rss a partir do servidor.</string>
+  <key>TextureCameraBoost</key>
+  <string>Quanto impulsionar a resolução de texturas que são importantes para a câmera.</string>
+  <key>TextureChannelPriority</key>
+  <string>Agressividade do streaming de textura por canal. X=normais, Y=difuso, Z=especular/metálico, W=emissivo. 1,0=base, maior=redução de resolução mais agressiva.</string>
+  <key>TextureDecodeDisabled</key>
+  <string>Se TRUE, não buscar nem decodificar nenhuma textura.</string>
+  <key>TextureDisable</key>
+  <string>Se TRUE, não carregar texturas para o conteúdo no mundo.</string>
+  <key>TextureDiscardBackgroundedTime</key>
+  <string>Especifica quanto tempo aguardar antes de descartar os dados de textura após o viewer ir para segundo plano (zero ou negativo para desativar).</string>
+  <key>TextureDiscardLevel</key>
+  <string>Especifica a resolução da textura (0 = mais alta, 5 = mais baixa).</string>
+  <key>TextureDiscardMinimizedTime</key>
+  <string>Especifica quanto tempo aguardar antes de descartar os dados de textura após o viewer ser minimizado (zero ou negativo para desativar).</string>
+  <key>TextureFetchConcurrency</key>
+  <string>Número máximo de conexões HTTP usadas para buscas de textura.</string>
+  <key>TextureFetchFakeFailureRate</key>
+  <string>Simular falhas de busca HTTP para algumas texturas assadas no servidor.</string>
+  <key>TextureFetchMinTimeToLog</key>
+  <string>Se o tempo de busca de textura exceder este valor, o testador de busca de textura registrará informações.</string>
+  <key>TextureFetchUpdateMinCount</key>
+  <string>Número mínimo de texturas a atualizar por quadro.</string>
+  <key>TextureLivePreview</key>
+  <string>Pré-visualizar seleções no seletor de textura ou de material imediatamente.</string>
+  <key>TextureLoadFullRes</key>
+  <string>Se TRUE, sempre carregar texturas em resolução total (discard = 0).</string>
+  <key>TextureLoggingThreshold</key>
+  <string>Especifica o limiar em bytes a partir do qual os dados de download de textura devem ser enviados ao sim.</string>
+  <key>TextureNewByteRange</key>
+  <string>Usar o novo cálculo de faixa de bytes mais preciso para os níveis de descarte j2c.</string>
+  <key>TextureReverseByteRange</key>
+  <string>Percentual mínimo da faixa de bytes ótima permitido para renderizar um dado nível de descarte.</string>
+  <key>TextureSaveLocation</key>
+  <string>Localização atual para salvar texturas em massa no disco.</string>
+  <key>TextureScaleMaxAreaFactor</key>
+  <string>Limita o quanto a escala da textura afeta o cálculo de área.</string>
+  <key>TextureScaleMinAreaFactor</key>
+  <string>Limita o quanto a escala da textura afeta o cálculo de área.</string>
+  <key>TextureUploadFolder</key>
+  <string>Todos os uploads de imagens (texturas) serão armazenados neste diretório (UUID).</string>
+  <key>ThreadPoolSizes</key>
+  <string>Mapa de substituições de tamanho para pools de threads específicos.</string>
+  <key>ThrottleBandwidthKBPS</key>
+  <string>Largura de banda máxima permitida de download (kilobits por segundo).</string>
+  <key>TipToastMessageLineCount</key>
+  <string>Contagem máxima de linhas da mensagem de texto no toast de dica.</string>
+  <key>ToastButtonWidth</key>
+  <string>Largura padrão dos botões no toast. Notas: se a largura necessária for menor que esta, o botão será redimensionado para o tamanho padrão, caso contrário para o necessário. A alteração deste parâmetro afetará o layout dos botões no toast de notificação.</string>
+  <key>ToastFadingTime</key>
+  <string>Número de segundos em que um toast desaparece.</string>
+  <key>ToastGap</key>
+  <string>Espaço entre toasts na tela (valor mín. é 5).</string>
+  <key>ToolTipDelay</key>
+  <string>Segundos antes de exibir a dica quando o mouse para sobre um elemento da interface.</string>
+  <key>ToolTipFadeTime</key>
+  <string>Segundos durante os quais a dica desaparece.</string>
+  <key>ToolTipFastDelay</key>
+  <string>Segundos antes de exibir a dica quando o mouse para sobre um elemento da interface (quando uma dica já está visível).</string>
+  <key>ToolTipVisibleTimeFar</key>
+  <string>Desaparecer a dica após o tempo passar (segundos) enquanto o mouse não está perto da dica.</string>
+  <key>ToolTipVisibleTimeNear</key>
+  <string>Desaparecer a dica após o tempo passar (segundos) enquanto o mouse está perto da dica ou da posição original.</string>
+  <key>ToolTipVisibleTimeOver</key>
+  <string>Desaparecer a dica após o tempo passar (segundos) enquanto o mouse está sobre a dica.</string>
+  <key>ToolboxAutoMove</key>
+  <string>[NÃO USADO]</string>
+  <key>TrackFocusObject</key>
+  <string>A câmera rastreia o último objeto no qual foi dado zoom.</string>
+  <key>TranslateChat</key>
+  <string>Traduzir mensagens de chat recebidas.</string>
+  <key>TranslateLanguage</key>
+  <string>Especificador do idioma de tradução.</string>
+  <key>TranslatingEnabled</key>
+  <string>Preferências de tradução definidas.</string>
+  <key>TranslationService</key>
+  <string>API de tradução a usar. (google|azure).</string>
+  <key>TuningFPSStrategy</key>
+  <string>Estratégia a usar ao ajustar o FPS. 0=Ajustar apenas a renderização de avatares, 1=Ajustar tanto avatares quanto configurações globais da cena, 2=Ajustar apenas a cena global.</string>
+  <key>TutorialURL</key>
+  <string>URL do item de menu de tutorial, definida automaticamente durante o login.</string>
+  <key>TypeAheadTimeout</key>
+  <string>Atraso antes de limpar o buffer de digitação antecipada nas listas (segundos).</string>
+  <key>UIAutoScale</key>
+  <string>Manter a escala da interface consistente entre diferentes resoluções.</string>
+  <key>UIButtonOrigHPad</key>
+  <string>Preenchimento horizontal original do botão da interface.</string>
+  <key>UICheckboxctrlHPad</key>
+  <string>Preenchimento horizontal do controle de caixa de seleção da interface.</string>
+  <key>UICheckboxctrlSpacing</key>
+  <string>Espaçamento do controle de caixa de seleção da interface.</string>
+  <key>UICheckboxctrlVPad</key>
+  <string>Preenchimento vertical do controle de caixa de seleção da interface.</string>
+  <key>UICloseBoxFromTop</key>
+  <string>Distância do topo do floater até o topo do ícone da caixa de fechar, em pixels.</string>
+  <key>UIExtraTriangleHeight</key>
+  <string>Altura do triângulo extra da interface.</string>
+  <key>UIExtraTriangleWidth</key>
+  <string>Largura do triângulo extra da interface.</string>
+  <key>UIFloaterCloseBoxSize</key>
+  <string>Tamanho da caixa de fechar do floater da interface.</string>
+  <key>UIFloaterHPad</key>
+  <string>Tamanho do preenchimento horizontal do floater da interface.</string>
+  <key>UIFloaterTestBool</key>
+  <string>Exemplo de configuração salva para o floater de teste.</string>
+  <key>UIImgDefaultAlphaUUID</key>
+  <string>UUID da textura padrão de alpha usada no editor de aparência.</string>
+  <key>UIImgDefaultEyesUUID</key>
+  <string>UUID da textura padrão de íris usada no editor de aparência.</string>
+  <key>UIImgDefaultGlovesUUID</key>
+  <string>UUID da textura padrão de luvas usada no editor de aparência.</string>
+  <key>UIImgDefaultHairUUID</key>
+  <string>UUID da textura padrão de cabelo usada no editor de aparência.</string>
+  <key>UIImgDefaultJacketUUID</key>
+  <string>UUID da textura padrão de jaqueta usada no editor de aparência.</string>
+  <key>UIImgDefaultPantsUUID</key>
+  <string>UUID da textura padrão de calça usada no editor de aparência.</string>
+  <key>UIImgDefaultShirtUUID</key>
+  <string>UUID da textura padrão de camisa usada no editor de aparência.</string>
+  <key>UIImgDefaultShoesUUID</key>
+  <string>UUID da textura padrão de sapatos usada no editor de aparência.</string>
+  <key>UIImgDefaultSkirtUUID</key>
+  <string>UUID da textura padrão de saia usada no editor de aparência.</string>
+  <key>UIImgDefaultSocksUUID</key>
+  <string>UUID da textura padrão de meias usada no editor de aparência.</string>
+  <key>UIImgDefaultUnderwearUUID</key>
+  <string>UUID da textura padrão de roupa íntima usada no editor de aparência.</string>
+  <key>UILineEditorCursorThickness</key>
+  <string>Espessura do cursor do editor de linha da interface.</string>
+  <key>UIMaxComboWidth</key>
+  <string>Largura máxima da caixa de combinação.</string>
+  <key>UIMinimizedWidth</key>
+  <string>Tamanho da largura minimizada do floater da interface.</string>
+  <key>UIMultiSliderctrlSpacing</key>
+  <string>Espaçamento do controle de múltiplos sliders da interface.</string>
+  <key>UIMultiTrackHeight</key>
+  <string>Altura da múltipla trilha da interface.</string>
+  <key>UIPreeditMarkerBrightness</key>
+  <string>Brilho do marcador de pré-edição da interface.</string>
+  <key>UIPreeditMarkerGap</key>
+  <string>Espaçamento do marcador de pré-edição da interface.</string>
+  <key>UIPreeditMarkerPosition</key>
+  <string>Posição do marcador de pré-edição da interface.</string>
+  <key>UIPreeditMarkerThickness</key>
+  <string>Espessura do marcador de pré-edição da interface.</string>
+  <key>UIPreeditStandoutBrightness</key>
+  <string>Brilho do destaque de pré-edição da interface.</string>
+  <key>UIPreeditStandoutGap</key>
+  <string>Espaçamento do destaque de pré-edição da interface.</string>
+  <key>UIPreeditStandoutPosition</key>
+  <string>Posição do destaque de pré-edição da interface.</string>
+  <key>UIPreeditStandoutThickness</key>
+  <string>Espessura do destaque de pré-edição da interface.</string>
+  <key>UIPreviewMaterial</key>
+  <string>Se a amostra de material PBR está ou não ativada.</string>
+  <key>UIResizeBarHeight</key>
+  <string>Tamanho da altura da barra de redimensionamento da interface.</string>
+  <key>UIScaleFactor</key>
+  <string>Tamanho da interface em relação ao layout padrão em tela de 1024x768.</string>
+  <key>UIScrollbarSize</key>
+  <string>Tamanho da barra de rolagem da interface.</string>
+  <key>UISliderctrlHeight</key>
+  <string>Altura do controle de slider da interface.</string>
+  <key>UISliderctrlSpacing</key>
+  <string>Espaçamento do controle de slider da interface.</string>
+  <key>UISndAlert</key>
+  <string>Arquivo de som para alertas (uuid do recurso de som).</string>
+  <key>UISndBadKeystroke</key>
+  <string>Arquivo de som para tecla inválida (uuid do recurso de som).</string>
+  <key>UISndChatMention</key>
+  <string>Arquivo de som para menção em chat (uuid do recurso de som).</string>
+  <key>UISndChatPing</key>
+  <string>Arquivo de som para ping de chat (uuid do recurso de som).</string>
+  <key>UISndClick</key>
+  <string>Arquivo de som para clique do mouse (uuid do recurso de som).</string>
+  <key>UISndClickRelease</key>
+  <string>Arquivo de som para soltar o botão do mouse (uuid do recurso de som).</string>
+  <key>UISndDebugSpamToggle</key>
+  <string>Registrar efeitos sonoros da interface conforme são reproduzidos.</string>
+  <key>UISndHealthReductionF</key>
+  <string>Arquivo de som para dor feminina (uuid do recurso de som).</string>
+  <key>UISndHealthReductionM</key>
+  <string>Arquivo de som para dor masculina (uuid do recurso de som).</string>
+  <key>UISndHealthReductionThreshold</key>
+  <string>Quantidade de redução de saúde necessária para acionar o som de "dor".</string>
+  <key>UISndInvalidOp</key>
+  <string>Arquivo de som para operações inválidas (uuid do recurso de som).</string>
+  <key>UISndMoneyChangeDown</key>
+  <string>Arquivo de som para aumento do saldo de L$ (uuid do recurso de som).</string>
+  <key>UISndMoneyChangeThreshold</key>
+  <string>Quantidade de mudança no saldo de L$ necessária para acionar o som de "dinheiro".</string>
+  <key>UISndMoneyChangeUp</key>
+  <string>Arquivo de som para diminuição do saldo de L$ (uuid do recurso de som).</string>
+  <key>UISndNewIncomingIMSession</key>
+  <string>Arquivo de som para nova sessão de mensagem instantânea (uuid do recurso de som).</string>
+  <key>UISndObjectCreate</key>
+  <string>Arquivo de som para criação de objeto (uuid do recurso de som).</string>
+  <key>UISndObjectDelete</key>
+  <string>Arquivo de som para exclusão de objeto (uuid do recurso de som).</string>
+  <key>UISndObjectRezIn</key>
+  <string>Arquivo de som para surgimento (rez) de objetos (uuid do recurso de som).</string>
+  <key>UISndObjectRezOut</key>
+  <string>Arquivo de som para desaparecimento (derez) de objetos (uuid do recurso de som).</string>
+  <key>UISndRestart</key>
+  <string>Arquivo de som para reinício de região (uuid do recurso de som).</string>
+  <key>UISndSnapshot</key>
+  <string>Arquivo de som para tirar uma captura (uuid do recurso de som).</string>
+  <key>UISndStartIM</key>
+  <string>Arquivo de som para iniciar uma nova sessão de IM (uuid do recurso de som).</string>
+  <key>UISndTeleportOut</key>
+  <string>Arquivo de som para teletransporte (uuid do recurso de som).</string>
+  <key>UISndTyping</key>
+  <string>Arquivo de som para começar a digitar uma mensagem de chat (uuid do recurso de som).</string>
+  <key>UISndWindowClose</key>
+  <string>Arquivo de som para fechar uma janela (uuid do recurso de som).</string>
+  <key>UISndWindowOpen</key>
+  <string>Arquivo de som para abrir uma janela (uuid do recurso de som).</string>
+  <key>UISpinctrlBtnHeight</key>
+  <string>Altura do botão do controle giratório da interface.</string>
+  <key>UISpinctrlBtnWidth</key>
+  <string>Largura do botão do controle giratório da interface.</string>
+  <key>UISpinctrlSpacing</key>
+  <string>Espaçamento do controle giratório da interface.</string>
+  <key>UITabCntrArrowBtnSize</key>
+  <string>Tamanho do botão de seta do contêiner de abas da interface.</string>
+  <key>UITabCntrButtonPanelOverlap</key>
+  <string>Sobreposição do painel de botões do contêiner de abas da interface.</string>
+  <key>UITabCntrCloseBtnSize</key>
+  <string>Tamanho do botão de fechar do contêiner de abas da interface.</string>
+  <key>UITabCntrTabHPad</key>
+  <string>Preenchimento horizontal da aba do contêiner de abas da interface.</string>
+  <key>UITabCntrTabPartialWidth</key>
+  <string>Largura parcial da aba do contêiner de abas da interface.</string>
+  <key>UITabCntrVertTabMinWidth</key>
+  <string>Largura mínima da aba vertical do contêiner de abas da interface.</string>
+  <key>UITabCntrvArrowBtnSize</key>
+  <string>Tamanho do botão de seta vertical do contêiner de abas da interface.</string>
+  <key>UITabCntrvPad</key>
+  <string>Preenchimento vertical do contêiner de abas da interface.</string>
+  <key>UITabPadding</key>
+  <string>Preenchimento da aba da interface.</string>
+  <key>UpdateAppWindowTitleBar</key>
+  <string>Atualiza a barra de título da janela do aplicativo com informações breves sobre usuário/localização.</string>
+  <key>UpdateRememberPasswordSetting</key>
+  <string>Salvar a configuração de 'lembrar senha' para o usuário atual.</string>
+  <key>UpdaterServiceSetting</key>
+  <string>Configurar o serviço de atualização.</string>
+  <key>UpdaterShowReleaseNotes</key>
+  <string>Ativa a exibição das notas de versão em um floater web após a atualização. 0 - não mostrar, 1 - mostrar, 2 - mostrar mesmo para viewers de teste.</string>
+  <key>UpdaterWillingToTest</key>
+  <string>Se o atualizador deve ou não oferecer upgrades Beta.</string>
+  <key>UploadBakedTexOld</key>
+  <string>Força o pipeline de texturas assadas a fazer upload usando o método antigo.</string>
+  <key>UploadsEveryoneCopy</key>
+  <string>Todos podem copiar o item recém-enviado.</string>
+  <key>UploadsNextOwnerCopy</key>
+  <string>Itens recém-enviados podem ser copiados pelo próximo proprietário.</string>
+  <key>UploadsNextOwnerModify</key>
+  <string>Itens recém-enviados podem ser modificados pelo próximo proprietário.</string>
+  <key>UploadsNextOwnerTransfer</key>
+  <string>Itens recém-enviados podem ser revendidos ou doados pelo próximo proprietário.</string>
+  <key>UploadsShareWithGroup</key>
+  <string>Itens recém-enviados são compartilhados com o grupo ativo no momento.</string>
+  <key>Use24HourClock</key>
+  <string>12 vs 24. No momento a cobertura é parcial.</string>
+  <key>UseAltKeyForMenus</key>
+  <string>Acessar menus pelo teclado tocando Alt.</string>
+  <key>UseChatBubbles</key>
+  <string>Mostrar o chat acima da cabeça dos avatares em balões de chat.</string>
+  <key>UseCircuitCodeMaxRetries</key>
+  <string>Contagem máxima de timeout para a mensagem inicial UseCircuitCode.</string>
+  <key>UseCircuitCodeTimeout</key>
+  <string>Duração do timeout em segundos para a mensagem inicial UseCircuitCode.</string>
+  <key>UseDebugLogin</key>
+  <string>Fornece controle extra sobre a qual grade se conectar.</string>
+  <key>UseDebugMenus</key>
+  <string>Ativa o menu "Debug".</string>
+  <key>UseDefaultColorPicker</key>
+  <string>Usar o seletor de cores fornecido pelo sistema operacional.</string>
+  <key>UseDisplayNames</key>
+  <string>Usar nomes novos, alteráveis e em unicode.</string>
+  <key>UseEnergy</key>
+  <string>Enviar mensagens de energia ao simulador (configuração de depuração legada).</string>
+  <key>UseFreezeFrame</key>
+  <string>Congelar o tempo ao tirar capturas.</string>
+  <key>UseGroupMemberPagination</key>
+  <string>Ativar paginação da lista de membros do grupo, 50 membros por vez.</string>
+  <key>UseNewWalkRun</key>
+  <string>Substituir as animações padrão de caminhar/correr por novas.</string>
+  <key>UseObjectCacheOcclusion</key>
+  <string>Ativar culling de objetos no nível do cache de objetos com base na oclusão (cobertura) por outros objetos.</string>
+  <key>UseOcclusion</key>
+  <string>Ativar culling de objetos com base na oclusão (cobertura) por outros objetos.</string>
+  <key>UsePeopleAPI</key>
+  <string>Usar a cap da people API para busca de nomes de avatares; usar o protocolo legado antigo se falso. Requer reinício.</string>
+  <key>UseStartScreen</key>
+  <string>Se deve ou não carregar uma imagem de tela de início.</string>
+  <key>UseWebPagesOnPrims</key>
+  <string>[NÃO USADO]</string>
+  <key>UserConnectionPort</key>
+  <string>Porta na qual este cliente transmite.</string>
+  <key>UserLogFile</key>
+  <string>Nome do arquivo de log especificado pelo usuário.</string>
+  <key>UserLoginInfo</key>
+  <string>Dados de login do usuário.</string>
+  <key>UserSessionSettingsFile</key>
+  <string>Configurações do usuário aplicadas por sessão (não salvas).</string>
+  <key>VelocityInterpolate</key>
+  <string>Extrapolar o movimento do objeto a partir do último pacote com base na velocidade recebida.</string>
+  <key>VersionChannelName</key>
+  <string>Informações de versão geradas ao executar o viewer.</string>
+  <key>VoiceAutomaticGainControl</key>
+  <string>Controle automático de ganho de voz.</string>
+  <key>VoiceCallsFriendsOnly</key>
+  <string>Aceitar apenas chamadas de voz e receber IMs de residentes na sua lista de amigos.</string>
+  <key>VoiceCallsRejectGroup</key>
+  <string>Rejeitar silenciosamente todas as chamadas de voz de grupo recebidas.</string>
+  <key>VoiceDisableMic</key>
+  <string>Desativar completamente a capacidade de abrir o microfone.</string>
+  <key>VoiceEarLocation</key>
+  <string>Localização do ouvido virtual para voz.</string>
+  <key>VoiceEchoCancellation</key>
+  <string>Cancelamento de eco de voz.</string>
+  <key>VoiceEffectDefault</key>
+  <string>Morfologia de voz selecionada.</string>
+  <key>VoiceImageLevel0</key>
+  <string>UUID de textura para o nível de imagem de voz 0.</string>
+  <key>VoiceImageLevel1</key>
+  <string>UUID de textura para o nível de imagem de voz 1.</string>
+  <key>VoiceImageLevel2</key>
+  <string>UUID de textura para o nível de imagem de voz 2.</string>
+  <key>VoiceImageLevel3</key>
+  <string>UUID de textura para o nível de imagem de voz 3.</string>
+  <key>VoiceImageLevel4</key>
+  <string>UUID de textura para o nível de imagem de voz 4.</string>
+  <key>VoiceImageLevel5</key>
+  <string>UUID de textura para o nível de imagem de voz 5.</string>
+  <key>VoiceImageLevel6</key>
+  <string>UUID de textura para o nível de imagem de voz 6.</string>
+  <key>VoiceInputAudioDevice</key>
+  <string>Dispositivo de entrada de áudio a usar para voz.</string>
+  <key>VoiceMorphingEnabled</key>
+  <string>Se deve ou não ativar os Voice Morphs e mostrar a interface.</string>
+  <key>VoiceNoiseSuppressionLevel</key>
+  <string>Nível de supressão de ruído de voz.</string>
+  <key>VoiceOutputAudioDevice</key>
+  <string>Dispositivo de saída de áudio a usar para voz.</string>
+  <key>VoiceParticipantLeftRemoveDelay</key>
+  <string>Timeout para remover participantes que saíram do chat de voz da lista no painel de controles de voz.</string>
+  <key>VoiceServerType</key>
+  <string>O tipo de servidor de voz a usar para chamadas em grupo, conferência e p2p.</string>
+  <key>VoiceVisualizerEnabled</key>
+  <string>Exibir o indicador de ponto de voz acima de um avatar.</string>
+  <key>WLSkyDetail</key>
+  <string>Controla o detalhe de vértices no céu WindLight. Números menores dão melhor desempenho e céus mais feios.</string>
+  <key>WarningsAsChat</key>
+  <string>Exibir mensagens de aviso no histórico de chat.</string>
+  <key>WatchdogEnabled</key>
+  <string>Controla se o temporizador watchdog de threads é ativado. O valor é S32. Defina -1 para usar o padrão embutido.</string>
+  <key>WaterGLFogDensityScale</key>
+  <string>Mapeia a densidade da névoa de água do shader para a densidade da névoa do gl.</string>
+  <key>WaterGLFogDepthFloor</key>
+  <string>Controla quão escura a névoa de água do gl pode ficar.</string>
+  <key>WaterGLFogDepthScale</key>
+  <string>Controla quão rapidamente a névoa do gl escurece debaixo d'água.</string>
+  <key>WearFolderLimit</key>
+  <string>Limita o número de itens na pasta que podem ser substituídos/adicionados ao visual atual.</string>
+  <key>WearablesEveryoneCopy</key>
+  <string>Todos podem copiar a roupa ou parte do corpo recém-criada.</string>
+  <key>WearablesNextOwnerCopy</key>
+  <string>A roupa ou parte do corpo recém-criada pode ser copiada pelo próximo proprietário.</string>
+  <key>WearablesNextOwnerModify</key>
+  <string>A roupa ou parte do corpo recém-criada pode ser modificada pelo próximo proprietário.</string>
+  <key>WearablesNextOwnerTransfer</key>
+  <string>A roupa ou parte do corpo recém-criada pode ser revendida ou doada pelo próximo proprietário.</string>
+  <key>WearablesShareWithGroup</key>
+  <string>Roupas ou partes do corpo recém-criadas são compartilhadas com o grupo ativo no momento.</string>
+  <key>WebContentWindowLimit</key>
+  <string>Número máximo de janelas do navegador web que podem estar abertas ao mesmo tempo no floater de conteúdo web (0 para sem limite).</string>
+  <key>WebProfileFloaterRect</key>
+  <string>Dimensões do floater de perfil web.</string>
+  <key>WindLightUseAtmosShaders</key>
+  <string>OBSOLETO (apenas true é suportado) - Se deve ativar ou desativar os shaders atmosféricos WindLight.</string>
+  <key>WindowHeight</key>
+  <string>Altura da janela do viewer SL.</string>
+  <key>WindowMaximized</key>
+  <string>Janela do viewer SL maximizada no login.</string>
+  <key>WindowWidth</key>
+  <string>Largura da janela do viewer SL.</string>
+  <key>WindowX</key>
+  <string>Coordenada X do canto superior esquerdo da janela do viewer SL, relativa ao canto superior esquerdo da tela principal (pixels).</string>
+  <key>WindowY</key>
+  <string>Coordenada Y do canto superior esquerdo da janela do viewer SL, relativa ao canto superior esquerdo da tela principal (pixels).</string>
+  <key>XferThrottle</key>
+  <string>Largura de banda máxima permitida de download para transferências de asset (bits por segundo).</string>
+  <key>YawFromMousePosition</key>
+  <string>Faixa horizontal na qual a cabeça do avatar acompanha a posição do mouse (graus de rotação da cabeça da esquerda da janela até a direita).</string>
+  <key>YieldTime</key>
+  <string>Ceder algum tempo ao host local.</string>
+  <key>YouAreHereDistance</key>
+  <string>Raio de distância para o banner que indica se o residente está "no" Lugar (metros do avatar até o lugar solicitado).</string>
+  <key>ZoomDirect</key>
+  <string>Mapear o eixo de zoom do joystick diretamente para o zoom da câmera.</string>
+  <key>ZoomTime</key>
+  <string>Tempo de transição entre diferentes modos de câmera (segundos).</string>
+  <key>always_showable_floaters</key>
+  <string>Floaters que podem ser exibidos mesmo no modo mouselook.</string>
+  <key>max_texture_dimension_X</key>
+  <string>Largura máxima de textura para texturas enviadas pelo usuário.</string>
+  <key>max_texture_dimension_Y</key>
+  <string>Altura máxima de textura para texturas enviadas pelo usuário.</string>
+  <key>moapbeacon</key>
+  <string>Marcador / Destaque de fontes de mídia em prim.</string>
+  <key>moonbeacon</key>
+  <string>Mostrar a direção da Lua.</string>
+  <key>particlesbeacon</key>
+  <string>Marcador / Destaque de geradores de partículas.</string>
+  <key>physicalbeacon</key>
+  <string>Marcador / Destaque de objetos físicos.</string>
+  <key>renderbeacons</key>
+  <string>Marcador / Destaque de geradores de partículas.</string>
+  <key>renderhighlights</key>
+  <string>Marcador / Destaque de objetos com script e função de toque.</string>
+  <key>scriptsbeacon</key>
+  <string>Marcador / Destaque de objetos com script.</string>
+  <key>scripttouchbeacon</key>
+  <string>Marcador / Destaque de objetos com script e função de toque.</string>
+  <key>soundsbeacon</key>
+  <string>Marcador / Destaque de geradores de som.</string>
+  <key>sourceid</key>
+  <string>Identifica a agência de referência para os servidores web da Linden.</string>
+  <key>sunbeacon</key>
+  <string>Mostrar a direção do Sol.</string>
+  <key>teleport_offer_invitation_max_length</key>
+  <string>Comprimento máximo do editor da linha de convite de oferta de teletransporte. 254 - max_location_url_length(76) = 178.</string>
+</map>
+</llsd>

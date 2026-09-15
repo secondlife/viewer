@@ -60,6 +60,8 @@ class LLVolumeOctree;
 #include "llalignedarray.h"
 #include "llrigginginfo.h"
 
+#include <array>
+
 //============================================================================
 
 constexpr S32 MIN_DETAIL_FACES = 6;
@@ -1040,7 +1042,7 @@ public:
     const LLVector4a& getMeshPt(const U32 i) const          { return mMesh[i]; }
 
 
-    void setDirty() { mPathp->setDirty(); mProfilep->setDirty(); }
+    void setDirty();
 
     void regen();
     void genTangents(S32 face);
@@ -1093,7 +1095,7 @@ public:
     U32                 mFaceMask;          // bit array of which faces exist in this volume
     LLVector3           mLODScaleBias;      // vector for biasing LOD based on scale
 
-    void sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level, bool visible_placeholder);
+    void sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level, bool visible_placeholder, bool validate_area);
     void copyVolumeFaces(const LLVolume* volume);
     void copyFacesTo(std::vector<LLVolumeFace> &faces) const;
     void copyFacesFrom(const std::vector<LLVolumeFace> &faces);
@@ -1130,6 +1132,11 @@ public:
     F32 mSurfaceArea; //unscaled surface area
     bool mIsMeshAssetLoaded;
     bool mIsMeshAssetUnavaliable;
+
+    // Cache for sculpt geometry validation results
+    static constexpr S32 SCULPT_CACHE_SIZE = 6;  // 0 to 5 inclusive
+    enum class LLSculptValidationState : S8 { Unvalidated, Valid, Invalid };
+    std::array<LLSculptValidationState, SCULPT_CACHE_SIZE> mSculptValidationCache;
 
     const LLVolumeParams mParams;
     LLPath *mPathp;

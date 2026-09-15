@@ -33,15 +33,12 @@
 #include "m4math.h"
 #include <queue>
 
-#include <boost/align/aligned_allocator.hpp>
-
 class daeElement;
 class domMesh;
 
 #define MAX_MODEL_FACES 8
 
-LL_ALIGN_PREFIX(16)
-class LLMeshSkinInfo : public LLRefCount
+class alignas(16) LLMeshSkinInfo : public LLRefCount
 {
     LL_ALIGN_NEW
 public:
@@ -65,17 +62,16 @@ public:
     // cached multiply of mBindShapeMatrix and mInvBindMatrix
     matrix_list_t mBindPoseMatrix;
 
-    LL_ALIGN_16(LLMatrix4a mBindShapeMatrix);
+    LLMatrix4a mBindShapeMatrix;
 
     float mPelvisOffset;
     bool mLockScaleIfJointPosition;
     bool mInvalidJointsScrubbed;
     bool mJointNumsInitialized;
     U64 mHash = 0;
-} LL_ALIGN_POSTFIX(16);
+};
 
-LL_ALIGN_PREFIX(16)
-class LLModel : public LLVolume
+class alignas(16) LLModel : public LLVolume
 {
     LL_ALIGN_NEW
 public:
@@ -323,7 +319,7 @@ public:
     // A model/object can only have 8 faces, spillover faces will
     // be moved to new model/object and assigned a submodel id.
     int mSubmodelID;
-} LL_ALIGN_POSTFIX(16);
+};
 
 typedef std::vector<LLPointer<LLModel> >    model_list;
 typedef std::queue<LLPointer<LLModel> > model_queue;

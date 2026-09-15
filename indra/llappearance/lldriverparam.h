@@ -128,7 +128,7 @@ protected:
     void setDrivenWeight(LLDrivenEntry* driven, F32 driven_weight);
 
 
-    LL_ALIGN_16(LLVector4a  mDefaultVec); // temp holder
+    LLVector4a  mDefaultVec; // temp holder
     entry_list_t mDriven;
     LLViewerVisualParam* mCurrentDistortionParam{ nullptr };
     // Backlink only; don't make this an LLPointer.

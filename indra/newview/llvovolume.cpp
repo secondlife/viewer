@@ -1444,7 +1444,8 @@ void LLVOVolume::sculpt()
             }
         }
 
-        getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level, mSculptTexture->isMissingAsset());
+        static LLCachedControl<bool> validate_area(gSavedSettings, "ValidateSculptyAreaRatio", true);
+        getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level, mSculptTexture->isMissingAsset(), validate_area());
     }
 }
 
@@ -4445,7 +4446,7 @@ U32 LLVOVolume::getTriangleCount(S32* vcount) const
     return count;
 }
 
-U32 LLVOVolume::getHighLODTriangleCount()
+U32 LLVOVolume::getLODTriangleCount(S32 lod)
 {
     U32 ret = 0;
 
@@ -4453,16 +4454,16 @@ U32 LLVOVolume::getHighLODTriangleCount()
 
     if (!isSculpted())
     {
-        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), lod);
         ret = ref->getNumTriangles();
         LLPrimitive::getVolumeManager()->unrefVolume(ref);
     }
     else if (isMesh())
     {
-        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), lod);
         if (!ref->isMeshAssetLoaded() || ref->getNumVolumeFaces() == 0)
         {
-            gMeshRepo.loadMesh(this, volume->getParams(), LLModel::LOD_HIGH);
+            gMeshRepo.loadMesh(this, volume->getParams(), lod);
         }
         ret = ref->getNumTriangles();
         LLPrimitive::getVolumeManager()->unrefVolume(ref);
@@ -4473,6 +4474,11 @@ U32 LLVOVolume::getHighLODTriangleCount()
     }
 
     return ret;
+}
+
+U32 LLVOVolume::getHighLODTriangleCount()
+{
+    return getLODTriangleCount(LLModel::LOD_HIGH);
 }
 
 //static

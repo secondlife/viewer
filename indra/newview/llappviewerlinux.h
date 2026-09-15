@@ -31,60 +31,45 @@ extern "C" {
 # include <glib.h>
 }
 
-#if LL_DBUS_ENABLED
-extern "C" {
-# include <glib-object.h>
-# include <dbus/dbus-glib.h>
-}
-#endif
-
 #ifndef LL_LLAPPVIEWER_H
 #include "llappviewer.h"
 #endif
 
 class LLCommandLineParser;
 
-class LLAppViewerLinux : public LLAppViewer
+class LLAppViewerLinux final : public LLAppViewer
 {
 public:
     LLAppViewerLinux();
-    virtual ~LLAppViewerLinux();
+    ~LLAppViewerLinux() override;
 
     //
     // Main application logic
     //
-    virtual bool init();            // Override to do application initialization
-    std::string generateSerialNumber();
+    bool init() override;            // Override to do application initialization
+    std::string generateSerialNumber() override;
     bool setupSLURLHandler();
 
 protected:
-    virtual bool beingDebugged();
+    bool beingDebugged() override;
 
-    virtual bool restoreErrorTrap();
-    virtual void initCrashReporting(bool reportFreeze);
+    bool restoreErrorTrap() override;
+    void initCrashReporting(bool reportFreeze);
 
-    virtual void initLoggingAndGetLastDuration();
-    virtual bool initParseCommandLine(LLCommandLineParser& clp);
+    bool initParseCommandLine(LLCommandLineParser& clp) override;
 
-    virtual bool initSLURLHandler();
-    virtual bool sendURLToOtherInstance(const std::string& url);
+    bool initSLURLHandler() override;
+    bool sendURLToOtherInstance(const std::string& url) override;
+    void setOSHibernationMode(eHibernationMode mode) override;
+
+private:
+    // Power management state tracking
+    static guint32 sPowerInhibitCookie;
+    static bool sPowerInhibitActive;
+
+    // Helper methods for power management
+    bool inhibitPowerManagement(bool inhibit_display);
+    void uninhibitPowerManagement();
 };
-
-#if LL_DBUS_ENABLED
-typedef struct
-{
-        GObject parent;
-        DBusGConnection *connection;
-} ViewerAppAPI;
-
-extern "C" {
-    gboolean viewer_app_api_GoSLURL(ViewerAppAPI *obj, gchar *slurl, gboolean **success_rtn, GError **error);
-}
-
-#define VIEWERAPI_SERVICE "com.secondlife.ViewerAppAPIService"
-#define VIEWERAPI_PATH "/com/secondlife/ViewerAppAPI"
-#define VIEWERAPI_INTERFACE "com.secondlife.ViewerAppAPI"
-
-#endif // LL_DBUS_ENABLED
 
 #endif // LL_LLAPPVIEWERLINUX_H
