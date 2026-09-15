@@ -6006,9 +6006,10 @@ void LLAppViewer::setPermitOSHibernation(bool permit)
     }
     else
     {
+        // User is active, check settings and set OS hibernation mode accordingly
         static LLCachedControl<S32> os_hibernation_mode(gSavedSettings, "OSHibernationMode", 0);
         eHibernationMode mode = static_cast<eHibernationMode>(os_hibernation_mode());
-        if (mode != LL_HIBERNATE_MODE_DEFAULT && mCurrentHibernationMode != mode)
+        if (mCurrentHibernationMode != mode)
         {
             setOSHibernationMode(mode);
             mCurrentHibernationMode = mode;
