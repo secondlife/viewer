@@ -1042,6 +1042,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
         return true;
     }
     static const LLCore::HttpStatus http_not_found(HTTP_NOT_FOUND);                     // 404
+    static const LLCore::HttpStatus http_forbidden(HTTP_FORBIDDEN);                     // 403
     static const LLCore::HttpStatus http_service_unavail(HTTP_SERVICE_UNAVAILABLE);     // 503
     static const LLCore::HttpStatus http_not_sat(HTTP_REQUESTED_RANGE_NOT_SATISFIABLE); // 416;
 
@@ -1559,6 +1560,27 @@ bool LLTextureFetchWorker::doWork(S32 param)
                         if (!region || mLastRegionId != region->getRegionID())
                         {
                             // try on new region.
+                            mUrl.clear();
+                            ++mRetryAttempt;
+                            mLastRegionId.setNull();
+                            setState(INIT);
+                            return false;
+                        }
+                    }
+                }
+                else if (http_forbidden == mGetStatus)
+                {
+                    LL_INFOS_ONCE(LOG_TXT) << "Texture server forbidden (403): " << mUrl << LL_ENDL;
+                    if (mCanUseHTTP && !mUrl.empty() && cur_size <= 0)
+                    {
+                        LLViewerRegion* region = getRegion();
+                        if (!region || mLastRegionId != region->getRegionID() || mRetryAttempt == 0)
+                        {
+                            if (mFTType != FTT_MAP_TILE)
+                            {
+                                LL_INFOS(LOG_TXT) << "Texture capability expired or forbidden (403), retrying: " << mUrl << " mRetryAttempt " << mRetryAttempt << LL_ENDL;
+                            }
+                            // cap failure / expired token? try on new region or refresh cap.
                             mUrl.clear();
                             ++mRetryAttempt;
                             mLastRegionId.setNull();
