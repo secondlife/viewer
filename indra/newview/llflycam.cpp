@@ -78,7 +78,7 @@ void LLFlycam::setRollRate(F32 roll_rate)
 {
     // Note: this math expects roll_rate to be in range [-1.0, 1.0]
     constexpr F32 ROLL_RATE_FACTOR = 0.90f;
-    mRollRate = roll_rate * ROLL_RATE_FACTOR;
+    mRollRate = mAllowRoll ? roll_rate * ROLL_RATE_FACTOR : 0.0f;
 }
 
 
@@ -182,7 +182,35 @@ void LLFlycam::integrate(F32 delta_time)
     {
         LLQuaternion dQ;
         dQ.setAngleAxis(angle, 0.0f, 0.0f, 1.0f);
-        mRotation = mRotation * dQ;
+        if (mAllowRoll)
+        {
+            mRotation = dQ * mRotation;
+        }
+        else
+        {
+            mRotation = dQ * mRotation;
+
+            // Un-roll: keep the just-applied forward axis, but rebuild "up" to
+            // lie in the plane spanned by forward and world-up, which removes
+            // any roll the pitch+yaw quaternion multiplications above may have
+            // introduced (they don't commute).
+            LLMatrix3 level(mRotation);
+            LLVector3 forward(level.getFwdRow());
+            forward.normVec();
+
+            LLVector3 world_up = LLVector3::z_axis;
+            LLVector3 new_up = world_up - (world_up * forward) * forward;
+            constexpr F32 MIN_UNROLL_SIN = 0.01f; // ~0.6 degrees off vertical
+            if (new_up.lengthSquared() > MIN_UNROLL_SIN * MIN_UNROLL_SIN)
+            {
+                new_up.normVec();
+                // Right-handed (forward, left, up) basis, per
+                // LLMatrix3::orthogonalize()'s up = forward % left: up % forward == left.
+                LLVector3 new_left = new_up % forward;
+                level.setRows(forward, new_left, new_up);
+                mRotation = LLQuaternion(level);
+            }
+        }
         needs_renormalization = true;
     }
 

@@ -3140,6 +3140,7 @@ void LLAgentCamera::updateFlycam(F32 delta_time)
 
     mFlycam.setPitchRate(flycam_inputs[LLGameControl::FLYCAM_TILT]);
     mFlycam.setYawRate(yaw_input);
+    mFlycam.setAllowRoll(LLGameControl::isFlycamRollAllowed());
     mFlycam.setRollRate(flycam_inputs[LLGameControl::FLYCAM_ROLL]);
     mFlycam.setZoomRate(flycam_inputs[LLGameControl::FLYCAM_ZOOM]);
 
