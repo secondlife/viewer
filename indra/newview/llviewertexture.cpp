@@ -44,6 +44,7 @@
 #include "lltimer.h"
 #include "v4coloru.h"
 #include "llnotificationsutil.h"
+#include "llhttpconstants.h"
 
 // viewer includes
 #include "llimagegl.h"
@@ -1960,7 +1961,10 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
                         << " worker state " << mFetchState
                         << LL_ENDL;
                 }
-                setIsMissingAsset();
+                if (mLastHttpGetStatus != LLCore::HttpStatus(HTTP_FORBIDDEN))
+                {
+                    setIsMissingAsset();
+                }
                 desired_discard = -1;
             }
             else
