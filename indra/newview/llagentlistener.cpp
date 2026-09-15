@@ -208,6 +208,15 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "avatar render position is used as the point",
         &LLAgentListener::getAgentScreenPos,
         llsd::map("reply", LLSD()));
+
+    add("getCamera",
+        "Send information about the viewer camera's current state on [\"reply\"]:\n"
+        "[\"position\"]: array of [x, y, z] camera position in agent coordinates\n"
+        "[\"rotation\"]: array of [x, y, z, w] camera rotation quaternion\n"
+        "[\"fov\"]: vertical field of view, in radians\n"
+        "[\"focus_position\"]: array of [x, y, z] camera focus position in agent coordinates",
+        &LLAgentListener::getCamera,
+        llsd::map("reply", LLSD()));
 }
 
 void LLAgentListener::requestTeleport(LLSD const & event_data) const
@@ -848,4 +857,15 @@ void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
     response["onscreen"] = LLViewerCamera::getInstance()->projectPosAgentToScreen(render_pos, screen_pos, false);
     response["x"] = screen_pos.mX;
     response["y"] = screen_pos.mY;
+}
+
+void LLAgentListener::getCamera(LLSD const& event_data)
+{
+    Response response(LLSD(), event_data);
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+
+    response["position"] = ll_sd_from_vector3(camera->getOrigin());
+    response["rotation"] = ll_sd_from_quaternion(camera->getQuaternion());
+    response["fov"] = camera->getView();
+    response["focus_position"] = ll_sd_from_vector3(mAgent.getPosAgentFromGlobal(gAgentCamera.getFocusGlobal()));
 }
