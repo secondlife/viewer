@@ -681,6 +681,18 @@ public:
     static bool isFlycamRollAllowed();
     static void setFlycamRollAllowed(bool allowed);
 
+    // FlyCam-only camera move-speed multiplier, applied to LLFlycam's Pitch/Yaw/
+    // Roll rate coefficients (see LLFlycam::mSpeedFactor). Range [0.5, 2.0];
+    // defaults to 1.0 when absent.
+    static F32 getFlycamSpeedFactor();
+    static void setFlycamSpeedFactor(F32 speed_factor);
+
+    // FlyCam-only flag: whether a centered crosshair is drawn over the 3D view
+    // while flycam is engaged (see LLViewerWindow::draw() /
+    // LLAgentCamera::isUsingFlycam()). Defaults to false when absent.
+    static bool isFlycamCrosshairEnabled();
+    static void setFlycamCrosshairEnabled(bool enabled);
+
     static std::string getDeviceConfig(const std::string& guid);
     static void setDeviceConfig(const std::string& guid, const std::string& config);
 

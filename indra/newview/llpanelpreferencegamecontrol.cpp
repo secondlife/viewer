@@ -37,6 +37,7 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "llsliderctrl.h"
 #include "lltabcontainer.h"
 #include "llspinctrl.h"
 #include "lltextbox.h"
@@ -735,6 +736,14 @@ bool LLPanelPreferenceGameControl::postBuild()
     mCheckFlycamAllowRoll->setCommitCallback([this](LLUICtrl*, const LLSD&)
         { LLGameControl::setFlycamRollAllowed(mCheckFlycamAllowRoll->getValue()); });
 
+    mSliderFlycamSpeedFactor = getChild<LLSliderCtrl>("flycam_speed_factor");
+    mSliderFlycamSpeedFactor->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        { LLGameControl::setFlycamSpeedFactor((F32)mSliderFlycamSpeedFactor->getValue().asReal()); });
+
+    mCheckFlycamCrosshair = getChild<LLCheckBoxCtrl>("flycam_crosshair");
+    mCheckFlycamCrosshair->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        { LLGameControl::setFlycamCrosshairEnabled(mCheckFlycamCrosshair->getValue()); });
+
     mRestoreActionsDefaults = getChild<LLButton>("restore_actions_defaults");
     mRestoreActionsDefaults->setCommitCallback([this](LLUICtrl*, const LLSD&) { onResetActionsToDefaults(); });
 
@@ -1243,13 +1252,20 @@ void LLPanelPreferenceGameControl::updateActionModeEnabledUI()
     mActionMappingsButtons->setEnabled(enabled);
     mRestoreActionsDefaults->setEnabled(enabled);
 
-    // Roll is only meaningful for FlyCam: hide the checkbox for every other mode.
+    // Roll, move-speed, and the crosshair are only meaningful for FlyCam: hide
+    // all three controls for every other mode.
     bool is_flycam = (mode == "FlyCam");
     mCheckFlycamAllowRoll->setVisible(is_flycam);
+    mSliderFlycamSpeedFactor->setVisible(is_flycam);
+    mCheckFlycamCrosshair->setVisible(is_flycam);
     if (is_flycam)
     {
         mCheckFlycamAllowRoll->set(LLGameControl::isFlycamRollAllowed());
         mCheckFlycamAllowRoll->setEnabled(enabled);
+        mSliderFlycamSpeedFactor->setValue(LLGameControl::getFlycamSpeedFactor());
+        mSliderFlycamSpeedFactor->setEnabled(enabled);
+        mCheckFlycamCrosshair->set(LLGameControl::isFlycamCrosshairEnabled());
+        mCheckFlycamCrosshair->setEnabled(enabled);
     }
 }
 
@@ -1963,9 +1979,12 @@ void LLPanelPreferenceGameControl::onResetActionsToDefaults()
     LLGameControl::setModeMapping(mode, MODE_INPUT_TYPE_AXES_INVERT, defaults[mode][MODE_INPUT_TYPE_AXES_INVERT]);
     if (mode == "FlyCam")
     {
-        // AllowRoll lives outside the Axes/Buttons/AxesInvert mapping this
-        // function otherwise restores, so it needs to be reset explicitly.
+        // AllowRoll, SpeedFactor, and ShowCrosshair live outside the
+        // Axes/Buttons/AxesInvert mapping this function otherwise restores, so
+        // they need to be reset explicitly.
         LLGameControl::setFlycamRollAllowed(false);
+        LLGameControl::setFlycamSpeedFactor(1.0f);
+        LLGameControl::setFlycamCrosshairEnabled(false);
     }
     populateActionMappings();
     updateActionModeEnabledUI(); // syncs mCheckFlycamAllowRoll with the reset value above

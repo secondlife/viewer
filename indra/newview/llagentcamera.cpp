@@ -3134,13 +3134,18 @@ void LLAgentCamera::updateFlycam(F32 delta_time)
         mFlycam.setOrbitRadialRate(0.f);
     }
 
+    // Must precede setLinearVelocity()/setPitchRate()/setYawRate()/setRollRate():
+    // those setters apply mSpeedFactor/mAllowRoll immediately rather than at
+    // integrate() time.
+    mFlycam.setSpeedFactor(LLGameControl::getFlycamSpeedFactor());
+    mFlycam.setAllowRoll(LLGameControl::isFlycamRollAllowed());
+
     LLVector3 linear_velocity(dolly_input, truck_input, flycam_inputs[LLGameControl::FLYCAM_BOOM]);
     constexpr F32 MAX_FLYCAM_SPEED = 10.0f;
     mFlycam.setLinearVelocity(MAX_FLYCAM_SPEED * linear_velocity);
 
     mFlycam.setPitchRate(flycam_inputs[LLGameControl::FLYCAM_TILT]);
     mFlycam.setYawRate(yaw_input);
-    mFlycam.setAllowRoll(LLGameControl::isFlycamRollAllowed());
     mFlycam.setRollRate(flycam_inputs[LLGameControl::FLYCAM_ROLL]);
     mFlycam.setZoomRate(flycam_inputs[LLGameControl::FLYCAM_ZOOM]);
 

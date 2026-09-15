@@ -76,6 +76,50 @@
                 height="16"
                 width="120"
                 tool_tip="Allow Roll input to rotate the flycam about its forward axis. Only shown while editing FlyCam mappings."/>
+            <text
+                type="string"
+                name="flycam_speed_slow_label"
+                layout="topleft"
+                follows="top|left"
+                halign="right"
+                top="30"
+                left_pad="8"
+                height="16"
+                width="32">Slow</text>
+            <slider
+                name="flycam_speed_factor"
+                layout="topleft"
+                follows="top|left"
+                top_delta="-1"
+                left_pad="4"
+                height="16"
+                width="90"
+                min_val="0.5"
+                max_val="2.0"
+                initial_value="1.0"
+                increment="0.05"
+                decimal_digits="2"
+                show_text="false"
+                tool_tip="Camera move speed while flying the flycam. Only shown while editing FlyCam mappings."/>
+            <text
+                type="string"
+                name="flycam_speed_fast_label"
+                layout="topleft"
+                follows="top|left"
+                top_delta="1"
+                left_pad="4"
+                height="16"
+                width="32">Fast</text>
+            <check_box
+                name="flycam_crosshair"
+                label="Show crosshair"
+                layout="topleft"
+                follows="top|left"
+                top="48"
+                left="217"
+                height="16"
+                width="150"
+                tool_tip="Draw a crosshair at the center of the screen while flying the flycam. Only shown while editing FlyCam mappings."/>
             <button
                 name="restore_actions_defaults"
                 layout="topleft"
@@ -91,7 +135,7 @@
                 name="current_mode_indicator"
                 layout="topleft"
                 follows="top|left|right"
-                top="52"
+                top="68"
                 left="6"
                 right="-1"
                 height="16">Active mode: </text>
@@ -99,7 +143,7 @@
                 name="action_mappings_panel"
                 layout="topleft"
                 follows="all"
-                top="72"
+                top="88"
                 left="1"
                 right="-1"
                 bottom="-1">
