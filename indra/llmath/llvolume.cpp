@@ -3289,7 +3289,7 @@ S32 sculpt_sides(F32 detail)
     }
 }
 
-static bool validate_sculpt_geometry(const LLVolume* volume)
+static bool validate_sculpt_geometry(const LLVolume* volume, bool validate_area)
 {
     if (!volume || volume->getNumVolumeFaces() == 0)
     {
@@ -3365,7 +3365,7 @@ static bool validate_sculpt_geometry(const LLVolume* volume)
         F32 area_ratio = total_triangle_area / bounding_surface;
 
         constexpr F32 MAX_AREA_TO_AREA_RATIO = 16.0f;
-        if (area_ratio > MAX_AREA_TO_AREA_RATIO)
+        if (validate_area && area_ratio > MAX_AREA_TO_AREA_RATIO)
         {
             LL_DEBUGS("LLVOLUME") << "Sculpt rejected: excessive triangle area."
                 << "  Face index: " << face_idx
@@ -3417,7 +3417,7 @@ static void sculpt_calc_mesh_resolution(U16 width, U16 height, U8 type, F32 deta
 }
 
 // sculpt replaces generate() for sculpted surfaces
-void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level, bool visible_placeholder)
+void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level, bool visible_placeholder, bool validate_area)
 {
     U8 sculpt_type = mParams.getSculptType();
 
@@ -3528,7 +3528,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
             // Todo: can this be backed into createVolumeFaces?
             // Or calculated without having to call createVolumeFaces first?
             // Todo 2: should the same be done for meshes?
-            valid_geometry = validate_sculpt_geometry(this);
+            valid_geometry = validate_sculpt_geometry(this, validate_area);
             mSculptValidationCache[sculpt_level] = valid_geometry ? LLSculptValidationState::Valid : LLSculptValidationState::Invalid;
 
             if (!valid_geometry)
