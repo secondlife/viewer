@@ -609,6 +609,9 @@ namespace
     // Per-mode flag gating whether game-control input is converted to that mode's
     // actions.  When false the mode's mappings are locked and no actions fire.
     const std::string GC_ENABLED("Enabled");
+    // FlyCam-only flag gating whether Roll input rotates the flycam about its
+    // forward axis (see LLFlycam::mAllowRoll). Absent/false means Roll is ignored.
+    const std::string GC_ALLOW_ROLL("AllowRoll");
     const std::string GC_MODE_AVATAR("Avatar");
     const std::string GC_MODE_MOUSELOOK("Mouselook");
     const std::string GC_MODE_FLYCAM("FlyCam");
@@ -2438,8 +2441,8 @@ namespace
             { "Tilt down",      { LLGameControl::FLYCAM_TILT,   -1.f } },
             { "Boom up",        { LLGameControl::FLYCAM_BOOM,    1.f } },
             { "Boom down",      { LLGameControl::FLYCAM_BOOM,   -1.f } },
-            { "Roll CCW",       { LLGameControl::FLYCAM_ROLL,    1.f } },
-            { "Roll CW",        { LLGameControl::FLYCAM_ROLL,   -1.f } },
+            { "Roll CCW",       { LLGameControl::FLYCAM_ROLL,   -1.f } },
+            { "Roll CW",        { LLGameControl::FLYCAM_ROLL,    1.f } },
             { "Zoom in",        { LLGameControl::FLYCAM_ZOOM,    1.f } },
             { "Zoom out",       { LLGameControl::FLYCAM_ZOOM,   -1.f } },
         };
@@ -3706,6 +3709,25 @@ void LLGameControl::setModeEnabled(const std::string& mode, bool enabled)
     g_gameControlSettings[GC_MODEMAPPINGS][mode][GC_ENABLED] = enabled;
     // The runtime gates (willControlAvatar/willControlFlycam/getFlycamInputs) read
     // this flag live each frame, so no action-lookup rebuild is needed here.
+}
+
+// static
+bool LLGameControl::isFlycamRollAllowed()
+{
+    ensureGameControlSettings();
+    const LLSD& mode_map = g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM];
+    // Default to disallowed when the flag is absent (e.g. settings saved before
+    // this flag existed, or LLFlycam::mAllowRoll's own default).
+    return mode_map.isMap() && mode_map[GC_ALLOW_ROLL].asBoolean();
+}
+
+// static
+void LLGameControl::setFlycamRollAllowed(bool allowed)
+{
+    ensureGameControlSettings();
+    g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM][GC_ALLOW_ROLL] = allowed;
+    // The runtime reads this flag live each frame (LLAgentCamera::updateFlycam()),
+    // so no action-lookup rebuild is needed here.
 }
 
 // static

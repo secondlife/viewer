@@ -675,6 +675,12 @@ public:
     // the flag is absent.  'mode' is "Avatar"/"Mouselook"/"FlyCam"/"Captive"/"Cursor".
     static bool isModeEnabled(const std::string& mode);
     static void setModeEnabled(const std::string& mode, bool enabled);
+
+    // FlyCam-only flag: whether Roll input is allowed to rotate the flycam about
+    // its forward axis (see LLFlycam::mAllowRoll). Defaults to false when absent.
+    static bool isFlycamRollAllowed();
+    static void setFlycamRollAllowed(bool allowed);
+
     static std::string getDeviceConfig(const std::string& guid);
     static void setDeviceConfig(const std::string& guid, const std::string& config);
 

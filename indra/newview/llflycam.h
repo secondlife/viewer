@@ -52,6 +52,13 @@ public:
     void setRollRate(F32 roll_rate);
     void setZoomRate(F32 zoom_rate);
 
+    // Whether Roll input is allowed to rotate the flycam about its forward
+    // axis; when false, setRollRate() discards its input and the flycam
+    // never rolls. Off by default; driven by the "GameControl" FlyCam
+    // settings' AllowRoll flag (see LLGameControl::isFlycamRollAllowed()).
+    void setAllowRoll(bool allow) { mAllowRoll = allow; }
+    bool getAllowRoll() const { return mAllowRoll; }
+
     // Orbit modifier: while engaged, position is re-derived every integrate()
     // from the camera's own (pitch/yaw-rotated) forward axis so the camera
     // stays 'focal_distance' meters from a focal point fixed in front of it
@@ -98,6 +105,7 @@ protected:
     F32 mRollRate { 0.0f };
     F32 mZoomRate { 0.0f };
     F32 mView { DEFAULT_FIELD_OF_VIEW };
+    bool mAllowRoll { false };
 
     // Orbit-in-progress state: see setOrbitEngaged()/setOrbitRadialRate() and
     // the orbit branch in integrate().

@@ -66,6 +66,16 @@
                 height="16"
                 width="70"
                 tool_tip="Uncheck to lock this mode's mappings and stop converting game-control input to this mode's actions."/>
+            <check_box
+                name="flycam_allow_roll"
+                label="Allow roll"
+                layout="topleft"
+                follows="top|left"
+                top="30"
+                left="217"
+                height="16"
+                width="120"
+                tool_tip="Allow Roll input to rotate the flycam about its forward axis. Only shown while editing FlyCam mappings."/>
             <button
                 name="restore_actions_defaults"
                 layout="topleft"
@@ -81,7 +91,7 @@
                 name="current_mode_indicator"
                 layout="topleft"
                 follows="top|left|right"
-                top="32"
+                top="52"
                 left="6"
                 right="-1"
                 height="16">Active mode: </text>
@@ -89,7 +99,7 @@
                 name="action_mappings_panel"
                 layout="topleft"
                 follows="all"
-                top="52"
+                top="72"
                 left="1"
                 right="-1"
                 bottom="-1">

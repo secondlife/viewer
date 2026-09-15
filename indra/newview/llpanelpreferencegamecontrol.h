@@ -175,6 +175,7 @@ private:
     // Actions tab
     LLComboBox* mActionMode { nullptr };            // selects which mode's mappings are edited
     LLCheckBoxCtrl* mCheckActionModeEnabled { nullptr };  // enables/disables the selected mode
+    LLCheckBoxCtrl* mCheckFlycamAllowRoll { nullptr };  // FlyCam-only: allows Roll input; hidden for other modes
     LLButton* mRestoreActionsDefaults { nullptr };
     LLTextBox* mCurrentModeIndicator { nullptr };         //mode indicator
     LLGameControl::AgentControlMode mLastDrawnControlMode { LLGameControl::CONTROL_MODE_NONE };

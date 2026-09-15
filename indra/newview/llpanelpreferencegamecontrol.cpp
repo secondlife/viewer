@@ -731,6 +731,10 @@ bool LLPanelPreferenceGameControl::postBuild()
     mCheckActionModeEnabled->setCommitCallback([this](LLUICtrl*, const LLSD&)
         { onModeEnabledToggled(mCheckActionModeEnabled->getValue()); });
 
+    mCheckFlycamAllowRoll = getChild<LLCheckBoxCtrl>("flycam_allow_roll");
+    mCheckFlycamAllowRoll->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        { LLGameControl::setFlycamRollAllowed(mCheckFlycamAllowRoll->getValue()); });
+
     mRestoreActionsDefaults = getChild<LLButton>("restore_actions_defaults");
     mRestoreActionsDefaults->setCommitCallback([this](LLUICtrl*, const LLSD&) { onResetActionsToDefaults(); });
 
@@ -1224,13 +1228,23 @@ void LLPanelPreferenceGameControl::onModeEnabledToggled(bool enabled)
 // the action tables (and Restore Defaults) so a disabled mode's mappings can't change.
 void LLPanelPreferenceGameControl::updateActionModeEnabledUI()
 {
-    bool enabled = LLGameControl::isModeEnabled(currentEditMode());
+    std::string mode = currentEditMode();
+    bool enabled = LLGameControl::isModeEnabled(mode);
     mCheckActionModeEnabled->set(enabled);
     // A disabled mode's tables grey out; onGridSelect() also refuses edits on a
     // disabled table, so this both signals and enforces the lock.
     mActionMappingsAxes->setEnabled(enabled);
     mActionMappingsButtons->setEnabled(enabled);
     mRestoreActionsDefaults->setEnabled(enabled);
+
+    // Roll is only meaningful for FlyCam: hide the checkbox for every other mode.
+    bool is_flycam = (mode == "FlyCam");
+    mCheckFlycamAllowRoll->setVisible(is_flycam);
+    if (is_flycam)
+    {
+        mCheckFlycamAllowRoll->set(LLGameControl::isFlycamRollAllowed());
+        mCheckFlycamAllowRoll->setEnabled(enabled);
+    }
 }
 
 // Shows the live AgentControlMode independent of the mode being edited (mActionMode)
@@ -1941,7 +1955,14 @@ void LLPanelPreferenceGameControl::onResetActionsToDefaults()
     LLGameControl::setModeMapping(mode, MODE_INPUT_TYPE_AXES, defaults[mode][MODE_INPUT_TYPE_AXES]);
     LLGameControl::setModeMapping(mode, MODE_INPUT_TYPE_BUTTONS, defaults[mode][MODE_INPUT_TYPE_BUTTONS]);
     LLGameControl::setModeMapping(mode, MODE_INPUT_TYPE_AXES_INVERT, defaults[mode][MODE_INPUT_TYPE_AXES_INVERT]);
+    if (mode == "FlyCam")
+    {
+        // AllowRoll lives outside the Axes/Buttons/AxesInvert mapping this
+        // function otherwise restores, so it needs to be reset explicitly.
+        LLGameControl::setFlycamRollAllowed(false);
+    }
     populateActionMappings();
+    updateActionModeEnabledUI(); // syncs mCheckFlycamAllowRoll with the reset value above
 
     // Push the pending UI state into LLGameControl's runtime so the effect is
     // immediate.  gSavedSettings is updated later via saveSettings() on OK.
