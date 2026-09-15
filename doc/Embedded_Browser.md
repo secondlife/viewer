@@ -386,6 +386,22 @@ for constrained machines, on top of (not a replacement for) the render-rate
 throttling above - one shrinks how much memory a tab reserves, the other
 shrinks how much CPU it costs to keep painting.
 
+The producer's own absolute maximum was originally left at 1920x1080
+(`kMaxWidth`/`kMaxHeight`, `cefshm_protocol.h`) - fine as a memory ceiling,
+but it turned out to also silently cap real UI content, not just a
+theoretical worst case. Any embedded-browser widget or floater taller than
+1080 real screen pixels (routine on an ordinary 1440p-or-taller monitor,
+independent of OS display scaling - e.g. the login page's destination-guide
+panel on a maximized window) got its CEF buffer clamped at 1080 while the
+widget itself kept its true, taller size. Since `LLMediaCtrl::draw()` always
+stretches embedded-browser content to fill the full widget rect rather than
+letterboxing it, the shorter-than-actual buffer was visibly stretched taller
+to compensate - a dramatic, OS-scale-independent content-stretch bug, first
+reported on the login page. Raised to 4096x4096, matching
+`EmbeddedBrowserMaxWidth`/`Height`'s own settings.xml default, so that
+setting is the real, effective ceiling end-to-end rather than being silently
+overridden by a lower one.
+
 ## Debugging
 
 Two separate log files are written next to `SLMediaProducer.exe`:

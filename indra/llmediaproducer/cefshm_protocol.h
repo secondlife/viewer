@@ -42,8 +42,23 @@ namespace cefshm_demo
     inline constexpr char          kChannelPrefix[] = "llcefshm_view_";
     inline constexpr std::uint32_t kDefaultWidth  = 960;
     inline constexpr std::uint32_t kDefaultHeight = 540;
-    inline constexpr std::uint32_t kMaxWidth      = 1920;
-    inline constexpr std::uint32_t kMaxHeight     = 1080;
+
+    // Absolute sanity ceiling for any one slot's SHM segment/buffer, regardless of what a
+    // consumer's EmbeddedBrowserMaxWidth/Height saved setting (settings.xml, also 4096
+    // default) asks for -- kept in sync with that setting's own default so it's the real,
+    // effective ceiling rather than a silent, lower override of it. Previously 1920x1080
+    // (inherited from llcefshm-example's original demo defaults, never revisited once that
+    // setting's own default was raised to 4096) -- this silently capped every embedded-
+    // browser widget/floater taller than 1080 real screen pixels, which any panel on an
+    // ordinary 1440p-or-taller monitor can exceed even at 100% OS display scaling (e.g. the
+    // login page's destination-guide panel, confirmed via diagnostic logging to reshape to
+    // 1368px tall on a 2560x1392 screen while its CEF buffer stayed clamped at 1080). Since
+    // LLMediaCtrl::draw() always stretches embedded-browser content to fill the full widget
+    // rect (no letterboxing -- see calcOffsetsAndSize()), a capped buffer doesn't get
+    // cropped, it gets visibly stretched taller than it actually is: exactly the dramatic,
+    // OS-scale-independent content-stretch bug reported on the login page.
+    inline constexpr std::uint32_t kMaxWidth      = 4096;
+    inline constexpr std::uint32_t kMaxHeight     = 4096;
 
     // Always-on, cheap (1x1 frame geometry -- it never publishes a frame,
     // only exchanges commands) channel a consumer uses to ask the producer

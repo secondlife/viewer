@@ -130,8 +130,20 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 
     if(!getDecoupleTextureSize())
     {
-        S32 screen_width = ll_round((F32)getRect().getWidth() * LLUI::getScaleFactor().mV[VX]);
-        S32 screen_height = ll_round((F32)getRect().getHeight() * LLUI::getScaleFactor().mV[VY]);
+        // See reshape()'s own comment for the full explanation -- same bug, different
+        // code path. mMediaSource doesn't exist yet at construction time (it's
+        // default-initialized to null just above), so isUsingEmbeddedBrowser() would
+        // always read false here regardless of backend; read the same saved setting
+        // createMediaSource() itself uses instead, for the same reason reshape() does.
+        // Unlike reshape(), which can be called again later with a corrected size,
+        // this constructor-baked value can persist for the widget's entire lifetime if
+        // nothing ever reshapes it again afterward (e.g. LLPanelLogin's web_browser,
+        // shown once at a fixed size) -- so getting this one right matters even more.
+        bool use_embedded = gSavedSettings.getBOOL("UseEmbeddedBrowser");
+        S32 screen_width = use_embedded ? getRect().getWidth() :
+            ll_round((F32)getRect().getWidth() * LLUI::getScaleFactor().mV[VX]);
+        S32 screen_height = use_embedded ? getRect().getHeight() :
+            ll_round((F32)getRect().getHeight() * LLUI::getScaleFactor().mV[VY]);
 
         setTextureSize(screen_width, screen_height);
     }
