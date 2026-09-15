@@ -579,6 +579,9 @@ void LLAgent::setFirstLogin(bool b)
         {
             setFeatureVersion(UI_FEATURE_VERSION, UI_FEATURE_FLAGS);
         }
+
+        // Shared environment on teleport should only be enabled by default for new users;
+        gSavedSettings.setBOOL("SwitchToSharedEnvAfterTeleport", true);
     }
 }
 
