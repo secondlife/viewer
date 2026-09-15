@@ -1095,7 +1095,7 @@ public:
     U32                 mFaceMask;          // bit array of which faces exist in this volume
     LLVector3           mLODScaleBias;      // vector for biasing LOD based on scale
 
-    void sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level, bool visible_placeholder);
+    void sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level, bool visible_placeholder, bool validate_area);
     void copyVolumeFaces(const LLVolume* volume);
     void copyFacesTo(std::vector<LLVolumeFace> &faces) const;
     void copyFacesFrom(const std::vector<LLVolumeFace> &faces);
