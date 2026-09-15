@@ -54,7 +54,7 @@ void LLFlycam::setView(F32 view)
 void LLFlycam::setLinearVelocity(const LLVector3& velocity)
 {
     // Note: this math expects velocity components to be in range [-1.0, 1.0]
-    mLinearVelocity = velocity;
+    mLinearVelocity = velocity * mSpeedFactor;
 }
 
 
@@ -62,7 +62,7 @@ void LLFlycam::setPitchRate(F32 pitch_rate)
 {
     // Note: this math expects pitch_rate to be in range [-1.0, 1.0]
     constexpr F32 PITCH_RATE_FACTOR = 0.75f;
-    mPitchRate = pitch_rate * PITCH_RATE_FACTOR;
+    mPitchRate = pitch_rate * mSpeedFactor * PITCH_RATE_FACTOR;
 }
 
 
@@ -70,7 +70,7 @@ void LLFlycam::setYawRate(F32 yaw_rate)
 {
     // Note: this math expects yaw_rate to be in range [-1.0, 1.0]
     constexpr F32 YAW_RATE_FACTOR = 0.90f;
-    mYawRate = yaw_rate * YAW_RATE_FACTOR;
+    mYawRate = yaw_rate * mSpeedFactor * YAW_RATE_FACTOR;
 }
 
 
@@ -78,7 +78,13 @@ void LLFlycam::setRollRate(F32 roll_rate)
 {
     // Note: this math expects roll_rate to be in range [-1.0, 1.0]
     constexpr F32 ROLL_RATE_FACTOR = 0.90f;
-    mRollRate = mAllowRoll ? roll_rate * ROLL_RATE_FACTOR : 0.0f;
+    mRollRate = mAllowRoll ? roll_rate * mSpeedFactor * ROLL_RATE_FACTOR : 0.0f;
+}
+
+
+void LLFlycam::setSpeedFactor(F32 speed_factor)
+{
+    mSpeedFactor = std::clamp(speed_factor, MIN_FLYCAM_SPEED_FACTOR, MAX_FLYCAM_SPEED_FACTOR);
 }
 
 

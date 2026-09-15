@@ -2989,6 +2989,17 @@ void LLViewerWindow::draw()
         // Draw tool specific overlay on world
         LLToolMgr::getInstance()->getCurrentTool()->draw();
 
+        if (gAgentCamera.isUsingFlycam() && LLGameControl::isFlycamCrosshairEnabled())
+        {
+            // Same crosshair image/centering LLToolGun::draw() uses for
+            // mouselook's "ShowCrosshairs" -- flycam has no LLTool of its own
+            // to hang this off of, so it's drawn here instead.
+            LLUIImagePtr crosshair = LLUI::getUIImage("crosshairs.tga");
+            crosshair->draw(
+                ( getWorldViewRectScaled().getWidth() - crosshair->getWidth() ) / 2,
+                ( getWorldViewRectScaled().getHeight() - crosshair->getHeight() ) / 2);
+        }
+
         if( gAgentCamera.cameraMouselook() || LLFloaterCamera::inFreeCameraMode() )
         {
             drawMouselookInstructions();
