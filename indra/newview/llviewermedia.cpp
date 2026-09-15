@@ -323,11 +323,23 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
         media_impl->mMediaHeight = media_entry->getHeightPixels();
         media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
         media_impl->mMediaEntryURL = media_entry->getCurrentURL();
+        bool transparent_bg_changed = (media_impl->mTransparentBackground != media_entry->getTransparentBackground());
+        media_impl->mTransparentBackground = media_entry->getTransparentBackground();
         if (media_impl->mMediaSource)
         {
             media_impl->mMediaSource->setAutoScale(media_impl->mMediaAutoScale);
             media_impl->mMediaSource->setLoop(media_impl->mMediaLoop);
             media_impl->mMediaSource->setSize(media_entry->getWidthPixels(), media_entry->getHeightPixels());
+            if (transparent_bg_changed)
+            {
+                // CEF transparent mode is init only, reload to take effect.
+                std::string current_url = media_impl->mMediaEntryURL;
+                media_impl->destroyMediaSource();
+                if (!current_url.empty())
+                {
+                    media_impl->navigateTo(current_url, "", false, false);
+                }
+            }
         }
 
         bool url_changed = (media_impl->mMediaEntryURL != previous_url);
@@ -369,6 +381,7 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
         media_impl->setHomeURL(media_entry->getHomeURL());
         media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
         media_impl->mMediaEntryURL = media_entry->getCurrentURL();
+        media_impl->mTransparentBackground = media_entry->getTransparentBackground();
         if(media_impl->isAutoPlayable())
         {
             needs_navigate = true;
@@ -1636,6 +1649,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(     const LLUUID& texture_id,
     mTrustedBrowser(false),
     mZoomFactor(1.0),
     mCleanBrowser(false),
+    mTransparentBackground(false),
     mMimeProbe(),
     mCanceling(false)
 {
@@ -1767,7 +1781,7 @@ void LLViewerMediaImpl::setMediaType(const std::string& media_type)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /*static*/
-LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target, bool clean_browser)
+LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target, bool clean_browser, bool transparent_background)
 {
     if (gNonInteractive)
     {
@@ -1865,6 +1879,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 
             media_source->setTarget(target);
+            media_source->setTransparentBackground(transparent_background);
 
             const std::string plugin_dir = gDirUtilp->getLLPluginDir();
             if (media_source->init(launcher_name, plugin_dir, plugin_name, gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins")))
@@ -1924,7 +1939,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
     // Save the MIME type that really caused the plugin to load
     mCurrentMimeType = mMimeType;
 
-    LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mZoomFactor, mTarget, mCleanBrowser);
+    LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mZoomFactor, mTarget, mCleanBrowser, mTransparentBackground);
 
     if (media_source)
     {
@@ -2334,6 +2349,47 @@ void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 
 
     // Adjust for the difference between the actual texture height and the amount of the texture in use.
     *y -= (mMediaSource->getTextureHeight() - mMediaSource->getHeight());
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+bool LLViewerMediaImpl::isTransparentAt(const LLVector2& texture_coords)
+{
+    if (!mMediaSource || !mMediaSource->textureValid())
+    {
+        return false;
+    }
+
+    // Only media with an alpha channel (BGRA) can have transparent areas.
+    const S32 depth = mMediaSource->getTextureDepth();
+    if (depth != 4)
+    {
+        return false;
+    }
+
+    const U8* pixels = mMediaSource->getBitsData();
+    if (!pixels)
+    {
+        return false;
+    }
+
+    S32 x, y;
+    scaleTextureCoords(texture_coords, &x, &y);
+
+    // scaleTextureCoords returns browser coordinates (y = 0 at the top), but
+    // plugins with coords_opengl write rows bottom-up in GL order into the
+    // shared buffer (dullahan's flip_pixels_y), so flip y to address the buffer.
+    if (mMediaSource->getTextureCoordsOpenGL())
+    {
+        y = mMediaSource->getHeight() - 1 - y;
+    }
+
+    const S32 buffer_width = mMediaSource->getBitsWidth();
+    if (x < 0 || y < 0 || x >= buffer_width || y >= mMediaSource->getBitsHeight())
+    {
+        return false;
+    }
+
+    return pixels[(y * buffer_width + x) * depth + 3] == 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -3158,9 +3214,9 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
         // MEDIAOPT: seems insane that we actually have to make an imageraw then
         // immediately discard it
         LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
-        // Clear the texture to the background color, ignoring alpha.
+        // Clear the texture to the background color with alpha.
         // convert background color channels from [0.0, 1.0] to [0, 255];
-        raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0xff);
+        raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0x00);
 
         // ask media source for correct GL image format constants
         media_tex->setExplicitFormat(mMediaSource->getTextureFormatInternal(),
