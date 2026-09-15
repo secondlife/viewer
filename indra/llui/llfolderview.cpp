@@ -780,8 +780,8 @@ void LLFolderView::removeSelectedItems()
 {
     if(getVisible() && getEnabled())
     {
-        // just in case we're removing the renaming item.
-        mRenameItem = NULL;
+        // Cancel active rename in case the renaming item is among the selected items
+        cancelRenaming();
 
         // create a temporary structure which we will use to remove
         // items, since the removal will futz with internal data

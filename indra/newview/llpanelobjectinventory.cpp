@@ -1847,7 +1847,7 @@ void LLPanelObjectInventory::idle(void* user_data)
 void LLPanelObjectInventory::onFocusLost()
 {
     // inventory no longer handles cut/copy/paste/delete
-    if (LLEditMenuHandler::gEditMenuHandler == mFolders || (mFolders == NULL && LLEditMenuHandler::gEditMenuHandler != NULL))
+    if (LLEditMenuHandler::gEditMenuHandler == mFolders)
     {
         LLEditMenuHandler::gEditMenuHandler = NULL;
     }
