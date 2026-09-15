@@ -565,7 +565,15 @@ bool LLFolderViewItem::isRemovable()
 
 void LLFolderViewItem::destroyView()
 {
-    getRoot()->removeFromSelectionList(this);
+    LLFolderView* root = getRoot();
+    if (root)
+    {
+        root->removeFromSelectionList(this);
+        if (root->getRenameItem() == this)
+        {
+            root->cancelRenaming();
+        }
+    }
 
     if (mParentFolder)
     {
@@ -1822,6 +1830,8 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item, bool deparent_mode
 {
     if (item->isSelected())
         getRoot()->clearSelection();
+    if (getRoot() && getRoot()->getRenameItem() == item)
+        getRoot()->cancelRenaming();
     items_t::iterator it = std::find(mItems.begin(), mItems.end(), item);
     if(it == mItems.end())
     {
