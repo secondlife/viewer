@@ -270,6 +270,8 @@ public:
     // Note: mQuitRequested can be aborted by user.
     void outOfMemorySoftQuit();
 
+    // If permit is true, will allow OS hibernation/sleep.
+    // If false, will act based of OSHibernationMode.
     virtual void setPermitOSHibernation(bool permit);
 
 #ifdef LL_DISCORD
