@@ -74,4 +74,22 @@ namespace tut
                 (result == "c9+s/4xGMX3smy3HZRGkg+YTUEBwNYdi7QwaSH4OkY92xAuxhKnDhg==") );
     }
 
+    template<> template<>
+    void base64_object::test<3>()
+    {
+        std::string result;
+
+        LLUUID nothing;
+        result = LLBase64::decodeAsString("AAAAAAAAAAAAAAAAAAAAAA==");
+        ensure_equals("decode blank uuid length", result.size(), (size_t)UUID_BYTES);
+        ensure("decode blank uuid bytes",
+                (memcmp(result.data(), &nothing.mData[0], UUID_BYTES) == 0) );
+
+        LLUUID id("526a1e07-a19d-baed-84c4-ff08a488d15e");
+        result = LLBase64::decodeAsString("UmoeB6Gduu2ExP8IpIjRXg==");
+        ensure_equals("decode random uuid length", result.size(), (size_t)UUID_BYTES);
+        ensure("decode random uuid bytes",
+                (memcmp(result.data(), &id.mData[0], UUID_BYTES) == 0) );
+    }
+
 }
