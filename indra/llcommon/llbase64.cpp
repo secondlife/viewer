@@ -70,7 +70,7 @@ std::string LLBase64::decodeAsString(const std::string &input)
         // specify.  See apr_base64.c for details. JC
     b64_buffer_length = apr_base64_decode(b64_buffer, input.c_str());
     std::string res;
-    res.assign(b64_buffer);
+    res.assign(b64_buffer, b64_buffer_length);
     delete[] b64_buffer;
     return res;
 }
