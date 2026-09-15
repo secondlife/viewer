@@ -890,9 +890,15 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
 
     clearSelectionState();
 
-    // Default to editing the Avatar mode's mappings each time the panel opens
-    // (Avatar is the first action_mode item).
-    mActionMode->selectFirstItem();
+    // Default to editing whichever mode is currently active in-world, so the
+    // panel opens already showing the mappings the user is presently driving
+    // with; fall back to Avatar (the first action_mode item) when no mode is
+    // active (CONTROL_MODE_NONE, e.g. not yet logged in).
+    LLGameControl::AgentControlMode live_mode = LLGameControl::getAgentControlMode();
+    if (live_mode == LLGameControl::CONTROL_MODE_NONE || !mActionMode->selectByValue((S32)live_mode))
+    {
+        mActionMode->selectFirstItem();
+    }
     populateActionMappings();
 
     // Refresh device list and settings
