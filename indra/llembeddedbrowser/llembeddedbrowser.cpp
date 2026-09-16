@@ -837,7 +837,20 @@ void LLEmbeddedBrowser::init()
     }
 
     LLMutexLock lock(&mProducerMutex);
-    launchProducer();
+    if (!launchProducer())
+    {
+        // launchProducer() already logged the specific reason (missing exe,
+        // LLProcess::create() failure, etc.) -- this is the loud, session-
+        // level consequence: every embedded-browser media instance created
+        // from here on will silently fail to connect to a producer that was
+        // never launched, with no further warning, unless this is visible
+        // in the log. Previously discarded entirely (see git history) --
+        // launchProducer() itself already correctly detected and logged a
+        // failed launch, but nothing upstream ever asked it whether it
+        // worked.
+        LL_WARNS() << "Embedded browser producer failed to launch -- embedded-browser "
+                      "media will not work this session (see the warning above for why)" << LL_ENDL;
+    }
 }
 
 void LLEmbeddedBrowser::reset()

@@ -61,7 +61,17 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+#if defined(_WIN32)
 #include <windows.h> // GetModuleFileNameA, AllocConsole, WinMain
+#elif defined(__APPLE__)
+#include <climits>       // PATH_MAX
+#include <mach-o/dyld.h> // _NSGetExecutablePath
+#include <unistd.h>      // isatty
+#else // Linux
+#include <climits>  // PATH_MAX
+#include <unistd.h> // readlink, isatty
+#endif
 
 using namespace cefshm_demo;
 
@@ -442,6 +452,7 @@ bool map_mouse_button(std::uint8_t glfw_button, llCefMouseButton& out)
     }
 }
 
+#if defined(_WIN32)
 // Attaches a new console to this (normally windowless) process and
 // redirects stdio to it, so the existing std::cout/std::cerr diagnostics
 // become visible. Opt-in only -- see run_producer()'s --console handling.
@@ -476,6 +487,50 @@ void show_debug_console()
 
     g_console_enabled = true;
 }
+#else
+// POSIX has no equivalent to a GUI-subsystem process starting with no
+// console at all -- this process's stdio always goes wherever LLProcess
+// wired it (a pipe, same as Windows' own default case), with no separate
+// "attach a console" step needed. --console still means what it always
+// meant: turn on ANSI color codes for a human actually watching this run
+// interactively (see log_line()), just without the Windows-specific
+// ceremony above to get there.
+void show_debug_console()
+{
+    g_console_enabled = true;
+}
+#endif
+
+#if defined(_WIN32)
+std::filesystem::path get_exe_path()
+{
+    char buf[MAX_PATH + 1];
+    GetModuleFileNameA(nullptr, buf, MAX_PATH);
+    return std::filesystem::path(buf);
+}
+#elif defined(__APPLE__)
+std::filesystem::path get_exe_path()
+{
+    char buf[PATH_MAX];
+    uint32_t size = sizeof(buf);
+    if (_NSGetExecutablePath(buf, &size) != 0) return {};
+    // _NSGetExecutablePath itself may return a symlink (e.g. via a launcher
+    // script) -- resolve it the same way GetModuleFileNameA's own result is
+    // already a real, resolved path.
+    std::error_code ec;
+    const auto resolved = std::filesystem::canonical(buf, ec);
+    return ec ? std::filesystem::path(buf) : resolved;
+}
+#else // Linux
+std::filesystem::path get_exe_path()
+{
+    char buf[PATH_MAX];
+    const ssize_t n = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+    if (n <= 0) return {};
+    buf[n] = '\0';
+    return std::filesystem::path(buf);
+}
+#endif
 
 } // namespace
 
@@ -515,9 +570,7 @@ int run_producer(int argc, char** argv)
     std::signal(SIGINT, on_signal);
     std::signal(SIGTERM, on_signal);
 
-    char exe_path[MAX_PATH + 1];
-    GetModuleFileNameA(nullptr, exe_path, MAX_PATH);
-    const std::filesystem::path exe_dir = std::filesystem::path(exe_path).parent_path();
+    const std::filesystem::path exe_dir = get_exe_path().parent_path();
 
     // Truncates on each launch rather than appending -- this producer runs for the
     // whole Viewer session, so one run's worth of slot connects/disconnects is already
@@ -712,6 +765,7 @@ int run_producer(int argc, char** argv)
             control->send(kSlotAssigned, payload, 4, cmd.id);
         }
 
+#if defined(_WIN32)
         // CefDoMessageLoopWork() below only pumps CEF's own internal scheduled work -
         // it does NOT service the native Win32 message queue for any real (non-
         // offscreen) window CEF creates, e.g. ShowDevTools()'s popup. Every one of our
@@ -722,13 +776,20 @@ int run_producer(int argc, char** argv)
         // wedges the single CEF UI thread the next time anything else needs it (e.g.
         // dispatching a mouse-move to a completely unrelated browser), stalling this
         // whole loop, including the shm heartbeat, long enough for the consumer to
-        // conclude the connection died.
+        // conclude the connection died. Windows-only: DevTools ships as Chrome
+        // remote-debugging instead now (see run_producer()'s own comment on
+        // --remote-debugging-port), so no real window is ever actually created any
+        // more in practice, on any platform -- this is defensive scaffolding for a
+        // feature this process doesn't currently use, not a live requirement. Not
+        // worth inventing a Cocoa/X11 equivalent (a fundamentally different native
+        // event-loop model on each) for a code path nothing exercises today.
         MSG msg;
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+#endif
 
         // Pumps every live browser and the resize-confirmation watchdog.
         llCefBrowserLib::DoMessageLoopWork();
@@ -1111,6 +1172,7 @@ int run_producer(int argc, char** argv)
     return 0;
 }
 
+#if defined(_WIN32)
 // Windowless by default (this process is launched/killed automatically by
 // the Viewer every session -- a flashing console for it would be a
 // regression from the legacy Dullahan/SLPlugin path, which is windowless
@@ -1121,10 +1183,22 @@ int run_producer(int argc, char** argv)
 // main() would receive, regardless of which entry point the linker
 // actually used, since they come from the same CRT startup code either
 // way. This also means every CEF-spawned helper subprocess (which
-// re-execs this exact binary) inherits the same windowless subsystem for
-// free, since that's a static property of the PE file, not something set
-// per-process.
+// re-execs this exact binary on Windows/Linux) inherits the same
+// windowless subsystem for free, since that's a static property of the PE
+// file, not something set per-process. On macOS, CEF's sub-process model
+// is different (a separate, real .app bundle per sub-process type -- see
+// llcefbrowser's own src/host/llCefBrowserHost.cpp) -- this same
+// executable IS the browser process there, always, and never gets
+// re-exec'd for anything, so there's no windowless-subsystem concept to
+// preserve at all; a plain main() below already has no console of its own
+// unless one is already attached (e.g. launched from a terminal).
 int APIENTRY WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
     return run_producer(__argc, __argv);
 }
+#else
+int main(int argc, char** argv)
+{
+    return run_producer(argc, argv);
+}
+#endif
