@@ -288,7 +288,26 @@ void LLWebRTCVoiceClient::initWebRTC()
 
     mWebRTCDeviceInterface = llwebrtc::getDeviceInterface();
     mWebRTCDeviceInterface->setDevicesObserver(this);
-    mMainQueue = LL::WorkQueue::getInstance("mainloop");
+
+    if (!mVoiceWorkQueue)
+    {
+        mVoiceWorkQueue = std::make_shared<LL::WorkQueue>("VoiceWebRTC");
+        // Service this queue every idle tick, on the main thread.
+        doOnIdleRepeating(
+        [queue = LL::WorkQueue::weak_t(mVoiceWorkQueue)]() -> bool
+        {
+            auto locked = queue.lock();
+            if (!locked || locked->isClosed())
+            {
+                // Done
+                return true;
+            }
+            locked->runPending();
+            // Returning false means "call me again next idle".
+            return false;
+        });
+    }
+
     refreshDeviceLists();
 }
 
@@ -351,11 +370,11 @@ void LLWebRTCVoiceClient::drainConnections()
     LLTimer timer;
     while (!sessionState::allSessionsClosed() && timer.getElapsedTimeF32() < DRAIN_TIMEOUT_SECONDS)
     {
-        // OnPeerConnectionClosed comes back through the main queue, so it has
+        // OnPeerConnectionClosed comes back through the queue, so it has
         // to be pumped or the state machines never see connections finish.
-        if (auto main_queue = mMainQueue.lock())
+        if (mVoiceWorkQueue)
         {
-            main_queue->runFor(std::chrono::milliseconds(DRAIN_POLL_MS));
+            mVoiceWorkQueue->runFor(std::chrono::milliseconds(DRAIN_POLL_MS));
         }
         sessionState::processSessionStates();
 
@@ -707,7 +726,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                     updatePosition();
                 }
             }
-            LL::WorkQueue::postMaybe(mMainQueue,
+            LL::WorkQueue::postMaybe(mVoiceWorkQueue,
                 [=, this] {
                     if  (sShuttingDown)
                     {
@@ -829,7 +848,7 @@ void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceLi
                                            const llwebrtc::LLWebRTCVoiceDeviceList& capture_devices)
 {
 
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceWorkQueue,
                              [=, this]
         {
             OnDevicesChangedImpl(render_devices, capture_devices);
@@ -2517,7 +2536,7 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
 
     mWebRTCPeerConnectionInterface = llwebrtc::newPeerConnection();
     mWebRTCPeerConnectionInterface->setSignalingObserver(this);
-    mMainQueue = LL::WorkQueue::getInstance("mainloop");
+    mVoiceMainQueue = LLWebRTCVoiceClient::getInstance()->getVoiceWorkQueue();
 }
 
 LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection()
@@ -2551,7 +2570,7 @@ LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection()
 // callback from llwebrtc
 void LLVoiceWebRTCConnection::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObserver::EIceGatheringState state)
 {
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=, this] {
             LL_DEBUGS("Voice") << "Ice Gathering voice account. " << state << LL_ENDL;
 
@@ -2575,7 +2594,7 @@ void LLVoiceWebRTCConnection::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObs
 // callback from llwebrtc
 void LLVoiceWebRTCConnection::OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate& candidate)
 {
-    LL::WorkQueue::postMaybe(mMainQueue, [=, this] { mIceCandidates.push_back(candidate); });
+    LL::WorkQueue::postMaybe(mVoiceMainQueue, [=, this] { mIceCandidates.push_back(candidate); });
 }
 
 void LLVoiceWebRTCConnection::processIceUpdates()
@@ -2691,7 +2710,7 @@ void LLVoiceWebRTCConnection::processIceUpdatesCoro(connectionPtr_t connection)
 void LLVoiceWebRTCConnection::OnOfferAvailable(const std::string &sdp)
 {
     connectionPtr_t connection = shared_from_this();
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=] {
             if (connection->mShutDown)
             {
@@ -2719,7 +2738,7 @@ void LLVoiceWebRTCConnection::OnOfferAvailable(const std::string &sdp)
 void LLVoiceWebRTCConnection::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface* audio_interface)
 {
     connectionPtr_t connection = shared_from_this();
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=] {
             if (connection->mShutDown)
             {
@@ -2742,7 +2761,7 @@ void LLVoiceWebRTCConnection::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterfac
 // callback from llwebrtc
 void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
 {
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=, this] {
             LL_DEBUGS("Voice") << "Voice channel requires renegotiation." << LL_ENDL;
             setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
@@ -2753,7 +2772,7 @@ void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
 // callback from llwebrtc
 void LLVoiceWebRTCConnection::OnPeerConnectionClosed()
 {
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=, this] {
             LL_DEBUGS("Voice") << "Peer connection has closed." << LL_ENDL;
             if (mVoiceConnectionState == VOICE_STATE_WAIT_FOR_CLOSE)
@@ -3264,7 +3283,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
 // llwebrtc callback
 void LLVoiceWebRTCConnection::OnDataReceived(const std::string& data, bool binary)
 {
-    LL::WorkQueue::postMaybe(mMainQueue, [=, this] { LLVoiceWebRTCConnection::OnDataReceivedImpl(data, binary); });
+    LL::WorkQueue::postMaybe(mVoiceMainQueue, [=, this] { LLVoiceWebRTCConnection::OnDataReceivedImpl(data, binary); });
 }
 
 //
@@ -3493,7 +3512,7 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
 void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface)
 {
     connectionPtr_t connection = shared_from_this();
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=] {
             if (connection->mShutDown)
             {
@@ -3535,7 +3554,7 @@ void LLVoiceWebRTCConnection::sendJoin()
 
 void LLVoiceWebRTCConnection::OnStatsDelivered(const llwebrtc::LLWebRTCStatsMap& stats_data)
 {
-    LL::WorkQueue::postMaybe(mMainQueue, [=, this]
+    LL::WorkQueue::postMaybe(mVoiceMainQueue, [=, this]
     {
         if (mShutDown)
         {
