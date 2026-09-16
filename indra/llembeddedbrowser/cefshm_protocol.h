@@ -62,10 +62,13 @@ namespace cefshm_demo
         kResize      = 4, // data = {uint32 width, uint32 height}
         kScrollWheel = 8, // data = {int32 x, int32 y, int32 deltaY} -- deltaY in CEF's own wheel-delta
                           // units (a multiple of ~30-120 per notch), see SendMouseWheelEvent
-        kKeyEvent    = 9, // data = {uint32 msg, uint32 wParam, uint32 lParam} -- a raw Win32
-                          // keyboard message triple, straight from LLWindowWin32::getNativeKeyData()
-                          // on the consumer side, straight into llCefBrowserManager::SendKeyEvent()
-                          // on the producer side. Windows-only, matching SendKeyEvent itself.
+        kKeyEvent    = 9, // data = pack_key_event(...) -- a platform-neutral, CEF-shaped key
+                          // event (see KeyEventType/KeyEventModifier below), translated by the
+                          // consumer's own per-platform LLWindow subclass from its native event.
+                          // windows_key_code carries a Windows-VK-shaped code on every platform
+                          // (CEF's own convention, not a Windows-only artifact), so the producer
+                          // needs no per-platform branching at all -- only the consumer side has
+                          // one translator per platform (LLWindowWin32/LLWindowMacOSX/...).
         kSetFocus    = 17, // data = {uint8 focus} -- straight into llCefBrowserManager::SetFocus();
                           // drives caret blink and focus/blur page JS, independent of key/mouse events
         kExecuteJavaScript = 21, // text payload: JS source, straight into
@@ -269,6 +272,35 @@ namespace cefshm_demo
                                // or the error message handed to onFailure.
     };
 
+    // kKeyEvent's own type/modifier tags -- deliberately our own small enums, not CEF's
+    // cef_key_event_type_t/cef_event_flags_t values directly, so a future CEF version bump
+    // can't silently change the wire format. The producer translates these 1:1 into CEF's
+    // own enums when building a CefKeyEvent.
+    enum class KeyEventType : std::uint8_t
+    {
+        kRawKeyDown = 0,
+        kKeyUp      = 1,
+        kChar       = 2,
+    };
+
+    // Bit layout deliberately matches indra/llwindow/llwindow.h's own
+    // LLWindowCefKeyModifier constants (LL_CEF_KEY_MOD_*) by convention, not a
+    // shared include -- llwindow is a lower-level library that must not depend
+    // on this one. A per-platform LLWindow subclass fills these bits in
+    // directly; llviewermedia.cpp passes them straight through unchanged.
+    enum KeyEventModifier : std::uint32_t
+    {
+        kShiftDown   = 1u << 0,
+        kControlDown = 1u << 1,
+        kAltDown     = 1u << 2,
+        kCommandDown = 1u << 3, // mac Cmd; reserved for a future "meta" key elsewhere
+        kCapsLockOn  = 1u << 4,
+        kNumLockOn   = 1u << 5,
+        kIsKeyPad    = 1u << 6,
+        kIsLeft      = 1u << 7,
+        kIsRight     = 1u << 8,
+    };
+
     inline std::uint32_t pack_i32x2(std::uint8_t* d, std::int32_t x, std::int32_t y)
     {
         auto put = [&](int off, std::int32_t v) {
@@ -333,15 +365,27 @@ namespace cefshm_demo
         return n + 4;
     }
 
-    // msg/wParam/lParam straight from LLWindowWin32::getNativeKeyData()'s "msg"/"w_param"/
-    // "l_param" fields -- all three are stored there as U32 (see ll_sd_from_U32), even though
-    // Win32's own WPARAM/LPARAM are wider on 64-bit Windows, so uint32 round-trips them exactly.
-    inline std::uint32_t pack_key_event(std::uint8_t* d, std::uint32_t msg, std::uint32_t wParam, std::uint32_t lParam)
+    // A platform-neutral key event: the consumer's own per-platform LLWindow subclass
+    // translates its native event into these same fields CEF's own CefKeyEvent already uses
+    // (windows_key_code carries a Windows-VK-shaped code on every platform -- CEF's own
+    // convention, not a Windows-only artifact), so the producer needs no per-platform
+    // branching to build a CefKeyEvent from them. 22 bytes: 1 (type) + 4 (modifiers) +
+    // 4 (windows_key_code) + 4 (native_key_code) + 4 (character) + 4 (unmodified_character)
+    // + 1 (is_system_key).
+    inline std::uint32_t pack_key_event(std::uint8_t* d, KeyEventType type, std::uint32_t modifiers,
+                                         std::int32_t windows_key_code, std::int32_t native_key_code,
+                                         std::uint32_t character, std::uint32_t unmodified_character,
+                                         bool is_system_key)
     {
-        std::uint32_t n = pack_u32(d, msg);
-        n += pack_u32(d + n, wParam);
-        n += pack_u32(d + n, lParam);
-        return n;
+        d[0] = std::uint8_t(type);
+        std::uint32_t n = 1;
+        n += pack_u32(d + n, modifiers);
+        n += pack_u32(d + n, std::uint32_t(windows_key_code));
+        n += pack_u32(d + n, std::uint32_t(native_key_code));
+        n += pack_u32(d + n, character);
+        n += pack_u32(d + n, unmodified_character);
+        d[n] = std::uint8_t(is_system_key ? 1 : 0);
+        return n + 1;
     }
 
     inline bool unpack_click_href(const std::uint8_t* d, std::size_t n,

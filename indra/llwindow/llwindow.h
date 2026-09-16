@@ -45,6 +45,26 @@ struct LLFontFallbackMatch
     S32 mFaceIndex = 0;
 };
 
+// LLWindow::getNativeKeyData()'s "cef_modifiers" bit layout -- deliberately
+// plain constants here, not shared with indra/llembeddedbrowser's own
+// cefshm_protocol.h (a lower-level library like this one must not depend on a
+// consumer), but kept in lockstep with that header's KeyEventModifier enum by
+// convention, same as this codebase's existing LLEmbeddedBrowserBackend/
+// backend-byte pairing. A per-platform LLWindow subclass (LLWindowWin32,
+// LLWindowMacOSX, ...) sets these from its own native modifier state.
+enum LLWindowCefKeyModifier : U32
+{
+    LL_CEF_KEY_MOD_SHIFT      = 1u << 0,
+    LL_CEF_KEY_MOD_CONTROL    = 1u << 1,
+    LL_CEF_KEY_MOD_ALT        = 1u << 2,
+    LL_CEF_KEY_MOD_COMMAND    = 1u << 3, // mac Cmd; reserved for a future "meta" key elsewhere
+    LL_CEF_KEY_MOD_CAPS_LOCK  = 1u << 4,
+    LL_CEF_KEY_MOD_NUM_LOCK   = 1u << 5,
+    LL_CEF_KEY_MOD_IS_KEY_PAD = 1u << 6,
+    LL_CEF_KEY_MOD_IS_LEFT    = 1u << 7,
+    LL_CEF_KEY_MOD_IS_RIGHT   = 1u << 8,
+};
+
 // Refer to llwindow_test in test/common/llwindow for usage example
 
 class LLWindow : public LLInstanceTracker<LLWindow>
@@ -193,7 +213,17 @@ public:
     // Ask the OS for a font file covering the given codepoint (lazy fallback).
     static LLFontFallbackMatch findFallbackFontForChar(llwchar wch);
 
-    // Provide native key event data
+    // Provide native key event data. Also carries a platform-neutral, CEF-shaped
+    // translation of the same raw event for the embedded-browser keyboard path
+    // (see LLViewerMediaImpl::handleKeyHere() et al.): "cef_modifiers"
+    // (LLWindowCefKeyModifier bits below), "cef_windows_key_code",
+    // "cef_native_key_code", "cef_character", "cef_unmodified_character",
+    // "cef_is_system_key" -- windows_key_code carries a Windows-VK-shaped code
+    // on every platform (CEF's own convention), so the embedded-browser
+    // producer needs no per-platform branching to consume it. A platform with
+    // no translator yet (e.g. Linux/SDL for now) simply omits these keys --
+    // callers check has("cef_windows_key_code") before using them, and skip
+    // the embedded-browser key event entirely if it's absent.
     virtual LLSD getNativeKeyData() { return LLSD::emptyMap(); }
 
     // Get system UI size based on DPI (for 96 DPI UI size should be 1.0)

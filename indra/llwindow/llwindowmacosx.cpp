@@ -35,6 +35,7 @@
 #include "llerror.h"
 #include "llgl.h"
 #include "llstring.h"
+#include "llsdutil.h"
 #include "lldir.h"
 #include "indra_constants.h"
 
@@ -2413,6 +2414,141 @@ bool LLWindowMacOSX::getInputDevices(U32 device_type_filter,
     return return_value;
 }
 
+namespace
+{
+    // NSEventModifierFlags bit positions (AppKit/NSEvent.h) -- hardcoded rather
+    // than included, since this file stays plain C++ (see llopenglview-objc.mm
+    // for the actual Objective-C bridging that populates mEventModifiers via
+    // [theEvent modifierFlags]); these bit positions are part of Cocoa's
+    // long-stable public ABI.
+    constexpr U32 kNSEventModifierFlagCapsLock   = 1u << 16;
+    constexpr U32 kNSEventModifierFlagShift      = 1u << 17;
+    constexpr U32 kNSEventModifierFlagControl    = 1u << 18;
+    constexpr U32 kNSEventModifierFlagOption     = 1u << 19; // Alt/Option
+    constexpr U32 kNSEventModifierFlagCommand    = 1u << 20;
+    constexpr U32 kNSEventModifierFlagNumericPad = 1u << 21;
+
+    U32 getCefKeyModifiers(U32 nsEventModifiers)
+    {
+        U32 modifiers = 0;
+        if (nsEventModifiers & kNSEventModifierFlagShift)      modifiers |= LL_CEF_KEY_MOD_SHIFT;
+        if (nsEventModifiers & kNSEventModifierFlagControl)    modifiers |= LL_CEF_KEY_MOD_CONTROL;
+        if (nsEventModifiers & kNSEventModifierFlagOption)     modifiers |= LL_CEF_KEY_MOD_ALT;
+        if (nsEventModifiers & kNSEventModifierFlagCommand)    modifiers |= LL_CEF_KEY_MOD_COMMAND;
+        if (nsEventModifiers & kNSEventModifierFlagCapsLock)   modifiers |= LL_CEF_KEY_MOD_CAPS_LOCK;
+        if (nsEventModifiers & kNSEventModifierFlagNumericPad) modifiers |= LL_CEF_KEY_MOD_IS_KEY_PAD;
+        // macOS has no distinct NumLock concept (the numeric keypad has no
+        // separate lock state the way a PC keyboard does) -- LL_CEF_KEY_MOD_NUM_LOCK
+        // is simply never set here.
+        return modifiers;
+    }
+
+    // Maps a macOS virtual keycode (Carbon's kVK_* constants, from
+    // [theEvent keyCode] -- see extractKeyDataFromKeyEvent() in
+    // llopenglview-objc.mm) to the matching Windows VK_* code, since CEF's own
+    // convention is that windows_key_code carries a Windows-VK-shaped code on
+    // every platform (see llCefBrowserManager::SendKeyEvent's own comment).
+    // VK_* values themselves are hardcoded (this file builds on macOS, so
+    // <windows.h> isn't available) -- they're part of the same long-stable
+    // Win32 ABI llwindowwin32.cpp's own GetKeyState() calls rely on. Covers
+    // the keys any real page interaction needs; an unmapped key (rare --
+    // mostly obscure international/media keys) returns 0, same as an
+    // unrecognized key would report on Windows itself.
+    int macKeyCodeToWindowsKeyCode(U32 keyCode)
+    {
+        switch (keyCode)
+        {
+            case kVK_ANSI_A: return 0x41;
+            case kVK_ANSI_B: return 0x42;
+            case kVK_ANSI_C: return 0x43;
+            case kVK_ANSI_D: return 0x44;
+            case kVK_ANSI_E: return 0x45;
+            case kVK_ANSI_F: return 0x46;
+            case kVK_ANSI_G: return 0x47;
+            case kVK_ANSI_H: return 0x48;
+            case kVK_ANSI_I: return 0x49;
+            case kVK_ANSI_J: return 0x4A;
+            case kVK_ANSI_K: return 0x4B;
+            case kVK_ANSI_L: return 0x4C;
+            case kVK_ANSI_M: return 0x4D;
+            case kVK_ANSI_N: return 0x4E;
+            case kVK_ANSI_O: return 0x4F;
+            case kVK_ANSI_P: return 0x50;
+            case kVK_ANSI_Q: return 0x51;
+            case kVK_ANSI_R: return 0x52;
+            case kVK_ANSI_S: return 0x53;
+            case kVK_ANSI_T: return 0x54;
+            case kVK_ANSI_U: return 0x55;
+            case kVK_ANSI_V: return 0x56;
+            case kVK_ANSI_W: return 0x57;
+            case kVK_ANSI_X: return 0x58;
+            case kVK_ANSI_Y: return 0x59;
+            case kVK_ANSI_Z: return 0x5A;
+            case kVK_ANSI_0: return 0x30;
+            case kVK_ANSI_1: return 0x31;
+            case kVK_ANSI_2: return 0x32;
+            case kVK_ANSI_3: return 0x33;
+            case kVK_ANSI_4: return 0x34;
+            case kVK_ANSI_5: return 0x35;
+            case kVK_ANSI_6: return 0x36;
+            case kVK_ANSI_7: return 0x37;
+            case kVK_ANSI_8: return 0x38;
+            case kVK_ANSI_9: return 0x39;
+            case kVK_Return:
+            case kVK_ANSI_KeypadEnter: return 0x0D; // VK_RETURN
+            case kVK_Tab:              return 0x09; // VK_TAB
+            case kVK_Space:            return 0x20; // VK_SPACE
+            case kVK_Delete:           return 0x08; // backspace -> VK_BACK
+            case kVK_ForwardDelete:    return 0x2E; // VK_DELETE
+            case kVK_Escape:           return 0x1B; // VK_ESCAPE
+            case kVK_Command:          return 0x5B; // VK_LWIN (no separate left/right keycode)
+            case kVK_Shift:
+            case kVK_RightShift:       return 0x10; // VK_SHIFT
+            case kVK_CapsLock:         return 0x14; // VK_CAPITAL
+            case kVK_Option:
+            case kVK_RightOption:      return 0x12; // VK_MENU
+            case kVK_Control:
+            case kVK_RightControl:     return 0x11; // VK_CONTROL
+            case kVK_Home:             return 0x24; // VK_HOME
+            case kVK_End:              return 0x23; // VK_END
+            case kVK_PageUp:           return 0x21; // VK_PRIOR
+            case kVK_PageDown:         return 0x22; // VK_NEXT
+            case kVK_LeftArrow:        return 0x25; // VK_LEFT
+            case kVK_RightArrow:       return 0x27; // VK_RIGHT
+            case kVK_DownArrow:        return 0x28; // VK_DOWN
+            case kVK_UpArrow:          return 0x26; // VK_UP
+            case kVK_F1:  return 0x70;
+            case kVK_F2:  return 0x71;
+            case kVK_F3:  return 0x72;
+            case kVK_F4:  return 0x73;
+            case kVK_F5:  return 0x74;
+            case kVK_F6:  return 0x75;
+            case kVK_F7:  return 0x76;
+            case kVK_F8:  return 0x77;
+            case kVK_F9:  return 0x78;
+            case kVK_F10: return 0x79;
+            case kVK_F11: return 0x7A;
+            case kVK_F12: return 0x7B;
+            case kVK_ANSI_Keypad0: return 0x60;
+            case kVK_ANSI_Keypad1: return 0x61;
+            case kVK_ANSI_Keypad2: return 0x62;
+            case kVK_ANSI_Keypad3: return 0x63;
+            case kVK_ANSI_Keypad4: return 0x64;
+            case kVK_ANSI_Keypad5: return 0x65;
+            case kVK_ANSI_Keypad6: return 0x66;
+            case kVK_ANSI_Keypad7: return 0x67;
+            case kVK_ANSI_Keypad8: return 0x68;
+            case kVK_ANSI_Keypad9: return 0x69;
+            case kVK_ANSI_KeypadMultiply: return 0x6A;
+            case kVK_ANSI_KeypadPlus:     return 0x6B;
+            case kVK_ANSI_KeypadMinus:    return 0x6D;
+            case kVK_ANSI_KeypadDecimal:  return 0x6E;
+            case kVK_ANSI_KeypadDivide:   return 0x6F;
+            default: return 0;
+        }
+    }
+}
+
 LLSD LLWindowMacOSX::getNativeKeyData()
 {
     LLSD result = LLSD::emptyMap();
@@ -2425,6 +2561,22 @@ LLSD LLWindowMacOSX::getNativeKeyData()
         result["event_chars"] = (mRawKeyEvent->mEventChars) ? LLSD(LLSD::Integer(mRawKeyEvent->mEventChars)) : LLSD();
         result["event_umodchars"] = (mRawKeyEvent->mEventUnmodChars) ? LLSD(LLSD::Integer(mRawKeyEvent->mEventUnmodChars)) : LLSD();
         result["event_isrepeat"] = LLSD::Boolean(mRawKeyEvent->mEventRepeat);
+
+        // Platform-neutral, CEF-shaped translation for the embedded-browser
+        // keyboard path -- see LLWindow::getNativeKeyData()'s own comment.
+        // is_system_key is always false here: CEF's own documentation notes
+        // this concept ("Alt held while typing") is Windows-only and is
+        // always false on every other platform.
+        // Same LLSD encoding as LLWindowWin32's own cef_* keys (ll_sd_from_U32,
+        // a raw 32-bit-pattern Binary blob, not LLSD::Integer) -- the reader
+        // (LLViewerMediaImpl's three handleXHere() methods) uses ll_U32_from_sd()
+        // for every one of these regardless of which platform produced them.
+        result["cef_modifiers"] = ll_sd_from_U32(getCefKeyModifiers(mRawKeyEvent->mEventModifiers));
+        result["cef_windows_key_code"] = ll_sd_from_U32(static_cast<U32>(macKeyCodeToWindowsKeyCode(mRawKeyEvent->mEventKeyCode)));
+        result["cef_native_key_code"] = ll_sd_from_U32(mRawKeyEvent->mEventKeyCode);
+        result["cef_character"] = ll_sd_from_U32(mRawKeyEvent->mEventChars);
+        result["cef_unmodified_character"] = ll_sd_from_U32(mRawKeyEvent->mEventUnmodChars);
+        result["cef_is_system_key"] = LLSD::Boolean(false);
     }
 
     LL_DEBUGS() << "native key data is: " << result << LL_ENDL;

@@ -88,6 +88,30 @@ enum class LLEmbeddedBrowserEventType
 // kRequestSlot's own comment in cefshm_protocol.h). Values are wire values: Cef is
 // deliberately 0 so that a producer or consumer predating this field defaults to
 // today's behavior.
+// kKeyEvent's own type/modifier tags -- deliberately mirrors cefshm_demo::KeyEventType/
+// KeyEventModifier's wire values by convention (see llembeddedbrowser.cpp), not a shared
+// include, so this header stays decoupled from the wire-protocol header, same as
+// LLEmbeddedBrowserBackend below.
+enum class LLEmbeddedBrowserKeyEventType : unsigned char
+{
+    RawKeyDown = 0,
+    KeyUp      = 1,
+    Char       = 2,
+};
+
+enum LLEmbeddedBrowserKeyModifier : unsigned int
+{
+    KeyModShift    = 1u << 0,
+    KeyModControl  = 1u << 1,
+    KeyModAlt      = 1u << 2,
+    KeyModCommand  = 1u << 3, // mac Cmd; reserved for a future "meta" key elsewhere
+    KeyModCapsLock = 1u << 4,
+    KeyModNumLock  = 1u << 5,
+    KeyModIsKeyPad = 1u << 6,
+    KeyModIsLeft   = 1u << 7,
+    KeyModIsRight  = 1u << 8,
+};
+
 enum class LLEmbeddedBrowserBackend : unsigned char
 {
     Cef    = 0,
@@ -220,10 +244,14 @@ class LLEmbeddedBrowserTab
         // mPendingDoubleClickUp for why that up also needs 2, not 1).
         void mouseButton(int x, int y, unsigned char button, bool is_down, unsigned char click_count = 1);
         void scrollWheel(int x, int y, int deltaY);
-        // msg/wParam/lParam: a raw Win32 keyboard message triple, straight from
-        // LLWindowWin32::getNativeKeyData(). Windows-only, matching the producer's own
-        // SendKeyEvent.
-        void keyEvent(unsigned int msg, unsigned int wParam, unsigned int lParam);
+        // A platform-neutral key event -- the caller (LLViewerMediaImpl) translates its
+        // LLWindow subclass's own native event into these same fields CEF's own
+        // CefKeyEvent already uses. See kKeyEvent's own comment in cefshm_protocol.h for
+        // why windows_key_code isn't a Windows-only concept here.
+        void keyEvent(LLEmbeddedBrowserKeyEventType type, unsigned int modifiers,
+                      int windows_key_code, int native_key_code,
+                      unsigned int character, unsigned int unmodified_character,
+                      bool is_system_key);
         // Drives CEF's own caret blink and focus/blur page JS -- call with true when the
         // LLMediaCtrl hosting this tab gains keyboard focus, false when it loses it.
         void setFocus(bool focus);

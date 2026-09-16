@@ -920,9 +920,22 @@ int run_producer(int argc, char** argv)
                     break;
                 }
                 case kKeyEvent: {
-                    std::uint32_t msg, wParam, lParam;
-                    if (unpack_key_event(cmd.data.data(), cmd.data.size(), msg, wParam, lParam))
-                        manager->SendKeyEvent(s.cefHandle, msg, std::uint64_t(wParam), std::int64_t(lParam));
+                    KeyEventType type;
+                    std::uint32_t modifiers, character, unmodified_character;
+                    std::int32_t windows_key_code, native_key_code;
+                    bool is_system_key;
+                    if (unpack_key_event(cmd.data.data(), cmd.data.size(), type, modifiers, windows_key_code,
+                                          native_key_code, character, unmodified_character, is_system_key))
+                    {
+                        // type/modifiers are value-compatible with llCefKeyEventType/
+                        // llCefKeyModifier by convention (see cefshm_protocol.h's own
+                        // KeyEventType/KeyEventModifier comment) -- no per-bit translation
+                        // needed here, only CEF's own enums (inside SendKeyEvent itself)
+                        // ever need to change if a future CEF version renumbers them.
+                        manager->SendKeyEvent(s.cefHandle, static_cast<llCefKeyEventType>(type), modifiers,
+                                              windows_key_code, native_key_code, character,
+                                              unmodified_character, is_system_key);
+                    }
                     break;
                 }
                 case kSetFocus: {

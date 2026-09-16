@@ -3584,9 +3584,21 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
         LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
         if (mUseEmbeddedBrowser)
         {
-            LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
-                ll_U32_from_sd(native_key_data["msg"]), ll_U32_from_sd(native_key_data["w_param"]), ll_U32_from_sd(native_key_data["l_param"]));
-            result = true;
+            // Absent on a platform with no embedded-browser keyboard translator yet
+            // (e.g. Linux/SDL for now) -- see LLWindow::getNativeKeyData()'s own
+            // comment. Skip rather than send zeroed/garbage data.
+            if (native_key_data.has("cef_windows_key_code"))
+            {
+                LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
+                    LLEmbeddedBrowserKeyEventType::RawKeyDown,
+                    ll_U32_from_sd(native_key_data["cef_modifiers"]),
+                    (int)ll_U32_from_sd(native_key_data["cef_windows_key_code"]),
+                    (int)ll_U32_from_sd(native_key_data["cef_native_key_code"]),
+                    ll_U32_from_sd(native_key_data["cef_character"]),
+                    ll_U32_from_sd(native_key_data["cef_unmodified_character"]),
+                    native_key_data["cef_is_system_key"].asBoolean());
+                result = true;
+            }
         }
         else
         {
@@ -3610,9 +3622,19 @@ bool LLViewerMediaImpl::handleKeyUpHere(KEY key, MASK mask)
         LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
         if (mUseEmbeddedBrowser)
         {
-            LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
-                ll_U32_from_sd(native_key_data["msg"]), ll_U32_from_sd(native_key_data["w_param"]), ll_U32_from_sd(native_key_data["l_param"]));
-            result = true;
+            // See handleKeyHere()'s own comment on why this key is checked first.
+            if (native_key_data.has("cef_windows_key_code"))
+            {
+                LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
+                    LLEmbeddedBrowserKeyEventType::KeyUp,
+                    ll_U32_from_sd(native_key_data["cef_modifiers"]),
+                    (int)ll_U32_from_sd(native_key_data["cef_windows_key_code"]),
+                    (int)ll_U32_from_sd(native_key_data["cef_native_key_code"]),
+                    ll_U32_from_sd(native_key_data["cef_character"]),
+                    ll_U32_from_sd(native_key_data["cef_unmodified_character"]),
+                    native_key_data["cef_is_system_key"].asBoolean());
+                result = true;
+            }
         }
         else
         {
@@ -3638,12 +3660,21 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 
             if (mUseEmbeddedBrowser)
             {
-                // native_key_data's msg/w_param/l_param are already WM_CHAR at this point
-                // (this is called from that same message's handling), which SendKeyEvent
-                // (see llCefBrowserManager.h) natively understands -- no separate
-                // "text input" opcode needed on Windows.
-                LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
-                    ll_U32_from_sd(native_key_data["msg"]), ll_U32_from_sd(native_key_data["w_param"]), ll_U32_from_sd(native_key_data["l_param"]));
+                // See handleKeyHere()'s own comment on why this key is checked first.
+                // character/unmodified_character come straight from uni_char, already
+                // the resolved Unicode character at this layer (identical on every
+                // platform), rather than re-deriving it from native_key_data.
+                if (native_key_data.has("cef_windows_key_code"))
+                {
+                    LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
+                        LLEmbeddedBrowserKeyEventType::Char,
+                        ll_U32_from_sd(native_key_data["cef_modifiers"]),
+                        (int)uni_char,
+                        (int)ll_U32_from_sd(native_key_data["cef_native_key_code"]),
+                        (unsigned int)uni_char,
+                        (unsigned int)uni_char,
+                        native_key_data["cef_is_system_key"].asBoolean());
+                }
             }
             else
             {

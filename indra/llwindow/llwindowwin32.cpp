@@ -4283,6 +4283,90 @@ void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
     ShellExecuteEx( &sei );
 }
 
+namespace
+{
+    bool isKeyDown(WPARAM key)
+    {
+        return (::GetKeyState(static_cast<int>(key)) & 0x8000) != 0;
+    }
+
+    // Relocated from llcefbrowser's own llCefBrowser.cpp (formerly
+    // GetCefKeyboardModifiers, producer-side and Windows-only) -- the producer is
+    // a headless process with no OS window of its own, so this live GetKeyState()
+    // query has to happen here, on the consumer side, where the real event is.
+    // Standard translation from a Win32 keyboard message's wParam/lParam to a
+    // CEF modifier bitmask - the same logic every CEF-on-Windows embedder
+    // (cefclient, Dullahan, CEF Python, etc.) uses, since CEF itself never sees
+    // the raw Windows message.
+    U32 getCefKeyModifiers(WPARAM wParam, LPARAM lParam)
+    {
+        U32 modifiers = 0;
+        if (::GetKeyState(VK_SHIFT) & 0x8000)   modifiers |= LL_CEF_KEY_MOD_SHIFT;
+        if (::GetKeyState(VK_CONTROL) & 0x8000) modifiers |= LL_CEF_KEY_MOD_CONTROL;
+        if (::GetKeyState(VK_MENU) & 0x8000)    modifiers |= LL_CEF_KEY_MOD_ALT;
+        // Low bit of GetKeyState indicates a toggled (not held) state.
+        if (::GetKeyState(VK_NUMLOCK) & 1) modifiers |= LL_CEF_KEY_MOD_NUM_LOCK;
+        if (::GetKeyState(VK_CAPITAL) & 1) modifiers |= LL_CEF_KEY_MOD_CAPS_LOCK;
+
+        switch (wParam)
+        {
+            case VK_RETURN:
+                if ((lParam >> 16) & KF_EXTENDED) modifiers |= LL_CEF_KEY_MOD_IS_KEY_PAD;
+                break;
+            case VK_INSERT:
+            case VK_DELETE:
+            case VK_HOME:
+            case VK_END:
+            case VK_PRIOR:
+            case VK_NEXT:
+            case VK_UP:
+            case VK_DOWN:
+            case VK_LEFT:
+            case VK_RIGHT:
+                if (!((lParam >> 16) & KF_EXTENDED)) modifiers |= LL_CEF_KEY_MOD_IS_KEY_PAD;
+                break;
+            case VK_NUMLOCK:
+            case VK_NUMPAD0:
+            case VK_NUMPAD1:
+            case VK_NUMPAD2:
+            case VK_NUMPAD3:
+            case VK_NUMPAD4:
+            case VK_NUMPAD5:
+            case VK_NUMPAD6:
+            case VK_NUMPAD7:
+            case VK_NUMPAD8:
+            case VK_NUMPAD9:
+            case VK_DIVIDE:
+            case VK_MULTIPLY:
+            case VK_SUBTRACT:
+            case VK_ADD:
+            case VK_DECIMAL:
+            case VK_CLEAR:
+                modifiers |= LL_CEF_KEY_MOD_IS_KEY_PAD;
+                break;
+            case VK_SHIFT:
+                if (isKeyDown(VK_LSHIFT))      modifiers |= LL_CEF_KEY_MOD_IS_LEFT;
+                else if (isKeyDown(VK_RSHIFT)) modifiers |= LL_CEF_KEY_MOD_IS_RIGHT;
+                break;
+            case VK_CONTROL:
+                if (isKeyDown(VK_LCONTROL))      modifiers |= LL_CEF_KEY_MOD_IS_LEFT;
+                else if (isKeyDown(VK_RCONTROL)) modifiers |= LL_CEF_KEY_MOD_IS_RIGHT;
+                break;
+            case VK_MENU:
+                if (isKeyDown(VK_LMENU))      modifiers |= LL_CEF_KEY_MOD_IS_LEFT;
+                else if (isKeyDown(VK_RMENU)) modifiers |= LL_CEF_KEY_MOD_IS_RIGHT;
+                break;
+            case VK_LWIN:
+                modifiers |= LL_CEF_KEY_MOD_IS_LEFT;
+                break;
+            case VK_RWIN:
+                modifiers |= LL_CEF_KEY_MOD_IS_RIGHT;
+                break;
+        }
+        return modifiers;
+    }
+}
+
 /*
     Make the raw keyboard data available - used to poke through to LLQtWebKit so
     that Qt/Webkit has access to the virtual keycodes etc. that it needs
@@ -4296,6 +4380,23 @@ LLSD LLWindowWin32::getNativeKeyData()
     result["msg"] = ll_sd_from_U32(mRawMsg);
     result["w_param"] = ll_sd_from_U32(mRawWParam);
     result["l_param"] = ll_sd_from_U32(mRawLParam);
+
+    // Platform-neutral, CEF-shaped translation for the embedded-browser keyboard
+    // path -- see LLWindow::getNativeKeyData()'s own comment. windows_key_code/
+    // native_key_code are wParam/lParam as-is (already Windows-VK-shaped by
+    // definition here); character/unmodified_character both just carry wParam
+    // too, since that's the only value Windows itself ever gives us here -- only
+    // meaningful to a caller that already knows this was a WM_CHAR. Encoded via
+    // ll_sd_from_U32 (a raw 32-bit-pattern Binary blob, not LLSD::Integer),
+    // same as LLWindowMacOSX's own cef_* keys -- the reader (LLViewerMediaImpl's
+    // three handleXHere() methods) uses ll_U32_from_sd() for all of these
+    // regardless of which platform produced them.
+    result["cef_modifiers"] = ll_sd_from_U32(getCefKeyModifiers(static_cast<WPARAM>(mRawWParam), static_cast<LPARAM>(mRawLParam)));
+    result["cef_windows_key_code"] = ll_sd_from_U32(mRawWParam);
+    result["cef_native_key_code"] = ll_sd_from_U32(mRawLParam);
+    result["cef_character"] = ll_sd_from_U32(mRawWParam);
+    result["cef_unmodified_character"] = ll_sd_from_U32(mRawWParam);
+    result["cef_is_system_key"] = LLSD::Boolean(mRawMsg == WM_SYSCHAR || mRawMsg == WM_SYSKEYDOWN || mRawMsg == WM_SYSKEYUP);
 
     return result;
 }

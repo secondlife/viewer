@@ -519,13 +519,18 @@ void LLEmbeddedBrowserTab::scrollWheel(int x, int y, int deltaY)
     }
 }
 
-void LLEmbeddedBrowserTab::keyEvent(unsigned int msg, unsigned int wParam, unsigned int lParam)
+void LLEmbeddedBrowserTab::keyEvent(LLEmbeddedBrowserKeyEventType type, unsigned int modifiers,
+                                    int windows_key_code, int native_key_code,
+                                    unsigned int character, unsigned int unmodified_character,
+                                    bool is_system_key)
 {
     LLMutexLock lock(&mPixelMutex);
     if (mSub)
     {
-        std::uint8_t payload[12];
-        const std::uint32_t n = pack_key_event(payload, msg, wParam, lParam);
+        std::uint8_t payload[22];
+        const std::uint32_t n = pack_key_event(payload, static_cast<KeyEventType>(type), modifiers,
+                                                windows_key_code, native_key_code,
+                                                character, unmodified_character, is_system_key);
         mSub->send(kKeyEvent, payload, n);
     }
 }
