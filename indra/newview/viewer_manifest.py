@@ -1247,8 +1247,21 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # own build-cmd.sh packaging steps); llmediaproducer.cpp points
                 # resourcesDirPath straight at that framework Resources dir,
                 # same as llcefbrowser's own example apps already do.
+                #
+                # llcefbrowser isn't published as a real darwin64 autobuild
+                # package yet, so a normal build has nothing under pkgdir for
+                # it at all -- LLCEFBROWSER_LOCAL_BUILD_DIR (see
+                # EmbeddedBrowser.cmake's own identical override, used the
+                # same way at configure time) lets local dev/testing pull the
+                # framework straight from that repo's own stage dir instead.
+                # Once a real package exists, its own lib/release/* manifest
+                # lands in pkgdir like any other installable and this falls
+                # back to that automatically.
+                cef_lib_release_dir = os.path.join(
+                    os.environ.get('LLCEFBROWSER_LOCAL_BUILD_DIR') or pkgdir,
+                    'lib', 'release')
                 with self.prefix(dst="Frameworks"):
-                    with self.prefix(src=os.path.join(pkgdir, 'lib', 'release')):
+                    with self.prefix(src=cef_lib_release_dir):
                         self.path("Chromium Embedded Framework.framework")
 
 

@@ -540,6 +540,17 @@ std::filesystem::path get_exe_path()
 // subprocesses.
 int run_producer(int argc, char** argv)
 {
+    // Must be first, before ExecuteSubProcess() or anything else in
+    // llCefBrowserLib -- a no-op on Windows/Linux, but mandatory on macOS
+    // (see LoadLibrary()'s own comment). Missed here originally because this
+    // file had never actually been run on macOS until now; the same fix was
+    // already in place for llcefbrowser's own example apps and for
+    // llCefBrowserHost.cpp (the macOS helper sub-process entry point).
+    if (! llCefBrowserLib::LoadLibrary())
+    {
+        return 1;
+    }
+
     int slot_count = kSlotCount;
     bool show_console = false;
     std::string cache_dir_arg;
