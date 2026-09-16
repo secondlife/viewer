@@ -3528,8 +3528,8 @@ void LLIMMgr::addMessage(
 
     if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !skip_message)
     {
-        // Online direct timestamps describe receipt after service creation; offline
-        // timestamps describe the saved send. Preserve that distinction through translation.
+        // Online direct timestamps describe receipt; offline timestamps describe
+        // the saved send. Preserve that distinction through translation.
         const bool incoming_direct = LLChatServiceHistory::isPersistedDirectDialog(dialog) &&
             !is_region_msg && message_display_name != SYSTEM_FROM &&
             other_participant_id.notNull() && other_participant_id != gAgentID;

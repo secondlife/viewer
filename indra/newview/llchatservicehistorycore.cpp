@@ -333,13 +333,14 @@ bool sameDirectHistoryOccurrence(const LLSD& history, const LLSD& timed)
         }
 
         const S32 service_timestamp = history["timestamp"].asInteger();
-        // Online receipt can lag creation across minute, hour, or day boundaries.
-        // Use a rolling minute of delivery delay, including locally captured receipt times.
+        // Receipt and service recording use separate clocks and can finish in
+        // either order. Admit bounded service lead as well as delivery delay.
         if (timed["chat_service_time_source"].asString() == "receipt")
         {
             constexpr S64 MAX_DELIVERY_DELAY = 60;
+            constexpr S64 MAX_SERVICE_LEAD = 5;
             const S64 delay = static_cast<S64>(timestamp) - service_timestamp;
-            return delay >= 0 && delay <= MAX_DELIVERY_DELAY;
+            return delay >= -MAX_SERVICE_LEAD && delay <= MAX_DELIVERY_DELAY;
         }
 
         // Outgoing local echoes admit clock skew within their UTC minute. Saved

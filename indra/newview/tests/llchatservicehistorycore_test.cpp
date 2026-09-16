@@ -641,9 +641,10 @@ template<> template<> void object_t::test<25>()
     // Only online delivery admits this delay; offline send times retain their precision.
     delivered["chat_service_time_source"] = "sent";
     ensure("offline send time stays exact", !sameDirectHistoryOccurrence(history, delivered));
-    delivered["chat_service_time_source"] = "receipt";
     delivered["timestamp"] = 1789060619;
-    ensure("delivery cannot precede service creation", !sameDirectHistoryOccurrence(history, delivered));
+    ensure("offline send time rejects later service recording", !sameDirectHistoryOccurrence(history, delivered));
+    delivered["chat_service_time_source"] = "receipt";
+    ensure("online receipt can precede service recording", sameDirectHistoryOccurrence(history, delivered));
     delivered["timestamp"] = 1789060681;
     ensure("delivery outside the rolling window stays distinct", !sameDirectHistoryOccurrence(history, delivered));
 
@@ -708,21 +709,24 @@ template<> template<> void object_t::test<27>()
 
 template<> template<> void object_t::test<28>()
 {
-    // Receipt windows use elapsed UTC seconds across hour and day boundaries.
-    for (const char* created : {"2026-09-10T12:59:59Z", "2026-09-10T23:59:59Z"})
+    // Service lead and delivery delay use elapsed seconds across minute, hour,
+    // and day boundaries instead of comparing calendar minutes.
+    for (const char* created : {"2026-09-10T12:34:01Z", "2026-09-10T12:59:59Z",
+                               "2026-09-10T13:00:01Z", "2026-09-10T23:59:59Z",
+                               "2026-09-11T00:00:01Z"})
     {
         LLSD history = serviceCopy(repeatedDelivery(0), FIRST);
         const S32 timestamp = S32(LLDate(created).secondsSinceEpoch());
         history["timestamp"] = timestamp;
         LLSD delivered = repeatedDelivery(0);
         delivered["chat_service_time_source"] = "receipt";
-        for (S32 delay : {0, 2, 5, 30, 60})
+        for (S32 delay : {-5, -4, -2, -1, 0, 2, 5, 30, 60})
         {
             delivered["timestamp"] = timestamp + delay;
             ensure("receipt inside the rolling window reconciles",
                    filterDirectHistoryDuplicates({history}, {delivered}).empty());
         }
-        for (S32 delay : {-1, 61})
+        for (S32 delay : {-6, 61})
         {
             delivered["timestamp"] = timestamp + delay;
             ensure_equals("receipt outside the rolling window remains",
@@ -733,9 +737,11 @@ template<> template<> void object_t::test<28>()
 
 template<> template<> void object_t::test<29>()
 {
-    // Both sides can contain repeated bodies with different delays. Pair in time
-    // order so a later delivery does not consume an older delivery's only candidate.
-    for (const auto times : {std::array<S32, 4>{0, 15, 5, 30}, {0, 15, 30, 75}, {0, 10, 10, 65}})
+    // Both sides can contain repeated bodies with different delays or service
+    // lead. Newest-first pairing keeps a newer receipt from consuming an older
+    // receipt's only candidate, even when their timestamps match exactly.
+    for (const auto times : {std::array<S32, 4>{0, 15, 5, 30}, {0, 15, 30, 75},
+                            {0, 10, 10, 65}, {65, 70, 60, 65}, {0, 6, -4, 2}})
     {
         const LLSD first = serviceCopy(repeatedDelivery(times[0]), FIRST);
         const LLSD second = serviceCopy(repeatedDelivery(times[1]), SECOND);
@@ -903,6 +909,8 @@ template<> template<> void object_t::test<33>()
         service["message"] = "123";
         service["timestamp"] = S32(received - 1);
         ensure("translation delay does not affect service matching", sameDirectHistoryOccurrence(service, row));
+        service["timestamp"] = S32(received + 1);
+        ensure("later service recording matches the captured receipt", sameDirectHistoryOccurrence(service, row));
     }
 
     U32 timestamp = received - 86400;
@@ -965,7 +973,7 @@ template<> template<> void object_t::test<35>()
     later["timestamp"] = 1789092446;
     const Messages archive{earlier, between, later};
 
-    for (S32 delay : {0, 2, 15})
+    for (S32 delay : {-5, -1, 0, 2, 15})
     {
         History history;
         history.setLoaded({earlier, between});
@@ -1024,6 +1032,86 @@ template<> template<> void object_t::test<36>()
                       peer["conversation_id"].asString());
         ensure_equals("history token preserved", entries.front().last_msg_id, std::string(SECOND));
     }
+}
+
+template<> template<> void object_t::test<37>()
+{
+    // Missing online wire timestamps are captured before the corresponding
+    // service rows are recorded. The two representations describe one reply.
+    Messages archive;
+    Messages live;
+    U8 ordinal = 0;
+    for (const char* body : {"30", "thnk you"})
+    {
+        const U32 received = ordinal ? 1789489070 : 1789489012;
+        LLSD service = contextRow(++ordinal);
+        service["message"] = body;
+        service["timestamp"] = static_cast<S32>(received + 1);
+        archive.push_back(service);
+
+        U32 timestamp = 0;
+        const LLSD context = captureLiveMessage(body, timestamp, incomingContext(body, true), received);
+        LLSD delivery = liveCopy(service);
+        delivery["timestamp"] = static_cast<S32>(timestamp);
+        recordLiveMessage(delivery, context, received);
+        live.push_front(delivery);
+    }
+
+    // Preview and durable reads can arrive in either order. Repeated publication
+    // must keep both live replies without adding historical copies or replaying them.
+    for (bool loaded_first : {false, true})
+    {
+        History history;
+        if (loaded_first) history.setLoaded(archive);
+        Messages current = live;
+        for (int publication = 0; publication < 3; ++publication)
+        {
+            const auto composed = history.compose(archive, live, 200, true);
+            ensure("recording after receipt does not add history copies", composed.empty());
+            ensure("unchanged live replies do not need replay", !replaceHistory(current, composed, true));
+            ensure_equals("both replies remain visible once", current.size(), size_t(2));
+            history.setLoaded(archive);
+        }
+
+        const auto durable = history.compose({}, live, 200, true);
+        ensure("durable read reconciles after preview expires", durable.empty());
+        ensure("durable publication does not replay replies", !replaceHistory(current, durable, true));
+        ensure_equals("newest reply retains delivery order", current.front()["message"].asString(), std::string("thnk you"));
+        ensure_equals("earliest reply retains delivery order", current.back()["message"].asString(), std::string("30"));
+        ensure("newest reply stays live", !current.front()["is_history"].asBoolean());
+        ensure("earliest reply stays live", !current.back()["is_history"].asBoolean());
+    }
+}
+
+template<> template<> void object_t::test<38>()
+{
+    // With only the first delivery live, a later identical service message is a
+    // separate occurrence. Preserve its ID and the intervening message's position.
+    LLSD earlier = contextRow(1);
+    earlier["message"] = "hello";
+    LLSD between = contextRow(2);
+    between["message"] = "6";
+    between["timestamp"] = earlier["timestamp"].asInteger() + 15;
+    LLSD later = contextRow(3);
+    later["message"] = "hello";
+    later["timestamp"] = earlier["timestamp"].asInteger() + 30;
+    LLSD delivery = liveCopy(earlier);
+    delivery["chat_service_time_source"] = "receipt";
+    History history;
+    history.setLoaded({earlier, between, later});
+
+    const auto composed = history.compose({}, {delivery}, 200, true);
+    ensure_equals("one receipt consumes one occurrence", composed.size(), size_t(2));
+    ensure_equals("later repeat keeps its service ID", composed.back()["chat_service_msg_id"].asString(),
+                  later["chat_service_msg_id"].asString());
+    Messages current{delivery};
+    ensure("unseen service messages enter the transcript", replaceHistory(current, composed, true));
+    ensure_equals("three real occurrences remain", current.size(), size_t(3));
+    auto row = current.begin();
+    ensure_equals("later repeat follows intervening message", (*row++)["chat_service_msg_id"].asString(),
+                  later["chat_service_msg_id"].asString());
+    ensure_equals("intervening message keeps its position", (*row++)["message"].asString(), std::string("6"));
+    ensure("earliest occurrence keeps its live delivery", !(*row)["is_history"].asBoolean());
 }
 
 }
