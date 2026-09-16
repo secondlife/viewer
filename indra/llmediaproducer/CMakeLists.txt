@@ -50,3 +50,22 @@ target_link_libraries(SLMediaProducer
     ll::cefbrowser
     ll::libvlc
     )
+
+if (DARWIN)
+    # Without this, CMake's default build-tree rpath (an absolute path into
+    # this machine's own build directory, e.g. .../packages/lib/release) gets
+    # baked into the binary as-is -- viewer_manifest.py only copies files,
+    # it doesn't relink anything, so that absolute path would still be there
+    # in the packaged .app, breaking the moment it's copied anywhere else (or
+    # the build tree that happened to still exist at that exact path is
+    # gone). Same fix newview/CMakeLists.txt already applies to the main
+    # executable, just with the extra ../.. this target's own deeper deploy
+    # location (Contents/Resources/SLMediaProducer/SLMediaProducer, see
+    # viewer_manifest.py) needs to reach Contents/Frameworks -- where
+    # viewer_manifest.py deposits libvlc*.dylib* (shared with the main exe,
+    # which needs it directly linked in too for LLStreamingAudio_LibVLC).
+    set_target_properties(SLMediaProducer PROPERTIES
+        BUILD_WITH_INSTALL_RPATH 1
+        INSTALL_RPATH "@executable_path/../../Frameworks"
+        )
+endif (DARWIN)
