@@ -989,6 +989,14 @@ class Darwin_x86_64_Manifest(ViewerManifest):
             with self.prefix(src=relpkgdir, dst="Frameworks"):
                 self.path("libndofdev.dylib")
 
+                # LLStreamingAudio_LibVLC links libvlc directly into this exe itself
+                # (parcel audio, see llstreamingaudio_libvlc.cpp) -- needs its own
+                # copy here since @executable_path/../Frameworks (this exe's own
+                # INSTALL_RPATH, see newview/CMakeLists.txt) is a different
+                # directory from where SLMediaProducer's own libvlc copy lands
+                # (see its own comment in this method, below).
+                self.path("libvlc*.dylib*")
+
 
                 if self.args.get('bugsplat'):
                     self.path2basename(relpkgdir, "BugsplatMac.framework")
