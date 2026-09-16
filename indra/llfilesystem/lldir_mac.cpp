@@ -189,9 +189,13 @@ std::string LLDir_Mac::getCurPath()
 
 /*virtual*/ std::string LLDir_Mac::getSLMediaProducerLauncher()
 {
-    // Not yet built/tested on this platform -- see EmbeddedBrowser.cmake's
-    // windows64-only ll::shmframe/ll::cefbrowser linking.
-    return "";
+    // Lives in its own SLMediaProducer/ directory under Contents/Resources
+    // (see viewer_manifest.py), alongside the CEF framework it needs at
+    // Contents/Resources/../Frameworks -- same convention as
+    // getLLPluginLauncher()'s own SLPlugin.app lookup just above.
+    return gDirUtilp->getAppRODataDir() + gDirUtilp->getDirDelimiter() +
+        "SLMediaProducer" + gDirUtilp->getDirDelimiter() +
+        "SLMediaProducer";
 }
 
 
