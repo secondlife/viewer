@@ -429,7 +429,10 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void mouseMove(unsigned int id, int x, int y);
         void mouseButton(unsigned int id, int x, int y, unsigned char button, bool is_down, unsigned char click_count = 1);
         void scrollWheel(unsigned int id, int x, int y, int deltaY);
-        void keyEvent(unsigned int id, unsigned int msg, unsigned int wParam, unsigned int lParam);
+        void keyEvent(unsigned int id, LLEmbeddedBrowserKeyEventType type, unsigned int modifiers,
+                      int windows_key_code, int native_key_code,
+                      unsigned int character, unsigned int unmodified_character,
+                      bool is_system_key);
         void setFocus(unsigned int id, bool focus);
         void setMuted(unsigned int id, bool muted);
         void setVolume(unsigned int id, float volume);

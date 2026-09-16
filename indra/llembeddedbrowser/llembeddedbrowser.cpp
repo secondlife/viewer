@@ -1300,11 +1300,15 @@ void LLEmbeddedBrowser::scrollWheel(unsigned int id, int x, int y, int deltaY)
     }
 }
 
-void LLEmbeddedBrowser::keyEvent(unsigned int id, unsigned int msg, unsigned int wParam, unsigned int lParam)
+void LLEmbeddedBrowser::keyEvent(unsigned int id, LLEmbeddedBrowserKeyEventType type, unsigned int modifiers,
+                                  int windows_key_code, int native_key_code,
+                                  unsigned int character, unsigned int unmodified_character,
+                                  bool is_system_key)
 {
     if (auto tab = findTab(id))
     {
-        tab->keyEvent(msg, wParam, lParam);
+        tab->keyEvent(type, modifiers, windows_key_code, native_key_code,
+                       character, unmodified_character, is_system_key);
     }
 }
 
