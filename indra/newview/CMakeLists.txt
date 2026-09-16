@@ -2331,7 +2331,18 @@ if (DARWIN)
       --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
+  # SLPlugin/media_plugin_* are gated behind ENABLE_MEDIA_PLUGINS in CMake
+  # (off by default -- embedded-browser media replaces them) -- this
+  # unconditional add_dependencies() would already fail on a normal
+  # ENABLE_MEDIA_PLUGINS=OFF configure of this branch (those targets don't
+  # exist at all), independent of anything else about the macOS port; never
+  # caught until now because nobody had actually configured this branch on
+  # Darwin since that default changed. Matches WindowsManifest's own
+  # if(ENABLE_MEDIA_PLUGINS) guard for the same targets.
+  if (ENABLE_MEDIA_PLUGINS)
+    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
+  endif (ENABLE_MEDIA_PLUGINS)
+  add_dependencies(${VIEWER_BINARY_NAME} llembeddedbrowser SLMediaProducer)
 
   if (ENABLE_SIGNING)
       set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")

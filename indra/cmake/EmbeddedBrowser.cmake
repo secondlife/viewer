@@ -20,12 +20,24 @@ if (LLSHMFRAME_LOCAL_BUILD_DIR)
     target_include_directories(ll::shmframe SYSTEM INTERFACE "${LLSHMFRAME_LOCAL_BUILD_DIR}/include")
     if (WINDOWS)
         target_link_libraries(ll::shmframe INTERFACE "${LLSHMFRAME_LOCAL_BUILD_DIR}/lib/release/llshmframe.lib")
+    elseif (DARWIN)
+        target_link_libraries(ll::shmframe INTERFACE "${LLSHMFRAME_LOCAL_BUILD_DIR}/lib/release/libllshmframe.a")
     endif ()
 else ()
     use_prebuilt_binary(llshmframe)
     target_include_directories(ll::shmframe SYSTEM INTERFACE "${LIBS_PREBUILT_DIR}/include")
     if (WINDOWS)
         target_link_libraries(ll::shmframe INTERFACE llshmframe.lib)
+    elseif (DARWIN)
+        # Linking.cmake deliberately skips its usual link_directories() setup
+        # on Darwin (see its own comment) -- a bare "llshmframe" name (as
+        # Windows uses above, relying on that search path) won't resolve, so
+        # this needs a real find_library() with an explicit path, same
+        # pattern LibVLCPlugin.cmake already uses for this exact platform.
+        find_library(LLSHMFRAME_LIBRARY
+            NAMES libllshmframe.a
+            PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+        target_link_libraries(ll::shmframe INTERFACE ${LLSHMFRAME_LIBRARY})
     endif ()
 endif ()
 
@@ -56,12 +68,32 @@ if (LLCEFBROWSER_LOCAL_BUILD_DIR)
             "${LLCEFBROWSER_LOCAL_BUILD_DIR}/lib/release/libcef.lib"
             "${LLCEFBROWSER_LOCAL_BUILD_DIR}/lib/release/libcef_dll_wrapper.lib"
             )
+    elseif (DARWIN)
+        target_link_libraries(ll::cefbrowser INTERFACE
+            "${LLCEFBROWSER_LOCAL_BUILD_DIR}/lib/release/libllcefbrowser.a"
+            "${LLCEFBROWSER_LOCAL_BUILD_DIR}/lib/release/libcef_dll_wrapper.a"
+            "${LLCEFBROWSER_LOCAL_BUILD_DIR}/lib/release/Chromium Embedded Framework.framework"
+            )
     endif ()
 else ()
     use_prebuilt_binary(llcefbrowser)
     target_include_directories(ll::cefbrowser SYSTEM INTERFACE "${LIBS_PREBUILT_DIR}/include/llcefbrowser")
     if (WINDOWS)
         target_link_libraries(ll::cefbrowser INTERFACE llcefbrowser.lib libcef.lib libcef_dll_wrapper.lib)
+    elseif (DARWIN)
+        # See ll::shmframe's own comment on why Darwin needs find_library()
+        # with an explicit path rather than a bare linkable name here.
+        find_library(LLCEFBROWSER_LIBRARY
+            NAMES libllcefbrowser.a
+            PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+        find_library(LIBCEF_DLL_WRAPPER_LIBRARY
+            NAMES libcef_dll_wrapper.a
+            PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)
+        target_link_libraries(ll::cefbrowser INTERFACE
+            ${LLCEFBROWSER_LIBRARY}
+            ${LIBCEF_DLL_WRAPPER_LIBRARY}
+            "${ARCH_PREBUILT_DIRS_RELEASE}/Chromium Embedded Framework.framework"
+            )
     endif ()
 endif ()
 

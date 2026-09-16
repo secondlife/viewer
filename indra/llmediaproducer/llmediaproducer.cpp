@@ -589,6 +589,28 @@ int run_producer(int argc, char** argv)
     init_options.logFile             = (exe_dir / "cefshm_producer_log.txt").string();
     init_options.userAgentProduct    = "SLMediaProducer/1.0";
     init_options.remoteDebuggingPort = remote_debugging_port;
+#if defined(__APPLE__)
+    // SLMediaProducer isn't a real .app bundle (see viewer_manifest.py's own
+    // comment on this) -- CEF's bundle-relative auto-detection for
+    // resources/framework/sub-process path doesn't apply, so these are set
+    // explicitly, same as llcefbrowser's own example apps do. Deploy layout
+    // (see Darwin_x86_64_Manifest.package_finish() in viewer_manifest.py):
+    //   Contents/Resources/SLMediaProducer/SLMediaProducer   (exe_dir, this file)
+    //   Contents/Resources/Frameworks/Chromium Embedded Framework.framework
+    const std::filesystem::path framework_dir =
+        exe_dir.parent_path() / "Frameworks" / "Chromium Embedded Framework.framework";
+    init_options.frameworkDirPath      = framework_dir.string();
+    // The framework bundle ships its own resources.pak/icudtl.dat/locales
+    // under Resources -- nothing loose gets deployed alongside SLMediaProducer
+    // itself (see viewer_manifest.py's own comment on this).
+    init_options.resourcesDirPath      = (framework_dir / "Resources").string();
+    init_options.mainBundlePath        = exe_dir.string();
+    // Empty means "look for a bundled Helper.app" on macOS specifically
+    // (unlike Windows/Linux, where empty already means "re-exec myself") --
+    // SLMediaProducer isn't bundled that way, so every CEF sub-process
+    // (GPU/renderer/network) fails to launch at all without this set.
+    init_options.browserSubprocessPath = get_exe_path().string();
+#endif
     if (!llCefBrowserLib::Initialize(init_options)) {
         std::cerr << "llCefBrowserLib::Initialize failed\n";
         return 1;
