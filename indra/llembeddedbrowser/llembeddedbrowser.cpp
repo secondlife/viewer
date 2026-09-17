@@ -863,30 +863,20 @@ void LLEmbeddedBrowser::init()
 
 void LLEmbeddedBrowser::reset()
 {
-    {
-        LLMutexLock lock(&mProducerMutex);
-        if (LLProcess::isRunning(mProducerProcess))
-        {
-            // Ask nicely first: LLProcess::kill() is a hard TerminateProcess() on
-            // Windows (see its own implementation -- apr_proc_kill() with sig = -1),
-            // which gives CEF's on-disk cookie/history/etc. stores no chance to flush
-            // whatever they haven't yet committed. Wait out a short grace period for
-            // the producer to exit on its own before falling back to the hard kill
-            // below, which still runs unconditionally as a safety net (a hung/
-            // unresponsive producer, or one that never got the request at all,
-            // must not block Viewer shutdown).
-            requestGracefulShutdown();
-
-            const auto deadline = std::chrono::steady_clock::now() + kShutdownGracePeriod;
-            while (LLProcess::isRunning(mProducerProcess) && std::chrono::steady_clock::now() < deadline)
-            {
-                std::this_thread::sleep_for(kShutdownPollInterval);
-            }
-        }
-        LLProcess::kill(mProducerProcess); // null-safe -- also a no-op if it already exited above
-        mProducerProcess.reset();
-    }
-
+    // Stop every tab's update thread BEFORE touching the producer process at
+    // all -- each one's background thread calls mSub->read_latest() against
+    // the producer's own shared-memory segment, and killing/shutting down
+    // the producer first (as this used to do) leaves that segment being torn
+    // down (gracefully, by the producer's own exit sequence, or abruptly on
+    // the hard-kill fallback below) while those threads may still be mid-read
+    // for the entire grace-period wait. A real race, not just a theoretical
+    // one: the vector-based read_latest() resizes its buffer to whatever the
+    // *remote* (producer-reported) max payload size currently reads as, so a
+    // segment that becomes invalid mid-read can hand back a garbage size --
+    // manifesting later as a corrupted-looking std::vector<uint8_t>, in a
+    // completely unrelated object next to it on the heap by the time anything
+    // actually inspects it (e.g. at final LLSingletonBase::deleteAll() time).
+    //
     // Same deadlock hazard as destroy() above (see its own comment): extract
     // every tab under the lock, then let their actual destruction -- each
     // one's blocking mUpdateThread->shutdown() join -- happen after
@@ -910,7 +900,31 @@ void LLEmbeddedBrowser::reset()
         if (tab) tab->stopUpdateThread();
     }
     // tabs' destructors run here, unlocked -- safe now regardless of which
-    // thread ends up holding each one's last reference.
+    // thread ends up holding each one's last reference. Every consumer-side
+    // reader of the producer's shared memory is now guaranteed stopped, so
+    // it's safe to tear the producer down.
+
+    LLMutexLock lock(&mProducerMutex);
+    if (LLProcess::isRunning(mProducerProcess))
+    {
+        // Ask nicely first: LLProcess::kill() is a hard TerminateProcess() on
+        // Windows (see its own implementation -- apr_proc_kill() with sig = -1),
+        // which gives CEF's on-disk cookie/history/etc. stores no chance to flush
+        // whatever they haven't yet committed. Wait out a short grace period for
+        // the producer to exit on its own before falling back to the hard kill
+        // below, which still runs unconditionally as a safety net (a hung/
+        // unresponsive producer, or one that never got the request at all,
+        // must not block Viewer shutdown).
+        requestGracefulShutdown();
+
+        const auto deadline = std::chrono::steady_clock::now() + kShutdownGracePeriod;
+        while (LLProcess::isRunning(mProducerProcess) && std::chrono::steady_clock::now() < deadline)
+        {
+            std::this_thread::sleep_for(kShutdownPollInterval);
+        }
+    }
+    LLProcess::kill(mProducerProcess); // null-safe -- also a no-op if it already exited above
+    mProducerProcess.reset();
 }
 
 bool LLEmbeddedBrowser::launchProducer()
