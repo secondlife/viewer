@@ -134,11 +134,19 @@ LLEmbeddedBrowserTab::~LLEmbeddedBrowserTab()
     stopUpdateThread();
     mUpdateThread.reset();
 
-    {
-        LLMutexLock lock(&mPixelMutex);
-        mSub.reset(); // clean detach -- lets cefshm_producer free this slot right away
-    }
-
+    // delete[] must happen under the same lock copyPixels()/getPixels() use --
+    // a mutex only serializes callers that actually acquire it, so freeing
+    // mPixels outside the lock (as this used to do) gave no protection at all
+    // against a concurrent, properly-locked copyPixels() call (every frame,
+    // via preMediaTexUpdate()) already mid-copy from this same buffer: a real
+    // use-after-free, racing the free against an in-progress
+    // out_pixels.assign(mPixels, ...) read. Confirmed the hard way: this
+    // corrupted a later, completely unrelated heap allocation (an
+    // std::vector<uint8_t> inside a toolbar LLCommand's LLSD member),
+    // manifesting as a many-seconds-long "hang" destroying it at
+    // LLSingletonBase::deleteAll() time during final Viewer shutdown.
+    LLMutexLock lock(&mPixelMutex);
+    mSub.reset(); // clean detach -- lets cefshm_producer free this slot right away
     delete[] mPixels;
     mPixels = nullptr;
 }
