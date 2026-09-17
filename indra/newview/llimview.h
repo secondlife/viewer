@@ -155,7 +155,7 @@ public:
         chat_message_list_t mMsgs;
 
         // Historical rows are replaced as one overlay so live rows remain untouched.
-        chat_message_list_t mChatServiceHistoricalValue;
+        LLChatServiceHistory::History mChatServiceHistory;
 
         // Process-unique tokens and archive serials reject stale asynchronous reads.
         U64 mChatHistoryLoadToken = 0;
@@ -252,6 +252,7 @@ public:
      * Add a message to an IM Model - the message is saved in a message store associated with a session specified by session_id
      * and also saved into a file if log2file is specified.
      * It sends new message signal for each added message.
+     * history_context carries ChatService metadata through delivery and translation.
      */
     void addMessage(const LLUUID& session_id,
                     const std::string& from,
@@ -259,7 +260,8 @@ public:
                     const std::string& utf8_text,
                     bool log2file = true,
                     bool is_region_msg = false,
-                    U32 time_stamp = 0);
+                    U32 time_stamp = 0,
+                    LLSD history_context = LLSD());
 
     void processAddingMessage(const LLUUID& session_id,
                     const std::string& from,
@@ -267,13 +269,15 @@ public:
                     const std::string& utf8_text,
                     bool log2file,
                     bool is_region_msg,
-                    U32 time_stamp);
+                    U32 time_stamp,
+                    LLSD history_context = LLSD());
 
     /**
      * Similar to addMessage(...) above but won't send a signal about a new message added
      */
     LLIMModel::LLIMSession* addMessageSilently(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
-        const std::string& utf8_text, bool log2file = true, bool is_region_msg = false, U32 timestamp = 0);
+        const std::string& utf8_text, bool log2file = true, bool is_region_msg = false, U32 timestamp = 0,
+        LLSD history_context = LLSD());
 
     /**
      * Add a system message to an IM Model
@@ -396,7 +400,8 @@ public:
                     bool is_region_msg = false,
                     U32 timestamp = 0,
                     LLUUID display_id = LLUUID::null,
-                    std::string_view display_name = "");
+                    std::string_view display_name = "",
+                    const LLSD& original_text = LLSD());
 
     void addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLSD& args);
 

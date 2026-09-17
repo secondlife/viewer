@@ -1,6 +1,6 @@
 /**
  * @file llchatservicehistorycore.h
- * @brief Strict ChatService wire, TimeUUID, and CSV primitives.
+ * @brief ChatService wire/storage primitives and direct history composition.
  *
  * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -16,6 +16,7 @@
 #include <array>
 #include <deque>
 #include <iosfwd>
+#include <list>
 #include <string>
 #include <vector>
 
@@ -109,6 +110,45 @@ namespace LLChatServiceHistoryCore
     bool persistedDirectDialog(S32 dialog);
     bool parseCreatedAt(const std::string& text, std::string& normalized);
     bool sameDirectSenderName(const std::string& left, const std::string& right);
+
+    // Compare service rows against original bodies and plaintext against logged bodies/times.
+    bool sameDirectHistoryOccurrence(const LLSD& history, const LLSD& timed);
+
+    // Reserve known send times before receipt intervals and local-clock minute matches.
+    std::list<LLSD> filterDirectHistoryDuplicates(const std::list<LLSD>& history,
+                                                 const std::list<LLSD>& live);
+
+    using Messages = std::list<LLSD>;
+
+    // Union historical seams by service ID and plaintext occurrence, consuming overlaps one-for-one.
+    Messages mergeDirectHistory(const Messages& loaded, const Messages& service);
+
+    // Preview publications start from the loaded value; visible context is retained separately.
+    class History
+    {
+    public:
+        void setLoaded(const Messages& messages);
+        void clear();
+        void clearService();
+        Messages compose(const Messages& preview, const Messages& live, U32 limit,
+                         bool retain_context = false);
+
+    private:
+        Messages mLoaded;
+        Messages mVisible;
+    };
+
+    // Preserve live order and notification rows; replace history and reindex only on change.
+    bool replaceHistory(Messages& current, const Messages& history, bool direct);
+
+    // Capture timing before translation and keep its provenance with the original wire body.
+    LLSD incomingContext(const LLSD& original_text, bool online);
+    LLSD captureLiveMessage(const std::string& text, U32& timestamp, const LLSD& context, U32 now);
+    void recordLiveMessage(LLSD& message, const LLSD& context, U32 logged_at);
+
+    // Both inputs are newest-first; interleave timed history without reordering live rows.
+    std::list<LLSD> interleaveDirectHistory(const std::list<LLSD>& history,
+                                          const std::list<LLSD>& live);
 
     // Legacy SLT wall times carry no UTC offset; UTC-7 is their earliest possible
     // interpretation at the durable service boundary.

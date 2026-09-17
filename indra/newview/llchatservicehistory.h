@@ -75,21 +75,26 @@ namespace LLChatServiceHistory
     bool localHistoryExists();
     bool localHistoryExists(const LLUUID& resident_id);
 
-    // Opens, accepted inbound activity, and due outbound bursts share one
-    // account-scoped priority queue.
+    // Opens and due direct-message activity share one account-scoped priority queue.
     bool isPersistedDirectDialog(EInstantMessage dialog);
     void prioritizeResident(const LLUUID& resident_id, bool follow_active_request = false);
-    void noteOutboundDirectMessage(const LLUUID& resident_id);
+    // Incoming and outgoing IMs reset one quiet deadline per resident.
+    void noteDirectMessageActivity(const LLUUID& resident_id);
 
     // Views connect first and then query so they cannot miss an active-work transition.
     Snapshot getSnapshot(const LLUUID& resident_id);
     boost::signals2::connection setSnapshotChanged(const snapshot_callback_t& callback);
-    std::list<LLSD> mergeHeadPreview(const std::list<LLSD>& loaded,
-                                     const Snapshot& snapshot, U32 limit);
+    using History = LLChatServiceHistoryCore::History;
+    using Messages = LLChatServiceHistoryCore::Messages;
 
-    // Remove one historical occurrence for each exact same-minute live occurrence.
-    std::list<LLSD> filterLiveDuplicates(const std::list<LLSD>& history,
-                                         const std::list<LLSD>& live);
+    // Both views compose from their loaded history; open IMs also retain visible context.
+    Messages composeHistory(History& history, const Snapshot& snapshot, U32 limit,
+                            const LLUUID& session_id = LLUUID::null);
+    bool replaceHistory(Messages& current, const Messages& history, bool direct);
+
+    // Core IM delivery carries one opaque context through translation and logging.
+    LLSD prepareLiveMessage(const std::string& text, U32& timestamp, const LLSD& context);
+    void recordLiveMessage(LLSD& message, const LLSD& context);
 
     // The callback runs on the main queue after legacy and service storage are read.
     bool loadStitchedHistory(const LLUUID& resident_id, const std::string& legacy_stem,

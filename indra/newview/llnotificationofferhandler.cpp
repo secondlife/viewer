@@ -150,6 +150,8 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification, 
         {
             // log only to file if notif panel can be embedded to IM and IM is opened
             bool file_only = add_notif_to_im && LLHandlerUtil::isIMFloaterOpened(notification);
+            // Only a log paired with an inline offer may be hidden during replay.
+            const LLUUID notification_id = add_notif_to_im ? notification->getID() : LLUUID::null;
             if ((notification->getName() == "TeleportOffered"
                 || notification->getName() == "TeleportOffered_MaturityExceeded"
                 || notification->getName() == "TeleportOffered_MaturityBlocked"))
@@ -157,11 +159,11 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification, 
                 boost::regex r("<icon\\s*>\\s*([^<]*)?\\s*</icon\\s*>( - )?",
                     boost::regex::perl|boost::regex::icase);
                 std::string stripped_msg = boost::regex_replace(notification->getMessage(), r, "");
-                LLHandlerUtil::logToIMP2P(notification->getPayload()["from_id"], stripped_msg,file_only);
+                LLHandlerUtil::logToIMP2P(notification->getPayload()["from_id"], stripped_msg, file_only, notification_id);
             }
             else
             {
-                LLHandlerUtil::logToIMP2P(notification, file_only);
+                LLHandlerUtil::logToIMP2P(notification, file_only, notification_id);
             }
         }
     }

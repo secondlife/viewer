@@ -89,6 +89,7 @@ private:
     // Tokens fence asynchronous applies across close, reopen, and reload requests.
     U64             mServiceToken;
     U32             mServiceAppliedSerial;
+    LLChatServiceHistory::History mServiceHistory;
     boost::signals2::connection mHistoryContentConnection;
     boost::signals2::connection mServiceSnapshotConnection;
 };

@@ -72,7 +72,7 @@ bool LLHandlerUtil::isIMFloaterOpened(const LLNotificationPtr& notification)
 void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
         const std::string& session_name, const std::string& from_name,
         const std::string& message, const LLUUID& session_owner_id,
-        const LLUUID& from_id)
+        const LLUUID& from_id, const LLUUID& notification_id)
 {
     std::string from = from_name;
     if (from_name.empty())
@@ -111,6 +111,14 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
         S32 participant_unread = session->mParticipantUnreadMessageCount;
         LLIMModel::instance().addMessageSilently(session_id, from, from_id,
                 message);
+
+        // Link the text fallback to its inline offer before the floater sees it.
+        // Name lookup may complete after other messages have arrived.
+        if (notification_id.notNull())
+        {
+            session->mMsgs.front()["notification_log_id"] = notification_id;
+        }
+
         // we shouldn't increment counters when logging, so restore them
         session->mNumUnread = unread;
         session->mParticipantUnreadMessageCount = participant_unread;
@@ -121,15 +129,17 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 }
 
 void log_name_callback(const LLAvatarName& av_name, const std::string& from_name,
-                       const std::string& message, const LLUUID& from_id)
+                       const std::string& message, const LLUUID& from_id,
+                       const LLUUID& notification_id)
 
 {
     LLHandlerUtil::logToIM(IM_NOTHING_SPECIAL, av_name.getUserName(), from_name, message,
-                    from_id, LLUUID());
+                    from_id, LLUUID(), notification_id);
 }
 
 // static
-void LLHandlerUtil::logToIMP2P(const LLUUID& from_id, const std::string& message, bool to_file_only)
+void LLHandlerUtil::logToIMP2P(const LLUUID& from_id, const std::string& message, bool to_file_only,
+                             const LLUUID& notification_id)
 {
     if (!gCacheName)
     {
@@ -145,19 +155,20 @@ void LLHandlerUtil::logToIMP2P(const LLUUID& from_id, const std::string& message
 
     if(to_file_only)
     {
-        LLAvatarNameCache::get(from_id, boost::bind(&log_name_callback, _2, "", message, LLUUID()));
+        LLAvatarNameCache::get(from_id, boost::bind(&log_name_callback, _2, "", message, LLUUID(), notification_id));
     }
     else
     {
-        LLAvatarNameCache::get(from_id, boost::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, message, from_id));
+        LLAvatarNameCache::get(from_id, boost::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, message, from_id, notification_id));
     }
 }
 
 // static
-void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_file_only)
+void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_file_only,
+                             const LLUUID& notification_id)
 {
     LLUUID from_id = notification->getPayload()["from_id"];
-    logToIMP2P(from_id, notification->getMessage(), to_file_only);
+    logToIMP2P(from_id, notification->getMessage(), to_file_only, notification_id);
 }
 
 // static
