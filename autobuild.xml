@@ -1435,18 +1435,46 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>82f23b92965fd8b409d88d3892218d16bdae0cc3</string>
+              <string>43695c4b437213141223b18762a26d2cae634a5d</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llshmframe/releases/download/v1.19.0/llshmframe-1.19.0-windows64-32783271848.tar.zst</string>
+              <string>https://github.com/secondlife/llshmframe/releases/download/v1.20.0/llshmframe-1.21.0-windows64-35255571671.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>447386d41063b9d99000de4e8b0f274e8d52425c</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/llshmframe/releases/download/v1.20.0/llshmframe-1.21.0-darwin64-35255571671.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7bbac64af936243cc3f1fefc77a0f907f3e7320d</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/llshmframe/releases/download/v1.20.0/llshmframe-1.21.0-linux64-35255571671.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
         </map>
         <key>version</key>
-        <string>1.19.0</string>
+        <string>1.21.0</string>
       </map>
       <key>lsl_definitions</key>
       <map>
