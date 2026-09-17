@@ -3710,10 +3710,11 @@ LLSD LLAppViewer::getViewerInfo() const
     vlc_ver_codec << LIBVLC_VERSION_REVISION;
     info["LIBVLC_VERSION"] = vlc_ver_codec.str();
 
-    S32 packets_in = (S32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
+    LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
+    S32 packets_in = (S32)recording.getSum(LLStatViewer::PACKETS_IN);
     if (packets_in > 0)
     {
-        info["PACKETS_LOST"] = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST);
+        info["PACKETS_LOST"] = recording.getSum(LLStatViewer::PACKETS_LOST);
         info["PACKETS_IN"] = packets_in;
         info["PACKETS_PCT"] = 100.f*info["PACKETS_LOST"].asReal() / info["PACKETS_IN"].asReal();
     }
