@@ -31,8 +31,11 @@
 #include "llsearcheditor.h"
 
 // viewer project includes
+#include "llavataractions.h"
 #include "llqueryflags.h"
 #include "llnotificationsutil.h"
+#include "llscrolllistctrl.h"
+#include "llviewermenu.h"
 
 static LLPanelInjector<LLPanelDirPeople> t_panel_dir_people("panel_dir_people");
 
@@ -51,7 +54,42 @@ bool LLPanelDirPeople::postBuild()
     childSetAction("Search", &LLPanelDirBrowser::onClickSearchCore, this);
     setDefaultBtn( "Search" );
 
+    LLScrollListCtrl* results = getChild<LLScrollListCtrl>("results");
+    results->setRightMouseDownCallback(boost::bind(&LLPanelDirPeople::onResultsRightClick, this, _1, _2, _3));
+
+    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    registrar.add("DirPeople.ViewProfile", boost::bind(&LLPanelDirPeople::onViewProfile, this));
+    LLContextMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_dir_people.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+    if (menu)
+    {
+        mPopupMenuHandle = menu->getHandle();
+    }
+
     return true;
+}
+
+void LLPanelDirPeople::onResultsRightClick(LLUICtrl* ctrl, S32 x, S32 y)
+{
+    LLScrollListCtrl* results = getChild<LLScrollListCtrl>("results");
+    LLScrollListItem* item = results->hitItem(x, y);
+    LLContextMenu* menu = mPopupMenuHandle.get();
+    if (item && menu)
+    {
+        results->selectItemAt(x, y, MASK_NONE);
+        mSelectedAvatarID = item->getUUID();
+        menu->buildDrawLabels();
+        menu->updateParent(LLMenuGL::sMenuContainer);
+        menu->show(x, y);
+        LLMenuGL::showPopup(ctrl, menu, x, y);
+    }
+}
+
+void LLPanelDirPeople::onViewProfile()
+{
+    if (mSelectedAvatarID.notNull())
+    {
+        LLAvatarActions::showProfile(mSelectedAvatarID);
+    }
 }
 
 LLPanelDirPeople::~LLPanelDirPeople()
