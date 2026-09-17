@@ -1317,18 +1317,46 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b893393d063c0b177526a4f6f6b3499f336f7ec8</string>
+              <string>8540d93b0e0dcdf9c7c247603b326d5f6a6cffd7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.38.0/llcefbrowser-1.39.0-windows64-34275175750.tar.zst</string>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.40.0/llcefbrowser-1.40.0-windows64-35266557268.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7b3d229e04955502d2dccc6a9aaf5f131c54618f</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.40.0/llcefbrowser-1.40.0-darwin64-35266557268.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8015563e54d51cd19b8039aa97c42e662f367ea8</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.40.0/llcefbrowser-1.40.0-linux64-35266557268.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
         </map>
         <key>version</key>
-        <string>1.38.0</string>
+        <string>1.40.0</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
