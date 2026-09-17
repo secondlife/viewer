@@ -68,4 +68,19 @@ if (DARWIN)
         BUILD_WITH_INSTALL_RPATH 1
         INSTALL_RPATH "@executable_path/../../Frameworks"
         )
+elseif (LINUX)
+    # Same underlying problem as Darwin's own rpath fix just above ($ORIGIN
+    # is Linux's equivalent of @executable_path), but simpler here: no
+    # bundle-shaped detour through a separate Frameworks-style directory --
+    # SLMediaProducer's libcef.so lives directly alongside it in the same
+    # SLMediaProducer/ directory (see viewer_manifest.py's LinuxManifest), so
+    # plain $ORIGIN is enough. libvlc itself needs no rpath entry at all here
+    # -- unlike Windows/macOS, ll::libvlc on Linux links against the
+    # system's own installed libvlc via pkg-config (see LibVLCPlugin.cmake),
+    # not a vendored copy, so the dynamic linker's normal system search path
+    # already finds it.
+    set_target_properties(SLMediaProducer PROPERTIES
+        BUILD_WITH_INSTALL_RPATH 1
+        INSTALL_RPATH "$ORIGIN"
+        )
 endif (DARWIN)

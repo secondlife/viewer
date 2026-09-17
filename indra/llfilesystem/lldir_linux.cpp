@@ -252,7 +252,16 @@ std::string LLDir_Linux::getCurPath()
 
 /*virtual*/ std::string LLDir_Linux::getSLMediaProducerLauncher()
 {
-    // Not yet built/tested on this platform -- see EmbeddedBrowser.cmake's
-    // windows64-only ll::shmframe/ll::cefbrowser linking.
-    return "";
+    // Lives in its own SLMediaProducer/ directory (see viewer_manifest.py),
+    // alongside libcef.so and its other CEF runtime files, not next to the
+    // main executable and not in llplugin/ (the legacy media plugins' own
+    // directory, no longer built by default -- see ENABLE_MEDIA_PLUGINS) --
+    // same reasoning as LLDir_Win32::getSLMediaProducerLauncher(): a
+    // standalone executable only searches its own directory for shared
+    // libraries by default, so it needs to actually live where those files
+    // are. No ".exe"/bundle suffix, matching this platform's own plain
+    // executable-name convention (see getLLPluginLauncher() just above).
+    return gDirUtilp->getExecutableDir() + gDirUtilp->getDirDelimiter() +
+        "SLMediaProducer" + gDirUtilp->getDirDelimiter() +
+        "SLMediaProducer";
 }

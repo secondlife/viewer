@@ -1467,53 +1467,73 @@ class LinuxManifest(ViewerManifest):
         with self.prefix(src=os.path.join(self.args['build'], os.pardir, "llwebrtc" ), dst="lib"):
             self.path("libllwebrtc.so")
 
-        # plugins
+        # media_plugin_cef/libvlc/gstreamer10/example are gated behind ENABLE_MEDIA_PLUGINS
+        # in CMake -- off by default, since embedded-browser media replaces them.
+        # path_optional() (rather than path()) means this stays a no-op, not a build error,
+        # when that build produced none of these -- matches the Windows/Darwin manifests'
+        # own identical reasoning (these used to be unconditional path() calls here, which
+        # would already fail packaging on a normal ENABLE_MEDIA_PLUGINS=OFF Linux build;
+        # never caught until now since nobody had actually packaged this branch on Linux
+        # since that default changed). These plugins' own CEF runtime dependency (the old
+        # "dullahan"/cef-bin package, referenced directly below this block previously) was
+        # removed from this repo entirely -- nothing provides libcef.so/dullahan_host/etc.
+        # for this legacy path on any platform any more; SLMediaProducer below is this
+        # project's real, shipping CEF integration instead.
         with self.prefix(dst="bin/llplugin"):
             with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
                 with self.prefix(src='cef'):
-                    self.path("libmedia_plugin_cef.so")
+                    self.path_optional("libmedia_plugin_cef.so")
 
                 # Media plugins - LibVLC
                 with self.prefix(src='libvlc'):
-                    self.path("libmedia_plugin_libvlc.so")
+                    self.path_optional("libmedia_plugin_libvlc.so")
 
                 # GStreamer 1.0 Media Plugin
                 with self.prefix(src='gstreamer10'):
-                    self.path("libmedia_plugin_gstreamer10.so")
+                    self.path_optional("libmedia_plugin_gstreamer10.so")
 
                 # Media plugins - Example (useful for debugging - not shipped with release viewer)
                 if self.channel_type() != 'release':
                     with self.prefix(src='example'):
-                        self.path("libmedia_plugin_example.so")
+                        self.path_optional("libmedia_plugin_example.so")
 
+        # SLMediaProducer: the embedded-browser CEF producer, launched/monitored by the
+        # Viewer itself, always built (unlike the legacy plugin path above) -- see the
+        # Windows manifest's own identical SLMediaProducer block for the non-Linux-specific
+        # rationale. Lives in its own bin/SLMediaProducer/ directory (matching
+        # LLDir_Linux::getSLMediaProducerLauncher()'s own getExecutableDir()-relative path),
+        # not directly in bin/ alongside secondlife-bin, so it sits next to the CEF runtime
+        # files below that it needs -- no separate rpath-reachable "Frameworks"-style
+        # directory the way Darwin needs (see llmediaproducer/CMakeLists.txt's own $ORIGIN
+        # rpath comment). No libvlc copy here (unlike Windows/Darwin): ll::libvlc on Linux
+        # links against the system's own installed libvlc via pkg-config (see
+        # LibVLCPlugin.cmake), not a vendored binary, so there's nothing of ours to copy.
+        #
+        # Sourced from llcefbrowser's own real autobuild package (built by its linux64
+        # build-cmd.sh case) -- not the removed dullahan/cef-bin package the code just above
+        # this block used to (and no longer can) pull CEF runtime files from.
+        with self.prefix(dst="bin/SLMediaProducer"):
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'llmediaproducer')):
+                self.path("SLMediaProducer")
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
-            self.path( "libcef.so" )
-            self.path( "libEGL*" )
-            self.path( "libvulkan*" )
-            self.path( "libvk_swiftshader*" )
-            self.path( "libGLESv2*" )
+            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+                self.path("libcef.so")
+                self.path("libEGL.so")
+                self.path("libGLESv2.so")
+                self.path("libvk_swiftshader.so")
+                self.path("libvulkan.so.1")
+                self.path("v8_context_snapshot.bin")
+                self.path("vk_swiftshader_icd.json")
+                self.path("chrome-sandbox")
 
-        with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="bin"):
-            self.path( "chrome-sandbox" )
-            self.path( "dullahan_host" )
+            with self.prefix(src=os.path.join(pkgdir, 'resources')):
+                self.path("chrome_100_percent.pak")
+                self.path("chrome_200_percent.pak")
+                self.path("resources.pak")
+                self.path("icudtl.dat")
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="bin"):
-            self.path( "v8_context_snapshot.bin" )
-            self.path( "vk_swiftshader_icd.json")
-
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
-            self.path( "v8_context_snapshot.bin" )
-            self.path( "vk_swiftshader_icd.json")
-
-        with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="lib"):
-            self.path( "chrome_100_percent.pak" )
-            self.path( "chrome_200_percent.pak" )
-            self.path( "resources.pak" )
-            self.path( "icudtl.dat" )
-
-        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('lib', 'locales')):
-            self.path("*.pak")
+            with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
+                self.path("*.pak")
 
         self.path("featuretable_linux.txt")
         self.path("cube.dae")

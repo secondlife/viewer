@@ -2197,13 +2197,28 @@ if (LINUX)
   # These are the generated targets that are copied to package/
   set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
-    SLPlugin
-    media_plugin_cef
-    media_plugin_gstreamer10
-    media_plugin_libvlc
-    media_plugin_example
     llwebrtc
+    llembeddedbrowser
+    SLMediaProducer
     )
+
+  # SLPlugin/media_plugin_* are gated behind ENABLE_MEDIA_PLUGINS in CMake
+  # (off by default -- embedded-browser media replaces them) -- this used to
+  # be unconditional, which would already fail on a normal
+  # ENABLE_MEDIA_PLUGINS=OFF configure of this branch (those targets don't
+  # exist at all), independent of anything else about the Linux port; never
+  # caught until now because nobody had actually configured this branch on
+  # Linux since that default changed. Matches WindowsManifest's/DarwinManifest's
+  # own if(ENABLE_MEDIA_PLUGINS) guard for the same targets.
+  if (ENABLE_MEDIA_PLUGINS)
+    list(APPEND COPY_INPUT_DEPENDENCIES
+      SLPlugin
+      media_plugin_cef
+      media_plugin_gstreamer10
+      media_plugin_libvlc
+      media_plugin_example
+      )
+  endif (ENABLE_MEDIA_PLUGINS)
 
   add_custom_command(
       OUTPUT ${product}.tar.xz
