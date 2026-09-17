@@ -40,6 +40,8 @@
 #include "llviewchildren.h"
 #include "llviewerwindow.h"
 #include "lluictrlfactory.h"
+#include "llviewercontrol.h"
+#include "llviewernetwork.h"
 #include "llweb.h"
 #include "llwindow.h"
 #include "llappviewer.h"
@@ -336,7 +338,10 @@ void LLFloaterBuyCurrency::handleBuyCurrency(bool has_piof, bool has_target, con
     }
     else
     {
-        LLFloaterReg::showInstance("add_payment_method");
+        const std::string& grid_id = LLGridManager::getInstance()->getGridId();
+        const std::string& grid_id_lower = utf8str_tolower(grid_id);
+        const std::string url = gSavedSettings.getString(grid_id_lower == "damballah" ? "PaymentMethodStagingURL" : "PaymentMethodURL");
+        LLWeb::loadURL(url);
     }
 }
 

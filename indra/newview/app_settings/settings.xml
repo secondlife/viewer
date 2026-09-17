@@ -1194,6 +1194,28 @@
       <key>Value</key>
       <string>https://accounts.secondlife.com/packs/floater?lang=[LANGUAGE]&amp;shortfall=[SHORTFALL]</string>
     </map>
+    <key>PaymentMethodURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for adding a payment method</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://secondlife.com/my/lindex/buy.php?associate_for_viewer=1</string>
+    </map>
+    <key>PaymentMethodStagingURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for adding a payment method on the Damballah</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://secondlife-staging.com/my/lindex/buy.php?associate_for_viewer=1</string>
+    </map>
     <key>EnableButtonFlashing</key>
     <map>
       <key>Comment</key>
