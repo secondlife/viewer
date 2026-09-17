@@ -114,7 +114,7 @@ public:
                    const LLSD& substitutions = LLSD()); // Display an error dialog and forcibly quit.
     void earlyExitNoNotify(); // Do not display error dialog then forcibly quit.
     void abortQuit();  // Called to abort a quit request.
-    void sendViewerStatistics();
+    void sendViewerStatistics(bool include_preferences);
 
     bool quitRequested() { return mQuitRequested; }
     bool logoutRequestSent() { return mLogoutRequestSent; }

@@ -4588,9 +4588,12 @@ void LLAppViewer::abortQuit()
     mClosingFloaters = false;
 }
 
-void LLAppViewer::sendViewerStatistics()
+void LLAppViewer::sendViewerStatistics(bool include_preferences)
 {
-    send_viewer_stats(false);
+    if (!gDisconnected)
+    {
+        send_viewer_stats(include_preferences);
+    }
 }
 
 void LLAppViewer::migrateCacheDirectory()
