@@ -4488,6 +4488,13 @@ void LLAppViewer::requestQuit()
         // This prevents the halfway-logged-in avatar from hanging around inworld for a couple minutes.
         if (region)
         {
+            // We probably don't have caps to do it, and it might
+            // arrive after logout finishes, but attempt to send stats
+            if (region->capabilitiesReceived())
+            {
+                constexpr bool include_preferences = true;
+                send_viewer_stats(include_preferences);
+            }
             sendLogoutRequest();
         }
 
