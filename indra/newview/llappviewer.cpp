@@ -642,12 +642,6 @@ bool LLAppViewer::sendURLToOtherInstance(const std::string& url)
     return false;
 }
 
-//virtual
-void LLAppViewer::setOSHibernationMode(eHibernationMode mode)
-{
-    // See OS specific files
-}
-
 //----------------------------------------------------------------------------
 // LLAppViewer definition
 
@@ -3716,11 +3710,10 @@ LLSD LLAppViewer::getViewerInfo() const
     vlc_ver_codec << LIBVLC_VERSION_REVISION;
     info["LIBVLC_VERSION"] = vlc_ver_codec.str();
 
-    LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
-    S32 packets_in = (S32)recording.getSum(LLStatViewer::PACKETS_IN);
+    S32 packets_in = (S32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
     if (packets_in > 0)
     {
-        info["PACKETS_LOST"] = recording.getSum(LLStatViewer::PACKETS_LOST);
+        info["PACKETS_LOST"] = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST);
         info["PACKETS_IN"] = packets_in;
         info["PACKETS_PCT"] = 100.f*info["PACKETS_LOST"].asReal() / info["PACKETS_IN"].asReal();
     }
@@ -4494,13 +4487,6 @@ void LLAppViewer::requestQuit()
         // This prevents the halfway-logged-in avatar from hanging around inworld for a couple minutes.
         if (region)
         {
-            // We probably don't have caps to do it, and it might
-            // arrive after logout finishes, but attempt to send stats
-            if (region->capabilitiesReceived())
-            {
-                constexpr bool include_preferences = true;
-                send_viewer_stats(include_preferences);
-            }
             sendLogoutRequest();
         }
 
@@ -4601,12 +4587,9 @@ void LLAppViewer::abortQuit()
     mClosingFloaters = false;
 }
 
-void LLAppViewer::sendViewerStatistics(bool include_preferences)
+void LLAppViewer::sendViewerStatistics()
 {
-    if (!gDisconnected)
-    {
-        send_viewer_stats(include_preferences);
-    }
+    send_viewer_stats(false);
 }
 
 void LLAppViewer::migrateCacheDirectory()
@@ -5993,30 +5976,6 @@ void LLAppViewer::outOfMemorySoftQuit()
     }
 }
 
-void LLAppViewer::setPermitOSHibernation(bool permit)
-{
-    if (permit)
-    {
-        if (mCurrentHibernationMode != LL_HIBERNATE_MODE_DEFAULT)
-        {
-            // Will call OS specific code to let OS hibernate when idle
-            setOSHibernationMode(LL_HIBERNATE_MODE_DEFAULT);
-            mCurrentHibernationMode = LL_HIBERNATE_MODE_DEFAULT;
-        }
-    }
-    else
-    {
-        // User is active, check settings and set OS hibernation mode accordingly
-        static LLCachedControl<S32> os_hibernation_mode(gSavedSettings, "OSHibernationMode", 0);
-        eHibernationMode mode = static_cast<eHibernationMode>(os_hibernation_mode());
-        if (mCurrentHibernationMode != mode)
-        {
-            setOSHibernationMode(mode);
-            mCurrentHibernationMode = mode;
-        }
-    }
-}
-
 void LLAppViewer::idleNameCache()
 {
     // Neither old nor new name cache can function before agent has a region
@@ -6224,9 +6183,6 @@ void LLAppViewer::disconnectViewer()
     // Pass the connection state to LLUrlEntryParcel not to attempt
     // parcel info requests while disconnected.
     LLUrlEntryParcel::setDisconnected(gDisconnected);
-
-    // Restore default OS hibernation mode
-    setPermitOSHibernation(true);
 }
 
 void LLAppViewer::forceErrorLLError()
@@ -6518,15 +6474,6 @@ void LLAppViewer::handleLoginComplete()
     // we logged in successfully, so save settings on logout
     LL_INFOS() << "Login successful, per account settings will be saved on log out." << LL_ENDL;
     mSavePerAccountSettings=true;
-
-    // Don't allow hibernation while we're running
-    setPermitOSHibernation(false);
-    // Track 'hibernation' mode changes
-    mOSHibernationModeChangeConnection = gSavedSettings.getControl("OSHibernationMode")->getSignal()->connect([](LLControlVariable* control, const LLSD& new_val, const LLSD& old_val)
-    {
-        // setPermitOSHibernation will sort itself out based on new mode.
-        LLAppViewer::instance()->setPermitOSHibernation(false);
-    });
 }
 
 //virtual
