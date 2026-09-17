@@ -1555,8 +1555,6 @@ void LLAgent::setAFK()
         setControlFlags(AGENT_CONTROL_AWAY | AGENT_CONTROL_STOP);
         gAwayTimer.start();
     }
-
-    LLAppViewer::instance()->setPermitOSHibernation(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -1574,13 +1572,6 @@ void LLAgent::clearAFK()
     {
         sendAnimationRequest(ANIM_AGENT_AWAY, ANIM_REQUEST_STOP);
         clearControlFlags(AGENT_CONTROL_AWAY);
-    }
-
-    if (isAgentAvatarValid())
-    {
-        // Only set this if agent is inworld, login screen
-        // shouldn't prevent hibernation.
-        LLAppViewer::instance()->setPermitOSHibernation(false);
     }
 }
 
