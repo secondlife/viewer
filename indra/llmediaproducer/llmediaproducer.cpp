@@ -697,7 +697,7 @@ int run_producer(int argc, char** argv)
         log_info(banner.str());
     }
 
-    LLCommand cmd;
+    LLShmCommand cmd;
 
     while (g_run)
     {

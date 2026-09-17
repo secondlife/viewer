@@ -145,6 +145,8 @@ LLEmbeddedBrowserTab::~LLEmbeddedBrowserTab()
     // std::vector<uint8_t> inside a toolbar LLCommand's LLSD member),
     // manifesting as a many-seconds-long "hang" destroying it at
     // LLSingletonBase::deleteAll() time during final Viewer shutdown.
+    // (That symptom's real cause turned out to be unrelated to this fix --
+    // see the LLCommand/LLShmCommand ODR-violation fix, 2026-09-17.)
     LLMutexLock lock(&mPixelMutex);
     mSub.reset(); // clean detach -- lets cefshm_producer free this slot right away
     delete[] mPixels;
@@ -188,7 +190,7 @@ bool LLEmbeddedBrowserTab::connectToProducer()
         return false;
     }
 
-    LLCommand reply;
+    LLShmCommand reply;
     bool got_reply = false;
     const auto reply_deadline = std::chrono::steady_clock::now() + kSlotRequestTimeout;
     while (std::chrono::steady_clock::now() < reply_deadline)
@@ -275,7 +277,7 @@ void LLEmbeddedBrowserTab::update()
         return;
     }
 
-    LLCommand cmd;
+    LLShmCommand cmd;
     while (mSub->receive(cmd))
     {
         LLEmbeddedBrowserEvent event;
