@@ -1478,11 +1478,6 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 raw_value)
     // the trigger pair (fan-out), or None.
     U8 out = it->mOptions.mapAxis(phys);
 
-    // Note: raw_value is left as SDL reports it (no implicit sign flip here) --
-    // any needed correction for SL's local right-handed reference frame (e.g. the
-    // RAW analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD) is instead
-    // expressed as a per-mode, per-action Invert flag (see getAxisInvert), applied
-    // once the value reaches its bound action in computeAgentActions()/getFlycamInputs().
     bool phys_is_trigger = phys >= LLGameControl::AXIS_LEFT_TRIGGER;
 
     S16 fixed_value = it->mOptions.fixAxisValue(phys, raw_value);

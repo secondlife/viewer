@@ -113,6 +113,12 @@ const F32 AUTOPILOT_MIN_TARGET_HEIGHT_OFF_GROUND = 1.f; // meters
 const F32 AUTOPILOT_MAX_TIME_NO_PROGRESS_WALK = 1.5f;       // seconds
 const F32 AUTOPILOT_MAX_TIME_NO_PROGRESS_FLY = 2.5f;        // seconds. Flying is less presize, needs a bit more time
 
+// Ground-sit requests that do not originate from a click on the ground (e.g. the
+// game-control/keyboard "toggle sit" action) have no target position to check
+// against, so refuse them outright when the ground below the agent is farther
+// than this away, rather than snapping the agent down onto distant terrain.
+const F32 MAX_SIT_ON_GROUND_DISTANCE = 30.f;                // meters
+
 const F32 MAX_VELOCITY_AUTO_LAND_SQUARED = 4.f * 4.f;
 const F64 CHAT_AGE_FAST_RATE = 3.0;
 
@@ -1338,9 +1344,32 @@ LLVector3d LLAgent::getPosGlobalFromAgent(const LLVector3 &pos_agent) const
     return pos_agent_d + mAgentOriginGlobal;
 }
 
+static void finish_sit_on_ground(bool success, void*)
+{
+    if (success)
+    {
+        gAgent.setFlying(false);
+        gAgent.clearControlFlags(AGENT_CONTROL_STAND_UP); // might have been set by autopilot
+        gAgent.setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
+    }
+}
+
 void LLAgent::sitDown()
 {
-    setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
+    // Sit on the ground directly beneath (or above) the agent's current position.
+    // Refuse if that spot is too far away, and otherwise walk/fly there first,
+    // rather than snapping straight down onto it (e.g. terrain far below a flying
+    // agent) as AGENT_CONTROL_SIT_ON_GROUND would do if sent immediately.
+    LLVector3d pos_global = getPositionGlobal();
+    LLVector3d sit_spot_global = pos_global;
+    sit_spot_global.mdV[VZ] = LLWorld::getInstance()->resolveLandHeightGlobal(pos_global);
+
+    if (dist_vec(pos_global, sit_spot_global) > MAX_SIT_ON_GROUND_DISTANCE)
+    {
+        return;
+    }
+
+    startAutoPilotGlobal(sit_spot_global, "Sit", NULL, finish_sit_on_ground, NULL, 0.7f);
 }
 
 //-----------------------------------------------------------------------------
