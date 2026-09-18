@@ -2495,6 +2495,7 @@ if (LL_TESTS)
     llxml
     llui
     llplugin
+    llembeddedbrowser
     llappearance
     llprimitive
     lllogin
