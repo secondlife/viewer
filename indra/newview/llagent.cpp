@@ -5157,7 +5157,10 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
         {
             LLCoordGL cursor_pos = gViewerWindow->getCurrentMouse();
             S32 new_x = cursor_pos.mX + ll_round(actions.mMouseCursorDX * MOUSE_CURSOR_PIXELS_PER_SEC * mouse_cursor_dt);
-            S32 new_y = cursor_pos.mY + ll_round(actions.mMouseCursorDY * MOUSE_CURSOR_PIXELS_PER_SEC * mouse_cursor_dt);
+            // LLCoordGL's Y increases upward, but mMouseCursorDY is in screen-frame
+            // (Y increases downward, same as CURSOR_DY/CURSOR_PY on the wire), so it
+            // subtracts here rather than adds.
+            S32 new_y = cursor_pos.mY - ll_round(actions.mMouseCursorDY * MOUSE_CURSOR_PIXELS_PER_SEC * mouse_cursor_dt);
             gViewerWindow->moveCursorTo(new_x, new_y);
         }
     }
