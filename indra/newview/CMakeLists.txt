@@ -2135,16 +2135,22 @@ if (NOT DISABLE_WEBRTC)
     target_link_libraries(${VIEWER_BINARY_NAME} llwebrtc )
 endif()
 
-if (NOT LINUX)
-  # llappviewer.cpp reads LIBVLC_VERSION_MAJOR/MINOR/REVISION from vlc/libvlc_version.h
-  # (guarded by the same !LL_LINUX there) purely to report the LibVLC version in the
-  # About-box info dump -- unrelated to whether media_plugin_libvlc itself gets built.
-  # That header's include path used to only exist as a side effect of
-  # media_plugin_libvlc's own CMakeLists.txt running (include(LibVLCPlugin)), which
-  # ENABLE_MEDIA_PLUGINS=OFF now skips -- needed here unconditionally instead.
-  include(LibVLCPlugin)
-  target_link_libraries(${VIEWER_BINARY_NAME} ll::libvlc)
-endif ()
+# Was gated behind "if (NOT LINUX)" -- stale: that matched a !LL_LINUX guard
+# in llappviewer.cpp's own libvlc-version-for-the-About-box code that no
+# longer exists there (now fully unconditional, confirmed by inspection),
+# and it also accidentally skipped linking ll::libvlc on Linux entirely,
+# even though llstreamingaudio_libvlc.cpp (LLStreamingAudio_LibVLC, parcel
+# audio) is compiled unconditionally on every platform and hard-requires it
+# -- confirmed via a real Linux link failure (undefined reference to every
+# libvlc_* symbol llstreamingaudio_libvlc.cpp calls). llappviewer.cpp reads
+# LIBVLC_VERSION_MAJOR/MINOR/REVISION from vlc/libvlc_version.h purely to
+# report the LibVLC version in the About-box info dump -- unrelated to
+# whether media_plugin_libvlc itself gets built. That header's include path
+# used to only exist as a side effect of media_plugin_libvlc's own
+# CMakeLists.txt running (include(LibVLCPlugin)), which
+# ENABLE_MEDIA_PLUGINS=OFF now skips -- needed here unconditionally instead.
+include(LibVLCPlugin)
+target_link_libraries(${VIEWER_BINARY_NAME} ll::libvlc)
 
 if (USE_DISCORD)
     target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
