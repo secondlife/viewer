@@ -1189,33 +1189,43 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                         executable_path[app] = \
                             self.dst_path_of(os.path.join(app, "Contents", "MacOS"))
 
-                # Dullahan helper apps go inside SLPlugin.app
-                with self.prefix(dst=os.path.join(
-                    "SLPlugin.app", "Contents", "Frameworks")):
-                    # copy CEF plugin
-                    path_optional("../media_plugins/cef/" + self.args['configuration'] +
-                                  "/media_plugin_cef.dylib", "media_plugin_cef.dylib")
+                # Dullahan helper apps go inside SLPlugin.app -- gated on
+                # SLPlugin.app itself actually having been found above, since
+                # every path_optional() call in here reads from pkgdir/
+                # media_plugins, which exist regardless of ENABLE_MEDIA_PLUGINS
+                # (they're shared with the always-built embedded-browser path).
+                # Without this gate, a normal ENABLE_MEDIA_PLUGINS=OFF build
+                # still copied a full, unsigned Chromium Embedded Framework.framework
+                # (plus long-removed DullahanHelper.app references) into a
+                # SLPlugin.app that has no Info.plist/MacOS/SLPlugin of its own --
+                # a broken, phantom nested bundle that made notarization fail.
+                if executable_path.get("SLPlugin.app"):
+                    with self.prefix(dst=os.path.join(
+                        "SLPlugin.app", "Contents", "Frameworks")):
+                        # copy CEF plugin
+                        path_optional("../media_plugins/cef/" + self.args['configuration'] +
+                                      "/media_plugin_cef.dylib", "media_plugin_cef.dylib")
 
-                    # copy LibVLC plugin
-                    path_optional("../media_plugins/libvlc/" + self.args['configuration'] +
-                                  "/media_plugin_libvlc.dylib", "media_plugin_libvlc.dylib")
+                        # copy LibVLC plugin
+                        path_optional("../media_plugins/libvlc/" + self.args['configuration'] +
+                                      "/media_plugin_libvlc.dylib", "media_plugin_libvlc.dylib")
 
-                    # CEF framework and vlc libraries goes inside Contents/Frameworks.
-                    with self.prefix(src=os.path.join(pkgdir, 'lib', 'release')):
-                        path_optional("Chromium Embedded Framework.framework",
-                                      "Chromium Embedded Framework.framework")
-                        path_optional("DullahanHelper.app", "DullahanHelper.app")
-                        path_optional("DullahanHelper (Alerts).app", "DullahanHelper (Alerts).app")
-                        path_optional("DullahanHelper (GPU).app", "DullahanHelper (GPU).app")
-                        path_optional("DullahanHelper (Renderer).app", "DullahanHelper (Renderer).app")
-                        path_optional("DullahanHelper (Plugin).app", "DullahanHelper (Plugin).app")
+                        # CEF framework and vlc libraries goes inside Contents/Frameworks.
+                        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release')):
+                            path_optional("Chromium Embedded Framework.framework",
+                                          "Chromium Embedded Framework.framework")
+                            path_optional("DullahanHelper.app", "DullahanHelper.app")
+                            path_optional("DullahanHelper (Alerts).app", "DullahanHelper (Alerts).app")
+                            path_optional("DullahanHelper (GPU).app", "DullahanHelper (GPU).app")
+                            path_optional("DullahanHelper (Renderer).app", "DullahanHelper (Renderer).app")
+                            path_optional("DullahanHelper (Plugin).app", "DullahanHelper (Plugin).app")
 
-                        # Copy libvlc
-                        path_optional("libvlc*.dylib*", "libvlc*.dylib*")
-                        # copy LibVLC plugins folder
-                        with self.prefix(src='plugins', dst="plugins"):
-                            path_optional("*.dylib", "*.dylib")
-                            path_optional("plugins.dat", "plugins.dat")
+                            # Copy libvlc
+                            path_optional("libvlc*.dylib*", "libvlc*.dylib*")
+                            # copy LibVLC plugins folder
+                            with self.prefix(src='plugins', dst="plugins"):
+                                path_optional("*.dylib", "*.dylib")
+                                path_optional("plugins.dat", "plugins.dat")
 
                 # SLMediaProducer: the embedded-browser CEF producer, launched/
                 # monitored by the Viewer itself, always built (unlike the legacy
