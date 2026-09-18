@@ -781,16 +781,6 @@ namespace
         cursor_axes_invert["Strafe left/right"] = true;
         cursor_axes_invert["Advance forward/back"] = true;
         cursor_axes_invert["Turn left/right"] = true;
-        // "Mouse up/down": by the same raw-hardware-vs-target-sign reasoning as
-        // "Advance forward/back" above (push-up reads as a negative raw deflection,
-        // same physical axis/convention), invert so pushing the stick up moves the
-        // cursor up (screen/GL Y increases upward) rather than down. "Mouse left/
-        // right" needs no invert: unlike Strafe (which wants left=positive to match
-        // SL's world frame), cursor X wants right=positive, which is what the raw
-        // hardware already gives uninverted. NOTE: not yet verified in-world --
-        // flip this (or the other axis) if the cursor moves the wrong way on a
-        // real controller.
-        cursor_axes_invert["Mouse up/down"] = true;
 
         // FlyCam adds a Roll axis and uses a distinct button set.
         LLSD flycam_axes;

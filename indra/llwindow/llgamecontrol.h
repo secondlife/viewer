@@ -59,13 +59,19 @@
 //            |            /                          \            |
 //             \__________/                            \__________/
 //
-// Note: the analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD
-// whereas those directions are actually POSITIVE in SL's local right-handed
-// reference frame.  Rather than hard-coding a sign flip in the raw-axis
-// extraction (LLGameControllerManager::onAxis()), this is handled by the
-// per-mode, per-action Invert flag (see getAxisInvert/setAxisInvert): the
-// built-in default mappings set Invert on whichever actions need it to feel
-// correct by default (e.g. "Strafe left/right", "Truck left/right").
+//
+// Notice the difference between controller-frame and avatar-frame:
+//
+//                               o--------+X                    +X
+//                               |                               |
+//                               |                               |
+//                               |                               |
+//                               |                               |
+//                              +Y                     +Y--------o
+//
+// Canonical data is in controller-frame. Modal data is in the frame
+// that makes most sense for the mode (e.g. avatar-frame for Avatar
+// mode, cursor-frame for Cursor mode).
 
 // Interface to get controller binding from assigned command
 class LLGameControllerBindingToStringHandler
