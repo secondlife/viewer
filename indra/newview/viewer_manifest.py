@@ -1446,7 +1446,15 @@ class LinuxManifest(ViewerManifest):
 
         with self.prefix(dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
-            self.path2basename("../llplugin/slplugin", "SLPlugin")
+            # SLPlugin (the legacy plugin host) is gated behind
+            # ENABLE_MEDIA_PLUGINS in CMake, off by default -- embedded-
+            # browser media replaces it. path_optional() (the same fix
+            # already applied to the media_plugin_*.so copies just below)
+            # means this stays a no-op, not a packaging failure, when that
+            # build produced no SLPlugin at all -- path2basename() (the
+            # previous, non-optional call here) has no _optional variant of
+            # its own, so this is its two-argument path()-call equivalent.
+            self.path_optional(os.path.join("../llplugin/slplugin", "SLPlugin"), "SLPlugin")
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
             #with self.prefix(src="../viewer_components/manager", dst=""):
             #    self.path("*.py")
