@@ -671,19 +671,30 @@ void LLWebRTCImpl::workerStartRecording()
         }
     }
 
+    int32_t result = 0;
 #if WEBRTC_WIN
     if (recordingDevice < 0)
     {
-        mDeviceModule->SetRecordingDevice((webrtc::AudioDeviceModule::WindowsDeviceType)recordingDevice);
+        result = mDeviceModule->SetRecordingDevice((webrtc::AudioDeviceModule::WindowsDeviceType)recordingDevice);
     }
     else
     {
-        mDeviceModule->SetRecordingDevice(recordingDevice);
+        result = mDeviceModule->SetRecordingDevice(recordingDevice);
     }
 #else
-    mDeviceModule->SetRecordingDevice(recordingDevice);
+    result = mDeviceModule->SetRecordingDevice(recordingDevice);
 #endif
-    mDeviceModule->InitMicrophone();
+    if (result != 0)
+    {
+        RTC_LOG(LS_WARNING) << "workerStartRecording: SetRecordingDevice(" << recordingDevice << ") failed " << result;
+    }
+
+    result = mDeviceModule->InitMicrophone();
+    if (result != 0)
+    {
+        RTC_LOG(LS_WARNING) << "workerStartRecording: InitMicrophone failed " << result;
+    }
+
     mDeviceModule->SetStereoRecording(false);
     // A newly-selected capture device may default its hardware AEC/AGC/NS on;
     // disable before InitRecording so the recording stream is configured to
@@ -775,6 +786,19 @@ void LLWebRTCImpl::workerDeployDevices()
     if (mDeviceModule->Recording())
     {
         mDeviceModule->ForceStopRecording();
+    }
+    if (mDeviceModule->RecordingIsInitialized() || mDeviceModule->PlayoutIsInitialized())
+    {
+        int32_t result = mDeviceModule->ForceTerminate();
+        if (result != 0)
+        {
+            RTC_LOG(LS_WARNING) << "workerDeployDevices: ForceTerminate failed: " << result;
+        }
+        result = mDeviceModule->Init();
+        if (result != 0)
+        {
+            RTC_LOG(LS_WARNING) << "workerDeployDevices: Init failed: " << result;
+        }
     }
 
     workerStartRecording();
