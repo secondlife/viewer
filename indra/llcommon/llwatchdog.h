@@ -48,6 +48,7 @@ public:
     // isAlive and other method may need synchronization.
     virtual bool isAlive() const = 0;
     virtual bool hasExpired() const = 0;
+    virtual bool started() const = 0;
     virtual void reset() = 0;
     virtual void start();
     virtual void stop();
@@ -68,6 +69,7 @@ public:
 
     bool isAlive() const override;
     bool hasExpired() const override;
+    bool started() const override;
     void reset() override;
     void start() override { start(""); }
     void stop() override;
@@ -90,6 +92,11 @@ class LLWatchdog : public LLSimpleton<LLWatchdog>
 public:
     LLWatchdog();
     ~LLWatchdog();
+
+    LLWatchdog(const LLWatchdog&) = delete;
+    LLWatchdog(LLWatchdog&&) = delete;
+    LLWatchdog& operator=(const LLWatchdog&) = delete;
+    LLWatchdog& operator=(LLWatchdog&&) = delete;
 
     // Add an entry to the watchdog.
     void add(LLWatchdogEntry* e);

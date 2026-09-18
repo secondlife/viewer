@@ -209,28 +209,43 @@ extern SimMeasurement<F64Megabytes >    SIM_PHYSICS_MEM;
 
 
 extern LLTrace::SampleStatHandle<F64Milliseconds >  FRAMETIME_JITTER,
-                                                    SIM_PING;
+                                                    FRAMETIME,
+                                                    SIM_PING,
+                                                    FRAMETIME_JITTER_99TH,
+                                                    FRAMETIME_JITTER_95TH,
+                                                    FRAMETIME_99TH,
+                                                    FRAMETIME_95TH,
+                                                    FRAMETIME_JITTER_CUMULATIVE,
+                                                    FRAMETIME_JITTER_STDDEV,
+                                                    FRAMETIME_STDDEV;
+
+extern LLTrace::SampleStatHandle<U32>               FRAMETIME_JITTER_EVENTS,
+                                                    FRAMETIME_JITTER_EVENTS_PER_MINUTE,
+                                                    FRAMETIME_JITTER_EVENTS_LAST_MINUTE;
+
+extern LLTrace::SampleStatHandle<U64>               DOFRAME_TIME_US;
+
+extern LLTrace::SampleStatHandle<F64> NOTRMALIZED_FRAMETIME_JITTER_SESSION;
+extern LLTrace::SampleStatHandle<F64> NFTV;
+extern LLTrace::SampleStatHandle<F64> NORMALIZED_FRAMTIME_JITTER_PERIOD;
 
 extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP;
 
 extern LLTrace::EventStatHandle<>   LOADING_WEARABLES_LONG_DELAY;
 
 extern LLTrace::EventStatHandle<F64Milliseconds >   REGION_CROSSING_TIME,
-                                                        FRAME_STACKTIME,
-                                                        UPDATE_STACKTIME,
-                                                        NETWORK_STACKTIME,
-                                                        IMAGE_STACKTIME,
-                                                        REBUILD_STACKTIME,
-                                                        RENDER_STACKTIME;
+                                                    FRAME_STACKTIME,
+                                                    UPDATE_STACKTIME,
+                                                    NETWORK_STACKTIME,
+                                                    IMAGE_STACKTIME,
+                                                    REBUILD_STACKTIME,
+                                                    RENDER_STACKTIME;
 
 extern LLTrace::EventStatHandle<F64Seconds >    AVATAR_EDIT_TIME,
-                                                                TOOLBOX_TIME,
-                                                                MOUSELOOK_TIME;
+                                                TOOLBOX_TIME,
+                                                MOUSELOOK_TIME;
 
 extern LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > OBJECT_CACHE_HIT_RATE;
-
-extern LLTrace::SampleStatHandle<F64> NOTRMALIZED_FRAMETIME_JITTER_SESSION;
-extern LLTrace::SampleStatHandle<F64> NORMALIZED_FRAMTIME_JITTER_PERIOD;
 
 extern LLTrace::SampleStatHandle<U32> WEBRTC_PACKETS_IN_LOST, WEBRTC_PACKETS_IN_RECEIVED, WEBRTC_PACKETS_OUT_SENT, WEBRTC_PACKETS_OUT_LOST;
 extern LLTrace::SampleStatHandle<F32> WEBRTC_JITTER_OUT, WEBRTC_JITTER_IN, WEBRTC_LATENCY, WEBRTC_UPLOAD_BANDWIDTH, WEBRTC_JITTER_BUFFER;

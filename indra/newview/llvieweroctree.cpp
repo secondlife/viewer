@@ -1143,6 +1143,8 @@ void LLOcclusionCullingGroup::checkOcclusion()
                 GLuint query_result;    // Will be # samples drawn, or a boolean depending on mHasOcclusionQuery2 (both are type GLuint)
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("co - query result");
+                    // Ping watchdog before a blocking GL_QUERY_RESULT GPU call
+                    LLAppViewer::instance()->pingMainloopTimeout("Display:CullQueryResult");
                     glGetQueryObjectuiv(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT, &query_result);
                 }
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES

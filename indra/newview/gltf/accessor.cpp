@@ -213,7 +213,7 @@ bool Buffer::save(Asset& asset, const std::string& folder)
 
     bin_file += mUri;
 
-    std::ofstream file(bin_file, std::ios::binary);
+    llofstream file(bin_file, std::ios::binary);
     if (!file.is_open())
     {
         LL_WARNS("GLTF") << "Failed to open file: " << bin_file << LL_ENDL;

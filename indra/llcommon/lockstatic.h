@@ -13,7 +13,7 @@
 #if ! defined(LL_LOCKSTATIC_H)
 #define LL_LOCKSTATIC_H
 
-#include "mutex.h"                  // std::unique_lock
+#include <mutex> // std::unique_lock
 
 namespace llthread
 {

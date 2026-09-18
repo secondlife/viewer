@@ -684,7 +684,7 @@ bool LLMuteList::loadFromFile(const std::string& filename, EMuteListSource sourc
         return false;
     }
 
-    LLFILE* fp = LLFile::fopen(filename, "rb");     /*Flawfinder: ignore*/
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("rb"));     /*Flawfinder: ignore*/
     if (!fp)
     {
         LL_WARNS() << "Couldn't open mute list " << filename << LL_ENDL;
@@ -751,7 +751,7 @@ bool LLMuteList::saveToFile(const std::string& filename)
         return false;
     }
 
-    LLFILE* fp = LLFile::fopen(filename, "wb");     /*Flawfinder: ignore*/
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("wb"));     /*Flawfinder: ignore*/
     if (!fp)
     {
         LL_WARNS() << "Couldn't open mute list " << filename << LL_ENDL;
@@ -1084,7 +1084,7 @@ LLRenderMuteList::LLRenderMuteList()
 bool LLRenderMuteList::saveToFile()
 {
     std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "render_mute_settings.txt");
-    LLFILE* fp = LLFile::fopen(filename, "wb");
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("wb"));
     if (!fp)
     {
         LL_WARNS() << "Couldn't open render mute list file: " << filename << LL_ENDL;
@@ -1109,7 +1109,7 @@ bool LLRenderMuteList::loadFromFile()
     LL_PROFILE_ZONE_SCOPED;
 
     std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "render_mute_settings.txt");
-    LLFILE* fp = LLFile::fopen(filename, "rb");
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("rb"));
     if (!fp)
     {
         LL_WARNS() << "Couldn't open render mute list file: " << filename << LL_ENDL;

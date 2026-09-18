@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -35,7 +35,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <glob.h>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include "lldir_utils_objc.h"
 
 // --------------------------------------------------------------------------------
@@ -45,15 +45,15 @@ static bool CreateDirectory(const std::string &parent,
                             std::string *fullname)
 {
 
-    boost::filesystem::path p(parent);
+    std::filesystem::path p(parent);
     p /= child;
 
     if (fullname)
         *fullname = std::string(p.string());
 
-    if (! boost::filesystem::create_directory(p))
+    if (! std::filesystem::create_directory(p))
     {
-        return (boost::filesystem::is_directory(p));
+        return (std::filesystem::is_directory(p));
     }
     return true;
 }
@@ -75,10 +75,8 @@ LLDir_Mac::LLDir_Mac()
         // mExecutablePathAndName
         mExecutablePathAndName = executablepathstr;
 
-        boost::filesystem::path executablepath(executablepathstr);
+        std::filesystem::path executablepath(executablepathstr);
 
-# ifndef BOOST_SYSTEM_NO_DEPRECATED
-#endif
         mExecutableFilename = executablepath.filename().string();
         mExecutableDir = executablepath.parent_path().string();
 
@@ -139,8 +137,45 @@ LLDir_Mac::LLDir_Mac()
         // mOSUserAppDir
         mOSUserAppDir = mOSUserDir;
 
+#if LL_VELOPACK
+        // Detect a portable (Velopack) install: the executable lives at
+        // ".../MyApp.app/Contents/MacOS/<exe>". If the portable package
+        // dropped a ".portable" marker next to "MyApp.app" (i.e. one level
+        // above the bundle itself), keep user data (settings, logs, etc.)
+        // beside the bundle instead of ~/Library/Application Support. This
+        // only applies to Velopack-portable builds; a DMG/NSIS-style
+        // install never produces this marker, so a normally-installed
+        // viewer is unaffected.
+        std::string bundle_root; // .../MyApp.app
+        if (!mExecutableDir.empty())
+        {
+            // mExecutableDir == .../MyApp.app/Contents/MacOS
+            std::string contents_dir = getDirName(mExecutableDir);   // .../MyApp.app/Contents
+            if (!contents_dir.empty())
+            {
+                bundle_root = getDirName(contents_dir);              // .../MyApp.app
+            }
+        }
+        std::string install_root = bundle_root.empty() ? std::string() : getDirName(bundle_root);
+        if (isPortableInstall(install_root))
+        {
+            std::string portable_dir;
+            if (CreateDirectory(install_root, PORTABLE_USER_DATA_DIRNAME, &portable_dir))
+            {
+                mOSUserAppDir = portable_dir;
+
+                // Replicate the sub-dirs already created above under the
+                // default mOSUserDir, but under the portable folder instead.
+                CreateDirectory(portable_dir, std::string("data"), NULL);
+                CreateDirectory(portable_dir, std::string("logs"), NULL);
+                CreateDirectory(portable_dir, std::string("user_settings"), NULL);
+                CreateDirectory(portable_dir, std::string("browser_profile"), NULL);
+            }
+        }
+#endif // LL_VELOPACK
+
         // mTempDir
-        //Aura 120920 boost::filesystem::temp_directory_path() not yet implemented on mac. :(
+        //Aura 120920 std::filesystem::temp_directory_path() not yet implemented on mac. :(
         std::string tmpdir = getSystemTempFolder();
         if (!tmpdir.empty())
         {
@@ -174,16 +209,8 @@ void LLDir_Mac::initAppDirs(const std::string &app_name,
 
 std::string LLDir_Mac::getCurPath()
 {
-    return boost::filesystem::path( boost::filesystem::current_path() ).string();
+    return std::filesystem::path( std::filesystem::current_path() ).string();
 }
-
-
-
-bool LLDir_Mac::fileExists(const std::string &filename) const
-{
-    return boost::filesystem::exists(filename);
-}
-
 
 /*virtual*/ std::string LLDir_Mac::getLLPluginLauncher()
 {

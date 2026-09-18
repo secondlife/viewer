@@ -158,8 +158,12 @@ protected:
 public:
     // The inventory model usage is sensitive to the initial construction of the model
     bool isInventoryUsable() const;
+    F32 getLibrarySkeletonLoadTime() const { return mLibrarySkeletonLoadTime; }
+    F32 getAgentSkeletonLoadTime() const { return mAgentSkeletonLoadTime; }
 private:
     bool mIsAgentInvUsable; // used to handle an invalid inventory state
+    F32 mLibrarySkeletonLoadTime;
+    F32 mAgentSkeletonLoadTime;
 
     // One-time initialization of HTTP system.
     void initHttpRequest();

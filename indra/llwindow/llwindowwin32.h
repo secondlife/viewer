@@ -62,7 +62,11 @@ public:
     void restore() override;
     bool getFullscreen();
     bool getPosition(LLCoordScreen *position) override;
+
+    // Outer window frame size in pixels (includes title bar and borders).
+    // Note OS Specific behavior: On macOS excludes title bar.
     bool getSize(LLCoordScreen *size) override;
+
     bool getSize(LLCoordWindow *size) override;
     bool setPosition(LLCoordScreen position) override;
     bool setSizeImpl(LLCoordScreen size) override;
@@ -130,8 +134,10 @@ public:
 
     LLWindowCallbacks::DragNDropResult completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, LLWindowCallbacks::DragNDropAction action, const std::string url );
 
+    static PROC WINAPI getProcAddress(const char* func);
     static std::vector<std::string> getDisplaysResolutionList();
     static std::vector<std::string> getDynamicFallbackFontList();
+    static LLFontFallbackMatch findFallbackFontForChar(llwchar wch);
     static void setDPIAwareness();
 
     void* getDirectInput8() override;
@@ -264,6 +270,8 @@ protected:
     U32             mRawLParam;
 
     bool            mMouseVanish;
+
+    static HMODULE sGLDLLHandle;
 
     // Cached values of GetWindowRect and GetClientRect to be used by app thread
     void updateWindowRect();

@@ -161,7 +161,7 @@ S32 LLXfer_File::initializeRequest(U64 xfer_id,
 S32 LLXfer_File::startDownload()
 {
     S32 retval = 0;  // presume success
-    mFp = LLFile::fopen(mTempFilename,"w+b");       /* Flawfinder : ignore */
+    mFp = LLFile::fopen(mTempFilename,LLFILE_MODE("w+b"));       /* Flawfinder : ignore */
     if (mFp)
     {
         fclose(mFp);
@@ -209,7 +209,7 @@ S32 LLXfer_File::startSend (U64 xfer_id, const LLHost &remote_host)
     mBufferStartOffset = 0;
 
     // We leave the file open, assuming we'll start reading and sending soon
-    mFp = LLFile::fopen(mLocalFilename,"rb");       /* Flawfinder : ignore */
+    mFp = LLFile::fopen(mLocalFilename, LLFILE_MODE("rb"));       /* Flawfinder : ignore */
     if (mFp)
     {
         fseek(mFp,0,SEEK_END);
@@ -252,7 +252,7 @@ S32 LLXfer_File::reopenFileHandle()
 
     if (mFp == NULL)
     {
-        mFp = LLFile::fopen(mLocalFilename,"rb");       /* Flawfinder : ignore */
+        mFp = LLFile::fopen(mLocalFilename, LLFILE_MODE("rb"));       /* Flawfinder : ignore */
         if (mFp == NULL)
         {
             LL_INFOS("Xfer") << "Warning: " << mLocalFilename << " not found when re-opening file" << LL_ENDL;
@@ -313,7 +313,7 @@ S32 LLXfer_File::flush()
         {
             LL_ERRS("Xfer") << "Overwriting open file pointer!" << LL_ENDL;
         }
-        mFp = LLFile::fopen(mTempFilename,"a+b");       /* Flawfinder : ignore */
+        mFp = LLFile::fopen(mTempFilename, LLFILE_MODE("a+b"));       /* Flawfinder : ignore */
 
         if (mFp)
         {
@@ -381,11 +381,11 @@ S32 LLXfer_File::processEOF()
             }
             else
             {
-                //LLFILE* fp = LLFile::fopen(mTempFilename, "r");
+                //LLFILE* fp = LLFile::fopen(mTempFilename, LLFILE_MODE("r"));
                 //LL_WARNS() << "File " << mTempFilename << " does "
                 //      << (!fp ? "not" : "" ) << " exit." << LL_ENDL;
                 //if(fp) fclose(fp);
-                //fp = LLFile::fopen(mLocalFilename, "r");
+                //fp = LLFile::fopen(mLocalFilename, LLFILE_MODE("r"));
                 //LL_WARNS() << "File " << mLocalFilename << " does "
                 //      << (!fp ? "not" : "" ) << " exit." << LL_ENDL;
                 //if(fp) fclose(fp);
@@ -452,8 +452,8 @@ U32 LLXfer_File::getXferTypeTag()
 S32 copy_file(const std::string& from, const std::string& to)
 {
     S32 rv = 0;
-    LLFILE* in = LLFile::fopen(from, "rb"); /*Flawfinder: ignore*/
-    LLFILE* out = LLFile::fopen(to, "wb");  /*Flawfinder: ignore*/
+    LLFILE* in = LLFile::fopen(from, LLFILE_MODE("rb")); /*Flawfinder: ignore*/
+    LLFILE* out = LLFile::fopen(to, LLFILE_MODE("wb"));  /*Flawfinder: ignore*/
     if(in && out)
     {
         S32 read = 0;

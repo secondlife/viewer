@@ -3233,6 +3233,12 @@ void LLPanelGroupBanListSubTab::setBanCount(U32 ban_count)
 
 void LLPanelGroupBanListSubTab::populateBanList()
 {
+    if (mGroupID.isNull())
+    {
+        mBanList->deleteAllItems();
+        return;
+    }
+
     LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
     if(!gdatap)
     {

@@ -512,7 +512,7 @@ bool LLConversationLog::saveToFile(const std::string& filename)
         return false;
     }
 
-    LLFILE* fp = LLFile::fopen(filename, "wb");
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("wb"));
     if (!fp)
     {
         LL_WARNS() << "Couldn't open call log list" << filename << LL_ENDL;
@@ -556,7 +556,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
         return false;
     }
 
-    LLFILE* fp = LLFile::fopen(filename, "rb");
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("rb"));
     if (!fp)
     {
         LL_WARNS() << "Couldn't open call log list" << filename << LL_ENDL;

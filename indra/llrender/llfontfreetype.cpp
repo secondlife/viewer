@@ -52,6 +52,7 @@
 //#include "imdebug.h"
 #include "llfontbitmapcache.h"
 #include "llgl.h"
+#include "llwindow.h"
 
 #define ENABLE_OT_SVG_SUPPORT
 
@@ -112,7 +113,7 @@ LLFontGlyphInfo::LLFontGlyphInfo(U32 index, EFontGlyphType glyph_type)
     mChar(0),
     mWidth(0),          // In pixels
     mHeight(0),         // In pixels
-    mXAdvance(0.f),     // In pixels
+    mXAdvanceRaw(0.f),  // In pixels
     mYAdvance(0.f),     // In pixels
     mXBitmapOffset(0),  // Offset to the origin in the bitmap
     mYBitmapOffset(0),  // Offset to the origin in the bitmap
@@ -130,7 +131,7 @@ LLFontGlyphInfo::LLFontGlyphInfo(const LLFontGlyphInfo& fgi)
     , mChar(fgi.mChar)
     , mWidth(fgi.mWidth)
     , mHeight(fgi.mHeight)
-    , mXAdvance(fgi.mXAdvance)
+    , mXAdvanceRaw(fgi.mXAdvanceRaw)
     , mYAdvance(fgi.mYAdvance)
     , mXBitmapOffset(fgi.mXBitmapOffset)
     , mYBitmapOffset(fgi.mYBitmapOffset)
@@ -191,7 +192,7 @@ bool LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
         return false;
 
     openArgs.flags = FT_OPEN_MEMORY;
-    int error = FT_Open_Face( gFTLibrary, &openArgs, 0, &mFTFace );
+    int error = FT_Open_Face( gFTLibrary, &openArgs, face_n, &mFTFace );
 
     if (error)
         return false;
@@ -200,6 +201,9 @@ bool LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
     mHinting = hinting;
     mFontFlags = flags;
     mWeight = weight;
+    mFaceIndex = face_n;
+    mVertDPI = vert_dpi;
+    mHorzDPI = horz_dpi;
 
     bool variable_font = false;
     if (weight >= 0)
@@ -317,7 +321,7 @@ S32 LLFontFreetype::getNumFaces(const std::string& filename)
 }
 
 void LLFontFreetype::addFallbackFont(const LLPointer<LLFontFreetype>& fallback_font,
-                                     const char_functor_t& functor)
+                                     const char_functor_t& functor) const
 {
     mFallbackFonts.emplace_back(fallback_font, functor);
 }
@@ -350,14 +354,14 @@ F32 LLFontFreetype::getXAdvance(llwchar wch) const
         {
             return mMaxDigitWidth;
         }
-        return gi->mXAdvance;
+        return gi->mXAdvanceRaw;
     }
     else
     {
         char_glyph_info_map_t::iterator found_it = mCharGlyphInfoMap.find((llwchar)0);
         if (found_it != mCharGlyphInfoMap.end())
         {
-            return found_it->second->mXAdvance;
+            return found_it->second->mXAdvanceRaw;
         }
     }
 
@@ -376,7 +380,7 @@ F32 LLFontFreetype::getXAdvance(const LLFontGlyphInfo* glyph) const
         return mMaxDigitWidth;
     }
 
-    return glyph->mXAdvance;
+    return glyph->mXAdvanceRaw;
 }
 
 F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
@@ -449,6 +453,18 @@ bool LLFontFreetype::hasGlyph(llwchar wch) const
 {
     llassert(!mIsFallback);
     return(mCharGlyphInfoMap.find(wch) != mCharGlyphInfoMap.end());
+}
+
+bool LLFontFreetype::hasFallbackPath(const std::string& path) const
+{
+    for (const fallback_font_t& pair : mFallbackFonts)
+    {
+        if (pair.first->getName() == path)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch, EFontGlyphType glyph_type) const
@@ -533,6 +549,31 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch, EFontGlyphType glyph_type
                                         glyph_type);
             }
         }
+
+        // Nothing above covers this char: ask the OS for a font that does,
+        // load it and attach it.
+        if (mAttemptedFallbackChars.insert(wch).second)
+        {
+            LLFontFallbackMatch match = LLWindow::findFallbackFontForChar(wch);
+            if (!match.mPath.empty() && !hasFallbackPath(match.mPath))
+            {
+                LLPointer<LLFontFreetype> fallback = new LLFontFreetype;
+                if (fallback->loadFace(match.mPath, mPointSize, mVertDPI, mHorzDPI,
+                                       /*weight*/ -1, /*is_fallback*/ true,
+                                       match.mFaceIndex, mHinting, mFontFlags))
+                {
+                    glyph_index = FT_Get_Char_Index(fallback->mFTFace, wch);
+                    if (glyph_index)
+                    {
+                        LL_DEBUGS("Font") << "Lazy OS fallback for U+" << std::hex << (U32)wch << std::dec
+                                          << ": " << match.mPath << " (face " << match.mFaceIndex << ")" << LL_ENDL;
+                        addFallbackFont(fallback, nullptr);
+                        return addGlyphFromFont(fallback, wch, glyph_index, glyph_type);
+                    }
+                    // Matched font doesn't actually cover wch: discard it.
+                }
+            }
+        }
     }
 
     auto range_it = mCharGlyphInfoMap.equal_range(wch);
@@ -594,15 +635,15 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
     gi->mLsbDelta = (S32)fontp->mFTFace->glyph->lsb_delta;
     gi->mRsbDelta = (S32)fontp->mFTFace->glyph->rsb_delta;
     // Convert these from 26.6 units to float pixels.
-    gi->mXAdvance = fontp->mFTFace->glyph->advance.x / 64.f;
+    gi->mXAdvanceRaw = fontp->mFTFace->glyph->advance.x / 64.f;
     gi->mYAdvance = fontp->mFTFace->glyph->advance.y / 64.f;
 
     if (mWeight > 0 && wch >= '0' && wch <= '9')
     {
         // Digits are supposed to be preloaded, and buffers
-        // refresh when new chars get added, so this lazy load
-        // should not cause any issues.
-        mMaxDigitWidth = llmax(mMaxDigitWidth, gi->mXAdvance);
+        // refresh when new chars get added (mGeneration),
+        // so this lazy load should not cause any issues.
+        mMaxDigitWidth = llmax(mMaxDigitWidth, gi->mXAdvanceRaw);
     }
 
     insertGlyphInfo(wch, gi);
@@ -812,7 +853,7 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index, ll
 void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 {
     resetBitmapCache();
-    loadFace(mName, mPointSize, vert_dpi ,horz_dpi, mWeight, mIsFallback, 0, mHinting, mFontFlags);
+    loadFace(mName, mPointSize, vert_dpi ,horz_dpi, mWeight, mIsFallback, mFaceIndex, mHinting, mFontFlags);
     if (!mIsFallback)
     {
         // This is the head of the list - need to rebuild ourself and all fallbacks.

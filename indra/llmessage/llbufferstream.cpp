@@ -234,17 +234,10 @@ int LLBufferStreamBuf::sync()
 }
 
 // virtual
-#if( LL_WINDOWS || __GNUC__ > 2)
 LLBufferStreamBuf::pos_type LLBufferStreamBuf::seekoff(
     LLBufferStreamBuf::off_type off,
     std::ios::seekdir way,
     std::ios::openmode which)
-#else
-streampos LLBufferStreamBuf::seekoff(
-    streamoff off,
-    std::ios::seekdir way,
-    std::ios::openmode which)
-#endif
 {
     if(!mBuffer
        || ((way == std::ios::beg) && (off < 0))
@@ -319,12 +312,8 @@ streampos LLBufferStreamBuf::seekoff(
         }
     }
 
-#if( LL_WINDOWS || __GNUC__ > 2 )
     S32 rv = (S32)(intptr_t)address;
     return (pos_type)rv;
-#else
-    return (streampos)address;
-#endif
 }
 
 

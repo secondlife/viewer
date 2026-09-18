@@ -40,8 +40,9 @@
 
 // LLMatrix3a is the base class for LLRotation, which should be used instead any time you're dealing with a
 // rotation matrix.
-class LLMatrix3a
+class alignas(16) LLMatrix3a
 {
+    LL_ALIGN_NEW
 public:
 
     // Utility function for quickly transforming an array of LLVector4a's
@@ -111,7 +112,7 @@ public:
 
 protected:
 
-    LL_ALIGN_16(LLVector4a mColumns[3]);
+    LLVector4a mColumns[3];
 
 };
 

@@ -134,6 +134,10 @@ public:
     // Text may be unicode (utf8 encoded)
     bool textInput(const std::string &text, MASK modifiers, LLSD native_key_data);
 
+#if LL_LINUX
+    void enablePipeWireVolumeCatcher( bool enable );
+#endif
+
     static std::string sOIDcookieUrl;
     static std::string sOIDcookieName;
     static std::string sOIDcookieValue;
@@ -164,6 +168,11 @@ public:
     bool isPluginExited(void) { return mPlugin?mPlugin->isDone():false; };
 
     std::string getPluginVersion() { return mPlugin?mPlugin->getPluginVersion():std::string(""); };
+
+    int getProcessID() { return mPlugin ? (int)mPlugin->getProcessID() : 0; };
+
+    // 0 means remote debugging is disabled for this plugin instance.
+    U32 getCefRemoteDebuggingPort() const { return mCefRemoteDebuggingPort; };
 
     bool getDisableTimeout() { return mPlugin?mPlugin->getDisableTimeout():false; };
     void setDisableTimeout(bool disable) { if(mPlugin) mPlugin->setDisableTimeout(disable); };
@@ -315,8 +324,12 @@ public:
     std::string getHoverText() const { return mHoverText; };
     std::string getHoverLink() const { return mHoverLink; };
 
-    // these are valid during MEDIA_EVENT_LINK_HOVERED
+    // These are valid during MEDIA_EVENT_FILE_DOWNLOAD
     std::string getFileDownloadFilename() const { return mFileDownloadFilename; }
+
+    // these are valid during MEDIA_EVENT_FILE_DOWNLOAD_PROGRESS
+    int getFileDownloadProgressPercent() const { return mFileDownloadProgressPercent; }
+    bool getFileDownloadProgressComplete() const { return mFileDownloadProgressComplete; }
 
 
     const std::string& getMediaName() const { return mMediaName; };
@@ -434,6 +447,8 @@ protected:
 
     F64             mSleepTime;
 
+    U32             mCefRemoteDebuggingPort {0};
+
     bool            mCanUndo;
     bool            mCanRedo;
     bool            mCanCut;
@@ -477,6 +492,8 @@ protected:
     std::string     mHoverText;
     std::string     mHoverLink;
     std::string     mFileDownloadFilename;
+    int             mFileDownloadProgressPercent = 0;
+    bool            mFileDownloadProgressComplete = false;
     bool            mIsMultipleFilePick;
 
     /////////////////////////////////////////

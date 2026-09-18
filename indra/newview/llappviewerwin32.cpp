@@ -76,12 +76,14 @@
 #if LL_VELOPACK
 #include "llvelopack.h"
 #endif
+#include "llversioninfovars.h"
 
 // Bugsplat (http://bugsplat.com) crash reporting tool
 #ifdef LL_BUGSPLAT
 #include "BugSplat.h"
 #include "boost/json.hpp"                 // Boost.Json
 #include "llagent.h"                // for agent location
+#include "llmemory.h"
 #include "llstartup.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"         // for agent name
@@ -181,6 +183,16 @@ namespace
             sBugSplatSender->setAttribute(WCSTR(L"VRAM"), WCSTR(STRINGIZE(gGLManager.mVRAM)));
             sBugSplatSender->setAttribute(WCSTR(L"RAM"), WCSTR(STRINGIZE(gSysMemory.getPhysicalMemoryKB().value())));
 
+            const U32 avail_kb = LLMemory::getAvailableMemKB().value();
+            if (avail_kb != U32_MAX) // filter out initial values, if one is not set, all are not set
+            {
+                // Memory usage at crash time (can be 1s obsolete)
+                sBugSplatSender->setAttribute(WCSTR(L"MemAllocatedKB"), WCSTR(std::to_string(LLMemory::getAllocatedMemKB().value())));
+                sBugSplatSender->setAttribute(WCSTR(L"MemAvailableKB"), WCSTR(std::to_string(LLMemory::getAvailableMemKB().value())));
+                sBugSplatSender->setAttribute(WCSTR(L"MemMaxPhysicalKB"), WCSTR(std::to_string(LLMemory::getMaxMemKB().value())));
+                sBugSplatSender->setAttribute(WCSTR(L"MemAvailCommitMB"), WCSTR(std::to_string(LLMemory::getAvailableCommitMemMB().value())));
+            }
+
             if (gAgent.getRegion())
             {
                 // region location, when we have it
@@ -221,6 +233,8 @@ namespace
     }
 }
 #endif // LL_BUGSPLAT
+
+extern bool gGPUBenchmarkMode;
 
 namespace
 {
@@ -503,12 +517,21 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
     gIconResource = MAKEINTRESOURCE(IDI_LL_ICON);
     gIconSmallResource = MAKEINTRESOURCE(IDI_LL_ICON_SMALL);
 
+    // Benchmark subprocess mode before full init for LLFeatureManager::loadGPUClass().
+    {
+        std::wstring cmdLineStr(pCmdLine ? pCmdLine : L"");
+        if (cmdLineStr.find(L"--gpubenchmark") != std::wstring::npos)
+        {
+            gGPUBenchmarkMode = true;
+        }
+    }
+
     LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(ll_convert_wide_to_string(pCmdLine).c_str());
 
     gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
     // Set a debug info flag to indicate if multiple instances are running.
-    bool found_other_instance = !create_app_mutex();
+    bool found_other_instance = gGPUBenchmarkMode || !create_app_mutex();
     gDebugInfo["FoundOtherInstanceAtStartup"] = LLSD::Boolean(found_other_instance);
 
     bool ok = viewer_app_ptr->init();
@@ -928,7 +951,10 @@ void LLAppViewerWin32::initLoggingAndGetLastDuration()
 void LLAppViewerWin32::initConsole()
 {
     // pop up debug console
-    mIsConsoleAllocated = create_console();
+    if (!gGPUBenchmarkMode)
+    {
+        mIsConsoleAllocated = create_console();
+    }
     return LLAppViewer::initConsole();
 }
 

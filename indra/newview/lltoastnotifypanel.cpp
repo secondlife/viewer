@@ -301,7 +301,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     mIsScriptDialog = (notif_name == "ScriptDialog" || notif_name == "ScriptDialogGroup");
 
     static LLCachedControl<S32> btn_width(gSavedSettings, "ToastButtonWidth", 90);
-    static LLCachedControl<S32> script_button_width(gSavedSettings, "ScriptToastButtonWidth", 110);
+    static LLCachedControl<S32> script_button_width(gSavedSettings, "ScriptToastButtonWidth", 127);
     mButtonWidth = mIsScriptDialog ? script_button_width : btn_width;
 
     bool is_content_trusted = (notif_name != "LoadWebPage");

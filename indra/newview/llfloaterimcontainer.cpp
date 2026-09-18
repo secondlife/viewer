@@ -155,6 +155,11 @@ void LLFloaterIMContainer::sessionIDUpdated(const LLUUID& old_session_id, const 
 {
     // The general strategy when a session id is modified is to delete all related objects and create them anew.
 
+    // The conversation floater can be active while participant widgets are selected.
+    // Preserve that state separately so the new conversation widget can be selected
+    // after the server replaces an outgoing ad-hoc session id.
+    const bool was_active = old_session_id == getSelectedSession();
+
     // Note however that the LLFloaterIMSession has its session id updated through a call to sessionInitReplyReceived()
     // and do not need to be deleted and recreated (trying this creates loads of problems). We do need however to suppress
     // its related mSessions record as it's indexed with the wrong id.
@@ -174,6 +179,11 @@ void LLFloaterIMContainer::sessionIDUpdated(const LLUUID& old_session_id, const 
     if (conversp && mSessions.find(new_session_id) == mSessions.end())
     {
         mSessions[new_session_id] = conversp;
+    }
+
+    if (was_active)
+    {
+        selectConversationPair(new_session_id, true, false, true);
     }
 }
 
@@ -1734,7 +1744,7 @@ bool LLFloaterIMContainer::visibleContextMenuItem(const LLSD& userdata)
 void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
 {
     setVisibleAndFrontmost(false);
-    selectConversationPair(session_id, true);
+    selectConversationPair(session_id, true, true, true);
 
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
     if (session_floater)
@@ -1780,13 +1790,13 @@ void LLFloaterIMContainer::selectNextConversationByID(const LLUUID& uuid)
 }
 
 // Synchronous select the conversation item and the conversation floater
-bool LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater/*=true*/)
+bool LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater/*=true*/, bool force_select_widget/*=false*/)
 {
     bool handled = true;
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
 
     /* widget processing */
-    if (select_widget && mConversationsRoot->getSelectedCount() <= 1)
+    if (select_widget && (force_select_widget || mConversationsRoot->getSelectedCount() <= 1))
     {
         LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
         if (widget && widget->getParentFolder())

@@ -58,12 +58,6 @@
 #include "llmeshrepository.h"
 #include "llskinningutil.h"
 
-#if LL_LINUX
-// Work-around spurious used before init warning on Vector4a
-//
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#endif
-
 #define LL_MAX_INDICES_COUNT 1000000
 
 static LLStaticHashedString sTextureIndexIn("texture_index_in");
@@ -646,7 +640,7 @@ void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wirefram
 
         LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
         glPolygonOffset(3.f, 3.f);
-        glLineWidth(5.f);
+        gGL.setLineWidth(5.f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         renderFace(mDrawablep, this);
     }

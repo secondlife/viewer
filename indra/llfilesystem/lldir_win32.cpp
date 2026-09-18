@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -52,7 +52,7 @@ namespace
 
     // This is called so early that we can't count on static objects being
     // properly constructed yet, so declare a pointer instead of an instance.
-    std::ofstream* prelogf = nullptr;
+    llofstream* prelogf = nullptr;
 
     void prelog(const std::string& message)
     {
@@ -208,7 +208,7 @@ LLDir_Win32::LLDir_Win32()
         {
             // successfully created logdir, plunk a log file there
             std::string logfilename(add(mOSUserDir, "lldir.log"));
-            std::ofstream logfile(logfilename.c_str());
+            llofstream logfile(logfilename.c_str());
             if (! logfile.is_open())
             {
                 report(std::cerr);
@@ -306,7 +306,22 @@ void LLDir_Win32::initAppDirs(const std::string &app_name,
         mSkinBaseDir = add(mAppRODataDir, "skins");
     }
     mAppName = app_name;
-    mOSUserAppDir = add(mOSUserDir, app_name);
+
+#if LL_VELOPACK
+    // Velopack has a structure:
+    // AppData\Local\SecondLifeViewer\.portable <- marker file
+    // AppData\Local\SecondLifeViewer\current\SecondLifeViewer.exe <- mExecutableDir
+    std::string install_root = mExecutableDir.empty() ? std::string() : getDirName(mExecutableDir);
+    if (isPortableInstall(install_root))
+    {
+        mOSUserAppDir = add(install_root, PORTABLE_USER_DATA_DIRNAME);
+        LL_INFOS() << "Portable install detected, using app user dir " << mOSUserAppDir << LL_ENDL;
+    }
+    else
+#endif // LL_VELOPACK
+    {
+        mOSUserAppDir = add(mOSUserDir, app_name);
+    }
 
     int res = LLFile::mkdir(mOSUserAppDir);
     if (res == -1)
@@ -372,24 +387,6 @@ std::string LLDir_Win32::getCurPath()
 
     return ll_convert<std::string>(std::wstring(w_str));
 }
-
-
-bool LLDir_Win32::fileExists(const std::string &filename) const
-{
-    llstat stat_data;
-    // Check the age of the file
-    // Now, we see if the files we've gathered are recent...
-    int res = LLFile::stat(filename, &stat_data);
-    if (!res)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 
 /*virtual*/ std::string LLDir_Win32::getLLPluginLauncher()
 {

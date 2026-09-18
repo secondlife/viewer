@@ -338,8 +338,12 @@ void LLPanelVoiceDeviceSettings::initialize()
     // put voice client in "tuning" mode
     if (mUseTuningMode)
     {
+        // WebRTC tuning only affects the local audio device (mic-level
+        // monitoring and device selection); the peer connection stays up and
+        // its send/receive tracks are disabled for the duration.  Unlike Vivox,
+        // there's no need to suspend (and tear down) the voice channel, which
+        // previously dropped the call and failed to reconnect on resume.
         LLVoiceClient::getInstance()->tuningStart();
-        LLVoiceChannel::suspend();
     }
 }
 
@@ -348,7 +352,6 @@ void LLPanelVoiceDeviceSettings::cleanup()
     if (mUseTuningMode)
     {
         LLVoiceClient::getInstance()->tuningStop();
-        LLVoiceChannel::resume();
     }
 }
 

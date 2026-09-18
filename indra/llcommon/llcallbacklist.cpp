@@ -24,6 +24,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "llcallbacklist.h"
 #include "lleventtimer.h"
 #include "llerrorlegacy.h"

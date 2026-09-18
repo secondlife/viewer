@@ -72,6 +72,7 @@
 #include "llhttpretrypolicy.h"
 #include "llsettingsvo.h"
 #include "llinventorylistener.h"
+#include "llviewerassetupload.h"
 
 LLInventoryListener sInventoryListener;
 
@@ -504,6 +505,16 @@ bool LLViewerInventoryItem::unpackMessage(const LLSD& item)
     bool rv = LLInventoryItem::fromLLSD(item);
 
     LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
+
+    // Parse script runtime state from task inventory cap
+    if (item.has("running"))
+    {
+        mIsRunning = item["running"].asBoolean();
+    }
+    if (item.has("faulted"))
+    {
+        mIsFaulted = item["faulted"].asBoolean();
+    }
 
     mIsComplete = true;
     return rv;
@@ -1762,6 +1773,7 @@ void create_new_item(const std::string& name,
                    std::function<void(const LLUUID&)> created_cb = nullptr)
 {
     std::string desc;
+    U8 subtype = NO_INV_SUBTYPE;
     LLViewerAssetType::generateDescriptionFor(asset_type, desc);
     next_owner_perm = (next_owner_perm) ? next_owner_perm : PERM_MOVE | PERM_TRANSFER;
 
@@ -1773,6 +1785,20 @@ void create_new_item(const std::string& name,
         {
             cb = new LLBoostFuncInventoryCallback(create_script_cb);
             next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Scripts");
+
+            LLViewerRegion* region = gAgent.getRegion();
+            if (region && region->simulatorFeaturesReceived())
+            {
+                // *TODO* Setting the subtype for the script will cause the server to select
+                // either the LSL or Lua default script.  We should perhaps allow the user to
+                // select which type of script they want to create.
+                LLSD simulatorFeatures;
+                region->getSimulatorFeatures(simulatorFeatures);
+                if (simulatorFeatures["LuaScriptsEnabled"].asBoolean())
+                {
+                    subtype = SST_LUA;
+                }
+            }
             break;
         }
 
@@ -1815,7 +1841,7 @@ void create_new_item(const std::string& name,
                           desc,
                           asset_type,
                           inv_type,
-                          NO_INV_SUBTYPE,
+                          subtype,
                           next_owner_perm,
                           cb);
 }

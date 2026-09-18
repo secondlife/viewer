@@ -1,9 +1,0 @@
-ATI                                                                                                                                        NO MATCH
-ATI Technologies                                                                                                                           NO MATCH
-ATI Technologies Inc.                                                                                                                      NO MATCH
-ATI Technologies Inc. (DNA-ATi 5.1.7.5x32) ATI Mobility Radeon HD 2                                                                        NO MATCH
-ATI Technologies Inc. ATI Mobility Radeon Graphics                                                                                         NO MATCH
-ATI Technologies Inc. ATI Radeon Graphics Processor                                                                                        NO MATCH
-Intel                                                                                                                                      NO MATCH
-NVIDIA Corporation /PCI/SSE2                                                                                                               NO MATCH
-NVIDIA Corporation Quadro PCI-E Series/PCI/SSE2                                                                                            NO MATCH

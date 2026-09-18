@@ -250,7 +250,7 @@ void LLTextureBar::draw()
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
     // Draw the progress bar.
-    S32 bar_width = 100;
+    S32 bar_width = 110;
     S32 bar_left = 260;
     left = bar_left;
     right = left + bar_width;
