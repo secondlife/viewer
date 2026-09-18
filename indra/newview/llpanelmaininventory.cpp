@@ -253,11 +253,21 @@ bool LLPanelMainInventory::postBuild()
                 LLParamSDParser parser;
                 parser.readSD(recent_items, p);
                 mRecentPanel->getFilter().fromParams(p);
-                mRecentPanel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::RECENTITEMS_SORT_ORDER));
+
+                // Restore sort order if it was saved
+                if (p.order.isProvided())
+                {
+                    mRecentPanel->setSortOrder(p.order());
+                }
+                else
+                {
+                    mRecentPanel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::RECENTITEMS_SORT_ORDER));
+                }
             }
         }
         if(mActivePanel)
         {
+            // 'all items' tab
             if(savedFilterState.has(mActivePanel->getFilter().getName()))
             {
                 LLSD items = savedFilterState.get(mActivePanel->getFilter().getName());

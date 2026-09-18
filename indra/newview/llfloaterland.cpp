@@ -108,18 +108,6 @@ public:
     virtual void changed() { LLFloaterLand::refreshAll(); }
 };
 
-// class needed to get full access to textbox inside checkbox, because LLCheckBoxCtrl::setLabel() has string as its argument.
-// It was introduced while implementing EXT-4706
-class LLCheckBoxWithTBAcess : public LLCheckBoxCtrl
-{
-public:
-    LLTextBox* getTextBox()
-    {
-        return mLabel;
-    }
-};
-
-
 class LLPanelLandExperiences
     :   public LLPanel
 {
@@ -466,9 +454,6 @@ bool LLPanelLandGeneral::postBuild()
     mContentRating = getChild<LLTextBox>("ContentRatingText");
     mLandType = getChild<LLTextBox>("LandTypeText");
 
-    mBtnProfile = getChild<LLButton>("Profile...");
-    mBtnProfile->setClickedCallback(boost::bind(&LLPanelLandGeneral::onClickProfile, this));
-
 
     mTextGroupLabel = getChild<LLTextBox>("Group:");
     mTextGroup = getChild<LLTextBox>("GroupText");
@@ -599,8 +584,6 @@ void LLPanelLandGeneral::refresh()
     mTextOwner->setText(LLStringUtil::null);
     mContentRating->setText(LLStringUtil::null);
     mLandType->setText(LLStringUtil::null);
-    mBtnProfile->setLabel(getString("profile_text"));
-    mBtnProfile->setEnabled(false);
 
     mTextClaimDate->setText(LLStringUtil::null);
     mTextGroup->setText(LLStringUtil::null);
@@ -682,7 +665,6 @@ void LLPanelLandGeneral::refresh()
             mTextSalePending->setEnabled(false);
             mTextOwner->setText(getString("public_text"));
             mTextOwner->setEnabled(false);
-            mBtnProfile->setEnabled(false);
             mTextClaimDate->setText(LLStringUtil::null);
             mTextClaimDate->setEnabled(false);
             mTextGroup->setText(getString("none_text"));
@@ -711,21 +693,14 @@ void LLPanelLandGeneral::refresh()
             //refreshNames();
             mTextOwner->setEnabled(true);
 
-            // We support both group and personal profiles
-            mBtnProfile->setEnabled(true);
-
             if (parcel->getGroupID().isNull())
             {
-                // Not group owned, so "Profile"
-                mBtnProfile->setLabel(getString("profile_text"));
 
                 mTextGroup->setText(getString("none_text"));
                 mTextGroup->setEnabled(false);
             }
             else
             {
-                // Group owned, so "Info"
-                mBtnProfile->setLabel(getString("info_text"));
 
                 //mTextGroup->setText("HIPPOS!");//parcel->getGroupName());
                 mTextGroup->setEnabled(true);
@@ -956,23 +931,6 @@ void LLPanelLandGeneral::onClickSetGroup()
             fg->setOrigin(new_rect.mLeft, new_rect.mBottom);
             parent_floater->addDependentFloater(fg);
         }
-    }
-}
-
-void LLPanelLandGeneral::onClickProfile()
-{
-    LLParcel* parcel = mParcel->getParcel();
-    if (!parcel) return;
-
-    if (parcel->getIsGroupOwned())
-    {
-        const LLUUID& group_id = parcel->getGroupID();
-        LLGroupActions::show(group_id);
-    }
-    else
-    {
-        const LLUUID& avatar_id = parcel->getOwnerID();
-        LLAvatarActions::showProfile(avatar_id);
     }
 }
 
@@ -2176,12 +2134,11 @@ void LLPanelLandOptions::refresh()
             mMatureCtrl->setVisible(true);
             LLStyle::Params style;
             style.image(LLUI::getUIImage(gFloaterView->getParentFloater(this)->getString("maturity_icon_moderate")));
-            LLCheckBoxWithTBAcess* fullaccess_mature_ctrl = (LLCheckBoxWithTBAcess*)mMatureCtrl;
-            fullaccess_mature_ctrl->getTextBox()->setText(LLStringExplicit(""));
-            fullaccess_mature_ctrl->getTextBox()->appendImageSegment(style);
-            fullaccess_mature_ctrl->getTextBox()->appendText(getString("mature_check_mature"), false);
-            fullaccess_mature_ctrl->setToolTip(getString("mature_check_mature_tooltip"));
-            fullaccess_mature_ctrl->reshape(fullaccess_mature_ctrl->getRect().getWidth(), fullaccess_mature_ctrl->getRect().getHeight(), false);
+            mMatureCtrl->getTextBox()->setText(LLStringExplicit(""));
+            mMatureCtrl->getTextBox()->appendImageSegment(style);
+            mMatureCtrl->getTextBox()->appendText(getString("mature_check_mature"), false);
+            mMatureCtrl->setToolTip(getString("mature_check_mature_tooltip"));
+            mMatureCtrl->reshape(mMatureCtrl->getRect().getWidth(), mMatureCtrl->getRect().getHeight(), false);
 
             // they can see the checkbox, but its disposition depends on the
             // state of the region

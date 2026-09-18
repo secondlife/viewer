@@ -116,17 +116,6 @@ void LLCalc::clearAllVariables()
     mVariables.clear();
 }
 
-/*
-void LLCalc::updateVariables(LLSD& vars)
-{
-    LLSD::map_iterator cIt = vars.beginMap();
-    for(; cIt != vars.endMap(); cIt++)
-    {
-        setVar(cIt->first, (F32)(LLSD::Real)cIt->second);
-    }
-}
-*/
-
 bool LLCalc::evalString(const std::string& expression, F32& result)
 {
     std::string expr_upper = expression;

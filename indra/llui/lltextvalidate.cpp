@@ -434,7 +434,7 @@ public:
 } validatorASCIINoLeadingSpaceImpl;
 Validator validateASCIINoLeadingSpace(validatorASCIINoLeadingSpaceImpl);
 
-class ValidatorASCIIWithNewLine : public ValidatorImpl
+class ValidatorASCIIWithNewLineNoPipe : public ValidatorImpl
 {
     // Used for multiline text stored on the server.
     // Example is landmark description in Places SP.
@@ -446,9 +446,9 @@ class ValidatorASCIIWithNewLine : public ValidatorImpl
         {
             CHAR ch = str[len];
 
-            if ((ch < 0x20 && ch != 0xA) || ch > 0x7f)
+            if ((ch < 0x20 && ch != 0xA) || ch > 0x7f || ch == '|')
             {
-                return setError("Validator_ShouldBeNewLineOrASCII", LLSD().with("NR", len + 1).with("CH", llsd(ch)));
+                return setError("Validator_ShouldBeNewLineOrASCIINoPipe", LLSD().with("NR", len + 1).with("CH", llsd(ch)));
             }
         }
 
@@ -458,8 +458,8 @@ class ValidatorASCIIWithNewLine : public ValidatorImpl
 public:
     /*virtual*/ bool validate(const std::string& str) override { return validate<char>(str); }
     /*virtual*/ bool validate(const LLWString& str) override { return validate<llwchar>(str); }
-} validatorASCIIWithNewLineImpl;
-Validator validateASCIIWithNewLine(validatorASCIIWithNewLineImpl);
+} validatorASCIIWithNewLineNoPipeImpl;
+Validator validateASCIIWithNewLineNoPipe(validatorASCIIWithNewLineNoPipeImpl);
 
 void Validators::declareValues()
 {
@@ -472,7 +472,7 @@ void Validators::declareValues()
     declare("alpha_num_space", validateAlphaNumSpace);
     declare("ascii_printable_no_pipe", validateASCIIPrintableNoPipe);
     declare("ascii_printable_no_space", validateASCIIPrintableNoSpace);
-    declare("ascii_with_newline", validateASCIIWithNewLine);
+    declare("ascii_with_newline_no_pipe", validateASCIIWithNewLineNoPipe);
 }
 
 } // namespace LLTextValidate

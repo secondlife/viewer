@@ -149,7 +149,7 @@ void LLPanelVoiceDeviceSettings::draw()
                 LLColor4 color;
                 if (power_bar_idx < discrete_power)
                 {
-                    color = (power_bar_idx >= 3) ? LLUIColorTable::instance().getColor("OverdrivenColor") : LLUIColorTable::instance().getColor("SpeakingColor");
+                    color = (power_bar_idx >= 3) ? LLUIColorTable::instance().getColor("OverdrivenColor") : LLUIColorTable::instance().getColor("OutfitGalleryItemSelected");
                 }
                 else
                 {

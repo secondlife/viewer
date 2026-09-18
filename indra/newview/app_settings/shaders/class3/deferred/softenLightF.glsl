@@ -180,8 +180,8 @@ void main()
 
         adjustIrradiance(irradiance, ambocc);
 
-        vec3 diffuseColor;
-        vec3 specularColor;
+        vec3 diffuseColor = vec3(0.0);
+        vec3 specularColor = vec3(0.0);
         calcDiffuseSpecular(baseColor.rgb, metallic, diffuseColor, specularColor);
 
         vec3 v = -normalize(pos.xyz);

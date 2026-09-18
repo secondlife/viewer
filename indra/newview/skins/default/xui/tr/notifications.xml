@@ -1460,7 +1460,6 @@ Yeni bir ana konum ayarlamak isteyebilirsiniz.
 		Karakteriniz birazdan görünecek.
 
 Yürümek için ok tuşlarını kullanın.
-Yardım almak ya da [SECOND_LIFE] hakkında daha fazla bilgi edinmek için istediğiniz zaman F1 tuşuna basın.
 Lütfen bir erkek ya da kadın avatar seçin. Fikrinizi daha sonra değiştirebilirsiniz.
 		<usetemplate name="okcancelbuttons" notext="Kadın" yestext="Erkek"/>
 	</notification>

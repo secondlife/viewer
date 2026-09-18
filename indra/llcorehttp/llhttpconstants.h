@@ -100,6 +100,8 @@ extern const std::string HTTP_VERB_POST;
 extern const std::string HTTP_VERB_DELETE;
 extern const std::string HTTP_VERB_MOVE;
 extern const std::string HTTP_VERB_OPTIONS;
+extern const std::string HTTP_VERB_PATCH;
+extern const std::string HTTP_VERB_COPY;
 
 enum EHTTPMethod
 {
