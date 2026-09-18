@@ -926,9 +926,8 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 
     if (imagep)
     {
-        static LLCachedControl<bool> validate_area(gSavedSettings, "ValidateSculptyAreaRatio", true);
         LLImageDataSharedLock lock(imagep);
-        mVolume->sculpt(imagep->getWidth(), imagep->getHeight(), imagep->getComponents(), imagep->getData(), 0, false, validate_area());
+        mVolume->sculpt(imagep->getWidth(), imagep->getHeight(), imagep->getComponents(), imagep->getData(), 0, false);
     }
 
     const LLVolumeFace &vf = mVolume->getVolumeFace(0);
