@@ -838,9 +838,20 @@ every real change.
   friends - see "LibVLC" above), so this question no longer blocks anything;
   it is now purely about whether to widen LibVLC's role further, not
   whether to have it at all.
-- **Windows only, for now.** This first version of the embedded-browser
-  system targets Windows exclusively. macOS and Linux support is planned to
-  follow.
+- **macOS is supported; Linux support is in progress, not yet verified on
+  real hardware.** This system started Windows-only. macOS was ported next
+  (`llshmframe`, `llcefbrowser`, and the Viewer's own producer/consumer code
+  all build, package, and run end to end, including a real macOS-specific
+  quit-hang bug found and fixed along the way - see "Cross-platform porting
+  notes" below). Linux support followed: `llshmframe` and `llcefbrowser`
+  both build, link, and package correctly on Linux, confirmed by their own
+  CI (each caught one genuine cross-platform bug on its first Linux CI run,
+  also covered below). The Viewer-side Linux integration was written the
+  same way, without local Linux hardware to test against, and is still
+  working through its own first real CI runs as of this writing. The one
+  piece not yet started at all for Linux is keyboard input: there is no
+  X11/Wayland key-event encoder yet, only the macOS Cocoa one and the
+  original Windows one.
 - **The legacy media plugin has not been removed, but can no longer actually
   be built.** `media_plugins/cef`, `llplugin/slplugin`, and the
   `ENABLE_MEDIA_PLUGINS` build option (off by default) remain in the
@@ -855,6 +866,69 @@ every real change.
   will now fail to configure rather than silently produce a working legacy
   plugin, which is fine given this code is not expected to build again
   before it is fully removed.
+
+## Cross-platform porting notes
+
+A handful of real, cross-platform-only bugs surfaced while porting this
+system beyond Windows, worth recording here since they are easy to
+reintroduce elsewhere in the codebase without realizing it.
+
+**A real macOS quit hang, caused by an ODR violation, not memory
+corruption.** `llshmframe` (the shared-memory transport library) declared
+its own small wire-protocol struct named `LLCommand`, in the global
+namespace - the exact same name as the Viewer's own, completely unrelated
+`LLCommand` toolbar-command class (`indra/llui/llcommandmanager.h`). Both
+classes' compiler-generated constructors and destructors mangle to
+identical symbol names, so the linker silently kept only one definition
+across the whole binary, and it kept the wrong one. The practical result:
+quitting the Viewer on macOS hung indefinitely, because destroying a real
+toolbar command ran `llshmframe`'s destructor instead, which tried to
+destroy a `std::vector<uint8_t>` at the wrong byte offset inside the real
+object, producing a huge, wrapped-around unsigned "size" that the
+destructor spun on forever. No sanitizer catches this class of bug (it
+never touches invalid memory, just the wrong, validly-compiled function on
+valid memory) - the only real defense is not giving two unrelated
+global-namespace types the same name. Fixed by renaming `llshmframe`'s
+struct to `LLShmCommand`.
+
+**`CefWindowHandle` is not a pointer on Linux.** `CefWindowInfo::
+SetAsWindowless(nullptr)` compiles fine on Windows (`HWND`) and macOS
+(`NSView*`), both pointer types, but fails on Linux, where
+`CefWindowHandle`/`cef_window_handle_t` is a plain `unsigned long` (an X11
+window ID) - `nullptr` has no conversion to an integral type. `0` is the
+portable choice: a valid null-pointer constant for the pointer forms, and a
+valid "no parent window" value for the integral one.
+
+**`LoadLibrary` is a reserved name on Windows, full stop.** `llcefbrowser`
+briefly had a public function named `llCefBrowserLib::LoadLibrary()`
+(wrapping CEF's own dynamic-loading requirement on macOS). `<windows.h>`
+`#define`s `LoadLibrary` to `LoadLibraryA`/`LoadLibraryW`, so any call to
+it from a translation unit that has included `<windows.h>` - as
+`llmediaproducer.cpp` does, conditionally, for its own Win32-specific
+pieces - gets silently rewritten by the preprocessor before the C++
+compiler ever sees the real method, producing a confusing pair of errors
+(`'LoadLibraryW' is not a member of 'llCefBrowserLib'`, then a signature
+mismatch against the real Win32 function). Renamed to `LoadCefLibrary()`.
+The general lesson: never name a public C++ API after a Win32 macro
+(`LoadLibrary`, `GetMessage`, `SendMessage`, `CreateWindow`, `min`/`max`,
+and so on all apply here), even in code nobody expects to run on Windows -
+a shared header can still be compiled into a Windows translation unit that
+happens to have included `<windows.h>` first.
+
+**Different platforms need genuinely different LibVLC handling.**
+Windows and macOS vendor their own LibVLC binary (the `vlc-bin` autobuild
+package). Linux links against the system's own installed LibVLC instead,
+via `pkg_check_modules(libvlc)` (see `LibVLCPlugin.cmake`) - there is
+nothing of ours to copy into the packaged build, and no rpath entry is
+needed for it either, unlike `libcef.so`.
+
+**The custom, codec-enabled CEF distribution already exists for all three
+platforms.** The "CEF version used" section above describes a distribution
+built internally with media codec support enabled, rather than the public
+Spotify Automated Builds project. This was originally a concern specific
+to the macOS port (would a macOS build of this distribution even be
+possible), but turned out to be a non-issue: real `windows64`, `darwin64`,
+and `linux64` builds of the same CEF version already exist and are in use.
 
 ## Future work
 
