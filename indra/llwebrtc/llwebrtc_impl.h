@@ -531,7 +531,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     const webrtc::Environment                                  mEnv;
     void workerStartRecording();
     void workerStartPlayout();
-    void workerDeployDevices();
+    void workerDeployDevices(bool reset_module);
     // We always rely on WebRTC's internal (software APM) audio processing, so
     // any platform/hardware AEC/AGC/NS must be kept disabled.
     void workerDisableBuiltInAudioProcessing();
@@ -551,10 +551,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
 
     // Devices
     void updateDevices();
-    void deployDevices();
+    void deployDevices(bool reset_module);
     std::atomic<int>                                           mDevicesDeploying;
     webrtc::scoped_refptr<LLWebRTCAudioDeviceModule>           mDeviceModule;
     std::vector<LLWebRTCDevicesObserver *>                     mVoiceDevicesObserverList;
+    std::atomic<bool>                                          mDevicesDeployingNeedsReset{ false };
 
     bool mBuiltinNS;
     bool mBuiltinAGC;
@@ -567,6 +568,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
 
     std::string                                                mPlayoutDevice;
     LLWebRTCVoiceDeviceList                                    mPlayoutDeviceList;
+
+    // Special "Default" entry guid last seen at index 0 so
+    // updateDevices() can detect that case and force a clean re-select.
+    std::string                                                mDefaultPlayoutDeviceGuid;
+    std::string                                                mDefaultRecordingDeviceGuid;
 
     bool                                                       mMute;
     // Whether voice is enabled; gates whether the capture/playout devices run.
