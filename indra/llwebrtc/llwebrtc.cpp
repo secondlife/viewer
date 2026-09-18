@@ -770,7 +770,7 @@ void LLWebRTCImpl::workerStartPlayout()
 // state.  To merely bring playout up when a connection is established (without
 // disturbing the connection's own mute/track management) call
 // workerOpenPlayout() directly -- see startPlayout().
-void LLWebRTCImpl::workerDeployDevices()
+void LLWebRTCImpl::workerDeployDevices(bool reset_module)
 {
     if (!mDeviceModule)
     {
@@ -787,7 +787,7 @@ void LLWebRTCImpl::workerDeployDevices()
     {
         mDeviceModule->ForceStopRecording();
     }
-    if (mDeviceModule->RecordingIsInitialized() || mDeviceModule->PlayoutIsInitialized())
+    if (reset_module && (mDeviceModule->RecordingIsInitialized() || mDeviceModule->PlayoutIsInitialized()))
     {
         int32_t result = mDeviceModule->ForceTerminate();
         if (result != 0)
@@ -821,7 +821,11 @@ void LLWebRTCImpl::workerDeployDevices()
             }
             if (1 < mDevicesDeploying.fetch_sub(1, std::memory_order_relaxed))
             {
-                mWorkerThread->PostTask([this] { workerDeployDevices(); });
+                mWorkerThread->PostTask([this]
+                {
+                    bool reset = mDevicesDeployingNeedsReset.exchange(false, std::memory_order_relaxed);
+                    workerDeployDevices(reset);
+                });
             }
         });
 }
@@ -832,7 +836,7 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
     if (mRecordingDevice != id)
     {
         mRecordingDevice = id;
-        deployDevices();
+        deployDevices(false);
     }
 }
 
@@ -841,7 +845,7 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
     if (mPlayoutDevice != id)
     {
         mPlayoutDevice = id;
-        deployDevices();
+        deployDevices(false);
     }
 }
 
@@ -861,7 +865,7 @@ void LLWebRTCImpl::setVoiceEnabled(bool enable)
                 // across calls and mute/unmute), and start playout if there's
                 // already a connection to render.
                 mDeviceModule->Init();
-                workerDeployDevices();
+                workerDeployDevices(false);
             }
             else
             {
@@ -881,6 +885,21 @@ void LLWebRTCImpl::updateDevices()
     {
         return;
     }
+
+    // Snapshot the previously-selected devices' presence so we can
+    // detect if the active playout/recording device disappears from the list.
+    auto deviceStillPresent = [](const LLWebRTCVoiceDeviceList& list, const std::string& id) -> bool
+    {
+        if (id.empty() || id == "Default")
+        {
+            return true;
+        }
+        return std::any_of(list.begin(), list.end(),
+            [&id](const LLWebRTCVoiceDevice& device) { return device.mID == id; });
+    };
+
+    bool hadPlayoutDevice = deviceStillPresent(mPlayoutDeviceList, mPlayoutDevice);
+    bool hadRecordingDevice = deviceStillPresent(mRecordingDeviceList, mRecordingDevice);
 
     int16_t renderDeviceCount  = mDeviceModule->PlayoutDevices();
 
@@ -927,7 +946,12 @@ void LLWebRTCImpl::updateDevices()
         observer->OnDevicesChanged(mPlayoutDeviceList, mRecordingDeviceList);
     }
 
-    deployDevices();
+    // Force a reinit if a device in use disappeared from the list.
+    bool lostPlayoutDevice = hadPlayoutDevice && !deviceStillPresent(mPlayoutDeviceList, mPlayoutDevice);
+    bool lostRecordingDevice = hadRecordingDevice && !deviceStillPresent(mRecordingDeviceList, mRecordingDevice);
+    bool reset_module = lostPlayoutDevice || lostRecordingDevice;
+
+    deployDevices(reset_module);
 }
 
 void LLWebRTCImpl::OnDevicesUpdated()
@@ -978,15 +1002,22 @@ void LLWebRTCImpl::setTuningMode(bool enable)
         });
 }
 
-void LLWebRTCImpl::deployDevices()
+void LLWebRTCImpl::deployDevices(bool reset_module)
 {
     if (0 < mDevicesDeploying.fetch_add(1, std::memory_order_relaxed))
     {
+        if (reset_module)
+        {
+            mDevicesDeployingNeedsReset.store(true, std::memory_order_relaxed);
+        }
         return;
     }
     mWorkerThread->PostTask(
-        [this] {
-            workerDeployDevices();
+        [this, reset_module] {
+
+            bool reset = mDevicesDeployingNeedsReset.exchange(false, std::memory_order_relaxed);
+            reset |= reset_module;
+            workerDeployDevices(reset);
         });
 }
 
