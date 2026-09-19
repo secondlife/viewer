@@ -71,7 +71,6 @@ protected:
     callback_list_t mCallbackList;
     F64 mCallStartTime = 0.0;
     bool mInCallFunctions = false;
-    size_t mRotateOffset = 0;
 };
 
 typedef std::function<void ()> nullary_func_t;
