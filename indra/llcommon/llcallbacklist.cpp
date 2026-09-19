@@ -114,25 +114,10 @@ void LLCallbackList::callFunctions()
     mCallStartTime = LLTimer::getTotalSeconds();
     mInCallFunctions = true;
 
-    // Rotate the starting point each pass so that whichever callback happens
-    // to be first in the (order-dependent) list doesn't always get first
-    // claim on the shared per-pass time budget (see getStartTime()).
-    if (!mCallbackList.empty())
+    for (callback_list_t::iterator iter = mCallbackList.begin(); iter != mCallbackList.end(); )
     {
-        callback_list_t::iterator start = mCallbackList.begin();
-        std::advance(start, mRotateOffset % mCallbackList.size());
-        mRotateOffset = (mRotateOffset + 1) % mCallbackList.size();
-
-        for (callback_list_t::iterator iter = start; iter != mCallbackList.end(); )
-        {
-            callback_list_t::iterator curiter = iter++;
-            curiter->first(curiter->second);
-        }
-        for (callback_list_t::iterator iter = mCallbackList.begin(); iter != start; )
-        {
-            callback_list_t::iterator curiter = iter++;
-            curiter->first(curiter->second);
-        }
+        callback_list_t::iterator curiter = iter++;
+        curiter->first(curiter->second);
     }
 
     mInCallFunctions = false;
