@@ -772,30 +772,31 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     }
 
     // Don't loop for too long (in case of large, fully loaded inventory)
-    F64 curent_time = LLTimer::getTotalSeconds();
     const F64 max_time = LLStartUp::getStartupState() > STATE_WEARABLES_WAIT
         ? 0.006f // 6 ms
         : 1.f;
-    const F64 end_time = curent_time + max_time;
+    const F64 end_time = gIdleCallbacks.getStartTime() + max_time;
     S32 last_fetch_count = mFetchCount;
 
-    while (!mFetchFolderQueue.empty() && (U32)mFetchCount < max_concurrent_fetches && curent_time < end_time)
+    while (!mFetchFolderQueue.empty()
+        && (U32)mFetchCount < max_concurrent_fetches
+        && LLTimer::getTotalSeconds() < end_time)
     {
         const FetchQueueInfo& fetch_info(mFetchFolderQueue.front());
         bulkFetchViaAis(fetch_info);
         mFetchFolderQueue.pop_front();
-        curent_time = LLTimer::getTotalSeconds();
     }
 
     // Ideally we shouldn't fetch items if recursive fetch isn't done,
     // but there is a chance some request will start timeouting and recursive
     // fetch will get stuck on a single folder, don't block item fetch in such case
-    while (!mFetchItemQueue.empty() && (U32)mFetchCount < max_concurrent_fetches && curent_time < end_time)
+    while (!mFetchItemQueue.empty()
+        && (U32)mFetchCount < max_concurrent_fetches
+        && LLTimer::getTotalSeconds() < end_time)
     {
         const FetchQueueInfo& fetch_info(mFetchItemQueue.front());
         bulkFetchViaAis(fetch_info);
         mFetchItemQueue.pop_front();
-        curent_time = LLTimer::getTotalSeconds();
     }
 
     if (last_fetch_count != mFetchCount // if anything was added
