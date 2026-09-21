@@ -1317,11 +1317,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6240a4189a629017c61e47ea3b16d5ad210fa7c7</string>
+              <string>b972ee3cce0f8857ffebc4f0f6b71efe293368d5</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.43.0/llcefbrowser-1.43.0-windows64-35379945941.tar.zst</string>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.44.0/llcefbrowser-1.44.0-windows64-35651571894.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1331,11 +1331,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a4578517ac32891a40dea64e2fc68e1df528b3f5</string>
+              <string>18bde1b1f533324dd1489c7885e968fdfcf5899b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.43.0/llcefbrowser-1.43.0-darwin64-35379945941.tar.zst</string>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.44.0/llcefbrowser-1.44.0-darwin64-35651571894.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1345,18 +1345,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f45509b640db586e28b092a09fa02d977e8ddefa</string>
+              <string>53125ca28b9ae29fc1226b66af430ad1580b8919</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.43.0/llcefbrowser-1.43.0-linux64-35379945941.tar.zst</string>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.44.0/llcefbrowser-1.44.0-linux64-35651571894.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.43.0</string>
+        <string>1.44.0</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
