@@ -87,9 +87,6 @@ const static std::string XL8_START_TAG(" (");
 const static std::string XL8_END_TAG(")");
 const S32 XL8_PADDING = 3;  // XL8_START_TAG.size() + XL8_END_TAG.size()
 
-// Tokens are process-unique so a stale completion cannot match a recreated P2P session.
-static U64 sChatHistoryLoadToken = 0;
-
 /** Timeout of outgoing session initialization (in seconds) */
 const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
 
@@ -996,7 +993,7 @@ LLIMModel::LLIMSession::~LLIMSession()
     mSpeakers = NULL;
 
     mVoiceChannelStateChangeConnection.disconnect();
-    mChatServiceSnapshotConnection.disconnect();
+    mChatServiceHistory.stop();
 
     // HAVE to do this here -- if it happens in the LLVoiceChannel destructor it will call the wrong version (since the object's partially deconstructed at that point).
     mVoiceChannel->deactivate();
@@ -1361,98 +1358,35 @@ void LLIMModel::LLIMSession::loadHistory()
     mLastHistoryCacheMsgs.clear();
     mLastHistoryCacheDateTime.clear();
 
-    // Presentation and privacy gates clear only historical rows; live session rows
-    // stay in the model in their current order.
     if (!gSavedPerAccountSettings.getBOOL("LogShowHistory"))
     {
-        mChatHistoryLoadToken = ++sChatHistoryLoadToken;
-        mChatHistoryLocalLoading = false;
-        mChatServiceHistory.clear();
+        mChatServiceHistory.stop();
         replaceHistoricalMessages({});
         return;
     }
 
-    if (LLChatServiceHistory::historySuppressed())
+    // Direct sessions subscribe to stitched history; the owner fences reloads and
+    // lifetime changes before replacing this overlay. Live rows stay in the model.
+    if (isP2P())
     {
-        mChatHistoryLoadToken = ++sChatHistoryLoadToken;
-        mChatHistoryLocalLoading = false;
-        mChatServiceHistory.clear();
-        replaceHistoricalMessages({});
-        return;
-    }
-
-    if (!isP2P())
-    {
-        // Nearby, group, and ad-hoc sessions retain the synchronous legacy loader.
-        chat_message_list_t chat_history;
-        LLLogChat::loadChatHistory(mHistoryFileName, chat_history, LLSD(), isGroupChat());
-        replaceHistoricalMessages(chat_history);
-        return;
-    }
-
-    const U64 token = mChatHistoryLoadToken = ++sChatHistoryLoadToken;
-    const LLUUID session_id = mSessionID;
-    const LLUUID participant_id = mOtherParticipantID;
-    mChatHistoryLocalLoading = true;
-
-    // P2P history is stitched off-thread. The session ID, participant ID, and
-    // process-unique token jointly fence completion against session recreation.
-    if (!LLChatServiceHistory::loadStitchedHistory(
-            participant_id, mHistoryFileName, 200,
-            [session_id, participant_id, token](const LLChatServiceHistory::HistoryResult& result)
+        mChatServiceHistory.load(
+            mOtherParticipantID, mHistoryFileName, 200,
+            [this](const chat_message_list_t& history)
             {
-                LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
-                if (!session || session->mOtherParticipantID != participant_id ||
-                    session->mChatHistoryLoadToken != token)
+                // The settings callback may still be queued when a read completes.
+                if (gSavedPerAccountSettings.getBOOL("LogShowHistory"))
                 {
-                    return;
+                    replaceHistoricalMessages(history);
                 }
-
-                // Account, privacy, presentation, and archive generations must still
-                // match before the asynchronous result can replace model history.
-                if (result.account_epoch != LLChatServiceHistory::accountEpoch() ||
-                    LLChatServiceHistory::historySuppressed() ||
-                    !gSavedPerAccountSettings.getBOOL("LogShowHistory"))
-                {
-                    session->mChatHistoryLocalLoading = false;
-                    return;
-                }
-
-                const LLChatServiceHistory::Snapshot snapshot =
-                    LLChatServiceHistory::getSnapshot(participant_id);
-                if (result.included_service != snapshot.service_presentation_allowed)
-                {
-                    session->loadHistory();
-                    return;
-                }
-
-                if (result.archive_serial != snapshot.archive_serial)
-                {
-                    session->loadHistory();
-                    return;
-                }
-
-                // Merge the transient validated head only after the durable read is
-                // current, then replace the historical overlay in one operation.
-                session->mChatHistoryArchiveSerial = result.archive_serial;
-                session->mChatHistoryLocalLoading = false;
-                session->mChatServiceHistory.setLoaded(result.messages);
-                session->replaceHistoricalMessages(LLChatServiceHistory::composeHistory(
-                    session->mChatServiceHistory, snapshot, 200, session_id));
-            }))
-    {
-        // If dispatch infrastructure is unavailable, retain ordinary plaintext
-        // history unless the account-wide privacy gate suppresses all sources.
-        mChatHistoryLocalLoading = false;
-
-        if (!LLChatServiceHistory::historySuppressed())
-        {
-            chat_message_list_t legacy;
-            LLLogChat::loadChatHistory(mHistoryFileName, legacy);
-            mChatServiceHistory.setLoaded(legacy);
-            replaceHistoricalMessages(legacy);
-        }
+            },
+            mSessionID);
+        return;
     }
+
+    // Group and ad-hoc history retain the synchronous legacy loader.
+    chat_message_list_t history;
+    LLLogChat::loadChatHistory(mHistoryFileName, history, LLSD(), isGroupChat());
+    replaceHistoricalMessages(history);
 }
 
 void LLIMModel::LLIMSession::replaceHistoricalMessages(const chat_message_list_t& history)
@@ -1466,23 +1400,9 @@ void LLIMModel::LLIMSession::replaceHistoricalMessages(const chat_message_list_t
     }
 }
 
-void LLIMModel::LLIMSession::clearHistoricalMessages()
-{
-    // Advancing the token prevents an older asynchronous load from restoring rows
-    // after presentation has been cleared.
-    mChatHistoryLoadToken = ++sChatHistoryLoadToken;
-    mChatHistoryLocalLoading = false;
-    mChatServiceHistory.clear();
-    replaceHistoricalMessages({});
-}
-
 void LLIMModel::LLIMSession::clearForHistoryDeletion()
 {
     // Delete is the only operation that removes live and historical model rows together.
-    mChatHistoryLoadToken = ++sChatHistoryLoadToken;
-    mChatHistoryLocalLoading = false;
-    mChatHistoryArchiveSerial = 0;
-    mChatServicePresentationAllowed = false;
     mChatServiceHistory.clear();
     mLastHistoryCacheDateTime.clear();
     mLastHistoryCacheMsgs.clear();
@@ -1495,73 +1415,6 @@ void LLIMModel::LLIMSession::clearForHistoryDeletion()
     {
         floater->reloadMessages(false);
     }
-}
-
-void LLIMModel::LLIMSession::applyChatServiceSnapshot(
-    const LLChatServiceHistory::Snapshot& snapshot)
-{
-    if (!gSavedPerAccountSettings.getBOOL("LogShowHistory") ||
-        LLChatServiceHistory::historySuppressed())
-    {
-        return;
-    }
-
-    const bool presentation_changed =
-        snapshot.service_presentation_allowed != mChatServicePresentationAllowed;
-    mChatServicePresentationAllowed = snapshot.service_presentation_allowed;
-
-    // Apply previews and presentation changes through the shared history composer.
-    if (presentation_changed || !snapshot.head_preview.empty())
-    {
-        replaceHistoricalMessages(LLChatServiceHistory::composeHistory(
-            mChatServiceHistory, snapshot, 200, mSessionID));
-    }
-
-    // The active read will restart itself if its captured presentation or archive
-    // generation is stale, so status snapshots do not need to supersede it.
-    if (!mChatHistoryLocalLoading &&
-        (presentation_changed || snapshot.archive_serial != mChatHistoryArchiveSerial))
-    {
-        loadHistory();
-    }
-}
-
-void LLIMModel::LLIMSession::startHistoryLoading()
-{
-    if (!isP2P())
-    {
-        loadHistory();
-        return;
-    }
-
-    // Connect before querying so the session cannot miss a resident snapshot change
-    // between model insertion and its initial stitched read.
-    const LLUUID session_id = mSessionID;
-    const LLUUID participant_id = mOtherParticipantID;
-    mChatServiceSnapshotConnection = LLChatServiceHistory::setSnapshotChanged(
-        [session_id, participant_id](const LLUUID& changed,
-                                     const LLChatServiceHistory::Snapshot& snapshot)
-        {
-            if (changed != participant_id)
-            {
-                return;
-            }
-
-            LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
-            if (session && session->mOtherParticipantID == participant_id)
-            {
-                session->applyChatServiceSnapshot(snapshot);
-            }
-        });
-
-    const LLChatServiceHistory::Snapshot snapshot =
-        LLChatServiceHistory::getSnapshot(participant_id);
-    mChatHistoryArchiveSerial = snapshot.archive_serial;
-    mChatServicePresentationAllowed = snapshot.service_presentation_allowed;
-
-    applyChatServiceSnapshot(snapshot);
-    LLChatServiceHistory::prioritizeResident(participant_id);
-    loadHistory();
 }
 
 LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
@@ -1797,7 +1650,11 @@ bool LLIMModel::newSession(const LLUUID& session_id, const std::string& name, co
 
     // Insert first so snapshot callbacks and asynchronous completions can resolve the
     // newly-created session through the model.
-    session->startHistoryLoading();
+    session->loadHistory();
+    if (session->isP2P())
+    {
+        LLChatServiceHistory::prioritizeResident(other_participant_id);
+    }
 
     // When notifying observer, name of session is used instead of "name", because they may not be the
     // same if it is an adhoc session (in this case name is localized in LLIMSession constructor).

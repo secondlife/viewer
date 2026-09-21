@@ -3114,8 +3114,9 @@ boost::signals2::connection LLChatServiceHistory::setSnapshotChanged(
     return sSnapshotSignal.connect(callback);
 }
 
-LLChatServiceHistory::Messages LLChatServiceHistory::composeHistory(
-    History& history, const Snapshot& snapshot, U32 limit, const LLUUID& session_id)
+static LLChatServiceHistory::Messages composeHistory(
+    LLChatServiceHistoryCore::History& history,
+    const LLChatServiceHistory::Snapshot& snapshot, U32 limit, const LLUUID& session_id)
 {
     Messages preview;
     if (snapshot.service_presentation_allowed)
@@ -3242,6 +3243,143 @@ bool LLChatServiceHistory::loadStitchedHistory(
 
             callback(result);
         });
+}
+
+void LLChatServiceHistory::History::load(
+    const LLUUID& resident_id, const std::string& legacy_stem, U32 limit,
+    const callback_t& callback, const LLUUID& session_id)
+{
+    // Replacing a request retains visible context but retires its completion.
+    const bool first_load = !mConnection.connected();
+    ++mToken;
+    mLoading = false;
+    mResidentID = resident_id;
+    mSessionID = session_id;
+    mLegacyStem = legacy_stem;
+    mLimit = limit;
+    mCallback = callback;
+    mConnection = setSnapshotChanged([this](const LLUUID& changed, const Snapshot& snapshot)
+    {
+        if (changed == mResidentID)
+        {
+            onSnapshot(snapshot);
+        }
+    });
+
+    // Subscribe before querying; a cold name cache may supply the plaintext stem
+    // later, and the first service page can be displayed while disk work runs.
+    const Snapshot snapshot = getSnapshot(mResidentID);
+    mArchiveSerial = snapshot.archive_serial;
+    if (first_load)
+    {
+        mServiceAllowed = snapshot.service_presentation_allowed;
+    }
+    if (historySuppressed())
+    {
+        clear();
+        mCallback({});
+        return;
+    }
+    onSnapshot(snapshot);
+    if (!mLoading)
+    {
+        reload();
+    }
+}
+
+void LLChatServiceHistory::History::clear()
+{
+    // Deletion invalidates pending reads before owners clear their displayed history.
+    ++mToken;
+    mLoading = false;
+    mArchiveSerial = 0;
+    mServiceAllowed = false;
+    mHistory.clear();
+}
+
+void LLChatServiceHistory::History::stop()
+{
+    mConnection.disconnect();
+    clear();
+}
+
+void LLChatServiceHistory::History::publish(const Snapshot& snapshot)
+{
+    mCallback(composeHistory(mHistory, snapshot, mLimit, mSessionID));
+}
+
+void LLChatServiceHistory::History::reload()
+{
+    const U64 token = ++mToken;
+    const std::string legacy_stem = mLegacyStem;
+    mLoading = loadStitchedHistory(mResidentID, legacy_stem, mLimit,
+        [handle = getHandle(), token, legacy_stem](const HistoryResult& result)
+        {
+            History* self = handle.get();
+            if (!self || token != self->mToken)
+            {
+                return;
+            }
+            self->mLoading = false;
+
+            // Account changes and deletion discard the read. Archive publication,
+            // consent, or newly resolved names require one read of the current inputs.
+            if (result.account_epoch != accountEpoch() || historySuppressed())
+            {
+                return;
+            }
+            const Snapshot snapshot = getSnapshot(self->mResidentID);
+            if (result.archive_serial != snapshot.archive_serial ||
+                result.included_service != snapshot.service_presentation_allowed ||
+                legacy_stem != self->mLegacyStem)
+            {
+                self->reload();
+                return;
+            }
+
+            self->mArchiveSerial = result.archive_serial;
+            self->mHistory.setLoaded(result.messages);
+            self->publish(snapshot);
+        });
+    // Open IMs fall back to plaintext when the queues are unavailable; Preview
+    // stays nonblocking.
+    if (!mLoading && mSessionID.notNull() && !historySuppressed())
+    {
+        Messages legacy;
+        LLLogChat::loadChatHistory(mLegacyStem, legacy);
+        mHistory.setLoaded(legacy);
+        mCallback(legacy);
+    }
+}
+
+void LLChatServiceHistory::History::onSnapshot(const Snapshot& snapshot)
+{
+    if (historySuppressed())
+    {
+        return;
+    }
+    const bool presentation_changed = mServiceAllowed != snapshot.service_presentation_allowed;
+    mServiceAllowed = snapshot.service_presentation_allowed;
+
+    // A service-only conversation gains its plaintext history when its name resolves.
+    const bool name_resolved = mLegacyStem.empty() && snapshot.metadata_resolved;
+    if (name_resolved)
+    {
+        mLegacyStem = LLCacheName::buildUsername(snapshot.metadata.getUserName());
+    }
+    // Apply consent changes and validated previews while the disk read catches up.
+    if (presentation_changed || !snapshot.head_preview.empty())
+    {
+        publish(snapshot);
+    }
+
+    // In-flight reads compare their captured inputs on completion, coalescing any
+    // number of snapshot changes into one follow-up read.
+    if (!mLoading && (presentation_changed || name_resolved ||
+                      snapshot.archive_serial != mArchiveSerial))
+    {
+        reload();
+    }
 }
 
 bool LLChatServiceHistory::deleteTranscriptsAsync(const delete_callback_t& callback)

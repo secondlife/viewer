@@ -38,8 +38,6 @@
 #include "llloadingindicator.h"
 #include "workqueue.h"
 
-#include <limits>
-
 const std::string LL_FCP_COMPLETE_NAME("complete_name");
 const std::string LL_FCP_ACCOUNT_NAME("user_name");
 const std::string LL_FCP_PARTICIPANT_ID("participant_id");
@@ -60,13 +58,8 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
     mHistoryThreadsBusy(false),
     mIsGroup(false),
     mIsP2P(false),
-    mServiceLocalLoading(false),
-    mServiceReloadPending(false),
     mLoadingIndicatorVisible(false),
-    mServiceNameReloaded(false),
-    mServicePresentationAllowed(false),
     mServiceToken(0),
-    mServiceAppliedSerial(std::numeric_limits<U32>::max()),
     mOpened(false)
 {
 }
@@ -74,7 +67,6 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
 LLFloaterConversationPreview::~LLFloaterConversationPreview()
 {
     mHistoryContentConnection.disconnect();
-    mServiceSnapshotConnection.disconnect();
     delete mMessages;
 }
 
@@ -174,7 +166,7 @@ void LLFloaterConversationPreview::draw()
 {
     // Local reads and account-scoped service work share one nonmodal status panel.
     const bool loading = mIsP2P &&
-        (mServiceLocalLoading ||
+        (mServiceHistory.isLoading() ||
          LLChatServiceHistory::getSnapshot(mParticipantID).service_work_active);
     if (loading != mLoadingIndicatorVisible)
     {
@@ -220,28 +212,13 @@ void LLFloaterConversationPreview::onOpen(const LLSD& key)
 
     if (mIsP2P)
     {
-        // Connect before querying the snapshot so an active-work transition cannot
-        // be missed between Preview opening and its first local read.
-        LLHandle<LLFloaterConversationPreview> handle =
-            getDerivedHandle<LLFloaterConversationPreview>();
-        mServiceSnapshotConnection = LLChatServiceHistory::setSnapshotChanged(
-            [handle, participant = mParticipantID](
-                const LLUUID& changed, const LLChatServiceHistory::Snapshot& snapshot)
+        // The history owner publishes on the main loop and stops with this Preview.
+        mServiceHistory.load(mParticipantID, mChatHistoryFileName, 10000,
+            [this](const std::list<LLSD>& history)
             {
-                LLFloaterConversationPreview* floater = handle.get();
-                if (floater && changed == participant)
-                {
-                    floater->onServiceSnapshot(snapshot);
-                }
+                setPages(new std::list<LLSD>(history), mChatHistoryFileName);
             });
-
-        const LLChatServiceHistory::Snapshot snapshot =
-            LLChatServiceHistory::getSnapshot(mParticipantID);
-        mServicePresentationAllowed = snapshot.service_presentation_allowed;
-        mServiceAppliedSerial = snapshot.archive_serial;
         LLChatServiceHistory::prioritizeResident(mParticipantID);
-        onServiceSnapshot(snapshot);
-        startServiceLoad();
 
         return;
     }
@@ -350,11 +327,8 @@ void LLFloaterConversationPreview::onClose(bool app_quitting)
     // Close is a lifecycle fence for callbacks, not a request to cancel shared service work.
     mOpened = false;
     ++mServiceToken;
-    mServiceHistory.clear();
-    mServiceLocalLoading = false;
-    mServiceReloadPending = false;
+    mServiceHistory.stop();
     mHistoryContentConnection.disconnect();
-    mServiceSnapshotConnection.disconnect();
 
     if (mIsP2P)
     {
@@ -376,8 +350,6 @@ void LLFloaterConversationPreview::invalidateHistory()
     // before deletion clears the visible backing lists.
     ++mServiceToken;
     mServiceHistory.clear();
-    mServiceLocalLoading = false;
-    mServiceReloadPending = false;
 
     if (mMessages)
     {
@@ -387,138 +359,6 @@ void LLFloaterConversationPreview::invalidateHistory()
     if (mChatHistory)
     {
         mChatHistory->clear();
-    }
-}
-
-void LLFloaterConversationPreview::startServiceLoad()
-{
-    if (!mOpened || mServiceLocalLoading || mParticipantID.isNull())
-    {
-        return;
-    }
-
-    // One local stitched read may be active per Preview. Snapshot changes set a
-    // follow-up flag instead of starting overlapping archive scans.
-    const U64 token = ++mServiceToken;
-    mServiceLocalLoading = true;
-
-    LLHandle<LLFloaterConversationPreview> handle =
-        getDerivedHandle<LLFloaterConversationPreview>();
-    if (!LLChatServiceHistory::loadStitchedHistory(
-            mParticipantID, mChatHistoryFileName, 10000,
-            [handle, token](const LLChatServiceHistory::HistoryResult& result)
-            {
-                if (LLFloaterConversationPreview* floater = handle.get())
-                {
-                    floater->onServiceLoaded(token, result);
-                }
-            }))
-    {
-        mServiceLocalLoading = false;
-    }
-}
-
-void LLFloaterConversationPreview::onServiceLoaded(
-    U64 token, const LLChatServiceHistory::HistoryResult& result)
-{
-    if (!mOpened || token != mServiceToken)
-    {
-        return;
-    }
-
-    mServiceLocalLoading = false;
-    const LLChatServiceHistory::Snapshot snapshot =
-        LLChatServiceHistory::getSnapshot(mParticipantID);
-
-    // Account transitions and the common privacy gate invalidate the captured read
-    // before any result reaches the backing list.
-    if (result.account_epoch != LLChatServiceHistory::accountEpoch() ||
-        LLChatServiceHistory::historySuppressed())
-    {
-        return;
-    }
-
-    const bool reload_pending = mServiceReloadPending;
-    mServiceReloadPending = false;
-
-    // A changed archive serial or presentation gate requires a fresh read from the
-    // current source set.
-    if (result.archive_serial != snapshot.archive_serial)
-    {
-        startServiceLoad();
-        return;
-    }
-
-    if (result.included_service != snapshot.service_presentation_allowed)
-    {
-        startServiceLoad();
-        return;
-    }
-
-    mServiceAppliedSerial = result.archive_serial;
-
-    // Merge the bounded transient head only after the durable read matches the
-    // current snapshot, then preserve the reader's relative page position.
-    mServiceHistory.setLoaded(result.messages);
-    std::list<LLSD> merged = LLChatServiceHistory::composeHistory(
-        mServiceHistory, snapshot, 10000);
-    setPages(new std::list<LLSD>(merged), mChatHistoryFileName);
-
-    if (reload_pending)
-    {
-        startServiceLoad();
-    }
-}
-
-void LLFloaterConversationPreview::onServiceSnapshot(
-    const LLChatServiceHistory::Snapshot& snapshot)
-{
-    if (!mOpened)
-    {
-        return;
-    }
-
-    // Presentation revocation removes only service-tagged rows immediately; legacy
-    // rows remain available under the common account history gate.
-    const bool presentation_changed =
-        snapshot.service_presentation_allowed != mServicePresentationAllowed;
-    mServicePresentationAllowed = snapshot.service_presentation_allowed;
-
-    if (presentation_changed && mServiceLocalLoading)
-    {
-        mServiceReloadPending = true;
-    }
-    // A CSV-only cold-cache Preview performs one extra read when shared metadata
-    // supplies the legacy transcript stem.
-    if (mChatHistoryFileName.empty() && !mServiceNameReloaded &&
-        snapshot.metadata_resolved)
-    {
-        mChatHistoryFileName = LLCacheName::buildUsername(snapshot.metadata.getUserName());
-        mServiceNameReloaded = true;
-        if (mServiceLocalLoading)
-        {
-            mServiceReloadPending = true;
-        }
-        else
-        {
-            startServiceLoad();
-        }
-    }
-
-    // The first validated service page may update the open Preview before archive
-    // preparation and older paging complete.
-    if (presentation_changed || !snapshot.head_preview.empty())
-    {
-        std::list<LLSD> merged = LLChatServiceHistory::composeHistory(
-            mServiceHistory, snapshot, 10000);
-        setPages(new std::list<LLSD>(merged), mChatHistoryFileName);
-    }
-
-    // A serial or presentation transition needs one fresh durable stitched read.
-    if (!mServiceLocalLoading &&
-        (presentation_changed || snapshot.archive_serial != mServiceAppliedSerial))
-    {
-        startServiceLoad();
     }
 }
 

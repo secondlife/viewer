@@ -59,9 +59,6 @@ private:
     void onMoreHistoryBtnClick();
     void showHistory();
     void startLegacyLoad();
-    void startServiceLoad();
-    void onServiceLoaded(U64 token, const LLChatServiceHistory::HistoryResult& result);
-    void onServiceSnapshot(const LLChatServiceHistory::Snapshot& snapshot);
 
     LLMutex         mMutex;
     LLSpinCtrl*     mPageSpinner;
@@ -80,18 +77,12 @@ private:
     bool            mOpened;
     bool            mIsGroup;
     bool            mIsP2P;
-    bool            mServiceLocalLoading;
-    bool            mServiceReloadPending;
     bool            mLoadingIndicatorVisible;
-    bool            mServiceNameReloaded;
-    bool            mServicePresentationAllowed;
 
-    // Tokens fence asynchronous applies across close, reopen, and reload requests.
+    // Fence legacy completions across close, reopen, and deletion.
     U64             mServiceToken;
-    U32             mServiceAppliedSerial;
     LLChatServiceHistory::History mServiceHistory;
     boost::signals2::connection mHistoryContentConnection;
-    boost::signals2::connection mServiceSnapshotConnection;
 };
 
 #endif /* LLFLOATERCONVERSATIONPREVIEW_H_ */
