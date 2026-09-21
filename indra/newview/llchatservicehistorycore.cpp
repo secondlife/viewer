@@ -25,8 +25,8 @@
 #endif
 
 #include <algorithm>
+#include <boost/regex.hpp>
 #include <cerrno>
-#include <cctype>
 #include <limits>
 #include <map>
 #include <set>
@@ -663,36 +663,25 @@ bool legacyWallMayPrecedeService(F64 wall_epoch, F64 service_epoch)
 
 bool parseCreatedAt(const std::string& text, std::string& normalized)
 {
-    // Validate the complete wire shape before LLDate performs calendar conversion.
-    static const U32 DIGIT_POSITIONS[] = {
-        0, 1, 2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18
-    };
-    if (text.size() < 19 || text[4] != '-' || text[7] != '-' || text[10] != 'T' ||
-        text[13] != ':' || text[16] != ':')
+    // Match the entire ISO timestamp, with bounded clock/offset fields and an
+    // optional nonempty fraction. LLDate itself also accepts malformed suffixes.
+    static const boost::regex shape(
+        R"(([0-9]{4})-([0-9]{2})-([0-9]{2})T)"
+        R"((?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9])"
+        R"((?:\.[0-9]+)?(Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])?)");
+    boost::smatch fields;
+    if (!boost::regex_match(text, fields, shape))
     {
         return false;
     }
 
-    // Reject signed, variable-width, and otherwise non-decimal date fields before
-    // converting the fixed calendar components.
-    for (U32 position : DIGIT_POSITIONS)
-    {
-        if (text[position] < '0' || text[position] > '9')
-        {
-            return false;
-        }
-    }
-
-    const U32 year = std::stoi(text.substr(0, 4));
-    const U32 month = std::stoi(text.substr(5, 2));
-    const U32 day = std::stoi(text.substr(8, 2));
-    const U32 hour = std::stoi(text.substr(11, 2));
-    const U32 minute = std::stoi(text.substr(14, 2));
-    const U32 second = std::stoi(text.substr(17, 2));
+    const U32 year = std::stoi(fields[1]);
+    const U32 month = std::stoi(fields[2]);
+    const U32 day = std::stoi(fields[3]);
     static const U32 DAYS_PER_MONTH[] = {
         31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     };
-    if (!year || month < 1 || month > 12 || hour > 23 || minute > 59 || second > 59)
+    if (!year || month < 1 || month > 12)
     {
         return false;
     }
@@ -708,57 +697,8 @@ bool parseCreatedAt(const std::string& text, std::string& normalized)
         return false;
     }
 
-    // Fractional seconds are optional but must contain at least one digit.
-    size_t position = 19;
-    if (position < text.size() && text[position] == '.')
-    {
-        const size_t fraction = ++position;
-        while (position < text.size() && text[position] >= '0' && text[position] <= '9')
-        {
-            ++position;
-        }
-        if (position == fraction)
-        {
-            return false;
-        }
-    }
-
-    // Offset-less service timestamps are normalized to UTC. Explicit zones must
-    // consume the complete suffix and remain within clock bounds.
-    std::string parsed = text;
-    if (position == text.size())
-    {
-        parsed += 'Z';
-    }
-    else if (text[position] == 'Z')
-    {
-        if (position + 1 != text.size())
-        {
-            return false;
-        }
-    }
-    else if (text[position] == '+' || text[position] == '-')
-    {
-        if (position + 6 != text.size() || text[position + 3] != ':' ||
-            !std::isdigit(static_cast<unsigned char>(text[position + 1])) ||
-            !std::isdigit(static_cast<unsigned char>(text[position + 2])) ||
-            !std::isdigit(static_cast<unsigned char>(text[position + 4])) ||
-            !std::isdigit(static_cast<unsigned char>(text[position + 5])))
-        {
-            return false;
-        }
-        const U32 hours = (text[position + 1] - '0') * 10 + text[position + 2] - '0';
-        const U32 minutes = (text[position + 4] - '0') * 10 + text[position + 5] - '0';
-        if (hours > 23 || minutes > 59)
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
-
+    // Offset-less timestamps are UTC; preserve an explicit zone and fractional precision.
+    const std::string parsed = fields[4].matched ? text : text + 'Z';
     LLDate date;
     if (!date.fromString(parsed))
     {
