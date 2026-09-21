@@ -190,29 +190,29 @@ namespace
         value = field.asString();
         return true;
     }
+}
 
-    bool inspectRegularFile(const std::string& path, bool& exists)
-    {
-        exists = false;
+bool inspectRegular(const std::string& path, bool& exists)
+{
+    exists = false;
 #if LL_WINDOWS
-        const DWORD attributes = GetFileAttributesW(ll_convert<std::wstring>(path).c_str());
-        if (attributes == INVALID_FILE_ATTRIBUTES)
-        {
-            return GetLastError() == ERROR_FILE_NOT_FOUND ||
-                   GetLastError() == ERROR_PATH_NOT_FOUND;
-        }
-        exists = true;
-        return !(attributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT));
-#else
-        struct stat status;
-        if (::lstat(path.c_str(), &status) != 0)
-        {
-            return errno == ENOENT;
-        }
-        exists = true;
-        return S_ISREG(status.st_mode);
-#endif
+    const DWORD attributes = GetFileAttributesW(ll_convert<std::wstring>(path).c_str());
+    if (attributes == INVALID_FILE_ATTRIBUTES)
+    {
+        return GetLastError() == ERROR_FILE_NOT_FOUND ||
+               GetLastError() == ERROR_PATH_NOT_FOUND;
     }
+    exists = true;
+    return !(attributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT));
+#else
+    struct stat status;
+    if (::lstat(path.c_str(), &status) != 0)
+    {
+        return errno == ENOENT;
+    }
+    exists = true;
+    return S_ISREG(status.st_mode);
+#endif
 }
 
 bool TimeUuidKey::operator==(const TimeUuidKey& rhs) const
@@ -781,7 +781,6 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
     }
 
     std::set<LLUUID> residents;
-    std::set<std::string> conversations;
     for (LLSD::array_const_iterator it = value.beginArray(); it != value.endArray(); ++it)
     {
         // Every list row must have a known type and bounded canonical identifiers,
@@ -812,8 +811,7 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
             resident == agent_id ||
             !parseTimeUuid(token, token_key) ||
             conversation != directConversationId(agent_id, resident) ||
-            !residents.insert(resident).second ||
-            !conversations.insert(conversation).second)
+            !residents.insert(resident).second)
         {
             return false;
         }
@@ -863,12 +861,12 @@ bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
         return false;
     }
 
-    std::set<std::string> ids;
     TimeUuidKey previous;
     bool have_previous = false;
 
     // Validate every row before the page can affect scheduler or archive state.
-    // UUIDv1 keys must be unique, strictly descending, and below the request cursor.
+    // Strictly descending UUIDv1 keys below the cursor exclude duplicate IDs
+    // both within this page and across earlier pages in the same pass.
     for (LLSD::array_const_iterator it = value["messages"].beginArray();
          it != value["messages"].endArray(); ++it)
     {
@@ -882,7 +880,7 @@ bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
             !(*it)["dialog"].isInteger() ||
             !llsdString(*it, "created_at", row.created_at) ||
             row.conversation_id != conversation_id ||
-            !parseTimeUuid(row.msg_id, row.key) || !ids.insert(row.msg_id).second ||
+            !parseTimeUuid(row.msg_id, row.key) ||
             !parseCanonicalUuid(from_text, row.from_id) ||
             (row.from_id != agent_id && row.from_id != resident_id) ||
             !cleanText(row.from_name, 256) || !cleanText(row.message, 1024) ||
@@ -950,7 +948,7 @@ void writeCsvRow(std::ostream& output, const Row& row)
 bool archiveStamp(const std::string& path, U64& file_size, S64& file_mtime)
 {
     bool exists = false;
-    if (!inspectRegularFile(path, exists) || !exists)
+    if (!inspectRegular(path, exists) || !exists)
     {
         return false;
     }
@@ -983,7 +981,7 @@ bool scanArchive(const std::string& path, const LLUUID& agent_id,
 
     // Only a regular canonical path may participate in archive reads.
     bool exists = false;
-    if (!inspectRegularFile(path, exists))
+    if (!inspectRegular(path, exists))
     {
         scan.state = ARCHIVE_FAILED;
         return false;

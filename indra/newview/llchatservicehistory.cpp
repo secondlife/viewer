@@ -134,7 +134,6 @@ struct Summary
 {
     // Logical validity and retained-row count.
     ESummary state = SUMMARY_UNPREPARED;
-    U32 rows = 0;
     bool has_rows = false;
 
     // Physical identity captured by the last successful scan or publication.
@@ -426,31 +425,6 @@ bool parseDecimalTicks(const std::string& text, U64& value)
     }
     value = parsed;
     return true;
-}
-
-bool inspectRegular(const std::string& path, bool& exists)
-{
-    // Owned artifacts must be regular files; directories and reparse/symlink paths
-    // fail inspection rather than being followed.
-    exists = false;
-#if LL_WINDOWS
-    const std::wstring wide = ll_convert<std::wstring>(path);
-    const DWORD attributes = GetFileAttributesW(wide.c_str());
-    if (attributes == INVALID_FILE_ATTRIBUTES)
-    {
-        return GetLastError() == ERROR_FILE_NOT_FOUND || GetLastError() == ERROR_PATH_NOT_FOUND;
-    }
-    exists = true;
-    return !(attributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT));
-#else
-    struct stat status;
-    if (::lstat(path.c_str(), &status) != 0)
-    {
-        return errno == ENOENT;
-    }
-    exists = true;
-    return S_ISREG(status.st_mode);
-#endif
 }
 
 bool syncDirectory(const std::string& path)
@@ -829,7 +803,6 @@ Summary summaryFromScan(const ArchiveScan& scan)
 {
     Summary result;
     result.state = scan.state == ARCHIVE_ABSENT ? SUMMARY_ABSENT : SUMMARY_VALID;
-    result.rows = scan.row_count;
     result.has_rows = scan.has_oldest;
     result.file_exists = scan.state != ARCHIVE_ABSENT;
     result.file_size = scan.file_size;
@@ -994,7 +967,6 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
 
     // Advance the in-memory summary only after the filesystem mutation succeeds.
     resulting.state = SUMMARY_VALID;
-    resulting.rows += static_cast<U32>(rows.size());
     if (!resulting.has_rows)
     {
         resulting.oldest = rows.front().key;
@@ -1549,7 +1521,6 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     // Stage a complete bounded pass in memory. No canonical bytes change until every
     // traversed page validates and reaches a terminal condition or durable seam.
     std::vector<Row> staged;
-    std::set<std::string> pass_ids;
     size_t staged_bytes = 0;
     U32 returned_rows = 0;
     std::string cursor;
@@ -1754,14 +1725,6 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         bool reached_stored_newest = false;
         for (const Row& row : page.rows)
         {
-            if (!pass_ids.insert(row.msg_id).second)
-            {
-                staged.clear();
-                complete = false;
-                failResidentPass(id, page_resident);
-                sRuntime.active_resident.setNull();
-                return;
-            }
             ++returned_rows;
             if (returned_rows > MAX_PASS_ROWS)
             {
@@ -2319,8 +2282,9 @@ void fillMetadataSlots()
 
 bool updateIndex(U32 epoch)
 {
-    // Capture one stable manifest input, regenerate it under the storage mutex, then
-    // detect mutations that arrived while the General-queue job was suspended.
+    // Clear the dirty latch before suspension so metadata callbacks can request
+    // another pass while this captured manifest is being written.
+    sRuntime.index_dirty = false;
     std::vector<LLUUID> archives;
     std::map<LLUUID, LLAvatarName> names;
     for (const auto& pair : sRuntime.residents)
@@ -2346,31 +2310,8 @@ bool updateIndex(U32 epoch)
     {
         return false;
     }
-    if (updated)
-    {
-        std::vector<LLUUID> current_archives;
-        std::vector<LLUUID> current_names;
-        for (const auto& pair : sRuntime.residents)
-        {
-            if (pair.second.summary.state == SUMMARY_VALID &&
-                pair.second.summary.file_exists)
-            {
-                current_archives.push_back(pair.first);
-            }
-            if (pair.second.metadata.state == META_RESOLVED)
-            {
-                current_names.push_back(pair.first);
-            }
-        }
-        std::vector<LLUUID> indexed_names;
-        for (const auto& pair : names)
-        {
-            indexed_names.push_back(pair.first);
-        }
-        sRuntime.index_dirty = archives != current_archives || indexed_names != current_names;
-        return true;
-    }
-    return false;
+    sRuntime.index_dirty |= !updated;
+    return updated;
 }
 
 void expireMetadata()

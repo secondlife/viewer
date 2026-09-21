@@ -136,6 +136,14 @@ template<> template<> void object_t::test<5>()
         wirePage(rows), AGENT, RESIDENT, directConversationId(AGENT, RESIDENT),
         "", 0, page));
 
+    // Ordering alone rejects duplicates, including replay of the preceding page's cursor.
+    rows[1] = rows[0];
+    ensure("duplicate row rejected", !validateHistoryPage(
+        wirePage(rows), AGENT, RESIDENT, directConversationId(AGENT, RESIDENT), "", 0, page));
+    rows.erase(1);
+    ensure("cursor row cannot repeat on the next page", !validateHistoryPage(
+        wirePage(rows, FIRST), AGENT, RESIDENT, directConversationId(AGENT, RESIDENT), FIRST, 0, page));
+
     LLSD wrong = wirePage(LLSD::emptyArray());
     wrong["limit"] = "100";
     ensure("coercible type rejected", !validateHistoryPage(

@@ -174,6 +174,9 @@ namespace LLChatServiceHistoryCore
 
     // Capture the regular file's physical identity for guarded repair and publication.
     bool archiveStamp(const std::string& path, U64& file_size, S64& file_mtime);
+
+    // Owned artifacts may be absent or regular files, but never symlinks or directories.
+    bool inspectRegular(const std::string& path, bool& exists);
 }
 
 #endif
