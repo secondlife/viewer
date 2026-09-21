@@ -963,13 +963,19 @@ void LLLogChat::notifyTranscriptCreated()
 // static
 bool LLLogChat::isTranscriptExist(const LLUUID& avatar_id, bool is_group)
 {
+    // History actions share the deletion gate and both direct transcript sources.
+    if (LLChatServiceHistory::historySuppressed())
+    {
+        return false;
+    }
     LLAvatarName avatar_name;
     LLAvatarNameCache::get(avatar_id, &avatar_name);
     std::string avatar_user_name = avatar_name.getAccountName();
     if(!is_group)
     {
         std::replace(avatar_user_name.begin(), avatar_user_name.end(), '.', '_');
-        return isTranscriptFileFound(makeLogFileName(avatar_user_name));
+        return isTranscriptFileFound(makeLogFileName(avatar_user_name)) ||
+               LLChatServiceHistory::localHistoryExists(avatar_id);
     }
     else
     {

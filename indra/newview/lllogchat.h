@@ -134,6 +134,7 @@ public:
     // until every legacy transcript target has been removed safely.
     static bool deleteTranscriptContent(const std::string& directory);
     static void notifyTranscriptCreated();
+    // Whether history can be opened: plaintext or direct service rows, subject to deletion.
     static bool isTranscriptExist(const LLUUID& avatar_id, bool is_group=false);
     static bool isNearbyTranscriptExist();
     static bool isAdHocTranscriptExist(std::string file_name);

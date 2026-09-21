@@ -1558,9 +1558,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
             else
             {
                 bool is_group = (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP);
-                return !LLChatServiceHistory::historySuppressed() &&
-                       (LLLogChat::isTranscriptExist(uuids.front(), is_group) ||
-                        (!is_group && LLChatServiceHistory::localHistoryExists(uuids.front())));
+                return LLLogChat::isTranscriptExist(uuids.front(), is_group);
             }
         }
     }
@@ -1592,9 +1590,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 
     if ("can_chat_history" == item && is_single_select)
     {
-        return !LLChatServiceHistory::historySuppressed() &&
-               (LLLogChat::isTranscriptExist(uuids.front(), false) ||
-                LLChatServiceHistory::localHistoryExists(uuids.front()));
+        return LLLogChat::isTranscriptExist(uuids.front(), false);
     }
 
     // Handle options that are applicable to all including the user agent
