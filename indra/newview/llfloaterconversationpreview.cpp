@@ -35,7 +35,6 @@
 #include "llspinctrl.h"
 #include "lltrans.h"
 #include "llnotificationsutil.h"
-#include "llloadingindicator.h"
 #include "workqueue.h"
 
 const std::string LL_FCP_COMPLETE_NAME("complete_name");
@@ -57,7 +56,6 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
     mHistoryThreadsBusy(false),
     mIsGroup(false),
     mIsP2P(false),
-    mLoadingIndicatorVisible(false),
     mServiceToken(0),
     mOpened(false)
 {
@@ -159,21 +157,8 @@ void LLFloaterConversationPreview::draw()
     const bool loading = mIsP2P &&
         (mServiceHistory.isLoading() ||
          LLChatServiceHistory::getSnapshot(mParticipantID).service_work_active);
-    if (loading != mLoadingIndicatorVisible)
-    {
-        mLoadingIndicatorVisible = loading;
-        getChildView("chat_service_loading")->setVisible(loading);
-        LLLoadingIndicator* indicator =
-            getChild<LLLoadingIndicator>("chat_service_loading_wheel");
-        if (loading)
-        {
-            indicator->start();
-        }
-        else
-        {
-            indicator->stop();
-        }
-    }
+    // The widget animates in draw(); hiding its panel suspends that work.
+    getChildView("chat_service_loading")->setVisible(loading);
 
     if(mShowHistory)
     {

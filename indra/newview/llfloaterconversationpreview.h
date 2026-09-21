@@ -76,7 +76,6 @@ private:
     bool            mOpened;
     bool            mIsGroup;
     bool            mIsP2P;
-    bool            mLoadingIndicatorVisible;
 
     // Fence legacy completions across close, reopen, and deletion.
     U64             mServiceToken;
