@@ -57,6 +57,7 @@
 #include <deque>
 #include <filesystem>
 #include <map>
+#include <optional>
 #include <set>
 #include <sstream>
 
@@ -879,8 +880,9 @@ initial_artifacts_t enumerateArchives(const std::string& directory)
     return result;
 }
 
-bool regenerateIndex(const std::vector<LLUUID>& ids,
-                     const std::map<LLUUID, LLAvatarName>& names,
+using index_entries_t = std::map<LLUUID, std::optional<LLAvatarName>>;
+
+bool regenerateIndex(const index_entries_t& archives,
                      const std::string& directory, const std::string& delimiter)
 {
     LLMutexLock lock(&sStorageMutex);
@@ -905,32 +907,27 @@ bool regenerateIndex(const std::vector<LLUUID>& ids,
         }
     }
 
-    // Include exactly the valid canonical archives still present at regeneration.
-    std::vector<std::pair<std::string, LLUUID>> archives;
-    for (const LLUUID& id : ids)
+    // The captured entries already identify valid archives. Keep only files still
+    // present, spelling out names that remain unresolved at this publication.
+    std::ostringstream output;
+    output << INDEX_HEADER;
+    bool has_entries = false;
+    for (const auto& [id, name] : archives)
     {
         bool exists = false;
-        if (inspectRegular(archivePath(directory, delimiter, id), exists) && exists)
+        if (!inspectRegular(archivePath(directory, delimiter, id), exists) || !exists)
         {
-            archives.emplace_back(archiveName(id), id);
+            continue;
         }
+        has_entries = true;
+        output << quoteCsv(archiveName(id)) << ',' << id.asString() << ','
+               << quoteCsv(name ? name->getAccountName() : PENDING_NAME) << ','
+               << quoteCsv(name ? name->getDisplayName() : PENDING_NAME) << '\n';
     }
-    if (archives.empty())
+    if (!has_entries)
     {
         const int removed = LLFile::remove(index, ENOENT);
         return removed == 0 || errno == ENOENT;
-    }
-
-    // Pending metadata remains explicit and is replaced on a later regeneration.
-    std::ostringstream output;
-    output << INDEX_HEADER;
-    for (const auto& archive : archives)
-    {
-        const auto found = names.find(archive.second);
-        const bool resolved = found != names.end();
-        output << quoteCsv(archive.first) << ',' << archive.second.asString() << ','
-               << quoteCsv(resolved ? found->second.getAccountName() : PENDING_NAME) << ','
-               << quoteCsv(resolved ? found->second.getDisplayName() : PENDING_NAME) << '\n';
     }
     return writeReplace(index, output.str(), false);
 }
@@ -1827,24 +1824,20 @@ bool updateIndex(U32 epoch)
     // Clear the dirty latch before suspension so metadata callbacks can request
     // another pass while this captured manifest is being written.
     sRuntime.index_dirty = false;
-    std::vector<LLUUID> archives;
-    std::map<LLUUID, LLAvatarName> names;
+    index_entries_t archives;
     for (const auto& pair : sRuntime.residents)
     {
         if (pair.second.summary.state == ARCHIVE_VALID)
         {
-            archives.push_back(pair.first);
-        }
-        if (pair.second.metadata.state == META_RESOLVED)
-        {
-            names[pair.first] = pair.second.metadata.name;
+            archives[pair.first] = pair.second.metadata.state == META_RESOLVED
+                ? std::make_optional(pair.second.metadata.name) : std::nullopt;
         }
     }
     const bool updated = runStorage(epoch,
-        [archives, names, directory = sRuntime.account_dir,
+        [archives, directory = sRuntime.account_dir,
          delimiter = sRuntime.delimiter]()
         {
-            return regenerateIndex(archives, names, directory, delimiter);
+            return regenerateIndex(archives, directory, delimiter);
         });
     sRuntime.index_dirty |= !updated;
     return updated;
