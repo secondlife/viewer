@@ -341,9 +341,7 @@ void publishSnapshot(const LLUUID& id, Resident& resident)
         resident.snapshot.metadata = resident.metadata.name;
     }
     resident.snapshot.service_presentation_allowed =
-        sRuntime.rollout && transcriptConsent() &&
-        sRuntime.state_safety == STATE_SAFE && !sRuntime.cleanup_pending &&
-        !sRuntime.delete_requested;
+        LLChatServiceHistory::servicePresentationAllowed();
     postPresentation([id]()
     {
         // Deliver current state, not a captured preview that may have been revoked
@@ -1178,9 +1176,8 @@ bool ensureMetadata(const LLUUID& id, Resident& resident)
 bool baseNetworkEligible(const CapabilityContext& context)
 {
     // The shared gate is re-evaluated before every request and publication phase.
-    return sRuntime.running && sRuntime.rollout && transcriptConsent() &&
-           sRuntime.state_safety == STATE_SAFE && !sRuntime.cleanup_pending &&
-           !sRuntime.delete_requested && context.complete() &&
+    return sRuntime.running && LLChatServiceHistory::servicePresentationAllowed() &&
+           context.complete() &&
            LLMuteList::getInstance() && LLMuteList::getInstance()->isLoadedFromServer();
 }
 
@@ -2083,10 +2080,6 @@ void runDelete(U32 epoch)
     }
 
     // Clear pending only after both sweeps and their required directory syncs succeed.
-    if (!ownsRuntime(epoch))
-    {
-        return;
-    }
     {
         LLMutexLock lock(&sStorageMutex);
         if (!writeState(state_path, boundary, false))
@@ -2222,9 +2215,7 @@ void activateDueActivityRefreshes()
 {
     // Revoked account gates retire pending activity before it can remain
     // a wake source or schedule service work.
-    if (!sRuntime.rollout || !transcriptConsent() ||
-        sRuntime.state_safety != STATE_SAFE || sRuntime.cleanup_pending ||
-        sRuntime.delete_requested)
+    if (!LLChatServiceHistory::servicePresentationAllowed())
     {
         for (auto& pair : sRuntime.residents)
         {
@@ -2281,8 +2272,7 @@ F64 nearestWait()
         {
             deadline = llmin(deadline, pair.second.metadata.deadline);
         }
-        if (!sRuntime.delete_requested && !sRuntime.cleanup_pending &&
-            sRuntime.state_safety == STATE_SAFE && sRuntime.rollout && transcriptConsent() &&
+        if (LLChatServiceHistory::servicePresentationAllowed() &&
             pair.second.activity_refresh_due > 0.0)
         {
             deadline = llmin(deadline, pair.second.activity_refresh_due);
@@ -2458,10 +2448,6 @@ void manager(U32 epoch)
         if (sRuntime.index_dirty && sRuntime.state_safety == STATE_SAFE &&
             !sRuntime.cleanup_pending)
         {
-            if (!ownsRuntime(epoch))
-            {
-                return;
-            }
             if (updateIndex(epoch))
             {
                 continue;
@@ -2871,9 +2857,8 @@ void LLChatServiceHistory::prioritizeResident(const LLUUID& id, bool follow_acti
     }
 
     const CapabilityContext context = sampleContext();
-    const bool potentially_active = sRuntime.rollout && transcriptConsent() &&
-        sRuntime.state_safety == STATE_SAFE && !sRuntime.cleanup_pending &&
-        !sRuntime.delete_requested && context.complete() && !uuidBlocked(id);
+    const bool potentially_active = servicePresentationAllowed() &&
+        context.complete() && !uuidBlocked(id);
     setWorkActive(id, potentially_active);
     wakeManager();
 }
