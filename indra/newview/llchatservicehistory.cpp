@@ -965,39 +965,30 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
     return archiveStamp(path, resulting.file_size, resulting.file_mtime);
 }
 
-std::vector<LLUUID> enumerateArchives(const std::string& directory,
-                                      const std::string& delimiter)
+typedef std::pair<std::vector<LLUUID>, bool> initial_artifacts_t;
+
+initial_artifacts_t enumerateArchives(const std::string& directory)
 {
-    std::vector<LLUUID> result;
-    LLDirIterator iterator(directory, "chat_service_*.csv");
+    // Discover canonical archives and deletable remnants in one directory walk.
+    // The resident map supplies ordering and uniqueness when these IDs are applied.
+    initial_artifacts_t result;
+    LLDirIterator iterator(directory, "chat_service_*");
     std::string name;
     while (iterator.next(name))
     {
         LLUUID id;
         if (canonicalArchiveName(name, id))
         {
-            result.push_back(id);
+            result.first.push_back(id);
         }
-    }
-    std::sort(result.begin(), result.end());
-    result.erase(std::unique(result.begin(), result.end()), result.end());
-    return result;
-}
-
-bool hasOwnedContent(const std::string& directory)
-{
-    LLDirIterator iterator(directory, "chat_service_*");
-    std::string name;
-    while (iterator.next(name))
-    {
         if (ownedArtifactName(name) && name != INDEX_NAME &&
             name != std::string(INDEX_NAME) + ".tmp" && name != STATE_NAME &&
             name != std::string(STATE_NAME) + ".tmp")
         {
-            return true;
+            result.second = true;
         }
     }
-    return false;
+    return result;
 }
 
 bool regenerateIndex(const std::vector<LLUUID>& ids,
@@ -2107,13 +2098,10 @@ bool initializeArchives(U32 epoch)
     // prepared incrementally by the manager so startup remains bounded.
     LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
     const std::string directory = sRuntime.account_dir;
-    const std::string delimiter = sRuntime.delimiter;
-    typedef std::pair<std::vector<LLUUID>, bool> initial_artifacts_t;
     const initial_artifacts_t artifacts = general
-        ? general->waitForResult([directory, delimiter]()
+        ? general->waitForResult([directory]()
           {
-              return initial_artifacts_t(enumerateArchives(directory, delimiter),
-                                         hasOwnedContent(directory));
+              return enumerateArchives(directory);
           })
         : initial_artifacts_t();
     if (!ownsRuntime(epoch))
