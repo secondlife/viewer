@@ -54,6 +54,7 @@
 #include "llstl.h"
 #include "llmsgvariabletype.h"
 #include "llmessagesenderinterface.h"
+#include "lludpreceiverthread.h"
 
 #include "llstoredmessage.h"
 #include "llpounceable.h"
@@ -994,6 +995,10 @@ private:
     LLMessageReaderPointer mMessageReader;
     LLTemplateMessageReader* mTemplateMessageReader;
     LLSDMessageReader* mLLSDMessageReader;
+
+    // Packet queue and receiver thread for incoming packets from an UDP thread.
+    std::shared_ptr<LLUDPReceiverThread::PacketQueue> mIncomingQueue;
+    std::unique_ptr<LLUDPReceiverThread> mReceiverThread;
 
     friend class LLMessageHandlerBridge;
     friend class LockMessageChecker;
