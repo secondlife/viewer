@@ -57,7 +57,6 @@ namespace LLChatServiceHistoryCore
     struct ListEntry
     {
         LLUUID resident_id;
-        std::string conversation_id;
         std::string last_msg_id;
     };
 
@@ -150,7 +149,6 @@ namespace LLChatServiceHistoryCore
                                   std::vector<ListEntry>& entries);
     bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
                              const LLUUID& resident_id,
-                             const std::string& conversation_id,
                              const std::string& requested_cursor,
                              U64 deleted_before_ticks, Page& page);
 

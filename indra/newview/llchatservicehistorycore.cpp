@@ -760,7 +760,7 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
         // resident conversations can have a local history archive.
         if (resident.notNull())
         {
-            entries.push_back({resident, conversation, token});
+            entries.push_back({resident, token});
         }
     }
 
@@ -769,11 +769,11 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
 
 bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
                          const LLUUID& resident_id,
-                         const std::string& conversation_id,
                          const std::string& requested_cursor,
                          U64 deleted_before_ticks, Page& page)
 {
     page = Page();
+    const std::string conversation_id = directConversationId(agent_id, resident_id);
 
     // The service echoes the exact conversation and fixed page size. Coercible LLSD
     // types are rejected so paging state cannot drift across malformed responses.

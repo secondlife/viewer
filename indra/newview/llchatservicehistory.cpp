@@ -138,7 +138,6 @@ struct Metadata
 struct Resident
 {
     // Discovery identity and the durable service range already covered.
-    std::string conversation_id;
     std::string advertised_token;
     std::string covered_token;
     U32 archive_serial = 0;
@@ -185,7 +184,6 @@ struct Runtime
 
     // Discovery and archive-maintenance state.
     bool initialized_archives = false;
-    bool list_valid = false;
     bool list_needed = true;
     bool list_retry_used = false;
 
@@ -1161,14 +1159,12 @@ bool processList(const LLSD& body, bool& confirm_activity_discovery)
             setWorkActive(pair.first, false);
         }
     }
-    const bool first_list = !sRuntime.list_valid;
     for (const ListEntry& entry : entries)
     {
         Resident& resident = sRuntime.residents[entry.resident_id];
         const bool placeholder = std::find(sRuntime.queue.begin(), sRuntime.queue.end(),
                                            entry.resident_id) != sRuntime.queue.end();
         const bool changed = resident.advertised_token != entry.last_msg_id;
-        resident.conversation_id = entry.conversation_id;
         resident.advertised_token = entry.last_msg_id;
         resident.listed = true;
         resident.activity_discovery = DISCOVERY_NONE;
@@ -1177,16 +1173,14 @@ bool processList(const LLSD& body, bool& confirm_activity_discovery)
             resident.metadata.state = META_UNREQUESTED;
         }
 
-        // Queue only when discovery or archive coverage says the head may contain
-        // unseen rows; token equality is not used as a TimeUUID ordering claim.
-        if (!placeholder && (first_list || changed ||
-            resident.covered_token != resident.advertised_token))
+        // Empty coverage queues first discovery. Later lists queue changed or
+        // uncovered heads; token equality is not a TimeUUID ordering claim.
+        if (!placeholder && (changed || resident.covered_token != resident.advertised_token))
         {
             resident.retry_used = false;
             queueResident(entry.resident_id, false);
         }
     }
-    sRuntime.list_valid = true;
     return true;
 }
 
@@ -1293,7 +1287,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
 
     // Resolve prerequisites before starting a pass. Only the manager erases
     // residents; its checked waits terminate before a reference can become stale.
-    if (!resident.listed || resident.conversation_id.empty())
+    if (!resident.listed)
     {
         resident.activity_discovery = DISCOVERY_NONE;
         resident.snapshot.head_preview.clear();
@@ -1345,6 +1339,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     bool had_boundary = !needs_prepare && resident.summary.state == ARCHIVE_VALID &&
                         resident.summary.has_oldest;
     TimeUuidKey stored_newest = resident.summary.newest;
+    const std::string conversation_id = directConversationId(sRuntime.agent_id, id);
     std::vector<Row> staged;
     size_t staged_bytes = 0;
     U32 returned_rows = 0;
@@ -1388,7 +1383,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         }
         resident.first_request_started = true;
         LLSD post;
-        post["conversation_id"] = resident.conversation_id;
+        post["conversation_id"] = conversation_id;
         post["limit"] = 100;
         if (!cursor.empty())
         {
@@ -1410,8 +1405,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
             return;
         }
         Page page;
-        if (!validateHistoryPage(response.body, sRuntime.agent_id, id,
-                                 resident.conversation_id, cursor,
+        if (!validateHistoryPage(response.body, sRuntime.agent_id, id, cursor,
                                  sRuntime.deleted_before_ticks, page))
         {
             return;

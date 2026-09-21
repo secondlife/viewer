@@ -118,21 +118,21 @@ template<> template<> void object_t::test<4>()
 
     Page page;
     ensure("strict descending page", validateHistoryPage(
-        wirePage(rows), AGENT, RESIDENT, directConversationId(AGENT, RESIDENT),
+        wirePage(rows), AGENT, RESIDENT,
         "", 0, page));
     ensure_equals("all rows retained", page.rows.size(), size_t(2));
     ensure_equals("oldest cursor", page.next_cursor, std::string(FIRST));
 
     // The deletion boundary is inclusive and ends paging, but not validation.
     ensure("cutoff page accepted", validateHistoryPage(
-        wirePage(rows), AGENT, RESIDENT, directConversationId(AGENT, RESIDENT), "", 1, page));
+        wirePage(rows), AGENT, RESIDENT, "", 1, page));
     ensure_equals("only newer rows retained", page.rows.size(), size_t(1));
     ensure_equals("newer row retained", page.rows.front().msg_id, std::string(SECOND));
     ensure("cutoff ends paging", page.terminal && page.next_cursor.empty());
     rows.append(wireRow("00000000-0000-1000-8000-000000000000"));
     rows[2]["dialog"] = 99;
     ensure("invalid row below cutoff rejected", !validateHistoryPage(
-        wirePage(rows), AGENT, RESIDENT, directConversationId(AGENT, RESIDENT), "", 1, page));
+        wirePage(rows), AGENT, RESIDENT, "", 1, page));
 }
 
 template<> template<> void object_t::test<5>()
@@ -144,21 +144,25 @@ template<> template<> void object_t::test<5>()
 
     Page page;
     ensure("ascending page rejected", !validateHistoryPage(
-        wirePage(rows), AGENT, RESIDENT, directConversationId(AGENT, RESIDENT),
+        wirePage(rows), AGENT, RESIDENT,
         "", 0, page));
 
     // Ordering alone rejects duplicates, including replay of the preceding page's cursor.
     rows[1] = rows[0];
     ensure("duplicate row rejected", !validateHistoryPage(
-        wirePage(rows), AGENT, RESIDENT, directConversationId(AGENT, RESIDENT), "", 0, page));
+        wirePage(rows), AGENT, RESIDENT, "", 0, page));
     rows.erase(1);
     ensure("cursor row cannot repeat on the next page", !validateHistoryPage(
-        wirePage(rows, FIRST), AGENT, RESIDENT, directConversationId(AGENT, RESIDENT), FIRST, 0, page));
+        wirePage(rows, FIRST), AGENT, RESIDENT, FIRST, 0, page));
 
     LLSD wrong = wirePage(LLSD::emptyArray());
+    wrong["conversation_id"] = directConversationId(AGENT, LLUUID::null);
+    ensure("another conversation rejected", !validateHistoryPage(
+        wrong, AGENT, RESIDENT, "", 0, page));
+    wrong = wirePage(LLSD::emptyArray());
     wrong["limit"] = "100";
     ensure("coercible type rejected", !validateHistoryPage(
-        wrong, AGENT, RESIDENT, directConversationId(AGENT, RESIDENT), "", 0, page));
+        wrong, AGENT, RESIDENT, "", 0, page));
 }
 
 template<> template<> void object_t::test<6>()
@@ -1047,8 +1051,6 @@ template<> template<> void object_t::test<36>()
                validateConversationList(list, AGENT, entries));
         ensure_equals("only the resident is scheduled", entries.size(), size_t(1));
         ensure_equals("resident identity preserved", entries.front().resident_id, RESIDENT);
-        ensure_equals("conversation identity preserved", entries.front().conversation_id,
-                      peer["conversation_id"].asString());
         ensure_equals("history token preserved", entries.front().last_msg_id, std::string(SECOND));
     }
 }
