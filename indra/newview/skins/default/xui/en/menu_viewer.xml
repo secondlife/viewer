@@ -1374,7 +1374,7 @@ function="World.EnvPreset"
              parameter="script_debug" />
           </menu_item_check>
           <menu_item_call
-             label="Recompile Scripts (Mono)"
+             label="Recompile LSL Scripts (Mono)"
              name="Mono">
             <menu_item_call.on_click
                function="Tools.SelectedScriptAction"
@@ -1383,7 +1383,7 @@ function="World.EnvPreset"
                function="EditableSelectedMono" />
           </menu_item_call>
           <menu_item_call
-             label="Recompile Scripts (LSL)"
+             label="Recompile LSL Scripts (Legacy LSL)"
              name="LSL">
             <menu_item_call.on_click
                function="Tools.SelectedScriptAction"
@@ -1392,20 +1392,20 @@ function="World.EnvPreset"
                function="EditableSelected" />
           </menu_item_call>
           <menu_item_call
-             label="Recompile Scripts (Lua)"
-             name="Lua">
-            <menu_item_call.on_click
-               function="Tools.SelectedScriptAction"
-               parameter="compile lua" />
-            <menu_item_call.on_enable
-               function="EditableSelectedLua" />
-          </menu_item_call>
-          <menu_item_call
-             label="Recompile Scripts (LSL on Luau)"
+             label="Recompile LSL Scripts (LSL on Luau)"
              name="LSL on Luau">
             <menu_item_call.on_click
                function="Tools.SelectedScriptAction"
                parameter="compile lsl-luau" />
+            <menu_item_call.on_enable
+               function="EditableSelectedLua" />
+          </menu_item_call>
+          <menu_item_call
+             label="Recompile Lua Scripts"
+             name="Lua">
+            <menu_item_call.on_click
+               function="Tools.SelectedScriptAction"
+               parameter="compile lua" />
             <menu_item_call.on_enable
                function="EditableSelectedLua" />
           </menu_item_call>
