@@ -996,11 +996,11 @@ void LLWebRTCImpl::updateDevices()
     // Force a reinit if the OS-resolved default device changed
     // On windows this is going to be unused.
     bool defaultPlayoutChanged = mPlayoutDevice == "Default"
-        && !mDefaultPlayoutDeviceGuid.empty()
+        && mHaveDefaultPlayoutDeviceGuid
         && !newDefaultPlayoutDeviceGuid.empty()
         && mDefaultPlayoutDeviceGuid != newDefaultPlayoutDeviceGuid;
     bool defaultRecordingChanged = mRecordingDevice == "Default"
-        && !mDefaultRecordingDeviceGuid.empty()
+        && mHaveDefaultRecordingDeviceGuid
         && !newDefaultRecordingDeviceGuid.empty()
         && mDefaultRecordingDeviceGuid != newDefaultRecordingDeviceGuid;
 
@@ -1015,6 +1015,8 @@ void LLWebRTCImpl::updateDevices()
 
     mDefaultPlayoutDeviceGuid = newDefaultPlayoutDeviceGuid;
     mDefaultRecordingDeviceGuid = newDefaultRecordingDeviceGuid;
+    mHaveDefaultPlayoutDeviceGuid = true;
+    mHaveDefaultRecordingDeviceGuid = true;
 
     bool reset_module = lostPlayoutDevice || lostRecordingDevice || defaultPlayoutChanged || defaultRecordingChanged;
 

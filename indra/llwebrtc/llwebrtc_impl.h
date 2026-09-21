@@ -573,6 +573,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     // updateDevices() can detect that case and force a clean re-select.
     std::string                                                mDefaultPlayoutDeviceGuid;
     std::string                                                mDefaultRecordingDeviceGuid;
+    bool                                                       mHaveDefaultPlayoutDeviceGuid{ false };
+    bool                                                       mHaveDefaultRecordingDeviceGuid{ false };
 
     bool                                                       mMute;
     // Whether voice is enabled; gates whether the capture/playout devices run.
