@@ -52,7 +52,6 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
     mPageSize(CONVERSATION_HISTORY_PAGE_SIZE),
     mAccountName(session_id[LL_FCP_ACCOUNT_NAME]),
     mCompleteName(session_id[LL_FCP_COMPLETE_NAME]),
-    mMutex(),
     mShowHistory(false),
     mMessages(NULL),
     mHistoryThreadsBusy(false),
@@ -127,9 +126,6 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>* messages, const std
 {
     if(file_name == mChatHistoryFileName && messages)
     {
-        // additional protection to avoid changes of mMessages in setPages()
-        LLMutexLock lock(&mMutex);
-
         // Preserve the reader's distance from the newest page while asynchronous
         // reloads replace the backing list.
         const S32 old_last_page = mMessages && !mMessages->empty()
@@ -154,11 +150,6 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>* messages, const std
         std::string total_page_num = llformat("/ %d", last_page+1);
         getChild<LLTextBox>("page_num_label")->setValue(total_page_num);
         mShowHistory = true;
-    }
-    LLLoadHistoryThread* loadThread = LLLogChat::getInstance()->getLoadHistoryThread(mSessionID);
-    if (loadThread)
-    {
-        loadThread->removeLoadEndSignal(boost::bind(&LLFloaterConversationPreview::setPages, this, _1, _2));
     }
 }
 
@@ -364,8 +355,7 @@ void LLFloaterConversationPreview::invalidateHistory()
 
 void LLFloaterConversationPreview::showHistory()
 {
-    // additional protection to avoid changes of mMessages in setPages
-    LLMutexLock lock(&mMutex);
+    // Both loaders publish on the main loop, so pages stay stable during rendering.
     mChatHistory->clear();
     if(mMessages == NULL || !mMessages->size() || mCurrentPage * mPageSize >= mMessages->size())
     {

@@ -60,7 +60,6 @@ private:
     void showHistory();
     void startLegacyLoad();
 
-    LLMutex         mMutex;
     LLSpinCtrl*     mPageSpinner;
     LLChatHistory*  mChatHistory;
     LLUUID          mSessionID;

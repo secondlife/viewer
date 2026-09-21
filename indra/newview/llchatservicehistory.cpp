@@ -56,16 +56,6 @@
 #include <set>
 #include <sstream>
 
-// Keep exact-path legacy parsing behind LLLogChat's narrow stitching bridge.
-struct LLChatServiceHistoryAccess
-{
-    static void loadLegacy(const std::string& path, std::list<LLSD>& messages,
-                           const LLSD& parameters)
-    {
-        LLLogChat::loadChatHistoryExactUnchecked(path, messages, parameters);
-    }
-};
-
 namespace
 {
 using namespace LLChatServiceHistoryCore;
@@ -2803,7 +2793,7 @@ LLChatServiceHistory::HistoryResult readStitched(
     parameters["cut_off_todays_date"] = false;
     for (const std::string& path : legacy_paths)
     {
-        LLChatServiceHistoryAccess::loadLegacy(path, legacy, parameters);
+        LLLogChat::loadChatHistoryExact(path, legacy, parameters);
     }
 
     const F64 service_epoch = archive.has_oldest
