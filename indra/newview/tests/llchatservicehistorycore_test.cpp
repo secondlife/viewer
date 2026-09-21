@@ -122,6 +122,17 @@ template<> template<> void object_t::test<4>()
         "", 0, page));
     ensure_equals("all rows retained", page.rows.size(), size_t(2));
     ensure_equals("oldest cursor", page.next_cursor, std::string(FIRST));
+
+    // The deletion boundary is inclusive and ends paging, but not validation.
+    ensure("cutoff page accepted", validateHistoryPage(
+        wirePage(rows), AGENT, RESIDENT, directConversationId(AGENT, RESIDENT), "", 1, page));
+    ensure_equals("only newer rows retained", page.rows.size(), size_t(1));
+    ensure_equals("newer row retained", page.rows.front().msg_id, std::string(SECOND));
+    ensure("cutoff ends paging", page.terminal && page.next_cursor.empty());
+    rows.append(wireRow("00000000-0000-1000-8000-000000000000"));
+    rows[2]["dialog"] = 99;
+    ensure("invalid row below cutoff rejected", !validateHistoryPage(
+        wirePage(rows), AGENT, RESIDENT, directConversationId(AGENT, RESIDENT), "", 1, page));
 }
 
 template<> template<> void object_t::test<5>()

@@ -132,7 +132,7 @@ struct CapabilityContext
 
 struct Summary
 {
-    // Logical validity and retained-row count.
+    // Logical validity and whether retained rows exist.
     ESummary state = SUMMARY_UNPREPARED;
     bool has_rows = false;
 
@@ -141,8 +141,7 @@ struct Summary
     U64 file_size = 0;
     S64 file_mtime = 0;
 
-    // Validated TimeUUID bounds for seam and append decisions.
-    TimeUuidKey oldest;
+    // The newest durable key is the append boundary.
     TimeUuidKey newest;
 };
 
@@ -803,7 +802,6 @@ Summary summaryFromScan(const ArchiveScan& scan)
     result.file_exists = scan.state != ARCHIVE_ABSENT;
     result.file_size = scan.file_size;
     result.file_mtime = scan.file_mtime;
-    result.oldest = scan.oldest;
     result.newest = scan.newest;
     return result;
 }
@@ -963,11 +961,7 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
 
     // Advance the in-memory summary only after the filesystem mutation succeeds.
     resulting.state = SUMMARY_VALID;
-    if (!resulting.has_rows)
-    {
-        resulting.oldest = rows.front().key;
-        resulting.has_rows = true;
-    }
+    resulting.has_rows = true;
     resulting.newest = rows.back().key;
     resulting.file_exists = true;
     return archiveStamp(path, resulting.file_size, resulting.file_mtime);
@@ -2787,11 +2781,6 @@ void LLChatServiceHistory::regionChanged()
     }
 
     wakeManager();
-}
-
-bool LLChatServiceHistory::enabledForLogin()
-{
-    return sRuntime.rollout;
 }
 
 U32 LLChatServiceHistory::accountEpoch()

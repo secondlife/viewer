@@ -34,17 +34,9 @@ namespace LLChatServiceHistoryCore
 
         bool operator==(const TimeUuidKey& rhs) const;
         bool operator<(const TimeUuidKey& rhs) const;
-        bool operator>(const TimeUuidKey& rhs) const
-        {
-            return rhs < *this;
-        }
         bool operator<=(const TimeUuidKey& rhs) const
         {
             return !(rhs < *this);
-        }
-        bool operator>=(const TimeUuidKey& rhs) const
-        {
-            return !(*this < rhs);
         }
     };
 
@@ -76,7 +68,6 @@ namespace LLChatServiceHistoryCore
         std::vector<Row> rows;
         std::string next_cursor;
         bool terminal = false;
-        bool cutoff_reached = false;
     };
 
     // Archive states distinguish repairable torn tails from complete corrupt records.

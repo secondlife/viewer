@@ -840,15 +840,15 @@ bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
         // same validated page remain suppressed and older paging terminates.
         if (row.key.ticks <= deleted_before_ticks)
         {
-            page.cutoff_reached = true;
+            page.terminal = true;
         }
-        else if (!page.cutoff_reached)
+        else
         {
             page.rows.push_back(row);
         }
     }
 
-    page.terminal = value["messages"].size() == 0 || page.cutoff_reached;
+    page.terminal = page.terminal || value["messages"].size() == 0;
     if (page.terminal)
     {
         page.next_cursor.clear();

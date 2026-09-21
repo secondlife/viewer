@@ -69,7 +69,6 @@ namespace LLChatServiceHistory
 
     // Account-wide gates keep all historical sources fail-closed during unsafe state
     // recovery or transcript deletion.
-    bool enabledForLogin();
     U32 accountEpoch();
     bool historySuppressed();
     bool servicePresentationAllowed();
