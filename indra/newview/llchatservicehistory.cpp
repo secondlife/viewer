@@ -160,7 +160,6 @@ struct Resident
     std::string conversation_id;
     std::string advertised_token;
     std::string covered_token;
-    U32 covered_serial = 0;
     U32 archive_serial = 0;
 
     Summary summary;
@@ -168,7 +167,6 @@ struct Resident
 
     // Coalesced scheduler state for this resident's current or next pass.
     bool listed = false;
-    bool force_head = false;
     bool forced_followup = false;
     bool first_request_started = false;
     bool retry_used = false;
@@ -1358,9 +1356,8 @@ bool processList(const LLSD& body, bool& confirm_activity_discovery)
 
         // Queue only when discovery or archive coverage says the head may contain
         // unseen rows; token equality is not used as a TimeUUID ordering claim.
-        if (!placeholder && (first_list || changed || resident.force_head ||
-            resident.covered_token != resident.advertised_token ||
-            resident.covered_serial != resident.archive_serial))
+        if (!placeholder && (first_list || changed ||
+            resident.covered_token != resident.advertised_token))
         {
             resident.retry_used = false;
             queueResident(entry.resident_id, false);
@@ -1428,6 +1425,39 @@ void requestList(const CapabilityContext& context, U32 epoch)
         sRuntime.list_needed = false;
         sRuntime.next_list = F64(LLTimer::getTotalSeconds()) + LIST_INTERVAL;
     }
+}
+
+bool prepareResidentArchive(const LLUUID& id, U32 epoch)
+{
+    const std::string path = archivePath(sRuntime.account_dir, sRuntime.delimiter, id);
+    const LLUUID agent_id = sRuntime.agent_id;
+    const U64 boundary = sRuntime.deleted_before_ticks;
+    bool changed = false;
+    Summary summary;
+    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
+    const bool prepared = general && general->waitForResult(
+        [path, id, agent_id, boundary, &summary, &changed]()
+        {
+            return prepareArchive(path, id, agent_id, boundary, summary, changed);
+        });
+    if (!ownsRuntime(epoch) || !prepared)
+    {
+        return false;
+    }
+
+    // Only this manager removes residents, so the epoch check preserves their
+    // identity across the worker wait. Repair invalidates both views and coverage.
+    Resident& current = sRuntime.residents.at(id);
+    current.summary = summary;
+    sRuntime.index_dirty = true;
+    if (changed)
+    {
+        ++current.archive_serial;
+        current.covered_token.clear();
+        sRuntime.local_content_exists = true;
+    }
+    publishSnapshot(id, current);
+    return ownsRuntime(epoch);
 }
 
 void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
@@ -1629,17 +1659,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         // The first validated page is visible before a potentially years-long archive scan.
         if (needs_prepare)
         {
-            bool bytes_changed = false;
-            Summary summary;
-            const std::string path = archivePath(sRuntime.account_dir, sRuntime.delimiter, id);
-            const LLUUID agent_id = sRuntime.agent_id;
-            const U64 boundary = sRuntime.deleted_before_ticks;
-            LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-            const bool prepared = general && general->waitForResult(
-                [path, id, agent_id, boundary, &summary, &bytes_changed]()
-                {
-                    return prepareArchive(path, id, agent_id, boundary, summary, bytes_changed);
-                });
+            const bool prepared = prepareResidentArchive(id, epoch);
             found = sRuntime.residents.find(id);
             if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
             {
@@ -1654,18 +1674,9 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
                     return;
                 }
                 needs_prepare = false;
-                after_prepare.summary = summary;
-                sRuntime.index_dirty = true;
-                had_boundary = summary.state == SUMMARY_VALID && summary.has_rows;
-                stored_newest = summary.newest;
-                if (bytes_changed)
-                {
-                    ++after_prepare.archive_serial;
-                    after_prepare.covered_token.clear();
-                    sRuntime.index_dirty = true;
-                    sRuntime.local_content_exists = true;
-                    publishSnapshot(id, after_prepare);
-                }
+                had_boundary = after_prepare.summary.state == SUMMARY_VALID &&
+                               after_prepare.summary.has_rows;
+                stored_newest = after_prepare.summary.newest;
 
                 // Archive inspection is also an awaited page boundary; apply any
                 // activity priority that matured while it ran before staging rows.
@@ -1724,11 +1735,6 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         complete = page.terminal || reached_stored_newest;
         if (!complete)
         {
-            if (page.next_cursor.empty())
-            {
-                staged.clear();
-                break;
-            }
             cursor = page.next_cursor;
         }
     }
@@ -1755,10 +1761,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     }
 
     // The service pages arrive newest-first; canonical publication is oldest-first.
-    std::sort(staged.begin(), staged.end(), [](const Row& left, const Row& right)
-    {
-        return left.key < right.key;
-    });
+    std::reverse(staged.begin(), staged.end());
 
     found = sRuntime.residents.find(id);
     if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
@@ -1881,13 +1884,11 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     if (changed || staged.empty())
     {
         applied.covered_token = applied.advertised_token;
-        applied.covered_serial = applied.archive_serial;
     }
 
     if (!publication_failed)
     {
         applied.retry_used = false;
-        applied.force_head = false;
     }
 
     applied.snapshot.head_preview.clear();
@@ -2166,44 +2167,17 @@ bool prepareOneArchive(U32 epoch)
         // Prepare one archive per manager turn so network priority and lifecycle
         // events can interleave with storage maintenance.
         const LLUUID id = pair.first;
-        const std::string path = archivePath(sRuntime.account_dir, sRuntime.delimiter, id);
-        const LLUUID agent_id = sRuntime.agent_id;
-        const U64 boundary = sRuntime.deleted_before_ticks;
-        bool changed = false;
-        Summary summary;
-        LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-        const bool prepared = general && general->waitForResult(
-            [path, id, agent_id, boundary, &summary, &changed]()
-            {
-                return prepareArchive(path, id, agent_id, boundary, summary, changed);
-            });
-        if (!ownsRuntime(epoch))
+        if (!prepareResidentArchive(id, epoch))
         {
             return false;
         }
-        auto found = sRuntime.residents.find(id);
-        if (found == sRuntime.residents.end())
+        Resident& current = sRuntime.residents.at(id);
+        if (current.summary.has_rows)
         {
-            return false;
+            ensureMetadata(id, current);
         }
-        Resident& current = found->second;
-        if (prepared)
-        {
-            current.summary = summary;
-            // Prepared validity changes index membership even when no bytes required repair.
-            sRuntime.index_dirty = true;
-            if (changed)
-            {
-                ++current.archive_serial;
-            }
-            if (summary.has_rows)
-            {
-                ensureMetadata(id, current);
-            }
-            publishSnapshot(id, current);
-            postPresentation(LLLogChat::notifyTranscriptCreated);
-        }
-        return prepared;
+        postPresentation(LLLogChat::notifyTranscriptCreated);
+        return true;
     }
     return false;
 }
@@ -2892,7 +2866,6 @@ void LLChatServiceHistory::prioritizeResident(const LLUUID& id, bool follow_acti
     // Coalesce priority triggers into one front occurrence. A qualifying trigger
     // after the active request began records at most one follow-up pass.
     Resident& resident = sRuntime.residents[id];
-    resident.force_head = true;
     resident.retry_used = false;
     if (resident.metadata.state == META_FAILED)
     {
