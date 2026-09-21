@@ -58,7 +58,6 @@ private:
     // stitched loader and resident snapshot stream.
     void onMoreHistoryBtnClick();
     void showHistory();
-    void startLegacyLoad();
 
     LLSpinCtrl*     mPageSpinner;
     LLChatHistory*  mChatHistory;
@@ -80,7 +79,6 @@ private:
     // Fence legacy completions across close, reopen, and deletion.
     U64             mServiceToken;
     LLChatServiceHistory::History mServiceHistory;
-    boost::signals2::connection mHistoryContentConnection;
 };
 
 #endif /* LLFLOATERCONVERSATIONPREVIEW_H_ */

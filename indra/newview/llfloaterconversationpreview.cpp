@@ -63,7 +63,6 @@ LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_i
 
 LLFloaterConversationPreview::~LLFloaterConversationPreview()
 {
-    mHistoryContentConnection.disconnect();
     delete mMessages;
 }
 
@@ -199,37 +198,11 @@ void LLFloaterConversationPreview::onOpen(const LLSD& key)
         return;
     }
 
-    // Legacy Preview reloads after plaintext writes, using a weak handle so a closed
-    // floater is never re-entered by the content signal.
-    LLHandle<LLFloaterConversationPreview> handle =
-        getDerivedHandle<LLFloaterConversationPreview>();
-    mHistoryContentConnection = LLLogChat::getInstance()->setSaveHistorySignal([handle]()
-    {
-        LLFloaterConversationPreview* floater = handle.get();
-        if (floater && floater->mOpened && !LLChatServiceHistory::historySuppressed())
-        {
-            floater->startLegacyLoad();
-        }
-    });
-
-    startLegacyLoad();
-}
-
-void LLFloaterConversationPreview::startLegacyLoad()
-{
-    if (!mOpened || mIsP2P)
-    {
-        return;
-    }
-
+    // Legacy Preview loads once per open, with completion fenced by its open token.
     if (LLChatServiceHistory::historySuppressed())
     {
         return;
     }
-
-    // Each save signal schedules at most one loader; completion reconnects through
-    // the normal Preview lifecycle rather than overlapping worker threads.
-    mHistoryContentConnection.disconnect();
 
     if (!LLLogChat::getInstance()->historyThreadsFinished(mSessionID))
     {
@@ -304,7 +277,6 @@ void LLFloaterConversationPreview::onClose(bool app_quitting)
     mOpened = false;
     ++mServiceToken;
     mServiceHistory.stop();
-    mHistoryContentConnection.disconnect();
 
     if (mIsP2P)
     {
