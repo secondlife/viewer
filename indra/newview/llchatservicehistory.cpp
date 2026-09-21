@@ -205,8 +205,8 @@ struct Runtime
 
     // Login-scoped capability, storage, and identity inputs.
     CapabilityContext context;
+    // LLDir supplies a trailing separator for captured account filenames.
     std::string account_dir;
-    std::string delimiter;
     LLUUID agent_id;
 
     // One active resident plus a coalesced priority/background queue.
@@ -270,36 +270,14 @@ void postPresentation(const nullary_func_t& work)
     });
 }
 
-std::string accountPath(const std::string& filename)
-{
-    return gDirUtilp ? gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, filename)
-                     : std::string();
-}
-
-std::string childPath(const std::string& directory, const std::string& delimiter,
-                      const std::string& filename)
-{
-    if (directory.empty() || filename.empty())
-    {
-        return directory + filename;
-    }
-    if (directory.back() == '/' || directory.back() == '\\')
-    {
-        return directory + filename;
-    }
-
-    return directory + delimiter + filename;
-}
-
 std::string archiveName(const LLUUID& resident_id)
 {
     return "chat_service_" + resident_id.asString() + ".csv";
 }
 
-std::string archivePath(const std::string& directory, const std::string& delimiter,
-                        const LLUUID& resident_id)
+std::string archivePath(const std::string& directory, const LLUUID& resident_id)
 {
-    return childPath(directory, delimiter, archiveName(resident_id));
+    return directory + archiveName(resident_id);
 }
 
 bool transcriptConsent()
@@ -858,12 +836,12 @@ initial_artifacts_t enumerateArchives(const std::string& directory)
 using index_entries_t = std::map<LLUUID, std::optional<LLAvatarName>>;
 
 bool regenerateIndex(const index_entries_t& archives,
-                     const std::string& directory, const std::string& delimiter)
+                     const std::string& directory)
 {
     LLMutexLock lock(&sStorageMutex);
 
     // Remove unsafe index paths before rebuilding the non-authoritative manifest.
-    const std::string index = childPath(directory, delimiter, INDEX_NAME);
+    const std::string index = directory + INDEX_NAME;
     const std::string temporary = index + ".tmp";
     for (const std::string& path : { index, temporary })
     {
@@ -886,7 +864,7 @@ bool regenerateIndex(const index_entries_t& archives,
     for (const auto& [id, name] : archives)
     {
         bool exists = false;
-        if (!inspectRegular(archivePath(directory, delimiter, id), exists) || !exists)
+        if (!inspectRegular(archivePath(directory, id), exists) || !exists)
         {
             continue;
         }
@@ -1246,7 +1224,7 @@ void requestList(const CapabilityContext& context, U32 epoch)
 
 bool prepareResidentArchive(const LLUUID& id, U32 epoch)
 {
-    const std::string path = archivePath(sRuntime.account_dir, sRuntime.delimiter, id);
+    const std::string path = archivePath(sRuntime.account_dir, id);
     const LLUUID agent_id = sRuntime.agent_id;
     const U64 boundary = sRuntime.deleted_before_ticks;
     bool changed = false;
@@ -1482,7 +1460,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     {
         ArchiveScan resulting = resident.summary;
         const bool append = resident.summary.state == ARCHIVE_VALID && resident.summary.has_oldest;
-        const std::string path = archivePath(sRuntime.account_dir, sRuntime.delimiter, id);
+        const std::string path = archivePath(sRuntime.account_dir, id);
         changed = runStorage(epoch, [path, staged, append, &resulting]()
         {
             return publishRows(path, staged, append, resulting);
@@ -1551,8 +1529,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     clearPriority(id);
 }
 
-bool sweepServiceArtifacts(const std::string& directory, const std::string& delimiter,
-                           const std::string& state_path)
+bool sweepServiceArtifacts(const std::string& directory, const std::string& state_path)
 {
     LLMutexLock lock(&sStorageMutex);
 
@@ -1565,7 +1542,7 @@ bool sweepServiceArtifacts(const std::string& directory, const std::string& deli
     {
         if (ownedArtifactName(name) && name != STATE_NAME)
         {
-            targets.push_back(childPath(directory, delimiter, name));
+            targets.push_back(directory + name);
         }
     }
 
@@ -1625,7 +1602,7 @@ void finishDelete(bool success)
 
 void runDelete(U32 epoch)
 {
-    const std::string state_path = childPath(sRuntime.account_dir, sRuntime.delimiter, STATE_NAME);
+    const std::string state_path = sRuntime.account_dir + STATE_NAME;
     U64 boundary = sRuntime.delete_click_ticks;
 
     // Publish the inclusive cutoff as pending before invalidating views or removing
@@ -1706,11 +1683,10 @@ void runDelete(U32 epoch)
     const std::string chat_logs_dir =
         gDirUtilp ? gDirUtilp->getPerAccountChatLogsDir() : std::string();
     const bool swept = runStorage(epoch,
-        [chat_logs_dir, directory = sRuntime.account_dir,
-         delimiter = sRuntime.delimiter, state_path]()
+        [chat_logs_dir, directory = sRuntime.account_dir, state_path]()
         {
             return !chat_logs_dir.empty() && LLLogChat::deleteTranscriptContent(chat_logs_dir) &&
-                   sweepServiceArtifacts(directory, delimiter, state_path);
+                   sweepServiceArtifacts(directory, state_path);
         });
     if (!swept)
     {
@@ -1796,10 +1772,9 @@ bool updateIndex(U32 epoch)
         }
     }
     const bool updated = runStorage(epoch,
-        [archives, directory = sRuntime.account_dir,
-         delimiter = sRuntime.delimiter]()
+        [archives, directory = sRuntime.account_dir]()
         {
-            return regenerateIndex(archives, directory, delimiter);
+            return regenerateIndex(archives, directory);
         });
     sRuntime.index_dirty |= !updated;
     return updated;
@@ -1907,8 +1882,7 @@ void manager(U32 epoch)
         if (sRuntime.state_safety == STATE_UNKNOWN)
         {
             // Load privacy state before archives, views, or network work become eligible.
-            const std::string state_path = childPath(sRuntime.account_dir,
-                                                     sRuntime.delimiter, STATE_NAME);
+            const std::string state_path = sRuntime.account_dir + STATE_NAME;
             const StateResult state = runStorage(epoch, [state_path]()
             {
                 LLMutexLock lock(&sStorageMutex);
@@ -2233,8 +2207,8 @@ void LLChatServiceHistory::start()
     ++sRuntime.epoch;
     sRuntime.running = true;
     sRuntime.rollout = gSavedSettings.getBOOL(ENABLED_SETTING);
-    sRuntime.account_dir = accountPath("");
-    sRuntime.delimiter = gDirUtilp ? gDirUtilp->getDirDelimiter() : std::string("/");
+    sRuntime.account_dir = gDirUtilp
+        ? gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "") : std::string();
     sRuntime.agent_id = gAgentID;
     sRuntime.state_safety = STATE_UNKNOWN;
     sRuntime.next_list = 0.0;
@@ -2577,7 +2551,7 @@ bool LLChatServiceHistory::loadStitchedHistory(
     const std::vector<Row> preview = include_service
         ? resident.snapshot.head_preview : std::vector<Row>();
     const LLUUID agent_id = sRuntime.agent_id;
-    const std::string archive_path = archivePath(sRuntime.account_dir, sRuntime.delimiter, id);
+    const std::string archive_path = archivePath(sRuntime.account_dir, id);
     std::vector<std::string> legacy_paths;
     LLLogChat::getTranscriptFamily(legacy_stem, legacy_paths);
 
