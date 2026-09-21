@@ -51,7 +51,6 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/scope/scope_exit.hpp>
-#include <cerrno>
 #include <climits>
 #include <cstdio>
 #include <deque>
@@ -555,8 +554,7 @@ StateResult loadState(const std::string& path)
     {
         // A committed canonical is authoritative; discard any interrupted replacement.
         if ((!temporary_safe || temporary_exists) &&
-            ((LLFile::remove(temporary, ENOENT) != 0 && errno != ENOENT) ||
-             !syncDirectory(path)))
+            (LLFile::remove(temporary) != 0 || !syncDirectory(path)))
         {
             result.safety = STATE_UNSAFE;
         }
@@ -610,13 +608,13 @@ bool recoverStateForDelete(const std::string& path, U64 boundary)
     const std::string temporary = path + ".tmp";
     const std::string::size_type separator = path.find_last_of("/\\");
     const std::string recovery = path.substr(0, separator + 1) + INDEX_NAME + ".tmp";
-    if ((LLFile::remove(recovery, ENOENT) != 0 && errno != ENOENT) ||
+    if (LLFile::remove(recovery) != 0 ||
         !writeFile(recovery, stateContents(boundary, true), true) ||
         !replaceFile(recovery, temporary, true))
     {
         return false;
     }
-    if (LLFile::remove(path, ENOENT) != 0 && errno != ENOENT)
+    if (LLFile::remove(path) != 0)
     {
         return false;
     }
@@ -637,18 +635,9 @@ bool clearUnsafeStateTemporary(const std::string& path)
         return true;
     }
 
-    // A nonregular temporary is never authoritative and must be removed before a
-    // normal durable replacement can reuse its exact owned path.
-    if (LLFile::remove(temporary, ENOENT) != 0 && errno != ENOENT)
-    {
-        return false;
-    }
-    if (!inspectRegular(temporary, exists) || exists)
-    {
-        return false;
-    }
-
-    return syncDirectory(path);
+    // A nonregular temporary must be removed before durable replacement reuses it.
+    // LLFile reports absence as success; its return value is authoritative.
+    return LLFile::remove(temporary) == 0 && syncDirectory(path);
 }
 
 bool canonicalArchiveName(const std::string& name, LLUUID& resident_id)
@@ -729,19 +718,7 @@ bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LL
 
     // Preserve one structurally unusable canonical before a later full-window rebuild.
     const std::string corrupt = path + ".corrupt";
-    bool corrupt_exists = false;
-    if (!inspectRegular(corrupt, corrupt_exists))
-    {
-        if (LLFile::remove(corrupt, ENOENT) != 0 && errno != ENOENT)
-        {
-            return false;
-        }
-        if (!inspectRegular(corrupt, corrupt_exists) || corrupt_exists)
-        {
-            return false;
-        }
-    }
-    if (LLFile::remove(corrupt, ENOENT) != 0 && errno != ENOENT)
+    if (LLFile::remove(corrupt) != 0)
     {
         summary.state = ARCHIVE_FAILED;
         return false;
@@ -896,11 +873,7 @@ bool regenerateIndex(const index_entries_t& archives,
         const bool regular = inspectRegular(path, exists);
         if (!regular || (path == temporary && exists))
         {
-            if (LLFile::remove(path, ENOENT) != 0 && errno != ENOENT)
-            {
-                return false;
-            }
-            if (!inspectRegular(path, exists) || exists)
+            if (LLFile::remove(path) != 0)
             {
                 return false;
             }
@@ -926,8 +899,7 @@ bool regenerateIndex(const index_entries_t& archives,
     }
     if (!has_entries)
     {
-        const int removed = LLFile::remove(index, ENOENT);
-        return removed == 0 || errno == ENOENT;
+        return LLFile::remove(index) == 0;
     }
     return writeReplace(index, output.str(), false);
 }
@@ -1608,15 +1580,11 @@ bool sweepServiceArtifacts(const std::string& directory, const std::string& deli
     targets.push_back(state_path + ".tmp");
 
     bool success = true;
+    // Attempt every owned path under the storage lock. Missing paths are already
+    // successful removals; any reported failure keeps cleanup pending.
     for (const std::string& path : targets)
     {
-        if (LLFile::remove(path, ENOENT) != 0 && errno != ENOENT)
-        {
-            success = false;
-        }
-
-        bool exists = false;
-        if (!inspectRegular(path, exists) || exists)
+        if (LLFile::remove(path) != 0)
         {
             success = false;
         }
