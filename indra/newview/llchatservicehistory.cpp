@@ -1775,7 +1775,6 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     }
 
     bool changed = false;
-    bool publication_failed = false;
     if (!staged.empty())
     {
         Summary resulting = final_resident.summary;
@@ -1813,12 +1812,13 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         }
 
         Resident& after_publish = found->second;
+        // Success and partial-write failure both invalidate readers and the manifest.
+        ++after_publish.archive_serial;
+        sRuntime.index_dirty = true;
+        sRuntime.local_content_exists = true;
         if (changed)
         {
             after_publish.summary = resulting;
-            ++after_publish.archive_serial;
-            sRuntime.index_dirty = true;
-            sRuntime.local_content_exists = true;
 
             // Every durable archive change can create or advance Conversation Log
             // metadata without creating a live IM session.
@@ -1842,20 +1842,14 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
                     }
                 });
             }
-
-            postPresentation(LLLogChat::notifyTranscriptCreated);
         }
         else
         {
-            // Append/replace failure may have changed bytes; invalidate every reader token.
-            ++after_publish.archive_serial;
+            // A partial write needs a fresh scan before another pass can claim coverage.
             after_publish.summary.state = SUMMARY_UNPREPARED;
             after_publish.covered_token.clear();
-            sRuntime.index_dirty = true;
-            sRuntime.local_content_exists = true;
-            postPresentation(LLLogChat::notifyTranscriptCreated);
-            publication_failed = true;
         }
+        postPresentation(LLLogChat::notifyTranscriptCreated);
     }
 
     found = sRuntime.residents.find(id);
@@ -1878,10 +1872,6 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     if (changed || staged.empty())
     {
         applied.covered_token = applied.advertised_token;
-    }
-
-    if (!publication_failed)
-    {
         applied.retry_used = false;
     }
 
