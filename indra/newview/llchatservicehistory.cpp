@@ -97,13 +97,6 @@ enum EMetadata
     META_FAILED
 };
 
-enum ESummary
-{
-    SUMMARY_ABSENT,
-    SUMMARY_UNPREPARED,
-    SUMMARY_VALID
-};
-
 enum EActivityDiscovery
 {
     DISCOVERY_NONE,
@@ -134,21 +127,6 @@ struct CapabilityContext
     }
 };
 
-struct Summary
-{
-    // Logical validity and whether retained rows exist.
-    ESummary state = SUMMARY_UNPREPARED;
-    bool has_rows = false;
-
-    // Physical identity captured by the last successful scan or publication.
-    bool file_exists = false;
-    U64 file_size = 0;
-    S64 file_mtime = 0;
-
-    // The newest durable key is the append boundary.
-    TimeUuidKey newest;
-};
-
 struct Metadata
 {
     EMetadata state = META_UNREQUESTED;
@@ -165,7 +143,8 @@ struct Resident
     std::string covered_token;
     U32 archive_serial = 0;
 
-    Summary summary;
+    // Failed or unprepared archives require a scan before reuse.
+    ArchiveScan summary{ARCHIVE_FAILED};
     Metadata metadata;
 
     // Coalesced scheduler state for this resident's current or next pass.
@@ -705,20 +684,8 @@ bool ownedArtifactName(const std::string& name)
     return suffix == ".csv" || suffix == ".csv.tmp" || suffix == ".csv.corrupt";
 }
 
-Summary summaryFromScan(const ArchiveScan& scan)
-{
-    Summary result;
-    result.state = scan.state == ARCHIVE_ABSENT ? SUMMARY_ABSENT : SUMMARY_VALID;
-    result.has_rows = scan.has_oldest;
-    result.file_exists = scan.state != ARCHIVE_ABSENT;
-    result.file_size = scan.file_size;
-    result.file_mtime = scan.file_mtime;
-    result.newest = scan.newest;
-    return result;
-}
-
 bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LLUUID& agent_id,
-                    U64 boundary, Summary& summary, bool& bytes_changed)
+                    U64 boundary, ArchiveScan& summary, bool& bytes_changed)
 {
     LLMutexLock lock(&sStorageMutex);
 
@@ -732,7 +699,7 @@ bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LL
     ArchiveScan scan;
     if (scanArchive(path, agent_id, resident_id, boundary, 0, scan))
     {
-        summary = summaryFromScan(scan);
+        summary = scan;
         return true;
     }
     if (scan.state == ARCHIVE_TORN)
@@ -746,16 +713,16 @@ bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LL
             !truncateArchive(path, scan.valid_prefix_bytes) ||
             !scanArchive(path, agent_id, resident_id, boundary, 0, scan))
         {
-            summary.state = SUMMARY_UNPREPARED;
+            summary.state = ARCHIVE_FAILED;
             return false;
         }
         bytes_changed = true;
-        summary = summaryFromScan(scan);
+        summary = scan;
         return true;
     }
     if (scan.state != ARCHIVE_CORRUPT)
     {
-        summary.state = SUMMARY_UNPREPARED;
+        summary.state = ARCHIVE_FAILED;
         return false;
     }
 
@@ -775,7 +742,7 @@ bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LL
     }
     if (LLFile::remove(corrupt, ENOENT) != 0 && errno != ENOENT)
     {
-        summary.state = SUMMARY_UNPREPARED;
+        summary.state = ARCHIVE_FAILED;
         return false;
     }
     U64 current_size = 0;
@@ -784,17 +751,16 @@ bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LL
         current_size != scan.file_size || current_mtime != scan.file_mtime ||
         LLFile::rename(path, corrupt) != 0)
     {
-        summary.state = SUMMARY_UNPREPARED;
+        summary.state = ARCHIVE_FAILED;
         return false;
     }
     bytes_changed = true;
-    summary = Summary();
-    summary.state = SUMMARY_ABSENT;
+    summary = ArchiveScan();
     return true;
 }
 
 bool publishRows(const std::string& path, const std::vector<Row>& rows,
-                 bool append, Summary& resulting)
+                 bool append, ArchiveScan& resulting)
 {
     LLMutexLock lock(&sStorageMutex);
     if (rows.empty())
@@ -805,7 +771,7 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
     // The captured summary is a private physical identity check. External changes
     // abort publication instead of reconciling unknown bytes.
     bool exists = false;
-    if (!inspectRegular(path, exists) || exists != resulting.file_exists)
+    if (!inspectRegular(path, exists) || exists != (resulting.state != ARCHIVE_ABSENT))
     {
         return false;
     }
@@ -871,11 +837,20 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
     }
 
     // Advance the in-memory summary only after the filesystem mutation succeeds.
-    resulting.state = SUMMARY_VALID;
-    resulting.has_rows = true;
+    resulting.state = ARCHIVE_VALID;
+    if (!resulting.has_oldest)
+    {
+        resulting.has_oldest = true;
+        resulting.oldest = rows.front().key;
+    }
+    resulting.row_count += static_cast<U32>(rows.size());
     resulting.newest = rows.back().key;
-    resulting.file_exists = true;
-    return archiveStamp(path, resulting.file_size, resulting.file_mtime);
+    if (!archiveStamp(path, resulting.file_size, resulting.file_mtime))
+    {
+        return false;
+    }
+    resulting.valid_prefix_bytes = resulting.file_size;
+    return true;
 }
 
 typedef std::pair<std::vector<LLUUID>, bool> initial_artifacts_t;
@@ -1312,7 +1287,7 @@ bool prepareResidentArchive(const LLUUID& id, U32 epoch)
     const LLUUID agent_id = sRuntime.agent_id;
     const U64 boundary = sRuntime.deleted_before_ticks;
     bool changed = false;
-    Summary summary;
+    ArchiveScan summary;
     const bool prepared = runStorage(epoch,
         [path, id, agent_id, boundary, &summary, &changed]()
         {
@@ -1397,9 +1372,9 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         publishSnapshot(id, resident);
     });
 
-    bool needs_prepare = resident.summary.state == SUMMARY_UNPREPARED;
-    bool had_boundary = !needs_prepare && resident.summary.state == SUMMARY_VALID &&
-                        resident.summary.has_rows;
+    bool needs_prepare = resident.summary.state == ARCHIVE_FAILED;
+    bool had_boundary = !needs_prepare && resident.summary.state == ARCHIVE_VALID &&
+                        resident.summary.has_oldest;
     TimeUuidKey stored_newest = resident.summary.newest;
     std::vector<Row> staged;
     size_t staged_bytes = 0;
@@ -1495,7 +1470,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
                 return;
             }
             needs_prepare = false;
-            had_boundary = resident.summary.state == SUMMARY_VALID && resident.summary.has_rows;
+            had_boundary = resident.summary.state == ARCHIVE_VALID && resident.summary.has_oldest;
             stored_newest = resident.summary.newest;
             activateDueActivityRefreshes();
             if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
@@ -1542,8 +1517,8 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     bool changed = false;
     if (!staged.empty())
     {
-        Summary resulting = resident.summary;
-        const bool append = resident.summary.state == SUMMARY_VALID && resident.summary.has_rows;
+        ArchiveScan resulting = resident.summary;
+        const bool append = resident.summary.state == ARCHIVE_VALID && resident.summary.has_oldest;
         const std::string path = archivePath(sRuntime.account_dir, sRuntime.delimiter, id);
         changed = runStorage(epoch, [path, staged, append, &resulting]()
         {
@@ -1584,7 +1559,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         else
         {
             // A partial write needs a fresh scan before another pass can claim coverage.
-            resident.summary.state = SUMMARY_UNPREPARED;
+            resident.summary.state = ARCHIVE_FAILED;
             resident.covered_token.clear();
         }
         postPresentation(LLLogChat::notifyTranscriptCreated);
@@ -1813,7 +1788,7 @@ void initializeArchives(U32 epoch)
     sRuntime.local_content_exists = artifacts.second;
     for (const LLUUID& id : artifacts.first)
     {
-        sRuntime.residents[id].summary.state = SUMMARY_UNPREPARED;
+        sRuntime.residents[id].summary.state = ARCHIVE_FAILED;
     }
     sRuntime.initialized_archives = true;
     sRuntime.index_dirty = true;
@@ -1824,7 +1799,7 @@ bool prepareOneArchive(U32 epoch)
     for (auto& pair : sRuntime.residents)
     {
         Resident& resident = pair.second;
-        if (resident.summary.state != SUMMARY_UNPREPARED)
+        if (resident.summary.state != ARCHIVE_FAILED)
         {
             continue;
         }
@@ -1837,7 +1812,7 @@ bool prepareOneArchive(U32 epoch)
             return false;
         }
         Resident& current = sRuntime.residents.at(id);
-        if (current.summary.has_rows)
+        if (current.summary.has_oldest)
         {
             ensureMetadata(id, current);
         }
@@ -1856,8 +1831,7 @@ bool updateIndex(U32 epoch)
     std::map<LLUUID, LLAvatarName> names;
     for (const auto& pair : sRuntime.residents)
     {
-        if (pair.second.summary.state == SUMMARY_VALID &&
-            pair.second.summary.file_exists)
+        if (pair.second.summary.state == ARCHIVE_VALID)
         {
             archives.push_back(pair.first);
         }
@@ -2081,7 +2055,7 @@ void manager(U32 epoch)
             // Existing archives use the same cached names as blocking and views.
             for (auto& pair : sRuntime.residents)
             {
-                if (pair.second.summary.has_rows && pair.second.metadata.state == META_UNREQUESTED)
+                if (pair.second.summary.has_oldest && pair.second.metadata.state == META_UNREQUESTED)
                 {
                     ensureMetadata(pair.first, pair.second);
                 }
@@ -2440,7 +2414,7 @@ bool LLChatServiceHistory::localHistoryExists()
 
     for (const auto& pair : sRuntime.residents)
     {
-        if (pair.second.summary.has_rows)
+        if (pair.second.summary.has_oldest)
         {
             return true;
         }
@@ -2457,13 +2431,13 @@ bool LLChatServiceHistory::localHistoryExists(const LLUUID& resident_id)
     }
 
     const auto found = sRuntime.residents.find(resident_id);
-    if (found == sRuntime.residents.end() || found->second.summary.state == SUMMARY_UNPREPARED)
+    if (found == sRuntime.residents.end() || found->second.summary.state == ARCHIVE_FAILED)
     {
         wakeManager();
         return false;
     }
 
-    return found->second.summary.has_rows;
+    return found->second.summary.has_oldest;
 }
 
 bool LLChatServiceHistory::isPersistedDirectDialog(EInstantMessage dialog)
@@ -2676,7 +2650,7 @@ bool LLChatServiceHistory::loadStitchedHistory(
                 if (found != sRuntime.residents.end() &&
                     found->second.archive_serial == serial)
                 {
-                    found->second.summary.state = SUMMARY_UNPREPARED;
+                    found->second.summary.state = ARCHIVE_FAILED;
                     found->second.covered_token.clear();
                     wakeManager();
                 }
