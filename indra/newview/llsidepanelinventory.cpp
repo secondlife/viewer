@@ -313,6 +313,13 @@ void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
     LLPanelMarketplaceInbox * inbox = getChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
     LLInventoryPanel* inventory_panel = inbox->setupInventoryPanel();
     mInventoryPanelInbox = inventory_panel->getInventoryPanelHandle();
+
+    // Collapsing/expanding the inbox layout panel doesn't toggle actual view visibility, so if the
+    // inbox is already expanded at this point, build the views right away.
+    if (mInboxLayoutPanel && !mInboxLayoutPanel->isCollapsed())
+    {
+        inventory_panel->initializeViewBuilding();
+    }
 }
 
 void LLSidepanelInventory::enableInbox(bool enabled)
@@ -373,10 +380,17 @@ void LLSidepanelInventory::onToggleInboxBtn()
     {
         mInboxLayoutPanel->setTargetDim(gSavedPerAccountSettings.getS32("InventoryInboxHeight"));
         if (mInboxLayoutPanel->isInVisibleChain())
-    {
-        gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", (U32)time_corrected());
+        {
+            gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", (U32)time_corrected());
+        }
+
+        // Build the views when expanding the inbox if that hasn't happened yet.
+        LLInventoryPanel* inventory_panel = mInventoryPanelInbox.get();
+        if (inventory_panel)
+        {
+            inventory_panel->initializeViewBuilding();
+        }
     }
-}
     else
     {
         gSavedPerAccountSettings.setS32("InventoryInboxHeight", mInboxLayoutPanel->getTargetDim());
