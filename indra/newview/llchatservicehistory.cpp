@@ -149,7 +149,6 @@ struct Summary
 struct Metadata
 {
     EMetadata state = META_UNREQUESTED;
-    U32 attempt = 0;
     F64 deadline = 0.0;
     LLAvatarName name;
     boost::signals2::connection connection;
@@ -174,7 +173,6 @@ struct Resident
     bool first_request_started = false;
     bool retry_used = false;
     bool metadata_waiting = false;
-    bool priority_waiting = false;
 
     // Incoming and outgoing IM bursts share one quiet deadline; unknown
     // conversations retain one bounded discovery confirmation.
@@ -1128,16 +1126,6 @@ bool uuidBlocked(const LLUUID& id)
     return !mute || !mute->isLoadedFromServer() || mute->isMuted(id);
 }
 
-U32 pendingMetadataCount()
-{
-    U32 count = 0;
-    for (const auto& pair : sRuntime.residents)
-    {
-        count += pair.second.metadata.state == META_PENDING;
-    }
-    return count;
-}
-
 bool ensureMetadata(const LLUUID& id, Resident& resident)
 {
     // A resolved record is stable for this login; view loads need no new publication.
@@ -1155,30 +1143,28 @@ bool ensureMetadata(const LLUUID& id, Resident& resident)
         publishSnapshot(id, resident);
         return true;
     }
-    if (resident.metadata.state == META_PENDING || resident.metadata.state == META_FAILED ||
-        pendingMetadataCount() >= 8)
+    if (resident.metadata.state == META_PENDING || resident.metadata.state == META_FAILED)
     {
         return false;
     }
 
-    // Mark the attempt first because a cache hit may deliver synchronously from get().
+    // The name cache owns batching and request deduplication. Keep one subscription
+    // per resident and a presentation timeout; cache hits may complete synchronously.
     resident.metadata.state = META_PENDING;
     resident.metadata.deadline = F64(LLTimer::getTotalSeconds()) + NAME_TIMEOUT;
-    const U32 attempt = ++resident.metadata.attempt;
     const U32 epoch = sRuntime.epoch;
-    boost::signals2::connection connection = LLAvatarNameCache::get(
-        id, [id, epoch, attempt](const LLUUID&, const LLAvatarName& name)
+    resident.metadata.connection = LLAvatarNameCache::get(
+        id, [id, epoch](const LLUUID&, const LLAvatarName& name)
         {
-            // Epoch and attempt checks discard callbacks from a prior account or a
-            // timed-out lookup before they mutate resident state.
+            // Cache callbacks run on the main loop. Timeout disconnects the slot;
+            // the epoch also fences logout and account replacement.
             if (!sRuntime.running || sRuntime.epoch != epoch)
             {
                 return;
             }
             auto found = sRuntime.residents.find(id);
             if (found == sRuntime.residents.end() ||
-                found->second.metadata.state != META_PENDING ||
-                found->second.metadata.attempt != attempt)
+                found->second.metadata.state != META_PENDING)
             {
                 return;
             }
@@ -1188,21 +1174,12 @@ bool ensureMetadata(const LLUUID& id, Resident& resident)
             sRuntime.index_dirty = true;
             if (found->second.metadata_waiting)
             {
-                queueResident(id, found->second.priority_waiting);
+                queueResident(id, sRuntime.priority_resident == id);
                 found->second.metadata_waiting = false;
-                found->second.priority_waiting = false;
             }
             publishSnapshot(id, found->second);
             wakeManager();
         });
-    if (resident.metadata.state == META_PENDING && resident.metadata.attempt == attempt)
-    {
-        resident.metadata.connection = connection;
-    }
-    else
-    {
-        connection.disconnect();
-    }
     return resident.metadata.state == META_RESOLVED;
 }
 
@@ -1287,21 +1264,11 @@ bool pace(const CapabilityContext& context, U32 epoch,
                 wait = llmin(wait, pair.second.activity_refresh_due - now);
             }
         }
-        const U32 pending_before = pendingMetadataCount();
         if (!waitForWake(wait, epoch))
         {
             return false;
         }
         expireMetadata();
-        if (pendingMetadataCount() < pending_before && pendingMetadataCount() < 8)
-        {
-            // Give the manager a turn to fill a newly-open name slot before cooldown ends.
-            if (resident_id.notNull())
-            {
-                queueResident(resident_id, sRuntime.priority_resident == resident_id);
-            }
-            return false;
-        }
     }
     return false;
 }
@@ -1370,7 +1337,6 @@ bool processList(const LLSD& body, bool& confirm_activity_discovery)
                 sRuntime.priority_resident.setNull();
             }
             pair.second.metadata_waiting = false;
-            pair.second.priority_waiting = false;
             setWorkActive(pair.first, false);
         }
     }
@@ -1498,11 +1464,9 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         if (!ensureMetadata(id, resident))
         {
             resident.metadata_waiting = true;
-            resident.priority_waiting = resident.priority_waiting || sRuntime.priority_resident == id;
             return;
         }
         resident.metadata_waiting = false;
-        resident.priority_waiting = false;
         if (!networkEligible(id, resident, context))
         {
             setWorkActive(id, false);
@@ -2244,42 +2208,6 @@ bool prepareOneArchive(U32 epoch)
     return false;
 }
 
-void fillMetadataSlots()
-{
-    while (pendingMetadataCount() < 8)
-    {
-        auto found = std::find_if(sRuntime.residents.begin(), sRuntime.residents.end(),
-            [](const auto& pair)
-            {
-                return pair.second.priority_waiting &&
-                       pair.second.metadata.state == META_UNREQUESTED;
-            });
-        if (found == sRuntime.residents.end())
-        {
-            found = std::find_if(sRuntime.residents.begin(), sRuntime.residents.end(),
-                [](const auto& pair)
-                {
-                    return (pair.second.metadata_waiting ||
-                            pair.second.summary.state == SUMMARY_VALID) &&
-                           pair.second.metadata.state == META_UNREQUESTED;
-                });
-        }
-        if (found == sRuntime.residents.end())
-        {
-            return;
-        }
-        if (ensureMetadata(found->first, found->second))
-        {
-            if (found->second.metadata_waiting)
-            {
-                queueResident(found->first, found->second.priority_waiting);
-            }
-            found->second.metadata_waiting = false;
-            found->second.priority_waiting = false;
-        }
-    }
-}
-
 bool updateIndex(U32 epoch)
 {
     // Clear the dirty latch before suspension so metadata callbacks can request
@@ -2316,8 +2244,7 @@ bool updateIndex(U32 epoch)
 
 void expireMetadata()
 {
-    // A timed-out shared lookup releases its bounded slot and leaves the resident
-    // dormant until a later ordinary trigger resets failed metadata.
+    // A timed-out lookup leaves the resident dormant until a later ordinary trigger.
     const F64 now = LLTimer::getTotalSeconds();
     for (auto& pair : sRuntime.residents)
     {
@@ -2327,7 +2254,6 @@ void expireMetadata()
             metadata.connection.disconnect();
             metadata.state = META_FAILED;
             pair.second.metadata_waiting = false;
-            pair.second.priority_waiting = false;
             setWorkActive(pair.first, false);
             clearPriority(pair.first);
         }
@@ -2467,11 +2393,9 @@ void manager(U32 epoch)
             continue;
         }
 
-        // Expire timers, activate due activity bursts, and fill metadata slots before
-        // choosing the next network occurrence.
+        // Expire timers and activate due activity bursts before choosing network work.
         expireMetadata();
         activateDueActivityRefreshes();
-        fillMetadataSlots();
 
         const CapabilityContext context = sampleContext();
         if (context != sRuntime.context)
@@ -2545,11 +2469,10 @@ void manager(U32 epoch)
                 continue;
             }
 
-            // Existing archives share the same bounded resolver used by blocking and views.
+            // Existing archives use the same cached names as blocking and views.
             for (auto& pair : sRuntime.residents)
             {
-                if (pair.second.summary.has_rows && pair.second.metadata.state == META_UNREQUESTED &&
-                    pendingMetadataCount() < 8)
+                if (pair.second.summary.has_rows && pair.second.metadata.state == META_UNREQUESTED)
                 {
                     ensureMetadata(pair.first, pair.second);
                 }
