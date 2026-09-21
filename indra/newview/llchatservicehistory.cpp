@@ -14,6 +14,7 @@
 #include "llagent.h"
 #include "llavatarnamecache.h"
 #include "llcachename.h"
+#include "llcallbacklist.h"
 #include "llconversationlog.h"
 #include "llcorehttputil.h"
 #include "llcoros.h"
@@ -48,6 +49,7 @@
 #include <algorithm>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/scope/scope_exit.hpp>
 #include <cerrno>
 #include <climits>
 #include <cstdio>
@@ -255,13 +257,31 @@ bool ownsRuntime(U32 epoch)
     return sRuntime.running && sRuntime.epoch == epoch;
 }
 
-bool postPresentation(const LL::WorkQueue::Work& work)
+void requireRuntime(U32 epoch)
 {
-    // Manager and name-cache coroutines may resume inside a yielding UI operation.
-    // Run presentation on the main-loop coroutine, after that operation unwinds.
+    if (!ownsRuntime(epoch))
+    {
+        LLTHROW(LLCoros::Stopped("Chat Service account ended"));
+    }
+}
+
+template <typename Work>
+auto runStorage(U32 epoch, Work work) -> decltype(work())
+{
+    // A storage wait may span logout. Unwind the manager before it can touch the
+    // replacement account or a resident reference from the previous login.
+    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
+    auto result = general ? general->waitForResult(work) : decltype(work())();
+    requireRuntime(epoch);
+    return result;
+}
+
+void postPresentation(const nullary_func_t& work)
+{
+    // All publishers run on the main thread. Idle registration cannot suspend;
+    // presentation waits until the main-loop UI operation has unwound.
     const U32 epoch = sRuntime.epoch;
-    LL::WorkQueue::ptr_t main = LL::WorkQueue::getInstance("mainloop");
-    return main && main->post([epoch, work]()
+    doOnIdleOneTime([epoch, work]()
     {
         // Queued UI work belongs only to the login that scheduled it.
         if (ownsRuntime(epoch))
@@ -387,14 +407,6 @@ void clearPriority(const LLUUID& id)
     {
         sRuntime.priority_resident.setNull();
     }
-}
-
-void failResidentPass(const LLUUID& id, Resident& resident)
-{
-    resident.snapshot.head_preview.clear();
-    resident.snapshot.service_work_active = false;
-    publishSnapshot(id, resident);
-    clearPriority(id);
 }
 
 bool parseDecimalTicks(const std::string& text, U64& value)
@@ -1047,7 +1059,7 @@ bool regenerateIndex(const std::vector<LLUUID>& ids,
     return writeReplace(index, output.str(), false);
 }
 
-HttpResult request(const std::string& url, const LLSD* post)
+HttpResult request(const std::string& url, const LLSD* post, U32 epoch)
 {
     HttpResult result;
 
@@ -1064,6 +1076,7 @@ HttpResult request(const std::string& url, const LLSD* post)
     options->setTimeout(30);
     LLSD response = post ? adapter->postAndSuspend(http_request, url, *post, options)
                          : adapter->getAndSuspend(http_request, url, options);
+    requireRuntime(epoch);
     const LLCore::HttpStatus status =
         LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(
             response[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS]);
@@ -1181,25 +1194,17 @@ bool networkEligible(const LLUUID& id, const Resident& resident,
 void expireMetadata();
 void activateDueActivityRefreshes();
 
-bool waitForWake(F64 seconds, U32 epoch)
+void waitForWake(F64 seconds, U32 epoch)
 {
-    if (!ownsRuntime(epoch) || !sWake)
-    {
-        return false;
-    }
-
-    // Coalesce queued wake events, then sleep until either state changes or the
-    // nearest pacing, list, metadata, or activity deadline arrives.
+    // The login creates the wake pump before launching the manager. Every wait
+    // ends the old coroutine on logout before it can resume account work.
+    requireRuntime(epoch);
     sRuntime.wake_pending = false;
     sWake->discard();
     llcoro::suspendUntilEventOnWithTimeout(*sWake, static_cast<F32>(llmax(0.01, seconds)),
                                            LLSDMap("timeout", true));
-    if (!ownsRuntime(epoch))
-    {
-        return false;
-    }
+    requireRuntime(epoch);
     sRuntime.wake_pending = false;
-    return true;
 }
 
 bool pace(const CapabilityContext& context, U32 epoch,
@@ -1207,7 +1212,8 @@ bool pace(const CapabilityContext& context, U32 epoch,
 {
     // Pacing remains interruptible so lifecycle, capability, mute, metadata, and
     // deletion changes can cancel a queued request before network I/O begins.
-    while (ownsRuntime(epoch))
+    requireRuntime(epoch);
+    for (;;)
     {
         if (sampleContext() != context || sRuntime.delete_requested)
         {
@@ -1244,13 +1250,9 @@ bool pace(const CapabilityContext& context, U32 epoch,
                 wait = llmin(wait, pair.second.activity_refresh_due - now);
             }
         }
-        if (!waitForWake(wait, epoch))
-        {
-            return false;
-        }
+        waitForWake(wait, epoch);
         expireMetadata();
     }
-    return false;
 }
 
 void handleRequestFailure(const LLUUID& id, Resident& resident, S32 status)
@@ -1261,7 +1263,6 @@ void handleRequestFailure(const LLUUID& id, Resident& resident, S32 status)
         sRuntime.network_not_before = llmax(sRuntime.network_not_before,
             F64(LLTimer::getTotalSeconds()) + RATE_LIMIT_DELAY);
         queueResident(id, sRuntime.priority_resident == id);
-        setWorkActive(id, true);
         return;
     }
     if (retryable(status) && !resident.retry_used)
@@ -1272,11 +1273,6 @@ void handleRequestFailure(const LLUUID& id, Resident& resident, S32 status)
         sRuntime.network_not_before = llmax(sRuntime.network_not_before,
             F64(LLTimer::getTotalSeconds()) + RETRY_DELAY);
         queueResident(id, sRuntime.priority_resident == id);
-    }
-    else
-    {
-        setWorkActive(id, false);
-        clearPriority(id);
     }
 }
 
@@ -1363,10 +1359,10 @@ void requestList(const CapabilityContext& context, U32 epoch)
     // Discovery mutates resident scheduling state only after the complete response
     // passes strict validation. A pending activity hint remains visible across the
     // HTTP suspension and is consumed by processList rather than this request latch.
-    const HttpResult response = request(context.list_url, NULL);
+    const HttpResult response = request(context.list_url, NULL, epoch);
     LL_INFOS("ChatServiceHistory")
         << "Conversation-list response: status=" << response.status << LL_ENDL;
-    if (!ownsRuntime(epoch) || sampleContext() != context || sRuntime.delete_requested ||
+    if (sampleContext() != context || sRuntime.delete_requested ||
         !baseNetworkEligible(context))
     {
         return;
@@ -1416,13 +1412,12 @@ bool prepareResidentArchive(const LLUUID& id, U32 epoch)
     const U64 boundary = sRuntime.deleted_before_ticks;
     bool changed = false;
     Summary summary;
-    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-    const bool prepared = general && general->waitForResult(
+    const bool prepared = runStorage(epoch,
         [path, id, agent_id, boundary, &summary, &changed]()
         {
             return prepareArchive(path, id, agent_id, boundary, summary, changed);
         });
-    if (!ownsRuntime(epoch) || !prepared)
+    if (!prepared)
     {
         return false;
     }
@@ -1439,7 +1434,7 @@ bool prepareResidentArchive(const LLUUID& id, U32 epoch)
         sRuntime.local_content_exists = true;
     }
     publishSnapshot(id, current);
-    return ownsRuntime(epoch);
+    return true;
 }
 
 void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
@@ -1449,374 +1444,228 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     {
         return;
     }
+    Resident& resident = found->second;
 
-    // Establish discovery, blocking, metadata, and archive-summary prerequisites
-    // before this resident becomes the manager's active network pass.
-    bool needs_prepare = false;
-    bool had_boundary = false;
-    TimeUuidKey stored_newest;
+    // Resolve prerequisites before starting a pass. Only the manager erases
+    // residents; its checked waits terminate before a reference can become stale.
+    if (!resident.listed || resident.conversation_id.empty())
     {
-        Resident& resident = found->second;
-        if (!resident.listed || resident.conversation_id.empty())
-        {
-            // A failed discovery remains dormant until a fresh open/list/region or
-            // due activity trigger.
-            resident.activity_discovery = DISCOVERY_NONE;
-            resident.snapshot.head_preview.clear();
-            setWorkActive(id, false);
-            clearPriority(id);
-            return;
-        }
-        if (uuidBlocked(id))
-        {
-            setWorkActive(id, false);
-            clearPriority(id);
-            return;
-        }
-        if (!ensureMetadata(id, resident))
-        {
-            resident.metadata_waiting = true;
-            return;
-        }
-        resident.metadata_waiting = false;
-        if (!networkEligible(id, resident, context))
-        {
-            setWorkActive(id, false);
-            clearPriority(id);
-            return;
-        }
-        setWorkActive(id, true);
-        sRuntime.active_resident = id;
-        resident.first_request_started = false;
-        needs_prepare = resident.summary.state == SUMMARY_UNPREPARED;
-        had_boundary = !needs_prepare && resident.summary.state == SUMMARY_VALID &&
-                       resident.summary.has_rows;
-        stored_newest = resident.summary.newest;
+        resident.activity_discovery = DISCOVERY_NONE;
+        resident.snapshot.head_preview.clear();
+        setWorkActive(id, false);
+        clearPriority(id);
+        return;
     }
+    if (uuidBlocked(id))
+    {
+        setWorkActive(id, false);
+        clearPriority(id);
+        return;
+    }
+    if (!ensureMetadata(id, resident))
+    {
+        resident.metadata_waiting = true;
+        return;
+    }
+    resident.metadata_waiting = false;
+    if (!networkEligible(id, resident, context))
+    {
+        setWorkActive(id, false);
+        clearPriority(id);
+        return;
+    }
+    setWorkActive(id, true);
+    sRuntime.active_resident = id;
+    resident.first_request_started = false;
 
-    // Stage a complete bounded pass in memory. No canonical bytes change until every
-    // traversed page validates and reaches a terminal condition or durable seam.
+    // Every exit retires the transient head and active pass. Queued retries keep
+    // their work indicator; logout leaves the replacement account untouched.
+    boost::scope::scope_exit finish([epoch, id, &resident]()
+    {
+        if (!ownsRuntime(epoch))
+        {
+            return;
+        }
+        resident.snapshot.head_preview.clear();
+        if (std::find(sRuntime.queue.begin(), sRuntime.queue.end(), id) == sRuntime.queue.end())
+        {
+            resident.snapshot.service_work_active = false;
+            clearPriority(id);
+        }
+        sRuntime.active_resident.setNull();
+        publishSnapshot(id, resident);
+    });
+
+    bool needs_prepare = resident.summary.state == SUMMARY_UNPREPARED;
+    bool had_boundary = !needs_prepare && resident.summary.state == SUMMARY_VALID &&
+                        resident.summary.has_rows;
+    TimeUuidKey stored_newest = resident.summary.newest;
     std::vector<Row> staged;
     size_t staged_bytes = 0;
     U32 returned_rows = 0;
     std::string cursor;
     bool complete = false;
     bool exposed_preview = false;
+
+    // Stage a complete bounded pass before changing canonical bytes. Pacing and
+    // each awaited page remain cancellation/priority boundaries.
     while (!complete)
     {
         if (!pace(context, epoch, id))
         {
-            if (!ownsRuntime(epoch))
-            {
-                return;
-            }
-            found = sRuntime.residents.find(id);
-            if (found == sRuntime.residents.end())
-            {
-                return;
-            }
-
-            // Temporary account-wide ineligibility retains one occurrence; permanent
-            // resident ineligibility clears priority and leaves the pass dormant.
-            Resident& suspended = found->second;
-            suspended.snapshot.head_preview.clear();
+            // Capability or account-wide gates retain one queued occurrence;
+            // a blocked resident stays dormant until a fresh ordinary trigger.
             setWorkActive(id, false);
-            sRuntime.active_resident.setNull();
             LLMuteList* mute = LLMuteList::getInstance();
-            const bool already_queued =
-                std::find(sRuntime.queue.begin(), sRuntime.queue.end(), id) !=
-                sRuntime.queue.end();
             const bool temporarily_ineligible = !sRuntime.delete_requested &&
                 (sampleContext() != context || !baseNetworkEligible(context) ||
                  !mute || !mute->isLoadedFromServer());
-            if (!already_queued)
+            if (temporarily_ineligible &&
+                std::find(sRuntime.queue.begin(), sRuntime.queue.end(), id) == sRuntime.queue.end())
             {
-                if (temporarily_ineligible)
-                {
-                    queueResident(id, sRuntime.priority_resident == id);
-                }
-                else
-                {
-                    clearPriority(id);
-                }
+                queueResident(id, sRuntime.priority_resident == id);
             }
             return;
         }
-
-        // Capture the validated conversation and cursor immediately before issuing
-        // this page request.
-        LLSD post;
+        if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
         {
-            found = sRuntime.residents.find(id);
-            if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-            {
-                return;
-            }
-            Resident& current = found->second;
-            if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
-            {
-                queueResident(id, false);
-                staged.clear();
-                break;
-            }
-            // If the first head request begins just after quiet expiry, it already
-            // covers that burst. Cursor pages never consume a newer deadline.
-            if (!current.first_request_started && cursor.empty() &&
-                current.activity_refresh_due > 0.0 &&
-                current.activity_refresh_due <= F64(LLTimer::getTotalSeconds()))
-            {
-                current.activity_refresh_due = 0.0;
-            }
-            current.first_request_started = true;
-            post["conversation_id"] = current.conversation_id;
-            post["limit"] = 100;
-            if (!cursor.empty())
-            {
-                post["before_msg_id"] = cursor;
-            }
+            queueResident(id, false);
+            return;
         }
 
-        const HttpResult response = request(context.history_url, &post);
+        // The first head request covers a burst whose quiet deadline has elapsed;
+        // continuation pages never consume a newer activity deadline.
+        if (!resident.first_request_started && cursor.empty() &&
+            resident.activity_refresh_due > 0.0 &&
+            resident.activity_refresh_due <= F64(LLTimer::getTotalSeconds()))
+        {
+            resident.activity_refresh_due = 0.0;
+        }
+        resident.first_request_started = true;
+        LLSD post;
+        post["conversation_id"] = resident.conversation_id;
+        post["limit"] = 100;
+        if (!cursor.empty())
+        {
+            post["before_msg_id"] = cursor;
+        }
+
+        const HttpResult response = request(context.history_url, &post, epoch);
         LL_INFOS("ChatServiceHistory")
             << "History response: resident_id=" << id << ", status=" << response.status
             << ", cursor=" << (cursor.empty() ? "head" : "continuation") << LL_ENDL;
-        Page page;
-        found = sRuntime.residents.find(id);
-        if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
+        if (sRuntime.delete_requested || sampleContext() != context ||
+            !networkEligible(id, resident, context))
         {
             return;
         }
+        if (response.status < 200 || response.status >= 300)
         {
-            // Recheck account and resident eligibility after suspension, then validate
-            // the complete response before exposing preview or staging rows.
-            Resident& after_request = found->second;
-            if (sRuntime.delete_requested || sampleContext() != context ||
-                !networkEligible(id, after_request, context))
+            handleRequestFailure(id, resident, response.status);
+            return;
+        }
+        Page page;
+        if (!validateHistoryPage(response.body, sRuntime.agent_id, id,
+                                 resident.conversation_id, cursor,
+                                 sRuntime.deleted_before_ticks, page))
+        {
+            return;
+        }
+
+        // Apply priority changes only after the complete response validates.
+        activateDueActivityRefreshes();
+        if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
+        {
+            queueResident(id, false);
+            return;
+        }
+        if (!exposed_preview && !page.rows.empty())
+        {
+            resident.snapshot.head_preview = page.rows;
+            exposed_preview = true;
+            publishSnapshot(id, resident);
+        }
+
+        // Present the first page before scanning a potentially years-long archive.
+        if (needs_prepare)
+        {
+            if (!prepareResidentArchive(id, epoch))
             {
-                break;
-            }
-            if (response.status < 200 || response.status >= 300)
-            {
-                handleRequestFailure(id, after_request, response.status);
-                after_request.snapshot.head_preview.clear();
-                publishSnapshot(id, after_request);
-                sRuntime.active_resident.setNull();
                 return;
             }
-            if (!validateHistoryPage(response.body, sRuntime.agent_id, id,
-                                     after_request.conversation_id, cursor,
-                                     sRuntime.deleted_before_ticks, page))
-            {
-                failResidentPass(id, after_request);
-                break;
-            }
-
-            // A validated response is the yield boundary for activity deadlines
-            // that matured while this request was in flight.
+            needs_prepare = false;
+            had_boundary = resident.summary.state == SUMMARY_VALID && resident.summary.has_rows;
+            stored_newest = resident.summary.newest;
             activateDueActivityRefreshes();
-            if (!ownsRuntime(epoch))
-            {
-                return;
-            }
-
-            // A different priority takes effect only after this response validates.
             if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
             {
                 queueResident(id, false);
-                staged.clear();
-                break;
-            }
-            if (!exposed_preview && !page.rows.empty())
-            {
-                if (!networkEligible(id, after_request, context))
-                {
-                    break;
-                }
-                after_request.snapshot.head_preview = page.rows;
-                exposed_preview = true;
-                publishSnapshot(id, after_request);
-            }
-        }
-
-        // The first validated page is visible before a potentially years-long archive scan.
-        if (needs_prepare)
-        {
-            const bool prepared = prepareResidentArchive(id, epoch);
-            found = sRuntime.residents.find(id);
-            if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-            {
                 return;
             }
-            {
-                Resident& after_prepare = found->second;
-                if (!prepared)
-                {
-                    failResidentPass(id, after_prepare);
-                    sRuntime.active_resident.setNull();
-                    return;
-                }
-                needs_prepare = false;
-                had_boundary = after_prepare.summary.state == SUMMARY_VALID &&
-                               after_prepare.summary.has_rows;
-                stored_newest = after_prepare.summary.newest;
-
-                // Archive inspection is also an awaited page boundary; apply any
-                // activity priority that matured while it ran before staging rows.
-                activateDueActivityRefreshes();
-                if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
-                {
-                    queueResident(id, false);
-                    staged.clear();
-                    break;
-                }
-            }
         }
 
-        // Archive preparation can suspend across logout; never retain its old Resident reference.
-        found = sRuntime.residents.find(id);
-        if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-        {
-            return;
-        }
-        Resident& page_resident = found->second;
-        bool reached_stored_newest = false;
+        // Strictly descending pages accumulate only above the durable newest key.
+        // Count every returned row and retained payload against the pass bounds.
         for (const Row& row : page.rows)
         {
-            ++returned_rows;
-            if (returned_rows > MAX_PASS_ROWS)
+            if (++returned_rows > MAX_PASS_ROWS)
             {
-                staged.clear();
-                failResidentPass(id, page_resident);
-                sRuntime.active_resident.setNull();
                 return;
             }
-
-            // The durable newest key is the accumulation boundary. Reaching it ends
-            // this pass without re-reading or reconciling older canonical rows.
             if (had_boundary && row.key <= stored_newest)
             {
-                reached_stored_newest = true;
+                complete = true;
                 break;
             }
-
-            // Count the serialized field payload against one pass-wide memory bound
-            // before retaining the row.
             const size_t bytes = row.conversation_id.size() + row.msg_id.size() + 36 +
                 row.from_name.size() + row.message.size() + std::to_string(row.dialog).size() +
                 row.created_at.size();
             if (staged_bytes + bytes > MAX_PASS_BYTES)
             {
-                staged.clear();
-                failResidentPass(id, page_resident);
-                sRuntime.active_resident.setNull();
                 return;
             }
             staged_bytes += bytes;
             staged.push_back(row);
         }
-        complete = page.terminal || reached_stored_newest;
-        if (!complete)
-        {
-            cursor = page.next_cursor;
-        }
+        complete = complete || page.terminal;
+        cursor = page.next_cursor;
     }
 
-    if (!complete)
-    {
-        found = sRuntime.residents.find(id);
-        if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-        {
-            return;
-        }
-        Resident& final_resident = found->second;
-        final_resident.snapshot.head_preview.clear();
-        if (std::find(sRuntime.queue.begin(), sRuntime.queue.end(), id) == sRuntime.queue.end())
-        {
-            failResidentPass(id, final_resident);
-        }
-        else
-        {
-            publishSnapshot(id, final_resident);
-        }
-        sRuntime.active_resident.setNull();
-        return;
-    }
-
-    // The service pages arrive newest-first; canonical publication is oldest-first.
-    std::reverse(staged.begin(), staged.end());
-
-    found = sRuntime.residents.find(id);
-    if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-    {
-        return;
-    }
-
-    Resident& final_resident = found->second;
-    if (!networkEligible(id, final_resident, context) || sRuntime.delete_requested ||
+    // Recheck dispatch gates after the final page/scan, then publish oldest-first.
+    if (!networkEligible(id, resident, context) || sRuntime.delete_requested ||
         sampleContext() != context)
     {
-        final_resident.snapshot.head_preview.clear();
-        setWorkActive(id, false);
-        clearPriority(id);
-        sRuntime.active_resident.setNull();
         return;
     }
-
+    std::reverse(staged.begin(), staged.end());
     bool changed = false;
     if (!staged.empty())
     {
-        Summary resulting = final_resident.summary;
-        const bool append = final_resident.summary.state == SUMMARY_VALID &&
-                            final_resident.summary.has_rows;
-        const std::string account_dir = sRuntime.account_dir;
-        const std::string path = archivePath(account_dir, sRuntime.delimiter, id);
-
-        // Re-sample account, capability, deletion, and blocking gates immediately
-        // before dispatching one bounded mutation. A later Delete sweep owns any
-        // artifact that lands after this final dispatch boundary.
-        if (!ownsRuntime(epoch) || sRuntime.account_dir != account_dir ||
-            sampleContext() != context || sRuntime.delete_requested ||
-            !networkEligible(id, final_resident, context))
+        Summary resulting = resident.summary;
+        const bool append = resident.summary.state == SUMMARY_VALID && resident.summary.has_rows;
+        const std::string path = archivePath(sRuntime.account_dir, sRuntime.delimiter, id);
+        changed = runStorage(epoch, [path, staged, append, &resulting]()
         {
-            return;
-        }
-
-        LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-        changed = general && general->waitForResult(
-            [path, staged, append, &resulting]() mutable
-            {
-                return publishRows(path, staged, append, resulting);
-            });
+            return publishRows(path, staged, append, resulting);
+        });
         LL_INFOS("ChatServiceHistory")
             << "Archive publication: resident_id=" << id << ", rows=" << staged.size()
             << ", mode=" << (append ? "append" : "replace")
             << ", success=" << changed << LL_ENDL;
 
-        found = sRuntime.residents.find(id);
-        if (!ownsRuntime(epoch) || sRuntime.account_dir != account_dir ||
-            found == sRuntime.residents.end())
-        {
-            return;
-        }
-
-        Resident& after_publish = found->second;
         // Success and partial-write failure both invalidate readers and the manifest.
-        ++after_publish.archive_serial;
+        ++resident.archive_serial;
         sRuntime.index_dirty = true;
         sRuntime.local_content_exists = true;
         if (changed)
         {
-            after_publish.summary = resulting;
-
-            // Every durable archive change can create or advance Conversation Log
-            // metadata without creating a live IM session.
-            if (after_publish.summary.has_rows &&
-                after_publish.metadata.state == META_RESOLVED)
+            resident.summary = resulting;
+            if (resident.metadata.state == META_RESOLVED)
             {
-                const F64 archived_seconds = after_publish.summary.newest.ticks >= UUID_EPOCH
-                    ? static_cast<F64>(after_publish.summary.newest.ticks - UUID_EPOCH) / 10000000.0
+                const F64 archived_seconds = resident.summary.newest.ticks >= UUID_EPOCH
+                    ? static_cast<F64>(resident.summary.newest.ticks - UUID_EPOCH) / 10000000.0
                     : static_cast<F64>(time_corrected());
-                const LLAvatarName name = after_publish.metadata.name;
+                const LLAvatarName name = resident.metadata.name;
                 postPresentation([id, name, archived_seconds]()
                 {
                     if (!LLChatServiceHistory::historySuppressed())
@@ -1834,53 +1683,33 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         else
         {
             // A partial write needs a fresh scan before another pass can claim coverage.
-            after_publish.summary.state = SUMMARY_UNPREPARED;
-            after_publish.covered_token.clear();
+            resident.summary.state = SUMMARY_UNPREPARED;
+            resident.covered_token.clear();
         }
         postPresentation(LLLogChat::notifyTranscriptCreated);
     }
 
-    found = sRuntime.residents.find(id);
-    if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-    {
-        return;
-    }
-
-    // Publish the new archive generation, clear the transient preview, and retain at
-    // most one qualifying follow-up that arrived after this pass began.
-    Resident& applied = found->second;
-
+    // Only a complete pass claims coverage. At most one activity-triggered follow-up
+    // survives; the scope exit handles preview and work-status publication.
     if (sRuntime.delete_requested)
     {
-        applied.snapshot.head_preview.clear();
-        sRuntime.active_resident.setNull();
         return;
     }
-
     if (changed || staged.empty())
     {
-        applied.covered_token = applied.advertised_token;
-        applied.retry_used = false;
+        resident.covered_token = resident.advertised_token;
+        resident.retry_used = false;
     }
-
-    applied.snapshot.head_preview.clear();
-    publishSnapshot(id, applied);
-
-    if (applied.forced_followup && networkEligible(id, applied, context))
+    if (resident.forced_followup && networkEligible(id, resident, context))
     {
-        applied.forced_followup = false;
+        resident.forced_followup = false;
         queueResident(id, true);
     }
     else
     {
-        setWorkActive(id, false);
+        resident.snapshot.service_work_active = false;
     }
-
-    if (sRuntime.priority_resident == id)
-    {
-        sRuntime.priority_resident.setNull();
-    }
-    sRuntime.active_resident.setNull();
+    clearPriority(id);
 }
 
 bool sweepServiceArtifacts(const std::string& directory, const std::string& delimiter,
@@ -2030,10 +1859,7 @@ void runDelete(U32 epoch)
         LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
         return true;
     });
-    if (!ownsRuntime(epoch))
-    {
-        return;
-    }
+    requireRuntime(epoch);
     if (!cleared)
     {
         finishDelete(false);
@@ -2042,29 +1868,16 @@ void runDelete(U32 epoch)
 
     // Sweep legacy transcripts first, then service-owned artifacts, through the
     // shared filesystem mutation boundaries on the General queue.
-    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
     const std::string chat_logs_dir =
         gDirUtilp ? gDirUtilp->getPerAccountChatLogsDir() : std::string();
-    const std::string account_dir = sRuntime.account_dir;
-    const std::string delimiter = sRuntime.delimiter;
-    const bool legacy = general && general->waitForResult([chat_logs_dir]()
-    {
-        return !chat_logs_dir.empty() && LLLogChat::deleteTranscriptContent(chat_logs_dir);
-    });
-    if (!ownsRuntime(epoch))
-    {
-        return;
-    }
-    const bool service = legacy && general->waitForResult(
-        [account_dir, delimiter, state_path]()
+    const bool swept = runStorage(epoch,
+        [chat_logs_dir, directory = sRuntime.account_dir,
+         delimiter = sRuntime.delimiter, state_path]()
         {
-            return sweepServiceArtifacts(account_dir, delimiter, state_path);
+            return !chat_logs_dir.empty() && LLLogChat::deleteTranscriptContent(chat_logs_dir) &&
+                   sweepServiceArtifacts(directory, delimiter, state_path);
         });
-    if (!ownsRuntime(epoch))
-    {
-        return;
-    }
-    if (!service)
+    if (!swept)
     {
         finishDelete(false);
         return;
@@ -2080,10 +1893,6 @@ void runDelete(U32 epoch)
             return;
         }
     }
-    if (!ownsRuntime(epoch))
-    {
-        return;
-    }
 
     // Reset cached summaries last so subsequent discovery starts from empty storage.
     sRuntime.residents.clear();
@@ -2092,31 +1901,21 @@ void runDelete(U32 epoch)
     finishDelete(true);
 }
 
-bool initializeArchives(U32 epoch)
+void initializeArchives(U32 epoch)
 {
     // Discover account-local artifacts off the main thread; individual archives are
     // prepared incrementally by the manager so startup remains bounded.
-    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-    const std::string directory = sRuntime.account_dir;
-    const initial_artifacts_t artifacts = general
-        ? general->waitForResult([directory]()
-          {
-              return enumerateArchives(directory);
-          })
-        : initial_artifacts_t();
-    if (!ownsRuntime(epoch))
+    const auto artifacts = runStorage(epoch, [directory = sRuntime.account_dir]()
     {
-        return false;
-    }
+        return enumerateArchives(directory);
+    });
     sRuntime.local_content_exists = artifacts.second;
-    const std::vector<LLUUID>& ids = artifacts.first;
-    for (const LLUUID& id : ids)
+    for (const LLUUID& id : artifacts.first)
     {
         sRuntime.residents[id].summary.state = SUMMARY_UNPREPARED;
     }
     sRuntime.initialized_archives = true;
     sRuntime.index_dirty = true;
-    return true;
 }
 
 bool prepareOneArchive(U32 epoch)
@@ -2166,17 +1965,12 @@ bool updateIndex(U32 epoch)
             names[pair.first] = pair.second.metadata.name;
         }
     }
-    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-    const bool updated = general && general->waitForResult(
+    const bool updated = runStorage(epoch,
         [archives, names, directory = sRuntime.account_dir,
          delimiter = sRuntime.delimiter]()
         {
             return regenerateIndex(archives, names, directory, delimiter);
         });
-    if (!ownsRuntime(epoch))
-    {
-        return false;
-    }
     sRuntime.index_dirty |= !updated;
     return updated;
 }
@@ -2278,29 +2072,18 @@ void manager(U32 epoch)
         if (sRuntime.delete_active)
         {
             runDelete(epoch);
-            if (!ownsRuntime(epoch))
-            {
-                return;
-            }
             continue;
         }
         if (sRuntime.state_safety == STATE_UNKNOWN)
         {
             // Load privacy state before archives, views, or network work become eligible.
-            LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
             const std::string state_path = childPath(sRuntime.account_dir,
                                                      sRuntime.delimiter, STATE_NAME);
-            const StateResult state = general
-                ? general->waitForResult([state_path]()
-                  {
-                      LLMutexLock lock(&sStorageMutex);
-                      return loadState(state_path);
-                  })
-                : StateResult();
-            if (!sRuntime.running || sRuntime.epoch != epoch)
+            const StateResult state = runStorage(epoch, [state_path]()
             {
-                return;
-            }
+                LLMutexLock lock(&sStorageMutex);
+                return loadState(state_path);
+            });
             sRuntime.state_safety = state.safety;
             sRuntime.deleted_before_ticks = state.boundary;
             sRuntime.cleanup_pending = state.cleanup_pending;
@@ -2322,10 +2105,7 @@ void manager(U32 epoch)
         }
         if (sRuntime.state_safety == STATE_SAFE && !sRuntime.initialized_archives)
         {
-            if (!initializeArchives(epoch))
-            {
-                return;
-            }
+            initializeArchives(epoch);
             continue;
         }
 
@@ -2387,10 +2167,6 @@ void manager(U32 epoch)
             if (sRuntime.list_needed)
             {
                 requestList(context, epoch);
-                if (!ownsRuntime(epoch))
-                {
-                    return;
-                }
                 continue;
             }
             if (!sRuntime.queue.empty())
@@ -2398,10 +2174,6 @@ void manager(U32 epoch)
                 const LLUUID id = sRuntime.queue.front();
                 sRuntime.queue.pop_front();
                 syncResident(id, context, epoch);
-                if (!ownsRuntime(epoch))
-                {
-                    return;
-                }
                 continue;
             }
 
@@ -2429,10 +2201,6 @@ void manager(U32 epoch)
         {
             continue;
         }
-        if (!ownsRuntime(epoch))
-        {
-            return;
-        }
         if (sRuntime.index_dirty && sRuntime.state_safety == STATE_SAFE &&
             !sRuntime.cleanup_pending)
         {
@@ -2440,15 +2208,8 @@ void manager(U32 epoch)
             {
                 continue;
             }
-            if (!ownsRuntime(epoch))
-            {
-                return;
-            }
         }
-        if (!waitForWake(nearestWait(), epoch))
-        {
-            return;
-        }
+        waitForWake(nearestWait(), epoch);
     }
 }
 
