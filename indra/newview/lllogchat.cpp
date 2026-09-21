@@ -146,71 +146,6 @@ const char* remove_utf8_bom(const char* buf)
     return start;
 }
 
-namespace
-{
-    void parseHistoryFile(LLFILE* input, std::list<LLSD>& messages,
-                          const LLSD& load_params, bool load_all)
-    {
-        // A bounded load seeks near EOF and discards the first partial line; full
-        // stitched reads parse from the beginning of each exact transcript path.
-        char buffer[LOG_RECALL_SIZE];
-        bool skip_partial_line = true;
-        if (load_all || fseek(input, (LOG_RECALL_SIZE - 1) * -1, SEEK_END))
-        {
-            skip_partial_line = false;
-            if (fseek(input, 0, SEEK_SET))
-            {
-                return;
-            }
-        }
-
-        while (fgets(buffer, LOG_RECALL_SIZE, input))
-        {
-            // Normalize either newline style before applying legacy multiline rules.
-            size_t length = strlen(buffer);
-            while (length && (buffer[length - 1] == '\n' || buffer[length - 1] == '\r'))
-            {
-                buffer[--length] = '\0';
-            }
-
-            if (skip_partial_line)
-            {
-                skip_partial_line = false;
-                continue;
-            }
-
-            std::string line(remove_utf8_bom(buffer));
-
-            // Restore mention URLs only when the inexpensive marker indicates the
-            // formatter's markdown wrapper may be present.
-            if (line.find("/mention)") != std::string::npos)
-            {
-                static const boost::regex mention_regex(
-                    "\\[@([^\\]]+)\\]\\((" APP_HEADER_REGEX "/agent/[\\da-f-]+/mention)\\)",
-                    boost::regex::perl | boost::regex::icase);
-                line = boost::regex_replace(line, mention_regex, "$2");
-            }
-
-            // Indented lines continue the prior multiline message in the current
-            // plaintext format.
-            if (!line.empty() && line[0] == ' ')
-            {
-                line.erase(0, MULTI_LINE_PREFIX.length());
-                append_to_last_message(messages, '\n' + line);
-                continue;
-            }
-
-            // Parser failures remain readable as plain transcript text.
-            LLSD item;
-            if (!LLChatLogParser::parse(line, item, load_params))
-            {
-                item[LL_IM_TEXT] = line;
-            }
-            messages.push_back(item);
-        }
-    }
-}
-
 class LLLogChatTimeScanner: public LLSingleton<LLLogChatTimeScanner>
 {
     LLSINGLETON(LLLogChatTimeScanner);
@@ -498,8 +433,6 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
         return ;
     }
 
-    bool load_all_history = load_params.has("load_all_history") ? load_params["load_all_history"].asBoolean() : false;
-
     // Stat the file to find it and get the last history entry time
     llstat stat_data;
 
@@ -537,22 +470,88 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
         }
     }
 
-    // If we got here, we managed to stat the file.
-    // Open the file to read in binary mode to prevent interpreting other characters as EOF
-    LLFILE* fptr = LLFile::fopen(log_file_name, LLFILE_MODE("rb"));       /*Flawfinder: ignore*/
-    if (!fptr)
-    {   // Ok, this is strange but not really tragic in the big picture of things
-        LL_WARNS("ChatHistory") << "Unable to read file " << log_file_name << " after stat was successful" << LL_ENDL;
-        return;
-    }
-
     auto save_num_messages = messages.size();
-    parseHistoryFile(fptr, messages, load_params, load_all_history);
-    fclose(fptr);
+    loadChatHistoryExact(log_file_name, messages, load_params);
 
     LL_DEBUGS("ChatHistory") << "Read " << (messages.size() - save_num_messages)
         << " messages of chat history from " << log_file_name
         << " file mod time " << (F64)stat_data.st_mtime << LL_ENDL;
+}
+
+// static
+void LLLogChat::loadChatHistoryExact(const std::string& path, std::list<LLSD>& messages,
+                                    const LLSD& load_params)
+{
+    if (path.empty())
+    {
+        return;
+    }
+
+    // Binary mode keeps transcript contents independent of platform EOF handling.
+    LLUniqueFile input(LLFile::fopen(path, LLFILE_MODE("rb")));
+    if (!input)
+    {
+        LL_WARNS("ChatHistory") << "Unable to read file " << path << LL_ENDL;
+        return;
+    }
+
+    // A bounded load seeks near EOF and discards the first partial line; full
+    // stitched reads parse from the beginning of each exact transcript path.
+    char buffer[LOG_RECALL_SIZE];
+    bool skip_partial_line = true;
+    if (load_params["load_all_history"].asBoolean() || fseek(input, (LOG_RECALL_SIZE - 1) * -1, SEEK_END))
+    {
+        skip_partial_line = false;
+        if (fseek(input, 0, SEEK_SET))
+        {
+            return;
+        }
+    }
+
+    while (fgets(buffer, LOG_RECALL_SIZE, input))
+    {
+        // Normalize either newline style before applying legacy multiline rules.
+        size_t length = strlen(buffer);
+        while (length && (buffer[length - 1] == '\n' || buffer[length - 1] == '\r'))
+        {
+            buffer[--length] = '\0';
+        }
+
+        if (skip_partial_line)
+        {
+            skip_partial_line = false;
+            continue;
+        }
+
+        std::string line(remove_utf8_bom(buffer));
+
+        // Restore mention URLs only when the inexpensive marker indicates the
+        // formatter's markdown wrapper may be present.
+        if (line.find("/mention)") != std::string::npos)
+        {
+            static const boost::regex mention_regex(
+                "\\[@([^\\]]+)\\]\\((" APP_HEADER_REGEX "/agent/[\\da-f-]+/mention)\\)",
+                boost::regex::perl | boost::regex::icase);
+            line = boost::regex_replace(line, mention_regex, "$2");
+        }
+
+        // Indented lines continue the prior multiline message in the current
+        // plaintext format.
+        if (!line.empty() && line[0] == ' ')
+        {
+            line.erase(0, MULTI_LINE_PREFIX.length());
+            append_to_last_message(messages, '\n' + line);
+            continue;
+        }
+
+        // Parser failures remain readable as plain transcript text.
+        LLSD item;
+        if (!LLChatLogParser::parse(line, item, load_params))
+        {
+            item[LL_IM_TEXT] = line;
+        }
+        messages.push_back(item);
+    }
 }
 
 // static
@@ -586,25 +585,6 @@ void LLLogChat::getTranscriptFamily(const std::string& file_name, std::vector<st
 
     std::sort(shards.begin(), shards.end());
     paths.insert(paths.end(), shards.begin(), shards.end());
-}
-
-// static
-void LLLogChat::loadChatHistoryExact(const std::string& path, std::list<LLSD>& messages,
-                                     const LLSD& load_params)
-{
-    if (path.empty())
-    {
-        return;
-    }
-
-    LLFILE* input = LLFile::fopen(path, LLFILE_MODE("rb"));
-    if (!input)
-    {
-        return;
-    }
-
-    parseHistoryFile(input, messages, load_params, true);
-    fclose(input);
 }
 
 bool LLLogChat::historyThreadsFinished(LLUUID session_id)
