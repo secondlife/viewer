@@ -408,9 +408,9 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
 void LLImageJ2CKDU::cleanupCodeStream()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    mDecodeState.reset(); // mDecodeState gets created from mCodeStreamp, so destroy it first
+    mCodeStreamp.reset(); // Created from mInputp
     mInputp.reset();
-    mDecodeState.reset();
-    mCodeStreamp.reset();
     mTPosp.reset();
     mTileIndicesp.reset();
 }

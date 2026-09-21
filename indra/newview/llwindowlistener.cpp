@@ -120,6 +120,22 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
         "Paste specified [\"text\"] into the current edit field\n"
         "Optional [\"path\"] specifies target UI element (must be focusable).",
         &LLWindowListener::pasteText);
+    add("cut",
+        "Cut selected content from the focused edit field.\n"
+        "Optional [\"path\"] specifies target UI element (must be focusable).",
+        &LLWindowListener::cut);
+    add("copy",
+        "Copy selected content from the focused edit field.\n"
+        "Optional [\"path\"] specifies target UI element (must be focusable).",
+        &LLWindowListener::copy);
+    add("paste",
+        "Paste clipboard contents into the focused edit field.\n"
+        "Optional [\"path\"] specifies target UI element (must be focusable).",
+        &LLWindowListener::paste);
+    add("selectAll",
+        "Select all content in the focused edit field.\n"
+        "Optional [\"path\"] specifies target UI element (must be focusable).",
+        &LLWindowListener::selectAll);
 }
 
 template <typename MAPPED>
@@ -656,4 +672,78 @@ void LLWindowListener::pasteText(LLSD const & evt)
     {
         LLClipboard::instance().reset();
     }
+}
+
+// Helper: optionally focus a view by path; returns false and sets response error on failure.
+static bool focusViewByPath(const LLSD& evt, LLEventAPI::Response& response)
+{
+    if (!evt.has("path"))
+        return true;
+
+    std::string path(evt["path"]);
+    LLView* target_view = LLUI::getInstance()->resolvePath(LLUI::getInstance()->getRootView(), path);
+    if (!target_view)
+    {
+        response.error(STRINGIZE(evt["op"].asString() << " request specified invalid \"path\": " << path));
+        return false;
+    }
+    if (!target_view->isAvailable())
+    {
+        response.error(STRINGIZE("Target view specified by \"path\": " << path << " is not visible"));
+        return false;
+    }
+    gFocusMgr.setKeyboardFocus(target_view);
+    return true;
+}
+
+void LLWindowListener::cut(LLSD const & evt)
+{
+    Response response(LLSD(), evt);
+    if (!focusViewByPath(evt, response))
+        return;
+    if (!LLEditMenuHandler::gEditMenuHandler)
+    {
+        response.error(STRINGIZE(evt["op"].asString() << " request failed: no edit menu handler available"));
+        return;
+    }
+    LLEditMenuHandler::gEditMenuHandler->cut();
+}
+
+void LLWindowListener::copy(LLSD const & evt)
+{
+    Response response(LLSD(), evt);
+    if (!focusViewByPath(evt, response))
+        return;
+    if (!LLEditMenuHandler::gEditMenuHandler)
+    {
+        response.error(STRINGIZE(evt["op"].asString() << " request failed: no edit menu handler available"));
+        return;
+    }
+    LLEditMenuHandler::gEditMenuHandler->copy();
+}
+
+void LLWindowListener::paste(LLSD const & evt)
+{
+    Response response(LLSD(), evt);
+    if (!focusViewByPath(evt, response))
+        return;
+    if (!LLEditMenuHandler::gEditMenuHandler)
+    {
+        response.error(STRINGIZE(evt["op"].asString() << " request failed: no edit menu handler available"));
+        return;
+    }
+    LLEditMenuHandler::gEditMenuHandler->paste();
+}
+
+void LLWindowListener::selectAll(LLSD const & evt)
+{
+    Response response(LLSD(), evt);
+    if (!focusViewByPath(evt, response))
+        return;
+    if (!LLEditMenuHandler::gEditMenuHandler)
+    {
+        response.error(STRINGIZE(evt["op"].asString() << " request failed: no edit menu handler available"));
+        return;
+    }
+    LLEditMenuHandler::gEditMenuHandler->selectAll();
 }

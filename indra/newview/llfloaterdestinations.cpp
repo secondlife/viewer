@@ -45,11 +45,9 @@ LLFloaterDestinations::~LLFloaterDestinations()
 
 bool LLFloaterDestinations::postBuild()
 {
-    enableResizeCtrls(true, true, false);
     LLMediaCtrl* destinations = getChild<LLMediaCtrl>("destination_guide_contents");
     destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
     std::string url = gSavedSettings.getString("DestinationGuideURL");
-    url = LLWeb::expandURLSubstitutions(url, LLSD());
     destinations->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
 
     // If cookie is there, will set it now. Otherwise will have to wait for login completion

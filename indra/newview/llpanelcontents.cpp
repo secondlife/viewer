@@ -119,6 +119,7 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 {
     if( !objectp )
     {
+        mLastScriptObjectID.setNull();
         getChildView("button new script")->setEnabled(false);
         getChildView("button new notecard")->setEnabled(false);
         mPublishButton->setEnabled(false);
@@ -153,7 +154,14 @@ void LLPanelContents::getState(LLViewerObject *objectp )
         region->getSimulatorFeatures(simulatorFeatures);
         lua_region = simulatorFeatures["LuaScriptsEnabled"].asBoolean();
     }
-    getChild<LLComboBox>("button new script")->setEnabledByValue("lua", lua_region);
+    LLComboBox* new_script = getChild<LLComboBox>("button new script");
+    new_script->setEnabledByValue("lua", lua_region);
+    if (mLastScriptObjectID != objectp->getID() || mLastLuaRegion != lua_region)
+    {
+        new_script->setValue(lua_region ? "lua" : "lsl");
+    }
+    mLastScriptObjectID = objectp->getID();
+    mLastLuaRegion = lua_region;
 
     getChildView("button permissions")->setEnabled(!objectp->isPermanentEnforced());
     mPanelInventoryObject->setEnabled(!objectp->isPermanentEnforced());

@@ -27,17 +27,21 @@
 #pragma once
 
 #include "llsd.h"
+#include "lltimer.h"
 #include "lluuid.h"
 #include "lleventtimer.h"
 #include "stdtypes.h"
 
 #include <map>
+#include <functional>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
 
 class LLScriptEditorWSServer;
+class LLChat;
 class LLPublishedPrimListener;
 class LLViewerObject;
 
@@ -117,8 +121,123 @@ public:
         std::string mPendingItemCreatePump;
     };
 
-    explicit LLPublishedObjectMgr(LLScriptEditorWSServer* server = nullptr);
+    class RuntimeEventAggregator
+    {
+    public:
+        enum class Channel
+        {
+            DEBUG,
+            OWNER_SAY
+        };
+
+        enum class VM
+        {
+            LSL2,
+            LUAU
+        };
+
+        struct StackFrame
+        {
+            S32         mLine{ 0 };
+            std::string mFunction;
+            std::string mSource;
+        };
+
+        struct ParsedError
+        {
+            std::string             mSource;
+            std::string             mError;
+            S32                     mLine{ 0 };
+            S32                     mColumn{ 0 };
+            std::vector<StackFrame> mStack;
+        };
+
+        struct Fragment
+        {
+            LLUUID      mFromID;
+            std::string mFromName;
+            std::string mText;
+        };
+
+        using fragments_t = std::vector<Fragment>;
+
+        struct RuntimeEvent
+        {
+            VM          mVM;
+            Channel     mChannel;
+            fragments_t mFragments;
+            ParsedError mError;
+        };
+
+        using FlushCallback = std::function<void(const RuntimeEvent&)>;
+
+        explicit RuntimeEventAggregator(FlushCallback flush_callback);
+
+        void ingest(const LLUUID& from_id,
+                    const std::string& from_name,
+                    const std::string& text,
+                    VM vm,
+                    Channel channel);
+        void flushExpired();
+        void flush();
+        ParsedError parseError(VM vm,
+                               const fragments_t& fragments) const;
+        bool hasPending() const;
+
+    private:
+        struct PendingBurst
+        {
+            LLUUID      mFromID;
+            std::string mFromName;
+            VM          mVM{ VM::LSL2 };
+            Channel     mChannel{ Channel::DEBUG };
+            fragments_t mFragments;
+            LLTimer     mTimer;
+        };
+
+        static constexpr F32 FRAGMENT_TIMEOUT = 1.0f;
+
+        void flushPending();
+        bool isNewBurst(const LLUUID& from_id,
+                const std::string& from_name,
+                VM vm,
+                Channel channel) const;
+
+        FlushCallback mFlushCallback;
+        std::unique_ptr<PendingBurst> mPending;
+    };
+
+    struct RuntimeChatEvent
+    {
+        RuntimeEventAggregator::Channel mChannel;
+        RuntimeEventAggregator::VM      mVM;
+        LLUUID                          mRootID;
+        LLUUID                          mPrimID;
+        LLUUID                          mItemID;
+        std::string                     mObjectName;
+        std::string                     mScriptName;
+        std::string                     mMessage;
+        std::string                     mError;
+        S32                             mLine{ 0 };
+        S32                             mColumn{ 0 };
+        std::vector<std::string>        mStack;
+        bool                            mIsError{ false };
+    };
+
+    using RuntimeEventCallback =
+        std::function<void(const RuntimeChatEvent&)>;
+
+    explicit LLPublishedObjectMgr(
+        LLScriptEditorWSServer* server = nullptr,
+        RuntimeEventCallback runtime_event_callback = {});
     ~LLPublishedObjectMgr();
+
+    void flushExpiredRuntimeFragments();
+    void ingestRuntimeChat(
+        const LLChat& chat_msg,
+        RuntimeEventAggregator::Channel channel);
+    std::optional<RuntimeChatEvent> buildRuntimeChatEvent(
+        const RuntimeEventAggregator::RuntimeEvent& event) const;
 
     bool hasPublished(const LLUUID& object_id) const { return mPublishedObjects.find(object_id) != mPublishedObjects.end(); }
     void erasePublished(const LLUUID& object_id) { mPublishedObjects.erase(object_id); }
@@ -190,6 +309,12 @@ public:
 
 private:
     LLScriptEditorWSServer* mServer{ nullptr };
+    std::unique_ptr<RuntimeEventAggregator> mRuntimeEventAggregator;
+    RuntimeEventCallback mRuntimeEventCallback;
+    std::unique_ptr<LLEventTimer> mRuntimeFlushTimer;
+
+    static constexpr F32 RUNTIME_FLUSH_INTERVAL = 0.25f;
+
     void cancelPendingPublishWithCleanup(const LLUUID& object_id);
     void clearPublishedListeners(const LLUUID& object_id);
 

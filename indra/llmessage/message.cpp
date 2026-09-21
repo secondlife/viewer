@@ -67,6 +67,7 @@
 #include "llsdmessagereader.h"
 #include "llsdserialize.h"
 #include "llstring.h"
+#include "llzerocode.h"
 #include "lltransfermanager.h"
 #include "lluuid.h"
 #include "llxfermanager.h"
@@ -3060,85 +3061,6 @@ U32 LLMessageSystem::getListenPort( void ) const
     return mPort;
 }
 
-// TODO: babbage: remove this horror!
-S32 LLMessageSystem::zeroCodeAdjustCurrentSendTotal()
-{
-    if(mMessageBuilder == mLLSDMessageBuilder)
-    {
-        // babbage: don't compress LLSD messages, so delta is 0
-        return 0;
-    }
-
-    if (! mMessageBuilder->isBuilt())
-    {
-        mSendSize = mMessageBuilder->buildMessage(
-            mSendBuffer,
-            MAX_BUFFER_SIZE,
-            0);
-    }
-    // TODO: babbage: remove this horror
-    mMessageBuilder->setBuilt(false);
-
-    S32 count = mSendSize;
-
-    S32 net_gain = 0;
-    U8 num_zeroes = 0;
-
-    U8 *inptr = (U8 *)mSendBuffer;
-
-// skip the packet id field
-
-    for (U32 ii = 0; ii < LL_PACKET_ID_SIZE; ++ii)
-    {
-        count--;
-        inptr++;
-    }
-
-// don't actually build, just test
-
-// sequential zero bytes are encoded as 0 [U8 count]
-// with 0 0 [count] representing wrap (>256 zeroes)
-
-    while (count--)
-    {
-        if (!(*inptr))   // in a zero count
-        {
-            if (num_zeroes)
-            {
-                if (++num_zeroes > 254)
-                {
-                    num_zeroes = 0;
-                }
-                net_gain--;   // subseqent zeroes save one
-            }
-            else
-            {
-                net_gain++;  // starting a zero count adds one
-                num_zeroes = 1;
-            }
-            inptr++;
-        }
-        else
-        {
-            if (num_zeroes)
-            {
-                num_zeroes = 0;
-            }
-            inptr++;
-        }
-    }
-    if (net_gain < 0)
-    {
-        return net_gain;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-
-
 S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
 {
     if ((*data_size ) < LL_MINIMUM_VALID_PACKET_SIZE)
@@ -3159,74 +3081,18 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
     mCompressedPacketsIn++;
     mCompressedBytesIn += *data_size;
 
-    *data[0] &= (~LL_ZERO_CODE_FLAG);
-
-    S32 count = (*data_size);
-
-    U8 *inptr = (U8 *)*data;
-    U8 *outptr = (U8 *)mEncodedRecvBuffer;
-
-// skip the packet id field
-
-    for (U32 ii = 0; ii < LL_PACKET_ID_SIZE; ++ii)
+    bool overflow = false;
+    U32 decoded_size = LLZeroCode::decode(*data, (U32)*data_size,
+                                           mEncodedRecvBuffer, sizeof(mEncodedRecvBuffer),
+                                           LL_PACKET_ID_SIZE, overflow);
+    if (overflow)
     {
-        count--;
-        *outptr++ = *inptr++;
-    }
-
-// reconstruct encoded packet, keeping track of net size gain
-
-// sequential zero bytes are encoded as 0 [U8 count]
-// with 0 0 [count] representing wrap (>256 zeroes)
-
-    while (count--)
-    {
-        if (outptr > (&mEncodedRecvBuffer[MAX_BUFFER_SIZE-1]))
-        {
-            LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size 1" << LL_ENDL;
-            callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
-            outptr = mEncodedRecvBuffer;
-            break;
-        }
-        if (!((*outptr++ = *inptr++)))
-        {
-            while (((count--)) && (!(*inptr)))
-            {
-                *outptr++ = *inptr++;
-                if (outptr > (&mEncodedRecvBuffer[MAX_BUFFER_SIZE-256]))
-                {
-                    LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size 2" << LL_ENDL;
-                    callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
-                    outptr = mEncodedRecvBuffer;
-                    count = -1;
-                    break;
-                }
-                memset(outptr,0,255);
-                outptr += 255;
-            }
-
-            if (count < 0)
-            {
-                break;
-            }
-
-            else
-            {
-                if (outptr > (&mEncodedRecvBuffer[MAX_BUFFER_SIZE-(*inptr)]))
-                {
-                    LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size 3" << LL_ENDL;
-                    callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
-                    outptr = mEncodedRecvBuffer;
-                }
-                memset(outptr,0,(*inptr) - 1);
-                outptr += ((*inptr) - 1);
-                inptr++;
-            }
-        }
+        LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size" << LL_ENDL;
+        callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
     }
 
     *data = mEncodedRecvBuffer;
-    *data_size = (S32)(outptr - mEncodedRecvBuffer);
+    *data_size = (S32)decoded_size;
     mUncompressedBytesIn += *data_size;
 
     return(in_size);

@@ -201,12 +201,7 @@ LLUIColor LLKeywords::getColorGroup(std::string_view key_in) const
         color_group = "SyntaxLslGodMode";
     }
     else if (key_in == "constants"
-             || key_in == "constants-integer"
-             || key_in == "constants-float"
-             || key_in == "constants-string"
-             || key_in == "constants-key"
-             || key_in == "constants-rotation"
-             || key_in == "constants-vector")
+             || key_in.compare(0, 10, "constants-") == 0)
     {
         color_group = "SyntaxLslConstant";
     }
@@ -364,7 +359,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, std::string_view group)
                         break;
                     case LLKeywordToken::TT_FUNCTION:
                         tooltip = getAttribute("return") + " " + outer_itr->first + "(" + getArguments(arguments) + ");";
-                        if (std::stod(getAttribute("energy")) >= 0)
+                        if (getAttribute("energy").empty() || std::stod(getAttribute("energy")) >= 0)
                         {
                             tooltip.append("\nEnergy: ");
                             tooltip.append(getAttribute("energy").empty() ? "0.0" : getAttribute("energy"));
@@ -373,6 +368,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, std::string_view group)
                         {
                             tooltip += ", Sleep: " + getAttribute("sleep");
                         }
+                        break;
                     default:
                         break;
                 }
