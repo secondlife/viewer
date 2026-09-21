@@ -252,6 +252,15 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
         mbError = true;
         mErrorCode = error;
     }
+
+    if (!mbError)
+    {
+        // Start the receiver thread, which will read packets from the socket and queue them for processing.
+        mIncomingQueue = std::make_shared<LLUDPReceiverThread::PacketQueue>();
+        mReceiverThread = std::make_unique<LLUDPReceiverThread>(mSocket, mIncomingQueue);
+        mReceiverThread->start();
+    }
+
 //  LL_DEBUGS("Messaging") <<  << "*** port: " << mPort << LL_ENDL;
 
     //
@@ -334,6 +343,10 @@ LLMessageSystem::~LLMessageSystem()
     mMessageTemplates.clear(); // don't delete templates.
     for_each(mMessageNumbers.begin(), mMessageNumbers.end(), DeletePairedPointer());
     mMessageNumbers.clear();
+
+    // The thread must stop before the socket closes
+    if (mIncomingQueue) mIncomingQueue->close();
+    if (mReceiverThread) mReceiverThread->shutdown();
 
     if (!mbError)
     {
@@ -994,40 +1007,13 @@ S32 LLMessageSystem::bufferInboundPacket()
 {
     LLHost invalid_host;
     LLPacketBuffer pkt(invalid_host, nullptr, 0);
-    S32 packet_size = 0;
+    if (!mIncomingQueue->tryPop(pkt))
+    {
+        return 0;
+    }
 
-    if (LLProxy::isSOCKSProxyEnabled())
-    {
-        char buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];   /* Flawfinder ignore */
-        packet_size = receive_packet(mSocket, buffer);
-        if (packet_size > 0)
-        {
-            mActualBytesIn += packet_size;
-            if (packet_size > SOCKS_HEADER_SIZE)
-            {
-                // *FIX We are assuming ATYP is 0x01 (IPv4), not 0x03 (hostname) or 0x04 (IPv6)
-                proxywrap_t* header = static_cast<proxywrap_t*>(static_cast<void*>(buffer));
-                LLHost sender;
-                sender.setAddress(header->addr);
-                sender.setPort(ntohs(header->port));
-                packet_size -= SOCKS_HEADER_SIZE;
-                pkt.init(buffer + SOCKS_HEADER_SIZE, packet_size, sender);
-            }
-            else
-            {
-                packet_size = 0;
-            }
-        }
-    }
-    else
-    {
-        pkt.init(mSocket);
-        packet_size = pkt.getSize();
-        if (packet_size > 0)
-        {
-            mActualBytesIn += packet_size;
-        }
-    }
+    S32 packet_size = pkt.getSize();
+    mActualBytesIn += packet_size;
 
     if (packet_size >= (S32)LL_MINIMUM_VALID_PACKET_SIZE && !computeDrop())
     {
