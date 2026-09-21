@@ -24,6 +24,7 @@
 #include "lleventcoro.h"
 #include "llevents.h"
 #include "llfile.h"
+#include "fsyspath.h"
 #include "llfloaterconversationpreview.h"
 #include "llfloaterreg.h"
 #include "llfloaterimsessiontab.h"
@@ -54,6 +55,7 @@
 #include <climits>
 #include <cstdio>
 #include <deque>
+#include <filesystem>
 #include <map>
 #include <set>
 #include <sstream>
@@ -461,122 +463,71 @@ bool syncFile(const std::string& path)
     HANDLE handle = CreateFileW(ll_convert<std::wstring>(path).c_str(), GENERIC_WRITE,
                                 FILE_SHARE_READ, NULL, OPEN_EXISTING,
                                 FILE_ATTRIBUTE_NORMAL, NULL);
-    if (handle == INVALID_HANDLE_VALUE || !FlushFileBuffers(handle))
+    if (handle == INVALID_HANDLE_VALUE)
     {
-        if (handle != INVALID_HANDLE_VALUE)
-        {
-            CloseHandle(handle);
-        }
         return false;
     }
+    const bool success = FlushFileBuffers(handle) != 0;
     CloseHandle(handle);
-    return true;
 #else
     const int descriptor = ::open(path.c_str(), O_RDONLY);
-    if (descriptor < 0 || ::fsync(descriptor) != 0)
+    if (descriptor < 0)
     {
-        if (descriptor >= 0)
-        {
-            ::close(descriptor);
-        }
         return false;
     }
+    const bool success = ::fsync(descriptor) == 0;
     ::close(descriptor);
-    return true;
 #endif
+    return success;
+}
+
+bool writeFile(const std::string& path, const std::string& contents, bool durable)
+{
+    // Closing flushes the stream; privacy state also reaches stable storage before
+    // any directory entry can make these bytes authoritative.
+    llofstream output(path.c_str(), std::ios::binary | std::ios::trunc);
+    output.write(contents.data(), contents.size());
+    output.close();
+    return !output.fail() && (!durable || syncFile(path));
+}
+
+bool replaceFile(const std::string& from, const std::string& to, bool durable)
+{
+    // Publish complete bytes atomically, then commit the directory update for privacy state.
+#if LL_WINDOWS
+    if (!MoveFileExW(ll_convert<std::wstring>(from).c_str(), ll_convert<std::wstring>(to).c_str(),
+                     MOVEFILE_REPLACE_EXISTING | (durable ? MOVEFILE_WRITE_THROUGH : 0)))
+#else
+    if (::rename(from.c_str(), to.c_str()) != 0)
+#endif
+    {
+        return false;
+    }
+    return !durable || syncDirectory(to);
 }
 
 bool writeReplace(const std::string& destination, const std::string& contents, bool durable)
 {
-    // Write a complete sibling temporary before one atomic replacement. Privacy
-    // state additionally flushes file and directory metadata before returning.
+    // A complete sibling temporary precedes replacement; neither path may alias
+    // another file or directory.
     const std::string temporary = destination + ".tmp";
     bool exists = false;
-    if (!inspectRegular(destination, exists) || !inspectRegular(temporary, exists))
-    {
-        return false;
-    }
-    llofstream output(temporary.c_str(), std::ios::binary | std::ios::trunc);
-    if (!output.is_open())
-    {
-        return false;
-    }
-    output.write(contents.data(), contents.size());
-    output.flush();
-    output.close();
-    if (output.fail())
-    {
-        return false;
-    }
-
-    // Privacy state is flushed before replacement; its directory entry is committed afterward.
-    if (durable)
-    {
-        if (!syncFile(temporary))
-        {
-            return false;
-        }
-    }
-#if LL_WINDOWS
-    const std::wstring from = ll_convert<std::wstring>(temporary);
-    const std::wstring to = ll_convert<std::wstring>(destination);
-    if (!MoveFileExW(from.c_str(), to.c_str(), MOVEFILE_REPLACE_EXISTING |
-                                               (durable ? MOVEFILE_WRITE_THROUGH : 0)))
-    {
-        return false;
-    }
-#else
-    if (::rename(temporary.c_str(), destination.c_str()) != 0)
-    {
-        return false;
-    }
-#endif
-    return !durable || syncDirectory(destination);
+    return inspectRegular(destination, exists) && inspectRegular(temporary, exists) &&
+           writeFile(temporary, contents, durable) && replaceFile(temporary, destination, durable);
 }
 
-bool replacePrefix(const std::string& path, std::streamoff bytes)
+bool truncateArchive(const std::string& path, std::streamoff bytes)
 {
-    // Torn-tail repair copies only the last parser-confirmed prefix, then replaces
-    // the canonical without interpreting or rewriting valid records.
-    const std::string temporary = path + ".tmp";
+    // The parser and file stamp identify the valid prefix. Truncation removes only
+    // the incomplete suffix without copying or rewriting accumulated messages.
     bool exists = false;
-    if (bytes < 0 || !inspectRegular(path, exists) || !exists ||
-        !inspectRegular(temporary, exists))
+    if (bytes < 0 || !inspectRegular(path, exists) || !exists)
     {
         return false;
     }
-
-    llifstream input(path.c_str(), std::ios::binary);
-    llofstream output(temporary.c_str(), std::ios::binary | std::ios::trunc);
-    std::array<char, 64 * 1024> buffer;
-    std::streamoff remaining = bytes;
-    while (input.is_open() && output.is_open() && remaining > 0)
-    {
-        const std::streamsize count = static_cast<std::streamsize>(
-            llmin<std::streamoff>(remaining, buffer.size()));
-        input.read(buffer.data(), count);
-        if (input.gcount() != count)
-        {
-            return false;
-        }
-        output.write(buffer.data(), count);
-        remaining -= count;
-    }
-    output.flush();
-    output.close();
-    const bool input_ok = input.is_open() && !input.bad();
-    input.close();
-    if (!input_ok || output.fail() || remaining)
-    {
-        return false;
-    }
-#if LL_WINDOWS
-    const std::wstring from = ll_convert<std::wstring>(temporary);
-    const std::wstring to = ll_convert<std::wstring>(path);
-    return MoveFileExW(from.c_str(), to.c_str(), MOVEFILE_REPLACE_EXISTING) != 0;
-#else
-    return ::rename(temporary.c_str(), path.c_str()) == 0;
-#endif
+    std::error_code error;
+    std::filesystem::resize_file(fsyspath(path), bytes, error);
+    return !error;
 }
 
 bool readStateFile(const std::string& path, StateResult& state)
@@ -662,89 +613,39 @@ U64 recoverBoundaryCandidate(const std::string& path)
     return boundary;
 }
 
-bool recoverStateForDelete(const std::string& path, U64 boundary)
-{
-    // Build a durable pending state through an integration-owned recovery path so
-    // an unsafe canonical remains present until its replacement is ready.
-    const std::string temporary = path + ".tmp";
-    const std::string::size_type separator = path.find_last_of("/\\");
-    const std::string recovery = path.substr(0, separator + 1) + INDEX_NAME + ".tmp";
-    LLSD data;
-    data["deleted_before_uuid_ticks"] = std::to_string(boundary);
-    data["cleanup_pending"] = true;
-    std::ostringstream serialized;
-    if (!LLSDSerialize::toPrettyXML(data, serialized))
-    {
-        return false;
-    }
-
-    // The index temporary is an owned scratch name that deletion already knows how
-    // to sweep; it cannot be mistaken for authoritative privacy state.
-    if (LLFile::remove(recovery, ENOENT) != 0 && errno != ENOENT)
-    {
-        return false;
-    }
-
-    llofstream output(recovery.c_str(), std::ios::binary | std::ios::trunc);
-    if (!output.is_open())
-    {
-        return false;
-    }
-    output << serialized.str();
-    output.flush();
-    output.close();
-    if (output.fail())
-    {
-        return false;
-    }
-    if (!syncFile(recovery))
-    {
-        return false;
-    }
-#if LL_WINDOWS
-    if (!MoveFileExW(ll_convert<std::wstring>(recovery).c_str(),
-                     ll_convert<std::wstring>(temporary).c_str(),
-                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-    {
-        return false;
-    }
-#else
-    if (::rename(recovery.c_str(), temporary.c_str()) != 0 ||
-        !syncDirectory(temporary))
-    {
-        return false;
-    }
-#endif
-    if (LLFile::remove(path, ENOENT) != 0 && errno != ENOENT)
-    {
-        return false;
-    }
-#if LL_WINDOWS
-    if (!MoveFileExW(ll_convert<std::wstring>(temporary).c_str(),
-                     ll_convert<std::wstring>(path).c_str(), MOVEFILE_WRITE_THROUGH))
-    {
-        return false;
-    }
-#else
-    if (::rename(temporary.c_str(), path.c_str()) != 0 || !syncDirectory(path))
-    {
-        return false;
-    }
-#endif
-    return true;
-}
-
-bool writeState(const std::string& path, U64 boundary, bool pending)
+std::string stateContents(U64 boundary, bool pending)
 {
     LLSD data;
     data["deleted_before_uuid_ticks"] = std::to_string(boundary);
     data["cleanup_pending"] = pending;
     std::ostringstream serialized;
-    if (!LLSDSerialize::toPrettyXML(data, serialized))
+    LLSDSerialize::toPrettyXML(data, serialized);
+    return serialized.str();
+}
+
+bool recoverStateForDelete(const std::string& path, U64 boundary)
+{
+    // Stage through the owned index scratch path. An unsafe canonical remains in
+    // place until a durable pending cutoff has reached the state temporary.
+    const std::string temporary = path + ".tmp";
+    const std::string::size_type separator = path.find_last_of("/\\");
+    const std::string recovery = path.substr(0, separator + 1) + INDEX_NAME + ".tmp";
+    if ((LLFile::remove(recovery, ENOENT) != 0 && errno != ENOENT) ||
+        !writeFile(recovery, stateContents(boundary, true), true) ||
+        !replaceFile(recovery, temporary, true))
     {
         return false;
     }
-    return writeReplace(path, serialized.str(), true);
+    if (LLFile::remove(path, ENOENT) != 0 && errno != ENOENT)
+    {
+        return false;
+    }
+    return replaceFile(temporary, path, true);
+}
+
+bool writeState(const std::string& path, U64 boundary, bool pending)
+{
+    return writeReplace(path, stateContents(boundary, pending), true);
 }
 
 bool clearUnsafeStateTemporary(const std::string& path)
@@ -837,12 +738,12 @@ bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LL
     if (scan.state == ARCHIVE_TORN)
     {
         // Repair only when the private physical stamp still matches the classified
-        // file, then rescan the replacement before publishing its summary.
+        // file, then rescan the repaired file before publishing its summary.
         U64 current_size = 0;
         S64 current_mtime = 0;
         if (!archiveStamp(path, current_size, current_mtime) ||
             current_size != scan.file_size || current_mtime != scan.file_mtime ||
-            !replacePrefix(path, scan.valid_prefix_bytes) ||
+            !truncateArchive(path, scan.valid_prefix_bytes) ||
             !scanArchive(path, agent_id, resident_id, boundary, 0, scan))
         {
             summary.state = SUMMARY_UNPREPARED;
