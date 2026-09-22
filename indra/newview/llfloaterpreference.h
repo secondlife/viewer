@@ -235,6 +235,9 @@ private:
     LLScrollListCtrl* mEnabledPopups = nullptr;
     LLScrollListCtrl* mDisabledPopups = nullptr;
     LLButton*       mDeleteTranscriptsBtn = nullptr;
+
+    // Prevent duplicate account-wide deletion requests while the durable sweep runs.
+    bool            mDeleteTranscriptsPending = false;
     LLButton*       mEnablePopupBtn = nullptr;
     LLButton*       mDisablePopupBtn = nullptr;
     LLComboBox*     mTimeFormatCombobox = nullptr;

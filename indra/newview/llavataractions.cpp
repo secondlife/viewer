@@ -42,6 +42,7 @@
 #include "llconversationlog.h"
 #include "llfloateravatarpicker.h"  // for LLFloaterAvatarPicker
 #include "llfloaterconversationpreview.h"
+#include "llchatservicehistory.h"
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
@@ -1258,6 +1259,12 @@ void LLAvatarActions::inviteToGroup(const LLUUID& id)
 // static
 void LLAvatarActions::viewChatHistory(const LLUUID& id)
 {
+    // A pending account-wide deletion suppresses both transcript and service sources.
+    if (LLChatServiceHistory::historySuppressed())
+    {
+        return;
+    }
+
     const std::vector<LLConversation>& conversations = LLConversationLog::instance().getConversations();
     std::vector<LLConversation>::const_iterator iter = conversations.begin();
 
@@ -1270,7 +1277,7 @@ void LLAvatarActions::viewChatHistory(const LLUUID& id)
         }
     }
 
-    if (LLLogChat::isTranscriptExist(id))
+    if (LLLogChat::isTranscriptExist(id) || LLChatServiceHistory::localHistoryExists(id))
     {
         LLAvatarName avatar_name;
         LLSD extended_id(id);
@@ -1278,6 +1285,7 @@ void LLAvatarActions::viewChatHistory(const LLUUID& id)
         LLAvatarNameCache::get(id, &avatar_name);
         extended_id[LL_FCP_COMPLETE_NAME] = avatar_name.getCompleteName();
         extended_id[LL_FCP_ACCOUNT_NAME] = avatar_name.getAccountName();
+        extended_id[LL_FCP_PARTICIPANT_ID] = id;
         LLFloaterReg::showInstance("preview_conversation", extended_id, true);
     }
 }
