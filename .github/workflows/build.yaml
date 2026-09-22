@@ -20,6 +20,15 @@ on:
           with the real sign-and-package-mac job.
         type: boolean
         default: false
+      mac_only:
+        description: >
+          Diagnostic only: build/test/sign macOS alone, skipping Windows
+          and Linux entirely, for faster iteration while chasing a
+          mac-specific bug. post-windows-symbols will show a red X
+          (missing Windows-app artifact) -- expected, harmless, unrelated
+          to the mac build. Never use for a real release.
+        type: boolean
+        default: false
   pull_request:
   push:
     branches: ["main", "release/*", "project/*"]
@@ -66,7 +75,7 @@ jobs:
       # matter while macOS/Linux CI isn't a priority.
       fail-fast: false
       matrix:
-        runner: ${{ fromJson((github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge","linux-large"]' || '["windows-2022","macos-15-xlarge","ubuntu-22.04"]') }}
+        runner: ${{ fromJson(github.event.inputs.mac_only == 'true' && '["macos-15-xlarge"]' || (github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge","linux-large"]' || '["windows-2022","macos-15-xlarge","ubuntu-22.04"]') }}
         configuration: ${{ fromJson(needs.setup.outputs.configurations) }}
         build_variant: [Viewer, Tests]
     runs-on: ${{ matrix.runner }}
