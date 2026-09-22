@@ -185,7 +185,10 @@ LLSD LLPanelPreferenceGameControl::getSettingsAsLLSD()
     // via its accessors), so snapshotting the whole GameControl structure captures both.
     for (auto& [guid, device] : mDeviceOptions)
     {
-        device.settings = device.options.saveToString(device.name);
+        // force_empty=true: persist every known device's name even when its
+        // options are still at defaults, so "Show all known devices" can find
+        // it again after it's unplugged.
+        device.settings = device.options.saveToString(device.name, true);
         LLGameControl::setDeviceConfig(guid, device.settings);
     }
 

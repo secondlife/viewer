@@ -1269,15 +1269,10 @@ void LLGameControllerManager::rememberDeviceOptions() const
 {
     for (const LLGameControl::Device& device : mDevices)
     {
-        std::string options = device.saveOptionsToString();
-        if (options.empty())
-        {
-            g_deviceOptions.erase(device.getGUID());
-        }
-        else
-        {
-            g_deviceOptions[device.getGUID()] = options;
-        }
+        // force_empty=true: a connected device counts as "known" even when its
+        // axis/button options are still at defaults, so its name gets persisted
+        // and "Show all known devices" can find it again after it's unplugged.
+        g_deviceOptions[device.getGUID()] = device.saveOptionsToString(true);
     }
 }
 
