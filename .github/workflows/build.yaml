@@ -467,7 +467,7 @@ jobs:
 
       - name: Sign and package Mac viewer
         if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
-        uses: secondlife/viewer-build-util/sign-pkg-mac@v2.1.4
+        uses: secondlife/viewer-build-util/sign-pkg-mac@v2.1.5
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
@@ -522,7 +522,7 @@ jobs:
 
       - name: Sign Mac viewer (diagnostic, unnotarized)
         if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
-        uses: secondlife/viewer-build-util/sign-pkg-mac@v2.1.4
+        uses: secondlife/viewer-build-util/sign-pkg-mac@v2.1.5
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
@@ -532,6 +532,11 @@ jobs:
           note_user: ${{ steps.note-creds.outputs.note_user }}
           note_pass: ${{ steps.note-creds.outputs.note_pass }}
           note_team: ${{ steps.note-creds.outputs.note_team }}
+          # Diagnostic-only: adds com.apple.security.get-task-allow so a
+          # debugger can attach to this real-cert-signed, unnotarized build
+          # (which never crashes when merely ad-hoc signed, so ad-hoc alone
+          # was never debuggable-and-reproducing at the same time).
+          debug_entitlements: true
           # Deliberately omitted: velopack_pack_id/version/title/main_exe/
           # bundle_id. Leaving velopack_pack_id empty skips Velopack
           # packaging (and its own separate notarization call) entirely --
