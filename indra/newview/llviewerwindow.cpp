@@ -1641,12 +1641,6 @@ void LLViewerWindow::handleRequestResolutionUpdate(LLWindow* window)
     LL_DEBUGS("Window") << "handleRequestResolutionUpdate: mResDirty set" << LL_ENDL;
 }
 
-void LLViewerWindow::handleRequestResolutionUpdate(LLWindow* window)
-{
-    requestResolutionUpdate();
-    LL_DEBUGS("Window") << "handleRequestResolutionUpdate: mResDirty set" << LL_ENDL;
-}
-
 // The top-level window has gained focus (e.g. via ALT-TAB)
 void LLViewerWindow::handleFocus(LLWindow *window)
 {
