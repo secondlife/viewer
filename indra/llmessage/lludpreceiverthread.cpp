@@ -45,15 +45,20 @@ LLUDPReceiverThread::~LLUDPReceiverThread()
 
 void LLUDPReceiverThread::run()
 {
+    // Thread name is already registered with the profiler by
+    // LLThread::threadRun() via LL_PROFILER_SET_THREAD_NAME("UDP Receiver").
     while (!isQuitting())
     {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
+
         LLHost invalid_host;
         LLPacketBuffer pkt(invalid_host, nullptr, 0);
         S32 packet_size = 0;
 
         if (LLProxy::isSOCKSProxyEnabled())
         {
-            char buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];  /* Flawfinder ignore */
+            LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp recv (socks)");
+            char buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];   /* Flawfinder ignore */
             packet_size = receive_packet(mSocket, buffer);
             if (packet_size > SOCKS_HEADER_SIZE)
             {
@@ -71,12 +76,16 @@ void LLUDPReceiverThread::run()
         }
         else
         {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp recv");
             pkt.init(mSocket);
             packet_size = pkt.getSize();
         }
 
+        LL_PROFILE_ZONE_NUM(packet_size);
+
         if (packet_size > 0)
         {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp queue push");
             // Blocks if the queue is momentarily full (backpressure),
             // raises LLThreadSafeQueueInterrupt if the queue is closed
             // during shutdown, which unwinds this loop naturally.
@@ -93,8 +102,7 @@ void LLUDPReceiverThread::run()
         {
             // Nothing available right now; avoid busy-spinning the CPU
             // when the socket has no data queued (recv_packet returns 0
-            // for EWOULDBLOCK). A short sleep is fine since this thread
-            // has no frame-rate obligations.
+            // for EWOULDBLOCK). ms_sleep() is already profiled internally.
             ms_sleep(1);
         }
     }
