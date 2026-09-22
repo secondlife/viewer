@@ -85,6 +85,7 @@ protected:
     bool mDirtyFilter { false };
     LLUUID mLastScriptObjectID;
     bool mLastLuaRegion { false };
+    bool mNewScriptIsLua { false };
     boost::signals2::connection mSimulatorFeaturesConnection;
 
 public:

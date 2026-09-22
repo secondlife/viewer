@@ -166,7 +166,8 @@ void LLPanelContents::getState(LLViewerObject *objectp )
     new_script->setEnabledByValue("lua", lua_region);
     if (mLastScriptObjectID != objectp->getID() || mLastLuaRegion != lua_region)
     {
-        new_script->setValue(lua_region ? "lua" : "lsl");
+        mNewScriptIsLua = lua_region;
+        new_script->setValue(mNewScriptIsLua ? "lua" : "lsl");
     }
     mLastScriptObjectID = objectp->getID();
     mLastLuaRegion = lua_region;
@@ -290,31 +291,18 @@ void LLPanelContents::onNewScriptFlyoutCommit(LLUICtrl* ctrl)
     LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
     if (!object) return;
 
-    U8 script_language;
     const std::string value = ctrl->getValue().asString();
     if (value == "lsl")
     {
-        script_language = SST_LSL;
+        mNewScriptIsLua = false;
     }
     else if (value == "lua")
     {
-        script_language = SST_LUA;
+        mNewScriptIsLua = true;
     }
-    else
-    {
-        script_language = SST_LSL;
-        LLViewerRegion* region = object->getRegion();
-        if (region && region->simulatorFeaturesReceived())
-        {
-            LLSD simulatorFeatures;
-            region->getSimulatorFeatures(simulatorFeatures);
-            if (simulatorFeatures["LuaScriptsEnabled"].asBoolean())
-            {
-                script_language = SST_LUA;
-            }
-        }
-    }
+    ctrl->setValue(mNewScriptIsLua ? "lua" : "lsl");
 
+    const U8 script_language = mNewScriptIsLua ? SST_LUA : SST_LSL;
     std::string vm = (script_language == SST_LUA) ? "luau" : "mono";
 
     LLSD params;
