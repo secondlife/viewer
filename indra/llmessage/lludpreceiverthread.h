@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <memory>
 #include "llthread.h"
 #include "llthreadsafequeue.h"
 #include "llpacketbuffer.h"
