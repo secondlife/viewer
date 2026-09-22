@@ -44,7 +44,6 @@ public:
     bool maximize() override {return false;};
     void minimize() override {};
     void restore() override {};
-    bool getFullscreen() const override {return false;};
     bool getPosition(LLCoordScreen *position) const override {return false;};
     bool getSize(LLCoordScreen *size) const override {return false;};
     bool getSize(LLCoordWindow *size) const override {return false;};

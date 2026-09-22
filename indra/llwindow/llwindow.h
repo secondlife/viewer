@@ -77,13 +77,13 @@ public:
     virtual void minimize() = 0;
     virtual void restore() = 0;
     bool getFullscreen() const { return mFullscreen; };
-    virtual bool getPosition(LLCoordScreen *position) = 0;
+    virtual bool getPosition(LLCoordScreen *position) const = 0;
 
     // Returns the platform-defined window size in physical (backing) pixels.
     // On macOS: backing content view size (excludes title bar).
     // On Windows: outer window frame size (includes title bar and borders).
-    virtual bool getSize(LLCoordScreen *size) = 0;
-    virtual bool getSize(LLCoordWindow *size) = 0;
+    virtual bool getSize(LLCoordScreen *size) const = 0;
+    virtual bool getSize(LLCoordWindow *size) const = 0;
 
     virtual bool setPosition(LLCoordScreen position) = 0;
     bool setSize(LLCoordScreen size);
