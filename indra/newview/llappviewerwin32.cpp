@@ -234,6 +234,8 @@ namespace
 }
 #endif // LL_BUGSPLAT
 
+extern bool gGPUBenchmarkMode;
+
 namespace
 {
     void (*gOldTerminateHandler)() = NULL;
@@ -515,12 +517,21 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
     gIconResource = MAKEINTRESOURCE(IDI_LL_ICON);
     gIconSmallResource = MAKEINTRESOURCE(IDI_LL_ICON_SMALL);
 
+    // Benchmark subprocess mode before full init for LLFeatureManager::loadGPUClass().
+    {
+        std::wstring cmdLineStr(pCmdLine ? pCmdLine : L"");
+        if (cmdLineStr.find(L"--gpubenchmark") != std::wstring::npos)
+        {
+            gGPUBenchmarkMode = true;
+        }
+    }
+
     LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(ll_convert_wide_to_string(pCmdLine).c_str());
 
     gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
     // Set a debug info flag to indicate if multiple instances are running.
-    bool found_other_instance = !create_app_mutex();
+    bool found_other_instance = gGPUBenchmarkMode || !create_app_mutex();
     gDebugInfo["FoundOtherInstanceAtStartup"] = LLSD::Boolean(found_other_instance);
 
     bool ok = viewer_app_ptr->init();
@@ -940,7 +951,10 @@ void LLAppViewerWin32::initLoggingAndGetLastDuration()
 void LLAppViewerWin32::initConsole()
 {
     // pop up debug console
-    mIsConsoleAllocated = create_console();
+    if (!gGPUBenchmarkMode)
+    {
+        mIsConsoleAllocated = create_console();
+    }
     return LLAppViewer::initConsole();
 }
 

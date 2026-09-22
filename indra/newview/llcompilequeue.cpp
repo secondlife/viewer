@@ -356,7 +356,8 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     LLCheckedHandle<LLFloaterCompileQueue> floater(hfloater);
     // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
     // which is caught in objectScriptProcessingQueueCoro
-    std::string compile_target = floater->mCompileTarget;
+    const std::string requested_target = floater->mCompileTarget;
+    std::string compile_target = requested_target;
 
     // Initial test to see if we can (or should) attempt to compile the script.
     LLInventoryItem *item = dynamic_cast<LLInventoryItem *>(inventory);
@@ -365,6 +366,22 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     {
         LL_WARNS("SCRIPTQ") << "item retrieved is not an LLInventoryItem." << LL_ENDL;
         return true;
+    }
+
+    if (requested_target == "auto-luau")
+    {
+        compile_target =
+            item->getInventorySubType() == SST_LUA ? "luau" : "lsl-luau";
+    }
+    else if (requested_target == "auto")
+    {
+        compile_target = item->getRuntime();
+        if (compile_target.empty())
+        {
+            floater->addStringMessage(
+                "Skipping: " + item->getName() + " (no registered VM)");
+            return true;
+        }
     }
 
     if (!item->getPermissions().allowModifyBy(gAgent.getID(), gAgent.getGroupID()) ||

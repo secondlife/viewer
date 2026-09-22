@@ -388,6 +388,12 @@ std::string LLKeyboard::stringFromMouse(EMouseClickType click, bool translate)
         case CLICK_DOUBLELEFT:
             res = "Double LMB";
             break;
+        case CLICK_DOUBLERIGHT:
+            res = "Double RMB";
+            break;
+        case CLICK_DOUBLEMIDDLE:
+            res = "Double MMB";
+            break;
         default:
             break;
     }

@@ -81,6 +81,8 @@ protected:
     void onFilterEdit();
 
     bool mDirtyFilter { false };
+    LLUUID mLastScriptObjectID;
+    bool mLastLuaRegion { false };
 
 public:
     class LLFilterEditor* mFilterEditor;

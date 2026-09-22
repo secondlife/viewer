@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -227,6 +227,15 @@ class LLDir
     }
 
 protected:
+#if LL_VELOPACK
+    // Returns true if Velopack's ".portable" marker file is found.
+    static bool isPortableInstall(const std::string& install_root);
+
+    // Replacement folder name to hold user data (settings, logs, etc.)
+    // for a portable install.
+    static const char* const PORTABLE_USER_DATA_DIRNAME;
+#endif // LL_VELOPACK
+
     // Does an add() or append() call need a directory delimiter?
     typedef std::pair<bool, unsigned short> SepOff;
     SepOff needSep(const std::string& path, const std::string& name) const;

@@ -81,19 +81,28 @@ public:
     {
         if (mCallback)
         {
+            // RTC_LOG prefixes each message with its "(file:line): " origin. Use it to demote
+            // libwebrtc's own chatty INFO/WARNING logging to verbose, keeping ours as-is.
+            static const std::string file_prefix("(llwebrtc.cpp:");
             switch (severity)
             {
                 case webrtc::LS_VERBOSE:
                     mCallback->LogMessage(LLWebRTCLogCallback::LOG_LEVEL_VERBOSE, msg);
                     break;
                 case webrtc::LS_INFO:
-                    mCallback->LogMessage(LLWebRTCLogCallback::LOG_LEVEL_VERBOSE, msg);
+                    mCallback->LogMessage(msg.rfind(file_prefix, 0) == 0
+                                               ? LLWebRTCLogCallback::LOG_LEVEL_INFO
+                                               : LLWebRTCLogCallback::LOG_LEVEL_VERBOSE,
+                                           msg);
                     break;
                 case webrtc::LS_WARNING:
-                    mCallback->LogMessage(LLWebRTCLogCallback::LOG_LEVEL_VERBOSE, msg);
+                    mCallback->LogMessage(msg.rfind(file_prefix, 0) == 0
+                                               ? LLWebRTCLogCallback::LOG_LEVEL_WARNING
+                                               : LLWebRTCLogCallback::LOG_LEVEL_VERBOSE,
+                                           msg);
                     break;
                 case webrtc::LS_ERROR:
-                    mCallback->LogMessage(LLWebRTCLogCallback::LOG_LEVEL_VERBOSE, msg);
+                    mCallback->LogMessage(LLWebRTCLogCallback::LOG_LEVEL_ERROR, msg);
                     break;
                 default:
                     break;
@@ -413,7 +422,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     }
 
     void init();
-    void terminate();
+    // Returns true if shutdown completed cleanly and this object may be
+    // destroyed.  Returns false if it timed out: a detached thread is still
+    // using this object and its webrtc threads, so it must be leaked, not
+    // deleted.
+    bool terminate();
 
     //
     // LLWebRTCDeviceInterface

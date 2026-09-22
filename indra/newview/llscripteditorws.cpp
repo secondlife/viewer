@@ -34,6 +34,7 @@
 #include "llagentcamera.h"
 #include "llappviewer.h"
 #include "llchat.h"
+#include "llcompilequeue.h"
 #include "lldate.h"
 #include "llerror.h"
 #include "lleventcoro.h"
@@ -50,6 +51,7 @@
 #include "llpreviewscript.h"
 #include "llprocess.h"
 #include "llregex.h"
+#include "llmd5.h"
 #include "llsdjson.h"
 #include "llselectmgr.h"
 #include "lltrans.h"
@@ -68,6 +70,8 @@
 #include "llvoinventorylistener.h"
 #include "roles_constants.h"
 
+#include <array>
+
 namespace
 {
     // Per-operation timeouts (seconds) for coroutine-based async RPC handlers.
@@ -79,6 +83,12 @@ namespace
     // Linkset flush coalescing delays (seconds).
     constexpr F32 LINKSET_ADD_FLUSH_DELAY    = 5.0f;
     constexpr F32 LINKSET_REMOVE_FLUSH_DELAY = 0.2f;
+
+    static const boost::regex LUAU_LOCATION_PATTERN(
+        R"(^([^:]*):([0-9]+):\s*(.*)$)");
+
+    static const boost::regex LSL_LOCATION_PATTERN(
+        R"(\((\d+), (\d+)\) : ([^:]+) : (.+))");
 
     // Creates a uniquely-named LLEventMailDrop under "<prefix>.<uuid>", passes
     // its name to kickoff (which arranges for one post to that pump), then
@@ -160,17 +170,31 @@ namespace
         return std::string(s);
     }
 
+    LLSD object_id_command_params()
+    {
+        LLSD params(LLSD::emptyMap());
+        params["object_id"]["type"] = "string";
+        params["object_id"]["required"] = true;
+        return params;
+    }
+
 }
 
 //========================================================================
 LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port, bool local_only):
     LLJSONRPCServer(name, port, local_only),
-    mPublishedObjectManager(this)
+    mPublishedObjectManager(
+        this,
+        [this](const LLPublishedObjectMgr::RuntimeChatEvent& event)
+        {
+            sendRuntimeEvent(event);
+        })
 {
     LL_INFOS("ScriptEditorWS") << "Created JSON-RPC script editor server: " << name
                                << " on port " << port << LL_ENDL;
 
-    registerCommand({ "viewer.teleport", "Teleport agent to an in-world object" },
+    registerCommand({ "viewer.teleport", "Teleport agent to an in-world object",
+                      object_id_command_params() },
         [](U32, const LLSD& p) -> LLSD
         {
             LLUUID object_id = p["object_id"].asUUID();
@@ -189,7 +213,9 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
             return response;
         });
 
-    registerCommand({ "viewer.camera.focus", "Zoom camera to an in-world object (same behavior as context menu Zoom In)" },
+    registerCommand({ "viewer.camera.focus",
+                      "Zoom camera to an in-world object (same behavior as context menu Zoom In)",
+                      object_id_command_params() },
         [](U32, const LLSD& p) -> LLSD
         {
             LLUUID object_id = p["object_id"].asUUID();
@@ -198,11 +224,8 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
 
             if (!handle_zoom_to_object(object_id))
             {
-                LLSD response;
-                response["success"]    = false;
-                response["error_code"] = WSCommandError::ExecutionError;
-                response["message"]    = "Object not found or not reachable";
-                return response;
+                throw LLJSONRPCConnection::InternalError(
+                    "Object not found or not reachable");
             }
 
             LLSD response;
@@ -210,10 +233,35 @@ LLScriptEditorWSServer::LLScriptEditorWSServer(const std::string& name, U16 port
             return response;
         });
 
-    registerCommand({ "viewer.object.save_back_to_contents", "Save an in-world object back to source object contents" },
+    registerCommand({ "viewer.object.save_back_to_contents",
+                      "Save an in-world object back to source object contents",
+                      object_id_command_params() },
         [this](U32 connection_id, const LLSD& p) -> LLSD
         {
             return this->handleSaveBackToObjectContents(connection_id, p);
+        });
+
+    registerCommand({ "viewer.script.reset_all",
+                      "Reset all scripts in an in-world object",
+                      object_id_command_params() },
+        [this](U32 connection_id, const LLSD& p) -> LLSD
+        {
+            return this->handleObjectScriptResetAll(connection_id, p);
+        });
+
+    registerCommand({ "viewer.script.recompile_all",
+                      "Recompile all scripts in an in-world object",
+                      LLSDMap("object_id",
+                              LLSDMap("type", "string")
+                                  ("required", true))
+                          ("target",
+                              LLSDMap("type", "string")
+                                  ("required", true)
+                                  ("description",
+                                      "Compilation target: luau, lsl2, mono, or auto")) },
+        [this](U32 connection_id, const LLSD& p) -> LLSD
+        {
+            return this->handleObjectScriptRecompileAll(connection_id, p);
         });
 }
 
@@ -252,6 +300,13 @@ LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::ensureServerRunning()
     ptr_t server = std::static_pointer_cast<LLScriptEditorWSServer>(
         wsmgr.findServerByName(DEFAULT_SERVER_NAME));
 
+    if (server && !server->isRunning())
+    {
+        // thread stopped/was joined
+        wsmgr.removeServer(DEFAULT_SERVER_NAME);
+        server.reset();
+    }
+
     if (!server)
     {
         U16  port       = static_cast<U16>(gSavedSettings.getS32("ExternalWebsocketSyncPort"));
@@ -277,6 +332,18 @@ LLScriptEditorWSServer::ptr_t LLScriptEditorWSServer::ensureServerRunning()
     }
 
     return server;
+}
+
+std::string LLScriptEditorWSServer::buildScriptSubscriptionId(const LLUUID& object_id,
+                                                              const LLUUID& item_id)
+{
+    std::string script_id = object_id.asString() + "_" + item_id.asString();
+
+    std::array<char, MD5HEX_STR_SIZE> script_id_hash_str = {};
+    LLMD5 script_id_hash((const U8*)script_id.c_str());
+    script_id_hash.hex_digest(script_id_hash_str.data());
+
+    return std::string(script_id_hash_str.data());
 }
 
 std::string LLScriptEditorWSServer::buildVSCodeURI(const LLUUID& object_id,
@@ -431,8 +498,12 @@ bool LLScriptEditorWSServer::subscribeScriptEditor(const LLUUID& object_id, cons
     if (it == mSubscriptions.end())
     {
         // New subscription
-        mSubscriptions.emplace(script_id,
-            EditorSubscription(object_id, item_id, script_name, editor_handle));
+            ItemRef item_ref;
+            item_ref.mPrimID = object_id;
+            item_ref.mItemID = item_id;
+            item_ref.mScriptName = script_name;
+            mSubscriptions.emplace(script_id,
+                EditorSubscription(item_ref, editor_handle));
     }
     else
     {
@@ -451,8 +522,6 @@ void LLScriptEditorWSServer::unsubscribeEditor(const std::string &script_id)
         auto connection = it->second.mConnection.lock();
         mSubscriptions.erase(it);
 
-        // Maintain per-connection count; erase entry when it hits zero.
-        bool last_for_connection = false;
         if (connection_id != 0)
         {
             auto cit = mConnectionSubscriptionCounts.find(connection_id);
@@ -461,21 +530,8 @@ void LLScriptEditorWSServer::unsubscribeEditor(const std::string &script_id)
                 if (--cit->second <= 0)
                 {
                     mConnectionSubscriptionCounts.erase(cit);
-                    last_for_connection = true;
                 }
             }
-            else
-            {
-                // No counter entry means no other subs referenced this connection.
-                last_for_connection = true;
-            }
-        }
-
-        if (connection && last_for_connection)
-        { // We have removed the last subscription, close the connection
-            LL_DEBUGS("ScriptEditorWS") << "Closing connection ID " << connection_id <<
-                " as last subscription was removed" << LL_ENDL;
-            connection->sendDisconnect(LLScriptEditorWSConnection::DisconnectReason::EDITOR_CLOSED, "Editor closed");
         }
 
     }
@@ -597,7 +653,7 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 return s.handleSyntaxCacheFileRequest(params);
             }));
 
-        script_connection->registerMethod("script.subscribe",
+        script_connection->registerAsyncMethod("script.subscribe",
             bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
                 return s.handleScriptSubscribe(connection_id, params);
@@ -609,7 +665,7 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 return s.handleFileWatcherFileListRequest();
             }));
 
-        script_connection->registerMethod("object.unpublish",
+        script_connection->registerAsyncMethod("object.unpublish",
             bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
                 return s.handleObjectUnpublish(connection_id, params);
@@ -789,6 +845,146 @@ LLSD LLScriptEditorWSServer::handleObjectScriptReset(U32 connection_id, const LL
     return response;
 }
 
+LLSD LLScriptEditorWSServer::handleObjectScriptResetAll(U32 connection_id, const LLSD& params)
+{
+    LLUUID prim_id = params["object_id"].asUUID();
+    if (prim_id.isNull())
+    {
+        throw LLJSONRPCConnection::InvalidParams("object_id is required");
+    }
+
+    LLViewerObject* prim = gObjectList.findObject(prim_id);
+    if (!prim)
+    {
+        throw LLJSONRPCConnection::InvalidParams("Object not found");
+    }
+
+    LLViewerObject* root = prim->getRootEdit();
+    if (!root || !isObjectPublished(root->getID()))
+    {
+        throw LLJSONRPCConnection::ForbiddenError("Object is not published");
+    }
+
+    if (!prim->flagScripted())
+    {
+        throw LLJSONRPCConnection::InvalidParams(
+            "Prim contains no scripts");
+    }
+
+    if (!prim->permModify())
+    {
+        throw LLJSONRPCConnection::ForbiddenError(
+            "No modify permission on prim");
+    }
+
+    LLUUID queue_id;
+    queue_id.generate();
+
+    LLFloaterScriptQueue* queue =
+        LLFloaterReg::getTypedInstance<LLFloaterScriptQueue>(
+            "reset_queue", LLSD(queue_id));
+    if (!queue)
+    {
+        throw LLJSONRPCConnection::InternalError(
+            "Unable to open reset queue");
+    }
+
+    queue->addObject(prim->getID(), prim->getID().asString());
+    if (!queue->start())
+    {
+        queue->closeFloater();
+        throw LLJSONRPCConnection::InternalError(
+            "Unable to start reset queue");
+    }
+
+    queue->setTitle(LLTrans::getString("ResetQueueTitle"));
+
+    LLSD response;
+    response["success"] = true;
+    response["object_id"] = prim->getID();
+    response["queued"] = true;
+    return response;
+}
+
+LLSD LLScriptEditorWSServer::handleObjectScriptRecompileAll(
+    U32 connection_id, const LLSD& params)
+{
+    LLUUID object_id = params["object_id"].asUUID();
+    if (object_id.isNull())
+    {
+        throw LLJSONRPCConnection::InvalidParams("object_id is required");
+    }
+
+    std::string target = params["target"].asString();
+    if (target != "luau" &&
+        target != "lsl2" &&
+        target != "mono" &&
+        target != "auto")
+    {
+        throw LLJSONRPCConnection::InvalidParams(
+            "target must be 'luau', 'lsl2', 'mono', or 'auto'");
+    }
+
+    LLViewerObject* object = gObjectList.findObject(object_id);
+    if (!object)
+    {
+        throw LLJSONRPCConnection::InvalidParams("Object not found");
+    }
+
+    LLViewerObject* root = object->getRootEdit();
+    if (!root || root->getID() != object_id || !isObjectPublished(root->getID()))
+    {
+        throw LLJSONRPCConnection::ForbiddenError("Object is not published");
+    }
+
+    if (!root->flagScripted())
+    {
+        throw LLJSONRPCConnection::InvalidParams(
+            "Object contains no scripts");
+    }
+
+    if (!root->permModify())
+    {
+        throw LLJSONRPCConnection::ForbiddenError(
+            "No modify permission on object");
+    }
+
+    if (target == "luau")
+    {
+        target = "auto-luau";
+    }
+
+    LLUUID queue_id;
+    queue_id.generate();
+
+    LLFloaterCompileQueue* queue =
+        LLFloaterReg::getTypedInstance<LLFloaterCompileQueue>(
+            "compile_queue", LLSD(queue_id));
+    if (!queue)
+    {
+        throw LLJSONRPCConnection::InternalError(
+            "Unable to open compile queue");
+    }
+
+    queue->setCompileTarget(target);
+    queue->addObject(root->getID(), root->getID().asString());
+    if (!queue->start())
+    {
+        queue->closeFloater();
+        throw LLJSONRPCConnection::InternalError(
+            "Unable to start compile queue");
+    }
+
+    queue->setTitle(LLTrans::getString("CompileQueueTitle"));
+
+    LLSD response;
+    response["success"] = true;
+    response["object_id"] = root->getID();
+    response["target"] = (target == "auto-luau") ? "luau" : target;
+    response["queued"] = true;
+    return response;
+}
+
 LLSD LLScriptEditorWSServer::handleObjectModify(U32 connection_id, const LLSD& params)
 {
     // Step 1: Parameter Validation
@@ -946,39 +1142,27 @@ LLSD LLScriptEditorWSServer::handleSaveBackToObjectContents(U32 connection_id, c
         mPublishedObjectManager.getPublished(object_id);
     if (!published_info)
     {
-        LLSD response;
-        response["success"] = false;
-        response["error_code"] = WSCommandError::InvalidParams;
-        response["message"] = "Object is not published";
-        return response;
+        throw LLJSONRPCConnection::InvalidParams(
+            "Object is not published");
     }
 
     if (!published_info->mCanSaveBackToContents || published_info->mSourceTaskID.isNull())
     {
-        LLSD response;
-        response["success"] = false;
-        response["error_code"] = WSCommandError::NotPermitted;
-        response["message"] = "Save back is not available for this object";
-        return response;
+        throw LLJSONRPCConnection::ForbiddenError(
+            "Save back is not available for this object");
     }
 
     LLViewerObject* root = gObjectList.findObject(object_id);
     if (!root)
     {
-        LLSD response;
-        response["success"] = false;
-        response["error_code"] = WSCommandError::InvalidParams;
-        response["message"] = "object_id not found";
-        return response;
+        throw LLJSONRPCConnection::InvalidParams(
+            "object_id not found");
     }
 
     if (!save_object_back_to_contents(root, published_info->mSourceTaskID))
     {
-        LLSD response;
-        response["success"] = false;
-        response["error_code"] = WSCommandError::ExecutionError;
-        response["message"] = "Failed to save object back to contents";
-        return response;
+        throw LLJSONRPCConnection::InternalError(
+            "Failed to save object back to contents");
     }
 
     LL_DEBUGS("ScriptEditorWS") << "Save-back requested via command for object "
@@ -1004,11 +1188,8 @@ LLSD LLScriptEditorWSServer::handleCommandExecute(U32 connection_id, const LLSD&
     auto it = mCommandRegistry.find(command);
     if (it == mCommandRegistry.end())
     {
-        LLSD response;
-        response["success"]    = false;
-        response["error_code"] = WSCommandError::UnknownCommand;
-        response["message"]    = "Unknown command: " + command;
-        return response;
+        throw LLJSONRPCConnection::InvalidParams(
+            "Unknown command: " + command);
     }
 
     return it->second.second(connection_id, params["params"]);
@@ -1022,6 +1203,10 @@ LLSD LLScriptEditorWSServer::handleCommandList()
         LLSD info;
         info["command"]     = entry.first.command;
         info["description"] = entry.first.description;
+        if (!entry.first.params.isUndefined())
+        {
+            info["params"] = entry.first.params;
+        }
         commands.append(info);
     }
     LLSD response;
@@ -1073,6 +1258,33 @@ void LLScriptEditorWSServer::broadcastLanguageChange()
     }
 }
 
+LLSD LLScriptEditorWSServer::handlePing(
+    const LLJSONRPCConnection::ptr_t& connection,
+    const LLSD& params) const
+{
+    LLSD result;
+    result["pong"] = "pong";
+
+    if (params.has("timestamp"))
+    {
+        result["timestamp"] = params["timestamp"];
+    }
+
+    result["server_time"] = static_cast<LLSD::Integer>(
+        LLDate::now().secondsSinceEpoch() * 1000.0);
+    return result;
+}
+
+LLSD LLScriptEditorWSServer::handleGetVersion(
+    const LLJSONRPCConnection::ptr_t& connection,
+    const LLSD& params) const
+{
+    LLSD result;
+    result["client_name"] = LLVersionInfo::instance().getChannel();
+    result["client_version"] = LLVersionInfo::instance().getVersion();
+    return result;
+}
+
 LLSD LLScriptEditorWSServer::handleLanguageIdRequest() const
 {
     LLSD response;
@@ -1088,27 +1300,32 @@ LLSD LLScriptEditorWSServer::handleSyntaxRequest(const LLSD& params) const
 
     if (category.empty())
     {
-        response["error"] = "No syntax category specified";
-        response["success"] = false;
-        return response;
+        throw LLJSONRPCConnection::InvalidParams(
+            "No syntax category specified");
     }
 
     response["id"] = mLastSyntaxId;
     if (category == "defs.lua")
     {
         response["defs"] = LLSyntaxDefCache::instance().getLuaKeywords();
-        response["success"] = response["defs"].isDefined();
     }
     else if (category == "defs.lsl")
     {
         response["defs"] = LLSyntaxDefCache::instance().getLSLKeywords();
-        response["success"] = response["defs"].isDefined();
     }
     else
     {
-        response["error"] = "Unknown syntax category requested";
-        response["success"] = false;
+        throw LLJSONRPCConnection::InvalidParams(
+            "Unknown syntax category requested");
     }
+
+    if (!response["defs"].isDefined())
+    {
+        throw LLJSONRPCConnection::InternalError(
+            "Syntax definitions are unavailable");
+    }
+
+    response["success"] = true;
     return response;
 }
 
@@ -1136,28 +1353,25 @@ LLSD LLScriptEditorWSServer::handleSyntaxCacheFileRequest(const LLSD& params) co
 
     if (filename.empty())
     {
-        response["error"] = "No filename specified";
-        response["success"] = false;
-        return response;
+        throw LLJSONRPCConnection::InvalidParams(
+            "No filename specified");
     }
     if (!cache.hasCacheFile(filename))
     {
-        response["error"] = "Requested syntax cache file not found";
-        response["success"] = false;
-        return response;
+        throw LLJSONRPCConnection::InvalidParams(
+            "Requested syntax cache file not found");
     }
-    bool success = false;
     if (as_json)
     {
         LLSD file_content   = cache.loadCacheFileAsLLSD(filename);
         if (file_content.isDefined())
         {
             response["content"] = file_content;
-            success = true;
         }
         else
         {
-            response["error"] = "Failed to load and format syntax cache file.";
+            throw LLJSONRPCConnection::InternalError(
+                "Failed to load and format syntax cache file.");
         }
     }
     else
@@ -1166,14 +1380,14 @@ LLSD LLScriptEditorWSServer::handleSyntaxCacheFileRequest(const LLSD& params) co
         if (!content.empty())
         {
             response["content"] = content;
-            success = true;
         }
         else
         {
-            response["error"] = "Failed to load syntax cache file";
+            throw LLJSONRPCConnection::InternalError(
+                "Failed to load syntax cache file");
         }
     }
-    response["success"] = success;
+    response["success"] = true;
     return response;
 }
 
@@ -1217,10 +1431,22 @@ LLSD LLScriptEditorWSServer::handleScriptSubscribe(U32 connection_id, const LLSD
         auto it = mSubscriptions.find(script_id);
         if (it != mSubscriptions.end())
         {
-            LLViewerObject* object  = gObjectList.findObject((*it).second.mObjectID);
-            response["object_id"] = (*it).second.mObjectID;
+            LLUUID prim_id = (*it).second.mItemRef.mPrimID;
+            LLUUID root_id = prim_id;
+            LLViewerObject* object = gObjectList.findObject(prim_id);
+            if (object)
+            {
+                LLViewerObject* root = object->getRootEdit();
+                if (root)
+                {
+                    root_id = root->getID();
+                }
+            }
+
+            response["object_id"] = prim_id;
+            response["root_id"] = root_id;
             //response["object_name"] = object ? object->getName() : "Unknown";
-            response["item_id"] = (*it).second.mItemID;
+            response["item_id"] = (*it).second.mItemRef.mItemID;
         }
     }
 
@@ -1265,32 +1491,31 @@ LLSD LLScriptEditorWSServer::handleObjectRequest(U32 connection_id, const LLSD& 
 
     if (object_id.isNull())
     {
-        response["success"] = false;
-        response["message"] = "No object_id specified";
-        return response;
+        throw LLJSONRPCConnection::InvalidParams(
+            "No object_id specified");
     }
 
     LLViewerObject* object = gObjectList.findObject(object_id);
     if (!object)
     {
-        response["success"] = false;
-        response["message"] = "Object not found";
-        return response;
+        throw LLJSONRPCConnection::InvalidParams(
+            "Object not found");
     }
 
     if (!object->permModify())
     {
-        response["success"] = false;
-        response["message"] = "Permission denied";
-        return response;
+        throw LLJSONRPCConnection::ForbiddenError(
+            "Permission denied");
     }
 
     bool accepted = publishObject(object_id);
-    response["success"] = accepted;
     if (!accepted)
     {
-        response["message"] = "Failed to initiate publish";
+        throw LLJSONRPCConnection::InternalError(
+            "Failed to initiate publish");
     }
+
+    response["success"] = true;
     return response;
 }
 
@@ -1446,6 +1671,7 @@ LLSD LLScriptEditorWSServer::handleObjectContentGet(const std::string& method, c
     response["prim_id"] = prim_id;
     response["item_id"] = item_id;
     response["content"] = text_content;
+    response["encoding"] = "utf-8";
     return response;
 }
 
@@ -1513,7 +1739,13 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
         [&, prim_id, item_id](const std::string& pump_name)
         {
             auto [on_success, on_failure] = make_asset_upload_callbacks(pump_name);
-            bool is_running = params.has("running") ? params["running"].asBoolean() : false;
+            const LLViewerInventoryItem* viewer_item =
+                dynamic_cast<const LLViewerInventoryItem*>(item);
+            bool is_running = viewer_item ? viewer_item->getIsRunning() : false;
+            if (params.has("running"))
+            {
+                is_running = params["running"].asBoolean();
+            }
             LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(
                 prim_id, item_id,
                 compile_target, is_running, LLUUID::null, content,
@@ -1531,7 +1763,56 @@ LLSD LLScriptEditorWSServer::saveScript(LLViewerObject* prim, LLInventoryItem* i
     response["compiled"] = cb_result["compiled"];
     if (!cb_result["compiled"].asBoolean() && cb_result.has("errors"))
     {
-        response["errors"] = cb_result["errors"];
+        response["diagnostics"] = LLSD::emptyArray();
+
+        const bool is_lua =
+            compile_target == "luau" ||
+            compile_target == "lsl-luau";
+
+        for (const auto& error : llsd::inArray(cb_result["errors"]))
+        {
+            boost::smatch match;
+            LLSD diagnostic;
+            diagnostic["level"] = "ERROR";
+            S32 line_number = 0;
+            S32 col_number = 0;
+
+            if (is_lua &&
+                boost::regex_match(
+                    error.asString(),
+                    match,
+                    LUAU_LOCATION_PATTERN) &&
+                LLStringUtil::convertToS32(match[2].str(), line_number))
+            {
+                diagnostic["row"] = line_number;
+                diagnostic["column"] = 0;
+                diagnostic["message"] = match[3].str();
+            }
+            else if (!is_lua &&
+                     boost::regex_match(
+                         error.asString(),
+                         match,
+                         LSL_LOCATION_PATTERN) &&
+                     LLStringUtil::convertToS32(match[1].str(), line_number) &&
+                     LLStringUtil::convertToS32(match[2].str(), col_number) &&
+                     line_number < S32_MAX &&
+                     col_number < S32_MAX)
+            {
+                diagnostic["row"] = line_number + 1;
+                diagnostic["column"] = col_number + 1;
+                diagnostic["level"] = match[3].str();
+                diagnostic["message"] = match[4].str();
+                diagnostic["format"] = "lsl";
+            }
+            else
+            {
+                diagnostic["row"] = 0;
+                diagnostic["column"] = 0;
+                diagnostic["message"] = error.asString();
+            }
+
+            response["diagnostics"].append(diagnostic);
+        }
     }
 
     // If the script is open in the viewer's editor, update it
@@ -1934,12 +2215,10 @@ void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, co
     params["running"]  = results["is_running"].asBoolean();
     if (results.has("errors"))
     {
-        params["errors"] = LLSD::emptyArray();
+        params["diagnostics"] = LLSD::emptyArray();
 
         if (is_lua)
         {   // lua errors: ":line: message", line is 1-based
-            const static boost::regex lua_err_regex(R"(^[^:]*:(\d+): (.+)$)");
-
             for (const auto& err : llsd::inArray(results["errors"]))
             {
                 boost::smatch match;
@@ -1948,10 +2227,11 @@ void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, co
                 err_entry["column"] = 0; // TODO: Lua compiler does not provide column info
                 err_entry["level"]  = "ERROR";
 
-                if (boost::regex_match(err.asString(), match, lua_err_regex))
+                S32 line_number = 0;
+                if (boost::regex_match(err.asString(), match, LUAU_LOCATION_PATTERN) &&
+                    LLStringUtil::convertToS32(match[2].str(), line_number))
                 {
-                    S32 line_number = std::stoi(match[1].str());
-                    std::string message = match[2].str();
+                    std::string message = match[3].str();
 
                     err_entry["row"] = line_number;
                     err_entry["message"] = message;
@@ -1961,22 +2241,24 @@ void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, co
                     err_entry["row"] = 0;
                     err_entry["message"] = err.asString();
                 }
-                params["errors"].append(err_entry);
+                params["diagnostics"].append(err_entry);
             }
         }
         else
         {   // lsl errors: "(line, column) : SEVERITY : message", line and column are 0-based
-            static const boost::regex lsl_err_regex(R"(\((\d+), (\d+)\) : ([^:]+) : (.+))");
-
             for (const auto& err : llsd::inArray(results["errors"]))
             {
                 boost::smatch match;
                 LLSD err_entry;
 
-                if (boost::regex_match(err.asString(), match, lsl_err_regex))
+                S32 line_number = 0;
+                S32 col_number = 0;
+                if (boost::regex_match(err.asString(), match, LSL_LOCATION_PATTERN) &&
+                    LLStringUtil::convertToS32(match[1].str(), line_number) &&
+                    LLStringUtil::convertToS32(match[2].str(), col_number) &&
+                    line_number < S32_MAX &&
+                    col_number < S32_MAX)
                 {
-                    S32         line_number = std::stoi(match[1].str());
-                    S32         col_number = std::stoi(match[2].str());
                     std::string severity = match[3].str();
                     std::string message = match[4].str();
 
@@ -1994,7 +2276,7 @@ void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, co
                     err_entry["message"] = err.asString();
                     err_entry["format"]  = "lsl";
                 }
-                params["errors"].append(err_entry);
+                params["diagnostics"].append(err_entry);
             }
         }
     }
@@ -2002,138 +2284,76 @@ void LLScriptEditorWSServer::sendCompileResults(const std::string &script_id, co
     notifyScript(script_id, "script.compiled", params);
 }
 
-void LLScriptEditorWSServer::forwardChatToIDE(const LLChat& chat_msg) const
+void LLScriptEditorWSServer::forwardChatToIDE(
+    const LLChat& chat_msg,
+    LLPublishedObjectMgr::RuntimeEventAggregator::Channel channel) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
 
-    LLUUID object_id = chat_msg.mFromID;
-    bool tracking = false;
-    bool publish    = false;
+    mPublishedObjectManager.ingestRuntimeChat(chat_msg, channel);
+}
 
-    LLUUID publish_id = object_id;
-    LLViewerObject* objectp = gObjectList.findObject(object_id);
-    if (objectp)
+void LLScriptEditorWSServer::sendRuntimeEvent(
+    const LLPublishedObjectMgr::RuntimeChatEvent& event) const
+{
+
+    std::string script_id;
+    if (event.mItemID.notNull())
     {
-        LLViewerObject* root = objectp->getRootEdit();
-        if (root)
-        {
-            publish_id = root->getID();
-        }
+        script_id = buildScriptSubscriptionId(event.mPrimID, event.mItemID);
     }
 
-    const EditorSubscription* subinfo = nullptr;
-    std::string               script_id;
-    // have we either published or subscribed to this object?
-    if (isObjectPublished(publish_id))
+    if (!isObjectPublished(event.mRootID) &&
+        (script_id.empty() || mSubscriptions.find(script_id) == mSubscriptions.end()))
     {
-        tracking = true;
-        publish  = true;
-    }
-    else
-    {
-        // If the object is not published, we may still be tracking it if it is a script we are subscribed to
-        auto it = std::find_if(mSubscriptions.begin(), mSubscriptions.end(),
-                               [&object_id](const auto& pair) { return (pair.second.mObjectID == object_id); });
-        if (it != mSubscriptions.end())
-        {
-            tracking = true;
-            subinfo = &it->second;
-            script_id = it->first;
-        }
-    }
-
-    if (!tracking)
-    {   // Not a script we are tracking
         return;
     }
 
-    bool is_error = false;
-    std::string error_message;
-    std::string object_name = chat_msg.mFromName;
-    std::string script_name;
-    S32         line_number = 0;
-    // We have at least one script from this object, we will forward the message to the IDE
-    // but first we need to see if it is a runtime error
-    std::vector<std::string> lines = LLStringUtil::getTokens(chat_msg.mText, "\n");
-    // If this is a runtime error, the first line will look like: "<Object Name> [script:<Script Name>] Script run-time error"
-    static const std::string runtime_error_marker = "Script run-time error";
-    auto ends_with = [](const std::string& s, const std::string& suffix)
-    {
-        return s.size() >= suffix.size() &&
-               std::equal(suffix.rbegin(), suffix.rend(), s.rbegin());
-    };
-
-    if (!lines.empty() && ends_with(lines.front(), runtime_error_marker))
-    {
-        is_error = true;
-        std::string first_line = lines.front();
-
-        // Extract the object and script name from the first line
-        static const boost::regex RUNTIME_ERR_REGEX_FLEX(R"(^(.+?)\s+\[script:([^\]]+)\]\s+Script run-time error)");
-        boost::smatch m;
-
-        S32 remove_count = 0;
-        if (boost::regex_match(first_line, m, RUNTIME_ERR_REGEX_FLEX))
-        {
-            object_name = m[1].str();
-            script_name = m[2].str();
-            remove_count++;
-        }
-
-        // TODO: Build an actual error message to forward to the external editor.
-        // The complete error message arrives as two or three separate chat
-        // messages from the server (2 for LSL / non-owner Lua, 3 for owner Lua):
-        //   Message 1: <Object Name> [script:<Script Name>] Script run-time error
-        //   Message 2: <runtime error>
-        //   Message 3: <script>:<line>: <actual error message>\n<call stack>
-        // These need to be composited into a single error message for the IDE.
-        if (lines.size() > remove_count)
-        {   // The rest of the lines may contain a stack trace
-            lines.erase(lines.begin(), lines.begin() + remove_count);
-        }
-        else
-        {
-            lines.clear();
-        }
-
-        if (subinfo)
-        {
-            // We should also check that the script name matches one of our subscriptions
-            if (!script_name.empty() && (subinfo->mScriptName != script_name))
-            { // right object, wrong script
-                auto sit =
-                    std::find_if(mSubscriptions.begin(), mSubscriptions.end(), [&chat_msg, &script_name](const auto& pair)
-                                 { return (pair.second.mScriptName == script_name) && (pair.second.mObjectID == chat_msg.mFromID); });
-                if (sit != mSubscriptions.end())
-                { // We have a better match
-                    subinfo = &sit->second;
-                    script_id = sit->first;
-                }
-            }
-        }
-    }
-
     LLSD message;
-    message["script_id"] = script_id;
-    message["object_id"] = object_id;
-    message["object_name"] = object_name;
-    message["message"]     = chat_msg.mText;
-
-    if (is_error)
+    if (!script_id.empty())
     {
-        message["error"] = error_message;
-        message["line"] = line_number;
-        if (!lines.empty())
+        message["script_id"] = script_id;
+    }
+    message["object_id"] = event.mRootID;
+    message["prim_id"] = event.mPrimID;
+    message["item_id"] = event.mItemID;
+    message["object_name"] = event.mObjectName;
+    message["message"] = event.mMessage;
+
+    LLSD item;
+    item["root_id"] = event.mRootID;
+    item["prim_id"] = event.mPrimID;
+    item["item_id"] = event.mItemID;
+    item["name"] = event.mScriptName;
+    item["language"] =
+        event.mVM == LLPublishedObjectMgr::RuntimeEventAggregator::VM::LUAU
+            ? "luau"
+            : "lsl";
+    message["item"] = item;
+
+    switch (event.mChannel)
+    {
+    case LLPublishedObjectMgr::RuntimeEventAggregator::Channel::DEBUG:
+        message["channel"] = "debug";
+        break;
+    case LLPublishedObjectMgr::RuntimeEventAggregator::Channel::OWNER_SAY:
+        message["channel"] = "owner_say";
+        break;
+    }
+
+    if (event.mIsError)
+    {
+        message["error"] = event.mError;
+        message["line"] = event.mLine;
+        message["column"] = event.mColumn;
+        message["stack"] = LLSD::emptyArray();
+        for (const auto& line : event.mStack)
         {
-            message["stack"] = LLSD::emptyArray();
-            for (const auto& line : lines)
-            {
-                message["stack"].append(line);
-            }
+            message["stack"].append(line);
         }
     }
 
-    notifyAll(is_error ? "runtime.error" : "runtime.debug", message);
+    notifyAll(event.mIsError ? "runtime.error" : "runtime.debug", message);
 }
 
 void LLScriptEditorWSServer::notifyConnection(U32 connection_id, const std::string& method, const LLSD& params) const
@@ -2170,15 +2390,6 @@ void LLScriptEditorWSServer::notifyAll(const std::string& method, const LLSD& pa
     }
 }
 
-
-// static
-LLSD LLScriptEditorWSServer::errorResponse(const std::string& message)
-{
-    LLSD response;
-    response["success"] = false;
-    response["message"] = message;
-    return response;
-}
 
 // static
 std::string LLScriptEditorWSServer::getPrimName(LLViewerObject* obj)
@@ -2599,6 +2810,7 @@ void LLScriptEditorWSConnection::onOpen()
     features["compilation"]      = true;
     features["syntax_cache"]     = true;
     features["commands"]         = true;
+    features["unified_diagnostics"] = true;
     handshake["features"]        = features;
 
     wptr_t that = weak_from_this();

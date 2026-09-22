@@ -580,6 +580,9 @@ LLCPUInfo::LLCPUInfo()
     mHasSSE41 = proc.hasSSE41();
     mHasSSE42 = proc.hasSSE42();
     mHasSSE4a = proc.hasSSE4a();
+    mHasAVX = proc.hasAVX();
+    mHasAVX2 = proc.hasAVX2();
+    mHasAVX512F = proc.hasAVX512F();
     mHasAltivec = proc.hasAltivec();
     mCPUMHz = (F64)proc.getCPUFrequency();
     mFamily = proc.getCPUFamilyName();
@@ -620,6 +623,18 @@ LLCPUInfo::LLCPUInfo()
     if (mHasSSE4a)
     {
         mSSEVersions.append("4a");
+    }
+    if (mHasAVX)
+    {
+        mSIMDVersions.append("AVX");
+    }
+    if (mHasAVX2)
+    {
+        mSIMDVersions.append("AVX2");
+    }
+    if (mHasAVX512F)
+    {
+        mSIMDVersions.append("AVX-512F");
     }
 }
 
@@ -663,6 +678,21 @@ bool LLCPUInfo::hasSSE4a() const
     return mHasSSE4a;
 }
 
+bool LLCPUInfo::hasAVX() const
+{
+    return mHasAVX;
+}
+
+bool LLCPUInfo::hasAVX2() const
+{
+    return mHasAVX2;
+}
+
+bool LLCPUInfo::hasAVX512F() const
+{
+    return mHasAVX512F;
+}
+
 F64 LLCPUInfo::getMHz() const
 {
     return mCPUMHz;
@@ -676,6 +706,11 @@ std::string LLCPUInfo::getCPUString() const
 const LLSD& LLCPUInfo::getSSEVersions() const
 {
     return mSSEVersions;
+}
+
+const LLSD& LLCPUInfo::getSIMDVersions() const
+{
+    return mSIMDVersions;
 }
 
 void LLCPUInfo::stream(std::ostream& s) const
@@ -818,8 +853,33 @@ void LLMemoryInfo::updateAvailableMemory()
     }
 
 #elif LL_LINUX
-    U64 phys = U64(getpagesize()) * U64(get_avphys_pages());
-    LLMemory::sAvailPhysicalMemInKB = U64Bytes(phys);
+    bool found_available = false;
+    LLFILE* fp = LLFile::fopen(MEMINFO_FILE, LLFILE_MODE("rb"));
+    if (fp)
+    {
+        char buff[2048];
+        size_t nbytes = fread(buff, 1, sizeof(buff) - 1, fp);
+        buff[nbytes] = '\0';
+        fclose(fp);
+
+        char* memp = strstr(buff, "MemAvailable:");
+        if (memp)
+        {
+            unsigned long long mem_avail_kb = 0;
+            if (sscanf(memp, "MemAvailable: %llu", &mem_avail_kb) == 1)
+            {
+                LLMemory::sAvailPhysicalMemInKB = U32Kilobytes(mem_avail_kb);
+                found_available = true;
+            }
+        }
+    }
+
+    if (!found_available)
+    {
+        // Fallback for pre-3.14 kernels or container environments without MemAvailable
+        U64 phys = U64(getpagesize()) * U64(get_avphys_pages());
+        LLMemory::sAvailPhysicalMemInKB = U64Bytes(phys);
+    }
 #else
     //do not know how to collect available memory info for other systems.
     //leave it blank here for now.

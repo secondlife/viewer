@@ -113,7 +113,7 @@ LLFontGlyphInfo::LLFontGlyphInfo(U32 index, EFontGlyphType glyph_type)
     mChar(0),
     mWidth(0),          // In pixels
     mHeight(0),         // In pixels
-    mXAdvance(0.f),     // In pixels
+    mXAdvanceRaw(0.f),  // In pixels
     mYAdvance(0.f),     // In pixels
     mXBitmapOffset(0),  // Offset to the origin in the bitmap
     mYBitmapOffset(0),  // Offset to the origin in the bitmap
@@ -131,7 +131,7 @@ LLFontGlyphInfo::LLFontGlyphInfo(const LLFontGlyphInfo& fgi)
     , mChar(fgi.mChar)
     , mWidth(fgi.mWidth)
     , mHeight(fgi.mHeight)
-    , mXAdvance(fgi.mXAdvance)
+    , mXAdvanceRaw(fgi.mXAdvanceRaw)
     , mYAdvance(fgi.mYAdvance)
     , mXBitmapOffset(fgi.mXBitmapOffset)
     , mYBitmapOffset(fgi.mYBitmapOffset)
@@ -354,14 +354,14 @@ F32 LLFontFreetype::getXAdvance(llwchar wch) const
         {
             return mMaxDigitWidth;
         }
-        return gi->mXAdvance;
+        return gi->mXAdvanceRaw;
     }
     else
     {
         char_glyph_info_map_t::iterator found_it = mCharGlyphInfoMap.find((llwchar)0);
         if (found_it != mCharGlyphInfoMap.end())
         {
-            return found_it->second->mXAdvance;
+            return found_it->second->mXAdvanceRaw;
         }
     }
 
@@ -380,7 +380,7 @@ F32 LLFontFreetype::getXAdvance(const LLFontGlyphInfo* glyph) const
         return mMaxDigitWidth;
     }
 
-    return glyph->mXAdvance;
+    return glyph->mXAdvanceRaw;
 }
 
 F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
@@ -635,15 +635,15 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
     gi->mLsbDelta = (S32)fontp->mFTFace->glyph->lsb_delta;
     gi->mRsbDelta = (S32)fontp->mFTFace->glyph->rsb_delta;
     // Convert these from 26.6 units to float pixels.
-    gi->mXAdvance = fontp->mFTFace->glyph->advance.x / 64.f;
+    gi->mXAdvanceRaw = fontp->mFTFace->glyph->advance.x / 64.f;
     gi->mYAdvance = fontp->mFTFace->glyph->advance.y / 64.f;
 
     if (mWeight > 0 && wch >= '0' && wch <= '9')
     {
         // Digits are supposed to be preloaded, and buffers
-        // refresh when new chars get added, so this lazy load
-        // should not cause any issues.
-        mMaxDigitWidth = llmax(mMaxDigitWidth, gi->mXAdvance);
+        // refresh when new chars get added (mGeneration),
+        // so this lazy load should not cause any issues.
+        mMaxDigitWidth = llmax(mMaxDigitWidth, gi->mXAdvanceRaw);
     }
 
     insertGlyphInfo(wch, gi);

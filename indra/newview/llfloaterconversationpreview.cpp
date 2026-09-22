@@ -155,7 +155,9 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>* messages, const std
         // Publish the new page range together so draw() never renders stale bounds.
         mPageSpinner->setEnabled(true);
         mPageSpinner->setMaxValue((F32)(last_page+1));
-        mPageSpinner->set((F32)(mCurrentPage+1));
+        // Refresh the displayed page even while the editor has focus.
+        mPageSpinner->forceSetValue((F32)(mCurrentPage+1));
+        mPageSpinner->resetDirty();
 
         std::string total_page_num = llformat("/ %d", last_page+1);
         getChild<LLTextBox>("page_num_label")->setValue(total_page_num);

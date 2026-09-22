@@ -40,6 +40,8 @@ bool LLMouseHandler::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickTyp
         case CLICK_RIGHT: handled = handleRightMouseDown(x, y, mask); break;
         case CLICK_MIDDLE: handled = handleMiddleMouseDown(x, y, mask); break;
         case CLICK_DOUBLELEFT: handled = handleDoubleClick(x, y, mask); break;
+        case CLICK_DOUBLERIGHT: break;
+        case CLICK_DOUBLEMIDDLE: break;
         case CLICK_BUTTON4:
         case CLICK_BUTTON5:
             LL_INFOS() << "Handle mouse button " << clicktype + 1 << " down." << LL_ENDL;
@@ -56,6 +58,8 @@ bool LLMouseHandler::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickTyp
         case CLICK_RIGHT: handled = handleRightMouseUp(x, y, mask); break;
         case CLICK_MIDDLE: handled = handleMiddleMouseUp(x, y, mask); break;
         case CLICK_DOUBLELEFT: handled = handleDoubleClick(x, y, mask); break;
+        case CLICK_DOUBLERIGHT: break;
+        case CLICK_DOUBLEMIDDLE: break;
         case CLICK_BUTTON4:
         case CLICK_BUTTON5:
             LL_INFOS() << "Handle mouse button " << clicktype + 1 << " up." << LL_ENDL;

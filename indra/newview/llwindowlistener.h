@@ -49,6 +49,10 @@ public:
     void mouseMove(LLSD const & evt);
     void mouseScroll(LLSD const & evt);
     void pasteText(LLSD const & evt);
+    void cut(LLSD const & evt);
+    void copy(LLSD const & evt);
+    void paste(LLSD const & evt);
+    void selectAll(LLSD const & evt);
 
 private:
     LLViewerWindow * mWindow;

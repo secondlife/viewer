@@ -147,7 +147,7 @@ public:
     /*virtual*/ bool                canEdit() const { return mCanEdit; }
     /*virtual*/ const LLUIColor&     getColor() const                    { return mStyle->getColor(); }
     /*virtual*/ LLStyleConstSP      getStyle() const                    { return mStyle; }
-    /*virtual*/ void                setStyle(LLStyleConstSP style)  { mStyle = style; }
+    /*virtual*/ void                setStyle(LLStyleConstSP style) { mStyle = style; refreshFromStyle(); }
     /*virtual*/ void                setToken( LLKeywordToken* token )   { mToken = token; }
     /*virtual*/ LLKeywordToken*     getToken() const                    { return mToken; }
     /*virtual*/ void                setToolTip(const std::string& tooltip);
@@ -167,6 +167,7 @@ protected:
     virtual     const S32           getLength() const;
 
     void setAllowEdit(bool can_edit) { mCanEdit = can_edit; }
+    void refreshFromStyle();
 
 protected:
     class LLTextBase&   mEditor;
@@ -351,7 +352,8 @@ public:
                                 bg_writeable_color,
                                 bg_focus_color,
                                 text_selected_color,
-                                bg_selected_color;
+                                bg_selected_color,
+                                link_color;
 
         Optional<bool>          bg_visible,
                                 border_visible,
@@ -777,6 +779,8 @@ protected:
     bool                        mAlwaysShowIcons;
 
     bool                        mSkipLinkUnderline;
+    bool                        mHasLinkColor;
+    LLUIColor                   mLinkColor;
 
     // support widgets
     LLHandle<LLContextMenu>     mPopupMenuHandle;

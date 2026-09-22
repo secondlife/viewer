@@ -564,6 +564,23 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
         return;
     }
 
+    if (LLScriptEditorWSServer::isEnabled() &&
+        gSavedSettings.getBOOL("ExternalWebsocketForwardDebug") &&
+        (chat_msg.mChatType == CHAT_TYPE_DEBUG_MSG ||
+         chat_msg.mChatType == CHAT_TYPE_OWNER))
+    {
+        LLScriptEditorWSServer::ptr_t server =
+            LLScriptEditorWSServer::getServer();
+        if (server)
+        {
+            const auto channel =
+                chat_msg.mChatType == CHAT_TYPE_OWNER
+                    ? LLPublishedObjectMgr::RuntimeEventAggregator::Channel::OWNER_SAY
+                    : LLPublishedObjectMgr::RuntimeEventAggregator::Channel::DEBUG;
+            server->forwardChatToIDE(chat_msg, channel);
+        }
+    }
+
     // don't show toast and add message to chat history on receive debug message
     // with disabled setting showing script errors or enabled setting to show script
     // errors in separate window.
@@ -574,15 +591,6 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 
         if (!gSavedSettings.getBOOL("ShowScriptErrors"))
             return;
-
-        if (LLScriptEditorWSServer::isEnabled() && gSavedSettings.getBOOL("ExternalWebsocketForwardDebug"))
-        {
-            LLScriptEditorWSServer::ptr_t server = LLScriptEditorWSServer::getServer();
-            if (server)
-            {
-                server->forwardChatToIDE(chat_msg);
-            }
-        }
 
         // don't process debug messages from not owned objects, see EXT-7762
         if (gAgentID != chat_msg.mOwnerID)
@@ -603,16 +611,6 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
             return;
         }
     }
-    else if ((chat_msg.mChatType == CHAT_TYPE_OWNER) && LLScriptEditorWSServer::isEnabled() &&
-        gSavedSettings.getBOOL("ExternalWebsocketForwardDebug"))
-    {
-        LLScriptEditorWSServer::ptr_t server = LLScriptEditorWSServer::getServer();
-        if (server)
-        {
-            server->forwardChatToIDE(chat_msg);
-        }
-    }
-
     nearby_chat->addMessage(chat_msg, true, args);
 
     if (chat_msg.mSourceType == CHAT_SOURCE_AGENT

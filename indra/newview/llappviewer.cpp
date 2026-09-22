@@ -302,6 +302,13 @@ extern bool gDebugGL;
 extern bool gHiDPISupport;
 #endif
 
+#if LL_WINDOWS
+extern bool gGPUBenchmarkMode;
+#else
+static constexpr bool gGPUBenchmarkMode = false;
+#endif // LL_WINDOWS
+
+
 ////////////////////////////////////////////////////////////
 // All from the last globals push...
 
@@ -2183,6 +2190,7 @@ bool LLAppViewer::cleanup()
     LLWorld::deleteSingleton();
     LLVoiceClient::deleteSingleton();
     LLUI::deleteSingleton();
+    LLGridManager::deleteSingleton();
     LLWatchdog::deleteSingleton();
 
     // It's not at first obvious where, in this long sequence, a generic cleanup
@@ -2377,11 +2385,17 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 
     if (mSecondInstance)
     {
-        LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
+        if (!gGPUBenchmarkMode)
+        {
+            LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
 
-        LLUUID uid;
-        uid.generate();
-        LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
+            LLUUID uid;
+            uid.generate();
+            // Is this even useful?
+            // Originally this wa used to store states, but I don't think it's practical with bugsplat attributes.
+            // So it just spams files now.
+            LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
+        }
     }
     else
     {
@@ -3017,6 +3031,8 @@ bool LLAppViewer::initConfiguration()
         }
     }
 
+    LLGridManager::createInstance();
+
     LLSLURL start_slurl;
     if (!starting_location.empty())
     {
@@ -3065,6 +3081,7 @@ bool LLAppViewer::initConfiguration()
             // Do not save settings.
             // Might be smarter to have an exit code for a more reliable
             // "early exit, needs cleanup" case.
+            LLGridManager::deleteSingleton();
             LLSingletonBase::deleteAll();
             cleanupConsole();
             delete mSettingsLocationList;
@@ -3082,12 +3099,15 @@ bool LLAppViewer::initConfiguration()
 
     // Display splash screen.  Must be after above check for previous
     // crash as this dialog is always frontmost.
-    std::string splash_msg;
-    LLStringUtil::format_map_t args;
-    args["[APP_NAME]"] = LLTrans::getString("SECOND_LIFE");
-    splash_msg = LLTrans::getString("StartupLoading", args);
-    LLSplashScreen::show();
-    LLSplashScreen::update(splash_msg);
+    if (!gGPUBenchmarkMode)
+    {
+        std::string splash_msg;
+        LLStringUtil::format_map_t args;
+        args["[APP_NAME]"] = LLTrans::getString("SECOND_LIFE");
+        splash_msg = LLTrans::getString("StartupLoading", args);
+        LLSplashScreen::show();
+        LLSplashScreen::update(splash_msg);
+    }
 
     //LLVolumeMgr::initClass();
     LLVolumeMgr* volume_manager = new LLVolumeMgr();
@@ -3116,7 +3136,9 @@ bool LLAppViewer::initConfiguration()
     // This happens AFTER LLSplashScreen::show(). That may or may not be
     // important.
     //
-    if (mSecondInstance && !gSavedSettings.getBOOL("AllowMultipleViewers"))
+    if (mSecondInstance
+        && !gGPUBenchmarkMode
+        && !gSavedSettings.getBOOL("AllowMultipleViewers"))
     {
         OSMessageBox(
             LLTrans::getString("MBAlreadyRunning"),
@@ -3125,6 +3147,7 @@ bool LLAppViewer::initConfiguration()
 
         // Since returning 'false' is basically an error without cleanup,
         // do cleanup here. No need to worry about marker files here.
+        LLGridManager::deleteSingleton();
         LLSingletonBase::deleteAll();
         cleanupConsole();
         return false;
@@ -3890,8 +3913,12 @@ void LLAppViewer::writeSystemInfo()
     gDebugInfo["CPUInfo"]["CPUFamily"] = gSysCPU.getFamily();
     gDebugInfo["CPUInfo"]["CPUMhz"] = (S32)gSysCPU.getMHz();
     gDebugInfo["CPUInfo"]["CPUAltivec"] = gSysCPU.hasAltivec();
-    gDebugInfo["CPUInfo"]["CPUSSE"] = gSysCPU.hasSSE();
-    gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
+    gDebugInfo["CPUInfo"]["CPUSSE42"] = gSysCPU.hasSSE42();
+    gDebugInfo["CPUInfo"]["CPUSSE4a"] = gSysCPU.hasSSE4a();
+    gDebugInfo["CPUInfo"]["CPUAVX"] = gSysCPU.hasAVX();
+    gDebugInfo["CPUInfo"]["CPUAVX2"] = gSysCPU.hasAVX2();
+    gDebugInfo["CPUInfo"]["CPUAVX512F"] = gSysCPU.hasAVX512F();
+
 
     gDebugInfo["RAMInfo"]["Physical"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().value());
     gDebugInfo["RAMInfo"]["Allocated"] = LLSD::Integer(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
@@ -4135,6 +4162,13 @@ bool LLAppViewer::getMarkerData(const std::string& marker_name, std::string& dat
 
 void LLAppViewer::processMarkerFiles()
 {
+    if (gGPUBenchmarkMode)
+    {
+        // Skipping marker file processing in GPU benchmark mode
+        mSecondInstance = true;
+        initLoggingAndGetLastDuration();
+        return;
+    }
     //We've got 4 things to test for here
     // - Other Process Running (SecondLife.exec_marker present, locked)
     // - Freeze (SecondLife.exec_marker present, not locked)
@@ -5278,7 +5312,7 @@ void LLAppViewer::idle()
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("network"); //LL_RECORD_BLOCK_TIME(FTM_NETWORK);
         // Update spaceserver timeinfo
-        LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + LLUnits::Seconds::fromValue(dt_raw));
+        LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + (U64)(dt_raw * USEC_PER_SEC));
 
 
         //////////////////////////////////////
