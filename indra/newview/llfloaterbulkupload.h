@@ -62,6 +62,7 @@ private:
     LLUUID mDestinationFolderId;
     S32 mUploadCost = 0;
     S32 mUploadCount = 0;
+    std::string mLocalDir;
 };
 
 #endif

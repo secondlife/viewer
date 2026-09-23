@@ -65,12 +65,22 @@
                     <menu_item_call.on_enable
                      function="File.EnableUploadMaterial" />
                 </menu_item_call>
+                <menu_item_separator
+                 layout="topleft" />
                 <menu_item_call
-                 label="Bulk..."
+                 label="Multiple files..."
                  layout="topleft"
-                 name="Bulk Upload">
+                 name="Bulk Upload Files">
                     <menu_item_call.on_click
                      function="File.UploadBulk"
+                     parameter="" />
+                </menu_item_call>
+                <menu_item_call
+                 label="Folder..."
+                 layout="topleft"
+                 name="Bulk Upload Folder">
+                    <menu_item_call.on_click
+                     function="File.UploadBulkFolder"
                      parameter="" />
                 </menu_item_call>
             </menu>
