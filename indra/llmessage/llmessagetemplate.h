@@ -30,6 +30,7 @@
 #include "message.h" // TODO: babbage: Remove...
 #include "llstl.h"
 #include "llindexedvector.h"
+#include "llmsgvariabletype.h"
 
 class LLMsgVarData
 {
@@ -115,6 +116,19 @@ public:
     {
         mName = (char *)name;
     }
+    // Ownership transfer should be explicit and cheap.
+    // No deep copy, just a transfer.
+    LLMsgData(LLMsgData&& other) noexcept
+        : mMemberBlocks(std::move(other.mMemberBlocks)),
+        mName(other.mName),
+        mTotalSize(other.mTotalSize)
+    {
+        other.mMemberBlocks.clear(); // prevent double-delete in ~LLMsgData
+    }
+    LLMsgData& operator=(LLMsgData&&) = default;
+    LLMsgData(const LLMsgData&) = delete;
+    LLMsgData& operator=(const LLMsgData&) = delete;
+
     ~LLMsgData()
     {
         for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePairedPointer());

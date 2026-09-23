@@ -279,6 +279,11 @@ protected:
 
     const F32Seconds mHeartbeatInterval;
     const F32Seconds mHeartbeatTimeout;
+
+    // This mutexguards mUnackedPackets, mFinalRetryPackets,
+    // mRecentlyReceivedReliablePackets, mAcks,
+    // mPacketsInID, mHighestPacketID, counters
+    mutable std::mutex mDataMutex;
 };
 
 
@@ -331,6 +336,10 @@ public:
     // HACK - this should become protected eventually, but stupid !@$@# message system/circuit classes are jumbling things up.
     circuit_data_map mUnackedCircuitMap; // Map of circuits with unacked data
     circuit_data_map mSendAckMap; // Map of circuits which need to send acks
+
+    // This mutex guards mCircuitData, mUnackedCircuitMap,
+    // mSendAckMap, mPingSet, mLastCircuit
+    mutable std::mutex mCircuitMutex;
 protected:
     circuit_data_map mCircuitData;
 

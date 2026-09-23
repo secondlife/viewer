@@ -43,6 +43,7 @@ LLTemplateMessageReader::LLTemplateMessageReader(message_template_number_map_t&
     mReceiveSize(0),
     mCurrentRMessageTemplate(NULL),
     mCurrentRMessageData(NULL),
+    mOwnsCurrentRMessageData(false),
     mMessageNumbers(number_template_map)
 {
 }
@@ -50,8 +51,12 @@ LLTemplateMessageReader::LLTemplateMessageReader(message_template_number_map_t&
 //virtual
 LLTemplateMessageReader::~LLTemplateMessageReader()
 {
-    delete mCurrentRMessageData;
-    mCurrentRMessageData = NULL;
+    if (mOwnsCurrentRMessageData)
+    {
+        delete mCurrentRMessageData;
+        mOwnsCurrentRMessageData = false;
+    }
+    mCurrentRMessageData = nullptr;
 }
 
 //virtual
@@ -59,8 +64,12 @@ void LLTemplateMessageReader::clearMessage()
 {
     mReceiveSize = -1;
     mCurrentRMessageTemplate = NULL;
-    delete mCurrentRMessageData;
-    mCurrentRMessageData = NULL;
+    if (mOwnsCurrentRMessageData)
+    {
+        delete mCurrentRMessageData;
+        mOwnsCurrentRMessageData = false;
+    }
+    mCurrentRMessageData = nullptr;
 }
 
 void LLTemplateMessageReader::getData(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum, S32 max_size)
@@ -534,22 +543,19 @@ void LLTemplateMessageReader::logRanOffEndOfPacket( const LLHost& host, const S3
 static LLTrace::BlockTimerStatHandle FTM_PROCESS_MESSAGES("Process Messages");
 
 // decode a given message
-bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender )
+std::unique_ptr<LLMsgData> LLTemplateMessageReader::decodeDataOwned(const U8* buffer, const LLHost& sender)
 {
     LL_RECORD_BLOCK_TIME(FTM_PROCESS_MESSAGES);
 
     llassert( mReceiveSize >= 0 );
     llassert( mCurrentRMessageTemplate);
-    llassert( !mCurrentRMessageData );
-    delete mCurrentRMessageData; // just to make sure
 
     // The offset tells us how may bytes to skip after the end of the
     // message name.
     U8 offset = buffer[PHL_OFFSET];
     S32 decode_pos = LL_PACKET_ID_SIZE + (S32)(mCurrentRMessageTemplate->mFrequency) + offset;
 
-    // create base working data set
-    mCurrentRMessageData = new LLMsgData(mCurrentRMessageTemplate->mName);
+    auto msg_data = std::make_unique<LLMsgData>(mCurrentRMessageTemplate->mName);
 
     // loop through the template building the data structure as we go
     LLMessageTemplate::message_block_map_t::const_iterator iter;
@@ -595,7 +601,7 @@ bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
         else
         {
             LL_ERRS() << "Unknown block type" << LL_ENDL;
-            return false;
+            return nullptr;
         }
 
         LLMsgBlkData* cur_data_block = NULL;
@@ -616,7 +622,7 @@ bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
             }
 
             // add the block to the message
-            mCurrentRMessageData->addBlock(cur_data_block);
+            msg_data->addBlock(cur_data_block);
 
             // now read the variables
             for (LLMessageBlock::message_variable_map_t::const_iterator iter =
@@ -697,58 +703,45 @@ bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
         }
     }
 
-    if (mCurrentRMessageData->mMemberBlocks.empty()
+    if (msg_data->mMemberBlocks.empty()
         && !mCurrentRMessageTemplate->mMemberBlocks.empty())
     {
         LL_DEBUGS() << "Empty message '" << mCurrentRMessageTemplate->mName << "' (no blocks)" << LL_ENDL;
-        return false;
+        return nullptr;
     }
 
+    return msg_data;
+}
+
+
+void LLTemplateMessageReader::setCurrentMessageData(LLMessageTemplate* tmpl, LLMsgData* data, S32 receive_size)
+{
+    // If we previously owned decoded data, release it
+    if (mOwnsCurrentRMessageData)
     {
-        static LLTimer decode_timer;
+        // Due to threaded nature, tracking ownership explicitly
+        delete mCurrentRMessageData;
+    }
+    mCurrentRMessageTemplate = tmpl;
+    mCurrentRMessageData = data;
+    mReceiveSize = receive_size;
+    mOwnsCurrentRMessageData = false;
+}
 
-        if(LLMessageReader::getTimeDecodes() || gMessageSystem->getTimingCallback())
-        {
-            decode_timer.reset();
-        }
+bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender)
+{
+    if (mOwnsCurrentRMessageData)
+    {
+        delete mCurrentRMessageData;
+    }
+    mCurrentRMessageData = decodeDataOwned(buffer, sender).release();
+    mOwnsCurrentRMessageData = (mCurrentRMessageData != nullptr);
+    if (!mCurrentRMessageData) return false;
 
-        if( !mCurrentRMessageTemplate->callHandlerFunc(gMessageSystem) )
-        {
-            LL_WARNS() << "Message from " << sender << " with no handler function received: " << mCurrentRMessageTemplate->mName << LL_ENDL;
-        }
-
-        if(LLMessageReader::getTimeDecodes() || gMessageSystem->getTimingCallback())
-        {
-            F32 decode_time = decode_timer.getElapsedTimeF32();
-
-            if (gMessageSystem->getTimingCallback())
-            {
-                (gMessageSystem->getTimingCallback())(mCurrentRMessageTemplate->mName,
-                                decode_time,
-                                gMessageSystem->getTimingCallbackData());
-            }
-
-            if (LLMessageReader::getTimeDecodes())
-            {
-                mCurrentRMessageTemplate->mDecodeTimeThisFrame += decode_time;
-
-                mCurrentRMessageTemplate->mTotalDecoded++;
-                mCurrentRMessageTemplate->mTotalDecodeTime += decode_time;
-
-                if( mCurrentRMessageTemplate->mMaxDecodeTimePerMsg < decode_time )
-                {
-                    mCurrentRMessageTemplate->mMaxDecodeTimePerMsg = decode_time;
-                }
-
-
-                if(decode_time > LLMessageReader::getTimeDecodesSpamThreshold())
-                {
-                    LL_DEBUGS() << "--------- Message " << mCurrentRMessageTemplate->mName << " decode took " << decode_time << " seconds. (" <<
-                        mCurrentRMessageTemplate->mMaxDecodeTimePerMsg << " max, " <<
-                        (mCurrentRMessageTemplate->mTotalDecodeTime / mCurrentRMessageTemplate->mTotalDecoded) << " avg)" << LL_ENDL;
-                }
-            }
-        }
+    if (!mCurrentRMessageTemplate->callHandlerFunc(gMessageSystem))
+    {
+        LL_WARNS() << "Message from " << sender << " with no handler function received: "
+            << mCurrentRMessageTemplate->mName << LL_ENDL;
     }
     return true;
 }

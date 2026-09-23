@@ -431,7 +431,7 @@ LLThreadSafeQueue<ElementT, QueueT>::pop_(lock_t& lock, ElementT& element)
         return WAITING;
 
     // std::queue::front() is the element about to pop()
-    element = mStorage.front();
+    element = std::move(mStorage.front());
     mStorage.pop();
     lock.unlock();
     // now that we've popped, if somebody's been waiting to push, signal them

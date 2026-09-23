@@ -42,6 +42,7 @@
 
 #include "llerror.h"
 #include "net.h"
+#include "lldecodedmessage.h"
 #include "llstringtable.h"
 #include "llcircuit.h"
 #include "lltimer.h"
@@ -591,7 +592,7 @@ public:
     void    addString( const char* varname, const std::string& s);              // typed, checks storage space
 
     S32 getCurrentSendTotal() const;
-    TPACKETID getCurrentRecvPacketID() { return mCurrentRecvPacketID; }
+    TPACKETID getCurrentRecvPacketID() { return sCurrentRecvPacketID; }
 
     // This method checks for current send total and returns true if
     // you need to go to the next block type or need to start a new
@@ -813,7 +814,7 @@ public:
     void summarizeLogs(std::ostream& str);  // log statistics
 
     S32     getReceiveSize() const;
-    S32     getReceiveCompressedSize() const { return mIncomingCompressedSize; }
+    S32     getReceiveCompressedSize() const { return sIncomingCompressedSize; }
     S32     getReceiveBytes() const;
 
     S32     getUnackedListSize() const          { return mUnackedListSize; }
@@ -888,6 +889,36 @@ public:
     // is read: use with caution!
     void receivedMessageFromTrustedSender();
 
+    // Runs the full receive-and-decode pipeline for one packet already
+    // sitting in mIncomingQueue (see bufferInboundPacket()), but stops
+    // short of calling the message handler. Returns nullptr if no packet
+    // was available, or if the packet was invalid/banned/duplicate and
+    // should simply be dropped (mirroring checkMessages()'s "continue"
+    // cases). Safe to call from LLUDPReceiverThread.
+    std::unique_ptr<LLDecodedMessage> decodeDataOwned();
+    void dispatchDecoded(LLDecodedMessage& msg);
+
+    bool tryPopDecoded(std::unique_ptr<LLDecodedMessage>& out)
+    {
+        return mDecodedQueue->tryPop(out);
+    }
+    void pushDecoded(std::unique_ptr<LLDecodedMessage> msg)
+    {
+        try
+        {
+            mDecodedQueue->push(std::move(msg));
+        }
+        catch (const LLThreadSafeQueueInterrupt&)
+        {
+            // Queue closed during shutdown; drop silently.
+        }
+    }
+    size_t getNumDecodedPending() { return mDecodedQueue->size(); }
+
+    // Read one raw packet from mSocket into inbound message queues
+    // Returns packet_size (0 if no packet was available).
+    S32  bufferInboundPacket();
+
 private:
     typedef std::function<void(S32)>  UntrustedCallback_t;
     void sendUntrustedSimulatorMessageCoro(std::string url, std::string message, LLSD body, UntrustedCallback_t callback);
@@ -921,8 +952,8 @@ private:
     LLMessagePollInfo                       *mPollInfop;
 
     U8  mEncodedRecvBuffer[MAX_BUFFER_SIZE];
-    U8  mTrueReceiveBuffer[MAX_BUFFER_SIZE];
-    S32 mTrueReceiveSize;
+    static thread_local U8 sTrueReceiveBuffer[MAX_BUFFER_SIZE];
+    static thread_local S32 sTrueReceiveSize;
 
     // Must be valid during decode
 
@@ -958,8 +989,8 @@ private:
 
     LLHost mLastSender;
     LLHost mLastReceivingIF;
-    S32 mIncomingCompressedSize;        // original size of compressed msg (0 if uncomp.)
-    TPACKETID mCurrentRecvPacketID;       // packet ID of current receive packet (for reporting)
+    static thread_local S32 sIncomingCompressedSize;        // original size of compressed msg (0 if uncomp.)
+    static thread_local TPACKETID sCurrentRecvPacketID;       // packet ID of current receive packet (for reporting)
 
     // Socket I/O helpers
 
@@ -969,10 +1000,6 @@ private:
     // run for this packet back when it was buffered (see bufferInboundPacket()).
     // Returns packet_size, or 0 if no packet or packet was dropped.
     S32  receivePacketOrDrop(char* datap, bool& packet_id_already_checked);
-
-    // Read one raw packet from mSocket into inbound message queues
-    // Returns packet_size (0 if no packet was available).
-    S32  bufferInboundPacket();
 
     // Returns true if the next inbound packet should be intentionally dropped.
     bool computeDrop();
@@ -994,6 +1021,13 @@ private:
     LLSDMessageBuilder* mLLSDMessageBuilder;
     LLMessageReaderPointer mMessageReader;
     LLTemplateMessageReader* mTemplateMessageReader;
+    // mTemplateMessageReader is used by the receiver thread's decodeDataOwned()
+    // and owns mutable per-decode state (mReceiveSize, mCurrentRMessageTemplate,
+    // mCurrentRMessageData). Since decode (receiver thread) and dispatch (main
+    // thread) can run concurrently, dispatch must never touch that same state;
+    // otherwise the receiver thread can invalidate it (e.g. via clearMessage())
+    // out from under a handler that's still running on the main thread.
+    LLTemplateMessageReader* mDispatchMessageReader;
     LLSDMessageReader* mLLSDMessageReader;
 
     // Packet queue and receiver thread for incoming packets from an UDP thread.
@@ -1006,9 +1040,10 @@ private:
     bool callHandler(const char *name, bool trustedSource,
                      LLMessageSystem* msg);
 
-
     /** Find, create or revive circuit for host as needed */
     LLCircuitData* findCircuit(const LLHost& host, bool resetPacketId);
+
+    std::shared_ptr<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>> mDecodedQueue;
 };
 
 
