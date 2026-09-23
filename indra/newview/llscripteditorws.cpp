@@ -69,6 +69,7 @@
 #include "llviewertexteditor.h"
 #include "llvoinventorylistener.h"
 #include "roles_constants.h"
+#include "workqueue.h"
 
 #include <array>
 
@@ -627,27 +628,27 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
         LL_DEBUGS("ScriptEditorWS") << "Setting up script editor connection methods" << LL_ENDL;
         U32 connection_id = script_connection->getConnectionID();
 
-        // Sync methods (run on the WebSocket I/O thread; must not touch
-        // main-thread-only viewer state).
-        script_connection->registerMethod("language.syntax.id",
+        // All per-connection methods dispatch to the main thread inside a
+        // coroutine (see LLJSONRPCConnection::processRequest).
+        script_connection->registerAsyncMethod("language.syntax.id",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
                 return s.handleLanguageIdRequest();
             }));
 
-        script_connection->registerMethod("language.syntax",
+        script_connection->registerAsyncMethod("language.syntax",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
                 return s.handleSyntaxRequest(params);
             }));
 
-        script_connection->registerMethod("language.syntax.cache",
+        script_connection->registerAsyncMethod("language.syntax.cache",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
                 return s.handleSyntaxCacheRequest();
             }));
 
-        script_connection->registerMethod("language.syntax.get",
+        script_connection->registerAsyncMethod("language.syntax.get",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
                 return s.handleSyntaxCacheFileRequest(params);
@@ -659,7 +660,7 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 return s.handleScriptSubscribe(connection_id, params);
             }));
 
-        script_connection->registerMethod("script.list",
+        script_connection->registerAsyncMethod("script.list",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
                 return s.handleFileWatcherFileListRequest();
@@ -671,7 +672,6 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 return s.handleObjectUnpublish(connection_id, params);
             }));
 
-        // Async methods (dispatched to the main thread inside a coroutine).
         script_connection->registerAsyncMethod("script.unsubscribe",
             bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
@@ -2299,7 +2299,6 @@ void LLScriptEditorWSServer::forwardChatToIDE(
 void LLScriptEditorWSServer::sendRuntimeEvent(
     const LLPublishedObjectMgr::RuntimeChatEvent& event) const
 {
-
     std::string script_id;
     if (event.mItemID.notNull())
     {
@@ -2786,6 +2785,26 @@ void LLScriptEditorWSConnection::onOpen()
     LLJSONRPCConnection::onOpen();
 
     LL_INFOS("ScriptEditorWS") << "Script editor JSON-RPC connection opened" << LL_ENDL;
+
+    // gAgent, LLVersionInfo, LLSyntaxDefCache, and challenge file I/O below
+    // are main-thread only; this callback runs on the WS I/O thread.
+    wptr_t that = weak_from_this();
+    if (!LL::WorkQueue::postToMainLoop([that]()
+        {
+            auto self = that.lock();
+            if (self)
+            {
+                self->sendHandshake();
+            }
+        }))
+    {
+        LL_WARNS("ScriptEditorWS") << "Main loop unavailable; dropping handshake for new connection" << LL_ENDL;
+    }
+}
+
+void LLScriptEditorWSConnection::sendHandshake()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
 
     // Build hello data
     LLSD handshake;

@@ -99,6 +99,7 @@ private:
      */
     void handleHandshakeResponse(const LLSD& result);
     std::string generateChallenge();
+    void sendHandshake();
 
     LLScriptEdContainer*                    getEditor() const;
     std::shared_ptr<LLScriptEditorWSServer> getServer() const;

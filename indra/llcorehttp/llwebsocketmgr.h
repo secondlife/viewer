@@ -246,6 +246,10 @@ public:
         connection_state_t  getConnectionState(const connection_h& handle) const;
 
     protected:
+        /// Snapshot of live connections. Safe to iterate after the lock is
+        /// released -- these are real shared_ptrs, not weak references.
+        std::vector<WSConnection::ptr_t> getConnections() const;
+
         virtual WSConnection::ptr_t connectionFactory(WSServer::ptr_t server, connection_h handle);
 
         bool            start();
@@ -283,6 +287,7 @@ public:
         // Threading support
         std::thread                  mServerThread;        ///< Thread running the ASIO event loop
         std::atomic<bool>            mShouldStop{ false }; ///< Thread-safe stop flag
+        std::atomic<bool>            mRunning{ false };     ///< True from just before the I/O thread launches until it exits
         mutable LLMutex              mThreadMutex;         ///< Mutex for thread synchronization
     };
 

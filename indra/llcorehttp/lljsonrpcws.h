@@ -29,13 +29,12 @@
 #include "llwebsocketmgr.h"
 #include "llsd.h"
 #include "lluuid.h"
+#include "lltimer.h"
 
 #include <functional>
 #include <unordered_map>
 #include <memory>
 #include <queue>
-
-class LLEventTimer;
 
 /**
  * @class LLJSONRPCConnection
@@ -390,7 +389,8 @@ private:
     // Per-request timeout tracking. mPendingDeadlines is a min-heap of
     // (deadline, request_id) ordered by deadline; entries whose request has
     // already been answered become tombstones (skipped when they reach the
-    // top). A single recurring timer per connection sweeps the heap.
+    // top). The owning server calls sweepTimeouts() once per frame (see
+    // LLJSONRPCServer::update()) to fire any expired entries.
     struct PendingDeadline
     {
         F64         mDeadline;   // absolute time in seconds (LLTimer::getTotalSeconds)
@@ -399,16 +399,18 @@ private:
         bool operator<(const PendingDeadline& rhs) const { return mDeadline > rhs.mDeadline; }
     };
     std::priority_queue<PendingDeadline> mPendingDeadlines;
-    std::weak_ptr<LLEventTimer>          mTimeoutTimer;
 
     static constexpr F64 REQUEST_TIMEOUT_SECONDS = 120.0;
-    static constexpr F32 TIMEOUT_SWEEP_INTERVAL  = 1.0f;
-
-    /// Invoked by the sweep timer; fires the timeout callback for any
-    /// request whose deadline has passed. Safe to call from the main thread.
-    void sweepTimeouts();
 
 public:
+    /// Sweep interval used by LLJSONRPCServer::update() to throttle sweepTimeouts().
+    static constexpr F32 TIMEOUT_SWEEP_INTERVAL = 1.0f;
+
+    /// Invoked once per frame by the owning server (see LLJSONRPCServer::update());
+    /// fires the timeout callback for any request whose deadline has passed.
+    /// Main-thread only.
+    void sweepTimeouts();
+
     void testInjectPendingRequest(const std::string& id, F64 deadline, ResponseCallback callback);
     void testSweepTimeouts();
     size_t testPendingRequestCount() const;
@@ -497,12 +499,15 @@ public:
      */
     LLSD getServerStats() const;
 
+    bool update() override;
+
 protected:
     LLWebsocketMgr::WSConnection::ptr_t connectionFactory(LLWebsocketMgr::WSServer::ptr_t server,
                                                          LLWebsocketMgr::connection_h handle) override;
 
     virtual LLSD handlePing(const LLJSONRPCConnection::ptr_t& connection,
                             const LLSD& params) const;
+
     virtual LLSD handleGetVersion(const LLJSONRPCConnection::ptr_t& connection,
                                   const LLSD& params) const = 0;
     virtual LLSD handleStatus(const LLJSONRPCConnection::ptr_t& connection,
@@ -521,4 +526,5 @@ private:
     std::string mServerName;  // Store server name for stats
     std::atomic<U64> mTotalRequestsHandled{0};
     std::atomic<U64> mTotalNotificationsSent{0};
+    LLTimer mSweepTimer;
 };
