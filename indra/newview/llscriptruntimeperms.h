@@ -59,6 +59,6 @@ static const std::array<script_perm_t, NUM_SCRIPT_PERMISSIONS> SCRIPT_PERMISSION
     _script_perm("ForceSitAvatar",      (0x1 << 17), false),
     _script_perm("ChangeEnvSettings",   (0x1 << 18), false),
     _script_perm("PrivilegedLandAccess",(0x1 << 19), true),
-    _script_perm("GameControl",         (0x1 << 20), false)
+    _script_perm("UseGameControlInputs",(0x1 << 20), false)
     } };
 
