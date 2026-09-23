@@ -1084,7 +1084,7 @@ interface LinkedObject {
 
 interface ObjectPermissions {
   owner: number;
-  next_owner: number;
+  next_owner?: number;   // Absent until the viewer receives ObjectProperties for the prim
 }
 
 /** Root of a linkset, as published to the extension */
@@ -1235,19 +1235,30 @@ Sent when an explored object's inventory, properties, or linkset membership chan
 | ------- | ------- |
 | Root prim inventory changed | `object_id`, `inventory` (complete replacement array) |
 | Child prim inventory changed | `object_id`, `changes.linked_objects.modified[]` with `link_id` and `inventory` (complete replacement array for that child) |
-| Root prim name/description changed | `object_id`, `object_name` and/or `object_description` |
-| Child prim name/description changed | `object_id`, `changes.linked_objects.modified[]` with `link_id` and `link_name` and/or `link_description` |
+| Root prim properties changed | `object_id`, plus any changed subset of `object_name`, `object_description`, `owner_id`, `permissions`, `can_save_back` |
+| Child prim properties changed | `object_id`, `changes.linked_objects.modified[]` with `link_id` plus any changed subset of `link_name`, `link_description`, `permissions` |
 | Linkset membership changed | `object_id`, `linked_objects` (complete replacement array covering every child prim) |
 
 `inventory` and `linked_objects` are always complete replacements of the prior state, never
 increments. Linkset membership changes are coalesced behind a short flush delay, so several
 rapid link or unlink operations may arrive as a single update.
 
+**Deferred permission fields.** `object.publish` is gated on inventory loading, which can finish
+before the `ObjectProperties` reply arrives. Until it does the viewer derives `permissions.owner`
+from the object's update flags, which describe the current agent's rights, and omits `next_owner`.
+`owner_id` may be absent or the null UUID, and `can_save_back` may be `false` because it depends on
+selection state. Once properties arrive the viewer sends an `object.update` carrying the full
+`owner`/`next_owner` block and the real `owner_id`, so clients must merge these fields on update
+rather than assuming the publish payload is final.
+
 ```typescript
 interface ObjectUpdateMessage {
   object_id: string;
   object_name?: string;
   object_description?: string;
+  owner_id?: string;
+  permissions?: ObjectPermissions;
+  can_save_back?: boolean;
   // Full replacement
   inventory?: ObjectInventoryItem[];
   linked_objects?: LinkedObject[];
@@ -1264,6 +1275,7 @@ interface LinkedObjectChanges {
     link_id: string;
     link_name?: string;
     link_description?: string;
+    permissions?: ObjectPermissions;
     inventory?: ObjectInventoryItem[];   // Complete replacement array, not a delta
   }[];
 }
