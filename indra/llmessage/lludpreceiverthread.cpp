@@ -28,7 +28,10 @@
 #include "linden_common.h"
 #include "lludpreceiverthread.h"
 #include "llproxy.h"
+#include "message.h"
 #include "net.h"
+
+#include <boost/fiber/algo/round_robin.hpp>
 
 LLUDPReceiverThread::LLUDPReceiverThread(S32 hSocket, std::shared_ptr<PacketQueue> queue)
 :   LLThread("UDP Receiver"),
@@ -45,6 +48,13 @@ LLUDPReceiverThread::~LLUDPReceiverThread()
 
 void LLUDPReceiverThread::run()
 {
+#if LL_WINDOWS
+    // LLThreadSafeQueue is built on boost::fibers primitives, which require
+    // a fiber scheduling algorithm to be installed on the thread.
+    // Todo: most threads do not need coroutines, perhaps find a way around?
+    boost::fibers::use_scheduling_algorithm<boost::fibers::algo::round_robin>();
+#endif // LL_WINDOWS
+
     // Thread name is already registered with the profiler by
     // LLThread::threadRun() via LL_PROFILER_SET_THREAD_NAME("UDP Receiver").
     while (!isQuitting())
@@ -104,6 +114,34 @@ void LLUDPReceiverThread::run()
             // when the socket has no data queued (recv_packet returns 0
             // for EWOULDBLOCK). ms_sleep() is already profiled internally.
             ms_sleep(1);
+        }
+
+        // Drain mQueue (== gMessageSystem->mIncomingQueue) into the
+        // priority rings: this does per-packet ACK bookkeeping and
+        // packet-sequence checks (same as drainUdpSocket()).
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp buffer inbound");
+            while (gMessageSystem->bufferInboundPacket() > 0)
+            {
+                // keep draining
+            }
+        }
+
+        // Fully decode whatever is sitting in the priority rings and
+        // hand each result off to the main thread's dispatch queue.
+        // decodeDataOwned() returns nullptr both when the rings are
+        // empty and when a packet was invalid/banned/off-circuit and
+        // should simply be dropped.
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp decode");
+            while (gMessageSystem->getNumBufferedPackets() > 0)
+            {
+                std::unique_ptr<LLDecodedMessage> decoded = gMessageSystem->decodeDataOwned();
+                if (decoded)
+                {
+                    gMessageSystem->pushDecoded(std::move(decoded));
+                }
+            }
         }
     }
 }
