@@ -12,6 +12,7 @@ add_custom_command(OUTPUT packages-info.txt
   COMMENT "Generating packages-info.txt for the about box"
   MAIN_DEPENDENCY ${CMAKE_SOURCE_DIR}/../autobuild.xml
   DEPENDS ${CMAKE_SOURCE_DIR}/../scripts/packages-formatter.py
+          ${CMAKE_SOURCE_DIR}/newview/luau.txt
           ${CMAKE_SOURCE_DIR}/../autobuild.xml
   COMMAND ${PYTHON_EXECUTABLE}
           ${CMAKE_SOURCE_DIR}/cmake/run_build_test.py -DAUTOBUILD_ADDRSIZE=${ADDRESS_SIZE} -DAUTOBUILD=${AUTOBUILD_EXECUTABLE}
