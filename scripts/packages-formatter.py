@@ -122,6 +122,9 @@ if any(pkgs for pkgs in list(dups.values())):
 
 print("%s %s" % (args.channel, args.version))
 print(viewer_copyright)
+# Luau is server-side and isn't listed in the viewer's autobuild packages.
+with open(os.path.join(os.path.dirname(__file__), "..", "indra", "newview", "luau.txt"), encoding="utf-8") as luau_license:
+    print("Luau " + " / ".join(line.strip() for line in luau_license if line.startswith("Copyright")))
 version = list(info['versions'].items())
 version.sort()
 for pkg, pkg_version in version:
