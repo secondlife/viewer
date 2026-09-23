@@ -838,20 +838,36 @@ every real change.
   friends - see "LibVLC" above), so this question no longer blocks anything;
   it is now purely about whether to widen LibVLC's role further, not
   whether to have it at all.
-- **macOS is supported; Linux support is in progress, not yet verified on
-  real hardware.** This system started Windows-only. macOS was ported next
+- **Windows, macOS, and Linux are all supported, verified end to end on real
+  media.** This system started Windows-only. macOS was ported next
   (`llshmframe`, `llcefbrowser`, and the Viewer's own producer/consumer code
   all build, package, and run end to end, including a real macOS-specific
   quit-hang bug found and fixed along the way - see "Cross-platform porting
   notes" below). Linux support followed: `llshmframe` and `llcefbrowser`
   both build, link, and package correctly on Linux, confirmed by their own
-  CI (each caught one genuine cross-platform bug on its first Linux CI run,
-  also covered below). The Viewer-side Linux integration was written the
-  same way, without local Linux hardware to test against, and is still
-  working through its own first real CI runs as of this writing. The one
-  piece not yet started at all for Linux is keyboard input: there is no
-  X11/Wayland key-event encoder yet, only the macOS Cocoa one and the
-  original Windows one.
+  CI. The Viewer-side Linux integration hit one real, Linux-specific bug of
+  its own - CEF's GPU process failed its zygote pre-fork handshake when
+  sandboxing is off, since `--no-sandbox` alone does not disable the zygote
+  mechanism - fixed with an explicit `--no-zygote` switch
+  (`llcefbrowser` v1.49.0). Confirmed working end to end under a real Linux
+  environment (WSL2/Ubuntu-22.04), including against the actual published
+  package, not just a local build. The one piece not yet started at all for
+  Linux is keyboard input: there is no X11/Wayland key-event encoder yet,
+  only the macOS Cocoa one and the original Windows one.
+- **Linux needs `libnss3`/`libnspr4` present on the target system.**
+  `libcef.so` depends on these NSS/NSPR libraries at runtime but does not
+  bundle them - this matches CEF's own upstream distribution convention
+  (treated as "the OS already has these"), not a gap specific to this
+  package; the official LL Linux viewer has the identical requirement. Most
+  desktop Linux installs already have them (Firefox depends on the same
+  libraries), but a minimal or server install may not, and the failure mode
+  is silent - the media producer process just exits almost instantly with
+  no media ever appearing, no obvious error. `wrapper.sh` (the packaged
+  `secondlife` launch script) checks for both on every launch and prints a
+  warning with the right install command if either is missing;
+  `linux_tools/install.sh` does the same check for anyone using the
+  optional system-wide/home-dir installer path. Neither auto-installs
+  anything - the check is informational only.
 - **The legacy media plugin has not been removed, but can no longer actually
   be built.** `media_plugins/cef`, `llplugin/slplugin`, and the
   `ENABLE_MEDIA_PLUGINS` build option (off by default) remain in the

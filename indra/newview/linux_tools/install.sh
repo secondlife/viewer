@@ -98,6 +98,33 @@ function backup_previous_installation()
     mv "$1" "$backup_dir" || die "Failed to create backup of existing installation!"
 }
 
+function check_media_dependencies()
+{
+    # libcef.so (used for in-viewer web media -- login page, prim/parcel
+    # media) depends on NSS/NSPR at runtime but does not bundle them; this
+    # matches CEF's own upstream distribution convention (treated as "the
+    # OS already has these"), not a gap in this package. Most desktop Linux
+    # installs already have them (Firefox depends on the same libraries),
+    # but a minimal or server install may not, and the resulting failure is
+    # silent -- the media component just exits almost instantly with no
+    # media ever appearing, no obvious error shown to the user.
+    command -v ldconfig >/dev/null 2>&1 || return 0
+
+    local missing=""
+    ldconfig -p | grep -q 'libnss3\.so'  || missing="${missing}libnss3 "
+    ldconfig -p | grep -q 'libnspr4\.so' || missing="${missing}libnspr4 "
+
+    if [ -n "$missing" ]; then
+        warn "Missing system libraries needed for in-viewer web media: ${missing}"
+        warn "Install them with your distro's package manager, e.g.:"
+        warn "  sudo apt install libnss3 libnspr4      (Debian/Ubuntu)"
+        warn "  sudo dnf install nss nspr              (Fedora)"
+        warn "Without them, web media (login page, prim/parcel media) will not appear."
+        echo
+    fi
+}
+
+check_media_dependencies
 
 if [ "$UID" == "0" ]; then
     root_install

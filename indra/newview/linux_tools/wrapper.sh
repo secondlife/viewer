@@ -29,6 +29,25 @@ RUN_PATH=`dirname "${SCRIPTSRC}" || echo .`
 echo "Running from ${RUN_PATH}"
 cd "${RUN_PATH}"
 
+# libcef.so (used for in-viewer web media -- login page, prim/parcel media)
+# depends on NSS/NSPR at runtime but does not bundle them; this matches
+# CEF's own upstream distribution convention, not a gap in this package.
+# Most desktop Linux installs already have them (Firefox depends on the
+# same libraries), but a minimal or server install may not, and the
+# resulting failure is silent -- media just never appears, no obvious
+# error. Warn, don't block -- everything else still runs fine without media.
+if command -v ldconfig >/dev/null 2>&1; then
+    MISSING_MEDIA_LIBS=""
+    ldconfig -p | grep -q 'libnss3\.so'  || MISSING_MEDIA_LIBS="${MISSING_MEDIA_LIBS}libnss3 "
+    ldconfig -p | grep -q 'libnspr4\.so' || MISSING_MEDIA_LIBS="${MISSING_MEDIA_LIBS}libnspr4 "
+    if [ -n "$MISSING_MEDIA_LIBS" ]; then
+        echo "*** Missing system libraries needed for in-viewer web media: ${MISSING_MEDIA_LIBS}"
+        echo "*** Install with, e.g.: sudo apt install libnss3 libnspr4   (Debian/Ubuntu)"
+        echo "***                 or: sudo dnf install nss nspr          (Fedora)"
+        echo "*** Without them, web media (login page, prim/parcel media) will not appear."
+    fi
+fi
+
 # Re-register the secondlife:// protocol handler every launch, for now.
 ./etc/register_secondlifeprotocol.sh
 
