@@ -2162,6 +2162,21 @@ LLVector3 LLAgentCamera::getAvatarRootPosition()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::handleScrollWheel(S32 clicks)
 {
+    if (isUsingFlycam())
+    {
+        // Flycam preempts updateCamera() entirely (see the comment on
+        // mUsingFlycam in llagentcamera.h), so none of the mCameraMode-based
+        // zoom logic below applies to it; drive the flycam's own FOV-based
+        // "zoom" (LLFlycam::mView, also fed by the FLYCAM_ZOOM game-control
+        // channel in updateFlycam()) instead.
+        // Negative 'clicks' (forward/up scroll) narrows the FOV to zoom in,
+        // matching the sign convention used by the non-flycam paths below.
+        constexpr F32 FLYCAM_SCROLL_ZOOM_FACTOR_PER_CLICK = 0.9f;
+        F32 zoom_factor = (F32)pow(FLYCAM_SCROLL_ZOOM_FACTOR_PER_CLICK, -clicks);
+        mFlycam.setView(mFlycam.getView() * zoom_factor);
+        return;
+    }
+
     if (mCameraMode == CAMERA_MODE_FOLLOW && getFocusOnAvatar())
     {
         if (!mFollowCam.getPositionLocked()) // not if the followCam position is locked in place
