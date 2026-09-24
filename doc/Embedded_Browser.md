@@ -870,6 +870,21 @@ every real change.
   `linux_tools/install.sh` does the same check for anyone using the
   optional system-wide/home-dir installer path. Neither auto-installs
   anything - the check is informational only.
+- **Linux also needs `libvlc5`/`libvlccore9` present on the target system -
+  more severe than the NSS/NSPR case above, since it's linked into the main
+  viewer binary itself.** Unlike Windows and macOS, which vendor their own
+  LibVLC (the `vlc-bin` autobuild package), Linux links against the
+  system's own installed LibVLC instead (`pkg_check_modules(libvlc)`, see
+  "Different platforms need genuinely different LibVLC handling" below) -
+  used both for parcel/streaming audio (`LLStreamingAudio_LibVLC`, linked
+  directly into the main viewer binary on every platform) and for
+  RTSP/RTMP-style prim media (`SLMediaProducer`'s `LibVlcTabManager`). If
+  missing, the dynamic linker refuses to start the *main viewer binary*
+  itself, not just lose one feature the way a missing NSS/NSPR does. Same
+  check-and-warn mechanism as above (`wrapper.sh`/`install.sh`), extended to
+  also cover `libvlc.so.5`/`libvlccore.so.9` - the warning runs, and is
+  visible in the terminal, before the launch attempt that would otherwise
+  fail with only the dynamic linker's own less legible error.
 - **The legacy media plugin has not been removed, but can no longer actually
   be built.** `media_plugins/cef`, `llplugin/slplugin`, and the
   `ENABLE_MEDIA_PLUGINS` build option (off by default) remain in the

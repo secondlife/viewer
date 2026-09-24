@@ -46,6 +46,24 @@ if command -v ldconfig >/dev/null 2>&1; then
         echo "***                 or: sudo dnf install nss nspr          (Fedora)"
         echo "*** Without them, web media (login page, prim/parcel media) will not appear."
     fi
+
+    # Unlike libcef.so above, libvlc is linked directly into THIS binary
+    # itself (parcel/streaming audio, and RTSP/RTMP-style prim media via
+    # SLMediaProducer) -- unlike Windows/macOS, which vendor their own copy,
+    # Linux links against the system's own installed libvlc (see
+    # LibVLCPlugin.cmake). If it's missing, the dynamic linker will refuse
+    # to start this binary at all a few lines down, not just lose one
+    # feature -- so warn clearly and distinctly before that happens, rather
+    # than leaving the user with only the linker's own cryptic error.
+    MISSING_VLC_LIBS=""
+    ldconfig -p | grep -q 'libvlc\.so\.5'     || MISSING_VLC_LIBS="${MISSING_VLC_LIBS}libvlc5 "
+    ldconfig -p | grep -q 'libvlccore\.so\.9' || MISSING_VLC_LIBS="${MISSING_VLC_LIBS}libvlccore9 "
+    if [ -n "$MISSING_VLC_LIBS" ]; then
+        echo "*** Missing system libraries needed to run the viewer at all: ${MISSING_VLC_LIBS}"
+        echo "*** Install with, e.g.: sudo apt install libvlc5 libvlccore9   (Debian/Ubuntu)"
+        echo "***                 or: sudo dnf install vlc-libs               (Fedora)"
+        echo "*** Without them, the viewer will very likely fail to start."
+    fi
 fi
 
 # Re-register the secondlife:// protocol handler every launch, for now.
