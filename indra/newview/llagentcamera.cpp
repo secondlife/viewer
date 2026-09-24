@@ -3054,7 +3054,12 @@ void LLAgentCamera::updateFlycam(F32 delta_time)
     bool flycam_key_unroll_requested = mFlycamKeyboardUnrollRequested;
     mFlycamKeyboardUnrollRequested = false;
 
-    if ((flycam_misc_actions & LLGameControl::FLYCAM_ACTION_UNROLL) || flycam_key_unroll_requested)
+    // Unroll only undoes roll, and roll is already kept at zero every frame
+    // (LLFlycam::setRollRate()/integrate()) whenever roll is disallowed, so
+    // treat an Unroll request as a no-op rather than kicking off a pointless
+    // startReset() lerp while "Allow Roll" is unchecked.
+    if (LLGameControl::isFlycamRollAllowed()
+        && ((flycam_misc_actions & LLGameControl::FLYCAM_ACTION_UNROLL) || flycam_key_unroll_requested))
     {
         // Re-orient the flycam in place: keep its current position and
         // forward (local X) axis unchanged, but unroll it so its local vertical
