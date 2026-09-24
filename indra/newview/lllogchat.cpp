@@ -48,6 +48,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
+#include <memory>
 #include <mutex>
 
 #if !LL_WINDOWS
@@ -488,7 +489,8 @@ void LLLogChat::loadChatHistoryExact(const std::string& path, std::list<LLSD>& m
     }
 
     // Binary mode keeps transcript contents independent of platform EOF handling.
-    LLUniqueFile input(LLFile::fopen(path, LLFILE_MODE("rb")));
+    std::unique_ptr<LLFILE, int (*)(LLFILE*)> input(
+        LLFile::fopen(path, LLFILE_MODE("rb")), LLFile::close);
     if (!input)
     {
         LL_WARNS("ChatHistory") << "Unable to read file " << path << LL_ENDL;
@@ -499,16 +501,16 @@ void LLLogChat::loadChatHistoryExact(const std::string& path, std::list<LLSD>& m
     // stitched reads parse from the beginning of each exact transcript path.
     char buffer[LOG_RECALL_SIZE];
     bool skip_partial_line = true;
-    if (load_params["load_all_history"].asBoolean() || fseek(input, (LOG_RECALL_SIZE - 1) * -1, SEEK_END))
+    if (load_params["load_all_history"].asBoolean() || fseek(input.get(), (LOG_RECALL_SIZE - 1) * -1, SEEK_END))
     {
         skip_partial_line = false;
-        if (fseek(input, 0, SEEK_SET))
+        if (fseek(input.get(), 0, SEEK_SET))
         {
             return;
         }
     }
 
-    while (fgets(buffer, LOG_RECALL_SIZE, input))
+    while (fgets(buffer, LOG_RECALL_SIZE, input.get()))
     {
         // Normalize either newline style before applying legacy multiline rules.
         size_t length = strlen(buffer);
