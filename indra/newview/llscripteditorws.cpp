@@ -75,6 +75,10 @@
 
 #include <openssl/rand.h>
 
+#if LL_WINDOWS
+#include <aclapi.h>
+#endif
+
 namespace
 {
     // Per-operation timeouts (seconds) for coroutine-based async RPC handlers.
@@ -2988,23 +2992,108 @@ LLScriptEditorWSConnection::Challenge LLScriptEditorWSConnection::writeChallenge
     // folder can be everyone's.
     const std::string file = LLFile::tmpdir() + "sl_script_challenge_" + LLUUID::generateNewID().asString() + ".tmp";
     const std::string text = challenge.mSecret.asString();
-    std::error_code   ec;
-    LLFile            out(file, LLFile::out | LLFile::noreplace, ec, 0600);
-    if (ec)
-    {
-        // Whatever is there by that name is somebody else's, and stays.
-        LL_WARNS("ScriptEditorWS") << "Unable to make challenge file " << file << ": " << ec.message() << LL_ENDL;
-        return {};
-    }
-    const bool written = out.write(text.data(), static_cast<S64>(text.size()), ec) == static_cast<S64>(text.size()) && !ec;
-    if (out.close(ec) != 0 || !written)
+    if (!writeUserOnlyFile(file, text))
     {
         LL_WARNS("ScriptEditorWS") << "Unable to write challenge file " << file << LL_ENDL;
-        LLFile::remove(file);
         return {};
     }
 
     challenge.mFile = file;
     return challenge;
+}
+
+// static
+bool LLScriptEditorWSConnection::writeUserOnlyFile(const std::string& file, const std::string& text)
+{
+#if LL_WINDOWS
+    // LLFile::open() ignores the POSIX permission bits on Windows -- its
+    // decode_attributes() only maps them to a normal/read-only file
+    // attribute, never to an ACL -- so a mode like 0600 there does not
+    // keep other local accounts from reading the file. Build a DACL
+    // explicitly, granting only the current user's SID access.
+    HANDLE token = nullptr;
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token))
+    {
+        LL_WARNS("ScriptEditorWS") << "Unable to open the process token for the challenge file's ACL" << LL_ENDL;
+        return false;
+    }
+
+    DWORD needed = 0;
+    GetTokenInformation(token, TokenUser, nullptr, 0, &needed);
+    std::vector<BYTE> user_info(needed);
+    const bool got_user = needed != 0 && GetTokenInformation(token, TokenUser, user_info.data(), needed, &needed);
+    CloseHandle(token);
+    if (!got_user)
+    {
+        LL_WARNS("ScriptEditorWS") << "Unable to read the current user's SID for the challenge file's ACL" << LL_ENDL;
+        return false;
+    }
+    PSID user_sid = reinterpret_cast<PTOKEN_USER>(user_info.data())->User.Sid;
+
+    EXPLICIT_ACCESSW ea = {};
+    ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE | DELETE;
+    ea.grfAccessMode        = SET_ACCESS;
+    ea.grfInheritance       = NO_INHERITANCE;
+    ea.Trustee.TrusteeForm  = TRUSTEE_IS_SID;
+    ea.Trustee.TrusteeType  = TRUSTEE_IS_USER;
+    ea.Trustee.ptstrName    = reinterpret_cast<LPWSTR>(user_sid);
+
+    PACL dacl = nullptr;
+    if (SetEntriesInAclW(1, &ea, nullptr, &dacl) != ERROR_SUCCESS)
+    {
+        LL_WARNS("ScriptEditorWS") << "Unable to build an ACL for the challenge file" << LL_ENDL;
+        return false;
+    }
+
+    SECURITY_DESCRIPTOR sd;
+    const bool sd_ok = InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION) &&
+                       SetSecurityDescriptorDacl(&sd, TRUE, dacl, FALSE);
+    if (!sd_ok)
+    {
+        LL_WARNS("ScriptEditorWS") << "Unable to build a security descriptor for the challenge file" << LL_ENDL;
+        LocalFree(dacl);
+        return false;
+    }
+
+    SECURITY_ATTRIBUTES sa = {};
+    sa.nLength              = sizeof(sa);
+    sa.lpSecurityDescriptor = &sd;
+    sa.bInheritHandle       = FALSE;
+
+    const std::wstring wfile = ll_convert<std::wstring>(file);
+    // CREATE_NEW: fails if the file already exists, matching LLFile::noreplace.
+    HANDLE handle = CreateFileW(wfile.c_str(), GENERIC_WRITE, 0, &sa, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+    LocalFree(dacl);
+    if (handle == INVALID_HANDLE_VALUE)
+    {
+        return false;
+    }
+
+    DWORD      written = 0;
+    const bool ok = WriteFile(handle, text.data(), static_cast<DWORD>(text.size()), &written, nullptr) &&
+                    written == text.size();
+    CloseHandle(handle);
+    if (!ok)
+    {
+        LLFile::remove(file);
+    }
+    return ok;
+#else
+    // POSIX open() honors the mode bits directly.
+    std::error_code ec;
+    LLFile          out(file, LLFile::out | LLFile::noreplace, ec, 0600);
+    if (ec)
+    {
+        return false;
+    }
+    const bool written = out.write(text.data(), static_cast<S64>(text.size()), ec) == static_cast<S64>(text.size()) && !ec;
+    const bool closed  = out.close(ec) == 0;
+    if (!written || !closed)
+    {
+        LLFile::remove(file);
+        return false;
+    }
+    return true;
+#endif
 }
 

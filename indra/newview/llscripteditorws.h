@@ -109,6 +109,12 @@ private:
     // Empty where no secret could be made or written.
     static Challenge writeChallenge();
 
+    // Writes text to a new file at path, readable only by the current
+    // user. On Windows this means an explicit ACL, since LLFile::open()
+    // there ignores POSIX permission bits entirely. Fails if the file
+    // already exists.
+    static bool writeUserOnlyFile(const std::string& path, const std::string& text);
+
     /**
      * @brief Handle the handshake response from the client
      * @param result The response data from the client containing client information
