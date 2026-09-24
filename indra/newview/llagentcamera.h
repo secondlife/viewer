@@ -178,6 +178,9 @@ public:
     void            notifyFollowCamParamsCleared();
 private:
     LLFollowCam     mFollowCam;             // Ventrella
+    // Fractional scrollCamera() clicks not yet applied to mFollowCam, whose
+    // zoom() only takes whole clicks.
+    F32             mFollowCamScrollClicks { 0.f };
 
     //--------------------------------------------------------------------
     // Flycam
@@ -331,6 +334,10 @@ public:
     //--------------------------------------------------------------------
 public:
     void            handleScrollWheel(S32 clicks);                          // Mousewheel driven zoom
+    // Mousewheel-equivalent camera distance change, minus the wheel-only Shift/Ctrl
+    // offset tweaks; 'clicks' may be fractional (e.g. per-frame gamepad "Scroll"
+    // input). Positive moves the camera out, same sign as handleScrollWheel().
+    void            scrollCamera(F32 clicks);
     void            cameraZoomIn(const F32 factor);                         // Zoom in by fraction of current distance
     F32             getCameraZoomFraction(bool get_third_person = false);   // Get camera zoom as fraction of minimum and maximum zoom
     void            setCameraZoomFraction(F32 fraction);                    // Set camera zoom as fraction of minimum and maximum zoom

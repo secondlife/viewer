@@ -2177,14 +2177,52 @@ void LLAgentCamera::handleScrollWheel(S32 clicks)
         return;
     }
 
+    // The Shift/Ctrl offset tweaks are wheel-only; everything else is shared with
+    // gamepad "Scroll" input via scrollCamera().
+    if (mFocusOnAvatar && mCameraMode == CAMERA_MODE_THIRD_PERSON && !mCameraAnimating)
+    {
+        LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+        if (!(selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD))
+        {
+            MASK mask = gKeyboard->currentMask(true);
+            if (mask & MASK_SHIFT)
+            {
+                LLVector3d offset = gSavedSettings.getVector3d("FocusOffsetRearView");
+                offset.mdV[VZ] += 0.1f * (F32)clicks;
+                gSavedSettings.setVector3d("FocusOffsetRearView", offset);
+                return;
+            }
+            else if (mask & MASK_CONTROL)
+            {
+                LLVector3 offset = gSavedSettings.getVector3("CameraOffsetRearView");
+                offset.mV[VZ] += 0.1f * (F32)clicks;
+                gSavedSettings.setVector3("CameraOffsetRearView", offset);
+                return;
+            }
+        }
+    }
+
+    scrollCamera((F32)clicks);
+}
+
+void LLAgentCamera::scrollCamera(F32 clicks)
+{
     if (mCameraMode == CAMERA_MODE_FOLLOW && getFocusOnAvatar())
     {
         if (!mFollowCam.getPositionLocked()) // not if the followCam position is locked in place
         {
-            mFollowCam.zoom(clicks);
-            if (mFollowCam.isZoomedToMinimumDistance())
+            // LLFollowCam::zoom() only takes whole clicks (and enforces a minimum
+            // step per call), so accumulate fractional ones until a click is due.
+            mFollowCamScrollClicks += clicks;
+            S32 whole_clicks = (S32)mFollowCamScrollClicks;
+            if (whole_clicks != 0)
             {
-                changeCameraToMouselook(false);
+                mFollowCamScrollClicks -= (F32)whole_clicks;
+                mFollowCam.zoom(whole_clicks);
+                if (mFollowCam.isZoomedToMinimumDistance())
+                {
+                    changeCameraToMouselook(false);
+                }
             }
         }
     }
@@ -2206,22 +2244,6 @@ void LLAgentCamera::handleScrollWheel(S32 clicks)
         }
         else if (mFocusOnAvatar && (mCameraMode == CAMERA_MODE_THIRD_PERSON))
         {
-            MASK mask = gKeyboard->currentMask(true);
-            if (mask & MASK_SHIFT)
-            {
-                LLVector3d offset = gSavedSettings.getVector3d("FocusOffsetRearView");
-                offset.mdV[VZ] += 0.1f * (F32)clicks;
-                gSavedSettings.setVector3d("FocusOffsetRearView", offset);
-                return;
-            }
-            else if (mask & MASK_CONTROL)
-            {
-                LLVector3 offset = gSavedSettings.getVector3("CameraOffsetRearView");
-                offset.mV[VZ] += 0.1f * (F32)clicks;
-                gSavedSettings.setVector3("CameraOffsetRearView", offset);
-                return;
-            }
-
             F32 camera_offset_initial_mag = getCameraOffsetInitial().magVec();
 
             F32 current_zoom_fraction = mTargetCameraDistance / (camera_offset_initial_mag * gSavedSettings.getF32("CameraOffsetScale"));

@@ -692,6 +692,9 @@ namespace
         // Unbound by default: every physical axis is already claimed above (the
         // trigger pair covers Fly up/down), same as FlyCam's Roll axis below.
         avatar_axes["Zoom +/-"]             = "AXIS_NONE";
+        // Camera distance from the avatar (see AgentActions::mScrollAmplitude);
+        // client-side only, so it has no ModeAxes/ModeButtons slot.
+        avatar_axes["Scroll +/-"]           = "AXIS_NONE";
 
         // Buttons: action label -> button input
         LLSD avatar_buttons;
@@ -708,6 +711,9 @@ namespace
         avatar_buttons["Advance back"]           = "BUTTON_DPAD_DOWN";
         avatar_buttons["Strafe left"]            = "BUTTON_DPAD_LEFT";
         avatar_buttons["Strafe right"]           = "BUTTON_DPAD_RIGHT";
+        // Unbound by default, same as the "Scroll +/-" axis above.
+        avatar_buttons["Scroll +"]               = "BUTTON_NONE";
+        avatar_buttons["Scroll -"]               = "BUTTON_NONE";
 
         // Default per-axis-action Invert flags
         LLSD avatar_axes_invert;
@@ -1923,6 +1929,18 @@ namespace
         return bridge;
     }
 
+    // Avatar-mode button label -> full-deflection contribution to the same scroll
+    // (camera distance) accumulator as the "Scroll +/-" axis, same pattern as
+    // avatarZoomButtonBridge() above.
+    const std::map<std::string, F32>& avatarScrollButtonBridge()
+    {
+        static const std::map<std::string, F32> bridge = {
+            { "Scroll +", 1.f },
+            { "Scroll -", -1.f },
+        };
+        return bridge;
+    }
+
     // Cursor mode's digital (button) equivalent of "Mouse left/right"/"Mouse up/down":
     // a discrete alternative/addition to the analog stick for driving the on-screen
     // cursor, e.g. so the D-Pad can be rebound to nudge the cursor instead of moving
@@ -2170,6 +2188,7 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     S32 mouse_dx = 0;
     S32 mouse_dy = 0;
     S32 zoom_value = 0;
+    S32 scroll_value = 0;
     for (U8 axis = 0; axis < LLGameControl::NUM_AXES; ++axis)
     {
         const AxisActionBinding& binding = mAxisActionBindings[axis];
@@ -2213,6 +2232,23 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
             if (std::abs(value) > std::abs(zoom_value))
             {
                 zoom_value = value;
+            }
+            continue;
+        }
+
+        // "Scroll +/-" drives the camera's distance from the avatar, captured
+        // separately for the same reason as "Zoom +/-" above.
+        if (binding.label == "Scroll +/-")
+        {
+            S32 deflection = (S32)g_innerState.mAxes[axis * 2] - (S32)g_innerState.mAxes[axis * 2 + 1];
+            S32 value = binding.half == HALF_NEGATIVE ? -deflection : deflection;
+            if (binding.invert)
+            {
+                value = -value;
+            }
+            if (std::abs(value) > std::abs(scroll_value))
+            {
+                scroll_value = value;
             }
             continue;
         }
@@ -2302,6 +2338,7 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     const auto& misc_button_bridge = avatarMiscButtonBridge();
     const auto& mouse_cursor_button_bridge = mouseCursorButtonBridge();
     const auto& zoom_button_bridge = avatarZoomButtonBridge();
+    const auto& scroll_button_bridge = avatarScrollButtonBridge();
     U32 pressed_edges = g_innerState.mButtons & ~g_innerState.mPrevButtons;
     for (U8 btn = 0; btn < LLGameControl::NUM_BUTTONS; ++btn)
     {
@@ -2372,6 +2409,16 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
             }
             continue;
         }
+        auto scroll_it = scroll_button_bridge.find(label);
+        if (scroll_it != scroll_button_bridge.end())
+        {
+            S32 full = (S32)(scroll_it->second * 32767.f);
+            if (std::abs(full) > std::abs(scroll_value))
+            {
+                scroll_value = full;
+            }
+            continue;
+        }
         auto mit = misc_button_bridge.find(label);
         if (mit != misc_button_bridge.end() && (pressed_edges & (1U << btn)))
         {
@@ -2386,6 +2433,7 @@ LLGameControl::AgentActions LLGameControllerManager::computeAgentActions()
     result.mMouseCursorDX = std::clamp((F32)mouse_dx / 32767.f, -1.f, 1.f);
     result.mMouseCursorDY = std::clamp((F32)mouse_dy / 32767.f, -1.f, 1.f);
     result.mZoomAmplitude = std::clamp((F32)zoom_value / 32767.f, -1.f, 1.f);
+    result.mScrollAmplitude = std::clamp((F32)scroll_value / 32767.f, -1.f, 1.f);
 
     return result;
 }
@@ -2520,8 +2568,9 @@ namespace
                 || label == "Mouse left/right" || label == "Mouse up/down";
         }
         // Avatar, Mouselook, and Captive share the avatar axis actions,
-        // and "Zoom +/-" (camera zoom rate; see computeAgentActions()).
-        return avatarAxisBridge().count(label) > 0 || label == "Zoom +/-";
+        // plus "Zoom +/-" (camera FOV zoom rate) and "Scroll +/-" (camera
+        // distance); see computeAgentActions().
+        return avatarAxisBridge().count(label) > 0 || label == "Zoom +/-" || label == "Scroll +/-";
     }
 
     std::string defaultAxisActionForInput(LLGameControl::AgentControlMode mode, const std::string& input)
