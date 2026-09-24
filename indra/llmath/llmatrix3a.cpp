@@ -28,7 +28,7 @@
 
 #include "llmath.h"
 
-static LL_ALIGN_16(const F32 M_IDENT_3A[12]) =
+alignas(16) static const F32 M_IDENT_3A[12] =
                                                 {   1.f, 0.f, 0.f, 0.f, // Column 1
                                                     0.f, 1.f, 0.f, 0.f, // Column 2
                                                     0.f, 0.f, 1.f, 0.f }; // Column 3

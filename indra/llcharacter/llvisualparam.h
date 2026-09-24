@@ -101,8 +101,7 @@ protected:
 // An interface class for a generalized parametric modification of the avatar mesh
 // Contains data that is specific to each Avatar
 //-----------------------------------------------------------------------------
-LL_ALIGN_PREFIX(16)
-class LLVisualParam
+class alignas(16) LLVisualParam
 {
 public:
     typedef std::function<LLVisualParam*(S32)> visual_param_mapper;
@@ -120,6 +119,7 @@ public:
     //  Pure virtuals
     //virtual bool          parseData( LLXmlTreeNode *node ) = 0;
     virtual void            apply( ESex avatar_sex ) = 0;
+    virtual S32             getWearableType() const = 0;
     //  Default functions
     virtual void            setWeight(F32 weight);
     virtual void            setAnimationTarget( F32 target_value);
@@ -181,6 +181,6 @@ protected:
     S32                 mID;                // id for storing weight/morphtarget compares compactly
     LLVisualParamInfo   *mInfo;
     EParamLocation      mParamLocation;     // where does this visual param live?
-} LL_ALIGN_POSTFIX(16);
+};
 
 #endif // LL_LLVisualParam_H

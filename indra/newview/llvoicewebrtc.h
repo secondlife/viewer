@@ -40,6 +40,7 @@ class LLWebRTCProtocolParser;
 #include "llcoros.h"
 #include "llparcel.h"
 #include "llmutelist.h"
+#include "workqueue.h"
 #include <queue>
 #include "boost/json.hpp"
 
@@ -78,6 +79,14 @@ public:
     void terminate() override;    // Call this to clean up during shutdown
 
     static bool isShuttingDown() { return sShuttingDown; }
+
+    // True once llwebrtc::terminate() has been entered.  Between
+    // isShuttingDown() and this, the webrtc library is still fully alive and
+    // connections must still release their peer connections normally --  see
+    // drainConnections() and ~LLVoiceWebRTCConnection().
+    static bool isWebRTCTerminated() { return sWebRTCTerminated; }
+
+    LL::WorkQueue::weak_t getVoiceWorkQueue() const { return mVoiceWorkQueue; }
 
     const LLVoiceVersionInfo& getVersion() override;
     void                      updateVersion();
@@ -306,6 +315,9 @@ public:
 
         bool isEmpty() { return mWebRTCConnections.empty(); }
 
+        bool allConnectionsClosed() const;
+        static bool allSessionsClosed();
+
         virtual bool isSpatial() = 0;
         virtual bool isEstate()  = 0;
         virtual bool isCallbackPossible() = 0;
@@ -455,7 +467,11 @@ private:
     /// Clean up objects created during a voice session.
     void cleanUp();
 
-    LL::WorkQueue::weak_t mMainQueue;
+    /// Close the live peer connections before handing off to
+    /// llwebrtc::terminate().  Bounded and best effort.
+    void drainConnections();
+
+    LL::WorkQueue::ptr_t mVoiceWorkQueue;
 
     F32 mTuningMicGain;
     int mTuningSpeakerVolume;
@@ -539,6 +555,7 @@ private:
 
     // These variables can last longer than WebRTC in coroutines so we need them as static
     static bool sShuttingDown;
+    static bool sWebRTCTerminated;
 
     LLEventMailDrop mWebRTCPump;
 
@@ -643,6 +660,12 @@ class LLVoiceWebRTCConnection :
         return mShutDown;
     }
 
+    // True once the webrtc peer connection has finished closing.  The
+    // connection object can outlive this while it waits for outstanding
+    // requests to unwind, so this -- not reaping -- is what drainConnections()
+    // waits on.
+    bool isClosed() const { return mVoiceConnectionState == VOICE_STATE_CLOSED; }
+
     void OnVoiceConnectionRequestSuccess(const LLSD &body);
 
     void resetConnectionStats();
@@ -668,7 +691,7 @@ class LLVoiceWebRTCConnection :
     } EVoiceConnectionState;
 
     EVoiceConnectionState mVoiceConnectionState;
-    LL::WorkQueue::weak_t mMainQueue;
+    LL::WorkQueue::weak_t mVoiceMainQueue;
 
     void setVoiceConnectionState(EVoiceConnectionState new_voice_connection_state)
     {

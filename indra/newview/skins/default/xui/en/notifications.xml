@@ -425,6 +425,17 @@ Initialization with the Marketplace failed because of a system or network error.
     </notification>
 
     <notification
+        icon="alertmodal.tga"
+        name="CannotPasteFolderIntoSelf"
+        type="alertmodal">
+        You cannot paste a folder into itself or into one of its subfolders.
+        <tag>fail</tag>
+        <usetemplate
+          name="okbutton"
+          yestext="OK"/>
+    </notification>
+
+    <notification
      icon="notifytip.tga"
      name="InvalidKeystroke"
      type="notifytip">
@@ -3950,7 +3961,6 @@ Local Data you are deleting is shared between multiple grids, are you sure you w
 Your character will appear in a moment.
 
 Use arrow keys to walk.
-Press the F1 key at any time for help or to learn more about [SECOND_LIFE].
 Please choose the male or female avatar. You can change your mind later.
     <usetemplate
      name="okcancelbuttons"
@@ -5681,6 +5691,17 @@ You won't receive any more notifications that you're about to visit a region wit
 
   <notification
    icon="alertmodal.tga"
+   name="RegionTPAccessBlocked_NotifyAdultsOnly"
+   type="alertmodal">
+    <tag>fail</tag>
+    The region you are trying to visit is rated [REGIONMATURITY_CAP], which is not available on your account type.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LandClaimAccessBlocked"
    type="alertmodal">
     The land you're trying to claim has a maturity rating exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
@@ -6744,6 +6765,14 @@ Your trash is overflowing. This may cause problems logging in.
   </notification>
 
   <notification
+   icon="notifytip.tga"
+   name="InventoryLimitReachedAIS"
+   type="notifytip">
+Your inventory is experiencing issues. Please, contact support.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="InventoryLimitReachedAISAlert"
    type="alertmodal">
@@ -7055,6 +7084,27 @@ The string [STRING_NAME] is missing from strings.xml
    name="SystemMessageTip"
    type="notifytip">
 [MESSAGE]
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="ExternalEditorServerStarted"
+   type="notifytip">
+External editor server started on port [PORT].
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="ExternalEditorServerFailed"
+   type="notifytip">
+Failed to start external editor server on port [PORT].
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="ExternalEditorServerStopped"
+   type="notifytip">
+External editor server stopped.
   </notification>
   
   <notification
@@ -7678,7 +7728,7 @@ Message from [NAME]:
    type="notify">
     <unique/>
 This land has damage enabled.
-You can be hurt here. If you die, you will be teleported to your home location.
+You can be hurt here. If you die, you might be teleported to your home location, region telehub or parcel landing point.
   </notification>
 
   <notification

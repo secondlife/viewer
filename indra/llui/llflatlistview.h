@@ -30,6 +30,7 @@
 #include "llpanel.h"
 #include "llscrollcontainer.h"
 #include "lltextbox.h"
+#include "lluicolor.h"
 
 
 /**
@@ -106,11 +107,27 @@ public:
         /** padding between items */
         Optional<U32> item_pad;
 
+        /** allow items to be reordered by dragging them with the mouse */
+        Optional<bool> allow_reorder;
+
+        /** colour of the insertion indicator drawn while reordering */
+        Optional<LLUIColor> drag_indicator_color;
+
         /** textbox with info message when list is empty*/
         Optional<LLTextBox::Params> no_items_text;
 
         Params();
     };
+
+    /** Fired after the user drags an item to a new position: (moved value, new visible index). */
+    typedef boost::function<void(const LLSD& value, S32 new_index)> reorder_signal_t;
+
+    /**
+     * Returns true if the dragged item is allowed to move past the given neighbour.
+     * Lets owners constrain reordering (e.g. keep items within a group). Optional;
+     * when unset any reorder is permitted.
+     */
+    typedef boost::function<bool(const LLSD& dragged, const LLSD& neighbour)> reorder_validate_signal_t;
 
     // disable traversal when finding widget to hand focus off to
     /*virtual*/ bool canFocusChildren() const override { return false; }
@@ -259,6 +276,18 @@ public:
     /** Turn on/off selection support */
     void setAllowSelection(bool can_select) { mAllowSelection = can_select; }
 
+    /** Turn on/off drag-to-reorder support */
+    void setAllowReorder(bool allow) { mAllowReorder = allow; }
+
+    void setReorderCallback(reorder_signal_t cb) { mReorderCallback = cb; }
+    void setReorderValidateCallback(reorder_validate_signal_t cb) { mReorderValidateCallback = cb; }
+
+    /** Fired when a reorder grab is released, whether or not it moved anything */
+    void setReorderEndedCallback(boost::function<void()> cb) { mReorderEndedCallback = cb; }
+
+    /** True while an item is grabbed for a drag-to-reorder (before or during the drag) */
+    bool isReorderActive() const { return mReorderDragPair != NULL; }
+
     /** Sets flag whether onCommit should be fired if selection was changed */
     // FIXME: this should really be a separate signal, since "Commit" implies explicit user action, and selection changes can happen more indirectly.
     void setCommitOnSelectionChange(bool b)     { mCommitOnSelectionChange = b; }
@@ -330,7 +359,7 @@ protected:
     LLFlatListView(const LLFlatListView::Params& p);
 
     /** Manage selection on mouse events */
-    void onItemMouseClick(item_pair_t* item_pair, MASK mask);
+    void onItemMouseClick(item_pair_t* item_pair, MASK mask, EMouseClickType clicktype);
 
     void onItemRightMouseClick(item_pair_t* item_pair, MASK mask);
 
@@ -368,6 +397,16 @@ protected:
 
     virtual bool handleKeyHere(KEY key, MASK mask) override;
 
+    virtual bool handleHover(S32 x, S32 y, MASK mask) override;
+
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+
+    virtual bool handleMouseUp(S32 x, S32 y, MASK mask) override;
+
+    virtual void onMouseCaptureLost() override;
+
+    virtual void onVisibilityChange(bool new_visibility) override;
+
     virtual bool postBuild() override;
 
     virtual void onFocusReceived() override;
@@ -383,6 +422,29 @@ protected:
     const pairs_list_t& getItemPairs() { return mItemPairs; }
 
 private:
+
+    // Drag-to-reorder helpers.
+    void armReorderDrag(item_pair_t* item_pair);
+    void updateReorderDrag(S32 x, S32 y);
+    void finishReorderDrag();
+    void cancelReorderDrag();
+    void clearReorderDragState();
+
+    // Builds the set of pairs being dragged (the whole selection when the grabbed
+    // row is part of a multi-selection, constrained to the validator's group).
+    void buildReorderGroup();
+    bool isInReorderGroup(item_pair_t* item_pair) const;
+
+    // The remaining visible pairs (those not being dragged), in visual order.
+    void getReorderRemaining(pairs_list_t& remaining) const;
+    // Number of leading non-dragged items whose centre sits above (x, y).
+    S32 getInsertIndexAt(S32 x, S32 y) const;
+    // Row under (x, y), counting the padding above each row, so presses in the
+    // inter-row gaps still map to a row instead of falling through.
+    item_pair_t* getReorderPairAt(S32 x, S32 y) const;
+    // Clamps an insertion boundary to the validator's contiguous group.
+    S32 constrainInsertIndex(S32 dest_index) const;
+    void drawReorderIndicator();
 
     void setItemsNoScrollWidth(S32 new_width) {mItemsNoScrollWidth = new_width - 2 * mBorderThickness;}
 
@@ -426,6 +488,20 @@ private:
     bool mKeepSelectionVisibleOnReshape;
 
     bool mFocusOnItemClicked;
+
+    /** Drag-to-reorder state */
+    bool mAllowReorder;
+    bool mIsReordering;             // a drag is currently in progress
+    item_pair_t* mReorderDragPair;  // the grabbed pair (drag anchor)
+    pairs_list_t mReorderDragGroup; // all pairs being dragged, in visual order
+    item_pair_t* mDeferredSelectPair; // collapse selection to this on mouse-up if no drag
+    S32 mReorderMouseDownX;
+    S32 mReorderMouseDownY;
+    S32 mReorderInsertIndex;        // current drop boundary among the remaining (non-dragged) items
+    LLUIColor mDragIndicatorColor;
+    reorder_signal_t mReorderCallback;
+    reorder_validate_signal_t mReorderValidateCallback;
+    boost::function<void()> mReorderEndedCallback;
 
     /** All pairs of the list */
     pairs_list_t mItemPairs;

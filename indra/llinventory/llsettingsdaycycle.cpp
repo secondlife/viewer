@@ -25,6 +25,8 @@
 * $/LicenseInfo$
 */
 
+#include "linden_common.h"
+
 #include "llsettingsdaycycle.h"
 #include "llerror.h"
 #include <algorithm>

@@ -75,7 +75,7 @@ public:
   bool logEvents;
 
   std::string mLogFilename;
-  llofstream  mLog;
+  llofstream mLog;
 
 
  private:

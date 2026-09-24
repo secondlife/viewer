@@ -134,6 +134,10 @@ public:
     // Text may be unicode (utf8 encoded)
     bool textInput(const std::string &text, MASK modifiers, LLSD native_key_data);
 
+#if LL_LINUX
+    void enablePipeWireVolumeCatcher( bool enable );
+#endif
+
     static std::string sOIDcookieUrl;
     static std::string sOIDcookieName;
     static std::string sOIDcookieValue;
@@ -164,6 +168,11 @@ public:
     bool isPluginExited(void) { return mPlugin?mPlugin->isDone():false; };
 
     std::string getPluginVersion() { return mPlugin?mPlugin->getPluginVersion():std::string(""); };
+
+    int getProcessID() { return mPlugin ? (int)mPlugin->getProcessID() : 0; };
+
+    // 0 means remote debugging is disabled for this plugin instance.
+    U32 getCefRemoteDebuggingPort() const { return mCefRemoteDebuggingPort; };
 
     bool getDisableTimeout() { return mPlugin?mPlugin->getDisableTimeout():false; };
     void setDisableTimeout(bool disable) { if(mPlugin) mPlugin->setDisableTimeout(disable); };
@@ -433,6 +442,8 @@ protected:
     LLPluginClassMediaOwner::EMediaStatus mStatus;
 
     F64             mSleepTime;
+
+    U32             mCefRemoteDebuggingPort {0};
 
     bool            mCanUndo;
     bool            mCanRedo;

@@ -203,6 +203,9 @@ public:
     /*virtual*/ bool handleUnicodeChar(llwchar uni_char, MASK mask);    // NOT going to handle extended
     /*virtual*/ bool handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
     /*virtual*/ bool handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ void handlePreCloseRequest();
+    /*virtual*/ void handleCloseRequestCanceled();
+    /*virtual*/ void handleSuspendRequest();
     /*virtual*/ bool handleCloseRequest(LLWindow *window, bool from_user);
     /*virtual*/ bool handleSessionExit(LLWindow* window);
     /*virtual*/ void handleQuit(LLWindow *window);
@@ -218,6 +221,7 @@ public:
                 void handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK mask);
     /*virtual*/ void handleMouseLeave(LLWindow *window);
     /*virtual*/ void handleResize(LLWindow *window,  S32 x,  S32 y);
+    /*virtual*/ void handleRequestResolutionUpdate(LLWindow* window);
     /*virtual*/ void handleFocus(LLWindow *window);
     /*virtual*/ void handleFocusLost(LLWindow *window);
     /*virtual*/ bool handleActivate(LLWindow *window, bool activated);
@@ -277,7 +281,6 @@ public:
 
     LLWindow*       getWindow()         const   { return mWindow; }
     void*           getPlatformWindow() const;
-    void*           getMediaWindow()    const;
     void            focusClient()       const;
 
     LLCoordGL       getLastMouse()      const   { return mLastMousePoint; }

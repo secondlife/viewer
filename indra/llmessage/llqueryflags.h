@@ -56,8 +56,8 @@ const U32 DFQ_NAME_SORT         = 0x1 << 19;
 const U32 DFQ_LIMIT_BY_PRICE    = 0x1 << 20;
 const U32 DFQ_LIMIT_BY_AREA     = 0x1 << 21;
 
-const U32 DFQ_FILTER_MATURE     = 0x1 << 22;
-const U32 DFQ_PG_PARCELS_ONLY   = 0x1 << 23;
+const U32 DFQ_FILTER_MATURE     = 0x1 << 22; // legacy, will not work with any from DFQ_INC_NEW_VIEWER
+const U32 DFQ_PG_PARCELS_ONLY   = 0x1 << 23; // legacy, will not work with any from DFQ_INC_NEW_VIEWER
 
 const U32 DFQ_INC_PG            = 0x1 << 24;    // Flags appear in 1.23 viewer or later
 const U32 DFQ_INC_MATURE        = 0x1 << 25;

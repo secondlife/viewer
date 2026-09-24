@@ -5406,9 +5406,6 @@ Tente colocar o caminho do editor entre aspas.
 	<string name="Command_Grid_Status_Label">
 		Status da grade
 	</string>
-	<string name="Command_HowTo_Label">
-		Como
-	</string>
 	<string name="Command_Inventory_Label">
 		Inventário
 	</string>
@@ -5504,9 +5501,6 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="Command_Grid_Status_Tooltip">
 		Mostrar status da grade atual
-	</string>
-	<string name="Command_HowTo_Tooltip">
-		Como executar tarefas comuns
 	</string>
 	<string name="Command_Inventory_Tooltip">
 		Exibir e usar seus pertences

@@ -622,11 +622,13 @@
             <button
                     follows="top|left"
                     height="23"
+                    image_selected="SegmentedBtn_Left_Selected"
+                    image_unselected="SegmentedBtn_Left_Off"
                     label="Save"
                     left="200"
                     top_pad="0"
                     name="save_btn"
-                    width="156" />
+                    width="134" />
 
             <button
                     follows="top|left"
@@ -634,14 +636,11 @@
                     name="btn_flyout"
                     label=""
                     layout="topleft"
-                    left_pad="-20"
+                    left_pad="0"
                     top="0"
-                    image_selected="SegmentedBtn_Right_Selected_Press"
-                    image_unselected="SegmentedBtn_Right_Off"
-                    image_pressed="SegmentedBtn_Right_Press"
-                    image_pressed_selected="SegmentedBtn_Right_Selected_Press"
-                    image_overlay="Arrow_Small_Up"
-                    width="20"/>
+                    image_selected="ComboButton_Selected"
+                    image_unselected="ComboButton_Off"
+                    width="22"/>
 
             <button
                     follows="top|left"

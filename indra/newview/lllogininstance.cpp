@@ -96,6 +96,8 @@ LLLoginInstance::LLLoginInstance() :
     mDispatcher.add("connect",    "", boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
     mDispatcher.add("disconnect", "", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
     mDispatcher.add("indeterminate", "", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
+    // Todo, implement "authenticating"?
+    mDispatcher.add("authenticating", "", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
 }
 
 void LLLoginInstance::setPlatformInfo(const std::string platform,

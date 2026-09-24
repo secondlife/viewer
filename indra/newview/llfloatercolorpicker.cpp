@@ -32,6 +32,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpipette.h"
 #include "llviewercontrol.h"
+#include "llviewerwindow.h"
 #include "llworld.h"
 
 // Linden library includes
@@ -45,6 +46,7 @@
 #include "lllineeditor.h"
 #include "v4coloru.h"
 #include "llbutton.h"
+#include "llcombobox.h"
 #include "lluictrlfactory.h"
 #include "llgl.h"
 #include "llpointer.h"
@@ -76,7 +78,7 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, bool show
       mMouseDownInSwatch    ( false ),
       // *TODO: Specify this in XML
       mRGBViewerImageLeft   ( 140 ),
-      mRGBViewerImageTop    ( 356 ),
+      mRGBViewerImageTop    ( 436 ),
       mRGBViewerImageWidth  ( 256 ),
       mRGBViewerImageHeight ( 256 ),
       mLumRegionLeft        ( mRGBViewerImageLeft + mRGBViewerImageWidth + 16 ),
@@ -86,18 +88,18 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, bool show
       mLumMarkerSize        ( 6 ),
       // *TODO: Specify this in XML
       mSwatchRegionLeft     ( 12 ),
-      mSwatchRegionTop      ( 190 ),
+      mSwatchRegionTop      ( 249 ),
       mSwatchRegionWidth    ( 116 ),
       mSwatchRegionHeight   ( 60 ),
       mSwatchView           ( NULL ),
       // *TODO: Specify this in XML
       numPaletteColumns     ( 16 ),
-      numPaletteRows        ( 2 ),
+      numPaletteRows        ( 4 ),
       highlightEntry        ( -1 ),
       mPaletteRegionLeft    ( 11 ),
-      mPaletteRegionTop     ( 100 - 8 ),
+      mPaletteRegionTop     ( 180 - 8 ),
       mPaletteRegionWidth   ( mLumRegionLeft + mLumRegionWidth - 10 ),
-      mPaletteRegionHeight  ( 40 ),
+      mPaletteRegionHeight  ( 120 ),
       mSwatch               ( swatch ),
       mActive               ( true ),
       mCanApplyImmediately  ( show_apply_immediate ),
@@ -154,7 +156,7 @@ void LLFloaterColorPicker::createUI ()
     // create palette
     for ( S32 each = 0; each < numPaletteColumns * numPaletteRows; ++each )
     {
-        mPalette.push_back(new LLColor4(LLUIColorTable::instance().getColor(llformat("ColorPaletteEntry%02d", each + 1))));
+        mPalette.push_back(new LLColor4(LLUIColorTable::instance().getColor(llformat("ColorPaletteEntry%02d", each + 1), LLColor4::grey)));
     }
 }
 
@@ -232,6 +234,7 @@ bool LLFloaterColorPicker::postBuild()
     childSetCommitCallback("hspin", onTextCommit, (void*)this );
     childSetCommitCallback("sspin", onTextCommit, (void*)this );
     childSetCommitCallback("lspin", onTextCommit, (void*)this );
+    childSetCommitCallback("hex_color", onTextCommit, (void*)this );
 
     mPipetteConnection = LLToolPipette::getInstance()->setToolSelectCallback(
         [this](LLPointer<LLViewerObject> object, S32 te_index)
@@ -242,6 +245,9 @@ bool LLFloaterColorPicker::postBuild()
             onColorSelect(entry->getColor());
         }
     });
+
+   mCopyColorAsCombo = getChild<LLComboBox>("copy_color_combobox");
+    mCopyColorAsCombo->setCommitCallback(boost::bind(&LLFloaterColorPicker::onCopyColor, this));
 
     return true;
 }
@@ -678,6 +684,61 @@ void LLFloaterColorPicker::drawPalette ()
 }
 
 //////////////////////////////////////////////////////////////////////////////
+// Convert input RGB (0..1.0) to a hex color string
+std::string rgbFloatToHex(float r, float g, float b)
+{
+    auto toUint8 = [](float val) -> unsigned char {
+        return static_cast<unsigned char>(std::round(std::clamp(val * 255.0f, 0.0f, 255.0f)));
+    };
+
+    std::ostringstream oss;
+    oss << std::hex << std::uppercase << std::setfill('0');
+    oss << std::setw(2) << static_cast<int>(toUint8(r));
+    oss << std::setw(2) << static_cast<int>(toUint8(g));
+    oss << std::setw(2) << static_cast<int>(toUint8(b));
+
+    return oss.str();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Boolean test if input string is a valid hex color string
+bool LLFloaterColorPicker::isValidHexColor(std::string& hex_color, F32& hr, F32& hg, F32& hb)
+{
+    // Strip any whitespace and a leading # character if present
+    // (Often included in hex color strings from other places)
+    LLStringUtil::trim(hex_color);
+    if (!hex_color.empty() && hex_color.front() == '#')
+    {
+        hex_color = hex_color.substr(1);
+    }
+
+    // Make sure it's a real string and valid hex - we can't use the
+    // hex to dec code because that coerces invalid hex into decimal 0
+    if (hex_color.length() ==0 || hex_color.find_first_not_of("0123456789abcdefABCDEF") != std::string::npos)
+    {
+        return false;
+    }
+
+    // Convert the hex string to a decimal number
+    std::stringstream oss;
+    oss << std::hex << hex_color;
+    unsigned int dec_val;
+    oss >> dec_val;
+
+    // Break out the RGB values in 0..1.0 range and pass back
+    // (They will only be used if this function returns true.)
+    hr = F32(((dec_val >> 16) & 0xff)) / 255.0f;
+    hg = F32(((dec_val >> 8) & 0xff)) / 255.0f;
+    hb = F32(((dec_val >> 0) & 0xff)) / 255.0f;
+
+    // The max chars in the field is more than 6 now so we can paste in
+    // poorly formatted color strings and reformat them on commit.
+    // TODO: there must be a way to to the preformat when the string
+    // is pasted into the line editor control.
+    return dec_val > 0xffffff ? false : true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 // update text entry values for RGB/HSL (can't be done in ::draw () since this overwrites input
 void LLFloaterColorPicker::updateTextEntry ()
 {
@@ -688,6 +749,8 @@ void LLFloaterColorPicker::updateTextEntry ()
     getChild<LLUICtrl>("hspin")->setValue(( getCurH () * 360.0f ) );
     getChild<LLUICtrl>("sspin")->setValue(( getCurS () * 100.0f ) );
     getChild<LLUICtrl>("lspin")->setValue(( getCurL () * 100.0f ) );
+
+    getChild<LLUICtrl>("hex_color")->setValue(rgbFloatToHex(curR, curG, curB));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -745,6 +808,22 @@ void LLFloaterColorPicker::onTextEntryChanged ( LLUICtrl* ctrl )
         selectCurHsl ( hVal, sVal, lVal );
 
         updateTextEntry ();
+    } else
+    if (name == "hex_color")
+    {
+        F32 rVal, gVal, bVal;
+        std::string hex = ctrl->getValue().asString();
+        if (isValidHexColor(hex, rVal, gVal, bVal))
+        {
+            // Valid hex color - update the picker with specified value
+            selectCurRgb ( rVal, gVal, bVal );
+            updateTextEntry ();
+        }
+        else
+        {
+            // Invalid hex color provided - update the hex color field with current color
+            updateTextEntry ();
+        }
     }
 }
 
@@ -1094,5 +1173,76 @@ void LLFloaterColorPicker::stopUsingPipette()
     if (LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance())
     {
         LLToolMgr::getInstance()->clearTransientTool();
+    }
+}
+
+void LLFloaterColorPicker::onCopyColor()
+{
+    LLComboBox* combo = getChild<LLComboBox>("copy_color_combobox");
+    S32 combo_val = combo->getSelectedValue().asInteger();
+
+    std::ostringstream to_copy;
+
+    // LSL - e.g. <0.571, 0.929, 0.585>
+    if (combo_val == 1)
+    {
+        to_copy << "<";
+        to_copy << std::setfill('0') << std::setprecision(3) << ((getCurR() < 0.001) ? 0.0 : getCurR());
+        to_copy << ", ";
+        to_copy << std::setfill('0') << std::setprecision(3) << ((getCurG() < 0.001) ? 0.0 : getCurG());
+        to_copy << ", ";
+        to_copy << std::setfill('0') << std::setprecision(3) << ((getCurB() < 0.001) ? 0.0 : getCurB());
+        to_copy << ">";
+    } else
+    // HEX e.g. #92ED95
+    if (combo_val == 2)
+    {
+        to_copy << "#";
+        to_copy << rgbFloatToHex(getCurR(), getCurG(), getCurB());
+    } else
+    // RGB e.g. (146, 237, 149)
+    if (combo_val == 3)
+    {
+        to_copy << "(";
+        to_copy << (S32)(getCurR() * 255.0f + 0.5f);
+        to_copy << ", ";
+        to_copy << (S32)(getCurG() * 255.0f + 0.5f);
+        to_copy << ", ";
+        to_copy << (S32)(getCurB() * 255.0f + 0.5f);
+        to_copy << ")";
+    } else
+    // HSL e.g. (122°, 71%, 75%)
+    if (combo_val == 4)
+    {
+        to_copy << "(";
+        to_copy << (S32)(getCurH() * 360.0f + 0.5f);
+        to_copy << "\xC2\xB0, ";
+        to_copy << (S32)(getCurS() * 100.0f + 0.5f);
+        to_copy << "%, ";
+        to_copy << (S32)(getCurL() * 100.0f + 0.5f);
+        to_copy << "%)";
+    }
+    // CMYK e.g. (38%, 0%, 37%, 7%)
+    if (combo_val == 5)
+    {
+        F32 k = 1.0f - std::max({getCurR(), getCurG(), getCurB()});
+        F32 c = (k == 1.0f) ? 0.0f : (1.0f - getCurR() - k) / (1.0f - k);
+        F32 m = (k == 1.0f) ? 0.0f : (1.0f - getCurG() - k) / (1.0f - k);
+        F32 y = (k == 1.0f) ? 0.0f : (1.0f - getCurB() - k) / (1.0f - k);
+        to_copy << "(";
+        to_copy << (S32)(c * 100.0f + 0.5f);
+        to_copy << "%, ";
+        to_copy << (S32)(m * 100.0f + 0.5f);
+        to_copy << "%, ";
+        to_copy << (S32)(y * 100.0f + 0.5f);
+        to_copy << "%, ";
+        to_copy << (S32)(k * 100.0f + 0.5f);
+        to_copy << "%";
+        to_copy << ")";
+    }
+
+    if (! to_copy.str().empty())
+    {
+        gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(to_copy.str()));
     }
 }
