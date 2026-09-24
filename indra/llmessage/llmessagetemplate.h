@@ -301,6 +301,7 @@ public:
         mBanFromTrusted(false),
         mBanFromUntrusted(false),
         mHandlerFunc(NULL),
+        mHandleOnUdpThread(false),
         mUserData(NULL)
     {
         mName = LLMessageStringTable::getInstance()->getString(name);
@@ -373,6 +374,16 @@ public:
     {
         mHandlerFunc = handler_func;
         mUserData = user_data;
+        mHandleOnUdpThread = false;
+    }
+
+    // Same as setHandlerFunc(), but for handlers that are safe to run
+    // directly on LLUDPReceiverThread.
+    void setHandlerFuncThrd(void (*handler_func)(LLMessageSystem* msgsystem, void** user_data), void** user_data)
+    {
+        mHandlerFunc = handler_func;
+        mUserData = user_data;
+        mHandleOnUdpThread = true;
     }
 
     bool callHandlerFunc(LLMessageSystem *msgsystem) const
@@ -383,6 +394,13 @@ public:
             return true;
         }
         return false;
+    }
+
+    // True if this message's handler should be invoked directly on
+    // LLUDPReceiverThread rather than queued for main-thread dispatch.
+    bool isHandledOnUdpThread() const
+    {
+        return mHandleOnUdpThread;
     }
 
     bool isUdpBanned() const
@@ -430,6 +448,7 @@ private:
     // message handler function (this is set by each application)
     void                                    (*mHandlerFunc)(LLMessageSystem *msgsystem, void **user_data);
     void                                    **mUserData;
+    bool                                     mHandleOnUdpThread = false;
 };
 
 #endif // LL_LLMESSAGETEMPLATE_H

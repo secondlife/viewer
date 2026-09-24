@@ -434,6 +434,16 @@ public:
         setHandlerFuncFast(LLMessageStringTable::getInstance()->getString(name), handler_func, user_data);
     }
 
+    // methods for building, sending, receiving, and handling messages
+    // on LLUDPReceiverThread as soon as the message is decoded, instead
+    // of being queued for dispatch on the main thread via dispatchDecoded().
+    // Handler function Must be thread safe.
+    void    setHandlerFuncThrdFast(const char* name, void (*handler_func)(LLMessageSystem* msgsystem, void** user_data), void** user_data = NULL);
+    void    setHandlerThrdFunc(const char* name, void (*handler_func)(LLMessageSystem* msgsystem, void** user_data), void** user_data = NULL)
+    {
+        setHandlerFuncThrdFast(LLMessageStringTable::getInstance()->getString(name), handler_func, user_data);
+    }
+
     // Set a callback function for a message system exception.
     void setExceptionFunc(EMessageException exception, msg_exception_callback func, void* data = NULL);
     // Call the specified exception func, and return true if a
@@ -898,6 +908,14 @@ public:
     std::unique_ptr<LLDecodedMessage> decodeDataOwned();
     void dispatchDecoded(LLDecodedMessage& msg);
 
+    // Dispatches msg's handler directly on the calling thread using a
+    // reader dedicated to LLUDPReceiverThread.
+    void dispatchDecodedOnThread(LLDecodedMessage& msg);
+
+    // Returns true if msg's template was registered for
+    // handling on UDP thread
+    bool isHandledOnUdpThread(const LLDecodedMessage& msg) const;
+
     bool tryPopDecoded(std::unique_ptr<LLDecodedMessage>& out)
     {
         return mDecodedQueue->tryPop(out);
@@ -987,15 +1005,15 @@ private:
 
     void init(); // ctor shared initialisation.
 
-    LLHost mLastSender;
-    LLHost mLastReceivingIF;
+    static thread_local LLHost sLastSender;
+    static thread_local LLHost sLastReceivingIF;
     static thread_local S32 sIncomingCompressedSize;        // original size of compressed msg (0 if uncomp.)
     static thread_local TPACKETID sCurrentRecvPacketID;       // packet ID of current receive packet (for reporting)
 
     // Socket I/O helpers
 
     // Receive one packet: pop from ring if buffered, else read from mSocket.
-    // Sets mLastSender and mLastReceivingIF.
+    // Sets sLastSender and sLastReceivingIF.
     // Sets packet_id_already_checked to whether checkPacketInID() was already
     // run for this packet back when it was buffered (see bufferInboundPacket()).
     // Returns packet_size, or 0 if no packet or packet was dropped.
@@ -1028,6 +1046,11 @@ private:
     // otherwise the receiver thread can invalidate it (e.g. via clearMessage())
     // out from under a handler that's still running on the main thread.
     LLTemplateMessageReader* mDispatchMessageReader;
+    // Dedicated reader for handlers registered via setHandlerFuncThrdFast(),
+    // dispatched directly on LLUDPReceiverThread right after decode. Kept
+    // separate from mDispatchMessageReader (main-thread dispatch) so the two
+    // threads never contend for, or invalidate, each other's reader state.
+    LLTemplateMessageReader* mThrdDispatchMessageReader;
     LLSDMessageReader* mLLSDMessageReader;
 
     // Packet queue and receiver thread for incoming packets from an UDP thread.
@@ -1277,16 +1300,16 @@ inline void *ntohmemcpy(void *s, const void *ct, EMsgVariableType type, size_t n
     return(htolememcpy(s,ct,type, n));
 }
 
-inline const LLHost& LLMessageSystem::getReceivingInterface() const {return mLastReceivingIF;}
+inline const LLHost& LLMessageSystem::getReceivingInterface() const {return sLastReceivingIF;}
 
 inline U32 LLMessageSystem::getSenderIP() const
 {
-    return mLastSender.getAddress();
+    return sLastSender.getAddress();
 }
 
 inline U32 LLMessageSystem::getSenderPort() const
 {
-    return mLastSender.getPort();
+    return sLastSender.getPort();
 }
 
 
