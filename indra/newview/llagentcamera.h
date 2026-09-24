@@ -219,9 +219,24 @@ public:
     void            applyNdofFlycamFrameDelta(const F32 local_delta[7],
                                                bool auto_level, F32 auto_level_fraction,
                                                bool direct_view, F32 direct_view_value);
+
+    // True when the self avatar should be hidden for a first-person view: in
+    // mouselook, unless flycam has since taken the camera out of the head (see
+    // mFlycamHidingAvatar). Use this rather than cameraMouselook() when deciding
+    // whether to render the self avatar.
+    bool            isHidingAvatarForFirstPerson() const;
 private:
+    // Clears mFlycamHidingAvatar once the self avatar is completely out of the
+    // flycam's view, so it doesn't pop into existence on screen. Called after
+    // each flycam transform update.
+    void            updateFlycamAvatarVisibility();
+
     LLFlycam        mFlycam;
     bool            mUsingFlycam { false };
+    // Set when flycam is entered from mouselook: the camera starts inside the
+    // avatar's head, so the avatar stays hidden (as in mouselook) until
+    // updateFlycamAvatarVisibility() finds it out of view.
+    bool            mFlycamHidingAvatar { false };
 
     // Keyboard's contribution to the shared/game-control flycam channels
     // (blended with LLGameControl::getFlycamInputs() each frame in
