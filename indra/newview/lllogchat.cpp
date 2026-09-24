@@ -48,6 +48,8 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
+#include <memory>
+#include <mutex>
 
 #if !LL_WINDOWS
 #include <fcntl.h>
@@ -143,71 +145,6 @@ const char* remove_utf8_bom(const char* buf)
         start += 3;
     }
     return start;
-}
-
-namespace
-{
-    void parseHistoryFile(LLFILE* input, std::list<LLSD>& messages,
-                          const LLSD& load_params, bool load_all)
-    {
-        // A bounded load seeks near EOF and discards the first partial line; full
-        // stitched reads parse from the beginning of each exact transcript path.
-        char buffer[LOG_RECALL_SIZE];
-        bool skip_partial_line = true;
-        if (load_all || fseek(input, (LOG_RECALL_SIZE - 1) * -1, SEEK_END))
-        {
-            skip_partial_line = false;
-            if (fseek(input, 0, SEEK_SET))
-            {
-                return;
-            }
-        }
-
-        while (fgets(buffer, LOG_RECALL_SIZE, input))
-        {
-            // Normalize either newline style before applying legacy multiline rules.
-            size_t length = strlen(buffer);
-            while (length && (buffer[length - 1] == '\n' || buffer[length - 1] == '\r'))
-            {
-                buffer[--length] = '\0';
-            }
-
-            if (skip_partial_line)
-            {
-                skip_partial_line = false;
-                continue;
-            }
-
-            std::string line(remove_utf8_bom(buffer));
-
-            // Restore mention URLs only when the inexpensive marker indicates the
-            // formatter's markdown wrapper may be present.
-            if (line.find("/mention)") != std::string::npos)
-            {
-                static const boost::regex mention_regex(
-                    "\\[@([^\\]]+)\\]\\((" APP_HEADER_REGEX "/agent/[\\da-f-]+/mention)\\)",
-                    boost::regex::perl | boost::regex::icase);
-                line = boost::regex_replace(line, mention_regex, "$2");
-            }
-
-            // Indented lines continue the prior multiline message in the current
-            // plaintext format.
-            if (!line.empty() && line[0] == ' ')
-            {
-                line.erase(0, MULTI_LINE_PREFIX.length());
-                append_to_last_message(messages, '\n' + line);
-                continue;
-            }
-
-            // Parser failures remain readable as plain transcript text.
-            LLSD item;
-            if (!LLChatLogParser::parse(line, item, load_params))
-            {
-                item[LL_IM_TEXT] = line;
-            }
-            messages.push_back(item);
-        }
-    }
 }
 
 class LLLogChatTimeScanner: public LLSingleton<LLLogChatTimeScanner>
@@ -432,55 +369,56 @@ void LLLogChat::saveHistory(const std::string& filename,
         return;
     }
 
+    // Keep open/write/close on one side of the deletion sweep, then unlock before
+    // notifying observers that may read or write transcripts.
+    std::unique_lock<LLMutex> mutation_lock(sTranscriptMutationMutex);
+    llofstream file(LLLogChat::makeLogFileName(filename).c_str(), std::ios_base::app);
+    if (!file.is_open())
     {
-        // Keep the whole open/write/flush/close operation on one side of a Delete sweep.
-        LLMutexLock mutation_lock(&sTranscriptMutationMutex);
-        llofstream file(LLLogChat::makeLogFileName(filename).c_str(), std::ios_base::app);
-        if (!file.is_open())
-        {
-            LL_WARNS() << "Couldn't open chat history log! - " + filename << LL_ENDL;
-            return;
-        }
-
-        std::string altered_line = line;
-
-    // avoid costly regex calls
-        if (line.find("/mention") != std::string::npos)
-        {
-            static const boost::regex mention_regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/mention", boost::regex::perl | boost::regex::icase);
-
-        // replace mention URL with [@username](URL)
-            altered_line = boost::regex_replace(line, mention_regex, [](const boost::smatch& match) -> std::string
-            {
-                std::string url = match[0].str();
-                std::string username = LLUrlAction::getURLLabel(url);
-                return "[" + username + "](" + url + ")";
-            });
-        }
-
-        LLSD item;
-
-        if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
-             item["time"] = LLLogChat::timestamp2LogString(0, gSavedPerAccountSettings.getBOOL("LogTimestampDate"));
-
-        item["from_id"] = from_id;
-        item["message"] = altered_line;
-
-    //adding "Second Life:" for all system messages to make chat log history parsing more reliable
-        if (from.empty() && from_id.isNull())
-        {
-            item["from"] = SYSTEM_FROM;
-        }
-        else
-        {
-            item["from"] = from;
-        }
-
-        file << LLChatLogFormatter(item) << std::endl;
-        file.close();
+        LL_WARNS() << "Couldn't open chat history log! - " + filename << LL_ENDL;
+        return;
     }
 
-    LLLogChat::notifyTranscriptCreated();
+    std::string altered_line = line;
+
+    // avoid costly regex calls
+    if (line.find("/mention") != std::string::npos)
+    {
+        static const boost::regex mention_regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/mention", boost::regex::perl | boost::regex::icase);
+
+        // replace mention URL with [@username](URL)
+        altered_line = boost::regex_replace(line, mention_regex, [](const boost::smatch& match) -> std::string
+        {
+            std::string url = match[0].str();
+            std::string username = LLUrlAction::getURLLabel(url);
+            return "[" + username + "](" + url + ")";
+        });
+    }
+
+    LLSD item;
+
+    if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
+         item["time"] = LLLogChat::timestamp2LogString(0, gSavedPerAccountSettings.getBOOL("LogTimestampDate"));
+
+    item["from_id"] = from_id;
+    item["message"] = altered_line;
+
+    //adding "Second Life:" for all system messages to make chat log history parsing more reliable
+    if (from.empty() && from_id.isNull())
+    {
+        item["from"] = SYSTEM_FROM;
+    }
+    else
+    {
+        item["from"] = from;
+    }
+
+    file << LLChatLogFormatter(item) << std::endl;
+
+    file.close();
+    mutation_lock.unlock();
+
+    LLLogChat::getInstance()->triggerHistorySignal();
 }
 
 // static
@@ -495,8 +433,6 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
         LL_WARNS("LLLogChat::loadChatHistory") << "Local history file name is empty!" << LL_ENDL;
         return ;
     }
-
-    bool load_all_history = load_params.has("load_all_history") ? load_params["load_all_history"].asBoolean() : false;
 
     // Stat the file to find it and get the last history entry time
     llstat stat_data;
@@ -535,22 +471,89 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
         }
     }
 
-    // If we got here, we managed to stat the file.
-    // Open the file to read in binary mode to prevent interpreting other characters as EOF
-    LLFILE* fptr = LLFile::fopen(log_file_name, LLFILE_MODE("rb"));       /*Flawfinder: ignore*/
-    if (!fptr)
-    {   // Ok, this is strange but not really tragic in the big picture of things
-        LL_WARNS("ChatHistory") << "Unable to read file " << log_file_name << " after stat was successful" << LL_ENDL;
-        return;
-    }
-
     auto save_num_messages = messages.size();
-    parseHistoryFile(fptr, messages, load_params, load_all_history);
-    fclose(fptr);
+    loadChatHistoryExact(log_file_name, messages, load_params);
 
     LL_DEBUGS("ChatHistory") << "Read " << (messages.size() - save_num_messages)
         << " messages of chat history from " << log_file_name
         << " file mod time " << (F64)stat_data.st_mtime << LL_ENDL;
+}
+
+// static
+void LLLogChat::loadChatHistoryExact(const std::string& path, std::list<LLSD>& messages,
+                                    const LLSD& load_params)
+{
+    if (path.empty())
+    {
+        return;
+    }
+
+    // Binary mode keeps transcript contents independent of platform EOF handling.
+    std::unique_ptr<LLFILE, int (*)(LLFILE*)> input(
+        LLFile::fopen(path, LLFILE_MODE("rb")), LLFile::close);
+    if (!input)
+    {
+        LL_WARNS("ChatHistory") << "Unable to read file " << path << LL_ENDL;
+        return;
+    }
+
+    // A bounded load seeks near EOF and discards the first partial line; full
+    // stitched reads parse from the beginning of each exact transcript path.
+    char buffer[LOG_RECALL_SIZE];
+    bool skip_partial_line = true;
+    if (load_params["load_all_history"].asBoolean() || fseek(input.get(), (LOG_RECALL_SIZE - 1) * -1, SEEK_END))
+    {
+        skip_partial_line = false;
+        if (fseek(input.get(), 0, SEEK_SET))
+        {
+            return;
+        }
+    }
+
+    while (fgets(buffer, LOG_RECALL_SIZE, input.get()))
+    {
+        // Normalize either newline style before applying legacy multiline rules.
+        size_t length = strlen(buffer);
+        while (length && (buffer[length - 1] == '\n' || buffer[length - 1] == '\r'))
+        {
+            buffer[--length] = '\0';
+        }
+
+        if (skip_partial_line)
+        {
+            skip_partial_line = false;
+            continue;
+        }
+
+        std::string line(remove_utf8_bom(buffer));
+
+        // Restore mention URLs only when the inexpensive marker indicates the
+        // formatter's markdown wrapper may be present.
+        if (line.find("/mention)") != std::string::npos)
+        {
+            static const boost::regex mention_regex(
+                "\\[@([^\\]]+)\\]\\((" APP_HEADER_REGEX "/agent/[\\da-f-]+/mention)\\)",
+                boost::regex::perl | boost::regex::icase);
+            line = boost::regex_replace(line, mention_regex, "$2");
+        }
+
+        // Indented lines continue the prior multiline message in the current
+        // plaintext format.
+        if (!line.empty() && line[0] == ' ')
+        {
+            line.erase(0, MULTI_LINE_PREFIX.length());
+            append_to_last_message(messages, '\n' + line);
+            continue;
+        }
+
+        // Parser failures remain readable as plain transcript text.
+        LLSD item;
+        if (!LLChatLogParser::parse(line, item, load_params))
+        {
+            item[LL_IM_TEXT] = line;
+        }
+        messages.push_back(item);
+    }
 }
 
 // static
@@ -586,37 +589,6 @@ void LLLogChat::getTranscriptFamily(const std::string& file_name, std::vector<st
     paths.insert(paths.end(), shards.begin(), shards.end());
 }
 
-// static
-void LLLogChat::loadChatHistoryExact(const std::string& path, std::list<LLSD>& messages,
-                                     const LLSD& load_params)
-{
-    if (LLChatServiceHistory::historySuppressed())
-    {
-        return;
-    }
-
-    loadChatHistoryExactUnchecked(path, messages, load_params);
-}
-
-// static
-void LLLogChat::loadChatHistoryExactUnchecked(
-    const std::string& path, std::list<LLSD>& messages, const LLSD& load_params)
-{
-    if (path.empty())
-    {
-        return;
-    }
-
-    LLFILE* input = LLFile::fopen(path, LLFILE_MODE("rb"));
-    if (!input)
-    {
-        return;
-    }
-
-    parseHistoryFile(input, messages, load_params, true);
-    fclose(input);
-}
-
 bool LLLogChat::historyThreadsFinished(LLUUID session_id)
 {
     LLMutexLock lock(historyThreadsMutex());
@@ -636,17 +608,6 @@ bool LLLogChat::historyThreadsFinished(LLUUID session_id)
         finished = finished && dit->second->isFinished();
     }
     return finished;
-}
-
-LLLoadHistoryThread* LLLogChat::getLoadHistoryThread(LLUUID session_id)
-{
-    LLMutexLock lock(historyThreadsMutex());
-    std::map<LLUUID,LLLoadHistoryThread *>::iterator it = mLoadHistoryThreads.find(session_id);
-    if (it != mLoadHistoryThreads.end())
-    {
-        return it->second;
-    }
-    return NULL;
 }
 
 LLDeleteHistoryThread* LLLogChat::getDeleteHistoryThread(LLUUID session_id)
@@ -903,14 +864,8 @@ bool LLLogChat::moveTranscripts(const std::string currentDirectory,
 //static
 void LLLogChat::deleteTranscripts()
 {
-    deleteTranscriptContent();
+    deleteTranscriptContent(gDirUtilp->getPerAccountChatLogsDir());
     LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
-}
-
-// static
-bool LLLogChat::deleteTranscriptContent()
-{
-    return deleteTranscriptContent(gDirUtilp->getPerAccountChatLogsDir());
 }
 
 // static
@@ -990,13 +945,19 @@ void LLLogChat::notifyTranscriptCreated()
 // static
 bool LLLogChat::isTranscriptExist(const LLUUID& avatar_id, bool is_group)
 {
+    // History actions share the deletion gate and both direct transcript sources.
+    if (LLChatServiceHistory::historySuppressed())
+    {
+        return false;
+    }
     LLAvatarName avatar_name;
     LLAvatarNameCache::get(avatar_id, &avatar_name);
     std::string avatar_user_name = avatar_name.getAccountName();
     if(!is_group)
     {
         std::replace(avatar_user_name.begin(), avatar_user_name.end(), '.', '_');
-        return isTranscriptFileFound(makeLogFileName(avatar_user_name));
+        return isTranscriptFileFound(makeLogFileName(avatar_user_name)) ||
+               LLChatServiceHistory::localHistoryExists(avatar_id);
     }
     else
     {
@@ -1286,8 +1247,7 @@ LLLoadHistoryThread::LLLoadHistoryThread(const std::string& file_name, std::list
     mMessages(messages),
     mFileName(file_name),
     mLoadParams(load_params),
-    mNewLoad(true),
-    mLoadEndSignal(NULL)
+    mNewLoad(true)
 {
 }
 
@@ -1338,7 +1298,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
             if (!fptr)
             {
                 mNewLoad = false;
-                (*mLoadEndSignal)(messages, file_name);
+                mLoadEndSignal(messages, file_name);
                 return;                     //No previous conversation with this name.
             }
         }
@@ -1357,7 +1317,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
         {
             fclose(fptr);
             mNewLoad = false;
-            (*mLoadEndSignal)(messages, file_name);
+            mLoadEndSignal(messages, file_name);
             return;
         }
     }
@@ -1401,25 +1361,10 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 
     fclose(fptr);
     mNewLoad = false;
-    (*mLoadEndSignal)(messages, file_name);
+    mLoadEndSignal(messages, file_name);
 }
 
 boost::signals2::connection LLLoadHistoryThread::setLoadEndSignal(const load_end_signal_t::slot_type& cb)
 {
-    if (NULL == mLoadEndSignal)
-    {
-        mLoadEndSignal = new load_end_signal_t();
-    }
-
-    return mLoadEndSignal->connect(cb);
-}
-
-void LLLoadHistoryThread::removeLoadEndSignal(const load_end_signal_t::slot_type& cb)
-{
-    if (NULL != mLoadEndSignal)
-    {
-        mLoadEndSignal->disconnect_all_slots();
-        delete mLoadEndSignal;
-    }
-    mLoadEndSignal = NULL;
+    return mLoadEndSignal.connect(cb);
 }

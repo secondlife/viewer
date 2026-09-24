@@ -34,17 +34,9 @@ namespace LLChatServiceHistoryCore
 
         bool operator==(const TimeUuidKey& rhs) const;
         bool operator<(const TimeUuidKey& rhs) const;
-        bool operator>(const TimeUuidKey& rhs) const
-        {
-            return rhs < *this;
-        }
         bool operator<=(const TimeUuidKey& rhs) const
         {
             return !(rhs < *this);
-        }
-        bool operator>=(const TimeUuidKey& rhs) const
-        {
-            return !(*this < rhs);
         }
     };
 
@@ -65,7 +57,6 @@ namespace LLChatServiceHistoryCore
     struct ListEntry
     {
         LLUUID resident_id;
-        std::string conversation_id;
         std::string last_msg_id;
     };
 
@@ -76,7 +67,6 @@ namespace LLChatServiceHistoryCore
         std::vector<Row> rows;
         std::string next_cursor;
         bool terminal = false;
-        bool cutoff_reached = false;
     };
 
     // Archive states distinguish repairable torn tails from complete corrupt records.
@@ -159,7 +149,6 @@ namespace LLChatServiceHistoryCore
                                   std::vector<ListEntry>& entries);
     bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
                              const LLUUID& resident_id,
-                             const std::string& conversation_id,
                              const std::string& requested_cursor,
                              U64 deleted_before_ticks, Page& page);
 
@@ -174,6 +163,9 @@ namespace LLChatServiceHistoryCore
 
     // Capture the regular file's physical identity for guarded repair and publication.
     bool archiveStamp(const std::string& path, U64& file_size, S64& file_mtime);
+
+    // Owned artifacts may be absent or regular files, but never symlinks or directories.
+    bool inspectRegular(const std::string& path, bool& exists);
 }
 
 #endif

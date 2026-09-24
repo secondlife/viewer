@@ -49,7 +49,8 @@ private:
 class LLLoadHistoryThread : public LLActionThread
 {
 private:
-    const std::string& mFileName;
+    // The worker owns its input after the Preview closes.
+    const std::string mFileName;
     std::list<LLSD>* mMessages;
     LLSD mLoadParams;
     bool mNewLoad;
@@ -61,9 +62,8 @@ public:
     virtual void run();
 
     typedef boost::signals2::signal<void (std::list<LLSD>* messages,const std::string& file_name)> load_end_signal_t;
-    load_end_signal_t * mLoadEndSignal;
+    load_end_signal_t mLoadEndSignal;
     boost::signals2::connection setLoadEndSignal(const load_end_signal_t::slot_type& cb);
-    void removeLoadEndSignal(const load_end_signal_t::slot_type& cb);
 };
 
 class LLDeleteHistoryThread : public LLActionThread
@@ -112,8 +112,10 @@ public:
     // Enumerate the ordinary transcript followed by lexical monthly shards, then
     // reuse the canonical parser for each exact path.
     static void getTranscriptFamily(const std::string& file_name, std::vector<std::string>& paths);
+    // Worker reads use captured paths and an explicit full-history policy; the caller
+    // checks account/privacy state before dispatch and before publishing the result.
     static void loadChatHistoryExact(const std::string& path, std::list<LLSD>& messages,
-                                     const LLSD& load_params = LLSD());
+                                    const LLSD& load_params);
 
     typedef boost::signals2::signal<void ()> save_history_signal_t;
     boost::signals2::connection setSaveHistorySignal(const save_history_signal_t::slot_type& cb);
@@ -130,9 +132,9 @@ public:
 
     // The success-returning sweep lets durable ChatService deletion remain pending
     // until every legacy transcript target has been removed safely.
-    static bool deleteTranscriptContent();
     static bool deleteTranscriptContent(const std::string& directory);
     static void notifyTranscriptCreated();
+    // Whether history can be opened: plaintext or direct service rows, subject to deletion.
     static bool isTranscriptExist(const LLUUID& avatar_id, bool is_group=false);
     static bool isNearbyTranscriptExist();
     static bool isAdHocTranscriptExist(std::string file_name);
@@ -141,17 +143,12 @@ public:
     static std::string getGroupChatSuffix();
 
     bool historyThreadsFinished(LLUUID session_id);
-    LLLoadHistoryThread* getLoadHistoryThread(LLUUID session_id);
     LLDeleteHistoryThread* getDeleteHistoryThread(LLUUID session_id);
     bool addLoadHistoryThread(LLUUID& session_id, LLLoadHistoryThread* lthread);
     bool addDeleteHistoryThread(LLUUID& session_id, LLDeleteHistoryThread* dthread);
     void cleanupHistoryThreads();
 
 private:
-    friend struct LLChatServiceHistoryAccess;
-    static void loadChatHistoryExactUnchecked(const std::string& path,
-                                              std::list<LLSD>& messages,
-                                              const LLSD& load_params = LLSD());
     static std::string cleanFileName(std::string filename);
 
     LLMutex* historyThreadsMutex();

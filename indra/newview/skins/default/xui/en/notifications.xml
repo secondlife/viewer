@@ -12278,7 +12278,7 @@ Cannot create large prims that intersect other residents.  Please re-try when ot
    icon="alertmodal.tga"
    name="PreferenceChatDeleteTranscripts"
    type="alertmodal">
-    This removes local transcript files and downloaded ChatService history. Remote records are retained, but service rows at or below the recorded deletion boundary remain hidden locally. The list of past conversations is not affected.
+    This removes local transcript files and downloaded Chat Service history. Remote records are retained, but service rows at or below the recorded deletion boundary remain hidden locally. The list of past conversations is not affected.
     <tag>confirm</tag>
     <usetemplate
      ignoretext="Confirm before I delete transcripts."

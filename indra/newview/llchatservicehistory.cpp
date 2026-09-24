@@ -14,6 +14,7 @@
 #include "llagent.h"
 #include "llavatarnamecache.h"
 #include "llcachename.h"
+#include "llcallbacklist.h"
 #include "llconversationlog.h"
 #include "llcorehttputil.h"
 #include "llcoros.h"
@@ -23,6 +24,7 @@
 #include "lleventcoro.h"
 #include "llevents.h"
 #include "llfile.h"
+#include "fsyspath.h"
 #include "llfloaterconversationpreview.h"
 #include "llfloaterreg.h"
 #include "llfloaterimsessiontab.h"
@@ -48,23 +50,15 @@
 #include <algorithm>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <cerrno>
+#include <boost/scope/scope_exit.hpp>
 #include <climits>
 #include <cstdio>
 #include <deque>
+#include <filesystem>
 #include <map>
+#include <optional>
 #include <set>
 #include <sstream>
-
-// Keep exact-path legacy parsing behind LLLogChat's narrow stitching bridge.
-struct LLChatServiceHistoryAccess
-{
-    static void loadLegacy(const std::string& path, std::list<LLSD>& messages,
-                           const LLSD& parameters)
-    {
-        LLLogChat::loadChatHistoryExactUnchecked(path, messages, parameters);
-    }
-};
 
 namespace
 {
@@ -103,13 +97,6 @@ enum EMetadata
     META_FAILED
 };
 
-enum ESummary
-{
-    SUMMARY_ABSENT,
-    SUMMARY_UNPREPARED,
-    SUMMARY_VALID
-};
-
 enum EActivityDiscovery
 {
     DISCOVERY_NONE,
@@ -140,27 +127,9 @@ struct CapabilityContext
     }
 };
 
-struct Summary
-{
-    // Logical validity and retained-row count.
-    ESummary state = SUMMARY_UNPREPARED;
-    U32 rows = 0;
-    bool has_rows = false;
-
-    // Physical identity captured by the last successful scan or publication.
-    bool file_exists = false;
-    U64 file_size = 0;
-    S64 file_mtime = 0;
-
-    // Validated TimeUUID bounds for seam and append decisions.
-    TimeUuidKey oldest;
-    TimeUuidKey newest;
-};
-
 struct Metadata
 {
     EMetadata state = META_UNREQUESTED;
-    U32 attempt = 0;
     F64 deadline = 0.0;
     LLAvatarName name;
     boost::signals2::connection connection;
@@ -169,23 +138,20 @@ struct Metadata
 struct Resident
 {
     // Discovery identity and the durable service range already covered.
-    std::string conversation_id;
     std::string advertised_token;
     std::string covered_token;
-    U32 covered_serial = 0;
     U32 archive_serial = 0;
 
-    Summary summary;
+    // Failed or unprepared archives require a scan before reuse.
+    ArchiveScan summary{ARCHIVE_FAILED};
     Metadata metadata;
 
     // Coalesced scheduler state for this resident's current or next pass.
     bool listed = false;
-    bool force_head = false;
     bool forced_followup = false;
     bool first_request_started = false;
     bool retry_used = false;
     bool metadata_waiting = false;
-    bool priority_waiting = false;
 
     // Incoming and outgoing IM bursts share one quiet deadline; unknown
     // conversations retain one bounded discovery confirmation.
@@ -218,7 +184,6 @@ struct Runtime
 
     // Discovery and archive-maintenance state.
     bool initialized_archives = false;
-    bool list_valid = false;
     bool list_needed = true;
     bool list_retry_used = false;
 
@@ -240,8 +205,8 @@ struct Runtime
 
     // Login-scoped capability, storage, and identity inputs.
     CapabilityContext context;
+    // LLDir supplies a trailing separator for captured account filenames.
     std::string account_dir;
-    std::string delimiter;
     LLUUID agent_id;
 
     // One active resident plus a coalesced priority/background queue.
@@ -271,13 +236,31 @@ bool ownsRuntime(U32 epoch)
     return sRuntime.running && sRuntime.epoch == epoch;
 }
 
-bool postPresentation(const LL::WorkQueue::Work& work)
+void requireRuntime(U32 epoch)
 {
-    // Manager and name-cache coroutines may resume inside a yielding UI operation.
-    // Run presentation on the main-loop coroutine, after that operation unwinds.
+    if (!ownsRuntime(epoch))
+    {
+        LLTHROW(LLCoros::Stopped("Chat Service account ended"));
+    }
+}
+
+template <typename Work>
+auto runStorage(U32 epoch, Work work) -> decltype(work())
+{
+    // A storage wait may span logout. Unwind the manager before it can touch the
+    // replacement account or a resident reference from the previous login.
+    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
+    auto result = general ? general->waitForResult(work) : decltype(work())();
+    requireRuntime(epoch);
+    return result;
+}
+
+void postPresentation(const nullary_func_t& work)
+{
+    // All publishers run on the main thread. Idle registration cannot suspend;
+    // presentation waits until the main-loop UI operation has unwound.
     const U32 epoch = sRuntime.epoch;
-    LL::WorkQueue::ptr_t main = LL::WorkQueue::getInstance("mainloop");
-    return main && main->post([epoch, work]()
+    doOnIdleOneTime([epoch, work]()
     {
         // Queued UI work belongs only to the login that scheduled it.
         if (ownsRuntime(epoch))
@@ -287,36 +270,14 @@ bool postPresentation(const LL::WorkQueue::Work& work)
     });
 }
 
-std::string accountPath(const std::string& filename)
-{
-    return gDirUtilp ? gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, filename)
-                     : std::string();
-}
-
-std::string childPath(const std::string& directory, const std::string& delimiter,
-                      const std::string& filename)
-{
-    if (directory.empty() || filename.empty())
-    {
-        return directory + filename;
-    }
-    if (directory.back() == '/' || directory.back() == '\\')
-    {
-        return directory + filename;
-    }
-
-    return directory + delimiter + filename;
-}
-
 std::string archiveName(const LLUUID& resident_id)
 {
     return "chat_service_" + resident_id.asString() + ".csv";
 }
 
-std::string archivePath(const std::string& directory, const std::string& delimiter,
-                        const LLUUID& resident_id)
+std::string archivePath(const std::string& directory, const LLUUID& resident_id)
 {
-    return childPath(directory, delimiter, archiveName(resident_id));
+    return directory + archiveName(resident_id);
 }
 
 bool transcriptConsent()
@@ -357,9 +318,7 @@ void publishSnapshot(const LLUUID& id, Resident& resident)
         resident.snapshot.metadata = resident.metadata.name;
     }
     resident.snapshot.service_presentation_allowed =
-        sRuntime.rollout && transcriptConsent() &&
-        sRuntime.state_safety == STATE_SAFE && !sRuntime.cleanup_pending &&
-        !sRuntime.delete_requested;
+        LLChatServiceHistory::servicePresentationAllowed();
     postPresentation([id]()
     {
         // Deliver current state, not a captured preview that may have been revoked
@@ -407,14 +366,6 @@ void clearPriority(const LLUUID& id)
     }
 }
 
-void failResidentPass(const LLUUID& id, Resident& resident)
-{
-    resident.snapshot.head_preview.clear();
-    resident.snapshot.service_work_active = false;
-    publishSnapshot(id, resident);
-    clearPriority(id);
-}
-
 bool parseDecimalTicks(const std::string& text, U64& value)
 {
     // Privacy cutoffs use one canonical unsigned decimal form bounded to UUIDv1's
@@ -436,31 +387,6 @@ bool parseDecimalTicks(const std::string& text, U64& value)
     }
     value = parsed;
     return true;
-}
-
-bool inspectRegular(const std::string& path, bool& exists)
-{
-    // Owned artifacts must be regular files; directories and reparse/symlink paths
-    // fail inspection rather than being followed.
-    exists = false;
-#if LL_WINDOWS
-    const std::wstring wide = ll_convert<std::wstring>(path);
-    const DWORD attributes = GetFileAttributesW(wide.c_str());
-    if (attributes == INVALID_FILE_ATTRIBUTES)
-    {
-        return GetLastError() == ERROR_FILE_NOT_FOUND || GetLastError() == ERROR_PATH_NOT_FOUND;
-    }
-    exists = true;
-    return !(attributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT));
-#else
-    struct stat status;
-    if (::lstat(path.c_str(), &status) != 0)
-    {
-        return errno == ENOENT;
-    }
-    exists = true;
-    return S_ISREG(status.st_mode);
-#endif
 }
 
 bool syncDirectory(const std::string& path)
@@ -492,122 +418,71 @@ bool syncFile(const std::string& path)
     HANDLE handle = CreateFileW(ll_convert<std::wstring>(path).c_str(), GENERIC_WRITE,
                                 FILE_SHARE_READ, NULL, OPEN_EXISTING,
                                 FILE_ATTRIBUTE_NORMAL, NULL);
-    if (handle == INVALID_HANDLE_VALUE || !FlushFileBuffers(handle))
+    if (handle == INVALID_HANDLE_VALUE)
     {
-        if (handle != INVALID_HANDLE_VALUE)
-        {
-            CloseHandle(handle);
-        }
         return false;
     }
+    const bool success = FlushFileBuffers(handle) != 0;
     CloseHandle(handle);
-    return true;
 #else
     const int descriptor = ::open(path.c_str(), O_RDONLY);
-    if (descriptor < 0 || ::fsync(descriptor) != 0)
+    if (descriptor < 0)
     {
-        if (descriptor >= 0)
-        {
-            ::close(descriptor);
-        }
         return false;
     }
+    const bool success = ::fsync(descriptor) == 0;
     ::close(descriptor);
-    return true;
 #endif
+    return success;
+}
+
+bool writeFile(const std::string& path, const std::string& contents, bool durable)
+{
+    // Closing flushes the stream; privacy state also reaches stable storage before
+    // any directory entry can make these bytes authoritative.
+    llofstream output(path.c_str(), std::ios::binary | std::ios::trunc);
+    output.write(contents.data(), contents.size());
+    output.close();
+    return !output.fail() && (!durable || syncFile(path));
+}
+
+bool replaceFile(const std::string& from, const std::string& to, bool durable)
+{
+    // Publish complete bytes atomically, then commit the directory update for privacy state.
+#if LL_WINDOWS
+    if (!MoveFileExW(ll_convert<std::wstring>(from).c_str(), ll_convert<std::wstring>(to).c_str(),
+                     MOVEFILE_REPLACE_EXISTING | (durable ? MOVEFILE_WRITE_THROUGH : 0)))
+#else
+    if (::rename(from.c_str(), to.c_str()) != 0)
+#endif
+    {
+        return false;
+    }
+    return !durable || syncDirectory(to);
 }
 
 bool writeReplace(const std::string& destination, const std::string& contents, bool durable)
 {
-    // Write a complete sibling temporary before one atomic replacement. Privacy
-    // state additionally flushes file and directory metadata before returning.
+    // A complete sibling temporary precedes replacement; neither path may alias
+    // another file or directory.
     const std::string temporary = destination + ".tmp";
     bool exists = false;
-    if (!inspectRegular(destination, exists) || !inspectRegular(temporary, exists))
-    {
-        return false;
-    }
-    llofstream output(temporary.c_str(), std::ios::binary | std::ios::trunc);
-    if (!output.is_open())
-    {
-        return false;
-    }
-    output.write(contents.data(), contents.size());
-    output.flush();
-    output.close();
-    if (output.fail())
-    {
-        return false;
-    }
-
-    // Privacy state is flushed before replacement; its directory entry is committed afterward.
-    if (durable)
-    {
-        if (!syncFile(temporary))
-        {
-            return false;
-        }
-    }
-#if LL_WINDOWS
-    const std::wstring from = ll_convert<std::wstring>(temporary);
-    const std::wstring to = ll_convert<std::wstring>(destination);
-    if (!MoveFileExW(from.c_str(), to.c_str(), MOVEFILE_REPLACE_EXISTING |
-                                               (durable ? MOVEFILE_WRITE_THROUGH : 0)))
-    {
-        return false;
-    }
-#else
-    if (::rename(temporary.c_str(), destination.c_str()) != 0)
-    {
-        return false;
-    }
-#endif
-    return !durable || syncDirectory(destination);
+    return inspectRegular(destination, exists) && inspectRegular(temporary, exists) &&
+           writeFile(temporary, contents, durable) && replaceFile(temporary, destination, durable);
 }
 
-bool replacePrefix(const std::string& path, std::streamoff bytes)
+bool truncateArchive(const std::string& path, std::streamoff bytes)
 {
-    // Torn-tail repair copies only the last parser-confirmed prefix, then replaces
-    // the canonical without interpreting or rewriting valid records.
-    const std::string temporary = path + ".tmp";
+    // The parser and file stamp identify the valid prefix. Truncation removes only
+    // the incomplete suffix without copying or rewriting accumulated messages.
     bool exists = false;
-    if (bytes < 0 || !inspectRegular(path, exists) || !exists ||
-        !inspectRegular(temporary, exists))
+    if (bytes < 0 || !inspectRegular(path, exists) || !exists)
     {
         return false;
     }
-
-    llifstream input(path.c_str(), std::ios::binary);
-    llofstream output(temporary.c_str(), std::ios::binary | std::ios::trunc);
-    std::array<char, 64 * 1024> buffer;
-    std::streamoff remaining = bytes;
-    while (input.is_open() && output.is_open() && remaining > 0)
-    {
-        const std::streamsize count = static_cast<std::streamsize>(
-            llmin<std::streamoff>(remaining, buffer.size()));
-        input.read(buffer.data(), count);
-        if (input.gcount() != count)
-        {
-            return false;
-        }
-        output.write(buffer.data(), count);
-        remaining -= count;
-    }
-    output.flush();
-    output.close();
-    const bool input_ok = input.is_open() && !input.bad();
-    input.close();
-    if (!input_ok || output.fail() || remaining)
-    {
-        return false;
-    }
-#if LL_WINDOWS
-    const std::wstring from = ll_convert<std::wstring>(temporary);
-    const std::wstring to = ll_convert<std::wstring>(path);
-    return MoveFileExW(from.c_str(), to.c_str(), MOVEFILE_REPLACE_EXISTING) != 0;
-#else
-    return ::rename(temporary.c_str(), path.c_str()) == 0;
-#endif
+    std::error_code error;
+    std::filesystem::resize_file(fsyspath(path), bytes, error);
+    return !error;
 }
 
 bool readStateFile(const std::string& path, StateResult& state)
@@ -655,8 +530,7 @@ StateResult loadState(const std::string& path)
     {
         // A committed canonical is authoritative; discard any interrupted replacement.
         if ((!temporary_safe || temporary_exists) &&
-            ((LLFile::remove(temporary, ENOENT) != 0 && errno != ENOENT) ||
-             !syncDirectory(path)))
+            (LLFile::remove(temporary) != 0 || !syncDirectory(path)))
         {
             result.safety = STATE_UNSAFE;
         }
@@ -693,89 +567,39 @@ U64 recoverBoundaryCandidate(const std::string& path)
     return boundary;
 }
 
-bool recoverStateForDelete(const std::string& path, U64 boundary)
-{
-    // Build a durable pending state through an integration-owned recovery path so
-    // an unsafe canonical remains present until its replacement is ready.
-    const std::string temporary = path + ".tmp";
-    const std::string::size_type separator = path.find_last_of("/\\");
-    const std::string recovery = path.substr(0, separator + 1) + INDEX_NAME + ".tmp";
-    LLSD data;
-    data["deleted_before_uuid_ticks"] = std::to_string(boundary);
-    data["cleanup_pending"] = true;
-    std::ostringstream serialized;
-    if (!LLSDSerialize::toPrettyXML(data, serialized))
-    {
-        return false;
-    }
-
-    // The index temporary is an owned scratch name that deletion already knows how
-    // to sweep; it cannot be mistaken for authoritative privacy state.
-    if (LLFile::remove(recovery, ENOENT) != 0 && errno != ENOENT)
-    {
-        return false;
-    }
-
-    llofstream output(recovery.c_str(), std::ios::binary | std::ios::trunc);
-    if (!output.is_open())
-    {
-        return false;
-    }
-    output << serialized.str();
-    output.flush();
-    output.close();
-    if (output.fail())
-    {
-        return false;
-    }
-    if (!syncFile(recovery))
-    {
-        return false;
-    }
-#if LL_WINDOWS
-    if (!MoveFileExW(ll_convert<std::wstring>(recovery).c_str(),
-                     ll_convert<std::wstring>(temporary).c_str(),
-                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-    {
-        return false;
-    }
-#else
-    if (::rename(recovery.c_str(), temporary.c_str()) != 0 ||
-        !syncDirectory(temporary))
-    {
-        return false;
-    }
-#endif
-    if (LLFile::remove(path, ENOENT) != 0 && errno != ENOENT)
-    {
-        return false;
-    }
-#if LL_WINDOWS
-    if (!MoveFileExW(ll_convert<std::wstring>(temporary).c_str(),
-                     ll_convert<std::wstring>(path).c_str(), MOVEFILE_WRITE_THROUGH))
-    {
-        return false;
-    }
-#else
-    if (::rename(temporary.c_str(), path.c_str()) != 0 || !syncDirectory(path))
-    {
-        return false;
-    }
-#endif
-    return true;
-}
-
-bool writeState(const std::string& path, U64 boundary, bool pending)
+std::string stateContents(U64 boundary, bool pending)
 {
     LLSD data;
     data["deleted_before_uuid_ticks"] = std::to_string(boundary);
     data["cleanup_pending"] = pending;
     std::ostringstream serialized;
-    if (!LLSDSerialize::toPrettyXML(data, serialized))
+    LLSDSerialize::toPrettyXML(data, serialized);
+    return serialized.str();
+}
+
+bool recoverStateForDelete(const std::string& path, U64 boundary)
+{
+    // Stage through the owned index scratch path. An unsafe canonical remains in
+    // place until a durable pending cutoff has reached the state temporary.
+    const std::string temporary = path + ".tmp";
+    const std::string::size_type separator = path.find_last_of("/\\");
+    const std::string recovery = path.substr(0, separator + 1) + INDEX_NAME + ".tmp";
+    if (LLFile::remove(recovery) != 0 ||
+        !writeFile(recovery, stateContents(boundary, true), true) ||
+        !replaceFile(recovery, temporary, true))
     {
         return false;
     }
-    return writeReplace(path, serialized.str(), true);
+    if (LLFile::remove(path) != 0)
+    {
+        return false;
+    }
+    return replaceFile(temporary, path, true);
+}
+
+bool writeState(const std::string& path, U64 boundary, bool pending)
+{
+    return writeReplace(path, stateContents(boundary, pending), true);
 }
 
 bool clearUnsafeStateTemporary(const std::string& path)
@@ -787,18 +611,9 @@ bool clearUnsafeStateTemporary(const std::string& path)
         return true;
     }
 
-    // A nonregular temporary is never authoritative and must be removed before a
-    // normal durable replacement can reuse its exact owned path.
-    if (LLFile::remove(temporary, ENOENT) != 0 && errno != ENOENT)
-    {
-        return false;
-    }
-    if (!inspectRegular(temporary, exists) || exists)
-    {
-        return false;
-    }
-
-    return syncDirectory(path);
+    // A nonregular temporary must be removed before durable replacement reuses it.
+    // LLFile reports absence as success; its return value is authoritative.
+    return LLFile::remove(temporary) == 0 && syncDirectory(path);
 }
 
 bool canonicalArchiveName(const std::string& name, LLUUID& resident_id)
@@ -835,22 +650,8 @@ bool ownedArtifactName(const std::string& name)
     return suffix == ".csv" || suffix == ".csv.tmp" || suffix == ".csv.corrupt";
 }
 
-Summary summaryFromScan(const ArchiveScan& scan)
-{
-    Summary result;
-    result.state = scan.state == ARCHIVE_ABSENT ? SUMMARY_ABSENT : SUMMARY_VALID;
-    result.rows = scan.row_count;
-    result.has_rows = scan.has_oldest;
-    result.file_exists = scan.state != ARCHIVE_ABSENT;
-    result.file_size = scan.file_size;
-    result.file_mtime = scan.file_mtime;
-    result.oldest = scan.oldest;
-    result.newest = scan.newest;
-    return result;
-}
-
 bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LLUUID& agent_id,
-                    U64 boundary, Summary& summary, bool& bytes_changed)
+                    U64 boundary, ArchiveScan& summary, bool& bytes_changed)
 {
     LLMutexLock lock(&sStorageMutex);
 
@@ -864,50 +665,38 @@ bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LL
     ArchiveScan scan;
     if (scanArchive(path, agent_id, resident_id, boundary, 0, scan))
     {
-        summary = summaryFromScan(scan);
+        summary = scan;
         return true;
     }
     if (scan.state == ARCHIVE_TORN)
     {
         // Repair only when the private physical stamp still matches the classified
-        // file, then rescan the replacement before publishing its summary.
+        // file, then rescan the repaired file before publishing its summary.
         U64 current_size = 0;
         S64 current_mtime = 0;
         if (!archiveStamp(path, current_size, current_mtime) ||
             current_size != scan.file_size || current_mtime != scan.file_mtime ||
-            !replacePrefix(path, scan.valid_prefix_bytes) ||
+            !truncateArchive(path, scan.valid_prefix_bytes) ||
             !scanArchive(path, agent_id, resident_id, boundary, 0, scan))
         {
-            summary.state = SUMMARY_UNPREPARED;
+            summary.state = ARCHIVE_FAILED;
             return false;
         }
         bytes_changed = true;
-        summary = summaryFromScan(scan);
+        summary = scan;
         return true;
     }
     if (scan.state != ARCHIVE_CORRUPT)
     {
-        summary.state = SUMMARY_UNPREPARED;
+        summary.state = ARCHIVE_FAILED;
         return false;
     }
 
     // Preserve one structurally unusable canonical before a later full-window rebuild.
     const std::string corrupt = path + ".corrupt";
-    bool corrupt_exists = false;
-    if (!inspectRegular(corrupt, corrupt_exists))
+    if (LLFile::remove(corrupt) != 0)
     {
-        if (LLFile::remove(corrupt, ENOENT) != 0 && errno != ENOENT)
-        {
-            return false;
-        }
-        if (!inspectRegular(corrupt, corrupt_exists) || corrupt_exists)
-        {
-            return false;
-        }
-    }
-    if (LLFile::remove(corrupt, ENOENT) != 0 && errno != ENOENT)
-    {
-        summary.state = SUMMARY_UNPREPARED;
+        summary.state = ARCHIVE_FAILED;
         return false;
     }
     U64 current_size = 0;
@@ -916,17 +705,16 @@ bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LL
         current_size != scan.file_size || current_mtime != scan.file_mtime ||
         LLFile::rename(path, corrupt) != 0)
     {
-        summary.state = SUMMARY_UNPREPARED;
+        summary.state = ARCHIVE_FAILED;
         return false;
     }
     bytes_changed = true;
-    summary = Summary();
-    summary.state = SUMMARY_ABSENT;
+    summary = ArchiveScan();
     return true;
 }
 
 bool publishRows(const std::string& path, const std::vector<Row>& rows,
-                 bool append, Summary& resulting)
+                 bool append, ArchiveScan& resulting)
 {
     LLMutexLock lock(&sStorageMutex);
     if (rows.empty())
@@ -937,7 +725,7 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
     // The captured summary is a private physical identity check. External changes
     // abort publication instead of reconciling unknown bytes.
     bool exists = false;
-    if (!inspectRegular(path, exists) || exists != resulting.file_exists)
+    if (!inspectRegular(path, exists) || exists != (resulting.state != ARCHIVE_ABSENT))
     {
         return false;
     }
@@ -1003,61 +791,57 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
     }
 
     // Advance the in-memory summary only after the filesystem mutation succeeds.
-    resulting.state = SUMMARY_VALID;
-    resulting.rows += static_cast<U32>(rows.size());
-    if (!resulting.has_rows)
+    resulting.state = ARCHIVE_VALID;
+    if (!resulting.has_oldest)
     {
+        resulting.has_oldest = true;
         resulting.oldest = rows.front().key;
-        resulting.has_rows = true;
     }
+    resulting.row_count += static_cast<U32>(rows.size());
     resulting.newest = rows.back().key;
-    resulting.file_exists = true;
-    return archiveStamp(path, resulting.file_size, resulting.file_mtime);
+    if (!archiveStamp(path, resulting.file_size, resulting.file_mtime))
+    {
+        return false;
+    }
+    resulting.valid_prefix_bytes = resulting.file_size;
+    return true;
 }
 
-std::vector<LLUUID> enumerateArchives(const std::string& directory,
-                                      const std::string& delimiter)
+typedef std::pair<std::vector<LLUUID>, bool> initial_artifacts_t;
+
+initial_artifacts_t enumerateArchives(const std::string& directory)
 {
-    std::vector<LLUUID> result;
-    LLDirIterator iterator(directory, "chat_service_*.csv");
+    // Discover canonical archives and deletable remnants in one directory walk.
+    // The resident map supplies ordering and uniqueness when these IDs are applied.
+    initial_artifacts_t result;
+    LLDirIterator iterator(directory, "chat_service_*");
     std::string name;
     while (iterator.next(name))
     {
         LLUUID id;
         if (canonicalArchiveName(name, id))
         {
-            result.push_back(id);
+            result.first.push_back(id);
         }
-    }
-    std::sort(result.begin(), result.end());
-    result.erase(std::unique(result.begin(), result.end()), result.end());
-    return result;
-}
-
-bool hasOwnedContent(const std::string& directory)
-{
-    LLDirIterator iterator(directory, "chat_service_*");
-    std::string name;
-    while (iterator.next(name))
-    {
         if (ownedArtifactName(name) && name != INDEX_NAME &&
             name != std::string(INDEX_NAME) + ".tmp" && name != STATE_NAME &&
             name != std::string(STATE_NAME) + ".tmp")
         {
-            return true;
+            result.second = true;
         }
     }
-    return false;
+    return result;
 }
 
-bool regenerateIndex(const std::vector<LLUUID>& ids,
-                     const std::map<LLUUID, LLAvatarName>& names,
-                     const std::string& directory, const std::string& delimiter)
+using index_entries_t = std::map<LLUUID, std::optional<LLAvatarName>>;
+
+bool regenerateIndex(const index_entries_t& archives,
+                     const std::string& directory)
 {
     LLMutexLock lock(&sStorageMutex);
 
     // Remove unsafe index paths before rebuilding the non-authoritative manifest.
-    const std::string index = childPath(directory, delimiter, INDEX_NAME);
+    const std::string index = directory + INDEX_NAME;
     const std::string temporary = index + ".tmp";
     for (const std::string& path : { index, temporary })
     {
@@ -1065,48 +849,38 @@ bool regenerateIndex(const std::vector<LLUUID>& ids,
         const bool regular = inspectRegular(path, exists);
         if (!regular || (path == temporary && exists))
         {
-            if (LLFile::remove(path, ENOENT) != 0 && errno != ENOENT)
-            {
-                return false;
-            }
-            if (!inspectRegular(path, exists) || exists)
+            if (LLFile::remove(path) != 0)
             {
                 return false;
             }
         }
     }
 
-    // Include exactly the valid canonical archives still present at regeneration.
-    std::vector<std::pair<std::string, LLUUID>> archives;
-    for (const LLUUID& id : ids)
-    {
-        bool exists = false;
-        if (inspectRegular(archivePath(directory, delimiter, id), exists) && exists)
-        {
-            archives.emplace_back(archiveName(id), id);
-        }
-    }
-    if (archives.empty())
-    {
-        const int removed = LLFile::remove(index, ENOENT);
-        return removed == 0 || errno == ENOENT;
-    }
-
-    // Pending metadata remains explicit and is replaced on a later regeneration.
+    // The captured entries already identify valid archives. Keep only files still
+    // present, spelling out names that remain unresolved at this publication.
     std::ostringstream output;
     output << INDEX_HEADER;
-    for (const auto& archive : archives)
+    bool has_entries = false;
+    for (const auto& [id, name] : archives)
     {
-        const auto found = names.find(archive.second);
-        const bool resolved = found != names.end();
-        output << quoteCsv(archive.first) << ',' << archive.second.asString() << ','
-               << quoteCsv(resolved ? found->second.getAccountName() : PENDING_NAME) << ','
-               << quoteCsv(resolved ? found->second.getDisplayName() : PENDING_NAME) << '\n';
+        bool exists = false;
+        if (!inspectRegular(archivePath(directory, id), exists) || !exists)
+        {
+            continue;
+        }
+        has_entries = true;
+        output << quoteCsv(archiveName(id)) << ',' << id.asString() << ','
+               << quoteCsv(name ? name->getAccountName() : PENDING_NAME) << ','
+               << quoteCsv(name ? name->getDisplayName() : PENDING_NAME) << '\n';
+    }
+    if (!has_entries)
+    {
+        return LLFile::remove(index) == 0;
     }
     return writeReplace(index, output.str(), false);
 }
 
-HttpResult request(const std::string& url, const LLSD* post)
+HttpResult request(const std::string& url, const LLSD* post, U32 epoch)
 {
     HttpResult result;
 
@@ -1123,6 +897,7 @@ HttpResult request(const std::string& url, const LLSD* post)
     options->setTimeout(30);
     LLSD response = post ? adapter->postAndSuspend(http_request, url, *post, options)
                          : adapter->getAndSuspend(http_request, url, options);
+    requireRuntime(epoch);
     const LLCore::HttpStatus status =
         LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(
             response[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS]);
@@ -1166,16 +941,6 @@ bool uuidBlocked(const LLUUID& id)
     return !mute || !mute->isLoadedFromServer() || mute->isMuted(id);
 }
 
-U32 pendingMetadataCount()
-{
-    U32 count = 0;
-    for (const auto& pair : sRuntime.residents)
-    {
-        count += pair.second.metadata.state == META_PENDING;
-    }
-    return count;
-}
-
 bool ensureMetadata(const LLUUID& id, Resident& resident)
 {
     // A resolved record is stable for this login; view loads need no new publication.
@@ -1193,30 +958,28 @@ bool ensureMetadata(const LLUUID& id, Resident& resident)
         publishSnapshot(id, resident);
         return true;
     }
-    if (resident.metadata.state == META_PENDING || resident.metadata.state == META_FAILED ||
-        pendingMetadataCount() >= 8)
+    if (resident.metadata.state == META_PENDING || resident.metadata.state == META_FAILED)
     {
         return false;
     }
 
-    // Mark the attempt first because a cache hit may deliver synchronously from get().
+    // The name cache owns batching and request deduplication. Keep one subscription
+    // per resident and a presentation timeout; cache hits may complete synchronously.
     resident.metadata.state = META_PENDING;
     resident.metadata.deadline = F64(LLTimer::getTotalSeconds()) + NAME_TIMEOUT;
-    const U32 attempt = ++resident.metadata.attempt;
     const U32 epoch = sRuntime.epoch;
-    boost::signals2::connection connection = LLAvatarNameCache::get(
-        id, [id, epoch, attempt](const LLUUID&, const LLAvatarName& name)
+    resident.metadata.connection = LLAvatarNameCache::get(
+        id, [id, epoch](const LLUUID&, const LLAvatarName& name)
         {
-            // Epoch and attempt checks discard callbacks from a prior account or a
-            // timed-out lookup before they mutate resident state.
+            // Cache callbacks run on the main loop. Timeout disconnects the slot;
+            // the epoch also fences logout and account replacement.
             if (!sRuntime.running || sRuntime.epoch != epoch)
             {
                 return;
             }
             auto found = sRuntime.residents.find(id);
             if (found == sRuntime.residents.end() ||
-                found->second.metadata.state != META_PENDING ||
-                found->second.metadata.attempt != attempt)
+                found->second.metadata.state != META_PENDING)
             {
                 return;
             }
@@ -1226,30 +989,20 @@ bool ensureMetadata(const LLUUID& id, Resident& resident)
             sRuntime.index_dirty = true;
             if (found->second.metadata_waiting)
             {
-                queueResident(id, found->second.priority_waiting);
+                queueResident(id, sRuntime.priority_resident == id);
                 found->second.metadata_waiting = false;
-                found->second.priority_waiting = false;
             }
             publishSnapshot(id, found->second);
             wakeManager();
         });
-    if (resident.metadata.state == META_PENDING && resident.metadata.attempt == attempt)
-    {
-        resident.metadata.connection = connection;
-    }
-    else
-    {
-        connection.disconnect();
-    }
     return resident.metadata.state == META_RESOLVED;
 }
 
 bool baseNetworkEligible(const CapabilityContext& context)
 {
     // The shared gate is re-evaluated before every request and publication phase.
-    return sRuntime.running && sRuntime.rollout && transcriptConsent() &&
-           sRuntime.state_safety == STATE_SAFE && !sRuntime.cleanup_pending &&
-           !sRuntime.delete_requested && context.complete() &&
+    return sRuntime.running && LLChatServiceHistory::servicePresentationAllowed() &&
+           context.complete() &&
            LLMuteList::getInstance() && LLMuteList::getInstance()->isLoadedFromServer();
 }
 
@@ -1262,25 +1015,17 @@ bool networkEligible(const LLUUID& id, const Resident& resident,
 void expireMetadata();
 void activateDueActivityRefreshes();
 
-bool waitForWake(F64 seconds, U32 epoch)
+void waitForWake(F64 seconds, U32 epoch)
 {
-    if (!ownsRuntime(epoch) || !sWake)
-    {
-        return false;
-    }
-
-    // Coalesce queued wake events, then sleep until either state changes or the
-    // nearest pacing, list, metadata, or activity deadline arrives.
+    // The login creates the wake pump before launching the manager. Every wait
+    // ends the old coroutine on logout before it can resume account work.
+    requireRuntime(epoch);
     sRuntime.wake_pending = false;
     sWake->discard();
     llcoro::suspendUntilEventOnWithTimeout(*sWake, static_cast<F32>(llmax(0.01, seconds)),
                                            LLSDMap("timeout", true));
-    if (!ownsRuntime(epoch))
-    {
-        return false;
-    }
+    requireRuntime(epoch);
     sRuntime.wake_pending = false;
-    return true;
 }
 
 bool pace(const CapabilityContext& context, U32 epoch,
@@ -1288,7 +1033,8 @@ bool pace(const CapabilityContext& context, U32 epoch,
 {
     // Pacing remains interruptible so lifecycle, capability, mute, metadata, and
     // deletion changes can cancel a queued request before network I/O begins.
-    while (ownsRuntime(epoch))
+    requireRuntime(epoch);
+    for (;;)
     {
         if (sampleContext() != context || sRuntime.delete_requested)
         {
@@ -1325,23 +1071,9 @@ bool pace(const CapabilityContext& context, U32 epoch,
                 wait = llmin(wait, pair.second.activity_refresh_due - now);
             }
         }
-        const U32 pending_before = pendingMetadataCount();
-        if (!waitForWake(wait, epoch))
-        {
-            return false;
-        }
+        waitForWake(wait, epoch);
         expireMetadata();
-        if (pendingMetadataCount() < pending_before && pendingMetadataCount() < 8)
-        {
-            // Give the manager a turn to fill a newly-open name slot before cooldown ends.
-            if (resident_id.notNull())
-            {
-                queueResident(resident_id, sRuntime.priority_resident == resident_id);
-            }
-            return false;
-        }
     }
-    return false;
 }
 
 void handleRequestFailure(const LLUUID& id, Resident& resident, S32 status)
@@ -1352,7 +1084,6 @@ void handleRequestFailure(const LLUUID& id, Resident& resident, S32 status)
         sRuntime.network_not_before = llmax(sRuntime.network_not_before,
             F64(LLTimer::getTotalSeconds()) + RATE_LIMIT_DELAY);
         queueResident(id, sRuntime.priority_resident == id);
-        setWorkActive(id, true);
         return;
     }
     if (retryable(status) && !resident.retry_used)
@@ -1363,11 +1094,6 @@ void handleRequestFailure(const LLUUID& id, Resident& resident, S32 status)
         sRuntime.network_not_before = llmax(sRuntime.network_not_before,
             F64(LLTimer::getTotalSeconds()) + RETRY_DELAY);
         queueResident(id, sRuntime.priority_resident == id);
-    }
-    else
-    {
-        setWorkActive(id, false);
-        clearPriority(id);
     }
 }
 
@@ -1408,18 +1134,15 @@ bool processList(const LLSD& body, bool& confirm_activity_discovery)
                 sRuntime.priority_resident.setNull();
             }
             pair.second.metadata_waiting = false;
-            pair.second.priority_waiting = false;
             setWorkActive(pair.first, false);
         }
     }
-    const bool first_list = !sRuntime.list_valid;
     for (const ListEntry& entry : entries)
     {
         Resident& resident = sRuntime.residents[entry.resident_id];
         const bool placeholder = std::find(sRuntime.queue.begin(), sRuntime.queue.end(),
                                            entry.resident_id) != sRuntime.queue.end();
         const bool changed = resident.advertised_token != entry.last_msg_id;
-        resident.conversation_id = entry.conversation_id;
         resident.advertised_token = entry.last_msg_id;
         resident.listed = true;
         resident.activity_discovery = DISCOVERY_NONE;
@@ -1428,17 +1151,14 @@ bool processList(const LLSD& body, bool& confirm_activity_discovery)
             resident.metadata.state = META_UNREQUESTED;
         }
 
-        // Queue only when discovery or archive coverage says the head may contain
-        // unseen rows; token equality is not used as a TimeUUID ordering claim.
-        if (!placeholder && (first_list || changed || resident.force_head ||
-            resident.covered_token != resident.advertised_token ||
-            resident.covered_serial != resident.archive_serial))
+        // Empty coverage queues first discovery. Later lists queue changed or
+        // uncovered heads; token equality is not a TimeUUID ordering claim.
+        if (!placeholder && (changed || resident.covered_token != resident.advertised_token))
         {
             resident.retry_used = false;
             queueResident(entry.resident_id, false);
         }
     }
-    sRuntime.list_valid = true;
     return true;
 }
 
@@ -1456,10 +1176,10 @@ void requestList(const CapabilityContext& context, U32 epoch)
     // Discovery mutates resident scheduling state only after the complete response
     // passes strict validation. A pending activity hint remains visible across the
     // HTTP suspension and is consumed by processList rather than this request latch.
-    const HttpResult response = request(context.list_url, NULL);
+    const HttpResult response = request(context.list_url, NULL, epoch);
     LL_INFOS("ChatServiceHistory")
         << "Conversation-list response: status=" << response.status << LL_ENDL;
-    if (!ownsRuntime(epoch) || sampleContext() != context || sRuntime.delete_requested ||
+    if (sampleContext() != context || sRuntime.delete_requested ||
         !baseNetworkEligible(context))
     {
         return;
@@ -1502,6 +1222,38 @@ void requestList(const CapabilityContext& context, U32 epoch)
     }
 }
 
+bool prepareResidentArchive(const LLUUID& id, U32 epoch)
+{
+    const std::string path = archivePath(sRuntime.account_dir, id);
+    const LLUUID agent_id = sRuntime.agent_id;
+    const U64 boundary = sRuntime.deleted_before_ticks;
+    bool changed = false;
+    ArchiveScan summary;
+    const bool prepared = runStorage(epoch,
+        [path, id, agent_id, boundary, &summary, &changed]()
+        {
+            return prepareArchive(path, id, agent_id, boundary, summary, changed);
+        });
+    if (!prepared)
+    {
+        return false;
+    }
+
+    // Only this manager removes residents, so the epoch check preserves their
+    // identity across the worker wait. Repair invalidates both views and coverage.
+    Resident& current = sRuntime.residents.at(id);
+    current.summary = summary;
+    sRuntime.index_dirty = true;
+    if (changed)
+    {
+        ++current.archive_serial;
+        current.covered_token.clear();
+        sRuntime.local_content_exists = true;
+    }
+    publishSnapshot(id, current);
+    return true;
+}
+
 void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
 {
     auto found = sRuntime.residents.find(id);
@@ -1509,412 +1261,228 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     {
         return;
     }
+    Resident& resident = found->second;
 
-    // Establish discovery, blocking, metadata, and archive-summary prerequisites
-    // before this resident becomes the manager's active network pass.
-    bool needs_prepare = false;
-    bool had_boundary = false;
-    TimeUuidKey stored_newest;
+    // Resolve prerequisites before starting a pass. Only the manager erases
+    // residents; its checked waits terminate before a reference can become stale.
+    if (!resident.listed)
     {
-        Resident& resident = found->second;
-        if (!resident.listed || resident.conversation_id.empty())
-        {
-            // A failed discovery remains dormant until a fresh open/list/region or
-            // due activity trigger.
-            resident.activity_discovery = DISCOVERY_NONE;
-            resident.snapshot.head_preview.clear();
-            setWorkActive(id, false);
-            clearPriority(id);
-            return;
-        }
-        if (uuidBlocked(id))
-        {
-            setWorkActive(id, false);
-            clearPriority(id);
-            return;
-        }
-        if (!ensureMetadata(id, resident))
-        {
-            resident.metadata_waiting = true;
-            resident.priority_waiting = resident.priority_waiting || sRuntime.priority_resident == id;
-            return;
-        }
-        resident.metadata_waiting = false;
-        resident.priority_waiting = false;
-        if (!networkEligible(id, resident, context))
-        {
-            setWorkActive(id, false);
-            clearPriority(id);
-            return;
-        }
-        setWorkActive(id, true);
-        sRuntime.active_resident = id;
-        resident.first_request_started = false;
-        needs_prepare = resident.summary.state == SUMMARY_UNPREPARED;
-        had_boundary = !needs_prepare && resident.summary.state == SUMMARY_VALID &&
-                       resident.summary.has_rows;
-        stored_newest = resident.summary.newest;
+        resident.activity_discovery = DISCOVERY_NONE;
+        resident.snapshot.head_preview.clear();
+        setWorkActive(id, false);
+        clearPriority(id);
+        return;
     }
+    if (uuidBlocked(id))
+    {
+        setWorkActive(id, false);
+        clearPriority(id);
+        return;
+    }
+    if (!ensureMetadata(id, resident))
+    {
+        resident.metadata_waiting = true;
+        return;
+    }
+    resident.metadata_waiting = false;
+    if (!networkEligible(id, resident, context))
+    {
+        setWorkActive(id, false);
+        clearPriority(id);
+        return;
+    }
+    setWorkActive(id, true);
+    sRuntime.active_resident = id;
+    resident.first_request_started = false;
 
-    // Stage a complete bounded pass in memory. No canonical bytes change until every
-    // traversed page validates and reaches a terminal condition or durable seam.
+    // Every exit retires the transient head and active pass. Queued retries keep
+    // their work indicator; logout leaves the replacement account untouched.
+    boost::scope::scope_exit finish([epoch, id, &resident]()
+    {
+        if (!ownsRuntime(epoch))
+        {
+            return;
+        }
+        resident.snapshot.head_preview.clear();
+        if (std::find(sRuntime.queue.begin(), sRuntime.queue.end(), id) == sRuntime.queue.end())
+        {
+            resident.snapshot.service_work_active = false;
+            clearPriority(id);
+        }
+        sRuntime.active_resident.setNull();
+        publishSnapshot(id, resident);
+    });
+
+    bool needs_prepare = resident.summary.state == ARCHIVE_FAILED;
+    bool had_boundary = !needs_prepare && resident.summary.state == ARCHIVE_VALID &&
+                        resident.summary.has_oldest;
+    TimeUuidKey stored_newest = resident.summary.newest;
+    const std::string conversation_id = directConversationId(sRuntime.agent_id, id);
     std::vector<Row> staged;
-    std::set<std::string> pass_ids;
     size_t staged_bytes = 0;
     U32 returned_rows = 0;
     std::string cursor;
     bool complete = false;
     bool exposed_preview = false;
+
+    // Stage a complete bounded pass before changing canonical bytes. Pacing and
+    // each awaited page remain cancellation/priority boundaries.
     while (!complete)
     {
         if (!pace(context, epoch, id))
         {
-            if (!ownsRuntime(epoch))
-            {
-                return;
-            }
-            found = sRuntime.residents.find(id);
-            if (found == sRuntime.residents.end())
-            {
-                return;
-            }
-
-            // Temporary account-wide ineligibility retains one occurrence; permanent
-            // resident ineligibility clears priority and leaves the pass dormant.
-            Resident& suspended = found->second;
-            suspended.snapshot.head_preview.clear();
+            // Capability or account-wide gates retain one queued occurrence;
+            // a blocked resident stays dormant until a fresh ordinary trigger.
             setWorkActive(id, false);
-            sRuntime.active_resident.setNull();
             LLMuteList* mute = LLMuteList::getInstance();
-            const bool already_queued =
-                std::find(sRuntime.queue.begin(), sRuntime.queue.end(), id) !=
-                sRuntime.queue.end();
             const bool temporarily_ineligible = !sRuntime.delete_requested &&
                 (sampleContext() != context || !baseNetworkEligible(context) ||
                  !mute || !mute->isLoadedFromServer());
-            if (!already_queued)
+            if (temporarily_ineligible &&
+                std::find(sRuntime.queue.begin(), sRuntime.queue.end(), id) == sRuntime.queue.end())
             {
-                if (temporarily_ineligible)
-                {
-                    queueResident(id, sRuntime.priority_resident == id);
-                }
-                else
-                {
-                    clearPriority(id);
-                }
+                queueResident(id, sRuntime.priority_resident == id);
             }
             return;
         }
-
-        // Capture the validated conversation and cursor immediately before issuing
-        // this page request.
-        LLSD post;
+        if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
         {
-            found = sRuntime.residents.find(id);
-            if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-            {
-                return;
-            }
-            Resident& current = found->second;
-            if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
-            {
-                queueResident(id, false);
-                staged.clear();
-                break;
-            }
-            // If the first head request begins just after quiet expiry, it already
-            // covers that burst. Cursor pages never consume a newer deadline.
-            if (!current.first_request_started && cursor.empty() &&
-                current.activity_refresh_due > 0.0 &&
-                current.activity_refresh_due <= F64(LLTimer::getTotalSeconds()))
-            {
-                current.activity_refresh_due = 0.0;
-            }
-            current.first_request_started = true;
-            post["conversation_id"] = current.conversation_id;
-            post["limit"] = 100;
-            if (!cursor.empty())
-            {
-                post["before_msg_id"] = cursor;
-            }
+            queueResident(id, false);
+            return;
         }
 
-        const HttpResult response = request(context.history_url, &post);
+        // The first head request covers a burst whose quiet deadline has elapsed;
+        // continuation pages never consume a newer activity deadline.
+        if (!resident.first_request_started && cursor.empty() &&
+            resident.activity_refresh_due > 0.0 &&
+            resident.activity_refresh_due <= F64(LLTimer::getTotalSeconds()))
+        {
+            resident.activity_refresh_due = 0.0;
+        }
+        resident.first_request_started = true;
+        LLSD post;
+        post["conversation_id"] = conversation_id;
+        post["limit"] = 100;
+        if (!cursor.empty())
+        {
+            post["before_msg_id"] = cursor;
+        }
+
+        const HttpResult response = request(context.history_url, &post, epoch);
         LL_INFOS("ChatServiceHistory")
             << "History response: resident_id=" << id << ", status=" << response.status
             << ", cursor=" << (cursor.empty() ? "head" : "continuation") << LL_ENDL;
-        Page page;
-        found = sRuntime.residents.find(id);
-        if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
+        if (sRuntime.delete_requested || sampleContext() != context ||
+            !networkEligible(id, resident, context))
         {
             return;
         }
+        if (response.status < 200 || response.status >= 300)
         {
-            // Recheck account and resident eligibility after suspension, then validate
-            // the complete response before exposing preview or staging rows.
-            Resident& after_request = found->second;
-            if (sRuntime.delete_requested || sampleContext() != context ||
-                !networkEligible(id, after_request, context))
+            handleRequestFailure(id, resident, response.status);
+            return;
+        }
+        Page page;
+        if (!validateHistoryPage(response.body, sRuntime.agent_id, id, cursor,
+                                 sRuntime.deleted_before_ticks, page))
+        {
+            return;
+        }
+
+        // Apply priority changes only after the complete response validates.
+        activateDueActivityRefreshes();
+        if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
+        {
+            queueResident(id, false);
+            return;
+        }
+        if (!exposed_preview && !page.rows.empty())
+        {
+            resident.snapshot.head_preview = page.rows;
+            exposed_preview = true;
+            publishSnapshot(id, resident);
+        }
+
+        // Present the first page before scanning a potentially years-long archive.
+        if (needs_prepare)
+        {
+            if (!prepareResidentArchive(id, epoch))
             {
-                break;
-            }
-            if (response.status < 200 || response.status >= 300)
-            {
-                handleRequestFailure(id, after_request, response.status);
-                after_request.snapshot.head_preview.clear();
-                publishSnapshot(id, after_request);
-                sRuntime.active_resident.setNull();
                 return;
             }
-            if (!validateHistoryPage(response.body, sRuntime.agent_id, id,
-                                     after_request.conversation_id, cursor,
-                                     sRuntime.deleted_before_ticks, page))
-            {
-                failResidentPass(id, after_request);
-                break;
-            }
-
-            // A validated response is the yield boundary for activity deadlines
-            // that matured while this request was in flight.
+            needs_prepare = false;
+            had_boundary = resident.summary.state == ARCHIVE_VALID && resident.summary.has_oldest;
+            stored_newest = resident.summary.newest;
             activateDueActivityRefreshes();
-            if (!ownsRuntime(epoch))
-            {
-                return;
-            }
-
-            // A different priority takes effect only after this response validates.
             if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
             {
                 queueResident(id, false);
-                staged.clear();
-                break;
-            }
-            if (!exposed_preview && !page.rows.empty())
-            {
-                if (!networkEligible(id, after_request, context))
-                {
-                    break;
-                }
-                after_request.snapshot.head_preview = page.rows;
-                exposed_preview = true;
-                publishSnapshot(id, after_request);
-            }
-        }
-
-        // The first validated page is visible before a potentially years-long archive scan.
-        if (needs_prepare)
-        {
-            bool bytes_changed = false;
-            Summary summary;
-            const std::string path = archivePath(sRuntime.account_dir, sRuntime.delimiter, id);
-            const LLUUID agent_id = sRuntime.agent_id;
-            const U64 boundary = sRuntime.deleted_before_ticks;
-            LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-            const bool prepared = general && general->waitForResult(
-                [path, id, agent_id, boundary, &summary, &bytes_changed]()
-                {
-                    return prepareArchive(path, id, agent_id, boundary, summary, bytes_changed);
-                });
-            found = sRuntime.residents.find(id);
-            if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-            {
                 return;
             }
-            {
-                Resident& after_prepare = found->second;
-                if (!prepared)
-                {
-                    failResidentPass(id, after_prepare);
-                    sRuntime.active_resident.setNull();
-                    return;
-                }
-                needs_prepare = false;
-                after_prepare.summary = summary;
-                sRuntime.index_dirty = true;
-                had_boundary = summary.state == SUMMARY_VALID && summary.has_rows;
-                stored_newest = summary.newest;
-                if (bytes_changed)
-                {
-                    ++after_prepare.archive_serial;
-                    after_prepare.covered_token.clear();
-                    sRuntime.index_dirty = true;
-                    sRuntime.local_content_exists = true;
-                    publishSnapshot(id, after_prepare);
-                }
-
-                // Archive inspection is also an awaited page boundary; apply any
-                // activity priority that matured while it ran before staging rows.
-                activateDueActivityRefreshes();
-                if (sRuntime.priority_resident.notNull() && sRuntime.priority_resident != id)
-                {
-                    queueResident(id, false);
-                    staged.clear();
-                    break;
-                }
-            }
         }
 
-        // Archive preparation can suspend across logout; never retain its old Resident reference.
-        found = sRuntime.residents.find(id);
-        if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-        {
-            return;
-        }
-        Resident& page_resident = found->second;
-        bool reached_stored_newest = false;
+        // Strictly descending pages accumulate only above the durable newest key.
+        // Count every returned row and retained payload against the pass bounds.
         for (const Row& row : page.rows)
         {
-            if (!pass_ids.insert(row.msg_id).second)
+            if (++returned_rows > MAX_PASS_ROWS)
             {
-                staged.clear();
-                complete = false;
-                failResidentPass(id, page_resident);
-                sRuntime.active_resident.setNull();
                 return;
             }
-            ++returned_rows;
-            if (returned_rows > MAX_PASS_ROWS)
-            {
-                staged.clear();
-                failResidentPass(id, page_resident);
-                sRuntime.active_resident.setNull();
-                return;
-            }
-
-            // The durable newest key is the accumulation boundary. Reaching it ends
-            // this pass without re-reading or reconciling older canonical rows.
             if (had_boundary && row.key <= stored_newest)
             {
-                reached_stored_newest = true;
+                complete = true;
                 break;
             }
-
-            // Count the serialized field payload against one pass-wide memory bound
-            // before retaining the row.
             const size_t bytes = row.conversation_id.size() + row.msg_id.size() + 36 +
                 row.from_name.size() + row.message.size() + std::to_string(row.dialog).size() +
                 row.created_at.size();
             if (staged_bytes + bytes > MAX_PASS_BYTES)
             {
-                staged.clear();
-                failResidentPass(id, page_resident);
-                sRuntime.active_resident.setNull();
                 return;
             }
             staged_bytes += bytes;
             staged.push_back(row);
         }
-        complete = page.terminal || reached_stored_newest;
-        if (!complete)
-        {
-            if (page.next_cursor.empty())
-            {
-                staged.clear();
-                break;
-            }
-            cursor = page.next_cursor;
-        }
+        complete = complete || page.terminal;
+        cursor = page.next_cursor;
     }
 
-    if (!complete)
-    {
-        found = sRuntime.residents.find(id);
-        if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-        {
-            return;
-        }
-        Resident& final_resident = found->second;
-        final_resident.snapshot.head_preview.clear();
-        if (std::find(sRuntime.queue.begin(), sRuntime.queue.end(), id) == sRuntime.queue.end())
-        {
-            failResidentPass(id, final_resident);
-        }
-        else
-        {
-            publishSnapshot(id, final_resident);
-        }
-        sRuntime.active_resident.setNull();
-        return;
-    }
-
-    // The service pages arrive newest-first; canonical publication is oldest-first.
-    std::sort(staged.begin(), staged.end(), [](const Row& left, const Row& right)
-    {
-        return left.key < right.key;
-    });
-
-    found = sRuntime.residents.find(id);
-    if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-    {
-        return;
-    }
-
-    Resident& final_resident = found->second;
-    if (!networkEligible(id, final_resident, context) || sRuntime.delete_requested ||
+    // Recheck dispatch gates after the final page/scan, then publish oldest-first.
+    if (!networkEligible(id, resident, context) || sRuntime.delete_requested ||
         sampleContext() != context)
     {
-        final_resident.snapshot.head_preview.clear();
-        setWorkActive(id, false);
-        clearPriority(id);
-        sRuntime.active_resident.setNull();
         return;
     }
-
+    std::reverse(staged.begin(), staged.end());
     bool changed = false;
-    bool publication_failed = false;
     if (!staged.empty())
     {
-        Summary resulting = final_resident.summary;
-        const bool append = final_resident.summary.state == SUMMARY_VALID &&
-                            final_resident.summary.has_rows;
-        const std::string account_dir = sRuntime.account_dir;
-        const std::string path = archivePath(account_dir, sRuntime.delimiter, id);
-
-        // Re-sample account, capability, deletion, and blocking gates immediately
-        // before dispatching one bounded mutation. A later Delete sweep owns any
-        // artifact that lands after this final dispatch boundary.
-        if (!ownsRuntime(epoch) || sRuntime.account_dir != account_dir ||
-            sampleContext() != context || sRuntime.delete_requested ||
-            !networkEligible(id, final_resident, context))
+        ArchiveScan resulting = resident.summary;
+        const bool append = resident.summary.state == ARCHIVE_VALID && resident.summary.has_oldest;
+        const std::string path = archivePath(sRuntime.account_dir, id);
+        changed = runStorage(epoch, [path, staged, append, &resulting]()
         {
-            return;
-        }
-
-        LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-        changed = general && general->waitForResult(
-            [path, staged, append, &resulting]() mutable
-            {
-                return publishRows(path, staged, append, resulting);
-            });
+            return publishRows(path, staged, append, resulting);
+        });
         LL_INFOS("ChatServiceHistory")
             << "Archive publication: resident_id=" << id << ", rows=" << staged.size()
             << ", mode=" << (append ? "append" : "replace")
             << ", success=" << changed << LL_ENDL;
 
-        found = sRuntime.residents.find(id);
-        if (!ownsRuntime(epoch) || sRuntime.account_dir != account_dir ||
-            found == sRuntime.residents.end())
-        {
-            return;
-        }
-
-        Resident& after_publish = found->second;
+        // Success and partial-write failure both invalidate readers and the manifest.
+        ++resident.archive_serial;
+        sRuntime.index_dirty = true;
+        sRuntime.local_content_exists = true;
         if (changed)
         {
-            after_publish.summary = resulting;
-            ++after_publish.archive_serial;
-            sRuntime.index_dirty = true;
-            sRuntime.local_content_exists = true;
-
-            // Every durable archive change can create or advance Conversation Log
-            // metadata without creating a live IM session.
-            if (after_publish.summary.has_rows &&
-                after_publish.metadata.state == META_RESOLVED)
+            resident.summary = resulting;
+            if (resident.metadata.state == META_RESOLVED)
             {
-                const F64 archived_seconds = after_publish.summary.newest.ticks >= UUID_EPOCH
-                    ? static_cast<F64>(after_publish.summary.newest.ticks - UUID_EPOCH) / 10000000.0
+                const F64 archived_seconds = resident.summary.newest.ticks >= UUID_EPOCH
+                    ? static_cast<F64>(resident.summary.newest.ticks - UUID_EPOCH) / 10000000.0
                     : static_cast<F64>(time_corrected());
-                const LLAvatarName name = after_publish.metadata.name;
+                const LLAvatarName name = resident.metadata.name;
                 postPresentation([id, name, archived_seconds]()
                 {
                     if (!LLChatServiceHistory::historySuppressed())
@@ -1928,73 +1496,40 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
                     }
                 });
             }
-
-            postPresentation(LLLogChat::notifyTranscriptCreated);
         }
         else
         {
-            // Append/replace failure may have changed bytes; invalidate every reader token.
-            ++after_publish.archive_serial;
-            after_publish.summary.state = SUMMARY_UNPREPARED;
-            after_publish.covered_token.clear();
-            sRuntime.index_dirty = true;
-            sRuntime.local_content_exists = true;
-            postPresentation(LLLogChat::notifyTranscriptCreated);
-            publication_failed = true;
+            // A partial write needs a fresh scan before another pass can claim coverage.
+            resident.summary.state = ARCHIVE_FAILED;
+            resident.covered_token.clear();
         }
+        postPresentation(LLLogChat::notifyTranscriptCreated);
     }
 
-    found = sRuntime.residents.find(id);
-    if (!ownsRuntime(epoch) || found == sRuntime.residents.end())
-    {
-        return;
-    }
-
-    // Publish the new archive generation, clear the transient preview, and retain at
-    // most one qualifying follow-up that arrived after this pass began.
-    Resident& applied = found->second;
-
+    // Only a complete pass claims coverage. At most one activity-triggered follow-up
+    // survives; the scope exit handles preview and work-status publication.
     if (sRuntime.delete_requested)
     {
-        applied.snapshot.head_preview.clear();
-        sRuntime.active_resident.setNull();
         return;
     }
-
     if (changed || staged.empty())
     {
-        applied.covered_token = applied.advertised_token;
-        applied.covered_serial = applied.archive_serial;
+        resident.covered_token = resident.advertised_token;
+        resident.retry_used = false;
     }
-
-    if (!publication_failed)
+    if (resident.forced_followup && networkEligible(id, resident, context))
     {
-        applied.retry_used = false;
-        applied.force_head = false;
-    }
-
-    applied.snapshot.head_preview.clear();
-    publishSnapshot(id, applied);
-
-    if (applied.forced_followup && networkEligible(id, applied, context))
-    {
-        applied.forced_followup = false;
+        resident.forced_followup = false;
         queueResident(id, true);
     }
     else
     {
-        setWorkActive(id, false);
+        resident.snapshot.service_work_active = false;
     }
-
-    if (sRuntime.priority_resident == id)
-    {
-        sRuntime.priority_resident.setNull();
-    }
-    sRuntime.active_resident.setNull();
+    clearPriority(id);
 }
 
-bool sweepServiceArtifacts(const std::string& directory, const std::string& delimiter,
-                           const std::string& state_path)
+bool sweepServiceArtifacts(const std::string& directory, const std::string& state_path)
 {
     LLMutexLock lock(&sStorageMutex);
 
@@ -2007,7 +1542,7 @@ bool sweepServiceArtifacts(const std::string& directory, const std::string& deli
     {
         if (ownedArtifactName(name) && name != STATE_NAME)
         {
-            targets.push_back(childPath(directory, delimiter, name));
+            targets.push_back(directory + name);
         }
     }
 
@@ -2016,15 +1551,11 @@ bool sweepServiceArtifacts(const std::string& directory, const std::string& deli
     targets.push_back(state_path + ".tmp");
 
     bool success = true;
+    // Attempt every owned path under the storage lock. Missing paths are already
+    // successful removals; any reported failure keeps cleanup pending.
     for (const std::string& path : targets)
     {
-        if (LLFile::remove(path, ENOENT) != 0 && errno != ENOENT)
-        {
-            success = false;
-        }
-
-        bool exists = false;
-        if (!inspectRegular(path, exists) || exists)
+        if (LLFile::remove(path) != 0)
         {
             success = false;
         }
@@ -2071,7 +1602,7 @@ void finishDelete(bool success)
 
 void runDelete(U32 epoch)
 {
-    const std::string state_path = childPath(sRuntime.account_dir, sRuntime.delimiter, STATE_NAME);
+    const std::string state_path = sRuntime.account_dir + STATE_NAME;
     U64 boundary = sRuntime.delete_click_ticks;
 
     // Publish the inclusive cutoff as pending before invalidating views or removing
@@ -2140,10 +1671,7 @@ void runDelete(U32 epoch)
         LLFloaterIMSessionTab::processChatHistoryStyleUpdate(true);
         return true;
     });
-    if (!ownsRuntime(epoch))
-    {
-        return;
-    }
+    requireRuntime(epoch);
     if (!cleared)
     {
         finishDelete(false);
@@ -2152,39 +1680,21 @@ void runDelete(U32 epoch)
 
     // Sweep legacy transcripts first, then service-owned artifacts, through the
     // shared filesystem mutation boundaries on the General queue.
-    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
     const std::string chat_logs_dir =
         gDirUtilp ? gDirUtilp->getPerAccountChatLogsDir() : std::string();
-    const std::string account_dir = sRuntime.account_dir;
-    const std::string delimiter = sRuntime.delimiter;
-    const bool legacy = general && general->waitForResult([chat_logs_dir]()
-    {
-        return !chat_logs_dir.empty() && LLLogChat::deleteTranscriptContent(chat_logs_dir);
-    });
-    if (!ownsRuntime(epoch))
-    {
-        return;
-    }
-    const bool service = legacy && general->waitForResult(
-        [account_dir, delimiter, state_path]()
+    const bool swept = runStorage(epoch,
+        [chat_logs_dir, directory = sRuntime.account_dir, state_path]()
         {
-            return sweepServiceArtifacts(account_dir, delimiter, state_path);
+            return !chat_logs_dir.empty() && LLLogChat::deleteTranscriptContent(chat_logs_dir) &&
+                   sweepServiceArtifacts(directory, state_path);
         });
-    if (!ownsRuntime(epoch))
-    {
-        return;
-    }
-    if (!service)
+    if (!swept)
     {
         finishDelete(false);
         return;
     }
 
     // Clear pending only after both sweeps and their required directory syncs succeed.
-    if (!ownsRuntime(epoch))
-    {
-        return;
-    }
     {
         LLMutexLock lock(&sStorageMutex);
         if (!writeState(state_path, boundary, false))
@@ -2194,10 +1704,6 @@ void runDelete(U32 epoch)
             return;
         }
     }
-    if (!ownsRuntime(epoch))
-    {
-        return;
-    }
 
     // Reset cached summaries last so subsequent discovery starts from empty storage.
     sRuntime.residents.clear();
@@ -2206,34 +1712,21 @@ void runDelete(U32 epoch)
     finishDelete(true);
 }
 
-bool initializeArchives(U32 epoch)
+void initializeArchives(U32 epoch)
 {
     // Discover account-local artifacts off the main thread; individual archives are
     // prepared incrementally by the manager so startup remains bounded.
-    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-    const std::string directory = sRuntime.account_dir;
-    const std::string delimiter = sRuntime.delimiter;
-    typedef std::pair<std::vector<LLUUID>, bool> initial_artifacts_t;
-    const initial_artifacts_t artifacts = general
-        ? general->waitForResult([directory, delimiter]()
-          {
-              return initial_artifacts_t(enumerateArchives(directory, delimiter),
-                                         hasOwnedContent(directory));
-          })
-        : initial_artifacts_t();
-    if (!ownsRuntime(epoch))
+    const auto artifacts = runStorage(epoch, [directory = sRuntime.account_dir]()
     {
-        return false;
-    }
+        return enumerateArchives(directory);
+    });
     sRuntime.local_content_exists = artifacts.second;
-    const std::vector<LLUUID>& ids = artifacts.first;
-    for (const LLUUID& id : ids)
+    for (const LLUUID& id : artifacts.first)
     {
-        sRuntime.residents[id].summary.state = SUMMARY_UNPREPARED;
+        sRuntime.residents[id].summary.state = ARCHIVE_FAILED;
     }
     sRuntime.initialized_archives = true;
     sRuntime.index_dirty = true;
-    return true;
 }
 
 bool prepareOneArchive(U32 epoch)
@@ -2241,7 +1734,7 @@ bool prepareOneArchive(U32 epoch)
     for (auto& pair : sRuntime.residents)
     {
         Resident& resident = pair.second;
-        if (resident.summary.state != SUMMARY_UNPREPARED)
+        if (resident.summary.state != ARCHIVE_FAILED)
         {
             continue;
         }
@@ -2249,144 +1742,47 @@ bool prepareOneArchive(U32 epoch)
         // Prepare one archive per manager turn so network priority and lifecycle
         // events can interleave with storage maintenance.
         const LLUUID id = pair.first;
-        const std::string path = archivePath(sRuntime.account_dir, sRuntime.delimiter, id);
-        const LLUUID agent_id = sRuntime.agent_id;
-        const U64 boundary = sRuntime.deleted_before_ticks;
-        bool changed = false;
-        Summary summary;
-        LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-        const bool prepared = general && general->waitForResult(
-            [path, id, agent_id, boundary, &summary, &changed]()
-            {
-                return prepareArchive(path, id, agent_id, boundary, summary, changed);
-            });
-        if (!ownsRuntime(epoch))
+        if (!prepareResidentArchive(id, epoch))
         {
             return false;
         }
-        auto found = sRuntime.residents.find(id);
-        if (found == sRuntime.residents.end())
+        Resident& current = sRuntime.residents.at(id);
+        if (current.summary.has_oldest)
         {
-            return false;
+            ensureMetadata(id, current);
         }
-        Resident& current = found->second;
-        if (prepared)
-        {
-            current.summary = summary;
-            // Prepared validity changes index membership even when no bytes required repair.
-            sRuntime.index_dirty = true;
-            if (changed)
-            {
-                ++current.archive_serial;
-            }
-            if (summary.has_rows)
-            {
-                ensureMetadata(id, current);
-            }
-            publishSnapshot(id, current);
-            postPresentation(LLLogChat::notifyTranscriptCreated);
-        }
-        return prepared;
-    }
-    return false;
-}
-
-void fillMetadataSlots()
-{
-    while (pendingMetadataCount() < 8)
-    {
-        auto found = std::find_if(sRuntime.residents.begin(), sRuntime.residents.end(),
-            [](const auto& pair)
-            {
-                return pair.second.priority_waiting &&
-                       pair.second.metadata.state == META_UNREQUESTED;
-            });
-        if (found == sRuntime.residents.end())
-        {
-            found = std::find_if(sRuntime.residents.begin(), sRuntime.residents.end(),
-                [](const auto& pair)
-                {
-                    return (pair.second.metadata_waiting ||
-                            pair.second.summary.state == SUMMARY_VALID) &&
-                           pair.second.metadata.state == META_UNREQUESTED;
-                });
-        }
-        if (found == sRuntime.residents.end())
-        {
-            return;
-        }
-        if (ensureMetadata(found->first, found->second))
-        {
-            if (found->second.metadata_waiting)
-            {
-                queueResident(found->first, found->second.priority_waiting);
-            }
-            found->second.metadata_waiting = false;
-            found->second.priority_waiting = false;
-        }
-    }
-}
-
-bool updateIndex(U32 epoch)
-{
-    // Capture one stable manifest input, regenerate it under the storage mutex, then
-    // detect mutations that arrived while the General-queue job was suspended.
-    std::vector<LLUUID> archives;
-    std::map<LLUUID, LLAvatarName> names;
-    for (const auto& pair : sRuntime.residents)
-    {
-        if (pair.second.summary.state == SUMMARY_VALID &&
-            pair.second.summary.file_exists)
-        {
-            archives.push_back(pair.first);
-        }
-        if (pair.second.metadata.state == META_RESOLVED)
-        {
-            names[pair.first] = pair.second.metadata.name;
-        }
-    }
-    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-    const bool updated = general && general->waitForResult(
-        [archives, names, directory = sRuntime.account_dir,
-         delimiter = sRuntime.delimiter]()
-        {
-            return regenerateIndex(archives, names, directory, delimiter);
-        });
-    if (!ownsRuntime(epoch))
-    {
-        return false;
-    }
-    if (updated)
-    {
-        std::vector<LLUUID> current_archives;
-        std::vector<LLUUID> current_names;
-        for (const auto& pair : sRuntime.residents)
-        {
-            if (pair.second.summary.state == SUMMARY_VALID &&
-                pair.second.summary.file_exists)
-            {
-                current_archives.push_back(pair.first);
-            }
-            if (pair.second.metadata.state == META_RESOLVED)
-            {
-                current_names.push_back(pair.first);
-            }
-        }
-        std::vector<LLUUID> indexed_names;
-        for (const auto& pair : names)
-        {
-            indexed_names.push_back(pair.first);
-        }
-        sRuntime.index_dirty = archives != current_archives || indexed_names != current_names;
+        postPresentation(LLLogChat::notifyTranscriptCreated);
         return true;
     }
     return false;
 }
 
+bool updateIndex(U32 epoch)
+{
+    // Clear the dirty latch before suspension so metadata callbacks can request
+    // another pass while this captured manifest is being written.
+    sRuntime.index_dirty = false;
+    index_entries_t archives;
+    for (const auto& pair : sRuntime.residents)
+    {
+        if (pair.second.summary.state == ARCHIVE_VALID)
+        {
+            archives[pair.first] = pair.second.metadata.state == META_RESOLVED
+                ? std::make_optional(pair.second.metadata.name) : std::nullopt;
+        }
+    }
+    const bool updated = runStorage(epoch,
+        [archives, directory = sRuntime.account_dir]()
+        {
+            return regenerateIndex(archives, directory);
+        });
+    sRuntime.index_dirty |= !updated;
+    return updated;
+}
+
 void expireMetadata()
 {
-    // A timed-out shared lookup releases its bounded slot and leaves the resident
-    // dormant until a later ordinary trigger resets failed metadata.
+    // A timed-out lookup leaves the resident dormant until a later ordinary trigger.
     const F64 now = LLTimer::getTotalSeconds();
     for (auto& pair : sRuntime.residents)
     {
@@ -2396,7 +1792,6 @@ void expireMetadata()
             metadata.connection.disconnect();
             metadata.state = META_FAILED;
             pair.second.metadata_waiting = false;
-            pair.second.priority_waiting = false;
             setWorkActive(pair.first, false);
             clearPriority(pair.first);
         }
@@ -2407,9 +1802,7 @@ void activateDueActivityRefreshes()
 {
     // Revoked account gates retire pending activity before it can remain
     // a wake source or schedule service work.
-    if (!sRuntime.rollout || !transcriptConsent() ||
-        sRuntime.state_safety != STATE_SAFE || sRuntime.cleanup_pending ||
-        sRuntime.delete_requested)
+    if (!LLChatServiceHistory::servicePresentationAllowed())
     {
         for (auto& pair : sRuntime.residents)
         {
@@ -2466,8 +1859,7 @@ F64 nearestWait()
         {
             deadline = llmin(deadline, pair.second.metadata.deadline);
         }
-        if (!sRuntime.delete_requested && !sRuntime.cleanup_pending &&
-            sRuntime.state_safety == STATE_SAFE && sRuntime.rollout && transcriptConsent() &&
+        if (LLChatServiceHistory::servicePresentationAllowed() &&
             pair.second.activity_refresh_due > 0.0)
         {
             deadline = llmin(deadline, pair.second.activity_refresh_due);
@@ -2485,29 +1877,17 @@ void manager(U32 epoch)
         if (sRuntime.delete_active)
         {
             runDelete(epoch);
-            if (!ownsRuntime(epoch))
-            {
-                return;
-            }
             continue;
         }
         if (sRuntime.state_safety == STATE_UNKNOWN)
         {
             // Load privacy state before archives, views, or network work become eligible.
-            LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-            const std::string state_path = childPath(sRuntime.account_dir,
-                                                     sRuntime.delimiter, STATE_NAME);
-            const StateResult state = general
-                ? general->waitForResult([state_path]()
-                  {
-                      LLMutexLock lock(&sStorageMutex);
-                      return loadState(state_path);
-                  })
-                : StateResult();
-            if (!sRuntime.running || sRuntime.epoch != epoch)
+            const std::string state_path = sRuntime.account_dir + STATE_NAME;
+            const StateResult state = runStorage(epoch, [state_path]()
             {
-                return;
-            }
+                LLMutexLock lock(&sStorageMutex);
+                return loadState(state_path);
+            });
             sRuntime.state_safety = state.safety;
             sRuntime.deleted_before_ticks = state.boundary;
             sRuntime.cleanup_pending = state.cleanup_pending;
@@ -2529,18 +1909,13 @@ void manager(U32 epoch)
         }
         if (sRuntime.state_safety == STATE_SAFE && !sRuntime.initialized_archives)
         {
-            if (!initializeArchives(epoch))
-            {
-                return;
-            }
+            initializeArchives(epoch);
             continue;
         }
 
-        // Expire timers, activate due activity bursts, and fill metadata slots before
-        // choosing the next network occurrence.
+        // Expire timers and activate due activity bursts before choosing network work.
         expireMetadata();
         activateDueActivityRefreshes();
-        fillMetadataSlots();
 
         const CapabilityContext context = sampleContext();
         if (context != sRuntime.context)
@@ -2596,10 +1971,6 @@ void manager(U32 epoch)
             if (sRuntime.list_needed)
             {
                 requestList(context, epoch);
-                if (!ownsRuntime(epoch))
-                {
-                    return;
-                }
                 continue;
             }
             if (!sRuntime.queue.empty())
@@ -2607,18 +1978,13 @@ void manager(U32 epoch)
                 const LLUUID id = sRuntime.queue.front();
                 sRuntime.queue.pop_front();
                 syncResident(id, context, epoch);
-                if (!ownsRuntime(epoch))
-                {
-                    return;
-                }
                 continue;
             }
 
-            // Existing archives share the same bounded resolver used by blocking and views.
+            // Existing archives use the same cached names as blocking and views.
             for (auto& pair : sRuntime.residents)
             {
-                if (pair.second.summary.has_rows && pair.second.metadata.state == META_UNREQUESTED &&
-                    pendingMetadataCount() < 8)
+                if (pair.second.summary.has_oldest && pair.second.metadata.state == META_UNREQUESTED)
                 {
                     ensureMetadata(pair.first, pair.second);
                 }
@@ -2639,30 +2005,15 @@ void manager(U32 epoch)
         {
             continue;
         }
-        if (!ownsRuntime(epoch))
-        {
-            return;
-        }
         if (sRuntime.index_dirty && sRuntime.state_safety == STATE_SAFE &&
             !sRuntime.cleanup_pending)
         {
-            if (!ownsRuntime(epoch))
-            {
-                return;
-            }
             if (updateIndex(epoch))
             {
                 continue;
             }
-            if (!ownsRuntime(epoch))
-            {
-                return;
-            }
         }
-        if (!waitForWake(nearestWait(), epoch))
-        {
-            return;
-        }
+        waitForWake(nearestWait(), epoch);
     }
 }
 
@@ -2803,7 +2154,7 @@ LLChatServiceHistory::HistoryResult readStitched(
     parameters["cut_off_todays_date"] = false;
     for (const std::string& path : legacy_paths)
     {
-        LLChatServiceHistoryAccess::loadLegacy(path, legacy, parameters);
+        LLLogChat::loadChatHistoryExact(path, legacy, parameters);
     }
 
     const F64 service_epoch = archive.has_oldest
@@ -2856,8 +2207,8 @@ void LLChatServiceHistory::start()
     ++sRuntime.epoch;
     sRuntime.running = true;
     sRuntime.rollout = gSavedSettings.getBOOL(ENABLED_SETTING);
-    sRuntime.account_dir = accountPath("");
-    sRuntime.delimiter = gDirUtilp ? gDirUtilp->getDirDelimiter() : std::string("/");
+    sRuntime.account_dir = gDirUtilp
+        ? gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "") : std::string();
     sRuntime.agent_id = gAgentID;
     sRuntime.state_safety = STATE_UNKNOWN;
     sRuntime.next_list = 0.0;
@@ -2961,11 +2312,6 @@ void LLChatServiceHistory::regionChanged()
     wakeManager();
 }
 
-bool LLChatServiceHistory::enabledForLogin()
-{
-    return sRuntime.rollout;
-}
-
 U32 LLChatServiceHistory::accountEpoch()
 {
     return sRuntime.epoch;
@@ -2997,7 +2343,7 @@ bool LLChatServiceHistory::localHistoryExists()
 
     for (const auto& pair : sRuntime.residents)
     {
-        if (pair.second.summary.has_rows)
+        if (pair.second.summary.has_oldest)
         {
             return true;
         }
@@ -3014,13 +2360,13 @@ bool LLChatServiceHistory::localHistoryExists(const LLUUID& resident_id)
     }
 
     const auto found = sRuntime.residents.find(resident_id);
-    if (found == sRuntime.residents.end() || found->second.summary.state == SUMMARY_UNPREPARED)
+    if (found == sRuntime.residents.end() || found->second.summary.state == ARCHIVE_FAILED)
     {
         wakeManager();
         return false;
     }
 
-    return found->second.summary.has_rows;
+    return found->second.summary.has_oldest;
 }
 
 bool LLChatServiceHistory::isPersistedDirectDialog(EInstantMessage dialog)
@@ -3038,7 +2384,6 @@ void LLChatServiceHistory::prioritizeResident(const LLUUID& id, bool follow_acti
     // Coalesce priority triggers into one front occurrence. A qualifying trigger
     // after the active request began records at most one follow-up pass.
     Resident& resident = sRuntime.residents[id];
-    resident.force_head = true;
     resident.retry_used = false;
     if (resident.metadata.state == META_FAILED)
     {
@@ -3065,9 +2410,8 @@ void LLChatServiceHistory::prioritizeResident(const LLUUID& id, bool follow_acti
     }
 
     const CapabilityContext context = sampleContext();
-    const bool potentially_active = sRuntime.rollout && transcriptConsent() &&
-        sRuntime.state_safety == STATE_SAFE && !sRuntime.cleanup_pending &&
-        !sRuntime.delete_requested && context.complete() && !uuidBlocked(id);
+    const bool potentially_active = servicePresentationAllowed() &&
+        context.complete() && !uuidBlocked(id);
     setWorkActive(id, potentially_active);
     wakeManager();
 }
@@ -3114,8 +2458,9 @@ boost::signals2::connection LLChatServiceHistory::setSnapshotChanged(
     return sSnapshotSignal.connect(callback);
 }
 
-LLChatServiceHistory::Messages LLChatServiceHistory::composeHistory(
-    History& history, const Snapshot& snapshot, U32 limit, const LLUUID& session_id)
+static LLChatServiceHistory::Messages composeHistory(
+    LLChatServiceHistoryCore::History& history,
+    const LLChatServiceHistory::Snapshot& snapshot, U32 limit, const LLUUID& session_id)
 {
     Messages preview;
     if (snapshot.service_presentation_allowed)
@@ -3206,7 +2551,7 @@ bool LLChatServiceHistory::loadStitchedHistory(
     const std::vector<Row> preview = include_service
         ? resident.snapshot.head_preview : std::vector<Row>();
     const LLUUID agent_id = sRuntime.agent_id;
-    const std::string archive_path = archivePath(sRuntime.account_dir, sRuntime.delimiter, id);
+    const std::string archive_path = archivePath(sRuntime.account_dir, id);
     std::vector<std::string> legacy_paths;
     LLLogChat::getTranscriptFamily(legacy_stem, legacy_paths);
 
@@ -3234,7 +2579,7 @@ bool LLChatServiceHistory::loadStitchedHistory(
                 if (found != sRuntime.residents.end() &&
                     found->second.archive_serial == serial)
                 {
-                    found->second.summary.state = SUMMARY_UNPREPARED;
+                    found->second.summary.state = ARCHIVE_FAILED;
                     found->second.covered_token.clear();
                     wakeManager();
                 }
@@ -3242,6 +2587,143 @@ bool LLChatServiceHistory::loadStitchedHistory(
 
             callback(result);
         });
+}
+
+void LLChatServiceHistory::History::load(
+    const LLUUID& resident_id, const std::string& legacy_stem, U32 limit,
+    const callback_t& callback, const LLUUID& session_id)
+{
+    // Replacing a request retains visible context but retires its completion.
+    const bool first_load = !mConnection.connected();
+    ++mToken;
+    mLoading = false;
+    mResidentID = resident_id;
+    mSessionID = session_id;
+    mLegacyStem = legacy_stem;
+    mLimit = limit;
+    mCallback = callback;
+    mConnection = setSnapshotChanged([this](const LLUUID& changed, const Snapshot& snapshot)
+    {
+        if (changed == mResidentID)
+        {
+            onSnapshot(snapshot);
+        }
+    });
+
+    // Subscribe before querying; a cold name cache may supply the plaintext stem
+    // later, and the first service page can be displayed while disk work runs.
+    const Snapshot snapshot = getSnapshot(mResidentID);
+    mArchiveSerial = snapshot.archive_serial;
+    if (first_load)
+    {
+        mServiceAllowed = snapshot.service_presentation_allowed;
+    }
+    if (historySuppressed())
+    {
+        clear();
+        mCallback({});
+        return;
+    }
+    onSnapshot(snapshot);
+    if (!mLoading)
+    {
+        reload();
+    }
+}
+
+void LLChatServiceHistory::History::clear()
+{
+    // Deletion invalidates pending reads before owners clear their displayed history.
+    ++mToken;
+    mLoading = false;
+    mArchiveSerial = 0;
+    mServiceAllowed = false;
+    mHistory.clear();
+}
+
+void LLChatServiceHistory::History::stop()
+{
+    mConnection.disconnect();
+    clear();
+}
+
+void LLChatServiceHistory::History::publish(const Snapshot& snapshot)
+{
+    mCallback(composeHistory(mHistory, snapshot, mLimit, mSessionID));
+}
+
+void LLChatServiceHistory::History::reload()
+{
+    const U64 token = ++mToken;
+    const std::string legacy_stem = mLegacyStem;
+    mLoading = loadStitchedHistory(mResidentID, legacy_stem, mLimit,
+        [handle = getHandle(), token, legacy_stem](const HistoryResult& result)
+        {
+            History* self = handle.get();
+            if (!self || token != self->mToken)
+            {
+                return;
+            }
+            self->mLoading = false;
+
+            // Account changes and deletion discard the read. Archive publication,
+            // consent, or newly resolved names require one read of the current inputs.
+            if (result.account_epoch != accountEpoch() || historySuppressed())
+            {
+                return;
+            }
+            const Snapshot snapshot = getSnapshot(self->mResidentID);
+            if (result.archive_serial != snapshot.archive_serial ||
+                result.included_service != snapshot.service_presentation_allowed ||
+                legacy_stem != self->mLegacyStem)
+            {
+                self->reload();
+                return;
+            }
+
+            self->mArchiveSerial = result.archive_serial;
+            self->mHistory.setLoaded(result.messages);
+            self->publish(snapshot);
+        });
+    // Open IMs fall back to plaintext when the queues are unavailable; Preview
+    // stays nonblocking.
+    if (!mLoading && mSessionID.notNull() && !historySuppressed())
+    {
+        Messages legacy;
+        LLLogChat::loadChatHistory(mLegacyStem, legacy);
+        mHistory.setLoaded(legacy);
+        mCallback(legacy);
+    }
+}
+
+void LLChatServiceHistory::History::onSnapshot(const Snapshot& snapshot)
+{
+    if (historySuppressed())
+    {
+        return;
+    }
+    const bool presentation_changed = mServiceAllowed != snapshot.service_presentation_allowed;
+    mServiceAllowed = snapshot.service_presentation_allowed;
+
+    // A service-only conversation gains its plaintext history when its name resolves.
+    const bool name_resolved = mLegacyStem.empty() && snapshot.metadata_resolved;
+    if (name_resolved)
+    {
+        mLegacyStem = LLCacheName::buildUsername(snapshot.metadata.getUserName());
+    }
+    // Apply consent changes and validated previews while the disk read catches up.
+    if (presentation_changed || !snapshot.head_preview.empty())
+    {
+        publish(snapshot);
+    }
+
+    // In-flight reads compare their captured inputs on completion, coalescing any
+    // number of snapshot changes into one follow-up read.
+    if (!mLoading && (presentation_changed || name_resolved ||
+                      snapshot.archive_serial != mArchiveSerial))
+    {
+        reload();
+    }
 }
 
 bool LLChatServiceHistory::deleteTranscriptsAsync(const delete_callback_t& callback)
