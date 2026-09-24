@@ -69,6 +69,7 @@
 #include "llviewertexteditor.h"
 #include "llvoinventorylistener.h"
 #include "roles_constants.h"
+#include "workqueue.h"
 
 #include <array>
 
@@ -627,27 +628,27 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
         LL_DEBUGS("ScriptEditorWS") << "Setting up script editor connection methods" << LL_ENDL;
         U32 connection_id = script_connection->getConnectionID();
 
-        // Sync methods (run on the WebSocket I/O thread; must not touch
-        // main-thread-only viewer state).
-        script_connection->registerMethod("language.syntax.id",
+        // All per-connection methods dispatch to the main thread inside a
+        // coroutine (see LLJSONRPCConnection::processRequest).
+        script_connection->registerAsyncMethod("language.syntax.id",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
                 return s.handleLanguageIdRequest();
             }));
 
-        script_connection->registerMethod("language.syntax",
+        script_connection->registerAsyncMethod("language.syntax",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
                 return s.handleSyntaxRequest(params);
             }));
 
-        script_connection->registerMethod("language.syntax.cache",
+        script_connection->registerAsyncMethod("language.syntax.cache",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
                 return s.handleSyntaxCacheRequest();
             }));
 
-        script_connection->registerMethod("language.syntax.get",
+        script_connection->registerAsyncMethod("language.syntax.get",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
                 return s.handleSyntaxCacheFileRequest(params);
@@ -659,7 +660,7 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 return s.handleScriptSubscribe(connection_id, params);
             }));
 
-        script_connection->registerMethod("script.list",
+        script_connection->registerAsyncMethod("script.list",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
                 return s.handleFileWatcherFileListRequest();
@@ -671,7 +672,6 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 return s.handleObjectUnpublish(connection_id, params);
             }));
 
-        // Async methods (dispatched to the main thread inside a coroutine).
         script_connection->registerAsyncMethod("script.unsubscribe",
             bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
@@ -2299,7 +2299,6 @@ void LLScriptEditorWSServer::forwardChatToIDE(
 void LLScriptEditorWSServer::sendRuntimeEvent(
     const LLPublishedObjectMgr::RuntimeChatEvent& event) const
 {
-
     std::string script_id;
     if (event.mItemID.notNull())
     {
@@ -2395,7 +2394,7 @@ void LLScriptEditorWSServer::notifyAll(const std::string& method, const LLSD& pa
 
 
 // static
-std::string LLScriptEditorWSServer::getPrimName(LLViewerObject* obj)
+std::string LLScriptEditorWSServer::getPrimName(LLViewerObject* obj, S32 link_number)
 {
     std::string name = nv_string(obj, "Name");
     if (!name.empty())
@@ -2414,8 +2413,8 @@ std::string LLScriptEditorWSServer::getPrimName(LLViewerObject* obj)
         return node->mName;
     }
 
-    // Never emit an empty prim/object name to downstream tooling.
-    return obj->getID().asString();
+    // Real prim names need a full ObjectProperties reply, which requires selection.
+    return (link_number > 1) ? llformat("Link #%d", link_number) : std::string("Object");
 }
 
 bool LLScriptEditorWSServer::publishObject(const LLUUID& object_id)
@@ -2443,12 +2442,8 @@ bool LLScriptEditorWSServer::publishObject(const LLUUID& object_id)
     // Collect root + all children
     std::vector<LLViewerObject*> prims = collect_linkset(root);
 
-    // Request object properties for each prim in the linkset (root + children),
-    // matching the hover path so name/description metadata is refreshed.
-    for (LLViewerObject* prim : prims)
-    {
-        LLSelectMgr::instance().requestObjectPropertiesFamily(prim);
-    }
+    // The sim coalesces properties-family requests to the root, so one request covers the linkset.
+    LLSelectMgr::instance().requestObjectPropertiesFamily(root);
 
     // Set up a PendingPublish to coordinate inventory loading across all prims.
     // We register a listener and call requestInventory() on every prim.
@@ -2513,24 +2508,14 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
     info.mOwnerID           = root->mOwnerID;
     info.mObjectName        = pub["object_name"].asString();
     info.mObjectDescription = pub["object_description"].asString();
+    info.mPermissions       = LLPublishedObjectMgr::getObjectPermissionsLLSD(root);
     if (root->getRegion())
     {
         info.mRegionName = root->getRegion()->getName();
     }
-    LLSelectNode* root_select_node = LLSelectMgr::instance().getSelection()->findNode(root);
-    if (root_select_node
-        && root_select_node->mValid
-        && !root_select_node->mFromTaskID.isNull()
-        && !root->isAttachment())
-    {
-        info.mCanSaveBackToContents = true;
-        info.mSourceTaskID = root_select_node->mFromTaskID;
-    }
-    else
-    {
-        info.mCanSaveBackToContents = false;
-        info.mSourceTaskID.setNull();
-    }
+    LLUUID source_task_id;
+    info.mCanSaveBackToContents = LLPublishedObjectMgr::computeCanSaveBack(root, source_task_id);
+    info.mSourceTaskID          = source_task_id;
 
     S32 link_num = 1;
     std::vector<LLViewerObject*> prims = collect_linkset(root);
@@ -2538,9 +2523,10 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
     {
         LLPublishedObjectMgr::PublishedPrimInfo prim_info;
         prim_info.mPrimID          = prim->getID();
-        prim_info.mPrimName        = getPrimName(prim);  // Use helper with selection fallback
         prim_info.mLinkNumber      = link_num++;
+        prim_info.mPrimName        = getPrimName(prim, prim_info.mLinkNumber);
         prim_info.mInventorySerial = static_cast<S16>(prim->getInventorySerial());
+        prim_info.mPermissions     = LLPublishedObjectMgr::getObjectPermissionsLLSD(prim);
         info.mPrims.push_back(prim_info);
     }
 
@@ -2581,12 +2567,9 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
         << " (" << pub["object_name"].asString() << ") with "
         << (prims.size() - 1) << " linked prim(s)" << LL_ENDL;
 
-    // Re-request object properties now that the object is published so
-    // onObjectPropertyChanged can emit object.update for root and linked prims.
-    for (LLViewerObject* prim : prims)
-    {
-        LLSelectMgr::instance().requestObjectPropertiesFamily(prim);
-    }
+    // Re-request now that the object is published so onObjectPropertyChanged can emit
+    // object.update. The sim answers per linkset, so only the root needs asking.
+    LLSelectMgr::instance().requestObjectPropertiesFamily(root);
 }
 
 void LLScriptEditorWSServer::onLinksetChildAdded(const LLUUID& root_id, LLViewerObject* child)
@@ -2748,6 +2731,24 @@ void LLScriptEditorWSServer::onObjectPropertyChanged(
     }
 }
 
+void LLScriptEditorWSServer::onObjectPermissionsReceived(
+    const LLUUID& prim_id, const LLUUID& owner_id, U32 owner_mask, U32 next_owner_mask)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
+    LLViewerObject* prim = gObjectList.findObject(prim_id);
+    if (!prim)
+    {
+        return;
+    }
+
+    LLSD update;
+    if (mPublishedObjectManager.applyPermissionsChange(
+            prim->getRootEdit()->getID(), prim_id, owner_id, owner_mask, next_owner_mask, update))
+    {
+        notifyAll("object.update", update);
+    }
+}
+
 void LLScriptEditorWSServer::unpublishObject(const LLUUID& object_id, const std::string& reason)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
@@ -2784,6 +2785,26 @@ void LLScriptEditorWSConnection::onOpen()
     LLJSONRPCConnection::onOpen();
 
     LL_INFOS("ScriptEditorWS") << "Script editor JSON-RPC connection opened" << LL_ENDL;
+
+    // gAgent, LLVersionInfo, LLSyntaxDefCache, and challenge file I/O below
+    // are main-thread only; this callback runs on the WS I/O thread.
+    wptr_t that = weak_from_this();
+    if (!LL::WorkQueue::postToMainLoop([that]()
+        {
+            auto self = that.lock();
+            if (self)
+            {
+                self->sendHandshake();
+            }
+        }))
+    {
+        LL_WARNS("ScriptEditorWS") << "Main loop unavailable; dropping handshake for new connection" << LL_ENDL;
+    }
+}
+
+void LLScriptEditorWSConnection::sendHandshake()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
 
     // Build hello data
     LLSD handshake;

@@ -99,6 +99,7 @@ private:
      */
     void handleHandshakeResponse(const LLSD& result);
     std::string generateChallenge();
+    void sendHandshake();
 
     LLScriptEdContainer*                    getEditor() const;
     std::shared_ptr<LLScriptEditorWSServer> getServer() const;
@@ -225,6 +226,7 @@ public:
     void onPrimInventoryReady(const LLUUID& object_id, const LLUUID& prim_id);
     void onPrimInventoryChanged(const LLUUID& object_id, const LLUUID& prim_id);
     void onObjectPropertyChanged(const LLUUID& prim_id, const std::string& name, const std::string& desc, S16 inventory_serial = -1);
+    void onObjectPermissionsReceived(const LLUUID& prim_id, const LLUUID& owner_id, U32 owner_mask, U32 next_owner_mask);
     void onLinksetChildAdded(const LLUUID& root_id, LLViewerObject* child);
     void onLinksetChildRemoved(const LLUUID& root_id, const LLUUID& child_id);
 
@@ -280,7 +282,7 @@ protected:
     ValidatedItem validatePublishedItem(const LLSD& params, U32 permMask) const;
 
     // --- Object Content Publishing (helpers) ---
-    static std::string getPrimName(LLViewerObject* obj);
+    static std::string getPrimName(LLViewerObject* obj, S32 link_number = 1);
     void notifyConnection(U32 connection_id, const std::string& method, const LLSD& params) const;
     void notifyAll(const std::string& method, const LLSD& params) const;
     void buildAndSendPublish(const LLUUID& object_id);

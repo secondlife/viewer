@@ -31,9 +31,8 @@
 #include "llsdjson.h"
 #include "lldate.h"
 #include "llcoros.h"
-#include "llmainthreadtask.h"
-#include "lleventtimer.h"
 #include "lltimer.h"
+#include "workqueue.h"
 
 #include <boost/json.hpp>
 
@@ -44,27 +43,10 @@
 void LLJSONRPCConnection::onOpen()
 {
     LL_INFOS("JSONRPC") << "JSON-RPC connection opened" << LL_ENDL;
-
-    // Start the recurring timeout sweep timer on the main thread. The timer
-    // is canceled in onClose() before the connection can be destroyed, so
-    // capturing `this` is safe. Keep a weak_ptr so we can safely test
-    // whether the timer instance still exists at cancellation time.
-    LLEventTimer* timer = LLEventTimer::run_every(TIMEOUT_SWEEP_INTERVAL,
-        [this]() { sweepTimeouts(); });
-    mTimeoutTimer = timer->getWeak();
 }
 
 void LLJSONRPCConnection::onClose()
 {
-    // Cancel the sweep timer if it is still alive. LLEventTimer's instance
-    // tracker keeps a shared_ptr with a no-op deleter, so raw `delete` is
-    // the documented cancellation idiom (see lleventtimer.h).
-    if (auto timer = mTimeoutTimer.lock())
-    {
-        delete timer.get();
-    }
-    mTimeoutTimer.reset();
-
     // Move the pending-request map out under the lock so we can invoke the
     // callbacks without holding it (callbacks may themselves call into this
     // connection).
@@ -219,7 +201,7 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
             throw InternalError("Connection expired before method " + method
                                 + " could be launched");
         }
-        LLMainThreadTask::dispatch(
+        bool posted = LL::WorkQueue::postToMainLoop(
             [handler, method, id, params, conn]()
             {
                 LLCoros::instance().launch(
@@ -265,6 +247,11 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
                         }
                     });
             });
+        if (!posted)
+        {
+            LL_WARNS("JSONRPC") << "Main loop unavailable; failing async method " << method << LL_ENDL;
+            throw InternalError("Viewer is shutting down; cannot service " + method);
+        }
         return;
     }
 
@@ -713,6 +700,25 @@ void LLJSONRPCServer::onConnectionClosed(const LLWebsocketMgr::WSConnection::ptr
 {
     LL_INFOS("JSONRPC") << "JSON-RPC client disconnected, total connections: "
                         << getConnectionCount() << LL_ENDL;
+}
+
+bool LLJSONRPCServer::update()
+{
+    // Main thread, once per frame; throttled to TIMEOUT_SWEEP_INTERVAL.
+    if (mSweepTimer.getElapsedTimeF32() < LLJSONRPCConnection::TIMEOUT_SWEEP_INTERVAL)
+    {
+        return true;
+    }
+    mSweepTimer.reset();
+
+    for (const auto& conn : getConnections())
+    {
+        if (auto rpc = std::dynamic_pointer_cast<LLJSONRPCConnection>(conn))
+        {
+            rpc->sweepTimeouts();
+        }
+    }
+    return true;
 }
 
 void LLJSONRPCServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t connection)

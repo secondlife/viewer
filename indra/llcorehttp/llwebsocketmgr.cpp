@@ -31,6 +31,7 @@
 #include "llsdserialize.h"
 #include "llhost.h"
 #include "llsdjson.h"
+#include "lltimer.h"
 
 #include <websocketpp/config/boost_config.hpp>
 #include <websocketpp/config/asio_no_tls.hpp>
@@ -47,6 +48,10 @@ namespace
     using Server_t      = websocketpp::server<websocketpp::config::asio>;
     using Client_t      = websocketpp::client<websocketpp::config::asio>;
     using Connection_t  = websocketpp::connection<websocketpp::config::asio>;
+
+    // How long stop() waits for the I/O thread to exit before logging a
+    // warning. It still joins after this -- this is diagnostic, not a timeout.
+    constexpr F32 SERVER_STOP_WARN_SECONDS = 5.0f;
 }
 
 //------------------------------------------------------------------------
@@ -407,9 +412,11 @@ bool LLWebsocketMgr::WSServer::start()
 
     // Reset the stop flag
     mShouldStop = false;
+    mRunning = true;
 
     // Start the server thread
     mServerThread = std::thread([this]() {
+        LL_PROFILER_SET_THREAD_NAME(mServerName.c_str());
         LL_INFOS("WebSocket") << "WebSocket server thread starting for: " << mServerName << LL_ENDL;
 
         // Run the controlled server loop that checks the stop flag
@@ -422,6 +429,7 @@ bool LLWebsocketMgr::WSServer::start()
         }
 
         LL_INFOS("WebSocket") << "WebSocket server thread exiting for: " << mServerName << LL_ENDL;
+        mRunning = false;
     });
 
     onStarted();
@@ -455,6 +463,22 @@ void LLWebsocketMgr::WSServer::stop()
 
     if (mServerThread.joinable())
     {
+        // The I/O thread should exit promptly once mImpl->stop() returns. If
+        // it doesn't, something on that thread is blocked -- most likely a
+        // regression reintroducing a cross-thread wait. Warn instead of
+        // hanging silently; still join (detaching would use-after-free mImpl).
+        LLTimer wait_timer;
+        while (mRunning && wait_timer.getElapsedTimeF32() < SERVER_STOP_WARN_SECONDS)
+        {
+            ms_sleep(10);
+        }
+        if (mRunning)
+        {
+            LL_WARNS("WebSocket") << mServerName << ": I/O thread did not exit within "
+                << SERVER_STOP_WARN_SECONDS << "s; joining anyway. This indicates a "
+                << "thread-boundary regression." << LL_ENDL;
+        }
+
         mServerThread.join();
         LL_INFOS("WebSocket") << "WebSocket server thread joined for: " << mServerName << LL_ENDL;
     }
@@ -463,10 +487,11 @@ void LLWebsocketMgr::WSServer::stop()
 
 bool LLWebsocketMgr::WSServer::isRunning() const
 {
-    LL_ERRS_IF(!mImpl, "WebSocket") << "WebSocket server " << mServerName << " implementation is null !" << LL_ENDL;
-
-    // Check both the thread state, websocket server state, and the stop flag
-    return mServerThread.joinable() && !mImpl->mServer.stopped() && !mShouldStop;
+    // mRunning is set true just before the I/O thread launches and false as
+    // the last thing that thread does before exiting -- lock-free, and safe
+    // to call while start()/stop() hold mThreadMutex on this thread (unlike
+    // a mutex-based check, which would self-deadlock there).
+    return mRunning && !mShouldStop;
 }
 
 void LLWebsocketMgr::WSServer::broadcastMessage(const std::string& message)
@@ -538,6 +563,18 @@ LLWebsocketMgr::WSConnection::ptr_t LLWebsocketMgr::WSServer::getConnection(cons
         return it->second;
     }
     return nullptr;
+}
+
+std::vector<LLWebsocketMgr::WSConnection::ptr_t> LLWebsocketMgr::WSServer::getConnections() const
+{
+    LLMutexLock lock(&mConnectionMutex);
+    std::vector<WSConnection::ptr_t> result;
+    result.reserve(mConnections.size());
+    for (const auto& [handle, conn] : mConnections)
+    {
+        result.push_back(conn);
+    }
+    return result;
 }
 
 LLWebsocketMgr::connection_state_t LLWebsocketMgr::WSServer::getConnectionState(const connection_h& handle) const
