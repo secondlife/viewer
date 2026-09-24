@@ -446,16 +446,26 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
         std::string input_value = combobox->getValue().asString();
         std::string input_label = combobox->getSelectedItemLabel();
 
-        if (input_label != NONE_LABEL)
+        if (input_label != NONE_LABEL && isFlycamRollDisallowed(mode, action))
         {
-            // An input can drive at most one action within a block: clear it elsewhere.
-            removeDuplicateActionInput(mode, input_type, action, input_value, input_selector);
+            // Roll/Unroll are unavailable while "Allow Roll" is off: refuse to
+            // create a new mapping. Clearing to None (input_label == NONE_LABEL)
+            // still falls through below, so an existing mapping remains removable.
+            // clearSelectionState() (below) restores the cell's pre-edit text.
         }
+        else
+        {
+            if (input_label != NONE_LABEL)
+            {
+                // An input can drive at most one action within a block: clear it elsewhere.
+                removeDuplicateActionInput(mode, input_type, action, input_value, input_selector);
+            }
 
-        // Store the mapping directly in LLGameControl's live GameControl settings.
-        // gSavedSettings is updated later via saveSettings() when the user clicks OK.
-        LLGameControl::updateModeMapping(mode, input_type, action, input_value);
-        sSelectedCell->setValue(blankIfNone(input_label));
+            // Store the mapping directly in LLGameControl's live GameControl settings.
+            // gSavedSettings is updated later via saveSettings() when the user clicks OK.
+            LLGameControl::updateModeMapping(mode, input_type, action, input_value);
+            sSelectedCell->setValue(blankIfNone(input_label));
+        }
     }
     else if (sSelectedGrid == mAxisChannels)
     {
@@ -737,7 +747,11 @@ bool LLPanelPreferenceGameControl::postBuild()
 
     mCheckFlycamAllowRoll = getChild<LLCheckBoxCtrl>("flycam_allow_roll");
     mCheckFlycamAllowRoll->setCommitCallback([this](LLUICtrl*, const LLSD&)
-        { LLGameControl::setFlycamRollAllowed(mCheckFlycamAllowRoll->getValue()); });
+        {
+            clearSelectionState();
+            LLGameControl::setFlycamRollAllowed(mCheckFlycamAllowRoll->getValue());
+            populateActionMappings();
+        });
 
     mSliderFlycamSpeedFactor = getChild<LLSliderCtrl>("flycam_speed_factor");
     mSliderFlycamSpeedFactor->setCommitCallback([this](LLUICtrl*, const LLSD&)
@@ -1118,6 +1132,14 @@ std::string LLPanelPreferenceGameControl::currentEditMode()
     return LLGameControl::getModeName((LLGameControl::AgentControlMode)ordinal);
 }
 
+// True for the FlyCam Roll actions, and for Unroll (which only undoes roll),
+// while "Allow Roll" is unchecked.
+bool LLPanelPreferenceGameControl::isFlycamRollDisallowed(const std::string& mode, const std::string& action)
+{
+    return mode == "FlyCam" && !LLGameControl::isFlycamRollAllowed()
+        && (action == "Roll CCW/CW" || action == "Roll CW" || action == "Roll CCW" || action == "Unroll");
+}
+
 // Picks the action selector supplying the "Action" rows for a block + mode.
 LLComboBox* LLPanelPreferenceGameControl::actionSelectorForMode(bool axis, const std::string& mode) const
 {
@@ -1175,6 +1197,13 @@ void LLPanelPreferenceGameControl::populateActionMappings()
             std::string input_value = mapping.has(action) ? mapping[action].asString() : LLStringUtil::null;
             std::string glyph = promptFontGlyph(input_value);
 
+            // Roll and Unroll stay mapped (and shown) while disallowed, but greyed
+            // out to match their lack of effect on flycam behavior until re-enabled.
+            // The row itself stays enabled/clickable so an existing mapping can
+            // still be cleared to None; onCommitInputChannel() refuses to set
+            // anything else while disallowed.
+            bool roll_disabled = isFlycamRollDisallowed(mode, action);
+
             LLScrollListItem::Params row_params;
             for (S32 c = 0; c < grid->getNumColumns(); ++c)
             {
@@ -1191,7 +1220,7 @@ void LLPanelPreferenceGameControl::populateActionMappings()
                 if (c == invert_col)
                 {
                     cell_params.type = "checkbox";
-                    cell_params.font_halign = "right"; // right-align the checkbox within the cell
+                    cell_params.font_halign = "left"; // left-align the checkbox within the cell
                 }
                 row_params.columns.add(cell_params);
             }
@@ -1215,7 +1244,17 @@ void LLPanelPreferenceGameControl::populateActionMappings()
                 // since there is nothing to invert.
                 bool mapped = !input_value.empty() && input_value != none_value;
                 row->getColumn(invert_col)->setValue(LLGameControl::getAxisInvert(mode, action));
-                row->getColumn(invert_col)->setEnabled(mapped);
+                row->getColumn(invert_col)->setEnabled(mapped && !roll_disabled);
+            }
+
+            if (roll_disabled)
+            {
+                // Grey the text to signal "unavailable" without disabling the row,
+                // which would also block clicking an existing mapping to clear it.
+                LLColor4 disabled_color = LLUIColorTable::instance().getColor("LabelDisabledColor");
+                row->getColumn(0)->setColor(disabled_color);
+                row->getColumn(1)->setColor(disabled_color);
+                row->getColumn(2)->setColor(disabled_color);
             }
         }
     };

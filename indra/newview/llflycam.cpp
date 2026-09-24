@@ -160,30 +160,21 @@ void LLFlycam::integrate(F32 delta_time)
         return;
     }
 
-    // Note: we modulate pitch and yaw rates by view ratio
-    // to make pitch and yaw work better when zoomed in close
-    F32 angle = delta_time * mPitchRate * (mView / DEFAULT_FIELD_OF_VIEW);
+    F32 angle;
     bool needs_renormalization = false;
-    if (fabsf(angle) > 0.0f)
-    {
-        LLQuaternion dQ;
-        dQ.setAngleAxis(angle, 0.0f, 1.0f, 0.0f);
-        mRotation = dQ * mRotation;
-        needs_renormalization = true;
-    }
 
-    // Roll about the camera's forward (local X) axis.  Like pitch this is a
-    // body-frame rotation, so it pre-multiplies mRotation.
-    angle = delta_time * mRollRate * (mView / DEFAULT_FIELD_OF_VIEW);
-    if (fabsf(angle) > 0.0f)
+    // Before we adjust the rotation let's prepare precautions against Eulerian spinlock
+    LLVector3 forward = LLVector3::x_axis * mRotation;
+    F32 forward_up = forward.mV[VZ];
+    if (fabsf(forward_up) > 1.0f)
     {
-        LLQuaternion dQ;
-        dQ.setAngleAxis(angle, 1.0f, 0.0f, 0.0f);
-        mRotation = dQ * mRotation;
-        needs_renormalization = true;
+        forward_up = forward_up / fabsf(forward_up);
     }
+    F32 sin_pitch = sqrtf(1.0f - std::min(forward_up*forward_up, 1.0f));
 
+    // Yaw
     angle = delta_time * mYawRate * (mView / DEFAULT_FIELD_OF_VIEW);
+    angle *= std::max(sin_pitch, 0.1f);
     if (fabsf(angle) > 0.0f)
     {
         LLQuaternion dQ;
@@ -217,6 +208,33 @@ void LLFlycam::integrate(F32 delta_time)
                 mRotation = LLQuaternion(level);
             }
         }
+        needs_renormalization = true;
+    }
+
+    // Pitch
+    // Note: we modulate pitch and yaw rates by view ratio
+    // to make pitch and yaw work better when zoomed in close
+    angle = delta_time * mPitchRate * (mView / DEFAULT_FIELD_OF_VIEW);
+    // and avoid overshooting the vertical by using small angle approximation trick
+    F32 small_angle_approx_to_vertical = 1.0f - fabsf(forward_up);
+    if (angle != 0.0f
+            && !(forward_up > 0.0f && angle < -small_angle_approx_to_vertical)
+            && !(forward_up < 0.0f && angle > small_angle_approx_to_vertical))
+    {
+        LLQuaternion dQ;
+        dQ.setAngleAxis(angle, 0.0f, 1.0f, 0.0f);
+        mRotation = dQ * mRotation;
+        needs_renormalization = true;
+    }
+
+    // Roll about the camera's forward (local X) axis.  Like pitch this is a
+    // body-frame rotation, so it pre-multiplies mRotation.
+    angle = delta_time * mRollRate * (mView / DEFAULT_FIELD_OF_VIEW);
+    if (fabsf(angle) > 0.0f)
+    {
+        LLQuaternion dQ;
+        dQ.setAngleAxis(angle, 1.0f, 0.0f, 0.0f);
+        mRotation = dQ * mRotation;
         needs_renormalization = true;
     }
 

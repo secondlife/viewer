@@ -789,19 +789,22 @@ namespace
         flycam_axes["Pan left/right"]      = "AXIS_RIGHTX";
         flycam_axes["Tilt up/down"]        = "AXIS_RIGHTY";
         flycam_axes["Boom up/down"]        = "AXIS_TRIGGERS";
-        flycam_axes["Roll left/right"]     = "AXIS_NONE";
+        flycam_axes["Roll CCW/CW"]         = "AXIS_NONE";
 
         LLSD flycam_buttons;
         flycam_buttons["Zoom out"]        = "BUTTON_SOUTH";
         flycam_buttons["Zoom in"]         = "BUTTON_NORTH";
         flycam_buttons["Toggle mouse cursor"] = "BUTTON_SELECT";
         flycam_buttons["Toggle flycam" ]  = "BUTTON_RIGHT_STICK";
-        flycam_buttons["Unroll"]          = "BUTTON_LEFT_STICK";
-        flycam_buttons["Roll CCW"]        = "BUTTON_WEST";
-        flycam_buttons["Roll CW"]         = "BUTTON_EAST";
+        // Unbound by default: Roll/Unroll only do anything once "Allow Roll" is
+        // turned on (see LLGameControl::isFlycamRollAllowed()), so a fresh
+        // install shouldn't have them occupying buttons before the user opts in.
+        flycam_buttons["Unroll"]          = "BUTTON_NONE";
+        flycam_buttons["Roll CCW"]        = "BUTTON_NONE";
+        flycam_buttons["Roll CW"]         = "BUTTON_NONE";
         flycam_buttons["Orbit"]           = "BUTTON_RIGHT_SHOULDER";
         // Unbound by default -- every physical button above is already claimed,
-        // same reasoning as "Zoom +/-"/"Roll left/right" being unbound axes.
+        // same reasoning as "Zoom +/-"/"Roll CCW/CW" being unbound axes.
         // Resets straight back to Avatar mode (see AVATAR_ACTION_ESCAPE/
         // FLYCAM_ACTION_ESCAPE and LLAgent::resetToAvatarMode()).
         flycam_buttons["ESC"]             = "BUTTON_NONE";

@@ -227,6 +227,24 @@
     <binding key="E" mask="NONE" command="flycam_move_up"/>
     <binding key="C" mask="NONE" command="flycam_move_down"/>
 
+    <!--Camera controls on Alt, mirroring third_person-->
+    <binding key="A" mask="ALT" command="flycam_yaw_left"/>
+    <binding key="D" mask="ALT" command="flycam_yaw_right"/>
+    <binding key="W" mask="ALT" command="flycam_move_forward"/>
+    <binding key="S" mask="ALT" command="flycam_move_backward"/>
+    <binding key="E" mask="ALT" command="flycam_pitch_up"/>
+    <binding key="C" mask="ALT" command="flycam_pitch_down"/>
+
+    <!--mimic alt zoom behavior with keyboard only-->
+    <binding key="W" mask="CTL_ALT" command="flycam_pitch_up"/>
+    <binding key="S" mask="CTL_ALT" command="flycam_pitch_down"/>
+
+    <!--pan on Ctrl-Alt-Shift-->
+    <binding key="A" mask="CTL_ALT_SHIFT" command="flycam_truck_left"/>
+    <binding key="D" mask="CTL_ALT_SHIFT" command="flycam_truck_right"/>
+    <binding key="W" mask="CTL_ALT_SHIFT" command="flycam_move_up"/>
+    <binding key="S" mask="CTL_ALT_SHIFT" command="flycam_move_down"/>
+
     <binding key="LEFT" mask="NONE" command="flycam_yaw_left"/>
     <binding key="RIGHT" mask="NONE" command="flycam_yaw_right"/>
     <binding key="UP" mask="NONE" command="flycam_pitch_up"/>

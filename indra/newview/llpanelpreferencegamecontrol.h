@@ -143,6 +143,9 @@ private:
     LLComboBox* actionSelectorForMode(bool axis, const std::string& mode) const;  // default vs flycam selector
     void removeDuplicateActionInput(const std::string& mode, const std::string& kind,
         const std::string& keep_action, const std::string& input_value, const LLComboBox* input_selector);
+    // True for the FlyCam Roll actions and Unroll while "Allow Roll" is unchecked: new
+    // mappings to them are refused (existing ones stay mapped, but greyed out and clearable).
+    static bool isFlycamRollDisallowed(const std::string& mode, const std::string& action);
     static std::string inputLabel(const LLComboBox* input_selector, const std::string& input_value);  // value -> label
     static std::string selectorLabelAt(const LLComboBox* selector, S32 index);  // label of item at index
     // Fill glyph_selector with one item per value in text_selector, each labelled
