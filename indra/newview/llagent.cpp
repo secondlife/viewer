@@ -2153,7 +2153,7 @@ std::ostream& operator<<(std::ostream &s, const LLAgent &agent)
 //-----------------------------------------------------------------------------
 bool LLAgent::needsRenderAvatar()
 {
-    if (gAgentCamera.cameraMouselook() && !LLVOAvatar::sVisibleInFirstPerson)
+    if (gAgentCamera.isHidingAvatarForFirstPerson() && !LLVOAvatar::sVisibleInFirstPerson)
     {
         return false;
     }
@@ -2164,7 +2164,7 @@ bool LLAgent::needsRenderAvatar()
 // true if we need to render your own avatar's head.
 bool LLAgent::needsRenderHead()
 {
-    return (LLVOAvatar::sVisibleInFirstPerson && LLPipeline::sReflectionRender) || (mShowAvatar && !gAgentCamera.cameraMouselook());
+    return (LLVOAvatar::sVisibleInFirstPerson && LLPipeline::sReflectionRender) || (mShowAvatar && !gAgentCamera.isHidingAvatarForFirstPerson());
 }
 
 //-----------------------------------------------------------------------------

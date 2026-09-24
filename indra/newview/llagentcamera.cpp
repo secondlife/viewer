@@ -3027,6 +3027,78 @@ void LLAgentCamera::toggleFlycam()
     if (mUsingFlycam)
     {
         resetFlycamToCurrentView();
+        // Flycam starts from the current view, which in mouselook is inside the
+        // avatar's head: keep the avatar hidden until it's out of view.
+        mFlycamHidingAvatar = cameraMouselook();
+    }
+    else
+    {
+        bool was_revealed = !mFlycamHidingAvatar;
+        mFlycamHidingAvatar = false;
+        if (was_revealed && cameraMouselook() && isAgentAvatarValid())
+        {
+            // Back to the mouselook view: re-hide the attachments
+            // updateFlycamAvatarVisibility() revealed.
+            gAgentAvatarp->updateAttachmentVisibility(CAMERA_MODE_MOUSELOOK);
+        }
+    }
+}
+
+bool LLAgentCamera::isHidingAvatarForFirstPerson() const
+{
+    return cameraMouselook() && (!mUsingFlycam || mFlycamHidingAvatar);
+}
+
+//-----------------------------------------------------------------------------
+// updateFlycamAvatarVisibility()
+//-----------------------------------------------------------------------------
+void LLAgentCamera::updateFlycamAvatarVisibility()
+{
+    if (!mFlycamHidingAvatar)
+    {
+        return;
+    }
+    if (!cameraMouselook() || !isAgentAvatarValid())
+    {
+        // Nothing left to hide from (e.g. the camera mode changed underneath).
+        mFlycamHidingAvatar = false;
+        return;
+    }
+
+    // Bounding sphere of the avatar, including its attachments.
+    LLVector3 center = gAgentAvatarp->getRenderPosition();
+    F32 radius = 0.f;
+    if (gAgentAvatarp->mDrawable.notNull())
+    {
+        const LLVector4a* extents = gAgentAvatarp->mDrawable->getSpatialExtents();
+        LLVector3 min(extents[0].getF32ptr());
+        LLVector3 max(extents[1].getF32ptr());
+        center = (min + max) * 0.5f;
+        radius = (max - min).magVec() * 0.5f;
+    }
+    // Pad for stale extents and animation beyond the bounds.
+    constexpr F32 MIN_AVATAR_RADIUS = 1.f; // meters
+    constexpr F32 AVATAR_RADIUS_PADDING = 1.25f;
+    radius = llmax(radius * AVATAR_RADIUS_PADDING, MIN_AVATAR_RADIUS);
+
+    // Conservative test: the avatar is out of view if its bounding sphere lies
+    // entirely outside the cone that encloses the view frustum (half-angle to
+    // the frustum's corners).
+    const LLViewerCamera* camera = LLViewerCamera::getInstance();
+    LLVector3 to_avatar = center - camera->getOrigin();
+    F32 distance = to_avatar.normVec();
+    if (distance <= radius)
+    {
+        return; // camera is inside the bounds
+    }
+    F32 tan_half_view = tanf(0.5f * camera->getView());
+    F32 frustum_half_angle = atanf(tan_half_view * sqrtf(1.f + camera->getAspect() * camera->getAspect()));
+    F32 avatar_half_angle = asinf(radius / distance);
+    F32 angle_to_avatar = acosf(llclamp(to_avatar * camera->getAtAxis(), -1.f, 1.f));
+    if (angle_to_avatar > frustum_half_angle + avatar_half_angle)
+    {
+        mFlycamHidingAvatar = false;
+        gAgentAvatarp->updateAttachmentVisibility(getCameraMode());
     }
 }
 
@@ -3050,6 +3122,8 @@ void LLAgentCamera::applyNdofFlycamFrameDelta(const F32 local_delta[7],
     LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
 
     LLViewerCamera::getInstance()->setView(mFlycam.getView());
+
+    updateFlycamAvatarVisibility();
 }
 
 //-----------------------------------------------------------------------------
@@ -3228,6 +3302,8 @@ void LLAgentCamera::updateFlycam(F32 delta_time)
     LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
 
     LLViewerCamera::getInstance()->setView(mFlycam.getView());
+
+    updateFlycamAvatarVisibility();
 }
 
 bool LLAgentCamera::setPointAt(EPointAtType target_type, LLViewerObject *object, LLVector3 position)
