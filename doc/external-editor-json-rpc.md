@@ -65,9 +65,14 @@ This document describes all the message interfaces defined for WebSocket communi
 
 1. **Connection Establishment:**
 
+   - The viewer refuses a WebSocket upgrade request that carries an `Origin` header (HTTP 403):
+     browsers send one with every socket a page opens, and a program connecting need not
    - Viewer sends `session.handshake` call with `SessionHandshake` data
-   - Extension responds with `SessionHandshakeResponse`
+   - Extension responds with `SessionHandshakeResponse`, answering the challenge
    - Viewer confirms with `session.ok` notification
+   - Until `session.ok`, every request the extension makes is refused with `-32002`
+     (Authentication required) and the viewer sends it no notifications. A wrong challenge
+     response, an error in place of one, or no response within 30 seconds closes the connection.
 
 2. **Language Information Exchange:**
 
@@ -291,7 +296,7 @@ interface SessionHandshake {
   viewer_version: string;
   agent_id: string;
   agent_name: string;
-  challenge?: string;
+  challenge: string;
   languages: string[];
   syntax_id: string;
   features: { [feature: string]: boolean };
@@ -306,7 +311,7 @@ interface SessionHandshake {
 - `viewer_version`: Version string of the viewer
 - `agent_id`: Unique identifier for the user/agent
 - `agent_name`: Human-readable name of the agent
-- `challenge` (optional): Path to a temporary file on the local filesystem containing a UUID. The client must read this file and return the UUID as `challenge_response` to authenticate the connection.
+- `challenge`: Path to a temporary file on the local filesystem containing a UUID, and nothing else. The client must read this file and return its contents as `challenge_response` to authenticate the connection. The file is named at random, readable only by the user running the viewer, and deleted once the handshake is answered or abandoned, so only a client running as that user can answer.
 - `languages`: Array of supported scripting languages (e.g., `["lsl", "luau"]`)
 - `syntax_id`: Current active syntax identifier as a UUID string
 - `features`: Dictionary of feature flags indicating viewer capabilities. Known flags:
@@ -327,7 +332,7 @@ interface SessionHandshakeResponse {
   client_name: string;
   client_version: "1.0";
   protocol_version: string;
-  challenge_response?: string;
+  challenge_response: string;
   languages: string[];
   features: { [feature: string]: boolean };
   script_name?: string;
@@ -340,7 +345,7 @@ interface SessionHandshakeResponse {
 - `client_name`: Name of the client (VS Code extension)
 - `client_version`: Fixed version "1.0" of the client
 - `protocol_version`: Protocol version the client supports
-- `challenge_response` (optional): The UUID read from the temporary file identified by the `challenge` field in the handshake. Must be provided if `challenge` was present, otherwise the connection will be closed.
+- `challenge_response`: The UUID read from the temporary file identified by the `challenge` field in the handshake. Without it, or with any other value, the connection is closed.
 - `languages`: Array of languages supported by the client
 - `features`: Dictionary of features supported by the client. Known flags:
   - `live_sync`: Client supports live script synchronisation

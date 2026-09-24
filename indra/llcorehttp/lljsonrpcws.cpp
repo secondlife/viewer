@@ -114,7 +114,7 @@ void LLJSONRPCConnection::onMessage(const std::string& message)
     catch (const std::exception& e)
     {
         LL_WARNS("JSONRPC") << "Exception processing JSON-RPC message: " << e.what() << LL_ENDL;
-        sendError(LLSD(), InternalError(e.what()));
+        sendError(LLSD(), InternalError());
     }
 }
 
@@ -162,6 +162,18 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
 
     LL_DEBUGS("JSONRPC") << "Processing " << (is_notification ? "notification" : "request")
                          << " for method: " << method << LL_ENDL;
+
+    // Nothing for a peer that has not proven itself, and nothing said of
+    // which methods there are.
+    if (!mAuthenticated)
+    {
+        LL_DEBUGS("JSONRPC") << "Refused " << method << " from a peer not authenticated" << LL_ENDL;
+        if (!is_notification)
+        {
+            sendError(id, UnauthorizedError());
+        }
+        return;
+    }
 
     // Resolve the handler under the mutex, then invoke it unlocked.
     MethodHandler handler;
@@ -237,7 +249,9 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
                         {
                             if (conn->isConnected())
                             {
-                                conn->sendError(id, InternalError(e.what()));
+                                LL_WARNS("JSONRPC") << "Exception in async method " << method
+                                                    << ": " << e.what() << LL_ENDL;
+                                conn->sendError(id, InternalError());
                             }
                             else
                             {
@@ -289,7 +303,9 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
     {
         if (!is_notification)
         {
-            sendError(id, InternalError(e.what()));
+            LL_WARNS("JSONRPC") << "Exception in handler for " << method
+                               << ": " << e.what() << LL_ENDL;
+            sendError(id, InternalError());
         }
         else
         {
@@ -433,8 +449,7 @@ void LLJSONRPCConnection::sweepTimeouts()
 
     for (auto& [id, callback] : expired)
     {
-        LL_WARNS("JSONRPC") << "Request " << id << " timed out after "
-                            << REQUEST_TIMEOUT_SECONDS << " seconds" << LL_ENDL;
+        LL_WARNS("JSONRPC") << "Request " << id << " timed out" << LL_ENDL;
         if (callback)
         {
             LLSD error;
@@ -553,7 +568,7 @@ LLSD LLJSONRPCConnection::makeEnvelope(const LLSD& id,
     return env;
 }
 
-LLSD LLJSONRPCConnection::call(const std::string& method, const LLSD& params, ResponseCallback callback)
+LLSD LLJSONRPCConnection::call(const std::string& method, const LLSD& params, ResponseCallback callback, F64 timeout)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
     LLSD id = generateId();
@@ -566,7 +581,7 @@ LLSD LLJSONRPCConnection::call(const std::string& method, const LLSD& params, Re
     {
         LLMutexLock lock(&mMutex);
         mPendingRequests[id_str] = std::move(callback);
-        mPendingDeadlines.push({ LLTimer::getTotalSeconds() + REQUEST_TIMEOUT_SECONDS, id_str });
+        mPendingDeadlines.push({ LLTimer::getTotalSeconds() + timeout, id_str });
     }
 
     // Send the request

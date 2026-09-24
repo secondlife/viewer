@@ -122,7 +122,7 @@ public:
          * Sends a text message to the remote endpoint. The message is queued
          * asynchronously and may not be sent immediately.
          */
-        bool sendMessage(const std::string& message) const;
+        virtual bool sendMessage(const std::string& message) const;
         bool sendMessage(const boost::json::value& json) const;
         bool sendMessage(const LLSD& data) const;
 
@@ -242,6 +242,19 @@ public:
 
         void            broadcastMessage(const std::string& message);
         virtual bool    update() { return true; }
+
+        /**
+         * @brief Whether an upgrade request from this origin is let in
+         * @param origin The request's Origin header, empty where it had none
+         *
+         * A browser sends the page's origin with every WebSocket it opens,
+         * and nothing stops a page -- or media on a prim, in the viewer's
+         * own browser -- from opening one to 127.0.0.1. A program, such as
+         * an editor's extension, sends none. By default only those are let
+         * in; a request refused is answered 403 and never opens. Called on
+         * the server's thread.
+         */
+        virtual bool    acceptOrigin(const std::string& origin) const { return origin.empty(); }
 
         connection_state_t  getConnectionState(const connection_h& handle) const;
 

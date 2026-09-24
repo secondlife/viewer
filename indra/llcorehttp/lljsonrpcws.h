@@ -284,10 +284,23 @@ public:
      * @param method The method name to call
      * @param params The parameters to pass
      * @param callback Callback for the response (optional)
-     * @return The request ID for correlation
+     * @param timeout Seconds before the callback is told the call timed out
+     * @return The request ID for correlation, undefined where it could not
+     *         be sent (the callback is then never called)
      */
     LLSD call(const std::string& method, const LLSD& params = LLSD(),
-             ResponseCallback callback = nullptr);
+             ResponseCallback callback = nullptr, F64 timeout = REQUEST_TIMEOUT_SECONDS);
+
+    /**
+     * @brief Whether the peer's requests are dispatched
+     *
+     * A connection starts out unauthenticated and refuses every request as
+     * unauthorized, whether or not the method exists, until it is told the
+     * peer has proven itself -- e.g. by answering a challenge. Answers to
+     * its own calls go through either way: that is how the peer proves
+     * itself.
+     */
+    bool isAuthenticated() const { return mAuthenticated.load(); }
 
     /**
      * @brief Send a JSON-RPC notification (no response expected)
@@ -360,6 +373,8 @@ protected:
      */
     LLSD generateId();
 
+    void setAuthenticated(bool authenticated) { mAuthenticated = authenticated; }
+
 public:
     /**
      * @brief Build a JSON-RPC 2.0 envelope.
@@ -399,6 +414,8 @@ private:
         bool operator<(const PendingDeadline& rhs) const { return mDeadline > rhs.mDeadline; }
     };
     std::priority_queue<PendingDeadline> mPendingDeadlines;
+
+    std::atomic<bool> mAuthenticated{ false };
 
     static constexpr F64 REQUEST_TIMEOUT_SECONDS = 120.0;
 

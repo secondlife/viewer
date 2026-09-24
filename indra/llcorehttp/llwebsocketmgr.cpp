@@ -195,6 +195,7 @@ struct Server_impl
         mLocalOnly(local_only)
     {
 
+        mServer.set_validate_handler([this](websocketpp::connection_hdl hdl) { return this->onValidate(hdl); });
         mServer.set_open_handler([this](websocketpp::connection_hdl hdl) { this->onOpen(hdl); });
         mServer.set_close_handler([this](websocketpp::connection_hdl hdl) { this->onClose(hdl); });
         mServer.set_message_handler([this](websocketpp::connection_hdl hdl, Server_t::message_ptr msg) { this->onMessage(hdl, msg); });
@@ -309,6 +310,34 @@ struct Server_impl
         {
             LL_WARNS("WebSocket") << "Error stopping WebSocket server" << LL_ENDL;
         }
+    }
+
+    /**
+     * @brief Decide whether an upgrade request is let in
+     * @param hdl WebSocket connection handle from websocketpp
+     * @return false to answer the request 403 and never open it
+     *
+     * Called by websocketpp once the request has been read, before it is
+     * answered: the owner says which origins it takes.
+     */
+    bool onValidate(websocketpp::connection_hdl hdl)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
+        websocketpp::lib::error_code ec;
+        Server_t::connection_ptr     con = mServer.get_con_from_hdl(hdl, ec);
+        if (ec || !con)
+        {
+            return false;
+        }
+        const std::string& origin = con->get_origin();
+        if (mOwner->acceptOrigin(origin))
+        {
+            return true;
+        }
+        // Once for each origin: a page can ask as often as it likes.
+        LL_WARNS_ONCE("WebSocket") << mOwner->mServerName << " refused a connection from origin " << origin << LL_ENDL;
+        con->set_status(websocketpp::http::status_code::forbidden);
+        return false;
     }
 
     /**
