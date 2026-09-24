@@ -33,6 +33,7 @@
 #include "llviewermenu.h"
 
 // linden library includes
+#include "indra_constants.h"
 #include "llavatarnamecache.h"  // IDEVO (I Are Not Men!)
 #include "llcombobox.h"
 #include "llcoros.h"
@@ -4676,6 +4677,51 @@ void handle_object_sit(const LLUUID& object_id)
 
     LLVector3 offset(0, 0, 0);
     handle_object_sit(obj, offset);
+}
+
+// Looks for the nearest sittable object -- one whose click-action is set to
+// CLICK_ACTION_SIT, the flag content creators set (usually alongside a custom
+// llSetSitText() label) to mark a prim as a seat -- within a hard-coded
+// multiple of the avatar's height. Used by the game-control "toggle sit"
+// action to find something to sit on before falling back to sitting on the
+// ground. Returns NULL if nothing qualifies.
+LLViewerObject* find_nearby_seat()
+{
+    if (!isAgentAvatarValid())
+    {
+        return NULL;
+    }
+
+    constexpr F32 SEAT_SEARCH_RANGE_HEIGHTS = 2.f;
+    const F32 max_dist = SEAT_SEARCH_RANGE_HEIGHTS * gAgentAvatarp->mBodySize.mV[VZ];
+    const LLVector3 agent_pos = gAgentAvatarp->getPositionAgent();
+
+    LLViewerObject* nearest_seat = NULL;
+    F32 nearest_dist_squared = max_dist * max_dist;
+
+    S32 num_objects = gObjectList.getNumObjects();
+    for (S32 i = 0; i < num_objects; ++i)
+    {
+        LLViewerObject* object = gObjectList.getObject(i);
+        if (!object || object->isDead() || object->isAttachment())
+        {
+            continue;
+        }
+
+        if (object->getPCode() != LL_PCODE_VOLUME || object->getClickAction() != CLICK_ACTION_SIT)
+        {
+            continue;
+        }
+
+        F32 dist_squared = dist_vec_squared(agent_pos, object->getPositionAgent());
+        if (dist_squared <= nearest_dist_squared)
+        {
+            nearest_seat = object;
+            nearest_dist_squared = dist_squared;
+        }
+    }
+
+    return nearest_seat;
 }
 
 void near_sit_down_point(bool success, void*)
