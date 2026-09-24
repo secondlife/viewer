@@ -5107,6 +5107,10 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
         {
             standUp();
         }
+        else if (LLViewerObject* seat = find_nearby_seat())
+        {
+            handle_object_sit(seat, LLVector3::zero);
+        }
         else
         {
             sitDown();
