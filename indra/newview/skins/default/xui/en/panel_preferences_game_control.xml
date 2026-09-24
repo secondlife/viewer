@@ -610,6 +610,9 @@
             label="Zoom -/+"
             value="Zoom +/-"/>
         <combo_box.item
+            label="Scroll -/+"
+            value="Scroll +/-"/>
+        <combo_box.item
             label="None"
             value="None"/>
     </combo_box>
@@ -844,6 +847,12 @@
         <combo_box.item
             label="Zoom -"
             value="Zoom -"/>
+        <combo_box.item
+            label="Scroll +"
+            value="Scroll +"/>
+        <combo_box.item
+            label="Scroll -"
+            value="Scroll -"/>
         <combo_box.item
             label="None"
             value="None"/>

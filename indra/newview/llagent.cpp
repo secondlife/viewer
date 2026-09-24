@@ -5326,6 +5326,18 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
         gSavedSettings.setF32("CameraAngle", camera->getView());
     }
 
+    // actions.mScrollAmplitude ([-1, 1], from "Scroll +/-"/"Scroll +"/"Scroll -")
+    // moves the camera toward/away from the avatar the same way the mousewheel does,
+    // so the third-person/follow-cam distance persists once the avatar moves (unlike
+    // the keyboard's camera in/out keys, which unlock the view from the avatar).
+    // Positive amplitude scrolls in (camera moves closer); scrollCamera()'s clicks
+    // are positive-out like the mousewheel's.
+    if (actions.mScrollAmplitude != 0.f)
+    {
+        constexpr F32 SCROLL_CLICKS_PER_SECOND = 8.f;
+        gAgentCamera.scrollCamera(-actions.mScrollAmplitude * SCROLL_CLICKS_PER_SECOND * g_deltaTime);
+    }
+
     if (mExternalActionFlags & AGENT_CONTROL_STOP)
     {
         setControlFlags(AGENT_CONTROL_STOP);

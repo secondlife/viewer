@@ -597,10 +597,18 @@ public:
 
         // Signed magnitude ([-1, 1]) of "Zoom +/-" (Avatar/Mouselook/Captive only),
         // combined with the full-deflection contribution of "Zoom +"/"Zoom -" --
-        // drives the camera zoom rate rather than an AGENT_CONTROL_* bit; consumed
-        // by LLAgent::applyExternalActions() via LLAgentCamera::setOrbitInKey/
-        // setOrbitOutKey(). Positive zooms in (camera moves closer).
+        // drives the camera field-of-view zoom rate rather than an AGENT_CONTROL_*
+        // bit; consumed by LLAgent::applyExternalActions(). Positive zooms in
+        // (narrows the FOV).
         F32 mZoomAmplitude { 0.f };
+
+        // Signed magnitude ([-1, 1]) of "Scroll +/-" (Avatar/Captive only),
+        // combined with the full-deflection contribution of "Scroll +"/"Scroll -"
+        // -- drives the camera's distance from the avatar (unlike Zoom, which changes
+        // the FOV). Client-side only: not reported in GameControlData's semantic
+        // data. Consumed by LLAgent::applyExternalActions() via
+        // LLAgentCamera::scrollCamera(). Positive scrolls in (camera moves closer).
+        F32 mScrollAmplitude { 0.f };
     };
 
     // Keyboard presses produce action_flags which can be translated into State
