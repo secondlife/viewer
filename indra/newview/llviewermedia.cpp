@@ -3584,9 +3584,10 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
         LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
         if (mUseEmbeddedBrowser)
         {
-            // Absent on a platform with no embedded-browser keyboard translator yet
-            // (e.g. Linux/SDL for now) -- see LLWindow::getNativeKeyData()'s own
-            // comment. Skip rather than send zeroed/garbage data.
+            // Absent on a platform with no embedded-browser keyboard translator
+            // yet (Windows, macOS, and Linux/SDL all have one now) -- see
+            // LLWindow::getNativeKeyData()'s own comment. Skip rather than send
+            // zeroed/garbage data.
             if (native_key_data.has("cef_windows_key_code"))
             {
                 LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,

@@ -220,10 +220,11 @@ public:
     // "cef_native_key_code", "cef_character", "cef_unmodified_character",
     // "cef_is_system_key" -- windows_key_code carries a Windows-VK-shaped code
     // on every platform (CEF's own convention), so the embedded-browser
-    // producer needs no per-platform branching to consume it. A platform with
-    // no translator yet (e.g. Linux/SDL for now) simply omits these keys --
-    // callers check has("cef_windows_key_code") before using them, and skip
-    // the embedded-browser key event entirely if it's absent.
+    // producer needs no per-platform branching to consume it. Windows, macOS,
+    // and Linux (SDL) all implement this translation; a future platform with
+    // no translator yet would simply omit these keys -- callers check
+    // has("cef_windows_key_code") before using them, and skip the
+    // embedded-browser key event entirely if it's absent.
     virtual LLSD getNativeKeyData() { return LLSD::emptyMap(); }
 
     // Get system UI size based on DPI (for 96 DPI UI size should be 1.0)

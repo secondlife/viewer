@@ -851,9 +851,11 @@ every real change.
   mechanism - fixed with an explicit `--no-zygote` switch
   (`llcefbrowser` v1.49.0). Confirmed working end to end under a real Linux
   environment (WSL2/Ubuntu-22.04), including against the actual published
-  package, not just a local build. The one piece not yet started at all for
-  Linux is keyboard input: there is no X11/Wayland key-event encoder yet,
-  only the macOS Cocoa one and the original Windows one.
+  package, not just a local build. Keyboard input into embedded-browser
+  media now works on Linux too (`LLWindowSDL::getNativeKeyData()` gained the
+  same `cef_*` field translation Windows and macOS already had, reusing the
+  existing SDL-to-Windows-VK keycode table) - confirmed via real typed text
+  in the Media Monitor floater's own web page under WSL2/WSLg.
 - **Linux needs `libnss3`/`libnspr4` present on the target system.**
   `libcef.so` depends on these NSS/NSPR libraries at runtime but does not
   bundle them - this matches CEF's own upstream distribution convention

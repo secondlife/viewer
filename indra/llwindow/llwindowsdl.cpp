@@ -39,6 +39,7 @@
 #include "llfindlocale.h"
 #include "llpreeditor.h"
 #include "llsdl.h"
+#include "llsdutil.h"
 
 #if LL_LINUX
 #ifdef LL_GLIB
@@ -1790,6 +1791,61 @@ bool LLWindowSDL::dialogColorPicker( F32 *r, F32 *g, F32 *b)
     return false;
 }
 
+namespace
+{
+    // Platform-neutral, CEF-shaped translation for the embedded-browser keyboard
+    // path -- see LLWindow::getNativeKeyData()'s own comment, and the equivalent
+    // getCefKeyModifiers() in llwindowwin32.cpp/llwindowmacosx.cpp. Unlike Win32
+    // (which needs a live GetKeyState() query to tell left/right shift/ctrl/alt
+    // apart), SDL's own modifier mask already distinguishes them directly, so no
+    // extra query is needed here. sdl_keycode is used only for IS_KEY_PAD
+    // detection (matching Win32's own wParam-switch for the same purpose).
+    U32 getCefKeyModifiers(U32 sdl_mod, U32 sdl_keycode)
+    {
+        U32 modifiers = 0;
+        if (sdl_mod & SDL_KMOD_SHIFT) modifiers |= LL_CEF_KEY_MOD_SHIFT;
+        if (sdl_mod & SDL_KMOD_CTRL)  modifiers |= LL_CEF_KEY_MOD_CONTROL;
+        if (sdl_mod & SDL_KMOD_ALT)   modifiers |= LL_CEF_KEY_MOD_ALT;
+        // Linux has no Cmd key; SDL_KMOD_GUI (the Super/Windows key) is the
+        // closest analogue, matching how LLWindowMacOSX uses this same bit for
+        // its Cmd key.
+        if (sdl_mod & SDL_KMOD_GUI)   modifiers |= LL_CEF_KEY_MOD_COMMAND;
+        if (sdl_mod & SDL_KMOD_CAPS)  modifiers |= LL_CEF_KEY_MOD_CAPS_LOCK;
+        if (sdl_mod & SDL_KMOD_NUM)   modifiers |= LL_CEF_KEY_MOD_NUM_LOCK;
+
+        if (sdl_mod & SDL_KMOD_LSHIFT)      modifiers |= LL_CEF_KEY_MOD_IS_LEFT;
+        else if (sdl_mod & SDL_KMOD_RSHIFT) modifiers |= LL_CEF_KEY_MOD_IS_RIGHT;
+        if (sdl_mod & SDL_KMOD_LCTRL)       modifiers |= LL_CEF_KEY_MOD_IS_LEFT;
+        else if (sdl_mod & SDL_KMOD_RCTRL)  modifiers |= LL_CEF_KEY_MOD_IS_RIGHT;
+        if (sdl_mod & SDL_KMOD_LALT)        modifiers |= LL_CEF_KEY_MOD_IS_LEFT;
+        else if (sdl_mod & SDL_KMOD_RALT)   modifiers |= LL_CEF_KEY_MOD_IS_RIGHT;
+
+        switch (sdl_keycode)
+        {
+            case SDLK_KP_0:
+            case SDLK_KP_1:
+            case SDLK_KP_2:
+            case SDLK_KP_3:
+            case SDLK_KP_4:
+            case SDLK_KP_5:
+            case SDLK_KP_6:
+            case SDLK_KP_7:
+            case SDLK_KP_8:
+            case SDLK_KP_9:
+            case SDLK_KP_PERIOD:
+            case SDLK_KP_DIVIDE:
+            case SDLK_KP_MULTIPLY:
+            case SDLK_KP_MINUS:
+            case SDLK_KP_PLUS:
+            case SDLK_KP_ENTER:
+            case SDLK_KP_EQUALS:
+                modifiers |= LL_CEF_KEY_MOD_IS_KEY_PAD;
+                break;
+        }
+        return modifiers;
+    }
+}
+
 /*
         Make the raw keyboard data available - used to poke through to LLQtWebKit so
         that Qt/Webkit has access to the virtual keycodes etc. that it needs
@@ -1817,6 +1873,26 @@ LLSD LLWindowSDL::getNativeKeyData()
     result["virtual_key"] = (S32)mKeyVirtualKey;
     result["virtual_key_win"] = (S32)LLKeyboardSDL::mapSDLtoWin( mKeyVirtualKey );
     result["modifiers"] = (S32)modifiers;
+
+    // Platform-neutral, CEF-shaped translation for the embedded-browser keyboard
+    // path -- see LLWindow::getNativeKeyData()'s own comment. windows_key_code
+    // reuses the same SDL->Windows-VK table virtual_key_win above already
+    // computes; native_key_code is the raw SDL keycode, mirroring how
+    // LLWindowWin32/LLWindowMacOSX each carry their own raw platform key value
+    // here. character/unmodified_character carry the raw keycode too, same as
+    // LLWindowWin32's own cef_character/cef_unmodified_character for a
+    // RawKeyDown/KeyUp event (only meaningful to a KEYEVENT_CHAR caller, and
+    // handleUnicodeCharHere() in llviewermedia.cpp already resolves the real
+    // Unicode character itself rather than reading these back). is_system_key
+    // is always false, same as LLWindowMacOSX -- CEF's own documentation notes
+    // this concept ("Alt held while typing") is Windows-only.
+    result["cef_modifiers"] = ll_sd_from_U32(getCefKeyModifiers(mKeyModifiers, mKeyVirtualKey));
+    result["cef_windows_key_code"] = ll_sd_from_U32(LLKeyboardSDL::mapSDLtoWin(mKeyVirtualKey));
+    result["cef_native_key_code"] = ll_sd_from_U32(mKeyVirtualKey);
+    result["cef_character"] = ll_sd_from_U32(mKeyVirtualKey);
+    result["cef_unmodified_character"] = ll_sd_from_U32(mKeyVirtualKey);
+    result["cef_is_system_key"] = LLSD::Boolean(false);
+
     return result;
 }
 
