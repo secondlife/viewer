@@ -517,7 +517,11 @@ void setup_signals()
     sigaction(SIGFPE, &act, NULL);
     sigaction(SIGHUP, &act, NULL);
     sigaction(SIGILL, &act, NULL);
-    sigaction(SIGPIPE, &act, NULL);
+    // NOTE: SIGPIPE is intentionally left alone here; LLProcess installs a
+    // permanent SIG_IGN handler for it so that pipe I/O to/from child
+    // processes fails with EPIPE rather than delivering a signal. See
+    // LLProcess::launch() in llprocess.cpp.
+    //sigaction(SIGPIPE, &act, NULL);
     sigaction(SIGSEGV, &act, NULL);
     sigaction(SIGSYS, &act, NULL);
 
