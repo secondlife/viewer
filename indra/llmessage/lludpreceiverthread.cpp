@@ -139,7 +139,15 @@ void LLUDPReceiverThread::run()
                 std::unique_ptr<LLDecodedMessage> decoded = gMessageSystem->decodeDataOwned();
                 if (decoded)
                 {
-                    gMessageSystem->pushDecoded(std::move(decoded));
+                    if (gMessageSystem->isHandledOnUdpThread(*decoded))
+                    {
+                        LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp thread dispatch");
+                        gMessageSystem->dispatchDecodedOnThread(*decoded);
+                    }
+                    else
+                    {
+                        gMessageSystem->pushDecoded(std::move(decoded));
+                    }
                 }
             }
         }

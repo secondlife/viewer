@@ -118,7 +118,7 @@ void LLMessageHandlerBridge::post(LLHTTPNode::ResponsePtr response,
     char* namePtr = LLMessageStringTable::getInstance()->getString(name.c_str());
 
     LL_DEBUGS() << "Setting mLastSender " << input["sender"].asString() << LL_ENDL;
-    gMessageSystem->mLastSender = LLHost(input["sender"].asString());
+    gMessageSystem->sLastSender = LLHost(input["sender"].asString());
     gMessageSystem->mPacketsIn += 1;
     gMessageSystem->mLLSDMessageReader->setMessage(namePtr, input["body"]);
     LockMessageReader rdr(gMessageSystem->mMessageReader, gMessageSystem->mLLSDMessageReader);
@@ -148,6 +148,8 @@ static const char* nullToEmpty(const char* s)
     return s? s : emptyString;
 }
 
+thread_local LLHost LLMessageSystem::sLastSender;
+thread_local LLHost LLMessageSystem::sLastReceivingIF;
 thread_local S32 LLMessageSystem::sIncomingCompressedSize = 0;
 thread_local TPACKETID LLMessageSystem::sCurrentRecvPacketID = 0;
 thread_local S32 LLMessageSystem::sTrueReceiveSize = 0;
@@ -244,6 +246,8 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
     mTemplateMessageReader = new LLTemplateMessageReader(mMessageNumbers);
     // Dedicated reader for main-thread dispatch;
     mDispatchMessageReader = new LLTemplateMessageReader(mMessageNumbers);
+    // Dedicated reader for udp-thread dispatch;
+    mThrdDispatchMessageReader = new LLTemplateMessageReader(mMessageNumbers);
     mLLSDMessageReader = new LLSDMessageReader();
 
     // initialize various bits of net info
@@ -384,8 +388,8 @@ void LLMessageSystem::clearReceiveState()
 {
     sCurrentRecvPacketID = 0;
     sIncomingCompressedSize = 0;
-    mLastSender.invalidate();
-    mLastReceivingIF.invalidate();
+    sLastSender.invalidate();
+    sLastReceivingIF.invalidate();
     mMessageReader->clearMessage();
     mLastMessageFromTrustedMessageService = false;
 }
@@ -1154,8 +1158,8 @@ S32 LLMessageSystem::receivePacketOrDrop(char* datap, bool& packet_id_already_ch
         }
 
         S32 packet_size = pkt.getSize();
-        mLastSender      = pkt.getHost();
-        mLastReceivingIF = pkt.getReceivingInterface();
+        sLastSender      = pkt.getHost();
+        sLastReceivingIF = pkt.getReceivingInterface();
         packet_id_already_checked = pkt.getPacketIDChecked();
 
         if (packet_size > 0)
@@ -1189,9 +1193,9 @@ S32 LLMessageSystem::receivePacketOrDrop(char* datap, bool& packet_id_already_ch
                 packet_size -= SOCKS_HEADER_SIZE;
                 memcpy(datap, buffer + SOCKS_HEADER_SIZE, packet_size);
                 proxywrap_t* header = static_cast<proxywrap_t*>(static_cast<void*>(buffer));
-                mLastSender.setAddress(header->addr);
-                mLastSender.setPort(ntohs(header->port));
-                mLastReceivingIF = ::get_receiving_interface();
+                sLastSender.setAddress(header->addr);
+                sLastSender.setPort(ntohs(header->port));
+                sLastReceivingIF = ::get_receiving_interface();
             }
         }
         else
@@ -1211,8 +1215,8 @@ S32 LLMessageSystem::receivePacketOrDrop(char* datap, bool& packet_id_already_ch
             }
             else
             {
-                mLastSender      = ::get_sender();
-                mLastReceivingIF = ::get_receiving_interface();
+                sLastSender      = ::get_sender();
+                sLastReceivingIF = ::get_receiving_interface();
             }
         }
     }
@@ -3319,6 +3323,24 @@ void LLMessageSystem::setHandlerFuncFast(const char *name, void (*handler_func)(
     }
 }
 
+void LLMessageSystem::setHandlerFuncThrdFast(const char* name, void (*handler_func)(LLMessageSystem* msgsystem, void** user_data), void** user_data)
+{
+    // Unresolved concerns/TODO:
+    // mCircuitInfo will require thread protection, without that
+    // getSenderID(), getSenderSessionID(), and isTrustedSender()
+    // are not safe to call from dispatchDecodedOnThread().
+
+    LLMessageTemplate* msgtemplate = get_ptr_in_map(mMessageTemplates, name);
+    if (msgtemplate)
+    {
+        msgtemplate->setHandlerFuncThrd(handler_func, user_data);
+    }
+    else
+    {
+        LL_ERRS("Messaging") << name << " is not a known message name!" << LL_ENDL;
+    }
+}
+
 bool LLMessageSystem::callHandler(const char *name,
         bool trustedSource, LLMessageSystem* msg)
 {
@@ -3346,84 +3368,95 @@ bool LLMessageSystem::callHandler(const char *name,
     return msg_template->callHandlerFunc(msg);
 }
 
+namespace
+{
+    void dispatch_decoded_impl(LLMessageSystem* self, LLDecodedMessage& msg, LLTemplateMessageReader* dispatch_reader, LLMessageReaderPointer& message_reader)
+    {
+        // Point the template reader at this message's owned data for the
+        // duration of the handler call, so getUUIDFast()/getS32Fast()/etc.
+        // resolve against the right data.
+        // Dispatch never mutates the template's stats counters (only decode
+        // does, via mCurrentRMessageTemplate directly) -- callHandlerFunc()
+        // and isBanned() are const. This const_cast only exists because
+        // setCurrentMessageData() is shared with the decode-time code path,
+        // which legitimately needs a mutable pointer.
+        LLMessageTemplate* msg_template = const_cast<LLMessageTemplate*>(msg.mTemplate);
+        dispatch_reader->setCurrentMessageData(msg_template, msg.mData.get(), msg.mReceiveSize);
+
+        // Set reader for get*Fast() methods
+        LockMessageReader rdr(message_reader, dispatch_reader);
+
+        if (msg.mTemplate->isBanned(msg.mTrusted))
+        {
+            LL_WARNS("Messaging") << "LLMessageSystem::callHandler: banned message "
+                << msg.mTemplate->mName
+                << " from "
+                << (msg.mTrusted ? "trusted " : "untrusted ")
+                << "source" << LL_ENDL;
+            return;
+        }
+
+        static LLTimer decode_timer;
+        if (LLMessageReader::getTimeDecodes() || self->getTimingCallback())
+        {
+            decode_timer.reset();
+        }
+
+        if (!msg.mTemplate->callHandlerFunc(self))
+        {
+            LL_WARNS() << "Message from " << msg.mSender
+                << " with no handler function received: "
+                << msg.mTemplate->mName << LL_ENDL;
+        }
+
+        if (LLMessageReader::getTimeDecodes() || self->getTimingCallback())
+        {
+            F32 decode_time = decode_timer.getElapsedTimeF32();
+
+            if (self->getTimingCallback())
+            {
+                (self->getTimingCallback())(msg_template->mName, decode_time, self->getTimingCallbackData());
+            }
+
+            if (LLMessageReader::getTimeDecodes())
+            {
+                msg_template->mDecodeTimeThisFrame += decode_time;
+                msg_template->mTotalDecoded++;
+                msg_template->mTotalDecodeTime += decode_time;
+
+                if (msg_template->mMaxDecodeTimePerMsg < decode_time)
+                {
+                    msg_template->mMaxDecodeTimePerMsg = decode_time;
+                }
+
+                if (decode_time > LLMessageReader::getTimeDecodesSpamThreshold())
+                {
+                    LL_DEBUGS() << "--------- Message " << msg_template->mName << " decode took " << decode_time << " seconds. ("
+                        << msg_template->mMaxDecodeTimePerMsg << " max, "
+                        << (msg_template->mTotalDecodeTime / msg_template->mTotalDecoded) << " avg)" << LL_ENDL;
+                }
+            }
+        }
+    }
+}
+
 void LLMessageSystem::dispatchDecoded(LLDecodedMessage& msg)
 {
-    // Point the template reader at this message's owned data for the
-    // duration of the handler call, so getUUIDFast()/getS32Fast()/etc.
-    // resolve against the right data.
-    // Dispatch never mutates the template's stats counters (only decode
-    // does, via mCurrentRMessageTemplate directly) -- callHandlerFunc()
-    // and isBanned() are const. This const_cast only exists because
-    // setCurrentMessageData() is shared with the decode-time code path,
-    // which legitimately needs a mutable pointer.
-    //
-    // This must NOT use mTemplateMessageReader: that instance is used
-    // concurrently by the receiver thread's decodeDataOwned(), which owns
-    // mutable per-decode state (mReceiveSize, mCurrentRMessageTemplate,
-    // mCurrentRMessageData). If dispatch (main thread) and decode (receiver
-    // thread) shared that state, the receiver thread could invalidate it
-    // (e.g. clearReceiveState() setting mReceiveSize = -1) while a handler
-    // is still running here, causing spurious "No message waiting for
-    // decode" LL_ERRS() crashes in getData()/getNumberOfBlocks().
-    LLMessageTemplate* msg_template = const_cast<LLMessageTemplate*>(msg.mTemplate);
-    mDispatchMessageReader->setCurrentMessageData(
-        const_cast<LLMessageTemplate*>(msg.mTemplate), msg.mData.get(), msg.mReceiveSize);
-    mLastSender = msg.mSender;
+    // For main thread dispatch
+    sLastSender = msg.mSender;
+    dispatch_decoded_impl(this, msg, mDispatchMessageReader, mMessageReader);
+}
 
-    // Set reader for get*Fast() methods
-    LockMessageReader rdr(mMessageReader, mDispatchMessageReader);
+void LLMessageSystem::dispatchDecodedOnThread(LLDecodedMessage& msg)
+{
+    // UDP thread only.
+    sLastSender = msg.mSender;
+    dispatch_decoded_impl(this, msg, mThrdDispatchMessageReader, mMessageReader);
+}
 
-    if (msg.mTemplate->isBanned(msg.mTrusted))
-    {
-        LL_WARNS("Messaging") << "LLMessageSystem::callHandler: banned message "
-            << msg.mTemplate->mName
-            << " from "
-            << (msg.mTrusted ? "trusted " : "untrusted ")
-            << "source" << LL_ENDL;
-        return;
-    }
-
-    static LLTimer decode_timer;
-    if (LLMessageReader::getTimeDecodes() || getTimingCallback())
-    {
-        decode_timer.reset();
-    }
-
-    if (!msg.mTemplate->callHandlerFunc(this))
-    {
-        LL_WARNS() << "Message from " << msg.mSender
-            << " with no handler function received: "
-            << msg.mTemplate->mName << LL_ENDL;
-    }
-
-    if (LLMessageReader::getTimeDecodes() || getTimingCallback())
-    {
-        F32 decode_time = decode_timer.getElapsedTimeF32();
-
-        if (getTimingCallback())
-        {
-            (getTimingCallback())(msg_template->mName, decode_time, getTimingCallbackData());
-        }
-
-        if (LLMessageReader::getTimeDecodes())
-        {
-            msg_template->mDecodeTimeThisFrame += decode_time;
-            msg_template->mTotalDecoded++;
-            msg_template->mTotalDecodeTime += decode_time;
-
-            if (msg_template->mMaxDecodeTimePerMsg < decode_time)
-            {
-                msg_template->mMaxDecodeTimePerMsg = decode_time;
-            }
-
-            if (decode_time > LLMessageReader::getTimeDecodesSpamThreshold())
-            {
-                LL_DEBUGS() << "--------- Message " << msg_template->mName << " decode took " << decode_time << " seconds. ("
-                    << msg_template->mMaxDecodeTimePerMsg << " max, "
-                    << (msg_template->mTotalDecodeTime / msg_template->mTotalDecoded) << " avg)" << LL_ENDL;
-            }
-        }
-    }
+bool LLMessageSystem::isHandledOnUdpThread(const LLDecodedMessage& msg) const
+{
+    return msg.mTemplate->isHandledOnUdpThread();
 }
 
 void LLMessageSystem::setExceptionFunc(EMessageException e,
@@ -3489,7 +3522,7 @@ char* LLMessageSystem::getMessageName()
 
 const LLUUID& LLMessageSystem::getSenderID() const
 {
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(mLastSender);
+    LLCircuitData *cdp = mCircuitInfo.findCircuit(sLastSender);
     if (cdp)
     {
         return (cdp->mRemoteID);
@@ -3500,7 +3533,7 @@ const LLUUID& LLMessageSystem::getSenderID() const
 
 const LLUUID& LLMessageSystem::getSenderSessionID() const
 {
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(mLastSender);
+    LLCircuitData *cdp = mCircuitInfo.findCircuit(sLastSender);
     if (cdp)
     {
         return (cdp->mRemoteSessionID);
@@ -3789,7 +3822,7 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
 
 void LLMessageSystem::dumpPacketToLog()
 {
-    LL_WARNS("Messaging") << "Packet Dump from:" << mLastSender << LL_ENDL;
+    LL_WARNS("Messaging") << "Packet Dump from:" << sLastSender << LL_ENDL;
     LL_WARNS("Messaging") << "Packet Size:" << sTrueReceiveSize << LL_ENDL;
     char line_buffer[256];      /* Flawfinder: ignore */
     S32 i;
@@ -4477,7 +4510,7 @@ void LLMessageSystem::banUdpMessage(const std::string& name)
 }
 const LLHost& LLMessageSystem::getSender() const
 {
-    return mLastSender;
+    return sLastSender;
 }
 
 void LLMessageSystem::sendUntrustedSimulatorMessageCoro(std::string url, std::string message, LLSD body, UntrustedCallback_t callback)
