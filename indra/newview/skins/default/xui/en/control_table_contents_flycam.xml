@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<contents>
+    <rows
+     name="flycam_move_forward"
+     value="flycam_move_forward">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Flycam Forward" />
+    </rows>
+    <rows
+     name="flycam_move_backward"
+     value="flycam_move_backward">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Flycam Backward" />
+    </rows>
+    <rows
+     name="flycam_truck_left"
+     value="flycam_truck_left">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Flycam Truck Left" />
+    </rows>
+    <rows
+     name="flycam_truck_right"
+     value="flycam_truck_right">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Flycam Truck Right" />
+    </rows>
+    <rows
+     name="flycam_move_up"
+     value="flycam_move_up">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Flycam Up" />
+    </rows>
+    <rows
+     name="flycam_move_down"
+     value="flycam_move_down">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Flycam Down" />
+    </rows>
+    <rows
+     name="flycam_yaw_left"
+     value="flycam_yaw_left">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Flycam Yaw Left" />
+    </rows>
+    <rows
+     name="flycam_yaw_right"
+     value="flycam_yaw_right">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Flycam Yaw Right" />
+    </rows>
+    <rows
+     name="flycam_pitch_up"
+     value="flycam_pitch_up">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Flycam Pitch Up" />
+    </rows>
+    <rows
+     name="flycam_pitch_down"
+     value="flycam_pitch_down">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Flycam Pitch Down" />
+    </rows>
+    <rows
+     name="flycam_unroll"
+     value="flycam_unroll">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         tool_tip="Reset flycam roll to level"
+         value="Flycam Unroll" />
+    </rows>
+    <rows
+     name="toggle_flycam"
+     value="toggle_flycam">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         tool_tip="Turn flycam on or off"
+         value="Toggle Flycam" />
+    </rows>
+</contents>
