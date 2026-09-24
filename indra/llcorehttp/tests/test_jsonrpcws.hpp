@@ -92,6 +92,7 @@ namespace tut
         set_test_name("processMessage dispatches notification handler");
 
         TestJSONRPCConnection conn;
+        conn.setAuthenticated(true);
 
         bool called = false;
         LLSD seen_id;
@@ -122,6 +123,7 @@ namespace tut
         set_test_name("sweepTimeouts expires overdue callbacks");
 
         TestJSONRPCConnection conn;
+        conn.setAuthenticated(true);
 
         bool callback_called = false;
         conn.testInjectPendingRequest(
