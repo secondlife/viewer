@@ -183,11 +183,25 @@ public:
     LLMaterialEditorTaskMoveObserver(
         const LLUUID& asset_id,
         const LLUUID& dest_folder_id,
+        const std::string& item_name,
         LLPointer<LLInventoryCallback> cb)
         : mDestFolderID(dest_folder_id),
+        mItemName(item_name),
+        mWatchByName(asset_id.isNull()),
         mCallback(cb)
     {
-        watchAsset(asset_id);
+        if (mWatchByName)
+        {
+            // Default materials have a null asset id, so they can't
+            // be tracked via LLInventoryAddItemByAssetObserver. Fall back to
+            // watching the destination folder for a new item with a matching
+            // name instead.
+            gInventory.addObserver(this);
+        }
+        else
+        {
+            watchAsset(asset_id);
+        }
     }
 
     virtual ~LLMaterialEditorTaskMoveObserver()
@@ -197,6 +211,41 @@ public:
 
     virtual void changed(U32 mask) override
     {
+        if (mWatchByName)
+        {
+            if (!(mask & LLInventoryObserver::ADD) ||
+                !(mask & LLInventoryObserver::CREATE) ||
+                !(mask & LLInventoryObserver::UPDATE_CREATE))
+            {
+                return;
+            }
+
+            const uuid_set_t& added = gInventory.getAddedIDs();
+            for (uuid_set_t::const_iterator it = added.begin(); it != added.end(); ++it)
+            {
+                LLViewerInventoryItem* item = gInventory.getItem(*it);
+                // A lot of things can have a null assey UUID, so needs extra safeties.
+                if (item
+                    && item->getParentUUID() == mDestFolderID
+                    && item->getName() == mItemName
+                    && item->getType() == LLAssetType::AT_MATERIAL
+                    && item->getAssetUUID().isNull())
+                {
+                    gInventory.removeObserver(this);
+
+                    // Fire the callback
+                    if (mCallback)
+                    {
+                        mCallback->fire(item->getUUID());
+                    }
+
+                    delete this;
+                    return;
+                }
+            }
+            return;
+        }
+
         // Call base class to populate mAddedItems
         LLInventoryAddItemByAssetObserver::changed(mask);
 
@@ -232,7 +281,9 @@ protected:
 
 private:
     LLUUID mDestFolderID;
+    std::string mItemName;
     std::string mNewName;
+    bool mWatchByName;
     LLPointer<LLInventoryCallback> mCallback;
 };
 
@@ -1916,6 +1967,7 @@ void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD&
                             LLMaterialEditorTaskMoveObserver* observer = new LLMaterialEditorTaskMoveObserver(
                                 item->getAssetUUID(),
                                 parent_id,
+                                item->getName(),
                                 cb
                             );
                             gInventory.addObserver(observer);
