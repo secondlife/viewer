@@ -3101,6 +3101,15 @@ bool LLAppViewer::initConfiguration()
 
     loadColorSettings();
 
+    // Command line could have updated UserLogFile
+    std::string log_filename = gSavedSettings.getString("UserLogFile");
+    if (!log_filename.empty() && LLError::logFileName() != log_filename)
+    {
+        LLFile::remove(log_filename);
+        LLError::logToFile(log_filename);
+        LL_INFOS("Settings") << "Logging switched to " << log_filename << LL_ENDL;
+    }
+
     // Let anyone else who cares know that we've populated our settings
     // variables.
     for (const auto& key : LLControlGroup::key_snapshot())
