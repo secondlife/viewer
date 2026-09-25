@@ -78,7 +78,7 @@
                 tool_tip="Allow Roll input to rotate the flycam about its forward axis. Only shown while editing FlyCam mappings."/>
             <text
                 type="string"
-                name="flycam_speed_slow_label"
+                name="speed_slow_label"
                 layout="topleft"
                 follows="top|left"
                 halign="right"
@@ -87,7 +87,7 @@
                 height="16"
                 width="32">Slow</text>
             <slider
-                name="flycam_speed_factor"
+                name="speed_factor"
                 layout="topleft"
                 follows="top|left"
                 top_delta="-1"
@@ -100,10 +100,10 @@
                 increment="0.05"
                 decimal_digits="2"
                 show_text="false"
-                tool_tip="Camera move speed while flying the flycam. Only shown while editing FlyCam mappings."/>
+                tool_tip="FlyCam: camera move speed. Mouselook: turn/look speed. Avatar: turn speed. Only shown while editing FlyCam, Mouselook, or Avatar mappings."/>
             <text
                 type="string"
-                name="flycam_speed_fast_label"
+                name="speed_fast_label"
                 layout="topleft"
                 follows="top|left"
                 top_delta="1"

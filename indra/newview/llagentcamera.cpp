@@ -3277,7 +3277,7 @@ void LLAgentCamera::updateFlycam(F32 delta_time)
     // Must precede setLinearVelocity()/setPitchRate()/setYawRate()/setRollRate():
     // those setters apply mSpeedFactor/mAllowRoll immediately rather than at
     // integrate() time.
-    mFlycam.setSpeedFactor(LLGameControl::getFlycamSpeedFactor());
+    mFlycam.setSpeedFactor(LLGameControl::getSpeedFactor(LLGameControl::getModeName(LLGameControl::CONTROL_MODE_FLYCAM)));
     mFlycam.setAllowRoll(LLGameControl::isFlycamRollAllowed());
 
     LLVector3 linear_velocity(dolly_input, truck_input, flycam_inputs[LLGameControl::FLYCAM_BOOM]);
