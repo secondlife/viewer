@@ -49,6 +49,7 @@
 #include "llapp.h"
 #include "indra_constants.h"
 #include "lldir.h"
+#include "llthread.h" // for on_main_thread()
 #include "llerror.h"
 #include "llfasttimer.h"
 #include "llhttpnodeadapter.h"
@@ -427,12 +428,6 @@ bool LLMessageSystem::isTrustedSender(const LLHost& host) const
 void LLMessageSystem::receivedMessageFromTrustedSender()
 {
     mLastMessageFromTrustedMessageService = true;
-}
-
-bool LLMessageSystem::isTrustedSender() const
-{
-    return mLastMessageFromTrustedMessageService ||
-        isTrustedSender(getSender());
 }
 
 std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
@@ -3327,8 +3322,7 @@ void LLMessageSystem::setHandlerFuncThrdFast(const char* name, void (*handler_fu
 {
     // Unresolved concerns/TODO:
     // mCircuitInfo will require thread protection, without that
-    // getSenderID(), getSenderSessionID(), and isTrustedSender()
-    // are not safe to call from dispatchDecodedOnThread().
+    // getSenderID() is not safe to call from dispatchDecodedOnThread().
 
     LLMessageTemplate* msgtemplate = get_ptr_in_map(mMessageTemplates, name);
     if (msgtemplate)
@@ -3522,22 +3516,14 @@ char* LLMessageSystem::getMessageName()
 
 const LLUUID& LLMessageSystem::getSenderID() const
 {
+    llassert(on_main_thread());
+
     LLCircuitData *cdp = mCircuitInfo.findCircuit(sLastSender);
     if (cdp)
     {
         return (cdp->mRemoteID);
     }
 
-    return LLUUID::null;
-}
-
-const LLUUID& LLMessageSystem::getSenderSessionID() const
-{
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(sLastSender);
-    if (cdp)
-    {
-        return (cdp->mRemoteSessionID);
-    }
     return LLUUID::null;
 }
 
