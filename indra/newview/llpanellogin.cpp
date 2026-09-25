@@ -65,6 +65,7 @@
 #include "llmediactrl.h"
 #include "llrootview.h"
 
+#include "llfloaterjoin.h"
 #include "llfloatertos.h"
 #include "lltrans.h"
 #include "llglheaders.h"
@@ -533,6 +534,24 @@ void LLPanelLogin::reshapePanel()
         LLRect rect = sInstance->getRect();
         sInstance->reshape(rect.getWidth(), rect.getHeight());
     }
+}
+
+//static
+void LLPanelLogin::setCredentialFields(const std::string& username, const std::string& password)
+{
+    if (!sInstance)
+        return;
+    sInstance->getChild<LLComboBox>("username_combo")->setLabel(username);
+    sInstance->mUsernameLength = static_cast<unsigned int>(username.length());
+    sInstance->getChild<LLUICtrl>("password_edit")->setValue(password);
+    sInstance->mPasswordLength = static_cast<unsigned int>(password.length());
+    sInstance->mPasswordModified = true;
+    sInstance->updateLoginButtons();
+
+    sInstance->getChild<LLUICtrl>("remember_name")->setValue(true);
+    LLUICtrl* remember_password = sInstance->getChild<LLUICtrl>("remember_password");
+    remember_password->setValue(true);
+    remember_password->setEnabled(true);
 }
 
 //static
@@ -1057,10 +1076,7 @@ void LLPanelLogin::onClickForgotPassword(void*)
 //static
 void LLPanelLogin::onClickSignUp(void*)
 {
-    if (sInstance)
-    {
-        LLWeb::loadURLExternal(sInstance->getString("sign_up_url"));
-    }
+    LLFloaterReg::showInstance("join");
 }
 
 // static

@@ -3808,6 +3808,39 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>JoinFloaterOverlayOpacity</key>
+    <map>
+      <key>Comment</key>
+      <string>Opacity of the screen darkening overlay behind the Join floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.8</real>
+    </map>
+    <key>JoinFloaterTestSLapp</key>
+    <map>
+      <key>Comment</key>
+      <string>For testing only: Show links in the Join floater that trigger its close/join SLapps.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>JoinURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL opened in the Join floater on the login screen</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://join.secondlife.com/</string>
+    </map>
     <key>JoystickAvatarEnabled</key>
     <map>
       <key>Comment</key>
