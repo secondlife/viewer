@@ -2589,9 +2589,39 @@ namespace
                      OSMB_OK);
     }
 
+    template <typename ArgAccessor>
+    std::string scanArgsForLogFile(int argc, ArgAccessor argAt)
+    {
+        std::string log_file;
+        for (int i = 1; i < argc; ++i)
+        {
+            std::string option = argAt(i);
+            if ((option == "--logfile" || option == "-logfile" || option == "/logfile") &&
+                i + 1 < argc)
+            {
+                log_file = argAt(i + 1);
+            }
+            else if (option.compare(0, 10, "--logfile=") == 0)
+            {
+                log_file = option.substr(10);
+            }
+            else if (option.compare(0, 9, "-logfile=") == 0)
+            {
+                log_file = option.substr(9);
+            }
+            else if (option.compare(0, 9, "/logfile:") == 0)
+            {
+                log_file = option.substr(9);
+            }
+        }
+        return log_file;
+    }
+
     std::string getStartupLogFileName()
     {
-        if (LLControlVariable* user_log_file = gSavedSettings.getControl("UserLogFile"))
+        // By default cmd_line.xml maps logfile to UserLogFile
+        LLControlVariable* user_log_file = gSavedSettings.getControl("UserLogFile");
+        if (user_log_file)
         {
             std::string log_file = user_log_file->getValue().asString();
             if (!log_file.empty())
@@ -2601,36 +2631,55 @@ namespace
         }
 
 #if LL_WINDOWS
+        // TODO: this is arguably incorrect, cmd_line.xml is responsible for mapping
+        // arguments to UserLogFile, remove argument parsing and instead expand
+        // command line parser or "map-to"
         int argc = 0;
         LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
         if (argv)
         {
-            std::string log_file;
-            for (int i = 1; i < argc; ++i)
-            {
-                std::string option = ll_convert_wide_to_string(argv[i]);
-                if ((option == "--logfile" || option == "-logfile" || option == "/logfile") &&
-                    i + 1 < argc)
-                {
-                    log_file = ll_convert_wide_to_string(argv[i + 1]);
-                }
-                else if (option.compare(0, 10, "--logfile=") == 0)
-                {
-                    log_file = option.substr(10);
-                }
-                else if (option.compare(0, 9, "-logfile=") == 0)
-                {
-                    log_file = option.substr(9);
-                }
-                else if (option.compare(0, 9, "/logfile:") == 0)
-                {
-                    log_file = option.substr(9);
-                }
-            }
+            std::string log_file = scanArgsForLogFile(argc,
+                [argv](int i) { return ll_convert_wide_to_string(argv[i]); });
             LocalFree(argv);
 
             if (!log_file.empty())
             {
+                // handleLogFileChanged isn't set yet, so updating
+                // UserLogFile won't trigger a change
+                if (user_log_file)
+                {
+                    user_log_file->setValue(log_file, false);
+                }
+                return log_file;
+            }
+        }
+#else
+        // On other platforms (macOS, Linux), fall back to scanning the
+        // narrow argc/argv captured at process startup, if the platform
+        // subclass makes them available. This covers cases where
+        // UserLogFile wasn't populated by LLControlGroupCLP in time, e.g.
+        // if this is called very early in startup, or the app was launched
+        // in a way that bypassed normal command-line parsing.
+        // TODO: nothing should bypas normal command-line parsing, parser
+        // should account for all cases. getStartupLogFileName shouldn't
+        // have to do independent checks like this one.
+        int argc = 0;
+        char** argv = nullptr;
+        if (LLAppViewer::instance() &&
+            LLAppViewer::instance()->getCommandLineArgs(argc, argv) &&
+            argv != nullptr)
+        {
+            std::string log_file = scanArgsForLogFile(argc,
+                [argv](int i) { return std::string(argv[i] ? argv[i] : ""); });
+
+            if (!log_file.empty())
+            {
+                // handleLogFileChanged isn't set yet, so updating
+                // UserLogFile won't trigger a change
+                if (user_log_file)
+                {
+                    user_log_file->setValue(log_file, false);
+                }
                 return log_file;
             }
         }
