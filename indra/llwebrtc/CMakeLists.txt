@@ -40,6 +40,7 @@ if (WINDOWS)
                                        msdmo
                                        strmiids
                                        iphlpapi
+                                       crypt32
                                        libcmt)
     # as the webrtc libraries are release, build this binary as release as well.
     target_compile_options(llwebrtc PRIVATE "/MT" "/Zc:wchar_t")
@@ -54,6 +55,7 @@ elseif (DARWIN)
                                    "-framework CoreMedia"
                                    "-framework CoreVideo"
                                    "-framework Foundation"
+                                   "-framework Security"
     )
     if (USE_BUGSPLAT)
         set_target_properties(llwebrtc PROPERTIES XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
