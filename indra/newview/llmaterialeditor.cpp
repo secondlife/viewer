@@ -213,7 +213,9 @@ public:
     {
         if (mWatchByName)
         {
-            if (!(mask & LLInventoryObserver::ADD))
+            if (!(mask & LLInventoryObserver::ADD) ||
+                !(mask & LLInventoryObserver::CREATE) ||
+                !(mask & LLInventoryObserver::UPDATE_CREATE))
             {
                 return;
             }
