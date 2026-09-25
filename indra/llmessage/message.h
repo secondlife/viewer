@@ -518,10 +518,6 @@ public:
     // circuit.
     const LLUUID& getSenderID() const;
 
-    // This method returns the session id associated with the last
-    // sender.
-    const LLUUID& getSenderSessionID() const;
-
     // set & get the session id (useful for viewers for now.)
     void setMySessionID(const LLUUID& session_id) { mSessionID = session_id; }
     const LLUUID& getMySessionID() { return mSessionID; }
@@ -751,9 +747,6 @@ public:
     /** Return false if host is unknown or untrusted */
     // Note:DaveH/Babbage some trusted messages can be received without a circuit
     bool isTrustedSender(const LLHost& host) const;
-
-    /** Return true if current message is from trusted source */
-    bool isTrustedSender() const;
 
     /** Return false true if name is unknown or untrusted */
     bool isTrustedMessage(const std::string& name) const;
