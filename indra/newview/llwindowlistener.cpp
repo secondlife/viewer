@@ -98,7 +98,9 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
         LLSDMap("reply", LLSD()));
     add("keyDown",
         keySomething + "keypress event.\n" + keyExplain +
-        "The [\"char\"] parameter detects and handles non-ASCII characters seperately\n" + mask,
+        "The [\"char\"] parameter detects and handles non-ASCII characters seperately\n"
+        "Optional [\"hold_key\"] also registers the key with the keyboard state, so it keeps\n"
+        "triggering per-frame actions (e.g. avatar movement) until a matching keyUp arrives.\n" + mask,
         &LLWindowListener::keyDown);
     add("keyUp",
         keySomething + "key release event.\n" + keyExplain + mask,
@@ -366,6 +368,9 @@ void LLWindowListener::keyDown(LLSD const & evt)
             {
                 gViewerInput.handleKey(key, mask, false);
                 if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
+
+                if (evt.has("hold_key") && evt["hold_key"].asBoolean())
+                    mKbGetter()->handleTranslatedKeyDown(key, mask);
             }
         }
         else
@@ -386,6 +391,9 @@ void LLWindowListener::keyDown(LLSD const & evt)
         {
             gViewerInput.handleKey(key, mask, false);
             if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
+
+            if (evt.has("hold_key") && evt["hold_key"].asBoolean())
+                mKbGetter()->handleTranslatedKeyDown(key, mask);
         }
     }
 }
