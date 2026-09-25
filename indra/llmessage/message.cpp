@@ -49,6 +49,7 @@
 #include "llapp.h"
 #include "indra_constants.h"
 #include "lldir.h"
+#include "llthread.h" // for on_main_thread()
 #include "llerror.h"
 #include "llfasttimer.h"
 #include "llhttpnodeadapter.h"
@@ -118,7 +119,7 @@ void LLMessageHandlerBridge::post(LLHTTPNode::ResponsePtr response,
     char* namePtr = LLMessageStringTable::getInstance()->getString(name.c_str());
 
     LL_DEBUGS() << "Setting mLastSender " << input["sender"].asString() << LL_ENDL;
-    gMessageSystem->mLastSender = LLHost(input["sender"].asString());
+    gMessageSystem->sLastSender = LLHost(input["sender"].asString());
     gMessageSystem->mPacketsIn += 1;
     gMessageSystem->mLLSDMessageReader->setMessage(namePtr, input["body"]);
     LockMessageReader rdr(gMessageSystem->mMessageReader, gMessageSystem->mLLSDMessageReader);
@@ -147,6 +148,13 @@ static const char* nullToEmpty(const char* s)
     static char emptyString[] = "";
     return s? s : emptyString;
 }
+
+thread_local LLHost LLMessageSystem::sLastSender;
+thread_local LLHost LLMessageSystem::sLastReceivingIF;
+thread_local S32 LLMessageSystem::sIncomingCompressedSize = 0;
+thread_local TPACKETID LLMessageSystem::sCurrentRecvPacketID = 0;
+thread_local S32 LLMessageSystem::sTrueReceiveSize = 0;
+thread_local U8 LLMessageSystem::sTrueReceiveBuffer[MAX_BUFFER_SIZE];
 
 void LLMessageSystem::init()
 {
@@ -183,9 +191,6 @@ void LLMessageSystem::init()
     mInvalidOnCircuitPackets = 0;   // total # of on-circuit packets rejected
 
     mOurCircuitCode = 0;
-
-    mIncomingCompressedSize = 0;
-    mCurrentRecvPacketID = 0;
 
     mActualBytesIn          = 0;
     mActualBytesOut         = 0;
@@ -240,6 +245,10 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
     mMessageBuilder = NULL;
 
     mTemplateMessageReader = new LLTemplateMessageReader(mMessageNumbers);
+    // Dedicated reader for main-thread dispatch;
+    mDispatchMessageReader = new LLTemplateMessageReader(mMessageNumbers);
+    // Dedicated reader for udp-thread dispatch;
+    mThrdDispatchMessageReader = new LLTemplateMessageReader(mMessageNumbers);
     mLLSDMessageReader = new LLSDMessageReader();
 
     // initialize various bits of net info
@@ -252,6 +261,16 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
         mbError = true;
         mErrorCode = error;
     }
+
+    if (!mbError)
+    {
+        // Start the receiver thread, which will read packets from the socket and queue them for processing.
+        mIncomingQueue = std::make_shared<LLUDPReceiverThread::PacketQueue>();
+        mDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>();
+        mReceiverThread = std::make_unique<LLUDPReceiverThread>(mSocket, mIncomingQueue);
+        mReceiverThread->start();
+    }
+
 //  LL_DEBUGS("Messaging") <<  << "*** port: " << mPort << LL_ENDL;
 
     //
@@ -284,8 +303,6 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
     mNumMessageCounts = 0;
     mMaxMessageCounts = 200; // >= 0 means dump warnings
     mMaxMessageTime   = F32Seconds(1.f);
-
-    mTrueReceiveSize = 0;
 
     mReceiveTime = F32Seconds(0.f);
 }
@@ -335,6 +352,10 @@ LLMessageSystem::~LLMessageSystem()
     for_each(mMessageNumbers.begin(), mMessageNumbers.end(), DeletePairedPointer());
     mMessageNumbers.clear();
 
+    // The thread must stop before the socket closes
+    if (mIncomingQueue) mIncomingQueue->close();
+    if (mReceiverThread) mReceiverThread->shutdown();
+
     if (!mbError)
     {
         end_net(mSocket);
@@ -342,31 +363,34 @@ LLMessageSystem::~LLMessageSystem()
     mSocket = 0;
 
     delete mTemplateMessageReader;
-    mTemplateMessageReader = NULL;
+    mTemplateMessageReader = nullptr;
+
+    delete mDispatchMessageReader;
+    mDispatchMessageReader = nullptr;
 
     delete mTemplateMessageBuilder;
-    mTemplateMessageBuilder = NULL;
-    mMessageBuilder = NULL;
+    mTemplateMessageBuilder = nullptr;
+    mMessageBuilder = nullptr;
 
     delete mLLSDMessageReader;
-    mLLSDMessageReader = NULL;
+    mLLSDMessageReader = nullptr;
 
     delete mLLSDMessageBuilder;
-    mLLSDMessageBuilder = NULL;
+    mLLSDMessageBuilder = nullptr;
 
     delete mPollInfop;
-    mPollInfop = NULL;
+    mPollInfop = nullptr;
 
-    mIncomingCompressedSize = 0;
-    mCurrentRecvPacketID = 0;
+    sIncomingCompressedSize = 0;
+    sCurrentRecvPacketID = 0;
 }
 
 void LLMessageSystem::clearReceiveState()
 {
-    mCurrentRecvPacketID = 0;
-    mIncomingCompressedSize = 0;
-    mLastSender.invalidate();
-    mLastReceivingIF.invalidate();
+    sCurrentRecvPacketID = 0;
+    sIncomingCompressedSize = 0;
+    sLastSender.invalidate();
+    sLastReceivingIF.invalidate();
     mMessageReader->clearMessage();
     mLastMessageFromTrustedMessageService = false;
 }
@@ -406,11 +430,215 @@ void LLMessageSystem::receivedMessageFromTrustedSender()
     mLastMessageFromTrustedMessageService = true;
 }
 
-bool LLMessageSystem::isTrustedSender() const
+std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
 {
-    return mLastMessageFromTrustedMessageService ||
-        isTrustedSender(getSender());
+    LLHost invalid_host;
+    LLPacketBuffer pkt(invalid_host, nullptr, 0);
+    if (!mHighPriorityInbound.popPacket(pkt))
+    {
+        if (!mLowPriorityInbound.popPacket(pkt))
+        {
+            return nullptr;
+        }
+    }
+
+    S32 receive_size = pkt.getSize();
+    if (receive_size < (S32)LL_MINIMUM_VALID_PACKET_SIZE)
+    {
+        return nullptr;
+    }
+
+    // zeroCodeExpand() writes through mEncodedRecvBuffer, a shared (non
+    // thread_local) member -- see the thread-safety note above.
+    U8* buffer = (U8*)pkt.getData();
+    zeroCodeExpand(&buffer, &receive_size);
+
+    LLHost host = pkt.getHost();
+    LLCircuitData* cdp = mCircuitInfo.findCircuit(host);
+
+    // UseCircuitCode is allowed in even from an invalid circuit, so that
+    // we can toss circuits around; everything else requires cdp.
+    bool trusted = cdp && cdp->getTrusted();
+    bool valid_packet = mTemplateMessageReader->validateMessage(
+        buffer,
+        receive_size,
+        host,
+        trusted);
+    if (!valid_packet)
+    {
+        return nullptr;
+    }
+
+    if (!cdp &&
+        (mTemplateMessageReader->getMessageName() != _PREHASH_UseCircuitCode))
+    {
+        logMsgFromInvalidCircuit(host, pkt.getPacketIDChecked());
+        return nullptr;
+    }
+
+    if (cdp &&
+        !cdp->getTrusted() &&
+        mTemplateMessageReader->isTrusted())
+    {
+        logTrustedMsgFromUntrustedCircuit(host);
+        sendDenyTrustedCircuit(host);
+        return nullptr;
+    }
+
+    logValidMsg(cdp, host, pkt.getPacketIDChecked(), false, false, pkt.getPacketIDChecked());
+
+    auto decoded = std::make_unique<LLDecodedMessage>();
+    {
+        // Set mMessageReader to prepare for get*Fast()/getReceiveSize() calls
+        // LockMessageReader rdr(mMessageReader, mTemplateMessageReader);
+        decoded->mData = mTemplateMessageReader->decodeDataOwned(buffer, host);
+    }
+    if (!decoded->mData)
+    {
+        return nullptr;
+    }
+    decoded->mTemplate = mTemplateMessageReader->getCurrentTemplate();
+    decoded->mSender = host;
+    decoded->mTrusted = trusted;
+    decoded->mReceiveSize = mTemplateMessageReader->getCurrentReceiveSize();
+
+    mPacketsIn++;
+    mBytesIn += pkt.getSize();
+
+    return decoded;
 }
+
+/*std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
+{
+    // --- 1. Pull one raw packet (same as checkMessages() does) ---
+    bool recv_packet_id_checked = false;
+    U8* buffer = sTrueReceiveBuffer;
+
+    S32 receive_size = receivePacketOrDrop((char*)buffer, recv_packet_id_checked);
+    if (receive_size < (S32)LL_MINIMUM_VALID_PACKET_SIZE)
+    {
+        if (receive_size > 0)
+        {
+            LL_WARNS("Messaging") << "Invalid (too short) packet discarded " << receive_size << LL_ENDL;
+            callExceptionFunc(MX_PACKET_TOO_SHORT);
+        }
+        return nullptr;
+    }
+
+    bool recv_reliable = false;
+    bool recv_resent = false;
+    S32 num_acks = 0;
+    S32 true_rcv_size = 0;
+
+    // --- 2. Harvest piggybacked ACKs (same as checkMessages()) ---
+    if (buffer[0] & LL_ACK_FLAG)
+    {
+        num_acks += buffer[--receive_size];
+        true_rcv_size = receive_size;
+        if (receive_size >= ((S32)(num_acks * sizeof(TPACKETID) + LL_MINIMUM_VALID_PACKET_SIZE)))
+        {
+            receive_size -= num_acks * sizeof(TPACKETID);
+        }
+        else
+        {
+            LL_WARNS("Messaging") << "Malformed packet received. Packet size "
+                << receive_size << " with invalid no. of acks " << num_acks << LL_ENDL;
+            return nullptr;
+        }
+    }
+
+    S32 incoming_compressed_size = zeroCodeExpand(&buffer, &receive_size);
+    TPACKETID recv_packet_id = ntohl(*((U32*)(&buffer[1])));
+    LLHost host = getSender();
+
+    const bool resetPacketId = true;
+    LLCircuitData* cdp = findCircuit(host, resetPacketId);
+
+    // --- 3. Process piggybacked acks against the circuit ---
+    if (cdp && (num_acks > 0) && ((S32)(num_acks * sizeof(TPACKETID)) < true_rcv_size))
+    {
+        U32 mem_id = 0;
+        for (S32 i = 0; i < num_acks; ++i)
+        {
+            true_rcv_size -= sizeof(TPACKETID);
+            memcpy(&mem_id, &sTrueReceiveBuffer[true_rcv_size], sizeof(TPACKETID));
+            cdp->ackReliablePacket(ntohl(mem_id));
+        }
+        if (!cdp->getUnackedPacketCount())
+        {
+            std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
+            mCircuitInfo.mUnackedCircuitMap.erase(cdp->mHost);
+        }
+    }
+
+    if (buffer[0] & LL_RELIABLE_FLAG) recv_reliable = true;
+
+    // --- 4. Duplicate-resend suppression ---
+    if (buffer[0] & LL_RESENT_FLAG)
+    {
+        recv_resent = true;
+        if (cdp && cdp->isDuplicateResend(recv_packet_id))
+        {
+            if (recv_reliable)
+            {
+                cdp->collectRAck(recv_packet_id);
+            }
+            LL_DEBUGS("Messaging") << "Discarding duplicate resend from " << host << LL_ENDL;
+            mPacketsIn++;
+            return nullptr;
+        }
+    }
+
+    // --- 5. Validate (bans, trust, circuit checks) ---
+    bool trusted = cdp && cdp->getTrusted();
+    if (!mTemplateMessageReader->validateMessage(buffer, receive_size, host, trusted))
+    {
+        return nullptr;
+    }
+
+    if (!cdp && (mTemplateMessageReader->getMessageName() != _PREHASH_UseCircuitCode))
+    {
+        logMsgFromInvalidCircuit(host, recv_reliable);
+        return nullptr;
+    }
+
+    if (cdp && !cdp->getTrusted() && mTemplateMessageReader->isTrusted())
+    {
+        logTrustedMsgFromUntrustedCircuit(host);
+        sendDenyTrustedCircuit(host);   // NOTE: this sends immediately -- see caveat below
+        return nullptr;
+    }
+
+    // --- 6. Decode the message body into a fully-owned LLMsgData ---
+    logValidMsg(cdp, host, recv_reliable, recv_resent, num_acks > 0, recv_packet_id_checked);
+    std::unique_ptr<LLMsgData> msg_data = mTemplateMessageReader->decodeDataOwned(buffer, host);
+    if (!msg_data)
+    {
+        return nullptr;
+    }
+
+    // Re-find circuit: any UseCircuit/CloseCircuit/DisableSimulator message
+    // could have changed it during decode -- mirrors checkMessages() line 709.
+    cdp = mCircuitInfo.findCircuit(host);
+
+    mPacketsIn++;
+    mBytesIn += sTrueReceiveSize;
+
+    if (cdp && recv_reliable)
+    {
+        cdp->mRecentlyReceivedReliablePackets[recv_packet_id] = getMessageTimeUsecs();
+        cdp->collectRAck(recv_packet_id);
+        mReliablePacketsIn++;
+    }
+
+    // --- 7. Package the result for hand-off ---
+    auto decoded = std::make_unique<LLDecodedMessage>();
+    decoded->mTemplate = mTemplateMessageReader->getCurrentTemplate();
+    decoded->mData = std::move(msg_data);
+    decoded->mSender = host;
+    decoded->mTrusted = trusted; // for use in the message handler
+    return decoded;
+}*/
 
 static LLMessageSystem::message_template_name_map_t::const_iterator
 findTemplate(const LLMessageSystem::message_template_name_map_t& templates,
@@ -453,13 +681,13 @@ LLCircuitData* LLMessageSystem::findCircuit(const LLHost& host,
         else
         {
             // nope, open the new circuit
-            cdp = mCircuitInfo.addCircuitData(host, mCurrentRecvPacketID);
+            cdp = mCircuitInfo.addCircuitData(host, sCurrentRecvPacketID);
 
             if(resetPacketId)
             {
                 // I added this - I think it's correct - DJS
                 // reset packet in ID
-                cdp->setPacketInID(mCurrentRecvPacketID);
+                cdp->setPacketInID(sCurrentRecvPacketID);
             }
             // And claim the packet is on the circuit we just added.
         }
@@ -483,7 +711,7 @@ LLCircuitData* LLMessageSystem::findCircuit(const LLHost& host,
                 if(resetPacketId)
                 {
                     // reset packet in ID
-                    cdp->setPacketInID(mCurrentRecvPacketID);
+                    cdp->setPacketInID(sCurrentRecvPacketID);
                 }
             }
         }
@@ -522,13 +750,13 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
         S32 true_rcv_size = 0;
         bool recv_packet_id_checked = false;
 
-        U8* buffer = mTrueReceiveBuffer;
+        U8* buffer = sTrueReceiveBuffer;
 
-        mTrueReceiveSize = receivePacketOrDrop((char *)mTrueReceiveBuffer, recv_packet_id_checked);
+        sTrueReceiveSize = receivePacketOrDrop((char *)sTrueReceiveBuffer, recv_packet_id_checked);
         // If you want to dump all received packets into SecondLife.log, uncomment this
         //dumpPacketToLog();
 
-        receive_size = mTrueReceiveSize;
+        receive_size = sTrueReceiveSize;
 
         if (receive_size < (S32) LL_MINIMUM_VALID_PACKET_SIZE)
         {
@@ -568,8 +796,8 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
             }
 
             // process the message as normal
-            mIncomingCompressedSize = zeroCodeExpand(&buffer, &receive_size);
-            mCurrentRecvPacketID = ntohl(*((U32*)(&buffer[1])));
+            sIncomingCompressedSize = zeroCodeExpand(&buffer, &receive_size);
+            sCurrentRecvPacketID = ntohl(*((U32*)(&buffer[1])));
             LLHost host = getSender();
 
             const bool resetPacketId = true;
@@ -586,7 +814,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
                 for(S32 i = 0; i < num_acks; ++i)
                 {
                     true_rcv_size -= sizeof(TPACKETID);
-                    memcpy(&mem_id, &mTrueReceiveBuffer[true_rcv_size], /* Flawfinder: ignore*/
+                    memcpy(&mem_id, &sTrueReceiveBuffer[true_rcv_size], /* Flawfinder: ignore*/
                          sizeof(TPACKETID));
                     packet_id = ntohl(mem_id);
                     //LL_INFOS("Messaging") << "got ack: " << packet_id << LL_ENDL;
@@ -606,7 +834,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
             if (buffer[0] & LL_RESENT_FLAG)
             {
                 recv_resent = true;
-                if (cdp && cdp->isDuplicateResend(mCurrentRecvPacketID))
+                if (cdp && cdp->isDuplicateResend(sCurrentRecvPacketID))
                 {
                     // We need to ACK here to suppress
                     // further resends of packets we've
@@ -625,7 +853,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
                         //}
                         // ***************************************
                         //mCircuitInfo.mCurrentCircuit->mAcks.put(mCurrentRecvPacketID);
-                        cdp->collectRAck(mCurrentRecvPacketID);
+                        cdp->collectRAck(sCurrentRecvPacketID);
                     }
 
                     LL_DEBUGS("Messaging") << "Discarding duplicate resend from " << host << LL_ENDL;
@@ -634,7 +862,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
                         std::ostringstream str;
                         str << "MSG: <- " << host;
                         std::string tbuf;
-                        tbuf = llformat( "\t%6d\t%6d\t%6d ", receive_size, (mIncomingCompressedSize ? mIncomingCompressedSize : receive_size), mCurrentRecvPacketID);
+                        tbuf = llformat( "\t%6d\t%6d\t%6d ", receive_size, (sIncomingCompressedSize ? sIncomingCompressedSize : receive_size), sCurrentRecvPacketID);
                         str << tbuf << "(unknown)"
                             << (recv_reliable ? " reliable" : "")
                             << " resent "
@@ -699,17 +927,17 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
             if (valid_packet)
             {
                 mPacketsIn++;
-                mBytesIn += mTrueReceiveSize;
+                mBytesIn += sTrueReceiveSize;
 
                 // ACK here for valid packets that we've seen
                 // for the first time.
                 if (cdp && recv_reliable)
                 {
                     // Add to the recently received list for duplicate suppression
-                    cdp->mRecentlyReceivedReliablePackets[mCurrentRecvPacketID] = getMessageTimeUsecs();
+                    cdp->mRecentlyReceivedReliablePackets[sCurrentRecvPacketID] = getMessageTimeUsecs();
 
                     // Put it onto the list of packets to be acked
-                    cdp->collectRAck(mCurrentRecvPacketID);
+                    cdp->collectRAck(sCurrentRecvPacketID);
                     mReliablePacketsIn++;
                 }
             }
@@ -925,8 +1153,8 @@ S32 LLMessageSystem::receivePacketOrDrop(char* datap, bool& packet_id_already_ch
         }
 
         S32 packet_size = pkt.getSize();
-        mLastSender      = pkt.getHost();
-        mLastReceivingIF = pkt.getReceivingInterface();
+        sLastSender      = pkt.getHost();
+        sLastReceivingIF = pkt.getReceivingInterface();
         packet_id_already_checked = pkt.getPacketIDChecked();
 
         if (packet_size > 0)
@@ -960,9 +1188,9 @@ S32 LLMessageSystem::receivePacketOrDrop(char* datap, bool& packet_id_already_ch
                 packet_size -= SOCKS_HEADER_SIZE;
                 memcpy(datap, buffer + SOCKS_HEADER_SIZE, packet_size);
                 proxywrap_t* header = static_cast<proxywrap_t*>(static_cast<void*>(buffer));
-                mLastSender.setAddress(header->addr);
-                mLastSender.setPort(ntohs(header->port));
-                mLastReceivingIF = ::get_receiving_interface();
+                sLastSender.setAddress(header->addr);
+                sLastSender.setPort(ntohs(header->port));
+                sLastReceivingIF = ::get_receiving_interface();
             }
         }
         else
@@ -982,8 +1210,8 @@ S32 LLMessageSystem::receivePacketOrDrop(char* datap, bool& packet_id_already_ch
             }
             else
             {
-                mLastSender      = ::get_sender();
-                mLastReceivingIF = ::get_receiving_interface();
+                sLastSender      = ::get_sender();
+                sLastReceivingIF = ::get_receiving_interface();
             }
         }
     }
@@ -994,40 +1222,13 @@ S32 LLMessageSystem::bufferInboundPacket()
 {
     LLHost invalid_host;
     LLPacketBuffer pkt(invalid_host, nullptr, 0);
-    S32 packet_size = 0;
+    if (!mIncomingQueue->tryPop(pkt))
+    {
+        return 0;
+    }
 
-    if (LLProxy::isSOCKSProxyEnabled())
-    {
-        char buffer[NET_BUFFER_SIZE + SOCKS_HEADER_SIZE];   /* Flawfinder ignore */
-        packet_size = receive_packet(mSocket, buffer);
-        if (packet_size > 0)
-        {
-            mActualBytesIn += packet_size;
-            if (packet_size > SOCKS_HEADER_SIZE)
-            {
-                // *FIX We are assuming ATYP is 0x01 (IPv4), not 0x03 (hostname) or 0x04 (IPv6)
-                proxywrap_t* header = static_cast<proxywrap_t*>(static_cast<void*>(buffer));
-                LLHost sender;
-                sender.setAddress(header->addr);
-                sender.setPort(ntohs(header->port));
-                packet_size -= SOCKS_HEADER_SIZE;
-                pkt.init(buffer + SOCKS_HEADER_SIZE, packet_size, sender);
-            }
-            else
-            {
-                packet_size = 0;
-            }
-        }
-    }
-    else
-    {
-        pkt.init(mSocket);
-        packet_size = pkt.getSize();
-        if (packet_size > 0)
-        {
-            mActualBytesIn += packet_size;
-        }
-    }
+    S32 packet_size = pkt.getSize();
+    mActualBytesIn += packet_size;
 
     if (packet_size >= (S32)LL_MINIMUM_VALID_PACKET_SIZE && !computeDrop())
     {
@@ -1621,9 +1822,9 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, bool recv_re
         std::ostringstream str;
         str << "MSG: <- " << host;
         std::string buffer;
-        buffer = llformat( "\t%6d\t%6d\t%6d ", mMessageReader->getMessageSize(), (mIncomingCompressedSize ? mIncomingCompressedSize: mMessageReader->getMessageSize()), mCurrentRecvPacketID);
+        buffer = llformat( "\t%6d\t%6d\t%6d ", mTemplateMessageReader->getMessageSize(), (sIncomingCompressedSize ? sIncomingCompressedSize: mTemplateMessageReader->getMessageSize()), sCurrentRecvPacketID);
         str << buffer
-            << nullToEmpty(mMessageReader->getMessageName())
+            << nullToEmpty(mTemplateMessageReader->getMessageName())
             << (recv_reliable ? " reliable" : "")
             << " REJECTED";
         LL_INFOS("Messaging") << str.str() << LL_ENDL;
@@ -1640,7 +1841,7 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, bool recv_re
     {
         // TODO: babbage: work out if we need these
         // mMessageCountList[mNumMessageCounts].mMessageNum = mCurrentRMessageTemplate->mMessageNumber;
-        mMessageCountList[mNumMessageCounts].mMessageBytes = mMessageReader->getMessageSize();
+        mMessageCountList[mNumMessageCounts].mMessageBytes = mTemplateMessageReader->getMessageSize();
         mMessageCountList[mNumMessageCounts].mInvalid = true;
         mNumMessageCounts++;
     }
@@ -1673,11 +1874,11 @@ void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
 {
     // RequestTrustedCircuit is how we establish trust, so don't spam
     // if it's received on a trusted circuit. JC
-    if (strcmp(mMessageReader->getMessageName(), "RequestTrustedCircuit"))
+    if (strcmp(mTemplateMessageReader->getMessageName(), "RequestTrustedCircuit"))
     {
         LL_WARNS("Messaging") << "Received trusted message on untrusted circuit. "
                 << "Will reply with deny. "
-                << "Message: " << nullToEmpty(mMessageReader->getMessageName())
+                << "Message: " << nullToEmpty(mTemplateMessageReader->getMessageName())
                 << " Host: " << host << LL_ENDL;
     }
 
@@ -1693,7 +1894,7 @@ void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
         //mMessageCountList[mNumMessageCounts].mMessageNum
         //  = mCurrentRMessageTemplate->mMessageNumber;
         mMessageCountList[mNumMessageCounts].mMessageBytes
-            = mMessageReader->getMessageSize();
+            = mTemplateMessageReader->getMessageSize();
         mMessageCountList[mNumMessageCounts].mInvalid = true;
         mNumMessageCounts++;
     }
@@ -1715,7 +1916,7 @@ void LLMessageSystem::logValidMsg(
     {
         // TODO: babbage: work out if we need these
         //mMessageCountList[mNumMessageCounts].mMessageNum = mCurrentRMessageTemplate->mMessageNumber;
-        mMessageCountList[mNumMessageCounts].mMessageBytes = mMessageReader->getMessageSize();
+        mMessageCountList[mNumMessageCounts].mMessageBytes = mTemplateMessageReader->getMessageSize();
         mMessageCountList[mNumMessageCounts].mInvalid = false;
         mNumMessageCounts++;
     }
@@ -1727,19 +1928,19 @@ void LLMessageSystem::logValidMsg(
             // update circuit packet ID tracking (missing/out of order packets)
             // Already done in bufferInboundPacket(), in true socket-arrival
             // order, if this packet came off the high/low priority queues.
-            cdp->checkPacketInID( mCurrentRecvPacketID, recv_resent );
+            cdp->checkPacketInID(sCurrentRecvPacketID, recv_resent);
         }
-        cdp->addBytesIn( (S32Bytes)mTrueReceiveSize );
+        cdp->addBytesIn((S32Bytes)sTrueReceiveSize);
     }
 
-    if(mVerboseLog)
+    if (mVerboseLog)
     {
         std::ostringstream str;
         str << "MSG: <- " << host;
         std::string buffer;
-        buffer = llformat( "\t%6d\t%6d\t%6d ", mMessageReader->getMessageSize(), (mIncomingCompressedSize ? mIncomingCompressedSize : mMessageReader->getMessageSize()), mCurrentRecvPacketID);
+        buffer = llformat("\t%6d\t%6d\t%6d ", mTemplateMessageReader->getMessageSize(), (sIncomingCompressedSize ? sIncomingCompressedSize : mTemplateMessageReader->getMessageSize()), sCurrentRecvPacketID);
         str << buffer
-            << nullToEmpty(mMessageReader->getMessageName())
+            << nullToEmpty(mTemplateMessageReader->getMessageName())
             << (recv_reliable ? " reliable" : "")
             << (recv_resent ? " resent" : "")
             << (recv_acks ? " acks" : "");
@@ -2286,7 +2487,7 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
             // doesn't get properly duplicate suppressed.  Not a BIG deal, but it's somewhat confusing
             // (and bad from a state point of view).  DJS 9/23/04
             //
-            cdp->checkPacketInID(gMessageSystem->mCurrentRecvPacketID, false ); // Since this is the first message on the circuit, by definition it's not resent.
+            cdp->checkPacketInID(gMessageSystem->sCurrentRecvPacketID, false ); // Since this is the first message on the circuit, by definition it's not resent.
         }
 
         msg->mIPPortToCircuitCode[ip_port_in] = circuit_code_in;
@@ -3117,6 +3318,23 @@ void LLMessageSystem::setHandlerFuncFast(const char *name, void (*handler_func)(
     }
 }
 
+void LLMessageSystem::setHandlerFuncThrdFast(const char* name, void (*handler_func)(LLMessageSystem* msgsystem, void** user_data), void** user_data)
+{
+    // Unresolved concerns/TODO:
+    // mCircuitInfo will require thread protection, without that
+    // getSenderID() is not safe to call from dispatchDecodedOnThread().
+
+    LLMessageTemplate* msgtemplate = get_ptr_in_map(mMessageTemplates, name);
+    if (msgtemplate)
+    {
+        msgtemplate->setHandlerFuncThrd(handler_func, user_data);
+    }
+    else
+    {
+        LL_ERRS("Messaging") << name << " is not a known message name!" << LL_ENDL;
+    }
+}
+
 bool LLMessageSystem::callHandler(const char *name,
         bool trustedSource, LLMessageSystem* msg)
 {
@@ -3144,6 +3362,96 @@ bool LLMessageSystem::callHandler(const char *name,
     return msg_template->callHandlerFunc(msg);
 }
 
+namespace
+{
+    void dispatch_decoded_impl(LLMessageSystem* self, LLDecodedMessage& msg, LLTemplateMessageReader* dispatch_reader, LLMessageReaderPointer& message_reader)
+    {
+        // Point the template reader at this message's owned data for the
+        // duration of the handler call, so getUUIDFast()/getS32Fast()/etc.
+        // resolve against the right data.
+        // Dispatch never mutates the template's stats counters (only decode
+        // does, via mCurrentRMessageTemplate directly) -- callHandlerFunc()
+        // and isBanned() are const. This const_cast only exists because
+        // setCurrentMessageData() is shared with the decode-time code path,
+        // which legitimately needs a mutable pointer.
+        LLMessageTemplate* msg_template = const_cast<LLMessageTemplate*>(msg.mTemplate);
+        dispatch_reader->setCurrentMessageData(msg_template, msg.mData.get(), msg.mReceiveSize);
+
+        // Set reader for get*Fast() methods
+        LockMessageReader rdr(message_reader, dispatch_reader);
+
+        if (msg.mTemplate->isBanned(msg.mTrusted))
+        {
+            LL_WARNS("Messaging") << "LLMessageSystem::callHandler: banned message "
+                << msg.mTemplate->mName
+                << " from "
+                << (msg.mTrusted ? "trusted " : "untrusted ")
+                << "source" << LL_ENDL;
+            return;
+        }
+
+        static LLTimer decode_timer;
+        if (LLMessageReader::getTimeDecodes() || self->getTimingCallback())
+        {
+            decode_timer.reset();
+        }
+
+        if (!msg.mTemplate->callHandlerFunc(self))
+        {
+            LL_WARNS() << "Message from " << msg.mSender
+                << " with no handler function received: "
+                << msg.mTemplate->mName << LL_ENDL;
+        }
+
+        if (LLMessageReader::getTimeDecodes() || self->getTimingCallback())
+        {
+            F32 decode_time = decode_timer.getElapsedTimeF32();
+
+            if (self->getTimingCallback())
+            {
+                (self->getTimingCallback())(msg_template->mName, decode_time, self->getTimingCallbackData());
+            }
+
+            if (LLMessageReader::getTimeDecodes())
+            {
+                msg_template->mDecodeTimeThisFrame += decode_time;
+                msg_template->mTotalDecoded++;
+                msg_template->mTotalDecodeTime += decode_time;
+
+                if (msg_template->mMaxDecodeTimePerMsg < decode_time)
+                {
+                    msg_template->mMaxDecodeTimePerMsg = decode_time;
+                }
+
+                if (decode_time > LLMessageReader::getTimeDecodesSpamThreshold())
+                {
+                    LL_DEBUGS() << "--------- Message " << msg_template->mName << " decode took " << decode_time << " seconds. ("
+                        << msg_template->mMaxDecodeTimePerMsg << " max, "
+                        << (msg_template->mTotalDecodeTime / msg_template->mTotalDecoded) << " avg)" << LL_ENDL;
+                }
+            }
+        }
+    }
+}
+
+void LLMessageSystem::dispatchDecoded(LLDecodedMessage& msg)
+{
+    // For main thread dispatch
+    sLastSender = msg.mSender;
+    dispatch_decoded_impl(this, msg, mDispatchMessageReader, mMessageReader);
+}
+
+void LLMessageSystem::dispatchDecodedOnThread(LLDecodedMessage& msg)
+{
+    // UDP thread only.
+    sLastSender = msg.mSender;
+    dispatch_decoded_impl(this, msg, mThrdDispatchMessageReader, mMessageReader);
+}
+
+bool LLMessageSystem::isHandledOnUdpThread(const LLDecodedMessage& msg) const
+{
+    return msg.mTemplate->isHandledOnUdpThread();
+}
 
 void LLMessageSystem::setExceptionFunc(EMessageException e,
                                        msg_exception_callback func,
@@ -3208,22 +3516,14 @@ char* LLMessageSystem::getMessageName()
 
 const LLUUID& LLMessageSystem::getSenderID() const
 {
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(mLastSender);
+    llassert(on_main_thread());
+
+    LLCircuitData *cdp = mCircuitInfo.findCircuit(sLastSender);
     if (cdp)
     {
         return (cdp->mRemoteID);
     }
 
-    return LLUUID::null;
-}
-
-const LLUUID& LLMessageSystem::getSenderSessionID() const
-{
-    LLCircuitData *cdp = mCircuitInfo.findCircuit(mLastSender);
-    if (cdp)
-    {
-        return (cdp->mRemoteSessionID);
-    }
     return LLUUID::null;
 }
 
@@ -3508,18 +3808,18 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
 
 void LLMessageSystem::dumpPacketToLog()
 {
-    LL_WARNS("Messaging") << "Packet Dump from:" << mLastSender << LL_ENDL;
-    LL_WARNS("Messaging") << "Packet Size:" << mTrueReceiveSize << LL_ENDL;
+    LL_WARNS("Messaging") << "Packet Dump from:" << sLastSender << LL_ENDL;
+    LL_WARNS("Messaging") << "Packet Size:" << sTrueReceiveSize << LL_ENDL;
     char line_buffer[256];      /* Flawfinder: ignore */
     S32 i;
     S32 cur_line_pos = 0;
     S32 cur_line = 0;
 
-    for (i = 0; i < mTrueReceiveSize; i++)
+    for (i = 0; i < sTrueReceiveSize; i++)
     {
         S32 offset = cur_line_pos * 3;
         snprintf(line_buffer + offset, sizeof(line_buffer) - offset,
-                 "%02x ", mTrueReceiveBuffer[i]);   /* Flawfinder: ignore */
+                 "%02x ", sTrueReceiveBuffer[i]);   /* Flawfinder: ignore */
         cur_line_pos++;
         if (cur_line_pos >= 16)
         {
@@ -4196,7 +4496,7 @@ void LLMessageSystem::banUdpMessage(const std::string& name)
 }
 const LLHost& LLMessageSystem::getSender() const
 {
-    return mLastSender;
+    return sLastSender;
 }
 
 void LLMessageSystem::sendUntrustedSimulatorMessageCoro(std::string url, std::string message, LLSD body, UntrustedCallback_t callback)

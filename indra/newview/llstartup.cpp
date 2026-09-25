@@ -383,10 +383,12 @@ void do_startup_frame()
         constexpr U64 MAX_STARTUP_FRAME_TIME = 2000; // usec
         constexpr U64 MAX_STARTUP_FRAME_MESSAGES = 100;
         S32 num_messages = 0;
-        bool needs_drain = false;
-        LockMessageChecker lmc(gMessageSystem);
-        while (lmc.checkAllMessages(gFrameCount, gServicePump))
+
+        std::unique_ptr<LLDecodedMessage> decoded;
+        while (gMessageSystem->tryPopDecoded(decoded))
         {
+            gMessageSystem->dispatchDecoded(*decoded);
+
             if (gDoDisconnect)
             {
                 // We're disconnecting, don't process any more messages from the server
@@ -397,14 +399,11 @@ void do_startup_frame()
             if (++num_messages >= MAX_STARTUP_FRAME_MESSAGES
                 || (totalTime() - t0) > MAX_STARTUP_FRAME_TIME)
             {
-                needs_drain = true;
                 break;
             }
         }
-        if (needs_drain || gMessageSystem->getNumBufferedPackets() > 0)
-        {
-             gMessageSystem->drainUdpSocket();
-        }
+
+        LockMessageChecker lmc(gMessageSystem);
         lmc.processAcks();
     }
     // ...then call display_startup()

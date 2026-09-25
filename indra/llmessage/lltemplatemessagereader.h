@@ -106,6 +106,19 @@ public:
     bool isBanned(bool trusted_source) const;
     bool isUdpBanned() const;
 
+    // Decode only, no dispatch. Returns a fully-owned, self-contained
+    // decoded message on success, or nullptr on failure.
+    std::unique_ptr<LLMsgData> decodeDataOwned(const U8* buffer, const LLHost& sender);
+
+    // The size of the message this reader last decoded/was pointed at.
+    // Needed for getMessageSize()/getReceiveSize()
+    S32 getCurrentReceiveSize() const { return mReceiveSize; }
+
+    const LLMessageTemplate* getCurrentTemplate() const { return mCurrentRMessageTemplate; }
+
+    // Points the reader at externally-owned decoded data for dispatch.
+    void setCurrentMessageData(LLMessageTemplate* tmpl, LLMsgData* data, S32 receive_size);
+
 private:
 
     void getData(const char *blockname, const char *varname, void *datap,
@@ -121,6 +134,7 @@ private:
     S32 mReceiveSize;
     LLMessageTemplate* mCurrentRMessageTemplate;
     LLMsgData* mCurrentRMessageData;
+    bool mOwnsCurrentRMessageData;
     message_template_number_map_t& mMessageNumbers;
 };
 

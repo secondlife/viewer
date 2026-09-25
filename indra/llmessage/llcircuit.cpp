@@ -191,6 +191,7 @@ LLCircuitData::~LLCircuitData()
 
 void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     reliable_iter iter;
     LLReliablePacket *packetp;
 
@@ -615,6 +616,7 @@ void LLCircuit::dumpResends()
 
 LLCircuitData* LLCircuit::findCircuit(const LLHost& host) const
 {
+    std::lock_guard<std::mutex> lock(mCircuitMutex);
     // An optimization on finding the previously found circuit.
     if (mLastCircuit && (mLastCircuit->mHost == host))
     {
@@ -650,6 +652,7 @@ void LLCircuitData::setTimeoutCallback(void (*callback_func)(const LLHost &host,
 
 void LLCircuitData::checkPacketInID(TPACKETID id, bool receive_resent)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     // Done as floats so we don't have to worry about running out of room
     // with U32 getting poked into an S32.
     F32 delta = (F32)mHighestPacketID - (F32)id;
@@ -1069,6 +1072,7 @@ bool LLCircuitData::checkCircuitTimeout()
 // correctly place the packet in the correct list to be acked later.
 bool LLCircuitData::collectRAck(TPACKETID packet_num)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     if (mAcks.empty())
     {
         // First extra ack, we need to add ourselves to the list of circuits that need to send acks
