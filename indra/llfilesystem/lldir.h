@@ -27,6 +27,8 @@
 #ifndef LL_LLDIR_H
 #define LL_LLDIR_H
 
+#include "lluuid.h"
+
 // these numbers are read from settings_files.xml, so we need to be explicit
 typedef enum ELLPath
 {
@@ -90,6 +92,7 @@ class LLDir
     const std::string &getLindenUserDir() const;    // Location of the Linden user dir.
     const std::string &getChatLogsDir() const;  // Location of the chat logs dir.
     const std::string &getDumpDir() const;  // Location of the per-run dump dir.
+    const LLUUID&     getDumpDirSessionUUID() const; // UUID of the current dump dir.
     bool              dumpDirExists() const;
     const std::string &getPerAccountChatLogsDir() const;    // Location of the per account chat logs dir.
     const std::string &getTempDir() const;          // Common temporary directory
@@ -280,6 +283,7 @@ protected:
     std::string mLanguage;              // Current viewer language
     std::string mLLPluginDir;           // Location for plugins and plugin shell
     static std::string sDumpDir;            // Per-run crash report subdir of log directory.
+    static LLUUID sDumpDirSessionID;   // UUID of the current dump dir.
     std::string mUserName;              // Current user name
 };
 

@@ -527,9 +527,52 @@ static bool handleDebugViewsChanged(const LLSD& newvalue)
 
 static bool handleLogFileChanged(const LLSD& newvalue)
 {
+    // UserLogFile
     std::string log_filename = newvalue.asString();
+
+    if (LLAppViewer::instance()->isSecondInstance())
+    {
+        // Second instances should not write to the primary
+        // instance's log file. Generate a unique dump log filename instead
+        if (log_filename.empty())
+        {
+            // Restore defaults.
+            log_filename = gDirUtilp->getDumpLogsDirPath(gDirUtilp->getDumpDirSessionUUID().asString() + ".log");
+        }
+        else
+        {
+            const LLUUID& uid = gDirUtilp->getDumpDirSessionUUID(); std::string dir;
+            std::string base(log_filename);
+
+            size_t slash_pos = log_filename.find_last_of("/\\");
+            if (slash_pos != std::string::npos)
+            {
+                dir = log_filename.substr(0, slash_pos + 1);
+                base = log_filename.substr(slash_pos + 1);
+            }
+
+            size_t dot_pos = base.find_last_of('.');
+            if (dot_pos != std::string::npos)
+            {
+                base = base.substr(0, dot_pos) + "_" + uid.asString() + base.substr(dot_pos);
+            }
+            else
+            {
+                base += "_" + uid.asString();
+            }
+
+            log_filename = dir + base;
+        }
+    }
+    else if (log_filename.empty())
+    {
+        // Restore default log filename if user clears the setting
+        log_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log");
+    }
+
     LLFile::remove(log_filename);
     LLError::logToFile(log_filename);
+
     LL_INFOS() << "Logging switched to " << log_filename << LL_ENDL;
     return true;
 }

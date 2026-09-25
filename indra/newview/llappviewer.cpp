@@ -2380,13 +2380,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         if (!gGPUBenchmarkMode)
         {
             LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
-
-            LLUUID uid;
-            uid.generate();
-            // Is this even useful?
-            // Originally this wa used to store states, but I don't think it's practical with bugsplat attributes.
-            // So it just spams files now.
-            LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
+            LLError::logToFile(gDirUtilp->getDumpLogsDirPath(gDirUtilp->getDumpDirSessionUUID().asString() + ".log"));
         }
     }
     else
@@ -3100,6 +3094,42 @@ bool LLAppViewer::initConfiguration()
     gLastRunVersion = gSavedSettings.getString("LastRunVersion");
 
     loadColorSettings();
+
+    // Command line could have updated UserLogFile
+    std::string log_filename = gSavedSettings.getString("UserLogFile");
+    if (!log_filename.empty() && LLError::logFileName() != log_filename)
+    {
+        if (mSecondInstance)
+        {
+            // Second instances must not write to the primary
+            // instance's log file.
+            const LLUUID& uid = gDirUtilp->getDumpDirSessionUUID();
+            std::string dir;
+            std::string base(log_filename);
+
+            size_t slash_pos = log_filename.find_last_of("/\\");
+            if (slash_pos != std::string::npos)
+            {
+                dir = log_filename.substr(0, slash_pos + 1);
+                base = log_filename.substr(slash_pos + 1);
+            }
+
+            size_t dot_pos = base.find_last_of('.');
+            if (dot_pos != std::string::npos)
+            {
+                base = base.substr(0, dot_pos) + "_" + uid.asString() + base.substr(dot_pos);
+            }
+            else
+            {
+                base += "_" + uid.asString();
+            }
+
+            log_filename = dir + base;
+        }
+        LLFile::remove(log_filename);
+        LLError::logToFile(log_filename);
+        LL_INFOS("Settings") << "Logging switched to " << log_filename << LL_ENDL;
+    }
 
     // Let anyone else who cares know that we've populated our settings
     // variables.
