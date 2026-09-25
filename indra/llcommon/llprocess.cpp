@@ -49,6 +49,7 @@
 #include <chrono>
 #include <cstring>
 #include <errno.h>
+#include <mutex>
 #include <thread>
 #include <vector>
 #include <typeinfo>
@@ -66,7 +67,6 @@
 #if LL_WINDOWS
 #include <windows.h>
 #include "llwin32headers.h"
-#include <mutex>
 
 namespace {
     // Global job object that will kill all child processes when parent terminates
