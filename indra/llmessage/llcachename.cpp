@@ -32,6 +32,7 @@
 #include "lldbstrings.h"
 #include "llframetimer.h"
 #include "llhost.h"
+#include "llmutex.h"
 #include "llrand.h"
 #include "llsdserialize.h"
 #include "lluuid.h"
@@ -185,11 +186,26 @@ using PendingQueue = std::unordered_map<LLUUID, U32>;
 using Cache        = std::unordered_map<LLUUID, LLCacheNameEntry*>;
 using ReverseCache = std::unordered_map<std::string, LLUUID>;
 
+//
+// mSignal is deliberately NOT protected by mMutex: observers may call back
+// into LLCacheName (e.g. getFullName()), and LLMutex is not safe to
+// re-enter from the same call chain, so the mutex must always be released
+// before mSignal (or any PendingReply::mSignal) is invoked.
+//
+// LLMessageSystem's outbound message builder (used by newMessageFast(),
+// nextBlockFast() is not safe to drive concurrently from two threads.
+// To avoid that, processUUIDRequest() always defers them via addPending(),
+// so all actual message building and sending remains confined to
+// processPendingReplies() and processPendingAsks() on main thread.
 class LLCacheName::Impl
 {
 public:
     LLMessageSystem*    mMsg;
     LLHost              mUpstreamHost;
+
+    mutable LLMutex     mMutex;
+        // protects mCache, mReverseCache, mAskNameQueue, mAskGroupQueue,
+        // mPendingQueue, mReplyQueue, and mUpstreamHost. See class comment.
 
     Cache               mCache;
         // the map of UUIDs to names
@@ -213,17 +229,25 @@ public:
     Impl(LLMessageSystem* msg);
     ~Impl();
 
+    // Caller must hold mMutex.
     bool getName(const LLUUID& id, std::string& first, std::string& last, cache_map_t& default_names);
 
+    // Caller must hold mMutex.
     boost::signals2::connection addPending(const LLUUID& id, const LLCacheNameCallback& callback);
+    // Caller must hold mMutex.
     void addPending(const LLUUID& id, const LLHost& host);
 
+    // Only ever called from the main thread (LLCacheName::processPending()).
     void processPendingAsks();
+    // Only ever called from the main thread (LLCacheName::processPending()).
     void processPendingReplies();
+    // Only ever called from the main thread; caller must hold mMutex.
     void sendRequest(const char* msg_name, const AskQueue& queue);
+    // Caller must hold mMutex.
     bool isRequestPending(const LLUUID& id);
 
-    // Message system callbacks.
+    // Message system callbacks. Must not touch anything not
+    // protected by mMutex, and must not build/send messages.
     void processUUIDRequest(LLMessageSystem* msg, bool isGroup);
     void processUUIDReply(LLMessageSystem* msg, bool isGroup);
 
@@ -259,13 +283,16 @@ LLCacheName::~LLCacheName()
 LLCacheName::Impl::Impl(LLMessageSystem* msg)
     : mMsg(msg), mUpstreamHost(LLHost())
 {
-    mMsg->setHandlerFuncFast(
+    // Safe to run directly on LLUDPReceiverThread: all shared state these
+    // handlers touch is protected by mMutex, and neither handler builds or
+    // sends an outbound message itself (see class comment above).
+    mMsg->setHandlerFuncThrdFast(
         _PREHASH_UUIDNameRequest, handleUUIDNameRequest, (void**)this);
-    mMsg->setHandlerFuncFast(
+    mMsg->setHandlerFuncThrdFast(
         _PREHASH_UUIDNameReply, handleUUIDNameReply, (void**)this);
-    mMsg->setHandlerFuncFast(
+    mMsg->setHandlerFuncThrdFast(
         _PREHASH_UUIDGroupNameRequest, handleUUIDGroupNameRequest, (void**)this);
-    mMsg->setHandlerFuncFast(
+    mMsg->setHandlerFuncThrdFast(
         _PREHASH_UUIDGroupNameReply, handleUUIDGroupNameReply, (void**)this);
 }
 
@@ -294,6 +321,7 @@ void LLCacheName::Impl::addPending(const LLUUID& id, const LLHost& host)
 
 void LLCacheName::setUpstream(const LLHost& upstream_host)
 {
+    LLMutexLock lock(&impl.mMutex);
     impl.mUpstreamHost = upstream_host;
 }
 
@@ -314,6 +342,8 @@ bool LLCacheName::importFile(std::istream& istr)
     U32 now = (U32)time(NULL);
     const U32 SECS_PER_DAY = 60 * 60 * 24;
     U32 delete_before_time = now - (7 * SECS_PER_DAY);
+
+    LLMutexLock lock(&impl.mMutex);
 
     // iterate over the agents
     S32 count = 0;
@@ -366,6 +396,8 @@ bool LLCacheName::importFile(std::istream& istr)
 void LLCacheName::exportFile(std::ostream& ostr)
 {
     LLSD data;
+
+    LLMutexLock lock(&impl.mMutex);
     Cache::iterator iter = impl.mCache.begin();
     Cache::iterator end = impl.mCache.end();
     for( ; iter != end; ++iter)
@@ -402,6 +434,7 @@ void LLCacheName::exportFile(std::ostream& ostr)
 
 bool LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::string& last, cache_map_t &default_names)
 {
+    // Caller holds mMutex.
     if(id.isNull())
     {
         first = default_names["nobody"];
@@ -441,7 +474,11 @@ void LLCacheName::localizeCacheName(std::string key, std::string value)
 bool LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 {
     std::string first_name, last_name;
-    bool res = impl.getName(id, first_name, last_name, mCacheName);
+    bool res;
+    {
+        LLMutexLock lock(&impl.mMutex);
+        res = impl.getName(id, first_name, last_name, mCacheName);
+    }
     fullname = buildFullName(first_name, last_name);
     return res;
 }
@@ -456,6 +493,7 @@ bool LLCacheName::getGroupName(const LLUUID& id, std::string& group)
         return true;
     }
 
+    LLMutexLock lock(&impl.mMutex);
     LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache,id);
     if (entry && entry->mGroupName.empty())
     {
@@ -490,6 +528,7 @@ bool LLCacheName::getUUID(const std::string& first, const std::string& last, LLU
 
 bool LLCacheName::getUUID(const std::string& full_name, LLUUID& id)
 {
+    LLMutexLock lock(&impl.mMutex);
     ReverseCache::iterator iter = impl.mReverseCache.find(full_name);
     if (iter != impl.mReverseCache.end())
     {
@@ -616,39 +655,61 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, co
         return res;
     }
 
-    LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );
-    if (entry)
+    // entry, if found, is copied out so the callback can be invoked outside
+    // the lock (it may call back into LLCacheName).
+    bool found = false;
+    bool entry_is_group = false;
+    std::string entry_group_name;
+    std::string entry_full_name;
+    {
+        LLMutexLock lock(&impl.mMutex);
+        LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id);
+        if (entry)
+        {
+            found = true;
+            entry_is_group = entry->mIsGroup;
+            if (entry_is_group)
+            {
+                entry_group_name = entry->mGroupName;
+            }
+            else
+            {
+                entry_full_name = buildFullName(entry->mFirstName, entry->mLastName);
+            }
+        }
+        else
+        {
+            // id not found in map so we must queue the callback call until available.
+            if (!impl.isRequestPending(id))
+            {
+                if (is_group)
+                {
+                    impl.mAskGroupQueue.insert(id);
+                }
+                else
+                {
+                    impl.mAskNameQueue.insert(id);
+                }
+            }
+            res = impl.addPending(id, callback);
+        }
+    }
+
+    if (found)
     {
         LLCacheNameSignal signal;
         signal.connect(callback);
         // id found in map therefore we can call the callback immediately.
-        if (entry->mIsGroup)
+        if (entry_is_group)
         {
-            signal(id, entry->mGroupName, entry->mIsGroup);
+            signal(id, entry_group_name, entry_is_group);
         }
         else
         {
-            std::string fullname =
-                buildFullName(entry->mFirstName, entry->mLastName);
-            signal(id, fullname, entry->mIsGroup);
+            signal(id, entry_full_name, entry_is_group);
         }
     }
-    else
-    {
-        // id not found in map so we must queue the callback call until available.
-        if (!impl.isRequestPending(id))
-        {
-            if (is_group)
-            {
-                impl.mAskGroupQueue.insert(id);
-            }
-            else
-            {
-                impl.mAskNameQueue.insert(id);
-            }
-        }
-        res = impl.addPending(id, callback);
-    }
+
     return res;
 }
 
@@ -671,13 +732,18 @@ void LLCacheName::processPending()
         return;
     }
 
-    if(!impl.mUpstreamHost.isOk())
     {
-        LL_DEBUGS() << "LLCacheName::processPending() - bad upstream host."
-                 << LL_ENDL;
-        return;
+        LLMutexLock lock(&impl.mMutex);
+        if (!impl.mUpstreamHost.isOk())
+        {
+            LL_DEBUGS() << "LLCacheName::processPending() - bad upstream host."
+                << LL_ENDL;
+            return;
+        }
     }
 
+    // processPendingAsks()/processPendingReplies() are only ever called
+    // from the main thread (here), so they own message building/sending.
     impl.processPendingAsks();
     impl.processPendingReplies();
 }
@@ -686,6 +752,8 @@ void LLCacheName::deleteEntriesOlderThan(S32 secs)
 {
     U32 now = (U32)time(NULL);
     U32 expire_time = now - secs;
+
+    LLMutexLock lock(&impl.mMutex);
     for(Cache::iterator iter = impl.mCache.begin(); iter != impl.mCache.end(); )
     {
         Cache::iterator curiter = iter++;
@@ -714,6 +782,7 @@ void LLCacheName::deleteEntriesOlderThan(S32 secs)
 
 void LLCacheName::dump()
 {
+    LLMutexLock lock(&impl.mMutex);
     for (Cache::iterator iter = impl.mCache.begin(),
              end = impl.mCache.end();
          iter != end; iter++)
@@ -740,6 +809,7 @@ void LLCacheName::dump()
 
 void LLCacheName::dumpStats()
 {
+    LLMutexLock lock(&impl.mMutex);
     LL_INFOS() << "Queue sizes: "
             << " Cache=" << impl.mCache.size()
             << " AskName=" << impl.mAskNameQueue.size()
@@ -752,6 +822,7 @@ void LLCacheName::dumpStats()
 
 void LLCacheName::clear()
 {
+    LLMutexLock lock(&impl.mMutex);
     std::for_each(impl.mCache.begin(), impl.mCache.end(), DeletePairedPointer());
     impl.mCache.clear();
 }
@@ -770,6 +841,9 @@ std::string LLCacheName::getDefaultLastName()
 
 void LLCacheName::Impl::processPendingAsks()
 {
+    // Only called from the main thread; owns mMsg's builder for the
+    // duration of both sendRequest() calls.
+    LLMutexLock lock(&mMutex);
     sendRequest(_PREHASH_UUIDNameRequest, mAskNameQueue);
     sendRequest(_PREHASH_UUIDGroupNameRequest, mAskGroupQueue);
     mAskNameQueue.clear();
@@ -778,27 +852,48 @@ void LLCacheName::Impl::processPendingAsks()
 
 void LLCacheName::Impl::processPendingReplies()
 {
-    // First call all the callbacks, because they might send messages.
-    // Todo: needs cleanup logic, otherwise invalid ids might stay here indefinitely
-    for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
+    // Only called from the main thread. Copy out what's needed to invoke
+    // callbacks/signals without holding mMutex (they may call back into
+    // LLCacheName), then re-lock to do the actual sends and queue cleanup.
+    struct ReplyInfo
     {
-        PendingReply* reply = *it;
-        LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
-        if(!entry) continue;
+        PendingReply* reply;
+        bool          isGroup;
+        std::string   name;
+    };
+    std::vector<ReplyInfo> to_signal;
 
-        if (!entry->mIsGroup)
+    {
+        LLMutexLock lock(&mMutex);
+        for (ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
         {
-            std::string fullname =
-                LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
-            (reply->mSignal)(reply->mID, fullname, false);
-        }
-        else
-        {
-            (reply->mSignal)(reply->mID, entry->mGroupName, true);
+            PendingReply* reply = *it;
+            LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
+            if (!entry) continue;
+
+            if (!entry->mIsGroup)
+            {
+                to_signal.push_back({ reply, false,
+                    LLCacheName::buildFullName(entry->mFirstName, entry->mLastName) });
+            }
+            else
+            {
+                to_signal.push_back({ reply, true, entry->mGroupName });
+            }
         }
     }
 
-    // Forward on all replies, if needed.
+    // First call all the callbacks, because they might send messages.
+    // Todo: needs cleanup logic, otherwise invalid ids might stay here indefinitely
+    for (auto& info : to_signal)
+    {
+        (info.reply->mSignal)(info.reply->mID, info.name, info.isGroup);
+    }
+
+    // Forward on all replies, if needed. This is the only place mMsg's
+    // builder is used for reply traffic, and it only ever runs here, on
+    // the main thread.
+    LLMutexLock lock(&mMutex);
     ReplySender sender(mMsg);
     for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
     {
@@ -831,6 +926,7 @@ void LLCacheName::Impl::sendRequest(
     const char* msg_name,
     const AskQueue& queue)
 {
+    // Caller holds mMutex, and is always the main thread (processPendingAsks()).
     if(queue.empty())
     {
         return;
@@ -863,6 +959,7 @@ void LLCacheName::Impl::sendRequest(
 
 bool LLCacheName::Impl::isRequestPending(const LLUUID& id)
 {
+    // Caller holds mMutex.
     U32 now = (U32)time(NULL);
     U32 expire_time = now - PENDING_TIMEOUT_SECS;
 
@@ -880,6 +977,12 @@ bool LLCacheName::Impl::isRequestPending(const LLUUID& id)
 
 void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
 {
+    // May run directly on LLUDPReceiverThread. Must not build or send any
+    // outbound message here -- always defer via addPending() instead, so
+    // the actual reply is sent later from processPendingReplies() on the
+    // main thread.
+    LLMutexLock lock(&mMutex);
+
     // You should only get this message if the cache is at the simulator
     // level, hence having an upstream provider.
     if (!mUpstreamHost.isOk())
@@ -888,8 +991,8 @@ void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
         return;
     }
 
+    // Note: not fully synchronized with the main thread
     LLHost fromHost = msg->getSender();
-    ReplySender sender(msg);
 
     S32 count = msg->getNumberOfBlocksFast(_PREHASH_UUIDNameBlock);
     for(S32 i = 0; i < count; ++i)
@@ -909,8 +1012,9 @@ void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
             }
             else
             {
-                // ...it's in the cache, so send it as the reply
-                sender.send(id, *entry, fromHost);
+                // ...it's in the cache: queue it up to be sent back as a
+                // reply from the main thread.
+                addPending(id, fromHost);
             }
         }
         else
@@ -936,62 +1040,81 @@ void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
 
 void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 {
-    S32 count = msg->getNumberOfBlocksFast(_PREHASH_UUIDNameBlock);
-    for(S32 i = 0; i < count; ++i)
+    // May run directly on LLUDPReceiverThread. mSignal is intentionally invoked
+    // outside the lock as observers may call back into LLCacheName.
+    struct SignalInfo
     {
-        LLUUID id;
-        msg->getUUIDFast(_PREHASH_UUIDNameBlock, _PREHASH_ID, id, i);
-        LLCacheNameEntry* entry = get_ptr_in_map(mCache, id);
-        if (!entry)
-        {
-            entry = new LLCacheNameEntry;
-            mCache[id] = entry;
-        }
+        LLUUID      id;
+        std::string name;
+        bool        isGroup;
+    };
+    std::vector<SignalInfo> to_signal;
 
-        mPendingQueue.erase(id);
+    {
+        LLMutexLock lock(&mMutex);
 
-        entry->mIsGroup = isGroup;
-        entry->mCreateTime = (U32)time(NULL);
-        if (!isGroup)
+        S32 count = msg->getNumberOfBlocksFast(_PREHASH_UUIDNameBlock);
+        for (S32 i = 0; i < count; ++i)
         {
-            msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);
-            msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName,  entry->mLastName, i);
-        }
-        else
-        {   // is group
-            msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_GroupName, entry->mGroupName, i);
-            LLStringFn::replace_ascii_controlchars(entry->mGroupName, LL_UNKNOWN_CHAR);
-        }
-
-        if (!isGroup)
-        {
-            // NOTE: Very occasionally the server sends down a full name
-            // in the first name field with an empty last name, for example,
-            // first = "Ladanie1 Resident", last = "".
-            // I cannot reproduce this, nor can I find a bug in the server code.
-            // Ensure "Resident" does not appear via cleanFullName, because
-            // buildFullName only checks last name. JC
-            std::string full_name;
-            if (entry->mLastName.empty())
+            LLUUID id;
+            msg->getUUIDFast(_PREHASH_UUIDNameBlock, _PREHASH_ID, id, i);
+            LLCacheNameEntry* entry = get_ptr_in_map(mCache, id);
+            if (!entry)
             {
-                full_name = cleanFullName(entry->mFirstName);
+                entry = new LLCacheNameEntry;
+                mCache[id] = entry;
+            }
 
-                //fix what we are putting in the cache
-                entry->mFirstName = full_name;
-                entry->mLastName = "Resident";
+            mPendingQueue.erase(id);
+
+            entry->mIsGroup = isGroup;
+            entry->mCreateTime = (U32)time(NULL);
+            if (!isGroup)
+            {
+                msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);
+                msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName, entry->mLastName, i);
+            }
+            else
+            {   // is group
+                msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_GroupName, entry->mGroupName, i);
+                LLStringFn::replace_ascii_controlchars(entry->mGroupName, LL_UNKNOWN_CHAR);
+            }
+
+            if (!isGroup)
+            {
+                // NOTE: Very occasionally the server sends down a full name
+                // in the first name field with an empty last name, for example,
+                // first = "Ladanie1 Resident", last = "".
+                // I cannot reproduce this, nor can I find a bug in the server code.
+                // Ensure "Resident" does not appear via cleanFullName, because
+                // buildFullName only checks last name. JC
+                std::string full_name;
+                if (entry->mLastName.empty())
+                {
+                    full_name = cleanFullName(entry->mFirstName);
+
+                    //fix what we are putting in the cache
+                    entry->mFirstName = full_name;
+                    entry->mLastName = "Resident";
+                }
+                else
+                {
+                    full_name = LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
+                }
+                mReverseCache[full_name] = id;
+                to_signal.push_back({ id, full_name, false });
             }
             else
             {
-                full_name = LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
+                mReverseCache[entry->mGroupName] = id;
+                to_signal.push_back({ id, entry->mGroupName, true });
             }
-            mSignal(id, full_name, false);
-            mReverseCache[full_name] = id;
         }
-        else
-        {
-            mSignal(id, entry->mGroupName, true);
-            mReverseCache[entry->mGroupName] = id;
-        }
+    }
+
+    for (auto& info : to_signal)
+    {
+        mSignal(info.id, info.name, info.isGroup);
     }
 }
 
