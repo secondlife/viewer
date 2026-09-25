@@ -66,6 +66,7 @@ const char
 
 static const char* const empty = "";
 std::string LLDir::sDumpDir = "";
+LLUUID LLDir::sDumpDirSessionID;
 
 LLDir::LLDir()
 :   mAppName(""),
@@ -320,16 +321,24 @@ const std::string &LLDir::getDumpDir() const
 {
     if (sDumpDir.empty() )
     {
-        LLUUID uid;
-        uid.generate();
 
         sDumpDir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "")
-                    + "dump-" + uid.asString();
+                    + "dump-" + getDumpDirSessionUUID().asString();
 
         dir_exists_or_crash(sDumpDir);
     }
 
     return LLDir::sDumpDir;
+}
+
+const LLUUID& LLDir::getDumpDirSessionUUID() const
+{
+    if (sDumpDirSessionID.isNull())
+    {
+        sDumpDirSessionID.generate();
+    }
+
+    return sDumpDirSessionID;
 }
 
 bool LLDir::dumpDirExists() const
