@@ -391,7 +391,14 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
     SET_SIG(SIGFPE)
     SET_SIG(SIGHUP)
     SET_SIG(SIGILL)
-    SET_SIG(SIGPIPE)
+    // NOTE: SIGPIPE is intentionally NOT managed here. LLProcess ignores
+    // SIGPIPE for the entire lifetime of the application so that writes to
+    // a child process's closed pipe fail with EPIPE instead of terminating
+    // the viewer. Reinstalling default_unix_signal_handler for SIGPIPE here
+    // would race with LLProcess and silently undo that protection (and
+    // spuriously trip the "Someone took over my signal/exception handler"
+    // detection below).
+    // SET_SIG(SIGPIPE)
     SET_SIG(SIGSEGV)
     SET_SIG(SIGSYS)
 

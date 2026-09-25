@@ -49,6 +49,7 @@
 #include <chrono>
 #include <cstring>
 #include <errno.h>
+#include <mutex>
 #include <thread>
 #include <vector>
 #include <typeinfo>
@@ -66,7 +67,6 @@
 #if LL_WINDOWS
 #include <windows.h>
 #include "llwin32headers.h"
-#include <mutex>
 
 namespace {
     // Global job object that will kill all child processes when parent terminates
@@ -679,7 +679,15 @@ void LLProcess::launch(const LLSDOrParams& params)
 #if !LL_WINDOWS
         // Ignore SIGPIPE so that writing to a child's closed stdin doesn't
         // terminate the viewer process. The write will fail with EPIPE instead.
-        signal(SIGPIPE, SIG_IGN);
+        static std::once_flag sIgnoreSigpipeOnce;
+        std::call_once(sIgnoreSigpipeOnce, []
+        {
+            struct sigaction sa_ignore;
+            memset(&sa_ignore, 0, sizeof(sa_ignore));
+            sa_ignore.sa_handler = SIG_IGN;
+            sigemptyset(&sa_ignore.sa_mask);
+            sigaction(SIGPIPE, &sa_ignore, nullptr);
+        });
 #endif
 
         // Create child process with appropriate redirections.

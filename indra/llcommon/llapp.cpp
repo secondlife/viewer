@@ -318,7 +318,6 @@ void LLApp::setupErrorHandling(bool second_instance)
 
 #else  // ! LL_WINDOWS
 
-#if ! defined(LL_BUGSPLAT)
     //
     // Start up signal handling.
     //
@@ -326,7 +325,6 @@ void LLApp::setupErrorHandling(bool second_instance)
     // thread, asynchronous signals can be delivered to any thread (in theory)
     //
     setup_signals();
-#endif // ! LL_BUGSPLAT
 
 #endif // ! LL_WINDOWS
 }
@@ -517,7 +515,10 @@ void setup_signals()
     sigaction(SIGFPE, &act, NULL);
     sigaction(SIGHUP, &act, NULL);
     sigaction(SIGILL, &act, NULL);
-    sigaction(SIGPIPE, &act, NULL);
+    struct sigaction sigpipe_ignore = {};
+    sigpipe_ignore.sa_handler = SIG_IGN;
+    sigemptyset(&sigpipe_ignore.sa_mask);
+    sigaction(SIGPIPE, &sigpipe_ignore, NULL);
     sigaction(SIGSEGV, &act, NULL);
     sigaction(SIGSYS, &act, NULL);
 
