@@ -244,6 +244,7 @@ namespace tut
         ensure("started", manager.startServer(mName));
 
         ensure_equals("no origin: connection opens", upgradeFrom(mPort, std::string()), 101);
+        ensure("server clears the abruptly closed raw connection", waitUntil([&]() { return server->getConnectionCount() == 0; }));
 
         TestWSClient client;
         ensure("no origin: client connects over the network", client.connect(mPort, std::string()));
@@ -341,6 +342,7 @@ namespace tut
         ensure("started", manager.startServer(mName));
 
         ensure_equals("empty origin: connection opens", upgradeFrom(mPort, std::string(), true), 101);
+        ensure("server clears the abruptly closed raw connection", waitUntil([&]() { return server->getConnectionCount() == 0; }));
 
         TestWSClient client;
         ensure("empty origin: client connects over the network", client.connect(mPort, std::string(), true));
