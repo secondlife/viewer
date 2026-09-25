@@ -5299,20 +5299,35 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
 
     direction = (S32)(mExternalActionFlags & AGENT_CONTROL_YAW_POS)
         - (S32)((mExternalActionFlags & AGENT_CONTROL_YAW_NEG) >> 1);
+    // The "Slow".."Fast" preferences slider scales Mouselook's turn/look speed
+    // and Avatar's turn speed.
+    F32 turn_speed_factor = 1.0f;
+    F32 look_speed_factor = 1.0f;
+    LLGameControl::AgentControlMode control_mode = LLGameControl::getAgentControlMode();
+    if (control_mode == LLGameControl::CONTROL_MODE_MOUSELOOK)
+    {
+        turn_speed_factor = LLGameControl::getSpeedFactor(LLGameControl::getModeName(control_mode));
+        look_speed_factor = turn_speed_factor;
+    }
+    else if (control_mode == LLGameControl::CONTROL_MODE_AVATAR)
+    {
+        turn_speed_factor = LLGameControl::getSpeedFactor(LLGameControl::getModeName(control_mode));
+    }
+
     if (direction != 0)
     {
         F32 sign = (direction < 0 ? -1.0f : 1.0f);
         // actions.mYawAmplitude is the analog stick deflection ([-1, 1]) that
         // set this flag; use its magnitude to modulate turn speed instead of
         // always snapping to full rate
-        moveYaw(sign * fabs(actions.mYawAmplitude));
+        moveYaw(sign * fabs(actions.mYawAmplitude) * turn_speed_factor);
     }
 
     {
         F32 pitch_sign = ((mExternalActionFlags & AGENT_CONTROL_PITCH_POS) > 0 ? 1.0f : 0.0f)
             - ((mExternalActionFlags & AGENT_CONTROL_PITCH_NEG) > 0 ? 1.0f : 0.0f);
         // Same analog modulation as yaw above, via actions.mPitchAmplitude.
-        movePitch(pitch_sign * fabs(actions.mPitchAmplitude));
+        movePitch(pitch_sign * fabs(actions.mPitchAmplitude) * look_speed_factor);
     }
 
     // actions.mZoomAmplitude ([-1, 1], from "Zoom +/-"/"Zoom +"/"Zoom -") drives the

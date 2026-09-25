@@ -68,7 +68,7 @@ public:
     // velocity passed to setLinearVelocity() (e.g. "Slow" .. "Fast"). Clamped
     // to [MIN_FLYCAM_SPEED_FACTOR, MAX_FLYCAM_SPEED_FACTOR]; defaults to
     // DEFAULT_FLYCAM_SPEED_FACTOR. Driven by the "GameControl" FlyCam settings'
-    // SpeedFactor value (see LLGameControl::getFlycamSpeedFactor()).
+    // SpeedFactor value (see LLGameControl::getSpeedFactor()).
     void setSpeedFactor(F32 speed_factor);
     F32 getSpeedFactor() const { return mSpeedFactor; }
 

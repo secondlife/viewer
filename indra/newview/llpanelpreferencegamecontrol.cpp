@@ -753,9 +753,12 @@ bool LLPanelPreferenceGameControl::postBuild()
             populateActionMappings();
         });
 
-    mSliderFlycamSpeedFactor = getChild<LLSliderCtrl>("flycam_speed_factor");
-    mSliderFlycamSpeedFactor->setCommitCallback([this](LLUICtrl*, const LLSD&)
-        { LLGameControl::setFlycamSpeedFactor((F32)mSliderFlycamSpeedFactor->getValue().asReal()); });
+    // Shared by FlyCam, Mouselook, and Avatar: applies to whichever mode is being edited.
+    mSliderSpeedFactor = getChild<LLSliderCtrl>("speed_factor");
+    mSliderSpeedFactor->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        { LLGameControl::setSpeedFactor(currentEditMode(), (F32)mSliderSpeedFactor->getValue().asReal()); });
+    mSpeedSlowLabel = getChild<LLTextBox>("speed_slow_label");
+    mSpeedFastLabel = getChild<LLTextBox>("speed_fast_label");
 
     mCheckFlycamCrosshair = getChild<LLCheckBoxCtrl>("flycam_crosshair");
     mCheckFlycamCrosshair->setCommitCallback([this](LLUICtrl*, const LLSD&)
@@ -1294,20 +1297,26 @@ void LLPanelPreferenceGameControl::updateActionModeEnabledUI()
     mActionMappingsButtons->setEnabled(enabled);
     mRestoreActionsDefaults->setEnabled(enabled);
 
-    // Roll, move-speed, and the crosshair are only meaningful for FlyCam: hide
-    // all three controls for every other mode.
+    // Roll and the crosshair are only meaningful for FlyCam, and the speed
+    // slider for FlyCam, Mouselook, and Avatar: hide them for every other mode.
     bool is_flycam = (mode == "FlyCam");
+    bool has_speed_factor = is_flycam || (mode == "Mouselook") || (mode == "Avatar");
     mCheckFlycamAllowRoll->setVisible(is_flycam);
-    mSliderFlycamSpeedFactor->setVisible(is_flycam);
     mCheckFlycamCrosshair->setVisible(is_flycam);
+    mSliderSpeedFactor->setVisible(has_speed_factor);
+    mSpeedSlowLabel->setVisible(has_speed_factor);
+    mSpeedFastLabel->setVisible(has_speed_factor);
     if (is_flycam)
     {
         mCheckFlycamAllowRoll->set(LLGameControl::isFlycamRollAllowed());
         mCheckFlycamAllowRoll->setEnabled(enabled);
-        mSliderFlycamSpeedFactor->setValue(LLGameControl::getFlycamSpeedFactor());
-        mSliderFlycamSpeedFactor->setEnabled(enabled);
         mCheckFlycamCrosshair->set(LLGameControl::isFlycamCrosshairEnabled());
         mCheckFlycamCrosshair->setEnabled(enabled);
+    }
+    if (has_speed_factor)
+    {
+        mSliderSpeedFactor->setValue(LLGameControl::getSpeedFactor(mode));
+        mSliderSpeedFactor->setEnabled(enabled);
     }
 }
 
@@ -2019,14 +2028,17 @@ void LLPanelPreferenceGameControl::onResetActionsToDefaults()
     LLGameControl::setModeMapping(mode, MODE_INPUT_TYPE_AXES, defaults[mode][MODE_INPUT_TYPE_AXES]);
     LLGameControl::setModeMapping(mode, MODE_INPUT_TYPE_BUTTONS, defaults[mode][MODE_INPUT_TYPE_BUTTONS]);
     LLGameControl::setModeMapping(mode, MODE_INPUT_TYPE_AXES_INVERT, defaults[mode][MODE_INPUT_TYPE_AXES_INVERT]);
+    // AllowRoll, SpeedFactor, and ShowCrosshair live outside the
+    // Axes/Buttons/AxesInvert mapping this function otherwise restores, so
+    // they need to be reset explicitly.
     if (mode == "FlyCam")
     {
-        // AllowRoll, SpeedFactor, and ShowCrosshair live outside the
-        // Axes/Buttons/AxesInvert mapping this function otherwise restores, so
-        // they need to be reset explicitly.
         LLGameControl::setFlycamRollAllowed(false);
-        LLGameControl::setFlycamSpeedFactor(1.0f);
         LLGameControl::setFlycamCrosshairEnabled(false);
+    }
+    if (mode == "FlyCam" || mode == "Mouselook" || mode == "Avatar")
+    {
+        LLGameControl::setSpeedFactor(mode, 1.0f);
     }
     populateActionMappings();
     updateActionModeEnabledUI(); // syncs mCheckFlycamAllowRoll with the reset value above

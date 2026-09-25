@@ -612,7 +612,7 @@ namespace
     // FlyCam-only flag gating whether Roll input rotates the flycam about its
     // forward axis (see LLFlycam::mAllowRoll). Absent/false means Roll is ignored.
     const std::string GC_ALLOW_ROLL("AllowRoll");
-    // FlyCam-only camera move-speed multiplier (see LLFlycam::mSpeedFactor).
+    // FlyCam/Mouselook speed multiplier (see LLGameControl::getSpeedFactor()).
     // Absent means the default (1.0, i.e. unscaled) is used.
     const std::string GC_SPEED_FACTOR("SpeedFactor");
     // FlyCam-only flag gating whether a centered crosshair is drawn over the
@@ -3770,10 +3770,10 @@ void LLGameControl::setFlycamRollAllowed(bool allowed)
 }
 
 // static
-F32 LLGameControl::getFlycamSpeedFactor()
+F32 LLGameControl::getSpeedFactor(const std::string& mode)
 {
     ensureGameControlSettings();
-    const LLSD& mode_map = g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM];
+    const LLSD& mode_map = g_gameControlSettings[GC_MODEMAPPINGS][mode];
     // Default to 1.0 (unscaled, i.e. LLFlycam::mSpeedFactor's own default) when
     // the value is absent, e.g. settings saved before this flag existed.
     if (mode_map.isMap() && mode_map.has(GC_SPEED_FACTOR))
@@ -3784,12 +3784,12 @@ F32 LLGameControl::getFlycamSpeedFactor()
 }
 
 // static
-void LLGameControl::setFlycamSpeedFactor(F32 speed_factor)
+void LLGameControl::setSpeedFactor(const std::string& mode, F32 speed_factor)
 {
     ensureGameControlSettings();
-    g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM][GC_SPEED_FACTOR] = speed_factor;
-    // The runtime reads this value live each frame (LLAgentCamera::updateFlycam()),
-    // so no action-lookup rebuild is needed here.
+    g_gameControlSettings[GC_MODEMAPPINGS][mode][GC_SPEED_FACTOR] = speed_factor;
+    // The runtime reads this value live each frame (LLAgentCamera::updateFlycam(),
+    // LLAgent::applyExternalActions()), so no action-lookup rebuild is needed here.
 }
 
 // static
