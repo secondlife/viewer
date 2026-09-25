@@ -547,6 +547,11 @@ void LLPanelLogin::setCredentialFields(const std::string& username, const std::s
     sInstance->mPasswordLength = static_cast<unsigned int>(password.length());
     sInstance->mPasswordModified = true;
     sInstance->updateLoginButtons();
+
+    sInstance->getChild<LLUICtrl>("remember_name")->setValue(true);
+    LLUICtrl* remember_password = sInstance->getChild<LLUICtrl>("remember_password");
+    remember_password->setValue(true);
+    remember_password->setEnabled(true);
 }
 
 //static

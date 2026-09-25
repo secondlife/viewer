@@ -35,8 +35,6 @@
 #include "llui.h"
 #include "llviewercontrol.h"
 
-static const F32 OVERLAY_OPACITY = 0.8f;
-
 // support for secondlife:///app/floaterjoin/{ACTION}/... SLapps
 class LLFloaterJoinHandler : public LLCommandHandler
 {
@@ -79,12 +77,14 @@ bool LLFloaterJoin::postBuild()
 
 void LLFloaterJoin::draw()
 {
+    static LLCachedControl<F32> overlay_opacity(gSavedSettings, "JoinFloaterOverlayOpacity");
+
     // darken everything behind the floater
     LLVector2 window_size = LLUI::getInstance()->getWindowSize();
     LLRect screen_rect = calcScreenRect();
     gl_rect_2d(-screen_rect.mLeft, ll_round(window_size.mV[VY]) - screen_rect.mBottom,
                ll_round(window_size.mV[VX]) - screen_rect.mLeft, -screen_rect.mBottom,
-               LLColor4(0.f, 0.f, 0.f, OVERLAY_OPACITY));
+               LLColor4(0.f, 0.f, 0.f, llclamp((F32)overlay_opacity, 0.f, 1.f)));
 
     LLModalDialog::draw();
 }
@@ -105,4 +105,8 @@ void LLFloaterJoin::onOpen(const LLSD& key)
     }
 
     centerOnScreen();
+
+    static LLCachedControl<bool> show_test_slapp(gSavedSettings, "JoinFloaterTestSLapp");
+    getChild<LLUICtrl>("test_close_link")->setVisible(show_test_slapp);
+    getChild<LLUICtrl>("test_join_link")->setVisible(show_test_slapp);
 }
