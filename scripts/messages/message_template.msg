@@ -8,7 +8,7 @@ version 2.0
 // for each type is listed below:
 // Low: 431
 // Medium: 18
-// High: 30
+// High: 33
 // PLEASE UPDATE THIS WHEN YOU ADD A NEW MESSAGE!
 
 
@@ -567,6 +567,11 @@ version 2.0
 // PlacesQuery
 // Used for getting a list of places for the group land panel
 // and the user land holdings panel.  NOT for the directory.
+//
+// The dataserver now implements the "/agent/<agent-id>/owned-land"
+// endpoint as a replacement for PlacesQuery and PlacesReply.
+// This has not yet been exposed in the viewer through a capability...
+// but this message's days are numbered.
 {
     PlacesQuery Low 29 NotTrusted Zerocoded
     {
@@ -2106,7 +2111,7 @@ version 2.0
     }
 }
 
-//  ObjectBypassModUpdate
+//  ObjectBypassedUpdate
 //  Viewer -> Simulator
 //  Allows the owner of an object to bypass mod protections for
 //  Predefined fields.
@@ -7501,9 +7506,12 @@ version 2.0
     }
 }
 
+// ScriptDataRequest and ScriptDataReply are no longer used in the
+// simulator or the dataserver. Please see "/region/<region-id>/data-request"
+// in llscript_dataserver.cpp for the HTTP endpoint.
 // Script on simulator asks dataserver for information
 {
-    ScriptDataRequest Low 337 Trusted Unencoded
+    ScriptDataRequest Low 337 Trusted Unencoded UDPDeprecated
     {
         DataBlock Variable
         {   Hash        U64         }
@@ -7514,7 +7522,7 @@ version 2.0
 
 // Data server responds with data
 {
-    ScriptDataReply Low 338 Trusted Unencoded
+    ScriptDataReply Low 338 Trusted Unencoded UDPDeprecated
     {
         DataBlock Variable
         {   Hash    U64         }
@@ -9256,6 +9264,7 @@ version 2.0
     }
 }
 
+// DEPRECATED -- remove once all simulators support GameControlData message
 // viewer -> simulator
 // GameControlInput - input from game controller
 // The main payload of this message is split into two Variable chunks:
@@ -9286,6 +9295,240 @@ version 2.0
     {
         ButtonData Variable
         { Data  Variable 1  }
+    }
+}
+
+// viewer -> simulator
+// GameControlData - data from game controller
+// Carries canonical gamepad state plus mode-dependent semantic interpretation.
+// Replaces the deprecated GameControlInput (High 32).
+//
+// The Packet field of the AgentData is an increasing sequence number (with overflow
+// after 255) for each GameControlData message, used to ignore late arrivals for
+// out-of-order messages.
+//
+// The ActionMode field of the AgentData block represents the viewer's game-control
+// mode and is used to assign meaning to the semantic data (see below).
+//
+// Canonical Axes has up to 6 Values: the server will ignore any Values beyond 6 and if
+// fewer than 6 are packed then it will assume unpacked Values are zero.
+//   0 AXIS_LEFTX
+//   1 AXIS_LEFTY
+//   2 AXIS_RIGHTX
+//   3 AXIS_RIGHTY
+//   4 AXIS_LEFT_TRIGGER
+//   5 AXIS_RIGHT_TRIGGER
+//
+// ButtonData is a 32-bit mask of pressed buttons
+//   0 BUTTON_SOUTH
+//   1 BUTTON_EAST
+//   2 BUTTON_WEST
+//   3 BUTTON_NORTH
+//   4 BUTTON_SELECT
+//   5 BUTTON_HOME
+//   6 BUTTON_START
+//   7 BUTTON_LEFT_STICK
+//   8 BUTTON_RIGHT_STICK
+//   9 BUTTON_LEFT_SHOULDER
+//  10 BUTTON_RIGHT_SHOULDER
+//  11 BUTTON_DPAD_UP
+//  12 BUTTON_DPAD_DOWN
+//  13 BUTTON_DPAD_LEFT
+//  14 BUTTON_DPAD_RIGHT
+//  15 BUTTON_MISC1
+//  16 BUTTON_PADDLE1
+//  17 BUTTON_PADDLE2
+//  18 BUTTON_PADDLE3
+//  19 BUTTON_PADDLE4
+//  20 BUTTON_TOUCHPAD
+//  21 BUTTON_21
+//   ...
+//  31 BUTTON_31
+//
+// Modal data is mostly the same as canonical, but reordered (and combined in the case of the triggers)
+// according to their semantic meanings, which depend on the mode.  The possible modes are:
+//   0 CONTROL_MODE_AVATAR
+//   1 CONTROL_MODE_MOUSELOOK
+//   2 CONTROL_MODE_FLYCAM
+//   3 CONTROL_MODE_CAPTIVE (sitting)
+//   4 CONTROL_MODE_CURSOR (mouse cursor)
+//
+// For AVATAR, MOUSELOOK, and CAPTIVE modes the axis semantics are:
+//   0 AXIS_STRAFE
+//   1 AXIS_ADVANCE
+//   2 AXIS_TURN
+//   3 AXIS_LOOK
+//   4 AXIS_RISE
+//
+// For FLYCAM the axis semantics are:
+//   0 FLYCAM_AXIS_TRUCK
+//   1 FLYCAM_AXIS_DOLLY
+//   2 FLYCAM_AXIS_PAN
+//   3 FLYCAM_AXIS_TILT
+//   4 FLYCAM_AXIS_BOOM
+//   5 FLYCAM_AXIS_ROLL
+//   6 FLYCAM_AXIS_ZOOM
+//
+// For CURSOR mode the axis semantics are:
+//   0 CURSOR_DX (value driving mouse horizontal motion)
+//   1 CURSOR_DY (value driving mouse vertical motion)
+//   2 CURSOR_PX (cursor position, pixels, X)
+//   3 CURSOR_PY (cursor position, pixels, Y)
+//   4 CURSOR_NX (cursor position, normalized, X)
+//   5 CURSOR_NY (cursor position, normalized, Y)
+//
+// CURSOR_PX/CURSOR_PY are the mouse cursor's position, in pixels, within the
+// rectangular area available to the cursor while it is being driven by the game
+// controller: <0,0> is the upper-left corner of that rectangle and <WIDTH,HEIGHT>
+// is its lower-right corner.
+//
+// CURSOR_NX/CURSOR_NY are the same position normalized to that rectangle: <0.0,0.0>
+// is the upper-left corner and <1.0,1.0> is the lower-right corner. Since axis
+// Values are S16, the floating point range [0.0, 1.0] is mapped onto [0, 32767]
+// (not 32768, which does not fit in an S16).
+//
+// CURSOR mode has no AXIS_TURN/AXIS_LOOK slot: turning/looking still work in Cursor
+// mode (bindable to the right stick, same as any other mode) but are no longer
+// mirrored here now that these slots carry cursor position instead.
+//
+// Similarly for semantic ModeButtons the meaning of the Flags depend on the mode.
+// A ModeButtons bit index is always identical to the canonical Button index to which
+// it is mapped by default, no matter how it is actually mapped.
+// Canonical buttons with no default action in a given mode are still assigned a bit
+// but it has no meaning (it is never used for that mode).
+//
+// For AVATAR and CAPTIVE modes the ModeButtons bit meanings are:
+// Bit    Default_Button         Name
+// -----------------------------------------------------------------------
+//   0    BUTTON_SOUTH           Jump
+//   1    BUTTON_EAST            Crouch
+//   2    BUTTON_WEST            Toggle sit
+//   3    BUTTON_NORTH           (unbound; reserved for future "Interact")
+//   4    BUTTON_SELECT          Toggle mouse cursor
+//   5    BUTTON_HOME            Toggle speak
+//   6    BUTTON_START           Toggle mouselook
+//   7    BUTTON_LEFT_STICK      (unbound)
+//   8    BUTTON_RIGHT_STICK     Toggle flycam
+//   9    BUTTON_LEFT_SHOULDER   (unbound)
+//  10    BUTTON_RIGHT_SHOULDER  (unbound)
+//  11    BUTTON_DPAD_UP         Advance forward (also folded into ModeAxes AXIS_ADVANCE)
+//  12    BUTTON_DPAD_DOWN       Advance back (also folded into ModeAxes AXIS_ADVANCE)
+//  13    BUTTON_DPAD_LEFT       Strafe left (also folded into ModeAxes AXIS_STRAFE)
+//  14    BUTTON_DPAD_RIGHT      Strafe right (also folded into ModeAxes AXIS_STRAFE)
+//  15-31                         (unbound)
+//
+// For MOUSELOOK mode the ModeButtons bit meanings are:
+// Bit    Default_Button         Name
+// -----------------------------------------------------------------------
+//   0    BUTTON_SOUTH           Jump
+//   1    BUTTON_EAST            Crouch
+//   2    BUTTON_WEST            Toggle sit
+//   3    BUTTON_NORTH           (unbound)
+//   4    BUTTON_SELECT          Toggle mouse cursor
+//   5    BUTTON_HOME            Toggle speak
+//   6    BUTTON_START           Toggle mouselook
+//   7    BUTTON_LEFT_STICK      (unbound)
+//   8    BUTTON_RIGHT_STICK     Toggle flycam
+//   9    BUTTON_LEFT_SHOULDER   Mouse click left
+//  10    BUTTON_RIGHT_SHOULDER  Mouse click right
+//  11    BUTTON_DPAD_UP         Advance forward (also folded into ModeAxes AXIS_ADVANCE)
+//  12    BUTTON_DPAD_DOWN       Advance back (also folded into ModeAxes AXIS_ADVANCE)
+//  13    BUTTON_DPAD_LEFT       Strafe left (also folded into ModeAxes AXIS_STRAFE)
+//  14    BUTTON_DPAD_RIGHT      Strafe right (also folded into ModeAxes AXIS_STRAFE)
+//  15-31                       (unbound)
+//
+// For FLYCAM mode the ModeButtons bit meanings are:
+// Bit    Default_Button         Name
+// -----------------------------------------------------------------------
+//   0    BUTTON_SOUTH           Zoom out (also folded into ModeAxes FLYCAM_AXIS_ZOOM)
+//   1    BUTTON_EAST            Pan right (also folded into ModeAxes FLYCAM_AXIS_PAN)
+//   2    BUTTON_WEST            Pan left (also folded into ModeAxes FLYCAM_AXIS_PAN)
+//   3    BUTTON_NORTH           Zoom in (also folded into ModeAxes FLYCAM_AXIS_ZOOM)
+//   4    BUTTON_SELECT          Toggle AltZoom
+//   5    BUTTON_HOME            (unbound)
+//   6    BUTTON_START           Toggle follow
+//   7    BUTTON_LEFT_STICK      Reset
+//   8    BUTTON_RIGHT_STICK     Toggle flycam
+//   9    BUTTON_LEFT_SHOULDER   Roll CCW (also folded into ModeAxes FLYCAM_AXIS_ROLL)
+//  10    BUTTON_RIGHT_SHOULDER  Roll CW (also folded into ModeAxes FLYCAM_AXIS_ROLL)
+//  11    BUTTON_DPAD_UP         Dolly forward (also folded into ModeAxes FLYCAM_AXIS_DOLLY)
+//  12    BUTTON_DPAD_DOWN       Dolly back (also folded into ModeAxes FLYCAM_AXIS_DOLLY)
+//  13    BUTTON_DPAD_LEFT       Truck left (also folded into ModeAxes FLYCAM_AXIS_TRUCK)
+//  14    BUTTON_DPAD_RIGHT      Truck right (also folded into ModeAxes FLYCAM_AXIS_TRUCK)
+//  15-31                       (unbound)
+//
+// For CAPTIVE mode (avatar is sitting, or controls have been taken) the ModeButtons
+// bit meanings are identical to AVATAR mode (CAPTIVE reuses AVATAR's default button
+// mapping in buildDefaultModeMappings()):
+// Bit    Default_Button         Name
+// -----------------------------------------------------------------------
+//   0  BUTTON_SOUTH           Jump
+//   1  BUTTON_EAST            Crouch
+//   2  BUTTON_WEST            Toggle sit
+//   3  BUTTON_NORTH           (unbound; reserved for future "Interact")
+//   4  BUTTON_SELECT          Toggle mouse cursor
+//   5  BUTTON_HOME            Toggle speak
+//   6  BUTTON_START           Toggle mouselook
+//   7  BUTTON_LEFT_STICK      (unbound)
+//   8  BUTTON_RIGHT_STICK     Toggle flycam
+//   9  BUTTON_LEFT_SHOULDER   (unbound)
+//  10  BUTTON_RIGHT_SHOULDER  (unbound)
+//  11  BUTTON_DPAD_UP         Advance forward (also folded into ModeAxes AXIS_ADVANCE)
+//  12  BUTTON_DPAD_DOWN       Advance back (also folded into ModeAxes AXIS_ADVANCE)
+//  13  BUTTON_DPAD_LEFT       Strafe left (also folded into ModeAxes AXIS_STRAFE)
+//  14  BUTTON_DPAD_RIGHT      Strafe right (also folded into ModeAxes AXIS_STRAFE)
+//  15-31                       (unbound)
+//
+// For CURSOR mode (left stick drives the on-screen cursor instead of avatar
+// movement) the ModeButtons bit meanings are:
+//   0  BUTTON_SOUTH           Jump
+//   1  BUTTON_EAST            Crouch
+//   2  BUTTON_WEST            Toggle sit
+//   3  BUTTON_NORTH           (unbound)
+//   4  BUTTON_SELECT          Toggle mouse cursor
+//   5  BUTTON_HOME            Toggle speak
+//   6  BUTTON_START           Toggle mouselook
+//   7  BUTTON_LEFT_STICK      (unbound)
+//   8  BUTTON_RIGHT_STICK     Toggle flycam
+//   9  BUTTON_LEFT_SHOULDER   Mouse click left
+//  10  BUTTON_RIGHT_SHOULDER  Mouse click right
+//  11  BUTTON_DPAD_UP         Advance forward (moves avatar locally; NOT folded into
+//                             ModeAxes -- CURSOR_DX/CURSOR_DY carry cursor motion instead)
+//  12  BUTTON_DPAD_DOWN       Advance back (not folded into ModeAxes; see above)
+//  13  BUTTON_DPAD_LEFT       Strafe left (not folded into ModeAxes; see above)
+//  14  BUTTON_DPAD_RIGHT      Strafe right (not folded into ModeAxes; see above)
+//  15-31                     (unbound)
+//
+{
+    GameControlData High 33 NotTrusted Zerocoded
+    {
+        AgentData Single
+        {   AgentID     LLUUID  }
+        {   SessionID   LLUUID  }
+        {   Packet      U8      }
+        {   ActionMode  U8      }
+    }
+    // non-modal canonical data
+    {
+        // server will zero unpacked Values
+        Axes Variable
+        { Value S16 }
+    }
+    {
+        // server will zero unpacked Flags
+        Buttons Variable
+        { Flags U32 }
+    }
+    // modal semantic data
+    {
+        // server will zero unpacked Values
+        ModeAxes Variable
+        { Value S16 }
+    }
+    {
+        // server will zero unpacked Flags
+        ModeButtons Variable
+        { Flags U32 }
     }
 }
 
