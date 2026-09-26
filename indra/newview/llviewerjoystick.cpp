@@ -273,17 +273,20 @@ bool LLViewerJoystick::getOverrideCamera()
 NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
 {
     NDOF_HotPlugResult res = NDOF_DISCARD_HOTPLUGGED;
-    LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
-    if (joystick->mDriverState == JDS_UNINITIALIZED)
+    if (dev)
     {
-        LL_INFOS("Joystick") << "HotPlugAddCallback: will use device:" << LL_ENDL;
-        ndof_dump(stderr, dev);
-        joystick->mNdofDev = dev;
-        joystick->mDriverState = JDS_INITIALIZED;
-        joystick->mDeviceIs3DConnexion = is3DConnexionDevice(joystick->mNdofDev->product);
-        res = NDOF_KEEP_HOTPLUGGED;
+        LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
+        if (joystick->mDriverState == JDS_UNINITIALIZED)
+        {
+            LL_INFOS("Joystick") << "HotPlugAddCallback: will use device: " << (void*)(dev) << LL_ENDL;
+            ndof_dump(stderr, dev);
+            joystick->mNdofDev = dev;
+            joystick->mDriverState = JDS_INITIALIZED;
+            joystick->mDeviceIs3DConnexion = is3DConnexionDevice(joystick->mNdofDev->product);
+            res = NDOF_KEEP_HOTPLUGGED;
+        }
+        joystick->updateEnabled(true);
     }
-    joystick->updateEnabled(true);
     return res;
 }
 #endif
@@ -449,7 +452,7 @@ void LLViewerJoystick::init(bool autoenable)
     }
 
     LL_INFOS("Joystick") << "ndof: mDriverState=" << mDriverState << "; mNdofDev="
-            << mNdofDev << "; libinit=" << libinit << LL_ENDL;
+            << (void*)(mNdofDev) << "; libinit=" << libinit << LL_ENDL;
 #endif
 }
 
@@ -462,6 +465,10 @@ void LLViewerJoystick::initDevice(LLSD &guid)
     std::function<bool(std::string&, LLSD&, void*)> osx_callback;
     mDriverState = JDS_INITIALIZING;
 
+    if (!mNdofDev)
+    {
+        return;
+    }
 #if LL_WINDOWS && !LL_MESA_HEADLESS
     // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
     device_type = DI8DEVCLASS_GAMECTRL;
@@ -497,10 +504,10 @@ void LLViewerJoystick::initDevice(LLSD &guid)
         {
             LL_INFOS("Joystick") << "Failed to gather input devices. Falling back to ndof's init" << LL_ENDL;
             // Failed to gather devices from window, init first suitable one
-        void *preffered_device = NULL;
-        mLastDeviceUUID = LLSD();
-        initDevice(preffered_device);
-    }
+            void *preffered_device = NULL;
+            mLastDeviceUUID = LLSD();
+            initDevice(preffered_device);
+        }
     }
 
     if (mDriverState == JDS_INITIALIZING)
@@ -597,19 +604,18 @@ void LLViewerJoystick::terminate()
 void LLViewerJoystick::updateStatus()
 {
 #if LIB_NDOF
-
-    ndof_update(mNdofDev);
-
-    for (int i=0; i<6; i++)
+    if (mNdofDev != NULL)
     {
-        mAxes[i] = (F32) mNdofDev->axes[i] / mNdofDev->axes_max;
+        ndof_update(mNdofDev);
+        for (int i=0; i<6; i++)
+        {
+            mAxes[i] = (F32) mNdofDev->axes[i] / mNdofDev->axes_max;
+        }
+        for (int i=0; i<16; i++)
+        {
+            mBtn[i] = mNdofDev->buttons[i];
+        }
     }
-
-    for (int i=0; i<16; i++)
-    {
-        mBtn[i] = mNdofDev->buttons[i];
-    }
-
 #endif
 }
 
@@ -1002,7 +1008,7 @@ void LLViewerJoystick::moveAvatar(bool reset)
     F32 val, dom_mov = 0.f;
     U32 dom_axis = Z_I;
 #if LIB_NDOF
-    bool absolute = (gSavedSettings.getBOOL("Cursor3D") && mNdofDev->absolute);
+    bool absolute = mNdofDev != NULL && (gSavedSettings.getBOOL("Cursor3D") && mNdofDev->absolute);
 #else
     bool absolute = false;
 #endif
@@ -1508,7 +1514,8 @@ bool LLViewerJoystick::is3DConnexionDevice(const std::string& device_name)
 bool LLViewerJoystick::isLikeSpaceNavigator() const
 {
 #if LIB_NDOF
-    return (isJoystickInitialized()
+    return (mNdofDev != NULL
+            && isJoystickInitialized()
             && is3DConnexionDevice(mNdofDev->product));
 #else
     return false;
