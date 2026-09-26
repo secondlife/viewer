@@ -5267,8 +5267,24 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
     S32 original_width = 0;
     S32 original_height = 0;
     bool reset_deferred = false;
+    F32 original_fov = LLViewerCamera::getInstance()->getView();
 
     LLRenderTarget scratch_space;
+
+    // Lambda to restore deferred if needed when finished or in the case of early return
+    auto restore_deferred = [&]()
+    {
+        if (reset_deferred)
+        {
+            mWorldViewRectRaw = window_rect;
+            LLViewerCamera::getInstance()->setViewNoBroadcast(original_fov);
+            LLViewerCamera::getInstance()->setViewHeightInPixels(mWorldViewRectRaw.getHeight());
+            LLViewerCamera::getInstance()->setAspect(getWorldViewAspectRatio());
+            scratch_space.flush();
+            scratch_space.release();
+            gPipeline.allocateScreenBuffer(original_width, original_height);
+        }
+    };
 
     F32 scale_factor = 1.0f ;
     if (!keep_window_aspect || (image_width > window_width) || (image_height > window_height))
@@ -5289,6 +5305,14 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
                     snapshot_width = image_width;
                     snapshot_height = image_height;
                     reset_deferred = true;
+
+                    F32 window_aspect = (F32)window_rect.getWidth() / (F32)window_rect.getHeight();
+                    F32 image_aspect  = (F32)image_width / (F32)image_height;
+                    if (image_aspect > window_aspect)
+                    {
+                        F32 crop = window_aspect / image_aspect;
+                        LLViewerCamera::getInstance()->setViewNoBroadcast(2.f * atanf(tanf(original_fov * 0.5f) * crop));
+                    }
                     mWorldViewRectRaw.set(0, image_height, image_width, 0);
                     LLViewerCamera::getInstance()->setViewHeightInPixels( mWorldViewRectRaw.getHeight() );
                     LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
@@ -5339,12 +5363,14 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
     }
     else
     {
+        restore_deferred();
         setBalanceVisible(true);
         return false;
     }
 
     if (raw->isBufferInvalid())
     {
+        restore_deferred();
         setBalanceVisible(true);
         return false;
     }
@@ -5506,16 +5532,7 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
         gPipeline.resetDrawOrders();
     }
 
-    if (reset_deferred)
-    {
-        mWorldViewRectRaw = window_rect;
-        LLViewerCamera::getInstance()->setViewHeightInPixels( mWorldViewRectRaw.getHeight() );
-        LLViewerCamera::getInstance()->setAspect( getWorldViewAspectRatio() );
-        scratch_space.flush();
-        scratch_space.release();
-        gPipeline.allocateScreenBuffer(original_width, original_height);
-
-    }
+    restore_deferred();
 
     if (high_res)
     {
