@@ -95,6 +95,9 @@ protected:
     void agentJump();
     void resetDeltas(S32 axis[]);
     void loadDeviceIdFromSettings();
+    // Call after a successful ndof_init_first(): marks the driver initialized
+    // only if the device is a 3Dconnexion one.  Returns true if accepted.
+    bool acceptInitializedDevice();
 #if LIB_NDOF
     static NDOF_HotPlugResult HotPlugAddCallback(NDOF_Device *dev);
     static void HotPlugRemovalCallback(NDOF_Device *dev);
