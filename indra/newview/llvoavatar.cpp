@@ -3435,7 +3435,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
         static LLCachedControl<bool> render_name_show_self(gSavedSettings, "RenderNameShowSelf");
         static LLCachedControl<S32> name_tag_mode(gSavedSettings, "AvatarNameTagMode");
         render_name = render_name
-            && !gAgentCamera.cameraMouselook()
+            && !gAgentCamera.isHidingAvatarForFirstPerson()
             && (visible_chat || (render_name_show_self && name_tag_mode));
     }
 

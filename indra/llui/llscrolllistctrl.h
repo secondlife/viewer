@@ -178,6 +178,7 @@ public:
     virtual LLScrollListColumn* getColumn(S32 index);
     virtual LLScrollListColumn* getColumn(const std::string& name);
     virtual S32 getNumColumns() const { return static_cast<S32>(mColumnsIndexed.size()); }
+    virtual S32 getPageLines() const { return mPageLines; }
 
     // Adds a single element, from an array of:
     // "columns" => [ "column" => column name, "value" => value, "type" => type, "font" => font, "font-style" => style ], "id" => uuid
@@ -291,6 +292,7 @@ public:
     // iterate over all items
     LLScrollListItem*   getFirstData() const;
     LLScrollListItem*   getLastData() const;
+    LLScrollListItem*   getNthData(size_t index) const;
     std::vector<LLScrollListItem*>  getAllData() const;
 
     LLScrollListItem*   getItem(const LLSD& sd) const;

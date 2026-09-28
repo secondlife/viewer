@@ -41,6 +41,7 @@ LLWindowHeadless::LLWindowHeadless(LLWindowCallbacks* callbacks, const std::stri
     // Initialize a headless keyboard.
     gKeyboard = new LLKeyboardHeadless();
     gKeyboard->setCallbacks(callbacks);
+    mFullscreen = false;
 }
 
 
