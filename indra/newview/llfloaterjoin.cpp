@@ -44,7 +44,7 @@ public:
     // params/query_map can contain the join password, keep it out of the log
     bool isSensitive() const override { return true; }
 
-    bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
+    bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web) override
     {
         if (params.size() < 1)
             return false;
