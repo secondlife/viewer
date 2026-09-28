@@ -1693,8 +1693,8 @@ bool idle_startup()
         // *Note: this is where gWorldMap used to be initialized.
 
         // register null callbacks for audio until the audio system is initialized
-        gMessageSystem->setHandlerFuncFast(_PREHASH_SoundTrigger, null_message_callback, NULL);
-        gMessageSystem->setHandlerFuncFast(_PREHASH_AttachedSound, null_message_callback, NULL);
+        gMessageSystem->setHandlerFuncThrdFast(_PREHASH_SoundTrigger, null_message_callback, NULL);
+        gMessageSystem->setHandlerFuncThrdFast(_PREHASH_AttachedSound, null_message_callback, NULL);
         do_startup_frame();
 
         //reset statistics

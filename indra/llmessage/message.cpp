@@ -3761,8 +3761,8 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
     LLTimer timeout;
 
     timeout.setTimerExpirySec(20.0);
-    setHandlerFuncFast(_PREHASH_StartPingCheck, null_message_callback, NULL);
-    setHandlerFuncFast(_PREHASH_CompletePingCheck, null_message_callback,
+    setHandlerFuncThrdFast(_PREHASH_StartPingCheck, null_message_callback, NULL);
+    setHandlerFuncThrdFast(_PREHASH_CompletePingCheck, null_message_callback,
                NULL);
 
     while (! timeout.hasExpired())
