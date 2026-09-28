@@ -41,6 +41,9 @@ class LLFloaterJoinHandler : public LLCommandHandler
 public:
     LLFloaterJoinHandler() : LLCommandHandler("floaterjoin", UNTRUSTED_THROTTLE) {}
 
+    // params/query_map can contain the join password, keep it out of the log
+    bool isSensitive() const override { return true; }
+
     bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
     {
         if (params.size() < 1)
