@@ -146,6 +146,15 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
     {
         std::string product_name = ll_convert<std::string>(std::wstring(device_instance_ptr->tszProductName));
 
+        // Only 3Dconnexion devices are handled by ndof: generic game controllers
+        // belong to LLGameControl (SDL), and opening them here too would feed the
+        // same physical input into the flycam twice.
+        if (!LLViewerJoystick::is3DConnexionDevice(product_name))
+        {
+            LL_DEBUGS("Joystick") << "Skipping non-3Dconnexion device: " << product_name << LL_ENDL;
+            return DIENUM_CONTINUE;
+        }
+
         LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
 
         bool init_device = false;
@@ -276,13 +285,13 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
     if (dev)
     {
         LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
-        if (joystick->mDriverState == JDS_UNINITIALIZED)
+        if (joystick->mDriverState == JDS_UNINITIALIZED && is3DConnexionDevice(dev->product))
         {
             LL_INFOS("Joystick") << "HotPlugAddCallback: will use device: " << (void*)(dev) << LL_ENDL;
             ndof_dump(stderr, dev);
             joystick->mNdofDev = dev;
             joystick->mDriverState = JDS_INITIALIZED;
-            joystick->mDeviceIs3DConnexion = is3DConnexionDevice(joystick->mNdofDev->product);
+            joystick->mDeviceIs3DConnexion = true;
             res = NDOF_KEEP_HOTPLUGGED;
         }
         joystick->updateEnabled(true);
@@ -391,8 +400,7 @@ void LLViewerJoystick::init(bool autoenable)
                 }
                 else
                 {
-                    mDriverState = JDS_INITIALIZED;
-                    mDeviceIs3DConnexion = is3DConnexionDevice(mNdofDev->product);
+                    acceptInitializedDevice();
                 }
             }
 #endif
@@ -492,8 +500,7 @@ void LLViewerJoystick::initDevice(LLSD &guid)
         }
         else
         {
-            mDriverState = JDS_INITIALIZED;
-            mDeviceIs3DConnexion = is3DConnexionDevice(mNdofDev->product);
+            acceptInitializedDevice();
         }
     }
 #endif
@@ -577,10 +584,29 @@ bool LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE
     }
     else
     {
+        return acceptInitializedDevice();
+    }
+#endif
+    return false;
+}
+
+bool LLViewerJoystick::acceptInitializedDevice()
+{
+#if LIB_NDOF
+    // ndof_init_first() will open any joystick-like device (e.g. an Xbox
+    // controller via DirectInput), but ndof is only meant to drive 3Dconnexion
+    // devices: everything else is handled by LLGameControl (SDL).  Accepting a
+    // generic controller here would have both paths drive the flycam from the
+    // same physical input.
+    mDeviceIs3DConnexion = is3DConnexionDevice(mNdofDev->product);
+    if (mDeviceIs3DConnexion)
+    {
         mDriverState = JDS_INITIALIZED;
-        mDeviceIs3DConnexion = is3DConnexionDevice(mNdofDev->product);
         return true;
     }
+    LL_INFOS("Joystick") << "Ignoring non-3Dconnexion device: " << ll_safe_string(mNdofDev->product) << LL_ENDL;
+    // Leave the state as INITIALIZING so callers still report "no matching device"
+    mDriverState = JDS_INITIALIZING;
 #endif
     return false;
 }
@@ -604,7 +630,7 @@ void LLViewerJoystick::terminate()
 void LLViewerJoystick::updateStatus()
 {
 #if LIB_NDOF
-    if (mNdofDev != NULL)
+    if (mNdofDev != NULL && mDriverState == JDS_INITIALIZED)
     {
         ndof_update(mNdofDev);
         for (int i=0; i<6; i++)
@@ -1500,8 +1526,13 @@ std::string LLViewerJoystick::getDescription()
 }
 
 // static
-bool LLViewerJoystick::is3DConnexionDevice(const std::string& device_name)
+bool LLViewerJoystick::is3DConnexionDevice(const std::string& full_name)
 {
+    // Linux (evdev) prefixes the product with the vendor, e.g. "3Dconnexion SpaceNavigator"
+    const std::string VENDOR_PREFIX("3Dconnexion ");
+    std::string device_name = full_name.compare(0, VENDOR_PREFIX.size(), VENDOR_PREFIX) == 0
+        ? full_name.substr(VENDOR_PREFIX.size())
+        : full_name;
     bool answer = device_name.find("Space") == 0
         && ( (device_name.find("SpaceNavigator") == 0)
             || (device_name.find("SpaceExplorer") == 0)
