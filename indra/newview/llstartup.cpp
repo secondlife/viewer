@@ -415,11 +415,19 @@ void pump_idle_startup_network(void)
     // while there are message to process:
     //     process one then call display_startup()
     {
-        LockMessageChecker lmc(gMessageSystem);
-        while (lmc.checkAllMessages(gFrameCount, gServicePump))
+        std::unique_ptr<LLDecodedMessage> decoded;
+        while (gMessageSystem->tryPopDecoded(decoded))
         {
+            gMessageSystem->dispatchDecoded(*decoded);
             display_startup();
+
+            if (gDoDisconnect)
+            {
+                break;
+            }
         }
+
+        LockMessageChecker lmc(gMessageSystem);
         lmc.processAcks();
     }
     // finally call one last display_startup()

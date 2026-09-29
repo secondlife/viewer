@@ -6025,8 +6025,7 @@ void LLAppViewer::idleNetwork()
         LLTimer check_message_timer;
         S32 total_decoded = 0;
 
-        // Drain messages already decoded by LLUDPReceiverThread, instead of
-        // decoding+dispatching in one step via checkAllMessages().
+        // Drain messages already decoded by LLUDPReceiverThread.
         std::unique_ptr<LLDecodedMessage> decoded;
         while (gMessageSystem->tryPopDecoded(decoded))   // pops from the decoder->dispatch queue
         {

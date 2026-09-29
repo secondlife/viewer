@@ -320,10 +320,7 @@ private:
 
 /**
  * LockMessageReader is great as long as you only need mMessageReader locked
- * during a single LLMessageSystem function call. However, empirically the
- * sequence from checkAllMessages() through processAcks() need mMessageReader
- * locked to LLTemplateMessageReader. Enforce that by making them require an
- * instance of LockMessageChecker.
+ * during a single LLMessageSystem function call.
  */
 class LockMessageChecker;
 
@@ -472,7 +469,7 @@ public:
     bool addCircuitCode(U32 code, const LLUUID& session_id);
 
     bool    poll(F32 seconds); // Number of seconds that we want to block waiting for data, returns if data was received
-    bool    checkMessages(LockMessageChecker&, S64 frame_count = 0 );
+    // bool    checkMessages(LockMessageChecker&, S64 frame_count = 0 );
     void    processAcks(LockMessageChecker&, F32 collect_time = 0.f);
 
     // returns total number of buffered packets after the drain
@@ -883,9 +880,6 @@ public:
         const std::string& message,
         const LLSD& data);
 
-    // Check UDP messages and pump http_pump to receive HTTP messages.
-    bool checkAllMessages(LockMessageChecker&, S64 frame_count, LLPumpIO* http_pump);
-
     // Moved to allow access from LLTemplateMessageDispatcher
     void clearReceiveState();
 
@@ -1073,23 +1067,6 @@ class LockMessageChecker: public LockMessageReader
 {
 public:
     LockMessageChecker(LLMessageSystem* msgsystem);
-
-    // For convenience, provide forwarding wrappers so you can call (e.g.)
-    // checkAllMessages() on your LockMessageChecker instance instead of
-    // passing the instance to LLMessageSystem::checkAllMessages(). Use
-    // perfect forwarding to avoid having to maintain these wrappers in sync
-    // with the target methods.
-    template <typename... ARGS>
-    bool checkAllMessages(ARGS&&... args)
-    {
-        return mMessageSystem->checkAllMessages(*this, std::forward<ARGS>(args)...);
-    }
-
-    template <typename... ARGS>
-    bool checkMessages(ARGS&&... args)
-    {
-        return mMessageSystem->checkMessages(*this, std::forward<ARGS>(args)...);
-    }
 
     template <typename... ARGS>
     void processAcks(ARGS&&... args)

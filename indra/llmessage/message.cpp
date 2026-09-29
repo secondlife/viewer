@@ -749,6 +749,7 @@ LLCircuitData* LLMessageSystem::findCircuit(const LLHost& host,
 // Returns true if a valid, on-circuit message has been received.
 // Requiring a non-const LockMessageChecker reference ensures that
 // mMessageReader has been set to mTemplateMessageReader.
+/*
 bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
 {
     // Pump
@@ -841,7 +842,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
                 for(S32 i = 0; i < num_acks; ++i)
                 {
                     true_rcv_size -= sizeof(TPACKETID);
-                    memcpy(&mem_id, &sTrueReceiveBuffer[true_rcv_size], /* Flawfinder: ignore*/
+                    memcpy(&mem_id, &sTrueReceiveBuffer[true_rcv_size],
                          sizeof(TPACKETID));
                     packet_id = ntohl(mem_id);
                     //LL_INFOS("Messaging") << "got ack: " << packet_id << LL_ENDL;
@@ -998,7 +999,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
     }
 
     return valid_packet;
-}
+}*/
 
 S32 LLMessageSystem::getReceiveBytes() const
 {
@@ -3792,12 +3793,19 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
     {
         LL_ERRS("Messaging") << "Trying to establish bidirectional trust on a machine without a shared secret!" << LL_ENDL;
     }
+
+    std::atomic<bool> got_complete_ping{ false };
+    LLHost complete_ping_sender;
     LLTimer timeout;
 
     timeout.setTimerExpirySec(20.0);
+
     setHandlerFuncThrdFast(_PREHASH_StartPingCheck, null_message_callback, NULL);
-    setHandlerFuncThrdFast(_PREHASH_CompletePingCheck, null_message_callback,
-               NULL);
+    setHandlerFuncThrdFast(_PREHASH_CompletePingCheck,
+        [](LLMessageSystem* msg, void** user_data)
+    {
+        *reinterpret_cast<std::atomic<bool>*>(user_data[0]) = true;
+    }, reinterpret_cast<void**>(&got_complete_ping));
 
     while (! timeout.hasExpired())
     {
@@ -3806,14 +3814,19 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
         addU8Fast(_PREHASH_PingID, 0);
         addU32Fast(_PREHASH_OldestUnacked, 0);
         sendMessage(host);
-        if (lmc.checkMessages( frame_count ))
+
+        std::unique_ptr<LLDecodedMessage> decoded;
+        while (tryPopDecoded(decoded))
         {
-            if (isMessageFast(_PREHASH_CompletePingCheck) &&
-                (getSender() == host))
-            {
-                break;
-            }
+            dispatchDecoded(*decoded);
         }
+
+        if (got_complete_ping)
+        {
+            break;
+        }
+
+        LockMessageChecker lmc(this);
         lmc.processAcks();
         ms_sleep(1);
     }
@@ -3833,7 +3846,14 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
         cdp = mCircuitInfo.findCircuit(host);
         if(!cdp) break; // no circuit anymore, no point continuing.
         if(cdp->getTrusted()) break; // circuit is trusted.
-        lmc.checkMessages(frame_count);
+
+        std::unique_ptr<LLDecodedMessage> decoded;
+        while (tryPopDecoded(decoded))
+        {
+            dispatchDecoded(*decoded);
+        }
+
+        LockMessageChecker lmc(this);
         lmc.processAcks();
         ms_sleep(1);
     }
@@ -4499,20 +4519,6 @@ LockMessageChecker::LockMessageChecker(LLMessageSystem* msgsystem):
     LockMessageReader(msgsystem->mMessageReader, msgsystem->mTemplateMessageReader),
     mMessageSystem(msgsystem)
 {}
-
-// HACK! babbage: return true if message rxed via either UDP or HTTP
-// TODO: babbage: move gServicePump in to LLMessageSystem?
-bool LLMessageSystem::checkAllMessages(LockMessageChecker& lmc, S64 frame_count, LLPumpIO* http_pump)
-{
-    if(lmc.checkMessages(frame_count))
-    {
-        return true;
-    }
-    U32 packetsIn = mPacketsIn;
-    http_pump->pump();
-    http_pump->callback();
-    return (mPacketsIn - packetsIn) > 0;
-}
 
 void LLMessageSystem::banUdpMessage(const std::string& name)
 {
