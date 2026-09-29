@@ -3246,13 +3246,18 @@ void LLSelectMgr::adjustTexturesByScale(bool send_to_sim, bool stretch)
 
                             LLVector2 scales = selectNode->mGLTFScales[te_num][i];
                             LLVector2 offsets = selectNode->mGLTFOffsets[te_num][i];
+                            F32 scale_delta_x = (scales[VX] - scale_x) * 0.5f;
+                            F32 scale_delta_y = (scales[VY] - scale_y) * 0.5f;
+                            F32 rotation = material->mTextureTransform[i].mRotation;
+                            F32 cos_rotation = cosf(rotation);
+                            F32 sin_rotation = sinf(rotation);
                             F64 int_part = 0;
-                            offset_x = (F32)modf((offsets[VX] + (scales[VX] - scale_x)) / 2, &int_part);
+                            offset_x = (F32)modf(offsets[VX] + cos_rotation * scale_delta_x + sin_rotation * scale_delta_y, &int_part);
                             if (offset_x < 0)
                             {
                                 offset_x++;
                             }
-                            offset_y = (F32)modf((offsets[VY] + (scales[VY] - scale_y)) / 2, &int_part);
+                            offset_y = (F32)modf(offsets[VY] - sin_rotation * scale_delta_x + cos_rotation * scale_delta_y, &int_part);
                             if (offset_y < 0)
                             {
                                 offset_y++;
