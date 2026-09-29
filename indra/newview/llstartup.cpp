@@ -2989,11 +2989,11 @@ void register_viewer_callbacks(LLMessageSystem* msg)
     msg->setHandlerFuncFast(_PREHASH_AvatarPicksReply,      LLAvatarPropertiesProcessor::processAvatarPicksReply);
     msg->setHandlerFuncFast(_PREHASH_AvatarClassifiedReply, LLAvatarPropertiesProcessor::processAvatarClassifiedsReply);
 
-    msg->setHandlerFuncFast(_PREHASH_CreateGroupReply,      LLGroupMgr::processCreateGroupReply);
-    msg->setHandlerFuncFast(_PREHASH_JoinGroupReply,        LLGroupMgr::processJoinGroupReply);
-    msg->setHandlerFuncFast(_PREHASH_EjectGroupMemberReply, LLGroupMgr::processEjectGroupMemberReply);
-    msg->setHandlerFuncFast(_PREHASH_LeaveGroupReply,       LLGroupMgr::processLeaveGroupReply);
-    msg->setHandlerFuncFast(_PREHASH_GroupProfileReply,     LLGroupMgr::processGroupPropertiesReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_CreateGroupReply,      LLGroupMgr::processCreateGroupReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_JoinGroupReply,        LLGroupMgr::processJoinGroupReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_EjectGroupMemberReply, LLGroupMgr::processEjectGroupMemberReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_LeaveGroupReply,       LLGroupMgr::processLeaveGroupReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_GroupProfileReply,     LLGroupMgr::processGroupPropertiesReply);
 
     // ratings deprecated
     //msg->setHandlerFuncFast(_PREHASH_ReputationIndividualReply,    LLFloaterRate::processReputationIndividualReply);
