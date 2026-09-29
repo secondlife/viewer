@@ -58,7 +58,17 @@ void LLUIColor::set(const LLUIColor* color)
 
 const LLColor4& LLUIColor::get() const
 {
-    return (mColorPtr == NULL ? mColor : mColorPtr->get());
+    const LLUIColor* cur = this;
+    size_t depth = 0;
+    constexpr size_t MAX_COLOR_DEPTH = 4;
+
+    while (cur->mColorPtr != nullptr && depth < MAX_COLOR_DEPTH)
+    {
+        cur = cur->mColorPtr;
+        depth++;
+    }
+
+    return cur->mColor;
 }
 
 LLUIColor::operator const LLColor4& () const
