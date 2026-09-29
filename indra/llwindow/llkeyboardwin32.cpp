@@ -321,4 +321,46 @@ U16  LLKeyboardWin32::inverseTranslateExtendedKey(const KEY translated_key)
     return inverseTranslateKey(converted_key);
 }
 
+std::string LLKeyboardWin32::stringFromAcceleratorMenuKeyImpl(KEY key, bool translate)
+{
+    U16 os_key = inverseTranslateExtendedKey(key);
+    if (os_key == 0)
+    {
+        return LLKeyboard::stringFromAcceleratorMenuKeyImpl(key, translate);
+    }
+
+    HKL layout = GetKeyboardLayout(0);
+    UINT scan_code = MapVirtualKeyEx(os_key, MAPVK_VK_TO_VSC, layout);
+    BYTE keyboard_state[256] = {};
+    wchar_t chars[8] = {};
+    int res = ToUnicodeEx(
+        os_key,
+        scan_code,
+        keyboard_state,
+        chars,
+        8,
+        1 << 2,
+        layout);
+
+    if ((res == 1 || res == -1) && chars[0] >= 0x20)
+    {
+        std::string key_string = ll_convert_wide_to_string(std::wstring(chars, 1));
+        if (!key_string.empty())
+        {
+            if (translate)
+            {
+                LLKeyStringTranslatorFunc* trans = mStringTranslator;
+                if (trans != NULL)
+                {
+                    key_string = trans(key_string);
+                }
+            }
+
+            return key_string;
+        }
+    }
+
+    return LLKeyboard::stringFromAcceleratorMenuKeyImpl(key, translate);
+}
+
 #endif
