@@ -62,6 +62,8 @@
  <integer>7</integer>\n\
  <key>perms_interact</key>\n\
  <integer>7</integer>\n\
+ <key>transparent_background</key>\n\
+ <boolean>0</boolean>\n\
  <key>whitelist_enable</key>\n\
  <boolean>0</boolean>\n\
  <key>width_pixels</key>\n\
@@ -95,6 +97,8 @@
  <integer>0</integer>\n\
  <key>perms_interact</key>\n\
  <integer>0</integer>\n\
+ <key>transparent_background</key>\n\
+ <boolean>0</boolean>\n\
  <key>whitelist_enable</key>\n\
  <boolean>0</boolean>\n\
  <key>width_pixels</key>\n\
@@ -128,6 +132,8 @@
  <integer>0</integer>\n\
  <key>perms_interact</key>\n\
  <integer>0</integer>\n\
+ <key>transparent_background</key>\n\
+ <boolean>0</boolean>\n\
  <key>whitelist_enable</key>\n\
  <boolean>0</boolean>\n\
  <key>width_pixels</key>\n\
