@@ -479,6 +479,24 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
 
     LLHost host = pkt.getHost();
     LLCircuitData* cdp = mCircuitInfo.findCircuit(host);
+    const TPACKETID recv_packet_id = ntohl(*((U32*)(&buffer[1])));
+    const bool recv_reliable = (buffer[0] & LL_RELIABLE_FLAG) != 0;
+    const bool recv_resent = (buffer[0] & LL_RESENT_FLAG) != 0;
+
+    if (cdp && recv_resent)
+    {
+        std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
+        if (cdp->isDuplicateResend(recv_packet_id))
+        {
+            if (recv_reliable)
+            {
+                cdp->collectRAck(recv_packet_id);
+            }
+            LL_DEBUGS("Messaging") << "Discarding duplicate resend from " << host << LL_ENDL;
+            mPacketsIn++;
+            return nullptr;
+        }
+    }
 
     // UseCircuitCode is allowed in even from an invalid circuit, so that
     // we can toss circuits around; everything else requires cdp.
@@ -509,7 +527,7 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
         return nullptr;
     }
 
-    logValidMsg(cdp, host, pkt.getPacketIDChecked(), false, false, pkt.getPacketIDChecked());
+    logValidMsg(cdp, host, recv_reliable, recv_resent, false, pkt.getPacketIDChecked());
 
     auto decoded = std::make_unique<LLDecodedMessage>();
     {
@@ -531,6 +549,14 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
 
     mPacketsIn++;
     mBytesIn += pkt.getSize();
+
+    if (cdp && recv_reliable)
+    {
+        std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
+        cdp->mRecentlyReceivedReliablePackets[recv_packet_id] = getMessageTimeUsecs();
+        cdp->collectRAck(recv_packet_id);
+        mReliablePacketsIn++;
+    }
 
     return decoded;
 }
