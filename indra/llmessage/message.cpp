@@ -475,7 +475,7 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
         }
     }
 
-    zeroCodeExpand(&buffer, &receive_size);
+    S32 compressed_size = zeroCodeExpand(&buffer, &receive_size);
 
     LLHost host = pkt.getHost();
     LLCircuitData* cdp = mCircuitInfo.findCircuit(host);
@@ -523,7 +523,10 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     }
     decoded->mTemplate = mTemplateMessageReader->getCurrentTemplate();
     decoded->mSender = host;
+    decoded->mReceivingInterface = pkt.getReceivingInterface();
+    decoded->mPacketID = ntohl(*((U32*)(&buffer[1])));
     decoded->mTrusted = trusted;
+    decoded->mCompressedSize = compressed_size;
     decoded->mReceiveSize = mTemplateMessageReader->getCurrentReceiveSize();
 
     mPacketsIn++;
@@ -3463,6 +3466,9 @@ void LLMessageSystem::dispatchDecoded(LLDecodedMessage& msg)
 {
     // For main thread dispatch
     sLastSender = msg.mSender;
+    sLastReceivingIF = msg.mReceivingInterface;
+    sCurrentRecvPacketID = msg.mPacketID;
+    sIncomingCompressedSize = msg.mCompressedSize;
     dispatch_decoded_impl(this, msg, mDispatchMessageReader, mMessageReader);
 }
 
@@ -3470,6 +3476,9 @@ void LLMessageSystem::dispatchDecodedOnThread(LLDecodedMessage& msg)
 {
     // UDP thread only.
     sLastSender = msg.mSender;
+    sLastReceivingIF = msg.mReceivingInterface;
+    sCurrentRecvPacketID = msg.mPacketID;
+    sIncomingCompressedSize = msg.mCompressedSize;
     dispatch_decoded_impl(this, msg, mThrdDispatchMessageReader, mMessageReader);
 }
 
@@ -4558,4 +4567,3 @@ void LLMessageSystem::sendUntrustedSimulatorMessageCoro(std::string url, std::st
 
 LLHTTPRegistration<LLHTTPNodeAdapter<LLTrustedMessageService> >
     gHTTPRegistrationTrustedMessageWildcard("/trusted-message/<message-name>");
-

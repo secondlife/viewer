@@ -44,6 +44,9 @@ public:
     const LLMessageTemplate*        mTemplate = nullptr;   // stable pointer; templates never change after load
     std::unique_ptr<LLMsgData> mData;                // this message's OWN decoded data, not shared/reused
     LLHost                    mSender;
+    LLHost                    mReceivingInterface;
+    TPACKETID                 mPacketID = 0;
     bool                      mTrusted = false;
+    S32                       mCompressedSize = 0;
     S32                       mReceiveSize = -1;
 };
