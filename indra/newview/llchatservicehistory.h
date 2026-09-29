@@ -12,6 +12,7 @@
 
 #include "llavatarname.h"
 #include "llchatservicehistorycore.h"
+#include "llhandle.h"
 #include "llinstantmessage.h"
 #include "llsd.h"
 #include "lluuid.h"
@@ -68,7 +69,6 @@ namespace LLChatServiceHistory
 
     // Account-wide gates keep all historical sources fail-closed during unsafe state
     // recovery or transcript deletion.
-    bool enabledForLogin();
     U32 accountEpoch();
     bool historySuppressed();
     bool servicePresentationAllowed();
@@ -84,12 +84,38 @@ namespace LLChatServiceHistory
     // Views connect first and then query so they cannot miss an active-work transition.
     Snapshot getSnapshot(const LLUUID& resident_id);
     boost::signals2::connection setSnapshotChanged(const snapshot_callback_t& callback);
-    using History = LLChatServiceHistoryCore::History;
     using Messages = LLChatServiceHistoryCore::Messages;
 
-    // Both views compose from their loaded history; open IMs also retain visible context.
-    Messages composeHistory(History& history, const Snapshot& snapshot, U32 limit,
-                            const LLUUID& session_id = LLUUID::null);
+    // A view owns its subscription and current read. Callbacks run on the main loop;
+    // the handle and request token reject results after destruction or reload.
+    class History : public LLHandleProvider<History>
+    {
+    public:
+        using callback_t = boost::function<void(const Messages&)>;
+        void load(const LLUUID& resident_id, const std::string& legacy_stem, U32 limit,
+                  const callback_t& callback, const LLUUID& session_id = LLUUID::null);
+        void clear();
+        void stop();
+        bool isLoading() const { return mLoading; }
+
+    private:
+        void reload();
+        void onSnapshot(const Snapshot& snapshot);
+        void publish(const Snapshot& snapshot);
+
+        LLUUID mResidentID;
+        LLUUID mSessionID;
+        std::string mLegacyStem;
+        U32 mLimit = 0;
+        U64 mToken = 0;
+        U32 mArchiveSerial = 0;
+        bool mLoading = false;
+        bool mServiceAllowed = false;
+        LLChatServiceHistoryCore::History mHistory;
+        callback_t mCallback;
+        boost::signals2::scoped_connection mConnection;
+    };
+
     bool replaceHistory(Messages& current, const Messages& history, bool direct);
 
     // Core IM delivery carries one opaque context through translation and logging.

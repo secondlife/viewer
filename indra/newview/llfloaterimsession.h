@@ -190,8 +190,6 @@ private:
 
     bool mSessionInitialized;
 
-    // Cache the rendered state so draw() starts or stops the loading indicator only on transitions.
-    bool mChatServiceLoadingVisible;
     LLSD mQueuedMsgsForInit;
 
     uuid_vec_t mInvitedParticipants;

@@ -52,7 +52,6 @@
 #include "lltrans.h"
 #include "llchathistory.h"
 #include "llchatservicehistory.h"
-#include "llloadingindicator.h"
 #include "llnotifications.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -83,7 +82,6 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
     mTypingTimeoutTimer(),
     mPositioned(false),
     mSessionInitialized(false),
-    mChatServiceLoadingVisible(false),
     mMeTypingTimer(),
     mOtherTypingTimer()
 {
@@ -1131,21 +1129,8 @@ void LLFloaterIMSession::draw()
         (mSession->isChatHistoryLoading() ||
          LLChatServiceHistory::getSnapshot(mSession->mOtherParticipantID).service_work_active);
 
-    if (loading != mChatServiceLoadingVisible)
-    {
-        mChatServiceLoadingVisible = loading;
-        getChildView("chat_service_loading")->setVisible(loading);
-        LLLoadingIndicator* indicator =
-            getChild<LLLoadingIndicator>("chat_service_loading_wheel");
-        if (loading)
-        {
-            indicator->start();
-        }
-        else
-        {
-            indicator->stop();
-        }
-    }
+    // The widget animates in draw(); hiding its panel suspends that work.
+    getChildView("chat_service_loading")->setVisible(loading);
 
     // add people who were added via dropPerson()
     if (!mPendingParticipants.empty())

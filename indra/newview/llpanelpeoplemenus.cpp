@@ -38,7 +38,6 @@
 #include "llavataractions.h"
 #include "llcallingcard.h"          // for LLAvatarTracker
 #include "lllogchat.h"
-#include "llchatservicehistory.h"
 #include "llparcel.h"
 #include "llviewermenu.h"           // for gMenuHolder
 #include "llconversationmodel.h"
@@ -248,9 +247,7 @@ bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
     }
     else if (item == std::string("can_callog"))
     {
-        return !LLChatServiceHistory::historySuppressed() &&
-               (LLLogChat::isTranscriptExist(mUUIDs.front()) ||
-                LLChatServiceHistory::localHistoryExists(mUUIDs.front()));
+        return LLLogChat::isTranscriptExist(mUUIDs.front());
     }
     else if (item == std::string("can_im") || item == std::string("can_invite"))
     {

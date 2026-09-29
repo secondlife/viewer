@@ -1277,7 +1277,7 @@ void LLAvatarActions::viewChatHistory(const LLUUID& id)
         }
     }
 
-    if (LLLogChat::isTranscriptExist(id) || LLChatServiceHistory::localHistoryExists(id))
+    if (LLLogChat::isTranscriptExist(id))
     {
         LLAvatarName avatar_name;
         LLSD extended_id(id);

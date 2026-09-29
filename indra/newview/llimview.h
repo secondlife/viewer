@@ -119,16 +119,13 @@ public:
 
         // Direct history is an asynchronous overlay; these operations never discard live rows.
         void loadHistory();
-        void startHistoryLoading();
         void replaceHistoricalMessages(const chat_message_list_t& history);
-        void applyChatServiceSnapshot(const LLChatServiceHistory::Snapshot& snapshot);
-        void clearHistoricalMessages();
 
         // Account deletion is the explicit exception that clears both live and historical rows.
         void clearForHistoryDeletion();
         bool isChatHistoryLoading() const
         {
-            return mChatHistoryLocalLoading;
+            return mChatServiceHistory.isLoading();
         }
 
         LLUUID mSessionID;
@@ -157,12 +154,6 @@ public:
         // Historical rows are replaced as one overlay so live rows remain untouched.
         LLChatServiceHistory::History mChatServiceHistory;
 
-        // Process-unique tokens and archive serials reject stale asynchronous reads.
-        U64 mChatHistoryLoadToken = 0;
-        U32 mChatHistoryArchiveSerial = 0;
-        bool mChatHistoryLocalLoading = false;
-        bool mChatServicePresentationAllowed = false;
-
         LLVoiceChannel* mVoiceChannel;
         LLIMSpeakerMgr* mSpeakers;
         bool            mP2PAsAdhocCall;
@@ -188,7 +179,6 @@ public:
 
         static LLUUID generateHash(const std::set<LLUUID>& sorted_uuids);
         boost::signals2::connection mAvatarNameCacheConnection;
-        boost::signals2::connection mChatServiceSnapshotConnection;
     };
 
 

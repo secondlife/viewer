@@ -25,8 +25,8 @@
 #endif
 
 #include <algorithm>
+#include <boost/regex.hpp>
 #include <cerrno>
-#include <cctype>
 #include <limits>
 #include <map>
 #include <set>
@@ -190,29 +190,29 @@ namespace
         value = field.asString();
         return true;
     }
+}
 
-    bool inspectRegularFile(const std::string& path, bool& exists)
-    {
-        exists = false;
+bool inspectRegular(const std::string& path, bool& exists)
+{
+    exists = false;
 #if LL_WINDOWS
-        const DWORD attributes = GetFileAttributesW(ll_convert<std::wstring>(path).c_str());
-        if (attributes == INVALID_FILE_ATTRIBUTES)
-        {
-            return GetLastError() == ERROR_FILE_NOT_FOUND ||
-                   GetLastError() == ERROR_PATH_NOT_FOUND;
-        }
-        exists = true;
-        return !(attributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT));
-#else
-        struct stat status;
-        if (::lstat(path.c_str(), &status) != 0)
-        {
-            return errno == ENOENT;
-        }
-        exists = true;
-        return S_ISREG(status.st_mode);
-#endif
+    const DWORD attributes = GetFileAttributesW(ll_convert<std::wstring>(path).c_str());
+    if (attributes == INVALID_FILE_ATTRIBUTES)
+    {
+        return GetLastError() == ERROR_FILE_NOT_FOUND ||
+               GetLastError() == ERROR_PATH_NOT_FOUND;
     }
+    exists = true;
+    return !(attributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT));
+#else
+    struct stat status;
+    if (::lstat(path.c_str(), &status) != 0)
+    {
+        return errno == ENOENT;
+    }
+    exists = true;
+    return S_ISREG(status.st_mode);
+#endif
 }
 
 bool TimeUuidKey::operator==(const TimeUuidKey& rhs) const
@@ -663,36 +663,25 @@ bool legacyWallMayPrecedeService(F64 wall_epoch, F64 service_epoch)
 
 bool parseCreatedAt(const std::string& text, std::string& normalized)
 {
-    // Validate the complete wire shape before LLDate performs calendar conversion.
-    static const U32 DIGIT_POSITIONS[] = {
-        0, 1, 2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18
-    };
-    if (text.size() < 19 || text[4] != '-' || text[7] != '-' || text[10] != 'T' ||
-        text[13] != ':' || text[16] != ':')
+    // Match the entire ISO timestamp, with bounded clock/offset fields and an
+    // optional nonempty fraction. LLDate itself also accepts malformed suffixes.
+    static const boost::regex shape(
+        R"(([0-9]{4})-([0-9]{2})-([0-9]{2})T)"
+        R"((?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9])"
+        R"((?:\.[0-9]+)?(Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])?)");
+    boost::smatch fields;
+    if (!boost::regex_match(text, fields, shape))
     {
         return false;
     }
 
-    // Reject signed, variable-width, and otherwise non-decimal date fields before
-    // converting the fixed calendar components.
-    for (U32 position : DIGIT_POSITIONS)
-    {
-        if (text[position] < '0' || text[position] > '9')
-        {
-            return false;
-        }
-    }
-
-    const U32 year = std::stoi(text.substr(0, 4));
-    const U32 month = std::stoi(text.substr(5, 2));
-    const U32 day = std::stoi(text.substr(8, 2));
-    const U32 hour = std::stoi(text.substr(11, 2));
-    const U32 minute = std::stoi(text.substr(14, 2));
-    const U32 second = std::stoi(text.substr(17, 2));
+    const U32 year = std::stoi(fields[1]);
+    const U32 month = std::stoi(fields[2]);
+    const U32 day = std::stoi(fields[3]);
     static const U32 DAYS_PER_MONTH[] = {
         31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     };
-    if (!year || month < 1 || month > 12 || hour > 23 || minute > 59 || second > 59)
+    if (!year || month < 1 || month > 12)
     {
         return false;
     }
@@ -708,57 +697,8 @@ bool parseCreatedAt(const std::string& text, std::string& normalized)
         return false;
     }
 
-    // Fractional seconds are optional but must contain at least one digit.
-    size_t position = 19;
-    if (position < text.size() && text[position] == '.')
-    {
-        const size_t fraction = ++position;
-        while (position < text.size() && text[position] >= '0' && text[position] <= '9')
-        {
-            ++position;
-        }
-        if (position == fraction)
-        {
-            return false;
-        }
-    }
-
-    // Offset-less service timestamps are normalized to UTC. Explicit zones must
-    // consume the complete suffix and remain within clock bounds.
-    std::string parsed = text;
-    if (position == text.size())
-    {
-        parsed += 'Z';
-    }
-    else if (text[position] == 'Z')
-    {
-        if (position + 1 != text.size())
-        {
-            return false;
-        }
-    }
-    else if (text[position] == '+' || text[position] == '-')
-    {
-        if (position + 6 != text.size() || text[position + 3] != ':' ||
-            !std::isdigit(static_cast<unsigned char>(text[position + 1])) ||
-            !std::isdigit(static_cast<unsigned char>(text[position + 2])) ||
-            !std::isdigit(static_cast<unsigned char>(text[position + 4])) ||
-            !std::isdigit(static_cast<unsigned char>(text[position + 5])))
-        {
-            return false;
-        }
-        const U32 hours = (text[position + 1] - '0') * 10 + text[position + 2] - '0';
-        const U32 minutes = (text[position + 4] - '0') * 10 + text[position + 5] - '0';
-        if (hours > 23 || minutes > 59)
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
-
+    // Offset-less timestamps are UTC; preserve an explicit zone and fractional precision.
+    const std::string parsed = fields[4].matched ? text : text + 'Z';
     LLDate date;
     if (!date.fromString(parsed))
     {
@@ -781,7 +721,6 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
     }
 
     std::set<LLUUID> residents;
-    std::set<std::string> conversations;
     for (LLSD::array_const_iterator it = value.beginArray(); it != value.endArray(); ++it)
     {
         // Every list row must have a known type and bounded canonical identifiers,
@@ -812,8 +751,7 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
             resident == agent_id ||
             !parseTimeUuid(token, token_key) ||
             conversation != directConversationId(agent_id, resident) ||
-            !residents.insert(resident).second ||
-            !conversations.insert(conversation).second)
+            !residents.insert(resident).second)
         {
             return false;
         }
@@ -822,7 +760,7 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
         // resident conversations can have a local history archive.
         if (resident.notNull())
         {
-            entries.push_back({resident, conversation, token});
+            entries.push_back({resident, token});
         }
     }
 
@@ -831,11 +769,11 @@ bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
 
 bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
                          const LLUUID& resident_id,
-                         const std::string& conversation_id,
                          const std::string& requested_cursor,
                          U64 deleted_before_ticks, Page& page)
 {
     page = Page();
+    const std::string conversation_id = directConversationId(agent_id, resident_id);
 
     // The service echoes the exact conversation and fixed page size. Coercible LLSD
     // types are rejected so paging state cannot drift across malformed responses.
@@ -863,12 +801,12 @@ bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
         return false;
     }
 
-    std::set<std::string> ids;
     TimeUuidKey previous;
     bool have_previous = false;
 
     // Validate every row before the page can affect scheduler or archive state.
-    // UUIDv1 keys must be unique, strictly descending, and below the request cursor.
+    // Strictly descending UUIDv1 keys below the cursor exclude duplicate IDs
+    // both within this page and across earlier pages in the same pass.
     for (LLSD::array_const_iterator it = value["messages"].beginArray();
          it != value["messages"].endArray(); ++it)
     {
@@ -882,7 +820,7 @@ bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
             !(*it)["dialog"].isInteger() ||
             !llsdString(*it, "created_at", row.created_at) ||
             row.conversation_id != conversation_id ||
-            !parseTimeUuid(row.msg_id, row.key) || !ids.insert(row.msg_id).second ||
+            !parseTimeUuid(row.msg_id, row.key) ||
             !parseCanonicalUuid(from_text, row.from_id) ||
             (row.from_id != agent_id && row.from_id != resident_id) ||
             !cleanText(row.from_name, 256) || !cleanText(row.message, 1024) ||
@@ -902,15 +840,15 @@ bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
         // same validated page remain suppressed and older paging terminates.
         if (row.key.ticks <= deleted_before_ticks)
         {
-            page.cutoff_reached = true;
+            page.terminal = true;
         }
-        else if (!page.cutoff_reached)
+        else
         {
             page.rows.push_back(row);
         }
     }
 
-    page.terminal = value["messages"].size() == 0 || page.cutoff_reached;
+    page.terminal = page.terminal || value["messages"].size() == 0;
     if (page.terminal)
     {
         page.next_cursor.clear();
@@ -950,7 +888,7 @@ void writeCsvRow(std::ostream& output, const Row& row)
 bool archiveStamp(const std::string& path, U64& file_size, S64& file_mtime)
 {
     bool exists = false;
-    if (!inspectRegularFile(path, exists) || !exists)
+    if (!inspectRegular(path, exists) || !exists)
     {
         return false;
     }
@@ -983,7 +921,7 @@ bool scanArchive(const std::string& path, const LLUUID& agent_id,
 
     // Only a regular canonical path may participate in archive reads.
     bool exists = false;
-    if (!inspectRegularFile(path, exists))
+    if (!inspectRegular(path, exists))
     {
         scan.state = ARCHIVE_FAILED;
         return false;
