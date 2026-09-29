@@ -37,7 +37,7 @@ class LLMsgData;
 struct LLDecodedMessage
 {
 public:
-    // Destructor neds to be in .cpp where LLMsgData is complete,
+    // Destructor needs to be in .cpp where LLMsgData is complete,
     // so unique_ptr's deleter can be instantiated
     ~LLDecodedMessage();
 

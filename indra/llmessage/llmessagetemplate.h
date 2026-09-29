@@ -125,7 +125,7 @@ public:
     {
         other.mMemberBlocks.clear(); // prevent double-delete in ~LLMsgData
     }
-    LLMsgData& operator=(LLMsgData&&) = default;
+    LLMsgData& operator=(LLMsgData&&) = delete;
     LLMsgData(const LLMsgData&) = delete;
     LLMsgData& operator=(const LLMsgData&) = delete;
 

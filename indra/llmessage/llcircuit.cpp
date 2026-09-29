@@ -447,7 +447,10 @@ LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
     // This should really validate if one already exists
     LL_INFOS() << "LLCircuit::addCircuitData for " << host << LL_ENDL;
     LLCircuitData *tempp = new LLCircuitData(host, in_id, mHeartbeatInterval, mHeartbeatTimeout);
-    mCircuitData.insert(circuit_data_map::value_type(host, tempp));
+    {
+        std::lock_guard<std::mutex> lock(mCircuitMutex);
+        mCircuitData.insert(circuit_data_map::value_type(host, tempp));
+    }
     mPingSet.insert(tempp);
 
     mLastCircuit = tempp;
@@ -458,6 +461,7 @@ void LLCircuit::removeCircuitData(const LLHost &host)
 {
     LL_INFOS() << "LLCircuit::removeCircuitData for " << host << LL_ENDL;
     mLastCircuit = NULL;
+    std::lock_guard<std::mutex> lock(mCircuitMutex);
     circuit_data_map::iterator it = mCircuitData.find(host);
     if(it != mCircuitData.end())
     {

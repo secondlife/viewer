@@ -277,6 +277,13 @@ LLCacheName::LLCacheName(LLMessageSystem* msg, const LLHost& upstream_host)
 
 LLCacheName::~LLCacheName()
 {
+    if (gMessageSystem != nullptr)
+    {
+        gMessageSystem->setHandlerFuncThrdFast(_PREHASH_UUIDNameRequest, nullptr, nullptr);
+        gMessageSystem->setHandlerFuncThrdFast(_PREHASH_UUIDNameReply, nullptr, nullptr);
+        gMessageSystem->setHandlerFuncThrdFast(_PREHASH_UUIDGroupNameRequest, nullptr, nullptr);
+        gMessageSystem->setHandlerFuncThrdFast(_PREHASH_UUIDGroupNameReply, nullptr, nullptr);
+    }
     delete &impl;
 }
 

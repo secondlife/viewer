@@ -268,7 +268,6 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
         mIncomingQueue = std::make_shared<LLUDPReceiverThread::PacketQueue>();
         mDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>();
         mReceiverThread = std::make_unique<LLUDPReceiverThread>(mSocket, mIncomingQueue);
-        mReceiverThread->start();
     }
 
 //  LL_DEBUGS("Messaging") <<  << "*** port: " << mPort << LL_ENDL;
@@ -348,13 +347,21 @@ void LLMessageSystem::loadTemplateFile(const std::string& filename, bool failure
 
 LLMessageSystem::~LLMessageSystem()
 {
+    // The thread must stop before the socket closes and before templates get cleaned up
+    if (mIncomingQueue)
+    {
+        mIncomingQueue->close();
+    }
+    if (mReceiverThread)
+    {
+        // This may wait for the thread to finish.
+        mReceiverThread->shutdown();
+    }
+
     mMessageTemplates.clear(); // don't delete templates.
     for_each(mMessageNumbers.begin(), mMessageNumbers.end(), DeletePairedPointer());
     mMessageNumbers.clear();
 
-    // The thread must stop before the socket closes
-    if (mIncomingQueue) mIncomingQueue->close();
-    if (mReceiverThread) mReceiverThread->shutdown();
 
     if (!mbError)
     {
@@ -367,6 +374,9 @@ LLMessageSystem::~LLMessageSystem()
 
     delete mDispatchMessageReader;
     mDispatchMessageReader = nullptr;
+
+    delete mThrdDispatchMessageReader;
+    mThrdDispatchMessageReader = nullptr;
 
     delete mTemplateMessageBuilder;
     mTemplateMessageBuilder = nullptr;
@@ -448,9 +458,23 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
         return nullptr;
     }
 
-    // zeroCodeExpand() writes through mEncodedRecvBuffer, a shared (non
-    // thread_local) member -- see the thread-safety note above.
     U8* buffer = (U8*)pkt.getData();
+    if (buffer[0] & LL_ACK_FLAG)
+    {
+        U8 num_acks = buffer[receive_size - 1];
+        const S32 acks_bytes = 1 + static_cast<S32>(num_acks) * sizeof(TPACKETID);
+        if (receive_size >= acks_bytes + (S32)LL_MINIMUM_VALID_PACKET_SIZE)
+        {
+            receive_size -= acks_bytes;
+        }
+        else
+        {
+            LL_WARNS("Messaging") << "Malformed packet received. Packet size "
+                << receive_size << " with invalid no. of acks " << num_acks << LL_ENDL;
+            return nullptr;
+        }
+    }
+
     zeroCodeExpand(&buffer, &receive_size);
 
     LLHost host = pkt.getHost();
@@ -2982,6 +3006,7 @@ bool start_messaging_system(
     {
         return false;
     }
+    gMessageSystem->startUDPThread();
 
     if (b_dump_prehash_file)
     {

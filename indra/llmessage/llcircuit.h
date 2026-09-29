@@ -280,7 +280,7 @@ protected:
     const F32Seconds mHeartbeatInterval;
     const F32Seconds mHeartbeatTimeout;
 
-    // This mutexguards mUnackedPackets, mFinalRetryPackets,
+    // This mutex guards mUnackedPackets, mFinalRetryPackets,
     // mRecentlyReceivedReliablePackets, mAcks,
     // mPacketsInID, mHighestPacketID, counters
     mutable std::mutex mDataMutex;
