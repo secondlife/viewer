@@ -99,7 +99,12 @@ LLConversation::~LLConversation()
 
 void LLConversation::updateTimestamp()
 {
-    mTime = (U64Seconds)time_corrected();
+    updateTimestamp((U64Seconds)time_corrected());
+}
+
+void LLConversation::updateTimestamp(const U64Seconds& utc_time)
+{
+    mTime = utc_time;
     mTimestamp = createTimestamp(mTime);
 }
 
@@ -388,6 +393,53 @@ void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string
     logConversation(session_id, has_offline_msg);
 }
 
+void LLConversationLog::addServiceConversation(const LLUUID& session_id,
+                                               const std::string& conversation_name,
+                                               const std::string& history_filename,
+                                               const LLUUID& participant_id,
+                                               const U64Seconds& archived_time)
+{
+    // Service publication follows the Conversation Log privacy setting.
+    if (!mLoggingEnabled)
+    {
+        return;
+    }
+
+    // Durable service activity advances one matching row but never regresses its
+    // timestamp or replaces retained metadata. Notify and cache only when its
+    // visible timestamp changes.
+    for (LLConversation& conversation : mConversations)
+    {
+        if (conversation.getSessionID() != session_id)
+        {
+            continue;
+        }
+
+        if (archived_time > conversation.getTime())
+        {
+            conversation.updateTimestamp(archived_time);
+            notifyParticularConversationObservers(
+                session_id, LLConversationLogObserver::CHANGED_TIME);
+            cache();
+        }
+        return;
+    }
+
+    // A durable archive supplies the P2P metadata normally obtained from a live session.
+    ConversationParams params;
+    params.time(archived_time)
+        .conversation_type(LLIMModel::LLIMSession::P2P_SESSION)
+        .has_offline_ims(false)
+        .conversation_name(conversation_name)
+        .participant_id(participant_id)
+        .session_id(session_id)
+        .history_filename(history_filename);
+
+    mConversations.emplace_back(params);
+    notifyObservers();
+    cache();
+}
+
 void LLConversationLog::cache()
 {
     if (gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0)
@@ -614,7 +666,9 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
         // CHUI-325
         // The conversation log should be capped to the last 30 days. Conversations with the last utterance
         // being over 30 days old should be purged from the conversation log text file on login.
-        if (conversation.isOlderThan(CONVERSATION_LIFETIME))
+        // P2P conversations are retained so accumulated local/service history remains discoverable.
+        if (conversation.getConversationType() != LLIMModel::LLIMSession::P2P_SESSION &&
+            conversation.isOlderThan(CONVERSATION_LIFETIME))
         {
             purge_required = true;
             continue;
