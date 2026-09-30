@@ -35,6 +35,7 @@
 
 #include "indra_constants.h"
 #include "llfile.h"
+#include "llformat.h"
 #include "llgamecontroltranslator.h"
 #include "llsd.h"
 #include "llsdl.h"
@@ -402,6 +403,11 @@ public:
     void addController(SDL_JoystickID id, const std::string& guid, const std::string& name);
     void removeController(SDL_JoystickID id);
 
+    // Remembers a controller connected at any point this session, for the viewer stats.
+    void recordSessionDevice(const std::string& guid, const std::string& name,
+        const std::string& type, U16 vendor, U16 product);
+    LLSD getSessionDevicesAsLLSD() const;
+
     const LLGameControl::Device* getLastActiveDevice() const;
 
     void onAxis(SDL_JoystickID id, U8 axis, S16 value);
@@ -497,6 +503,19 @@ private:
     U32 mLastActiveFlags { 0 };
     U32 mLastFlycamActionFlags { 0 };
     SDL_JoystickID mlastActiveControllerID { 0 };
+
+    // Every controller connected at some point this session, keyed by GUID.
+    // Unlike mDevices, entries persist after the device is disconnected.
+    struct SessionDevice
+    {
+        std::string mName;
+        std::string mType;
+        U16 mVendor { 0 };
+        U16 mProduct { 0 };
+        bool mUsed { false }; // produced a button press or out-of-dead-zone axis value
+    };
+    std::map<std::string, SessionDevice> mSessionDevices;
+    void markSessionDeviceUsed(const std::string& guid);
 
     // Persistent "is running" state, folded into AgentActions::mIsRunning by
     // computeAgentActions(): follows how hard the movement axes are pushed, with
@@ -1329,6 +1348,45 @@ void LLGameControllerManager::addController(SDL_JoystickID id, const std::string
     mDevices.emplace_back(id, guid, name).loadOptionsFromString(getDeviceOptionsString(guid));
 }
 
+void LLGameControllerManager::recordSessionDevice(const std::string& guid, const std::string& name,
+    const std::string& type, U16 vendor, U16 product)
+{
+    SessionDevice& device = mSessionDevices[guid];
+    device.mName = name;
+    device.mType = type;
+    device.mVendor = vendor;
+    device.mProduct = product;
+}
+
+void LLGameControllerManager::markSessionDeviceUsed(const std::string& guid)
+{
+    auto it = mSessionDevices.find(guid);
+    if (it != mSessionDevices.end())
+    {
+        it->second.mUsed = true;
+    }
+}
+
+LLSD LLGameControllerManager::getSessionDevicesAsLLSD() const
+{
+    LLSD result = LLSD::emptyArray();
+    for (const auto& [guid, device] : mSessionDevices)
+    {
+        bool connected = std::any_of(mDevices.begin(), mDevices.end(),
+            [&guid](const LLGameControl::Device& d) { return d.getGUID() == guid; });
+
+        LLSD entry;
+        entry["name"] = device.mName;
+        entry["type"] = device.mType;
+        entry["vendor_id"] = llformat("%04x", device.mVendor);
+        entry["product_id"] = llformat("%04x", device.mProduct);
+        entry["used"] = device.mUsed;
+        entry["connected"] = connected;
+        result.append(entry);
+    }
+    return result;
+}
+
 void LLGameControllerManager::removeController(SDL_JoystickID id)
 {
     LL_INFOS("SDL3") << "joystick id: " << id << LL_ENDL;
@@ -1487,6 +1545,11 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 raw_value)
     it->mState.mPhysicalRawAxes[phys]   = raw_value;
     it->mState.mPhysicalFixedAxes[phys] = fixed_value;
 
+    if (fixed_value != 0)
+    {
+        markSessionDeviceUsed(it->getGUID());
+    }
+
     routeAxisValue(it->mState, phys, phys_is_trigger, out, fixed_value, raw_value);
 }
 
@@ -1514,6 +1577,11 @@ void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool presse
     }
 
     mlastActiveControllerID = id;
+
+    if (pressed)
+    {
+        markSessionDeviceUsed(it->getGUID());
+    }
 
     // 'button' is the physical button index here; preserve its pressed state keyed by
     // that index for the preferences Device-State tab (whose rows are physical buttons)
@@ -3097,6 +3165,10 @@ void onControllerDeviceAdded(const SDL_Event& event)
     }
 
     g_manager.addController(event.gdevice.which, guid, name);
+    g_manager.recordSessionDevice(guid, name,
+        ll_safe_string(SDL_GetGamepadStringForType(type)),
+        SDL_GetGamepadVendorForID(event.gdevice.which),
+        SDL_GetGamepadProductForID(event.gdevice.which));
 
     // this event could happen while the preferences UI is open
     // in which case we need to force it to update
@@ -3414,6 +3486,16 @@ void LLGameControl::terminate()
 const std::list<LLGameControl::Device>& LLGameControl::getDevices()
 {
     return g_manager.mDevices;
+}
+
+// static
+LLSD LLGameControl::getSessionStatsAsLLSD()
+{
+    LLSD result;
+    result["initialized"] = isInitialized();
+    result["send_to_server"] = g_sendToServer;
+    result["devices"] = g_manager.getSessionDevicesAsLLSD();
+    return result;
 }
 
 //static

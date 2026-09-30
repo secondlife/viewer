@@ -602,6 +602,7 @@ bool LLViewerJoystick::acceptInitializedDevice()
     if (mDeviceIs3DConnexion)
     {
         mDriverState = JDS_INITIALIZED;
+        mSessionDevices.try_emplace(ll_safe_string(mNdofDev->product), false);
         return true;
     }
     LL_INFOS("Joystick") << "Ignoring non-3Dconnexion device: " << ll_safe_string(mNdofDev->product) << LL_ENDL;
@@ -640,6 +641,22 @@ void LLViewerJoystick::updateStatus()
         for (int i=0; i<16; i++)
         {
             mBtn[i] = mNdofDev->buttons[i];
+        }
+
+        // Remember that this device produced real input, for the viewer stats.
+        // The threshold ignores small resting drift on the axes.
+        constexpr F32 USED_AXIS_THRESHOLD = 0.1f;
+        bool used = std::any_of(std::begin(mAxes), std::end(mAxes),
+                        [](F32 axis) { return fabsf(axis) > USED_AXIS_THRESHOLD; })
+                    || std::any_of(std::begin(mBtn), std::end(mBtn),
+                        [](long btn) { return btn != 0; });
+        if (used)
+        {
+            auto it = mSessionDevices.find(ll_safe_string(mNdofDev->product));
+            if (it != mSessionDevices.end())
+            {
+                it->second = true;
+            }
         }
     }
 #endif
@@ -1540,6 +1557,30 @@ bool LLViewerJoystick::is3DConnexionDevice(const std::string& full_name)
             || (device_name.find("SpacePilot") == 0)
             || (device_name.find("SpaceMouse") == 0));
     return answer;
+}
+
+LLSD LLViewerJoystick::getSessionStatsAsLLSD() const
+{
+    std::string current_device;
+#if LIB_NDOF
+    if (mNdofDev != nullptr && mDriverState == JDS_INITIALIZED)
+    {
+        current_device = ll_safe_string(mNdofDev->product);
+    }
+#endif
+
+    LLSD result;
+    result["enabled"] = gSavedSettings.getBOOL("JoystickEnabled");
+    LLSD& devices = result["devices"] = LLSD::emptyArray();
+    for (const auto& [name, used] : mSessionDevices)
+    {
+        LLSD entry;
+        entry["name"] = name;
+        entry["used"] = used;
+        entry["connected"] = (name == current_device);
+        devices.append(entry);
+    }
+    return result;
 }
 
 bool LLViewerJoystick::isLikeSpaceNavigator() const

@@ -463,6 +463,13 @@ public:
     static void terminate();
 
     static const std::list<LLGameControl::Device>& getDevices();
+
+    // Summary of controller usage this session, for the viewer stats:
+    // { initialized, send_to_server,
+    //   devices: [ { name, type, vendor_id, product_id, used, connected }, ... ] }
+    // 'devices' lists every controller connected at some point this session.
+    static LLSD getSessionStatsAsLLSD();
+
     static const std::map<std::string, std::string>& getDeviceOptions();
 
     // returns 'true' if GameControlData message needs to go out,
