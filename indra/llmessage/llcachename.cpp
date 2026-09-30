@@ -186,6 +186,18 @@ using PendingQueue = std::unordered_map<LLUUID, U32>;
 using Cache        = std::unordered_map<LLUUID, LLCacheNameEntry*>;
 using ReverseCache = std::unordered_map<std::string, LLUUID>;
 
+// A name/group-name reply received by processUUIDReply() (which may run
+// directly on LLUDPReceiverThread). Queued so mSignal can be fired later
+// from the main thread by processPendingSignals(), instead of invoking
+// observer callbacks directly on the UDP thread.
+struct PendingSignal
+{
+    LLUUID      mID;
+    std::string mName;
+    bool        mIsGroup;
+};
+using SignalQueue = std::vector<PendingSignal>;
+
 //
 // mSignal is deliberately NOT protected by mMutex: observers may call back
 // into LLCacheName (e.g. getFullName()), and LLMutex is not safe to
@@ -222,6 +234,11 @@ public:
     ReplyQueue          mReplyQueue;
         // requests awaiting replies from us
 
+    SignalQueue         mSignalQueue;
+    // (id, name, isGroup) tuples queued by processUUIDReply() (which
+    // may run on LLUDPReceiverThread) for mSignal to be fired on
+    // later, from the main thread via processPendingSignals().
+
     LLCacheNameSignal   mSignal;
 
     LLFrameTimer        mProcessTimer;
@@ -241,6 +258,9 @@ public:
     void processPendingAsks();
     // Only ever called from the main thread (LLCacheName::processPending()).
     void processPendingReplies();
+    // Only ever called from the main thread (LLCacheName::processPending()).
+    // Fires mSignal for entries queued by processUUIDReply().
+    void processPendingSignals();
     // Only ever called from the main thread; caller must hold mMutex.
     void sendRequest(const char* msg_name, const AskQueue& queue);
     // Caller must hold mMutex.
@@ -753,6 +773,7 @@ void LLCacheName::processPending()
     // from the main thread (here), so they own message building/sending.
     impl.processPendingAsks();
     impl.processPendingReplies();
+    impl.processPendingSignals();
 }
 
 void LLCacheName::deleteEntriesOlderThan(S32 secs)
@@ -928,6 +949,22 @@ void LLCacheName::Impl::processPendingReplies()
     }
 }
 
+void LLCacheName::Impl::processPendingSignals()
+{
+    // Only called from the main thread. Copy out what's needed to invoke
+    // mSignal without holding mMutex (observers may call back into
+    // LLCacheName), then clear the queue.
+    SignalQueue to_signal;
+    {
+        LLMutexLock lock(&mMutex);
+        to_signal.swap(mSignalQueue);
+    }
+
+    for (auto& info : to_signal)
+    {
+        mSignal(info.mID, info.mName, info.mIsGroup);
+    }
+}
 
 void LLCacheName::Impl::sendRequest(
     const char* msg_name,
@@ -1047,81 +1084,66 @@ void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
 
 void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 {
-    // May run directly on LLUDPReceiverThread. mSignal is intentionally invoked
-    // outside the lock as observers may call back into LLCacheName.
-    struct SignalInfo
-    {
-        LLUUID      id;
-        std::string name;
-        bool        isGroup;
-    };
-    std::vector<SignalInfo> to_signal;
+    // Runs directly on LLUDPReceiverThread.
+    // Note that callbacks must happen on main thread
+    LLMutexLock lock(&mMutex);
 
+    S32 count = msg->getNumberOfBlocksFast(_PREHASH_UUIDNameBlock);
+    for (S32 i = 0; i < count; ++i)
     {
-        LLMutexLock lock(&mMutex);
-
-        S32 count = msg->getNumberOfBlocksFast(_PREHASH_UUIDNameBlock);
-        for (S32 i = 0; i < count; ++i)
+        LLUUID id;
+        msg->getUUIDFast(_PREHASH_UUIDNameBlock, _PREHASH_ID, id, i);
+        LLCacheNameEntry* entry = get_ptr_in_map(mCache, id);
+        if (!entry)
         {
-            LLUUID id;
-            msg->getUUIDFast(_PREHASH_UUIDNameBlock, _PREHASH_ID, id, i);
-            LLCacheNameEntry* entry = get_ptr_in_map(mCache, id);
-            if (!entry)
-            {
-                entry = new LLCacheNameEntry;
-                mCache[id] = entry;
-            }
-
-            mPendingQueue.erase(id);
-
-            entry->mIsGroup = isGroup;
-            entry->mCreateTime = (U32)time(NULL);
-            if (!isGroup)
-            {
-                msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);
-                msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName, entry->mLastName, i);
-            }
-            else
-            {   // is group
-                msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_GroupName, entry->mGroupName, i);
-                LLStringFn::replace_ascii_controlchars(entry->mGroupName, LL_UNKNOWN_CHAR);
-            }
-
-            if (!isGroup)
-            {
-                // NOTE: Very occasionally the server sends down a full name
-                // in the first name field with an empty last name, for example,
-                // first = "Ladanie1 Resident", last = "".
-                // I cannot reproduce this, nor can I find a bug in the server code.
-                // Ensure "Resident" does not appear via cleanFullName, because
-                // buildFullName only checks last name. JC
-                std::string full_name;
-                if (entry->mLastName.empty())
-                {
-                    full_name = cleanFullName(entry->mFirstName);
-
-                    //fix what we are putting in the cache
-                    entry->mFirstName = full_name;
-                    entry->mLastName = "Resident";
-                }
-                else
-                {
-                    full_name = LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
-                }
-                mReverseCache[full_name] = id;
-                to_signal.push_back({ id, full_name, false });
-            }
-            else
-            {
-                mReverseCache[entry->mGroupName] = id;
-                to_signal.push_back({ id, entry->mGroupName, true });
-            }
+            entry = new LLCacheNameEntry;
+            mCache[id] = entry;
         }
-    }
 
-    for (auto& info : to_signal)
-    {
-        mSignal(info.id, info.name, info.isGroup);
+        mPendingQueue.erase(id);
+
+        entry->mIsGroup = isGroup;
+        entry->mCreateTime = (U32)time(NULL);
+        if (!isGroup)
+        {
+            msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);
+            msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName, entry->mLastName, i);
+        }
+        else
+        {   // is group
+            msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_GroupName, entry->mGroupName, i);
+            LLStringFn::replace_ascii_controlchars(entry->mGroupName, LL_UNKNOWN_CHAR);
+        }
+
+        if (!isGroup)
+        {
+            // NOTE: Very occasionally the server sends down a full name
+            // in the first name field with an empty last name, for example,
+            // first = "Ladanie1 Resident", last = "".
+            // I cannot reproduce this, nor can I find a bug in the server code.
+            // Ensure "Resident" does not appear via cleanFullName, because
+            // buildFullName only checks last name. JC
+            std::string full_name;
+            if (entry->mLastName.empty())
+            {
+                full_name = cleanFullName(entry->mFirstName);
+
+                //fix what we are putting in the cache
+                entry->mFirstName = full_name;
+                entry->mLastName = "Resident";
+            }
+            else
+            {
+                full_name = LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
+            }
+            mReverseCache[full_name] = id;
+            mSignalQueue.push_back({ id, full_name, false });
+        }
+        else
+        {
+            mReverseCache[entry->mGroupName] = id;
+            mSignalQueue.push_back({ id, entry->mGroupName, true });
+        }
     }
 }
 
