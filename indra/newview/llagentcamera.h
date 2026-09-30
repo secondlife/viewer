@@ -225,6 +225,13 @@ public:
     // mFlycamHidingAvatar). Use this rather than cameraMouselook() when deciding
     // whether to render the self avatar.
     bool            isHidingAvatarForFirstPerson() const;
+
+    // Hides the mouse cursor while in CONTROL_MODE_FLYCAM (when enabled by
+    // LLGameControl::isFlycamHideCursorEnabled()).  The cursor reappears while
+    // the mouse itself moves and hides again when its timeout expires: the
+    // timeout is reset to 5 seconds whenever the mouse moves and cut to at most
+    // 1 second whenever the flycam camera moves.  Restored on leaving the mode.
+    void            updateFlycamCursorVisibility(LLGameControl::AgentControlMode mode);
 private:
     // Clears mFlycamHidingAvatar once the self avatar is completely out of the
     // flycam's view, so it doesn't pop into existence on screen. Called after
@@ -244,6 +251,21 @@ private:
     // which lives on LLViewerJoystick (mJoystickFlycamDelta/LastDelta).
     std::array<F32, LLGameControl::FLYCAM_NUM_CHANNELS> mFlycamKeyboardInput {};
     bool            mFlycamKeyboardUnrollRequested { false };
+
+    // updateFlycamCursorVisibility() state: mFlycamCursorHiding is true while
+    // FlyCam cursor hiding is in effect, mFlycamCursorHidden while the cursor is
+    // actually hidden by it.  Times are LLFrameTimer::getElapsedSeconds():
+    // mFlycamCursorMouseMoveTime is the last mouse move seen, and
+    // mFlycamCursorHideTime is when a visible cursor hides again.  The
+    // mFlycamCursorLast* values are the previous frame's flycam transform and
+    // view angle, used to detect flycam motion.
+    bool            mFlycamCursorHiding { false };
+    bool            mFlycamCursorHidden { false };
+    F64             mFlycamCursorMouseMoveTime { 0.0 };
+    F64             mFlycamCursorHideTime { 0.0 };
+    LLVector3d      mFlycamCursorLastPosition;
+    LLQuaternion    mFlycamCursorLastRotation;
+    F32             mFlycamCursorLastView { 0.f };
 
     //--------------------------------------------------------------------
     // Sit

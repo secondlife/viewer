@@ -3044,6 +3044,105 @@ void LLAgentCamera::toggleFlycam()
     }
 }
 
+void LLAgentCamera::updateFlycamCursorVisibility(LLGameControl::AgentControlMode mode)
+{
+    // Seconds until the cursor hides again after the mouse moves...
+    constexpr F64 FLYCAM_CURSOR_MOUSE_TIMEOUT = 5.0;
+    // ...shortened to at most this while the flycam camera itself is moving.
+    constexpr F64 FLYCAM_CURSOR_CAMERA_TIMEOUT = 1.0;
+    // Tolerance when comparing mouse-move timestamps reconstructed from
+    // LLUI's F32 mouse idle time.
+    constexpr F64 MOUSE_MOVE_EPSILON = 0.005;
+
+    if (!gViewerWindow)
+    {
+        return;
+    }
+
+    // Mouselook (which flycam can be engaged from) manages its own hidden
+    // cursor, so leave the cursor alone while it is active.
+    bool mouselook = cameraMouselook();
+    bool want_hiding = mode == LLGameControl::CONTROL_MODE_FLYCAM
+        && LLGameControl::isFlycamHideCursorEnabled()
+        && !mouselook;
+
+    if (!want_hiding)
+    {
+        if (mFlycamCursorHidden && !mouselook)
+        {
+            gViewerWindow->showCursor();
+        }
+        mFlycamCursorHiding = false;
+        mFlycamCursorHidden = false;
+        return;
+    }
+
+    F64 now = LLFrameTimer::getElapsedSeconds();
+    // LLViewerWindow::handleMouseMove() resets LLUI's mouse idle timer
+    // whenever the mouse moves, so this is when it last moved.
+    F64 mouse_move_time = now - (F64)LLUI::getInstance()->getMouseIdleTime();
+
+    // Detect flycam camera motion by comparing its transform (global, so
+    // unaffected by region-origin rebases) and view angle against the
+    // previous frame's.
+    LLVector3d flycam_position;
+    LLQuaternion flycam_rotation;
+    mFlycam.getTransform(flycam_position, flycam_rotation);
+    F32 flycam_view = mFlycam.getView();
+    bool flycam_moved = flycam_position != mFlycamCursorLastPosition
+        || flycam_rotation != mFlycamCursorLastRotation
+        || flycam_view != mFlycamCursorLastView;
+    mFlycamCursorLastPosition = flycam_position;
+    mFlycamCursorLastRotation = flycam_rotation;
+    mFlycamCursorLastView = flycam_view;
+
+    if (!mFlycamCursorHiding)
+    {
+        // Just entered FlyCam mode: hide immediately.
+        mFlycamCursorHiding = true;
+        mFlycamCursorHidden = true;
+        mFlycamCursorMouseMoveTime = mouse_move_time;
+        gViewerWindow->hideCursor();
+        return;
+    }
+
+    if (mFlycamCursorHidden && !gViewerWindow->getCursorHidden())
+    {
+        // Something else re-showed the cursor behind our back: treat it as
+        // visible, with a fresh timeout.
+        mFlycamCursorHidden = false;
+        mFlycamCursorHideTime = now + FLYCAM_CURSOR_MOUSE_TIMEOUT;
+    }
+
+    if (mouse_move_time > mFlycamCursorMouseMoveTime + MOUSE_MOVE_EPSILON)
+    {
+        // The mouse moved: show the cursor (if hidden) and restart the timeout.
+        mFlycamCursorMouseMoveTime = mouse_move_time;
+        mFlycamCursorHideTime = mouse_move_time + FLYCAM_CURSOR_MOUSE_TIMEOUT;
+        if (mFlycamCursorHidden)
+        {
+            mFlycamCursorHidden = false;
+            gViewerWindow->showCursor();
+        }
+    }
+
+    if (mFlycamCursorHidden)
+    {
+        return;
+    }
+
+    if (flycam_moved)
+    {
+        mFlycamCursorHideTime = llmin(mFlycamCursorHideTime, now + FLYCAM_CURSOR_CAMERA_TIMEOUT);
+    }
+
+    if (now >= mFlycamCursorHideTime)
+    {
+        mFlycamCursorHidden = true;
+        gViewerWindow->hideCursor();
+    }
+}
+
 bool LLAgentCamera::isHidingAvatarForFirstPerson() const
 {
     return cameraMouselook() && (!mUsingFlycam || mFlycamHidingAvatar);

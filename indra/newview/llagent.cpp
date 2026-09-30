@@ -5068,6 +5068,7 @@ void LLAgent::updateGameControlMode()
     }
     LLGameControl::setFlycamEngaged(isUsingFlycam());
     LLGameControl::setAgentControlMode(mode);
+    gAgentCamera.updateFlycamCursorVisibility(mode);
 }
 
 void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)

@@ -717,6 +717,13 @@ public:
     static bool isFlycamCrosshairEnabled();
     static void setFlycamCrosshairEnabled(bool enabled);
 
+    // FlyCam-only flag: whether the mouse cursor is hidden while flycam is
+    // engaged; it reappears while the mouse moves and hides again after it has
+    // been still for a few seconds (see LLAgent::updateFlycamCursorVisibility()).
+    // Defaults to true when absent.
+    static bool isFlycamHideCursorEnabled();
+    static void setFlycamHideCursorEnabled(bool enabled);
+
     static std::string getDeviceConfig(const std::string& guid);
     static void setDeviceConfig(const std::string& guid, const std::string& config);
 
