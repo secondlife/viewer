@@ -73,6 +73,8 @@ F32  LLViewerJoystick::sDelta[] = {0,0,0,0,0,0,0};
 
 
 #if LIB_NDOF
+static bool sNdofLibInitialized = false;
+
 std::ostream& operator<<(std::ostream& out, NDOF_Device* ptr)
 {
     if (! ptr)
@@ -281,6 +283,7 @@ bool LLViewerJoystick::getOverrideCamera()
 #if LIB_NDOF
 NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
 {
+    // Note: macOS only: hotplug callbacks never fire on Windows or Linux
     NDOF_HotPlugResult res = NDOF_DISCARD_HOTPLUGGED;
     if (dev)
     {
@@ -289,7 +292,12 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
         {
             LL_INFOS("Joystick") << "HotPlugAddCallback: will use device: " << (void*)(dev) << LL_ENDL;
             ndof_dump(stderr, dev);
+
+            // POTENTIAL LEAK: libndofdev has no per-device free and we belive its memory is
+            // only released by ndof_libcleanup().  We don't want to free it ourselves for
+            // worry it might still be used later, so we drop it.
             joystick->mNdofDev = dev;
+
             joystick->mDriverState = JDS_INITIALIZED;
             joystick->mDeviceIs3DConnexion = true;
             res = NDOF_KEEP_HOTPLUGGED;
@@ -304,6 +312,7 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
 #if LIB_NDOF
 void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
 {
+    // Note: macOS only: hotplug callbacks never fire on Windows or Linux
     LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
     if (joystick->mNdofDev == dev)
     {
@@ -311,6 +320,13 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
                 << joystick->mNdofDev << "; removed device:" << LL_ENDL;
         ndof_dump(stderr, dev);
         joystick->mDriverState = JDS_UNINITIALIZED;
+        joystick->mDeviceIs3DConnexion = false;
+
+        // POTENTIAL LEAK: ndofdev_external.h doesn't say what becomes of 'dev' after this
+        // callback, so we don't free it or keep using it.  init() allocates a new struct if
+        // it needs one (and a replug hands us a new 'dev' via HotPlugAddCallback()).
+        // If libndofdev doesn't free 'dev' itself, its memory is lost until ndof_libcleanup().
+        joystick->mNdofDev = nullptr;
     }
     joystick->updateEnabled(true);
 }
@@ -344,12 +360,11 @@ LLViewerJoystick::~LLViewerJoystick()
 void LLViewerJoystick::init(bool autoenable)
 {
 #if LIB_NDOF
-    static bool libinit = false;
     mDriverState = JDS_INITIALIZING;
 
     loadDeviceIdFromSettings();
 
-    if (!libinit)
+    if (!sNdofLibInitialized)
     {
         // Note: The HotPlug callbacks are not actually getting called on Windows
         if (ndof_libinit(HotPlugAddCallback,
@@ -361,14 +376,18 @@ void LLViewerJoystick::init(bool autoenable)
         else
         {
             // NB: ndof_libinit succeeds when there's no device
-            libinit = true;
-
-            // allocate memory once for an eventual device
-            mNdofDev = ndof_create();
+            sNdofLibInitialized = true;
         }
     }
 
-    if (libinit)
+    if (sNdofLibInitialized && !mNdofDev)
+    {
+        // allocate memory for an eventual device; also after a hot-unplug
+        // (see HotPlugRemovalCallback()) or a failed ndof_create()
+        mNdofDev = ndof_create();
+    }
+
+    if (sNdofLibInitialized)
     {
         if (mNdofDev)
         {
@@ -460,7 +479,7 @@ void LLViewerJoystick::init(bool autoenable)
     }
 
     LL_INFOS("Joystick") << "ndof: mDriverState=" << mDriverState << "; mNdofDev="
-            << (void*)(mNdofDev) << "; libinit=" << libinit << LL_ENDL;
+            << (void*)(mNdofDev) << "; libinit=" << sNdofLibInitialized << LL_ENDL;
 #endif
 }
 
@@ -530,6 +549,11 @@ bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8
 #if LIB_NDOF
     mLastDeviceUUID = guid;
 
+    if (!mNdofDev)
+    {
+        return false;
+    }
+
 #if LL_DARWIN
     if (guid.isMap())
     {
@@ -558,6 +582,12 @@ bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8
 bool LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE8* */)
 {
 #if LIB_NDOF
+    if (!mNdofDev)
+    {
+        mDriverState = JDS_UNINITIALIZED;
+        return false;
+    }
+
     // Different joysticks will return different ranges of raw values.
     // Since we want to handle every device in the same uniform way,
     // we initialize the mNdofDev struct and we set the range
@@ -616,9 +646,10 @@ bool LLViewerJoystick::acceptInitializedDevice()
 void LLViewerJoystick::terminate()
 {
 #if LIB_NDOF
-    if (mNdofDev != NULL)
+    if (sNdofLibInitialized)
     {
         ndof_libcleanup(); // frees alocated memory in mNdofDev
+        sNdofLibInitialized = false;
         mDriverState = JDS_UNINITIALIZED;
         mNdofDev = NULL;
         mDeviceIs3DConnexion = false;
