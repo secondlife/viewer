@@ -3821,7 +3821,8 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
     }
 
     std::atomic<bool> got_complete_ping{ false };
-    LLHost complete_ping_sender;
+    LLHost complete_ping_sender = host;
+    void* complete_ping_data[] = { &got_complete_ping, &complete_ping_sender };
     LLTimer timeout;
 
     timeout.setTimerExpirySec(20.0);
@@ -3830,8 +3831,11 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
     setHandlerFuncThrdFast(_PREHASH_CompletePingCheck,
         [](LLMessageSystem* msg, void** user_data)
     {
-        *reinterpret_cast<std::atomic<bool>*>(user_data) = true;
-    }, reinterpret_cast<void**>(&got_complete_ping));
+        if (msg->getSender() == *reinterpret_cast<LLHost*>(user_data[1]))
+        {
+            *reinterpret_cast<std::atomic<bool>*>(user_data[0]) = true;
+        }
+    }, complete_ping_data);
 
     while (! timeout.hasExpired())
     {
