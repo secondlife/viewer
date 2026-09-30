@@ -480,7 +480,7 @@ public:
     void setDropPercentage(F32 percent_to_drop);
 
     // UDP byte-accounting
-    S32  getActualInBytes()  const { return mActualBytesIn; }
+    S32  getActualInBytes()  const { return mActualBytesIn.CurrentValue(); }
     S32  getActualOutBytes() const { return mActualBytesOut; }
     S32  getAndResetActualInBits()  { S32 bits = mActualBytesIn  * 8; mActualBytesIn  = 0; return bits; }
     S32  getAndResetActualOutBits() { S32 bits = mActualBytesOut * 8; mActualBytesOut = 0; return bits; }
@@ -1015,7 +1015,7 @@ private:
     bool isHighPriorityMessage(const LLPacketBuffer& pkt) const;
 
     // Packet-loss simulation and byte-accounting state
-    S32 mActualBytesIn;
+    LLAtomicS32 mActualBytesIn;
     S32 mActualBytesOut;
     F32 mDropPercentage;        // % of inbound packets to drop
     U32 mPacketsToDrop;         // drop next N inbound packets

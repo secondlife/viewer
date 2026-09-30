@@ -3444,7 +3444,7 @@ namespace
             return;
         }
 
-        static LLTimer decode_timer;
+        static thread_local LLTimer decode_timer;
         if (LLMessageReader::getTimeDecodes() || self->getTimingCallback())
         {
             decode_timer.reset();

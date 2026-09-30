@@ -403,6 +403,9 @@ void do_startup_frame()
             }
         }
 
+        gServicePump->pump();
+        gServicePump->callback();
+
         LockMessageChecker lmc(gMessageSystem);
         lmc.processAcks();
     }
@@ -426,6 +429,9 @@ void pump_idle_startup_network(void)
                 break;
             }
         }
+
+        gServicePump->pump();
+        gServicePump->callback();
 
         LockMessageChecker lmc(gMessageSystem);
         lmc.processAcks();
