@@ -1034,9 +1034,12 @@ void LLAssetStorage::processUploadComplete(LLMessageSystem *msg, void **user_dat
     if (main_queue)
     {
         main_queue->post(
-            [this_ptr, uuid, asset_type, success]()
+            [uuid, asset_type, success]()
         {
-            this_ptr->_callUploadCallbacks(uuid, asset_type, success, LLExtStat::NONE);
+            if (gAssetStorage)
+            {
+                gAssetStorage->_callUploadCallbacks(uuid, asset_type, success, LLExtStat::NONE);
+            }
         });
     }
     else

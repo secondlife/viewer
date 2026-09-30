@@ -282,6 +282,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
     // I'm not going to worry about this for now - djs
     //
 
+    std::lock_guard<std::mutex> lock(mDataMutex);
     reliable_iter iter;
     bool have_resend_overflow = false;
     for (iter = mUnackedPackets.begin(); iter != mUnackedPackets.end();)
@@ -872,85 +873,88 @@ bool LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
     // This is to handle the case if we actually manage to wrap our
     // packet IDs - the oldest will actually have a higher packet ID
     // than the current.
-    bool wrapped = false;
-    reliable_iter iter;
-    iter = mUnackedPackets.upper_bound(getPacketOutID());
-    if (iter == mUnackedPackets.end())
-    {
-        // Nothing AFTER this one, so we want the lowest packet ID
-        // then.
-        iter = mUnackedPackets.begin();
-        wrapped = true;
-    }
 
     TPACKETID packet_id = 0;
+    {
+        std::lock_guard<std::mutex> lock(mDataMutex);
+        bool wrapped = false;
+        reliable_iter iter;
+        iter = mUnackedPackets.upper_bound(getPacketOutID());
+        if (iter == mUnackedPackets.end())
+        {
+            // Nothing AFTER this one, so we want the lowest packet ID
+            // then.
+            iter = mUnackedPackets.begin();
+            wrapped = true;
+        }
 
-    // Check against the "final" packets
-    bool wrapped_final = false;
-    reliable_iter iter_final;
-    iter_final = mFinalRetryPackets.upper_bound(getPacketOutID());
-    if (iter_final == mFinalRetryPackets.end())
-    {
-        iter_final = mFinalRetryPackets.begin();
-        wrapped_final = true;
-    }
+        // Check against the "final" packets
+        bool wrapped_final = false;
+        reliable_iter iter_final;
+        iter_final = mFinalRetryPackets.upper_bound(getPacketOutID());
+        if (iter_final == mFinalRetryPackets.end())
+        {
+            iter_final = mFinalRetryPackets.begin();
+            wrapped_final = true;
+        }
 
-    //LL_INFOS() << mHost << " - unacked count " << mUnackedPackets.size() << LL_ENDL;
-    //LL_INFOS() << mHost << " - final count " << mFinalRetryPackets.size() << LL_ENDL;
-    if (wrapped != wrapped_final)
-    {
-        // One of the "unacked" or "final" lists hasn't wrapped.  Whichever one
-        // hasn't has the oldest packet.
-        if (!wrapped)
+        //LL_INFOS() << mHost << " - unacked count " << mUnackedPackets.size() << LL_ENDL;
+        //LL_INFOS() << mHost << " - final count " << mFinalRetryPackets.size() << LL_ENDL;
+        if (wrapped != wrapped_final)
         {
-            // Hasn't wrapped, so the one on the
-            // unacked packet list is older
-            packet_id = iter->first;
-            //LL_INFOS() << mHost << ": nowrapped unacked" << LL_ENDL;
-        }
-        else
-        {
-            packet_id = iter_final->first;
-            //LL_INFOS() << mHost << ": nowrapped final" << LL_ENDL;
-        }
-    }
-    else
-    {
-        // They both wrapped, we can just use the minimum of the two.
-        if ((iter == mUnackedPackets.end()) && (iter_final == mFinalRetryPackets.end()))
-        {
-            // Wow!  No unacked packets at all!
-            // Send the ID of the last packet we sent out.
-            // This will flush all of the destination's
-            // unacked packets, theoretically.
-            //LL_INFOS() << mHost << ": No unacked!" << LL_ENDL;
-            packet_id = getPacketOutID();
-        }
-        else
-        {
-            bool had_unacked = false;
-            if (iter != mUnackedPackets.end())
+            // One of the "unacked" or "final" lists hasn't wrapped.  Whichever one
+            // hasn't has the oldest packet.
+            if (!wrapped)
             {
-                // Unacked list has the lowest so far
+                // Hasn't wrapped, so the one on the
+                // unacked packet list is older
                 packet_id = iter->first;
-                had_unacked = true;
-                //LL_INFOS() << mHost << ": Unacked" << LL_ENDL;
+                //LL_INFOS() << mHost << ": nowrapped unacked" << LL_ENDL;
             }
-
-            if (iter_final != mFinalRetryPackets.end())
+            else
             {
-                // Use the lowest of the unacked list and the final list
-                if (had_unacked)
+                packet_id = iter_final->first;
+                //LL_INFOS() << mHost << ": nowrapped final" << LL_ENDL;
+            }
+        }
+        else
+        {
+            // They both wrapped, we can just use the minimum of the two.
+            if ((iter == mUnackedPackets.end()) && (iter_final == mFinalRetryPackets.end()))
+            {
+                // Wow!  No unacked packets at all!
+                // Send the ID of the last packet we sent out.
+                // This will flush all of the destination's
+                // unacked packets, theoretically.
+                //LL_INFOS() << mHost << ": No unacked!" << LL_ENDL;
+                packet_id = getPacketOutID();
+            }
+            else
+            {
+                bool had_unacked = false;
+                if (iter != mUnackedPackets.end())
                 {
-                    // Both had a packet, use the lowest.
-                    packet_id = llmin(packet_id, iter_final->first);
-                    //LL_INFOS() << mHost << ": Min of unacked/final" << LL_ENDL;
+                    // Unacked list has the lowest so far
+                    packet_id = iter->first;
+                    had_unacked = true;
+                    //LL_INFOS() << mHost << ": Unacked" << LL_ENDL;
                 }
-                else
+
+                if (iter_final != mFinalRetryPackets.end())
                 {
-                    // Only the final had a packet, use it.
-                    packet_id = iter_final->first;
-                    //LL_INFOS() << mHost << ": Final!" << LL_ENDL;
+                    // Use the lowest of the unacked list and the final list
+                    if (had_unacked)
+                    {
+                        // Both had a packet, use the lowest.
+                        packet_id = llmin(packet_id, iter_final->first);
+                        //LL_INFOS() << mHost << ": Min of unacked/final" << LL_ENDL;
+                    }
+                    else
+                    {
+                        // Only the final had a packet, use it.
+                        packet_id = iter_final->first;
+                        //LL_INFOS() << mHost << ": Final!" << LL_ENDL;
+                    }
                 }
             }
         }

@@ -3814,8 +3814,6 @@ void null_message_callback(LLMessageSystem *msg, void **data)
 // up, and then sending auth messages.
 void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_count )
 {
-    LockMessageChecker lmc(this);
-
     std::string shared_secret = get_shared_secret();
     if(shared_secret.empty())
     {
@@ -3832,7 +3830,7 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
     setHandlerFuncThrdFast(_PREHASH_CompletePingCheck,
         [](LLMessageSystem* msg, void** user_data)
     {
-        *reinterpret_cast<std::atomic<bool>*>(user_data[0]) = true;
+        *reinterpret_cast<std::atomic<bool>*>(user_data) = true;
     }, reinterpret_cast<void**>(&got_complete_ping));
 
     while (! timeout.hasExpired())
