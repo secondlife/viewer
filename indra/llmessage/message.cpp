@@ -3491,6 +3491,7 @@ namespace
 
 void LLMessageSystem::dispatchDecoded(LLDecodedMessage& msg)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     // For main thread dispatch
     sLastSender = msg.mSender;
     sLastReceivingIF = msg.mReceivingInterface;
@@ -3501,6 +3502,7 @@ void LLMessageSystem::dispatchDecoded(LLDecodedMessage& msg)
 
 void LLMessageSystem::dispatchDecodedOnThread(LLDecodedMessage& msg)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     // UDP thread only.
     sLastSender = msg.mSender;
     sLastReceivingIF = msg.mReceivingInterface;

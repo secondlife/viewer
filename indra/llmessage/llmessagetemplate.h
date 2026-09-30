@@ -31,6 +31,7 @@
 #include "llstl.h"
 #include "llindexedvector.h"
 #include "llmsgvariabletype.h"
+#include <shared_mutex>
 
 class LLMsgVarData
 {
@@ -372,6 +373,7 @@ public:
 
     void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
     {
+        std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
         mHandlerFunc = handler_func;
         mUserData = user_data;
         mHandleOnUdpThread = false;
@@ -381,6 +383,7 @@ public:
     // directly on LLUDPReceiverThread.
     void setHandlerFuncThrd(void (*handler_func)(LLMessageSystem* msgsystem, void** user_data), void** user_data)
     {
+        std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
         mHandlerFunc = handler_func;
         mUserData = user_data;
         mHandleOnUdpThread = true;
@@ -388,9 +391,23 @@ public:
 
     bool callHandlerFunc(LLMessageSystem *msgsystem) const
     {
-        if (mHandlerFunc)
+        // Snapshot the handler under the lock so a concurrent
+        // setHandlerFunc()/setHandlerFuncThrd() call (e.g. from
+        // establishBidirectionalTrust() on the main thread) can't race
+        // with a dispatch happening on LLUDPReceiverThread or the main
+        // thread. The handler itself is invoked outside the lock so it
+        // can safely call back into setHandlerFunc()/setHandlerFuncThrd()
+        // without deadlocking.
+        void (*handler_func)(LLMessageSystem*, void**);
+        void** user_data;
         {
-            mHandlerFunc(msgsystem, mUserData);
+            std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
+            handler_func = mHandlerFunc;
+            user_data = mUserData;
+        }
+        if (handler_func)
+        {
+            handler_func(msgsystem, user_data);
             return true;
         }
         return false;
@@ -400,6 +417,7 @@ public:
     // LLUDPReceiverThread rather than queued for main-thread dispatch.
     bool isHandledOnUdpThread() const
     {
+        std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
         return mHandleOnUdpThread;
     }
 
@@ -445,6 +463,9 @@ public:
     bool                                    mBanFromUntrusted;
 
 private:
+    // Since setHandlerFunc are mostly startup specific, one-time init,
+    // a shared mutex is enough for all templates
+    static inline std::shared_mutex         sHandlerMutex;
     // message handler function (this is set by each application)
     void                                    (*mHandlerFunc)(LLMessageSystem *msgsystem, void **user_data);
     void                                    **mUserData;
