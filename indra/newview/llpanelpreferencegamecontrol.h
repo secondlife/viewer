@@ -184,6 +184,7 @@ private:
     LLTextBox* mSpeedSlowLabel { nullptr };        // "Slow"/"Fast" labels shown/hidden with mSliderSpeedFactor
     LLTextBox* mSpeedFastLabel { nullptr };
     LLCheckBoxCtrl* mCheckFlycamCrosshair { nullptr };  // FlyCam-only: draws a centered crosshair while flying; hidden for other modes
+    LLCheckBoxCtrl* mCheckFlycamHideCursor { nullptr };  // FlyCam-only: hides the mouse cursor while flying (until the mouse moves); hidden for other modes
     LLButton* mRestoreActionsDefaults { nullptr };
     LLTextBox* mCurrentModeIndicator { nullptr };         //mode indicator
     LLGameControl::AgentControlMode mLastDrawnControlMode { LLGameControl::CONTROL_MODE_NONE };

@@ -638,6 +638,10 @@ namespace
     // 3D view while flycam is engaged (see LLViewerWindow::draw()).
     // Absent/false means no crosshair is drawn.
     const std::string GC_SHOW_CROSSHAIR("ShowCrosshair");
+    // FlyCam-only flag gating whether the mouse cursor is hidden while flycam is
+    // engaged, reappearing only while the mouse itself is moving (see
+    // LLAgent::updateFlycamCursorVisibility()).  Absent means true (hidden).
+    const std::string GC_HIDE_CURSOR("HideCursor");
     const std::string GC_MODE_AVATAR("Avatar");
     const std::string GC_MODE_MOUSELOOK("Mouselook");
     const std::string GC_MODE_FLYCAM("FlyCam");
@@ -3891,6 +3895,26 @@ void LLGameControl::setFlycamCrosshairEnabled(bool enabled)
     g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM][GC_SHOW_CROSSHAIR] = enabled;
     // The runtime reads this flag live each frame (LLViewerWindow::draw()),
     // so no action-lookup rebuild is needed here.
+}
+
+// static
+bool LLGameControl::isFlycamHideCursorEnabled()
+{
+    ensureGameControlSettings();
+    const LLSD& mode_map = g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM];
+    // Default to enabled when the flag is absent (e.g. settings saved before
+    // this flag existed).
+    return !mode_map.isMap() || !mode_map.has(GC_HIDE_CURSOR) || mode_map[GC_HIDE_CURSOR].asBoolean();
+}
+
+// static
+void LLGameControl::setFlycamHideCursorEnabled(bool enabled)
+{
+    ensureGameControlSettings();
+    g_gameControlSettings[GC_MODEMAPPINGS][GC_MODE_FLYCAM][GC_HIDE_CURSOR] = enabled;
+    // The runtime reads this flag live each frame
+    // (LLAgent::updateFlycamCursorVisibility()), so no action-lookup rebuild is
+    // needed here.
 }
 
 // static
