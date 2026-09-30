@@ -6057,6 +6057,9 @@ void LLAppViewer::idleNetwork()
             }
         }
 
+        gServicePump->pump();
+        gServicePump->callback();
+
         static LLCachedControl<F32> ack_collection_time(gSavedSettings, "AckCollectTime", 0.1f);
         LockMessageChecker lmc(gMessageSystem);
         lmc.processAcks(ack_collection_time());   // stays main-thread, unchanged
