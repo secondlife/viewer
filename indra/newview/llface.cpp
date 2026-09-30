@@ -2110,7 +2110,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             wfract[1]         = std::modf(vf.mWeights[i][1], &wint[1]);
             wfract[2]         = std::modf(vf.mWeights[i][2], &wint[2]);
             wfract[3]         = std::modf(vf.mWeights[i][3], &wint[3]);
-            float norm_factor = (0.5f) / (wfract[0] + wfract[1] + wfract[2] + wfract[3]);
+            float norm_factor = std::min(1.0f, (1.0f) / (wfract[0] + wfract[1] + wfract[2] + wfract[3]));
             wfract[0] *= norm_factor;
             wfract[1] *= norm_factor;
             wfract[2] *= norm_factor;

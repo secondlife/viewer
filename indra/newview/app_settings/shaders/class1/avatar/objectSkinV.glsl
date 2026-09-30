@@ -30,7 +30,7 @@ mat4 getObjectSkinnedTransform()
 {
 
     vec4 index = floor(weight4);
-    vec4 w   = fract(weight4)*2.0;
+    vec4 w   = fract(weight4);
 
     int i1 = int(index.x);
     int i2 = int(index.y);
