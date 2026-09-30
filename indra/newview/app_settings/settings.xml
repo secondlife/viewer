@@ -3819,6 +3819,28 @@
       <key>Value</key>
       <real>0.8</real>
     </map>
+    <key>TermsAndConditionsURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL pointing to Terms and Conditions page</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://lindenlab.com/legal/second-life-terms-and-conditions</string>
+    </map>
+    <key>TermsOfServiceURL</key>
+    <map>
+      <key>Comment</key>
+      <string>>URL pointing to Terms of Service page</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://lindenlab.com/tos</string>
+    </map>
     <key>JoinFloaterTestSLapp</key>
     <map>
       <key>Comment</key>

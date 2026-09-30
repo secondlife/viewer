@@ -12,7 +12,9 @@
  can_resize="false"
  can_drag_on_left="false"
  can_minimize="false"
- can_close="false">
+ can_close="false"
+ positioning="centered"
+ save_rect="false">
   <web_browser
    follows="all"
    left="0"
@@ -33,6 +35,7 @@
    highlight_light_color="White"
    mouse_opaque="false"
    name="floater_outline" />
+
   <!-- TODO: remove when actual Join page URL is set -->
   <text
    follows="right|bottom"
@@ -47,7 +50,6 @@
    height="16">
     secondlife:///app/floaterjoin/close
   </text>
-  <!-- TODO: remove when actual Join page URL is set -->
   <text
    follows="left|bottom"
    name="test_join_link"
@@ -60,5 +62,31 @@
    width="430"
    height="16">
     secondlife:///app/floaterjoin/join/testuser/testpassword
+  </text>
+  <text
+   follows="left|bottom"
+   name="test_tos_link"
+   visible="false"
+   parse_urls="true"
+   font="SansSerifSmall"
+   text_color="White"
+   left="4"
+   top="728"
+   width="430"
+   height="16">
+    secondlife:///app/floaterjoin/tos
+  </text>
+  <text
+   follows="left|bottom"
+   name="test_tc_link"
+   visible="false"
+   parse_urls="true"
+   font="SansSerifSmall"
+   text_color="White"
+   left="4"
+   top="708"
+   width="430"
+   height="16">
+    secondlife:///app/floaterjoin/tc
   </text>
 </floater>

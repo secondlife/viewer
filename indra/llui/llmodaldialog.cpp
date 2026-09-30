@@ -40,9 +40,10 @@
 // static
 std::list<LLModalDialog*> LLModalDialog::sModalStack;
 
-LLModalDialog::LLModalDialog( const LLSD& key, bool modal )
+LLModalDialog::LLModalDialog( const LLSD& key, bool modal, bool hide_others )
     : LLFloater(key),
-      mModal( modal )
+      mModal( modal ),
+      mHideOthers( hide_others )
 {
     if (modal)
     {
@@ -101,7 +102,7 @@ void LLModalDialog::onOpen(const LLSD& key)
     if (mModal)
     {
         // If Modal, hide the active modal dialog
-        if (!sModalStack.empty())
+        if (mHideOthers && !sModalStack.empty())
         {
             LLModalDialog* front = sModalStack.front();
             if (front != this)

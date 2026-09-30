@@ -155,6 +155,7 @@
 #include "llfloatertranslationsettings.h"
 #include "llfloateruipreview.h"
 #include "llfloaterwebcontent.h"
+#include "llfloaterwebmodal.h"
 #include "llfloatervoicevolume.h"
 #include "llfloaterwhitelistentry.h"
 #include "llfloaterwindowsize.h"
@@ -521,6 +522,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("upload_sound", "floater_sound_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundPreview>, "upload");
 
     LLFloaterReg::add("web_content", "floater_web_content.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
+    LLFloaterReg::add("web_modal", "floater_web_modal.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWebModal>);
     LLFloaterReg::add("whitelist_entry", "floater_whitelist_entry.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWhiteListEntry>);
     LLFloaterReg::add("window_size", "floater_window_size.xml", &LLFloaterReg::build<LLFloaterWindowSize>);
     LLFloaterReg::add("world_map", "floater_world_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWorldMap>);

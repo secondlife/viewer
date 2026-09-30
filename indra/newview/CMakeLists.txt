@@ -320,6 +320,7 @@ set(viewer_SOURCE_FILES
     llfloaterurlentry.cpp
     llfloatervoicevolume.cpp
     llfloaterwebcontent.cpp
+    llfloaterwebmodal.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
@@ -1010,6 +1011,7 @@ set(viewer_HEADER_FILES
     llfloaterurlentry.h
     llfloatervoicevolume.h
     llfloaterwebcontent.h
+    llfloaterwebmodal.h
     llfloaterwhitelistentry.h
     llfloaterwindowsize.h
     llfloaterworldmap.h

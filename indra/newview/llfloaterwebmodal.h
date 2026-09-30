@@ -1,6 +1,6 @@
 /**
- * @file llfloaterjoin.h
- * @brief Modal floater for the Join page on the login screen
+ * @file llfloaterwebmodal.h
+ * @brief Modal floater for displaying a web page above other modal floaters
  *
  * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -27,22 +27,22 @@
 #pragma once
 
 #include "llmodaldialog.h"
+#include "llviewermediaobserver.h"
 
 class LLMediaCtrl;
 
-class LLFloaterJoin : public LLModalDialog
+class LLFloaterWebModal : public LLModalDialog, public LLViewerMediaObserver
 {
     friend class LLFloaterReg;
 public:
     bool postBuild() override;
     void onOpen(const LLSD& key) override;
-    void draw() override;
+
+    void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
 
 private:
-    LLFloaterJoin(const LLSD& key);
-    ~LLFloaterJoin() = default;
+    LLFloaterWebModal(const LLSD& key);
+    ~LLFloaterWebModal() = default;
 
     LLMediaCtrl* mWebBrowser = nullptr;
-    U32 mOverlayFrame = 0;
 };
-

@@ -30,6 +30,8 @@
 
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"
+#include "llframetimer.h"
+#include "llfloaterwebmodal.h"
 #include "llmediactrl.h"
 #include "llpanellogin.h"
 #include "llui.h"
@@ -54,6 +56,14 @@ public:
         if (action == "close")
         {
             LLFloaterReg::hideInstance("join");
+        }
+        else if (action == "tos")
+        {
+            LLFloaterReg::showInstance("web_modal", LLSD().with("url", gSavedSettings.getString("TermsOfServiceURL")));
+        }
+        else if (action == "tc")
+        {
+            LLFloaterReg::showInstance("web_modal", LLSD().with("url", gSavedSettings.getString("TermsAndConditionsURL")));
         }
         else if (action == "join" && params.size() >= 3)
         {
@@ -82,12 +92,21 @@ void LLFloaterJoin::draw()
 {
     static LLCachedControl<F32> overlay_opacity(gSavedSettings, "JoinFloaterOverlayOpacity");
 
-    // darken everything behind the floater
-    LLVector2 window_size = LLUI::getInstance()->getWindowSize();
-    LLRect screen_rect = calcScreenRect();
-    gl_rect_2d(-screen_rect.mLeft, ll_round(window_size.mV[VY]) - screen_rect.mBottom,
-               ll_round(window_size.mV[VX]) - screen_rect.mLeft, -screen_rect.mBottom,
-               LLColor4(0.f, 0.f, 0.f, llclamp((F32)overlay_opacity, 0.f, 1.f)));
+    // As a modal dialog this floater is drawn twice per frame (once by LLFloaterView and once
+    // by LLPopupView), so paint the overlay only on the first pass of each frame
+    U32 frame_count = LLFrameTimer::getFrameCount();
+    if (mOverlayFrame != frame_count)
+    {
+        mOverlayFrame = frame_count;
+
+        // darken everything behind the floater, in absolute window coordinates
+        LLVector2 window_size = LLUI::getInstance()->getWindowSize();
+        LLUI::pushMatrix();
+        LLUI::loadIdentity();
+        gl_rect_2d(0, ll_round(window_size.mV[VY]), ll_round(window_size.mV[VX]), 0,
+                   LLColor4(0.f, 0.f, 0.f, llclamp((F32)overlay_opacity, 0.f, 1.f)));
+        LLUI::popMatrix();
+    }
 
     LLModalDialog::draw();
 }
@@ -107,9 +126,9 @@ void LLFloaterJoin::onOpen(const LLSD& key)
         mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
     }
 
-    centerOnScreen();
-
     static LLCachedControl<bool> show_test_slapp(gSavedSettings, "JoinFloaterTestSLapp");
     getChild<LLUICtrl>("test_close_link")->setVisible(show_test_slapp);
     getChild<LLUICtrl>("test_join_link")->setVisible(show_test_slapp);
+    getChild<LLUICtrl>("test_tos_link")->setVisible(show_test_slapp);
+    getChild<LLUICtrl>("test_tc_link")->setVisible(show_test_slapp);
 }
