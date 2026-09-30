@@ -554,7 +554,6 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     {
         std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
         cdp->mRecentlyReceivedReliablePackets[recv_packet_id] = getMessageTimeUsecs();
-        cdp->collectRAck(recv_packet_id);
         mReliablePacketsIn++;
     }
 
