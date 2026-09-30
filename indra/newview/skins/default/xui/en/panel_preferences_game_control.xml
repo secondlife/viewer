@@ -111,12 +111,23 @@
                 height="16"
                 width="32">Fast</text>
             <check_box
+                name="flycam_hide_cursor"
+                label="Hide mouse cursor"
+                layout="topleft"
+                follows="top|left"
+                top="48"
+                left="217"
+                height="16"
+                width="130"
+                initial_value="true"
+                tool_tip="Hide the mouse cursor while flying the flycam. It reappears when the mouse is moved and hides again 5 seconds later, or within 1 second once the flycam moves. Only shown while editing FlyCam mappings."/>
+            <check_box
                 name="flycam_crosshair"
                 label="Show crosshair"
                 layout="topleft"
                 follows="top|left"
                 top="48"
-                left="217"
+                left_pad="8"
                 height="16"
                 width="150"
                 tool_tip="Draw a crosshair at the center of the screen while flying the flycam. Only shown while editing FlyCam mappings."/>

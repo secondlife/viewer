@@ -463,6 +463,13 @@ public:
     static void terminate();
 
     static const std::list<LLGameControl::Device>& getDevices();
+
+    // Summary of controller usage this session, for the viewer stats:
+    // { initialized, send_to_server,
+    //   devices: [ { name, type, vendor_id, product_id, used, connected }, ... ] }
+    // 'devices' lists every controller connected at some point this session.
+    static LLSD getSessionStatsAsLLSD();
+
     static const std::map<std::string, std::string>& getDeviceOptions();
 
     // returns 'true' if GameControlData message needs to go out,
@@ -709,6 +716,13 @@ public:
     // LLAgentCamera::isUsingFlycam()). Defaults to false when absent.
     static bool isFlycamCrosshairEnabled();
     static void setFlycamCrosshairEnabled(bool enabled);
+
+    // FlyCam-only flag: whether the mouse cursor is hidden while flycam is
+    // engaged; it reappears while the mouse moves and hides again after it has
+    // been still for a few seconds (see LLAgent::updateFlycamCursorVisibility()).
+    // Defaults to true when absent.
+    static bool isFlycamHideCursorEnabled();
+    static void setFlycamHideCursorEnabled(bool enabled);
 
     static std::string getDeviceConfig(const std::string& guid);
     static void setDeviceConfig(const std::string& guid, const std::string& config);
