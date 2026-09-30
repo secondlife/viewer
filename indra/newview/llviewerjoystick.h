@@ -29,6 +29,8 @@
 
 #include "stdtypes.h"
 
+#include <map>
+
 #if LIB_NDOF
 #if LL_DARWIN
 #define TARGET_OS_MAC 1
@@ -84,6 +86,11 @@ public:
 
     static bool is3DConnexionDevice(const std::string& device_name);
 
+    // Summary of 3Dconnexion usage this session, for the viewer stats:
+    // { enabled, devices: [ { name, used, connected }, ... ] }
+    // 'devices' lists every 3Dconnexion device accepted at some point this session.
+    LLSD getSessionStatsAsLLSD() const;
+
 protected:
     void updateEnabled(bool autoenable);
     void handleRun(F32 inc);
@@ -104,6 +111,9 @@ protected:
 #endif
 
 private:
+    // 3Dconnexion devices accepted this session (product name -> used), for viewer stats.
+    std::map<std::string, bool> mSessionDevices;
+
     F32                     mAxes[6];
     long                    mBtn[16];
     EJoystickDriverState    mDriverState { JDS_UNINITIALIZED };
