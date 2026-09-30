@@ -29,6 +29,7 @@
 #include "llmodaldialog.h"
 
 #include "llemojihelper.h"
+#include "llfloater.h"
 #include "llfocusmgr.h"
 #include "v4color.h"
 #include "v2math.h"
@@ -306,8 +307,10 @@ void LLModalDialog::draw()
 
 void LLModalDialog::centerOnScreen()
 {
-    LLVector2 window_size = LLUI::getInstance()->getWindowSize();
-    centerWithin(LLRect(0, 0, ll_round(window_size.mV[VX]), ll_round(window_size.mV[VY])));
+    // Use the floater view's rect (same as LLFloater::center()) rather than the raw
+    // window size, otherwise a reshape after the initial centering (e.g. triggered by embedded
+    // media content settling) re-centers the dialog against a different rect.
+    centerWithin(gFloaterView->getRect());
 }
 
 // static
