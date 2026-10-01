@@ -6697,6 +6697,12 @@ bool LLViewerObject::unpackParameterEntry(U16 param_type, LLDataPacker *dp)
     {
         param_type = LLNetworkData::PARAMS_SCULPT;
     }
+    if (!isValidExtraParameterType(param_type))
+    {
+        LL_WARNS("UpdateFail") << "Ignoring invalid extra param type " << llformat("0x%04x", param_type)
+            << " for " << getID() << LL_ENDL;
+        return false;
+    }
     ExtraParameter* param = getExtraParameterEntryCreate(param_type);
     if (param)
     {
@@ -6813,7 +6819,7 @@ bool LLViewerObject::setParameterEntry(U16 param_type, const LLNetworkData& new_
 // Should always return true.
 bool LLViewerObject::setParameterEntryInUse(U16 param_type, bool in_use, bool local_origin)
 {
-    if (param_type <= LLNetworkData::PARAMS_MAX)
+    if (isValidExtraParameterType(param_type))
     {
         ExtraParameter* param = (in_use ? getExtraParameterEntryCreate(param_type) : &getExtraParameterEntry(param_type));
         if (param && param->data && *param->in_use != in_use)
@@ -6828,7 +6834,7 @@ bool LLViewerObject::setParameterEntryInUse(U16 param_type, bool in_use, bool lo
 
 void LLViewerObject::parameterChanged(U16 param_type, bool local_origin)
 {
-    if (param_type <= LLNetworkData::PARAMS_MAX)
+    if (isValidExtraParameterType(param_type))
     {
         const ExtraParameter& param = getExtraParameterEntry(param_type);
         if (param.data)
