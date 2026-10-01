@@ -318,17 +318,25 @@ bool LLDataPackerBinaryBuffer::unpackBinaryData(U8 *value, S32 value_size, S32 &
 
     if (!verifyLength(out_size, name))
     {
-        LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData would unpack invalid data, aborting!" << LL_ENDL;
+        LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData field " << name << " size " << out_size
+            << " exceeds remaining " << (mBufferSize - (S32)(mCurBufferp - mBufferp)) << " bytes, aborting!" << LL_ENDL;
+        out_size = 0;
         return false;
     }
-    S32 copy_size = llmin(out_size, value_size);
-    htolememcpy(value, mCurBufferp, MVT_VARIABLE, copy_size);
-    mCurBufferp += out_size;
 
     if (value_size < out_size)
     {
-        LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData buffer too small for data, truncating!" << LL_ENDL;
+        // Callers use out_size to read back from value, so never report more
+        // than fits.  Skip past the field so that following fields still parse.
+        LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData field " << name << " size " << out_size
+            << " exceeds buffer size " << value_size << ", discarding!" << LL_ENDL;
+        mCurBufferp += out_size;
+        out_size = 0;
+        return false;
     }
+
+    htolememcpy(value, mCurBufferp, MVT_VARIABLE, out_size);
+    mCurBufferp += out_size;
 
     return true;
 }

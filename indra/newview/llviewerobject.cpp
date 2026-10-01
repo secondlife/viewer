@@ -1585,10 +1585,15 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     U8 param_block[MAX_OBJECT_PARAMS_SIZE];
                     for (U8 param=0; param<num_parameters; ++param)
                     {
-                        U16 param_type;
-                        S32 param_size;
-                        dp.unpackU16(param_type, "param_type");
-                        dp.unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data");
+                        U16 param_type = 0;
+                        S32 param_size = 0;
+                        if (!dp.unpackU16(param_type, "param_type") ||
+                            !dp.unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data"))
+                        {
+                            LL_WARNS("UpdateFail") << "Failed to unpack extra param " << (S32)param << " of " << (S32)num_parameters
+                                << ", type " << param_type << ", for " << getID() << " with OUT_FULL message" << LL_ENDL;
+                            break;
+                        }
                         //LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
                         LLDataPackerBinaryBuffer dp2(param_block, param_size);
                         unpackParameterEntry(param_type, &dp2);
@@ -1933,10 +1938,15 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 U8 param_block[MAX_OBJECT_PARAMS_SIZE];
                 for (U8 param=0; param<num_parameters; ++param)
                 {
-                    U16 param_type;
-                    S32 param_size;
-                    dp->unpackU16(param_type, "param_type");
-                    dp->unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data");
+                    U16 param_type = 0;
+                    S32 param_size = 0;
+                    if (!dp->unpackU16(param_type, "param_type") ||
+                        !dp->unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data"))
+                    {
+                        LL_WARNS("UpdateFail") << "Failed to unpack extra param " << (S32)param << " of " << (S32)num_parameters
+                            << ", type " << param_type << ", for " << getID() << " with compressed message" << LL_ENDL;
+                        break;
+                    }
                     //LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
                     LLDataPackerBinaryBuffer dp2(param_block, param_size);
                     unpackParameterEntry(param_type, &dp2);
