@@ -119,7 +119,7 @@ namespace tut
         params["timestamp"] = 123;
         LLSD notification = LLJSONRPCConnection::makeEnvelope(
             LLSD(),
-            "session.ping",
+            "system.ping",
             params,
             LLSD(),
             LLSD());
