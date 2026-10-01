@@ -90,6 +90,18 @@ public:
     // clamps every resize request to this same ceiling), so no in-flight picture at any
     // prior size can ever overrun it.
     VlcTabHandle CreateTab(int width, int height, int maxWidth, int maxHeight);
+
+    // Same handle/tab-reuse machinery as CreateTab, but for an audio-only client
+    // (SLVlcProducer's parcel/streaming-music IPC client -- see llvlcproducer.cpp's own
+    // Slot::isAudioOnly). Skips the entire video pipeline: no pixel buffer is ever
+    // allocated, no lock/unlock/display callbacks are registered with libvlc, and
+    // CopyLatestFrame() on a handle from here always returns false. Still reuses the
+    // same shared libvlc_instance_t and the same
+    // Open()/SetVolume()/Play()/Pause()/Stop()/ConsumeLoadStart()/ConsumeLoadEnd()/
+    // ConsumePlaybackStateChange() plumbing as a video tab -- only video-specific setup
+    // is skipped. Resize() is a safe no-op on a handle from here.
+    VlcTabHandle CreateAudioTrack();
+
     void DestroyTab(VlcTabHandle handle);
     void DestroyAll();
     bool IsValid(VlcTabHandle handle) const;

@@ -684,16 +684,19 @@ int run_producer(int argc, char** argv)
             bool isUI = true;
             std::uint32_t requested_max_width = kMaxWidth;
             std::uint32_t requested_max_height = kMaxHeight;
-            // The payload's trailing backend byte is vestigial since the 2026-09-30
-            // producer split -- this producer only ever talks to CEF-backed consumers
-            // (see kRequestSlot's own comment in cefshm_protocol.h), so it's unpacked
-            // and then ignored, not validated. The slot's real use is trusted as sent,
-            // not re-validated against whatever URL kSetUrl later brings, since this
-            // producer already extends the identical trust to kSetUrl itself (navigates
-            // to whatever string arrives, zero validation).
+            // The payload's trailing backend and audioOnly bytes are both vestigial here
+            // since the 2026-09-30 producer split -- this producer only ever talks to
+            // CEF-backed consumers (see kRequestSlot's own comment in cefshm_protocol.h),
+            // so both are unpacked and then ignored, not validated. CEF has no audio-only
+            // slot concept at all (that's SLVlcProducer-only, see
+            // llstreamingaudio_libvlc.cpp). The slot's real use is trusted as sent, not
+            // re-validated against whatever URL kSetUrl later brings, since this producer
+            // already extends the identical trust to kSetUrl itself (navigates to
+            // whatever string arrives, zero validation).
             std::uint8_t backend_byte = 0;
+            bool audio_only = false;
             unpack_request_slot(cmd.data.data(), cmd.data.size(), isUI, requested_max_width,
-                                 requested_max_height, backend_byte);
+                                 requested_max_height, backend_byte, audio_only);
             LLConfig slot_cfg = view_cfg;
             slot_cfg.max_width  = std::clamp(requested_max_width,  kDefaultWidth,  kMaxWidth);
             slot_cfg.max_height = std::clamp(requested_max_height, kDefaultHeight, kMaxHeight);

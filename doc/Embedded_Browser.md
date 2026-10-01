@@ -48,7 +48,13 @@ Four pieces make up the system:
     prim media surface showing ordinary web content) in one process.
   - **`llvlcproducer`** (`indra/llvlcproducer`, builds to `SLVlcProducer.exe`)
     hosts every LibVLC-backed tab -- RTSP/RTMP/MMS-style media CEF cannot
-    play at all (see "RTSP/RTMP and friends, via LibVLC" below).
+    play at all (see "RTSP/RTMP and friends, via LibVLC" below) -- and, since
+    Phase 2 of the licensing split (2026-10-01), parcel/streaming-music audio
+    too, as a frame-less, audio-only slot with no visual surface at all. That
+    client (`LLStreamingAudio_LibVLC`, `indra/newview/llstreamingaudio_libvlc.
+    h/.cpp`) isn't an `llembeddedbrowser` tab -- it's its own small IPC client,
+    reached only via `LLStreamingAudioInterface`, the Viewer's pre-existing
+    streaming-audio abstraction.
   - These were one combined process (`SLMediaProducer.exe`) until 2026-09-30,
     when they were split into two standalone executables for licensing
     reasons: the vendored LibVLC package (`vlc-bin`) is declared GPL v2 in
@@ -947,23 +953,23 @@ every real change.
   optional system-wide/home-dir installer path. Neither auto-installs
   anything - the check is informational only.
 - **Linux also needs `libvlc5`/`libvlccore9` present on the target system -
-  more severe than the NSS/NSPR case above, since it's linked into the main
-  viewer binary itself.** Unlike Windows and macOS, which vendor their own
-  LibVLC (the `vlc-bin` autobuild package), Linux links against the
-  system's own installed LibVLC instead (`pkg_check_modules(libvlc)`, see
-  "Different platforms need genuinely different LibVLC handling" below) -
-  used both for parcel/streaming audio (`LLStreamingAudio_LibVLC`, linked
-  directly into the main viewer binary on every platform) and for
-  RTSP/RTMP-style prim media (`SLVlcProducer`'s `LibVlcTabManager`, a
-  separate process since the 2026-09-30 producer split - see "Why two
-  producer processes" above). If missing, the dynamic linker refuses to
-  start the *main viewer binary* itself (and `SLVlcProducer.exe` would
-  separately fail to launch the same way), not just lose one feature the
-  way a missing NSS/NSPR does. Same check-and-warn mechanism as above
-  (`wrapper.sh`/`install.sh`), extended to also cover
-  `libvlc.so.5`/`libvlccore.so.9` - the warning runs, and is visible in the
-  terminal, before the launch attempt that would otherwise fail with only
-  the dynamic linker's own less legible error.
+  but, since Phase 2 of the licensing-driven producer split (2026-10-01),
+  only for `SLVlcProducer.exe`, not the main viewer binary at all.** Unlike
+  Windows and macOS, which vendor their own LibVLC (the `vlc-bin` autobuild
+  package), Linux links against the system's own installed LibVLC instead
+  (`pkg_check_modules(libvlc)`, see "Different platforms need genuinely
+  different LibVLC handling" below) - used for both parcel/streaming audio
+  (`LLStreamingAudio_LibVLC`, an IPC client of `SLVlcProducer` since Phase 2 -
+  see "Why two producer processes" above) and RTSP/RTMP-style prim media
+  (`SLVlcProducer`'s own `LibVlcTabManager`), both reached only through that
+  one process now. If missing, `SLVlcProducer.exe` fails to launch (the
+  dynamic linker refuses to start it) - the main viewer binary itself no
+  longer needs or links libvlc at all, so it starts and runs fine regardless,
+  just with no parcel audio or LibVLC-backed prim media available. Same
+  check-and-warn mechanism as above (`wrapper.sh`/`install.sh`), extended to
+  also cover `libvlc.so.5`/`libvlccore.so.9` - the warning runs, and is
+  visible in the terminal, before launch, naming `SLVlcProducer` specifically
+  rather than the main binary.
 - **The legacy media plugin has not been removed, but can no longer actually
   be built.** `media_plugins/cef`, `llplugin/slplugin`, and the
   `ENABLE_MEDIA_PLUGINS` build option (off by default) remain in the
@@ -1058,21 +1064,20 @@ and `linux64` builds of the same CEF version already exist and are in use.
   import that shared resource into its own D3D/GL context
   (`ID3D11Device::OpenSharedResource` or equivalent), a real transport
   redesign rather than a small change, not started.
-- **Both LibVLC gaps this section used to describe are closed.** Parcel
+- **All three LibVLC gaps this section used to describe are closed.** Parcel
   audio no longer goes through the plugin architecture or
   `media_plugin_libvlc` at all - `LLStreamingAudio_LibVLC`
-  (`indra/newview/llstreamingaudio_libvlc.h/.cpp`) links libvlc directly
-  into `secondlife-bin.exe` itself, independent of `SLVlcProducer.exe`/
-  `SLCefProducer.exe` and `ENABLE_MEDIA_PLUGINS` entirely. And LibVLC video/
-  stream support, now in its own standalone `SLVlcProducer.exe` process (see
-  "Why two producer processes" above), is described in its own section
-  above, not deferred any more. What remains open is narrower: whether to
-  widen LibVLC's role to ordinary web-embedded video formats CEF might not
-  cover (see "Known limitations" above), skip-forward/skip-back transport
-  controls for genuinely seekable LibVLC media (see "LibVLC" above), and
-  eventually moving `LLStreamingAudio_LibVLC` itself behind IPC to
-  `SLVlcProducer` too (Phase 2 of the 2026-09-30 licensing-driven split,
-  not yet started - see "Why two producer processes" above).
+  (`indra/newview/llstreamingaudio_libvlc.h/.cpp`) is an IPC client of
+  `SLVlcProducer.exe`, reached over the same `llshmframe` transport and
+  wire protocol prim/RTSP media already uses (a frame-less, audio-only slot
+  - see "Why two producer processes" above), with zero libvlc linkage left
+  in `secondlife-bin.exe` itself (Phase 2 of the 2026-09-30 licensing-driven
+  split, completed 2026-10-01). LibVLC video/stream support, in its own
+  standalone `SLVlcProducer.exe` process, is described in its own section
+  above. What remains open is narrower: whether to widen LibVLC's role to
+  ordinary web-embedded video formats CEF might not cover (see "Known
+  limitations" above), and skip-forward/skip-back transport controls for
+  genuinely seekable LibVLC media (see "LibVLC" above).
 
 ## Notes on AI-assisted development
 

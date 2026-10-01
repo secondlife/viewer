@@ -693,7 +693,6 @@ set(viewer_SOURCE_FILES
     llviewerinput.cpp
     llviewerlayer.cpp
     llviewermedia.cpp
-    llviewermedia_streamingaudio.cpp
     llviewermediafocus.cpp
     llviewermenu.cpp
     llviewermenufile.cpp
@@ -2136,22 +2135,14 @@ if (NOT DISABLE_WEBRTC)
     target_link_libraries(${VIEWER_BINARY_NAME} llwebrtc )
 endif()
 
-# Was gated behind "if (NOT LINUX)" -- stale: that matched a !LL_LINUX guard
-# in llappviewer.cpp's own libvlc-version-for-the-About-box code that no
-# longer exists there (now fully unconditional, confirmed by inspection),
-# and it also accidentally skipped linking ll::libvlc on Linux entirely,
-# even though llstreamingaudio_libvlc.cpp (LLStreamingAudio_LibVLC, parcel
-# audio) is compiled unconditionally on every platform and hard-requires it
-# -- confirmed via a real Linux link failure (undefined reference to every
-# libvlc_* symbol llstreamingaudio_libvlc.cpp calls). llappviewer.cpp reads
-# LIBVLC_VERSION_MAJOR/MINOR/REVISION from vlc/libvlc_version.h purely to
-# report the LibVLC version in the About-box info dump -- unrelated to
-# whether media_plugin_libvlc itself gets built. That header's include path
-# used to only exist as a side effect of media_plugin_libvlc's own
-# CMakeLists.txt running (include(LibVLCPlugin)), which
-# ENABLE_MEDIA_PLUGINS=OFF now skips -- needed here unconditionally instead.
-include(LibVLCPlugin)
-target_link_libraries(${VIEWER_BINARY_NAME} ll::libvlc)
+# ll::libvlc / include(LibVLCPlugin) REMOVED here (Phase 2 of the GPL v2/LGPL v2.1
+# licensing split, 2026-10-01): LLStreamingAudio_LibVLC (llstreamingaudio_libvlc.cpp,
+# parcel/streaming-music audio) no longer links libvlc directly -- it's an IPC client
+# of SLVlcProducer now, the same transport and process prim/RTSP media already uses
+# (see indra/llvlcproducer). This was the last libvlc linkage anywhere in
+# ${VIEWER_BINARY_NAME} -- confirmed via grep, no other file under indra/newview
+# includes <vlc/vlc.h> or calls any libvlc_* symbol. See doc/Embedded_Browser.md's own
+# licensing note for why this mattered (vlc-bin is GPL v2, this project is LGPL v2.1).
 
 if (USE_DISCORD)
     target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )

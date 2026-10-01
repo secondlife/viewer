@@ -1,11 +1,12 @@
 /**
  *
  * @file llvlcproducer.cpp
- * @brief SLVlcProducer: hosts real LibVLC media players on demand for the viewer's own
- *        llembeddedbrowser consumer, over llshmframe -- RTSP/RTMP/MMS media (schemes CEF
- *        cannot play at all), and eventually parcel/streaming audio too (see
- *        doc/Embedded_Browser.md's own note on this). A standalone process, separate from
- *        SLCefProducer, split from the former combined SLMediaProducer 2026-09-30 for
+ * @brief SLVlcProducer: hosts real LibVLC media players on demand for two different
+ *        viewer-side consumers over llshmframe -- llembeddedbrowser's own RTSP/RTMP/MMS
+ *        prim media (schemes CEF cannot play at all; a normal, visual slot), and
+ *        LLStreamingAudio_LibVLC's parcel/streaming-music audio (a frame-less,
+ *        audio-only slot -- see Slot::isAudioOnly below). A standalone process, separate
+ *        from SLCefProducer, split from the former combined SLMediaProducer 2026-09-30 for
  *        licensing reasons: the vendored libvlc package is declared GPL v2 in its own
  *        package metadata, while this project is LGPL v2.1 -- confining every use of
  *        libvlc to this one small process, reached only via IPC, keeps it out of both
@@ -146,6 +147,13 @@ struct Slot
 {
     std::unique_ptr<LLPublisher> pub; // null <=> this index is free
     VlcTabHandle                 vlcHandle;
+    // True for a parcel/streaming-music audio slot (LLStreamingAudio_LibVLC's own IPC
+    // client -- see llstreamingaudio_libvlc.cpp), false for a normal RTSP/RTMP video
+    // tab. Set once at allocate_slot() time, never changes afterwards (same lifetime
+    // rule as a tab's isUI/backend on the viewer side). Gates kResize (a no-op) and the
+    // per-tick publish tail (always heartbeat(), never CopyLatestFrame()/publish()) --
+    // see their own comments below.
+    bool                          isAudioOnly = false;
     std::vector<std::uint8_t>    frameBuf; // reused across ticks -- CopyLatestFrame leaves it untouched when there's nothing new
     std::uint32_t                width  = kDefaultWidth;
     std::uint32_t                height = kDefaultHeight;
@@ -211,10 +219,20 @@ std::string priority_tier_label(std::uint8_t tier)
 // sized frame buffer immediately, playback only starts once kSetUrl arrives
 // (see the per-slot dispatch loop).
 bool allocate_slot(Slot& s, int index, LLConfig cfg, LibVlcTabManager& vlcMgr,
-                    std::chrono::steady_clock::time_point now, const std::vector<Slot>& slots)
+                    std::chrono::steady_clock::time_point now, const std::vector<Slot>& slots,
+                    bool audio_only)
 {
     cfg.name              = kChannelPrefix + std::to_string(index);
     cfg.max_command_bytes = kMaxCommandBytes;
+    if (audio_only)
+    {
+        // Never publishes a frame -- same 1x1 geometry the control channel itself
+        // already uses (see its own "never publishes a frame, only exchanges commands"
+        // comment below), so no multi-MB shared-memory segment is ever committed for a
+        // pure audio stream.
+        cfg.max_width  = 1;
+        cfg.max_height = 1;
+    }
 
     LLStatus st{};
     auto pub = LLPublisher::create(cfg, &st);
@@ -223,15 +241,18 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, LibVlcTabManager& vlcMgr,
         return false;
     }
 
-    VlcTabHandle vlcHandle = vlcMgr.CreateTab(int(kDefaultWidth), int(kDefaultHeight),
-                                               int(cfg.max_width), int(cfg.max_height));
+    VlcTabHandle vlcHandle = audio_only
+        ? vlcMgr.CreateAudioTrack()
+        : vlcMgr.CreateTab(int(kDefaultWidth), int(kDefaultHeight), int(cfg.max_width), int(cfg.max_height));
     if (!vlcHandle.IsValid()) {
-        log_error("slot " + std::to_string(index) + ": LibVlcTabManager::CreateTab failed");
+        log_error("slot " + std::to_string(index) + ": LibVlcTabManager::" +
+                  (audio_only ? "CreateAudioTrack" : "CreateTab") + " failed");
         return false; // pub destructs here, cleanly unlinking the segment we just made
     }
 
     s.pub            = std::move(pub);
     s.vlcHandle      = vlcHandle;
+    s.isAudioOnly    = audio_only;
     s.width          = kDefaultWidth;
     s.height         = kDefaultHeight;
     s.max_width      = cfg.max_width;
@@ -239,8 +260,8 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, LibVlcTabManager& vlcMgr,
     s.had_subscriber = false;
     s.last_active    = now;
 
-    log_connect("slot " + std::to_string(index) + " connected, ceiling " +
-                std::to_string(cfg.max_width) + "x" + std::to_string(cfg.max_height) +
+    log_connect("slot " + std::to_string(index) + " connected" + (audio_only ? " (audio-only)" : "") +
+                ", ceiling " + std::to_string(cfg.max_width) + "x" + std::to_string(cfg.max_height) +
                 active_slot_suffix(slots));
     return true;
 }
@@ -441,11 +462,18 @@ int run_producer(int argc, char** argv)
             std::uint32_t requested_max_width = kMaxWidth;
             std::uint32_t requested_max_height = kMaxHeight;
             std::uint8_t backend_byte = 0;
+            bool audio_only = false;
             unpack_request_slot(cmd.data.data(), cmd.data.size(), isUI, requested_max_width,
-                                 requested_max_height, backend_byte);
+                                 requested_max_height, backend_byte, audio_only);
+            // An audio-only request's max_width/max_height are irrelevant -- allocate_slot()
+            // always overrides them to 1x1 for that case -- so skip the clamp entirely rather
+            // than clamping numbers that are about to be thrown away anyway.
             LLConfig slot_cfg = view_cfg;
-            slot_cfg.max_width  = std::clamp(requested_max_width,  kDefaultWidth,  kMaxWidth);
-            slot_cfg.max_height = std::clamp(requested_max_height, kDefaultHeight, kMaxHeight);
+            if (!audio_only)
+            {
+                slot_cfg.max_width  = std::clamp(requested_max_width,  kDefaultWidth,  kMaxWidth);
+                slot_cfg.max_height = std::clamp(requested_max_height, kDefaultHeight, kMaxHeight);
+            }
 
             // Try every currently-free index, not just the lowest one -- see the
             // sibling SLCefProducer's own identical comment on this same pattern for
@@ -458,7 +486,7 @@ int run_producer(int argc, char** argv)
                 {
                     if (slots[std::size_t(i)].pub) continue; // not free
                     any_free = true;
-                    if (allocate_slot(slots[std::size_t(i)], i, slot_cfg, vlcMgr, now, slots))
+                    if (allocate_slot(slots[std::size_t(i)], i, slot_cfg, vlcMgr, now, slots, audio_only))
                     {
                         free_index = i;
                         break;
@@ -554,6 +582,7 @@ int run_producer(int argc, char** argv)
                     break;
                 }
                 case kResize: {
+                    if (s.isAudioOnly) break; // no video geometry -- never sent by the audio client, defensive no-op if it ever is
                     std::uint32_t w, h;
                     if (unpack_size(cmd.data.data(), cmd.data.size(), w, h) && w && h) {
                         // s.max_width/max_height, not kMaxWidth/kMaxHeight -- this slot's own
@@ -625,18 +654,25 @@ int run_producer(int argc, char** argv)
             // is). A throttled slot naturally drops undelivered intermediate frames
             // rather than queuing them, since the display callback just overwrites the
             // one dirty-flag/buffer.
-            const bool publish_due = (s.target_fps == 0) ||
-                (now - s.last_publish >= std::chrono::duration<double>(1.0 / s.target_fps));
-            if (publish_due) {
-                s.last_publish = now;
-                int fw = 0, fh = 0;
-                if (vlcMgr.CopyLatestFrame(s.vlcHandle, s.frameBuf, fw, fh)) {
-                    s.pub->publish(s.frameBuf.data(), std::uint32_t(fw), std::uint32_t(fh));
+            if (s.isAudioOnly) {
+                // Never publishes a frame -- same pattern the control channel itself
+                // already uses (see its own 1x1 config above) -- just keep the
+                // heartbeat alive so this slot isn't mistaken for idle/crashed.
+                s.pub->heartbeat();
+            } else {
+                const bool publish_due = (s.target_fps == 0) ||
+                    (now - s.last_publish >= std::chrono::duration<double>(1.0 / s.target_fps));
+                if (publish_due) {
+                    s.last_publish = now;
+                    int fw = 0, fh = 0;
+                    if (vlcMgr.CopyLatestFrame(s.vlcHandle, s.frameBuf, fw, fh)) {
+                        s.pub->publish(s.frameBuf.data(), std::uint32_t(fw), std::uint32_t(fh));
+                    } else {
+                        s.pub->heartbeat();
+                    }
                 } else {
                     s.pub->heartbeat();
                 }
-            } else {
-                s.pub->heartbeat();
             }
 
             // Mirrors kEventLoadStart/kEventLoadEnd's own CEF call sites in the sibling

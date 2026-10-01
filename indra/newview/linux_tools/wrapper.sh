@@ -47,24 +47,26 @@ if command -v ldconfig >/dev/null 2>&1; then
         echo "*** Without them, web media (login page, prim/parcel media) will not appear."
     fi
 
-    # Unlike libcef.so above, libvlc is linked directly into THIS binary
-    # itself (parcel/streaming audio) -- and, since the 2026-09-30 producer
-    # split, into the separate SLVlcProducer process too (RTSP/RTMP-style
-    # prim media). Unlike Windows/macOS, which vendor their own copy, Linux
-    # links against the system's own installed libvlc (see LibVLCPlugin.cmake)
-    # for both. If it's missing, the dynamic linker will refuse to start this
-    # binary at all a few lines down (and SLVlcProducer would separately fail
-    # to launch the same way) -- so warn clearly and distinctly before that
-    # happens, rather than leaving the user with only the linker's own
-    # cryptic error.
+    # Unlike libcef.so above, libvlc is NOT linked into this binary at all any
+    # more -- since Phase 2 of the licensing split (2026-10-01),
+    # LLStreamingAudio_LibVLC (parcel/streaming audio) is an IPC client of the
+    # separate SLVlcProducer process, the same way RTSP/RTMP-style prim media
+    # already was since the 2026-09-30 producer split. Unlike Windows/macOS,
+    # which vendor their own copy, Linux links against the system's own
+    # installed libvlc (see LibVLCPlugin.cmake), needed only by
+    # SLVlcProducer.exe. If it's missing, this main binary starts and runs
+    # fine regardless -- only SLVlcProducer fails to launch, silently losing
+    # parcel audio and LibVLC-backed prim media -- so warn clearly before
+    # that happens, rather than leaving the user to notice media just never
+    # works with no obvious error.
     MISSING_VLC_LIBS=""
     ldconfig -p | grep -q 'libvlc\.so\.5'     || MISSING_VLC_LIBS="${MISSING_VLC_LIBS}libvlc5 "
     ldconfig -p | grep -q 'libvlccore\.so\.9' || MISSING_VLC_LIBS="${MISSING_VLC_LIBS}libvlccore9 "
     if [ -n "$MISSING_VLC_LIBS" ]; then
-        echo "*** Missing system libraries needed to run the viewer at all: ${MISSING_VLC_LIBS}"
+        echo "*** Missing system libraries needed for parcel audio and LibVLC-backed prim media: ${MISSING_VLC_LIBS}"
         echo "*** Install with, e.g.: sudo apt install libvlc5 libvlccore9   (Debian/Ubuntu)"
         echo "***                 or: sudo dnf install vlc-libs               (Fedora)"
-        echo "*** Without them, the viewer will very likely fail to start."
+        echo "*** Without them, those two features will silently not work; everything else is unaffected."
     fi
 fi
 

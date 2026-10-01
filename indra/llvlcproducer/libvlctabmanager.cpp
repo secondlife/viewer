@@ -102,6 +102,13 @@ namespace
         std::uint32_t generation = 0;
         bool live = false;
 
+        // Set by CreateAudioTrack() (false, i.e. a normal video tab, for everything
+        // CreateTab() creates). Open() skips libvlc_video_set_callbacks()/
+        // libvlc_video_set_format() for an audio-only tab -- no pixel buffer exists to
+        // write into (see pixels below) -- and Resize() is a no-op, since there is no
+        // video geometry to change.
+        bool audioOnly = false;
+
         libvlc_media_player_t* player = nullptr;
         std::string currentUrl; // see Open()'s same-URL guard
 
@@ -297,6 +304,48 @@ public:
         return h;
     }
 
+    VlcTabHandle CreateAudioTrack()
+    {
+        if (!mLibVLC)
+        {
+            return VlcTabHandle::Invalid();
+        }
+
+        std::uint32_t index = 0;
+        for (; index < mTabs.size(); ++index)
+        {
+            if (!mTabs[index]->live) break;
+        }
+        if (index == mTabs.size())
+        {
+            mTabs.push_back(std::make_unique<Tab>());
+        }
+
+        Tab& t = *mTabs[index];
+        t.live = true;
+        t.audioOnly = true;
+        t.generation++;
+        t.player = nullptr;
+        t.frameDirty = false;
+        t.loadStartPending = false;
+        t.loadEndPending = false;
+        t.loadEndStatus = 0;
+        t.playStateChangedPending = false;
+        t.playStateIsPlaying = false;
+        // No video geometry at all -- see Open()'s own audioOnly guard, which never
+        // reads these. t.pixels is deliberately left empty (never allocated).
+        t.width = t.height = t.maxWidth = t.maxHeight = 0;
+        t.pendingWidth = t.pendingHeight = 0;
+        t.hasPendingResize = false;
+        t.lastResizeRequestTime = std::chrono::steady_clock::time_point{};
+        t.lastAppliedResizeTime = std::chrono::steady_clock::time_point{};
+
+        VlcTabHandle h;
+        h.index = index;
+        h.generation = t.generation;
+        return h;
+    }
+
     void DestroyTab(VlcTabHandle handle)
     {
         Tab* t = find(handle);
@@ -368,16 +417,19 @@ public:
         libvlc_media_release(media); // player takes its own reference -- safe to release ours now
         if (!t->player) return;
 
-        libvlc_video_set_callbacks(t->player, &lock_cb, &unlock_cb, &display_cb, t);
-        libvlc_video_set_format(t->player, kChroma, t->width, t->height, t->width * kBytesPerPixel);
-        // No pending resize to coalesce here -- closePlayer() just above already
-        // synchronously tore down any previous player (libvlc_media_player_stop() is
-        // documented synchronous), and this new one hasn't decoded a single frame yet,
-        // so applying t->width/height directly, right now, is safe -- see Resize()'s
-        // own comment on why a MID-STREAM resize can't do the same.
-        t->pendingWidth = t->width;
-        t->pendingHeight = t->height;
-        t->hasPendingResize = false;
+        if (!t->audioOnly)
+        {
+            libvlc_video_set_callbacks(t->player, &lock_cb, &unlock_cb, &display_cb, t);
+            libvlc_video_set_format(t->player, kChroma, t->width, t->height, t->width * kBytesPerPixel);
+            // No pending resize to coalesce here -- closePlayer() just above already
+            // synchronously tore down any previous player (libvlc_media_player_stop() is
+            // documented synchronous), and this new one hasn't decoded a single frame yet,
+            // so applying t->width/height directly, right now, is safe -- see Resize()'s
+            // own comment on why a MID-STREAM resize can't do the same.
+            t->pendingWidth = t->width;
+            t->pendingHeight = t->height;
+            t->hasPendingResize = false;
+        }
         // Reset for the same reason -- Open() can run again on an already-live tab (a
         // URL change), and a stale timestamp from that tab's PREVIOUS lifetime must not
         // delay this new player's very first frame.
@@ -401,7 +453,7 @@ public:
     void Resize(VlcTabHandle handle, int width, int height)
     {
         Tab* t = find(handle);
-        if (!t) return;
+        if (!t || t->audioOnly) return; // no video geometry to change -- see Open()'s own guard
 
         // width/height are already clamped to this slot's ceiling by the caller
         // (llvlcproducer.cpp's kResize handler), but clamp again here too -- t->pixels'
@@ -671,6 +723,7 @@ LibVlcTabManager::LibVlcTabManager(const std::string& log_file_path)
 LibVlcTabManager::~LibVlcTabManager() = default;
 
 VlcTabHandle LibVlcTabManager::CreateTab(int width, int height, int maxWidth, int maxHeight) { return mImpl->CreateTab(width, height, maxWidth, maxHeight); }
+VlcTabHandle LibVlcTabManager::CreateAudioTrack() { return mImpl->CreateAudioTrack(); }
 void LibVlcTabManager::DestroyTab(VlcTabHandle handle) { mImpl->DestroyTab(handle); }
 void LibVlcTabManager::DestroyAll() { mImpl->DestroyAll(); }
 bool LibVlcTabManager::IsValid(VlcTabHandle handle) const { return mImpl->IsValid(handle); }

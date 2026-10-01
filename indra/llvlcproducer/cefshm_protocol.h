@@ -112,11 +112,16 @@ namespace cefshm_demo
                           // SendExternalBeginFrame (libvlc decodes on its own clock regardless).
 
         // consumer -> producer, control channel only
-        kRequestSlot     = 5, // data = {uint8 isUI, uint32 maxWidth, uint32 maxHeight, uint8 backend}
-                          // -- see indra/llcefproducer/cefshm_protocol.h's own much longer comment.
-                          // backend is vestigial since the 2026-09-30 producer split (which producer
-                          // you're talking to already fixes the backend) -- this producer ignores it
-                          // and always treats every request as its own, LibVlc.
+        kRequestSlot     = 5, // data = {uint8 isUI, uint32 maxWidth, uint32 maxHeight, uint8 backend,
+                          // uint8 audioOnly} -- see indra/llcefproducer/cefshm_protocol.h's own much
+                          // longer comment. backend is vestigial since the 2026-09-30 producer split
+                          // (which producer you're talking to already fixes the backend) -- this
+                          // producer ignores it and always treats every request as its own, LibVlc.
+                          // audioOnly (added for parcel/streaming-music audio, which has no video --
+                          // see llstreamingaudio_libvlc.cpp) is honoured here: it skips
+                          // LibVlcTabManager::CreateTab()'s video pipeline entirely in favor of
+                          // CreateAudioTrack(), and the resulting slot never publishes a frame (same
+                          // 1x1-geometry, frame-less pattern the control channel itself already uses).
         kSetOpenIDCookie = 26, // CEF only -- LibVLC has no cookie-store concept at all. Never sent
                           // here; kept in the enum only so it stays word-for-word identical to
                           // every other copy of this header.
@@ -211,27 +216,15 @@ namespace cefshm_demo
         return true;
     }
 
-    inline std::uint32_t pack_request_slot(std::uint8_t* d, bool isUI, std::uint32_t maxWidth,
-                                            std::uint32_t maxHeight, std::uint8_t backend)
-    {
-        d[0] = isUI ? 1 : 0;
-        std::uint32_t n = 1 + pack_u32(d + 1, maxWidth);
-        n += pack_u32(d + n, maxHeight);
-        d[n++] = backend;
-        return n;
-    }
-
-    // false (only isUI populated) for the old, isUI-only payload -- see kRequestSlot's
-    // own comment on why that's a safe, deliberate fallback rather than an error. backend
-    // defaults to 0 (Cef) for any payload shorter than 10 bytes, for the same reason --
-    // assigned before the n<9 early return, so that fallback still leaves it initialized
-    // (this producer ignores the value either way -- see kRequestSlot's own comment above).
+    // Only the unpack half is needed here -- this producer never sends a slot request,
+    // only receives one.
     inline bool unpack_request_slot(const std::uint8_t* d, std::size_t n, bool& isUI,
                                      std::uint32_t& maxWidth, std::uint32_t& maxHeight,
-                                     std::uint8_t& backend)
+                                     std::uint8_t& backend, bool& audioOnly)
     {
         isUI = (n == 0) || (d[0] != 0);
         backend = (n >= 10) ? d[9] : 0;
+        audioOnly = (n >= 11) && (d[10] != 0);
         if (n < 9) return false;
         return unpack_u32(d + 1, n - 1, maxWidth) && unpack_u32(d + 5, n - 5, maxHeight);
     }

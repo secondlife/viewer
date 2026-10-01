@@ -139,7 +139,6 @@
 #include "llcoros.h"
 #include "llexception.h"
 #include "llembeddedbrowser.h"
-#include "vlc/libvlc_version.h"
 
 #if LL_DARWIN
 #include "llwindowmacosx.h"
@@ -3708,13 +3707,15 @@ LLSD LLAppViewer::getViewerInfo() const
     // -- removed along with the "dullahan" package itself (see EmbeddedBrowser.cmake).
     info["LIBCEF_VERSION"] = info["EMBEDDED_LLCEFBROWSER_VERSION"];
 
-    std::ostringstream vlc_ver_codec;
-    vlc_ver_codec << LIBVLC_VERSION_MAJOR;
-    vlc_ver_codec << ".";
-    vlc_ver_codec << LIBVLC_VERSION_MINOR;
-    vlc_ver_codec << ".";
-    vlc_ver_codec << LIBVLC_VERSION_REVISION;
-    info["LIBVLC_VERSION"] = vlc_ver_codec.str();
+    // LIBVLC_VERSION: libvlc is no longer linked into this binary at all as of Phase 2
+    // (2026-10-01) of the GPL v2/LGPL v2.1 licensing split -- it now runs only inside
+    // SLVlcProducer (see llstreamingaudio_libvlc.cpp). The real version would need to
+    // come from there, the same way EMBEDDED_LLCEFBROWSER_VERSION already does from
+    // SLCefProducer's own kEventVersionInfo -- not yet wired up for SLVlcProducer (see
+    // doc/Embedded_Browser.md's own "Future work" note), so report that plainly rather
+    // than leave en/strings.xml's still-live "LibVLC Version: [LIBVLC_VERSION]" line
+    // showing a raw, unsubstituted token in the About floater.
+    info["LIBVLC_VERSION"] = "reported by SLVlcProducer (not yet wired up)";
 
     LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
     S32 packets_in = (S32)recording.getSum(LLStatViewer::PACKETS_IN);

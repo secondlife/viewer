@@ -575,16 +575,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("OpenAL32.dll")
                 self.path("alut.dll")
 
-            # LibVLC runtime for parcel audio/music streaming (LLStreamingAudio_LibVLC,
-            # indra/newview/llstreamingaudio_libvlc.cpp) -- linked directly into
-            # secondlife-bin.exe itself, independent of ENABLE_MEDIA_PLUGINS and the
-            # (unbuilt-by-default) media_plugin_libvlc.dll below. plugins/ is libvlc's own
-            # dynamically loaded demux/codec/access plugins, required for it to decode
-            # anything at all; process_directory() recurses through it automatically.
-            self.path("libvlc.dll")
-            self.path("libvlccore.dll")
-            self.path("plugins")
-
             # For textures
             self.path("openjp2.dll")
 
@@ -721,14 +711,15 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path_optional("vcruntime140_1.dll")
 
                 # LibVLC runtime -- SLVlcProducer.exe itself is the process that actually
-                # links and calls into libvlc (LibVlcTabManager, for RTSP/etc playback),
-                # not secondlife-bin.exe, so it needs its own copy here, same reasoning
-                # as the MSVC DLLs just above. This is a SEPARATE copy from the one in
-                # the top-level sharedlibs block above (that one is for
-                # LLStreamingAudio_LibVLC, parcel audio, which links libvlc directly
-                # into secondlife-bin.exe instead) -- both processes link libvlc
-                # independently and each needs the runtime sitting next to it.
-                # process_directory() recurses through plugins/ automatically.
+                # links and calls into libvlc (LibVlcTabManager, for RTSP/etc playback,
+                # and -- since Phase 2 of the licensing split, 2026-10-01 --
+                # LLStreamingAudio_LibVLC's parcel-audio IPC client too, both reached
+                # only via IPC now), so it needs its own copy here, same reasoning as the
+                # MSVC DLLs just above. secondlife-bin.exe itself no longer links libvlc
+                # at all -- there used to be a second, separate copy in the top-level
+                # sharedlibs block above for its own direct linkage; removed along with
+                # that linkage. process_directory() recurses through plugins/
+                # automatically.
                 self.path("libvlc.dll")
                 self.path("libvlccore.dll")
                 self.path("plugins")
@@ -1011,14 +1002,10 @@ class Darwin_x86_64_Manifest(ViewerManifest):
             with self.prefix(src=relpkgdir, dst="Frameworks"):
                 self.path("libndofdev.dylib")
 
-                # LLStreamingAudio_LibVLC links libvlc directly into this exe itself
-                # (parcel audio, see llstreamingaudio_libvlc.cpp) -- needs its own
-                # copy here since @executable_path/../Frameworks (this exe's own
-                # INSTALL_RPATH, see newview/CMakeLists.txt) is a different
-                # directory from where SLVlcProducer's own libvlc copy lands
-                # (see its own comment in this method, below).
-                self.path("libvlc*.dylib*")
-
+                # No libvlc*.dylib* copy here any more -- secondlife-bin.exe no longer
+                # links libvlc at all as of Phase 2 of the licensing split (2026-10-01).
+                # LLStreamingAudio_LibVLC (llstreamingaudio_libvlc.cpp) is an IPC client
+                # of SLVlcProducer now; see that process's own libvlc*.dylib* copy below.
 
                 if self.args.get('bugsplat'):
                     self.path2basename(relpkgdir, "BugsplatMac.framework")
@@ -1276,21 +1263,22 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                                     self.args['configuration']),
                                        "SLCefProducer")
 
-                # SLVlcProducer: the embedded-browser LibVLC producer (RTSP/RTMP/MMS --
-                # media CEF cannot play), launched/monitored by the Viewer itself -- its
-                # own standalone directory and process, separate from SLCefProducer
-                # above, since the 2026-09-30 producer split.
+                # SLVlcProducer: the embedded-browser LibVLC producer -- RTSP/RTMP/MMS
+                # media CEF cannot play, and (since Phase 2 of the licensing split,
+                # 2026-10-01) LLStreamingAudio_LibVLC's parcel-audio IPC client too --
+                # launched/monitored by the Viewer itself, its own standalone directory
+                # and process, separate from SLCefProducer above.
                 with self.prefix(dst="SLVlcProducer"):
                     self.path2basename(os.path.join(os.pardir, 'llvlcproducer',
                                                     self.args['configuration']),
                                        "SLVlcProducer")
 
-                    # libvlc*.dylib* is bundled directly alongside this executable
-                    # (see indra/llvlcproducer/CMakeLists.txt's own @executable_path
-                    # rpath, no ../.. detour needed) -- a SEPARATE copy from the one
-                    # under Contents/Frameworks (that one is for
-                    # LLStreamingAudio_LibVLC, parcel audio, which links libvlc
-                    # directly into secondlife-bin.exe instead).
+                    # libvlc*.dylib* is bundled directly alongside this executable (see
+                    # indra/llvlcproducer/CMakeLists.txt's own @executable_path rpath,
+                    # no ../.. detour needed). secondlife-bin.exe no longer links libvlc
+                    # at all, so this is the only libvlc*.dylib* copy in the whole
+                    # package now (besides the legacy, ENABLE_MEDIA_PLUGINS-gated
+                    # SLPlugin.app path above, off by default).
                     with self.prefix(src=relpkgdir):
                         path_optional("libvlc*.dylib*", "libvlc*.dylib*")
                         with self.prefix(src='plugins', dst="plugins"):

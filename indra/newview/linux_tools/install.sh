@@ -123,24 +123,26 @@ function check_media_dependencies()
         echo
     fi
 
-    # Unlike libcef.so above, libvlc is linked directly into the main viewer
-    # binary itself (parcel/streaming audio) -- and, since the 2026-09-30
-    # producer split, into the separate SLVlcProducer process too (RTSP/RTMP-
-    # style prim media). Unlike Windows/macOS, which vendor their own copy,
-    # Linux links against the system's own installed libvlc (see
-    # LibVLCPlugin.cmake) for both. If it's missing, the dynamic linker will
-    # refuse to start the main viewer binary at all, not just lose one
-    # feature (and SLVlcProducer would separately fail to launch the same way).
+    # Unlike libcef.so above, libvlc is NOT linked into the main viewer binary
+    # at all any more -- since Phase 2 of the licensing split (2026-10-01),
+    # LLStreamingAudio_LibVLC (parcel/streaming audio) is an IPC client of the
+    # separate SLVlcProducer process, the same way RTSP/RTMP-style prim media
+    # already was since the 2026-09-30 producer split. Unlike Windows/macOS,
+    # which vendor their own copy, Linux links against the system's own
+    # installed libvlc (see LibVLCPlugin.cmake), needed only by
+    # SLVlcProducer.exe. If it's missing, the main viewer binary starts and
+    # runs fine regardless -- only SLVlcProducer fails to launch, silently
+    # losing parcel audio and LibVLC-backed prim media.
     local missing_vlc=""
     ldconfig -p | grep -q 'libvlc\.so\.5'     || missing_vlc="${missing_vlc}libvlc5 "
     ldconfig -p | grep -q 'libvlccore\.so\.9' || missing_vlc="${missing_vlc}libvlccore9 "
 
     if [ -n "$missing_vlc" ]; then
-        warn "Missing system libraries needed to run the viewer at all: ${missing_vlc}"
+        warn "Missing system libraries needed for parcel audio and LibVLC-backed prim media: ${missing_vlc}"
         warn "Install them with your distro's package manager, e.g.:"
         warn "  sudo apt install libvlc5 libvlccore9   (Debian/Ubuntu)"
         warn "  sudo dnf install vlc-libs              (Fedora)"
-        warn "Without them, the viewer will very likely fail to start."
+        warn "Without them, those two features will silently not work; everything else is unaffected."
         echo
     fi
 }

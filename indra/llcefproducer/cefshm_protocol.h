@@ -148,8 +148,8 @@ namespace cefshm_demo
                           // on the producer side branches on either.
 
         // consumer -> producer, control channel only
-        kRequestSlot     = 5, // data = {uint8 isUI, uint32 maxWidth, uint32 maxHeight, uint8 backend}
-                          // -- isUI selects which of the producer's two CefRequestContexts (and
+        kRequestSlot     = 5, // data = {uint8 isUI, uint32 maxWidth, uint32 maxHeight, uint8 backend,
+                          // uint8 audioOnly} -- isUI selects which of the producer's two CefRequestContexts (and
                           // therefore which cookie store) the new browser is created in: true
                           // for 2D floater/UI media, false for in-world/prim media. See
                           // llCefBrowserManager::CreateBrowser()'s own isUI parameter and
@@ -169,7 +169,11 @@ namespace cefshm_demo
                           // indra/llembeddedbrowser/cefshm_protocol.h), so this byte is now
                           // vestigial -- kept on the wire unchanged (zero format churn, zero risk
                           // to the 9-byte fallback below) but each producer ignores its value and
-                          // always treats every request as its own single, fixed backend.
+                          // always treats every request as its own single, fixed backend. audioOnly
+                          // (an 11th byte) selects SLVlcProducer's frame-less audio-track path for
+                          // parcel/streaming-music audio (see llstreamingaudio_libvlc.cpp) -- CEF
+                          // has no equivalent concept, so this producer unpacks and ignores it, the
+                          // same way it already ignores backend.
         kSetOpenIDCookie = 26, // data = {5x (uint32 len, bytes): url, name, value, domain, path;
                           // uint8 httpOnly; uint8 secure; uint8 alsoPrimContext} -- straight
                           // into llCefBrowserManager::SetCookie(), which always targets the UI
@@ -665,26 +669,22 @@ namespace cefshm_demo
         return true;
     }
 
-    inline std::uint32_t pack_request_slot(std::uint8_t* d, bool isUI, std::uint32_t maxWidth,
-                                            std::uint32_t maxHeight, std::uint8_t backend)
-    {
-        d[0] = isUI ? 1 : 0;
-        std::uint32_t n = 1 + pack_u32(d + 1, maxWidth);
-        n += pack_u32(d + n, maxHeight);
-        d[n++] = backend;
-        return n;
-    }
-
+    // Only the unpack half is needed here -- this producer never sends a slot request,
+    // only receives one.
+    //
     // false (only isUI populated) for the old, isUI-only payload -- see kRequestSlot's
     // own comment on why that's a safe, deliberate fallback rather than an error. backend
     // defaults to 0 (Cef) for any payload shorter than 10 bytes, for the same reason --
     // assigned before the n<9 early return, so that fallback still leaves it initialized.
+    // audioOnly (an 11th byte) defaults to false the same way and is unused here -- CEF has
+    // no audio-only-slot concept, see kRequestSlot's own comment above.
     inline bool unpack_request_slot(const std::uint8_t* d, std::size_t n, bool& isUI,
                                      std::uint32_t& maxWidth, std::uint32_t& maxHeight,
-                                     std::uint8_t& backend)
+                                     std::uint8_t& backend, bool& audioOnly)
     {
         isUI = (n == 0) || (d[0] != 0);
         backend = (n >= 10) ? d[9] : 0;
+        audioOnly = (n >= 11) && (d[10] != 0);
         if (n < 9) return false;
         return unpack_u32(d + 1, n - 1, maxWidth) && unpack_u32(d + 5, n - 5, maxHeight);
     }

@@ -538,12 +538,14 @@ namespace cefshm_demo
     }
 
     inline std::uint32_t pack_request_slot(std::uint8_t* d, bool isUI, std::uint32_t maxWidth,
-                                            std::uint32_t maxHeight, std::uint8_t backend)
+                                            std::uint32_t maxHeight, std::uint8_t backend,
+                                            bool audioOnly)
     {
         d[0] = isUI ? 1 : 0;
         std::uint32_t n = 1 + pack_u32(d + 1, maxWidth);
         n += pack_u32(d + n, maxHeight);
         d[n++] = backend;
+        d[n++] = audioOnly ? 1 : 0;
         return n;
     }
 
@@ -551,12 +553,18 @@ namespace cefshm_demo
     // own comment on why that's a safe, deliberate fallback rather than an error. backend
     // defaults to 0 (Cef) for any payload shorter than 10 bytes, for the same reason --
     // assigned before the n<9 early return, so that fallback still leaves it initialized.
+    // audioOnly (an 11th byte, added for parcel/streaming-music audio going through
+    // SLVlcProducer via IPC -- see llstreamingaudio_libvlc.cpp) defaults to false for any
+    // payload shorter than 11 bytes, the same backward-compat shape as backend above --
+    // every existing caller (every LLEmbeddedBrowserTab) is never audio-only, so this
+    // never changes behavior for them even before they're rebuilt against this signature.
     inline bool unpack_request_slot(const std::uint8_t* d, std::size_t n, bool& isUI,
                                      std::uint32_t& maxWidth, std::uint32_t& maxHeight,
-                                     std::uint8_t& backend)
+                                     std::uint8_t& backend, bool& audioOnly)
     {
         isUI = (n == 0) || (d[0] != 0);
         backend = (n >= 10) ? d[9] : 0;
+        audioOnly = (n >= 11) && (d[10] != 0);
         if (n < 9) return false;
         return unpack_u32(d + 1, n - 1, maxWidth) && unpack_u32(d + 5, n - 5, maxHeight);
     }
