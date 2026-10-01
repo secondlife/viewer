@@ -487,6 +487,10 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     const bool recv_reliable = (buffer[0] & LL_RELIABLE_FLAG) != 0;
     const bool recv_resent = (buffer[0] & LL_RESENT_FLAG) != 0;
 
+    sTrueReceiveSize = pkt.getSize();
+    sIncomingCompressedSize = compressed_size;
+    sCurrentRecvPacketID = recv_packet_id;
+
     if (cdp && recv_resent)
     {
         bool duplicate_resend;
