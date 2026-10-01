@@ -11,10 +11,12 @@ if (USE_DISCORD)
 endif ()
 include(OPENAL)
 if (NOT LINUX)
-  # ll::libvlc is otherwise only defined later, from newview/CMakeLists.txt -- this file is
-  # included from llcommon/CMakeLists.txt, processed well before newview, so without this the
-  # if (TARGET ll::libvlc) check below would always be false. LibVLCPlugin.cmake has its own
-  # include_guard(), so including it again from newview later is a safe no-op.
+  # ll::libvlc is otherwise only defined later, from indra/llvlcproducer/CMakeLists.txt (the
+  # only place that still links it as of Phase 2 of the licensing split, 2026-10-01 --
+  # secondlife-bin.exe no longer does) -- this file is included from llcommon/CMakeLists.txt,
+  # processed well before llvlcproducer, so without this the if (TARGET ll::libvlc) check
+  # below would always be false. LibVLCPlugin.cmake has its own include_guard(), so including
+  # it again from llvlcproducer later is a safe no-op.
   include(LibVLCPlugin)
 endif ()
 
