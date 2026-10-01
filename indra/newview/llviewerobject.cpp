@@ -142,7 +142,7 @@ std::unordered_map<LLUUID, std::vector<LLViewerObject*>> LLViewerObject::sPendin
 
 const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
 const U32 MAX_INV_FILE_READ_FAILS = 25;
-const S32 MAX_OBJECT_BINARY_DATA_SIZE = 60 + 16;
+const S32 MAX_OBJECT_BINARY_DATA_SIZE = 124 + 16; // OBJECTDATA_FIELD_SIZE_140, the largest ObjectData layout
 
 const F64 INVENTORY_UPDATE_WAIT_TIME_DESYNC = 5; // seconds
 const F64 INVENTORY_UPDATE_WAIT_TIME_OUTDATED = 1;
@@ -1359,7 +1359,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 mesgsys->getVector3Fast(_PREHASH_ObjectData, _PREHASH_Scale, new_scale, block_num );
                 length = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_ObjectData);
                 mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num, MAX_OBJECT_BINARY_DATA_SIZE);
-                length = llmin(length, MAX_OBJECT_BINARY_DATA_SIZE);  // getBinaryDataFast() safely fills the buffer to max_size
+                // getBinaryDataFast() safely fills the buffer to max_size.  Don't clamp length:
+                // an oversized buffer must fall through to the default case below, not be
+                // mistaken for the largest known layout.
 
                 mTotalCRC = crc;
                 // Might need to update mSourceMuted here to properly pick up new radius
@@ -1621,7 +1623,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 #endif
                 length = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_ObjectData);
                 mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num, MAX_OBJECT_BINARY_DATA_SIZE);
-                length = llmin(length, MAX_OBJECT_BINARY_DATA_SIZE);    // getBinaryDataFast() safely fills the buffer to max_size
+                // getBinaryDataFast() safely fills the buffer to max_size.  Don't clamp length:
+                // an oversized buffer must fall through to the default case below, not be
+                // mistaken for the largest known layout.
                 count  = 0;
                 LLVector4 collision_plane;
 
@@ -1706,13 +1710,13 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     setAngularVelocity(new_angv);
                     break;
 
-                // Previous viewers had code for length 76, 60 or 16 byte length
+                // Previous viewers had code for 76, 60 or 16 byte length
                 // with full precision or 8 bit quanitzation, but the
                 // SL servers will never send those data formats.  If you ever see this
                 // warning in Second Life, please file a bug report
                 default:
                     LL_WARNS("UpdateFail") << "Unexpected ObjectData buffer size " << length << " for " << getID()
-                                           << " with OUT_FULL message" << LL_ENDL;
+                                           << " with OUT_TERSE_IMPROVED message" << LL_ENDL;
                 }
 
                 U8 state;
