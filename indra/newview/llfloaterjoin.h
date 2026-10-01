@@ -42,7 +42,10 @@ private:
     LLFloaterJoin(const LLSD& key);
     ~LLFloaterJoin() = default;
 
+    void updateFloaterSize();
+
     LLMediaCtrl* mWebBrowser = nullptr;
     U32 mOverlayFrame = 0;
+    LLRect mNativeRect;
 };
 

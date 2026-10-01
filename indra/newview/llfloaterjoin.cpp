@@ -85,12 +85,30 @@ LLFloaterJoin::LLFloaterJoin(const LLSD& key)
 bool LLFloaterJoin::postBuild()
 {
     mWebBrowser = getChild<LLMediaCtrl>("join_browser");
+    mNativeRect = getRect();
     return true;
+}
+
+void LLFloaterJoin::updateFloaterSize()
+{
+    const LLRect& screen_rect = gFloaterView->getRect();
+    S32 width = llmin(mNativeRect.getWidth(), screen_rect.getWidth());
+    S32 height = llmin(mNativeRect.getHeight(), screen_rect.getHeight());
+
+    // Shrink the floater to fit the screen, letting scroll container reveal the rest if
+    // the screen is currently smaller than the floater's native size, else restore it
+    if (width != getRect().getWidth() || height != getRect().getHeight())
+    {
+        reshape(width, height);
+        center();
+    }
 }
 
 void LLFloaterJoin::draw()
 {
     static LLCachedControl<F32> overlay_opacity(gSavedSettings, "JoinFloaterOverlayOpacity");
+
+    updateFloaterSize();
 
     // As a modal dialog this floater is drawn twice per frame (once by LLFloaterView and once
     // by LLPopupView), so paint the overlay only on the first pass of each frame
