@@ -489,8 +489,12 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
 
     if (cdp && recv_resent)
     {
-        std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
-        if (cdp->isDuplicateResend(recv_packet_id))
+        bool duplicate_resend;
+        {
+            std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
+            duplicate_resend = cdp->isDuplicateResend(recv_packet_id);
+        }
+        if (duplicate_resend)
         {
             if (recv_reliable)
             {
