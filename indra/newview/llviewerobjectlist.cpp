@@ -458,8 +458,9 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
         return;
     }
 
-    U8 compressed_dpbuffer[2048];
-    LLDataPackerBinaryBuffer compressed_dp(compressed_dpbuffer, 2048);
+    constexpr S32 COMPRESSED_DPBUFFER_SIZE = 2048;
+    U8 compressed_dpbuffer[COMPRESSED_DPBUFFER_SIZE];
+    LLDataPackerBinaryBuffer compressed_dp(compressed_dpbuffer, COMPRESSED_DPBUFFER_SIZE);
     LLViewerStatsRecorder& recorder = LLViewerStatsRecorder::instance();
 
     for (i = 0; i < num_objects; i++)
@@ -472,8 +473,22 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
             compressed_dp.reset();
 
             S32 uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
+            if (uncompressed_length <= 0 || uncompressed_length > COMPRESSED_DPBUFFER_SIZE)
+            {
+                // getBinaryDataFast() truncates to the buffer size, so the packer
+                // must never be told the data is longer than what was copied.
+                // A block this size is corrupt: discard it rather than unpack
+                // (or cache) truncated data.
+                LL_WARNS("ObjectUpdate") << "Discarding compressed ObjectData block " << i << " of " << num_objects
+                    << " with invalid Data size " << uncompressed_length
+                    << " (buffer size " << COMPRESSED_DPBUFFER_SIZE << ")"
+                    << ", update_type " << (S32)update_type
+                    << ", region " << regionp->getName() << " " << regionp->getHost() << LL_ENDL;
+                recorder.objectUpdateFailure();
+                continue;
+            }
             LL_DEBUGS("ObjectUpdate") << "got binary data from message to compressed_dpbuffer" << LL_ENDL;
-            mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i, 2048);
+            mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i, COMPRESSED_DPBUFFER_SIZE);
             compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
 
             if (update_type != OUT_TERSE_IMPROVED) // OUT_FULL_COMPRESSED only?
