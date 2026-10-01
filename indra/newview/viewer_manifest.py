@@ -634,13 +634,16 @@ class Windows_x86_64_Manifest(ViewerManifest):
                     with self.prefix(src=os.path.join('example', self.args['configuration'])):
                         self.path_optional("media_plugin_example.dll")
 
-        with self.prefix(dst="SLMediaProducer"):
+        with self.prefix(dst="SLCefProducer"):
             # Embedded-browser CEF producer, launched/monitored by the Viewer itself --
             # lives in its own directory (not next to secondlife-bin.exe) so it sits
-            # alongside the CEF runtime files below that it needs.
+            # alongside the CEF runtime files below that it needs. Split from the former
+            # combined SLMediaProducer 2026-09-30 for licensing reasons (see
+            # doc/Embedded_Browser.md) -- see the separate SLVlcProducer block below for
+            # the sibling LibVLC-only producer this no longer bundles.
             with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                              'llmediaproducer', self.args['configuration'])):
-                self.path("SLMediaProducer.exe")
+                                              'llcefproducer', self.args['configuration'])):
+                self.path("SLCefProducer.exe")
 
             # CEF runtime files - debug
             # CEF runtime files - not debug (release, relwithdebinfo etc.)
@@ -658,7 +661,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("vk_swiftshader_icd.json")
                 self.path("vulkan-1.dll")
                 # dullahan_host.exe (the legacy media_plugin_cef's own CEF subprocess
-                # helper) is deliberately not copied here -- SLMediaProducer.exe re-execs
+                # helper) is deliberately not copied here -- SLCefProducer.exe re-execs
                 # itself for that instead (llCefBrowserLib::ExecuteSubProcess()). Not
                 # path_optional(): dullahan_host.exe ships inside the CEF package itself,
                 # so it always exists on disk regardless of ENABLE_MEDIA_PLUGINS -- only
@@ -672,19 +675,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("msvcp140.dll")
                 self.path("vcruntime140.dll")
                 self.path_optional("vcruntime140_1.dll")
-
-                # LibVLC runtime -- SLMediaProducer.exe itself is the process that actually
-                # links and calls into libvlc (LibVlcTabManager, for RTSP/etc playback),
-                # not secondlife-bin.exe, so it needs its own copy here, same reasoning
-                # as the MSVC DLLs just above. This is a SEPARATE copy from the one in
-                # the top-level sharedlibs block above (that one is for
-                # LLStreamingAudio_LibVLC, parcel audio, which links libvlc directly
-                # into secondlife-bin.exe instead) -- both processes link libvlc
-                # independently and each needs the runtime sitting next to it.
-                # process_directory() recurses through plugins/ automatically.
-                self.path("libvlc.dll")
-                self.path("libvlccore.dll")
-                self.path("plugins")
 
             # CEF files common to all configurations
             with self.prefix(src=os.path.join(pkgdir, 'resources')):
@@ -710,6 +700,38 @@ class Windows_x86_64_Manifest(ViewerManifest):
                     self.path("%s.pak" % locale)
                     for gender in ("FEMININE", "MASCULINE", "NEUTER"):
                         self.path("%s_%s.pak" % (locale, gender))
+
+        with self.prefix(dst="SLVlcProducer"):
+            # Embedded-browser LibVLC producer (RTSP/RTMP/MMS -- media CEF cannot play),
+            # launched/monitored by the Viewer itself -- its own standalone directory and
+            # process, separate from SLCefProducer above, since the 2026-09-30 producer
+            # split (the vendored libvlc package is GPL v2, this project is LGPL v2.1 --
+            # see doc/Embedded_Browser.md for the full rationale).
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                              'llvlcproducer', self.args['configuration'])):
+                self.path("SLVlcProducer.exe")
+
+            # MSVC DLLs needed for libvlc and have to be in same directory as the exe --
+            # this producer has no CEF runtime dependency at all, so needs nothing else
+            # from the pkgdir/bin block above.
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir,
+                                              'sharedlibs', self.args['buildtype'])):
+                self.path("msvcp140.dll")
+                self.path("vcruntime140.dll")
+                self.path_optional("vcruntime140_1.dll")
+
+                # LibVLC runtime -- SLVlcProducer.exe itself is the process that actually
+                # links and calls into libvlc (LibVlcTabManager, for RTSP/etc playback),
+                # not secondlife-bin.exe, so it needs its own copy here, same reasoning
+                # as the MSVC DLLs just above. This is a SEPARATE copy from the one in
+                # the top-level sharedlibs block above (that one is for
+                # LLStreamingAudio_LibVLC, parcel audio, which links libvlc directly
+                # into secondlife-bin.exe instead) -- both processes link libvlc
+                # independently and each needs the runtime sitting next to it.
+                # process_directory() recurses through plugins/ automatically.
+                self.path("libvlc.dll")
+                self.path("libvlccore.dll")
+                self.path("plugins")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"
@@ -993,7 +1015,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # (parcel audio, see llstreamingaudio_libvlc.cpp) -- needs its own
                 # copy here since @executable_path/../Frameworks (this exe's own
                 # INSTALL_RPATH, see newview/CMakeLists.txt) is a different
-                # directory from where SLMediaProducer's own libvlc copy lands
+                # directory from where SLVlcProducer's own libvlc copy lands
                 # (see its own comment in this method, below).
                 self.path("libvlc*.dylib*")
 
@@ -1178,7 +1200,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # build error, when that build produced none of these. Never
                 # caught until now because nobody had actually configured
                 # this branch on Darwin since that default changed -- see
-                # SLMediaProducer's own copy block below for the real,
+                # SLCefProducer/SLVlcProducer's own copy blocks below for the real,
                 # always-built embedded-browser equivalent.
                 executable_path = {}
                 embedded_apps = [ (os.path.join("llplugin", "slplugin"), "SLPlugin.app") ]
@@ -1227,42 +1249,67 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 path_optional("*.dylib", "*.dylib")
                                 path_optional("plugins.dat", "plugins.dat")
 
-                # SLMediaProducer: the embedded-browser CEF producer, launched/
+                # SLCefProducer: the embedded-browser CEF producer, launched/
                 # monitored by the Viewer itself, always built (unlike the legacy
                 # plugin path above) -- see the Windows manifest's own identical
-                # SLMediaProducer block for the non-macOS-specific rationale.
+                # SLCefProducer block for the non-macOS-specific rationale. Split
+                # from the former combined SLMediaProducer 2026-09-30 for licensing
+                # reasons (see doc/Embedded_Browser.md) -- see the separate
+                # SLVlcProducer block below for the sibling LibVLC-only producer
+                # this no longer bundles.
                 #
                 # Not its own .app bundle (unlike SLPlugin.app above): CEF's
                 # sub-process model on macOS normally needs one (see
                 # llcefbrowser's own src/host/llCefBrowserHost.cpp), but this
                 # project runs with USE_SANDBOX=Off everywhere already (see
                 # llCefBrowserLibInitOptions::noSandbox's own default and
-                # llmediaproducer.cpp's init), so SLMediaProducer uses the
+                # llcefproducer.cpp's init), so SLCefProducer uses the
                 # same single-executable re-exec model Windows/Linux already
                 # use instead (llCefBrowserLib::ExecuteSubProcess(), driven by
                 # an explicit browser_subprocess_path pointing at itself --
-                # see llmediaproducer.cpp's own macOS-specific init options).
+                # see llcefproducer.cpp's own macOS-specific init options).
                 # Simpler, and consistent with every other platform, rather
                 # than deploying 5 separate helper .app bundles for a
                 # sandboxed architecture this project doesn't use.
-                with self.prefix(dst="SLMediaProducer"):
-                    self.path2basename(os.path.join(os.pardir, 'llmediaproducer',
+                with self.prefix(dst="SLCefProducer"):
+                    self.path2basename(os.path.join(os.pardir, 'llcefproducer',
                                                     self.args['configuration']),
-                                       "SLMediaProducer")
+                                       "SLCefProducer")
 
-                # The framework itself lives one level up from SLMediaProducer's
+                # SLVlcProducer: the embedded-browser LibVLC producer (RTSP/RTMP/MMS --
+                # media CEF cannot play), launched/monitored by the Viewer itself -- its
+                # own standalone directory and process, separate from SLCefProducer
+                # above, since the 2026-09-30 producer split.
+                with self.prefix(dst="SLVlcProducer"):
+                    self.path2basename(os.path.join(os.pardir, 'llvlcproducer',
+                                                    self.args['configuration']),
+                                       "SLVlcProducer")
+
+                    # libvlc*.dylib* is bundled directly alongside this executable
+                    # (see indra/llvlcproducer/CMakeLists.txt's own @executable_path
+                    # rpath, no ../.. detour needed) -- a SEPARATE copy from the one
+                    # under Contents/Frameworks (that one is for
+                    # LLStreamingAudio_LibVLC, parcel audio, which links libvlc
+                    # directly into secondlife-bin.exe instead).
+                    with self.prefix(src=relpkgdir):
+                        path_optional("libvlc*.dylib*", "libvlc*.dylib*")
+                        with self.prefix(src='plugins', dst="plugins"):
+                            path_optional("*.dylib", "*.dylib")
+                            path_optional("plugins.dat", "plugins.dat")
+
+                # The framework itself lives one level up from SLCefProducer's
                 # own executable -- @executable_path/../Frameworks/... is a
                 # hard, build-time dyld dependency (see llcefbrowser's own
                 # CMakeLists.txt), not something llCefBrowserLibInitOptions'
                 # frameworkDirPath can redirect; it has to physically exist at
-                # exactly this relative path or SLMediaProducer fails to even
+                # exactly this relative path or SLCefProducer fails to even
                 # launch (confirmed the hard way against the example apps).
                 #
                 # No separate copy of resources.pak/icudtl.dat/locales here --
                 # unlike Windows/Linux, the macOS CEF distribution only ships
                 # those inside the framework's own Contents/Resources (nothing
                 # loose in lib/release/ at all, confirmed against llcefbrowser's
-                # own build-cmd.sh packaging steps); llmediaproducer.cpp points
+                # own build-cmd.sh packaging steps); llcefproducer.cpp points
                 # resourcesDirPath straight at that framework Resources dir,
                 # same as llcefbrowser's own example apps already do.
                 #
@@ -1495,8 +1542,8 @@ class LinuxManifest(ViewerManifest):
         # since that default changed). These plugins' own CEF runtime dependency (the old
         # "dullahan"/cef-bin package, referenced directly below this block previously) was
         # removed from this repo entirely -- nothing provides libcef.so/dullahan_host/etc.
-        # for this legacy path on any platform any more; SLMediaProducer below is this
-        # project's real, shipping CEF integration instead.
+        # for this legacy path on any platform any more; SLCefProducer/SLVlcProducer
+        # below are this project's real, shipping CEF/LibVLC integration instead.
         with self.prefix(dst="bin/llplugin"):
             with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
                 with self.prefix(src='cef'):
@@ -1515,24 +1562,25 @@ class LinuxManifest(ViewerManifest):
                     with self.prefix(src='example'):
                         self.path_optional("libmedia_plugin_example.so")
 
-        # SLMediaProducer: the embedded-browser CEF producer, launched/monitored by the
+        # SLCefProducer: the embedded-browser CEF producer, launched/monitored by the
         # Viewer itself, always built (unlike the legacy plugin path above) -- see the
-        # Windows manifest's own identical SLMediaProducer block for the non-Linux-specific
-        # rationale. Lives in its own bin/SLMediaProducer/ directory (matching
-        # LLDir_Linux::getSLMediaProducerLauncher()'s own getExecutableDir()-relative path),
+        # Windows manifest's own identical SLCefProducer block for the non-Linux-specific
+        # rationale. Split from the former combined SLMediaProducer 2026-09-30 for
+        # licensing reasons (see doc/Embedded_Browser.md) -- see the separate
+        # bin/SLVlcProducer block below for the sibling LibVLC-only producer this no
+        # longer bundles. Lives in its own bin/SLCefProducer/ directory (matching
+        # LLDir_Linux::getSLCefProducerLauncher()'s own getExecutableDir()-relative path),
         # not directly in bin/ alongside secondlife-bin, so it sits next to the CEF runtime
         # files below that it needs -- no separate rpath-reachable "Frameworks"-style
-        # directory the way Darwin needs (see llmediaproducer/CMakeLists.txt's own $ORIGIN
-        # rpath comment). No libvlc copy here (unlike Windows/Darwin): ll::libvlc on Linux
-        # links against the system's own installed libvlc via pkg-config (see
-        # LibVLCPlugin.cmake), not a vendored binary, so there's nothing of ours to copy.
+        # directory the way Darwin needs (see llcefproducer/CMakeLists.txt's own $ORIGIN
+        # rpath comment).
         #
         # Sourced from llcefbrowser's own real autobuild package (built by its linux64
         # build-cmd.sh case) -- not the removed dullahan/cef-bin package the code just above
         # this block used to (and no longer can) pull CEF runtime files from.
-        with self.prefix(dst="bin/SLMediaProducer"):
-            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'llmediaproducer')):
-                self.path("SLMediaProducer")
+        with self.prefix(dst="bin/SLCefProducer"):
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'llcefproducer')):
+                self.path("SLCefProducer")
 
             with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
                 self.path("libcef.so")
@@ -1552,6 +1600,18 @@ class LinuxManifest(ViewerManifest):
 
             with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
                 self.path("*.pak")
+
+        # SLVlcProducer: the embedded-browser LibVLC producer (RTSP/RTMP/MMS -- media CEF
+        # cannot play), launched/monitored by the Viewer itself -- its own standalone
+        # bin/SLVlcProducer/ directory and process, separate from SLCefProducer above,
+        # since the 2026-09-30 producer split. No libvlc copy here (unlike Windows/
+        # Darwin): ll::libvlc on Linux links against the system's own installed libvlc
+        # via pkg-config (see LibVLCPlugin.cmake), not a vendored binary -- confirmed
+        # there is no linux64 entry for the vlc-bin package in autobuild.xml at all, so
+        # there is nothing of ours to copy here either way.
+        with self.prefix(dst="bin/SLVlcProducer"):
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'llvlcproducer')):
+                self.path("SLVlcProducer")
 
         self.path("featuretable_linux.txt")
         self.path("cube.dae")

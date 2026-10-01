@@ -48,13 +48,15 @@ if command -v ldconfig >/dev/null 2>&1; then
     fi
 
     # Unlike libcef.so above, libvlc is linked directly into THIS binary
-    # itself (parcel/streaming audio, and RTSP/RTMP-style prim media via
-    # SLMediaProducer) -- unlike Windows/macOS, which vendor their own copy,
-    # Linux links against the system's own installed libvlc (see
-    # LibVLCPlugin.cmake). If it's missing, the dynamic linker will refuse
-    # to start this binary at all a few lines down, not just lose one
-    # feature -- so warn clearly and distinctly before that happens, rather
-    # than leaving the user with only the linker's own cryptic error.
+    # itself (parcel/streaming audio) -- and, since the 2026-09-30 producer
+    # split, into the separate SLVlcProducer process too (RTSP/RTMP-style
+    # prim media). Unlike Windows/macOS, which vendor their own copy, Linux
+    # links against the system's own installed libvlc (see LibVLCPlugin.cmake)
+    # for both. If it's missing, the dynamic linker will refuse to start this
+    # binary at all a few lines down (and SLVlcProducer would separately fail
+    # to launch the same way) -- so warn clearly and distinctly before that
+    # happens, rather than leaving the user with only the linker's own
+    # cryptic error.
     MISSING_VLC_LIBS=""
     ldconfig -p | grep -q 'libvlc\.so\.5'     || MISSING_VLC_LIBS="${MISSING_VLC_LIBS}libvlc5 "
     ldconfig -p | grep -q 'libvlccore\.so\.9' || MISSING_VLC_LIBS="${MISSING_VLC_LIBS}libvlccore9 "

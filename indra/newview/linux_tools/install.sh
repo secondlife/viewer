@@ -124,11 +124,13 @@ function check_media_dependencies()
     fi
 
     # Unlike libcef.so above, libvlc is linked directly into the main viewer
-    # binary itself (parcel/streaming audio, and RTSP/RTMP-style prim media
-    # via SLMediaProducer) -- unlike Windows/macOS, which vendor their own
-    # copy, Linux links against the system's own installed libvlc (see
-    # LibVLCPlugin.cmake). If it's missing, the dynamic linker will refuse to
-    # start the viewer at all, not just lose one feature.
+    # binary itself (parcel/streaming audio) -- and, since the 2026-09-30
+    # producer split, into the separate SLVlcProducer process too (RTSP/RTMP-
+    # style prim media). Unlike Windows/macOS, which vendor their own copy,
+    # Linux links against the system's own installed libvlc (see
+    # LibVLCPlugin.cmake) for both. If it's missing, the dynamic linker will
+    # refuse to start the main viewer binary at all, not just lose one
+    # feature (and SLVlcProducer would separately fail to launch the same way).
     local missing_vlc=""
     ldconfig -p | grep -q 'libvlc\.so\.5'     || missing_vlc="${missing_vlc}libvlc5 "
     ldconfig -p | grep -q 'libvlccore\.so\.9' || missing_vlc="${missing_vlc}libvlccore9 "

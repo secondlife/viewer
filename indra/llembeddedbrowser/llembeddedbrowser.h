@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <deque>
@@ -469,23 +470,27 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // Called by LLEmbeddedBrowserTab::connectToProducer() on its one failure branch
         // that means "no producer process reachable at all" (as opposed to one that's
         // merely busy/racing another consumer, where relaunching would just kill a
-        // perfectly healthy producer). A no-op if SLMediaProducer is already running, if
-        // UseEmbeddedBrowser is off, or if a relaunch was already attempted recently or
-        // too many times this session -- see the constants in llembeddedbrowser.cpp.
-        void maybeRelaunchProducer();
+        // perfectly healthy producer). A no-op if that backend's own producer is already
+        // running, if UseEmbeddedBrowser is off, or if a relaunch was already attempted
+        // recently or too many times this session -- see the constants in
+        // llembeddedbrowser.cpp. Since the 2026-09-30 SLCefProducer/SLVlcProducer split,
+        // each backend has its own fully independent process/relaunch state (see
+        // mProducers below) -- killing or relaunching one never touches the other.
+        void maybeRelaunchProducer(LLEmbeddedBrowserBackend backend);
 
         // Called by LLEmbeddedBrowserTab::connectToProducer() on every successful
         // connect -- a real connection means whatever relaunch attempts led to it (if
         // any) worked, so a later, unrelated crash should get its own fresh budget
         // rather than inheriting an already-exhausted one.
-        void resetRelaunchAttempts();
+        void resetRelaunchAttempts(LLEmbeddedBrowserBackend backend);
 
     private:
-        // Launches SLMediaProducer via LLProcess, storing the result in mProducerProcess.
-        // Returns false (leaving mProducerProcess untouched) if SLMediaProducer isn't
-        // available on this platform (see LLDir::getSLMediaProducerLauncher()) or the
-        // launch itself failed. Caller must hold mProducerMutex.
-        bool launchProducer();
+        // Launches the given backend's own producer (SLCefProducer or SLVlcProducer) via
+        // LLProcess, storing the result in mProducers[backend].process. Returns false
+        // (leaving that entry untouched) if that producer isn't available on this
+        // platform (see LLDir::getSLCefProducerLauncher()/getSLVlcProducerLauncher()) or
+        // the launch itself failed. Caller must hold mProducerMutex.
+        bool launchProducer(LLEmbeddedBrowserBackend backend);
 
         // Looks up a tab under mTabsMutex and returns a shared_ptr copy rather than a
         // reference into the map, so callers can safely call (potentially slow) methods
@@ -530,13 +535,23 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         mutable std::mutex mCefVersionMutex;
         std::string mCefBrowserVersion;
 
-        // Guards mProducerProcess and the relaunch bookkeeping below -- touched from
-        // init()/reset() on the main thread and from maybeRelaunchProducer()/
-        // resetRelaunchAttempts() on any tab's own background update thread.
+        // Per-backend process handle plus its own independent relaunch bookkeeping --
+        // since the 2026-09-30 SLCefProducer/SLVlcProducer split, these are two wholly
+        // separate OS processes with no ordering constraint between them, so each gets
+        // its own entry rather than sharing one. Indexed by
+        // static_cast<std::size_t>(LLEmbeddedBrowserBackend).
+        struct ProducerHandle
+        {
+            std::shared_ptr<LLProcess> process;
+            int relaunchAttempts = 0;
+            std::chrono::steady_clock::time_point lastRelaunchAttempt;
+        };
+
+        // Guards mProducers -- touched from init()/reset() on the main thread and from
+        // maybeRelaunchProducer()/resetRelaunchAttempts() on any tab's own background
+        // update thread.
         mutable LLMutex mProducerMutex;
-        std::shared_ptr<LLProcess> mProducerProcess;
-        int mProducerRelaunchAttempts = 0;
-        std::chrono::steady_clock::time_point mLastRelaunchAttempt;
+        std::array<ProducerHandle, 2> mProducers;
 
         // Brackets the other end of the object from mAliveCanary above -- diagnostic
         // only, same removal note applies. A hit on this one but not the leading one

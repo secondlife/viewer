@@ -1864,7 +1864,8 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${viewer_APPSETTINGS_FILES}
-      SLMediaProducer
+      SLCefProducer
+      SLVlcProducer
       )
 
     if (ENABLE_MEDIA_PLUGINS)
@@ -1972,7 +1973,7 @@ if (WINDOWS)
     if (ENABLE_MEDIA_PLUGINS)
       add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
     endif (ENABLE_MEDIA_PLUGINS)
-    add_dependencies(${VIEWER_BINARY_NAME} SLMediaProducer)
+    add_dependencies(${VIEWER_BINARY_NAME} SLCefProducer SLVlcProducer)
 
     # sets the 'working directory' for debugging from visual studio.
     # Condition for version can be moved to requirements once build agents will be updated (see TOOL-3865)
@@ -2205,7 +2206,8 @@ if (LINUX)
     ${VIEWER_BINARY_NAME}
     llwebrtc
     llembeddedbrowser
-    SLMediaProducer
+    SLCefProducer
+    SLVlcProducer
     )
 
   # SLPlugin/media_plugin_* are gated behind ENABLE_MEDIA_PLUGINS in CMake
@@ -2363,7 +2365,7 @@ if (DARWIN)
   if (ENABLE_MEDIA_PLUGINS)
     add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
   endif (ENABLE_MEDIA_PLUGINS)
-  add_dependencies(${VIEWER_BINARY_NAME} llembeddedbrowser SLMediaProducer)
+  add_dependencies(${VIEWER_BINARY_NAME} llembeddedbrowser SLCefProducer SLVlcProducer)
 
   if (ENABLE_SIGNING)
       set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")

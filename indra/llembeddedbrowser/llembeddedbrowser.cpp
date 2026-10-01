@@ -75,7 +75,8 @@ namespace {
     constexpr auto kShutdownPollInterval = std::chrono::milliseconds(50);
 
     // Bounds how aggressively LLEmbeddedBrowser::maybeRelaunchProducer() will
-    // respawn SLMediaProducer: multiple tabs' background threads can all notice
+    // respawn a producer (SLCefProducer or SLVlcProducer -- each backend has its own
+    // independent attempt budget): multiple tabs' background threads can all notice
     // "not running" within milliseconds of each other (debounced by the backoff
     // below), and a second concurrent Viewer instance racing for the same
     // control-channel name would otherwise tight-loop respawning a process that
@@ -158,18 +159,24 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     // Claim the control channel. A losing race must destroy this LLSubscriber and
     // open() a fresh one to retry -- poll() on an already-connected instance can never
     // re-attempt the claim, it only re-validates the session it already has.
+    // Since the 2026-09-30 SLCefProducer/SLVlcProducer split, each backend has its own
+    // control channel (and per-view channel prefix, used below) -- this tab talks only
+    // to whichever one its own mBackend fixes it to.
+    const char* control_channel_name = (mBackend == LLEmbeddedBrowserBackend::LibVlc)
+        ? kVlcControlChannelName : kControlChannelName;
+
     std::unique_ptr<LLSubscriber> ctrl;
     const auto claim_deadline = std::chrono::steady_clock::now() + kControlClaimTimeout;
     for (;;)
     {
-        ctrl = LLSubscriber::open(kControlChannelName);
+        ctrl = LLSubscriber::open(control_channel_name);
         if (!ctrl->connected())
         {
             // The one failure branch in this method that means "no producer
             // process at all," as opposed to one that's merely busy/racing
             // -- see LLEmbeddedBrowser::maybeRelaunchProducer().
-            LLEmbeddedBrowser::instance().maybeRelaunchProducer();
-            return false; // no cefshm_producer reachable right now
+            LLEmbeddedBrowser::instance().maybeRelaunchProducer(mBackend);
+            return false; // no producer reachable right now
         }
         if (ctrl->owns_command_channel()) break;
 
@@ -211,7 +218,9 @@ bool LLEmbeddedBrowserTab::connectToProducer()
 
     ctrl.reset(); // release the control claim for the next requester
 
-    auto sub = LLSubscriber::open(kChannelPrefix + std::to_string(index));
+    const std::string channel_prefix = (mBackend == LLEmbeddedBrowserBackend::LibVlc)
+        ? kVlcChannelPrefix : kChannelPrefix;
+    auto sub = LLSubscriber::open(channel_prefix + std::to_string(index));
     if (!sub->connected() || !sub->owns_command_channel())
     {
         return false;
@@ -264,7 +273,7 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     // A real connection just succeeded, so any earlier relaunch attempts
     // (this episode or a prior one) are no longer relevant -- give a later,
     // unrelated crash its own fresh attempt budget.
-    LLEmbeddedBrowser::instance().resetRelaunchAttempts();
+    LLEmbeddedBrowser::instance().resetRelaunchAttempts(mBackend);
 
     return true;
 }
@@ -773,12 +782,15 @@ namespace {
     // producer is reachable right now or the channel couldn't be claimed in time --
     // both are silently-fine outcomes for every caller below (a best-effort broadcast
     // to a producer that isn't running, or isn't running yet, has nothing to reach).
-    std::unique_ptr<LLSubscriber> claimControlChannel(std::chrono::milliseconds timeout)
+    // control_channel_name selects which producer (SLCefProducer/SLVlcProducer, since
+    // the 2026-09-30 split) this claims -- see kControlChannelName/kVlcControlChannelName.
+    std::unique_ptr<LLSubscriber> claimControlChannel(const std::string& control_channel_name,
+                                                       std::chrono::milliseconds timeout)
     {
         const auto claim_deadline = std::chrono::steady_clock::now() + timeout;
         for (;;)
         {
-            auto ctrl = LLSubscriber::open(kControlChannelName);
+            auto ctrl = LLSubscriber::open(control_channel_name);
             if (!ctrl->connected())
             {
                 return nullptr;
@@ -798,20 +810,22 @@ namespace {
     // Asks a running producer to shut down gracefully (kShutdownProducer) rather than
     // being killed outright -- see that opcode's own comment in cefshm_protocol.h.
     // Does not itself wait for the producer to actually exit; the caller does that.
-    void requestGracefulShutdown()
+    void requestGracefulShutdown(const std::string& control_channel_name)
     {
-        if (auto ctrl = claimControlChannel(kControlBroadcastTimeout))
+        if (auto ctrl = claimControlChannel(control_channel_name, kControlBroadcastTimeout))
         {
             ctrl->send(kShutdownProducer);
         }
     }
 
-    // See LLEmbeddedBrowser::setOpenIDCookie()'s own comment.
+    // See LLEmbeddedBrowser::setOpenIDCookie()'s own comment. CEF's control channel
+    // only -- LibVLC has no cookie-store concept at all (SetCookie only ever existed on
+    // llCefBrowserManager), so there's nothing to broadcast to SLVlcProducer.
     void broadcastOpenIDCookie(const std::string& url, const std::string& name, const std::string& value,
                                const std::string& domain, const std::string& path, bool httpOnly, bool secure,
                                bool alsoPrimContext)
     {
-        auto ctrl = claimControlChannel(kControlBroadcastTimeout);
+        auto ctrl = claimControlChannel(kControlChannelName, kControlBroadcastTimeout);
         if (!ctrl)
         {
             return;
@@ -847,19 +861,25 @@ void LLEmbeddedBrowser::init()
     }
 
     LLMutexLock lock(&mProducerMutex);
-    if (!launchProducer())
+    // Both launched eagerly here, matching the pre-2026-09-30-split behavior exactly for
+    // each individual producer -- lazily launching SLVlcProducer only once a LibVlc-
+    // backed tab is actually created would be a separate, behavior-changing decision
+    // deserving its own review, not bundled into this split. launchProducer() already
+    // logged the specific reason (missing exe, LLProcess::create() failure, etc.) on
+    // failure -- these are the loud, session-level consequences: every embedded-browser
+    // media instance of that backend created from here on will silently fail to connect
+    // to a producer that was never launched, with no further warning, unless this is
+    // visible in the log.
+    if (!launchProducer(LLEmbeddedBrowserBackend::Cef))
     {
-        // launchProducer() already logged the specific reason (missing exe,
-        // LLProcess::create() failure, etc.) -- this is the loud, session-
-        // level consequence: every embedded-browser media instance created
-        // from here on will silently fail to connect to a producer that was
-        // never launched, with no further warning, unless this is visible
-        // in the log. Previously discarded entirely (see git history) --
-        // launchProducer() itself already correctly detected and logged a
-        // failed launch, but nothing upstream ever asked it whether it
-        // worked.
-        LL_WARNS() << "Embedded browser producer failed to launch -- embedded-browser "
+        LL_WARNS() << "SLCefProducer failed to launch -- CEF-backed embedded-browser "
                       "media will not work this session (see the warning above for why)" << LL_ENDL;
+    }
+    if (!launchProducer(LLEmbeddedBrowserBackend::LibVlc))
+    {
+        LL_WARNS() << "SLVlcProducer failed to launch -- LibVLC-backed embedded-browser "
+                      "media (RTSP/RTMP, etc.) will not work this session (see the "
+                      "warning above for why)" << LL_ENDL;
     }
 }
 
@@ -907,50 +927,67 @@ void LLEmbeddedBrowser::reset()
     // it's safe to tear the producer down.
 
     LLMutexLock lock(&mProducerMutex);
-    if (LLProcess::isRunning(mProducerProcess))
-    {
-        // Ask nicely first: LLProcess::kill() is a hard TerminateProcess() on
-        // Windows (see its own implementation -- apr_proc_kill() with sig = -1),
-        // which gives CEF's on-disk cookie/history/etc. stores no chance to flush
-        // whatever they haven't yet committed. Wait out a short grace period for
-        // the producer to exit on its own before falling back to the hard kill
-        // below, which still runs unconditionally as a safety net (a hung/
-        // unresponsive producer, or one that never got the request at all,
-        // must not block Viewer shutdown).
-        requestGracefulShutdown();
+    auto& cef_producer = mProducers[static_cast<std::size_t>(LLEmbeddedBrowserBackend::Cef)];
+    auto& vlc_producer = mProducers[static_cast<std::size_t>(LLEmbeddedBrowserBackend::LibVlc)];
 
-        const auto deadline = std::chrono::steady_clock::now() + kShutdownGracePeriod;
-        while (LLProcess::isRunning(mProducerProcess) && std::chrono::steady_clock::now() < deadline)
-        {
-            std::this_thread::sleep_for(kShutdownPollInterval);
-        }
+    // Ask both nicely first, before waiting on either: LLProcess::kill() is a hard
+    // TerminateProcess() on Windows (see its own implementation -- apr_proc_kill() with
+    // sig = -1), which gives a producer's on-disk cookie/history/etc. stores no chance
+    // to flush whatever they haven't yet committed. Since the 2026-09-30
+    // SLCefProducer/SLVlcProducer split these are two fully independent OS processes
+    // with no ordering constraint between them, so both requests go out immediately and
+    // share one wait below, rather than paying each one's grace period serially --
+    // which would double total shutdown latency for no benefit. The hard kill below
+    // still runs unconditionally as a safety net for each (a hung/unresponsive
+    // producer, or one that never got the request at all, must not block Viewer
+    // shutdown).
+    if (LLProcess::isRunning(cef_producer.process))
+    {
+        requestGracefulShutdown(kControlChannelName);
     }
-    LLProcess::kill(mProducerProcess); // null-safe -- also a no-op if it already exited above
-    mProducerProcess.reset();
+    if (LLProcess::isRunning(vlc_producer.process))
+    {
+        requestGracefulShutdown(kVlcControlChannelName);
+    }
+
+    const auto deadline = std::chrono::steady_clock::now() + kShutdownGracePeriod;
+    while ((LLProcess::isRunning(cef_producer.process) || LLProcess::isRunning(vlc_producer.process)) &&
+           std::chrono::steady_clock::now() < deadline)
+    {
+        std::this_thread::sleep_for(kShutdownPollInterval);
+    }
+
+    LLProcess::kill(cef_producer.process); // null-safe -- also a no-op if it already exited above
+    cef_producer.process.reset();
+    LLProcess::kill(vlc_producer.process);
+    vlc_producer.process.reset();
 }
 
-bool LLEmbeddedBrowser::launchProducer()
+bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
 {
-    const std::string exe_path = gDirUtilp->getSLMediaProducerLauncher();
+    const bool is_cef = (backend == LLEmbeddedBrowserBackend::Cef);
+    const char* producer_name = is_cef ? "SLCefProducer" : "SLVlcProducer";
+    // Derived from exe_path itself, not a second independent call to whatever
+    // getSLCefProducerLauncher()/getSLVlcProducerLauncher() builds its path from -- that
+    // stayed in sync with getLLPluginDir() by convention only, and drifted out of sync
+    // (still pointing at llplugin/ instead of the producer's own directory) the moment
+    // viewer_manifest.py moved where these exes actually get deployed.
+    const std::string exe_path = is_cef ? gDirUtilp->getSLCefProducerLauncher()
+                                         : gDirUtilp->getSLVlcProducerLauncher();
     if (exe_path.empty())
     {
-        LL_WARNS() << "SLMediaProducer is not available on this platform" << LL_ENDL;
+        LL_WARNS() << producer_name << " is not available on this platform" << LL_ENDL;
         return false;
     }
 
     LLProcess::Params params;
     params.executable = exe_path;
-    // Derived from exe_path itself, not a second independent call to whatever
-    // getSLMediaProducerLauncher() builds its path from -- that stayed in sync with
-    // getLLPluginDir() by convention only, and drifted out of sync (still pointing
-    // at llplugin/ instead of SLMediaProducer/'s own directory) the moment
-    // viewer_manifest.py moved where SLMediaProducer.exe actually gets deployed.
     params.cwd        = gDirUtilp->getDirName(exe_path);
     if (gSavedSettings.getBOOL("EmbeddedBrowserProducerConsole"))
     {
         params.args.add("--console");
     }
-    if (gSavedSettings.getBOOL("EmbeddedBrowserDebugging"))
+    if (is_cef && gSavedSettings.getBOOL("EmbeddedBrowserDebugging"))
     {
         // No in-process DevTools popup (CefBrowserHost::ShowDevTools) -- that opens a
         // real, GPU-composited native window, which reliably crashed/hung the renderer
@@ -959,42 +996,48 @@ bool LLEmbeddedBrowser::launchProducer()
         // instead, with no native window in this process at all -- open
         // http://localhost:<port> (see the producer's own log line) in any desktop
         // browser. 0 (the setting's own default) means disabled, matching CEF's own
-        // remote_debugging_port convention.
+        // remote_debugging_port convention. CEF-only -- SLVlcProducer has no DevTools
+        // (or any other remote-debugging) concept at all.
         const unsigned int remote_debugging_port = gSavedSettings.getU32("EmbeddedBrowserRemoteDebuggingPort");
         if (remote_debugging_port > 0)
         {
             params.args.add("--remote-debugging-port=" + std::to_string(remote_debugging_port));
         }
     }
-    // SLMediaProducer.exe is a standalone process with no gDirUtilp of its own, so it
-    // can't compute the per-user cache location itself -- pass it explicitly, under
-    // the same parent directory the legacy CEF plugin uses for its own cache
-    // (gDirUtilp->getCacheDir(false), see LLViewerMediaImpl::newSourceFromMediaType()'s
-    // "cef_cache" -- see media_plugin_cef.cpp's set_user_data_path handler), rather
-    // than under the application/install folder.
-    //
-    // Deliberately a SIBLING of "cef_cache", not nested inside it: unlike the legacy
-    // plugin's own per-process-id throwaway caches, this producer's profile is a single
-    // persistent one for the whole Viewer session/across sessions (cookies, local
-    // storage, login state, not just disposable cache), and LLAppViewer::
-    // purgeCefStaleCaches() unconditionally wipes "cef_cache" and everything under it
-    // on every single startup -- nesting our persistent profile inside it would get it
-    // deleted every time the Viewer launches.
-    params.args.add("--cache-dir=" + gDirUtilp->add(gDirUtilp->getCacheDir(false), "cef_profile"));
+    if (is_cef)
+    {
+        // SLCefProducer.exe is a standalone process with no gDirUtilp of its own, so it
+        // can't compute the per-user cache location itself -- pass it explicitly, under
+        // the same parent directory the legacy CEF plugin uses for its own cache
+        // (gDirUtilp->getCacheDir(false), see LLViewerMediaImpl::newSourceFromMediaType()'s
+        // "cef_cache" -- see media_plugin_cef.cpp's set_user_data_path handler), rather
+        // than under the application/install folder.
+        //
+        // Deliberately a SIBLING of "cef_cache", not nested inside it: unlike the legacy
+        // plugin's own per-process-id throwaway caches, this producer's profile is a single
+        // persistent one for the whole Viewer session/across sessions (cookies, local
+        // storage, login state, not just disposable cache), and LLAppViewer::
+        // purgeCefStaleCaches() unconditionally wipes "cef_cache" and everything under it
+        // on every single startup -- nesting our persistent profile inside it would get it
+        // deleted every time the Viewer launches. CEF-only -- SLVlcProducer has no
+        // browser-context cache/cookie-store concept at all, so there's nothing for it to
+        // be told where to put.
+        params.args.add("--cache-dir=" + gDirUtilp->add(gDirUtilp->getCacheDir(false), "cef_profile"));
+    }
 
     LLProcessPtr proc = LLProcess::create(params);
     if (!proc)
     {
-        LL_WARNS() << "Failed to launch SLMediaProducer (" << exe_path << ")" << LL_ENDL;
+        LL_WARNS() << "Failed to launch " << producer_name << " (" << exe_path << ")" << LL_ENDL;
         return false;
     }
 
-    LL_INFOS() << "Launched SLMediaProducer, pid " << proc->getProcessID() << LL_ENDL;
-    mProducerProcess = proc;
+    LL_INFOS() << "Launched " << producer_name << ", pid " << proc->getProcessID() << LL_ENDL;
+    mProducers[static_cast<std::size_t>(backend)].process = proc;
     return true;
 }
 
-void LLEmbeddedBrowser::maybeRelaunchProducer()
+void LLEmbeddedBrowser::maybeRelaunchProducer(LLEmbeddedBrowserBackend backend)
 {
     if (!gSavedSettings.getBOOL("UseEmbeddedBrowser"))
     {
@@ -1003,11 +1046,11 @@ void LLEmbeddedBrowser::maybeRelaunchProducer()
 
     if (LLApp::isExiting())
     {
-        // reset() (called from LLAppViewer::cleanup()) kills the producer and
+        // reset() (called from LLAppViewer::cleanup()) kills both producers and
         // only *afterwards* stops every tab's update thread -- see its own
         // comment. A tab thread that's still alive in that window can notice
-        // the producer is gone and land here, right as the Viewer is on its
-        // way out. Relaunching a brand new SLMediaProducer.exe at that point
+        // its own producer is gone and land here, right as the Viewer is on its
+        // way out. Relaunching a brand new producer process at that point
         // just races reset()'s own teardown: this is exactly what produced a
         // second, orphaned-looking producer process observed right as the
         // Viewer exits.
@@ -1015,35 +1058,37 @@ void LLEmbeddedBrowser::maybeRelaunchProducer()
     }
 
     LLMutexLock lock(&mProducerMutex);
+    auto& p = mProducers[static_cast<std::size_t>(backend)];
 
-    if (mProducerProcess && LLProcess::isRunning(mProducerProcess))
+    if (p.process && LLProcess::isRunning(p.process))
     {
         return; // still alive -- this was a transient shm hiccup, not a real crash
     }
 
-    if (mProducerRelaunchAttempts >= kMaxRelaunchAttempts)
+    if (p.relaunchAttempts >= kMaxRelaunchAttempts)
     {
         return; // gave up already this episode -- see the constant's own comment
     }
 
     const auto now = std::chrono::steady_clock::now();
-    if (mProducerRelaunchAttempts > 0 && now - mLastRelaunchAttempt < kRelaunchBackoff)
+    if (p.relaunchAttempts > 0 && now - p.lastRelaunchAttempt < kRelaunchBackoff)
     {
         return; // debounce: another tab's thread likely just tried this
     }
 
-    mLastRelaunchAttempt = now;
-    ++mProducerRelaunchAttempts;
+    p.lastRelaunchAttempt = now;
+    ++p.relaunchAttempts;
 
-    LL_WARNS() << "SLMediaProducer is not running (relaunch attempt " << mProducerRelaunchAttempts
+    const char* producer_name = (backend == LLEmbeddedBrowserBackend::Cef) ? "SLCefProducer" : "SLVlcProducer";
+    LL_WARNS() << producer_name << " is not running (relaunch attempt " << p.relaunchAttempts
                << "/" << kMaxRelaunchAttempts << ")" << LL_ENDL;
-    launchProducer();
+    launchProducer(backend);
 }
 
-void LLEmbeddedBrowser::resetRelaunchAttempts()
+void LLEmbeddedBrowser::resetRelaunchAttempts(LLEmbeddedBrowserBackend backend)
 {
     LLMutexLock lock(&mProducerMutex);
-    mProducerRelaunchAttempts = 0;
+    mProducers[static_cast<std::size_t>(backend)].relaunchAttempts = 0;
 }
 
 std::shared_ptr<LLEmbeddedBrowserTab> LLEmbeddedBrowser::findTab(unsigned int id)

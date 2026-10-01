@@ -8,47 +8,48 @@ include(00-Common)
 include(LLCommon)
 include(Linking)
 include(EmbeddedBrowser)
-include(LibVLCPlugin)
 
-project(llmediaproducer)
+project(llcefproducer)
 
-set(llmediaproducer_SOURCE_FILES
-    llmediaproducer.cpp
-    libvlctabmanager.cpp
+# CEF only -- see indra/llvlcproducer/ for the separate LibVLC-only producer.
+# Split 2026-09-30 for licensing reasons: the vendored vlc-bin package is
+# declared GPL v2, while this project is LGPL v2.1 -- keeping libvlc out of
+# this binary entirely (not just out of its own source) is the actual point
+# of the split, so no LibVLCPlugin.cmake/ll::libvlc here, ever.
+set(llcefproducer_SOURCE_FILES
+    llcefproducer.cpp
     )
 
-set(llmediaproducer_HEADER_FILES
+set(llcefproducer_HEADER_FILES
     CMakeLists.txt
     cefshm_protocol.h
-    libvlctabmanager.h
     )
 
-list(APPEND llmediaproducer_SOURCE_FILES ${llmediaproducer_HEADER_FILES})
+list(APPEND llcefproducer_SOURCE_FILES ${llcefproducer_HEADER_FILES})
 
 if (WINDOWS)
-    # Gives SLMediaProducer.exe a real VERSIONINFO resource (CompanyName, FileDescription,
+    # Gives SLCefProducer.exe a real VERSIONINFO resource (CompanyName, FileDescription,
     # etc.) -- without one, Task Manager, Explorer's Properties dialog, and some of
     # Windows' own security UI show a blank/"Unknown" identity for this exe. Mirrors
     # indra/newview/res/viewerRes.rc's own configure_file() pattern; VIEWER_VERSION_*
     # come from BuildVersion.cmake, already included by the time this subdirectory runs.
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/res/SLMediaProducerRes.rc
-                    ${CMAKE_CURRENT_BINARY_DIR}/SLMediaProducerRes.rc
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/res/SLCefProducerRes.rc
+                    ${CMAKE_CURRENT_BINARY_DIR}/SLCefProducerRes.rc
                     )
-    list(APPEND llmediaproducer_SOURCE_FILES ${CMAKE_CURRENT_BINARY_DIR}/SLMediaProducerRes.rc)
+    list(APPEND llcefproducer_SOURCE_FILES ${CMAKE_CURRENT_BINARY_DIR}/SLCefProducerRes.rc)
 endif (WINDOWS)
 
 # WIN32: windowless by default (no console flash each session) -- see
-# llmediaproducer.cpp's WinMain wrapper and its runtime --console opt-in.
-add_executable(SLMediaProducer
+# llcefproducer.cpp's WinMain wrapper and its runtime --console opt-in.
+add_executable(SLCefProducer
     WIN32
-    ${llmediaproducer_SOURCE_FILES}
+    ${llcefproducer_SOURCE_FILES}
     )
 
-target_link_libraries(SLMediaProducer
+target_link_libraries(SLCefProducer
     llcommon
     ll::shmframe
     ll::cefbrowser
-    ll::libvlc
     )
 
 if (DARWIN)
@@ -60,11 +61,10 @@ if (DARWIN)
     # the build tree that happened to still exist at that exact path is
     # gone). Same fix newview/CMakeLists.txt already applies to the main
     # executable, just with the extra ../.. this target's own deeper deploy
-    # location (Contents/Resources/SLMediaProducer/SLMediaProducer, see
+    # location (Contents/Resources/SLCefProducer/SLCefProducer, see
     # viewer_manifest.py) needs to reach Contents/Frameworks -- where
-    # viewer_manifest.py deposits libvlc*.dylib* (shared with the main exe,
-    # which needs it directly linked in too for LLStreamingAudio_LibVLC).
-    set_target_properties(SLMediaProducer PROPERTIES
+    # viewer_manifest.py deposits the CEF framework this target needs.
+    set_target_properties(SLCefProducer PROPERTIES
         BUILD_WITH_INSTALL_RPATH 1
         INSTALL_RPATH "@executable_path/../../Frameworks"
         )
@@ -72,14 +72,10 @@ elseif (LINUX)
     # Same underlying problem as Darwin's own rpath fix just above ($ORIGIN
     # is Linux's equivalent of @executable_path), but simpler here: no
     # bundle-shaped detour through a separate Frameworks-style directory --
-    # SLMediaProducer's libcef.so lives directly alongside it in the same
-    # SLMediaProducer/ directory (see viewer_manifest.py's LinuxManifest), so
-    # plain $ORIGIN is enough. libvlc itself needs no rpath entry at all here
-    # -- unlike Windows/macOS, ll::libvlc on Linux links against the
-    # system's own installed libvlc via pkg-config (see LibVLCPlugin.cmake),
-    # not a vendored copy, so the dynamic linker's normal system search path
-    # already finds it.
-    set_target_properties(SLMediaProducer PROPERTIES
+    # SLCefProducer's libcef.so lives directly alongside it in the same
+    # SLCefProducer/ directory (see viewer_manifest.py's LinuxManifest), so
+    # plain $ORIGIN is enough.
+    set_target_properties(SLCefProducer PROPERTIES
         BUILD_WITH_INSTALL_RPATH 1
         INSTALL_RPATH "$ORIGIN"
         )

@@ -1,9 +1,11 @@
 // Microsoft Visual C++ generated resource script.
 //
-// SLMediaProducer had no VERSIONINFO resource at all until this file was added --
-// Task Manager, Explorer's file Properties, and (per investigation) Windows'
-// own security UI all showed a blank/"Unknown" identity for this exe as a
-// result. See doc/Embedded_Browser.md for what this process is.
+// SLMediaProducer (this process's name before the 2026-09-30 CEF/LibVLC producer
+// split -- see indra/llvlcproducer/res/SLVlcProducerRes.rc for the sibling) had no
+// VERSIONINFO resource at all until this file was added -- Task Manager, Explorer's
+// file Properties, and (per investigation) Windows' own security UI all showed a
+// blank/"Unknown" identity for this exe as a result. See doc/Embedded_Browser.md for
+// what this process is.
 
 #include <windows.h>
 
@@ -38,11 +40,11 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Linden Lab"
-            VALUE "FileDescription", "Second Life Media Producer"
+            VALUE "FileDescription", "Second Life CEF Media Producer"
             VALUE "FileVersion", "${VIEWER_VERSION_MAJOR}.${VIEWER_VERSION_MINOR}.${VIEWER_VERSION_PATCH}.${VIEWER_VERSION_REVISION}"
-            VALUE "InternalName", "SLMediaProducer"
+            VALUE "InternalName", "SLCefProducer"
             VALUE "LegalCopyright", "Copyright (c) 2026, Linden Research, Inc."
-            VALUE "OriginalFilename", "SLMediaProducer.exe"
+            VALUE "OriginalFilename", "SLCefProducer.exe"
             VALUE "ProductName", "Second Life"
             VALUE "ProductVersion", "${VIEWER_VERSION_MAJOR}.${VIEWER_VERSION_MINOR}.${VIEWER_VERSION_PATCH}.${VIEWER_VERSION_REVISION}"
         END

@@ -27,8 +27,10 @@
 
 // A deliberate byte-compatible copy of llcefshm-example's own
 // src/cefshm_protocol.h (which is itself kept in lockstep with the viewer's
-// indra/llembeddedbrowser/cefshm_protocol.h) -- not a shared include, so
-// this component stays self-contained. Keep all three in lockstep by hand.
+// indra/llembeddedbrowser/cefshm_protocol.h, and -- since the 2026-09-30
+// SLCefProducer/SLVlcProducer split -- indra/llvlcproducer/cefshm_protocol.h
+// too) -- not a shared include, so this component stays self-contained.
+// Keep all four in lockstep by hand.
 #pragma once
 #include <cstddef>
 #include <cstdint>
@@ -64,7 +66,10 @@ namespace cefshm_demo
     // only exchanges commands) channel a consumer uses to ask the producer
     // for one of the real per-view channels above, which the producer only
     // creates (a real CEF browser instance, plus its llshmframe segment)
-    // once actually requested. See llmediaproducer.cpp.
+    // once actually requested. See llcefproducer.cpp. CEF-only since the
+    // 2026-09-30 producer split -- see indra/llembeddedbrowser/
+    // cefshm_protocol.h's own kVlcControlChannelName for LibVLC's equivalent,
+    // served by the separate SLVlcProducer process.
     inline constexpr char kControlChannelName[] = "llcefshm_control";
 
     enum Opcode : std::uint32_t
@@ -120,13 +125,15 @@ namespace cefshm_demo
                           // (a hard refresh, bypassing HTTP cache), which every reload call site
                           // in the Viewer already requests.
         kSetVolume = 37, // data = {uint8 volume} -- 0-100, matching libvlc_audio_set_volume()'s own
-                          // native range directly. ONE opcode, both backends (see kRequestSlot's
-                          // backend byte): a LibVLC-backed slot calls libvlc_audio_set_volume() with
-                          // the value as-is, giving it the real distance-rolloff curve kSetMuted
-                          // above can't. A CEF-backed slot collapses it to CEF's existing binary
-                          // capability (0 -> SetAudioMuted(true), >0 -> SetAudioMuted(false)) --
-                          // does not replace kSetMuted, which remains the explicit "silence
-                          // immediately" signal used at teardown, independent of slider position.
+                          // native range directly. ONE opcode, meaningful to both producers: sent
+                          // to whichever one actually owns the slot (see kVlcControlChannelName in
+                          // indra/llembeddedbrowser/cefshm_protocol.h). SLVlcProducer calls
+                          // libvlc_audio_set_volume() with the value as-is, giving it the real
+                          // distance-rolloff curve kSetMuted above can't. SLCefProducer collapses
+                          // it to CEF's existing binary capability (0 -> SetAudioMuted(true), >0 ->
+                          // SetAudioMuted(false)) -- does not replace kSetMuted, which remains the
+                          // explicit "silence immediately" signal used at teardown, independent of
+                          // slider position.
         kSetRenderRate = 35, // data = {uint32 targetFps, uint8 priorityTier, url bytes (remainder)}
                           // -- caps how often the producer calls SendExternalBeginFrame() for
                           // this handle (0 = unthrottled/full rate, the default). Distance/
@@ -137,7 +144,7 @@ namespace cefshm_demo
                           // anything but 0/tier-0 for UI/parcel media -- see that same comment.
                           // priorityTier (0=Normal/High, 1=Low, 2=Slideshow, 3=Hidden) and url
                           // are for the producer's own console/log output only (see
-                          // log_priority() in llmediaproducer.cpp) -- purely diagnostic, nothing
+                          // log_priority() in llcefproducer.cpp) -- purely diagnostic, nothing
                           // on the producer side branches on either.
 
         // consumer -> producer, control channel only
@@ -153,14 +160,16 @@ namespace cefshm_demo
                           // its absolute maximum for every slot regardless of what the consumer
                           // will ever actually request. A payload shorter than 9 bytes (the old,
                           // isUI-only format) falls back to the producer's own absolute maximum,
-                          // for safety. backend (0=Cef, 1=LibVlc, appended as a 10th byte) picks
-                          // which producer-side implementation renders this slot -- chosen once,
-                          // consumer-side, from the URL's scheme (see
-                          // LLViewerMediaImpl::createMediaSource()'s chooseEmbeddedBrowserBackend()),
-                          // and fixed for the slot's whole lifetime: the producer must commit to a
-                          // backend here, before it has ever seen a URL at all (kSetUrl is a later,
-                          // separate command). A payload shorter than 10 bytes defaults to 0/Cef,
-                          // for the same backward-compatibility reason as the 9-byte fallback above.
+                          // for safety. backend (0=Cef, 1=LibVlc, appended as a 10th byte) used to
+                          // pick which in-process implementation rendered this slot, back when one
+                          // producer hosted both backends -- since the 2026-09-30 split into
+                          // separate SLCefProducer/SLVlcProducer processes, which backend a slot
+                          // gets is determined entirely by which producer's control channel the
+                          // consumer requested it on (see kVlcControlChannelName in
+                          // indra/llembeddedbrowser/cefshm_protocol.h), so this byte is now
+                          // vestigial -- kept on the wire unchanged (zero format churn, zero risk
+                          // to the 9-byte fallback below) but each producer ignores its value and
+                          // always treats every request as its own single, fixed backend.
         kSetOpenIDCookie = 26, // data = {5x (uint32 len, bytes): url, name, value, domain, path;
                           // uint8 httpOnly; uint8 secure; uint8 alsoPrimContext} -- straight
                           // into llCefBrowserManager::SetCookie(), which always targets the UI
@@ -242,10 +251,11 @@ namespace cefshm_demo
                                   // this slot's backend via a fresh navigate) -- it does not suppress or
                                   // replace CEF's own error page.
 
-        // consumer -> producer, per-view channel -- LibVLC-backed slots only. A CEF-backed
-        // slot silently ignores this (falls through to the CEF switch's own default case in
-        // llmediaproducer.cpp) -- there's no CEF equivalent, matching how kSetUrl-triggered
-        // autoplay already means CEF media never needed a separate play button either.
+        // consumer -> producer, per-view channel -- LibVLC-backed slots only, handled by
+        // SLVlcProducer. SLCefProducer silently ignores this (falls through to the CEF
+        // switch's own default case in llcefproducer.cpp) -- there's no CEF equivalent,
+        // matching how kSetUrl-triggered autoplay already means CEF media never needed a
+        // separate play button either.
         kSetPlaybackAction = 39, // data = {uint8 action} -- 0=Play, 1=Pause, 2=Stop. Explicit,
                                   // not a toggle (unlike kMouseButton's click-to-pause handling,
                                   // which IS a toggle -- there's only one gesture to map there),
@@ -268,12 +278,13 @@ namespace cefshm_demo
         kEventPlaybackStateChanged = 40, // data = {uint8 playing} -- 1 if libvlc is actually
                                   // decoding/playing right now, 0 for paused/stopped/ended/error.
 
-        // producer -> consumer, per-view channel -- CEF-backed slots only. Fired whenever
-        // page JS calls window.cefQuery({request: ..., onSuccess: ..., onFailure: ...}) --
-        // see llCefBrowserJavaScriptBridge::OnQuery() in llcefbrowser. A single
-        // process-wide bridge (registered once in llmediaproducer.cpp) forwards every
-        // query to whichever slot's cefHandle it actually arrived on. Not sent for a
-        // LibVLC-backed slot -- there's no JS/DOM there to call cefQuery from at all.
+        // producer -> consumer, per-view channel -- CEF-backed slots only, handled by
+        // SLCefProducer. Fired whenever page JS calls window.cefQuery({request: ...,
+        // onSuccess: ..., onFailure: ...}) -- see llCefBrowserJavaScriptBridge::OnQuery()
+        // in llcefbrowser. A single process-wide bridge (registered once in
+        // llcefproducer.cpp) forwards every query to whichever slot's cefHandle it
+        // actually arrived on. Never sent by SLVlcProducer -- there's no JS/DOM there to
+        // call cefQuery from at all.
         kEventJSQuery = 41, // data = {int64 queryId, uint8 persistent, request bytes
                              // (remainder)} -- persistent mirrors CEF's own cefQuery
                              // persistent flag (the page may expect more than one

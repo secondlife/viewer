@@ -52,7 +52,7 @@ endif ()
 
 # ==============================================================================
 # ll::cefbrowser -- CEF wrapper library (llcefbrowser repo), used by
-# llmediaproducer (the in-viewer CEF producer process).
+# llcefproducer (the in-viewer CEF producer process).
 #
 # Since 2026-09, this package is self-sufficient: it ships libcef.lib/
 # libcef_dll_wrapper.lib and the full CEF runtime (bin/release/*, resources/*)

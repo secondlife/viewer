@@ -2,9 +2,11 @@
  *
  * @file libvlctabmanager.h
  * @brief LibVlcTabManager: hosts LibVLC-backed media tabs (RTSP/RTMP/MMS -- media CEF
- *        cannot play) inside SLMediaProducer, alongside llCefBrowserManager's CEF tabs.
- *        Publishes frames through the exact same llshmframe path CEF tabs already use --
- *        see llmediaproducer.cpp's per-slot dispatch loop for how the two are picked between.
+ *        cannot play) inside SLVlcProducer, a standalone process separate from
+ *        SLCefProducer (split 2026-09-30 for licensing reasons -- the vendored libvlc
+ *        package is GPL v2, this project is LGPL v2.1). Publishes frames through the
+ *        same llshmframe path CEF tabs use in their own process -- see
+ *        llvlcproducer.cpp's per-slot dispatch loop.
  *
  * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -60,9 +62,9 @@ class LibVlcTabManager
 public:
     // log_file_path: if non-empty, libvlc's own internal diagnostic log (network/demux/
     // decode errors -- the actual detail behind "why didn't this play") is written there
-    // via libvlc_log_set_file(), the same way this producer's other logs
-    // (slmediaproducer_log.txt, cefshm_producer_log.txt) already work. Empty is a valid,
-    // silent no-op for callers that don't need it (e.g. a future standalone test).
+    // via libvlc_log_set_file(), the same way this producer's own connect/disconnect log
+    // (slvlcproducer_log.txt) already works. Empty is a valid, silent no-op for callers
+    // that don't need it (e.g. a future standalone test).
     explicit LibVlcTabManager(const std::string& log_file_path = {});
     ~LibVlcTabManager();
 
@@ -71,7 +73,7 @@ public:
 
     // No media/player yet -- mirrors llCefBrowserManager::CreateBrowser("about:blank", ...):
     // the slot exists and has a sized frame buffer immediately, playback only starts once
-    // Open() is called (see kSetUrl in llmediaproducer.cpp). width/height are this tab's
+    // Open() is called (see kSetUrl in llvlcproducer.cpp). width/height are this tab's
     // starting/current buffer size -- a kResize that arrives before Open() (legitimate;
     // CEF always has a live "about:blank" browser to resize immediately, libvlc doesn't)
     // is remembered here and read back by Open() when it actually creates the player.
@@ -84,7 +86,7 @@ public:
     // dimensions can still land in the lock/unlock/display callbacks after Resize() has
     // already shrunk the buffer to the new, smaller size, overrunning it in libvlc's own
     // picture_CopyPixels(). A buffer sized to the ceiling up front is large enough for
-    // every width/height Resize() will ever be asked for (llmediaproducer.cpp already
+    // every width/height Resize() will ever be asked for (llvlcproducer.cpp already
     // clamps every resize request to this same ceiling), so no in-flight picture at any
     // prior size can ever overrun it.
     VlcTabHandle CreateTab(int width, int height, int maxWidth, int maxHeight);
@@ -113,7 +115,7 @@ public:
     // pixel corruption at the new size, regardless of timing (coalescing the requests,
     // a settle delay, or a grace period afterward all made no difference) -- closing
     // and reopening the identical URL at the identical size always rendered correctly.
-    // See llmediaproducer.cpp's kResize handling.
+    // See llvlcproducer.cpp's kResize handling.
     void Resize(VlcTabHandle handle, int width, int height);
 
     // volume0to100: matches libvlc_audio_set_volume()'s own native range directly, no
@@ -122,7 +124,7 @@ public:
 
     // Play/pause toggle -- used for click-to-pause/resume (there's only one gesture --
     // a click -- to map, so a toggle is the right shape there). A no-op before the
-    // player exists. See kMouseButton's LibVLC handling in llmediaproducer.cpp.
+    // player exists. See kMouseButton's handling in llvlcproducer.cpp.
     void TogglePlayPause(VlcTabHandle handle);
 
     // Explicit, non-toggling transport controls -- back LLPanelPrimMediaControls' own

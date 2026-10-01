@@ -38,6 +38,16 @@
 
 namespace cefshm_demo
 {
+    // CEF's own channel names -- talks to SLCefProducer. See kVlcChannelPrefix/
+    // kVlcControlChannelName below for SLVlcProducer's equivalents: since the
+    // 2026-09-30 producer split (one process per backend, for licensing
+    // reasons -- the vendored libvlc package is GPL v2, this project is LGPL
+    // v2.1), this is the one copy of this header that needs both name sets,
+    // since it's the side that chooses between them (see
+    // LLEmbeddedBrowserTab::connectToProducer(), keyed on mBackend). Each
+    // producer's own copy of this header only ever needs its own set, under
+    // these same plain names (see indra/llcefproducer/cefshm_protocol.h and
+    // indra/llvlcproducer/cefshm_protocol.h).
     inline constexpr char          kChannelPrefix[] = "llcefshm_view_";
     inline constexpr std::uint32_t kDefaultWidth  = 960;
     inline constexpr std::uint32_t kDefaultHeight = 540;
@@ -48,6 +58,12 @@ namespace cefshm_demo
     // creates (a real CEF browser instance, plus its llshmframe segment)
     // once actually requested.
     inline constexpr char kControlChannelName[] = "llcefshm_control";
+
+    // SLVlcProducer's own channel names -- same shapes as the CEF ones just
+    // above, distinctly named so the two producers (now separate OS
+    // processes) never collide over the same channel name.
+    inline constexpr char          kVlcChannelPrefix[] = "llvlcshm_view_";
+    inline constexpr char          kVlcControlChannelName[] = "llvlcshm_control";
 
     enum Opcode : std::uint32_t
     {
@@ -135,14 +151,19 @@ namespace cefshm_demo
                           // its absolute maximum for every slot regardless of what the consumer
                           // will ever actually request. A payload shorter than 9 bytes (the old,
                           // isUI-only format) falls back to the producer's own absolute maximum,
-                          // for safety. backend (0=Cef, 1=LibVlc, appended as a 10th byte) picks
-                          // which producer-side implementation renders this slot -- chosen once,
-                          // consumer-side, from the URL's scheme (see
+                          // for safety. backend (0=Cef, 1=LibVlc, appended as a 10th byte) is chosen
+                          // once, consumer-side, from the URL's scheme (see
                           // LLViewerMediaImpl::createMediaSource()'s chooseEmbeddedBrowserBackend()),
-                          // and fixed for the slot's whole lifetime: the producer must commit to a
-                          // backend here, before it has ever seen a URL at all (kSetUrl is a later,
-                          // separate command). A payload shorter than 10 bytes defaults to 0/Cef,
-                          // for the same backward-compatibility reason as the 9-byte fallback above.
+                          // and fixed for the slot's whole lifetime -- before the 2026-09-30
+                          // producer split this byte was how one combined producer picked its
+                          // in-process implementation; now it's sent to whichever producer
+                          // (SLCefProducer/SLVlcProducer) LLEmbeddedBrowserTab::connectToProducer()
+                          // already chose to connect to based on this same mBackend value (see
+                          // kVlcControlChannelName above), so each producer simply ignores it. Kept
+                          // on the wire unchanged rather than removed -- zero format churn, zero
+                          // risk to the 9-byte fallback below. A payload shorter than 10 bytes
+                          // defaults to 0/Cef, for the same backward-compatibility reason as the
+                          // 9-byte fallback above.
         kSetOpenIDCookie = 26, // data = {5x (uint32 len, bytes): url, name, value, domain, path;
                           // uint8 httpOnly; uint8 secure; uint8 alsoPrimContext} -- straight
                           // into llCefBrowserManager::SetCookie(), which always targets the UI

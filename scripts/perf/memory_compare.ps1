@@ -9,20 +9,25 @@
     across the right set for each side rather than looking at secondlifeviewer
     alone:
       - legacy (media plugin):   secondlifeviewer, SLPlugin, dullahan_host
-      - this build (embedded):   secondlifeviewer, SLMediaProducer
+      - this build (embedded):   secondlifeviewer, SLCefProducer, SLVlcProducer
 
     The two sides' helper-process naming is NOT symmetric -- easy to miss and
     invalidates the comparison if you do (confirmed the hard way: an earlier
     comparison run omitted dullahan_host and undercounted legacy by roughly
-    3x). SLMediaProducer re-execs itself for every CEF subprocess (renderer,
-    GPU, network/storage utility), so a single -ProcessNames SLMediaProducer
-    entry already catches all of them. The legacy media plugin's CEF
-    subprocesses run under a DIFFERENT binary name, dullahan_host.exe, not
-    SLPlugin.exe -- SLPlugin.exe is only the thin per-instance coordinator,
-    and each of its own dullahan_host.exe children again spawns its own full,
-    independent GPU + 2 utility + renderer set (no sharing across instances,
-    unlike the embedded side's one shared SLMediaProducer family). Both
-    dullahan_host and SLPlugin must be passed for a legacy run to be complete.
+    3x). SLCefProducer re-execs itself for every CEF subprocess (renderer,
+    GPU, network/storage utility), so a single -ProcessNames SLCefProducer
+    entry already catches all of them; SLVlcProducer is its own single,
+    separate process since the 2026-09-30 CEF/LibVLC producer split (for
+    licensing reasons -- see doc/Embedded_Browser.md), so it needs its own
+    entry too, or a run touching RTSP/RTMP media will silently undercount the
+    embedded side the same way omitting dullahan_host undercounted legacy.
+    The legacy media plugin's CEF subprocesses run under a DIFFERENT binary
+    name, dullahan_host.exe, not SLPlugin.exe -- SLPlugin.exe is only the
+    thin per-instance coordinator, and each of its own dullahan_host.exe
+    children again spawns its own full, independent GPU + 2 utility +
+    renderer set (no sharing across instances, unlike the embedded side's
+    one shared SLCefProducer family). Both dullahan_host and SLPlugin must be
+    passed for a legacy run to be complete.
 
     Note the process name to pass for the Viewer's own main process is
     secondlifeviewer (not secondlife-bin) when testing an installed/packaged
@@ -71,7 +76,7 @@
     .\memory_compare.ps1 -ProcessNames secondlifeviewer,SLPlugin,dullahan_host -Label legacy -OutFile mem.csv -DurationMinutes 5
 
 .EXAMPLE
-    .\memory_compare.ps1 -ProcessNames secondlifeviewer,SLMediaProducer -Label embedded -OutFile mem.csv -DurationMinutes 5
+    .\memory_compare.ps1 -ProcessNames secondlifeviewer,SLCefProducer,SLVlcProducer -Label embedded -OutFile mem.csv -DurationMinutes 5
 #>
 param(
     [Parameter(Mandatory = $true)]

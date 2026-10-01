@@ -51,7 +51,8 @@ public:
     /*virtual*/ std::string getLLPluginLauncher();
     /*virtual*/ std::string getLLPluginFilename(std::string base_name);
 
-    /*virtual*/ std::string getSLMediaProducerLauncher();
+    /*virtual*/ std::string getSLCefProducerLauncher();
+    /*virtual*/ std::string getSLVlcProducerLauncher();
 
 private:
     DIR *mDirp;

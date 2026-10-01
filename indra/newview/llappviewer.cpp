@@ -1255,9 +1255,9 @@ bool LLAppViewer::init()
     LLViewerCamera::createInstance();
     LL::GLTFSceneManager::createInstance();
 
-    // Launch SLMediaProducer now, eagerly -- the login screen itself is rendered
-    // through this same embedded-browser path (it's "slot 0" of the producer),
-    // so it needs to be available before idle_startup() can reach
+    // Launch SLCefProducer (and SLVlcProducer) now, eagerly -- the login screen itself
+    // is rendered through this same embedded-browser path (it's "slot 0" of
+    // SLCefProducer), so it needs to be available before idle_startup() can reach
     // STATE_LOGIN_SHOW, not lazily on first unrelated media use.
     LLEmbeddedBrowser::getInstance()->init();
 
@@ -1775,7 +1775,7 @@ bool LLAppViewer::cleanup()
         LLWatchdog::getInstance()->shutdown();
     }
 
-    // Stop SLMediaProducer, if init() launched one.
+    // Stop SLCefProducer/SLVlcProducer, if init() launched them.
     LLEmbeddedBrowser::getInstance()->reset();
 
     disconnectViewer();

@@ -1,8 +1,11 @@
 /**
  *
- * @file llmediaproducer.cpp
- * @brief SLMediaProducer: hosts real CEF browser instances and LibVLC media players on demand for
- *        the viewer's own llembeddedbrowser consumer, over llshmframe
+ * @file llcefproducer.cpp
+ * @brief SLCefProducer: hosts real CEF browser instances on demand for the viewer's own
+ *        llembeddedbrowser consumer, over llshmframe. CEF only -- see indra/llvlcproducer/
+ *        llvlcproducer.cpp for the separate LibVLC-only producer this was split from
+ *        2026-09-30, for licensing reasons (the vendored libvlc package is GPL v2, this
+ *        project is LGPL v2.1).
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -26,17 +29,18 @@
  * $/LicenseInfo$
  */
 
-// llmediaproducer.cpp
+// llcefproducer.cpp
 //
 // Adapted directly from llcefshm-example's own src/cefshm_producer.cpp --
 // same control-channel + on-demand-allocate + idle-teardown skeleton, same
 // wire protocol (cefshm_protocol.h, kept in lockstep by hand across all
-// three copies: this one, the viewer's llembeddedbrowser one, and
-// llcefshm-example's own). What's different here is the entry point (this
-// process is launched/monitored/killed by the Viewer itself via LLProcess,
-// not double-clicked by hand) and the optional runtime debug console --
-// everything else, including the main loop's cadence and shutdown sequence,
-// is unchanged from the reference implementation.
+// four copies: this one, the viewer's llembeddedbrowser one, the separate
+// LibVLC-only llvlcproducer's own, and llcefshm-example's own). What's
+// different here is the entry point (this process is launched/monitored/
+// killed by the Viewer itself via LLProcess, not double-clicked by hand)
+// and the optional runtime debug console -- everything else, including the
+// main loop's cadence and shutdown sequence, is unchanged from the
+// reference implementation.
 //
 // Channel names: llcefshm_view_0 .. llcefshm_view_<slot_count - 1>.
 
@@ -46,7 +50,6 @@
 #include <llCefBrowserManager.h>
 #include <llCefBrowserVersion.h>
 #include "cefshm_protocol.h"
-#include "libvlctabmanager.h"
 
 #include <algorithm>
 #include <chrono>
@@ -141,16 +144,10 @@ constexpr auto kAllocateSlotRetryInterval = std::chrono::milliseconds(10);
 // truncating, so this must be generous rather than exact.
 constexpr std::uint32_t kMaxCommandBytes = 4096;
 
-// Wire values -- must match cefshm_demo::kRequestSlot's backend byte (0=Cef, 1=LibVlc)
-// and the consumer's own LLEmbeddedBrowserBackend enum exactly.
-enum class SlotBackend : std::uint8_t { Cef = 0, LibVlc = 1 };
-
 struct Slot
 {
-    SlotBackend                  backend = SlotBackend::Cef;
     std::unique_ptr<LLPublisher> pub; // null <=> this index is free
-    llCefBrowserHandle           cefHandle; // valid only when backend == Cef
-    VlcTabHandle                 vlcHandle; // valid only when backend == LibVlc
+    llCefBrowserHandle           cefHandle;
     std::vector<std::uint8_t>    frameBuf; // reused across ticks -- CopyLatestFrame leaves it untouched when there's nothing new
     std::uint32_t                width  = kDefaultWidth;
     std::uint32_t                height = kDefaultHeight;
@@ -239,7 +236,7 @@ private:
     {
         for (auto& s : mSlots)
         {
-            if (s.pub && s.backend == SlotBackend::Cef && s.cefHandle == handle) return &s;
+            if (s.pub && s.cefHandle == handle) return &s;
         }
         return nullptr;
     }
@@ -249,10 +246,10 @@ private:
 
 // Spins up this slot's real instance: a CEF browser plus its llshmframe
 // segment. Leaves s untouched on failure, cleaning up whichever half of the
-// pair (if either) already succeeded.
+// pair already succeeded.
 bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manager,
-                    LibVlcTabManager& vlcMgr, std::chrono::steady_clock::time_point now,
-                    bool isUI, SlotBackend backend, const std::vector<Slot>& slots)
+                    std::chrono::steady_clock::time_point now,
+                    bool isUI, const std::vector<Slot>& slots)
 {
     cfg.name              = kChannelPrefix + std::to_string(index);
     cfg.max_command_bytes = kMaxCommandBytes;
@@ -264,43 +261,12 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
         return false;
     }
 
-    if (backend == SlotBackend::LibVlc)
-    {
-        // No media/URL yet -- mirrors CreateBrowser("about:blank", ...) below: the slot
-        // exists and has a sized frame buffer immediately, playback only starts once
-        // kSetUrl arrives (see the per-slot dispatch loop). Not every event callback
-        // CEF gets below has a LibVLC equivalent -- see libvlctabmanager.h's own
-        // comment on which slice of that API a pure AV stream actually needs.
-        VlcTabHandle vlcHandle = vlcMgr.CreateTab(int(kDefaultWidth), int(kDefaultHeight),
-                                                   int(cfg.max_width), int(cfg.max_height));
-        if (!vlcHandle.IsValid()) {
-            log_error("slot " + std::to_string(index) + ": LibVlcTabManager::CreateTab failed");
-            return false; // pub destructs here, cleanly unlinking the segment we just made
-        }
-
-        s.backend        = backend;
-        s.pub            = std::move(pub);
-        s.vlcHandle      = vlcHandle;
-        s.width          = kDefaultWidth;
-        s.height         = kDefaultHeight;
-        s.max_width      = cfg.max_width;
-        s.max_height     = cfg.max_height;
-        s.had_subscriber = false;
-        s.last_active    = now;
-
-        log_connect("slot " + std::to_string(index) + " connected (LibVLC), ceiling " +
-                    std::to_string(cfg.max_width) + "x" + std::to_string(cfg.max_height) +
-                    active_slot_suffix(slots));
-        return true;
-    }
-
     llCefBrowserHandle handle = manager.CreateBrowser("about:blank", int(kDefaultWidth), int(kDefaultHeight), isUI);
     if (!handle.IsValid()) {
         log_error("slot " + std::to_string(index) + ": CreateBrowser failed");
         return false; // pub destructs here, cleanly unlinking the segment we just made
     }
 
-    s.backend        = backend;
     s.pub            = std::move(pub);
     s.cefHandle      = handle;
     s.width          = kDefaultWidth;
@@ -419,17 +385,10 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
 // then discards the Slot, which is what actually releases the llshmframe
 // segment. Not the other order: clearing the Slot first would lose the
 // handle needed to destroy the browser at all.
-void free_slot(Slot& s, int index, llCefBrowserManager& manager, LibVlcTabManager& vlcMgr,
+void free_slot(Slot& s, int index, llCefBrowserManager& manager,
                 const std::string& reason, std::vector<Slot>& slots)
 {
-    if (s.backend == SlotBackend::LibVlc)
-    {
-        vlcMgr.DestroyTab(s.vlcHandle);
-    }
-    else
-    {
-        manager.DestroyBrowser(s.cefHandle);
-    }
+    manager.DestroyBrowser(s.cefHandle);
     s = Slot{};
     // Logged after clearing s (which is slots[index]) so the count already
     // reflects this slot's release, matching allocate_slot()'s own log.
@@ -586,7 +545,7 @@ int run_producer(int argc, char** argv)
     // Truncates on each launch rather than appending -- this producer runs for the
     // whole Viewer session, so one run's worth of slot connects/disconnects is already
     // plenty; nobody wants this growing unbounded across every session forever.
-    g_log_file.open(exe_dir / "slmediaproducer_log.txt", std::ios::trunc);
+    g_log_file.open(exe_dir / "slcefproducer_log.txt", std::ios::trunc);
 
     // The Viewer passes --cache-dir (see LLEmbeddedBrowser::launchProducer()) pointing
     // at the same per-user cache location the legacy CEF plugin uses, since this
@@ -598,27 +557,27 @@ int run_producer(int argc, char** argv)
     llCefBrowserLibInitOptions init_options;
     init_options.rootCachePath       = cache_dir.string();
     init_options.logFile             = (exe_dir / "cefshm_producer_log.txt").string();
-    init_options.userAgentProduct    = "SLMediaProducer/1.0";
+    init_options.userAgentProduct    = "SLCefProducer/1.0";
     init_options.remoteDebuggingPort = remote_debugging_port;
 #if defined(__APPLE__)
-    // SLMediaProducer isn't a real .app bundle (see viewer_manifest.py's own
+    // SLCefProducer isn't a real .app bundle (see viewer_manifest.py's own
     // comment on this) -- CEF's bundle-relative auto-detection for
     // resources/framework/sub-process path doesn't apply, so these are set
     // explicitly, same as llcefbrowser's own example apps do. Deploy layout
     // (see Darwin_x86_64_Manifest.package_finish() in viewer_manifest.py):
-    //   Contents/Resources/SLMediaProducer/SLMediaProducer   (exe_dir, this file)
+    //   Contents/Resources/SLCefProducer/SLCefProducer   (exe_dir, this file)
     //   Contents/Resources/Frameworks/Chromium Embedded Framework.framework
     const std::filesystem::path framework_dir =
         exe_dir.parent_path() / "Frameworks" / "Chromium Embedded Framework.framework";
     init_options.frameworkDirPath      = framework_dir.string();
     // The framework bundle ships its own resources.pak/icudtl.dat/locales
-    // under Resources -- nothing loose gets deployed alongside SLMediaProducer
+    // under Resources -- nothing loose gets deployed alongside SLCefProducer
     // itself (see viewer_manifest.py's own comment on this).
     init_options.resourcesDirPath      = (framework_dir / "Resources").string();
     init_options.mainBundlePath        = exe_dir.string();
     // Empty means "look for a bundled Helper.app" on macOS specifically
     // (unlike Windows/Linux, where empty already means "re-exec myself") --
-    // SLMediaProducer isn't bundled that way, so every CEF sub-process
+    // SLCefProducer isn't bundled that way, so every CEF sub-process
     // (GPU/renderer/network) fails to launch at all without this set.
     init_options.browserSubprocessPath = get_exe_path().string();
 #endif
@@ -636,10 +595,10 @@ int run_producer(int argc, char** argv)
         // producer down with it. Chrome's remote-debugging protocol serves the exact
         // same DevTools UI over HTTP instead, with no native window in this process at
         // all -- open the URL below in any desktop browser.
-        log_info("SLMediaProducer: remote debugging on http://localhost:" + std::to_string(remote_debugging_port));
+        log_info("SLCefProducer: remote debugging on http://localhost:" + std::to_string(remote_debugging_port));
     }
 
-    log_info("SLMediaProducer: llCefBrowser " + llCefBrowserLib::GetVersion() +
+    log_info("SLCefProducer: llCefBrowser " + llCefBrowserLib::GetVersion() +
              ", CEF " + llCefBrowserLib::GetCefVersion() +
              ", Chromium " + llCefBrowserLib::GetChromiumVersion());
 
@@ -655,13 +614,6 @@ int run_producer(int argc, char** argv)
     // visible to the other. See llCefBrowserManager::CreateBrowser()'s own isUI param.
     auto manager = std::make_unique<llCefBrowserManager>((cache_dir / "Default").string(),
                                                           (cache_dir / "Prim").string());
-    // Hosts LibVLC-backed slots (RTSP/RTMP/MMS -- media CEF cannot play) alongside the
-    // CEF manager above, in this same process, publishing through the same llshmframe
-    // path -- see libvlctabmanager.h. Its own log file, separate from
-    // slmediaproducer_log.txt/cefshm_producer_log.txt above, captures libvlc's own
-    // internal network/demux/decode diagnostics -- the actual detail behind "why
-    // didn't this play," which nothing else here surfaces.
-    auto vlcMgr = std::make_unique<LibVlcTabManager>((exe_dir / "libvlc_log.txt").string());
 
     LLConfig view_cfg; // template for whichever index gets allocated on demand
     view_cfg.max_width  = kMaxWidth;
@@ -689,7 +641,7 @@ int run_producer(int argc, char** argv)
 
     {
         std::ostringstream banner;
-        banner << "SLMediaProducer: control channel ready, up to " << slot_count
+        banner << "SLCefProducer: control channel ready, up to " << slot_count
                << " concurrent view(s) (" << kChannelPrefix << "0.." << (slot_count - 1) << "), "
                << (worst_case_bytes / (1024 * 1024)) << " MiB ceiling if all " << slot_count
                << " were active at once at " << kMaxWidth << "x" << kMaxHeight << " each -- "
@@ -732,15 +684,16 @@ int run_producer(int argc, char** argv)
             bool isUI = true;
             std::uint32_t requested_max_width = kMaxWidth;
             std::uint32_t requested_max_height = kMaxHeight;
-            // backend_byte defaults to 0 (Cef) for a short/old-format payload -- see
-            // unpack_request_slot's own comment; the slot's backend is trusted as sent
-            // here, not re-validated against whatever URL kSetUrl later brings, since
-            // this producer already extends the identical trust to kSetUrl itself for
-            // CEF slots today (navigates to whatever string arrives, zero validation).
+            // The payload's trailing backend byte is vestigial since the 2026-09-30
+            // producer split -- this producer only ever talks to CEF-backed consumers
+            // (see kRequestSlot's own comment in cefshm_protocol.h), so it's unpacked
+            // and then ignored, not validated. The slot's real use is trusted as sent,
+            // not re-validated against whatever URL kSetUrl later brings, since this
+            // producer already extends the identical trust to kSetUrl itself (navigates
+            // to whatever string arrives, zero validation).
             std::uint8_t backend_byte = 0;
             unpack_request_slot(cmd.data.data(), cmd.data.size(), isUI, requested_max_width,
                                  requested_max_height, backend_byte);
-            const SlotBackend backend = (backend_byte == 1) ? SlotBackend::LibVlc : SlotBackend::Cef;
             LLConfig slot_cfg = view_cfg;
             slot_cfg.max_width  = std::clamp(requested_max_width,  kDefaultWidth,  kMaxWidth);
             slot_cfg.max_height = std::clamp(requested_max_height, kDefaultHeight, kMaxHeight);
@@ -766,7 +719,7 @@ int run_producer(int argc, char** argv)
                 {
                     if (slots[std::size_t(i)].pub) continue; // not free
                     any_free = true;
-                    if (allocate_slot(slots[std::size_t(i)], i, slot_cfg, *manager, *vlcMgr, now, isUI, backend, slots))
+                    if (allocate_slot(slots[std::size_t(i)], i, slot_cfg, *manager, now, isUI, slots))
                     {
                         free_index = i;
                         break;
@@ -840,7 +793,7 @@ int run_producer(int argc, char** argv)
                 // Almost certainly a crashed consumer, not a merely-idle
                 // one: reclaim now rather than waiting out the softer idle
                 // grace period below.
-                free_slot(s, int(i), *manager, *vlcMgr, "crashed consumer", slots);
+                free_slot(s, int(i), *manager, "crashed consumer", slots);
                 continue;
             }
 
@@ -865,7 +818,7 @@ int run_producer(int argc, char** argv)
 
                 if (now - s.last_active >= kIdleGracePeriod)
                 {
-                    free_slot(s, int(i), *manager, *vlcMgr, "idle timeout", slots);
+                    free_slot(s, int(i), *manager, "idle timeout", slots);
                     continue;
                 }
             }
@@ -874,10 +827,9 @@ int run_producer(int argc, char** argv)
             {
                 if (cmd.type == kSetRenderRate)
                 {
-                    // Backend-agnostic -- only touches Slot's own shared target_fps
-                    // field, so handled once here regardless of which backend this
-                    // slot uses (see the render/publish tail below for how each
-                    // backend actually honours it).
+                    // Same opcode SLVlcProducer also honours for its own slots (see
+                    // cefshm_protocol.h) -- just sets Slot's own target_fps field here,
+                    // read back by the render/publish tail below.
                     std::uint32_t fps;
                     std::uint8_t tier;
                     std::string url;
@@ -886,77 +838,6 @@ int run_producer(int argc, char** argv)
                         log_priority("slot " + std::to_string(i) + " render rate: " + priority_tier_label(tier) +
                                      " (" + (fps == 0 ? std::string("unthrottled") : (std::to_string(fps) + "fps")) +
                                      ") - " + url + active_slot_suffix(slots));
-                    }
-                    continue;
-                }
-
-                if (s.backend == SlotBackend::LibVlc)
-                {
-                    switch (cmd.type)
-                    {
-                    case kSetUrl: {
-                        const std::string url(cmd.text());
-                        log_connect("slot " + std::to_string(i) + " -> " + url + " (LibVLC)" + active_slot_suffix(slots));
-                        vlcMgr->Open(s.vlcHandle, url);
-                        break;
-                    }
-                    case kResize: {
-                        std::uint32_t w, h;
-                        if (unpack_size(cmd.data.data(), cmd.data.size(), w, h) && w && h) {
-                            w = std::min(w, s.max_width);
-                            h = std::min(h, s.max_height);
-                            if (w != s.width || h != s.height) {
-                                s.width  = w;
-                                s.height = h;
-                                vlcMgr->Resize(s.vlcHandle, int(w), int(h));
-                            }
-                        }
-                        break;
-                    }
-                    case kSetVolume: {
-                        if (!cmd.data.empty()) vlcMgr->SetVolume(s.vlcHandle, int(cmd.data[0]));
-                        break;
-                    }
-                    case kSetMuted: {
-                        // Maps to volume 0/100 -- see kSetMuted's own comment in
-                        // cefshm_protocol.h on why this is honoured for both backends.
-                        if (!cmd.data.empty()) vlcMgr->SetVolume(s.vlcHandle, cmd.data[0] != 0 ? 0 : 100);
-                        break;
-                    }
-                    case kMouseButton: {
-                        // Click-to-pause/resume: the consumer sends this uniformly for both
-                        // backends (see LLViewerMediaImpl::mouseDown/mouseUp), so a LibVLC tab
-                        // just picks out the one gesture that's meaningful to it -- a completed
-                        // left-button click -- and ignores the rest (move/drag, other buttons).
-                        std::int32_t x, y; std::uint8_t button, action, click_count;
-                        if (unpack_mouse_button(cmd.data.data(), cmd.data.size(), x, y, button, action, click_count) &&
-                            button == 0 && cef_mouse_up(action))
-                        {
-                            vlcMgr->TogglePlayPause(s.vlcHandle);
-                        }
-                        break;
-                    }
-                    case kSetPlaybackAction: {
-                        // Explicit Play/Pause/Stop from LLPanelPrimMediaControls' own buttons --
-                        // see kSetPlaybackAction's own comment in cefshm_protocol.h for why this
-                        // is separate from kMouseButton's click-to-pause toggle above.
-                        if (!cmd.data.empty()) {
-                            switch (cmd.data[0]) {
-                            case 0: vlcMgr->Play(s.vlcHandle); break;
-                            case 1: vlcMgr->Pause(s.vlcHandle); break;
-                            case 2: vlcMgr->Stop(s.vlcHandle); break;
-                            default: break;
-                            }
-                        }
-                        break;
-                    }
-                    default:
-                        // No LibVLC equivalent: kExecuteJavaScript, kMouseMove,
-                        // kScrollWheel, kKeyEvent, kSetFocus, kCut/Copy/Paste,
-                        // kGoBack/Forward, kStopLoad, kReload, kSetPageZoom,
-                        // kFileDialogResponse -- silent no-op, not an error, since a
-                        // caller may send these uniformly regardless of backend.
-                        break;
                     }
                     continue;
                 }
@@ -1104,93 +985,41 @@ int run_producer(int argc, char** argv)
                 }
             }
 
-            if (s.backend == SlotBackend::LibVlc)
-            {
-                // No SendExternalBeginFrame equivalent -- nothing to "ask" libvlc to
-                // render on demand, it decodes and calls display_cb on its own clock
-                // (see libvlctabmanager.cpp). The throttle point moves from "how often
-                // do we ask for a repaint" to "how often do we bother draining and
-                // publishing whatever's already been decoded" -- decode itself is
-                // unthrottled on libvlc's own thread either way, an explicit, accepted
-                // tradeoff (CPU cost of decoding isn't reduced, only shm-publish/
-                // network cost is). A throttled slot naturally drops undelivered
-                // intermediate frames rather than queuing them, since display_cb just
-                // overwrites the one dirty-flag/buffer.
-                const bool publish_due = (s.target_fps == 0) ||
-                    (now - s.last_begin_frame >= std::chrono::duration<double>(1.0 / s.target_fps));
-                if (publish_due) {
-                    s.last_begin_frame = now;
-                    int fw = 0, fh = 0;
-                    if (vlcMgr->CopyLatestFrame(s.vlcHandle, s.frameBuf, fw, fh)) {
-                        s.pub->publish(s.frameBuf.data(), std::uint32_t(fw), std::uint32_t(fh));
-                    } else {
-                        s.pub->heartbeat();
-                    }
-                } else {
-                    s.pub->heartbeat();
-                }
-
-                // Mirrors kEventLoadStart/kEventLoadEnd's own CEF call sites above --
-                // both opcodes already exist and already work for CEF tabs, reused
-                // as-is here rather than inventing new wire surface. Drained once per
-                // tick rather than pushed synchronously from libvlc's own event-manager
-                // thread -- see libvlctabmanager.h's own comment on why.
-                if (vlcMgr->ConsumeLoadStart(s.vlcHandle)) {
-                    s.pub->send(kEventLoadStart);
-                }
-                int load_end_status = 0;
-                if (vlcMgr->ConsumeLoadEnd(s.vlcHandle, load_end_status)) {
-                    std::uint8_t payload[4];
-                    pack_u32(payload, std::uint32_t(load_end_status));
-                    s.pub->send(kEventLoadEnd, payload, 4);
-                }
-                bool now_playing = false;
-                if (vlcMgr->ConsumePlaybackStateChange(s.vlcHandle, now_playing)) {
-                    std::uint8_t payload[1] = { now_playing ? std::uint8_t(1) : std::uint8_t(0) };
-                    s.pub->send(kEventPlaybackStateChanged, payload, 1);
-                }
+            // Request a fresh composite right now, reflecting whatever input this
+            // slot just received above -- rather than waiting on CEF's own
+            // windowless_frame_rate-paced internal timer (see the
+            // external_begin_frame_enabled comment in llCefBrowserManagerImpl::
+            // CreateBrowser()). Cheap to call even when nothing changed: Chromium's
+            // own compositor already skips real work if there's nothing new to paint.
+            // Throttled to s.target_fps when set (see kSetRenderRate) -- distance/
+            // priority-based media (far away, out of view, etc.) doesn't need this
+            // slot's CEF instance painting at full rate; UI/parcel media never sets
+            // target_fps at all, so it's unaffected.
+            const bool begin_frame_due = (s.target_fps == 0) ||
+                (now - s.last_begin_frame >= std::chrono::duration<double>(1.0 / s.target_fps));
+            if (begin_frame_due) {
+                s.last_begin_frame = now;
+                manager->SendExternalBeginFrame(s.cefHandle);
             }
-            else
-            {
-                // Request a fresh composite right now, reflecting whatever input this
-                // slot just received above -- rather than waiting on CEF's own
-                // windowless_frame_rate-paced internal timer (see the
-                // external_begin_frame_enabled comment in llCefBrowserManagerImpl::
-                // CreateBrowser()). Cheap to call even when nothing changed: Chromium's
-                // own compositor already skips real work if there's nothing new to paint.
-                // Throttled to s.target_fps when set (see kSetRenderRate) -- distance/
-                // priority-based media (far away, out of view, etc.) doesn't need this
-                // slot's CEF instance painting at full rate; UI/parcel media never sets
-                // target_fps at all, so it's unaffected.
-                const bool begin_frame_due = (s.target_fps == 0) ||
-                    (now - s.last_begin_frame >= std::chrono::duration<double>(1.0 / s.target_fps));
-                if (begin_frame_due) {
-                    s.last_begin_frame = now;
-                    manager->SendExternalBeginFrame(s.cefHandle);
-                }
 
-                int fw = 0, fh = 0;
-                if (manager->CopyLatestFrame(s.cefHandle, s.frameBuf, fw, fh)) {
-                    s.pub->publish(s.frameBuf.data(), std::uint32_t(fw), std::uint32_t(fh));
-                } else {
-                    // publish() itself keeps the heartbeat fresh as a side effect (see
-                    // LLPublisher::publish()), but a mostly-static page can go several
-                    // seconds between real repaints -- heartbeat() is the independent signal
-                    // llshmframe actually intends for exactly that case, so a subscriber's
-                    // LLSubscriber::poll()/producer_responsive() check doesn't mistake "the
-                    // page just isn't repainting right now" for "the producer process died."
-                    s.pub->heartbeat();
-                }
+            int fw = 0, fh = 0;
+            if (manager->CopyLatestFrame(s.cefHandle, s.frameBuf, fw, fh)) {
+                s.pub->publish(s.frameBuf.data(), std::uint32_t(fw), std::uint32_t(fh));
+            } else {
+                // publish() itself keeps the heartbeat fresh as a side effect (see
+                // LLPublisher::publish()), but a mostly-static page can go several
+                // seconds between real repaints -- heartbeat() is the independent signal
+                // llshmframe actually intends for exactly that case, so a subscriber's
+                // LLSubscriber::poll()/producer_responsive() check doesn't mistake "the
+                // page just isn't repainting right now" for "the producer process died."
+                s.pub->heartbeat();
             }
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    log_info("SLMediaProducer: shutting down");
-
-    vlcMgr->DestroyAll();
-    vlcMgr.reset(); // no CEF-style async close handshake to wait out -- libvlc_media_player_stop() is synchronous
+    log_info("SLCefProducer: shutting down");
 
     manager->DestroyAll();
     // Pump a few more turns so each async close handshake finishes before

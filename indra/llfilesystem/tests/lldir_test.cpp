@@ -145,7 +145,13 @@ struct LLDir_Dummy: public LLDir
         return "";
     }
 
-    virtual std::string getSLMediaProducerLauncher()
+    virtual std::string getSLCefProducerLauncher()
+    {
+        // Implement this when we write a test that needs it
+        return "";
+    }
+
+    virtual std::string getSLVlcProducerLauncher()
     {
         // Implement this when we write a test that needs it
         return "";

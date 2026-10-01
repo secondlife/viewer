@@ -40,18 +40,31 @@ Four pieces make up the system:
 - **`llcefbrowser`** (separate repo) - a CEF wrapper library. Owns the actual
   CEF browser instances, page navigation, input injection, and now audio
   muting (`SetAudioMuted`), independent of any Viewer-specific code.
-- **`llmediaproducer`** (`indra/llmediaproducer`, builds to `SLMediaProducer.exe`)
-  - the producer. A single helper process, launched and stopped by the
-  Viewer itself, that hosts every embedded-browser tab's CEF instance in one
-  process and publishes rendered frames into shared memory for
-  `llembeddedbrowser` to read.
+- **The producer -- two helper processes since 2026-09-30**, each launched
+  and stopped by the Viewer itself, publishing rendered frames into shared
+  memory for `llembeddedbrowser` to read:
+  - **`llcefproducer`** (`indra/llcefproducer`, builds to `SLCefProducer.exe`)
+    hosts every CEF-backed embedded-browser tab (every UI floater and every
+    prim media surface showing ordinary web content) in one process.
+  - **`llvlcproducer`** (`indra/llvlcproducer`, builds to `SLVlcProducer.exe`)
+    hosts every LibVLC-backed tab -- RTSP/RTMP/MMS-style media CEF cannot
+    play at all (see "RTSP/RTMP and friends, via LibVLC" below).
+  - These were one combined process (`SLMediaProducer.exe`) until 2026-09-30,
+    when they were split into two standalone executables for licensing
+    reasons: the vendored LibVLC package (`vlc-bin`) is declared GPL v2 in
+    its own autobuild package metadata, while this project is LGPL v2.1 --
+    keeping every use of libvlc confined to its own small process, reached
+    only via IPC, is a real compliance boundary, not an organizational
+    preference. Do not re-merge them.
 
-`SLMediaProducer.exe` is launched early in `LLAppViewer::init()` (gated on the
-`UseEmbeddedBrowser` setting) and stopped again in `LLAppViewer::cleanup()`.
-If it crashes or is killed mid-session, `llembeddedbrowser` detects the dead
-heartbeat and relaunches it automatically (with a backoff limit, so two
-Viewer instances racing for the same shared-memory channel do not loop
-forever).
+Both `SLCefProducer.exe` and `SLVlcProducer.exe` are launched early in
+`LLAppViewer::init()` (gated on the `UseEmbeddedBrowser` setting) and stopped
+again in `LLAppViewer::cleanup()`. If either crashes or is killed
+mid-session, `llembeddedbrowser` detects that producer's own dead heartbeat
+and relaunches it automatically (with its own independent backoff limit, so
+two Viewer instances racing for the same shared-memory channel do not loop
+forever) -- the two producers' lifecycles are otherwise fully independent: a
+crash in one never affects the other.
 
 ## Repo locations
 
@@ -84,7 +97,7 @@ As of the 151 update, `llcefbrowser` no longer shares this package with
 `secondlife/dullahan` (the legacy plugin's own CEF wrapper) the way it used
 to. `llcefbrowser`'s own autobuild package now bundles `libcef.lib`/
 `libcef_dll_wrapper.lib` and the full CEF runtime (the DLLs, `.pak`
-resources, and locale files `SLMediaProducer.exe` needs) directly, built
+resources, and locale files `SLCefProducer.exe` needs) directly, built
 from this same internal CEF distribution -- it no longer depends on
 `dullahan`/`CEFPlugin.cmake` for any of that. `dullahan` itself has been
 removed from this Viewer's own `autobuild.xml` entirely (not just unused):
@@ -111,13 +124,14 @@ entire Chromium instance's stability and memory footprint inside
 `secondlife-bin.exe` itself, so a CEF renderer crash could take the whole
 Viewer down with it.
 
-Instead, `SLMediaProducer.exe` runs as its own separate OS process, and
-rendered frames are handed to the Viewer through `llshmframe`'s shared
-memory ring buffers rather than a socket. This is the same process
-isolation principle the legacy `SLPlugin.exe`/Dullahan plugin already used;
-the difference here is the transport (shared-memory frames, one producer
-hosting many tabs) rather than the older `LLPlugin` socket protocol with one
-process per instance.
+Instead, `SLCefProducer.exe` runs as its own separate OS process (with
+`SLVlcProducer.exe` as a second, independent one for LibVLC-backed media --
+see above), and rendered frames are handed to the Viewer through
+`llshmframe`'s shared memory ring buffers rather than a socket. This is the
+same process isolation principle the legacy `SLPlugin.exe`/Dullahan plugin
+already used; the difference here is the transport (shared-memory frames,
+one producer hosting many tabs of its own backend) rather than the older
+`LLPlugin` socket protocol with one process per instance.
 
 ## CEF process architecture: legacy versus embedded
 
@@ -139,21 +153,34 @@ surface therefore costs up to 5 OS processes; N surfaces cost roughly 5xN.
 In the test scenario above (8 active instances), this was 8 `SLPlugin.exe`
 + 40 `dullahan_host.exe` = 49 total processes.
 
-**Embedded (`llembeddedbrowser`/`SLMediaProducer`): one shared CEF browser
-process family for the whole session.** `SLMediaProducer.exe` hosts
-`llCefBrowserManager`, which manages every tab (every UI floater and every
-prim media surface) as separate CEF "browser" handles within *one shared
-browser-process context*. CEF's multi-process model still applies, but the
-shared layers are amortized across all tabs: one GPU process and one
-utility-process pair (network + storage) total, regardless of tab count,
-with only the renderer count scaling roughly per active tab (CEF's own
-site-isolation still applies at that layer). Unlike legacy, these helper
-roles re-exec under the *same* binary name, `SLMediaProducer.exe` -- a single
-process-name filter catches everything on this side, while legacy needs
-both `SLPlugin` and `dullahan_host` (see `scripts/perf/memory_compare.ps1`,
-which got this wrong at first for exactly this reason). Same 8-instance
-scenario: 1 producer + 12 children (9 renderer, 1 GPU, 2 utility) = 13
+**Embedded (`llembeddedbrowser`/`SLCefProducer`): one shared CEF browser
+process family for the whole session.** `SLCefProducer.exe` hosts
+`llCefBrowserManager`, which manages every CEF-backed tab (every UI floater
+and every prim media surface showing ordinary web content) as separate CEF
+"browser" handles within *one shared browser-process context*. CEF's
+multi-process model still applies, but the shared layers are amortized
+across all tabs: one GPU process and one utility-process pair (network +
+storage) total, regardless of tab count, with only the renderer count
+scaling roughly per active tab (CEF's own site-isolation still applies at
+that layer). These helper roles re-exec under the *same* binary name,
+`SLCefProducer.exe` -- a single process-name filter catches everything on
+this side, while legacy needs both `SLPlugin` and `dullahan_host` (see
+`scripts/perf/memory_compare.ps1`, which got this wrong at first for exactly
+this reason). Same 8-instance scenario (all CEF-backed, the numbers this
+measurement predates the 2026-09-30 producer split but remain accurate for
+`SLCefProducer` itself, since its own internal CEF architecture is
+unchanged): 1 producer + 12 children (9 renderer, 1 GPU, 2 utility) = 13
 total processes.
+
+**`SLVlcProducer`: a flat +1 process, regardless of tab count.** Unlike
+CEF, libvlc has no sub-process model at all -- one `SLVlcProducer.exe`
+process hosts every LibVLC-backed tab (RTSP/RTMP/MMS media) directly, with
+no GPU/utility/renderer children of its own. It is launched eagerly at
+`init()` alongside `SLCefProducer`, matching that producer's own launch
+timing exactly (not lazily on first RTSP/RTMP use) -- a deliberate Phase 1
+scope decision to keep the producer split itself a small, low-risk change;
+lazily launching it only when a resident actually encounters that kind of
+media remains a reasonable future optimization, not yet done.
 
 **The tradeoff.** Legacy's full per-instance isolation means one instance's
 GPU/utility/browser-layer crash can't touch any other instance at all --
@@ -207,15 +234,19 @@ in that same block.
 There are two separate limits on how many media instances can be active at
 once, and they are easy to confuse:
 
-- **`SLMediaProducer.exe`'s own hard ceiling is 32 concurrent shared-memory
-  channels** (`kSlotCount` in `cefshm_protocol.h`/`llmediaproducer.cpp`). This
-  is a structural limit on the transport itself, not something normally
-  worth tuning.
+- **Each producer's own hard ceiling is 32 concurrent shared-memory
+  channels** (`kSlotCount` in `cefshm_protocol.h`, both `llcefproducer` and
+  `llvlcproducer` copies) -- `SLCefProducer.exe` and `SLVlcProducer.exe` each
+  have their own independent 32-slot pool since the 2026-09-30 producer
+  split (64 total structural capacity across both, though the much lower
+  cap below is what actually governs in practice). This is a structural
+  limit on the transport itself, not something normally worth tuning.
 - **`MediaMaxInstances`** (a saved setting, debug settings search "Media",
   default `12`) is the real, practically-relevant limit: `LLViewerMedia`'s
   own hard cap on how many media instances (UI floaters and in-world prim
-  media together) it will actually keep loaded at once, comfortably inside
-  the 32-slot ceiling above. On a machine with less than 8 GB of RAM this
+  media together, regardless of which producer/backend each one uses) it
+  will actually keep loaded at once, comfortably inside either producer's
+  own 32-slot ceiling above. On a machine with less than 8 GB of RAM this
   is reduced by 2.
 
 This setting is **not embedded-browser-specific**, despite living in this
@@ -309,7 +340,7 @@ browser had no equivalent for a while: every CEF instance the producer held
 rendered and published frames at full rate no matter how far away or
 uninteresting it was, which wasted CPU on busy, media-heavy regions.
 
-This is now fixed with a producer-side render throttle. `SLMediaProducer.exe`
+This is now fixed with a producer-side render throttle. `SLCefProducer.exe`
 drives CEF manually via `SendExternalBeginFrame()`, called once per tab per
 tick; a new wire command, `kSetRenderRate`, lets the Viewer cap how often
 that call actually fires for a given tab (0 means unthrottled, the
@@ -404,29 +435,40 @@ overridden by a lower one.
 
 ## Debugging
 
-Two separate log files are written next to `SLMediaProducer.exe`:
+Each producer writes its own log files next to its own executable, since
+the 2026-09-30 producer split -- `SLCefProducer.exe` and `SLVlcProducer.exe`
+are separate processes with separate log directories:
 
-- **`cefshm_producer_log.txt`** - CEF's own internal log. Larger and much
-  more verbose than the producer's own log; this is the one to check for a
-  CEF-level crash or renderer problem.
-- **`slmediaproducer_log.txt`** - the producer's own console-mirroring log.
-  The same lines you would see in a visible console window if
-  `EmbeddedBrowserProducerConsole` is turned on, written to disk regardless
-  of whether that console is showing.
+- **`SLCefProducer/cefshm_producer_log.txt`** - CEF's own internal log.
+  Larger and much more verbose than the producer's own log; this is the one
+  to check for a CEF-level crash or renderer problem.
+- **`SLCefProducer/slcefproducer_log.txt`** - that producer's own
+  console-mirroring log. The same lines you would see in a visible console
+  window if `EmbeddedBrowserProducerConsole` is turned on, written to disk
+  regardless of whether that console is showing.
+- **`SLVlcProducer/slvlcproducer_log.txt`** - the equivalent console-
+  mirroring log for the LibVLC producer.
+- **`SLVlcProducer/libvlc_log.txt`** - libvlc's own internal network/demux/
+  decode diagnostics (the actual detail behind "why didn't this RTSP/RTMP
+  stream play") - check this one for a LibVLC-backed media problem, the way
+  `cefshm_producer_log.txt` is the one to check for a CEF-backed one.
 
 A few debug settings (Advanced > Show Debug Settings, or Preferences, search
 for "Embedded" or "Cef") control embedded-browser diagnostics. All of them
-take effect on the next `SLMediaProducer.exe` launch, not immediately:
+take effect on the next launch of the producer(s) they apply to, not
+immediately:
 
 - **`EmbeddedBrowserProducerConsole`** (boolean, default off) - if true,
-  `SLMediaProducer.exe` allocates a visible console window showing its
-  diagnostic output.
+  *both* `SLCefProducer.exe` and `SLVlcProducer.exe` allocate a visible
+  console window showing their diagnostic output.
 - **`EmbeddedBrowserDebugging`** (boolean, default off) - enables
-  `llembeddedbrowser`/`SLMediaProducer` debugging features. Currently this
-  just gates the remote-debugging port setting below.
+  `llembeddedbrowser`/`SLCefProducer` debugging features. Currently this
+  just gates the remote-debugging port setting below. CEF-only --
+  `SLVlcProducer` has no DevTools (or any other remote-debugging) concept
+  at all.
 - **`EmbeddedBrowserRemoteDebuggingPort`** (unsigned integer, default 0) -
   when non-zero and `EmbeddedBrowserDebugging` is also true,
-  `SLMediaProducer.exe` serves Chrome's remote-debugging-protocol DevTools UI
+  `SLCefProducer.exe` serves Chrome's remote-debugging-protocol DevTools UI
   on that port.
 
 ## Media Monitor: a live list of active media
@@ -501,7 +543,7 @@ A couple more things worth knowing about what it shows:
   query.** `LLViewerMedia::getEmbeddedBrowserDebugInfo()` reads
   `LLViewerMediaImpl`'s already-tracked state (the same priority list and
   per-instance fields `LLViewerMedia::updateMedia()` already maintains),
-  not a round-trip to `SLMediaProducer.exe`. This is sufficient for the
+  not a round-trip to either producer. This is sufficient for the
   "what's showing and where" QA use case, but would not by itself catch a
   producer-side desync (a slot the Viewer has lost track of) - a genuine
   future extension if that ever becomes a real debugging need.
@@ -520,7 +562,8 @@ A couple more things worth knowing about what it shows:
 The first time any page loaded through the embedded browser negotiates a
 WebRTC connection (voice or video chat, for example), Windows may show a
 one-time "Windows Security - Do you want to allow public and private
-networks to access this app?" prompt for `SLMediaProducer.exe`. This is not
+networks to access this app?" prompt for `SLCefProducer.exe` (the only one
+of the two producers that hosts WebRTC-capable web content). This is not
 a code-signing problem and not related to `EmbeddedBrowserDebugging` or
 the remote-debugging port below. It is a known, common Chromium/CEF-wide
 behavior: WebRTC's local-IP-hiding privacy feature obfuscates a page's
@@ -536,7 +579,7 @@ acceptable one for a windowless embedded browser with no user-facing
 privacy UI of its own to explain the prompt otherwise.
 
 Two earlier hypotheses were investigated and ruled out before finding the
-real cause, in case this ever needs revisiting: `SLMediaProducer.exe`'s code
+real cause, in case this ever needs revisiting: `SLCefProducer.exe`'s code
 signature (confirmed valid via `Get-AuthenticodeSignature`) and its
 embedded manifest's execution level (confirmed `asInvoker`, no elevation
 requested). Neither was the issue.
@@ -555,7 +598,7 @@ To use it:
 1. Turn on `EmbeddedBrowserDebugging`.
 2. Set `EmbeddedBrowserRemoteDebuggingPort` to a non-zero port (for example,
    `9222`).
-3. Relaunch the Viewer, so `SLMediaProducer.exe` starts fresh with the new
+3. Relaunch the Viewer, so `SLCefProducer.exe` starts fresh with the new
    settings.
 4. Open `http://localhost:<port>` (or `chrome://inspect` configured to that
    port) in any desktop Chromium-based browser. This lists every live
@@ -625,23 +668,24 @@ the same test page llcefbrowser's own examples use, since the Viewer now
 implements an identical contract.
 
 **How it actually reaches the Viewer**: `llCefBrowserLib::SetJavaScriptBridge()`
-registers exactly one handler, process-wide, in `SLMediaProducer.exe` --
+registers exactly one handler, process-wide, in `SLCefProducer.exe` --
 there's no per-tab registration for the full bridge (only a simpler,
 response-less observation-only variant has that). Since a query's own
 `llCefBrowserHandle` is passed to the callback, the producer's own bridge
-implementation (`JsBridge` in `llmediaproducer.cpp`) looks up which slot it
+implementation (`JsBridge` in `llcefproducer.cpp`) looks up which slot it
 actually arrived on and forwards it over that slot's own shared-memory
 channel as a new `kEventJSQuery` opcode; the response travels back the same
 way via `kRespondToQuery`.
 
 **Known limitations**: only CEF-backed media can call this at all -- there's
-no DOM/JS for a LibVLC-backed RTSP/RTMP slot to call it from. CEF's own
-`persistent` query flag (letting a page's `onSuccess`/`onFailure` be invoked
-more than once for the same query, e.g. for a subscription-style feed) is
-carried across the wire but not given any special handling on the Viewer side
-yet -- every registered handler is expected to respond exactly once.
+no DOM/JS for a LibVLC-backed RTSP/RTMP slot (a different process,
+`SLVlcProducer.exe`, entirely) to call it from. CEF's own `persistent` query
+flag (letting a page's `onSuccess`/`onFailure` be invoked more than once for
+the same query, e.g. for a subscription-style feed) is carried across the
+wire but not given any special handling on the Viewer side yet -- every
+registered handler is expected to respond exactly once.
 
-## LibVLC: a second producer backend for streaming media
+## LibVLC: a second producer, for streaming media
 
 CEF is a web engine, and however complete its codec support, it can only ever
 play a *web page's* content, not decode a raw network stream on its own.
@@ -650,16 +694,20 @@ siblings) needed for some in-world media, and CEF has no code path for
 playing one at all, codecs or not - typing an RTSP URL into it just gets a
 "site can't be reached" style error. Rather than reviving the old standalone
 `media_plugin_libvlc`/`SLPlugin.exe` architecture, LibVLC was reintroduced as
-a *second backend inside `SLMediaProducer.exe` itself*, alongside the
-existing `llCefBrowserManager`. A new `LibVlcTabManager`
-(`indra/llmediaproducer/libvlctabmanager.{h,cpp}`) hosts one shared
+its own standalone producer, `SLVlcProducer.exe` (`indra/llvlcproducer`) --
+originally (2026-09-01 through 2026-09-30) a second backend hosted *inside*
+the same combined `SLMediaProducer.exe` process alongside `llCefBrowserManager`,
+then split out into its own separate process on 2026-09-30 for licensing
+reasons (see "Why two producer processes" below). `LibVlcTabManager`
+(`indra/llvlcproducer/libvlctabmanager.{h,cpp}`) hosts one shared
 `libvlc_instance_t` for the whole process and publishes decoded frames
-through the exact same `llshmframe` shared-memory path CEF tabs already use -
-the Viewer's own texture-upload and prim-rendering code has no idea, and
-needs no idea, which backend produced a given frame.
+through the exact same `llshmframe` shared-memory path `SLCefProducer`'s own
+CEF tabs already use - the Viewer's own texture-upload and prim-rendering
+code has no idea, and needs no idea, which producer/backend produced a
+given frame.
 
-Which backend a media instance gets is decided once, when its slot is first
-requested, by `chooseEmbeddedBrowserBackend()`
+Which producer/backend a media instance gets is decided once, when its slot
+is first requested, by `chooseEmbeddedBrowserBackend()`
 (`indra/newview/llviewermedia.cpp`), purely from the URL's scheme:
 
 - **Routed to LibVLC:** `rtsp`, `rtsps`, `rtmp`, `rtmps`, `mms`, `mmsh` -
@@ -678,6 +726,34 @@ A `used_in_ui` context (a 2D floater, not a prim) no longer forces CEF
 unconditionally either: a stream-only scheme routes to LibVLC even there,
 which is what makes it possible to open an RTSP stream directly in the Media
 Browser floater to test it, rather than only ever in-world.
+
+### Why two producer processes
+
+CEF and LibVLC were hosted in one combined `SLMediaProducer.exe` process from
+2026-09-01 (when LibVLC was first added) until 2026-09-30, when they were
+split into `SLCefProducer.exe` and `SLVlcProducer.exe`. The trigger was a
+licensing review: the vendored LibVLC package this project ships (`vlc-bin`,
+`secondlife/3p-vlc-bin`) declares itself **GPL v2** in its own autobuild
+package metadata -- confirmed by reading both the package's `autobuild.xml`
+entry and its actual bundled license text, not assumed from libVLC's more
+commonly-cited LGPL v2.1+ *core* license (that describes upstream libVLC
+itself; this specific vendored package additionally bundles VLC's full
+demux/codec/access module set, which mixes LGPL- and GPL-licensed modules,
+making "GPL v2" the accurate label for the package as a whole) -- while this
+project is **LGPL v2.1**. A GPL v2-declared library linked directly into the
+same process as Linden Lab's own CEF-integration code (as the combined
+`SLMediaProducer.exe` did) is exactly the kind of combination that raises
+real licensing-compliance questions for the distributed result.
+
+Splitting LibVLC into its own standalone process, reached only via IPC
+(the same `llshmframe` wire protocol CEF tabs already used), confines every
+use of libvlc to one small process and keeps `SLCefProducer.exe` -- and the
+main Viewer binary -- free of it. This meaningfully reduces risk and is
+common practice, though it is not by itself a 100%-ironclad guarantee (the
+"mere aggregation" argument for why two processes shipped together avoid a
+GPL-combination concern is a genuinely disputed, fuzzy legal line) -- if
+this is ever revisited, do not simply re-merge the two producers back into
+one process without re-confirming the reasoning above no longer applies.
 
 **Resize was broken, and not for the reason it looked like.** LibVLC media
 playing in a floater corrupted badly when the floater was resized - pixels
@@ -780,9 +856,9 @@ settling on this approach:
 - A per-process audio-session trick (WASAPI-style, the same idea the legacy
   plugin's `VolumeCatcher` used) can't work here regardless of
   implementation quality: every CEF tab's audio funnels through
-  `SLMediaProducer.exe`'s one shared Chromium audio-service process
+  `SLCefProducer.exe`'s one shared Chromium audio-service process
   (confirmed via Windows' own Volume Mixer, which shows a single
-  `SLMediaProducer` session even with two tabs playing audio at the same
+  `SLCefProducer` session even with two tabs playing audio at the same
   time), so no per-process control could ever distinguish one tab's volume
   from another's.
 - The legacy plugin's own `VolumeCatcher` turned out not to even be a good
@@ -821,7 +897,7 @@ fix:
   simply override it.
 
 Diagnostic logging for this path goes to the **Viewer's own log**, not
-`SLMediaProducer.exe`'s console - `ExecuteJavaScript()` is fire-and-forget
+`SLCefProducer.exe`'s console - `ExecuteJavaScript()` is fire-and-forget
 with no return value, so the producer has no visibility into whether an
 injected script actually ran or what it did. Look for the `MediaVolume` tag
 in the Viewer log for the mute decision and JS-injected volume value on
@@ -878,13 +954,16 @@ every real change.
   "Different platforms need genuinely different LibVLC handling" below) -
   used both for parcel/streaming audio (`LLStreamingAudio_LibVLC`, linked
   directly into the main viewer binary on every platform) and for
-  RTSP/RTMP-style prim media (`SLMediaProducer`'s `LibVlcTabManager`). If
-  missing, the dynamic linker refuses to start the *main viewer binary*
-  itself, not just lose one feature the way a missing NSS/NSPR does. Same
-  check-and-warn mechanism as above (`wrapper.sh`/`install.sh`), extended to
-  also cover `libvlc.so.5`/`libvlccore.so.9` - the warning runs, and is
-  visible in the terminal, before the launch attempt that would otherwise
-  fail with only the dynamic linker's own less legible error.
+  RTSP/RTMP-style prim media (`SLVlcProducer`'s `LibVlcTabManager`, a
+  separate process since the 2026-09-30 producer split - see "Why two
+  producer processes" above). If missing, the dynamic linker refuses to
+  start the *main viewer binary* itself (and `SLVlcProducer.exe` would
+  separately fail to launch the same way), not just lose one feature the
+  way a missing NSS/NSPR does. Same check-and-warn mechanism as above
+  (`wrapper.sh`/`install.sh`), extended to also cover
+  `libvlc.so.5`/`libvlccore.so.9` - the warning runs, and is visible in the
+  terminal, before the launch attempt that would otherwise fail with only
+  the dynamic linker's own less legible error.
 - **The legacy media plugin has not been removed, but can no longer actually
   be built.** `media_plugins/cef`, `llplugin/slplugin`, and the
   `ENABLE_MEDIA_PLUGINS` build option (off by default) remain in the
@@ -937,7 +1016,7 @@ briefly had a public function named `llCefBrowserLib::LoadLibrary()`
 (wrapping CEF's own dynamic-loading requirement on macOS). `<windows.h>`
 `#define`s `LoadLibrary` to `LoadLibraryA`/`LoadLibraryW`, so any call to
 it from a translation unit that has included `<windows.h>` - as
-`llmediaproducer.cpp` does, conditionally, for its own Win32-specific
+`llcefproducer.cpp` does, conditionally, for its own Win32-specific
 pieces - gets silently rewritten by the preprocessor before the C++
 compiler ever sees the real method, producing a confusing pair of errors
 (`'LoadLibraryW' is not a member of 'llCefBrowserLib'`, then a signature
@@ -950,9 +1029,10 @@ happens to have included `<windows.h>` first.
 
 **Different platforms need genuinely different LibVLC handling.**
 Windows and macOS vendor their own LibVLC binary (the `vlc-bin` autobuild
-package). Linux links against the system's own installed LibVLC instead,
-via `pkg_check_modules(libvlc)` (see `LibVLCPlugin.cmake`) - there is
-nothing of ours to copy into the packaged build, and no rpath entry is
+package) for both `secondlife-bin.exe` (parcel audio) and `SLVlcProducer.exe`
+(RTSP/RTMP media). Linux links against the system's own installed LibVLC
+instead, via `pkg_check_modules(libvlc)` (see `LibVLCPlugin.cmake`) - there
+is nothing of ours to copy into the packaged build, and no rpath entry is
 needed for it either, unlike `libcef.so`.
 
 **The custom, codec-enabled CEF distribution already exists for all three
@@ -967,7 +1047,7 @@ and `linux64` builds of the same CEF version already exist and are in use.
 
 - **GPU texture handles instead of CPU memory-buffer copies.** Today, every
   frame CEF renders is delivered via its `OnPaint` callback as a raw BGRA
-  pixel buffer in CPU memory, which `SLMediaProducer.exe` then copies into an
+  pixel buffer in CPU memory, which `SLCefProducer.exe` then copies into an
   `llshmframe` shared-memory ring buffer for the Viewer to read back out
   and upload to a GL texture, a full-frame CPU copy (and a GPU readback
   before that) on every update. CEF also exposes `OnAcceleratedPaint`,
@@ -982,13 +1062,17 @@ and `linux64` builds of the same CEF version already exist and are in use.
   audio no longer goes through the plugin architecture or
   `media_plugin_libvlc` at all - `LLStreamingAudio_LibVLC`
   (`indra/newview/llstreamingaudio_libvlc.h/.cpp`) links libvlc directly
-  into `secondlife-bin.exe` itself, independent of `SLMediaProducer.exe` and
-  `ENABLE_MEDIA_PLUGINS` entirely. And LibVLC video/stream support inside
-  `SLMediaProducer.exe` is described in its own section above, not deferred
-  any more. What remains open is narrower: whether to widen LibVLC's role
-  to ordinary web-embedded video formats CEF might not cover (see "Known
-  limitations" above), and skip-forward/skip-back transport controls for
-  genuinely seekable LibVLC media (see "LibVLC" above).
+  into `secondlife-bin.exe` itself, independent of `SLVlcProducer.exe`/
+  `SLCefProducer.exe` and `ENABLE_MEDIA_PLUGINS` entirely. And LibVLC video/
+  stream support, now in its own standalone `SLVlcProducer.exe` process (see
+  "Why two producer processes" above), is described in its own section
+  above, not deferred any more. What remains open is narrower: whether to
+  widen LibVLC's role to ordinary web-embedded video formats CEF might not
+  cover (see "Known limitations" above), skip-forward/skip-back transport
+  controls for genuinely seekable LibVLC media (see "LibVLC" above), and
+  eventually moving `LLStreamingAudio_LibVLC` itself behind IPC to
+  `SLVlcProducer` too (Phase 2 of the 2026-09-30 licensing-driven split,
+  not yet started - see "Why two producer processes" above).
 
 ## Notes on AI-assisted development
 

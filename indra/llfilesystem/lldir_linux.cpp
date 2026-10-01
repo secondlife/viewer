@@ -250,18 +250,31 @@ std::string LLDir_Linux::getCurPath()
         "lib" + base_name + ".so";
 }
 
-/*virtual*/ std::string LLDir_Linux::getSLMediaProducerLauncher()
+/*virtual*/ std::string LLDir_Linux::getSLCefProducerLauncher()
 {
-    // Lives in its own SLMediaProducer/ directory (see viewer_manifest.py),
+    // Lives in its own SLCefProducer/ directory (see viewer_manifest.py),
     // alongside libcef.so and its other CEF runtime files, not next to the
     // main executable and not in llplugin/ (the legacy media plugins' own
     // directory, no longer built by default -- see ENABLE_MEDIA_PLUGINS) --
-    // same reasoning as LLDir_Win32::getSLMediaProducerLauncher(): a
+    // same reasoning as LLDir_Win32::getSLCefProducerLauncher(): a
     // standalone executable only searches its own directory for shared
     // libraries by default, so it needs to actually live where those files
     // are. No ".exe"/bundle suffix, matching this platform's own plain
     // executable-name convention (see getLLPluginLauncher() just above).
     return gDirUtilp->getExecutableDir() + gDirUtilp->getDirDelimiter() +
-        "SLMediaProducer" + gDirUtilp->getDirDelimiter() +
-        "SLMediaProducer";
+        "SLCefProducer" + gDirUtilp->getDirDelimiter() +
+        "SLCefProducer";
+}
+
+/*virtual*/ std::string LLDir_Linux::getSLVlcProducerLauncher()
+{
+    // Same reasoning as getSLCefProducerLauncher() just above -- its own
+    // SLVlcProducer/ directory, since the 2026-09-30 producer split. Unlike
+    // the CEF producer, nothing else lives alongside this one on Linux (no
+    // libvlc copy -- ll::libvlc links against the system's own installed
+    // libvlc via pkg-config, see LibVLCPlugin.cmake), but the same-directory
+    // convention is kept for consistency with the other two platforms.
+    return gDirUtilp->getExecutableDir() + gDirUtilp->getDirDelimiter() +
+        "SLVlcProducer" + gDirUtilp->getDirDelimiter() +
+        "SLVlcProducer";
 }
