@@ -352,6 +352,10 @@ LLMessageSystem::~LLMessageSystem()
     {
         mIncomingQueue->close();
     }
+    if (mDecodedQueue)
+    {
+        mDecodedQueue->close();
+    }
     if (mReceiverThread)
     {
         // This may wait for the thread to finish.
