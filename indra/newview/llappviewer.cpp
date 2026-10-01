@@ -118,6 +118,7 @@
 
 // Linden library includes
 #include "llavatarnamecache.h"
+#include "lldecodedmessage.h"
 #include "lldiriterator.h"
 #include "llexperiencecache.h"
 #include "llimagej2c.h"

@@ -367,17 +367,17 @@ public:
     S32                 mPort;
     S32                 mSocket;
 
-    U32                 mPacketsIn;         // total packets in, including compressed and uncompressed
-    U32                 mPacketsOut;            // total packets out, including compressed and uncompressed
+    std::atomic<U32>    mPacketsIn;         // total packets in, including compressed and uncompressed
+    U32                 mPacketsOut;        // total packets out, including compressed and uncompressed, main thread only
 
-    U64                 mBytesIn;           // total bytes in, including compressed and uncompressed
-    U64                 mBytesOut;          // total bytes out, including compressed and uncompressed
+    std::atomic<U64>    mBytesIn;           // total bytes in, including compressed and uncompressed
+    U64                 mBytesOut;          // total bytes out, including compressed and uncompressed, main thread only
 
-    U32                 mCompressedPacketsIn;       // total compressed packets in
+    std::atomic<U32>    mCompressedPacketsIn;       // total compressed packets in
     U32                 mCompressedPacketsOut;      // total compressed packets out
 
-    U32                 mReliablePacketsIn;     // total reliable packets in
-    U32                 mReliablePacketsOut;        // total reliable packets out
+    std::atomic<U32>    mReliablePacketsIn;         // total reliable packets in
+    U32                 mReliablePacketsOut;        // total reliable packets out, main thread only
 
     U32                 mLostPackets;               // total reliable outbound packets declared lost
     U32                 mResentPackets;             // total resent packets out
@@ -480,7 +480,7 @@ public:
     void setDropPercentage(F32 percent_to_drop);
 
     // UDP byte-accounting
-    S32  getActualInBytes()  const { return mActualBytesIn.CurrentValue(); }
+    S32  getActualInBytes()  const { return mActualBytesIn; }
     S32  getActualOutBytes() const { return mActualBytesOut; }
     S32  getAndResetActualInBits()  { S32 bits = mActualBytesIn  * 8; mActualBytesIn  = 0; return bits; }
     S32  getAndResetActualOutBits() { S32 bits = mActualBytesOut * 8; mActualBytesOut = 0; return bits; }
@@ -1015,7 +1015,7 @@ private:
     bool isHighPriorityMessage(const LLPacketBuffer& pkt) const;
 
     // Packet-loss simulation and byte-accounting state
-    LLAtomicS32 mActualBytesIn;
+    std::atomic<S32> mActualBytesIn;
     S32 mActualBytesOut;
     F32 mDropPercentage;        // % of inbound packets to drop
     U32 mPacketsToDrop;         // drop next N inbound packets
