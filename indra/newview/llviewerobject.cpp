@@ -1388,7 +1388,16 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 case OBJECTDATA_FIELD_SIZE_76:
                     // pull out collision normal for avatar
                     htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
-                    ((LLVOAvatar*)this)->setFootPlane(collision_plane);
+                    if (LLVOAvatar* avatarp = asAvatar())
+                    {
+                        avatarp->setFootPlane(collision_plane);
+                    }
+                    else
+                    {
+                        LL_WARNS("UpdateFail") << "Ignoring collision plane in ObjectData buffer size " << length
+                            << " for non-avatar " << getID() << " pcode " << getPCodeString()
+                            << " with OUT_FULL message" << LL_ENDL;
+                    }
                     count += sizeof(LLVector4);
 
                 case OBJECTDATA_FIELD_SIZE_124:
@@ -1617,7 +1626,16 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     case OBJECTDATA_FIELD_SIZE_48:
                     // pull out collision normal for avatar
                     htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
-                    ((LLVOAvatar*)this)->setFootPlane(collision_plane);
+                    if (LLVOAvatar* avatarp = asAvatar())
+                    {
+                        avatarp->setFootPlane(collision_plane);
+                    }
+                    else
+                    {
+                        LL_WARNS("UpdateFail") << "Ignoring collision plane in ObjectData buffer size " << length
+                            << " for non-avatar " << getID() << " pcode " << getPCodeString()
+                            << " with OUT_TERSE_IMPROVED message" << LL_ENDL;
+                    }
                     count += sizeof(LLVector4);
 
                 case OBJECTDATA_FIELD_SIZE_64:
@@ -1732,7 +1750,16 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 {
                     LLVector4 collision_plane;
                     dp->unpackVector4(collision_plane, "Plane");
-                    ((LLVOAvatar*)this)->setFootPlane(collision_plane);
+                    if (LLVOAvatar* avatarp = asAvatar())
+                    {
+                        avatarp->setFootPlane(collision_plane);
+                    }
+                    else
+                    {
+                        LL_WARNS("UpdateFail") << "Ignoring collision plane for non-avatar " << getID()
+                            << " pcode " << getPCodeString()
+                            << " with compressed OUT_TERSE_IMPROVED message" << LL_ENDL;
+                    }
                 }
                 test_pos_parent = getPosition();
                 dp->unpackVector3(new_pos_parent, "Pos");
