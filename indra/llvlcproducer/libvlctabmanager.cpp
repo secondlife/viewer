@@ -272,6 +272,14 @@ public:
 
         Tab& t = *mTabs[index];
         t.live = true;
+        // Must be reset here, not just in CreateAudioTrack() -- a freed slot index is
+        // reused by whichever of CreateTab()/CreateAudioTrack() asks first (see the
+        // free-index scan above), and a video tab landing on an index an audio track
+        // previously held would otherwise silently inherit audioOnly=true, making
+        // Open() skip libvlc_video_set_callbacks()/libvlc_video_set_format() below --
+        // the player would still run, but no frame would ever be produced. Confirmed as
+        // the real cause of a reported "RTSP video just doesn't render" bug.
+        t.audioOnly = false;
         t.generation++;
         t.player = nullptr;
         t.frameDirty = false;
@@ -333,10 +341,19 @@ public:
         t.playStateChangedPending = false;
         t.playStateIsPlaying = false;
         // No video geometry at all -- see Open()'s own audioOnly guard, which never
-        // reads these. t.pixels is deliberately left empty (never allocated).
+        // reads these.
         t.width = t.height = t.maxWidth = t.maxHeight = 0;
         t.pendingWidth = t.pendingHeight = 0;
         t.hasPendingResize = false;
+        {
+            // Releases a reused slot's previous video-tab pixel buffer (potentially
+            // several MB at the ceiling size) rather than silently keeping it around
+            // unused -- a brand-new Tab's own pixels already starts empty, so this is
+            // only ever a real free on a slot index a video tab held before.
+            std::lock_guard<std::mutex> lock(t.mutex);
+            t.pixels.clear();
+            t.pixels.shrink_to_fit();
+        }
         t.lastResizeRequestTime = std::chrono::steady_clock::time_point{};
         t.lastAppliedResizeTime = std::chrono::steady_clock::time_point{};
 
