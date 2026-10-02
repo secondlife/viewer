@@ -85,6 +85,8 @@ public:
         LLMessageSystem* mesgsys,
         char const* block_name,
         S32 block_num = 0);
+    // Returns false only if the data couldn't be read, leaving params unusable.
+    // Out of range values are logged and clamped, and don't make this fail.
     static bool unpackVolumeParams(LLVolumeParams* params, LLDataPacker &dp);
 };
 

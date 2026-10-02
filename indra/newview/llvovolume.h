@@ -439,6 +439,7 @@ protected:
 
 private:
     bool lodOrSculptChanged(LLDrawable *drawable, bool &compiled, bool &shouldUpdateOctreeBounds);
+    void invalidateCachedUpdate(EObjectUpdateType update_type, LLDataPacker* dp);
 
 public:
 

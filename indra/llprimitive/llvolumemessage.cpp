@@ -153,48 +153,49 @@ bool LLVolumeMessage::unpackProfileParams(
     LLProfileParams* params,
     LLDataPacker &dp)
 {
-    bool ok = true;
-    U8 temp_u8;
-    U16 temp_u16;
-    F32 temp_f32;
+    U8 curve = 0;
+    U16 begin = 0, end = 0, hollow = 0;
 
-    dp.unpackU8(temp_u8, "Curve");
-    params->setCurveType(temp_u8);
+    if (!(dp.unpackU8(curve, "Curve") &&
+          dp.unpackU16(begin, "Begin") &&
+          dp.unpackU16(end, "End") &&
+          dp.unpackU16(hollow, "Hollow")))
+    {
+        return false;
+    }
 
-    dp.unpackU16(temp_u16, "Begin");
-    temp_f32 = temp_u16 * CUT_QUANTA;
+    // Out of range values are clamped rather than treated as failures:
+    // only a failed read means the data can't be used.
+    params->setCurveType(curve);
+
+    F32 temp_f32 = begin * CUT_QUANTA;
     if (temp_f32 > 1.f)
     {
         LL_WARNS() << "Profile begin out of range: " << temp_f32 << LL_ENDL;
         LL_WARNS() << "Clamping to 0.0" << LL_ENDL;
         temp_f32 = 0.f;
-        ok = false;
     }
     params->setBegin(temp_f32);
 
-    dp.unpackU16(temp_u16, "End");
-    temp_f32 = temp_u16 * CUT_QUANTA;
+    temp_f32 = end * CUT_QUANTA;
     if (temp_f32 > 1.f)
     {
         LL_WARNS() << "Profile end out of range: " << 1.f - temp_f32 << LL_ENDL;
         LL_WARNS() << "Clamping to 1.0" << LL_ENDL;
         temp_f32 = 1.f;
-        ok = false;
     }
     params->setEnd(1.f - temp_f32);
 
-    dp.unpackU16(temp_u16, "Hollow");
-    temp_f32 = temp_u16 * HOLLOW_QUANTA;
+    temp_f32 = hollow * HOLLOW_QUANTA;
     if (temp_f32 > 1.f)
     {
         LL_WARNS() << "Profile hollow out of range: " << temp_f32 << LL_ENDL;
         LL_WARNS() << "Clamping to 0.0" << LL_ENDL;
         temp_f32 = 0.f;
-        ok = false;
     }
     params->setHollow(temp_f32);
 
-    return ok;
+    return true;
 }
 
 //============================================================================
@@ -393,59 +394,41 @@ bool LLVolumeMessage::unpackPathParams(
 
 bool LLVolumeMessage::unpackPathParams(LLPathParams* params, LLDataPacker &dp)
 {
-    U8 value;
-    S8 svalue;
-    U16 temp_u16;
+    U8 curve = 0, scale_x = 0, scale_y = 0, shear_x = 0, shear_y = 0, twist = 0, twist_begin = 0,
+       radius_offset = 0, taper_x = 0, taper_y = 0, revolutions = 0, skew = 0;
+    U16 begin = 0, end = 0;
 
-    dp.unpackU8(value, "Curve");
-    params->setCurveType( value );
+    if (!(dp.unpackU8(curve, "Curve") &&
+          dp.unpackU16(begin, "Begin") &&
+          dp.unpackU16(end, "End") &&
+          dp.unpackU8(scale_x, "ScaleX") &&
+          dp.unpackU8(scale_y, "ScaleY") &&
+          dp.unpackU8(shear_x, "ShearX") &&
+          dp.unpackU8(shear_y, "ShearY") &&
+          dp.unpackU8(twist, "Twist") &&
+          dp.unpackU8(twist_begin, "TwistBegin") &&
+          dp.unpackU8(radius_offset, "RadiusOffset") &&
+          dp.unpackU8(taper_x, "TaperX") &&
+          dp.unpackU8(taper_y, "TaperY") &&
+          dp.unpackU8(revolutions, "Revolutions") &&
+          dp.unpackU8(skew, "Skew")))
+    {
+        return false;
+    }
 
-    dp.unpackU16(temp_u16, "Begin");
-    params->setBegin((F32)(temp_u16 * CUT_QUANTA));
-
-    dp.unpackU16(temp_u16, "End");
-    params->setEnd((F32)((50000 - temp_u16) * CUT_QUANTA));
-
-    dp.unpackU8(value, "ScaleX");
-    F32 x = (F32) (200 - value) * SCALE_QUANTA;
-    dp.unpackU8(value, "ScaleY");
-    F32 y = (F32) (200 - value) * SCALE_QUANTA;
-    params->setScale( x, y );
-
-    dp.unpackU8(value, "ShearX");
-    svalue = *(S8 *)&value;
-    F32 shear_x = (F32) svalue * SHEAR_QUANTA;
-    dp.unpackU8(value, "ShearY");
-    svalue = *(S8 *)&value;
-    F32 shear_y = (F32) svalue * SHEAR_QUANTA;
-    params->setShear( shear_x, shear_y );
-
-    dp.unpackU8(value, "Twist");
-    svalue = *(S8 *)&value;
-    params->setTwist((F32)(svalue * SCALE_QUANTA));
-
-    dp.unpackU8(value, "TwistBegin");
-    svalue = *(S8 *)&value;
-    params->setTwistBegin((F32)(svalue * SCALE_QUANTA));
-
-    dp.unpackU8(value, "RadiusOffset");
-    svalue = *(S8 *)&value;
-    params->setRadiusOffset((F32)(svalue * SCALE_QUANTA));
-
-    dp.unpackU8(value, "TaperX");
-    svalue = *(S8 *)&value;
-    params->setTaperX((F32)(svalue * TAPER_QUANTA));
-
-    dp.unpackU8(value, "TaperY");
-    svalue = *(S8 *)&value;
-    params->setTaperY((F32)(svalue * TAPER_QUANTA));
-
-    dp.unpackU8(value, "Revolutions");
-    params->setRevolutions((F32)(value * REV_QUANTA + 1.0f));
-
-    dp.unpackU8(value, "Skew");
-    svalue = *(S8 *)&value;
-    params->setSkew((F32)(svalue * SCALE_QUANTA));
+    // The shear, twist, radius offset, taper and skew bytes are signed
+    params->setCurveType(curve);
+    params->setBegin((F32)(begin * CUT_QUANTA));
+    params->setEnd((F32)((50000 - end) * CUT_QUANTA));
+    params->setScale((F32)(200 - scale_x) * SCALE_QUANTA, (F32)(200 - scale_y) * SCALE_QUANTA);
+    params->setShear((F32)(S8)shear_x * SHEAR_QUANTA, (F32)(S8)shear_y * SHEAR_QUANTA);
+    params->setTwist((F32)((S8)twist * SCALE_QUANTA));
+    params->setTwistBegin((F32)((S8)twist_begin * SCALE_QUANTA));
+    params->setRadiusOffset((F32)((S8)radius_offset * SCALE_QUANTA));
+    params->setTaperX((F32)((S8)taper_x * TAPER_QUANTA));
+    params->setTaperY((F32)((S8)taper_y * TAPER_QUANTA));
+    params->setRevolutions((F32)(revolutions * REV_QUANTA + 1.0f));
+    params->setSkew((F32)((S8)skew * SCALE_QUANTA));
 
     return true;
 }
@@ -547,11 +530,14 @@ bool LLVolumeMessage::unpackVolumeParams(
     LLVolumeParams* params,
     LLDataPacker &dp)
 {
-    bool ok = true;
-    ok &= unpackPathParams(&params->getPathParams(), dp);
-    ok &= unpackProfileParams(&params->getProfileParams(), dp);
-    ok &= constrainVolumeParams(*params);
-    return ok;
+    if (!unpackPathParams(&params->getPathParams(), dp) ||
+        !unpackProfileParams(&params->getProfileParams(), dp))
+    {
+        return false;
+    }
+    // Logs and clamps any out of range values
+    constrainVolumeParams(*params);
+    return true;
 }
 
 //============================================================================

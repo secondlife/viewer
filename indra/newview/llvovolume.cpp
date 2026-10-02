@@ -449,85 +449,79 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
         if (update_type != OUT_TERSE_IMPROVED)
         {
             LLVolumeParams volume_params;
-            bool res = LLVolumeMessage::unpackVolumeParams(&volume_params, *dp);
-            if (!res)
+            if (!LLVolumeMessage::unpackVolumeParams(&volume_params, *dp))
             {
-                LL_WARNS() << "Bogus volume parameters in object " << getID() << LL_ENDL;
-                LL_WARNS() << getRegion()->getOriginGlobal() << LL_ENDL;
-            }
-
-            volume_params.setSculptID(sculpt_id, sculpt_type);
-
-            if (setVolume(volume_params, 0))
-            {
-                markForUpdate();
-            }
-            S32 res2 = unpackTEMessage(*dp);
-            if (TEM_INVALID == res2)
-            {
-                logMalformedUpdate("invalid TextureEntry data", block_num, update_type, dp);
-
-                // Don't remove the object's entry from the cache: dp points into it.
-                // Make the next cache probe miss instead, so the server resends the object.
-                if (update_type == OUT_FULL_CACHED && getRegion())
-                {
-                    LLVOCacheEntry* entry = getRegion()->getCacheEntry(getLocalID(), false);
-                    if (entry && entry->getDP() == dp)
-                    {
-                        entry->invalidateCRC();
-                    }
-                }
+                // The fields after the volume parameters can't be found either,
+                // so leave the volume, TEs, texture animation and particles alone.
+                logMalformedUpdate("failed to unpack volume parameters, ignoring remaining fields", block_num, update_type, dp);
+                invalidateCachedUpdate(update_type, dp);
+                retval |= MALFORMED_UPDATE;
             }
             else
             {
-                if (res2 & TEM_CHANGE_MEDIA)
+                volume_params.setSculptID(sculpt_id, sculpt_type);
+
+                if (setVolume(volume_params, 0))
                 {
-                    retval |= MEDIA_FLAGS_CHANGED;
+                    markForUpdate();
                 }
-            }
-
-            U32 value = dp->getPassFlags();
-
-            if (value & COMPRESSED_HAS_TEXTURE_ANIM)
-            {
-                if (!mTextureAnimp)
+                S32 res2 = unpackTEMessage(*dp);
+                if (TEM_INVALID == res2)
                 {
-                    mTextureAnimp = new LLViewerTextureAnim(this);
+                    logMalformedUpdate("invalid TextureEntry data", block_num, update_type, dp);
+                    invalidateCachedUpdate(update_type, dp);
                 }
                 else
                 {
-                    if (!(mTextureAnimp->mMode & LLTextureAnim::SMOOTH))
+                    if (res2 & TEM_CHANGE_MEDIA)
                     {
-                        mTextureAnimp->reset();
+                        retval |= MEDIA_FLAGS_CHANGED;
                     }
                 }
-                mTexAnimMode = 0;
-                mTextureAnimp->unpackTAMessage(*dp);
-            }
-            else if (mTextureAnimp)
-            {
-                delete mTextureAnimp;
-                mTextureAnimp = NULL;
 
-                for (S32 i = 0; i < getNumTEs(); i++)
+                U32 value = dp->getPassFlags();
+
+                if (value & COMPRESSED_HAS_TEXTURE_ANIM)
                 {
-                    LLFace* facep = mDrawable->getFace(i);
-                    if (facep && facep->mTextureMatrix)
+                    if (!mTextureAnimp)
                     {
-                        // delete or reset
-                        delete facep->mTextureMatrix;
-                        facep->mTextureMatrix = NULL;
+                        mTextureAnimp = new LLViewerTextureAnim(this);
                     }
+                    else
+                    {
+                        if (!(mTextureAnimp->mMode & LLTextureAnim::SMOOTH))
+                        {
+                            mTextureAnimp->reset();
+                        }
+                    }
+                    mTexAnimMode = 0;
+                    mTextureAnimp->unpackTAMessage(*dp);
+                }
+                else if (mTextureAnimp)
+                {
+                    delete mTextureAnimp;
+                    mTextureAnimp = NULL;
+
+                    for (S32 i = 0; i < getNumTEs(); i++)
+                    {
+                        LLFace* facep = mDrawable->getFace(i);
+                        if (facep && facep->mTextureMatrix)
+                        {
+                            // delete or reset
+                            delete facep->mTextureMatrix;
+                            facep->mTextureMatrix = NULL;
+                        }
+                    }
+
+                    gPipeline.markTextured(mDrawable);
+                    mFaceMappingChanged = true;
+                    mTexAnimMode = 0;
                 }
 
-                gPipeline.markTextured(mDrawable);
-                mFaceMappingChanged = true;
-                mTexAnimMode = 0;
-            }
-
-            if (value & COMPRESSED_HAS_PARTICLES)
-            { //particle system (new)
-                unpackParticleSource(*dp, mOwnerID, false);
+                if (value & COMPRESSED_HAS_PARTICLES)
+                { //particle system (new)
+                    unpackParticleSource(*dp, mOwnerID, false);
+                }
             }
         }
         else
@@ -584,6 +578,21 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
     }
 
     return retval;
+}
+
+// Called when an update applied from the object cache turns out to be malformed.
+// Don't remove the object's entry from the cache: dp points into it.
+// Make the next cache probe miss instead, so the server resends the object.
+void LLVOVolume::invalidateCachedUpdate(EObjectUpdateType update_type, LLDataPacker* dp)
+{
+    if (update_type == OUT_FULL_CACHED && getRegion())
+    {
+        LLVOCacheEntry* entry = getRegion()->getCacheEntry(getLocalID(), false);
+        if (entry && entry->getDP() == dp)
+        {
+            entry->invalidateCRC();
+        }
+    }
 }
 
 // Called when a volume, material, etc is updated by the server, possibly by a
