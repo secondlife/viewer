@@ -88,27 +88,31 @@ S32 LLPartData::getSize() const
 
 bool LLPartData::unpackLegacy(LLDataPacker &dp)
 {
-    LLColor4U coloru;
-    bool ok = true;
+    LLColor4U start_color;
+    LLColor4U end_color;
 
-    ok &= dp.unpackU32(mFlags, "pdflags");
-    ok &= dp.unpackFixed(mMaxAge, "pdmaxage", false, 8, 8);
+    // Stop at the first failed read, rather than logging a warning for every field
+    if (!(dp.unpackU32(mFlags, "pdflags") &&
+          dp.unpackFixed(mMaxAge, "pdmaxage", false, 8, 8) &&
+          dp.unpackColor4U(start_color, "pdstartcolor") &&
+          dp.unpackColor4U(end_color, "pdendcolor") &&
+          dp.unpackFixed(mStartScale.mV[0], "pdstartscalex", false, 3, 5) &&
+          dp.unpackFixed(mStartScale.mV[1], "pdstartscaley", false, 3, 5) &&
+          dp.unpackFixed(mEndScale.mV[0], "pdendscalex", false, 3, 5) &&
+          dp.unpackFixed(mEndScale.mV[1], "pdendscaley", false, 3, 5)))
+    {
+        return false;
+    }
 
-    ok &= dp.unpackColor4U(coloru, "pdstartcolor");
-    mStartColor.setVec(coloru);
-    ok &= dp.unpackColor4U(coloru, "pdendcolor");
-    mEndColor.setVec(coloru);
-    ok &= dp.unpackFixed(mStartScale.mV[0], "pdstartscalex", false, 3, 5);
-    ok &= dp.unpackFixed(mStartScale.mV[1], "pdstartscaley", false, 3, 5);
-    ok &= dp.unpackFixed(mEndScale.mV[0], "pdendscalex", false, 3, 5);
-    ok &= dp.unpackFixed(mEndScale.mV[1], "pdendscaley", false, 3, 5);
+    mStartColor.setVec(start_color);
+    mEndColor.setVec(end_color);
 
     mStartGlow = 0.f;
     mEndGlow = 0.f;
     mBlendFuncSource = LLPartData::LL_PART_BF_SOURCE_ALPHA;
     mBlendFuncDest = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_ALPHA;
 
-    return ok;
+    return true;
 }
 
 bool LLPartData::unpack(LLDataPacker &dp)
@@ -259,32 +263,33 @@ LLPartSysData::LLPartSysData()
 
 bool LLPartSysData::unpackSystem(LLDataPacker &dp)
 {
-    bool ok = true;
-    ok &= dp.unpackU32(mCRC, "pscrc");
-    ok &= dp.unpackU32(mFlags, "psflags");
-    ok &= dp.unpackU8(mPattern, "pspattern");
-    ok &= dp.unpackFixed(mMaxAge, "psmaxage", false, 8, 8);
-    ok &= dp.unpackFixed(mStartAge, "psstartage", false, 8, 8);
-    ok &= dp.unpackFixed(mInnerAngle, "psinnerangle", false, 3, 5);
-    ok &= dp.unpackFixed(mOuterAngle, "psouterangle", false, 3, 5);
-    ok &= dp.unpackFixed(mBurstRate, "psburstrate", false, 8, 8);
+    // Stop at the first failed read, rather than logging a warning for every field
+    if (!(dp.unpackU32(mCRC, "pscrc") &&
+          dp.unpackU32(mFlags, "psflags") &&
+          dp.unpackU8(mPattern, "pspattern") &&
+          dp.unpackFixed(mMaxAge, "psmaxage", false, 8, 8) &&
+          dp.unpackFixed(mStartAge, "psstartage", false, 8, 8) &&
+          dp.unpackFixed(mInnerAngle, "psinnerangle", false, 3, 5) &&
+          dp.unpackFixed(mOuterAngle, "psouterangle", false, 3, 5) &&
+          dp.unpackFixed(mBurstRate, "psburstrate", false, 8, 8) &&
+          dp.unpackFixed(mBurstRadius, "psburstradius", false, 8, 8) &&
+          dp.unpackFixed(mBurstSpeedMin, "psburstspeedmin", false, 8, 8) &&
+          dp.unpackFixed(mBurstSpeedMax, "psburstspeedmax", false, 8, 8) &&
+          dp.unpackU8(mBurstPartCount, "psburstpartcount") &&
+          dp.unpackFixed(mAngularVelocity.mV[0], "psangvelx", true, 8, 7) &&
+          dp.unpackFixed(mAngularVelocity.mV[1], "psangvely", true, 8, 7) &&
+          dp.unpackFixed(mAngularVelocity.mV[2], "psangvelz", true, 8, 7) &&
+          dp.unpackFixed(mPartAccel.mV[0], "psaccelx", true, 8, 7) &&
+          dp.unpackFixed(mPartAccel.mV[1], "psaccely", true, 8, 7) &&
+          dp.unpackFixed(mPartAccel.mV[2], "psaccelz", true, 8, 7) &&
+          dp.unpackUUID(mPartImageID, "psuuid") &&
+          dp.unpackUUID(mTargetUUID, "pstargetuuid")))
+    {
+        return false;
+    }
+
     mBurstRate = llmax(0.01f, mBurstRate);
-    ok &= dp.unpackFixed(mBurstRadius, "psburstradius", false, 8, 8);
-    ok &= dp.unpackFixed(mBurstSpeedMin, "psburstspeedmin", false, 8, 8);
-    ok &= dp.unpackFixed(mBurstSpeedMax, "psburstspeedmax", false, 8, 8);
-    ok &= dp.unpackU8(mBurstPartCount, "psburstpartcount");
-
-    ok &= dp.unpackFixed(mAngularVelocity.mV[0], "psangvelx", true, 8, 7);
-    ok &= dp.unpackFixed(mAngularVelocity.mV[1], "psangvely", true, 8, 7);
-    ok &= dp.unpackFixed(mAngularVelocity.mV[2], "psangvelz", true, 8, 7);
-
-    ok &= dp.unpackFixed(mPartAccel.mV[0], "psaccelx", true, 8, 7);
-    ok &= dp.unpackFixed(mPartAccel.mV[1], "psaccely", true, 8, 7);
-    ok &= dp.unpackFixed(mPartAccel.mV[2], "psaccelz", true, 8, 7);
-
-    ok &= dp.unpackUUID(mPartImageID, "psuuid");
-    ok &= dp.unpackUUID(mTargetUUID, "pstargetuuid");
-    return ok;
+    return true;
 }
 
 bool LLPartSysData::unpackLegacy(LLDataPacker &dp)
