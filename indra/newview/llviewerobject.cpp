@@ -717,10 +717,10 @@ U32 LLViewerObject::unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id)
     dp->unpackU32(value, "SpecialCode");
 
     parent_id = 0;
-    if(value & 0x20)
+    if(value & COMPRESSED_HAS_PARENT_ID)
     {
         S32 offset = sObjectDataMap["ParentID"];
-        if(!(value & 0x80))
+        if(!(value & COMPRESSED_HAS_ANGULAR_VELOCITY))
         {
             offset -= sizeof(LLVector3);
         }
@@ -731,6 +731,59 @@ U32 LLViewerObject::unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id)
     dp->reset();
 
     return parent_id;
+}
+
+//static
+void LLViewerObject::logMalformedData(const std::string& context, const U8* data, S32 size, S32 offset)
+{
+    // limit the hex dumps so they can't flood the log.
+    constexpr S32 MAX_MALFORMED_DATA_DUMPS = 20;
+    static S32 sMalformedDataDumps = 0;
+
+    std::ostringstream out;
+    out << "Malformed object update: " << context;
+    if (data && size > 0)
+    {
+        out << ", data size " << size << ", failed at offset " << offset;
+        if (sMalformedDataDumps < MAX_MALFORMED_DATA_DUMPS)
+        {
+            ++sMalformedDataDumps;
+            for (S32 i = 0; i < size; ++i)
+            {
+                if (i % 16 == 0)
+                {
+                    out << llformat("\n  %04x:", i);
+                }
+                out << llformat(" %02x", data[i]);
+            }
+        }
+        else
+        {
+            out << " (hex dump suppressed, limit " << MAX_MALFORMED_DATA_DUMPS << " reached)";
+        }
+    }
+    LL_WARNS("UpdateFail") << out.str() << LL_ENDL;
+}
+
+void LLViewerObject::logMalformedUpdate(const std::string& reason, U32 block_num, EObjectUpdateType update_type, LLDataPacker* dp) const
+{
+    std::ostringstream context;
+    context << reason << ", object " << getID() << " local_id " << mLocalID << " pcode " << getPCodeString()
+            << ", block " << block_num << ", update_type " << (S32)update_type;
+    if (mRegionp)
+    {
+        context << ", region " << mRegionp->getName() << " " << mRegionp->getHost();
+    }
+
+    const LLDataPackerBinaryBuffer* binary_dp = dynamic_cast<const LLDataPackerBinaryBuffer*>(dp);
+    if (binary_dp)
+    {
+        logMalformedData(context.str(), binary_dp->getBuffer(), binary_dp->getBufferSize(), binary_dp->getCurrentSize());
+    }
+    else
+    {
+        logMalformedData(context.str(), NULL, 0, 0);
+    }
 }
 
 // Replaces all name value pairs with data from \n delimited list
@@ -1589,7 +1642,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     U8 num_parameters = 0;
                     if (!dp.unpackU8(num_parameters, "num_params"))
                     {
-                        LL_WARNS("UpdateFail") << "Failed to unpack num_params for " << getID() << " with OUT_FULL message" << LL_ENDL;
+                        logMalformedUpdate("failed to unpack ExtraParams num_params", block_num, update_type, &dp);
                         num_parameters = 0;
                     }
                     U8 param_block[MAX_OBJECT_PARAMS_SIZE];
@@ -1600,8 +1653,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                         if (!dp.unpackU16(param_type, "param_type") ||
                             !dp.unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data"))
                         {
-                            LL_WARNS("UpdateFail") << "Failed to unpack extra param " << (S32)param << " of " << (S32)num_parameters
-                                << ", type " << param_type << ", for " << getID() << " with OUT_FULL message" << LL_ENDL;
+                            logMalformedUpdate(llformat("failed to unpack ExtraParams param %d of %d, type 0x%04x, ignoring remaining params",
+                                                        (S32)param, (S32)num_parameters, param_type),
+                                               block_num, update_type, &dp);
                             break;
                         }
                         //LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
@@ -1753,8 +1807,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
         if (!dp->unpackU8(state, "State"))
         {
-            LL_WARNS("UpdateFail") << "Failed to unpack State for " << getID()
-                << " with compressed update type " << update_type << ", ignoring update" << LL_ENDL;
+            logMalformedUpdate("failed to unpack State, ignoring update", block_num, update_type, dp);
             return retval | MALFORMED_UPDATE;
         }
         mAttachmentState = state;
@@ -1795,8 +1848,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     && dp->unpackU16(omega[VZ], "AccZ");
                 if (!ok)
                 {
-                    LL_WARNS("UpdateFail") << "Failed to unpack compressed OUT_TERSE_IMPROVED update for " << getID()
-                        << ", ignoring update" << LL_ENDL;
+                    logMalformedUpdate("failed to unpack terse update, ignoring update", block_num, update_type, dp);
                     return retval | MALFORMED_UPDATE;
                 }
 
@@ -1849,8 +1901,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                       && dp->unpackU32(value, "SpecialCode")
                       && dp->unpackUUID(owner_id, "Owner")))
                 {
-                    LL_WARNS("UpdateFail") << "Failed to unpack compressed full update header for " << getID()
-                        << ", update type " << update_type << ", ignoring update" << LL_ENDL;
+                    logMalformedUpdate("failed to unpack full update header, ignoring update", block_num, update_type, dp);
                     return retval | MALFORMED_UPDATE;
                 }
 
@@ -1879,9 +1930,12 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
                 mOwnerID = owner_id;
 
-                // Optional fields: on failure log and skip that field.  Once the
-                // buffer is exhausted the remaining fields will fail the same way.
-                if (value & 0x80)
+                // Optional fields.  At the first failure the rest of the data can't be
+                // trusted: stop unpacking, leave the remaining fields unchanged, and
+                // report the update as malformed once below.
+                std::string malformed;
+
+                if (value & COMPRESSED_HAS_ANGULAR_VELOCITY)
                 {
                     if (dp->unpackVector3(new_angv, "Omega"))
                     {
@@ -1889,210 +1943,226 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     }
                     else
                     {
-                        LL_WARNS("UpdateFail") << "Failed to unpack Omega for " << getID() << LL_ENDL;
+                        malformed = "failed to unpack Omega";
                     }
                 }
 
-                if (value & 0x20)
+                if (malformed.empty())
                 {
-                    U32 new_parent_id = 0;
-                    if (dp->unpackU32(new_parent_id, "ParentID"))
+                    if (value & COMPRESSED_HAS_PARENT_ID)
                     {
-                        parent_id = new_parent_id;
+                        U32 new_parent_id = 0;
+                        if (dp->unpackU32(new_parent_id, "ParentID"))
+                        {
+                            parent_id = new_parent_id;
+                        }
+                        else
+                        {
+                            // Leave parent_id as the current parent, so parenting is unchanged
+                            malformed = "failed to unpack ParentID";
+                        }
                     }
                     else
                     {
-                        // Leave parent_id as the current parent, so parenting is unchanged
-                        LL_WARNS("UpdateFail") << "Failed to unpack ParentID for " << getID() << LL_ENDL;
+                        parent_id = 0;
                     }
                 }
-                else
-                {
-                    parent_id = 0;
-                }
 
-                if (value & 0x2)
+                if (malformed.empty())
                 {
-                    delete [] mData;
-                    mData = new U8[1];
-                    ((U8*)mData)[0] = 0;
-                    if (!dp->unpackU8(((U8*)mData)[0], "TreeData"))
+                    if (value & COMPRESSED_HAS_TREE_DATA)
                     {
-                        LL_WARNS("UpdateFail") << "Failed to unpack TreeData for " << getID() << LL_ENDL;
+                        delete [] mData;
+                        mData = new U8[1];
+                        ((U8*)mData)[0] = 0;
+                        if (!dp->unpackU8(((U8*)mData)[0], "TreeData"))
+                        {
+                            malformed = "failed to unpack TreeData";
+                            delete [] mData;
+                            mData = NULL;
+                        }
+                    }
+                    else if (value & COMPRESSED_HAS_SCRATCH_PAD)
+                    {
+                        delete [] mData;
+                        mData = NULL;
+
+                        U32 size = 0;
+                        if (!dp->unpackU32(size, "ScratchPadSize"))
+                        {
+                            malformed = "failed to unpack ScratchPadSize";
+                        }
+                        else
+                        {
+                            // The size comes from the server: never allocate more than
+                            // the packer could possibly hold.
+                            S32 remaining = 0;
+                            if (LLDataPackerBinaryBuffer* binary_dp = dynamic_cast<LLDataPackerBinaryBuffer*>(dp))
+                            {
+                                remaining = binary_dp->getBufferSize() - binary_dp->getCurrentSize();
+                            }
+
+                            S32 sp_size = 0;
+                            if (size == 0 || size > (U32)llmax(remaining, 0))
+                            {
+                                malformed = llformat("invalid ScratchPadSize %u with %d bytes remaining", size, remaining);
+                            }
+                            else
+                            {
+                                mData = new U8[size];
+                                if (!dp->unpackBinaryData((U8 *)mData, size, sp_size, "PartData"))
+                                {
+                                    malformed = llformat("failed to unpack PartData of ScratchPadSize %u", size);
+                                    delete [] mData;
+                                    mData = NULL;
+                                }
+                                else if (sp_size != (S32)size)
+                                {
+                                    // Don't keep a buffer that is partly uninitialized
+                                    malformed = llformat("PartData size %d does not match ScratchPadSize %u", sp_size, size);
+                                    delete [] mData;
+                                    mData = NULL;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
                         delete [] mData;
                         mData = NULL;
                     }
                 }
-                else if (value & 0x1)
-                {
-                    delete [] mData;
-                    mData = NULL;
 
-                    U32 size = 0;
-                    if (!dp->unpackU32(size, "ScratchPadSize"))
+                if (malformed.empty())
+                {
+                    std::string temp_string;
+                    LLColor4U coloru;
+                    bool has_text = (value & COMPRESSED_HAS_TEXT) != 0;
+                    if (has_text &&
+                        !(dp->unpackString(temp_string, "Text") &&
+                          dp->unpackBinaryDataFixed(coloru.mV, 4, "Color")))
                     {
-                        LL_WARNS("UpdateFail") << "Failed to unpack ScratchPadSize for " << getID() << LL_ENDL;
+                        malformed = "failed to unpack Text";
+                    }
+                    else if (has_text)
+                    {
+                        // Setup object text
+                        if (!mText)
+                        {
+                            initHudText();
+                        }
+
+                        coloru.mV[3] = 255 - coloru.mV[3];
+                        mText->setColor(LLColor4(coloru));
+                        mText->setString(temp_string);
+
+                        mHudText = temp_string;
+                        mHudTextColor = LLColor4(coloru);
+
+                        setChanged(TEXTURE);
                     }
                     else
                     {
-                        // The size comes from the server: never allocate more than
-                        // the packer could possibly hold.
-                        S32 remaining = 0;
-                        if (LLDataPackerBinaryBuffer* binary_dp = dynamic_cast<LLDataPackerBinaryBuffer*>(dp))
+                        if (mText.notNull())
                         {
-                            remaining = binary_dp->getBufferSize() - binary_dp->getCurrentSize();
+                            mText->markDead();
+                            mText = NULL;
                         }
+                        mHudText.clear();
+                    }
+                }
 
-                        S32 sp_size = 0;
-                        if (size == 0 || size > (U32)llmax(remaining, 0))
+                if (malformed.empty())
+                {
+                    std::string media_url;
+                    if ((value & COMPRESSED_HAS_MEDIA_URL) && !dp->unpackString(media_url, "MediaURL"))
+                    {
+                        malformed = "failed to unpack MediaURL";
+                    }
+                    else
+                    {
+                        retval |= checkMediaURL(media_url);
+                    }
+                }
+
+                if (malformed.empty())
+                {
+                    //
+                    // Unpack particle system data (legacy)
+                    //
+                    if (value & COMPRESSED_HAS_PARTICLES_LEGACY)
+                    {
+                        unpackParticleSource(*dp, owner_id, true);
+                    }
+                    else if (!(value & COMPRESSED_HAS_PARTICLES))
+                    {
+                        deleteParticleSource();
+                    }
+                }
+
+                if (malformed.empty())
+                {
+                    // Mark all extra parameters not used
+                    for (auto& entry : mExtraParameterList)
+                    {
+                        if (entry.in_use) *entry.in_use = false;
+                    }
+
+                    // Unpack extra params
+                    U8 num_parameters = 0;
+                    if (!dp->unpackU8(num_parameters, "num_params"))
+                    {
+                        malformed = "failed to unpack num_params";
+                        num_parameters = 0;
+                    }
+                    U8 param_block[MAX_OBJECT_PARAMS_SIZE];
+                    for (U8 param=0; param<num_parameters; ++param)
+                    {
+                        U16 param_type = 0;
+                        S32 param_size = 0;
+                        if (!dp->unpackU16(param_type, "param_type") ||
+                            !dp->unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data"))
                         {
-                            LL_WARNS("UpdateFail") << "Invalid ScratchPadSize " << size << " with " << remaining
-                                << " bytes remaining for " << getID() << LL_ENDL;
-                            // Skip past the data so following fields still parse
-                            U8 discard;
-                            dp->unpackBinaryData(&discard, 0, sp_size, "PartData");
+                            malformed = llformat("failed to unpack extra param %d of %d, type 0x%04x",
+                                                 (S32)param, (S32)num_parameters, param_type);
+                            break;
                         }
-                        else
+                        //LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
+                        LLDataPackerBinaryBuffer dp2(param_block, param_size);
+                        unpackParameterEntry(param_type, &dp2);
+                    }
+
+                    // Turn off params that are no longer in use, including any
+                    // not reached because the data was malformed.
+                    for (size_t i = 0; i < mExtraParameterList.size(); ++i)
+                    {
+                        auto& entry = mExtraParameterList[i];
+                        if (entry.in_use && !*entry.in_use)
                         {
-                            mData = new U8[size];
-                            if (!dp->unpackBinaryData((U8 *)mData, size, sp_size, "PartData"))
-                            {
-                                LL_WARNS("UpdateFail") << "Failed to unpack PartData of ScratchPadSize " << size
-                                    << " for " << getID() << LL_ENDL;
-                                delete [] mData;
-                                mData = NULL;
-                            }
-                            else if (sp_size != (S32)size)
-                            {
-                                // Don't keep a buffer that is partly uninitialized
-                                LL_WARNS("UpdateFail") << "PartData size " << sp_size << " does not match ScratchPadSize "
-                                    << size << " for " << getID() << LL_ENDL;
-                                delete [] mData;
-                                mData = NULL;
-                            }
+                            // Send an update message in case it was formerly in use
+                            parameterChanged(((U16)i + 1) << 4, entry.data, false, false);
                         }
                     }
                 }
-                else
-                {
-                    delete [] mData;
-                    mData = NULL;
-                }
 
-                std::string temp_string;
-                LLColor4U coloru;
-                bool has_text = (value & 0x4) != 0;
-                if (has_text &&
-                    !(dp->unpackString(temp_string, "Text") &&
-                      dp->unpackBinaryDataFixed(coloru.mV, 4, "Color")))
+                if (malformed.empty())
                 {
-                    LL_WARNS("UpdateFail") << "Failed to unpack Text for " << getID() << LL_ENDL;
-                    has_text = false;
-                }
-
-                // Setup object text
-                if (!mText && has_text)
-                {
-                    initHudText();
-                }
-
-                if (has_text)
-                {
-                    coloru.mV[3] = 255 - coloru.mV[3];
-                    mText->setColor(LLColor4(coloru));
-                    mText->setString(temp_string);
-
-                    mHudText = temp_string;
-                    mHudTextColor = LLColor4(coloru);
-
-                    setChanged(TEXTURE);
-                }
-                else
-                {
-                    if (mText.notNull())
-                    {
-                        mText->markDead();
-                        mText = NULL;
-                    }
-                    mHudText.clear();
-                }
-
-                std::string media_url;
-                if ((value & 0x200) && !dp->unpackString(media_url, "MediaURL"))
-                {
-                    LL_WARNS("UpdateFail") << "Failed to unpack MediaURL for " << getID() << LL_ENDL;
-                    media_url.clear();
-                }
-                retval |= checkMediaURL(media_url);
-
-                //
-                // Unpack particle system data (legacy)
-                //
-                if (value & 0x8)
-                {
-                    unpackParticleSource(*dp, owner_id, true);
-                }
-                else if (!(value & 0x400))
-                {
-                    deleteParticleSource();
-                }
-
-                // Mark all extra parameters not used
-                for (auto& entry : mExtraParameterList)
-                {
-                    if (entry.in_use) *entry.in_use = false;
-                }
-
-                // Unpack extra params
-                U8 num_parameters = 0;
-                if (!dp->unpackU8(num_parameters, "num_params"))
-                {
-                    LL_WARNS("UpdateFail") << "Failed to unpack num_params for " << getID() << " with compressed message" << LL_ENDL;
-                    num_parameters = 0;
-                }
-                U8 param_block[MAX_OBJECT_PARAMS_SIZE];
-                for (U8 param=0; param<num_parameters; ++param)
-                {
-                    U16 param_type = 0;
-                    S32 param_size = 0;
-                    if (!dp->unpackU16(param_type, "param_type") ||
-                        !dp->unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data"))
-                    {
-                        LL_WARNS("UpdateFail") << "Failed to unpack extra param " << (S32)param << " of " << (S32)num_parameters
-                            << ", type " << param_type << ", for " << getID() << " with compressed message" << LL_ENDL;
-                        break;
-                    }
-                    //LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
-                    LLDataPackerBinaryBuffer dp2(param_block, param_size);
-                    unpackParameterEntry(param_type, &dp2);
-                }
-
-                for (size_t i = 0; i < mExtraParameterList.size(); ++i)
-                {
-                    auto& entry = mExtraParameterList[i];
-                    if (entry.in_use && !*entry.in_use)
-                    {
-                        // Send an update message in case it was formerly in use
-                        parameterChanged(((U16)i + 1) << 4, entry.data, false, false);
-                    }
-                }
-
-                if (value & 0x10)
-                {
-                    if (!(dp->unpackUUID(sound_uuid, "SoundUUID")
+                    if ((value & COMPRESSED_HAS_SOUND) &&
+                        !(dp->unpackUUID(sound_uuid, "SoundUUID")
                           && dp->unpackF32(gain, "SoundGain")
                           && dp->unpackU8(sound_flags, "SoundFlags")
                           && dp->unpackF32(cutoff, "SoundRadius")))
                     {
-                        LL_WARNS("UpdateFail") << "Failed to unpack sound for " << getID() << LL_ENDL;
-                        sound_uuid.setNull();
-                        gain = 0;
-                        sound_flags = 0;
-                        cutoff = 0;
+                        malformed = "failed to unpack sound";
+                    }
+                    else
+                    {
+                        mSoundCutOffRadius = cutoff;
+                        setAttachedSound(sound_uuid, owner_id, gain, sound_flags);
                     }
                 }
 
-                if (value & 0x100)
+                if (malformed.empty() && (value & COMPRESSED_HAS_NAME_VALUES))
                 {
                     std::string name_value_list;
                     if (dp->unpackString(name_value_list, "NV"))
@@ -2101,14 +2171,15 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     }
                     else
                     {
-                        LL_WARNS("UpdateFail") << "Failed to unpack NameValue for " << getID() << LL_ENDL;
+                        malformed = "failed to unpack NameValue";
                     }
                 }
 
-                mTotalCRC = crc;
-                mSoundCutOffRadius = cutoff;
-
-                setAttachedSound(sound_uuid, owner_id, gain, sound_flags);
+                if (!malformed.empty())
+                {
+                    logMalformedUpdate(malformed + ", ignoring remaining fields", block_num, update_type, dp);
+                    retval |= MALFORMED_UPDATE;
+                }
 
                 // only get these flags on updates from sim, not cached ones
                 // Preload these five flags for every object.

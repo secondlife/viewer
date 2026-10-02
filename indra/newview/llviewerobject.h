@@ -171,10 +171,27 @@ public:
         MEDIA_URL_ADDED = 0x2,
         MEDIA_URL_UPDATED = 0x4,
         MEDIA_FLAGS_CHANGED = 0x8,
-        // Update data could not be unpacked and was ignored.  The packer is left
-        // part way through the data, so subclasses must not unpack any further.
+        // Update data was malformed and some or all of it was ignored.  The packer
+        // is left part way through the data, so subclasses must not unpack any further.
         MALFORMED_UPDATE = 0x40000000,
         INVALID_UPDATE = 0x80000000
+    };
+
+    // Flags in the "SpecialCode" field of a compressed full object update,
+    // saying which optional fields follow.  Also stored as the packer's pass flags.
+    enum ECompressedUpdateFlags
+    {
+        COMPRESSED_HAS_SCRATCH_PAD          = 0x001, // generic data (ScratchPadSize + PartData)
+        COMPRESSED_HAS_TREE_DATA            = 0x002, // tree species
+        COMPRESSED_HAS_TEXT                 = 0x004, // floating text and color
+        COMPRESSED_HAS_PARTICLES_LEGACY     = 0x008, // legacy particle system
+        COMPRESSED_HAS_SOUND                = 0x010, // attached sound
+        COMPRESSED_HAS_PARENT_ID            = 0x020,
+        COMPRESSED_HAS_TEXTURE_ANIM         = 0x040, // unpacked by LLVOVolume
+        COMPRESSED_HAS_ANGULAR_VELOCITY     = 0x080,
+        COMPRESSED_HAS_NAME_VALUES          = 0x100,
+        COMPRESSED_HAS_MEDIA_URL            = 0x200,
+        COMPRESSED_HAS_PARTICLES            = 0x400  // current particle system, unpacked by LLVOVolume
     };
 
     static  U32     extractSpatialExtents(LLDataPackerBinaryBuffer *dp, LLVector3& pos, LLVector3& scale, LLQuaternion& rot);
@@ -690,6 +707,9 @@ public:
     static bool unpackU8(LLDataPackerBinaryBuffer* dp, U8& value, std::string name);
     static U32 unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id);
 
+    // Log a malformed object update once, with context and a (rate limited) hex dump of its data
+    static void logMalformedData(const std::string& context, const U8* data, S32 size, S32 offset);
+
 public:
     //counter-translation
     void resetChildrenPosition(const LLVector3& offset, bool simplified = false,  bool skip_avatar_child = false) ;
@@ -741,6 +761,7 @@ private:
         return nullptr;
     }
     bool unpackParameterEntry(U16 param_type, LLDataPacker *dp);
+    void logMalformedUpdate(const std::string& reason, U32 block_num, EObjectUpdateType update_type, LLDataPacker* dp) const;
 
     // This function checks to see if the given media URL has changed its version
     // and the update wasn't due to this agent's last action.

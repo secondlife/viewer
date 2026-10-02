@@ -328,9 +328,12 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
     // applying it would unpack one object type's data into another.
     if (objectp && objectp->getPCode() != pcode)
     {
-        LL_WARNS("ObjectUpdate") << "Ignoring cached update for " << fullid << " local_id " << entry->getLocalID()
-            << ": PCode " << (S32)pcode << " does not match existing object PCode " << (S32)objectp->getPCode()
-            << ", region " << regionp->getName() << " " << regionp->getHost() << LL_ENDL;
+        LLDataPackerBinaryBuffer* binary_dpp = entry->getDP();
+        LLViewerObject::logMalformedData(llformat("ignoring cached update: PCode %d does not match existing object PCode %d",
+                                                  (S32)pcode, (S32)objectp->getPCode())
+                                         + ", object " + fullid.asString() + llformat(" local_id %u", entry->getLocalID())
+                                         + ", region " + regionp->getName() + " " + regionp->getHost().getIPandPort(),
+                                         binary_dpp->getBuffer(), binary_dpp->getBufferSize(), binary_dpp->getCurrentSize());
         recorder.objectUpdateFailure();
         return NULL;
     }
@@ -492,11 +495,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
                 // must never be told the data is longer than what was copied.
                 // A block this size is corrupt: discard it rather than unpack
                 // (or cache) truncated data.
-                LL_WARNS("ObjectUpdate") << "Discarding compressed ObjectData block " << i << " of " << num_objects
-                    << " with invalid Data size " << uncompressed_length
-                    << " (buffer size " << COMPRESSED_DPBUFFER_SIZE << ")"
-                    << ", update_type " << (S32)update_type
-                    << ", region " << regionp->getName() << " " << regionp->getHost() << LL_ENDL;
+                LLViewerObject::logMalformedData(llformat("discarding block %d of %d with invalid Data size %d (buffer size %d), update_type %d",
+                                                          i, num_objects, uncompressed_length, COMPRESSED_DPBUFFER_SIZE, (S32)update_type)
+                                                 + ", region " + regionp->getName() + " " + regionp->getHost().getIPandPort(),
+                                                 NULL, 0, 0);
                 recorder.objectUpdateFailure();
                 continue;
             }
@@ -513,10 +515,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
                     !compressed_dp.unpackU32(local_id, "LocalID") ||
                     !compressed_dp.unpackU8(pcode, "PCode"))
                 {
-                    LL_WARNS("ObjectUpdate") << "Discarding compressed ObjectData block " << i << " of " << num_objects
-                        << " with Data size " << uncompressed_length << ": failed to unpack ID/LocalID/PCode"
-                        << ", update_type " << (S32)update_type
-                        << ", region " << regionp->getName() << " " << regionp->getHost() << LL_ENDL;
+                    LLViewerObject::logMalformedData(llformat("discarding block %d of %d: failed to unpack ID/LocalID/PCode, update_type %d",
+                                                              i, num_objects, (S32)update_type)
+                                                     + ", region " + regionp->getName() + " " + regionp->getHost().getIPandPort(),
+                                                     compressed_dpbuffer, uncompressed_length, compressed_dp.getCurrentSize());
                     recorder.objectUpdateFailure();
                     continue;
                 }
@@ -544,10 +546,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
                 update_cache = true;
                 if (!compressed_dp.unpackU32(local_id, "LocalID"))
                 {
-                    LL_WARNS("ObjectUpdate") << "Discarding compressed ObjectData block " << i << " of " << num_objects
-                        << " with Data size " << uncompressed_length << ": failed to unpack LocalID"
-                        << ", update_type " << (S32)update_type
-                        << ", region " << regionp->getName() << " " << regionp->getHost() << LL_ENDL;
+                    LLViewerObject::logMalformedData(llformat("discarding block %d of %d: failed to unpack LocalID, update_type %d",
+                                                              i, num_objects, (S32)update_type)
+                                                     + ", region " + regionp->getName() + " " + regionp->getHost().getIPandPort(),
+                                                     compressed_dpbuffer, uncompressed_length, compressed_dp.getCurrentSize());
                     recorder.objectUpdateFailure();
                     continue;
                 }
@@ -609,11 +611,13 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
         // data into another (e.g. avatar data into a prim).
         if (objectp && pcode != 0 && objectp->getPCode() != pcode)
         {
-            LL_WARNS("ObjectUpdate") << "Discarding ObjectData block " << i << " of " << num_objects
-                << " for " << fullid << " local_id " << local_id
-                << ": PCode " << (S32)pcode << " does not match existing object PCode " << (S32)objectp->getPCode()
-                << ", update_type " << (S32)update_type
-                << ", region " << regionp->getName() << " " << regionp->getHost() << LL_ENDL;
+            LLViewerObject::logMalformedData(llformat("discarding block %d of %d: PCode %d does not match existing object PCode %d, update_type %d",
+                                                      i, num_objects, (S32)pcode, (S32)objectp->getPCode(), (S32)update_type)
+                                             + ", object " + fullid.asString() + llformat(" local_id %u", local_id)
+                                             + ", region " + regionp->getName() + " " + regionp->getHost().getIPandPort(),
+                                             compressed ? compressed_dpbuffer : NULL,
+                                             compressed ? compressed_dp.getBufferSize() : 0,
+                                             compressed ? compressed_dp.getCurrentSize() : 0);
             recorder.objectUpdateFailure();
             continue;
         }

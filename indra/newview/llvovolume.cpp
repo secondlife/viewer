@@ -486,7 +486,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 
             U32 value = dp->getPassFlags();
 
-            if (value & 0x40)
+            if (value & COMPRESSED_HAS_TEXTURE_ANIM)
             {
                 if (!mTextureAnimp)
                 {
@@ -523,7 +523,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
                 mTexAnimMode = 0;
             }
 
-            if (value & 0x400)
+            if (value & COMPRESSED_HAS_PARTICLES)
             { //particle system (new)
                 unpackParticleSource(*dp, mOwnerID, false);
             }
