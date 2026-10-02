@@ -69,6 +69,10 @@ public:
     LLScriptEditorWSConnection(const LLWebsocketMgr::WSServer::ptr_t server, const LLWebsocketMgr::connection_h& handle) :
         LLJSONRPCConnection(server, handle)
     {
+        // Anything that can reach the port can connect: nothing it asks
+        // is answered until it has proven it can read the user's files.
+        setAuthenticated(false);
+
         // Reserve id 0 as the "unassigned" sentinel used by EditorSubscription;
         // on wrap, skip past it.
         U32 id;
@@ -93,12 +97,32 @@ public:
 
 private:
     using string_set_t = std::set<std::string>;
+
+    // What the client proves itself with: a secret written to a file only
+    // the user can read, under a name that says nothing of it. The client
+    // is told where the file is and answers with what it says.
+    struct Challenge
+    {
+        LLUUID      mSecret;
+        std::string mFile;
+    };
+    // Empty where no secret could be made or written.
+    static Challenge writeChallenge();
+
+    // Writes text to a new file at path, readable only by the current
+    // user. On Windows this means an explicit ACL, since LLFile::open()
+    // there ignores POSIX permission bits entirely. Fails if the file
+    // already exists.
+    static bool writeUserOnlyFile(const std::string& path, const std::string& text);
+
     /**
      * @brief Handle the handshake response from the client
      * @param result The response data from the client containing client information
+     * @param secret What the challenge file said, which the client must answer with
      */
-    void handleHandshakeResponse(const LLSD& result);
-    std::string generateChallenge();
+    void handleHandshakeResponse(const LLSD& result, const LLUUID& secret);
+    // The handshake refused, unanswered in time, or never sent.
+    void handleHandshakeError(const LLSD& error);
     void sendHandshake();
 
     LLScriptEdContainer*                    getEditor() const;
@@ -114,8 +138,6 @@ private:
     std::string  mScriptLanguage;  ///< Programming language of the script (lsl, luau, etc.)
     string_set_t mLanguages;       ///< Set of supported scripting languages
     string_set_t mFeatures;        ///< Active client features (live_sync, compilation, etc.)
-    LLUUID       mChallenge;
-    std::string  mChallengeFile;   ///< Temporary file used for challenge-response verification
 
     static std::atomic<U32> sNextConnectionID;
 };
@@ -152,6 +174,11 @@ private:
  * ## Security Considerations
  *
  * - Server binds to localhost only by default for security
+ * - A connection from a browser -- any upgrade request with an Origin -- is
+ *   refused, so no web page, the viewer's own included, can reach it
+ * - Nothing a client asks is answered, and nothing is sent it, until it
+ *   has answered the handshake's challenge with what a file only the user
+ *   can read says; a wrong answer, or none within 30 seconds, closes it
  * - JSON-RPC 2.0 structured protocol with validation
  * - Rate limiting handled by base JSON-RPC server
  * - Error handling with standardized JSON-RPC error codes
