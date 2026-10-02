@@ -667,6 +667,17 @@ bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
                     }
                     decode_pos += data_size;
 
+                    if ((S64)decode_pos + tsize > mReceiveSize)
+                    {
+                        // The length says the data runs past the end of the packet.  Copying
+                        // it would read past the receive buffer, and everything after it
+                        // would be misaligned, so reject the whole message.
+                        logRanOffEndOfPacket(sender, decode_pos, (S32)llmin(tsize, (U32)S32_MAX));
+                        delete mCurrentRMessageData;
+                        mCurrentRMessageData = NULL;
+                        return false;
+                    }
+
                     cur_data_block->addData(mvci.getName(), &buffer[decode_pos], tsize, mvci.getType());
                     decode_pos += tsize;
                 }
