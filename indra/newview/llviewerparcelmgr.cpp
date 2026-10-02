@@ -1541,6 +1541,24 @@ void LLViewerParcelMgr::processParcelOverlay(LLMessageSystem *msg, void **user)
     }
 }
 
+// Reads the ParcelData Bitmap into bitmap, which is resized to the size the parcel
+// bitmap functions read.  Returns false, leaving bitmap empty, if the message's
+// Bitmap is a different size.
+static bool get_parcel_bitmap(LLMessageSystem* msg, S32 parcels_per_edge, std::vector<U8>& bitmap)
+{
+    bitmap.clear();
+    const S32 bitmap_size = parcels_per_edge * parcels_per_edge / 8;
+    const S32 size = msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_Bitmap);
+    if (size != bitmap_size)
+    {
+        LL_WARNS("ParcelMgr") << "Ignoring parcel Bitmap of size " << size << ", expected " << bitmap_size << LL_ENDL;
+        return false;
+    }
+    bitmap.resize(bitmap_size);
+    msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap.data(), bitmap_size);
+    return true;
+}
+
 // static
 void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **user)
 {
@@ -1752,14 +1770,11 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
         if (parcel == parcel_mgr.mAgentParcel)
         {
             // new agent parcel
-            S32 bitmap_size =   parcel_mgr.mParcelsPerEdge
-                                * parcel_mgr.mParcelsPerEdge
-                                / 8;
-            U8* bitmap = new U8[ bitmap_size ];
-            msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap, bitmap_size);
-
-            parcel_mgr.writeAgentParcelFromBitmap(bitmap);
-            delete[] bitmap;
+            std::vector<U8> bitmap;
+            if (get_parcel_bitmap(msg, parcel_mgr.mParcelsPerEdge, bitmap))
+            {
+                parcel_mgr.writeAgentParcelFromBitmap(bitmap.data());
+            }
 
             // Let interesting parties know about agent parcel change.
             LLViewerParcelMgr* instance = LLViewerParcelMgr::getInstance();
@@ -1849,27 +1864,12 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                 parcel_mgr.mEastNorth = region->getPosGlobalFromRegion( aabb_max );
 
                 // Owned land, highlight the boundaries
-                S32 bitmap_size =   parcel_mgr.mParcelsPerEdge
-                                    * parcel_mgr.mParcelsPerEdge
-                                    / 8;
-                S32 size = msg->getSizeFast(_PREHASH_ParcelData, _PREHASH_Bitmap);
-                if (size != bitmap_size)
-                {
-                    // Might be better to ignore bitmap and drop highlights
-                    LL_WARNS("ParcelMgr") << "Parcel Bitmap size expected: " << bitmap_size
-                        << " actual " << size
-                        << ". Bitmap might be corrupted!" << LL_ENDL;
-                    bitmap_size = size;
-                }
-
-                U8* bitmap = new U8[ bitmap_size ];
-                msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap, bitmap_size);
-
                 parcel_mgr.resetSegments(parcel_mgr.mHighlightSegments);
-                parcel_mgr.writeSegmentsFromBitmap( bitmap, parcel_mgr.mHighlightSegments );
-
-                delete[] bitmap;
-                bitmap = NULL;
+                std::vector<U8> bitmap;
+                if (get_parcel_bitmap(msg, parcel_mgr.mParcelsPerEdge, bitmap))
+                {
+                    parcel_mgr.writeSegmentsFromBitmap(bitmap.data(), parcel_mgr.mHighlightSegments);
+                }
 
                 parcel_mgr.mCurrentParcelSelection->mWholeParcelSelected = true;
             }
@@ -1914,17 +1914,12 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 
         }
 
-        S32 bitmap_size =   parcel_mgr.mParcelsPerEdge
-                            * parcel_mgr.mParcelsPerEdge
-                            / 8;
-        U8* bitmap = new U8[ bitmap_size ];
-        msg->getBinaryDataFast(_PREHASH_ParcelData, _PREHASH_Bitmap, bitmap, bitmap_size);
-
         parcel_mgr.resetSegments(parcel_mgr.mCollisionSegments);
-        parcel_mgr.writeSegmentsFromBitmap( bitmap, parcel_mgr.mCollisionSegments );
-
-        delete[] bitmap;
-        bitmap = NULL;
+        std::vector<U8> bitmap;
+        if (get_parcel_bitmap(msg, parcel_mgr.mParcelsPerEdge, bitmap))
+        {
+            parcel_mgr.writeSegmentsFromBitmap(bitmap.data(), parcel_mgr.mCollisionSegments);
+        }
 
     }
     else if (sequence_id == HOVERED_PARCEL_SEQ_ID)
