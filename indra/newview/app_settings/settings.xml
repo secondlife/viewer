@@ -3833,13 +3833,24 @@
     <key>TermsOfServiceURL</key>
     <map>
       <key>Comment</key>
-      <string>>URL pointing to Terms of Service page</string>
+      <string>URL pointing to Terms of Service page</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
       <string>https://lindenlab.com/tos</string>
+    </map>
+    <key>PrivacyPolicyURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL pointing to Privacy Policy page</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://lindenlab.com/privacy</string>
     </map>
     <key>JoinFloaterTestSLapp</key>
     <map>

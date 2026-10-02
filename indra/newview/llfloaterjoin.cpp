@@ -65,6 +65,10 @@ public:
         {
             LLFloaterReg::showInstance("web_modal", LLSD().with("url", gSavedSettings.getString("TermsAndConditionsURL")));
         }
+        else if (action == "privacy")
+        {
+            LLFloaterReg::showInstance("web_modal", LLSD().with("url", gSavedSettings.getString("PrivacyPolicyURL")));
+        }
         else if (action == "join" && params.size() >= 3)
         {
             LLPanelLogin::setCredentialFields(LLURI::unescape(params[1].asString()),
@@ -149,4 +153,5 @@ void LLFloaterJoin::onOpen(const LLSD& key)
     getChild<LLUICtrl>("test_join_link")->setVisible(show_test_slapp);
     getChild<LLUICtrl>("test_tos_link")->setVisible(show_test_slapp);
     getChild<LLUICtrl>("test_tc_link")->setVisible(show_test_slapp);
+    getChild<LLUICtrl>("test_privacy_link")->setVisible(show_test_slapp);
 }

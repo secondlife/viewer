@@ -98,6 +98,19 @@
        height="16">
         secondlife:///app/floaterjoin/tc
       </text>
+      <text
+       follows="left|bottom"
+       name="test_privacy_link"
+       visible="false"
+       parse_urls="true"
+       font="SansSerifSmall"
+       text_color="White"
+       left="4"
+       top="688"
+       width="430"
+       height="16">
+        secondlife:///app/floaterjoin/privacy
+      </text>
     </panel>
   </scroll_container>
   <view_border
