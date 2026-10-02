@@ -536,8 +536,20 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
             // Ones that are non-zero but below the minimum packet size are worrisome.
             if (receive_size > 0)
             {
-                LL_WARNS("Messaging") << "Invalid (too short) packet discarded " << receive_size << LL_ENDL;
-                callExceptionFunc(MX_PACKET_TOO_SHORT);
+                // Anyone can send us a packet, and the exception handler may
+                // disconnect, so only call it for a sender with valid circuit.
+                if (mCircuitInfo.findCircuit(getSender()))
+                {
+                    LL_WARNS("Messaging") << "Invalid (too short) packet discarded " << receive_size
+                        << " from " << getSender() << LL_ENDL;
+                    callExceptionFunc(MX_PACKET_TOO_SHORT);
+                }
+                else
+                {
+                    LL_DEBUGS("Messaging") << "Invalid (too short) packet discarded " << receive_size
+                        << " from off-circuit host " << getSender() << LL_ENDL;
+                    mOffCircuitPackets++;
+                }
             }
             // no data in packet receive buffer
             valid_packet = false;
@@ -3087,8 +3099,20 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
                                            LL_PACKET_ID_SIZE, overflow);
     if (overflow)
     {
-        LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size" << LL_ENDL;
-        callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
+        // Anyone can send us a packet, and the exception handler may
+        // disconnect, so only call it for a sender with valid circuit.
+        if (mCircuitInfo.findCircuit(getSender()))
+        {
+            LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size, packet from "
+                << getSender() << LL_ENDL;
+            callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
+        }
+        else
+        {
+            LL_DEBUGS("Messaging") << "attempt to write past reasonable encoded buffer size, packet from off-circuit host "
+                << getSender() << LL_ENDL;
+            mOffCircuitPackets++;
+        }
     }
 
     *data = mEncodedRecvBuffer;
