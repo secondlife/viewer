@@ -610,6 +610,13 @@ void LLAvatarTracker::processAgentFound(LLMessageSystem* msg, void**)
     msg->getUUIDFast(_PREHASH_AgentBlock, _PREHASH_Hunter, id);
     msg->getUUIDFast(_PREHASH_AgentBlock, _PREHASH_Prey, id);
     // *FIX: should make sure prey id matches.
+
+    // LocationBlock is a variable block: reading a missing block is a fatal error
+    if (msg->getNumberOfBlocksFast(_PREHASH_LocationBlock) < 1)
+    {
+        LL_WARNS("Messaging") << "FindAgent has no LocationBlock, ignoring" << LL_ENDL;
+        return;
+    }
     LLVector3d estimated_global_pos;
     msg->getF64Fast(_PREHASH_LocationBlock, _PREHASH_GlobalX,
                  estimated_global_pos.mdV[VX]);

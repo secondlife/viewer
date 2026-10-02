@@ -3836,6 +3836,13 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
         return;
     }
 
+    // DataBlock is a variable block: reading a missing block is a fatal error
+    if (msg->getNumberOfBlocksFast(_PREHASH_DataBlock) < 1)
+    {
+        LL_WARNS("Messaging") << "PreloadSound has no DataBlock, ignoring" << LL_ENDL;
+        return;
+    }
+
     LLUUID sound_id;
     LLUUID object_id;
     LLUUID owner_id;

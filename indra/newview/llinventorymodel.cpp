@@ -3755,8 +3755,11 @@ void LLInventoryModel::registerCallbacks(LLMessageSystem* msg)
 //  static
 void LLInventoryModel::processUpdateCreateInventoryItem(LLMessageSystem* msg, void**)
 {
-    // do accounting and highlight new items if they arrive
-    if (gInventory.messageUpdateCore(msg, true, LLInventoryObserver::UPDATE_CREATE))
+    // do accounting and highlight new items if they arrive.  messageUpdateCore()
+    // succeeds with no InventoryData blocks, and reading a missing block is a
+    // fatal error, so check for one.
+    if (gInventory.messageUpdateCore(msg, true, LLInventoryObserver::UPDATE_CREATE)
+        && msg->getNumberOfBlocksFast(_PREHASH_InventoryData) > 0)
     {
         U32 callback_id;
         LLUUID item_id;

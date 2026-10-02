@@ -478,6 +478,13 @@ void LLPanelDirBrowser::processDirPlacesReply(LLMessageSystem* msg, void**)
     F32 dwell;
 
     msg->getUUID("AgentData", "AgentID", agent_id);
+
+    // QueryData is a variable block: reading a missing block is a fatal error
+    if (msg->getNumberOfBlocks("QueryData") < 1)
+    {
+        LL_WARNS("Messaging") << "DirPlacesReply has no QueryData block, ignoring" << LL_ENDL;
+        return;
+    }
     msg->getUUID("QueryData", "QueryID", query_id );
 
     if (msg->getNumberOfBlocks("StatusData"))
