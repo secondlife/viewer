@@ -265,8 +265,15 @@ LLVOCacheEntry::~LLVOCacheEntry()
     mDP.freeBuffer();
 }
 
-void LLVOCacheEntry::updateEntry(U32 crc, LLDataPackerBinaryBuffer &dp)
+bool LLVOCacheEntry::updateEntry(U32 crc, LLDataPackerBinaryBuffer &dp)
 {
+    if (dp.getBufferSize() <= 0)
+    {
+        LL_WARNS("ObjectUpdate") << "Ignoring cache update with invalid buffer size " << dp.getBufferSize()
+            << " for local_id " << mLocalID << LL_ENDL;
+        return false;
+    }
+
     if(mCRC != crc)
     {
         mCRC = crc;
@@ -275,10 +282,10 @@ void LLVOCacheEntry::updateEntry(U32 crc, LLDataPackerBinaryBuffer &dp)
 
     mDP.freeBuffer();
 
-    llassert_always(dp.getBufferSize() > 0);
     mBuffer = new U8[dp.getBufferSize()];
     mDP.assignBuffer(mBuffer, dp.getBufferSize());
     mDP = dp;
+    return true;
 }
 
 void LLVOCacheEntry::setParentID(U32 id)

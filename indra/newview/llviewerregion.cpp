@@ -2751,11 +2751,17 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
             LL_DEBUGS("AnimatedObjects") << " got update for local_id " << local_id << LL_ENDL;
 
             // Update the cache entry
-            entry->updateEntry(crc, dp);
+            if (entry->updateEntry(crc, dp))
+            {
+                decodeBoundingInfo(entry);
 
-            decodeBoundingInfo(entry);
-
-            result = CACHE_UPDATE_CHANGED;
+                result = CACHE_UPDATE_CHANGED;
+            }
+            else
+            {
+                // Bad data, entry left unchanged
+                result = CACHE_UPDATE_DUPE;
+            }
         }
     }
     else

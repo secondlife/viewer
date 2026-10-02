@@ -398,11 +398,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 {
     LL_RECORD_BLOCK_TIME(FTM_PROCESS_OBJECTS);
 
-    LLViewerObject *objectp;
     S32         num_objects;
-    U32         local_id = 0;
-    LLPCode     pcode = 0;
-    LLUUID      fullid;
     S32         i;
 
     // figure out which simulator these are from and get it's index
@@ -468,6 +464,12 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
         bool justCreated = false;
         bool update_cache = false; //update object cache if it is a full-update or terse update
 
+        // Per-block so a failed unpack can never reuse the previous block's values
+        LLViewerObject* objectp = nullptr;
+        U32         local_id = 0;
+        LLPCode     pcode = 0;
+        LLUUID      fullid;
+
         if (compressed)
         {
             compressed_dp.reset();
@@ -496,9 +498,17 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
                 U32 flags = 0;
                 mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
 
-                compressed_dp.unpackUUID(fullid, "ID");
-                compressed_dp.unpackU32(local_id, "LocalID");
-                compressed_dp.unpackU8(pcode, "PCode");
+                if (!compressed_dp.unpackUUID(fullid, "ID") ||
+                    !compressed_dp.unpackU32(local_id, "LocalID") ||
+                    !compressed_dp.unpackU8(pcode, "PCode"))
+                {
+                    LL_WARNS("ObjectUpdate") << "Discarding compressed ObjectData block " << i << " of " << num_objects
+                        << " with Data size " << uncompressed_length << ": failed to unpack ID/LocalID/PCode"
+                        << ", update_type " << (S32)update_type
+                        << ", region " << regionp->getName() << " " << regionp->getHost() << LL_ENDL;
+                    recorder.objectUpdateFailure();
+                    continue;
+                }
 
                 if (pcode == 0)
                 {
@@ -521,7 +531,15 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
             else //OUT_TERSE_IMPROVED
             {
                 update_cache = true;
-                compressed_dp.unpackU32(local_id, "LocalID");
+                if (!compressed_dp.unpackU32(local_id, "LocalID"))
+                {
+                    LL_WARNS("ObjectUpdate") << "Discarding compressed ObjectData block " << i << " of " << num_objects
+                        << " with Data size " << uncompressed_length << ": failed to unpack LocalID"
+                        << ", update_type " << (S32)update_type
+                        << ", region " << regionp->getName() << " " << regionp->getHost() << LL_ENDL;
+                    recorder.objectUpdateFailure();
+                    continue;
+                }
                 getUUIDFromLocal(fullid,
                                  local_id,
                                  gMessageSystem->getSenderIP(),

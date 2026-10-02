@@ -105,7 +105,7 @@ public:
     LLVOCacheEntry(LLAPRFile* apr_file);
     LLVOCacheEntry();
 
-    void updateEntry(U32 crc, LLDataPackerBinaryBuffer &dp);
+    bool updateEntry(U32 crc, LLDataPackerBinaryBuffer &dp);
 
     void clearState(U32 state) {mState &= ~state;}
     bool hasState(U32 state)   {return mState & state;}
