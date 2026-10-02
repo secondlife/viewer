@@ -124,8 +124,16 @@ public:
     TPACKETID   getPacketOutID() const;
     bool        getTrusted() const;
     F32         getAgeInSeconds() const;
-    S32         getUnackedPacketCount() const   { return mUnackedPacketCount; }
-    S32         getUnackedPacketBytes() const   { return mUnackedPacketBytes; }
+    S32             getUnackedPacketCount() const
+    {
+        std::lock_guard<std::mutex> lock(mDataMutex);
+        return mUnackedPacketCount;
+    }
+    S32             getUnackedPacketBytes() const
+    {
+        std::lock_guard<std::mutex> lock(mDataMutex);
+        return mUnackedPacketBytes;
+    }
     F64Seconds  getNextPingSendTime() const { return mNextPingSendTime; }
     U32         getLastPacketGap() const { return mLastPacketGap; }
     LLHost      getHost() const { return mHost; }

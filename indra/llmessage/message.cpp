@@ -571,7 +571,7 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
 
     if (cdp && recv_reliable)
     {
-        std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
+        std::lock_guard<std::mutex> lock(cdp->mDataMutex);
         cdp->mRecentlyReceivedReliablePackets[recv_packet_id] = getMessageTimeUsecs();
         mReliablePacketsIn++;
     }
@@ -697,7 +697,10 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
 
     if (cdp && recv_reliable)
     {
-        cdp->mRecentlyReceivedReliablePackets[recv_packet_id] = getMessageTimeUsecs();
+        {
+            std::lock_guard<std::mutex> lock(cdp->mDataMutex);
+            cdp->mRecentlyReceivedReliablePackets[recv_packet_id] = getMessageTimeUsecs();
+        }
         cdp->collectRAck(recv_packet_id);
         mReliablePacketsIn++;
     }
@@ -1007,7 +1010,10 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
                 if (cdp && recv_reliable)
                 {
                     // Add to the recently received list for duplicate suppression
-                    cdp->mRecentlyReceivedReliablePackets[sCurrentRecvPacketID] = getMessageTimeUsecs();
+                    {
+                        std::lock_guard<std::mutex> lock(cdp->mDataMutex);
+                        cdp->mRecentlyReceivedReliablePackets[sCurrentRecvPacketID] = getMessageTimeUsecs();
+                    }
 
                     // Put it onto the list of packets to be acked
                     cdp->collectRAck(sCurrentRecvPacketID);
@@ -1817,59 +1823,62 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 
     // tack packet acks onto the end of this message
     S32 space_left = (MTUBYTES - buffer_length) / sizeof(TPACKETID); // space left for packet ids
-    S32 ack_count = (S32)cdp->mAcks.size();
     bool is_ack_appended = false;
     std::vector<TPACKETID> acks;
-    if((space_left > 0) && (ack_count > 0) &&
-       (mMessageBuilder->getMessageName() != _PREHASH_PacketAck))
     {
-        buf_ptr[0] |= LL_ACK_FLAG;
-        S32 append_ack_count = llmin(space_left, ack_count);
-        const S32 MAX_ACKS = 250;
-        append_ack_count = llmin(append_ack_count, MAX_ACKS);
-        std::vector<TPACKETID>::iterator iter = cdp->mAcks.begin();
-        std::vector<TPACKETID>::iterator last = cdp->mAcks.begin();
-        last += append_ack_count;
-        TPACKETID packet_id;
-        for( ; iter != last ; ++iter)
+        std::lock_guard<std::mutex> lock(cdp->mDataMutex);
+        S32 ack_count = (S32)cdp->mAcks.size();
+        if((space_left > 0) && (ack_count > 0) &&
+           (mMessageBuilder->getMessageName() != _PREHASH_PacketAck))
         {
-            // grab the next packet id.
-            packet_id = (*iter);
-            if(mVerboseLog)
+            buf_ptr[0] |= LL_ACK_FLAG;
+            S32 append_ack_count = llmin(space_left, ack_count);
+            const S32 MAX_ACKS = 250;
+            append_ack_count = llmin(append_ack_count, MAX_ACKS);
+            std::vector<TPACKETID>::iterator iter = cdp->mAcks.begin();
+            std::vector<TPACKETID>::iterator last = cdp->mAcks.begin();
+            last += append_ack_count;
+            TPACKETID packet_id;
+            for( ; iter != last ; ++iter)
             {
-                acks.push_back(packet_id);
+                // grab the next packet id.
+                packet_id = (*iter);
+                if(mVerboseLog)
+                {
+                    acks.push_back(packet_id);
+                }
+
+                // put it on the end of the buffer
+                packet_id = htonl(packet_id);
+
+                if((S32)(buffer_length + sizeof(TPACKETID)) < MAX_BUFFER_SIZE)
+                {
+                    memcpy(&buf_ptr[buffer_length], &packet_id, sizeof(TPACKETID)); /* Flawfinder: ignore */
+                    // Do the accounting
+                    buffer_length += sizeof(TPACKETID);
+                }
+                else
+                {
+                    // Just reporting error is likely not enough.  Need to
+                    // check how to abort or error out gracefully from
+                    // this function. XXXTBD
+                    // *NOTE: Actually hitting this error would indicate
+                    // the calculation above for space_left, ack_count,
+                    // append_acout_count is incorrect or that
+                    // MAX_BUFFER_SIZE has fallen below MTU which is bad
+                    // and probably programmer error.
+                    LL_ERRS("Messaging") << "Buffer packing failed due to size.." << LL_ENDL;
+                }
             }
 
-            // put it on the end of the buffer
-            packet_id = htonl(packet_id);
+            // clean up the source
+            cdp->mAcks.erase(cdp->mAcks.begin(), last);
 
-            if((S32)(buffer_length + sizeof(TPACKETID)) < MAX_BUFFER_SIZE)
-            {
-                memcpy(&buf_ptr[buffer_length], &packet_id, sizeof(TPACKETID)); /* Flawfinder: ignore */
-                // Do the accounting
-                buffer_length += sizeof(TPACKETID);
-            }
-            else
-            {
-                // Just reporting error is likely not enough.  Need to
-                // check how to abort or error out gracefully from
-                // this function. XXXTBD
-                // *NOTE: Actually hitting this error would indicate
-                // the calculation above for space_left, ack_count,
-                // append_acout_count is incorrect or that
-                // MAX_BUFFER_SIZE has fallen below MTU which is bad
-                // and probably programmer error.
-                LL_ERRS("Messaging") << "Buffer packing failed due to size.." << LL_ENDL;
-            }
+            // tack the count in the final byte
+            U8 count = (U8)append_ack_count;
+            buf_ptr[buffer_length++] = count;
+            is_ack_appended = true;
         }
-
-        // clean up the source
-        cdp->mAcks.erase(cdp->mAcks.begin(), last);
-
-        // tack the count in the final byte
-        U8 count = (U8)append_ack_count;
-        buf_ptr[buffer_length++] = count;
-        is_ack_appended = true;
     }
 
     bool success;

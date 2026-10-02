@@ -570,6 +570,7 @@ void LLCircuitData::addBytesOut(S32Bytes bytes)
 
 void LLCircuitData::addReliablePacket(S32 mSocket, U8 *buf_ptr, S32 buf_len, LLReliablePacketParams *params)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     LLReliablePacket *packet_info;
 
     packet_info = new LLReliablePacket(mSocket, buf_ptr, buf_len, params);
@@ -608,6 +609,7 @@ void LLCircuit::resendUnackedPackets(S32& unacked_list_length, S32& unacked_list
 
 bool LLCircuitData::isDuplicateResend(TPACKETID packetnum)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     return (mRecentlyReceivedReliablePackets.find(packetnum) != mRecentlyReceivedReliablePackets.end());
 }
 
@@ -1025,6 +1027,7 @@ bool LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 
 void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     // purge old data from the duplicate suppression queue
 
     // we want to KEEP all x where oldest_id <= x <= last incoming packet, and delete everything else.
