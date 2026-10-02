@@ -1914,33 +1914,49 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 
 void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, bool recv_reliable )
 {
-    if(mVerboseLog)
-    {
-        std::ostringstream str;
-        str << "MSG: <- " << host;
-        std::string buffer;
-        buffer = llformat( "\t%6d\t%6d\t%6d ", mTemplateMessageReader->getMessageSize(), (sIncomingCompressedSize ? sIncomingCompressedSize: mTemplateMessageReader->getMessageSize()), sCurrentRecvPacketID);
-        str << buffer
-            << nullToEmpty(mTemplateMessageReader->getMessageName())
-            << (recv_reliable ? " reliable" : "")
-            << " REJECTED";
-        LL_INFOS("Messaging") << str.str() << LL_ENDL;
-    }
-    // nope!
-    // cout << "Rejecting unexpected message " << mCurrentMessageTemplate->mName << " from " << hex << ip << " , " << dec << port << endl;
+    // Snapshot receiver-thread-only state before handing bookkeeping/logging
+    // off to the main thread.
+    const S32 message_bytes = mTemplateMessageReader->getMessageSize();
+    const std::string message_name = nullToEmpty(mTemplateMessageReader->getMessageName());
+    const S32 compressed_size = sIncomingCompressedSize;
+    const TPACKETID packet_id = sCurrentRecvPacketID;
 
-    // Keep track of rejected messages as well
-    if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
+    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+    if (main_queue)
     {
-        LL_WARNS("Messaging") << "Got more than " << MAX_MESSAGE_COUNT_NUM << " packets without clearing counts" << LL_ENDL;
-    }
-    else
-    {
-        // TODO: babbage: work out if we need these
-        // mMessageCountList[mNumMessageCounts].mMessageNum = mCurrentRMessageTemplate->mMessageNumber;
-        mMessageCountList[mNumMessageCounts].mMessageBytes = mTemplateMessageReader->getMessageSize();
-        mMessageCountList[mNumMessageCounts].mInvalid = true;
-        mNumMessageCounts++;
+        main_queue->post(
+            [this, host, message_bytes, message_name, compressed_size,
+            packet_id, recv_reliable]()
+        {
+            if (mVerboseLog)
+            {
+                std::ostringstream str;
+                str << "MSG: <- " << host;
+                std::string buffer;
+                buffer = llformat("\t%6d\t%6d\t%6d ", message_bytes, (compressed_size ? compressed_size : message_bytes), packet_id);
+                str << buffer
+                    << message_name
+                    << (recv_reliable ? " reliable" : "")
+                    << " REJECTED";
+                LL_INFOS("Messaging") << str.str() << LL_ENDL;
+            }
+            // nope!
+            // cout << "Rejecting unexpected message " << mCurrentMessageTemplate->mName << " from " << hex << ip << " , " << dec << port << endl;
+
+            // Keep track of rejected messages as well
+            if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
+            {
+                LL_WARNS("Messaging") << "Got more than " << MAX_MESSAGE_COUNT_NUM << " packets without clearing counts" << LL_ENDL;
+            }
+            else
+            {
+                // TODO: babbage: work out if we need these
+                // mMessageCountList[mNumMessageCounts].mMessageNum = mCurrentRMessageTemplate->mMessageNumber;
+                mMessageCountList[mNumMessageCounts].mMessageBytes = message_bytes;
+                mMessageCountList[mNumMessageCounts].mInvalid = true;
+                mNumMessageCounts++;
+            }
+        });
     }
 }
 
@@ -1969,31 +1985,45 @@ S32 LLMessageSystem::sendMessage(
 
 void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
 {
-    // RequestTrustedCircuit is how we establish trust, so don't spam
-    // if it's received on a trusted circuit. JC
-    if (strcmp(mTemplateMessageReader->getMessageName(), "RequestTrustedCircuit"))
-    {
-        LL_WARNS("Messaging") << "Received trusted message on untrusted circuit. "
-                << "Will reply with deny. "
-                << "Message: " << nullToEmpty(mTemplateMessageReader->getMessageName())
-                << " Host: " << host << LL_ENDL;
-    }
 
-    if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
+    // Snapshot receiver-thread-only state before handing bookkeeping/logging
+    // off to the main thread.
+    const S32 message_bytes = mTemplateMessageReader->getMessageSize();
+    const std::string message_name = nullToEmpty(mTemplateMessageReader->getMessageName());
+
+    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+    if (main_queue)
     {
-        LL_WARNS("Messaging") << "got more than " << MAX_MESSAGE_COUNT_NUM
-            << " packets without clearing counts"
-            << LL_ENDL;
-    }
-    else
-    {
-        // TODO: babbage: work out if we need these
-        //mMessageCountList[mNumMessageCounts].mMessageNum
-        //  = mCurrentRMessageTemplate->mMessageNumber;
-        mMessageCountList[mNumMessageCounts].mMessageBytes
-            = mTemplateMessageReader->getMessageSize();
-        mMessageCountList[mNumMessageCounts].mInvalid = true;
-        mNumMessageCounts++;
+        main_queue->post(
+            [this, host, message_bytes, message_name]()
+        {
+            // RequestTrustedCircuit is how we establish trust, so don't spam
+            // if it's received on a trusted circuit. JC
+            if (message_name != "RequestTrustedCircuit")
+            {
+                LL_WARNS("Messaging") << "Received trusted message on untrusted circuit. "
+                    << "Will reply with deny. "
+                    << "Message: " << message_name
+                    << " Host: " << host << LL_ENDL;
+            }
+
+            if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
+            {
+                LL_WARNS("Messaging") << "got more than " << MAX_MESSAGE_COUNT_NUM
+                    << " packets without clearing counts"
+                    << LL_ENDL;
+            }
+            else
+            {
+                // TODO: babbage: work out if we need these
+                //mMessageCountList[mNumMessageCounts].mMessageNum
+                //  = mCurrentRMessageTemplate->mMessageNumber;
+                mMessageCountList[mNumMessageCounts].mMessageBytes
+                    = message_bytes;
+                mMessageCountList[mNumMessageCounts].mInvalid = true;
+                mNumMessageCounts++;
+            }
+        });
     }
 }
 
@@ -3406,8 +3436,12 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
                                            LL_PACKET_ID_SIZE, overflow);
     if (overflow)
     {
-        LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size" << LL_ENDL;
-        callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
+        LL::WorkQueue::getInstance("mainloop")->post(
+            [this]()
+        {
+            LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size" << LL_ENDL;
+            callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
+        });
     }
 
     *data = mEncodedRecvBuffer;
@@ -3855,7 +3889,11 @@ void LLMessageSystem::sendCreateTrustedCircuit(const LLHost &host, const LLUUID 
 
 void LLMessageSystem::sendDenyTrustedCircuit(const LLHost &host)
 {
-    mDenyTrustedCircuitSet.insert(host);
+    LL::WorkQueue::getInstance("mainloop")->post(
+        [this, host]()
+    {
+        mDenyTrustedCircuitSet.insert(host);
+    });
 }
 
 void LLMessageSystem::reallySendDenyTrustedCircuit(const LLHost &host)
