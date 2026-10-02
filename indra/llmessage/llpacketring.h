@@ -67,6 +67,6 @@ private:
 
     std::vector<LLPacketBuffer*> mRing;
     S16 mHeadIndex          { 0 };
-    S16 mNumBufferedPackets { 0 };
+    std::atomic<S16> mNumBufferedPackets { 0 };
     S32 mNumBufferedBytes   { 0 };
 };

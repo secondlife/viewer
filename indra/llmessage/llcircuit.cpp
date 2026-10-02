@@ -554,6 +554,7 @@ void LLCircuitData::checkPeriodTime()
 
 void LLCircuitData::addBytesIn(S32Bytes bytes)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     mBytesIn += bytes;
     mBytesInThisPeriod += bytes;
 }
@@ -561,6 +562,7 @@ void LLCircuitData::addBytesIn(S32Bytes bytes)
 
 void LLCircuitData::addBytesOut(S32Bytes bytes)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     mBytesOut += bytes;
     mBytesOutThisPeriod += bytes;
 }
@@ -1119,57 +1121,69 @@ bool LLCircuitData::collectRAck(TPACKETID packet_num)
 void LLCircuit::sendAcks(F32 collect_time)
 {
     collect_time = llclamp(collect_time, 0.f, LL_COLLECT_ACK_TIME_MAX);
-    std::lock_guard<std::mutex> circuit_lock(mCircuitMutex);
-    LLCircuitData* cd;
-    circuit_data_map::iterator it = mSendAckMap.begin();
-    while (it != mSendAckMap.end())
+    std::vector<LLCircuitData*> circuits_to_flush; // Collect while holding mCircuitMutex
     {
-        circuit_data_map::iterator cur_it = it++;
-        cd = (*cur_it).second;
-        std::lock_guard<std::mutex> data_lock(cd->mDataMutex);
-        S32 count = (S32)cd->mAcks.size();
-        F32 age = cd->getAgeInSeconds() - cd->mAckCreationTime;
-        if (age > collect_time || count == 0)
+        std::lock_guard<std::mutex> circuit_lock(mCircuitMutex);
+        circuit_data_map::iterator it = mSendAckMap.begin();
+        while (it != mSendAckMap.end())
         {
-            if (count>0)
+            circuit_data_map::iterator cur_it = it++;
+            LLCircuitData* cd = (*cur_it).second;
+            std::lock_guard<std::mutex> data_lock(cd->mDataMutex);
+            S32 count = (S32)cd->mAcks.size();
+            F32 age = cd->getAgeInSeconds() - cd->mAckCreationTime;
+            if (age > collect_time || count == 0)
             {
-                // send the packet acks
-                S32 acks_this_packet = 0;
-                for(S32 i = 0; i < count; ++i)
+                if (count > 0)
                 {
-                    if(acks_this_packet == 0)
-                    {
-                        gMessageSystem->newMessageFast(_PREHASH_PacketAck);
-                    }
-                    gMessageSystem->nextBlockFast(_PREHASH_Packets);
-                    gMessageSystem->addU32Fast(_PREHASH_ID, cd->mAcks[i]);
-                    ++acks_this_packet;
-                    if(acks_this_packet > 250)
-                    {
-                        gMessageSystem->sendMessage(cd->mHost);
-                        acks_this_packet = 0;
-                    }
+                    circuits_to_flush.push_back(cd);
                 }
-                if(acks_this_packet > 0)
-                {
-                    gMessageSystem->sendMessage(cd->mHost);
-                }
-
-                if(gMessageSystem->mVerboseLog)
-                {
-                    std::ostringstream str;
-                    str << "MSG: -> " << cd->mHost << "\tPACKET ACKS:\t";
-                    std::ostream_iterator<TPACKETID> append(str, " ");
-                    std::copy(cd->mAcks.begin(), cd->mAcks.end(), append);
-                    LL_INFOS() << str.str() << LL_ENDL;
-                }
-
-                // empty out the acks list
-                cd->mAcks.clear();
-                cd->mAckCreationTime = 0.f;
+                // remove data map
+                mSendAckMap.erase(cur_it);
             }
-            // remove data map
-            mSendAckMap.erase(cur_it);
+        }
+    }
+
+    for (LLCircuitData* cd : circuits_to_flush)
+    {
+        std::vector<TPACKETID> acks;
+        {
+            std::lock_guard<std::mutex> data_lock(cd->mDataMutex);
+            acks.swap(cd->mAcks);
+            cd->mAckCreationTime = 0.f;
+        }
+
+        S32 count = (S32)acks.size();
+
+        // send the packet acks
+        S32 acks_this_packet = 0;
+        for (S32 i = 0; i < count; ++i)
+        {
+            if (acks_this_packet == 0)
+            {
+                gMessageSystem->newMessageFast(_PREHASH_PacketAck);
+            }
+            gMessageSystem->nextBlockFast(_PREHASH_Packets);
+            gMessageSystem->addU32Fast(_PREHASH_ID, acks[i]);
+            ++acks_this_packet;
+            if (acks_this_packet > 250)
+            {
+                gMessageSystem->sendMessage(cd->mHost);
+                acks_this_packet = 0;
+            }
+        }
+        if (acks_this_packet > 0)
+        {
+            gMessageSystem->sendMessage(cd->mHost);
+        }
+
+        if (gMessageSystem->mVerboseLog)
+        {
+            std::ostringstream str;
+            str << "MSG: -> " << cd->mHost << "\tPACKET ACKS:\t";
+            std::ostream_iterator<TPACKETID> append(str, " ");
+            std::copy(acks.begin(), acks.end(), append);
+            LL_INFOS() << str.str() << LL_ENDL;
         }
     }
 }

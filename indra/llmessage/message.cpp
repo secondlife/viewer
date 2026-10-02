@@ -82,6 +82,7 @@
 #include "llpounceable.h"
 #include "llproxy.h"
 #include "llrand.h"
+#include "workqueue.h"
 
 // Constants
 //const char* MESSAGE_LOG_FILENAME = "message.log";
@@ -1976,18 +1977,14 @@ void LLMessageSystem::logValidMsg(
         bool recv_acks,
         bool skip_packet_id_check )
 {
-    if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
-    {
-        LL_WARNS("Messaging") << "Got more than " << MAX_MESSAGE_COUNT_NUM << " packets without clearing counts" << LL_ENDL;
-    }
-    else
-    {
-        // TODO: babbage: work out if we need these
-        //mMessageCountList[mNumMessageCounts].mMessageNum = mCurrentRMessageTemplate->mMessageNumber;
-        mMessageCountList[mNumMessageCounts].mMessageBytes = mTemplateMessageReader->getMessageSize();
-        mMessageCountList[mNumMessageCounts].mInvalid = false;
-        mNumMessageCounts++;
-    }
+    // Snapshot everything needed from receiver-thread-only state
+    // (mTemplateMessageReader, thread_local counters) now, on this thread,
+    // before handing the bookkeeping/logging off to the main thread.
+    const S32 message_bytes = mTemplateMessageReader->getMessageSize();
+    const std::string message_name = nullToEmpty(mTemplateMessageReader->getMessageName());
+    const S32 compressed_size = sIncomingCompressedSize;
+    const TPACKETID packet_id = sCurrentRecvPacketID;
+    const S32 true_receive_size = sTrueReceiveSize;
 
     if (cdp)
     {
@@ -1996,23 +1993,53 @@ void LLMessageSystem::logValidMsg(
             // update circuit packet ID tracking (missing/out of order packets)
             // Already done in bufferInboundPacket(), in true socket-arrival
             // order, if this packet came off the high/low priority queues.
-            cdp->checkPacketInID(sCurrentRecvPacketID, recv_resent);
+            // LLCircuitData::checkPacketInID() guards its own state with
+            // mDataMutex, so this is safe to call from this thread.
+            cdp->checkPacketInID(packet_id, recv_resent);
         }
-        cdp->addBytesIn((S32Bytes)sTrueReceiveSize);
+        // LLCircuitData::addBytesIn() guards mBytesIn/mBytesInThisPeriod
+        // with mDataMutex, so this is also safe to call from this thread.
+        cdp->addBytesIn((S32Bytes)true_receive_size);
     }
 
-    if (mVerboseLog)
+    // mNumMessageCounts/mMessageCountList and mVerboseLog are main-thread
+    // state: they're read/written elsewhere by resetReceiveCounts(),
+    // dumpReceiveCounts(), startLogging()/stopLogging() without any
+    // synchronization. Just hand the to the main thread's WorkQueue.
+    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+    if (main_queue)
     {
-        std::ostringstream str;
-        str << "MSG: <- " << host;
-        std::string buffer;
-        buffer = llformat("\t%6d\t%6d\t%6d ", mTemplateMessageReader->getMessageSize(), (sIncomingCompressedSize ? sIncomingCompressedSize : mTemplateMessageReader->getMessageSize()), sCurrentRecvPacketID);
-        str << buffer
-            << nullToEmpty(mTemplateMessageReader->getMessageName())
-            << (recv_reliable ? " reliable" : "")
-            << (recv_resent ? " resent" : "")
-            << (recv_acks ? " acks" : "");
-        LL_INFOS("Messaging") << str.str() << LL_ENDL;
+        main_queue->post(
+            [this, host, message_bytes, message_name, compressed_size,
+            packet_id, recv_reliable, recv_resent, recv_acks]()
+        {
+            if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
+            {
+                LL_WARNS("Messaging") << "Got more than " << MAX_MESSAGE_COUNT_NUM << " packets without clearing counts" << LL_ENDL;
+            }
+            else
+            {
+                // TODO: babbage: work out if we need these
+                //mMessageCountList[mNumMessageCounts].mMessageNum = mCurrentRMessageTemplate->mMessageNumber;
+                mMessageCountList[mNumMessageCounts].mMessageBytes = message_bytes;
+                mMessageCountList[mNumMessageCounts].mInvalid = false;
+                mNumMessageCounts++;
+            }
+
+            if (mVerboseLog)
+            {
+                std::ostringstream str;
+                str << "MSG: <- " << host;
+                std::string buffer;
+                buffer = llformat("\t%6d\t%6d\t%6d ", message_bytes, (compressed_size ? compressed_size : message_bytes), packet_id);
+                str << buffer
+                    << message_name
+                    << (recv_reliable ? " reliable" : "")
+                    << (recv_resent ? " resent" : "")
+                    << (recv_acks ? " acks" : "");
+                LL_INFOS("Messaging") << str.str() << LL_ENDL;
+            }
+        });
     }
 }
 
@@ -3842,8 +3869,8 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
 
     timeout.setTimerExpirySec(20.0);
 
-    setHandlerFuncThrdFast(_PREHASH_StartPingCheck, null_message_callback, NULL);
-    setHandlerFuncThrdFast(_PREHASH_CompletePingCheck,
+    setHandlerFuncFast(_PREHASH_StartPingCheck, null_message_callback, NULL);
+    setHandlerFuncFast(_PREHASH_CompletePingCheck,
         [](LLMessageSystem* msg, void** user_data)
     {
         if (msg->getSender() == *reinterpret_cast<LLHost*>(user_data[1]))
