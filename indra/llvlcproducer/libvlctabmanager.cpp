@@ -241,7 +241,30 @@ public:
             vlc_argv.push_back(logfile_arg.c_str());
         }
         mLibVLC = libvlc_new(int(vlc_argv.size()), vlc_argv.data());
+
+        // --file-logging/--logfile= is contributed by libvlc's own "logger" module, not
+        // libvlc core -- confirmed via real testing (2026-10-02) that this exact
+        // invocation makes libvlc_new() fail outright ("vlc: unknown option or missing
+        // mandatory argument `--file-logging'") on both macOS and Linux (identical
+        // failure on two platforms with completely unrelated libvlc distributions --
+        // vendored vlc-bin on macOS, the system's own package on Linux -- ruling out a
+        // packaging/signing cause specific to either one; this is libvlc CLI-parsing
+        // behavior itself, apparently tolerated only by whatever this vendored build's
+        // Windows behavior happens to be). A file-logging-only failure must never cost
+        // this process ALL of libvlc -- retry once without it rather than leave mLibVLC
+        // permanently null (every CreateTab()/CreateAudioTrack() call silently failing
+        // for the rest of this process's life, and no media of any kind -- RTSP, RTMP,
+        // or parcel audio -- ever playing) for the sake of a diagnostic file nobody can
+        // even read if this producer can't write into its own install location anyway
+        // (see macOS's own separate, real bundle-write-permission finding the same day).
+        if (!mLibVLC && !log_file_path.empty())
+        {
+            std::vector<char const*> fallback_argv = { "--no-video-title-show", "--verbose=2" };
+            mLibVLC = libvlc_new(int(fallback_argv.size()), fallback_argv.data());
+        }
     }
+
+    bool IsReady() const { return mLibVLC != nullptr; }
 
     ~Impl()
     {
@@ -738,6 +761,8 @@ LibVlcTabManager::LibVlcTabManager(const std::string& log_file_path)
 {
 }
 LibVlcTabManager::~LibVlcTabManager() = default;
+
+bool LibVlcTabManager::IsReady() const { return mImpl->IsReady(); }
 
 VlcTabHandle LibVlcTabManager::CreateTab(int width, int height, int maxWidth, int maxHeight) { return mImpl->CreateTab(width, height, maxWidth, maxHeight); }
 VlcTabHandle LibVlcTabManager::CreateAudioTrack() { return mImpl->CreateAudioTrack(); }

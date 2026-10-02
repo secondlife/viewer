@@ -403,6 +403,18 @@ int run_producer(int argc, char** argv)
     // diagnostics -- the actual detail behind "why didn't this play," which nothing
     // else here surfaces.
     LibVlcTabManager vlcMgr((exe_dir / "libvlc_log.txt").string());
+    if (vlcMgr.IsReady())
+    {
+        log_info("SLVlcProducer: libvlc ready");
+    }
+    else
+    {
+        // Every CreateTab()/CreateAudioTrack() call will keep silently failing for this
+        // process's entire lifetime if this prints -- no RTSP/RTMP prim media and no
+        // parcel audio will ever play, regardless of what the rest of this banner says.
+        // See LibVlcTabManager's own constructor comment for a real case this caught.
+        log_error("SLVlcProducer: libvlc_new() failed -- no LibVLC media of any kind will work this session");
+    }
 
     LLConfig view_cfg; // template for whichever index gets allocated on demand
     view_cfg.max_width  = kMaxWidth;

@@ -71,6 +71,16 @@ public:
     LibVlcTabManager(const LibVlcTabManager&) = delete;
     LibVlcTabManager& operator=(const LibVlcTabManager&) = delete;
 
+    // False if libvlc_new() itself failed -- every CreateTab()/CreateAudioTrack() call
+    // will keep silently failing for this process's entire lifetime if so (there's no
+    // retry path afterwards; libvlc_new() is only ever called once, here). Log this
+    // once at startup rather than let "no media of any kind ever plays" be the only
+    // visible symptom -- see this class's own .cpp constructor comment for a real case
+    // this caught (a bad CLI argument took down libvlc entirely, on two platforms, with
+    // every other part of this process's own startup banner still looking completely
+    // normal).
+    bool IsReady() const;
+
     // No media/player yet -- mirrors llCefBrowserManager::CreateBrowser("about:blank", ...):
     // the slot exists and has a sized frame buffer immediately, playback only starts once
     // Open() is called (see kSetUrl in llvlcproducer.cpp). width/height are this tab's
