@@ -2725,11 +2725,16 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerBinaryBuffer &dp, U32 flags)
 {
     eCacheUpdateResult result;
-    U32 crc;
-    U32 local_id;
+    U32 crc = 0;
+    U32 local_id = 0;
 
-    LLViewerObject::unpackU32(&dp, local_id, "LocalID");
-    LLViewerObject::unpackU32(&dp, crc, "CRC");
+    if (!LLViewerObject::unpackU32(&dp, local_id, "LocalID") ||
+        !LLViewerObject::unpackU32(&dp, crc, "CRC"))
+    {
+        LL_WARNS("ObjectUpdate") << "Failed to unpack LocalID/CRC from cache update with buffer size "
+            << dp.getBufferSize() << ", region " << getName() << ", not caching" << LL_ENDL;
+        return CACHE_UPDATE_DUPE;
+    }
 
     LLVOCacheEntry* entry = getCacheEntry(local_id, false);
 

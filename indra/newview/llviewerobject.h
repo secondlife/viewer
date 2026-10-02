@@ -171,6 +171,9 @@ public:
         MEDIA_URL_ADDED = 0x2,
         MEDIA_URL_UPDATED = 0x4,
         MEDIA_FLAGS_CHANGED = 0x8,
+        // Update data could not be unpacked and was ignored.  The packer is left
+        // part way through the data, so subclasses must not unpack any further.
+        MALFORMED_UPDATE = 0x40000000,
         INVALID_UPDATE = 0x80000000
     };
 
@@ -681,10 +684,10 @@ public:
     void updateAvatarMeshVisibility(const LLUUID& id, const LLUUID& old_id);
     void refreshBakeTexture();
 public:
-    static void unpackVector3(LLDataPackerBinaryBuffer* dp, LLVector3& value, std::string name);
-    static void unpackUUID(LLDataPackerBinaryBuffer* dp, LLUUID& value, std::string name);
-    static void unpackU32(LLDataPackerBinaryBuffer* dp, U32& value, std::string name);
-    static void unpackU8(LLDataPackerBinaryBuffer* dp, U8& value, std::string name);
+    static bool unpackVector3(LLDataPackerBinaryBuffer* dp, LLVector3& value, std::string name);
+    static bool unpackUUID(LLDataPackerBinaryBuffer* dp, LLUUID& value, std::string name);
+    static bool unpackU32(LLDataPackerBinaryBuffer* dp, U32& value, std::string name);
+    static bool unpackU8(LLDataPackerBinaryBuffer* dp, U8& value, std::string name);
     static U32 unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id);
 
 public:

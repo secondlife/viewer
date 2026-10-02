@@ -674,42 +674,46 @@ void LLViewerObject::initObjectDataMap()
 }
 
 //static
-void LLViewerObject::unpackVector3(LLDataPackerBinaryBuffer* dp, LLVector3& value, std::string name)
+bool LLViewerObject::unpackVector3(LLDataPackerBinaryBuffer* dp, LLVector3& value, std::string name)
 {
     dp->shift(sObjectDataMap[name]);
-    dp->unpackVector3(value, name.c_str());
+    bool success = dp->unpackVector3(value, name.c_str());
     dp->reset();
+    return success;
 }
 
 //static
-void LLViewerObject::unpackUUID(LLDataPackerBinaryBuffer* dp, LLUUID& value, std::string name)
+bool LLViewerObject::unpackUUID(LLDataPackerBinaryBuffer* dp, LLUUID& value, std::string name)
 {
     dp->shift(sObjectDataMap[name]);
-    dp->unpackUUID(value, name.c_str());
+    bool success = dp->unpackUUID(value, name.c_str());
     dp->reset();
+    return success;
 }
 
 //static
-void LLViewerObject::unpackU32(LLDataPackerBinaryBuffer* dp, U32& value, std::string name)
+bool LLViewerObject::unpackU32(LLDataPackerBinaryBuffer* dp, U32& value, std::string name)
 {
     dp->shift(sObjectDataMap[name]);
-    dp->unpackU32(value, name.c_str());
+    bool success = dp->unpackU32(value, name.c_str());
     dp->reset();
+    return success;
 }
 
 //static
-void LLViewerObject::unpackU8(LLDataPackerBinaryBuffer* dp, U8& value, std::string name)
+bool LLViewerObject::unpackU8(LLDataPackerBinaryBuffer* dp, U8& value, std::string name)
 {
     dp->shift(sObjectDataMap[name]);
-    dp->unpackU8(value, name.c_str());
+    bool success = dp->unpackU8(value, name.c_str());
     dp->reset();
+    return success;
 }
 
 //static
 U32 LLViewerObject::unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id)
 {
     dp->shift(sObjectDataMap["SpecialCode"]);
-    U32 value;
+    U32 value = 0;
     dp->unpackU32(value, "SpecialCode");
 
     parent_id = 0;
@@ -1582,8 +1586,12 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ExtraParams, buffer, size, block_num);
                     LLDataPackerBinaryBuffer dp(buffer, size);
 
-                    U8 num_parameters;
-                    dp.unpackU8(num_parameters, "num_params");
+                    U8 num_parameters = 0;
+                    if (!dp.unpackU8(num_parameters, "num_params"))
+                    {
+                        LL_WARNS("UpdateFail") << "Failed to unpack num_params for " << getID() << " with OUT_FULL message" << LL_ENDL;
+                        num_parameters = 0;
+                    }
                     U8 param_block[MAX_OBJECT_PARAMS_SIZE];
                     for (U8 param=0; param<num_parameters; ++param)
                     {
@@ -1739,11 +1747,16 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
         U8     sound_flags = 0;
         F32     cutoff = 0;
 
-        U16 val[4];
+        U16 val[4] = { 0, 0, 0, 0 };
 
-        U8      state;
+        U8      state = 0;
 
-        dp->unpackU8(state, "State");
+        if (!dp->unpackU8(state, "State"))
+        {
+            LL_WARNS("UpdateFail") << "Failed to unpack State for " << getID()
+                << " with compressed update type " << update_type << ", ignoring update" << LL_ENDL;
+            return retval | MALFORMED_UPDATE;
+        }
         mAttachmentState = state;
 
         switch(update_type)
@@ -1753,12 +1766,42 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 #ifdef DEBUG_UPDATE_TYPE
                 LL_INFOS() << "CompTI:" << getID() << LL_ENDL;
 #endif
-                U8      value;
-                dp->unpackU8(value, "agent");
+                // Unpack everything before applying anything, so a truncated
+                // update can't leave the object half updated.
+                U8      value = 0;
+                LLVector4 collision_plane;
+                U16 vel[3] = { 0, 0, 0 };
+                U16 acc[3] = { 0, 0, 0 };
+                U16 omega[3] = { 0, 0, 0 };
+                bool ok = dp->unpackU8(value, "agent");
+                if (ok && value)
+                {
+                    ok = dp->unpackVector4(collision_plane, "Plane");
+                }
+                ok = ok
+                    && dp->unpackVector3(new_pos_parent, "Pos")
+                    && dp->unpackU16(vel[VX], "VelX")
+                    && dp->unpackU16(vel[VY], "VelY")
+                    && dp->unpackU16(vel[VZ], "VelZ")
+                    && dp->unpackU16(acc[VX], "AccX")
+                    && dp->unpackU16(acc[VY], "AccY")
+                    && dp->unpackU16(acc[VZ], "AccZ")
+                    && dp->unpackU16(val[VX], "ThetaX")
+                    && dp->unpackU16(val[VY], "ThetaY")
+                    && dp->unpackU16(val[VZ], "ThetaZ")
+                    && dp->unpackU16(val[VS], "ThetaS")
+                    && dp->unpackU16(omega[VX], "AccX")
+                    && dp->unpackU16(omega[VY], "AccY")
+                    && dp->unpackU16(omega[VZ], "AccZ");
+                if (!ok)
+                {
+                    LL_WARNS("UpdateFail") << "Failed to unpack compressed OUT_TERSE_IMPROVED update for " << getID()
+                        << ", ignoring update" << LL_ENDL;
+                    return retval | MALFORMED_UPDATE;
+                }
+
                 if (value)
                 {
-                    LLVector4 collision_plane;
-                    dp->unpackVector4(collision_plane, "Plane");
                     if (LLVOAvatar* avatarp = asAvatar())
                     {
                         avatarp->setFootPlane(collision_plane);
@@ -1771,34 +1814,19 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     }
                 }
                 test_pos_parent = getPosition();
-                dp->unpackVector3(new_pos_parent, "Pos");
-                dp->unpackU16(val[VX], "VelX");
-                dp->unpackU16(val[VY], "VelY");
-                dp->unpackU16(val[VZ], "VelZ");
-                setVelocity(U16_to_F32(val[VX], -128.f, 128.f),
-                            U16_to_F32(val[VY], -128.f, 128.f),
-                            U16_to_F32(val[VZ], -128.f, 128.f));
-                dp->unpackU16(val[VX], "AccX");
-                dp->unpackU16(val[VY], "AccY");
-                dp->unpackU16(val[VZ], "AccZ");
-                setAcceleration(U16_to_F32(val[VX], -64.f, 64.f),
-                                U16_to_F32(val[VY], -64.f, 64.f),
-                                U16_to_F32(val[VZ], -64.f, 64.f));
-
-                dp->unpackU16(val[VX], "ThetaX");
-                dp->unpackU16(val[VY], "ThetaY");
-                dp->unpackU16(val[VZ], "ThetaZ");
-                dp->unpackU16(val[VS], "ThetaS");
+                setVelocity(U16_to_F32(vel[VX], -128.f, 128.f),
+                            U16_to_F32(vel[VY], -128.f, 128.f),
+                            U16_to_F32(vel[VZ], -128.f, 128.f));
+                setAcceleration(U16_to_F32(acc[VX], -64.f, 64.f),
+                                U16_to_F32(acc[VY], -64.f, 64.f),
+                                U16_to_F32(acc[VZ], -64.f, 64.f));
                 new_rot.mQ[VX] = U16_to_F32(val[VX], -1.f, 1.f);
                 new_rot.mQ[VY] = U16_to_F32(val[VY], -1.f, 1.f);
                 new_rot.mQ[VZ] = U16_to_F32(val[VZ], -1.f, 1.f);
                 new_rot.mQ[VS] = U16_to_F32(val[VS], -1.f, 1.f);
-                dp->unpackU16(val[VX], "AccX");
-                dp->unpackU16(val[VY], "AccY");
-                dp->unpackU16(val[VZ], "AccZ");
-                new_angv.set(U16_to_F32(val[VX], -64.f, 64.f),
-                                    U16_to_F32(val[VY], -64.f, 64.f),
-                                    U16_to_F32(val[VZ], -64.f, 64.f));
+                new_angv.set(U16_to_F32(omega[VX], -64.f, 64.f),
+                                    U16_to_F32(omega[VY], -64.f, 64.f),
+                                    U16_to_F32(omega[VZ], -64.f, 64.f));
                 setAngularVelocity(new_angv);
             }
             break;
@@ -1808,6 +1836,24 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 #ifdef DEBUG_UPDATE_TYPE
                 LL_INFOS() << "CompFull:" << getID() << LL_ENDL;
 #endif
+                // Unpack the fixed header before applying anything, so a truncated
+                // update can't leave the object half updated.
+                LLVector3 vec;
+                U32 value = 0;
+                if (!(dp->unpackU32(crc, "CRC")
+                      && dp->unpackU8(material, "Material")
+                      && dp->unpackU8(click_action, "ClickAction")
+                      && dp->unpackVector3(new_scale, "Scale")
+                      && dp->unpackVector3(new_pos_parent, "Pos")
+                      && dp->unpackVector3(vec, "Rot")
+                      && dp->unpackU32(value, "SpecialCode")
+                      && dp->unpackUUID(owner_id, "Owner")))
+                {
+                    LL_WARNS("UpdateFail") << "Failed to unpack compressed full update header for " << getID()
+                        << ", update type " << update_type << ", ignoring update" << LL_ENDL;
+                    return retval | MALFORMED_UPDATE;
+                }
+
                 setObjectCostStale();
 
                 if (isSelected() && gFloaterTools)
@@ -1815,9 +1861,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     gFloaterTools->dirty();
                 }
 
-                dp->unpackU32(crc, "CRC");
                 mTotalCRC = crc;
-                dp->unpackU8(material, "Material");
                 U8 old_material = getMaterial();
                 if (old_material != material)
                 {
@@ -1827,31 +1871,40 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                         gPipeline.markMoved(mDrawable, false); // undamped
                     }
                 }
-                dp->unpackU8(click_action, "ClickAction");
                 setClickAction(click_action);
-                dp->unpackVector3(new_scale, "Scale");
-                dp->unpackVector3(new_pos_parent, "Pos");
-                LLVector3 vec;
-                dp->unpackVector3(vec, "Rot");
                 new_rot.unpackFromVector3(vec);
                 setAcceleration(LLVector3::zero);
 
-                U32 value;
-                dp->unpackU32(value, "SpecialCode");
                 dp->setPassFlags(value);
-                dp->unpackUUID(owner_id, "Owner");
 
                 mOwnerID = owner_id;
 
+                // Optional fields: on failure log and skip that field.  Once the
+                // buffer is exhausted the remaining fields will fail the same way.
                 if (value & 0x80)
                 {
-                    dp->unpackVector3(new_angv, "Omega");
-                    setAngularVelocity(new_angv);
+                    if (dp->unpackVector3(new_angv, "Omega"))
+                    {
+                        setAngularVelocity(new_angv);
+                    }
+                    else
+                    {
+                        LL_WARNS("UpdateFail") << "Failed to unpack Omega for " << getID() << LL_ENDL;
+                    }
                 }
 
                 if (value & 0x20)
                 {
-                    dp->unpackU32(parent_id, "ParentID");
+                    U32 new_parent_id = 0;
+                    if (dp->unpackU32(new_parent_id, "ParentID"))
+                    {
+                        parent_id = new_parent_id;
+                    }
+                    else
+                    {
+                        // Leave parent_id as the current parent, so parenting is unchanged
+                        LL_WARNS("UpdateFail") << "Failed to unpack ParentID for " << getID() << LL_ENDL;
+                    }
                 }
                 else
                 {
@@ -1862,7 +1915,13 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 {
                     delete [] mData;
                     mData = new U8[1];
-                    dp->unpackU8(((U8*)mData)[0], "TreeData");
+                    ((U8*)mData)[0] = 0;
+                    if (!dp->unpackU8(((U8*)mData)[0], "TreeData"))
+                    {
+                        LL_WARNS("UpdateFail") << "Failed to unpack TreeData for " << getID() << LL_ENDL;
+                        delete [] mData;
+                        mData = NULL;
+                    }
                 }
                 else if (value & 0x1)
                 {
@@ -1920,19 +1979,25 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     mData = NULL;
                 }
 
+                std::string temp_string;
+                LLColor4U coloru;
+                bool has_text = (value & 0x4) != 0;
+                if (has_text &&
+                    !(dp->unpackString(temp_string, "Text") &&
+                      dp->unpackBinaryDataFixed(coloru.mV, 4, "Color")))
+                {
+                    LL_WARNS("UpdateFail") << "Failed to unpack Text for " << getID() << LL_ENDL;
+                    has_text = false;
+                }
+
                 // Setup object text
-                if (!mText && (value & 0x4))
+                if (!mText && has_text)
                 {
                     initHudText();
                 }
 
-                if (value & 0x4)
+                if (has_text)
                 {
-                    std::string temp_string;
-                    dp->unpackString(temp_string, "Text");
-
-                    LLColor4U coloru;
-                    dp->unpackBinaryDataFixed(coloru.mV, 4, "Color");
                     coloru.mV[3] = 255 - coloru.mV[3];
                     mText->setColor(LLColor4(coloru));
                     mText->setString(temp_string);
@@ -1953,9 +2018,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 }
 
                 std::string media_url;
-                if (value & 0x200)
+                if ((value & 0x200) && !dp->unpackString(media_url, "MediaURL"))
                 {
-                    dp->unpackString(media_url, "MediaURL");
+                    LL_WARNS("UpdateFail") << "Failed to unpack MediaURL for " << getID() << LL_ENDL;
+                    media_url.clear();
                 }
                 retval |= checkMediaURL(media_url);
 
@@ -1978,8 +2044,12 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 }
 
                 // Unpack extra params
-                U8 num_parameters;
-                dp->unpackU8(num_parameters, "num_params");
+                U8 num_parameters = 0;
+                if (!dp->unpackU8(num_parameters, "num_params"))
+                {
+                    LL_WARNS("UpdateFail") << "Failed to unpack num_params for " << getID() << " with compressed message" << LL_ENDL;
+                    num_parameters = 0;
+                }
                 U8 param_block[MAX_OBJECT_PARAMS_SIZE];
                 for (U8 param=0; param<num_parameters; ++param)
                 {
@@ -2009,18 +2079,30 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
                 if (value & 0x10)
                 {
-                    dp->unpackUUID(sound_uuid, "SoundUUID");
-                    dp->unpackF32(gain, "SoundGain");
-                    dp->unpackU8(sound_flags, "SoundFlags");
-                    dp->unpackF32(cutoff, "SoundRadius");
+                    if (!(dp->unpackUUID(sound_uuid, "SoundUUID")
+                          && dp->unpackF32(gain, "SoundGain")
+                          && dp->unpackU8(sound_flags, "SoundFlags")
+                          && dp->unpackF32(cutoff, "SoundRadius")))
+                    {
+                        LL_WARNS("UpdateFail") << "Failed to unpack sound for " << getID() << LL_ENDL;
+                        sound_uuid.setNull();
+                        gain = 0;
+                        sound_flags = 0;
+                        cutoff = 0;
+                    }
                 }
 
                 if (value & 0x100)
                 {
                     std::string name_value_list;
-                    dp->unpackString(name_value_list, "NV");
-
-                    setNameValueList(name_value_list);
+                    if (dp->unpackString(name_value_list, "NV"))
+                    {
+                        setNameValueList(name_value_list);
+                    }
+                    else
+                    {
+                        LL_WARNS("UpdateFail") << "Failed to unpack NameValue for " << getID() << LL_ENDL;
+                    }
                 }
 
                 mTotalCRC = crc;
