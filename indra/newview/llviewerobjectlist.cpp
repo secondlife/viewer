@@ -309,7 +309,7 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
     }
 
     LLViewerObject *objectp;
-    U32             local_id;
+    U32             local_id = 0;
     LLPCode         pcode = 0;
     LLUUID          fullid;
     LLViewerStatsRecorder& recorder = LLViewerStatsRecorder::instance();
@@ -323,6 +323,17 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
     cached_dpp->unpackU8(pcode, "PCode");
 
     objectp = findObject(fullid);
+
+    // An object's type never changes, so a mismatch means bad cached data:
+    // applying it would unpack one object type's data into another.
+    if (objectp && objectp->getPCode() != pcode)
+    {
+        LL_WARNS("ObjectUpdate") << "Ignoring cached update for " << fullid << " local_id " << entry->getLocalID()
+            << ": PCode " << (S32)pcode << " does not match existing object PCode " << (S32)objectp->getPCode()
+            << ", region " << regionp->getName() << " " << regionp->getHost() << LL_ENDL;
+        recorder.objectUpdateFailure();
+        return NULL;
+    }
 
     if (objectp)
     {
@@ -574,6 +585,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
             update_cache = true;
             mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_FullID, fullid, i);
             mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
+            mesgsys->getU8Fast(_PREHASH_ObjectData, _PREHASH_PCode, pcode, i);
             LL_DEBUGS("ObjectUpdate") << "Full Update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << LL_ENDL;
         }
         objectp = findObject(fullid);
@@ -590,6 +602,20 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
         {
             //update object cache if the object receives a full-update or terse update
             objectp = regionp->updateCacheEntry(local_id, objectp);
+        }
+
+        // Full updates carry a PCode.  An object's type never changes, so a
+        // mismatch means bad data: applying it would unpack one object type's
+        // data into another (e.g. avatar data into a prim).
+        if (objectp && pcode != 0 && objectp->getPCode() != pcode)
+        {
+            LL_WARNS("ObjectUpdate") << "Discarding ObjectData block " << i << " of " << num_objects
+                << " for " << fullid << " local_id " << local_id
+                << ": PCode " << (S32)pcode << " does not match existing object PCode " << (S32)objectp->getPCode()
+                << ", update_type " << (S32)update_type
+                << ", region " << regionp->getName() << " " << regionp->getHost() << LL_ENDL;
+            recorder.objectUpdateFailure();
+            continue;
         }
 
         // This looks like it will break if the local_id of the object doesn't change
@@ -646,9 +672,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
                     recorder.objectUpdateFailure();
                     continue;
                 }
-
-                mesgsys->getU8Fast(_PREHASH_ObjectData, _PREHASH_PCode, pcode, i);
-
             }
 #ifdef IGNORE_DEAD
             if (mDeadObjects.find(fullid) != mDeadObjects.end())
