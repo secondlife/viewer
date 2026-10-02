@@ -451,18 +451,17 @@ LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
     {
         std::lock_guard<std::mutex> lock(mCircuitMutex);
         mCircuitData.insert(circuit_data_map::value_type(host, tempp));
+        mPingSet.insert(tempp);
+        mLastCircuit = tempp;
     }
-    mPingSet.insert(tempp);
-
-    mLastCircuit = tempp;
     return tempp;
 }
 
 void LLCircuit::removeCircuitData(const LLHost &host)
 {
     LL_INFOS() << "LLCircuit::removeCircuitData for " << host << LL_ENDL;
-    mLastCircuit = NULL;
     std::lock_guard<std::mutex> lock(mCircuitMutex);
+    mLastCircuit = NULL;
     circuit_data_map::iterator it = mCircuitData.find(host);
     if(it != mCircuitData.end())
     {
@@ -593,6 +592,7 @@ void LLCircuit::resendUnackedPackets(S32& unacked_list_length, S32& unacked_list
     unacked_list_length = 0;
     unacked_list_size = 0;
 
+    std::lock_guard<std::mutex> lock(mCircuitMutex);
     LLCircuitData* circ;
     circuit_data_map::iterator end = mUnackedCircuitMap.end();
     for(circuit_data_map::iterator it = mUnackedCircuitMap.begin(); it != end; ++it)
@@ -612,6 +612,7 @@ bool LLCircuitData::isDuplicateResend(TPACKETID packetnum)
 
 void LLCircuit::dumpResends()
 {
+    std::lock_guard<std::mutex> lock(mCircuitMutex);
     circuit_data_map::iterator end = mCircuitData.end();
     for(circuit_data_map::iterator it = mCircuitData.begin(); it != end; ++it)
     {
@@ -788,16 +789,27 @@ void LLCircuitData::checkPacketInID(TPACKETID id, bool receive_resent)
 void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 {
     F64Seconds cur_time = LLMessageSystem::getMessageTimeSeconds();
-    size_t count = mPingSet.size();
+    size_t count;
+    {
+        std::lock_guard<std::mutex> lock(mCircuitMutex);
+        count = mPingSet.size();
+    }
     size_t cur = 0;
 
     // Only process each circuit once at most, stop processing if no circuits
-    while((cur < count) && !mPingSet.empty())
+    while(cur < count)
     {
         cur++;
 
-        LLCircuit::ping_set_t::iterator psit = mPingSet.begin();
-        LLCircuitData *cdp = *psit;
+        LLCircuitData *cdp;
+        {
+            std::lock_guard<std::mutex> lock(mCircuitMutex);
+            if (mPingSet.empty())
+            {
+                break;
+            }
+            cdp = *mPingSet.begin();
+        }
 
         if (!cdp->mbAlive)
         {
@@ -806,9 +818,12 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
             // Skip over dead circuits, just add the ping interval and push it to the back
             // Always remember to remove it from the set before changing the sorting
             // key (mNextPingSendTime)
-            mPingSet.erase(psit);
-            cdp->mNextPingSendTime = cur_time + mHeartbeatInterval;
-            mPingSet.insert(cdp);
+            {
+                std::lock_guard<std::mutex> lock(mCircuitMutex);
+                mPingSet.erase(cdp);
+                cdp->mNextPingSendTime = cur_time + mHeartbeatInterval;
+                mPingSet.insert(cdp);
+            }
             continue;
         }
         else
@@ -829,9 +844,12 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 
                 // Remove it, and reinsert it with the new next ping time.
                 // Always remove before changing the sorting key.
-                mPingSet.erase(psit);
-                cdp->mNextPingSendTime = cur_time + dt;
-                mPingSet.insert(cdp);
+                {
+                    std::lock_guard<std::mutex> lock(mCircuitMutex);
+                    mPingSet.erase(cdp);
+                    cdp->mNextPingSendTime = cur_time + dt;
+                    mPingSet.insert(cdp);
+                }
 
                 // Update our throttles
                 cdp->mThrottles.dynamicAdjust();

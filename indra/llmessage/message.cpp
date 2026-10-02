@@ -888,6 +888,7 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
                 if (!cdp->getUnackedPacketCount())
                 {
                     // Remove this circuit from the list of circuits with unacked packets
+                    std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
                     mCircuitInfo.mUnackedCircuitMap.erase(cdp->mHost);
                 }
             }
@@ -1319,6 +1320,7 @@ S32 LLMessageSystem::bufferInboundPacket()
                 }
                 if (!cdp->getUnackedPacketCount())
                 {
+                    std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
                     mCircuitInfo.mUnackedCircuitMap.erase(cdp->mHost);
                 }
             }
@@ -1776,6 +1778,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
         {
             // We are adding the first packed onto the unacked packet list(s)
             // Add this circuit to the list of circuits with unacked packets
+            std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
             mCircuitInfo.mUnackedCircuitMap[cdp->mHost] = cdp;
         }
 
@@ -2790,6 +2793,7 @@ void    process_packet_ack(LLMessageSystem *msgsystem, void** /*user_data*/)
         if (!cdp->getUnackedPacketCount())
         {
             // Remove this circuit from the list of circuits with unacked packets
+            std::lock_guard<std::mutex> lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
             gMessageSystem->mCircuitInfo.mUnackedCircuitMap.erase(host);
         }
     }
