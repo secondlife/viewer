@@ -580,7 +580,30 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
             }
 
             // process the message as normal
-            mIncomingCompressedSize = zeroCodeExpand(&buffer, &receive_size);
+            S32 expanded_size = receive_size;
+            mIncomingCompressedSize = zeroCodeExpand(&buffer, &expanded_size);
+            if (mIncomingCompressedSize < 0 || expanded_size < (S32)LL_MINIMUM_VALID_PACKET_SIZE)
+            {
+                // Expansion failed, or left too little to hold a message number:
+                // drop the packet rather than decode garbage.  Leave receive_size
+                // alone so that the loop goes on to the next packet.
+                if (mCircuitInfo.findCircuit(getSender()))
+                {
+                    LL_WARNS("Messaging") << "Discarding packet from " << getSender() << " that failed zero-code expansion"
+                        << ", size " << receive_size << " expanded to " << expanded_size << LL_ENDL;
+                    mInvalidOnCircuitPackets++;
+                }
+                else
+                {
+                    LL_DEBUGS("Messaging") << "Discarding packet from off-circuit host " << getSender()
+                        << " that failed zero-code expansion" << LL_ENDL;
+                    mOffCircuitPackets++;
+                }
+                mIncomingCompressedSize = 0;
+                valid_packet = false;
+                continue;
+            }
+            receive_size = expanded_size;
             mCurrentRecvPacketID = ntohl(*((U32*)(&buffer[1])));
             LLHost host = getSender();
 
@@ -3113,6 +3136,12 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
                 << getSender() << LL_ENDL;
             mOffCircuitPackets++;
         }
+    }
+
+    if (overflow)
+    {
+        // Leave *data and *data_size alone: the caller must drop the packet
+        return -1;
     }
 
     *data = mEncodedRecvBuffer;

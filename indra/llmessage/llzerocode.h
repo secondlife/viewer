@@ -136,9 +136,8 @@ namespace LLZeroCode
     // cleared from dst[0]).
     //
     // If expansion would write past dst_capacity - which only a malformed or
-    // malicious packet should cause - decoding is aborted, *overflow is set
-    // true, and the returned size reflects however much (if anything) was
-    // salvaged; the caller should treat the packet as invalid.
+    // malicious packet should cause - decoding is aborted, overflow is set
+    // true, and 0 is returned; the caller should treat the packet as invalid.
     inline U32 decode(const U8* src, U32 src_size, U8* dst, U32 dst_capacity, U32 header_size, bool& overflow)
     {
         overflow = false;
@@ -161,9 +160,12 @@ namespace LLZeroCode
 
         // reconstruct the body: a 0x00 byte starts a run; the byte(s) that
         // follow give its length (see the wire format described above).
+        // The bounds checks compare the bytes written so far, plus the bytes about
+        // to be written, against dst_capacity, so they can't wrap around when
+        // dst_capacity is small.
         while (count--)
         {
-            if (outptr > &dst[dst_capacity - 1])
+            if ((U32)(outptr - dst) + 1 > dst_capacity)
             {
                 overflow = true;
                 outptr = dst;
@@ -174,7 +176,7 @@ namespace LLZeroCode
             {
                 while ((count--) && (!(*inptr)))
                 {
-                    if (outptr > &dst[dst_capacity - 256])
+                    if ((U32)(outptr - dst) + 256 > dst_capacity)
                     {
                         overflow = true;
                         outptr = dst;
@@ -192,10 +194,11 @@ namespace LLZeroCode
                 }
                 else
                 {
-                    if (outptr > &dst[dst_capacity - (*inptr)])
+                    if ((U32)(outptr - dst) + (*inptr) > dst_capacity)
                     {
                         overflow = true;
                         outptr = dst;
+                        break;
                     }
                     memset(outptr, 0, (*inptr) - 1);
                     outptr += ((*inptr) - 1);

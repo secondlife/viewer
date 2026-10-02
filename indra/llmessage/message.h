@@ -603,6 +603,7 @@ public:
 
     //void  buildMessage();
 
+    // Returns the compressed size, 0 if data isn't zero-coded, or -1 if it couldn't be expanded
     S32     zeroCodeExpand(U8 **data, S32 *data_size);
 
     // Uses ping-based retry
