@@ -6833,7 +6833,13 @@ bool LLViewerObject::unpackParameterEntry(U16 param_type, LLDataPacker *dp)
     ExtraParameter* param = getExtraParameterEntryCreate(param_type);
     if (param)
     {
-        param->data->unpack(*dp);
+        if (!param->data->unpack(*dp))
+        {
+            // Leave it marked unused, so a formerly used param is turned off
+            LL_WARNS("UpdateFail") << "Failed to unpack extra param type " << llformat("0x%04x", param_type)
+                << " for " << getID() << LL_ENDL;
+            return false;
+        }
         *param->in_use = true;
         parameterChanged(param_type, param->data, true, false);
         return true;

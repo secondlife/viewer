@@ -1738,20 +1738,22 @@ bool LLLightParams::pack(LLDataPacker &dp) const
 
 bool LLLightParams::unpack(LLDataPacker &dp)
 {
+    // Unpack everything before changing anything, so a failure leaves this unchanged
     LLColor4U color;
-    dp.unpackColor4U(color, "color");
+    F32 radius = 0.f;
+    F32 cutoff = 0.f;
+    F32 falloff = 0.f;
+    if (!(dp.unpackColor4U(color, "color")
+          && dp.unpackF32(radius, "radius")
+          && dp.unpackF32(cutoff, "cutoff")
+          && dp.unpackF32(falloff, "falloff")))
+    {
+        return false;
+    }
+
     setLinearColor(LLColor4(color));
-
-    F32 radius;
-    dp.unpackF32(radius, "radius");
     setRadius(radius);
-
-    F32 cutoff;
-    dp.unpackF32(cutoff, "cutoff");
     setCutoff(cutoff);
-
-    F32 falloff;
-    dp.unpackF32(falloff, "falloff");
     setFalloff(falloff);
 
     return true;
@@ -1844,16 +1846,20 @@ bool LLReflectionProbeParams::pack(LLDataPacker &dp) const
 
 bool LLReflectionProbeParams::unpack(LLDataPacker &dp)
 {
-    F32 ambiance;
-    F32 clip_distance;
+    // Unpack everything before changing anything, so a failure leaves this unchanged
+    F32 ambiance = 0.f;
+    F32 clip_distance = 0.f;
+    U8 flags = 0;
+    if (!(dp.unpackF32(ambiance, "ambiance")
+          && dp.unpackF32(clip_distance, "clip_distance")
+          && dp.unpackU8(flags, "flags")))
+    {
+        return false;
+    }
 
-    dp.unpackF32(ambiance, "ambiance");
     setAmbiance(ambiance);
-
-    dp.unpackF32(clip_distance, "clip_distance");
     setClipDistance(clip_distance);
-
-    dp.unpackU8(mFlags, "flags");
+    mFlags = flags;
 
     return true;
 }
@@ -1981,23 +1987,29 @@ bool LLFlexibleObjectData::pack(LLDataPacker &dp) const
 
 bool LLFlexibleObjectData::unpack(LLDataPacker &dp)
 {
-    U8 tension, friction, gravity, wind;
-    U8 bit1, bit2;
-    dp.unpackU8(tension, "tension");    bit1 = (tension >> 6) & 2;
-                                        mTension = ((F32)(tension&0x7f))/10.f;
-    dp.unpackU8(friction, "drag");      bit2 = (friction >> 7) & 1;
-                                        mAirFriction = ((F32)(friction&0x7f))/10.f;
-                                        mSimulateLOD = bit1 | bit2;
-    dp.unpackU8(gravity, "gravity");    mGravity = ((F32)gravity)/10.f - 10.f;
-    dp.unpackU8(wind, "wind");          mWindSensitivity = ((F32)wind)/10.f;
-    if (dp.hasNext())
+    // Unpack everything before changing anything, so a failure leaves this unchanged
+    U8 tension = 0, friction = 0, gravity = 0, wind = 0;
+    LLVector3 user_force; // optional, defaults to zero
+    if (!(dp.unpackU8(tension, "tension")
+          && dp.unpackU8(friction, "drag")
+          && dp.unpackU8(gravity, "gravity")
+          && dp.unpackU8(wind, "wind")))
     {
-        dp.unpackVector3(mUserForce, "userforce");
+        return false;
     }
-    else
+    if (dp.hasNext() && !dp.unpackVector3(user_force, "userforce"))
     {
-        mUserForce.setVec(0.f, 0.f, 0.f);
+        return false;
     }
+
+    U8 bit1 = (tension >> 6) & 2;
+    U8 bit2 = (friction >> 7) & 1;
+    mTension = ((F32)(tension&0x7f))/10.f;
+    mAirFriction = ((F32)(friction&0x7f))/10.f;
+    mSimulateLOD = bit1 | bit2;
+    mGravity = ((F32)gravity)/10.f - 10.f;
+    mWindSensitivity = ((F32)wind)/10.f;
+    mUserForce = user_force;
     return true;
 }
 
@@ -2104,10 +2116,13 @@ bool LLSculptParams::pack(LLDataPacker &dp) const
 
 bool LLSculptParams::unpack(LLDataPacker &dp)
 {
-    U8 type;
+    U8 type = 0;
     LLUUID id;
-    dp.unpackUUID(id, "texture");
-    dp.unpackU8(type, "type");
+    if (!(dp.unpackUUID(id, "texture")
+          && dp.unpackU8(type, "type")))
+    {
+        return false;
+    }
 
     setSculptTexture(id, type);
     return true;
@@ -2204,8 +2219,17 @@ bool LLLightImageParams::pack(LLDataPacker &dp) const
 
 bool LLLightImageParams::unpack(LLDataPacker &dp)
 {
-    dp.unpackUUID(mLightTexture, "texture");
-    dp.unpackVector3(mParams, "params");
+    // Unpack everything before changing anything, so a failure leaves this unchanged
+    LLUUID light_texture;
+    LLVector3 params;
+    if (!(dp.unpackUUID(light_texture, "texture")
+          && dp.unpackVector3(params, "params")))
+    {
+        return false;
+    }
+
+    mLightTexture = light_texture;
+    mParams = params;
 
     return true;
 }
@@ -2279,7 +2303,13 @@ bool LLExtendedMeshParams::pack(LLDataPacker &dp) const
 
 bool LLExtendedMeshParams::unpack(LLDataPacker &dp)
 {
-    dp.unpackU32(mFlags, "flags");
+    U32 flags = 0;
+    if (!dp.unpackU32(flags, "flags"))
+    {
+        return false;
+    }
+
+    mFlags = flags;
 
     return true;
 }
@@ -2349,14 +2379,23 @@ bool LLRenderMaterialParams::pack(LLDataPacker& dp) const
 
 bool LLRenderMaterialParams::unpack(LLDataPacker& dp)
 {
-    U8 count;
-    dp.unpackU8(count, "count");
-    mEntries.resize(count);
-    for (auto& entry : mEntries)
+    // Unpack everything before changing anything, so a failure leaves this unchanged
+    U8 count = 0;
+    if (!dp.unpackU8(count, "count"))
     {
-        dp.unpackU8(entry.te_idx, "te_idx");
-        dp.unpackUUID(entry.id, "te_id");
+        return false;
     }
+    std::vector<Entry> entries(count);
+    for (auto& entry : entries)
+    {
+        if (!(dp.unpackU8(entry.te_idx, "te_idx")
+              && dp.unpackUUID(entry.id, "te_id")))
+        {
+            return false;
+        }
+    }
+
+    mEntries.swap(entries);
 
     return true;
 }
