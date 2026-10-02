@@ -295,7 +295,7 @@ bool LLDataPackerBinaryBuffer::packBinaryData(const U8 *value, S32 size, const c
 
 bool LLDataPackerBinaryBuffer::unpackBinaryData(U8 *value, S32 value_size, S32 &out_size, const char *name)
 {
-    if (!verifyLength(4, name))
+    if (!verifyReadLength(4, name))
     {
         LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData would unpack invalid data, aborting!" << LL_ENDL;
         out_size = 0;
@@ -320,7 +320,7 @@ bool LLDataPackerBinaryBuffer::unpackBinaryData(U8 *value, S32 value_size, S32 &
 
     mCurBufferp += 4;
 
-    if (!verifyLength(out_size, name))
+    if (!verifyReadLength(out_size, name))
     {
         LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData field " << name << " size " << out_size
             << " exceeds remaining " << (mBufferSize - (S32)(mCurBufferp - mBufferp)) << " bytes, aborting!" << LL_ENDL;
@@ -364,7 +364,7 @@ bool LLDataPackerBinaryBuffer::packBinaryDataFixed(const U8 *value, S32 size, co
 
 bool LLDataPackerBinaryBuffer::unpackBinaryDataFixed(U8 *value, S32 size, const char *name)
 {
-    if (!verifyLength(size, name))
+    if (!verifyReadLength(size, name))
     {
         return false;
     }
@@ -392,7 +392,7 @@ bool LLDataPackerBinaryBuffer::packU8(const U8 value, const char *name)
 
 bool LLDataPackerBinaryBuffer::unpackU8(U8 &value, const char *name)
 {
-    if (!verifyLength(sizeof(U8), name))
+    if (!verifyReadLength(sizeof(U8), name))
     {
         return false;
     }
@@ -421,7 +421,7 @@ bool LLDataPackerBinaryBuffer::packU16(const U16 value, const char *name)
 
 bool LLDataPackerBinaryBuffer::unpackU16(U16 &value, const char *name)
 {
-    if (!verifyLength(sizeof(U16), name))
+    if (!verifyReadLength(sizeof(U16), name))
     {
         return false;
     }
@@ -445,13 +445,13 @@ bool LLDataPackerBinaryBuffer::packS16(const S16 value, const char *name)
 
 bool LLDataPackerBinaryBuffer::unpackS16(S16 &value, const char *name)
 {
-    bool success = verifyLength(sizeof(S16), name);
+    bool success = verifyReadLength(sizeof(S16), name);
 
     if (success)
     {
         htolememcpy(&value, mCurBufferp, MVT_S16, 2);
+        mCurBufferp += 2;
     }
-    mCurBufferp += 2;
     return success;
 }
 
@@ -473,7 +473,7 @@ bool LLDataPackerBinaryBuffer::packU32(const U32 value, const char *name)
 
 bool LLDataPackerBinaryBuffer::unpackU32(U32 &value, const char *name)
 {
-    if (!verifyLength(sizeof(U32), name))
+    if (!verifyReadLength(sizeof(U32), name))
     {
         return false;
     }
@@ -502,7 +502,7 @@ bool LLDataPackerBinaryBuffer::packS32(const S32 value, const char *name)
 
 bool LLDataPackerBinaryBuffer::unpackS32(S32 &value, const char *name)
 {
-    if(!verifyLength(sizeof(S32), name))
+    if(!verifyReadLength(sizeof(S32), name))
     {
         return false;
     }
@@ -531,7 +531,7 @@ bool LLDataPackerBinaryBuffer::packF32(const F32 value, const char *name)
 
 bool LLDataPackerBinaryBuffer::unpackF32(F32 &value, const char *name)
 {
-    if (!verifyLength(sizeof(F32), name))
+    if (!verifyReadLength(sizeof(F32), name))
     {
         return false;
     }
@@ -560,7 +560,7 @@ bool LLDataPackerBinaryBuffer::packColor4(const LLColor4 &value, const char *nam
 
 bool LLDataPackerBinaryBuffer::unpackColor4(LLColor4 &value, const char *name)
 {
-    if (!verifyLength(16, name))
+    if (!verifyReadLength(16, name))
     {
         return false;
     }
@@ -589,7 +589,7 @@ bool LLDataPackerBinaryBuffer::packColor4U(const LLColor4U &value, const char *n
 
 bool LLDataPackerBinaryBuffer::unpackColor4U(LLColor4U &value, const char *name)
 {
-    if (!verifyLength(4, name))
+    if (!verifyReadLength(4, name))
     {
         return false;
     }
@@ -620,7 +620,7 @@ bool LLDataPackerBinaryBuffer::packVector2(const LLVector2 &value, const char *n
 
 bool LLDataPackerBinaryBuffer::unpackVector2(LLVector2 &value, const char *name)
 {
-    if (!verifyLength(8, name))
+    if (!verifyReadLength(8, name))
     {
         return false;
     }
@@ -650,7 +650,7 @@ bool LLDataPackerBinaryBuffer::packVector3(const LLVector3 &value, const char *n
 
 bool LLDataPackerBinaryBuffer::unpackVector3(LLVector3 &value, const char *name)
 {
-    if (!verifyLength(12, name))
+    if (!verifyReadLength(12, name))
     {
         return false;
     }
@@ -678,7 +678,7 @@ bool LLDataPackerBinaryBuffer::packVector4(const LLVector4 &value, const char *n
 
 bool LLDataPackerBinaryBuffer::unpackVector4(LLVector4 &value, const char *name)
 {
-    if (!verifyLength(16, name))
+    if (!verifyReadLength(16, name))
     {
         return false;
     }
@@ -706,7 +706,7 @@ bool LLDataPackerBinaryBuffer::packUUID(const LLUUID &value, const char *name)
 
 bool LLDataPackerBinaryBuffer::unpackUUID(LLUUID &value, const char *name)
 {
-    if (!verifyLength(16, name))
+    if (!verifyReadLength(16, name))
     {
         return false;
     }

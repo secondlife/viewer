@@ -201,6 +201,7 @@ public:
     /*virtual*/ void dumpBufferToLog();
 protected:
     inline bool verifyLength(const S32 data_size, const char *name);
+    inline bool verifyReadLength(const S32 data_size, const char *name);
 
     U8 *mBufferp;
     U8 *mCurBufferp;
@@ -211,7 +212,22 @@ inline bool LLDataPackerBinaryBuffer::verifyLength(const S32 data_size, const ch
 {
     if (mWriteEnabled && (mCurBufferp - mBufferp) > mBufferSize - data_size)
     {
-        LL_WARNS() << "Buffer overflow in BinaryBuffer length verify, field name " << name << "!" << LL_ENDL;
+        LL_WARNS() << "Buffer overflow in BinaryBuffer length verify, field name '" << name << "'!" << LL_ENDL;
+        LL_WARNS() << "Current pos: " << (int)(mCurBufferp - mBufferp) << " Buffer size: " << mBufferSize << " Data size: " << data_size << LL_ENDL;
+        return false;
+    }
+
+    return true;
+}
+
+// verifyLength() skips the check when writes are disabled, so that packing into a
+// NULL buffer can measure the packed size.  Unpacking always reads from the buffer,
+// so it must always check, and fail if there's no buffer.
+inline bool LLDataPackerBinaryBuffer::verifyReadLength(const S32 data_size, const char *name)
+{
+    if (!mBufferp || (mCurBufferp - mBufferp) > mBufferSize - data_size)
+    {
+        LL_WARNS() << "Buffer overflow in BinaryBuffer read length verify, field name '" << name << "'!" << LL_ENDL;
         LL_WARNS() << "Current pos: " << (int)(mCurBufferp - mBufferp) << " Buffer size: " << mBufferSize << " Data size: " << data_size << LL_ENDL;
         return false;
     }
