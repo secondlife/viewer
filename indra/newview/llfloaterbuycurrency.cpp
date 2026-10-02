@@ -338,11 +338,17 @@ void LLFloaterBuyCurrency::handleBuyCurrency(bool has_piof, bool has_target, con
     }
     else
     {
-        const std::string& grid_id = LLGridManager::getInstance()->getGridId();
-        const std::string& grid_id_lower = utf8str_tolower(grid_id);
-        const std::string url = gSavedSettings.getString(grid_id_lower == "damballah" ? "PaymentMethodStagingURL" : "PaymentMethodURL");
-        LLWeb::loadURL(url);
+        openPaymentMethodPage();
     }
+}
+
+// static
+void LLFloaterBuyCurrency::openPaymentMethodPage()
+{
+    const std::string& grid_id = LLGridManager::getInstance()->getGridId();
+    const std::string& grid_id_lower = utf8str_tolower(grid_id);
+    const std::string url = gSavedSettings.getString(grid_id_lower == "damballah" ? "PaymentMethodStagingURL" : "PaymentMethodURL");
+    LLWeb::loadURL(url);
 }
 
 LLFetchAvatarPaymentInfo::LLFetchAvatarPaymentInfo(bool has_target, const std::string& name, S32 price)
@@ -350,6 +356,20 @@ LLFetchAvatarPaymentInfo::LLFetchAvatarPaymentInfo(bool has_target, const std::s
     mHasTarget(has_target),
     mPrice(price),
     mName(name)
+{
+    sendRequest();
+}
+
+LLFetchAvatarPaymentInfo::LLFetchAvatarPaymentInfo(const callback_t& cb)
+:   mAvatarID(gAgent.getID()),
+    mHasTarget(false),
+    mPrice(0),
+    mCallback(cb)
+{
+    sendRequest();
+}
+
+void LLFetchAvatarPaymentInfo::sendRequest()
 {
     LLAvatarPropertiesProcessor* processor = LLAvatarPropertiesProcessor::getInstance();
     // register ourselves as an observer
@@ -369,6 +389,16 @@ void LLFetchAvatarPaymentInfo::processProperties(void* data, EAvatarProcessorTyp
     if (data && type == APT_PROPERTIES)
     {
         LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
-        LLFloaterBuyCurrency::handleBuyCurrency(LLAvatarPropertiesProcessor::hasPaymentInfoOnFile(avatar_data), mHasTarget, mName, mPrice);
+        bool has_piof = LLAvatarPropertiesProcessor::hasPaymentInfoOnFile(avatar_data);
+        if (mCallback)
+        {
+            // call a local copy, since the callback may delete this observer
+            callback_t cb = mCallback;
+            cb(has_piof);
+        }
+        else
+        {
+            LLFloaterBuyCurrency::handleBuyCurrency(has_piof, mHasTarget, mName, mPrice);
+        }
     }
 }

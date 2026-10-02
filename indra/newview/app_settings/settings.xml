@@ -1194,6 +1194,17 @@
       <key>Value</key>
       <string>https://accounts.secondlife.com/packs/floater?lang=[LANGUAGE]&amp;shortfall=[SHORTFALL]</string>
     </map>
+    <key>BuyCurrencyAddPaymentURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL the viewer probes at login; a 200 means the L$ packs floater handles residents without a payment method</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://accounts.secondlife.com/packs/floater/add-payment-enabled</string>
+    </map>
     <key>PaymentMethodURL</key>
     <map>
       <key>Comment</key>
