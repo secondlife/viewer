@@ -395,6 +395,25 @@ int run_producer(int argc, char** argv)
 
     log_info("SLVlcProducer: starting");
 
+#if defined(__APPLE__)
+    // Windows' libvlc.dll auto-discovers its own sibling "plugins\" folder via the
+    // OS's standard DLL search-path convention (the directory a DLL loaded from is
+    // searched first) -- confirmed working there with no extra configuration. The
+    // vendored libvlc.dylib/libvlccore.dylib we bundle for macOS makes no such
+    // assumption on its own: without VLC_PLUGIN_PATH set, libvlc_new() can't locate
+    // any of its plugins/*.dylib modules at all, which silently cripples it entirely
+    // (no demux/access/logger module ever loads -- confirmed via real testing,
+    // 2026-10-02: even a minimal, argument-safe libvlc_new() call with no custom
+    // options at all still failed outright on macOS). Must be set before libvlc_new()
+    // is ever called -- see LibVlcTabManager's own constructor just below. Not needed
+    // on Linux: that platform links the SYSTEM's own installed libvlc (no bundled
+    // copy, no plugins/ directory sitting next to this executable at all -- see
+    // viewer_manifest.py's own Linux SLVlcProducer block), which already has its own
+    // correct default plugin path compiled in; pointing VLC_PLUGIN_PATH at a
+    // nonexistent local directory there would make things worse, not better.
+    setenv("VLC_PLUGIN_PATH", (exe_dir / "plugins").string().c_str(), 1);
+#endif
+
     // Owns the one shared libvlc_instance_t for the whole process (created in its
     // constructor, released in its destructor) -- no separate process-wide
     // Initialize()/Shutdown() dance the way CEF needs, and no subprocess re-exec model
