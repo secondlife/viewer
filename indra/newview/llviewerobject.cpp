@@ -1858,24 +1858,65 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     parent_id = 0;
                 }
 
-                S32 sp_size;
-                U32 size;
                 if (value & 0x2)
                 {
-                    sp_size = 1;
                     delete [] mData;
                     mData = new U8[1];
                     dp->unpackU8(((U8*)mData)[0], "TreeData");
                 }
                 else if (value & 0x1)
                 {
-                    dp->unpackU32(size, "ScratchPadSize");
                     delete [] mData;
-                    mData = new U8[size];
-                    dp->unpackBinaryData((U8 *)mData, size, sp_size, "PartData");
+                    mData = NULL;
+
+                    U32 size = 0;
+                    if (!dp->unpackU32(size, "ScratchPadSize"))
+                    {
+                        LL_WARNS("UpdateFail") << "Failed to unpack ScratchPadSize for " << getID() << LL_ENDL;
+                    }
+                    else
+                    {
+                        // The size comes from the server: never allocate more than
+                        // the packer could possibly hold.
+                        S32 remaining = 0;
+                        if (LLDataPackerBinaryBuffer* binary_dp = dynamic_cast<LLDataPackerBinaryBuffer*>(dp))
+                        {
+                            remaining = binary_dp->getBufferSize() - binary_dp->getCurrentSize();
+                        }
+
+                        S32 sp_size = 0;
+                        if (size == 0 || size > (U32)llmax(remaining, 0))
+                        {
+                            LL_WARNS("UpdateFail") << "Invalid ScratchPadSize " << size << " with " << remaining
+                                << " bytes remaining for " << getID() << LL_ENDL;
+                            // Skip past the data so following fields still parse
+                            U8 discard;
+                            dp->unpackBinaryData(&discard, 0, sp_size, "PartData");
+                        }
+                        else
+                        {
+                            mData = new U8[size];
+                            if (!dp->unpackBinaryData((U8 *)mData, size, sp_size, "PartData"))
+                            {
+                                LL_WARNS("UpdateFail") << "Failed to unpack PartData of ScratchPadSize " << size
+                                    << " for " << getID() << LL_ENDL;
+                                delete [] mData;
+                                mData = NULL;
+                            }
+                            else if (sp_size != (S32)size)
+                            {
+                                // Don't keep a buffer that is partly uninitialized
+                                LL_WARNS("UpdateFail") << "PartData size " << sp_size << " does not match ScratchPadSize "
+                                    << size << " for " << getID() << LL_ENDL;
+                                delete [] mData;
+                                mData = NULL;
+                            }
+                        }
+                    }
                 }
                 else
                 {
+                    delete [] mData;
                     mData = NULL;
                 }
 
