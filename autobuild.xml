@@ -1463,11 +1463,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c68378e218d9200f41009c146f0d83ae88e773b4</string>
+              <string>7d002cac578bd19ace1693c089514a559e75517c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llshmframe/releases/download/v1.21.0/llshmframe-1.22.0-windows64-35290372370.tar.zst</string>
+              <string>https://github.com/secondlife/llshmframe/releases/download/v1.22.0/llshmframe-1.23.0-windows64-36943825281.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1477,11 +1477,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e2d748e72bda00358bd65b50635c722a0dc60652</string>
+              <string>0880d10ab64248e57a941e2daec3514f31f20baf</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llshmframe/releases/download/v1.21.0/llshmframe-1.22.0-darwin64-35290372370.tar.zst</string>
+              <string>https://github.com/secondlife/llshmframe/releases/download/v1.22.0/llshmframe-1.23.0-darwin64-36943825281.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1491,18 +1491,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>212592732e44a1e416703a3b576cb008c42b35fb</string>
+              <string>e96aca48124351fc1c420e75337f553a2f39fe34</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llshmframe/releases/download/v1.21.0/llshmframe-1.22.0-linux64-35290372370.tar.zst</string>
+              <string>https://github.com/secondlife/llshmframe/releases/download/v1.22.0/llshmframe-1.23.0-linux64-36943825281.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.22.0</string>
+        <string>1.23.0</string>
       </map>
       <key>lsl_definitions</key>
       <map>
