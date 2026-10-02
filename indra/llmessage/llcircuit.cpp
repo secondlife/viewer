@@ -191,6 +191,7 @@ LLCircuitData::~LLCircuitData()
 
 void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     reliable_iter iter;
     LLReliablePacket *packetp;
 
@@ -281,6 +282,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
     // I'm not going to worry about this for now - djs
     //
 
+    std::lock_guard<std::mutex> lock(mDataMutex);
     reliable_iter iter;
     bool have_resend_overflow = false;
     for (iter = mUnackedPackets.begin(); iter != mUnackedPackets.end();)
@@ -446,16 +448,19 @@ LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
     // This should really validate if one already exists
     LL_INFOS() << "LLCircuit::addCircuitData for " << host << LL_ENDL;
     LLCircuitData *tempp = new LLCircuitData(host, in_id, mHeartbeatInterval, mHeartbeatTimeout);
-    mCircuitData.insert(circuit_data_map::value_type(host, tempp));
-    mPingSet.insert(tempp);
-
-    mLastCircuit = tempp;
+    {
+        std::lock_guard<std::mutex> lock(mCircuitMutex);
+        mCircuitData.insert(circuit_data_map::value_type(host, tempp));
+        mPingSet.insert(tempp);
+        mLastCircuit = tempp;
+    }
     return tempp;
 }
 
 void LLCircuit::removeCircuitData(const LLHost &host)
 {
     LL_INFOS() << "LLCircuit::removeCircuitData for " << host << LL_ENDL;
+    std::lock_guard<std::mutex> lock(mCircuitMutex);
     mLastCircuit = NULL;
     circuit_data_map::iterator it = mCircuitData.find(host);
     if(it != mCircuitData.end())
@@ -549,6 +554,7 @@ void LLCircuitData::checkPeriodTime()
 
 void LLCircuitData::addBytesIn(S32Bytes bytes)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     mBytesIn += bytes;
     mBytesInThisPeriod += bytes;
 }
@@ -556,6 +562,7 @@ void LLCircuitData::addBytesIn(S32Bytes bytes)
 
 void LLCircuitData::addBytesOut(S32Bytes bytes)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     mBytesOut += bytes;
     mBytesOutThisPeriod += bytes;
 }
@@ -563,6 +570,7 @@ void LLCircuitData::addBytesOut(S32Bytes bytes)
 
 void LLCircuitData::addReliablePacket(S32 mSocket, U8 *buf_ptr, S32 buf_len, LLReliablePacketParams *params)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     LLReliablePacket *packet_info;
 
     packet_info = new LLReliablePacket(mSocket, buf_ptr, buf_len, params);
@@ -587,6 +595,7 @@ void LLCircuit::resendUnackedPackets(S32& unacked_list_length, S32& unacked_list
     unacked_list_length = 0;
     unacked_list_size = 0;
 
+    std::lock_guard<std::mutex> lock(mCircuitMutex);
     LLCircuitData* circ;
     circuit_data_map::iterator end = mUnackedCircuitMap.end();
     for(circuit_data_map::iterator it = mUnackedCircuitMap.begin(); it != end; ++it)
@@ -600,12 +609,14 @@ void LLCircuit::resendUnackedPackets(S32& unacked_list_length, S32& unacked_list
 
 bool LLCircuitData::isDuplicateResend(TPACKETID packetnum)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     return (mRecentlyReceivedReliablePackets.find(packetnum) != mRecentlyReceivedReliablePackets.end());
 }
 
 
 void LLCircuit::dumpResends()
 {
+    std::lock_guard<std::mutex> lock(mCircuitMutex);
     circuit_data_map::iterator end = mCircuitData.end();
     for(circuit_data_map::iterator it = mCircuitData.begin(); it != end; ++it)
     {
@@ -615,6 +626,7 @@ void LLCircuit::dumpResends()
 
 LLCircuitData* LLCircuit::findCircuit(const LLHost& host) const
 {
+    std::lock_guard<std::mutex> lock(mCircuitMutex);
     // An optimization on finding the previously found circuit.
     if (mLastCircuit && (mLastCircuit->mHost == host))
     {
@@ -650,6 +662,7 @@ void LLCircuitData::setTimeoutCallback(void (*callback_func)(const LLHost &host,
 
 void LLCircuitData::checkPacketInID(TPACKETID id, bool receive_resent)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     // Done as floats so we don't have to worry about running out of room
     // with U32 getting poked into an S32.
     F32 delta = (F32)mHighestPacketID - (F32)id;
@@ -780,16 +793,27 @@ void LLCircuitData::checkPacketInID(TPACKETID id, bool receive_resent)
 void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 {
     F64Seconds cur_time = LLMessageSystem::getMessageTimeSeconds();
-    size_t count = mPingSet.size();
+    size_t count;
+    {
+        std::lock_guard<std::mutex> lock(mCircuitMutex);
+        count = mPingSet.size();
+    }
     size_t cur = 0;
 
     // Only process each circuit once at most, stop processing if no circuits
-    while((cur < count) && !mPingSet.empty())
+    while(cur < count)
     {
         cur++;
 
-        LLCircuit::ping_set_t::iterator psit = mPingSet.begin();
-        LLCircuitData *cdp = *psit;
+        LLCircuitData *cdp;
+        {
+            std::lock_guard<std::mutex> lock(mCircuitMutex);
+            if (mPingSet.empty())
+            {
+                break;
+            }
+            cdp = *mPingSet.begin();
+        }
 
         if (!cdp->mbAlive)
         {
@@ -798,9 +822,12 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
             // Skip over dead circuits, just add the ping interval and push it to the back
             // Always remember to remove it from the set before changing the sorting
             // key (mNextPingSendTime)
-            mPingSet.erase(psit);
-            cdp->mNextPingSendTime = cur_time + mHeartbeatInterval;
-            mPingSet.insert(cdp);
+            {
+                std::lock_guard<std::mutex> lock(mCircuitMutex);
+                mPingSet.erase(cdp);
+                cdp->mNextPingSendTime = cur_time + mHeartbeatInterval;
+                mPingSet.insert(cdp);
+            }
             continue;
         }
         else
@@ -821,9 +848,12 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 
                 // Remove it, and reinsert it with the new next ping time.
                 // Always remove before changing the sorting key.
-                mPingSet.erase(psit);
-                cdp->mNextPingSendTime = cur_time + dt;
-                mPingSet.insert(cdp);
+                {
+                    std::lock_guard<std::mutex> lock(mCircuitMutex);
+                    mPingSet.erase(cdp);
+                    cdp->mNextPingSendTime = cur_time + dt;
+                    mPingSet.insert(cdp);
+                }
 
                 // Update our throttles
                 cdp->mThrottles.dynamicAdjust();
@@ -865,85 +895,88 @@ bool LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
     // This is to handle the case if we actually manage to wrap our
     // packet IDs - the oldest will actually have a higher packet ID
     // than the current.
-    bool wrapped = false;
-    reliable_iter iter;
-    iter = mUnackedPackets.upper_bound(getPacketOutID());
-    if (iter == mUnackedPackets.end())
-    {
-        // Nothing AFTER this one, so we want the lowest packet ID
-        // then.
-        iter = mUnackedPackets.begin();
-        wrapped = true;
-    }
 
     TPACKETID packet_id = 0;
+    {
+        std::lock_guard<std::mutex> lock(mDataMutex);
+        bool wrapped = false;
+        reliable_iter iter;
+        iter = mUnackedPackets.upper_bound(getPacketOutID());
+        if (iter == mUnackedPackets.end())
+        {
+            // Nothing AFTER this one, so we want the lowest packet ID
+            // then.
+            iter = mUnackedPackets.begin();
+            wrapped = true;
+        }
 
-    // Check against the "final" packets
-    bool wrapped_final = false;
-    reliable_iter iter_final;
-    iter_final = mFinalRetryPackets.upper_bound(getPacketOutID());
-    if (iter_final == mFinalRetryPackets.end())
-    {
-        iter_final = mFinalRetryPackets.begin();
-        wrapped_final = true;
-    }
+        // Check against the "final" packets
+        bool wrapped_final = false;
+        reliable_iter iter_final;
+        iter_final = mFinalRetryPackets.upper_bound(getPacketOutID());
+        if (iter_final == mFinalRetryPackets.end())
+        {
+            iter_final = mFinalRetryPackets.begin();
+            wrapped_final = true;
+        }
 
-    //LL_INFOS() << mHost << " - unacked count " << mUnackedPackets.size() << LL_ENDL;
-    //LL_INFOS() << mHost << " - final count " << mFinalRetryPackets.size() << LL_ENDL;
-    if (wrapped != wrapped_final)
-    {
-        // One of the "unacked" or "final" lists hasn't wrapped.  Whichever one
-        // hasn't has the oldest packet.
-        if (!wrapped)
+        //LL_INFOS() << mHost << " - unacked count " << mUnackedPackets.size() << LL_ENDL;
+        //LL_INFOS() << mHost << " - final count " << mFinalRetryPackets.size() << LL_ENDL;
+        if (wrapped != wrapped_final)
         {
-            // Hasn't wrapped, so the one on the
-            // unacked packet list is older
-            packet_id = iter->first;
-            //LL_INFOS() << mHost << ": nowrapped unacked" << LL_ENDL;
-        }
-        else
-        {
-            packet_id = iter_final->first;
-            //LL_INFOS() << mHost << ": nowrapped final" << LL_ENDL;
-        }
-    }
-    else
-    {
-        // They both wrapped, we can just use the minimum of the two.
-        if ((iter == mUnackedPackets.end()) && (iter_final == mFinalRetryPackets.end()))
-        {
-            // Wow!  No unacked packets at all!
-            // Send the ID of the last packet we sent out.
-            // This will flush all of the destination's
-            // unacked packets, theoretically.
-            //LL_INFOS() << mHost << ": No unacked!" << LL_ENDL;
-            packet_id = getPacketOutID();
-        }
-        else
-        {
-            bool had_unacked = false;
-            if (iter != mUnackedPackets.end())
+            // One of the "unacked" or "final" lists hasn't wrapped.  Whichever one
+            // hasn't has the oldest packet.
+            if (!wrapped)
             {
-                // Unacked list has the lowest so far
+                // Hasn't wrapped, so the one on the
+                // unacked packet list is older
                 packet_id = iter->first;
-                had_unacked = true;
-                //LL_INFOS() << mHost << ": Unacked" << LL_ENDL;
+                //LL_INFOS() << mHost << ": nowrapped unacked" << LL_ENDL;
             }
-
-            if (iter_final != mFinalRetryPackets.end())
+            else
             {
-                // Use the lowest of the unacked list and the final list
-                if (had_unacked)
+                packet_id = iter_final->first;
+                //LL_INFOS() << mHost << ": nowrapped final" << LL_ENDL;
+            }
+        }
+        else
+        {
+            // They both wrapped, we can just use the minimum of the two.
+            if ((iter == mUnackedPackets.end()) && (iter_final == mFinalRetryPackets.end()))
+            {
+                // Wow!  No unacked packets at all!
+                // Send the ID of the last packet we sent out.
+                // This will flush all of the destination's
+                // unacked packets, theoretically.
+                //LL_INFOS() << mHost << ": No unacked!" << LL_ENDL;
+                packet_id = getPacketOutID();
+            }
+            else
+            {
+                bool had_unacked = false;
+                if (iter != mUnackedPackets.end())
                 {
-                    // Both had a packet, use the lowest.
-                    packet_id = llmin(packet_id, iter_final->first);
-                    //LL_INFOS() << mHost << ": Min of unacked/final" << LL_ENDL;
+                    // Unacked list has the lowest so far
+                    packet_id = iter->first;
+                    had_unacked = true;
+                    //LL_INFOS() << mHost << ": Unacked" << LL_ENDL;
                 }
-                else
+
+                if (iter_final != mFinalRetryPackets.end())
                 {
-                    // Only the final had a packet, use it.
-                    packet_id = iter_final->first;
-                    //LL_INFOS() << mHost << ": Final!" << LL_ENDL;
+                    // Use the lowest of the unacked list and the final list
+                    if (had_unacked)
+                    {
+                        // Both had a packet, use the lowest.
+                        packet_id = llmin(packet_id, iter_final->first);
+                        //LL_INFOS() << mHost << ": Min of unacked/final" << LL_ENDL;
+                    }
+                    else
+                    {
+                        // Only the final had a packet, use it.
+                        packet_id = iter_final->first;
+                        //LL_INFOS() << mHost << ": Final!" << LL_ENDL;
+                    }
                 }
             }
         }
@@ -994,6 +1027,7 @@ bool LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 
 void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     // purge old data from the duplicate suppression queue
 
     // we want to KEEP all x where oldest_id <= x <= last incoming packet, and delete everything else.
@@ -1069,6 +1103,8 @@ bool LLCircuitData::checkCircuitTimeout()
 // correctly place the packet in the correct list to be acked later.
 bool LLCircuitData::collectRAck(TPACKETID packet_num)
 {
+    std::lock_guard<std::mutex> circuit_lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
+    std::lock_guard<std::mutex> data_lock(mDataMutex);
     if (mAcks.empty())
     {
         // First extra ack, we need to add ourselves to the list of circuits that need to send acks
@@ -1088,55 +1124,69 @@ bool LLCircuitData::collectRAck(TPACKETID packet_num)
 void LLCircuit::sendAcks(F32 collect_time)
 {
     collect_time = llclamp(collect_time, 0.f, LL_COLLECT_ACK_TIME_MAX);
-    LLCircuitData* cd;
-    circuit_data_map::iterator it = mSendAckMap.begin();
-    while (it != mSendAckMap.end())
+    std::vector<LLCircuitData*> circuits_to_flush; // Collect while holding mCircuitMutex
     {
-        circuit_data_map::iterator cur_it = it++;
-        cd = (*cur_it).second;
-        S32 count = (S32)cd->mAcks.size();
-        F32 age = cd->getAgeInSeconds() - cd->mAckCreationTime;
-        if (age > collect_time || count == 0)
+        std::lock_guard<std::mutex> circuit_lock(mCircuitMutex);
+        circuit_data_map::iterator it = mSendAckMap.begin();
+        while (it != mSendAckMap.end())
         {
-            if (count>0)
+            circuit_data_map::iterator cur_it = it++;
+            LLCircuitData* cd = (*cur_it).second;
+            std::lock_guard<std::mutex> data_lock(cd->mDataMutex);
+            S32 count = (S32)cd->mAcks.size();
+            F32 age = cd->getAgeInSeconds() - cd->mAckCreationTime;
+            if (age > collect_time || count == 0)
             {
-                // send the packet acks
-                S32 acks_this_packet = 0;
-                for(S32 i = 0; i < count; ++i)
+                if (count > 0)
                 {
-                    if(acks_this_packet == 0)
-                    {
-                        gMessageSystem->newMessageFast(_PREHASH_PacketAck);
-                    }
-                    gMessageSystem->nextBlockFast(_PREHASH_Packets);
-                    gMessageSystem->addU32Fast(_PREHASH_ID, cd->mAcks[i]);
-                    ++acks_this_packet;
-                    if(acks_this_packet > 250)
-                    {
-                        gMessageSystem->sendMessage(cd->mHost);
-                        acks_this_packet = 0;
-                    }
+                    circuits_to_flush.push_back(cd);
                 }
-                if(acks_this_packet > 0)
-                {
-                    gMessageSystem->sendMessage(cd->mHost);
-                }
-
-                if(gMessageSystem->mVerboseLog)
-                {
-                    std::ostringstream str;
-                    str << "MSG: -> " << cd->mHost << "\tPACKET ACKS:\t";
-                    std::ostream_iterator<TPACKETID> append(str, " ");
-                    std::copy(cd->mAcks.begin(), cd->mAcks.end(), append);
-                    LL_INFOS() << str.str() << LL_ENDL;
-                }
-
-                // empty out the acks list
-                cd->mAcks.clear();
-                cd->mAckCreationTime = 0.f;
+                // remove data map
+                mSendAckMap.erase(cur_it);
             }
-            // remove data map
-            mSendAckMap.erase(cur_it);
+        }
+    }
+
+    for (LLCircuitData* cd : circuits_to_flush)
+    {
+        std::vector<TPACKETID> acks;
+        {
+            std::lock_guard<std::mutex> data_lock(cd->mDataMutex);
+            acks.swap(cd->mAcks);
+            cd->mAckCreationTime = 0.f;
+        }
+
+        S32 count = (S32)acks.size();
+
+        // send the packet acks
+        S32 acks_this_packet = 0;
+        for (S32 i = 0; i < count; ++i)
+        {
+            if (acks_this_packet == 0)
+            {
+                gMessageSystem->newMessageFast(_PREHASH_PacketAck);
+            }
+            gMessageSystem->nextBlockFast(_PREHASH_Packets);
+            gMessageSystem->addU32Fast(_PREHASH_ID, acks[i]);
+            ++acks_this_packet;
+            if (acks_this_packet > 250)
+            {
+                gMessageSystem->sendMessage(cd->mHost);
+                acks_this_packet = 0;
+            }
+        }
+        if (acks_this_packet > 0)
+        {
+            gMessageSystem->sendMessage(cd->mHost);
+        }
+
+        if (gMessageSystem->mVerboseLog)
+        {
+            std::ostringstream str;
+            str << "MSG: -> " << cd->mHost << "\tPACKET ACKS:\t";
+            std::ostream_iterator<TPACKETID> append(str, " ");
+            std::copy(acks.begin(), acks.end(), append);
+            LL_INFOS() << str.str() << LL_ENDL;
         }
     }
 }

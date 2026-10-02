@@ -40,8 +40,6 @@
 #include "llagent.h"
 #include "llavatarnamecache.h"
 #include "llui.h"
-#include "message.h"
-#include "roles_constants.h"
 #include "lltransactiontypes.h"
 #include "llstatusbar.h"
 #include "llviewerwindow.h"
@@ -51,10 +49,13 @@
 #include "lluictrlfactory.h"
 #include "lltrans.h"
 #include "llviewerregion.h"
-#include <boost/regex.hpp>
 #include "llcorehttputil.h"
 #include "lluiusage.h"
+#include "message.h"
+#include "roles_constants.h"
+#include "workqueue.h"
 
+#include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 
 const U32 MAX_CACHED_GROUPS = 20;
@@ -1090,34 +1091,48 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
     msg->getBOOL("GroupData", "MaturePublish", mature);
     msg->getUUID(_PREHASH_GroupData, "OwnerRole", owner_role);
 
-    LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->createGroupData(group_id);
-
-    group_datap->mName = name;
-    group_datap->mCharter = charter;
-    group_datap->mShowInList = show_in_list;
-    group_datap->mInsigniaID = insignia_id;
-    group_datap->mFounderID = founder_id;
-    group_datap->mMembershipFee = membership_fee;
-    group_datap->mOpenEnrollment = open_enrollment;
-    group_datap->mAllowPublish = allow_publish;
-    group_datap->mMaturePublish = mature;
-    group_datap->mOwnerRole = owner_role;
-    group_datap->mMemberCount = num_group_members;
-    group_datap->mRoleCount = num_group_roles + 1; // Add the everyone role.
-
-    group_datap->mGroupPropertiesDataComplete = true;
-    group_datap->mChanged = true;
-
-    properties_request_map_t::iterator request = LLGroupMgr::getInstance()->mPropRequests.find(group_id);
-    if (request != LLGroupMgr::getInstance()->mPropRequests.end())
+    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+    if (!main_queue)
     {
-        LLGroupMgr::getInstance()->mPropRequests.erase(request);
+        LL_ERRS() << "LLGroupMgr::processGroupPropertiesReply() - no main queue!" << LL_ENDL;
+        return;
     }
-    else
+
+    main_queue->post(
+        [group_id, name, charter, show_in_list, founder_id, insignia_id,
+        membership_fee, open_enrollment, num_group_members, num_group_roles,
+        allow_publish, mature, owner_role]()
     {
-        LL_DEBUGS("GrpMgr") << "GroupPropertyResponse received with no pending request. Response was slow." << LL_ENDL;
-    }
-    LLGroupMgr::getInstance()->notifyObservers(GC_PROPERTIES);
+        LL_PROFILE_ZONE_NAMED("groupPropertiesReply");
+        LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->createGroupData(group_id);
+
+        group_datap->mName = name;
+        group_datap->mCharter = charter;
+        group_datap->mShowInList = show_in_list;
+        group_datap->mInsigniaID = insignia_id;
+        group_datap->mFounderID = founder_id;
+        group_datap->mMembershipFee = membership_fee;
+        group_datap->mOpenEnrollment = open_enrollment;
+        group_datap->mAllowPublish = allow_publish;
+        group_datap->mMaturePublish = mature;
+        group_datap->mOwnerRole = owner_role;
+        group_datap->mMemberCount = num_group_members;
+        group_datap->mRoleCount = num_group_roles + 1; // Add the everyone role.
+
+        group_datap->mGroupPropertiesDataComplete = true;
+        group_datap->mChanged = true;
+
+        properties_request_map_t::iterator request = LLGroupMgr::getInstance()->mPropRequests.find(group_id);
+        if (request != LLGroupMgr::getInstance()->mPropRequests.end())
+        {
+            LLGroupMgr::getInstance()->mPropRequests.erase(request);
+        }
+        else
+        {
+            LL_DEBUGS("GrpMgr") << "GroupPropertyResponse received with no pending request. Response was slow." << LL_ENDL;
+        }
+        LLGroupMgr::getInstance()->notifyObservers(GC_PROPERTIES);
+    });
 }
 
 // static
@@ -1379,7 +1394,17 @@ void LLGroupMgr::processEjectGroupMemberReply(LLMessageSystem* msg, void ** data
     // If we had a failure, the group panel needs to be updated.
     if (!success)
     {
-        LLGroupActions::refresh(group_id);
+        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+        if (!main_queue)
+        {
+            LL_ERRS() << "LLGroupMgr::processEjectGroupMemberReply() - no main queue!" << LL_ENDL;
+            return;
+        }
+        main_queue->post(
+            [group_id]()
+        {
+            LLGroupActions::refresh(group_id);
+        });
     }
 }
 
@@ -1394,12 +1419,23 @@ void LLGroupMgr::processJoinGroupReply(LLMessageSystem* msg, void ** data)
 
     if (success)
     {
-        // refresh all group information
-        gAgent.sendAgentDataUpdateRequest();
+        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+        if (!main_queue)
+        {
+            LL_ERRS() << "LLGroupMgr::processJoinGroupReply() - no main queue!" << LL_ENDL;
+            return;
+        }
 
-        LLGroupMgr::getInstance()->clearGroupData(group_id);
-        // refresh the floater for this group, if any.
-        LLGroupActions::refresh(group_id);
+        main_queue->post(
+            [group_id]()
+        {
+            // refresh all group information
+            gAgent.sendAgentDataUpdateRequest();
+
+            LLGroupMgr::getInstance()->clearGroupData(group_id);
+            // refresh the floater for this group, if any.
+            LLGroupActions::refresh(group_id);
+        });
     }
 }
 
@@ -1414,12 +1450,23 @@ void LLGroupMgr::processLeaveGroupReply(LLMessageSystem* msg, void ** data)
 
     if (success)
     {
-        // refresh all group information
-        gAgent.sendAgentDataUpdateRequest();
+        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+        if (!main_queue)
+        {
+            LL_ERRS() << "LLGroupMgr::processLeaveGroupReply() - no main queue!" << LL_ENDL;
+            return;
+        }
 
-        LLGroupMgr::getInstance()->clearGroupData(group_id);
-        // close the floater for this group, if any.
-        LLGroupActions::closeGroup(group_id);
+        main_queue->post(
+            [group_id]()
+        {
+            // refresh all group information
+            gAgent.sendAgentDataUpdateRequest();
+
+            LLGroupMgr::getInstance()->clearGroupData(group_id);
+            // close the floater for this group, if any.
+            LLGroupActions::closeGroup(group_id);
+        });
     }
 }
 
@@ -1435,36 +1482,47 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
     msg->getBOOLFast(_PREHASH_ReplyData, _PREHASH_Success,  success );
     msg->getStringFast(_PREHASH_ReplyData, _PREHASH_Message, message );
 
-    if (success)
+    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+    if (!main_queue)
     {
-        // refresh all group information
-        gAgent.sendAgentDataUpdateRequest();
-
-        // HACK! We haven't gotten the agent group update yet, so ... um ... fake it.
-        // This is so when we go to modify the group we will be able to do so.
-        // This isn't actually too bad because real data will come down in 2 or 3 miliseconds and replace this.
-        LLGroupData gd;
-        gd.mAcceptNotices = true;
-        gd.mListInProfile = true;
-        gd.mContribution = 0;
-        gd.mID = group_id;
-        gd.mName = "new group";
-        gd.mPowers = GP_ALL_POWERS;
-
-        gAgent.mGroups.push_back(gd);
-
-        LLPanelGroupCreate::refreshCreatedGroup(group_id);
-        //FIXME
-        //LLFloaterGroupInfo::closeCreateGroup();
-        //LLFloaterGroupInfo::showFromUUID(group_id,"roles_tab");
+        LL_ERRS() << "LLGroupMgr::processCreateGroupReply() - no main queue!" << LL_ENDL;
+        return;
     }
-    else
+
+    main_queue->post(
+        [group_id, success, message]()
     {
-        // *TODO: Translate
-        LLSD args;
-        args["MESSAGE"] = message;
-        LLNotificationsUtil::add("UnableToCreateGroup", args);
-    }
+        if (success)
+        {
+            // refresh all group information
+            gAgent.sendAgentDataUpdateRequest();
+
+            // HACK! We haven't gotten the agent group update yet, so ... um ... fake it.
+            // This is so when we go to modify the group we will be able to do so.
+            // This isn't actually too bad because real data will come down in 2 or 3 miliseconds and replace this.
+            LLGroupData gd;
+            gd.mAcceptNotices = true;
+            gd.mListInProfile = true;
+            gd.mContribution = 0;
+            gd.mID = group_id;
+            gd.mName = "new group";
+            gd.mPowers = GP_ALL_POWERS;
+
+            gAgent.mGroups.push_back(gd);
+
+            LLPanelGroupCreate::refreshCreatedGroup(group_id);
+            //FIXME
+            //LLFloaterGroupInfo::closeCreateGroup();
+            //LLFloaterGroupInfo::showFromUUID(group_id,"roles_tab");
+        }
+        else
+        {
+            // *TODO: Translate
+            LLSD args;
+            args["MESSAGE"] = message;
+            LLNotificationsUtil::add("UnableToCreateGroup", args);
+        }
+    });
 }
 
 LLGroupMgrGroupData* LLGroupMgr::createGroupData(const LLUUID& id)

@@ -44,6 +44,7 @@
 #include "llxfermanager.h"
 #include "llfilesystem.h"
 #include "lldbstrings.h"
+#include "workqueue.h"
 
 #include "lltransfersourceasset.h"
 #include "lltransfertargetvfile.h" // For debugging
@@ -349,7 +350,7 @@ void LLAssetStorage::_init(LLMessageSystem *msg,
     mXferManager = xfer;
 
     setUpstream(upstream_host);
-    msg->setHandlerFuncFast(_PREHASH_AssetUploadComplete, processUploadComplete, (void **)this);
+    msg->setHandlerFuncThrdFast(_PREHASH_AssetUploadComplete, processUploadComplete, (void **)this);
 }
 
 LLAssetStorage::~LLAssetStorage()
@@ -362,7 +363,7 @@ LLAssetStorage::~LLAssetStorage()
     {
         // Warning!  This won't work if there's more than one asset storage.
         // unregister our callbacks with the message system
-        gMessageSystem->setHandlerFuncFast(_PREHASH_AssetUploadComplete, NULL, NULL);
+        gMessageSystem->setHandlerFuncThrdFast(_PREHASH_AssetUploadComplete, NULL, NULL);
     }
 
     // Clear the toxic asset map
@@ -1016,6 +1017,8 @@ void LLAssetStorage::uploadCompleteCallback(
 
 void LLAssetStorage::processUploadComplete(LLMessageSystem *msg, void **user_data)
 {
+    // Note that this gets called on an UDP thread, not main thread!
+    // See LLUDPReceiverThread
     LLAssetStorage  *this_ptr = (LLAssetStorage *)user_data;
     LLUUID          uuid;
     S8              asset_type_s8;
@@ -1027,11 +1030,29 @@ void LLAssetStorage::processUploadComplete(LLMessageSystem *msg, void **user_dat
     msg->getBOOLFast(_PREHASH_AssetBlock, _PREHASH_Success, success);
 
     asset_type = (LLAssetType::EType)asset_type_s8;
-    this_ptr->_callUploadCallbacks(uuid, asset_type, success, LLExtStat::NONE);
+    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+    if (main_queue)
+    {
+        main_queue->post(
+            [uuid, asset_type, success]()
+        {
+            if (gAssetStorage)
+            {
+                gAssetStorage->_callUploadCallbacks(uuid, asset_type, success, LLExtStat::NONE);
+            }
+        });
+    }
+    else
+    {
+        // Shouldn't happen, by the time we have network we also have work queue,
+        // and shutdown should have network before work queue is destroyed.
+        LL_ERRS() << "LLAssetStorage::processUploadComplete() - no main queue!" << LL_ENDL;
+    }
 }
 
 void LLAssetStorage::_callUploadCallbacks(const LLUUID &uuid, LLAssetType::EType asset_type, bool success, LLExtStat ext_status )
 {
+    LL_PROFILE_ZONE_SCOPED;
     // SJB: We process the callbacks in reverse order, I do not know if this is important,
     //      but I didn't want to mess with it.
     request_list_t requests;

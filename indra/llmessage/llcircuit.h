@@ -124,8 +124,16 @@ public:
     TPACKETID   getPacketOutID() const;
     bool        getTrusted() const;
     F32         getAgeInSeconds() const;
-    S32         getUnackedPacketCount() const   { return mUnackedPacketCount; }
-    S32         getUnackedPacketBytes() const   { return mUnackedPacketBytes; }
+    S32             getUnackedPacketCount() const
+    {
+        std::lock_guard<std::mutex> lock(mDataMutex);
+        return mUnackedPacketCount;
+    }
+    S32             getUnackedPacketBytes() const
+    {
+        std::lock_guard<std::mutex> lock(mDataMutex);
+        return mUnackedPacketBytes;
+    }
     F64Seconds  getNextPingSendTime() const { return mNextPingSendTime; }
     U32         getLastPacketGap() const { return mLastPacketGap; }
     LLHost      getHost() const { return mHost; }
@@ -279,6 +287,11 @@ protected:
 
     const F32Seconds mHeartbeatInterval;
     const F32Seconds mHeartbeatTimeout;
+
+    // This mutex guards mUnackedPackets, mFinalRetryPackets,
+    // mRecentlyReceivedReliablePackets, mAcks,
+    // mPacketsInID, mHighestPacketID, counters
+    mutable std::mutex mDataMutex;
 };
 
 
@@ -331,6 +344,10 @@ public:
     // HACK - this should become protected eventually, but stupid !@$@# message system/circuit classes are jumbling things up.
     circuit_data_map mUnackedCircuitMap; // Map of circuits with unacked data
     circuit_data_map mSendAckMap; // Map of circuits which need to send acks
+
+    // This mutex guards mCircuitData, mUnackedCircuitMap,
+    // mSendAckMap, mPingSet, mLastCircuit
+    mutable std::mutex mCircuitMutex;
 protected:
     circuit_data_map mCircuitData;
 
