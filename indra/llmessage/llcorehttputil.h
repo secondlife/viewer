@@ -484,7 +484,6 @@ public:
             headers);
     }
 
-
     /// Execute a DELETE transaction on the supplied URL and yield execution of
     /// the coroutine until a result is available.
     ///

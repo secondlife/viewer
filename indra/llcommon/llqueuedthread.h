@@ -141,6 +141,7 @@ public:
     size_t updateQueue(F32 max_time_ms);
 
     void waitOnPending();
+    void waitOnPending(F32 max_time_sec);
     void printQueueStats();
 
     virtual size_t getPending();

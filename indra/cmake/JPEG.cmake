@@ -11,6 +11,9 @@ use_prebuilt_binary(libjpeg-turbo)
 
 find_library(JPEG_LIBRARY
     NAMES
+    jpeg
+    jpeg-static
+    jpeg-static.lib
     jpeg.lib
     libjpeg.a
     PATHS "${ARCH_PREBUILT_DIRS_RELEASE}" REQUIRED NO_DEFAULT_PATH)

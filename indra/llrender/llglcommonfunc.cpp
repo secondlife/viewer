@@ -24,6 +24,8 @@
 * $/LicenseInfo$
 */
 
+#include "linden_common.h"
+
 #include "llglheaders.h"
 #include "llglcommonfunc.h"
 

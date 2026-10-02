@@ -33,6 +33,7 @@
 #include "llaudioengine.h"
 #include "lllistener_openal.h"
 #include "llwindgen.h"
+#include "llatomic.h"
 
 class LLAudioEngine_OpenAL : public LLAudioEngine
 {
@@ -46,6 +47,7 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
         virtual void allocateListener();
 
         virtual void shutdown();
+        virtual void idle();
 
         void setInternalGain(F32 gain);
 
@@ -68,6 +70,23 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
 
         static const int MAX_NUM_WIND_BUFFERS = 80;
         static const float WIND_BUFFER_SIZE_SEC; // 1/20th sec
+
+        ALCdevice* mALDevice;
+
+        bool mHasReopenExt;
+        LPALCREOPENDEVICESOFT mReopenDeviceSOFT;
+
+        bool mHasSystemEventsExt;
+        LPALCEVENTCONTROLSOFT mEventControlSOFT;
+        LPALCEVENTCALLBACKSOFT mEventCallbackSOFT;
+
+        // Set by onDeviceEventSOFT(), consumed by idle()
+        LLAtomicBool mDefaultDeviceChanged;
+
+        static void ALC_APIENTRY onDeviceEventSOFT(ALCenum eventType, ALCenum deviceType,
+                                                     ALCdevice* device, ALCsizei length,
+                                                     const ALCchar* message, void* userParam) noexcept;
+        void reopenOnDefaultDevice();
 };
 
 class LLAudioChannelOpenAL : public LLAudioChannel

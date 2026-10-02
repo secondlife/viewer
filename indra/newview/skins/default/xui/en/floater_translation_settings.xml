@@ -228,7 +228,7 @@
   height="20"
   layout="topleft"
   left_pad="10"
-  max_length_chars="50"
+  max_length_chars="100"
   top_delta="-4"
   name="azure_api_key"
   width="210" />

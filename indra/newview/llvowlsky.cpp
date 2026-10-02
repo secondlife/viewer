@@ -36,17 +36,16 @@
 #include "llenvironment.h"
 #include "llsettingssky.h"
 
-constexpr U32 MIN_SKY_DETAIL = 8;
-constexpr U32 MAX_SKY_DETAIL = 180;
+constexpr U32 SKY_DETAIL = 18; // Any lower and there will be artifacts
 
 inline U32 LLVOWLSky::getNumStacks(void)
 {
-    return llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, gSavedSettings.getU32("WLSkyDetail")));
+    return SKY_DETAIL;
 }
 
 inline U32 LLVOWLSky::getNumSlices(void)
 {
-    return 2 * llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, gSavedSettings.getU32("WLSkyDetail")));
+    return 2 * SKY_DETAIL;
 }
 
 inline U32 LLVOWLSky::getStripsNumVerts(void)

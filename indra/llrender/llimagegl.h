@@ -111,6 +111,7 @@ public:
 protected:
     virtual ~LLImageGL();
 
+    static bool analyzeAlphaData(const void* data_in, U32 w, U32 h, S8 alpha_offset, S8 alpha_stride);
     void analyzeAlpha(const void* data_in, U32 w, U32 h);
     void calcAlphaChannelOffsetAndStride();
 
@@ -242,6 +243,7 @@ private:
 
     bool mIsMask;
     bool mNeedsAlphaAndPickMask;
+    LLAtomicU32 mAlphaAnalysisSerial; // for request tracking.
     S8   mAlphaStride ;
     S8   mAlphaOffset ;
 
@@ -285,7 +287,6 @@ public:
     // Global memory statistics
     static U32 sBindCount;                  // Tracks number of texture binds for current frame
     static U32 sUniqueCount;                // Tracks number of unique texture binds for current frame
-    static bool sGlobalUseAnisotropic;
     static LLImageGL* sDefaultGLTexture ;
     static bool sAutomatedTest;
     static bool sCompressTextures;          //use GL texture compression

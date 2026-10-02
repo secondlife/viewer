@@ -4992,9 +4992,6 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	<string name="Command_Grid_Status_Label">
 		Status świata
 	</string>
-	<string name="Command_HowTo_Label">
-		Samouczek
-	</string>
 	<string name="Command_Inventory_Label">
 		Szafa
 	</string>
@@ -5075,9 +5072,6 @@ Spróbuj załączyć ścieżkę do edytora w cytowaniu.
 	</string>
 	<string name="Command_Grid_Status_Tooltip">
 		Pokaż obecny status świata
-	</string>
-	<string name="Command_HowTo_Tooltip">
-		Jak wykonywać zwyczajne rzeczy
 	</string>
 	<string name="Command_Inventory_Tooltip">
 		Przeglądaj i używaj rzeczy, jakie należą do Ciebie

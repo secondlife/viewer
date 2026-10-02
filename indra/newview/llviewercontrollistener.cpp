@@ -65,6 +65,11 @@ LLViewerControlListener::LLViewerControlListener()
         grouphelp + replyhelp,
         &LLViewerControlListener::set,
         LLSDMap("group", LLSD())("key", LLSD()));
+    add("set_notation",
+        std::string("Set [\"group\"] TYPE_LLSD control [\"key\"] by parsing [\"value\"] as LLSD notation.\n") +
+        grouphelp + replyhelp,
+        &LLViewerControlListener::set_notation,
+        LLSDMap("group", LLSD())("key", LLSD())("value", LLSD()));
     add("toggle",
         std::string("Toggle [\"group\"] control [\"key\"], if boolean\n") + grouphelp + replyhelp,
         &LLViewerControlListener::toggle,
@@ -146,6 +151,36 @@ void LLViewerControlListener::set(LLSD const & request)
     else
     {
         info.control->resetToDefault();
+    }
+}
+
+//static
+void LLViewerControlListener::set_notation(LLSD const& request)
+{
+    Info info(request);
+    if (!info.control)
+        return;
+
+    if (!info.control->isType(TYPE_LLSD))
+    {
+        info.response.error(STRINGIZE("set_notation requires a TYPE_LLSD control, but '"
+            << info.key << "' in group '" << info.groupname
+            << "' has type "
+            << LLControlGroup::typeEnumToString(info.control->type())));
+        return;
+    }
+
+    if (!request["value"].isString())
+    {
+        info.response.error(STRINGIZE("set_notation requires [\"value\"] to be a string "
+            "containing LLSD notation, but received type: "
+            << LLSD::typeString(request["value"].type())));
+        return;
+    }
+
+    if (!info.control->setValueFromNotation(request["value"].asString()))
+    {
+        info.response.error(STRINGIZE("set_notation failed to parse notation"));
     }
 }
 

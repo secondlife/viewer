@@ -211,7 +211,7 @@ LLXMLRPCTransaction::Impl::Impl
     mCertStore = gSavedSettings.getString("CertStore");
 
     httpOpts->setSSLVerifyPeer(vefifySSLCert);
-    httpOpts->setSSLVerifyHost(vefifySSLCert ? 2 : 0);
+    httpOpts->setSSLVerifyHost(vefifySSLCert);
 
     // LLRefCounted starts with a 1 ref, so don't add a ref in the smart pointer
     httpHeaders = std::make_shared<LLCore::HttpHeaders>();

@@ -133,6 +133,7 @@ namespace {
         RecordToFile(const std::string& filename):
             mName(filename)
         {
+            showMultiline(true);
             mFile.open(filename.c_str(), std::ios_base::out | std::ios_base::app);
             if (!mFile)
             {
@@ -344,6 +345,51 @@ namespace {
         }
     };
 #endif
+
+#if LL_PROFILER_CONFIGURATION >= LL_PROFILER_CONFIG_TRACY
+    class RecordToTracy : public LLError::Recorder
+    {
+    public:
+        RecordToTracy()
+        {
+            this->showMultiline(true);
+            this->showTags(false);
+            this->showLocation(false);
+        }
+
+        virtual bool enabled() override { return LLError::getEnabledLogTypesMask() & 0x12; }
+
+        virtual void recordMessage(LLError::ELevel level, const std::string& message) override
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
+            switch (level)
+            {
+                case LLError::LEVEL_DEBUG:
+                {
+                    TracyMessageC(message.c_str(), message.size(), tracy::Color::Turquoise);
+                    break;
+                }
+                default:
+                case LLError::LEVEL_NONE:
+                case LLError::LEVEL_INFO:
+                {
+                    TracyMessageC(message.c_str(), message.size(), tracy::Color::White);
+                    break;
+                }
+                case LLError::LEVEL_WARN:
+                {
+                    TracyMessageC(message.c_str(), message.size(), tracy::Color::Yellow);
+                    break;
+                }
+                case LLError::LEVEL_ERROR:
+                {
+                    TracyMessageC(message.c_str(), message.size(), tracy::Color::Red);
+                    break;
+                }
+            }
+        }
+    };
+#endif
 }
 
 
@@ -435,13 +481,9 @@ namespace
 
         std::string file = user_dir + "/logcontrol-dev.xml";
 
-        llstat stat_info;
-        if (LLFile::stat(file, &stat_info)) {
-            // NB: stat returns non-zero if it can't read the file, for example
-            // if it doesn't exist.  LLFile has no better abstraction for
-            // testing for file existence.
-
-            file = app_dir + "/logcontrol.xml";
+        if (!LLFile::isfile(file))
+        {
+             file = app_dir + "/logcontrol.xml";
         }
         return * new LogControlFile(file);
             // NB: This instance is never freed
@@ -757,6 +799,11 @@ namespace
 #if LL_WINDOWS
         LLError::RecorderPtr recordToWinDebug(new RecordToWinDebug());
         LLError::addRecorder(recordToWinDebug);
+#endif
+
+#if LL_PROFILER_CONFIGURATION >= LL_PROFILER_CONFIG_TRACY
+        LLError::RecorderPtr recordToTracy(new RecordToTracy());
+        LLError::addRecorder(recordToTracy);
 #endif
 
         LogControlFile& e = LogControlFile::fromDirectory(user_dir, app_dir);

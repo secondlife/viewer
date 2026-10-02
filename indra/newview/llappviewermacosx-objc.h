@@ -31,5 +31,6 @@
 #include <vector>
 
 void force_ns_sxeption();
+void register_url_schemes();
 
 #endif // LL_LLAPPVIEWERMACOSX_OBJC_H

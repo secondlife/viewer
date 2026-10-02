@@ -134,7 +134,7 @@ accumulate_locstring(const char *str, FL_Locale *l) {
   return 0;
 }
 
-
+#ifndef LL_WINDOWS
 static int
 accumulate_env(const char *name, FL_Locale *l) {
   char *env;
@@ -148,7 +148,7 @@ accumulate_env(const char *name, FL_Locale *l) {
   free(lang); free(country); free(variant);
   return 0;
 }
-
+#endif
 
 static void
 canonise_fl(FL_Locale *l) {

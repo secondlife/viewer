@@ -54,11 +54,9 @@ char LLResMgr::getDecimalPoint() const
     return decimal;
 }
 
-char LLResMgr::getThousandsSeparator() const
+std::string LLResMgr::getThousandsSeparator() const
 {
-    char separator = localeconv()->thousands_sep[0];
-
-    return separator;
+    return localeconv()->thousands_sep;
 }
 
 char LLResMgr::getMonetaryDecimalPoint() const
@@ -68,11 +66,9 @@ char LLResMgr::getMonetaryDecimalPoint() const
     return decimal;
 }
 
-char LLResMgr::getMonetaryThousandsSeparator() const
+std::string LLResMgr::getMonetaryThousandsSeparator() const
 {
-    char separator = localeconv()->mon_thousands_sep[0];
-
-    return separator;
+    return localeconv()->mon_thousands_sep;
 }
 
 
@@ -85,7 +81,7 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
     struct lconv *conv = localeconv();
 
     char* negative_sign = conv->negative_sign;
-    char separator = getMonetaryThousandsSeparator();
+    std::string separator = getMonetaryThousandsSeparator();
     char* grouping = conv->mon_grouping;
 
     // Note on mon_grouping:
@@ -135,10 +131,7 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
     }
     S32 group_count = cur_group;
 
-    char reversed_output[20] = "";  /* Flawfinder: ignore */
-    char forward_output[20] = "";   /* Flawfinder: ignore */
-    S32 output_pos = 0;
-
+    std::string formatted;
     cur_group = 0;
     S32 pos = static_cast<S32>(digits.size()) - 1;
     S32 count_within_group = 0;
@@ -148,7 +141,7 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
         if( count_within_group > groupings[cur_group] )
         {
             count_within_group = 1;
-            reversed_output[ output_pos++ ] = separator;
+            formatted = separator + formatted;
 
             if( (cur_group + 1) >= group_count )
             {
@@ -160,28 +153,19 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
                 cur_group++;
             }
         }
-        reversed_output[ output_pos++ ] = digits[pos--];
+        formatted = std::string(1, digits[pos--]) + formatted;
     }
 
     while( pos >= 0 )
     {
-        reversed_output[ output_pos++ ] = digits[pos--];
-    }
-
-
-    reversed_output[ output_pos ] = '\0';
-    forward_output[ output_pos ] = '\0';
-
-    for( S32 i = 0; i < output_pos; i++ )
-    {
-        forward_output[ output_pos - 1 - i ] = reversed_output[ i ];
+        formatted = std::string(1, digits[pos--]) + formatted;
     }
 
     if( negative_before )
     {
         output.append( negative_sign );
     }
-    output.append( forward_output );
+    output.append( formatted );
     if( negative_after )
     {
         output.append( negative_sign );
@@ -210,11 +194,11 @@ void LLResMgr::getIntegerString( std::string& output, S32 input ) const
         {
             if (fraction == remaining_count)
             {
-                fraction_string = llformat_to_utf8("%d%c", fraction, getThousandsSeparator());
+                fraction_string = llformat_to_utf8("%d", fraction) + getThousandsSeparator();
             }
             else
             {
-                fraction_string = llformat_to_utf8("%3.3d%c", fraction, getThousandsSeparator());
+                fraction_string = llformat_to_utf8("%3.3d", fraction) + getThousandsSeparator();
             }
             output = fraction_string + output;
         }

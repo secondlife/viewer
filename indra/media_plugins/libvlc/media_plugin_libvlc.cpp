@@ -560,7 +560,7 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
                 message.setValueS32("default_height", 1024);
                 message.setValueS32("depth", mDepth);
                 message.setValueU32("internalformat", GL_RGB);
-                message.setValueU32("format", GL_BGRA_EXT);
+                message.setValueU32("format", GL_BGRA);
                 message.setValueU32("type", GL_UNSIGNED_BYTE);
                 message.setValueBoolean("coords_opengl", true);
                 sendMessage(message);

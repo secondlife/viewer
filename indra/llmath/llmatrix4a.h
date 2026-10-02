@@ -31,10 +31,11 @@
 #include "m4math.h"
 #include "m3math.h"
 
-class LLMatrix4a
+class alignas(16) LLMatrix4a
 {
+    LL_ALIGN_NEW
 public:
-    LL_ALIGN_16(LLVector4a mMatrix[4]);
+    LLVector4a mMatrix[4];
 
     LLMatrix4a() = default;
 

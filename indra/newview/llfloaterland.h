@@ -146,7 +146,6 @@ public:
     virtual void draw();
 
     void setGroup(const LLUUID& group_id);
-    void onClickProfile();
     void onClickSetGroup();
     static void onClickDeed(void*);
     static void onClickBuyLand(void* data);
@@ -193,7 +192,6 @@ protected:
 
     LLTextBox*      mTextOwnerLabel;
     LLTextBox*      mTextOwner;
-    LLButton*       mBtnProfile;
 
     LLTextBox*      mContentRating;
     LLTextBox*      mLandType;

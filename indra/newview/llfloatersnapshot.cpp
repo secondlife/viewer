@@ -96,13 +96,13 @@ LLSnapshotModel::ESnapshotFormat LLFloaterSnapshot::Impl::getImageFormat(LLFloat
 LLSpinCtrl* LLFloaterSnapshot::Impl::getWidthSpinner(LLFloaterSnapshotBase* floater)
 {
     LLPanelSnapshot* active_panel = getActivePanel(floater);
-    return active_panel ? active_panel->getWidthSpinner() : floater->getChild<LLSpinCtrl>("snapshot_width");
+    return active_panel ? active_panel->getWidthSpinner() : floater->findChild<LLSpinCtrl>("snapshot_width");
 }
 
 LLSpinCtrl* LLFloaterSnapshot::Impl::getHeightSpinner(LLFloaterSnapshotBase* floater)
 {
     LLPanelSnapshot* active_panel = getActivePanel(floater);
-    return active_panel ? active_panel->getHeightSpinner() : floater->getChild<LLSpinCtrl>("snapshot_height");
+    return active_panel ? active_panel->getHeightSpinner() : floater->findChild<LLSpinCtrl>("snapshot_height");
 }
 
 void LLFloaterSnapshot::Impl::enableAspectRatioCheckbox(LLFloaterSnapshotBase* floater, bool enable)
@@ -278,7 +278,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
         LLSpinCtrl* height_ctrl = getHeightSpinner(floater);
 
         // Initialize spinners.
-        if (width_ctrl->getValue().asInteger() == 0)
+        if (width_ctrl && width_ctrl->getValue().asInteger() == 0)
         {
             S32 w = gViewerWindow->getWindowWidthRaw();
             LL_DEBUGS() << "Initializing width spinner (" << width_ctrl->getName() << "): " << w << LL_ENDL;
@@ -288,7 +288,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
                 width_ctrl->setIncrement((F32)(w >> 1));
             }
         }
-        if (height_ctrl->getValue().asInteger() == 0)
+        if (height_ctrl && height_ctrl->getValue().asInteger() == 0)
         {
             S32 h = gViewerWindow->getWindowHeightRaw();
             LL_DEBUGS() << "Initializing height spinner (" << height_ctrl->getName() << "): " << h << LL_ENDL;
@@ -686,8 +686,8 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, bool 
     LLSnapshotLivePreview* previewp = getPreviewView();
     if (previewp && combobox->getCurrentIndex() >= 0)
     {
-        S32 original_width = 0 , original_height = 0 ;
-        previewp->getSize(original_width, original_height) ;
+        S32 original_width = 0, original_height = 0;
+        previewp->getSize(original_width, original_height);
 
         if (gSavedSettings.getBOOL("RenderUIInSnapshot") || gSavedSettings.getBOOL("RenderHUDInSnapshot"))
         { //clamp snapshot resolution to window size when showing UI or HUD in snapshot
@@ -737,24 +737,31 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, bool 
             previewp->setSize(width, height);
         }
 
-        checkAspectRatio(view, width) ;
+        checkAspectRatio(view, width);
 
         previewp->getSize(width, height);
 
-        // We use the height spinner here because we come here via the aspect ratio
-        // checkbox as well and we want height always changing to width by default.
-        // If we use the width spinner we would change width according to height by
-        // default, that is not what we want.
-        updateSpinners(view, previewp, width, height, !getHeightSpinner(view)->isDirty()); // may change width and height
-
-        if(getWidthSpinner(view)->getValue().asInteger() != width || getHeightSpinner(view)->getValue().asInteger() != height)
+        LLSpinCtrl* height_ctrl = getHeightSpinner(view);
+        if (height_ctrl)
         {
-            getWidthSpinner(view)->setValue(width);
-            getHeightSpinner(view)->setValue(height);
+            // We use the height spinner here because we come here via the aspect ratio
+            // checkbox as well and we want height always changing to width by default.
+            // If we use the width spinner we would change width according to height by
+            // default, that is not what we want.
+            updateSpinners(view, previewp, width, height, !height_ctrl->isDirty()); // may change width and height
+        }
+
+        LLSpinCtrl* width_ctrl = getWidthSpinner(view);
+        if (width_ctrl
+            && height_ctrl
+            && (width_ctrl->getValue().asInteger() != width || height_ctrl->getValue().asInteger() != height))
+        {
+            width_ctrl->setValue(width);
+            height_ctrl->setValue(height);
             if (getActiveSnapshotType(view) == LLSnapshotModel::SNAPSHOT_TEXTURE)
             {
-                getWidthSpinner(view)->setIncrement((F32)(width >> 1));
-                getHeightSpinner(view)->setIncrement((F32)(height >> 1));
+                width_ctrl->setIncrement((F32)(width >> 1));
+                height_ctrl->setIncrement((F32)(height >> 1));
             }
         }
 
@@ -824,7 +831,7 @@ void LLFloaterSnapshot::Impl::comboSetCustom(LLFloaterSnapshotBase* floater, con
 }
 
 // Update supplied width and height according to the constrain proportions flag; limit them by max_val.
-bool LLFloaterSnapshot::Impl::checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, bool isWidthChanged, S32 max_value)
+bool LLFloaterSnapshot::Impl::checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, bool isWidthChanged, S32 max_value) const
 {
     S32 w = width ;
     S32 h = height ;
@@ -870,19 +877,31 @@ bool LLFloaterSnapshot::Impl::checkImageSize(LLSnapshotLivePreview* previewp, S3
 
 void LLFloaterSnapshot::Impl::setImageSizeSpinnersValues(LLFloaterSnapshotBase* view, S32 width, S32 height)
 {
-    getWidthSpinner(view)->forceSetValue(width);
-    getHeightSpinner(view)->forceSetValue(height);
+    LLSpinCtrl* width_ctrl = getWidthSpinner(view);
+    LLSpinCtrl* height_ctrl = getHeightSpinner(view);
+    if (!height_ctrl || !width_ctrl)
+    {
+        return;
+    }
+    width_ctrl->forceSetValue(width);
+    height_ctrl->forceSetValue(height);
     if (getActiveSnapshotType(view) == LLSnapshotModel::SNAPSHOT_TEXTURE)
     {
-        getWidthSpinner(view)->setIncrement((F32)(width >> 1));
-        getHeightSpinner(view)->setIncrement((F32)(height >> 1));
+        width_ctrl->setIncrement((F32)(width >> 1));
+        height_ctrl->setIncrement((F32)(height >> 1));
     }
 }
 
 void LLFloaterSnapshot::Impl::updateSpinners(LLFloaterSnapshotBase* view, LLSnapshotLivePreview* previewp, S32& width, S32& height, bool is_width_changed)
 {
-    getWidthSpinner(view)->resetDirty();
-    getHeightSpinner(view)->resetDirty();
+    LLSpinCtrl* width_ctrl = getWidthSpinner(view);
+    LLSpinCtrl* height_ctrl = getHeightSpinner(view);
+    if (!height_ctrl || !width_ctrl)
+    {
+        return;
+    }
+    width_ctrl->resetDirty();
+    height_ctrl->resetDirty();
     if (checkImageSize(previewp, width, height, is_width_changed, previewp->getMaxImageSize()))
     {
         setImageSizeSpinnersValues(view, width, height);
@@ -903,7 +922,15 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshotBase* view,
         if (w != curw || h != curh)
         {
             //if to upload a snapshot, process spinner input in a special way.
-            previewp->setMaxImageSize((S32) getWidthSpinner(view)->getMaxValue()) ;
+            LLSpinCtrl* width_ctrl = getWidthSpinner(view);
+            if (width_ctrl)
+            {
+                previewp->setMaxImageSize((S32)width_ctrl->getMaxValue());
+            }
+            else
+            {
+                previewp->setMaxImageSize((S32)2048);
+            }
 
             previewp->setSize(w,h);
             checkAutoSnapshot(previewp, false);
