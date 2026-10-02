@@ -1642,8 +1642,16 @@ void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCac
     int versionNumber=0;
     if (line.compare(0, LLGLTFOverrideCacheEntry::VERSION_LABEL.length(), LLGLTFOverrideCacheEntry::VERSION_LABEL) == 0)
     {
-        std::string versionStr = line.substr(LLGLTFOverrideCacheEntry::VERSION_LABEL.length()+1); // skip the version label and ':'
-        versionNumber = std::stol(versionStr);
+        try
+        {
+            std::string versionStr = line.substr(LLGLTFOverrideCacheEntry::VERSION_LABEL.length()+1); // skip the version label and ':'
+            versionNumber = std::stol(versionStr);
+        }
+        catch(std::logic_error&)  // out_of_range from substr or stol, or invalid_argument from stol
+        {
+            LL_WARNS() << "Failed reading extras cache for handle " << handle << ". unreadable version: '" << line << "'" << LL_ENDL;
+            versionNumber = -1; // never a valid version, so the file is removed below
+        }
     }
     // For future versions we may call a legacy handler here, but realistically we'll just consider this cache out of date.
     // The important thing is to make sure it gets removed.
