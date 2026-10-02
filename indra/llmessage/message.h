@@ -482,7 +482,7 @@ public:
     // UDP byte-accounting
     S32  getActualInBytes()  const { return mActualBytesIn; }
     S32  getActualOutBytes() const { return mActualBytesOut; }
-    S32  getAndResetActualInBits()  { S32 bits = mActualBytesIn  * 8; mActualBytesIn  = 0; return bits; }
+    S32  getAndResetActualInBits()  { S32 bits = mActualBytesIn.exchange(0) * 8; return bits; }
     S32  getAndResetActualOutBits() { S32 bits = mActualBytesOut * 8; mActualBytesOut = 0; return bits; }
 
     // Get number of "dropped" inbound packets
