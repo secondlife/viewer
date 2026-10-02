@@ -171,8 +171,9 @@ public:
         MEDIA_URL_ADDED = 0x2,
         MEDIA_URL_UPDATED = 0x4,
         MEDIA_FLAGS_CHANGED = 0x8,
-        // Update data was malformed and some or all of it was ignored.  The packer
-        // is left part way through the data, so subclasses must not unpack any further.
+        // Update data was malformed, or the update couldn't be applied (e.g. no valid
+        // region), and some or all of it was ignored.  The packer may be left part way
+        // through the data, so subclasses must not unpack any further.
         MALFORMED_UPDATE = 0x40000000,
         INVALID_UPDATE = 0x80000000
     };

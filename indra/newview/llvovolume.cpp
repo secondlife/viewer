@@ -350,8 +350,9 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
     U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
     if (retval & MALFORMED_UPDATE)
     {
-        // The base class rejected the data, so dp isn't positioned at the volume
-        // data and its pass flags may be stale: don't unpack anything further.
+        // The base class rejected the update, so dp may not be positioned at the
+        // volume data, its pass flags may be stale, and the region may be gone:
+        // don't unpack anything further.
         return retval;
     }
 

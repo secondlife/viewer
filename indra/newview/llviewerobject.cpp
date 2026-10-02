@@ -1285,8 +1285,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
     // If region is removed from the list it is also deleted.
     if (!LLWorld::instance().isRegionListed(mRegionp))
     {
-        LL_WARNS() << "Updating object in an invalid region" << LL_ENDL;
-        return retval;
+        // Don't use logMalformedUpdate() here: it dereferences mRegionp.
+        LL_WARNS() << "Updating object " << getID() << " in an invalid region, update_type " << (S32)update_type << LL_ENDL;
+        return retval | MALFORMED_UPDATE;
     }
 
     // Coordinates of objects on simulators are region-local.
@@ -1327,8 +1328,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
         U32 x, y;
         from_region_handle(region_handle, &x, &y);
 
-        LL_WARNS("UpdateFail") << "Object has invalid region " << x << ":" << y << "!" << LL_ENDL;
-        return retval;
+        LL_WARNS("UpdateFail") << "Object " << getID() << " has invalid region " << x << ":" << y
+                               << ", update_type " << (S32)update_type << LL_ENDL;
+        return retval | MALFORMED_UPDATE;
     }
 
     F32 time_dilation = 1.f;
