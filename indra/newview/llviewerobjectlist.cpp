@@ -318,9 +318,19 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
     record(LLStatViewer::OBJECT_CACHE_HIT_RATE, LLUnits::Ratio::fromValue(1));
 
     cached_dpp->reset();
-    cached_dpp->unpackUUID(fullid, "ID");
-    cached_dpp->unpackU32(local_id, "LocalID");
-    cached_dpp->unpackU8(pcode, "PCode");
+    if (!(cached_dpp->unpackUUID(fullid, "ID") &&
+          cached_dpp->unpackU32(local_id, "LocalID") &&
+          cached_dpp->unpackU8(pcode, "PCode")))
+    {
+        LLDataPackerBinaryBuffer* binary_dpp = entry->getDP();
+        LLViewerObject::logMalformedData(llformat("ignoring cached update: failed to unpack ID/LocalID/PCode, local_id %u", entry->getLocalID())
+                                         + ", region " + regionp->getName() + " " + regionp->getHost().getIPandPort(),
+                                         binary_dpp->getBuffer(), binary_dpp->getBufferSize(), binary_dpp->getCurrentSize());
+        // Make the next cache probe miss, so the server resends the object
+        entry->invalidateCRC();
+        recorder.objectUpdateFailure();
+        return NULL;
+    }
 
     objectp = findObject(fullid);
 
