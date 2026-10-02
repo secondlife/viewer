@@ -255,16 +255,20 @@ bool LLDataPackerBinaryBuffer::packString(const std::string& value, const char *
 
 bool LLDataPackerBinaryBuffer::unpackString(std::string& value, const char *name)
 {
-    S32 length = (S32)strlen((char *)mCurBufferp) + 1; /*Flawfinder: ignore*/
-
-    if (!verifyLength(length, name))
+    // Only search the bytes remaining in the buffer for the terminator
+    S32 remaining = mBufferSize - (S32)(mCurBufferp - mBufferp);
+    const U8* terminator = (mCurBufferp && remaining > 0) ? (const U8*)memchr(mCurBufferp, 0, remaining) : NULL;
+    if (!terminator)
     {
+        LL_WARNS() << "LLDataPackerBinaryBuffer::unpackString field " << name
+            << " is not NULL terminated within remaining " << remaining << " bytes, aborting!" << LL_ENDL;
         return false;
     }
 
-    value = std::string((char*)mCurBufferp); // We already assume NULL termination calling strlen()
+    S32 length = (S32)(terminator - mCurBufferp);
+    value.assign((const char*)mCurBufferp, length);
 
-    mCurBufferp += length;
+    mCurBufferp += length + 1;
     return true;
 }
 
