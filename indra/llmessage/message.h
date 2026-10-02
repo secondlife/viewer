@@ -926,6 +926,14 @@ public:
     S32  bufferInboundPacket();
 
 private:
+    struct ReliableAck
+    {
+        LLHost      mHost;
+        TPACKETID   mPacketID;
+    };
+
+    void processReliableAcks();
+
     typedef std::function<void(S32)>  UntrustedCallback_t;
     void sendUntrustedSimulatorMessageCoro(std::string url, std::string message, LLSD body, UntrustedCallback_t callback);
 
@@ -1044,6 +1052,7 @@ private:
     // Packet queue and receiver thread for incoming packets from an UDP thread.
     std::shared_ptr<LLUDPReceiverThread::PacketQueue> mIncomingQueue;
     std::unique_ptr<LLUDPReceiverThread> mReceiverThread;
+    std::shared_ptr<LLThreadSafeQueue<ReliableAck>> mReliableAckQueue;
 
     friend class LLMessageHandlerBridge;
     friend class LockMessageChecker;

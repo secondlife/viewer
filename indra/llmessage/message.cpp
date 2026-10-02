@@ -129,6 +129,7 @@ void LLMessageHandlerBridge::post(LLHTTPNode::ResponsePtr response,
     {
         response->result(LLSD());
     }
+
     else
     {
         response->notFound();
@@ -268,6 +269,7 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
         // Start the receiver thread, which will read packets from the socket and queue them for processing.
         mIncomingQueue = std::make_shared<LLUDPReceiverThread::PacketQueue>();
         mDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>();
+        mReliableAckQueue = std::make_shared<LLThreadSafeQueue<ReliableAck>>();
         mReceiverThread = std::make_unique<LLUDPReceiverThread>(mSocket, mIncomingQueue);
     }
 
@@ -356,6 +358,10 @@ LLMessageSystem::~LLMessageSystem()
     if (mDecodedQueue)
     {
         mDecodedQueue->close();
+    }
+    if (mReliableAckQueue)
+    {
+        mReliableAckQueue->close();
     }
     if (mReceiverThread)
     {
@@ -1061,6 +1067,8 @@ void LLMessageSystem::processAcks(LockMessageChecker&, F32 collect_time)
 {
     F64Seconds mt_sec = getMessageTimeSeconds();
     {
+        processReliableAcks();
+
         gTransferManager.updateTransfers();
 
         if (gXferManager)
@@ -1124,6 +1132,24 @@ void LLMessageSystem::processAcks(LockMessageChecker&, F32 collect_time)
     {
         mResendDumpTime = mt_sec;
         mCircuitInfo.dumpResends();
+    }
+}
+
+void LLMessageSystem::processReliableAcks()
+{
+    ReliableAck ack;
+    while (mReliableAckQueue && mReliableAckQueue->tryPop(ack))
+    {
+        LLCircuitData* cdp = mCircuitInfo.findCircuit(ack.mHost);
+        if (cdp)
+        {
+            cdp->ackReliablePacket(ack.mPacketID);
+            if (!cdp->getUnackedPacketCount())
+            {
+                std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
+                mCircuitInfo.mUnackedCircuitMap.erase(ack.mHost);
+            }
+        }
     }
 }
 
@@ -1317,12 +1343,14 @@ S32 LLMessageSystem::bufferInboundPacket()
                     true_rcv_size -= sizeof(TPACKETID);
                     memcpy(&mem_id, &data[true_rcv_size], sizeof(TPACKETID)); /* Flawfinder: ignore */
                     ack_id = ntohl(mem_id);
-                    cdp->ackReliablePacket(ack_id);
-                }
-                if (!cdp->getUnackedPacketCount())
-                {
-                    std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
-                    mCircuitInfo.mUnackedCircuitMap.erase(cdp->mHost);
+                    try
+                    {
+                        mReliableAckQueue->push({ cdp->mHost, ack_id });
+                    }
+                    catch (const LLThreadSafeQueueInterrupt&)
+                    {
+                        // Queue closed during shutdown; drop silently.
+                    }
                 }
             }
         }
