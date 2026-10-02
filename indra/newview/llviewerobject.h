@@ -707,8 +707,11 @@ public:
     static bool unpackU8(LLDataPackerBinaryBuffer* dp, U8& value, std::string name);
     static U32 unpackParentID(LLDataPackerBinaryBuffer* dp, U32& parent_id);
 
-    // Log a malformed object update once, with context and a (rate limited) hex dump of its data
+    // Log a malformed ObjectUpdate once, with context and a (rate limited) hex dump of its data
     static void logMalformedData(const std::string& context, const U8* data, S32 size, S32 offset);
+
+protected:
+    void logMalformedUpdate(const std::string& reason, U32 block_num, EObjectUpdateType update_type, LLDataPacker* dp) const;
 
 public:
     //counter-translation
@@ -761,8 +764,8 @@ private:
         return nullptr;
     }
     bool unpackParameterEntry(U16 param_type, LLDataPacker *dp);
-    void logMalformedUpdate(const std::string& reason, U32 block_num, EObjectUpdateType update_type, LLDataPacker* dp) const;
 
+private:
     // This function checks to see if the given media URL has changed its version
     // and the update wasn't due to this agent's last action.
     U32 checkMediaURL(const std::string &media_url);

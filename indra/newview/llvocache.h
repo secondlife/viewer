@@ -117,6 +117,7 @@ public:
 
     U32 getLocalID() const          { return mLocalID; }
     U32 getCRC() const              { return mCRC; }
+    void invalidateCRC()            { mCRC = 0; } // the next cache probe misses, so the server resends the object
     S32 getHitCount() const         { return mHitCount; }
     S32 getCRCChangeCount() const   { return mCRCChangeCount; }
 

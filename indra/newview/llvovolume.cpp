@@ -465,16 +465,18 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
             S32 res2 = unpackTEMessage(*dp);
             if (TEM_INVALID == res2)
             {
-                // There's something bogus in the data that we're unpacking.
-                dp->dumpBufferToLog();
-                LL_WARNS() << "Flushing cache files" << LL_ENDL;
+                logMalformedUpdate("invalid TextureEntry data", block_num, update_type, dp);
 
-                if(LLVOCache::instanceExists() && getRegion())
+                // Don't remove the object's entry from the cache: dp points into it.
+                // Make the next cache probe miss instead, so the server resends the object.
+                if (update_type == OUT_FULL_CACHED && getRegion())
                 {
-                    LLVOCache::getInstance()->removeEntry(getRegion()->getHandle()) ;
+                    LLVOCacheEntry* entry = getRegion()->getCacheEntry(getLocalID(), false);
+                    if (entry && entry->getDP() == dp)
+                    {
+                        entry->invalidateCRC();
+                    }
                 }
-
-                LL_WARNS() << "Bogus TE data in " << getID() << LL_ENDL;
             }
             else
             {
