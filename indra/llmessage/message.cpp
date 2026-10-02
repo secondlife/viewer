@@ -1351,7 +1351,7 @@ S32 LLMessageSystem::bufferInboundPacket()
                     ack_id = ntohl(mem_id);
                     try
                     {
-                        mReliableAckQueue->push({ cdp->mHost, ack_id });
+                        mReliableAckQueue->push(ReliableAck{ cdp->mHost, ack_id });
                     }
                     catch (const LLThreadSafeQueueInterrupt&)
                     {
