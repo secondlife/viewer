@@ -132,19 +132,19 @@ bool LLDataPacker::unpackFixed(F32 &value, const char *name,
     F32 fixed_val;
     if (total_bits <= 8)
     {
-        U8 fixed_8;
+        U8 fixed_8 = 0;
         success = unpackU8(fixed_8, name);
         fixed_val = (F32)fixed_8;
     }
     else if (total_bits <= 16)
     {
-        U16 fixed_16;
+        U16 fixed_16 = 0;
         success = unpackU16(fixed_16, name);
         fixed_val = (F32)fixed_16;
     }
     else if (total_bits <= 31)
     {
-        U32 fixed_32;
+        U32 fixed_32 = 0;
         success = unpackU32(fixed_32, name);
         fixed_val = (F32)fixed_32;
     }

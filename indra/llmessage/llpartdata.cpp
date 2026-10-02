@@ -51,6 +51,21 @@ const S32 PS_LEGACY_DATA_BLOCK_SIZE = PS_SYS_DATA_BLOCK_SIZE + PS_LEGACY_PART_DA
 
 const F32 MAX_PART_SCALE = 4.f;
 
+// Skip size bytes of unrecognized data.  The size comes from the sender and may
+// be huge, so stop at the first failed read instead of looping size times.
+static bool skip_unknown_data(LLDataPacker &dp, S32 size)
+{
+    U8 discard = 0;
+    for (S32 i = 0; i < size; ++i)
+    {
+        if (!dp.unpackU8(discard, "whippang"))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool LLPartData::hasGlow() const
 {
     return mStartGlow > 0.f || mEndGlow > 0.f;
@@ -74,44 +89,49 @@ S32 LLPartData::getSize() const
 bool LLPartData::unpackLegacy(LLDataPacker &dp)
 {
     LLColor4U coloru;
+    bool ok = true;
 
-    dp.unpackU32(mFlags, "pdflags");
-    dp.unpackFixed(mMaxAge, "pdmaxage", false, 8, 8);
+    ok &= dp.unpackU32(mFlags, "pdflags");
+    ok &= dp.unpackFixed(mMaxAge, "pdmaxage", false, 8, 8);
 
-    dp.unpackColor4U(coloru, "pdstartcolor");
+    ok &= dp.unpackColor4U(coloru, "pdstartcolor");
     mStartColor.setVec(coloru);
-    dp.unpackColor4U(coloru, "pdendcolor");
+    ok &= dp.unpackColor4U(coloru, "pdendcolor");
     mEndColor.setVec(coloru);
-    dp.unpackFixed(mStartScale.mV[0], "pdstartscalex", false, 3, 5);
-    dp.unpackFixed(mStartScale.mV[1], "pdstartscaley", false, 3, 5);
-    dp.unpackFixed(mEndScale.mV[0], "pdendscalex", false, 3, 5);
-    dp.unpackFixed(mEndScale.mV[1], "pdendscaley", false, 3, 5);
+    ok &= dp.unpackFixed(mStartScale.mV[0], "pdstartscalex", false, 3, 5);
+    ok &= dp.unpackFixed(mStartScale.mV[1], "pdstartscaley", false, 3, 5);
+    ok &= dp.unpackFixed(mEndScale.mV[0], "pdendscalex", false, 3, 5);
+    ok &= dp.unpackFixed(mEndScale.mV[1], "pdendscaley", false, 3, 5);
 
     mStartGlow = 0.f;
     mEndGlow = 0.f;
     mBlendFuncSource = LLPartData::LL_PART_BF_SOURCE_ALPHA;
     mBlendFuncDest = LLPartData::LL_PART_BF_ONE_MINUS_SOURCE_ALPHA;
 
-    return true;
+    return ok;
 }
 
 bool LLPartData::unpack(LLDataPacker &dp)
 {
     S32 size = 0;
-    dp.unpackS32(size, "partsize");
-
-    unpackLegacy(dp);
+    if (!dp.unpackS32(size, "partsize") || !unpackLegacy(dp))
+    {
+        return false;
+    }
     size -= PS_LEGACY_PART_DATA_BLOCK_SIZE;
 
     if (mFlags & LL_PART_DATA_GLOW)
     {
         if (size < PS_PART_DATA_GLOW_SIZE) return false;
 
-        U8 tmp_glow = 0;
-        dp.unpackU8(tmp_glow,"pdstartglow");
-        mStartGlow = tmp_glow / 255.f;
-        dp.unpackU8(tmp_glow,"pdendglow");
-        mEndGlow = tmp_glow / 255.f;
+        U8 start_glow = 0;
+        U8 end_glow = 0;
+        if (!dp.unpackU8(start_glow, "pdstartglow") || !dp.unpackU8(end_glow, "pdendglow"))
+        {
+            return false;
+        }
+        mStartGlow = start_glow / 255.f;
+        mEndGlow = end_glow / 255.f;
 
         size -= PS_PART_DATA_GLOW_SIZE;
     }
@@ -124,8 +144,10 @@ bool LLPartData::unpack(LLDataPacker &dp)
     if (mFlags & LL_PART_DATA_BLEND)
     {
         if (size < PS_PART_DATA_BLEND_SIZE) return false;
-        dp.unpackU8(mBlendFuncSource,"pdblendsource");
-        dp.unpackU8(mBlendFuncDest,"pdblenddest");
+        if (!dp.unpackU8(mBlendFuncSource, "pdblendsource") || !dp.unpackU8(mBlendFuncDest, "pdblenddest"))
+        {
+            return false;
+        }
         size -= PS_PART_DATA_BLEND_SIZE;
     }
     else
@@ -136,12 +158,7 @@ bool LLPartData::unpack(LLDataPacker &dp)
 
     if (size > 0)
     { //leftover bytes, unrecognized parameters
-        U8 feh = 0;
-        while (size > 0)
-        { //read remaining bytes in block
-            dp.unpackU8(feh, "whippang");
-            size--;
-        }
+        skip_unknown_data(dp, size);
 
         //this particle system won't display properly, better to not show anything
         return false;
@@ -242,70 +259,60 @@ LLPartSysData::LLPartSysData()
 
 bool LLPartSysData::unpackSystem(LLDataPacker &dp)
 {
-    dp.unpackU32(mCRC, "pscrc");
-    dp.unpackU32(mFlags, "psflags");
-    dp.unpackU8(mPattern, "pspattern");
-    dp.unpackFixed(mMaxAge, "psmaxage", false, 8, 8);
-    dp.unpackFixed(mStartAge, "psstartage", false, 8, 8);
-    dp.unpackFixed(mInnerAngle, "psinnerangle", false, 3, 5);
-    dp.unpackFixed(mOuterAngle, "psouterangle", false, 3, 5);
-    dp.unpackFixed(mBurstRate, "psburstrate", false, 8, 8);
+    bool ok = true;
+    ok &= dp.unpackU32(mCRC, "pscrc");
+    ok &= dp.unpackU32(mFlags, "psflags");
+    ok &= dp.unpackU8(mPattern, "pspattern");
+    ok &= dp.unpackFixed(mMaxAge, "psmaxage", false, 8, 8);
+    ok &= dp.unpackFixed(mStartAge, "psstartage", false, 8, 8);
+    ok &= dp.unpackFixed(mInnerAngle, "psinnerangle", false, 3, 5);
+    ok &= dp.unpackFixed(mOuterAngle, "psouterangle", false, 3, 5);
+    ok &= dp.unpackFixed(mBurstRate, "psburstrate", false, 8, 8);
     mBurstRate = llmax(0.01f, mBurstRate);
-    dp.unpackFixed(mBurstRadius, "psburstradius", false, 8, 8);
-    dp.unpackFixed(mBurstSpeedMin, "psburstspeedmin", false, 8, 8);
-    dp.unpackFixed(mBurstSpeedMax, "psburstspeedmax", false, 8, 8);
-    dp.unpackU8(mBurstPartCount, "psburstpartcount");
+    ok &= dp.unpackFixed(mBurstRadius, "psburstradius", false, 8, 8);
+    ok &= dp.unpackFixed(mBurstSpeedMin, "psburstspeedmin", false, 8, 8);
+    ok &= dp.unpackFixed(mBurstSpeedMax, "psburstspeedmax", false, 8, 8);
+    ok &= dp.unpackU8(mBurstPartCount, "psburstpartcount");
 
-    dp.unpackFixed(mAngularVelocity.mV[0], "psangvelx", true, 8, 7);
-    dp.unpackFixed(mAngularVelocity.mV[1], "psangvely", true, 8, 7);
-    dp.unpackFixed(mAngularVelocity.mV[2], "psangvelz", true, 8, 7);
+    ok &= dp.unpackFixed(mAngularVelocity.mV[0], "psangvelx", true, 8, 7);
+    ok &= dp.unpackFixed(mAngularVelocity.mV[1], "psangvely", true, 8, 7);
+    ok &= dp.unpackFixed(mAngularVelocity.mV[2], "psangvelz", true, 8, 7);
 
-    dp.unpackFixed(mPartAccel.mV[0], "psaccelx", true, 8, 7);
-    dp.unpackFixed(mPartAccel.mV[1], "psaccely", true, 8, 7);
-    dp.unpackFixed(mPartAccel.mV[2], "psaccelz", true, 8, 7);
+    ok &= dp.unpackFixed(mPartAccel.mV[0], "psaccelx", true, 8, 7);
+    ok &= dp.unpackFixed(mPartAccel.mV[1], "psaccely", true, 8, 7);
+    ok &= dp.unpackFixed(mPartAccel.mV[2], "psaccelz", true, 8, 7);
 
-    dp.unpackUUID(mPartImageID, "psuuid");
-    dp.unpackUUID(mTargetUUID, "pstargetuuid");
-    return true;
+    ok &= dp.unpackUUID(mPartImageID, "psuuid");
+    ok &= dp.unpackUUID(mTargetUUID, "pstargetuuid");
+    return ok;
 }
 
 bool LLPartSysData::unpackLegacy(LLDataPacker &dp)
 {
-    unpackSystem(dp);
-    mPartData.unpackLegacy(dp);
-
-    return true;
+    return unpackSystem(dp) && mPartData.unpackLegacy(dp);
 }
 
 bool LLPartSysData::unpack(LLDataPacker &dp)
 {
     // syssize is currently unused.  Adding now when modifying the 'version to make extensible in the future
     S32 size = 0;
-    dp.unpackS32(size, "syssize");
+    if (!dp.unpackS32(size, "syssize"))
+    {
+        return false;
+    }
 
     if (size != PS_SYS_DATA_BLOCK_SIZE)
     { //unexpected size, this viewer doesn't know how to parse this particle system
 
-        //skip to LLPartData block
-        U8 feh = 0;
-
-        for (S32 i = 0; i < size; ++i)
+        //skip to LLPartData block, then skip LLPartData block
+        if (skip_unknown_data(dp, size) && dp.unpackS32(size, "partsize"))
         {
-            dp.unpackU8(feh, "whippang");
-        }
-
-        dp.unpackS32(size, "partsize");
-        //skip LLPartData block
-        for (S32 i = 0; i < size; ++i)
-        {
-            dp.unpackU8(feh, "whippang");
+            skip_unknown_data(dp, size);
         }
         return false;
     }
 
-    unpackSystem(dp);
-
-    return mPartData.unpack(dp);
+    return unpackSystem(dp) && mPartData.unpack(dp);
 }
 
 std::ostream& operator<<(std::ostream& s, const LLPartSysData &data)
