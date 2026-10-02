@@ -385,11 +385,11 @@ public:
     U32                 mOffCircuitPackets;         // total # of off-circuit packets rejected
     U32                 mInvalidOnCircuitPackets;   // total # of on-circuit but invalid packets rejected
 
-    S64                 mUncompressedBytesIn;       // total uncompressed size of compressed packets in
+    std::atomic<S64>    mUncompressedBytesIn;       // total uncompressed size of compressed packets in
     S64                 mUncompressedBytesOut;      // total uncompressed size of compressed packets out
-    S64                 mCompressedBytesIn;     // total compressed size of compressed packets in
+    std::atomic<S64>    mCompressedBytesIn;     // total compressed size of compressed packets in
     S64                 mCompressedBytesOut;        // total compressed size of compressed packets out
-    S64                 mTotalBytesIn;          // total size of all uncompressed packets in
+    std::atomic<S64>    mTotalBytesIn;          // total size of all uncompressed packets in
     S64                 mTotalBytesOut;         // total size of all uncompressed packets out
 
     bool                mSendReliable;              // does the outgoing message require a pos ack?
