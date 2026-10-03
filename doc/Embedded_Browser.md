@@ -921,23 +921,34 @@ every real change.
   it is now purely about whether to widen LibVLC's role further, not
   whether to have it at all.
 - **Windows, macOS, and Linux are all supported, verified end to end on real
-  media.** This system started Windows-only. macOS was ported next
-  (`llshmframe`, `llcefbrowser`, and the Viewer's own producer/consumer code
-  all build, package, and run end to end, including a real macOS-specific
-  quit-hang bug found and fixed along the way - see "Cross-platform porting
-  notes" below). Linux support followed: `llshmframe` and `llcefbrowser`
-  both build, link, and package correctly on Linux, confirmed by their own
-  CI. The Viewer-side Linux integration hit one real, Linux-specific bug of
-  its own - CEF's GPU process failed its zygote pre-fork handshake when
-  sandboxing is off, since `--no-sandbox` alone does not disable the zygote
-  mechanism - fixed with an explicit `--no-zygote` switch
-  (`llcefbrowser` v1.49.0). Confirmed working end to end under a real Linux
-  environment (WSL2/Ubuntu-22.04), including against the actual published
-  package, not just a local build. Keyboard input into embedded-browser
-  media now works on Linux too (`LLWindowSDL::getNativeKeyData()` gained the
-  same `cef_*` field translation Windows and macOS already had, reusing the
-  existing SDL-to-Windows-VK keycode table) - confirmed via real typed text
-  in the Media Monitor floater's own web page under WSL2/WSLg.
+  CEF media - LibVLC media (RTSP/RTMP, parcel audio) is confirmed on
+  Windows and macOS only; Linux is a known, open gap.** This system started
+  Windows-only. macOS was ported next (`llshmframe`, `llcefbrowser`, and the
+  Viewer's own producer/consumer code all build, package, and run end to
+  end, including a real macOS-specific quit-hang bug found and fixed along
+  the way - see "Cross-platform porting notes" below; a real macOS-specific
+  LibVLC plugin-loading bug is documented separately above). Linux support
+  followed: `llshmframe` and `llcefbrowser` both build, link, and package
+  correctly on Linux, confirmed by their own CI. The Viewer-side Linux
+  integration hit one real, Linux-specific bug of its own - CEF's GPU
+  process failed its zygote pre-fork handshake when sandboxing is off,
+  since `--no-sandbox` alone does not disable the zygote mechanism - fixed
+  with an explicit `--no-zygote` switch (`llcefbrowser` v1.49.0). Confirmed
+  working end to end under a real Linux environment (WSL2/Ubuntu-22.04),
+  including against the actual published package, not just a local build.
+  Keyboard input into embedded-browser media now works on Linux too
+  (`LLWindowSDL::getNativeKeyData()` gained the same `cef_*` field
+  translation Windows and macOS already had, reusing the existing
+  SDL-to-Windows-VK keycode table) - confirmed via real typed text in the
+  Media Monitor floater's own web page under WSL2/WSLg. **LibVLC media
+  specifically (RTSP/RTMP prim media, parcel audio) does not yet work on
+  Linux** - the same "no plugin loads" symptom macOS had before its
+  `VLC_PLUGIN_PATH` fix (see "Different platforms need genuinely different
+  LibVLC handling" above), confirmed NOT caused by a missing
+  `vlc-plugin-base` package, root cause still open. A separate, unrelated
+  Linux-only crash immediately after login was also found the same day and
+  is likewise still open - both deliberately parked (2026-10-02) in favor
+  of finishing macOS verification first.
 - **Linux needs `libnss3`/`libnspr4` present on the target system.**
   `libcef.so` depends on these NSS/NSPR libraries at runtime but does not
   bundle them - this matches CEF's own upstream distribution convention
@@ -1035,11 +1046,68 @@ happens to have included `<windows.h>` first.
 
 **Different platforms need genuinely different LibVLC handling.**
 Windows and macOS vendor their own LibVLC binary (the `vlc-bin` autobuild
-package) for both `secondlife-bin.exe` (parcel audio) and `SLVlcProducer.exe`
-(RTSP/RTMP media). Linux links against the system's own installed LibVLC
-instead, via `pkg_check_modules(libvlc)` (see `LibVLCPlugin.cmake`) - there
-is nothing of ours to copy into the packaged build, and no rpath entry is
-needed for it either, unlike `libcef.so`.
+package) for `SLVlcProducer.exe` -- the only place either platform still
+links libvlc at all since Phase 2 of the licensing split (2026-10-01)
+moved parcel audio behind IPC too, see "Why two producer processes" above.
+Linux links against the system's own installed LibVLC instead, via
+`pkg_check_modules(libvlc)` (see `LibVLCPlugin.cmake`) - there is nothing
+of ours to copy into the packaged build, and no rpath entry is needed for
+it either, unlike `libcef.so`.
+
+**A vendored, dynamically-loaded plugin library needs its search path told
+to it explicitly - nothing on macOS infers it the way Windows does.**
+RTSP/RTMP media and parcel audio both completely failed on a real, signed,
+notarized macOS build the first time either was actually tested end to end
+(2026-10-02) - `libvlc_new()` itself failed outright, with no crash and no
+obvious error anywhere in `secondlife.log`, `SLVlcProducer`'s own
+console/banner output looking completely normal regardless (nothing there
+checks libvlc's own init success - see `LibVlcTabManager::IsReady()`,
+added the same day specifically so this can never be silently invisible
+again). The real cause: Windows' `libvlc.dll` auto-discovers its own
+sibling `plugins\` folder via the OS's standard DLL search-path convention
+(the directory a DLL loaded from is searched first); the vendored
+`libvlc.dylib`/`libvlccore.dylib` bundled for macOS makes no such
+assumption on its own. Without the `VLC_PLUGIN_PATH` environment variable
+explicitly set before `libvlc_new()` is ever called, it cannot locate a
+single one of its ~350 plugin modules (demux, access, decoder, logger -
+all of them), which looks like nothing failed at the API level but leaves
+every piece of actual functionality silently crippled: no RTSP/RTMP access
+module ever loads (so no stream is ever even attempted, let alone played),
+and even libvlc's own internal diagnostic logging option
+(`--file-logging`) is reported as an "unknown option", since that's
+contributed by a plugin too. Fixed by setting `VLC_PLUGIN_PATH` to the
+plugins directory bundled alongside `SLVlcProducer.exe`, on macOS only
+(Linux's own system-installed libvlc already has its own correct default
+path compiled in, and has no bundled `plugins/` directory sitting next to
+this executable to point at in the first place - pointing this variable
+at a nonexistent location there would make things worse, not better).
+Confirmed via a real signed/notarized macOS build: `libvlc_log.txt` now
+shows a genuine RTSP connection (`access_demux module "live555"`), real
+H264 stream data parsed, hardware decode via `videotoolbox`, and libvlc's
+own `` `rtsp://...' successfully opened `` message - RTSP video and parcel
+audio both now work end to end on macOS for the first time in this
+project's history.
+
+A second, real, independent bug was found and fixed alongside this one:
+`SLVlcProducer`'s own bundled `libvlc*.dylib*`/`plugins/*.dylib` files
+(in the external `secondlife/viewer-build-util` repo's `sign-pkg-mac/
+sign.sh`) were never covered by any explicit code-signing pattern, unlike
+CEF's own `Libraries/*.dylib` - relying entirely on the generic
+`codesign --deep` pass over the whole app bundle, which this exact
+script's own comment already documents as unreliable for deeply nested
+loose files (the same reason the CEF framework binary itself needed
+explicit signing). Fixed in `viewer-build-util` v2.1.7. This turned out
+not to be the actual blocker for `libvlc_new()` itself (a quarantine
+attribute reappearing on a freshly re-downloaded file is normal regardless
+of signing, not proof the signing fix failed), but is still a real,
+independent correctness fix worth having on its own merits.
+
+Linux shows the identical "no plugin loads, no media plays" symptom as
+macOS did before this fix - confirmed NOT caused by a missing
+`vlc-plugin-base` package (installing it made no difference) - but the
+`VLC_PLUGIN_PATH` fix above is deliberately *not* applied there (see
+above), so Linux's own root cause is still a separate, open
+investigation.
 
 **The custom, codec-enabled CEF distribution already exists for all three
 platforms.** The "CEF version used" section above describes a distribution
