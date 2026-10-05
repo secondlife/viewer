@@ -310,6 +310,8 @@ void LLFloaterIMSession::initIMSession(const LLUUID& session_id)
     mSessionID = session_id;
     mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
+    updateUniqueName();
+
     if (mSession)
     {
         mIsP2PChat = mSession->isP2PSessionType();

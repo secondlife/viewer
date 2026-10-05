@@ -146,6 +146,9 @@ protected:
     // Update the input field help text and other places that need the session name
     virtual void updateSessionName(const std::string& name);
 
+    // Use a unique root name for LEAP conversation lookups.
+    void updateUniqueName();
+
     // set the enable/disable state for the Call button
     virtual void enableDisableCallBtn();
 
