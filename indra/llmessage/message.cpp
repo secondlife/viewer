@@ -3495,7 +3495,7 @@ void LLMessageSystem::setHandlerFuncThrdFast(const char* name, void (*handler_fu
 {
     // Unresolved concerns/TODO:
     // mCircuitInfo will require thread protection, without that
-    // getSenderID() is not safe to call from dispatchDecodedOnThread().
+    // getSenderID() is not safe to call from tryDispatchDecodedOnThread().
 
     LLMessageTemplate* msgtemplate = get_ptr_in_map(mMessageTemplates, name);
     if (msgtemplate)
@@ -3537,7 +3537,11 @@ bool LLMessageSystem::callHandler(const char *name,
 
 namespace
 {
-    void dispatch_decoded_impl(LLMessageSystem* self, LLDecodedMessage& msg, LLTemplateMessageReader* dispatch_reader, LLMessageReaderPointer& message_reader)
+    // Returns false only when udp_thread_only is true and the template's
+    // current registration says the handler must run on the main thread;
+    // in that case no handler was invoked and the caller should queue the
+    // message for main-thread dispatch.
+    bool dispatch_decoded_impl(LLMessageSystem* self, LLDecodedMessage& msg, LLTemplateMessageReader* dispatch_reader, LLMessageReaderPointer& message_reader, bool udp_thread_only = false)
     {
         // Point the template reader at this message's owned data for the
         // duration of the handler call, so getUUIDFast()/getS32Fast()/etc.
@@ -3560,7 +3564,7 @@ namespace
                 << " from "
                 << (msg.mTrusted ? "trusted " : "untrusted ")
                 << "source" << LL_ENDL;
-            return;
+            return true;
         }
 
         static thread_local LLTimer decode_timer;
@@ -3569,7 +3573,17 @@ namespace
             decode_timer.reset();
         }
 
-        if (!msg.mTemplate->callHandlerFunc(self))
+        if (udp_thread_only)
+        {
+            // Snapshots route + handler under a single lock, so a
+            // registration change can't make a main-thread-only handler
+            // run here.
+            if (!msg.mTemplate->callHandlerFuncIfThreaded(self))
+            {
+                return false;
+            }
+        }
+        else if (!msg.mTemplate->callHandlerFunc(self))
         {
             LL_WARNS() << "Message from " << msg.mSender
                 << " with no handler function received: "
@@ -3604,6 +3618,8 @@ namespace
                 }
             }
         }
+
+        return true;
     }
 }
 
@@ -3618,7 +3634,7 @@ void LLMessageSystem::dispatchDecoded(LLDecodedMessage& msg)
     dispatch_decoded_impl(this, msg, mDispatchMessageReader, mMessageReader);
 }
 
-void LLMessageSystem::dispatchDecodedOnThread(LLDecodedMessage& msg)
+bool LLMessageSystem::tryDispatchDecodedOnThread(LLDecodedMessage& msg)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     // UDP thread only.
@@ -3626,7 +3642,7 @@ void LLMessageSystem::dispatchDecodedOnThread(LLDecodedMessage& msg)
     sLastReceivingIF = msg.mReceivingInterface;
     sCurrentRecvPacketID = msg.mPacketID;
     sIncomingCompressedSize = msg.mCompressedSize;
-    dispatch_decoded_impl(this, msg, mThrdDispatchMessageReader, mMessageReader);
+    return dispatch_decoded_impl(this, msg, mThrdDispatchMessageReader, mMessageReader, true);
 }
 
 bool LLMessageSystem::isHandledOnUdpThread(const LLDecodedMessage& msg) const

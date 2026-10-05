@@ -897,11 +897,15 @@ public:
     void dispatchDecoded(LLDecodedMessage& msg);
 
     // Dispatches msg's handler directly on the calling thread using a
-    // reader dedicated to LLUDPReceiverThread.
-    void dispatchDecodedOnThread(LLDecodedMessage& msg);
+    // reader dedicated to LLUDPReceiverThread, but only if the template's
+    // handler registration (route and handler snapshotted together) says
+    // it is safe to run there. Returns false without calling any handler
+    // if the message must be dispatched on the main thread instead.
+    bool tryDispatchDecodedOnThread(LLDecodedMessage& msg);
 
     // Returns true if msg's template was registered for
-    // handling on UDP thread
+    // handling on UDP thread. Informational only, dispatch should use
+    // tryDispatchDecodedOnThread().
     bool isHandledOnUdpThread(const LLDecodedMessage& msg) const;
 
     bool tryPopDecoded(std::unique_ptr<LLDecodedMessage>& out)

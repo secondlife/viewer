@@ -139,12 +139,13 @@ void LLUDPReceiverThread::run()
                 std::unique_ptr<LLDecodedMessage> decoded = gMessageSystem->decodeDataOwned();
                 if (decoded)
                 {
-                    if (gMessageSystem->isHandledOnUdpThread(*decoded))
-                    {
-                        LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp thread dispatch");
-                        gMessageSystem->dispatchDecodedOnThread(*decoded);
-                    }
-                    else
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp thread dispatch");
+                    // Route and handler are snapshotted together under a
+                    // single lock, so a registration change can't cause a
+                    // main-thread-only handler to run here; in that case
+                    // this returns false without calling anything and the
+                    // message goes to the main thread's queue.
+                    if (!gMessageSystem->tryDispatchDecodedOnThread(*decoded))
                     {
                         gMessageSystem->pushDecoded(std::move(decoded));
                     }

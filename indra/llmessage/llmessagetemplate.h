@@ -405,7 +405,7 @@ public:
         void (*handler_func)(LLMessageSystem*, void**);
         void** user_data;
         {
-            std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
+            std::shared_lock<std::shared_mutex> lock(sHandlerMutex);
             handler_func = mHandlerFunc;
             user_data = mUserData;
         }
@@ -417,11 +417,40 @@ public:
         return false;
     }
 
+    // Atomically snapshots the route flag together with the handler, so a
+    // concurrent registration change can't slip in between a route check
+    // and the handler call. Invokes the handler directly (outside the lock)
+    // only if the registration seen under the lock is safe to run on
+    // LLUDPReceiverThread. Returns false if the current registration is
+    // main-thread-only, in which case nothing was called and the caller
+    // should queue the message for main-thread dispatch instead.
+    bool callHandlerFuncIfThreaded(LLMessageSystem* msgsystem) const
+    {
+        void (*handler_func)(LLMessageSystem*, void**);
+        void** user_data;
+        {
+            std::shared_lock<std::shared_mutex> lock(sHandlerMutex);
+            if (!mHandleOnUdpThread)
+            {
+                return false;
+            }
+            handler_func = mHandlerFunc;
+            user_data = mUserData;
+        }
+        if (handler_func)
+        {
+            handler_func(msgsystem, user_data);
+        }
+        return true;
+    }
+
     // True if this message's handler should be invoked directly on
     // LLUDPReceiverThread rather than queued for main-thread dispatch.
+    // Informational only: dispatch must use callHandlerFuncIfThreaded(),
+    // which snapshots the route and the handler under a single lock.
     bool isHandledOnUdpThread() const
     {
-        std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
+        std::shared_lock<std::shared_mutex> lock(sHandlerMutex);
         return mHandleOnUdpThread;
     }
 
