@@ -819,7 +819,7 @@ bool idle_startup()
 #endif
                 if (gAudiop->init(window_handle, LLAppViewer::instance()->getSecondLifeTitle()))
                 {
-                    LL_INFOS("AppInit") << "Using LibVLC (linked directly, no plugin process) to render streaming audio" << LL_ENDL;
+                    LL_INFOS("AppInit") << "Using LibVLC (via IPC to SLVlcProducer) to render streaming audio" << LL_ENDL;
                     gAudiop->setStreamingAudioImpl(new LLStreamingAudio_LibVLC());
 
                     gAudiop->setMuted(true);
