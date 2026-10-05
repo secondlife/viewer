@@ -976,7 +976,7 @@ private:
 
     F64Seconds                                      mResendDumpTime; // The last time we dumped resends
 
-    LLMessageCountInfo mMessageCountList[MAX_MESSAGE_COUNT_NUM];
+    LLMessageCountInfo mMessageCountList[MAX_MESSAGE_COUNT_NUM]; // Main thread only, don't use on UDP.
     S32 mNumMessageCounts;
     F32Seconds mReceiveTime;
     F32Seconds mMaxMessageTime; // Max number of seconds for processing messages

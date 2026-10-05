@@ -3348,6 +3348,9 @@ void LLMessageSystem::resetReceiveCounts()
 
 void LLMessageSystem::dumpReceiveCounts()
 {
+    // mMessageCountList is not secure, if this gets called from UDP thread, schedule to main one
+    assert_main_thread();
+
     LLMessageTemplate       *mt;
 
     for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
