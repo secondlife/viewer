@@ -273,6 +273,7 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
 {
     LLReliablePacket *packetp;
+    std::vector<LLReliablePacket *> timed_out_packets;
 
 
     //
@@ -282,7 +283,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
     // I'm not going to worry about this for now - djs
     //
 
-    std::lock_guard<std::mutex> lock(mDataMutex);
+    std::unique_lock<std::mutex> lock(mDataMutex);
     reliable_iter iter;
     bool have_resend_overflow = false;
     for (iter = mUnackedPackets.begin(); iter != mUnackedPackets.end();)
@@ -405,17 +406,12 @@ S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
                 LL_INFOS() << str.str() << LL_ENDL;
             }
 
-            if (packetp->mCallback)
-            {
-                packetp->mCallback(packetp->mCallbackData,LL_ERR_TCP_TIMEOUT);
-            }
-
             // Update stats
             mUnackedPacketCount--;
             mUnackedPacketBytes -= packetp->mBufferLength;
 
             mFinalRetryPackets.erase(iter++);
-            delete packetp;
+            timed_out_packets.push_back(packetp);
         }
         else
         {
@@ -423,7 +419,18 @@ S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
         }
     }
 
-    return mUnackedPacketCount;
+    S32 unacked_packet_count = mUnackedPacketCount;
+    lock.unlock();
+    for (packetp : timed_out_packets)
+    {
+        if (packetp->mCallback)
+        {
+            packetp->mCallback(packetp->mCallbackData, LL_ERR_TCP_TIMEOUT);
+        }
+        delete packetp;
+    }
+
+    return unacked_packet_count;
 }
 
 
