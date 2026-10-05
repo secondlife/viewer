@@ -157,6 +157,7 @@ thread_local S32 LLMessageSystem::sIncomingCompressedSize = 0;
 thread_local TPACKETID LLMessageSystem::sCurrentRecvPacketID = 0;
 thread_local S32 LLMessageSystem::sTrueReceiveSize = 0;
 thread_local U8 LLMessageSystem::sTrueReceiveBuffer[MAX_BUFFER_SIZE];
+thread_local LLMessageReader* LLMessageReaderPointer::sUdpThreadPtr = nullptr;
 
 void LLMessageSystem::init()
 {
@@ -3350,7 +3351,7 @@ void LLMessageSystem::resetReceiveCounts()
 
 void LLMessageSystem::dumpReceiveCounts()
 {
-    // mMessageCountList is not secure, if this gets called from UDP thread, schedule to main one
+    // mMessageCountList is not thread-safe; access it only on the main thread.
     assert_main_thread();
 
     LLMessageTemplate       *mt;
@@ -3545,6 +3546,7 @@ namespace
     // current registration says the handler must run on the main thread;
     // in that case no handler was invoked and the caller should queue the
     // message for main-thread dispatch.
+    template <typename LockT>
     bool dispatch_decoded_impl(LLMessageSystem* self, LLDecodedMessage& msg, LLTemplateMessageReader* dispatch_reader, LLMessageReaderPointer& message_reader, bool udp_thread_only = false)
     {
         // Point the template reader at this message's owned data for the
@@ -3558,9 +3560,6 @@ namespace
         LLMessageTemplate* msg_template = const_cast<LLMessageTemplate*>(msg.mTemplate);
         dispatch_reader->setCurrentMessageData(msg_template, msg.mData.get(), msg.mReceiveSize);
 
-        // Set reader for get*Fast() methods
-        LockMessageReader rdr(message_reader, dispatch_reader);
-
         if (msg.mTemplate->isBanned(msg.mTrusted))
         {
             LL_WARNS("Messaging") << "LLMessageSystem::callHandler: banned message "
@@ -3572,29 +3571,33 @@ namespace
         }
 
         static thread_local LLTimer decode_timer;
-        if (LLMessageReader::getTimeDecodes() || self->getTimingCallback())
+        bool time_decode = LLMessageReader::getTimeDecodes() || self->getTimingCallback();
+        if (time_decode)
         {
             decode_timer.reset();
         }
 
-        if (udp_thread_only)
         {
-            // Snapshots route + handler under a single lock, so a
-            // registration change can't make a main-thread-only handler
-            // run here.
-            if (!msg.mTemplate->callHandlerFuncIfThreaded(self))
+            LockT rdr(message_reader, dispatch_reader);
+            if (udp_thread_only)
             {
-                return false;
+                // Snapshots route + handler under a single lock, so a
+                // registration change can't make a main-thread-only handler
+                // run here.
+                if (!msg.mTemplate->callHandlerFuncIfThreaded(self))
+                {
+                    return false;
+                }
+            }
+            else if (!msg.mTemplate->callHandlerFunc(self))
+            {
+                LL_WARNS() << "Message from " << msg.mSender
+                    << " with no handler function received: "
+                    << msg.mTemplate->mName << LL_ENDL;
             }
         }
-        else if (!msg.mTemplate->callHandlerFunc(self))
-        {
-            LL_WARNS() << "Message from " << msg.mSender
-                << " with no handler function received: "
-                << msg.mTemplate->mName << LL_ENDL;
-        }
 
-        if (LLMessageReader::getTimeDecodes() || self->getTimingCallback())
+        if (time_decode)
         {
             F32 decode_time = decode_timer.getElapsedTimeF32();
 
@@ -3635,7 +3638,7 @@ void LLMessageSystem::dispatchDecoded(LLDecodedMessage& msg)
     sLastReceivingIF = msg.mReceivingInterface;
     sCurrentRecvPacketID = msg.mPacketID;
     sIncomingCompressedSize = msg.mCompressedSize;
-    dispatch_decoded_impl(this, msg, mDispatchMessageReader, mMessageReader);
+    dispatch_decoded_impl<LockMessageReader>(this, msg, mDispatchMessageReader, mMessageReader);
 }
 
 bool LLMessageSystem::tryDispatchDecodedOnThread(LLDecodedMessage& msg)
@@ -3646,7 +3649,7 @@ bool LLMessageSystem::tryDispatchDecodedOnThread(LLDecodedMessage& msg)
     sLastReceivingIF = msg.mReceivingInterface;
     sCurrentRecvPacketID = msg.mPacketID;
     sIncomingCompressedSize = msg.mCompressedSize;
-    return dispatch_decoded_impl(this, msg, mThrdDispatchMessageReader, mMessageReader, true);
+    return dispatch_decoded_impl<LockMessageReaderFast>(this, msg, mThrdDispatchMessageReader, mMessageReader, true);
 }
 
 bool LLMessageSystem::isHandledOnUdpThread(const LLDecodedMessage& msg) const
@@ -3923,11 +3926,15 @@ void LLMessageSystem::sendCreateTrustedCircuit(const LLHost &host, const LLUUID 
 
 void LLMessageSystem::sendDenyTrustedCircuit(const LLHost &host)
 {
-    LL::WorkQueue::getInstance("mainloop")->post(
-        [this, host]()
+    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+    if (main_queue)
     {
-        mDenyTrustedCircuitSet.insert(host);
-    });
+        main_queue->post(
+            [this, host]()
+        {
+            mDenyTrustedCircuitSet.insert(host);
+        });
+    }
 }
 
 void LLMessageSystem::reallySendDenyTrustedCircuit(const LLHost &host)

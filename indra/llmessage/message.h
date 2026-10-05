@@ -272,14 +272,37 @@ public:
     LLMessageReaderPointer(): mPtr(nullptr) {}
     // It is essential that comparison and dereferencing must be fast, which
     // is why we don't check for nullptr when dereferencing.
-    LLMessageReader* operator->() const { return mPtr; }
-    bool operator==(const LLMessageReader* other) const { return mPtr == other; }
-    bool operator!=(const LLMessageReader* other) const { return ! (*this == other); }
+    LLMessageReader* operator->() const { return sUdpThreadPtr ? sUdpThreadPtr : mPtr; }
+    bool operator==(const LLMessageReader* other) const { return (sUdpThreadPtr ? sUdpThreadPtr : mPtr) == other; }
+    bool operator!=(const LLMessageReader* other) const { return !(*this == other); }
 private:
     // Only LockMessageReader can set mPtr.
     friend class LockMessageReader;
-    LLMessageReader* mPtr;
+    friend class LockMessageReaderFast;
+    LLMessageReader* mPtr; // keeping mPrt insytead of reusing sUdpThreadPtr because main thread uses coroutines
     LLCoros::Mutex mMutex;
+
+    static thread_local LLMessageReader* sUdpThreadPtr;
+};
+
+// Lock-free counterpart to LockMessageReader
+class LockMessageReaderFast
+{
+public:
+    LockMessageReaderFast(LLMessageReaderPointer& var, LLMessageReader* instance) :
+        mVar(var.sUdpThreadPtr)
+    {
+        mVar = instance;
+    }
+    LockMessageReaderFast(const LockMessageReaderFast&) = delete;
+    LockMessageReaderFast& operator=(const LockMessageReaderFast&) = delete;
+    ~LockMessageReaderFast()
+    {
+        mVar = nullptr;
+    }
+private:
+    // capture a reference to LLMessageReaderPointer::sUdpThreadPtr
+    decltype(LLMessageReaderPointer::sUdpThreadPtr)& mVar;
 };
 
 /**

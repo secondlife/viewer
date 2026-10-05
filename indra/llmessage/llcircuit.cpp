@@ -1106,15 +1106,16 @@ bool LLCircuitData::checkCircuitTimeout()
 // correctly place the packet in the correct list to be acked later.
 bool LLCircuitData::collectRAck(TPACKETID packet_num)
 {
-    std::lock_guard<std::mutex> circuit_lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
     std::lock_guard<std::mutex> data_lock(mDataMutex);
     if (mAcks.empty())
     {
+        std::lock_guard<std::mutex> circuit_lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
         // First extra ack, we need to add ourselves to the list of circuits that need to send acks
         gMessageSystem->mCircuitInfo.mSendAckMap[mHost] = this;
     }
 
     mAcks.push_back(packet_num);
+    std::lock_guard<std::mutex> circuit_lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
     if (mAckCreationTime == 0)
     {
         mAckCreationTime = getAgeInSeconds();
