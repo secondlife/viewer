@@ -1333,11 +1333,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>54bea6ca65c57eda548fb7f57a7eeb17e2cadf05</string>
+              <string>2361b6920de19f528d6d4a33f8fbb01f25684945</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/lsl-definitions/releases/download/v0.6.13.2/lsl_definitions-0.6.13-common-32865298211.tar.zst</string>
+              <string>https://github.com/secondlife/lsl-definitions/releases/download/v0.7.0-game-control/lsl_definitions-0.7.0-game-control-common-36716452398.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -1348,9 +1348,9 @@
         <key>license_file</key>
         <string>LICENSES/lsl_definitions.txt</string>
         <key>copyright</key>
-        <string>Copyright (c) 2026, Linden Lab</string>
+        <string>Copyright (c) 2026, Linden Research, Inc.</string>
         <key>version</key>
-        <string>0.6.13</string>
+        <string>0.7.0-game-control</string>
         <key>use_scm_version</key>
         <boolean>true</boolean>
         <key>name</key>
