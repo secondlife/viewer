@@ -1004,7 +1004,10 @@ bool LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
         if (delta_t_usec > timeout)
         {
             // let's call this one a loss!
-            mPacketsLost++;
+            {
+                std::lock_guard<std::mutex> lock(mDataMutex);
+                mPacketsLost++;
+            }
             gMessageSystem->mLostPackets++;
             if(gMessageSystem->mVerboseLog)
             {
@@ -1353,12 +1356,14 @@ void LLCircuitData::pingTimerStart()
 
 U32 LLCircuitData::getPacketsIn() const
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     return mPacketsIn;
 }
 
 
 S32Bytes LLCircuitData::getBytesIn() const
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     return mBytesIn;
 }
 
@@ -1383,6 +1388,7 @@ TPACKETID LLCircuitData::getPacketOutID() const
 
 U32 LLCircuitData::getPacketsLost() const
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     return mPacketsLost;
 }
 
@@ -1447,13 +1453,13 @@ F32Milliseconds LLCircuitData::getPingDelayAveraged()
 
 bool LLCircuitData::getTrusted() const
 {
-    return mTrusted;
+    return mTrusted.load(std::memory_order_relaxed);
 }
 
 
 void LLCircuitData::setTrusted(bool t)
 {
-    mTrusted = t;
+    mTrusted.store(t, std::memory_order_relaxed);
 }
 
 F32 LLCircuitData::getAgeInSeconds() const

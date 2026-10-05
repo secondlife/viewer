@@ -30,6 +30,8 @@
 #include "llhost.h"
 #include "lliosocket.h"
 #include "llmemory.h"
+#include <atomic>
+
 #include "llsingleton.h"
 #include "llthread.h"
 #include "llmutex.h"
@@ -230,7 +232,7 @@ class LLProxy: public LLSingleton<LLProxy>
 
 public:
     // Static check for enabled status for UDP packets. Call from main thread only.
-    static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled; }
+    static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled.load(std::memory_order_relaxed); }
 
     // Get the UDP proxy address and port. Call from main thread only.
     LLHost getUDPProxy() const { return mUDPProxy; }
@@ -311,7 +313,7 @@ private:
     ###########################################################################################*/
 
     // Is the UDP proxy enabled?
-    static bool sUDPProxyEnabled;
+    static std::atomic_bool sUDPProxyEnabled;
 
     // UDP proxy address and port
     LLHost mUDPProxy;
