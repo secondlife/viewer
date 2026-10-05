@@ -250,7 +250,7 @@
       name="compile_target_lsl2"
       value="lsl2" />
     <combo_box.item
-      label="LSL on Luau"
+      label="LSL on Lua"
       name="compile_target_lsl_luau"
       value="lsl-luau" />
     <combo_box.item
