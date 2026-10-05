@@ -667,7 +667,8 @@ bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
                     }
                     decode_pos += data_size;
 
-                    if ((S64)decode_pos + tsize > mReceiveSize)
+                    // A missing length (tsize 0, from an older template) is fine.
+                    if (tsize > 0 && (S64)decode_pos + tsize > mReceiveSize)
                     {
                         // The length says the data runs past the end of the packet.  Copying
                         // it would read past the receive buffer, and everything after it
