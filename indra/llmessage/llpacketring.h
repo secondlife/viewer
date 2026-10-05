@@ -87,4 +87,5 @@ private:
     S16 mHeadIndex          { 0 };
     std::atomic<S16> mNumBufferedPackets { 0 };
     std::atomic<S32> mNumBufferedBytes   { 0 };
+    std::atomic<F32> mBufferLoadRate     { 0.0f };
 };

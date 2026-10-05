@@ -56,6 +56,7 @@ LLPacketRing::~LLPacketRing()
     mRing.clear();
     mNumBufferedPackets = 0;
     mNumBufferedBytes = 0;
+    mBufferLoadRate = 0.0f;
     mHeadIndex = 0;
 }
 
@@ -88,6 +89,8 @@ void LLPacketRing::pushPacket(const LLPacketBuffer& packet)
         LL_WARNS("PacketRing") << "buffer overflow at " << mNumBufferedPackets << " packets" << LL_ENDL;
         mNumBufferedBytes += packet.getSize() - old_size;
     }
+
+    mBufferLoadRate = (F32)mNumBufferedPackets / (F32)DEFAULT_BUFFER_RING_SIZE;
 }
 
 bool LLPacketRing::popPacket(LLPacketBuffer& packet)
@@ -107,6 +110,7 @@ bool LLPacketRing::popPacket(LLPacketBuffer& packet)
 
     --mNumBufferedPackets;
     mNumBufferedBytes -= packet_size;
+    mBufferLoadRate = (F32)mNumBufferedPackets / (F32)DEFAULT_BUFFER_RING_SIZE;
 
     llassert(mNumBufferedPackets > 0 || mNumBufferedBytes == 0);
 
@@ -144,5 +148,5 @@ bool LLPacketRing::expandRing()
 
 F32 LLPacketRing::getBufferLoadRate() const
 {
-    return (F32)mNumBufferedPackets / (F32)DEFAULT_BUFFER_RING_SIZE;
+    return mBufferLoadRate.load();
 }
