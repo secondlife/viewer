@@ -220,7 +220,7 @@ protected:
     void    (*mTimeoutCallback)(const LLHost &host, void *user_data);
     void    *mTimeoutUserData;
 
-    bool    mTrusted;                   // Is this circuit trusted?
+    std::atomic<bool> mTrusted;         // Is this circuit trusted?
     bool    mbAllowTimeout;             // Machines can "pause" circuits, forcing them not to be dropped
 
     bool    mbAlive;                    // Indicates whether a circuit is "alive", i.e. responded to pings
@@ -325,20 +325,6 @@ public:
     void            dumpResends();
 
     typedef std::map<LLHost, LLCircuitData*> circuit_data_map;
-
-    /**
-     * @brief This method gets an iterator range starting after key in
-     * the circuit data map.
-     *
-     * @param key The the host before first.
-     * @param first[out] The first matching value after key. This
-     * value will equal end if there are no entries.
-     * @param end[out] The end of the iteration sequence.
-     */
-    void getCircuitRange(
-        const LLHost& key,
-        circuit_data_map::iterator& first,
-        circuit_data_map::iterator& end);
 
     // Lists that optimize how many circuits we need to traverse a frame
     // HACK - this should become protected eventually, but stupid !@$@# message system/circuit classes are jumbling things up.

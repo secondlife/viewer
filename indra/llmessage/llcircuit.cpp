@@ -421,13 +421,13 @@ S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
 
     S32 unacked_packet_count = mUnackedPacketCount;
     lock.unlock();
-    for (packetp : timed_out_packets)
+    for (auto timeoutedp : timed_out_packets)
     {
-        if (packetp->mCallback)
+        if (timeoutedp->mCallback)
         {
-            packetp->mCallback(packetp->mCallbackData, LL_ERR_TCP_TIMEOUT);
+            timeoutedp->mCallback(timeoutedp->mCallbackData, LL_ERR_TCP_TIMEOUT);
         }
-        delete packetp;
+        delete timeoutedp;
     }
 
     return unacked_packet_count;
@@ -1261,6 +1261,8 @@ void LLCircuitData::dumpResendCountAndReset()
 std::ostream& operator<<(std::ostream& s, LLCircuit &circuit)
 {
     s << "Circuit Info:" << std::endl;
+
+    std::lock_guard<std::mutex> lock(circuit.mCircuitMutex);
     LLCircuit::circuit_data_map::iterator end = circuit.mCircuitData.end();
     LLCircuit::circuit_data_map::iterator it;
     for(it = circuit.mCircuitData.begin(); it != end; ++it)
@@ -1272,6 +1274,7 @@ std::ostream& operator<<(std::ostream& s, LLCircuit &circuit)
 
 void LLCircuit::getInfo(LLSD& info) const
 {
+    std::lock_guard<std::mutex> lock(mCircuitMutex);
     LLCircuit::circuit_data_map::const_iterator end = mCircuitData.end();
     LLCircuit::circuit_data_map::const_iterator it;
     LLSD circuit_info;
@@ -1280,15 +1283,6 @@ void LLCircuit::getInfo(LLSD& info) const
         (*it).second->getInfo(circuit_info);
         info["Circuits"].append(circuit_info);
     }
-}
-
-void LLCircuit::getCircuitRange(
-    const LLHost& key,
-    LLCircuit::circuit_data_map::iterator& first,
-    LLCircuit::circuit_data_map::iterator& end)
-{
-    end = mCircuitData.end();
-    first = mCircuitData.upper_bound(key);
 }
 
 TPACKETID LLCircuitData::nextPacketOutID()
