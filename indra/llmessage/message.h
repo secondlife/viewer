@@ -527,7 +527,7 @@ public:
     LLStoredMessagePtr getReceivedMessage() const;
     LLStoredMessagePtr getBuiltMessage() const;
     S32 sendMessage(const LLHost &host, LLStoredMessagePtr message);
-    void startUDPThread() { mReceiverThread->start(); }
+    void startUDPThread() { if (mReceiverThread) { mReceiverThread->start(); } }
 
 private:
     LLSD getReceivedMessageLLSD() const;

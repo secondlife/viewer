@@ -373,10 +373,6 @@ public:
 
     void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
     {
-        // For threading safety, don't allow changing the handler type from true.
-        // Keep all handlers of the template on the same thread.
-        llassert_always(!mHandleOnUdpThread);
-
         std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
         mHandlerFunc = handler_func;
         mUserData = user_data;
@@ -441,6 +437,8 @@ public:
         {
             handler_func(msgsystem, user_data);
         }
+        // If there is no handler, treat as if handled, as there is no point in
+        // passing it to main thread, which is just going to ignore the message.
         return true;
     }
 

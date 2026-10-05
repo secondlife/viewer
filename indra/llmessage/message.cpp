@@ -3450,12 +3450,16 @@ S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
                                            LL_PACKET_ID_SIZE, overflow);
     if (overflow)
     {
-        LL::WorkQueue::getInstance("mainloop")->post(
-            [this]()
+        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+        if (main_queue)
         {
-            LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size" << LL_ENDL;
-            callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
-        });
+            main_queue->post(
+                [this]()
+            {
+                LL_WARNS("Messaging") << "attempt to write past reasonable encoded buffer size" << LL_ENDL;
+                callExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE);
+            });
+        }
     }
 
     *data = mEncodedRecvBuffer;

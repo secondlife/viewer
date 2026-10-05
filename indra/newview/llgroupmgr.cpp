@@ -1094,7 +1094,14 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
     LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
     if (!main_queue)
     {
-        LL_ERRS() << "LLGroupMgr::processGroupPropertiesReply() - no main queue!" << LL_ENDL;
+        if (LLApp::isQuitting())
+        {
+            LL_INFOS() << "LLGroupMgr::processGroupPropertiesReply() - app is quitting, dropping message" << LL_ENDL;
+        }
+        else
+        {
+            LL_ERRS() << "LLGroupMgr::processGroupPropertiesReply() - no main queue!" << LL_ENDL;
+        }
         return;
     }
 
