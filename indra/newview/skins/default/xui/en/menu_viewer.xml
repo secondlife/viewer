@@ -1392,7 +1392,7 @@ function="World.EnvPreset"
                function="EditableSelected" />
           </menu_item_call>
           <menu_item_call
-             label="Recompile LSL Scripts (LSL on Luau)"
+             label="Recompile LSL Scripts (LSL on Lua)"
              name="LSL on Luau">
             <menu_item_call.on_click
                function="Tools.SelectedScriptAction"
