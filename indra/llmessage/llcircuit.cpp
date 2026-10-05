@@ -587,12 +587,18 @@ void LLCircuit::resendUnackedPackets(S32& unacked_list_length, S32& unacked_list
     unacked_list_length = 0;
     unacked_list_size = 0;
 
-    std::lock_guard<std::mutex> lock(mCircuitMutex);
-    LLCircuitData* circ;
-    circuit_data_map::iterator end = mUnackedCircuitMap.end();
-    for(circuit_data_map::iterator it = mUnackedCircuitMap.begin(); it != end; ++it)
+    std::vector<LLCircuitData*> circuits;
     {
-        circ = (*it).second;
+        std::lock_guard<std::mutex> lock(mCircuitMutex);
+        circuits.reserve(mUnackedCircuitMap.size());
+        for (const auto& entry : mUnackedCircuitMap)
+        {
+            circuits.push_back(entry.second);
+        }
+    }
+
+    for (LLCircuitData* circ : circuits)
+    {
         unacked_list_length += circ->resendUnackedPackets(now);
         unacked_list_size += circ->getUnackedPacketBytes();
     }
