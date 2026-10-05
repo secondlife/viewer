@@ -191,16 +191,45 @@ LLCircuitData::~LLCircuitData()
 
 void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
 {
-    std::lock_guard<std::mutex> lock(mDataMutex);
-    reliable_iter iter;
-    LLReliablePacket *packetp;
+    LLReliablePacket* packetp = nullptr;
 
-    iter = mUnackedPackets.find(packet_num);
-    if (iter != mUnackedPackets.end())
     {
-        packetp = iter->second;
+        std::lock_guard<std::mutex> lock(mDataMutex);
+        reliable_iter iter = mUnackedPackets.find(packet_num);
+        if (iter != mUnackedPackets.end())
+        {
+            packetp = iter->second;
 
-        if(gMessageSystem->mVerboseLog)
+            // Update stats
+            mUnackedPacketCount--;
+            mUnackedPacketBytes -= packetp->mBufferLength;
+
+            mUnackedPackets.erase(iter);
+        }
+        else
+        {
+            iter = mFinalRetryPackets.find(packet_num);
+            if (iter != mFinalRetryPackets.end())
+            {
+                packetp = iter->second;
+
+                // Update stats
+                mUnackedPacketCount--;
+                mUnackedPacketBytes -= packetp->mBufferLength;
+
+                mFinalRetryPackets.erase(iter);
+            }
+            else
+            {
+                // Couldn't find this packet on either of the unacked lists.
+                // maybe it's a duplicate ack?
+            }
+        }
+    }
+
+    if (packetp)
+    {
+        if (gMessageSystem->mVerboseLog)
         {
             std::ostringstream str;
             str << "MSG: <- " << packetp->mHost << "\tRELIABLE ACKED:\t"
@@ -211,60 +240,16 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
         {
             if (packetp->mTimeout < F32Seconds(0.f))   // negative timeout will always return timeout even for successful ack, for debugging
             {
-                packetp->mCallback(packetp->mCallbackData,LL_ERR_TCP_TIMEOUT);
+                packetp->mCallback(packetp->mCallbackData, LL_ERR_TCP_TIMEOUT);
             }
             else
             {
-                packetp->mCallback(packetp->mCallbackData,LL_ERR_NOERR);
+                packetp->mCallback(packetp->mCallbackData, LL_ERR_NOERR);
             }
         }
-
-        // Update stats
-        mUnackedPacketCount--;
-        mUnackedPacketBytes -= packetp->mBufferLength;
 
         // Cleanup
         delete packetp;
-        mUnackedPackets.erase(iter);
-        return;
-    }
-
-    iter = mFinalRetryPackets.find(packet_num);
-    if (iter != mFinalRetryPackets.end())
-    {
-        packetp = iter->second;
-        // LL_INFOS() << "Packet " << packet_num << " removed from the pending list" << LL_ENDL;
-        if(gMessageSystem->mVerboseLog)
-        {
-            std::ostringstream str;
-            str << "MSG: <- " << packetp->mHost << "\tRELIABLE ACKED:\t"
-                << packetp->mPacketID;
-            LL_INFOS() << str.str() << LL_ENDL;
-        }
-        if (packetp->mCallback)
-        {
-            if (packetp->mTimeout < F32Seconds(0.f))   // negative timeout will always return timeout even for successful ack, for debugging
-            {
-                packetp->mCallback(packetp->mCallbackData,LL_ERR_TCP_TIMEOUT);
-            }
-            else
-            {
-                packetp->mCallback(packetp->mCallbackData,LL_ERR_NOERR);
-            }
-        }
-
-        // Update stats
-        mUnackedPacketCount--;
-        mUnackedPacketBytes -= packetp->mBufferLength;
-
-        // Cleanup
-        delete packetp;
-        mFinalRetryPackets.erase(iter);
-    }
-    else
-    {
-        // Couldn't find this packet on either of the unacked lists.
-        // maybe it's a duplicate ack?
     }
 }
 
