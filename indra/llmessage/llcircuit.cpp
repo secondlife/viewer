@@ -799,6 +799,8 @@ void LLCircuitData::checkPacketInID(TPACKETID id, bool receive_resent)
 
 void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 {
+    assert_main_thread(); // Watchdog tracks only one thread.
+
     F64Seconds cur_time = LLMessageSystem::getMessageTimeSeconds();
     size_t count;
     {

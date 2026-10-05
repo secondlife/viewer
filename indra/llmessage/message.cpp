@@ -1071,6 +1071,8 @@ F32 LLMessageSystem::getBufferLoadRate() const
 
 void LLMessageSystem::processAcks(LockMessageChecker&, F32 collect_time)
 {
+    assert_main_thread(); // Main thread only. Make sure it doesn't get called from the UDP thread.
+
     F64Seconds mt_sec = getMessageTimeSeconds();
     {
         processReliableAcks();
