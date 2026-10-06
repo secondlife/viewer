@@ -30,7 +30,6 @@
 
 #include <atomic>
 #include <map>
-#include <memory>
 #include <mutex>
 #include <vector>
 
@@ -76,7 +75,6 @@ class LLSD;
 // Classes
 //
 
-
 // LOCK ORDER
 //
 // Two mutexes guard circuit state: LLCircuit::mCircuitMutex (the circuit maps)
@@ -87,7 +85,7 @@ class LLSD;
 //
 // Never acquire mCircuitMutex while holding a circuit's mDataMutex, and never
 // run callbacks or send messages while holding either of them.
-class LLCircuitData : public std::enable_shared_from_this<LLCircuitData>
+class LLCircuitData
 {
 public:
     LLCircuitData(const LLHost &host, TPACKETID in_id,
@@ -315,32 +313,34 @@ protected:
 class LLCircuit
 {
 public:
-    // Circuits are owned by shared_ptr so that a circuit that is being used
-    // by another thread (the UDP receiver thread decoding a packet) cannot be
-    // destroyed out from under it by removeCircuitData().
-    typedef std::shared_ptr<LLCircuitData> circuit_data_ptr;
-    typedef std::map<LLHost, circuit_data_ptr> circuit_data_map;
-
     // CREATORS
     LLCircuit(const F32Seconds circuit_heartbeat_interval, const F32Seconds circuit_timeout);
     ~LLCircuit();
 
     // ACCESSORS
-    // Only safe to use on the main thread, where a circuit cannot be removed
-    // underneath the caller. Other threads must use findCircuitRef().
+    // The returned circuit stays valid for as long as the caller keeps the
+    // main thread from running removeCircuitData(); on the UDP receiver
+    // thread it stays valid until the next markCircuitsUnused().
     LLCircuitData* findCircuit(const LLHost& host) const;
-    // Returns a reference that keeps the circuit alive for as long as the
-    // caller holds it, even if the circuit is removed meanwhile.
-    circuit_data_ptr findCircuitRef(const LLHost& host) const;
     bool isCircuitAlive(const LLHost& host) const;
 
     // MANIPULATORS
     LLCircuitData   *addCircuitData(const LLHost &host, TPACKETID in_id);
+    // Main thread only. While the UDP receiver thread is running, the circuit
+    // is parked in the graveyard instead of being deleted right away, since
+    // that thread may still be decoding a packet on it.
     void            removeCircuitData(const LLHost &host);
-    // Destroys circuits that were removed while another thread was still
-    // using them. Main thread only, called from removeCircuitData() and
-    // updateWatchDogTimers().
-    void            purgeRetiredCircuits();
+
+    // Called from the main thread, deletes the circuits in the graveyard that
+    // the UDP receiver thread is guaranteed to be done with.
+    void            cleanupGraveyard();
+    // Called from the UDP receiver thread at a point where it does not hold
+    // any LLCircuitData pointer, so that circuits removed before this point
+    // can be deleted by the main thread.
+    void            markCircuitsUnused() { mCircuitsUnusedCount.fetch_add(1); }
+    // Enables the graveyard. Called from the main thread when the UDP
+    // receiver thread is started and after it has been joined.
+    void            setDeferredDeletion(bool defer) { mDeferredDeletion = defer; }
 
     void            updateWatchDogTimers(LLMessageSystem *msgsys);
     void            resendUnackedPackets(S32& unacked_list_length, S32& unacked_list_size);
@@ -353,6 +353,8 @@ public:
     void getInfo(LLSD& info) const;
 
     void            dumpResends();
+
+    typedef std::map<LLHost, LLCircuitData*> circuit_data_map;
 
     // Lists that optimize how many circuits we need to traverse a frame
     // HACK - this should become protected eventually, but stupid !@$@# message system/circuit classes are jumbling things up.
@@ -372,12 +374,17 @@ protected:
     // This variable points to the last circuit data we found to
     // optimize the many, many times we call findCircuit. This may be
     // set in otherwise const methods, so it is declared mutable.
-    mutable circuit_data_ptr mLastCircuit;
+    mutable LLCircuitData* mLastCircuit;
 
-    // Circuits removed from mCircuitData while another thread still held a
-    // reference to them. Destroyed by purgeRetiredCircuits() on the main
-    // thread once the last reference goes away.
-    std::vector<circuit_data_ptr> mRetiredCircuits;
+    // Circuits that were removed from the maps while the UDP receiver thread
+    // might still have been using them, with the value mCircuitsUnusedCount
+    // had at the time of removal. Guarded by mCircuitMutex.
+    std::vector<std::pair<LLCircuitData*, U32> > mGraveyard;
+    // Bumped by the receiver thread whenever it is between packets and hence
+    // holds no circuit pointer. A graveyard entry may be deleted as soon as
+    // this has moved past the value stored with it.
+    std::atomic<U32> mCircuitsUnusedCount;
+    std::atomic<bool> mDeferredDeletion;
 
 private:
     const F32Seconds mHeartbeatInterval;

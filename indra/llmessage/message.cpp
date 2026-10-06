@@ -272,6 +272,9 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
         mDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>();
         mReliableAckQueue = std::make_shared<LLThreadSafeQueue<ReliableAck>>();
         mReceiverThread = std::make_unique<LLUDPReceiverThread>(mSocket, mIncomingQueue);
+        // The receiver thread uses plain LLCircuitData pointers, so circuit
+        // removal has to go through the graveyard while it is alive.
+        mCircuitInfo.setDeferredDeletion(true);
     }
 
 //  LL_DEBUGS("Messaging") <<  << "*** port: " << mPort << LL_ENDL;
@@ -369,6 +372,9 @@ LLMessageSystem::~LLMessageSystem()
         // This may wait for the thread to finish.
         mReceiverThread->shutdown();
     }
+    // The receiver thread is gone, circuits can be deleted right away again.
+    mCircuitInfo.setDeferredDeletion(false);
+    mCircuitInfo.cleanupGraveyard();
 
     mMessageTemplates.clear(); // don't delete templates.
     for_each(mMessageNumbers.begin(), mMessageNumbers.end(), DeletePairedPointer());
@@ -499,10 +505,11 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     S32 compressed_size = zeroCodeExpand(&buffer, &receive_size);
 
     LLHost host = pkt.getHost();
-    // Hold a reference for the whole decode: this runs on the UDP receiver
-    // thread, and the main thread may remove the circuit at any point.
-    // Holding the reference keeps the circuit alive until we are done with it.
-    LLCircuit::circuit_data_ptr cdp = mCircuitInfo.findCircuitRef(host);
+    // This runs on the UDP receiver thread, where a circuit removed by the
+    // main thread is not deleted right away but parked in the circuit
+    // graveyard (see LLCircuit::removeCircuitData()), so the pointer stays
+    // valid until this thread is done with the packet.
+    LLCircuitData* cdp = mCircuitInfo.findCircuit(host);
     const TPACKETID recv_packet_id = ntohl(*((U32*)(&buffer[1])));
     const bool recv_reliable = (buffer[0] & LL_RELIABLE_FLAG) != 0;
     const bool recv_resent = (buffer[0] & LL_RESENT_FLAG) != 0;
@@ -575,7 +582,7 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
         }
     }
 
-    logValidMsg(cdp.get(), host, recv_reliable, recv_resent, !ack_ids.empty(), true);
+    logValidMsg(cdp, host, recv_reliable, recv_resent, !ack_ids.empty(), true);
 
     auto decoded = std::make_unique<LLDecodedMessage>();
     {
@@ -1803,7 +1810,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
             // We are adding the first packed onto the unacked packet list(s)
             // Add this circuit to the list of circuits with unacked packets
             std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
-            mCircuitInfo.mUnackedCircuitMap[cdp->mHost] = cdp->shared_from_this();
+            mCircuitInfo.mUnackedCircuitMap[cdp->mHost] = cdp;
         }
 
         cdp->addReliablePacket(mSocket,buf_ptr,buffer_length, &mReliablePacketParams);

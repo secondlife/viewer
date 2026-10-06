@@ -61,6 +61,11 @@ void LLUDPReceiverThread::run()
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 
+        // Nothing is being decoded at this point, so no circuit pointer is
+        // held: tell the main thread that circuits removed before now can be
+        // deleted (see LLCircuit::cleanupGraveyard()).
+        gMessageSystem->mCircuitInfo.markCircuitsUnused();
+
         LLHost invalid_host;
         LLPacketBuffer pkt(invalid_host, nullptr, 0);
         S32 packet_size = 0;
