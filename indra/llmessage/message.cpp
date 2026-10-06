@@ -499,7 +499,10 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     S32 compressed_size = zeroCodeExpand(&buffer, &receive_size);
 
     LLHost host = pkt.getHost();
-    LLCircuitData* cdp = mCircuitInfo.findCircuit(host);
+    // Hold a reference for the whole decode: this runs on the UDP receiver
+    // thread, and the main thread may remove the circuit at any point.
+    // Holding the reference keeps the circuit alive until we are done with it.
+    LLCircuit::circuit_data_ptr cdp = mCircuitInfo.findCircuitRef(host);
     const TPACKETID recv_packet_id = ntohl(*((U32*)(&buffer[1])));
     const bool recv_reliable = (buffer[0] & LL_RELIABLE_FLAG) != 0;
     const bool recv_resent = (buffer[0] & LL_RESENT_FLAG) != 0;
@@ -524,7 +527,7 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     if (!cdp &&
         (mTemplateMessageReader->getMessageName() != _PREHASH_UseCircuitCode))
     {
-        logMsgFromInvalidCircuit(host, pkt.getPacketIDChecked());
+        logMsgFromInvalidCircuit(host, recv_reliable);
         return nullptr;
     }
 
@@ -572,7 +575,7 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
         }
     }
 
-    logValidMsg(cdp, host, recv_reliable, recv_resent, !ack_ids.empty(), true);
+    logValidMsg(cdp.get(), host, recv_reliable, recv_resent, !ack_ids.empty(), true);
 
     auto decoded = std::make_unique<LLDecodedMessage>();
     {
@@ -1207,17 +1210,25 @@ S32 LLMessageSystem::drainUdpSocket()
 
 bool LLMessageSystem::computeDrop()
 {
-    bool drop = (mDropPercentage > 0.0f && (ll_frand(100.f) < mDropPercentage));
-    if (drop)
+    // Percentage-based drops don't consume the explicitly requested drop
+    // count: the original implementation incremented mPacketsToDrop and then
+    // immediately decremented it again, leaving the count unchanged.
+    F32 drop_percentage = mDropPercentage.load(std::memory_order_relaxed);
+    if (drop_percentage > 0.0f && (ll_frand(100.f) < drop_percentage))
     {
-        ++mPacketsToDrop;
+        return true;
     }
-    if (mPacketsToDrop > 0)
+
+    // Consume one of the drops requested by dropPackets(), if any are left.
+    U32 packets_to_drop = mPacketsToDrop.load(std::memory_order_relaxed);
+    while (packets_to_drop > 0
+           && !mPacketsToDrop.compare_exchange_weak(packets_to_drop,
+                                                    packets_to_drop - 1,
+                                                    std::memory_order_relaxed))
     {
-        --mPacketsToDrop;
-        drop = true;
+        // 'packets_to_drop' has been updated with the current value, retry.
     }
-    return drop;
+    return packets_to_drop > 0;
 }
 
 bool LLMessageSystem::isHighPriorityMessage(const LLPacketBuffer& pkt) const
@@ -1258,12 +1269,12 @@ bool LLMessageSystem::isHighPriorityMessage(const LLPacketBuffer& pkt) const
 
 void LLMessageSystem::dropPackets(U32 num_to_drop)
 {
-    mPacketsToDrop += num_to_drop;
+    mPacketsToDrop.fetch_add(num_to_drop, std::memory_order_relaxed);
 }
 
 void LLMessageSystem::setDropPercentage(F32 percent_to_drop)
 {
-    mDropPercentage = percent_to_drop;
+    mDropPercentage.store(percent_to_drop, std::memory_order_relaxed);
 }
 
 S32 LLMessageSystem::receivePacketOrDrop(char* datap, bool& packet_id_already_checked)
@@ -1405,7 +1416,7 @@ void LLMessageSystem::dumpPacketRingStats()
                           << "buffered_bytes=" << (mHighPriorityInbound.getNumBufferedBytes() + mLowPriorityInbound.getNumBufferedBytes())
                           << "recently_dropped=" << mNumDroppedPackets
                           << "total_dropped=" << mNumDroppedPacketsTotal
-                          << "dropped_percentage=" << mDropPercentage << "%"
+                          << "dropped_percentage=" << mDropPercentage.load(std::memory_order_relaxed) << "%"
                           << "bytes_IN=" << mActualBytesIn
                           << "bytes_OUT=" << mActualBytesOut << LL_ENDL;
     mNumDroppedPackets = 0;
@@ -1792,7 +1803,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
             // We are adding the first packed onto the unacked packet list(s)
             // Add this circuit to the list of circuits with unacked packets
             std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
-            mCircuitInfo.mUnackedCircuitMap[cdp->mHost] = cdp;
+            mCircuitInfo.mUnackedCircuitMap[cdp->mHost] = cdp->shared_from_this();
         }
 
         cdp->addReliablePacket(mSocket,buf_ptr,buffer_length, &mReliablePacketParams);
@@ -3277,10 +3288,12 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
          iter != end; iter++)
     {
         const LLMessageTemplate* mt = iter->second;
-        if(mt->mTotalDecoded > 0)
+        U32 total_decoded = mt->getTotalDecoded();
+        if(total_decoded > 0)
         {
-            avg = mt->mTotalDecodeTime / (F32)mt->mTotalDecoded;
-            buffer = llformat( "%35s%10u%10f%10f%10f", mt->mName, mt->mTotalDecoded, mt->mTotalDecodeTime, mt->mMaxDecodeTimePerMsg, avg);
+            F32 total_decode_time = mt->getTotalDecodeTime();
+            avg = total_decode_time / (F32)total_decoded;
+            buffer = llformat( "%35s%10u%10f%10f%10f", mt->mName, total_decoded, total_decode_time, mt->getMaxDecodeTimePerMsg(), avg);
             str << buffer << std::endl;
         }
     }
@@ -3326,9 +3339,7 @@ void LLMessageSystem::dumpReceiveCounts()
          iter != end; iter++)
     {
         LLMessageTemplate* mt = iter->second;
-        mt->mReceiveCount = 0;
-        mt->mReceiveBytes = 0;
-        mt->mReceiveInvalid = 0;
+        mt->resetReceiveCounts();
     }
 
     S32 i;
@@ -3337,12 +3348,8 @@ void LLMessageSystem::dumpReceiveCounts()
         mt = get_ptr_in_map(mMessageNumbers,mMessageCountList[i].mMessageNum);
         if (mt)
         {
-            mt->mReceiveCount++;
-            mt->mReceiveBytes += mMessageCountList[i].mMessageBytes;
-            if (mMessageCountList[i].mInvalid)
-            {
-                mt->mReceiveInvalid++;
-            }
+            mt->recordReceiveCount((U32)mMessageCountList[i].mMessageBytes,
+                                   mMessageCountList[i].mInvalid);
         }
     }
 
@@ -3354,10 +3361,10 @@ void LLMessageSystem::dumpReceiveCounts()
              iter != end; iter++)
         {
             const LLMessageTemplate* mt = iter->second;
-            if (mt->mReceiveCount > 0)
+            if (mt->getReceiveCount() > 0)
             {
-                LL_INFOS("Messaging") << "Num: " << std::setw(3) << mt->mReceiveCount << " Bytes: " << std::setw(6) << mt->mReceiveBytes
-                        << " Invalid: " << std::setw(3) << mt->mReceiveInvalid << LL_ENDL;
+                LL_INFOS("Messaging") << "Num: " << std::setw(3) << mt->getReceiveCount() << " Bytes: " << std::setw(6) << mt->getReceiveBytes()
+                        << " Invalid: " << std::setw(3) << mt->getReceiveInvalid() << LL_ENDL;
             }
         }
     }
@@ -3573,19 +3580,14 @@ namespace
 
             if (LLMessageReader::getTimeDecodes())
             {
-                msg_template->mTotalDecoded++;
-                msg_template->mTotalDecodeTime += decode_time;
-
-                if (msg_template->mMaxDecodeTimePerMsg < decode_time)
-                {
-                    msg_template->mMaxDecodeTimePerMsg = decode_time;
-                }
+                msg_template->recordDecodeTime(decode_time);
 
                 if (decode_time > LLMessageReader::getTimeDecodesSpamThreshold())
                 {
+                    U32 total_decoded = msg_template->getTotalDecoded();
                     LL_DEBUGS() << "--------- Message " << msg_template->mName << " decode took " << decode_time << " seconds. ("
-                        << msg_template->mMaxDecodeTimePerMsg << " max, "
-                        << (msg_template->mTotalDecodeTime / msg_template->mTotalDecoded) << " avg)" << LL_ENDL;
+                        << msg_template->getMaxDecodeTimePerMsg() << " max, "
+                        << (msg_template->getTotalDecodeTime() / (F32)llmax(total_decoded, (U32)1)) << " avg)" << LL_ENDL;
                 }
             }
         }

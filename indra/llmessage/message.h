@@ -27,6 +27,7 @@
 #ifndef LL_MESSAGE_H
 #define LL_MESSAGE_H
 
+#include <atomic>
 #include <cstring>
 #include <functional>
 #include <set>
@@ -1052,8 +1053,10 @@ private:
     // Packet-loss simulation and byte-accounting state
     std::atomic<S32> mActualBytesIn;
     S32 mActualBytesOut;
-    F32 mDropPercentage;        // % of inbound packets to drop
-    U32 mPacketsToDrop;         // drop next N inbound packets
+    // computeDrop() runs on LLUDPReceiverThread while setDropPercentage()
+    // and dropPackets() are driven from the main thread, so both are atomic.
+    std::atomic<F32> mDropPercentage;   // % of inbound packets to drop
+    std::atomic<U32> mPacketsToDrop;    // drop next N inbound packets
     S32 mNumDroppedPackets;     // inbound
     S32 mNumDroppedPacketsTotal;// inbound
 

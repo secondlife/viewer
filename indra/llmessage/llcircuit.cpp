@@ -427,61 +427,106 @@ LLCircuit::LLCircuit(const F32Seconds circuit_heartbeat_interval, const F32Secon
 
 LLCircuit::~LLCircuit()
 {
-    // delete pointers in the map.
-    std::for_each(mCircuitData.begin(),
-                  mCircuitData.end(),
-                  llcompose1(
-                      DeletePointerFunctor<LLCircuitData>(),
-                      llselect2nd<circuit_data_map::value_type>()));
+    // Circuits are owned by shared_ptr, clearing the maps destroys them.
+    mUnackedCircuitMap.clear();
+    mSendAckMap.clear();
+    mPingSet.clear();
+    mLastCircuit = nullptr;
+    mCircuitData.clear();
+    mRetiredCircuits.clear();
 }
 
 LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
 {
     // This should really validate if one already exists
     LL_INFOS() << "LLCircuit::addCircuitData for " << host << LL_ENDL;
-    LLCircuitData *tempp = new LLCircuitData(host, in_id, mHeartbeatInterval, mHeartbeatTimeout);
+    circuit_data_ptr tempp = std::make_shared<LLCircuitData>(host, in_id, mHeartbeatInterval, mHeartbeatTimeout);
     {
         std::lock_guard<std::mutex> lock(mCircuitMutex);
         mCircuitData.insert(circuit_data_map::value_type(host, tempp));
-        mPingSet.insert(tempp);
+        mPingSet.insert(tempp.get());
         mLastCircuit = tempp;
     }
-    return tempp;
+    return tempp.get();
 }
 
 void LLCircuit::removeCircuitData(const LLHost &host)
 {
     LL_INFOS() << "LLCircuit::removeCircuitData for " << host << LL_ENDL;
-    std::lock_guard<std::mutex> lock(mCircuitMutex);
-    mLastCircuit = NULL;
-    circuit_data_map::iterator it = mCircuitData.find(host);
-    if(it != mCircuitData.end())
+    // Keep the circuit alive until the mutex has been released: the
+    // LLCircuitData destructor runs callbacks and touches the transfer
+    // manager, neither of which may run while mCircuitMutex is held.
+    circuit_data_ptr cdp;
     {
-        LLCircuitData *cdp = it->second;
-        mCircuitData.erase(it);
-
-        LLCircuit::ping_set_t::iterator psit = mPingSet.find(cdp);
-        if (psit != mPingSet.end())
+        std::lock_guard<std::mutex> lock(mCircuitMutex);
+        // This also has to happen when we nuke the circuit, because various
+        // callbacks for the circuit may result in messages being sent to
+        // this circuit, and the setting of mLastCircuit.  We don't check
+        // if the host matches, but we don't really care because mLastCircuit
+        // is an optimization, and this happens VERY rarely.
+        mLastCircuit = nullptr;
+        circuit_data_map::iterator it = mCircuitData.find(host);
+        if(it != mCircuitData.end())
         {
-            mPingSet.erase(psit);
-        }
-        else
-        {
-            LL_WARNS() << "Couldn't find entry for next ping in ping set!" << LL_ENDL;
-        }
+            cdp = std::move(it->second);
+            mCircuitData.erase(it);
 
-        // Clean up from optimization maps
-        mUnackedCircuitMap.erase(host);
-        mSendAckMap.erase(host);
-        delete cdp;
+            LLCircuit::ping_set_t::iterator psit = mPingSet.find(cdp.get());
+            if (psit != mPingSet.end())
+            {
+                mPingSet.erase(psit);
+            }
+            else
+            {
+                LL_WARNS() << "Couldn't find entry for next ping in ping set!" << LL_ENDL;
+            }
+
+            // Clean up from optimization maps
+            mUnackedCircuitMap.erase(host);
+            mSendAckMap.erase(host);
+        }
     }
 
-    // This also has to happen AFTER we nuke the circuit, because various
-    // callbacks for the circuit may result in messages being sent to
-    // this circuit, and the setting of mLastCircuit.  We don't check
-    // if the host matches, but we don't really care because mLastCircuit
-    // is an optimization, and this happens VERY rarely.
-    mLastCircuit = NULL;
+    if (cdp && cdp.use_count() > 1)
+    {
+        // Another thread (the UDP receiver thread) is still decoding a packet
+        // on this circuit. Hold on to it until it is done with it, rather than
+        // deleting the circuit out from under it.
+        std::lock_guard<std::mutex> lock(mCircuitMutex);
+        mRetiredCircuits.push_back(std::move(cdp));
+    }
+    // 'cdp' (if still held) is destroyed here, outside of mCircuitMutex.
+    cdp = nullptr;
+
+    purgeRetiredCircuits();
+}
+
+void LLCircuit::purgeRetiredCircuits()
+{
+    // Destroyed when this goes out of scope, outside of mCircuitMutex.
+    std::vector<circuit_data_ptr> doomed;
+    {
+        std::lock_guard<std::mutex> lock(mCircuitMutex);
+        if (mRetiredCircuits.empty())
+        {
+            return;
+        }
+        // A retired circuit is no longer reachable from any of the maps, so
+        // no new references to it can be taken: a use count of one means we
+        // hold the only remaining reference and can safely destroy it.
+        for (auto it = mRetiredCircuits.begin(); it != mRetiredCircuits.end(); )
+        {
+            if (it->use_count() == 1)
+            {
+                doomed.push_back(std::move(*it));
+                it = mRetiredCircuits.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
 }
 
 void LLCircuitData::setAlive(bool b_alive)
@@ -588,7 +633,7 @@ void LLCircuit::resendUnackedPackets(S32& unacked_list_length, S32& unacked_list
     unacked_list_length = 0;
     unacked_list_size = 0;
 
-    std::vector<LLCircuitData*> circuits;
+    std::vector<circuit_data_ptr> circuits;
     {
         std::lock_guard<std::mutex> lock(mCircuitMutex);
         circuits.reserve(mUnackedCircuitMap.size());
@@ -598,7 +643,7 @@ void LLCircuit::resendUnackedPackets(S32& unacked_list_length, S32& unacked_list
         }
     }
 
-    for (LLCircuitData* circ : circuits)
+    for (const circuit_data_ptr& circ : circuits)
     {
         unacked_list_length += circ->resendUnackedPackets(now);
         unacked_list_size += circ->getUnackedPacketBytes();
@@ -623,7 +668,7 @@ void LLCircuit::dumpResends()
     }
 }
 
-LLCircuitData* LLCircuit::findCircuit(const LLHost& host) const
+LLCircuit::circuit_data_ptr LLCircuit::findCircuitRef(const LLHost& host) const
 {
     std::lock_guard<std::mutex> lock(mCircuitMutex);
     // An optimization on finding the previously found circuit.
@@ -635,16 +680,24 @@ LLCircuitData* LLCircuit::findCircuit(const LLHost& host) const
     circuit_data_map::const_iterator it = mCircuitData.find(host);
     if(it == mCircuitData.end())
     {
-        return NULL;
+        return nullptr;
     }
     mLastCircuit = it->second;
     return mLastCircuit;
 }
 
+LLCircuitData* LLCircuit::findCircuit(const LLHost& host) const
+{
+    // Returning a raw pointer is only safe where the circuit cannot be
+    // removed concurrently, which is the main thread. Threads that outlive
+    // the lookup must hold on to the reference from findCircuitRef() instead.
+    return findCircuitRef(host).get();
+}
+
 
 bool LLCircuit::isCircuitAlive(const LLHost& host) const
 {
-    LLCircuitData *cdp = findCircuit(host);
+    circuit_data_ptr cdp = findCircuitRef(host);
     if(cdp)
     {
         return cdp->mbAlive;
@@ -806,14 +859,22 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
     {
         cur++;
 
-        LLCircuitData *cdp;
+        circuit_data_ptr cdp;
         {
             std::lock_guard<std::mutex> lock(mCircuitMutex);
             if (mPingSet.empty())
             {
                 break;
             }
-            cdp = *mPingSet.begin();
+            LLCircuitData* next = *mPingSet.begin();
+            circuit_data_map::const_iterator it = mCircuitData.find(next->mHost);
+            if (it == mCircuitData.end())
+            {
+                LL_WARNS() << "Ping set entry without a circuit for " << next->mHost << LL_ENDL;
+                mPingSet.erase(mPingSet.begin());
+                continue;
+            }
+            cdp = it->second;
         }
 
         if (!cdp->mbAlive)
@@ -825,9 +886,9 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
             // key (mNextPingSendTime)
             {
                 std::lock_guard<std::mutex> lock(mCircuitMutex);
-                mPingSet.erase(cdp);
+                mPingSet.erase(cdp.get());
                 cdp->mNextPingSendTime = cur_time + mHeartbeatInterval;
-                mPingSet.insert(cdp);
+                mPingSet.insert(cdp.get());
             }
             continue;
         }
@@ -851,9 +912,9 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
                 // Always remove before changing the sorting key.
                 {
                     std::lock_guard<std::mutex> lock(mCircuitMutex);
-                    mPingSet.erase(cdp);
+                    mPingSet.erase(cdp.get());
                     cdp->mNextPingSendTime = cur_time + dt;
-                    mPingSet.insert(cdp);
+                    mPingSet.insert(cdp.get());
                 }
 
                 // Update our throttles
@@ -867,10 +928,18 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
                 // This mPingSet.erase isn't necessary, because removing the circuit will
                 // remove the ping set.
                 //mPingSet.erase(psit);
-                removeCircuitData(cdp->mHost);
+                LLHost host = cdp->mHost;
+                // Drop our reference before removing, so the circuit can be
+                // destroyed right away if nothing else is using it.
+                cdp = nullptr;
+                removeCircuitData(host);
             }
         }
     }
+
+    // Destroy any circuits that were removed while another thread was busy
+    // with them (see removeCircuitData()).
+    purgeRetiredCircuits();
 }
 
 
@@ -1107,16 +1176,16 @@ bool LLCircuitData::checkCircuitTimeout()
 // correctly place the packet in the correct list to be acked later.
 bool LLCircuitData::collectRAck(TPACKETID packet_num)
 {
+    // Global lock order: LLCircuit::mCircuitMutex before mDataMutex.
+    std::lock_guard<std::mutex> circuit_lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
     std::lock_guard<std::mutex> data_lock(mDataMutex);
     if (mAcks.empty())
     {
-        std::lock_guard<std::mutex> circuit_lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
         // First extra ack, we need to add ourselves to the list of circuits that need to send acks
-        gMessageSystem->mCircuitInfo.mSendAckMap[mHost] = this;
+        gMessageSystem->mCircuitInfo.mSendAckMap[mHost] = shared_from_this();
     }
 
     mAcks.push_back(packet_num);
-    std::lock_guard<std::mutex> circuit_lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
     if (mAckCreationTime == 0)
     {
         mAckCreationTime = getAgeInSeconds();
@@ -1129,14 +1198,17 @@ bool LLCircuitData::collectRAck(TPACKETID packet_num)
 void LLCircuit::sendAcks(F32 collect_time)
 {
     collect_time = llclamp(collect_time, 0.f, LL_COLLECT_ACK_TIME_MAX);
-    std::vector<LLCircuitData*> circuits_to_flush; // Collect while holding mCircuitMutex
+    // Collect while holding mCircuitMutex. Holding a reference keeps each
+    // circuit alive while we send its acks with no lock held.
+    std::vector<circuit_data_ptr> circuits_to_flush;
     {
         std::lock_guard<std::mutex> circuit_lock(mCircuitMutex);
         circuit_data_map::iterator it = mSendAckMap.begin();
         while (it != mSendAckMap.end())
         {
             circuit_data_map::iterator cur_it = it++;
-            LLCircuitData* cd = (*cur_it).second;
+            // Copy, not a reference: the map entry may be erased below.
+            circuit_data_ptr cd = (*cur_it).second;
             std::lock_guard<std::mutex> data_lock(cd->mDataMutex);
             S32 count = (S32)cd->mAcks.size();
             F32 age = cd->getAgeInSeconds() - cd->mAckCreationTime;
@@ -1152,7 +1224,7 @@ void LLCircuit::sendAcks(F32 collect_time)
         }
     }
 
-    for (LLCircuitData* cd : circuits_to_flush)
+    for (const circuit_data_ptr& cd : circuits_to_flush)
     {
         std::vector<TPACKETID> acks;
         {

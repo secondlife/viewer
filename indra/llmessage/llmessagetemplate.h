@@ -31,6 +31,7 @@
 #include "llstl.h"
 #include "llindexedvector.h"
 #include "llmsgvariabletype.h"
+#include <atomic>
 #include <shared_mutex>
 
 class LLMsgVarData
@@ -292,19 +293,79 @@ public:
         mDeprecation(MD_NOTDEPRECATED),
         mMessageNumber(message_number),
         mTotalSize(0),
+        mBanFromTrusted(false),
+        mBanFromUntrusted(false),
         mReceiveCount(0),
         mReceiveBytes(0),
         mReceiveInvalid(0),
         mTotalDecoded(0),
         mTotalDecodeTime(0.f),
         mMaxDecodeTimePerMsg(0.f),
-        mBanFromTrusted(false),
-        mBanFromUntrusted(false),
         mHandlerFunc(NULL),
-        mHandleOnUdpThread(false),
-        mUserData(NULL)
+        mUserData(NULL),
+        mHandleOnUdpThread(false)
     {
         mName = LLMessageStringTable::getInstance()->getString(name);
+    }
+
+    // The counters below are atomic, which makes LLMessageTemplate neither
+    // implicitly copyable nor movable. Spell the copy out instead, to keep
+    // the (shallow) copy semantics this class has always had.
+    LLMessageTemplate(const LLMessageTemplate& rhs)
+        :
+        mMemberBlocks(rhs.mMemberBlocks),
+        mName(rhs.mName),
+        mFrequency(rhs.mFrequency),
+        mTrust(rhs.mTrust),
+        mEncoding(rhs.mEncoding),
+        mDeprecation(rhs.mDeprecation),
+        mMessageNumber(rhs.mMessageNumber),
+        mTotalSize(rhs.mTotalSize),
+        mBanFromTrusted(rhs.mBanFromTrusted),
+        mBanFromUntrusted(rhs.mBanFromUntrusted),
+        mReceiveCount(rhs.getReceiveCount()),
+        mReceiveBytes(rhs.getReceiveBytes()),
+        mReceiveInvalid(rhs.getReceiveInvalid()),
+        mTotalDecoded(rhs.getTotalDecoded()),
+        mTotalDecodeTime(rhs.getTotalDecodeTime()),
+        mMaxDecodeTimePerMsg(rhs.getMaxDecodeTimePerMsg()),
+        mHandlerFunc(NULL),
+        mUserData(NULL),
+        mHandleOnUdpThread(false)
+    {
+        std::shared_lock<std::shared_mutex> lock(sHandlerMutex);
+        mHandlerFunc = rhs.mHandlerFunc;
+        mUserData = rhs.mUserData;
+        mHandleOnUdpThread = rhs.mHandleOnUdpThread;
+    }
+
+    LLMessageTemplate& operator=(const LLMessageTemplate& rhs)
+    {
+        if (this != &rhs)
+        {
+            mMemberBlocks = rhs.mMemberBlocks;
+            mName = rhs.mName;
+            mFrequency = rhs.mFrequency;
+            mTrust = rhs.mTrust;
+            mEncoding = rhs.mEncoding;
+            mDeprecation = rhs.mDeprecation;
+            mMessageNumber = rhs.mMessageNumber;
+            mTotalSize = rhs.mTotalSize;
+            mBanFromTrusted = rhs.mBanFromTrusted;
+            mBanFromUntrusted = rhs.mBanFromUntrusted;
+            mReceiveCount.store(rhs.getReceiveCount(), std::memory_order_relaxed);
+            mReceiveBytes.store(rhs.getReceiveBytes(), std::memory_order_relaxed);
+            mReceiveInvalid.store(rhs.getReceiveInvalid(), std::memory_order_relaxed);
+            mTotalDecoded.store(rhs.getTotalDecoded(), std::memory_order_relaxed);
+            mTotalDecodeTime.store(rhs.getTotalDecodeTime(), std::memory_order_relaxed);
+            mMaxDecodeTimePerMsg.store(rhs.getMaxDecodeTimePerMsg(), std::memory_order_relaxed);
+
+            std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
+            mHandlerFunc = rhs.mHandlerFunc;
+            mUserData = rhs.mUserData;
+            mHandleOnUdpThread = rhs.mHandleOnUdpThread;
+        }
+        return *this;
     }
 
     ~LLMessageTemplate()
@@ -456,6 +517,48 @@ public:
         return mDeprecation == MD_UDPBLACKLISTED;
     }
 
+    // Receive counters. Incremented by message validation, which happens on
+    // LLUDPReceiverThread, and read/reset by main-thread reporting, so all
+    // accesses go through atomics.
+    void recordReceive() { mReceiveCount.fetch_add(1, std::memory_order_relaxed); }
+    void recordReceiveCount(U32 bytes, bool invalid)
+    {
+        mReceiveCount.fetch_add(1, std::memory_order_relaxed);
+        mReceiveBytes.fetch_add(bytes, std::memory_order_relaxed);
+        if (invalid)
+        {
+            mReceiveInvalid.fetch_add(1, std::memory_order_relaxed);
+        }
+    }
+    void resetReceiveCounts()
+    {
+        mReceiveCount.store(0, std::memory_order_relaxed);
+        mReceiveBytes.store(0, std::memory_order_relaxed);
+        mReceiveInvalid.store(0, std::memory_order_relaxed);
+    }
+    U32 getReceiveCount() const { return mReceiveCount.load(std::memory_order_relaxed); }
+    U32 getReceiveBytes() const { return mReceiveBytes.load(std::memory_order_relaxed); }
+    U32 getReceiveInvalid() const { return mReceiveInvalid.load(std::memory_order_relaxed); }
+
+    // Decode timing statistics. Messages are dispatched both from the main
+    // thread and from LLUDPReceiverThread, and the statistics are read and
+    // reset by main-thread reporting, so all accesses go through atomics.
+    void recordDecodeTime(F32 decode_time)
+    {
+        mTotalDecoded.fetch_add(1, std::memory_order_relaxed);
+        atomicAddF32(mTotalDecodeTime, decode_time);
+        atomicMaxF32(mMaxDecodeTimePerMsg, decode_time);
+    }
+    void resetDecodeStats()
+    {
+        mTotalDecoded.store(0, std::memory_order_relaxed);
+        mTotalDecodeTime.store(0.f, std::memory_order_relaxed);
+        mMaxDecodeTimePerMsg.store(0.f, std::memory_order_relaxed);
+    }
+    U32 getTotalDecoded() const { return mTotalDecoded.load(std::memory_order_relaxed); }
+    F32 getTotalDecodeTime() const { return mTotalDecodeTime.load(std::memory_order_relaxed); }
+    F32 getMaxDecodeTimePerMsg() const { return mMaxDecodeTimePerMsg.load(std::memory_order_relaxed); }
+
     void banUdp();
 
     bool isBanned(bool trustedSource) const
@@ -481,17 +584,40 @@ public:
     EMsgDeprecation                         mDeprecation;
     U32                                     mMessageNumber;
     S32                                     mTotalSize;
-    U32                                     mReceiveCount;      // how many of this template have been received since last reset
-    U32                                     mReceiveBytes;      // How many bytes received
-    U32                                     mReceiveInvalid;    // How many "invalid" packets
-    U32                                     mTotalDecoded;      // Total messages successfully decoded
-    F32                                     mTotalDecodeTime;   // Total time successfully decoding messages
-    F32                                     mMaxDecodeTimePerMsg;
-
     bool                                    mBanFromTrusted;
     bool                                    mBanFromUntrusted;
 
 private:
+    // Written from LLUDPReceiverThread, read and reset from the main thread.
+    // Use the record*()/get*()/reset*() accessors above.
+    std::atomic<U32>                        mReceiveCount;      // how many of this template have been received since last reset
+    std::atomic<U32>                        mReceiveBytes;      // How many bytes received
+    std::atomic<U32>                        mReceiveInvalid;    // How many "invalid" packets
+    std::atomic<U32>                        mTotalDecoded;      // Total messages successfully decoded
+    std::atomic<F32>                        mTotalDecodeTime;   // Total time successfully decoding messages
+    std::atomic<F32>                        mMaxDecodeTimePerMsg;
+
+    // std::atomic<F32> has no portable fetch_add()/fetch_max(), so do it
+    // with the usual compare-exchange loop.
+    static void atomicAddF32(std::atomic<F32>& value, F32 addend)
+    {
+        F32 current = value.load(std::memory_order_relaxed);
+        while (!value.compare_exchange_weak(current, current + addend, std::memory_order_relaxed))
+        {
+            // 'current' has been updated with the current value, retry.
+        }
+    }
+
+    static void atomicMaxF32(std::atomic<F32>& value, F32 candidate)
+    {
+        F32 current = value.load(std::memory_order_relaxed);
+        while (current < candidate
+               && !value.compare_exchange_weak(current, candidate, std::memory_order_relaxed))
+        {
+            // 'current' has been updated with the current value, retry.
+        }
+    }
+
     // Since setHandlerFunc are mostly startup specific, one-time init,
     // a shared mutex is enough for all templates
     static inline std::shared_mutex         sHandlerMutex;
