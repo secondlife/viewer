@@ -433,6 +433,12 @@ LLCircuit::~LLCircuit()
                   llcompose1(
                       DeletePointerFunctor<LLCircuitData>(),
                       llselect2nd<circuit_data_map::value_type>()));
+
+    for (auto& entry : mGraveyard)
+    {
+        delete entry.mCircuit;
+    }
+    mGraveyard.clear();
 }
 
 LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
@@ -473,7 +479,11 @@ void LLCircuit::removeCircuitData(const LLHost &host)
         // Clean up from optimization maps
         mUnackedCircuitMap.erase(host);
         mSendAckMap.erase(host);
-        delete cdp;
+
+        // Don't delete cdp yet: LLUDPReceiverThread may still hold a
+        // pointer to this circuit.
+        constexpr F64 GRAVEYARD_LIFETIME_SECONDS = 5;
+        mGraveyard.push_back({ cdp, LLTimer::getTotalSeconds() + GRAVEYARD_LIFETIME_SECONDS });
     }
 
     // This also has to happen AFTER we nuke the circuit, because various
@@ -482,6 +492,30 @@ void LLCircuit::removeCircuitData(const LLHost &host)
     // if the host matches, but we don't really care because mLastCircuit
     // is an optimization, and this happens VERY rarely.
     mLastCircuit = NULL;
+}
+
+// Deletes circuits that were unlinked earlier.
+// Assumes that UDP thread finishes with the circuit under 5 seconds.
+void LLCircuit::reapGraveyard()
+{
+    assert_main_thread(); // Only the main thread. Keep delete off the UDP thread.
+
+    // If the UDP thread didn't stop using the circuit in 5 seconds,
+    // something is wrong, 5 seconds is a massive overkill.
+    const F64 cur_time = LLTimer::getTotalSeconds();
+    std::lock_guard<std::mutex> lock(mCircuitMutex);
+    for (auto it = mGraveyard.begin(); it != mGraveyard.end();)
+    {
+        if (cur_time >= it->mCleanupTime)
+        {
+            delete it->mCircuit;
+            it = mGraveyard.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 void LLCircuitData::setAlive(bool b_alive)
@@ -792,6 +826,8 @@ void LLCircuitData::checkPacketInID(TPACKETID id, bool receive_resent)
 void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 {
     assert_main_thread(); // Watchdog tracks only one thread.
+
+    reapGraveyard();
 
     F64Seconds cur_time = LLMessageSystem::getMessageTimeSeconds();
     size_t count;

@@ -346,6 +346,29 @@ protected:
     // set in otherwise const methods, so it is declared mutable.
     mutable LLCircuitData* mLastCircuit;
 
+    // Deferred-deletion graveyard.
+    //
+    // removeCircuitData() can be called (from the main thread) for a
+    // circuit that LLUDPReceiverThread is still actively using (e.g. it
+    // has already looked up the LLCircuitData* via findCircuit() and is
+    // mid-way through decode/dispatch for that host when DisableSimulator
+    // comes in). Deleting the LLCircuitData immediately would leave the
+    // UDP thread holding a dangling pointer.
+    //
+    // Instead, removeCircuitData() unlinks the circuit from all the live
+    // lookup structures,but defers the actual `delete` for a brief period.
+    struct GraveyardEntry
+    {
+        LLCircuitData* mCircuit;
+        F64            mCleanupTime; // when to clean the circuit up
+    };
+    std::vector<GraveyardEntry> mGraveyard;
+
+    // Actually deletes any circuits in the graveyard that were queued for
+    // removal on an earlier frame. Main thread only; called once per frame
+    // from updateWatchDogTimers().
+    void            reapGraveyard();
+
 private:
     const F32Seconds mHeartbeatInterval;
     const F32Seconds mHeartbeatTimeout;
