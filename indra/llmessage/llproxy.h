@@ -231,8 +231,8 @@ class LLProxy: public LLSingleton<LLProxy>
     /*virtual*/ void initSingleton() override;
 
 public:
-    // Static check for enabled status for UDP packets. Call from main thread only.
-    static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled.load(std::memory_order_relaxed); }
+    // Static check for enabled status for UDP packets.
+    static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled.load(std::memory_order_acquire); }
 
     // Get the UDP proxy address and port. Call from main thread only.
     LLHost getUDPProxy() const { return mUDPProxy; }

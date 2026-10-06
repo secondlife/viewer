@@ -237,7 +237,7 @@ S32 LLProxy::startSOCKSProxy(LLHost host)
     else
     {
         // Connection was successful.
-        sUDPProxyEnabled.store(true, std::memory_order_relaxed);
+        sUDPProxyEnabled.store(true, std::memory_order_release);
     }
 
     return status;
@@ -252,7 +252,7 @@ S32 LLProxy::startSOCKSProxy(LLHost host)
  */
 void LLProxy::stopSOCKSProxy()
 {
-    sUDPProxyEnabled.store(false, std::memory_order_relaxed);
+    sUDPProxyEnabled.store(false, std::memory_order_release);
 
     // If the SOCKS proxy is requested to stop and we are using that for HTTP as well
     // then we must shut down any HTTP proxy operations. But it is allowable if web
