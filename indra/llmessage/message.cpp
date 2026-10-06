@@ -471,12 +471,21 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     }
 
     U8* buffer = (U8*)pkt.getData();
+    std::vector<TPACKETID> ack_ids;
     if (buffer[0] & LL_ACK_FLAG)
     {
         U8 num_acks = buffer[receive_size - 1];
         const S32 acks_bytes = 1 + static_cast<S32>(num_acks) * sizeof(TPACKETID);
         if (receive_size >= acks_bytes + (S32)LL_MINIMUM_VALID_PACKET_SIZE)
         {
+            for (U8 i = 0; i < num_acks; ++i)
+            {
+                TPACKETID ack_id;
+                memcpy(&ack_id,
+                       &buffer[receive_size - 1 - (i + 1) * sizeof(TPACKETID)],
+                       sizeof(TPACKETID)); /* Flawfinder: ignore */
+                ack_ids.push_back(ntohl(ack_id));
+            }
             receive_size -= acks_bytes;
         }
         else
@@ -498,25 +507,6 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     sTrueReceiveSize = pkt.getSize();
     sIncomingCompressedSize = compressed_size;
     sCurrentRecvPacketID = recv_packet_id;
-
-    if (cdp && recv_resent)
-    {
-        bool duplicate_resend;
-        {
-            std::lock_guard<std::mutex> lock(mCircuitInfo.mCircuitMutex);
-            duplicate_resend = cdp->isDuplicateResend(recv_packet_id);
-        }
-        if (duplicate_resend)
-        {
-            if (recv_reliable)
-            {
-                cdp->collectRAck(recv_packet_id);
-            }
-            LL_DEBUGS("Messaging") << "Discarding duplicate resend from " << host << LL_ENDL;
-            mPacketsIn++;
-            return nullptr;
-        }
-    }
 
     // UseCircuitCode is allowed in even from an invalid circuit, so that
     // we can toss circuits around; everything else requires cdp.
@@ -547,7 +537,42 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
         return nullptr;
     }
 
-    logValidMsg(cdp, host, recv_reliable, recv_resent, false, pkt.getPacketIDChecked());
+    if (cdp && recv_resent && cdp->isDuplicateResend(recv_packet_id))
+    {
+        if (recv_reliable)
+        {
+            cdp->collectRAck(recv_packet_id);
+        }
+        LL_DEBUGS("Messaging") << "Discarding duplicate resend from " << host << LL_ENDL;
+        mPacketsIn++;
+        return nullptr;
+    }
+
+    if (cdp)
+    {
+        if (recv_reliable)
+        {
+            cdp->collectRAck(recv_packet_id);
+        }
+        cdp->checkPacketInID(recv_packet_id, recv_resent);
+    }
+
+    if (cdp && !ack_ids.empty())
+    {
+        for (TPACKETID ack_id : ack_ids)
+        {
+            try
+            {
+                mReliableAckQueue->push(ReliableAck{ cdp->mHost, ack_id });
+            }
+            catch (const LLThreadSafeQueueInterrupt&)
+            {
+                // Queue closed during shutdown; drop silently.
+            }
+        }
+    }
+
+    logValidMsg(cdp, host, recv_reliable, recv_resent, !ack_ids.empty(), true);
 
     auto decoded = std::make_unique<LLDecodedMessage>();
     {
@@ -1334,56 +1359,6 @@ S32 LLMessageSystem::bufferInboundPacket()
 
     if (packet_size >= (S32)LL_MINIMUM_VALID_PACKET_SIZE && !computeDrop())
     {
-        const char* data = pkt.getData();
-        LLCircuitData* cdp = mCircuitInfo.findCircuit(pkt.getHost());
-        TPACKETID recv_packet_id = ntohl(*((U32*)(&data[1])));
-
-        // Harvest piggybacked ACKs for outbound messages from the packet tail of this inbound message
-        if (cdp && (data[0] & LL_ACK_FLAG))
-        {
-            U8 num_acks = (U8)data[packet_size - 1];
-            S32 true_rcv_size = packet_size - 1;
-            if (true_rcv_size >= (S32)(num_acks * sizeof(TPACKETID) + LL_MINIMUM_VALID_PACKET_SIZE))
-            {
-                TPACKETID ack_id;
-                U32 mem_id = 0;
-                for (S32 i = 0; i < num_acks; ++i)
-                {
-                    true_rcv_size -= sizeof(TPACKETID);
-                    memcpy(&mem_id, &data[true_rcv_size], sizeof(TPACKETID)); /* Flawfinder: ignore */
-                    ack_id = ntohl(mem_id);
-                    try
-                    {
-                        mReliableAckQueue->push(ReliableAck{ cdp->mHost, ack_id });
-                    }
-                    catch (const LLThreadSafeQueueInterrupt&)
-                    {
-                        // Queue closed during shutdown; drop silently.
-                    }
-                }
-            }
-        }
-
-        if (cdp)
-        {
-            // ACK inbound reliable packet ASAP
-            if ((data[0] & LL_RELIABLE_FLAG))
-            {
-                cdp->collectRAck(recv_packet_id);
-            }
-
-            // Check packet sequencing here, in true socket-arrival order, before
-            // this packet is sorted into the high/low priority inbound queue.
-            // Skip genuine duplicate resends, same as checkMessages()/logValidMsg()
-            // would do further downstream.
-            bool recv_resent = (data[0] & LL_RESENT_FLAG) != 0;
-            if (!recv_resent || !cdp->isDuplicateResend(recv_packet_id))
-            {
-                cdp->checkPacketInID(recv_packet_id, recv_resent);
-                pkt.setPacketIDChecked(true);
-            }
-        }
-
         if (isHighPriorityMessage(pkt))
         {
             mHighPriorityInbound.pushPacket(pkt);
@@ -2061,10 +2036,8 @@ void LLMessageSystem::logValidMsg(
         if (!skip_packet_id_check)
         {
             // update circuit packet ID tracking (missing/out of order packets)
-            // Already done in bufferInboundPacket(), in true socket-arrival
-            // order, if this packet came off the high/low priority queues.
-            // LLCircuitData::checkPacketInID() guards its own state with
-            // mDataMutex, so this is safe to call from this thread.
+            // LLCircuitData::checkPacketInID() guards its state with mDataMutex,
+            // so this is safe to call from this thread.
             cdp->checkPacketInID(packet_id, recv_resent);
         }
         // LLCircuitData::addBytesIn() guards mBytesIn/mBytesInThisPeriod
