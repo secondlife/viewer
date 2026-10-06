@@ -237,7 +237,9 @@ namespace cefshm_demo
                                   // build it was built against, multi-line -- e.g.
                                   // "0.15 (9f3f886)\n  CEF: 150.0.11\n  Chromium: 150.0.7871.115" --
                                   // sent once per slot right after it's allocated, before any
-                                  // frames. See llCefBrowserVersion.h.
+                                  // frames. See llCefBrowserVersion.h. SLVlcProducer sends this
+                                  // opcode too now (see its own cefshm_protocol.h copy) -- the
+                                  // consumer tells the two apart via LLEmbeddedBrowserBackend.
         kEventNavStateChanged = 34, // data = {uint8 canGoBack, uint8 canGoForward} -- llCefBrowserManager's
                                   // CanGoBack()/CanGoForward(), sampled and re-sent alongside
                                   // kEventLoadStart/kEventLoadEnd, since back/forward availability

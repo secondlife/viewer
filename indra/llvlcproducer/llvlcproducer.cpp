@@ -263,6 +263,14 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, LibVlcTabManager& vlcMgr,
     log_connect("slot " + std::to_string(index) + " connected" + (audio_only ? " (audio-only)" : "") +
                 ", ceiling " + std::to_string(cfg.max_width) + "x" + std::to_string(cfg.max_height) +
                 active_slot_suffix(slots));
+
+    // One-shot, sent before any frames: lets the consumer show which libvlc build is
+    // actually in play without needing to link libvlc itself just to read its version
+    // header -- mirrors SLCefProducer's own identical kEventVersionInfo send in
+    // allocate_slot(). Covers both regular tabs and audio-only slots (parcel audio),
+    // since both come through here.
+    s.pub->send_text(kEventVersionInfo, vlcMgr.GetVersion());
+
     return true;
 }
 
@@ -421,7 +429,19 @@ int run_producer(int argc, char** argv)
     // slvlcproducer_log.txt above, captures libvlc's own internal network/demux/decode
     // diagnostics -- the actual detail behind "why didn't this play," which nothing
     // else here surfaces.
-    LibVlcTabManager vlcMgr((exe_dir / "libvlc_log.txt").string());
+    //
+    // libvlc's own "logger" module opens --logfile= in append mode (confirmed via
+    // real testing: this file kept growing across repeated launches within the same
+    // install, never reset on its own) -- unlike slvlcproducer_log.txt above, nothing
+    // here was truncating it. Delete any prior run's file first so each SLVlcProducer
+    // launch starts from an empty log, same lifetime as slvlcproducer_log.txt, while
+    // keeping this session's own --verbose=2 detail intact (that level was chosen
+    // deliberately, see LibVlcTabManager::Impl's constructor comment -- not touched
+    // here).
+    const std::filesystem::path libvlc_log_path = exe_dir / "libvlc_log.txt";
+    std::error_code ec;
+    std::filesystem::remove(libvlc_log_path, ec); // ok if it doesn't exist yet
+    LibVlcTabManager vlcMgr(libvlc_log_path.string());
     if (vlcMgr.IsReady())
     {
         log_info("SLVlcProducer: libvlc ready");

@@ -467,6 +467,20 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // other callers.
         void setCefBrowserVersion(const std::string& version);
 
+        // The libvlc version string the most recently connected SLVlcProducer slot
+        // reported over the wire -- same kEventVersionInfo opcode and one-shot,
+        // per-slot-connect timing as getCefBrowserVersion() above, just from the other
+        // backend. Populated whichever SLVlcProducer slot connects first in a given
+        // session: a prim-media RTSP/RTMP tab (via LLEmbeddedBrowserTab, same path as
+        // CEF) or parcel/streaming audio (via LLStreamingAudio_LibVLC's own IPC client,
+        // since that class doesn't use LLEmbeddedBrowserTab at all -- see
+        // llstreamingaudio_libvlc.cpp). Empty until at least one of those has connected.
+        std::string getVlcProducerVersion() const;
+
+        // Called by LLEmbeddedBrowserTab and by LLStreamingAudio_LibVLC on receiving
+        // kEventVersionInfo -- not meant for other callers.
+        void setVlcProducerVersion(const std::string& version);
+
         // Called by LLEmbeddedBrowserTab::connectToProducer() on its one failure branch
         // that means "no producer process reachable at all" (as opposed to one that's
         // merely busy/racing another consumer, where relaunching would just kill a
@@ -534,6 +548,12 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // against, just a short-lived std::string read/write to protect.
         mutable std::mutex mCefVersionMutex;
         std::string mCefBrowserVersion;
+
+        // Same rationale as mCefVersionMutex above, plus one more writer:
+        // LLStreamingAudio_LibVLC's own background update path, not just
+        // LLEmbeddedBrowserTab's update thread.
+        mutable std::mutex mVlcVersionMutex;
+        std::string mVlcProducerVersion;
 
         // Per-backend process handle plus its own independent relaunch bookkeeping --
         // since the 2026-09-30 SLCefProducer/SLVlcProducer split, these are two wholly

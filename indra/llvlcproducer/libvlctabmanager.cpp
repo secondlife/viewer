@@ -266,6 +266,8 @@ public:
 
     bool IsReady() const { return mLibVLC != nullptr; }
 
+    std::string GetVersion() const { return mLibVLC ? libvlc_get_version() : std::string(); }
+
     ~Impl()
     {
         DestroyAll();
@@ -763,6 +765,8 @@ LibVlcTabManager::LibVlcTabManager(const std::string& log_file_path)
 LibVlcTabManager::~LibVlcTabManager() = default;
 
 bool LibVlcTabManager::IsReady() const { return mImpl->IsReady(); }
+
+std::string LibVlcTabManager::GetVersion() const { return mImpl->GetVersion(); }
 
 VlcTabHandle LibVlcTabManager::CreateTab(int width, int height, int maxWidth, int maxHeight) { return mImpl->CreateTab(width, height, maxWidth, maxHeight); }
 VlcTabHandle LibVlcTabManager::CreateAudioTrack() { return mImpl->CreateAudioTrack(); }

@@ -174,6 +174,15 @@ void LLStreamingAudio_LibVLC::pumpInboundEvents()
         {
             mCachedWirePlaying = cmd.data[0] != 0;
         }
+        else if (cmd.type == kEventVersionInfo)
+        {
+            // Same opcode SLVlcProducer sends to any prim-media LibVLC tab (see
+            // allocate_slot() in llvlcproducer.cpp) -- this is the only other consumer
+            // of it, since this class doesn't go through LLEmbeddedBrowserTab at all.
+            // Whichever one connects first in a session populates the About floater's
+            // LIBVLC_VERSION field.
+            LLEmbeddedBrowser::instance().setVlcProducerVersion(std::string(cmd.text()));
+        }
         // kEventLoadStart/kEventLoadEnd: nothing consumes these for parcel audio today
         // (no "now playing"/buffering UI -- see LLStreamingAudioInterface's own
         // interface, which has no hook for either) -- silently drained so the command

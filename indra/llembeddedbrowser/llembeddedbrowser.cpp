@@ -354,8 +354,18 @@ void LLEmbeddedBrowserTab::update()
             }
             case kEventVersionInfo:
                 // Global info about whatever producer is connected, not a per-tab UI
-                // event -- doesn't go through mEvents.
-                LLEmbeddedBrowser::instance().setCefBrowserVersion(std::string(cmd.text()));
+                // event -- doesn't go through mEvents. Routed by this tab's own fixed
+                // backend rather than assuming CEF, since a LibVLC-backed prim-media
+                // tab (RTSP/RTMP) reports its version over this exact same opcode too
+                // (see LLEmbeddedBrowserBackend).
+                if (mBackend == LLEmbeddedBrowserBackend::LibVlc)
+                {
+                    LLEmbeddedBrowser::instance().setVlcProducerVersion(std::string(cmd.text()));
+                }
+                else
+                {
+                    LLEmbeddedBrowser::instance().setCefBrowserVersion(std::string(cmd.text()));
+                }
                 continue;
             case kEventNavStateChanged:
                 // Cached state, polled every frame via canGoBack()/canGoForward() (to
@@ -1154,6 +1164,18 @@ void LLEmbeddedBrowser::setCefBrowserVersion(const std::string& version)
 {
     std::lock_guard<std::mutex> lock(mCefVersionMutex);
     mCefBrowserVersion = version;
+}
+
+std::string LLEmbeddedBrowser::getVlcProducerVersion() const
+{
+    std::lock_guard<std::mutex> lock(mVlcVersionMutex);
+    return mVlcProducerVersion;
+}
+
+void LLEmbeddedBrowser::setVlcProducerVersion(const std::string& version)
+{
+    std::lock_guard<std::mutex> lock(mVlcVersionMutex);
+    mVlcProducerVersion = version;
 }
 
 void LLEmbeddedBrowser::destroy(unsigned int id)

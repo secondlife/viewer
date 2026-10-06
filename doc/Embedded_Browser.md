@@ -921,34 +921,46 @@ every real change.
   it is now purely about whether to widen LibVLC's role further, not
   whether to have it at all.
 - **Windows, macOS, and Linux are all supported, verified end to end on real
-  CEF media - LibVLC media (RTSP/RTMP, parcel audio) is confirmed on
-  Windows and macOS only; Linux is a known, open gap.** This system started
-  Windows-only. macOS was ported next (`llshmframe`, `llcefbrowser`, and the
-  Viewer's own producer/consumer code all build, package, and run end to
-  end, including a real macOS-specific quit-hang bug found and fixed along
-  the way - see "Cross-platform porting notes" below; a real macOS-specific
-  LibVLC plugin-loading bug is documented separately above). Linux support
+  CEF media and parcel/streaming audio; RTSP/RTMP prim media via LibVLC is
+  confirmed on Windows and macOS only - not yet implemented on Linux, pull
+  requests welcome.** This system started Windows-only. macOS was ported
+  next (`llshmframe`, `llcefbrowser`, and the Viewer's own producer/consumer
+  code all build, package, and run end to end, including a real
+  macOS-specific quit-hang bug found and fixed along the way - see
+  "Cross-platform porting notes" below; a real macOS-specific LibVLC
+  plugin-loading bug is documented separately above). Linux support
   followed: `llshmframe` and `llcefbrowser` both build, link, and package
   correctly on Linux, confirmed by their own CI. The Viewer-side Linux
-  integration hit one real, Linux-specific bug of its own - CEF's GPU
-  process failed its zygote pre-fork handshake when sandboxing is off,
-  since `--no-sandbox` alone does not disable the zygote mechanism - fixed
-  with an explicit `--no-zygote` switch (`llcefbrowser` v1.49.0). Confirmed
-  working end to end under a real Linux environment (WSL2/Ubuntu-22.04),
-  including against the actual published package, not just a local build.
-  Keyboard input into embedded-browser media now works on Linux too
-  (`LLWindowSDL::getNativeKeyData()` gained the same `cef_*` field
-  translation Windows and macOS already had, reusing the existing
+  integration hit two further real, Linux-specific bugs, both found and
+  fixed: CEF's GPU process failed its zygote pre-fork handshake when
+  sandboxing is off, since `--no-sandbox` alone does not disable the zygote
+  mechanism - fixed with an explicit `--no-zygote` switch (`llcefbrowser`
+  v1.49.0); and a post-login crash caused by a GLSL shader (`samplerCubeArray`
+  used without its required `#extension GL_ARB_texture_cube_map_array`
+  pragma) that Mesa correctly rejects but NVIDIA/AMD/Apple drivers silently
+  tolerate - fixed by adding the pragma to the three affected shaders
+  (2026-10-05). Confirmed working end to end under a real Linux environment
+  (WSL2/Ubuntu-22.04), including against the actual published package, not
+  just a local build. Keyboard input into embedded-browser media now works
+  on Linux too (`LLWindowSDL::getNativeKeyData()` gained the same `cef_*`
+  field translation Windows and macOS already had, reusing the existing
   SDL-to-Windows-VK keycode table) - confirmed via real typed text in the
-  Media Monitor floater's own web page under WSL2/WSLg. **LibVLC media
-  specifically (RTSP/RTMP prim media, parcel audio) does not yet work on
-  Linux** - the same "no plugin loads" symptom macOS had before its
-  `VLC_PLUGIN_PATH` fix (see "Different platforms need genuinely different
-  LibVLC handling" above), confirmed NOT caused by a missing
-  `vlc-plugin-base` package, root cause still open. A separate, unrelated
-  Linux-only crash immediately after login was also found the same day and
-  is likewise still open - both deliberately parked (2026-10-02) in favor
-  of finishing macOS verification first.
+  Media Monitor floater's own web page under WSL2/WSLg.
+  **Parcel/streaming audio over LibVLC is confirmed working on Linux** -
+  the same IPC path as Windows/macOS, against the distro's own system
+  `libvlc5`/`libvlccore9` packages. **RTSP (and RTMP) prim media via LibVLC
+  does not work on Linux, and is not planned**: traced to a genuine,
+  longstanding Ubuntu/Debian packaging choice, not a bug in this codebase -
+  the distro's system `libvlc` is built with `--disable-live555`, so it has
+  no access module capable of talking to a standard RTSP server (confirmed
+  via `libvlc_log.txt`: it falls back to `access_realrtsp`, a different,
+  RealNetworks/Helix-specific RTSP dialect, and explicitly refuses with
+  `only real/helix rtsp servers supported for now`). Vendoring a
+  from-source Linux `libvlc` build with `live555` enabled was considered
+  and declined (2026-10-06) - the engineering cost wasn't judged worth it
+  for a single streaming scheme on one platform. Declared a known,
+  permanent-for-now limitation instead: pull requests are welcome if
+  someone wants to vendor a Linux `libvlc` build with RTSP support.
 - **Linux needs `libnss3`/`libnspr4` present on the target system.**
   `libcef.so` depends on these NSS/NSPR libraries at runtime but does not
   bundle them - this matches CEF's own upstream distribution convention

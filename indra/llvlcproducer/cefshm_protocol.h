@@ -150,7 +150,11 @@ namespace cefshm_demo
         // producer -> consumer, per-view channel
         kEventStatusTextChanged = 20, // CEF only, no LibVLC equivalent.
         kEventConsoleMessage = 22, // CEF only, no LibVLC equivalent.
-        kEventVersionInfo = 23, // CEF only, no LibVLC equivalent -- this producer never sends it.
+        kEventVersionInfo = 23, // text payload: libvlc_get_version()'s own string (e.g.
+                                  // "3.0.24 Vetinari"), single-line. Sent once per slot (regular
+                                  // tab or audio-only) right after it's allocated, before any
+                                  // frames -- see LibVlcTabManager::GetVersion() and
+                                  // allocate_slot() in llvlcproducer.cpp.
         kEventNavStateChanged = 34, // CEF only, no LibVLC equivalent.
         kEventLoadError = 38, // CEF only, no LibVLC equivalent -- a failed libvlc open surfaces
                                   // only as kEventLoadEnd's own pseudo-status, not this.

@@ -3709,13 +3709,14 @@ LLSD LLAppViewer::getViewerInfo() const
 
     // LIBVLC_VERSION: libvlc is no longer linked into this binary at all as of Phase 2
     // (2026-10-01) of the GPL v2/LGPL v2.1 licensing split -- it now runs only inside
-    // SLVlcProducer (see llstreamingaudio_libvlc.cpp). The real version would need to
-    // come from there, the same way EMBEDDED_LLCEFBROWSER_VERSION already does from
-    // SLCefProducer's own kEventVersionInfo -- not yet wired up for SLVlcProducer (see
-    // doc/Embedded_Browser.md's own "Future work" note), so report that plainly rather
-    // than leave en/strings.xml's still-live "LibVLC Version: [LIBVLC_VERSION]" line
-    // showing a raw, unsubstituted token in the About floater.
-    info["LIBVLC_VERSION"] = "reported by SLVlcProducer (not yet wired up)";
+    // SLVlcProducer (see llstreamingaudio_libvlc.cpp). Reported live from there over the
+    // same kEventVersionInfo opcode EMBEDDED_LLCEFBROWSER_VERSION already uses for
+    // SLCefProducer (see LLEmbeddedBrowser::getVlcProducerVersion()) -- no libvlc header
+    // or library of any kind needs linking into this binary to show it, sidestepping the
+    // GPL/LGPL question entirely rather than answering it.
+    std::string vlc_producer_version = LLEmbeddedBrowser::instance().getVlcProducerVersion();
+    info["LIBVLC_VERSION"] = vlc_producer_version.empty() ?
+        LLSD(LLTrans::getString("NotConnected")) : LLSD(vlc_producer_version);
 
     LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
     S32 packets_in = (S32)recording.getSum(LLStatViewer::PACKETS_IN);

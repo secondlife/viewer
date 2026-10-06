@@ -81,6 +81,12 @@ public:
     // normal).
     bool IsReady() const;
 
+    // libvlc_get_version()'s own string (e.g. "3.0.24 Vetinari") -- a real runtime call
+    // into the already-linked library, not a compile-time header macro, so this never
+    // needs <vlc/libvlc_version.h> included anywhere outside this class. Empty if
+    // !IsReady().
+    std::string GetVersion() const;
+
     // No media/player yet -- mirrors llCefBrowserManager::CreateBrowser("about:blank", ...):
     // the slot exists and has a sized frame buffer immediately, playback only starts once
     // Open() is called (see kSetUrl in llvlcproducer.cpp). width/height are this tab's
