@@ -2660,11 +2660,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6d72afd5cc21446c65899615909b1f09f155585d</string>
+              <string>de07dffe94b568efc9c250a271ea2936b5903916</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-vlc-bin/releases/download/v3.0.21.296d9f4/vlc_bin-3.0.21.11968962952-darwin64-11968962952.tar.zst</string>
+              <string>https://github.com/secondlife/3p-vlc-bin/releases/download/v3.0.24.22b238b/vlc_bin-3.0.24.37397947018-darwin64-37397947018.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2674,18 +2674,18 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f986e6e93acf8a32a8be5b638f0bd0e2e07d7507</string>
+              <string>206b52e636ced7d733650da04dca05ea34e9eae7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-vlc-bin/releases/download/v3.0.21.296d9f4/vlc_bin-3.0.21.11968962952-windows64-11968962952.tar.zst</string>
+              <string>https://github.com/secondlife/3p-vlc-bin/releases/download/v3.0.24.22b238b/vlc_bin-3.0.24.37397947018-windows64-37397947018.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.0.21.11968962952</string>
+        <string>3.0.24.37397947018</string>
       </map>
       <key>vulkan_gltf</key>
       <map>
