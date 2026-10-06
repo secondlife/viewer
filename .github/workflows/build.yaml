@@ -10,6 +10,25 @@ on:
           - velopack
           - nsis
         default: 'velopack'
+      debug_mac_signing:
+        description: >
+          Diagnostic only: sign the mac build with the real Developer ID
+          cert but skip notarization entirely, to isolate whether a
+          runtime bug depends on the notarization ticket itself. Produces
+          a signed-but-unnotarized .dmg that will show a Gatekeeper
+          warning on launch -- never for distribution. Mutually exclusive
+          with the real sign-and-package-mac job.
+        type: boolean
+        default: false
+      mac_only:
+        description: >
+          Diagnostic only: build/test/sign macOS alone, skipping Windows
+          and Linux entirely, for faster iteration while chasing a
+          mac-specific bug. post-windows-symbols will show a red X
+          (missing Windows-app artifact) -- expected, harmless, unrelated
+          to the mac build. Never use for a real release.
+        type: boolean
+        default: false
   pull_request:
   push:
     branches: ["main", "release/*", "project/*"]
@@ -50,8 +69,13 @@ jobs:
   build:
     needs: setup
     strategy:
+      # Deliberate divergence from develop's own workflow: a macOS/Linux failure
+      # shouldn't cancel the Windows job via GitHub's default fail-fast behavior --
+      # this project is Windows-only for now, and Windows results are what actually
+      # matter while macOS/Linux CI isn't a priority.
+      fail-fast: false
       matrix:
-        runner: ${{ fromJson((github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge","linux-large"]' || '["windows-2022","macos-15-xlarge","ubuntu-22.04"]') }}
+        runner: ${{ fromJson(github.event.inputs.mac_only == 'true' && '["macos-15-xlarge"]' || (github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/Second_Life')) && '["windows-large","macos-15-xlarge","linux-large"]' || '["windows-2022","macos-15-xlarge","ubuntu-22.04"]') }}
         configuration: ${{ fromJson(needs.setup.outputs.configurations) }}
         build_variant: [Viewer, Tests]
     runs-on: ${{ matrix.runner }}
@@ -383,6 +407,14 @@ jobs:
       AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
     needs: build
+    # Deliberate divergence from develop's own workflow, matching the
+    # fail-fast:false change above: `needs: build` reads as failed for a
+    # matrix job if ANY leg (including the macOS/Linux ones this project
+    # isn't chasing right now) fails, which by default skips this job even
+    # when the Windows leg specifically succeeded. Run whenever the Windows
+    # build actually produced its Velopack output, regardless of what the
+    # other platforms did.
+    if: always() && needs.build.outputs.velopack_main_exe != ''
     runs-on: windows-2022
     steps:
       - name: Sign and package Windows viewer
@@ -410,6 +442,7 @@ jobs:
       SIGNING_CERT_MACOS_IDENTITY: ${{ secrets.SIGNING_CERT_MACOS_IDENTITY }}
       SIGNING_CERT_MACOS_PASSWORD: ${{ secrets.SIGNING_CERT_MACOS_PASSWORD }}
     needs: build
+    if: github.event.inputs.debug_mac_signing != 'true'
     runs-on: macos-latest
     steps:
       - name: Unpack Mac notarization credentials
@@ -434,7 +467,7 @@ jobs:
 
       - name: Sign and package Mac viewer
         if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
-        uses: secondlife/viewer-build-util/sign-pkg-mac@v2.1.0
+        uses: secondlife/viewer-build-util/sign-pkg-mac@v2.1.7
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
@@ -449,6 +482,66 @@ jobs:
           velopack_pack_title: "${{ needs.build.outputs.velopack_mac_pack_title }}"
           velopack_main_exe: "${{ needs.build.outputs.velopack_mac_main_exe }}"
           velopack_bundle_id: "${{ needs.build.outputs.velopack_mac_bundle_id }}"
+
+  # DIAGNOSTIC ONLY, never for distribution. Mutually exclusive with the
+  # real sign-and-package-mac job above (see debug_mac_signing input).
+  # Real Developer ID cert, real hardened-runtime entitlements (unchanged
+  # from production -- no get-task-allow added, since a prior debug
+  # session already ruled that out as the deciding factor in a runtime
+  # crash), but velopack_pack_id is deliberately left empty so this skips
+  # Velopack packaging entirely -- and with it, all notarization (sign.sh
+  # itself always defers its own notarization to the Velopack step; see
+  # sign-pkg-mac/action.yaml). The result: a real-cert-signed .dmg that
+  # has never been notarized, isolating "real Developer ID identity" from
+  # "notarization ticket" as the two remaining candidate variables. This
+  # build will show a Gatekeeper "unidentified developer" warning on
+  # launch -- expected, not a bug.
+  sign-and-package-mac-diagnostic:
+    env:
+      NOTARIZE_CREDS_MACOS:        ${{ secrets.NOTARIZE_CREDS_MACOS }}
+      SIGNING_CERT_MACOS:          ${{ secrets.SIGNING_CERT_MACOS }}
+      SIGNING_CERT_MACOS_IDENTITY: ${{ secrets.SIGNING_CERT_MACOS_IDENTITY }}
+      SIGNING_CERT_MACOS_PASSWORD: ${{ secrets.SIGNING_CERT_MACOS_PASSWORD }}
+    needs: build
+    if: github.event.inputs.debug_mac_signing == 'true'
+    runs-on: macos-latest
+    steps:
+      - name: Unpack Mac notarization credentials
+        if: env.NOTARIZE_CREDS_MACOS
+        id: note-creds
+        shell: bash
+        run: |
+          eval "${{ env.NOTARIZE_CREDS_MACOS }}"
+          echo "::add-mask::$USERNAME"
+          echo "::add-mask::$PASSWORD"
+          echo "::add-mask::$TEAM_ID"
+          echo "note_user=$USERNAME" >> "$GITHUB_OUTPUT"
+          echo "note_pass=$PASSWORD" >> "$GITHUB_OUTPUT"
+          echo "note_team=$TEAM_ID" >> "$GITHUB_OUTPUT"
+          [[ -n "$USERNAME" && -n "$PASSWORD" && -n "$TEAM_ID" ]]
+
+      - name: Sign Mac viewer (diagnostic, unnotarized)
+        if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
+        uses: secondlife/viewer-build-util/sign-pkg-mac@v2.1.7
+        with:
+          channel: ${{ needs.build.outputs.viewer_channel }}
+          imagename: ${{ needs.build.outputs.imagename }}
+          cert_base64: ${{ env.SIGNING_CERT_MACOS }}
+          cert_name: ${{ env.SIGNING_CERT_MACOS_IDENTITY }}
+          cert_pass: ${{ env.SIGNING_CERT_MACOS_PASSWORD }}
+          note_user: ${{ steps.note-creds.outputs.note_user }}
+          note_pass: ${{ steps.note-creds.outputs.note_pass }}
+          note_team: ${{ steps.note-creds.outputs.note_team }}
+          # Diagnostic-only: adds com.apple.security.get-task-allow so a
+          # debugger can attach to this real-cert-signed, unnotarized build
+          # (which never crashes when merely ad-hoc signed, so ad-hoc alone
+          # was never debuggable-and-reproducing at the same time).
+          debug_entitlements: true
+          # Deliberately omitted: velopack_pack_id/version/title/main_exe/
+          # bundle_id. Leaving velopack_pack_id empty skips Velopack
+          # packaging (and its own separate notarization call) entirely --
+          # see sign-pkg-mac/action.yaml's `if: ${{ inputs.velopack_pack_id }}`
+          # guards.
 
   post-windows-symbols:
     env:

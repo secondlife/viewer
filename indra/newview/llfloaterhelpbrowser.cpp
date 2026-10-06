@@ -96,7 +96,9 @@ void LLFloaterHelpBrowser::handleMediaEvent(LLPluginClassMedia* self, EMediaEven
     switch (event)
     {
     case MEDIA_EVENT_LOCATION_CHANGED:
-        setCurrentURL(self->getLocation());
+        // self is nullptr for an embedded-browser-originated event -- fall back to what
+        // LLMediaCtrl itself already tracks rather than dereferencing a null plugin.
+        setCurrentURL(self ? self->getLocation() : mBrowser->getCurrentNavUrl());
         break;
 
     case MEDIA_EVENT_NAVIGATE_BEGIN:

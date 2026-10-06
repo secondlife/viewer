@@ -383,7 +383,7 @@ void LLPanelNearByMedia::updateListItem(LLScrollListItem* item, LLViewerMediaImp
 
         debug_str += LLPluginClassMedia::priorityToString(impl->getPriority());
 
-        if(impl->hasMedia())
+        if(impl->hasMedia() || impl->isUsingEmbeddedBrowser())
         {
             debug_str += '@';
         }
@@ -402,7 +402,7 @@ void LLPanelNearByMedia::updateListItem(LLScrollListItem* item, LLViewerMediaImp
                    item_tooltip,
                    impl->getProximity(),
                    impl->isMediaDisabled(),
-                   impl->hasMedia(),
+                   impl->hasMedia() || impl->isUsingEmbeddedBrowser(),
                    impl->isMediaTimeBased() &&  impl->isMediaPlaying(),
                    media_class,
                    debug_str);

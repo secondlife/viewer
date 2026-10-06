@@ -107,7 +107,7 @@
 #endif
 #include <memory>                   // std::unique_ptr
 
-#include "llviewermedia_streamingaudio.h"
+#include "llstreamingaudio_libvlc.h"
 #include "llaudioengine.h"
 
 #ifdef LL_OPENAL
@@ -820,8 +820,8 @@ bool idle_startup()
 #endif
                 if (gAudiop->init(window_handle, LLAppViewer::instance()->getSecondLifeTitle()))
                 {
-                    LL_INFOS("AppInit") << "Using media plugins to render streaming audio" << LL_ENDL;
-                    gAudiop->setStreamingAudioImpl(new LLStreamingAudio_MediaPlugins());
+                    LL_INFOS("AppInit") << "Using LibVLC (via IPC to SLVlcProducer) to render streaming audio" << LL_ENDL;
+                    gAudiop->setStreamingAudioImpl(new LLStreamingAudio_LibVLC());
 
                     gAudiop->setMuted(true);
                 }

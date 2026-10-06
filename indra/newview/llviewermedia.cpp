@@ -35,12 +35,16 @@
 #include "llcallbacklist.h"
 #include "lldir.h"
 #include "lldiriterator.h"
+#include "llembeddedbrowser.h"
+#include "lljsbridge.h"
 #include "llevent.h"        // LLSimpleListener
 #include "llfilepicker.h"
 #include "llfloaterwebcontent.h"    // for handling window close requests and geometry change requests in media browser windows.
 #include "llfocusmgr.h"
 #include "llimagegl.h"
+#include "llsdutil.h"
 #include "llkeyboard.h"
+#include "llslurl.h"
 #include "lllogininstance.h"
 #include "llmarketplacefunctions.h"
 #include "llmediaentry.h"
@@ -83,7 +87,13 @@ extern bool gCubeSnapshot;
 
 // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
 constexpr bool USE_MIPMAPS = false;
-constexpr S32 MAX_MEDIA_INSTANCES_DEFAULT = 8;
+// This is only a fallback, used if MediaMaxInstances's control variable
+// can't be found in gSavedSettings at all -- settings.xml's own shipped
+// default (12) is what actually governs normal operation. Kept in sync with
+// that value deliberately (raised from CEF's original 8 to give embedded-
+// browser media enough headroom for the UI's own always-loaded floaters
+// alongside in-world media).
+constexpr S32 MAX_MEDIA_INSTANCES_DEFAULT = 12;
 constexpr S32 MEDIA_INSTANCES_MIN_LIMIT = 6; // 4 'permanent' floaters plus reserve for dynamic ones
 
 void init_threaded_picker_load_dialog(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
@@ -168,6 +178,15 @@ static LLViewerMedia::impl_list sViewerMediaImplList;
 static LLViewerMedia::impl_id_map sViewerMediaTextureIDMap;
 static LLTimer sMediaCreateTimer;
 static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
+
+// How long to wait, after an embedded-browser tab reports ProducerDisconnected,
+// before actually treating it as a real outage and alerting the user (see
+// LLViewerMediaImpl::updateEmbeddedBrowserEvents()). A brief disconnect that
+// reconnects on its own within this window (e.g. the producer wrongly
+// concluding this tab's own background thread had crashed under heavy system
+// load, when it was merely starved for a moment) is treated as if it never
+// happened, matching what actually occurred from the user's point of view.
+static const F32 EMBEDDED_BROWSER_DISCONNECT_GRACE_PERIOD = 2.0f;
 static F32 sGlobalVolume = 1.0f;
 static bool sForceUpdate = false;
 static LLUUID sOnlyAudibleTextureID = LLUUID::null;
@@ -216,7 +235,7 @@ static bool sViewerMediaMuteListObserverInitialized = false;
 LLViewerMedia::LLViewerMedia():
 mAnyMediaShowing(false),
 mAnyMediaPlaying(false),
-mMaxIntances(MAX_MEDIA_INSTANCES_DEFAULT),
+mMaxInstances(MAX_MEDIA_INSTANCES_DEFAULT),
 mSpareBrowserMediaSource(NULL)
 {
 }
@@ -240,7 +259,7 @@ void LLViewerMedia::initSingleton()
     mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
         setTeleportFinishedCallback(boost::bind(&LLViewerMedia::onTeleportFinished, this));
 
-    LLControlVariable* ctrl = gSavedSettings.getControl("PluginInstancesTotal");
+    LLControlVariable* ctrl = gSavedSettings.getControl("MediaMaxInstances");
     if (ctrl)
     {
         setMaxInstances(ctrl->getValue().asInteger());
@@ -262,11 +281,11 @@ void LLViewerMedia::setMaxInstances(S32 max_instances)
     F32Gigabytes physical_mem = LLMemory::getMaxMemKB();
     if (MIN_PHYSICAL_MEMORY > physical_mem)
     {
-        mMaxIntances = llmax(max_instances - 2, MEDIA_INSTANCES_MIN_LIMIT);
+        mMaxInstances = llmax(max_instances - 2, MEDIA_INSTANCES_MIN_LIMIT);
     }
     else
     {
-        mMaxIntances = llmax(max_instances, MEDIA_INSTANCES_MIN_LIMIT);
+        mMaxInstances = llmax(max_instances, MEDIA_INSTANCES_MIN_LIMIT);
     }
 }
 
@@ -313,7 +332,17 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
 
     if(media_impl)
     {
-        was_loaded = media_impl->hasMedia();
+        // hasMedia() alone is always false for the embedded-browser backend (mMediaSource
+        // is never assigned there -- see hasMedia()'s own comment on why it deliberately
+        // stays that way). Without isUsingEmbeddedBrowser() here, was_loaded is always
+        // false for embedded-browser media, so needs_navigate below never gets set --
+        // this is why a prim's real media URL, fetched fresh from the sim on login,
+        // never actually reached navigateTo(): the impl already existed (created earlier
+        // with an empty URL, the normal first pass before real media data arrives) but
+        // looked permanently "not loaded," and isAutoPlayable() is false unless the media
+        // entry explicitly has autoplay set. Manually re-entering the same URL worked
+        // because that calls navigateTo() directly, bypassing this gate entirely.
+        was_loaded = media_impl->hasMedia() || media_impl->isUsingEmbeddedBrowser();
 
         media_impl->setHomeURL(media_entry->getHomeURL());
 
@@ -323,6 +352,23 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
         media_impl->mMediaHeight = media_entry->getHeightPixels();
         media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
         media_impl->mMediaEntryURL = media_entry->getCurrentURL();
+        if (media_impl->mMediaEntryURL.empty() && media_impl->isAutoPlayable())
+        {
+            // current_url legitimately stays empty until something actually navigates
+            // within the media (or explicitly sets it) -- a media entry configured with
+            // only a home_url (e.g. PRIM_MEDIA_HOME_URL from a script, or a face whose
+            // media was only ever set via its Home URL field) is a normal, common setup,
+            // not "no media." With autoplay on, this should still auto-load home_url,
+            // the same way a real browser's home page works -- without this fallback,
+            // an empty mMediaEntryURL either skips navigating entirely (existing-impl
+            // branch, just below) or navigates to an empty string (new-impl branch,
+            // just below), so it can never auto-play regardless of the autoplay flag.
+            // Confirmed via a real prim: current_url was empty, home_url held the real
+            // media URL, auto_play was true, and it silently never loaded on login --
+            // manually re-entering the same URL always worked because that sets
+            // mMediaURL directly, bypassing this whole path.
+            media_impl->mMediaEntryURL = media_entry->getHomeURL();
+        }
         if (media_impl->mMediaSource)
         {
             media_impl->mMediaSource->setAutoScale(media_impl->mMediaAutoScale);
@@ -369,6 +415,23 @@ viewer_media_t LLViewerMedia::updateMediaImpl(LLMediaEntry* media_entry, const s
         media_impl->setHomeURL(media_entry->getHomeURL());
         media_impl->mMediaAutoPlay = media_entry->getAutoPlay();
         media_impl->mMediaEntryURL = media_entry->getCurrentURL();
+        if (media_impl->mMediaEntryURL.empty() && media_impl->isAutoPlayable())
+        {
+            // current_url legitimately stays empty until something actually navigates
+            // within the media (or explicitly sets it) -- a media entry configured with
+            // only a home_url (e.g. PRIM_MEDIA_HOME_URL from a script, or a face whose
+            // media was only ever set via its Home URL field) is a normal, common setup,
+            // not "no media." With autoplay on, this should still auto-load home_url,
+            // the same way a real browser's home page works -- without this fallback,
+            // an empty mMediaEntryURL either skips navigating entirely (existing-impl
+            // branch, just below) or navigates to an empty string (new-impl branch,
+            // just below), so it can never auto-play regardless of the autoplay flag.
+            // Confirmed via a real prim: current_url was empty, home_url held the real
+            // media URL, auto_play was true, and it silently never loaded on login --
+            // manually re-entering the same URL always worked because that sets
+            // mMediaURL directly, bypassing this whole path.
+            media_impl->mMediaEntryURL = media_entry->getHomeURL();
+        }
         if(media_impl->isAutoPlayable())
         {
             needs_navigate = true;
@@ -556,6 +619,77 @@ LLViewerMedia::impl_list &LLViewerMedia::getPriorityList()
     return sViewerMediaImplList;
 }
 
+LLSD LLViewerMedia::getEmbeddedBrowserDebugInfo()
+{
+    LLSD result = LLSD::emptyArray();
+
+    for (LLViewerMediaImpl* impl : sViewerMediaImplList)
+    {
+        if (!impl || !impl->isUsingEmbeddedBrowser())
+        {
+            continue;
+        }
+
+        LLSD row;
+
+        // Stable identity for consumers (e.g. LLFloaterMediaMonitor) that need to act on
+        // a specific selected row -- this LLSD array is rebuilt from scratch on every
+        // call, so nothing here persists a row-to-impl mapping on its own.
+        row["id"] = impl->getMediaTextureID();
+
+        unsigned int slot_index = 0;
+        row["slot"] = impl->getEmbeddedBrowserSlotIndex(slot_index) ? (LLSD::Integer)slot_index : LLSD::Integer(-1);
+
+        row["url"] = impl->getCurrentMediaURL();
+
+        // Display name -- the page <title>, matching LLPanelNearByMedia's own
+        // getNameAndUrlHelper(), falling back to the URL itself when there's no title
+        // (e.g. nothing has loaded yet). getName() already knows to check the embedded-
+        // browser's own cached title rather than always returning empty for it.
+        row["name"] = impl->getName();
+        if (row["name"].asString().empty())
+        {
+            row["name"] = row["url"];
+        }
+
+        row["backend"] = (impl->getEmbeddedBrowserBackend() == LLEmbeddedBrowserBackend::LibVlc) ? "LibVLC" : "CEF";
+
+        LLPluginClassMedia::EPriority priority = impl->getPriority();
+        row["priority"] = (LLSD::Integer)priority;
+        row["priority_label"] = LLPluginClassMedia::priorityToString(priority);
+
+        if (impl->getUsedInUI())
+        {
+            row["kind"] = "ui";
+        }
+        else if (impl->isParcelMedia())
+        {
+            row["kind"] = "parcel";
+        }
+        else
+        {
+            row["kind"] = "prim";
+        }
+
+        // Only prim media resolves to a single object a location (or distance) can be
+        // derived from -- UI and parcel media are deliberately left without an slurl/
+        // distance rather than a fabricated/misleading one. getProximityDistance()
+        // returns distance *squared* (see its own comment in llviewermedia.h).
+        row["slurl"] = "";
+        LLVOVolume* object = impl->getSomeObject();
+        if (object && object->getRegion())
+        {
+            LLSLURL slurl(object->getRegion()->getName(), object->getPositionRegion());
+            row["slurl"] = slurl.getSLURLString();
+            row["distance"] = (LLSD::Real)sqrt(impl->getProximityDistance());
+        }
+
+        result.append(row);
+    }
+
+    return result;
+}
+
 // static
 // This is the predicate function used to sort sViewerMediaImplList by priority.
 bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2)
@@ -591,7 +725,26 @@ bool LLViewerMedia::priorityComparitor(const LLViewerMediaImpl* i1, const LLView
     }
     else if(i1->getInterest() == i2->getInterest())
     {
-        // Generally this will mean both objects have zero interest.  In this case, sort on distance.
+        // Generally this will mean both objects have zero interest -- exactly
+        // the situation right after a region change, when a whole crowd of
+        // stale (not-yet-culled) impls from the old region and freshly-
+        // noticed impls from the new one are all tied at zero. Sorting that
+        // tie purely on distance treats an embedded-browser tab that's
+        // already mid-load as fully interchangeable with one that hasn't
+        // started at all -- the "closest N" rotation kept reshuffling which
+        // 8ish candidates counted as loadable every time distances shifted
+        // slightly, bumping a tab out before its page ever finished
+        // rendering even with setPriority()'s own debounce in place (that
+        // debounce only delays a *specific* impl's own destruction, it can't
+        // stop a *different* impl from winning its slot instead). Prefer
+        // whichever side already holds a live embedded-browser resource, so
+        // a tab that's already loading keeps its slot instead of losing it
+        // to a same-interest rival that hasn't even started -- only fall
+        // through to distance when neither (or both) already has one.
+        if (i1->isUsingEmbeddedBrowser() != i2->isUsingEmbeddedBrowser())
+        {
+            return i1->isUsingEmbeddedBrowser();
+        }
         return (i1->getProximityDistance() < i2->getProximityDistance());
     }
     else
@@ -620,6 +773,70 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
         return (i1 < i2);
     }
 }
+
+// Whether an embedded-browser impl at this priority is one that
+// LLViewerMediaImpl::setPriority() will actually tear the media source down
+// for outright (see that function's own comment for why: unlike the legacy
+// plugin backend, embedded browser has no cheap "throttled but still
+// resident" state). Shared with LLViewerMedia::updateMedia()'s own instance-
+// cap accounting below -- a deliberately-unloaded impl must stop counting
+// against MediaMaxInstances, or the cap stays permanently exhausted by
+// media that no longer holds any real resource at all.
+static bool wouldUnloadEmbeddedBrowserMedia(LLPluginClassMedia::EPriority priority)
+{
+    return (priority == LLPluginClassMedia::PRIORITY_SLIDESHOW) ||
+           (priority == LLPluginClassMedia::PRIORITY_HIDDEN && gViewerWindow && gViewerWindow->getActive());
+}
+
+// How long an embedded-browser impl must continuously stay unload-worthy
+// (see wouldUnloadEmbeddedBrowserMedia()) before setPriority() actually
+// destroys its CEF tab -- see mEmbeddedBrowserUnloadPending's own comment
+// for why this needs to be debounced rather than instant.
+static const F32 EMBEDDED_BROWSER_UNLOAD_GRACE_PERIOD = 3.0f;
+
+// Producer-side render throttle for non-UI, non-parcel embedded-browser media
+// (see setPriority()'s own is_debounced_embedded_browser split) -- maps the
+// same priority tier the legacy plugin used to throttle its own render rate/
+// resolution to a target begin-frame rate the producer actually paints at,
+// instead of every tab painting at full rate regardless of distance/interest
+// the way embedded-browser media did before this. 0 means unthrottled/full
+// rate. Deliberately NOT applied to UI or parcel media at all (see
+// setPriority()): the legacy CEF plugin was widely felt to be slow/janky,
+// and mis-assigned priority was suspected as a possible cause -- UI's render
+// rate must stay structurally independent of this shared priority signal,
+// not just happen to come out right.
+// PRIORITY_LOW is reachable just by losing focus, not just by real distance --
+// LLViewerMediaFocus's own auto-zoom moves the camera in on focus and back out
+// on defocus, so clicking off a media face genuinely shrinks its on-screen
+// footprint (see the media_is_small heuristic above) even standing in the same
+// spot still watching it. 30fps (versus a harsher 15) keeps that specific,
+// very common case looking closer to full rate -- tune this against
+// EMBEDDED_BROWSER_FPS_SLIDESHOW/HIDDEN below, which stay much lower since
+// those tiers require either real distance/CPU pressure or actually being out
+// of view, not just a momentary defocus.
+static const unsigned int EMBEDDED_BROWSER_FPS_LOW       = 30; // PRIORITY_LOW
+static const unsigned int EMBEDDED_BROWSER_FPS_SLIDESHOW = 2;  // PRIORITY_SLIDESHOW
+static const unsigned int EMBEDDED_BROWSER_FPS_HIDDEN    = 1;  // PRIORITY_HIDDEN
+
+// Grace period before a render-rate DEMOTION (to a worse/lower tier) is
+// actually applied -- promotions (back to a better tier) always apply
+// instantly, only demotions wait. Exists for the same reason as
+// EMBEDDED_BROWSER_UNLOAD_GRACE_PERIOD above: clicking off a media face's
+// focus (see LLViewerMediaFocus's auto-zoom) demotes it from PRIORITY_HIGH
+// straight to PRIORITY_LOW for a purely camera-position reason, not because
+// the resident actually moved away or stopped watching -- debouncing that
+// specific, extremely common transition avoids a visible, jarring frame-rate
+// drop for someone who is still standing right there.
+static const F32 EMBEDDED_BROWSER_RENDER_RATE_DEMOTION_GRACE_PERIOD = 2.0f;
+
+// Minimum change in computed volume that's worth sending as a kSetVolume opcode (see
+// updateVolume()). updateVolume() runs every frame and mProximityCamera changes
+// continuously as the camera moves, so without a deadband this would send one opcode
+// per LibVLC-backed media per frame. 1% of full scale is well below audible for a
+// single gain step, and doubles as the "close enough to silent" threshold in
+// updateVolume() -- without that snap, a level drifting to e.g. 0.004f would stop
+// sending (below the deadband) and leave a permanent faint trickle of audio.
+static const F32 EMBEDDED_BROWSER_VOLUME_EPSILON = 0.01f;
 
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SPARE_IDLE("Spare Idle");
@@ -702,7 +919,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
     static LLCachedControl<bool> inworld_media_enabled(gSavedSettings, "AudioStreamingMedia", true);
     static LLCachedControl<bool> inworld_audio_enabled(gSavedSettings, "AudioStreamingMusic", true);
     static LLCachedControl<U32> max_normal(gSavedSettings, "PluginInstancesNormal", 2);
-    static LLCachedControl<U32> max_low(gSavedSettings, "PluginInstancesLow", 4);
+    static LLCachedControl<U32> max_low(gSavedSettings, "PluginInstancesLow", 8);
     static LLCachedControl<F32> max_cpu(gSavedSettings, "PluginInstancesCPULimit", 0.9);
     // Setting max_cpu to 0.0 disables CPU usage checking.
     bool check_cpu_usage = (max_cpu != 0.0f);
@@ -721,7 +938,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
             LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-            if(pimpl->isForcedUnloaded() || (impl_count_total >= mMaxIntances))
+            if(pimpl->isForcedUnloaded() || (impl_count_total >= mMaxInstances))
             {
                 // Never load muted or failed impls.
                 // Hard limit on the number of instances that will be loaded at one time
@@ -800,7 +1017,21 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
                 }
             }
 
-            if(!pimpl->getUsedInUI() && (new_priority != LLPluginClassMedia::PRIORITY_UNLOADED))
+            // An embedded-browser impl this pass is about to unload outright
+            // (see wouldUnloadEmbeddedBrowserMedia()'s own comment) holds no
+            // real resource by the time this frame's setPriority() call
+            // below returns -- despite new_priority itself still reading
+            // SLIDESHOW/HIDDEN rather than UNLOADED, it must not keep
+            // occupying a counted slot, or the cap can never actually free
+            // up once every slot has ever been touched by "closest N" churn.
+            bool counts_toward_instance_cap = (new_priority != LLPluginClassMedia::PRIORITY_UNLOADED);
+            if (counts_toward_instance_cap && pimpl->isUsingEmbeddedBrowser() && !pimpl->getUsedInUI()
+                && !pimpl->isParcelMedia() && wouldUnloadEmbeddedBrowserMedia(new_priority))
+            {
+                counts_toward_instance_cap = false;
+            }
+
+            if(!pimpl->getUsedInUI() && counts_toward_instance_cap)
             {
                 // This is a loadable inworld impl -- the last one in the list in this class defines the lowest loadable interest.
                 lowest_interest_loadable = pimpl;
@@ -881,7 +1112,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
     sLowestLoadableImplInterest = 0.0f;
 
     // Only do this calculation if we've hit the impl count limit -- up until that point we always need to load media data.
-    if(lowest_interest_loadable && (impl_count_total >= mMaxIntances))
+    if(lowest_interest_loadable && (impl_count_total >= mMaxInstances))
     {
         // Get the interest value of this impl's object for use by isInterestingEnough
         LLVOVolume *object = lowest_interest_loadable->getSomeObject();
@@ -1364,6 +1595,26 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
                             }
                         }
                     }
+
+                    // Embedded-browser equivalent of the legacy per-instance
+                    // injectOpenIDCookie() mechanism above: unlike the legacy plugin's one-
+                    // isolated-cache-per-process model, every embedded-browser tab within a
+                    // context already shares one cookie store (see llCefBrowserManagerImpl's
+                    // UI/prim CefRequestContext split), so setting it once here covers every
+                    // current and future tab in that context -- no per-instance loop needed.
+                    //
+                    // ==========================================================================
+                    // POLICY SWITCH: whether prim/in-world media also gets the OpenID login
+                    // cookie. Isolating it to 2D floater/UI media only (kShareOpenIDCookieWithPrimMedia
+                    // = false) is the more secure default -- prim content may be controlled by an
+                    // untrusted third party -- but some users/creators rely on the legacy
+                    // Viewer's behavior (which shares it with everything) for content that
+                    // expects the logged-in user's identity. Flip this one line to change policy
+                    // viewer-wide; no other code needs to change.
+                    static const bool kShareOpenIDCookieWithPrimMedia = true;
+                    // ==========================================================================
+                    LLEmbeddedBrowser::getInstance()->setOpenIDCookie(cefUrl, cookie_name, cookie_value,
+                        cookie_host, cookie_path, httponly, secure, kShareOpenIDCookieWithPrimMedia);
                 }
             });
     }
@@ -1712,11 +1963,199 @@ bool LLViewerMediaImpl::initializeMedia(const std::string& mime_type)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+static const S32 DEFAULT_EMBEDDED_BROWSER_WIDTH = 1024;
+static const S32 DEFAULT_EMBEDDED_BROWSER_HEIGHT = 1024;
+
+// LLImageGL::setSize() requires power-of-two dimensions; the embedded browser's pixel
+// buffer is sized to the media's actual (non-power-of-two) dimensions, so the GL texture
+// backing it must be padded up to the next power of two, the same way the CEF plugin's
+// getTextureWidth()/getTextureHeight() differ from its getWidth()/getHeight().
+static S32 nextPowerOfTwoEmbeddedBrowser(S32 dim)
+{
+    S32 result = 1;
+    while (result < dim)
+    {
+        result <<= 1;
+    }
+    return result;
+}
+
+// Decides which producer-side backend a new embedded-browser slot should be created
+// with. Ordered deliberately:
+//   1. The EmbeddedBrowserUseLibVLC kill switch -- off means always CEF, exactly
+//      today's behavior for every URL, a safe and well-understood off-state.
+//   2. A stream scheme CEF genuinely cannot play routes to LibVLC -- even in a UI
+//      context (e.g. the Media Browser floater). These schemes never had DOM/JS/input
+//      handling to begin with (they're pure AV streams, not web pages), so LibVLC's
+//      total lack of that isn't an actual loss here, and it's the only way such a URL
+//      ever renders anything at all instead of a guaranteed CEF error page -- this is
+//      what makes it possible to open a stream in a 2D floater at all, e.g. to test
+//      resize behavior without needing an in-world prim.
+//   3. used_in_ui, for everything else: LibVLC has no DOM, no JS, no scripting and no
+//      input handling at all -- it can only ever paint decoded video frames -- so it
+//      could never render a real interactive (non-stream) floater.
+//   4. Everything else stays on CEF, exactly as before this existed.
+static LLEmbeddedBrowserBackend chooseEmbeddedBrowserBackend(const std::string& url, bool used_in_ui)
+{
+    if (!gSavedSettings.getBOOL("EmbeddedBrowserUseLibVLC"))
+    {
+        return LLEmbeddedBrowserBackend::Cef;
+    }
+
+    // LLURI::scheme() is the raw, case-preserving text before the first ':' -- lowercase
+    // before comparing, since "RTSP://..." is a perfectly legal spelling and a scheme
+    // comparison is case-insensitive per RFC 3986.
+    std::string scheme = LLURI(url).scheme();
+    LLStringUtil::toLower(scheme);
+
+    if (scheme == "rtsp"  || scheme == "rtsps" ||
+        scheme == "rtmp"  || scheme == "rtmps" ||
+        scheme == "mms"   || scheme == "mmsh")
+    {
+        return LLEmbeddedBrowserBackend::LibVlc;
+    }
+
+    // used_in_ui is otherwise moot: a non-stream URL already stays on CEF regardless
+    // (used_in_ui or not), and a stream URL already returned LibVlc above regardless
+    // of used_in_ui too. Kept as a parameter -- every call site already has it handy,
+    // and it documents why point 2 above needed calling out explicitly.
+    return LLEmbeddedBrowserBackend::Cef;
+}
+
+// CEF has no native continuous per-browser volume (see kSetMuted's own comment in
+// cefshm_protocol.h), so distance-rolloff volume for CEF-backed media is approximated
+// by setting .volume directly on the page's own <video>/<audio> elements via
+// executeJavaScript() -- a best-effort workaround, not a clean solution (ruled out
+// first: an OS-level per-process audio trick, like the legacy plugin's own
+// VolumeCatcher, can't work here at all, since every CEF tab's audio funnels through
+// SLCefProducer.exe's one shared audio-service process -- confirmed via Windows'
+// own Volume Mixer showing a single SLCefProducer session across simultaneously
+// playing tabs). Known gaps, accepted going in: a page's actual player living inside
+// a cross-origin <iframe> (e.g. a YouTube-style embed) is not reached at all --
+// ExecuteJavaScript() only targets the main frame, and cross-origin same-origin-policy
+// would block it even if it didn't; neither is Web Audio API/WASM-based audio, which
+// has no <video>/<audio> element for this to find; and a page's own JS resetting
+// .volume/.muted after ours runs can simply win, since this only reacts to DOM
+// mutations, not every possible script-driven property write.
+//
+// Only ever touches .volume, deliberately never .muted: setting .volume=0 already
+// silences a native <video>/<audio> element on its own (zero gain), so there is no
+// need to also force el.muted=true for our own silencing to work. An earlier version
+// of this did force el.muted=true below the epsilon -- and never cleared it again on
+// the way back up (matching the intent of leaving a page's own autoplay-compliance
+// muting alone otherwise), which left media permanently silent after the first mute:
+// once WE set muted=true, WE were the only thing that could ever clear it again, and
+// nothing here did. Not touching .muted at all avoids that bug at the root, and still
+// doesn't fight a page's own autoplay-mute in either direction.
+static std::string buildEmbeddedBrowserVolumeApplyFn()
+{
+    return "function(v){document.querySelectorAll('video,audio').forEach("
+           "function(el){el.volume=v;});}";
+}
+
+// Injected once per navigation (see kEventLoadEnd handling in
+// updateEmbeddedBrowserEvents()) -- registers a MutationObserver so a <video>/<audio>
+// element added to the page after this runs (a common pattern for players that build
+// their own markup via JS) still picks up the current volume, not just elements
+// present at the moment of injection. The initial volume is baked directly into the
+// script's own source rather than left to a stale global, so there's no gap between
+// injection and the first real level.
+static std::string buildEmbeddedBrowserVolumeSetupScript(F32 volume)
+{
+    return "(function(){var apply=" + buildEmbeddedBrowserVolumeApplyFn() +
+           ";window.__slVolume=" + std::to_string(volume) + ";apply(window.__slVolume);"
+           "if(!window.__slVolumeObserver){"
+           "window.__slVolumeObserver=new MutationObserver(function(){apply(window.__slVolume);});"
+           "window.__slVolumeObserver.observe(document.documentElement,"
+           "{childList:true,subtree:true,attributes:true,attributeFilter:['src']});"
+           "}})();";
+}
+
+// Sent on every dedup-gated volume change (see updateVolume()) -- much smaller than
+// the setup script above since the MutationObserver it registered is still alive for
+// the lifetime of the current page; this just updates the remembered level and
+// re-applies it to whatever elements exist right now.
+static std::string buildEmbeddedBrowserVolumeUpdateScript(F32 volume)
+{
+    return "window.__slVolume=" + std::to_string(volume) + ";(" +
+           buildEmbeddedBrowserVolumeApplyFn() + ")(window.__slVolume);";
+}
+
 void LLViewerMediaImpl::createMediaSource()
 {
+    if (mMediaSource || mUseEmbeddedBrowser)
+    {
+        // A media source already exists (either backend) -- some call sites (e.g.
+        // setVisible()) only guard this call with `if(!mMediaSource)`, which is always
+        // true on the embedded-browser backend since mMediaSource is never assigned
+        // there, so this function must be idempotent itself to avoid leaking a tab.
+        return;
+    }
+
     if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
     {
         // This media shouldn't be created yet.
+        return;
+    }
+
+    if (mMediaURL.empty() && mMimeType.empty())
+    {
+        // Nothing to load yet -- the legacy-plugin branch below effectively already
+        // guards against this (if(!mMediaURL.empty())/else if(!mMimeType.empty()),
+        // both empty means it does nothing), but the embedded-browser branch has no
+        // such check and would otherwise unconditionally create a real CEF tab from
+        // whatever mMediaURL currently holds. Confirmed via a real race: setDisabled(
+        // true)'s unload() clears mMediaURL, but mPriority isn't synchronously
+        // recomputed to PRIORITY_UNLOADED at the same instant -- so update()'s own
+        // deferred-load timer can still slip through the check just above and call
+        // this function again with a stale (not-yet-UNLOADED) priority, moments after
+        // the URL was wiped. Without this guard that created a real, permanently
+        // blank ("about:blank") CEF tab that never gets a real navigate, since
+        // nothing here ever retries loading it. See LLPanelNearByMedia's Stop/Play
+        // controls, where this was found.
+        return;
+    }
+
+    if (gSavedSettings.getBOOL("UseEmbeddedBrowser"))
+    {
+        S32 width = (mMediaWidth > 0) ? mMediaWidth : DEFAULT_EMBEDDED_BROWSER_WIDTH;
+        S32 height = (mMediaHeight > 0) ? mMediaHeight : DEFAULT_EMBEDDED_BROWSER_HEIGHT;
+
+        LLEmbeddedBrowser::getInstance()->setMaxDimensions(
+            gSavedSettings.getU32("EmbeddedBrowserMaxWidth"),
+            gSavedSettings.getU32("EmbeddedBrowserMaxHeight"));
+
+        mUseEmbeddedBrowser = true;
+
+        // Decided once, here, and remembered for this slot's whole lifetime -- the
+        // producer fixes the backend when it allocates the slot in response to
+        // kRequestSlot, before any URL has been sent, so this can't be deferred or
+        // recomputed later. See mEmbeddedBrowserBackend.
+        mEmbeddedBrowserBackend = chooseEmbeddedBrowserBackend(mMediaURL, mUsedInUI);
+
+        // Do not log the query parts
+        LLURI backend_log_uri(mMediaURL);
+        std::string backend_log_url = (backend_log_uri.query().empty() ? mMediaURL :
+            backend_log_uri.scheme() + "://" + backend_log_uri.authority() + backend_log_uri.path());
+        LL_INFOS("Media") << "Creating embedded-browser media source, backend="
+            << (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc ? "LibVLC" : "CEF")
+            << ", usedInUI=" << mUsedInUI
+            << ", id=" << mTextureId
+            << ", url=" << backend_log_url
+            << LL_ENDL;
+
+        // Matches loadURI()'s legacy-plugin behavior: data: URIs need their payload
+        // re-escaped (see LLURI::escapePathAndData()'s dedicated data: handling) to parse
+        // correctly -- plain http(s) URLs pass through this unchanged either way.
+        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI, mEmbeddedBrowserBackend);
+        // setPageZoomFactor() may have already updated mZoomFactor before this tab
+        // existed (e.g. ensureMediaSourceExists()'s own call, which runs right before
+        // this) -- apply whatever it currently is now that there's a real tab to send
+        // it to, rather than relying on that earlier call having reached anything.
+        if (mZoomFactor != 1.0)
+        {
+            LLEmbeddedBrowser::getInstance()->setPageZoom(mEmbeddedBrowserId, (float)mZoomFactor);
+        }
         return;
     }
 
@@ -1748,6 +2187,49 @@ void LLViewerMediaImpl::destroyMediaSource()
     }
 
     cancelMimeTypeProbe();
+
+    if (mUseEmbeddedBrowser)
+    {
+        // Mute first, before asking for the real teardown: destroy() below
+        // tears down the CEF tab and releases its producer slot, but that's
+        // not instant (closing the browser, then the producer's own idle/
+        // close handling) -- audio kept audibly playing for a few seconds
+        // after e.g. closing the media debug floater even though the tab was
+        // already on its way out. Muting is a single cheap opcode that takes
+        // effect immediately, so silence it right away regardless of how
+        // long the actual teardown takes.
+        if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
+        {
+            // Belt and braces alongside the setMuted() below: silencing on teardown
+            // must not depend on which of the two opcodes the producer's LibVLC path
+            // happens to implement. Both are single cheap fire-and-forget sends.
+            LLEmbeddedBrowser::getInstance()->setVolume(mEmbeddedBrowserId, 0.0f);
+        }
+        LLEmbeddedBrowser::getInstance()->setMuted(mEmbeddedBrowserId, true);
+        LLEmbeddedBrowser::getInstance()->destroy(mEmbeddedBrowserId);
+        mUseEmbeddedBrowser = false;
+        // A freshly created tab always starts unmuted -- reset this so a stale
+        // "already muted" record doesn't suppress the first setMuted() call a
+        // future createMediaSource() actually needs (see updateVolume()).
+        mEmbeddedBrowserMuted = false;
+        // Likewise a freshly created tab's backend/volume state must not carry over --
+        // see mEmbeddedBrowserBackend's/mEmbeddedBrowserVolume's own comments.
+        mEmbeddedBrowserBackend = LLEmbeddedBrowserBackend::Cef;
+        mEmbeddedBrowserVolume = -1.f;
+        mEmbeddedBrowserCefVolume = -1.f;
+        // Likewise for the render-rate hint -- a freshly created tab always
+        // starts unthrottled on the producer side, so this must not skip the
+        // first real setRenderRate() call a future createMediaSource() needs.
+        mEmbeddedBrowserTargetFps = 0;
+        mEmbeddedBrowserAppliedTier = 0;
+        mEmbeddedBrowserRenderRateDemotionPending = false;
+        // A freshly created tab has no pending-unload grace period running
+        // yet either -- clear this so a stale timer from a previous life
+        // doesn't cause an immediate destroy the moment this new tab's own
+        // priority first dips, before it ever gets its own fair grace period.
+        mEmbeddedBrowserUnloadPending = false;
+        return;
+    }
 
     {
         LLCoros::LockType lock(mLock); // Delay tear-down while bg thread is updating
@@ -2012,7 +2494,11 @@ void LLViewerMediaImpl::loadURI()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::executeJavaScript(const std::string& code)
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->executeJavaScript(mEmbeddedBrowserId, code);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->executeJavaScript(code);
     }
@@ -2023,7 +2509,14 @@ void LLViewerMediaImpl::setSize(int width, int height)
 {
     mMediaWidth = width;
     mMediaHeight = height;
-    if(mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        if (width > 0 && height > 0)
+        {
+            LLEmbeddedBrowser::getInstance()->resize(mEmbeddedBrowserId, width, height);
+        }
+    }
+    else if(mMediaSource)
     {
         mMediaSource->setSize(width, height);
     }
@@ -2044,6 +2537,19 @@ void LLViewerMediaImpl::hideNotification()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::play()
 {
+    // Only meaningful for a LibVLC-backed embedded-browser slot -- see
+    // isEmbeddedBrowserPlaying()'s own comment. A CEF-backed slot has no separate play
+    // step (kSetUrl already autoplays), so this is a no-op there, matching how
+    // LLPanelPrimMediaControls never shows a Play button for CEF media in the first place.
+    if (mUseEmbeddedBrowser)
+    {
+        if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
+        {
+            LLEmbeddedBrowser::getInstance()->play(mEmbeddedBrowserId);
+        }
+        return;
+    }
+
     // If the media source isn't there, try to initialize it and load an URL.
     if(mMediaSource == NULL)
     {
@@ -2064,6 +2570,15 @@ void LLViewerMediaImpl::play()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::stop()
 {
+    if (mUseEmbeddedBrowser)
+    {
+        if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
+        {
+            LLEmbeddedBrowser::getInstance()->stop(mEmbeddedBrowserId);
+        }
+        return;
+    }
+
     if(mMediaSource)
     {
         mMediaSource->stop();
@@ -2074,6 +2589,15 @@ void LLViewerMediaImpl::stop()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::pause()
 {
+    if (mUseEmbeddedBrowser)
+    {
+        if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
+        {
+            LLEmbeddedBrowser::getInstance()->pause(mEmbeddedBrowserId);
+        }
+        return;
+    }
+
     if(mMediaSource)
     {
         mMediaSource->pause();
@@ -2170,7 +2694,7 @@ void LLViewerMediaImpl::setMute(bool mute)
 void LLViewerMediaImpl::updateVolume()
 {
     LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE_VOLUME);
-    if(mMediaSource)
+    if(mMediaSource || mUseEmbeddedBrowser)
     {
         // always scale the volume by the global media volume
         F32 volume = mRequestedVolume * LLViewerMedia::getInstance()->getVolume();
@@ -2196,13 +2720,73 @@ void LLViewerMediaImpl::updateVolume()
             }
         }
 
-        if (sOnlyAudibleTextureID == LLUUID::null || sOnlyAudibleTextureID == mTextureId)
+        bool audible = (sOnlyAudibleTextureID == LLUUID::null || sOnlyAudibleTextureID == mTextureId);
+        if (!audible)
+        {
+            volume = 0.0f;
+        }
+
+        if (mMediaSource)
         {
             mMediaSource->setVolume(volume);
         }
-        else
+        else if (mUseEmbeddedBrowser)
         {
-            mMediaSource->setVolume(0.0f);
+            if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
+            {
+                // Unlike CEF, libvlc exposes a real per-player output gain, so a
+                // LibVLC-backed slot gets the same smooth distance-rolloff curve the
+                // legacy plugin had -- the volume computed above goes through as-is
+                // rather than collapsing to the mute decision below.
+                //
+                // Snapped to exact silence below the epsilon so "out of range" is
+                // genuinely silent rather than merely very quiet, and so the dedupe
+                // below can never leave a residual trickle of audio.
+                F32 send_volume = (volume < EMBEDDED_BROWSER_VOLUME_EPSILON) ? 0.0f : volume;
+
+                // Recomputed every frame, and mProximityCamera jitters continuously as
+                // the camera moves -- only send when the level actually changes by an
+                // audible amount, the same way mEmbeddedBrowserMuted gates the CEF
+                // path below. mEmbeddedBrowserVolume starts at -1.f, which no clamped
+                // level can equal, so the first call after tab creation always sends.
+                if (fabsf(send_volume - mEmbeddedBrowserVolume) >= EMBEDDED_BROWSER_VOLUME_EPSILON)
+                {
+                    mEmbeddedBrowserVolume = send_volume;
+                    LLEmbeddedBrowser::getInstance()->setVolume(mEmbeddedBrowserId, send_volume);
+                }
+            }
+            else
+            {
+                // CEF's public API has no continuous per-browser volume level (audio
+                // mixing happens inside Chromium's own audio service, not exposed to
+                // the embedder as a gain multiplier -- see kSetMuted's own comment in
+                // cefshm_protocol.h). kSetMuted/setMuted() stays as the immediate,
+                // guaranteed-to-work hard cutoff -- this is what actually silences
+                // embedded-browser media once it's out of rolloff range (e.g. after a
+                // teleport, where mProximityCamera becomes enormous), independent of
+                // whether the JS injection below has taken effect on this particular
+                // page. On top of that, a JS-injected best-effort approximation of the
+                // real computed volume (see buildEmbeddedBrowserVolumeUpdateScript()'s
+                // own comment for what this can't reach) gives a smooth fade for pages
+                // it does work on, rather than the previous flat mute/unmute jump.
+                bool should_mute = (volume <= 0.0f);
+                if (should_mute != mEmbeddedBrowserMuted)
+                {
+                    mEmbeddedBrowserMuted = should_mute;
+                    LLEmbeddedBrowser::getInstance()->setMuted(mEmbeddedBrowserId, should_mute);
+                    LL_INFOS("MediaVolume") << "CEF media (id=" << mTextureId << ") setMuted("
+                        << (should_mute ? "true" : "false") << ")" << LL_ENDL;
+                }
+
+                F32 send_volume = (volume < EMBEDDED_BROWSER_VOLUME_EPSILON) ? 0.0f : volume;
+                if (fabsf(send_volume - mEmbeddedBrowserCefVolume) >= EMBEDDED_BROWSER_VOLUME_EPSILON)
+                {
+                    mEmbeddedBrowserCefVolume = send_volume;
+                    LL_INFOS("MediaVolume") << "CEF media (id=" << mTextureId
+                        << ") JS-injected volume=" << send_volume << LL_ENDL;
+                    executeJavaScript(buildEmbeddedBrowserVolumeUpdateScript(send_volume));
+                }
+            }
         }
     }
 }
@@ -2218,7 +2802,11 @@ void LLViewerMediaImpl::focus(bool focus)
 {
     mHasFocus = focus;
 
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->setFocus(mEmbeddedBrowserId, focus);
+    }
+    else if (mMediaSource)
     {
         // call focus just for the hell of it, even though this apopears to be a nop
         mMediaSource->focus(focus);
@@ -2266,9 +2854,21 @@ void LLViewerMediaImpl::clearCache()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::setPageZoomFactor( double factor )
 {
-    if(mMediaSource && factor != mZoomFactor)
+    if (factor == mZoomFactor)
     {
-        mZoomFactor = factor;
+        return;
+    }
+    mZoomFactor = factor;
+
+    if (mUseEmbeddedBrowser)
+    {
+        // Applied live if the tab already exists; otherwise a no-op here, picked up
+        // by the current mZoomFactor applied right after tab creation in
+        // createMediaSource() below.
+        LLEmbeddedBrowser::getInstance()->setPageZoom(mEmbeddedBrowserId, (float)factor);
+    }
+    else if (mMediaSource)
+    {
         mMediaSource->set_page_zoom_factor( factor );
     }
 }
@@ -2280,7 +2880,15 @@ void LLViewerMediaImpl::mouseDown(S32 x, S32 y, MASK mask, S32 button)
     mLastMouseX = x;
     mLastMouseY = y;
 //  LL_INFOS() << "mouse down (" << x << ", " << y << ")" << LL_ENDL;
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        // A fresh down means any earlier double-click's up-half was already handled (or the
+        // sequence was interrupted some other way) -- either way, stale pending state here
+        // would wrongly tag some future, unrelated up as click_count=2.
+        mPendingDoubleClickUp = false;
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, true, 1);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOWN, button, x, y, mask);
     }
@@ -2293,7 +2901,13 @@ void LLViewerMediaImpl::mouseUp(S32 x, S32 y, MASK mask, S32 button)
     mLastMouseX = x;
     mLastMouseY = y;
 //  LL_INFOS() << "mouse up (" << x << ", " << y << ")" << LL_ENDL;
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        const unsigned char click_count = mPendingDoubleClickUp ? 2 : 1;
+        mPendingDoubleClickUp = false;
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, false, click_count);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, button, x, y, mask);
     }
@@ -2306,7 +2920,11 @@ void LLViewerMediaImpl::mouseMove(S32 x, S32 y, MASK mask)
     mLastMouseX = x;
     mLastMouseY = y;
 //  LL_INFOS() << "mouse move (" << x << ", " << y << ")" << LL_ENDL;
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->mouseMove(mEmbeddedBrowserId, x, y);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_MOVE, 0, x, y, mask);
     }
@@ -2328,6 +2946,17 @@ void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 
     if(texture_y < 0.0f)
         texture_y = 1.0f + texture_y;
 
+    if (mUseEmbeddedBrowser)
+    {
+        // No texture-vs-media-size distinction here (unlike the plugin's power-of-two
+        // getTextureWidth()/Height()) -- LLEmbeddedBrowser::getWidth()/getHeight() already
+        // are the real media dimensions, so no y-delta adjustment is needed either.
+        LLEmbeddedBrowser* browser = LLEmbeddedBrowser::getInstance();
+        *x = ll_round(texture_x * browser->getWidth(mEmbeddedBrowserId));
+        *y = ll_round((1.0f - texture_y) * browser->getHeight(mEmbeddedBrowserId));
+        return;
+    }
+
     // scale x and y to texel units.
     *x = ll_round(texture_x * mMediaSource->getTextureWidth());
     *y = ll_round((1.0f - texture_y) * mMediaSource->getTextureHeight());
@@ -2339,7 +2968,7 @@ void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S32 button)
 {
-    if(mMediaSource)
+    if(mMediaSource || mUseEmbeddedBrowser)
     {
         S32 x, y;
         scaleTextureCoords(texture_coords, &x, &y);
@@ -2350,7 +2979,7 @@ void LLViewerMediaImpl::mouseDown(const LLVector2& texture_coords, MASK mask, S3
 
 void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords, MASK mask, S32 button)
 {
-    if(mMediaSource)
+    if(mMediaSource || mUseEmbeddedBrowser)
     {
         S32 x, y;
         scaleTextureCoords(texture_coords, &x, &y);
@@ -2361,7 +2990,7 @@ void LLViewerMediaImpl::mouseUp(const LLVector2& texture_coords, MASK mask, S32 
 
 void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
 {
-    if(mMediaSource)
+    if(mMediaSource || mUseEmbeddedBrowser)
     {
         S32 x, y;
         scaleTextureCoords(texture_coords, &x, &y);
@@ -2372,7 +3001,7 @@ void LLViewerMediaImpl::mouseMove(const LLVector2& texture_coords, MASK mask)
 
 void LLViewerMediaImpl::mouseDoubleClick(const LLVector2& texture_coords, MASK mask)
 {
-    if (mMediaSource)
+    if (mMediaSource || mUseEmbeddedBrowser)
     {
         S32 x, y;
         scaleTextureCoords(texture_coords, &x, &y);
@@ -2387,7 +3016,18 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
     scaleMouse(&x, &y);
     mLastMouseX = x;
     mLastMouseY = y;
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        // Sent as a real click_count=2 down, matching CEF's SendMouseClickEvent() semantics --
+        // CEF is windowless here, so unlike a real browser window it has no OS-level double-click
+        // timing to infer this from on its own; the embedder (us) must say so explicitly. The
+        // matching up (fired separately, via mouseUp()/onMouseCaptureLost() when this object
+        // loses mouse capture) also needs click_count=2 to close the sequence out correctly,
+        // hence mPendingDoubleClickUp.
+        mPendingDoubleClickUp = true;
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, true, 2);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOUBLE_CLICK, button, x, y, mask);
     }
@@ -2396,7 +3036,7 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::scrollWheel(const LLVector2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask)
 {
-    if (mMediaSource)
+    if (mMediaSource || mUseEmbeddedBrowser)
     {
         S32 x, y;
         scaleTextureCoords(texture_coords, &x, &y);
@@ -2411,7 +3051,22 @@ void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MA
     scaleMouse(&x, &y);
     mLastMouseX = x;
     mLastMouseY = y;
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        // scroll_y here is SL's own small per-notch "clicks" value (+-1, +-2... straight
+        // from the OS callback, see LLViewerWindow::handleScrollWheel) -- SendMouseWheelEvent
+        // expects CEF's own wheel-delta units (~WHEEL_DELTA, 120 per notch on Windows), so
+        // this needs scaling up or a real scroll registers as imperceptible to the page.
+        // Negated: Dullahan's own scrollEvent() (the legacy path just below) and
+        // llCefBrowserManager's SendMouseWheelEvent disagree on which sign of this same
+        // scroll_y means "scroll down" -- flipped here so embedded-browser scrolling
+        // matches the legacy plugin's established direction rather than CEF's raw default.
+        // scroll_x has no equivalent in SendMouseWheelEvent (vertical deltaY only) -- horizontal
+        // scroll is dropped rather than approximated.
+        static const S32 kCefWheelDeltaPerNotch = 120; // named to avoid colliding with WinUser.h's own WHEEL_DELTA macro
+        LLEmbeddedBrowser::getInstance()->scrollWheel(mEmbeddedBrowserId, x, y, -scroll_y * kCefWheelDeltaPerNotch);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->scrollEvent(x, y, scroll_x, scroll_y, mask);
     }
@@ -2420,7 +3075,17 @@ void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MA
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::onMouseCaptureLost()
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+    {
+        // See mPendingDoubleClickUp's own comment -- this is the other place a double-click's
+        // matching up can arrive from, depending on the caller (prim media via LLToolPie relies
+        // on this path alone; LLMediaCtrl fires mouseUp() first, so by the time this runs the
+        // flag's already been consumed there and this correctly falls back to click_count=1).
+        const unsigned char click_count = mPendingDoubleClickUp ? 2 : 1;
+        mPendingDoubleClickUp = false;
+        LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, mLastMouseX, mLastMouseY, 0, false, click_count);
+    }
+    else if (mMediaSource)
     {
         mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_UP, 0, mLastMouseX, mLastMouseY, 0);
     }
@@ -2516,6 +3181,16 @@ void LLViewerMediaImpl::updateJavascriptObject()
 //////////////////////////////////////////////////////////////////////////////////////////
 const std::string& LLViewerMediaImpl::getName() const
 {
+    // Mirrors getMediaName()'s own embedded-browser handling -- this is a separate,
+    // older accessor that predates the embedded-browser backend and was never updated
+    // to check it, so callers using this one (e.g. LLPanelNearByMedia) always saw an
+    // empty title for embedded-browser media and fell back to displaying the URL
+    // instead, even while playing normally.
+    if (mUseEmbeddedBrowser)
+    {
+        return mEmbeddedBrowserTitle;
+    }
+
     if (mMediaSource)
     {
         return mMediaSource->getMediaName();
@@ -2531,6 +3206,10 @@ void LLViewerMediaImpl::navigateBack()
     {
         mMediaSource->browse_back();
     }
+    else if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->goBack(mEmbeddedBrowserId);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2540,12 +3219,29 @@ void LLViewerMediaImpl::navigateForward()
     {
         mMediaSource->browse_forward();
     }
+    else if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->goForward(mEmbeddedBrowserId);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::navigateReload()
 {
-    navigateTo(getCurrentMediaURL(), "", true, false);
+    if (mMediaSource)
+    {
+        // ignore_cache = true: a hard refresh, matching what every reload call site in the
+        // Viewer actually wants (the "Reload" button, not a plain re-navigate).
+        mMediaSource->browse_reload(true);
+    }
+    else if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->reload(mEmbeddedBrowserId, true);
+    }
+    else
+    {
+        navigateTo(getCurrentMediaURL(), "", true, false);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2572,14 +3268,23 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
 {
     cancelMimeTypeProbe();
 
-    if(mMediaURL != url)
+    // trim whitespace from front and back of URL -- fixes EXT-5363; loadURI() already does
+    // this for the legacy plugin path, but the embedded-browser path (createMediaSource()/
+    // chooseEmbeddedBrowserBackend(), below) reads mMediaURL directly and never goes through
+    // loadURI(), so a pasted leading/trailing space survived untouched -- silently breaking
+    // LLURI's scheme detection (a leading space means "rtmp://..." no longer starts with
+    // "rtmp"), falling back to CEF, which then fails to navigate at all.
+    std::string trimmed_url = url;
+    LLStringUtil::trim(trimmed_url);
+
+    if(mMediaURL != trimmed_url)
     {
         // Don't carry media play state across distinct URLs.
         resetPreviousMediaState();
     }
 
     // Always set the current URL and MIME type.
-    mMediaURL = url;
+    mMediaURL = trimmed_url;
     mMimeType = mime_type;
     mCleanBrowser = clean_browser;
 
@@ -2600,14 +3305,50 @@ void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mi
         // Helpful to have media urls in log file. Shouldn't be spammy.
         {
             // Do not log the query parts
-            LLURI u(url);
-            std::string sanitized_url = (u.query().empty() ? url : u.scheme() + "://" + u.authority() + u.path());
+            LLURI u(mMediaURL);
+            std::string sanitized_url = (u.query().empty() ? mMediaURL : u.scheme() + "://" + u.authority() + u.path());
             LL_INFOS() << "NOT LOADING media id= " << mTextureId << " url=" << sanitized_url << ", mime_type=" << mime_type << LL_ENDL;
         }
 
         // This impl should not be loaded at this time.
         LL_DEBUGS("PluginPriority") << this << "Not loading (PRIORITY_UNLOADED)" << LL_ENDL;
 
+        return;
+    }
+
+    if (!mMediaSource && !mUseEmbeddedBrowser)
+    {
+        // First load trigger for this impl (e.g. a UI-driven LLMediaCtrl calling
+        // navigateTo() directly, ahead of the priority-driven idle pass that normally
+        // calls createMediaSource() first for in-world media) -- resolve embedded-browser-
+        // vs-plugin now, so the legacy plugin path below can't win this race and
+        // permanently lock this impl out of the embedded browser via createMediaSource()'s
+        // own idempotency guard. createMediaSource() already handles the actual
+        // navigate/load for either backend using the mMediaURL just set above, so return
+        // either way instead of falling through and repeating it.
+        createMediaSource();
+        return;
+    }
+
+    if (mUseEmbeddedBrowser)
+    {
+        // A slot's backend is fixed when the producer allocates it (see kRequestSlot),
+        // so a URL change that crosses the CEF/LibVLC boundary -- e.g. a script
+        // swapping a web page for an rtsp:// stream via llSetPrimMediaParams, or vice
+        // versa -- can't be served by navigating the existing tab in place. Tear it
+        // down and let createMediaSource() request a correctly-backed one; mMediaURL
+        // was already updated above, so it will pick up the new URL and issue the
+        // initial navigate/play itself, exactly as on a first load.
+        if (chooseEmbeddedBrowserBackend(mMediaURL, mUsedInUI) != mEmbeddedBrowserBackend)
+        {
+            LL_INFOS("Media") << "Embedded-browser backend change on navigate (id=" << mTextureId
+                << ") -- recreating media source." << LL_ENDL;
+            destroyMediaSource();
+            createMediaSource();
+            return;
+        }
+
+        LLEmbeddedBrowser::getInstance()->navigate(mEmbeddedBrowserId, LLURI::escapePathAndData(mMediaURL));
         return;
     }
 
@@ -2811,6 +3552,10 @@ void LLViewerMediaImpl::navigateStop()
     {
         mMediaSource->browse_stop();
     }
+    else if (mUseEmbeddedBrowser)
+    {
+        LLEmbeddedBrowser::getInstance()->stopLoad(mEmbeddedBrowserId);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2818,18 +3563,46 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
 {
     bool result = false;
 
-    if (mMediaSource)
+    if (mMediaSource || mUseEmbeddedBrowser)
     {
-        // FIXME: THIS IS SO WRONG.
-        // Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
-        if (MASK_CONTROL & mask && key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
+        // Previously swallowed every Ctrl+key combo here (other than
+        // Left/Right/Home/End) without forwarding it, on the theory that
+        // "menu keys should be handled by the menu system, not passed to UI
+        // elements." That's already true by construction well before this
+        // function is ever reached: LLViewerWindow::handleKey() checks
+        // gMenuBarView/gLoginMenuBarView/gEditMenu's own handleAcceleratorKey()
+        // for every Ctrl/Alt combo *before* dispatching to the focused
+        // widget's handleKey() (which is what eventually calls this). If a
+        // combo were actually bound to a real, enabled menu accelerator
+        // (e.g. Ctrl+A -> Edit > Select All), it would already have been
+        // consumed there and this function would never run at all -- so
+        // reaching this point already proves no menu accelerator claimed
+        // it. The blanket swallow was needlessly blocking every OTHER
+        // Ctrl+key combo (a page's own Ctrl+K/Ctrl+B/Ctrl+A-select-all-in-
+        // a-field, etc.) from ever reaching the browser, for embedded-
+        // browser media and the legacy plugin alike.
+        LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
+        if (mUseEmbeddedBrowser)
         {
-            result = true;
+            // Absent on a platform with no embedded-browser keyboard translator
+            // yet (Windows, macOS, and Linux/SDL all have one now) -- see
+            // LLWindow::getNativeKeyData()'s own comment. Skip rather than send
+            // zeroed/garbage data.
+            if (native_key_data.has("cef_windows_key_code"))
+            {
+                LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
+                    LLEmbeddedBrowserKeyEventType::RawKeyDown,
+                    ll_U32_from_sd(native_key_data["cef_modifiers"]),
+                    (int)ll_U32_from_sd(native_key_data["cef_windows_key_code"]),
+                    (int)ll_U32_from_sd(native_key_data["cef_native_key_code"]),
+                    ll_U32_from_sd(native_key_data["cef_character"]),
+                    ll_U32_from_sd(native_key_data["cef_unmodified_character"]),
+                    native_key_data["cef_is_system_key"].asBoolean());
+                result = true;
+            }
         }
-
-        if (!result)
+        else
         {
-            LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
             result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_DOWN, key, mask, native_key_data);
         }
     }
@@ -2842,18 +3615,30 @@ bool LLViewerMediaImpl::handleKeyUpHere(KEY key, MASK mask)
 {
     bool result = false;
 
-    if (mMediaSource)
+    if (mMediaSource || mUseEmbeddedBrowser)
     {
-        // FIXME: THIS IS SO WRONG.
-        // Menu keys should be handled by the menu system and not passed to UI elements, but this is how LLTextEditor and LLLineEditor do it...
-        if (MASK_CONTROL & mask && key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END)
+        // See handleKeyHere()'s own comment -- the menu-accelerator system
+        // already had first crack at any Ctrl/Alt combo, upstream in
+        // LLViewerWindow::handleKey(), before this function is ever called.
+        LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
+        if (mUseEmbeddedBrowser)
         {
-            result = true;
+            // See handleKeyHere()'s own comment on why this key is checked first.
+            if (native_key_data.has("cef_windows_key_code"))
+            {
+                LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
+                    LLEmbeddedBrowserKeyEventType::KeyUp,
+                    ll_U32_from_sd(native_key_data["cef_modifiers"]),
+                    (int)ll_U32_from_sd(native_key_data["cef_windows_key_code"]),
+                    (int)ll_U32_from_sd(native_key_data["cef_native_key_code"]),
+                    ll_U32_from_sd(native_key_data["cef_character"]),
+                    ll_U32_from_sd(native_key_data["cef_unmodified_character"]),
+                    native_key_data["cef_is_system_key"].asBoolean());
+                result = true;
+            }
         }
-
-        if (!result)
+        else
         {
-            LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
             result = mMediaSource->keyEvent(LLPluginClassMedia::KEY_EVENT_UP, key, mask, native_key_data);
         }
     }
@@ -2866,7 +3651,7 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 {
     bool result = false;
 
-    if (mMediaSource)
+    if (mMediaSource || mUseEmbeddedBrowser)
     {
         // only accept 'printable' characters, sigh...
         if (uni_char >= 32 // discard 'control' characters
@@ -2874,7 +3659,28 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
         {
             LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
 
-            mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(false), native_key_data);
+            if (mUseEmbeddedBrowser)
+            {
+                // See handleKeyHere()'s own comment on why this key is checked first.
+                // character/unmodified_character come straight from uni_char, already
+                // the resolved Unicode character at this layer (identical on every
+                // platform), rather than re-deriving it from native_key_data.
+                if (native_key_data.has("cef_windows_key_code"))
+                {
+                    LLEmbeddedBrowser::getInstance()->keyEvent(mEmbeddedBrowserId,
+                        LLEmbeddedBrowserKeyEventType::Char,
+                        ll_U32_from_sd(native_key_data["cef_modifiers"]),
+                        (int)uni_char,
+                        (int)ll_U32_from_sd(native_key_data["cef_native_key_code"]),
+                        (unsigned int)uni_char,
+                        (unsigned int)uni_char,
+                        native_key_data["cef_is_system_key"].asBoolean());
+                }
+            }
+            else
+            {
+                mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(false), native_key_data);
+            }
         }
     }
 
@@ -2889,6 +3695,10 @@ bool LLViewerMediaImpl::canNavigateForward()
     {
         result = mMediaSource->getHistoryForwardAvailable();
     }
+    else if (mUseEmbeddedBrowser)
+    {
+        result = LLEmbeddedBrowser::getInstance()->canGoForward(mEmbeddedBrowserId);
+    }
     return result;
 }
 
@@ -2899,6 +3709,10 @@ bool LLViewerMediaImpl::canNavigateBack()
     if (mMediaSource)
     {
         result = mMediaSource->getHistoryBackAvailable();
+    }
+    else if (mUseEmbeddedBrowser)
+    {
+        result = LLEmbeddedBrowser::getInstance()->canGoBack(mEmbeddedBrowserId);
     }
     return result;
 }
@@ -2912,7 +3726,7 @@ static LLTrace::BlockTimerStatHandle FTM_MEDIA_SET_SUBIMAGE("Set Subimage");
 void LLViewerMediaImpl::update()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA; //LL_RECORD_BLOCK_TIME(FTM_MEDIA_DO_UPDATE);
-    if(mMediaSource == NULL)
+    if(mMediaSource == NULL && !mUseEmbeddedBrowser)
     {
         if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
         {
@@ -2941,7 +3755,7 @@ void LLViewerMediaImpl::update()
             }
         }
     }
-    else
+    else if (mMediaSource)
     {
         updateVolume();
 
@@ -2953,38 +3767,59 @@ void LLViewerMediaImpl::update()
     }
 
 
-    if(mMediaSource == NULL)
+    if(mMediaSource == NULL && !mUseEmbeddedBrowser)
     {
         return;
     }
 
-    // Make sure a navigate doesn't happen during the idle -- it can cause mMediaSource to get destroyed, which can cause a crash.
-    setNavigateSuspended(true);
-
-    mMediaSource->idle();
-
-    setNavigateSuspended(false);
-
-    if(mMediaSource == NULL)
+    if (mUseEmbeddedBrowser)
     {
-        return;
+        // Drain regardless of suspend/visible: matches the plugin path, where an async
+        // IPC event from the plugin process is never gated on the viewer's own idle-time
+        // suspend flags either -- those only guard the texture-copy step below.
+        updateEmbeddedBrowserEvents();
+
+        // Also unconditional, matching the legacy branch's own updateVolume() call
+        // above (before its suspend/visible checks) -- audio should mute/unmute
+        // based on distance and priority regardless of whether the texture itself
+        // is currently being copied.
+        updateVolume();
+
+        if (mSuspendUpdates || !mVisible)
+        {
+            return;
+        }
     }
-
-    if(mMediaSource->isPluginExited())
+    else
     {
-        resetPreviousMediaState();
-        destroyMediaSource();
-        return;
-    }
+        // Make sure a navigate doesn't happen during the idle -- it can cause mMediaSource to get destroyed, which can cause a crash.
+        setNavigateSuspended(true);
 
-    if(!mMediaSource->textureValid())
-    {
-        return;
-    }
+        mMediaSource->idle();
 
-    if(mSuspendUpdates || !mVisible)
-    {
-        return;
+        setNavigateSuspended(false);
+
+        if(mMediaSource == NULL)
+        {
+            return;
+        }
+
+        if(mMediaSource->isPluginExited())
+        {
+            resetPreviousMediaState();
+            destroyMediaSource();
+            return;
+        }
+
+        if(!mMediaSource->textureValid())
+        {
+            return;
+        }
+
+        if(mSuspendUpdates || !mVisible)
+        {
+            return;
+        }
     }
 
 
@@ -3001,6 +3836,11 @@ void LLViewerMediaImpl::update()
     {
         // Push update to worker thread
         auto main_queue = LLImageGLThread::sEnabledMedia ? mMainQueue.lock() : nullptr;
+        // Keep this frame's embedded-browser pixel snapshot (if any) alive for as long as
+        // the lambdas below might reference `data`, regardless of what
+        // mEmbeddedBrowserFrameSnapshot gets reassigned to by a later frame -- see its
+        // declaration in llviewermedia.h. [=, this] below captures this local by value.
+        auto embedded_frame_snapshot = mEmbeddedBrowserFrameSnapshot;
         if (main_queue)
         {
             mTextureUpdatePending = true;
@@ -3040,40 +3880,90 @@ bool LLViewerMediaImpl::preMediaTexUpdate(LLViewerMediaTexture*& media_tex, U8*&
 
     if (!mTextureUpdatePending)
     {
-        media_tex = updateMediaImage();
-
-        if (media_tex && mMediaSource)
+        if (mUseEmbeddedBrowser)
         {
-            LLRect dirty_rect;
-            S32 media_width = mMediaSource->getTextureWidth();
-            S32 media_height = mMediaSource->getTextureHeight();
-            //S32 media_depth = mMediaSource->getTextureDepth();
+            // Snapshot the tab's pixel buffer AND the width/height it was produced at
+            // in one single locked call, BEFORE deciding the GL texture's size below --
+            // rather than a live pointer into LLEmbeddedBrowser's internal storage,
+            // since the caller in update() may hand `data` off to an async GL-upload
+            // task on another thread, and the source tab can be resized (reallocating
+            // its buffer) or destroyed in the meantime. This snapshot is kept alive via
+            // mEmbeddedBrowserFrameSnapshot -- see update().
+            //
+            // Deliberately fed into updateMediaImage() below as its own explicit size,
+            // rather than letting it independently re-query getMediaWidth()/
+            // getMediaHeight() (which separately re-locks the tab): a resize landing on
+            // the embedded-browser update thread between two such independent reads
+            // used to size the GL texture for a different resolution than the pixel
+            // data actually snapshotted moments later -- a real race, confirmed by
+            // testing, that only ever showed up while continuously dragging a floater's
+            // resize handle and produced severe, non-recovering pixel corruption.
+            auto snapshot = std::make_shared<std::vector<U8>>();
+            unsigned int media_width = 0;
+            unsigned int media_height = 0;
+            bool copied = LLEmbeddedBrowser::getInstance()->copyPixels(mEmbeddedBrowserId, *snapshot, media_width, media_height);
 
-            // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
-            media_tex->setPlaying(true);
+            media_tex = updateMediaImage((S32)media_width, (S32)media_height);
 
-            if (mMediaSource->getDirty(&dirty_rect))
+            if (media_tex)
             {
-                // Constrain the dirty rect to be inside the texture
-                x_pos = llmax(dirty_rect.mLeft, 0);
-                y_pos = llmax(dirty_rect.mBottom, 0);
-                width = llmin(dirty_rect.mRight, media_width) - x_pos;
-                height = llmin(dirty_rect.mTop, media_height) - y_pos;
+                // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
+                media_tex->setPlaying(true);
 
-                if (width > 0 && height > 0)
+                // The placeholder redraws its entire buffer every frame, so treat
+                // the whole buffer as the dirty rect rather than tracking partial updates.
+                x_pos = 0;
+                y_pos = 0;
+                width = (S32)media_width;
+                height = (S32)media_height;
+                data_width = (S32)media_width;
+                data_height = (S32)media_height;
+
+                if (copied && width > 0 && height > 0)
                 {
-                    data = mMediaSource->getBitsData();
-                    data_width = mMediaSource->getWidth();
-                    data_height = mMediaSource->getHeight();
-
-                    if (data != NULL)
-                    {
-                        // data is ready to be copied to GL
-                        retval = true;
-                    }
+                    mEmbeddedBrowserFrameSnapshot = snapshot;
+                    data = mEmbeddedBrowserFrameSnapshot->data();
+                    retval = true;
                 }
+            }
+        }
+        else
+        {
+            media_tex = updateMediaImage();
 
-                mMediaSource->resetDirty();
+            if (media_tex && mMediaSource)
+            {
+                LLRect dirty_rect;
+                S32 media_width = mMediaSource->getTextureWidth();
+                S32 media_height = mMediaSource->getTextureHeight();
+                //S32 media_depth = mMediaSource->getTextureDepth();
+
+                // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
+                media_tex->setPlaying(true);
+
+                if (mMediaSource->getDirty(&dirty_rect))
+                {
+                    // Constrain the dirty rect to be inside the texture
+                    x_pos = llmax(dirty_rect.mLeft, 0);
+                    y_pos = llmax(dirty_rect.mBottom, 0);
+                    width = llmin(dirty_rect.mRight, media_width) - x_pos;
+                    height = llmin(dirty_rect.mTop, media_height) - y_pos;
+
+                    if (width > 0 && height > 0)
+                    {
+                        data = mMediaSource->getBitsData();
+                        data_width = mMediaSource->getWidth();
+                        data_height = mMediaSource->getHeight();
+
+                        if (data != NULL)
+                        {
+                            // data is ready to be copied to GL
+                            retval = true;
+                        }
+                    }
+
+                    mMediaSource->resetDirty();
+                }
             }
         }
     }
@@ -3125,11 +4015,11 @@ void LLViewerMediaImpl::updateImagesMediaStreams()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
+LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage(S32 embedded_browser_width, S32 embedded_browser_height)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     llassert(!gCubeSnapshot);
-    if (!mMediaSource)
+    if (!mMediaSource && !mUseEmbeddedBrowser)
     {
         return nullptr; // not ready for updating
     }
@@ -3137,6 +4027,65 @@ LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
     //llassert(!mTextureId.isNull());
     // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
     LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture( mTextureId, USE_MIPMAPS );
+
+    if (mUseEmbeddedBrowser)
+    {
+        // LLImageGL::setSize() requires power-of-two dimensions, so the GL texture is
+        // allocated at the padded size and the actual (non-power-of-two) media content
+        // is copied into its top-left corner by doMediaTexUpdate()'s setSubImage() call.
+        //
+        // media_width/media_height MUST come from the caller's own snapshot
+        // (embedded_browser_width/height), not a fresh getMediaWidth()/getMediaHeight()
+        // query here -- those separately re-lock the tab and can return a DIFFERENT size
+        // than whatever preMediaTexUpdate() is about to hand to copyPixels() moments
+        // later, if a resize lands on the embedded-browser update thread in between the
+        // two calls. That's a genuine race, confirmed by real testing: it only ever
+        // showed up while continuously dragging a floater's resize handle (which fires
+        // many resize requests in rapid succession), never for an occasional in-world
+        // prim resize, and produced severe, non-recovering pixel corruption -- the GL
+        // texture ends up sized for one resolution while the actual pixel data snapshot
+        // is for a different one. Falling back to a fresh query here only when the
+        // caller has no snapshot yet (embedded_browser_width < 0) keeps this safe to
+        // call from anywhere else in the future without a snapshot on hand.
+        S32 media_width = (embedded_browser_width >= 0) ? embedded_browser_width : getMediaWidth();
+        S32 media_height = (embedded_browser_height >= 0) ? embedded_browser_height : getMediaHeight();
+        // Derived from the SAME media_width/media_height above, not via
+        // getMediaTextureWidth()/getMediaTextureHeight() -- those compute
+        // nextPowerOfTwoEmbeddedBrowser(getMediaWidth()) internally, which is exactly
+        // the same kind of independent re-query this fix exists to avoid.
+        S32 texture_width = nextPowerOfTwoEmbeddedBrowser(media_width);
+        S32 texture_height = nextPowerOfTwoEmbeddedBrowser(media_height);
+        const S32 texture_depth = 4;
+
+        if ( mNeedsNewTexture
+            || (media_tex->getWidth() != texture_width)
+            || (media_tex->getHeight() != texture_height)
+            )
+        {
+            media_tex->destroyGLTexture();
+
+            LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
+            raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0xff);
+
+            // llembeddedbrowser's pixel buffer is CEF's native OnPaint byte order (BGRA),
+            // same as llshmframe's own documented convention -- unlike the CEF-plugin path
+            // just below, there's no LLPluginClassMedia to ask via getTextureFormatPrimary(),
+            // so this has to know that byte order explicitly rather than assuming RGBA.
+            media_tex->setExplicitFormat(GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, false);
+
+            int discard_level = 0;
+            if (!media_tex->createGLTexture(discard_level, raw))
+            {
+                LL_WARNS("Media") << "Failed to create media texture" << LL_ENDL;
+            }
+
+            mNeedsNewTexture = false;
+            mTextureUsedWidth = media_width;
+            mTextureUsedHeight = media_height;
+        }
+
+        return media_tex;
+    }
 
     if ( mNeedsNewTexture
         || (media_tex->getWidth() != mMediaSource->getTextureWidth())
@@ -3281,6 +4230,312 @@ bool LLViewerMediaImpl::isMediaPaused()
 bool LLViewerMediaImpl::hasMedia() const
 {
     return mMediaSource != NULL;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+bool LLViewerMediaImpl::isTextureReady() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return LLEmbeddedBrowser::getInstance()->getPixels(mEmbeddedBrowserId) != NULL;
+    }
+    return mMediaSource && mMediaSource->textureValid();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+S32 LLViewerMediaImpl::getMediaWidth() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return (S32)LLEmbeddedBrowser::getInstance()->getWidth(mEmbeddedBrowserId);
+    }
+    return mMediaSource ? mMediaSource->getWidth() : 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+S32 LLViewerMediaImpl::getMediaHeight() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return (S32)LLEmbeddedBrowser::getInstance()->getHeight(mEmbeddedBrowserId);
+    }
+    return mMediaSource ? mMediaSource->getHeight() : 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+S32 LLViewerMediaImpl::getMediaTextureWidth() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return nextPowerOfTwoEmbeddedBrowser(getMediaWidth());
+    }
+    return mMediaSource ? mMediaSource->getTextureWidth() : 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+S32 LLViewerMediaImpl::getMediaTextureHeight() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return nextPowerOfTwoEmbeddedBrowser(getMediaHeight());
+    }
+    return mMediaSource ? mMediaSource->getTextureHeight() : 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+bool LLViewerMediaImpl::getMediaTextureCoordsOpenGL() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        // LLEmbeddedBrowserTab::update() now flips its buffer to bottom-up rows to match
+        // what prim-face rendering has always assumed (see the row-flip there), so this
+        // buffer is GL-native, same as the plugin path reporting coords_opengl == true.
+        return true;
+    }
+    return mMediaSource && mMediaSource->getTextureCoordsOpenGL();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+std::string LLViewerMediaImpl::getMediaName() const
+{
+    if (mUseEmbeddedBrowser)
+    {
+        return mEmbeddedBrowserTitle;
+    }
+    return mMediaSource ? mMediaSource->getMediaName() : LLStringUtil::null;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Maps a subset of llCefCursorType's ordinals (see llCefBrowserHandle.h, not visible from
+// here -- this only crosses the wire as an opaque uint32, see cefshm_protocol.h's
+// kEventCursorChanged) to the closest ECursorType, matching getCursorFromString()'s string
+// table above it in spirit. Deliberately partial: the common pointer/text/link/wait/resize
+// cursors a web page actually uses, not an exhaustive 1:1 of every llCefCursorType value --
+// anything else (single-direction resize, panning, column/row resize, custom images, etc.)
+// falls back to the plain arrow rather than misrepresenting a cursor SL has no equivalent
+// for. Fragile by ordinal position: would silently mismap if llCefCursorType's own ordering
+// ever changes, since nothing on this side re-derives it from the enum itself.
+static ECursorType cursorTypeFromEmbeddedBrowserCursor(unsigned int cef_cursor_type)
+{
+    switch (cef_cursor_type)
+    {
+        case 0: return UI_CURSOR_ARROW;    // Pointer
+        case 1: return UI_CURSOR_CROSS;    // Cross
+        case 2: return UI_CURSOR_HAND;     // Hand
+        case 3: return UI_CURSOR_IBEAM;    // IBeam
+        case 4: return UI_CURSOR_WAIT;     // Wait
+        case 14: return UI_CURSOR_SIZENS;   // NorthSouthResize
+        case 15: return UI_CURSOR_SIZEWE;   // EastWestResize
+        case 16: return UI_CURSOR_SIZENESW; // NorthEastSouthWestResize
+        case 17: return UI_CURSOR_SIZENWSE; // NorthWestSouthEastResize
+        default: return UI_CURSOR_ARROW;
+    }
+}
+
+void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
+{
+    LLEmbeddedBrowserEvent event;
+    while (LLEmbeddedBrowser::getInstance()->popEvent(mEmbeddedBrowserId, event))
+    {
+        switch (event.type)
+        {
+            case LLEmbeddedBrowserEventType::LoadStart:
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_BEGIN);
+                break;
+
+            case LLEmbeddedBrowserEventType::LoadEnd:
+                if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef)
+                {
+                    // A fresh page has a fresh DOM/JS global scope -- any earlier
+                    // MutationObserver this tab registered is gone with it, so the
+                    // setup script (see its own comment) needs re-injecting on every
+                    // navigation, not just the first. mEmbeddedBrowserCefVolume is the
+                    // last real volume updateVolume() computed; -1.f only if this
+                    // fires before that has ever run once (unlikely in practice, but
+                    // possible), in which case default to full volume rather than 0.
+                    F32 current_volume = (mEmbeddedBrowserCefVolume >= 0.0f) ? mEmbeddedBrowserCefVolume : 1.0f;
+                    executeJavaScript(buildEmbeddedBrowserVolumeSetupScript(current_volume));
+                }
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_COMPLETE);
+                break;
+
+            case LLEmbeddedBrowserEventType::TitleChanged:
+                mEmbeddedBrowserTitle = event.mText;
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_NAME_CHANGED);
+                break;
+
+            case LLEmbeddedBrowserEventType::AddressChanged:
+                // Cached so observers that need a real URL (rather than the LLPluginClassMedia*
+                // they'd normally read one from) have somewhere safe to get it -- see the
+                // handleMediaEvent patches in llmediactrl.cpp and elsewhere.
+                mCurrentMediaURL = event.mText;
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_LOCATION_CHANGED);
+                break;
+
+            case LLEmbeddedBrowserEventType::CursorChanged:
+                mLastSetCursor = cursorTypeFromEmbeddedBrowserCursor(event.mValue);
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_CURSOR_CHANGED);
+                break;
+
+            case LLEmbeddedBrowserEventType::ClickLinkHref:
+                // Mirrors LLPluginClassMedia's own handling of the plugin's "click_href"
+                // message (see llpluginclassmedia.cpp) -- the UUID is generated here, at the
+                // owner layer, rather than carried over shm, for the same reason: it only
+                // needs to identify this click to code further upstream (e.g. a popup
+                // notification), not to the producer/CEF side.
+                mEmbeddedClickURL    = event.mText;
+                mEmbeddedClickTarget = event.mTarget;
+                mEmbeddedClickUUID   = LLUUID::generateNewID().asString();
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_CLICK_LINK_HREF);
+                break;
+
+            case LLEmbeddedBrowserEventType::ClickLinkNoFollow:
+                // Mirrors handleMediaEvent()'s own MEDIA_EVENT_CLICK_LINK_NOFOLLOW case just
+                // below -- that one only ever runs for the plugin path (it's this class's own
+                // LLPluginClassMediaOwner callback, never invoked for embedded browser), so
+                // the actual SLURL dispatch needs doing here too rather than relying on
+                // LLMediaCtrl's copy of this case, which is log-only.
+                //
+                // This event only ever fires for a scheme CEF itself refused to navigate to
+                // (see SetOnCustomSchemeURLCallback in llcefproducer.cpp) -- e.g. a clicked
+                // rtsp:// link inside an otherwise-CEF page. dispatch() returns false for
+                // anything that isn't a secondlife:// SLURL, so fall back to navigateTo() in
+                // that case: it re-evaluates chooseEmbeddedBrowserBackend() and will recreate
+                // this slot as LibVLC-backed if the scheme demands it, exactly as typing the
+                // same URL into an address bar already does.
+                mEmbeddedClickURL     = event.mText;
+                mEmbeddedClickNavType = event.mUserGesture ? "clicked" : "navigated";
+                if (!LLURLDispatcher::dispatch(mEmbeddedClickURL, mEmbeddedClickNavType, NULL, mTrustedBrowser))
+                {
+                    navigateTo(mEmbeddedClickURL);
+                }
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_CLICK_LINK_NOFOLLOW);
+                break;
+
+            case LLEmbeddedBrowserEventType::LoadError:
+                // CEF failed to navigate here and has already rendered its own built-in
+                // error page -- e.g. a clicked-in-page "rtsp://" link, a scheme CEF's own
+                // URL parser recognizes but has no protocol handler for. That case isn't
+                // caught by ClickLinkNoFollow above (its custom-scheme set is effectively
+                // just "secondlife://"), so it lands here instead. Only act when the failed
+                // URL is one chooseEmbeddedBrowserBackend() would route to a different
+                // backend than this slot's current one -- an ordinary load failure (bad
+                // DNS, 404, etc.) keeps the same backend, so this is a no-op for those.
+                if (chooseEmbeddedBrowserBackend(event.mText, mUsedInUI) != mEmbeddedBrowserBackend)
+                {
+                    navigateTo(event.mText);
+                }
+                break;
+
+            case LLEmbeddedBrowserEventType::FileDialogRequest:
+            {
+                mEmbeddedFileDialogId = event.mDialogId;
+
+                // Mode is an llCefFileDialogMode ordinal (see cefshm_protocol.h) -- kept as a
+                // plain int rather than pulling in llcefbrowser's own enum, same reasoning as
+                // kEventCursorChanged's llCefCursorType. Open/OpenMultiple mirrors this class's
+                // own MEDIA_EVENT_PICK_FILE_REQUEST handling further below (which only ever runs
+                // for the plugin path); Save is left to LLMediaCtrl's existing FILE_DOWNLOAD
+                // handling (mAllowFileDownload-gated) via the emitEvent() below, since that gate
+                // is owned by the widget, not this class.
+                switch (event.mValue)
+                {
+                    case 0: // Open
+                    case 1: // OpenMultiple
+                        (new LLEmbeddedMediaFilePicker(this, LLFilePicker::FFLOAD_ALL, event.mValue == 1))->getFile();
+                        emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_PICK_FILE_REQUEST);
+                        break;
+
+                    case 3: // Save
+                        mEmbeddedFileDownloadFilename = event.mText;
+                        emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD);
+                        break;
+
+                    default: // OpenFolder (2), or anything unrecognized -- not supported, matching
+                             // the legacy CEF plugin's own onFileDialog(), which silently returns
+                             // an empty response for any dialog_type it doesn't explicitly handle.
+                        respondToFileDialog(std::vector<std::string>());
+                        break;
+                }
+                break;
+            }
+
+            case LLEmbeddedBrowserEventType::StatusTextChanged:
+                mEmbeddedStatusText = event.mText;
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_STATUS_TEXT_CHANGED);
+                break;
+
+            case LLEmbeddedBrowserEventType::ConsoleMessage:
+                // Matches MediaPluginCEF::onConsoleMessageCallback()'s own format exactly (see
+                // media_plugin_cef.cpp) -- LLMediaCtrlListener::getMediaText() searches this text
+                // for its PAGE_TEXT_EXTRACT_MARKER, so the console.log() argument (event.mText)
+                // needs to survive intact somewhere in here, which it does regardless of the
+                // surrounding wording.
+                mEmbeddedDebugMessageText = "Console message: " + event.mText + " in file(" +
+                                             event.mTarget + ") at line " + std::to_string(event.mValue);
+                emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_DEBUG_MESSAGE);
+                break;
+
+            case LLEmbeddedBrowserEventType::JSQuery:
+            {
+                // See LLJSBridge's own comment -- this class has no opinion about what
+                // any particular "cmd" means, it just parses/dispatches/serializes.
+                LLJSBridge::Result result = LLJSBridge::getInstance()->dispatch(event.mText);
+                LLEmbeddedBrowser::getInstance()->respondToQuery(mEmbeddedBrowserId, event.mDialogId,
+                                                                  result.success, result.body);
+                break;
+            }
+
+            case LLEmbeddedBrowserEventType::ProducerDisconnected:
+                // Don't act (or alert) immediately -- see
+                // EMBEDDED_BROWSER_DISCONNECT_GRACE_PERIOD's own comment. Only becomes a
+                // real MEDIA_EVENT_PLUGIN_FAILED/alert if the grace-period check below
+                // still finds us disconnected once it expires.
+                mEmbeddedDisconnectPending = true;
+                mEmbeddedDisconnectTimer.setTimerExpirySec(EMBEDDED_BROWSER_DISCONNECT_GRACE_PERIOD);
+                break;
+
+            case LLEmbeddedBrowserEventType::ProducerReconnected:
+                // connectToProducer() already re-sent the last URL, so a fresh LoadStart/
+                // LoadEnd pair (and the usual NAVIGATE_BEGIN/COMPLETE they drive) is on its way
+                // through the normal event path once the page reloads -- nothing else to redo
+                // here beyond letting this media be considered live again. Also cancels any
+                // still-pending disconnect from the grace-period check below, so a disconnect
+                // that reconnected within the window never turns into an alert at all.
+                mEmbeddedDisconnectPending = false;
+                mMediaSourceFailed = false;
+                break;
+        }
+    }
+
+    if (mEmbeddedDisconnectPending && mEmbeddedDisconnectTimer.hasExpired())
+    {
+        // Mirrors this class's own MEDIA_EVENT_PLUGIN_FAILED handling further below
+        // (mMediaSourceFailed/resetPreviousMediaState), except that one's own
+        // notification is deliberately left disabled (see the "getting called every
+        // frame" comment there) because that path can re-fire every frame while the
+        // plugin is stuck failing to load. This one is safe to actually show: it only
+        // fires once per outage, right here, when the grace period elapses without a
+        // ProducerReconnected having cancelled it above.
+        mEmbeddedDisconnectPending = false;
+        mMediaSourceFailed = true;
+        resetPreviousMediaState();
+        {
+            // Not LLMIMETypes::implType(mCurrentMimeType) here -- that maps to
+            // "media_plugin_cef", which names the legacy plugin backend's DLL and
+            // is actively wrong for this backend: there's no such plugin process
+            // behind an embedded-browser failure, just a dead cefshm_producer.
+            LLSD args;
+            args["REASON"] = "Media Provider failed";
+            LLNotificationsUtil::add("EmbeddedBrowserFailed", args);
+        }
+        emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_PLUGIN_FAILED);
+    }
+}
+
+void LLViewerMediaImpl::respondToFileDialog(const std::vector<std::string>& filePaths)
+{
+    LLEmbeddedBrowser::getInstance()->respondToFileDialog(mEmbeddedBrowserId, mEmbeddedFileDialogId, filePaths);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -3660,7 +4915,9 @@ LLViewerMediaImpl::canRedo() const
 void
 LLViewerMediaImpl::cut()
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+        LLEmbeddedBrowser::getInstance()->cut(mEmbeddedBrowserId);
+    else if (mMediaSource)
         mMediaSource->cut();
 }
 
@@ -3669,7 +4926,12 @@ LLViewerMediaImpl::cut()
 bool
 LLViewerMediaImpl::canCut() const
 {
-    if (mMediaSource)
+    // CEF exposes no real edit-capability query (see llCefBrowserManager::CanCut(),
+    // always true, matching the legacy plugin's own editCanCut() -- see dullahan_impl.cpp)
+    // -- unconditionally enabled, same as the legacy-plugin path below.
+    if (mUseEmbeddedBrowser)
+        return true;
+    else if (mMediaSource)
         return mMediaSource->canCut();
     else
         return false;
@@ -3680,7 +4942,9 @@ LLViewerMediaImpl::canCut() const
 void
 LLViewerMediaImpl::copy()
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+        LLEmbeddedBrowser::getInstance()->copy(mEmbeddedBrowserId);
+    else if (mMediaSource)
         mMediaSource->copy();
 }
 
@@ -3689,7 +4953,9 @@ LLViewerMediaImpl::copy()
 bool
 LLViewerMediaImpl::canCopy() const
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+        return true;
+    else if (mMediaSource)
         return mMediaSource->canCopy();
     else
         return false;
@@ -3700,7 +4966,9 @@ LLViewerMediaImpl::canCopy() const
 void
 LLViewerMediaImpl::paste()
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+        LLEmbeddedBrowser::getInstance()->paste(mEmbeddedBrowserId);
+    else if (mMediaSource)
         mMediaSource->paste();
 }
 
@@ -3709,7 +4977,9 @@ LLViewerMediaImpl::paste()
 bool
 LLViewerMediaImpl::canPaste() const
 {
-    if (mMediaSource)
+    if (mUseEmbeddedBrowser)
+        return true;
+    else if (mMediaSource)
         return mMediaSource->canPaste();
     else
         return false;
@@ -3931,23 +5201,158 @@ void LLViewerMediaImpl::setPriority(LLPluginClassMedia::EPriority priority)
 
     mPriority = priority;
 
-    if(priority == LLPluginClassMedia::PRIORITY_UNLOADED)
+    // Non-UI, non-parcel embedded-browser media is where the "closest N"
+    // churn actually happens (a region's ordinary prim media), so it's the
+    // only case that needs debouncing below -- see mEmbeddedBrowserUnloadPending's
+    // own comment. UI and parcel media keep the plain, immediate handling
+    // further down (they aren't part of that churn).
+    const bool is_debounced_embedded_browser = mUseEmbeddedBrowser && !mUsedInUI && !mIsParcelMedia;
+
+    // A debounced embedded-browser impl must react the same way to EITHER
+    // route that says "don't keep this loaded": literal PRIORITY_UNLOADED
+    // (the hard MediaMaxInstances cap below, or muted/failed) or
+    // PRIORITY_SLIDESHOW/HIDDEN (lost the "closest N" cut -- see
+    // wouldUnloadEmbeddedBrowserMedia()'s own comment). These used to be two
+    // separate branches, and only the second was debounced -- but
+    // LLViewerMedia::updateMedia()'s cap-accounting fix excludes an already-
+    // SLIDESHOW impl from impl_count_total, which lets other candidates fill
+    // the cap and can then push that same impl into literal UNLOADED on a
+    // later frame, silently bypassing the debounce meant to protect it.
+    // Unifying both routes into one check closes that hole.
+    if (is_debounced_embedded_browser &&
+        ((priority == LLPluginClassMedia::PRIORITY_UNLOADED) || wouldUnloadEmbeddedBrowserMedia(priority)))
     {
-        if(mMediaSource)
+        // Debounced, not instant: right after a region change, many impls'
+        // interest values are still settling, and a freshly-created tab can
+        // flicker across the loadable/not-loadable boundary for a frame or
+        // two purely from sort-order noise among many competing candidates.
+        // Reacting to a single frame's demotion tore the tab down before its
+        // page ever finished rendering -- restarting it from scratch on
+        // every flicker, which is what actually made a region transition
+        // look like it took forever to load anything. Require the demotion
+        // to hold for a short, continuous grace period before actually
+        // destroying it; recovering back to a loadable priority before then
+        // cancels the pending unload with no destroy at all.
+        if (!mEmbeddedBrowserUnloadPending)
         {
-            // Need to unload the media source
-
-            // First, save off previous media state
-            mPreviousMediaState = mMediaSource->getStatus();
-            mPreviousMediaTime = mMediaSource->getCurrentTime();
-
+            mEmbeddedBrowserUnloadPending = true;
+            mEmbeddedBrowserUnloadTimer.reset();
+        }
+        else if (mEmbeddedBrowserUnloadTimer.getElapsedTimeF32() >= EMBEDDED_BROWSER_UNLOAD_GRACE_PERIOD)
+        {
             destroyMediaSource();
+        }
+    }
+    else
+    {
+        if (is_debounced_embedded_browser)
+        {
+            mEmbeddedBrowserUnloadPending = false;
+        }
+
+        if(priority == LLPluginClassMedia::PRIORITY_UNLOADED)
+        {
+            if(mMediaSource)
+            {
+                // Need to unload the media source
+
+                // First, save off previous media state
+                mPreviousMediaState = mMediaSource->getStatus();
+                mPreviousMediaTime = mMediaSource->getCurrentTime();
+
+                destroyMediaSource();
+            }
+            else if (mUseEmbeddedBrowser)
+            {
+                // Only UI/parcel embedded-browser media reaches here (the debounced
+                // case above handles everything else) -- unconditional, matching
+                // the legacy branch just above: neither is part of the "closest N"
+                // churn this file is otherwise debouncing against.
+                destroyMediaSource();
+            }
         }
     }
 
     if(mMediaSource)
     {
         mMediaSource->setPriority(mPriority);
+    }
+    else if (mUseEmbeddedBrowser)
+    {
+        // target_fps stays 0 (unthrottled) for UI and parcel media unconditionally --
+        // only the debounced, non-UI/non-parcel population's render rate is ever
+        // reduced. See EMBEDDED_BROWSER_FPS_* and this function's own comment above.
+        // priority_tier is the same tier as a small, wire-friendly number (0=Normal/
+        // High, 1=Low, 2=Slideshow, 3=Hidden) -- see kSetRenderRate's own comment.
+        unsigned int target_fps = 0;
+        unsigned int priority_tier = 0;
+        if (is_debounced_embedded_browser)
+        {
+            switch (mPriority)
+            {
+                case LLPluginClassMedia::PRIORITY_LOW:
+                    target_fps = EMBEDDED_BROWSER_FPS_LOW;
+                    priority_tier = 1;
+                    break;
+                case LLPluginClassMedia::PRIORITY_SLIDESHOW:
+                    target_fps = EMBEDDED_BROWSER_FPS_SLIDESHOW;
+                    priority_tier = 2;
+                    break;
+                case LLPluginClassMedia::PRIORITY_HIDDEN:
+                    target_fps = EMBEDDED_BROWSER_FPS_HIDDEN;
+                    priority_tier = 3;
+                    break;
+                default:
+                    break; // NORMAL/HIGH (and UNLOADED/STOPPED, moot -- about to be torn down)
+            }
+        }
+        // priority_tier doubles as an ordinal rank here: 0 is always the best
+        // (unthrottled), 3 the worst -- a tier numerically higher than what's
+        // currently applied is a demotion and gets debounced below; anything
+        // else (an improvement, or no real change) applies right away.
+        auto apply_render_rate = [this, target_fps, priority_tier]()
+        {
+            mEmbeddedBrowserTargetFps = target_fps;
+            mEmbeddedBrowserAppliedTier = priority_tier;
+            const std::string url = getCurrentMediaURL();
+            LLEmbeddedBrowser::getInstance()->setRenderRate(mEmbeddedBrowserId, target_fps, priority_tier, url);
+
+            unsigned int slot_index = 0;
+            const bool has_slot = LLEmbeddedBrowser::getInstance()->getSlotIndex(mEmbeddedBrowserId, slot_index);
+            LL_INFOS("PluginPriority") << "embedded-browser render rate for slot "
+                << (has_slot ? std::to_string(slot_index) : std::string("?"))
+                << ": " << LLPluginClassMedia::priorityToString(mPriority)
+                << " (" << (target_fps == 0 ? std::string("unthrottled") : (std::to_string(target_fps) + "fps"))
+                << ") - " << url << LL_ENDL;
+        };
+
+        if (priority_tier > mEmbeddedBrowserAppliedTier)
+        {
+            // Demotion -- see EMBEDDED_BROWSER_RENDER_RATE_DEMOTION_GRACE_PERIOD's
+            // own comment for why this specifically (and only this direction)
+            // needs debouncing rather than applying instantly.
+            if (!mEmbeddedBrowserRenderRateDemotionPending)
+            {
+                mEmbeddedBrowserRenderRateDemotionPending = true;
+                mEmbeddedBrowserRenderRateDemotionTimer.reset();
+            }
+            else if (mEmbeddedBrowserRenderRateDemotionTimer.getElapsedTimeF32() >=
+                     EMBEDDED_BROWSER_RENDER_RATE_DEMOTION_GRACE_PERIOD)
+            {
+                mEmbeddedBrowserRenderRateDemotionPending = false;
+                apply_render_rate();
+            }
+        }
+        else
+        {
+            // An improvement (or no change) always applies immediately, and
+            // cancels any demotion that was still waiting out its grace period.
+            mEmbeddedBrowserRenderRateDemotionPending = false;
+            if (priority_tier != mEmbeddedBrowserAppliedTier)
+            {
+                apply_render_rate();
+            }
+        }
     }
 
     // NOTE: loading (or reloading) media sources whose priority has risen above PRIORITY_UNLOADED is done in update().
@@ -4025,6 +5430,24 @@ void LLViewerMediaImpl::removeObject(LLVOVolume* obj)
 {
     mObjectList.remove(obj) ;
     mNeedsMuteCheck = true;
+
+    // For embedded-browser prim media, don't wait for the generic priority
+    // system to notice this impl is no longer wanted -- LLViewerMediaImpl::
+    // calculateInterest()'s mInterest comes from LLViewerTexture::
+    // getMaxVirtualSize(), a "how big did this texture render recently" stat
+    // that decays gradually over many seconds rather than dropping to zero
+    // the instant the last owning object is gone (it was never designed for
+    // an instant region change, just normal same-region visibility changes).
+    // That gradual decay is cheap to just ride out for the legacy plugin
+    // backend, but for embedded browser it means a torn-down region's tabs
+    // keep contesting the fixed MediaMaxInstances cap against the new
+    // region's own media for a long tail after a teleport (observed: tens of
+    // seconds). mObjectList going empty is a precise, immediate signal that
+    // this impl's last reason to exist just disappeared -- act on it directly.
+    if (mObjectList.empty() && mUseEmbeddedBrowser && !mUsedInUI && !mIsParcelMedia)
+    {
+        destroyMediaSource();
+    }
 }
 
 const std::list< LLVOVolume* >* LLViewerMediaImpl::getObjectList() const
@@ -4043,6 +5466,16 @@ LLVOVolume *LLViewerMediaImpl::getSomeObject()
     }
 
     return result;
+}
+
+bool LLViewerMediaImpl::getEmbeddedBrowserSlotIndex(unsigned int& out_index) const
+{
+    if (!mUseEmbeddedBrowser)
+    {
+        return false;
+    }
+
+    return LLEmbeddedBrowser::getInstance()->getSlotIndex(mEmbeddedBrowserId, out_index);
 }
 
 void LLViewerMediaImpl::setTextureID(LLUUID id)

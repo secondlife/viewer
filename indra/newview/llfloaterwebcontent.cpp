@@ -303,9 +303,17 @@ void LLFloaterWebContent::draw()
 // virtual
 void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 {
+    // self is nullptr for an embedded-browser-originated event (see
+    // LLViewerMediaImpl::updateEmbeddedBrowserEvents()) -- it has no LLPluginClassMedia to
+    // ask, so fall back to mWebBrowser's own backend-agnostic canNavigateBack()/Forward(),
+    // which for embedded browser reflects the producer's real CanGoBack()/CanGoForward()
+    // state (kEventNavStateChanged).
+    const bool history_back_available = self ? self->getHistoryBackAvailable() : mWebBrowser->canNavigateBack();
+    const bool history_forward_available = self ? self->getHistoryForwardAvailable() : mWebBrowser->canNavigateForward();
+
     if(event == MEDIA_EVENT_LOCATION_CHANGED)
     {
-        const std::string url = self->getLocation();
+        const std::string url = self ? self->getLocation() : mWebBrowser->getCurrentNavUrl();
 
         if ( url.length() )
             mStatusBarText->setText( url );
@@ -315,8 +323,8 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
     else if(event == MEDIA_EVENT_NAVIGATE_BEGIN)
     {
         // flags are sent with this event
-        mBtnBack->setEnabled( self->getHistoryBackAvailable() );
-        mBtnForward->setEnabled( self->getHistoryForwardAvailable() );
+        mBtnBack->setEnabled( history_back_available );
+        mBtnForward->setEnabled( history_forward_available );
 
         // toggle visibility of these buttons based on browser state
         mBtnReload->setVisible( false );
@@ -328,8 +336,8 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
     else if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
     {
         // flags are sent with this event
-        mBtnBack->setEnabled( self->getHistoryBackAvailable() );
-        mBtnForward->setEnabled( self->getHistoryForwardAvailable() );
+        mBtnBack->setEnabled( history_back_available );
+        mBtnForward->setEnabled( history_forward_available );
 
         // toggle visibility of these buttons based on browser state
         mBtnReload->setVisible( true );
@@ -349,7 +357,8 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
     }
     else if(event == MEDIA_EVENT_STATUS_TEXT_CHANGED )
     {
-        const std::string text = self->getStatusText();
+        // self is nullptr for an embedded-browser-originated event.
+        const std::string text = self ? self->getStatusText() : mWebBrowser->getStatusText();
         if ( text.length() )
             mStatusBarText->setText( text );
     }
@@ -361,9 +370,9 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
     else if(event == MEDIA_EVENT_NAME_CHANGED )
     {
         // flags are sent with this event
-        mBtnBack->setEnabled(self->getHistoryBackAvailable());
-        mBtnForward->setEnabled(self->getHistoryForwardAvailable());
-        std::string page_title = self->getMediaName();
+        mBtnBack->setEnabled(history_back_available);
+        mBtnForward->setEnabled(history_forward_available);
+        std::string page_title = self ? self->getMediaName() : mWebBrowser->getMediaName();
         // simulate browser behavior - title is empty, use the current URL
         if (mShowPageTitle)
         {
@@ -427,22 +436,18 @@ void LLFloaterWebContent::onClickBack()
 
 void LLFloaterWebContent::onClickReload()
 {
-
-    if( mWebBrowser->getMediaPlugin() )
-    {
-        bool ignore_cache = true;
-        mWebBrowser->getMediaPlugin()->browse_reload( ignore_cache );
-    }
-    else
-    {
-        mWebBrowser->navigateTo(mCurrentURL);
-    }
+    // Routes through LLViewerMediaImpl::navigateReload() rather than reaching into the
+    // plugin directly -- that has an embedded-browser branch too (and getMediaPlugin() is
+    // always null for embedded-browser media), and does a real ignore-cache reload for
+    // either backend.
+    mWebBrowser->navigateReload();
 }
 
 void LLFloaterWebContent::onClickStop()
 {
-    if( mWebBrowser->getMediaPlugin() )
-        mWebBrowser->getMediaPlugin()->browse_stop();
+    // See onClickReload() -- same reasoning, mWebBrowser->navigateStop() covers both
+    // backends instead of only ever acting when a legacy plugin is present.
+    mWebBrowser->navigateStop();
 
     // still should happen when we catch the navigate complete event
     // but sometimes (don't know why) that event isn't sent from Qt

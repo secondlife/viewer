@@ -2601,7 +2601,17 @@ LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
             result.add(face.mNormals[i]);
         }
 
-        LLVector3 ret(result.getF32ptr());
+        // Was "LLVector3 ret(...)" here, shadowing the outer ret -- every real
+        // computation below landed on that inner, scope-local copy, discarded the
+        // moment the block ended, so this function always returned a zero vector
+        // regardless of face validity. Confirmed via a real repro: any caller relying
+        // on this for a proper face-aligned camera zoom (LLViewerMediaFocus::
+        // focusZoomOnMedia(), used by both LLPanelNearByMedia's and
+        // LLFloaterMediaMonitor's own zoom buttons) silently fell back to its
+        // "no real pick normal available" path -- dollying the camera straight in
+        // along whatever direction it already happened to be facing, never
+        // reorienting to actually face the media -- on every single call.
+        ret = LLVector3(result.getF32ptr());
         ret = volumeDirectionToAgent(ret);
         ret.normVec();
     }
@@ -2934,9 +2944,23 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
         case LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD:
         {
             // Media might be blocked, waiting for a file,
-            // send an empty response to unblock it
+            // send an empty response to unblock it. plugin is null for
+            // embedded-browser media -- this event is broadcast with a null
+            // plugin there (see LLViewerMediaImpl::updateEmbeddedBrowserEvents()'s
+            // own FileDialogRequest/Save case), so unblock via
+            // LLViewerMediaImpl::respondToFileDialog() instead, which routes to
+            // that backend's own pending dialog. Calling plugin->sendPickFileResponse()
+            // unconditionally here crashed the whole viewer on a null plugin
+            // whenever embedded-browser prim media tried to save/download a file.
             const std::vector<std::string> empty_response;
-            plugin->sendPickFileResponse(empty_response);
+            if (plugin)
+            {
+                plugin->sendPickFileResponse(empty_response);
+            }
+            else
+            {
+                impl->respondToFileDialog(empty_response);
+            }
 
             LLNotificationsUtil::add("MediaFileDownloadUnsupported");
         }

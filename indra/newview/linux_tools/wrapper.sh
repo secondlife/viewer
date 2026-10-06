@@ -29,6 +29,47 @@ RUN_PATH=`dirname "${SCRIPTSRC}" || echo .`
 echo "Running from ${RUN_PATH}"
 cd "${RUN_PATH}"
 
+# libcef.so (used for in-viewer web media -- login page, prim/parcel media)
+# depends on NSS/NSPR at runtime but does not bundle them; this matches
+# CEF's own upstream distribution convention, not a gap in this package.
+# Most desktop Linux installs already have them (Firefox depends on the
+# same libraries), but a minimal or server install may not, and the
+# resulting failure is silent -- media just never appears, no obvious
+# error. Warn, don't block -- everything else still runs fine without media.
+if command -v ldconfig >/dev/null 2>&1; then
+    MISSING_MEDIA_LIBS=""
+    ldconfig -p | grep -q 'libnss3\.so'  || MISSING_MEDIA_LIBS="${MISSING_MEDIA_LIBS}libnss3 "
+    ldconfig -p | grep -q 'libnspr4\.so' || MISSING_MEDIA_LIBS="${MISSING_MEDIA_LIBS}libnspr4 "
+    if [ -n "$MISSING_MEDIA_LIBS" ]; then
+        echo "*** Missing system libraries needed for in-viewer web media: ${MISSING_MEDIA_LIBS}"
+        echo "*** Install with, e.g.: sudo apt install libnss3 libnspr4   (Debian/Ubuntu)"
+        echo "***                 or: sudo dnf install nss nspr          (Fedora)"
+        echo "*** Without them, web media (login page, prim/parcel media) will not appear."
+    fi
+
+    # Unlike libcef.so above, libvlc is NOT linked into this binary at all any
+    # more -- since Phase 2 of the licensing split (2026-10-01),
+    # LLStreamingAudio_LibVLC (parcel/streaming audio) is an IPC client of the
+    # separate SLVlcProducer process, the same way RTSP/RTMP-style prim media
+    # already was since the 2026-09-30 producer split. Unlike Windows/macOS,
+    # which vendor their own copy, Linux links against the system's own
+    # installed libvlc (see LibVLCPlugin.cmake), needed only by
+    # SLVlcProducer.exe. If it's missing, this main binary starts and runs
+    # fine regardless -- only SLVlcProducer fails to launch, silently losing
+    # parcel audio and LibVLC-backed prim media -- so warn clearly before
+    # that happens, rather than leaving the user to notice media just never
+    # works with no obvious error.
+    MISSING_VLC_LIBS=""
+    ldconfig -p | grep -q 'libvlc\.so\.5'     || MISSING_VLC_LIBS="${MISSING_VLC_LIBS}libvlc5 "
+    ldconfig -p | grep -q 'libvlccore\.so\.9' || MISSING_VLC_LIBS="${MISSING_VLC_LIBS}libvlccore9 "
+    if [ -n "$MISSING_VLC_LIBS" ]; then
+        echo "*** Missing system libraries needed for parcel audio and LibVLC-backed prim media: ${MISSING_VLC_LIBS}"
+        echo "*** Install with, e.g.: sudo apt install libvlc5 libvlccore9   (Debian/Ubuntu)"
+        echo "***                 or: sudo dnf install vlc-libs               (Fedora)"
+        echo "*** Without them, those two features will silently not work; everything else is unaffected."
+    fi
+fi
+
 # Re-register the secondlife:// protocol handler every launch, for now.
 ./etc/register_secondlifeprotocol.sh
 

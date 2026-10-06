@@ -41,5 +41,10 @@ if (USE_PRECOMPILED_HEADERS)
   target_precompile_headers(llplugin REUSE_FROM llprecompiled)
 endif ()
 
-add_subdirectory(slplugin)
+# SLPlugin.exe only ever hosts media_plugin_cef/libvlc/example (confirmed: the
+# only caller of LLPluginProcessParent::create() in the whole codebase is
+# LLPluginClassMedia::init()) -- nothing to host once those aren't built either.
+if (ENABLE_MEDIA_PLUGINS)
+  add_subdirectory(slplugin)
+endif (ENABLE_MEDIA_PLUGINS)
 

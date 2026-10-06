@@ -1,0 +1,751 @@
+/**
+ *
+ * @file cefshm_protocol.h
+ * @brief Application-level protocol shared with the viewer's llembeddedbrowser consumer, including the control channel
+ *
+ * $LicenseInfo:firstyear=2023&license=viewerlgpl$
+ * Second Life Viewer Source Code
+ * Copyright (C) 2023, Linden Research, Inc.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * $/LicenseInfo$
+ */
+
+// A deliberate byte-compatible copy of llcefshm-example's own
+// src/cefshm_protocol.h (which is itself kept in lockstep with the viewer's
+// indra/llembeddedbrowser/cefshm_protocol.h, and -- since the 2026-09-30
+// SLCefProducer/SLVlcProducer split -- indra/llvlcproducer/cefshm_protocol.h
+// too) -- not a shared include, so this component stays self-contained.
+// Keep all four in lockstep by hand.
+#pragma once
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <string>
+#include <vector>
+
+namespace cefshm_demo
+{
+    inline constexpr int           kSlotCount     = 32;
+    inline constexpr char          kChannelPrefix[] = "llcefshm_view_";
+    inline constexpr std::uint32_t kDefaultWidth  = 960;
+    inline constexpr std::uint32_t kDefaultHeight = 540;
+
+    // Absolute sanity ceiling for any one slot's SHM segment/buffer, regardless of what a
+    // consumer's EmbeddedBrowserMaxWidth/Height saved setting (settings.xml, also 4096
+    // default) asks for -- kept in sync with that setting's own default so it's the real,
+    // effective ceiling rather than a silent, lower override of it. Previously 1920x1080
+    // (inherited from llcefshm-example's original demo defaults, never revisited once that
+    // setting's own default was raised to 4096) -- this silently capped every embedded-
+    // browser widget/floater taller than 1080 real screen pixels, which any panel on an
+    // ordinary 1440p-or-taller monitor can exceed even at 100% OS display scaling (e.g. the
+    // login page's destination-guide panel, confirmed via diagnostic logging to reshape to
+    // 1368px tall on a 2560x1392 screen while its CEF buffer stayed clamped at 1080). Since
+    // LLMediaCtrl::draw() always stretches embedded-browser content to fill the full widget
+    // rect (no letterboxing -- see calcOffsetsAndSize()), a capped buffer doesn't get
+    // cropped, it gets visibly stretched taller than it actually is: exactly the dramatic,
+    // OS-scale-independent content-stretch bug reported on the login page.
+    inline constexpr std::uint32_t kMaxWidth      = 4096;
+    inline constexpr std::uint32_t kMaxHeight     = 4096;
+
+    // Always-on, cheap (1x1 frame geometry -- it never publishes a frame,
+    // only exchanges commands) channel a consumer uses to ask the producer
+    // for one of the real per-view channels above, which the producer only
+    // creates (a real CEF browser instance, plus its llshmframe segment)
+    // once actually requested. See llcefproducer.cpp. CEF-only since the
+    // 2026-09-30 producer split -- see indra/llembeddedbrowser/
+    // cefshm_protocol.h's own kVlcControlChannelName for LibVLC's equivalent,
+    // served by the separate SLVlcProducer process.
+    inline constexpr char kControlChannelName[] = "llcefshm_control";
+
+    enum Opcode : std::uint32_t
+    {
+        // consumer -> producer, per-view channel
+        kSetUrl      = 1, // text payload: a URL, e.g. "https://example.com"
+        kMouseMove   = 2, // data = {int32 x, int32 y}, canvas-space, little-endian
+        kMouseButton = 3, // data = {int32 x, int32 y, uint8 button, uint8 action, uint8 click_count}
+                          // click_count matches CEF's own SendMouseClickEvent() semantics (1 for a
+                          // normal click, 2 for the down half of a double-click) -- CEF is windowless
+                          // here, so it has no real OS window to infer a double-click's timing from
+                          // on its own; the embedder (us) must say so explicitly on every call.
+        kResize      = 4, // data = {uint32 width, uint32 height}
+        kScrollWheel = 8, // data = {int32 x, int32 y, int32 deltaY} -- deltaY in CEF's own wheel-delta
+                          // units (a multiple of ~30-120 per notch), see SendMouseWheelEvent
+        kKeyEvent    = 9, // data = pack_key_event(...) -- a platform-neutral, CEF-shaped key
+                          // event (see KeyEventType/KeyEventModifier below), translated by the
+                          // consumer's own per-platform LLWindow subclass from its native event.
+                          // windows_key_code carries a Windows-VK-shaped code on every platform
+                          // (CEF's own convention, not a Windows-only artifact), so the producer
+                          // needs no per-platform branching at all -- only the consumer side has
+                          // one translator per platform (LLWindowWin32/LLWindowMacOSX/...).
+        kSetFocus    = 17, // data = {uint8 focus} -- straight into llCefBrowserManager::SetFocus();
+                          // drives caret blink and focus/blur page JS, independent of key/mouse events
+        kExecuteJavaScript = 21, // text payload: JS source, straight into
+                          // llCefBrowserManager::ExecuteJavaScript() -- fire-and-forget, no result
+                          // is returned (matching LLPluginClassMedia::executeJavaScript() itself)
+        kSetPageZoom = 24, // data = {float32 zoomFactor} -- a plain 1.0-centered scale factor,
+                          // straight into llCefBrowserManager::SetPageZoom(). Mirrors the legacy
+                          // plugin's set_page_zoom_factor: zooms the page's rendered content
+                          // without changing the pixel buffer size (see LLMediaCtrl::reshape()'s
+                          // embedded-browser special case, which keeps the requested width/height
+                          // unscaled and routes LLUI::getScaleFactor() through here instead).
+        kCut   = 27, // empty payload -- straight into llCefBrowserManager::Cut(). Fire-and-forget,
+                          // matching kExecuteJavaScript; there's no completion/result to report.
+        kCopy  = 28, // empty payload -- straight into llCefBrowserManager::Copy().
+        kPaste = 29, // empty payload -- straight into llCefBrowserManager::Paste().
+        kSetMuted = 30, // data = {uint8 muted} -- straight into llCefBrowserManager::SetAudioMuted().
+                          // Binary on/off only: CEF's public API has no continuous per-browser
+                          // volume level (audio mixing happens inside Chromium's own audio
+                          // service), so this can't replicate the legacy plugin's smooth
+                          // distance-rolloff curve -- see LLViewerMediaImpl::updateVolume(),
+                          // which collapses that same computed volume to a mute/unmute decision
+                          // for embedded-browser media instead of a graded multiplier. Also
+                          // honoured for a LibVLC-backed slot (maps to volume 0/100 -- see
+                          // kSetVolume), so teardown-time silencing works identically for both
+                          // backends regardless of which opcode a given call site uses.
+        kGoBack    = 31, // empty payload -- straight into llCefBrowserManager::GoBack().
+        kGoForward = 32, // empty payload -- straight into llCefBrowserManager::GoForward().
+        kStopLoad  = 33, // empty payload -- straight into llCefBrowserManager::StopLoad().
+        kReload    = 36, // data = {uint8 ignoreCache} -- straight into llCefBrowserManager::Reload().
+                          // ignoreCache true matches the legacy plugin's own browse_reload(true)
+                          // (a hard refresh, bypassing HTTP cache), which every reload call site
+                          // in the Viewer already requests.
+        kSetVolume = 37, // data = {uint8 volume} -- 0-100, matching libvlc_audio_set_volume()'s own
+                          // native range directly. ONE opcode, meaningful to both producers: sent
+                          // to whichever one actually owns the slot (see kVlcControlChannelName in
+                          // indra/llembeddedbrowser/cefshm_protocol.h). SLVlcProducer calls
+                          // libvlc_audio_set_volume() with the value as-is, giving it the real
+                          // distance-rolloff curve kSetMuted above can't. SLCefProducer collapses
+                          // it to CEF's existing binary capability (0 -> SetAudioMuted(true), >0 ->
+                          // SetAudioMuted(false)) -- does not replace kSetMuted, which remains the
+                          // explicit "silence immediately" signal used at teardown, independent of
+                          // slider position.
+        kSetRenderRate = 35, // data = {uint32 targetFps, uint8 priorityTier, url bytes (remainder)}
+                          // -- caps how often the producer calls SendExternalBeginFrame() for
+                          // this handle (0 = unthrottled/full rate, the default). Distance/
+                          // priority-based render throttling, the embedded-browser equivalent
+                          // of the legacy plugin's own setPriority()/setLowPrioritySizeLimit()
+                          // -- see LLViewerMediaImpl::setPriority()'s own EMBEDDED_BROWSER_FPS_*
+                          // constants for the tiers this is actually driven from. Never sent as
+                          // anything but 0/tier-0 for UI/parcel media -- see that same comment.
+                          // priorityTier (0=Normal/High, 1=Low, 2=Slideshow, 3=Hidden) and url
+                          // are for the producer's own console/log output only (see
+                          // log_priority() in llcefproducer.cpp) -- purely diagnostic, nothing
+                          // on the producer side branches on either.
+
+        // consumer -> producer, control channel only
+        kRequestSlot     = 5, // data = {uint8 isUI, uint32 maxWidth, uint32 maxHeight, uint8 backend,
+                          // uint8 audioOnly} -- isUI selects which of the producer's two CefRequestContexts (and
+                          // therefore which cookie store) the new browser is created in: true
+                          // for 2D floater/UI media, false for in-world/prim media. See
+                          // llCefBrowserManager::CreateBrowser()'s own isUI parameter and
+                          // kSetOpenIDCookie below. maxWidth/maxHeight are the consumer's own
+                          // current ceiling (EmbeddedBrowserMaxWidth/Height) -- the producer
+                          // clamps them to its own absolute maximum and sizes this slot's
+                          // shared-memory segment to the result, rather than always reserving
+                          // its absolute maximum for every slot regardless of what the consumer
+                          // will ever actually request. A payload shorter than 9 bytes (the old,
+                          // isUI-only format) falls back to the producer's own absolute maximum,
+                          // for safety. backend (0=Cef, 1=LibVlc, appended as a 10th byte) used to
+                          // pick which in-process implementation rendered this slot, back when one
+                          // producer hosted both backends -- since the 2026-09-30 split into
+                          // separate SLCefProducer/SLVlcProducer processes, which backend a slot
+                          // gets is determined entirely by which producer's control channel the
+                          // consumer requested it on (see kVlcControlChannelName in
+                          // indra/llembeddedbrowser/cefshm_protocol.h), so this byte is now
+                          // vestigial -- kept on the wire unchanged (zero format churn, zero risk
+                          // to the 9-byte fallback below) but each producer ignores its value and
+                          // always treats every request as its own single, fixed backend. audioOnly
+                          // (an 11th byte) selects SLVlcProducer's frame-less audio-track path for
+                          // parcel/streaming-music audio (see llstreamingaudio_libvlc.cpp) -- CEF
+                          // has no equivalent concept, so this producer unpacks and ignores it, the
+                          // same way it already ignores backend.
+        kSetOpenIDCookie = 26, // data = {5x (uint32 len, bytes): url, name, value, domain, path;
+                          // uint8 httpOnly; uint8 secure; uint8 alsoPrimContext} -- straight
+                          // into llCefBrowserManager::SetCookie(), which always targets the UI
+                          // context (see CreateBrowser's isUI) and mirrors into the prim
+                          // context too if alsoPrimContext is set. This carries the Viewer's
+                          // OpenID login cookie (see LLViewerMedia::getOpenIDCookieCoro()) --
+                          // alsoPrimContext is that call site's own static policy switch for
+                          // whether prim-hosted content should get it too.
+        kShutdownProducer = 25, // empty payload -- asks the producer to exit its main loop and
+                          // run its own graceful shutdown (llCefBrowserLib::Shutdown(), which
+                          // flushes CEF's on-disk cookie/history/etc. stores) instead of being
+                          // killed outright. See LLEmbeddedBrowser::reset(): a hard
+                          // TerminateProcess() (what LLProcess::kill() does on Windows) gives CEF
+                          // no chance to run any cleanup at all, which can lose cookies set only
+                          // moments earlier -- this is sent first, with kill() as a fallback only
+                          // if the producer doesn't exit on its own within a short grace period.
+
+        // producer -> consumer, control channel only; reply_to = request id
+        kSlotAssigned    = 6, // data = {uint32 slot index}
+        kSlotUnavailable = 7, // empty payload -- no free slot right now
+
+        // producer -> consumer, per-view channel -- mirrors a subset of
+        // LLPluginClassMediaOwner::EMediaEvent (see the viewer's
+        // llpluginclassmediaowner.h), driven by llCefBrowserManager's own
+        // SetOnLoadStart/LoadEnd/TitleChange/AddressChange/CursorChanged
+        // callbacks. Not every plugin event has an equivalent here yet --
+        // this is deliberately the subset needed for load-state and
+        // title/location/cursor feedback, not full parity.
+        kEventLoadStart      = 10, // empty payload
+        kEventLoadEnd        = 11, // data = {uint32 httpStatusCode}
+        kEventTitleChanged   = 12, // text payload: the new page title
+        kEventAddressChanged = 13, // text payload: the new URL
+        kEventCursorChanged  = 14, // data = {uint32 cursorType} -- an llCefCursorType value
+                                   // (see llCefBrowserHandle.h), opaque to this protocol layer
+        kEventClickLinkHref     = 15, // data = {uint32 urlLen, url bytes, target bytes (remainder)} --
+                                       // a link wants to open in a new window/tab (target="_blank",
+                                       // window.open(), etc.), see llCefBrowserManager::SetOnOpenPopupCallback
+        kEventClickLinkNoFollow = 16, // data = {uint8 flags (bit0=userGesture, bit1=isRedirect), url bytes
+                                       // (remainder)} -- navigation to a recognized custom URL scheme (e.g.
+                                       // "secondlife://"), see llCefBrowserManager::SetOnCustomSchemeURLCallback
+        kEventFileDialogRequest = 18, // data = {int64 dialogId, uint32 mode (an llCefFileDialogMode ordinal --
+                                       // Open=0, OpenMultiple=1, OpenFolder=2, Save=3), defaultFilePath bytes
+                                       // (remainder)} -- see llCefBrowserManager::SetOnFileDialogCallback.
+                                       // title/acceptFilters aren't forwarded: nothing on the consumer side
+                                       // uses them today (see llmediactrl.cpp's own filter-guessing-from-
+                                       // filename logic for MEDIA_EVENT_FILE_DOWNLOAD).
+
+        // consumer -> producer, per-view channel
+        kFileDialogResponse = 19, // data = {int64 dialogId, uint32 count, count * (uint32 len, bytes)} --
+                                   // the file(s) the user picked, echoing the dialogId from
+                                   // kEventFileDialogRequest; empty count means canceled. See
+                                   // llCefBrowserManager::RespondToFileDialog.
+
+        // producer -> consumer, per-view channel
+        kEventStatusTextChanged = 20, // text payload: the new status-bar text (e.g. a hovered
+                                       // link's URL), see llCefBrowserManager::SetOnStatusMessageCallback
+        kEventConsoleMessage = 22, // data = {int32 line, uint32 messageLen, message bytes, source bytes
+                                    // (remainder)} -- a console.log/warn/error call from page JS, see
+                                    // llCefBrowserManager::SetOnConsoleMessageCallback
+        kEventVersionInfo = 23, // text payload: llCefBrowser's own version plus the CEF/Chromium
+                                  // build it was built against, multi-line -- e.g.
+                                  // "0.15 (9f3f886)\n  CEF: 150.0.11\n  Chromium: 150.0.7871.115" --
+                                  // sent once per slot right after it's allocated, before any
+                                  // frames. See llCefBrowserVersion.h. SLVlcProducer sends this
+                                  // opcode too now (see its own cefshm_protocol.h copy) -- the
+                                  // consumer tells the two apart via LLEmbeddedBrowserBackend.
+        kEventNavStateChanged = 34, // data = {uint8 canGoBack, uint8 canGoForward} -- llCefBrowserManager's
+                                  // CanGoBack()/CanGoForward(), sampled and re-sent alongside
+                                  // kEventLoadStart/kEventLoadEnd, since back/forward availability
+                                  // only ever changes as a result of navigation.
+        kEventLoadError = 38, // data = {uint32 errorCode, url bytes (remainder)} -- the main frame's
+                                  // navigation failed, see llCefBrowserManager::SetOnLoadErrorCallback.
+                                  // Distinct from kEventClickLinkNoFollow: that one only fires for a
+                                  // small, hardcoded "custom scheme" set (effectively just
+                                  // "secondlife://"), so a scheme CEF's own URL parser recognizes but
+                                  // has no protocol handler for (e.g. "rtsp://") is NOT caught by it --
+                                  // CEF just attempts (and fails) a normal navigation, landing here
+                                  // instead, with its own built-in error page already rendered in the
+                                  // browser. This is purely a signal for the consumer to react to (e.g.
+                                  // recognizing a stream-only scheme in the failed URL and switching
+                                  // this slot's backend via a fresh navigate) -- it does not suppress or
+                                  // replace CEF's own error page.
+
+        // consumer -> producer, per-view channel -- LibVLC-backed slots only, handled by
+        // SLVlcProducer. SLCefProducer silently ignores this (falls through to the CEF
+        // switch's own default case in llcefproducer.cpp) -- there's no CEF equivalent,
+        // matching how kSetUrl-triggered autoplay already means CEF media never needed a
+        // separate play button either.
+        kSetPlaybackAction = 39, // data = {uint8 action} -- 0=Play, 1=Pause, 2=Stop. Explicit,
+                                  // not a toggle (unlike kMouseButton's click-to-pause handling,
+                                  // which IS a toggle -- there's only one gesture to map there),
+                                  // because this backs two separate UI buttons
+                                  // (LLPanelPrimMediaControls' Play/Pause) that must each do one
+                                  // specific thing regardless of current state. Mirrors the old
+                                  // media_plugin_libvlc.cpp's own MEDIA_TIME message handling
+                                  // exactly: Play -> libvlc_media_player_play() (stopping first if
+                                  // the previous playback already ended, so a replay after Ended
+                                  // isn't ignored), Pause -> libvlc_media_player_set_pause(1) (not
+                                  // the version-inconsistent toggle), Stop ->
+                                  // libvlc_media_player_stop().
+        // producer -> consumer, per-view channel -- LibVLC-backed slots only, never sent for a
+        // CEF-backed slot. Needed because LLPanelPrimMediaControls' Play/Pause buttons must show
+        // the ACTUAL current state, which can change from more than just this opcode's own
+        // commands -- the existing kMouseButton click-to-pause/resume gesture changes it too,
+        // independently, so the consumer can't just assume its own last-sent action is still
+        // current. Cached state, not a discrete event -- see kEventNavStateChanged's own comment
+        // for the identical reasoning.
+        kEventPlaybackStateChanged = 40, // data = {uint8 playing} -- 1 if libvlc is actually
+                                  // decoding/playing right now, 0 for paused/stopped/ended/error.
+
+        // producer -> consumer, per-view channel -- CEF-backed slots only, handled by
+        // SLCefProducer. Fired whenever page JS calls window.cefQuery({request: ...,
+        // onSuccess: ..., onFailure: ...}) -- see llCefBrowserJavaScriptBridge::OnQuery()
+        // in llcefbrowser. A single process-wide bridge (registered once in
+        // llcefproducer.cpp) forwards every query to whichever slot's cefHandle it
+        // actually arrived on. Never sent by SLVlcProducer -- there's no JS/DOM there to
+        // call cefQuery from at all.
+        kEventJSQuery = 41, // data = {int64 queryId, uint8 persistent, request bytes
+                             // (remainder)} -- persistent mirrors CEF's own cefQuery
+                             // persistent flag (the page may expect more than one
+                             // response over time for the same queryId); most callers
+                             // can ignore it and just respond once.
+        // consumer -> producer, per-view channel -- CEF-backed slots only. Responds to a
+        // pending kEventJSQuery, straight into llCefBrowserLib::RespondToQuery(). A
+        // no-op if queryId is unknown (already responded to, or the page canceled the
+        // query by navigating away in the meantime).
+        kRespondToQuery = 42, // data = {int64 queryId, uint8 success, int32 errorCode,
+                               // response/error bytes (remainder)} -- errorCode is only
+                               // meaningful when success is false; response is the JSON
+                               // (or plain string) handed to the page's own onSuccess,
+                               // or the error message handed to onFailure.
+    };
+
+    // kKeyEvent's own type/modifier tags -- deliberately our own small enums, not CEF's
+    // cef_key_event_type_t/cef_event_flags_t values directly, so a future CEF version bump
+    // can't silently change the wire format. The producer translates these 1:1 into CEF's
+    // own enums when building a CefKeyEvent.
+    enum class KeyEventType : std::uint8_t
+    {
+        kRawKeyDown = 0,
+        kKeyUp      = 1,
+        kChar       = 2,
+    };
+
+    // Bit layout deliberately matches indra/llwindow/llwindow.h's own
+    // LLWindowCefKeyModifier constants (LL_CEF_KEY_MOD_*) by convention, not a
+    // shared include -- llwindow is a lower-level library that must not depend
+    // on this one. A per-platform LLWindow subclass fills these bits in
+    // directly; llviewermedia.cpp passes them straight through unchanged.
+    enum KeyEventModifier : std::uint32_t
+    {
+        kShiftDown   = 1u << 0,
+        kControlDown = 1u << 1,
+        kAltDown     = 1u << 2,
+        kCommandDown = 1u << 3, // mac Cmd; reserved for a future "meta" key elsewhere
+        kCapsLockOn  = 1u << 4,
+        kNumLockOn   = 1u << 5,
+        kIsKeyPad    = 1u << 6,
+        kIsLeft      = 1u << 7,
+        kIsRight     = 1u << 8,
+    };
+
+    inline std::uint32_t pack_i32x2(std::uint8_t* d, std::int32_t x, std::int32_t y)
+    {
+        auto put = [&](int off, std::int32_t v) {
+            d[off + 0] = std::uint8_t(v);       d[off + 1] = std::uint8_t(v >> 8);
+            d[off + 2] = std::uint8_t(v >> 16);  d[off + 3] = std::uint8_t(v >> 24);
+        };
+        put(0, x); put(4, y);
+        return 8;
+    }
+
+    inline bool unpack_i32x2(const std::uint8_t* d, std::size_t n,
+                              std::int32_t& x, std::int32_t& y)
+    {
+        if (n < 8) return false;
+        auto get = [&](int off) {
+            return std::int32_t(std::uint32_t(d[off]) | (std::uint32_t(d[off + 1]) << 8) |
+                                (std::uint32_t(d[off + 2]) << 16) | (std::uint32_t(d[off + 3]) << 24));
+        };
+        x = get(0); y = get(4);
+        return true;
+    }
+
+    inline std::uint32_t pack_mouse_button(std::uint8_t* d, std::int32_t x, std::int32_t y,
+                                           std::uint8_t button, std::uint8_t action,
+                                           std::uint8_t click_count)
+    {
+        const std::uint32_t n = pack_i32x2(d, x, y);
+        d[n + 0] = button;
+        d[n + 1] = action;
+        d[n + 2] = click_count;
+        return n + 3;
+    }
+
+    inline bool unpack_mouse_button(const std::uint8_t* d, std::size_t n,
+                                    std::int32_t& x, std::int32_t& y,
+                                    std::uint8_t& button, std::uint8_t& action,
+                                    std::uint8_t& click_count)
+    {
+        if (n < 11 || !unpack_i32x2(d, n, x, y)) return false;
+        button = d[8]; action = d[9]; click_count = d[10];
+        return true;
+    }
+
+    inline std::uint32_t pack_size(std::uint8_t* d, std::uint32_t w, std::uint32_t h)
+    {
+        d[0]=std::uint8_t(w); d[1]=std::uint8_t(w>>8); d[2]=std::uint8_t(w>>16); d[3]=std::uint8_t(w>>24);
+        d[4]=std::uint8_t(h); d[5]=std::uint8_t(h>>8); d[6]=std::uint8_t(h>>16); d[7]=std::uint8_t(h>>24);
+        return 8;
+    }
+
+    inline bool unpack_size(const std::uint8_t* d, std::size_t n,
+                            std::uint32_t& w, std::uint32_t& h)
+    {
+        if (n < 8) return false;
+        w = std::uint32_t(d[0]) | (std::uint32_t(d[1])<<8) | (std::uint32_t(d[2])<<16) | (std::uint32_t(d[3])<<24);
+        h = std::uint32_t(d[4]) | (std::uint32_t(d[5])<<8) | (std::uint32_t(d[6])<<16) | (std::uint32_t(d[7])<<24);
+        return true;
+    }
+
+    inline std::uint32_t pack_u32(std::uint8_t* d, std::uint32_t v)
+    {
+        d[0]=std::uint8_t(v); d[1]=std::uint8_t(v>>8); d[2]=std::uint8_t(v>>16); d[3]=std::uint8_t(v>>24);
+        return 4;
+    }
+
+    inline bool unpack_u32(const std::uint8_t* d, std::size_t n, std::uint32_t& v)
+    {
+        if (n < 4) return false;
+        v = std::uint32_t(d[0]) | (std::uint32_t(d[1])<<8) | (std::uint32_t(d[2])<<16) | (std::uint32_t(d[3])<<24);
+        return true;
+    }
+
+    inline std::uint32_t pack_f32(std::uint8_t* d, float v)
+    {
+        std::uint32_t bits;
+        std::memcpy(&bits, &v, sizeof(bits));
+        return pack_u32(d, bits);
+    }
+
+    inline bool unpack_f32(const std::uint8_t* d, std::size_t n, float& v)
+    {
+        std::uint32_t bits;
+        if (!unpack_u32(d, n, bits)) return false;
+        std::memcpy(&v, &bits, sizeof(v));
+        return true;
+    }
+
+    inline std::uint32_t pack_scroll(std::uint8_t* d, std::int32_t x, std::int32_t y, std::int32_t deltaY)
+    {
+        const std::uint32_t n = pack_i32x2(d, x, y);
+        d[n+0]=std::uint8_t(deltaY); d[n+1]=std::uint8_t(deltaY>>8);
+        d[n+2]=std::uint8_t(deltaY>>16); d[n+3]=std::uint8_t(deltaY>>24);
+        return n + 4;
+    }
+
+    inline bool unpack_scroll(const std::uint8_t* d, std::size_t n,
+                              std::int32_t& x, std::int32_t& y, std::int32_t& deltaY)
+    {
+        if (n < 12 || !unpack_i32x2(d, n, x, y)) return false;
+        deltaY = std::int32_t(std::uint32_t(d[8]) | (std::uint32_t(d[9])<<8) |
+                              (std::uint32_t(d[10])<<16) | (std::uint32_t(d[11])<<24));
+        return true;
+    }
+
+    // A platform-neutral key event: the consumer's own per-platform LLWindow subclass
+    // translates its native event into these same fields CEF's own CefKeyEvent already uses
+    // (windows_key_code carries a Windows-VK-shaped code on every platform -- CEF's own
+    // convention, not a Windows-only artifact), so the producer needs no per-platform
+    // branching to build a CefKeyEvent from them. 22 bytes: 1 (type) + 4 (modifiers) +
+    // 4 (windows_key_code) + 4 (native_key_code) + 4 (character) + 4 (unmodified_character)
+    // + 1 (is_system_key).
+    inline std::uint32_t pack_key_event(std::uint8_t* d, KeyEventType type, std::uint32_t modifiers,
+                                         std::int32_t windows_key_code, std::int32_t native_key_code,
+                                         std::uint32_t character, std::uint32_t unmodified_character,
+                                         bool is_system_key)
+    {
+        d[0] = std::uint8_t(type);
+        std::uint32_t n = 1;
+        n += pack_u32(d + n, modifiers);
+        n += pack_u32(d + n, std::uint32_t(windows_key_code));
+        n += pack_u32(d + n, std::uint32_t(native_key_code));
+        n += pack_u32(d + n, character);
+        n += pack_u32(d + n, unmodified_character);
+        d[n] = std::uint8_t(is_system_key ? 1 : 0);
+        return n + 1;
+    }
+
+    inline bool unpack_key_event(const std::uint8_t* d, std::size_t n, KeyEventType& type,
+                                 std::uint32_t& modifiers, std::int32_t& windows_key_code,
+                                 std::int32_t& native_key_code, std::uint32_t& character,
+                                 std::uint32_t& unmodified_character, bool& is_system_key)
+    {
+        if (n < 22) return false;
+        type = KeyEventType(d[0]);
+        std::uint32_t wkc, nkc;
+        if (!unpack_u32(d + 1, 4, modifiers))  return false;
+        if (!unpack_u32(d + 5, 4, wkc))         return false;
+        if (!unpack_u32(d + 9, 4, nkc))         return false;
+        if (!unpack_u32(d + 13, 4, character))  return false;
+        if (!unpack_u32(d + 17, 4, unmodified_character)) return false;
+        windows_key_code = std::int32_t(wkc);
+        native_key_code  = std::int32_t(nkc);
+        is_system_key    = d[21] != 0;
+        return true;
+    }
+
+    inline std::uint32_t pack_click_href(std::uint8_t* d, const std::string& url, const std::string& target)
+    {
+        std::uint32_t n = pack_u32(d, std::uint32_t(url.size()));
+        std::memcpy(d + n, url.data(), url.size());
+        n += std::uint32_t(url.size());
+        std::memcpy(d + n, target.data(), target.size());
+        n += std::uint32_t(target.size());
+        return n;
+    }
+
+    inline bool unpack_click_href(const std::uint8_t* d, std::size_t n,
+                                  std::string& url, std::string& target)
+    {
+        std::uint32_t url_len;
+        if (!unpack_u32(d, n, url_len) || n < 4 + std::size_t(url_len)) return false;
+        url.assign(reinterpret_cast<const char*>(d + 4), url_len);
+        target.assign(reinterpret_cast<const char*>(d + 4 + url_len), n - 4 - url_len);
+        return true;
+    }
+
+    inline std::uint32_t pack_click_nofollow(std::uint8_t* d, const std::string& url,
+                                             bool userGesture, bool isRedirect)
+    {
+        d[0] = std::uint8_t((userGesture ? 1 : 0) | (isRedirect ? 2 : 0));
+        std::memcpy(d + 1, url.data(), url.size());
+        return 1 + std::uint32_t(url.size());
+    }
+
+    inline bool unpack_click_nofollow(const std::uint8_t* d, std::size_t n, std::string& url,
+                                      bool& userGesture, bool& isRedirect)
+    {
+        if (n < 1) return false;
+        userGesture = (d[0] & 1) != 0;
+        isRedirect  = (d[0] & 2) != 0;
+        url.assign(reinterpret_cast<const char*>(d + 1), n - 1);
+        return true;
+    }
+
+    inline std::uint32_t pack_load_error(std::uint8_t* d, std::uint32_t errorCode, const std::string& failedUrl)
+    {
+        std::uint32_t n = pack_u32(d, errorCode);
+        std::memcpy(d + n, failedUrl.data(), failedUrl.size());
+        return n + std::uint32_t(failedUrl.size());
+    }
+
+    inline bool unpack_load_error(const std::uint8_t* d, std::size_t n, std::uint32_t& errorCode, std::string& failedUrl)
+    {
+        if (!unpack_u32(d, n, errorCode)) return false;
+        failedUrl.assign(reinterpret_cast<const char*>(d + 4), n - 4);
+        return true;
+    }
+
+    inline std::uint32_t pack_i64(std::uint8_t* d, std::int64_t v)
+    {
+        for (int i = 0; i < 8; ++i) d[i] = std::uint8_t(std::uint64_t(v) >> (8 * i));
+        return 8;
+    }
+
+    inline bool unpack_i64(const std::uint8_t* d, std::size_t n, std::int64_t& v)
+    {
+        if (n < 8) return false;
+        std::uint64_t u = 0;
+        for (int i = 0; i < 8; ++i) u |= std::uint64_t(d[i]) << (8 * i);
+        v = std::int64_t(u);
+        return true;
+    }
+
+    inline std::uint32_t pack_file_dialog_request(std::uint8_t* d, std::int64_t dialogId,
+                                                   std::uint32_t mode, const std::string& defaultFilePath)
+    {
+        std::uint32_t n = pack_i64(d, dialogId);
+        n += pack_u32(d + n, mode);
+        std::memcpy(d + n, defaultFilePath.data(), defaultFilePath.size());
+        n += std::uint32_t(defaultFilePath.size());
+        return n;
+    }
+
+    inline bool unpack_file_dialog_request(const std::uint8_t* d, std::size_t n, std::int64_t& dialogId,
+                                           std::uint32_t& mode, std::string& defaultFilePath)
+    {
+        if (n < 12 || !unpack_i64(d, n, dialogId) || !unpack_u32(d + 8, n - 8, mode)) return false;
+        defaultFilePath.assign(reinterpret_cast<const char*>(d + 12), n - 12);
+        return true;
+    }
+
+    inline std::uint32_t pack_file_dialog_response(std::uint8_t* d, std::int64_t dialogId,
+                                                    const std::vector<std::string>& filePaths)
+    {
+        std::uint32_t n = pack_i64(d, dialogId);
+        n += pack_u32(d + n, std::uint32_t(filePaths.size()));
+        for (const auto& path : filePaths)
+        {
+            n += pack_u32(d + n, std::uint32_t(path.size()));
+            std::memcpy(d + n, path.data(), path.size());
+            n += std::uint32_t(path.size());
+        }
+        return n;
+    }
+
+    inline bool unpack_file_dialog_response(const std::uint8_t* d, std::size_t n, std::int64_t& dialogId,
+                                            std::vector<std::string>& filePaths)
+    {
+        if (n < 12 || !unpack_i64(d, n, dialogId)) return false;
+        std::uint32_t count;
+        if (!unpack_u32(d + 8, n - 8, count)) return false;
+
+        filePaths.clear();
+        std::size_t off = 12;
+        for (std::uint32_t i = 0; i < count; ++i)
+        {
+            std::uint32_t len;
+            if (off + 4 > n || !unpack_u32(d + off, n - off, len)) return false;
+            off += 4;
+            if (off + len > n) return false;
+            filePaths.emplace_back(reinterpret_cast<const char*>(d + off), len);
+            off += len;
+        }
+        return true;
+    }
+
+    inline std::uint32_t pack_js_query(std::uint8_t* d, std::int64_t queryId, bool persistent,
+                                        const std::string& request)
+    {
+        std::uint32_t n = pack_i64(d, queryId);
+        d[n] = persistent ? 1 : 0;
+        n += 1;
+        std::memcpy(d + n, request.data(), request.size());
+        return n + std::uint32_t(request.size());
+    }
+
+    inline bool unpack_js_query(const std::uint8_t* d, std::size_t n, std::int64_t& queryId,
+                                bool& persistent, std::string& request)
+    {
+        if (n < 9 || !unpack_i64(d, n, queryId)) return false;
+        persistent = d[8] != 0;
+        request.assign(reinterpret_cast<const char*>(d + 9), n - 9);
+        return true;
+    }
+
+    inline std::uint32_t pack_query_response(std::uint8_t* d, std::int64_t queryId, bool success,
+                                              std::int32_t errorCode, const std::string& response)
+    {
+        std::uint32_t n = pack_i64(d, queryId);
+        d[n] = success ? 1 : 0;
+        n += 1;
+        n += pack_u32(d + n, std::uint32_t(errorCode));
+        std::memcpy(d + n, response.data(), response.size());
+        return n + std::uint32_t(response.size());
+    }
+
+    inline bool unpack_query_response(const std::uint8_t* d, std::size_t n, std::int64_t& queryId,
+                                      bool& success, std::int32_t& errorCode, std::string& response)
+    {
+        if (n < 13 || !unpack_i64(d, n, queryId)) return false;
+        success = d[8] != 0;
+        std::uint32_t err;
+        if (!unpack_u32(d + 9, n - 9, err)) return false;
+        errorCode = std::int32_t(err);
+        response.assign(reinterpret_cast<const char*>(d + 13), n - 13);
+        return true;
+    }
+
+    inline std::uint32_t pack_console_message(std::uint8_t* d, const std::string& message,
+                                               const std::string& source, std::int32_t line)
+    {
+        std::uint32_t n = pack_u32(d, std::uint32_t(line));
+        n += pack_u32(d + n, std::uint32_t(message.size()));
+        std::memcpy(d + n, message.data(), message.size());
+        n += std::uint32_t(message.size());
+        std::memcpy(d + n, source.data(), source.size());
+        n += std::uint32_t(source.size());
+        return n;
+    }
+
+    inline bool unpack_console_message(const std::uint8_t* d, std::size_t n, std::string& message,
+                                       std::string& source, std::int32_t& line)
+    {
+        std::uint32_t line_u, msg_len;
+        if (n < 8 || !unpack_u32(d, n, line_u) || !unpack_u32(d + 4, n - 4, msg_len) ||
+            n < 8 + std::size_t(msg_len))
+        {
+            return false;
+        }
+        line = std::int32_t(line_u);
+        message.assign(reinterpret_cast<const char*>(d + 8), msg_len);
+        source.assign(reinterpret_cast<const char*>(d + 8 + msg_len), n - 8 - msg_len);
+        return true;
+    }
+
+    // Only the unpack half is needed here -- this producer never sends a slot request,
+    // only receives one.
+    //
+    // false (only isUI populated) for the old, isUI-only payload -- see kRequestSlot's
+    // own comment on why that's a safe, deliberate fallback rather than an error. backend
+    // defaults to 0 (Cef) for any payload shorter than 10 bytes, for the same reason --
+    // assigned before the n<9 early return, so that fallback still leaves it initialized.
+    // audioOnly (an 11th byte) defaults to false the same way and is unused here -- CEF has
+    // no audio-only-slot concept, see kRequestSlot's own comment above.
+    inline bool unpack_request_slot(const std::uint8_t* d, std::size_t n, bool& isUI,
+                                     std::uint32_t& maxWidth, std::uint32_t& maxHeight,
+                                     std::uint8_t& backend, bool& audioOnly)
+    {
+        isUI = (n == 0) || (d[0] != 0);
+        backend = (n >= 10) ? d[9] : 0;
+        audioOnly = (n >= 11) && (d[10] != 0);
+        if (n < 9) return false;
+        return unpack_u32(d + 1, n - 1, maxWidth) && unpack_u32(d + 5, n - 5, maxHeight);
+    }
+
+    inline std::uint32_t pack_render_rate(std::uint8_t* d, std::uint32_t targetFps, std::uint8_t priorityTier,
+                                           const std::string& url)
+    {
+        std::uint32_t n = pack_u32(d, targetFps);
+        d[n++] = priorityTier;
+        std::memcpy(d + n, url.data(), url.size());
+        n += std::uint32_t(url.size());
+        return n;
+    }
+
+    inline bool unpack_render_rate(const std::uint8_t* d, std::size_t n, std::uint32_t& targetFps,
+                                    std::uint8_t& priorityTier, std::string& url)
+    {
+        if (n < 5 || !unpack_u32(d, n, targetFps)) return false;
+        priorityTier = d[4];
+        url.assign(reinterpret_cast<const char*>(d + 5), n - 5);
+        return true;
+    }
+
+    inline std::uint32_t pack_openid_cookie(std::uint8_t* d, const std::string& url, const std::string& name,
+                                             const std::string& value, const std::string& domain,
+                                             const std::string& path, bool httpOnly, bool secure,
+                                             bool alsoPrimContext)
+    {
+        std::uint32_t n = 0;
+        for (const std::string* s : {&url, &name, &value, &domain, &path})
+        {
+            n += pack_u32(d + n, std::uint32_t(s->size()));
+            std::memcpy(d + n, s->data(), s->size());
+            n += std::uint32_t(s->size());
+        }
+        d[n++] = httpOnly ? 1 : 0;
+        d[n++] = secure ? 1 : 0;
+        d[n++] = alsoPrimContext ? 1 : 0;
+        return n;
+    }
+
+    inline bool unpack_openid_cookie(const std::uint8_t* d, std::size_t n, std::string& url, std::string& name,
+                                      std::string& value, std::string& domain, std::string& path,
+                                      bool& httpOnly, bool& secure, bool& alsoPrimContext)
+    {
+        std::size_t off = 0;
+        for (std::string* s : {&url, &name, &value, &domain, &path})
+        {
+            std::uint32_t len;
+            if (off + 4 > n || !unpack_u32(d + off, n - off, len)) return false;
+            off += 4;
+            if (off + len > n) return false;
+            s->assign(reinterpret_cast<const char*>(d + off), len);
+            off += len;
+        }
+        if (off + 3 > n) return false;
+        httpOnly        = d[off] != 0;
+        secure          = d[off + 1] != 0;
+        alsoPrimContext = d[off + 2] != 0;
+        return true;
+    }
+}

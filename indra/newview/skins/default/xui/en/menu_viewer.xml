@@ -3859,12 +3859,20 @@ function="World.EnvPreset"
            shortcut="control|alt|shift|Z">
             <menu_item_call.on_click
              function="Advanced.WebContentTest"
-             parameter="http://duckduckgo.com"/>
+             parameter="https://sl-viewer-media-system.s3.amazonaws.com/index.html"/>
           </menu_item_call>
+            <menu_item_call
+             label="Media Monitor"
+             name="Media Monitor"
+             shortcut="control|alt|shift|Y">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="media_monitor" />
+            </menu_item_call>
             <menu_item_call
              label="Inventory Thumbnails Helper"
              name="Inventory Thumbnails Helper"
-				shortcut="control|alt|shift|X">
+             shortcut="control|alt|shift|X">
                 <menu_item_call.on_click
                  function="Floater.Show"
                  parameter="inventory_thumbnails_helper" />

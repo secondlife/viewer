@@ -61,7 +61,8 @@ HiDPI display mode: [HIDPI]
 	<string name="AboutLibs">
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
-[LIBCEF_VERSION]
+Embedded Browser llShmFrame Version: [SHMFRAME_VERSION]
+Embedded Browser llCefBrowser Version: [EMBEDDED_LLCEFBROWSER_VERSION]
 LibVLC Version: [LIBVLC_VERSION]
 Voice Server Version: [VOICE_VERSION]
 	</string>

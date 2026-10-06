@@ -22,6 +22,7 @@ set(cmake_SOURCE_FILES
         Discord.cmake
         DragDrop.cmake
         EXPAT.cmake
+        EmbeddedBrowser.cmake
         FindAutobuild.cmake
         FindPipeWire.cmake
         FreeType.cmake

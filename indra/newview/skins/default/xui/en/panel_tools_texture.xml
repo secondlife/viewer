@@ -1083,7 +1083,7 @@
              name="title_media"
              width="4"
              height="4"
-             start_url="about:blank"
+             start_url=""
              decouple_texture_size="true" />
             <!-- BEGIN PBR Material texture transform parameters -->
             <spinner

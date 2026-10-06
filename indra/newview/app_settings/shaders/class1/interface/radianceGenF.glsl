@@ -23,6 +23,7 @@
  * $/LicenseInfo$
  */
 
+#extension GL_ARB_texture_cube_map_array : require
 
 /*[EXTRA_CODE_HERE]*/
 

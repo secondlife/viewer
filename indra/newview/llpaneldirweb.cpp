@@ -124,7 +124,9 @@ void LLPanelDirWeb::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event
 {
     if (event == MEDIA_EVENT_LOCATION_CHANGED)
     {
-        const std::string url = self->getLocation();
+        // self is nullptr for an embedded-browser-originated event -- fall back to what
+        // LLMediaCtrl itself already tracks rather than dereferencing a null plugin.
+        const std::string url = self ? self->getLocation() : mWebBrowser->getCurrentNavUrl();
         if (url.length())
             mStatusBarText->setText(url);
     }
@@ -136,7 +138,8 @@ void LLPanelDirWeb::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event
     }
     else if (event == MEDIA_EVENT_STATUS_TEXT_CHANGED)
     {
-        const std::string text = self->getStatusText();
+        // self is nullptr for an embedded-browser-originated event.
+        const std::string text = self ? self->getStatusText() : mWebBrowser->getStatusText();
         if (text.length())
             mStatusBarText->setText(text);
     }

@@ -137,8 +137,7 @@
 #include "stringize.h"
 #include "llcoros.h"
 #include "llexception.h"
-#include "cef/dullahan_version.h"
-#include "vlc/libvlc_version.h"
+#include "llembeddedbrowser.h"
 
 #if LL_DARWIN
 #include "llwindowmacosx.h"
@@ -1254,6 +1253,12 @@ bool LLAppViewer::init()
     LLViewerCamera::createInstance();
     LL::GLTFSceneManager::createInstance();
 
+    // Launch SLCefProducer (and SLVlcProducer) now, eagerly -- the login screen itself
+    // is rendered through this same embedded-browser path (it's "slot 0" of
+    // SLCefProducer), so it needs to be available before idle_startup() can reach
+    // STATE_LOGIN_SHOW, not lazily on first unrelated media use.
+    LLEmbeddedBrowser::getInstance()->init();
+
     gSavedSettings.setU32("DebugQualityPerformance", gSavedSettings.getU32("RenderQualityPerformance"));
 
 #if LL_WINDOWS
@@ -1767,6 +1772,9 @@ bool LLAppViewer::cleanup()
         // of 1s sleep loop by the time we get to clean it.
         LLWatchdog::getInstance()->shutdown();
     }
+
+    // Stop SLCefProducer/SLVlcProducer, if init() launched them.
+    LLEmbeddedBrowser::getInstance()->reset();
 
     disconnectViewer();
 
@@ -3638,39 +3646,35 @@ LLSD LLAppViewer::getViewerInfo() const
         info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
     }
 
-    std::ostringstream cef_ver_codec;
-    cef_ver_codec << "Dullahan: ";
-    cef_ver_codec << DULLAHAN_VERSION_MAJOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << DULLAHAN_VERSION_MINOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << DULLAHAN_VERSION_POINT;
-    cef_ver_codec << ".";
-    cef_ver_codec << DULLAHAN_VERSION_BUILD;
+    // The llshmframe/cefshm_producer embedded browser path, which is this Viewer's
+    // default media path now (see ENABLE_MEDIA_PLUGINS). llshmframe's own version is a
+    // build-time constant; the llCefBrowser/CEF/Chromium version is reported live by
+    // whatever producer last connected, since the Viewer itself doesn't link CEF for
+    // this path.
+    info["SHMFRAME_VERSION"] = LLEmbeddedBrowser::getShmFrameVersion();
+    std::string embedded_cefbrowser_version = LLEmbeddedBrowser::instance().getCefBrowserVersion();
+    info["EMBEDDED_LLCEFBROWSER_VERSION"] = embedded_cefbrowser_version.empty() ?
+        LLSD(LLTrans::getString("NotConnected")) : LLSD(embedded_cefbrowser_version);
 
-    cef_ver_codec << std::endl;
-    cef_ver_codec << "  CEF: ";
-    cef_ver_codec << CEF_VERSION;
+    // LIBCEF_VERSION: only a handful of stale, not-yet-migrated locale translations of
+    // the About floater still reference this token (en/strings.xml itself moved to
+    // SHMFRAME_VERSION/EMBEDDED_LLCEFBROWSER_VERSION above already) -- kept populated,
+    // with the same real value as EMBEDDED_LLCEFBROWSER_VERSION, so those translations
+    // show real info instead of a raw, unsubstituted "[LIBCEF_VERSION]". Used to report
+    // the legacy Dullahan-based CEF plugin's own version instead, via dullahan_version.h
+    // -- removed along with the "dullahan" package itself (see EmbeddedBrowser.cmake).
+    info["LIBCEF_VERSION"] = info["EMBEDDED_LLCEFBROWSER_VERSION"];
 
-    cef_ver_codec << std::endl;
-    cef_ver_codec << "  Chromium: ";
-    cef_ver_codec << CHROME_VERSION_MAJOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << CHROME_VERSION_MINOR;
-    cef_ver_codec << ".";
-    cef_ver_codec << CHROME_VERSION_BUILD;
-    cef_ver_codec << ".";
-    cef_ver_codec << CHROME_VERSION_PATCH;
-
-    info["LIBCEF_VERSION"] = cef_ver_codec.str();
-
-    std::ostringstream vlc_ver_codec;
-    vlc_ver_codec << LIBVLC_VERSION_MAJOR;
-    vlc_ver_codec << ".";
-    vlc_ver_codec << LIBVLC_VERSION_MINOR;
-    vlc_ver_codec << ".";
-    vlc_ver_codec << LIBVLC_VERSION_REVISION;
-    info["LIBVLC_VERSION"] = vlc_ver_codec.str();
+    // LIBVLC_VERSION: libvlc is no longer linked into this binary at all as of Phase 2
+    // (2026-10-01) of the GPL v2/LGPL v2.1 licensing split -- it now runs only inside
+    // SLVlcProducer (see llstreamingaudio_libvlc.cpp). Reported live from there over the
+    // same kEventVersionInfo opcode EMBEDDED_LLCEFBROWSER_VERSION already uses for
+    // SLCefProducer (see LLEmbeddedBrowser::getVlcProducerVersion()) -- no libvlc header
+    // or library of any kind needs linking into this binary to show it, sidestepping the
+    // GPL/LGPL question entirely rather than answering it.
+    std::string vlc_producer_version = LLEmbeddedBrowser::instance().getVlcProducerVersion();
+    info["LIBVLC_VERSION"] = vlc_producer_version.empty() ?
+        LLSD(LLTrans::getString("NotConnected")) : LLSD(vlc_producer_version);
 
     LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
     S32 packets_in = (S32)recording.getSum(LLStatViewer::PACKETS_IN);
@@ -4821,6 +4825,16 @@ void LLAppViewer::loadKeyBindings()
 void LLAppViewer::purgeCefStaleCaches()
 {
     LL_PROFILE_ZONE_SCOPED;
+    if (gSavedSettings.getBOOL("UseEmbeddedBrowser"))
+    {
+        // "cef_cache" is only ever created by the legacy media_plugin_cef path (one
+        // throwaway per-process-id folder per plugin instance, hence this cleanup);
+        // the embedded-browser backend's own persistent profile lives at a sibling
+        // "cef_profile" path specifically so this purge never touches it (see
+        // LLEmbeddedBrowser::launchProducer()). Skip the work entirely once the
+        // legacy plugin path is never taken.
+        return;
+    }
     // TODO: we really shouldn't use a hard coded name for the cache folder here...
     const std::string browser_parent_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
     if (!LLFile::isdir(browser_parent_cache))

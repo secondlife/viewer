@@ -224,5 +224,28 @@ std::string LLDir_Mac::getCurPath()
         base_name + ".dylib";
 }
 
+/*virtual*/ std::string LLDir_Mac::getSLCefProducerLauncher()
+{
+    // Lives in its own SLCefProducer/ directory under Contents/Resources
+    // (see viewer_manifest.py), alongside the CEF framework it needs at
+    // Contents/Resources/../Frameworks -- same convention as
+    // getLLPluginLauncher()'s own SLPlugin.app lookup just above.
+    return gDirUtilp->getAppRODataDir() + gDirUtilp->getDirDelimiter() +
+        "SLCefProducer" + gDirUtilp->getDirDelimiter() +
+        "SLCefProducer";
+}
+
+/*virtual*/ std::string LLDir_Mac::getSLVlcProducerLauncher()
+{
+    // Same reasoning as getSLCefProducerLauncher() just above -- its own
+    // SLVlcProducer/ directory, since the 2026-09-30 producer split. Its own
+    // bundled libvlc*.dylib* lives directly alongside it there too (see
+    // viewer_manifest.py), not under a separate Frameworks-style directory
+    // the way CEF needs.
+    return gDirUtilp->getAppRODataDir() + gDirUtilp->getDirDelimiter() +
+        "SLVlcProducer" + gDirUtilp->getDirDelimiter() +
+        "SLVlcProducer";
+}
+
 
 #endif // LL_DARWIN

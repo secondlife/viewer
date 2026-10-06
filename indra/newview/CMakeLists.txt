@@ -261,6 +261,7 @@ set(viewer_SOURCE_FILES
     llfloatermarketplacelistings.cpp
     llfloatermap.cpp
     llfloatermaturitydialog.cpp
+    llfloatermediamonitor.cpp
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
     llfloatermodelpreview.cpp
@@ -379,6 +380,7 @@ set(viewer_SOURCE_FILES
     llinventorymodelbackgroundfetch.cpp
     llinventoryobserver.cpp
     llinventorypanel.cpp
+    lljsbridge.cpp
     lljoystickbutton.cpp
     llkeyconflict.cpp
     lllandmarkactions.cpp
@@ -601,6 +603,7 @@ set(viewer_SOURCE_FILES
     llstartup.cpp
     llstartuplistener.cpp
     llstatusbar.cpp
+    llstreamingaudio_libvlc.cpp
     llstylemap.cpp
     llsurface.cpp
     llsurfacepatch.cpp
@@ -691,7 +694,6 @@ set(viewer_SOURCE_FILES
     llviewerinput.cpp
     llviewerlayer.cpp
     llviewermedia.cpp
-    llviewermedia_streamingaudio.cpp
     llviewermediafocus.cpp
     llviewermenu.cpp
     llviewermenufile.cpp
@@ -950,6 +952,7 @@ set(viewer_HEADER_FILES
     llfloatermarketplace.h
     llfloatermarketplacelistings.h
     llfloatermaturitydialog.h
+    llfloatermediamonitor.h
     llfloatermediasettings.h
     llfloatermemleak.h
     llfloatermodelpreview.h
@@ -1066,6 +1069,7 @@ set(viewer_HEADER_FILES
     llinventorymodelbackgroundfetch.h
     llinventoryobserver.h
     llinventorypanel.h
+    lljsbridge.h
     lljoystickbutton.h
     llkeyconflict.h
     lllandmarkactions.h
@@ -1277,6 +1281,7 @@ set(viewer_HEADER_FILES
     llstartup.h
     llstartuplistener.h
     llstatusbar.h
+    llstreamingaudio_libvlc.h
     llstylemap.h
     llsurface.h
     llsurfacepatch.h
@@ -1860,11 +1865,18 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${viewer_APPSETTINGS_FILES}
-      SLPlugin
-      media_plugin_cef
-      media_plugin_libvlc
-      media_plugin_example
+      SLCefProducer
+      SLVlcProducer
       )
+
+    if (ENABLE_MEDIA_PLUGINS)
+      list(APPEND COPY_INPUT_DEPENDENCIES
+           SLPlugin
+           media_plugin_cef
+           media_plugin_libvlc
+           media_plugin_example
+           )
+    endif (ENABLE_MEDIA_PLUGINS)
 
     if (TARGET ll::discord_sdk)
         list(APPEND COPY_INPUT_DEPENDENCIES
@@ -1904,13 +1916,14 @@ if (WINDOWS)
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         stage_third_party_libs
         llwebrtc
+        llembeddedbrowser
         ${COPY_INPUT_DEPENDENCIES}
       COMMENT "Performing viewer_manifest copy"
       )
 
     add_custom_target(copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat)
 
-    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon llwebrtc copy_w_viewer_manifest)
+    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon llwebrtc llembeddedbrowser copy_w_viewer_manifest)
 
     # Useful for remote debugging or profiling if set to target a shared drive. for example, brad sets it to "dist/secondlife" to deploy under
     # the build tree (and then I share that directory) or "f:/dist/secondlife" to deploy to a network mounted drive (although this can be slow).
@@ -1958,7 +1971,10 @@ if (WINDOWS)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
 
-    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
+    if (ENABLE_MEDIA_PLUGINS)
+      add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
+    endif (ENABLE_MEDIA_PLUGINS)
+    add_dependencies(${VIEWER_BINARY_NAME} SLCefProducer SLVlcProducer)
 
     # sets the 'working directory' for debugging from visual studio.
     # Condition for version can be moved to requirements once build agents will be updated (see TOOL-3865)
@@ -2092,6 +2108,7 @@ endif (WINDOWS)
 target_link_libraries(${VIEWER_BINARY_NAME}
         llaudio
         llcharacter
+        llembeddedbrowser
         llimage
         llinventory
         llmessage
@@ -2119,6 +2136,15 @@ target_link_libraries(${VIEWER_BINARY_NAME}
 if (NOT DISABLE_WEBRTC)
     target_link_libraries(${VIEWER_BINARY_NAME} llwebrtc )
 endif()
+
+# ll::libvlc / include(LibVLCPlugin) REMOVED here (Phase 2 of the GPL v2/LGPL v2.1
+# licensing split, 2026-10-01): LLStreamingAudio_LibVLC (llstreamingaudio_libvlc.cpp,
+# parcel/streaming-music audio) no longer links libvlc directly -- it's an IPC client
+# of SLVlcProducer now, the same transport and process prim/RTSP media already uses
+# (see indra/llvlcproducer). This was the last libvlc linkage anywhere in
+# ${VIEWER_BINARY_NAME} -- confirmed via grep, no other file under indra/newview
+# includes <vlc/vlc.h> or calls any libvlc_* symbol. See doc/Embedded_Browser.md's own
+# licensing note for why this mattered (vlc-bin is GPL v2, this project is LGPL v2.1).
 
 if (USE_DISCORD)
     target_link_libraries(${VIEWER_BINARY_NAME} ll::discord_sdk )
@@ -2171,13 +2197,29 @@ if (LINUX)
   # These are the generated targets that are copied to package/
   set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
-    SLPlugin
-    media_plugin_cef
-    media_plugin_gstreamer10
-    media_plugin_libvlc
-    media_plugin_example
     llwebrtc
+    llembeddedbrowser
+    SLCefProducer
+    SLVlcProducer
     )
+
+  # SLPlugin/media_plugin_* are gated behind ENABLE_MEDIA_PLUGINS in CMake
+  # (off by default -- embedded-browser media replaces them) -- this used to
+  # be unconditional, which would already fail on a normal
+  # ENABLE_MEDIA_PLUGINS=OFF configure of this branch (those targets don't
+  # exist at all), independent of anything else about the Linux port; never
+  # caught until now because nobody had actually configured this branch on
+  # Linux since that default changed. Matches WindowsManifest's/DarwinManifest's
+  # own if(ENABLE_MEDIA_PLUGINS) guard for the same targets.
+  if (ENABLE_MEDIA_PLUGINS)
+    list(APPEND COPY_INPUT_DEPENDENCIES
+      SLPlugin
+      media_plugin_cef
+      media_plugin_gstreamer10
+      media_plugin_libvlc
+      media_plugin_example
+      )
+  endif (ENABLE_MEDIA_PLUGINS)
 
   add_custom_command(
       OUTPUT ${product}.tar.xz
@@ -2305,7 +2347,18 @@ if (DARWIN)
       --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
+  # SLPlugin/media_plugin_* are gated behind ENABLE_MEDIA_PLUGINS in CMake
+  # (off by default -- embedded-browser media replaces them) -- this
+  # unconditional add_dependencies() would already fail on a normal
+  # ENABLE_MEDIA_PLUGINS=OFF configure of this branch (those targets don't
+  # exist at all), independent of anything else about the macOS port; never
+  # caught until now because nobody had actually configured this branch on
+  # Darwin since that default changed. Matches WindowsManifest's own
+  # if(ENABLE_MEDIA_PLUGINS) guard for the same targets.
+  if (ENABLE_MEDIA_PLUGINS)
+    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
+  endif (ENABLE_MEDIA_PLUGINS)
+  add_dependencies(${VIEWER_BINARY_NAME} llembeddedbrowser SLCefProducer SLVlcProducer)
 
   if (ENABLE_SIGNING)
       set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")
@@ -2386,7 +2439,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
           "${VIEWER_APP_XCARCHIVE}"
             "${VIEWER_CHANNEL}"
           WORKING_DIRECTORY "${SYMBOLS_STAGING_DIR}/.."
-          DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc
+          DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc llembeddedbrowser
           COMMENT "Generating ${VIEWER_APP_XCARCHIVE} for upload to BugSplat"
         )
       add_custom_target(generate_symbols DEPENDS
@@ -2443,6 +2496,7 @@ if (LL_TESTS)
     llxml
     llui
     llplugin
+    llembeddedbrowser
     llappearance
     llprimitive
     lllogin

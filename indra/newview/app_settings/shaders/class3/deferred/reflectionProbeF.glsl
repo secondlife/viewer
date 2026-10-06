@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
 
+#extension GL_ARB_texture_cube_map_array : require
+
 #define FLT_MAX 3.402823466e+38
 
 #if defined(SSR)
