@@ -3311,14 +3311,6 @@ void end_messaging_system(bool print_summary)
 void LLMessageSystem::resetReceiveCounts()
 {
     mNumMessageCounts = 0;
-
-    for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
-             end = mMessageTemplates.end();
-         iter != end; iter++)
-    {
-        LLMessageTemplate* mt = iter->second;
-        mt->mDecodeTimeThisFrame = 0.f;
-    }
 }
 
 
@@ -3365,7 +3357,7 @@ void LLMessageSystem::dumpReceiveCounts()
             if (mt->mReceiveCount > 0)
             {
                 LL_INFOS("Messaging") << "Num: " << std::setw(3) << mt->mReceiveCount << " Bytes: " << std::setw(6) << mt->mReceiveBytes
-                        << " Invalid: " << std::setw(3) << mt->mReceiveInvalid << " " << mt->mName << " " << ll_round(100 * mt->mDecodeTimeThisFrame / mReceiveTime.value()) << "%" << LL_ENDL;
+                        << " Invalid: " << std::setw(3) << mt->mReceiveInvalid << LL_ENDL;
             }
         }
     }
@@ -3581,7 +3573,6 @@ namespace
 
             if (LLMessageReader::getTimeDecodes())
             {
-                msg_template->mDecodeTimeThisFrame += decode_time;
                 msg_template->mTotalDecoded++;
                 msg_template->mTotalDecodeTime += decode_time;
 

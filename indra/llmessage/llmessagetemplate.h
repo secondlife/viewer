@@ -295,7 +295,6 @@ public:
         mReceiveCount(0),
         mReceiveBytes(0),
         mReceiveInvalid(0),
-        mDecodeTimeThisFrame(0.f),
         mTotalDecoded(0),
         mTotalDecodeTime(0.f),
         mMaxDecodeTimePerMsg(0.f),
@@ -485,7 +484,6 @@ public:
     U32                                     mReceiveCount;      // how many of this template have been received since last reset
     U32                                     mReceiveBytes;      // How many bytes received
     U32                                     mReceiveInvalid;    // How many "invalid" packets
-    F32                                     mDecodeTimeThisFrame;   // Total seconds spent decoding this frame
     U32                                     mTotalDecoded;      // Total messages successfully decoded
     F32                                     mTotalDecodeTime;   // Total time successfully decoding messages
     F32                                     mMaxDecodeTimePerMsg;
