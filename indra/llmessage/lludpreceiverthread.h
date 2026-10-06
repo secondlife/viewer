@@ -48,7 +48,7 @@ public:
     using PacketQueue = LLThreadSafeQueue<LLPacketBuffer>;
 
     // hSocket must remain valid for the lifetime of this thread.
-    LLUDPReceiverThread(S32 hSocket, std::shared_ptr<PacketQueue> queue);
+    LLUDPReceiverThread(S32 hSocket);
     ~LLUDPReceiverThread() override;
 
 protected:
@@ -56,5 +56,4 @@ protected:
 
 private:
     S32 mSocket;
-    std::shared_ptr<PacketQueue> mQueue;
 };

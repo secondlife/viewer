@@ -33,12 +33,9 @@
 
 #include <boost/fiber/algo/round_robin.hpp>
 
-LLUDPReceiverThread::LLUDPReceiverThread(S32 hSocket, std::shared_ptr<PacketQueue> queue)
+LLUDPReceiverThread::LLUDPReceiverThread(S32 hSocket)
 :   LLThread("UDP Receiver"),
-    mSocket(hSocket),
-    // queue was passed by lvalue so in the end there will be two live shared_ptr
-    // instances pointing at the same PacketQueue (mIncomingQueue)
-    mQueue(std::move(queue))
+    mSocket(hSocket)
 {
 }
 
@@ -95,18 +92,8 @@ void LLUDPReceiverThread::run()
 
         if (packet_size > 0)
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp queue push");
-            // Blocks if the queue is momentarily full (backpressure),
-            // raises LLThreadSafeQueueInterrupt if the queue is closed
-            // during shutdown, which unwinds this loop naturally.
-            try
-            {
-                mQueue->push(pkt);
-            }
-            catch (const LLThreadSafeQueueInterrupt&)
-            {
-                break;
-            }
+            LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp buffer process");
+            gMessageSystem->processBufferPacket(pkt);
         }
         else
         {
@@ -114,17 +101,6 @@ void LLUDPReceiverThread::run()
             // when the socket has no data queued (recv_packet returns 0
             // for EWOULDBLOCK). ms_sleep() is already profiled internally.
             ms_sleep(1);
-        }
-
-        // Drain mQueue (== gMessageSystem->mIncomingQueue) into the
-        // priority rings: this does per-packet ACK bookkeeping and
-        // packet-sequence checks (same as drainUdpSocket()).
-        {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp buffer inbound");
-            while (gMessageSystem->bufferInboundPacket() > 0)
-            {
-                // keep draining
-            }
         }
 
         // Fully decode whatever is sitting in the priority rings and

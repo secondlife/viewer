@@ -268,10 +268,9 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
     if (!mbError)
     {
         // Start the receiver thread, which will read packets from the socket and queue them for processing.
-        mIncomingQueue = std::make_shared<LLUDPReceiverThread::PacketQueue>();
         mDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>();
         mReliableAckQueue = std::make_shared<LLThreadSafeQueue<ReliableAck>>();
-        mReceiverThread = std::make_unique<LLUDPReceiverThread>(mSocket, mIncomingQueue);
+        mReceiverThread = std::make_unique<LLUDPReceiverThread>(mSocket);
     }
 
 //  LL_DEBUGS("Messaging") <<  << "*** port: " << mPort << LL_ENDL;
@@ -352,10 +351,6 @@ void LLMessageSystem::loadTemplateFile(const std::string& filename, bool failure
 LLMessageSystem::~LLMessageSystem()
 {
     // The thread must stop before the socket closes and before templates get cleaned up
-    if (mIncomingQueue)
-    {
-        mIncomingQueue->close();
-    }
     if (mDecodedQueue)
     {
         mDecodedQueue->close();
@@ -1187,24 +1182,6 @@ void LLMessageSystem::processReliableAcks()
     }
 }
 
-S32 LLMessageSystem::drainUdpSocket()
-{
-    S32 packet_size = 1;
-    S32 num_loops = 0;
-    S32 old_num_buffered_packets = getNumBufferedPackets();
-    while (packet_size > 0)
-    {
-        packet_size = bufferInboundPacket();
-        ++num_loops;
-    }
-    S32 num_dropped_packets = (num_loops - 1 + old_num_buffered_packets) - getNumBufferedPackets();
-    if (num_dropped_packets > 0)
-    {
-        mNumDroppedPackets += num_dropped_packets;
-    }
-    return getNumBufferedPackets();
-}
-
 bool LLMessageSystem::computeDrop()
 {
     bool drop = (mDropPercentage > 0.0f && (ll_frand(100.f) < mDropPercentage));
@@ -1345,15 +1322,8 @@ S32 LLMessageSystem::receivePacketOrDrop(char* datap, bool& packet_id_already_ch
     return packet_size;
 }
 
-S32 LLMessageSystem::bufferInboundPacket()
+S32 LLMessageSystem::processBufferPacket(LLPacketBuffer& pkt)
 {
-    LLHost invalid_host;
-    LLPacketBuffer pkt(invalid_host, nullptr, 0);
-    if (!mIncomingQueue->tryPop(pkt))
-    {
-        return 0;
-    }
-
     S32 packet_size = pkt.getSize();
     mActualBytesIn += packet_size;
 

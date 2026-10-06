@@ -30,6 +30,7 @@
 #include <cstring>
 #include <functional>
 #include <set>
+#include <atomic>
 
 #if LL_LINUX
 #include <endian.h>
@@ -495,9 +496,6 @@ public:
     // bool    checkMessages(LockMessageChecker&, S64 frame_count = 0 );
     void    processAcks(LockMessageChecker&, F32 collect_time = 0.f);
 
-    // returns total number of buffered packets after the drain
-    S32     drainUdpSocket();
-
     // Inbound Packet-loss simulation controls
     void dropPackets(U32 num_to_drop);
     void setDropPercentage(F32 percent_to_drop);
@@ -911,7 +909,7 @@ public:
     void receivedMessageFromTrustedSender();
 
     // Runs the full receive-and-decode pipeline for one packet already
-    // sitting in mIncomingQueue (see bufferInboundPacket()), but stops
+    // sitting in inbound queues (see processBufferPacket()), but stops
     // short of calling the message handler. Returns nullptr if no packet
     // was available, or if the packet was invalid/banned/duplicate and
     // should simply be dropped (mirroring checkMessages()'s "continue"
@@ -948,9 +946,9 @@ public:
     }
     size_t getNumDecodedPending() { return mDecodedQueue->size(); }
 
-    // Read one raw packet from mSocket into inbound message queues
+    // Read one raw packet into inbound message queues
     // Returns packet_size (0 if no packet was available).
-    S32  bufferInboundPacket();
+    S32  processBufferPacket(LLPacketBuffer& pkt);
 
 private:
     struct ReliableAck
@@ -1038,7 +1036,7 @@ private:
     // Receive one packet: pop from ring if buffered, else read from mSocket.
     // Sets sLastSender and sLastReceivingIF.
     // Sets packet_id_already_checked to whether checkPacketInID() was already
-    // run for this packet back when it was buffered (see bufferInboundPacket()).
+    // run for this packet back when it was buffered (see processBufferPacket()).
     // Returns packet_size, or 0 if no packet or packet was dropped.
     S32  receivePacketOrDrop(char* datap, bool& packet_id_already_checked);
 
@@ -1052,8 +1050,8 @@ private:
     // Packet-loss simulation and byte-accounting state
     std::atomic<S32> mActualBytesIn;
     S32 mActualBytesOut;
-    F32 mDropPercentage;        // % of inbound packets to drop
-    U32 mPacketsToDrop;         // drop next N inbound packets
+    std::atomic<F32> mDropPercentage; // % of inbound packets to drop
+    std::atomic<U32> mPacketsToDrop;  // drop next N inbound packets
     S32 mNumDroppedPackets;     // inbound
     S32 mNumDroppedPacketsTotal;// inbound
 
@@ -1077,7 +1075,6 @@ private:
     LLSDMessageReader* mLLSDMessageReader;
 
     // Packet queue and receiver thread for incoming packets from an UDP thread.
-    std::shared_ptr<LLUDPReceiverThread::PacketQueue> mIncomingQueue;
     std::unique_ptr<LLUDPReceiverThread> mReceiverThread;
     std::shared_ptr<LLThreadSafeQueue<ReliableAck>> mReliableAckQueue;
 
