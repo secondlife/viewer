@@ -755,7 +755,7 @@ bool LLTemplateMessageReader::validateMessage(const U8* buffer,
     bool valid = decodeTemplate(buffer, buffer_size, &mCurrentRMessageTemplate );
     if(valid)
     {
-        mCurrentRMessageTemplate->mReceiveCount++;
+        mCurrentRMessageTemplate->recordReceive();
         //LL_DEBUGS() << "MessageRecvd:"
         //                       << mCurrentRMessageTemplate->mName
         //                       << " from " << sender << LL_ENDL;
