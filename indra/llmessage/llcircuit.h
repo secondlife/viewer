@@ -201,6 +201,8 @@ protected:
     // Call this method when a reliable message comes in - this will
     // correctly place the packet in the correct list to be acked
     // later. RAack = requested ack
+    // Takes LLCircuit::mCircuitMutex and then mDataMutex, so callers must not
+    // hold either of them (see the lock order note above).
     bool collectRAck(TPACKETID packet_num);
 
 

@@ -1200,7 +1200,7 @@ void LLCircuit::sendAcks(F32 collect_time)
     collect_time = llclamp(collect_time, 0.f, LL_COLLECT_ACK_TIME_MAX);
     // Collect while holding mCircuitMutex. Holding a reference keeps each
     // circuit alive while we send its acks with no lock held.
-    std::vector<circuit_data_ptr> circuits_to_flush;
+    std::vector<std::pair<circuit_data_ptr, std::vector<TPACKETID> > > circuits_to_flush;
     {
         std::lock_guard<std::mutex> circuit_lock(mCircuitMutex);
         circuit_data_map::iterator it = mSendAckMap.begin();
@@ -1209,30 +1209,35 @@ void LLCircuit::sendAcks(F32 collect_time)
             circuit_data_map::iterator cur_it = it++;
             // Copy, not a reference: the map entry may be erased below.
             circuit_data_ptr cd = (*cur_it).second;
-            std::lock_guard<std::mutex> data_lock(cd->mDataMutex);
-            S32 count = (S32)cd->mAcks.size();
-            F32 age = cd->getAgeInSeconds() - cd->mAckCreationTime;
-            if (age > collect_time || count == 0)
+            std::vector<TPACKETID> acks;
             {
-                if (count > 0)
+                std::lock_guard<std::mutex> data_lock(cd->mDataMutex);
+                S32 count = (S32)cd->mAcks.size();
+                F32 age = cd->getAgeInSeconds() - cd->mAckCreationTime;
+                if (age <= collect_time && count != 0)
                 {
-                    circuits_to_flush.push_back(cd);
+                    continue;
                 }
+                // Take the acks while both locks are held, so that a circuit
+                // removed from mSendAckMap never keeps pending acks behind:
+                // any ack collected after this point sees an empty mAcks and
+                // re-registers the circuit.
+                acks.swap(cd->mAcks);
+                cd->mAckCreationTime = 0.f;
                 // remove data map
                 mSendAckMap.erase(cur_it);
+            }
+            if (!acks.empty())
+            {
+                circuits_to_flush.emplace_back(cd, std::move(acks));
             }
         }
     }
 
-    for (const circuit_data_ptr& cd : circuits_to_flush)
+    for (const auto& flush : circuits_to_flush)
     {
-        std::vector<TPACKETID> acks;
-        {
-            std::lock_guard<std::mutex> data_lock(cd->mDataMutex);
-            acks.swap(cd->mAcks);
-            cd->mAckCreationTime = 0.f;
-        }
-
+        const circuit_data_ptr& cd = flush.first;
+        const std::vector<TPACKETID>& acks = flush.second;
         S32 count = (S32)acks.size();
 
         // send the packet acks
