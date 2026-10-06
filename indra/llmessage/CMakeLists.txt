@@ -24,6 +24,7 @@ set(llmessage_SOURCE_FILES
     llcoproceduremanager.cpp
     llcorehttputil.cpp
     lldatapacker.cpp
+    lldecodedmessage.cpp
     lldispatcher.cpp
     llexperiencecache.cpp
     llgenericstreamingmessage.cpp
@@ -67,6 +68,7 @@ set(llmessage_SOURCE_FILES
     lltransfertargetfile.cpp
     lltransfertargetvfile.cpp
     lltrustedmessageservice.cpp
+    lludpreceiverthread.cpp
     lluseroperation.cpp
     llxfer.cpp
     llxfer_file.cpp
@@ -102,6 +104,7 @@ set(llmessage_HEADER_FILES
     llcorehttputil.h
     lldatapacker.h
     lldbstrings.h
+    lldecodedmessage.h
     lldispatcher.h
     lleventflags.h
     llexperiencecache.h
@@ -157,6 +160,7 @@ set(llmessage_HEADER_FILES
     lltransfertargetfile.h
     lltransfertargetvfile.h
     lltrustedmessageservice.h
+    lludpreceiverthread.h
     lluseroperation.h
     llvehicleparams.h
     llxfer.h

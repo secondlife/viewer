@@ -30,6 +30,8 @@
 #include "message.h" // TODO: babbage: Remove...
 #include "llstl.h"
 #include "llindexedvector.h"
+#include "llmsgvariabletype.h"
+#include <shared_mutex>
 
 class LLMsgVarData
 {
@@ -115,6 +117,19 @@ public:
     {
         mName = (char *)name;
     }
+    // Ownership transfer should be explicit and cheap.
+    // No deep copy, just a transfer.
+    LLMsgData(LLMsgData&& other) noexcept
+        : mMemberBlocks(std::move(other.mMemberBlocks)),
+        mName(other.mName),
+        mTotalSize(other.mTotalSize)
+    {
+        other.mMemberBlocks.clear(); // prevent double-delete in ~LLMsgData
+    }
+    LLMsgData& operator=(LLMsgData&&) = delete;
+    LLMsgData(const LLMsgData&) = delete;
+    LLMsgData& operator=(const LLMsgData&) = delete;
+
     ~LLMsgData()
     {
         for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePairedPointer());
@@ -280,13 +295,13 @@ public:
         mReceiveCount(0),
         mReceiveBytes(0),
         mReceiveInvalid(0),
-        mDecodeTimeThisFrame(0.f),
         mTotalDecoded(0),
         mTotalDecodeTime(0.f),
         mMaxDecodeTimePerMsg(0.f),
         mBanFromTrusted(false),
         mBanFromUntrusted(false),
         mHandlerFunc(NULL),
+        mHandleOnUdpThread(false),
         mUserData(NULL)
     {
         mName = LLMessageStringTable::getInstance()->getString(name);
@@ -357,18 +372,83 @@ public:
 
     void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
     {
+        std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
         mHandlerFunc = handler_func;
         mUserData = user_data;
+        mHandleOnUdpThread = false;
+    }
+
+    // Same as setHandlerFunc(), but for handlers that are safe to run
+    // directly on LLUDPReceiverThread.
+    void setHandlerFuncThrd(void (*handler_func)(LLMessageSystem* msgsystem, void** user_data), void** user_data)
+    {
+        std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
+        mHandlerFunc = handler_func;
+        mUserData = user_data;
+        mHandleOnUdpThread = true;
     }
 
     bool callHandlerFunc(LLMessageSystem *msgsystem) const
     {
-        if (mHandlerFunc)
+        // Snapshot the handler under the lock so a concurrent
+        // setHandlerFunc()/setHandlerFuncThrd() call (e.g. from
+        // establishBidirectionalTrust() on the main thread) can't race
+        // with a dispatch happening on LLUDPReceiverThread or the main
+        // thread. The handler itself is invoked outside the lock so it
+        // can safely call back into setHandlerFunc()/setHandlerFuncThrd()
+        // without deadlocking.
+        void (*handler_func)(LLMessageSystem*, void**);
+        void** user_data;
         {
-            mHandlerFunc(msgsystem, mUserData);
+            std::shared_lock<std::shared_mutex> lock(sHandlerMutex);
+            handler_func = mHandlerFunc;
+            user_data = mUserData;
+        }
+        if (handler_func)
+        {
+            handler_func(msgsystem, user_data);
             return true;
         }
         return false;
+    }
+
+    // Atomically snapshots the route flag together with the handler, so a
+    // concurrent registration change can't slip in between a route check
+    // and the handler call. Invokes the handler directly (outside the lock)
+    // only if the registration seen under the lock is safe to run on
+    // LLUDPReceiverThread. Returns false if the current registration is
+    // main-thread-only, in which case nothing was called and the caller
+    // should queue the message for main-thread dispatch instead.
+    bool callHandlerFuncIfThreaded(LLMessageSystem* msgsystem) const
+    {
+        void (*handler_func)(LLMessageSystem*, void**);
+        void** user_data;
+        {
+            std::shared_lock<std::shared_mutex> lock(sHandlerMutex);
+            if (!mHandleOnUdpThread)
+            {
+                return false;
+            }
+            handler_func = mHandlerFunc;
+            user_data = mUserData;
+        }
+        if (handler_func)
+        {
+            handler_func(msgsystem, user_data);
+        }
+        // If there is no handler, treat as if handled, as there is no point in
+        // passing it to main thread, which is just going to ignore the message.
+        return true;
+    }
+
+    // True if this message's handler should be invoked directly on
+    // LLUDPReceiverThread rather than queued for main-thread dispatch.
+    // Informational only: dispatch must use callHandlerFuncIfThreaded(),
+    // which snapshots the route and the handler under a single lock.
+    bool isHandledOnUdpThread() const
+    {
+        std::shared_lock<std::shared_mutex> lock(sHandlerMutex);
+        return mHandleOnUdpThread;
     }
 
     bool isUdpBanned() const
@@ -404,7 +484,6 @@ public:
     U32                                     mReceiveCount;      // how many of this template have been received since last reset
     U32                                     mReceiveBytes;      // How many bytes received
     U32                                     mReceiveInvalid;    // How many "invalid" packets
-    F32                                     mDecodeTimeThisFrame;   // Total seconds spent decoding this frame
     U32                                     mTotalDecoded;      // Total messages successfully decoded
     F32                                     mTotalDecodeTime;   // Total time successfully decoding messages
     F32                                     mMaxDecodeTimePerMsg;
@@ -413,9 +492,13 @@ public:
     bool                                    mBanFromUntrusted;
 
 private:
+    // Since setHandlerFunc are mostly startup specific, one-time init,
+    // a shared mutex is enough for all templates
+    static inline std::shared_mutex         sHandlerMutex;
     // message handler function (this is set by each application)
     void                                    (*mHandlerFunc)(LLMessageSystem *msgsystem, void **user_data);
     void                                    **mUserData;
+    bool                                     mHandleOnUdpThread = false;
 };
 
 #endif // LL_LLMESSAGETEMPLATE_H
