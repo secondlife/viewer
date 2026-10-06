@@ -35,7 +35,7 @@ namespace tut
 {
     struct messagetemplate
     {
-        LLMessageTemplate mTemplate{ "TestMessage", 1, MFT_HIGH };
+        LLMessageTemplate mTemplate{ "TestMessage", (U32)1, MFT_HIGH };
     };
     typedef test_group<messagetemplate> messagetemplate_t;
     typedef messagetemplate_t::object messagetemplate_object_t;
@@ -135,7 +135,7 @@ namespace tut
         ensure_equals("copied decode time", copied.getTotalDecodeTime(), 0.5f);
         ensure_equals("copied max decode time", copied.getMaxDecodeTimePerMsg(), 0.5f);
 
-        LLMessageTemplate assigned("OtherTestMessage", 2, MFT_HIGH);
+        LLMessageTemplate assigned("OtherTestMessage", (U32)2, MFT_HIGH);
         assigned = mTemplate;
         ensure_equals("assigned receive count", assigned.getReceiveCount(), (U32)1);
         ensure_equals("assigned decoded", assigned.getTotalDecoded(), (U32)1);
