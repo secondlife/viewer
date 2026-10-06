@@ -158,6 +158,7 @@ LLTextBase::Params::Params()
     track_end("track_end", false),
     read_only("read_only", false),
     skip_link_underline("skip_link_underline", false),
+    link_color("link_color"),
     spellcheck("spellcheck", false),
     v_pad("v_pad", 0),
     h_pad("h_pad", 0),
@@ -196,6 +197,8 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
     mReadOnly(p.read_only),
     mSkipTripleClick(false),
     mSkipLinkUnderline(p.skip_link_underline),
+    mHasLinkColor(p.link_color.isProvided()),
+    mLinkColor(p.link_color.isProvided() ? p.link_color() : LLUIColor()),
     mSpellCheck(p.spellcheck),
     mSpellCheckStart(-1),
     mSpellCheckEnd(-1),
@@ -2288,6 +2291,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
     registrar.add("Url.AddFriend", boost::bind(&LLUrlAction::addFriend, url));
     registrar.add("Url.RemoveFriend", boost::bind(&LLUrlAction::removeFriend, url));
     registrar.add("Url.ReportAbuse", boost::bind(&LLUrlAction::reportAbuse, url));
+    registrar.add("Url.ReportAbuseObj", boost::bind(&LLUrlAction::reportAbuseObj, url));
     registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
     registrar.add("Url.ZoomInObject", boost::bind(&LLUrlAction::zoomInObject, url));
     registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
@@ -2425,6 +2429,11 @@ void LLTextBase::appendTextImpl(const std::string& new_text, const LLStyle::Para
 
             LLStyle::Params link_params(style_params);
             link_params.overwriteFrom(match.getStyle());
+            if (mHasLinkColor)
+            {
+                link_params.color = mLinkColor;
+                link_params.readonly_color = mLinkColor;
+            }
 
             // output the text before the Url
             if (start > 0)
@@ -4142,7 +4151,7 @@ S32 LLInlineViewSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
     {
         return 0;
     }
-    else if (line_offset != 0 && num_pixels < mView->getRect().getWidth())
+    else if (line_offset != 0 && num_pixels < (mLeftPad + mRightPad + mView->getRect().getWidth()))
     {
         return 0;
     }

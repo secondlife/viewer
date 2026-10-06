@@ -93,6 +93,20 @@ LLVisualParamHint::LLVisualParamHint(
 {
     LLVisualParamHint::sInstances.insert( this );
     mBackgroundp = LLUI::getUIImage("avatar_thumb_bkgrnd.png");
+    if (mBackgroundp)
+    {
+        LLViewerFetchedTexture* tex = dynamic_cast<LLViewerFetchedTexture*>(mBackgroundp->getImage().get());
+        if (tex)
+        {
+            tex->setKnownDrawSize(width, height);
+        }
+
+        mBackgroundLoadedConnection = mBackgroundp->addLoadedCallback([this]()
+        {
+            mNeedsUpdate = true;
+            mDelayFrames = 0;
+        });
+    }
 
     llassert(width != 0);
     llassert(height != 0);
@@ -104,6 +118,7 @@ LLVisualParamHint::LLVisualParamHint(
 LLVisualParamHint::~LLVisualParamHint()
 {
     LLVisualParamHint::sInstances.erase( this );
+    mBackgroundLoadedConnection.disconnect();
 }
 
 //virtual
@@ -143,12 +158,21 @@ void LLVisualParamHint::requestHintUpdates( LLVisualParamHint* exception1, LLVis
 
 bool LLVisualParamHint::needsRender()
 {
+    // needsRender gets called once per frame from
+    // LLViewerDynamicTexture::updateAllInstances()
     return mNeedsUpdate && mDelayFrames-- <= 0 && !gAgentAvatarp->getIsAppearanceAnimating() && mAllowsUpdates;
 }
 
 void LLVisualParamHint::preRender(bool clear_depth)
 {
-    LLViewerWearable* wearable = (LLViewerWearable*)mWearablePtr;
+    LL_DEBUGS("ParamHint") << "preRender: param=" << mVisualParam->getName()
+        << " id=" << mVisualParam->getID()
+        << " weight=" << mVisualParamWeight
+        << " dirtyMesh=" << gAgentAvatarp->mDirtyMesh
+        << " pixelArea=" << gAgentAvatarp->mAdjustedPixelArea
+        << " appearanceAnimating=" << gAgentAvatarp->getIsAppearanceAnimating()
+        << LL_ENDL;
+    LLViewerWearable* wearable = dynamic_cast<LLViewerWearable*>(mWearablePtr);
     if (wearable)
     {
         wearable->setVolatile(true);
@@ -167,6 +191,22 @@ void LLVisualParamHint::preRender(bool clear_depth)
     {
         gAgentAvatarp->updateGeometry(gAgentAvatarp->mDrawable);
         gAgentAvatarp->updateLOD();
+
+        if (gAgentAvatarp->mDrawable->isState(LLDrawable::REBUILD_GEOMETRY)
+            || gAgentAvatarp->mDirtyMesh > 0)
+        {
+            // updateLOD marks meshes for an update.
+            LL_DEBUGS("ParamHint") << "preRender: updateMeshData"
+                << " param=" << mVisualParam->getName()
+                << " dirtyMesh=" << gAgentAvatarp->mDirtyMesh
+                << " rebuildGeom=" << gAgentAvatarp->mDrawable->isState(LLDrawable::REBUILD_GEOMETRY)
+                << LL_ENDL;
+            // Clear states and force update so that renderSkinned inside generateImpostor
+            // does not re-run updateMeshData() with a partially consistent mesh state,
+            // which would reassign mFace pointers on some meshes while others are
+            // mid-draw with stale vertex offsets.
+            gAgentAvatarp->updateMeshData();
+        }
     }
     else
     {
@@ -246,8 +286,15 @@ bool LLVisualParamHint::render()
 
     LLViewerCamera::getInstance()->setPerspective(false, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, false);
 
-    if (gAgentAvatarp->mDrawable.notNull())
+    llassert(!LLPipeline::sImpostorRender); // We are rendering this from UI, shouldn't be set
+    if (gAgentAvatarp->mDrawable.notNull() && !LLPipeline::sImpostorRender)
     {
+        LL_DEBUGS("ParamHint") << "render: generating impostor"
+            << " param=" << mVisualParam->getName()
+            << " drawableState=0x" << std::hex << gAgentAvatarp->mDrawable->getState() << std::dec
+            << " dirtyMesh=" << gAgentAvatarp->mDirtyMesh
+            << " mMeshValid=" << gAgentAvatarp->mMeshValid
+            << LL_ENDL;
         LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
         gGL.flush();
         gGL.setSceneBlendType(LLRender::BT_REPLACE);
@@ -258,7 +305,7 @@ bool LLVisualParamHint::render()
 
     gAgentAvatarp->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);
     mWearablePtr->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);
-    LLViewerWearable* wearable = (LLViewerWearable*)mWearablePtr;
+    LLViewerWearable* wearable = dynamic_cast<LLViewerWearable*>(mWearablePtr);
     if (wearable)
     {
         wearable->setVolatile(false);

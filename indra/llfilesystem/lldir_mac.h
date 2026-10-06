@@ -45,7 +45,6 @@ public:
         const std::string& app_read_only_data_dir);
 
     virtual std::string getCurPath();
-    virtual bool fileExists(const std::string &filename) const;
 
     /*virtual*/ std::string getLLPluginLauncher();
     /*virtual*/ std::string getLLPluginFilename(std::string base_name);

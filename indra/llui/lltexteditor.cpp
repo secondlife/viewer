@@ -61,6 +61,7 @@
 #include "lltooltip.h"
 #include "llmenugl.h"
 #include "llchatmentionhelper.h"
+#include "llgestureautocompletehelper.h"
 
 #include <queue>
 #include "llcombobox.h"
@@ -1692,27 +1693,24 @@ void LLTextEditor::pasteTextWithLinebreaks(LLWString & clean_string)
     std::basic_string<llwchar>::size_type start = 0;
     std::basic_string<llwchar>::size_type pos = clean_string.find('\n',start);
 
-    while((pos != -1) && (pos != clean_string.length() -1))
+    while (pos != std::basic_string<llwchar>::npos)
     {
-        if(pos!=start)
+        if (pos != start)
         {
             std::basic_string<llwchar> str = std::basic_string<llwchar>(clean_string,start,pos-start);
             setCursorPos(mCursorPos + insert(mCursorPos, str, true, LLTextSegmentPtr()));
         }
-        addLineBreakChar(true);         // Add a line break and group with the next addition.
+        const bool trailing_linebreak = (pos == clean_string.length() - 1);
+        addLineBreakChar(!trailing_linebreak);
 
         start = pos+1;
         pos = clean_string.find('\n',start);
     }
 
-    if (pos != start)
+    if (start < clean_string.length())
     {
         std::basic_string<llwchar> str = std::basic_string<llwchar>(clean_string,start,clean_string.length()-start);
         setCursorPos(mCursorPos + insert(mCursorPos, str, false, LLTextSegmentPtr()));
-    }
-    else
-    {
-        addLineBreakChar(false);        // Add a line break and end the grouping.
     }
 }
 
@@ -1950,7 +1948,8 @@ bool LLTextEditor::handleKeyHere(KEY key, MASK mask )
     // not handled and let the parent take care of field movement.
     if (KEY_TAB == key && mTabsToNextField)
     {
-        return mShowChatMentionPicker && LLChatMentionHelper::instance().handleKey(this, key, mask);
+        return (mShowChatMentionPicker && LLChatMentionHelper::instance().handleKey(this, key, mask))
+            || LLGestureAutocompleteHelper::instance().handleKey(this, key, mask);
     }
 
     if (mReadOnly && mScroller)
@@ -1964,7 +1963,8 @@ bool LLTextEditor::handleKeyHere(KEY key, MASK mask )
         if (!mReadOnly)
         {
             if ((mShowEmojiHelper && LLEmojiHelper::instance().handleKey(this, key, mask)) ||
-                (mShowChatMentionPicker && LLChatMentionHelper::instance().handleKey(this, key, mask)))
+                (mShowChatMentionPicker && LLChatMentionHelper::instance().handleKey(this, key, mask)) ||
+                LLGestureAutocompleteHelper::instance().handleKey(this, key, mask))
             {
                 return true;
             }

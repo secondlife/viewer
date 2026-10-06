@@ -46,6 +46,9 @@ public:
     bool hasSSE41() const;
     bool hasSSE42() const;
     bool hasSSE4a() const;
+    bool hasAVX() const;
+    bool hasAVX2() const;
+    bool hasAVX512F() const;
     bool hasAltivec() const;
     std::string getCPUFamilyName() const;
     std::string getCPUBrandName() const;

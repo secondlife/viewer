@@ -27,7 +27,6 @@
 #include "linden_common.h"
 
 #include "../test/lltut.h"
-#if 0
 
 #include "../llremoteparcelrequest.h"
 
@@ -40,16 +39,6 @@ namespace {
     const LLUUID TEST_PARCEL_ID("11111111-1111-1111-1111-111111111111");
 }
 
-LLCurl::Responder::Responder() { }
-LLCurl::Responder::~Responder() { }
-void LLCurl::Responder::httpFailure() { }
-void LLCurl::Responder::httpSuccess() { }
-void LLCurl::Responder::httpCompleted() { }
-void LLCurl::Responder::failureResult(S32 status, const std::string& reason, const LLSD& content) { }
-void LLCurl::Responder::successResult(const LLSD& content) { }
-void LLCurl::Responder::completeResult(S32 status, const std::string& reason, const LLSD& content) { }
-std::string LLCurl::Responder::dumpResponse() const { return "(failure)"; }
-void LLCurl::Responder::completedRaw(LLChannelDescriptors const &,std::shared_ptr<LLBufferArray> const &) { }
 void LLMessageSystem::getF32(char const *,char const *,F32 &,S32) { }
 void LLMessageSystem::getU8(char const *,char const *,U8 &,S32) { }
 void LLMessageSystem::getS32(char const *,char const *,S32 &,S32) { }
@@ -136,4 +125,3 @@ namespace tut
         processor.processParcelInfoReply(gMessageSystem, NULL);
     }
 }
-#endif

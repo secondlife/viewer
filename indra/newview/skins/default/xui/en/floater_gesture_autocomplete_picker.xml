@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ name="gesture_autocomplete_picker"
+ title="CHOOSE GESTURE"
+ single_instance="true"
+ can_minimize="false"
+ can_tear_off="false"
+ can_resize="true"
+ auto_close="true"
+ layout="topleft"
+ min_width="250"
+ chrome="true"
+ sound_flags="0"
+ height="136"
+ width="340">
+   <floater.string
+    name="showing_count">
+       Showing [COUNT] of [TOTAL]
+   </floater.string>
+   <scroll_list
+    follows="all"
+    height="130"
+    width="336"
+    layout="topleft"
+    left="3"
+    top="3"
+    name="gesture_list"
+    draw_heading="false"
+    multi_select="false">
+       <scroll_list.columns
+        name="trigger"
+        label="Trigger"
+        width="128" />
+       <scroll_list.columns
+        name="name"
+        label="Gesture"
+        dynamic_width="true" />
+   </scroll_list>
+</floater>

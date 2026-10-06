@@ -86,8 +86,7 @@ inline bool operator!=(const LLVector3OverrideMap& a, const LLVector3OverrideMap
 //-----------------------------------------------------------------------------
 // class LLJoint
 //-----------------------------------------------------------------------------
-LL_ALIGN_PREFIX(16)
-class LLJoint
+class alignas(16) LLJoint
 {
     LL_ALIGN_NEW
 public:
@@ -118,7 +117,7 @@ public:
     };
 protected:
     // explicit transformation members
-    LL_ALIGN_16(LLMatrix4a          mWorldMatrix);
+    LLMatrix4a          mWorldMatrix;
     LLXformMatrix       mXform;
 
     std::string mName;
@@ -302,6 +301,6 @@ public:
     // These are used in checks of whether a pos/scale override is considered significant.
     bool aboveJointPosThreshold(const LLVector3& pos) const;
     bool aboveJointScaleThreshold(const LLVector3& scale) const;
-} LL_ALIGN_POSTFIX(16);
+};
 #endif // LL_LLJOINT_H
 

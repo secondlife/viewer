@@ -24,11 +24,11 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLINVENTORY_H
-#define LL_LLINVENTORY_H
+#pragma once
 
 #include "llfoldertype.h"
 #include "llinventorytype.h"
+#include "llinventorydefines.h"
 #include "llpermissions.h"
 #include "llrefcount.h"
 #include "llsaleinfo.h"
@@ -72,6 +72,7 @@ public:
     const LLUUID& getParentUUID() const;
     virtual const LLUUID& getThumbnailUUID() const;
     virtual bool getIsFavorite() const;
+    virtual const std::string& getRuntime() const;
     virtual const std::string& getName() const;
     virtual LLAssetType::EType getType() const;
     LLAssetType::EType getActualType() const; // bypasses indirection for linked items
@@ -88,6 +89,7 @@ public:
     void setParent(const LLUUID& new_parent);
     virtual void setThumbnailUUID(const LLUUID& thumbnail_uuid);
     virtual void setFavorite(bool favorite);
+    virtual void setRuntime(std::string_view runtime);
     void setType(LLAssetType::EType type);
     virtual void setCreationDate(time_t creation_date_utc); // only stored for items
 
@@ -114,6 +116,7 @@ protected:
     LLUUID mParentUUID; // Parent category.  Root categories have LLUUID::NULL.
     LLUUID mThumbnailUUID;
     bool mFavorite;
+    std::string mRuntime;
     LLAssetType::EType mType;
     std::string mName;
     time_t mCreationDate; // seconds from 1/1/1970, UTC
@@ -166,6 +169,7 @@ public:
     virtual const std::string& getActualDescription() const; // Does not follow links
     virtual const LLSaleInfo& getSaleInfo() const;
     virtual LLInventoryType::EType getInventoryType() const;
+    virtual U8 getInventorySubType() const { return getFlags() & LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK; }
     virtual U32 getFlags() const;
     virtual time_t getCreationDate() const;
     virtual U32 getCRC32() const; // really more of a checksum.
@@ -182,6 +186,7 @@ public:
     void setSaleInfo(const LLSaleInfo& sale_info);
     void setPermissions(const LLPermissions& perm);
     void setInventoryType(LLInventoryType::EType inv_type);
+    void setInventorySubType(U8 sub_type)  { setFlags((getFlags() & ~LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK) | (sub_type & LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK)); }
     void setFlags(U32 flags);
     void setCreator(const LLUUID& creator); // only used for calling cards
 
@@ -294,5 +299,3 @@ protected:
 LLSD ll_create_sd_from_inventory_item(LLPointer<LLInventoryItem> item);
 LLSD ll_create_sd_from_inventory_category(LLPointer<LLInventoryCategory> cat);
 LLPointer<LLInventoryCategory> ll_create_category_from_sd(const LLSD& sd_cat);
-
-#endif // LL_LLINVENTORY_H

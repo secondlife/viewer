@@ -184,8 +184,8 @@ protected:
 template <typename SIGNATURE, typename USERDATA=void*, typename CALLABLE=void(*)()>
 auto makeClassicCallback(CALLABLE&& callable)
 {
-    return std::move(ClassicCallback<SIGNATURE, USERDATA, CALLABLE>
-                     (std::forward<CALLABLE>(callable)));
+    return ClassicCallback<SIGNATURE, USERDATA, CALLABLE>
+                     (std::forward<CALLABLE>(callable));
 }
 
 /*****************************************************************************

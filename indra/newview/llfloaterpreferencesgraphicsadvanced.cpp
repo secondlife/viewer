@@ -81,7 +81,7 @@ bool LLFloaterPreferenceGraphicsAdvanced::postBuild()
         }
     }
 
-#if !LL_DARWIN
+#if !LL_DARWIN && !LL_SDL_WINDOW
     LLCheckBoxCtrl *use_HiDPI = getChild<LLCheckBoxCtrl>("use HiDPI");
     use_HiDPI->setVisible(false);
 #endif
@@ -158,7 +158,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refresh()
     updateSliderText(getChild<LLSliderCtrl>("AvatarPhysicsDetail",  true), getChild<LLTextBox>("AvatarPhysicsDetailText",       true));
     updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",    true), getChild<LLTextBox>("TerrainMeshDetailText",     true));
     updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",    true), getChild<LLTextBox>("PostProcessText",           true));
-    updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",        true), getChild<LLTextBox>("SkyMeshDetailText",         true));
+    updateSliderText(getChild<LLSliderCtrl>("GlowResolution",        true), getChild<LLTextBox>("GlowResolutionText",         true));
     LLAvatarComplexityControls::setIndirectControls();
     setMaxNonImpostorsText(
         gSavedSettings.getU32("RenderAvatarMaxNonImpostors"),
@@ -277,16 +277,11 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
     LLTextBox* shadows_text = getChild<LLTextBox>("RenderShadowDetailText");
     LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
     LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
-    LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
-    LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
     LLSliderCtrl* cas_slider = getChild<LLSliderCtrl>("RenderSharpness");
 
     // disabled windlight
     if (!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
     {
-        sky->setEnabled(false);
-        sky_text->setEnabled(false);
-
         //deferred needs windlight, disable deferred
         ctrl_shadows->setEnabled(false);
         ctrl_shadows->setValue(0);
@@ -340,16 +335,16 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
     tonemapMix->setEnabled(is_not_vintage);
     exposureSlider->setEnabled(is_not_vintage);
     cas_slider->setEnabled(is_not_vintage);
+
+    LLComboBox* ctrl_anisotropic = getChild<LLComboBox>("anisotropic_filter");
+    if (!LLFeatureManager::instance().isFeatureAvailable("RenderAnisotropicLevel"))
+    {
+        ctrl_anisotropic->setEnabled(false);
+    }
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 {
-    // WindLight
-    LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
-    LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
-    sky->setEnabled(true);
-    sky_text->setEnabled(true);
-
     bool enabled = true;
 
     LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
@@ -383,6 +378,20 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     }
 
     getChildView("antialiasing restart")->setVisible(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"));
+
+    LLComboBox* af_combo = getChild<LLComboBox>("anisotropic_filter");
+    if (2.f > gGLManager.mMaxAnisotropy) {
+        af_combo->remove("2x");
+    }
+    if (4.f > gGLManager.mMaxAnisotropy) {
+        af_combo->remove("4x");
+    }
+    if (8.f > gGLManager.mMaxAnisotropy) {
+        af_combo->remove("8x");
+    }
+    if (16.f > gGLManager.mMaxAnisotropy) {
+        af_combo->remove("16x");
+    }
 
     // now turn off any features that are unavailable
     disableUnavailableSettings();

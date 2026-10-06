@@ -794,10 +794,10 @@ void LLWorld::updateNetStats()
 
     S32 packets_in = gMessageSystem->mPacketsIn - mLastPacketsIn;
     S32 packets_out = gMessageSystem->mPacketsOut - mLastPacketsOut;
-    S32 packets_lost = gMessageSystem->mDroppedPackets - mLastPacketsLost;
+    S32 packets_lost = gMessageSystem->mLostPackets - mLastPacketsLost;
 
-    F64Bits actual_in_bits(gMessageSystem->mPacketRing.getAndResetActualInBits());
-    F64Bits actual_out_bits(gMessageSystem->mPacketRing.getAndResetActualOutBits());
+    F64Bits actual_in_bits(gMessageSystem->getAndResetActualInBits());
+    F64Bits actual_out_bits(gMessageSystem->getAndResetActualOutBits());
 
     add(LLStatViewer::MESSAGE_SYSTEM_DATA_IN, actual_in_bits);
     add(LLStatViewer::MESSAGE_SYSTEM_DATA_OUT, actual_out_bits);
@@ -806,16 +806,17 @@ void LLWorld::updateNetStats()
     add(LLStatViewer::PACKETS_OUT, packets_out);
     add(LLStatViewer::PACKETS_LOST, packets_lost);
 
-    F32 total_packets_in = (F32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
+    LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
+    F32 total_packets_in = (F32)recording.getSum(LLStatViewer::PACKETS_IN);
     if (total_packets_in > 0.f)
     {
-        F32 total_packets_lost = (F32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST);
+        F32 total_packets_lost = (F32)recording.getSum(LLStatViewer::PACKETS_LOST);
         sample(LLStatViewer::PACKETS_LOST_PERCENT, LLUnits::Ratio::fromValue((F32)total_packets_lost/(F32)total_packets_in));
     }
 
     mLastPacketsIn = gMessageSystem->mPacketsIn;
     mLastPacketsOut = gMessageSystem->mPacketsOut;
-    mLastPacketsLost = gMessageSystem->mDroppedPackets;
+    mLastPacketsLost = gMessageSystem->mLostPackets;
 }
 
 
@@ -838,7 +839,7 @@ void LLWorld::printPacketsLost()
                     << " packets lost: " << cdp->getPacketsLost() << LL_ENDL;
         }
     }
-    LL_INFOS() << "Packets dropped by Packet Ring: " << gMessageSystem->mPacketRing.getNumDroppedPackets() << LL_ENDL;
+    LL_INFOS() << "Packets dropped by Packet Ring: " << gMessageSystem->getTotalNumDroppedPackets() << LL_ENDL;
 }
 
 void LLWorld::processCoarseUpdate(LLMessageSystem* msg, void** user_data)

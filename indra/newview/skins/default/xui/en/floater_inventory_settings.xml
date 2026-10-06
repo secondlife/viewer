@@ -265,10 +265,10 @@
    layout="topleft"
    left_pad="12"
    top_delta="2"
-   name="single_folder_txt"
+   name="avatar_attachment_action"
    text_color="White"
-   width="300">
-   Pressing enter on an avatar attachment
+   width="380">
+   Pressing enter or double clicking on an avatar attachment
   </text>
   <combo_box
    control_name="InventoryAddAttachmentBehavior"

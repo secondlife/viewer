@@ -5537,9 +5537,6 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="Command_Grid_Status_Label">
 		Grid-Status
 	</string>
-	<string name="Command_HowTo_Label">
-		Infos
-	</string>
 	<string name="Command_Inventory_Label">
 		Inventar
 	</string>
@@ -5635,9 +5632,6 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="Command_Grid_Status_Tooltip">
 		Aktuellen Grid-Status anzeigen
-	</string>
-	<string name="Command_HowTo_Tooltip">
-		Wie führe ich gängige Aufgaben aus?
 	</string>
 	<string name="Command_Inventory_Tooltip">
 		Ihr Eigentum anzeigen und benutzen

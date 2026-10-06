@@ -547,14 +547,23 @@ const S32 LLAgentWearables::getWearableIdxFromItem(const LLViewerInventoryItem* 
     U32 wearable_count = getWearableCount(type);
     if (0 == wearable_count) return -1;
 
-    const LLUUID& asset_id = item->getAssetUUID();
-
+    // Match by linked inventory item id so the correct copy is found when several
+    // worn wearables of this type share the same asset.
+    const LLUUID item_id = gInventory.getLinkedItemID(item->getUUID());
     for (U32 i = 0; i < wearable_count; ++i)
     {
         const LLViewerWearable* wearable = getViewerWearable(type, i);
         if (!wearable) continue;
-        if (wearable->getAssetID() != asset_id) continue;
-        return i;
+        if (wearable->getItemID() == item_id) return i;
+    }
+
+    // Fall back to asset id for items whose inventory id can't be resolved.
+    const LLUUID& asset_id = item->getAssetUUID();
+    for (U32 i = 0; i < wearable_count; ++i)
+    {
+        const LLViewerWearable* wearable = getViewerWearable(type, i);
+        if (!wearable) continue;
+        if (wearable->getAssetID() == asset_id) return i;
     }
 
     return -1;
@@ -1527,6 +1536,37 @@ bool LLAgentWearables::moveWearable(const LLViewerInventoryItem* item, bool clos
     }
 
     return false;
+}
+
+bool LLAgentWearables::moveWearableToIndex(const LLViewerInventoryItem* item, U32 new_index)
+{
+    if (!item) return false;
+    if (!item->isWearableType()) return false;
+
+    LLWearableType::EType type = item->getWearableType();
+    U32 wearable_count = getWearableCount(type);
+    if (wearable_count < 2) return false;
+
+    if (new_index >= wearable_count) new_index = wearable_count - 1;
+
+    S32 cur = getWearableIdxFromItem(item);
+    if (cur < 0) return false;
+    if ((U32)cur == new_index) return true; // already in place
+
+    // step the wearable to its new slot one swap at a time
+    U32 pos = (U32)cur;
+    while (pos < new_index)
+    {
+        if (!swapWearables(type, pos, pos + 1)) return false;
+        ++pos;
+    }
+    while (pos > new_index)
+    {
+        if (!swapWearables(type, pos, pos - 1)) return false;
+        --pos;
+    }
+
+    return true;
 }
 
 // static

@@ -77,7 +77,11 @@ LLCDResult LLConvexDecomposition::quitThread()
 // static
 LLCDResult LLConvexDecomposition::quitSystem()
 {
+    if (!s_isInitialized)
+    {
+        return LLCD_OK;
+    }
+
+    s_isInitialized = false;
     return LLConvexDecompositionVHACD::quitSystem();
 }
-
-

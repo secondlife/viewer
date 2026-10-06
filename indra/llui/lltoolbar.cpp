@@ -792,6 +792,11 @@ void LLToolBar::updateLayoutAsNeeded()
     mNeedsLayout = false;
 }
 
+bool LLToolBar::postBuild()
+{
+    mCaretIcon = getChild<LLIconCtrl>("caret");
+    return LLUICtrl::postBuild();
+}
 
 void LLToolBar::draw()
 {
@@ -835,35 +840,36 @@ void LLToolBar::draw()
     LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
 
     // Position the caret
-    if (!mCaretIcon)
+    // Todo: This shouldn't be on draw, but, as example, on hover
+    if (mCaretIcon)
     {
-        mCaretIcon = getChild<LLIconCtrl>("caret");
-    }
-
-    LLIconCtrl* caret = mCaretIcon;
-    caret->setVisible(false);
-    if (mDragAndDropTarget && !mButtonCommands.empty())
-    {
-        LLRect caret_rect = caret->getRect();
-        if (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL)
+        mCaretIcon->setVisible(false);
+        if (mDragAndDropTarget && !mButtonCommands.empty())
         {
-            caret->setRect(LLRect(mDragx-caret_rect.getWidth()/2+1,
-                                  mDragy,
-                                  mDragx+caret_rect.getWidth()/2+1,
-                                  mDragy-mDragGirth));
+            LLRect caret_rect = mCaretIcon->getRect();
+            if (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL)
+            {
+                mCaretIcon->setRect(LLRect(mDragx - caret_rect.getWidth() / 2 + 1,
+                    mDragy,
+                    mDragx + caret_rect.getWidth() / 2 + 1,
+                    mDragy - mDragGirth));
+            }
+            else
+            {
+                mCaretIcon->setRect(LLRect(mDragx,
+                    mDragy + caret_rect.getHeight() / 2,
+                    mDragx + mDragGirth,
+                    mDragy - caret_rect.getHeight() / 2));
+            }
+            mCaretIcon->setVisible(true);
         }
-        else
-        {
-            caret->setRect(LLRect(mDragx,
-                                  mDragy+caret_rect.getHeight()/2,
-                                  mDragx+mDragGirth,
-                                  mDragy-caret_rect.getHeight()/2));
-        }
-        caret->setVisible(true);
     }
 
     LLUICtrl::draw();
-    caret->setVisible(false);
+    if (mCaretIcon)
+    {
+        mCaretIcon->setVisible(false);
+    }
     mDragAndDropTarget = false;
 }
 

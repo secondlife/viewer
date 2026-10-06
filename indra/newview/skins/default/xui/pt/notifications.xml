@@ -1108,7 +1108,6 @@ Cheque sua conexão e tente em alguns minutos, clique na Ajuda para acessar o [S
 		Seu personagem irá aparecer num momento.
 
 Use as teclas de seta para andar.
-Pressione a tecla F1 para ajuda ou aprender mais sobre [SECOND_LIFE].
 Por favor, escolha se o seu avatar é feminino ou masculino. Você pode mudar de idéia depois.
 		<usetemplate name="okcancelbuttons" notext="Feminino" yestext="Masculino"/>
 	</notification>

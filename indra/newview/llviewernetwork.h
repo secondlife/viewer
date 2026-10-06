@@ -57,13 +57,18 @@ protected:
  * This class maintains the currently selected grid, and provides short
  * form accessors for each of the properties of the selected grid.
  **/
-class LLGridManager : public LLSingleton<LLGridManager>
+class LLGridManager : public LLSimpleton<LLGridManager>
 {
+public:
     /// Instantiate the grid manager, load default grids, selects the default grid
-    LLSINGLETON(LLGridManager);
+    LLGridManager();
     ~LLGridManager();
 
-  public:
+    LLGridManager(const LLGridManager&) = delete;
+    LLGridManager(LLGridManager&&) = delete;
+    LLGridManager& operator=(const LLGridManager&) = delete;
+    LLGridManager& operator=(LLGridManager&&) = delete;
+
     /* ================================================================
      * @name Initialization and Configuration
      * @{

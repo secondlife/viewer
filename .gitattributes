@@ -24,6 +24,10 @@
 *.dll binary
 *.exe binary
 
+# Test Resources
+*.binary binary
+*.output binary
+
 # Files with Windows line endings
 VivoxAUP.txt text eol=crlf
 FILES_ARE_UNICODE_UTF-16LE.txt text eol=crlf
