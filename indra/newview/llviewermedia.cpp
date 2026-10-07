@@ -2147,7 +2147,8 @@ void LLViewerMediaImpl::createMediaSource()
         // Matches loadURI()'s legacy-plugin behavior: data: URIs need their payload
         // re-escaped (see LLURI::escapePathAndData()'s dedicated data: handling) to parse
         // correctly -- plain http(s) URLs pass through this unchanged either way.
-        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI, mEmbeddedBrowserBackend);
+        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI, mEmbeddedBrowserBackend,
+                                                                       gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"));
         // setPageZoomFactor() may have already updated mZoomFactor before this tab
         // existed (e.g. ensureMediaSourceExists()'s own call, which runs right before
         // this) -- apply whatever it currently is now that there's a real tab to send

@@ -13361,6 +13361,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>EmbeddedBrowserCefAudioCapture</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, every CEF-backed embedded-browser tab captures raw PCM audio via CefAudioHandler and delivers it to LLEmbeddedBrowser::popAudioPacket() instead of (or alongside, until something consumes it) CEF's own JS-injected volume workaround; CEF's own native audio output is muted for any tab using this path. Off by default -- new, not yet consumed by anything. Takes effect for tabs created after the change.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>EmbeddedBrowserRemoteDebuggingPort</key>
     <map>
       <key>Comment</key>

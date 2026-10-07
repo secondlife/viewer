@@ -295,6 +295,28 @@ namespace cefshm_demo
                                // meaningful when success is false; response is the JSON
                                // (or plain string) handed to the page's own onSuccess,
                                // or the error message handed to onFailure.
+
+        // producer -> consumer, per-view channel -- CEF-backed slots only, and only when
+        // that slot's own kRequestSlot payload set audioCapture (see
+        // EmbeddedBrowserCefAudioCapture in settings.xml). Raw PCM straight from CEF's
+        // CefAudioHandler, below the DOM/JS layer entirely -- see doc/Embedded_Browser.md
+        // for why (reaches cross-origin iframes and Web Audio/WASM players the existing
+        // JS-injected volume workaround can't). CEF mutes its own native audio output for
+        // any slot using this path (see llcefproducer.cpp) to avoid double playback.
+        kAudioStreamStarted = 43, // data = {uint32 sampleRate, uint32 framesPerBuffer,
+                                  // uint8 channels} -- one-shot, sent once per capture
+                                  // start (OnAudioStreamStarted may fire more than once
+                                  // per tab over its lifetime, e.g. after a navigation).
+        kAudioPacket = 44, // data = {int64 pts, uint32 frames, planar float32 PCM
+                           // (channels * frames * 4 bytes, channel-major -- all of
+                           // channel 0's samples then channel 1's, etc., matching CEF's
+                           // own const float** layout with zero repacking)} -- channel
+                           // count isn't repeated here, it's already known from the
+                           // preceding kAudioStreamStarted. High-frequency (one per CEF
+                           // audio buffer, commonly every ~10ms).
+        kAudioStreamStopped = 45, // empty payload -- one-shot. OnAudioStreamError is
+                                      // logged producer-side only and not forwarded here;
+                                      // the stream stopping is all a consumer needs to know.
     };
 
     // kKeyEvent's own type/modifier tags -- deliberately our own small enums, not CEF's
@@ -543,13 +565,14 @@ namespace cefshm_demo
 
     inline std::uint32_t pack_request_slot(std::uint8_t* d, bool isUI, std::uint32_t maxWidth,
                                             std::uint32_t maxHeight, std::uint8_t backend,
-                                            bool audioOnly)
+                                            bool audioOnly, bool audioCapture = false)
     {
         d[0] = isUI ? 1 : 0;
         std::uint32_t n = 1 + pack_u32(d + 1, maxWidth);
         n += pack_u32(d + n, maxHeight);
         d[n++] = backend;
         d[n++] = audioOnly ? 1 : 0;
+        d[n++] = audioCapture ? 1 : 0;
         return n;
     }
 
@@ -562,13 +585,17 @@ namespace cefshm_demo
     // payload shorter than 11 bytes, the same backward-compat shape as backend above --
     // every existing caller (every LLEmbeddedBrowserTab) is never audio-only, so this
     // never changes behavior for them even before they're rebuilt against this signature.
+    // audioCapture (a 12th byte, added for CEF raw-PCM audio capture -- see
+    // EmbeddedBrowserCefAudioCapture in settings.xml and doc/Embedded_Browser.md) defaults
+    // to false for any payload shorter than 12 bytes, the same backward-compat shape.
     inline bool unpack_request_slot(const std::uint8_t* d, std::size_t n, bool& isUI,
                                      std::uint32_t& maxWidth, std::uint32_t& maxHeight,
-                                     std::uint8_t& backend, bool& audioOnly)
+                                     std::uint8_t& backend, bool& audioOnly, bool& audioCapture)
     {
         isUI = (n == 0) || (d[0] != 0);
         backend = (n >= 10) ? d[9] : 0;
         audioOnly = (n >= 11) && (d[10] != 0);
+        audioCapture = (n >= 12) && (d[11] != 0);
         if (n < 9) return false;
         return unpack_u32(d + 1, n - 1, maxWidth) && unpack_u32(d + 5, n - 5, maxHeight);
     }
@@ -629,5 +656,55 @@ namespace cefshm_demo
         secure          = d[off + 1] != 0;
         alsoPrimContext = d[off + 2] != 0;
         return true;
+    }
+
+    // --- kAudioStreamStarted / kAudioPacket -- see their own enum comments above ---
+
+    inline std::uint32_t pack_audio_stream_started(std::uint8_t* d, std::uint32_t sampleRate,
+                                                     std::uint32_t framesPerBuffer, std::uint8_t channels)
+    {
+        std::uint32_t n = pack_u32(d, sampleRate);
+        n += pack_u32(d + n, framesPerBuffer);
+        d[n++] = channels;
+        return n;
+    }
+
+    inline bool unpack_audio_stream_started(const std::uint8_t* d, std::size_t n, std::uint32_t& sampleRate,
+                                             std::uint32_t& framesPerBuffer, std::uint8_t& channels)
+    {
+        if (n < 9) return false;
+        if (!unpack_u32(d, n, sampleRate)) return false;
+        if (!unpack_u32(d + 4, n - 4, framesPerBuffer)) return false;
+        channels = d[8];
+        return true;
+    }
+
+    // Writes directly from CEF's own const float** (one pointer per channel) with no
+    // interleave/repack step -- channel-major in the wire payload, matching CEF's own
+    // layout exactly (see kAudioPacket's own enum comment). Caller must size the
+    // destination buffer to at least 12 + channels*frames*4 bytes.
+    inline std::uint32_t pack_audio_packet(std::uint8_t* d, std::int64_t pts, std::uint32_t frames,
+                                            const float* const* channelData, std::uint8_t channels)
+    {
+        std::uint32_t n = pack_i64(d, pts);
+        n += pack_u32(d + n, frames);
+        for (std::uint8_t ch = 0; ch < channels; ++ch)
+        {
+            const std::size_t bytes = std::size_t(frames) * sizeof(float);
+            std::memcpy(d + n, channelData[ch], bytes);
+            n += std::uint32_t(bytes);
+        }
+        return n;
+    }
+
+    // Unpacks just the header (pts, frames) -- the planar float32 data itself starts at
+    // d+12 and is read directly by the caller, which already knows the channel count from
+    // the stream's own earlier kAudioStreamStarted (not re-sent per packet).
+    inline bool unpack_audio_packet_header(const std::uint8_t* d, std::size_t n, std::int64_t& pts,
+                                            std::uint32_t& frames)
+    {
+        if (n < 12) return false;
+        if (!unpack_i64(d, n, pts)) return false;
+        return unpack_u32(d + 8, n - 8, frames);
     }
 }

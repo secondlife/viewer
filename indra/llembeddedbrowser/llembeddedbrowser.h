@@ -29,6 +29,7 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cstdint>
 #include <deque>
 #include <map>
 #include <memory>
@@ -131,6 +132,22 @@ struct LLEmbeddedBrowserEvent
     bool mPersistent = false; // JSQuery only -- see its own comment above
 };
 
+// Raw PCM audio from a CEF-backed tab's CefAudioHandler capture (see
+// EmbeddedBrowserCefAudioCapture in settings.xml) -- delivered via its own dedicated
+// queue (LLEmbeddedBrowser::popAudioPacket), not folded into LLEmbeddedBrowserEvent
+// above, since it's binary payload data arriving far more often than any UI event.
+// This struct IS the handoff contract for whatever consumes these packets (e.g. an
+// OpenAL-backed playback path) -- mSamples is planar (channel-major: all of channel
+// 0's samples, then channel 1's, etc.), exactly mirroring CEF's own layout with zero
+// repacking anywhere in this pipeline.
+struct LLEmbeddedBrowserAudioPacket
+{
+    std::int64_t mPts = 0;          // presentation timestamp, ms since Unix epoch
+    unsigned int mFrames = 0;       // per-channel frame count (not a total sample count)
+    unsigned int mChannels = 0;
+    std::vector<float> mSamples;    // size == mChannels * mFrames, planar/channel-major
+};
+
 class LLEmbeddedBrowserUpdateThread :
     public LLThread {
     public:
@@ -176,7 +193,7 @@ class LLEmbeddedBrowserTab
         // Height), sent to the producer in kRequestSlot so it can size this slot's own
         // shared-memory segment to it instead of always reserving the producer's
         // absolute maximum -- see that opcode's own comment in cefshm_protocol.h.
-        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight);
+        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight, bool audioCapture = false);
         ~LLEmbeddedBrowserTab();
 
         // Stops this tab's own update thread, blocking until it has genuinely exited
@@ -311,6 +328,14 @@ class LLEmbeddedBrowserTab
         // both need to surface, not collapse into "latest state").
         bool popEvent(LLEmbeddedBrowserEvent& out_event);
 
+        // Same FIFO-drain shape as popEvent() above, for CEF audio-PCM capture (see
+        // EmbeddedBrowserCefAudioCapture in settings.xml) -- kept as its own separate
+        // queue/mutex (mAudioMutex, not mPixelMutex) since audio packets arrive far
+        // more often than UI events and shouldn't contend with the hot pixel-copy path.
+        // Always returns false for a tab that never requested audio capture (the queue
+        // simply stays empty).
+        bool popAudioPacket(LLEmbeddedBrowserAudioPacket& out_packet);
+
     private:
         // Best-effort: claims the cefshm_producer control channel, requests a view,
         // and stores the resulting per-view LLSubscriber in mSub plus sends the tab's
@@ -334,6 +359,11 @@ class LLEmbeddedBrowserTab
         // lifetime, since the producer fixes it at kRequestSlot time (see mIsUI, same
         // property). Read by connectToProducer() when packing that request.
         const LLEmbeddedBrowserBackend mBackend;
+        // Whether this tab requested CEF audio-PCM capture at slot-request time (see
+        // EmbeddedBrowserCefAudioCapture in settings.xml) -- false for every LibVlc-backed
+        // tab and for any Cef tab when the feature is off, which is the default. Const for
+        // the same reason as mBackend above.
+        const bool mAudioCapture;
         unsigned char* mPixels = nullptr;
         unsigned int mWidth = 0;
         unsigned int mHeight = 0;
@@ -373,6 +403,17 @@ class LLEmbeddedBrowserTab
         // mPixelMutex like mCanGoBack/mCanGoForward -- see isPlaying().
         bool mIsPlaying = true;
         std::deque<LLEmbeddedBrowserEvent> mEvents;
+
+        // See popAudioPacket()'s own comment on why this is a separate queue/mutex
+        // rather than reusing mEvents/mPixelMutex.
+        mutable LLMutex mAudioMutex;
+        std::deque<LLEmbeddedBrowserAudioPacket> mAudioPackets;
+        // Cached from the most recent kAudioStreamStarted so kAudioPacket's own unpack
+        // knows how many channels its planar data holds (not repeated per-packet on the
+        // wire -- see cefshm_protocol.h's own comment). Only ever touched from this
+        // tab's own update thread, never concurrently, so unlike mAudioPackets above it
+        // needs no lock of its own.
+        unsigned int mAudioChannels = 0;
 };
 
 class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
@@ -388,8 +429,12 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // LLEmbeddedBrowserTab's own constructor comment. backend selects the
         // producer-side implementation for this slot (see LLEmbeddedBrowserBackend); it
         // defaults to Cef so this stays a drop-in for any caller that doesn't care.
+        // audioCapture: requests CEF raw-PCM audio capture for this tab (see
+        // EmbeddedBrowserCefAudioCapture in settings.xml) -- ignored (treated as false) for
+        // any non-Cef backend. Defaults to false so existing callers are unaffected.
         unsigned int create(const std::string& url, unsigned int width, unsigned int height, bool isUI,
-                             LLEmbeddedBrowserBackend backend = LLEmbeddedBrowserBackend::Cef);
+                             LLEmbeddedBrowserBackend backend = LLEmbeddedBrowserBackend::Cef,
+                             bool audioCapture = false);
         void destroy(unsigned int id);
         void update(unsigned int id);
 
@@ -446,6 +491,12 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void respondToFileDialog(unsigned int id, long long dialogId, const std::vector<std::string>& filePaths);
         void respondToQuery(unsigned int id, long long queryId, bool success, const std::string& response, int errorCode = 0);
         bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
+
+        // See LLEmbeddedBrowserTab::popAudioPacket's own comment -- this is **the**
+        // integration point for CEF audio-PCM capture: whatever consumes these packets
+        // (e.g. an OpenAL-backed playback path) calls this once per frame per tab id,
+        // draining it in a loop the same way callers already drain popEvent() above.
+        bool popAudioPacket(unsigned int id, LLEmbeddedBrowserAudioPacket& out_packet);
 
         // Caps requested create() dimensions -- callers (e.g. newview, which knows about
         // EmbeddedBrowserMaxWidth/Height in settings.xml) should call this once before
