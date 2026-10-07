@@ -2197,12 +2197,22 @@ void LLViewerMediaImpl::createMediaSource()
         // Ask the producer to hand this tab's audio to us (see mEmbeddedBrowserAudio) only
         // if there's actually somewhere to play it -- no audio engine, or one that can't do
         // caller-fed streams, leaves the producer playing it itself exactly as before.
-        // CEF only for now: SLVlcProducer doesn't grant capture yet.
+        // CEF only for now: SLVlcProducer doesn't grant capture yet. Prim media is
+        // positioned in the world (see mEmbeddedBrowserAudioPositionGlobal); UI and parcel
+        // media have no position and stay stereo.
         static LLCachedControl<bool> audio_via_viewer(gSavedSettings, "EmbeddedBrowserAudioViaViewer");
         static LLCachedControl<U32> audio_prebuffer_ms(gSavedSettings, "EmbeddedBrowserAudioPrebufferMs");
-        if (audio_via_viewer() && gAudiop && mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef)
+        static LLCachedControl<bool> audio_test_tone(gSavedSettings, "EmbeddedBrowserProducerAudioTestTone");
+        const bool spatial = !mUsedInUI && !isParcelMedia();
+        // Development scaffolding, goes with the test tone itself: every captured tab plays
+        // one, and the always-present UI pages (search, destinations, ...) drown out the
+        // prim media whose positioning is actually being tested -- so under the test tone,
+        // only spatial media is captured; everything else keeps playing its real audio
+        // through the producer as before.
+        if (audio_via_viewer() && gAudiop && mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef &&
+            (spatial || !audio_test_tone()))
         {
-            mEmbeddedBrowserAudio = gAudiop->createStreamedSource(audio_prebuffer_ms());
+            mEmbeddedBrowserAudio = gAudiop->createStreamedSource(audio_prebuffer_ms(), spatial);
         }
 
         mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI,
@@ -2825,6 +2835,16 @@ void LLViewerMediaImpl::updateVolume()
                 const F32 gain = local_volume * LLViewerMedia::getInstance()->getVolumeExcludingMaster();
                 mEmbeddedBrowserAudio->setGain(gain);
 
+                // A no-op for a non-spatial (UI/parcel) stream.
+                if (mEmbeddedBrowserAudioHasPosition)
+                {
+                    mEmbeddedBrowserAudio->setPositionGlobal(mEmbeddedBrowserAudioPositionGlobal);
+                }
+                else
+                {
+                    mEmbeddedBrowserAudio->clearPosition();
+                }
+
                 // Still tell the producer when this tab should be silent, so silence never
                 // depends on it having actually stopped its own output -- and so it can stop
                 // rendering audio nobody will hear. Same dedupe as the CEF path below.
@@ -2845,6 +2865,8 @@ void LLViewerMediaImpl::updateVolume()
                         << " local_volume=" << local_volume
                         << " volume_excl_master=" << LLViewerMedia::getInstance()->getVolumeExcludingMaster()
                         << " gain=" << gain
+                        << " position=" << (mEmbeddedBrowserAudioHasPosition ? mEmbeddedBrowserAudioPositionGlobal : LLVector3d::zero)
+                        << (mEmbeddedBrowserAudioHasPosition ? "" : " (listener)")
                         << " al_gain=" << stats.mEngineGain
                         << " al_listener_gain=" << stats.mListenerGain
                         << " al_playing=" << (stats.mEnginePlaying ? "yes" : "no")
@@ -5179,6 +5201,7 @@ void LLViewerMediaImpl::calculateInterest()
     // Calculate distance from the avatar, for use in the proximity calculation.
     mProximityDistance = 0.0f;
     mProximityCamera = 0.0f;
+    mEmbeddedBrowserAudioHasPosition = false;
     if(!mObjectList.empty())
     {
         // Just use the first object in the list.  We could go through the list and find the closest object, but this should work well enough.
@@ -5209,6 +5232,9 @@ void LLViewerMediaImpl::calculateInterest()
             }
             LLVector3d camera_delta = ear_position - obj_global;
             mProximityCamera = camera_delta.magVec();
+
+            mEmbeddedBrowserAudioPositionGlobal = obj_global;
+            mEmbeddedBrowserAudioHasPosition = true;
         }
     }
 

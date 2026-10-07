@@ -82,6 +82,15 @@ public:
     // Main thread only. Linear, 0..1 -- on top of the engine's own master gain.
     virtual void setGain(F32 gain) = 0;
 
+    // Main thread only; ignored by a non-spatial source. Places the sound at a point in the
+    // world (same global frame as the listener), panned/HRTF'd by the engine but not
+    // distance-attenuated by it -- distance falloff stays the caller's job, via setGain().
+    virtual void setPositionGlobal(const LLVector3d& pos_global) = 0;
+    // Main thread only; ignored by a non-spatial source. Plays from the listener's own
+    // position: audible, but not directional -- for when there's no meaningful world
+    // position (e.g. a HUD attachment, or an object that isn't known yet).
+    virtual void clearPosition() = 0;
+
     struct Stats
     {
         U64 mUnderruns = 0;    // ran dry mid-stream
@@ -198,10 +207,12 @@ public:
     void setInternetStreamGain(F32 vol);
     std::string getInternetStreamURL();
 
-    // A new caller-fed PCM stream (see LLStreamedAudioSource), non-positional, starting
-    // playback once prebuffer_ms of audio has been pushed. Null if this engine can't do
-    // it -- callers should then leave audio to whatever was producing it instead.
-    virtual std::shared_ptr<LLStreamedAudioSource> createStreamedSource(U32 prebuffer_ms) { return nullptr; }
+    // A new caller-fed PCM stream (see LLStreamedAudioSource), starting playback once
+    // prebuffer_ms of audio has been pushed. spatial streams are mixed down to mono and
+    // positioned in the world (see setPositionGlobal()); non-spatial ones stay stereo and
+    // play straight to the listener. Null if this engine can't do it -- callers should then
+    // leave audio to whatever was producing it instead.
+    virtual std::shared_ptr<LLStreamedAudioSource> createStreamedSource(U32 prebuffer_ms, bool spatial) { return nullptr; }
 
     // For debugging usage
     virtual LLVector3 getListenerPos();
