@@ -3852,17 +3852,6 @@
       <key>Value</key>
       <string>https://lindenlab.com/privacy</string>
     </map>
-    <key>JoinFloaterTestSLapp</key>
-    <map>
-      <key>Comment</key>
-      <string>For testing only: Show links in the Join floater that trigger its close/join SLapps.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>JoinURL</key>
     <map>
       <key>Comment</key>

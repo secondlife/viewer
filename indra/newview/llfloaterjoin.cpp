@@ -147,11 +147,4 @@ void LLFloaterJoin::onOpen(const LLSD& key)
     {
         mWebBrowser->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
     }
-
-    static LLCachedControl<bool> show_test_slapp(gSavedSettings, "JoinFloaterTestSLapp");
-    getChild<LLUICtrl>("test_close_link")->setVisible(show_test_slapp);
-    getChild<LLUICtrl>("test_join_link")->setVisible(show_test_slapp);
-    getChild<LLUICtrl>("test_tos_link")->setVisible(show_test_slapp);
-    getChild<LLUICtrl>("test_tc_link")->setVisible(show_test_slapp);
-    getChild<LLUICtrl>("test_privacy_link")->setVisible(show_test_slapp);
 }
