@@ -238,14 +238,14 @@ static int warnif(std::string_view desc, const std::filesystem::path& filename, 
         // EEXIST. Don't log a warning if caller explicitly says this errno is okay.
         if (errn != suppress_warning)
         {
-            LL_WARNS("LLFile") << "Couldn't " << desc << " '" << filename << "' (errno " << errn << "): " << strerr(errn) << LL_ENDL;
+            LL_WARNS("LLFile") << "Couldn't " << desc << " '" << fsyspath(filename).string() << "' (errno " << errn << "): " << strerr(errn) << LL_ENDL;
         }
 #if PROCESS_LOCKING_CHECK
         // If the problem is "Permission denied," maybe it's because another
         // process has the file open. Try to find out.
         if (errn == EACCES) // *not* EPERM
         {
-            find_locking_process(filename);
+            find_locking_process(fsyspath(filename).string());
         }
 #endif
     }
@@ -267,13 +267,13 @@ static int warnif(std::string_view desc, const std::filesystem::path& filename, 
         // Don't warn if caller explicitly says this errno is okay.
         if (errn != suppress_warning)
         {
-            LL_WARNS("LLFile") << "Couldn't " << desc << " '" << filename << "' (errno " << errn << "): " << ec.message() << LL_ENDL;
+            LL_WARNS("LLFile") << "Couldn't " << desc << " '" << fsyspath(filename).string() << "' (errno " << errn << "): " << ec.message() << LL_ENDL;
         }
 #if PROCESS_LOCKING_CHECK
         // Try to detect locked files by other processes
         if (ec.value() == ERROR_SHARING_VIOLATION || ec.value() == ERROR_LOCK_VIOLATION)
         {
-            find_locking_process(filename);
+            find_locking_process(fsyspath(filename).string());
         }
 #endif
         return -1;
@@ -988,7 +988,7 @@ bool LLFile::copy(const std::filesystem::path& source_path, const std::filesyste
     bool copied = std::filesystem::copy_file(source_path, target_path, options, ec);
     if (!copied)
     {
-        warnif(STRINGIZE("copy failed, to '" << target_path << "' from"), source_path, ec);
+        warnif(STRINGIZE("copy failed, to '" << fsyspath(target_path).string() << "' from"), source_path, ec);
     }
     return copied;
 }
@@ -1044,11 +1044,10 @@ const std::string& LLFile::tmpdir()
     static std::string temppath;
     if (temppath.empty())
     {
+        temppath = fsyspath(std::filesystem::temp_directory_path()).string();
 #if LL_WINDOWS
-        temppath = ll_convert<std::string>(std::filesystem::temp_directory_path().native());
         char sep = '\\';
 #else
-        temppath = std::filesystem::temp_directory_path().string();
         char sep = '/';
 #endif
         if (temppath[temppath.size() - 1] != sep)
