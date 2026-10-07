@@ -644,8 +644,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("dxcompiler.dll")
                 self.path("dxil.dll")
                 self.path("libcef.dll")
-                self.path("libEGL.dll")
-                self.path("libGLESv2.dll")
                 self.path("v8_context_snapshot.bin")
                 self.path("vk_swiftshader.dll")
                 self.path("vk_swiftshader_icd.json")
@@ -1572,8 +1570,6 @@ class LinuxManifest(ViewerManifest):
 
             with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
                 self.path("libcef.so")
-                self.path("libEGL.so")
-                self.path("libGLESv2.so")
                 self.path("libvk_swiftshader.so")
                 self.path("libvulkan.so.1")
                 self.path("v8_context_snapshot.bin")
