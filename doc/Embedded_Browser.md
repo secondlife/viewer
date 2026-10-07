@@ -926,10 +926,14 @@ hands it over. Off by default (new settings.xml debug boolean,
 (`kAudioStreamStarted`/`kAudioPacket`/`kAudioStreamStopped` -
 `OnAudioStreamError` is logged producer-side only, not forwarded) over that
 tab's existing command channel, sized up from the default 4096 bytes to
-8192 specifically for an audio-capturing slot (a real packet is commonly
-~3.8KB: a 12-byte header plus 10ms of planar stereo float32 @ 48kHz) -
-validated against a real, not just arithmetic, throughput check
-(`llshmframe`'s own `test_audio_packet_throughput`, 0 drops over a real
+16384 specifically for an audio-capturing slot (a real packet, confirmed via
+a real captured `slcefproducer_log.txt`, is CEF's own well-known default of
+1024 frames/channel @ 44100Hz stereo: a 12-byte header plus 8192 bytes of
+planar float32 PCM = 8204 bytes -- an earlier guess of ~480 frames @ 48kHz
+had this at exactly 8192, 12 bytes too small, silently failing every single
+`send()` until caught by real producer-side logging during Callum's own
+end-to-end test) - validated against a real, not just arithmetic, throughput
+check (`llshmframe`'s own `test_audio_packet_throughput`, 0 drops over a real
 3-second run with realistic producer/consumer pacing and a simulated render
 hitch). The Viewer-side handoff point is `LLEmbeddedBrowser::popAudioPacket()`,
 mirroring `popEvent()`'s own FIFO-drain shape but kept on its own queue/mutex

@@ -144,14 +144,18 @@ constexpr auto kAllocateSlotRetryInterval = std::chrono::milliseconds(10);
 // truncating, so this must be generous rather than exact.
 constexpr std::uint32_t kMaxCommandBytes = 4096;
 
-// A real CEF audio packet (kAudioPacket's own 12-byte header + planar float32 PCM,
-// commonly ~3.8KB for a 10ms stereo @48kHz chunk) doesn't comfortably fit
-// kMaxCommandBytes above -- only audio-capturing slots pay for this larger ring
-// (see allocate_slot()); every other slot is unaffected. Validated against a real
-// 3-second run at this exact size/ring-depth combination with zero drops under
-// realistic producer/consumer pacing including a simulated render hitch -- see
-// llshmframe's own test_audio_packet_throughput().
-constexpr std::uint32_t kAudioCaptureMaxCommandBytes = 8192;
+// A real CEF audio packet (kAudioPacket's own 12-byte header + planar float32 PCM)
+// doesn't comfortably fit kMaxCommandBytes above -- only audio-capturing slots pay
+// for this larger ring (see allocate_slot()); every other slot is unaffected.
+// CEF's own real default buffer, confirmed via a real captured log (not guessed):
+// 1024 frames/channel @ 44100Hz stereo = 12 + 2*1024*4 = 8204 bytes -- a
+// well-known, long-standing CEF/Chromium default (not something likely to vary),
+// but an earlier guess of ~3.8KB (480 frames @ 48kHz) had this at exactly 8192,
+// 12 bytes too small, so every single packet silently failed send() until this
+// was caught via real producer-side logging. 16384 gives real headroom this
+// time. llshmframe's own test_audio_packet_throughput() uses this same real
+// packet size now, not the earlier guessed one.
+constexpr std::uint32_t kAudioCaptureMaxCommandBytes = 16384;
 
 struct Slot
 {
@@ -392,24 +396,44 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     // the Viewer's own OpenAL-backed consumption of these packets takes over.
     if (audioCapture)
     {
+        // TEMPORARY DIAGNOSTIC: confirms the request actually arrived with the flag set.
+        log_info("slot " + std::to_string(index) + ": audio capture requested, registering CefAudioHandler callbacks");
+
         manager.SetAudioMuted(handle, true);
 
-        manager.SetOnAudioStreamStartedCallback(handle, [slot](int sampleRate, int framesPerBuffer, int channels) {
+        manager.SetOnAudioStreamStartedCallback(handle, [slot, index](int sampleRate, int framesPerBuffer, int channels) {
+            // TEMPORARY DIAGNOSTIC: confirms CEF actually approved+started capture (i.e.
+            // GetAudioParameters returned true and real capture began).
+            log_info("slot " + std::to_string(index) + ": audio stream STARTED, sampleRate=" +
+                     std::to_string(sampleRate) + " framesPerBuffer=" + std::to_string(framesPerBuffer) +
+                     " channels=" + std::to_string(channels));
             if (slot->pub) {
                 std::uint8_t payload[9];
                 const std::uint32_t n = pack_audio_stream_started(payload, std::uint32_t(sampleRate),
                                                                    std::uint32_t(framesPerBuffer),
                                                                    std::uint8_t(channels));
-                slot->pub->send(kAudioStreamStarted, payload, n);
+                if (!slot->pub->send(kAudioStreamStarted, payload, n)) {
+                    log_error("slot " + std::to_string(index) + ": kAudioStreamStarted send FAILED");
+                }
             }
         });
-        manager.SetOnAudioStreamPacketCallback(handle, [slot](const float* const* data, int frames,
+        manager.SetOnAudioStreamPacketCallback(handle, [slot, index](const float* const* data, int frames,
                                                                std::int64_t pts, int channels) {
+            // TEMPORARY DIAGNOSTIC: logs only the first packet (this fires at ~100Hz,
+            // logging every one would flood the console/file) plus every 500th after
+            // that, so a long-running stream still shows periodic proof of life.
+            static thread_local long long packet_count = 0;
             if (slot->pub) {
                 std::vector<std::uint8_t> payload(12 + std::size_t(channels) * std::size_t(frames) * 4);
                 const std::uint32_t n = pack_audio_packet(payload.data(), pts, std::uint32_t(frames),
                                                            data, std::uint8_t(channels));
-                slot->pub->send(kAudioPacket, payload.data(), n);
+                const bool sent = slot->pub->send(kAudioPacket, payload.data(), n);
+                ++packet_count;
+                if (packet_count == 1 || packet_count % 500 == 0) {
+                    log_info("slot " + std::to_string(index) + ": audio packet #" + std::to_string(packet_count) +
+                             " frames=" + std::to_string(frames) + " channels=" + std::to_string(channels) +
+                             " sent=" + (sent ? "yes" : "NO (send failed)"));
+                }
             }
         });
         manager.SetOnAudioStreamStoppedCallback(handle, [slot]() {
