@@ -189,12 +189,13 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     }
 
     std::uint64_t req_id = 0;
-    std::uint8_t request_payload[11];
+    std::uint8_t request_payload[kRequestSlotBytes];
     // audioOnly is always false here -- a browser tab always has a visual surface (a
     // floater or prim face); only LLStreamingAudio_LibVLC's own parcel-audio IPC client
     // (llstreamingaudio_libvlc.cpp) ever requests an audio-only slot.
     const std::uint32_t request_len = pack_request_slot(request_payload, mIsUI, mMaxWidth, mMaxHeight,
-                                                          static_cast<std::uint8_t>(mBackend), false);
+                                                          static_cast<std::uint8_t>(mBackend), false,
+                                                          /*audioCapture*/ false);
     if (!ctrl->send(kRequestSlot, request_payload, request_len, 0, &req_id))
     {
         return false;

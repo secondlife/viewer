@@ -62,6 +62,20 @@ namespace cefshm_demo
     inline constexpr char          kChannelPrefix[] = "llvlcshm_view_";
     inline constexpr char          kControlChannelName[] = "llvlcshm_control";
 
+    // Per-slot audio channel -- see indra/llcefproducer/cefshm_protocol.h's own longer
+    // comment on kAudioChannelPrefix; identical meaning here, distinctly named for the
+    // same reason as kChannelPrefix above.
+    inline constexpr char          kAudioChannelPrefix[]   = "llvlcshm_audio_";
+    inline constexpr std::uint32_t kAudioCommandSlots      = 64;   // x 10ms packets = 640ms of slack
+    inline constexpr std::uint32_t kAudioMaxCommandBytes   = 8192;
+    inline constexpr std::uint32_t kAudioPacketHeaderBytes = 20;
+    inline constexpr std::uint8_t  kAudioSampleFormatF32   = 0;    // kAudioPacket's sampleFormat byte
+
+    // kSlotAssigned's flags byte.
+    inline constexpr std::uint8_t  kSlotFlagAudioCapture   = 1u << 0;
+
+    inline constexpr std::size_t   kRequestSlotBytes       = 12;
+
     inline constexpr std::uint32_t kDefaultWidth  = 960;
     inline constexpr std::uint32_t kDefaultHeight = 540;
 
@@ -122,6 +136,10 @@ namespace cefshm_demo
                           // LibVlcTabManager::CreateTab()'s video pipeline entirely in favor of
                           // CreateAudioTrack(), and the resulting slot never publishes a frame (same
                           // 1x1-geometry, frame-less pattern the control channel itself already uses).
+                          // audioCapture (a 12th byte) asks for this slot's audio as PCM over its
+                          // audio channel instead of libvlc playing it directly -- see
+                          // indra/llcefproducer/cefshm_protocol.h. Not yet honoured here: this
+                          // producer always replies with kSlotAssigned flags 0 for now.
         kSetOpenIDCookie = 26, // CEF only -- LibVLC has no cookie-store concept at all. Never sent
                           // here; kept in the enum only so it stays word-for-word identical to
                           // every other copy of this header.
@@ -129,7 +147,8 @@ namespace cefshm_demo
                           // its own graceful shutdown instead of being killed outright.
 
         // producer -> consumer, control channel only; reply_to = request id
-        kSlotAssigned    = 6, // data = {uint32 slot index}
+        kSlotAssigned    = 6, // data = {uint32 slot index, uint8 flags} -- flags is kSlotFlag* bits;
+                          // a 4-byte payload means 0. See indra/llcefproducer/cefshm_protocol.h.
         kSlotUnavailable = 7, // empty payload -- no free slot right now
 
         // producer -> consumer, per-view channel
@@ -169,6 +188,11 @@ namespace cefshm_demo
         // CEF-only (JS bridge) -- no LibVLC equivalent at all; never sent or handled here.
         kEventJSQuery = 41,
         kRespondToQuery = 42,
+
+        // producer -> consumer, audio channel only -- see indra/llcefproducer/cefshm_protocol.h's
+        // own longer comment on both.
+        kAudioPacket = 43, // data = pack_audio_packet(...)
+        kAudioStreamStopped = 44, // empty payload
     };
 
     inline std::uint32_t pack_u32(std::uint8_t* d, std::uint32_t v)
@@ -224,13 +248,45 @@ namespace cefshm_demo
     // only receives one.
     inline bool unpack_request_slot(const std::uint8_t* d, std::size_t n, bool& isUI,
                                      std::uint32_t& maxWidth, std::uint32_t& maxHeight,
-                                     std::uint8_t& backend, bool& audioOnly)
+                                     std::uint8_t& backend, bool& audioOnly, bool& audioCapture)
     {
         isUI = (n == 0) || (d[0] != 0);
         backend = (n >= 10) ? d[9] : 0;
         audioOnly = (n >= 11) && (d[10] != 0);
+        audioCapture = (n >= 12) && (d[11] != 0);
         if (n < 9) return false;
         return unpack_u32(d + 1, n - 1, maxWidth) && unpack_u32(d + 5, n - 5, maxHeight);
+    }
+
+    // Only the pack halves of the slot-assigned/audio helpers are needed here -- this
+    // producer only ever sends them. See indra/llcefproducer/cefshm_protocol.h.
+    inline std::uint32_t pack_slot_assigned(std::uint8_t* d, std::uint32_t index, std::uint8_t flags)
+    {
+        std::uint32_t n = pack_u32(d, index);
+        d[n++] = flags;
+        return n;
+    }
+
+    inline std::uint32_t pack_i64(std::uint8_t* d, std::int64_t v)
+    {
+        for (int i = 0; i < 8; ++i) d[i] = std::uint8_t(std::uint64_t(v) >> (8 * i));
+        return 8;
+    }
+
+    inline std::uint32_t pack_audio_packet(std::uint8_t* d, std::uint32_t seq, std::int64_t ptsUs,
+                                            std::uint32_t sampleRate, std::uint8_t channels,
+                                            std::uint16_t frames, const float* samples)
+    {
+        std::uint32_t n = pack_u32(d, seq);
+        n += pack_i64(d + n, ptsUs);
+        n += pack_u32(d + n, sampleRate);
+        d[n++] = channels;
+        d[n++] = kAudioSampleFormatF32;
+        d[n++] = std::uint8_t(frames);
+        d[n++] = std::uint8_t(frames >> 8);
+        const std::size_t sample_bytes = std::size_t(frames) * channels * sizeof(float);
+        std::memcpy(d + n, samples, sample_bytes);
+        return n + std::uint32_t(sample_bytes);
     }
 
     inline std::uint32_t pack_render_rate(std::uint8_t* d, std::uint32_t targetFps, std::uint8_t priorityTier,

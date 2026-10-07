@@ -72,6 +72,28 @@ namespace cefshm_demo
     // served by the separate SLVlcProducer process.
     inline constexpr char kControlChannelName[] = "llcefshm_control";
 
+    // Per-slot audio channel: llcefshm_audio_<slot index>, a separate llshmframe segment
+    // from that slot's own per-view channel, created only when the consumer asked for
+    // audio capture in kRequestSlot and the producer granted it in kSlotAssigned (see
+    // kSlotFlagAudioCapture). Frame-less (1x1 geometry, same as the control channel) --
+    // audio rides its command ring only, which unlike the frame triple-buffer is ordered
+    // and lossless. Deliberately not the per-view channel's own ring: at 100 packets/sec a
+    // briefly-stalled consumer would fill it and starve kEvent* traffic of space.
+    inline constexpr char          kAudioChannelPrefix[]   = "llcefshm_audio_";
+    inline constexpr std::uint32_t kAudioCommandSlots      = 64;   // x 10ms packets = 640ms of slack
+    // A 10ms 48kHz stereo float32 packet is 3840 sample bytes plus the header -- doubled
+    // for headroom, since send() fails outright rather than truncating an oversized one.
+    inline constexpr std::uint32_t kAudioMaxCommandBytes   = 8192;
+    inline constexpr std::uint32_t kAudioPacketHeaderBytes = 20;
+    inline constexpr std::uint8_t  kAudioSampleFormatF32   = 0;    // kAudioPacket's sampleFormat byte
+
+    // kSlotAssigned's flags byte.
+    inline constexpr std::uint8_t  kSlotFlagAudioCapture   = 1u << 0;
+
+    // kRequestSlot's full payload size -- size request buffers with this, not a literal,
+    // so appending another trailing byte can't silently overflow a caller's buffer.
+    inline constexpr std::size_t   kRequestSlotBytes       = 12;
+
     enum Opcode : std::uint32_t
     {
         // consumer -> producer, per-view channel
@@ -173,7 +195,11 @@ namespace cefshm_demo
                           // (an 11th byte) selects SLVlcProducer's frame-less audio-track path for
                           // parcel/streaming-music audio (see llstreamingaudio_libvlc.cpp) -- CEF
                           // has no equivalent concept, so this producer unpacks and ignores it, the
-                          // same way it already ignores backend.
+                          // same way it already ignores backend. audioCapture (a 12th byte) asks the
+                          // producer to deliver this slot's audio as PCM over its audio channel (see
+                          // kAudioChannelPrefix/kAudioPacket) for the consumer to play itself, rather
+                          // than playing it directly -- only actually in effect if kSlotAssigned's
+                          // reply says so (see kSlotFlagAudioCapture), since the producer may decline.
         kSetOpenIDCookie = 26, // data = {5x (uint32 len, bytes): url, name, value, domain, path;
                           // uint8 httpOnly; uint8 secure; uint8 alsoPrimContext} -- straight
                           // into llCefBrowserManager::SetCookie(), which always targets the UI
@@ -192,7 +218,9 @@ namespace cefshm_demo
                           // if the producer doesn't exit on its own within a short grace period.
 
         // producer -> consumer, control channel only; reply_to = request id
-        kSlotAssigned    = 6, // data = {uint32 slot index}
+        kSlotAssigned    = 6, // data = {uint32 slot index, uint8 flags} -- flags is kSlotFlag* bits. A
+                          // 4-byte payload (a producer predating flags) means 0: no audio capture,
+                          // so the consumer keeps relying on the producer playing audio itself.
         kSlotUnavailable = 7, // empty payload -- no free slot right now
 
         // producer -> consumer, per-view channel -- mirrors a subset of
@@ -305,6 +333,18 @@ namespace cefshm_demo
                                // meaningful when success is false; response is the JSON
                                // (or plain string) handed to the page's own onSuccess,
                                // or the error message handed to onFailure.
+
+        // producer -> consumer, audio channel only (see kAudioChannelPrefix) -- sent by both
+        // producers, for any slot whose kSlotAssigned reply set kSlotFlagAudioCapture.
+        kAudioPacket = 43, // data = pack_audio_packet(...): {uint32 seq, int64 ptsUs, uint32 sampleRate,
+                           // uint8 channels, uint8 sampleFormat, uint16 frames, samples (remainder)} --
+                           // samples are interleaved little-endian float32 (kAudioSampleFormatF32).
+                           // Self-describing per packet, so a reconnecting consumer never needs a
+                           // separate format handshake. seq advances by one per packet generated,
+                           // including any dropped on a full ring, so a gap means lost audio.
+        kAudioStreamStopped = 44, // empty payload -- the source stopped producing audio (page went
+                           // quiet, media paused/ended): play out what's buffered, then go idle
+                           // rather than treating the silence that follows as an underrun.
     };
 
     // kKeyEvent's own type/modifier tags -- deliberately our own small enums, not CEF's
@@ -679,16 +719,78 @@ namespace cefshm_demo
     // defaults to 0 (Cef) for any payload shorter than 10 bytes, for the same reason --
     // assigned before the n<9 early return, so that fallback still leaves it initialized.
     // audioOnly (an 11th byte) defaults to false the same way and is unused here -- CEF has
-    // no audio-only-slot concept, see kRequestSlot's own comment above.
+    // no audio-only-slot concept, see kRequestSlot's own comment above. audioCapture (a 12th
+    // byte) defaults to false the same way too, so an older consumer keeps CEF playing its
+    // own audio.
     inline bool unpack_request_slot(const std::uint8_t* d, std::size_t n, bool& isUI,
                                      std::uint32_t& maxWidth, std::uint32_t& maxHeight,
-                                     std::uint8_t& backend, bool& audioOnly)
+                                     std::uint8_t& backend, bool& audioOnly, bool& audioCapture)
     {
         isUI = (n == 0) || (d[0] != 0);
         backend = (n >= 10) ? d[9] : 0;
         audioOnly = (n >= 11) && (d[10] != 0);
+        audioCapture = (n >= 12) && (d[11] != 0);
         if (n < 9) return false;
         return unpack_u32(d + 1, n - 1, maxWidth) && unpack_u32(d + 5, n - 5, maxHeight);
+    }
+
+    inline std::uint32_t pack_slot_assigned(std::uint8_t* d, std::uint32_t index, std::uint8_t flags)
+    {
+        std::uint32_t n = pack_u32(d, index);
+        d[n++] = flags;
+        return n;
+    }
+
+    // flags defaults to 0 for a producer predating it (a bare 4-byte payload).
+    inline bool unpack_slot_assigned(const std::uint8_t* d, std::size_t n, std::uint32_t& index,
+                                      std::uint8_t& flags)
+    {
+        flags = (n >= 5) ? d[4] : 0;
+        return unpack_u32(d, n, index);
+    }
+
+    // d must hold kAudioPacketHeaderBytes + frames * channels * sizeof(float). samples is
+    // interleaved float32, copied as raw bytes -- every platform this ships on is
+    // little-endian, matching the wire format.
+    inline std::uint32_t pack_audio_packet(std::uint8_t* d, std::uint32_t seq, std::int64_t ptsUs,
+                                            std::uint32_t sampleRate, std::uint8_t channels,
+                                            std::uint16_t frames, const float* samples)
+    {
+        std::uint32_t n = pack_u32(d, seq);
+        n += pack_i64(d + n, ptsUs);
+        n += pack_u32(d + n, sampleRate);
+        d[n++] = channels;
+        d[n++] = kAudioSampleFormatF32;
+        d[n++] = std::uint8_t(frames);
+        d[n++] = std::uint8_t(frames >> 8);
+        const std::size_t sample_bytes = std::size_t(frames) * channels * sizeof(float);
+        std::memcpy(d + n, samples, sample_bytes);
+        return n + std::uint32_t(sample_bytes);
+    }
+
+    // samples points into d (not necessarily float-aligned) -- memcpy out of it rather than
+    // casting. False for a truncated packet, an unknown sampleFormat, or a sample payload
+    // whose size doesn't match frames * channels exactly.
+    inline bool unpack_audio_packet(const std::uint8_t* d, std::size_t n, std::uint32_t& seq,
+                                     std::int64_t& ptsUs, std::uint32_t& sampleRate,
+                                     std::uint8_t& channels, std::uint16_t& frames,
+                                     const std::uint8_t*& samples)
+    {
+        if (n < kAudioPacketHeaderBytes || !unpack_u32(d, n, seq) || !unpack_i64(d + 4, n - 4, ptsUs) ||
+            !unpack_u32(d + 12, n - 12, sampleRate))
+        {
+            return false;
+        }
+        channels = d[16];
+        const std::uint8_t sample_format = d[17];
+        frames = std::uint16_t(d[18] | (std::uint16_t(d[19]) << 8));
+        if (channels == 0 || sample_format != kAudioSampleFormatF32 ||
+            n - kAudioPacketHeaderBytes != std::size_t(frames) * channels * sizeof(float))
+        {
+            return false;
+        }
+        samples = d + kAudioPacketHeaderBytes;
+        return true;
     }
 
     inline std::uint32_t pack_render_rate(std::uint8_t* d, std::uint32_t targetFps, std::uint8_t priorityTier,

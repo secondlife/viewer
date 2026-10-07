@@ -514,8 +514,9 @@ int run_producer(int argc, char** argv)
             std::uint32_t requested_max_height = kMaxHeight;
             std::uint8_t backend_byte = 0;
             bool audio_only = false;
+            bool audio_capture = false; // not yet honoured -- kSlotAssigned below always replies flags 0
             unpack_request_slot(cmd.data.data(), cmd.data.size(), isUI, requested_max_width,
-                                 requested_max_height, backend_byte, audio_only);
+                                 requested_max_height, backend_byte, audio_only, audio_capture);
             // An audio-only request's max_width/max_height are irrelevant -- allocate_slot()
             // always overrides them to 1x1 for that case -- so skip the clamp entirely rather
             // than clamping numbers that are about to be thrown away anyway.
