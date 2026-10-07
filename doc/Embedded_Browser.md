@@ -88,16 +88,18 @@ crash in one never affects the other.
 
 ## CEF version used
 
-The Viewer currently runs CEF `152.0.6+g708dc14+chromium-152.0.7977.83`,
+The Viewer currently runs CEF `154.0.34+g14c5a08+chromium-154.0.8037.98`,
 built internally (not from the public Spotify Automated Builds project)
 with media codec support enabled, so formats like H.264 video play without
 the "codec not found" errors a stock CEF build would show on sites like
 Twitch. It is uploaded once to Second Life's own S3 build bucket since
 building it takes too long and too many resources to run in GitHub Actions
-CI (typically a couple of days). This particular bump (from 151.3.24) was a
-security update, picking up an upstream CEF fix for a vulnerability
-disclosed in earlier versions -- otherwise a routine version-only change,
-no structural work needed on top of the 151 update below.
+CI (typically a couple of days). This bump (from 152.0.6) confirmed drop-in
+against `llcefbrowser`'s own source with no code changes needed, but did
+surface one real packaging fix: CEF 154 no longer bundles `libEGL.so`/
+`libGLESv2.so` for Linux, and `build-cmd.sh`'s own hardcoded copy of CEF's
+binary-file manifest hadn't been updated to match, breaking the Linux leg
+of the first release attempt (`v1.50.0`) until fixed in `v1.50.1`.
 
 As of the 151 update, `llcefbrowser` no longer shares this package with
 `secondlife/dullahan` (the legacy plugin's own CEF wrapper) the way it used
