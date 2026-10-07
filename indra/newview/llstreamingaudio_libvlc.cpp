@@ -234,13 +234,14 @@ void LLStreamingAudio_LibVLC::update()
             return; // racing another claimant -- try again next tick
         }
 
-        std::uint8_t payload[11];
+        std::uint8_t payload[kRequestSlotBytes];
         // isUI/maxWidth/maxHeight are irrelevant here -- SLVlcProducer overrides an
         // audio-only slot's geometry to 1x1 regardless of what's requested (see
         // llvlcproducer.cpp's own kRequestSlot handler), and isUI has no meaning
         // outside CEF's two cookie-store contexts.
         const std::uint32_t len = pack_request_slot(payload, /*isUI*/ true, 1, 1,
-            static_cast<std::uint8_t>(LLEmbeddedBrowserBackend::LibVlc), /*audioOnly*/ true);
+            static_cast<std::uint8_t>(LLEmbeddedBrowserBackend::LibVlc), /*audioOnly*/ true,
+            /*audioCapture*/ false);
         if (!mCtrl->send(kRequestSlot, payload, len, 0, &mPendingReqId))
         {
             return; // transient (outbound ring full) -- retry next tick

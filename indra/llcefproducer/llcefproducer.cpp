@@ -53,6 +53,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
@@ -82,6 +83,13 @@ namespace {
 
 volatile std::sig_atomic_t g_run = 1;
 void on_signal(int) { g_run = 0; }
+
+// --audio-test-tone: grant audio capture (see kSlotFlagAudioCapture) to any slot that asks
+// for it, and fill its audio channel with a generated stereo tone instead of real CEF
+// audio. Scaffolding for bringing up the Viewer's OpenAL playback path ahead of
+// llCefBrowser's own audio-capture interface -- off by default, so until that interface is
+// wired in, capture is always declined and CEF keeps playing its own audio as before.
+bool g_audio_test_tone = false;
 
 // Set once a console is actually attached (see show_debug_console()) --
 // gates whether log_*() below emit ANSI color codes at all, so output
@@ -144,6 +152,18 @@ constexpr auto kAllocateSlotRetryInterval = std::chrono::milliseconds(10);
 // truncating, so this must be generous rather than exact.
 constexpr std::uint32_t kMaxCommandBytes = 4096;
 
+// The audio format every kAudioPacket from this producer carries -- 10ms packets of 48kHz
+// stereo float32, matching what the Viewer's OpenAL path is tuned for. The format is
+// self-describing on the wire (see kAudioPacket), so this is a producer-side choice, not a
+// protocol constant.
+constexpr std::uint32_t kAudioSampleRate      = 48000;
+constexpr std::uint8_t  kAudioChannels        = 2;
+constexpr std::uint16_t kAudioFramesPerPacket = 480;
+
+// If the main loop stalls for longer than this, the test tone skips ahead (leaving a gap
+// in seq) rather than bursting the whole backlog into the audio ring at once.
+constexpr std::uint64_t kAudioMaxCatchUpFrames = std::uint64_t(kAudioFramesPerPacket) * 10;
+
 struct Slot
 {
     std::unique_ptr<LLPublisher> pub; // null <=> this index is free
@@ -175,6 +195,18 @@ struct Slot
     // always finds itself due rather than waiting a full interval first.
     std::uint32_t                 target_fps = 0;
     std::chrono::steady_clock::time_point last_begin_frame;
+
+    // This slot's audio channel (see kAudioChannelPrefix) -- null unless the consumer asked
+    // for audio capture and this producer granted it. Only ever sent on from the main loop,
+    // which keeps its command ring single-writer as llshmframe requires.
+    std::unique_ptr<LLPublisher> audioPub;
+    std::vector<std::uint8_t>    audioBuf;      // one packed kAudioPacket, reused across sends
+    std::vector<float>           audioSamples;  // interleaved, reused across sends
+    std::uint32_t                audio_seq = 0;
+    std::uint64_t                audio_frames = 0;  // frames generated since audio_start
+    std::uint64_t                audio_dropped = 0; // packets lost to a full ring or a stall
+    bool                         audio_streaming = false;
+    std::chrono::steady_clock::time_point audio_start;
 };
 
 // How many slots are currently allocated (pub != null), out of the fixed
@@ -247,9 +279,86 @@ private:
 // Spins up this slot's real instance: a CEF browser plus its llshmframe
 // segment. Leaves s untouched on failure, cleaning up whichever half of the
 // pair already succeeded.
+// Creates this slot's audio channel (see kAudioChannelPrefix). Returns null on failure --
+// the caller then just declines audio capture for this slot rather than failing it outright.
+std::unique_ptr<LLPublisher> create_audio_publisher(int index)
+{
+    LLConfig cfg;
+    cfg.name              = kAudioChannelPrefix + std::to_string(index);
+    cfg.max_width         = 1; // never publishes a frame, only exchanges commands
+    cfg.max_height        = 1;
+    cfg.command_slots     = kAudioCommandSlots;
+    cfg.max_command_bytes = kAudioMaxCommandBytes;
+
+    LLStatus st{};
+    auto pub = LLPublisher::create(cfg, &st);
+    if (!pub) {
+        log_error("slot " + std::to_string(index) + " (" + cfg.name + "): " + to_string(st) +
+                  " -- declining audio capture");
+    }
+    return pub;
+}
+
+// Test-tone source for --audio-test-tone (see g_audio_test_tone). Called once per main-loop
+// tick: paced against the wall clock from the moment a subscriber attaches, sending however
+// many whole 10ms packets have come due since the last call. A distinct pitch per slot (and
+// a fifth higher on the right channel) makes several concurrent slots, and a swapped
+// left/right, easy to tell apart by ear.
+void pump_test_tone(Slot& s, int index, std::chrono::steady_clock::time_point now)
+{
+    s.audioPub->heartbeat(); // never commits a frame, so this is its only liveness signal
+
+    if (!s.audioPub->has_subscriber()) {
+        s.audio_streaming = false; // restart the clock cleanly when someone attaches again
+        return;
+    }
+    if (!s.audio_streaming) {
+        s.audio_streaming = true;
+        s.audio_start     = now;
+        s.audio_frames    = 0;
+    }
+
+    const std::uint64_t elapsed_us = std::uint64_t(
+        std::chrono::duration_cast<std::chrono::microseconds>(now - s.audio_start).count());
+    const std::uint64_t due_frames = elapsed_us * kAudioSampleRate / 1000000;
+
+    if (due_frames > s.audio_frames + kAudioMaxCatchUpFrames) {
+        const std::uint64_t skipped = (due_frames - s.audio_frames) / kAudioFramesPerPacket;
+        s.audio_frames  += skipped * kAudioFramesPerPacket;
+        s.audio_seq     += std::uint32_t(skipped);
+        s.audio_dropped += skipped;
+    }
+
+    // Integral frequencies, so phase repeats exactly every kAudioSampleRate frames and
+    // (frame % kAudioSampleRate) keeps the sin() argument small however long this runs.
+    const int left_hz  = 440 + 110 * (index % 4);
+    const int right_hz = left_hz * 3 / 2;
+    constexpr double kTwoPi     = 6.283185307179586;
+    constexpr float  kAmplitude = 0.2f;
+
+    s.audioSamples.resize(std::size_t(kAudioFramesPerPacket) * kAudioChannels);
+    s.audioBuf.resize(kAudioPacketHeaderBytes + s.audioSamples.size() * sizeof(float));
+
+    while (s.audio_frames + kAudioFramesPerPacket <= due_frames) {
+        for (std::uint32_t f = 0; f < kAudioFramesPerPacket; ++f) {
+            const double t = double((s.audio_frames + f) % kAudioSampleRate) / kAudioSampleRate;
+            s.audioSamples[f * 2 + 0] = kAmplitude * float(std::sin(kTwoPi * left_hz * t));
+            s.audioSamples[f * 2 + 1] = kAmplitude * float(std::sin(kTwoPi * right_hz * t));
+        }
+        const std::int64_t pts_us = std::int64_t(s.audio_frames * 1000000 / kAudioSampleRate);
+        const std::uint32_t n = pack_audio_packet(s.audioBuf.data(), s.audio_seq, pts_us, kAudioSampleRate,
+                                                  kAudioChannels, kAudioFramesPerPacket, s.audioSamples.data());
+        if (!s.audioPub->send(kAudioPacket, s.audioBuf.data(), n)) {
+            ++s.audio_dropped; // ring full -- the consumer is behind; seq still advances
+        }
+        ++s.audio_seq;
+        s.audio_frames += kAudioFramesPerPacket;
+    }
+}
+
 bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manager,
                     std::chrono::steady_clock::time_point now,
-                    bool isUI, const std::vector<Slot>& slots)
+                    bool isUI, bool audioCapture, const std::vector<Slot>& slots)
 {
     cfg.name              = kChannelPrefix + std::to_string(index);
     cfg.max_command_bytes = kMaxCommandBytes;
@@ -276,8 +385,14 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     s.had_subscriber = false;
     s.last_active    = now;
 
+    // Only granted under --audio-test-tone for now -- see g_audio_test_tone.
+    if (audioCapture && g_audio_test_tone) {
+        s.audioPub = create_audio_publisher(index);
+    }
+
     log_connect("slot " + std::to_string(index) + " connected, ceiling " + std::to_string(cfg.max_width) +
-                "x" + std::to_string(cfg.max_height) + active_slot_suffix(slots));
+                "x" + std::to_string(cfg.max_height) + (s.audioPub ? ", audio capture (test tone)" : "") +
+                active_slot_suffix(slots));
 
     // One-shot, sent before any frames: lets the consumer show which
     // llCefBrowser/CEF/Chromium build is actually in play without needing to
@@ -389,10 +504,14 @@ void free_slot(Slot& s, int index, llCefBrowserManager& manager,
                 const std::string& reason, std::vector<Slot>& slots)
 {
     manager.DestroyBrowser(s.cefHandle);
+    const std::string audio_stats = s.audioPub
+        ? ", " + std::to_string(s.audio_seq) + " audio packets, " + std::to_string(s.audio_dropped) + " dropped"
+        : std::string();
     s = Slot{};
     // Logged after clearing s (which is slots[index]) so the count already
     // reflects this slot's release, matching allocate_slot()'s own log.
-    log_disconnect("slot " + std::to_string(index) + " disconnected (" + reason + ")" + active_slot_suffix(slots));
+    log_disconnect("slot " + std::to_string(index) + " disconnected (" + reason + audio_stats + ")" +
+                   active_slot_suffix(slots));
 }
 
 // action == GLFW_RELEASE (0) means button-up; anything else (GLFW_PRESS=1,
@@ -520,6 +639,7 @@ int run_producer(int argc, char** argv)
     {
         const std::string arg = argv[i];
         if (arg == "--console") { show_console = true; continue; }
+        if (arg == "--audio-test-tone") { g_audio_test_tone = true; continue; }
         if (arg.rfind(kCacheDirPrefix, 0) == 0) { cache_dir_arg = arg.substr(kCacheDirPrefix.size()); continue; }
         if (arg.rfind(kRemoteDebuggingPortPrefix, 0) == 0) { remote_debugging_port = std::atoi(arg.c_str() + kRemoteDebuggingPortPrefix.size()); continue; }
         slot_count = std::atoi(argv[i]);
@@ -695,8 +815,9 @@ int run_producer(int argc, char** argv)
             // whatever string arrives, zero validation).
             std::uint8_t backend_byte = 0;
             bool audio_only = false;
+            bool audio_capture = false;
             unpack_request_slot(cmd.data.data(), cmd.data.size(), isUI, requested_max_width,
-                                 requested_max_height, backend_byte, audio_only);
+                                 requested_max_height, backend_byte, audio_only, audio_capture);
             LLConfig slot_cfg = view_cfg;
             slot_cfg.max_width  = std::clamp(requested_max_width,  kDefaultWidth,  kMaxWidth);
             slot_cfg.max_height = std::clamp(requested_max_height, kDefaultHeight, kMaxHeight);
@@ -722,7 +843,7 @@ int run_producer(int argc, char** argv)
                 {
                     if (slots[std::size_t(i)].pub) continue; // not free
                     any_free = true;
-                    if (allocate_slot(slots[std::size_t(i)], i, slot_cfg, *manager, now, isUI, slots))
+                    if (allocate_slot(slots[std::size_t(i)], i, slot_cfg, *manager, now, isUI, audio_capture, slots))
                     {
                         free_index = i;
                         break;
@@ -749,9 +870,12 @@ int run_producer(int argc, char** argv)
             // store -- the requesting consumer's acquire-load of this
             // reply therefore guarantees it will see a fully-initialised
             // header once it opens that segment by name.
-            std::uint8_t payload[4];
-            pack_u32(payload, std::uint32_t(free_index));
-            control->send(kSlotAssigned, payload, 4, cmd.id);
+            // The flags byte is what tells the consumer whether audio capture is actually
+            // on -- it may have asked and been declined (see allocate_slot()).
+            std::uint8_t payload[5];
+            const std::uint8_t flags = slots[std::size_t(free_index)].audioPub ? kSlotFlagAudioCapture : 0;
+            const std::uint32_t payload_len = pack_slot_assigned(payload, std::uint32_t(free_index), flags);
+            control->send(kSlotAssigned, payload, payload_len, cmd.id);
         }
 
 #if defined(_WIN32)
@@ -1016,6 +1140,10 @@ int run_producer(int argc, char** argv)
                 // LLSubscriber::poll()/producer_responsive() check doesn't mistake "the
                 // page just isn't repainting right now" for "the producer process died."
                 s.pub->heartbeat();
+            }
+
+            if (s.audioPub) {
+                pump_test_tone(s, int(i), now);
             }
         }
 
