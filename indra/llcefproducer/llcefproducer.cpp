@@ -295,7 +295,15 @@ std::unique_ptr<LLPublisher> create_audio_publisher(int index)
     if (!pub) {
         log_error("slot " + std::to_string(index) + " (" + cfg.name + "): " + to_string(st) +
                   " -- declining audio capture");
+        return pub;
     }
+
+    // The kSlotAssigned reply goes out right after this, and the consumer opens this
+    // segment immediately on receiving it -- often before this loop's next pump_test_tone()
+    // heartbeat. Unlike the per-view segment (which has already sent kEventVersionInfo by
+    // then), this one would otherwise have shown no sign of life at all yet, and a
+    // subscriber attaching that early was observed failing to connect/claim it.
+    pub->heartbeat();
     return pub;
 }
 

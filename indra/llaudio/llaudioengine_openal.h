@@ -35,6 +35,11 @@
 #include "llwindgen.h"
 #include "llatomic.h"
 
+#include <atomic>
+#include <vector>
+
+class LLStreamedAudioSourceOpenAL;
+
 class LLAudioEngine_OpenAL : public LLAudioEngine
 {
     public:
@@ -58,7 +63,18 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
         /*virtual*/ void cleanupWind();
         /*virtual*/ void updateWind(LLVector3 direction, F32 camera_altitude);
 
+        std::shared_ptr<LLStreamedAudioSource> createStreamedSource(U32 prebuffer_ms) override;
+
     private:
+        // AL_SOFT_callback_buffer -- what LLStreamedAudioSourceOpenAL is built on. Without
+        // it, createStreamedSource() returns null.
+        bool mHasCallbackBufferExt;
+        LPALBUFFERCALLBACKSOFT mBufferCallbackSOFT;
+
+        // Every streamed source handed out, so shutdown() can release their AL objects
+        // before the context goes away even if a caller is still holding one.
+        std::vector<std::weak_ptr<LLStreamedAudioSourceOpenAL>> mStreamedSources;
+
         typedef F32 WIND_SAMPLE_T;
         LLWindGen<WIND_SAMPLE_T> *mWindGen;
         F32 *mWindBuf;
@@ -122,6 +138,61 @@ class LLAudioBufferOpenAL : public LLAudioBuffer{
         ALuint getBuffer() {return mALBuffer;}
 
         ALuint mALBuffer;
+};
+
+// An LLStreamedAudioSource on an AL_SOFT_callback_buffer buffer: OpenAL's own mixer thread
+// pulls samples straight out of a lock-free single-producer/single-consumer ring that
+// pushPCM() fills, so playback never depends on the main thread's frame rate. Always 48kHz
+// stereo float32, the format both media producers send.
+class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
+{
+    public:
+        static constexpr U32 SAMPLE_RATE = 48000;
+        static constexpr U32 CHANNELS = 2;
+
+        LLStreamedAudioSourceOpenAL(U32 prebuffer_ms);
+        ~LLStreamedAudioSourceOpenAL();
+
+        // Main thread. Creates the AL source/buffer and starts it playing (silence until
+        // prebuffered). False if any AL call failed, with nothing left allocated.
+        bool initAL(LPALBUFFERCALLBACKSOFT buffer_callback_fn);
+        // Main thread. Stops and deletes the AL objects -- idempotent, and safe to call
+        // after the engine has already done so at shutdown.
+        void releaseAL();
+
+        void pushPCM(const F32* interleaved, U32 frames, U32 sample_rate, U32 channels) override;
+        void streamStopped() override;
+        void setGain(F32 gain) override;
+        Stats getStats() const override;
+
+    private:
+        static ALsizei AL_APIENTRY bufferCallback(ALvoid* userptr, ALvoid* sampledata, ALsizei numbytes) noexcept;
+        // OpenAL mixer thread only: must not block, allocate or log.
+        void fill(F32* out, U32 frames) noexcept;
+
+        // ~680ms -- comfortably above MAX_LATENCY_MS, so the writer only ever finds it full
+        // if the mixer has stopped pulling altogether.
+        static constexpr U32 RING_FRAMES = 32768; // power of two
+        static constexpr U32 MAX_LATENCY_MS = 200;
+
+        std::vector<F32> mRing; // RING_FRAMES * CHANNELS, interleaved
+        // Monotonic frame counts; position in mRing is (pos & (RING_FRAMES - 1)). mWritePos
+        // is advanced only by pushPCM(), mReadPos only by fill().
+        std::atomic<U64> mWritePos{0};
+        std::atomic<U64> mReadPos{0};
+        std::atomic<bool> mStreamStopped{false};
+
+        const U32 mPrebufferFrames;
+        const U32 mMaxLatencyFrames;
+        bool mPlaying = false; // fill() only: false while (re)prebuffering
+
+        std::atomic<U64> mUnderruns{0};
+        std::atomic<U64> mOverruns{0};
+        std::atomic<U64> mSkippedFrames{0};
+        std::atomic<U64> mFormatDrops{0};
+
+        ALuint mALSource = AL_NONE;
+        ALuint mALBuffer = AL_NONE;
 };
 
 #endif
