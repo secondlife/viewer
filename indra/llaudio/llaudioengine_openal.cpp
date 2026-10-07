@@ -706,14 +706,14 @@ void LLAudioEngine_OpenAL::updateWind(LLVector3 wind_vec, F32 camera_altitude)
 
 // ------------
 
-std::shared_ptr<LLStreamedAudioSource> LLAudioEngine_OpenAL::createStreamedSource(U32 prebuffer_ms)
+std::shared_ptr<LLStreamedAudioSource> LLAudioEngine_OpenAL::createStreamedSource(U32 prebuffer_ms, bool spatial)
 {
     if (!mHasCallbackBufferExt)
     {
         return nullptr;
     }
 
-    auto source = std::make_shared<LLStreamedAudioSourceOpenAL>(prebuffer_ms);
+    auto source = std::make_shared<LLStreamedAudioSourceOpenAL>(prebuffer_ms, spatial);
     if (!source->initAL(mBufferCallbackSOFT))
     {
         return nullptr;
@@ -726,8 +726,10 @@ std::shared_ptr<LLStreamedAudioSource> LLAudioEngine_OpenAL::createStreamedSourc
     return source;
 }
 
-LLStreamedAudioSourceOpenAL::LLStreamedAudioSourceOpenAL(U32 prebuffer_ms)
-    : mRing(RING_FRAMES * CHANNELS, 0.f),
+LLStreamedAudioSourceOpenAL::LLStreamedAudioSourceOpenAL(U32 prebuffer_ms, bool spatial)
+    : mSpatial(spatial),
+      mChannels(spatial ? 1 : 2),
+      mRing(RING_FRAMES * mChannels, 0.f),
       mPrebufferFrames(llclamp(prebuffer_ms, 10U, MAX_LATENCY_MS / 2) * SAMPLE_RATE / 1000),
       mMaxLatencyFrames(MAX_LATENCY_MS * SAMPLE_RATE / 1000)
 {
@@ -751,11 +753,15 @@ bool LLStreamedAudioSourceOpenAL::initAL(LPALBUFFERCALLBACKSOFT buffer_callback_
         return false;
     }
 
-    buffer_callback_fn(mALBuffer, AL_FORMAT_STEREO_FLOAT32, SAMPLE_RATE, &LLStreamedAudioSourceOpenAL::bufferCallback, this);
+    buffer_callback_fn(mALBuffer, mSpatial ? AL_FORMAT_MONO_FLOAT32 : AL_FORMAT_STEREO_FLOAT32, SAMPLE_RATE,
+                       &LLStreamedAudioSourceOpenAL::bufferCallback, this);
     alSourcei(mALSource, AL_BUFFER, mALBuffer);
 
-    // Non-positional: pinned to the listener, no distance attenuation -- the caller's own
-    // gain carries any distance falloff.
+    // Starts pinned to the listener (a spatial source moves into the world on its first
+    // setPositionGlobal()). Never distance-attenuated by OpenAL, either way: the caller's
+    // own gain carries distance falloff, so it keeps its existing curve and settings
+    // (MediaRollOff*) rather than switching to OpenAL's distance model. No velocity
+    // either -- Doppler would pitch-shift a live stream and skew its buffer fill level.
     alSourcei(mALSource, AL_SOURCE_RELATIVE, AL_TRUE);
     alSource3f(mALSource, AL_POSITION, 0.f, 0.f, 0.f);
     alSource3f(mALSource, AL_VELOCITY, 0.f, 0.f, 0.f);
@@ -794,6 +800,35 @@ void LLStreamedAudioSourceOpenAL::releaseAL()
     }
 }
 
+void LLStreamedAudioSourceOpenAL::setPositionGlobal(const LLVector3d& pos_global)
+{
+    if (!mSpatial || mALSource == AL_NONE)
+    {
+        return;
+    }
+    if (mHeadRelative)
+    {
+        mHeadRelative = false;
+        alSourcei(mALSource, AL_SOURCE_RELATIVE, AL_FALSE);
+    }
+    // Same single-precision global frame LLAudioChannelOpenAL::update3DPosition() and the
+    // listener (see audio_update_listener()) already use.
+    LLVector3 float_pos;
+    float_pos.setVec(pos_global);
+    alSourcefv(mALSource, AL_POSITION, float_pos.mV);
+}
+
+void LLStreamedAudioSourceOpenAL::clearPosition()
+{
+    if (!mSpatial || mALSource == AL_NONE || mHeadRelative)
+    {
+        return;
+    }
+    mHeadRelative = true;
+    alSourcei(mALSource, AL_SOURCE_RELATIVE, AL_TRUE);
+    alSource3f(mALSource, AL_POSITION, 0.f, 0.f, 0.f);
+}
+
 void LLStreamedAudioSourceOpenAL::pushPCM(const F32* interleaved, U32 frames, U32 sample_rate, U32 channels)
 {
     if (sample_rate != SAMPLE_RATE || channels == 0)
@@ -816,15 +851,20 @@ void LLStreamedAudioSourceOpenAL::pushPCM(const F32* interleaved, U32 frames, U3
     for (U32 f = 0; f < frames; ++f)
     {
         const F32* src = interleaved + (size_t)f * channels;
-        F32* dst = &mRing[(size_t)((write_pos + f) & (RING_FRAMES - 1)) * CHANNELS];
-        if (channels == 1)
+        F32* dst = &mRing[(size_t)((write_pos + f) & (RING_FRAMES - 1)) * mChannels];
+        // Anything beyond stereo: only front left/right are kept.
+        const F32 left = src[0];
+        const F32 right = (channels == 1) ? src[0] : src[1];
+        if (mChannels == 1)
         {
-            dst[0] = dst[1] = src[0];
+            // Averaged rather than summed, so a full-scale stereo signal can't clip --
+            // and content that's identical in both channels comes through unchanged.
+            dst[0] = 0.5f * (left + right);
         }
         else
         {
-            dst[0] = src[0]; // anything beyond stereo: keep front left/right
-            dst[1] = src[1];
+            dst[0] = left;
+            dst[1] = right;
         }
     }
 
@@ -872,8 +912,8 @@ ALsizei AL_APIENTRY LLStreamedAudioSourceOpenAL::bufferCallback(ALvoid* userptr,
 {
     // Always fill the whole request: returning fewer bytes tells OpenAL the stream has
     // ended, which would stop the source for good.
-    static_cast<LLStreamedAudioSourceOpenAL*>(userptr)->fill(static_cast<F32*>(sampledata),
-                                                              (U32)numbytes / (CHANNELS * sizeof(F32)));
+    auto* self = static_cast<LLStreamedAudioSourceOpenAL*>(userptr);
+    self->fill(static_cast<F32*>(sampledata), (U32)numbytes / (self->mChannels * sizeof(F32)));
     return numbytes;
 }
 
@@ -887,7 +927,7 @@ void LLStreamedAudioSourceOpenAL::fill(F32* out, U32 frames) noexcept
     {
         if (available < mPrebufferFrames)
         {
-            std::fill(out, out + (size_t)frames * CHANNELS, 0.f);
+            std::fill(out, out + (size_t)frames * mChannels, 0.f);
             return;
         }
         mPlaying = true;
@@ -906,15 +946,17 @@ void LLStreamedAudioSourceOpenAL::fill(F32* out, U32 frames) noexcept
     const U32 count = (U32)llmin<U64>(available, frames);
     for (U32 f = 0; f < count; ++f)
     {
-        const F32* src = &mRing[(size_t)((read_pos + f) & (RING_FRAMES - 1)) * CHANNELS];
-        out[f * CHANNELS + 0] = src[0];
-        out[f * CHANNELS + 1] = src[1];
+        const F32* src = &mRing[(size_t)((read_pos + f) & (RING_FRAMES - 1)) * mChannels];
+        for (U32 ch = 0; ch < mChannels; ++ch)
+        {
+            out[f * mChannels + ch] = src[ch];
+        }
     }
     mReadPos.store(read_pos + count, std::memory_order_release);
 
     if (count < frames)
     {
-        std::fill(out + (size_t)count * CHANNELS, out + (size_t)frames * CHANNELS, 0.f);
+        std::fill(out + (size_t)count * mChannels, out + (size_t)frames * mChannels, 0.f);
         mPlaying = false; // prebuffer again before resuming, rather than stuttering
         if (!mStreamStopped.load(std::memory_order_relaxed))
         {

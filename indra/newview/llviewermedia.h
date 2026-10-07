@@ -588,6 +588,12 @@ private:
     std::shared_ptr<LLStreamedAudioSource> mEmbeddedBrowserAudio;
     // Rate-limits updateVolume()'s periodic MediaAudio diagnostic line.
     LLFrameTimer mEmbeddedBrowserAudioLogTimer;
+    // Where mEmbeddedBrowserAudio should sound from, refreshed by calculateInterest() from
+    // the same object it measures mProximityCamera against -- so panning and distance
+    // falloff always agree. False when there's no such object, or it's a HUD attachment
+    // (no meaningful world position); the stream then plays from the listener instead.
+    bool mEmbeddedBrowserAudioHasPosition = false;
+    LLVector3d mEmbeddedBrowserAudioPositionGlobal;
     // Last render-rate hint actually sent to LLEmbeddedBrowser::setRenderRate() --
     // lets setPriority() only send the opcode when the target fps actually
     // changes, since setPriority() itself is called every frame regardless of

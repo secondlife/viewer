@@ -63,7 +63,7 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
         /*virtual*/ void cleanupWind();
         /*virtual*/ void updateWind(LLVector3 direction, F32 camera_altitude);
 
-        std::shared_ptr<LLStreamedAudioSource> createStreamedSource(U32 prebuffer_ms) override;
+        std::shared_ptr<LLStreamedAudioSource> createStreamedSource(U32 prebuffer_ms, bool spatial) override;
 
     private:
         // AL_SOFT_callback_buffer -- what LLStreamedAudioSourceOpenAL is built on. Without
@@ -143,14 +143,14 @@ class LLAudioBufferOpenAL : public LLAudioBuffer{
 // An LLStreamedAudioSource on an AL_SOFT_callback_buffer buffer: OpenAL's own mixer thread
 // pulls samples straight out of a lock-free single-producer/single-consumer ring that
 // pushPCM() fills, so playback never depends on the main thread's frame rate. Always 48kHz
-// stereo float32, the format both media producers send.
+// float32, the format both media producers send: stereo for a non-spatial source, mono for a
+// spatial one (OpenAL only positions mono sources, so pushPCM() mixes down on the way in).
 class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
 {
     public:
         static constexpr U32 SAMPLE_RATE = 48000;
-        static constexpr U32 CHANNELS = 2;
 
-        LLStreamedAudioSourceOpenAL(U32 prebuffer_ms);
+        LLStreamedAudioSourceOpenAL(U32 prebuffer_ms, bool spatial);
         ~LLStreamedAudioSourceOpenAL();
 
         // Main thread. Creates the AL source/buffer and starts it playing (silence until
@@ -163,6 +163,8 @@ class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
         void pushPCM(const F32* interleaved, U32 frames, U32 sample_rate, U32 channels) override;
         void streamStopped() override;
         void setGain(F32 gain) override;
+        void setPositionGlobal(const LLVector3d& pos_global) override;
+        void clearPosition() override;
         Stats getStats() const override;
 
     private:
@@ -175,7 +177,9 @@ class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
         static constexpr U32 RING_FRAMES = 32768; // power of two
         static constexpr U32 MAX_LATENCY_MS = 200;
 
-        std::vector<F32> mRing; // RING_FRAMES * CHANNELS, interleaved
+        const bool mSpatial;
+        const U32 mChannels; // 1 when mSpatial, else 2
+        std::vector<F32> mRing; // RING_FRAMES * mChannels, interleaved
         // Monotonic frame counts; position in mRing is (pos & (RING_FRAMES - 1)). mWritePos
         // is advanced only by pushPCM(), mReadPos only by fill().
         std::atomic<U64> mWritePos{0};
@@ -193,6 +197,9 @@ class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
 
         ALuint mALSource = AL_NONE;
         ALuint mALBuffer = AL_NONE;
+        // Main thread only: whether the AL source is currently listener-relative, so
+        // setPositionGlobal()/clearPosition() only flip AL_SOURCE_RELATIVE on a change.
+        bool mHeadRelative = true;
 };
 
 #endif
