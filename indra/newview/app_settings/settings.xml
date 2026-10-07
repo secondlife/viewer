@@ -13383,6 +13383,39 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>EmbeddedBrowserProducerAudioTestTone</key>
+    <map>
+      <key>Comment</key>
+      <string>Development only: launch SLCefProducer with --audio-test-tone, so every embedded-browser tab that requests audio capture (see EmbeddedBrowserAudioViaViewer) plays a generated tone through the Viewer's own audio engine instead of its real audio; takes effect on next producer launch</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EmbeddedBrowserAudioViaViewer</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, embedded-browser media asks its producer to hand its audio to the Viewer, which plays it through its own audio engine instead of the producer playing it directly; applies to media created after the change</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>EmbeddedBrowserAudioPrebufferMs</key>
+    <map>
+      <key>Comment</key>
+      <string>Milliseconds of embedded-browser audio buffered before Viewer-side playback starts or resumes after running dry (see EmbeddedBrowserAudioViaViewer) -- higher rides out more jitter at the cost of more latency; clamped to 10-100</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>40</integer>
+    </map>
     <key>EmbeddedBrowserUseLibVLC</key>
     <map>
       <key>Comment</key>

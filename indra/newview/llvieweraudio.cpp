@@ -476,7 +476,8 @@ void audio_update_volume(bool force_update)
     // Streaming Media
     static LLCachedControl<bool> media_muted(gSavedSettings, "MuteMedia");
     static LLCachedControl<F32> media_volume(gSavedSettings, "AudioLevelMedia");
-    LLViewerMedia::getInstance()->setVolume( media_muted() ? 0.0f : (mute_volume * master_volume() * media_volume()));
+    const F32 media_volume_excluding_master = media_muted() ? 0.0f : (mute_volume * media_volume());
+    LLViewerMedia::getInstance()->setVolume(media_volume_excluding_master * master_volume(), media_volume_excluding_master);
 
     // Voice, this is parametric singleton, it gets initialized when ready
     if (LLVoiceClient::instanceExists())

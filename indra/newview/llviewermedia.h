@@ -54,6 +54,7 @@ class LLViewerMediaTexture;
 class LLMediaEntry;
 class LLVOVolume;
 class LLMimeDiscoveryResponder;
+class LLStreamedAudioSource;
 
 typedef LLPointer<LLViewerMediaImpl> viewer_media_t;
 ///////////////////////////////////////////////////////////////////////////////
@@ -108,7 +109,11 @@ public:
     void updateBrowserUserAgent();
     bool handleSkinCurrentChanged(const LLSD& /*newvalue*/);
     bool textureHasMedia(const LLUUID& texture_id);
-    void setVolume(F32 volume);
+    // volume is the effective media level including the master volume, for media whose
+    // own player applies it directly. volume_excluding_master is the same level without
+    // the master volume, for media played through the Viewer's own audio engine, which
+    // already applies master as its listener gain.
+    void setVolume(F32 volume, F32 volume_excluding_master);
 
     // Is any media currently "showing"?  Includes Parcel Media.  Does not include media in the UI.
     bool isAnyMediaShowing();
@@ -123,6 +128,7 @@ public:
     void updateMedia(void* dummy_arg = NULL);
 
     F32 getVolume();
+    F32 getVolumeExcludingMaster();
     void muteListChanged();
     bool isInterestingEnough(const LLVOVolume* object, const F64 &object_interest);
 
@@ -356,6 +362,11 @@ public:
     bool isUsingEmbeddedBrowser() const { return mUseEmbeddedBrowser; }
     // Only meaningful when isUsingEmbeddedBrowser() is true; returns Cef otherwise.
     LLEmbeddedBrowserBackend getEmbeddedBrowserBackend() const { return mEmbeddedBrowserBackend; }
+    // True while this embedded-browser media's audio is being played by the Viewer itself
+    // (see mEmbeddedBrowserAudio) rather than by its producer.
+    bool isEmbeddedBrowserAudioViaViewer();
+    // Null unless isEmbeddedBrowserAudioViaViewer() could be true -- for diagnostics.
+    const std::shared_ptr<LLStreamedAudioSource>& getEmbeddedBrowserAudio() const { return mEmbeddedBrowserAudio; }
     // Only meaningful for a LibVLC-backed embedded-browser slot (see
     // getEmbeddedBrowserBackend()) -- used by LLPanelPrimMediaControls to pick which of
     // its Play/Pause buttons to show. Backed by the producer's own
@@ -566,6 +577,17 @@ private:
     // of a producer opcode -- same -1.f "always send once" sentinel and epsilon-dedup
     // reasoning as mEmbeddedBrowserVolume.
     F32 mEmbeddedBrowserCefVolume = -1.f;
+    // Viewer-side playback of this tab's audio, through gAudiop, for when the producer
+    // hands it over as PCM instead of playing it itself (EmbeddedBrowserAudioViaViewer --
+    // see kSlotFlagAudioCapture in cefshm_protocol.h). Created up front in
+    // createMediaSource() when capture is requested, since whether the producer grants it
+    // is only known once the tab connects; until then (or if it never does -- e.g. an
+    // older producer), isEmbeddedBrowserAudioViaViewer() stays false and updateVolume()
+    // keeps driving the producer-side mute/volume path instead. Released in
+    // destroyMediaSource().
+    std::shared_ptr<LLStreamedAudioSource> mEmbeddedBrowserAudio;
+    // Rate-limits updateVolume()'s periodic MediaAudio diagnostic line.
+    LLFrameTimer mEmbeddedBrowserAudioLogTimer;
     // Last render-rate hint actually sent to LLEmbeddedBrowser::setRenderRate() --
     // lets setPriority() only send the opcode when the target fps actually
     // changes, since setPriority() itself is called every frame regardless of
