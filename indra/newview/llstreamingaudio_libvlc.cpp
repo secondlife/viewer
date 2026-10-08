@@ -234,7 +234,12 @@ void LLStreamingAudio_LibVLC::update()
             return; // racing another claimant -- try again next tick
         }
 
-        std::uint8_t payload[11];
+        // 12, not 11 -- pack_request_slot() always writes a 12th (audioCapture) byte
+        // now, even though this call site doesn't pass one explicitly (it defaults to
+        // false, which is correct here -- CEF-only, no LibVLC equivalent). A stale
+        // 11-byte buffer here was a real 1-byte stack overflow on every platform,
+        // caught only by Linux's GCC -Werror=array-bounds at compile time.
+        std::uint8_t payload[12];
         // isUI/maxWidth/maxHeight are irrelevant here -- SLVlcProducer overrides an
         // audio-only slot's geometry to 1x1 regardless of what's requested (see
         // llvlcproducer.cpp's own kRequestSlot handler), and isUI has no meaning
