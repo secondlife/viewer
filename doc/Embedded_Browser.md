@@ -923,10 +923,12 @@ world**, panned (and HRTF'd, where enabled) by OpenAL.
 
 **Status (2026-10-08):** done for CEF - the transport, SLCefProducer's real
 audio capture (llCefBrowser v1.51.0's `CefAudioHandler` callbacks),
-Viewer-side playback and prim-media spatialization, verified end to end.
-Still to do: SLVlcProducer prim media (`libvlc_audio_set_callbacks()`) and
-parcel/streaming music. Off by default (`EmbeddedBrowserAudioViaViewer`), so
-nothing changes unless it's turned on.
+Viewer-side playback and prim-media spatialization. Viewer-side playback and
+spatialization were verified in-world against a generated test tone; real CEF
+capture was verified separately against a standalone harness. Still to do:
+SLVlcProducer prim media (`libvlc_audio_set_callbacks()`) and
+parcel/streaming music. **On by default** (`EmbeddedBrowserAudioViaViewer`);
+turning it off puts CEF back to playing its own audio, exactly as before.
 
 This supersedes an earlier, parallel take on the CEF half
 (`EmbeddedBrowserCefAudioCapture`/`LLEmbeddedBrowser::popAudioPacket()`, which
@@ -1008,7 +1010,7 @@ uncaptured media fade identically. Master volume is left out of that gain
   audio itself, exactly as before.
 
 **Settings.**
-- `EmbeddedBrowserAudioViaViewer` - request capture for new tabs (off).
+- `EmbeddedBrowserAudioViaViewer` - request capture for new tabs (on).
 - `EmbeddedBrowserAudioPrebufferMs` - see Buffering (40).
 
 Both take effect for tabs created after the change - pass them as
