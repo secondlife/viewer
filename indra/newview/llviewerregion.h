@@ -353,6 +353,9 @@ public:
 
     bool groupChatPostLinksEnabled() const;
 
+    // does the simulator accept GameControlData messages?
+    bool gameControlEnabled() const;
+
     typedef enum
     {
         CACHE_MISS_TYPE_TOTAL = 0,  // total cache miss - object not in cache
