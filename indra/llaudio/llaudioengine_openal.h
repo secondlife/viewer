@@ -44,24 +44,24 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
 {
     public:
         LLAudioEngine_OpenAL();
-        virtual ~LLAudioEngine_OpenAL();
+        ~LLAudioEngine_OpenAL() override;
 
-        virtual bool init(void *user_data, const std::string &app_title);
-        virtual std::string getDriverName(bool verbose);
-        virtual LLStreamingAudioInterface* createDefaultStreamingAudioImpl() const { return nullptr; }
-        virtual void allocateListener();
+        bool init(void *user_data, const std::string &app_title) override;
+        std::string getDriverName(bool verbose) override;
+        LLStreamingAudioInterface* createDefaultStreamingAudioImpl() const override { return nullptr; }
+        void allocateListener() override;
 
-        virtual void shutdown();
-        virtual void idle();
+        void shutdown() override;
+        void idle() override;
 
-        void setInternalGain(F32 gain);
+        void setInternalGain(F32 gain) override;
 
-        LLAudioBuffer* createBuffer();
-        LLAudioChannel* createChannel();
+        LLAudioBuffer* createBuffer() override;
+        LLAudioChannel* createChannel() override;
 
-        /*virtual*/ bool initWind();
-        /*virtual*/ void cleanupWind();
-        /*virtual*/ void updateWind(LLVector3 direction, F32 camera_altitude);
+        bool initWind() override;
+        void cleanupWind() override;
+        void updateWind(LLVector3 direction, F32 camera_altitude) override;
 
         std::shared_ptr<LLStreamedAudioSource> createStreamedSource(U32 prebuffer_ms, bool spatial) override;
 
