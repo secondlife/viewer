@@ -287,6 +287,16 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     vol_payload[0] = static_cast<std::uint8_t>(llclamp(mVolume, 0.0f, 1.0f) * 100.0f + 0.5f);
     mSub->send(kSetVolume, vol_payload, 1);
 
+    // After kSetVolume, not before: on a CEF slot kSetVolume itself collapses to a
+    // mute/unmute, which would otherwise undo this. Only replayed when muted -- an
+    // explicit unmute here would reset a LibVLC slot's volume to 100 (see kSetMuted),
+    // and kSetVolume above has already left an unmuted slot audible.
+    if (mMuted)
+    {
+        std::uint8_t mute_payload[1] = { 1 };
+        mSub->send(kSetMuted, mute_payload, 1);
+    }
+
     if (!mCurrentUrl.empty())
     {
         mSub->send_text(kSetUrl, mCurrentUrl);
@@ -707,6 +717,11 @@ void LLEmbeddedBrowserTab::setFocus(bool focus)
 void LLEmbeddedBrowserTab::setMuted(bool muted)
 {
     LLMutexLock lock(&mPixelMutex);
+    // Recorded unconditionally, like mVolume, and for the same reason: callers only send
+    // a mute when their own decision flips (see LLViewerMediaImpl::updateVolume()), so a
+    // slot that comes back after a producer crash/relaunch would otherwise stay unmuted
+    // until the next flip. See mMuted.
+    mMuted = muted;
     if (mSub)
     {
         std::uint8_t payload[1] = { muted ? std::uint8_t(1) : std::uint8_t(0) };

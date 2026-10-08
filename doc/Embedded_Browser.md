@@ -911,6 +911,108 @@ injected script actually ran or what it did. Look for the `MediaVolume` tag
 in the Viewer log for the mute decision and JS-injected volume value on
 every real change.
 
+## Audio through the Viewer's own OpenAL engine (in progress)
+
+Everything in "Volume" above is a consequence of each producer playing its
+tabs' audio itself, out of the Viewer's reach. This work moves playback into
+the Viewer instead: a producer can hand a slot's audio over as PCM, and the
+Viewer plays it through `LLAudioEngine_OpenAL` like any other sound. That
+gives every tab a real, continuous gain (the full `MediaRollOff*` curve, no
+JS injection), and lets **prim media sound from its object's position in the
+world**, panned (and HRTF'd, where enabled) by OpenAL.
+
+**Status (2026-10-08):** the transport, Viewer-side playback and prim-media
+spatialization are done and verified end to end against a generated test
+tone. Still to do: SLCefProducer delivering CEF's *real* audio (waiting on
+llCefBrowser's audio-capture interface - until then capture is only granted
+under `--audio-test-tone`), SLVlcProducer prim media
+(`libvlc_audio_set_callbacks()`), and parcel/streaming music. Off by default
+(`EmbeddedBrowserAudioViaViewer`), so nothing changes unless it's turned on.
+
+**Protocol.** Negotiated per slot, and backward compatible in both
+directions:
+- `kRequestSlot` gains a 12th byte, `audioCapture`: "send me this slot's
+  audio instead of playing it". Size request buffers with
+  `kRequestSlotBytes`, never a literal.
+- `kSlotAssigned` gains a flags byte; `kSlotFlagAudioCapture` says whether
+  the producer actually granted it. A 4-byte reply (an older producer) means
+  no, and the Viewer keeps relying on the producer's own playback and the
+  mute/volume opcodes above.
+- Audio travels on its **own segment per slot** - `llcefshm_audio_<N>` /
+  `llvlcshm_audio_<N>`, frame-less, a 64-entry x 8KB command ring - never on
+  the per-view channel, whose ring would otherwise fill at 100 packets/sec
+  behind a briefly stalled consumer and starve `kEvent*` traffic.
+- `kAudioPacket` (43) is self-describing - `{seq, ptsUs, sampleRate,
+  channels, sampleFormat, frames, interleaved float32 samples}`, 10ms of
+  48kHz stereo per packet in practice - so a reconnecting consumer never
+  needs a separate format handshake. A gap in `seq` means lost audio.
+  `kAudioStreamStopped` (44) marks a deliberate stop, so the silence that
+  follows isn't counted as an underrun.
+- All three in-repo copies of `cefshm_protocol.h` carry this. **The fourth,
+  llcefshm-example's own, still needs the same additions.**
+
+**Threads.** Each producer sends audio only from its main loop, keeping
+each audio ring single-writer as llshmframe requires. On the Viewer side, a
+tab's existing update thread drains its audio segment straight into an
+`LLEmbeddedBrowserAudioSink` (implemented in newview, since
+`llembeddedbrowser` sits below `llaudio`), which pushes into an
+`LLStreamedAudioSource`. That is built on OpenAL Soft's
+`AL_SOFT_callback_buffer`: OpenAL's own mixer thread pulls samples out of a
+lock-free single-producer/single-consumer ring, so **playback never depends
+on the main thread's frame rate**. The main thread only ever sets gain and
+position.
+
+**Buffering.** Playback starts once `EmbeddedBrowserAudioPrebufferMs` (40ms
+default) is queued, and re-prebuffers after running dry rather than
+stuttering. If more than 200ms builds up (producer and sound-card clocks
+drifting apart, or a stall), the oldest audio is skipped back down to the
+prebuffer target.
+
+**Spatialization and gain.** Prim media gets a *spatial* stream - mixed down
+to mono, since OpenAL only positions mono sources - placed at the position
+of the same object `calculateInterest()` measures distance from, so panning
+and falloff always agree. UI, parcel and HUD media stay stereo and
+non-positional. OpenAL's own distance attenuation is deliberately **off**
+(rolloff factor 0): loudness still comes from `updateVolume()`'s existing
+`MediaRollOff*` curve, applied as the stream's gain, so captured and
+uncaptured media fade identically. Master volume is left out of that gain
+(OpenAL already applies it as the listener gain), and the producer is still
+told to mute whenever a tab should be silent. No velocity, so no Doppler.
+
+**Known behaviors.**
+- **Captured media is silent until login.** The audio engine is muted from
+  startup until the first post-login `audio_update_volume()`, and this audio
+  now goes through it - accepted, since login-screen audio isn't needed.
+- **Sound comes from the object's position, not the media face's** - a large
+  screen sounds centered on its prim.
+- **Without `AL_SOFT_callback_buffer`, or with no audio engine at all
+  (`--noaudio`), capture is never requested** - the producer keeps playing
+  audio itself, exactly as before.
+
+**Settings.**
+- `EmbeddedBrowserAudioViaViewer` - request capture for new tabs (off).
+- `EmbeddedBrowserAudioPrebufferMs` - see Buffering (40).
+- `EmbeddedBrowserProducerAudioTestTone` - development only: launches
+  SLCefProducer with `--audio-test-tone`, so every captured slot plays a
+  generated tone (440Hz left / 660Hz right on slot 0, higher per slot)
+  instead of its real audio. Only spatial (prim) media requests capture
+  under this, so the always-present UI pages don't drown out what's being
+  tested.
+
+All three take effect for tabs (and the producer) created after the change -
+pass them as `--set <name> 1` to be sure they're in effect from startup.
+
+**Diagnostics.** In the Viewer log: `EmbeddedBrowser` -
+`Audio capture granted on llcefshm_audio_<N>` once a tab's audio channel is
+claimed (a warning if it still can't be after 3 seconds); `MediaAudio` -
+`Embedded-browser audio stream closed (...)` with underrun/overrun/skip
+counts when a tab goes away, plus (at debug level) a line every 5 seconds per
+captured tab comparing the gain asked for with what OpenAL reports is
+actually in effect. Media debug info gains `audio` (`viewer`/`producer`) and
+the same stream stats. In `slcefproducer_log.txt`, a slot's connect line says
+`audio capture (test tone)` when granted, and its disconnect line gives
+packets sent and dropped.
+
 ## Known limitations, as of this writing
 
 - **CEF's own codec coverage for ordinary web-embedded video, versus

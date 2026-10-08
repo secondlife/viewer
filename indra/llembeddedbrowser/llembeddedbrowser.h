@@ -399,6 +399,9 @@ class LLEmbeddedBrowserTab
         // the connection handshake isn't silently dropped -- connectToProducer() replays
         // it as part of its own initial send burst.
         float mVolume = 1.0f;
+        // The most recent setMuted() -- recorded and replayed by connectToProducer() the
+        // same way as mVolume, under mPixelMutex.
+        bool mMuted = false;
         // LLEmbeddedBrowser's own max-dimension ceiling at the moment this tab was
         // created (a snapshot, not live -- see the constructor's own comment), sent
         // to the producer via kRequestSlot so it can size this slot's shared-memory
