@@ -54,7 +54,6 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
-#include <cmath>
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
@@ -86,12 +85,6 @@ namespace {
 
 volatile std::sig_atomic_t g_run = 1;
 void on_signal(int) { g_run = 0; }
-
-// --audio-test-tone: fill every captured slot's audio channel (see kSlotFlagAudioCapture)
-// with a generated stereo tone instead of the page's real CEF audio, which then keeps
-// playing natively as if capture were off. Development aid for the Viewer's OpenAL playback
-// path -- a known, steady signal makes panning/level/dropouts easy to judge by ear.
-bool g_audio_test_tone = false;
 
 // Set once a console is actually attached (see show_debug_console()) --
 // gates whether log_*() below emit ANSI color codes at all, so output
@@ -153,17 +146,6 @@ constexpr auto kAllocateSlotRetryInterval = std::chrono::milliseconds(10);
 // send()/send_text() silently returns false on overflow rather than
 // truncating, so this must be generous rather than exact.
 constexpr std::uint32_t kMaxCommandBytes = 4096;
-
-// The test tone's own format (see pump_test_tone()) -- 10ms packets of 48kHz stereo
-// float32. Real CEF audio goes out in whatever format CEF captured it in (see
-// pump_cef_audio()); kAudioPacket is self-describing, so neither is a protocol constant.
-constexpr std::uint32_t kAudioSampleRate      = 48000;
-constexpr std::uint8_t  kAudioChannels        = 2;
-constexpr std::uint16_t kAudioFramesPerPacket = 480;
-
-// If the main loop stalls for longer than this, the test tone skips ahead (leaving a gap
-// in seq) rather than bursting the whole backlog into the audio ring at once.
-constexpr std::uint64_t kAudioMaxCatchUpFrames = std::uint64_t(kAudioFramesPerPacket) * 10;
 
 // How much captured CEF audio may queue up between main-loop ticks before the oldest is
 // dropped -- only ever reached if this loop stalls (e.g. a long CEF UI-thread task), since
@@ -234,17 +216,13 @@ struct Slot
     // for audio capture and this producer granted it. Only ever sent on from the main loop,
     // which keeps its command ring single-writer as llshmframe requires.
     std::unique_ptr<LLPublisher> audioPub;
-    // Real CEF audio capture for this slot (see pump_cef_audio()) -- null when not capturing,
-    // or when --audio-test-tone stands in for it. While set, CEF's own output for this
-    // browser stays muted and kSetMuted/kSetVolume are ignored (see kSlotFlagAudioCapture).
+    // Real CEF audio capture for this slot (see pump_cef_audio()) -- set exactly when
+    // audioPub is. While set, CEF's own output for this browser stays muted and
+    // kSetMuted/kSetVolume are ignored (see kSlotFlagAudioCapture).
     std::shared_ptr<CefAudioQueue> cefAudio;
     std::vector<std::uint8_t>    audioBuf;      // one packed kAudioPacket, reused across sends
-    std::vector<float>           audioSamples;  // interleaved, reused across sends
     std::uint32_t                audio_seq = 0;
-    std::uint64_t                audio_frames = 0;  // frames generated since audio_start
-    std::uint64_t                audio_dropped = 0; // packets lost to a full ring or a stall
-    bool                         audio_streaming = false;
-    std::chrono::steady_clock::time_point audio_start;
+    std::uint64_t                audio_dropped = 0; // packets lost to a full ring
 };
 
 // How many slots are currently allocated (pub != null), out of the fixed
@@ -340,61 +318,6 @@ std::unique_ptr<LLPublisher> create_audio_publisher(int index)
     // subscriber attaching that early was observed failing to connect/claim it.
     pub->heartbeat();
     return pub;
-}
-
-// Test-tone source for --audio-test-tone (see g_audio_test_tone). Called once per main-loop
-// tick: paced against the wall clock from the moment a subscriber attaches, sending however
-// many whole 10ms packets have come due since the last call. A distinct pitch per slot (and
-// a fifth higher on the right channel) makes several concurrent slots, and a swapped
-// left/right, easy to tell apart by ear.
-void pump_test_tone(Slot& s, int index, std::chrono::steady_clock::time_point now)
-{
-    if (!s.audioPub->has_subscriber()) {
-        s.audio_streaming = false; // restart the clock cleanly when someone attaches again
-        return;
-    }
-    if (!s.audio_streaming) {
-        s.audio_streaming = true;
-        s.audio_start     = now;
-        s.audio_frames    = 0;
-    }
-
-    const std::uint64_t elapsed_us = std::uint64_t(
-        std::chrono::duration_cast<std::chrono::microseconds>(now - s.audio_start).count());
-    const std::uint64_t due_frames = elapsed_us * kAudioSampleRate / 1000000;
-
-    if (due_frames > s.audio_frames + kAudioMaxCatchUpFrames) {
-        const std::uint64_t skipped = (due_frames - s.audio_frames) / kAudioFramesPerPacket;
-        s.audio_frames  += skipped * kAudioFramesPerPacket;
-        s.audio_seq     += std::uint32_t(skipped);
-        s.audio_dropped += skipped;
-    }
-
-    // Integral frequencies, so phase repeats exactly every kAudioSampleRate frames and
-    // (frame % kAudioSampleRate) keeps the sin() argument small however long this runs.
-    const int left_hz  = 440 + 110 * (index % 4);
-    const int right_hz = left_hz * 3 / 2;
-    constexpr double kTwoPi     = 6.283185307179586;
-    constexpr float  kAmplitude = 0.2f;
-
-    s.audioSamples.resize(std::size_t(kAudioFramesPerPacket) * kAudioChannels);
-    s.audioBuf.resize(kAudioPacketHeaderBytes + s.audioSamples.size() * sizeof(float));
-
-    while (s.audio_frames + kAudioFramesPerPacket <= due_frames) {
-        for (std::uint32_t f = 0; f < kAudioFramesPerPacket; ++f) {
-            const double t = double((s.audio_frames + f) % kAudioSampleRate) / kAudioSampleRate;
-            s.audioSamples[f * 2 + 0] = kAmplitude * float(std::sin(kTwoPi * left_hz * t));
-            s.audioSamples[f * 2 + 1] = kAmplitude * float(std::sin(kTwoPi * right_hz * t));
-        }
-        const std::int64_t pts_us = std::int64_t(s.audio_frames * 1000000 / kAudioSampleRate);
-        const std::uint32_t n = pack_audio_packet(s.audioBuf.data(), s.audio_seq, pts_us, kAudioSampleRate,
-                                                  kAudioChannels, kAudioFramesPerPacket, s.audioSamples.data());
-        if (!s.audioPub->send(kAudioPacket, s.audioBuf.data(), n)) {
-            ++s.audio_dropped; // ring full -- the consumer is behind; seq still advances
-        }
-        ++s.audio_seq;
-        s.audio_frames += kAudioFramesPerPacket;
-    }
 }
 
 // Sends interleaved audio as however many kAudioPackets it takes to stay within
@@ -556,14 +479,14 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     // leaves CEF playing this slot's audio itself, exactly as for a consumer that never asked.
     if (audioCapture) {
         s.audioPub = create_audio_publisher(index);
-        if (s.audioPub && !g_audio_test_tone) {
+        if (s.audioPub) {
             start_cef_audio_capture(s, index, manager);
         }
     }
 
     log_connect("slot " + std::to_string(index) + " connected, ceiling " + std::to_string(cfg.max_width) +
                 "x" + std::to_string(cfg.max_height) +
-                (s.cefAudio ? ", audio capture" : (s.audioPub ? ", audio capture (test tone)" : "")) +
+                (s.cefAudio ? ", audio capture" : "") +
                 active_slot_suffix(slots));
 
     // One-shot, sent before any frames: lets the consumer show which
@@ -821,7 +744,6 @@ int run_producer(int argc, char** argv)
     {
         const std::string arg = argv[i];
         if (arg == "--console") { show_console = true; continue; }
-        if (arg == "--audio-test-tone") { g_audio_test_tone = true; continue; }
         if (arg.rfind(kCacheDirPrefix, 0) == 0) { cache_dir_arg = arg.substr(kCacheDirPrefix.size()); continue; }
         if (arg.rfind(kRemoteDebuggingPortPrefix, 0) == 0) { remote_debugging_port = std::atoi(arg.c_str() + kRemoteDebuggingPortPrefix.size()); continue; }
         slot_count = std::atoi(argv[i]);
@@ -1328,11 +1250,7 @@ int run_producer(int argc, char** argv)
 
             if (s.audioPub) {
                 s.audioPub->heartbeat(); // never commits a frame, so this is its only liveness signal
-                if (s.cefAudio) {
-                    pump_cef_audio(s, int(i));
-                } else {
-                    pump_test_tone(s, int(i), now);
-                }
+                pump_cef_audio(s, int(i));
             }
         }
 
