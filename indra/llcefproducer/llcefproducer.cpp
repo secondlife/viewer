@@ -144,19 +144,6 @@ constexpr auto kAllocateSlotRetryInterval = std::chrono::milliseconds(10);
 // truncating, so this must be generous rather than exact.
 constexpr std::uint32_t kMaxCommandBytes = 4096;
 
-// A real CEF audio packet (kAudioPacket's own 12-byte header + planar float32 PCM)
-// doesn't comfortably fit kMaxCommandBytes above -- only audio-capturing slots pay
-// for this larger ring (see allocate_slot()); every other slot is unaffected.
-// CEF's own real default buffer, confirmed via a real captured log (not guessed):
-// 1024 frames/channel @ 44100Hz stereo = 12 + 2*1024*4 = 8204 bytes -- a
-// well-known, long-standing CEF/Chromium default (not something likely to vary),
-// but an earlier guess of ~3.8KB (480 frames @ 48kHz) had this at exactly 8192,
-// 12 bytes too small, so every single packet silently failed send() until this
-// was caught via real producer-side logging. 16384 gives real headroom this
-// time. llshmframe's own test_audio_packet_throughput() uses this same real
-// packet size now, not the earlier guessed one.
-constexpr std::uint32_t kAudioCaptureMaxCommandBytes = 16384;
-
 struct Slot
 {
     std::unique_ptr<LLPublisher> pub; // null <=> this index is free
@@ -262,10 +249,10 @@ private:
 // pair already succeeded.
 bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manager,
                     std::chrono::steady_clock::time_point now,
-                    bool isUI, const std::vector<Slot>& slots, bool audioCapture)
+                    bool isUI, const std::vector<Slot>& slots)
 {
     cfg.name              = kChannelPrefix + std::to_string(index);
-    cfg.max_command_bytes = audioCapture ? kAudioCaptureMaxCommandBytes : kMaxCommandBytes;
+    cfg.max_command_bytes = kMaxCommandBytes;
 
     LLStatus st{};
     auto pub = LLPublisher::create(cfg, &st);
@@ -388,61 +375,6 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
             slot->pub->send(kEventFileDialogRequest, payload.data(), n);
         }
     });
-
-    // Raw PCM audio capture -- only for a slot whose own kRequestSlot payload asked for
-    // it (see EmbeddedBrowserCefAudioCapture in settings.xml); every other slot (every
-    // tab in current production use) registers none of this and pays nothing for it.
-    // CEF's own native audio output is muted here too, to avoid double playback once
-    // the Viewer's own OpenAL-backed consumption of these packets takes over.
-    if (audioCapture)
-    {
-        // TEMPORARY DIAGNOSTIC: confirms the request actually arrived with the flag set.
-        log_info("slot " + std::to_string(index) + ": audio capture requested, registering CefAudioHandler callbacks");
-
-        manager.SetAudioMuted(handle, true);
-
-        manager.SetOnAudioStreamStartedCallback(handle, [slot, index](int sampleRate, int framesPerBuffer, int channels) {
-            // TEMPORARY DIAGNOSTIC: confirms CEF actually approved+started capture (i.e.
-            // GetAudioParameters returned true and real capture began).
-            log_info("slot " + std::to_string(index) + ": audio stream STARTED, sampleRate=" +
-                     std::to_string(sampleRate) + " framesPerBuffer=" + std::to_string(framesPerBuffer) +
-                     " channels=" + std::to_string(channels));
-            if (slot->pub) {
-                std::uint8_t payload[9];
-                const std::uint32_t n = pack_audio_stream_started(payload, std::uint32_t(sampleRate),
-                                                                   std::uint32_t(framesPerBuffer),
-                                                                   std::uint8_t(channels));
-                if (!slot->pub->send(kAudioStreamStarted, payload, n)) {
-                    log_error("slot " + std::to_string(index) + ": kAudioStreamStarted send FAILED");
-                }
-            }
-        });
-        manager.SetOnAudioStreamPacketCallback(handle, [slot, index](const float* const* data, int frames,
-                                                               std::int64_t pts, int channels) {
-            // TEMPORARY DIAGNOSTIC: logs only the first packet (this fires at ~100Hz,
-            // logging every one would flood the console/file) plus every 500th after
-            // that, so a long-running stream still shows periodic proof of life.
-            static thread_local long long packet_count = 0;
-            if (slot->pub) {
-                std::vector<std::uint8_t> payload(12 + std::size_t(channels) * std::size_t(frames) * 4);
-                const std::uint32_t n = pack_audio_packet(payload.data(), pts, std::uint32_t(frames),
-                                                           data, std::uint8_t(channels));
-                const bool sent = slot->pub->send(kAudioPacket, payload.data(), n);
-                ++packet_count;
-                if (packet_count == 1 || packet_count % 500 == 0) {
-                    log_info("slot " + std::to_string(index) + ": audio packet #" + std::to_string(packet_count) +
-                             " frames=" + std::to_string(frames) + " channels=" + std::to_string(channels) +
-                             " sent=" + (sent ? "yes" : "NO (send failed)"));
-                }
-            }
-        });
-        manager.SetOnAudioStreamStoppedCallback(handle, [slot]() {
-            if (slot->pub) slot->pub->send(kAudioStreamStopped);
-        });
-        manager.SetOnAudioStreamErrorCallback(handle, [index](const std::string& message) {
-            log_error("slot " + std::to_string(index) + ": audio stream error: " + message);
-        });
-    }
 
     return true;
 }
@@ -763,9 +695,8 @@ int run_producer(int argc, char** argv)
             // whatever string arrives, zero validation).
             std::uint8_t backend_byte = 0;
             bool audio_only = false;
-            bool audio_capture = false; // CEF raw-PCM capture, see EmbeddedBrowserCefAudioCapture
             unpack_request_slot(cmd.data.data(), cmd.data.size(), isUI, requested_max_width,
-                                 requested_max_height, backend_byte, audio_only, audio_capture);
+                                 requested_max_height, backend_byte, audio_only);
             LLConfig slot_cfg = view_cfg;
             slot_cfg.max_width  = std::clamp(requested_max_width,  kDefaultWidth,  kMaxWidth);
             slot_cfg.max_height = std::clamp(requested_max_height, kDefaultHeight, kMaxHeight);
@@ -791,7 +722,7 @@ int run_producer(int argc, char** argv)
                 {
                     if (slots[std::size_t(i)].pub) continue; // not free
                     any_free = true;
-                    if (allocate_slot(slots[std::size_t(i)], i, slot_cfg, *manager, now, isUI, slots, audio_capture))
+                    if (allocate_slot(slots[std::size_t(i)], i, slot_cfg, *manager, now, isUI, slots))
                     {
                         free_index = i;
                         break;

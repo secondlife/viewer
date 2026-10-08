@@ -911,36 +911,6 @@ injected script actually ran or what it did. Look for the `MediaVolume` tag
 in the Viewer log for the mute decision and JS-injected volume value on
 every real change.
 
-**Raw PCM audio capture (`EmbeddedBrowserCefAudioCapture`), a second path
-alongside the JS-injected one above, not a replacement for it yet.** CEF's
-`CefAudioHandler` hands over the browser's own already-mixed audio output as
-planar float32 PCM, below the DOM/JS layer entirely - this sidesteps all
-three gaps listed above at once, since it doesn't matter where in the
-page's frame tree or JS/WASM stack the audio originates by the time CEF
-hands it over. Off by default (new settings.xml debug boolean,
-`EmbeddedBrowserCefAudioCapture`); when on, every CEF-backed tab registers
-`SetOnAudioStreamStartedCallback`/`SetOnAudioStreamPacketCallback`/
-`SetOnAudioStreamStoppedCallback`/`SetOnAudioStreamErrorCallback` in
-`llcefbrowser`, `SLCefProducer.exe` mutes that tab's native CEF audio output
-(avoiding double playback) and forwards the three wire-visible events
-(`kAudioStreamStarted`/`kAudioPacket`/`kAudioStreamStopped` -
-`OnAudioStreamError` is logged producer-side only, not forwarded) over that
-tab's existing command channel, sized up from the default 4096 bytes to
-16384 specifically for an audio-capturing slot (a real packet, confirmed via
-a real captured `slcefproducer_log.txt`, is CEF's own well-known default of
-1024 frames/channel @ 44100Hz stereo: a 12-byte header plus 8192 bytes of
-planar float32 PCM = 8204 bytes -- an earlier guess of ~480 frames @ 48kHz
-had this at exactly 8192, 12 bytes too small, silently failing every single
-`send()` until caught by real producer-side logging during Callum's own
-end-to-end test) - validated against a real, not just arithmetic, throughput
-check (`llshmframe`'s own `test_audio_packet_throughput`, 0 drops over a real
-3-second run with realistic producer/consumer pacing and a simulated render
-hitch). The Viewer-side handoff point is `LLEmbeddedBrowser::popAudioPacket()`,
-mirroring `popEvent()`'s own FIFO-drain shape but kept on its own queue/mutex
-since audio packets arrive far more often than UI events. Nothing in this
-Viewer repo consumes that handoff yet - wiring it into OpenAL for real
-distance/volume/3D-positioned playback is separate, follow-on work.
-
 ## Known limitations, as of this writing
 
 - **CEF's own codec coverage for ordinary web-embedded video, versus

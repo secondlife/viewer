@@ -88,10 +88,9 @@ namespace {
     constexpr auto kRelaunchBackoff     = std::chrono::seconds(5);
 }
 
-LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight, bool audioCapture) :
+LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight) :
     mIsUI(isUI),
     mBackend(backend),
-    mAudioCapture(audioCapture && backend == LLEmbeddedBrowserBackend::Cef),
     mWidth(width),
     mHeight(height),
     mRequestedWidth(width),
@@ -190,14 +189,12 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     }
 
     std::uint64_t req_id = 0;
-    std::uint8_t request_payload[12];
+    std::uint8_t request_payload[11];
     // audioOnly is always false here -- a browser tab always has a visual surface (a
     // floater or prim face); only LLStreamingAudio_LibVLC's own parcel-audio IPC client
-    // (llstreamingaudio_libvlc.cpp) ever requests an audio-only slot. audioCapture is
-    // mAudioCapture, already false-for-non-Cef (see the constructor).
+    // (llstreamingaudio_libvlc.cpp) ever requests an audio-only slot.
     const std::uint32_t request_len = pack_request_slot(request_payload, mIsUI, mMaxWidth, mMaxHeight,
-                                                          static_cast<std::uint8_t>(mBackend), false,
-                                                          mAudioCapture);
+                                                          static_cast<std::uint8_t>(mBackend), false);
     if (!ctrl->send(kRequestSlot, request_payload, request_len, 0, &req_id))
     {
         return false;
@@ -369,45 +366,6 @@ void LLEmbeddedBrowserTab::update()
                 {
                     LLEmbeddedBrowser::instance().setCefBrowserVersion(std::string(cmd.text()));
                 }
-                continue;
-            case kAudioStreamStarted: {
-                // One-shot per capture start -- doesn't go through mEvents, same
-                // reasoning as kEventVersionInfo above. See cefshm_protocol.h's own
-                // comment for the wire layout.
-                std::uint32_t sampleRate = 0, framesPerBuffer = 0;
-                std::uint8_t channels = 0;
-                if (unpack_audio_stream_started(cmd.data.data(), cmd.data.size(),
-                                                 sampleRate, framesPerBuffer, channels))
-                {
-                    mAudioChannels = channels;
-                }
-                continue;
-            }
-            case kAudioPacket: {
-                std::int64_t pts = 0;
-                std::uint32_t frames = 0;
-                if (mAudioChannels > 0 &&
-                    unpack_audio_packet_header(cmd.data.data(), cmd.data.size(), pts, frames))
-                {
-                    const std::size_t header_bytes = 12;
-                    const std::size_t want_bytes = std::size_t(mAudioChannels) * std::size_t(frames) * sizeof(float);
-                    if (cmd.data.size() >= header_bytes + want_bytes)
-                    {
-                        LLEmbeddedBrowserAudioPacket packet;
-                        packet.mPts = pts;
-                        packet.mFrames = frames;
-                        packet.mChannels = mAudioChannels;
-                        packet.mSamples.resize(mAudioChannels * std::size_t(frames));
-                        std::memcpy(packet.mSamples.data(), cmd.data.data() + header_bytes, want_bytes);
-
-                        LLMutexLock lock(&mAudioMutex);
-                        mAudioPackets.push_back(std::move(packet));
-                    }
-                }
-                continue;
-            }
-            case kAudioStreamStopped:
-                mAudioChannels = 0;
                 continue;
             case kEventNavStateChanged:
                 // Cached state, polled every frame via canGoBack()/canGoForward() (to
@@ -819,18 +777,6 @@ bool LLEmbeddedBrowserTab::popEvent(LLEmbeddedBrowserEvent& out_event)
     return true;
 }
 
-bool LLEmbeddedBrowserTab::popAudioPacket(LLEmbeddedBrowserAudioPacket& out_packet)
-{
-    LLMutexLock lock(&mAudioMutex);
-    if (mAudioPackets.empty())
-    {
-        return false;
-    }
-    out_packet = std::move(mAudioPackets.front());
-    mAudioPackets.pop_front();
-    return true;
-}
-
 unsigned int LLEmbeddedBrowserTab::getWidth() const
 {
     LLMutexLock lock(&mPixelMutex);
@@ -1177,14 +1123,14 @@ std::shared_ptr<LLEmbeddedBrowserTab> LLEmbeddedBrowser::findTab(unsigned int id
 }
 
 unsigned int LLEmbeddedBrowser::create(const std::string& url, unsigned int width, unsigned int height, bool isUI,
-                                       LLEmbeddedBrowserBackend backend, bool audioCapture)
+                                       LLEmbeddedBrowserBackend backend)
 {
     width = llmin(width, mMaxWidth);
     height = llmin(height, mMaxHeight);
 
     LLMutexLock lock(&mTabsMutex);
     unsigned int id = mNextTabId++;
-    mTabs[id] = std::make_shared<LLEmbeddedBrowserTab>(this, id, url, width, height, isUI, backend, mMaxWidth, mMaxHeight, audioCapture);
+    mTabs[id] = std::make_shared<LLEmbeddedBrowserTab>(this, id, url, width, height, isUI, backend, mMaxWidth, mMaxHeight);
     return id;
 }
 
@@ -1580,15 +1526,6 @@ bool LLEmbeddedBrowser::popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_ev
     if (auto tab = findTab(id))
     {
         return tab->popEvent(out_event);
-    }
-    return false;
-}
-
-bool LLEmbeddedBrowser::popAudioPacket(unsigned int id, LLEmbeddedBrowserAudioPacket& out_packet)
-{
-    if (auto tab = findTab(id))
-    {
-        return tab->popAudioPacket(out_packet);
     }
     return false;
 }
