@@ -363,6 +363,12 @@ void pump_cef_audio(Slot& s, int index)
     for (const std::string& error : errors) {
         log_error("slot " + std::to_string(index) + ": audio stream error: " + error);
     }
+    if (stopped) {
+        // Paired with the "audio stream started" line, so the log shows which slots are
+        // capturing concurrently rather than just which ever started.
+        log_info("slot " + std::to_string(index) + ": audio stream stopped (" + std::to_string(s.audio_seq) +
+                 " packets sent on this slot so far)");
+    }
 
     // Nobody to hear it yet (or any more) -- not worth filling the ring, nor counting the
     // inevitable drops as if they were a real consumer falling behind.
