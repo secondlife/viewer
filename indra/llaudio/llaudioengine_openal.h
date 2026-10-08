@@ -66,6 +66,9 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
         std::shared_ptr<LLStreamedAudioSource> createStreamedSource(U32 prebuffer_ms, bool spatial) override;
 
     private:
+        // Gives every live streamed source its per-frame updateAL() -- see idle().
+        void updateStreamedSources();
+
         // AL_SOFT_callback_buffer -- what LLStreamedAudioSourceOpenAL is built on. Without
         // it, createStreamedSource() returns null.
         bool mHasCallbackBufferExt;
@@ -142,20 +145,23 @@ class LLAudioBufferOpenAL : public LLAudioBuffer{
 
 // An LLStreamedAudioSource on an AL_SOFT_callback_buffer buffer: OpenAL's own mixer thread
 // pulls samples straight out of a lock-free single-producer/single-consumer ring that
-// pushPCM() fills, so playback never depends on the main thread's frame rate. Always 48kHz
-// float32, the format both media producers send: stereo for a non-spatial source, mono for a
-// spatial one (OpenAL only positions mono sources, so pushPCM() mixes down on the way in).
+// pushPCM() fills, so playback never depends on the main thread's frame rate. float32:
+// stereo for a non-spatial source, mono for a spatial one (OpenAL only positions mono
+// sources, so pushPCM() mixes down on the way in). Plays at whatever sample rate is being
+// pushed -- OpenAL resamples to the device -- re-specifying its buffer on the main thread
+// (see updateAL()) whenever that changes.
 class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
 {
     public:
-        static constexpr U32 SAMPLE_RATE = 48000;
-
         LLStreamedAudioSourceOpenAL(U32 prebuffer_ms, bool spatial);
         ~LLStreamedAudioSourceOpenAL();
 
         // Main thread. Creates the AL source/buffer and starts it playing (silence until
         // prebuffered). False if any AL call failed, with nothing left allocated.
         bool initAL(LPALBUFFERCALLBACKSOFT buffer_callback_fn);
+        // Main thread, once per frame (LLAudioEngine_OpenAL::idle()). Re-specifies the
+        // callback buffer if pushPCM() has started seeing a different sample rate.
+        void updateAL();
         // Main thread. Stops and deletes the AL objects -- idempotent, and safe to call
         // after the engine has already done so at shutdown.
         void releaseAL();
@@ -171,11 +177,17 @@ class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
         static ALsizei AL_APIENTRY bufferCallback(ALvoid* userptr, ALvoid* sampledata, ALsizei numbytes) noexcept;
         // OpenAL mixer thread only: must not block, allocate or log.
         void fill(F32* out, U32 frames) noexcept;
+        // Main thread. (Re)binds mALBuffer as a callback buffer at sample_rate.
+        void specifyBuffer(U32 sample_rate);
 
-        // ~680ms -- comfortably above MAX_LATENCY_MS, so the writer only ever finds it full
-        // if the mixer has stopped pulling altogether.
+        // ~680ms at 48kHz -- comfortably above MAX_LATENCY_MS at any common rate, so the
+        // writer only ever finds it full if the mixer has stopped pulling altogether.
         static constexpr U32 RING_FRAMES = 32768; // power of two
         static constexpr U32 MAX_LATENCY_MS = 200;
+        // Until the first pushPCM() says otherwise.
+        static constexpr U32 DEFAULT_SAMPLE_RATE = 48000;
+        static constexpr U32 MIN_SAMPLE_RATE = 8000;
+        static constexpr U32 MAX_SAMPLE_RATE = 192000;
 
         const bool mSpatial;
         const U32 mChannels; // 1 when mSpatial, else 2
@@ -186,8 +198,14 @@ class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
         std::atomic<U64> mReadPos{0};
         std::atomic<bool> mStreamStopped{false};
 
-        const U32 mPrebufferFrames;
-        const U32 mMaxLatencyFrames;
+        // Thresholds are kept in time, not frames, since the frame rate can change.
+        const U32 mPrebufferMs;
+        // The rate pushPCM() is currently being fed at (0 until the first push) -- written
+        // by the feeder, acted on by updateAL().
+        std::atomic<U32> mStreamRate{0};
+        // The rate mALBuffer is actually specified at -- written by the main thread, read
+        // by fill()/getStats().
+        std::atomic<U32> mPlayRate{DEFAULT_SAMPLE_RATE};
         bool mPlaying = false; // fill() only: false while (re)prebuffering
 
         std::atomic<U64> mUnderruns{0};
@@ -197,6 +215,7 @@ class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
 
         ALuint mALSource = AL_NONE;
         ALuint mALBuffer = AL_NONE;
+        LPALBUFFERCALLBACKSOFT mBufferCallbackFn = nullptr;
         // Main thread only: whether the AL source is currently listener-relative, so
         // setPositionGlobal()/clearPosition() only flip AL_SOURCE_RELATIVE on a change.
         bool mHeadRelative = true;

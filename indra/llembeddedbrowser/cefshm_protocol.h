@@ -75,14 +75,18 @@ namespace cefshm_demo
     // prefix per producer, for the same reason as the kVlc* view/control names above.
     inline constexpr char          kAudioChannelPrefix[]    = "llcefshm_audio_";
     inline constexpr char          kVlcAudioChannelPrefix[] = "llvlcshm_audio_";
-    inline constexpr std::uint32_t kAudioCommandSlots       = 64;   // x 10ms packets = 640ms of slack
-    // A 10ms 48kHz stereo float32 packet is 3840 sample bytes plus the header -- doubled
-    // for headroom, since send() fails outright rather than truncating an oversized one.
-    inline constexpr std::uint32_t kAudioMaxCommandBytes    = 8192;
+    inline constexpr std::uint32_t kAudioCommandSlots       = 64;   // 0.6-1.5s of slack, by packet size
+    // CEF's own capture buffer is 1024 frames/channel @ 44.1kHz stereo (~23ms): 8192 sample
+    // bytes plus the header -- sized well past that, since send() fails outright rather than
+    // truncating an oversized packet (producers also split anything bigger to fit).
+    inline constexpr std::uint32_t kAudioMaxCommandBytes    = 16384;
     inline constexpr std::uint32_t kAudioPacketHeaderBytes  = 20;
     inline constexpr std::uint8_t  kAudioSampleFormatF32    = 0;    // kAudioPacket's sampleFormat byte
 
-    // kSlotAssigned's flags byte.
+    // kSlotAssigned's flags byte. kSlotFlagAudioCapture: this slot's audio now reaches the
+    // consumer only as kAudioPacket on its audio channel -- the producer keeps its own output
+    // silenced for the slot's whole lifetime (no double playback) and ignores kSetMuted/
+    // kSetVolume for it, so the consumer's own gain is the one volume control.
     inline constexpr std::uint8_t  kSlotFlagAudioCapture    = 1u << 0;
 
     // kRequestSlot's full payload size -- size request buffers with this, not a literal,

@@ -71,8 +71,9 @@ public:
     virtual ~LLStreamedAudioSource() = default;
 
     // Interleaved float samples, from any one thread at a time (not necessarily the main
-    // thread). Converted to this source's own channel layout as needed; a sample rate it
-    // can't play is dropped and counted in Stats::mFormatDrops rather than resampled.
+    // thread). Converted to this source's own channel layout as needed, and played at
+    // whatever sample_rate is given (the engine resamples); a nonsensical rate is dropped
+    // and counted in Stats::mFormatDrops.
     virtual void pushPCM(const F32* interleaved, U32 frames, U32 sample_rate, U32 channels) = 0;
 
     // The feeder stopped producing audio on purpose: play out what's buffered, then go
@@ -96,8 +97,9 @@ public:
         U64 mUnderruns = 0;    // ran dry mid-stream
         U64 mOverruns = 0;     // pushPCM() frames discarded because the buffer was full
         U64 mSkippedFrames = 0; // frames discarded to pull latency back down after drift/a stall
-        U64 mFormatDrops = 0;  // pushPCM() calls discarded for an unplayable sample rate
+        U64 mFormatDrops = 0;  // pushPCM() calls discarded for a nonsensical format
         U32 mBufferedMs = 0;   // currently queued, not yet played
+        U32 mSampleRate = 0;   // the rate currently being played at
         U64 mFramesPlayed = 0; // handed to the engine's mixer so far
         // Read back from the engine itself rather than our own record of what was asked
         // for -- these are what's actually in effect.

@@ -66,12 +66,15 @@ namespace cefshm_demo
     // comment on kAudioChannelPrefix; identical meaning here, distinctly named for the
     // same reason as kChannelPrefix above.
     inline constexpr char          kAudioChannelPrefix[]   = "llvlcshm_audio_";
-    inline constexpr std::uint32_t kAudioCommandSlots      = 64;   // x 10ms packets = 640ms of slack
-    inline constexpr std::uint32_t kAudioMaxCommandBytes   = 8192;
+    inline constexpr std::uint32_t kAudioCommandSlots      = 64;   // 0.6-1.5s of slack, by packet size
+    inline constexpr std::uint32_t kAudioMaxCommandBytes   = 16384;
     inline constexpr std::uint32_t kAudioPacketHeaderBytes = 20;
     inline constexpr std::uint8_t  kAudioSampleFormatF32   = 0;    // kAudioPacket's sampleFormat byte
 
-    // kSlotAssigned's flags byte.
+    // kSlotAssigned's flags byte. kSlotFlagAudioCapture: this slot's audio now reaches the
+    // consumer only as kAudioPacket on its audio channel -- the producer keeps its own output
+    // silenced for the slot's whole lifetime (no double playback) and ignores kSetMuted/
+    // kSetVolume for it, so the consumer's own gain is the one volume control.
     inline constexpr std::uint8_t  kSlotFlagAudioCapture   = 1u << 0;
 
     inline constexpr std::size_t   kRequestSlotBytes       = 12;
