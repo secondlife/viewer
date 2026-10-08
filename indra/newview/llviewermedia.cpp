@@ -4337,34 +4337,40 @@ static ECursorType cursorTypeFromEmbeddedBrowserCursor(unsigned int cef_cursor_t
 // ============================================================================
 // TEMPORARY DIAGNOSTIC -- not part of the real feature, remove once real
 // end-to-end verification of CEF audio-PCM capture (EmbeddedBrowserCefAudioCapture)
-// is done. Drains LLEmbeddedBrowser::popAudioPacket() into a single global
-// accumulator (fine for a one-tab-at-a-time manual test, not correct for
-// several simultaneous audio-capturing tabs) and periodically rewrites a WAV
-// file so the result survives even if the viewer is force-quit mid-test.
-// Planar float32 -> interleaved int16 (clamped), standard PCM so any media
-// player can open it directly. See doc/Embedded_Browser.md for the real
-// feature this is verifying.
+// is done. Drains LLEmbeddedBrowser::popAudioPacket() into a PER-TAB accumulator,
+// keyed by embedded-browser id -- several simultaneous audio-capturing tabs each
+// get their own independent WAV file rather than one shared, interleaved mess
+// (2026-10-08: this started mattering for real once testing needed more than one
+// simultaneously-capturing tab at a time). Periodically rewrites each tab's WAV
+// file so the result survives even if the viewer is force-quit mid-test. Planar
+// float32 -> interleaved int16 (clamped), standard PCM so any media player can
+// open it directly. See doc/Embedded_Browser.md for the real feature this is
+// verifying.
 namespace {
-    std::vector<std::int16_t> gAudioCaptureDiagSamples;
-    std::uint32_t gAudioCaptureDiagSampleRate = 0;
-    std::uint32_t gAudioCaptureDiagChannels = 0;
-    int gAudioCaptureDiagFlushCounter = 0;
+    struct AudioCaptureDiagState {
+        std::vector<std::int16_t> samples;
+        std::uint32_t sampleRate = 0;
+        std::uint32_t channels = 0;
+        int flushCounter = 0;
+    };
+    std::map<unsigned int, AudioCaptureDiagState> gAudioCaptureDiagByTab;
 
-    void writeAudioCaptureDiagWav()
+    void writeAudioCaptureDiagWav(unsigned int tabId, AudioCaptureDiagState& state)
     {
-        if (gAudioCaptureDiagSamples.empty() || gAudioCaptureDiagSampleRate == 0 || gAudioCaptureDiagChannels == 0)
+        if (state.samples.empty() || state.sampleRate == 0 || state.channels == 0)
         {
             return;
         }
-        std::string path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef_audio_capture_test.wav");
+        std::string path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+            "cef_audio_capture_test_" + std::to_string(tabId) + ".wav");
         LLAPRFile file;
         if (file.open(path, LL_APR_WB) != APR_SUCCESS)
         {
             return;
         }
-        const std::uint32_t data_bytes = std::uint32_t(gAudioCaptureDiagSamples.size() * sizeof(std::int16_t));
-        const std::uint32_t byte_rate = gAudioCaptureDiagSampleRate * gAudioCaptureDiagChannels * 2;
-        const std::uint16_t block_align = std::uint16_t(gAudioCaptureDiagChannels * 2);
+        const std::uint32_t data_bytes = std::uint32_t(state.samples.size() * sizeof(std::int16_t));
+        const std::uint32_t byte_rate = state.sampleRate * state.channels * 2;
+        const std::uint16_t block_align = std::uint16_t(state.channels * 2);
         const std::uint32_t riff_size = 36 + data_bytes;
 
         auto write_u32 = [&](std::uint32_t v) { file.write(&v, 4); };
@@ -4375,19 +4381,19 @@ namespace {
         file.write("WAVEfmt ", 8);
         write_u32(16);                      // fmt chunk size
         write_u16(1);                       // PCM
-        write_u16(std::uint16_t(gAudioCaptureDiagChannels));
-        write_u32(gAudioCaptureDiagSampleRate);
+        write_u16(std::uint16_t(state.channels));
+        write_u32(state.sampleRate);
         write_u32(byte_rate);
         write_u16(block_align);
         write_u16(16);                      // bits per sample
         file.write("data", 4);
         write_u32(data_bytes);
-        file.write(gAudioCaptureDiagSamples.data(), S32(data_bytes));
+        file.write(state.samples.data(), S32(data_bytes));
 
-        LL_INFOS("Media") << "cef_audio_capture_test.wav: wrote " << data_bytes << " bytes ("
-                           << gAudioCaptureDiagSamples.size() / gAudioCaptureDiagChannels << " frames @ "
-                           << gAudioCaptureDiagSampleRate << "Hz, " << gAudioCaptureDiagChannels
-                           << "ch) to " << path << LL_ENDL;
+        LL_INFOS("Media") << path << ": wrote " << data_bytes << " bytes ("
+                           << state.samples.size() / state.channels << " frames @ "
+                           << state.sampleRate << "Hz, " << state.channels
+                           << "ch) for tab " << tabId << LL_ENDL;
     }
 }
 // ============================================================================
@@ -4398,28 +4404,29 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
     // suspend/visible, matching popEvent()'s own unconditional drain just below.
     if (gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"))
     {
+        AudioCaptureDiagState& state = gAudioCaptureDiagByTab[mEmbeddedBrowserId];
         LLEmbeddedBrowserAudioPacket packet;
         while (LLEmbeddedBrowser::getInstance()->popAudioPacket(mEmbeddedBrowserId, packet))
         {
-            if (gAudioCaptureDiagSamples.empty())
+            if (state.samples.empty())
             {
-                gAudioCaptureDiagChannels = packet.mChannels;
+                state.channels = packet.mChannels;
             }
             // CEF's own sample rate isn't threaded through LLEmbeddedBrowserAudioPacket
             // (only frames/channels/pts are) -- 48000 matches CEF's own common default
             // and is good enough for this throwaway test; not worth plumbing the real
             // value through just for a diagnostic.
-            gAudioCaptureDiagSampleRate = 48000;
+            state.sampleRate = 48000;
 
-            const std::size_t base = gAudioCaptureDiagSamples.size();
-            gAudioCaptureDiagSamples.resize(base + packet.mSamples.size());
+            const std::size_t base = state.samples.size();
+            state.samples.resize(base + packet.mSamples.size());
             for (unsigned int ch = 0; ch < packet.mChannels; ++ch)
             {
                 for (unsigned int f = 0; f < packet.mFrames; ++f)
                 {
                     const float s = packet.mSamples[std::size_t(ch) * packet.mFrames + f];
                     const float clamped = llclamp(s, -1.f, 1.f);
-                    gAudioCaptureDiagSamples[base + std::size_t(f) * packet.mChannels + ch] =
+                    state.samples[base + std::size_t(f) * packet.mChannels + ch] =
                         std::int16_t(clamped * 32767.f);
                 }
             }
@@ -4427,10 +4434,10 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
         // Rewrite the file roughly once a second (assuming ~every-frame calls at
         // ~60fps) rather than on every single packet -- survives a force-quit without
         // rewriting a multi-MB file every tick.
-        if (++gAudioCaptureDiagFlushCounter >= 60)
+        if (++state.flushCounter >= 60)
         {
-            gAudioCaptureDiagFlushCounter = 0;
-            writeAudioCaptureDiagWav();
+            state.flushCounter = 0;
+            writeAudioCaptureDiagWav(mEmbeddedBrowserId, state);
         }
     }
 

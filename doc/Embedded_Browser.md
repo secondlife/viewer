@@ -941,6 +941,18 @@ since audio packets arrive far more often than UI events. Nothing in this
 Viewer repo consumes that handoff yet - wiring it into OpenAL for real
 distance/volume/3D-positioned playback is separate, follow-on work.
 
+**Known gap: capture is unreliable on the pre-login splash page specifically.**
+Extensive testing (2026-10-07/08) found capture works reliably for every
+real post-login scenario (prim media, the Media Debug floater, single or
+multiple simultaneous capturing tabs) but not on the splash/login screen
+before the user has actually logged in - CEF asks for audio parameters but
+never starts a real stream there, regardless of mute state, profile
+freshness, or how many browsers are alive. Root cause not fully understood
+(plausibly tied to the Viewer's own audio engine not yet producing any real
+output pre-login, affecting whether the OS audio device/Chromium's shared
+audio service is "warm"); not chased further since no real usage of this
+feature happens before login.
+
 ## Known limitations, as of this writing
 
 - **CEF's own codec coverage for ordinary web-embedded video, versus

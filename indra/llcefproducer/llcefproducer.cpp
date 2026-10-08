@@ -429,14 +429,18 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
                                                            data, std::uint8_t(channels));
                 const bool sent = slot->pub->send(kAudioPacket, payload.data(), n);
                 ++packet_count;
-                if (packet_count == 1 || packet_count % 500 == 0) {
+                if (packet_count == 1 || packet_count % 500 == 0 || !sent) {
                     log_info("slot " + std::to_string(index) + ": audio packet #" + std::to_string(packet_count) +
                              " frames=" + std::to_string(frames) + " channels=" + std::to_string(channels) +
                              " sent=" + (sent ? "yes" : "NO (send failed)"));
                 }
             }
         });
-        manager.SetOnAudioStreamStoppedCallback(handle, [slot]() {
+        manager.SetOnAudioStreamStoppedCallback(handle, [slot, index]() {
+            // Proof-of-life/diagnostic: confirms whether CEF explicitly signals a
+            // stop versus the stream just silently going quiet (a meaningfully
+            // different failure mode) -- cheap, infrequent, worth keeping.
+            log_info("slot " + std::to_string(index) + ": audio stream STOPPED");
             if (slot->pub) slot->pub->send(kAudioStreamStopped);
         });
         manager.SetOnAudioStreamErrorCallback(handle, [index](const std::string& message) {
