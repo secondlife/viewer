@@ -1076,7 +1076,7 @@ void LLMaterialEditor::setEnableEditing(bool can_modify)
     mEmissiveTextureCtrl->setEnabled(can_modify);
     mNormalTextureCtrl->setEnabled(can_modify);
 
-    // PBR Extensions V1 — hide controls when server flag is absent
+    // PBR Extensions V1 - hide controls when server flag is absent
     bool pbr_ext = false;
     LLViewerRegion* region = gAgent.getRegion();
     if (region)
@@ -3622,6 +3622,7 @@ void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
     mat->mSpecularColorFactor = getSpecularColorFactor();
     mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR] = getSpecularId();
     mat->mIOR = getIOR();
+    mat->bumpVersion();
 }
 
 void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)

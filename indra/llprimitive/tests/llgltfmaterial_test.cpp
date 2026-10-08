@@ -371,6 +371,7 @@ namespace tut
 
         const LLGLTFMaterial old_material = material;
         material_field = new_value;
+        material.bumpVersion(); // raw field writes must bump for a valid getHash
         // If this test fails, consult LLGLTFMaterial::getHash, and optionally consult http://www.catb.org/esr/structure-packing/ for guidance on optimal memory packing (effectiveness is platform-dependent)
         ensure_equals(("LLGLTFMaterial: Hash: Perturbing " + field_name + " to new value does NOT change the hash").c_str(), material.getHash(), old_material.getHash());
     }
@@ -382,6 +383,7 @@ namespace tut
 
         const LLGLTFMaterial old_material = material;
         material_field = new_value;
+        material.bumpVersion(); // raw field writes must bump for a valid getHash
         // If this test fails, consult LLGLTFMaterial::getHash, and optionally consult http://www.catb.org/esr/structure-packing/ for guidance on optimal memory packing (effectiveness is platform-dependent)
         ensure_not_equals(("LLGLTFMaterial: Hash: Perturbing " + field_name + " to new value changes the hash").c_str(), material.getHash(), old_material.getHash());
     }

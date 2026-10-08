@@ -441,5 +441,7 @@ bool LLGLTFHelper::getMaterialFromModel(
         material->mEmissiveTexture = nullptr;
     }
 
+    material->bumpVersion();
+
     return true;
 }

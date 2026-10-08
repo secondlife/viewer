@@ -5498,7 +5498,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     llassert(gltf_mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(te->getGLTFRenderMaterial()) != nullptr);
     if (gltf_mat != nullptr)
     {
-        mat_id = gltf_mat->getHash(); // TODO: cache this hash
+        mat_id = gltf_mat->getHash();
         if (!facep->hasMedia() || (tex && tex->getType() != LLViewerTexture::MEDIA_TEXTURE))
         { // no media texture, face texture will be unused
             tex = nullptr;
@@ -5739,6 +5739,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
     group->mBuilt = 1.f;
 
+    // ALPHA_DIRTY-only rebuilds (alpha view-angle re-sort) cannot change materials
+    bool materials_dirty = group->hasState(LLSpatialGroup::GEOM_DIRTY);
+
     LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
     LLViewerObject *vobj = NULL;
     LLVOVolume *vol_obj = NULL;
@@ -5809,15 +5812,18 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 continue;
             }
 
-            // HACK -- brute force this check every time a drawable gets rebuilt
-            S32 num_tex = llmin(vobj->getNumTEs(), drawablep->getNumFaces());
-            for (S32 i = 0; i < num_tex; ++i)
+            if (materials_dirty)
             {
-                vobj->updateTEMaterialTextures(i);
-            }
+                // HACK -- brute force this check every time a drawable gets rebuilt
+                S32 num_tex = llmin(vobj->getNumTEs(), drawablep->getNumFaces());
+                for (S32 i = 0; i < num_tex; ++i)
+                {
+                    vobj->updateTEMaterialTextures(i);
+                }
 
-            // apply any pending material overrides
-            gGLTFMaterialList.applyQueuedOverrides(vobj);
+                // apply any pending material overrides
+                gGLTFMaterialList.applyQueuedOverrides(vobj);
+            }
 
             bool is_mesh = vobj->isMesh();
             if (is_mesh)

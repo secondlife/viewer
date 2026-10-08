@@ -55,6 +55,7 @@
 #include "llviewershadermgr.h"
 
 S32 LLDrawPool::sNumDrawPools = 0;
+U32 LLRenderPass::sDrawCalls = 0;
 
 //=============================
 // Draw Pool Implementation
@@ -482,16 +483,58 @@ void LLRenderPass::pushUntexturedBatches(U32 type)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     auto* begin = gPipeline.beginRenderMap(type);
     auto* end = gPipeline.endRenderMap(type);
+
+    // coalesce index-contiguous runs sharing a vertex buffer and model matrix
+    // into single draws; nothing else is bound on the untextured path
+    LLDrawInfo* run = nullptr;
+    U32 run_start = 0;
+    U32 run_end = 0;
+    U32 run_count = 0;
+    U32 run_offset = 0;
+    S32 merged = 0;
+
+    auto flush = [&]()
+    {
+        if (run)
+        {
+            applyModelMatrix(*run);
+            run->mVertexBuffer->setBuffer();
+            run->mVertexBuffer->drawRange(LLRender::TRIANGLES, run_start, run_end, run_count, run_offset);
+            ++sDrawCalls;
+        }
+    };
+
     for (LLCullResult::drawinfo_iterator i = begin; i != end; )
     {
         LLDrawInfo* pparams = *i;
         LLCullResult::increment_iterator(i, end);
 
-        if (pparams)
+        if (!pparams || !pparams->mCount)
         {
-            pushUntexturedBatch(*pparams);
+            continue;
         }
+
+        if (run &&
+            pparams->mVertexBuffer == run->mVertexBuffer &&
+            pparams->mModelMatrix == run->mModelMatrix &&
+            run_offset + run_count == pparams->mOffset)
+        {
+            run_start = llmin(run_start, (U32)pparams->mStart);
+            run_end = llmax(run_end, (U32)pparams->mEnd);
+            run_count += pparams->mCount;
+            ++merged;
+            continue;
+        }
+
+        flush();
+        run = pparams;
+        run_start = pparams->mStart;
+        run_end = pparams->mEnd;
+        run_count = pparams->mCount;
+        run_offset = pparams->mOffset;
     }
+    flush();
+    LL_PROFILE_ZONE_NUM(merged);
 }
 
 void LLRenderPass::pushRiggedBatches(U32 type, bool texture, bool batch_textures)
@@ -530,16 +573,64 @@ void LLRenderPass::pushUntexturedRiggedBatches(U32 type)
     bool skipLastSkin = false;
     auto* begin = gPipeline.beginRenderMap(type);
     auto* end = gPipeline.endRenderMap(type);
+
+    // same coalescing as pushUntexturedBatches, additionally keyed on the
+    // matrix palette inputs (avatar + skin info)
+    LLDrawInfo* run = nullptr;
+    U32 run_start = 0;
+    U32 run_end = 0;
+    U32 run_count = 0;
+    U32 run_offset = 0;
+    S32 merged = 0;
+
+    auto flush = [&]()
+    {
+        if (run)
+        {
+            applyModelMatrix(*run);
+            run->mVertexBuffer->setBuffer();
+            run->mVertexBuffer->drawRange(LLRender::TRIANGLES, run_start, run_end, run_count, run_offset);
+            ++sDrawCalls;
+        }
+    };
+
     for (LLCullResult::drawinfo_iterator i = begin; i != end; )
     {
         LLDrawInfo* pparams = *i;
         LLCullResult::increment_iterator(i, end);
 
-        if (pparams && uploadMatrixPalette(pparams->mAvatar, pparams->mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
+        if (!pparams || !pparams->mCount)
         {
-            pushUntexturedBatch(*pparams);
+            continue;
+        }
+
+        if (run &&
+            pparams->mVertexBuffer == run->mVertexBuffer &&
+            pparams->mModelMatrix == run->mModelMatrix &&
+            pparams->mAvatar == run->mAvatar &&
+            pparams->mSkinInfo == run->mSkinInfo &&
+            run_offset + run_count == pparams->mOffset)
+        {
+            run_start = llmin(run_start, (U32)pparams->mStart);
+            run_end = llmax(run_end, (U32)pparams->mEnd);
+            run_count += pparams->mCount;
+            ++merged;
+            continue;
+        }
+
+        flush();
+        run = nullptr;
+        if (uploadMatrixPalette(pparams->mAvatar, pparams->mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
+        {
+            run = pparams;
+            run_start = pparams->mStart;
+            run_end = pparams->mEnd;
+            run_count = pparams->mCount;
+            run_offset = pparams->mOffset;
         }
     }
+    flush();
+    LL_PROFILE_ZONE_NUM(merged);
 }
 
 void LLRenderPass::pushMaskBatches(U32 type, bool texture, bool batch_textures)
@@ -655,6 +746,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, bool texture, bool batch_textur
 
     params.mVertexBuffer->setBuffer();
     params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+    ++sDrawCalls;
 
     if (tex_setup)
     {
@@ -677,6 +769,7 @@ void LLRenderPass::pushUntexturedBatch(LLDrawInfo& params)
 
     params.mVertexBuffer->setBuffer();
     params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+    ++sDrawCalls;
 }
 
 // static
@@ -1040,6 +1133,7 @@ void LLRenderPass::pushGLTFBatch(LLDrawInfo& params)
 
     params.mVertexBuffer->setBuffer();
     params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+    ++sDrawCalls;
 
     teardown_texture_matrix(params);
 }
@@ -1055,6 +1149,7 @@ void LLRenderPass::pushUntexturedGLTFBatch(LLDrawInfo& params)
 
     params.mVertexBuffer->setBuffer();
     params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+    ++sDrawCalls;
 }
 
 void LLRenderPass::pushRiggedGLTFBatches(U32 type, bool textured)

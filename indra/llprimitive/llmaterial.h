@@ -125,6 +125,11 @@ public:
     U32         getShaderMask(U32 alpha_mode, bool is_alpha);
     LLUUID      getHash() const;
 
+    // Hashed-state mutations must go through a setter or be followed by
+    // bumpVersion(); a missed bump means a stale hash and wrong batching.
+    void        bumpVersion() { ++mVersion; }
+    U32         getVersion() const { return mVersion; }
+
 protected:
     LLUUID      mNormalID;
     F32         mNormalOffsetX;
@@ -145,6 +150,11 @@ protected:
     U8          mEnvironmentIntensity;
     U8          mDiffuseAlphaMode;
     U8          mAlphaMaskCutoff;
+
+    // Not hashed state; getHash() must never include these.
+    U32         mVersion;
+    mutable LLUUID mCachedHash;
+    mutable U32 mCachedHashVersion;
 };
 
 typedef LLPointer<LLMaterial> LLMaterialPtr;

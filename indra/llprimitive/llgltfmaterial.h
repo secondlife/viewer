@@ -114,6 +114,11 @@ public:
     // get a UUID based on a hash of this LLGLTFMaterial
     LLUUID getHash() const;
 
+    // Hashed-state mutations must go through a mutator or be followed by
+    // bumpVersion(); a missed bump means a stale hash and wrong batching.
+    void bumpVersion() { ++mVersion; }
+    U32 getVersion() const { return mVersion; }
+
     //setters for various members (will clamp to acceptable ranges)
     // for_override - set to true if this value is being set as part of an override (important for handling override to default value)
 
@@ -291,4 +296,9 @@ public:
     // hack
     bool mOverrideDoubleSided = false;
     bool mOverrideAlphaMode = false;
+
+    // POD only past mLocalTexDataDigest: the ctor memset zeroes this region.
+    U32 mVersion;
+    mutable LLUUID mCachedHash;
+    mutable U32 mCachedHashVersion;
 };

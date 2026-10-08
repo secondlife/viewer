@@ -61,6 +61,7 @@ LLGLTFMaterial::LLGLTFMaterial()
 
     // Now that we zeroed out our member variables, we can set the ones that
     // should not be zero to their default value. HB
+    mVersion = 1; // mCachedHashVersion stays 0, so the zeroed cache is never read
     mBaseColor.set(1.f, 1.f, 1.f, 1.f);
     mMetallicFactor = mRoughnessFactor = 1.f;
     mAlphaCutoff = 0.5f;
@@ -108,7 +109,10 @@ bool LLGLTFMaterial::TextureTransform::operator==(const TextureTransform& other)
     return mOffset == other.mOffset && mScale == other.mScale && mRotation == other.mRotation;
 }
 
+// Delegate to the default ctor so mVersion/mCachedHashVersion are initialized
+// before operator= bumps them.
 LLGLTFMaterial::LLGLTFMaterial(const LLGLTFMaterial& rhs)
+    : LLGLTFMaterial()
 {
     *this = rhs;
 }
@@ -148,6 +152,8 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
         updateLocalTexDataDigest();
         updateTextureTracking();
     }
+
+    bumpVersion();
 
     return *this;
 }
@@ -478,6 +484,8 @@ bool LLGLTFMaterial::setFromDocument(const boost::json::value& doc, S32 mat_inde
         }
     }
 
+    bumpVersion();
+
     return true;
 }
 
@@ -765,6 +773,7 @@ boost::json::value LLGLTFMaterial::writeDocument() const
 void LLGLTFMaterial::sanitizeAssetMaterial()
 {
     mTextureTransform = sDefault.mTextureTransform;
+    bumpVersion();
 }
 
 bool LLGLTFMaterial::setBaseMaterial()
@@ -779,6 +788,7 @@ bool LLGLTFMaterial::setBaseMaterial()
 void LLGLTFMaterial::setBaseMaterial(const LLGLTFMaterial& old_override_mat)
 {
     mTextureTransform = old_override_mat.mTextureTransform;
+    bumpVersion();
 }
 
 bool LLGLTFMaterial::isClearedForBaseMaterial() const
@@ -805,6 +815,7 @@ void LLGLTFMaterial::setTextureId(TextureInfo texture_info, const LLUUID& id, bo
     {
         hackOverrideUUID(mTextureId[texture_info]);
     }
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setBaseColorId(const LLUUID& id, bool for_override)
@@ -844,6 +855,7 @@ void LLGLTFMaterial::setBaseColorFactor(const LLColor4& baseColor, bool for_over
             mBaseColor.mV[3] -= FLT_EPSILON;
         }
     }
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setAlphaCutoff(F32 cutoff, bool for_override)
@@ -856,6 +868,7 @@ void LLGLTFMaterial::setAlphaCutoff(F32 cutoff, bool for_override)
             mAlphaCutoff -= FLT_EPSILON;
         }
     }
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setEmissiveColorFactor(const LLColor3& emissiveColor, bool for_override)
@@ -870,16 +883,19 @@ void LLGLTFMaterial::setEmissiveColorFactor(const LLColor3& emissiveColor, bool 
             mEmissiveColor.mV[0] += FLT_EPSILON;
         }
     }
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setMetallicFactor(F32 metallic, bool for_override)
 {
     mMetallicFactor = llclamp(metallic, 0.f, for_override ? 1.f - FLT_EPSILON : 1.f);
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setRoughnessFactor(F32 roughness, bool for_override)
 {
     mRoughnessFactor = llclamp(roughness, 0.f, for_override ? 1.f - FLT_EPSILON : 1.f);
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setAlphaMode(const std::string& mode, bool for_override)
@@ -911,6 +927,7 @@ void LLGLTFMaterial::setAlphaMode(S32 mode, bool for_override)
 {
     mAlphaMode = (AlphaMode) llclamp(mode, (S32) ALPHA_MODE_OPAQUE, (S32) ALPHA_MODE_MASK);
     mOverrideAlphaMode = for_override && mAlphaMode == getDefaultAlphaMode();
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setDoubleSided(bool double_sided, bool for_override)
@@ -919,6 +936,7 @@ void LLGLTFMaterial::setDoubleSided(bool double_sided, bool for_override)
     // setter for consistency with the clamping API
     mDoubleSided = double_sided;
     mOverrideDoubleSided = for_override && mDoubleSided == getDefaultDoubleSided();
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setEmissiveStrength(F32 strength, bool for_override)
@@ -931,11 +949,13 @@ void LLGLTFMaterial::setEmissiveStrength(F32 strength, bool for_override)
             mEmissiveStrength -= FLT_EPSILON;
         }
     }
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setSpecularFactor(F32 factor, bool for_override)
 {
     mSpecularFactor = llclamp(factor, 0.f, for_override ? 1.f - FLT_EPSILON : 1.f);
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setIOR(F32 ior, bool for_override)
@@ -945,6 +965,7 @@ void LLGLTFMaterial::setIOR(F32 ior, bool for_override)
     {
         mIOR -= FLT_EPSILON;
     }
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setSpecularColorFactor(const LLColor3& color, bool for_override)
@@ -959,21 +980,25 @@ void LLGLTFMaterial::setSpecularColorFactor(const LLColor3& color, bool for_over
             mSpecularColorFactor.mV[0] -= FLT_EPSILON;
         }
     }
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setTextureOffset(TextureInfo texture_info, const LLVector2& offset)
 {
     mTextureTransform[texture_info].mOffset = offset;
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setTextureScale(TextureInfo texture_info, const LLVector2& scale)
 {
     mTextureTransform[texture_info].mScale = scale;
+    bumpVersion();
 }
 
 void LLGLTFMaterial::setTextureRotation(TextureInfo texture_info, float rotation)
 {
     mTextureTransform[texture_info].mRotation = rotation;
+    bumpVersion();
 }
 
 // Default value accessors (NOTE: these MUST match the GLTF specification)
@@ -1157,6 +1182,8 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
         updateLocalTexDataDigest();
         updateTextureTracking();
     }
+
+    bumpVersion();
 }
 
 void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data) const
@@ -1396,10 +1423,16 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
             }
         }
     }
+
+    bumpVersion();
 }
 
 LLUUID LLGLTFMaterial::getHash() const
 {
+    if (mCachedHashVersion == mVersion)
+    {
+        return mCachedHash;
+    }
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
     // Hash each field explicitly rather than hashing raw object bytes.
@@ -1438,19 +1471,23 @@ LLUUID LLGLTFMaterial::getHash() const
     hash.update(&mOverrideAlphaMode, sizeof(mOverrideAlphaMode));
 
     hash.finalize();
-    return hash.digest();
+    mCachedHash = hash.digest();
+    mCachedHashVersion = mVersion;
+    return mCachedHash;
 }
 
 void LLGLTFMaterial::addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id)
 {
     mTrackingIdToLocalTexture[tracking_id] = tex_id;
     updateLocalTexDataDigest();
+    bumpVersion();
 }
 
 void LLGLTFMaterial::removeLocalTextureTracking(const LLUUID& tracking_id)
 {
     mTrackingIdToLocalTexture.erase(tracking_id);
     updateLocalTexDataDigest();
+    bumpVersion();
 }
 
 bool LLGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id)
@@ -1479,6 +1516,7 @@ bool LLGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID
         mTrackingIdToLocalTexture.erase(tracking_id);
     }
     updateLocalTexDataDigest();
+    bumpVersion();
 
     return res;
 }
@@ -1583,8 +1621,8 @@ void LLGLTFMaterial::convertPBRTransformToTexture(
     tex_rotation = -pbr_rotation;
 
     // Reverse the scale transformation
-    // From: pbr_s = tex_s * cos² + tex_t * sin²
-    //       pbr_t = tex_s * sin² + tex_t * cos²
+    // From: pbr_s = tex_s * cos^2 + tex_t * sin^2
+    //       pbr_t = tex_s * sin^2 + tex_t * cos^2
     // Solve for tex_s and tex_t
     F32 cos_rot = cosf(tex_rotation);
     F32 sin_rot = sinf(tex_rotation);
@@ -1593,9 +1631,9 @@ void LLGLTFMaterial::convertPBRTransformToTexture(
 
     F32 denom = cos_sq * cos_sq - sin_sq * sin_sq;
 
-    if (fabsf(denom) < 0.0001f) // Near 45 degrees (cos²≈sin²≈0.5)
+    if (fabsf(denom) < 0.0001f) // Near 45 degrees (cos^2 ~= sin^2 ~= 0.5)
     {
-        // At 45°: both scales contribute equally
+        // At 45 degrees: both scales contribute equally
         // pbr_s = pbr_t = (tex_s + tex_t) / 2
         // So: tex_s + tex_t = 2 * pbr_avg
         // Use the average and assume symmetric scaling
@@ -1604,8 +1642,8 @@ void LLGLTFMaterial::convertPBRTransformToTexture(
     else
     {
         // Solve the 2x2 system:
-        // pbr_s * cos² - pbr_t * sin² = tex_s * (cos⁴ - sin⁴)
-        // pbr_t * cos² - pbr_s * sin² = tex_t * (cos⁴ - sin⁴)
+        // pbr_s * cos^2 - pbr_t * sin^2 = tex_s * (cos^4 - sin^4)
+        // pbr_t * cos^2 - pbr_s * sin^2 = tex_t * (cos^4 - sin^4)
         tex_scale_s = (pbr_scale.mV[VX] * cos_sq - pbr_scale.mV[VY] * sin_sq) / denom;
         tex_scale_t = (pbr_scale.mV[VY] * cos_sq - pbr_scale.mV[VX] * sin_sq) / denom;
     }

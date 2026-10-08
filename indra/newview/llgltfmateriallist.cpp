@@ -267,6 +267,7 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
                             {
                                 mat->mIOR = existing_override->mIOR;
                             }
+                            mat->bumpVersion();
                         }
                     }
 

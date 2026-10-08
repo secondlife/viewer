@@ -130,6 +130,10 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
         {
             mGLTFMaterialOverrides = nullptr;
         }
+
+        // render material is not copied; force initRenderMaterial to rebuild
+        mRenderMatBaseVersion = 0;
+        mRenderMatOverrideVersion = 0;
     }
 
     return *this;
@@ -556,6 +560,9 @@ void LLTextureEntry::setGLTFMaterial(LLGLTFMaterial* material, bool local_origin
         {
             setGLTFRenderMaterial(nullptr);
         }
+
+        mRenderMatBaseVersion = 0;
+        mRenderMatOverrideVersion = 0;
     }
 }
 
@@ -568,6 +575,9 @@ S32 LLTextureEntry::setGLTFMaterialOverride(LLGLTFMaterial* mat)
     }
 
     mGLTFMaterialOverrides = mat;
+
+    mRenderMatBaseVersion = 0;
+    mRenderMatOverrideVersion = 0;
 
     return TEM_CHANGE_TEXTURE;
 }

@@ -924,12 +924,12 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
             }
             if (RenderFSAAType == 3)
             {
-                // history must match the working color format — an 8-bit history
+                // history must match the working color format - an 8-bit history
                 // against an HDR current frame corrupts the resolve's
                 // velocity-weight alpha compare
                 if (!mSMAAHistory.allocate(resX, resY, post_color_fmt)) return false;
 
-                // start from defined history — first resolve reads garbage otherwise
+                // start from defined history - first resolve reads garbage otherwise
                 mSMAAHistory.bindTarget();
                 mSMAAHistory.clear();
                 mSMAAHistory.flush();
@@ -2913,8 +2913,6 @@ void LLPipeline::rebuildPriorityGroups()
     LLTimer update_timer;
     assertInitialized();
 
-    gMeshRepo.notifyLoadedMeshes();
-
     mGroupQ1Locked = true;
     // Iterate through all drawables on the priority build queue,
     for (LLSpatialGroup::sg_vector_t::iterator iter = mGroupQ1.begin();
@@ -2943,6 +2941,9 @@ void LLPipeline::updateGeom(F32 max_dtime)
     }
 
     assertInitialized();
+
+    // once per frame, ahead of the mBuildQ1 drain it feeds
+    gMeshRepo.notifyLoadedMeshes();
 
     // notify various object types to reset internal cost metrics, etc.
     // for now, only LLVOVolume does this to throttle LOD changes
@@ -7696,7 +7697,7 @@ void LLPipeline::renderSSRAlpha()
 
     ssrTraceTarget().flush();
 
-    // Reset modelview to camera-only — applyModelMatrix leaves a stale
+    // Reset modelview to camera-only - applyModelMatrix leaves a stale
     // object transform that would corrupt light volume positions in
     // renderDeferredLighting (the point light vertex shader multiplies by
     // modelview_projection_matrix via syncMatrices).
@@ -7731,7 +7732,7 @@ void LLPipeline::renderSSRWater()
 
     trace_target.flush();
 
-    // Same matrix reset as renderSSRAlpha — water geometry may leave a stale
+    // Same matrix reset as renderSSRAlpha - water geometry may leave a stale
     // modelview that would corrupt light volume positions in deferred lighting.
     gGLLastMatrix = NULL;
     gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -8532,10 +8533,10 @@ void LLPipeline::resolveSMAAT2x(LLRenderTarget* src, LLRenderTarget* dst)
     dst->flush();
 
     // Save the current SMAA'd frame (not the resolved output) to history.
-    // The resolve blends current and previous SMAA outputs — if we stored
+    // The resolve blends current and previous SMAA outputs - if we stored
     // the resolved result, it would create exponential decay instead of a
     // true 50/50 blend between the two jitter samples.
-    // Plain passthrough copy — copyRenderTarget routes through the post
+    // Plain passthrough copy - copyRenderTarget routes through the post
     // program, which clamps HDR range and would quantize history.
     // (gCopyProgram is color-only; the history target has no depth)
     mSMAAHistory.bindTarget();
@@ -10284,7 +10285,7 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
             shader.uniform1f(LLShaderMgr::DEFERRED_SSR_DEPTH_BIAS, traceDepthBias);
             shader.uniform1f(LLShaderMgr::DEFERRED_SSR_GLOSSY_SAMPLES, (GLfloat)RenderScreenSpaceReflectionGlossySamples);
 
-            // advance once per frame — the alpha prepass binds per draw, and a
+            // advance once per frame - the alpha prepass binds per draw, and a
             // per-bind advance makes the noise/dither phase depend on draw count
             if (isSSRTraceProgram && mPoissonFrame != gFrameCount)
             {
@@ -10408,6 +10409,8 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
     // Shadow binds aren't visibility. RAII (not a hardcoded restore) so a shadow
     // pass nested in a probe render doesn't re-enable stamping for the rest of it.
     LLImageGLStampBypass stamp_bypass;
+
+    U32 draw_calls_start = LLRenderPass::sDrawCalls;
 
     // disable occlusion culling during shadow render
     U32 saved_occlusion = sUseOcclusion;
@@ -10604,6 +10607,8 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
     // reset occlusion culling flag
     sUseOcclusion = saved_occlusion;
     LLPipeline::sShadowRender = false;
+
+    LL_PROFILE_PLOT("Shadow draw calls", (S64)(LLRenderPass::sDrawCalls - draw_calls_start));
 }
 
 bool LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir)

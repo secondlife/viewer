@@ -211,6 +211,15 @@ public:
     LLGLTFMaterial* getGLTFRenderMaterial() const;
     S32 setGLTFRenderMaterial(LLGLTFMaterial* mat);
 
+    // Versions of base/override the render material was built from; 0 = not built.
+    U32 getRenderMatBaseVersion() const { return mRenderMatBaseVersion; }
+    U32 getRenderMatOverrideVersion() const { return mRenderMatOverrideVersion; }
+    void setRenderMatVersions(U32 base_version, U32 override_version)
+    {
+        mRenderMatBaseVersion = base_version;
+        mRenderMatOverrideVersion = override_version;
+    }
+
 public:
     F32                 mScaleS;                // S, T offset
     F32                 mScaleT;                // S, T offset
@@ -248,6 +257,10 @@ protected:
 
     // GLTF material to use for rendering -- will always be an LLFetchedGLTFMaterial
     LLPointer<LLGLTFMaterial> mGLTFRenderMaterial;
+
+    // Viewer-local memo for initRenderMaterial; not serialized or packed.
+    U32 mRenderMatBaseVersion = 0;
+    U32 mRenderMatOverrideVersion = 0;
 
     // Note the media data is not sent via the same message structure as the rest of the TE
     LLMediaEntry*       mMediaEntry;            // The media data for the face

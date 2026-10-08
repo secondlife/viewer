@@ -959,7 +959,7 @@ void LLViewerObject::addChild(LLViewerObject *childp)
         {
             if (auto ws_server = LLScriptEditorWSServer::getServer())
             {
-                // If the child was itself a published root, unpublish it — it is now a child prim
+                // If the child was itself a published root, unpublish it - it is now a child prim
                 if (ws_server->isObjectPublished(childp->getID()))
                 {
                     ws_server->unpublishObject(childp->getID(), "linked");
@@ -5882,29 +5882,59 @@ S32 LLViewerObject::initRenderMaterial(U8 te)
     llassert(base_material);
     if (!base_material) { return 0; }
     const LLGLTFMaterial* override_material = tep->getGLTFMaterialOverride();
-    LLFetchedGLTFMaterial* render_material = nullptr;
-    bool need_render_material = override_material;
-    if (!need_render_material)
+
+    const U32 base_version = base_material->getVersion();
+    const U32 override_version = override_material ? override_material->getVersion() : 0;
+    if (base_version == tep->getRenderMatBaseVersion() &&
+        override_version == tep->getRenderMatOverrideVersion())
     {
-        for (const LLUUID& texture_id : base_material->mTextureId)
+        return TEM_CHANGE_NONE;
+    }
+
+    {
+        LL_PROFILE_ZONE_NAMED("initRenderMaterial - rebuild");
+
+        bool need_render_material = override_material;
+        if (!need_render_material)
         {
-            if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texture_id))
+            for (const LLUUID& texture_id : base_material->mTextureId)
             {
-                need_render_material = true;
-                break;
+                if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texture_id))
+                {
+                    need_render_material = true;
+                    break;
+                }
             }
         }
-    }
-    if (need_render_material)
-    {
-        render_material = new LLFetchedGLTFMaterial(*base_material);
-        if (override_material)
+        if (need_render_material)
         {
-            render_material->applyOverride(*override_material);
+            // Refresh the existing render material in place when there is one;
+            // operator= (unlike the copy ctor) does not drag base_material's
+            // mTextureEntires set along. The getter falls back to the base when
+            // no dedicated render material exists -- never refresh onto the base.
+            LLFetchedGLTFMaterial* render_material = static_cast<LLFetchedGLTFMaterial*>(tep->getGLTFRenderMaterial());
+            if (render_material == base_material)
+            {
+                render_material = new LLFetchedGLTFMaterial();
+            }
+            *render_material = *base_material;
+            if (override_material)
+            {
+                render_material->applyOverride(*override_material);
+            }
+            render_material->clearFetchedTextures();
+            tep->setGLTFRenderMaterial(render_material);
         }
-        render_material->clearFetchedTextures();
+        else
+        {
+            tep->setGLTFRenderMaterial(nullptr);
+        }
+        tep->setRenderMatVersions(base_version, override_version);
     }
-    return tep->setGLTFRenderMaterial(render_material);
+
+    // report the change ourselves: an in-place refresh keeps the pointer, so
+    // setGLTFRenderMaterial's identity check would say nothing changed
+    return TEM_CHANGE_TEXTURE;
 }
 
 S32 LLViewerObject::setTEGLTFMaterialOverride(U8 te, LLGLTFMaterial* override_mat)

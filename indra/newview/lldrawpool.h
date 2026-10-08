@@ -390,6 +390,9 @@ public:
     void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushBatch(LLDrawInfo& params, bool texture, bool batch_textures = false);
     void pushUntexturedBatch(LLDrawInfo& params);
+
+    // draw calls issued via pushBatch/pushUntexturedBatch this frame; sampled around shadow passes
+    static U32 sDrawCalls;
     void pushBumpBatch(LLDrawInfo& params, bool texture, bool batch_textures = false);
     static bool uploadMatrixPalette(LLDrawInfo& params);
     static bool uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo);
@@ -398,7 +401,7 @@ public:
     virtual void renderGroup(LLSpatialGroup* group, U32 type, bool texture = true);
     virtual void renderRiggedGroup(LLSpatialGroup* group, U32 type, bool texture = true);
 
-    // Velocity buffer helpers — iterate render map, upload per-object last/current matrices, draw
+    // Velocity buffer helpers - iterate render map, upload per-object last/current matrices, draw
     void pushVelocityBatches(U32 type);
     void pushRiggedVelocityBatches(U32 type);
     void pushVelocityBatchesTextured(U32 type);
