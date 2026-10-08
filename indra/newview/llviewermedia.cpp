@@ -2830,6 +2830,21 @@ void LLViewerMediaImpl::updateVolume()
                 const F32 gain = local_volume * LLViewerMedia::getInstance()->getVolumeExcludingMaster();
                 mEmbeddedBrowserAudio->setGain(gain);
 
+                // The page's own <video>/<audio> elements must stay at full volume: the
+                // stream's gain is the volume control now. Anything less isn't just quieter
+                // -- Chromium stops an element's audio stream entirely at volume 0, leaving
+                // nothing to capture. That's exactly what happened when a level injected by
+                // the branch below, before capture had been granted, stayed in effect
+                // afterwards: often 0, since a tab created during the login/teleport progress
+                // screen (sOnlyAudibleTextureID) or out of range starts out silent. Setting
+                // mEmbeddedBrowserCefVolume also makes LoadEnd's per-navigation re-injection
+                // (see updateEmbeddedBrowserEvents()) use 1.0 from here on.
+                if (mEmbeddedBrowserCefVolume != 1.f)
+                {
+                    mEmbeddedBrowserCefVolume = 1.f;
+                    executeJavaScript(buildEmbeddedBrowserVolumeUpdateScript(1.f));
+                }
+
                 // A no-op for a non-spatial (UI/parcel) stream.
                 if (mEmbeddedBrowserAudioHasPosition)
                 {
@@ -2918,8 +2933,16 @@ void LLViewerMediaImpl::updateVolume()
                         << (should_mute ? "true" : "false") << ")" << LL_ENDL;
                 }
 
+                // Not while this tab's audio capture is still undecided (requested, but not
+                // yet connected to learn whether the producer granted it): if it's granted,
+                // the page must be left at full volume (see the branch above), and a 0
+                // injected now would silence it at the source. setMuted() above still
+                // covers the gap; a declined tab picks up its real level here once connected.
+                unsigned int slot_index = 0;
+                const bool capture_undecided = mEmbeddedBrowserAudio && !getEmbeddedBrowserSlotIndex(slot_index);
+
                 F32 send_volume = (volume < EMBEDDED_BROWSER_VOLUME_EPSILON) ? 0.0f : volume;
-                if (fabsf(send_volume - mEmbeddedBrowserCefVolume) >= EMBEDDED_BROWSER_VOLUME_EPSILON)
+                if (!capture_undecided && fabsf(send_volume - mEmbeddedBrowserCefVolume) >= EMBEDDED_BROWSER_VOLUME_EPSILON)
                 {
                     mEmbeddedBrowserCefVolume = send_volume;
                     LL_INFOS("MediaVolume") << "CEF media (id=" << mTextureId
