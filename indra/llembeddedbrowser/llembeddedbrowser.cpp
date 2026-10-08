@@ -380,6 +380,7 @@ void LLEmbeddedBrowserTab::update()
                                                  sampleRate, framesPerBuffer, channels))
                 {
                     mAudioChannels = channels;
+                    mAudioSampleRate = sampleRate;
                 }
                 continue;
             }
@@ -397,6 +398,7 @@ void LLEmbeddedBrowserTab::update()
                         packet.mPts = pts;
                         packet.mFrames = frames;
                         packet.mChannels = mAudioChannels;
+                        packet.mSampleRate = mAudioSampleRate;
                         packet.mSamples.resize(mAudioChannels * std::size_t(frames));
                         std::memcpy(packet.mSamples.data(), cmd.data.data() + header_bytes, want_bytes);
 
@@ -408,6 +410,7 @@ void LLEmbeddedBrowserTab::update()
             }
             case kAudioStreamStopped:
                 mAudioChannels = 0;
+                mAudioSampleRate = 0;
                 continue;
             case kEventNavStateChanged:
                 // Cached state, polled every frame via canGoBack()/canGoForward() (to

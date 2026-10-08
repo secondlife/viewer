@@ -145,6 +145,7 @@ struct LLEmbeddedBrowserAudioPacket
     std::int64_t mPts = 0;          // presentation timestamp, ms since Unix epoch
     unsigned int mFrames = 0;       // per-channel frame count (not a total sample count)
     unsigned int mChannels = 0;
+    unsigned int mSampleRate = 0;   // from the stream's own kAudioStreamStarted, e.g. 44100
     std::vector<float> mSamples;    // size == mChannels * mFrames, planar/channel-major
 };
 
@@ -410,10 +411,12 @@ class LLEmbeddedBrowserTab
         std::deque<LLEmbeddedBrowserAudioPacket> mAudioPackets;
         // Cached from the most recent kAudioStreamStarted so kAudioPacket's own unpack
         // knows how many channels its planar data holds (not repeated per-packet on the
-        // wire -- see cefshm_protocol.h's own comment). Only ever touched from this
-        // tab's own update thread, never concurrently, so unlike mAudioPackets above it
-        // needs no lock of its own.
+        // wire -- see cefshm_protocol.h's own comment), and so each popped packet can
+        // carry the real sample rate too. Only ever touched from this tab's own update
+        // thread, never concurrently, so unlike mAudioPackets above these need no lock
+        // of their own.
         unsigned int mAudioChannels = 0;
+        unsigned int mAudioSampleRate = 0;
 };
 
 class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {

@@ -2757,6 +2757,19 @@ void LLViewerMediaImpl::updateVolume()
                     LLEmbeddedBrowser::getInstance()->setVolume(mEmbeddedBrowserId, send_volume);
                 }
             }
+            else if (gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"))
+            {
+                // Raw PCM capture (CefAudioHandler) is on for this tab -- its native CEF
+                // audio output was muted once, permanently, at slot-creation time in
+                // llcefproducer.cpp specifically to avoid double playback once the
+                // colleague's OpenAL path takes over. Neither the hard setMuted() cutoff
+                // nor the JS-injected volume approximation below belong here any more --
+                // sending setMuted(false) as a capturing tab comes back into proximity
+                // range would silently un-mute its native output again (real double
+                // playback), and the JS hack would attenuate the very audio this path is
+                // supposed to deliver at full level for the Viewer's own distance/volume
+                // handling (on the captured PCM, via OpenAL) to apply once, not twice.
+            }
             else
             {
                 // CEF's public API has no continuous per-browser volume level (audio
@@ -4411,12 +4424,11 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
             if (state.samples.empty())
             {
                 state.channels = packet.mChannels;
+                // Real rate, now threaded through LLEmbeddedBrowserAudioPacket itself
+                // (was hardcoded here, guessed wrong at first -- 48000 instead of CEF's
+                // real 44100 -- which made captured audio play back slightly fast/sharp).
+                state.sampleRate = packet.mSampleRate;
             }
-            // CEF's own sample rate isn't threaded through LLEmbeddedBrowserAudioPacket
-            // (only frames/channels/pts are) -- 48000 matches CEF's own common default
-            // and is good enough for this throwaway test; not worth plumbing the real
-            // value through just for a diagnostic.
-            state.sampleRate = 48000;
 
             const std::size_t base = state.samples.size();
             state.samples.resize(base + packet.mSamples.size());
@@ -4451,7 +4463,11 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                 break;
 
             case LLEmbeddedBrowserEventType::LoadEnd:
-                if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef)
+                // See updateVolume()'s own comment -- a raw-PCM-capturing tab's native
+                // audio stays permanently muted and untouched by the JS volume hack,
+                // so there's nothing for this setup script to usefully do there.
+                if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef &&
+                    !gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"))
                 {
                     // A fresh page has a fresh DOM/JS global scope -- any earlier
                     // MutationObserver this tab registered is gone with it, so the
