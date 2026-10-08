@@ -981,9 +981,12 @@ lock-free single-producer/single-consumer ring, so **playback never depends
 on the main thread's frame rate**. The main thread only ever sets gain and
 position.
 
-**Buffering.** Playback starts once `EmbeddedBrowserAudioPrebufferMs` (40ms
+**Buffering.** Playback starts once `EmbeddedBrowserAudioPrebufferMs` (60ms
 default) is queued, and re-prebuffers after running dry rather than
-stuttering. The stream plays at whatever sample rate it's fed (OpenAL
+stuttering. 60ms rather than the original 40ms because real CEF capture
+arrives in ~23ms packets with some timing jitter, which at 40ms showed up as
+an underrun every 7-25 seconds per stream with several YouTube prims
+playing. The stream plays at whatever sample rate it's fed (OpenAL
 resamples to the device); a rate change is picked up on the main thread by
 the engine's per-frame `idle()`, which re-specifies the callback buffer. If more than 200ms builds up (producer and sound-card clocks
 drifting apart, or a stall), the oldest audio is skipped back down to the
@@ -1011,7 +1014,7 @@ uncaptured media fade identically. Master volume is left out of that gain
 
 **Settings.**
 - `EmbeddedBrowserAudioViaViewer` - request capture for new tabs (on).
-- `EmbeddedBrowserAudioPrebufferMs` - see Buffering (40).
+- `EmbeddedBrowserAudioPrebufferMs` - see Buffering (60).
 
 Both take effect for tabs created after the change - pass them as
 `--set <name> <value>` to be sure they're in effect from startup.
